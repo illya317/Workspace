@@ -6,11 +6,23 @@ import type { SessionUser } from "../types";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 
-export default function UserMenu({ user }: { user: SessionUser | null }) {
+export default function UserMenu({
+  user,
+  onBeforeNavigate,
+}: {
+  user: SessionUser | null;
+  onBeforeNavigate?: (href: string) => boolean | Promise<boolean>;
+}) {
   const router = useRouter();
   const displayName = user?.employeeName || user?.nickname;
 
+  async function navigate(href: string) {
+    if (onBeforeNavigate && !(await onBeforeNavigate(href))) return;
+    router.push(href);
+  }
+
   async function handleLogout() {
+    if (onBeforeNavigate && !(await onBeforeNavigate("/login"))) return;
     await fetch(`${BASE_PATH}/api/auth/dev-login`, { method: "DELETE" }).catch(() => {});
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     router.push("/login");
@@ -36,7 +48,7 @@ export default function UserMenu({ user }: { user: SessionUser | null }) {
         </>
       }
       items={[
-        { label: "设置", onSelect: () => router.push("/settings") },
+        { label: "设置", onSelect: () => void navigate("/settings") },
         { label: "登出", tone: "danger", separatorBefore: true, onSelect: handleLogout },
       ]}
     />

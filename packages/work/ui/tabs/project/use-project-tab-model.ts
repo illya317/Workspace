@@ -41,7 +41,7 @@ const PROJECT_CONTENT_SYNC_FIELDS = [
 
 const PROJECT_MANAGE_SYNC_FIELDS = ["leadingDepartmentId"] as const;
 
-export function useProjectTabModel(user: WorkUser) {
+export function useProjectTabModel(user: WorkUser, initialProjectId?: number | null) {
   const canEdit = workCanEdit(user);
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [entries, setEntries] = useState<ProjectMemberEntry[]>([]);
@@ -93,13 +93,21 @@ export function useProjectTabModel(user: WorkUser) {
       const nextProjects = (projectData.projects || []) as ProjectItem[];
       setProjects(nextProjects);
       setEntries((entryData.entries || []) as ProjectMemberEntry[]);
-      setSelection((prev) => nextProjects.some((project) => project.id === prev) ? prev : null);
+      const requestedProject = initialProjectId
+        ? nextProjects.find((project) => project.id === initialProjectId)
+        : null;
+      if (requestedProject) {
+        setProjectListFilter(filterForProjectType(requestedProject.projectType));
+        setSelection(requestedProject.id);
+      } else {
+        setSelection((prev) => nextProjects.some((project) => project.id === prev) ? prev : null);
+      }
     } catch {
       setError("项目加载失败");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [initialProjectId]);
 
   useEffect(() => { loadData(); }, [loadData]);
 

@@ -391,6 +391,7 @@ export const ModelName = {
   UserResourceRole: 'UserResourceRole',
   PositionResourceRole: 'PositionResourceRole',
   DepartmentResourceRole: 'DepartmentResourceRole',
+  Notification: 'Notification',
   Contract: 'Contract',
   FinanceBudgetVersion: 'FinanceBudgetVersion',
   FinanceBudgetDept: 'FinanceBudgetDept',
@@ -455,6 +456,7 @@ export const ModelName = {
   LoginAttempt: 'LoginAttempt',
   Project: 'Project',
   EmployeeProject: 'EmployeeProject',
+  ProjectTask: 'ProjectTask',
   WorkItem: 'WorkItem',
   WorkParticipant: 'WorkParticipant',
   DepartmentWorkAssignee: 'DepartmentWorkAssignee',
@@ -474,7 +476,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "contract" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementReview" | "financeStatementReviewLine" | "departmentDescription" | "positionDescription" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryDocument" | "libraryDocumentVersion" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "report" | "reportItem" | "reportHistory" | "systemConfig" | "loginAttempt" | "project" | "employeeProject" | "workItem" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
+    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "notification" | "contract" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementReview" | "financeStatementReviewLine" | "departmentDescription" | "positionDescription" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryDocument" | "libraryDocumentVersion" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "report" | "reportItem" | "reportHistory" | "systemConfig" | "loginAttempt" | "project" | "employeeProject" | "projectTask" | "workItem" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -993,6 +995,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.DepartmentResourceRoleCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DepartmentResourceRoleCountAggregateOutputType> | number
+        }
+      }
+    }
+    Notification: {
+      payload: Prisma.$NotificationPayload<ExtArgs>
+      fields: Prisma.NotificationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NotificationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NotificationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>
+        }
+        findFirst: {
+          args: Prisma.NotificationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NotificationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>
+        }
+        findMany: {
+          args: Prisma.NotificationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>[]
+        }
+        create: {
+          args: Prisma.NotificationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>
+        }
+        createMany: {
+          args: Prisma.NotificationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NotificationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>[]
+        }
+        delete: {
+          args: Prisma.NotificationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>
+        }
+        update: {
+          args: Prisma.NotificationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>
+        }
+        deleteMany: {
+          args: Prisma.NotificationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NotificationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NotificationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>[]
+        }
+        upsert: {
+          args: Prisma.NotificationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>
+        }
+        aggregate: {
+          args: Prisma.NotificationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNotification>
+        }
+        groupBy: {
+          args: Prisma.NotificationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NotificationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NotificationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NotificationCountAggregateOutputType> | number
         }
       }
     }
@@ -5732,6 +5808,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProjectTask: {
+      payload: Prisma.$ProjectTaskPayload<ExtArgs>
+      fields: Prisma.ProjectTaskFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProjectTaskFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTaskPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProjectTaskFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTaskPayload>
+        }
+        findFirst: {
+          args: Prisma.ProjectTaskFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTaskPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProjectTaskFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTaskPayload>
+        }
+        findMany: {
+          args: Prisma.ProjectTaskFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTaskPayload>[]
+        }
+        create: {
+          args: Prisma.ProjectTaskCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTaskPayload>
+        }
+        createMany: {
+          args: Prisma.ProjectTaskCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProjectTaskCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTaskPayload>[]
+        }
+        delete: {
+          args: Prisma.ProjectTaskDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTaskPayload>
+        }
+        update: {
+          args: Prisma.ProjectTaskUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTaskPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProjectTaskDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProjectTaskUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProjectTaskUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTaskPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProjectTaskUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTaskPayload>
+        }
+        aggregate: {
+          args: Prisma.ProjectTaskAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProjectTask>
+        }
+        groupBy: {
+          args: Prisma.ProjectTaskGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectTaskGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProjectTaskCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectTaskCountAggregateOutputType> | number
+        }
+      }
+    }
     WorkItem: {
       payload: Prisma.$WorkItemPayload<ExtArgs>
       fields: Prisma.WorkItemFieldRefs
@@ -6157,6 +6307,27 @@ export const DepartmentResourceRoleScalarFieldEnum = {
 } as const
 
 export type DepartmentResourceRoleScalarFieldEnum = (typeof DepartmentResourceRoleScalarFieldEnum)[keyof typeof DepartmentResourceRoleScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  recipientUserId: 'recipientUserId',
+  actorUserId: 'actorUserId',
+  type: 'type',
+  title: 'title',
+  body: 'body',
+  href: 'href',
+  payloadJson: 'payloadJson',
+  isImportant: 'isImportant',
+  readAt: 'readAt',
+  acknowledgedAt: 'acknowledgedAt',
+  rejectedAt: 'rejectedAt',
+  clearedAt: 'clearedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
 export const ContractScalarFieldEnum = {
@@ -7391,6 +7562,27 @@ export const EmployeeProjectScalarFieldEnum = {
 export type EmployeeProjectScalarFieldEnum = (typeof EmployeeProjectScalarFieldEnum)[keyof typeof EmployeeProjectScalarFieldEnum]
 
 
+export const ProjectTaskScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  isMilestone: 'isMilestone',
+  ownerEmployeeId: 'ownerEmployeeId',
+  description: 'description',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  predecessorTaskId: 'predecessorTaskId',
+  sortOrder: 'sortOrder',
+  createdBy: 'createdBy',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProjectTaskScalarFieldEnum = (typeof ProjectTaskScalarFieldEnum)[keyof typeof ProjectTaskScalarFieldEnum]
+
+
 export const WorkItemScalarFieldEnum = {
   id: 'id',
   targetType: 'targetType',
@@ -7612,6 +7804,7 @@ export type GlobalOmitConfig = {
   userResourceRole?: Prisma.UserResourceRoleOmit
   positionResourceRole?: Prisma.PositionResourceRoleOmit
   departmentResourceRole?: Prisma.DepartmentResourceRoleOmit
+  notification?: Prisma.NotificationOmit
   contract?: Prisma.ContractOmit
   financeBudgetVersion?: Prisma.FinanceBudgetVersionOmit
   financeBudgetDept?: Prisma.FinanceBudgetDeptOmit
@@ -7676,6 +7869,7 @@ export type GlobalOmitConfig = {
   loginAttempt?: Prisma.LoginAttemptOmit
   project?: Prisma.ProjectOmit
   employeeProject?: Prisma.EmployeeProjectOmit
+  projectTask?: Prisma.ProjectTaskOmit
   workItem?: Prisma.WorkItemOmit
   workParticipant?: Prisma.WorkParticipantOmit
   departmentWorkAssignee?: Prisma.DepartmentWorkAssigneeOmit

@@ -173,7 +173,10 @@ export default function EmployeeProfileView({
               const ok = await confirmDelete({ message: `确定删除这条岗位记录${row.positionName ? `（${row.positionName}）` : ""}吗？` });
               if (!ok) return;
               setError(null);
-              setEdps((rows) => rows.filter((_, i) => i !== index));
+              setEdps((rows) => {
+                const nextRows = rows.filter((_, i) => i !== index);
+                return nextRows.length > 0 ? nextRows : [newEdp(profile)];
+              });
             }}
           />
         )}

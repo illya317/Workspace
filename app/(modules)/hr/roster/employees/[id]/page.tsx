@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
-import AppShell from "@workspace/platform/ui/AppShell";
 import { requireRouteAccess } from "@workspace/platform/server/auth";
-import { EmployeeProfileClient } from "@workspace/hr/ui";
+import { EmployeeProfilePageClient } from "@workspace/hr/ui";
 import type { HRUser } from "@workspace/hr/types";
 
 interface Props {
@@ -24,9 +23,5 @@ export default async function EmployeeProfilePage({ params }: Props) {
   const employeeKey = decodeURIComponent(id).trim();
   if (!employeeKey) notFound();
 
-  return (
-    <AppShell title="员工资料" backHref="/hr/roster" user={user}>
-      <EmployeeProfileClient employeeId={employeeKey} user={toHRUser(user)} />
-    </AppShell>
-  );
+  return <EmployeeProfilePageClient employeeId={employeeKey} user={user} hrUser={toHRUser(user)} />;
 }

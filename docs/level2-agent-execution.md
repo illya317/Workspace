@@ -70,7 +70,7 @@ Level 2 任务必须按依赖执行，常见顺序如下：
 | 页面设计壳收口 | 先确认 `packages/core/ui/component-registry.ts` 是否已有 PageShell/PageContent/PanelCard/SectionCard/SplitWorkspace/DataTable/FilterToolbar 等入口 -> 缺失则 Architecture/Core 先登记并导出 -> Feature 改业务页消费 Core -> 删除业务包内手写 `bg-white + rounded + shadow/border` 页面壳 -> ratchet `pageDesignDriftFiles` baseline |
 | Core UI 新入口 | 先实现 Core primitive/page shell -> 写入 `packages/core/ui/component-registry.ts` 并补中文 `description`、中文 `example` 和 `includes` 组合信息 -> 从 `packages/core/ui/index.ts` 导出 -> 如需可视化示例则在 `RegistryBrowserCard` 的 `ComponentPreview` 增加 case -> 跑 `arch:gate` 确认 `unregisteredCoreUiExports` 和 `duplicateCoreUiRegistrations` 仍为 0 |
 | module/API contract 漂移 | 先更新 module registry 或 API contract -> route/service 对齐 -> 跑 `arch:level2` 确认无新增漂移 -> 跑 `arch:gate` |
-| 旧目录迁移 | 先在 package 建真实实现 -> 旧 `app/components`、`app/hooks`、`lib` 改 re-export -> 更新 import -> 删除无引用旧文件 |
+| 旧实现迁移 | 先在 package 建真实实现 -> 更新 import -> 删除无引用旧文件 -> ratchet baseline |
 
 优先级固定为：
 

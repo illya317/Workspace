@@ -66,7 +66,7 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 - **Platform 主体**：放登录、权限、资源树、模块注册、导航、审计、用户账号、Portal 和平台页面壳；可以聚合模块注册，但不写 HR/生产/财务的业务规则。
 - **Apps 业务包**：HR、Production、Finance、Work 等各自拥有自己的 `ui/server/types/constants/import`，业务查询、校验、导入、DTO 和页面组件都要逐步下沉到对应包。
 
-旧的 `app/`、`app/api/`、`lib/`、`server/services/` 现在主要承担 Next 路由壳、兼容 re-export 或待迁移旧代码。新增和重构时不能继续按旧思路把业务逻辑堆在 route、把通用组件留在 `app/components`、把 HR service 依赖 app-root `lib`；必须顺着包边界迁移。
+`app/` 和 `app/api/` 只承担 Next 路由壳。新增和重构时不能继续按旧思路把业务逻辑堆在 route；必须顺着包边界迁移。
 
 | 层级 | 目录 | 职责 |
 |---|---|---|
@@ -79,11 +79,9 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 | 旧业务服务 | `server/services/<domain>/` | 存量兼容/待迁移旧代码；新增业务 service 不再优先放这里 |
 | 认证权限 | `@workspace/platform/server/auth`, `@workspace/platform/permissions`, `packages/platform/server/auth/`, `packages/platform/server/rbac/` | 登录、session、RBAC、资源树；新代码使用 Platform 契约 |
 | 数据库 | `prisma/` | Prisma schema、migration、seed |
-| 共享前端兼容层 | `app/components/`, `app/hooks/` | 存量兼容 re-export；新增通用 UI/hook 必须进 Core 或 Platform |
-| 共享工具兼容层 | `lib/` | 存量兼容 re-export；新增 runtime 能力必须进 Core、Platform 或对应业务包 |
 | 文档治理 | `docs/`, `app/*/ARCHITECTURE.md` | 项目地图和模块边界 |
 
-新增业务模块必须先建立 package 边界。例如绩效模块应使用 `packages/performance/{module,ui,server,types,constants,import}` 承载实现，再由 `app/performance/` 和 `app/api/performance/` 提供薄路由壳。禁止把新模块塞进 HR、Finance、通用 `lib/` 或 route 文件里借壳生长。
+新增业务模块必须先建立 package 边界。例如绩效模块应使用 `packages/performance/{module,ui,server,types,constants,import}` 承载实现，再由 `app/(modules)/performance/<l2>/` 和 `app/api/modules/performance/<l2>/` 提供薄路由壳。禁止把新模块塞进 HR、Finance 或 route 文件里借壳生长。
 
 ### Agent 接力和文件隔离
 
@@ -191,17 +189,17 @@ rm data/dev.db && npx prisma db push
 |------|------|------|
 | 登录 | `/login` | 公开 |
 | 入口 | `/portal` | 登录 |
-| 工作汇报 | `/work/reports` | `work.access`（登录用户默认有效，L2 继承） |
-| 历史记录 | `/work/history` | `work.access`（登录用户默认有效，L2 继承） |
-| 工作清单 | `/work/tasks` | `work.access`（登录用户默认有效，L2 继承） |
+| 工作汇报 | `/work/reports` | `work.access` |
+| 历史记录 | `/work/history` | `work.access` |
+| 工作清单 | `/work/tasks` | `work.access` |
 | 人事行政 | `/hr` | `hr.access` |
-| 管理后台 | `/settings/admin` | `settings.admin.access`（任意 active resource 管理员默认有效） |
-| 账号与接入 | `/settings/account` | `settings.account.access`（登录用户默认有效） |
+| 管理后台 | `/settings/admin` | `settings.admin.access` |
+| 账号与接入 | `/settings/account` | `settings.account.access` |
 | 个人 API 使用 | `/settings/account` | `settings.account.apiAccess.access`（业务 API 仍按目标 resource 授权） |
 | 设置 | `/settings` | 登录 |
 | 智能助手 | `/api/agent` | 登录，权限随用户 |
 | 外部关系 | `/external` | `external.access` |
-| 文档中心 | `/docs` | `docs.access`（登录用户默认有效） |
+| 文档中心 | `/docs` | `docs.access` |
 | 资料库 | `/library` | `library.access` |
 | 财务数据 | `/finance` | `finance.access` |
 | 成本管理 | `/finance/cost` | `finance.access` 或 `finance.cost.access` |

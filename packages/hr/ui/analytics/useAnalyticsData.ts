@@ -141,7 +141,7 @@ export function useAnalyticsData() {
           fetch(workspacePath("/api/modules/hr/roster/positions?pageSize=500")).then((r) => r.json()),
           fetch(workspacePath("/api/modules/hr/roster/edps?pageSize=500")).then((r) => r.json()),
           fetch(workspacePath("/api/modules/hr/roster/employments?pageSize=500")).then((r) => r.json()),
-          fetch(workspacePath("/api/modules/hr/roster/contracts?pageSize=500")).then((r) => r.json()),
+          fetch(workspacePath("/api/modules/hr/roster/contracts?pageSize=500&isActive=true")).then((r) => r.json()),
         ]);
 
         setData({

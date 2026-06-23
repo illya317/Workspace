@@ -54,6 +54,11 @@ export type PositionResourceRole = Prisma.PositionResourceRoleModel
  */
 export type DepartmentResourceRole = Prisma.DepartmentResourceRoleModel
 /**
+ * Model Notification
+ * 站内通知/待确认事项
+ */
+export type Notification = Prisma.NotificationModel
+/**
  * Model Contract
  * 合同管理（事实：合同基本信息、金额、状态）
  */
@@ -390,6 +395,11 @@ export type Project = Prisma.ProjectModel
  * 员工-项目关联
  */
 export type EmployeeProject = Prisma.EmployeeProjectModel
+/**
+ * Model ProjectTask
+ * 项目任务计划
+ */
+export type ProjectTask = Prisma.ProjectTaskModel
 /**
  * Model WorkItem
  * 工作清单条目

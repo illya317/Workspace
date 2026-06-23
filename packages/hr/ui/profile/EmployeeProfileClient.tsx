@@ -39,9 +39,11 @@ type ProfileSection = "basic" | "employment" | "edp" | "history";
 
 export default function EmployeeProfileClient({
   employeeId,
+  onDirtyChange,
   user,
 }: {
   employeeId: string;
+  onDirtyChange?: (dirty: boolean) => void;
   user: HRUser;
 }) {
   const router = useRouter();
@@ -118,6 +120,10 @@ export default function EmployeeProfileClient({
   }, [contracts, edps, employeeDraft, employments, profile]);
   const confirmNavigation = useUnsavedChangesPrompt(dirtyState.all);
 
+  useEffect(() => {
+    onDirtyChange?.(dirtyState.all);
+  }, [dirtyState.all, onDirtyChange]);
+
   async function showSavePrompt(title: string, text: string, danger: boolean) {
     await confirm({
       title,
@@ -164,6 +170,12 @@ export default function EmployeeProfileClient({
     if (canLeave) router.push("/hr/roster");
   }
 
+  async function changeSection(section: ProfileSection) {
+    if (section === activeSection) return;
+    const canLeave = await confirmNavigation();
+    if (canLeave) setActiveSection(section);
+  }
+
   function updateEmployeeField(key: string, value: unknown, option?: FkFieldOption) {
     setEmployeeDraft((current) => {
       if (!current) return current;
@@ -186,7 +198,7 @@ export default function EmployeeProfileClient({
       canEdit={canEdit}
       saving={saving}
       activeSection={activeSection}
-      onSectionChange={setActiveSection}
+      onSectionChange={(section) => void changeSection(section)}
       dirtyState={dirtyState}
       employments={employments}
       contracts={contracts}

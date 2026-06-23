@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { workspacePath } from "@workspace/core/routing";
 import UserMenu from "./UserMenu";
-import { ActionButton, PageShell } from "@workspace/core/ui";
+import NotificationBell from "./NotificationBell";
+import { ActionButton, PageShell, useUnsavedChangesPrompt } from "@workspace/core/ui";
 import type { SessionUser } from "../types";
 import type { ReactNode } from "react";
 
@@ -16,22 +17,29 @@ interface Props {
   backLabel?: string;
   /** 顶部栏的跨页导航链接（如工作汇报/工作清单/历史记录） */
   navLinks?: NavLinkDef[];
+  hasUnsavedChanges?: boolean;
   user: SessionUser;
   children: ReactNode;
 }
 
-export default function AppShell({ title, backHref, backLabel, navLinks, user, children }: Props) {
+export default function AppShell({ title, backHref, backLabel, navLinks, hasUnsavedChanges = false, user, children }: Props) {
   const router = useRouter();
+  const confirmNavigation = useUnsavedChangesPrompt(hasUnsavedChanges);
+
+  async function navigate(href: string) {
+    if (!(await confirmNavigation())) return;
+    router.push(href);
+  }
 
   return (
     <PageShell
       title={title}
       backLabel={backLabel}
-      onBack={() => router.push(backHref)}
-      actions={navLinks?.map((link) => ({ label: link.label, onClick: () => router.push(link.href) }))}
+      onBack={() => void navigate(backHref)}
+      actions={navLinks?.map((link) => ({ label: link.label, onClick: () => void navigate(link.href) }))}
       leading={(
         <ActionButton
-          onClick={() => router.push("/portal")}
+          onClick={() => void navigate("/portal")}
           className="flex-shrink-0 border-0 bg-transparent p-0 shadow-none hover:bg-transparent"
           aria-label="返回入口"
         >
@@ -44,7 +52,12 @@ export default function AppShell({ title, backHref, backLabel, navLinks, user, c
           />
         </ActionButton>
       )}
-      trailing={<UserMenu user={user} />}
+      trailing={(
+        <div className="flex items-center gap-2">
+          <NotificationBell onBeforeNavigate={() => confirmNavigation()} />
+          <UserMenu user={user} onBeforeNavigate={() => confirmNavigation()} />
+        </div>
+      )}
     >
       {children}
     </PageShell>

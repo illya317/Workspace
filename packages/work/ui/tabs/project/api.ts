@@ -6,6 +6,8 @@ import {
   type ProjectDraft,
   type ProjectMemberEntry,
   type ProjectRole,
+  type ProjectTaskDraft,
+  type ProjectTaskItem,
 } from "./model";
 
 export async function createProject(draft: ProjectDraft) {
@@ -151,5 +153,59 @@ export async function syncMembers(projectId: number, nextDraft: ProjectDraft, en
     } else if (normalizeProjectRole(entry.role) !== role) {
       await updateMemberRole(entry.id, role);
     }
+  }
+}
+
+function projectTaskPayload(draft: ProjectTaskDraft) {
+  return {
+    description: draft.description,
+    isMilestone: draft.isMilestone,
+    ownerEmployeeId: draft.ownerEmployeeId,
+    startDate: draft.startDate,
+    endDate: draft.endDate,
+    predecessorTaskId: draft.predecessorTaskId,
+    sortOrder: draft.sortOrder,
+  };
+}
+
+export async function listProjectTasks(projectId: number) {
+  const res = await fetch(workspacePath(`/api/modules/work/projects/${projectId}/tasks`));
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "加载项目任务失败");
+  }
+  const data = await res.json();
+  return (data.tasks || []) as ProjectTaskItem[];
+}
+
+export async function createProjectTask(projectId: number, draft: ProjectTaskDraft) {
+  const res = await fetch(workspacePath(`/api/modules/work/projects/${projectId}/tasks`), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(projectTaskPayload(draft)),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "新建项目任务失败");
+  }
+}
+
+export async function updateProjectTask(projectId: number, taskId: number, draft: ProjectTaskDraft) {
+  const res = await fetch(workspacePath(`/api/modules/work/projects/${projectId}/tasks/${taskId}`), {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(projectTaskPayload(draft)),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "保存项目任务失败");
+  }
+}
+
+export async function deleteProjectTask(projectId: number, taskId: number) {
+  const res = await fetch(workspacePath(`/api/modules/work/projects/${projectId}/tasks/${taskId}`), { method: "DELETE" });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "删除项目任务失败");
   }
 }

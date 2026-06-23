@@ -96,8 +96,6 @@ export interface TabConfig {
 - `searchEmployeesForAccountLink(keyword)` — 员工账号关联搜索
 - `EntitySearchInput` — HR 实体选择输入，字段展示和搜索面板解耦
 
-旧 `app/components/SearchBox` / `app/hooks/useSearch` 已废弃，并由 `npm run arch:check` 禁止复活。
-
 ## API 路由规范
 
 HR API 在 `app/api/modules/hr/roster/` 下，采用统一 CRUD 模板：

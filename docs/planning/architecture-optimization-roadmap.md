@@ -151,7 +151,7 @@ npm run build
   - `/api/modules/work/plans` → `/api/modules/hr/roster/projects`
   - `/api/modules/work/plan-members` → `/api/modules/hr/roster/employee-projects`
 - 前端已全部迁移到 `/api/modules/hr/roster/*`：
-  - 旧 `app/hooks/useSearch.ts` 已删除；HR 实体搜索走 `@workspace/hr/ui` 的 `EntitySearchInput` 和 `@workspace/hr/server` 的搜索 service
+  - HR 实体搜索走 `@workspace/hr/ui` 的 `EntitySearchInput` 和 `@workspace/hr/server` 的搜索 service
   - `RosterTab.tsx` → `/api/modules/hr/roster`
   - `useCodeData.ts` → `/api/modules/hr/roster`
 - `docs/generated/api.md` 已更新：旧 API 单独列为"兼容层（已废弃）"。

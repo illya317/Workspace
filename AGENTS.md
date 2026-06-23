@@ -22,7 +22,6 @@ app/*                         只做 Next route shell
 - `app/(modules)/<domain>/**/page.tsx`：页面壳，只鉴权/预取/挂 package UI。
 - `app/api/modules/<domain>/**/route.ts`：API 壳，只认证、权限、Zod 参数、调 service、返回 DTO。
 - `app/(system)/**`、`app/api/settings/**`：平台系统页/API。
-- 旧 `app/components`、`app/hooks`、`lib` 只能做兼容 re-export，不放新实现。
 
 ## 先按角色开工
 
@@ -53,11 +52,11 @@ app/*                         只做 Next route shell
 4. **写入三段式**：写入入口固定为 `Zod schema -> domain validator -> service/Prisma`。Zod 只校验请求形状并 strip；domain 只 pick 业务可写字段并校验 FK/状态/归属/跨字段规则；service 只接已验证 command，负责事务、版本、审计和落库。
 5. **app 不是实现层**：页面组件、hook、表格、弹窗、业务计算、Prisma 写入都不能新增在 `app/` route 文件里。
 6. **删除也要同步**：删 L1/L2 时同步删 app route、API route、registry child/resourceKey、docs；跑 `scripts/seed-resources.ts` 清 stale resource。
-7. **Work/Docs 默认入口**：登录用户默认有效 `settings.account.access`、`work.access`、`docs.access`；`work/docs` 默认 L1 access 继承到普通 L2，不授予 capability。
 
 ## 检查
 
+- 不要每个小改都高频跑完整检查；部署前、一个任务收口、或多文件/大量改动时按风险跑。
 - 架构、权限、registry、API、Core/Platform 基建：跑 `npm run arch:gate`。
 - 普通 TS/TSX：跑 `npm run lint:changed` 和 `npm run typecheck:quick`。
-- 文档：跑 `npm run docs:check`。
+- 文档改动：跑 `npm run docs:check`。
 - 提交前必须看 `git status --short`，只 stage 本任务文件；不要回滚、格式化或提交别人的改动。

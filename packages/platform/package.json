@@ -39,6 +39,7 @@
     "./server/history": "./server/history.ts",
     "./server/module-runtime": "./server/module-runtime.ts",
     "./server/module-management": "./server/module-management.ts",
+    "./server/notifications": "./server/notifications.ts",
     "./server/open-api": "./server/open-api/index.ts",
     "./server/open-api/*": "./server/open-api/*.ts",
     "./server/permissions": "./server/permissions.ts",

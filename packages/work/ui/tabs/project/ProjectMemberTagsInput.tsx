@@ -53,6 +53,8 @@ export default function ProjectMemberTagsInput({
             label={`删除项目人员 ${member.name}`}
             confirmMessage={`确定删除项目人员「${member.name}」吗？删除后需要保存才会生效。`}
             disabled={disabled}
+            title={member.confirmationStatus === "pending" ? `${member.name}：待确认` : member.name}
+            className={member.confirmationStatus === "pending" ? "!border-amber-200 !bg-amber-50 !text-amber-800 shadow-amber-100" : ""}
             onRemove={() => remove(member.id)}
           >
             {member.name}

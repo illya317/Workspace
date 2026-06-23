@@ -12,7 +12,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
   const parsedParams = await parseRouteIdParams(params);
   if (!parsedParams) return Response.json({ error: "ID 无效" }, { status: 400 });
-  return updateProjectMemberField(new Request(request, { body: JSON.stringify(parsedBody.data) }), Promise.resolve(parsedParams));
+  return updateProjectMemberField(new Request(request.url, {
+    method: request.method,
+    headers: request.headers,
+    body: JSON.stringify(parsedBody.data),
+  }), Promise.resolve(parsedParams));
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { CommandToolbar, EmptyStateCard, IconActionButton, Toast, ToolbarOptionGroup, WorkspaceSplitPage, useConfirmDelete } from "@workspace/core/ui";
 import type { WorkUser } from "@workspace/work/types";
 import ProjectDetailEditor from "./project/ProjectDetailEditor";
@@ -8,7 +9,9 @@ import { PROJECT_LIST_FILTER_OPTIONS, type ProjectListFilter } from "./project/m
 import { useProjectTabModel } from "./project/use-project-tab-model";
 
 export default function ProjectTab({ user }: { user: WorkUser }) {
-  const model = useProjectTabModel(user);
+  const searchParams = useSearchParams();
+  const requestedProjectId = Number(searchParams.get("projectId") || "");
+  const model = useProjectTabModel(user, Number.isInteger(requestedProjectId) && requestedProjectId > 0 ? requestedProjectId : null);
   const confirmDelete = useConfirmDelete();
   const editorTitle = model.creating ? "新建项目" : model.selectedProject ? "项目信息" : "项目详情";
   const startDepartmentProjectCreate = () => {
@@ -99,6 +102,7 @@ export default function ProjectTab({ user }: { user: WorkUser }) {
           onDraftChange={model.updateDraft}
           onLeaderChange={model.setLeader}
           onRoleMembersChange={model.setRoleMembers}
+          onToast={model.setToast}
         />
       </WorkspaceSplitPage>
 

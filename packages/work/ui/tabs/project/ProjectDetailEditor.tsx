@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   ActionToolbar,
   FkFieldInput,
@@ -7,6 +8,7 @@ import {
   OptionPicker,
   PanelCard,
   SectionCard,
+  TabBar,
   TextareaField,
   TextField,
   getFieldInputClassName,
@@ -19,6 +21,7 @@ import ProjectGanttSection from "./ProjectGanttSection";
 import ProjectMemberTagsInput from "./ProjectMemberTagsInput";
 import ProjectRasciMatrix from "./ProjectRasciMatrix";
 import type { ProjectRasciRow } from "./ProjectRasciMatrix";
+import ProjectTasksSection from "./ProjectTasksSection";
 import {
   MULTI_PROJECT_ROLES,
   PROJECT_MILESTONE_PICKER_OPTIONS,
@@ -59,6 +62,7 @@ export default function ProjectDetailEditor({
   onDraftChange,
   onLeaderChange,
   onRoleMembersChange,
+  onToast,
 }: {
   editorTitle: string;
   dirty: boolean;
@@ -80,7 +84,10 @@ export default function ProjectDetailEditor({
   onDraftChange: <K extends keyof ProjectDraft>(key: K, value: ProjectDraft[K]) => void;
   onLeaderChange: (option?: FkFieldOption) => void;
   onRoleMembersChange: (role: MultiProjectRole, members: EmployeeTag[]) => void;
+  onToast: (toast: { type: "success" | "error"; message: string }) => void;
 }) {
+  const [activeTab, setActiveTab] = useState("overview");
+
   return (
     <PanelCard className="bg-slate-50" bodyClassName="p-4">
       <ActionToolbar
@@ -104,118 +111,147 @@ export default function ProjectDetailEditor({
 
       {draft ? (
         <div className="space-y-4">
-          <SectionCard title="基础信息">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <FormField label="项目编码">
-                <TextField
-                  value={projectCode(selectedProject, draft)}
-                  readOnly
-                  className={getReadOnlyFieldClassName("h-10 cursor-default font-mono text-slate-600")}
-                  unstyled
-                />
-              </FormField>
-              <OptionField
-                label="项目类型"
-                value={draft.projectType}
-                options={creating ? TOP_LEVEL_PROJECT_TYPE_OPTIONS : PROJECT_TYPE_OPTIONS}
-                disabled={!creating}
-                onChange={(value) => onDraftChange("projectType", (value || "department") as ProjectType)}
-                placeholder="选择项目类型"
-              />
-              <FormField label="项目名称" required>
-                <TextField
-                  value={draft.name}
-                  disabled={!canManageCurrent}
-                  onChange={(value) => onDraftChange("name", value)}
-                  className={inputClassName}
-                  unstyled
-                />
-              </FormField>
-              <FormField label="主导部门" required={draft.projectType === "department"}>
-                <FkFieldInput
-                  fkKey="work.projects.leadingDepartment"
-                  endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
-                  value={draft.leadingDepartmentId ? String(draft.leadingDepartmentId) : ""}
-                  displayValue={draft.leadingDepartmentName || ""}
-                  disabled={!canManageCurrent || draft.projectType !== "department"}
-                  placeholder="搜索部门名称、编码"
-                  onChange={(_label, option) => {
-                    onDraftChange("leadingDepartmentId", option?.id ?? null);
-                    onDraftChange("leadingDepartmentName", option?.name ?? null);
-                    onDraftChange("leadingDepartmentCode", option?.subtitle ?? null);
-                  }}
-                />
-              </FormField>
-              <OptionField label="项目状态" value={draft.status} options={PROJECT_STATUS_PICKER_OPTIONS} disabled={!canEditCurrent} onChange={(value) => onDraftChange("status", value)} />
-              <OptionField
-                label="是否里程碑"
-                value={draft.isMilestone ? "true" : "false"}
-                options={PROJECT_MILESTONE_PICKER_OPTIONS}
-                disabled={!canEditCurrent}
-                onChange={(value) => onDraftChange("isMilestone", value === "true")}
-                popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-56 rounded-lg border border-slate-200 bg-white p-3 shadow-xl"
-              />
-              <DateField label="项目开始时间" value={draft.startDate} disabled={!canEditCurrent} onChange={(value) => onDraftChange("startDate", value)} />
-              <DateField label="项目结束时间" value={draft.endDate} disabled={!canEditCurrent} onChange={(value) => onDraftChange("endDate", value)} />
-              <FormField label="项目描述" className="md:col-span-2">
-                <TextareaField
-                  value={draft.description || ""}
-                  disabled={!canEditCurrent}
-                  onChange={(value) => onDraftChange("description", value || null)}
-                  rows={3}
-                  className="text-sm"
-                />
-              </FormField>
-              <FormField label="子项目" className="md:col-span-2">
-                <ProjectChildTagsInput
-                  value={childProjects}
-                  disabled={!canManageCurrent || creating}
-                  creating={saving}
-                  onChange={onChildProjectsChange}
-                  onCreate={onCreateChildProject}
-                />
-              </FormField>
-            </div>
-          </SectionCard>
+          <TabBar
+            tabs={[
+              { key: "overview", label: "项目概览" },
+              { key: "collaboration", label: "项目协作" },
+              { key: "plan", label: "项目计划" },
+            ]}
+            active={activeTab}
+            onChange={setActiveTab}
+            className="mb-2"
+          />
 
-          <SectionCard title="项目人员">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <FormField label="项目负责人">
-                <FkFieldInput
-                  fkKey="work.projects.member.employee"
-                  endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
-                  value={draft.leader?.employeeNumber || ""}
-                  displayValue={draft.leader?.name || ""}
-                  disabled={!canManageCurrent || creating}
-                  placeholder="搜索负责人"
-                  onChange={(_label, option) => onLeaderChange(option)}
-                />
-              </FormField>
-
-              {MULTI_PROJECT_ROLES.map((role) => (
-                <FormField key={role} label={role} className={role === "知会" ? "md:col-span-2" : undefined}>
-                  <ProjectMemberTagsInput
-                    value={draft.roleGroups[role]}
-                    disabled={!canManageCurrent || creating}
-                    onChange={(members) => onRoleMembersChange(role, members)}
+          {activeTab === "overview" && (
+            <SectionCard title="基础信息">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <FormField label="项目编码">
+                  <TextField
+                    value={projectCode(selectedProject, draft)}
+                    readOnly
+                    className={getReadOnlyFieldClassName("h-10 cursor-default font-mono text-slate-600")}
+                    unstyled
                   />
                 </FormField>
-              ))}
-            </div>
-          </SectionCard>
+                <OptionField
+                  label="项目类型"
+                  value={draft.projectType}
+                  options={creating ? TOP_LEVEL_PROJECT_TYPE_OPTIONS : PROJECT_TYPE_OPTIONS}
+                  disabled={!creating}
+                  onChange={(value) => onDraftChange("projectType", (value || "department") as ProjectType)}
+                  placeholder="选择项目类型"
+                />
+                <FormField label="项目名称" required>
+                  <TextField
+                    value={draft.name}
+                    disabled={!canManageCurrent}
+                    onChange={(value) => onDraftChange("name", value)}
+                    className={inputClassName}
+                    unstyled
+                  />
+                </FormField>
+                <FormField label="主导部门" required={draft.projectType === "department"}>
+                  <FkFieldInput
+                    fkKey="work.projects.leadingDepartment"
+                    endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
+                    value={draft.leadingDepartmentId ? String(draft.leadingDepartmentId) : ""}
+                    displayValue={draft.leadingDepartmentName || ""}
+                    disabled={!canManageCurrent || draft.projectType !== "department"}
+                    placeholder="搜索部门名称、编码"
+                    onChange={(_label, option) => {
+                      onDraftChange("leadingDepartmentId", option?.id ?? null);
+                      onDraftChange("leadingDepartmentName", option?.name ?? null);
+                      onDraftChange("leadingDepartmentCode", option?.subtitle ?? null);
+                    }}
+                  />
+                </FormField>
+                <OptionField label="项目状态" value={draft.status} options={PROJECT_STATUS_PICKER_OPTIONS} disabled={!canEditCurrent} onChange={(value) => onDraftChange("status", value)} />
+                <OptionField
+                  label="是否里程碑"
+                  value={draft.isMilestone ? "true" : "false"}
+                  options={PROJECT_MILESTONE_PICKER_OPTIONS}
+                  disabled={!canEditCurrent}
+                  onChange={(value) => onDraftChange("isMilestone", value === "true")}
+                  popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-56 rounded-lg border border-slate-200 bg-white p-3 shadow-xl"
+                />
+                <DateField label="项目开始时间" value={draft.startDate} disabled={!canEditCurrent} onChange={(value) => onDraftChange("startDate", value)} />
+                <DateField label="项目结束时间" value={draft.endDate} disabled={!canEditCurrent} onChange={(value) => onDraftChange("endDate", value)} />
+                <FormField label="项目描述" className="md:col-span-2">
+                  <TextareaField
+                    value={draft.description || ""}
+                    disabled={!canEditCurrent}
+                    onChange={(value) => onDraftChange("description", value || null)}
+                    rows={3}
+                    className="text-sm"
+                  />
+                </FormField>
+                <FormField label="子项目" className="md:col-span-2">
+                  <ProjectChildTagsInput
+                    value={childProjects}
+                    disabled={!canManageCurrent || creating}
+                    creating={saving}
+                    onChange={onChildProjectsChange}
+                    onCreate={onCreateChildProject}
+                  />
+                </FormField>
+              </div>
+            </SectionCard>
+          )}
 
-          <ProjectRasciMatrix rows={rasciRows} />
+          {activeTab === "collaboration" && (
+            <>
+              <SectionCard title="项目人员">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  <FormField label="项目负责人">
+                    <FkFieldInput
+                      fkKey="work.projects.member.employee"
+                      endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
+                      value={draft.leader?.employeeNumber || ""}
+                      displayValue={draft.leader?.name || ""}
+                      disabled={!canManageCurrent || creating}
+                      placeholder="搜索负责人"
+                      className={draft.leader?.confirmationStatus === "pending" ? "!border-amber-200 !bg-amber-50 !text-amber-800" : undefined}
+                      onChange={(_label, option) => onLeaderChange(option)}
+                    />
+                  </FormField>
 
-          <ProjectGanttSection
-            parentProject={{
-              id: draft.id ?? 0,
-              name: draft.name || "当前项目",
-              status: draft.status,
-              startDate: draft.startDate,
-              endDate: draft.endDate,
-            }}
-            projects={childProjects}
-          />
+                  {MULTI_PROJECT_ROLES.map((role) => (
+                    <FormField key={role} label={role} className={role === "知会" ? "md:col-span-2" : undefined}>
+                      <ProjectMemberTagsInput
+                        value={draft.roleGroups[role]}
+                        disabled={!canManageCurrent || creating}
+                        onChange={(members) => onRoleMembersChange(role, members)}
+                      />
+                    </FormField>
+                  ))}
+                </div>
+              </SectionCard>
+
+              <ProjectRasciMatrix rows={rasciRows} />
+            </>
+          )}
+
+          {activeTab === "plan" && (
+            <>
+              <ProjectTasksSection
+                projectId={draft.id}
+                canEdit={canEditCurrent}
+                disabled={saving || creating}
+                onToast={onToast}
+              />
+
+              <ProjectGanttSection
+                parentProject={{
+                  id: draft.id ?? 0,
+                  name: draft.name || "当前项目",
+                  status: draft.status,
+                  startDate: draft.startDate,
+                  endDate: draft.endDate,
+                }}
+                projects={childProjects}
+              />
+            </>
+          )}
         </div>
       ) : (
         <div className="flex min-h-64 items-center justify-center p-8">

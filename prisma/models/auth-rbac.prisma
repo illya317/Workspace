@@ -35,6 +35,8 @@ model User {
   editedWorkpapers         FinanceStatementWorkpaper[] @relation("WorkpaperEditor")
   editedReviews           FinanceStatementReview[]    @relation("ReviewEditor")
   reviewedReviews         FinanceStatementReview[]    @relation("ReviewReviewer")
+  notifications           Notification[]              @relation("NotificationRecipient")
+  createdNotifications    Notification[]              @relation("NotificationActor")
 }
 
 /// RBAC 资源定义，详见 docs/rbac.md
@@ -111,4 +113,28 @@ model DepartmentResourceRole {
   department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
 
   @@unique([departmentId, resourceId, roleId, scopeId])
+}
+
+/// 站内通知/待确认事项
+model Notification {
+  id              Int       @id @default(autoincrement())
+  recipientUserId Int
+  actorUserId     Int?
+  type            String
+  title           String
+  body            String
+  href            String?
+  payloadJson     String?
+  isImportant     Boolean   @default(false)
+  readAt          DateTime?
+  acknowledgedAt  DateTime?
+  rejectedAt      DateTime?
+  clearedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+  recipient       User      @relation("NotificationRecipient", fields: [recipientUserId], references: [id], onDelete: Cascade)
+  actor           User?     @relation("NotificationActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([recipientUserId, clearedAt, readAt, acknowledgedAt, createdAt])
+  @@index([type])
 }

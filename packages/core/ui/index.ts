@@ -12,6 +12,7 @@ export type { CommandToolbarProps } from "./CommandToolbar";
 export type { ConfirmModalProps } from "./ConfirmModal";
 export { default as ConfirmProvider, useConfirm, useConfirmDelete } from "./ConfirmProvider";
 export type { ConfirmContextValue, ConfirmOptions } from "./ConfirmProvider";
+export { useUnsavedChangesPrompt } from "./useUnsavedChangesPrompt";
 export { default as DetailModal } from "./DetailModal";
 export type { DetailModalProps } from "./DetailModal";
 export { default as DisclosureRecordCard } from "./DisclosureRecordCard";

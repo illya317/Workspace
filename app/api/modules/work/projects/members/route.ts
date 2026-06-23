@@ -47,5 +47,9 @@ export async function POST(request: Request) {
   const parsedBody = createProjectMemberSchema.safeParse(body);
   if (!parsedBody.success) return NextResponse.json({ error: parsedBody.error.issues[0]?.message || "参数错误" }, { status: 400 });
 
-  return createProjectMember(new Request(request, { body: JSON.stringify(parsedBody.data) }));
+  return createProjectMember(new Request(request.url, {
+    method: request.method,
+    headers: request.headers,
+    body: JSON.stringify(parsedBody.data),
+  }));
 }

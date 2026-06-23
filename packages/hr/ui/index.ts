@@ -26,5 +26,6 @@ export { default as SchoolPicker } from "./components/SchoolPicker";
 export { default as EmployeeDirectory } from "./profile/EmployeeDirectory";
 export { default as RosterGeneratedTab } from "./generated/RosterGeneratedTab";
 export { default as EmployeeProfileClient } from "./profile/EmployeeProfileClient";
+export { default as EmployeeProfilePageClient } from "./profile/EmployeeProfilePageClient";
 export { ProfileFieldInput, SectionShell } from "./profile/ProfileFormControls";
 export { default as DepartmentPositionTab } from "./tabs/DepartmentPositionTab";

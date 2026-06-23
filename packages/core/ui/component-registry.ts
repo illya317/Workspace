@@ -96,6 +96,7 @@ export const coreUiComponentRegistry = [
   { name: "FilterBar", kind: "toolbar", description: "筛选栏容器，用于承载多个筛选字段和操作区。", example: "在数据库页承载关键词、状态、部门和分页大小控件。" },
   { name: "FilterToolbar", kind: "toolbar", description: "列表筛选工具栏，统一搜索、下拉筛选和操作按钮。", example: "在项目列表顶部统一展示搜索、状态下拉和每页条数。", includes: ["SearchInput", "SelectField"] },
   { name: "ToolbarOptionGroup", kind: "toolbar", description: "工具栏参数组选项，统一“全部/状态/模式”等短参数切换，不让业务页手写一排按钮。", example: "在筛选栏里切换“全部 / 30天 / 90天 / 已到期”或“姓名 / 全部”。" },
+  { name: "useUnsavedChangesPrompt", kind: "overlay", description: "未保存离开确认 hook，统一保存按钮 dirty 状态下的离开提醒和 beforeunload 拦截。", example: "详情页只传 hasUnsavedChanges，AppShell 或页内 Tab 统一确认是否离开。", includes: ["ConfirmProvider"] },
   { name: "FileField", kind: "form", description: "文件选择输入 primitive，统一上传按钮、文件名和禁用态样式。", example: "在财务导入或余额核对中选择 Excel 文件，不在业务页手写原生 file input。" },
   { name: "FormField", kind: "form", description: "表单字段容器，统一 label、必填星号、提示和错误位置，支持表单纵向和筛选条横向布局。", example: "合同弹窗包裹合同名称，财务筛选条用 inline 布局包裹公司、年度等字段。" },
   { name: "FormShell", kind: "form", description: "语义表单外壳，统一 submit 入口，让业务和 Platform 不直接手写原生 form。", example: "登录页、账号设置或导入配置表单只传字段和提交函数。" },

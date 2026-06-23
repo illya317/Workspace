@@ -19,7 +19,7 @@ import { primitiveListItems } from "./description-details";
 
 export const formInputClassName = getFieldInputClassName();
 export const compactFormInputClassName = getFieldInputClassName("h-10 py-0");
-export const readOnlyInputClassName = getReadOnlyFieldClassName("h-10 py-0");
+export const readOnlyInputClassName = getReadOnlyFieldClassName();
 export const compactReadOnlyInputClassName = getReadOnlyFieldClassName();
 const tagInputShellClassName = getTagInputShellClassName("content-start");
 export { OptionTagListEditor } from "./option-tag-list-editor";

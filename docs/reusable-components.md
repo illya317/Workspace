@@ -11,7 +11,6 @@
 - 搜索类选择默认支持中文、拼音全拼和拼音首字母。禁止业务组件各自写一套搜索算法。
 - 服务端列表、候选项和高级筛选里的 `keyword` / 模糊文本匹配必须复用 `@workspace/platform/search` 的 `matchAnyField`、`matchSearchFields` 或 `matchText`，保持中文、拼音全拼和首字母规则一致；不要在业务 service 或 UI 里手写 `toLowerCase().includes()` / `.includes(query)` 作为用户搜索，新增会被 `npm run arch:gate` 的 `handwrittenSearchMatches` ratchet 拦住。
 - generated / snapshot / export 类页面的二段式筛选字段必须由后端 DTO 明确返回，例如 `preview.filterFields`，UI 只能把后端 contract 映射给 Core `FieldValueFilter`。禁止在 `packages/*/ui/generated` 里本地声明 `FieldValueFilter` 字段；新增会被 `npm run arch:gate` 的 `generatedFilterContractDrift` ratchet 拦住。
-- 旧 `app/components/SearchBox` / `app/hooks/useSearch` 已废弃并由 `arch:gate` 禁止复活；通用关键词筛选用 Core `FilterToolbar`，业务 FK/实体选择用对应业务包组件。
 - 搜索型原生 input 的历史债为 0：除 `packages/core/ui/SearchInput.tsx` 内部实现外，`app/` 和 `packages/` 不得出现 `type="search"` 或 `placeholder/aria-label` 带搜索语义的原生 `<input>`。新增会被 `npm run arch:gate` 的 `nativeSearchInputFiles` ratchet 拦住。
 - Core UI 可用入口以 `packages/core/ui/component-registry.ts` 为准。业务包、Platform 页面和 app 壳不得引用未注册 Core UI 名字，也不得在 `packages/*/ui` 新增手写页面卡片/筛选/分栏/表格壳；新增同类结构会被 `npm run arch:gate` 的 Level 2 ratchet 拦住。
 - 页面模板采用 `A Core 源头层 -> B 薄壳 ViewModel -> C 渲染`：A 是 Core 中的一组可组合模板部件，可以拆成 A1/A2/A3/A4，分别承载类型、布局、默认动作、弹窗和状态机；B 只把业务事实映射成 Core 的 ViewModel 类型，传入真实回调和状态；C 只负责 `<CoreTemplate {...viewModel} />` 渲染。

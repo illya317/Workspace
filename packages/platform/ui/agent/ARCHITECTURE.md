@@ -7,7 +7,7 @@
 ## 目录
 
 ```text
-app/components/agent/       # 浮窗、面板、输入、报告抽屉、确认弹窗
+packages/platform/ui/agent/ # 浮窗、面板、输入、报告抽屉、确认弹窗
 app/api/agent/              # 对话入口 + capabilities + proposals
 packages/platform/server/agent/ # 编排、能力清单、工具契约、prompt、proposal、LLM provider
 packages/hr/server/agent-tools.ts # HR 工具适配器与 HR proposal 执行器

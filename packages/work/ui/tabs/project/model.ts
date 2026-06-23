@@ -50,12 +50,42 @@ export type ProjectMemberEntry = {
   role: string | null;
   startDate: string | null;
   endDate: string | null;
+  confirmationStatus?: "pending" | "confirmed";
+};
+
+export type ProjectTaskItem = {
+  id: number;
+  projectId: number;
+  isMilestone: boolean;
+  ownerEmployeeId: number | null;
+  ownerEmployeeNumber: string | null;
+  ownerEmployeeName: string | null;
+  description: string;
+  startDate: string | null;
+  endDate: string | null;
+  predecessorTaskId: number | null;
+  predecessorTaskName: string | null;
+  successorTasks: { id: number; description: string }[];
+  sortOrder: number;
+};
+
+export type ProjectTaskDraft = {
+  description: string;
+  isMilestone: boolean;
+  ownerEmployeeId: number | null;
+  ownerEmployeeNumber: string | null;
+  ownerEmployeeName: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  predecessorTaskId: number | null;
+  sortOrder: number | null;
 };
 
 export type EmployeeTag = {
   id: number;
   employeeNumber: string;
   name: string;
+  confirmationStatus?: "pending" | "confirmed";
 };
 
 export type ProjectRole = (typeof PROJECT_ROLES)[number];
@@ -116,6 +146,34 @@ export const PROJECT_STATUS_PICKER_OPTIONS = toPickerOptions(PROJECT_STATUS_OPTI
 export const PROJECT_STAGE_PICKER_OPTIONS = toPickerOptions(PROJECT_STAGE_OPTIONS);
 export const PROJECT_MILESTONE_PICKER_OPTIONS = [...PROJECT_MILESTONE_OPTIONS];
 
+export function createEmptyProjectTaskDraft(sortOrder: number | null = null): ProjectTaskDraft {
+  return {
+    description: "",
+    isMilestone: false,
+    ownerEmployeeId: null,
+    ownerEmployeeNumber: null,
+    ownerEmployeeName: null,
+    startDate: null,
+    endDate: null,
+    predecessorTaskId: null,
+    sortOrder,
+  };
+}
+
+export function createProjectTaskDraft(task: ProjectTaskItem): ProjectTaskDraft {
+  return {
+    description: task.description,
+    isMilestone: task.isMilestone,
+    ownerEmployeeId: task.ownerEmployeeId,
+    ownerEmployeeNumber: task.ownerEmployeeNumber,
+    ownerEmployeeName: task.ownerEmployeeName,
+    startDate: task.startDate,
+    endDate: task.endDate,
+    predecessorTaskId: task.predecessorTaskId,
+    sortOrder: task.sortOrder,
+  };
+}
+
 export function projectCode(project: ProjectItem | null, draft: ProjectDraft | null) {
   if ((project?.projectType || draft?.projectType) === "personal") return "个人项目无编号";
   if ((project?.projectType || draft?.projectType) === "subproject") return "子项目无编号";
@@ -136,6 +194,7 @@ export function memberFromEntry(entry: ProjectMemberEntry): EmployeeTag {
     id: entry.employeeId,
     employeeNumber: entry.employeeNumber,
     name: entry.employeeName,
+    confirmationStatus: entry.confirmationStatus,
   };
 }
 

@@ -299,6 +299,8 @@ export type UserWhereInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperListRelationFilter
   editedReviews?: Prisma.FinanceStatementReviewListRelationFilter
   reviewedReviews?: Prisma.FinanceStatementReviewListRelationFilter
+  notifications?: Prisma.NotificationListRelationFilter
+  createdNotifications?: Prisma.NotificationListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -337,6 +339,8 @@ export type UserOrderByWithRelationInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperOrderByRelationAggregateInput
   editedReviews?: Prisma.FinanceStatementReviewOrderByRelationAggregateInput
   reviewedReviews?: Prisma.FinanceStatementReviewOrderByRelationAggregateInput
+  notifications?: Prisma.NotificationOrderByRelationAggregateInput
+  createdNotifications?: Prisma.NotificationOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -378,6 +382,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperListRelationFilter
   editedReviews?: Prisma.FinanceStatementReviewListRelationFilter
   reviewedReviews?: Prisma.FinanceStatementReviewListRelationFilter
+  notifications?: Prisma.NotificationListRelationFilter
+  createdNotifications?: Prisma.NotificationListRelationFilter
 }, "id" | "wxUserId" | "username" | "apiKey">
 
 export type UserOrderByWithAggregationInput = {
@@ -453,6 +459,8 @@ export type UserCreateInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -491,6 +499,8 @@ export type UserUncheckedCreateInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserUpdateInput = {
@@ -528,6 +538,8 @@ export type UserUpdateInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -566,6 +578,8 @@ export type UserUncheckedUpdateInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -693,6 +707,36 @@ export type UserUpdateOneRequiredWithoutResourceRolesNestedInput = {
   upsert?: Prisma.UserUpsertWithoutResourceRolesInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutResourceRolesInput, Prisma.UserUpdateWithoutResourceRolesInput>, Prisma.UserUncheckedUpdateWithoutResourceRolesInput>
+}
+
+export type UserCreateNestedOneWithoutNotificationsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutNotificationsInput, Prisma.UserUncheckedCreateWithoutNotificationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutNotificationsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutCreatedNotificationsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedNotificationsInput, Prisma.UserUncheckedCreateWithoutCreatedNotificationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedNotificationsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutNotificationsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutNotificationsInput, Prisma.UserUncheckedCreateWithoutNotificationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutNotificationsInput
+  upsert?: Prisma.UserUpsertWithoutNotificationsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutNotificationsInput, Prisma.UserUpdateWithoutNotificationsInput>, Prisma.UserUncheckedUpdateWithoutNotificationsInput>
+}
+
+export type UserUpdateOneWithoutCreatedNotificationsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedNotificationsInput, Prisma.UserUncheckedCreateWithoutCreatedNotificationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedNotificationsInput
+  upsert?: Prisma.UserUpsertWithoutCreatedNotificationsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedNotificationsInput, Prisma.UserUpdateWithoutCreatedNotificationsInput>, Prisma.UserUncheckedUpdateWithoutCreatedNotificationsInput>
 }
 
 export type UserCreateNestedOneWithoutEditedContractsInput = {
@@ -1075,6 +1119,8 @@ export type UserCreateWithoutResourceRolesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutResourceRolesInput = {
@@ -1112,6 +1158,8 @@ export type UserUncheckedCreateWithoutResourceRolesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutResourceRolesInput = {
@@ -1164,6 +1212,8 @@ export type UserUpdateWithoutResourceRolesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResourceRolesInput = {
@@ -1201,6 +1251,348 @@ export type UserUncheckedUpdateWithoutResourceRolesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+}
+
+export type UserCreateWithoutNotificationsInput = {
+  wxUserId?: string | null
+  username?: string | null
+  password?: string | null
+  nickname: string
+  avatar?: string | null
+  routineItems?: string | null
+  canLogin?: boolean
+  apiKey?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
+  editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
+  reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
+  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
+  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+}
+
+export type UserUncheckedCreateWithoutNotificationsInput = {
+  id?: number
+  wxUserId?: string | null
+  username?: string | null
+  password?: string | null
+  nickname: string
+  avatar?: string | null
+  routineItems?: string | null
+  canLogin?: boolean
+  apiKey?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
+  editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
+  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+}
+
+export type UserCreateOrConnectWithoutNotificationsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutNotificationsInput, Prisma.UserUncheckedCreateWithoutNotificationsInput>
+}
+
+export type UserCreateWithoutCreatedNotificationsInput = {
+  wxUserId?: string | null
+  username?: string | null
+  password?: string | null
+  nickname: string
+  avatar?: string | null
+  routineItems?: string | null
+  canLogin?: boolean
+  apiKey?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
+  editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
+  reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
+  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
+  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+}
+
+export type UserUncheckedCreateWithoutCreatedNotificationsInput = {
+  id?: number
+  wxUserId?: string | null
+  username?: string | null
+  password?: string | null
+  nickname: string
+  avatar?: string | null
+  routineItems?: string | null
+  canLogin?: boolean
+  apiKey?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
+  editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
+  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+}
+
+export type UserCreateOrConnectWithoutCreatedNotificationsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedNotificationsInput, Prisma.UserUncheckedCreateWithoutCreatedNotificationsInput>
+}
+
+export type UserUpsertWithoutNotificationsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutNotificationsInput, Prisma.UserUncheckedUpdateWithoutNotificationsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutNotificationsInput, Prisma.UserUncheckedCreateWithoutNotificationsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutNotificationsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutNotificationsInput, Prisma.UserUncheckedUpdateWithoutNotificationsInput>
+}
+
+export type UserUpdateWithoutNotificationsInput = {
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
+  editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
+  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+}
+
+export type UserUncheckedUpdateWithoutNotificationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
+  editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
+  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+}
+
+export type UserUpsertWithoutCreatedNotificationsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedNotificationsInput, Prisma.UserUncheckedUpdateWithoutCreatedNotificationsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedNotificationsInput, Prisma.UserUncheckedCreateWithoutCreatedNotificationsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedNotificationsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedNotificationsInput, Prisma.UserUncheckedUpdateWithoutCreatedNotificationsInput>
+}
+
+export type UserUpdateWithoutCreatedNotificationsInput = {
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
+  editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
+  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedNotificationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
+  editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
+  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserCreateWithoutEditedContractsInput = {
@@ -1237,6 +1629,8 @@ export type UserCreateWithoutEditedContractsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutEditedContractsInput = {
@@ -1274,6 +1668,8 @@ export type UserUncheckedCreateWithoutEditedContractsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutEditedContractsInput = {
@@ -1326,6 +1722,8 @@ export type UserUpdateWithoutEditedContractsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedContractsInput = {
@@ -1363,6 +1761,8 @@ export type UserUncheckedUpdateWithoutEditedContractsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutEditedFinanceAccountsInput = {
@@ -1399,6 +1799,8 @@ export type UserCreateWithoutEditedFinanceAccountsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutEditedFinanceAccountsInput = {
@@ -1436,6 +1838,8 @@ export type UserUncheckedCreateWithoutEditedFinanceAccountsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutEditedFinanceAccountsInput = {
@@ -1488,6 +1892,8 @@ export type UserUpdateWithoutEditedFinanceAccountsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedFinanceAccountsInput = {
@@ -1525,6 +1931,8 @@ export type UserUncheckedUpdateWithoutEditedFinanceAccountsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutEditedFinanceVouchersInput = {
@@ -1561,6 +1969,8 @@ export type UserCreateWithoutEditedFinanceVouchersInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutEditedFinanceVouchersInput = {
@@ -1598,6 +2008,8 @@ export type UserUncheckedCreateWithoutEditedFinanceVouchersInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutEditedFinanceVouchersInput = {
@@ -1650,6 +2062,8 @@ export type UserUpdateWithoutEditedFinanceVouchersInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedFinanceVouchersInput = {
@@ -1687,6 +2101,8 @@ export type UserUncheckedUpdateWithoutEditedFinanceVouchersInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutLedgerImportsInput = {
@@ -1723,6 +2139,8 @@ export type UserCreateWithoutLedgerImportsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutLedgerImportsInput = {
@@ -1760,6 +2178,8 @@ export type UserUncheckedCreateWithoutLedgerImportsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutLedgerImportsInput = {
@@ -1812,6 +2232,8 @@ export type UserUpdateWithoutLedgerImportsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLedgerImportsInput = {
@@ -1849,6 +2271,8 @@ export type UserUncheckedUpdateWithoutLedgerImportsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutSnapshotImportsInput = {
@@ -1885,6 +2309,8 @@ export type UserCreateWithoutSnapshotImportsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutSnapshotImportsInput = {
@@ -1922,6 +2348,8 @@ export type UserUncheckedCreateWithoutSnapshotImportsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutSnapshotImportsInput = {
@@ -1963,6 +2391,8 @@ export type UserCreateWithoutSnapshotEditsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutSnapshotEditsInput = {
@@ -2000,6 +2430,8 @@ export type UserUncheckedCreateWithoutSnapshotEditsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutSnapshotEditsInput = {
@@ -2052,6 +2484,8 @@ export type UserUpdateWithoutSnapshotImportsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSnapshotImportsInput = {
@@ -2089,6 +2523,8 @@ export type UserUncheckedUpdateWithoutSnapshotImportsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserUpsertWithoutSnapshotEditsInput = {
@@ -2136,6 +2572,8 @@ export type UserUpdateWithoutSnapshotEditsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSnapshotEditsInput = {
@@ -2173,6 +2611,8 @@ export type UserUncheckedUpdateWithoutSnapshotEditsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutConfirmedReclassRulesInput = {
@@ -2209,6 +2649,8 @@ export type UserCreateWithoutConfirmedReclassRulesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutConfirmedReclassRulesInput = {
@@ -2246,6 +2688,8 @@ export type UserUncheckedCreateWithoutConfirmedReclassRulesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutConfirmedReclassRulesInput = {
@@ -2298,6 +2742,8 @@ export type UserUpdateWithoutConfirmedReclassRulesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutConfirmedReclassRulesInput = {
@@ -2335,6 +2781,8 @@ export type UserUncheckedUpdateWithoutConfirmedReclassRulesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutReviewedReclassResultsInput = {
@@ -2371,6 +2819,8 @@ export type UserCreateWithoutReviewedReclassResultsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutReviewedReclassResultsInput = {
@@ -2408,6 +2858,8 @@ export type UserUncheckedCreateWithoutReviewedReclassResultsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutReviewedReclassResultsInput = {
@@ -2460,6 +2912,8 @@ export type UserUpdateWithoutReviewedReclassResultsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewedReclassResultsInput = {
@@ -2497,6 +2951,8 @@ export type UserUncheckedUpdateWithoutReviewedReclassResultsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutEditedWorkpapersInput = {
@@ -2533,6 +2989,8 @@ export type UserCreateWithoutEditedWorkpapersInput = {
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutEditedWorkpapersInput = {
@@ -2570,6 +3028,8 @@ export type UserUncheckedCreateWithoutEditedWorkpapersInput = {
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutEditedWorkpapersInput = {
@@ -2622,6 +3082,8 @@ export type UserUpdateWithoutEditedWorkpapersInput = {
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedWorkpapersInput = {
@@ -2659,6 +3121,8 @@ export type UserUncheckedUpdateWithoutEditedWorkpapersInput = {
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutEditedReviewsInput = {
@@ -2695,6 +3159,8 @@ export type UserCreateWithoutEditedReviewsInput = {
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutEditedReviewsInput = {
@@ -2732,6 +3198,8 @@ export type UserUncheckedCreateWithoutEditedReviewsInput = {
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutEditedReviewsInput = {
@@ -2773,6 +3241,8 @@ export type UserCreateWithoutReviewedReviewsInput = {
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutReviewedReviewsInput = {
@@ -2810,6 +3280,8 @@ export type UserUncheckedCreateWithoutReviewedReviewsInput = {
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutReviewedReviewsInput = {
@@ -2862,6 +3334,8 @@ export type UserUpdateWithoutEditedReviewsInput = {
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedReviewsInput = {
@@ -2899,6 +3373,8 @@ export type UserUncheckedUpdateWithoutEditedReviewsInput = {
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserUpsertWithoutReviewedReviewsInput = {
@@ -2946,6 +3422,8 @@ export type UserUpdateWithoutReviewedReviewsInput = {
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewedReviewsInput = {
@@ -2983,6 +3461,8 @@ export type UserUncheckedUpdateWithoutReviewedReviewsInput = {
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutEmployeesInput = {
@@ -3019,6 +3499,8 @@ export type UserCreateWithoutEmployeesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutEmployeesInput = {
@@ -3056,6 +3538,8 @@ export type UserUncheckedCreateWithoutEmployeesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutEmployeesInput = {
@@ -3108,6 +3592,8 @@ export type UserUpdateWithoutEmployeesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEmployeesInput = {
@@ -3145,6 +3631,8 @@ export type UserUncheckedUpdateWithoutEmployeesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutManagedDepartmentsInput = {
@@ -3181,6 +3669,8 @@ export type UserCreateWithoutManagedDepartmentsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutManagedDepartmentsInput = {
@@ -3218,6 +3708,8 @@ export type UserUncheckedCreateWithoutManagedDepartmentsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutManagedDepartmentsInput = {
@@ -3270,6 +3762,8 @@ export type UserUpdateWithoutManagedDepartmentsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutManagedDepartmentsInput = {
@@ -3307,6 +3801,8 @@ export type UserUncheckedUpdateWithoutManagedDepartmentsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutEditHistoriesInput = {
@@ -3343,6 +3839,8 @@ export type UserCreateWithoutEditHistoriesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutEditHistoriesInput = {
@@ -3380,6 +3878,8 @@ export type UserUncheckedCreateWithoutEditHistoriesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutEditHistoriesInput = {
@@ -3432,6 +3932,8 @@ export type UserUpdateWithoutEditHistoriesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditHistoriesInput = {
@@ -3469,6 +3971,8 @@ export type UserUncheckedUpdateWithoutEditHistoriesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutEditedStockRawMaterialsInput = {
@@ -3505,6 +4009,8 @@ export type UserCreateWithoutEditedStockRawMaterialsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutEditedStockRawMaterialsInput = {
@@ -3542,6 +4048,8 @@ export type UserUncheckedCreateWithoutEditedStockRawMaterialsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutEditedStockRawMaterialsInput = {
@@ -3594,6 +4102,8 @@ export type UserUpdateWithoutEditedStockRawMaterialsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedStockRawMaterialsInput = {
@@ -3631,6 +4141,8 @@ export type UserUncheckedUpdateWithoutEditedStockRawMaterialsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutEditedStockPackagingsInput = {
@@ -3667,6 +4179,8 @@ export type UserCreateWithoutEditedStockPackagingsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutEditedStockPackagingsInput = {
@@ -3704,6 +4218,8 @@ export type UserUncheckedCreateWithoutEditedStockPackagingsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutEditedStockPackagingsInput = {
@@ -3756,6 +4272,8 @@ export type UserUpdateWithoutEditedStockPackagingsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedStockPackagingsInput = {
@@ -3793,6 +4311,8 @@ export type UserUncheckedUpdateWithoutEditedStockPackagingsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutEditedStockFinishedGoodsInput = {
@@ -3829,6 +4349,8 @@ export type UserCreateWithoutEditedStockFinishedGoodsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutEditedStockFinishedGoodsInput = {
@@ -3866,6 +4388,8 @@ export type UserUncheckedCreateWithoutEditedStockFinishedGoodsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutEditedStockFinishedGoodsInput = {
@@ -3918,6 +4442,8 @@ export type UserUpdateWithoutEditedStockFinishedGoodsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedStockFinishedGoodsInput = {
@@ -3955,6 +4481,8 @@ export type UserUncheckedUpdateWithoutEditedStockFinishedGoodsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutStockOperationsInput = {
@@ -3991,6 +4519,8 @@ export type UserCreateWithoutStockOperationsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutStockOperationsInput = {
@@ -4028,6 +4558,8 @@ export type UserUncheckedCreateWithoutStockOperationsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutStockOperationsInput = {
@@ -4080,6 +4612,8 @@ export type UserUpdateWithoutStockOperationsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStockOperationsInput = {
@@ -4117,6 +4651,8 @@ export type UserUncheckedUpdateWithoutStockOperationsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutEditedLibraryDocumentsInput = {
@@ -4153,6 +4689,8 @@ export type UserCreateWithoutEditedLibraryDocumentsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutEditedLibraryDocumentsInput = {
@@ -4190,6 +4728,8 @@ export type UserUncheckedCreateWithoutEditedLibraryDocumentsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutEditedLibraryDocumentsInput = {
@@ -4242,6 +4782,8 @@ export type UserUpdateWithoutEditedLibraryDocumentsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedLibraryDocumentsInput = {
@@ -4279,6 +4821,8 @@ export type UserUncheckedUpdateWithoutEditedLibraryDocumentsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutReportsInput = {
@@ -4315,6 +4859,8 @@ export type UserCreateWithoutReportsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutReportsInput = {
@@ -4352,6 +4898,8 @@ export type UserUncheckedCreateWithoutReportsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutReportsInput = {
@@ -4404,6 +4952,8 @@ export type UserUpdateWithoutReportsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReportsInput = {
@@ -4441,6 +4991,8 @@ export type UserUncheckedUpdateWithoutReportsInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutDepartmentAssigneesInput = {
@@ -4477,6 +5029,8 @@ export type UserCreateWithoutDepartmentAssigneesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutDepartmentAssigneesInput = {
@@ -4514,6 +5068,8 @@ export type UserUncheckedCreateWithoutDepartmentAssigneesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutDepartmentAssigneesInput = {
@@ -4566,6 +5122,8 @@ export type UserUpdateWithoutDepartmentAssigneesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDepartmentAssigneesInput = {
@@ -4603,6 +5161,8 @@ export type UserUncheckedUpdateWithoutDepartmentAssigneesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutProjectAssigneesInput = {
@@ -4639,6 +5199,8 @@ export type UserCreateWithoutProjectAssigneesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutProjectAssigneesInput = {
@@ -4676,6 +5238,8 @@ export type UserUncheckedCreateWithoutProjectAssigneesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutProjectAssigneesInput = {
@@ -4728,6 +5292,8 @@ export type UserUpdateWithoutProjectAssigneesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProjectAssigneesInput = {
@@ -4765,6 +5331,8 @@ export type UserUncheckedUpdateWithoutProjectAssigneesInput = {
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
 }
 
 
@@ -4796,6 +5364,8 @@ export type UserCountOutputType = {
   editedWorkpapers: number
   editedReviews: number
   reviewedReviews: number
+  notifications: number
+  createdNotifications: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4822,6 +5392,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   editedWorkpapers?: boolean | UserCountOutputTypeCountEditedWorkpapersArgs
   editedReviews?: boolean | UserCountOutputTypeCountEditedReviewsArgs
   reviewedReviews?: boolean | UserCountOutputTypeCountReviewedReviewsArgs
+  notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
+  createdNotifications?: boolean | UserCountOutputTypeCountCreatedNotificationsArgs
 }
 
 /**
@@ -4995,6 +5567,20 @@ export type UserCountOutputTypeCountReviewedReviewsArgs<ExtArgs extends runtime.
   where?: Prisma.FinanceStatementReviewWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NotificationWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NotificationWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -5032,6 +5618,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   editedWorkpapers?: boolean | Prisma.User$editedWorkpapersArgs<ExtArgs>
   editedReviews?: boolean | Prisma.User$editedReviewsArgs<ExtArgs>
   reviewedReviews?: boolean | Prisma.User$reviewedReviewsArgs<ExtArgs>
+  notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
+  createdNotifications?: boolean | Prisma.User$createdNotificationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -5105,6 +5693,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   editedWorkpapers?: boolean | Prisma.User$editedWorkpapersArgs<ExtArgs>
   editedReviews?: boolean | Prisma.User$editedReviewsArgs<ExtArgs>
   reviewedReviews?: boolean | Prisma.User$reviewedReviewsArgs<ExtArgs>
+  notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
+  createdNotifications?: boolean | Prisma.User$createdNotificationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -5136,6 +5726,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     editedWorkpapers: Prisma.$FinanceStatementWorkpaperPayload<ExtArgs>[]
     editedReviews: Prisma.$FinanceStatementReviewPayload<ExtArgs>[]
     reviewedReviews: Prisma.$FinanceStatementReviewPayload<ExtArgs>[]
+    notifications: Prisma.$NotificationPayload<ExtArgs>[]
+    createdNotifications: Prisma.$NotificationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -5567,6 +6159,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   editedWorkpapers<T extends Prisma.User$editedWorkpapersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$editedWorkpapersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceStatementWorkpaperPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   editedReviews<T extends Prisma.User$editedReviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$editedReviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceStatementReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reviewedReviews<T extends Prisma.User$reviewedReviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reviewedReviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceStatementReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdNotifications<T extends Prisma.User$createdNotificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdNotificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6548,6 +7142,54 @@ export type User$reviewedReviewsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.FinanceStatementReviewScalarFieldEnum | Prisma.FinanceStatementReviewScalarFieldEnum[]
+}
+
+/**
+ * User.notifications
+ */
+export type User$notificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Notification
+   */
+  select?: Prisma.NotificationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Notification
+   */
+  omit?: Prisma.NotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationInclude<ExtArgs> | null
+  where?: Prisma.NotificationWhereInput
+  orderBy?: Prisma.NotificationOrderByWithRelationInput | Prisma.NotificationOrderByWithRelationInput[]
+  cursor?: Prisma.NotificationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
+}
+
+/**
+ * User.createdNotifications
+ */
+export type User$createdNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Notification
+   */
+  select?: Prisma.NotificationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Notification
+   */
+  omit?: Prisma.NotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationInclude<ExtArgs> | null
+  where?: Prisma.NotificationWhereInput
+  orderBy?: Prisma.NotificationOrderByWithRelationInput | Prisma.NotificationOrderByWithRelationInput[]
+  cursor?: Prisma.NotificationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
 }
 
 /**

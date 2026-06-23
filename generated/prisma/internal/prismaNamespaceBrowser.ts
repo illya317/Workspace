@@ -58,6 +58,7 @@ export const ModelName = {
   UserResourceRole: 'UserResourceRole',
   PositionResourceRole: 'PositionResourceRole',
   DepartmentResourceRole: 'DepartmentResourceRole',
+  Notification: 'Notification',
   Contract: 'Contract',
   FinanceBudgetVersion: 'FinanceBudgetVersion',
   FinanceBudgetDept: 'FinanceBudgetDept',
@@ -122,6 +123,7 @@ export const ModelName = {
   LoginAttempt: 'LoginAttempt',
   Project: 'Project',
   EmployeeProject: 'EmployeeProject',
+  ProjectTask: 'ProjectTask',
   WorkItem: 'WorkItem',
   WorkParticipant: 'WorkParticipant',
   DepartmentWorkAssignee: 'DepartmentWorkAssignee',
@@ -234,6 +236,27 @@ export const DepartmentResourceRoleScalarFieldEnum = {
 } as const
 
 export type DepartmentResourceRoleScalarFieldEnum = (typeof DepartmentResourceRoleScalarFieldEnum)[keyof typeof DepartmentResourceRoleScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  recipientUserId: 'recipientUserId',
+  actorUserId: 'actorUserId',
+  type: 'type',
+  title: 'title',
+  body: 'body',
+  href: 'href',
+  payloadJson: 'payloadJson',
+  isImportant: 'isImportant',
+  readAt: 'readAt',
+  acknowledgedAt: 'acknowledgedAt',
+  rejectedAt: 'rejectedAt',
+  clearedAt: 'clearedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
 export const ContractScalarFieldEnum = {
@@ -1466,6 +1489,27 @@ export const EmployeeProjectScalarFieldEnum = {
 } as const
 
 export type EmployeeProjectScalarFieldEnum = (typeof EmployeeProjectScalarFieldEnum)[keyof typeof EmployeeProjectScalarFieldEnum]
+
+
+export const ProjectTaskScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  isMilestone: 'isMilestone',
+  ownerEmployeeId: 'ownerEmployeeId',
+  description: 'description',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  predecessorTaskId: 'predecessorTaskId',
+  sortOrder: 'sortOrder',
+  createdBy: 'createdBy',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProjectTaskScalarFieldEnum = (typeof ProjectTaskScalarFieldEnum)[keyof typeof ProjectTaskScalarFieldEnum]
 
 
 export const WorkItemScalarFieldEnum = {
