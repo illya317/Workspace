@@ -112,7 +112,7 @@ export default function WorkSection({
               <SelectField
                 value=""
                 onChange={(nextValue) => onImportWork(nextValue)}
-                placeholder="选择工作清单中的工作..."
+                placeholder="选择工作计划中的工作..."
                 options={availableWorks.map((w) => ({ value: w.content, label: w.content }))}
                 selectClassName="min-w-64 px-3 py-2 text-sm"
               />

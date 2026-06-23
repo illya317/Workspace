@@ -420,10 +420,35 @@ export type Project = Prisma.ProjectModel
  */
 export type EmployeeProject = Prisma.EmployeeProjectModel
 /**
+ * Model ProjectPlanPhase
+ * 项目计划阶段（串行计划段）
+ */
+export type ProjectPlanPhase = Prisma.ProjectPlanPhaseModel
+/**
+ * Model ProjectPlanDependency
+ * 项目计划依赖（统一项目/任务节点）
+ */
+export type ProjectPlanDependency = Prisma.ProjectPlanDependencyModel
+/**
+ * Model ProjectPlanBaseline
+ * 项目计划基准快照
+ */
+export type ProjectPlanBaseline = Prisma.ProjectPlanBaselineModel
+/**
+ * Model ProjectPlanBaselineItem
+ * 项目计划基准条目
+ */
+export type ProjectPlanBaselineItem = Prisma.ProjectPlanBaselineItemModel
+/**
  * Model ProjectTask
  * 项目任务计划
  */
 export type ProjectTask = Prisma.ProjectTaskModel
+/**
+ * Model ProjectTaskAssignment
+ * 项目任务 RASCI
+ */
+export type ProjectTaskAssignment = Prisma.ProjectTaskAssignmentModel
 /**
  * Model WorkItem
  * 工作清单条目

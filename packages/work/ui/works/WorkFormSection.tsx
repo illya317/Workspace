@@ -32,7 +32,7 @@ export default function WorkFormSection({
 }: WorkFormSectionProps) {
   return (
     <SectionCard
-      title="部门工作清单"
+      title="部门工作计划"
       className="mb-6"
       actions={
         isAdmin && !showForm && !editingWork ? (
@@ -44,7 +44,7 @@ export default function WorkFormSection({
     >
       {!isAdmin && (
         <EmptyStateCard compact className="mb-4">
-          仅部门管理员可编辑工作清单
+          仅部门管理员可编辑工作计划
         </EmptyStateCard>
       )}
 

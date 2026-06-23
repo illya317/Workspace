@@ -5,6 +5,7 @@ import {
 } from "@workspace/platform/server/auth";
 import { prisma } from "@workspace/platform/server/prisma";
 import { isCapabilityResource } from "@workspace/platform/resources";
+import { isDefaultAccessResource } from "@workspace/platform/server/rbac/implicit";
 
 import { loadCompanyMap, getCompanyNameSync } from "./company-directory";
 
@@ -40,7 +41,6 @@ function buildImplicitGrants({
   directGrants,
   positionGrants,
   departmentGrants,
-  ancestorResourceKeys,
 }: {
   subjects: SubjectInfo[];
   subjectType: SubjectType;
@@ -48,15 +48,9 @@ function buildImplicitGrants({
   directGrants: Awaited<ReturnType<typeof getGrants>>;
   positionGrants: Awaited<ReturnType<typeof getGrants>>;
   departmentGrants: Awaited<ReturnType<typeof getGrants>>;
-  ancestorResourceKeys: string[];
 }): PermissionGrantData["implicitGrants"] {
   if (!resourceKey) return [];
-  const resourceLineage = new Set([resourceKey, ...ancestorResourceKeys]);
-  const hasDefaultAccessRoot =
-    resourceLineage.has("settings.account") ||
-    resourceLineage.has("work") ||
-    resourceLineage.has("docs");
-  if (hasDefaultAccessRoot && !isCapabilityResource(resourceKey)) {
+  if (isDefaultAccessResource(resourceKey) && !isCapabilityResource(resourceKey)) {
     if (subjectType !== "user") return [];
     return subjects
       .filter((subject) => subject.id > 0 && subject.extra?.hasUser)
@@ -111,7 +105,6 @@ export async function getPermissionGrantData(
     directGrants,
     positionGrants,
     departmentGrants,
-    ancestorResourceKeys,
   });
 
   return {

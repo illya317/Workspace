@@ -2,8 +2,8 @@
 
 import {
   ActionButton,
+  CreateStartButton,
   FormField,
-  IconActionButton,
   InlineCreatePanel,
   RefreshActionButton,
   SelectField,
@@ -35,6 +35,7 @@ interface QcBatchToolbarProps {
   productFilter: string;
   productOptions: Array<{ value: string; label: string }>;
   pageSize: number;
+  createOpen: boolean;
   onToggleCreate: () => void;
   onStatusFilterChange: (value: string) => void;
   onProductFilterChange: (value: string) => void;
@@ -48,6 +49,7 @@ export function QcBatchToolbar({
   productFilter,
   productOptions,
   pageSize,
+  createOpen,
   onToggleCreate,
   onStatusFilterChange,
   onProductFilterChange,
@@ -58,9 +60,7 @@ export function QcBatchToolbar({
   return (
     <Toolbar
       viewControls={(
-        <IconActionButton label="新建批次" variant="primary" onClick={onToggleCreate}>
-          +
-        </IconActionButton>
+        <CreateStartButton label="新建批次" active={createOpen} onClick={onToggleCreate} />
       )}
       filters={(
         <>

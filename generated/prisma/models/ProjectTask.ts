@@ -29,8 +29,8 @@ export type AggregateProjectTask = {
 export type ProjectTaskAvgAggregateOutputType = {
   id: number | null
   projectId: number | null
+  planPhaseId: number | null
   ownerEmployeeId: number | null
-  predecessorTaskId: number | null
   sortOrder: number | null
   createdBy: number | null
   editedBy: number | null
@@ -40,8 +40,8 @@ export type ProjectTaskAvgAggregateOutputType = {
 export type ProjectTaskSumAggregateOutputType = {
   id: number | null
   projectId: number | null
+  planPhaseId: number | null
   ownerEmployeeId: number | null
-  predecessorTaskId: number | null
   sortOrder: number | null
   createdBy: number | null
   editedBy: number | null
@@ -51,12 +51,15 @@ export type ProjectTaskSumAggregateOutputType = {
 export type ProjectTaskMinAggregateOutputType = {
   id: number | null
   projectId: number | null
+  planPhaseId: number | null
+  name: string | null
   isMilestone: boolean | null
   ownerEmployeeId: number | null
   description: string | null
+  baselineStartDate: Date | null
+  baselineEndDate: Date | null
   startDate: Date | null
   endDate: Date | null
-  predecessorTaskId: number | null
   sortOrder: number | null
   createdBy: number | null
   editedBy: number | null
@@ -69,12 +72,15 @@ export type ProjectTaskMinAggregateOutputType = {
 export type ProjectTaskMaxAggregateOutputType = {
   id: number | null
   projectId: number | null
+  planPhaseId: number | null
+  name: string | null
   isMilestone: boolean | null
   ownerEmployeeId: number | null
   description: string | null
+  baselineStartDate: Date | null
+  baselineEndDate: Date | null
   startDate: Date | null
   endDate: Date | null
-  predecessorTaskId: number | null
   sortOrder: number | null
   createdBy: number | null
   editedBy: number | null
@@ -87,12 +93,15 @@ export type ProjectTaskMaxAggregateOutputType = {
 export type ProjectTaskCountAggregateOutputType = {
   id: number
   projectId: number
+  planPhaseId: number
+  name: number
   isMilestone: number
   ownerEmployeeId: number
   description: number
+  baselineStartDate: number
+  baselineEndDate: number
   startDate: number
   endDate: number
-  predecessorTaskId: number
   sortOrder: number
   createdBy: number
   editedBy: number
@@ -107,8 +116,8 @@ export type ProjectTaskCountAggregateOutputType = {
 export type ProjectTaskAvgAggregateInputType = {
   id?: true
   projectId?: true
+  planPhaseId?: true
   ownerEmployeeId?: true
-  predecessorTaskId?: true
   sortOrder?: true
   createdBy?: true
   editedBy?: true
@@ -118,8 +127,8 @@ export type ProjectTaskAvgAggregateInputType = {
 export type ProjectTaskSumAggregateInputType = {
   id?: true
   projectId?: true
+  planPhaseId?: true
   ownerEmployeeId?: true
-  predecessorTaskId?: true
   sortOrder?: true
   createdBy?: true
   editedBy?: true
@@ -129,12 +138,15 @@ export type ProjectTaskSumAggregateInputType = {
 export type ProjectTaskMinAggregateInputType = {
   id?: true
   projectId?: true
+  planPhaseId?: true
+  name?: true
   isMilestone?: true
   ownerEmployeeId?: true
   description?: true
+  baselineStartDate?: true
+  baselineEndDate?: true
   startDate?: true
   endDate?: true
-  predecessorTaskId?: true
   sortOrder?: true
   createdBy?: true
   editedBy?: true
@@ -147,12 +159,15 @@ export type ProjectTaskMinAggregateInputType = {
 export type ProjectTaskMaxAggregateInputType = {
   id?: true
   projectId?: true
+  planPhaseId?: true
+  name?: true
   isMilestone?: true
   ownerEmployeeId?: true
   description?: true
+  baselineStartDate?: true
+  baselineEndDate?: true
   startDate?: true
   endDate?: true
-  predecessorTaskId?: true
   sortOrder?: true
   createdBy?: true
   editedBy?: true
@@ -165,12 +180,15 @@ export type ProjectTaskMaxAggregateInputType = {
 export type ProjectTaskCountAggregateInputType = {
   id?: true
   projectId?: true
+  planPhaseId?: true
+  name?: true
   isMilestone?: true
   ownerEmployeeId?: true
   description?: true
+  baselineStartDate?: true
+  baselineEndDate?: true
   startDate?: true
   endDate?: true
-  predecessorTaskId?: true
   sortOrder?: true
   createdBy?: true
   editedBy?: true
@@ -270,12 +288,15 @@ export type ProjectTaskGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 export type ProjectTaskGroupByOutputType = {
   id: number
   projectId: number
+  planPhaseId: number | null
+  name: string
   isMilestone: boolean
   ownerEmployeeId: number | null
   description: string
+  baselineStartDate: Date | null
+  baselineEndDate: Date | null
   startDate: Date | null
   endDate: Date | null
-  predecessorTaskId: number | null
   sortOrder: number
   createdBy: number | null
   editedBy: number | null
@@ -311,12 +332,15 @@ export type ProjectTaskWhereInput = {
   NOT?: Prisma.ProjectTaskWhereInput | Prisma.ProjectTaskWhereInput[]
   id?: Prisma.IntFilter<"ProjectTask"> | number
   projectId?: Prisma.IntFilter<"ProjectTask"> | number
+  planPhaseId?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
+  name?: Prisma.StringFilter<"ProjectTask"> | string
   isMilestone?: Prisma.BoolFilter<"ProjectTask"> | boolean
   ownerEmployeeId?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
   description?: Prisma.StringFilter<"ProjectTask"> | string
+  baselineStartDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
+  baselineEndDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
   startDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
-  predecessorTaskId?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
   sortOrder?: Prisma.IntFilter<"ProjectTask"> | number
   createdBy?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
   editedBy?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
@@ -325,20 +349,23 @@ export type ProjectTaskWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"ProjectTask"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProjectTask"> | Date | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
+  planPhase?: Prisma.XOR<Prisma.ProjectPlanPhaseNullableScalarRelationFilter, Prisma.ProjectPlanPhaseWhereInput> | null
   owner?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
-  predecessor?: Prisma.XOR<Prisma.ProjectTaskNullableScalarRelationFilter, Prisma.ProjectTaskWhereInput> | null
-  successors?: Prisma.ProjectTaskListRelationFilter
+  assignees?: Prisma.ProjectTaskAssignmentListRelationFilter
 }
 
 export type ProjectTaskOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
+  planPhaseId?: Prisma.SortOrderInput | Prisma.SortOrder
+  name?: Prisma.SortOrder
   isMilestone?: Prisma.SortOrder
   ownerEmployeeId?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrder
+  baselineStartDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  baselineEndDate?: Prisma.SortOrderInput | Prisma.SortOrder
   startDate?: Prisma.SortOrderInput | Prisma.SortOrder
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
-  predecessorTaskId?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -347,9 +374,9 @@ export type ProjectTaskOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   project?: Prisma.ProjectOrderByWithRelationInput
+  planPhase?: Prisma.ProjectPlanPhaseOrderByWithRelationInput
   owner?: Prisma.EmployeeOrderByWithRelationInput
-  predecessor?: Prisma.ProjectTaskOrderByWithRelationInput
-  successors?: Prisma.ProjectTaskOrderByRelationAggregateInput
+  assignees?: Prisma.ProjectTaskAssignmentOrderByRelationAggregateInput
 }
 
 export type ProjectTaskWhereUniqueInput = Prisma.AtLeast<{
@@ -358,12 +385,15 @@ export type ProjectTaskWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ProjectTaskWhereInput[]
   NOT?: Prisma.ProjectTaskWhereInput | Prisma.ProjectTaskWhereInput[]
   projectId?: Prisma.IntFilter<"ProjectTask"> | number
+  planPhaseId?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
+  name?: Prisma.StringFilter<"ProjectTask"> | string
   isMilestone?: Prisma.BoolFilter<"ProjectTask"> | boolean
   ownerEmployeeId?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
   description?: Prisma.StringFilter<"ProjectTask"> | string
+  baselineStartDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
+  baselineEndDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
   startDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
-  predecessorTaskId?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
   sortOrder?: Prisma.IntFilter<"ProjectTask"> | number
   createdBy?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
   editedBy?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
@@ -372,20 +402,23 @@ export type ProjectTaskWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"ProjectTask"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProjectTask"> | Date | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
+  planPhase?: Prisma.XOR<Prisma.ProjectPlanPhaseNullableScalarRelationFilter, Prisma.ProjectPlanPhaseWhereInput> | null
   owner?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
-  predecessor?: Prisma.XOR<Prisma.ProjectTaskNullableScalarRelationFilter, Prisma.ProjectTaskWhereInput> | null
-  successors?: Prisma.ProjectTaskListRelationFilter
+  assignees?: Prisma.ProjectTaskAssignmentListRelationFilter
 }, "id">
 
 export type ProjectTaskOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
+  planPhaseId?: Prisma.SortOrderInput | Prisma.SortOrder
+  name?: Prisma.SortOrder
   isMilestone?: Prisma.SortOrder
   ownerEmployeeId?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrder
+  baselineStartDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  baselineEndDate?: Prisma.SortOrderInput | Prisma.SortOrder
   startDate?: Prisma.SortOrderInput | Prisma.SortOrder
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
-  predecessorTaskId?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -406,12 +439,15 @@ export type ProjectTaskScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ProjectTaskScalarWhereWithAggregatesInput | Prisma.ProjectTaskScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"ProjectTask"> | number
   projectId?: Prisma.IntWithAggregatesFilter<"ProjectTask"> | number
+  planPhaseId?: Prisma.IntNullableWithAggregatesFilter<"ProjectTask"> | number | null
+  name?: Prisma.StringWithAggregatesFilter<"ProjectTask"> | string
   isMilestone?: Prisma.BoolWithAggregatesFilter<"ProjectTask"> | boolean
   ownerEmployeeId?: Prisma.IntNullableWithAggregatesFilter<"ProjectTask"> | number | null
   description?: Prisma.StringWithAggregatesFilter<"ProjectTask"> | string
+  baselineStartDate?: Prisma.DateTimeNullableWithAggregatesFilter<"ProjectTask"> | Date | string | null
+  baselineEndDate?: Prisma.DateTimeNullableWithAggregatesFilter<"ProjectTask"> | Date | string | null
   startDate?: Prisma.DateTimeNullableWithAggregatesFilter<"ProjectTask"> | Date | string | null
   endDate?: Prisma.DateTimeNullableWithAggregatesFilter<"ProjectTask"> | Date | string | null
-  predecessorTaskId?: Prisma.IntNullableWithAggregatesFilter<"ProjectTask"> | number | null
   sortOrder?: Prisma.IntWithAggregatesFilter<"ProjectTask"> | number
   createdBy?: Prisma.IntNullableWithAggregatesFilter<"ProjectTask"> | number | null
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"ProjectTask"> | number | null
@@ -422,8 +458,11 @@ export type ProjectTaskScalarWhereWithAggregatesInput = {
 }
 
 export type ProjectTaskCreateInput = {
+  name?: string
   isMilestone?: boolean
-  description: string
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   sortOrder?: number
@@ -434,20 +473,23 @@ export type ProjectTaskCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutTasksInput
+  planPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutTasksInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutProjectTasksInput
-  predecessor?: Prisma.ProjectTaskCreateNestedOneWithoutSuccessorsInput
-  successors?: Prisma.ProjectTaskCreateNestedManyWithoutPredecessorInput
+  assignees?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutTaskInput
 }
 
 export type ProjectTaskUncheckedCreateInput = {
   id?: number
   projectId: number
+  planPhaseId?: number | null
+  name?: string
   isMilestone?: boolean
   ownerEmployeeId?: number | null
-  description: string
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
-  predecessorTaskId?: number | null
   sortOrder?: number
   createdBy?: number | null
   editedBy?: number | null
@@ -455,12 +497,15 @@ export type ProjectTaskUncheckedCreateInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  successors?: Prisma.ProjectTaskUncheckedCreateNestedManyWithoutPredecessorInput
+  assignees?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutTaskInput
 }
 
 export type ProjectTaskUpdateInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -471,20 +516,23 @@ export type ProjectTaskUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutTasksNestedInput
+  planPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutTasksNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutProjectTasksNestedInput
-  predecessor?: Prisma.ProjectTaskUpdateOneWithoutSuccessorsNestedInput
-  successors?: Prisma.ProjectTaskUpdateManyWithoutPredecessorNestedInput
+  assignees?: Prisma.ProjectTaskAssignmentUpdateManyWithoutTaskNestedInput
 }
 
 export type ProjectTaskUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  planPhaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  predecessorTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -492,18 +540,21 @@ export type ProjectTaskUncheckedUpdateInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  successors?: Prisma.ProjectTaskUncheckedUpdateManyWithoutPredecessorNestedInput
+  assignees?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutTaskNestedInput
 }
 
 export type ProjectTaskCreateManyInput = {
   id?: number
   projectId: number
+  planPhaseId?: number | null
+  name?: string
   isMilestone?: boolean
   ownerEmployeeId?: number | null
-  description: string
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
-  predecessorTaskId?: number | null
   sortOrder?: number
   createdBy?: number | null
   editedBy?: number | null
@@ -514,8 +565,11 @@ export type ProjectTaskCreateManyInput = {
 }
 
 export type ProjectTaskUpdateManyMutationInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -530,12 +584,15 @@ export type ProjectTaskUpdateManyMutationInput = {
 export type ProjectTaskUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  planPhaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  predecessorTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -555,20 +612,18 @@ export type ProjectTaskOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type ProjectTaskNullableScalarRelationFilter = {
-  is?: Prisma.ProjectTaskWhereInput | null
-  isNot?: Prisma.ProjectTaskWhereInput | null
-}
-
 export type ProjectTaskCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
+  planPhaseId?: Prisma.SortOrder
+  name?: Prisma.SortOrder
   isMilestone?: Prisma.SortOrder
   ownerEmployeeId?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  baselineStartDate?: Prisma.SortOrder
+  baselineEndDate?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
-  predecessorTaskId?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
@@ -581,8 +636,8 @@ export type ProjectTaskCountOrderByAggregateInput = {
 export type ProjectTaskAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
+  planPhaseId?: Prisma.SortOrder
   ownerEmployeeId?: Prisma.SortOrder
-  predecessorTaskId?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
@@ -592,12 +647,15 @@ export type ProjectTaskAvgOrderByAggregateInput = {
 export type ProjectTaskMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
+  planPhaseId?: Prisma.SortOrder
+  name?: Prisma.SortOrder
   isMilestone?: Prisma.SortOrder
   ownerEmployeeId?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  baselineStartDate?: Prisma.SortOrder
+  baselineEndDate?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
-  predecessorTaskId?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
@@ -610,12 +668,15 @@ export type ProjectTaskMaxOrderByAggregateInput = {
 export type ProjectTaskMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
+  planPhaseId?: Prisma.SortOrder
+  name?: Prisma.SortOrder
   isMilestone?: Prisma.SortOrder
   ownerEmployeeId?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  baselineStartDate?: Prisma.SortOrder
+  baselineEndDate?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
-  predecessorTaskId?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
@@ -628,12 +689,17 @@ export type ProjectTaskMinOrderByAggregateInput = {
 export type ProjectTaskSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
+  planPhaseId?: Prisma.SortOrder
   ownerEmployeeId?: Prisma.SortOrder
-  predecessorTaskId?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
+}
+
+export type ProjectTaskScalarRelationFilter = {
+  is?: Prisma.ProjectTaskWhereInput
+  isNot?: Prisma.ProjectTaskWhereInput
 }
 
 export type ProjectTaskCreateNestedManyWithoutOwnerInput = {
@@ -720,67 +786,68 @@ export type ProjectTaskUncheckedUpdateManyWithoutProjectNestedInput = {
   deleteMany?: Prisma.ProjectTaskScalarWhereInput | Prisma.ProjectTaskScalarWhereInput[]
 }
 
-export type ProjectTaskCreateNestedOneWithoutSuccessorsInput = {
-  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutSuccessorsInput, Prisma.ProjectTaskUncheckedCreateWithoutSuccessorsInput>
-  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutSuccessorsInput
-  connect?: Prisma.ProjectTaskWhereUniqueInput
-}
-
-export type ProjectTaskCreateNestedManyWithoutPredecessorInput = {
-  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutPredecessorInput, Prisma.ProjectTaskUncheckedCreateWithoutPredecessorInput> | Prisma.ProjectTaskCreateWithoutPredecessorInput[] | Prisma.ProjectTaskUncheckedCreateWithoutPredecessorInput[]
-  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutPredecessorInput | Prisma.ProjectTaskCreateOrConnectWithoutPredecessorInput[]
-  createMany?: Prisma.ProjectTaskCreateManyPredecessorInputEnvelope
+export type ProjectTaskCreateNestedManyWithoutPlanPhaseInput = {
+  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutPlanPhaseInput, Prisma.ProjectTaskUncheckedCreateWithoutPlanPhaseInput> | Prisma.ProjectTaskCreateWithoutPlanPhaseInput[] | Prisma.ProjectTaskUncheckedCreateWithoutPlanPhaseInput[]
+  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutPlanPhaseInput | Prisma.ProjectTaskCreateOrConnectWithoutPlanPhaseInput[]
+  createMany?: Prisma.ProjectTaskCreateManyPlanPhaseInputEnvelope
   connect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
 }
 
-export type ProjectTaskUncheckedCreateNestedManyWithoutPredecessorInput = {
-  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutPredecessorInput, Prisma.ProjectTaskUncheckedCreateWithoutPredecessorInput> | Prisma.ProjectTaskCreateWithoutPredecessorInput[] | Prisma.ProjectTaskUncheckedCreateWithoutPredecessorInput[]
-  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutPredecessorInput | Prisma.ProjectTaskCreateOrConnectWithoutPredecessorInput[]
-  createMany?: Prisma.ProjectTaskCreateManyPredecessorInputEnvelope
+export type ProjectTaskUncheckedCreateNestedManyWithoutPlanPhaseInput = {
+  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutPlanPhaseInput, Prisma.ProjectTaskUncheckedCreateWithoutPlanPhaseInput> | Prisma.ProjectTaskCreateWithoutPlanPhaseInput[] | Prisma.ProjectTaskUncheckedCreateWithoutPlanPhaseInput[]
+  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutPlanPhaseInput | Prisma.ProjectTaskCreateOrConnectWithoutPlanPhaseInput[]
+  createMany?: Prisma.ProjectTaskCreateManyPlanPhaseInputEnvelope
   connect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
 }
 
-export type ProjectTaskUpdateOneWithoutSuccessorsNestedInput = {
-  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutSuccessorsInput, Prisma.ProjectTaskUncheckedCreateWithoutSuccessorsInput>
-  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutSuccessorsInput
-  upsert?: Prisma.ProjectTaskUpsertWithoutSuccessorsInput
-  disconnect?: Prisma.ProjectTaskWhereInput | boolean
-  delete?: Prisma.ProjectTaskWhereInput | boolean
-  connect?: Prisma.ProjectTaskWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectTaskUpdateToOneWithWhereWithoutSuccessorsInput, Prisma.ProjectTaskUpdateWithoutSuccessorsInput>, Prisma.ProjectTaskUncheckedUpdateWithoutSuccessorsInput>
-}
-
-export type ProjectTaskUpdateManyWithoutPredecessorNestedInput = {
-  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutPredecessorInput, Prisma.ProjectTaskUncheckedCreateWithoutPredecessorInput> | Prisma.ProjectTaskCreateWithoutPredecessorInput[] | Prisma.ProjectTaskUncheckedCreateWithoutPredecessorInput[]
-  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutPredecessorInput | Prisma.ProjectTaskCreateOrConnectWithoutPredecessorInput[]
-  upsert?: Prisma.ProjectTaskUpsertWithWhereUniqueWithoutPredecessorInput | Prisma.ProjectTaskUpsertWithWhereUniqueWithoutPredecessorInput[]
-  createMany?: Prisma.ProjectTaskCreateManyPredecessorInputEnvelope
+export type ProjectTaskUpdateManyWithoutPlanPhaseNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutPlanPhaseInput, Prisma.ProjectTaskUncheckedCreateWithoutPlanPhaseInput> | Prisma.ProjectTaskCreateWithoutPlanPhaseInput[] | Prisma.ProjectTaskUncheckedCreateWithoutPlanPhaseInput[]
+  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutPlanPhaseInput | Prisma.ProjectTaskCreateOrConnectWithoutPlanPhaseInput[]
+  upsert?: Prisma.ProjectTaskUpsertWithWhereUniqueWithoutPlanPhaseInput | Prisma.ProjectTaskUpsertWithWhereUniqueWithoutPlanPhaseInput[]
+  createMany?: Prisma.ProjectTaskCreateManyPlanPhaseInputEnvelope
   set?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
   disconnect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
   delete?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
   connect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
-  update?: Prisma.ProjectTaskUpdateWithWhereUniqueWithoutPredecessorInput | Prisma.ProjectTaskUpdateWithWhereUniqueWithoutPredecessorInput[]
-  updateMany?: Prisma.ProjectTaskUpdateManyWithWhereWithoutPredecessorInput | Prisma.ProjectTaskUpdateManyWithWhereWithoutPredecessorInput[]
+  update?: Prisma.ProjectTaskUpdateWithWhereUniqueWithoutPlanPhaseInput | Prisma.ProjectTaskUpdateWithWhereUniqueWithoutPlanPhaseInput[]
+  updateMany?: Prisma.ProjectTaskUpdateManyWithWhereWithoutPlanPhaseInput | Prisma.ProjectTaskUpdateManyWithWhereWithoutPlanPhaseInput[]
   deleteMany?: Prisma.ProjectTaskScalarWhereInput | Prisma.ProjectTaskScalarWhereInput[]
 }
 
-export type ProjectTaskUncheckedUpdateManyWithoutPredecessorNestedInput = {
-  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutPredecessorInput, Prisma.ProjectTaskUncheckedCreateWithoutPredecessorInput> | Prisma.ProjectTaskCreateWithoutPredecessorInput[] | Prisma.ProjectTaskUncheckedCreateWithoutPredecessorInput[]
-  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutPredecessorInput | Prisma.ProjectTaskCreateOrConnectWithoutPredecessorInput[]
-  upsert?: Prisma.ProjectTaskUpsertWithWhereUniqueWithoutPredecessorInput | Prisma.ProjectTaskUpsertWithWhereUniqueWithoutPredecessorInput[]
-  createMany?: Prisma.ProjectTaskCreateManyPredecessorInputEnvelope
+export type ProjectTaskUncheckedUpdateManyWithoutPlanPhaseNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutPlanPhaseInput, Prisma.ProjectTaskUncheckedCreateWithoutPlanPhaseInput> | Prisma.ProjectTaskCreateWithoutPlanPhaseInput[] | Prisma.ProjectTaskUncheckedCreateWithoutPlanPhaseInput[]
+  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutPlanPhaseInput | Prisma.ProjectTaskCreateOrConnectWithoutPlanPhaseInput[]
+  upsert?: Prisma.ProjectTaskUpsertWithWhereUniqueWithoutPlanPhaseInput | Prisma.ProjectTaskUpsertWithWhereUniqueWithoutPlanPhaseInput[]
+  createMany?: Prisma.ProjectTaskCreateManyPlanPhaseInputEnvelope
   set?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
   disconnect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
   delete?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
   connect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
-  update?: Prisma.ProjectTaskUpdateWithWhereUniqueWithoutPredecessorInput | Prisma.ProjectTaskUpdateWithWhereUniqueWithoutPredecessorInput[]
-  updateMany?: Prisma.ProjectTaskUpdateManyWithWhereWithoutPredecessorInput | Prisma.ProjectTaskUpdateManyWithWhereWithoutPredecessorInput[]
+  update?: Prisma.ProjectTaskUpdateWithWhereUniqueWithoutPlanPhaseInput | Prisma.ProjectTaskUpdateWithWhereUniqueWithoutPlanPhaseInput[]
+  updateMany?: Prisma.ProjectTaskUpdateManyWithWhereWithoutPlanPhaseInput | Prisma.ProjectTaskUpdateManyWithWhereWithoutPlanPhaseInput[]
   deleteMany?: Prisma.ProjectTaskScalarWhereInput | Prisma.ProjectTaskScalarWhereInput[]
+}
+
+export type ProjectTaskCreateNestedOneWithoutAssigneesInput = {
+  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutAssigneesInput, Prisma.ProjectTaskUncheckedCreateWithoutAssigneesInput>
+  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutAssigneesInput
+  connect?: Prisma.ProjectTaskWhereUniqueInput
+}
+
+export type ProjectTaskUpdateOneRequiredWithoutAssigneesNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutAssigneesInput, Prisma.ProjectTaskUncheckedCreateWithoutAssigneesInput>
+  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutAssigneesInput
+  upsert?: Prisma.ProjectTaskUpsertWithoutAssigneesInput
+  connect?: Prisma.ProjectTaskWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectTaskUpdateToOneWithWhereWithoutAssigneesInput, Prisma.ProjectTaskUpdateWithoutAssigneesInput>, Prisma.ProjectTaskUncheckedUpdateWithoutAssigneesInput>
 }
 
 export type ProjectTaskCreateWithoutOwnerInput = {
+  name?: string
   isMilestone?: boolean
-  description: string
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   sortOrder?: number
@@ -791,18 +858,21 @@ export type ProjectTaskCreateWithoutOwnerInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutTasksInput
-  predecessor?: Prisma.ProjectTaskCreateNestedOneWithoutSuccessorsInput
-  successors?: Prisma.ProjectTaskCreateNestedManyWithoutPredecessorInput
+  planPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutTasksInput
+  assignees?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutTaskInput
 }
 
 export type ProjectTaskUncheckedCreateWithoutOwnerInput = {
   id?: number
   projectId: number
+  planPhaseId?: number | null
+  name?: string
   isMilestone?: boolean
-  description: string
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
-  predecessorTaskId?: number | null
   sortOrder?: number
   createdBy?: number | null
   editedBy?: number | null
@@ -810,7 +880,7 @@ export type ProjectTaskUncheckedCreateWithoutOwnerInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  successors?: Prisma.ProjectTaskUncheckedCreateNestedManyWithoutPredecessorInput
+  assignees?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutTaskInput
 }
 
 export type ProjectTaskCreateOrConnectWithoutOwnerInput = {
@@ -844,12 +914,15 @@ export type ProjectTaskScalarWhereInput = {
   NOT?: Prisma.ProjectTaskScalarWhereInput | Prisma.ProjectTaskScalarWhereInput[]
   id?: Prisma.IntFilter<"ProjectTask"> | number
   projectId?: Prisma.IntFilter<"ProjectTask"> | number
+  planPhaseId?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
+  name?: Prisma.StringFilter<"ProjectTask"> | string
   isMilestone?: Prisma.BoolFilter<"ProjectTask"> | boolean
   ownerEmployeeId?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
   description?: Prisma.StringFilter<"ProjectTask"> | string
+  baselineStartDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
+  baselineEndDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
   startDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
-  predecessorTaskId?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
   sortOrder?: Prisma.IntFilter<"ProjectTask"> | number
   createdBy?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
   editedBy?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
@@ -860,8 +933,11 @@ export type ProjectTaskScalarWhereInput = {
 }
 
 export type ProjectTaskCreateWithoutProjectInput = {
+  name?: string
   isMilestone?: boolean
-  description: string
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   sortOrder?: number
@@ -871,19 +947,22 @@ export type ProjectTaskCreateWithoutProjectInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  planPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutTasksInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutProjectTasksInput
-  predecessor?: Prisma.ProjectTaskCreateNestedOneWithoutSuccessorsInput
-  successors?: Prisma.ProjectTaskCreateNestedManyWithoutPredecessorInput
+  assignees?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutTaskInput
 }
 
 export type ProjectTaskUncheckedCreateWithoutProjectInput = {
   id?: number
+  planPhaseId?: number | null
+  name?: string
   isMilestone?: boolean
   ownerEmployeeId?: number | null
-  description: string
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
-  predecessorTaskId?: number | null
   sortOrder?: number
   createdBy?: number | null
   editedBy?: number | null
@@ -891,7 +970,7 @@ export type ProjectTaskUncheckedCreateWithoutProjectInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  successors?: Prisma.ProjectTaskUncheckedCreateNestedManyWithoutPredecessorInput
+  assignees?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutTaskInput
 }
 
 export type ProjectTaskCreateOrConnectWithoutProjectInput = {
@@ -919,9 +998,12 @@ export type ProjectTaskUpdateManyWithWhereWithoutProjectInput = {
   data: Prisma.XOR<Prisma.ProjectTaskUpdateManyMutationInput, Prisma.ProjectTaskUncheckedUpdateManyWithoutProjectInput>
 }
 
-export type ProjectTaskCreateWithoutSuccessorsInput = {
+export type ProjectTaskCreateWithoutPlanPhaseInput = {
+  name?: string
   isMilestone?: boolean
-  description: string
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   sortOrder?: number
@@ -933,18 +1015,20 @@ export type ProjectTaskCreateWithoutSuccessorsInput = {
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutTasksInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutProjectTasksInput
-  predecessor?: Prisma.ProjectTaskCreateNestedOneWithoutSuccessorsInput
+  assignees?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutTaskInput
 }
 
-export type ProjectTaskUncheckedCreateWithoutSuccessorsInput = {
+export type ProjectTaskUncheckedCreateWithoutPlanPhaseInput = {
   id?: number
   projectId: number
+  name?: string
   isMilestone?: boolean
   ownerEmployeeId?: number | null
-  description: string
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
-  predecessorTaskId?: number | null
   sortOrder?: number
   createdBy?: number | null
   editedBy?: number | null
@@ -952,16 +1036,40 @@ export type ProjectTaskUncheckedCreateWithoutSuccessorsInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  assignees?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutTaskInput
 }
 
-export type ProjectTaskCreateOrConnectWithoutSuccessorsInput = {
+export type ProjectTaskCreateOrConnectWithoutPlanPhaseInput = {
   where: Prisma.ProjectTaskWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProjectTaskCreateWithoutSuccessorsInput, Prisma.ProjectTaskUncheckedCreateWithoutSuccessorsInput>
+  create: Prisma.XOR<Prisma.ProjectTaskCreateWithoutPlanPhaseInput, Prisma.ProjectTaskUncheckedCreateWithoutPlanPhaseInput>
 }
 
-export type ProjectTaskCreateWithoutPredecessorInput = {
+export type ProjectTaskCreateManyPlanPhaseInputEnvelope = {
+  data: Prisma.ProjectTaskCreateManyPlanPhaseInput | Prisma.ProjectTaskCreateManyPlanPhaseInput[]
+}
+
+export type ProjectTaskUpsertWithWhereUniqueWithoutPlanPhaseInput = {
+  where: Prisma.ProjectTaskWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProjectTaskUpdateWithoutPlanPhaseInput, Prisma.ProjectTaskUncheckedUpdateWithoutPlanPhaseInput>
+  create: Prisma.XOR<Prisma.ProjectTaskCreateWithoutPlanPhaseInput, Prisma.ProjectTaskUncheckedCreateWithoutPlanPhaseInput>
+}
+
+export type ProjectTaskUpdateWithWhereUniqueWithoutPlanPhaseInput = {
+  where: Prisma.ProjectTaskWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProjectTaskUpdateWithoutPlanPhaseInput, Prisma.ProjectTaskUncheckedUpdateWithoutPlanPhaseInput>
+}
+
+export type ProjectTaskUpdateManyWithWhereWithoutPlanPhaseInput = {
+  where: Prisma.ProjectTaskScalarWhereInput
+  data: Prisma.XOR<Prisma.ProjectTaskUpdateManyMutationInput, Prisma.ProjectTaskUncheckedUpdateManyWithoutPlanPhaseInput>
+}
+
+export type ProjectTaskCreateWithoutAssigneesInput = {
+  name?: string
   isMilestone?: boolean
-  description: string
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   sortOrder?: number
@@ -972,16 +1080,20 @@ export type ProjectTaskCreateWithoutPredecessorInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutTasksInput
+  planPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutTasksInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutProjectTasksInput
-  successors?: Prisma.ProjectTaskCreateNestedManyWithoutPredecessorInput
 }
 
-export type ProjectTaskUncheckedCreateWithoutPredecessorInput = {
+export type ProjectTaskUncheckedCreateWithoutAssigneesInput = {
   id?: number
   projectId: number
+  planPhaseId?: number | null
+  name?: string
   isMilestone?: boolean
   ownerEmployeeId?: number | null
-  description: string
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   sortOrder?: number
@@ -991,32 +1103,30 @@ export type ProjectTaskUncheckedCreateWithoutPredecessorInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  successors?: Prisma.ProjectTaskUncheckedCreateNestedManyWithoutPredecessorInput
 }
 
-export type ProjectTaskCreateOrConnectWithoutPredecessorInput = {
+export type ProjectTaskCreateOrConnectWithoutAssigneesInput = {
   where: Prisma.ProjectTaskWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProjectTaskCreateWithoutPredecessorInput, Prisma.ProjectTaskUncheckedCreateWithoutPredecessorInput>
+  create: Prisma.XOR<Prisma.ProjectTaskCreateWithoutAssigneesInput, Prisma.ProjectTaskUncheckedCreateWithoutAssigneesInput>
 }
 
-export type ProjectTaskCreateManyPredecessorInputEnvelope = {
-  data: Prisma.ProjectTaskCreateManyPredecessorInput | Prisma.ProjectTaskCreateManyPredecessorInput[]
-}
-
-export type ProjectTaskUpsertWithoutSuccessorsInput = {
-  update: Prisma.XOR<Prisma.ProjectTaskUpdateWithoutSuccessorsInput, Prisma.ProjectTaskUncheckedUpdateWithoutSuccessorsInput>
-  create: Prisma.XOR<Prisma.ProjectTaskCreateWithoutSuccessorsInput, Prisma.ProjectTaskUncheckedCreateWithoutSuccessorsInput>
+export type ProjectTaskUpsertWithoutAssigneesInput = {
+  update: Prisma.XOR<Prisma.ProjectTaskUpdateWithoutAssigneesInput, Prisma.ProjectTaskUncheckedUpdateWithoutAssigneesInput>
+  create: Prisma.XOR<Prisma.ProjectTaskCreateWithoutAssigneesInput, Prisma.ProjectTaskUncheckedCreateWithoutAssigneesInput>
   where?: Prisma.ProjectTaskWhereInput
 }
 
-export type ProjectTaskUpdateToOneWithWhereWithoutSuccessorsInput = {
+export type ProjectTaskUpdateToOneWithWhereWithoutAssigneesInput = {
   where?: Prisma.ProjectTaskWhereInput
-  data: Prisma.XOR<Prisma.ProjectTaskUpdateWithoutSuccessorsInput, Prisma.ProjectTaskUncheckedUpdateWithoutSuccessorsInput>
+  data: Prisma.XOR<Prisma.ProjectTaskUpdateWithoutAssigneesInput, Prisma.ProjectTaskUncheckedUpdateWithoutAssigneesInput>
 }
 
-export type ProjectTaskUpdateWithoutSuccessorsInput = {
+export type ProjectTaskUpdateWithoutAssigneesInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1027,19 +1137,22 @@ export type ProjectTaskUpdateWithoutSuccessorsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutTasksNestedInput
+  planPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutTasksNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutProjectTasksNestedInput
-  predecessor?: Prisma.ProjectTaskUpdateOneWithoutSuccessorsNestedInput
 }
 
-export type ProjectTaskUncheckedUpdateWithoutSuccessorsInput = {
+export type ProjectTaskUncheckedUpdateWithoutAssigneesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  planPhaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  predecessorTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1049,30 +1162,17 @@ export type ProjectTaskUncheckedUpdateWithoutSuccessorsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ProjectTaskUpsertWithWhereUniqueWithoutPredecessorInput = {
-  where: Prisma.ProjectTaskWhereUniqueInput
-  update: Prisma.XOR<Prisma.ProjectTaskUpdateWithoutPredecessorInput, Prisma.ProjectTaskUncheckedUpdateWithoutPredecessorInput>
-  create: Prisma.XOR<Prisma.ProjectTaskCreateWithoutPredecessorInput, Prisma.ProjectTaskUncheckedCreateWithoutPredecessorInput>
-}
-
-export type ProjectTaskUpdateWithWhereUniqueWithoutPredecessorInput = {
-  where: Prisma.ProjectTaskWhereUniqueInput
-  data: Prisma.XOR<Prisma.ProjectTaskUpdateWithoutPredecessorInput, Prisma.ProjectTaskUncheckedUpdateWithoutPredecessorInput>
-}
-
-export type ProjectTaskUpdateManyWithWhereWithoutPredecessorInput = {
-  where: Prisma.ProjectTaskScalarWhereInput
-  data: Prisma.XOR<Prisma.ProjectTaskUpdateManyMutationInput, Prisma.ProjectTaskUncheckedUpdateManyWithoutPredecessorInput>
-}
-
 export type ProjectTaskCreateManyOwnerInput = {
   id?: number
   projectId: number
+  planPhaseId?: number | null
+  name?: string
   isMilestone?: boolean
-  description: string
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
-  predecessorTaskId?: number | null
   sortOrder?: number
   createdBy?: number | null
   editedBy?: number | null
@@ -1083,8 +1183,11 @@ export type ProjectTaskCreateManyOwnerInput = {
 }
 
 export type ProjectTaskUpdateWithoutOwnerInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1095,18 +1198,21 @@ export type ProjectTaskUpdateWithoutOwnerInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutTasksNestedInput
-  predecessor?: Prisma.ProjectTaskUpdateOneWithoutSuccessorsNestedInput
-  successors?: Prisma.ProjectTaskUpdateManyWithoutPredecessorNestedInput
+  planPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutTasksNestedInput
+  assignees?: Prisma.ProjectTaskAssignmentUpdateManyWithoutTaskNestedInput
 }
 
 export type ProjectTaskUncheckedUpdateWithoutOwnerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  planPhaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  predecessorTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1114,17 +1220,20 @@ export type ProjectTaskUncheckedUpdateWithoutOwnerInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  successors?: Prisma.ProjectTaskUncheckedUpdateManyWithoutPredecessorNestedInput
+  assignees?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutTaskNestedInput
 }
 
 export type ProjectTaskUncheckedUpdateManyWithoutOwnerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  planPhaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  predecessorTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1136,12 +1245,15 @@ export type ProjectTaskUncheckedUpdateManyWithoutOwnerInput = {
 
 export type ProjectTaskCreateManyProjectInput = {
   id?: number
+  planPhaseId?: number | null
+  name?: string
   isMilestone?: boolean
   ownerEmployeeId?: number | null
-  description: string
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
-  predecessorTaskId?: number | null
   sortOrder?: number
   createdBy?: number | null
   editedBy?: number | null
@@ -1152,8 +1264,11 @@ export type ProjectTaskCreateManyProjectInput = {
 }
 
 export type ProjectTaskUpdateWithoutProjectInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1163,19 +1278,22 @@ export type ProjectTaskUpdateWithoutProjectInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  planPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutTasksNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutProjectTasksNestedInput
-  predecessor?: Prisma.ProjectTaskUpdateOneWithoutSuccessorsNestedInput
-  successors?: Prisma.ProjectTaskUpdateManyWithoutPredecessorNestedInput
+  assignees?: Prisma.ProjectTaskAssignmentUpdateManyWithoutTaskNestedInput
 }
 
 export type ProjectTaskUncheckedUpdateWithoutProjectInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planPhaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  predecessorTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1183,17 +1301,20 @@ export type ProjectTaskUncheckedUpdateWithoutProjectInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  successors?: Prisma.ProjectTaskUncheckedUpdateManyWithoutPredecessorNestedInput
+  assignees?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutTaskNestedInput
 }
 
 export type ProjectTaskUncheckedUpdateManyWithoutProjectInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planPhaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  predecessorTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1203,12 +1324,15 @@ export type ProjectTaskUncheckedUpdateManyWithoutProjectInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ProjectTaskCreateManyPredecessorInput = {
+export type ProjectTaskCreateManyPlanPhaseInput = {
   id?: number
   projectId: number
+  name?: string
   isMilestone?: boolean
   ownerEmployeeId?: number | null
-  description: string
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   sortOrder?: number
@@ -1220,9 +1344,12 @@ export type ProjectTaskCreateManyPredecessorInput = {
   updatedAt?: Date | string
 }
 
-export type ProjectTaskUpdateWithoutPredecessorInput = {
+export type ProjectTaskUpdateWithoutPlanPhaseInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1234,15 +1361,18 @@ export type ProjectTaskUpdateWithoutPredecessorInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutTasksNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutProjectTasksNestedInput
-  successors?: Prisma.ProjectTaskUpdateManyWithoutPredecessorNestedInput
+  assignees?: Prisma.ProjectTaskAssignmentUpdateManyWithoutTaskNestedInput
 }
 
-export type ProjectTaskUncheckedUpdateWithoutPredecessorInput = {
+export type ProjectTaskUncheckedUpdateWithoutPlanPhaseInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1252,15 +1382,18 @@ export type ProjectTaskUncheckedUpdateWithoutPredecessorInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  successors?: Prisma.ProjectTaskUncheckedUpdateManyWithoutPredecessorNestedInput
+  assignees?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutTaskNestedInput
 }
 
-export type ProjectTaskUncheckedUpdateManyWithoutPredecessorInput = {
+export type ProjectTaskUncheckedUpdateManyWithoutPlanPhaseInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1278,11 +1411,11 @@ export type ProjectTaskUncheckedUpdateManyWithoutPredecessorInput = {
  */
 
 export type ProjectTaskCountOutputType = {
-  successors: number
+  assignees: number
 }
 
 export type ProjectTaskCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  successors?: boolean | ProjectTaskCountOutputTypeCountSuccessorsArgs
+  assignees?: boolean | ProjectTaskCountOutputTypeCountAssigneesArgs
 }
 
 /**
@@ -1298,20 +1431,23 @@ export type ProjectTaskCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.
 /**
  * ProjectTaskCountOutputType without action
  */
-export type ProjectTaskCountOutputTypeCountSuccessorsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ProjectTaskWhereInput
+export type ProjectTaskCountOutputTypeCountAssigneesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectTaskAssignmentWhereInput
 }
 
 
 export type ProjectTaskSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   projectId?: boolean
+  planPhaseId?: boolean
+  name?: boolean
   isMilestone?: boolean
   ownerEmployeeId?: boolean
   description?: boolean
+  baselineStartDate?: boolean
+  baselineEndDate?: boolean
   startDate?: boolean
   endDate?: boolean
-  predecessorTaskId?: boolean
   sortOrder?: boolean
   createdBy?: boolean
   editedBy?: boolean
@@ -1320,21 +1456,24 @@ export type ProjectTaskSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   createdAt?: boolean
   updatedAt?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  planPhase?: boolean | Prisma.ProjectTask$planPhaseArgs<ExtArgs>
   owner?: boolean | Prisma.ProjectTask$ownerArgs<ExtArgs>
-  predecessor?: boolean | Prisma.ProjectTask$predecessorArgs<ExtArgs>
-  successors?: boolean | Prisma.ProjectTask$successorsArgs<ExtArgs>
+  assignees?: boolean | Prisma.ProjectTask$assigneesArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectTaskCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["projectTask"]>
 
 export type ProjectTaskSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   projectId?: boolean
+  planPhaseId?: boolean
+  name?: boolean
   isMilestone?: boolean
   ownerEmployeeId?: boolean
   description?: boolean
+  baselineStartDate?: boolean
+  baselineEndDate?: boolean
   startDate?: boolean
   endDate?: boolean
-  predecessorTaskId?: boolean
   sortOrder?: boolean
   createdBy?: boolean
   editedBy?: boolean
@@ -1343,19 +1482,22 @@ export type ProjectTaskSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   createdAt?: boolean
   updatedAt?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  planPhase?: boolean | Prisma.ProjectTask$planPhaseArgs<ExtArgs>
   owner?: boolean | Prisma.ProjectTask$ownerArgs<ExtArgs>
-  predecessor?: boolean | Prisma.ProjectTask$predecessorArgs<ExtArgs>
 }, ExtArgs["result"]["projectTask"]>
 
 export type ProjectTaskSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   projectId?: boolean
+  planPhaseId?: boolean
+  name?: boolean
   isMilestone?: boolean
   ownerEmployeeId?: boolean
   description?: boolean
+  baselineStartDate?: boolean
+  baselineEndDate?: boolean
   startDate?: boolean
   endDate?: boolean
-  predecessorTaskId?: boolean
   sortOrder?: boolean
   createdBy?: boolean
   editedBy?: boolean
@@ -1364,19 +1506,22 @@ export type ProjectTaskSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   createdAt?: boolean
   updatedAt?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  planPhase?: boolean | Prisma.ProjectTask$planPhaseArgs<ExtArgs>
   owner?: boolean | Prisma.ProjectTask$ownerArgs<ExtArgs>
-  predecessor?: boolean | Prisma.ProjectTask$predecessorArgs<ExtArgs>
 }, ExtArgs["result"]["projectTask"]>
 
 export type ProjectTaskSelectScalar = {
   id?: boolean
   projectId?: boolean
+  planPhaseId?: boolean
+  name?: boolean
   isMilestone?: boolean
   ownerEmployeeId?: boolean
   description?: boolean
+  baselineStartDate?: boolean
+  baselineEndDate?: boolean
   startDate?: boolean
   endDate?: boolean
-  predecessorTaskId?: boolean
   sortOrder?: boolean
   createdBy?: boolean
   editedBy?: boolean
@@ -1386,42 +1531,45 @@ export type ProjectTaskSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProjectTaskOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "isMilestone" | "ownerEmployeeId" | "description" | "startDate" | "endDate" | "predecessorTaskId" | "sortOrder" | "createdBy" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["projectTask"]>
+export type ProjectTaskOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "planPhaseId" | "name" | "isMilestone" | "ownerEmployeeId" | "description" | "baselineStartDate" | "baselineEndDate" | "startDate" | "endDate" | "sortOrder" | "createdBy" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["projectTask"]>
 export type ProjectTaskInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  planPhase?: boolean | Prisma.ProjectTask$planPhaseArgs<ExtArgs>
   owner?: boolean | Prisma.ProjectTask$ownerArgs<ExtArgs>
-  predecessor?: boolean | Prisma.ProjectTask$predecessorArgs<ExtArgs>
-  successors?: boolean | Prisma.ProjectTask$successorsArgs<ExtArgs>
+  assignees?: boolean | Prisma.ProjectTask$assigneesArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectTaskCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProjectTaskIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  planPhase?: boolean | Prisma.ProjectTask$planPhaseArgs<ExtArgs>
   owner?: boolean | Prisma.ProjectTask$ownerArgs<ExtArgs>
-  predecessor?: boolean | Prisma.ProjectTask$predecessorArgs<ExtArgs>
 }
 export type ProjectTaskIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  planPhase?: boolean | Prisma.ProjectTask$planPhaseArgs<ExtArgs>
   owner?: boolean | Prisma.ProjectTask$ownerArgs<ExtArgs>
-  predecessor?: boolean | Prisma.ProjectTask$predecessorArgs<ExtArgs>
 }
 
 export type $ProjectTaskPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ProjectTask"
   objects: {
     project: Prisma.$ProjectPayload<ExtArgs>
+    planPhase: Prisma.$ProjectPlanPhasePayload<ExtArgs> | null
     owner: Prisma.$EmployeePayload<ExtArgs> | null
-    predecessor: Prisma.$ProjectTaskPayload<ExtArgs> | null
-    successors: Prisma.$ProjectTaskPayload<ExtArgs>[]
+    assignees: Prisma.$ProjectTaskAssignmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     projectId: number
+    planPhaseId: number | null
+    name: string
     isMilestone: boolean
     ownerEmployeeId: number | null
     description: string
+    baselineStartDate: Date | null
+    baselineEndDate: Date | null
     startDate: Date | null
     endDate: Date | null
-    predecessorTaskId: number | null
     sortOrder: number
     createdBy: number | null
     editedBy: number | null
@@ -1824,9 +1972,9 @@ readonly fields: ProjectTaskFieldRefs;
 export interface Prisma__ProjectTaskClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  planPhase<T extends Prisma.ProjectTask$planPhaseArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectTask$planPhaseArgs<ExtArgs>>): Prisma.Prisma__ProjectPlanPhaseClient<runtime.Types.Result.GetResult<Prisma.$ProjectPlanPhasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   owner<T extends Prisma.ProjectTask$ownerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectTask$ownerArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  predecessor<T extends Prisma.ProjectTask$predecessorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectTask$predecessorArgs<ExtArgs>>): Prisma.Prisma__ProjectTaskClient<runtime.Types.Result.GetResult<Prisma.$ProjectTaskPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  successors<T extends Prisma.ProjectTask$successorsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectTask$successorsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assignees<T extends Prisma.ProjectTask$assigneesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectTask$assigneesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectTaskAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1858,12 +2006,15 @@ export interface Prisma__ProjectTaskClient<T, Null = never, ExtArgs extends runt
 export interface ProjectTaskFieldRefs {
   readonly id: Prisma.FieldRef<"ProjectTask", 'Int'>
   readonly projectId: Prisma.FieldRef<"ProjectTask", 'Int'>
+  readonly planPhaseId: Prisma.FieldRef<"ProjectTask", 'Int'>
+  readonly name: Prisma.FieldRef<"ProjectTask", 'String'>
   readonly isMilestone: Prisma.FieldRef<"ProjectTask", 'Boolean'>
   readonly ownerEmployeeId: Prisma.FieldRef<"ProjectTask", 'Int'>
   readonly description: Prisma.FieldRef<"ProjectTask", 'String'>
+  readonly baselineStartDate: Prisma.FieldRef<"ProjectTask", 'DateTime'>
+  readonly baselineEndDate: Prisma.FieldRef<"ProjectTask", 'DateTime'>
   readonly startDate: Prisma.FieldRef<"ProjectTask", 'DateTime'>
   readonly endDate: Prisma.FieldRef<"ProjectTask", 'DateTime'>
-  readonly predecessorTaskId: Prisma.FieldRef<"ProjectTask", 'Int'>
   readonly sortOrder: Prisma.FieldRef<"ProjectTask", 'Int'>
   readonly createdBy: Prisma.FieldRef<"ProjectTask", 'Int'>
   readonly editedBy: Prisma.FieldRef<"ProjectTask", 'Int'>
@@ -2270,6 +2421,25 @@ export type ProjectTaskDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 /**
+ * ProjectTask.planPhase
+ */
+export type ProjectTask$planPhaseArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectPlanPhase
+   */
+  select?: Prisma.ProjectPlanPhaseSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectPlanPhase
+   */
+  omit?: Prisma.ProjectPlanPhaseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectPlanPhaseInclude<ExtArgs> | null
+  where?: Prisma.ProjectPlanPhaseWhereInput
+}
+
+/**
  * ProjectTask.owner
  */
 export type ProjectTask$ownerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2289,46 +2459,27 @@ export type ProjectTask$ownerArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
- * ProjectTask.predecessor
+ * ProjectTask.assignees
  */
-export type ProjectTask$predecessorArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ProjectTask$assigneesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ProjectTask
+   * Select specific fields to fetch from the ProjectTaskAssignment
    */
-  select?: Prisma.ProjectTaskSelect<ExtArgs> | null
+  select?: Prisma.ProjectTaskAssignmentSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ProjectTask
+   * Omit specific fields from the ProjectTaskAssignment
    */
-  omit?: Prisma.ProjectTaskOmit<ExtArgs> | null
+  omit?: Prisma.ProjectTaskAssignmentOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ProjectTaskInclude<ExtArgs> | null
-  where?: Prisma.ProjectTaskWhereInput
-}
-
-/**
- * ProjectTask.successors
- */
-export type ProjectTask$successorsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ProjectTask
-   */
-  select?: Prisma.ProjectTaskSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ProjectTask
-   */
-  omit?: Prisma.ProjectTaskOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProjectTaskInclude<ExtArgs> | null
-  where?: Prisma.ProjectTaskWhereInput
-  orderBy?: Prisma.ProjectTaskOrderByWithRelationInput | Prisma.ProjectTaskOrderByWithRelationInput[]
-  cursor?: Prisma.ProjectTaskWhereUniqueInput
+  include?: Prisma.ProjectTaskAssignmentInclude<ExtArgs> | null
+  where?: Prisma.ProjectTaskAssignmentWhereInput
+  orderBy?: Prisma.ProjectTaskAssignmentOrderByWithRelationInput | Prisma.ProjectTaskAssignmentOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectTaskAssignmentWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.ProjectTaskScalarFieldEnum | Prisma.ProjectTaskScalarFieldEnum[]
+  distinct?: Prisma.ProjectTaskAssignmentScalarFieldEnum | Prisma.ProjectTaskAssignmentScalarFieldEnum[]
 }
 
 /**

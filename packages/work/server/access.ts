@@ -11,8 +11,7 @@ export async function canUseProject(userId: number, role: ProjectAccessRole = "a
 
 export async function hasProjectBroadAccess(userId: number, role: ProjectAccessRole = "access") {
   if (await isSuperAdmin(userId)) return true;
-  if (await authorize({ user: userId, resourceKey: "work.projects", action: role })) return true;
-  return authorize({ user: userId, resourceKey: "work", action: role });
+  return authorize({ user: userId, resourceKey: "work.projects", action: role });
 }
 
 async function hasProjectL2Access(userId: number, role: ProjectAccessRole = "access") {
@@ -34,7 +33,6 @@ export interface ProjectPermissionResult {
 
 type ProjectPermissionProject = {
   id: number;
-  type: string | null;
   createdBy: number | null;
   editedBy: number | null;
   leadingDepartment?: { managerUserId: number | null } | null;
@@ -65,7 +63,7 @@ export async function buildVisibleProjectWhere(userId: number) {
   return {
     OR: [
       { createdBy: userId },
-      { type: "department", leadingDepartment: { managerUserId: userId } },
+      { leadingDepartment: { managerUserId: userId } },
       ...(employeeIds.length ? [{ employees: { some: { employeeId: { in: employeeIds } } } }] : []),
     ],
   };
@@ -93,7 +91,7 @@ export async function getProjectPermissions(
     .map((member) => member.role || "");
 
   const isCreator = project.createdBy === userId;
-  const isDepartmentManager = project.type === "department" && project.leadingDepartment?.managerUserId === userId;
+  const isDepartmentManager = project.leadingDepartment?.managerUserId === userId;
   const isProjectManager = memberRoles.some((role) => PROJECT_MANAGER_ROLES.has(role));
   const isProjectEditor = memberRoles.some((role) => PROJECT_EDITOR_ROLES.has(role));
   const isProjectViewer = memberRoles.some((role) => PROJECT_VIEWER_ROLES.has(role));
@@ -115,7 +113,6 @@ async function loadProjectForPermission(projectId: number) {
     where: { id: projectId },
     select: {
       id: true,
-      type: true,
       createdBy: true,
       editedBy: true,
       leadingDepartment: { select: { managerUserId: true } },

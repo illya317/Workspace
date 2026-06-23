@@ -33,10 +33,6 @@ export default function ProjectListPanel({
           subtitle={projectCode(project, null)}
           active={selection === project.id}
           archived={project.isArchived}
-          meta={[
-            ...(project.projectLevel && project.projectLevel !== "普通" ? [project.projectLevel] : []),
-            ...(project.isMilestone ? ["里程碑"] : []),
-          ]}
           onClick={() => onSelect(project.id)}
         />
       ))}
@@ -61,16 +57,14 @@ function ProjectTitle({ name, status }: { name: string; status: string | null })
 }
 
 function projectStatusClassName(status: string) {
-  if (status === "暂停") return "bg-amber-50 text-amber-700";
   if (status === "进行中") return "bg-emerald-50 text-emerald-700";
   if (status === "已完成") return "bg-slate-100 text-slate-500";
-  if (status === "已取消") return "bg-rose-50 text-rose-600";
+  if (status === "已终止") return "bg-rose-50 text-rose-600";
   return "bg-sky-50 text-sky-700";
 }
 
 function emptyTextForFilter(filter: ProjectListFilter) {
-  if (filter === "department") return "暂无部门项目";
-  if (filter === "subproject") return "暂无子项目";
-  if (filter === "other") return "暂无其他项目";
+  if (filter === "普通") return "暂无普通项目";
+  if (filter === "重点") return "暂无重点项目";
   return "暂无项目";
 }

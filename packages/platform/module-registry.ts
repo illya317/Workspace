@@ -3,7 +3,6 @@ import type { FkRegistration } from "./server/fk-targets";
 import { apiResourceGuards, apiRoutes, systemApiRoutes, validateModuleRegistry } from "./module-registry-utils";
 
 const WORK_FK_REGISTRATIONS = [
-  { key: "work.projects.parent", scope: "work", source: { entity: "Project", field: "parentId" }, target: "project", targetLabel: "上级项目", nullable: true, permission: { resourceKey: "work.projects", action: "access" } },
   { key: "work.projects.leadingDepartment", scope: "work", source: { entity: "Project", field: "leadingDepartmentId" }, target: "department", targetLabel: "主导部门", nullable: false, permission: { resourceKey: "work.projects", action: "access" } },
   { key: "work.projects.member.employee", scope: "work", source: { entity: "EmployeeProject", field: "employeeId" }, target: "employee", nullable: false, permission: { resourceKey: "work.projects", action: "access" } },
   { key: "work.projects.member.project", scope: "work", source: { entity: "EmployeeProject", field: "projectId" }, target: "project", nullable: false, permission: { resourceKey: "work.projects", action: "access" } },
@@ -28,15 +27,15 @@ export const registeredModuleDefinitions = [
     moduleDef: {
       key: "work",
       label: "工作管理",
-      desc: "项目、清单、汇报和历史记录",
+      desc: "计划、项目、汇报和历史记录",
       href: "/work",
       iconKey: "reports",
       color: "emerald",
       resourceKey: "work",
       resourceSortOrder: 0,
       children: [
-        { key: "projects", label: "项目", desc: "项目信息、角色分工、预算和风险", href: "/work/projects", resourceKey: "work.projects", apiPrefixes: ["/api/modules/work/projects"] },
-        { key: "tasks", label: "工作清单", desc: "待办任务和执行跟踪", href: "/work/tasks", resourceKey: "work.tasks", apiPrefixes: ["/api/modules/work/tasks"] },
+        { key: "tasks", label: "工作计划", desc: "个人计划、待办任务和执行跟踪", href: "/work/tasks", resourceKey: "work.tasks", apiPrefixes: ["/api/modules/work/tasks"] },
+        { key: "projects", label: "项目管理", desc: "组织项目、角色分工、预算和风险", href: "/work/projects", resourceKey: "work.projects", apiPrefixes: ["/api/modules/work/projects"] },
         { key: "reports", label: "工作汇报", desc: "周报、月报、季报、年报", href: "/work/reports", resourceKey: "work.reports", apiPrefixes: ["/api/modules/work/reports"] },
         { key: "history", label: "历史记录", desc: "变更和操作记录", href: "/work/history", resourceKey: "work.history", noApiReason: "历史记录由页面内审计视图读取，不提供独立业务 API" },
       ],

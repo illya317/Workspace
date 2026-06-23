@@ -5,7 +5,7 @@ import { WorksClient } from "@workspace/work/ui";
 export default async function WorkTasksPage() {
   const user = await requireRouteAccess("/work/tasks");
   return (
-    <AppShell title="工作清单" backHref="/work" user={user}>
+    <AppShell title="工作计划" backHref="/work" user={user}>
       <WorksClient user={user} hideShell />
     </AppShell>
   );

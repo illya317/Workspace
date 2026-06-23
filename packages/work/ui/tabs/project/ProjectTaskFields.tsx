@@ -5,7 +5,9 @@ import {
   FkFieldInput,
   FormField,
   OptionPicker,
+  RemovableTag,
   TextareaField,
+  TextField,
   getFieldInputClassName,
   type FkFieldOption,
   type PickerOption,
@@ -16,6 +18,7 @@ import {
   type ProjectTaskDraft,
   type ProjectTaskItem,
 } from "./model";
+import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
 import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
 
 const inputClassName = getFieldInputClassName("h-10");
@@ -26,6 +29,8 @@ export function ProjectTaskForm({
   draft,
   disabled,
   taskOptions,
+  phases,
+  tasks,
   excludedTaskId,
   submitLabel,
   onChange,
@@ -36,6 +41,8 @@ export function ProjectTaskForm({
   draft: ProjectTaskDraft;
   disabled: boolean;
   taskOptions: PickerOption[];
+  phases: ProjectPlanPhaseItem[];
+  tasks: ProjectTaskItem[];
   excludedTaskId: number | null;
   submitLabel?: string;
   onChange: (draft: ProjectTaskDraft) => void;
@@ -43,7 +50,14 @@ export function ProjectTaskForm({
   onCancel?: () => void;
   framed?: boolean;
 }) {
-  const predecessorOptions = taskOptions.filter((option) => option.value !== String(excludedTaskId));
+  const blockedPredecessorIds = new Set(draft.predecessorTaskIds.map(String));
+  if (excludedTaskId) {
+    blockedPredecessorIds.add(String(excludedTaskId));
+    for (const id of downstreamTaskIds(tasks, excludedTaskId)) blockedPredecessorIds.add(String(id));
+  }
+  const predecessorOptions = taskOptions.filter((option) => !blockedPredecessorIds.has(option.value));
+  const taskLabelById = new Map(taskOptions.map((option) => [Number(option.value), option.label]));
+  const phaseOptions = phases.map((phase) => ({ value: String(phase.id), label: phase.name }));
 
   function patch(next: Partial<ProjectTaskDraft>) {
     onChange({ ...draft, ...next });
@@ -57,9 +71,35 @@ export function ProjectTaskForm({
     });
   }
 
+  function addPredecessor(value: string | null) {
+    if (!value) return;
+    const id = Number(value);
+    if (!Number.isInteger(id) || draft.predecessorTaskIds.includes(id)) return;
+    patch({ predecessorTaskIds: [...draft.predecessorTaskIds, id] });
+  }
+
+  function removePredecessor(id: number) {
+    patch({ predecessorTaskIds: draft.predecessorTaskIds.filter((item) => item !== id) });
+  }
+
   return (
     <div className={framed ? "rounded-lg border border-slate-200 bg-white p-3" : ""}>
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
+        <FormField label="任务名称" required className="lg:col-span-2">
+          <TextField value={draft.name} disabled={disabled} className={inputClassName} onChange={(value) => patch({ name: value })} unstyled />
+        </FormField>
+        <FormField label="项目阶段">
+          <OptionPicker
+            value={draft.planPhaseId ? String(draft.planPhaseId) : null}
+            options={phaseOptions}
+            disabled={disabled || phaseOptions.length === 0}
+            placeholder="未分阶段"
+            onChange={(value) => patch({ planPhaseId: value ? Number(value) : null })}
+            visibleCount={6}
+            buttonClassName={pickerButtonClassName}
+            popoverClassName={pickerPopoverClassName}
+          />
+        </FormField>
         <FormField label="负责人">
           <FkFieldInput
             fkKey="work.projects.member.employee"
@@ -82,22 +122,40 @@ export function ProjectTaskForm({
             popoverClassName={pickerPopoverClassName}
           />
         </FormField>
-        <DateField label="开始时间" value={draft.startDate} disabled={disabled} onChange={(value) => patch({ startDate: value })} />
-        <DateField label="完成时间" value={draft.endDate} disabled={disabled} onChange={(value) => patch({ endDate: value })} />
-        <FormField label="任务描述" required className="lg:col-span-4">
+        <DateField label="基线开始" value={draft.baselineStartDate} disabled={disabled} onChange={(value) => patch({ baselineStartDate: value })} />
+        <DateField label="基线结束" value={draft.baselineEndDate} disabled={disabled} onChange={(value) => patch({ baselineEndDate: value })} />
+        <DateField label="实际开始" value={draft.startDate} disabled={disabled} onChange={(value) => patch({ startDate: value })} />
+        <DateField label="实际结束" value={draft.endDate} disabled={disabled} onChange={(value) => patch({ endDate: value })} />
+        <FormField label="任务描述" className="lg:col-span-4">
           <TextareaField value={draft.description} disabled={disabled} rows={2} className="text-sm" onChange={(value) => patch({ description: value })} />
         </FormField>
         <FormField label="前置任务" className="lg:col-span-4">
-          <OptionPicker
-            value={draft.predecessorTaskIds[0] ? String(draft.predecessorTaskIds[0]) : null}
-            options={predecessorOptions}
-            disabled={disabled || predecessorOptions.length === 0}
-            placeholder="无"
-            onChange={(value) => patch({ predecessorTaskIds: value ? [Number(value)] : [] })}
-            visibleCount={6}
-            buttonClassName={pickerButtonClassName}
-            popoverClassName={pickerPopoverClassName}
-          />
+          <div className="space-y-2">
+            <OptionPicker
+              value={null}
+              options={predecessorOptions}
+              disabled={disabled || predecessorOptions.length === 0}
+              placeholder={predecessorOptions.length > 0 ? "添加前置任务" : "无可选前置任务"}
+              onChange={addPredecessor}
+              visibleCount={6}
+              buttonClassName={pickerButtonClassName}
+              popoverClassName={pickerPopoverClassName}
+            />
+            {draft.predecessorTaskIds.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {draft.predecessorTaskIds.map((id) => (
+                  <RemovableTag
+                    key={id}
+                    disabled={disabled}
+                    label={`移除前置任务 ${taskLabelById.get(id) || id}`}
+                    onRemove={() => removePredecessor(id)}
+                  >
+                    {taskLabelById.get(id) || `任务 ${id}`}
+                  </RemovableTag>
+                ))}
+              </div>
+            )}
+          </div>
         </FormField>
       </div>
       {(onCancel || (submitLabel && onSubmit)) && (
@@ -112,9 +170,11 @@ export function ProjectTaskForm({
 
 export function ProjectTaskDetail({ task }: { task: ProjectTaskItem }) {
   const detailItems = [
+    { label: "任务名称", value: task.name },
+    { label: "项目阶段", value: task.planPhaseName || "未分阶段" },
     { label: "负责人", value: task.ownerEmployeeName || "未设置" },
-    { label: "开始时间", value: task.startDate || "未定" },
-    { label: "完成时间", value: task.endDate || "未定" },
+    { label: "基线时间", value: [task.baselineStartDate || "未定", task.baselineEndDate || "未定"].join(" - ") },
+    { label: "实际时间", value: [task.startDate || "未定", task.endDate || "未定"].join(" - ") },
     { label: "里程碑", value: task.isMilestone ? "是" : "否" },
     { label: "前置任务", value: task.predecessorTaskNames.length > 0 ? task.predecessorTaskNames.join("、") : "无" },
     { label: "后置任务", value: task.successorTasks.length > 0 ? task.successorTasks.map((item) => item.name).join("、") : "无" },
@@ -132,10 +192,28 @@ export function ProjectTaskDetail({ task }: { task: ProjectTaskItem }) {
       </div>
       <div className="mt-3 border-t border-slate-100 pt-3">
         <div className="text-xs font-medium text-slate-400">任务描述</div>
-        <div className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-800">{task.description}</div>
+        <div className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-800">{task.description || "未填写"}</div>
       </div>
     </div>
   );
+}
+
+function downstreamTaskIds(tasks: ProjectTaskItem[], taskId: number) {
+  const successorsByPredecessor = new Map<number, number[]>();
+  for (const task of tasks) {
+    for (const predecessorId of task.predecessorTaskIds) {
+      successorsByPredecessor.set(predecessorId, [...(successorsByPredecessor.get(predecessorId) || []), task.id]);
+    }
+  }
+  const result = new Set<number>();
+  const stack = [...(successorsByPredecessor.get(taskId) || [])];
+  while (stack.length > 0) {
+    const id = stack.pop();
+    if (!id || result.has(id)) continue;
+    result.add(id);
+    stack.push(...(successorsByPredecessor.get(id) || []));
+  }
+  return result;
 }
 
 function DateField({ label, value, disabled, onChange }: { label: string; value: string | null; disabled: boolean; onChange: (value: string | null) => void }) {

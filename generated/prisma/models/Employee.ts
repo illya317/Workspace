@@ -376,6 +376,7 @@ export type EmployeeWhereInput = {
   positions?: Prisma.EDPListRelationFilter
   projects?: Prisma.EmployeeProjectListRelationFilter
   projectTasks?: Prisma.ProjectTaskListRelationFilter
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentListRelationFilter
   employments?: Prisma.EmploymentListRelationFilter
   financeSalesSalaries?: Prisma.FinanceSalesSalaryListRelationFilter
   financeShipments?: Prisma.FinanceShipmentListRelationFilter
@@ -410,6 +411,7 @@ export type EmployeeOrderByWithRelationInput = {
   positions?: Prisma.EDPOrderByRelationAggregateInput
   projects?: Prisma.EmployeeProjectOrderByRelationAggregateInput
   projectTasks?: Prisma.ProjectTaskOrderByRelationAggregateInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentOrderByRelationAggregateInput
   employments?: Prisma.EmploymentOrderByRelationAggregateInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryOrderByRelationAggregateInput
   financeShipments?: Prisma.FinanceShipmentOrderByRelationAggregateInput
@@ -447,6 +449,7 @@ export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
   positions?: Prisma.EDPListRelationFilter
   projects?: Prisma.EmployeeProjectListRelationFilter
   projectTasks?: Prisma.ProjectTaskListRelationFilter
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentListRelationFilter
   employments?: Prisma.EmploymentListRelationFilter
   financeSalesSalaries?: Prisma.FinanceSalesSalaryListRelationFilter
   financeShipments?: Prisma.FinanceShipmentListRelationFilter
@@ -539,6 +542,7 @@ export type EmployeeCreateInput = {
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectTasks?: Prisma.ProjectTaskCreateNestedManyWithoutOwnerInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutEmployeeInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutEmployeeInput
   financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutEmployeeInput
@@ -572,6 +576,7 @@ export type EmployeeUncheckedCreateInput = {
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectTasks?: Prisma.ProjectTaskUncheckedCreateNestedManyWithoutOwnerInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutEmployeeInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutEmployeeInput
   financeShipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -604,6 +609,7 @@ export type EmployeeUpdateInput = {
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectTasks?: Prisma.ProjectTaskUpdateManyWithoutOwnerNestedInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUpdateManyWithoutEmployeeNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutEmployeeNestedInput
   financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutEmployeeNestedInput
@@ -637,6 +643,7 @@ export type EmployeeUncheckedUpdateInput = {
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectTasks?: Prisma.ProjectTaskUncheckedUpdateManyWithoutOwnerNestedInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutEmployeeNestedInput
   financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -983,6 +990,20 @@ export type EmployeeUpdateOneWithoutProjectTasksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutProjectTasksInput, Prisma.EmployeeUpdateWithoutProjectTasksInput>, Prisma.EmployeeUncheckedUpdateWithoutProjectTasksInput>
 }
 
+export type EmployeeCreateNestedOneWithoutProjectTaskAssignmentsInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutProjectTaskAssignmentsInput, Prisma.EmployeeUncheckedCreateWithoutProjectTaskAssignmentsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutProjectTaskAssignmentsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+}
+
+export type EmployeeUpdateOneRequiredWithoutProjectTaskAssignmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutProjectTaskAssignmentsInput, Prisma.EmployeeUncheckedCreateWithoutProjectTaskAssignmentsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutProjectTaskAssignmentsInput
+  upsert?: Prisma.EmployeeUpsertWithoutProjectTaskAssignmentsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutProjectTaskAssignmentsInput, Prisma.EmployeeUpdateWithoutProjectTaskAssignmentsInput>, Prisma.EmployeeUncheckedUpdateWithoutProjectTaskAssignmentsInput>
+}
+
 export type EmployeeCreateWithoutUserInput = {
   employeeId: string
   idNumber?: string | null
@@ -1008,6 +1029,7 @@ export type EmployeeCreateWithoutUserInput = {
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectTasks?: Prisma.ProjectTaskCreateNestedManyWithoutOwnerInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutEmployeeInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutEmployeeInput
   financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutEmployeeInput
@@ -1040,6 +1062,7 @@ export type EmployeeUncheckedCreateWithoutUserInput = {
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectTasks?: Prisma.ProjectTaskUncheckedCreateNestedManyWithoutOwnerInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutEmployeeInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutEmployeeInput
   financeShipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -1126,6 +1149,7 @@ export type EmployeeCreateWithoutFinanceShipmentsInput = {
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectTasks?: Prisma.ProjectTaskCreateNestedManyWithoutOwnerInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutEmployeeInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutEmployeeInput
   financeWorkshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutEmployeeInput
@@ -1158,6 +1182,7 @@ export type EmployeeUncheckedCreateWithoutFinanceShipmentsInput = {
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectTasks?: Prisma.ProjectTaskUncheckedCreateNestedManyWithoutOwnerInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutEmployeeInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutEmployeeInput
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutEmployeeInput
@@ -1205,6 +1230,7 @@ export type EmployeeUpdateWithoutFinanceShipmentsInput = {
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectTasks?: Prisma.ProjectTaskUpdateManyWithoutOwnerNestedInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUpdateManyWithoutEmployeeNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutEmployeeNestedInput
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutEmployeeNestedInput
@@ -1237,6 +1263,7 @@ export type EmployeeUncheckedUpdateWithoutFinanceShipmentsInput = {
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectTasks?: Prisma.ProjectTaskUncheckedUpdateManyWithoutOwnerNestedInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutEmployeeNestedInput
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -1268,6 +1295,7 @@ export type EmployeeCreateWithoutFinanceSalesSalariesInput = {
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectTasks?: Prisma.ProjectTaskCreateNestedManyWithoutOwnerInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutEmployeeInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
   financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutEmployeeInput
   financeWorkshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutEmployeeInput
@@ -1300,6 +1328,7 @@ export type EmployeeUncheckedCreateWithoutFinanceSalesSalariesInput = {
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectTasks?: Prisma.ProjectTaskUncheckedCreateNestedManyWithoutOwnerInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutEmployeeInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
   financeShipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutEmployeeInput
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutEmployeeInput
@@ -1347,6 +1376,7 @@ export type EmployeeUpdateWithoutFinanceSalesSalariesInput = {
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectTasks?: Prisma.ProjectTaskUpdateManyWithoutOwnerNestedInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUpdateManyWithoutEmployeeNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
   financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutEmployeeNestedInput
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutEmployeeNestedInput
@@ -1379,6 +1409,7 @@ export type EmployeeUncheckedUpdateWithoutFinanceSalesSalariesInput = {
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectTasks?: Prisma.ProjectTaskUncheckedUpdateManyWithoutOwnerNestedInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
   financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutEmployeeNestedInput
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -1410,6 +1441,7 @@ export type EmployeeCreateWithoutFinanceWorkshopReportsInput = {
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectTasks?: Prisma.ProjectTaskCreateNestedManyWithoutOwnerInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutEmployeeInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutEmployeeInput
   financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutEmployeeInput
@@ -1442,6 +1474,7 @@ export type EmployeeUncheckedCreateWithoutFinanceWorkshopReportsInput = {
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectTasks?: Prisma.ProjectTaskUncheckedCreateNestedManyWithoutOwnerInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutEmployeeInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutEmployeeInput
   financeShipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -1489,6 +1522,7 @@ export type EmployeeUpdateWithoutFinanceWorkshopReportsInput = {
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectTasks?: Prisma.ProjectTaskUpdateManyWithoutOwnerNestedInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUpdateManyWithoutEmployeeNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutEmployeeNestedInput
   financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutEmployeeNestedInput
@@ -1521,6 +1555,7 @@ export type EmployeeUncheckedUpdateWithoutFinanceWorkshopReportsInput = {
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectTasks?: Prisma.ProjectTaskUncheckedUpdateManyWithoutOwnerNestedInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutEmployeeNestedInput
   financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -1552,6 +1587,7 @@ export type EmployeeCreateWithoutEmploymentsInput = {
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectTasks?: Prisma.ProjectTaskCreateNestedManyWithoutOwnerInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutEmployeeInput
   financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutEmployeeInput
   financeWorkshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutEmployeeInput
@@ -1584,6 +1620,7 @@ export type EmployeeUncheckedCreateWithoutEmploymentsInput = {
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectTasks?: Prisma.ProjectTaskUncheckedCreateNestedManyWithoutOwnerInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutEmployeeInput
   financeShipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutEmployeeInput
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutEmployeeInput
@@ -1631,6 +1668,7 @@ export type EmployeeUpdateWithoutEmploymentsInput = {
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectTasks?: Prisma.ProjectTaskUpdateManyWithoutOwnerNestedInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutEmployeeNestedInput
   financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutEmployeeNestedInput
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutEmployeeNestedInput
@@ -1663,6 +1701,7 @@ export type EmployeeUncheckedUpdateWithoutEmploymentsInput = {
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectTasks?: Prisma.ProjectTaskUncheckedUpdateManyWithoutOwnerNestedInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutEmployeeNestedInput
   financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutEmployeeNestedInput
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -1693,6 +1732,7 @@ export type EmployeeCreateWithoutPositionsInput = {
   user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
   projectTasks?: Prisma.ProjectTaskCreateNestedManyWithoutOwnerInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutEmployeeInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutEmployeeInput
   financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutEmployeeInput
@@ -1725,6 +1765,7 @@ export type EmployeeUncheckedCreateWithoutPositionsInput = {
   updatedAt?: Date | string
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
   projectTasks?: Prisma.ProjectTaskUncheckedCreateNestedManyWithoutOwnerInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutEmployeeInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutEmployeeInput
   financeShipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -1772,6 +1813,7 @@ export type EmployeeUpdateWithoutPositionsInput = {
   user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectTasks?: Prisma.ProjectTaskUpdateManyWithoutOwnerNestedInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUpdateManyWithoutEmployeeNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutEmployeeNestedInput
   financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutEmployeeNestedInput
@@ -1804,6 +1846,7 @@ export type EmployeeUncheckedUpdateWithoutPositionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectTasks?: Prisma.ProjectTaskUncheckedUpdateManyWithoutOwnerNestedInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutEmployeeNestedInput
   financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -1835,6 +1878,7 @@ export type EmployeeCreateWithoutProjectsInput = {
   user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   projectTasks?: Prisma.ProjectTaskCreateNestedManyWithoutOwnerInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutEmployeeInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutEmployeeInput
   financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutEmployeeInput
@@ -1867,6 +1911,7 @@ export type EmployeeUncheckedCreateWithoutProjectsInput = {
   updatedAt?: Date | string
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   projectTasks?: Prisma.ProjectTaskUncheckedCreateNestedManyWithoutOwnerInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutEmployeeInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutEmployeeInput
   financeShipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -1914,6 +1959,7 @@ export type EmployeeUpdateWithoutProjectsInput = {
   user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   projectTasks?: Prisma.ProjectTaskUpdateManyWithoutOwnerNestedInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUpdateManyWithoutEmployeeNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutEmployeeNestedInput
   financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutEmployeeNestedInput
@@ -1946,6 +1992,7 @@ export type EmployeeUncheckedUpdateWithoutProjectsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   projectTasks?: Prisma.ProjectTaskUncheckedUpdateManyWithoutOwnerNestedInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutEmployeeNestedInput
   financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -1977,6 +2024,7 @@ export type EmployeeCreateWithoutProjectTasksInput = {
   user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
   positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutEmployeeInput
   employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutEmployeeInput
   financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutEmployeeInput
@@ -2009,6 +2057,7 @@ export type EmployeeUncheckedCreateWithoutProjectTasksInput = {
   updatedAt?: Date | string
   positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
   projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutEmployeeInput
   employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutEmployeeInput
   financeShipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -2056,6 +2105,7 @@ export type EmployeeUpdateWithoutProjectTasksInput = {
   user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUpdateManyWithoutEmployeeNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutEmployeeNestedInput
   financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutEmployeeNestedInput
@@ -2088,6 +2138,153 @@ export type EmployeeUncheckedUpdateWithoutProjectTasksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput
+  employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
+  financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutEmployeeNestedInput
+  financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutEmployeeNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutEmployeeNestedInput
+}
+
+export type EmployeeCreateWithoutProjectTaskAssignmentsInput = {
+  employeeId: string
+  idNumber?: string | null
+  otherId?: string | null
+  name: string
+  alias?: string | null
+  gender?: boolean | null
+  birthDate?: string | null
+  ethnicity?: string | null
+  hometown?: string | null
+  politics?: string | null
+  education?: string | null
+  title?: string | null
+  school?: string | null
+  major?: string | null
+  phone?: string | null
+  workStartDate?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user?: Prisma.UserCreateNestedOneWithoutEmployeesInput
+  positions?: Prisma.EDPCreateNestedManyWithoutEmployeeInput
+  projects?: Prisma.EmployeeProjectCreateNestedManyWithoutEmployeeInput
+  projectTasks?: Prisma.ProjectTaskCreateNestedManyWithoutOwnerInput
+  employments?: Prisma.EmploymentCreateNestedManyWithoutEmployeeInput
+  financeSalesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutEmployeeInput
+  financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutEmployeeInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutEmployeeInput
+}
+
+export type EmployeeUncheckedCreateWithoutProjectTaskAssignmentsInput = {
+  id?: number
+  employeeId: string
+  idNumber?: string | null
+  otherId?: string | null
+  name: string
+  alias?: string | null
+  gender?: boolean | null
+  birthDate?: string | null
+  ethnicity?: string | null
+  hometown?: string | null
+  politics?: string | null
+  education?: string | null
+  title?: string | null
+  school?: string | null
+  major?: string | null
+  phone?: string | null
+  workStartDate?: string | null
+  userId?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  positions?: Prisma.EDPUncheckedCreateNestedManyWithoutEmployeeInput
+  projects?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutEmployeeInput
+  projectTasks?: Prisma.ProjectTaskUncheckedCreateNestedManyWithoutOwnerInput
+  employments?: Prisma.EmploymentUncheckedCreateNestedManyWithoutEmployeeInput
+  financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutEmployeeInput
+  financeShipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutEmployeeInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutEmployeeInput
+}
+
+export type EmployeeCreateOrConnectWithoutProjectTaskAssignmentsInput = {
+  where: Prisma.EmployeeWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutProjectTaskAssignmentsInput, Prisma.EmployeeUncheckedCreateWithoutProjectTaskAssignmentsInput>
+}
+
+export type EmployeeUpsertWithoutProjectTaskAssignmentsInput = {
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutProjectTaskAssignmentsInput, Prisma.EmployeeUncheckedUpdateWithoutProjectTaskAssignmentsInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutProjectTaskAssignmentsInput, Prisma.EmployeeUncheckedCreateWithoutProjectTaskAssignmentsInput>
+  where?: Prisma.EmployeeWhereInput
+}
+
+export type EmployeeUpdateToOneWithWhereWithoutProjectTaskAssignmentsInput = {
+  where?: Prisma.EmployeeWhereInput
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutProjectTaskAssignmentsInput, Prisma.EmployeeUncheckedUpdateWithoutProjectTaskAssignmentsInput>
+}
+
+export type EmployeeUpdateWithoutProjectTaskAssignmentsInput = {
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
+  idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  otherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  birthDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ethnicity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hometown?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  politics?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  school?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  major?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneWithoutEmployeesNestedInput
+  positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
+  projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
+  projectTasks?: Prisma.ProjectTaskUpdateManyWithoutOwnerNestedInput
+  employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
+  financeSalesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutEmployeeNestedInput
+  financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutEmployeeNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutEmployeeNestedInput
+}
+
+export type EmployeeUncheckedUpdateWithoutProjectTaskAssignmentsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
+  idNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  otherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  birthDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ethnicity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hometown?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  politics?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  school?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  major?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workStartDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
+  projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
+  projectTasks?: Prisma.ProjectTaskUncheckedUpdateManyWithoutOwnerNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutEmployeeNestedInput
   financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -2144,6 +2341,7 @@ export type EmployeeUpdateWithoutUserInput = {
   positions?: Prisma.EDPUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUpdateManyWithoutEmployeeNestedInput
   projectTasks?: Prisma.ProjectTaskUpdateManyWithoutOwnerNestedInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUpdateManyWithoutEmployeeNestedInput
   employments?: Prisma.EmploymentUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutEmployeeNestedInput
   financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutEmployeeNestedInput
@@ -2176,6 +2374,7 @@ export type EmployeeUncheckedUpdateWithoutUserInput = {
   positions?: Prisma.EDPUncheckedUpdateManyWithoutEmployeeNestedInput
   projects?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutEmployeeNestedInput
   projectTasks?: Prisma.ProjectTaskUncheckedUpdateManyWithoutOwnerNestedInput
+  projectTaskAssignments?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput
   employments?: Prisma.EmploymentUncheckedUpdateManyWithoutEmployeeNestedInput
   financeSalesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutEmployeeNestedInput
   financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -2216,6 +2415,7 @@ export type EmployeeCountOutputType = {
   positions: number
   projects: number
   projectTasks: number
+  projectTaskAssignments: number
   employments: number
   financeSalesSalaries: number
   financeShipments: number
@@ -2226,6 +2426,7 @@ export type EmployeeCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   positions?: boolean | EmployeeCountOutputTypeCountPositionsArgs
   projects?: boolean | EmployeeCountOutputTypeCountProjectsArgs
   projectTasks?: boolean | EmployeeCountOutputTypeCountProjectTasksArgs
+  projectTaskAssignments?: boolean | EmployeeCountOutputTypeCountProjectTaskAssignmentsArgs
   employments?: boolean | EmployeeCountOutputTypeCountEmploymentsArgs
   financeSalesSalaries?: boolean | EmployeeCountOutputTypeCountFinanceSalesSalariesArgs
   financeShipments?: boolean | EmployeeCountOutputTypeCountFinanceShipmentsArgs
@@ -2261,6 +2462,13 @@ export type EmployeeCountOutputTypeCountProjectsArgs<ExtArgs extends runtime.Typ
  */
 export type EmployeeCountOutputTypeCountProjectTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ProjectTaskWhereInput
+}
+
+/**
+ * EmployeeCountOutputType without action
+ */
+export type EmployeeCountOutputTypeCountProjectTaskAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectTaskAssignmentWhereInput
 }
 
 /**
@@ -2320,6 +2528,7 @@ export type EmployeeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   positions?: boolean | Prisma.Employee$positionsArgs<ExtArgs>
   projects?: boolean | Prisma.Employee$projectsArgs<ExtArgs>
   projectTasks?: boolean | Prisma.Employee$projectTasksArgs<ExtArgs>
+  projectTaskAssignments?: boolean | Prisma.Employee$projectTaskAssignmentsArgs<ExtArgs>
   employments?: boolean | Prisma.Employee$employmentsArgs<ExtArgs>
   financeSalesSalaries?: boolean | Prisma.Employee$financeSalesSalariesArgs<ExtArgs>
   financeShipments?: boolean | Prisma.Employee$financeShipmentsArgs<ExtArgs>
@@ -2413,6 +2622,7 @@ export type EmployeeInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   positions?: boolean | Prisma.Employee$positionsArgs<ExtArgs>
   projects?: boolean | Prisma.Employee$projectsArgs<ExtArgs>
   projectTasks?: boolean | Prisma.Employee$projectTasksArgs<ExtArgs>
+  projectTaskAssignments?: boolean | Prisma.Employee$projectTaskAssignmentsArgs<ExtArgs>
   employments?: boolean | Prisma.Employee$employmentsArgs<ExtArgs>
   financeSalesSalaries?: boolean | Prisma.Employee$financeSalesSalariesArgs<ExtArgs>
   financeShipments?: boolean | Prisma.Employee$financeShipmentsArgs<ExtArgs>
@@ -2433,6 +2643,7 @@ export type $EmployeePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     positions: Prisma.$EDPPayload<ExtArgs>[]
     projects: Prisma.$EmployeeProjectPayload<ExtArgs>[]
     projectTasks: Prisma.$ProjectTaskPayload<ExtArgs>[]
+    projectTaskAssignments: Prisma.$ProjectTaskAssignmentPayload<ExtArgs>[]
     employments: Prisma.$EmploymentPayload<ExtArgs>[]
     financeSalesSalaries: Prisma.$FinanceSalesSalaryPayload<ExtArgs>[]
     financeShipments: Prisma.$FinanceShipmentPayload<ExtArgs>[]
@@ -2860,6 +3071,7 @@ export interface Prisma__EmployeeClient<T, Null = never, ExtArgs extends runtime
   positions<T extends Prisma.Employee$positionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$positionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EDPPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   projects<T extends Prisma.Employee$projectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   projectTasks<T extends Prisma.Employee$projectTasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$projectTasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  projectTaskAssignments<T extends Prisma.Employee$projectTaskAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$projectTaskAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectTaskAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   employments<T extends Prisma.Employee$employmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$employmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmploymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   financeSalesSalaries<T extends Prisma.Employee$financeSalesSalariesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$financeSalesSalariesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceSalesSalaryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   financeShipments<T extends Prisma.Employee$financeShipmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$financeShipmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceShipmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3403,6 +3615,30 @@ export type Employee$projectTasksArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.ProjectTaskScalarFieldEnum | Prisma.ProjectTaskScalarFieldEnum[]
+}
+
+/**
+ * Employee.projectTaskAssignments
+ */
+export type Employee$projectTaskAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectTaskAssignment
+   */
+  select?: Prisma.ProjectTaskAssignmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectTaskAssignment
+   */
+  omit?: Prisma.ProjectTaskAssignmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectTaskAssignmentInclude<ExtArgs> | null
+  where?: Prisma.ProjectTaskAssignmentWhereInput
+  orderBy?: Prisma.ProjectTaskAssignmentOrderByWithRelationInput | Prisma.ProjectTaskAssignmentOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectTaskAssignmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectTaskAssignmentScalarFieldEnum | Prisma.ProjectTaskAssignmentScalarFieldEnum[]
 }
 
 /**

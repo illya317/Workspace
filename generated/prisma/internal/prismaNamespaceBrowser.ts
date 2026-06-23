@@ -123,7 +123,12 @@ export const ModelName = {
   LoginAttempt: 'LoginAttempt',
   Project: 'Project',
   EmployeeProject: 'EmployeeProject',
+  ProjectPlanPhase: 'ProjectPlanPhase',
+  ProjectPlanDependency: 'ProjectPlanDependency',
+  ProjectPlanBaseline: 'ProjectPlanBaseline',
+  ProjectPlanBaselineItem: 'ProjectPlanBaselineItem',
   ProjectTask: 'ProjectTask',
+  ProjectTaskAssignment: 'ProjectTaskAssignment',
   WorkItem: 'WorkItem',
   WorkParticipant: 'WorkParticipant',
   DepartmentWorkAssignee: 'DepartmentWorkAssignee',
@@ -1447,12 +1452,8 @@ export const ProjectScalarFieldEnum = {
   id: 'id',
   code: 'code',
   name: 'name',
-  type: 'type',
   description: 'description',
-  status: 'status',
   projectLevel: 'projectLevel',
-  isMilestone: 'isMilestone',
-  stage: 'stage',
   plan: 'plan',
   goal: 'goal',
   milestones: 'milestones',
@@ -1462,7 +1463,7 @@ export const ProjectScalarFieldEnum = {
   remark: 'remark',
   startDate: 'startDate',
   endDate: 'endDate',
-  parentId: 'parentId',
+  closureType: 'closureType',
   leadingDepartmentId: 'leadingDepartmentId',
   isArchived: 'isArchived',
   archivedAt: 'archivedAt',
@@ -1494,15 +1495,92 @@ export const EmployeeProjectScalarFieldEnum = {
 export type EmployeeProjectScalarFieldEnum = (typeof EmployeeProjectScalarFieldEnum)[keyof typeof EmployeeProjectScalarFieldEnum]
 
 
+export const ProjectPlanPhaseScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  sequenceNo: 'sequenceNo',
+  name: 'name',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  note: 'note',
+  createdBy: 'createdBy',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProjectPlanPhaseScalarFieldEnum = (typeof ProjectPlanPhaseScalarFieldEnum)[keyof typeof ProjectPlanPhaseScalarFieldEnum]
+
+
+export const ProjectPlanDependencyScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  predecessorKind: 'predecessorKind',
+  predecessorId: 'predecessorId',
+  successorKind: 'successorKind',
+  successorId: 'successorId',
+  dependencyType: 'dependencyType',
+  lagDays: 'lagDays',
+  createdBy: 'createdBy',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProjectPlanDependencyScalarFieldEnum = (typeof ProjectPlanDependencyScalarFieldEnum)[keyof typeof ProjectPlanDependencyScalarFieldEnum]
+
+
+export const ProjectPlanBaselineScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  name: 'name',
+  note: 'note',
+  isActive: 'isActive',
+  createdBy: 'createdBy',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProjectPlanBaselineScalarFieldEnum = (typeof ProjectPlanBaselineScalarFieldEnum)[keyof typeof ProjectPlanBaselineScalarFieldEnum]
+
+
+export const ProjectPlanBaselineItemScalarFieldEnum = {
+  id: 'id',
+  baselineId: 'baselineId',
+  itemKind: 'itemKind',
+  itemId: 'itemId',
+  parentKind: 'parentKind',
+  parentId: 'parentId',
+  phaseId: 'phaseId',
+  name: 'name',
+  status: 'status',
+  isMilestone: 'isMilestone',
+  startDate: 'startDate',
+  endDate: 'endDate'
+} as const
+
+export type ProjectPlanBaselineItemScalarFieldEnum = (typeof ProjectPlanBaselineItemScalarFieldEnum)[keyof typeof ProjectPlanBaselineItemScalarFieldEnum]
+
+
 export const ProjectTaskScalarFieldEnum = {
   id: 'id',
   projectId: 'projectId',
+  planPhaseId: 'planPhaseId',
+  name: 'name',
   isMilestone: 'isMilestone',
   ownerEmployeeId: 'ownerEmployeeId',
   description: 'description',
+  baselineStartDate: 'baselineStartDate',
+  baselineEndDate: 'baselineEndDate',
   startDate: 'startDate',
   endDate: 'endDate',
-  predecessorTaskId: 'predecessorTaskId',
   sortOrder: 'sortOrder',
   createdBy: 'createdBy',
   editedBy: 'editedBy',
@@ -1513,6 +1591,21 @@ export const ProjectTaskScalarFieldEnum = {
 } as const
 
 export type ProjectTaskScalarFieldEnum = (typeof ProjectTaskScalarFieldEnum)[keyof typeof ProjectTaskScalarFieldEnum]
+
+
+export const ProjectTaskAssignmentScalarFieldEnum = {
+  id: 'id',
+  taskId: 'taskId',
+  employeeId: 'employeeId',
+  role: 'role',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProjectTaskAssignmentScalarFieldEnum = (typeof ProjectTaskAssignmentScalarFieldEnum)[keyof typeof ProjectTaskAssignmentScalarFieldEnum]
 
 
 export const WorkItemScalarFieldEnum = {

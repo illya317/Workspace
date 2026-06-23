@@ -5,25 +5,42 @@ export type ProjectGanttProject = {
   name: string;
   status: string | null;
   projectLevel: string | null;
-  projectType: string;
-  isMilestone: boolean;
-  parentId: number | null;
   leadingDepartmentId: number | null;
   leadingDepartmentCode: string | null;
   leadingDepartmentName: string | null;
+  leaderNames: string[];
+  stages: ProjectGanttStage[];
   startDate: string | null;
+  endDate: string | null;
+  closureType: string | null;
+  baselineStartDate: string | null;
+  baselineEndDate: string | null;
+};
+
+export type ProjectGanttStage = {
+  id: number;
+  sequenceNo: number;
+  stage: string;
+  startDate: string | null;
+  note: string | null;
+};
+
+export type ProjectGanttStageSegment = ProjectGanttStage & {
   endDate: string | null;
 };
 
 export type ProjectGanttTask = {
   id: number;
   projectId: number;
+  name: string;
   description: string;
   isMilestone: boolean;
   startDate: string | null;
   endDate: string | null;
-  predecessorTaskId: number | null;
+  baselineStartDate: string | null;
+  baselineEndDate: string | null;
   sortOrder: number;
+  ownerEmployeeName: string | null;
 };
 
 export type ProjectGanttData = {
@@ -33,6 +50,12 @@ export type ProjectGanttData = {
 
 export type GanttNodeKind = "project" | "task";
 
+export type GanttMilestoneEvent = {
+  key: string;
+  name: string;
+  date: string;
+};
+
 type GanttNode = {
   key: string;
   kind: GanttNodeKind;
@@ -41,8 +64,13 @@ type GanttNode = {
   status: string | null;
   projectLevel: string | null;
   isMilestone: boolean;
+  ownerNames: string[];
+  stages: ProjectGanttStageSegment[];
+  milestoneEvents: GanttMilestoneEvent[];
   startDate: string | null;
   endDate: string | null;
+  baselineStartDate: string | null;
+  baselineEndDate: string | null;
   searchText: string;
   projectKey?: string;
   aggregateStart?: string | null;
@@ -55,7 +83,13 @@ export type GanttRow = GanttNode & {
   expanded: boolean;
 };
 
-export const PROJECT_GANTT_STATUS_OPTIONS = ["规划中", "进行中", "暂停", "已完成", "已取消"] as const;
+export const PROJECT_GANTT_STATUS_OPTIONS = ["进行中", "已完成", "已终止"] as const;
+export type ProjectGanttLevelFilter = "all" | "普通" | "重点";
+export const PROJECT_GANTT_LEVEL_OPTIONS = [
+  { value: "all", label: "全部" },
+  { value: "普通", label: "普通" },
+  { value: "重点", label: "重点" },
+] as const;
 
 export const PROJECT_GANTT_ZOOM_OPTIONS = [
   { value: "year", label: "年" },
@@ -85,6 +119,7 @@ export function buildProjectGanttRows(input: {
   data: ProjectGanttData;
   expandedKeys: Set<string>;
   keyword: string;
+  level: ProjectGanttLevelFilter;
   statuses: Set<string>;
 }) {
   const nodes = new Map<string, GanttNode>();
@@ -92,6 +127,7 @@ export function buildProjectGanttRows(input: {
   const projectStatusPass = new Map<string, boolean>();
   const keyword = input.keyword.trim().toLowerCase();
   const statusFiltered = input.statuses.size > 0;
+  const levelFiltered = input.level !== "all";
 
   function addNode(node: GanttNode) {
     nodes.set(node.key, node);
@@ -101,26 +137,30 @@ export function buildProjectGanttRows(input: {
     children.set(node.parentKey, list);
   }
 
-  const projectIds = new Set(input.data.projects.map((project) => project.id));
-
   for (const project of input.data.projects) {
     const key = projectKey(project.id);
-    const parentKey = project.parentId && projectIds.has(project.parentId)
-      ? projectKey(project.parentId)
-      : null;
-    const passes = !statusFiltered || Boolean(project.status && input.statuses.has(project.status));
+    const passesStatus = !statusFiltered || Boolean(project.status && input.statuses.has(project.status));
+    const passesLevel = !levelFiltered || project.projectLevel === input.level;
+    const passes = passesStatus && passesLevel;
     projectStatusPass.set(key, passes);
     addNode({
       key,
       kind: "project",
       name: project.name,
-      parentKey,
+      parentKey: null,
       status: project.status,
       projectLevel: project.projectLevel,
-      isMilestone: project.isMilestone,
+      isMilestone: true,
+      ownerNames: project.leaderNames,
+      stages: [],
+      milestoneEvents: project.endDate && (project.status === "已完成" || project.status === "已终止")
+        ? [{ key: `project-milestone:${project.id}`, name: `${project.name} ${project.status}`, date: project.endDate }]
+        : [],
       startDate: project.startDate,
       endDate: project.endDate,
-      searchText: [project.name, project.status, project.projectLevel, project.leadingDepartmentName].filter(Boolean).join(" "),
+      baselineStartDate: project.baselineStartDate,
+      baselineEndDate: project.baselineEndDate,
+      searchText: [project.name, project.status, project.projectLevel, project.leadingDepartmentName, ...project.leaderNames].filter(Boolean).join(" "),
       projectKey: key,
     });
   }
@@ -131,23 +171,31 @@ export function buildProjectGanttRows(input: {
     addNode({
       key: taskKey(task.id),
       kind: "task",
-      name: task.description,
+      name: task.name || task.description,
       parentKey,
       status: null,
       projectLevel: null,
       isMilestone: task.isMilestone,
+      ownerNames: task.ownerEmployeeName ? [task.ownerEmployeeName] : [],
+      stages: [],
+      milestoneEvents: task.isMilestone && (task.endDate || task.startDate)
+        ? [{ key: `task-milestone:${task.id}`, name: task.name || task.description, date: task.endDate || task.startDate || "" }]
+        : [],
       startDate: task.startDate,
       endDate: task.endDate,
-      searchText: task.description,
+      baselineStartDate: task.baselineStartDate,
+      baselineEndDate: task.baselineEndDate,
+      searchText: [task.name, task.description, task.ownerEmployeeName].filter(Boolean).join(" "),
       projectKey: parentKey,
     });
   }
 
-  const includedKeys = collectIncludedKeys(nodes, children, projectStatusPass, keyword, statusFiltered);
-  for (const key of rootKeys(nodes)) computeAggregateDates(key, nodes, children);
+  const filterActive = Boolean(keyword || statusFiltered || levelFiltered);
+  const includedKeys = collectIncludedKeys(nodes, children, projectStatusPass, keyword, filterActive);
+  for (const key of rootKeys(nodes)) computeAggregateData(key, nodes, children);
   const rows: GanttRow[] = [];
   for (const key of rootKeys(nodes)) {
-    flattenRows(key, 0, { nodes, children, includedKeys, expandedKeys: input.expandedKeys, filterActive: Boolean(keyword || statusFiltered), rows });
+    flattenRows(key, 0, { nodes, children, includedKeys, expandedKeys: input.expandedKeys, filterActive, rows });
   }
   return rows;
 }
@@ -163,7 +211,7 @@ function collectIncludedKeys(
   children: Map<string, string[]>,
   projectStatusPass: Map<string, boolean>,
   keyword: string,
-  statusFiltered: boolean,
+  filterActive: boolean,
 ) {
   const candidateKeys = new Set<string>();
   for (const node of nodes.values()) {
@@ -172,10 +220,10 @@ function collectIncludedKeys(
       ? Boolean(projectStatusPass.get(node.key))
       : node.kind === "task"
         ? Boolean(node.projectKey && projectStatusPass.get(node.projectKey))
-        : !statusFiltered;
+        : !filterActive;
     if (matchesText && matchesStatus) candidateKeys.add(node.key);
   }
-  if (candidateKeys.size === 0 && (keyword || statusFiltered)) return candidateKeys;
+  if (candidateKeys.size === 0 && filterActive) return candidateKeys;
   if (candidateKeys.size === 0) return new Set(nodes.keys());
 
   const included = new Set<string>();
@@ -189,19 +237,22 @@ function collectIncludedKeys(
   return included;
 }
 
-function computeAggregateDates(key: string, nodes: Map<string, GanttNode>, children: Map<string, string[]>) {
+function computeAggregateData(key: string, nodes: Map<string, GanttNode>, children: Map<string, string[]>) {
   const node = nodes.get(key);
-  if (!node) return { start: null as string | null, end: null as string | null };
+  if (!node) return { start: null as string | null, end: null as string | null, milestones: [] as GanttMilestoneEvent[] };
   let start = node.startDate;
   let end = node.endDate;
+  const milestones = [...node.milestoneEvents];
   for (const childKey of children.get(key) || []) {
-    const child = computeAggregateDates(childKey, nodes, children);
+    const child = computeAggregateData(childKey, nodes, children);
     start = minDateString(start, child.start);
     end = maxDateString(end, child.end);
+    milestones.push(...child.milestones);
   }
   node.aggregateStart = start;
   node.aggregateEnd = end;
-  return { start, end };
+  node.milestoneEvents = dedupeMilestones(milestones);
+  return { start, end, milestones: node.milestoneEvents };
 }
 
 function flattenRows(
@@ -235,4 +286,15 @@ function maxDateString(left?: string | null, right?: string | null) {
   if (!left) return right ?? null;
   if (!right) return left;
   return left > right ? left : right;
+}
+
+function dedupeMilestones(events: GanttMilestoneEvent[]) {
+  const seen = new Set<string>();
+  const next: GanttMilestoneEvent[] = [];
+  for (const event of events) {
+    if (!event.date || seen.has(event.key)) continue;
+    seen.add(event.key);
+    next.push(event);
+  }
+  return next.sort((left, right) => left.date.localeCompare(right.date));
 }

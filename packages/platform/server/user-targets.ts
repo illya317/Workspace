@@ -6,7 +6,7 @@ interface TargetInfo {
   name: string;
   company?: string | null;
   type?: string;
-  code?: string;
+  code?: string | null;
 }
 
 export async function getUserTargets(userId: number): Promise<{
@@ -19,7 +19,7 @@ export async function getUserTargets(userId: number): Promise<{
   if (isWorkAdmin) {
     const [departments, projects, positions, users] = await Promise.all([
       prisma.department.findMany({ select: { id: true, name: true, code: true } }),
-      prisma.project.findMany({ select: { id: true, name: true, type: true } }),
+      prisma.project.findMany({ select: { id: true, name: true, code: true } }),
       prisma.position.findMany({ select: { id: true, code: true, name: true } }),
       prisma.user.findMany({
         where: { employees: { some: { employments: { some: { isActive: true } } } } },
@@ -53,7 +53,7 @@ export async function getUserTargets(userId: number): Promise<{
       }),
       prisma.employeeProject.findMany({
         where: { employeeId: { in: employeeIds } },
-        select: { project: { select: { id: true, name: true, type: true } } },
+        select: { project: { select: { id: true, name: true, code: true } } },
       }),
     ]);
 
@@ -84,7 +84,7 @@ export async function getUserTargets(userId: number): Promise<{
     if (projAssigns.length > 0) {
       const projs = await prisma.project.findMany({
         where: { id: { in: projAssigns.map((assignee) => assignee.projectId) } },
-        select: { id: true, name: true, type: true },
+        select: { id: true, name: true, code: true },
       });
       for (const project of projs) projMap.set(project.id, project);
     }

@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CommandToolbar, EmptyStateCard, PickerShell, SearchInput, ToolbarOptionGroup } from "@workspace/core/ui";
 import type { WorkUser } from "@workspace/work/types";
 import { listProjectGantt } from "./api";
 import ProjectGanttChart from "./ProjectGanttChart";
 import {
+  PROJECT_GANTT_LEVEL_OPTIONS,
   PROJECT_GANTT_STATUS_OPTIONS,
   PROJECT_GANTT_TASK_OPTIONS,
   PROJECT_GANTT_ZOOM_OPTIONS,
   buildProjectGanttRows,
   defaultGanttExpandedKeys,
   type ProjectGanttData,
+  type ProjectGanttLevelFilter,
   type ProjectGanttZoom,
 } from "./gantt-model";
 import { periodStart as getPeriodStart, shiftPeriod } from "./gantt-time";
@@ -23,10 +25,13 @@ export default function ProjectGanttTab({ user }: { user: WorkUser }) {
   const [error, setError] = useState<string | null>(null);
   const [keyword, setKeyword] = useState("");
   const [includeTasks, setIncludeTasks] = useState(false);
+  const [level, setLevel] = useState<ProjectGanttLevelFilter>("all");
   const [statuses, setStatuses] = useState<Set<string>>(() => new Set());
   const [zoom, setZoom] = useState<ProjectGanttZoom>("year");
   const [currentStart, setCurrentStart] = useState(() => getPeriodStart(new Date(), "year"));
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(() => new Set(["company"]));
+  const initializedExpansionRef = useRef(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -36,11 +41,15 @@ export default function ProjectGanttTab({ user }: { user: WorkUser }) {
       .then((next) => {
         if (cancelled) return;
         setData(next);
-        setExpandedKeys(defaultGanttExpandedKeys(next));
+        if (!initializedExpansionRef.current) {
+          setExpandedKeys(defaultGanttExpandedKeys(next));
+          initializedExpansionRef.current = true;
+        }
+        setHasLoaded(true);
       })
       .catch((err) => {
         if (cancelled) return;
-        setError(err instanceof Error ? err.message : "加载项目甘特失败");
+        setError(err instanceof Error ? err.message : "加载公司甘特失败");
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -52,8 +61,9 @@ export default function ProjectGanttTab({ user }: { user: WorkUser }) {
     data,
     expandedKeys,
     keyword,
+    level,
     statuses,
-  }), [data, expandedKeys, keyword, statuses]);
+  }), [data, expandedKeys, keyword, level, statuses]);
 
   function toggleExpanded(key: string) {
     setExpandedKeys((prev) => {
@@ -78,7 +88,7 @@ export default function ProjectGanttTab({ user }: { user: WorkUser }) {
               value={keyword}
               onChange={setKeyword}
               placeholder="搜索项目、部门、任务..."
-              ariaLabel="搜索项目甘特"
+              ariaLabel="搜索公司甘特"
               size="toolbar"
               className="w-52"
             />
@@ -88,6 +98,7 @@ export default function ProjectGanttTab({ user }: { user: WorkUser }) {
               options={PROJECT_GANTT_TASK_OPTIONS}
               onChange={(value) => setIncludeTasks(value === "1")}
             />
+            <LevelFilter level={level} onChange={setLevel} />
             <StatusFilter statuses={statuses} onChange={setStatuses} />
           </>
         )}
@@ -111,8 +122,8 @@ export default function ProjectGanttTab({ user }: { user: WorkUser }) {
 
       {error ? (
         <EmptyStateCard compact={false} className="border-red-200 text-red-600">{error}</EmptyStateCard>
-      ) : loading ? (
-        <EmptyStateCard compact={false}>加载项目甘特...</EmptyStateCard>
+      ) : loading && !hasLoaded ? (
+        <EmptyStateCard compact={false}>加载公司甘特...</EmptyStateCard>
       ) : (
         <ProjectGanttChart
           rows={rows}
@@ -122,6 +133,48 @@ export default function ProjectGanttTab({ user }: { user: WorkUser }) {
         />
       )}
     </div>
+  );
+}
+
+function LevelFilter({
+  level,
+  onChange,
+}: {
+  level: ProjectGanttLevelFilter;
+  onChange: (level: ProjectGanttLevelFilter) => void;
+}) {
+  const active = level !== "all";
+  const label = PROJECT_GANTT_LEVEL_OPTIONS.find((option) => option.value === level)?.label ?? "全部";
+  return (
+    <PickerShell
+      valueLabel={active ? `级别 ${label}` : "级别"}
+      buttonClassName={`h-10 rounded-lg border px-4 text-xs font-semibold shadow-sm transition ${
+        active
+          ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+      }`}
+      popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-56 rounded-lg border border-slate-200 bg-white p-2.5 shadow-xl"
+    >
+      {() => (
+        <div className="grid grid-cols-3 gap-2">
+          {PROJECT_GANTT_LEVEL_OPTIONS.map((option) => {
+            const selected = option.value === level;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => onChange(option.value)}
+                className={`rounded-md border px-2.5 py-2 text-center text-xs font-semibold transition ${
+                  selected ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </PickerShell>
   );
 }
 
@@ -135,7 +188,7 @@ function StatusFilter({
   const activeCount = statuses.size;
   return (
     <PickerShell
-      valueLabel={activeCount ? `筛选 ${activeCount}` : "筛选"}
+      valueLabel="状态"
       buttonClassName={`h-10 rounded-lg border px-4 text-xs font-semibold shadow-sm transition ${
         activeCount
           ? "border-emerald-500 bg-emerald-50 text-emerald-700"

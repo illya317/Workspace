@@ -15,6 +15,7 @@ import {
 import {
   createProjectTask,
   deleteProjectTask,
+  listProjectPlanGantt,
   listProjectTasks,
   updateProjectTask,
 } from "./api";
@@ -25,6 +26,7 @@ import {
   type ProjectTaskItem,
 } from "./model";
 import { ProjectTaskDetail, ProjectTaskForm } from "./ProjectTaskFields";
+import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
 
 export default function ProjectTasksSection({
   projectId,
@@ -42,6 +44,7 @@ export default function ProjectTasksSection({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [creatingTask, setCreatingTask] = useState(false);
+  const [phases, setPhases] = useState<ProjectPlanPhaseItem[]>([]);
   const [detailTaskId, setDetailTaskId] = useState<number | null>(null);
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [createDraft, setCreateDraft] = useState<ProjectTaskDraft>(() => createEmptyProjectTaskDraft());
@@ -54,7 +57,12 @@ export default function ProjectTasksSection({
     }
     setLoading(true);
     try {
-      setTasks(await listProjectTasks(projectId));
+      const [nextTasks, plan] = await Promise.all([
+        listProjectTasks(projectId),
+        listProjectPlanGantt(projectId).catch(() => null),
+      ]);
+      setTasks(nextTasks);
+      setPhases(plan?.phases ?? []);
     } catch (err) {
       onToast({ type: "error", message: err instanceof Error ? err.message : "加载项目任务失败" });
     } finally {
@@ -83,7 +91,7 @@ export default function ProjectTasksSection({
   const columns: DataTableColumn<ProjectTaskItem>[] = [
     {
       key: "description",
-      label: "任务描述",
+      label: "任务名称",
       required: true,
       cellClassName: "min-w-64 max-w-xl whitespace-normal",
       render: (task) => (
@@ -92,9 +100,10 @@ export default function ProjectTasksSection({
             <span className="text-xs text-slate-400">前置：{task.predecessorTaskNames.join("、")}</span>
           )}
           <div className="flex min-w-0 items-center gap-2">
-            <span className="min-w-0 break-words text-sm font-medium text-slate-900">{task.description}</span>
+            <span className="min-w-0 break-words text-sm font-medium text-slate-900">{task.name}</span>
             {task.isMilestone && <span className="shrink-0 rounded bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">里程碑</span>}
           </div>
+          {task.description && <span className="text-xs text-slate-400">{task.description}</span>}
           {task.successorTasks.length > 0 && (
             <span className="text-xs text-slate-400">后置：{task.successorTasks.map((item) => item.name).join("、")}</span>
           )}
@@ -158,7 +167,7 @@ export default function ProjectTasksSection({
   async function handleCreate() {
     if (!projectId || saving) return;
     const draft = { ...createDraft, sortOrder: createDraft.sortOrder ?? nextSortOrder(tasks) };
-    if (!draft.description.trim()) return onToast({ type: "error", message: "任务描述不能为空" });
+    if (!draft.name.trim()) return onToast({ type: "error", message: "任务名称不能为空" });
     setSaving(true);
     try {
       await createProjectTask(projectId, draft);
@@ -187,7 +196,7 @@ export default function ProjectTasksSection({
 
   async function handleUpdate() {
     if (!projectId || !editingTaskId || !editDraft || saving) return;
-    if (!editDraft.description.trim()) return onToast({ type: "error", message: "任务描述不能为空" });
+    if (!editDraft.name.trim()) return onToast({ type: "error", message: "任务名称不能为空" });
     setSaving(true);
     try {
       await updateProjectTask(projectId, editingTaskId, editDraft);
@@ -205,7 +214,7 @@ export default function ProjectTasksSection({
     if (!projectId || saving) return;
     const ok = await confirmDelete({
       title: "删除任务",
-      message: `确定删除任务「${task.description}」吗？后置任务的前置关系会自动清空。`,
+      message: `确定删除任务「${task.name}」吗？后置任务的前置关系会自动清空。`,
       confirmLabel: "删除任务",
     });
     if (!ok) return;
@@ -240,11 +249,11 @@ export default function ProjectTasksSection({
       creating={creatingTask}
       disabled={disabled || saving}
       submitting={saving}
-      submitDisabled={disabled || saving || !createDraft.description.trim()}
+      submitDisabled={disabled || saving || !createDraft.name.trim()}
       editing={editingTaskId !== null}
       canEdit={canEdit}
       editDisabled={!detailTaskId || disabled || saving || creatingTask}
-      editSubmitDisabled={disabled || saving || !editDraft?.description.trim()}
+      editSubmitDisabled={disabled || saving || !editDraft?.name.trim()}
       addLabel="新增任务"
       submitLabel="保存任务"
       editLabel="编辑任务"
@@ -255,7 +264,7 @@ export default function ProjectTasksSection({
       onStartEdit={handleStartEdit}
       onCancelEdit={handleCancelEdit}
       onSubmitEdit={() => void handleUpdate()}
-      createContent={<ProjectTaskForm draft={createDraft} disabled={disabled || saving} taskOptions={taskOptions} excludedTaskId={null} framed={false} onChange={setCreateDraft} />}
+      createContent={<ProjectTaskForm draft={createDraft} disabled={disabled || saving} taskOptions={taskOptions} phases={phases} tasks={tasks} excludedTaskId={null} framed={false} onChange={setCreateDraft} />}
     >
         <TableScrollFrame className="overflow-y-hidden">
           <DataTable
@@ -272,6 +281,8 @@ export default function ProjectTasksSection({
                 draft={editDraft}
                 disabled={disabled || saving}
                 taskOptions={taskOptions}
+                phases={phases}
+                tasks={tasks}
                 excludedTaskId={task.id}
                 onChange={setEditDraft}
               />

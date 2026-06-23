@@ -19,6 +19,7 @@ export interface OptionPickerProps {
   searchPlaceholder?: string;
   commonValues?: string[];
   visibleCount?: number;
+  placeholderInGrid?: boolean;
   className?: string;
   buttonClassName?: string;
   popoverClassName?: string;
@@ -49,6 +50,7 @@ export default function OptionPicker({
   searchPlaceholder = "搜索选项",
   commonValues,
   visibleCount = 6,
+  placeholderInGrid = false,
   className,
   buttonClassName,
   popoverClassName,
@@ -86,7 +88,10 @@ export default function OptionPicker({
 
   const isUnset = current === "" && !hasExplicitEmptyOption;
   const currentLabel = isUnset ? "" : (valueToLabel.get(current) ?? current);
-  const visibleColumnCount = Math.min(3, Math.max(1, visibleOptions.length));
+  const gridOptions = placeholderInGrid && !hasExplicitEmptyOption
+    ? [{ label: placeholder, value: "" }, ...visibleOptions]
+    : visibleOptions;
+  const gridColumnCount = Math.min(3, Math.max(1, gridOptions.length));
 
   function resetPopup() {
     setShowMore(false);
@@ -117,14 +122,17 @@ export default function OptionPicker({
 
         return (
           <>
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <button
-                type="button"
-                onClick={() => choose(null)}
-                className={`whitespace-nowrap rounded-md border px-2.5 py-1.5 text-xs font-medium transition ${isUnset ? "border-slate-300 bg-slate-100 text-slate-900" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
-              >
-                {placeholder}
-              </button>
+            {(!placeholderInGrid || hasExplicitEmptyOption || moreOptions.length > 0) && (
+              <div className="mb-2 flex items-center justify-between gap-2">
+                {(!placeholderInGrid || hasExplicitEmptyOption) && (
+                  <button
+                    type="button"
+                    onClick={() => choose(null)}
+                    className={`whitespace-nowrap rounded-md border px-2.5 py-1.5 text-xs font-medium transition ${isUnset ? "border-slate-300 bg-slate-100 text-slate-900" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
+                  >
+                    {placeholder}
+                  </button>
+                )}
               {moreOptions.length > 0 && (
                 <button
                   type="button"
@@ -138,22 +146,26 @@ export default function OptionPicker({
                   更多
                 </button>
               )}
-            </div>
+              </div>
+            )}
 
             <div
               className="grid gap-2"
-              style={{ gridTemplateColumns: `repeat(${visibleColumnCount}, max-content)` }}
+              style={{ gridTemplateColumns: `repeat(${gridColumnCount}, max-content)` }}
             >
-              {visibleOptions.map((option) => {
+              {gridOptions.map((option) => {
                 const selected = !isUnset && option.value === current;
+                const selectedUnset = isUnset && option.value === "";
                 return (
                   <button
                     key={option.value}
                     type="button"
-                    onClick={() => choose(option.value)}
+                    onClick={() => choose(option.value || null)}
                     className={`min-w-0 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-xs font-medium transition ${
-                      selected
-                        ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                      selected || selectedUnset
+                        ? option.value === ""
+                          ? "border-slate-300 bg-slate-100 text-slate-900"
+                          : "border-emerald-500 bg-emerald-50 text-emerald-700"
                         : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                     }`}
                   >

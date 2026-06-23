@@ -2,18 +2,25 @@
 
 import { EmptyStateCard, SectionCard } from "@workspace/core/ui";
 import {
+  type GanttMilestoneEvent,
   type GanttRow,
+  type ProjectGanttStageSegment,
   type ProjectGanttZoom,
 } from "./gantt-model";
 import { buildGanttTicks, datePercent, parseGanttDate, rangeEnd } from "./gantt-time";
 
 const ROW_GRID = "grid-cols-[280px_minmax(0,1fr)]";
 const STATUS_BAR_CLASS: Record<string, string> = {
-  "规划中": "bg-sky-500",
   "进行中": "bg-teal-600",
-  "暂停": "bg-amber-400",
-  "已完成": "bg-slate-500",
-  "已取消": "bg-rose-400",
+  "已完成": "bg-green-600",
+  "已终止": "bg-rose-600",
+};
+const STAGE_BAR_CLASS: Record<string, string> = {
+  "规划中": "bg-emerald-300",
+  "进行中": "bg-teal-500",
+  "暂停": "bg-red-200",
+  "已完成": "bg-green-600",
+  "已终止": "bg-rose-600",
 };
 
 export default function ProjectGanttChart({
@@ -34,7 +41,7 @@ export default function ProjectGanttChart({
   const todayLeft = datePercent(today, periodStart, periodEnd);
 
   return (
-    <SectionCard title="项目甘特" bodyClassName="min-w-0 overflow-hidden p-0">
+    <SectionCard title="公司甘特" bodyClassName="min-w-0 overflow-hidden p-0">
       {rows.length === 0 ? (
         <EmptyStateCard compact={false}>暂无匹配项目</EmptyStateCard>
       ) : (
@@ -90,14 +97,10 @@ export default function ProjectGanttChart({
                         {row.hasChildren ? (row.expanded ? "⌄" : "›") : "·"}
                       </button>
                       <div className="min-w-0">
-                        <div className={`truncate ${titleClassName(row.kind)}`} title={row.name}>
-                          {row.name}
-                        </div>
+                        <RowTitle row={row} />
                         <div className="mt-1 flex flex-wrap items-center gap-1.5">
                           {row.status && <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${statusBadgeClassName(row.status)}`}>{row.status}</span>}
-                          {row.projectLevel && row.projectLevel !== "普通" && <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${levelBadgeClassName(row.projectLevel)}`}>{row.projectLevel}</span>}
-                          {row.isMilestone && <span className="rounded bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-700">里程碑</span>}
-                          {row.kind === "task" && <span className="rounded bg-sky-50 px-1.5 py-0.5 text-xs font-medium text-sky-700">任务</span>}
+                          {row.ownerNames.length > 0 && <span className="rounded bg-yellow-50 px-1.5 py-0.5 text-xs font-medium text-yellow-700">{ownerBadgeText(row.ownerNames)}</span>}
                         </div>
                       </div>
                     </div>
@@ -114,7 +117,11 @@ export default function ProjectGanttChart({
                       ))}
                     </div>
                     <div className="relative h-11">
+                      <BaselineMark row={row} periodStart={periodStart} periodEnd={periodEnd} />
                       <TimelineMark row={row} periodStart={periodStart} periodEnd={periodEnd} />
+                      {row.kind !== "task" && row.milestoneEvents.length > 0 && (
+                        <MilestoneMarks events={row.milestoneEvents} periodStart={periodStart} periodEnd={periodEnd} />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -127,10 +134,48 @@ export default function ProjectGanttChart({
   );
 }
 
+function BaselineMark({ row, periodStart, periodEnd }: { row: GanttRow; periodStart: Date; periodEnd: Date }) {
+  const start = parseGanttDate(row.baselineStartDate);
+  const end = parseGanttDate(row.baselineEndDate);
+  if (!start || !end || end < start) return null;
+  const left = datePercent(start, periodStart, periodEnd);
+  const right = datePercent(end, periodStart, periodEnd);
+  const visibleStart = Math.max(0, Math.min(left, right));
+  const visibleEnd = Math.min(100, Math.max(left, right));
+  if (visibleEnd <= 0 || visibleStart >= 100) return null;
+  return (
+    <span
+      className="absolute top-[29px] h-1 min-w-3 rounded-full bg-slate-300"
+      title={`基准 ${formatDate(start)} - ${formatDate(end)}`}
+      style={{ left: `${visibleStart}%`, width: `${Math.max(1.2, visibleEnd - visibleStart)}%` }}
+    />
+  );
+}
+
+function RowTitle({ row }: { row: GanttRow }) {
+  if (row.kind === "task") {
+    return (
+      <div className="flex min-w-0 items-center gap-1.5" title={row.name}>
+        <span className="shrink-0 rounded bg-sky-100 px-1.5 py-0.5 text-[11px] font-semibold leading-4 text-sky-700">任务</span>
+        <span className="min-w-0 truncate text-sm font-medium text-slate-600">{row.name}</span>
+      </div>
+    );
+  }
+  return (
+    <div className="truncate text-sm font-semibold text-slate-900" title={row.name}>
+      {row.name}
+    </div>
+  );
+}
+
 function TimelineMark({ row, periodStart, periodEnd }: { row: GanttRow; periodStart: Date; periodEnd: Date }) {
   const start = parseGanttDate(row.startDate || row.aggregateStart);
   const end = parseGanttDate(row.endDate || row.aggregateEnd);
   const colorClass = barClassName(row);
+
+  if (row.kind === "project" && row.stages.length > 0) {
+    return <StageTimeline stages={row.stages} periodStart={periodStart} periodEnd={periodEnd} fallbackStart={start} fallbackEnd={end} />;
+  }
 
   if (start && end) {
     if (end < start) return <TimelineHint>日期异常</TimelineHint>;
@@ -180,22 +225,93 @@ function barClassName(row: GanttRow) {
 }
 
 function statusBadgeClassName(status: string) {
-  if (status === "暂停") return "bg-amber-50 text-amber-700";
   if (status === "进行中") return "bg-emerald-50 text-emerald-700";
-  if (status === "已完成") return "bg-slate-100 text-slate-500";
-  if (status === "已取消") return "bg-rose-50 text-rose-600";
-  return "bg-sky-50 text-sky-700";
+  if (status === "已完成") return "bg-green-50 text-green-700";
+  if (status === "已终止") return "bg-rose-50 text-rose-600";
+  return "bg-lime-50 text-lime-700";
 }
 
-function titleClassName(kind: string) {
-  if (kind === "task") return "text-sm font-medium text-slate-600";
-  return "text-sm font-semibold text-slate-900";
+function ownerBadgeText(names: string[]) {
+  if (names.length <= 2) return names.join("、");
+  return `${names.slice(0, 2).join("、")} 等${names.length}人`;
 }
 
-function levelBadgeClassName(level: string) {
-  if (level === "特殊") return "bg-rose-50 text-rose-700";
-  if (level === "重点") return "bg-orange-50 text-orange-700";
-  return "bg-slate-100 text-slate-500";
+function StageTimeline({
+  stages,
+  periodStart,
+  periodEnd,
+  fallbackStart,
+  fallbackEnd,
+}: {
+  stages: ProjectGanttStageSegment[];
+  periodStart: Date;
+  periodEnd: Date;
+  fallbackStart: Date | null;
+  fallbackEnd: Date | null;
+}) {
+  const visibleSegments = stages.filter((stage) => stage.startDate && stage.endDate);
+  return (
+    <>
+      {fallbackStart && fallbackEnd && fallbackEnd >= fallbackStart && (
+        <span className="absolute left-0 right-0 top-[21px] h-px bg-slate-200/70" />
+      )}
+      {visibleSegments.map((stage) => (
+        <StageSegment key={stage.id} stage={stage} periodStart={periodStart} periodEnd={periodEnd} />
+      ))}
+    </>
+  );
+}
+
+function StageSegment({ stage, periodStart, periodEnd }: { stage: ProjectGanttStageSegment; periodStart: Date; periodEnd: Date }) {
+  const start = parseGanttDate(stage.startDate);
+  const end = parseGanttDate(stage.endDate);
+  if (!start || !end || end < start) return null;
+  const colorClass = STAGE_BAR_CLASS[stage.stage] ?? "bg-slate-400";
+  const left = datePercent(start, periodStart, periodEnd);
+  const right = datePercent(end, periodStart, periodEnd);
+  const visibleStart = Math.max(0, Math.min(left, right));
+  const visibleEnd = Math.min(100, Math.max(left, right));
+  if (visibleEnd <= 0 || visibleStart >= 100) return null;
+  return (
+    <span
+      className={`absolute top-[15px] h-3 min-w-3 rounded-md shadow-[0_1px_2px_rgba(15,23,42,0.12)] ${colorClass}`}
+      title={stageTitle(stage)}
+      style={{ left: `${visibleStart}%`, width: `${Math.max(1.2, visibleEnd - visibleStart)}%` }}
+    />
+  );
+}
+
+function MilestoneMarks({
+  events,
+  periodStart,
+  periodEnd,
+}: {
+  events: GanttMilestoneEvent[];
+  periodStart: Date;
+  periodEnd: Date;
+}) {
+  return (
+    <>
+      {events.map((event) => {
+        const date = parseGanttDate(event.date);
+        if (!date) return null;
+        const left = datePercent(date, periodStart, periodEnd);
+        if (left <= 0 || left >= 100) return null;
+          return (
+            <span
+              key={event.key}
+              className="absolute top-[21px] size-3 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-[2px] border border-amber-500 bg-amber-300 shadow-sm"
+              title={event.name}
+              style={{ left: `${left}%` }}
+            />
+        );
+      })}
+    </>
+  );
+}
+
+function stageTitle(stage: ProjectGanttStageSegment) {
+  return [stage.stage, stage.startDate, stage.endDate ? `至 ${stage.endDate}` : null, stage.note].filter(Boolean).join(" · ");
 }
 
 function formatDate(date: Date) {

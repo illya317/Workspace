@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CommandToolbar, DatabasePageFrame, EmptyStateCard, IconActionButton, SplitWorkspace, SplitWorkspaceToolbar, Toast, ToolbarOptionGroup, useConfirm, useConfirmDelete } from "@workspace/core/ui";
+import { CommandToolbar, CreateStartButton, DatabasePageFrame, EmptyStateCard, SplitWorkspace, SplitWorkspaceToolbar, Toast, ToolbarOptionGroup, useConfirm, useConfirmDelete } from "@workspace/core/ui";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 import type { WorkUser } from "@workspace/work/types";
 import ProjectDetailEditor from "./project/ProjectDetailEditor";
 import ProjectGanttTab from "./project/ProjectGanttTab";
 import ProjectListPanel from "./project/ProjectListPanel";
+import ProjectPlanGanttTab from "./project/ProjectPlanGanttTab";
 import { PROJECT_LIST_FILTER_OPTIONS, type ProjectListFilter } from "./project/model";
 import { useProjectTabModel } from "./project/use-project-tab-model";
 
@@ -22,9 +23,21 @@ export default function ProjectTab({ user }: { user: WorkUser }) {
       onTabChange={() => setActiveChild("projects")}
       onChildChange={setActiveChild}
     >
-      {activeChild === "projects-gantt" ? <ProjectGanttTab user={user} /> : <ProjectLedgerTab user={user} />}
+      {activeChild === "projects-gantt" ? (
+        <ProjectGanttTab user={user} />
+      ) : activeChild === "project-plan-gantt" ? (
+        <ProjectPlanGanttTab requestedProjectId={requestedProjectId()} />
+      ) : (
+        <ProjectLedgerTab user={user} />
+      )}
     </DatabasePageFrame>
   );
+}
+
+function requestedProjectId() {
+  if (typeof window === "undefined") return null;
+  const value = Number(new URLSearchParams(window.location.search).get("projectId") || "");
+  return Number.isInteger(value) && value > 0 ? value : null;
 }
 
 function ProjectLedgerTab({ user }: { user: WorkUser }) {
@@ -35,7 +48,7 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
   const confirmDelete = useConfirmDelete();
   const editorTitle = model.creating ? "新建项目" : model.selectedProject ? "项目信息" : "项目详情";
   const startDepartmentProjectCreate = () => {
-    model.setProjectListFilter("department");
+    model.setProjectListFilter("普通");
     model.setProjectListOpen(true);
     model.setProjectListDrawerOpen(false);
     model.startCreateProject();
@@ -88,6 +101,7 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
         >
           <ProjectToolbar
             canCreateProject={model.canCreateProject}
+            creating={model.creating}
             filter={model.projectListFilter}
             onCreate={startDepartmentProjectCreate}
             onFilterChange={model.setProjectListFilter}
@@ -122,14 +136,11 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
             canDeleteCurrent={model.canDeleteCurrent}
             saving={model.saving}
             canSave={model.canSave}
-            childProjects={model.childProjects}
             rasciRows={model.rasciRows}
             creating={model.creating}
             onCancelCreate={model.cancelCreateProject}
             onDeleteProject={() => void confirmDeleteProject()}
             onSave={() => void model.saveProject()}
-            onChildProjectsChange={model.setChildProjects}
-            onCreateChildProject={(name, leadingDepartmentId, leader, endDate) => model.createChildProject(name, leadingDepartmentId, leader, endDate)}
             onDraftChange={model.updateDraft}
             onLeaderChange={model.setLeader}
             onRoleMembersChange={model.setRoleMembers}
@@ -150,11 +161,13 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
 
 function ProjectToolbar({
   canCreateProject,
+  creating,
   filter,
   onCreate,
   onFilterChange,
 }: {
   canCreateProject: boolean;
+  creating: boolean;
   filter: ProjectListFilter;
   onCreate: () => void;
   onFilterChange: (filter: ProjectListFilter) => void;
@@ -163,9 +176,7 @@ function ProjectToolbar({
     <CommandToolbar
       className="w-full"
       viewControls={canCreateProject ? (
-        <IconActionButton label="新建部门项目" variant="primary" onClick={onCreate}>
-          +
-        </IconActionButton>
+        <CreateStartButton label="新建部门项目" active={creating} onClick={onCreate} />
       ) : undefined}
       filters={
         <ToolbarOptionGroup

@@ -3,12 +3,8 @@ model Project {
   id                  Int                   @id @default(autoincrement())
   code                String?               @unique
   name                String
-  type                String                @default("department")
   description         String?
-  status              String?
   projectLevel        String                @default("普通")
-  isMilestone         Boolean               @default(false)
-  stage               String?
   plan                String?
   goal                String?
   milestones          String?
@@ -18,7 +14,7 @@ model Project {
   remark              String?
   startDate           DateTime?
   endDate             DateTime?
-  parentId            Int?
+  closureType         String?
   leadingDepartmentId Int?
   isArchived          Boolean               @default(false)
   archivedAt          DateTime?
@@ -28,14 +24,14 @@ model Project {
   version             Int                   @default(1)
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @default(now()) @updatedAt
-  parent              Project?              @relation("ProjectHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
-  children            Project[]             @relation("ProjectHierarchy")
   leadingDepartment   Department?           @relation("ProjectLeadingDepartment", fields: [leadingDepartmentId], references: [id], onDelete: SetNull)
   employees           EmployeeProject[]
   tasks               ProjectTask[]
+  planPhases          ProjectPlanPhase[]     @relation("ProjectPlanPhases")
+  planDependencies    ProjectPlanDependency[] @relation("ProjectPlanDependencies")
+  planBaselines       ProjectPlanBaseline[]  @relation("ProjectPlanBaselines")
   workAssignees       ProjectWorkAssignee[]
 
-  @@index([parentId])
   @@index([leadingDepartmentId])
 }
 
@@ -58,16 +54,103 @@ model EmployeeProject {
   @@unique([employeeId, projectId])
 }
 
+/// 项目计划阶段（串行计划段）
+model ProjectPlanPhase {
+  id            Int           @id @default(autoincrement())
+  projectId     Int
+  sequenceNo    Int
+  name          String
+  startDate     DateTime?
+  endDate       DateTime?
+  note          String?
+  createdBy     Int?
+  editedBy      Int?
+  editedAt      DateTime?
+  version       Int           @default(1)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now()) @updatedAt
+  project       Project       @relation("ProjectPlanPhases", fields: [projectId], references: [id], onDelete: Cascade)
+  tasks         ProjectTask[] @relation("ProjectTaskPlanPhase")
+
+  @@unique([projectId, sequenceNo])
+  @@index([projectId, sequenceNo])
+}
+
+/// 项目计划依赖（统一项目/任务节点）
+model ProjectPlanDependency {
+  id              Int      @id @default(autoincrement())
+  projectId       Int
+  predecessorKind String
+  predecessorId   Int
+  successorKind   String
+  successorId     Int
+  dependencyType  String   @default("finish_start")
+  lagDays         Int      @default(1)
+  createdBy       Int?
+  editedBy        Int?
+  editedAt        DateTime?
+  version         Int      @default(1)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+  project         Project  @relation("ProjectPlanDependencies", fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, predecessorKind, predecessorId, successorKind, successorId])
+  @@index([projectId, successorKind, successorId])
+  @@index([projectId, predecessorKind, predecessorId])
+}
+
+/// 项目计划基准快照
+model ProjectPlanBaseline {
+  id        Int                       @id @default(autoincrement())
+  projectId Int
+  name      String
+  note      String?
+  isActive  Boolean                   @default(false)
+  createdBy Int?
+  editedBy  Int?
+  editedAt  DateTime?
+  version   Int                       @default(1)
+  createdAt DateTime                  @default(now())
+  updatedAt DateTime                  @default(now()) @updatedAt
+  project   Project                   @relation("ProjectPlanBaselines", fields: [projectId], references: [id], onDelete: Cascade)
+  items     ProjectPlanBaselineItem[]
+
+  @@index([projectId, isActive])
+}
+
+/// 项目计划基准条目
+model ProjectPlanBaselineItem {
+  id          Int                 @id @default(autoincrement())
+  baselineId  Int
+  itemKind    String
+  itemId      Int
+  parentKind  String?
+  parentId    Int?
+  phaseId     Int?
+  name        String
+  status      String?
+  isMilestone Boolean             @default(false)
+  startDate   DateTime?
+  endDate     DateTime?
+  baseline    ProjectPlanBaseline @relation(fields: [baselineId], references: [id], onDelete: Cascade)
+
+  @@unique([baselineId, itemKind, itemId])
+  @@index([baselineId, phaseId])
+}
+
 /// 项目任务计划
 model ProjectTask {
   id                Int           @id @default(autoincrement())
   projectId         Int
+  planPhaseId       Int?
+  name              String        @default("")
   isMilestone       Boolean       @default(false)
   ownerEmployeeId   Int?
-  description       String
+  description       String        @default("")
+  baselineStartDate DateTime?
+  baselineEndDate   DateTime?
   startDate         DateTime?
   endDate           DateTime?
-  predecessorTaskId Int?
   sortOrder         Int           @default(0)
   createdBy         Int?
   editedBy          Int?
@@ -76,11 +159,29 @@ model ProjectTask {
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @default(now()) @updatedAt
   project           Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  planPhase         ProjectPlanPhase? @relation("ProjectTaskPlanPhase", fields: [planPhaseId], references: [id], onDelete: SetNull)
   owner             Employee?     @relation("ProjectTaskOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull)
-  predecessor       ProjectTask?  @relation("ProjectTaskDependency", fields: [predecessorTaskId], references: [id], onDelete: SetNull)
-  successors        ProjectTask[] @relation("ProjectTaskDependency")
+  assignees         ProjectTaskAssignment[]
 
   @@index([projectId, sortOrder])
+  @@index([planPhaseId])
   @@index([ownerEmployeeId])
-  @@index([predecessorTaskId])
+}
+
+/// 项目任务 RASCI
+model ProjectTaskAssignment {
+  id         Int         @id @default(autoincrement())
+  taskId     Int
+  employeeId Int
+  role       String?
+  editedBy   Int?
+  editedAt   DateTime?
+  version    Int         @default(1)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @default(now()) @updatedAt
+  task       ProjectTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  employee   Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, employeeId])
+  @@index([employeeId])
 }

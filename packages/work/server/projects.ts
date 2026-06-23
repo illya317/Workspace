@@ -9,10 +9,7 @@ import {
   buildVisibleProjectWhere,
   getProjectPermissions,
 } from "./access";
-import {
-  formatDate,
-  normalizeProjectType,
-} from "./project-normalization";
+import { formatDate } from "./project-normalization";
 import {
   buildProjectCreateCommand,
   buildProjectFieldUpdateCommand,
@@ -31,15 +28,6 @@ export async function listProjects(input: { userId: number; keyword: string; pag
     },
   });
 
-  const projectNameById = new Map(projects.map((project) => [project.id, project.name]));
-  const childProjectsByParentId = new Map<number, { id: number; name: string }[]>();
-  for (const project of projects) {
-    if (!project.parentId) continue;
-    const children = childProjectsByParentId.get(project.parentId) || [];
-    children.push({ id: project.id, name: project.name });
-    childProjectsByParentId.set(project.parentId, children);
-  }
-
   const mapped = await Promise.all(projects.map(async (project) => {
     const leadingDepartment = project.leadingDepartment;
     const permissions = await getProjectPermissions(input.userId, project);
@@ -47,7 +35,6 @@ export async function listProjects(input: { userId: number; keyword: string; pag
       id: project.id,
       code: project.code,
       name: project.name,
-      projectType: normalizeProjectType(project.type),
       createdBy: project.createdBy,
       permissions: {
         canEdit: permissions.canEdit,
@@ -55,10 +42,8 @@ export async function listProjects(input: { userId: number; keyword: string; pag
         canDelete: permissions.canDelete,
       },
       description: project.description,
-      status: project.status,
+      status: deriveProjectStatus(project.endDate, project.closureType),
       projectLevel: project.projectLevel,
-      isMilestone: project.isMilestone,
-      stage: project.stage,
       plan: project.plan,
       goal: project.goal,
       milestones: project.milestones,
@@ -66,9 +51,6 @@ export async function listProjects(input: { userId: number; keyword: string; pag
       budgetNote: project.budgetNote,
       riskNote: project.riskNote,
       remark: project.remark,
-      parentId: project.parentId,
-      parentName: project.parentId ? projectNameById.get(project.parentId) ?? null : null,
-      childProjects: childProjectsByParentId.get(project.id) || [],
       isArchived: project.isArchived,
       archivedAt: project.archivedAt?.toISOString() || null,
       leadingDepartmentId: project.leadingDepartmentId,
@@ -76,6 +58,7 @@ export async function listProjects(input: { userId: number; keyword: string; pag
       leadingDepartmentCode: leadingDepartment?.code ?? null,
       startDate: formatDate(project.startDate),
       endDate: formatDate(project.endDate),
+      closureType: project.closureType,
       employeeCount: project._count.employees,
     };
   }));
@@ -93,6 +76,13 @@ export async function listProjectGantt(input: { userId: number; includeTasks?: b
     orderBy: { id: "asc" },
     include: {
       leadingDepartment: { select: { id: true, code: true, name: true } },
+      employees: {
+        where: { role: { in: ["负责人", "项目负责人"] } },
+        orderBy: { id: "asc" },
+        include: {
+          employee: { select: { name: true } },
+        },
+      },
     },
   });
   const projectIds = projects.map((project) => project.id);
@@ -103,42 +93,78 @@ export async function listProjectGantt(input: { userId: number; includeTasks?: b
       select: {
         id: true,
         projectId: true,
+        name: true,
         description: true,
         isMilestone: true,
+        baselineStartDate: true,
+        baselineEndDate: true,
         startDate: true,
         endDate: true,
-        predecessorTaskId: true,
         sortOrder: true,
+        owner: { select: { name: true } },
       },
     })
     : [];
+  const baselines = projectIds.length
+    ? await prisma.projectPlanBaseline.findMany({
+      where: { projectId: { in: projectIds }, isActive: true },
+      include: { items: true },
+      orderBy: [{ id: "desc" }],
+    })
+    : [];
+  const baselineByKey = new Map<string, { startDate: Date | null; endDate: Date | null }>();
+  for (const baseline of baselines) {
+    for (const item of baseline.items) {
+      const key = `${item.itemKind}:${item.itemId}`;
+      if (!baselineByKey.has(key)) baselineByKey.set(key, { startDate: item.startDate, endDate: item.endDate });
+    }
+  }
 
   return {
-    projects: projects.map((project) => ({
-      id: project.id,
-      name: project.name,
-      status: project.status,
-      projectLevel: project.projectLevel,
-      projectType: normalizeProjectType(project.type),
-      isMilestone: project.isMilestone,
-      parentId: project.parentId,
-      leadingDepartmentId: project.leadingDepartmentId,
-      leadingDepartmentCode: project.leadingDepartment?.code ?? null,
-      leadingDepartmentName: project.leadingDepartment?.name ?? null,
-      startDate: formatDate(project.startDate),
-      endDate: formatDate(project.endDate),
-    })),
-    tasks: tasks.map((task) => ({
-      id: task.id,
-      projectId: task.projectId,
-      description: task.description,
-      isMilestone: task.isMilestone,
-      startDate: formatDate(task.startDate),
-      endDate: formatDate(task.endDate),
-      predecessorTaskId: task.predecessorTaskId,
-      sortOrder: task.sortOrder,
-    })),
+    projects: projects.map((project) => {
+      const baseline = baselineByKey.get(`project:${project.id}`);
+      return {
+        id: project.id,
+        name: project.name,
+        status: deriveProjectStatus(project.endDate, project.closureType),
+        projectLevel: project.projectLevel,
+        leadingDepartmentId: project.leadingDepartmentId,
+        leadingDepartmentCode: project.leadingDepartment?.code ?? null,
+        leadingDepartmentName: project.leadingDepartment?.name ?? null,
+        leaderNames: project.employees
+          .map((entry) => entry.employee.name)
+          .filter((name): name is string => Boolean(name)),
+        stages: [],
+        startDate: formatDate(project.startDate),
+        endDate: formatDate(project.endDate),
+        closureType: project.closureType,
+        baselineStartDate: formatDate(baseline?.startDate ?? null),
+        baselineEndDate: formatDate(baseline?.endDate ?? null),
+      };
+    }),
+    tasks: tasks.map((task) => {
+      const baseline = baselineByKey.get(`task:${task.id}`);
+      return {
+        id: task.id,
+        projectId: task.projectId,
+        name: task.name,
+        description: task.description,
+        isMilestone: task.isMilestone,
+        startDate: formatDate(task.startDate),
+        endDate: formatDate(task.endDate),
+        baselineStartDate: formatDate(task.baselineStartDate ?? baseline?.startDate ?? null),
+        baselineEndDate: formatDate(task.baselineEndDate ?? baseline?.endDate ?? null),
+        sortOrder: task.sortOrder,
+        ownerEmployeeName: task.owner?.name ?? null,
+      };
+    }),
   };
+}
+
+function deriveProjectStatus(endDate: Date | null, closureType: string | null) {
+  if (endDate && closureType === "完成") return "已完成";
+  if (endDate && closureType === "终止") return "已终止";
+  return "进行中";
 }
 
 export async function createProject(request: Request, userId: number) {
@@ -180,11 +206,6 @@ export async function updateProjectField(request: Request, params: Promise<{ id:
     value: body.value,
   });
   if (!command.ok) return NextResponse.json({ error: command.issue.message }, { status: command.issue.status || 400 });
-  if (command.data.kind === "children") {
-    await syncProjectChildren(projectId, command.data.childIds, command.data.children, payload.userId);
-    return NextResponse.json({ success: true });
-  }
-
   await prisma.project.update({
     where: { id: projectId },
     data: {
@@ -196,53 +217,6 @@ export async function updateProjectField(request: Request, params: Promise<{ id:
   });
   await snapshotHistory("Project", projectId, payload.userId);
   return NextResponse.json({ success: true });
-}
-
-async function syncProjectChildren(
-  projectId: number,
-  childIds: number[],
-  children: Array<{ id: number; parentId: number | null }>,
-  userId: number,
-) {
-  const existingChildren = await prisma.project.findMany({
-    where: { parentId: projectId, isArchived: false },
-    select: { id: true, parentId: true },
-  });
-  const targetIds = new Set(childIds);
-  const changedIds = new Set<number>();
-
-  await prisma.$transaction(async (tx) => {
-    for (const child of existingChildren) {
-      if (targetIds.has(child.id)) continue;
-      await tx.project.update({
-        where: { id: child.id },
-        data: {
-          parentId: null,
-          editedBy: userId,
-          editedAt: new Date(),
-          version: { increment: 1 },
-        },
-      });
-      changedIds.add(child.id);
-    }
-
-    for (const child of children) {
-      if (child.parentId === projectId) continue;
-      await tx.project.update({
-        where: { id: child.id },
-        data: {
-          parentId: projectId,
-          editedBy: userId,
-          editedAt: new Date(),
-          version: { increment: 1 },
-        },
-      });
-      changedIds.add(child.id);
-    }
-  });
-
-  for (const changedId of changedIds) await snapshotHistory("Project", changedId, userId);
-  if (changedIds.size > 0) await snapshotHistory("Project", projectId, userId);
 }
 
 export async function deleteProject(request: Request, params: Promise<{ id: string }>) {

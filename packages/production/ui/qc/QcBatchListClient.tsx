@@ -124,6 +124,7 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
         productFilter={productFilter}
         productOptions={productFilterOptions}
         pageSize={pageSize}
+        createOpen={createOpen}
         onToggleCreate={() => setCreateOpen((open) => !open)}
         onStatusFilterChange={(value) => {
           setStatusFilter(value);

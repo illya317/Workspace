@@ -1,0 +1,207 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { ActionButton, CommandToolbar, EmptyStateCard, SearchInput, ToolbarOptionGroup, useConfirm } from "@workspace/core/ui";
+import type { ProjectItem } from "./model";
+import {
+  createProjectPlanBaseline,
+  listProjectOptions,
+  listProjectPlanGantt,
+  saveProjectPlanDependencies,
+  saveProjectPlanGantt,
+} from "./api";
+import ProjectPlanPhasePanel from "./ProjectPlanPhasePanel";
+import ProjectPlanGanttTimeline from "./ProjectPlanGanttTimeline";
+import type { ProjectGanttZoom } from "./gantt-model";
+import { PROJECT_GANTT_ZOOM_OPTIONS } from "./gantt-model";
+import { periodStart as getPeriodStart, shiftPeriod } from "./gantt-time";
+import type { ProjectPlanDependency, ProjectPlanGanttData, ProjectPlanItem } from "./plan-gantt-model";
+
+export default function ProjectPlanGanttTab({ requestedProjectId }: { requestedProjectId?: number | null }) {
+  const confirm = useConfirm();
+  const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [keyword, setKeyword] = useState("");
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(requestedProjectId || null);
+  const [data, setData] = useState<ProjectPlanGanttData | null>(null);
+  const [items, setItems] = useState<ProjectPlanItem[]>([]);
+  const [dependencies, setDependencies] = useState<ProjectPlanDependency[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [zoom, setZoom] = useState<ProjectGanttZoom>("year");
+  const [currentStart, setCurrentStart] = useState(() => getPeriodStart(new Date(), "year"));
+
+  useEffect(() => {
+    let cancelled = false;
+    listProjectOptions()
+      .then((next) => {
+        if (cancelled) return;
+        setProjects(next);
+        setSelectedProjectId((current) => current || (next[0]?.id ?? null));
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err instanceof Error ? err.message : "加载项目列表失败");
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedProjectId) {
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    listProjectPlanGantt(selectedProjectId)
+      .then((next) => {
+        if (cancelled) return;
+        setData(next);
+        setItems(next.items);
+        setDependencies(next.dependencies);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err instanceof Error ? err.message : "加载项目甘特失败");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [selectedProjectId]);
+
+  const filteredProjects = useMemo(() => {
+    const key = keyword.trim().toLowerCase();
+    if (!key) return projects;
+    return projects.filter((project) => [project.name, project.code, project.leadingDepartmentName].filter(Boolean).join(" ").toLowerCase().includes(key));
+  }, [projects, keyword]);
+
+  const dirty = data ? JSON.stringify(itemsForSave(items)) !== JSON.stringify(itemsForSave(data.items))
+    || JSON.stringify(dependenciesForSave(dependencies)) !== JSON.stringify(dependenciesForSave(data.dependencies)) : false;
+  const canEdit = Boolean(data?.permissions.canEdit);
+
+  function changeZoom(nextZoom: ProjectGanttZoom) {
+    setZoom(nextZoom);
+    setCurrentStart((current) => getPeriodStart(current, nextZoom));
+  }
+
+  async function reloadPlan(projectId = selectedProjectId) {
+    if (!projectId) return;
+    const next = await listProjectPlanGantt(projectId);
+    setData(next);
+    setItems(next.items);
+    setDependencies(next.dependencies);
+  }
+
+  async function handleSave() {
+    if (!selectedProjectId || !data) return;
+    setSaving(true);
+    try {
+      await saveProjectPlanGantt(selectedProjectId, itemsForSave(items));
+      await saveProjectPlanDependencies(selectedProjectId, dependenciesForSave(dependencies));
+      await reloadPlan(selectedProjectId);
+    } catch (err) {
+      await confirm({ title: "保存失败", message: err instanceof Error ? err.message : "保存项目甘特失败", confirmLabel: "关闭", confirmDanger: true, showCancel: false });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleCreateBaseline() {
+    if (!selectedProjectId) return;
+    setSaving(true);
+    try {
+      await createProjectPlanBaseline(selectedProjectId);
+      await reloadPlan(selectedProjectId);
+    } catch (err) {
+      await confirm({ title: "保存基准失败", message: err instanceof Error ? err.message : "保存计划基准失败", confirmLabel: "关闭", confirmDanger: true, showCancel: false });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <CommandToolbar
+        filters={(
+          <>
+            <SearchInput value={keyword} onChange={setKeyword} placeholder="搜索项目..." ariaLabel="搜索项目" size="toolbar" className="w-52" />
+            <select
+              value={selectedProjectId ?? ""}
+              onChange={(event) => setSelectedProjectId(event.target.value ? Number(event.target.value) : null)}
+              className="h-10 min-w-52 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 shadow-sm"
+            >
+              <option value="">选择项目</option>
+              {filteredProjects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
+            </select>
+          </>
+        )}
+        editActions={(
+          <>
+            <ToolbarOptionGroup ariaLabel="甘特时间缩放" value={zoom} options={PROJECT_GANTT_ZOOM_OPTIONS} onChange={(value) => changeZoom(value as ProjectGanttZoom)} />
+            <div className="inline-flex h-10 items-center overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+              <button type="button" className="h-10 px-3 text-sm font-semibold text-slate-600 hover:bg-slate-50" onClick={() => setCurrentStart((current) => shiftPeriod(current, zoom, -1))}>‹</button>
+              <div className="min-w-28 border-x border-slate-200 px-3 text-center text-xs font-semibold text-slate-600">{periodLabel(currentStart, zoom)}</div>
+              <button type="button" className="h-10 px-3 text-sm font-semibold text-slate-600 hover:bg-slate-50" onClick={() => setCurrentStart((current) => shiftPeriod(current, zoom, 1))}>›</button>
+            </div>
+            <ActionButton onClick={handleCreateBaseline} disabled={!canEdit || saving || !data}>保存基准</ActionButton>
+            <ActionButton variant="primary" onClick={handleSave} disabled={!canEdit || saving || !dirty}>{saving ? "保存中..." : "保存甘特"}</ActionButton>
+          </>
+        )}
+        meta={data?.activeBaseline ? `基准：${data.activeBaseline.name}` : "未设置基准"}
+      />
+
+      {error ? (
+        <EmptyStateCard compact={false} className="border-red-200 text-red-600">{error}</EmptyStateCard>
+      ) : loading ? (
+        <EmptyStateCard compact={false}>加载项目甘特...</EmptyStateCard>
+      ) : !data ? (
+        <EmptyStateCard compact={false}>请选择项目</EmptyStateCard>
+      ) : (
+        <>
+          {canEdit && (
+            <ProjectPlanPhasePanel
+              projectId={data.projectId}
+              phases={data.phases}
+              canEdit={canEdit}
+              disabled={saving}
+              onChanged={() => reloadPlan(data.projectId)}
+            />
+          )}
+          <ProjectPlanGanttTimeline
+            items={items}
+            phases={data.phases}
+            baseline={data.activeBaseline}
+            periodStart={currentStart}
+            zoom={zoom}
+          />
+        </>
+      )}
+    </div>
+  );
+}
+
+function itemsForSave(items: ProjectPlanItem[]) {
+  return items.map((item) => ({
+    kind: item.kind,
+    id: item.id,
+    startDate: item.startDate || null,
+    endDate: item.endDate || null,
+    phaseId: item.kind === "project" ? null : item.phaseId ?? null,
+  }));
+}
+
+function dependenciesForSave(dependencies: ProjectPlanDependency[]) {
+  return dependencies.map((dependency) => ({
+    predecessorKind: dependency.predecessorKind,
+    predecessorId: dependency.predecessorId,
+    successorKind: dependency.successorKind,
+    successorId: dependency.successorId,
+    lagDays: dependency.lagDays ?? 1,
+  })).sort((left, right) => `${left.successorKind}:${left.successorId}`.localeCompare(`${right.successorKind}:${right.successorId}`));
+}
+
+function periodLabel(start: Date, zoom: ProjectGanttZoom) {
+  if (zoom === "year") return `${start.getFullYear()}年`;
+  if (zoom === "quarter") return `${start.getFullYear()}年 Q${Math.floor(start.getMonth() / 3) + 1}`;
+  return `${start.getFullYear()}年 ${start.getMonth() + 1}月`;
+}

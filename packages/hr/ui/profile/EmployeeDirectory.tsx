@@ -8,7 +8,7 @@ import {
   EmptyStateCard,
   FieldValueFilter,
   FormField,
-  IconActionButton,
+  CreateStartButton,
   InlineCreatePanel,
   PanelCard,
   Pagination,
@@ -198,14 +198,12 @@ export default function EmployeeDirectory({
     <div className="space-y-5">
       <Toolbar
         viewControls={canEdit ? (
-          <IconActionButton
+          <CreateStartButton
             label="新建员工资料"
-            variant="primary"
+            active={createOpen}
             onClick={() => setCreateOpen((open) => !open)}
             disabled={creating}
-          >
-            +
-          </IconActionButton>
+          />
         ) : undefined}
         filters={(
           <>

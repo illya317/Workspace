@@ -165,16 +165,24 @@ const basePageViewDefinitions: PageViewDefinition[] = [
   {
     route: "/work/projects",
     moduleKey: "work",
-    label: "项目",
+    label: "项目管理",
     recordRoutes: ["/work/projects/[id]"],
     views: [
-      { key: "projects", label: "项目管理", children: [{ key: "projects", label: "项目台账" }, { key: "projects-gantt", label: "项目甘特" }] },
+      {
+        key: "projects",
+        label: "项目管理",
+        children: [
+          { key: "projects", label: "项目台账" },
+          { key: "projects-gantt", label: "公司甘特" },
+          { key: "project-plan-gantt", label: "项目甘特" },
+        ],
+      },
     ],
   },
   {
     route: "/work/tasks",
     moduleKey: "work",
-    label: "工作清单",
+    label: "工作计划",
     views: [
       { key: "works", label: "任务台账", children: [{ key: "works", label: "待办" }, { key: "works-done", label: "已完成" }] },
     ],

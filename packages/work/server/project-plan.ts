@@ -1,0 +1,400 @@
+import { NextResponse } from "next/server";
+import { isValidDateValue } from "@workspace/platform/server/api";
+import { snapshotHistory } from "@workspace/platform/server/history";
+import { prisma } from "@workspace/platform/server/prisma";
+import { canEditProject, canViewProject, getProjectPermissionsById } from "./access";
+import { formatDate, parseDate } from "./project-normalization";
+
+export const PLAN_ITEM_KINDS = ["project", "task", "phase"] as const;
+export type PlanItemKind = (typeof PLAN_ITEM_KINDS)[number];
+
+type PlanDateInput = {
+  kind?: unknown;
+  id?: unknown;
+  startDate?: unknown;
+  endDate?: unknown;
+  phaseId?: unknown;
+};
+
+type DependencyInput = {
+  predecessorKind?: unknown;
+  predecessorId?: unknown;
+  successorKind?: unknown;
+  successorId?: unknown;
+  lagDays?: unknown;
+};
+
+type PlanPhaseInput = {
+  sequenceNo?: unknown;
+  name?: unknown;
+  startDate?: unknown;
+  endDate?: unknown;
+  note?: unknown;
+};
+
+type NormalizedPlanDate = {
+  kind: Exclude<PlanItemKind, "phase">;
+  id: number;
+  phaseId: number | null;
+  startDate: Date | null;
+  endDate: Date | null;
+};
+
+type NormalizedDependency = {
+  predecessorKind: Exclude<PlanItemKind, "phase">;
+  predecessorId: number;
+  successorKind: Exclude<PlanItemKind, "phase">;
+  successorId: number;
+  dependencyType: string;
+  lagDays: number;
+};
+
+function normalizeKind(value: unknown): PlanItemKind | null {
+  const kind = String(value ?? "");
+  return PLAN_ITEM_KINDS.includes(kind as PlanItemKind) ? kind as PlanItemKind : null;
+}
+
+function normalizePositiveInt(value: unknown) {
+  const number = typeof value === "number" ? value : Number(value);
+  return Number.isInteger(number) && number > 0 ? number : Number.NaN;
+}
+
+function normalizeNullablePositiveInt(value: unknown) {
+  if (value === null || value === undefined || value === "") return null;
+  return normalizePositiveInt(value);
+}
+
+function normalizeNullableDate(value: unknown) {
+  if (!isValidDateValue(value)) return Number.NaN;
+  return parseDate(typeof value === "string" ? value : null);
+}
+
+function isInvalidDate(value: Date | null | number): value is number {
+  return typeof value === "number" && Number.isNaN(value);
+}
+
+function planKey(kind: string, id: number) {
+  return `${kind}:${id}`;
+}
+
+function serviceError(error: string, status = 400) {
+  return { ok: false as const, error, status };
+}
+
+export async function listProjectPlanGantt(input: { userId: number; projectId: number }) {
+  const permissions = await getProjectPermissionsById(input.userId, input.projectId);
+  if (!permissions?.canView) return serviceError("无权限", 403);
+
+  const project = await prisma.project.findUnique({
+    where: { id: input.projectId },
+    include: {
+      planPhases: { orderBy: [{ sequenceNo: "asc" }, { id: "asc" }] },
+      tasks: {
+        orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+        include: { owner: { select: { name: true } } },
+      },
+      planDependencies: { orderBy: [{ id: "asc" }] },
+      planBaselines: {
+        where: { isActive: true },
+        orderBy: [{ id: "desc" }],
+        take: 1,
+        include: { items: true },
+      },
+      employees: {
+        where: { role: { in: ["负责人", "项目负责人"] } },
+        orderBy: { id: "asc" },
+        include: { employee: { select: { name: true } } },
+      },
+    },
+  });
+  if (!project) return serviceError("项目不存在", 404);
+
+  const activeBaseline = project.planBaselines[0] || null;
+  return {
+    ok: true as const,
+    data: {
+      projectId: input.projectId,
+      permissions,
+      phases: project.planPhases.map((phase) => ({
+        id: phase.id,
+        projectId: phase.projectId,
+        sequenceNo: phase.sequenceNo,
+        name: phase.name,
+        startDate: formatDate(phase.startDate),
+        endDate: formatDate(phase.endDate),
+        note: phase.note,
+      })),
+      items: [
+        {
+          kind: "project",
+          id: project.id,
+          name: project.name,
+          parentKind: null,
+          parentId: null,
+          phaseId: null,
+          status: deriveProjectStatus(project.endDate, project.closureType),
+          projectLevel: project.projectLevel,
+          isMilestone: true,
+          ownerNames: project.employees.map((entry) => entry.employee.name).filter(Boolean),
+          startDate: formatDate(project.startDate),
+          endDate: formatDate(project.endDate),
+        },
+        ...project.tasks.map((task) => ({
+          kind: "task",
+          id: task.id,
+          name: task.name,
+          parentKind: "project",
+          parentId: project.id,
+          phaseId: task.planPhaseId,
+          status: null,
+          projectLevel: null,
+          isMilestone: task.isMilestone,
+          ownerNames: task.owner?.name ? [task.owner.name] : [],
+          startDate: formatDate(task.startDate),
+          endDate: formatDate(task.endDate),
+        })),
+      ],
+      dependencies: project.planDependencies.map((dependency) => ({
+        id: dependency.id,
+        predecessorKind: dependency.predecessorKind,
+        predecessorId: dependency.predecessorId,
+        successorKind: dependency.successorKind,
+        successorId: dependency.successorId,
+        dependencyType: dependency.dependencyType,
+        lagDays: dependency.lagDays,
+      })),
+      activeBaseline: activeBaseline ? {
+        id: activeBaseline.id,
+        name: activeBaseline.name,
+        note: activeBaseline.note,
+        createdAt: activeBaseline.createdAt.toISOString(),
+        items: activeBaseline.items.map((item) => ({
+          id: item.id,
+          itemKind: item.itemKind,
+          itemId: item.itemId,
+          parentKind: item.parentKind,
+          parentId: item.parentId,
+          phaseId: item.phaseId,
+          name: item.name,
+          status: item.status,
+          isMilestone: item.isMilestone,
+          startDate: formatDate(item.startDate),
+          endDate: formatDate(item.endDate),
+        })),
+      } : null,
+    },
+  };
+}
+
+export async function saveProjectPlanGantt(input: { userId: number; projectId: number; body: { items?: PlanDateInput[] } }) {
+  if (!(await canEditProject(input.userId, input.projectId))) return serviceError("无权限", 403);
+  const items = Array.isArray(input.body.items) ? input.body.items : [];
+  const normalized: NormalizedPlanDate[] = [];
+  for (const item of items) {
+    const kind = normalizeKind(item.kind);
+    const id = normalizePositiveInt(item.id);
+    const phaseId = normalizeNullablePositiveInt(item.phaseId);
+    const startDate = normalizeNullableDate(item.startDate);
+    const endDate = normalizeNullableDate(item.endDate);
+    if (!kind || kind === "phase" || Number.isNaN(id)) return serviceError("计划节点无效");
+    if (Number.isNaN(phaseId) || isInvalidDate(startDate) || isInvalidDate(endDate)) return serviceError("计划日期无效");
+    if (startDate && endDate && endDate < startDate) return serviceError("结束日期不能早于开始日期");
+    normalized.push({ kind, id, phaseId, startDate, endDate });
+  }
+  const scope = await loadPlanScope(input.projectId);
+  const snapshots: Array<{ entityType: "Project" | "ProjectTask"; id: number }> = [];
+  await prisma.$transaction(async (tx) => {
+    for (const item of normalized) {
+      if (item.kind === "task") {
+        if (!scope.taskIds.has(item.id)) throw new Error("计划节点不属于当前项目");
+        await tx.projectTask.update({
+          where: { id: item.id },
+          data: { startDate: item.startDate, endDate: item.endDate, planPhaseId: item.phaseId, editedBy: input.userId, editedAt: new Date(), version: { increment: 1 } },
+        });
+        snapshots.push({ entityType: "ProjectTask", id: item.id });
+      } else {
+        if (!scope.projectIds.has(item.id)) throw new Error("计划节点不属于当前项目");
+        await tx.project.update({
+          where: { id: item.id },
+          data: { startDate: item.startDate, endDate: item.endDate, editedBy: input.userId, editedAt: new Date(), version: { increment: 1 } },
+        });
+        snapshots.push({ entityType: "Project", id: item.id });
+      }
+    }
+  });
+  for (const snapshot of snapshots) await snapshotHistory(snapshot.entityType, snapshot.id, input.userId);
+  return { ok: true as const, data: { success: true } };
+}
+
+export async function syncProjectPlanDependencies(input: { userId: number; projectId: number; body: { dependencies?: DependencyInput[] } }) {
+  if (!(await canEditProject(input.userId, input.projectId))) return serviceError("无权限", 403);
+  const scope = await loadPlanScope(input.projectId);
+  const dependencies: NormalizedDependency[] = [];
+  for (const dependency of Array.isArray(input.body.dependencies) ? input.body.dependencies : []) {
+    const predecessorKind = normalizeKind(dependency.predecessorKind);
+    const successorKind = normalizeKind(dependency.successorKind);
+    const predecessorId = normalizePositiveInt(dependency.predecessorId);
+    const successorId = normalizePositiveInt(dependency.successorId);
+    const lagDays = dependency.lagDays === undefined ? 1 : Number(dependency.lagDays);
+    if (!predecessorKind || !successorKind || predecessorKind === "phase" || successorKind === "phase") return serviceError("依赖节点无效");
+    if (Number.isNaN(predecessorId) || Number.isNaN(successorId) || !Number.isInteger(lagDays)) return serviceError("依赖节点无效");
+    if (predecessorKind === successorKind && predecessorId === successorId) return serviceError("依赖不能指向自己");
+    if (!scope.has(predecessorKind, predecessorId) || !scope.has(successorKind, successorId)) return serviceError("依赖节点不属于当前项目");
+    dependencies.push({ predecessorKind, predecessorId, successorKind, successorId, dependencyType: "finish_start", lagDays });
+  }
+  const cycleError = findDependencyCycle(dependencies);
+  if (cycleError) return serviceError("不能形成计划依赖循环");
+
+  await prisma.$transaction(async (tx) => {
+    await tx.projectPlanDependency.deleteMany({ where: { projectId: input.projectId } });
+    if (dependencies.length) {
+      await tx.projectPlanDependency.createMany({
+        data: dependencies.map((dependency) => ({ ...dependency, projectId: input.projectId, createdBy: input.userId, editedBy: input.userId })),
+      });
+    }
+  });
+  return { ok: true as const, data: { success: true } };
+}
+
+export async function listProjectPlanPhases(input: { userId: number; projectId: number }) {
+  if (!(await canViewProject(input.userId, input.projectId))) return serviceError("无权限", 403);
+  const phases = await prisma.projectPlanPhase.findMany({
+    where: { projectId: input.projectId },
+    orderBy: [{ sequenceNo: "asc" }, { id: "asc" }],
+  });
+  return { ok: true as const, data: { phases: phases.map(mapPlanPhase) } };
+}
+
+export async function createProjectPlanPhase(input: { userId: number; projectId: number; body: PlanPhaseInput }) {
+  if (!(await canEditProject(input.userId, input.projectId))) return serviceError("无权限", 403);
+  const normalized = await normalizePlanPhaseInput(input.projectId, input.body, "create");
+  if ("error" in normalized) return serviceError(String(normalized.error || "参数错误"));
+  const createData = normalized.data;
+  if (!createData.name || !createData.sequenceNo) return serviceError("计划阶段参数错误");
+  const phase = await prisma.projectPlanPhase.create({
+    data: { projectId: input.projectId, ...createData, name: createData.name, sequenceNo: createData.sequenceNo, createdBy: input.userId, editedBy: input.userId },
+  });
+  return { ok: true as const, data: { phase: mapPlanPhase(phase) } };
+}
+
+export async function updateProjectPlanPhase(input: { userId: number; projectId: number; phaseId: number; body: PlanPhaseInput }) {
+  if (!(await canEditProject(input.userId, input.projectId))) return serviceError("无权限", 403);
+  const existing = await prisma.projectPlanPhase.findUnique({ where: { id: input.phaseId }, select: { projectId: true } });
+  if (!existing || existing.projectId !== input.projectId) return serviceError("计划阶段不存在", 404);
+  const normalized = await normalizePlanPhaseInput(input.projectId, input.body, "update");
+  if ("error" in normalized) return serviceError(String(normalized.error || "参数错误"));
+  const phase = await prisma.projectPlanPhase.update({
+    where: { id: input.phaseId },
+    data: { ...normalized.data, editedBy: input.userId, editedAt: new Date(), version: { increment: 1 } },
+  });
+  return { ok: true as const, data: { phase: mapPlanPhase(phase) } };
+}
+
+export async function deleteProjectPlanPhase(input: { userId: number; projectId: number; phaseId: number }) {
+  if (!(await canEditProject(input.userId, input.projectId))) return serviceError("无权限", 403);
+  const existing = await prisma.projectPlanPhase.findUnique({ where: { id: input.phaseId }, select: { projectId: true } });
+  if (!existing || existing.projectId !== input.projectId) return serviceError("计划阶段不存在", 404);
+  await prisma.projectPlanPhase.delete({ where: { id: input.phaseId } });
+  return { ok: true as const, data: { success: true } };
+}
+
+function mapPlanPhase(phase: { id: number; projectId: number; sequenceNo: number; name: string; startDate: Date | null; endDate: Date | null; note: string | null }) {
+  return {
+    id: phase.id,
+    projectId: phase.projectId,
+    sequenceNo: phase.sequenceNo,
+    name: phase.name,
+    startDate: formatDate(phase.startDate),
+    endDate: formatDate(phase.endDate),
+    note: phase.note,
+  };
+}
+
+async function normalizePlanPhaseInput(projectId: number, input: PlanPhaseInput, mode: "create" | "update") {
+  const data: { sequenceNo?: number; name?: string; startDate?: Date | null; endDate?: Date | null; note?: string | null } = {};
+  if (mode === "create" || input.name !== undefined) {
+    const name = String(input.name ?? "").trim();
+    if (!name) return { error: "计划阶段名称不能为空" };
+    data.name = name;
+  }
+  if (input.sequenceNo !== undefined) {
+    const sequenceNo = normalizePositiveInt(input.sequenceNo);
+    if (Number.isNaN(sequenceNo)) return { error: "阶段序号无效" };
+    data.sequenceNo = sequenceNo;
+  } else if (mode === "create") {
+    data.sequenceNo = await nextPlanPhaseSequenceNo(projectId);
+  }
+  for (const field of ["startDate", "endDate"] as const) {
+    if (input[field] === undefined) continue;
+    const value = normalizeNullableDate(input[field]);
+    if (isInvalidDate(value)) return { error: "日期格式错误" };
+    data[field] = value;
+  }
+  if (input.note !== undefined) data.note = String(input.note ?? "").trim() || null;
+  if (data.startDate && data.endDate && data.endDate < data.startDate) return { error: "结束日期不能早于开始日期" };
+  return { data };
+}
+
+async function nextPlanPhaseSequenceNo(projectId: number) {
+  const last = await prisma.projectPlanPhase.findFirst({
+    where: { projectId },
+    orderBy: [{ sequenceNo: "desc" }, { id: "desc" }],
+    select: { sequenceNo: true },
+  });
+  return (last?.sequenceNo ?? 0) + 1;
+}
+
+async function loadPlanScope(projectId: number) {
+  const [projects, tasks, phases] = await Promise.all([
+    prisma.project.findMany({ where: { id: projectId }, select: { id: true } }),
+    prisma.projectTask.findMany({ where: { projectId }, select: { id: true } }),
+    prisma.projectPlanPhase.findMany({ where: { projectId }, select: { id: true } }),
+  ]);
+  const projectIds = new Set(projects.map((project) => project.id));
+  const taskIds = new Set(tasks.map((task) => task.id));
+  const phaseIds = new Set(phases.map((phase) => phase.id));
+  return {
+    projectIds,
+    taskIds,
+    phaseIds,
+    has(kind: PlanItemKind, id: number) {
+      if (kind === "project") return projectIds.has(id);
+      if (kind === "task") return taskIds.has(id);
+      return phaseIds.has(id);
+    },
+  };
+}
+
+function findDependencyCycle(dependencies: Array<{ predecessorKind: string; predecessorId: number; successorKind: string; successorId: number }>) {
+  const nextByKey = new Map<string, string[]>();
+  for (const dependency of dependencies) {
+    const from = planKey(dependency.predecessorKind, dependency.predecessorId);
+    const to = planKey(dependency.successorKind, dependency.successorId);
+    nextByKey.set(from, [...nextByKey.get(from) || [], to]);
+  }
+  const visiting = new Set<string>();
+  const visited = new Set<string>();
+  function visit(key: string): boolean {
+    if (visiting.has(key)) return true;
+    if (visited.has(key)) return false;
+    visiting.add(key);
+    for (const next of nextByKey.get(key) || []) {
+      if (visit(next)) return true;
+    }
+    visiting.delete(key);
+    visited.add(key);
+    return false;
+  }
+  return [...nextByKey.keys()].some(visit);
+}
+
+function deriveProjectStatus(endDate: Date | null, closureType: string | null) {
+  if (endDate && closureType === "完成") return "已完成";
+  if (endDate && closureType === "终止") return "已终止";
+  return "进行中";
+}
+
+export function projectPlanServiceResponse<T>(result: { ok: true; data: T } | { ok: false; error: string; status?: number }) {
+  if (result.ok) return NextResponse.json(result.data);
+  return NextResponse.json({ error: result.error }, { status: result.status || 400 });
+}

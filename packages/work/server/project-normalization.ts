@@ -1,19 +1,14 @@
-import { validateFkValue } from "@workspace/platform/server/fk-registry";
 import { isValidDateValue, rejectInvalidDateField } from "@workspace/platform/server/api";
+import { validateFkValue } from "@workspace/platform/server/fk-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { WORK_FK_REGISTRY } from "./fk-registry";
 
 const DATE_FIELDS = ["startDate", "endDate"];
 const NUMBER_FIELDS = ["budgetAmount"];
-const NUMBER_OR_NULL_FIELDS = ["parentId"];
-export const PROJECT_TYPES = ["department", "personal", "subproject"] as const;
-export type ProjectType = (typeof PROJECT_TYPES)[number];
 
-export const PROJECT_STATUSES = ["规划中", "进行中", "暂停", "已完成", "已取消"];
-export const PROJECT_STAGES = ["立项", "规划", "执行", "验收", "收尾"];
 export const PROJECT_LEVELS = ["普通", "重点", "特殊"];
+export const PROJECT_CLOSURE_TYPES = ["完成", "终止"];
 
-type ParentIdResult = { value: number | null } | { error: string };
 type LeadingDepartmentResult =
   | { value: number; department: { id: number; code: string; name: string; managerUserId: number | null } }
   | { error: string };
@@ -25,10 +20,7 @@ export const PROJECT_CONFIG = {
   allowedFields: [
     "name",
     "description",
-    "status",
     "projectLevel",
-    "isMilestone",
-    "stage",
     "plan",
     "goal",
     "milestones",
@@ -38,7 +30,7 @@ export const PROJECT_CONFIG = {
     "remark",
     "startDate",
     "endDate",
-    "parentId",
+    "closureType",
     "leadingDepartmentId",
     "isArchived",
     "archivedAt",
@@ -56,6 +48,15 @@ export function parseDate(value: string | null | undefined) {
   return value ? new Date(`${value}T00:00:00`) : null;
 }
 
+export function todayDateString() {
+  const date = new Date();
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+export function isFutureDateValue(value: unknown) {
+  return typeof value === "string" && isValidDateValue(value) && value > todayDateString();
+}
+
 export function nullableString(value: unknown) {
   if (value === null || value === undefined || value === "") return null;
   return String(value);
@@ -63,11 +64,6 @@ export function nullableString(value: unknown) {
 
 export function isAllowedProjectOption(value: unknown, options: readonly string[]) {
   return value === null || value === undefined || value === "" || (typeof value === "string" && options.includes(value));
-}
-
-export function normalizeProjectType(value: unknown): ProjectType {
-  if (value === "personal" || value === "subproject") return value;
-  return "department";
 }
 
 function normalizeBudgetAmount(value: unknown) {
@@ -81,32 +77,6 @@ function normalizeNullablePositiveInt(value: unknown) {
   const number = typeof value === "number" ? value : Number(value);
   if (!Number.isInteger(number) || number <= 0) return Number.NaN;
   return number;
-}
-
-export async function normalizeProjectParentId(value: unknown, currentProjectId?: number): Promise<ParentIdResult> {
-  const parentId = normalizeNullablePositiveInt(value);
-  if (Number.isNaN(parentId)) return { error: "上级项目无效" };
-  if (!parentId) return { value: null };
-  if (currentProjectId && parentId === currentProjectId) return { error: "上级项目不能选择自己" };
-  const validation = await validateFkValue(WORK_FK_REGISTRY, {
-    fkKey: "work.projects.parent",
-    value: parentId,
-    requiredLabel: "上级项目",
-  });
-  if (!validation.ok) return { error: validation.error };
-
-  let cursor: number | null = parentId;
-  while (cursor) {
-    const parent: { id: number; parentId: number | null } | null = await prisma.project.findUnique({
-      where: { id: cursor },
-      select: { id: true, parentId: true },
-    });
-    if (!parent) return { error: "上级项目不存在" };
-    if (currentProjectId && parent.parentId === currentProjectId) return { error: "不能形成项目层级循环" };
-    cursor = parent.parentId;
-  }
-
-  return { value: parentId };
 }
 
 export async function normalizeLeadingDepartmentId(value: unknown): Promise<LeadingDepartmentResult> {
@@ -150,27 +120,22 @@ export async function generateProjectCode(departmentCode: string, dateValue?: Da
 async function normalizeProjectFieldUpdate(field: string, value: unknown, id?: number): Promise<ProjectFieldUpdateResult> {
   const dateResult = rejectInvalidDateField(field, value, DATE_FIELDS);
   if (!dateResult) return null;
+  if (field === "endDate" && isFutureDateValue(value)) return { error: "结项日期不能晚于今日" };
   if (DATE_FIELDS.includes(field)) return { field, value: value ? new Date(`${value}T00:00:00`) : null };
   if (NUMBER_FIELDS.includes(field)) {
     const number = normalizeBudgetAmount(value);
     if (Number.isNaN(number)) return null;
     return { field, value: number };
   }
-  if (NUMBER_OR_NULL_FIELDS.includes(field)) {
-    const result = await normalizeProjectParentId(value, id);
-    if ("error" in result) return { error: result.error };
-    return { field, value: result.value };
-  }
+  void id;
   if (field === "leadingDepartmentId") {
     const result = await normalizeLeadingDepartmentId(value);
     if ("error" in result) return { error: result.error };
     return { field, value: result.value };
   }
   if (field === "isArchived") return { field, value: Boolean(value) };
-  if (field === "status" && !isAllowedProjectOption(value, PROJECT_STATUSES)) return null;
   if (field === "projectLevel" && !isAllowedProjectOption(value, PROJECT_LEVELS)) return null;
-  if (field === "isMilestone") return { field, value: Boolean(value) };
-  if (field === "stage" && !isAllowedProjectOption(value, PROJECT_STAGES)) return null;
+  if (field === "closureType" && !isAllowedProjectOption(value, PROJECT_CLOSURE_TYPES)) return null;
   if (field !== "name" && typeof value === "string" && value.trim() === "") return { field, value: null };
   return { field, value };
 }

@@ -3,9 +3,9 @@ import { prisma } from "@workspace/platform/server/prisma";
 import { RESOURCE_KEYS } from "../../resources";
 import { isResourceEnabled } from "../../effective-module-registry";
 
-const DEFAULT_ACCESS_ROOT_KEYS = ["settings.account", "work", "docs"];
+const DEFAULT_ACCESS_RESOURCE_KEYS = ["settings.account", "work.tasks", "docs"];
 let activeResourceIdsCache: Set<number> | null = null;
-let defaultAccessRootIdsCache: Set<number> | null = null;
+let defaultAccessResourceIdsCache: Set<number> | null = null;
 
 async function getActiveResourceIds() {
   if (activeResourceIdsCache) return activeResourceIdsCache;
@@ -18,15 +18,15 @@ async function getActiveResourceIds() {
   return activeResourceIdsCache;
 }
 
-async function getDefaultAccessRootIds() {
-  if (defaultAccessRootIdsCache) return defaultAccessRootIdsCache;
-  const activeKeys = DEFAULT_ACCESS_ROOT_KEYS.filter((key) => isResourceEnabled(key));
+async function getDefaultAccessResourceIds() {
+  if (defaultAccessResourceIdsCache) return defaultAccessResourceIdsCache;
+  const activeKeys = DEFAULT_ACCESS_RESOURCE_KEYS.filter((key) => isResourceEnabled(key));
   const rows = await prisma.resource.findMany({
     where: { key: { in: activeKeys } },
     select: { id: true },
   });
-  defaultAccessRootIdsCache = new Set(rows.map((row) => row.id));
-  return defaultAccessRootIdsCache;
+  defaultAccessResourceIdsCache = new Set(rows.map((row) => row.id));
+  return defaultAccessResourceIdsCache;
 }
 
 function grantsContainAdmin(
@@ -51,8 +51,12 @@ export async function hasImplicitAccessGrant({
   isCapability: boolean;
 }) {
   if (roleKey !== "access" || isCapability) return false;
-  const rootIds = await getDefaultAccessRootIds();
-  return resourceIds.some((resourceId) => rootIds.has(resourceId));
+  const defaultIds = await getDefaultAccessResourceIds();
+  return defaultIds.has(resourceIds[0]);
+}
+
+export function isDefaultAccessResource(resourceKey: string | undefined | null) {
+  return Boolean(resourceKey && DEFAULT_ACCESS_RESOURCE_KEYS.includes(resourceKey));
 }
 
 export async function hasAnyAdminGrantForContext(ctx: PermissionContext) {

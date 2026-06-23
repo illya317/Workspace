@@ -211,6 +211,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
           onShowHistory: () => setShowHistory(true),
         }}
         canCreate={!!config.canCreate && canEdit}
+        createActive={creating}
         onCreate={() => setCreating(true)}
         onDownload={handleDownload}
         downloading={downloading}

@@ -4,8 +4,8 @@ import {
   ActionButton,
   ColumnToggle,
   CommandToolbar,
+  CreateStartButton,
   EditToolbar,
-  IconActionButton,
   RefreshActionButton,
   SearchInput,
 } from "@workspace/core/ui";
@@ -24,6 +24,7 @@ interface Props {
   visibleColumns?: string[];
   onColumnsChange?: (visible: string[]) => void;
   canCreate?: boolean;
+  createActive?: boolean;
   onCreate?: () => void;
   onDownload?: () => void;
   downloading?: boolean;
@@ -44,6 +45,7 @@ export default function HRToolbar({
   visibleColumns,
   onColumnsChange,
   canCreate,
+  createActive,
   onCreate,
   onDownload,
   downloading,
@@ -53,9 +55,7 @@ export default function HRToolbar({
   const viewControls = (canCreate && onCreate) || (rosterFilter && onRosterChange) ? (
     <>
       {canCreate && onCreate && (
-        <IconActionButton label="新建" variant="primary" onClick={onCreate}>
-          +
-        </IconActionButton>
+        <CreateStartButton label="新建" active={createActive} onClick={onCreate} />
       )}
       {rosterFilter && onRosterChange && (
         <>

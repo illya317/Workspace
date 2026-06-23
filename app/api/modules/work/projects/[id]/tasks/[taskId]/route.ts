@@ -12,12 +12,20 @@ const projectTaskParamsSchema = z.object({
 });
 
 const projectTaskUpdateBodySchema = z.object({
-  description: z.string().min(1).optional(),
+  name: z.string().min(1).optional(),
+  description: z.string().optional(),
   isMilestone: z.boolean().optional(),
   ownerEmployeeId: z.coerce.number().int().positive().nullable().optional(),
+  baselineStartDate: z.string().nullable().optional(),
+  baselineEndDate: z.string().nullable().optional(),
   startDate: z.string().nullable().optional(),
   endDate: z.string().nullable().optional(),
-  predecessorTaskId: z.coerce.number().int().positive().nullable().optional(),
+  predecessorTaskIds: z.array(z.coerce.number().int().positive()).optional(),
+  planPhaseId: z.coerce.number().int().positive().nullable().optional(),
+  assignees: z.array(z.object({
+    employeeId: z.coerce.number().int().positive(),
+    role: z.string().nullable().optional(),
+  })).optional(),
   sortOrder: z.coerce.number().int().optional(),
 }).passthrough();
 

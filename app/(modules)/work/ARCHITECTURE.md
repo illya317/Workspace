@@ -1,6 +1,6 @@
 # Work Architecture
 
-Work 是工作管理业务域，承接项目、工作清单、工作汇报和历史记录。
+Work 是工作管理业务域，承接工作计划、项目管理、工作汇报和历史记录。
 
 ## 边界
 
@@ -14,7 +14,7 @@ Work 是工作管理业务域，承接项目、工作清单、工作汇报和历
 | Concern | Route shell | Package implementation |
 | --- | --- | --- |
 | 项目 | `app/(modules)/work/projects/page.tsx` | `packages/work/ui/tabs/project/*` |
-| 工作清单 | `app/(modules)/work/tasks/page.tsx` | `packages/work/ui/works/*` |
+| 工作计划 | `app/(modules)/work/tasks/page.tsx` | `packages/work/ui/works/*` |
 | 工作汇报 | `app/(modules)/work/reports/page.tsx` | `packages/work/ui/reports/*` |
 | 历史记录 | `app/(modules)/work/history/page.tsx` | `packages/work/ui/history/*` |
 

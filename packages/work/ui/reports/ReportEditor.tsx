@@ -193,7 +193,7 @@ export default function ReportEditor({
         )}
 
         {/* Work sections */}
-        <WorkSection title="日常工作" subtitle="固定工作，自动从工作清单带入" items={routineItems} disabled={viewingVersion !== 0}
+        <WorkSection title="日常工作" subtitle="固定工作，自动从工作计划带入" items={routineItems} disabled={viewingVersion !== 0}
           workList={workList} category="routine" showImport={showRoutineSelect} onShowImport={onShowRoutineSelect}
           onImportWork={onImportRoutine}
           onUpdate={onUpdateRoutine} onRemove={onRemoveRoutine}

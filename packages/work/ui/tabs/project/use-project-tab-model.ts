@@ -1,10 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { z } from "zod";
 import type { FkFieldOption } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { type WorkUser, workCanEdit } from "@workspace/work/types";
-import { createProject, createSubproject, deleteProject, syncChildProjects, syncMembers, updateProjectField } from "./api";
+import { createProject, deleteProject, syncMembers, updateProjectField } from "./api";
 import {
   MULTI_PROJECT_ROLES,
   createEmptyProjectDraft,
@@ -12,9 +13,7 @@ import {
   dedupeMembers,
   draftSnapshot,
   employeeFromOption,
-  emptyRoleGroups,
-  memberFromEntry,
-  normalizeProjectRole,
+  todayDateString,
   type EmployeeTag,
   type ProjectListFilter,
   type MultiProjectRole,
@@ -23,12 +22,30 @@ import {
   type ProjectMemberEntry,
 } from "./model";
 
+const nullableDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "日期格式错误").nullable();
+const projectSaveSchema = z.object({
+  name: z.string().trim().min(1, "项目名称不能为空"),
+  leadingDepartmentId: z.number().nullable(),
+  endDate: nullableDateSchema,
+  closureType: z.string().nullable(),
+}).superRefine((data, ctx) => {
+  if (!data.leadingDepartmentId) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "请选择主导部门", path: ["leadingDepartmentId"] });
+  }
+  if (data.endDate && data.endDate > todayDateString()) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "结项日期不能晚于今日", path: ["endDate"] });
+  }
+  if (data.endDate && !data.closureType) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "请选择结项方式", path: ["closureType"] });
+  }
+  if (data.closureType && !data.endDate) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "请先填写结项日期", path: ["endDate"] });
+  }
+});
+
 const PROJECT_CONTENT_SYNC_FIELDS = [
   "description",
-  "status",
   "projectLevel",
-  "isMilestone",
-  "stage",
   "plan",
   "goal",
   "milestones",
@@ -38,6 +55,7 @@ const PROJECT_CONTENT_SYNC_FIELDS = [
   "remark",
   "startDate",
   "endDate",
+  "closureType",
 ] as const;
 
 const PROJECT_MANAGE_SYNC_FIELDS = ["leadingDepartmentId"] as const;
@@ -54,7 +72,7 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
   const [saving, setSaving] = useState(false);
   const [projectListOpen, setProjectListOpen] = useState(true);
   const [projectListDrawerOpen, setProjectListDrawerOpen] = useState(false);
-  const [projectListFilter, setProjectListFilter] = useState<ProjectListFilter>("department");
+  const [projectListFilter, setProjectListFilter] = useState<ProjectListFilter>("all");
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
@@ -70,10 +88,9 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
     () => selectedProject ? entries.filter((entry) => entry.projectId === selectedProject.id) : [],
     [entries, selectedProject]
   );
-  const childProjects = useMemo(() => buildChildProjectTags(projects, draft?.childProjectIds ?? []), [draft?.childProjectIds, projects]);
   const rasciRows = useMemo(
-    () => buildRasciRows(draft, childProjects, entries),
-    [childProjects, draft, entries]
+    () => buildRasciRows(draft),
+    [draft]
   );
   const dirty = draftSnapshot(draft) !== baseline;
   const canEditCurrent = draft?.id ? Boolean(selectedProject?.permissions.canEdit) : canEdit;
@@ -98,7 +115,7 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
         ? nextProjects.find((project) => project.id === initialProjectId)
         : null;
       if (requestedProject) {
-        setProjectListFilter(filterForProjectType(requestedProject.projectType));
+        setProjectListFilter(filterForProjectLevel(requestedProject.projectLevel));
         setSelection(requestedProject.id);
       } else {
         setSelection((prev) => nextProjects.some((project) => project.id === prev) ? prev : null);
@@ -127,16 +144,6 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
   function updateDraft<K extends keyof ProjectDraft>(key: K, value: ProjectDraft[K]) {
     setDraft((prev) => {
       if (!prev) return prev;
-      if (key === "projectType" && (value === "personal" || value === "subproject")) {
-        return {
-          ...prev,
-          projectType: value,
-          code: null,
-          leadingDepartmentId: null,
-          leadingDepartmentName: null,
-          leadingDepartmentCode: null,
-        };
-      }
       return { ...prev, [key]: value };
     });
   }
@@ -164,25 +171,18 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
     });
   }
 
-  function setChildProjects(nextChildren: { id: number; name: string }[]) {
-    setDraft((prev) => {
-      if (!prev) return prev;
-      const seen = new Set<number>();
-      const childProjectIds: number[] = [];
-      for (const child of nextChildren) {
-        if (!child.id || child.id === prev.id || seen.has(child.id)) continue;
-        seen.add(child.id);
-        childProjectIds.push(child.id);
-      }
-      return { ...prev, childProjectIds };
-    });
-  }
-
   async function saveProject() {
     if (!draft || !dirty) return;
     const name = draft.name.trim();
-    if (!name) return setToast({ type: "error", message: "项目名称不能为空" });
-    if (draft.projectType === "department" && !draft.leadingDepartmentId) return setToast({ type: "error", message: "请选择主导部门" });
+    const validation = projectSaveSchema.safeParse({
+      name,
+      leadingDepartmentId: draft.leadingDepartmentId,
+      endDate: draft.endDate,
+      closureType: draft.closureType,
+    });
+    if (!validation.success) {
+      return setToast({ type: "error", message: validation.error.issues[0]?.message || "项目信息无效" });
+    }
     setSaving(true);
     try {
       if (!draft.id) {
@@ -191,7 +191,7 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
         setToast({ type: "success", message: "项目已新建" });
         setCreating(false);
         await loadData();
-        setProjectListFilter(filterForProjectType(draft.projectType));
+        setProjectListFilter(filterForProjectLevel(draft.projectLevel));
         setSelection(projectId);
         return;
       }
@@ -206,31 +206,12 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
           if ((selectedProject[field] ?? null) !== value) await updateProjectField(projectId, field, value);
         }
       }
-      if (canManageCurrent) await syncChildProjects(projectId, draft.childProjectIds);
       if (canManageCurrent) await syncMembers(projectId, { ...draft, id: projectId, name }, entries);
       setToast({ type: "success", message: "项目信息已保存" });
       await loadData();
       setSelection(projectId);
     } catch (err) {
       setToast({ type: "error", message: err instanceof Error ? err.message : "保存失败" });
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function createChildProject(name: string, leadingDepartmentId?: number | null, leader?: EmployeeTag | null, endDate?: string | null) {
-    const parentId = draft?.id;
-    const trimmedName = name.trim();
-    if (!parentId || !trimmedName) return;
-    setSaving(true);
-    try {
-      const childId = await createSubproject({ name: trimmedName, parentId, leadingDepartmentId, leader, endDate });
-      if (!childId) throw new Error("新建子项目失败");
-      setToast({ type: "success", message: "子项目已新建" });
-      await loadData();
-      setSelection(parentId);
-    } catch (err) {
-      setToast({ type: "error", message: err instanceof Error ? err.message : "新建子项目失败" });
     } finally {
       setSaving(false);
     }
@@ -257,7 +238,7 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
 
   function startCreateProject() {
     const nextDraft = createEmptyProjectDraft();
-    setProjectListFilter("department");
+    setProjectListFilter(filterForProjectLevel(nextDraft.projectLevel));
     setCreating(true);
     setSelection(null);
     setDraft(nextDraft);
@@ -271,10 +252,10 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
   }
 
   return {
-    canCreateProject: canEdit, canDeleteCurrent, canEditCurrent, canManageCurrent, canSave, childProjects, creating, dirty, draft, error,
+    canCreateProject: canEdit, canDeleteCurrent, canEditCurrent, canManageCurrent, canSave, creating, dirty, draft, error,
     filteredProjects, loading, projectListDrawerOpen, projectListFilter, projectListOpen, projects, rasciRows, saving,
     selectedProject, selection, toast,
-    cancelCreateProject, createChildProject, deleteSelectedProject, saveProject, setChildProjects, setCreating, setLeader, startCreateProject,
+    cancelCreateProject, deleteSelectedProject, saveProject, setCreating, setLeader, startCreateProject,
     setProjectListDrawerOpen, setProjectListFilter, setProjectListOpen, setRoleMembers, setSelection,
     setToast, updateDraft,
   };
@@ -282,20 +263,16 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
 
 function projectMatchesFilter(project: ProjectItem, filter: ProjectListFilter) {
   if (filter === "all") return true;
-  if (filter === "department") return project.projectType === "department";
-  if (filter === "subproject") return project.projectType === "subproject";
-  return project.projectType !== "department" && project.projectType !== "subproject";
+  return (project.projectLevel || "普通") === filter;
 }
 
-function filterForProjectType(projectType: ProjectItem["projectType"]): ProjectListFilter {
-  if (projectType === "department" || projectType === "subproject") return projectType;
-  return "other";
+function filterForProjectLevel(projectLevel: string | null | undefined): ProjectListFilter {
+  if (projectLevel === "普通" || projectLevel === "重点") return projectLevel;
+  return "all";
 }
 
 function buildRasciRows(
   draft: ProjectDraft | null,
-  childProjects: { id: number; name: string }[],
-  entries: ProjectMemberEntry[],
 ) {
   if (!draft) return [];
   return [
@@ -306,41 +283,5 @@ function buildRasciRows(
       leader: draft.leader,
       roleGroups: draft.roleGroups,
     },
-    ...childProjects.map((project) => buildRasciRowFromEntries(project, entries)),
   ];
-}
-
-function buildRasciRowFromEntries(project: { id: number; name: string }, entries: ProjectMemberEntry[]) {
-  let leader: EmployeeTag | null = null;
-  const roleGroups = emptyRoleGroups();
-  for (const entry of entries) {
-    if (entry.projectId !== project.id) continue;
-    const role = normalizeProjectRole(entry.role);
-    const member = memberFromEntry(entry);
-    if (role === "负责人") {
-      leader = member;
-    } else {
-      roleGroups[role].push(member);
-    }
-  }
-  for (const role of MULTI_PROJECT_ROLES) roleGroups[role] = dedupeMembers(roleGroups[role]);
-  return { id: project.id, name: project.name, subtitle: null, leader, roleGroups };
-}
-
-function buildChildProjectTags(projects: ProjectItem[], childProjectIds: number[]) {
-  const projectById = new Map(projects.map((project) => [project.id, project]));
-  return childProjectIds
-    .map((id) => {
-      const project = projectById.get(id);
-      return project
-        ? {
-            id: project.id,
-            name: project.name,
-            status: project.status,
-            startDate: project.startDate,
-            endDate: project.endDate,
-          }
-        : null;
-    })
-    .filter((project): project is { id: number; name: string; status: string | null; startDate: string | null; endDate: string | null } => Boolean(project));
 }

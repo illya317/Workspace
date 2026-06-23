@@ -27,6 +27,7 @@ model Employee {
   positions              EDP[]
   projects               EmployeeProject[]
   projectTasks           ProjectTask[]           @relation("ProjectTaskOwner")
+  projectTaskAssignments ProjectTaskAssignment[]
   employments            Employment[]
   financeSalesSalaries   FinanceSalesSalary[]
   financeShipments       FinanceShipment[]

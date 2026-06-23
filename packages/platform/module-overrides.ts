@@ -11,8 +11,13 @@ export interface ModuleRuntimeOverride {
 export type ModuleRuntimeOverrideMap = Record<string, ModuleRuntimeOverride>;
 
 const STATIC_MODULE_RUNTIME_OVERRIDES = {
+  "work.tasks": {
+    label: "工作计划",
+    desc: "个人计划、待办任务和执行跟踪",
+  },
   "work.projects": {
     label: "项目管理",
+    desc: "组织项目、角色分工、预算和风险",
   },
 } satisfies ModuleRuntimeOverrideMap;
 

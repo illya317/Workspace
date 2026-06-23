@@ -14,6 +14,7 @@ const AUDITED_MODELS = [
   "Project",
   "EmployeeProject",
   "ProjectTask",
+  "ProjectStage",
   "PositionDescription",
 ] as const;
 
