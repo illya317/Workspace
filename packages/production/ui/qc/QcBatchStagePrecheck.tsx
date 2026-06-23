@@ -34,8 +34,8 @@ export default function QcBatchStagePrecheck({ batch, productName, detail, stage
   const locked = !stageStatus?.unlocked;
 
   return (
-    <section>
-      <div className="mx-auto max-w-[min(230mm,calc(100vw-2rem))]" style={{ fontFamily: "\"FangSong\", \"STFangsong\", \"仿宋\", serif" }}>
+    <section className="overflow-x-auto pb-8">
+      <div className="mx-auto max-w-[210mm]">
         <nav className="mb-5 flex flex-wrap gap-2 text-xs">
           <Link href={`/production/qc-batches/${batch.id}`} className="rounded bg-blue-100 px-3 py-2 font-medium text-blue-800">
             返回批次主页
@@ -65,17 +65,19 @@ export default function QcBatchStagePrecheck({ batch, productName, detail, stage
           leftSlot={`${numerals[stageIndex] ?? stageIndex + 1}、${productName}${stage.label}`}
           className="mb-5"
         />
+      </div>
 
-        {locked ? (
-          <div className="border border-amber-200 bg-amber-50 px-4 py-3 font-sans text-sm text-amber-800">
-            前一阶段尚未全部复核完成，当前阶段暂不可操作。
-          </div>
-        ) : (
-          <QcLayoutPaper blocks={blocks} referenceValues={referenceValues} />
-        )}
-        <div className="mt-8 text-center">
-          <ActionButton variant="primary" className="px-8" disabled={locked}>保存</ActionButton>
+      {locked ? (
+        <div className="mx-auto max-w-[210mm] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          前一阶段尚未全部复核完成，当前阶段暂不可操作。
         </div>
+      ) : (
+        <div className="min-w-[210mm]">
+          <QcLayoutPaper blocks={blocks} referenceValues={referenceValues} />
+        </div>
+      )}
+      <div className="mx-auto mt-8 max-w-[210mm] text-center">
+        <ActionButton variant="primary" className="px-8" disabled={locked}>保存</ActionButton>
       </div>
     </section>
   );

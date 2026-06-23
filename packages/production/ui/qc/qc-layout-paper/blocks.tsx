@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { HiddenDataField } from "@workspace/core/ui";
 import type { QcLayoutCell, QcLayoutPart } from "@workspace/production/server/qc";
 import QcConfirmationTable from "../QcConfirmationTable";
@@ -11,6 +11,15 @@ import type { NumberedBlock } from "./helpers";
 
 const BODY_TEXT_CLASS = "text-[15px] leading-8 text-slate-950 tabular-nums";
 const HEADING_TEXT_CLASS = "text-[17px] font-semibold leading-7 text-slate-950";
+
+interface RawDataAttachment {
+  id: string;
+  name: string;
+  type: string;
+  dataUrl: string;
+  size: number;
+  uploadedAt: string;
+}
 
 function Heading({ block, fallback }: { block: NumberedBlock; fallback: string }) {
   const title = block.title || fallback;
@@ -85,7 +94,7 @@ export function RenderBlock({ block, context }: { block: NumberedBlock; context:
   }
   if (block.type === "paragraph") return <p className={`mb-3 ${BODY_TEXT_CLASS}`}>{block.parts?.map((part, index) => <Part key={index} part={part} context={context} />)}</p>;
   if (block.type === "standard_text") return <PostSection block={block} title="标准规定">{test?.standardText || "YAML 未配置标准规定"}</PostSection>;
-  if (block.type === "attachment_upload") return renderAttachment(block, context);
+  if (block.type === "attachment_upload") return <AttachmentUploadBlock block={block} context={context} />;
   if (block.type === "microbiology_cleanroom_exit") return renderCleanroomExit(block, context);
   if (block.type === "abnormal_handling") return renderAbnormal(block, context);
   if (block.type === "cleanup_checklist") return renderCleanup(block, context);
@@ -94,24 +103,113 @@ export function RenderBlock({ block, context }: { block: NumberedBlock; context:
   return block.text ? <p className={`mb-3 ${BODY_TEXT_CLASS}`}>{block.text}</p> : null;
 }
 
-function renderAttachment(block: NumberedBlock, context: LayoutRenderContext) {
-  const key = block.fieldKey || "layout/raw_data/attachments";
+function scopedFieldKey(key: string, context: LayoutRenderContext) {
+  if (!context.fieldScopePrefix || key.startsWith(`${context.fieldScopePrefix}/`)) return key;
+  if (!key.startsWith("layout/")) return key;
+  return `${context.fieldScopePrefix}/${key}`;
+}
+
+function parseAttachments(value?: string): RawDataAttachment[] {
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    const items = Array.isArray(parsed) ? parsed : Array.isArray((parsed as { attachments?: unknown }).attachments) ? (parsed as { attachments: unknown[] }).attachments : [];
+    return items.flatMap((item) => {
+      const data = item && typeof item === "object" ? item as Partial<RawDataAttachment> : {};
+      return typeof data.dataUrl === "string" && data.dataUrl.startsWith("data:image/")
+        ? [{
+            id: String(data.id || data.name || data.dataUrl.slice(0, 64)),
+            name: String(data.name || "图片附件"),
+            type: String(data.type || "image/*"),
+            dataUrl: data.dataUrl,
+            size: Number(data.size) || 0,
+            uploadedAt: String(data.uploadedAt || ""),
+          }]
+        : [];
+    });
+  } catch {
+    return [];
+  }
+}
+
+function serializeAttachments(items: RawDataAttachment[]) {
+  return JSON.stringify({ attachments: items });
+}
+
+function readImageFile(file: File): Promise<RawDataAttachment> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error || new Error("图片读取失败"));
+    reader.onload = () => {
+      const dataUrl = String(reader.result || "");
+      resolve({
+        id: `${Date.now()}-${file.name}-${file.size}`,
+        name: file.name,
+        type: file.type || "image/*",
+        dataUrl,
+        size: file.size,
+        uploadedAt: new Date().toISOString(),
+      });
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function AttachmentUploadBlock({ block, context }: { block: NumberedBlock; context: LayoutRenderContext }) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const key = scopedFieldKey(block.fieldKey || "layout/raw_data/attachments", context);
   const text = block.text || "原始数据、图谱、待包装品检验报告单见数据图谱粘贴页。";
+  const attachments = parseAttachments(context.values[key]);
+  const canEdit = !context.readOnly;
+
+  async function upload(files: FileList | null) {
+    const imageFiles = [...(files || [])].filter((file) => file.type.startsWith("image/"));
+    if (!imageFiles.length) return;
+    const next = [...attachments, ...await Promise.all(imageFiles.map(readImageFile))];
+    context.onFieldChange(key, serializeAttachments(next));
+    if (inputRef.current) inputRef.current.value = "";
+  }
+
   return (
     <PostSection block={block} title="原始数据">
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="sr-only"
+        disabled={!canEdit}
+        onChange={(event) => void upload(event.target.files)}
+      />
       <button
         type="button"
-        className="inline rounded-sm bg-transparent px-0.5 text-left align-baseline text-inherit transition hover:bg-sky-50 focus:bg-sky-50 focus:outline-none focus:ring-1 focus:ring-sky-200"
-        disabled={context.readOnly}
-        onClick={() => context.onFieldChange(key, context.values[key] || "待上传")}
-        title="点击上传数据图谱"
+        className="inline cursor-pointer bg-transparent p-0 text-left align-baseline text-inherit outline-none disabled:cursor-default"
+        disabled={!canEdit}
+        onClick={() => inputRef.current?.click()}
       >
         {text}
       </button>
-      {context.advancedMode ? <Part part={{ type: "line", fieldKey: key, underline: true }} context={context} /> : (
-        <HiddenDataField fieldKey={key} value={context.values[key]} />
-      )}
+      <HiddenDataField fieldKey={key} value={context.values[key]} />
     </PostSection>
+  );
+}
+
+export function RenderAttachmentPages({ blocks, context }: { blocks: NumberedBlock[]; context: LayoutRenderContext }) {
+  const attachments = blocks
+    .filter((block) => block.type === "attachment_upload")
+    .flatMap((block) => parseAttachments(context.values[scopedFieldKey(block.fieldKey || "layout/raw_data/attachments", context)]));
+  if (!attachments.length) return null;
+  return (
+    <section className="qc-a4-attachment-page mt-6 pt-5">
+      <div className="space-y-4">
+        {attachments.map((attachment) => (
+          <figure key={attachment.id} className="break-inside-avoid">
+            {/* eslint-disable-next-line @next/next/no-img-element -- User-uploaded data URLs are not served through Next image optimization. */}
+            <img src={attachment.dataUrl} alt={attachment.name} className="mx-auto max-h-[220mm] max-w-full object-contain" />
+          </figure>
+        ))}
+      </div>
+    </section>
   );
 }
 

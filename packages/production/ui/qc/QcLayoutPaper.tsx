@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { QcLayoutBlock, QcTemplateTestItem } from "@workspace/production/server/qc";
 import type { LayoutRenderContext } from "./qc-layout-table/types";
 import { useQcFormulaEngine, type QcFieldValues } from "./useQcFormulaEngine";
-import { RenderBlock } from "./qc-layout-paper/blocks";
+import { RenderAttachmentPages, RenderBlock } from "./qc-layout-paper/blocks";
 import {
   collectAdvancedFormulaInputKeys,
   collectAdvancedPartMetadata,
@@ -27,6 +27,7 @@ interface Props {
   onFieldChange?: (key: string, value: string) => void;
   readOnly?: boolean;
   advancedMode?: boolean;
+  fieldScopePrefix?: string;
 }
 
 const EMPTY_TEST: QcTemplateTestItem = {
@@ -45,7 +46,7 @@ function fixedReferenceSourceKey(fieldKey: string) {
   return undefined;
 }
 
-export default function QcLayoutPaper({ blocks, compact: _compact, test, values: controlledValues, referenceValues, onFieldChange, readOnly = false, advancedMode = false }: Props) {
+export default function QcLayoutPaper({ blocks, compact: _compact, test, values: controlledValues, referenceValues, onFieldChange, readOnly = false, advancedMode = false, fieldScopePrefix }: Props) {
   const engineTest = test || EMPTY_TEST;
   const form = useQcFormulaEngine(engineTest);
   const inputValues = controlledValues || form.values;
@@ -94,14 +95,16 @@ export default function QcLayoutPaper({ blocks, compact: _compact, test, values:
     activeAdvancedOutputKey,
     onAdvancedOutputHover: setActiveAdvancedOutputKey,
     referenceSourceKeyFor,
+    fieldScopePrefix,
   };
 
   return (
     <div
-      className="mx-auto w-[210mm] max-w-full overflow-visible tabular-nums"
+      className="qc-a4-page mx-auto box-border w-[210mm] min-w-[210mm] overflow-visible bg-white px-[16mm] py-[15mm] text-slate-950 shadow-[0_0_0_1px_rgba(15,23,42,0.10),0_10px_35px_rgba(15,23,42,0.12)] tabular-nums"
       style={{ fontFamily: "\"FangSong\", \"STFangsong\", \"FangSong_GB2312\", \"仿宋\", serif" }}
     >
       {numbered.blocks.map((block, index) => <RenderBlock key={`${block.label || block.type}-${index}`} block={block} context={context} />)}
+      <RenderAttachmentPages blocks={numbered.blocks} context={context} />
     </div>
   );
 }

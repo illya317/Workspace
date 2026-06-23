@@ -4,7 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ActionButton, ActionToolbar, StructuredTable } from "@workspace/core/ui";
+import { ActionButton, ActionToolbar } from "@workspace/core/ui";
 import type { QcBatchSummary, QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcLayoutPaper from "./QcLayoutPaper";
@@ -94,8 +94,8 @@ export default function QcBatchTestRecord({ batch, productName, detail, stage, t
           : "待检验";
 
   return (
-    <section>
-      <div className="mx-auto max-w-[min(230mm,calc(100vw-2rem))]" style={{ fontFamily: "\"FangSong\", \"STFangsong\", \"仿宋\", serif" }}>
+    <section className="overflow-x-auto pb-8">
+      <div className="mx-auto max-w-[210mm]">
         <nav className="mb-5 flex flex-wrap gap-2 text-xs">
           <Link href={`/production/qc-batches/${batch.id}`} className="rounded bg-blue-100 px-3 py-2 font-medium text-blue-800">
             返回批次主页
@@ -119,64 +119,55 @@ export default function QcBatchTestRecord({ batch, productName, detail, stage, t
           leftSlot={`${productName}${stage.label} - ${test.name}`}
           rightSlot={(
             <span className="text-xs font-normal text-slate-500">
-              批号 {batch.batchNumber} · {test.methodName || "未配置方法"} · {test.layout?.templateId || "未映射组件"}
+              批号 {batch.batchNumber} · {workflowMessage}
             </span>
           )}
         />
+      </div>
+      <div className="min-w-[210mm]">
+        {test.layoutBlocks?.length ? (
+          <QcLayoutPaper
+            blocks={test.layoutBlocks}
+            test={test}
+            values={form.values}
+            referenceValues={referenceValues}
+            onFieldChange={form.setValue}
+            readOnly={readOnly}
+            fieldScopePrefix={`${stage.key}/${test.englishName}`}
+          />
+        ) : (
+          <div
+            className="qc-a4-page mx-auto box-border w-[210mm] min-w-[210mm] overflow-visible bg-white px-[16mm] py-[15mm] text-slate-950 shadow-[0_0_0_1px_rgba(15,23,42,0.10),0_10px_35px_rgba(15,23,42,0.12)]"
+            style={{ fontFamily: "\"FangSong\", \"STFangsong\", \"FangSong_GB2312\", \"仿宋\", serif" }}
+          >
+            <QcMethodFieldTable test={test} values={form.values} onFieldChange={form.setValue} readOnly={readOnly} />
+          </div>
+        )}
+      </div>
 
-        <StructuredTable
-          className="mb-5 w-full border-collapse text-sm text-slate-950"
-          rows={[
-            [
-              { content: "标准规定", className: "w-32 border border-slate-950 px-3 py-2 text-center" },
-              { content: test.standardText || "未配置", className: "border border-slate-950 px-3 py-2" },
-            ],
-            [
-              { content: "结论", className: "border border-slate-950 px-3 py-2 text-center" },
-              { content: `${test.conclusionName || test.name}${test.hasNumericConclusion ? "（含数值）" : ""}`, className: "border border-slate-950 px-3 py-2" },
-            ],
-            [
-              { content: "组件映射", className: "border border-slate-950 px-3 py-2 text-center" },
-              {
-                content: `${test.layout?.templateId || "未映射"}${test.layout?.familyId ? ` · ${test.layout.familyId}` : ""}${test.layout?.reusedFrom ? ` · 复用 ${test.layout.reusedFrom}` : ""}`,
-                className: "border border-slate-950 px-3 py-2",
-              },
-            ],
-          ]}
-        />
-
-        <div className="mb-3 text-sm font-semibold text-slate-950">实验记录</div>
-        <div className="mb-4 border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-sm text-slate-700">
-          {workflowMessage}
-        </div>
-        {test.layoutBlocks?.length
-          ? <QcLayoutPaper blocks={test.layoutBlocks} test={test} values={form.values} referenceValues={referenceValues} onFieldChange={form.setValue} readOnly={readOnly} />
-          : <QcMethodFieldTable test={test} values={form.values} onFieldChange={form.setValue} readOnly={readOnly} />}
-
-        <div className="mt-8 flex items-center justify-center gap-3">
-          {testStatus?.canSaveInspection ? (
-            <ActionButton
-              onClick={save}
-              disabled={isPending}
-              variant="primary"
-              className="px-8"
-            >
-              {isPending ? "保存中" : "保存检验"}
-            </ActionButton>
-          ) : null}
-          {testStatus?.canApproveReview ? (
-            <ActionButton
-              onClick={approveReview}
-              disabled={isPending}
-              variant="primary"
-              className="px-8"
-            >
-              {isPending ? "复核中" : "复核通过"}
-            </ActionButton>
-          ) : null}
-          {saveState === "saved" && <span className="text-sm text-emerald-700">{statusText || "已保存"}</span>}
-          {saveState === "error" && <span className="text-sm text-red-700">{statusText || "操作失败"}</span>}
-        </div>
+      <div className="mx-auto mt-8 flex max-w-[210mm] items-center justify-center gap-3">
+        {testStatus?.canSaveInspection ? (
+          <ActionButton
+            onClick={save}
+            disabled={isPending}
+            variant="primary"
+            className="px-8"
+          >
+            {isPending ? "保存中" : "保存检验"}
+          </ActionButton>
+        ) : null}
+        {testStatus?.canApproveReview ? (
+          <ActionButton
+            onClick={approveReview}
+            disabled={isPending}
+            variant="primary"
+            className="px-8"
+          >
+            {isPending ? "复核中" : "复核通过"}
+          </ActionButton>
+        ) : null}
+        {saveState === "saved" && <span className="text-sm text-emerald-700">{statusText || "已保存"}</span>}
+        {saveState === "error" && <span className="text-sm text-red-700">{statusText || "操作失败"}</span>}
       </div>
     </section>
   );

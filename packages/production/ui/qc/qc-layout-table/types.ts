@@ -19,4 +19,5 @@ export interface LayoutRenderContext {
   activeAdvancedOutputKey?: string | null;
   onAdvancedOutputHover?: (fieldKey: string | null) => void;
   referenceSourceKeyFor?: (fieldKey: string) => string | undefined;
+  fieldScopePrefix?: string;
 }
