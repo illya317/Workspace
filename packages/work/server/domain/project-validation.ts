@@ -11,6 +11,7 @@ import {
 } from "../access";
 import {
   PROJECT_CONFIG,
+  PROJECT_LEVELS,
   PROJECT_STAGES,
   PROJECT_STATUSES,
   generateProjectCode,
@@ -42,6 +43,7 @@ const PROJECT_MANAGE_FIELDS = new Set(["name", "parentId", "leadingDepartmentId"
 const PROJECT_EDIT_FIELDS = new Set([
   "description",
   "status",
+  "projectLevel",
   "isMilestone",
   "stage",
   "plan",
@@ -61,6 +63,7 @@ export async function buildProjectCreateCommand(
 ): Promise<DomainValidationResult<ProjectCreateCommand>> {
   if (!hasValidProjectDates(input.startDate, input.endDate)) return failCommand("日期格式错误");
   if (!isAllowedProjectOption(input.status, PROJECT_STATUSES)) return failCommand("项目状态无效");
+  if (!isAllowedProjectOption(input.projectLevel, PROJECT_LEVELS)) return failCommand("项目级别无效");
   if (!isAllowedProjectOption(input.stage, PROJECT_STAGES)) return failCommand("项目阶段无效");
 
   const projectType = normalizeProjectType(input.projectType);
@@ -110,6 +113,7 @@ export async function buildProjectCreateCommand(
       name: input.name,
       description: nullableString(input.description),
       status: nullableString(input.status),
+      projectLevel: nullableString(input.projectLevel) ?? "普通",
       isMilestone: Boolean(input.isMilestone),
       stage: nullableString(input.stage),
       plan: nullableString(input.plan),

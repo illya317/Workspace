@@ -26,6 +26,7 @@ import {
 const PROJECT_CONTENT_SYNC_FIELDS = [
   "description",
   "status",
+  "projectLevel",
   "isMilestone",
   "stage",
   "plan",

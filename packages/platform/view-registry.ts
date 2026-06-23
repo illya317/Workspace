@@ -168,7 +168,7 @@ const basePageViewDefinitions: PageViewDefinition[] = [
     label: "项目",
     recordRoutes: ["/work/projects/[id]"],
     views: [
-      { key: "projects", label: "项目台账", children: [{ key: "projects", label: "现用" }, { key: "projects-archived", label: "归档" }] },
+      { key: "projects", label: "项目管理", children: [{ key: "projects", label: "项目台账" }, { key: "projects-gantt", label: "项目甘特" }] },
     ],
   },
   {

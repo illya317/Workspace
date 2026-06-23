@@ -33,7 +33,10 @@ export default function ProjectListPanel({
           subtitle={projectCode(project, null)}
           active={selection === project.id}
           archived={project.isArchived}
-          meta={project.isMilestone ? ["里程碑"] : []}
+          meta={[
+            ...(project.projectLevel && project.projectLevel !== "普通" ? [project.projectLevel] : []),
+            ...(project.isMilestone ? ["里程碑"] : []),
+          ]}
           onClick={() => onSelect(project.id)}
         />
       ))}

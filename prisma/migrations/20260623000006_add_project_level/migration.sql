@@ -1,0 +1,1 @@
+ALTER TABLE "Project" ADD COLUMN "projectLevel" TEXT NOT NULL DEFAULT '普通';

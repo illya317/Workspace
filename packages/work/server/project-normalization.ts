@@ -11,6 +11,7 @@ export type ProjectType = (typeof PROJECT_TYPES)[number];
 
 export const PROJECT_STATUSES = ["规划中", "进行中", "暂停", "已完成", "已取消"];
 export const PROJECT_STAGES = ["立项", "规划", "执行", "验收", "收尾"];
+export const PROJECT_LEVELS = ["普通", "重点", "特殊"];
 
 type ParentIdResult = { value: number | null } | { error: string };
 type LeadingDepartmentResult =
@@ -25,6 +26,7 @@ export const PROJECT_CONFIG = {
     "name",
     "description",
     "status",
+    "projectLevel",
     "isMilestone",
     "stage",
     "plan",
@@ -166,6 +168,7 @@ async function normalizeProjectFieldUpdate(field: string, value: unknown, id?: n
   }
   if (field === "isArchived") return { field, value: Boolean(value) };
   if (field === "status" && !isAllowedProjectOption(value, PROJECT_STATUSES)) return null;
+  if (field === "projectLevel" && !isAllowedProjectOption(value, PROJECT_LEVELS)) return null;
   if (field === "isMilestone") return { field, value: Boolean(value) };
   if (field === "stage" && !isAllowedProjectOption(value, PROJECT_STAGES)) return null;
   if (field !== "name" && typeof value === "string" && value.trim() === "") return { field, value: null };

@@ -40,12 +40,12 @@ export default function ProjectGanttSection({ parentProject, projects }: { paren
   const todayLeft = datePercent(today, paddedStart, totalDays);
 
   return (
-    <SectionCard title="子项目排期" bodyClassName="p-0">
-      <div className="overflow-hidden">
-        <div className="w-full">
+    <SectionCard title="子项目排期" bodyClassName="min-w-0 overflow-hidden p-0">
+      <div className="min-w-0 max-w-full overflow-hidden">
+        <div className="min-w-0 max-w-full">
           <div className={`grid ${gridClassName} border-b border-slate-100 bg-slate-50/80 text-xs font-semibold text-slate-500`}>
             <div className="px-3 py-3">项目名称</div>
-            <div className="relative px-3 py-3">
+            <div className="relative min-w-0 overflow-hidden px-3 py-3">
               <div className="relative h-5">
                 {monthTicks.map((tick) => (
                   <div
@@ -82,7 +82,7 @@ export default function ProjectGanttSection({ parentProject, projects }: { paren
                     {row.isParent && <div className="mt-1 text-xs text-emerald-600">主项目排期</div>}
                     {row.status && <div className="mt-1 text-xs text-slate-400">{row.status}</div>}
                   </div>
-                  <div className="relative px-3 py-3">
+                  <div className="relative min-w-0 overflow-hidden px-3 py-3">
                     <div className="absolute inset-y-0 left-3 right-3">
                       {monthTicks.map((tick) => (
                         <span
@@ -117,6 +117,8 @@ function TimelineMark({
 }) {
   const colorClass = row.status ? BAR_CLASS_BY_STATUS[row.status] ?? "bg-cyan-600" : "bg-cyan-600";
   if (row.start && row.end) {
+    if (row.end < row.start) return <TimelineHint>日期异常</TimelineHint>;
+
     const left = datePercent(row.start, rangeStart, totalDays);
     const right = datePercent(row.end, rangeStart, totalDays);
     return (
@@ -153,7 +155,11 @@ function TimelineMark({
     );
   }
 
-  return <span className="absolute top-2 text-xs font-medium text-slate-400">未设日期</span>;
+  return <TimelineHint>未设日期</TimelineHint>;
+}
+
+function TimelineHint({ children }: { children: string }) {
+  return <span className="absolute top-2 max-w-full truncate text-xs font-medium text-slate-400">{children}</span>;
 }
 
 function parseDate(value?: string | null) {

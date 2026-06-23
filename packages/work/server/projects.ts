@@ -56,6 +56,7 @@ export async function listProjects(input: { userId: number; keyword: string; pag
       },
       description: project.description,
       status: project.status,
+      projectLevel: project.projectLevel,
       isMilestone: project.isMilestone,
       stage: project.stage,
       plan: project.plan,
@@ -83,6 +84,61 @@ export async function listProjects(input: { userId: number; keyword: string; pag
   const total = result.length;
   const start = (input.page - 1) * input.pageSize;
   return { projects: result.slice(start, start + input.pageSize), total };
+}
+
+export async function listProjectGantt(input: { userId: number; includeTasks?: boolean }) {
+  const visibleWhere = await buildVisibleProjectWhere(input.userId);
+  const projects = await prisma.project.findMany({
+    where: { AND: [visibleWhere, { isArchived: false }] },
+    orderBy: { id: "asc" },
+    include: {
+      leadingDepartment: { select: { id: true, code: true, name: true } },
+    },
+  });
+  const projectIds = projects.map((project) => project.id);
+  const tasks = input.includeTasks && projectIds.length
+    ? await prisma.projectTask.findMany({
+      where: { projectId: { in: projectIds } },
+      orderBy: [{ projectId: "asc" }, { sortOrder: "asc" }, { id: "asc" }],
+      select: {
+        id: true,
+        projectId: true,
+        description: true,
+        isMilestone: true,
+        startDate: true,
+        endDate: true,
+        predecessorTaskId: true,
+        sortOrder: true,
+      },
+    })
+    : [];
+
+  return {
+    projects: projects.map((project) => ({
+      id: project.id,
+      name: project.name,
+      status: project.status,
+      projectLevel: project.projectLevel,
+      projectType: normalizeProjectType(project.type),
+      isMilestone: project.isMilestone,
+      parentId: project.parentId,
+      leadingDepartmentId: project.leadingDepartmentId,
+      leadingDepartmentCode: project.leadingDepartment?.code ?? null,
+      leadingDepartmentName: project.leadingDepartment?.name ?? null,
+      startDate: formatDate(project.startDate),
+      endDate: formatDate(project.endDate),
+    })),
+    tasks: tasks.map((task) => ({
+      id: task.id,
+      projectId: task.projectId,
+      description: task.description,
+      isMilestone: task.isMilestone,
+      startDate: formatDate(task.startDate),
+      endDate: formatDate(task.endDate),
+      predecessorTaskId: task.predecessorTaskId,
+      sortOrder: task.sortOrder,
+    })),
+  };
 }
 
 export async function createProject(request: Request, userId: number) {

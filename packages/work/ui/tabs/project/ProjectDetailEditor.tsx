@@ -24,6 +24,7 @@ import type { ProjectRasciRow } from "./ProjectRasciMatrix";
 import ProjectTasksSection from "./ProjectTasksSection";
 import {
   MULTI_PROJECT_ROLES,
+  PROJECT_LEVEL_PICKER_OPTIONS,
   PROJECT_MILESTONE_PICKER_OPTIONS,
   PROJECT_STATUS_PICKER_OPTIONS,
   PROJECT_TYPE_OPTIONS,
@@ -156,7 +157,7 @@ export default function ProjectDetailEditor({
                     endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
                     value={draft.leadingDepartmentId ? String(draft.leadingDepartmentId) : ""}
                     displayValue={draft.leadingDepartmentName || ""}
-                    disabled={!canManageCurrent || draft.projectType !== "department"}
+                    disabled={!canManageCurrent || draft.projectType === "personal"}
                     placeholder="搜索部门名称、编码"
                     onChange={(_label, option) => {
                       onDraftChange("leadingDepartmentId", option?.id ?? null);
@@ -166,6 +167,7 @@ export default function ProjectDetailEditor({
                   />
                 </FormField>
                 <OptionField label="项目状态" value={draft.status} options={PROJECT_STATUS_PICKER_OPTIONS} disabled={!canEditCurrent} onChange={(value) => onDraftChange("status", value)} />
+                <OptionField label="项目级别" value={draft.projectLevel || "普通"} options={PROJECT_LEVEL_PICKER_OPTIONS} disabled={!canEditCurrent} onChange={(value) => onDraftChange("projectLevel", value || "普通")} />
                 <OptionField
                   label="里程碑"
                   value={draft.isMilestone ? "true" : "false"}

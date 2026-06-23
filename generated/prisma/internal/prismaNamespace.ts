@@ -7521,6 +7521,7 @@ export const ProjectScalarFieldEnum = {
   type: 'type',
   description: 'description',
   status: 'status',
+  projectLevel: 'projectLevel',
   isMilestone: 'isMilestone',
   stage: 'stage',
   plan: 'plan',

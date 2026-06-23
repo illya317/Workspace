@@ -1,14 +1,33 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CommandToolbar, EmptyStateCard, IconActionButton, Toast, ToolbarOptionGroup, WorkspaceSplitPage, useConfirm, useConfirmDelete } from "@workspace/core/ui";
+import { CommandToolbar, DatabasePageFrame, EmptyStateCard, IconActionButton, SplitWorkspace, SplitWorkspaceToolbar, Toast, ToolbarOptionGroup, useConfirm, useConfirmDelete } from "@workspace/core/ui";
+import { getPageViewTabs } from "@workspace/platform/view-registry";
 import type { WorkUser } from "@workspace/work/types";
 import ProjectDetailEditor from "./project/ProjectDetailEditor";
+import ProjectGanttTab from "./project/ProjectGanttTab";
 import ProjectListPanel from "./project/ProjectListPanel";
 import { PROJECT_LIST_FILTER_OPTIONS, type ProjectListFilter } from "./project/model";
 import { useProjectTabModel } from "./project/use-project-tab-model";
 
 export default function ProjectTab({ user }: { user: WorkUser }) {
+  const tabs = useMemo(() => getPageViewTabs("/work/projects"), []);
+  const [activeChild, setActiveChild] = useState("projects");
+  return (
+    <DatabasePageFrame
+      tabs={tabs}
+      activeTab="projects"
+      activeChild={activeChild}
+      onTabChange={() => setActiveChild("projects")}
+      onChildChange={setActiveChild}
+    >
+      {activeChild === "projects-gantt" ? <ProjectGanttTab user={user} /> : <ProjectLedgerTab user={user} />}
+    </DatabasePageFrame>
+  );
+}
+
+function ProjectLedgerTab({ user }: { user: WorkUser }) {
   const searchParams = useSearchParams();
   const requestedProjectId = Number(searchParams.get("projectId") || "");
   const model = useProjectTabModel(user, Number.isInteger(requestedProjectId) && requestedProjectId > 0 ? requestedProjectId : null);
@@ -43,79 +62,81 @@ export default function ProjectTab({ user }: { user: WorkUser }) {
 
   if (model.loading || model.error) {
     return (
-      <WorkspaceSplitPage
+      <SplitWorkspace
         sideOpen={model.projectListOpen}
         drawerOpen={model.projectListDrawerOpen}
-        sideLabel="项目列表"
-        onSideOpenChange={model.setProjectListOpen}
         onDrawerOpenChange={model.setProjectListDrawerOpen}
-        showSideControls={false}
         splitRatio={[2, 8]}
         renderSide={() => <EmptyStateCard compact={false}>{model.loading ? "加载中..." : "暂无项目"}</EmptyStateCard>}
       >
         <EmptyStateCard compact={false} className={model.error ? "border-red-200 text-red-600" : ""}>
           {model.error || "加载中..."}
         </EmptyStateCard>
-      </WorkspaceSplitPage>
+      </SplitWorkspace>
     );
   }
 
   return (
     <>
-      <WorkspaceSplitPage
-        sideOpen={model.projectListOpen}
-        drawerOpen={model.projectListDrawerOpen}
-        sideLabel="项目列表"
-        onSideOpenChange={model.setProjectListOpen}
-        onDrawerOpenChange={model.setProjectListDrawerOpen}
-        showSideControls={false}
-        splitRatio={[2, 8]}
-        toolbar={(
+      <div className="space-y-5">
+        <SplitWorkspaceToolbar
+          sideOpen={model.projectListOpen}
+          sideLabel="项目列表"
+          onSideOpenChange={model.setProjectListOpen}
+          onDrawerOpen={() => model.setProjectListDrawerOpen(true)}
+          showSideControls={false}
+        >
           <ProjectToolbar
             canCreateProject={model.canCreateProject}
             filter={model.projectListFilter}
             onCreate={startDepartmentProjectCreate}
             onFilterChange={model.setProjectListFilter}
           />
-        )}
-        renderSide={(mode) => (
-          <ProjectListPanel
-            mode={mode}
-            projects={model.filteredProjects}
-            filter={model.projectListFilter}
-            selection={model.selection}
-            onSelect={(projectId) => {
-              model.setCreating(false);
-              model.setSelection(projectId);
-              model.setProjectListDrawerOpen(false);
-            }}
+        </SplitWorkspaceToolbar>
+        <SplitWorkspace
+          sideOpen={model.projectListOpen}
+          drawerOpen={model.projectListDrawerOpen}
+          onDrawerOpenChange={model.setProjectListDrawerOpen}
+          splitRatio={[2, 8]}
+          renderSide={(mode) => (
+            <ProjectListPanel
+              mode={mode}
+              projects={model.filteredProjects}
+              filter={model.projectListFilter}
+              selection={model.selection}
+              onSelect={(projectId) => {
+                model.setCreating(false);
+                model.setSelection(projectId);
+                model.setProjectListDrawerOpen(false);
+              }}
+            />
+          )}
+        >
+          <ProjectDetailEditor
+            editorTitle={editorTitle}
+            dirty={model.dirty}
+            draft={model.draft}
+            selectedProject={model.selectedProject}
+            canEditCurrent={model.canEditCurrent}
+            canManageCurrent={model.canManageCurrent}
+            canDeleteCurrent={model.canDeleteCurrent}
+            saving={model.saving}
+            canSave={model.canSave}
+            childProjects={model.childProjects}
+            rasciRows={model.rasciRows}
+            creating={model.creating}
+            onCancelCreate={model.cancelCreateProject}
+            onDeleteProject={() => void confirmDeleteProject()}
+            onSave={() => void model.saveProject()}
+            onChildProjectsChange={model.setChildProjects}
+            onCreateChildProject={(name, leadingDepartmentId, leader, endDate) => model.createChildProject(name, leadingDepartmentId, leader, endDate)}
+            onDraftChange={model.updateDraft}
+            onLeaderChange={model.setLeader}
+            onRoleMembersChange={model.setRoleMembers}
+            onToast={model.setToast}
           />
-        )}
-      >
-        <ProjectDetailEditor
-          editorTitle={editorTitle}
-          dirty={model.dirty}
-          draft={model.draft}
-          selectedProject={model.selectedProject}
-          canEditCurrent={model.canEditCurrent}
-          canManageCurrent={model.canManageCurrent}
-          canDeleteCurrent={model.canDeleteCurrent}
-          saving={model.saving}
-          canSave={model.canSave}
-          childProjects={model.childProjects}
-          rasciRows={model.rasciRows}
-          creating={model.creating}
-          onCancelCreate={model.cancelCreateProject}
-          onDeleteProject={() => void confirmDeleteProject()}
-          onSave={() => void model.saveProject()}
-          onChildProjectsChange={model.setChildProjects}
-          onCreateChildProject={(name, leadingDepartmentId, leader, endDate) => model.createChildProject(name, leadingDepartmentId, leader, endDate)}
-          onDraftChange={model.updateDraft}
-          onLeaderChange={model.setLeader}
-          onRoleMembersChange={model.setRoleMembers}
-          onToast={model.setToast}
-        />
-      </WorkspaceSplitPage>
+        </SplitWorkspace>
+      </div>
 
       <Toast
         type={model.toast?.type}

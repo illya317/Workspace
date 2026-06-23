@@ -9,6 +9,7 @@ import {
   type ProjectTaskDraft,
   type ProjectTaskItem,
 } from "./model";
+import type { ProjectGanttData } from "./gantt-model";
 
 export async function createProject(draft: ProjectDraft) {
   const res = await fetch(workspacePath("/api/modules/work/projects"), {
@@ -19,6 +20,7 @@ export async function createProject(draft: ProjectDraft) {
       name: draft.name,
       description: draft.description,
       status: draft.status,
+      projectLevel: draft.projectLevel,
       isMilestone: draft.isMilestone,
       stage: draft.stage,
       plan: draft.plan,
@@ -176,6 +178,15 @@ export async function listProjectTasks(projectId: number) {
   }
   const data = await res.json();
   return (data.tasks || []) as ProjectTaskItem[];
+}
+
+export async function listProjectGantt(includeTasks: boolean) {
+  const res = await fetch(workspacePath(`/api/modules/work/projects/gantt?includeTasks=${includeTasks ? "1" : "0"}`));
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "加载项目甘特失败");
+  }
+  return await res.json() as ProjectGanttData;
 }
 
 export async function createProjectTask(projectId: number, draft: ProjectTaskDraft) {
