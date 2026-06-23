@@ -115,7 +115,7 @@ Level 1/1.5 只有一个硬门禁入口：
 
 ## Work Project 权限边界
 
-- 模块启停优先于项目对象权限：`work` 或 `work.projects` disabled 后，项目入口、`/work/projects`、相关 API、FK 目标和 `work.projects.viewAll` 都必须统一失效。项目任务、计划阶段和基线都随项目管理模块失效，不单独配置 disable。
+- 模块启停优先于项目对象权限：`work` 或 `work.projects` disabled 后，项目入口、`/work/projects`、相关 API、FK 目标和 `work.projects.viewAll` 都必须统一失效。项目任务、项目阶段和基线都随项目管理模块失效，不单独配置 disable。
 - `work.projects.access/write/delete` 是模块功能门禁，表示用户可以进入、发起或使用项目功能；它们不能被解释为查看全部项目、管理全部项目或删除全部项目。
 - 项目对象权限由 `packages/work/server/access.ts` 计算：创建人、主导部门负责人、项目 RASCI 成员、显式 `work.projects.viewAll` 和 root admin 决定可见、可写、可管理、可删除。`editedBy` 是审计字段，不参与所有权和管理权判断。
 - `work.projects.viewAll` 是独立资源，不使用 `parentKey: "work.projects"`，避免继承模块权限；它使用 `runtimeParentKey: "work.projects"`，保证模块 disabled 后一起失效。

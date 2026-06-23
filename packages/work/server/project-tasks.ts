@@ -9,110 +9,7 @@ import {
   type NormalizedTaskAssignee,
   type ProjectTaskInput,
 } from "./project-task-input";
-
-async function validateOwner(ownerEmployeeId: number | null | undefined) {
-  if (!ownerEmployeeId) return null;
-  const owner = await prisma.employee.findUnique({ where: { id: ownerEmployeeId }, select: { id: true } });
-  return owner ? null : "负责人不存在";
-}
-
-async function validateAssignees(assignees: NormalizedTaskAssignee[] | undefined) {
-  if (!assignees || assignees.length === 0) return null;
-  const employees = await prisma.employee.findMany({
-    where: { id: { in: assignees.map((assignee) => assignee.employeeId) } },
-    select: { id: true },
-  });
-  if (employees.length !== assignees.length) return "任务 RASCI 人员不存在";
-  return null;
-}
-
-async function validatePlanPhase(projectId: number, planPhaseId: number | null | undefined) {
-  if (!planPhaseId) return null;
-  const phase = await prisma.projectPlanPhase.findUnique({
-    where: { id: planPhaseId },
-    select: { projectId: true },
-  });
-  if (!phase || phase.projectId !== projectId) return "计划阶段不存在";
-  return null;
-}
-
-async function loadTaskDependencyContext(projectId: number) {
-  const [tasks, dependencies] = await Promise.all([
-    prisma.projectTask.findMany({
-      where: { projectId },
-      select: { id: true, name: true, endDate: true },
-    }),
-    prisma.projectPlanDependency.findMany({
-      where: { projectId, predecessorKind: "task", successorKind: "task" },
-      select: { predecessorId: true, successorId: true },
-    }),
-  ]);
-  return {
-    taskById: new Map(tasks.map((task) => [task.id, task])),
-    dependencies,
-  };
-}
-
-function validatePredecessorCycles(input: {
-  taskId: number;
-  predecessorTaskIds: number[];
-  existingDependencies: Array<{ predecessorId: number; successorId: number }>;
-}) {
-  const edges = input.existingDependencies
-    .filter((dependency) => dependency.successorId !== input.taskId)
-    .map((dependency) => ({ predecessorId: dependency.predecessorId, successorId: dependency.successorId }));
-  for (const predecessorId of input.predecessorTaskIds) {
-    if (predecessorId === input.taskId) return "前置任务不能选择自己";
-    edges.push({ predecessorId, successorId: input.taskId });
-  }
-  const nextByTaskId = new Map<number, number[]>();
-  for (const edge of edges) {
-    nextByTaskId.set(edge.predecessorId, [...(nextByTaskId.get(edge.predecessorId) || []), edge.successorId]);
-  }
-  const visiting = new Set<number>();
-  const visited = new Set<number>();
-  function visit(id: number): boolean {
-    if (visiting.has(id)) return true;
-    if (visited.has(id)) return false;
-    visiting.add(id);
-    for (const next of nextByTaskId.get(id) || []) {
-      if (visit(next)) return true;
-    }
-    visiting.delete(id);
-    visited.add(id);
-    return false;
-  }
-  return [...nextByTaskId.keys()].some(visit) ? "不能形成任务依赖循环" : null;
-}
-
-async function validatePredecessors(input: {
-  projectId: number;
-  taskId: number;
-  predecessorTaskIds: number[];
-  startDate: Date | null | undefined;
-}) {
-  const context = await loadTaskDependencyContext(input.projectId);
-  for (const predecessorTaskId of input.predecessorTaskIds) {
-    if (!context.taskById.has(predecessorTaskId)) return "前置任务不存在";
-  }
-  const cycleError = validatePredecessorCycles({
-    taskId: input.taskId,
-    predecessorTaskIds: input.predecessorTaskIds,
-    existingDependencies: context.dependencies,
-  });
-  if (cycleError) return cycleError;
-
-  if (input.startDate) {
-    for (const predecessorTaskId of input.predecessorTaskIds) {
-      const predecessor = context.taskById.get(predecessorTaskId);
-      if (!predecessor?.endDate) continue;
-      if (input.startDate < predecessor.endDate) {
-        return `实际开始时间不能早于前置任务「${predecessor.name}」的实际结束时间`;
-      }
-    }
-  }
-  return null;
-}
+import { validateAssignees, validateOwner, validateTaskPlanConstraints } from "./project-task-validation";
 
 async function nextSortOrder(projectId: number) {
   const last = await prisma.projectTask.findFirst({
@@ -207,17 +104,19 @@ export async function createProjectTask(input: { userId: number; projectId: numb
 
   const ownerError = await validateOwner(normalized.data.ownerEmployeeId);
   if (ownerError) return { ok: false as const, error: ownerError };
-  const phaseError = await validatePlanPhase(input.projectId, normalized.data.planPhaseId);
-  if (phaseError) return { ok: false as const, error: phaseError };
   const assigneeError = await validateAssignees(normalized.data.assignees);
   if (assigneeError) return { ok: false as const, error: assigneeError };
-  const predecessorError = await validatePredecessors({
+  const planError = await validateTaskPlanConstraints({
     projectId: input.projectId,
     taskId: 0,
+    planPhaseId: normalized.data.planPhaseId,
     predecessorTaskIds: normalized.data.predecessorTaskIds || [],
+    baselineStartDate: normalized.data.baselineStartDate ?? null,
+    baselineEndDate: normalized.data.baselineEndDate ?? null,
     startDate: normalized.data.startDate ?? null,
+    endDate: normalized.data.endDate ?? null,
   });
-  if (predecessorError) return { ok: false as const, error: predecessorError };
+  if (planError) return { ok: false as const, error: planError };
 
   const sortOrder = normalized.data.sortOrder ?? await nextSortOrder(input.projectId);
   const task = await prisma.$transaction(async (tx) => {
@@ -256,6 +155,7 @@ export async function updateProjectTask(input: { userId: number; projectId: numb
       endDate: true,
       baselineStartDate: true,
       baselineEndDate: true,
+      planPhaseId: true,
     },
   });
   if (!existing || existing.projectId !== input.projectId) {
@@ -269,22 +169,28 @@ export async function updateProjectTask(input: { userId: number; projectId: numb
 
   const ownerError = await validateOwner(normalized.data.ownerEmployeeId);
   if (ownerError) return { ok: false as const, error: ownerError };
-  const phaseError = await validatePlanPhase(input.projectId, normalized.data.planPhaseId);
-  if (phaseError) return { ok: false as const, error: phaseError };
+  const effectivePlanPhaseId = normalized.data.planPhaseId === undefined ? existing.planPhaseId : normalized.data.planPhaseId;
   const assigneeError = await validateAssignees(normalized.data.assignees);
   if (assigneeError) return { ok: false as const, error: assigneeError };
 
+  const effectiveBaselineStartDate = normalized.data.baselineStartDate === undefined ? existing.baselineStartDate : normalized.data.baselineStartDate;
+  const effectiveBaselineEndDate = normalized.data.baselineEndDate === undefined ? existing.baselineEndDate : normalized.data.baselineEndDate;
   const effectiveStartDate = normalized.data.startDate === undefined ? existing.startDate : normalized.data.startDate;
+  const effectiveEndDate = normalized.data.endDate === undefined ? existing.endDate : normalized.data.endDate;
   const predecessorTaskIds = normalized.data.predecessorTaskIds === undefined
     ? await loadExistingPredecessorTaskIds(input.projectId, input.taskId)
     : normalized.data.predecessorTaskIds;
-  const predecessorError = await validatePredecessors({
+  const planError = await validateTaskPlanConstraints({
     projectId: input.projectId,
     taskId: input.taskId,
+    planPhaseId: effectivePlanPhaseId,
     predecessorTaskIds,
+    baselineStartDate: effectiveBaselineStartDate,
+    baselineEndDate: effectiveBaselineEndDate,
     startDate: effectiveStartDate,
+    endDate: effectiveEndDate,
   });
-  if (predecessorError) return { ok: false as const, error: predecessorError };
+  if (planError) return { ok: false as const, error: planError };
 
   const task = await prisma.$transaction(async (tx) => {
     const updated = await tx.projectTask.update({

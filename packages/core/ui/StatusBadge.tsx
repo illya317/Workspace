@@ -2,16 +2,17 @@ export interface StatusBadgeProps {
   /** 显示文字 */
   label: string;
   /** 颜色变体，不内置任何业务状态映射 */
-  variant: "gray" | "green" | "blue" | "red" | "yellow";
+  variant: "gray" | "green" | "blue" | "red" | "yellow" | "orange";
   className?: string;
 }
 
 const VARIANT_CLASS: Record<StatusBadgeProps["variant"], string> = {
   gray: "bg-gray-100 text-gray-600",
-  green: "bg-emerald-50 text-emerald-700",
-  blue: "bg-blue-50 text-blue-700",
+  green: "bg-emerald-50 text-emerald-600",
+  blue: "bg-sky-50 text-sky-600",
   red: "bg-red-50 text-red-700",
   yellow: "bg-yellow-50 text-yellow-700",
+  orange: "bg-orange-50 text-orange-600",
 };
 
 /**

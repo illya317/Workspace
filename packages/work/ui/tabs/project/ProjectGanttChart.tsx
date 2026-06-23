@@ -9,18 +9,17 @@ import {
 } from "./gantt-model";
 import { buildGanttTicks, datePercent, parseGanttDate, rangeEnd } from "./gantt-time";
 
-const ROW_GRID = "grid-cols-[280px_minmax(0,1fr)]";
-const STATUS_BAR_CLASS: Record<string, string> = {
-  "进行中": "bg-teal-600",
-  "已完成": "bg-green-600",
-  "已终止": "bg-rose-600",
-};
+const LEFT_COLUMN_WIDTH = 360;
+const ROW_GRID = "grid-cols-[360px_minmax(0,1fr)]";
+const ACTUAL_ON_TRACK_CLASS = "bg-[#00b8a6] shadow-[0_2px_5px_rgba(0,150,136,0.22)]";
+const ACTUAL_DELAYED_CLASS = "bg-[#e56b6f] shadow-[0_2px_5px_rgba(210,72,80,0.22)]";
+const BASELINE_BAR_CLASS = "bg-slate-400/75 ring-1 ring-slate-500/15 shadow-[0_1px_3px_rgba(71,85,105,0.18)]";
 const STAGE_BAR_CLASS: Record<string, string> = {
   "规划中": "bg-emerald-300",
-  "进行中": "bg-teal-500",
-  "暂停": "bg-red-200",
-  "已完成": "bg-green-600",
-  "已终止": "bg-rose-600",
+  "进行中": ACTUAL_ON_TRACK_CLASS,
+  "暂停": ACTUAL_DELAYED_CLASS,
+  "已完成": ACTUAL_ON_TRACK_CLASS,
+  "已终止": ACTUAL_DELAYED_CLASS,
 };
 
 export default function ProjectGanttChart({
@@ -66,7 +65,7 @@ export default function ProjectGanttChart({
 
             <div className="relative">
               {todayVisible && (
-                <div className="pointer-events-none absolute inset-y-0 left-[280px] right-0 z-10 px-4">
+                <div className="pointer-events-none absolute inset-y-0 right-0 z-10 px-4" style={{ left: LEFT_COLUMN_WIDTH }}>
                   <span
                     className="absolute bottom-0 top-0 w-0.5"
                     style={{
@@ -80,33 +79,27 @@ export default function ProjectGanttChart({
               {rows.map((row) => (
                 <div
                   key={row.key}
-                  className={`relative grid ${ROW_GRID} border-b border-slate-100 last:border-b-0 hover:bg-slate-50/70`}
+                  className={`relative grid ${ROW_GRID} min-h-[48px] border-b border-slate-100 last:border-b-0 hover:bg-slate-50/70`}
                 >
-                  <div className="min-w-0 px-4 py-3">
+                  <div className="min-w-0 px-4 py-2">
                     <div className="flex min-w-0 items-center gap-2" style={{ paddingLeft: `${row.depth * 18}px` }}>
                       <button
                         type="button"
                         disabled={!row.hasChildren}
                         onClick={() => onToggle(row.key)}
-                        className={`grid size-6 shrink-0 place-items-center rounded-md text-sm font-semibold transition ${
+                        className={`grid size-5 shrink-0 place-items-center rounded border text-xs font-semibold transition ${
                           row.hasChildren
                             ? "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                            : "text-transparent"
+                            : "border-slate-200 bg-white text-slate-500"
                         }`}
                       >
                         {row.hasChildren ? (row.expanded ? "⌄" : "›") : "·"}
                       </button>
-                      <div className="min-w-0">
-                        <RowTitle row={row} />
-                        <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                          {row.status && <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${statusBadgeClassName(row.status)}`}>{row.status}</span>}
-                          {row.ownerNames.length > 0 && <span className="rounded bg-yellow-50 px-1.5 py-0.5 text-xs font-medium text-yellow-700">{ownerBadgeText(row.ownerNames)}</span>}
-                        </div>
-                      </div>
+                      <RowTitle row={row} />
                     </div>
                   </div>
 
-                  <div className="relative min-w-0 overflow-hidden px-4 py-3">
+                  <div className="relative min-w-0 overflow-hidden px-4 py-2">
                     <div className="absolute inset-y-0 left-4 right-4">
                       {ticks.map((tick) => (
                         <span
@@ -116,11 +109,11 @@ export default function ProjectGanttChart({
                         />
                       ))}
                     </div>
-                    <div className="relative h-11">
+                    <div className="relative h-8">
                       <BaselineMark row={row} periodStart={periodStart} periodEnd={periodEnd} />
                       <TimelineMark row={row} periodStart={periodStart} periodEnd={periodEnd} />
-                      {row.kind !== "task" && row.milestoneEvents.length > 0 && (
-                        <MilestoneMarks events={row.milestoneEvents} periodStart={periodStart} periodEnd={periodEnd} />
+                      {row.milestoneEvents.length > 0 && (
+                        <MilestoneMarks row={row} events={row.milestoneEvents} periodStart={periodStart} periodEnd={periodEnd} />
                       )}
                     </div>
                   </div>
@@ -145,7 +138,7 @@ function BaselineMark({ row, periodStart, periodEnd }: { row: GanttRow; periodSt
   if (visibleEnd <= 0 || visibleStart >= 100) return null;
   return (
     <span
-      className="absolute top-[29px] h-1 min-w-3 rounded-full bg-slate-300"
+      className={`absolute top-[15px] z-0 min-w-3 rounded-md ${barHeightClassName(row)} ${BASELINE_BAR_CLASS}`}
       title={`基准 ${formatDate(start)} - ${formatDate(end)}`}
       style={{ left: `${visibleStart}%`, width: `${Math.max(1.2, visibleEnd - visibleStart)}%` }}
     />
@@ -153,17 +146,15 @@ function BaselineMark({ row, periodStart, periodEnd }: { row: GanttRow; periodSt
 }
 
 function RowTitle({ row }: { row: GanttRow }) {
-  if (row.kind === "task") {
-    return (
-      <div className="flex min-w-0 items-center gap-1.5" title={row.name}>
-        <span className="shrink-0 rounded bg-sky-100 px-1.5 py-0.5 text-[11px] font-semibold leading-4 text-sky-700">任务</span>
-        <span className="min-w-0 truncate text-sm font-medium text-slate-600">{row.name}</span>
-      </div>
-    );
-  }
+  const titleClassName = row.kind === "project" ? "text-sm font-semibold text-slate-900" : "text-sm font-medium text-slate-600";
   return (
-    <div className="truncate text-sm font-semibold text-slate-900" title={row.name}>
-      {row.name}
+    <div className="flex min-w-0 items-center gap-2" title={row.name}>
+      <span className={`min-w-0 truncate ${titleClassName}`}>{row.name}</span>
+      {row.ownerNames.length > 0 && (
+        <span className="shrink-0 rounded bg-yellow-50 px-1.5 py-0.5 text-xs font-medium text-yellow-700">
+          {ownerBadgeText(row.ownerNames)}
+        </span>
+      )}
     </div>
   );
 }
@@ -171,7 +162,7 @@ function RowTitle({ row }: { row: GanttRow }) {
 function TimelineMark({ row, periodStart, periodEnd }: { row: GanttRow; periodStart: Date; periodEnd: Date }) {
   const start = parseGanttDate(row.startDate || row.aggregateStart);
   const end = parseGanttDate(row.endDate || row.aggregateEnd);
-  const colorClass = barClassName(row);
+  const colorClass = actualBarClassName(row);
 
   if (row.kind === "project" && row.stages.length > 0) {
     return <StageTimeline stages={row.stages} periodStart={periodStart} periodEnd={periodEnd} fallbackStart={start} fallbackEnd={end} />;
@@ -187,9 +178,9 @@ function TimelineMark({ row, periodStart, periodEnd }: { row: GanttRow; periodSt
     if (visibleEnd <= 0 || visibleStart >= 100) return <TimelineHint>不在当前视窗</TimelineHint>;
     return (
       <>
-        <span className="absolute left-0 right-0 top-[21px] h-px bg-slate-200/70" />
+        <span className={`absolute left-0 right-0 ${actualCenterTopClassName(row)} h-px bg-slate-200/50`} />
         <div
-          className={`absolute top-[15px] min-w-4 rounded-md shadow-[0_1px_2px_rgba(15,23,42,0.12)] ${row.kind === "task" ? "h-2" : "h-3"} ${colorClass}`}
+          className={`absolute top-[15px] z-10 min-w-4 rounded-md ${barHeightClassName(row)} ${colorClass}`}
           title={`${formatDate(start)} - ${formatDate(end)}`}
           style={{ left: `${visibleStart}%`, width: `${Math.max(1.5, visibleEnd - visibleStart)}%` }}
         />
@@ -204,7 +195,7 @@ function TimelineMark({ row, periodStart, periodEnd }: { row: GanttRow; periodSt
   return (
     <>
       <span
-        className={`absolute top-[16px] size-3 -translate-x-1/2 rotate-45 rounded-sm shadow-sm ${colorClass}`}
+        className={`absolute ${actualCenterTopClassName(row)} z-20 size-3 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-sm shadow-sm ${colorClass}`}
         title={formatDate(single)}
         style={{ left: `${left}%` }}
       />
@@ -219,16 +210,26 @@ function TimelineHint({ children }: { children: string }) {
   return <span className="absolute top-3 max-w-full truncate text-xs font-medium text-slate-400">{children}</span>;
 }
 
-function barClassName(row: GanttRow) {
-  if (row.kind === "task") return "bg-sky-300";
-  return row.status ? STATUS_BAR_CLASS[row.status] ?? "bg-cyan-600" : "bg-cyan-600";
+function actualBarClassName(row: GanttRow) {
+  return isDelayed(row) ? ACTUAL_DELAYED_CLASS : ACTUAL_ON_TRACK_CLASS;
 }
 
-function statusBadgeClassName(status: string) {
-  if (status === "进行中") return "bg-emerald-50 text-emerald-700";
-  if (status === "已完成") return "bg-green-50 text-green-700";
-  if (status === "已终止") return "bg-rose-50 text-rose-600";
-  return "bg-lime-50 text-lime-700";
+function isDelayed(row: GanttRow) {
+  const baselineEnd = parseGanttDate(row.baselineEndDate);
+  if (!baselineEnd) return false;
+  const actualEnd = parseGanttDate(row.endDate || row.aggregateEnd);
+  if (actualEnd) return actualEnd > baselineEnd;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today > baselineEnd;
+}
+
+function barHeightClassName(row: GanttRow) {
+  return row.kind === "task" ? "h-3" : "h-2";
+}
+
+function actualCenterTopClassName(row: GanttRow) {
+  return row.kind === "task" ? "top-[21px]" : "top-[19px]";
 }
 
 function ownerBadgeText(names: string[]) {
@@ -253,7 +254,7 @@ function StageTimeline({
   return (
     <>
       {fallbackStart && fallbackEnd && fallbackEnd >= fallbackStart && (
-        <span className="absolute left-0 right-0 top-[21px] h-px bg-slate-200/70" />
+        <span className="absolute left-0 right-0 top-[19px] h-px bg-slate-200/50" />
       )}
       {visibleSegments.map((stage) => (
         <StageSegment key={stage.id} stage={stage} periodStart={periodStart} periodEnd={periodEnd} />
@@ -274,7 +275,7 @@ function StageSegment({ stage, periodStart, periodEnd }: { stage: ProjectGanttSt
   if (visibleEnd <= 0 || visibleStart >= 100) return null;
   return (
     <span
-      className={`absolute top-[15px] h-3 min-w-3 rounded-md shadow-[0_1px_2px_rgba(15,23,42,0.12)] ${colorClass}`}
+      className={`absolute top-[15px] z-10 h-2 min-w-3 rounded-md ${colorClass}`}
       title={stageTitle(stage)}
       style={{ left: `${visibleStart}%`, width: `${Math.max(1.2, visibleEnd - visibleStart)}%` }}
     />
@@ -282,10 +283,12 @@ function StageSegment({ stage, periodStart, periodEnd }: { stage: ProjectGanttSt
 }
 
 function MilestoneMarks({
+  row,
   events,
   periodStart,
   periodEnd,
 }: {
+  row: GanttRow;
   events: GanttMilestoneEvent[];
   periodStart: Date;
   periodEnd: Date;
@@ -297,13 +300,13 @@ function MilestoneMarks({
         if (!date) return null;
         const left = datePercent(date, periodStart, periodEnd);
         if (left <= 0 || left >= 100) return null;
-          return (
-            <span
-              key={event.key}
-              className="absolute top-[21px] size-3 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-[2px] border border-amber-500 bg-amber-300 shadow-sm"
-              title={event.name}
-              style={{ left: `${left}%` }}
-            />
+        return (
+          <span
+            key={event.key}
+            className={`absolute ${actualCenterTopClassName(row)} z-20 size-3 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-[3px] border border-amber-500 bg-amber-300 shadow-sm`}
+            title={event.name}
+            style={{ left: `${left}%` }}
+          />
         );
       })}
     </>

@@ -361,21 +361,6 @@ export type OpenApiClientScopeGrant = Prisma.OpenApiClientScopeGrantModel
  */
 export type OpenApiAccessLog = Prisma.OpenApiAccessLogModel
 /**
- * Model Report
- * 周报/日报主表
- */
-export type Report = Prisma.ReportModel
-/**
- * Model ReportItem
- * 周报条目明细
- */
-export type ReportItem = Prisma.ReportItemModel
-/**
- * Model ReportHistory
- * 周报历史版本快照
- */
-export type ReportHistory = Prisma.ReportHistoryModel
-/**
  * Model SystemConfig
  * 系统配置键值对
  */
@@ -445,3 +430,18 @@ export type DepartmentWorkAssignee = Prisma.DepartmentWorkAssigneeModel
  * 项目工作指派人（业务配置，非 RBAC 权限）
  */
 export type ProjectWorkAssignee = Prisma.ProjectWorkAssigneeModel
+/**
+ * Model WorkScopePermission
+ * 工作计划空间权限（业务空间权限，非全局 RBAC 资源）
+ */
+export type WorkScopePermission = Prisma.WorkScopePermissionModel
+/**
+ * Model WorkReport
+ * 工作计划空间汇报
+ */
+export type WorkReport = Prisma.WorkReportModel
+/**
+ * Model WorkReportItem
+ * 工作计划空间汇报事项
+ */
+export type WorkReportItem = Prisma.WorkReportItemModel

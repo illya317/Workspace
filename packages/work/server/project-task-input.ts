@@ -80,7 +80,7 @@ export function normalizeProjectTaskInput(input: ProjectTaskInput, mode: "create
 
   if (input.planPhaseId !== undefined) {
     const planPhaseId = normalizeNullablePositiveInt(input.planPhaseId);
-    if (isInvalidNumber(planPhaseId)) return { error: "计划阶段无效" };
+    if (isInvalidNumber(planPhaseId)) return { error: "项目阶段无效" };
     data.planPhaseId = planPhaseId;
   }
 

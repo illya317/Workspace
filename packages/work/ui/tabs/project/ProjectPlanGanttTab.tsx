@@ -4,13 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import { ActionButton, CommandToolbar, EmptyStateCard, SearchInput, ToolbarOptionGroup, useConfirm } from "@workspace/core/ui";
 import type { ProjectItem } from "./model";
 import {
-  createProjectPlanBaseline,
   listProjectOptions,
   listProjectPlanGantt,
   saveProjectPlanDependencies,
   saveProjectPlanGantt,
 } from "./api";
-import ProjectPlanPhasePanel from "./ProjectPlanPhasePanel";
 import ProjectPlanGanttTimeline from "./ProjectPlanGanttTimeline";
 import type { ProjectGanttZoom } from "./gantt-model";
 import { PROJECT_GANTT_ZOOM_OPTIONS } from "./gantt-model";
@@ -106,19 +104,6 @@ export default function ProjectPlanGanttTab({ requestedProjectId }: { requestedP
     }
   }
 
-  async function handleCreateBaseline() {
-    if (!selectedProjectId) return;
-    setSaving(true);
-    try {
-      await createProjectPlanBaseline(selectedProjectId);
-      await reloadPlan(selectedProjectId);
-    } catch (err) {
-      await confirm({ title: "保存基准失败", message: err instanceof Error ? err.message : "保存计划基准失败", confirmLabel: "关闭", confirmDanger: true, showCancel: false });
-    } finally {
-      setSaving(false);
-    }
-  }
-
   return (
     <div className="space-y-4">
       <CommandToolbar
@@ -143,11 +128,10 @@ export default function ProjectPlanGanttTab({ requestedProjectId }: { requestedP
               <div className="min-w-28 border-x border-slate-200 px-3 text-center text-xs font-semibold text-slate-600">{periodLabel(currentStart, zoom)}</div>
               <button type="button" className="h-10 px-3 text-sm font-semibold text-slate-600 hover:bg-slate-50" onClick={() => setCurrentStart((current) => shiftPeriod(current, zoom, 1))}>›</button>
             </div>
-            <ActionButton onClick={handleCreateBaseline} disabled={!canEdit || saving || !data}>保存基准</ActionButton>
             <ActionButton variant="primary" onClick={handleSave} disabled={!canEdit || saving || !dirty}>{saving ? "保存中..." : "保存甘特"}</ActionButton>
           </>
         )}
-        meta={data?.activeBaseline ? `基准：${data.activeBaseline.name}` : "未设置基准"}
+        meta="基线来自项目阶段"
       />
 
       {error ? (
@@ -157,24 +141,13 @@ export default function ProjectPlanGanttTab({ requestedProjectId }: { requestedP
       ) : !data ? (
         <EmptyStateCard compact={false}>请选择项目</EmptyStateCard>
       ) : (
-        <>
-          {canEdit && (
-            <ProjectPlanPhasePanel
-              projectId={data.projectId}
-              phases={data.phases}
-              canEdit={canEdit}
-              disabled={saving}
-              onChanged={() => reloadPlan(data.projectId)}
-            />
-          )}
-          <ProjectPlanGanttTimeline
-            items={items}
-            phases={data.phases}
-            baseline={data.activeBaseline}
-            periodStart={currentStart}
-            zoom={zoom}
-          />
-        </>
+        <ProjectPlanGanttTimeline
+          items={items}
+          phases={data.phases}
+          dependencies={dependencies}
+          periodStart={currentStart}
+          zoom={zoom}
+        />
       )}
     </div>
   );

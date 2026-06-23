@@ -1,147 +1,152 @@
 "use client";
 
-import { workspacePath } from "@workspace/core/routing";
-import { useState, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useToast } from "@workspace/core/hooks";
-import type { WorkItem } from "./types";
+import {
+  createWorkItem,
+  deleteWorkItem,
+  listWorkItems,
+  updateWorkItem,
+} from "./api";
+import { createEmptyWorkDraft, createWorkDraft } from "./model";
+import type { WorkItem, WorkItemDraft, WorkTarget } from "./types";
 
-export function useWorks() {
+export function useWorks(target: WorkTarget | null) {
   const [works, setWorks] = useState<WorkItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editingWork, setEditingWork] = useState<WorkItem | null>(null);
-
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [detailId, setDetailId] = useState<number | null>(null);
+  const [createDraft, setCreateDraft] = useState<WorkItemDraft>(() => createEmptyWorkDraft());
+  const [editDraft, setEditDraft] = useState<WorkItemDraft | null>(null);
   const { toast, showToast, closeToast } = useToast();
 
-  const fetchWorks = useCallback(async () => {
-    const selectedDept = typeof window !== "undefined" ? localStorage.getItem("selectedDeptId") : null;
-    const deptParam = selectedDept ? `&deptId=${selectedDept}` : "";
-    const res = await fetch(workspacePath(`/api/modules/work/tasks?includeArchived=true${deptParam}`));
-    const data = await res.json();
-    setWorks(data.works || []);
-    setLoading(false);
-  }, []);
+  const loadWorks = useCallback(async () => {
+    if (!target) {
+      setWorks([]);
+      return;
+    }
+    setLoading(true);
+    try {
+      setWorks(await listWorkItems(target));
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "加载工作计划失败", "error");
+    } finally {
+      setLoading(false);
+    }
+  }, [showToast, target]);
 
-  async function handleCreate(data: {
-    category: string;
-    content: string;
-    importance: number;
-    urgency: number;
-    participants: string;
-    sortOrder: number;
-  }) {
-    const selectedDept = typeof window !== "undefined" ? localStorage.getItem("selectedDeptId") : null;
-    const body = selectedDept ? { ...data, deptId: parseInt(selectedDept) } : data;
-    const res = await fetch(workspacePath("/api/modules/work/tasks"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (res.ok) {
-      setShowForm(false);
-      fetchWorks();
-    } else {
-      const err = await res.json();
-      showToast(err.error || "添加失败", "error");
+  useEffect(() => { void loadWorks(); }, [loadWorks]);
+
+  useEffect(() => {
+    setCreating(false);
+    setEditingId(null);
+    setDetailId(null);
+    setEditDraft(null);
+  }, [target?.targetType, target?.targetId]);
+
+  useEffect(() => {
+    setCreateDraft(createEmptyWorkDraft(nextSortOrder(works)));
+  }, [works]);
+
+  const activeWork = useMemo(
+    () => works.find((work) => work.id === detailId) || works.find((work) => work.id === editingId) || null,
+    [detailId, editingId, works],
+  );
+
+  function startEdit(work: WorkItem) {
+    setEditingId(work.id);
+    setDetailId(work.id);
+    setCreating(false);
+    setEditDraft(createWorkDraft(work));
+  }
+
+  async function handleCreate() {
+    if (!target || saving) return;
+    if (!createDraft.content.trim()) {
+      showToast("工作内容不能为空", "error");
+      return;
+    }
+    setSaving(true);
+    try {
+      await createWorkItem(target, { ...createDraft, sortOrder: createDraft.sortOrder || nextSortOrder(works) });
+      setCreating(false);
+      await loadWorks();
+      showToast("工作项已新建", "success");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "新建工作项失败", "error");
+    } finally {
+      setSaving(false);
     }
   }
 
-  async function handleUpdate(data: {
-    category: string;
-    content: string;
-    importance: number;
-    urgency: number;
-    participants: string;
-    sortOrder: number;
-  }) {
-    if (!editingWork) return;
-    const res = await fetch(workspacePath(`/api/modules/work/tasks/${editingWork.id}`), {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (res.ok) {
-      setEditingWork(null);
-      fetchWorks();
-    } else {
-      const err = await res.json();
-      showToast(err.error || "更新失败", "error");
+  async function handleUpdate() {
+    if (!editingId || !editDraft || saving) return;
+    if (!editDraft.content.trim()) {
+      showToast("工作内容不能为空", "error");
+      return;
+    }
+    setSaving(true);
+    try {
+      await updateWorkItem(editingId, editDraft);
+      setEditingId(null);
+      setEditDraft(null);
+      await loadWorks();
+      showToast("工作项已保存", "success");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "保存工作项失败", "error");
+    } finally {
+      setSaving(false);
     }
   }
 
-  async function handleDelete(id: number) {
-    const res = await fetch(workspacePath(`/api/modules/work/tasks/${id}`), { method: "DELETE" });
-    if (res.ok) {
-      fetchWorks();
-    } else {
-      const err = await res.json();
-      showToast(err.error || "删除失败", "error");
+  async function handleDelete(work: WorkItem) {
+    if (saving) return;
+    setSaving(true);
+    try {
+      await deleteWorkItem(work.id);
+      if (detailId === work.id) setDetailId(null);
+      if (editingId === work.id) setEditingId(null);
+      await loadWorks();
+      showToast("工作项已删除", "success");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "删除工作项失败", "error");
+    } finally {
+      setSaving(false);
     }
-  }
-
-  async function handleArchive(id: number) {
-    const res = await fetch(workspacePath(`/api/modules/work/tasks/${id}`), {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isArchived: true }),
-    });
-    if (res.ok) fetchWorks();
-    else { const err = await res.json(); showToast(err.error || "归档失败", "error"); }
-  }
-
-  async function handleRestore(id: number) {
-    const res = await fetch(workspacePath(`/api/modules/work/tasks/${id}`), {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isArchived: false }),
-    });
-    if (res.ok) fetchWorks();
-    else { const err = await res.json(); showToast(err.error || "恢复失败", "error"); }
-  }
-
-  async function handleMove(id: number, direction: number) {
-    const categoryWorks = works.filter(
-      (w) => w.category === works.find((w) => w.id === id)?.category && !w.isArchived
-    );
-    const sorted = categoryWorks.sort((a, b) => a.sortOrder - b.sortOrder);
-    const idx = sorted.findIndex((w) => w.id === id);
-    const target = idx + direction;
-    if (target < 0 || target >= sorted.length) return;
-
-    const currentWork = sorted[idx];
-    const targetWork = sorted[target];
-
-    await Promise.all([
-      fetch(workspacePath(`/api/modules/work/tasks/${currentWork.id}`), {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sortOrder: targetWork.sortOrder }),
-      }),
-      fetch(workspacePath(`/api/modules/work/tasks/${targetWork.id}`), {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sortOrder: currentWork.sortOrder }),
-      }),
-    ]);
-    fetchWorks();
   }
 
   return {
     works,
     loading,
-    showForm,
-    setShowForm,
-    editingWork,
-    setEditingWork,
+    saving,
+    creating,
+    setCreating,
+    editingId,
+    detailId,
+    setDetailId,
+    createDraft,
+    setCreateDraft,
+    editDraft,
+    setEditDraft,
+    activeWork,
     toast,
     showToast,
     closeToast,
-    fetchWorks,
+    loadWorks,
+    startEdit,
+    cancelEdit: () => {
+      setEditingId(null);
+      setEditDraft(null);
+    },
     handleCreate,
     handleUpdate,
     handleDelete,
-    handleArchive,
-    handleRestore,
-    handleMove,
   };
+}
+
+function nextSortOrder(works: WorkItem[]) {
+  if (works.length === 0) return 10;
+  return Math.max(...works.map((work) => work.sortOrder || 0)) + 10;
 }

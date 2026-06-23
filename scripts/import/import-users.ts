@@ -110,7 +110,7 @@ async function importUsers() {
           nickname: row.name,
           password: row.password,
           wxUserId,
-          // isWorkListAdmin use RBAC: see admin user-permissions API
+          // isWorkListAdmin uses RBAC: see admin user-permissions API
         },
       });
       updated++;
@@ -121,7 +121,7 @@ async function importUsers() {
           username,
           password: row.password,
           nickname: row.name,
-          // isWorkListAdmin use RBAC: see admin user-permissions API
+          // isWorkListAdmin uses RBAC: see admin user-permissions API
         },
       });
       created++;
@@ -139,7 +139,7 @@ async function importUsers() {
       data: {
         nickname: CONFIG.admin.name,
         password: CONFIG.admin.password,
-        // isWorkListAdmin use RBAC: seed-rbac.ts or admin UI
+        // isWorkListAdmin uses RBAC: seed-rbac.ts or admin UI
       },
     });
   } else {
@@ -149,7 +149,7 @@ async function importUsers() {
         username: CONFIG.admin.username,
         password: CONFIG.admin.password,
         nickname: CONFIG.admin.name,
-        // isWorkListAdmin use RBAC: seed-rbac.ts or admin UI
+        // isWorkListAdmin uses RBAC: seed-rbac.ts or admin UI
       },
     });
   }

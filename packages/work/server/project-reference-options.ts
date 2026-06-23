@@ -16,7 +16,7 @@ const genericReferenceOptions = createReferenceOptionsRoute({
   validate: (input) => referenceOptionsQuerySchema.safeParse(input),
 });
 
-const PROJECT_FK_KEYS = new Set(["work.projects.parent", "work.projects.member.project"]);
+const PROJECT_FK_KEYS = new Set(["work.projects.parent", "work.projects.member.project", "work.tasks.linked.project"]);
 
 export async function listWorkReferenceOptions(request: Request, user: { userId: number }) {
   const { searchParams } = new URL(request.url);

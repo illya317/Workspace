@@ -36,6 +36,8 @@ model User {
   reviewedReviews         FinanceStatementReview[]    @relation("ReviewReviewer")
   notifications           Notification[]              @relation("NotificationRecipient")
   createdNotifications    Notification[]              @relation("NotificationActor")
+  workScopePermissions    WorkScopePermission[]
+  workReports             WorkReport[]                @relation("WorkReportSubmitter")
 }
 
 /// RBAC 资源定义，详见 docs/rbac.md

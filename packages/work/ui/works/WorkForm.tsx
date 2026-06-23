@@ -35,7 +35,7 @@ export default function WorkForm({
         <FormField label="类别">
           <SelectField
             value={category}
-            onChange={setCategory}
+            onChange={(value) => setCategory(value === "non-routine" ? "non-routine" : "routine")}
             options={[
               { value: "routine", label: "日常工作" },
               { value: "non-routine", label: "其他工作" },

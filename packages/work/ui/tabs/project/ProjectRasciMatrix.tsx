@@ -4,6 +4,7 @@ import { SectionCard } from "@workspace/core/ui";
 import type { EmployeeTag, MultiProjectRole } from "./model";
 
 export type ProjectRasciRow = {
+  kind: "project" | "task";
   id: number;
   name: string;
   subtitle?: string | null;
@@ -44,7 +45,7 @@ export default function ProjectRasciMatrix({ rows }: { rows: ProjectRasciRow[] }
               ))}
             </div>
             {rows.map((row) => (
-              <div key={row.id} className={`grid ${gridClassName} border-b border-slate-100 last:border-b-0`}>
+              <div key={`${row.kind}:${row.id}`} className={`grid ${gridClassName} border-b border-slate-100 last:border-b-0`}>
                 <div className="min-w-0 px-3 py-4">
                   <div className="truncate text-sm font-semibold text-slate-900" title={row.name}>{row.name}</div>
                   {row.subtitle && <div className="mt-1 text-xs font-medium text-emerald-600">{row.subtitle}</div>}

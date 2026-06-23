@@ -58,6 +58,10 @@ export function ProjectTaskForm({
   const predecessorOptions = taskOptions.filter((option) => !blockedPredecessorIds.has(option.value));
   const taskLabelById = new Map(taskOptions.map((option) => [Number(option.value), option.label]));
   const phaseOptions = phases.map((phase) => ({ value: String(phase.id), label: phase.name }));
+  const selectedPhase = phases.find((phase) => phase.id === draft.planPhaseId) ?? null;
+  const phaseHint = selectedPhase
+    ? `阶段范围：${selectedPhase.startDate || "未设置"} - ${selectedPhase.endDate || "未设置"}`
+    : phaseOptions.length > 0 ? "请选择任务所属项目阶段" : "请先在上方建立项目阶段";
 
   function patch(next: Partial<ProjectTaskDraft>) {
     onChange({ ...draft, ...next });
@@ -88,17 +92,18 @@ export function ProjectTaskForm({
         <FormField label="任务名称" required className="lg:col-span-2">
           <TextField value={draft.name} disabled={disabled} className={inputClassName} onChange={(value) => patch({ name: value })} unstyled />
         </FormField>
-        <FormField label="计划阶段">
+        <FormField label="项目阶段" required>
           <OptionPicker
             value={draft.planPhaseId ? String(draft.planPhaseId) : null}
             options={phaseOptions}
             disabled={disabled || phaseOptions.length === 0}
-            placeholder="未分阶段"
+            placeholder={phaseOptions.length > 0 ? "选择项目阶段" : "请先建立项目阶段"}
             onChange={(value) => patch({ planPhaseId: value ? Number(value) : null })}
             visibleCount={6}
             buttonClassName={pickerButtonClassName}
             popoverClassName={pickerPopoverClassName}
           />
+          <p className="mt-1 text-xs font-medium text-slate-400">{phaseHint}</p>
         </FormField>
         <FormField label="负责人">
           <FkFieldInput
@@ -171,7 +176,7 @@ export function ProjectTaskForm({
 export function ProjectTaskDetail({ task }: { task: ProjectTaskItem }) {
   const detailItems = [
     { label: "任务名称", value: task.name },
-    { label: "计划阶段", value: task.planPhaseName || "未分阶段" },
+    { label: "项目阶段", value: task.planPhaseName || "未设置" },
     { label: "负责人", value: task.ownerEmployeeName || "未设置" },
     { label: "基线时间", value: [task.baselineStartDate || "未定", task.baselineEndDate || "未定"].join(" - ") },
     { label: "实际时间", value: [task.startDate || "未定", task.endDate || "未定"].join(" - ") },

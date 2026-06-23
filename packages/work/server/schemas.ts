@@ -24,7 +24,7 @@ export const ProjectCreateSchema = z.object({
   remark: z.string().optional().nullable(),
   startDate: dateStringSchema.optional().nullable(),
   endDate: endDateSchema,
-  closureType: z.string().optional().nullable(),
+  completionPercent: z.coerce.number().min(0, "完成度不能小于 0").optional().nullable(),
   leadingDepartmentId: z.coerce.number().int().positive("主导部门不能为空").optional().nullable(),
   leaderEmployeeId: z.coerce.number().int().positive().optional().nullable(),
 });

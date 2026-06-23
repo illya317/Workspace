@@ -24,7 +24,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   if (!auth.ok) return auth.response;
 
   const parsedParams = planPhaseParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return Response.json({ error: "计划阶段 ID 无效" }, { status: 400 });
+  if (!parsedParams.success) return Response.json({ error: "项目阶段 ID 无效" }, { status: 400 });
 
   const body = await request.json().catch(() => null);
   const parsedBody = planPhaseUpdateBodySchema.safeParse(body);
@@ -43,7 +43,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   if (!auth.ok) return auth.response;
 
   const parsedParams = planPhaseParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return Response.json({ error: "计划阶段 ID 无效" }, { status: 400 });
+  if (!parsedParams.success) return Response.json({ error: "项目阶段 ID 无效" }, { status: 400 });
 
   return projectPlanServiceResponse(await deleteProjectPlanPhase({
     userId: auth.user.userId,

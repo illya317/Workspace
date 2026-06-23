@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode, Fragment } from "react";
+import { ActionGlyph } from "./ActionGlyphs";
 import type { ColumnDef } from "./ColumnToggle";
 import { joinClassNames } from "./card-utils";
 
@@ -41,7 +42,7 @@ export interface DataTableProps<T> {
   renderExpandedRow?: (row: T) => ReactNode;
 }
 
-export type DataTableActionKind = "view" | "edit" | "delete";
+export type DataTableActionKind = "view" | "edit" | "save" | "cancel" | "delete";
 
 export interface DataTableRowAction {
   key: string;
@@ -77,29 +78,27 @@ export const dataTableClassNames = {
 
 function DataTableActionIcon({ kind }: { kind: DataTableActionKind }) {
   if (kind === "delete") {
-    return <span className="-translate-y-px text-xl leading-none">×</span>;
+    return <ActionGlyph kind="delete" />;
+  }
+  if (kind === "save") {
+    return <ActionGlyph kind="check" />;
+  }
+  if (kind === "cancel") {
+    return <ActionGlyph kind="x" />;
   }
   if (kind === "edit") {
-    return (
-      <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="m16.9 4.6 2.5 2.5M4.5 19.5l4.9-1 9.2-9.2a1.8 1.8 0 0 0 0-2.5l-1.4-1.4a1.8 1.8 0 0 0-2.5 0l-9.2 9.2-1 4.9z" />
-      </svg>
-    );
+    return <ActionGlyph kind="edit" />;
   }
-  return (
-    <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 12s3.4-6 9-6 9 6 9 6-3.4 6-9 6-9-6-9-6z" />
-      <circle cx="12" cy="12" r="2.5" />
-    </svg>
-  );
+  return <ActionGlyph kind="view" />;
 }
 
 function getDataTableActionClassName(kind: DataTableActionKind) {
   return joinClassNames(
     "inline-flex h-10 w-10 items-center justify-center rounded-lg border bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-300 disabled:shadow-none",
-    kind === "delete"
-      ? "border-red-200 text-red-600 hover:bg-red-50"
-      : "border-slate-300",
+    kind === "delete" && "border-red-200 text-red-600 hover:bg-red-50",
+    kind === "save" && "border-emerald-200 text-emerald-600 hover:bg-emerald-50",
+    kind === "cancel" && "border-slate-300 text-slate-600 hover:bg-slate-50",
+    kind !== "delete" && kind !== "save" && kind !== "cancel" && "border-slate-300",
   );
 }
 

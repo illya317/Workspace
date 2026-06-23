@@ -23,7 +23,6 @@ import type { ProjectRasciRow } from "./ProjectRasciMatrix";
 import ProjectTasksSection from "./ProjectTasksSection";
 import {
   MULTI_PROJECT_ROLES,
-  PROJECT_CLOSURE_TYPE_PICKER_OPTIONS,
   PROJECT_LEVEL_PICKER_OPTIONS,
   projectCode,
   type EmployeeTag,
@@ -55,6 +54,7 @@ export default function ProjectDetailEditor({
   onDraftChange,
   onLeaderChange,
   onRoleMembersChange,
+  onProjectTasksChanged,
   onToast,
 }: {
   editorTitle: string;
@@ -74,6 +74,7 @@ export default function ProjectDetailEditor({
   onDraftChange: <K extends keyof ProjectDraft>(key: K, value: ProjectDraft[K]) => void;
   onLeaderChange: (option?: FkFieldOption) => void;
   onRoleMembersChange: (role: MultiProjectRole, members: EmployeeTag[]) => void;
+  onProjectTasksChanged: (projectId: number | null) => void;
   onToast: (toast: { type: "success" | "error"; message: string }) => void;
 }) {
   const [activeTab, setActiveTab] = useState("overview");
@@ -161,23 +162,12 @@ export default function ProjectDetailEditor({
                   </FormField>
                   <OptionField label="项目级别" value={draft.projectLevel || "普通"} options={PROJECT_LEVEL_PICKER_OPTIONS} disabled={!canEditCurrent} onChange={(value) => onDraftChange("projectLevel", value || "普通")} />
                   <DateField label="立项日期" value={draft.startDate} disabled={!canEditCurrent} onChange={(value) => onDraftChange("startDate", value)} />
-                  <DateField
-                    label="结项日期"
-                    value={draft.endDate}
+                  <DateField label="结项日期" value={draft.endDate} disabled={!canEditCurrent} onChange={(value) => onDraftChange("endDate", value)} />
+                  <PercentField
+                    label="完成度"
+                    value={draft.completionPercent}
                     disabled={!canEditCurrent}
-                    onChange={(value) => {
-                      onDraftChange("endDate", value);
-                      if (!value) onDraftChange("closureType", null);
-                    }}
-                  />
-                  <OptionField
-                    label="结项方式"
-                    value={draft.closureType || ""}
-                    options={PROJECT_CLOSURE_TYPE_PICKER_OPTIONS}
-                    disabled={!canEditCurrent}
-                    placeholder="未结项"
-                    onChange={(value) => onDraftChange("closureType", value || null)}
-                    popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-56 rounded-lg border border-slate-200 bg-white p-3 shadow-xl"
+                    onChange={(value) => onDraftChange("completionPercent", value)}
                   />
                   <FormField label="项目描述" className="md:col-span-2">
                     <TextareaField
@@ -236,6 +226,7 @@ export default function ProjectDetailEditor({
                 canEdit={canEditCurrent}
                 disabled={saving || creating}
                 onToast={onToast}
+                onChanged={() => onProjectTasksChanged(draft.id)}
               />
 
             </>
@@ -250,6 +241,42 @@ export default function ProjectDetailEditor({
         </div>
       )}
     </PanelCard>
+  );
+}
+
+function PercentField({
+  label,
+  value,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  value: number | null;
+  disabled: boolean;
+  onChange: (value: number | null) => void;
+}) {
+  return (
+    <FormField label={label}>
+      <div className="flex">
+        <TextField
+          value={value === null || value === undefined ? "" : String(value)}
+          type="number"
+          min={0}
+          step="0.01"
+          inputMode="decimal"
+          disabled={disabled}
+          placeholder="输入完成度"
+          onChange={(nextValue) => {
+            if (nextValue.trim() === "") return onChange(null);
+            const number = Number(nextValue);
+            onChange(Number.isFinite(number) ? number : value ?? null);
+          }}
+          className={`${inputClassName} rounded-r-none`}
+          unstyled
+        />
+        <span className="flex h-10 w-12 items-center justify-center rounded-r-md border border-l-0 border-sky-200 bg-slate-50 text-sm font-semibold text-slate-500 shadow-sm">%</span>
+      </div>
+    </FormField>
   );
 }
 

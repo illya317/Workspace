@@ -70,7 +70,6 @@ async function buildSessionUser(userId: number, expectedSessionVersion?: number)
     ...activeVisibleWrite,
   ]);
 
-
   const manageableKeys = await getManageableResourceKeys(userId);
 
   return {

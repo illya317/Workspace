@@ -14,6 +14,7 @@ model Project {
   remark              String?
   startDate           DateTime?
   endDate             DateTime?
+  completionPercent   Float?
   closureType         String?
   leadingDepartmentId Int?
   isArchived          Boolean               @default(false)
@@ -31,6 +32,7 @@ model Project {
   planDependencies    ProjectPlanDependency[] @relation("ProjectPlanDependencies")
   planBaselines       ProjectPlanBaseline[]  @relation("ProjectPlanBaselines")
   workAssignees       ProjectWorkAssignee[]
+  linkedWorkItems     WorkItem[]             @relation("WorkItemLinkedProject")
 
   @@index([leadingDepartmentId])
 }
@@ -162,6 +164,7 @@ model ProjectTask {
   planPhase         ProjectPlanPhase? @relation("ProjectTaskPlanPhase", fields: [planPhaseId], references: [id], onDelete: SetNull)
   owner             Employee?     @relation("ProjectTaskOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull)
   assignees         ProjectTaskAssignment[]
+  linkedWorkItems   WorkItem[]    @relation("WorkItemLinkedProjectTask")
 
   @@index([projectId, sortOrder])
   @@index([planPhaseId])

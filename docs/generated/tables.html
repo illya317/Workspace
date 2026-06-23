@@ -74,7 +74,7 @@
 </button>
 <nav>
 <h1>HR Database Schema</h1>
-<p style="font-size:12px;color:#94a3b8;margin-bottom:20px">42 tables</p>
+<p style="font-size:12px;color:#94a3b8;margin-bottom:20px">80 tables</p>
 
 <div class="group"><div class="group-title">1. System</div>
 <a href="#User">1-1 User</a>
@@ -88,57 +88,52 @@
 <a href="#PositionResourceRole">2-4 PositionResourceRole</a>
 <a href="#DepartmentResourceRole">2-5 DepartmentResourceRole</a>
 </div>
-<div class="group"><div class="group-title">3. Reports</div>
-<a href="#Report">3-1 Report</a>
-<a href="#ReportItem">3-2 ReportItem</a>
-<a href="#ReportHistory">3-3 ReportHistory</a>
-</div>
-<div class="group"><div class="group-title">4. Tasks</div>
-<a href="#WorkItem">4-1 WorkItem</a>
-<a href="#WorkParticipant">4-2 WorkParticipant</a>
+<div class="group"><div class="group-title">3. Tasks</div>
+<a href="#WorkItem">3-1 WorkItem</a>
+<a href="#WorkParticipant">3-2 WorkParticipant</a>
 </div>
 <div class="group"><div class="group-title">5. Roster & Org</div>
-<a href="#Employee">5-1 Employee</a>
-<a href="#Employment">5-2 Employment</a>
-<a href="#Company">5-3 Company</a>
-<a href="#CompanyRelation">5-4 CompanyRelation</a>
-<a href="#Department">5-5 Department</a>
-<a href="#Position">5-6 Position</a>
-<a href="#EDP">5-7 EDP</a>
-<a href="#Project">5-8 Project</a>
-<a href="#EmployeeProject">5-9 EmployeeProject</a>
+<a href="#Employee">4-1 Employee</a>
+<a href="#Employment">4-2 Employment</a>
+<a href="#Company">4-3 Company</a>
+<a href="#CompanyRelation">4-4 CompanyRelation</a>
+<a href="#Department">4-5 Department</a>
+<a href="#Position">4-6 Position</a>
+<a href="#EDP">4-7 EDP</a>
+<a href="#Project">4-8 Project</a>
+<a href="#EmployeeProject">4-9 EmployeeProject</a>
 </div>
 <div class="group"><div class="group-title">6. 岗位说明书</div>
-<a href="#PositionDescription">6-1 PositionDescription</a>
+<a href="#PositionDescription">5-1 PositionDescription</a>
 </div>
 <div class="group"><div class="group-title">7. Edit History</div>
-<a href="#EditHistory">7-1 EditHistory</a>
+<a href="#EditHistory">6-1 EditHistory</a>
 </div>
 <div class="group"><div class="group-title">8. 财务报表</div>
-<a href="#FinanceAccount">8-1 FinanceAccount</a>
-<a href="#FinancePeriod">8-2 FinancePeriod</a>
-<a href="#FinanceVoucher">8-3 FinanceVoucher</a>
-<a href="#FinanceVoucherItem">8-4 FinanceVoucherItem</a>
-<a href="#FinanceAccountBalance">8-5 FinanceAccountBalance</a>
+<a href="#FinanceAccount">7-1 FinanceAccount</a>
+<a href="#FinancePeriod">7-2 FinancePeriod</a>
+<a href="#FinanceVoucher">7-3 FinanceVoucher</a>
+<a href="#FinanceVoucherItem">7-4 FinanceVoucherItem</a>
+<a href="#FinanceAccountBalance">7-5 FinanceAccountBalance</a>
 </div>
 <div class="group"><div class="group-title">9. 成本表</div>
-<a href="#FinanceDataImport">9-1 FinanceDataImport</a>
-<a href="#FinanceShipment">9-2 FinanceShipment</a>
-<a href="#FinanceSalesSalary">9-3 FinanceSalesSalary</a>
-<a href="#FinanceCostStructureRow">9-4 FinanceCostStructureRow</a>
-<a href="#FinanceCostAnalysisRow">9-5 FinanceCostAnalysisRow</a>
-<a href="#FinanceWorkshopReport">9-6 FinanceWorkshopReport</a>
+<a href="#FinanceDataImport">8-1 FinanceDataImport</a>
+<a href="#FinanceShipment">8-2 FinanceShipment</a>
+<a href="#FinanceSalesSalary">8-3 FinanceSalesSalary</a>
+<a href="#FinanceCostStructureRow">8-4 FinanceCostStructureRow</a>
+<a href="#FinanceCostAnalysisRow">8-5 FinanceCostAnalysisRow</a>
+<a href="#FinanceWorkshopReport">8-6 FinanceWorkshopReport</a>
 </div>
 <div class="group"><div class="group-title">10. Inventory</div>
-<a href="#StockRawMaterial">10-1 StockRawMaterial</a>
-<a href="#StockPackaging">10-2 StockPackaging</a>
-<a href="#StockFinishedGoods">10-3 StockFinishedGoods</a>
-<a href="#StockBatch">10-4 StockBatch</a>
-<a href="#StockOperation">10-5 StockOperation</a>
-<a href="#StockReturn">10-6 StockReturn</a>
+<a href="#StockRawMaterial">9-1 StockRawMaterial</a>
+<a href="#StockPackaging">9-2 StockPackaging</a>
+<a href="#StockFinishedGoods">9-3 StockFinishedGoods</a>
+<a href="#StockBatch">9-4 StockBatch</a>
+<a href="#StockOperation">9-5 StockOperation</a>
+<a href="#StockReturn">9-6 StockReturn</a>
 </div>
 <div class="group"><div class="group-title">11. Contract</div>
-<a href="#Contract">11-1 Contract</a>
+<a href="#Contract">10-1 Contract</a>
 </div>
 <div class="legend">
   <span><span class="legend-swatch" style="background:#10b981"></span> PK</span>
@@ -175,7 +170,7 @@
     <td class="field-comment"></td>
   </tr>
   <tr>
-    <td><span class="field-name">name</span> <span class="field-required">*</span></td>
+    <td><span class="field-name">nickname</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment"></td>
   </tr>
@@ -222,17 +217,27 @@
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <a href="#UserResourceRole" class="dep-link">2-3 UserResourceRole</a>
-<a href="#Contract" class="dep-link">11-1 Contract</a>
-<a href="#FinanceAccount" class="dep-link">8-1 FinanceAccount</a>
-<a href="#FinanceVoucher" class="dep-link">8-3 FinanceVoucher</a>
-<a href="#Employee" class="dep-link">5-1 Employee</a>
-<a href="#Department" class="dep-link">5-5 Department</a>
-<a href="#EditHistory" class="dep-link">7-1 EditHistory</a>
-<a href="#StockRawMaterial" class="dep-link">10-1 StockRawMaterial</a>
-<a href="#StockPackaging" class="dep-link">10-2 StockPackaging</a>
-<a href="#StockFinishedGoods" class="dep-link">10-3 StockFinishedGoods</a>
-<a href="#StockOperation" class="dep-link">10-5 StockOperation</a>
-<a href="#Report" class="dep-link">3-1 Report</a>
+<a href="#Notification" class="dep-link"> Notification</a>
+<a href="#Contract" class="dep-link">10-1 Contract</a>
+<a href="#FinanceAccount" class="dep-link">7-1 FinanceAccount</a>
+<a href="#FinanceVoucher" class="dep-link">7-3 FinanceVoucher</a>
+<a href="#FinanceLedgerImport" class="dep-link"> FinanceLedgerImport</a>
+<a href="#FinanceBalanceSnapshot" class="dep-link"> FinanceBalanceSnapshot</a>
+<a href="#FinanceReclassRule" class="dep-link"> FinanceReclassRule</a>
+<a href="#ReclassResult" class="dep-link"> ReclassResult</a>
+<a href="#FinanceStatementWorkpaper" class="dep-link"> FinanceStatementWorkpaper</a>
+<a href="#FinanceStatementReview" class="dep-link"> FinanceStatementReview</a>
+<a href="#Employee" class="dep-link">4-1 Employee</a>
+<a href="#Department" class="dep-link">4-5 Department</a>
+<a href="#EditHistory" class="dep-link">6-1 EditHistory</a>
+<a href="#StockRawMaterial" class="dep-link">9-1 StockRawMaterial</a>
+<a href="#StockPackaging" class="dep-link">9-2 StockPackaging</a>
+<a href="#StockFinishedGoods" class="dep-link">9-3 StockFinishedGoods</a>
+<a href="#StockOperation" class="dep-link">9-5 StockOperation</a>
+<a href="#LibraryDocument" class="dep-link"> LibraryDocument</a>
+<a href="#DepartmentWorkAssignee" class="dep-link"> DepartmentWorkAssignee</a>
+<a href="#ProjectWorkAssignee" class="dep-link"> ProjectWorkAssignee</a>
+<a href="#WorkScopePermission" class="dep-link"> WorkScopePermission</a>
 </div>
 </div>
 </div>
@@ -340,6 +345,21 @@
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
     <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Resource" class="dep-link">2-1 Resource</a></span></td>
   </tr>
+  <tr>
+    <td><span class="field-name">maxRoleKey</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">scopeTypes</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">scopeInheritanceMode</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
 </tbody></table>
 <div class="table-footer">
 <div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">UK: key</span><span class="constraint-tag">FK: parentId → Resource</span></div>
@@ -355,7 +375,7 @@
 </div>
 </div>
 <div class="table-block" id="Role">
-<div class="table-header"><h3><span class="table-num">2-2</span> Role</h3><p class="table-desc">RBAC 角色定义</p></div>
+<div class="table-header"><h3><span class="table-num">2-2</span> Role</h3><p class="table-desc">该资源可授予的最高角色：access | write | delete | admin 逗号分隔的 scope 类型，如 &quot;department,project&quot;。null 表示不支持 scoped 授权 权限继承模式：inherit=查祖先, self_only=数据权限只查自身（父资源仅做入口） RBAC 角色定义</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border ref-underline">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span><span class="kb ref">R</span></td>
@@ -447,7 +467,7 @@
   <tr class="uk-border uk-bg fk-underline">
     <td><span class="field-name">positionId</span> <span class="field-required">*</span><span class="kb uk">U₁</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Position" class="dep-link">5-6 Position</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Position" class="dep-link">4-6 Position</a></span></td>
   </tr>
   <tr class="uk-border uk-bg fk-underline">
     <td><span class="field-name">resourceId</span> <span class="field-required">*</span><span class="kb uk">U₂</span><span class="kb fk">F</span></td>
@@ -468,7 +488,7 @@
 <div class="table-footer">
 <div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">Unique[1]: (positionId, resourceId, roleId, scopeId)</span><span class="constraint-tag">FK: positionId → Position, resourceId → Resource, roleId → Role</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#Position" class="dep-link">5-6 Position</a>
+<a href="#Position" class="dep-link">4-6 Position</a>
 <a href="#Resource" class="dep-link">2-1 Resource</a>
 <a href="#Role" class="dep-link">2-2 Role</a>
 </div>
@@ -488,7 +508,7 @@
   <tr class="uk-border uk-bg fk-underline">
     <td><span class="field-name">departmentId</span> <span class="field-required">*</span><span class="kb uk">U₁</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Department" class="dep-link">5-5 Department</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Department" class="dep-link">4-5 Department</a></span></td>
   </tr>
   <tr class="uk-border uk-bg fk-underline">
     <td><span class="field-name">resourceId</span> <span class="field-required">*</span><span class="kb uk">U₂</span><span class="kb fk">F</span></td>
@@ -509,7 +529,7 @@
 <div class="table-footer">
 <div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">Unique[1]: (departmentId, resourceId, roleId, scopeId)</span><span class="constraint-tag">FK: departmentId → Department, resourceId → Resource, roleId → Role</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#Department" class="dep-link">5-5 Department</a>
+<a href="#Department" class="dep-link">4-5 Department</a>
 <a href="#Resource" class="dep-link">2-1 Resource</a>
 <a href="#Role" class="dep-link">2-2 Role</a>
 </div>
@@ -520,181 +540,9 @@
 </div>
 </div>
 
-<div class="section"><div class="section-title">3. Reports</div>
-<div class="table-block" id="Report">
-<div class="table-header"><h3><span class="table-num">3-1</span> Report</h3><p class="table-desc">周报/日报主表</p></div>
-<table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
-  <tr class="pk-border ref-underline">
-    <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span><span class="kb ref">R</span></td>
-    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr class="uk-border uk-bg fk-underline">
-    <td><span class="field-name">userId</span><span class="kb uk">U₁</span><span class="kb fk">F</span></td>
-    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#User" class="dep-link">1-1 User</a></span></td>
-  </tr>
-  <tr class="uk-border uk-bg">
-    <td><span class="field-name">targetType</span> <span class="field-required">*</span><span class="kb uk">U₂</span></td>
-    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr class="uk-border uk-bg">
-    <td><span class="field-name">targetId</span> <span class="field-required">*</span><span class="kb uk">U₃</span></td>
-    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr class="uk-border uk-bg">
-    <td><span class="field-name">date</span> <span class="field-required">*</span><span class="kb uk">U₄</span></td>
-    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr>
-    <td><span class="field-name">taskName</span> <span class="field-required">*</span></td>
-    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr>
-    <td><span class="field-name">notes</span></td>
-    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr>
-    <td><span class="field-name">editedBy</span></td>
-    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr>
-    <td><span class="field-name">editedAt</span></td>
-    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr>
-    <td><span class="field-name">version</span> <span class="field-required">*</span></td>
-    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"></td>
-  </tr>
-</tbody></table>
-<div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">Unique[1]: (userId, targetType, targetId, date)</span><span class="constraint-tag">FK: userId → User</span></div>
-<div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#User" class="dep-link">1-1 User</a>
-</div>
-<div class="dep-in"><span class="dep-label">Referenced by:</span>
-<a href="#ReportItem" class="dep-link">3-2 ReportItem</a>
-<a href="#ReportHistory" class="dep-link">3-3 ReportHistory</a>
-</div>
-</div>
-</div>
-<div class="table-block" id="ReportItem">
-<div class="table-header"><h3><span class="table-num">3-2</span> ReportItem</h3><p class="table-desc">周报条目明细</p></div>
-<table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
-  <tr class="pk-border">
-    <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
-    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr class="fk-underline">
-    <td><span class="field-name">reportId</span> <span class="field-required">*</span><span class="kb fk">F</span></td>
-    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Report" class="dep-link">3-1 Report</a></span></td>
-  </tr>
-  <tr>
-    <td><span class="field-name">category</span> <span class="field-required">*</span></td>
-    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr>
-    <td><span class="field-name">plan</span> <span class="field-required">*</span></td>
-    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr>
-    <td><span class="field-name">completion</span></td>
-    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr>
-    <td><span class="field-name">nextGoal</span></td>
-    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr>
-    <td><span class="field-name">sortOrder</span> <span class="field-required">*</span></td>
-    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr class="fk-underline">
-    <td><span class="field-name">workItemId</span><span class="kb fk">F</span></td>
-    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#WorkItem" class="dep-link">4-1 WorkItem</a></span></td>
-  </tr>
-</tbody></table>
-<div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: reportId → Report, workItemId → WorkItem</span></div>
-<div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#Report" class="dep-link">3-1 Report</a>
-<a href="#WorkItem" class="dep-link">4-1 WorkItem</a>
-</div>
-<div class="dep-in"><span class="dep-label">Referenced by:</span>
-<span class="dep-none">无</span>
-</div>
-</div>
-</div>
-<div class="table-block" id="ReportHistory">
-<div class="table-header"><h3><span class="table-num">3-3</span> ReportHistory</h3><p class="table-desc">周报历史版本快照</p></div>
-<table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
-  <tr class="pk-border">
-    <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
-    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr class="uk-border uk-bg fk-underline">
-    <td><span class="field-name">reportId</span> <span class="field-required">*</span><span class="kb uk">U₁</span><span class="kb fk">F</span></td>
-    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Report" class="dep-link">3-1 Report</a></span></td>
-  </tr>
-  <tr class="uk-border uk-bg">
-    <td><span class="field-name">version</span> <span class="field-required">*</span><span class="kb uk">U₂</span></td>
-    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr>
-    <td><span class="field-name">taskName</span> <span class="field-required">*</span></td>
-    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr>
-    <td><span class="field-name">notes</span></td>
-    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr>
-    <td><span class="field-name">itemsJson</span> <span class="field-required">*</span></td>
-    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr>
-    <td><span class="field-name">createdAt</span> <span class="field-required">*</span></td>
-    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
-    <td class="field-comment"></td>
-  </tr>
-</tbody></table>
-<div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">Unique[1]: (reportId, version)</span><span class="constraint-tag">FK: reportId → Report</span></div>
-<div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#Report" class="dep-link">3-1 Report</a>
-</div>
-<div class="dep-in"><span class="dep-label">Referenced by:</span>
-<span class="dep-none">无</span>
-</div>
-</div>
-</div>
-</div>
-
-<div class="section"><div class="section-title">4. Tasks</div>
+<div class="section"><div class="section-title">3. Tasks</div>
 <div class="table-block" id="WorkItem">
-<div class="table-header"><h3><span class="table-num">4-1</span> WorkItem</h3><p class="table-desc">工作清单条目</p></div>
+<div class="table-header"><h3><span class="table-num">3-1</span> WorkItem</h3><p class="table-desc">工作清单条目</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border ref-underline">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span><span class="kb ref">R</span></td>
@@ -722,6 +570,11 @@
     <td class="field-comment"></td>
   </tr>
   <tr>
+    <td><span class="field-name">description</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
     <td><span class="field-name">importance</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
     <td class="field-comment"></td>
@@ -730,6 +583,41 @@
     <td><span class="field-name">urgency</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
     <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">status</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr class="fk-underline">
+    <td><span class="field-name">ownerEmployeeId</span><span class="kb fk">F</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Employee" class="dep-link">4-1 Employee</a></span></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">startDate</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">dueDate</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr class="fk-underline">
+    <td><span class="field-name">linkedProjectId</span><span class="kb fk">F</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Project" class="dep-link">4-8 Project</a></span></td>
+  </tr>
+  <tr class="fk-underline">
+    <td><span class="field-name">linkedProjectTaskId</span><span class="kb fk">F</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#ProjectTask" class="dep-link">ProjectTask</a></span></td>
+  </tr>
+  <tr class="fk-underline">
+    <td><span class="field-name">parentWorkItemId</span><span class="kb fk">F</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#WorkItem" class="dep-link">3-1 WorkItem</a></span></td>
   </tr>
   <tr>
     <td><span class="field-name">isArchived</span> <span class="field-required">*</span></td>
@@ -753,18 +641,21 @@
   </tr>
 </tbody></table>
 <div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span></div>
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: ownerEmployeeId → Employee, linkedProjectId → Project, linkedProjectTaskId → ProjectTask, parentWorkItemId → WorkItem</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<span class="dep-none">无</span>
+<a href="#Employee" class="dep-link">4-1 Employee</a>
+<a href="#Project" class="dep-link">4-8 Project</a>
+<a href="#ProjectTask" class="dep-link"> ProjectTask</a>
+<a href="#WorkItem" class="dep-link">3-1 WorkItem</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
-<a href="#ReportItem" class="dep-link">3-2 ReportItem</a>
-<a href="#WorkParticipant" class="dep-link">4-2 WorkParticipant</a>
+<a href="#WorkItem" class="dep-link">3-1 WorkItem</a>
+<a href="#WorkParticipant" class="dep-link">3-2 WorkParticipant</a>
 </div>
 </div>
 </div>
 <div class="table-block" id="WorkParticipant">
-<div class="table-header"><h3><span class="table-num">4-2</span> WorkParticipant</h3><p class="table-desc">工作清单参与人</p></div>
+<div class="table-header"><h3><span class="table-num">3-2</span> WorkParticipant</h3><p class="table-desc">工作清单参与人</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
@@ -774,7 +665,7 @@
   <tr class="fk-underline">
     <td><span class="field-name">workItemId</span> <span class="field-required">*</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#WorkItem" class="dep-link">4-1 WorkItem</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#WorkItem" class="dep-link">3-1 WorkItem</a></span></td>
   </tr>
   <tr>
     <td><span class="field-name">name</span> <span class="field-required">*</span></td>
@@ -795,7 +686,7 @@
 <div class="table-footer">
 <div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: workItemId → WorkItem</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#WorkItem" class="dep-link">4-1 WorkItem</a>
+<a href="#WorkItem" class="dep-link">3-1 WorkItem</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <span class="dep-none">无</span>
@@ -806,7 +697,7 @@
 
 <div class="section"><div class="section-title">5. Roster & Org</div>
 <div class="table-block" id="Employee">
-<div class="table-header"><h3><span class="table-num">5-1</span> Employee</h3><p class="table-desc">员工基础信息</p></div>
+<div class="table-header"><h3><span class="table-num">4-1</span> Employee</h3><p class="table-desc">员工基础信息</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border ref-underline">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span><span class="kb ref">R</span></td>
@@ -930,17 +821,20 @@
 <a href="#User" class="dep-link">1-1 User</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
-<a href="#FinanceShipment" class="dep-link">9-2 FinanceShipment</a>
-<a href="#FinanceSalesSalary" class="dep-link">9-3 FinanceSalesSalary</a>
-<a href="#FinanceWorkshopReport" class="dep-link">9-6 FinanceWorkshopReport</a>
-<a href="#Employment" class="dep-link">5-2 Employment</a>
-<a href="#EDP" class="dep-link">5-7 EDP</a>
-<a href="#EmployeeProject" class="dep-link">5-9 EmployeeProject</a>
+<a href="#FinanceShipment" class="dep-link">8-2 FinanceShipment</a>
+<a href="#FinanceSalesSalary" class="dep-link">8-3 FinanceSalesSalary</a>
+<a href="#FinanceWorkshopReport" class="dep-link">8-6 FinanceWorkshopReport</a>
+<a href="#Employment" class="dep-link">4-2 Employment</a>
+<a href="#EDP" class="dep-link">4-7 EDP</a>
+<a href="#EmployeeProject" class="dep-link">4-9 EmployeeProject</a>
+<a href="#ProjectTask" class="dep-link"> ProjectTask</a>
+<a href="#ProjectTaskAssignment" class="dep-link"> ProjectTaskAssignment</a>
+<a href="#WorkItem" class="dep-link">3-1 WorkItem</a>
 </div>
 </div>
 </div>
 <div class="table-block" id="Employment">
-<div class="table-header"><h3><span class="table-num">5-2</span> Employment</h3><p class="table-desc">员工雇佣信息（在职状态、入职/离职日期等事实字段）</p></div>
+<div class="table-header"><h3><span class="table-num">4-2</span> Employment</h3><p class="table-desc">员工雇佣信息（在职状态、入职/离职日期等事实字段）</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
@@ -950,7 +844,7 @@
   <tr class="fk-underline">
     <td><span class="field-name">employeeId</span> <span class="field-required">*</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Employee" class="dep-link">5-1 Employee</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Employee" class="dep-link">4-1 Employee</a></span></td>
   </tr>
   <tr>
     <td><span class="field-name">isActive</span> <span class="field-required">*</span></td>
@@ -978,12 +872,32 @@
     <td class="field-comment"></td>
   </tr>
   <tr>
+    <td><span class="field-name">leaveNote</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
     <td><span class="field-name">officeLocation</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">attendanceType</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">personnelType</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">rank</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">title</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment"></td>
   </tr>
@@ -1011,7 +925,7 @@
 <div class="table-footer">
 <div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: employeeId → Employee</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#Employee" class="dep-link">5-1 Employee</a>
+<a href="#Employee" class="dep-link">4-1 Employee</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <span class="dep-none">无</span>
@@ -1019,7 +933,7 @@
 </div>
 </div>
 <div class="table-block" id="Company">
-<div class="table-header"><h3><span class="table-num">5-3</span> Company</h3><p class="table-desc">公司实体</p></div>
+<div class="table-header"><h3><span class="table-num">4-3</span> Company</h3><p class="table-desc">公司实体（唯一真相源：编码/名称/管理体系/编码池/启用状态）</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border ref-underline">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span><span class="kb ref">R</span></td>
@@ -1072,8 +986,18 @@
     <td class="field-comment"></td>
   </tr>
   <tr>
-    <td><span class="field-name">queryGroup</span></td>
-    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td><span class="field-name">managementGroup</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">codePoolCode</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">isActive</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#7c3aed15;color:#7c3aed">bool</span></td>
     <td class="field-comment"></td>
   </tr>
   <tr>
@@ -1113,12 +1037,12 @@
 <span class="dep-none">无</span>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
-<a href="#CompanyRelation" class="dep-link">5-4 CompanyRelation</a>
+<a href="#CompanyRelation" class="dep-link">4-4 CompanyRelation</a>
 </div>
 </div>
 </div>
 <div class="table-block" id="CompanyRelation">
-<div class="table-header"><h3><span class="table-num">5-4</span> CompanyRelation</h3><p class="table-desc">公司间持股关系</p></div>
+<div class="table-header"><h3><span class="table-num">4-4</span> CompanyRelation</h3><p class="table-desc">公司间持股关系</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
@@ -1128,12 +1052,12 @@
   <tr class="uk-border uk-bg fk-underline">
     <td><span class="field-name">parentId</span> <span class="field-required">*</span><span class="kb uk">U₁</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Company" class="dep-link">5-3 Company</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Company" class="dep-link">4-3 Company</a></span></td>
   </tr>
   <tr class="uk-border uk-bg fk-underline">
     <td><span class="field-name">childId</span> <span class="field-required">*</span><span class="kb uk">U₂</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Company" class="dep-link">5-3 Company</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Company" class="dep-link">4-3 Company</a></span></td>
   </tr>
   <tr>
     <td><span class="field-name">shareRatio</span></td>
@@ -1159,7 +1083,7 @@
 <div class="table-footer">
 <div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">Unique[1]: (parentId, childId)</span><span class="constraint-tag">FK: parentId → Company, childId → Company</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#Company" class="dep-link">5-3 Company</a>
+<a href="#Company" class="dep-link">4-3 Company</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <span class="dep-none">无</span>
@@ -1167,7 +1091,7 @@
 </div>
 </div>
 <div class="table-block" id="Department">
-<div class="table-header"><h3><span class="table-num">5-5</span> Department</h3><p class="table-desc">部门树（含层级关系与负责人）</p></div>
+<div class="table-header"><h3><span class="table-num">4-5</span> Department</h3><p class="table-desc">部门树（含层级关系与负责人）</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border ref-underline">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span><span class="kb ref">R</span></td>
@@ -1197,12 +1121,22 @@
   <tr class="fk-underline">
     <td><span class="field-name">parentId</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Department" class="dep-link">5-5 Department</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Department" class="dep-link">4-5 Department</a></span></td>
   </tr>
   <tr class="fk-underline">
     <td><span class="field-name">managerUserId</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
     <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#User" class="dep-link">1-1 User</a></span></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">isArchived</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#7c3aed15;color:#7c3aed">bool</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">archivedAt</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">endDate</span></td>
@@ -1228,19 +1162,22 @@
 <div class="table-footer">
 <div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: parentId → Department, managerUserId → User</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#Department" class="dep-link">5-5 Department</a>
+<a href="#Department" class="dep-link">4-5 Department</a>
 <a href="#User" class="dep-link">1-1 User</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <a href="#DepartmentResourceRole" class="dep-link">2-5 DepartmentResourceRole</a>
-<a href="#Department" class="dep-link">5-5 Department</a>
-<a href="#Position" class="dep-link">5-6 Position</a>
-<a href="#EDP" class="dep-link">5-7 EDP</a>
+<a href="#DepartmentDescription" class="dep-link"> DepartmentDescription</a>
+<a href="#Department" class="dep-link">4-5 Department</a>
+<a href="#Position" class="dep-link">4-6 Position</a>
+<a href="#EDP" class="dep-link">4-7 EDP</a>
+<a href="#Project" class="dep-link">4-8 Project</a>
+<a href="#DepartmentWorkAssignee" class="dep-link"> DepartmentWorkAssignee</a>
 </div>
 </div>
 </div>
 <div class="table-block" id="Position">
-<div class="table-header"><h3><span class="table-num">5-6</span> Position</h3><p class="table-desc">岗位定义</p></div>
+<div class="table-header"><h3><span class="table-num">4-6</span> Position</h3><p class="table-desc">岗位定义</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border ref-underline">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span><span class="kb ref">R</span></td>
@@ -1265,12 +1202,22 @@
   <tr class="fk-underline">
     <td><span class="field-name">departmentId</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Department" class="dep-link">5-5 Department</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Department" class="dep-link">4-5 Department</a></span></td>
   </tr>
   <tr class="fk-underline">
     <td><span class="field-name">positionDescriptionId</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#PositionDescription" class="dep-link">6-1 PositionDescription</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#PositionDescription" class="dep-link">5-1 PositionDescription</a></span></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">isArchived</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#7c3aed15;color:#7c3aed">bool</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">archivedAt</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">endDate</span></td>
@@ -1296,18 +1243,18 @@
 <div class="table-footer">
 <div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: departmentId → Department, positionDescriptionId → PositionDescription</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#Department" class="dep-link">5-5 Department</a>
-<a href="#PositionDescription" class="dep-link">6-1 PositionDescription</a>
+<a href="#Department" class="dep-link">4-5 Department</a>
+<a href="#PositionDescription" class="dep-link">5-1 PositionDescription</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <a href="#PositionResourceRole" class="dep-link">2-4 PositionResourceRole</a>
-<a href="#FinanceWorkshopReport" class="dep-link">9-6 FinanceWorkshopReport</a>
-<a href="#EDP" class="dep-link">5-7 EDP</a>
+<a href="#FinanceWorkshopReport" class="dep-link">8-6 FinanceWorkshopReport</a>
+<a href="#EDP" class="dep-link">4-7 EDP</a>
 </div>
 </div>
 </div>
 <div class="table-block" id="EDP">
-<div class="table-header"><h3><span class="table-num">5-7</span> EDP</h3><p class="table-desc">员工-部门-岗位关联（EmployeePosition 别名）</p></div>
+<div class="table-header"><h3><span class="table-num">4-7</span> EDP</h3><p class="table-desc">员工-部门-岗位关联（EmployeePosition 别名）</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
@@ -1317,17 +1264,17 @@
   <tr class="fk-underline">
     <td><span class="field-name">employeeId</span> <span class="field-required">*</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Employee" class="dep-link">5-1 Employee</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Employee" class="dep-link">4-1 Employee</a></span></td>
   </tr>
   <tr class="fk-underline">
     <td><span class="field-name">departmentId</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Department" class="dep-link">5-5 Department</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Department" class="dep-link">4-5 Department</a></span></td>
   </tr>
   <tr class="fk-underline">
     <td><span class="field-name">positionId</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Position" class="dep-link">5-6 Position</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Position" class="dep-link">4-6 Position</a></span></td>
   </tr>
   <tr>
     <td><span class="field-name">isPrimary</span> <span class="field-required">*</span></td>
@@ -1345,38 +1292,13 @@
     <td class="field-comment"></td>
   </tr>
   <tr>
-    <td><span class="field-name">personnelType</span></td>
-    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr>
-    <td><span class="field-name">rank</span></td>
-    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr>
-    <td><span class="field-name">title</span></td>
-    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr>
     <td><span class="field-name">reportTo</span></td>
-    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr>
-    <td><span class="field-name">reportTo2</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">workPercent</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment"></td>
-  </tr>
-  <tr>
-    <td><span class="field-name">isResearch</span></td>
-    <td><span class="field-type" style="background:#7c3aed15;color:#7c3aed">bool</span></td>
     <td class="field-comment"></td>
   </tr>
   <tr>
@@ -1398,9 +1320,9 @@
 <div class="table-footer">
 <div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: employeeId → Employee, departmentId → Department, positionId → Position</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#Employee" class="dep-link">5-1 Employee</a>
-<a href="#Department" class="dep-link">5-5 Department</a>
-<a href="#Position" class="dep-link">5-6 Position</a>
+<a href="#Employee" class="dep-link">4-1 Employee</a>
+<a href="#Department" class="dep-link">4-5 Department</a>
+<a href="#Position" class="dep-link">4-6 Position</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <span class="dep-none">无</span>
@@ -1408,20 +1330,20 @@
 </div>
 </div>
 <div class="table-block" id="Project">
-<div class="table-header"><h3><span class="table-num">5-8</span> Project</h3><p class="table-desc">项目/虚拟团队</p></div>
+<div class="table-header"><h3><span class="table-num">4-8</span> Project</h3><p class="table-desc">项目/虚拟团队</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border ref-underline">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span><span class="kb ref">R</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
     <td class="field-comment"></td>
   </tr>
-  <tr>
-    <td><span class="field-name">name</span> <span class="field-required">*</span></td>
+  <tr class="uk-border uk-bg">
+    <td><span class="field-name">code</span><span class="kb uk">U</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment"></td>
   </tr>
   <tr>
-    <td><span class="field-name">type</span> <span class="field-required">*</span></td>
+    <td><span class="field-name">name</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment"></td>
   </tr>
@@ -1431,8 +1353,83 @@
     <td class="field-comment"></td>
   </tr>
   <tr>
+    <td><span class="field-name">projectLevel</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">plan</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">goal</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">milestones</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">budgetAmount</span></td>
+    <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">budgetNote</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">riskNote</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">remark</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">startDate</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
     <td><span class="field-name">endDate</span></td>
     <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">completionPercent</span></td>
+    <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">closureType</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr class="fk-underline">
+    <td><span class="field-name">leadingDepartmentId</span><span class="kb fk">F</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Department" class="dep-link">4-5 Department</a></span></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">isArchived</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#7c3aed15;color:#7c3aed">bool</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">archivedAt</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">createdBy</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
     <td class="field-comment"></td>
   </tr>
   <tr>
@@ -1462,17 +1459,23 @@
   </tr>
 </tbody></table>
 <div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span></div>
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">UK: code</span><span class="constraint-tag">FK: leadingDepartmentId → Department</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<span class="dep-none">无</span>
+<a href="#Department" class="dep-link">4-5 Department</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
-<a href="#EmployeeProject" class="dep-link">5-9 EmployeeProject</a>
+<a href="#EmployeeProject" class="dep-link">4-9 EmployeeProject</a>
+<a href="#ProjectPlanPhase" class="dep-link"> ProjectPlanPhase</a>
+<a href="#ProjectPlanDependency" class="dep-link"> ProjectPlanDependency</a>
+<a href="#ProjectPlanBaseline" class="dep-link"> ProjectPlanBaseline</a>
+<a href="#ProjectTask" class="dep-link"> ProjectTask</a>
+<a href="#WorkItem" class="dep-link">3-1 WorkItem</a>
+<a href="#ProjectWorkAssignee" class="dep-link"> ProjectWorkAssignee</a>
 </div>
 </div>
 </div>
 <div class="table-block" id="EmployeeProject">
-<div class="table-header"><h3><span class="table-num">5-9</span> EmployeeProject</h3><p class="table-desc">员工-项目关联</p></div>
+<div class="table-header"><h3><span class="table-num">4-9</span> EmployeeProject</h3><p class="table-desc">员工-项目关联</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
@@ -1482,12 +1485,12 @@
   <tr class="uk-border uk-bg fk-underline">
     <td><span class="field-name">employeeId</span> <span class="field-required">*</span><span class="kb uk">U₁</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Employee" class="dep-link">5-1 Employee</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Employee" class="dep-link">4-1 Employee</a></span></td>
   </tr>
   <tr class="uk-border uk-bg fk-underline">
     <td><span class="field-name">projectId</span> <span class="field-required">*</span><span class="kb uk">U₂</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Project" class="dep-link">5-8 Project</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Project" class="dep-link">4-8 Project</a></span></td>
   </tr>
   <tr>
     <td><span class="field-name">role</span></td>
@@ -1533,8 +1536,8 @@
 <div class="table-footer">
 <div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">Unique[1]: (employeeId, projectId)</span><span class="constraint-tag">FK: employeeId → Employee, projectId → Project</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#Employee" class="dep-link">5-1 Employee</a>
-<a href="#Project" class="dep-link">5-8 Project</a>
+<a href="#Employee" class="dep-link">4-1 Employee</a>
+<a href="#Project" class="dep-link">4-8 Project</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <span class="dep-none">无</span>
@@ -1545,7 +1548,7 @@
 
 <div class="section"><div class="section-title">6. 岗位说明书</div>
 <div class="table-block" id="PositionDescription">
-<div class="table-header"><h3><span class="table-num">6-1</span> PositionDescription</h3><p class="table-desc">岗位说明书（原始 JSON 导入，details 为 JSON blob）</p></div>
+<div class="table-header"><h3><span class="table-num">5-1</span> PositionDescription</h3><p class="table-desc">岗位说明书（原始 JSON 导入，details 为 JSON blob）</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border ref-underline">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span><span class="kb ref">R</span></td>
@@ -1634,7 +1637,7 @@
 <span class="dep-none">无</span>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
-<a href="#Position" class="dep-link">5-6 Position</a>
+<a href="#Position" class="dep-link">4-6 Position</a>
 </div>
 </div>
 </div>
@@ -1642,7 +1645,7 @@
 
 <div class="section"><div class="section-title">7. Edit History</div>
 <div class="table-block" id="EditHistory">
-<div class="table-header"><h3><span class="table-num">7-1</span> EditHistory</h3><p class="table-desc">实体编辑历史（版本快照）</p></div>
+<div class="table-header"><h3><span class="table-num">6-1</span> EditHistory</h3><p class="table-desc">实体编辑历史（版本快照）</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
@@ -1674,14 +1677,14 @@
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
     <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#User" class="dep-link">1-1 User</a></span></td>
   </tr>
-  <tr class="uk-border uk-bg">
-    <td><span class="field-name">tag</span><span class="kb uk">U₄</span></td>
-    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment"></td>
-  </tr>
   <tr>
     <td><span class="field-name">createdAt</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr class="uk-border uk-bg">
+    <td><span class="field-name">tag</span><span class="kb uk">U₄</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment"></td>
   </tr>
 </tbody></table>
@@ -1699,7 +1702,7 @@
 
 <div class="section"><div class="section-title">8. 财务报表</div>
 <div class="table-block" id="FinanceAccount">
-<div class="table-header"><h3><span class="table-num">8-1</span> FinanceAccount</h3><p class="table-desc">财务科目（含层级）</p></div>
+<div class="table-header"><h3><span class="table-num">7-1</span> FinanceAccount</h3><p class="table-desc">财务科目（含层级）</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border ref-underline">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span><span class="kb ref">R</span></td>
@@ -1724,7 +1727,7 @@
   <tr class="fk-underline">
     <td><span class="field-name">parentId</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceAccount" class="dep-link">8-1 FinanceAccount</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceAccount" class="dep-link">7-1 FinanceAccount</a></span></td>
   </tr>
   <tr>
     <td><span class="field-name">balanceDirection</span> <span class="field-required">*</span></td>
@@ -1737,7 +1740,7 @@
     <td class="field-comment"></td>
   </tr>
   <tr class="uk-border uk-bg">
-    <td><span class="field-name">companyCode</span><span class="kb uk">U₂</span></td>
+    <td><span class="field-name">companyCode</span> <span class="field-required">*</span><span class="kb uk">U₂</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment"></td>
   </tr>
@@ -1761,10 +1764,20 @@
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
     <td class="field-comment"></td>
   </tr>
+  <tr class="uk-border uk-bg">
+    <td><span class="field-name">year</span><span class="kb uk">U₃</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
   <tr>
     <td><span class="field-name">sortOrder</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
     <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">reclassTargetCode</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment">@deprecated 重分类目标科目编码（已迁至 FinanceReclassRule，仅保留兼容）</td>
   </tr>
   <tr class="fk-underline">
     <td><span class="field-name">editedBy</span><span class="kb fk">F</span></td>
@@ -1793,33 +1806,36 @@
   </tr>
 </tbody></table>
 <div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">Unique[1]: (code, companyCode)</span><span class="constraint-tag">FK: parentId → FinanceAccount, editedBy → User</span></div>
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">Unique[1]: (code, companyCode, year)</span><span class="constraint-tag">FK: parentId → FinanceAccount, editedBy → User</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#FinanceAccount" class="dep-link">8-1 FinanceAccount</a>
+<a href="#FinanceAccount" class="dep-link">7-1 FinanceAccount</a>
 <a href="#User" class="dep-link">1-1 User</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
-<a href="#FinanceAccount" class="dep-link">8-1 FinanceAccount</a>
-<a href="#FinanceVoucherItem" class="dep-link">8-4 FinanceVoucherItem</a>
-<a href="#FinanceAccountBalance" class="dep-link">8-5 FinanceAccountBalance</a>
+<a href="#FinanceBudgetDept" class="dep-link"> FinanceBudgetDept</a>
+<a href="#FinanceBudgetRd" class="dep-link"> FinanceBudgetRd</a>
+<a href="#FinanceAccount" class="dep-link">7-1 FinanceAccount</a>
+<a href="#FinanceVoucherItem" class="dep-link">7-4 FinanceVoucherItem</a>
+<a href="#FinanceAccountBalance" class="dep-link">7-5 FinanceAccountBalance</a>
+<a href="#FinanceBalanceSnapshotRow" class="dep-link"> FinanceBalanceSnapshotRow</a>
 </div>
 </div>
 </div>
 <div class="table-block" id="FinancePeriod">
-<div class="table-header"><h3><span class="table-num">8-2</span> FinancePeriod</h3><p class="table-desc">会计期间</p></div>
+<div class="table-header"><h3><span class="table-num">7-2</span> FinancePeriod</h3><p class="table-desc">会计期间</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border ref-underline">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span><span class="kb ref">R</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
     <td class="field-comment"></td>
   </tr>
-  <tr>
-    <td><span class="field-name">year</span> <span class="field-required">*</span></td>
+  <tr class="uk-border uk-bg">
+    <td><span class="field-name">year</span> <span class="field-required">*</span><span class="kb uk">U₂</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
     <td class="field-comment"></td>
   </tr>
-  <tr>
-    <td><span class="field-name">month</span> <span class="field-required">*</span></td>
+  <tr class="uk-border uk-bg">
+    <td><span class="field-name">month</span> <span class="field-required">*</span><span class="kb uk">U₃</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
     <td class="field-comment"></td>
   </tr>
@@ -1838,8 +1854,8 @@
     <td><span class="field-type" style="background:#7c3aed15;color:#7c3aed">bool</span></td>
     <td class="field-comment"></td>
   </tr>
-  <tr>
-    <td><span class="field-name">companyCode</span></td>
+  <tr class="uk-border uk-bg">
+    <td><span class="field-name">companyCode</span> <span class="field-required">*</span><span class="kb uk">U₁</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment"></td>
   </tr>
@@ -1855,18 +1871,19 @@
   </tr>
 </tbody></table>
 <div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span></div>
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">Unique[1]: (companyCode, year, month)</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
 <span class="dep-none">无</span>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
-<a href="#FinanceVoucher" class="dep-link">8-3 FinanceVoucher</a>
-<a href="#FinanceAccountBalance" class="dep-link">8-5 FinanceAccountBalance</a>
+<a href="#FinanceVoucher" class="dep-link">7-3 FinanceVoucher</a>
+<a href="#FinanceAccountBalance" class="dep-link">7-5 FinanceAccountBalance</a>
+<a href="#ReclassResult" class="dep-link"> ReclassResult</a>
 </div>
 </div>
 </div>
 <div class="table-block" id="FinanceVoucher">
-<div class="table-header"><h3><span class="table-num">8-3</span> FinanceVoucher</h3><p class="table-desc">记账凭证</p></div>
+<div class="table-header"><h3><span class="table-num">7-3</span> FinanceVoucher</h3><p class="table-desc">记账凭证</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border ref-underline">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span><span class="kb ref">R</span></td>
@@ -1874,7 +1891,7 @@
     <td class="field-comment"></td>
   </tr>
   <tr class="uk-border uk-bg">
-    <td><span class="field-name">voucherNo</span> <span class="field-required">*</span><span class="kb uk">U</span></td>
+    <td><span class="field-name">voucherNo</span> <span class="field-required">*</span><span class="kb uk">U₁</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment"></td>
   </tr>
@@ -1883,10 +1900,10 @@
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment"></td>
   </tr>
-  <tr class="fk-underline">
-    <td><span class="field-name">periodId</span> <span class="field-required">*</span><span class="kb fk">F</span></td>
+  <tr class="uk-border uk-bg fk-underline">
+    <td><span class="field-name">periodId</span> <span class="field-required">*</span><span class="kb uk">U₃</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinancePeriod" class="dep-link">8-2 FinancePeriod</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinancePeriod" class="dep-link">7-2 FinancePeriod</a></span></td>
   </tr>
   <tr>
     <td><span class="field-name">description</span> <span class="field-required">*</span></td>
@@ -1908,8 +1925,8 @@
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment"></td>
   </tr>
-  <tr>
-    <td><span class="field-name">companyCode</span></td>
+  <tr class="uk-border uk-bg">
+    <td><span class="field-name">companyCode</span> <span class="field-required">*</span><span class="kb uk">U₂</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment"></td>
   </tr>
@@ -1940,33 +1957,33 @@
   </tr>
 </tbody></table>
 <div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">UK: voucherNo</span><span class="constraint-tag">FK: periodId → FinancePeriod, editedBy → User</span></div>
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">Unique[1]: (voucherNo, companyCode, periodId)</span><span class="constraint-tag">FK: periodId → FinancePeriod, editedBy → User</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#FinancePeriod" class="dep-link">8-2 FinancePeriod</a>
+<a href="#FinancePeriod" class="dep-link">7-2 FinancePeriod</a>
 <a href="#User" class="dep-link">1-1 User</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
-<a href="#FinanceVoucherItem" class="dep-link">8-4 FinanceVoucherItem</a>
+<a href="#FinanceVoucherItem" class="dep-link">7-4 FinanceVoucherItem</a>
 </div>
 </div>
 </div>
 <div class="table-block" id="FinanceVoucherItem">
-<div class="table-header"><h3><span class="table-num">8-4</span> FinanceVoucherItem</h3><p class="table-desc">凭证明细分录（事实：借/贷金额）</p></div>
+<div class="table-header"><h3><span class="table-num">7-4</span> FinanceVoucherItem</h3><p class="table-desc">凭证明细分录（事实：借/贷金额）</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
-  <tr class="pk-border">
-    <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
+  <tr class="pk-border ref-underline">
+    <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span><span class="kb ref">R</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
     <td class="field-comment"></td>
   </tr>
-  <tr class="fk-underline">
-    <td><span class="field-name">voucherId</span> <span class="field-required">*</span><span class="kb fk">F</span></td>
+  <tr class="uk-border uk-bg fk-underline">
+    <td><span class="field-name">voucherId</span> <span class="field-required">*</span><span class="kb uk">U₁</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceVoucher" class="dep-link">8-3 FinanceVoucher</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceVoucher" class="dep-link">7-3 FinanceVoucher</a></span></td>
   </tr>
-  <tr class="fk-underline">
-    <td><span class="field-name">accountId</span> <span class="field-required">*</span><span class="kb fk">F</span></td>
+  <tr class="uk-border uk-bg fk-underline">
+    <td><span class="field-name">accountId</span> <span class="field-required">*</span><span class="kb uk">U₂</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceAccount" class="dep-link">8-1 FinanceAccount</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceAccount" class="dep-link">7-1 FinanceAccount</a></span></td>
   </tr>
   <tr>
     <td><span class="field-name">debit</span> <span class="field-required">*</span></td>
@@ -1984,24 +2001,55 @@
     <td class="field-comment"></td>
   </tr>
   <tr>
-    <td><span class="field-name">sortOrder</span> <span class="field-required">*</span></td>
+    <td><span class="field-name">relatedEntity</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment">正则从描述提取的关联实体</td>
+  </tr>
+  <tr class="uk-border uk-bg">
+    <td><span class="field-name">sortOrder</span> <span class="field-required">*</span><span class="kb uk">U₃</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
     <td class="field-comment"></td>
   </tr>
+  <tr>
+    <td><span class="field-name">importFingerprint</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceFile</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceSheet</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceRow</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr class="fk-underline">
+    <td><span class="field-name">importId</span><span class="kb fk">F</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceLedgerImport" class="dep-link">FinanceLedgerImport</a></span></td>
+  </tr>
 </tbody></table>
 <div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: voucherId → FinanceVoucher, accountId → FinanceAccount</span></div>
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">Unique[1]: (voucherId, accountId, sortOrder)</span><span class="constraint-tag">FK: voucherId → FinanceVoucher, accountId → FinanceAccount, importId → FinanceLedgerImport</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#FinanceVoucher" class="dep-link">8-3 FinanceVoucher</a>
-<a href="#FinanceAccount" class="dep-link">8-1 FinanceAccount</a>
+<a href="#FinanceVoucher" class="dep-link">7-3 FinanceVoucher</a>
+<a href="#FinanceAccount" class="dep-link">7-1 FinanceAccount</a>
+<a href="#FinanceLedgerImport" class="dep-link"> FinanceLedgerImport</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
-<span class="dep-none">无</span>
+<a href="#ReclassResult" class="dep-link"> ReclassResult</a>
 </div>
 </div>
 </div>
 <div class="table-block" id="FinanceAccountBalance">
-<div class="table-header"><h3><span class="table-num">8-5</span> FinanceAccountBalance</h3><p class="table-desc">科目余额（事实：期初/本期/期末借贷）</p></div>
+<div class="table-header"><h3><span class="table-num">7-5</span> FinanceAccountBalance</h3><p class="table-desc">科目余额（事实：期初/本期/期末借贷）</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
@@ -2011,12 +2059,12 @@
   <tr class="uk-border uk-bg fk-underline">
     <td><span class="field-name">accountId</span> <span class="field-required">*</span><span class="kb uk">U₁</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceAccount" class="dep-link">8-1 FinanceAccount</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceAccount" class="dep-link">7-1 FinanceAccount</a></span></td>
   </tr>
   <tr class="uk-border uk-bg fk-underline">
     <td><span class="field-name">periodId</span> <span class="field-required">*</span><span class="kb uk">U₂</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinancePeriod" class="dep-link">8-2 FinancePeriod</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinancePeriod" class="dep-link">7-2 FinancePeriod</a></span></td>
   </tr>
   <tr>
     <td><span class="field-name">openingDebit</span> <span class="field-required">*</span></td>
@@ -2049,7 +2097,7 @@
     <td class="field-comment"></td>
   </tr>
   <tr>
-    <td><span class="field-name">companyCode</span></td>
+    <td><span class="field-name">companyCode</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment"></td>
   </tr>
@@ -2067,8 +2115,8 @@
 <div class="table-footer">
 <div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">Unique[1]: (accountId, periodId)</span><span class="constraint-tag">FK: accountId → FinanceAccount, periodId → FinancePeriod</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#FinanceAccount" class="dep-link">8-1 FinanceAccount</a>
-<a href="#FinancePeriod" class="dep-link">8-2 FinancePeriod</a>
+<a href="#FinanceAccount" class="dep-link">7-1 FinanceAccount</a>
+<a href="#FinancePeriod" class="dep-link">7-2 FinancePeriod</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <span class="dep-none">无</span>
@@ -2079,82 +2127,82 @@
 
 <div class="section"><div class="section-title">9. 成本表</div>
 <div class="table-block" id="FinanceDataImport">
-<div class="table-header"><h3><span class="table-num">9-1</span> FinanceDataImport</h3><p class="table-desc">财务成本数据导入批次。每次从 Excel/JSON 导入时生成一条记录，作为该批次所有明细行的事实来源追溯。</p></div>
+<div class="table-header"><h3><span class="table-num">8-1</span> FinanceDataImport</h3><p class="table-desc">财务成本数据导入批次。每次从 Excel/JSON 导入时生成一条记录，作为该批次所有明细行的事实来源追溯。</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border ref-underline">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span><span class="kb ref">R</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">导入批次ID</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">profile</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">数据来源分类：shipments/sales-salary/cost-structure/cost-analysis/workshop-reports，对应 normalized 子目录</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">year</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">数据所属年份</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">sourceFile</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">原始文件名</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">sourcePath</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">原始文件路径</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">normalizedJsonPath</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">标准化后的JSON路径</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">checksum</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">文件MD5校验和</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">status</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">导入状态：imported/processing/failed</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">recordCount</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">导入的记录条数</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">warningCount</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">警告数量</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">errorCount</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">错误数量</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">importedBy</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">导入操作人</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">importedAt</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
-    <td class="field-comment">导入时间</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">createdAt</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
-    <td class="field-comment">创建时间</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">updatedAt</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
-    <td class="field-comment">更新时间</td>
+    <td class="field-comment"></td>
   </tr>
 </tbody></table>
 <div class="table-footer">
@@ -2163,118 +2211,118 @@
 <span class="dep-none">无</span>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
-<a href="#FinanceShipment" class="dep-link">9-2 FinanceShipment</a>
-<a href="#FinanceSalesSalary" class="dep-link">9-3 FinanceSalesSalary</a>
-<a href="#FinanceCostStructureRow" class="dep-link">9-4 FinanceCostStructureRow</a>
-<a href="#FinanceCostAnalysisRow" class="dep-link">9-5 FinanceCostAnalysisRow</a>
-<a href="#FinanceWorkshopReport" class="dep-link">9-6 FinanceWorkshopReport</a>
+<a href="#FinanceShipment" class="dep-link">8-2 FinanceShipment</a>
+<a href="#FinanceSalesSalary" class="dep-link">8-3 FinanceSalesSalary</a>
+<a href="#FinanceCostStructureRow" class="dep-link">8-4 FinanceCostStructureRow</a>
+<a href="#FinanceCostAnalysisRow" class="dep-link">8-5 FinanceCostAnalysisRow</a>
+<a href="#FinanceWorkshopReport" class="dep-link">8-6 FinanceWorkshopReport</a>
 </div>
 </div>
 </div>
 <div class="table-block" id="FinanceShipment">
-<div class="table-header"><h3><span class="table-num">9-2</span> FinanceShipment</h3><p class="table-desc">发货/销售明细。记录每笔销售的日期、客户、产品、数量、单价、金额、回款情况。employeeId 关联到业务员，为空表示厂家直销（厂部）。</p></div>
+<div class="table-header"><h3><span class="table-num">8-2</span> FinanceShipment</h3><p class="table-desc">发货/销售明细。记录每笔销售的日期、客户、产品、数量、单价、金额、回款情况。employeeId 关联到业务员，为空表示厂家直销（厂部）。</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">发货记录ID</td>
+    <td class="field-comment"></td>
   </tr>
   <tr class="fk-underline">
     <td><span class="field-name">importId</span> <span class="field-required">*</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">所属导入批次ID <span style="font-size:11px;color:#d97706">→ <a href="#FinanceDataImport" class="dep-link">9-1 FinanceDataImport</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceDataImport" class="dep-link">8-1 FinanceDataImport</a></span></td>
   </tr>
   <tr>
     <td><span class="field-name">year</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">发货年份</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">month</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">发货月份</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">date</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">发货日期（YYYY-MM-DD）</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">customerName</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">客户名称</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">productName</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">产品名称</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">spec</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">规格</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">batchNo</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">批号</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">quantity</span></td>
     <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
-    <td class="field-comment">发货数量</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">unitPrice</span></td>
     <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
-    <td class="field-comment">单价</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">amount</span></td>
     <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
-    <td class="field-comment">发货金额（含税）</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">receivedAmount</span></td>
     <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
-    <td class="field-comment">已回款金额</td>
+    <td class="field-comment"></td>
   </tr>
   <tr class="fk-underline">
     <td><span class="field-name">employeeId</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">业务员员工ID，为空表示厂家直销 <span style="font-size:11px;color:#d97706">→ <a href="#Employee" class="dep-link">5-1 Employee</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Employee" class="dep-link">4-1 Employee</a></span></td>
   </tr>
   <tr>
     <td><span class="field-name">sourceFile</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">来源文件名</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">sourceSheet</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">来源工作表</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">sourceRow</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">来源行号</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">createdAt</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
-    <td class="field-comment">创建时间</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">updatedAt</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
-    <td class="field-comment">更新时间</td>
+    <td class="field-comment"></td>
   </tr>
 </tbody></table>
 <div class="table-footer">
 <div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: importId → FinanceDataImport, employeeId → Employee</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#FinanceDataImport" class="dep-link">9-1 FinanceDataImport</a>
-<a href="#Employee" class="dep-link">5-1 Employee</a>
+<a href="#FinanceDataImport" class="dep-link">8-1 FinanceDataImport</a>
+<a href="#Employee" class="dep-link">4-1 Employee</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <span class="dep-none">无</span>
@@ -2282,84 +2330,84 @@
 </div>
 </div>
 <div class="table-block" id="FinanceSalesSalary">
-<div class="table-header"><h3><span class="table-num">9-3</span> FinanceSalesSalary</h3><p class="table-desc">销售工资。记录业务员每月底薪、提成、实发工资。employeeId 关联到具体员工，为空表示厂销（厂家直销归集行）。</p></div>
+<div class="table-header"><h3><span class="table-num">8-3</span> FinanceSalesSalary</h3><p class="table-desc">销售工资。记录业务员每月底薪、提成、实发工资。employeeId 关联到具体员工，为空表示厂销（厂家直销归集行）。</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">工资记录ID</td>
+    <td class="field-comment"></td>
   </tr>
   <tr class="fk-underline">
     <td><span class="field-name">importId</span> <span class="field-required">*</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">所属导入批次ID <span style="font-size:11px;color:#d97706">→ <a href="#FinanceDataImport" class="dep-link">9-1 FinanceDataImport</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceDataImport" class="dep-link">8-1 FinanceDataImport</a></span></td>
   </tr>
   <tr>
     <td><span class="field-name">year</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">年份</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">month</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">月份</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">baseSalary</span></td>
     <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
-    <td class="field-comment">基本工资/底薪</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">bonus</span></td>
     <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
-    <td class="field-comment">提成/奖金</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">deduction</span></td>
     <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
-    <td class="field-comment">扣款</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">actualSalary</span></td>
     <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
-    <td class="field-comment">实发工资</td>
+    <td class="field-comment"></td>
   </tr>
   <tr class="fk-underline">
     <td><span class="field-name">employeeId</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">员工ID，为空表示厂销 <span style="font-size:11px;color:#d97706">→ <a href="#Employee" class="dep-link">5-1 Employee</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Employee" class="dep-link">4-1 Employee</a></span></td>
   </tr>
   <tr>
     <td><span class="field-name">sourceFile</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">来源文件名</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">sourceSheet</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">来源工作表</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">sourceRow</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">来源行号</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">createdAt</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
-    <td class="field-comment">创建时间</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">updatedAt</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
-    <td class="field-comment">更新时间</td>
+    <td class="field-comment"></td>
   </tr>
 </tbody></table>
 <div class="table-footer">
 <div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: importId → FinanceDataImport, employeeId → Employee</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#FinanceDataImport" class="dep-link">9-1 FinanceDataImport</a>
-<a href="#Employee" class="dep-link">5-1 Employee</a>
+<a href="#FinanceDataImport" class="dep-link">8-1 FinanceDataImport</a>
+<a href="#Employee" class="dep-link">4-1 Employee</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <span class="dep-none">无</span>
@@ -2367,88 +2415,88 @@
 </div>
 </div>
 <div class="table-block" id="FinanceCostStructureRow">
-<div class="table-header"><h3><span class="table-num">9-4</span> FinanceCostStructureRow</h3><p class="table-desc">成本结构明细。按产品归集原材料、包材、直接人工、辅助人工、制造费用等各项成本金额。用于计算产品单位成本。</p></div>
+<div class="table-header"><h3><span class="table-num">8-4</span> FinanceCostStructureRow</h3><p class="table-desc">成本结构明细。按产品归集原材料、包材、直接人工、辅助人工、制造费用等各项成本金额。用于计算产品单位成本。</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">成本结构行ID</td>
+    <td class="field-comment"></td>
   </tr>
   <tr class="fk-underline">
     <td><span class="field-name">importId</span> <span class="field-required">*</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">所属导入批次ID <span style="font-size:11px;color:#d97706">→ <a href="#FinanceDataImport" class="dep-link">9-1 FinanceDataImport</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceDataImport" class="dep-link">8-1 FinanceDataImport</a></span></td>
   </tr>
   <tr>
     <td><span class="field-name">year</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">年份</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">month</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">月份</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">productName</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">产品名称</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">category</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">成本大类：原材料/包材/人工/辅助人工/制造费用</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">itemName</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">成本细项名称</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">amount</span></td>
     <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
-    <td class="field-comment">金额</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">quantity</span></td>
     <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
-    <td class="field-comment">入库数量（用于计算单位成本）</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">unit</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">计量单位</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">sourceFile</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">来源文件名</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">sourceSheet</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">来源工作表</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">sourceRow</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">来源行号</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">createdAt</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
-    <td class="field-comment">创建时间</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">updatedAt</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
-    <td class="field-comment">更新时间</td>
+    <td class="field-comment"></td>
   </tr>
 </tbody></table>
 <div class="table-footer">
 <div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: importId → FinanceDataImport</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#FinanceDataImport" class="dep-link">9-1 FinanceDataImport</a>
+<a href="#FinanceDataImport" class="dep-link">8-1 FinanceDataImport</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <span class="dep-none">无</span>
@@ -2456,88 +2504,88 @@
 </div>
 </div>
 <div class="table-block" id="FinanceCostAnalysisRow">
-<div class="table-header"><h3><span class="table-num">9-5</span> FinanceCostAnalysisRow</h3><p class="table-desc">成本分析指标。从成本分析 Excel 的多张工作表解析而来，每张表按行标签+指标键存储数值或文本。用于生成成本分析报表。</p></div>
+<div class="table-header"><h3><span class="table-num">8-5</span> FinanceCostAnalysisRow</h3><p class="table-desc">成本分析指标。从成本分析 Excel 的多张工作表解析而来，每张表按行标签+指标键存储数值或文本。用于生成成本分析报表。</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">成本分析行ID</td>
+    <td class="field-comment"></td>
   </tr>
   <tr class="fk-underline">
     <td><span class="field-name">importId</span> <span class="field-required">*</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">所属导入批次ID <span style="font-size:11px;color:#d97706">→ <a href="#FinanceDataImport" class="dep-link">9-1 FinanceDataImport</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceDataImport" class="dep-link">8-1 FinanceDataImport</a></span></td>
   </tr>
   <tr>
     <td><span class="field-name">year</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">年份</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">month</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">月份</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">tableName</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">来源工作表名称（对应Excel中的sheet）</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">rowLabel</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">行标签（如产品名/规格/项目名称）</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">metricKey</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">指标键（列名）</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">metricName</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">指标显示名称</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">value</span></td>
     <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
-    <td class="field-comment">数值（可空）</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">textValue</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">文本值（当value为空时存储原始文本）</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">sourceFile</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">来源文件名</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">sourceSheet</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">来源工作表</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">sourceRow</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">来源行号</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">createdAt</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
-    <td class="field-comment">创建时间</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">updatedAt</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
-    <td class="field-comment">更新时间</td>
+    <td class="field-comment"></td>
   </tr>
 </tbody></table>
 <div class="table-footer">
 <div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: importId → FinanceDataImport</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#FinanceDataImport" class="dep-link">9-1 FinanceDataImport</a>
+<a href="#FinanceDataImport" class="dep-link">8-1 FinanceDataImport</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <span class="dep-none">无</span>
@@ -2545,90 +2593,90 @@
 </div>
 </div>
 <div class="table-block" id="FinanceWorkshopReport">
-<div class="table-header"><h3><span class="table-num">9-6</span> FinanceWorkshopReport</h3><p class="table-desc">车间日报。记录生产车间每日各批次产品的人员投入、工序、工分和完成数量。employeeId/positionId 关联到员工和岗位，用于人工成本归集和计件工资计算。</p></div>
+<div class="table-header"><h3><span class="table-num">8-6</span> FinanceWorkshopReport</h3><p class="table-desc">车间日报。记录生产车间每日各批次产品的人员投入、工序、工分和完成数量。employeeId/positionId 关联到员工和岗位，用于人工成本归集和计件工资计算。</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">车间日报行ID</td>
+    <td class="field-comment"></td>
   </tr>
   <tr class="fk-underline">
     <td><span class="field-name">importId</span> <span class="field-required">*</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">所属导入批次ID <span style="font-size:11px;color:#d97706">→ <a href="#FinanceDataImport" class="dep-link">9-1 FinanceDataImport</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceDataImport" class="dep-link">8-1 FinanceDataImport</a></span></td>
   </tr>
   <tr>
     <td><span class="field-name">year</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">年份</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">month</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">月份</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">productName</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">产品名称</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">batchNo</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">生产批号</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">workPoint</span></td>
     <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
-    <td class="field-comment">工分</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">quantity</span></td>
     <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
-    <td class="field-comment">完成数量</td>
+    <td class="field-comment"></td>
   </tr>
   <tr class="fk-underline">
     <td><span class="field-name">employeeId</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">员工ID <span style="font-size:11px;color:#d97706">→ <a href="#Employee" class="dep-link">5-1 Employee</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Employee" class="dep-link">4-1 Employee</a></span></td>
   </tr>
   <tr class="fk-underline">
     <td><span class="field-name">positionId</span><span class="kb fk">F</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">岗位ID（工序对应的岗位） <span style="font-size:11px;color:#d97706">→ <a href="#Position" class="dep-link">5-6 Position</a></span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Position" class="dep-link">4-6 Position</a></span></td>
   </tr>
   <tr>
     <td><span class="field-name">sourceFile</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">来源文件名</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">sourceSheet</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-    <td class="field-comment">来源工作表</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">sourceRow</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">来源行号</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">createdAt</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
-    <td class="field-comment">创建时间</td>
+    <td class="field-comment"></td>
   </tr>
   <tr>
     <td><span class="field-name">updatedAt</span> <span class="field-required">*</span></td>
     <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
-    <td class="field-comment">更新时间</td>
+    <td class="field-comment"></td>
   </tr>
 </tbody></table>
 <div class="table-footer">
 <div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: importId → FinanceDataImport, employeeId → Employee, positionId → Position</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#FinanceDataImport" class="dep-link">9-1 FinanceDataImport</a>
-<a href="#Employee" class="dep-link">5-1 Employee</a>
-<a href="#Position" class="dep-link">5-6 Position</a>
+<a href="#FinanceDataImport" class="dep-link">8-1 FinanceDataImport</a>
+<a href="#Employee" class="dep-link">4-1 Employee</a>
+<a href="#Position" class="dep-link">4-6 Position</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <span class="dep-none">无</span>
@@ -2639,7 +2687,7 @@
 
 <div class="section"><div class="section-title">10. Inventory</div>
 <div class="table-block" id="StockRawMaterial">
-<div class="table-header"><h3><span class="table-num">10-1</span> StockRawMaterial</h3><p class="table-desc">原料库存</p></div>
+<div class="table-header"><h3><span class="table-num">9-1</span> StockRawMaterial</h3><p class="table-desc">原料库存</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
@@ -2738,7 +2786,7 @@
 </div>
 </div>
 <div class="table-block" id="StockPackaging">
-<div class="table-header"><h3><span class="table-num">10-2</span> StockPackaging</h3><p class="table-desc">包装材料库存</p></div>
+<div class="table-header"><h3><span class="table-num">9-2</span> StockPackaging</h3><p class="table-desc">包装材料库存</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
@@ -2847,7 +2895,7 @@
 </div>
 </div>
 <div class="table-block" id="StockFinishedGoods">
-<div class="table-header"><h3><span class="table-num">10-3</span> StockFinishedGoods</h3><p class="table-desc">成品库存</p></div>
+<div class="table-header"><h3><span class="table-num">9-3</span> StockFinishedGoods</h3><p class="table-desc">成品库存</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
@@ -2946,7 +2994,7 @@
 </div>
 </div>
 <div class="table-block" id="StockBatch">
-<div class="table-header"><h3><span class="table-num">10-4</span> StockBatch</h3><p class="table-desc">批次信息</p></div>
+<div class="table-header"><h3><span class="table-num">9-4</span> StockBatch</h3><p class="table-desc">批次信息</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
@@ -3010,7 +3058,7 @@
 </div>
 </div>
 <div class="table-block" id="StockOperation">
-<div class="table-header"><h3><span class="table-num">10-5</span> StockOperation</h3><p class="table-desc">库存操作记录（采购/入库/出库/领用/调整/退货）</p></div>
+<div class="table-header"><h3><span class="table-num">9-5</span> StockOperation</h3><p class="table-desc">库存操作记录（采购/入库/出库/领用/调整/退货）</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
@@ -3069,7 +3117,7 @@
 </div>
 </div>
 <div class="table-block" id="StockReturn">
-<div class="table-header"><h3><span class="table-num">10-6</span> StockReturn</h3><p class="table-desc">成品退货记录</p></div>
+<div class="table-header"><h3><span class="table-num">9-6</span> StockReturn</h3><p class="table-desc">成品退货记录</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
@@ -3121,7 +3169,7 @@
 
 <div class="section"><div class="section-title">11. Contract</div>
 <div class="table-block" id="Contract">
-<div class="table-header"><h3><span class="table-num">11-1</span> Contract</h3><p class="table-desc">合同管理（事实：合同基本信息、金额、状态）</p></div>
+<div class="table-header"><h3><span class="table-num">10-1</span> Contract</h3><p class="table-desc">合同管理（事实：合同基本信息、金额、状态）</p></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
   <tr class="pk-border">
     <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>

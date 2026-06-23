@@ -37,7 +37,7 @@ export async function createProject(draft: ProjectDraft) {
       leadingDepartmentId: draft.leadingDepartmentId,
       startDate: draft.startDate,
       endDate: draft.endDate,
-      closureType: draft.closureType,
+      completionPercent: draft.completionPercent,
     }),
   });
   if (!res.ok) {
@@ -261,7 +261,7 @@ export async function createProjectPlanPhase(projectId: number, phase: Partial<P
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || "新建计划阶段失败");
+    throw new Error(data.error || "新建项目阶段失败");
   }
 }
 
@@ -273,7 +273,7 @@ export async function updateProjectPlanPhase(projectId: number, phaseId: number,
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || "保存计划阶段失败");
+    throw new Error(data.error || "保存项目阶段失败");
   }
 }
 
@@ -281,7 +281,7 @@ export async function deleteProjectPlanPhase(projectId: number, phaseId: number)
   const res = await fetch(workspacePath(`/api/modules/work/projects/${projectId}/plan-phases/${phaseId}`), { method: "DELETE" });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || "删除计划阶段失败");
+    throw new Error(data.error || "删除项目阶段失败");
   }
 }
 

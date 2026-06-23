@@ -6,6 +6,9 @@ const WORK_FK_REGISTRATIONS = [
   { key: "work.projects.leadingDepartment", scope: "work", source: { entity: "Project", field: "leadingDepartmentId" }, target: "department", targetLabel: "主导部门", nullable: false, permission: { resourceKey: "work.projects", action: "access" } },
   { key: "work.projects.member.employee", scope: "work", source: { entity: "EmployeeProject", field: "employeeId" }, target: "employee", nullable: false, permission: { resourceKey: "work.projects", action: "access" } },
   { key: "work.projects.member.project", scope: "work", source: { entity: "EmployeeProject", field: "projectId" }, target: "project", nullable: false, permission: { resourceKey: "work.projects", action: "access" } },
+  { key: "work.tasks.owner.employee", scope: "work", source: { entity: "WorkItem", field: "ownerEmployeeId" }, target: "employee", targetLabel: "负责人", nullable: true, permission: { resourceKey: "work.tasks", action: "access" } },
+  { key: "work.tasks.permission.user", scope: "work", source: { entity: "WorkScopePermission", field: "userId" }, target: "user", targetLabel: "授权用户", nullable: false, permission: { resourceKey: "work.tasks", action: "access" } },
+  { key: "work.tasks.linked.project", scope: "work", source: { entity: "WorkItem", field: "linkedProjectId" }, target: "project", targetLabel: "关联项目", nullable: true, permission: { resourceKey: "work.tasks", action: "access" } },
 ] satisfies FkRegistration[];
 
 const HR_FK_REGISTRATIONS = [
@@ -34,7 +37,7 @@ export const registeredModuleDefinitions = [
       resourceKey: "work",
       resourceSortOrder: 0,
       children: [
-        { key: "tasks", label: "工作计划", desc: "个人计划、待办任务和执行跟踪", href: "/work/tasks", resourceKey: "work.tasks", apiPrefixes: ["/api/modules/work/tasks"] },
+        { key: "tasks", label: "工作计划", desc: "个人计划、待办任务和执行跟踪", href: "/work/tasks", resourceKey: "work.tasks", apiPrefixes: ["/api/modules/work/tasks", "/api/modules/work/task-spaces", "/api/modules/work/task-reports"] },
         { key: "projects", label: "项目管理", desc: "组织项目、角色分工、预算和风险", href: "/work/projects", resourceKey: "work.projects", apiPrefixes: ["/api/modules/work/projects"] },
       ],
     },
@@ -54,6 +57,8 @@ export const registeredModuleDefinitions = [
     apiGuards: [
       ...apiResourceGuards("/api/modules/work/projects", "work.projects", ["GET", "POST", "PUT", "DELETE"]),
       ...apiResourceGuards("/api/modules/work/tasks", "work.tasks", ["GET", "POST", "PUT", "DELETE"]),
+      ...apiResourceGuards("/api/modules/work/task-spaces", "work.tasks", ["GET", "PUT"]),
+      ...apiResourceGuards("/api/modules/work/task-reports", "work.tasks", ["GET", "PUT"]),
     ],
   },
   {

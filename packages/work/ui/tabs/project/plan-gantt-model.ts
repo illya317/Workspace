@@ -30,6 +30,8 @@ export type ProjectPlanItem = {
   ownerNames: string[];
   startDate: string | null;
   endDate: string | null;
+  baselineStartDate: string | null;
+  baselineEndDate: string | null;
 };
 
 export type ProjectPlanDependency = {

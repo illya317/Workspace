@@ -7,7 +7,6 @@ import { listProjectGantt } from "./api";
 import ProjectGanttChart from "./ProjectGanttChart";
 import {
   PROJECT_GANTT_LEVEL_OPTIONS,
-  PROJECT_GANTT_STATUS_OPTIONS,
   PROJECT_GANTT_TASK_OPTIONS,
   PROJECT_GANTT_ZOOM_OPTIONS,
   buildProjectGanttRows,
@@ -26,7 +25,6 @@ export default function ProjectGanttTab({ user }: { user: WorkUser }) {
   const [keyword, setKeyword] = useState("");
   const [includeTasks, setIncludeTasks] = useState(false);
   const [level, setLevel] = useState<ProjectGanttLevelFilter>("all");
-  const [statuses, setStatuses] = useState<Set<string>>(() => new Set());
   const [zoom, setZoom] = useState<ProjectGanttZoom>("year");
   const [currentStart, setCurrentStart] = useState(() => getPeriodStart(new Date(), "year"));
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(() => new Set(["company"]));
@@ -62,8 +60,7 @@ export default function ProjectGanttTab({ user }: { user: WorkUser }) {
     expandedKeys,
     keyword,
     level,
-    statuses,
-  }), [data, expandedKeys, keyword, level, statuses]);
+  }), [data, expandedKeys, keyword, level]);
 
   function toggleExpanded(key: string) {
     setExpandedKeys((prev) => {
@@ -99,7 +96,6 @@ export default function ProjectGanttTab({ user }: { user: WorkUser }) {
               onChange={(value) => setIncludeTasks(value === "1")}
             />
             <LevelFilter level={level} onChange={setLevel} />
-            <StatusFilter statuses={statuses} onChange={setStatuses} />
           </>
         )}
         editActions={(
@@ -171,61 +167,6 @@ function LevelFilter({
                 {option.label}
               </button>
             );
-          })}
-        </div>
-      )}
-    </PickerShell>
-  );
-}
-
-function StatusFilter({
-  statuses,
-  onChange,
-}: {
-  statuses: Set<string>;
-  onChange: (statuses: Set<string>) => void;
-}) {
-  const activeCount = statuses.size;
-  return (
-    <PickerShell
-      valueLabel="状态"
-      buttonClassName={`h-10 rounded-lg border px-4 text-xs font-semibold shadow-sm transition ${
-        activeCount
-          ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-      }`}
-      popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-64 rounded-lg border border-slate-200 bg-white p-2.5 shadow-xl"
-    >
-      {() => (
-        <div className="grid grid-cols-3 gap-2">
-          <button
-            type="button"
-            onClick={() => onChange(new Set())}
-            className={`rounded-md border px-2.5 py-2 text-center text-xs font-semibold transition ${
-              activeCount === 0 ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"
-            }`}
-          >
-            全部
-          </button>
-          {PROJECT_GANTT_STATUS_OPTIONS.map((status) => {
-              const active = statuses.has(status);
-              return (
-                <button
-                  key={status}
-                  type="button"
-                  onClick={() => {
-                    const next = new Set(statuses);
-                    if (next.has(status)) next.delete(status);
-                    else next.add(status);
-                    onChange(next);
-                  }}
-                  className={`rounded-md border px-2.5 py-2 text-center text-xs font-semibold transition ${
-                    active ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"
-                  }`}
-                >
-                  {status}
-                </button>
-              );
           })}
         </div>
       )}

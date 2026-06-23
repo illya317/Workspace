@@ -1,7 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { ActionButton, BlockCreatePanel, CalendarDateInput, useConfirm, useConfirmDelete } from "@workspace/core/ui";
+import {
+  BlockCreatePanel,
+  CalendarDateInput,
+  DataTable,
+  DataTableActionsCell,
+  TableScrollFrame,
+  createDataTableEditActions,
+  useConfirm,
+  useConfirmDelete,
+  type DataTableColumn,
+} from "@workspace/core/ui";
 import { createProjectPlanPhase, deleteProjectPlanPhase, updateProjectPlanPhase } from "./api";
 import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
 
@@ -44,7 +54,7 @@ export default function ProjectPlanPhasePanel({
       setCreating(false);
       await onChanged();
     } catch (err) {
-      await confirm({ title: "新建计划阶段失败", message: err instanceof Error ? err.message : "新建计划阶段失败", confirmLabel: "关闭", confirmDanger: true, showCancel: false });
+      await confirm({ title: "新建项目阶段失败", message: err instanceof Error ? err.message : "新建项目阶段失败", confirmLabel: "关闭", confirmDanger: true, showCancel: false });
     } finally {
       setBusy(false);
     }
@@ -69,21 +79,21 @@ export default function ProjectPlanPhasePanel({
       setEditDraft(EMPTY_DRAFT);
       await onChanged();
     } catch (err) {
-      await confirm({ title: "保存计划阶段失败", message: err instanceof Error ? err.message : "保存计划阶段失败", confirmLabel: "关闭", confirmDanger: true, showCancel: false });
+      await confirm({ title: "保存项目阶段失败", message: err instanceof Error ? err.message : "保存项目阶段失败", confirmLabel: "关闭", confirmDanger: true, showCancel: false });
     } finally {
       setBusy(false);
     }
   }
 
   async function handleDelete(phaseId: number) {
-    const confirmed = await confirmDelete({ message: "删除计划阶段后，已归属到该阶段的任务会回到未分阶段。确定删除吗？" });
+    const confirmed = await confirmDelete({ message: "删除项目阶段后，已归属到该阶段的任务会回到未分阶段。确定删除吗？" });
     if (!confirmed) return;
     setBusy(true);
     try {
       await deleteProjectPlanPhase(projectId, phaseId);
       await onChanged();
     } catch (err) {
-      await confirm({ title: "删除计划阶段失败", message: err instanceof Error ? err.message : "删除计划阶段失败", confirmLabel: "关闭", confirmDanger: true, showCancel: false });
+      await confirm({ title: "删除项目阶段失败", message: err instanceof Error ? err.message : "删除项目阶段失败", confirmLabel: "关闭", confirmDanger: true, showCancel: false });
     } finally {
       setBusy(false);
     }
@@ -91,14 +101,14 @@ export default function ProjectPlanPhasePanel({
 
   return (
     <BlockCreatePanel
-      title="计划阶段"
+      title="项目阶段"
       creating={creating}
       canCreate={canEdit}
       disabled={disabled || busy}
       submitting={busy}
       submitDisabled={!draft.name.trim()}
-      addLabel="新增计划阶段"
-      submitLabel="保存计划阶段"
+      addLabel="新增项目阶段"
+      submitLabel="保存项目阶段"
       onStartCreate={() => setCreating(true)}
       onCancelCreate={() => {
         setCreating(false);
@@ -106,7 +116,7 @@ export default function ProjectPlanPhasePanel({
       }}
       onSubmitCreate={submitCreate}
       createContent={(
-        <div className="grid grid-cols-[1.4fr_140px_140px_minmax(0,2fr)] items-end gap-3">
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.4fr_minmax(0,2fr)]">
           <PhaseFields draft={draft} disabled={disabled || busy} onChange={setDraft} />
         </div>
       )}
@@ -155,43 +165,98 @@ function PhaseRows({
   onSubmitEdit: (phaseId: number) => void;
   onDelete: (phaseId: number) => void;
 }) {
+  const columns: DataTableColumn<ProjectPlanPhaseItem>[] = [
+    {
+      key: "sequenceNo",
+      label: "序号",
+      required: true,
+      cellClassName: "w-20 text-slate-400",
+      render: (phase) => <span className="font-semibold">{phase.sequenceNo}</span>,
+    },
+    {
+      key: "name",
+      label: "阶段",
+      required: true,
+      cellClassName: "min-w-40",
+      render: (phase) => <span className="break-words text-sm font-medium text-slate-900">{phase.name}</span>,
+    },
+    {
+      key: "startDate",
+      label: "开始时间",
+      defaultVisible: true,
+      render: (phase) => phase.startDate || "未定",
+    },
+    {
+      key: "endDate",
+      label: "结束时间",
+      defaultVisible: true,
+      render: (phase) => phase.endDate || "未定",
+    },
+    {
+      key: "note",
+      label: "说明",
+      defaultVisible: true,
+      cellClassName: "min-w-64 max-w-xl whitespace-normal text-slate-500",
+      render: (phase) => phase.note || "",
+    },
+    {
+      key: "actions",
+      label: "操作",
+      required: true,
+      render: (phase) => {
+        const editing = editingId === phase.id;
+        return canEdit ? (
+          <DataTableActionsCell
+            actions={[
+              ...createDataTableEditActions({
+                row: phase,
+                editing,
+                canEdit,
+                canSave: Boolean(editDraft.name.trim()),
+                disabled,
+                editLabel: "编辑阶段",
+                saveLabel: "保存阶段",
+                cancelLabel: "取消编辑",
+                onEdit: onStartEdit,
+                onSave: () => onSubmitEdit(phase.id),
+                onCancel: onCancelEdit,
+              }),
+              ...(!editing ? [{
+                key: "delete",
+                kind: "delete",
+                label: "删除阶段",
+                onClick: () => onDelete(phase.id),
+                disabled,
+              } as const] : []),
+            ]}
+          />
+        ) : null;
+      },
+    },
+  ];
+
   if (phases.length === 0) {
-    return <div className="rounded-lg border border-dashed border-slate-200 py-8 text-center text-sm font-semibold text-slate-400">暂无计划阶段</div>;
+    return <div className="rounded-lg border border-dashed border-slate-200 py-8 text-center text-sm font-semibold text-slate-400">暂无项目阶段</div>;
   }
   return (
-    <div className="overflow-hidden rounded-lg border border-slate-200">
-      <div className="grid grid-cols-[80px_1.2fr_1fr_minmax(0,2fr)_140px] bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-500">
-        <span>序号</span>
-        <span>阶段</span>
-        <span>时间</span>
-        <span>说明</span>
-        <span className="text-right">操作</span>
-      </div>
-      {phases.map((phase) => editingId === phase.id ? (
-        <div key={phase.id} className="border-t border-slate-100 p-3">
-          <div className="grid grid-cols-[1.4fr_140px_140px_minmax(0,2fr)_auto] items-end gap-3">
-            <PhaseFields draft={editDraft} disabled={disabled} onChange={onEditDraftChange} />
-            <div className="flex justify-end gap-2">
-              <ActionButton disabled={disabled} onClick={onCancelEdit}>取消</ActionButton>
-              <ActionButton variant="primary" disabled={disabled || !editDraft.name.trim()} onClick={() => onSubmitEdit(phase.id)}>保存</ActionButton>
+    <TableScrollFrame className="overflow-y-hidden">
+      <DataTable
+        rows={phases}
+        columns={columns}
+        density="compact"
+        emptyText="暂无项目阶段"
+        rowKey={(phase) => phase.id}
+        visibleColumns={["startDate", "endDate", "note"]}
+        expandedRowKey={editingId}
+        renderExpandedRow={(_phase) => (
+          <div className="rounded-lg border border-slate-200 bg-white p-3">
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.4fr_minmax(0,2fr)]">
+              <PhaseFields draft={editDraft} disabled={disabled} onChange={onEditDraftChange} />
             </div>
           </div>
-        </div>
-      ) : (
-        <div key={phase.id} className="grid grid-cols-[80px_1.2fr_1fr_minmax(0,2fr)_140px] items-center border-t border-slate-100 px-3 py-3 text-sm text-slate-700">
-          <span className="font-semibold text-slate-400">{phase.sequenceNo}</span>
-          <span className="font-semibold text-slate-900">{phase.name}</span>
-          <span className="text-slate-500">{formatRange(phase.startDate, phase.endDate)}</span>
-          <span className="truncate text-slate-600">{phase.note || "-"}</span>
-          {canEdit ? (
-            <span className="flex justify-end gap-2">
-              <ActionButton className="!h-9 !px-3" disabled={disabled} onClick={() => onStartEdit(phase)}>编辑</ActionButton>
-              <ActionButton className="!h-9 !px-3" variant="danger" disabled={disabled} onClick={() => onDelete(phase.id)}>删除</ActionButton>
-            </span>
-          ) : <span />}
-        </div>
-      ))}
-    </div>
+        )}
+      />
+    </TableScrollFrame>
   );
 }
 
@@ -211,29 +276,31 @@ function PhaseFields({
         <input value={draft.name} disabled={disabled} onChange={(event) => onChange({ ...draft, name: event.target.value })} className={inputClassName} placeholder="例如：方案确认" />
       </label>
       <label className="space-y-1">
-        <span className="text-xs font-semibold text-slate-500">开始</span>
-        <CalendarDateInput
-          value={draft.startDate || null}
-          disabled={disabled}
-          onChange={(value) => onChange({ ...draft, startDate: value || "" })}
-          className={inputClassName}
-          popoverMode="fixed"
-        />
-      </label>
-      <label className="space-y-1">
-        <span className="text-xs font-semibold text-slate-500">结束</span>
-        <CalendarDateInput
-          value={draft.endDate || null}
-          disabled={disabled}
-          onChange={(value) => onChange({ ...draft, endDate: value || "" })}
-          className={inputClassName}
-          popoverMode="fixed"
-        />
-      </label>
-      <label className="space-y-1">
         <span className="text-xs font-semibold text-slate-500">说明</span>
         <input value={draft.note} disabled={disabled} onChange={(event) => onChange({ ...draft, note: event.target.value })} className={inputClassName} />
       </label>
+      <div className="grid grid-cols-1 gap-3 lg:col-span-2 sm:grid-cols-2">
+        <label className="space-y-1">
+          <span className="text-xs font-semibold text-slate-500">开始日期</span>
+          <CalendarDateInput
+            value={draft.startDate || null}
+            disabled={disabled}
+            onChange={(value) => onChange({ ...draft, startDate: value || "" })}
+            className={inputClassName}
+            popoverMode="fixed"
+          />
+        </label>
+        <label className="space-y-1">
+          <span className="text-xs font-semibold text-slate-500">结束日期</span>
+          <CalendarDateInput
+            value={draft.endDate || null}
+            disabled={disabled}
+            onChange={(value) => onChange({ ...draft, endDate: value || "" })}
+            className={inputClassName}
+            popoverMode="fixed"
+          />
+        </label>
+      </div>
     </>
   );
 }
@@ -245,13 +312,6 @@ function phasePayload(draft: PhaseDraft) {
     endDate: draft.endDate || null,
     note: draft.note.trim() || null,
   };
-}
-
-function formatRange(start?: string | null, end?: string | null) {
-  if (start && end) return `${start} - ${end}`;
-  if (start) return `${start} 起`;
-  if (end) return `截至 ${end}`;
-  return "未设置";
 }
 
 const inputClassName = "h-10 w-full rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-800 shadow-sm disabled:bg-slate-50 disabled:text-slate-400";

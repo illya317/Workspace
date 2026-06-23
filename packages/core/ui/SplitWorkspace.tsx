@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties, ReactNode } from "react";
+import { IconActionButton } from "./ActionControls";
 
 export type SplitWorkspaceMode = "desktop" | "drawer";
 
@@ -18,6 +19,7 @@ export interface SplitWorkspaceToolbarProps {
   sideLabel: string;
   onSideOpenChange: (open: boolean) => void;
   onDrawerOpen: () => void;
+  desktopBreakpoint?: "lg" | "xl";
   showSideControls?: boolean;
   children?: ReactNode;
 }
@@ -27,33 +29,60 @@ export function SplitWorkspaceToolbar({
   sideLabel,
   onSideOpenChange,
   onDrawerOpen,
+  desktopBreakpoint = "lg",
   showSideControls = true,
   children,
 }: SplitWorkspaceToolbarProps) {
   if (!showSideControls && !children) return null;
+  const mobileButtonShellClassName = desktopBreakpoint === "xl" ? "xl:hidden" : "lg:hidden";
+  const desktopButtonShellClassName = desktopBreakpoint === "xl" ? "hidden xl:block" : "hidden lg:block";
 
   return (
     <div className="flex w-full flex-wrap items-center justify-start gap-2">
       {showSideControls && (
         <>
-          <button
-            type="button"
-            onClick={onDrawerOpen}
-            className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 lg:hidden"
-          >
-            显示{sideLabel}
-          </button>
-          <button
-            type="button"
-            onClick={() => onSideOpenChange(!sideOpen)}
-            className="hidden rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 lg:inline-flex"
-          >
-            {sideOpen ? "隐藏" : "显示"}{sideLabel}
-          </button>
+          <span className={mobileButtonShellClassName}>
+            <IconActionButton
+              label={`显示${sideLabel}`}
+              onClick={onDrawerOpen}
+              className="!h-9 !w-10 !px-0"
+            >
+              <SidePanelIcon open />
+            </IconActionButton>
+          </span>
+          <span className={desktopButtonShellClassName}>
+            <IconActionButton
+              label={`${sideOpen ? "隐藏" : "显示"}${sideLabel}`}
+              onClick={() => onSideOpenChange(!sideOpen)}
+              variant={sideOpen ? "primary" : "secondary"}
+              className="!h-9 !w-10 !px-0"
+            >
+              <SidePanelIcon open={sideOpen} />
+            </IconActionButton>
+          </span>
         </>
       )}
       {children}
     </div>
+  );
+}
+
+function SidePanelIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      viewBox="0 0 24 24"
+    >
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M9 4v16" />
+      {open ? <path d="m14 9 3 3-3 3" /> : <path d="m17 9-3 3 3 3" />}
+    </svg>
   );
 }
 

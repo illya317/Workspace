@@ -8,6 +8,7 @@ import {
   EmptyStateCard,
   SectionCard,
   TableScrollFrame,
+  createDataTableEditActions,
   useConfirmDelete,
   type DataTableColumn,
   type PickerOption,
@@ -32,11 +33,13 @@ export default function ProjectTasksSection({
   projectId,
   canEdit,
   disabled,
+  onChanged,
   onToast,
 }: {
   projectId: number | null;
   canEdit: boolean;
   disabled: boolean;
+  onChanged?: () => void;
   onToast: (toast: { type: "success" | "error"; message: string }) => void;
 }) {
   const confirmDelete = useConfirmDelete();
@@ -132,35 +135,43 @@ export default function ProjectTasksSection({
       key: "actions",
       label: "操作",
       required: true,
-      render: (task) => (
-        <DataTableActionsCell
-          actions={[
-            {
-              key: "detail",
-              kind: "view",
-              label: detailTaskId === task.id ? "收起详情" : "查看详情",
-              onClick: () => {
-                setDetailTaskId((current) => current === task.id ? null : task.id);
-                setEditingTaskId(null);
-                setEditDraft(null);
-              },
-              disabled: saving || disabled,
-            },
-            ...(canEdit ? [{
-              key: "delete",
-              kind: "delete",
-              label: "删除任务",
-              onClick: () => void handleDelete(task),
-              disabled: saving || disabled,
-            } as const] : []),
-          ]}
-        />
-      ),
+      render: (task) => {
+        const editing = editingTaskId === task.id;
+        const canSave = Boolean(editDraft && isTaskDraftSubmittable(editDraft));
+        return (
+          <DataTableActionsCell
+            actions={[
+              ...createDataTableEditActions({
+                row: task,
+                editing,
+                canEdit,
+                canSave,
+                saving,
+                disabled,
+                editLabel: "编辑任务",
+                saveLabel: "保存任务",
+                cancelLabel: "取消编辑",
+                onEdit: handleStartEdit,
+                onSave: () => void handleUpdate(),
+                onCancel: handleCancelEdit,
+              }),
+              ...(canEdit && !editing ? [{
+                key: "delete",
+                kind: "delete",
+                label: "删除任务",
+                onClick: () => void handleDelete(task),
+                disabled: saving || disabled,
+              } as const] : []),
+            ]}
+          />
+        );
+      },
     },
   ];
 
   async function reloadAfterSave(message: string) {
     await loadTasks();
+    onChanged?.();
     onToast({ type: "success", message });
   }
 
@@ -168,6 +179,7 @@ export default function ProjectTasksSection({
     if (!projectId || saving) return;
     const draft = { ...createDraft, sortOrder: createDraft.sortOrder ?? nextSortOrder(tasks) };
     if (!draft.name.trim()) return onToast({ type: "error", message: "任务名称不能为空" });
+    if (!draft.planPhaseId) return onToast({ type: "error", message: "项目阶段为必填，请先选择项目阶段" });
     setSaving(true);
     try {
       await createProjectTask(projectId, draft);
@@ -181,12 +193,19 @@ export default function ProjectTasksSection({
     }
   }
 
-  function handleStartEdit() {
-    if (!detailTaskId || saving) return;
-    const task = tasks.find((item) => item.id === detailTaskId);
-    if (!task) return;
+  function handleToggleDetail(task: ProjectTaskItem) {
+    if (editingTaskId === task.id) return;
+    setDetailTaskId((current) => current === task.id ? null : task.id);
+    setEditingTaskId(null);
+    setEditDraft(null);
+  }
+
+  function handleStartEdit(task: ProjectTaskItem) {
+    if (saving || disabled) return;
+    setDetailTaskId(task.id);
     setEditingTaskId(task.id);
     setEditDraft(createProjectTaskDraft(task));
+    setCreatingTask(false);
   }
 
   function handleCancelEdit() {
@@ -197,6 +216,7 @@ export default function ProjectTasksSection({
   async function handleUpdate() {
     if (!projectId || !editingTaskId || !editDraft || saving) return;
     if (!editDraft.name.trim()) return onToast({ type: "error", message: "任务名称不能为空" });
+    if (!editDraft.planPhaseId) return onToast({ type: "error", message: "项目阶段为必填，请先选择项目阶段" });
     setSaving(true);
     try {
       await updateProjectTask(projectId, editingTaskId, editDraft);
@@ -249,21 +269,12 @@ export default function ProjectTasksSection({
       creating={creatingTask}
       disabled={disabled || saving}
       submitting={saving}
-      submitDisabled={disabled || saving || !createDraft.name.trim()}
-      editing={editingTaskId !== null}
-      canEdit={canEdit}
-      editDisabled={!detailTaskId || disabled || saving || creatingTask}
-      editSubmitDisabled={disabled || saving || !editDraft?.name.trim()}
+      submitDisabled={disabled || saving || !isTaskDraftSubmittable(createDraft)}
       addLabel="新增任务"
       submitLabel="保存任务"
-      editLabel="编辑任务"
-      editSubmitLabel="保存任务"
       onStartCreate={() => setCreatingTask(true)}
       onCancelCreate={() => setCreatingTask(false)}
       onSubmitCreate={() => void handleCreate()}
-      onStartEdit={handleStartEdit}
-      onCancelEdit={handleCancelEdit}
-      onSubmitEdit={() => void handleUpdate()}
       createContent={<ProjectTaskForm draft={createDraft} disabled={disabled || saving} taskOptions={taskOptions} phases={phases} tasks={tasks} excludedTaskId={null} framed={false} onChange={setCreateDraft} />}
     >
         <TableScrollFrame className="overflow-y-hidden">
@@ -274,6 +285,7 @@ export default function ProjectTasksSection({
             loading={loading}
             emptyText="暂无项目任务"
             rowKey={(task) => task.id}
+            onRowClick={handleToggleDetail}
             visibleColumns={["owner", "startDate", "endDate"]}
             expandedRowKey={detailTaskId}
             renderExpandedRow={(task) => editDraft && editingTaskId === task.id ? (
@@ -295,4 +307,8 @@ export default function ProjectTasksSection({
 
 function nextSortOrder(tasks: ProjectTaskItem[]) {
   return (tasks.reduce((max, task) => Math.max(max, task.sortOrder), 0) || 0) + 10;
+}
+
+function isTaskDraftSubmittable(draft: ProjectTaskDraft) {
+  return Boolean(draft.name.trim() && draft.planPhaseId);
 }

@@ -4,10 +4,9 @@ import { prisma } from "@workspace/platform/server/prisma";
 import { WORK_FK_REGISTRY } from "./fk-registry";
 
 const DATE_FIELDS = ["startDate", "endDate"];
-const NUMBER_FIELDS = ["budgetAmount"];
+const NUMBER_FIELDS = ["budgetAmount", "completionPercent"];
 
 export const PROJECT_LEVELS = ["普通", "重点", "特殊"];
-export const PROJECT_CLOSURE_TYPES = ["完成", "终止"];
 
 type LeadingDepartmentResult =
   | { value: number; department: { id: number; code: string; name: string; managerUserId: number | null } }
@@ -30,7 +29,7 @@ export const PROJECT_CONFIG = {
     "remark",
     "startDate",
     "endDate",
-    "closureType",
+    "completionPercent",
     "leadingDepartmentId",
     "isArchived",
     "archivedAt",
@@ -70,6 +69,12 @@ function normalizeBudgetAmount(value: unknown) {
   if (value === null || value === undefined || value === "") return null;
   const number = typeof value === "number" ? value : Number(String(value).replace(/,/g, ""));
   return Number.isFinite(number) ? number : Number.NaN;
+}
+
+function normalizeCompletionPercent(value: unknown) {
+  if (value === null || value === undefined || value === "") return null;
+  const number = typeof value === "number" ? value : Number(String(value).replace(/,/g, ""));
+  return Number.isFinite(number) && number >= 0 ? number : Number.NaN;
 }
 
 function normalizeNullablePositiveInt(value: unknown) {
@@ -123,7 +128,7 @@ async function normalizeProjectFieldUpdate(field: string, value: unknown, id?: n
   if (field === "endDate" && isFutureDateValue(value)) return { error: "结项日期不能晚于今日" };
   if (DATE_FIELDS.includes(field)) return { field, value: value ? new Date(`${value}T00:00:00`) : null };
   if (NUMBER_FIELDS.includes(field)) {
-    const number = normalizeBudgetAmount(value);
+    const number = field === "completionPercent" ? normalizeCompletionPercent(value) : normalizeBudgetAmount(value);
     if (Number.isNaN(number)) return null;
     return { field, value: number };
   }
@@ -135,7 +140,6 @@ async function normalizeProjectFieldUpdate(field: string, value: unknown, id?: n
   }
   if (field === "isArchived") return { field, value: Boolean(value) };
   if (field === "projectLevel" && !isAllowedProjectOption(value, PROJECT_LEVELS)) return null;
-  if (field === "closureType" && !isAllowedProjectOption(value, PROJECT_CLOSURE_TYPES)) return null;
   if (field !== "name" && typeof value === "string" && value.trim() === "") return { field, value: null };
   return { field, value };
 }

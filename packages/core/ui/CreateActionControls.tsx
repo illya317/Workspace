@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { ActionButton, IconActionButton } from "./ActionControls";
+import { ActionGlyph } from "./ActionGlyphs";
 
 export interface CreateStartButtonProps {
   label: string;
@@ -21,7 +22,7 @@ export interface CreateConfirmActionsProps {
   order?: "submit-first" | "cancel-first";
 }
 
-export function CreateStartButton({ label, active, disabled, onClick, children = "+" }: CreateStartButtonProps) {
+export function CreateStartButton({ label, active, disabled, onClick, children = <ActionGlyph kind="add" /> }: CreateStartButtonProps) {
   return (
     <IconActionButton
       label={label}
@@ -58,7 +59,7 @@ export function CreateConfirmActions({
         if (!submitDisabled && !submitting) onSubmit();
       }}
     >
-      <CheckIcon />
+      <ActionGlyph kind="check" className="h-4 w-4" />
     </ActionButton>
   );
   const cancel = (
@@ -72,28 +73,12 @@ export function CreateConfirmActions({
       }}
       className="!h-9 !w-10 !px-0 !text-[11px] !leading-none"
     >
-      <XIcon />
+      <ActionGlyph kind="x" className="h-4 w-4" />
     </ActionButton>
   );
   return (
     <div className="flex shrink-0 flex-wrap items-center gap-2">
       {order === "cancel-first" ? [cancel, submit] : [submit, cancel]}
     </div>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} viewBox="0 0 24 24">
-      <path d="m5 12.5 4.2 4.2L19 7" />
-    </svg>
-  );
-}
-
-function XIcon() {
-  return (
-    <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} viewBox="0 0 24 24">
-      <path d="M6 6l12 12M18 6 6 18" />
-    </svg>
   );
 }

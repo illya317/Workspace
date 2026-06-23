@@ -69,7 +69,7 @@ async function buildBaselineSnapshot(projectId: number) {
   });
   if (!project) return [];
   return [
-    baselineItem("project", project.id, null, null, null, project.name, deriveProjectStatus(project.endDate, project.closureType), true, project.startDate, project.endDate),
+    baselineItem("project", project.id, null, null, null, project.name, deriveProjectStatus(project.endDate), true, project.startDate, project.endDate),
     ...project.planPhases.map((phase) => baselineItem("phase", phase.id, "project", project.id, null, phase.name, null, false, phase.startDate, phase.endDate)),
     ...project.tasks.map((task) => baselineItem("task", task.id, "project", project.id, task.planPhaseId, task.name, null, task.isMilestone, task.baselineStartDate ?? task.startDate, task.baselineEndDate ?? task.endDate)),
   ];
@@ -90,8 +90,7 @@ function baselineItem(
   return { itemKind, itemId, parentKind, parentId, phaseId, name, status, isMilestone, startDate, endDate };
 }
 
-function deriveProjectStatus(endDate: Date | null, closureType: string | null) {
-  if (endDate && closureType === "完成") return "已完成";
-  if (endDate && closureType === "终止") return "已终止";
+function deriveProjectStatus(endDate: Date | null) {
+  if (endDate) return "已完成";
   return "进行中";
 }

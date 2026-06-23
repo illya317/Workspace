@@ -144,6 +144,7 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
             onDraftChange={model.updateDraft}
             onLeaderChange={model.setLeader}
             onRoleMembersChange={model.setRoleMembers}
+            onProjectTasksChanged={(projectId) => void model.loadSelectedTasks(projectId)}
             onToast={model.setToast}
           />
         </SplitWorkspace>

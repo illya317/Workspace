@@ -12,7 +12,7 @@ export type ProjectGanttProject = {
   stages: ProjectGanttStage[];
   startDate: string | null;
   endDate: string | null;
-  closureType: string | null;
+  completionPercent: number | null;
   baselineStartDate: string | null;
   baselineEndDate: string | null;
 };
@@ -83,7 +83,6 @@ export type GanttRow = GanttNode & {
   expanded: boolean;
 };
 
-export const PROJECT_GANTT_STATUS_OPTIONS = ["进行中", "已完成", "已终止"] as const;
 export type ProjectGanttLevelFilter = "all" | "普通" | "重点";
 export const PROJECT_GANTT_LEVEL_OPTIONS = [
   { value: "all", label: "全部" },
@@ -120,13 +119,11 @@ export function buildProjectGanttRows(input: {
   expandedKeys: Set<string>;
   keyword: string;
   level: ProjectGanttLevelFilter;
-  statuses: Set<string>;
 }) {
   const nodes = new Map<string, GanttNode>();
   const children = new Map<string, string[]>();
-  const projectStatusPass = new Map<string, boolean>();
+  const projectFilterPass = new Map<string, boolean>();
   const keyword = input.keyword.trim().toLowerCase();
-  const statusFiltered = input.statuses.size > 0;
   const levelFiltered = input.level !== "all";
 
   function addNode(node: GanttNode) {
@@ -139,10 +136,9 @@ export function buildProjectGanttRows(input: {
 
   for (const project of input.data.projects) {
     const key = projectKey(project.id);
-    const passesStatus = !statusFiltered || Boolean(project.status && input.statuses.has(project.status));
     const passesLevel = !levelFiltered || project.projectLevel === input.level;
-    const passes = passesStatus && passesLevel;
-    projectStatusPass.set(key, passes);
+    const passes = passesLevel;
+    projectFilterPass.set(key, passes);
     addNode({
       key,
       kind: "project",
@@ -190,8 +186,8 @@ export function buildProjectGanttRows(input: {
     });
   }
 
-  const filterActive = Boolean(keyword || statusFiltered || levelFiltered);
-  const includedKeys = collectIncludedKeys(nodes, children, projectStatusPass, keyword, filterActive);
+  const filterActive = Boolean(keyword || levelFiltered);
+  const includedKeys = collectIncludedKeys(nodes, children, projectFilterPass, keyword, filterActive);
   for (const key of rootKeys(nodes)) computeAggregateData(key, nodes, children);
   const rows: GanttRow[] = [];
   for (const key of rootKeys(nodes)) {
@@ -209,19 +205,19 @@ function rootKeys(nodes: Map<string, GanttNode>) {
 function collectIncludedKeys(
   nodes: Map<string, GanttNode>,
   children: Map<string, string[]>,
-  projectStatusPass: Map<string, boolean>,
+  projectFilterPass: Map<string, boolean>,
   keyword: string,
   filterActive: boolean,
 ) {
   const candidateKeys = new Set<string>();
   for (const node of nodes.values()) {
     const matchesText = !keyword || node.searchText.toLowerCase().includes(keyword);
-    const matchesStatus = node.kind === "project"
-      ? Boolean(projectStatusPass.get(node.key))
+    const matchesFilter = node.kind === "project"
+      ? Boolean(projectFilterPass.get(node.key))
       : node.kind === "task"
-        ? Boolean(node.projectKey && projectStatusPass.get(node.projectKey))
+        ? Boolean(node.projectKey && projectFilterPass.get(node.projectKey))
         : !filterActive;
-    if (matchesText && matchesStatus) candidateKeys.add(node.key);
+    if (matchesText && matchesFilter) candidateKeys.add(node.key);
   }
   if (candidateKeys.size === 0 && filterActive) return candidateKeys;
   if (candidateKeys.size === 0) return new Set(nodes.keys());

@@ -1,19 +1,38 @@
 /// 工作清单条目
 model WorkItem {
-  id           Int               @id @default(autoincrement())
-  targetType   String            @default("personal")
-  targetId     Int?
-  category     String
-  content      String
-  importance   Int               @default(3)
-  urgency      Int               @default(3)
-  isArchived   Boolean           @default(false)
-  isPrivate    Boolean           @default(false)
-  sortOrder    Int               @default(0)
-  createdAt    DateTime          @default(now())
-  participants WorkParticipant[]
+  id                  Int               @id @default(autoincrement())
+  targetType          String            @default("personal")
+  targetId            Int?
+  category            String
+  content             String
+  description         String            @default("")
+  importance          Int               @default(3)
+  urgency             Int               @default(3)
+  status              String?
+  ownerEmployeeId     Int?
+  startDate           DateTime?
+  dueDate             DateTime?
+  linkedProjectId     Int?
+  linkedProjectTaskId Int?
+  parentWorkItemId    Int?
+  isArchived          Boolean           @default(false)
+  isPrivate           Boolean           @default(false)
+  sortOrder           Int               @default(0)
+  createdAt           DateTime          @default(now())
+  participants        WorkParticipant[]
+  owner               Employee?         @relation("WorkItemOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull)
+  linkedProject       Project?          @relation("WorkItemLinkedProject", fields: [linkedProjectId], references: [id], onDelete: SetNull)
+  linkedProjectTask   ProjectTask?      @relation("WorkItemLinkedProjectTask", fields: [linkedProjectTaskId], references: [id], onDelete: SetNull)
+  parentWorkItem      WorkItem?         @relation("WorkItemHierarchy", fields: [parentWorkItemId], references: [id], onDelete: SetNull)
+  childWorkItems      WorkItem[]        @relation("WorkItemHierarchy")
+  reportItems         WorkReportItem[]
 
   @@index([targetType, targetId, category])
+  @@index([ownerEmployeeId])
+  @@index([status])
+  @@index([linkedProjectId])
+  @@index([linkedProjectTaskId])
+  @@index([parentWorkItemId])
 }
 
 /// 工作清单参与人
@@ -50,4 +69,58 @@ model ProjectWorkAssignee {
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, userId, kind])
+}
+
+/// 工作计划空间权限（业务空间权限，非全局 RBAC 资源）
+model WorkScopePermission {
+  id         Int      @id @default(autoincrement())
+  targetType String
+  targetId   Int
+  userId     Int
+  role       String
+  kind       String   @default("task")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([targetType, targetId, userId, kind])
+  @@index([userId])
+  @@index([targetType, targetId, kind])
+}
+
+/// 工作计划空间汇报
+model WorkReport {
+  id          Int              @id @default(autoincrement())
+  targetType  String
+  targetId    Int
+  periodType  String           @default("weekly")
+  periodStart DateTime
+  periodEnd   DateTime
+  submittedBy Int
+  submittedAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @default(now()) @updatedAt
+  submitter   User             @relation("WorkReportSubmitter", fields: [submittedBy], references: [id], onDelete: Cascade)
+  items       WorkReportItem[]
+
+  @@unique([targetType, targetId, periodType, periodStart, submittedBy])
+  @@index([submittedBy])
+  @@index([targetType, targetId, periodType, periodStart])
+}
+
+/// 工作计划空间汇报事项
+model WorkReportItem {
+  id                   Int        @id @default(autoincrement())
+  reportId             Int
+  workItemId           Int?
+  title                String
+  previousPlanSnapshot String     @default("")
+  doneThisWeek         String     @default("")
+  planNextWeek         String     @default("")
+  sortOrder            Int        @default(0)
+  report               WorkReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  workItem             WorkItem?  @relation(fields: [workItemId], references: [id], onDelete: SetNull)
+
+  @@index([reportId])
+  @@index([workItemId])
 }

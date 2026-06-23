@@ -23,6 +23,8 @@ export { default as DisclosureSectionHeader } from "./DisclosureSectionHeader";
 export type { DisclosureSectionHeaderProps } from "./DisclosureSectionHeader";
 export { default as DropdownMenu } from "./DropdownMenu";
 export type { DropdownMenuItem, DropdownMenuProps } from "./DropdownMenu";
+export { createDataTableEditActions } from "./DataTableActions";
+export type { DataTableEditActionsOptions } from "./DataTableActions";
 export { default as DataTable, DataTableActionButton, DataTableActionsCell, dataTableClassNames, getDefaultVisibleColumns } from "./DataTable";
 export type { DataTableActionKind, DataTableColumn, DataTableProps, DataTableRowAction } from "./DataTable";
 export { default as EditToolbar } from "./EditToolbar";
@@ -59,6 +61,8 @@ export {
 } from "./FormStyles";
 export { CreateConfirmActions, CreateStartButton } from "./CreateActionControls";
 export type { CreateConfirmActionsProps, CreateStartButtonProps } from "./CreateActionControls";
+export { ActionGlyph } from "./ActionGlyphs";
+export type { ActionGlyphKind, ActionGlyphProps } from "./ActionGlyphs";
 export { default as InlineCreatePanel } from "./InlineCreatePanel";
 export type { InlineCreatePanelProps } from "./InlineCreatePanel";
 export { default as Toast } from "./Toast";

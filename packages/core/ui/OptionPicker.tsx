@@ -19,6 +19,7 @@ export interface OptionPickerProps {
   searchPlaceholder?: string;
   commonValues?: string[];
   visibleCount?: number;
+  gridColumnCount?: number;
   placeholderInGrid?: boolean;
   className?: string;
   buttonClassName?: string;
@@ -41,6 +42,8 @@ function uniqOptions(options: PickerOption[]) {
   return next;
 }
 
+const pickerOptionTextClassName = "text-xs font-medium leading-5";
+
 export default function OptionPicker({
   value,
   options,
@@ -50,6 +53,7 @@ export default function OptionPicker({
   searchPlaceholder = "搜索选项",
   commonValues,
   visibleCount = 6,
+  gridColumnCount,
   placeholderInGrid = false,
   className,
   buttonClassName,
@@ -91,7 +95,7 @@ export default function OptionPicker({
   const gridOptions = placeholderInGrid && !hasExplicitEmptyOption
     ? [{ label: placeholder, value: "" }, ...visibleOptions]
     : visibleOptions;
-  const gridColumnCount = Math.min(3, Math.max(1, gridOptions.length));
+  const visibleGridColumnCount = gridColumnCount ?? Math.min(3, Math.max(1, gridOptions.length));
 
   function resetPopup() {
     setShowMore(false);
@@ -128,7 +132,7 @@ export default function OptionPicker({
                   <button
                     type="button"
                     onClick={() => choose(null)}
-                    className={`whitespace-nowrap rounded-md border px-2.5 py-1.5 text-xs font-medium transition ${isUnset ? "border-slate-300 bg-slate-100 text-slate-900" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
+                    className={`whitespace-nowrap rounded-md border px-2.5 py-1.5 transition ${pickerOptionTextClassName} ${isUnset ? "border-slate-300 bg-slate-100 text-slate-900" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
                   >
                     {placeholder}
                   </button>
@@ -137,7 +141,7 @@ export default function OptionPicker({
                 <button
                   type="button"
                   onClick={() => setShowMore((next) => !next)}
-                  className={`whitespace-nowrap rounded-md border px-2.5 py-1.5 text-xs font-medium transition ${
+                  className={`whitespace-nowrap rounded-md border px-2.5 py-1.5 transition ${pickerOptionTextClassName} ${
                     showMore
                       ? "border-emerald-500 bg-emerald-50 text-emerald-700"
                       : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
@@ -151,7 +155,7 @@ export default function OptionPicker({
 
             <div
               className="grid gap-2"
-              style={{ gridTemplateColumns: `repeat(${gridColumnCount}, max-content)` }}
+              style={{ gridTemplateColumns: `repeat(${visibleGridColumnCount}, max-content)` }}
             >
               {gridOptions.map((option) => {
                 const selected = !isUnset && option.value === current;
@@ -161,7 +165,7 @@ export default function OptionPicker({
                     key={option.value}
                     type="button"
                     onClick={() => choose(option.value || null)}
-                    className={`min-w-0 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-xs font-medium transition ${
+                    className={`min-w-0 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center transition ${pickerOptionTextClassName} ${
                       selected || selectedUnset
                         ? option.value === ""
                           ? "border-slate-300 bg-slate-100 text-slate-900"
@@ -188,7 +192,7 @@ export default function OptionPicker({
                 <div className="max-h-64 overflow-auto pr-1">
                   <div
                     className="grid gap-2"
-                    style={{ gridTemplateColumns: `repeat(${Math.min(3, Math.max(1, filteredMore.length))}, max-content)` }}
+                    style={{ gridTemplateColumns: `repeat(${gridColumnCount ?? Math.min(3, Math.max(1, filteredMore.length))}, max-content)` }}
                   >
                     {filteredMore.map((option) => {
                       const selected = !isUnset && option.value === current;
@@ -197,9 +201,9 @@ export default function OptionPicker({
                           key={option.value}
                           type="button"
                           onClick={() => choose(option.value)}
-                          className={`min-w-0 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-xs transition ${
+                          className={`min-w-0 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center transition ${pickerOptionTextClassName} ${
                             selected
-                              ? "border-emerald-500 bg-emerald-50 font-medium text-emerald-700"
+                              ? "border-emerald-500 bg-emerald-50 text-emerald-700"
                               : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                           }`}
                         >

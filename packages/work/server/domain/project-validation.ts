@@ -10,7 +10,6 @@ import {
 } from "../access";
 import {
   PROJECT_CONFIG,
-  PROJECT_CLOSURE_TYPES,
   PROJECT_LEVELS,
   generateProjectCode,
   hasValidProjectDates,
@@ -48,7 +47,7 @@ const PROJECT_EDIT_FIELDS = new Set([
   "remark",
   "startDate",
   "endDate",
-  "closureType",
+  "completionPercent",
 ]);
 
 export async function buildProjectCreateCommand(
@@ -58,9 +57,7 @@ export async function buildProjectCreateCommand(
   if (!hasValidProjectDates(input.startDate, input.endDate)) return failCommand("日期格式错误");
   if (isFutureDateValue(input.endDate)) return failCommand("结项日期不能晚于今日");
   if (!isAllowedProjectOption(input.projectLevel, PROJECT_LEVELS)) return failCommand("项目级别无效");
-  if (!isAllowedProjectOption(input.closureType, PROJECT_CLOSURE_TYPES)) return failCommand("结项方式无效");
-  if (input.endDate && !input.closureType) return failCommand("请选择结项方式");
-  if (input.closureType && !input.endDate) return failCommand("请先填写结项日期");
+  if (input.completionPercent !== null && input.completionPercent !== undefined && input.completionPercent < 0) return failCommand("完成度不能小于 0");
 
   const leadingDepartmentResult = input.leadingDepartmentId
     ? await normalizeLeadingDepartmentId(input.leadingDepartmentId)
@@ -106,7 +103,7 @@ export async function buildProjectCreateCommand(
       leadingDepartmentId: leadingDepartmentResult && !("error" in leadingDepartmentResult) ? leadingDepartmentResult.value : null,
       startDate,
       endDate: parseDate(input.endDate),
-      closureType: nullableString(input.closureType),
+      completionPercent: input.completionPercent ?? null,
       createdBy: userId,
       editedBy: userId,
     },

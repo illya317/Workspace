@@ -4,6 +4,7 @@ import { requireApiAccess } from "@workspace/platform/server/auth";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import {
   canEditWorkTask,
+  canDeleteWorkTask,
   deleteWorkItem,
   getWorkItemAccessMetadata,
   parseParticipants,
@@ -13,10 +14,18 @@ import {
 const updateWorkItemSchema = z.object({
   category: z.string().optional(),
   content: z.string().optional(),
-  importance: z.number().int().optional(),
-  urgency: z.number().int().optional(),
+  description: z.string().optional(),
+  importance: z.coerce.number().int().optional(),
+  urgency: z.coerce.number().int().optional(),
+  status: z.string().nullable().optional(),
+  ownerEmployeeId: z.coerce.number().nullable().optional(),
+  startDate: z.string().nullable().optional(),
+  dueDate: z.string().nullable().optional(),
+  linkedProjectId: z.coerce.number().nullable().optional(),
+  linkedProjectTaskId: z.coerce.number().nullable().optional(),
+  parentWorkItemId: z.coerce.number().nullable().optional(),
   participants: z.string().optional(),
-  sortOrder: z.number().int().optional(),
+  sortOrder: z.coerce.number().int().optional(),
   isArchived: z.boolean().optional(),
 });
 
@@ -67,7 +76,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   const existing = await getWorkItemAccessMetadata(workId);
   if (!existing) return NextResponse.json({ error: "工作项不存在" }, { status: 404 });
 
-  const allowed = await canEditWorkTask(payload.userId, existing.targetType, existing.targetId ?? 0);
+  const allowed = await canDeleteWorkTask(payload.userId, existing.targetType, existing.targetId ?? 0);
   if (!allowed) return NextResponse.json({ error: "无权限删除工作计划" }, { status: 403 });
 
   const result = await deleteWorkItem(workId);

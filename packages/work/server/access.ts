@@ -4,6 +4,16 @@ import { prisma } from "@workspace/platform/server/prisma";
 import { PROJECT_ROLES } from "../constants/field-options";
 
 export type ProjectAccessRole = "access" | "write" | "delete" | "admin";
+export type WorkSpaceTargetType = "personal" | "department" | "project" | "position";
+export type WorkSpaceRole = "viewer" | "editor" | "delete" | "manager";
+export type WorkSpacePermissionKind = "task";
+
+const WORK_SPACE_ROLE_LEVEL: Record<WorkSpaceRole, number> = {
+  viewer: 0,
+  editor: 1,
+  delete: 2,
+  manager: 3,
+};
 
 export async function canUseProject(userId: number, role: ProjectAccessRole = "access") {
   return hasProjectBroadAccess(userId, role);
@@ -147,6 +157,30 @@ export async function canDeleteProject(userId: number, projectId: number) {
   return Boolean(permissions?.canDelete);
 }
 
+export function normalizeWorkTargetType(targetType: string): WorkSpaceTargetType {
+  if (targetType === "user") return "personal";
+  if (targetType === "personal" || targetType === "department" || targetType === "project" || targetType === "position") return targetType;
+  return "department";
+}
+
+export function normalizeWorkPermissionKind(_kind: string | null | undefined): WorkSpacePermissionKind {
+  return "task";
+}
+
+export function normalizeWorkSpaceRole(role: string | null | undefined): WorkSpaceRole {
+  if (role === "manager" || role === "delete" || role === "editor" || role === "viewer") return role;
+  return "viewer";
+}
+
+export function workSpaceRoleAllows(role: WorkSpaceRole | null, required: WorkSpaceRole) {
+  if (!role) return false;
+  return WORK_SPACE_ROLE_LEVEL[role] >= WORK_SPACE_ROLE_LEVEL[required];
+}
+
+export async function hasWorkAdmin(userId: number) {
+  return authorize({ user: userId, resourceKey: "work", action: "admin" });
+}
+
 async function isMemberOfTarget(
   userId: number,
   targetType: string,
@@ -180,7 +214,7 @@ async function isMemberOfTarget(
     return Boolean(edp);
   }
 
-  if (targetType === "user") return targetId === userId;
+  if ((targetType === "user" || targetType === "personal") && targetId === userId) return true;
   return false;
 }
 
@@ -188,18 +222,17 @@ async function isAssignee(
   userId: number,
   targetType: string,
   targetId: number,
-  kind: "task",
 ): Promise<boolean> {
   if (targetType === "department") {
     const assignee = await prisma.departmentWorkAssignee.findFirst({
-      where: { departmentId: targetId, userId, kind },
+      where: { departmentId: targetId, userId, kind: "task" },
     });
     return Boolean(assignee);
   }
 
   if (targetType === "project") {
     const assignee = await prisma.projectWorkAssignee.findFirst({
-      where: { projectId: targetId, userId, kind },
+      where: { projectId: targetId, userId, kind: "task" },
     });
     return Boolean(assignee);
   }
@@ -207,14 +240,81 @@ async function isAssignee(
   return false;
 }
 
+async function explicitWorkSpaceRole(
+  userId: number,
+  targetType: WorkSpaceTargetType,
+  targetId: number,
+) {
+  const rows = await prisma.workScopePermission.findMany({
+    where: {
+      userId,
+      targetType,
+      targetId,
+      kind: "task",
+    },
+    select: { role: true },
+  });
+  return rows.reduce<WorkSpaceRole | null>((best, row) => {
+    const role = normalizeWorkSpaceRole(row.role);
+    return !best || WORK_SPACE_ROLE_LEVEL[role] > WORK_SPACE_ROLE_LEVEL[best] ? role : best;
+  }, null);
+}
+
+async function naturalWorkSpaceRole(
+  userId: number,
+  targetType: WorkSpaceTargetType,
+  targetId: number,
+): Promise<WorkSpaceRole | null> {
+  if (targetType === "personal") return targetId === userId ? "manager" : null;
+  if (await hasWorkAdmin(userId)) return "manager";
+
+  if (targetType === "department") {
+    const department = await prisma.department.findUnique({
+      where: { id: targetId },
+      select: { managerUserId: true },
+    });
+    if (department?.managerUserId === userId) return "manager";
+    if (await isAssignee(userId, "department", targetId)) return "editor";
+    return await isMemberOfTarget(userId, "department", targetId) ? "viewer" : null;
+  }
+
+  if (targetType === "project") {
+    const permissions = await getProjectPermissionsById(userId, targetId);
+    if (permissions?.canManage) return "manager";
+    if (permissions?.canDelete) return "delete";
+    if (permissions?.canEdit) return "editor";
+    if (await isAssignee(userId, "project", targetId)) return "editor";
+    return permissions?.canView || await isMemberOfTarget(userId, "project", targetId) ? "viewer" : null;
+  }
+
+  if (targetType === "position") return await isMemberOfTarget(userId, "position", targetId) ? "viewer" : null;
+  return null;
+}
+
+export async function getWorkSpaceRole(
+  userId: number,
+  targetTypeInput: string,
+  targetId: number,
+  kindInput: string | null | undefined = "task",
+): Promise<WorkSpaceRole | null> {
+  const targetType = normalizeWorkTargetType(targetTypeInput);
+  normalizeWorkPermissionKind(kindInput);
+  const [natural, explicit] = await Promise.all([
+    naturalWorkSpaceRole(userId, targetType, targetId),
+    explicitWorkSpaceRole(userId, targetType, targetId),
+  ]);
+  if (!natural) return explicit;
+  if (!explicit) return natural;
+  return WORK_SPACE_ROLE_LEVEL[explicit] > WORK_SPACE_ROLE_LEVEL[natural] ? explicit : natural;
+}
+
 export async function canAccessTarget(
   userId: number,
   targetType: string,
   targetId: number,
 ): Promise<boolean> {
-  if (targetType === "user" && targetId === userId) return true;
-  if (await authorize({ user: userId, resourceKey: "work", action: "admin" })) return true;
-  return isMemberOfTarget(userId, targetType, targetId);
+  const role = await getWorkSpaceRole(userId, targetType, targetId, "task");
+  return workSpaceRoleAllows(role, "viewer");
 }
 
 export async function canEditWorkTask(
@@ -222,7 +322,20 @@ export async function canEditWorkTask(
   targetType: string,
   targetId: number,
 ): Promise<boolean> {
-  if (targetType === "user" && targetId === userId) return true;
-  if (await authorize({ user: userId, resourceKey: "work", action: "admin" })) return true;
-  return isAssignee(userId, targetType, targetId, "task");
+  const role = await getWorkSpaceRole(userId, targetType, targetId, "task");
+  return workSpaceRoleAllows(role, "editor");
+}
+
+export async function canDeleteWorkTask(
+  userId: number,
+  targetType: string,
+  targetId: number,
+): Promise<boolean> {
+  const role = await getWorkSpaceRole(userId, targetType, targetId, "task");
+  return workSpaceRoleAllows(role, "delete");
+}
+
+export async function canManageWorkTaskSpace(userId: number, targetType: string, targetId: number) {
+  const role = await getWorkSpaceRole(userId, targetType, targetId, "task");
+  return workSpaceRoleAllows(role, "manager");
 }

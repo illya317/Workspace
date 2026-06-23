@@ -4,5 +4,7 @@ export * from "./project-tasks";
 export * from "./project-plan";
 export * from "./project-plan-baselines";
 export * from "./access";
+export * from "./task-spaces";
+export * from "./task-reports";
 export * from "./project-reference-options";
 export * from "./works";

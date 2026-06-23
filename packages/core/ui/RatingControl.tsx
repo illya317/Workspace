@@ -7,6 +7,7 @@ export interface RatingControlProps {
   label: string;
   max?: number;
   readOnly?: boolean;
+  showLabel?: boolean;
   onChange?: (value: number) => void;
   className?: string;
 }
@@ -16,6 +17,7 @@ export default function RatingControl({
   label,
   max = 5,
   readOnly = false,
+  showLabel = true,
   onChange,
   className = "",
 }: RatingControlProps) {
@@ -23,8 +25,14 @@ export default function RatingControl({
 
   return (
     <div className={joinClassNames("flex items-center gap-2", className)}>
-      <span className="text-xs text-gray-500">{label}</span>
-      <div className="flex gap-0.5" aria-label={label}>
+      {showLabel && <span className="text-xs font-medium text-slate-500">{label}</span>}
+      <div
+        className={joinClassNames(
+          "inline-flex h-10 items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1",
+          readOnly && "h-8 border-slate-100 bg-slate-100/80",
+        )}
+        aria-label={label}
+      >
         {scores.map((score) => (
           <button
             key={score}
@@ -32,15 +40,21 @@ export default function RatingControl({
             disabled={readOnly}
             aria-label={`${label} ${score}`}
             aria-pressed={score <= value}
+            title={`${label} ${score}`}
             onClick={() => onChange?.(score)}
             className={joinClassNames(
-              "text-sm leading-none transition-colors",
-              score <= value ? "text-amber-400" : "text-gray-300",
-              !readOnly && "cursor-pointer hover:text-amber-500",
+              "grid place-items-center rounded-md text-xs font-semibold leading-none transition",
+              readOnly ? "h-6 w-6" : "h-8 w-8",
+              score <= value
+                ? readOnly
+                  ? "bg-slate-700 text-white"
+                  : "bg-emerald-600 text-white shadow-sm"
+                : "text-slate-400",
+              !readOnly && "cursor-pointer hover:bg-white hover:text-slate-900",
               readOnly && "cursor-default",
             )}
           >
-            ★
+            {score}
           </button>
         ))}
       </div>

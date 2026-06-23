@@ -42,7 +42,7 @@ export async function listProjects(input: { userId: number; keyword: string; pag
         canDelete: permissions.canDelete,
       },
       description: project.description,
-      status: deriveProjectStatus(project.endDate, project.closureType),
+      status: deriveProjectStatus(project.endDate),
       projectLevel: project.projectLevel,
       plan: project.plan,
       goal: project.goal,
@@ -58,7 +58,7 @@ export async function listProjects(input: { userId: number; keyword: string; pag
       leadingDepartmentCode: leadingDepartment?.code ?? null,
       startDate: formatDate(project.startDate),
       endDate: formatDate(project.endDate),
-      closureType: project.closureType,
+      completionPercent: project.completionPercent,
       employeeCount: project._count.employees,
     };
   }));
@@ -126,7 +126,7 @@ export async function listProjectGantt(input: { userId: number; includeTasks?: b
       return {
         id: project.id,
         name: project.name,
-        status: deriveProjectStatus(project.endDate, project.closureType),
+        status: deriveProjectStatus(project.endDate),
         projectLevel: project.projectLevel,
         leadingDepartmentId: project.leadingDepartmentId,
         leadingDepartmentCode: project.leadingDepartment?.code ?? null,
@@ -137,7 +137,7 @@ export async function listProjectGantt(input: { userId: number; includeTasks?: b
         stages: [],
         startDate: formatDate(project.startDate),
         endDate: formatDate(project.endDate),
-        closureType: project.closureType,
+        completionPercent: project.completionPercent,
         baselineStartDate: formatDate(baseline?.startDate ?? null),
         baselineEndDate: formatDate(baseline?.endDate ?? null),
       };
@@ -161,9 +161,8 @@ export async function listProjectGantt(input: { userId: number; includeTasks?: b
   };
 }
 
-function deriveProjectStatus(endDate: Date | null, closureType: string | null) {
-  if (endDate && closureType === "完成") return "已完成";
-  if (endDate && closureType === "终止") return "已终止";
+function deriveProjectStatus(endDate: Date | null) {
+  if (endDate) return "已完成";
   return "进行中";
 }
 

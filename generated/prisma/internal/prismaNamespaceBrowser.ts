@@ -116,9 +116,6 @@ export const ModelName = {
   OpenApiScope: 'OpenApiScope',
   OpenApiClientScopeGrant: 'OpenApiClientScopeGrant',
   OpenApiAccessLog: 'OpenApiAccessLog',
-  Report: 'Report',
-  ReportItem: 'ReportItem',
-  ReportHistory: 'ReportHistory',
   SystemConfig: 'SystemConfig',
   LoginAttempt: 'LoginAttempt',
   Project: 'Project',
@@ -132,7 +129,10 @@ export const ModelName = {
   WorkItem: 'WorkItem',
   WorkParticipant: 'WorkParticipant',
   DepartmentWorkAssignee: 'DepartmentWorkAssignee',
-  ProjectWorkAssignee: 'ProjectWorkAssignee'
+  ProjectWorkAssignee: 'ProjectWorkAssignee',
+  WorkScopePermission: 'WorkScopePermission',
+  WorkReport: 'WorkReport',
+  WorkReportItem: 'WorkReportItem'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1386,49 +1386,6 @@ export const OpenApiAccessLogScalarFieldEnum = {
 export type OpenApiAccessLogScalarFieldEnum = (typeof OpenApiAccessLogScalarFieldEnum)[keyof typeof OpenApiAccessLogScalarFieldEnum]
 
 
-export const ReportScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  targetType: 'targetType',
-  targetId: 'targetId',
-  date: 'date',
-  taskName: 'taskName',
-  notes: 'notes',
-  editedBy: 'editedBy',
-  editedAt: 'editedAt',
-  version: 'version'
-} as const
-
-export type ReportScalarFieldEnum = (typeof ReportScalarFieldEnum)[keyof typeof ReportScalarFieldEnum]
-
-
-export const ReportItemScalarFieldEnum = {
-  id: 'id',
-  reportId: 'reportId',
-  category: 'category',
-  plan: 'plan',
-  completion: 'completion',
-  nextGoal: 'nextGoal',
-  sortOrder: 'sortOrder',
-  workItemId: 'workItemId'
-} as const
-
-export type ReportItemScalarFieldEnum = (typeof ReportItemScalarFieldEnum)[keyof typeof ReportItemScalarFieldEnum]
-
-
-export const ReportHistoryScalarFieldEnum = {
-  id: 'id',
-  reportId: 'reportId',
-  version: 'version',
-  taskName: 'taskName',
-  notes: 'notes',
-  itemsJson: 'itemsJson',
-  createdAt: 'createdAt'
-} as const
-
-export type ReportHistoryScalarFieldEnum = (typeof ReportHistoryScalarFieldEnum)[keyof typeof ReportHistoryScalarFieldEnum]
-
-
 export const SystemConfigScalarFieldEnum = {
   key: 'key',
   value: 'value'
@@ -1463,6 +1420,7 @@ export const ProjectScalarFieldEnum = {
   remark: 'remark',
   startDate: 'startDate',
   endDate: 'endDate',
+  completionPercent: 'completionPercent',
   closureType: 'closureType',
   leadingDepartmentId: 'leadingDepartmentId',
   isArchived: 'isArchived',
@@ -1614,8 +1572,16 @@ export const WorkItemScalarFieldEnum = {
   targetId: 'targetId',
   category: 'category',
   content: 'content',
+  description: 'description',
   importance: 'importance',
   urgency: 'urgency',
+  status: 'status',
+  ownerEmployeeId: 'ownerEmployeeId',
+  startDate: 'startDate',
+  dueDate: 'dueDate',
+  linkedProjectId: 'linkedProjectId',
+  linkedProjectTaskId: 'linkedProjectTaskId',
+  parentWorkItemId: 'parentWorkItemId',
   isArchived: 'isArchived',
   isPrivate: 'isPrivate',
   sortOrder: 'sortOrder',
@@ -1654,6 +1620,50 @@ export const ProjectWorkAssigneeScalarFieldEnum = {
 } as const
 
 export type ProjectWorkAssigneeScalarFieldEnum = (typeof ProjectWorkAssigneeScalarFieldEnum)[keyof typeof ProjectWorkAssigneeScalarFieldEnum]
+
+
+export const WorkScopePermissionScalarFieldEnum = {
+  id: 'id',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  userId: 'userId',
+  role: 'role',
+  kind: 'kind',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WorkScopePermissionScalarFieldEnum = (typeof WorkScopePermissionScalarFieldEnum)[keyof typeof WorkScopePermissionScalarFieldEnum]
+
+
+export const WorkReportScalarFieldEnum = {
+  id: 'id',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  periodType: 'periodType',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  submittedBy: 'submittedBy',
+  submittedAt: 'submittedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WorkReportScalarFieldEnum = (typeof WorkReportScalarFieldEnum)[keyof typeof WorkReportScalarFieldEnum]
+
+
+export const WorkReportItemScalarFieldEnum = {
+  id: 'id',
+  reportId: 'reportId',
+  workItemId: 'workItemId',
+  title: 'title',
+  previousPlanSnapshot: 'previousPlanSnapshot',
+  doneThisWeek: 'doneThisWeek',
+  planNextWeek: 'planNextWeek',
+  sortOrder: 'sortOrder'
+} as const
+
+export type WorkReportItemScalarFieldEnum = (typeof WorkReportItemScalarFieldEnum)[keyof typeof WorkReportItemScalarFieldEnum]
 
 
 export const SortOrder = {

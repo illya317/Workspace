@@ -28,7 +28,7 @@
 | wxUserId | String? | @unique |  |
 | username | String? | @unique |  |
 | password | String? | - |  |
-| name | String | - |  |
+| nickname | String | - |  |
 | avatar | String? | - |  |
 | routineItems | String? | - |  |
 | canLogin | Boolean | @default(true) |  |
@@ -42,7 +42,6 @@
 | employees | Employee[] | @relation("EmployeeUser") |  |
 | editedFinanceAccounts | FinanceAccount[] | @relation("FinanceAccountEditor") |  |
 | editedFinanceVouchers | FinanceVoucher[] | @relation("FinanceVoucherEditor") |  |
-| reports | Report[] | - |  |
 | editedStockFinishedGoods | StockFinishedGoods[] | @relation("StockFinishedGoodsEditor") |  |
 | stockOperations | StockOperation[] | @relation("StockOperationEditor") |  |
 | editedStockPackagings | StockPackaging[] | @relation("StockPackagingEditor") |  |
@@ -59,6 +58,9 @@
 | editedWorkpapers | FinanceStatementWorkpaper[] | @relation("WorkpaperEditor") |  |
 | editedReviews | FinanceStatementReview[] | @relation("ReviewEditor") |  |
 | reviewedReviews | FinanceStatementReview[] | @relation("ReviewReviewer") |  |
+| notifications | Notification[] | @relation("NotificationRecipient") |  |
+| createdNotifications | Notification[] | @relation("NotificationActor") |  |
+| workScopePermissions | WorkScopePermission[] | - |  |
 
 ### Resource
 
@@ -131,6 +133,30 @@
 | role | Role | @relation(fields: [roleId], references: [id], onDelete: Cascade) |  |
 | resource | Resource | @relation(fields: [resourceId], references: [id], onDelete: Cascade) |  |
 | department | Department | @relation(fields: [departmentId], references: [id], onDelete: Cascade) |  |
+
+### Notification
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| recipientUserId | Int | - |  |
+| actorUserId | Int? | - |  |
+| type | String | - |  |
+| title | String | - |  |
+| body | String | - |  |
+| href | String? | - |  |
+| payloadJson | String? | - |  |
+| isImportant | Boolean | @default(false) |  |
+| isStrongReminder | Boolean | @default(false) |  |
+| requiresAcknowledgement | Boolean | @default(false) |  |
+| readAt | DateTime? | - |  |
+| acknowledgedAt | DateTime? | - |  |
+| rejectedAt | DateTime? | - |  |
+| clearedAt | DateTime? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| recipient | User | @relation("NotificationRecipient", fields: [recipientUserId], references: [id], onDelete: Cascade) |  |
+| actor | User? | @relation("NotificationActor", fields: [actorUserId], references: [id], onDelete: SetNull) |  |
 
 ### Contract
 
@@ -755,6 +781,45 @@
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | review | FinanceStatementReview | @relation(fields: [reviewId], references: [id], onDelete: Cascade) |  |
 
+### DepartmentDescription
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| departmentId | Int | - |  |
+| code | String | - |  |
+| name | String | - |  |
+| sourceFile | String | - |  |
+| codeRaw | String? | - |  |
+| details | String? | - |  |
+| editedBy | Int? | - |  |
+| editedAt | DateTime? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| department | Department | @relation(fields: [departmentId], references: [id], onDelete: Cascade) |  |
+
+### PositionDescription
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| code | String | @unique |  |
+| name | String | - |  |
+| departmentName | String? | - |  |
+| reportTo | String? | - |  |
+| positionPurpose | String? | - |  |
+| summary | String? | - |  |
+| headcount | Int? | - |  |
+| version | String? | - |  |
+| effectiveDate | String? | - |  |
+| sourceFile | String | - |  |
+| details | String? | - |  |
+| editedBy | Int? | - |  |
+| editedAt | DateTime? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| positions | Position[] | - |  |
+
 ### Employee
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -785,6 +850,9 @@
 | user | User? | @relation("EmployeeUser", fields: [userId], references: [id]) |  |
 | positions | EDP[] | - |  |
 | projects | EmployeeProject[] | - |  |
+| projectTasks | ProjectTask[] | @relation("ProjectTaskOwner") |  |
+| projectTaskAssignments | ProjectTaskAssignment[] | - |  |
+| ownedWorkItems | WorkItem[] | @relation("WorkItemOwner") |  |
 | employments | Employment[] | - |  |
 | financeSalesSalaries | FinanceSalesSalary[] | - |  |
 | financeShipments | FinanceShipment[] | - |  |
@@ -801,6 +869,7 @@
 | joinDate | String? | - |  |
 | leaveDate | String? | - |  |
 | leaveReason | String? | - |  |
+| leaveNote | String? | - |  |
 | officeLocation | String? | - |  |
 | attendanceType | String? | - |  |
 | personnelType | String? | - |  |
@@ -863,6 +932,8 @@
 | level | Int | @default(1) |  |
 | parentId | Int? | - |  |
 | managerUserId | Int? | - |  |
+| isArchived | Boolean | @default(false) |  |
+| archivedAt | DateTime? | - |  |
 | endDate | DateTime? | - |  |
 | editedBy | Int? | - |  |
 | editedAt | DateTime? | - |  |
@@ -870,8 +941,10 @@
 | manager | User? | @relation("DepartmentManager", fields: [managerUserId], references: [id]) |  |
 | parent | Department? | @relation("DeptHierarchy", fields: [parentId], references: [id]) |  |
 | children | Department[] | @relation("DeptHierarchy") |  |
+| descriptions | DepartmentDescription[] | - |  |
 | resourceRoles | DepartmentResourceRole[] | - |  |
 | workAssignees | DepartmentWorkAssignee[] | - |  |
+| leadingProjects | Project[] | @relation("ProjectLeadingDepartment") |  |
 | edps | EDP[] | - |  |
 | positions | Position[] | - |  |
 
@@ -885,6 +958,8 @@
 | name | String | - |  |
 | departmentId | Int? | - |  |
 | positionDescriptionId | Int? | - |  |
+| isArchived | Boolean | @default(false) |  |
+| archivedAt | DateTime? | - |  |
 | endDate | DateTime? | - |  |
 | editedBy | Int? | - |  |
 | editedAt | DateTime? | - |  |
@@ -914,63 +989,6 @@
 | position | Position? | @relation(fields: [positionId], references: [id]) |  |
 | department | Department? | @relation(fields: [departmentId], references: [id]) |  |
 | employee | Employee | @relation(fields: [employeeId], references: [id], onDelete: Cascade) |  |
-
-### Project
-
-| 字段 | 类型 | 属性 | 说明 |
-|------|------|------|------|
-| id | Int | @id @default(autoincrement()) |  |
-| name | String | - |  |
-| type | String | @default("project") |  |
-| description | String? | - |  |
-| endDate | DateTime? | - |  |
-| editedBy | Int? | - |  |
-| editedAt | DateTime? | - |  |
-| version | Int | @default(1) |  |
-| createdAt | DateTime | @default(now()) |  |
-| updatedAt | DateTime | @default(now()) @updatedAt |  |
-| employees | EmployeeProject[] | - |  |
-| workAssignees | ProjectWorkAssignee[] | - |  |
-
-### EmployeeProject
-
-| 字段 | 类型 | 属性 | 说明 |
-|------|------|------|------|
-| id | Int | @id @default(autoincrement()) |  |
-| employeeId | Int | - |  |
-| projectId | Int | - |  |
-| role | String? | - |  |
-| startDate | String? | - |  |
-| endDate | String? | - |  |
-| editedBy | Int? | - |  |
-| editedAt | DateTime? | - |  |
-| version | Int | @default(1) |  |
-| createdAt | DateTime | @default(now()) |  |
-| updatedAt | DateTime | @default(now()) @updatedAt |  |
-| project | Project | @relation(fields: [projectId], references: [id], onDelete: Cascade) |  |
-| employee | Employee | @relation(fields: [employeeId], references: [id], onDelete: Cascade) |  |
-
-### PositionDescription
-
-| 字段 | 类型 | 属性 | 说明 |
-|------|------|------|------|
-| id | Int | @id @default(autoincrement()) |  |
-| code | String | @unique |  |
-| name | String | - |  |
-| departmentName | String? | - |  |
-| reportTo | String? | - |  |
-| positionPurpose | String? | - |  |
-| summary | String? | - |  |
-| headcount | Int? | - |  |
-| version | String? | - |  |
-| effectiveDate | String? | - |  |
-| sourceFile | String | - |  |
-| details | String? | - |  |
-| editedBy | Int? | - |  |
-| editedAt | DateTime? | - |  |
-| createdAt | DateTime | @default(now()) |  |
-| updatedAt | DateTime | @default(now()) @updatedAt |  |
-| positions | Position[] | - |  |
 
 ### EditHistory
 
@@ -1242,51 +1260,83 @@
 | tag | String | - |  |
 | document | LibraryDocument | @relation(fields: [documentId], references: [id], onDelete: Cascade) |  |
 
-### Report
+### OpenApiClient
 
 | 字段 | 类型 | 属性 | 说明 |
 |------|------|------|------|
 | id | Int | @id @default(autoincrement()) |  |
-| userId | Int? | - |  |
-| targetType | String | @default("department") |  |
-| targetId | Int | @default(0) |  |
-| date | String | - |  |
-| taskName | String | - |  |
-| notes | String? | - |  |
-| editedBy | Int? | - |  |
-| editedAt | DateTime? | - |  |
-| version | Int | @default(1) |  |
-| user | User? | @relation(fields: [userId], references: [id]) |  |
-| history | ReportHistory[] | - |  |
-| items | ReportItem[] | - |  |
-
-### ReportItem
-
-| 字段 | 类型 | 属性 | 说明 |
-|------|------|------|------|
-| id | Int | @id @default(autoincrement()) |  |
-| reportId | Int | - |  |
-| category | String | - |  |
-| plan | String | - |  |
-| completion | String? | - |  |
-| nextGoal | String? | - |  |
-| sortOrder | Int | - |  |
-| workItemId | Int? | - |  |
-| report | Report | @relation(fields: [reportId], references: [id], onDelete: Cascade) |  |
-| workItem | WorkItem? | @relation(fields: [workItemId], references: [id]) |  |
-
-### ReportHistory
-
-| 字段 | 类型 | 属性 | 说明 |
-|------|------|------|------|
-| id | Int | @id @default(autoincrement()) |  |
-| reportId | Int | - |  |
-| version | Int | - |  |
-| taskName | String | - |  |
-| notes | String? | - |  |
-| itemsJson | String | - |  |
+| name | String | - |  |
+| description | String? | - |  |
+| keyHash | String | @unique |  |
+| status | String | @default("active") |  |
+| ownerUserId | Int? | - |  |
+| expiresAt | DateTime? | - |  |
+| lastUsedAt | DateTime? | - |  |
 | createdAt | DateTime | @default(now()) |  |
-| report | Report | @relation(fields: [reportId], references: [id], onDelete: Cascade) |  |
+| updatedAt | DateTime | @updatedAt |  |
+| grants | OpenApiClientScopeGrant[] | - |  |
+| accessLogs | OpenApiAccessLog[] | - |  |
+
+### OpenApiResource
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| key | String | @unique |  |
+| label | String | - |  |
+| registrationKey | String | - |  |
+| runtimeParentResourceKey | String? | - |  |
+| sortOrder | Int | @default(0) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @updatedAt |  |
+| scopes | OpenApiScope[] | - |  |
+
+### OpenApiScope
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| key | String | @unique |  |
+| label | String | - |  |
+| action | String | - |  |
+| resourceId | Int | - |  |
+| registrationKey | String | - |  |
+| runtimeParentResourceKey | String? | - |  |
+| sortOrder | Int | @default(0) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @updatedAt |  |
+| resource | OpenApiResource | @relation(fields: [resourceId], references: [id], onDelete: Cascade) |  |
+| grants | OpenApiClientScopeGrant[] | - |  |
+
+### OpenApiClientScopeGrant
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| clientId | Int | - |  |
+| scopeId | Int | - |  |
+| action | String | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| client | OpenApiClient | @relation(fields: [clientId], references: [id], onDelete: Cascade) |  |
+| scope | OpenApiScope | @relation(fields: [scopeId], references: [id], onDelete: Cascade) |  |
+
+### OpenApiAccessLog
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| clientId | Int? | - |  |
+| clientName | String? | - |  |
+| endpointKey | String | - |  |
+| scopeKey | String | - |  |
+| method | String | - |  |
+| path | String | - |  |
+| status | Int | - |  |
+| durationMs | Int | - |  |
+| errorCode | String? | - |  |
+| ip | String? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| client | OpenApiClient? | @relation(fields: [clientId], references: [id], onDelete: SetNull) |  |
 
 ### SystemConfig
 
@@ -1305,6 +1355,182 @@
 | success | Boolean | - |  |
 | createdAt | DateTime | @default(now()) |  |
 
+### Project
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| code | String? | @unique |  |
+| name | String | - |  |
+| description | String? | - |  |
+| projectLevel | String | @default("普通") |  |
+| plan | String? | - |  |
+| goal | String? | - |  |
+| milestones | String? | - |  |
+| budgetAmount | Float? | - |  |
+| budgetNote | String? | - |  |
+| riskNote | String? | - |  |
+| remark | String? | - |  |
+| startDate | DateTime? | - |  |
+| endDate | DateTime? | - |  |
+| completionPercent | Float? | - |  |
+| closureType | String? | - |  |
+| leadingDepartmentId | Int? | - |  |
+| isArchived | Boolean | @default(false) |  |
+| archivedAt | DateTime? | - |  |
+| createdBy | Int? | - |  |
+| editedBy | Int? | - |  |
+| editedAt | DateTime? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| leadingDepartment | Department? | @relation("ProjectLeadingDepartment", fields: [leadingDepartmentId], references: [id], onDelete: SetNull) |  |
+| employees | EmployeeProject[] | - |  |
+| tasks | ProjectTask[] | - |  |
+| planPhases | ProjectPlanPhase[] | @relation("ProjectPlanPhases") |  |
+| planDependencies | ProjectPlanDependency[] | @relation("ProjectPlanDependencies") |  |
+| planBaselines | ProjectPlanBaseline[] | @relation("ProjectPlanBaselines") |  |
+| workAssignees | ProjectWorkAssignee[] | - |  |
+| linkedWorkItems | WorkItem[] | @relation("WorkItemLinkedProject") |  |
+
+### EmployeeProject
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| employeeId | Int | - |  |
+| projectId | Int | - |  |
+| role | String? | - |  |
+| startDate | String? | - |  |
+| endDate | String? | - |  |
+| editedBy | Int? | - |  |
+| editedAt | DateTime? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| project | Project | @relation(fields: [projectId], references: [id], onDelete: Cascade) |  |
+| employee | Employee | @relation(fields: [employeeId], references: [id], onDelete: Cascade) |  |
+
+### ProjectPlanPhase
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| projectId | Int | - |  |
+| sequenceNo | Int | - |  |
+| name | String | - |  |
+| startDate | DateTime? | - |  |
+| endDate | DateTime? | - |  |
+| note | String? | - |  |
+| createdBy | Int? | - |  |
+| editedBy | Int? | - |  |
+| editedAt | DateTime? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| project | Project | @relation("ProjectPlanPhases", fields: [projectId], references: [id], onDelete: Cascade) |  |
+| tasks | ProjectTask[] | @relation("ProjectTaskPlanPhase") |  |
+
+### ProjectPlanDependency
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| projectId | Int | - |  |
+| predecessorKind | String | - |  |
+| predecessorId | Int | - |  |
+| successorKind | String | - |  |
+| successorId | Int | - |  |
+| dependencyType | String | @default("finish_start") |  |
+| lagDays | Int | @default(1) |  |
+| createdBy | Int? | - |  |
+| editedBy | Int? | - |  |
+| editedAt | DateTime? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| project | Project | @relation("ProjectPlanDependencies", fields: [projectId], references: [id], onDelete: Cascade) |  |
+
+### ProjectPlanBaseline
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| projectId | Int | - |  |
+| name | String | - |  |
+| note | String? | - |  |
+| isActive | Boolean | @default(false) |  |
+| createdBy | Int? | - |  |
+| editedBy | Int? | - |  |
+| editedAt | DateTime? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| project | Project | @relation("ProjectPlanBaselines", fields: [projectId], references: [id], onDelete: Cascade) |  |
+| items | ProjectPlanBaselineItem[] | - |  |
+
+### ProjectPlanBaselineItem
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| baselineId | Int | - |  |
+| itemKind | String | - |  |
+| itemId | Int | - |  |
+| parentKind | String? | - |  |
+| parentId | Int? | - |  |
+| phaseId | Int? | - |  |
+| name | String | - |  |
+| status | String? | - |  |
+| isMilestone | Boolean | @default(false) |  |
+| startDate | DateTime? | - |  |
+| endDate | DateTime? | - |  |
+| baseline | ProjectPlanBaseline | @relation(fields: [baselineId], references: [id], onDelete: Cascade) |  |
+
+### ProjectTask
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| projectId | Int | - |  |
+| planPhaseId | Int? | - |  |
+| name | String | @default("") |  |
+| isMilestone | Boolean | @default(false) |  |
+| ownerEmployeeId | Int? | - |  |
+| description | String | @default("") |  |
+| baselineStartDate | DateTime? | - |  |
+| baselineEndDate | DateTime? | - |  |
+| startDate | DateTime? | - |  |
+| endDate | DateTime? | - |  |
+| sortOrder | Int | @default(0) |  |
+| createdBy | Int? | - |  |
+| editedBy | Int? | - |  |
+| editedAt | DateTime? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| project | Project | @relation(fields: [projectId], references: [id], onDelete: Cascade) |  |
+| planPhase | ProjectPlanPhase? | @relation("ProjectTaskPlanPhase", fields: [planPhaseId], references: [id], onDelete: SetNull) |  |
+| owner | Employee? | @relation("ProjectTaskOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull) |  |
+| assignees | ProjectTaskAssignment[] | - |  |
+| linkedWorkItems | WorkItem[] | @relation("WorkItemLinkedProjectTask") |  |
+
+### ProjectTaskAssignment
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| taskId | Int | - |  |
+| employeeId | Int | - |  |
+| role | String? | - |  |
+| editedBy | Int? | - |  |
+| editedAt | DateTime? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| task | ProjectTask | @relation(fields: [taskId], references: [id], onDelete: Cascade) |  |
+| employee | Employee | @relation(fields: [employeeId], references: [id], onDelete: Cascade) |  |
+
 ### WorkItem
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -1314,14 +1540,26 @@
 | targetId | Int? | - |  |
 | category | String | - |  |
 | content | String | - |  |
+| description | String | @default("") |  |
 | importance | Int | @default(3) |  |
 | urgency | Int | @default(3) |  |
+| status | String? | - |  |
+| ownerEmployeeId | Int? | - |  |
+| startDate | DateTime? | - |  |
+| dueDate | DateTime? | - |  |
+| linkedProjectId | Int? | - |  |
+| linkedProjectTaskId | Int? | - |  |
+| parentWorkItemId | Int? | - |  |
 | isArchived | Boolean | @default(false) |  |
 | isPrivate | Boolean | @default(false) |  |
 | sortOrder | Int | @default(0) |  |
 | createdAt | DateTime | @default(now()) |  |
-| reportItems | ReportItem[] | - |  |
 | participants | WorkParticipant[] | - |  |
+| owner | Employee? | @relation("WorkItemOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull) |  |
+| linkedProject | Project? | @relation("WorkItemLinkedProject", fields: [linkedProjectId], references: [id], onDelete: SetNull) |  |
+| linkedProjectTask | ProjectTask? | @relation("WorkItemLinkedProjectTask", fields: [linkedProjectTaskId], references: [id], onDelete: SetNull) |  |
+| parentWorkItem | WorkItem? | @relation("WorkItemHierarchy", fields: [parentWorkItemId], references: [id], onDelete: SetNull) |  |
+| childWorkItems | WorkItem[] | @relation("WorkItemHierarchy") |  |
 
 ### WorkParticipant
 
@@ -1341,7 +1579,7 @@
 | id | Int | @id @default(autoincrement()) |  |
 | departmentId | Int | - |  |
 | userId | Int | - |  |
-| kind | String | - | "task" | "report" |
+| kind | String | - | "task" |
 | department | Department | @relation(fields: [departmentId], references: [id], onDelete: Cascade) |  |
 | user | User | @relation(fields: [userId], references: [id], onDelete: Cascade) |  |
 
@@ -1352,6 +1590,21 @@
 | id | Int | @id @default(autoincrement()) |  |
 | projectId | Int | - |  |
 | userId | Int | - |  |
-| kind | String | - | "task" | "report" |
+| kind | String | - | "task" |
 | project | Project | @relation(fields: [projectId], references: [id], onDelete: Cascade) |  |
 | user | User | @relation(fields: [userId], references: [id], onDelete: Cascade) |  |
+
+### WorkScopePermission
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| targetType | String | - |  |
+| targetId | Int | - |  |
+| userId | Int | - |  |
+| role | String | - |  |
+| kind | String | @default("task") |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| user | User | @relation(fields: [userId], references: [id], onDelete: Cascade) |  |
+

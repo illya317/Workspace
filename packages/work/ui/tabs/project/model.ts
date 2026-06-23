@@ -30,7 +30,7 @@ export type ProjectItem = {
   leadingDepartmentCode: string | null;
   startDate: string | null;
   endDate: string | null;
-  closureType: string | null;
+  completionPercent: number | null;
   employeeCount: number;
   isArchived: boolean;
 };
@@ -124,7 +124,7 @@ export type ProjectDraft = {
   leadingDepartmentCode: string | null;
   startDate: string | null;
   endDate: string | null;
-  closureType: string | null;
+  completionPercent: number | null;
   leader: EmployeeTag | null;
   roleGroups: Record<MultiProjectRole, EmployeeTag[]>;
 };
@@ -135,7 +135,6 @@ export const PROJECT_LIST_FILTER_OPTIONS = [
   { value: "重点", label: "重点" },
 ] satisfies { value: ProjectListFilter; label: string }[];
 export const PROJECT_LEVEL_OPTIONS = ["普通", "重点", "特殊"] as const;
-export const PROJECT_CLOSURE_TYPE_OPTIONS = ["完成", "终止"] as const;
 const TASK_MILESTONE_OPTIONS = [
   { value: "true", label: "是" },
   { value: "false", label: "否" },
@@ -146,7 +145,6 @@ function toPickerOptions(values: readonly string[]): PickerOption[] {
 }
 
 export const PROJECT_LEVEL_PICKER_OPTIONS = toPickerOptions(PROJECT_LEVEL_OPTIONS);
-export const PROJECT_CLOSURE_TYPE_PICKER_OPTIONS = toPickerOptions(PROJECT_CLOSURE_TYPE_OPTIONS);
 export const PROJECT_MILESTONE_PICKER_OPTIONS = [...TASK_MILESTONE_OPTIONS];
 
 export function createEmptyProjectTaskDraft(sortOrder: number | null = null): ProjectTaskDraft {
@@ -255,7 +253,7 @@ export function draftSnapshot(draft: ProjectDraft | null) {
     leadingDepartmentId: draft.leadingDepartmentId ?? null,
     startDate: draft.startDate || null,
     endDate: draft.endDate || null,
-    closureType: draft.closureType || null,
+    completionPercent: draft.completionPercent ?? null,
     leaderId: draft.leader?.id ?? null,
     roleGroups: Object.fromEntries(
       MULTI_PROJECT_ROLES.map((role) => [
@@ -296,7 +294,7 @@ export function createProjectDraft(project: ProjectItem | null, entries: Project
     leadingDepartmentCode: project?.leadingDepartmentCode ?? null,
     startDate: project?.startDate ?? null,
     endDate: project?.endDate ?? null,
-    closureType: project?.closureType ?? null,
+    completionPercent: project?.completionPercent ?? null,
     leader: leaderEntry ? memberFromEntry(leaderEntry) : null,
     roleGroups,
   };
@@ -321,7 +319,7 @@ export function createEmptyProjectDraft(): ProjectDraft {
     leadingDepartmentCode: null,
     startDate: todayDateString(),
     endDate: null,
-    closureType: null,
+    completionPercent: null,
     leader: null,
     roleGroups: emptyRoleGroups(),
   };
