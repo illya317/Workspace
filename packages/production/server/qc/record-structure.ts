@@ -45,6 +45,13 @@ function standardText(recordConfig: Record<string, unknown>) {
   if (template === "content_assay_range") {
     return `${asString(params.subject, "含量")}${asString(params.phrase, "应为")} ${asString(params.lower)}%～${asString(params.upper)}%。`;
   }
+  if (template === "microbial_limit_standard") {
+    const amount = asString(params.sample_amount, "1");
+    const unit = asString(params.sample_unit, "g");
+    const aerobicLimit = asString(params.aerobic_limit, "10³");
+    const yeastMoldLimit = asString(params.yeast_mold_limit, "10²");
+    return `每${amount}${unit}供试品中，大肠埃希菌不得检出；需氧菌总数不得过${aerobicLimit}cfu，霉菌和酵母菌总数不得过${yeastMoldLimit}cfu。`;
+  }
   const values = Object.entries(params).map(([key, value]) => `${key}=${String(value)}`);
   return values.length ? `${template} (${values.join(", ")})` : template || undefined;
 }
