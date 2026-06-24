@@ -11,6 +11,7 @@ import {
   CommandToolbar,
   coreUiComponentKindMeta,
   coreUiComponentRegistry,
+  coreUiComponentTierMeta,
   EmptyStateCard,
   IconActionButton,
   NumberCell,
@@ -28,14 +29,15 @@ import {
   TextField,
   ToolbarOptionGroup,
 } from "@workspace/core/ui";
-import type { CoreUiComponentTier } from "@workspace/core/ui";
+import type { CoreUiComponentRegistration, CoreUiComponentTier } from "@workspace/core/ui";
 
 const TIER_LABELS: Record<CoreUiComponentTier, string> = {
-  primitive: "原子组件",
-  assembly: "常用组合",
-  frame: "页面框架",
+  foundation: coreUiComponentTierMeta.foundation.label,
+  primitive: coreUiComponentTierMeta.primitive.label,
+  assembly: coreUiComponentTierMeta.assembly.label,
+  frame: coreUiComponentTierMeta.frame.label,
 };
-const TIERS: CoreUiComponentTier[] = ["primitive", "assembly", "frame"];
+const TIERS: CoreUiComponentTier[] = ["foundation", "primitive", "assembly", "frame"];
 const ALL_KIND = "all";
 
 function ComponentPreview({ name }: { name: string }) {
@@ -170,7 +172,6 @@ function ComponentPreview({ name }: { name: string }) {
       return <span className="text-xs text-slate-400">暂无实时预览</span>;
   }
 }
-
 export default function UiComponentsShowcase() {
   const [tier, setTier] = useState<CoreUiComponentTier>("primitive");
   const [kind, setKind] = useState<string>(ALL_KIND);
@@ -184,7 +185,6 @@ export default function UiComponentsShowcase() {
     }
     return options;
   }, []);
-
   const filteredItems = useMemo(() => {
     return coreUiComponentRegistry.filter((component) => {
       if (component.tier !== tier) return false;
@@ -198,7 +198,6 @@ export default function UiComponentsShowcase() {
       return true;
     });
   }, [tier, kind, query]);
-
   return (
     <PageContent className="max-w-6xl py-8">
       <CommandToolbar
@@ -237,41 +236,51 @@ export default function UiComponentsShowcase() {
         )}
         meta={<>共 {filteredItems.length} 个组件</>}
       />
-
       <div className="mt-5 grid gap-4 md:grid-cols-2">
         {filteredItems.map((component) => {
-          const kindMeta = coreUiComponentKindMeta[component.kind];
+          const registration = component as CoreUiComponentRegistration;
+          const kindMeta = coreUiComponentKindMeta[registration.kind];
           return (
             <PanelCard
-              key={component.name}
+              key={registration.name}
               title={(
                 <span className="flex items-center gap-2">
                   <code className="rounded bg-slate-100 px-1.5 py-0.5 text-sm font-semibold text-slate-900">
-                    {component.name}
+                    {registration.name}
                   </code>
                   <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-                    {kindMeta?.label ?? component.kind}
+                    {kindMeta?.label ?? registration.kind}
                   </span>
                 </span>
               )}
               bodyClassName="p-4"
             >
-              <p className="text-sm text-slate-700">{component.description}</p>
-              {component.example && (
+              <p className="text-sm text-slate-700">{registration.description}</p>
+              {registration.example && (
                 <div className="mt-3 rounded-md border border-slate-100 bg-slate-50 px-3 py-2">
                   <p className="text-xs font-medium text-slate-500">示例</p>
-                  <p className="mt-1 text-sm text-slate-600">{component.example}</p>
+                  <p className="mt-1 text-sm text-slate-600">{registration.example}</p>
                 </div>
               )}
               <div className="mt-4 rounded-md border border-dashed border-slate-200 bg-white p-4">
                 <p className="mb-3 text-xs font-medium text-slate-400">实时预览</p>
-                <ComponentPreview name={component.name} />
+                <ComponentPreview name={registration.name} />
               </div>
-              {"includes" in component && component.includes && component.includes.length > 0 && (
+              {(registration.composes && registration.composes.length > 0) && (
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-slate-400">包含：</span>
-                  {component.includes.map((name) => (
-                    <code key={name} className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-600">
+                  <span className="text-xs text-slate-400">组合：</span>
+                  {registration.composes.map((name) => (
+                    <code key={name} className="rounded bg-blue-50 px-1.5 py-0.5 text-[11px] text-blue-700">
+                      {name}
+                    </code>
+                  ))}
+                </div>
+              )}
+              {(registration.foundations && registration.foundations.length > 0) && (
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-slate-400">基础：</span>
+                  {registration.foundations.map((name) => (
+                    <code key={name} className="rounded bg-amber-50 px-1.5 py-0.5 text-[11px] text-amber-700">
                       {name}
                     </code>
                   ))}
@@ -281,7 +290,6 @@ export default function UiComponentsShowcase() {
           );
         })}
       </div>
-
       {filteredItems.length === 0 && (
         <EmptyStateCard className="mt-5">没有找到匹配的组件</EmptyStateCard>
       )}

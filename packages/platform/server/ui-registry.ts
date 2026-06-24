@@ -5,6 +5,7 @@ import {
   coreUiComponentRegistry,
   coreUiComponentTierMeta,
 } from "@workspace/core/ui/component-registry";
+import type { CoreUiComponentRegistration } from "@workspace/core/ui/component-registry";
 import type { CoreUiRegistryUsageRow } from "@workspace/platform/types";
 
 const SCAN_ROOTS = ["app", "packages"];
@@ -94,21 +95,27 @@ export function getCoreUiRegistryUsageRows(): CoreUiRegistryUsageRow[] {
   }
 
   cachedRows = coreUiComponentRegistry
-    .map((component) => ({
-      name: component.name,
-      tier: component.tier,
-      tierLabel: coreUiComponentTierMeta[component.tier].label,
-      tierDescription: coreUiComponentTierMeta[component.tier].description,
-      kind: component.kind,
-      kindLabel: coreUiComponentKindMeta[component.kind].label,
-      kindDescription: coreUiComponentKindMeta[component.kind].description,
-      description: component.description,
-      example: component.example,
-      includedComponents: [
-        ...("includes" in component ? component.includes : []),
-      ],
-      usageFiles: usageByName.get(component.name)?.sort() ?? [],
-    }))
+    .map((component) => {
+      const registration = component as CoreUiComponentRegistration;
+      return {
+        name: registration.name,
+        tier: registration.tier,
+        tierLabel: coreUiComponentTierMeta[registration.tier].label,
+        tierDescription: coreUiComponentTierMeta[registration.tier].description,
+        kind: registration.kind,
+        kindLabel: coreUiComponentKindMeta[registration.kind].label,
+        kindDescription: coreUiComponentKindMeta[registration.kind].description,
+        description: registration.description,
+        example: registration.example,
+        includedComponents: [
+          ...(registration.composes ?? []),
+        ],
+        foundationComponents: [
+          ...(registration.foundations ?? []),
+        ],
+        usageFiles: usageByName.get(registration.name)?.sort() ?? [],
+      };
+    })
     .sort((a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name));
 
   return cachedRows;
