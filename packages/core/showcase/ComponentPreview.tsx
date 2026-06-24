@@ -43,9 +43,12 @@ export function ComponentPreview({ name }: { name: string }) {
     case "IconActionButton":
       return (
         <div className="flex flex-wrap items-center gap-2">
-          <IconActionButton label="新增" variant="primary">+</IconActionButton>
+          <IconActionButton label="新增" variant="primary"><ActionGlyph kind="add" /></IconActionButton>
           <IconActionButton label="编辑" variant="secondary"><ActionGlyph kind="edit" className="h-4 w-4" /></IconActionButton>
-          <IconActionButton label="删除" variant="danger"><ActionGlyph kind="delete" /></IconActionButton>
+          <IconActionButton label="删除" variant="danger"><ActionGlyph kind="delete-bin" className="h-4 w-4" /></IconActionButton>
+          <IconActionButton label="刷新" variant="secondary"><ActionGlyph kind="refresh" className="h-4 w-4" /></IconActionButton>
+          <IconActionButton label="搜索" variant="secondary"><ActionGlyph kind="search" className="h-4 w-4" /></IconActionButton>
+          <IconActionButton label="筛选" variant="secondary"><ActionGlyph kind="filter" className="h-4 w-4" /></IconActionButton>
         </div>
       );
     case "ActionGlyph":
