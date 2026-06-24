@@ -86,6 +86,7 @@ const UI_PATTERN_RULES: Array<{ name: string; regex: RegExp }> = [
 
 const CORE_UI_NON_COMPONENT_EXPORTS = new Set([
   "coreUiComponentRegistry",
+  "coreUiComponentKindMeta",
   "coreUiComponentTierMeta",
   "dataTableClassNames",
   "getDefaultVisibleColumns",

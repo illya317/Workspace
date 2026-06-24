@@ -1,7 +1,7 @@
 export { default as ConfirmModal } from "./ConfirmModal";
 export { coreUiComponentRegistry, registeredCoreUiComponentNames } from "./component-registry";
 export type { CoreUiComponentKind, CoreUiComponentRegistration, CoreUiComponentTier } from "./component-registry";
-export { coreUiComponentTierMeta } from "./component-registry";
+export { coreUiComponentKindMeta, coreUiComponentTierMeta } from "./component-registry";
 export { default as CodeBlock } from "./CodeBlock";
 export type { CodeBlockProps } from "./CodeBlock";
 export { default as BlockCreatePanel } from "./BlockCreatePanel";

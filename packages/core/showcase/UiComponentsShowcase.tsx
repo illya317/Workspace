@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ActionButton,
   ActionGlyph,
@@ -9,6 +9,7 @@ import {
   CheckboxField,
   ChoiceGroup,
   CommandToolbar,
+  coreUiComponentKindMeta,
   coreUiComponentRegistry,
   coreUiComponentTierMeta,
   EmptyStateCard,
@@ -17,7 +18,9 @@ import {
   PageContent,
   PanelCard,
   RatingControl,
+  SearchInput,
   SectionCard,
+  SelectField,
   StatusBadge,
   StatusToggle,
   SwitchField,
@@ -29,6 +32,7 @@ import {
 import type { CoreUiComponentTier } from "@workspace/core/ui";
 
 const TIERS: CoreUiComponentTier[] = ["primitive", "assembly", "frame"];
+const ALL_KIND = "all";
 
 function ComponentPreview({ name }: { name: string }) {
   const [value, setValue] = useState<string | null>(null);
@@ -165,69 +169,119 @@ function ComponentPreview({ name }: { name: string }) {
 
 export default function UiComponentsShowcase() {
   const [tier, setTier] = useState<CoreUiComponentTier>("primitive");
-  const tierMeta = coreUiComponentTierMeta[tier];
-  const items = coreUiComponentRegistry.filter((component) => component.tier === tier);
+  const [kind, setKind] = useState<string>(ALL_KIND);
+  const [query, setQuery] = useState("");
+
+  const kindOptions = useMemo(() => {
+    const options = [{ value: ALL_KIND, label: "全部分类" }];
+    for (const key of Object.keys(coreUiComponentKindMeta)) {
+      const meta = coreUiComponentKindMeta[key as keyof typeof coreUiComponentKindMeta];
+      options.push({ value: key, label: meta.label });
+    }
+    return options;
+  }, []);
+
+  const filteredItems = useMemo(() => {
+    return coreUiComponentRegistry.filter((component) => {
+      if (component.tier !== tier) return false;
+      if (kind !== ALL_KIND && component.kind !== kind) return false;
+      if (query.trim()) {
+        const keyword = query.trim().toLowerCase();
+        return component.name.toLowerCase().includes(keyword)
+          || component.description.toLowerCase().includes(keyword)
+          || component.kind.toLowerCase().includes(keyword);
+      }
+      return true;
+    });
+  }, [tier, kind, query]);
 
   return (
-    <PageContent className="max-w-5xl py-10">
-      <div className="mb-6">
-        <h1 className="text-lg font-bold text-slate-900">UI 组件库</h1>
-        <p className="text-sm text-slate-500">按核心分层查看并预览已注册的共享组件</p>
-      </div>
+    <PageContent className="max-w-6xl py-8">
+      <CommandToolbar
+        viewControls={(
+          <ToolbarOptionGroup
+            ariaLabel="组件层级"
+            value={tier}
+            options={TIERS.map((value) => ({
+              value,
+              label: coreUiComponentTierMeta[value].label,
+            }))}
+            onChange={(value) => {
+              setTier(value as CoreUiComponentTier);
+              setKind(ALL_KIND);
+            }}
+          />
+        )}
+        filters={(
+          <>
+            <SelectField
+              ariaLabel="组件分类"
+              options={kindOptions}
+              value={kind}
+              onChange={setKind}
+              placeholder="全部分类"
+              size="toolbar"
+              className="w-32"
+            />
+            <SearchInput
+              value={query}
+              onChange={setQuery}
+              placeholder="搜索组件..."
+              size="toolbar"
+              className="w-48"
+            />
+          </>
+        )}
+        meta={<>共 {filteredItems.length} 个组件</>}
+      />
 
-      <PanelCard title="组件层级" bodyClassName="p-4">
-        <ToolbarOptionGroup
-          ariaLabel="组件层级"
-          value={tier}
-          options={TIERS.map((value) => ({
-            value,
-            label: coreUiComponentTierMeta[value].label,
-          }))}
-          onChange={(value) => setTier(value as CoreUiComponentTier)}
-        />
-        <p className="mt-3 text-sm text-slate-600">{tierMeta.description}</p>
-      </PanelCard>
-
-      <div className="mt-6 grid gap-4">
-        {items.map((component) => (
-          <PanelCard
-            key={component.name}
-            title={(
-              <span className="flex items-center gap-2">
-                <code className="rounded bg-slate-100 px-1.5 py-0.5 text-sm font-semibold text-slate-900">
-                  {component.name}
-                </code>
-                <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-                  {component.kind}
-                </span>
-              </span>
-            )}
-            bodyClassName="p-4"
-          >
-            <p className="text-sm text-slate-700">{component.description}</p>
-            {component.example && (
-              <div className="mt-3 rounded-md border border-slate-100 bg-slate-50 px-3 py-2">
-                <p className="text-xs font-medium text-slate-500">示例</p>
-                <p className="mt-1 text-sm text-slate-600">{component.example}</p>
-              </div>
-            )}
-            <div className="mt-4 rounded-md border border-dashed border-slate-200 bg-white p-4">
-              <p className="mb-3 text-xs font-medium text-slate-400">实时预览</p>
-              <ComponentPreview name={component.name} />
-            </div>
-            {"includes" in component && component.includes && component.includes.length > 0 && (
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <span className="text-xs text-slate-400">包含：</span>
-                {component.includes.map((name) => (
-                  <code key={name} className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-600">
-                    {name}
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
+        {filteredItems.map((component) => {
+          const kindMeta = coreUiComponentKindMeta[component.kind];
+          return (
+            <PanelCard
+              key={component.name}
+              title={(
+                <span className="flex items-center gap-2">
+                  <code className="rounded bg-slate-100 px-1.5 py-0.5 text-sm font-semibold text-slate-900">
+                    {component.name}
                   </code>
-                ))}
+                  <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+                    {kindMeta?.label ?? component.kind}
+                  </span>
+                </span>
+              )}
+              bodyClassName="p-4"
+            >
+              <p className="text-sm text-slate-700">{component.description}</p>
+              {component.example && (
+                <div className="mt-3 rounded-md border border-slate-100 bg-slate-50 px-3 py-2">
+                  <p className="text-xs font-medium text-slate-500">示例</p>
+                  <p className="mt-1 text-sm text-slate-600">{component.example}</p>
+                </div>
+              )}
+              <div className="mt-4 rounded-md border border-dashed border-slate-200 bg-white p-4">
+                <p className="mb-3 text-xs font-medium text-slate-400">实时预览</p>
+                <ComponentPreview name={component.name} />
               </div>
-            )}
-          </PanelCard>
-        ))}
+              {"includes" in component && component.includes && component.includes.length > 0 && (
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-slate-400">包含：</span>
+                  {component.includes.map((name) => (
+                    <code key={name} className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-600">
+                      {name}
+                    </code>
+                  ))}
+                </div>
+              )}
+            </PanelCard>
+          );
+        })}
       </div>
+
+      {filteredItems.length === 0 && (
+        <EmptyStateCard className="mt-5">没有找到匹配的组件</EmptyStateCard>
+      )}
     </PageContent>
   );
 }
