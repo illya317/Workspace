@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActionGlyph,
   CalendarDateInput,
+  CommandToolbar,
   CreateStartButton,
   IconActionButton,
   ToolbarOptionGroup,
@@ -134,42 +135,42 @@ export default function WorkReportsPanel({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white p-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <ToolbarOptionGroup
-            ariaLabel="工作汇报视图"
-            value={mode}
-            options={[
-              { value: "fill", label: "填写汇报" },
-              { value: "collection", label: "汇总查看" },
-            ]}
-            onChange={(value) => setMode(value as ReportMode)}
-          />
-          <div className="h-8 w-px bg-slate-200" />
-          <CalendarDateInput value={periodStart} onChange={updatePeriodStart} />
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {mode === "fill" && canEdit && (
-            <>
-              <CreateStartButton
-                label="新增事项"
-                active={false}
-                disabled={loading || saving}
-                onClick={addAdHocItem}
-              />
-              <IconActionButton
-                label={saving ? "保存中..." : "保存汇报"}
-                variant="primary"
-                onClick={handleSave}
-                disabled={loading || saving || !draft || !hasDraftChanges}
-                className="!h-9 !w-10 !px-0 !text-[11px] !leading-none"
-              >
-                <ActionGlyph kind="check" className="h-4 w-4" />
-              </IconActionButton>
-            </>
-          )}
-        </div>
-      </div>
+      <CommandToolbar
+        filters={(
+          <>
+            <ToolbarOptionGroup
+              ariaLabel="工作汇报视图"
+              value={mode}
+              options={[
+                { value: "fill", label: "填写汇报" },
+                { value: "collection", label: "汇总查看" },
+              ]}
+              onChange={(value) => setMode(value as ReportMode)}
+            />
+            <div className="h-8 w-px bg-slate-200" />
+            <CalendarDateInput value={periodStart} onChange={updatePeriodStart} />
+          </>
+        )}
+        editActions={mode === "fill" && canEdit ? (
+          <>
+            <CreateStartButton
+              label="新增事项"
+              active={false}
+              disabled={loading || saving}
+              onClick={addAdHocItem}
+            />
+            <IconActionButton
+              label={saving ? "保存中..." : "保存汇报"}
+              variant="primary"
+              onClick={handleSave}
+              disabled={loading || saving || !draft || !hasDraftChanges}
+              className="!h-9 !w-10 !px-0 !text-[11px] !leading-none"
+            >
+              <ActionGlyph kind="check" className="h-4 w-4" />
+            </IconActionButton>
+          </>
+        ) : null}
+      />
 
       {mode === "fill" ? (
         <ReportDraftTable
