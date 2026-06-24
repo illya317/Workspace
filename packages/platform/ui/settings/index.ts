@@ -5,4 +5,5 @@ export { default as ApiAccessClient } from "./ApiAccessClient";
 export {
   SettingsAccountPage,
   SettingsApiPage,
+  SettingsUiPage,
 } from "./pages";

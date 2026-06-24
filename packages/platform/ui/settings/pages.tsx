@@ -3,6 +3,7 @@ import { activeModuleDefinitions } from "@workspace/platform/effective-module-re
 import AppShell from "../AppShell";
 import SettingsClient from "./SettingsClient";
 import SettingsApiClient from "./SettingsApiClient";
+import UiComponentsClient from "./UiComponentsClient";
 import { type ApiAccessModuleRow } from "./ApiAccessClient";
 
 function buildApiAccessModules(): ApiAccessModuleRow[] {
@@ -47,6 +48,14 @@ export function SettingsApiPage({
   return (
     <AppShell title="API 接入" backHref="/settings" user={user}>
       <SettingsApiClient focusRegistrationKey={focusRegistrationKey} />
+    </AppShell>
+  );
+}
+
+export function SettingsUiPage({ user }: { user: SessionUser }) {
+  return (
+    <AppShell title="UI 组件库" backHref="/settings" user={user}>
+      <UiComponentsClient />
     </AppShell>
   );
 }
