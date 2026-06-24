@@ -108,7 +108,7 @@ export const coreUiComponentRegistry = [
   { name: "CheckboxChip", tier: "primitive", kind: "form", description: "复选 chip primitive，用于紧凑的多选字段开关，统一圆角、选中态和禁用态。", example: "岗位说明书模板里勾选需要展示的字段。", composes: ["CheckboxField"] },
   { name: "CheckboxField", tier: "primitive", kind: "form", description: "复选框输入 primitive，统一 checked、disabled 和焦点样式。", example: "在创建表单中勾选是否启用、是否默认或是否归档。" },
   { name: "ChoiceGroup", tier: "primitive", kind: "form", description: "纸面记录专用的单选/复选组选项 primitive，统一隐藏原生输入、选中标记和候选项排列；不适合普通表单场景。", example: "纸面记录里选择“是 / 否”，业务只传选项和值。" },
-  { name: "ColumnToggle", tier: "primitive", kind: "data", description: "表格列显隐控制，和 DataTable 共用列定义。", example: "在财务明细表里让用户切换显示字段 3/5。", foundations: ["getToolbarActionClassName"] },
+  { name: "ColumnToggle", tier: "primitive", kind: "data", description: "表格列显隐控制，和 DataTable 共用列定义。", example: "在财务明细表里让用户切换显示字段 3/5。", composes: ["CheckboxField"], foundations: ["getToolbarActionClassName"] },
   { name: "CodeBlock", tier: "primitive", kind: "data", description: "代码块和密钥信息展示 primitive，统一技术文本、背景和等宽字体。", example: "API 接入指南中展示 Bearer Client secret 请求头。" },
   { name: "CommandToolbar", tier: "assembly", kind: "toolbar", description: "综合命令栏容器，按隐藏/显示、新建、搜索、互斥筛选、字段筛选、刷新、页面动作、编辑动作和分页信息分区；一行优先，空间不足自动换行。", example: "列表页同时承载左右分栏控制、新建入口、搜索筛选、导出、编辑保存和分页信息。", composes: ["SearchInput", "ToolbarOptionGroup", "FieldValueFilter", "IconActionButton", "RefreshActionButton", "ActionButton", "SelectField"] },
   { name: "ConfirmModal", tier: "primitive", kind: "overlay", description: "确认弹窗基础组件，统一危险操作和取消确认体验。", example: "删除合同、归档项目或停用记录前显示确认文案和危险按钮。" },

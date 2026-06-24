@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import type { ReactNode } from "react";
 import { getToolbarActionClassName } from "./ActionControls";
+import CheckboxField from "./CheckboxField";
 import { joinClassNames } from "./card-utils";
 
 export interface ColumnDef {
@@ -84,12 +85,12 @@ export default function ColumnToggle({ columns, visible, onChange, label = "字�
                     c.required ? "text-slate-400" : "text-slate-700 hover:bg-slate-50",
                   )}
                 >
-                  <input
-                    type="checkbox"
+                  <CheckboxField
                     checked={checked}
                     disabled={c.required}
+                    size="sm"
                     onChange={() => toggle(c.key, c.required)}
-                    className="h-3.5 w-3.5 rounded border-slate-300 accent-emerald-600"
+                    className="accent-emerald-600"
                   />
                   <span className="min-w-0 flex-1 truncate">{c.label}</span>
                   {c.required && <span className="text-[10px] font-semibold text-slate-400">必选</span>}

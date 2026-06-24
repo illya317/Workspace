@@ -115,7 +115,12 @@ export function ComponentPreview({ name }: { name: string }) {
     case "SwitchField":
       return <SwitchField checked={boolValue} onChange={setBoolValue} ariaLabel="启用开关" />;
     case "CheckboxField":
-      return <CheckboxField checked={boolValue} onChange={setBoolValue} ariaLabel="复选框" />;
+      return (
+        <div className="flex flex-wrap items-center gap-3">
+          <CheckboxField checked={boolValue} onChange={setBoolValue} ariaLabel="默认尺寸" />
+          <CheckboxField checked={boolValue} onChange={setBoolValue} size="sm" ariaLabel="小尺寸" />
+        </div>
+      );
     case "CheckboxChip":
       return (
         <div className="flex flex-wrap items-center gap-2">
