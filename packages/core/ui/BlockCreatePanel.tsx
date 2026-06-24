@@ -64,7 +64,6 @@ export default function BlockCreatePanel({
               submitting={submitting}
               submitLabel={submitLabel}
               cancelLabel={cancelLabel}
-              order="cancel-first"
             />
           )}
         </span>

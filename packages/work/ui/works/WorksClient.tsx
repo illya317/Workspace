@@ -14,13 +14,15 @@ import {
   ToolbarOptionGroup,
   useConfirmDelete,
 } from "@workspace/core/ui";
-import { workspaceBasePath, workspacePath } from "@workspace/core/routing";
+import { workspacePath } from "@workspace/core/routing";
 import type { SessionUser } from "@workspace/platform/types";
 import { listTaskSpaces } from "./api";
 import {
   createEmptyWorkDraft,
+  getWorkTargetFromPath,
   getWorkSpaceLabel,
   getWorkSpacePath,
+  getPeriodTypeLabel,
 } from "./model";
 import { useWorks } from "./useWorks";
 import WorkPermissionsPanel from "./WorkPermissionsPanel";
@@ -43,6 +45,7 @@ export default function WorksClient({
   const [activeTarget, setActiveTarget] = useState<WorkTarget | null>(null);
   const [activeTab, setActiveTab] = useState("tasks");
   const [statusFilter, setStatusFilter] = useState<"active" | "done" | "archived">("active");
+  const [periodFilter, setPeriodFilter] = useState("all");
   const [sideOpen, setSideOpen] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -80,7 +83,7 @@ export default function WorksClient({
   useEffect(() => {
     if (spaces.length === 0) return;
     function handlePopState() {
-      const target = targetFromPath(window.location.pathname, spaces);
+      const target = getWorkTargetFromPath(window.location.pathname, spaces);
       if (target) setActiveTarget({ targetType: target.targetType, targetId: target.targetId });
     }
     window.addEventListener("popstate", handlePopState);
@@ -95,6 +98,7 @@ export default function WorksClient({
     setActiveTarget({ targetType: space.targetType, targetId: space.targetId });
     setActiveTab("tasks");
     setStatusFilter("active");
+    setPeriodFilter("all");
     setDrawerOpen(false);
     window.history.pushState(null, "", workspacePath(getWorkSpacePath(space.targetType, space.targetId)));
   }
@@ -175,16 +179,32 @@ export default function WorksClient({
                       onChange={(value) => setActiveTab(value)}
                     />
                     {activeTab === "tasks" && (
-                      <ToolbarOptionGroup
-                        ariaLabel="任务状态"
-                        value={statusFilter}
-                        options={[
-                          { value: "active", label: "进行中" },
-                          { value: "done", label: "已完成" },
-                          { value: "archived", label: "已归档" },
-                        ]}
-                        onChange={(value) => setStatusFilter(value as typeof statusFilter)}
-                      />
+                      <>
+                        <ToolbarOptionGroup
+                          ariaLabel="任务状态"
+                          value={statusFilter}
+                          options={[
+                            { value: "active", label: "进行中" },
+                            { value: "done", label: "已完成" },
+                            { value: "archived", label: "已归档" },
+                          ]}
+                          onChange={(value) => setStatusFilter(value as typeof statusFilter)}
+                        />
+                        <ToolbarOptionGroup
+                          ariaLabel="计划周期"
+                          value={periodFilter}
+                          options={[
+                            { value: "all", label: "全部周期" },
+                            { value: "long-term", label: "长期" },
+                            { value: "daily", label: getPeriodTypeLabel("daily") },
+                            { value: "weekly", label: getPeriodTypeLabel("weekly") },
+                            { value: "monthly", label: getPeriodTypeLabel("monthly") },
+                            { value: "quarterly", label: getPeriodTypeLabel("quarterly") },
+                            { value: "yearly", label: getPeriodTypeLabel("yearly") },
+                          ]}
+                          onChange={setPeriodFilter}
+                        />
+                      </>
                     )}
                   </>
                 )}
@@ -250,6 +270,7 @@ export default function WorksClient({
                     editingId={worksState.editingId}
                     editDraft={worksState.editDraft}
                     statusFilter={statusFilter}
+                    periodFilter={periodFilter}
                     targetType={currentSpace.targetType}
                     onEditDraftChange={worksState.setEditDraft}
                     onDetail={(work) => {
@@ -360,26 +381,6 @@ function targetKey(target: WorkTarget) {
 function normalizeInitialTarget(target?: WorkTarget) {
   if (!target || !Number.isFinite(target.targetId) || target.targetId <= 0) return null;
   return target;
-}
-
-function targetFromPath(pathname: string, spaces: WorkTaskSpace[]) {
-  const path = workspaceBasePath && pathname.startsWith(`${workspaceBasePath}/`)
-    ? pathname.slice(workspaceBasePath.length)
-    : pathname;
-  if (path === "/work/tasks" || path === "/work/tasks/personal") {
-    return spaces.find((space) => space.targetType === "personal") || null;
-  }
-  const departmentMatch = path.match(/^\/work\/tasks\/departments\/(\d+)$/);
-  if (departmentMatch) {
-    const targetId = Number(departmentMatch[1]);
-    return spaces.find((space) => space.targetType === "department" && space.targetId === targetId) || null;
-  }
-  const projectMatch = path.match(/^\/work\/tasks\/projects\/(\d+)$/);
-  if (projectMatch) {
-    const targetId = Number(projectMatch[1]);
-    return spaces.find((space) => space.targetType === "project" && space.targetId === targetId) || null;
-  }
-  return null;
 }
 
 function nextSortOrder(works: WorkItem[]) {

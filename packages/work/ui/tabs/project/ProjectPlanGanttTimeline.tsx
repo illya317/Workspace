@@ -169,6 +169,7 @@ function buildRows(items: ProjectPlanItem[], phases: ProjectPlanPhaseItem[]): Ti
   }
   for (const phase of phases) {
     const children = rest.filter((item) => item.phaseId === phase.id);
+    if (children.length === 0) continue;
     const actual = aggregateActualRange(children);
     rows.push({
       key: `phase:${phase.id}`,
@@ -184,10 +185,7 @@ function buildRows(items: ProjectPlanItem[], phases: ProjectPlanPhaseItem[]): Ti
     for (const item of children) rows.push(toRow(item, 1));
   }
   const unassigned = rest.filter((item) => !item.phaseId || !phases.some((phase) => phase.id === item.phaseId));
-  if (unassigned.length) {
-    rows.push({ key: "phase:unassigned", kind: "phase", id: 0, name: "未分阶段", depth: 0, startDate: null, endDate: null });
-    for (const item of unassigned) rows.push(toRow(item, 1));
-  }
+  for (const item of unassigned) rows.push(toRow(item, 1));
   return rows;
 }
 

@@ -3,10 +3,13 @@ import { validateFkValue } from "@workspace/platform/server/fk-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { WORK_FK_REGISTRY } from "./fk-registry";
 
-const DATE_FIELDS = ["startDate", "endDate"];
+const DATE_FIELDS = ["baselineStartDate", "baselineEndDate", "startDate", "endDate"];
 const NUMBER_FIELDS = ["budgetAmount", "completionPercent"];
 
 export const PROJECT_LEVELS = ["普通", "重点", "特殊"];
+export const PROJECT_TYPES = ["company", "department", "other"] as const;
+export type ProjectType = (typeof PROJECT_TYPES)[number];
+export const COMPANY_PROJECT_CODE_PREFIX = "FH";
 
 type LeadingDepartmentResult =
   | { value: number; department: { id: number; code: string; name: string; managerUserId: number | null } }
@@ -19,6 +22,7 @@ export const PROJECT_CONFIG = {
   allowedFields: [
     "name",
     "description",
+    "projectType",
     "projectLevel",
     "plan",
     "goal",
@@ -27,6 +31,8 @@ export const PROJECT_CONFIG = {
     "budgetNote",
     "riskNote",
     "remark",
+    "baselineStartDate",
+    "baselineEndDate",
     "startDate",
     "endDate",
     "completionPercent",
@@ -65,6 +71,10 @@ export function isAllowedProjectOption(value: unknown, options: readonly string[
   return value === null || value === undefined || value === "" || (typeof value === "string" && options.includes(value));
 }
 
+export function normalizeProjectType(value: unknown): ProjectType {
+  return PROJECT_TYPES.includes(value as ProjectType) ? value as ProjectType : "department";
+}
+
 function normalizeBudgetAmount(value: unknown) {
   if (value === null || value === undefined || value === "") return null;
   const number = typeof value === "number" ? value : Number(String(value).replace(/,/g, ""));
@@ -101,14 +111,17 @@ export async function normalizeLeadingDepartmentId(value: unknown): Promise<Lead
   return { value: leadingDepartmentId, department };
 }
 
-function planCodePrefix(departmentCode: string, dateValue?: Date | string | null) {
+function planCodePrefix(prefixCode: string, dateValue?: Date | string | null) {
   const date = dateValue ? new Date(dateValue) : new Date();
   const year = Number.isNaN(date.getTime()) ? new Date().getFullYear() : date.getFullYear();
-  return `${departmentCode.trim()}-${String(year % 100).padStart(2, "0")}`;
+  return `${prefixCode.trim()}-${String(year % 100).padStart(2, "0")}`;
 }
 
-export async function generateProjectCode(departmentCode: string, dateValue?: Date | string | null) {
-  const prefix = planCodePrefix(departmentCode, dateValue);
+export async function generateProjectCode(input: { projectType: ProjectType; departmentCode?: string | null; dateValue?: Date | string | null }) {
+  if (input.projectType === "other") return null;
+  const prefixCode = input.projectType === "company" ? COMPANY_PROJECT_CODE_PREFIX : input.departmentCode;
+  if (!prefixCode) return null;
+  const prefix = planCodePrefix(prefixCode, input.dateValue);
   const existing = await prisma.project.findMany({
     where: { code: { startsWith: `${prefix}-` } },
     select: { code: true },
@@ -119,7 +132,7 @@ export async function generateProjectCode(departmentCode: string, dateValue?: Da
     if (!match) continue;
     maxSequence = Math.max(maxSequence, Number(match[1]));
   }
-  return `${prefix}-${String(maxSequence + 1).padStart(3, "0")}`;
+  return `${prefix}-${String(maxSequence + 1).padStart(2, "0")}`;
 }
 
 async function normalizeProjectFieldUpdate(field: string, value: unknown, id?: number): Promise<ProjectFieldUpdateResult> {
@@ -139,6 +152,7 @@ async function normalizeProjectFieldUpdate(field: string, value: unknown, id?: n
     return { field, value: result.value };
   }
   if (field === "isArchived") return { field, value: Boolean(value) };
+  if (field === "projectType") return { error: "项目类型创建后不可修改" };
   if (field === "projectLevel" && !isAllowedProjectOption(value, PROJECT_LEVELS)) return null;
   if (field !== "name" && typeof value === "string" && value.trim() === "") return { field, value: null };
   return { field, value };

@@ -8,6 +8,7 @@ import {
   DataTableActionsCell,
   TableScrollFrame,
   createDataTableEditActions,
+  isDataTableEditDirty,
   useConfirm,
   useConfirmDelete,
   type DataTableColumn,
@@ -62,12 +63,7 @@ export default function ProjectPlanPhasePanel({
 
   function startEdit(phase: ProjectPlanPhaseItem) {
     setEditingId(phase.id);
-    setEditDraft({
-      name: phase.name,
-      startDate: phase.startDate ?? "",
-      endDate: phase.endDate ?? "",
-      note: phase.note ?? "",
-    });
+    setEditDraft(phaseDraftFromItem(phase));
   }
 
   async function submitEdit(phaseId: number) {
@@ -86,7 +82,7 @@ export default function ProjectPlanPhasePanel({
   }
 
   async function handleDelete(phaseId: number) {
-    const confirmed = await confirmDelete({ message: "删除项目阶段后，已归属到该阶段的任务会回到未分阶段。确定删除吗？" });
+    const confirmed = await confirmDelete({ message: "删除项目阶段后，已归属到该阶段的任务会直接显示在项目下。确定删除吗？" });
     if (!confirmed) return;
     setBusy(true);
     try {
@@ -205,6 +201,7 @@ function PhaseRows({
       required: true,
       render: (phase) => {
         const editing = editingId === phase.id;
+        const dirty = isDataTableEditDirty(phaseDraftFromItem(phase), editDraft);
         return canEdit ? (
           <DataTableActionsCell
             actions={[
@@ -213,6 +210,7 @@ function PhaseRows({
                 editing,
                 canEdit,
                 canSave: Boolean(editDraft.name.trim()),
+                dirty,
                 disabled,
                 editLabel: "编辑阶段",
                 saveLabel: "保存阶段",
@@ -311,6 +309,15 @@ function phasePayload(draft: PhaseDraft) {
     startDate: draft.startDate || null,
     endDate: draft.endDate || null,
     note: draft.note.trim() || null,
+  };
+}
+
+function phaseDraftFromItem(phase: ProjectPlanPhaseItem): PhaseDraft {
+  return {
+    name: phase.name,
+    startDate: phase.startDate ?? "",
+    endDate: phase.endDate ?? "",
+    note: phase.note ?? "",
   };
 }
 

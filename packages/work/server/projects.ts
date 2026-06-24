@@ -10,11 +10,13 @@ import {
   getProjectPermissions,
 } from "./access";
 import { formatDate } from "./project-normalization";
+import { deriveStatusFromActualDates, effectiveProjectDates } from "./project-dates";
 import {
   buildProjectCreateCommand,
   buildProjectFieldUpdateCommand,
   validateProjectDeleteCommand,
 } from "./domain/project-validation";
+import type { ProjectType } from "./project-normalization";
 
 export async function listProjects(input: { userId: number; keyword: string; page: number; pageSize: number; archived?: boolean }) {
   const visibleWhere = await buildVisibleProjectWhere(input.userId);
@@ -25,12 +27,27 @@ export async function listProjects(input: { userId: number; keyword: string; pag
       _count: { select: { employees: true } },
       employees: { select: { employeeId: true, role: true } },
       leadingDepartment: { select: { id: true, code: true, name: true, managerUserId: true } },
+      parentProjectTask: {
+        select: {
+          id: true,
+          name: true,
+          baselineStartDate: true,
+          baselineEndDate: true,
+          startDate: true,
+          endDate: true,
+          project: { select: { id: true, code: true, name: true } },
+        },
+      },
     },
   });
 
   const mapped = await Promise.all(projects.map(async (project) => {
     const leadingDepartment = project.leadingDepartment;
     const permissions = await getProjectPermissions(input.userId, project);
+    const dates = effectiveProjectDates(project);
+    const parentTaskStatus = project.parentProjectTask
+      ? deriveStatusFromActualDates(project.parentProjectTask.startDate, project.parentProjectTask.endDate)
+      : null;
     return {
       id: project.id,
       code: project.code,
@@ -42,7 +59,14 @@ export async function listProjects(input: { userId: number; keyword: string; pag
         canDelete: permissions.canDelete,
       },
       description: project.description,
-      status: deriveProjectStatus(project.endDate),
+      projectType: project.projectType as ProjectType,
+      parentProjectTaskId: project.parentProjectTaskId,
+      parentProjectTaskName: project.parentProjectTask?.name ?? null,
+      parentProjectId: project.parentProjectTask?.project.id ?? null,
+      parentProjectCode: project.parentProjectTask?.project.code ?? null,
+      parentProjectName: project.parentProjectTask?.project.name ?? null,
+      parentProjectTaskStatus: parentTaskStatus,
+      status: deriveStatusFromActualDates(dates.startDate, dates.endDate),
       projectLevel: project.projectLevel,
       plan: project.plan,
       goal: project.goal,
@@ -56,8 +80,10 @@ export async function listProjects(input: { userId: number; keyword: string; pag
       leadingDepartmentId: project.leadingDepartmentId,
       leadingDepartmentName: leadingDepartment?.name ?? null,
       leadingDepartmentCode: leadingDepartment?.code ?? null,
-      startDate: formatDate(project.startDate),
-      endDate: formatDate(project.endDate),
+      baselineStartDate: formatDate(dates.baselineStartDate),
+      baselineEndDate: formatDate(dates.baselineEndDate),
+      startDate: formatDate(dates.startDate),
+      endDate: formatDate(dates.endDate),
       completionPercent: project.completionPercent,
       employeeCount: project._count.employees,
     };
@@ -76,6 +102,14 @@ export async function listProjectGantt(input: { userId: number; includeTasks?: b
     orderBy: { id: "asc" },
     include: {
       leadingDepartment: { select: { id: true, code: true, name: true } },
+      parentProjectTask: {
+        select: {
+          baselineStartDate: true,
+          baselineEndDate: true,
+          startDate: true,
+          endDate: true,
+        },
+      },
       employees: {
         where: { role: { in: ["负责人", "项目负责人"] } },
         orderBy: { id: "asc" },
@@ -123,10 +157,12 @@ export async function listProjectGantt(input: { userId: number; includeTasks?: b
   return {
     projects: projects.map((project) => {
       const baseline = baselineByKey.get(`project:${project.id}`);
+      const dates = effectiveProjectDates(project);
       return {
         id: project.id,
         name: project.name,
-        status: deriveProjectStatus(project.endDate),
+        status: deriveStatusFromActualDates(dates.startDate, dates.endDate),
+        projectType: project.projectType,
         projectLevel: project.projectLevel,
         leadingDepartmentId: project.leadingDepartmentId,
         leadingDepartmentCode: project.leadingDepartment?.code ?? null,
@@ -135,11 +171,11 @@ export async function listProjectGantt(input: { userId: number; includeTasks?: b
           .map((entry) => entry.employee.name)
           .filter((name): name is string => Boolean(name)),
         stages: [],
-        startDate: formatDate(project.startDate),
-        endDate: formatDate(project.endDate),
+        startDate: formatDate(dates.startDate),
+        endDate: formatDate(dates.endDate),
         completionPercent: project.completionPercent,
-        baselineStartDate: formatDate(baseline?.startDate ?? null),
-        baselineEndDate: formatDate(baseline?.endDate ?? null),
+        baselineStartDate: formatDate(dates.baselineStartDate ?? baseline?.startDate ?? null),
+        baselineEndDate: formatDate(dates.baselineEndDate ?? baseline?.endDate ?? null),
       };
     }),
     tasks: tasks.map((task) => {
@@ -159,11 +195,6 @@ export async function listProjectGantt(input: { userId: number; includeTasks?: b
       };
     }),
   };
-}
-
-function deriveProjectStatus(endDate: Date | null) {
-  if (endDate) return "已完成";
-  return "进行中";
 }
 
 export async function createProject(request: Request, userId: number) {

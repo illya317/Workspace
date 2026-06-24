@@ -11,11 +11,13 @@ import {
 import {
   PROJECT_CONFIG,
   PROJECT_LEVELS,
+  PROJECT_TYPES,
   generateProjectCode,
   hasValidProjectDates,
   isFutureDateValue,
   isAllowedProjectOption,
   normalizeLeadingDepartmentId,
+  normalizeProjectType,
   nullableString,
   parseDate,
 } from "../project-normalization";
@@ -37,6 +39,7 @@ export interface ProjectDeleteCommand {
 const PROJECT_MANAGE_FIELDS = new Set(["name", "leadingDepartmentId", "isArchived"]);
 const PROJECT_EDIT_FIELDS = new Set([
   "description",
+  "projectType",
   "projectLevel",
   "plan",
   "goal",
@@ -45,10 +48,13 @@ const PROJECT_EDIT_FIELDS = new Set([
   "budgetNote",
   "riskNote",
   "remark",
+  "baselineStartDate",
+  "baselineEndDate",
   "startDate",
   "endDate",
   "completionPercent",
 ]);
+const PROJECT_DATE_FIELDS = new Set(["baselineStartDate", "baselineEndDate", "startDate", "endDate"]);
 
 export async function buildProjectCreateCommand(
   userId: number,
@@ -56,13 +62,30 @@ export async function buildProjectCreateCommand(
 ): Promise<DomainValidationResult<ProjectCreateCommand>> {
   if (!hasValidProjectDates(input.startDate, input.endDate)) return failCommand("日期格式错误");
   if (isFutureDateValue(input.endDate)) return failCommand("结项日期不能晚于今日");
+  if (!isAllowedProjectOption(input.projectType, PROJECT_TYPES)) return failCommand("项目类型无效");
   if (!isAllowedProjectOption(input.projectLevel, PROJECT_LEVELS)) return failCommand("项目级别无效");
   if (input.completionPercent !== null && input.completionPercent !== undefined && input.completionPercent < 0) return failCommand("完成度不能小于 0");
+
+  const projectType = normalizeProjectType(input.projectType);
+  const parentProjectTask = input.parentProjectTaskId
+    ? await prisma.projectTask.findUnique({
+      where: { id: input.parentProjectTaskId },
+      select: { id: true, childProject: { select: { id: true } } },
+    })
+    : null;
+  if (input.parentProjectTaskId && !parentProjectTask) return failCommand("上级任务不存在", 404);
+  if (parentProjectTask?.childProject) return failCommand("该任务已派生子项目");
+  if (
+    parentProjectTask
+    && (input.baselineStartDate || input.baselineEndDate || input.startDate || input.endDate)
+  ) {
+    return failCommand("子项目日期由上级任务控制");
+  }
 
   const leadingDepartmentResult = input.leadingDepartmentId
     ? await normalizeLeadingDepartmentId(input.leadingDepartmentId)
     : null;
-  if (!leadingDepartmentResult) return failCommand("请选择主导部门");
+  if (projectType === "department" && !leadingDepartmentResult) return failCommand("请选择主导部门");
   if (leadingDepartmentResult && "error" in leadingDepartmentResult) return failCommand(leadingDepartmentResult.error);
   if (
     leadingDepartmentResult
@@ -83,15 +106,18 @@ export async function buildProjectCreateCommand(
   if (input.leaderEmployeeId && !leaderEmployee) return failCommand("负责人不存在");
 
   const startDate = parseDate(input.startDate);
-  const code = leadingDepartmentResult && !("error" in leadingDepartmentResult)
-    ? await generateProjectCode(leadingDepartmentResult.department.code, startDate)
-    : null;
+  const code = await generateProjectCode({
+    projectType,
+    departmentCode: leadingDepartmentResult && !("error" in leadingDepartmentResult) ? leadingDepartmentResult.department.code : null,
+    dateValue: startDate,
+  });
 
   return okCommand({
     data: {
       code,
       name: input.name,
       description: nullableString(input.description),
+      projectType,
       projectLevel: nullableString(input.projectLevel) ?? "普通",
       plan: nullableString(input.plan),
       goal: nullableString(input.goal),
@@ -100,9 +126,12 @@ export async function buildProjectCreateCommand(
       budgetNote: nullableString(input.budgetNote),
       riskNote: nullableString(input.riskNote),
       remark: nullableString(input.remark),
+      baselineStartDate: parentProjectTask ? null : parseDate(input.baselineStartDate),
+      baselineEndDate: parentProjectTask ? null : parseDate(input.baselineEndDate),
       leadingDepartmentId: leadingDepartmentResult && !("error" in leadingDepartmentResult) ? leadingDepartmentResult.value : null,
-      startDate,
-      endDate: parseDate(input.endDate),
+      parentProjectTaskId: parentProjectTask?.id ?? null,
+      startDate: parentProjectTask ? null : startDate,
+      endDate: parentProjectTask ? null : parseDate(input.endDate),
       completionPercent: input.completionPercent ?? null,
       createdBy: userId,
       editedBy: userId,
@@ -124,6 +153,10 @@ export async function buildProjectFieldUpdateCommand(input: {
   if (field === "isArchived") {
     if (!(await canDeleteProject(userId, projectId))) return failCommand("无权限", 403);
     const archived = Boolean(value);
+    if (archived) {
+      const childProjectCount = await countChildProjectsFromProjectTasks(projectId);
+      if (childProjectCount > 0) return failCommand("请先处理相关子项目");
+    }
     return okCommand({
       kind: "field",
       data: { isArchived: archived, archivedAt: archived ? new Date() : null },
@@ -132,26 +165,40 @@ export async function buildProjectFieldUpdateCommand(input: {
 
   if (field === "leadingDepartmentId") {
     if (!canManage) return failCommand("无权限", 403);
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true, startDate: true, projectType: true },
+    });
+    if (!project) return failCommand("记录不存在", 404);
+    const projectType = normalizeProjectType(project.projectType);
+    if (value === null || value === undefined || value === "") {
+      if (projectType === "department") return failCommand("请选择主导部门");
+      return okCommand({ kind: "field", data: { leadingDepartmentId: null } });
+    }
     const result = await normalizeLeadingDepartmentId(value);
     if ("error" in result) return failCommand(result.error);
     if (result.department.managerUserId !== userId && !(await isSystemAdminUser(userId))) {
       return failCommand("只有目标部门负责人可以设置主导部门", 403);
     }
-    const project = await prisma.project.findUnique({
-      where: { id: projectId },
-      select: { id: true, startDate: true },
-    });
-    if (!project) return failCommand("记录不存在", 404);
-    const code = await generateProjectCode(result.department.code, project.startDate);
+    const code = projectType === "department"
+      ? await generateProjectCode({ projectType, departmentCode: result.department.code, dateValue: project.startDate })
+      : undefined;
     return okCommand({
       kind: "field",
-      data: { leadingDepartmentId: result.value, code },
+      data: { leadingDepartmentId: result.value, ...(code !== undefined ? { code } : {}) },
     });
   }
 
   if (PROJECT_MANAGE_FIELDS.has(field) && !canManage) return failCommand("无权限", 403);
   if (PROJECT_EDIT_FIELDS.has(field) && !canEdit) return failCommand("无权限", 403);
   if (!PROJECT_MANAGE_FIELDS.has(field) && !PROJECT_EDIT_FIELDS.has(field)) return failCommand("非法字段");
+  if (PROJECT_DATE_FIELDS.has(field)) {
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: { parentProjectTaskId: true },
+    });
+    if (project?.parentProjectTaskId) return failCommand("子项目日期由上级任务控制");
+  }
 
   const result = await PROJECT_CONFIG.onBeforeUpdate?.(field, value, projectId);
   if (!result) return failCommand("非法字段");
@@ -165,5 +212,13 @@ export async function validateProjectDeleteCommand(
   projectId: number,
 ): Promise<DomainValidationResult<ProjectDeleteCommand>> {
   if (!(await canDeleteProject(userId, projectId))) return failCommand("无权限", 403);
+  const childProjectCount = await countChildProjectsFromProjectTasks(projectId);
+  if (childProjectCount > 0) return failCommand("请先处理相关子项目");
   return okCommand({ projectId });
+}
+
+async function countChildProjectsFromProjectTasks(projectId: number) {
+  return prisma.project.count({
+    where: { parentProjectTask: { projectId } },
+  });
 }

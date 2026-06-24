@@ -34,8 +34,8 @@ type TaskPlanRuleTask = {
 };
 type TaskDependencyEdge = { predecessorId: number; successorId: number };
 
-async function loadRequiredPlanPhase(projectId: number, planPhaseId: number | null | undefined): Promise<{ phase: TaskPlanPhase } | { error: string }> {
-  if (!planPhaseId) return { error: "项目阶段为必填" };
+async function loadOptionalPlanPhase(projectId: number, planPhaseId: number | null | undefined): Promise<{ phase: TaskPlanPhase | null } | { error: string }> {
+  if (!planPhaseId) return { phase: null };
   const phase = await prisma.projectPlanPhase.findUnique({
     where: { id: planPhaseId },
     select: { id: true, name: true, projectId: true, startDate: true, endDate: true },
@@ -130,21 +130,23 @@ export async function validateTaskPlanConstraints(input: {
   startDate: Date | null | undefined;
   endDate: Date | null | undefined;
 }) {
-  const phaseResult = await loadRequiredPlanPhase(input.projectId, input.planPhaseId);
+  const phaseResult = await loadOptionalPlanPhase(input.projectId, input.planPhaseId);
   if ("error" in phaseResult) return phaseResult.error;
   const phase = phaseResult.phase;
-  const phaseError = validateDateRangeWithinPhase({
-    label: "基线",
-    startDate: input.baselineStartDate,
-    endDate: input.baselineEndDate,
-    phase,
-  }) || validateDateRangeWithinPhase({
-    label: "实际",
-    startDate: input.startDate,
-    endDate: input.endDate,
-    phase,
-  });
-  if (phaseError) return phaseError;
+  if (phase) {
+    const phaseError = validateDateRangeWithinPhase({
+      label: "基线",
+      startDate: input.baselineStartDate,
+      endDate: input.baselineEndDate,
+      phase,
+    }) || validateDateRangeWithinPhase({
+      label: "实际",
+      startDate: input.startDate,
+      endDate: input.endDate,
+      phase,
+    });
+    if (phaseError) return phaseError;
+  }
 
   const context = await loadTaskDependencyContext(input.projectId);
   for (const predecessorTaskId of input.predecessorTaskIds) {

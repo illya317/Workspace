@@ -9,6 +9,7 @@ import {
   SectionCard,
   TableScrollFrame,
   createDataTableEditActions,
+  isDataTableEditDirty,
   useConfirmDelete,
   type DataTableColumn,
   type PickerOption,
@@ -34,12 +35,14 @@ export default function ProjectTasksSection({
   canEdit,
   disabled,
   onChanged,
+  onCreateChildProject,
   onToast,
 }: {
   projectId: number | null;
   canEdit: boolean;
   disabled: boolean;
   onChanged?: () => void;
+  onCreateChildProject?: (task: ProjectTaskItem) => void;
   onToast: (toast: { type: "success" | "error"; message: string }) => void;
 }) {
   const confirmDelete = useConfirmDelete();
@@ -96,21 +99,37 @@ export default function ProjectTasksSection({
       key: "description",
       label: "任务名称",
       required: true,
-      cellClassName: "min-w-64 max-w-xl whitespace-normal",
+      cellClassName: "min-w-64 max-w-xl",
       render: (task) => (
         <div className="flex min-w-0 flex-col gap-1.5">
           {task.predecessorTaskNames.length > 0 && (
-            <span className="text-xs text-slate-400">前置：{task.predecessorTaskNames.join("、")}</span>
+            <span className="max-w-full truncate text-xs text-slate-400" title={`前置：${task.predecessorTaskNames.join("、")}`}>前置：{task.predecessorTaskNames.join("、")}</span>
           )}
           <div className="flex min-w-0 items-center gap-2">
-            <span className="min-w-0 break-words text-sm font-medium text-slate-900">{task.name}</span>
+            <span className="min-w-0 max-w-[16rem] truncate text-sm font-medium text-slate-900" title={task.name}>{task.name}</span>
             {task.isMilestone && <span className="shrink-0 rounded bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">里程碑</span>}
           </div>
-          {task.description && <span className="text-xs text-slate-400">{task.description}</span>}
+          {task.description && <span className="max-w-full truncate text-xs text-slate-400" title={task.description}>{task.description}</span>}
+          {task.childProjectId && (
+            <span className="max-w-full truncate text-xs text-emerald-700" title={`子项目：${[task.childProjectCode, task.childProjectName].filter(Boolean).join(" · ")}${task.childProjectStatus ? ` · ${task.childProjectStatus}` : ""}`}>
+              子项目：{[task.childProjectCode, task.childProjectName].filter(Boolean).join(" · ")}
+              {task.childProjectStatus ? ` · ${task.childProjectStatus}` : ""}
+            </span>
+          )}
           {task.successorTasks.length > 0 && (
-            <span className="text-xs text-slate-400">后置：{task.successorTasks.map((item) => item.name).join("、")}</span>
+            <span className="max-w-full truncate text-xs text-slate-400" title={`后置：${task.successorTasks.map((item) => item.name).join("、")}`}>后置：{task.successorTasks.map((item) => item.name).join("、")}</span>
           )}
         </div>
+      ),
+    },
+    {
+      key: "childProjectStatus",
+      label: "派生状态",
+      defaultVisible: true,
+      render: (task) => (
+        <span className={`inline-flex rounded px-2 py-0.5 text-xs font-medium ${statusClassName(task.childProjectStatus)}`}>
+          {task.childProjectStatus || "未派生"}
+        </span>
       ),
     },
     {
@@ -138,6 +157,7 @@ export default function ProjectTasksSection({
       render: (task) => {
         const editing = editingTaskId === task.id;
         const canSave = Boolean(editDraft && isTaskDraftSubmittable(editDraft));
+        const dirty = isDataTableEditDirty(createProjectTaskDraft(task), editDraft);
         return (
           <DataTableActionsCell
             actions={[
@@ -146,6 +166,7 @@ export default function ProjectTasksSection({
                 editing,
                 canEdit,
                 canSave,
+                dirty,
                 saving,
                 disabled,
                 editLabel: "编辑任务",
@@ -156,11 +177,17 @@ export default function ProjectTasksSection({
                 onCancel: handleCancelEdit,
               }),
               ...(canEdit && !editing ? [{
+                key: "create-child-project",
+                kind: "add",
+                label: task.childProjectId ? "已有子项目" : "创建子项目",
+                onClick: () => onCreateChildProject?.(task),
+                disabled: saving || disabled || Boolean(task.childProjectId) || !onCreateChildProject,
+              } as const, {
                 key: "delete",
                 kind: "delete",
                 label: "删除任务",
                 onClick: () => void handleDelete(task),
-                disabled: saving || disabled,
+                disabled: saving || disabled || Boolean(task.childProjectId),
               } as const] : []),
             ]}
           />
@@ -179,7 +206,6 @@ export default function ProjectTasksSection({
     if (!projectId || saving) return;
     const draft = { ...createDraft, sortOrder: createDraft.sortOrder ?? nextSortOrder(tasks) };
     if (!draft.name.trim()) return onToast({ type: "error", message: "任务名称不能为空" });
-    if (!draft.planPhaseId) return onToast({ type: "error", message: "项目阶段为必填，请先选择项目阶段" });
     setSaving(true);
     try {
       await createProjectTask(projectId, draft);
@@ -216,7 +242,6 @@ export default function ProjectTasksSection({
   async function handleUpdate() {
     if (!projectId || !editingTaskId || !editDraft || saving) return;
     if (!editDraft.name.trim()) return onToast({ type: "error", message: "任务名称不能为空" });
-    if (!editDraft.planPhaseId) return onToast({ type: "error", message: "项目阶段为必填，请先选择项目阶段" });
     setSaving(true);
     try {
       await updateProjectTask(projectId, editingTaskId, editDraft);
@@ -232,6 +257,7 @@ export default function ProjectTasksSection({
 
   async function handleDelete(task: ProjectTaskItem) {
     if (!projectId || saving) return;
+    if (task.childProjectId) return onToast({ type: "error", message: "请先处理相关子项目" });
     const ok = await confirmDelete({
       title: "删除任务",
       message: `确定删除任务「${task.name}」吗？后置任务的前置关系会自动清空。`,
@@ -286,7 +312,7 @@ export default function ProjectTasksSection({
             emptyText="暂无项目任务"
             rowKey={(task) => task.id}
             onRowClick={handleToggleDetail}
-            visibleColumns={["owner", "startDate", "endDate"]}
+            visibleColumns={["owner", "childProjectStatus", "startDate", "endDate"]}
             expandedRowKey={detailTaskId}
             renderExpandedRow={(task) => editDraft && editingTaskId === task.id ? (
               <ProjectTaskForm
@@ -305,10 +331,17 @@ export default function ProjectTasksSection({
   );
 }
 
+function statusClassName(status: string | null) {
+  if (status === "已完成") return "bg-emerald-50 text-emerald-700";
+  if (status === "进行中") return "bg-sky-50 text-sky-700";
+  if (status === "未开始") return "bg-slate-100 text-slate-600";
+  return "bg-slate-50 text-slate-400";
+}
+
 function nextSortOrder(tasks: ProjectTaskItem[]) {
   return (tasks.reduce((max, task) => Math.max(max, task.sortOrder), 0) || 0) + 10;
 }
 
 function isTaskDraftSubmittable(draft: ProjectTaskDraft) {
-  return Boolean(draft.name.trim() && draft.planPhaseId);
+  return Boolean(draft.name.trim());
 }

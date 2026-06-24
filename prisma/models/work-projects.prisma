@@ -4,6 +4,7 @@ model Project {
   code                String?               @unique
   name                String
   description         String?
+  projectType         String                @default("department")
   projectLevel        String                @default("普通")
   plan                String?
   goal                String?
@@ -12,11 +13,14 @@ model Project {
   budgetNote          String?
   riskNote            String?
   remark              String?
+  baselineStartDate   DateTime?
+  baselineEndDate     DateTime?
   startDate           DateTime?
   endDate             DateTime?
   completionPercent   Float?
   closureType         String?
   leadingDepartmentId Int?
+  parentProjectTaskId Int?                  @unique
   isArchived          Boolean               @default(false)
   archivedAt          DateTime?
   createdBy           Int?
@@ -26,6 +30,7 @@ model Project {
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @default(now()) @updatedAt
   leadingDepartment   Department?           @relation("ProjectLeadingDepartment", fields: [leadingDepartmentId], references: [id], onDelete: SetNull)
+  parentProjectTask   ProjectTask?          @relation("ProjectTaskChildProject", fields: [parentProjectTaskId], references: [id], onDelete: Restrict)
   employees           EmployeeProject[]
   tasks               ProjectTask[]
   planPhases          ProjectPlanPhase[]     @relation("ProjectPlanPhases")
@@ -35,6 +40,8 @@ model Project {
   linkedWorkItems     WorkItem[]             @relation("WorkItemLinkedProject")
 
   @@index([leadingDepartmentId])
+  @@index([projectType])
+  @@index([parentProjectTaskId])
 }
 
 /// 员工-项目关联
@@ -163,6 +170,7 @@ model ProjectTask {
   project           Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
   planPhase         ProjectPlanPhase? @relation("ProjectTaskPlanPhase", fields: [planPhaseId], references: [id], onDelete: SetNull)
   owner             Employee?     @relation("ProjectTaskOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull)
+  childProject      Project?      @relation("ProjectTaskChildProject")
   assignees         ProjectTaskAssignment[]
   linkedWorkItems   WorkItem[]    @relation("WorkItemLinkedProjectTask")
 

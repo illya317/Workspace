@@ -14,6 +14,7 @@ const endDateSchema = dateStringSchema
 export const ProjectCreateSchema = z.object({
   name: z.string().min(1, "名称不能为空"),
   description: z.string().optional().nullable(),
+  projectType: z.enum(["company", "department", "other"]).optional().nullable(),
   projectLevel: z.string().optional().nullable(),
   plan: z.string().optional().nullable(),
   goal: z.string().optional().nullable(),
@@ -22,9 +23,12 @@ export const ProjectCreateSchema = z.object({
   budgetNote: z.string().optional().nullable(),
   riskNote: z.string().optional().nullable(),
   remark: z.string().optional().nullable(),
+  baselineStartDate: dateStringSchema.optional().nullable(),
+  baselineEndDate: dateStringSchema.optional().nullable(),
   startDate: dateStringSchema.optional().nullable(),
   endDate: endDateSchema,
   completionPercent: z.coerce.number().min(0, "完成度不能小于 0").optional().nullable(),
   leadingDepartmentId: z.coerce.number().int().positive("主导部门不能为空").optional().nullable(),
   leaderEmployeeId: z.coerce.number().int().positive().optional().nullable(),
+  parentProjectTaskId: z.coerce.number().int().positive().optional().nullable(),
 });

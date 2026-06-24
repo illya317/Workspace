@@ -16,6 +16,7 @@ export default function WorkSpaceSidebar({
 }) {
   const groups: Array<{ type: WorkTargetType; title: string }> = [
     { type: "personal", title: "个人空间" },
+    { type: "company", title: "公司空间" },
     { type: "department", title: "部门空间" },
     { type: "project", title: "项目空间" },
   ];

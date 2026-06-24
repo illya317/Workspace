@@ -26,6 +26,8 @@ export async function createProject(draft: ProjectDraft) {
     body: JSON.stringify({
       name: draft.name,
       description: draft.description,
+      projectType: draft.projectType,
+      parentProjectTaskId: draft.parentProjectTaskId,
       projectLevel: draft.projectLevel,
       plan: draft.plan,
       goal: draft.goal,
@@ -35,8 +37,10 @@ export async function createProject(draft: ProjectDraft) {
       riskNote: draft.riskNote,
       remark: draft.remark,
       leadingDepartmentId: draft.leadingDepartmentId,
-      startDate: draft.startDate,
-      endDate: draft.endDate,
+      baselineStartDate: draft.parentProjectTaskId ? null : draft.baselineStartDate,
+      baselineEndDate: draft.parentProjectTaskId ? null : draft.baselineEndDate,
+      startDate: draft.parentProjectTaskId ? null : draft.startDate,
+      endDate: draft.parentProjectTaskId ? null : draft.endDate,
       completionPercent: draft.completionPercent,
     }),
   });

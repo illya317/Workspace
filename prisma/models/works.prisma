@@ -12,6 +12,9 @@ model WorkItem {
   ownerEmployeeId     Int?
   startDate           DateTime?
   dueDate             DateTime?
+  periodType          String?
+  periodStart         DateTime?
+  periodEnd           DateTime?
   linkedProjectId     Int?
   linkedProjectTaskId Int?
   parentWorkItemId    Int?
@@ -28,6 +31,7 @@ model WorkItem {
   reportItems         WorkReportItem[]
 
   @@index([targetType, targetId, category])
+  @@index([targetType, targetId, periodType, periodStart])
   @@index([ownerEmployeeId])
   @@index([status])
   @@index([linkedProjectId])

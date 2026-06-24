@@ -34,11 +34,12 @@ type SpaceSeed = {
 
 export async function listWorkTaskSpaces(userId: number): Promise<{ spaces: WorkTaskSpace[] }> {
   const isAdmin = await hasWorkAdmin(userId);
-  const [user, departments, projects] = await Promise.all([
+  const [user, companies, departments, projects] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, nickname: true, employees: { select: { name: true }, take: 1 } },
     }),
+    listCompanySeeds(userId, isAdmin),
     listDepartmentSeeds(userId, isAdmin),
     listProjectSeeds(userId, isAdmin),
   ]);
@@ -50,6 +51,7 @@ export async function listWorkTaskSpaces(userId: number): Promise<{ spaces: Work
       name: user?.employees[0]?.name || user?.nickname || "我的工作",
       subtitle: "个人工作台",
     },
+    ...companies,
     ...departments,
     ...projects,
   ]);
@@ -66,6 +68,36 @@ export async function listWorkTaskSpaces(userId: number): Promise<{ spaces: Work
   }));
 
   return { spaces: spaces.filter((space): space is WorkTaskSpace => Boolean(space)) };
+}
+
+async function listCompanySeeds(userId: number, isAdmin: boolean): Promise<SpaceSeed[]> {
+  const company = await prisma.company.findFirst({
+    where: {
+      isActive: true,
+      childOfRelations: { none: {} },
+      parentOfRelations: { some: {} },
+    },
+    select: { id: true, name: true },
+    orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+  });
+  if (!company) return [];
+  if (isAdmin) return [companySpaceSeed(company)];
+
+  const explicit = await prisma.workScopePermission.findMany({
+    where: { userId, targetType: "company", targetId: company.id, kind: "task" },
+    select: { targetId: true },
+  });
+  if (explicit.length === 0) return [];
+  return [companySpaceSeed(company)];
+}
+
+function companySpaceSeed(company: { id: number; name: string }): SpaceSeed {
+  return {
+    targetType: "company",
+    targetId: company.id,
+    name: company.name,
+    subtitle: "公司级工作计划",
+  };
 }
 
 async function listDepartmentSeeds(userId: number, isAdmin: boolean): Promise<SpaceSeed[]> {

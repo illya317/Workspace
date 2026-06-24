@@ -144,6 +144,12 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
             onDraftChange={model.updateDraft}
             onLeaderChange={model.setLeader}
             onRoleMembersChange={model.setRoleMembers}
+            onCreateChildProject={model.startCreateChildProject}
+            onOpenProject={(projectId) => {
+              model.setCreating(false);
+              model.setProjectListFilter("all");
+              model.setSelection(projectId);
+            }}
             onProjectTasksChanged={(projectId) => void model.loadSelectedTasks(projectId)}
             onToast={model.setToast}
           />

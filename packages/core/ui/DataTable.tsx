@@ -42,7 +42,7 @@ export interface DataTableProps<T> {
   renderExpandedRow?: (row: T) => ReactNode;
 }
 
-export type DataTableActionKind = "view" | "edit" | "save" | "cancel" | "delete";
+export type DataTableActionKind = "view" | "add" | "edit" | "save" | "cancel" | "delete";
 
 export interface DataTableRowAction {
   key: string;
@@ -89,6 +89,9 @@ function DataTableActionIcon({ kind }: { kind: DataTableActionKind }) {
   if (kind === "edit") {
     return <ActionGlyph kind="edit" />;
   }
+  if (kind === "add") {
+    return <ActionGlyph kind="add" />;
+  }
   return <ActionGlyph kind="view" />;
 }
 
@@ -96,9 +99,10 @@ function getDataTableActionClassName(kind: DataTableActionKind) {
   return joinClassNames(
     "inline-flex h-10 w-10 items-center justify-center rounded-lg border bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-300 disabled:shadow-none",
     kind === "delete" && "border-red-200 text-red-600 hover:bg-red-50",
+    kind === "add" && "border-emerald-200 text-emerald-600 hover:bg-emerald-50",
     kind === "save" && "border-emerald-200 text-emerald-600 hover:bg-emerald-50",
     kind === "cancel" && "border-slate-300 text-slate-600 hover:bg-slate-50",
-    kind !== "delete" && kind !== "save" && kind !== "cancel" && "border-slate-300",
+    kind !== "delete" && kind !== "add" && kind !== "save" && kind !== "cancel" && "border-slate-300",
   );
 }
 

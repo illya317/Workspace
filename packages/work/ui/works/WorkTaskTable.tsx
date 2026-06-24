@@ -7,9 +7,10 @@ import {
   StatusBadge,
   TableScrollFrame,
   createDataTableEditActions,
+  isDataTableEditDirty,
   type DataTableColumn,
 } from "@workspace/core/ui";
-import { getStatusLabel } from "./model";
+import { createWorkDraft, getStatusLabel, getWorkPeriodLabel } from "./model";
 import { WorkTaskDetail, WorkTaskForm } from "./WorkTaskFields";
 import type { WorkItem, WorkItemDraft } from "./types";
 
@@ -22,6 +23,7 @@ export default function WorkTaskTable({
   editingId,
   editDraft,
   statusFilter,
+  periodFilter,
   targetType,
   onDetail,
   onEdit,
@@ -38,6 +40,7 @@ export default function WorkTaskTable({
   editingId: number | null;
   editDraft: WorkItemDraft | null;
   statusFilter: "active" | "done" | "archived";
+  periodFilter: string;
   targetType?: WorkItem["targetType"];
   onDetail: (work: WorkItem) => void;
   onEdit: (work: WorkItem) => void;
@@ -46,7 +49,7 @@ export default function WorkTaskTable({
   onEditDraftChange: (draft: WorkItemDraft) => void;
   onDelete: (work: WorkItem) => void;
 }) {
-  const filteredWorks = works.filter((work) => matchesStatusFilter(work, statusFilter));
+  const filteredWorks = works.filter((work) => matchesStatusFilter(work, statusFilter) && matchesPeriodFilter(work, periodFilter));
   const routine = sortWorks(filteredWorks.filter((work) => work.category === "routine"));
   const nonRoutine = sortWorks(filteredWorks.filter((work) => work.category === "non-routine"));
   const showOwner = targetType !== "personal";
@@ -182,11 +185,11 @@ function createColumns({
       label: "工作内容",
       required: true,
       headerClassName: "w-64",
-      cellClassName: "w-64 max-w-72 whitespace-normal",
+      cellClassName: "w-64 max-w-80",
       render: (work) => (
         <div className="flex min-w-0 flex-col gap-1">
-          {work.parentWorkItemContent && <span className="text-xs text-slate-400">上级：{work.parentWorkItemContent}</span>}
-          <span className="min-w-0 break-words text-sm font-medium text-slate-900">{work.content}</span>
+          {work.parentWorkItemContent && <span className="max-w-full truncate text-xs text-slate-400" title={`上级：${work.parentWorkItemContent}`}>上级：{work.parentWorkItemContent}</span>}
+          <span className="min-w-0 max-w-[14rem] truncate text-sm font-medium text-slate-900" title={work.content}>{work.content}</span>
         </div>
       ),
     },
@@ -197,6 +200,14 @@ function createColumns({
       headerClassName: "w-32",
       cellClassName: "w-32",
       render: (work) => work.ownerEmployeeName || "未设置",
+    },
+    {
+      key: "period",
+      label: "周期",
+      defaultVisible: true,
+      headerClassName: "w-48",
+      cellClassName: "w-48",
+      render: (work) => <span className="text-sm text-slate-600">{getWorkPeriodLabel(work)}</span>,
     },
     {
       key: "priority",
@@ -236,10 +247,13 @@ function createColumns({
       label: "关联",
       defaultVisible: true,
       headerClassName: "min-w-56",
-      cellClassName: "min-w-56 max-w-80 whitespace-normal",
-      render: (work) => work.linkedProjectName || work.linkedProjectTaskName
-        ? [work.linkedProjectName, work.linkedProjectTaskName].filter(Boolean).join(" / ")
-        : "无",
+      cellClassName: "min-w-56 max-w-80",
+      render: (work) => {
+        const label = work.linkedProjectName || work.linkedProjectTaskName
+          ? [work.linkedProjectName, work.linkedProjectTaskName].filter(Boolean).join(" / ")
+          : "无";
+        return <span className="block max-w-full truncate" title={label}>{label}</span>;
+      },
     },
     {
       key: "actions",
@@ -250,6 +264,7 @@ function createColumns({
       render: (work) => {
         const editing = editingId === work.id;
         const canSave = Boolean(editDraft?.content.trim());
+        const dirty = isDataTableEditDirty(createWorkDraft(work), editDraft);
         return (
           <DataTableActionsCell
             actions={[
@@ -258,6 +273,7 @@ function createColumns({
                 editing,
                 canEdit,
                 canSave,
+                dirty,
                 saving,
                 editLabel: "编辑工作项",
                 saveLabel: "保存工作项",
@@ -284,7 +300,7 @@ function createColumns({
 
 function getGroupVisibleColumns(groupType: WorkItem["category"], showOwner: boolean) {
   void groupType;
-  return [showOwner ? "owner" : "", "priority"].filter(Boolean);
+  return [showOwner ? "owner" : "", "period", "priority"].filter(Boolean);
 }
 
 function sortWorks(rows: WorkItem[]) {
@@ -296,6 +312,12 @@ function matchesStatusFilter(work: WorkItem, filter: "active" | "done" | "archiv
   if (filter === "archived") return archived;
   if (filter === "done") return !archived && work.status === "done";
   return !archived && work.status !== "done";
+}
+
+function matchesPeriodFilter(work: WorkItem, filter: string) {
+  if (filter === "all") return true;
+  if (filter === "long-term") return !work.periodType;
+  return work.periodType === filter;
 }
 
 function statusVariant(status: string) {

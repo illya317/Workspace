@@ -18,18 +18,22 @@ export async function getWorkItems(opts: {
   targetType: string;
   targetId: number;
   category?: string;
+  periodType?: string | null;
+  periodStart?: string | null;
   includeArchived?: boolean;
 }) {
-  const where: { targetType: string; targetId: number; category?: string; isArchived?: boolean } = {
+  const where: { targetType: string; targetId: number; category?: string; periodType?: string | null; periodStart?: Date; isArchived?: boolean } = {
     targetType: opts.targetType,
     targetId: opts.targetId,
   };
   if (opts.category) where.category = opts.category;
+  if (opts.periodType !== undefined) where.periodType = opts.periodType || null;
+  if (opts.periodStart) where.periodStart = new Date(opts.periodStart);
   if (!opts.includeArchived) where.isArchived = false;
 
   const rows = await prisma.workItem.findMany({
     where,
-    orderBy: [{ category: "asc" }, { sortOrder: "asc" }],
+    orderBy: [{ category: "asc" }, { periodStart: "asc" }, { sortOrder: "asc" }],
     include: workItemInclude,
   });
   return rows.map(toWorkItemDto);
@@ -65,6 +69,9 @@ function toWorkItemDto(row: Prisma.WorkItemGetPayload<{ include: typeof workItem
     ownerEmployeeName: row.owner?.name ?? null,
     startDate: formatDate(row.startDate),
     dueDate: formatDate(row.dueDate),
+    periodType: row.periodType,
+    periodStart: formatDate(row.periodStart),
+    periodEnd: formatDate(row.periodEnd),
     linkedProjectId: row.linkedProjectId,
     linkedProjectName: row.linkedProject?.name ?? null,
     linkedProjectCode: row.linkedProject?.code ?? null,
@@ -103,6 +110,9 @@ export async function createWorkItem(opts: {
   ownerEmployeeId?: number | null;
   startDate?: Date | string | null;
   dueDate?: Date | string | null;
+  periodType?: string | null;
+  periodStart?: Date | string | null;
+  periodEnd?: Date | string | null;
   linkedProjectId?: number | null;
   linkedProjectTaskId?: number | null;
   parentWorkItemId?: number | null;
@@ -125,6 +135,9 @@ export async function createWorkItem(opts: {
     ownerEmployeeId: command.data.ownerEmployeeId,
     startDate: command.data.startDate,
     dueDate: command.data.dueDate,
+    periodType: command.data.periodType,
+    periodStart: command.data.periodStart,
+    periodEnd: command.data.periodEnd,
     linkedProjectId: command.data.linkedProjectId,
     linkedProjectTaskId: command.data.linkedProjectTaskId,
     parentWorkItemId: command.data.parentWorkItemId,
@@ -166,6 +179,9 @@ export async function updateWorkItem(
     ownerEmployeeId?: number | null;
     startDate?: Date | string | null;
     dueDate?: Date | string | null;
+    periodType?: string | null;
+    periodStart?: Date | string | null;
+    periodEnd?: Date | string | null;
     linkedProjectId?: number | null;
     linkedProjectTaskId?: number | null;
     parentWorkItemId?: number | null;
@@ -176,7 +192,7 @@ export async function updateWorkItem(
 ): Promise<DomainServiceResult<unknown>> {
   const existing = await prisma.workItem.findUnique({
     where: { id: workId },
-    select: { targetType: true, targetId: true, category: true, linkedProjectId: true },
+    select: { targetType: true, targetId: true, category: true, linkedProjectId: true, periodType: true, periodStart: true, periodEnd: true },
   });
   if (!existing?.targetId) return { ok: false, error: "工作项不存在", status: 404 };
   const command = buildWorkItemUpdateCommand(workId, opts, existing.category);
@@ -191,6 +207,8 @@ export async function updateWorkItem(
     ...command.data.data,
   });
   if (relationError) return { ok: false, error: relationError, status: 400 };
+  const periodError = validateWorkItemPeriodPatch(existing, command.data.data);
+  if (periodError) return { ok: false, error: periodError, status: 400 };
   const statusPatch = buildStatusPatch(command.data.data.status, command.data.data.isArchived);
   const data: Prisma.WorkItemUncheckedUpdateInput = {
     ...(command.data.data.category !== undefined && { category: command.data.data.category }),
@@ -201,6 +219,9 @@ export async function updateWorkItem(
     ...(command.data.data.ownerEmployeeId !== undefined && { ownerEmployeeId: command.data.data.ownerEmployeeId }),
     ...(command.data.data.startDate !== undefined && { startDate: command.data.data.startDate }),
     ...(command.data.data.dueDate !== undefined && { dueDate: command.data.data.dueDate }),
+    ...(command.data.data.periodType !== undefined && { periodType: command.data.data.periodType }),
+    ...(command.data.data.periodStart !== undefined && { periodStart: command.data.data.periodStart }),
+    ...(command.data.data.periodEnd !== undefined && { periodEnd: command.data.data.periodEnd }),
     ...(command.data.data.linkedProjectId !== undefined && { linkedProjectId: command.data.data.linkedProjectId }),
     ...(command.data.data.linkedProjectTaskId !== undefined && { linkedProjectTaskId: command.data.data.linkedProjectTaskId }),
     ...(command.data.data.parentWorkItemId !== undefined && { parentWorkItemId: command.data.data.parentWorkItemId }),
@@ -232,6 +253,31 @@ function buildStatusPatch(status?: string | null, isArchived?: boolean): Prisma.
     return { isArchived, ...(isArchived ? { status: "archived" } : { status: "doing" }) };
   }
   return {};
+}
+
+function validateWorkItemPeriodPatch(
+  existing: { periodType: string | null; periodStart: Date | null; periodEnd: Date | null },
+  patch: {
+    periodType?: string | null;
+    periodStart?: Date | string | null;
+    periodEnd?: Date | string | null;
+  },
+) {
+  const periodType = patch.periodType === undefined ? existing.periodType : patch.periodType;
+  const periodStart = patch.periodStart === undefined ? existing.periodStart : toDateOrNull(patch.periodStart);
+  const periodEnd = patch.periodEnd === undefined ? existing.periodEnd : toDateOrNull(patch.periodEnd);
+  if (!periodType) {
+    if (periodStart || periodEnd) return "设置周期起止时必须选择周期类型";
+    return null;
+  }
+  if (!periodStart || !periodEnd) return "计划周期起止不能为空";
+  if (periodEnd < periodStart) return "周期结束不能早于周期开始";
+  return null;
+}
+
+function toDateOrNull(value: Date | string | null | undefined) {
+  if (!value) return null;
+  return value instanceof Date ? value : new Date(value);
 }
 
 export async function deleteWorkItem(workId: number): Promise<DomainServiceResult<{ success: true }>> {

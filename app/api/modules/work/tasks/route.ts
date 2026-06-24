@@ -19,6 +19,9 @@ const createWorkItemSchema = z.object({
   ownerEmployeeId: z.coerce.number().nullable().optional(),
   startDate: z.string().nullable().optional(),
   dueDate: z.string().nullable().optional(),
+  periodType: z.string().nullable().optional(),
+  periodStart: z.string().nullable().optional(),
+  periodEnd: z.string().nullable().optional(),
   linkedProjectId: z.coerce.number().nullable().optional(),
   linkedProjectTaskId: z.coerce.number().nullable().optional(),
   parentWorkItemId: z.coerce.number().nullable().optional(),
@@ -36,6 +39,8 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const category = searchParams.get("category") || undefined;
+  const periodType = searchParams.has("periodType") ? searchParams.get("periodType") : undefined;
+  const periodStart = searchParams.get("periodStart");
   const includeArchived = searchParams.get("includeArchived") === "true";
   const targetType = searchParams.get("targetType") || "department";
   // deptId is legacy compat; only used for department targets
@@ -55,7 +60,14 @@ export async function GET(request: Request) {
   const allowed = await canAccessTarget(payload.userId, targetType, finalTargetId);
   if (!allowed) return NextResponse.json({ error: "无权限访问该目标" }, { status: 403 });
 
-  const works = await getWorkItems({ targetType: targetType === "user" ? "personal" : targetType, targetId: finalTargetId, category, includeArchived });
+  const works = await getWorkItems({
+    targetType: targetType === "user" ? "personal" : targetType,
+    targetId: finalTargetId,
+    category,
+    periodType,
+    periodStart,
+    includeArchived,
+  });
   return NextResponse.json({ works });
 }
 
@@ -69,25 +81,7 @@ export async function POST(request: Request) {
   if (!parsedBody.success) {
     return NextResponse.json({ error: "工作内容和类别不能为空" }, { status: 400 });
   }
-  const {
-    category,
-    content,
-    description,
-    importance,
-    urgency,
-    status,
-    ownerEmployeeId,
-    startDate,
-    dueDate,
-    linkedProjectId,
-    linkedProjectTaskId,
-    parentWorkItemId,
-    participants,
-    sortOrder,
-    targetType,
-    targetId,
-    deptId,
-  } = parsedBody.data;
+  const { targetType, targetId, deptId, participants, ...workInput } = parsedBody.data;
 
   const finalTargetType = targetType || "department";
   const finalTargetId = finalTargetType === "personal" || finalTargetType === "user"
@@ -100,20 +94,8 @@ export async function POST(request: Request) {
   const work = await createWorkItem({
     targetType: finalTargetType === "user" ? "personal" : finalTargetType,
     targetId: finalTargetId,
-    category,
-    content,
-    description,
-    importance,
-    urgency,
-    status,
-    ownerEmployeeId,
-    startDate,
-    dueDate,
-    linkedProjectId,
-    linkedProjectTaskId,
-    parentWorkItemId,
+    ...workInput,
     participants: parseParticipants(participants),
-    sortOrder,
   });
   if (!work.ok) return NextResponse.json({ error: work.error }, { status: work.status || 400 });
   return NextResponse.json({ work: work.data });

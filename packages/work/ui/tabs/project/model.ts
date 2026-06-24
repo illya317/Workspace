@@ -2,6 +2,7 @@ import type { FkFieldOption, PickerOption } from "@workspace/core/ui";
 import { PROJECT_ROLES } from "@workspace/work/constants";
 
 export type ProjectListFilter = "all" | "普通" | "重点";
+export type ProjectType = "company" | "department" | "other";
 
 export type ProjectPermissions = {
   canEdit: boolean;
@@ -16,6 +17,13 @@ export type ProjectItem = {
   createdBy: number | null;
   permissions: ProjectPermissions;
   description: string | null;
+  projectType: ProjectType;
+  parentProjectTaskId: number | null;
+  parentProjectTaskName: string | null;
+  parentProjectId: number | null;
+  parentProjectCode: string | null;
+  parentProjectName: string | null;
+  parentProjectTaskStatus: string | null;
   status: string | null;
   projectLevel: string | null;
   plan: string | null;
@@ -28,6 +36,8 @@ export type ProjectItem = {
   leadingDepartmentId: number | null;
   leadingDepartmentName: string | null;
   leadingDepartmentCode: string | null;
+  baselineStartDate: string | null;
+  baselineEndDate: string | null;
   startDate: string | null;
   endDate: string | null;
   completionPercent: number | null;
@@ -63,6 +73,10 @@ export type ProjectTaskItem = {
   baselineEndDate: string | null;
   startDate: string | null;
   endDate: string | null;
+  childProjectId: number | null;
+  childProjectCode: string | null;
+  childProjectName: string | null;
+  childProjectStatus: string | null;
   predecessorTaskIds: number[];
   predecessorTaskNames: string[];
   successorTasks: { id: number; name: string }[];
@@ -111,6 +125,13 @@ export type ProjectDraft = {
   code: string | null;
   name: string;
   description: string | null;
+  projectType: ProjectType;
+  parentProjectTaskId: number | null;
+  parentProjectTaskName: string | null;
+  parentProjectId: number | null;
+  parentProjectCode: string | null;
+  parentProjectName: string | null;
+  parentProjectTaskStatus: string | null;
   projectLevel: string | null;
   plan: string | null;
   goal: string | null;
@@ -122,6 +143,8 @@ export type ProjectDraft = {
   leadingDepartmentId: number | null;
   leadingDepartmentName: string | null;
   leadingDepartmentCode: string | null;
+  baselineStartDate: string | null;
+  baselineEndDate: string | null;
   startDate: string | null;
   endDate: string | null;
   completionPercent: number | null;
@@ -135,6 +158,11 @@ export const PROJECT_LIST_FILTER_OPTIONS = [
   { value: "重点", label: "重点" },
 ] satisfies { value: ProjectListFilter; label: string }[];
 export const PROJECT_LEVEL_OPTIONS = ["普通", "重点", "特殊"] as const;
+export const PROJECT_TYPE_OPTIONS = [
+  { value: "company", label: "公司项目" },
+  { value: "department", label: "部门项目" },
+  { value: "other", label: "其他项目" },
+] satisfies { value: ProjectType; label: string }[];
 const TASK_MILESTONE_OPTIONS = [
   { value: "true", label: "是" },
   { value: "false", label: "否" },
@@ -145,6 +173,7 @@ function toPickerOptions(values: readonly string[]): PickerOption[] {
 }
 
 export const PROJECT_LEVEL_PICKER_OPTIONS = toPickerOptions(PROJECT_LEVEL_OPTIONS);
+export const PROJECT_TYPE_PICKER_OPTIONS = [...PROJECT_TYPE_OPTIONS];
 export const PROJECT_MILESTONE_PICKER_OPTIONS = [...TASK_MILESTONE_OPTIONS];
 
 export function createEmptyProjectTaskDraft(sortOrder: number | null = null): ProjectTaskDraft {
@@ -186,7 +215,9 @@ export function createProjectTaskDraft(task: ProjectTaskItem): ProjectTaskDraft 
 }
 
 export function projectCode(project: ProjectItem | null, draft: ProjectDraft | null) {
-  return project?.code || draft?.code || "保存后生成";
+  if (project?.code || draft?.code) return project?.code || draft?.code || "";
+  if ((project?.projectType || draft?.projectType) === "other") return "无自动编号";
+  return "保存后自动生成";
 }
 
 export function employeeFromOption(option?: FkFieldOption): EmployeeTag | null {
@@ -242,6 +273,8 @@ export function draftSnapshot(draft: ProjectDraft | null) {
     id: draft.id,
     name: draft.name.trim(),
     description: draft.description || null,
+    projectType: draft.projectType,
+    parentProjectTaskId: draft.parentProjectTaskId ?? null,
     projectLevel: draft.projectLevel || "普通",
     plan: draft.plan || null,
     goal: draft.goal || null,
@@ -251,6 +284,8 @@ export function draftSnapshot(draft: ProjectDraft | null) {
     riskNote: draft.riskNote || null,
     remark: draft.remark || null,
     leadingDepartmentId: draft.leadingDepartmentId ?? null,
+    baselineStartDate: draft.baselineStartDate || null,
+    baselineEndDate: draft.baselineEndDate || null,
     startDate: draft.startDate || null,
     endDate: draft.endDate || null,
     completionPercent: draft.completionPercent ?? null,
@@ -281,6 +316,13 @@ export function createProjectDraft(project: ProjectItem | null, entries: Project
     code: project?.code ?? null,
     name: project?.name ?? "",
     description: project?.description ?? null,
+    projectType: project?.projectType ?? "department",
+    parentProjectTaskId: project?.parentProjectTaskId ?? null,
+    parentProjectTaskName: project?.parentProjectTaskName ?? null,
+    parentProjectId: project?.parentProjectId ?? null,
+    parentProjectCode: project?.parentProjectCode ?? null,
+    parentProjectName: project?.parentProjectName ?? null,
+    parentProjectTaskStatus: project?.parentProjectTaskStatus ?? null,
     projectLevel: project?.projectLevel ?? "普通",
     plan: project?.plan ?? null,
     goal: project?.goal ?? null,
@@ -292,6 +334,8 @@ export function createProjectDraft(project: ProjectItem | null, entries: Project
     leadingDepartmentId: project?.leadingDepartmentId ?? null,
     leadingDepartmentName: project?.leadingDepartmentName ?? null,
     leadingDepartmentCode: project?.leadingDepartmentCode ?? null,
+    baselineStartDate: project?.baselineStartDate ?? null,
+    baselineEndDate: project?.baselineEndDate ?? null,
     startDate: project?.startDate ?? null,
     endDate: project?.endDate ?? null,
     completionPercent: project?.completionPercent ?? null,
@@ -306,6 +350,13 @@ export function createEmptyProjectDraft(): ProjectDraft {
     code: null,
     name: "",
     description: null,
+    projectType: "department",
+    parentProjectTaskId: null,
+    parentProjectTaskName: null,
+    parentProjectId: null,
+    parentProjectCode: null,
+    parentProjectName: null,
+    parentProjectTaskStatus: null,
     projectLevel: "普通",
     plan: null,
     goal: null,
@@ -317,6 +368,8 @@ export function createEmptyProjectDraft(): ProjectDraft {
     leadingDepartmentId: null,
     leadingDepartmentName: null,
     leadingDepartmentCode: null,
+    baselineStartDate: null,
+    baselineEndDate: null,
     startDate: todayDateString(),
     endDate: null,
     completionPercent: null,

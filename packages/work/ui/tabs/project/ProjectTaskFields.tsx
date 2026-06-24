@@ -61,7 +61,7 @@ export function ProjectTaskForm({
   const selectedPhase = phases.find((phase) => phase.id === draft.planPhaseId) ?? null;
   const phaseHint = selectedPhase
     ? `阶段范围：${selectedPhase.startDate || "未设置"} - ${selectedPhase.endDate || "未设置"}`
-    : phaseOptions.length > 0 ? "请选择任务所属项目阶段" : "请先在上方建立项目阶段";
+    : phaseOptions.length > 0 ? "未选择时任务直接显示在项目下" : "暂无项目阶段，任务会直接显示在项目下";
 
   function patch(next: Partial<ProjectTaskDraft>) {
     onChange({ ...draft, ...next });
@@ -92,12 +92,12 @@ export function ProjectTaskForm({
         <FormField label="任务名称" required className="lg:col-span-2">
           <TextField value={draft.name} disabled={disabled} className={inputClassName} onChange={(value) => patch({ name: value })} unstyled />
         </FormField>
-        <FormField label="项目阶段" required>
+        <FormField label="项目阶段">
           <OptionPicker
             value={draft.planPhaseId ? String(draft.planPhaseId) : null}
             options={phaseOptions}
             disabled={disabled || phaseOptions.length === 0}
-            placeholder={phaseOptions.length > 0 ? "选择项目阶段" : "请先建立项目阶段"}
+            placeholder={phaseOptions.length > 0 ? "选择项目阶段（可选）" : "无项目阶段"}
             onChange={(value) => patch({ planPhaseId: value ? Number(value) : null })}
             visibleCount={6}
             buttonClassName={pickerButtonClassName}
@@ -180,6 +180,7 @@ export function ProjectTaskDetail({ task }: { task: ProjectTaskItem }) {
     { label: "负责人", value: task.ownerEmployeeName || "未设置" },
     { label: "基线时间", value: [task.baselineStartDate || "未定", task.baselineEndDate || "未定"].join(" - ") },
     { label: "实际时间", value: [task.startDate || "未定", task.endDate || "未定"].join(" - ") },
+    { label: "派生子项目", value: task.childProjectId ? [task.childProjectCode, task.childProjectName, task.childProjectStatus].filter(Boolean).join(" · ") : "未派生" },
     { label: "里程碑", value: task.isMilestone ? "是" : "否" },
     { label: "前置任务", value: task.predecessorTaskNames.length > 0 ? task.predecessorTaskNames.join("、") : "无" },
     { label: "后置任务", value: task.successorTasks.length > 0 ? task.successorTasks.map((item) => item.name).join("、") : "无" },

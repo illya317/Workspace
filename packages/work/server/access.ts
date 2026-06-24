@@ -4,7 +4,7 @@ import { prisma } from "@workspace/platform/server/prisma";
 import { PROJECT_ROLES } from "../constants/field-options";
 
 export type ProjectAccessRole = "access" | "write" | "delete" | "admin";
-export type WorkSpaceTargetType = "personal" | "department" | "project" | "position";
+export type WorkSpaceTargetType = "personal" | "company" | "department" | "project" | "position";
 export type WorkSpaceRole = "viewer" | "editor" | "delete" | "manager";
 export type WorkSpacePermissionKind = "task";
 
@@ -159,7 +159,7 @@ export async function canDeleteProject(userId: number, projectId: number) {
 
 export function normalizeWorkTargetType(targetType: string): WorkSpaceTargetType {
   if (targetType === "user") return "personal";
-  if (targetType === "personal" || targetType === "department" || targetType === "project" || targetType === "position") return targetType;
+  if (targetType === "personal" || targetType === "company" || targetType === "department" || targetType === "project" || targetType === "position") return targetType;
   return "department";
 }
 
@@ -207,6 +207,8 @@ async function isMemberOfTarget(
     return Boolean(employeeProject);
   }
 
+  if (targetType === "company") return false;
+
   if (targetType === "position") {
     const edp = await prisma.eDP.findFirst({
       where: { employeeId: { in: employeeIds }, positionId: targetId },
@@ -229,6 +231,8 @@ async function isAssignee(
     });
     return Boolean(assignee);
   }
+
+  if (targetType === "company") return false;
 
   if (targetType === "project") {
     const assignee = await prisma.projectWorkAssignee.findFirst({

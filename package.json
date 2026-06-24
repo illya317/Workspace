@@ -44,6 +44,8 @@
     "finance:review-report-smoke": "npx tsx scripts/review-report-smoke.ts",
     "finance:cashflow-import": "npx tsx scripts/import-cash-flow-workpapers.ts",
     "finance:cashflow-import:execute": "npx tsx scripts/import-cash-flow-workpapers.ts --execute",
+    "work:company-tasks:clean": "npx tsx scripts/import/clean-company-task-plans.ts",
+    "work:company-projects:import": "npx tsx scripts/import/import-company-priority-projects.ts",
     "db:seed:library-generated": "npx tsx scripts/seed-library-generated-sources.ts",
     "db:scan:library": "npx tsx scripts/scan-library.ts"
   },

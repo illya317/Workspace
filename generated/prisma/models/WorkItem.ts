@@ -63,6 +63,9 @@ export type WorkItemMinAggregateOutputType = {
   ownerEmployeeId: number | null
   startDate: Date | null
   dueDate: Date | null
+  periodType: string | null
+  periodStart: Date | null
+  periodEnd: Date | null
   linkedProjectId: number | null
   linkedProjectTaskId: number | null
   parentWorkItemId: number | null
@@ -85,6 +88,9 @@ export type WorkItemMaxAggregateOutputType = {
   ownerEmployeeId: number | null
   startDate: Date | null
   dueDate: Date | null
+  periodType: string | null
+  periodStart: Date | null
+  periodEnd: Date | null
   linkedProjectId: number | null
   linkedProjectTaskId: number | null
   parentWorkItemId: number | null
@@ -107,6 +113,9 @@ export type WorkItemCountAggregateOutputType = {
   ownerEmployeeId: number
   startDate: number
   dueDate: number
+  periodType: number
+  periodStart: number
+  periodEnd: number
   linkedProjectId: number
   linkedProjectTaskId: number
   parentWorkItemId: number
@@ -155,6 +164,9 @@ export type WorkItemMinAggregateInputType = {
   ownerEmployeeId?: true
   startDate?: true
   dueDate?: true
+  periodType?: true
+  periodStart?: true
+  periodEnd?: true
   linkedProjectId?: true
   linkedProjectTaskId?: true
   parentWorkItemId?: true
@@ -177,6 +189,9 @@ export type WorkItemMaxAggregateInputType = {
   ownerEmployeeId?: true
   startDate?: true
   dueDate?: true
+  periodType?: true
+  periodStart?: true
+  periodEnd?: true
   linkedProjectId?: true
   linkedProjectTaskId?: true
   parentWorkItemId?: true
@@ -199,6 +214,9 @@ export type WorkItemCountAggregateInputType = {
   ownerEmployeeId?: true
   startDate?: true
   dueDate?: true
+  periodType?: true
+  periodStart?: true
+  periodEnd?: true
   linkedProjectId?: true
   linkedProjectTaskId?: true
   parentWorkItemId?: true
@@ -308,6 +326,9 @@ export type WorkItemGroupByOutputType = {
   ownerEmployeeId: number | null
   startDate: Date | null
   dueDate: Date | null
+  periodType: string | null
+  periodStart: Date | null
+  periodEnd: Date | null
   linkedProjectId: number | null
   linkedProjectTaskId: number | null
   parentWorkItemId: number | null
@@ -353,6 +374,9 @@ export type WorkItemWhereInput = {
   ownerEmployeeId?: Prisma.IntNullableFilter<"WorkItem"> | number | null
   startDate?: Prisma.DateTimeNullableFilter<"WorkItem"> | Date | string | null
   dueDate?: Prisma.DateTimeNullableFilter<"WorkItem"> | Date | string | null
+  periodType?: Prisma.StringNullableFilter<"WorkItem"> | string | null
+  periodStart?: Prisma.DateTimeNullableFilter<"WorkItem"> | Date | string | null
+  periodEnd?: Prisma.DateTimeNullableFilter<"WorkItem"> | Date | string | null
   linkedProjectId?: Prisma.IntNullableFilter<"WorkItem"> | number | null
   linkedProjectTaskId?: Prisma.IntNullableFilter<"WorkItem"> | number | null
   parentWorkItemId?: Prisma.IntNullableFilter<"WorkItem"> | number | null
@@ -382,6 +406,9 @@ export type WorkItemOrderByWithRelationInput = {
   ownerEmployeeId?: Prisma.SortOrderInput | Prisma.SortOrder
   startDate?: Prisma.SortOrderInput | Prisma.SortOrder
   dueDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  periodType?: Prisma.SortOrderInput | Prisma.SortOrder
+  periodStart?: Prisma.SortOrderInput | Prisma.SortOrder
+  periodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
   linkedProjectId?: Prisma.SortOrderInput | Prisma.SortOrder
   linkedProjectTaskId?: Prisma.SortOrderInput | Prisma.SortOrder
   parentWorkItemId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -414,6 +441,9 @@ export type WorkItemWhereUniqueInput = Prisma.AtLeast<{
   ownerEmployeeId?: Prisma.IntNullableFilter<"WorkItem"> | number | null
   startDate?: Prisma.DateTimeNullableFilter<"WorkItem"> | Date | string | null
   dueDate?: Prisma.DateTimeNullableFilter<"WorkItem"> | Date | string | null
+  periodType?: Prisma.StringNullableFilter<"WorkItem"> | string | null
+  periodStart?: Prisma.DateTimeNullableFilter<"WorkItem"> | Date | string | null
+  periodEnd?: Prisma.DateTimeNullableFilter<"WorkItem"> | Date | string | null
   linkedProjectId?: Prisma.IntNullableFilter<"WorkItem"> | number | null
   linkedProjectTaskId?: Prisma.IntNullableFilter<"WorkItem"> | number | null
   parentWorkItemId?: Prisma.IntNullableFilter<"WorkItem"> | number | null
@@ -443,6 +473,9 @@ export type WorkItemOrderByWithAggregationInput = {
   ownerEmployeeId?: Prisma.SortOrderInput | Prisma.SortOrder
   startDate?: Prisma.SortOrderInput | Prisma.SortOrder
   dueDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  periodType?: Prisma.SortOrderInput | Prisma.SortOrder
+  periodStart?: Prisma.SortOrderInput | Prisma.SortOrder
+  periodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
   linkedProjectId?: Prisma.SortOrderInput | Prisma.SortOrder
   linkedProjectTaskId?: Prisma.SortOrderInput | Prisma.SortOrder
   parentWorkItemId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -473,6 +506,9 @@ export type WorkItemScalarWhereWithAggregatesInput = {
   ownerEmployeeId?: Prisma.IntNullableWithAggregatesFilter<"WorkItem"> | number | null
   startDate?: Prisma.DateTimeNullableWithAggregatesFilter<"WorkItem"> | Date | string | null
   dueDate?: Prisma.DateTimeNullableWithAggregatesFilter<"WorkItem"> | Date | string | null
+  periodType?: Prisma.StringNullableWithAggregatesFilter<"WorkItem"> | string | null
+  periodStart?: Prisma.DateTimeNullableWithAggregatesFilter<"WorkItem"> | Date | string | null
+  periodEnd?: Prisma.DateTimeNullableWithAggregatesFilter<"WorkItem"> | Date | string | null
   linkedProjectId?: Prisma.IntNullableWithAggregatesFilter<"WorkItem"> | number | null
   linkedProjectTaskId?: Prisma.IntNullableWithAggregatesFilter<"WorkItem"> | number | null
   parentWorkItemId?: Prisma.IntNullableWithAggregatesFilter<"WorkItem"> | number | null
@@ -493,6 +529,9 @@ export type WorkItemCreateInput = {
   status?: string | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   isArchived?: boolean
   isPrivate?: boolean
   sortOrder?: number
@@ -519,6 +558,9 @@ export type WorkItemUncheckedCreateInput = {
   ownerEmployeeId?: number | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   linkedProjectId?: number | null
   linkedProjectTaskId?: number | null
   parentWorkItemId?: number | null
@@ -542,6 +584,9 @@ export type WorkItemUpdateInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -568,6 +613,9 @@ export type WorkItemUncheckedUpdateInput = {
   ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   linkedProjectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   linkedProjectTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   parentWorkItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -593,6 +641,9 @@ export type WorkItemCreateManyInput = {
   ownerEmployeeId?: number | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   linkedProjectId?: number | null
   linkedProjectTaskId?: number | null
   parentWorkItemId?: number | null
@@ -613,6 +664,9 @@ export type WorkItemUpdateManyMutationInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -632,6 +686,9 @@ export type WorkItemUncheckedUpdateManyInput = {
   ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   linkedProjectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   linkedProjectTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   parentWorkItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -669,6 +726,9 @@ export type WorkItemCountOrderByAggregateInput = {
   ownerEmployeeId?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   dueDate?: Prisma.SortOrder
+  periodType?: Prisma.SortOrder
+  periodStart?: Prisma.SortOrder
+  periodEnd?: Prisma.SortOrder
   linkedProjectId?: Prisma.SortOrder
   linkedProjectTaskId?: Prisma.SortOrder
   parentWorkItemId?: Prisma.SortOrder
@@ -703,6 +763,9 @@ export type WorkItemMaxOrderByAggregateInput = {
   ownerEmployeeId?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   dueDate?: Prisma.SortOrder
+  periodType?: Prisma.SortOrder
+  periodStart?: Prisma.SortOrder
+  periodEnd?: Prisma.SortOrder
   linkedProjectId?: Prisma.SortOrder
   linkedProjectTaskId?: Prisma.SortOrder
   parentWorkItemId?: Prisma.SortOrder
@@ -725,6 +788,9 @@ export type WorkItemMinOrderByAggregateInput = {
   ownerEmployeeId?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   dueDate?: Prisma.SortOrder
+  periodType?: Prisma.SortOrder
+  periodStart?: Prisma.SortOrder
+  periodEnd?: Prisma.SortOrder
   linkedProjectId?: Prisma.SortOrder
   linkedProjectTaskId?: Prisma.SortOrder
   parentWorkItemId?: Prisma.SortOrder
@@ -976,6 +1042,9 @@ export type WorkItemCreateWithoutOwnerInput = {
   status?: string | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   isArchived?: boolean
   isPrivate?: boolean
   sortOrder?: number
@@ -1000,6 +1069,9 @@ export type WorkItemUncheckedCreateWithoutOwnerInput = {
   status?: string | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   linkedProjectId?: number | null
   linkedProjectTaskId?: number | null
   parentWorkItemId?: number | null
@@ -1053,6 +1125,9 @@ export type WorkItemScalarWhereInput = {
   ownerEmployeeId?: Prisma.IntNullableFilter<"WorkItem"> | number | null
   startDate?: Prisma.DateTimeNullableFilter<"WorkItem"> | Date | string | null
   dueDate?: Prisma.DateTimeNullableFilter<"WorkItem"> | Date | string | null
+  periodType?: Prisma.StringNullableFilter<"WorkItem"> | string | null
+  periodStart?: Prisma.DateTimeNullableFilter<"WorkItem"> | Date | string | null
+  periodEnd?: Prisma.DateTimeNullableFilter<"WorkItem"> | Date | string | null
   linkedProjectId?: Prisma.IntNullableFilter<"WorkItem"> | number | null
   linkedProjectTaskId?: Prisma.IntNullableFilter<"WorkItem"> | number | null
   parentWorkItemId?: Prisma.IntNullableFilter<"WorkItem"> | number | null
@@ -1073,6 +1148,9 @@ export type WorkItemCreateWithoutLinkedProjectInput = {
   status?: string | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   isArchived?: boolean
   isPrivate?: boolean
   sortOrder?: number
@@ -1098,6 +1176,9 @@ export type WorkItemUncheckedCreateWithoutLinkedProjectInput = {
   ownerEmployeeId?: number | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   linkedProjectTaskId?: number | null
   parentWorkItemId?: number | null
   isArchived?: boolean
@@ -1145,6 +1226,9 @@ export type WorkItemCreateWithoutLinkedProjectTaskInput = {
   status?: string | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   isArchived?: boolean
   isPrivate?: boolean
   sortOrder?: number
@@ -1170,6 +1254,9 @@ export type WorkItemUncheckedCreateWithoutLinkedProjectTaskInput = {
   ownerEmployeeId?: number | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   linkedProjectId?: number | null
   parentWorkItemId?: number | null
   isArchived?: boolean
@@ -1217,6 +1304,9 @@ export type WorkItemCreateWithoutChildWorkItemsInput = {
   status?: string | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   isArchived?: boolean
   isPrivate?: boolean
   sortOrder?: number
@@ -1242,6 +1332,9 @@ export type WorkItemUncheckedCreateWithoutChildWorkItemsInput = {
   ownerEmployeeId?: number | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   linkedProjectId?: number | null
   linkedProjectTaskId?: number | null
   parentWorkItemId?: number | null
@@ -1269,6 +1362,9 @@ export type WorkItemCreateWithoutParentWorkItemInput = {
   status?: string | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   isArchived?: boolean
   isPrivate?: boolean
   sortOrder?: number
@@ -1294,6 +1390,9 @@ export type WorkItemUncheckedCreateWithoutParentWorkItemInput = {
   ownerEmployeeId?: number | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   linkedProjectId?: number | null
   linkedProjectTaskId?: number | null
   isArchived?: boolean
@@ -1336,6 +1435,9 @@ export type WorkItemUpdateWithoutChildWorkItemsInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1361,6 +1463,9 @@ export type WorkItemUncheckedUpdateWithoutChildWorkItemsInput = {
   ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   linkedProjectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   linkedProjectTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   parentWorkItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1399,6 +1504,9 @@ export type WorkItemCreateWithoutParticipantsInput = {
   status?: string | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   isArchived?: boolean
   isPrivate?: boolean
   sortOrder?: number
@@ -1424,6 +1532,9 @@ export type WorkItemUncheckedCreateWithoutParticipantsInput = {
   ownerEmployeeId?: number | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   linkedProjectId?: number | null
   linkedProjectTaskId?: number | null
   parentWorkItemId?: number | null
@@ -1462,6 +1573,9 @@ export type WorkItemUpdateWithoutParticipantsInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1487,6 +1601,9 @@ export type WorkItemUncheckedUpdateWithoutParticipantsInput = {
   ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   linkedProjectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   linkedProjectTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   parentWorkItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1509,6 +1626,9 @@ export type WorkItemCreateWithoutReportItemsInput = {
   status?: string | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   isArchived?: boolean
   isPrivate?: boolean
   sortOrder?: number
@@ -1534,6 +1654,9 @@ export type WorkItemUncheckedCreateWithoutReportItemsInput = {
   ownerEmployeeId?: number | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   linkedProjectId?: number | null
   linkedProjectTaskId?: number | null
   parentWorkItemId?: number | null
@@ -1572,6 +1695,9 @@ export type WorkItemUpdateWithoutReportItemsInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1597,6 +1723,9 @@ export type WorkItemUncheckedUpdateWithoutReportItemsInput = {
   ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   linkedProjectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   linkedProjectTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   parentWorkItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1620,6 +1749,9 @@ export type WorkItemCreateManyOwnerInput = {
   status?: string | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   linkedProjectId?: number | null
   linkedProjectTaskId?: number | null
   parentWorkItemId?: number | null
@@ -1640,6 +1772,9 @@ export type WorkItemUpdateWithoutOwnerInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1664,6 +1799,9 @@ export type WorkItemUncheckedUpdateWithoutOwnerInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   linkedProjectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   linkedProjectTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   parentWorkItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1688,6 +1826,9 @@ export type WorkItemUncheckedUpdateManyWithoutOwnerInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   linkedProjectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   linkedProjectTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   parentWorkItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1710,6 +1851,9 @@ export type WorkItemCreateManyLinkedProjectInput = {
   ownerEmployeeId?: number | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   linkedProjectTaskId?: number | null
   parentWorkItemId?: number | null
   isArchived?: boolean
@@ -1729,6 +1873,9 @@ export type WorkItemUpdateWithoutLinkedProjectInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1754,6 +1901,9 @@ export type WorkItemUncheckedUpdateWithoutLinkedProjectInput = {
   ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   linkedProjectTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   parentWorkItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1778,6 +1928,9 @@ export type WorkItemUncheckedUpdateManyWithoutLinkedProjectInput = {
   ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   linkedProjectTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   parentWorkItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1799,6 +1952,9 @@ export type WorkItemCreateManyLinkedProjectTaskInput = {
   ownerEmployeeId?: number | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   linkedProjectId?: number | null
   parentWorkItemId?: number | null
   isArchived?: boolean
@@ -1818,6 +1974,9 @@ export type WorkItemUpdateWithoutLinkedProjectTaskInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1843,6 +2002,9 @@ export type WorkItemUncheckedUpdateWithoutLinkedProjectTaskInput = {
   ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   linkedProjectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   parentWorkItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1867,6 +2029,9 @@ export type WorkItemUncheckedUpdateManyWithoutLinkedProjectTaskInput = {
   ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   linkedProjectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   parentWorkItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1888,6 +2053,9 @@ export type WorkItemCreateManyParentWorkItemInput = {
   ownerEmployeeId?: number | null
   startDate?: Date | string | null
   dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
   linkedProjectId?: number | null
   linkedProjectTaskId?: number | null
   isArchived?: boolean
@@ -1907,6 +2075,9 @@ export type WorkItemUpdateWithoutParentWorkItemInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1932,6 +2103,9 @@ export type WorkItemUncheckedUpdateWithoutParentWorkItemInput = {
   ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   linkedProjectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   linkedProjectTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1956,6 +2130,9 @@ export type WorkItemUncheckedUpdateManyWithoutParentWorkItemInput = {
   ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   linkedProjectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   linkedProjectTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2026,6 +2203,9 @@ export type WorkItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   ownerEmployeeId?: boolean
   startDate?: boolean
   dueDate?: boolean
+  periodType?: boolean
+  periodStart?: boolean
+  periodEnd?: boolean
   linkedProjectId?: boolean
   linkedProjectTaskId?: boolean
   parentWorkItemId?: boolean
@@ -2056,6 +2236,9 @@ export type WorkItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   ownerEmployeeId?: boolean
   startDate?: boolean
   dueDate?: boolean
+  periodType?: boolean
+  periodStart?: boolean
+  periodEnd?: boolean
   linkedProjectId?: boolean
   linkedProjectTaskId?: boolean
   parentWorkItemId?: boolean
@@ -2082,6 +2265,9 @@ export type WorkItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   ownerEmployeeId?: boolean
   startDate?: boolean
   dueDate?: boolean
+  periodType?: boolean
+  periodStart?: boolean
+  periodEnd?: boolean
   linkedProjectId?: boolean
   linkedProjectTaskId?: boolean
   parentWorkItemId?: boolean
@@ -2108,6 +2294,9 @@ export type WorkItemSelectScalar = {
   ownerEmployeeId?: boolean
   startDate?: boolean
   dueDate?: boolean
+  periodType?: boolean
+  periodStart?: boolean
+  periodEnd?: boolean
   linkedProjectId?: boolean
   linkedProjectTaskId?: boolean
   parentWorkItemId?: boolean
@@ -2117,7 +2306,7 @@ export type WorkItemSelectScalar = {
   createdAt?: boolean
 }
 
-export type WorkItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "targetType" | "targetId" | "category" | "content" | "description" | "importance" | "urgency" | "status" | "ownerEmployeeId" | "startDate" | "dueDate" | "linkedProjectId" | "linkedProjectTaskId" | "parentWorkItemId" | "isArchived" | "isPrivate" | "sortOrder" | "createdAt", ExtArgs["result"]["workItem"]>
+export type WorkItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "targetType" | "targetId" | "category" | "content" | "description" | "importance" | "urgency" | "status" | "ownerEmployeeId" | "startDate" | "dueDate" | "periodType" | "periodStart" | "periodEnd" | "linkedProjectId" | "linkedProjectTaskId" | "parentWorkItemId" | "isArchived" | "isPrivate" | "sortOrder" | "createdAt", ExtArgs["result"]["workItem"]>
 export type WorkItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   participants?: boolean | Prisma.WorkItem$participantsArgs<ExtArgs>
   owner?: boolean | Prisma.WorkItem$ownerArgs<ExtArgs>
@@ -2165,6 +2354,9 @@ export type $WorkItemPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     ownerEmployeeId: number | null
     startDate: Date | null
     dueDate: Date | null
+    periodType: string | null
+    periodStart: Date | null
+    periodEnd: Date | null
     linkedProjectId: number | null
     linkedProjectTaskId: number | null
     parentWorkItemId: number | null
@@ -2614,6 +2806,9 @@ export interface WorkItemFieldRefs {
   readonly ownerEmployeeId: Prisma.FieldRef<"WorkItem", 'Int'>
   readonly startDate: Prisma.FieldRef<"WorkItem", 'DateTime'>
   readonly dueDate: Prisma.FieldRef<"WorkItem", 'DateTime'>
+  readonly periodType: Prisma.FieldRef<"WorkItem", 'String'>
+  readonly periodStart: Prisma.FieldRef<"WorkItem", 'DateTime'>
+  readonly periodEnd: Prisma.FieldRef<"WorkItem", 'DateTime'>
   readonly linkedProjectId: Prisma.FieldRef<"WorkItem", 'Int'>
   readonly linkedProjectTaskId: Prisma.FieldRef<"WorkItem", 'Int'>
   readonly parentWorkItemId: Prisma.FieldRef<"WorkItem", 'Int'>

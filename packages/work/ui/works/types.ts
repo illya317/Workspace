@@ -6,9 +6,10 @@ export interface WorkParticipant {
   createdAt: string;
 }
 
-export type WorkTargetType = "personal" | "department" | "project";
+export type WorkTargetType = "personal" | "company" | "department" | "project";
 export type WorkItemCategory = "routine" | "non-routine";
 export type WorkItemStatus = "doing" | "done" | "archived";
+export type WorkPeriodType = "daily" | "weekly" | "monthly" | "quarterly" | "yearly";
 export type WorkSpaceRole = "viewer" | "editor" | "delete" | "manager";
 
 export interface WorkTarget {
@@ -42,6 +43,9 @@ export interface WorkItem {
   ownerEmployeeName: string | null;
   startDate: string | null;
   dueDate: string | null;
+  periodType: WorkPeriodType | null;
+  periodStart: string | null;
+  periodEnd: string | null;
   linkedProjectId: number | null;
   linkedProjectName: string | null;
   linkedProjectCode: string | null;
@@ -67,6 +71,9 @@ export interface WorkItemDraft {
   ownerEmployeeName: string;
   startDate: string | null;
   dueDate: string | null;
+  periodType: WorkPeriodType | null;
+  periodStart: string | null;
+  periodEnd: string | null;
   linkedProjectId: number | null;
   linkedProjectName: string;
   linkedProjectTaskId: number | null;

@@ -12,6 +12,9 @@ export interface WorkItemCreateCommand {
   ownerEmployeeId: number | null;
   startDate: Date | null;
   dueDate: Date | null;
+  periodType: string | null;
+  periodStart: Date | null;
+  periodEnd: Date | null;
   linkedProjectId: number | null;
   linkedProjectTaskId: number | null;
   parentWorkItemId: number | null;
@@ -31,6 +34,9 @@ export interface WorkItemUpdateCommand {
     ownerEmployeeId?: number | null;
     startDate?: Date | string | null;
     dueDate?: Date | string | null;
+    periodType?: string | null;
+    periodStart?: Date | string | null;
+    periodEnd?: Date | string | null;
     linkedProjectId?: number | null;
     linkedProjectTaskId?: number | null;
     parentWorkItemId?: number | null;
@@ -91,6 +97,36 @@ function normalizeStatus(value: unknown) {
   return failCommand("工作状态无效");
 }
 
+function normalizePeriodType(value: unknown) {
+  if (value === null || value === undefined || value === "") return okCommand(null);
+  const periodType = String(value || "").trim();
+  if (periodType === "daily" || periodType === "weekly" || periodType === "monthly" || periodType === "quarterly" || periodType === "yearly") {
+    return okCommand(periodType);
+  }
+  return failCommand("计划周期类型无效");
+}
+
+function normalizePeriodFields(input: {
+  periodType?: string | null;
+  periodStart?: Date | string | null;
+  periodEnd?: Date | string | null;
+}) {
+  const periodType = normalizePeriodType(input.periodType);
+  if (!periodType.ok) return periodType;
+  const periodStart = normalizeNullableDate(input.periodStart, "周期开始");
+  if (!periodStart.ok) return periodStart;
+  const periodEnd = normalizeNullableDate(input.periodEnd, "周期结束");
+  if (!periodEnd.ok) return periodEnd;
+
+  if (!periodType.data) {
+    if (periodStart.data || periodEnd.data) return failCommand("设置周期起止时必须选择周期类型");
+    return okCommand({ periodType: null, periodStart: null, periodEnd: null });
+  }
+  if (!periodStart.data || !periodEnd.data) return failCommand("计划周期起止不能为空");
+  if (periodEnd.data < periodStart.data) return failCommand("周期结束不能早于周期开始");
+  return okCommand({ periodType: periodType.data, periodStart: periodStart.data, periodEnd: periodEnd.data });
+}
+
 function stripRoutinePlanFields<T extends {
   status?: string | null;
   startDate?: Date | string | null;
@@ -118,6 +154,9 @@ export function buildWorkItemCreateCommand(input: {
   ownerEmployeeId?: number | null;
   startDate?: Date | string | null;
   dueDate?: Date | string | null;
+  periodType?: string | null;
+  periodStart?: Date | string | null;
+  periodEnd?: Date | string | null;
   linkedProjectId?: number | null;
   linkedProjectTaskId?: number | null;
   parentWorkItemId?: number | null;
@@ -149,6 +188,8 @@ export function buildWorkItemCreateCommand(input: {
   if (!startDate.ok) return startDate;
   const dueDate = isRoutine ? okCommand(null) : normalizeNullableDate(input.dueDate, "截止时间");
   if (!dueDate.ok) return dueDate;
+  const period = normalizePeriodFields(input);
+  if (!period.ok) return period;
 
   return okCommand({
     targetType: input.targetType || "department",
@@ -162,6 +203,9 @@ export function buildWorkItemCreateCommand(input: {
     ownerEmployeeId: ownerEmployeeId.data,
     startDate: startDate.data,
     dueDate: dueDate.data,
+    periodType: period.data.periodType,
+    periodStart: period.data.periodStart,
+    periodEnd: period.data.periodEnd,
     linkedProjectId: linkedProjectId.data,
     linkedProjectTaskId: linkedProjectTaskId.data,
     parentWorkItemId: parentWorkItemId.data,
@@ -201,18 +245,34 @@ export function buildWorkItemUpdateCommand(
     if (!status.ok) return status;
     data.status = status.data;
   }
+  if (data.periodType !== undefined) {
+    const periodType = normalizePeriodType(data.periodType);
+    if (!periodType.ok) return periodType;
+    data.periodType = periodType.data;
+    if (periodType.data === null) {
+      data.periodStart = null;
+      data.periodEnd = null;
+    }
+  }
   for (const field of ["ownerEmployeeId", "linkedProjectId", "linkedProjectTaskId", "parentWorkItemId"] as const) {
     if (data[field] === undefined) continue;
     const id = normalizeNullablePositiveId(data[field], "关联对象");
     if (!id.ok) return id;
     data[field] = id.data;
   }
-  for (const field of ["startDate", "dueDate"] as const) {
+  for (const field of ["startDate", "dueDate", "periodStart", "periodEnd"] as const) {
     if (data[field] === undefined) continue;
-    const date = normalizeNullableDate(data[field], field === "startDate" ? "开始时间" : "截止时间");
+    const labels = {
+      startDate: "开始时间",
+      dueDate: "截止时间",
+      periodStart: "周期开始",
+      periodEnd: "周期结束",
+    };
+    const date = normalizeNullableDate(data[field], labels[field]);
     if (!date.ok) return date;
     data[field] = date.data;
   }
+  if (data.periodStart && data.periodEnd && data.periodEnd < data.periodStart) return failCommand("周期结束不能早于周期开始");
   if (data.participants !== undefined && !Array.isArray(data.participants)) return failCommand("参与人无效");
   if (effectiveCategory === "routine") stripRoutinePlanFields(data);
   return okCommand({ workId: id.data, data });

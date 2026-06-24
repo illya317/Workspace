@@ -1,6 +1,7 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { canEditProject, canViewProject } from "./access";
 import { normalizeProjectPlanText, validateProjectPlanCommand } from "./domain/project-plan-validation";
+import { deriveStatusFromActualDates } from "./project-dates";
 
 type BaselineInput = {
   name?: unknown;
@@ -66,13 +67,22 @@ async function buildBaselineSnapshot(projectId: number) {
   const project = await prisma.project.findUnique({
     where: { id: projectId },
     include: {
+      parentProjectTask: {
+        select: {
+          baselineStartDate: true,
+          baselineEndDate: true,
+          startDate: true,
+          endDate: true,
+        },
+      },
       planPhases: { orderBy: [{ sequenceNo: "asc" }, { id: "asc" }] },
       tasks: true,
     },
   });
   if (!project) return [];
+  const projectDates = project.parentProjectTask || project;
   return [
-    baselineItem("project", project.id, null, null, null, project.name, deriveProjectStatus(project.endDate), true, project.startDate, project.endDate),
+    baselineItem("project", project.id, null, null, null, project.name, deriveStatusFromActualDates(projectDates.startDate, projectDates.endDate), true, projectDates.baselineStartDate ?? projectDates.startDate, projectDates.baselineEndDate ?? projectDates.endDate),
     ...project.planPhases.map((phase) => baselineItem("phase", phase.id, "project", project.id, null, phase.name, null, false, phase.startDate, phase.endDate)),
     ...project.tasks.map((task) => baselineItem("task", task.id, "project", project.id, task.planPhaseId, task.name, null, task.isMilestone, task.baselineStartDate ?? task.startDate, task.baselineEndDate ?? task.endDate)),
   ];
@@ -91,9 +101,4 @@ function baselineItem(
   endDate: Date | null,
 ) {
   return { itemKind, itemId, parentKind, parentId, phaseId, name, status, isMilestone, startDate, endDate };
-}
-
-function deriveProjectStatus(endDate: Date | null) {
-  if (endDate) return "已完成";
-  return "进行中";
 }

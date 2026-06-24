@@ -5,6 +5,7 @@ export interface DataTableEditActionsOptions<T> {
   editing: boolean;
   canEdit: boolean;
   canSave?: boolean;
+  dirty?: boolean;
   disabled?: boolean;
   saving?: boolean;
   editLabel: string;
@@ -20,6 +21,7 @@ export function createDataTableEditActions<T>({
   editing,
   canEdit,
   canSave = true,
+  dirty = true,
   disabled,
   saving,
   editLabel,
@@ -37,7 +39,7 @@ export function createDataTableEditActions<T>({
         kind: "save",
         label: saveLabel,
         onClick: onSave,
-        disabled: disabled || saving || !canSave,
+        disabled: disabled || saving || !canSave || !dirty,
       },
       {
         key: "cancel",
@@ -55,4 +57,23 @@ export function createDataTableEditActions<T>({
     onClick: () => onEdit(row),
     disabled: disabled || saving,
   }];
+}
+
+export function isDataTableEditDirty<T>(initial: T, current: T | null | undefined) {
+  if (!current) return false;
+  return stableSnapshot(initial) !== stableSnapshot(current);
+}
+
+function stableSnapshot(value: unknown): string {
+  return JSON.stringify(stabilize(value));
+}
+
+function stabilize(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(stabilize);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, item]) => [key, stabilize(item)]),
+  );
 }

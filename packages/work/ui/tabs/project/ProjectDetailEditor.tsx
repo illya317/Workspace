@@ -24,11 +24,13 @@ import ProjectTasksSection from "./ProjectTasksSection";
 import {
   MULTI_PROJECT_ROLES,
   PROJECT_LEVEL_PICKER_OPTIONS,
+  PROJECT_TYPE_PICKER_OPTIONS,
   projectCode,
   type EmployeeTag,
   type MultiProjectRole,
   type ProjectDraft,
   type ProjectItem,
+  type ProjectTaskItem,
 } from "./model";
 import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
 
@@ -54,6 +56,8 @@ export default function ProjectDetailEditor({
   onDraftChange,
   onLeaderChange,
   onRoleMembersChange,
+  onCreateChildProject,
+  onOpenProject,
   onProjectTasksChanged,
   onToast,
 }: {
@@ -74,14 +78,22 @@ export default function ProjectDetailEditor({
   onDraftChange: <K extends keyof ProjectDraft>(key: K, value: ProjectDraft[K]) => void;
   onLeaderChange: (option?: FkFieldOption) => void;
   onRoleMembersChange: (role: MultiProjectRole, members: EmployeeTag[]) => void;
+  onCreateChildProject: (task: ProjectTaskItem) => void;
+  onOpenProject: (projectId: number) => void;
   onProjectTasksChanged: (projectId: number | null) => void;
   onToast: (toast: { type: "success" | "error"; message: string }) => void;
 }) {
   const [activeTab, setActiveTab] = useState("overview");
+  const isChildProject = Boolean(draft?.parentProjectTaskId);
+  const parentProjectLabel = draft
+    ? [draft.parentProjectCode, draft.parentProjectName].filter(Boolean).join(" · ") || "未设置"
+    : "未设置";
 
   useEffect(() => {
     if (activeTab !== "overview" && activeTab !== "plan") setActiveTab("overview");
   }, [activeTab]);
+
+  const openParentProjectPlan = (projectId: number | null) => { if (projectId) { setActiveTab("plan"); onOpenProject(projectId); } };
 
   return (
     <PanelCard className="bg-slate-50" bodyClassName="p-4">
@@ -119,7 +131,23 @@ export default function ProjectDetailEditor({
           {activeTab === "overview" && (
             <>
               <SectionCard title="基础信息">
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+                  {isChildProject && (
+                    <>
+                      <ParentProjectField
+                        value={parentProjectLabel}
+                        disabled={!draft.parentProjectId}
+                        onClick={() => draft.parentProjectId && onOpenProject(draft.parentProjectId)}
+                      />
+                      <LinkedInfoField
+                        label="上级任务"
+                        value={draft.parentProjectTaskName || "未设置"}
+                        disabled={!draft.parentProjectId}
+                        onClick={() => openParentProjectPlan(draft.parentProjectId)}
+                      />
+                      <ReadOnlyInfoField label="上级任务状态" value={draft.parentProjectTaskStatus || "未开始"} />
+                    </>
+                  )}
                   <FormField label="项目编码">
                     <TextField
                       value={projectCode(selectedProject, draft)}
@@ -127,7 +155,17 @@ export default function ProjectDetailEditor({
                       className={getReadOnlyFieldClassName("h-10 cursor-default font-mono text-slate-600")}
                       unstyled
                     />
+                    <p className="mt-1 text-xs font-medium text-slate-400">
+                      {draft.projectType === "company" ? "公司项目按 FH-YY-NN 自动编号" : draft.projectType === "department" ? "部门项目按部门编码-YY-NN 自动编号" : "其他项目不自动编号"}
+                    </p>
                   </FormField>
+                  <OptionField
+                    label="项目类型"
+                    value={draft.projectType}
+                    options={PROJECT_TYPE_PICKER_OPTIONS}
+                    disabled={!canManageCurrent || !creating}
+                    onChange={(value) => onDraftChange("projectType", (value || "department") as ProjectDraft["projectType"])}
+                  />
                   <FormField label="项目负责人">
                     <TextField
                       value={draft.leader?.name || "未设置"}
@@ -145,7 +183,7 @@ export default function ProjectDetailEditor({
                       unstyled
                     />
                   </FormField>
-                  <FormField label="主导部门" required>
+                  <FormField label="主导部门" required={draft.projectType === "department"}>
                     <FkFieldInput
                       fkKey="work.projects.leadingDepartment"
                       endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
@@ -161,15 +199,17 @@ export default function ProjectDetailEditor({
                     />
                   </FormField>
                   <OptionField label="项目级别" value={draft.projectLevel || "普通"} options={PROJECT_LEVEL_PICKER_OPTIONS} disabled={!canEditCurrent} onChange={(value) => onDraftChange("projectLevel", value || "普通")} />
-                  <DateField label="立项日期" value={draft.startDate} disabled={!canEditCurrent} onChange={(value) => onDraftChange("startDate", value)} />
-                  <DateField label="结项日期" value={draft.endDate} disabled={!canEditCurrent} onChange={(value) => onDraftChange("endDate", value)} />
+                  <DateField label="计划开始" value={draft.baselineStartDate} disabled={!canEditCurrent || isChildProject} hint={isChildProject ? "来自上级任务" : undefined} onChange={(value) => onDraftChange("baselineStartDate", value)} />
+                  <DateField label="计划结束" value={draft.baselineEndDate} disabled={!canEditCurrent || isChildProject} hint={isChildProject ? "来自上级任务" : undefined} onChange={(value) => onDraftChange("baselineEndDate", value)} />
+                  <DateField label="实际开始" value={draft.startDate} disabled={!canEditCurrent || isChildProject} hint={isChildProject ? "来自上级任务" : undefined} onChange={(value) => onDraftChange("startDate", value)} />
+                  <DateField label="实际结束" value={draft.endDate} disabled={!canEditCurrent || isChildProject} hint={isChildProject ? "来自上级任务" : undefined} onChange={(value) => onDraftChange("endDate", value)} />
                   <PercentField
                     label="完成度"
                     value={draft.completionPercent}
                     disabled={!canEditCurrent}
                     onChange={(value) => onDraftChange("completionPercent", value)}
                   />
-                  <FormField label="项目描述" className="md:col-span-2">
+                  <FormField label="项目描述" className="md:col-span-2 xl:col-span-3">
                     <TextareaField
                       value={draft.description || ""}
                       disabled={!canEditCurrent}
@@ -226,6 +266,7 @@ export default function ProjectDetailEditor({
                 canEdit={canEditCurrent}
                 disabled={saving || creating}
                 onToast={onToast}
+                onCreateChildProject={onCreateChildProject}
                 onChanged={() => onProjectTasksChanged(draft.id)}
               />
 
@@ -316,25 +357,43 @@ function OptionField({
   );
 }
 
-function DateField({
-  label,
-  value,
-  disabled,
-  onChange,
-}: {
-  label: string;
-  value: string | null;
-  disabled: boolean;
-  onChange: (value: string | null) => void;
-}) {
+function ParentProjectField({ value, disabled, onClick }: { value: string; disabled: boolean; onClick: () => void }) {
+  return <LinkedInfoField label="上级项目" value={value} disabled={disabled} onClick={onClick} />;
+}
+
+function LinkedInfoField({ label, value, disabled, onClick }: { label: string; value: string; disabled: boolean; onClick: () => void }) {
   return (
     <FormField label={label}>
-      <CalendarDateInput
-        value={value}
+      <button
+        type="button"
         disabled={disabled}
-        onChange={onChange}
-        className={inputClassName}
+        onClick={onClick}
+        className={getReadOnlyFieldClassName("h-10 w-full truncate text-left font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-white hover:text-sky-700 disabled:cursor-default disabled:text-slate-500 disabled:hover:border-sky-200 disabled:hover:bg-sky-50")}
+      >
+        {value}
+      </button>
+    </FormField>
+  );
+}
+
+function ReadOnlyInfoField({ label, value }: { label: string; value: string }) {
+  return (
+    <FormField label={label}>
+      <TextField
+        value={value}
+        readOnly
+        className={getReadOnlyFieldClassName("h-10 cursor-default text-slate-600")}
+        unstyled
       />
+    </FormField>
+  );
+}
+
+function DateField({ label, value, disabled, hint, onChange }: { label: string; value: string | null; disabled: boolean; hint?: string; onChange: (value: string | null) => void }) {
+  return (
+    <FormField label={label}>
+      <CalendarDateInput value={value} disabled={disabled} onChange={onChange} className={inputClassName} />
+      {hint && <p className="mt-1 text-xs font-medium text-slate-400">{hint}</p>}
     </FormField>
   );
 }

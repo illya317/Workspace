@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { canEditProject, canViewProject } from "./access";
+import { deriveStatusFromActualDates } from "./project-dates";
 import { formatDate } from "./project-normalization";
 import {
   normalizeProjectTaskInput,
@@ -31,6 +32,15 @@ async function listProjectTaskRows(projectId: number) {
         assignees: {
           orderBy: { id: "asc" },
           include: { employee: { select: { id: true, employeeId: true, name: true } } },
+        },
+        childProject: {
+          select: {
+            id: true,
+            code: true,
+            name: true,
+            startDate: true,
+            endDate: true,
+          },
         },
       },
     }),
@@ -70,6 +80,10 @@ async function listProjectTaskRows(projectId: number) {
       baselineEndDate: formatDate(task.baselineEndDate),
       startDate: formatDate(task.startDate),
       endDate: formatDate(task.endDate),
+      childProjectId: task.childProject?.id ?? null,
+      childProjectCode: task.childProject?.code ?? null,
+      childProjectName: task.childProject?.name ?? null,
+      childProjectStatus: task.childProject ? deriveStatusFromActualDates(task.startDate, task.endDate) : null,
       predecessorTaskIds,
       predecessorTaskNames: predecessorTaskIds.map((id) => taskNameById.get(id)).filter((name): name is string => Boolean(name)),
       successorTasks: successorTaskIds.map((id) => ({
@@ -300,13 +314,16 @@ export async function deleteProjectTask(input: { userId: number; projectId: numb
   if (!command.ok) return { ok: false as const, error: command.issue.message, status: command.issue.status };
   const existing = await prisma.projectTask.findUnique({
     where: { id: input.taskId },
-    select: { id: true, projectId: true },
+    select: { id: true, projectId: true, childProject: { select: { id: true } } },
   });
   if (!existing || existing.projectId !== input.projectId) {
     return { ok: false as const, error: "任务不存在", status: 404 };
   }
   if (!(await canEditProject(input.userId, input.projectId))) {
     return { ok: false as const, error: "无权限", status: 403 };
+  }
+  if (existing.childProject) {
+    return { ok: false as const, error: "请先处理相关子项目" };
   }
   await prisma.$transaction(async (tx) => {
     await ensureEditHistoryBaseline("ProjectTask", input.taskId, input.userId, tx);

@@ -18,12 +18,14 @@ import {
   WORK_REFERENCE_OPTIONS_ENDPOINT,
 } from "./api";
 import {
+  getWorkPeriodLabel,
   getStatusLabel,
   WORK_CATEGORY_OPTIONS,
+  WORK_PERIOD_TYPE_OPTIONS,
   WORK_STATUS_OPTIONS,
 } from "./model";
 import type { WorkItem, WorkItemDraft } from "./types";
-import type { WorkTargetType } from "./types";
+import type { WorkPeriodType, WorkTargetType } from "./types";
 
 export function WorkTaskForm({
   draft,
@@ -94,6 +96,42 @@ export function WorkTaskForm({
           }}
         />
       </FormField>
+      <FormField label="计划周期">
+        <OptionPicker
+          value={draft.periodType}
+          options={WORK_PERIOD_TYPE_OPTIONS}
+          disabled={disabled}
+          placeholder="长期"
+          onChange={(value) => {
+            const periodType = normalizePeriodType(value);
+            patch({
+              periodType,
+              periodStart: periodType ? draft.periodStart : null,
+              periodEnd: periodType ? draft.periodEnd : null,
+            });
+          }}
+        />
+      </FormField>
+      {draft.periodType && (
+        <>
+          <FormField label="周期开始">
+            <CalendarDateInput
+              value={draft.periodStart}
+              disabled={disabled}
+              popoverMode="fixed"
+              onChange={(value) => patch({ periodStart: value })}
+            />
+          </FormField>
+          <FormField label="周期结束">
+            <CalendarDateInput
+              value={draft.periodEnd}
+              disabled={disabled}
+              popoverMode="fixed"
+              onChange={(value) => patch({ periodEnd: value })}
+            />
+          </FormField>
+        </>
+      )}
       {!isRoutine && (
         <FormField label="状态">
           <OptionPicker
@@ -234,6 +272,7 @@ export function WorkTaskDetail({ work }: { work: WorkItem }) {
       )}
       {work.targetType !== "personal" && <DetailItem label="负责人">{work.ownerEmployeeName || "未设置"}</DetailItem>}
       {showPlanFields && status && <DetailItem label="状态"><StatusBadge label={getStatusLabel(status)} variant={statusVariant(status)} /></DetailItem>}
+      <DetailItem label="计划周期">{getWorkPeriodLabel(work)}</DetailItem>
       {showPlanFields && <DetailItem label="起止时间">{dateRange(work.startDate, work.dueDate)}</DetailItem>}
       <DetailItem label="上级工作项">{work.parentWorkItemContent || "未关联"}</DetailItem>
       {showPlanFields && <DetailItem label="关联项目">{work.linkedProjectName || "未关联"}</DetailItem>}
@@ -254,6 +293,11 @@ function DetailItem({ label, children, className = "" }: { label: string; childr
 function normalizeStatus(value: string | null) {
   if (value === "done" || value === "archived") return value;
   return "doing";
+}
+
+function normalizePeriodType(value: string | null): WorkPeriodType | null {
+  if (value === "daily" || value === "weekly" || value === "monthly" || value === "quarterly" || value === "yearly") return value;
+  return null;
 }
 
 function statusVariant(status: string) {

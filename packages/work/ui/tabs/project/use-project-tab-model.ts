@@ -29,15 +29,26 @@ import {
 const nullableDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "日期格式错误").nullable();
 const projectSaveSchema = z.object({
   name: z.string().trim().min(1, "项目名称不能为空"),
+  projectType: z.enum(["company", "department", "other"]),
+  parentProjectTaskId: z.number().nullable(),
   leadingDepartmentId: z.number().nullable(),
+  baselineStartDate: nullableDateSchema,
+  baselineEndDate: nullableDateSchema,
+  startDate: nullableDateSchema,
   endDate: nullableDateSchema,
   completionPercent: z.number().min(0, "完成度不能小于 0").nullable(),
 }).superRefine((data, ctx) => {
-  if (!data.leadingDepartmentId) {
+  if (data.projectType === "department" && !data.leadingDepartmentId) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: "请选择主导部门", path: ["leadingDepartmentId"] });
   }
-  if (data.endDate && data.endDate > todayDateString()) {
+  if (!data.parentProjectTaskId && data.endDate && data.endDate > todayDateString()) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: "结项日期不能晚于今日", path: ["endDate"] });
+  }
+  if (data.baselineStartDate && data.baselineEndDate && data.baselineEndDate < data.baselineStartDate) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "计划结束不能早于计划开始", path: ["baselineEndDate"] });
+  }
+  if (data.startDate && data.endDate && data.endDate < data.startDate) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "实际结束不能早于实际开始", path: ["endDate"] });
   }
 });
 
@@ -51,6 +62,8 @@ const PROJECT_CONTENT_SYNC_FIELDS = [
   "budgetNote",
   "riskNote",
   "remark",
+  "baselineStartDate",
+  "baselineEndDate",
   "startDate",
   "endDate",
   "completionPercent",
@@ -188,7 +201,12 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
     const name = draft.name.trim();
     const validation = projectSaveSchema.safeParse({
       name,
+      projectType: draft.projectType,
+      parentProjectTaskId: draft.parentProjectTaskId,
       leadingDepartmentId: draft.leadingDepartmentId,
+      baselineStartDate: draft.baselineStartDate,
+      baselineEndDate: draft.baselineEndDate,
+      startDate: draft.startDate,
       endDate: draft.endDate,
       completionPercent: draft.completionPercent,
     });
@@ -257,6 +275,37 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
     setBaseline(draftSnapshot(nextDraft));
   }
 
+  function startCreateChildProject(task: ProjectTaskItem) {
+    if (!selectedProject) return;
+    const nextDraft: ProjectDraft = {
+      ...createEmptyProjectDraft(),
+      name: task.name,
+      description: task.description || null,
+      projectType: selectedProject.projectType,
+      projectLevel: selectedProject.projectLevel ?? "普通",
+      parentProjectTaskId: task.id,
+      parentProjectTaskName: task.name,
+      parentProjectId: selectedProject.id,
+      parentProjectCode: selectedProject.code,
+      parentProjectName: selectedProject.name,
+      parentProjectTaskStatus: task.childProjectStatus || deriveStatusFromActualDates(task.startDate, task.endDate),
+      leadingDepartmentId: selectedProject.leadingDepartmentId,
+      leadingDepartmentName: selectedProject.leadingDepartmentName,
+      leadingDepartmentCode: selectedProject.leadingDepartmentCode,
+      baselineStartDate: task.baselineStartDate,
+      baselineEndDate: task.baselineEndDate,
+      startDate: task.startDate,
+      endDate: task.endDate,
+      leader: draft?.leader ?? null,
+      roleGroups: draft?.roleGroups ?? emptyRoleGroups(),
+    };
+    setProjectListFilter(filterForProjectLevel(nextDraft.projectLevel));
+    setCreating(true);
+    setSelection(null);
+    setDraft(nextDraft);
+    setBaseline(draftSnapshot(nextDraft));
+  }
+
   function cancelCreateProject() {
     setCreating(false);
     setDraft(null);
@@ -267,10 +316,16 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
     canCreateProject: canEdit, canDeleteCurrent, canEditCurrent, canManageCurrent, canSave, creating, dirty, draft, error,
     filteredProjects, loading, projectListDrawerOpen, projectListFilter, projectListOpen, projects, rasciRows, saving,
     selectedProject, selection, toast,
-    cancelCreateProject, deleteSelectedProject, saveProject, setCreating, setLeader, startCreateProject,
+    cancelCreateProject, deleteSelectedProject, saveProject, setCreating, setLeader, startCreateProject, startCreateChildProject,
     setProjectListDrawerOpen, setProjectListFilter, setProjectListOpen, setRoleMembers, setSelection,
     loadSelectedTasks, setToast, updateDraft,
   };
+}
+
+function deriveStatusFromActualDates(startDate: string | null, endDate: string | null) {
+  if (endDate) return "已完成";
+  if (startDate) return "进行中";
+  return "未开始";
 }
 
 function projectMatchesFilter(project: ProjectItem, filter: ProjectListFilter) {

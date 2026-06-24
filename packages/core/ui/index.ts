@@ -25,7 +25,7 @@ export { default as DisclosureSectionHeader } from "./DisclosureSectionHeader";
 export type { DisclosureSectionHeaderProps } from "./DisclosureSectionHeader";
 export { default as DropdownMenu } from "./DropdownMenu";
 export type { DropdownMenuItem, DropdownMenuProps } from "./DropdownMenu";
-export { createDataTableEditActions } from "./DataTableActions";
+export { createDataTableEditActions, isDataTableEditDirty } from "./DataTableActions";
 export type { DataTableEditActionsOptions } from "./DataTableActions";
 export { default as DataTable, DataTableActionButton, DataTableActionsCell, dataTableClassNames, getDefaultVisibleColumns } from "./DataTable";
 export type { DataTableActionKind, DataTableColumn, DataTableProps, DataTableRowAction } from "./DataTable";

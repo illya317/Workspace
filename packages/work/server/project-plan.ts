@@ -4,6 +4,7 @@ import { prisma } from "@workspace/platform/server/prisma";
 import { canEditProject, canViewProject, getProjectPermissionsById } from "./access";
 import { isValidProjectPlanDateValue, normalizeProjectPlanText, validateProjectPlanCommand } from "./domain/project-plan-validation";
 import { validateProjectTaskPlanBatch } from "./domain/project-task-validation";
+import { deriveStatusFromActualDates, effectiveProjectDates } from "./project-dates";
 import { formatDate, parseDate } from "./project-normalization";
 
 export const PLAN_ITEM_KINDS = ["project", "task", "phase"] as const;
@@ -17,13 +18,7 @@ type PlanDateInput = {
   phaseId?: unknown;
 };
 
-type DependencyInput = {
-  predecessorKind?: unknown;
-  predecessorId?: unknown;
-  successorKind?: unknown;
-  successorId?: unknown;
-  lagDays?: unknown;
-};
+type DependencyInput = { predecessorKind?: unknown; predecessorId?: unknown; successorKind?: unknown; successorId?: unknown; lagDays?: unknown };
 
 type PlanPhaseInput = {
   sequenceNo?: unknown;
@@ -41,14 +36,7 @@ type NormalizedPlanDate = {
   endDate: Date | null;
 };
 
-type NormalizedDependency = {
-  predecessorKind: Exclude<PlanItemKind, "phase">;
-  predecessorId: number;
-  successorKind: Exclude<PlanItemKind, "phase">;
-  successorId: number;
-  dependencyType: string;
-  lagDays: number;
-};
+type NormalizedDependency = { predecessorKind: Exclude<PlanItemKind, "phase">; predecessorId: number; successorKind: Exclude<PlanItemKind, "phase">; successorId: number; dependencyType: string; lagDays: number };
 
 function normalizeKind(value: unknown): PlanItemKind | null {
   const kind = String(value ?? "");
@@ -81,6 +69,14 @@ export async function listProjectPlanGantt(input: { userId: number; projectId: n
     where: { id: input.projectId },
     include: {
       planPhases: { orderBy: [{ sequenceNo: "asc" }, { id: "asc" }] },
+      parentProjectTask: {
+        select: {
+          baselineStartDate: true,
+          baselineEndDate: true,
+          startDate: true,
+          endDate: true,
+        },
+      },
       tasks: {
         orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
         include: { owner: { select: { name: true } } },
@@ -103,6 +99,7 @@ export async function listProjectPlanGantt(input: { userId: number; projectId: n
 
   const activeBaseline = project.planBaselines[0] || null;
   const phaseBaseline = derivePhaseBaseline(project.planPhases);
+  const projectDates = effectiveProjectDates(project);
   return {
     ok: true as const,
     data: {
@@ -125,14 +122,14 @@ export async function listProjectPlanGantt(input: { userId: number; projectId: n
           parentKind: null,
           parentId: null,
           phaseId: null,
-          status: deriveProjectStatus(project.endDate),
+          status: deriveStatusFromActualDates(projectDates.startDate, projectDates.endDate),
           projectLevel: project.projectLevel,
           isMilestone: true,
           ownerNames: project.employees.map((entry) => entry.employee.name).filter(Boolean),
-          startDate: formatDate(project.startDate),
-          endDate: formatDate(project.endDate),
-          baselineStartDate: formatDate(phaseBaseline.startDate),
-          baselineEndDate: formatDate(phaseBaseline.endDate),
+          startDate: formatDate(projectDates.startDate),
+          endDate: formatDate(projectDates.endDate),
+          baselineStartDate: formatDate(projectDates.baselineStartDate ?? phaseBaseline.startDate),
+          baselineEndDate: formatDate(projectDates.baselineEndDate ?? phaseBaseline.endDate),
         },
         ...project.tasks.map((task) => ({
           kind: "task",
@@ -199,6 +196,11 @@ export async function saveProjectPlanGantt(input: { userId: number; projectId: n
     normalized.push({ kind, id, phaseId, startDate, endDate });
   }
   const scope = await loadPlanScope(input.projectId);
+  for (const item of normalized) {
+    if (item.kind === "task" && !scope.taskIds.has(item.id)) return serviceError("计划节点不属于当前项目");
+    if (item.kind === "project" && !scope.projectIds.has(item.id)) return serviceError("计划节点不属于当前项目");
+    if (item.kind === "project" && scope.childProjectIds.has(item.id)) return serviceError("子项目日期由上级任务控制");
+  }
   const planError = await validateProjectTaskPlanBatch({
     projectId: input.projectId,
     tasks: normalized.filter((item) => item.kind === "task").map((item) => ({ id: item.id, startDate: item.startDate, endDate: item.endDate })),
@@ -207,7 +209,6 @@ export async function saveProjectPlanGantt(input: { userId: number; projectId: n
   await prisma.$transaction(async (tx) => {
     for (const item of normalized) {
       if (item.kind === "task") {
-        if (!scope.taskIds.has(item.id)) throw new Error("计划节点不属于当前项目");
         await ensureEditHistoryBaseline("ProjectTask", item.id, input.userId, tx);
         await tx.projectTask.update({
           where: { id: item.id },
@@ -215,7 +216,6 @@ export async function saveProjectPlanGantt(input: { userId: number; projectId: n
         });
         await snapshotHistory("ProjectTask", item.id, input.userId, tx);
       } else {
-        if (!scope.projectIds.has(item.id)) throw new Error("计划节点不属于当前项目");
         await ensureEditHistoryBaseline("Project", item.id, input.userId, tx);
         await tx.project.update({
           where: { id: item.id },
@@ -398,15 +398,17 @@ async function nextPlanPhaseSequenceNo(projectId: number) {
 
 async function loadPlanScope(projectId: number) {
   const [projects, tasks, phases] = await Promise.all([
-    prisma.project.findMany({ where: { id: projectId }, select: { id: true } }),
+    prisma.project.findMany({ where: { id: projectId }, select: { id: true, parentProjectTaskId: true } }),
     prisma.projectTask.findMany({ where: { projectId }, select: { id: true } }),
     prisma.projectPlanPhase.findMany({ where: { projectId }, select: { id: true } }),
   ]);
   const projectIds = new Set(projects.map((project) => project.id));
+  const childProjectIds = new Set(projects.filter((project) => project.parentProjectTaskId).map((project) => project.id));
   const taskIds = new Set(tasks.map((task) => task.id));
   const phaseIds = new Set(phases.map((phase) => phase.id));
   return {
     projectIds,
+    childProjectIds,
     taskIds,
     phaseIds,
     has(kind: PlanItemKind, id: number) {
@@ -438,7 +440,6 @@ function findDependencyCycle(dependencies: Array<{ predecessorKind: string; pred
   return [...nextByKey.keys()].some(visit);
 }
 
-function deriveProjectStatus(endDate: Date | null) { return endDate ? "已完成" : "进行中"; }
 
 export function projectPlanServiceResponse<T>(result: { ok: true; data: T } | { ok: false; error: string; status?: number }) {
   return result.ok ? NextResponse.json(result.data) : NextResponse.json({ error: result.error }, { status: result.status || 400 });
