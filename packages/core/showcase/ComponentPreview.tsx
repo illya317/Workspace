@@ -5,6 +5,7 @@ import {
   ActionButton,
   ActionGlyph,
   AmountCell,
+  CalendarDateInput,
   CheckboxChip,
   CheckboxField,
   ChoiceGroup,
@@ -29,6 +30,7 @@ export function ComponentPreview({ name }: { name: string }) {
   const [boolValue, setBoolValue] = useState(false);
   const [text, setText] = useState("");
   const [rating, setRating] = useState(3);
+  const [dateValue, setDateValue] = useState<string | null>("2026-06-24");
 
   switch (name) {
     case "ActionButton":
@@ -135,6 +137,8 @@ export function ComponentPreview({ name }: { name: string }) {
       return <NumberCell value={1280} />;
     case "AmountCell":
       return <AmountCell value={12800.5} />;
+    case "CalendarDateInput":
+      return <CalendarDateInput value={dateValue} onChange={setDateValue} className="max-w-xs" />;
     case "PanelCard":
       return (
         <PanelCard title="示例卡片" className="max-w-xs">
