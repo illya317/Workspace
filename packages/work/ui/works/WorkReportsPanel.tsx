@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActionGlyph,
   CalendarDateInput,
@@ -35,15 +35,19 @@ export default function WorkReportsPanel({
   const [mode, setMode] = useState<ReportMode>("fill");
   const [periodStart, setPeriodStart] = useState(() => getCurrentWeekStart());
   const [draft, setDraft] = useState<WorkReportDraftResponse | null>(null);
+  const [draftSnapshot, setDraftSnapshot] = useState("");
   const [collection, setCollection] = useState<WorkReportCollectionResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const draftChangeKey = useMemo(() => draft ? serializeReportItems(draft.items) : "", [draft]);
+  const hasDraftChanges = Boolean(draft) && draftChangeKey !== draftSnapshot;
 
   const loadDraft = useCallback(async () => {
     setLoading(true);
     try {
       const data = await getWorkReportDraft(target, periodStart);
       setDraft(data);
+      setDraftSnapshot(serializeReportItems(data.items));
     } catch (err) {
       onToast({ message: err instanceof Error ? err.message : "加载工作汇报失败", type: "error" });
     } finally {
@@ -70,15 +74,17 @@ export default function WorkReportsPanel({
   useEffect(() => {
     setMode("fill");
     setDraft(null);
+    setDraftSnapshot("");
     setCollection(null);
   }, [target.targetType, target.targetId]);
 
   async function handleSave() {
-    if (!draft || saving) return;
+    if (!draft || saving || !hasDraftChanges) return;
     setSaving(true);
     try {
       const data = await saveWorkReport(target, periodStart, draft.items);
       setDraft(data);
+      setDraftSnapshot(serializeReportItems(data.items));
       onToast({ message: "工作汇报已保存", type: "success" });
     } catch (err) {
       onToast({ message: err instanceof Error ? err.message : "保存工作汇报失败", type: "error" });
@@ -120,6 +126,12 @@ export default function WorkReportsPanel({
     } : current);
   }
 
+  function updatePeriodStart(value: string | null) {
+    setDraft(null);
+    setDraftSnapshot("");
+    setPeriodStart(getWeekStart(value || getCurrentWeekStart()));
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white p-3">
@@ -134,7 +146,7 @@ export default function WorkReportsPanel({
             onChange={(value) => setMode(value as ReportMode)}
           />
           <div className="h-8 w-px bg-slate-200" />
-          <CalendarDateInput value={periodStart} onChange={(value) => setPeriodStart(getWeekStart(value || getCurrentWeekStart()))} />
+          <CalendarDateInput value={periodStart} onChange={updatePeriodStart} />
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {mode === "fill" && canEdit && (
@@ -149,7 +161,7 @@ export default function WorkReportsPanel({
                 label={saving ? "保存中..." : "保存汇报"}
                 variant="primary"
                 onClick={handleSave}
-                disabled={loading || saving || !draft}
+                disabled={loading || saving || !draft || !hasDraftChanges}
                 className="!h-9 !w-10 !px-0 !text-[11px] !leading-none"
               >
                 <ActionGlyph kind="check" className="h-4 w-4" />
@@ -177,6 +189,18 @@ export default function WorkReportsPanel({
 function nextSortOrder(items: WorkReportItem[]) {
   if (items.length === 0) return 10;
   return Math.max(...items.map((item) => item.sortOrder || 0)) + 10;
+}
+
+function serializeReportItems(items: WorkReportItem[]) {
+  return JSON.stringify(items.map((item) => ({
+    id: item.id,
+    workItemId: item.workItemId,
+    title: item.title,
+    doneThisWeek: item.doneThisWeek,
+    planNextWeek: item.planNextWeek,
+    source: item.source,
+    sortOrder: item.sortOrder,
+  })));
 }
 
 function getCurrentWeekStart() {

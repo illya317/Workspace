@@ -40,14 +40,14 @@ export const HR_LEGAL_RELATIONS = ["劳动关系", "劳务关系", "服务关系
 export const HR_CONTRACT_TYPES = ["劳动合同", "劳务协议", "返聘协议", "顾问协议", "董事协议"];
 export const HR_EMPLOYMENT_FORMS = ["全日制", "非全日制"];
 export const HR_INSURANCE_STATUSES = ["已参保", "未参保", "已退休", "已停保"];
-export const HR_PERSONNEL_TYPES = ["董事", "常务委员", "轮值委员", "关键管理人员", "关键技术人员", "核心人员"];
+export const HR_PERSONNEL_TYPES = ["关键管理人员", "关键技术人员", "核心人员", "其他"];
 export const HR_LEAVE_REASONS = ["个人原因", "协商解除", "合同到期", "公司解除", "退休", "其他"];
 export const HR_RANKS = [
   "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14",
   "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P10", "P11", "P12",
   "T1", "T2", "T3", "T4",
 ];
-export const HR_EMPLOYMENT_TITLES = ["董事", "顾问"];
+export const HR_EMPLOYMENT_TITLES = ["董事", "顾问", "常务委员", "轮值委员"];
 
 export type HRProfessionalTitleOption = {
   series: string;
