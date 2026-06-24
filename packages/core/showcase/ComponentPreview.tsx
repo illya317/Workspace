@@ -54,6 +54,7 @@ export function ComponentPreview({ name }: { name: string }) {
           <span className="flex items-center gap-1">cancel <ActionGlyph kind="cancel" className="h-4 w-4" /></span>
           <span className="flex items-center gap-1">delete <ActionGlyph kind="delete" /></span>
           <span className="flex items-center gap-1">delete-bin <ActionGlyph kind="delete-bin" className="h-4 w-4" /></span>
+          <span className="flex items-center gap-1">delete-minus <ActionGlyph kind="delete-minus" className="h-4 w-4" /></span>
           <span className="flex items-center gap-1">check <ActionGlyph kind="check" className="h-4 w-4" /></span>
           <span className="flex items-center gap-1">add <ActionGlyph kind="add" className="h-4 w-4" /></span>
           <span className="flex items-center gap-1">edit <ActionGlyph kind="edit" className="h-4 w-4" /></span>
