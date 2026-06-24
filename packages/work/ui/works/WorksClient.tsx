@@ -87,7 +87,7 @@ export default function WorksClient({
     setActiveTab("tasks");
     setStatusFilter("active");
     setDrawerOpen(false);
-    router.push(getWorkSpacePath(space.targetType, space.targetId));
+    window.history.pushState(null, "", getWorkSpacePath(space.targetType, space.targetId));
   }
 
   async function deleteWork(work: WorkItem) {
