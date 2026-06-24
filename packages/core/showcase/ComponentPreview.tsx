@@ -51,7 +51,7 @@ export function ComponentPreview({ name }: { name: string }) {
     case "ActionGlyph":
       return (
         <div className="flex flex-wrap items-center gap-3 text-slate-700">
-          <span className="flex items-center gap-1">x <ActionGlyph kind="x" className="h-4 w-4" /></span>
+          <span className="flex items-center gap-1">cancel <ActionGlyph kind="cancel" className="h-4 w-4" /></span>
           <span className="flex items-center gap-1">delete <ActionGlyph kind="delete" /></span>
           <span className="flex items-center gap-1">check <ActionGlyph kind="check" className="h-4 w-4" /></span>
           <span className="flex items-center gap-1">add <ActionGlyph kind="add" className="h-4 w-4" /></span>

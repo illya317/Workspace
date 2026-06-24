@@ -1,4 +1,4 @@
-export type ActionGlyphKind = "add" | "edit" | "check" | "x" | "view" | "delete";
+export type ActionGlyphKind = "add" | "edit" | "check" | "cancel" | "view" | "delete";
 
 export interface ActionGlyphProps {
   kind: ActionGlyphKind;
@@ -19,7 +19,7 @@ export function ActionGlyph({ kind, className = "h-5 w-5" }: ActionGlyphProps) {
       </svg>
     );
   }
-  if (kind === "x") {
+  if (kind === "cancel") {
     return (
       <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} viewBox="0 0 24 24">
         <circle cx="12" cy="12" r="9" />

@@ -73,7 +73,7 @@ export function CreateConfirmActions({
       }}
       className="!h-9 !w-10 !px-0 !text-[11px] !leading-none"
     >
-      <ActionGlyph kind="x" className="h-4 w-4" />
+      <ActionGlyph kind="cancel" className="h-4 w-4" />
     </ActionButton>
   );
   return (

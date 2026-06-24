@@ -84,7 +84,7 @@ function DataTableActionIcon({ kind }: { kind: DataTableActionKind }) {
     return <ActionGlyph kind="check" />;
   }
   if (kind === "cancel") {
-    return <ActionGlyph kind="x" />;
+    return <ActionGlyph kind="cancel" />;
   }
   if (kind === "edit") {
     return <ActionGlyph kind="edit" />;

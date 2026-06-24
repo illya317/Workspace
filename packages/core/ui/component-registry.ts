@@ -93,7 +93,7 @@ export const coreUiComponentTierMeta = {
 
 export const coreUiComponentRegistry = [
   { name: "ActionButton", tier: "primitive", kind: "toolbar", description: "通用动作按钮 primitive，统一主操作、次操作和危险操作按钮。", example: "详情页中显示“保存”“取消”“删除”，业务只传动作和状态。", foundations: ["getToolbarActionClassName"] },
-  { name: "ActionGlyph", tier: "primitive", kind: "toolbar", description: "通用动作图标 glyph，统一新增、编辑、查看、确认、取消和删除的图形表达。", example: "Block 新增确认和 DataTable 行编辑都复用同一套勾叉图标。" },
+  { name: "ActionGlyph", tier: "primitive", kind: "toolbar", description: "通用动作图标 glyph，统一新增、编辑、查看、确认、取消和删除的图形表达。", example: "Block 新建确认和 DataTable 行编辑都复用同一套勾/取消/删除图标。" },
   { name: "ActionToolbar", tier: "assembly", kind: "toolbar", description: "通用页面动作栏，承接主按钮、次按钮和左右插槽。", example: "在资料库列表顶部显示“已选择 2 条记录 / 导出 / 新增”。" },
   { name: "AccordionTabBar", tier: "assembly", kind: "navigation", description: "横版手风琴 Tab，一级 Tab 在 Toolbar 上方；选中含子项的 Tab 时横向展开子 Tab。", example: "人事页先选“员工资料”，再在同一行展开“花名册 / 字段维护 / 导入”。" },
   { name: "IconActionButton", tier: "primitive", kind: "toolbar", description: "工具栏图标动作按钮，统一隐藏列表、新建等紧凑入口的尺寸、提示和可访问名称。", example: "Toolbar 左侧用列表图标切换侧栏，用 + 进入新建流程。", composes: ["ActionButton"], foundations: ["getToolbarActionClassName"] },
