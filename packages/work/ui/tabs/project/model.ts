@@ -77,6 +77,11 @@ export type ProjectTaskItem = {
   childProjectCode: string | null;
   childProjectName: string | null;
   childProjectStatus: string | null;
+  sourceMeetingDecisionId: number | null;
+  sourceMeetingDecisionTitle: string | null;
+  sourceMeetingDecisionKind: string | null;
+  sourceMeetingActionCandidateId: number | null;
+  sourceMeetingActionCandidateTitle: string | null;
   predecessorTaskIds: number[];
   predecessorTaskNames: string[];
   successorTasks: { id: number; name: string }[];

@@ -1,36 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  CommandToolbar,
-  CreateConfirmActions,
-  CreateStartButton,
-  DatabasePageFrame,
-  EmptyStateCard,
-  SelectField,
-  SectionCard,
-  SplitWorkspaceToolbar,
-  Toast,
-  ToolbarOptionGroup,
-  useConfirmDelete,
-} from "@workspace/core/ui";
+import { CommandToolbar, CreateConfirmActions, CreateStartButton, DatabasePageFrame, EmptyStateCard, SelectField, SectionCard, SplitWorkspaceToolbar, Toast, ToolbarOptionGroup, useConfirmDelete } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import type { SessionUser } from "@workspace/platform/types";
 import { listTaskSpaces } from "./api";
-import {
-  createEmptyWorkDraft,
-  getWorkTargetFromPath,
-  getWorkSpaceLabel,
-  getWorkSpacePath,
-  getPeriodTypeLabel,
-} from "./model";
+import { createEmptyWorkDraft, getPeriodTypeLabel, getWorkSpaceLabel, getWorkSpacePath, getWorkTargetFromPath, WORK_ITEM_TYPE_OPTIONS, WORK_SOURCE_TYPE_OPTIONS } from "./model";
 import { useWorks } from "./useWorks";
 import WorkPermissionsPanel from "./WorkPermissionsPanel";
 import WorkReportsPanel from "./WorkReportsPanel";
 import WorkSpaceSidebar from "./WorkSpaceSidebar";
 import WorkTaskTable from "./WorkTaskTable";
 import { WorkTaskForm } from "./WorkTaskFields";
-import type { WorkItem, WorkTarget, WorkTaskSpace } from "./types";
+import type { WorkItem, WorkItemType, WorkSourceType, WorkTarget, WorkTaskSpace } from "./types";
 
 export default function WorksClient({
   initialTarget,
@@ -46,6 +28,8 @@ export default function WorksClient({
   const [activeTab, setActiveTab] = useState("tasks");
   const [statusFilter, setStatusFilter] = useState<"active" | "done" | "archived">("active");
   const [periodFilter, setPeriodFilter] = useState("all");
+  const [itemTypeFilter, setItemTypeFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
   const [sideOpen, setSideOpen] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -99,6 +83,8 @@ export default function WorksClient({
     setActiveTab("tasks");
     setStatusFilter("active");
     setPeriodFilter("all");
+    setItemTypeFilter("all");
+    setSourceFilter("all");
     setDrawerOpen(false);
     window.history.pushState(null, "", workspacePath(getWorkSpacePath(space.targetType, space.targetId)));
   }
@@ -123,31 +109,16 @@ export default function WorksClient({
     <DatabasePageFrame>
       {drawerOpen && (
         <div className="fixed inset-0 z-40 xl:hidden">
-          <button
-            type="button"
-            aria-label="关闭工作空间"
-            onClick={() => setDrawerOpen(false)}
-            className="absolute inset-0 bg-slate-900/25"
-          />
+          <button type="button" aria-label="关闭工作空间" onClick={() => setDrawerOpen(false)} className="absolute inset-0 bg-slate-900/25" />
           <div className="absolute inset-y-0 left-0 w-[min(380px,calc(100vw-32px))] bg-white p-3 shadow-2xl">
-            <WorkSpaceSidebar
-              spaces={spaces}
-              active={activeTarget}
-              loading={spacesLoading}
-              onSelect={selectSpace}
-            />
+            <WorkSpaceSidebar spaces={spaces} active={activeTarget} loading={spacesLoading} onSelect={selectSpace} />
           </div>
         </div>
       )}
       <div className={`grid gap-5 ${sideOpen ? "xl:grid-cols-[18rem_minmax(0,1fr)]" : ""}`}>
         {sideOpen && (
         <div className="hidden xl:block">
-          <WorkSpaceSidebar
-            spaces={spaces}
-            active={activeTarget}
-            loading={spacesLoading}
-            onSelect={selectSpace}
-          />
+          <WorkSpaceSidebar spaces={spaces} active={activeTarget} loading={spacesLoading} onSelect={selectSpace} />
         </div>
         )}
         <main className="min-w-0 space-y-4">
@@ -167,10 +138,7 @@ export default function WorksClient({
                 filters={(
                   <>
                     <MobileSpaceSwitcher
-                      spaces={spaces}
-                      active={activeTarget}
-                      loading={spacesLoading}
-                      onSelect={selectSpace}
+                      spaces={spaces} active={activeTarget} loading={spacesLoading} onSelect={selectSpace}
                     />
                     <ToolbarOptionGroup
                       ariaLabel="工作计划主标签"
@@ -204,6 +172,24 @@ export default function WorksClient({
                           ]}
                           onChange={setPeriodFilter}
                         />
+                        <ToolbarOptionGroup
+                          ariaLabel="节点类型"
+                          value={itemTypeFilter}
+                          options={[
+                            { value: "all", label: "全部类型" },
+                            ...WORK_ITEM_TYPE_OPTIONS,
+                          ]}
+                          onChange={setItemTypeFilter}
+                        />
+                        <ToolbarOptionGroup
+                          ariaLabel="来源类型"
+                          value={sourceFilter}
+                          options={[
+                            { value: "all", label: "全部来源" },
+                            ...WORK_SOURCE_TYPE_OPTIONS,
+                          ]}
+                          onChange={setSourceFilter}
+                        />
                       </>
                     )}
                   </>
@@ -235,16 +221,12 @@ export default function WorksClient({
               />
               {activeTab === "permissions" ? (
                 <WorkPermissionsPanel
-                  target={currentSpace}
-                  canManage={canManage}
-                  onToast={(toast) => worksState.showToast(toast.message, toast.type)}
+                  target={currentSpace} canManage={canManage} onToast={(toast) => worksState.showToast(toast.message, toast.type)}
                 />
               ) : activeTab === "reports" ? (
                 <SectionCard title="工作汇报">
                   <WorkReportsPanel
-                    target={currentSpace}
-                    canEdit={canEdit}
-                    onToast={(toast) => worksState.showToast(toast.message, toast.type)}
+                    target={currentSpace} canEdit={canEdit} onToast={(toast) => worksState.showToast(toast.message, toast.type)}
                   />
                 </SectionCard>
               ) : (
@@ -271,6 +253,8 @@ export default function WorksClient({
                     editDraft={worksState.editDraft}
                     statusFilter={statusFilter}
                     periodFilter={periodFilter}
+                    itemTypeFilter={itemTypeFilter as "all" | WorkItemType}
+                    sourceFilter={sourceFilter as "all" | WorkSourceType}
                     targetType={currentSpace.targetType}
                     onEditDraftChange={worksState.setEditDraft}
                     onDetail={(work) => {
@@ -292,12 +276,7 @@ export default function WorksClient({
           )}
         </main>
       </div>
-      <Toast
-        message={worksState.toast?.message || ""}
-        type={worksState.toast?.type}
-        show={!!worksState.toast}
-        onClose={worksState.closeToast}
-      />
+      <Toast message={worksState.toast?.message || ""} type={worksState.toast?.type} show={!!worksState.toast} onClose={worksState.closeToast} />
     </DatabasePageFrame>
   );
 }
@@ -346,9 +325,10 @@ function SpaceHeader({ space }: { space: WorkTaskSpace }) {
           <h2 className="mt-1 truncate text-xl font-semibold text-slate-950">{space.name}</h2>
           {space.subtitle && <p className="mt-1 text-sm text-slate-500">{space.subtitle}</p>}
         </div>
-        <div className="grid grid-cols-3 gap-2 text-center">
-          <Metric label="日常" value={space.counts.routine} />
-          <Metric label="非日常" value={space.counts.nonRoutine} />
+        <div className="grid grid-cols-4 gap-2 text-center">
+          <Metric label="目标" value={space.counts.objective} />
+          <Metric label="结果" value={space.counts.keyResult} />
+          <Metric label="任务" value={space.counts.task} />
           <Metric label="归档" value={space.counts.archived} />
         </div>
       </div>

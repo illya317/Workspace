@@ -4,18 +4,29 @@ model WorkItem {
   targetType          String            @default("personal")
   targetId            Int?
   category            String
+  itemType            String            @default("task")
   content             String
   description         String            @default("")
   importance          Int               @default(3)
   urgency             Int               @default(3)
   status              String?
+  krStartValue        Float?
+  krTargetValue       Float?
+  krCurrentValue      Float?
+  krUnit              String?
   ownerEmployeeId     Int?
   startDate           DateTime?
   dueDate             DateTime?
   periodType          String?
   periodStart         DateTime?
   periodEnd           DateTime?
+  sourceType          String            @default("manual")
+  sourceKind          String?
+  sourceMeetingId     Int?
+  sourceMeetingDecisionId Int?
+  sourceMeetingActionCandidateId Int?
   linkedProjectId     Int?
+  linkedProjectPhaseId Int?
   linkedProjectTaskId Int?
   parentWorkItemId    Int?
   isArchived          Boolean           @default(false)
@@ -25,17 +36,29 @@ model WorkItem {
   participants        WorkParticipant[]
   owner               Employee?         @relation("WorkItemOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull)
   linkedProject       Project?          @relation("WorkItemLinkedProject", fields: [linkedProjectId], references: [id], onDelete: SetNull)
+  linkedProjectPhase  ProjectPlanPhase? @relation("WorkItemLinkedProjectPhase", fields: [linkedProjectPhaseId], references: [id], onDelete: SetNull)
   linkedProjectTask   ProjectTask?      @relation("WorkItemLinkedProjectTask", fields: [linkedProjectTaskId], references: [id], onDelete: SetNull)
+  sourceMeeting       Meeting?          @relation("WorkItemSourceMeeting", fields: [sourceMeetingId], references: [id], onDelete: SetNull)
+  sourceMeetingDecision MeetingDecision? @relation("WorkItemSourceMeetingDecision", fields: [sourceMeetingDecisionId], references: [id], onDelete: SetNull)
+  sourceMeetingActionCandidate MeetingActionCandidate? @relation("WorkItemSourceMeetingActionCandidate", fields: [sourceMeetingActionCandidateId], references: [id], onDelete: SetNull)
   parentWorkItem      WorkItem?         @relation("WorkItemHierarchy", fields: [parentWorkItemId], references: [id], onDelete: SetNull)
   childWorkItems      WorkItem[]        @relation("WorkItemHierarchy")
+  meetingActionCandidates MeetingActionCandidate[] @relation("MeetingActionCandidateWorkItem")
   reportItems         WorkReportItem[]
 
   @@index([targetType, targetId, category])
   @@index([targetType, targetId, periodType, periodStart])
+  @@index([targetType, targetId, parentWorkItemId, itemType])
+  @@index([targetType, targetId, itemType, isArchived])
+  @@index([sourceType, linkedProjectId, linkedProjectTaskId])
   @@index([ownerEmployeeId])
   @@index([status])
   @@index([linkedProjectId])
+  @@index([linkedProjectPhaseId])
   @@index([linkedProjectTaskId])
+  @@index([sourceMeetingId])
+  @@index([sourceMeetingDecisionId])
+  @@index([sourceMeetingActionCandidateId])
   @@index([parentWorkItemId])
 }
 

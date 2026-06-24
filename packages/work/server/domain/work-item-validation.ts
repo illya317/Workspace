@@ -1,21 +1,39 @@
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
+import {
+  inferSourceKind,
+  normalizeSourceKind,
+  normalizeSourceType,
+  stripMeetingSourceFields,
+  stripProjectSourceFields,
+} from "./work-item-source-validation";
 
 export interface WorkItemCreateCommand {
   targetType: string;
   targetId: number;
   category: string;
+  itemType: string;
   content: string;
   description: string;
   importance: number;
   urgency: number;
   status: string | null;
+  krStartValue: number | null;
+  krTargetValue: number | null;
+  krCurrentValue: number | null;
+  krUnit: string | null;
   ownerEmployeeId: number | null;
   startDate: Date | null;
   dueDate: Date | null;
   periodType: string | null;
   periodStart: Date | null;
   periodEnd: Date | null;
+  sourceType: string;
+  sourceKind: string | null;
+  sourceMeetingId: number | null;
+  sourceMeetingDecisionId: number | null;
+  sourceMeetingActionCandidateId: number | null;
   linkedProjectId: number | null;
+  linkedProjectPhaseId: number | null;
   linkedProjectTaskId: number | null;
   parentWorkItemId: number | null;
   participants: string[];
@@ -26,18 +44,29 @@ export interface WorkItemUpdateCommand {
   workId: number;
   data: {
     category?: string;
+    itemType?: string;
     content?: string;
     description?: string;
     importance?: number;
     urgency?: number;
     status?: string | null;
+    krStartValue?: number | null;
+    krTargetValue?: number | null;
+    krCurrentValue?: number | null;
+    krUnit?: string | null;
     ownerEmployeeId?: number | null;
     startDate?: Date | string | null;
     dueDate?: Date | string | null;
     periodType?: string | null;
     periodStart?: Date | string | null;
     periodEnd?: Date | string | null;
+    sourceType?: string;
+    sourceKind?: string | null;
+    sourceMeetingId?: number | null;
+    sourceMeetingDecisionId?: number | null;
+    sourceMeetingActionCandidateId?: number | null;
     linkedProjectId?: number | null;
+    linkedProjectPhaseId?: number | null;
     linkedProjectTaskId?: number | null;
     parentWorkItemId?: number | null;
     participants?: string[];
@@ -65,10 +94,24 @@ function normalizeCategory(value: unknown) {
   return failCommand("工作类别无效");
 }
 
+function normalizeItemType(value: unknown) {
+  if (value === null || value === undefined || value === "") return okCommand("task");
+  const itemType = String(value || "").trim();
+  if (itemType === "objective" || itemType === "key_result" || itemType === "task") return okCommand(itemType);
+  return failCommand("节点类型无效");
+}
+
 function normalizeNumber(value: unknown, fallback: number) {
   if (value === null || value === undefined || value === "") return fallback;
   const number = Number(value);
   return Number.isFinite(number) ? number : Number.NaN;
+}
+
+function normalizeNullableNumber(value: unknown, label: string) {
+  if (value === null || value === undefined || value === "") return okCommand(null);
+  const number = Number(value);
+  if (!Number.isFinite(number)) return failCommand(`${label}无效`);
+  return okCommand(number);
 }
 
 function normalizePositiveId(value: unknown, label: string) {
@@ -127,44 +170,66 @@ function normalizePeriodFields(input: {
   return okCommand({ periodType: periodType.data, periodStart: periodStart.data, periodEnd: periodEnd.data });
 }
 
-function stripRoutinePlanFields<T extends {
+function stripNonExecutableFields<T extends {
   status?: string | null;
   startDate?: Date | string | null;
   dueDate?: Date | string | null;
-  linkedProjectId?: number | null;
-  linkedProjectTaskId?: number | null;
 }>(data: T) {
   data.status = null;
   data.startDate = null;
   data.dueDate = null;
-  data.linkedProjectId = null;
-  data.linkedProjectTaskId = null;
+  return data;
+}
+
+function stripNonKrFields<T extends {
+  krStartValue?: number | null;
+  krTargetValue?: number | null;
+  krCurrentValue?: number | null;
+  krUnit?: string | null;
+}>(data: T) {
+  data.krStartValue = null;
+  data.krTargetValue = null;
+  data.krCurrentValue = null;
+  data.krUnit = null;
   return data;
 }
 
 export function buildWorkItemCreateCommand(input: {
   targetType: string;
   targetId: number;
-  category: string;
+  category?: string;
+  itemType?: string;
   content: string;
   description?: string;
   importance?: number;
   urgency?: number;
   status?: string | null;
+  krStartValue?: number | null;
+  krTargetValue?: number | null;
+  krCurrentValue?: number | null;
+  krUnit?: string | null;
   ownerEmployeeId?: number | null;
   startDate?: Date | string | null;
   dueDate?: Date | string | null;
   periodType?: string | null;
   periodStart?: Date | string | null;
   periodEnd?: Date | string | null;
+  sourceType?: string;
+  sourceKind?: string | null;
   linkedProjectId?: number | null;
+  linkedProjectPhaseId?: number | null;
   linkedProjectTaskId?: number | null;
+  sourceMeetingId?: number | null;
+  sourceMeetingDecisionId?: number | null;
+  sourceMeetingActionCandidateId?: number | null;
   parentWorkItemId?: number | null;
   participants?: string[];
   sortOrder?: number;
 }): DomainValidationResult<WorkItemCreateCommand> {
-  const category = normalizeCategory(input.category);
+  const category = normalizeCategory(input.category || "non-routine");
   if (!category.ok) return category;
+  const itemType = normalizeItemType(input.itemType);
+  if (!itemType.ok) return itemType;
   const content = normalizeRequiredString(input.content, "工作内容");
   if (!content.ok) return content;
   const targetId = normalizePositiveId(input.targetId, "目标");
@@ -173,41 +238,85 @@ export function buildWorkItemCreateCommand(input: {
   const urgency = normalizeNumber(input.urgency, 3);
   const sortOrder = normalizeNumber(input.sortOrder, 0);
   if ([importance, urgency, sortOrder].some(Number.isNaN)) return failCommand("工作项数值无效");
-  const isRoutine = category.data === "routine";
-  const status = isRoutine ? okCommand(null) : normalizeStatus(input.status);
+  const isTask = itemType.data === "task";
+  const status = isTask ? normalizeStatus(input.status) : okCommand(null);
   if (!status.ok) return status;
+  const krStartValue = normalizeNullableNumber(input.krStartValue, "KR 起点");
+  if (!krStartValue.ok) return krStartValue;
+  const krTargetValue = normalizeNullableNumber(input.krTargetValue, "KR 目标");
+  if (!krTargetValue.ok) return krTargetValue;
+  const krCurrentValue = normalizeNullableNumber(input.krCurrentValue, "KR 当前值");
+  if (!krCurrentValue.ok) return krCurrentValue;
   const ownerEmployeeId = normalizeNullablePositiveId(input.ownerEmployeeId, "负责人");
   if (!ownerEmployeeId.ok) return ownerEmployeeId;
-  const linkedProjectId = isRoutine ? okCommand(null) : normalizeNullablePositiveId(input.linkedProjectId, "关联项目");
+  const sourceType = normalizeSourceType(input.sourceType);
+  if (!sourceType.ok) return sourceType;
+  const sourceKind = normalizeSourceKind(input.sourceKind);
+  if (!sourceKind.ok) return sourceKind;
+  const linkedProjectId = normalizeNullablePositiveId(input.linkedProjectId, "关联项目");
   if (!linkedProjectId.ok) return linkedProjectId;
-  const linkedProjectTaskId = isRoutine ? okCommand(null) : normalizeNullablePositiveId(input.linkedProjectTaskId, "关联项目任务");
+  const linkedProjectPhaseId = normalizeNullablePositiveId(input.linkedProjectPhaseId, "关联项目阶段");
+  if (!linkedProjectPhaseId.ok) return linkedProjectPhaseId;
+  const linkedProjectTaskId = normalizeNullablePositiveId(input.linkedProjectTaskId, "关联项目任务");
   if (!linkedProjectTaskId.ok) return linkedProjectTaskId;
+  const sourceMeetingId = normalizeNullablePositiveId(input.sourceMeetingId, "来源会议");
+  if (!sourceMeetingId.ok) return sourceMeetingId;
+  const sourceMeetingDecisionId = normalizeNullablePositiveId(input.sourceMeetingDecisionId, "来源会议决议");
+  if (!sourceMeetingDecisionId.ok) return sourceMeetingDecisionId;
+  const sourceMeetingActionCandidateId = normalizeNullablePositiveId(input.sourceMeetingActionCandidateId, "来源会议行动候选");
+  if (!sourceMeetingActionCandidateId.ok) return sourceMeetingActionCandidateId;
   const parentWorkItemId = normalizeNullablePositiveId(input.parentWorkItemId, "上级工作项");
   if (!parentWorkItemId.ok) return parentWorkItemId;
-  const startDate = isRoutine ? okCommand(null) : normalizeNullableDate(input.startDate, "开始时间");
+  const startDate = isTask ? normalizeNullableDate(input.startDate, "开始时间") : okCommand(null);
   if (!startDate.ok) return startDate;
-  const dueDate = isRoutine ? okCommand(null) : normalizeNullableDate(input.dueDate, "截止时间");
+  const dueDate = isTask ? normalizeNullableDate(input.dueDate, "截止时间") : okCommand(null);
   if (!dueDate.ok) return dueDate;
   const period = normalizePeriodFields(input);
   if (!period.ok) return period;
+  const sourceData = {
+    sourceType: sourceType.data,
+    sourceKind: inferSourceKind({
+      sourceType: sourceType.data,
+      sourceKind: sourceKind.data,
+      linkedProjectId: linkedProjectId.data,
+      linkedProjectPhaseId: linkedProjectPhaseId.data,
+      linkedProjectTaskId: linkedProjectTaskId.data,
+    }),
+    linkedProjectId: linkedProjectId.data,
+    linkedProjectPhaseId: linkedProjectPhaseId.data,
+    linkedProjectTaskId: linkedProjectTaskId.data,
+    sourceMeetingId: sourceMeetingId.data,
+    sourceMeetingDecisionId: sourceMeetingDecisionId.data,
+    sourceMeetingActionCandidateId: sourceMeetingActionCandidateId.data,
+  };
+  if (sourceData.sourceType !== "project") stripProjectSourceFields(sourceData);
+  if (sourceData.sourceType !== "meeting") stripMeetingSourceFields(sourceData);
+  const krData = {
+    krStartValue: krStartValue.data,
+    krTargetValue: krTargetValue.data,
+    krCurrentValue: krCurrentValue.data,
+    krUnit: normalizeOptionalString(input.krUnit) || null,
+  };
+  if (itemType.data !== "key_result") stripNonKrFields(krData);
 
   return okCommand({
     targetType: input.targetType || "department",
     targetId: targetId.data,
     category: category.data,
+    itemType: itemType.data,
     content: content.data,
     description: normalizeOptionalString(input.description),
     importance,
     urgency,
-    status: isRoutine ? null : status.data,
+    status: isTask ? status.data : null,
+    ...krData,
     ownerEmployeeId: ownerEmployeeId.data,
     startDate: startDate.data,
     dueDate: dueDate.data,
     periodType: period.data.periodType,
     periodStart: period.data.periodStart,
     periodEnd: period.data.periodEnd,
-    linkedProjectId: linkedProjectId.data,
-    linkedProjectTaskId: linkedProjectTaskId.data,
+    ...sourceData,
     parentWorkItemId: parentWorkItemId.data,
     participants: input.participants ?? [],
     sortOrder,
@@ -217,7 +326,7 @@ export function buildWorkItemCreateCommand(input: {
 export function buildWorkItemUpdateCommand(
   workId: number,
   input: WorkItemUpdateCommand["data"],
-  currentCategory: string,
+  current: { category: string; itemType: string; sourceType: string },
 ): DomainValidationResult<WorkItemUpdateCommand> {
   const id = normalizePositiveId(workId, "工作项 ID");
   if (!id.ok) return id;
@@ -227,7 +336,12 @@ export function buildWorkItemUpdateCommand(
     if (!category.ok) return category;
     data.category = category.data;
   }
-  const effectiveCategory = data.category ?? currentCategory;
+  if (data.itemType !== undefined) {
+    const itemType = normalizeItemType(data.itemType);
+    if (!itemType.ok) return itemType;
+    data.itemType = itemType.data;
+  }
+  const effectiveItemType = data.itemType ?? current.itemType;
   if (data.content !== undefined) {
     const content = normalizeRequiredString(data.content, "工作内容");
     if (!content.ok) return content;
@@ -245,6 +359,13 @@ export function buildWorkItemUpdateCommand(
     if (!status.ok) return status;
     data.status = status.data;
   }
+  for (const field of ["krStartValue", "krTargetValue", "krCurrentValue"] as const) {
+    if (data[field] === undefined) continue;
+    const number = normalizeNullableNumber(data[field], "KR 数值");
+    if (!number.ok) return number;
+    data[field] = number.data;
+  }
+  if (data.krUnit !== undefined) data.krUnit = normalizeOptionalString(data.krUnit) || null;
   if (data.periodType !== undefined) {
     const periodType = normalizePeriodType(data.periodType);
     if (!periodType.ok) return periodType;
@@ -254,7 +375,17 @@ export function buildWorkItemUpdateCommand(
       data.periodEnd = null;
     }
   }
-  for (const field of ["ownerEmployeeId", "linkedProjectId", "linkedProjectTaskId", "parentWorkItemId"] as const) {
+  if (data.sourceType !== undefined) {
+    const sourceType = normalizeSourceType(data.sourceType);
+    if (!sourceType.ok) return sourceType;
+    data.sourceType = sourceType.data;
+  }
+  if (data.sourceKind !== undefined) {
+    const sourceKind = normalizeSourceKind(data.sourceKind);
+    if (!sourceKind.ok) return sourceKind;
+    data.sourceKind = sourceKind.data;
+  }
+  for (const field of ["ownerEmployeeId", "linkedProjectId", "linkedProjectPhaseId", "linkedProjectTaskId", "sourceMeetingId", "sourceMeetingDecisionId", "sourceMeetingActionCandidateId", "parentWorkItemId"] as const) {
     if (data[field] === undefined) continue;
     const id = normalizeNullablePositiveId(data[field], "关联对象");
     if (!id.ok) return id;
@@ -274,7 +405,22 @@ export function buildWorkItemUpdateCommand(
   }
   if (data.periodStart && data.periodEnd && data.periodEnd < data.periodStart) return failCommand("周期结束不能早于周期开始");
   if (data.participants !== undefined && !Array.isArray(data.participants)) return failCommand("参与人无效");
-  if (effectiveCategory === "routine") stripRoutinePlanFields(data);
+  if (effectiveItemType !== "task") stripNonExecutableFields(data);
+  if (effectiveItemType !== "key_result") stripNonKrFields(data);
+  const effectiveSourceType = data.sourceType ?? current.sourceType;
+  if (effectiveSourceType !== "project") {
+    stripProjectSourceFields(data);
+  } else if (data.sourceKind === undefined) {
+    const inferred = inferSourceKind({
+      sourceType: effectiveSourceType,
+      sourceKind: data.sourceKind,
+      linkedProjectId: data.linkedProjectId,
+      linkedProjectPhaseId: data.linkedProjectPhaseId,
+      linkedProjectTaskId: data.linkedProjectTaskId,
+    });
+    if (inferred) data.sourceKind = inferred;
+  }
+  if (effectiveSourceType !== "meeting") stripMeetingSourceFields(data);
   return okCommand({ workId: id.data, data });
 }
 

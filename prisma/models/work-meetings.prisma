@@ -1,0 +1,215 @@
+/// 会议类型（业务 L3 配置）
+model MeetingType {
+  id                Int             @id @default(autoincrement())
+  key               String          @unique
+  name              String
+  description       String          @default("")
+  defaultVisibility String          @default("participants_only")
+  sortOrder         Int             @default(0)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @default(now()) @updatedAt
+  series            MeetingSeries[]
+  meetings          Meeting[]
+}
+
+/// 会议系列
+model MeetingSeries {
+  id                Int          @id @default(autoincrement())
+  typeId            Int
+  title             String
+  description       String       @default("")
+  cadence           String?
+  defaultVisibility String       @default("participants_only")
+  createdBy         Int?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @default(now()) @updatedAt
+  type              MeetingType  @relation(fields: [typeId], references: [id], onDelete: Restrict)
+  meetings          Meeting[]
+
+  @@index([typeId])
+}
+
+/// 单次会议
+model Meeting {
+  id               Int                       @id @default(autoincrement())
+  typeId           Int
+  seriesId         Int?
+  title            String
+  description      String                    @default("")
+  startAt          DateTime?
+  endAt            DateTime?
+  location         String                    @default("")
+  visibility       String                    @default("participants_only")
+  status           String                    @default("scheduled")
+  ownerUserId      Int?
+  secretaryUserId  Int?
+  createdBy        Int?
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @default(now()) @updatedAt
+  type             MeetingType               @relation(fields: [typeId], references: [id], onDelete: Restrict)
+  series           MeetingSeries?            @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  owner            User?                     @relation("MeetingOwner", fields: [ownerUserId], references: [id], onDelete: SetNull)
+  secretary        User?                     @relation("MeetingSecretary", fields: [secretaryUserId], references: [id], onDelete: SetNull)
+  participants     MeetingParticipant[]
+  agendaItems      MeetingAgendaItem[]
+  minuteEntries    MeetingMinuteEntry[]
+  proposals        MeetingProposal[]
+  decisions        MeetingDecision[]
+  actionCandidates MeetingActionCandidate[]
+  sourceWorkItems  WorkItem[]                @relation("WorkItemSourceMeeting")
+
+  @@index([typeId, startAt])
+  @@index([seriesId, startAt])
+  @@index([ownerUserId])
+  @@index([secretaryUserId])
+  @@index([status])
+}
+
+/// 会议参会人和会议内角色
+model MeetingParticipant {
+  id               Int      @id @default(autoincrement())
+  meetingId        Int
+  userId           Int
+  role             String   @default("participant")
+  canVote          Boolean  @default(false)
+  attendanceStatus String   @default("invited")
+  createdAt        DateTime @default(now())
+  meeting          Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  user             User     @relation("MeetingParticipantUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([meetingId, userId])
+  @@index([userId])
+  @@index([meetingId, role])
+}
+
+/// 会议议程项
+model MeetingAgendaItem {
+  id               Int                       @id @default(autoincrement())
+  meetingId        Int
+  title            String
+  description      String                    @default("")
+  presenterUserId  Int?
+  sortOrder        Int                       @default(0)
+  status           String                    @default("open")
+  createdBy        Int?
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @default(now()) @updatedAt
+  meeting          Meeting                   @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  minuteEntries    MeetingMinuteEntry[]
+  proposals        MeetingProposal[]
+  decisions        MeetingDecision[]
+  actionCandidates MeetingActionCandidate[]
+
+  @@index([meetingId, sortOrder])
+}
+
+/// 会议纪要记录
+model MeetingMinuteEntry {
+  id           Int                @id @default(autoincrement())
+  meetingId    Int
+  agendaItemId Int?
+  content      String
+  kind         String             @default("note")
+  createdBy    Int?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @default(now()) @updatedAt
+  meeting      Meeting            @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  agendaItem   MeetingAgendaItem? @relation(fields: [agendaItemId], references: [id], onDelete: SetNull)
+
+  @@index([meetingId, agendaItemId])
+}
+
+/// 会议提案/表决事项
+model MeetingProposal {
+  id               Int                @id @default(autoincrement())
+  meetingId        Int
+  agendaItemId     Int?
+  title            String
+  content          String             @default("")
+  status           String             @default("open")
+  voteVisibility   String             @default("named")
+  minVotesRequired Int?
+  createdBy        Int?
+  closedBy         Int?
+  closedAt         DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @default(now()) @updatedAt
+  meeting          Meeting            @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  agendaItem       MeetingAgendaItem? @relation(fields: [agendaItemId], references: [id], onDelete: SetNull)
+  votes            MeetingVote[]
+  decisions        MeetingDecision[]
+
+  @@index([meetingId, status])
+  @@index([agendaItemId])
+}
+
+/// 会议表决投票
+model MeetingVote {
+  id          Int             @id @default(autoincrement())
+  proposalId  Int
+  voterUserId Int
+  choice      String
+  note        String          @default("")
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @default(now()) @updatedAt
+  proposal    MeetingProposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  voter       User            @relation("MeetingVoteUser", fields: [voterUserId], references: [id], onDelete: Cascade)
+
+  @@unique([proposalId, voterUserId])
+  @@index([voterUserId])
+}
+
+/// 会议决议/决定/指导
+model MeetingDecision {
+  id                         Int                       @id @default(autoincrement())
+  meetingId                  Int
+  agendaItemId               Int?
+  proposalId                 Int?
+  kind                       String                    @default("decision")
+  title                      String
+  content                    String                    @default("")
+  status                     String                    @default("active")
+  effectiveDate              DateTime?
+  decidedAt                  DateTime                  @default(now())
+  createdBy                  Int?
+  createdAt                  DateTime                  @default(now())
+  updatedAt                  DateTime                  @default(now()) @updatedAt
+  meeting                    Meeting                   @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  agendaItem                 MeetingAgendaItem?        @relation(fields: [agendaItemId], references: [id], onDelete: SetNull)
+  proposal                   MeetingProposal?          @relation(fields: [proposalId], references: [id], onDelete: SetNull)
+  actionCandidates           MeetingActionCandidate[]
+  sourceWorkItems            WorkItem[]                @relation("WorkItemSourceMeetingDecision")
+  sourceProjectTasks         ProjectTask[]             @relation("ProjectTaskSourceMeetingDecision")
+
+  @@index([meetingId, kind])
+  @@index([proposalId])
+}
+
+/// 会议行动候选；不是任务系统，只能生成或关联执行对象
+model MeetingActionCandidate {
+  id                    Int                @id @default(autoincrement())
+  meetingId             Int
+  agendaItemId          Int?
+  decisionId            Int?
+  title                 String
+  description           String             @default("")
+  targetKind            String             @default("work_item")
+  status                String             @default("candidate")
+  linkedWorkItemId      Int?
+  linkedProjectTaskId   Int?
+  createdBy             Int?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @default(now()) @updatedAt
+  meeting               Meeting            @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  agendaItem            MeetingAgendaItem? @relation(fields: [agendaItemId], references: [id], onDelete: SetNull)
+  decision              MeetingDecision?   @relation(fields: [decisionId], references: [id], onDelete: SetNull)
+  linkedWorkItem        WorkItem?          @relation("MeetingActionCandidateWorkItem", fields: [linkedWorkItemId], references: [id], onDelete: SetNull)
+  linkedProjectTask     ProjectTask?       @relation("MeetingActionCandidateProjectTask", fields: [linkedProjectTaskId], references: [id], onDelete: SetNull)
+  sourceWorkItems       WorkItem[]         @relation("WorkItemSourceMeetingActionCandidate")
+  sourceProjectTasks    ProjectTask[]      @relation("ProjectTaskSourceMeetingActionCandidate")
+
+  @@index([meetingId, status])
+  @@index([decisionId])
+  @@index([linkedWorkItemId])
+  @@index([linkedProjectTaskId])
+}

@@ -22,6 +22,8 @@ const projectTaskUpdateBodySchema = z.object({
   endDate: z.string().nullable().optional(),
   predecessorTaskIds: z.array(z.coerce.number().int().positive()).optional(),
   planPhaseId: z.coerce.number().int().positive().nullable().optional(),
+  sourceMeetingDecisionId: z.coerce.number().int().positive().nullable().optional(),
+  sourceMeetingActionCandidateId: z.coerce.number().int().positive().nullable().optional(),
   assignees: z.array(z.object({
     employeeId: z.coerce.number().int().positive(),
     role: z.string().nullable().optional(),

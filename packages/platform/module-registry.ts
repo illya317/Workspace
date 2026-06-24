@@ -9,6 +9,7 @@ const WORK_FK_REGISTRATIONS = [
   { key: "work.tasks.owner.employee", scope: "work", source: { entity: "WorkItem", field: "ownerEmployeeId" }, target: "employee", targetLabel: "负责人", nullable: true, permission: { resourceKey: "work.tasks", action: "access" } },
   { key: "work.tasks.permission.user", scope: "work", source: { entity: "WorkScopePermission", field: "userId" }, target: "user", targetLabel: "授权用户", nullable: false, permission: { resourceKey: "work.tasks", action: "access" } },
   { key: "work.tasks.linked.project", scope: "work", source: { entity: "WorkItem", field: "linkedProjectId" }, target: "project", targetLabel: "关联项目", nullable: true, permission: { resourceKey: "work.tasks", action: "access" } },
+  { key: "work.meetings.participant.user", scope: "work", source: { entity: "MeetingParticipant", field: "userId" }, target: "user", targetLabel: "参会账号", nullable: false, permission: { resourceKey: "work.meetings", action: "access" } },
 ] satisfies FkRegistration[];
 
 const HR_FK_REGISTRATIONS = [
@@ -39,6 +40,7 @@ export const registeredModuleDefinitions = [
       children: [
         { key: "tasks", label: "工作计划", desc: "个人计划、待办任务和执行跟踪", href: "/work/tasks", resourceKey: "work.tasks", apiPrefixes: ["/api/modules/work/tasks"] },
         { key: "projects", label: "项目管理", desc: "组织项目、角色分工、预算和风险", href: "/work/projects", resourceKey: "work.projects", apiPrefixes: ["/api/modules/work/projects"] },
+        { key: "meetings", label: "会议管理", desc: "会议、纪要、表决和决议依据", href: "/work/meetings", resourceKey: "work.meetings", apiPrefixes: ["/api/modules/work/meetings"] },
       ],
     },
     resourceDefs: [
@@ -51,12 +53,24 @@ export const registeredModuleDefinitions = [
         maxRoleKey: "access",
         sortOrder: 4,
       },
+      {
+        key: "work.meetings.viewAll",
+        name: "会议全局查看",
+        kind: "capability",
+        capabilityOwnerKey: "work.meetings",
+        runtimeParentKey: "work.meetings",
+        maxRoleKey: "access",
+        sortOrder: 5,
+      },
     ],
-    routes: ["/work", "/work/projects", "/work/tasks"],
+    routes: ["/work", "/work/projects", "/work/tasks", "/work/meetings"],
     fkRegistrations: WORK_FK_REGISTRATIONS,
     apiGuards: [
+      ...apiResourceGuards("/api/modules/work/meetings", "work.meetings", ["GET", "POST", "PUT", "DELETE"]),
       ...apiResourceGuards("/api/modules/work/projects", "work.projects", ["GET", "POST", "PUT", "DELETE"]),
       ...apiResourceGuards("/api/modules/work/tasks", "work.tasks", ["GET", "POST", "PUT", "DELETE"]),
+      ...apiResourceGuards("/api/modules/work/tasks/spaces", "work.tasks", ["GET", "PUT"]),
+      ...apiResourceGuards("/api/modules/work/tasks/reports", "work.tasks", ["GET", "PUT"]),
       ...apiResourceGuards("/api/modules/work/task-spaces", "work.tasks", ["GET", "PUT"]),
       ...apiResourceGuards("/api/modules/work/task-reports", "work.tasks", ["GET", "PUT"]),
     ],

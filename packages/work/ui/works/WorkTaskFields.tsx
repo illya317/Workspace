@@ -1,31 +1,31 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { ReactNode } from "react";
 import {
   CalendarDateInput,
   FkFieldInput,
   FormField,
   OptionPicker,
   RatingControl,
-  StatusBadge,
   TextareaField,
   TextField,
   type PickerOption,
 } from "@workspace/core/ui";
 import {
+  listProjectPhaseOptions,
   listProjectTaskOptions,
   WORK_REFERENCE_OPTIONS_ENDPOINT,
 } from "./api";
 import {
-  getWorkPeriodLabel,
-  getStatusLabel,
-  WORK_CATEGORY_OPTIONS,
+  WORK_ITEM_TYPE_OPTIONS,
   WORK_PERIOD_TYPE_OPTIONS,
+  WORK_PROJECT_SOURCE_KIND_OPTIONS,
+  WORK_SOURCE_TYPE_OPTIONS,
   WORK_STATUS_OPTIONS,
 } from "./model";
-import type { WorkItem, WorkItemDraft } from "./types";
-import type { WorkPeriodType, WorkTargetType } from "./types";
+import type { WorkItem, WorkItemDraft, WorkItemType, WorkPeriodType, WorkSourceKind, WorkSourceType, WorkTargetType } from "./types";
+
+const FORM_SOURCE_TYPE_OPTIONS = WORK_SOURCE_TYPE_OPTIONS.filter((option) => option.value !== "meeting");
 
 export function WorkTaskForm({
   draft,
@@ -43,18 +43,36 @@ export function WorkTaskForm({
   onChange: (draft: WorkItemDraft) => void;
 }) {
   const [taskOptions, setTaskOptions] = useState<PickerOption[]>([]);
+  const [phaseOptions, setPhaseOptions] = useState<PickerOption[]>([]);
+  const isTask = draft.itemType === "task";
+  const isKr = draft.itemType === "key_result";
+  const isProjectSource = draft.sourceType === "project";
+  const sourceTypeOptions = draft.sourceType === "meeting" ? WORK_SOURCE_TYPE_OPTIONS : FORM_SOURCE_TYPE_OPTIONS;
   const parentOptions = useMemo(
     () => works
-      .filter((work) => work.id !== excludedWorkId)
+      .filter((work) => work.id !== excludedWorkId && parentAllowed(draft.itemType, work))
       .map((work) => ({ value: String(work.id), label: work.content })),
-    [excludedWorkId, works],
+    [draft.itemType, excludedWorkId, works],
   );
 
   useEffect(() => {
     let ignore = false;
-    listProjectTaskOptions(draft.linkedProjectId)
-      .then((options) => { if (!ignore) setTaskOptions(options); })
-      .catch(() => { if (!ignore) setTaskOptions([]); });
+    Promise.all([
+      listProjectTaskOptions(draft.linkedProjectId),
+      listProjectPhaseOptions(draft.linkedProjectId),
+    ])
+      .then(([tasks, phases]) => {
+        if (!ignore) {
+          setTaskOptions(tasks);
+          setPhaseOptions(phases);
+        }
+      })
+      .catch(() => {
+        if (!ignore) {
+          setTaskOptions([]);
+          setPhaseOptions([]);
+        }
+      });
     return () => { ignore = true; };
   }, [draft.linkedProjectId]);
 
@@ -62,38 +80,68 @@ export function WorkTaskForm({
     onChange({ ...draft, ...next });
   }
 
-  const isRoutine = draft.category === "routine";
+  function setItemType(value: string | null) {
+    const itemType = normalizeItemType(value);
+    const currentParent = works.find((work) => work.id === draft.parentWorkItemId) || null;
+    patch({
+      itemType,
+      category: "non-routine",
+      status: itemType === "task" ? draft.status || "doing" : null,
+      startDate: itemType === "task" ? draft.startDate : null,
+      dueDate: itemType === "task" ? draft.dueDate : null,
+      krStartValue: itemType === "key_result" ? draft.krStartValue : null,
+      krTargetValue: itemType === "key_result" ? draft.krTargetValue : null,
+      krCurrentValue: itemType === "key_result" ? draft.krCurrentValue : null,
+      krUnit: itemType === "key_result" ? draft.krUnit : "",
+      parentWorkItemId: currentParent && parentAllowed(itemType, currentParent) ? draft.parentWorkItemId : null,
+      parentWorkItemContent: currentParent && parentAllowed(itemType, currentParent) ? draft.parentWorkItemContent : "",
+    });
+  }
+
+  function setSourceType(value: string | null) {
+    const sourceType = normalizeSourceType(value);
+    patch(sourceType === "project" ? {
+      sourceType,
+      sourceKind: draft.sourceKind || "project",
+    } : {
+      sourceType,
+      sourceKind: null,
+      linkedProjectId: null,
+      linkedProjectName: "",
+      linkedProjectPhaseId: null,
+      linkedProjectPhaseName: "",
+      linkedProjectTaskId: null,
+      linkedProjectTaskName: "",
+    });
+  }
+
+  function setSourceKind(value: string | null) {
+    const sourceKind = normalizeSourceKind(value);
+    patch({
+      sourceKind,
+      linkedProjectPhaseId: sourceKind === "project_phase" ? draft.linkedProjectPhaseId : null,
+      linkedProjectPhaseName: sourceKind === "project_phase" ? draft.linkedProjectPhaseName : "",
+      linkedProjectTaskId: sourceKind === "project_task" ? draft.linkedProjectTaskId : null,
+      linkedProjectTaskName: sourceKind === "project_task" ? draft.linkedProjectTaskName : "",
+    });
+  }
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <FormField label="工作内容" required>
+      <FormField label="节点内容" required>
         <TextField
           value={draft.content}
           disabled={disabled}
-          placeholder="输入工作内容"
+          placeholder="输入目标、结果或执行任务"
           onChange={(value) => patch({ content: value })}
         />
       </FormField>
-      <FormField label="工作类别">
+      <FormField label="节点类型">
         <OptionPicker
-          value={draft.category}
-          options={[...WORK_CATEGORY_OPTIONS]}
+          value={draft.itemType}
+          options={WORK_ITEM_TYPE_OPTIONS}
           disabled={disabled}
-          onChange={(value) => {
-            const category = value === "non-routine" ? "non-routine" : "routine";
-            patch(category === "routine"
-              ? {
-                category,
-                status: null,
-                startDate: null,
-                dueDate: null,
-                linkedProjectId: null,
-                linkedProjectName: "",
-                linkedProjectTaskId: null,
-                linkedProjectTaskName: "",
-              }
-              : { category, status: draft.status || "doing" });
-          }}
+          onChange={setItemType}
         />
       </FormField>
       <FormField label="计划周期">
@@ -115,31 +163,16 @@ export function WorkTaskForm({
       {draft.periodType && (
         <>
           <FormField label="周期开始">
-            <CalendarDateInput
-              value={draft.periodStart}
-              disabled={disabled}
-              popoverMode="fixed"
-              onChange={(value) => patch({ periodStart: value })}
-            />
+            <CalendarDateInput value={draft.periodStart} disabled={disabled} popoverMode="fixed" onChange={(value) => patch({ periodStart: value })} />
           </FormField>
           <FormField label="周期结束">
-            <CalendarDateInput
-              value={draft.periodEnd}
-              disabled={disabled}
-              popoverMode="fixed"
-              onChange={(value) => patch({ periodEnd: value })}
-            />
+            <CalendarDateInput value={draft.periodEnd} disabled={disabled} popoverMode="fixed" onChange={(value) => patch({ periodEnd: value })} />
           </FormField>
         </>
       )}
-      {!isRoutine && (
+      {isTask && (
         <FormField label="状态">
-          <OptionPicker
-            value={draft.status}
-            options={WORK_STATUS_OPTIONS}
-            disabled={disabled}
-            onChange={(value) => patch({ status: normalizeStatus(value) })}
-          />
+          <OptionPicker value={draft.status} options={WORK_STATUS_OPTIONS} disabled={disabled} onChange={(value) => patch({ status: normalizeStatus(value) })} />
         </FormField>
       )}
       {targetType !== "personal" && (
@@ -158,12 +191,12 @@ export function WorkTaskForm({
           />
         </FormField>
       )}
-      <FormField label="上级工作项">
+      <FormField label="上级节点">
         <OptionPicker
           value={draft.parentWorkItemId ? String(draft.parentWorkItemId) : ""}
           options={parentOptions}
           disabled={disabled || parentOptions.length === 0}
-          placeholder="不关联"
+          placeholder="根节点"
           visibleCount={5}
           onChange={(value) => {
             const option = parentOptions.find((item) => item.value === value);
@@ -174,24 +207,37 @@ export function WorkTaskForm({
           }}
         />
       </FormField>
-      {!isRoutine && (
+      {isKr && (
+        <>
+          <FormField label="结果起点">
+            <NumberTextField value={draft.krStartValue} disabled={disabled} onChange={(value) => patch({ krStartValue: value })} />
+          </FormField>
+          <FormField label="结果当前">
+            <NumberTextField value={draft.krCurrentValue} disabled={disabled} onChange={(value) => patch({ krCurrentValue: value })} />
+          </FormField>
+          <FormField label="结果目标">
+            <NumberTextField value={draft.krTargetValue} disabled={disabled} onChange={(value) => patch({ krTargetValue: value })} />
+          </FormField>
+          <FormField label="单位">
+            <TextField value={draft.krUnit} disabled={disabled} placeholder="万元、项、%" onChange={(value) => patch({ krUnit: value })} />
+          </FormField>
+        </>
+      )}
+      {isTask && (
         <>
           <FormField label="开始时间">
-            <CalendarDateInput
-              value={draft.startDate}
-              disabled={disabled}
-              popoverMode="fixed"
-              onChange={(value) => patch({ startDate: value })}
-            />
+            <CalendarDateInput value={draft.startDate} disabled={disabled} popoverMode="fixed" onChange={(value) => patch({ startDate: value })} />
           </FormField>
           <FormField label="截止时间">
-            <CalendarDateInput
-              value={draft.dueDate}
-              disabled={disabled}
-              popoverMode="fixed"
-              onChange={(value) => patch({ dueDate: value })}
-            />
+            <CalendarDateInput value={draft.dueDate} disabled={disabled} popoverMode="fixed" onChange={(value) => patch({ dueDate: value })} />
           </FormField>
+        </>
+      )}
+      <FormField label="来源类型">
+        <OptionPicker value={draft.sourceType} options={sourceTypeOptions} disabled={disabled} onChange={setSourceType} />
+      </FormField>
+      {isProjectSource && (
+        <>
           <FormField label="关联项目">
             <FkFieldInput
               fkKey="work.tasks.linked.project"
@@ -203,91 +249,111 @@ export function WorkTaskForm({
               onChange={(value, option) => patch({
                 linkedProjectId: option?.id ?? (value ? draft.linkedProjectId : null),
                 linkedProjectName: option?.name ?? (value ? value : ""),
+                sourceKind: option ? draft.sourceKind || "project" : null,
+                linkedProjectPhaseId: null,
+                linkedProjectPhaseName: "",
                 linkedProjectTaskId: null,
                 linkedProjectTaskName: "",
               })}
             />
           </FormField>
-          <FormField label="关联项目任务">
+          <FormField label="项目来源层级">
             <OptionPicker
-              value={draft.linkedProjectTaskId ? String(draft.linkedProjectTaskId) : ""}
-              options={taskOptions}
+              value={draft.sourceKind}
+              options={WORK_PROJECT_SOURCE_KIND_OPTIONS}
               disabled={disabled || !draft.linkedProjectId}
-              placeholder={draft.linkedProjectId ? "不关联" : "先选择项目"}
-              visibleCount={5}
-              onChange={(value) => {
-                const option = taskOptions.find((item) => item.value === value);
-                patch({
-                  linkedProjectTaskId: value ? Number(value) : null,
-                  linkedProjectTaskName: option?.label || "",
-                });
-              }}
+              onChange={setSourceKind}
             />
           </FormField>
+          {draft.sourceKind === "project_phase" && (
+            <FormField label="关联项目阶段">
+              <OptionPicker
+                value={draft.linkedProjectPhaseId ? String(draft.linkedProjectPhaseId) : ""}
+                options={phaseOptions}
+                disabled={disabled || !draft.linkedProjectId}
+                placeholder={draft.linkedProjectId ? "选择阶段" : "先选择项目"}
+                visibleCount={5}
+                onChange={(value) => {
+                  const option = phaseOptions.find((item) => item.value === value);
+                  patch({
+                    linkedProjectPhaseId: value ? Number(value) : null,
+                    linkedProjectPhaseName: option?.label || "",
+                  });
+                }}
+              />
+            </FormField>
+          )}
+          {draft.sourceKind === "project_task" && (
+            <FormField label="关联项目任务">
+              <OptionPicker
+                value={draft.linkedProjectTaskId ? String(draft.linkedProjectTaskId) : ""}
+                options={taskOptions}
+                disabled={disabled || !draft.linkedProjectId}
+                placeholder={draft.linkedProjectId ? "选择任务" : "先选择项目"}
+                visibleCount={5}
+                onChange={(value) => {
+                  const option = taskOptions.find((item) => item.value === value);
+                  patch({
+                    linkedProjectTaskId: value ? Number(value) : null,
+                    linkedProjectTaskName: option?.label || "",
+                  });
+                }}
+              />
+            </FormField>
+          )}
         </>
       )}
       <FormField label="重要度">
-        <RatingControl
-          value={draft.importance}
-          readOnly={disabled}
-          label="重要度"
-          showLabel={false}
-          onChange={(value) => patch({ importance: value })}
-        />
+        <RatingControl value={draft.importance} readOnly={disabled} label="重要度" showLabel={false} onChange={(value) => patch({ importance: value })} />
       </FormField>
       <FormField label="紧急度">
-        <RatingControl
-          value={draft.urgency}
-          readOnly={disabled}
-          label="紧急度"
-          showLabel={false}
-          onChange={(value) => patch({ urgency: value })}
-        />
+        <RatingControl value={draft.urgency} readOnly={disabled} label="紧急度" showLabel={false} onChange={(value) => patch({ urgency: value })} />
       </FormField>
       <FormField label="描述" className="lg:col-span-2">
-        <TextareaField
-          value={draft.description}
-          disabled={disabled}
-          rows={4}
-          placeholder="描述要完成的工作、交付物或拆解口径"
-          onChange={(value) => patch({ description: value })}
-        />
+        <TextareaField value={draft.description} disabled={disabled} rows={4} placeholder="描述目标、结果口径、交付物或拆解口径" onChange={(value) => patch({ description: value })} />
       </FormField>
     </div>
   );
 }
 
-export function WorkTaskDetail({ work }: { work: WorkItem }) {
-  const status = work.category === "routine" ? null : (work.isArchived ? "archived" : work.status);
-  const showPlanFields = work.category !== "routine";
+function NumberTextField({ value, disabled, onChange }: { value: number | null; disabled: boolean; onChange: (value: number | null) => void }) {
   return (
-    <div className="grid gap-4 rounded-lg border border-slate-200 bg-white p-4 text-sm lg:grid-cols-2">
-      <DetailItem label="工作内容" className="lg:col-span-2">
-        <p className="whitespace-pre-wrap text-slate-900">{work.content}</p>
-      </DetailItem>
-      {work.description && (
-        <DetailItem label="描述" className="lg:col-span-2">
-          <p className="whitespace-pre-wrap text-slate-700">{work.description}</p>
-        </DetailItem>
-      )}
-      {work.targetType !== "personal" && <DetailItem label="负责人">{work.ownerEmployeeName || "未设置"}</DetailItem>}
-      {showPlanFields && status && <DetailItem label="状态"><StatusBadge label={getStatusLabel(status)} variant={statusVariant(status)} /></DetailItem>}
-      <DetailItem label="计划周期">{getWorkPeriodLabel(work)}</DetailItem>
-      {showPlanFields && <DetailItem label="起止时间">{dateRange(work.startDate, work.dueDate)}</DetailItem>}
-      <DetailItem label="上级工作项">{work.parentWorkItemContent || "未关联"}</DetailItem>
-      {showPlanFields && <DetailItem label="关联项目">{work.linkedProjectName || "未关联"}</DetailItem>}
-      {showPlanFields && <DetailItem label="关联项目任务">{work.linkedProjectTaskName || "未关联"}</DetailItem>}
-    </div>
+    <TextField
+      type="number"
+      step="any"
+      value={value === null ? "" : String(value)}
+      disabled={disabled}
+      onChange={(next) => {
+        if (!next.trim()) {
+          onChange(null);
+          return;
+        }
+        const number = Number(next);
+        onChange(Number.isFinite(number) ? number : null);
+      }}
+    />
   );
 }
 
-function DetailItem({ label, children, className = "" }: { label: string; children: ReactNode; className?: string }) {
-  return (
-    <div className={className}>
-      <div className="mb-1 text-xs font-medium text-slate-400">{label}</div>
-      <div className="text-slate-700">{children}</div>
-    </div>
-  );
+function parentAllowed(itemType: WorkItemType, parent: WorkItem) {
+  if (itemType === "key_result") return parent.itemType === "objective";
+  if (itemType === "objective") return parent.itemType === "objective";
+  return true;
+}
+
+function normalizeItemType(value: string | null): WorkItemType {
+  if (value === "objective" || value === "key_result") return value;
+  return "task";
+}
+
+function normalizeSourceType(value: string | null): WorkSourceType {
+  if (value === "routine" || value === "project" || value === "meeting" || value === "import") return value;
+  return "manual";
+}
+
+function normalizeSourceKind(value: string | null): WorkSourceKind {
+  if (value === "project_phase" || value === "project_task") return value;
+  return "project";
 }
 
 function normalizeStatus(value: string | null) {
@@ -298,16 +364,4 @@ function normalizeStatus(value: string | null) {
 function normalizePeriodType(value: string | null): WorkPeriodType | null {
   if (value === "daily" || value === "weekly" || value === "monthly" || value === "quarterly" || value === "yearly") return value;
   return null;
-}
-
-function statusVariant(status: string) {
-  if (status === "done") return "blue";
-  if (status === "archived") return "orange";
-  return "green";
-}
-
-function dateRange(startDate: string | null, dueDate: string | null) {
-  if (!startDate && !dueDate) return "未设置";
-  if (startDate && dueDate) return `${startDate} - ${dueDate}`;
-  return startDate || dueDate;
 }

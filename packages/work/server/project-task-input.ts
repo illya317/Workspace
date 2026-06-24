@@ -18,6 +18,8 @@ export type ProjectTaskInput = {
   endDate?: unknown;
   predecessorTaskIds?: unknown;
   planPhaseId?: unknown;
+  sourceMeetingDecisionId?: unknown;
+  sourceMeetingActionCandidateId?: unknown;
   assignees?: unknown;
   sortOrder?: unknown;
 };
@@ -33,6 +35,8 @@ export type NormalizedProjectTaskInput = {
   endDate?: Date | null;
   predecessorTaskIds?: number[];
   planPhaseId?: number | null;
+  sourceMeetingDecisionId?: number | null;
+  sourceMeetingActionCandidateId?: number | null;
   assignees?: NormalizedTaskAssignee[];
   sortOrder?: number;
 };
@@ -82,6 +86,13 @@ export function normalizeProjectTaskInput(input: ProjectTaskInput, mode: "create
     const planPhaseId = normalizeNullablePositiveInt(input.planPhaseId);
     if (isInvalidNumber(planPhaseId)) return { error: "项目阶段无效" };
     data.planPhaseId = planPhaseId;
+  }
+
+  for (const field of ["sourceMeetingDecisionId", "sourceMeetingActionCandidateId"] as const) {
+    if (input[field] === undefined) continue;
+    const id = normalizeNullablePositiveInt(input[field]);
+    if (isInvalidNumber(id)) return { error: "会议来源无效" };
+    data[field] = id;
   }
 
   if (input.assignees !== undefined) {

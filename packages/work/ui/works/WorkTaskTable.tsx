@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import {
   DataTable,
   DataTableActionsCell,
@@ -10,9 +11,15 @@ import {
   isDataTableEditDirty,
   type DataTableColumn,
 } from "@workspace/core/ui";
-import { createWorkDraft, getStatusLabel, getWorkPeriodLabel } from "./model";
-import { WorkTaskDetail, WorkTaskForm } from "./WorkTaskFields";
-import type { WorkItem, WorkItemDraft } from "./types";
+import { createWorkDraft, getStatusLabel, getWorkItemTypeLabel, getWorkPeriodLabel, getWorkSourceTypeLabel } from "./model";
+import { WorkTaskDetail } from "./WorkTaskDetail";
+import { WorkTaskForm } from "./WorkTaskFields";
+import type { WorkItem, WorkItemDraft, WorkItemType, WorkSourceType } from "./types";
+
+type TreeRow = WorkItem & {
+  depth: number;
+  childCount: number;
+};
 
 export default function WorkTaskTable({
   works,
@@ -24,6 +31,8 @@ export default function WorkTaskTable({
   editDraft,
   statusFilter,
   periodFilter,
+  itemTypeFilter,
+  sourceFilter,
   targetType,
   onDetail,
   onEdit,
@@ -41,6 +50,8 @@ export default function WorkTaskTable({
   editDraft: WorkItemDraft | null;
   statusFilter: "active" | "done" | "archived";
   periodFilter: string;
+  itemTypeFilter: "all" | WorkItemType;
+  sourceFilter: "all" | WorkSourceType;
   targetType?: WorkItem["targetType"];
   onDetail: (work: WorkItem) => void;
   onEdit: (work: WorkItem) => void;
@@ -49,112 +60,73 @@ export default function WorkTaskTable({
   onEditDraftChange: (draft: WorkItemDraft) => void;
   onDelete: (work: WorkItem) => void;
 }) {
-  const filteredWorks = works.filter((work) => matchesStatusFilter(work, statusFilter) && matchesPeriodFilter(work, periodFilter));
-  const routine = sortWorks(filteredWorks.filter((work) => work.category === "routine"));
-  const nonRoutine = sortWorks(filteredWorks.filter((work) => work.category === "non-routine"));
+  const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
   const showOwner = targetType !== "personal";
-  const columns = createColumns({ canEdit, saving, editingId, editDraft, showOwner, onEdit, onSave, onCancelEdit, onDelete });
+  const tree = useMemo(
+    () => buildTreeRows(works, { statusFilter, periodFilter, itemTypeFilter, sourceFilter, expandedIds }),
+    [expandedIds, itemTypeFilter, periodFilter, sourceFilter, statusFilter, works],
+  );
 
-  if (!loading && filteredWorks.length === 0) {
-    return <EmptyStateCard compact>暂无工作项。可以从上方新增日常或非日常工作。</EmptyStateCard>;
+  useEffect(() => {
+    setExpandedIds((current) => {
+      const next = new Set(current);
+      for (const work of works) {
+        if (works.some((item) => item.parentWorkItemId === work.id)) next.add(work.id);
+      }
+      return next;
+    });
+  }, [works]);
+
+  const columns = createColumns({
+    canEdit,
+    saving,
+    editingId,
+    editDraft,
+    showOwner,
+    expandedIds,
+    onToggleExpand: (work) => {
+      setExpandedIds((current) => {
+        const next = new Set(current);
+        if (next.has(work.id)) next.delete(work.id);
+        else next.add(work.id);
+        return next;
+      });
+    },
+    onEdit,
+    onSave,
+    onCancelEdit,
+    onDelete,
+  });
+
+  if (!loading && tree.rows.length === 0) {
+    return <EmptyStateCard compact>暂无工作项。可以从上方新增目标、结果或任务。</EmptyStateCard>;
   }
 
   return (
-    <div className="space-y-6">
-      <TaskGroup
-        title="日常工作"
-        groupType="routine"
-        rows={routine}
-        loading={loading}
-        saving={saving}
+    <TableScrollFrame className="overflow-y-hidden rounded-lg border border-slate-200">
+      <DataTable
+        rows={tree.rows}
         columns={columns}
-        detailId={detailId}
-        editingId={editingId}
-        editDraft={editDraft}
-        works={works}
-        targetType={targetType}
-        onDetail={onDetail}
-        onEditDraftChange={onEditDraftChange}
-      />
-      <TaskGroup
-        title="非日常工作"
-        groupType="non-routine"
-        rows={nonRoutine}
+        visibleColumns={["owner", "kr", "period", "status", "priority", "source"].filter((key) => key !== "owner" || showOwner)}
+        density="compact"
         loading={loading}
-        saving={saving}
-        columns={columns}
-        detailId={detailId}
-        editingId={editingId}
-        editDraft={editDraft}
-        works={works}
-        targetType={targetType}
-        onDetail={onDetail}
-        onEditDraftChange={onEditDraftChange}
+        emptyText="暂无工作项"
+        rowKey={(work) => work.id}
+        rowClassName={(work) => work.itemType === "objective" ? "bg-slate-50/60" : ""}
+        onRowClick={onDetail}
+        expandedRowKey={detailId}
+        renderExpandedRow={(work) => editDraft && editingId === work.id ? (
+          <WorkTaskForm
+            draft={editDraft}
+            works={works}
+            disabled={saving}
+            excludedWorkId={work.id}
+            targetType={targetType}
+            onChange={onEditDraftChange}
+          />
+        ) : <WorkTaskDetail work={work} />}
       />
-    </div>
-  );
-}
-
-function TaskGroup({
-  title,
-  groupType,
-  rows,
-  loading,
-  saving,
-  columns,
-  detailId,
-  editingId,
-  editDraft,
-  works,
-  targetType,
-  onDetail,
-  onEditDraftChange,
-}: {
-  title: string;
-  groupType: WorkItem["category"];
-  rows: WorkItem[];
-  loading: boolean;
-  saving: boolean;
-  columns: DataTableColumn<WorkItem>[];
-  detailId: number | null;
-  editingId: number | null;
-  editDraft: WorkItemDraft | null;
-  works: WorkItem[];
-  targetType?: WorkItem["targetType"];
-  onDetail: (work: WorkItem) => void;
-  onEditDraftChange: (draft: WorkItemDraft) => void;
-}) {
-  const visibleColumns = getGroupVisibleColumns(groupType, targetType !== "personal");
-  return (
-    <div>
-      <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-slate-800">{title}</h3>
-        <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-500">{rows.length}</span>
-      </div>
-      <TableScrollFrame className="overflow-y-hidden rounded-lg border border-slate-200">
-        <DataTable
-          rows={rows}
-          columns={columns}
-          visibleColumns={visibleColumns}
-          density="compact"
-          loading={loading}
-          emptyText={`暂无${title}`}
-          rowKey={(work) => work.id}
-          onRowClick={onDetail}
-          expandedRowKey={detailId}
-          renderExpandedRow={(work) => editDraft && editingId === work.id ? (
-            <WorkTaskForm
-              draft={editDraft}
-              works={works}
-              disabled={saving}
-              excludedWorkId={work.id}
-              targetType={targetType}
-              onChange={onEditDraftChange}
-            />
-          ) : <WorkTaskDetail work={work} />}
-        />
-      </TableScrollFrame>
-    </div>
+    </TableScrollFrame>
   );
 }
 
@@ -164,6 +136,8 @@ function createColumns({
   editingId,
   editDraft,
   showOwner,
+  expandedIds,
+  onToggleExpand,
   onEdit,
   onSave,
   onCancelEdit,
@@ -174,22 +148,42 @@ function createColumns({
   editingId: number | null;
   editDraft: WorkItemDraft | null;
   showOwner: boolean;
+  expandedIds: Set<number>;
+  onToggleExpand: (work: TreeRow) => void;
   onEdit: (work: WorkItem) => void;
   onSave: () => void;
   onCancelEdit: () => void;
   onDelete: (work: WorkItem) => void;
-}): DataTableColumn<WorkItem>[] {
-  const columns: DataTableColumn<WorkItem>[] = [
+}): DataTableColumn<TreeRow>[] {
+  return [
     {
       key: "content",
-      label: "工作内容",
+      label: "工作大纲",
       required: true,
-      headerClassName: "w-64",
-      cellClassName: "w-64 max-w-80",
+      headerClassName: "min-w-80",
+      cellClassName: "min-w-80 max-w-[32rem]",
       render: (work) => (
-        <div className="flex min-w-0 flex-col gap-1">
-          {work.parentWorkItemContent && <span className="max-w-full truncate text-xs text-slate-400" title={`上级：${work.parentWorkItemContent}`}>上级：{work.parentWorkItemContent}</span>}
-          <span className="min-w-0 max-w-[14rem] truncate text-sm font-medium text-slate-900" title={work.content}>{work.content}</span>
+        <div className="flex min-w-0 items-center gap-2" style={{ paddingLeft: work.depth * 18 }}>
+          {work.childCount > 0 ? (
+            <button
+              type="button"
+              title={expandedIds.has(work.id) ? "收起" : "展开"}
+              onClick={(event) => {
+                event.stopPropagation();
+                onToggleExpand(work);
+              }}
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded border border-slate-200 bg-white text-xs font-semibold text-slate-500 hover:bg-slate-50"
+            >
+              {expandedIds.has(work.id) ? "-" : "+"}
+            </button>
+          ) : (
+            <span className="h-6 w-6 shrink-0" />
+          )}
+          <TypeBadge itemType={work.itemType} />
+          <div className="min-w-0">
+            <div className="truncate text-sm font-medium text-slate-900" title={work.content}>{work.content}</div>
+            {work.parentWorkItemContent && <div className="truncate text-xs text-slate-400" title={work.parentWorkItemContent}>上级：{work.parentWorkItemContent}</div>}
+          </div>
         </div>
       ),
     },
@@ -197,63 +191,60 @@ function createColumns({
       key: "owner",
       label: "负责人",
       defaultVisible: showOwner,
-      headerClassName: "w-32",
-      cellClassName: "w-32",
+      headerClassName: "w-28",
+      cellClassName: "w-28",
       render: (work) => work.ownerEmployeeName || "未设置",
+    },
+    {
+      key: "kr",
+      label: "结果",
+      defaultVisible: true,
+      headerClassName: "w-44",
+      cellClassName: "w-44",
+      render: (work) => work.itemType === "key_result"
+        ? <span className="text-sm text-slate-700">{krRange(work)}</span>
+        : <span className="text-sm text-slate-300">-</span>,
     },
     {
       key: "period",
       label: "周期",
       defaultVisible: true,
-      headerClassName: "w-48",
-      cellClassName: "w-48",
+      headerClassName: "w-44",
+      cellClassName: "w-44",
       render: (work) => <span className="text-sm text-slate-600">{getWorkPeriodLabel(work)}</span>,
-    },
-    {
-      key: "priority",
-      label: "优先级",
-      defaultVisible: true,
-      headerClassName: "w-40",
-      cellClassName: "w-40",
-      render: (work) => (
-        <div className="flex flex-wrap items-center gap-1.5 text-xs font-medium text-slate-500">
-          <span className="rounded bg-amber-50 px-1.5 py-0.5 text-amber-700">重要 {work.importance}</span>
-          <span className="rounded bg-sky-50 px-1.5 py-0.5 text-sky-600">紧急 {work.urgency}</span>
-        </div>
-      ),
     },
     {
       key: "status",
       label: "状态",
       defaultVisible: true,
-      headerClassName: "w-28",
-      cellClassName: "w-28",
+      headerClassName: "w-24",
+      cellClassName: "w-24",
       render: (work) => {
-        const status = work.category === "routine" ? null : (work.isArchived ? "archived" : work.status);
-        if (!status) return <span className="text-sm text-slate-400">无</span>;
+        const status = work.itemType === "task" ? (work.isArchived ? "archived" : work.status) : null;
+        if (!status) return <span className="text-sm text-slate-300">-</span>;
         return <StatusBadge label={getStatusLabel(status)} variant={statusVariant(status)} />;
       },
     },
     {
-      key: "dates",
-      label: "起止时间",
+      key: "priority",
+      label: "优先级",
       defaultVisible: true,
-      headerClassName: "w-44",
-      cellClassName: "w-44",
-      render: (work) => dateRange(work.startDate, work.dueDate),
+      headerClassName: "w-36",
+      cellClassName: "w-36",
+      render: (work) => work.itemType === "task" ? (
+        <div className="flex flex-wrap items-center gap-1.5 text-xs font-medium text-slate-500">
+          <span className="rounded bg-amber-50 px-1.5 py-0.5 text-amber-700">重要 {work.importance}</span>
+          <span className="rounded bg-sky-50 px-1.5 py-0.5 text-sky-600">紧急 {work.urgency}</span>
+        </div>
+      ) : <span className="text-sm text-slate-300">-</span>,
     },
     {
-      key: "links",
-      label: "关联",
+      key: "source",
+      label: "来源",
       defaultVisible: true,
-      headerClassName: "min-w-56",
-      cellClassName: "min-w-56 max-w-80",
-      render: (work) => {
-        const label = work.linkedProjectName || work.linkedProjectTaskName
-          ? [work.linkedProjectName, work.linkedProjectTaskName].filter(Boolean).join(" / ")
-          : "无";
-        return <span className="block max-w-full truncate" title={label}>{label}</span>;
-      },
+      headerClassName: "min-w-48",
+      cellClassName: "min-w-48 max-w-72",
+      render: (work) => <SourceCell work={work} />,
     },
     {
       key: "actions",
@@ -295,23 +286,100 @@ function createColumns({
       },
     },
   ];
-  return columns;
 }
 
-function getGroupVisibleColumns(groupType: WorkItem["category"], showOwner: boolean) {
-  void groupType;
-  return [showOwner ? "owner" : "", "period", "priority"].filter(Boolean);
+function buildTreeRows(
+  works: WorkItem[],
+  filters: {
+    statusFilter: "active" | "done" | "archived";
+    periodFilter: string;
+    itemTypeFilter: "all" | WorkItemType;
+    sourceFilter: "all" | WorkSourceType;
+    expandedIds: Set<number>;
+  },
+) {
+  const byId = new Map(works.map((work) => [work.id, work]));
+  const children = new Map<number, WorkItem[]>();
+  const roots: WorkItem[] = [];
+  for (const work of works) {
+    if (work.parentWorkItemId && byId.has(work.parentWorkItemId)) {
+      children.set(work.parentWorkItemId, [...(children.get(work.parentWorkItemId) || []), work]);
+    } else {
+      roots.push(work);
+    }
+  }
+  for (const rows of children.values()) rows.sort(sortWorks);
+  roots.sort(sortWorks);
+
+  const included = new Set<number>();
+  function includeIfMatched(work: WorkItem): boolean {
+    const descendantMatched = (children.get(work.id) || []).some(includeIfMatched);
+    const matched = matchesFilters(work, filters);
+    if (matched || descendantMatched) included.add(work.id);
+    return included.has(work.id);
+  }
+  roots.forEach(includeIfMatched);
+
+  const rows: TreeRow[] = [];
+  function append(work: WorkItem, depth: number) {
+    if (!included.has(work.id)) return;
+    const includedChildren = (children.get(work.id) || []).filter((child) => included.has(child.id));
+    rows.push({ ...work, depth, childCount: includedChildren.length });
+    if (!filters.expandedIds.has(work.id)) return;
+    for (const child of includedChildren) append(child, depth + 1);
+  }
+  roots.forEach((root) => append(root, 0));
+  return { rows };
 }
 
-function sortWorks(rows: WorkItem[]) {
-  return [...rows].sort((a, b) => (a.sortOrder - b.sortOrder) || (a.id - b.id));
+function matchesFilters(
+  work: WorkItem,
+  filters: {
+    statusFilter: "active" | "done" | "archived";
+    periodFilter: string;
+    itemTypeFilter: "all" | WorkItemType;
+    sourceFilter: "all" | WorkSourceType;
+  },
+) {
+  return matchesStatusFilter(work, filters.statusFilter)
+    && matchesPeriodFilter(work, filters.periodFilter)
+    && (filters.itemTypeFilter === "all" || work.itemType === filters.itemTypeFilter)
+    && (filters.sourceFilter === "all" || work.sourceType === filters.sourceFilter);
+}
+
+function TypeBadge({ itemType }: { itemType: WorkItemType }) {
+  const label = itemType === "objective" ? "目标" : itemType === "key_result" ? "结果" : "任务";
+  const className = itemType === "objective"
+    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+    : itemType === "key_result"
+      ? "border-sky-200 bg-sky-50 text-sky-700"
+      : "border-slate-200 bg-slate-50 text-slate-600";
+  return <span className={`shrink-0 rounded border px-1.5 py-0.5 text-xs font-semibold ${className}`} title={getWorkItemTypeLabel(itemType)}>{label}</span>;
+}
+
+function SourceCell({ work }: { work: WorkItem }) {
+  const detail = work.sourceType === "project"
+    ? [work.linkedProjectName, work.linkedProjectPhaseName, work.linkedProjectTaskName].filter(Boolean).join(" / ")
+    : work.sourceType === "meeting"
+      ? [work.sourceMeetingTitle, work.sourceMeetingDecisionTitle, work.sourceMeetingActionCandidateTitle].filter(Boolean).join(" / ")
+      : "";
+  return (
+    <div className="min-w-0">
+      <div className="text-sm text-slate-700">{getWorkSourceTypeLabel(work.sourceType)}</div>
+      {detail && <div className="truncate text-xs text-slate-400" title={detail}>{detail}</div>}
+    </div>
+  );
+}
+
+function sortWorks(a: WorkItem, b: WorkItem) {
+  return (a.sortOrder - b.sortOrder) || (a.id - b.id);
 }
 
 function matchesStatusFilter(work: WorkItem, filter: "active" | "done" | "archived") {
   const archived = work.isArchived || work.status === "archived";
   if (filter === "archived") return archived;
-  if (filter === "done") return !archived && work.status === "done";
-  return !archived && work.status !== "done";
+  if (filter === "done") return !archived && work.itemType === "task" && work.status === "done";
+  return !archived && (work.itemType !== "task" || work.status !== "done");
 }
 
 function matchesPeriodFilter(work: WorkItem, filter: string) {
@@ -325,9 +393,8 @@ function statusVariant(status: string) {
   if (status === "archived") return "orange";
   return "green";
 }
-
-function dateRange(startDate: string | null, dueDate: string | null) {
-  if (!startDate && !dueDate) return "未设置";
-  if (startDate && dueDate) return `${startDate} - ${dueDate}`;
-  return startDate || dueDate;
+function krRange(work: WorkItem) {
+  const unit = work.krUnit || "";
+  const value = (number: number | null) => number === null ? "未填" : `${number}${unit}`;
+  return `${value(work.krStartValue)} / ${value(work.krCurrentValue)} / ${value(work.krTargetValue)}`;
 }

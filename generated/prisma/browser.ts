@@ -371,6 +371,56 @@ export type SystemConfig = Prisma.SystemConfigModel
  */
 export type LoginAttempt = Prisma.LoginAttemptModel
 /**
+ * Model MeetingType
+ * 会议类型（业务 L3 配置）
+ */
+export type MeetingType = Prisma.MeetingTypeModel
+/**
+ * Model MeetingSeries
+ * 会议系列
+ */
+export type MeetingSeries = Prisma.MeetingSeriesModel
+/**
+ * Model Meeting
+ * 单次会议
+ */
+export type Meeting = Prisma.MeetingModel
+/**
+ * Model MeetingParticipant
+ * 会议参会人和会议内角色
+ */
+export type MeetingParticipant = Prisma.MeetingParticipantModel
+/**
+ * Model MeetingAgendaItem
+ * 会议议程项
+ */
+export type MeetingAgendaItem = Prisma.MeetingAgendaItemModel
+/**
+ * Model MeetingMinuteEntry
+ * 会议纪要记录
+ */
+export type MeetingMinuteEntry = Prisma.MeetingMinuteEntryModel
+/**
+ * Model MeetingProposal
+ * 会议提案/表决事项
+ */
+export type MeetingProposal = Prisma.MeetingProposalModel
+/**
+ * Model MeetingVote
+ * 会议表决投票
+ */
+export type MeetingVote = Prisma.MeetingVoteModel
+/**
+ * Model MeetingDecision
+ * 会议决议/决定/指导
+ */
+export type MeetingDecision = Prisma.MeetingDecisionModel
+/**
+ * Model MeetingActionCandidate
+ * 会议行动候选；不是任务系统，只能生成或关联执行对象
+ */
+export type MeetingActionCandidate = Prisma.MeetingActionCandidateModel
+/**
  * Model Project
  * 项目/虚拟团队
  */

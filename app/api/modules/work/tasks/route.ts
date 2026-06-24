@@ -10,19 +10,30 @@ import {
 } from "@workspace/work/server";
 
 const createWorkItemSchema = z.object({
-  category: z.string().min(1),
+  category: z.string().min(1).optional(),
+  itemType: z.string().optional(),
   content: z.string().min(1),
   description: z.string().optional(),
   importance: z.coerce.number().optional(),
   urgency: z.coerce.number().optional(),
   status: z.string().nullable().optional(),
+  krStartValue: z.coerce.number().nullable().optional(),
+  krTargetValue: z.coerce.number().nullable().optional(),
+  krCurrentValue: z.coerce.number().nullable().optional(),
+  krUnit: z.string().nullable().optional(),
   ownerEmployeeId: z.coerce.number().nullable().optional(),
   startDate: z.string().nullable().optional(),
   dueDate: z.string().nullable().optional(),
   periodType: z.string().nullable().optional(),
   periodStart: z.string().nullable().optional(),
   periodEnd: z.string().nullable().optional(),
+  sourceType: z.string().optional(),
+  sourceKind: z.string().nullable().optional(),
+  sourceMeetingId: z.coerce.number().nullable().optional(),
+  sourceMeetingDecisionId: z.coerce.number().nullable().optional(),
+  sourceMeetingActionCandidateId: z.coerce.number().nullable().optional(),
   linkedProjectId: z.coerce.number().nullable().optional(),
+  linkedProjectPhaseId: z.coerce.number().nullable().optional(),
   linkedProjectTaskId: z.coerce.number().nullable().optional(),
   parentWorkItemId: z.coerce.number().nullable().optional(),
   participants: z.string().optional(),
@@ -79,7 +90,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const parsedBody = createWorkItemSchema.safeParse(body);
   if (!parsedBody.success) {
-    return NextResponse.json({ error: "工作内容和类别不能为空" }, { status: 400 });
+    return NextResponse.json({ error: "工作内容不能为空" }, { status: 400 });
   }
   const { targetType, targetId, deptId, participants, ...workInput } = parsedBody.data;
 

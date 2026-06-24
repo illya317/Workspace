@@ -42,6 +42,8 @@ async function listProjectTaskRows(projectId: number) {
             endDate: true,
           },
         },
+        sourceMeetingDecision: { select: { id: true, title: true, kind: true } },
+        sourceMeetingActionCandidate: { select: { id: true, title: true } },
       },
     }),
     prisma.projectPlanDependency.findMany({
@@ -84,6 +86,11 @@ async function listProjectTaskRows(projectId: number) {
       childProjectCode: task.childProject?.code ?? null,
       childProjectName: task.childProject?.name ?? null,
       childProjectStatus: task.childProject ? deriveStatusFromActualDates(task.startDate, task.endDate) : null,
+      sourceMeetingDecisionId: task.sourceMeetingDecisionId,
+      sourceMeetingDecisionTitle: task.sourceMeetingDecision?.title ?? null,
+      sourceMeetingDecisionKind: task.sourceMeetingDecision?.kind ?? null,
+      sourceMeetingActionCandidateId: task.sourceMeetingActionCandidateId,
+      sourceMeetingActionCandidateTitle: task.sourceMeetingActionCandidate?.title ?? null,
       predecessorTaskIds,
       predecessorTaskNames: predecessorTaskIds.map((id) => taskNameById.get(id)).filter((name): name is string => Boolean(name)),
       successorTasks: successorTaskIds.map((id) => ({
@@ -131,6 +138,8 @@ export async function createProjectTask(input: { userId: number; projectId: numb
     endDate: normalized.data.endDate ?? null,
   });
   if (planError) return { ok: false as const, error: planError };
+  const meetingSourceError = await validateProjectTaskMeetingSource(normalized.data);
+  if (meetingSourceError) return { ok: false as const, error: meetingSourceError };
 
   const sortOrder = normalized.data.sortOrder ?? await nextSortOrder(input.projectId);
   const task = await prisma.$transaction(async (tx) => {
@@ -146,6 +155,8 @@ export async function createProjectTask(input: { userId: number; projectId: numb
         baselineEndDate: normalized.data.baselineEndDate ?? null,
         startDate: normalized.data.startDate ?? null,
         endDate: normalized.data.endDate ?? null,
+        sourceMeetingDecisionId: normalized.data.sourceMeetingDecisionId ?? null,
+        sourceMeetingActionCandidateId: normalized.data.sourceMeetingActionCandidateId ?? null,
         sortOrder,
         createdBy: input.userId,
         editedBy: input.userId,
@@ -205,6 +216,8 @@ export async function updateProjectTask(input: { userId: number; projectId: numb
     endDate: effectiveEndDate,
   });
   if (planError) return { ok: false as const, error: planError };
+  const meetingSourceError = await validateProjectTaskMeetingSource(normalized.data);
+  if (meetingSourceError) return { ok: false as const, error: meetingSourceError };
 
   const task = await prisma.$transaction(async (tx) => {
     await ensureEditHistoryBaseline("ProjectTask", input.taskId, input.userId, tx);
@@ -241,11 +254,31 @@ function taskUpdateData(data: NormalizedProjectTaskInput) {
     "startDate",
     "endDate",
     "planPhaseId",
+    "sourceMeetingDecisionId",
+    "sourceMeetingActionCandidateId",
     "sortOrder",
   ] as const) {
     if (data[field] !== undefined) update[field] = data[field];
   }
   return update;
+}
+
+async function validateProjectTaskMeetingSource(data: NormalizedProjectTaskInput) {
+  if (data.sourceMeetingDecisionId) {
+    const decision = await prisma.meetingDecision.findUnique({ where: { id: data.sourceMeetingDecisionId }, select: { id: true } });
+    if (!decision) return "来源会议决议不存在";
+  }
+  if (data.sourceMeetingActionCandidateId) {
+    const candidate = await prisma.meetingActionCandidate.findUnique({
+      where: { id: data.sourceMeetingActionCandidateId },
+      select: { id: true, decisionId: true },
+    });
+    if (!candidate) return "来源会议行动候选不存在";
+    if (data.sourceMeetingDecisionId && candidate.decisionId && candidate.decisionId !== data.sourceMeetingDecisionId) {
+      return "来源会议行动候选不属于所选决议";
+    }
+  }
+  return null;
 }
 
 async function loadExistingPredecessorTaskIds(projectId: number, taskId: number) {

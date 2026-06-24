@@ -80,6 +80,7 @@ model ProjectPlanPhase {
   updatedAt     DateTime      @default(now()) @updatedAt
   project       Project       @relation("ProjectPlanPhases", fields: [projectId], references: [id], onDelete: Cascade)
   tasks         ProjectTask[] @relation("ProjectTaskPlanPhase")
+  linkedWorkItems WorkItem[]  @relation("WorkItemLinkedProjectPhase")
 
   @@unique([projectId, sequenceNo])
   @@index([projectId, sequenceNo])
@@ -160,6 +161,8 @@ model ProjectTask {
   baselineEndDate   DateTime?
   startDate         DateTime?
   endDate           DateTime?
+  sourceMeetingDecisionId Int?
+  sourceMeetingActionCandidateId Int?
   sortOrder         Int           @default(0)
   createdBy         Int?
   editedBy          Int?
@@ -170,13 +173,18 @@ model ProjectTask {
   project           Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
   planPhase         ProjectPlanPhase? @relation("ProjectTaskPlanPhase", fields: [planPhaseId], references: [id], onDelete: SetNull)
   owner             Employee?     @relation("ProjectTaskOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull)
+  sourceMeetingDecision MeetingDecision? @relation("ProjectTaskSourceMeetingDecision", fields: [sourceMeetingDecisionId], references: [id], onDelete: SetNull)
+  sourceMeetingActionCandidate MeetingActionCandidate? @relation("ProjectTaskSourceMeetingActionCandidate", fields: [sourceMeetingActionCandidateId], references: [id], onDelete: SetNull)
   childProject      Project?      @relation("ProjectTaskChildProject")
   assignees         ProjectTaskAssignment[]
   linkedWorkItems   WorkItem[]    @relation("WorkItemLinkedProjectTask")
+  meetingActionCandidates MeetingActionCandidate[] @relation("MeetingActionCandidateProjectTask")
 
   @@index([projectId, sortOrder])
   @@index([planPhaseId])
   @@index([ownerEmployeeId])
+  @@index([sourceMeetingDecisionId])
+  @@index([sourceMeetingActionCandidateId])
 }
 
 /// 项目任务 RASCI

@@ -116,6 +116,11 @@ export default function ProjectTasksSection({
               {task.childProjectStatus ? ` · ${task.childProjectStatus}` : ""}
             </span>
           )}
+          {(task.sourceMeetingDecisionTitle || task.sourceMeetingActionCandidateTitle) && (
+            <span className="max-w-full truncate text-xs text-indigo-600" title={meetingSourceTitle(task)}>
+              会议依据：{meetingSourceTitle(task)}
+            </span>
+          )}
           {task.successorTasks.length > 0 && (
             <span className="max-w-full truncate text-xs text-slate-400" title={`后置：${task.successorTasks.map((item) => item.name).join("、")}`}>后置：{task.successorTasks.map((item) => item.name).join("、")}</span>
           )}
@@ -336,6 +341,10 @@ function statusClassName(status: string | null) {
   if (status === "进行中") return "bg-sky-50 text-sky-700";
   if (status === "未开始") return "bg-slate-100 text-slate-600";
   return "bg-slate-50 text-slate-400";
+}
+
+function meetingSourceTitle(task: ProjectTaskItem) {
+  return [task.sourceMeetingDecisionTitle, task.sourceMeetingActionCandidateTitle].filter(Boolean).join(" / ");
 }
 
 function nextSortOrder(tasks: ProjectTaskItem[]) {

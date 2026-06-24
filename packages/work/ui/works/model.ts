@@ -1,5 +1,5 @@
 import { workspaceBasePath } from "@workspace/core/routing";
-import type { WorkItem, WorkItemDraft, WorkItemStatus, WorkPeriodType, WorkTaskSpace, WorkTargetType } from "./types";
+import type { WorkItem, WorkItemDraft, WorkItemStatus, WorkItemType, WorkPeriodType, WorkSourceKind, WorkSourceType, WorkTaskSpace, WorkTargetType } from "./types";
 
 export const WORK_CATEGORY_OPTIONS = [
   { value: "routine", label: "日常工作" },
@@ -10,6 +10,26 @@ export const WORK_STATUS_OPTIONS: Array<{ value: WorkItemStatus; label: string }
   { value: "doing", label: "进行中" },
   { value: "done", label: "已完成" },
   { value: "archived", label: "已归档" },
+];
+
+export const WORK_ITEM_TYPE_OPTIONS: Array<{ value: WorkItemType; label: string }> = [
+  { value: "objective", label: "目标" },
+  { value: "key_result", label: "结果" },
+  { value: "task", label: "任务" },
+];
+
+export const WORK_SOURCE_TYPE_OPTIONS: Array<{ value: WorkSourceType; label: string }> = [
+  { value: "manual", label: "手工" },
+  { value: "routine", label: "例行" },
+  { value: "project", label: "项目" },
+  { value: "meeting", label: "会议" },
+  { value: "import", label: "导入" },
+];
+
+export const WORK_PROJECT_SOURCE_KIND_OPTIONS: Array<{ value: WorkSourceKind; label: string }> = [
+  { value: "project", label: "项目" },
+  { value: "project_phase", label: "项目阶段" },
+  { value: "project_task", label: "项目任务" },
 ];
 
 export const WORK_PERIOD_TYPE_OPTIONS: Array<{ value: WorkPeriodType; label: string }> = [
@@ -60,6 +80,14 @@ export function getStatusLabel(status: string) {
   return "进行中";
 }
 
+export function getWorkItemTypeLabel(itemType: string | null | undefined) {
+  return WORK_ITEM_TYPE_OPTIONS.find((option) => option.value === itemType)?.label || "任务";
+}
+
+export function getWorkSourceTypeLabel(sourceType: string | null | undefined) {
+  return WORK_SOURCE_TYPE_OPTIONS.find((option) => option.value === sourceType)?.label || "手工";
+}
+
 export function getPeriodTypeLabel(periodType: string | null | undefined) {
   return WORK_PERIOD_TYPE_OPTIONS.find((option) => option.value === periodType)?.label || "不限定";
 }
@@ -73,12 +101,17 @@ export function getWorkPeriodLabel(work: Pick<WorkItem, "periodType" | "periodSt
 
 export function createEmptyWorkDraft(sortOrder = 0): WorkItemDraft {
   return {
-    category: "routine",
+    category: "non-routine",
+    itemType: "task",
     content: "",
     description: "",
     importance: 3,
     urgency: 3,
-    status: null,
+    status: "doing",
+    krStartValue: null,
+    krTargetValue: null,
+    krCurrentValue: null,
+    krUnit: "",
     ownerEmployeeId: null,
     ownerEmployeeName: "",
     startDate: null,
@@ -86,8 +119,18 @@ export function createEmptyWorkDraft(sortOrder = 0): WorkItemDraft {
     periodType: null,
     periodStart: null,
     periodEnd: null,
+    sourceType: "manual",
+    sourceKind: null,
+    sourceMeetingId: null,
+    sourceMeetingTitle: "",
+    sourceMeetingDecisionId: null,
+    sourceMeetingDecisionTitle: "",
+    sourceMeetingActionCandidateId: null,
+    sourceMeetingActionCandidateTitle: "",
     linkedProjectId: null,
     linkedProjectName: "",
+    linkedProjectPhaseId: null,
+    linkedProjectPhaseName: "",
     linkedProjectTaskId: null,
     linkedProjectTaskName: "",
     parentWorkItemId: null,
@@ -100,11 +143,16 @@ export function createEmptyWorkDraft(sortOrder = 0): WorkItemDraft {
 export function createWorkDraft(work: WorkItem): WorkItemDraft {
   return {
     category: work.category,
+    itemType: work.itemType,
     content: work.content,
     description: work.description || "",
     importance: work.importance,
     urgency: work.urgency,
-    status: work.category === "routine" ? null : (work.isArchived ? "archived" : work.status),
+    status: work.itemType === "task" ? (work.isArchived ? "archived" : work.status || "doing") : null,
+    krStartValue: work.krStartValue,
+    krTargetValue: work.krTargetValue,
+    krCurrentValue: work.krCurrentValue,
+    krUnit: work.krUnit || "",
     ownerEmployeeId: work.ownerEmployeeId,
     ownerEmployeeName: work.ownerEmployeeName || "",
     startDate: work.startDate,
@@ -112,8 +160,18 @@ export function createWorkDraft(work: WorkItem): WorkItemDraft {
     periodType: work.periodType,
     periodStart: work.periodStart,
     periodEnd: work.periodEnd,
+    sourceType: work.sourceType,
+    sourceKind: work.sourceKind,
+    sourceMeetingId: work.sourceMeetingId,
+    sourceMeetingTitle: work.sourceMeetingTitle || "",
+    sourceMeetingDecisionId: work.sourceMeetingDecisionId,
+    sourceMeetingDecisionTitle: work.sourceMeetingDecisionTitle || "",
+    sourceMeetingActionCandidateId: work.sourceMeetingActionCandidateId,
+    sourceMeetingActionCandidateTitle: work.sourceMeetingActionCandidateTitle || "",
     linkedProjectId: work.linkedProjectId,
     linkedProjectName: work.linkedProjectName || "",
+    linkedProjectPhaseId: work.linkedProjectPhaseId,
+    linkedProjectPhaseName: work.linkedProjectPhaseName || "",
     linkedProjectTaskId: work.linkedProjectTaskId,
     linkedProjectTaskName: work.linkedProjectTaskName || "",
     parentWorkItemId: work.parentWorkItemId,
@@ -124,25 +182,47 @@ export function createWorkDraft(work: WorkItem): WorkItemDraft {
 }
 
 export function workDraftPayload(draft: WorkItemDraft) {
-  const isRoutine = draft.category === "routine";
+  const isTask = draft.itemType === "task";
+  const isKr = draft.itemType === "key_result";
+  const isProjectSource = draft.sourceType === "project";
+  const isMeetingSource = draft.sourceType === "meeting";
   return {
     category: draft.category,
+    itemType: draft.itemType,
     content: draft.content,
     description: draft.description,
     importance: draft.importance,
     urgency: draft.urgency,
-    status: isRoutine ? null : draft.status,
-    isArchived: !isRoutine && draft.status === "archived",
+    status: isTask ? draft.status : null,
+    isArchived: isTask && draft.status === "archived",
+    krStartValue: isKr ? draft.krStartValue : null,
+    krTargetValue: isKr ? draft.krTargetValue : null,
+    krCurrentValue: isKr ? draft.krCurrentValue : null,
+    krUnit: isKr ? draft.krUnit : null,
     ownerEmployeeId: draft.ownerEmployeeId,
-    startDate: isRoutine ? null : draft.startDate,
-    dueDate: isRoutine ? null : draft.dueDate,
+    startDate: isTask ? draft.startDate : null,
+    dueDate: isTask ? draft.dueDate : null,
     periodType: draft.periodType,
     periodStart: draft.periodType ? draft.periodStart : null,
     periodEnd: draft.periodType ? draft.periodEnd : null,
-    linkedProjectId: isRoutine ? null : draft.linkedProjectId,
-    linkedProjectTaskId: isRoutine ? null : draft.linkedProjectTaskId,
+    sourceType: draft.sourceType,
+    sourceKind: isProjectSource ? inferProjectSourceKind(draft) : null,
+    sourceMeetingId: isMeetingSource ? draft.sourceMeetingId : null,
+    sourceMeetingDecisionId: isMeetingSource ? draft.sourceMeetingDecisionId : null,
+    sourceMeetingActionCandidateId: isMeetingSource ? draft.sourceMeetingActionCandidateId : null,
+    linkedProjectId: isProjectSource ? draft.linkedProjectId : null,
+    linkedProjectPhaseId: isProjectSource && draft.sourceKind === "project_phase" ? draft.linkedProjectPhaseId : null,
+    linkedProjectTaskId: isProjectSource && draft.sourceKind === "project_task" ? draft.linkedProjectTaskId : null,
     parentWorkItemId: draft.parentWorkItemId,
     participants: draft.participants,
     sortOrder: draft.sortOrder,
   };
+}
+
+function inferProjectSourceKind(draft: WorkItemDraft): WorkSourceKind | null {
+  if (draft.sourceKind) return draft.sourceKind;
+  if (draft.linkedProjectTaskId) return "project_task";
+  if (draft.linkedProjectPhaseId) return "project_phase";
+  if (draft.linkedProjectId) return "project";
+  return null;
 }

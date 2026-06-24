@@ -54,7 +54,7 @@ export default function WorkSpaceSidebar({
                         </div>
                         <div className="mt-1 flex min-w-0 items-center justify-between gap-2 text-xs text-slate-400">
                           <span className="truncate">{space.subtitle || getWorkSpaceLabel(space.targetType)}</span>
-                          <span>{space.counts.routine + space.counts.nonRoutine}</span>
+                          <span>{space.counts.objective + space.counts.keyResult + space.counts.task}</span>
                         </div>
                       </button>
                     );

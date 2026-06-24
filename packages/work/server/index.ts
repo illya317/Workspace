@@ -7,4 +7,6 @@ export * from "./access";
 export * from "./task-spaces";
 export * from "./task-reports";
 export * from "./project-reference-options";
+export * from "./meeting-access";
+export * from "./meetings";
 export * from "./works";

@@ -8,8 +8,11 @@ export interface WorkParticipant {
 
 export type WorkTargetType = "personal" | "company" | "department" | "project";
 export type WorkItemCategory = "routine" | "non-routine";
+export type WorkItemType = "objective" | "key_result" | "task";
 export type WorkItemStatus = "doing" | "done" | "archived";
 export type WorkPeriodType = "daily" | "weekly" | "monthly" | "quarterly" | "yearly";
+export type WorkSourceType = "manual" | "routine" | "project" | "meeting" | "import";
+export type WorkSourceKind = "project" | "project_phase" | "project_task";
 export type WorkSpaceRole = "viewer" | "editor" | "delete" | "manager";
 
 export interface WorkTarget {
@@ -22,8 +25,9 @@ export interface WorkTaskSpace extends WorkTarget {
   subtitle: string | null;
   role: WorkSpaceRole;
   counts: {
-    routine: number;
-    nonRoutine: number;
+    objective: number;
+    keyResult: number;
+    task: number;
     archived: number;
   };
 }
@@ -33,11 +37,16 @@ export interface WorkItem {
   targetType: WorkTargetType;
   targetId: number;
   category: WorkItemCategory;
+  itemType: WorkItemType;
   content: string;
   description: string;
   importance: number;
   urgency: number;
   status: WorkItemStatus | null;
+  krStartValue: number | null;
+  krTargetValue: number | null;
+  krCurrentValue: number | null;
+  krUnit: string | null;
   ownerEmployeeId: number | null;
   ownerEmployeeNumber: string | null;
   ownerEmployeeName: string | null;
@@ -46,9 +55,21 @@ export interface WorkItem {
   periodType: WorkPeriodType | null;
   periodStart: string | null;
   periodEnd: string | null;
+  sourceType: WorkSourceType;
+  sourceKind: WorkSourceKind | null;
+  sourceMeetingId: number | null;
+  sourceMeetingTitle: string | null;
+  sourceMeetingStartAt: string | null;
+  sourceMeetingDecisionId: number | null;
+  sourceMeetingDecisionTitle: string | null;
+  sourceMeetingDecisionKind: string | null;
+  sourceMeetingActionCandidateId: number | null;
+  sourceMeetingActionCandidateTitle: string | null;
   linkedProjectId: number | null;
   linkedProjectName: string | null;
   linkedProjectCode: string | null;
+  linkedProjectPhaseId: number | null;
+  linkedProjectPhaseName: string | null;
   linkedProjectTaskId: number | null;
   linkedProjectTaskName: string | null;
   parentWorkItemId: number | null;
@@ -62,11 +83,16 @@ export interface WorkItem {
 
 export interface WorkItemDraft {
   category: WorkItemCategory;
+  itemType: WorkItemType;
   content: string;
   description: string;
   importance: number;
   urgency: number;
   status: WorkItemStatus | null;
+  krStartValue: number | null;
+  krTargetValue: number | null;
+  krCurrentValue: number | null;
+  krUnit: string;
   ownerEmployeeId: number | null;
   ownerEmployeeName: string;
   startDate: string | null;
@@ -74,8 +100,18 @@ export interface WorkItemDraft {
   periodType: WorkPeriodType | null;
   periodStart: string | null;
   periodEnd: string | null;
+  sourceType: WorkSourceType;
+  sourceKind: WorkSourceKind | null;
+  sourceMeetingId: number | null;
+  sourceMeetingTitle: string;
+  sourceMeetingDecisionId: number | null;
+  sourceMeetingDecisionTitle: string;
+  sourceMeetingActionCandidateId: number | null;
+  sourceMeetingActionCandidateTitle: string;
   linkedProjectId: number | null;
   linkedProjectName: string;
+  linkedProjectPhaseId: number | null;
+  linkedProjectPhaseName: string;
   linkedProjectTaskId: number | null;
   linkedProjectTaskName: string;
   parentWorkItemId: number | null;

@@ -302,6 +302,7 @@ export type ProjectPlanPhaseWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"ProjectPlanPhase"> | Date | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   tasks?: Prisma.ProjectTaskListRelationFilter
+  linkedWorkItems?: Prisma.WorkItemListRelationFilter
 }
 
 export type ProjectPlanPhaseOrderByWithRelationInput = {
@@ -320,6 +321,7 @@ export type ProjectPlanPhaseOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   project?: Prisma.ProjectOrderByWithRelationInput
   tasks?: Prisma.ProjectTaskOrderByRelationAggregateInput
+  linkedWorkItems?: Prisma.WorkItemOrderByRelationAggregateInput
 }
 
 export type ProjectPlanPhaseWhereUniqueInput = Prisma.AtLeast<{
@@ -342,6 +344,7 @@ export type ProjectPlanPhaseWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"ProjectPlanPhase"> | Date | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   tasks?: Prisma.ProjectTaskListRelationFilter
+  linkedWorkItems?: Prisma.WorkItemListRelationFilter
 }, "id" | "projectId_sequenceNo">
 
 export type ProjectPlanPhaseOrderByWithAggregationInput = {
@@ -398,6 +401,7 @@ export type ProjectPlanPhaseCreateInput = {
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutPlanPhasesInput
   tasks?: Prisma.ProjectTaskCreateNestedManyWithoutPlanPhaseInput
+  linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectPhaseInput
 }
 
 export type ProjectPlanPhaseUncheckedCreateInput = {
@@ -415,6 +419,7 @@ export type ProjectPlanPhaseUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   tasks?: Prisma.ProjectTaskUncheckedCreateNestedManyWithoutPlanPhaseInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectPhaseInput
 }
 
 export type ProjectPlanPhaseUpdateInput = {
@@ -431,6 +436,7 @@ export type ProjectPlanPhaseUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutPlanPhasesNestedInput
   tasks?: Prisma.ProjectTaskUpdateManyWithoutPlanPhaseNestedInput
+  linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectPhaseNestedInput
 }
 
 export type ProjectPlanPhaseUncheckedUpdateInput = {
@@ -448,6 +454,7 @@ export type ProjectPlanPhaseUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tasks?: Prisma.ProjectTaskUncheckedUpdateManyWithoutPlanPhaseNestedInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectPhaseNestedInput
 }
 
 export type ProjectPlanPhaseCreateManyInput = {
@@ -640,6 +647,22 @@ export type ProjectPlanPhaseUpdateOneWithoutTasksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectPlanPhaseUpdateToOneWithWhereWithoutTasksInput, Prisma.ProjectPlanPhaseUpdateWithoutTasksInput>, Prisma.ProjectPlanPhaseUncheckedUpdateWithoutTasksInput>
 }
 
+export type ProjectPlanPhaseCreateNestedOneWithoutLinkedWorkItemsInput = {
+  create?: Prisma.XOR<Prisma.ProjectPlanPhaseCreateWithoutLinkedWorkItemsInput, Prisma.ProjectPlanPhaseUncheckedCreateWithoutLinkedWorkItemsInput>
+  connectOrCreate?: Prisma.ProjectPlanPhaseCreateOrConnectWithoutLinkedWorkItemsInput
+  connect?: Prisma.ProjectPlanPhaseWhereUniqueInput
+}
+
+export type ProjectPlanPhaseUpdateOneWithoutLinkedWorkItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectPlanPhaseCreateWithoutLinkedWorkItemsInput, Prisma.ProjectPlanPhaseUncheckedCreateWithoutLinkedWorkItemsInput>
+  connectOrCreate?: Prisma.ProjectPlanPhaseCreateOrConnectWithoutLinkedWorkItemsInput
+  upsert?: Prisma.ProjectPlanPhaseUpsertWithoutLinkedWorkItemsInput
+  disconnect?: Prisma.ProjectPlanPhaseWhereInput | boolean
+  delete?: Prisma.ProjectPlanPhaseWhereInput | boolean
+  connect?: Prisma.ProjectPlanPhaseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectPlanPhaseUpdateToOneWithWhereWithoutLinkedWorkItemsInput, Prisma.ProjectPlanPhaseUpdateWithoutLinkedWorkItemsInput>, Prisma.ProjectPlanPhaseUncheckedUpdateWithoutLinkedWorkItemsInput>
+}
+
 export type ProjectPlanPhaseCreateWithoutProjectInput = {
   sequenceNo: number
   name: string
@@ -653,6 +676,7 @@ export type ProjectPlanPhaseCreateWithoutProjectInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   tasks?: Prisma.ProjectTaskCreateNestedManyWithoutPlanPhaseInput
+  linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectPhaseInput
 }
 
 export type ProjectPlanPhaseUncheckedCreateWithoutProjectInput = {
@@ -669,6 +693,7 @@ export type ProjectPlanPhaseUncheckedCreateWithoutProjectInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   tasks?: Prisma.ProjectTaskUncheckedCreateNestedManyWithoutPlanPhaseInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectPhaseInput
 }
 
 export type ProjectPlanPhaseCreateOrConnectWithoutProjectInput = {
@@ -728,6 +753,7 @@ export type ProjectPlanPhaseCreateWithoutTasksInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutPlanPhasesInput
+  linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectPhaseInput
 }
 
 export type ProjectPlanPhaseUncheckedCreateWithoutTasksInput = {
@@ -744,6 +770,7 @@ export type ProjectPlanPhaseUncheckedCreateWithoutTasksInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectPhaseInput
 }
 
 export type ProjectPlanPhaseCreateOrConnectWithoutTasksInput = {
@@ -775,6 +802,7 @@ export type ProjectPlanPhaseUpdateWithoutTasksInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutPlanPhasesNestedInput
+  linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectPhaseNestedInput
 }
 
 export type ProjectPlanPhaseUncheckedUpdateWithoutTasksInput = {
@@ -791,6 +819,89 @@ export type ProjectPlanPhaseUncheckedUpdateWithoutTasksInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectPhaseNestedInput
+}
+
+export type ProjectPlanPhaseCreateWithoutLinkedWorkItemsInput = {
+  sequenceNo: number
+  name: string
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  note?: string | null
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  project: Prisma.ProjectCreateNestedOneWithoutPlanPhasesInput
+  tasks?: Prisma.ProjectTaskCreateNestedManyWithoutPlanPhaseInput
+}
+
+export type ProjectPlanPhaseUncheckedCreateWithoutLinkedWorkItemsInput = {
+  id?: number
+  projectId: number
+  sequenceNo: number
+  name: string
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  note?: string | null
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tasks?: Prisma.ProjectTaskUncheckedCreateNestedManyWithoutPlanPhaseInput
+}
+
+export type ProjectPlanPhaseCreateOrConnectWithoutLinkedWorkItemsInput = {
+  where: Prisma.ProjectPlanPhaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectPlanPhaseCreateWithoutLinkedWorkItemsInput, Prisma.ProjectPlanPhaseUncheckedCreateWithoutLinkedWorkItemsInput>
+}
+
+export type ProjectPlanPhaseUpsertWithoutLinkedWorkItemsInput = {
+  update: Prisma.XOR<Prisma.ProjectPlanPhaseUpdateWithoutLinkedWorkItemsInput, Prisma.ProjectPlanPhaseUncheckedUpdateWithoutLinkedWorkItemsInput>
+  create: Prisma.XOR<Prisma.ProjectPlanPhaseCreateWithoutLinkedWorkItemsInput, Prisma.ProjectPlanPhaseUncheckedCreateWithoutLinkedWorkItemsInput>
+  where?: Prisma.ProjectPlanPhaseWhereInput
+}
+
+export type ProjectPlanPhaseUpdateToOneWithWhereWithoutLinkedWorkItemsInput = {
+  where?: Prisma.ProjectPlanPhaseWhereInput
+  data: Prisma.XOR<Prisma.ProjectPlanPhaseUpdateWithoutLinkedWorkItemsInput, Prisma.ProjectPlanPhaseUncheckedUpdateWithoutLinkedWorkItemsInput>
+}
+
+export type ProjectPlanPhaseUpdateWithoutLinkedWorkItemsInput = {
+  sequenceNo?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  project?: Prisma.ProjectUpdateOneRequiredWithoutPlanPhasesNestedInput
+  tasks?: Prisma.ProjectTaskUpdateManyWithoutPlanPhaseNestedInput
+}
+
+export type ProjectPlanPhaseUncheckedUpdateWithoutLinkedWorkItemsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  sequenceNo?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tasks?: Prisma.ProjectTaskUncheckedUpdateManyWithoutPlanPhaseNestedInput
 }
 
 export type ProjectPlanPhaseCreateManyProjectInput = {
@@ -821,6 +932,7 @@ export type ProjectPlanPhaseUpdateWithoutProjectInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tasks?: Prisma.ProjectTaskUpdateManyWithoutPlanPhaseNestedInput
+  linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectPhaseNestedInput
 }
 
 export type ProjectPlanPhaseUncheckedUpdateWithoutProjectInput = {
@@ -837,6 +949,7 @@ export type ProjectPlanPhaseUncheckedUpdateWithoutProjectInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tasks?: Prisma.ProjectTaskUncheckedUpdateManyWithoutPlanPhaseNestedInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectPhaseNestedInput
 }
 
 export type ProjectPlanPhaseUncheckedUpdateManyWithoutProjectInput = {
@@ -861,10 +974,12 @@ export type ProjectPlanPhaseUncheckedUpdateManyWithoutProjectInput = {
 
 export type ProjectPlanPhaseCountOutputType = {
   tasks: number
+  linkedWorkItems: number
 }
 
 export type ProjectPlanPhaseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tasks?: boolean | ProjectPlanPhaseCountOutputTypeCountTasksArgs
+  linkedWorkItems?: boolean | ProjectPlanPhaseCountOutputTypeCountLinkedWorkItemsArgs
 }
 
 /**
@@ -884,6 +999,13 @@ export type ProjectPlanPhaseCountOutputTypeCountTasksArgs<ExtArgs extends runtim
   where?: Prisma.ProjectTaskWhereInput
 }
 
+/**
+ * ProjectPlanPhaseCountOutputType without action
+ */
+export type ProjectPlanPhaseCountOutputTypeCountLinkedWorkItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkItemWhereInput
+}
+
 
 export type ProjectPlanPhaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -901,6 +1023,7 @@ export type ProjectPlanPhaseSelect<ExtArgs extends runtime.Types.Extensions.Inte
   updatedAt?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   tasks?: boolean | Prisma.ProjectPlanPhase$tasksArgs<ExtArgs>
+  linkedWorkItems?: boolean | Prisma.ProjectPlanPhase$linkedWorkItemsArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectPlanPhaseCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["projectPlanPhase"]>
 
@@ -958,6 +1081,7 @@ export type ProjectPlanPhaseOmit<ExtArgs extends runtime.Types.Extensions.Intern
 export type ProjectPlanPhaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   tasks?: boolean | Prisma.ProjectPlanPhase$tasksArgs<ExtArgs>
+  linkedWorkItems?: boolean | Prisma.ProjectPlanPhase$linkedWorkItemsArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectPlanPhaseCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProjectPlanPhaseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -972,6 +1096,7 @@ export type $ProjectPlanPhasePayload<ExtArgs extends runtime.Types.Extensions.In
   objects: {
     project: Prisma.$ProjectPayload<ExtArgs>
     tasks: Prisma.$ProjectTaskPayload<ExtArgs>[]
+    linkedWorkItems: Prisma.$WorkItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1383,6 +1508,7 @@ export interface Prisma__ProjectPlanPhaseClient<T, Null = never, ExtArgs extends
   readonly [Symbol.toStringTag]: "PrismaPromise"
   project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   tasks<T extends Prisma.ProjectPlanPhase$tasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectPlanPhase$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  linkedWorkItems<T extends Prisma.ProjectPlanPhase$linkedWorkItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectPlanPhase$linkedWorkItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1845,6 +1971,30 @@ export type ProjectPlanPhase$tasksArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.ProjectTaskScalarFieldEnum | Prisma.ProjectTaskScalarFieldEnum[]
+}
+
+/**
+ * ProjectPlanPhase.linkedWorkItems
+ */
+export type ProjectPlanPhase$linkedWorkItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkItem
+   */
+  select?: Prisma.WorkItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkItem
+   */
+  omit?: Prisma.WorkItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkItemInclude<ExtArgs> | null
+  where?: Prisma.WorkItemWhereInput
+  orderBy?: Prisma.WorkItemOrderByWithRelationInput | Prisma.WorkItemOrderByWithRelationInput[]
+  cursor?: Prisma.WorkItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkItemScalarFieldEnum | Prisma.WorkItemScalarFieldEnum[]
 }
 
 /**

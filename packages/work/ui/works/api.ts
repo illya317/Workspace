@@ -69,6 +69,16 @@ export async function listProjectTaskOptions(projectId: number | null) {
   }));
 }
 
+export async function listProjectPhaseOptions(projectId: number | null) {
+  if (!projectId) return [];
+  const response = await fetch(workspacePath(`/api/modules/work/projects/${projectId}/plan-phases`));
+  const data = await readJson<{ phases?: Array<{ id: number; name?: string }> }>(response, "加载项目阶段失败");
+  return (data.phases || []).map((phase) => ({
+    value: String(phase.id),
+    label: phase.name || `阶段 ${phase.id}`,
+  }));
+}
+
 export async function listSpacePermissions(target: WorkTarget) {
   const response = await fetch(workspacePath(`/api/modules/work/tasks/spaces/${target.targetType}/${target.targetId}/permissions`));
   const data = await readJson<{ permissions?: WorkSpacePermissionRow[] }>(response, "加载空间权限失败");

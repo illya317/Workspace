@@ -118,6 +118,16 @@ export const ModelName = {
   OpenApiAccessLog: 'OpenApiAccessLog',
   SystemConfig: 'SystemConfig',
   LoginAttempt: 'LoginAttempt',
+  MeetingType: 'MeetingType',
+  MeetingSeries: 'MeetingSeries',
+  Meeting: 'Meeting',
+  MeetingParticipant: 'MeetingParticipant',
+  MeetingAgendaItem: 'MeetingAgendaItem',
+  MeetingMinuteEntry: 'MeetingMinuteEntry',
+  MeetingProposal: 'MeetingProposal',
+  MeetingVote: 'MeetingVote',
+  MeetingDecision: 'MeetingDecision',
+  MeetingActionCandidate: 'MeetingActionCandidate',
   Project: 'Project',
   EmployeeProject: 'EmployeeProject',
   ProjectPlanPhase: 'ProjectPlanPhase',
@@ -1405,6 +1415,169 @@ export const LoginAttemptScalarFieldEnum = {
 export type LoginAttemptScalarFieldEnum = (typeof LoginAttemptScalarFieldEnum)[keyof typeof LoginAttemptScalarFieldEnum]
 
 
+export const MeetingTypeScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  name: 'name',
+  description: 'description',
+  defaultVisibility: 'defaultVisibility',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MeetingTypeScalarFieldEnum = (typeof MeetingTypeScalarFieldEnum)[keyof typeof MeetingTypeScalarFieldEnum]
+
+
+export const MeetingSeriesScalarFieldEnum = {
+  id: 'id',
+  typeId: 'typeId',
+  title: 'title',
+  description: 'description',
+  cadence: 'cadence',
+  defaultVisibility: 'defaultVisibility',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MeetingSeriesScalarFieldEnum = (typeof MeetingSeriesScalarFieldEnum)[keyof typeof MeetingSeriesScalarFieldEnum]
+
+
+export const MeetingScalarFieldEnum = {
+  id: 'id',
+  typeId: 'typeId',
+  seriesId: 'seriesId',
+  title: 'title',
+  description: 'description',
+  startAt: 'startAt',
+  endAt: 'endAt',
+  location: 'location',
+  visibility: 'visibility',
+  status: 'status',
+  ownerUserId: 'ownerUserId',
+  secretaryUserId: 'secretaryUserId',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MeetingScalarFieldEnum = (typeof MeetingScalarFieldEnum)[keyof typeof MeetingScalarFieldEnum]
+
+
+export const MeetingParticipantScalarFieldEnum = {
+  id: 'id',
+  meetingId: 'meetingId',
+  userId: 'userId',
+  role: 'role',
+  canVote: 'canVote',
+  attendanceStatus: 'attendanceStatus',
+  createdAt: 'createdAt'
+} as const
+
+export type MeetingParticipantScalarFieldEnum = (typeof MeetingParticipantScalarFieldEnum)[keyof typeof MeetingParticipantScalarFieldEnum]
+
+
+export const MeetingAgendaItemScalarFieldEnum = {
+  id: 'id',
+  meetingId: 'meetingId',
+  title: 'title',
+  description: 'description',
+  presenterUserId: 'presenterUserId',
+  sortOrder: 'sortOrder',
+  status: 'status',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MeetingAgendaItemScalarFieldEnum = (typeof MeetingAgendaItemScalarFieldEnum)[keyof typeof MeetingAgendaItemScalarFieldEnum]
+
+
+export const MeetingMinuteEntryScalarFieldEnum = {
+  id: 'id',
+  meetingId: 'meetingId',
+  agendaItemId: 'agendaItemId',
+  content: 'content',
+  kind: 'kind',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MeetingMinuteEntryScalarFieldEnum = (typeof MeetingMinuteEntryScalarFieldEnum)[keyof typeof MeetingMinuteEntryScalarFieldEnum]
+
+
+export const MeetingProposalScalarFieldEnum = {
+  id: 'id',
+  meetingId: 'meetingId',
+  agendaItemId: 'agendaItemId',
+  title: 'title',
+  content: 'content',
+  status: 'status',
+  voteVisibility: 'voteVisibility',
+  minVotesRequired: 'minVotesRequired',
+  createdBy: 'createdBy',
+  closedBy: 'closedBy',
+  closedAt: 'closedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MeetingProposalScalarFieldEnum = (typeof MeetingProposalScalarFieldEnum)[keyof typeof MeetingProposalScalarFieldEnum]
+
+
+export const MeetingVoteScalarFieldEnum = {
+  id: 'id',
+  proposalId: 'proposalId',
+  voterUserId: 'voterUserId',
+  choice: 'choice',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MeetingVoteScalarFieldEnum = (typeof MeetingVoteScalarFieldEnum)[keyof typeof MeetingVoteScalarFieldEnum]
+
+
+export const MeetingDecisionScalarFieldEnum = {
+  id: 'id',
+  meetingId: 'meetingId',
+  agendaItemId: 'agendaItemId',
+  proposalId: 'proposalId',
+  kind: 'kind',
+  title: 'title',
+  content: 'content',
+  status: 'status',
+  effectiveDate: 'effectiveDate',
+  decidedAt: 'decidedAt',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MeetingDecisionScalarFieldEnum = (typeof MeetingDecisionScalarFieldEnum)[keyof typeof MeetingDecisionScalarFieldEnum]
+
+
+export const MeetingActionCandidateScalarFieldEnum = {
+  id: 'id',
+  meetingId: 'meetingId',
+  agendaItemId: 'agendaItemId',
+  decisionId: 'decisionId',
+  title: 'title',
+  description: 'description',
+  targetKind: 'targetKind',
+  status: 'status',
+  linkedWorkItemId: 'linkedWorkItemId',
+  linkedProjectTaskId: 'linkedProjectTaskId',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MeetingActionCandidateScalarFieldEnum = (typeof MeetingActionCandidateScalarFieldEnum)[keyof typeof MeetingActionCandidateScalarFieldEnum]
+
+
 export const ProjectScalarFieldEnum = {
   id: 'id',
   code: 'code',
@@ -1543,6 +1716,8 @@ export const ProjectTaskScalarFieldEnum = {
   baselineEndDate: 'baselineEndDate',
   startDate: 'startDate',
   endDate: 'endDate',
+  sourceMeetingDecisionId: 'sourceMeetingDecisionId',
+  sourceMeetingActionCandidateId: 'sourceMeetingActionCandidateId',
   sortOrder: 'sortOrder',
   createdBy: 'createdBy',
   editedBy: 'editedBy',
@@ -1575,18 +1750,29 @@ export const WorkItemScalarFieldEnum = {
   targetType: 'targetType',
   targetId: 'targetId',
   category: 'category',
+  itemType: 'itemType',
   content: 'content',
   description: 'description',
   importance: 'importance',
   urgency: 'urgency',
   status: 'status',
+  krStartValue: 'krStartValue',
+  krTargetValue: 'krTargetValue',
+  krCurrentValue: 'krCurrentValue',
+  krUnit: 'krUnit',
   ownerEmployeeId: 'ownerEmployeeId',
   startDate: 'startDate',
   dueDate: 'dueDate',
   periodType: 'periodType',
   periodStart: 'periodStart',
   periodEnd: 'periodEnd',
+  sourceType: 'sourceType',
+  sourceKind: 'sourceKind',
+  sourceMeetingId: 'sourceMeetingId',
+  sourceMeetingDecisionId: 'sourceMeetingDecisionId',
+  sourceMeetingActionCandidateId: 'sourceMeetingActionCandidateId',
   linkedProjectId: 'linkedProjectId',
+  linkedProjectPhaseId: 'linkedProjectPhaseId',
   linkedProjectTaskId: 'linkedProjectTaskId',
   parentWorkItemId: 'parentWorkItemId',
   isArchived: 'isArchived',

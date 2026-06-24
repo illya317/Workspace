@@ -31,6 +31,8 @@ export type ProjectTaskAvgAggregateOutputType = {
   projectId: number | null
   planPhaseId: number | null
   ownerEmployeeId: number | null
+  sourceMeetingDecisionId: number | null
+  sourceMeetingActionCandidateId: number | null
   sortOrder: number | null
   createdBy: number | null
   editedBy: number | null
@@ -42,6 +44,8 @@ export type ProjectTaskSumAggregateOutputType = {
   projectId: number | null
   planPhaseId: number | null
   ownerEmployeeId: number | null
+  sourceMeetingDecisionId: number | null
+  sourceMeetingActionCandidateId: number | null
   sortOrder: number | null
   createdBy: number | null
   editedBy: number | null
@@ -60,6 +64,8 @@ export type ProjectTaskMinAggregateOutputType = {
   baselineEndDate: Date | null
   startDate: Date | null
   endDate: Date | null
+  sourceMeetingDecisionId: number | null
+  sourceMeetingActionCandidateId: number | null
   sortOrder: number | null
   createdBy: number | null
   editedBy: number | null
@@ -81,6 +87,8 @@ export type ProjectTaskMaxAggregateOutputType = {
   baselineEndDate: Date | null
   startDate: Date | null
   endDate: Date | null
+  sourceMeetingDecisionId: number | null
+  sourceMeetingActionCandidateId: number | null
   sortOrder: number | null
   createdBy: number | null
   editedBy: number | null
@@ -102,6 +110,8 @@ export type ProjectTaskCountAggregateOutputType = {
   baselineEndDate: number
   startDate: number
   endDate: number
+  sourceMeetingDecisionId: number
+  sourceMeetingActionCandidateId: number
   sortOrder: number
   createdBy: number
   editedBy: number
@@ -118,6 +128,8 @@ export type ProjectTaskAvgAggregateInputType = {
   projectId?: true
   planPhaseId?: true
   ownerEmployeeId?: true
+  sourceMeetingDecisionId?: true
+  sourceMeetingActionCandidateId?: true
   sortOrder?: true
   createdBy?: true
   editedBy?: true
@@ -129,6 +141,8 @@ export type ProjectTaskSumAggregateInputType = {
   projectId?: true
   planPhaseId?: true
   ownerEmployeeId?: true
+  sourceMeetingDecisionId?: true
+  sourceMeetingActionCandidateId?: true
   sortOrder?: true
   createdBy?: true
   editedBy?: true
@@ -147,6 +161,8 @@ export type ProjectTaskMinAggregateInputType = {
   baselineEndDate?: true
   startDate?: true
   endDate?: true
+  sourceMeetingDecisionId?: true
+  sourceMeetingActionCandidateId?: true
   sortOrder?: true
   createdBy?: true
   editedBy?: true
@@ -168,6 +184,8 @@ export type ProjectTaskMaxAggregateInputType = {
   baselineEndDate?: true
   startDate?: true
   endDate?: true
+  sourceMeetingDecisionId?: true
+  sourceMeetingActionCandidateId?: true
   sortOrder?: true
   createdBy?: true
   editedBy?: true
@@ -189,6 +207,8 @@ export type ProjectTaskCountAggregateInputType = {
   baselineEndDate?: true
   startDate?: true
   endDate?: true
+  sourceMeetingDecisionId?: true
+  sourceMeetingActionCandidateId?: true
   sortOrder?: true
   createdBy?: true
   editedBy?: true
@@ -297,6 +317,8 @@ export type ProjectTaskGroupByOutputType = {
   baselineEndDate: Date | null
   startDate: Date | null
   endDate: Date | null
+  sourceMeetingDecisionId: number | null
+  sourceMeetingActionCandidateId: number | null
   sortOrder: number
   createdBy: number | null
   editedBy: number | null
@@ -341,6 +363,8 @@ export type ProjectTaskWhereInput = {
   baselineEndDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
   startDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
+  sourceMeetingDecisionId?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
+  sourceMeetingActionCandidateId?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
   sortOrder?: Prisma.IntFilter<"ProjectTask"> | number
   createdBy?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
   editedBy?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
@@ -351,9 +375,12 @@ export type ProjectTaskWhereInput = {
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   planPhase?: Prisma.XOR<Prisma.ProjectPlanPhaseNullableScalarRelationFilter, Prisma.ProjectPlanPhaseWhereInput> | null
   owner?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
+  sourceMeetingDecision?: Prisma.XOR<Prisma.MeetingDecisionNullableScalarRelationFilter, Prisma.MeetingDecisionWhereInput> | null
+  sourceMeetingActionCandidate?: Prisma.XOR<Prisma.MeetingActionCandidateNullableScalarRelationFilter, Prisma.MeetingActionCandidateWhereInput> | null
   childProject?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   assignees?: Prisma.ProjectTaskAssignmentListRelationFilter
   linkedWorkItems?: Prisma.WorkItemListRelationFilter
+  meetingActionCandidates?: Prisma.MeetingActionCandidateListRelationFilter
 }
 
 export type ProjectTaskOrderByWithRelationInput = {
@@ -368,6 +395,8 @@ export type ProjectTaskOrderByWithRelationInput = {
   baselineEndDate?: Prisma.SortOrderInput | Prisma.SortOrder
   startDate?: Prisma.SortOrderInput | Prisma.SortOrder
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceMeetingDecisionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceMeetingActionCandidateId?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -378,9 +407,12 @@ export type ProjectTaskOrderByWithRelationInput = {
   project?: Prisma.ProjectOrderByWithRelationInput
   planPhase?: Prisma.ProjectPlanPhaseOrderByWithRelationInput
   owner?: Prisma.EmployeeOrderByWithRelationInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionOrderByWithRelationInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateOrderByWithRelationInput
   childProject?: Prisma.ProjectOrderByWithRelationInput
   assignees?: Prisma.ProjectTaskAssignmentOrderByRelationAggregateInput
   linkedWorkItems?: Prisma.WorkItemOrderByRelationAggregateInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateOrderByRelationAggregateInput
 }
 
 export type ProjectTaskWhereUniqueInput = Prisma.AtLeast<{
@@ -398,6 +430,8 @@ export type ProjectTaskWhereUniqueInput = Prisma.AtLeast<{
   baselineEndDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
   startDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
+  sourceMeetingDecisionId?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
+  sourceMeetingActionCandidateId?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
   sortOrder?: Prisma.IntFilter<"ProjectTask"> | number
   createdBy?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
   editedBy?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
@@ -408,9 +442,12 @@ export type ProjectTaskWhereUniqueInput = Prisma.AtLeast<{
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   planPhase?: Prisma.XOR<Prisma.ProjectPlanPhaseNullableScalarRelationFilter, Prisma.ProjectPlanPhaseWhereInput> | null
   owner?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
+  sourceMeetingDecision?: Prisma.XOR<Prisma.MeetingDecisionNullableScalarRelationFilter, Prisma.MeetingDecisionWhereInput> | null
+  sourceMeetingActionCandidate?: Prisma.XOR<Prisma.MeetingActionCandidateNullableScalarRelationFilter, Prisma.MeetingActionCandidateWhereInput> | null
   childProject?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   assignees?: Prisma.ProjectTaskAssignmentListRelationFilter
   linkedWorkItems?: Prisma.WorkItemListRelationFilter
+  meetingActionCandidates?: Prisma.MeetingActionCandidateListRelationFilter
 }, "id">
 
 export type ProjectTaskOrderByWithAggregationInput = {
@@ -425,6 +462,8 @@ export type ProjectTaskOrderByWithAggregationInput = {
   baselineEndDate?: Prisma.SortOrderInput | Prisma.SortOrder
   startDate?: Prisma.SortOrderInput | Prisma.SortOrder
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceMeetingDecisionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceMeetingActionCandidateId?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -454,6 +493,8 @@ export type ProjectTaskScalarWhereWithAggregatesInput = {
   baselineEndDate?: Prisma.DateTimeNullableWithAggregatesFilter<"ProjectTask"> | Date | string | null
   startDate?: Prisma.DateTimeNullableWithAggregatesFilter<"ProjectTask"> | Date | string | null
   endDate?: Prisma.DateTimeNullableWithAggregatesFilter<"ProjectTask"> | Date | string | null
+  sourceMeetingDecisionId?: Prisma.IntNullableWithAggregatesFilter<"ProjectTask"> | number | null
+  sourceMeetingActionCandidateId?: Prisma.IntNullableWithAggregatesFilter<"ProjectTask"> | number | null
   sortOrder?: Prisma.IntWithAggregatesFilter<"ProjectTask"> | number
   createdBy?: Prisma.IntNullableWithAggregatesFilter<"ProjectTask"> | number | null
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"ProjectTask"> | number | null
@@ -481,9 +522,12 @@ export type ProjectTaskCreateInput = {
   project: Prisma.ProjectCreateNestedOneWithoutTasksInput
   planPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutTasksInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutProjectTasksInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionCreateNestedOneWithoutSourceProjectTasksInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateCreateNestedOneWithoutSourceProjectTasksInput
   childProject?: Prisma.ProjectCreateNestedOneWithoutParentProjectTaskInput
   assignees?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutTaskInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectTaskInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedProjectTaskInput
 }
 
 export type ProjectTaskUncheckedCreateInput = {
@@ -498,6 +542,8 @@ export type ProjectTaskUncheckedCreateInput = {
   baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
+  sourceMeetingDecisionId?: number | null
+  sourceMeetingActionCandidateId?: number | null
   sortOrder?: number
   createdBy?: number | null
   editedBy?: number | null
@@ -508,6 +554,7 @@ export type ProjectTaskUncheckedCreateInput = {
   childProject?: Prisma.ProjectUncheckedCreateNestedOneWithoutParentProjectTaskInput
   assignees?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutTaskInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectTaskInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedProjectTaskInput
 }
 
 export type ProjectTaskUpdateInput = {
@@ -528,9 +575,12 @@ export type ProjectTaskUpdateInput = {
   project?: Prisma.ProjectUpdateOneRequiredWithoutTasksNestedInput
   planPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutTasksNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutProjectTasksNestedInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionUpdateOneWithoutSourceProjectTasksNestedInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateUpdateOneWithoutSourceProjectTasksNestedInput
   childProject?: Prisma.ProjectUpdateOneWithoutParentProjectTaskNestedInput
   assignees?: Prisma.ProjectTaskAssignmentUpdateManyWithoutTaskNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectTaskNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedProjectTaskNestedInput
 }
 
 export type ProjectTaskUncheckedUpdateInput = {
@@ -545,6 +595,8 @@ export type ProjectTaskUncheckedUpdateInput = {
   baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceMeetingDecisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingActionCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -555,6 +607,7 @@ export type ProjectTaskUncheckedUpdateInput = {
   childProject?: Prisma.ProjectUncheckedUpdateOneWithoutParentProjectTaskNestedInput
   assignees?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutTaskNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
 }
 
 export type ProjectTaskCreateManyInput = {
@@ -569,6 +622,8 @@ export type ProjectTaskCreateManyInput = {
   baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
+  sourceMeetingDecisionId?: number | null
+  sourceMeetingActionCandidateId?: number | null
   sortOrder?: number
   createdBy?: number | null
   editedBy?: number | null
@@ -607,6 +662,8 @@ export type ProjectTaskUncheckedUpdateManyInput = {
   baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceMeetingDecisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingActionCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -643,6 +700,8 @@ export type ProjectTaskCountOrderByAggregateInput = {
   baselineEndDate?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
+  sourceMeetingDecisionId?: Prisma.SortOrder
+  sourceMeetingActionCandidateId?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
@@ -657,6 +716,8 @@ export type ProjectTaskAvgOrderByAggregateInput = {
   projectId?: Prisma.SortOrder
   planPhaseId?: Prisma.SortOrder
   ownerEmployeeId?: Prisma.SortOrder
+  sourceMeetingDecisionId?: Prisma.SortOrder
+  sourceMeetingActionCandidateId?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
@@ -675,6 +736,8 @@ export type ProjectTaskMaxOrderByAggregateInput = {
   baselineEndDate?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
+  sourceMeetingDecisionId?: Prisma.SortOrder
+  sourceMeetingActionCandidateId?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
@@ -696,6 +759,8 @@ export type ProjectTaskMinOrderByAggregateInput = {
   baselineEndDate?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
+  sourceMeetingDecisionId?: Prisma.SortOrder
+  sourceMeetingActionCandidateId?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
@@ -710,6 +775,8 @@ export type ProjectTaskSumOrderByAggregateInput = {
   projectId?: Prisma.SortOrder
   planPhaseId?: Prisma.SortOrder
   ownerEmployeeId?: Prisma.SortOrder
+  sourceMeetingDecisionId?: Prisma.SortOrder
+  sourceMeetingActionCandidateId?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
@@ -760,6 +827,106 @@ export type ProjectTaskUncheckedUpdateManyWithoutOwnerNestedInput = {
   connect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
   update?: Prisma.ProjectTaskUpdateWithWhereUniqueWithoutOwnerInput | Prisma.ProjectTaskUpdateWithWhereUniqueWithoutOwnerInput[]
   updateMany?: Prisma.ProjectTaskUpdateManyWithWhereWithoutOwnerInput | Prisma.ProjectTaskUpdateManyWithWhereWithoutOwnerInput[]
+  deleteMany?: Prisma.ProjectTaskScalarWhereInput | Prisma.ProjectTaskScalarWhereInput[]
+}
+
+export type ProjectTaskCreateNestedManyWithoutSourceMeetingDecisionInput = {
+  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutSourceMeetingDecisionInput, Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingDecisionInput> | Prisma.ProjectTaskCreateWithoutSourceMeetingDecisionInput[] | Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingDecisionInput[]
+  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutSourceMeetingDecisionInput | Prisma.ProjectTaskCreateOrConnectWithoutSourceMeetingDecisionInput[]
+  createMany?: Prisma.ProjectTaskCreateManySourceMeetingDecisionInputEnvelope
+  connect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+}
+
+export type ProjectTaskUncheckedCreateNestedManyWithoutSourceMeetingDecisionInput = {
+  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutSourceMeetingDecisionInput, Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingDecisionInput> | Prisma.ProjectTaskCreateWithoutSourceMeetingDecisionInput[] | Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingDecisionInput[]
+  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutSourceMeetingDecisionInput | Prisma.ProjectTaskCreateOrConnectWithoutSourceMeetingDecisionInput[]
+  createMany?: Prisma.ProjectTaskCreateManySourceMeetingDecisionInputEnvelope
+  connect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+}
+
+export type ProjectTaskUpdateManyWithoutSourceMeetingDecisionNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutSourceMeetingDecisionInput, Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingDecisionInput> | Prisma.ProjectTaskCreateWithoutSourceMeetingDecisionInput[] | Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingDecisionInput[]
+  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutSourceMeetingDecisionInput | Prisma.ProjectTaskCreateOrConnectWithoutSourceMeetingDecisionInput[]
+  upsert?: Prisma.ProjectTaskUpsertWithWhereUniqueWithoutSourceMeetingDecisionInput | Prisma.ProjectTaskUpsertWithWhereUniqueWithoutSourceMeetingDecisionInput[]
+  createMany?: Prisma.ProjectTaskCreateManySourceMeetingDecisionInputEnvelope
+  set?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+  disconnect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+  delete?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+  connect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+  update?: Prisma.ProjectTaskUpdateWithWhereUniqueWithoutSourceMeetingDecisionInput | Prisma.ProjectTaskUpdateWithWhereUniqueWithoutSourceMeetingDecisionInput[]
+  updateMany?: Prisma.ProjectTaskUpdateManyWithWhereWithoutSourceMeetingDecisionInput | Prisma.ProjectTaskUpdateManyWithWhereWithoutSourceMeetingDecisionInput[]
+  deleteMany?: Prisma.ProjectTaskScalarWhereInput | Prisma.ProjectTaskScalarWhereInput[]
+}
+
+export type ProjectTaskUncheckedUpdateManyWithoutSourceMeetingDecisionNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutSourceMeetingDecisionInput, Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingDecisionInput> | Prisma.ProjectTaskCreateWithoutSourceMeetingDecisionInput[] | Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingDecisionInput[]
+  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutSourceMeetingDecisionInput | Prisma.ProjectTaskCreateOrConnectWithoutSourceMeetingDecisionInput[]
+  upsert?: Prisma.ProjectTaskUpsertWithWhereUniqueWithoutSourceMeetingDecisionInput | Prisma.ProjectTaskUpsertWithWhereUniqueWithoutSourceMeetingDecisionInput[]
+  createMany?: Prisma.ProjectTaskCreateManySourceMeetingDecisionInputEnvelope
+  set?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+  disconnect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+  delete?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+  connect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+  update?: Prisma.ProjectTaskUpdateWithWhereUniqueWithoutSourceMeetingDecisionInput | Prisma.ProjectTaskUpdateWithWhereUniqueWithoutSourceMeetingDecisionInput[]
+  updateMany?: Prisma.ProjectTaskUpdateManyWithWhereWithoutSourceMeetingDecisionInput | Prisma.ProjectTaskUpdateManyWithWhereWithoutSourceMeetingDecisionInput[]
+  deleteMany?: Prisma.ProjectTaskScalarWhereInput | Prisma.ProjectTaskScalarWhereInput[]
+}
+
+export type ProjectTaskCreateNestedOneWithoutMeetingActionCandidatesInput = {
+  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutMeetingActionCandidatesInput, Prisma.ProjectTaskUncheckedCreateWithoutMeetingActionCandidatesInput>
+  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutMeetingActionCandidatesInput
+  connect?: Prisma.ProjectTaskWhereUniqueInput
+}
+
+export type ProjectTaskCreateNestedManyWithoutSourceMeetingActionCandidateInput = {
+  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutSourceMeetingActionCandidateInput, Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingActionCandidateInput> | Prisma.ProjectTaskCreateWithoutSourceMeetingActionCandidateInput[] | Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingActionCandidateInput[]
+  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutSourceMeetingActionCandidateInput | Prisma.ProjectTaskCreateOrConnectWithoutSourceMeetingActionCandidateInput[]
+  createMany?: Prisma.ProjectTaskCreateManySourceMeetingActionCandidateInputEnvelope
+  connect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+}
+
+export type ProjectTaskUncheckedCreateNestedManyWithoutSourceMeetingActionCandidateInput = {
+  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutSourceMeetingActionCandidateInput, Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingActionCandidateInput> | Prisma.ProjectTaskCreateWithoutSourceMeetingActionCandidateInput[] | Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingActionCandidateInput[]
+  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutSourceMeetingActionCandidateInput | Prisma.ProjectTaskCreateOrConnectWithoutSourceMeetingActionCandidateInput[]
+  createMany?: Prisma.ProjectTaskCreateManySourceMeetingActionCandidateInputEnvelope
+  connect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+}
+
+export type ProjectTaskUpdateOneWithoutMeetingActionCandidatesNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutMeetingActionCandidatesInput, Prisma.ProjectTaskUncheckedCreateWithoutMeetingActionCandidatesInput>
+  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutMeetingActionCandidatesInput
+  upsert?: Prisma.ProjectTaskUpsertWithoutMeetingActionCandidatesInput
+  disconnect?: Prisma.ProjectTaskWhereInput | boolean
+  delete?: Prisma.ProjectTaskWhereInput | boolean
+  connect?: Prisma.ProjectTaskWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectTaskUpdateToOneWithWhereWithoutMeetingActionCandidatesInput, Prisma.ProjectTaskUpdateWithoutMeetingActionCandidatesInput>, Prisma.ProjectTaskUncheckedUpdateWithoutMeetingActionCandidatesInput>
+}
+
+export type ProjectTaskUpdateManyWithoutSourceMeetingActionCandidateNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutSourceMeetingActionCandidateInput, Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingActionCandidateInput> | Prisma.ProjectTaskCreateWithoutSourceMeetingActionCandidateInput[] | Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingActionCandidateInput[]
+  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutSourceMeetingActionCandidateInput | Prisma.ProjectTaskCreateOrConnectWithoutSourceMeetingActionCandidateInput[]
+  upsert?: Prisma.ProjectTaskUpsertWithWhereUniqueWithoutSourceMeetingActionCandidateInput | Prisma.ProjectTaskUpsertWithWhereUniqueWithoutSourceMeetingActionCandidateInput[]
+  createMany?: Prisma.ProjectTaskCreateManySourceMeetingActionCandidateInputEnvelope
+  set?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+  disconnect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+  delete?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+  connect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+  update?: Prisma.ProjectTaskUpdateWithWhereUniqueWithoutSourceMeetingActionCandidateInput | Prisma.ProjectTaskUpdateWithWhereUniqueWithoutSourceMeetingActionCandidateInput[]
+  updateMany?: Prisma.ProjectTaskUpdateManyWithWhereWithoutSourceMeetingActionCandidateInput | Prisma.ProjectTaskUpdateManyWithWhereWithoutSourceMeetingActionCandidateInput[]
+  deleteMany?: Prisma.ProjectTaskScalarWhereInput | Prisma.ProjectTaskScalarWhereInput[]
+}
+
+export type ProjectTaskUncheckedUpdateManyWithoutSourceMeetingActionCandidateNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectTaskCreateWithoutSourceMeetingActionCandidateInput, Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingActionCandidateInput> | Prisma.ProjectTaskCreateWithoutSourceMeetingActionCandidateInput[] | Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingActionCandidateInput[]
+  connectOrCreate?: Prisma.ProjectTaskCreateOrConnectWithoutSourceMeetingActionCandidateInput | Prisma.ProjectTaskCreateOrConnectWithoutSourceMeetingActionCandidateInput[]
+  upsert?: Prisma.ProjectTaskUpsertWithWhereUniqueWithoutSourceMeetingActionCandidateInput | Prisma.ProjectTaskUpsertWithWhereUniqueWithoutSourceMeetingActionCandidateInput[]
+  createMany?: Prisma.ProjectTaskCreateManySourceMeetingActionCandidateInputEnvelope
+  set?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+  disconnect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+  delete?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+  connect?: Prisma.ProjectTaskWhereUniqueInput | Prisma.ProjectTaskWhereUniqueInput[]
+  update?: Prisma.ProjectTaskUpdateWithWhereUniqueWithoutSourceMeetingActionCandidateInput | Prisma.ProjectTaskUpdateWithWhereUniqueWithoutSourceMeetingActionCandidateInput[]
+  updateMany?: Prisma.ProjectTaskUpdateManyWithWhereWithoutSourceMeetingActionCandidateInput | Prisma.ProjectTaskUpdateManyWithWhereWithoutSourceMeetingActionCandidateInput[]
   deleteMany?: Prisma.ProjectTaskScalarWhereInput | Prisma.ProjectTaskScalarWhereInput[]
 }
 
@@ -910,9 +1077,12 @@ export type ProjectTaskCreateWithoutOwnerInput = {
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutTasksInput
   planPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutTasksInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionCreateNestedOneWithoutSourceProjectTasksInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateCreateNestedOneWithoutSourceProjectTasksInput
   childProject?: Prisma.ProjectCreateNestedOneWithoutParentProjectTaskInput
   assignees?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutTaskInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectTaskInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedProjectTaskInput
 }
 
 export type ProjectTaskUncheckedCreateWithoutOwnerInput = {
@@ -926,6 +1096,8 @@ export type ProjectTaskUncheckedCreateWithoutOwnerInput = {
   baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
+  sourceMeetingDecisionId?: number | null
+  sourceMeetingActionCandidateId?: number | null
   sortOrder?: number
   createdBy?: number | null
   editedBy?: number | null
@@ -936,6 +1108,7 @@ export type ProjectTaskUncheckedCreateWithoutOwnerInput = {
   childProject?: Prisma.ProjectUncheckedCreateNestedOneWithoutParentProjectTaskInput
   assignees?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutTaskInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectTaskInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedProjectTaskInput
 }
 
 export type ProjectTaskCreateOrConnectWithoutOwnerInput = {
@@ -978,6 +1151,8 @@ export type ProjectTaskScalarWhereInput = {
   baselineEndDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
   startDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"ProjectTask"> | Date | string | null
+  sourceMeetingDecisionId?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
+  sourceMeetingActionCandidateId?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
   sortOrder?: Prisma.IntFilter<"ProjectTask"> | number
   createdBy?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
   editedBy?: Prisma.IntNullableFilter<"ProjectTask"> | number | null
@@ -985,6 +1160,276 @@ export type ProjectTaskScalarWhereInput = {
   version?: Prisma.IntFilter<"ProjectTask"> | number
   createdAt?: Prisma.DateTimeFilter<"ProjectTask"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProjectTask"> | Date | string
+}
+
+export type ProjectTaskCreateWithoutSourceMeetingDecisionInput = {
+  name?: string
+  isMilestone?: boolean
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  sortOrder?: number
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  project: Prisma.ProjectCreateNestedOneWithoutTasksInput
+  planPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutTasksInput
+  owner?: Prisma.EmployeeCreateNestedOneWithoutProjectTasksInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateCreateNestedOneWithoutSourceProjectTasksInput
+  childProject?: Prisma.ProjectCreateNestedOneWithoutParentProjectTaskInput
+  assignees?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutTaskInput
+  linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectTaskInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedProjectTaskInput
+}
+
+export type ProjectTaskUncheckedCreateWithoutSourceMeetingDecisionInput = {
+  id?: number
+  projectId: number
+  planPhaseId?: number | null
+  name?: string
+  isMilestone?: boolean
+  ownerEmployeeId?: number | null
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  sourceMeetingActionCandidateId?: number | null
+  sortOrder?: number
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  childProject?: Prisma.ProjectUncheckedCreateNestedOneWithoutParentProjectTaskInput
+  assignees?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutTaskInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectTaskInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedProjectTaskInput
+}
+
+export type ProjectTaskCreateOrConnectWithoutSourceMeetingDecisionInput = {
+  where: Prisma.ProjectTaskWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectTaskCreateWithoutSourceMeetingDecisionInput, Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingDecisionInput>
+}
+
+export type ProjectTaskCreateManySourceMeetingDecisionInputEnvelope = {
+  data: Prisma.ProjectTaskCreateManySourceMeetingDecisionInput | Prisma.ProjectTaskCreateManySourceMeetingDecisionInput[]
+}
+
+export type ProjectTaskUpsertWithWhereUniqueWithoutSourceMeetingDecisionInput = {
+  where: Prisma.ProjectTaskWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProjectTaskUpdateWithoutSourceMeetingDecisionInput, Prisma.ProjectTaskUncheckedUpdateWithoutSourceMeetingDecisionInput>
+  create: Prisma.XOR<Prisma.ProjectTaskCreateWithoutSourceMeetingDecisionInput, Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingDecisionInput>
+}
+
+export type ProjectTaskUpdateWithWhereUniqueWithoutSourceMeetingDecisionInput = {
+  where: Prisma.ProjectTaskWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProjectTaskUpdateWithoutSourceMeetingDecisionInput, Prisma.ProjectTaskUncheckedUpdateWithoutSourceMeetingDecisionInput>
+}
+
+export type ProjectTaskUpdateManyWithWhereWithoutSourceMeetingDecisionInput = {
+  where: Prisma.ProjectTaskScalarWhereInput
+  data: Prisma.XOR<Prisma.ProjectTaskUpdateManyMutationInput, Prisma.ProjectTaskUncheckedUpdateManyWithoutSourceMeetingDecisionInput>
+}
+
+export type ProjectTaskCreateWithoutMeetingActionCandidatesInput = {
+  name?: string
+  isMilestone?: boolean
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  sortOrder?: number
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  project: Prisma.ProjectCreateNestedOneWithoutTasksInput
+  planPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutTasksInput
+  owner?: Prisma.EmployeeCreateNestedOneWithoutProjectTasksInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionCreateNestedOneWithoutSourceProjectTasksInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateCreateNestedOneWithoutSourceProjectTasksInput
+  childProject?: Prisma.ProjectCreateNestedOneWithoutParentProjectTaskInput
+  assignees?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutTaskInput
+  linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectTaskInput
+}
+
+export type ProjectTaskUncheckedCreateWithoutMeetingActionCandidatesInput = {
+  id?: number
+  projectId: number
+  planPhaseId?: number | null
+  name?: string
+  isMilestone?: boolean
+  ownerEmployeeId?: number | null
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  sourceMeetingDecisionId?: number | null
+  sourceMeetingActionCandidateId?: number | null
+  sortOrder?: number
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  childProject?: Prisma.ProjectUncheckedCreateNestedOneWithoutParentProjectTaskInput
+  assignees?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutTaskInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectTaskInput
+}
+
+export type ProjectTaskCreateOrConnectWithoutMeetingActionCandidatesInput = {
+  where: Prisma.ProjectTaskWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectTaskCreateWithoutMeetingActionCandidatesInput, Prisma.ProjectTaskUncheckedCreateWithoutMeetingActionCandidatesInput>
+}
+
+export type ProjectTaskCreateWithoutSourceMeetingActionCandidateInput = {
+  name?: string
+  isMilestone?: boolean
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  sortOrder?: number
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  project: Prisma.ProjectCreateNestedOneWithoutTasksInput
+  planPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutTasksInput
+  owner?: Prisma.EmployeeCreateNestedOneWithoutProjectTasksInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionCreateNestedOneWithoutSourceProjectTasksInput
+  childProject?: Prisma.ProjectCreateNestedOneWithoutParentProjectTaskInput
+  assignees?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutTaskInput
+  linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectTaskInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedProjectTaskInput
+}
+
+export type ProjectTaskUncheckedCreateWithoutSourceMeetingActionCandidateInput = {
+  id?: number
+  projectId: number
+  planPhaseId?: number | null
+  name?: string
+  isMilestone?: boolean
+  ownerEmployeeId?: number | null
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  sourceMeetingDecisionId?: number | null
+  sortOrder?: number
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  childProject?: Prisma.ProjectUncheckedCreateNestedOneWithoutParentProjectTaskInput
+  assignees?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutTaskInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectTaskInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedProjectTaskInput
+}
+
+export type ProjectTaskCreateOrConnectWithoutSourceMeetingActionCandidateInput = {
+  where: Prisma.ProjectTaskWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectTaskCreateWithoutSourceMeetingActionCandidateInput, Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingActionCandidateInput>
+}
+
+export type ProjectTaskCreateManySourceMeetingActionCandidateInputEnvelope = {
+  data: Prisma.ProjectTaskCreateManySourceMeetingActionCandidateInput | Prisma.ProjectTaskCreateManySourceMeetingActionCandidateInput[]
+}
+
+export type ProjectTaskUpsertWithoutMeetingActionCandidatesInput = {
+  update: Prisma.XOR<Prisma.ProjectTaskUpdateWithoutMeetingActionCandidatesInput, Prisma.ProjectTaskUncheckedUpdateWithoutMeetingActionCandidatesInput>
+  create: Prisma.XOR<Prisma.ProjectTaskCreateWithoutMeetingActionCandidatesInput, Prisma.ProjectTaskUncheckedCreateWithoutMeetingActionCandidatesInput>
+  where?: Prisma.ProjectTaskWhereInput
+}
+
+export type ProjectTaskUpdateToOneWithWhereWithoutMeetingActionCandidatesInput = {
+  where?: Prisma.ProjectTaskWhereInput
+  data: Prisma.XOR<Prisma.ProjectTaskUpdateWithoutMeetingActionCandidatesInput, Prisma.ProjectTaskUncheckedUpdateWithoutMeetingActionCandidatesInput>
+}
+
+export type ProjectTaskUpdateWithoutMeetingActionCandidatesInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  project?: Prisma.ProjectUpdateOneRequiredWithoutTasksNestedInput
+  planPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutTasksNestedInput
+  owner?: Prisma.EmployeeUpdateOneWithoutProjectTasksNestedInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionUpdateOneWithoutSourceProjectTasksNestedInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateUpdateOneWithoutSourceProjectTasksNestedInput
+  childProject?: Prisma.ProjectUpdateOneWithoutParentProjectTaskNestedInput
+  assignees?: Prisma.ProjectTaskAssignmentUpdateManyWithoutTaskNestedInput
+  linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectTaskNestedInput
+}
+
+export type ProjectTaskUncheckedUpdateWithoutMeetingActionCandidatesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  planPhaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceMeetingDecisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingActionCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childProject?: Prisma.ProjectUncheckedUpdateOneWithoutParentProjectTaskNestedInput
+  assignees?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutTaskNestedInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
+}
+
+export type ProjectTaskUpsertWithWhereUniqueWithoutSourceMeetingActionCandidateInput = {
+  where: Prisma.ProjectTaskWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProjectTaskUpdateWithoutSourceMeetingActionCandidateInput, Prisma.ProjectTaskUncheckedUpdateWithoutSourceMeetingActionCandidateInput>
+  create: Prisma.XOR<Prisma.ProjectTaskCreateWithoutSourceMeetingActionCandidateInput, Prisma.ProjectTaskUncheckedCreateWithoutSourceMeetingActionCandidateInput>
+}
+
+export type ProjectTaskUpdateWithWhereUniqueWithoutSourceMeetingActionCandidateInput = {
+  where: Prisma.ProjectTaskWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProjectTaskUpdateWithoutSourceMeetingActionCandidateInput, Prisma.ProjectTaskUncheckedUpdateWithoutSourceMeetingActionCandidateInput>
+}
+
+export type ProjectTaskUpdateManyWithWhereWithoutSourceMeetingActionCandidateInput = {
+  where: Prisma.ProjectTaskScalarWhereInput
+  data: Prisma.XOR<Prisma.ProjectTaskUpdateManyMutationInput, Prisma.ProjectTaskUncheckedUpdateManyWithoutSourceMeetingActionCandidateInput>
 }
 
 export type ProjectTaskCreateWithoutChildProjectInput = {
@@ -1005,8 +1450,11 @@ export type ProjectTaskCreateWithoutChildProjectInput = {
   project: Prisma.ProjectCreateNestedOneWithoutTasksInput
   planPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutTasksInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutProjectTasksInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionCreateNestedOneWithoutSourceProjectTasksInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateCreateNestedOneWithoutSourceProjectTasksInput
   assignees?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutTaskInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectTaskInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedProjectTaskInput
 }
 
 export type ProjectTaskUncheckedCreateWithoutChildProjectInput = {
@@ -1021,6 +1469,8 @@ export type ProjectTaskUncheckedCreateWithoutChildProjectInput = {
   baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
+  sourceMeetingDecisionId?: number | null
+  sourceMeetingActionCandidateId?: number | null
   sortOrder?: number
   createdBy?: number | null
   editedBy?: number | null
@@ -1030,6 +1480,7 @@ export type ProjectTaskUncheckedCreateWithoutChildProjectInput = {
   updatedAt?: Date | string
   assignees?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutTaskInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectTaskInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedProjectTaskInput
 }
 
 export type ProjectTaskCreateOrConnectWithoutChildProjectInput = {
@@ -1054,9 +1505,12 @@ export type ProjectTaskCreateWithoutProjectInput = {
   updatedAt?: Date | string
   planPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutTasksInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutProjectTasksInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionCreateNestedOneWithoutSourceProjectTasksInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateCreateNestedOneWithoutSourceProjectTasksInput
   childProject?: Prisma.ProjectCreateNestedOneWithoutParentProjectTaskInput
   assignees?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutTaskInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectTaskInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedProjectTaskInput
 }
 
 export type ProjectTaskUncheckedCreateWithoutProjectInput = {
@@ -1070,6 +1524,8 @@ export type ProjectTaskUncheckedCreateWithoutProjectInput = {
   baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
+  sourceMeetingDecisionId?: number | null
+  sourceMeetingActionCandidateId?: number | null
   sortOrder?: number
   createdBy?: number | null
   editedBy?: number | null
@@ -1080,6 +1536,7 @@ export type ProjectTaskUncheckedCreateWithoutProjectInput = {
   childProject?: Prisma.ProjectUncheckedCreateNestedOneWithoutParentProjectTaskInput
   assignees?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutTaskInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectTaskInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedProjectTaskInput
 }
 
 export type ProjectTaskCreateOrConnectWithoutProjectInput = {
@@ -1120,8 +1577,11 @@ export type ProjectTaskUpdateWithoutChildProjectInput = {
   project?: Prisma.ProjectUpdateOneRequiredWithoutTasksNestedInput
   planPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutTasksNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutProjectTasksNestedInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionUpdateOneWithoutSourceProjectTasksNestedInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateUpdateOneWithoutSourceProjectTasksNestedInput
   assignees?: Prisma.ProjectTaskAssignmentUpdateManyWithoutTaskNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectTaskNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedProjectTaskNestedInput
 }
 
 export type ProjectTaskUncheckedUpdateWithoutChildProjectInput = {
@@ -1136,6 +1596,8 @@ export type ProjectTaskUncheckedUpdateWithoutChildProjectInput = {
   baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceMeetingDecisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingActionCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1145,6 +1607,7 @@ export type ProjectTaskUncheckedUpdateWithoutChildProjectInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignees?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutTaskNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
 }
 
 export type ProjectTaskUpsertWithWhereUniqueWithoutProjectInput = {
@@ -1180,9 +1643,12 @@ export type ProjectTaskCreateWithoutPlanPhaseInput = {
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutTasksInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutProjectTasksInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionCreateNestedOneWithoutSourceProjectTasksInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateCreateNestedOneWithoutSourceProjectTasksInput
   childProject?: Prisma.ProjectCreateNestedOneWithoutParentProjectTaskInput
   assignees?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutTaskInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectTaskInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedProjectTaskInput
 }
 
 export type ProjectTaskUncheckedCreateWithoutPlanPhaseInput = {
@@ -1196,6 +1662,8 @@ export type ProjectTaskUncheckedCreateWithoutPlanPhaseInput = {
   baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
+  sourceMeetingDecisionId?: number | null
+  sourceMeetingActionCandidateId?: number | null
   sortOrder?: number
   createdBy?: number | null
   editedBy?: number | null
@@ -1206,6 +1674,7 @@ export type ProjectTaskUncheckedCreateWithoutPlanPhaseInput = {
   childProject?: Prisma.ProjectUncheckedCreateNestedOneWithoutParentProjectTaskInput
   assignees?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutTaskInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectTaskInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedProjectTaskInput
 }
 
 export type ProjectTaskCreateOrConnectWithoutPlanPhaseInput = {
@@ -1251,8 +1720,11 @@ export type ProjectTaskCreateWithoutAssigneesInput = {
   project: Prisma.ProjectCreateNestedOneWithoutTasksInput
   planPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutTasksInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutProjectTasksInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionCreateNestedOneWithoutSourceProjectTasksInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateCreateNestedOneWithoutSourceProjectTasksInput
   childProject?: Prisma.ProjectCreateNestedOneWithoutParentProjectTaskInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectTaskInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedProjectTaskInput
 }
 
 export type ProjectTaskUncheckedCreateWithoutAssigneesInput = {
@@ -1267,6 +1739,8 @@ export type ProjectTaskUncheckedCreateWithoutAssigneesInput = {
   baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
+  sourceMeetingDecisionId?: number | null
+  sourceMeetingActionCandidateId?: number | null
   sortOrder?: number
   createdBy?: number | null
   editedBy?: number | null
@@ -1276,6 +1750,7 @@ export type ProjectTaskUncheckedCreateWithoutAssigneesInput = {
   updatedAt?: Date | string
   childProject?: Prisma.ProjectUncheckedCreateNestedOneWithoutParentProjectTaskInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectTaskInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedProjectTaskInput
 }
 
 export type ProjectTaskCreateOrConnectWithoutAssigneesInput = {
@@ -1312,8 +1787,11 @@ export type ProjectTaskUpdateWithoutAssigneesInput = {
   project?: Prisma.ProjectUpdateOneRequiredWithoutTasksNestedInput
   planPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutTasksNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutProjectTasksNestedInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionUpdateOneWithoutSourceProjectTasksNestedInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateUpdateOneWithoutSourceProjectTasksNestedInput
   childProject?: Prisma.ProjectUpdateOneWithoutParentProjectTaskNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectTaskNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedProjectTaskNestedInput
 }
 
 export type ProjectTaskUncheckedUpdateWithoutAssigneesInput = {
@@ -1328,6 +1806,8 @@ export type ProjectTaskUncheckedUpdateWithoutAssigneesInput = {
   baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceMeetingDecisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingActionCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1337,6 +1817,7 @@ export type ProjectTaskUncheckedUpdateWithoutAssigneesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   childProject?: Prisma.ProjectUncheckedUpdateOneWithoutParentProjectTaskNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
 }
 
 export type ProjectTaskCreateWithoutLinkedWorkItemsInput = {
@@ -1357,8 +1838,11 @@ export type ProjectTaskCreateWithoutLinkedWorkItemsInput = {
   project: Prisma.ProjectCreateNestedOneWithoutTasksInput
   planPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutTasksInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutProjectTasksInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionCreateNestedOneWithoutSourceProjectTasksInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateCreateNestedOneWithoutSourceProjectTasksInput
   childProject?: Prisma.ProjectCreateNestedOneWithoutParentProjectTaskInput
   assignees?: Prisma.ProjectTaskAssignmentCreateNestedManyWithoutTaskInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedProjectTaskInput
 }
 
 export type ProjectTaskUncheckedCreateWithoutLinkedWorkItemsInput = {
@@ -1373,6 +1857,8 @@ export type ProjectTaskUncheckedCreateWithoutLinkedWorkItemsInput = {
   baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
+  sourceMeetingDecisionId?: number | null
+  sourceMeetingActionCandidateId?: number | null
   sortOrder?: number
   createdBy?: number | null
   editedBy?: number | null
@@ -1382,6 +1868,7 @@ export type ProjectTaskUncheckedCreateWithoutLinkedWorkItemsInput = {
   updatedAt?: Date | string
   childProject?: Prisma.ProjectUncheckedCreateNestedOneWithoutParentProjectTaskInput
   assignees?: Prisma.ProjectTaskAssignmentUncheckedCreateNestedManyWithoutTaskInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedProjectTaskInput
 }
 
 export type ProjectTaskCreateOrConnectWithoutLinkedWorkItemsInput = {
@@ -1418,8 +1905,11 @@ export type ProjectTaskUpdateWithoutLinkedWorkItemsInput = {
   project?: Prisma.ProjectUpdateOneRequiredWithoutTasksNestedInput
   planPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutTasksNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutProjectTasksNestedInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionUpdateOneWithoutSourceProjectTasksNestedInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateUpdateOneWithoutSourceProjectTasksNestedInput
   childProject?: Prisma.ProjectUpdateOneWithoutParentProjectTaskNestedInput
   assignees?: Prisma.ProjectTaskAssignmentUpdateManyWithoutTaskNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedProjectTaskNestedInput
 }
 
 export type ProjectTaskUncheckedUpdateWithoutLinkedWorkItemsInput = {
@@ -1434,6 +1924,8 @@ export type ProjectTaskUncheckedUpdateWithoutLinkedWorkItemsInput = {
   baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceMeetingDecisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingActionCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1443,6 +1935,7 @@ export type ProjectTaskUncheckedUpdateWithoutLinkedWorkItemsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   childProject?: Prisma.ProjectUncheckedUpdateOneWithoutParentProjectTaskNestedInput
   assignees?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutTaskNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
 }
 
 export type ProjectTaskCreateManyOwnerInput = {
@@ -1456,6 +1949,8 @@ export type ProjectTaskCreateManyOwnerInput = {
   baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
+  sourceMeetingDecisionId?: number | null
+  sourceMeetingActionCandidateId?: number | null
   sortOrder?: number
   createdBy?: number | null
   editedBy?: number | null
@@ -1482,15 +1977,85 @@ export type ProjectTaskUpdateWithoutOwnerInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutTasksNestedInput
   planPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutTasksNestedInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionUpdateOneWithoutSourceProjectTasksNestedInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateUpdateOneWithoutSourceProjectTasksNestedInput
   childProject?: Prisma.ProjectUpdateOneWithoutParentProjectTaskNestedInput
   assignees?: Prisma.ProjectTaskAssignmentUpdateManyWithoutTaskNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectTaskNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedProjectTaskNestedInput
 }
 
 export type ProjectTaskUncheckedUpdateWithoutOwnerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.IntFieldUpdateOperationsInput | number
   planPhaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceMeetingDecisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingActionCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childProject?: Prisma.ProjectUncheckedUpdateOneWithoutParentProjectTaskNestedInput
+  assignees?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutTaskNestedInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
+}
+
+export type ProjectTaskUncheckedUpdateManyWithoutOwnerInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  planPhaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceMeetingDecisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingActionCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProjectTaskCreateManySourceMeetingDecisionInput = {
+  id?: number
+  projectId: number
+  planPhaseId?: number | null
+  name?: string
+  isMilestone?: boolean
+  ownerEmployeeId?: number | null
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  sourceMeetingActionCandidateId?: number | null
+  sortOrder?: number
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ProjectTaskUpdateWithoutSourceMeetingDecisionInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1505,15 +2070,87 @@ export type ProjectTaskUncheckedUpdateWithoutOwnerInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  childProject?: Prisma.ProjectUncheckedUpdateOneWithoutParentProjectTaskNestedInput
-  assignees?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutTaskNestedInput
-  linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
+  project?: Prisma.ProjectUpdateOneRequiredWithoutTasksNestedInput
+  planPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutTasksNestedInput
+  owner?: Prisma.EmployeeUpdateOneWithoutProjectTasksNestedInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateUpdateOneWithoutSourceProjectTasksNestedInput
+  childProject?: Prisma.ProjectUpdateOneWithoutParentProjectTaskNestedInput
+  assignees?: Prisma.ProjectTaskAssignmentUpdateManyWithoutTaskNestedInput
+  linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectTaskNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedProjectTaskNestedInput
 }
 
-export type ProjectTaskUncheckedUpdateManyWithoutOwnerInput = {
+export type ProjectTaskUncheckedUpdateWithoutSourceMeetingDecisionInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.IntFieldUpdateOperationsInput | number
   planPhaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceMeetingActionCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childProject?: Prisma.ProjectUncheckedUpdateOneWithoutParentProjectTaskNestedInput
+  assignees?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutTaskNestedInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
+}
+
+export type ProjectTaskUncheckedUpdateManyWithoutSourceMeetingDecisionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  planPhaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceMeetingActionCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProjectTaskCreateManySourceMeetingActionCandidateInput = {
+  id?: number
+  projectId: number
+  planPhaseId?: number | null
+  name?: string
+  isMilestone?: boolean
+  ownerEmployeeId?: number | null
+  description?: string
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  sourceMeetingDecisionId?: number | null
+  sortOrder?: number
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ProjectTaskUpdateWithoutSourceMeetingActionCandidateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1521,6 +2158,62 @@ export type ProjectTaskUncheckedUpdateManyWithoutOwnerInput = {
   baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  project?: Prisma.ProjectUpdateOneRequiredWithoutTasksNestedInput
+  planPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutTasksNestedInput
+  owner?: Prisma.EmployeeUpdateOneWithoutProjectTasksNestedInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionUpdateOneWithoutSourceProjectTasksNestedInput
+  childProject?: Prisma.ProjectUpdateOneWithoutParentProjectTaskNestedInput
+  assignees?: Prisma.ProjectTaskAssignmentUpdateManyWithoutTaskNestedInput
+  linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectTaskNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedProjectTaskNestedInput
+}
+
+export type ProjectTaskUncheckedUpdateWithoutSourceMeetingActionCandidateInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  planPhaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceMeetingDecisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childProject?: Prisma.ProjectUncheckedUpdateOneWithoutParentProjectTaskNestedInput
+  assignees?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutTaskNestedInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
+}
+
+export type ProjectTaskUncheckedUpdateManyWithoutSourceMeetingActionCandidateInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  planPhaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceMeetingDecisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1541,6 +2234,8 @@ export type ProjectTaskCreateManyProjectInput = {
   baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
+  sourceMeetingDecisionId?: number | null
+  sourceMeetingActionCandidateId?: number | null
   sortOrder?: number
   createdBy?: number | null
   editedBy?: number | null
@@ -1567,9 +2262,12 @@ export type ProjectTaskUpdateWithoutProjectInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   planPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutTasksNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutProjectTasksNestedInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionUpdateOneWithoutSourceProjectTasksNestedInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateUpdateOneWithoutSourceProjectTasksNestedInput
   childProject?: Prisma.ProjectUpdateOneWithoutParentProjectTaskNestedInput
   assignees?: Prisma.ProjectTaskAssignmentUpdateManyWithoutTaskNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectTaskNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedProjectTaskNestedInput
 }
 
 export type ProjectTaskUncheckedUpdateWithoutProjectInput = {
@@ -1583,6 +2281,8 @@ export type ProjectTaskUncheckedUpdateWithoutProjectInput = {
   baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceMeetingDecisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingActionCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1593,6 +2293,7 @@ export type ProjectTaskUncheckedUpdateWithoutProjectInput = {
   childProject?: Prisma.ProjectUncheckedUpdateOneWithoutParentProjectTaskNestedInput
   assignees?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutTaskNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
 }
 
 export type ProjectTaskUncheckedUpdateManyWithoutProjectInput = {
@@ -1606,6 +2307,8 @@ export type ProjectTaskUncheckedUpdateManyWithoutProjectInput = {
   baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceMeetingDecisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingActionCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1626,6 +2329,8 @@ export type ProjectTaskCreateManyPlanPhaseInput = {
   baselineEndDate?: Date | string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
+  sourceMeetingDecisionId?: number | null
+  sourceMeetingActionCandidateId?: number | null
   sortOrder?: number
   createdBy?: number | null
   editedBy?: number | null
@@ -1652,9 +2357,12 @@ export type ProjectTaskUpdateWithoutPlanPhaseInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutTasksNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutProjectTasksNestedInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionUpdateOneWithoutSourceProjectTasksNestedInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateUpdateOneWithoutSourceProjectTasksNestedInput
   childProject?: Prisma.ProjectUpdateOneWithoutParentProjectTaskNestedInput
   assignees?: Prisma.ProjectTaskAssignmentUpdateManyWithoutTaskNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectTaskNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedProjectTaskNestedInput
 }
 
 export type ProjectTaskUncheckedUpdateWithoutPlanPhaseInput = {
@@ -1668,6 +2376,8 @@ export type ProjectTaskUncheckedUpdateWithoutPlanPhaseInput = {
   baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceMeetingDecisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingActionCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1678,6 +2388,7 @@ export type ProjectTaskUncheckedUpdateWithoutPlanPhaseInput = {
   childProject?: Prisma.ProjectUncheckedUpdateOneWithoutParentProjectTaskNestedInput
   assignees?: Prisma.ProjectTaskAssignmentUncheckedUpdateManyWithoutTaskNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput
 }
 
 export type ProjectTaskUncheckedUpdateManyWithoutPlanPhaseInput = {
@@ -1691,6 +2402,8 @@ export type ProjectTaskUncheckedUpdateManyWithoutPlanPhaseInput = {
   baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceMeetingDecisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingActionCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1708,11 +2421,13 @@ export type ProjectTaskUncheckedUpdateManyWithoutPlanPhaseInput = {
 export type ProjectTaskCountOutputType = {
   assignees: number
   linkedWorkItems: number
+  meetingActionCandidates: number
 }
 
 export type ProjectTaskCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignees?: boolean | ProjectTaskCountOutputTypeCountAssigneesArgs
   linkedWorkItems?: boolean | ProjectTaskCountOutputTypeCountLinkedWorkItemsArgs
+  meetingActionCandidates?: boolean | ProjectTaskCountOutputTypeCountMeetingActionCandidatesArgs
 }
 
 /**
@@ -1739,6 +2454,13 @@ export type ProjectTaskCountOutputTypeCountLinkedWorkItemsArgs<ExtArgs extends r
   where?: Prisma.WorkItemWhereInput
 }
 
+/**
+ * ProjectTaskCountOutputType without action
+ */
+export type ProjectTaskCountOutputTypeCountMeetingActionCandidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MeetingActionCandidateWhereInput
+}
+
 
 export type ProjectTaskSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1752,6 +2474,8 @@ export type ProjectTaskSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   baselineEndDate?: boolean
   startDate?: boolean
   endDate?: boolean
+  sourceMeetingDecisionId?: boolean
+  sourceMeetingActionCandidateId?: boolean
   sortOrder?: boolean
   createdBy?: boolean
   editedBy?: boolean
@@ -1762,9 +2486,12 @@ export type ProjectTaskSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   planPhase?: boolean | Prisma.ProjectTask$planPhaseArgs<ExtArgs>
   owner?: boolean | Prisma.ProjectTask$ownerArgs<ExtArgs>
+  sourceMeetingDecision?: boolean | Prisma.ProjectTask$sourceMeetingDecisionArgs<ExtArgs>
+  sourceMeetingActionCandidate?: boolean | Prisma.ProjectTask$sourceMeetingActionCandidateArgs<ExtArgs>
   childProject?: boolean | Prisma.ProjectTask$childProjectArgs<ExtArgs>
   assignees?: boolean | Prisma.ProjectTask$assigneesArgs<ExtArgs>
   linkedWorkItems?: boolean | Prisma.ProjectTask$linkedWorkItemsArgs<ExtArgs>
+  meetingActionCandidates?: boolean | Prisma.ProjectTask$meetingActionCandidatesArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectTaskCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["projectTask"]>
 
@@ -1780,6 +2507,8 @@ export type ProjectTaskSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   baselineEndDate?: boolean
   startDate?: boolean
   endDate?: boolean
+  sourceMeetingDecisionId?: boolean
+  sourceMeetingActionCandidateId?: boolean
   sortOrder?: boolean
   createdBy?: boolean
   editedBy?: boolean
@@ -1790,6 +2519,8 @@ export type ProjectTaskSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   planPhase?: boolean | Prisma.ProjectTask$planPhaseArgs<ExtArgs>
   owner?: boolean | Prisma.ProjectTask$ownerArgs<ExtArgs>
+  sourceMeetingDecision?: boolean | Prisma.ProjectTask$sourceMeetingDecisionArgs<ExtArgs>
+  sourceMeetingActionCandidate?: boolean | Prisma.ProjectTask$sourceMeetingActionCandidateArgs<ExtArgs>
 }, ExtArgs["result"]["projectTask"]>
 
 export type ProjectTaskSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1804,6 +2535,8 @@ export type ProjectTaskSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   baselineEndDate?: boolean
   startDate?: boolean
   endDate?: boolean
+  sourceMeetingDecisionId?: boolean
+  sourceMeetingActionCandidateId?: boolean
   sortOrder?: boolean
   createdBy?: boolean
   editedBy?: boolean
@@ -1814,6 +2547,8 @@ export type ProjectTaskSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   planPhase?: boolean | Prisma.ProjectTask$planPhaseArgs<ExtArgs>
   owner?: boolean | Prisma.ProjectTask$ownerArgs<ExtArgs>
+  sourceMeetingDecision?: boolean | Prisma.ProjectTask$sourceMeetingDecisionArgs<ExtArgs>
+  sourceMeetingActionCandidate?: boolean | Prisma.ProjectTask$sourceMeetingActionCandidateArgs<ExtArgs>
 }, ExtArgs["result"]["projectTask"]>
 
 export type ProjectTaskSelectScalar = {
@@ -1828,6 +2563,8 @@ export type ProjectTaskSelectScalar = {
   baselineEndDate?: boolean
   startDate?: boolean
   endDate?: boolean
+  sourceMeetingDecisionId?: boolean
+  sourceMeetingActionCandidateId?: boolean
   sortOrder?: boolean
   createdBy?: boolean
   editedBy?: boolean
@@ -1837,25 +2574,32 @@ export type ProjectTaskSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProjectTaskOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "planPhaseId" | "name" | "isMilestone" | "ownerEmployeeId" | "description" | "baselineStartDate" | "baselineEndDate" | "startDate" | "endDate" | "sortOrder" | "createdBy" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["projectTask"]>
+export type ProjectTaskOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "planPhaseId" | "name" | "isMilestone" | "ownerEmployeeId" | "description" | "baselineStartDate" | "baselineEndDate" | "startDate" | "endDate" | "sourceMeetingDecisionId" | "sourceMeetingActionCandidateId" | "sortOrder" | "createdBy" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["projectTask"]>
 export type ProjectTaskInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   planPhase?: boolean | Prisma.ProjectTask$planPhaseArgs<ExtArgs>
   owner?: boolean | Prisma.ProjectTask$ownerArgs<ExtArgs>
+  sourceMeetingDecision?: boolean | Prisma.ProjectTask$sourceMeetingDecisionArgs<ExtArgs>
+  sourceMeetingActionCandidate?: boolean | Prisma.ProjectTask$sourceMeetingActionCandidateArgs<ExtArgs>
   childProject?: boolean | Prisma.ProjectTask$childProjectArgs<ExtArgs>
   assignees?: boolean | Prisma.ProjectTask$assigneesArgs<ExtArgs>
   linkedWorkItems?: boolean | Prisma.ProjectTask$linkedWorkItemsArgs<ExtArgs>
+  meetingActionCandidates?: boolean | Prisma.ProjectTask$meetingActionCandidatesArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectTaskCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProjectTaskIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   planPhase?: boolean | Prisma.ProjectTask$planPhaseArgs<ExtArgs>
   owner?: boolean | Prisma.ProjectTask$ownerArgs<ExtArgs>
+  sourceMeetingDecision?: boolean | Prisma.ProjectTask$sourceMeetingDecisionArgs<ExtArgs>
+  sourceMeetingActionCandidate?: boolean | Prisma.ProjectTask$sourceMeetingActionCandidateArgs<ExtArgs>
 }
 export type ProjectTaskIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   planPhase?: boolean | Prisma.ProjectTask$planPhaseArgs<ExtArgs>
   owner?: boolean | Prisma.ProjectTask$ownerArgs<ExtArgs>
+  sourceMeetingDecision?: boolean | Prisma.ProjectTask$sourceMeetingDecisionArgs<ExtArgs>
+  sourceMeetingActionCandidate?: boolean | Prisma.ProjectTask$sourceMeetingActionCandidateArgs<ExtArgs>
 }
 
 export type $ProjectTaskPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1864,9 +2608,12 @@ export type $ProjectTaskPayload<ExtArgs extends runtime.Types.Extensions.Interna
     project: Prisma.$ProjectPayload<ExtArgs>
     planPhase: Prisma.$ProjectPlanPhasePayload<ExtArgs> | null
     owner: Prisma.$EmployeePayload<ExtArgs> | null
+    sourceMeetingDecision: Prisma.$MeetingDecisionPayload<ExtArgs> | null
+    sourceMeetingActionCandidate: Prisma.$MeetingActionCandidatePayload<ExtArgs> | null
     childProject: Prisma.$ProjectPayload<ExtArgs> | null
     assignees: Prisma.$ProjectTaskAssignmentPayload<ExtArgs>[]
     linkedWorkItems: Prisma.$WorkItemPayload<ExtArgs>[]
+    meetingActionCandidates: Prisma.$MeetingActionCandidatePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1880,6 +2627,8 @@ export type $ProjectTaskPayload<ExtArgs extends runtime.Types.Extensions.Interna
     baselineEndDate: Date | null
     startDate: Date | null
     endDate: Date | null
+    sourceMeetingDecisionId: number | null
+    sourceMeetingActionCandidateId: number | null
     sortOrder: number
     createdBy: number | null
     editedBy: number | null
@@ -2284,9 +3033,12 @@ export interface Prisma__ProjectTaskClient<T, Null = never, ExtArgs extends runt
   project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   planPhase<T extends Prisma.ProjectTask$planPhaseArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectTask$planPhaseArgs<ExtArgs>>): Prisma.Prisma__ProjectPlanPhaseClient<runtime.Types.Result.GetResult<Prisma.$ProjectPlanPhasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   owner<T extends Prisma.ProjectTask$ownerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectTask$ownerArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  sourceMeetingDecision<T extends Prisma.ProjectTask$sourceMeetingDecisionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectTask$sourceMeetingDecisionArgs<ExtArgs>>): Prisma.Prisma__MeetingDecisionClient<runtime.Types.Result.GetResult<Prisma.$MeetingDecisionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  sourceMeetingActionCandidate<T extends Prisma.ProjectTask$sourceMeetingActionCandidateArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectTask$sourceMeetingActionCandidateArgs<ExtArgs>>): Prisma.Prisma__MeetingActionCandidateClient<runtime.Types.Result.GetResult<Prisma.$MeetingActionCandidatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   childProject<T extends Prisma.ProjectTask$childProjectArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectTask$childProjectArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   assignees<T extends Prisma.ProjectTask$assigneesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectTask$assigneesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectTaskAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   linkedWorkItems<T extends Prisma.ProjectTask$linkedWorkItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectTask$linkedWorkItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  meetingActionCandidates<T extends Prisma.ProjectTask$meetingActionCandidatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectTask$meetingActionCandidatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MeetingActionCandidatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2327,6 +3079,8 @@ export interface ProjectTaskFieldRefs {
   readonly baselineEndDate: Prisma.FieldRef<"ProjectTask", 'DateTime'>
   readonly startDate: Prisma.FieldRef<"ProjectTask", 'DateTime'>
   readonly endDate: Prisma.FieldRef<"ProjectTask", 'DateTime'>
+  readonly sourceMeetingDecisionId: Prisma.FieldRef<"ProjectTask", 'Int'>
+  readonly sourceMeetingActionCandidateId: Prisma.FieldRef<"ProjectTask", 'Int'>
   readonly sortOrder: Prisma.FieldRef<"ProjectTask", 'Int'>
   readonly createdBy: Prisma.FieldRef<"ProjectTask", 'Int'>
   readonly editedBy: Prisma.FieldRef<"ProjectTask", 'Int'>
@@ -2771,6 +3525,44 @@ export type ProjectTask$ownerArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
+ * ProjectTask.sourceMeetingDecision
+ */
+export type ProjectTask$sourceMeetingDecisionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MeetingDecision
+   */
+  select?: Prisma.MeetingDecisionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MeetingDecision
+   */
+  omit?: Prisma.MeetingDecisionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MeetingDecisionInclude<ExtArgs> | null
+  where?: Prisma.MeetingDecisionWhereInput
+}
+
+/**
+ * ProjectTask.sourceMeetingActionCandidate
+ */
+export type ProjectTask$sourceMeetingActionCandidateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MeetingActionCandidate
+   */
+  select?: Prisma.MeetingActionCandidateSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MeetingActionCandidate
+   */
+  omit?: Prisma.MeetingActionCandidateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MeetingActionCandidateInclude<ExtArgs> | null
+  where?: Prisma.MeetingActionCandidateWhereInput
+}
+
+/**
  * ProjectTask.childProject
  */
 export type ProjectTask$childProjectArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2835,6 +3627,30 @@ export type ProjectTask$linkedWorkItemsArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.WorkItemScalarFieldEnum | Prisma.WorkItemScalarFieldEnum[]
+}
+
+/**
+ * ProjectTask.meetingActionCandidates
+ */
+export type ProjectTask$meetingActionCandidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MeetingActionCandidate
+   */
+  select?: Prisma.MeetingActionCandidateSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MeetingActionCandidate
+   */
+  omit?: Prisma.MeetingActionCandidateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MeetingActionCandidateInclude<ExtArgs> | null
+  where?: Prisma.MeetingActionCandidateWhereInput
+  orderBy?: Prisma.MeetingActionCandidateOrderByWithRelationInput | Prisma.MeetingActionCandidateOrderByWithRelationInput[]
+  cursor?: Prisma.MeetingActionCandidateWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MeetingActionCandidateScalarFieldEnum | Prisma.MeetingActionCandidateScalarFieldEnum[]
 }
 
 /**

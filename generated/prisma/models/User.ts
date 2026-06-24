@@ -302,6 +302,10 @@ export type UserWhereInput = {
   createdNotifications?: Prisma.NotificationListRelationFilter
   workScopePermissions?: Prisma.WorkScopePermissionListRelationFilter
   workReports?: Prisma.WorkReportListRelationFilter
+  ownedMeetings?: Prisma.MeetingListRelationFilter
+  secretariedMeetings?: Prisma.MeetingListRelationFilter
+  meetingParticipations?: Prisma.MeetingParticipantListRelationFilter
+  meetingVotes?: Prisma.MeetingVoteListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -343,6 +347,10 @@ export type UserOrderByWithRelationInput = {
   createdNotifications?: Prisma.NotificationOrderByRelationAggregateInput
   workScopePermissions?: Prisma.WorkScopePermissionOrderByRelationAggregateInput
   workReports?: Prisma.WorkReportOrderByRelationAggregateInput
+  ownedMeetings?: Prisma.MeetingOrderByRelationAggregateInput
+  secretariedMeetings?: Prisma.MeetingOrderByRelationAggregateInput
+  meetingParticipations?: Prisma.MeetingParticipantOrderByRelationAggregateInput
+  meetingVotes?: Prisma.MeetingVoteOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -387,6 +395,10 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   createdNotifications?: Prisma.NotificationListRelationFilter
   workScopePermissions?: Prisma.WorkScopePermissionListRelationFilter
   workReports?: Prisma.WorkReportListRelationFilter
+  ownedMeetings?: Prisma.MeetingListRelationFilter
+  secretariedMeetings?: Prisma.MeetingListRelationFilter
+  meetingParticipations?: Prisma.MeetingParticipantListRelationFilter
+  meetingVotes?: Prisma.MeetingVoteListRelationFilter
 }, "id" | "wxUserId" | "username" | "apiKey">
 
 export type UserOrderByWithAggregationInput = {
@@ -465,6 +477,10 @@ export type UserCreateInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -506,6 +522,10 @@ export type UserUncheckedCreateInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserUpdateInput = {
@@ -546,6 +566,10 @@ export type UserUpdateInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -587,6 +611,10 @@ export type UserUncheckedUpdateInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1048,6 +1076,66 @@ export type UserUpdateOneWithoutEditedLibraryDocumentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEditedLibraryDocumentsInput, Prisma.UserUpdateWithoutEditedLibraryDocumentsInput>, Prisma.UserUncheckedUpdateWithoutEditedLibraryDocumentsInput>
 }
 
+export type UserCreateNestedOneWithoutOwnedMeetingsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedMeetingsInput, Prisma.UserUncheckedCreateWithoutOwnedMeetingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedMeetingsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutSecretariedMeetingsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSecretariedMeetingsInput, Prisma.UserUncheckedCreateWithoutSecretariedMeetingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSecretariedMeetingsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutOwnedMeetingsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedMeetingsInput, Prisma.UserUncheckedCreateWithoutOwnedMeetingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedMeetingsInput
+  upsert?: Prisma.UserUpsertWithoutOwnedMeetingsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOwnedMeetingsInput, Prisma.UserUpdateWithoutOwnedMeetingsInput>, Prisma.UserUncheckedUpdateWithoutOwnedMeetingsInput>
+}
+
+export type UserUpdateOneWithoutSecretariedMeetingsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSecretariedMeetingsInput, Prisma.UserUncheckedCreateWithoutSecretariedMeetingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSecretariedMeetingsInput
+  upsert?: Prisma.UserUpsertWithoutSecretariedMeetingsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSecretariedMeetingsInput, Prisma.UserUpdateWithoutSecretariedMeetingsInput>, Prisma.UserUncheckedUpdateWithoutSecretariedMeetingsInput>
+}
+
+export type UserCreateNestedOneWithoutMeetingParticipationsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMeetingParticipationsInput, Prisma.UserUncheckedCreateWithoutMeetingParticipationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMeetingParticipationsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutMeetingParticipationsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMeetingParticipationsInput, Prisma.UserUncheckedCreateWithoutMeetingParticipationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMeetingParticipationsInput
+  upsert?: Prisma.UserUpsertWithoutMeetingParticipationsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMeetingParticipationsInput, Prisma.UserUpdateWithoutMeetingParticipationsInput>, Prisma.UserUncheckedUpdateWithoutMeetingParticipationsInput>
+}
+
+export type UserCreateNestedOneWithoutMeetingVotesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMeetingVotesInput, Prisma.UserUncheckedCreateWithoutMeetingVotesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMeetingVotesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutMeetingVotesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMeetingVotesInput, Prisma.UserUncheckedCreateWithoutMeetingVotesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMeetingVotesInput
+  upsert?: Prisma.UserUpsertWithoutMeetingVotesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMeetingVotesInput, Prisma.UserUpdateWithoutMeetingVotesInput>, Prisma.UserUncheckedUpdateWithoutMeetingVotesInput>
+}
+
 export type UserCreateNestedOneWithoutDepartmentAssigneesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutDepartmentAssigneesInput, Prisma.UserUncheckedCreateWithoutDepartmentAssigneesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutDepartmentAssigneesInput
@@ -1141,6 +1229,10 @@ export type UserCreateWithoutResourceRolesInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutResourceRolesInput = {
@@ -1181,6 +1273,10 @@ export type UserUncheckedCreateWithoutResourceRolesInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutResourceRolesInput = {
@@ -1236,6 +1332,10 @@ export type UserUpdateWithoutResourceRolesInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResourceRolesInput = {
@@ -1276,6 +1376,10 @@ export type UserUncheckedUpdateWithoutResourceRolesInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -1315,6 +1419,10 @@ export type UserCreateWithoutNotificationsInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -1355,6 +1463,10 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -1399,6 +1511,10 @@ export type UserCreateWithoutCreatedNotificationsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutCreatedNotificationsInput = {
@@ -1439,6 +1555,10 @@ export type UserUncheckedCreateWithoutCreatedNotificationsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutCreatedNotificationsInput = {
@@ -1494,6 +1614,10 @@ export type UserUpdateWithoutNotificationsInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -1534,6 +1658,10 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUpsertWithoutCreatedNotificationsInput = {
@@ -1584,6 +1712,10 @@ export type UserUpdateWithoutCreatedNotificationsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedNotificationsInput = {
@@ -1624,6 +1756,10 @@ export type UserUncheckedUpdateWithoutCreatedNotificationsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutEditedContractsInput = {
@@ -1663,6 +1799,10 @@ export type UserCreateWithoutEditedContractsInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutEditedContractsInput = {
@@ -1703,6 +1843,10 @@ export type UserUncheckedCreateWithoutEditedContractsInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutEditedContractsInput = {
@@ -1758,6 +1902,10 @@ export type UserUpdateWithoutEditedContractsInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedContractsInput = {
@@ -1798,6 +1946,10 @@ export type UserUncheckedUpdateWithoutEditedContractsInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutEditedFinanceAccountsInput = {
@@ -1837,6 +1989,10 @@ export type UserCreateWithoutEditedFinanceAccountsInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutEditedFinanceAccountsInput = {
@@ -1877,6 +2033,10 @@ export type UserUncheckedCreateWithoutEditedFinanceAccountsInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutEditedFinanceAccountsInput = {
@@ -1932,6 +2092,10 @@ export type UserUpdateWithoutEditedFinanceAccountsInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedFinanceAccountsInput = {
@@ -1972,6 +2136,10 @@ export type UserUncheckedUpdateWithoutEditedFinanceAccountsInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutEditedFinanceVouchersInput = {
@@ -2011,6 +2179,10 @@ export type UserCreateWithoutEditedFinanceVouchersInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutEditedFinanceVouchersInput = {
@@ -2051,6 +2223,10 @@ export type UserUncheckedCreateWithoutEditedFinanceVouchersInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutEditedFinanceVouchersInput = {
@@ -2106,6 +2282,10 @@ export type UserUpdateWithoutEditedFinanceVouchersInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedFinanceVouchersInput = {
@@ -2146,6 +2326,10 @@ export type UserUncheckedUpdateWithoutEditedFinanceVouchersInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutLedgerImportsInput = {
@@ -2185,6 +2369,10 @@ export type UserCreateWithoutLedgerImportsInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutLedgerImportsInput = {
@@ -2225,6 +2413,10 @@ export type UserUncheckedCreateWithoutLedgerImportsInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutLedgerImportsInput = {
@@ -2280,6 +2472,10 @@ export type UserUpdateWithoutLedgerImportsInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLedgerImportsInput = {
@@ -2320,6 +2516,10 @@ export type UserUncheckedUpdateWithoutLedgerImportsInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutSnapshotImportsInput = {
@@ -2359,6 +2559,10 @@ export type UserCreateWithoutSnapshotImportsInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutSnapshotImportsInput = {
@@ -2399,6 +2603,10 @@ export type UserUncheckedCreateWithoutSnapshotImportsInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutSnapshotImportsInput = {
@@ -2443,6 +2651,10 @@ export type UserCreateWithoutSnapshotEditsInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutSnapshotEditsInput = {
@@ -2483,6 +2695,10 @@ export type UserUncheckedCreateWithoutSnapshotEditsInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutSnapshotEditsInput = {
@@ -2538,6 +2754,10 @@ export type UserUpdateWithoutSnapshotImportsInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSnapshotImportsInput = {
@@ -2578,6 +2798,10 @@ export type UserUncheckedUpdateWithoutSnapshotImportsInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUpsertWithoutSnapshotEditsInput = {
@@ -2628,6 +2852,10 @@ export type UserUpdateWithoutSnapshotEditsInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSnapshotEditsInput = {
@@ -2668,6 +2896,10 @@ export type UserUncheckedUpdateWithoutSnapshotEditsInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutConfirmedReclassRulesInput = {
@@ -2707,6 +2939,10 @@ export type UserCreateWithoutConfirmedReclassRulesInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutConfirmedReclassRulesInput = {
@@ -2747,6 +2983,10 @@ export type UserUncheckedCreateWithoutConfirmedReclassRulesInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutConfirmedReclassRulesInput = {
@@ -2802,6 +3042,10 @@ export type UserUpdateWithoutConfirmedReclassRulesInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutConfirmedReclassRulesInput = {
@@ -2842,6 +3086,10 @@ export type UserUncheckedUpdateWithoutConfirmedReclassRulesInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutReviewedReclassResultsInput = {
@@ -2881,6 +3129,10 @@ export type UserCreateWithoutReviewedReclassResultsInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutReviewedReclassResultsInput = {
@@ -2921,6 +3173,10 @@ export type UserUncheckedCreateWithoutReviewedReclassResultsInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutReviewedReclassResultsInput = {
@@ -2976,6 +3232,10 @@ export type UserUpdateWithoutReviewedReclassResultsInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewedReclassResultsInput = {
@@ -3016,6 +3276,10 @@ export type UserUncheckedUpdateWithoutReviewedReclassResultsInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutEditedWorkpapersInput = {
@@ -3055,6 +3319,10 @@ export type UserCreateWithoutEditedWorkpapersInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutEditedWorkpapersInput = {
@@ -3095,6 +3363,10 @@ export type UserUncheckedCreateWithoutEditedWorkpapersInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutEditedWorkpapersInput = {
@@ -3150,6 +3422,10 @@ export type UserUpdateWithoutEditedWorkpapersInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedWorkpapersInput = {
@@ -3190,6 +3466,10 @@ export type UserUncheckedUpdateWithoutEditedWorkpapersInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutEditedReviewsInput = {
@@ -3229,6 +3509,10 @@ export type UserCreateWithoutEditedReviewsInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutEditedReviewsInput = {
@@ -3269,6 +3553,10 @@ export type UserUncheckedCreateWithoutEditedReviewsInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutEditedReviewsInput = {
@@ -3313,6 +3601,10 @@ export type UserCreateWithoutReviewedReviewsInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutReviewedReviewsInput = {
@@ -3353,6 +3645,10 @@ export type UserUncheckedCreateWithoutReviewedReviewsInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutReviewedReviewsInput = {
@@ -3408,6 +3704,10 @@ export type UserUpdateWithoutEditedReviewsInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedReviewsInput = {
@@ -3448,6 +3748,10 @@ export type UserUncheckedUpdateWithoutEditedReviewsInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUpsertWithoutReviewedReviewsInput = {
@@ -3498,6 +3802,10 @@ export type UserUpdateWithoutReviewedReviewsInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewedReviewsInput = {
@@ -3538,6 +3846,10 @@ export type UserUncheckedUpdateWithoutReviewedReviewsInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutEmployeesInput = {
@@ -3577,6 +3889,10 @@ export type UserCreateWithoutEmployeesInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutEmployeesInput = {
@@ -3617,6 +3933,10 @@ export type UserUncheckedCreateWithoutEmployeesInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutEmployeesInput = {
@@ -3672,6 +3992,10 @@ export type UserUpdateWithoutEmployeesInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEmployeesInput = {
@@ -3712,6 +4036,10 @@ export type UserUncheckedUpdateWithoutEmployeesInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutManagedDepartmentsInput = {
@@ -3751,6 +4079,10 @@ export type UserCreateWithoutManagedDepartmentsInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutManagedDepartmentsInput = {
@@ -3791,6 +4123,10 @@ export type UserUncheckedCreateWithoutManagedDepartmentsInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutManagedDepartmentsInput = {
@@ -3846,6 +4182,10 @@ export type UserUpdateWithoutManagedDepartmentsInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutManagedDepartmentsInput = {
@@ -3886,6 +4226,10 @@ export type UserUncheckedUpdateWithoutManagedDepartmentsInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutEditHistoriesInput = {
@@ -3925,6 +4269,10 @@ export type UserCreateWithoutEditHistoriesInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutEditHistoriesInput = {
@@ -3965,6 +4313,10 @@ export type UserUncheckedCreateWithoutEditHistoriesInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutEditHistoriesInput = {
@@ -4020,6 +4372,10 @@ export type UserUpdateWithoutEditHistoriesInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditHistoriesInput = {
@@ -4060,6 +4416,10 @@ export type UserUncheckedUpdateWithoutEditHistoriesInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutEditedStockRawMaterialsInput = {
@@ -4099,6 +4459,10 @@ export type UserCreateWithoutEditedStockRawMaterialsInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutEditedStockRawMaterialsInput = {
@@ -4139,6 +4503,10 @@ export type UserUncheckedCreateWithoutEditedStockRawMaterialsInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutEditedStockRawMaterialsInput = {
@@ -4194,6 +4562,10 @@ export type UserUpdateWithoutEditedStockRawMaterialsInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedStockRawMaterialsInput = {
@@ -4234,6 +4606,10 @@ export type UserUncheckedUpdateWithoutEditedStockRawMaterialsInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutEditedStockPackagingsInput = {
@@ -4273,6 +4649,10 @@ export type UserCreateWithoutEditedStockPackagingsInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutEditedStockPackagingsInput = {
@@ -4313,6 +4693,10 @@ export type UserUncheckedCreateWithoutEditedStockPackagingsInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutEditedStockPackagingsInput = {
@@ -4368,6 +4752,10 @@ export type UserUpdateWithoutEditedStockPackagingsInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedStockPackagingsInput = {
@@ -4408,6 +4796,10 @@ export type UserUncheckedUpdateWithoutEditedStockPackagingsInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutEditedStockFinishedGoodsInput = {
@@ -4447,6 +4839,10 @@ export type UserCreateWithoutEditedStockFinishedGoodsInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutEditedStockFinishedGoodsInput = {
@@ -4487,6 +4883,10 @@ export type UserUncheckedCreateWithoutEditedStockFinishedGoodsInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutEditedStockFinishedGoodsInput = {
@@ -4542,6 +4942,10 @@ export type UserUpdateWithoutEditedStockFinishedGoodsInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedStockFinishedGoodsInput = {
@@ -4582,6 +4986,10 @@ export type UserUncheckedUpdateWithoutEditedStockFinishedGoodsInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutStockOperationsInput = {
@@ -4621,6 +5029,10 @@ export type UserCreateWithoutStockOperationsInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutStockOperationsInput = {
@@ -4661,6 +5073,10 @@ export type UserUncheckedCreateWithoutStockOperationsInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutStockOperationsInput = {
@@ -4716,6 +5132,10 @@ export type UserUpdateWithoutStockOperationsInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStockOperationsInput = {
@@ -4756,6 +5176,10 @@ export type UserUncheckedUpdateWithoutStockOperationsInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutEditedLibraryDocumentsInput = {
@@ -4795,6 +5219,10 @@ export type UserCreateWithoutEditedLibraryDocumentsInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutEditedLibraryDocumentsInput = {
@@ -4835,6 +5263,10 @@ export type UserUncheckedCreateWithoutEditedLibraryDocumentsInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutEditedLibraryDocumentsInput = {
@@ -4890,6 +5322,10 @@ export type UserUpdateWithoutEditedLibraryDocumentsInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedLibraryDocumentsInput = {
@@ -4930,6 +5366,770 @@ export type UserUncheckedUpdateWithoutEditedLibraryDocumentsInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
+}
+
+export type UserCreateWithoutOwnedMeetingsInput = {
+  wxUserId?: string | null
+  username?: string | null
+  password?: string | null
+  nickname: string
+  avatar?: string | null
+  routineItems?: string | null
+  canLogin?: boolean
+  apiKey?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
+  editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
+  reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
+  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
+  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
+  workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
+}
+
+export type UserUncheckedCreateWithoutOwnedMeetingsInput = {
+  id?: number
+  wxUserId?: string | null
+  username?: string | null
+  password?: string | null
+  nickname: string
+  avatar?: string | null
+  routineItems?: string | null
+  canLogin?: boolean
+  apiKey?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
+  editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
+  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
+  workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
+}
+
+export type UserCreateOrConnectWithoutOwnedMeetingsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedMeetingsInput, Prisma.UserUncheckedCreateWithoutOwnedMeetingsInput>
+}
+
+export type UserCreateWithoutSecretariedMeetingsInput = {
+  wxUserId?: string | null
+  username?: string | null
+  password?: string | null
+  nickname: string
+  avatar?: string | null
+  routineItems?: string | null
+  canLogin?: boolean
+  apiKey?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
+  editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
+  reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
+  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
+  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
+  workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
+}
+
+export type UserUncheckedCreateWithoutSecretariedMeetingsInput = {
+  id?: number
+  wxUserId?: string | null
+  username?: string | null
+  password?: string | null
+  nickname: string
+  avatar?: string | null
+  routineItems?: string | null
+  canLogin?: boolean
+  apiKey?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
+  editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
+  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
+  workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
+}
+
+export type UserCreateOrConnectWithoutSecretariedMeetingsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSecretariedMeetingsInput, Prisma.UserUncheckedCreateWithoutSecretariedMeetingsInput>
+}
+
+export type UserUpsertWithoutOwnedMeetingsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutOwnedMeetingsInput, Prisma.UserUncheckedUpdateWithoutOwnedMeetingsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedMeetingsInput, Prisma.UserUncheckedCreateWithoutOwnedMeetingsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutOwnedMeetingsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutOwnedMeetingsInput, Prisma.UserUncheckedUpdateWithoutOwnedMeetingsInput>
+}
+
+export type UserUpdateWithoutOwnedMeetingsInput = {
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
+  editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
+  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
+  workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
+}
+
+export type UserUncheckedUpdateWithoutOwnedMeetingsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
+  editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
+  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
+  workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
+}
+
+export type UserUpsertWithoutSecretariedMeetingsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSecretariedMeetingsInput, Prisma.UserUncheckedUpdateWithoutSecretariedMeetingsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSecretariedMeetingsInput, Prisma.UserUncheckedCreateWithoutSecretariedMeetingsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSecretariedMeetingsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSecretariedMeetingsInput, Prisma.UserUncheckedUpdateWithoutSecretariedMeetingsInput>
+}
+
+export type UserUpdateWithoutSecretariedMeetingsInput = {
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
+  editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
+  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
+  workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSecretariedMeetingsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
+  editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
+  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
+  workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
+}
+
+export type UserCreateWithoutMeetingParticipationsInput = {
+  wxUserId?: string | null
+  username?: string | null
+  password?: string | null
+  nickname: string
+  avatar?: string | null
+  routineItems?: string | null
+  canLogin?: boolean
+  apiKey?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
+  editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
+  reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
+  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
+  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
+  workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
+}
+
+export type UserUncheckedCreateWithoutMeetingParticipationsInput = {
+  id?: number
+  wxUserId?: string | null
+  username?: string | null
+  password?: string | null
+  nickname: string
+  avatar?: string | null
+  routineItems?: string | null
+  canLogin?: boolean
+  apiKey?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
+  editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
+  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
+  workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
+}
+
+export type UserCreateOrConnectWithoutMeetingParticipationsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMeetingParticipationsInput, Prisma.UserUncheckedCreateWithoutMeetingParticipationsInput>
+}
+
+export type UserUpsertWithoutMeetingParticipationsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMeetingParticipationsInput, Prisma.UserUncheckedUpdateWithoutMeetingParticipationsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMeetingParticipationsInput, Prisma.UserUncheckedCreateWithoutMeetingParticipationsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMeetingParticipationsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMeetingParticipationsInput, Prisma.UserUncheckedUpdateWithoutMeetingParticipationsInput>
+}
+
+export type UserUpdateWithoutMeetingParticipationsInput = {
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
+  editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
+  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
+  workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMeetingParticipationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
+  editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
+  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
+  workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
+}
+
+export type UserCreateWithoutMeetingVotesInput = {
+  wxUserId?: string | null
+  username?: string | null
+  password?: string | null
+  nickname: string
+  avatar?: string | null
+  routineItems?: string | null
+  canLogin?: boolean
+  apiKey?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
+  editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
+  reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
+  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
+  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
+  workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutMeetingVotesInput = {
+  id?: number
+  wxUserId?: string | null
+  username?: string | null
+  password?: string | null
+  nickname: string
+  avatar?: string | null
+  routineItems?: string | null
+  canLogin?: boolean
+  apiKey?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
+  editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
+  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
+  workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutMeetingVotesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMeetingVotesInput, Prisma.UserUncheckedCreateWithoutMeetingVotesInput>
+}
+
+export type UserUpsertWithoutMeetingVotesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMeetingVotesInput, Prisma.UserUncheckedUpdateWithoutMeetingVotesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMeetingVotesInput, Prisma.UserUncheckedCreateWithoutMeetingVotesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMeetingVotesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMeetingVotesInput, Prisma.UserUncheckedUpdateWithoutMeetingVotesInput>
+}
+
+export type UserUpdateWithoutMeetingVotesInput = {
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
+  editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
+  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
+  workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMeetingVotesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
+  editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
+  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
+  workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDepartmentAssigneesInput = {
@@ -4969,6 +6169,10 @@ export type UserCreateWithoutDepartmentAssigneesInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutDepartmentAssigneesInput = {
@@ -5009,6 +6213,10 @@ export type UserUncheckedCreateWithoutDepartmentAssigneesInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutDepartmentAssigneesInput = {
@@ -5064,6 +6272,10 @@ export type UserUpdateWithoutDepartmentAssigneesInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDepartmentAssigneesInput = {
@@ -5104,6 +6316,10 @@ export type UserUncheckedUpdateWithoutDepartmentAssigneesInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutProjectAssigneesInput = {
@@ -5143,6 +6359,10 @@ export type UserCreateWithoutProjectAssigneesInput = {
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutProjectAssigneesInput = {
@@ -5183,6 +6403,10 @@ export type UserUncheckedCreateWithoutProjectAssigneesInput = {
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutProjectAssigneesInput = {
@@ -5238,6 +6462,10 @@ export type UserUpdateWithoutProjectAssigneesInput = {
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProjectAssigneesInput = {
@@ -5278,6 +6506,10 @@ export type UserUncheckedUpdateWithoutProjectAssigneesInput = {
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutWorkScopePermissionsInput = {
@@ -5317,6 +6549,10 @@ export type UserCreateWithoutWorkScopePermissionsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutWorkScopePermissionsInput = {
@@ -5357,6 +6593,10 @@ export type UserUncheckedCreateWithoutWorkScopePermissionsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutWorkScopePermissionsInput = {
@@ -5412,6 +6652,10 @@ export type UserUpdateWithoutWorkScopePermissionsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWorkScopePermissionsInput = {
@@ -5452,6 +6696,10 @@ export type UserUncheckedUpdateWithoutWorkScopePermissionsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 export type UserCreateWithoutWorkReportsInput = {
@@ -5491,6 +6739,10 @@ export type UserCreateWithoutWorkReportsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
 }
 
 export type UserUncheckedCreateWithoutWorkReportsInput = {
@@ -5531,6 +6783,10 @@ export type UserUncheckedCreateWithoutWorkReportsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
 }
 
 export type UserCreateOrConnectWithoutWorkReportsInput = {
@@ -5586,6 +6842,10 @@ export type UserUpdateWithoutWorkReportsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWorkReportsInput = {
@@ -5626,6 +6886,10 @@ export type UserUncheckedUpdateWithoutWorkReportsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
 }
 
 
@@ -5660,6 +6924,10 @@ export type UserCountOutputType = {
   createdNotifications: number
   workScopePermissions: number
   workReports: number
+  ownedMeetings: number
+  secretariedMeetings: number
+  meetingParticipations: number
+  meetingVotes: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -5689,6 +6957,10 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   createdNotifications?: boolean | UserCountOutputTypeCountCreatedNotificationsArgs
   workScopePermissions?: boolean | UserCountOutputTypeCountWorkScopePermissionsArgs
   workReports?: boolean | UserCountOutputTypeCountWorkReportsArgs
+  ownedMeetings?: boolean | UserCountOutputTypeCountOwnedMeetingsArgs
+  secretariedMeetings?: boolean | UserCountOutputTypeCountSecretariedMeetingsArgs
+  meetingParticipations?: boolean | UserCountOutputTypeCountMeetingParticipationsArgs
+  meetingVotes?: boolean | UserCountOutputTypeCountMeetingVotesArgs
 }
 
 /**
@@ -5883,6 +7155,34 @@ export type UserCountOutputTypeCountWorkReportsArgs<ExtArgs extends runtime.Type
   where?: Prisma.WorkReportWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountOwnedMeetingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MeetingWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSecretariedMeetingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MeetingWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountMeetingParticipationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MeetingParticipantWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountMeetingVotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MeetingVoteWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -5923,6 +7223,10 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdNotifications?: boolean | Prisma.User$createdNotificationsArgs<ExtArgs>
   workScopePermissions?: boolean | Prisma.User$workScopePermissionsArgs<ExtArgs>
   workReports?: boolean | Prisma.User$workReportsArgs<ExtArgs>
+  ownedMeetings?: boolean | Prisma.User$ownedMeetingsArgs<ExtArgs>
+  secretariedMeetings?: boolean | Prisma.User$secretariedMeetingsArgs<ExtArgs>
+  meetingParticipations?: boolean | Prisma.User$meetingParticipationsArgs<ExtArgs>
+  meetingVotes?: boolean | Prisma.User$meetingVotesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -5999,6 +7303,10 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   createdNotifications?: boolean | Prisma.User$createdNotificationsArgs<ExtArgs>
   workScopePermissions?: boolean | Prisma.User$workScopePermissionsArgs<ExtArgs>
   workReports?: boolean | Prisma.User$workReportsArgs<ExtArgs>
+  ownedMeetings?: boolean | Prisma.User$ownedMeetingsArgs<ExtArgs>
+  secretariedMeetings?: boolean | Prisma.User$secretariedMeetingsArgs<ExtArgs>
+  meetingParticipations?: boolean | Prisma.User$meetingParticipationsArgs<ExtArgs>
+  meetingVotes?: boolean | Prisma.User$meetingVotesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -6033,6 +7341,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     createdNotifications: Prisma.$NotificationPayload<ExtArgs>[]
     workScopePermissions: Prisma.$WorkScopePermissionPayload<ExtArgs>[]
     workReports: Prisma.$WorkReportPayload<ExtArgs>[]
+    ownedMeetings: Prisma.$MeetingPayload<ExtArgs>[]
+    secretariedMeetings: Prisma.$MeetingPayload<ExtArgs>[]
+    meetingParticipations: Prisma.$MeetingParticipantPayload<ExtArgs>[]
+    meetingVotes: Prisma.$MeetingVotePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -6467,6 +7779,10 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   createdNotifications<T extends Prisma.User$createdNotificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdNotificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   workScopePermissions<T extends Prisma.User$workScopePermissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$workScopePermissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkScopePermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   workReports<T extends Prisma.User$workReportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$workReportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ownedMeetings<T extends Prisma.User$ownedMeetingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ownedMeetingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MeetingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  secretariedMeetings<T extends Prisma.User$secretariedMeetingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$secretariedMeetingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MeetingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  meetingParticipations<T extends Prisma.User$meetingParticipationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$meetingParticipationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MeetingParticipantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  meetingVotes<T extends Prisma.User$meetingVotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$meetingVotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MeetingVotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7520,6 +8836,102 @@ export type User$workReportsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.WorkReportScalarFieldEnum | Prisma.WorkReportScalarFieldEnum[]
+}
+
+/**
+ * User.ownedMeetings
+ */
+export type User$ownedMeetingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Meeting
+   */
+  select?: Prisma.MeetingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Meeting
+   */
+  omit?: Prisma.MeetingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MeetingInclude<ExtArgs> | null
+  where?: Prisma.MeetingWhereInput
+  orderBy?: Prisma.MeetingOrderByWithRelationInput | Prisma.MeetingOrderByWithRelationInput[]
+  cursor?: Prisma.MeetingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MeetingScalarFieldEnum | Prisma.MeetingScalarFieldEnum[]
+}
+
+/**
+ * User.secretariedMeetings
+ */
+export type User$secretariedMeetingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Meeting
+   */
+  select?: Prisma.MeetingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Meeting
+   */
+  omit?: Prisma.MeetingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MeetingInclude<ExtArgs> | null
+  where?: Prisma.MeetingWhereInput
+  orderBy?: Prisma.MeetingOrderByWithRelationInput | Prisma.MeetingOrderByWithRelationInput[]
+  cursor?: Prisma.MeetingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MeetingScalarFieldEnum | Prisma.MeetingScalarFieldEnum[]
+}
+
+/**
+ * User.meetingParticipations
+ */
+export type User$meetingParticipationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MeetingParticipant
+   */
+  select?: Prisma.MeetingParticipantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MeetingParticipant
+   */
+  omit?: Prisma.MeetingParticipantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MeetingParticipantInclude<ExtArgs> | null
+  where?: Prisma.MeetingParticipantWhereInput
+  orderBy?: Prisma.MeetingParticipantOrderByWithRelationInput | Prisma.MeetingParticipantOrderByWithRelationInput[]
+  cursor?: Prisma.MeetingParticipantWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MeetingParticipantScalarFieldEnum | Prisma.MeetingParticipantScalarFieldEnum[]
+}
+
+/**
+ * User.meetingVotes
+ */
+export type User$meetingVotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MeetingVote
+   */
+  select?: Prisma.MeetingVoteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MeetingVote
+   */
+  omit?: Prisma.MeetingVoteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MeetingVoteInclude<ExtArgs> | null
+  where?: Prisma.MeetingVoteWhereInput
+  orderBy?: Prisma.MeetingVoteOrderByWithRelationInput | Prisma.MeetingVoteOrderByWithRelationInput[]
+  cursor?: Prisma.MeetingVoteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MeetingVoteScalarFieldEnum | Prisma.MeetingVoteScalarFieldEnum[]
 }
 
 /**

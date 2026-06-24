@@ -16,7 +16,7 @@ export type WorkTaskSpace = {
   name: string;
   subtitle: string | null;
   role: WorkSpaceRole;
-  counts: { routine: number; nonRoutine: number; archived: number };
+  counts: { objective: number; keyResult: number; task: number; archived: number };
 };
 
 export type WorkScopePermissionInput = {
@@ -205,7 +205,7 @@ function dedupeSeeds(seeds: SpaceSeed[]) {
 }
 
 function emptyCounts() {
-  return { routine: 0, nonRoutine: 0, archived: 0 };
+  return { objective: 0, keyResult: 0, task: 0, archived: 0 };
 }
 
 function spaceKey(targetType: string, targetId: number) {
@@ -213,12 +213,12 @@ function spaceKey(targetType: string, targetId: number) {
 }
 
 async function getSpaceCountsMap(seeds: SpaceSeed[]) {
-  const map = new Map<string, { routine: number; nonRoutine: number; archived: number }>();
+  const map = new Map<string, WorkTaskSpace["counts"]>();
   for (const seed of seeds) map.set(spaceKey(seed.targetType, seed.targetId), emptyCounts());
   if (seeds.length === 0) return map;
 
   const rows = await prisma.workItem.groupBy({
-    by: ["targetType", "targetId", "category", "isArchived"],
+    by: ["targetType", "targetId", "itemType", "isArchived"],
     where: {
       OR: seeds.map((seed) => ({ targetType: seed.targetType, targetId: seed.targetId })),
     },
@@ -231,10 +231,12 @@ async function getSpaceCountsMap(seeds: SpaceSeed[]) {
     if (!counts) continue;
     if (row.isArchived) {
       counts.archived += row._count._all;
-    } else if (row.category === "routine") {
-      counts.routine += row._count._all;
-    } else if (row.category === "non-routine") {
-      counts.nonRoutine += row._count._all;
+    } else if (row.itemType === "objective") {
+      counts.objective += row._count._all;
+    } else if (row.itemType === "key_result") {
+      counts.keyResult += row._count._all;
+    } else {
+      counts.task += row._count._all;
     }
   }
   return map;
