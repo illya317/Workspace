@@ -33,13 +33,14 @@ type SpaceSeed = {
 };
 
 export async function listWorkTaskSpaces(userId: number): Promise<{ spaces: WorkTaskSpace[] }> {
+  const isAdmin = await hasWorkAdmin(userId);
   const [user, departments, projects] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, nickname: true, employees: { select: { name: true }, take: 1 } },
     }),
-    listDepartmentSeeds(userId),
-    listProjectSeeds(userId),
+    listDepartmentSeeds(userId, isAdmin),
+    listProjectSeeds(userId, isAdmin),
   ]);
 
   const seeds = dedupeSeeds([
@@ -52,22 +53,23 @@ export async function listWorkTaskSpaces(userId: number): Promise<{ spaces: Work
     ...departments,
     ...projects,
   ]);
+  const countMap = await getSpaceCountsMap(seeds);
 
   const spaces = await Promise.all(seeds.map(async (seed) => {
-    const role = await getWorkSpaceRole(userId, seed.targetType, seed.targetId, "task");
+    const role: WorkSpaceRole | null = isAdmin ? "manager" : await getWorkSpaceRole(userId, seed.targetType, seed.targetId, "task");
     if (!role) return null;
     return {
       ...seed,
       role,
-      counts: await getSpaceCounts(seed.targetType, seed.targetId),
+      counts: countMap.get(spaceKey(seed.targetType, seed.targetId)) ?? emptyCounts(),
     };
   }));
 
   return { spaces: spaces.filter((space): space is WorkTaskSpace => Boolean(space)) };
 }
 
-async function listDepartmentSeeds(userId: number): Promise<SpaceSeed[]> {
-  if (await hasWorkAdmin(userId)) {
+async function listDepartmentSeeds(userId: number, isAdmin: boolean): Promise<SpaceSeed[]> {
+  if (isAdmin) {
     const rows = await prisma.department.findMany({
       where: { isArchived: false },
       select: { id: true, name: true, code: true },
@@ -115,8 +117,8 @@ async function listDepartmentSeeds(userId: number): Promise<SpaceSeed[]> {
     }));
 }
 
-async function listProjectSeeds(userId: number): Promise<SpaceSeed[]> {
-  if (await hasWorkAdmin(userId)) {
+async function listProjectSeeds(userId: number, isAdmin: boolean): Promise<SpaceSeed[]> {
+  if (isAdmin) {
     const rows = await prisma.project.findMany({
       where: { isArchived: false },
       select: { id: true, name: true, code: true },
@@ -170,13 +172,40 @@ function dedupeSeeds(seeds: SpaceSeed[]) {
   });
 }
 
-async function getSpaceCounts(targetType: string, targetId: number) {
-  const [routine, nonRoutine, archived] = await Promise.all([
-    prisma.workItem.count({ where: { targetType, targetId, category: "routine", isArchived: false } }),
-    prisma.workItem.count({ where: { targetType, targetId, category: "non-routine", isArchived: false } }),
-    prisma.workItem.count({ where: { targetType, targetId, isArchived: true } }),
-  ]);
-  return { routine, nonRoutine, archived };
+function emptyCounts() {
+  return { routine: 0, nonRoutine: 0, archived: 0 };
+}
+
+function spaceKey(targetType: string, targetId: number) {
+  return `${targetType}:${targetId}`;
+}
+
+async function getSpaceCountsMap(seeds: SpaceSeed[]) {
+  const map = new Map<string, { routine: number; nonRoutine: number; archived: number }>();
+  for (const seed of seeds) map.set(spaceKey(seed.targetType, seed.targetId), emptyCounts());
+  if (seeds.length === 0) return map;
+
+  const rows = await prisma.workItem.groupBy({
+    by: ["targetType", "targetId", "category", "isArchived"],
+    where: {
+      OR: seeds.map((seed) => ({ targetType: seed.targetType, targetId: seed.targetId })),
+    },
+    _count: { _all: true },
+  });
+
+  for (const row of rows) {
+    if (row.targetId == null) continue;
+    const counts = map.get(spaceKey(row.targetType, row.targetId));
+    if (!counts) continue;
+    if (row.isArchived) {
+      counts.archived += row._count._all;
+    } else if (row.category === "routine") {
+      counts.routine += row._count._all;
+    } else if (row.category === "non-routine") {
+      counts.nonRoutine += row._count._all;
+    }
+  }
+  return map;
 }
 
 export async function listWorkSpacePermissions(input: { userId: number; targetType: WorkSpaceTargetType; targetId: number }) {
