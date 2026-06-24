@@ -40,7 +40,8 @@ app/*                         只做 Next route shell
 | 开工流程和任务分流 | `docs/agent-startup.md` |
 | Core/Platform 基础设施 | `docs/reusable-components.md` |
 | 架构边界和权限四件套 | `docs/architecture-governance.md` |
-| Work 项目管理规则 | `app/(modules)/work/ARCHITECTURE.md` |
+| Work 模块长期边界/权限 | `app/(modules)/work/MODULE.md` |
+| Work 模块短期计划 | `app/(modules)/work/PLAN.md` |
 | RBAC/默认权限/Open API | `docs/security/rbac.md`, `docs/security/permission-matrix.md` |
 | 新模块 | `docs/new-module-checklist.md` |
 | 现有模块新增能力 | `docs/existing-module-feature-checklist.md` |
