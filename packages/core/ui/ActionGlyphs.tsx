@@ -1,4 +1,4 @@
-export type ActionGlyphKind = "add" | "edit" | "check" | "cancel" | "view" | "delete";
+export type ActionGlyphKind = "add" | "edit" | "check" | "cancel" | "view" | "delete" | "delete-bin";
 
 export interface ActionGlyphProps {
   kind: ActionGlyphKind;
@@ -11,6 +11,13 @@ export function ActionGlyph({ kind, className = "h-5 w-5" }: ActionGlyphProps) {
   }
   if (kind === "delete") {
     return <span aria-hidden="true" className="-translate-y-px text-xl leading-none">×</span>;
+  }
+  if (kind === "delete-bin") {
+    return (
+      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} viewBox="0 0 24 24">
+        <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6M5 6l1 14h12l1-14" />
+      </svg>
+    );
   }
   if (kind === "check") {
     return (
