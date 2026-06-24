@@ -182,14 +182,14 @@ export default function UiComponentsShowcase() {
                   <p className="mt-1 text-sm text-slate-600">{registration.example}</p>
                 </div>
               )}
+              <RelationTags label="组合" names={composes} color="blue" />
+              <RelationTags label="基础" names={foundations} color="amber" />
+              <RelationTags label="被使用" names={usedBy} color="emerald" />
               <PreviewBlock name={registration.name} isFoundation={isFoundation}>
                 {isFoundation
                   ? <span className="text-xs text-slate-400">Foundation 为样式 recipe / token，不提供运行时组件预览。</span>
                   : <ComponentPreview name={registration.name} />}
               </PreviewBlock>
-              <RelationTags label="组合" names={composes} color="blue" />
-              <RelationTags label="基础" names={foundations} color="amber" />
-              <RelationTags label="被使用" names={usedBy} color="emerald" />
             </PanelCard>
           );
         })}

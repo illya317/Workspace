@@ -28,7 +28,7 @@ export { default as DropdownMenu } from "./DropdownMenu";
 export type { DropdownMenuItem, DropdownMenuProps } from "./DropdownMenu";
 export { createDataTableEditActions, isDataTableEditDirty } from "./DataTableActions";
 export type { DataTableEditActionsOptions } from "./DataTableActions";
-export { default as DataTable, DataTableActionButton, DataTableActionsCell, dataTableClassNames, getDefaultVisibleColumns } from "./DataTable";
+export { default as DataTable, DataTableActionsCell, dataTableClassNames, getDefaultVisibleColumns } from "./DataTable";
 export type { DataTableActionKind, DataTableColumn, DataTableProps, DataTableRowAction } from "./DataTable";
 export { default as EditToolbar } from "./EditToolbar";
 export type { EditToolbarProps } from "./EditToolbar";

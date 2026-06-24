@@ -106,7 +106,7 @@ function getDataTableActionClassName(kind: DataTableActionKind) {
   );
 }
 
-export function DataTableActionButton({ action }: { action: DataTableRowAction }) {
+function DataTableActionButton({ action }: { action: DataTableRowAction }) {
   return (
     <button
       type="button"
