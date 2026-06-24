@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticate } from "@workspace/platform/server/auth";
-import { snapshotHistory } from "@workspace/platform/server/history";
+import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { matchSearchFields } from "@workspace/platform/search";
 import { prisma } from "@workspace/platform/server/prisma";
 import { createNotification } from "@workspace/platform/server/notifications";
@@ -174,11 +174,14 @@ export async function updateProjectMemberField(request: Request, params: Promise
       })
     : null;
 
-  await prisma.employeeProject.update({
-    where: { id: command.data.recordId },
-    data: { [command.data.field]: command.data.value ?? null, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
+  await prisma.$transaction(async (tx) => {
+    await ensureEditHistoryBaseline("EmployeeProject", command.data.recordId, payload.userId, tx);
+    await tx.employeeProject.update({
+      where: { id: command.data.recordId },
+      data: { [command.data.field]: command.data.value ?? null, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
+    });
+    await snapshotHistory("EmployeeProject", command.data.recordId, payload.userId, tx);
   });
-  await snapshotHistory("EmployeeProject", command.data.recordId, payload.userId);
   if (previous && previous.role !== command.data.value) {
     await notifyProjectMember({
       employeeId: previous.employeeId,
@@ -199,7 +202,10 @@ export async function deleteProjectMember(request: Request, params: Promise<{ id
   if (!Number.isInteger(recordId)) return NextResponse.json({ error: "ID 无效" }, { status: 400 });
   const command = await validateProjectMemberDeleteCommand(payload.userId, recordId);
   if (!command.ok) return NextResponse.json({ error: command.issue.message }, { status: command.issue.status || 400 });
-  await snapshotHistory("EmployeeProject", command.data.recordId, payload.userId);
-  await prisma.employeeProject.delete({ where: { id: command.data.recordId } });
+  await prisma.$transaction(async (tx) => {
+    await ensureEditHistoryBaseline("EmployeeProject", command.data.recordId, payload.userId, tx);
+    await snapshotHistory("EmployeeProject", command.data.recordId, payload.userId, tx);
+    await tx.employeeProject.delete({ where: { id: command.data.recordId } });
+  });
   return NextResponse.json({ success: true });
 }

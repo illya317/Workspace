@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { snapshotHistory } from "@workspace/platform/server/history";
+import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { canEditProject, canViewProject, getProjectPermissionsById } from "./access";
 import { isValidProjectPlanDateValue, normalizeProjectPlanText, validateProjectPlanCommand } from "./domain/project-plan-validation";
@@ -204,27 +204,27 @@ export async function saveProjectPlanGantt(input: { userId: number; projectId: n
     tasks: normalized.filter((item) => item.kind === "task").map((item) => ({ id: item.id, startDate: item.startDate, endDate: item.endDate })),
   });
   if (planError) return serviceError(planError);
-  const snapshots: Array<{ entityType: "Project" | "ProjectTask"; id: number }> = [];
   await prisma.$transaction(async (tx) => {
     for (const item of normalized) {
       if (item.kind === "task") {
         if (!scope.taskIds.has(item.id)) throw new Error("计划节点不属于当前项目");
+        await ensureEditHistoryBaseline("ProjectTask", item.id, input.userId, tx);
         await tx.projectTask.update({
           where: { id: item.id },
           data: { startDate: item.startDate, endDate: item.endDate, planPhaseId: item.phaseId, editedBy: input.userId, editedAt: new Date(), version: { increment: 1 } },
         });
-        snapshots.push({ entityType: "ProjectTask", id: item.id });
+        await snapshotHistory("ProjectTask", item.id, input.userId, tx);
       } else {
         if (!scope.projectIds.has(item.id)) throw new Error("计划节点不属于当前项目");
+        await ensureEditHistoryBaseline("Project", item.id, input.userId, tx);
         await tx.project.update({
           where: { id: item.id },
           data: { startDate: item.startDate, endDate: item.endDate, editedBy: input.userId, editedAt: new Date(), version: { increment: 1 } },
         });
-        snapshots.push({ entityType: "Project", id: item.id });
+        await snapshotHistory("Project", item.id, input.userId, tx);
       }
     }
   });
-  for (const snapshot of snapshots) await snapshotHistory(snapshot.entityType, snapshot.id, input.userId);
   return { ok: true as const, data: { success: true } };
 }
 

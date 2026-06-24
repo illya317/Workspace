@@ -1,6 +1,6 @@
 import { Prisma } from "@workspace/platform/server/prisma";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
-import { snapshotHistory } from "@workspace/platform/server/history";
+import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchSearchFields } from "@workspace/platform/search";
 import { getManagementGroupByCode } from "./company-directory";
@@ -130,15 +130,19 @@ export async function updatePositionDescription(
   if (!command.ok) return command;
 
   try {
-    const updated = await prisma.positionDescription.update({
-      where: { id: command.data.id },
-      data: {
-        ...command.data.data,
-        editedBy: userId,
-        editedAt: new Date(),
-      },
+    const updated = await prisma.$transaction(async (tx) => {
+      await ensureEditHistoryBaseline("PositionDescription", command.data.id, userId, tx);
+      const positionDescription = await tx.positionDescription.update({
+        where: { id: command.data.id },
+        data: {
+          ...command.data.data,
+          editedBy: userId,
+          editedAt: new Date(),
+        },
+      });
+      await snapshotHistory("PositionDescription", command.data.id, userId, tx);
+      return positionDescription;
     });
-    await snapshotHistory("PositionDescription", command.data.id, userId);
     return { ok: true, data: { success: true, positionDescription: updated } };
   } catch (error: unknown) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {

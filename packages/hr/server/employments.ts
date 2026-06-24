@@ -3,7 +3,7 @@ import { authenticate, checkHRWrite } from "@workspace/platform/server/auth";
 import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
 import { Prisma } from "@workspace/platform/server/prisma";
 import { handleCreate, handleUpdateField } from "./hr-crud";
-import { snapshotHistory } from "@workspace/platform/server/history";
+import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
 import { matchEmployee } from "@workspace/platform/search";
@@ -176,6 +176,7 @@ export async function updateEmploymentField(request: Request, params: Promise<{ 
   const endDate = employment.leaveDate || new Date().toISOString().slice(0, 10);
 
   await prisma.$transaction(async (tx) => {
+    await ensureEditHistoryBaseline("Employment", recordId, payload.userId, tx);
     await tx.employment.update({
       where: { id: recordId },
       data: { isActive: false, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
@@ -193,12 +194,14 @@ export async function updateEmploymentField(request: Request, params: Promise<{ 
     ]);
 
     if (edps.length > 0) {
+      for (const row of edps) await ensureEditHistoryBaseline("EDP", row.id, payload.userId, tx);
       await tx.eDP.updateMany({
         where: { id: { in: edps.map((row) => row.id) } },
         data: { endDate, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
       });
     }
     if (projectMembers.length > 0) {
+      for (const row of projectMembers) await ensureEditHistoryBaseline("EmployeeProject", row.id, payload.userId, tx);
       await tx.employeeProject.updateMany({
         where: { id: { in: projectMembers.map((row) => row.id) } },
         data: { endDate, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },

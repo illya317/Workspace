@@ -1,5 +1,5 @@
 import { Prisma, prisma } from "./prisma";
-import { snapshotHistory } from "./history";
+import { ensureEditHistoryBaseline, snapshotHistory } from "./history";
 import type { FkTargetPolicy } from "./fk-registry";
 
 type PrismaModelKey = keyof typeof prisma;
@@ -243,6 +243,7 @@ export async function guardedDelete(input: GuardedDeleteInput): Promise<DeleteGu
       const referenceBlock = await guardReferences(input.references, tx, actionLabel);
       if (referenceBlock) return referenceBlock;
 
+      await ensureEditHistoryBaseline(input.entityType, input.id, input.userId, tx);
       await snapshotHistory(input.entityType, input.id, input.userId, tx);
       await cleanupReferences(input.references, tx);
       await applyDelete(model, input, record);

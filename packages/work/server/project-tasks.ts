@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { snapshotHistory } from "@workspace/platform/server/history";
+import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { canEditProject, canViewProject } from "./access";
 import { formatDate } from "./project-normalization";
@@ -193,6 +193,7 @@ export async function updateProjectTask(input: { userId: number; projectId: numb
   if (planError) return { ok: false as const, error: planError };
 
   const task = await prisma.$transaction(async (tx) => {
+    await ensureEditHistoryBaseline("ProjectTask", input.taskId, input.userId, tx);
     const updated = await tx.projectTask.update({
       where: { id: input.taskId },
       data: {
@@ -208,9 +209,9 @@ export async function updateProjectTask(input: { userId: number; projectId: numb
     if (normalized.data.predecessorTaskIds !== undefined) {
       await syncTaskPredecessors(tx, input.projectId, input.taskId, normalized.data.predecessorTaskIds, input.userId);
     }
+    await snapshotHistory("ProjectTask", input.taskId, input.userId, tx);
     return updated;
   });
-  await snapshotHistory("ProjectTask", task.id, input.userId);
   return { ok: true as const, data: { task } };
 }
 
@@ -307,8 +308,9 @@ export async function deleteProjectTask(input: { userId: number; projectId: numb
   if (!(await canEditProject(input.userId, input.projectId))) {
     return { ok: false as const, error: "无权限", status: 403 };
   }
-  await snapshotHistory("ProjectTask", input.taskId, input.userId);
   await prisma.$transaction(async (tx) => {
+    await ensureEditHistoryBaseline("ProjectTask", input.taskId, input.userId, tx);
+    await snapshotHistory("ProjectTask", input.taskId, input.userId, tx);
     await tx.projectPlanDependency.deleteMany({
       where: {
         projectId: input.projectId,

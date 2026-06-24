@@ -16,6 +16,7 @@ export interface AuditEntry {
   editorName: string;
   createdAt: string;
   tag: string | null;
+  action?: "create" | "update";
   changes: AuditChange[];
 }
 
@@ -47,7 +48,10 @@ export default function AuditLogEntry({
       </span>
       <span className="w-36 shrink-0 text-xs text-gray-500">{new Date(entry.createdAt).toLocaleString("zh-CN")}</span>
       <span className="w-16 shrink-0 text-xs text-gray-700">{entry.editorName}</span>
-      <span className="truncate text-xs font-medium text-gray-800">{entry.entityName}</span>
+      <span className="truncate text-xs font-medium text-gray-800">
+        {entry.entityName}
+        {entry.action === "create" ? " · 创建记录" : ""}
+      </span>
     </div>
   );
 
@@ -59,7 +63,9 @@ export default function AuditLogEntry({
         </span>
       ))}
       {entry.changes.length > 4 && <span className="text-xs text-gray-400">+{entry.changes.length - 4}</span>}
-      {entry.changes.length === 0 && <span className="text-xs text-gray-300">无变更</span>}
+      {entry.changes.length === 0 && (
+        <span className="text-xs text-gray-300">{entry.action === "create" ? "创建记录" : "无变更"}</span>
+      )}
     </div>
   );
 

@@ -14,6 +14,7 @@ export interface ProfileHistoryEntry {
   version: number;
   editorName: string;
   createdAt: string;
+  action?: "create" | "update";
   changes: Array<{ field: string; label: string; from: string; to: string }>;
 }
 
@@ -53,21 +54,28 @@ export function HistorySection({
         ) : (
           entries.map((entry) => {
             const expanded = expandedId === entry.id;
+            const headerTitle = entry.action === "create"
+              ? `${entry.editorName} 创建记录`
+              : `${entry.editorName} 修改了 ${entry.changes.length} 项`;
             return (
               <DisclosureRecordCard
                 key={entry.id}
                 expanded={expanded}
                 onToggle={() => onToggle(entry.id)}
-                header={<div><div className="text-sm font-semibold text-slate-900">{entry.editorName} 修改了 {entry.changes.length} 项</div><div className="mt-1 text-xs text-slate-500">{new Date(entry.createdAt).toLocaleString("zh-CN", { hour12: false })} · {entry.entityType} #{entry.entityId} · v{entry.version}</div></div>}
+                header={<div><div className="text-sm font-semibold text-slate-900">{headerTitle}</div><div className="mt-1 text-xs text-slate-500">{new Date(entry.createdAt).toLocaleString("zh-CN", { hour12: false })} · {entry.entityType} #{entry.entityId} · v{entry.version}</div></div>}
                 summary={<span className="text-xs text-slate-400">{expanded ? "收起" : "展开"}</span>}
               >
-                <DataTable
-                  rows={entry.changes}
-                  columns={changeColumns}
-                  visibleColumns={["field", "from", "to"]}
-                  density="compact"
-                  rowKey={(change) => `${entry.id}-${change.field}`}
-                />
+                {entry.action === "create" ? (
+                  <EmptyStateCard compact>创建时的初始快照。</EmptyStateCard>
+                ) : (
+                  <DataTable
+                    rows={entry.changes}
+                    columns={changeColumns}
+                    visibleColumns={["field", "from", "to"]}
+                    density="compact"
+                    rowKey={(change) => `${entry.id}-${change.field}`}
+                  />
+                )}
               </DisclosureRecordCard>
             );
           })

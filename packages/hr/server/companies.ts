@@ -1,7 +1,7 @@
 import { Prisma } from "@workspace/platform/server/prisma";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
 import type { DeleteGuardContext } from "@workspace/platform/server/delete-guard";
-import { snapshotHistory } from "@workspace/platform/server/history";
+import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
 import { handleCreate, handleDelete, handleUpdateField } from "./hr-crud";
@@ -81,6 +81,7 @@ export async function upsertCompany(body: Record<string, unknown>, userId: numbe
   const { id, code, name, dataFields } = command.data;
 
   if (id) {
+    await ensureEditHistoryBaseline("Company", id, userId);
     await prisma.company.update({
       where: { id },
       data: { code, name, ...dataFields, editedBy: userId, editedAt: new Date(), version: { increment: 1 } },

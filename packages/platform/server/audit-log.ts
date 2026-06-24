@@ -51,6 +51,7 @@ export interface AuditLogEntry {
   editorName: string;
   createdAt: Date;
   tag: string | null;
+  action: "create" | "update";
   changes: Array<{ field: string; from?: string; to: string }>;
 }
 
@@ -134,7 +135,7 @@ export async function getAuditLogEntries(
 
   const auditFields = new Set(["editedBy", "editedAt", "version", "editor", "createdAt", "updatedAt", "id"]);
 
-  const allSnapshots = pageVersions.map((version) => {
+  const allSnapshots = allVersions.map((version) => {
     try {
       return JSON.parse(version.dataJson);
     } catch {
@@ -143,10 +144,7 @@ export async function getAuditLogEntries(
   });
   const fkMap = await resolveFkValues(allSnapshots);
 
-  const editedIds = new Set(pageVersions.map((version) => `${version.entityType}:${version.entityId}`));
-  const displayV0s = allVersions.filter((version) => version.tag && editedIds.has(`${version.entityType}:${version.entityId}`));
-
-  const entries: AuditLogEntry[] = [...pageVersions, ...displayV0s]
+  const entries: AuditLogEntry[] = pageVersions
     .sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())
     .map((version) => {
       const previous = prevMap.get(version.id) || null;
@@ -154,19 +152,21 @@ export async function getAuditLogEntries(
       try {
         const currentData = JSON.parse(version.dataJson);
         const previousData = previous ? JSON.parse(previous.dataJson) : null;
-        const keys = new Set([...Object.keys(currentData), ...(previousData ? Object.keys(previousData) : [])]);
-        for (const key of keys) {
-          if (auditFields.has(key)) continue;
-          const current = currentData[key];
-          const old = previousData?.[key];
-          if (JSON.stringify(old) !== JSON.stringify(current)) {
-            const fromRaw = old != null ? (typeof old === "object" ? JSON.stringify(old) : String(old)) : "";
-            const toRaw = current != null ? (typeof current === "object" ? JSON.stringify(current) : String(current)) : "";
-            changes.push({
-              field: key,
-              from: fromRaw ? fkDisplay(key, fromRaw, fkMap) : "(空)",
-              to: toRaw ? fkDisplay(key, toRaw, fkMap) : "(空)",
-            });
+        if (previousData) {
+          const keys = new Set([...Object.keys(currentData), ...Object.keys(previousData)]);
+          for (const key of keys) {
+            if (auditFields.has(key)) continue;
+            const current = currentData[key];
+            const old = previousData[key];
+            if (JSON.stringify(old) !== JSON.stringify(current)) {
+              const fromRaw = old != null ? (typeof old === "object" ? JSON.stringify(old) : String(old)) : "";
+              const toRaw = current != null ? (typeof current === "object" ? JSON.stringify(current) : String(current)) : "";
+              changes.push({
+                field: key,
+                from: fromRaw ? fkDisplay(key, fromRaw, fkMap) : "(空)",
+                to: toRaw ? fkDisplay(key, toRaw, fkMap) : "(空)",
+              });
+            }
           }
         }
       } catch {
@@ -181,6 +181,7 @@ export async function getAuditLogEntries(
         editorName: userEmployeeName(version.editor) || `用户#${version.editedBy}`,
         createdAt: version.createdAt,
         tag: version.tag || null,
+        action: previous ? "update" : "create",
         changes,
       };
     });

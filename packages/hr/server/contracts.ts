@@ -1,7 +1,7 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { Prisma } from "@workspace/platform/server/prisma";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
-import { snapshotHistory } from "@workspace/platform/server/history";
+import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import {
   buildContractRows,
   clearPrimaryContractFlags,
@@ -41,6 +41,7 @@ async function clearPrimaryContractsForEmployee(
     const parsed = parseContracts(employment.contracts).map(normalizeContractRecord);
     const result = clearPrimaryContractFlags(parsed);
     if (!result.changed) continue;
+    await ensureEditHistoryBaseline("Employment", employment.id, editorId);
     await prisma.employment.update({
       where: { id: employment.id },
       data: {
@@ -133,6 +134,7 @@ async function addContract(
   }
   rawContracts.push(normalizeContractRecord(contractData));
 
+  await ensureEditHistoryBaseline("Employment", emp.id, editorId);
   await prisma.employment.update({
     where: { id: emp.id },
     data: {
@@ -203,6 +205,7 @@ export async function updateContractField(
     await clearPrimaryContractsForEmployee(loaded.employment.employeeId, userId, loaded.employmentId);
   }
 
+  await ensureEditHistoryBaseline("Employment", loaded.employmentId, userId);
   await prisma.employment.update({
     where: { id: loaded.employmentId },
     data: { contracts: JSON.stringify(contracts), editedBy: userId, editedAt: new Date(), version: { increment: 1 } },
@@ -220,6 +223,7 @@ export async function deleteContract(contractId: number, userId: number) {
   if (!loaded.ok) return loaded;
 
   loaded.contracts.splice(loaded.index, 1);
+  await ensureEditHistoryBaseline("Employment", loaded.employmentId, userId);
   await prisma.employment.update({
     where: { id: loaded.employmentId },
     data: { contracts: JSON.stringify(loaded.contracts), editedBy: userId, editedAt: new Date(), version: { increment: 1 } },

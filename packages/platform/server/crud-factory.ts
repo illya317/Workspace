@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticate } from "./auth";
-import { snapshotHistory } from "./history";
+import { ensureEditHistoryBaseline, snapshotHistory } from "./history";
 import {
   guardedDelete,
   parsePositiveId,
@@ -100,14 +100,17 @@ export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: A
       const allowed = config.allowedFields || [];
       if (!allowed.includes(field)) return NextResponse.json({ error: "非法字段" }, { status: 400 });
 
-      const model = prisma[config.modelKey] as unknown as {
-        update: (args: { where: { id: number }; data: Record<string, unknown> }) => Promise<unknown>;
-      };
-      await model.update({
-        where: { id: recordId },
-        data: { [field]: value ?? null, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
+      await prisma.$transaction(async (tx) => {
+        const txModel = (tx as unknown as Record<string, unknown>)[String(config.modelKey)] as {
+          update: (args: { where: { id: number }; data: Record<string, unknown> }) => Promise<unknown>;
+        };
+        await ensureEditHistoryBaseline(config.entityType, recordId, payload.userId, tx);
+        await txModel.update({
+          where: { id: recordId },
+          data: { [field]: value ?? null, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
+        });
+        await snapshotHistory(config.entityType, recordId, payload.userId, tx);
       });
-      await snapshotHistory(config.entityType, recordId, payload.userId);
 
       return NextResponse.json({ success: true });
     },

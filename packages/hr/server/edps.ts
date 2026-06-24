@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRWrite } from "@workspace/platform/server/auth";
 import { mapValidationToServiceResult, type DomainServiceResult } from "@workspace/platform/server/domain-validation";
-import { snapshotHistory } from "@workspace/platform/server/history";
+import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
 import { matchSearchFields } from "@workspace/platform/search";
 import { formatDepartmentPath } from "@workspace/hr/utils/department-path";
@@ -190,8 +190,11 @@ export async function updateEdpField(request: Request, params: Promise<{ id: str
     version: { increment: 1 },
   };
 
-  await prisma.eDP.update({ where: { id: recordId }, data });
-  await snapshotHistory("EDP", recordId, payload.userId);
+  await prisma.$transaction(async (tx) => {
+    await ensureEditHistoryBaseline("EDP", recordId, payload.userId, tx);
+    await tx.eDP.update({ where: { id: recordId }, data });
+    await snapshotHistory("EDP", recordId, payload.userId, tx);
+  });
   return NextResponse.json({ success: true });
 }
 

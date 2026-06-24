@@ -1,5 +1,5 @@
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
-import { snapshotHistory } from "@workspace/platform/server/history";
+import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { buildEmployeeProfileContractsCommand } from "./domain/contract-validation";
 
@@ -15,6 +15,7 @@ export async function updateEmployeeProfileContracts(
 
   await prisma.$transaction(async (tx) => {
     for (const employment of command.data.employments) {
+      await ensureEditHistoryBaseline("Employment", employment.id, userId, tx);
       await tx.employment.update({
         where: { id: employment.id },
         data: {
@@ -24,9 +25,9 @@ export async function updateEmployeeProfileContracts(
           version: { increment: 1 },
         },
       });
+      await snapshotHistory("Employment", employment.id, userId, tx);
     }
   });
 
-  await Promise.all(command.data.employments.map((employment) => snapshotHistory("Employment", employment.id, userId)));
   return { ok: true, data: { success: true } };
 }

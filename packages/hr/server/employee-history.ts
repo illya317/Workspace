@@ -113,14 +113,15 @@ export async function getEmployeeProfileHistoryByKey(key: string) {
     ...[...historicalEdpIds].map((entityId) => ({ entityType: "EDP", entityId })),
   ];
 
-  const rows = await prisma.editHistory.findMany({
-    where: { OR: filters, tag: null },
+  const allRows = await prisma.editHistory.findMany({
+    where: { OR: filters },
     include: { editor: { select: { nickname: true, employees: { select: { name: true }, take: 1 } } } },
     orderBy: [{ entityType: "asc" }, { entityId: "asc" }, { version: "asc" }],
   });
+  const rows = allRows.filter((row) => row.tag === null);
 
-  const groups = new Map<string, typeof rows>();
-  for (const row of rows) {
+  const groups = new Map<string, typeof allRows>();
+  for (const row of allRows) {
     const groupKey = `${row.entityType}:${row.entityId}`;
     const list = groups.get(groupKey) || [];
     list.push(row);
@@ -140,10 +141,11 @@ export async function getEmployeeProfileHistoryByKey(key: string) {
         version: row.version,
         editorName: userEmployeeName(row.editor) || `用户#${row.editedBy}`,
         createdAt: row.createdAt,
+        action: prev ? "update" as const : "create" as const,
         changes: diffSnapshot(prev, curr),
       };
     })
-    .filter((entry) => entry.changes.length > 0)
+    .filter((entry) => entry.action === "create" || entry.changes.length > 0)
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
   return { status: "ok" as const, data: { entries } };

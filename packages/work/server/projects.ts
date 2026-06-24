@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { snapshotHistory } from "@workspace/platform/server/history";
+import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { authenticate } from "@workspace/platform/server/auth";
 import { parseJson } from "@workspace/platform/server/api";
 import { prisma } from "@workspace/platform/server/prisma";
@@ -205,16 +205,19 @@ export async function updateProjectField(request: Request, params: Promise<{ id:
     value: body.value,
   });
   if (!command.ok) return NextResponse.json({ error: command.issue.message }, { status: command.issue.status || 400 });
-  await prisma.project.update({
-    where: { id: projectId },
-    data: {
-      ...command.data.data,
-      editedBy: payload.userId,
-      editedAt: new Date(),
-      version: { increment: 1 },
-    },
+  await prisma.$transaction(async (tx) => {
+    await ensureEditHistoryBaseline("Project", projectId, payload.userId, tx);
+    await tx.project.update({
+      where: { id: projectId },
+      data: {
+        ...command.data.data,
+        editedBy: payload.userId,
+        editedAt: new Date(),
+        version: { increment: 1 },
+      },
+    });
+    await snapshotHistory("Project", projectId, payload.userId, tx);
   });
-  await snapshotHistory("Project", projectId, payload.userId);
   return NextResponse.json({ success: true });
 }
 
@@ -226,7 +229,10 @@ export async function deleteProject(request: Request, params: Promise<{ id: stri
   if (!Number.isInteger(projectId)) return NextResponse.json({ error: "ID 无效" }, { status: 400 });
   const command = await validateProjectDeleteCommand(payload.userId, projectId);
   if (!command.ok) return NextResponse.json({ error: command.issue.message }, { status: command.issue.status || 400 });
-  await snapshotHistory("Project", command.data.projectId, payload.userId);
-  await prisma.project.delete({ where: { id: command.data.projectId } });
+  await prisma.$transaction(async (tx) => {
+    await ensureEditHistoryBaseline("Project", command.data.projectId, payload.userId, tx);
+    await snapshotHistory("Project", command.data.projectId, payload.userId, tx);
+    await tx.project.delete({ where: { id: command.data.projectId } });
+  });
   return NextResponse.json({ success: true });
 }

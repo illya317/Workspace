@@ -33,11 +33,65 @@ function clientKey(entityType: EntityType): string {
   return entityType.charAt(0).toLowerCase() + entityType.slice(1);
 }
 
-/**
- * Snapshot the current record into EditHistory after a successful edit.
- */
 type HistoryClient = Pick<typeof prisma, "editHistory"> & Record<string, unknown>;
 
+async function readRecord(
+  entityType: EntityType,
+  entityId: number,
+  client: HistoryClient | Prisma.TransactionClient,
+) {
+  return (
+    client as unknown as Record<
+      string,
+      { findUnique: (args: { where: { id: number } }) => Promise<Record<string, unknown> | null> }
+    >
+  )[clientKey(entityType)].findUnique({
+    where: { id: entityId },
+  });
+}
+
+/**
+ * Preserve the pre-edit state once for records that existed before audit
+ * history was available. Creates never call this, so V1 remains the create
+ * snapshot for newly inserted records.
+ */
+export async function ensureEditHistoryBaseline(
+  entityType: string,
+  entityId: number,
+  userId: number,
+  client: HistoryClient | Prisma.TransactionClient = prisma,
+) {
+  assertEntityType(entityType);
+
+  const entityIdStr = String(entityId);
+  const existing = await client.editHistory.findFirst({
+    where: {
+      entityType,
+      entityId: entityIdStr,
+      OR: [{ tag: "V0:baseline" }, { tag: null }],
+    },
+    select: { id: true },
+  });
+  if (existing) return;
+
+  const record = await readRecord(entityType, entityId, client);
+  if (!record) return;
+
+  await client.editHistory.create({
+    data: {
+      entityType,
+      entityId: entityIdStr,
+      version: 0,
+      tag: "V0:baseline",
+      dataJson: JSON.stringify(record),
+      editedBy: userId,
+    },
+  });
+}
+
+/**
+ * Snapshot the current record after a successful edit or create.
+ */
 export async function snapshotHistory(
   entityType: string,
   entityId: number,
@@ -46,14 +100,7 @@ export async function snapshotHistory(
 ) {
   assertEntityType(entityType);
 
-  const record = await (
-    client as unknown as Record<
-      string,
-      { findUnique: (args: { where: { id: number } }) => Promise<Record<string, unknown> | null> }
-    >
-  )[clientKey(entityType)].findUnique({
-    where: { id: entityId },
-  });
+  const record = await readRecord(entityType, entityId, client);
   if (!record) return;
 
   const entityIdStr = String(entityId);
