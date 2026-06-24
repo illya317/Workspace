@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
+import { ActionButton, IconActionButton } from "@workspace/core/ui";
 
 type NotificationItem = {
   id: number;
@@ -245,23 +246,31 @@ export default function NotificationBell({
               <div className="whitespace-nowrap text-sm font-semibold text-slate-900">通知</div>
               <div className="whitespace-nowrap text-xs text-slate-400">{data.pendingCount} 条待确认 · {data.unreadCount} 条未读 · 共 {data.total} 条</div>
             </div>
-            <button type="button" className="ml-auto whitespace-nowrap text-xs text-slate-400 hover:text-slate-700" onClick={() => void load(0)}>刷新</button>
-            <button
-              type="button"
-              className="whitespace-nowrap text-xs text-slate-400 hover:text-slate-700 disabled:text-slate-300"
-              disabled={markingRead || data.unreadCount === 0}
-              onClick={() => void markAllRead()}
-            >
-              全部已读
-            </button>
-            <button
-              type="button"
-              className="whitespace-nowrap text-xs text-slate-400 hover:text-red-600 disabled:text-slate-300"
-              disabled={clearing || data.total === 0}
-              onClick={() => void clearNotifications()}
-            >
-              清空已读
-            </button>
+            <div className="ml-auto flex items-center gap-1">
+              <ActionButton
+                variant="secondary"
+                className="!h-7 !px-2 !text-[11px] !font-medium"
+                onClick={() => void load(0)}
+              >
+                刷新
+              </ActionButton>
+              <ActionButton
+                variant="secondary"
+                className="!h-7 !px-2 !text-[11px] !font-medium"
+                disabled={markingRead || data.unreadCount === 0}
+                onClick={() => void markAllRead()}
+              >
+                全部已读
+              </ActionButton>
+              <ActionButton
+                variant="secondary"
+                className="!h-7 !px-2 !text-[11px] !font-medium !text-red-600 hover:!bg-red-50"
+                disabled={clearing || data.total === 0}
+                onClick={() => void clearNotifications()}
+              >
+                清空已读
+              </ActionButton>
+            </div>
           </div>
 
           <div className="max-h-96 overflow-y-auto py-1">
@@ -313,16 +322,14 @@ export default function NotificationBell({
                       </div>
                       <div className="mt-1 text-xs leading-5 text-slate-600">{item.body}</div>
                     </div>
-                    <button
-                      type="button"
-                      aria-label="清除通知"
-                      title="清除"
-                      className="grid size-6 shrink-0 place-items-center rounded-full text-lg leading-none text-slate-300 transition hover:bg-slate-100 hover:text-slate-600 disabled:cursor-not-allowed disabled:text-slate-200"
+                    <IconActionButton
+                      label="清除通知"
+                      className="!size-6 !rounded-full !border-0 !bg-transparent !text-lg !leading-none !text-slate-300 hover:!bg-slate-100 hover:!text-slate-600 disabled:!text-slate-200"
                       disabled={busyId === item.id}
                       onClick={() => void updateNotification(item.id, "clear")}
                     >
                       ×
-                    </button>
+                    </IconActionButton>
                   </div>
                   <div className="mt-2 flex items-center justify-between gap-3">
                     <div className="min-w-0 truncate text-left text-[11px] text-slate-400">
@@ -330,22 +337,22 @@ export default function NotificationBell({
                     </div>
                     {pendingAcknowledgement && (
                       <div className="flex shrink-0 items-center gap-1.5">
-                        <button
-                          type="button"
-                          className="rounded-full bg-emerald-600 px-2.5 py-1 text-[11px] font-medium leading-none text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        <ActionButton
+                          variant="primary"
+                          className="!h-6 !rounded-full !px-2.5 !text-[11px] !font-medium !leading-none"
                           disabled={busyId === item.id}
                           onClick={() => void updateNotification(item.id, "acknowledge")}
                         >
                           确认
-                        </button>
-                        <button
-                          type="button"
-                          className="rounded-full bg-white px-2.5 py-1 text-[11px] font-medium leading-none text-red-600 ring-1 ring-red-100 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        </ActionButton>
+                        <ActionButton
+                          variant="secondary"
+                          className="!h-6 !rounded-full !px-2.5 !text-[11px] !font-medium !leading-none !text-red-600 hover:!bg-red-50"
                           disabled={busyId === item.id}
                           onClick={() => void updateNotification(item.id, "reject")}
                         >
                           拒绝
-                        </button>
+                        </ActionButton>
                       </div>
                     )}
                   </div>
