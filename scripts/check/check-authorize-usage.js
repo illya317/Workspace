@@ -21,6 +21,7 @@ const PUBLIC_API_ROUTES = new Set([
   "app/api/auth/wecom/callback/route.ts",
   "app/api/auth/wecom/start/route.ts",
   "app/api/auth/dev-login-bypass/route.ts",
+  "app/api/settings/version/route.ts",
   "app/api/settings/account/week-info/route.ts",
 ]);
 const API_ACCESS_IMPORTS = [
