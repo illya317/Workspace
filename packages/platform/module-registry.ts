@@ -301,13 +301,14 @@ export const registeredModuleDefinitions = [
         { key: "account", label: "账号与接入", desc: "", href: "/settings/account", resourceKey: "settings.account", resourceMaxRoleKey: "access", apiPrefixes: ["/api/settings/account"] },
         { key: "admin", label: "系统管理", desc: "用户、权限、资源和管理员配置", href: "/settings/admin", resourceKey: "settings.admin", apiPrefixes: ["/api/settings/admin"] },
         { key: "api", label: "API 接入", desc: "Open API Client、Scope 授权和调用日志", href: "/settings/api", resourceKey: "settings.api", resourceMaxRoleKey: "access", apiPrefixes: ["/api/settings/api"] },
+        { key: "ui", label: "UI 组件库", desc: "按 primitive / assembly / frame 查看核心 UI 组件注册表", href: "/settings/ui", resourceKey: "settings.ui", resourceMaxRoleKey: "access", noApiReason: "纯客户端组件浏览页面，无服务端 API" },
       ],
     },
     resourceDefs: [
       { key: "settings.account.apiAccess", name: "个人 API 使用", kind: "capability", capabilityOwnerKey: "settings.account", runtimeParentKey: "settings.account", maxRoleKey: "access", sortOrder: 0 },
       { key: "settings.api.manage", name: "Open API Client 管理", kind: "capability", capabilityOwnerKey: "settings.api", runtimeParentKey: "settings.api", maxRoleKey: "write", sortOrder: 0 },
     ],
-    routes: ["/settings", "/settings/account", "/settings/admin", "/settings/api", "/settings/api/hr-generated"],
+    routes: ["/settings", "/settings/account", "/settings/admin", "/settings/api", "/settings/api/hr-generated", "/settings/ui"],
     apiRoutes: [
       { method: "GET", pathPrefix: "/api/settings/version", access: "public" },
       { method: "GET", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
