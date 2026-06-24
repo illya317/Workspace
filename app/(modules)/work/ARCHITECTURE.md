@@ -26,6 +26,12 @@ Work 不保留顶层兼容 route shell；所有页面都挂在 `/work/*` 下。
 
 当前没有为 Work 的每个 L2 单独维护 `ARCHITECTURE.md`；Work 先使用这份 L1 文档记录 L2 边界。若某个 L2 继续膨胀到独立领域，再在对应 route/package 子目录下补 L2 文档。
 
+## 工作计划交互规则
+
+`/work/tasks`、`/work/tasks/personal`、`/work/tasks/departments/:id`、`/work/tasks/projects/:id` 是同一个工作计划客户端工作台的不同空间视图，不是彼此独立的重页面。`/work/tasks` 直接渲染个人工作台作为默认入口，不通过 server `redirect` 跳到 `/work/tasks/personal`。
+
+个人、部门、项目空间之间切换时，必须保留 `WorkTasksPageView` / `WorksClient` 的客户端状态，只刷新当前空间数据。URL 同步使用 `window.history.pushState/replaceState` + `workspacePath`，并通过 `popstate` 处理浏览器前进/后退；不要为这些空间切换使用 `router.push/replace`、`redirect` 或 `<Link>`，避免云端多一次整页导航/RSC 往返导致工作计划加载变慢。
+
 ## 项目管理数据模型
 
 - `Project`：项目事实表。

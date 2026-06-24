@@ -14,6 +14,7 @@
 - 搜索型原生 input 的历史债为 0：除 `packages/core/ui/SearchInput.tsx` 内部实现外，`app/` 和 `packages/` 不得出现 `type="search"` 或 `placeholder/aria-label` 带搜索语义的原生 `<input>`。新增会被 `npm run arch:gate` 的 `nativeSearchInputFiles` ratchet 拦住。
 - Core UI 可用入口以 `packages/core/ui/component-registry.ts` 为准。业务包、Platform 页面和 app 壳不得引用未注册 Core UI 名字，也不得在 `packages/*/ui` 新增手写页面卡片/筛选/分栏/表格壳；新增同类结构会被 `npm run arch:gate` 的 Level 2 ratchet 拦住。
 - 页面模板采用 `A Core 源头层 -> B 薄壳 ViewModel -> C 渲染`：A 是 Core 中的一组可组合模板部件，可以拆成 A1/A2/A3/A4，分别承载类型、布局、默认动作、弹窗和状态机；B 只把业务事实映射成 Core 的 ViewModel 类型，传入真实回调和状态；C 只负责 `<CoreTemplate {...viewModel} />` 渲染。
+- URL 只是同页状态的外显时，不能触发 Next 整页导航或 RSC remount。tab、筛选、选中部门/项目/记录、同一工作台内切空间等交互应由客户端状态驱动；需要同步地址栏时用 `window.history.pushState/replaceState`，URL 必须经 `workspacePath` 处理 basePath，并加 `popstate` 让浏览器前进/后退回写状态。`router.push/replace`、`redirect`、`<Link>` 只用于真正进入另一个页面、详情资源或模块。
 
 ## Core 组件
 
