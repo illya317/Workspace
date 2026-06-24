@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { DatabasePageFrame, EmptyStateCard, SelectField, Toast, ToolbarOptionGroup } from "@workspace/core/ui";
+import { BlockCreatePanel, CommandToolbar, DatabasePageFrame, EmptyStateCard, SelectField, Toast, ToolbarOptionGroup } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 
 type ToastState = { type: "success" | "error"; message: string } | null;
@@ -286,36 +286,44 @@ export default function MeetingsPage({ user }: { user: SessionUser }) {
 
   return (
     <DatabasePageFrame>
-      <div className="space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3">
-          <ToolbarOptionGroup
-            ariaLabel="会议类型"
-            value={typeFilter}
-            options={[{ value: "all", label: "全部会议" }, ...types.map((type) => ({ value: String(type.id), label: type.name }))]}
-            onChange={setTypeFilter}
-          />
-          <div className="flex items-center gap-2">
-            <button type="button" className={secondaryButtonClass} onClick={() => void loadMeetings()} disabled={loading || saving}>刷新</button>
-            <button type="button" className={primaryButtonClass} onClick={() => setCreating(true)} disabled={saving}>新建会议</button>
+      <BlockCreatePanel
+        title="会议"
+        canCreate
+        creating={creating}
+        disabled={saving}
+        submitting={saving}
+        submitDisabled={saving || !createDraft.title.trim() || !createDraft.typeId}
+        addLabel="新建会议"
+        submitLabel="保存会议"
+        onStartCreate={() => setCreating(true)}
+        onCancelCreate={() => setCreating(false)}
+        onSubmitCreate={() => void handleCreateMeeting()}
+        createContent={(
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <SelectBox label="会议类型" value={createDraft.typeId} options={types.map((type) => ({ value: String(type.id), label: type.name }))} onChange={(typeId) => setCreateDraft((draft) => ({ ...draft, typeId }))} />
+            <InputBox label="会议主题" value={createDraft.title} onChange={(title) => setCreateDraft((draft) => ({ ...draft, title }))} />
+            <InputBox label="地点" value={createDraft.location} onChange={(location) => setCreateDraft((draft) => ({ ...draft, location }))} />
+            <InputBox label="开始时间" type="datetime-local" value={createDraft.startAt} onChange={(startAt) => setCreateDraft((draft) => ({ ...draft, startAt }))} />
+            <InputBox label="结束时间" type="datetime-local" value={createDraft.endAt} onChange={(endAt) => setCreateDraft((draft) => ({ ...draft, endAt }))} />
+            <SelectBox label="可见性" value={createDraft.visibility} options={[{ value: "participants_only", label: selectedType?.defaultVisibility === "public" ? "参会人可见" : "参会人可见" }, { value: "public", label: "模块内公开" }]} onChange={(visibility) => setCreateDraft((draft) => ({ ...draft, visibility: visibility as CreateMeetingDraft["visibility"] }))} />
+            <InputBox label="参会用户 ID" value={createDraft.participantUserIds} onChange={(participantUserIds) => setCreateDraft((draft) => ({ ...draft, participantUserIds }))} />
+            <InputBox label="说明" value={createDraft.description} onChange={(description) => setCreateDraft((draft) => ({ ...draft, description }))} className="xl:col-span-2" />
           </div>
-        </div>
-
-        {creating && (
-          <section className="rounded-lg border border-emerald-200 bg-white p-4">
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              <SelectBox label="会议类型" value={createDraft.typeId} options={types.map((type) => ({ value: String(type.id), label: type.name }))} onChange={(typeId) => setCreateDraft((draft) => ({ ...draft, typeId }))} />
-              <InputBox label="会议主题" value={createDraft.title} onChange={(title) => setCreateDraft((draft) => ({ ...draft, title }))} />
-              <InputBox label="地点" value={createDraft.location} onChange={(location) => setCreateDraft((draft) => ({ ...draft, location }))} />
-              <InputBox label="开始时间" type="datetime-local" value={createDraft.startAt} onChange={(startAt) => setCreateDraft((draft) => ({ ...draft, startAt }))} />
-              <InputBox label="结束时间" type="datetime-local" value={createDraft.endAt} onChange={(endAt) => setCreateDraft((draft) => ({ ...draft, endAt }))} />
-              <SelectBox label="可见性" value={createDraft.visibility} options={[{ value: "participants_only", label: selectedType?.defaultVisibility === "public" ? "参会人可见" : "参会人可见" }, { value: "public", label: "模块内公开" }]} onChange={(visibility) => setCreateDraft((draft) => ({ ...draft, visibility: visibility as CreateMeetingDraft["visibility"] }))} />
-              <InputBox label="参会用户 ID" value={createDraft.participantUserIds} onChange={(participantUserIds) => setCreateDraft((draft) => ({ ...draft, participantUserIds }))} />
-              <InputBox label="说明" value={createDraft.description} onChange={(description) => setCreateDraft((draft) => ({ ...draft, description }))} className="xl:col-span-2" />
-            </div>
-            <FormActions saving={saving} submitLabel="保存会议" onSubmit={() => void handleCreateMeeting()} onCancel={() => setCreating(false)} disabled={!createDraft.title.trim() || !createDraft.typeId} />
-          </section>
         )}
-
+        bodyClassName="p-4"
+      >
+        <div className="space-y-4">
+          <CommandToolbar
+            filters={(
+              <ToolbarOptionGroup
+                ariaLabel="会议类型"
+                value={typeFilter}
+                options={[{ value: "all", label: "全部会议" }, ...types.map((type) => ({ value: String(type.id), label: type.name }))]}
+                onChange={setTypeFilter}
+              />
+            )}
+            selectionActions={<button type="button" className={secondaryButtonClass} onClick={() => void loadMeetings()} disabled={loading || saving}>刷新</button>}
+          />
         <div className="grid gap-4 xl:grid-cols-[20rem_minmax(0,1fr)]">
           <MeetingList
             loading={loading}
@@ -478,6 +486,7 @@ export default function MeetingsPage({ user }: { user: SessionUser }) {
           </main>
         </div>
       </div>
+      </BlockCreatePanel>
       <Toast type={toast?.type} message={toast?.message || ""} show={!!toast} onClose={() => setToast(null)} />
     </DatabasePageFrame>
   );
@@ -781,27 +790,6 @@ function DecisionSelect({ meeting, value, onChange }: { meeting: MeetingDetail; 
       options={[{ value: "", label: "不关联" }, ...meeting.decisions.map((item) => ({ value: String(item.id), label: item.title }))]}
       onChange={onChange}
     />
-  );
-}
-
-function FormActions({
-  saving,
-  submitLabel,
-  disabled,
-  onSubmit,
-  onCancel,
-}: {
-  saving: boolean;
-  submitLabel: string;
-  disabled: boolean;
-  onSubmit: () => void;
-  onCancel: () => void;
-}) {
-  return (
-    <div className="mt-3 flex justify-end gap-2">
-      <button type="button" className={secondaryButtonClass} onClick={onCancel} disabled={saving}>取消</button>
-      <button type="button" className={primaryButtonClass} onClick={onSubmit} disabled={saving || disabled}>{submitLabel}</button>
-    </div>
   );
 }
 
