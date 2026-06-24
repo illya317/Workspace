@@ -11,7 +11,6 @@ import {
   CommandToolbar,
   coreUiComponentKindMeta,
   coreUiComponentRegistry,
-  coreUiComponentTierMeta,
   EmptyStateCard,
   IconActionButton,
   NumberCell,
@@ -31,6 +30,11 @@ import {
 } from "@workspace/core/ui";
 import type { CoreUiComponentTier } from "@workspace/core/ui";
 
+const TIER_LABELS: Record<CoreUiComponentTier, string> = {
+  primitive: "原子组件",
+  assembly: "常用组合",
+  frame: "页面框架",
+};
 const TIERS: CoreUiComponentTier[] = ["primitive", "assembly", "frame"];
 const ALL_KIND = "all";
 
@@ -204,7 +208,7 @@ export default function UiComponentsShowcase() {
             value={tier}
             options={TIERS.map((value) => ({
               value,
-              label: coreUiComponentTierMeta[value].label,
+              label: TIER_LABELS[value],
             }))}
             onChange={(value) => {
               setTier(value as CoreUiComponentTier);
@@ -219,7 +223,6 @@ export default function UiComponentsShowcase() {
               options={kindOptions}
               value={kind}
               onChange={setKind}
-              placeholder="全部分类"
               size="toolbar"
               className="w-32"
             />
