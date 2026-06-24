@@ -1,3 +1,5 @@
+import { matchText } from "@workspace/core/search";
+
 export type ProjectGanttZoom = "year" | "quarter" | "month";
 
 export type ProjectGanttProject = {
@@ -123,7 +125,7 @@ export function buildProjectGanttRows(input: {
   const nodes = new Map<string, GanttNode>();
   const children = new Map<string, string[]>();
   const projectFilterPass = new Map<string, boolean>();
-  const keyword = input.keyword.trim().toLowerCase();
+  const keyword = input.keyword.trim();
   const levelFiltered = input.level !== "all";
 
   function addNode(node: GanttNode) {
@@ -211,7 +213,7 @@ function collectIncludedKeys(
 ) {
   const candidateKeys = new Set<string>();
   for (const node of nodes.values()) {
-    const matchesText = !keyword || node.searchText.toLowerCase().includes(keyword);
+    const matchesText = !keyword || matchText(node.searchText, keyword);
     const matchesFilter = node.kind === "project"
       ? Boolean(projectFilterPass.get(node.key))
       : node.kind === "task"

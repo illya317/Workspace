@@ -1,13 +1,11 @@
 import { z } from "zod";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import { requireApiAccess } from "@workspace/platform/server/auth";
 import {
   projectPlanServiceResponse,
   syncProjectPlanDependencies,
 } from "@workspace/work/server";
 
-const projectIdParamsSchema = z.object({
-  id: z.coerce.number().int().positive(),
-});
 
 const dependencySchema = z.object({
   predecessorKind: z.enum(["project", "task"]),
@@ -25,7 +23,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   const auth = await requireApiAccess(request);
   if (!auth.ok) return auth.response;
 
-  const parsedParams = projectIdParamsSchema.safeParse(await params);
+  const parsedParams = routeIdParamsSchema.safeParse(await params);
   if (!parsedParams.success) return Response.json({ error: "项目 ID 无效" }, { status: 400 });
 
   const body = await request.json().catch(() => null);

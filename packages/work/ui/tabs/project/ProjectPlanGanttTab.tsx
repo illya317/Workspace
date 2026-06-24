@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { ActionButton, CommandToolbar, EmptyStateCard, SearchInput, SelectField, ToolbarOptionGroup, useConfirm } from "@workspace/core/ui";
+import { matchText } from "@workspace/core/search";
 import type { ProjectItem } from "./model";
 import {
   listProjectOptions,
@@ -68,9 +69,11 @@ export default function ProjectPlanGanttTab({ requestedProjectId }: { requestedP
   }, [selectedProjectId]);
 
   const filteredProjects = useMemo(() => {
-    const key = keyword.trim().toLowerCase();
+    const key = keyword.trim();
     if (!key) return projects;
-    return projects.filter((project) => [project.name, project.code, project.leadingDepartmentName].filter(Boolean).join(" ").toLowerCase().includes(key));
+    return projects.filter((project) =>
+      matchText([project.name, project.code, project.leadingDepartmentName].filter(Boolean).join(" "), key),
+    );
   }, [projects, keyword]);
 
   const dirty = data ? JSON.stringify(itemsForSave(items)) !== JSON.stringify(itemsForSave(data.items))
