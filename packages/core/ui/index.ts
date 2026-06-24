@@ -5,6 +5,8 @@ export { default as CodeBlock } from "./CodeBlock";
 export type { CodeBlockProps } from "./CodeBlock";
 export { default as BlockCreatePanel } from "./BlockCreatePanel";
 export type { BlockCreatePanelProps } from "./BlockCreatePanel";
+export { default as ModalCreatePanel } from "./ModalCreatePanel";
+export type { ModalCreatePanelProps } from "./ModalCreatePanel";
 export { default as AccordionTabBar } from "./AccordionTabBar";
 export type { AccordionTabBarProps, AccordionTabChild, AccordionTabItem } from "./AccordionTabBar";
 export { default as Toolbar } from "./CommandToolbar";

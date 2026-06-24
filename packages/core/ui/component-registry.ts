@@ -120,6 +120,7 @@ export const coreUiComponentRegistry = [
   { name: "HiddenDataField", kind: "form", description: "隐藏数据字段 primitive，用于纸面模板或集成场景保留机器可读字段。", example: "QC 纸面日期展示为中文年月日，同时提交 ISO 日期值。" },
   { name: "InlineCreatePanel", kind: "form", description: "统一新建入口：在页面内单行展开，只放创建所需的 required/FK 字段和创建/取消动作；业务可选择输入控件，但不能自定义字段间距、改按钮文案或改成弹窗。", example: "在列表顶部展开新建员工、批次、部门或岗位表单，填写 required 字段后确认创建。" },
   { name: "MetricCard", kind: "layout", description: "指标卡片，用于展示单个统计值和标签。", example: "分析页展示“本月 128”“同比 +12%”“预警 3”。" },
+  { name: "ModalCreatePanel", kind: "overlay", description: "弹窗新建/编辑面板，复用 DetailModal 和统一动作按钮，适合字段较多、不宜内联展开的记录维护。", example: "合同列表点击新建后弹出完整表单，底部使用统一取消和保存动作。", includes: ["DetailModal", "ActionButton"] },
   { name: "ModuleCardBody", kind: "layout", description: "模块入口卡片主体，封装图标、标题、描述、徽标和动作。", example: "设置首页或模块首页展示可进入的功能卡片。", includes: ["moduleCardColorClasses"] },
   { name: "ModuleGridPage", kind: "layout", description: "低密度模块入口页骨架，统一标题、说明和模块卡片网格。", example: "设置首页或模块首页使用卡片网格。", includes: ["PageContent"] },
   { name: "NumberCell", kind: "cell", description: "数字单元格，统一数值格式、对齐和空值展示。", example: "在库存或财务表格中展示 1,280 这类数量值。" },

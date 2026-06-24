@@ -8,16 +8,16 @@ import { DatabasePageFrame } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { useContracts } from "./hooks/useContracts";
 import ContractFilters from "./components/ContractFilters";
-import ContractsTable from "./components/ContractsTable";
+import ContractsTable, { CONTRACT_DEFAULT_VISIBLE_COLUMNS, getContractTableColumns } from "./components/ContractsTable";
 import ContractModal from "./components/ContractModal";
 import type { Contract, ModalMode } from "@workspace/administration/types";
 
 export default function ContractsClient({ user: _user, hideShell: _hideShell }: { user: SessionUser; hideShell?: boolean }) {
   const {
     contracts, total, page, setPage, totalPages,
-    q, setQ, locationFilter, setLocationFilter,
+    q, setQ, setLocationFilter,
     categoryFilter, setCategoryFilter, statusFilter, setStatusFilter,
-    locations, categories, statuses, refresh,
+    categories, statuses, refresh,
   } = useContracts();
 
   const { toast, showToast, closeToast } = useToast();
@@ -25,6 +25,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
   const [editing, setEditing] = useState<Partial<Contract>>({});
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(CONTRACT_DEFAULT_VISIBLE_COLUMNS);
 
   const openCreate = () => {
     setEditing({ location: "北京办公区", status: "执行中" });
@@ -35,6 +36,8 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
     setEditing({ ...c });
     setModalMode("edit");
   };
+
+  const toolbarColumns = getContractTableColumns(openEdit, setDeleteId);
 
   const closeModal = () => {
     setModalMode(null);
@@ -99,11 +102,20 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
         toolbar={(
           <ContractFilters
           q={q} onQChange={setQ}
-          locationFilter={locationFilter} onLocationChange={setLocationFilter}
           categoryFilter={categoryFilter} onCategoryChange={setCategoryFilter}
           statusFilter={statusFilter} onStatusChange={setStatusFilter}
-          locations={locations} categories={categories} statuses={statuses}
+          categories={categories} statuses={statuses}
+          columns={toolbarColumns}
+          visibleColumns={visibleColumns}
+          onColumnsChange={setVisibleColumns}
           onCreate={openCreate}
+          onReset={() => {
+            setQ("");
+            setLocationFilter("");
+            setCategoryFilter("");
+            setStatusFilter("");
+            setVisibleColumns(CONTRACT_DEFAULT_VISIBLE_COLUMNS);
+          }}
           />
         )}
         summary={<p className="text-sm text-slate-500">共 {total} 条记录</p>}
@@ -111,6 +123,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
 
         <ContractsTable
           contracts={contracts}
+          visibleColumns={visibleColumns}
           onEdit={openEdit}
           onDelete={setDeleteId}
         />

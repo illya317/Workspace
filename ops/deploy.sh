@@ -229,6 +229,7 @@ build_artifact() {
   rm -rf .next/standalone/generated/prisma
   mkdir -p .next/standalone/generated
   cp -R generated/prisma .next/standalone/generated/prisma
+  find .next/standalone \( -name '.DS_Store' -o -name '._*' \) -delete
 
   test -f .next/standalone/node_modules/better-sqlite3/lib/index.js
   test -f .next/standalone/node_modules/@prisma/client/default.js
@@ -236,7 +237,7 @@ build_artifact() {
 
   ARTIFACT_PATH=".next/workspace-standalone.tgz"
   rm -f "$ARTIFACT_PATH"
-  tar -C .next/standalone -czf "$ARTIFACT_PATH" .
+  COPYFILE_DISABLE=1 tar -C .next/standalone -czf "$ARTIFACT_PATH" .
   ARTIFACT_SHA="$(hash_cmd < "$ARTIFACT_PATH" | awk '{print $1}')"
   echo "==> 产物: $ARTIFACT_PATH ($ARTIFACT_SHA)"
 }

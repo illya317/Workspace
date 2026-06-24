@@ -1,18 +1,24 @@
 "use client";
 
-import { ActionButton, DataTable, PanelCard, StatusBadge, type DataTableColumn } from "@workspace/core/ui";
+import { DataTable, DataTableActionsCell, PanelCard, StatusBadge, type DataTableColumn } from "@workspace/core/ui";
 import type { Contract } from "@workspace/administration/types";
 
 interface ContractsTableProps {
   contracts: Contract[];
+  visibleColumns: string[];
   onEdit: (contract: Contract) => void;
   onDelete: (id: number) => void;
 }
 
-export default function ContractsTable({ contracts, onEdit, onDelete }: ContractsTableProps) {
-  const columns: DataTableColumn<Contract>[] = [
-    { key: "contractNo", label: "编号", defaultVisible: true, render: (c) => c.contractNo || "-" },
-    { key: "name", label: "名称", required: true, render: (c) => <span className="font-medium text-gray-900">{c.name}</span> },
+export const CONTRACT_DEFAULT_VISIBLE_COLUMNS = ["name", "partyA", "partyB", "category", "signDate"];
+
+export function getContractTableColumns(
+  onEdit: (contract: Contract) => void,
+  onDelete: (id: number) => void,
+): DataTableColumn<Contract>[] {
+  return [
+    { key: "contractNo", label: "编号", render: (c) => c.contractNo || "-" },
+    { key: "name", label: "名称", defaultVisible: true, render: (c) => <span className="font-medium text-slate-900">{c.name}</span> },
     { key: "partyA", label: "签署方", defaultVisible: true, render: (c) => c.partyA || "-" },
     { key: "partyB", label: "签署对方", defaultVisible: true, render: (c) => c.partyB || "-" },
     { key: "category", label: "类型", defaultVisible: true, render: (c) => c.category || "-" },
@@ -20,18 +26,24 @@ export default function ContractsTable({ contracts, onEdit, onDelete }: Contract
     {
       key: "status",
       label: "状态",
-      defaultVisible: true,
       render: (c) => <StatusBadge label={c.status || "-"} variant={c.status === "执行中" ? "green" : c.status === "已结束" ? "gray" : "blue"} />,
     },
     {
       key: "amount",
       label: "金额",
-      defaultVisible: true,
       headerClassName: "text-right",
       cellClassName: "text-right",
       render: (c) => c.amount != null ? c.amount.toLocaleString() : "-",
     },
-    { key: "location", label: "位置", defaultVisible: true, render: (c) => c.location || "-" },
+    {
+      key: "executedAmount",
+      label: "已执行金额",
+      headerClassName: "text-right",
+      cellClassName: "text-right",
+      render: (c) => c.executedAmount != null ? c.executedAmount.toLocaleString() : "-",
+    },
+    { key: "handler", label: "经办人", render: (c) => c.handler || "-" },
+    { key: "location", label: "位置", render: (c) => c.location || "-" },
     {
       key: "actions",
       label: "操作",
@@ -39,20 +51,28 @@ export default function ContractsTable({ contracts, onEdit, onDelete }: Contract
       headerClassName: "text-center",
       cellClassName: "text-center",
       render: (c) => (
-        <div className="flex justify-center gap-2">
-          <ActionButton onClick={() => onEdit(c)} className="px-2 py-1 text-xs">编辑</ActionButton>
-          <ActionButton onClick={() => onDelete(c.id)} variant="danger" className="px-2 py-1 text-xs">删除</ActionButton>
+        <div className="flex justify-center">
+          <DataTableActionsCell
+            actions={[
+              { key: "edit", label: "编辑", kind: "edit", onClick: () => onEdit(c) },
+              { key: "delete", label: "删除", kind: "delete", onClick: () => onDelete(c.id) },
+            ]}
+          />
         </div>
       ),
     },
   ];
+}
+
+export default function ContractsTable({ contracts, visibleColumns, onEdit, onDelete }: ContractsTableProps) {
+  const columns = getContractTableColumns(onEdit, onDelete);
 
   return (
-    <PanelCard bodyClassName="overflow-x-auto">
+    <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
       <DataTable
         rows={contracts}
         columns={columns}
-        visibleColumns={columns.map((column) => column.key)}
+        visibleColumns={visibleColumns}
         rowKey={(contract) => contract.id}
         emptyText="暂无数据"
       />
