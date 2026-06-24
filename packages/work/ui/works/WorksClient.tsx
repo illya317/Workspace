@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   CommandToolbar,
   CreateConfirmActions,
@@ -15,6 +14,7 @@ import {
   ToolbarOptionGroup,
   useConfirmDelete,
 } from "@workspace/core/ui";
+import { workspaceBasePath, workspacePath } from "@workspace/core/routing";
 import type { SessionUser } from "@workspace/platform/types";
 import { listTaskSpaces } from "./api";
 import {
@@ -37,7 +37,6 @@ export default function WorksClient({
   hideShell?: boolean;
   initialTarget?: WorkTarget;
 }) {
-  const router = useRouter();
   const confirmDelete = useConfirmDelete();
   const [spaces, setSpaces] = useState<WorkTaskSpace[]>([]);
   const [spacesLoading, setSpacesLoading] = useState(true);
@@ -67,16 +66,26 @@ export default function WorksClient({
       const fallback = match || personal || nextSpaces[0] || null;
       setActiveTarget((current) => current && nextSpaces.some((space) => sameTarget(space, current)) ? current : fallback);
       if (!match && fallback && requested) {
-        router.replace(getWorkSpacePath(fallback.targetType, fallback.targetId));
+        window.history.replaceState(null, "", workspacePath(getWorkSpacePath(fallback.targetType, fallback.targetId)));
       }
     } catch (err) {
       showToast(err instanceof Error ? err.message : "加载工作空间失败", "error");
     } finally {
       setSpacesLoading(false);
     }
-  }, [initialTarget, router, showToast]);
+  }, [initialTarget, showToast]);
 
   useEffect(() => { void loadSpaces(); }, [loadSpaces]);
+
+  useEffect(() => {
+    if (spaces.length === 0) return;
+    function handlePopState() {
+      const target = targetFromPath(window.location.pathname, spaces);
+      if (target) setActiveTarget({ targetType: target.targetType, targetId: target.targetId });
+    }
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [spaces]);
 
   useEffect(() => {
     if (activeTab === "permissions" && !canManage) setActiveTab("tasks");
@@ -87,7 +96,7 @@ export default function WorksClient({
     setActiveTab("tasks");
     setStatusFilter("active");
     setDrawerOpen(false);
-    window.history.pushState(null, "", getWorkSpacePath(space.targetType, space.targetId));
+    window.history.pushState(null, "", workspacePath(getWorkSpacePath(space.targetType, space.targetId)));
   }
 
   async function deleteWork(work: WorkItem) {
@@ -351,6 +360,26 @@ function targetKey(target: WorkTarget) {
 function normalizeInitialTarget(target?: WorkTarget) {
   if (!target || !Number.isFinite(target.targetId) || target.targetId <= 0) return null;
   return target;
+}
+
+function targetFromPath(pathname: string, spaces: WorkTaskSpace[]) {
+  const path = workspaceBasePath && pathname.startsWith(`${workspaceBasePath}/`)
+    ? pathname.slice(workspaceBasePath.length)
+    : pathname;
+  if (path === "/work/tasks" || path === "/work/tasks/personal") {
+    return spaces.find((space) => space.targetType === "personal") || null;
+  }
+  const departmentMatch = path.match(/^\/work\/tasks\/departments\/(\d+)$/);
+  if (departmentMatch) {
+    const targetId = Number(departmentMatch[1]);
+    return spaces.find((space) => space.targetType === "department" && space.targetId === targetId) || null;
+  }
+  const projectMatch = path.match(/^\/work\/tasks\/projects\/(\d+)$/);
+  if (projectMatch) {
+    const targetId = Number(projectMatch[1]);
+    return spaces.find((space) => space.targetType === "project" && space.targetId === targetId) || null;
+  }
+  return null;
 }
 
 function nextSortOrder(works: WorkItem[]) {
