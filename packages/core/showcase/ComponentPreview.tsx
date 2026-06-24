@@ -9,6 +9,7 @@ import {
   CheckboxChip,
   CheckboxField,
   ChoiceGroup,
+  ColumnToggle,
   CommandToolbar,
   EmptyStateCard,
   IconActionButton,
@@ -31,6 +32,7 @@ export function ComponentPreview({ name }: { name: string }) {
   const [text, setText] = useState("");
   const [rating, setRating] = useState(3);
   const [dateValue, setDateValue] = useState<string | null>("2026-06-24");
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(["name", "status", "amount"]);
 
   switch (name) {
     case "ActionButton":
@@ -127,6 +129,21 @@ export function ComponentPreview({ name }: { name: string }) {
           value={value ?? "yes"}
           options={["是", "否"]}
           onChange={(v) => setValue(v)}
+        />
+      );
+    case "ColumnToggle":
+      return (
+        <ColumnToggle
+          label="字段"
+          columns={[
+            { key: "name", label: "名称", required: true },
+            { key: "status", label: "状态", defaultVisible: true },
+            { key: "amount", label: "金额", defaultVisible: true },
+            { key: "owner", label: "负责人" },
+            { key: "updated", label: "更新时间" },
+          ]}
+          visible={visibleColumns}
+          onChange={setVisibleColumns}
         />
       );
     case "TextField":
