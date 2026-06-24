@@ -1,6 +1,6 @@
 import { Prisma } from "@workspace/platform/server/prisma";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
-import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
+import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
 import { getCompanyNameSync, loadCompanyMap } from "./company-directory";
@@ -132,7 +132,6 @@ export async function updateDepartment(input: DepartmentUpdateInput, userId: num
 
   try {
     const updated = await prisma.$transaction(async (tx) => {
-      await ensureEditHistoryBaseline("Department", id, userId, tx);
       const department = await tx.department.update({ where: { id }, data });
       if (descriptions) {
         for (const descriptionData of descriptions) {

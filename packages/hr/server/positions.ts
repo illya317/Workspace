@@ -1,7 +1,7 @@
 import { Prisma } from "@workspace/platform/server/prisma";
 import { handleDelete, handleUpdateField } from "./hr-crud";
 import { mapValidationToServiceResult, type DomainServiceResult } from "@workspace/platform/server/domain-validation";
-import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
+import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
 import { getCompanyNameSync, loadCompanyMap } from "./company-directory";
@@ -202,7 +202,6 @@ export async function updatePosition(
 
   try {
     const updated = await prisma.$transaction(async (tx) => {
-      await ensureEditHistoryBaseline("Position", id, userId, tx);
       const position = await tx.position.update({ where: { id }, data });
       await snapshotHistory("Position", id, userId, tx);
       return position;
