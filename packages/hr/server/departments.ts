@@ -1,6 +1,6 @@
 import { Prisma } from "@workspace/platform/server/prisma";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
-import { snapshotHistory } from "@workspace/platform/server/history";
+import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
 import { getCompanyNameSync, loadCompanyMap } from "./company-directory";
@@ -42,11 +42,16 @@ function parseDetails(details: string | null) {
   }
 }
 
+function selectedDetails(record: object): string | null {
+  if (!("details" in record)) return null;
+  return typeof record.details === "string" ? record.details : null;
+}
+
 function userEmployeeName(user: { nickname: string; employees?: Array<{ name: string }> } | null | undefined) {
   return user?.employees?.[0]?.name ?? user?.nickname ?? null;
 }
 
-export async function listDepartments(input: { keyword: string; page: number; pageSize: number; archived?: boolean }) {
+export async function listDepartments(input: { keyword: string; page: number; pageSize: number; archived?: boolean; summary?: boolean }) {
   const [depts, companyMap] = await Promise.all([
     prisma.department.findMany({
       where: { isArchived: Boolean(input.archived) },
@@ -56,7 +61,9 @@ export async function listDepartments(input: { keyword: string; page: number; pa
         children: { select: { id: true, name: true } },
         manager: { select: { id: true, nickname: true, employees: { select: { name: true }, take: 1 } } },
         descriptions: {
-          select: { id: true, code: true, name: true, sourceFile: true, codeRaw: true, details: true },
+          select: input.summary
+            ? { id: true, code: true, name: true, sourceFile: true, codeRaw: true }
+            : { id: true, code: true, name: true, sourceFile: true, codeRaw: true, details: true },
           orderBy: { id: "asc" },
         },
       },
@@ -88,7 +95,7 @@ export async function listDepartments(input: { keyword: string; page: number; pa
       name: description.name,
       sourceFile: description.sourceFile,
       codeRaw: description.codeRaw,
-      details: parseDetails(description.details),
+      details: parseDetails(selectedDetails(description)),
     })),
   }));
   if (input.keyword) departments = departments.filter((department) => matchAnyField(department, input.keyword, "Department"));
@@ -125,6 +132,7 @@ export async function updateDepartment(input: DepartmentUpdateInput, userId: num
 
   try {
     const updated = await prisma.$transaction(async (tx) => {
+      await ensureEditHistoryBaseline("Department", id, userId, tx);
       const department = await tx.department.update({ where: { id }, data });
       if (descriptions) {
         for (const descriptionData of descriptions) {
@@ -140,9 +148,9 @@ export async function updateDepartment(input: DepartmentUpdateInput, userId: num
           }
         }
       }
+      await snapshotHistory("Department", id, userId, tx);
       return department;
     });
-    await snapshotHistory("Department", id, userId);
     return { ok: true as const, data: { success: true, department: updated } };
   } catch (error: unknown) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {

@@ -32,7 +32,7 @@ export interface PositionDescriptionUpdateCommand {
     version: string | null;
     effectiveDate: string | null;
     sourceFile: string;
-    details: string | null;
+    details?: string | null;
   };
 }
 
@@ -52,13 +52,17 @@ export function buildPositionDescriptionUpdateCommand(
     return failCommand("编制必须是正整数");
   }
 
-  let details: string | null = null;
-  if (input.details !== undefined && input.details !== null && input.details !== "") {
-    try {
-      const parsed = typeof input.details === "string" ? JSON.parse(input.details) : input.details;
-      details = JSON.stringify(parsed);
-    } catch {
-      return failCommand("说明书 JSON 不是合法格式");
+  const hasDetailsInput = input.details !== undefined;
+  let details: string | null | undefined;
+  if (hasDetailsInput) {
+    details = null;
+    if (input.details !== null && input.details !== "") {
+      try {
+        const parsed = typeof input.details === "string" ? JSON.parse(input.details) : input.details;
+        details = JSON.stringify(parsed);
+      } catch {
+        return failCommand("说明书 JSON 不是合法格式");
+      }
     }
   }
 
@@ -75,7 +79,7 @@ export function buildPositionDescriptionUpdateCommand(
       version: nullableText(input.version),
       effectiveDate: nullableText(input.effectiveDate),
       sourceFile: input.sourceFile ? String(input.sourceFile) : "",
-      details,
+      ...(hasDetailsInput ? { details } : {}),
     },
   });
 }

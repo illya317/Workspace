@@ -22,9 +22,11 @@ type ConfirmDelete = (options?: {
 
 export function usePositionDescriptionTemplates({
   confirmDelete,
+  enabled = true,
   setToast,
 }: {
   confirmDelete: ConfirmDelete;
+  enabled?: boolean;
   setToast: ToastSetter;
 }) {
   const [positionDescriptionTemplate, setPositionDescriptionTemplate] = useState<PositionDescriptionTemplateId>("common");
@@ -35,6 +37,7 @@ export function usePositionDescriptionTemplates({
   const [templateDraftFields, setTemplateDraftFields] = useState<string[]>([]);
 
   useEffect(() => {
+    if (!enabled) return;
     let cancelled = false;
     async function loadTemplates() {
       try {
@@ -55,7 +58,7 @@ export function usePositionDescriptionTemplates({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [enabled]);
 
   const positionDescriptionTemplates = useMemo(
     () => mergePositionDescriptionTemplates(storedPositionDescriptionTemplates),

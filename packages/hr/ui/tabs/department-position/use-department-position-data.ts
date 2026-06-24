@@ -3,9 +3,11 @@ import { workspacePath } from "@workspace/core/routing";
 import type { Department, Position, Selection } from "./types";
 
 export function useDepartmentPositionData({
+  compact = false,
   setSelection,
   showArchived,
 }: {
+  compact?: boolean;
   setSelection: (selection: Selection | ((prev: Selection) => Selection)) => void;
   showArchived: boolean;
 }) {
@@ -19,9 +21,10 @@ export function useDepartmentPositionData({
     setError(null);
     try {
       const archivedQuery = showArchived ? "&archived=1" : "";
+      const compactQuery = compact ? "&summary=1" : "";
       const [deptRes, posRes] = await Promise.all([
-        fetch(workspacePath(`/api/modules/hr/roster/departments?pageSize=500${archivedQuery}`)),
-        fetch(workspacePath(`/api/modules/hr/roster/positions?pageSize=500${archivedQuery}`)),
+        fetch(workspacePath(`/api/modules/hr/roster/departments?pageSize=500${archivedQuery}${compactQuery}`)),
+        fetch(workspacePath(`/api/modules/hr/roster/positions?pageSize=500${archivedQuery}${compactQuery}`)),
       ]);
       if (!deptRes.ok || !posRes.ok) throw new Error("加载失败");
       const [deptData, posData] = await Promise.all([deptRes.json(), posRes.json()]);
@@ -41,7 +44,7 @@ export function useDepartmentPositionData({
     } finally {
       setLoading(false);
     }
-  }, [setSelection, showArchived]);
+  }, [compact, setSelection, showArchived]);
 
   useEffect(() => {
     loadData();

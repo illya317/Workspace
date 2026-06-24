@@ -47,6 +47,7 @@ export default function DepartmentPositionTab({
       showCancel: false,
     });
   }
+  const isOrganizationMode = mode === "organization";
   const {
     activeOrganizationRootId,
     archivedTab,
@@ -91,13 +92,13 @@ export default function DepartmentPositionTab({
     templateDraftName,
     templateEditorOpen,
     togglePositionDescriptionTemplateField,
-  } = usePositionDescriptionTemplates({ confirmDelete, setToast });
+  } = usePositionDescriptionTemplates({ confirmDelete, enabled: !isOrganizationMode, setToast });
 
   const canEdit = hrCanEdit(user);
-  const isOrganizationMode = mode === "organization";
   const canEditDepartment = canEdit && !isOrganizationMode && !showArchived;
   const canEditPosition = canEdit && !isOrganizationMode && !showArchived;
   const { departments, error, loadData, loading, positions } = useDepartmentPositionData({
+    compact: isOrganizationMode,
     setSelection,
     showArchived,
   });

@@ -1,7 +1,7 @@
 import { Prisma } from "@workspace/platform/server/prisma";
 import { handleDelete, handleUpdateField } from "./hr-crud";
 import { mapValidationToServiceResult, type DomainServiceResult } from "@workspace/platform/server/domain-validation";
-import { snapshotHistory } from "@workspace/platform/server/history";
+import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
 import { getCompanyNameSync, loadCompanyMap } from "./company-directory";
@@ -63,11 +63,17 @@ function parsePositionDetails(details: string | null): Record<string, unknown> |
   }
 }
 
+function selectedDetails(record: object | null | undefined): string | null {
+  if (!record || !("details" in record)) return null;
+  return typeof record.details === "string" ? record.details : null;
+}
+
 export async function getPositionList(
   keyword: string,
   page: number,
   pageSize: number,
   archived = false,
+  summary = false,
 ): Promise<{ positions: PositionListItem[]; total: number }> {
   const [positions, companyMap] = await Promise.all([
     prisma.position.findMany({
@@ -76,20 +82,34 @@ export async function getPositionList(
         _count: { select: { edps: true } },
         department: { select: { id: true, name: true } },
         positionDescription: {
-          select: {
-            id: true,
-            code: true,
-            name: true,
-            departmentName: true,
-            reportTo: true,
-            summary: true,
-            positionPurpose: true,
-            headcount: true,
-            version: true,
-            effectiveDate: true,
-            sourceFile: true,
-            details: true,
-          },
+          select: summary
+            ? {
+                id: true,
+                code: true,
+                name: true,
+                departmentName: true,
+                reportTo: true,
+                summary: true,
+                positionPurpose: true,
+                headcount: true,
+                version: true,
+                effectiveDate: true,
+                sourceFile: true,
+              }
+            : {
+                id: true,
+                code: true,
+                name: true,
+                departmentName: true,
+                reportTo: true,
+                summary: true,
+                positionPurpose: true,
+                headcount: true,
+                version: true,
+                effectiveDate: true,
+                sourceFile: true,
+                details: true,
+              },
         },
       },
       orderBy: archived ? [{ archivedAt: "desc" }, { id: "desc" }] : { id: "asc" },
@@ -99,8 +119,9 @@ export async function getPositionList(
 
   let result = positions.map((position) => {
     let codeRaw: string | null = null;
-    const positionDescriptionDetails = parsePositionDetails(position.positionDescription?.details || null);
-    if (position.positionDescription?.details) {
+    const rawDetails = selectedDetails(position.positionDescription);
+    const positionDescriptionDetails = parsePositionDetails(rawDetails || null);
+    if (rawDetails) {
       codeRaw = typeof positionDescriptionDetails?.code_raw === "string" ? positionDescriptionDetails.code_raw : null;
     }
     return {
@@ -180,8 +201,12 @@ export async function updatePosition(
   data.version = { increment: 1 };
 
   try {
-    const updated = await prisma.position.update({ where: { id }, data });
-    await snapshotHistory("Position", id, userId);
+    const updated = await prisma.$transaction(async (tx) => {
+      await ensureEditHistoryBaseline("Position", id, userId, tx);
+      const position = await tx.position.update({ where: { id }, data });
+      await snapshotHistory("Position", id, userId, tx);
+      return position;
+    });
     return { ok: true, data: { success: true, position: updated } };
   } catch (error: unknown) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {

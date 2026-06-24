@@ -14,8 +14,9 @@ export async function GET(request: Request) {
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const pageSize = Math.min(500, Math.max(1, parseInt(searchParams.get("pageSize") || "50", 10)));
   const archived = searchParams.get("archived") === "1" || searchParams.get("archived") === "true";
+  const summary = searchParams.get("summary") === "1" || searchParams.get("summary") === "true";
 
-  const result = await getPositionList(keyword, page, pageSize, archived);
+  const result = await getPositionList(keyword, page, pageSize, archived, summary);
   return NextResponse.json(result);
 }
 

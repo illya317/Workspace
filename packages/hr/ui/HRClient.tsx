@@ -1,14 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { DatabasePageFrame } from "@workspace/core/ui";
 import { type AccordionTabItem } from "@workspace/core/ui";
 import { getPageViewTabsForUser } from "@workspace/platform/view-registry";
 
-import GenericTableTab from "./tabs/GenericTableTab";
-import DepartmentPositionTab from "./tabs/DepartmentPositionTab";
-import EmployeeDirectory from "./profile/EmployeeDirectory";
-import RosterGeneratedTab from "./generated/RosterGeneratedTab";
 import {
   contractConfig,
   edpConfig,
@@ -20,6 +17,11 @@ import { useUnsavedChangesPrompt } from "./hooks/useUnsavedChangesPrompt";
 import type { SessionUser } from "@workspace/platform/types";
 import type { HRUser } from "@workspace/hr/types";
 import type { RosterGeneratedVariant } from "@workspace/hr/types";
+
+const GenericTableTab = dynamic(() => import("./tabs/GenericTableTab"));
+const DepartmentPositionTab = dynamic(() => import("./tabs/DepartmentPositionTab"));
+const EmployeeDirectory = dynamic(() => import("./profile/EmployeeDirectory"));
+const RosterGeneratedTab = dynamic(() => import("./generated/RosterGeneratedTab"));
 
 type HRTab =
   | "employee"

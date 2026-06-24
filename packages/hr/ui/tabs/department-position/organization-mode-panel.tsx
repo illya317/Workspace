@@ -245,6 +245,7 @@ export function OrganizationModePanel({
         if (!position.positionDescriptionId || !position.positionDescriptionCode || !position.positionDescriptionName) {
           throw new Error(`${position.name} 缺少岗位说明书，无法保存汇报关系`);
         }
+        const detailsText = positionDetailsText(position);
         await putJson("/api/modules/hr/roster/position-descriptions", {
           id: position.positionDescriptionId,
           code: position.positionDescriptionCode,
@@ -257,7 +258,7 @@ export function OrganizationModePanel({
           version: position.positionDescriptionVersion || null,
           effectiveDate: position.effectiveDate || null,
           sourceFile: position.sourceFile || "",
-          details: positionDetailsText(position),
+          ...(detailsText ? { details: detailsText } : {}),
         }, "保存岗位汇报关系失败");
       }
       await onReload();
