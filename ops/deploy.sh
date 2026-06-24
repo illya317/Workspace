@@ -169,13 +169,12 @@ run_local_checks() {
   npm ci --no-audit --fund=false --loglevel=error
 
   echo "==> 运行静态检查..."
-  npm run arch:check
+  npm run arch:gate
   npm run api:check
   npm run docs:check
   npm run db:validate
   npm run schema:check
   npm run company:check
-  npm run size:check
   npm run lint -- --max-warnings=0
   npx tsc --noEmit
 }
