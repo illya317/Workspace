@@ -20,7 +20,7 @@ export default function RegistryBrowserCard({
   items,
   emptyText = "暂无注册项",
 }: RegistryBrowserCardProps) {
-  const [activeLayer, setActiveLayer] = useState<RegistryBrowserLayerKey>("atomic");
+  const [activeLayer, setActiveLayer] = useState<RegistryBrowserLayerKey>("primitive");
   const layerItems = useMemo(
     () => items.filter((item) => getRegistryBrowserLayer(item) === activeLayer),
     [activeLayer, items],
@@ -119,7 +119,7 @@ export default function RegistryBrowserCard({
 
           <div className="space-y-4">
             {activeGroup.items.map((item) => (
-              <RegistryItemCard key={item.name} item={item} showPreview={activeLayer === "atomic"} />
+              <RegistryItemCard key={item.name} item={item} showPreview={activeLayer === "primitive"} />
             ))}
           </div>
         </div>

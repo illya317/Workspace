@@ -3,6 +3,7 @@ import path from "node:path";
 import {
   coreUiComponentKindMeta,
   coreUiComponentRegistry,
+  coreUiComponentTierMeta,
 } from "@workspace/core/ui/component-registry";
 import type { CoreUiRegistryUsageRow } from "@workspace/platform/types";
 
@@ -95,6 +96,9 @@ export function getCoreUiRegistryUsageRows(): CoreUiRegistryUsageRow[] {
   cachedRows = coreUiComponentRegistry
     .map((component) => ({
       name: component.name,
+      tier: component.tier,
+      tierLabel: coreUiComponentTierMeta[component.tier].label,
+      tierDescription: coreUiComponentTierMeta[component.tier].description,
       kind: component.kind,
       kindLabel: coreUiComponentKindMeta[component.kind].label,
       kindDescription: coreUiComponentKindMeta[component.kind].description,

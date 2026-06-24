@@ -1,5 +1,10 @@
+import type { CoreUiComponentTier } from "@workspace/core/ui/component-registry";
+
 export interface RegistryBrowserItem {
   name: string;
+  tier: CoreUiComponentTier;
+  tierLabel: string;
+  tierDescription: string;
   kind: string;
   kindLabel: string;
   kindDescription: string;
@@ -9,13 +14,12 @@ export interface RegistryBrowserItem {
   usageFiles: string[];
 }
 
-export type RegistryBrowserLayerKey = "atomic" | "compound";
+export type RegistryBrowserLayerKey = CoreUiComponentTier;
 
 export interface RegistryBrowserLayer {
   key: RegistryBrowserLayerKey;
   label: string;
   description: string;
-  componentNames: Set<string>;
 }
 
 export interface RegistryBrowserCardProps {

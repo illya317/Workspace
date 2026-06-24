@@ -1,7 +1,10 @@
-import type { CoreUiComponentKind } from "@workspace/core/ui/component-registry";
+import type { CoreUiComponentKind, CoreUiComponentTier } from "@workspace/core/ui/component-registry";
 
 export interface CoreUiRegistryUsageRow {
   name: string;
+  tier: CoreUiComponentTier;
+  tierLabel: string;
+  tierDescription: string;
   kind: CoreUiComponentKind;
   kindLabel: string;
   kindDescription: string;
