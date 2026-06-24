@@ -14,6 +14,8 @@
     "./routing/*": "./routing/*.ts",
     "./search": "./search/index.ts",
     "./search/*": "./search/*.ts",
+    "./showcase": "./showcase/index.ts",
+    "./showcase/*": "./showcase/*.tsx",
     "./ui/component-registry": "./ui/component-registry.ts",
     "./ui/page-style-preview/template-data": "./ui/page-style-preview/template-data.ts",
     "./ui": "./ui/index.ts",

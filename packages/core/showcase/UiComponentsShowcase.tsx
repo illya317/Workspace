@@ -163,7 +163,7 @@ function ComponentPreview({ name }: { name: string }) {
   }
 }
 
-export default function UiComponentsClient() {
+export default function UiComponentsShowcase() {
   const [tier, setTier] = useState<CoreUiComponentTier>("primitive");
   const tierMeta = coreUiComponentTierMeta[tier];
   const items = coreUiComponentRegistry.filter((component) => component.tier === tier);

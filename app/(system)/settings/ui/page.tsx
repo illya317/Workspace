@@ -3,5 +3,5 @@ import { SettingsUiPage as PlatformSettingsUiPage } from "@workspace/platform/ui
 
 export default async function SettingsUiRoutePage() {
   const user = await requireRouteAccess("/settings/ui");
-  return <PlatformSettingsUiPage user={user} />;
+  return PlatformSettingsUiPage({ user });
 }
