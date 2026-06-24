@@ -23,6 +23,8 @@
     "db:check": "node scripts/check/check-db.js",
     "db:path:check": "node scripts/check/check-database-paths.js",
     "db:docs": "node scripts/generate/gen-db-docs.js",
+    "db:resource-manifest": "npx tsx scripts/write-resource-manifest.ts",
+    "db:seed:resources": "npx tsx scripts/seed-resources.ts",
     "db:validate": "prisma validate --schema=./prisma",
     "db:migration:check": "node scripts/check/check-prisma-migrations.js",
     "db:format": "prisma format --schema=./prisma",

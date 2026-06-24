@@ -98,7 +98,7 @@ bash ./ops/deploy.sh
 6. CNB 将 `.next/standalone`、`.next/static`、`public`、`prisma/` 和 `prisma.config.ts` 打包为 standalone 产物。
 7. 服务器在切换 release 前备份 `$REMOTE_WORKSPACE_CONFIG_DIR` 到 `$REMOTE_DIR/.workspace.backups/`。
 8. 服务器自动清理运行态备份：默认保留最近 30 天且最多 20 份。
-9. 服务器在启动新 PM2 进程前执行 `prisma migrate deploy --schema=./prisma`。
+9. 服务器在启动新 PM2 进程前执行 `prisma migrate deploy --schema=./prisma`，随后按构建产物中的 registry manifest 同步 RBAC `Resource` 表。
 10. 服务器把 `.env`、数据库、品牌资源、Agent 头像等运行态资源继续指向 `$REMOTE_WORKSPACE_CONFIG_DIR`。
 11. 服务器清空 `REMOTE_DIR` 里的旧源码、旧 `.next`、旧 `node_modules` 等杂物，只保留 `releases/`、`.workspace` 和 `.workspace.backups`。
 12. 使用 PM2 重新启动 `server.js` 并保存进程列表。

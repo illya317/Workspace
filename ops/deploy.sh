@@ -164,6 +164,14 @@ NODE
   test -f .next/standalone/node_modules/effect/package.json
 }
 
+copy_resource_seed_files() {
+  echo "==> 打包 RBAC resource manifest..."
+  npx tsx scripts/write-resource-manifest.ts .next/standalone/resource-defs.json
+  cp scripts/seed-resources-runtime.js .next/standalone/seed-resources-runtime.js
+  test -f .next/standalone/resource-defs.json
+  test -f .next/standalone/seed-resources-runtime.js
+}
+
 run_local_checks() {
   echo "==> 安装 CI 依赖..."
   npm ci --no-audit --fund=false --loglevel=error
@@ -225,6 +233,7 @@ build_artifact() {
     copy_runtime_package "$pkg"
   done
   copy_prisma_deploy_files
+  copy_resource_seed_files
 
   rm -rf .next/standalone/generated/prisma
   mkdir -p .next/standalone/generated
@@ -425,6 +434,8 @@ deploy_remote_artifact() {
     test -f \"\$release_dir/prisma/schema.prisma\"
     test -f \"\$release_dir/prisma/migrations/migration_lock.toml\"
     test -f \"\$release_dir/node_modules/prisma/build/index.js\"
+    test -f \"\$release_dir/resource-defs.json\"
+    test -f \"\$release_dir/seed-resources-runtime.js\"
 
     cd \"\$release_dir\"
     set -a
@@ -433,6 +444,8 @@ deploy_remote_artifact() {
     export NODE_ENV=production
     echo '==> 执行 Prisma 数据库迁移...'
     node \"\$release_dir/node_modules/prisma/build/index.js\" migrate deploy --schema=\"\$release_dir/prisma\"
+    echo '==> 同步 RBAC resource registry...'
+    node \"\$release_dir/seed-resources-runtime.js\" \"\$release_dir/resource-defs.json\"
 
     pm2 delete '$PM2_NAME' 2>/dev/null || true
     pm2 start \"\$release_dir/\$server_entry\" --name '$PM2_NAME' --cwd \"\$app_dir\" --update-env

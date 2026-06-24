@@ -51,10 +51,11 @@ app/*                         只做 Next route shell
 1. **三层边界**：Core 不依赖 Platform/Apps；Platform 不写业务 service/UI；业务包之间不直接 import。跨模块能力进 Platform contract。
 2. **别重复造基础设施**：Core/Platform 已有页面壳、表格、筛选、搜索、日期、确认、Toast、FK、权限、CRUD factory、delete guard、审计、模块 registry。新增前先查 `docs/reusable-components.md` 和 `packages/core/ui/component-registry.ts`。
 3. **权限四件套统一**：每个 L2 必须保持 `app route` / `URL href` / `resourceKey + RBAC` / `API contract + guard` 一一对应。页面用 `requireRouteAccess("<href>")`，API 用 `requireApiAccess(request)` 或接入它的 wrapper，从 registry 推导 resource/action。
+   新增、改名或删除 `moduleDef.resourceKey`、`children[*].resourceKey` 或 `resourceDefs` 后，必须运行 `npm run db:seed:resources` 同步 DB `Resource` 表；这不是 Prisma schema 迁移，除非数据模型变了，不要为每个资源注册改 migration。
 4. **写入三段式**：写入入口固定为 `Zod schema -> domain validator -> service/Prisma`。Zod 只校验请求形状并 strip；domain 只 pick 业务可写字段并校验 FK/状态/归属/跨字段规则；service 只接已验证 command，负责事务、版本、审计和落库。
 5. **app 不是实现层**：页面组件、hook、表格、弹窗、业务计算、Prisma 写入都不能新增在 `app/` route 文件里。
 6. **同页状态别走整页导航**：tab、筛选、选中部门/项目/记录这类同一个客户端体验内的状态切换，不要用 `router.push/replace`、`redirect` 或 `<Link>` 只为同步 URL；需要深链时用组件状态 + `window.history.pushState/replaceState`，并通过 `workspacePath` 处理 basePath、补 `popstate` 回读。`router` / `<Link>` 只留给真正跨页面或资源详情导航。
-7. **删除也要同步**：删 L1/L2 时同步删 app route、API route、registry child/resourceKey、docs；跑 `scripts/seed-resources.ts` 清 stale resource。
+7. **删除也要同步**：删 L1/L2 时同步删 app route、API route、registry child/resourceKey、docs；跑 `npm run db:seed:resources` 清 stale resource。
 
 ## 检查
 
