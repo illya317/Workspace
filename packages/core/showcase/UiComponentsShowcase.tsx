@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   CommandToolbar,
   coreUiComponentKindMeta,
@@ -25,6 +25,36 @@ const TIER_LABELS: Record<CoreUiComponentTier, string> = {
 };
 const TIERS: CoreUiComponentTier[] = ["foundation", "primitive", "assembly", "frame"];
 const ALL_KIND = "all";
+
+function PreviewBlock({
+  name,
+  isFoundation,
+  children,
+}: {
+  name: string;
+  isFoundation: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div className="mt-4">
+      <p className="mb-2 text-xs font-medium text-slate-400">
+        {isFoundation ? "Recipe 示意（非 React 组件）" : "实时预览"}
+      </p>
+      {isFoundation ? (
+        <div
+          data-ui-preview-canvas={name}
+          className="rounded-md border border-dashed border-slate-200 bg-slate-50 px-3 py-2"
+        >
+          {children}
+        </div>
+      ) : (
+        <div data-ui-preview-canvas={name} className="overflow-visible">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function RelationTags({
   label,
@@ -152,12 +182,11 @@ export default function UiComponentsShowcase() {
                   <p className="mt-1 text-sm text-slate-600">{registration.example}</p>
                 </div>
               )}
-              <div className="mt-4 rounded-md border border-dashed border-slate-200 bg-white p-4">
-                <p className="mb-3 text-xs font-medium text-slate-400">{isFoundation ? "Recipe 示意（非 React 组件）" : "实时预览"}</p>
+              <PreviewBlock name={registration.name} isFoundation={isFoundation}>
                 {isFoundation
                   ? <span className="text-xs text-slate-400">Foundation 为样式 recipe / token，不提供运行时组件预览。</span>
                   : <ComponentPreview name={registration.name} />}
-              </div>
+              </PreviewBlock>
               <RelationTags label="组合" names={composes} color="blue" />
               <RelationTags label="基础" names={foundations} color="amber" />
               <RelationTags label="被使用" names={usedBy} color="emerald" />

@@ -111,7 +111,7 @@ export const coreUiComponentRegistry = [
   { name: "ColumnToggle", tier: "primitive", kind: "data", description: "表格列显隐控制，和 DataTable 共用列定义。", example: "在财务明细表里让用户切换显示字段 3/5。", composes: ["CheckboxField"], foundations: ["getToolbarActionClassName"] },
   { name: "CodeBlock", tier: "primitive", kind: "data", description: "代码块和密钥信息展示 primitive，统一技术文本、背景和等宽字体。", example: "API 接入指南中展示 Bearer Client secret 请求头。" },
   { name: "CommandToolbar", tier: "assembly", kind: "toolbar", description: "综合命令栏容器，按隐藏/显示、新建、搜索、互斥筛选、字段筛选、刷新、页面动作、编辑动作和分页信息分区；一行优先，空间不足自动换行。", example: "列表页同时承载左右分栏控制、新建入口、搜索筛选、导出、编辑保存和分页信息。", composes: ["SearchInput", "ToolbarOptionGroup", "FieldValueFilter", "IconActionButton", "RefreshActionButton", "ActionButton", "SelectField"] },
-  { name: "ConfirmModal", tier: "primitive", kind: "overlay", description: "确认弹窗基础组件，统一危险操作和取消确认体验。", example: "删除合同、归档项目或停用记录前显示确认文案和危险按钮。" },
+  { name: "ConfirmModal", tier: "primitive", kind: "overlay", description: "确认弹窗基础组件，统一危险操作和取消确认体验。", example: "删除合同、归档项目或停用记录前显示确认文案和危险按钮。", composes: ["ActionButton"] },
   { name: "ConfirmProvider", tier: "assembly", kind: "overlay", description: "确认弹窗上下文入口，提供命令式 confirm/delete 能力。", example: "页面调用 confirm()，由 Provider 统一渲染确认弹窗。", composes: ["ConfirmModal"] },
   { name: "CreateConfirmActions", tier: "assembly", kind: "form", description: "新建模式的确认/取消图标动作 primitive，供 InlineCreatePanel、BlockCreatePanel 和工具条新建态共享。", example: "新建态标题旁展示取消和确认按钮，不在业务页手写 x/勾图标。", composes: ["ActionButton", "ActionGlyph"] },
   { name: "CreateStartButton", tier: "assembly", kind: "form", description: "新建模式的 + 入口 primitive，统一普通态、激活态和禁用态。", example: "列表、阶段或任务区进入新建态时，标题旁 + 高亮。", composes: ["IconActionButton", "ActionGlyph"] },

@@ -11,11 +11,13 @@ import {
   ChoiceGroup,
   ColumnToggle,
   CommandToolbar,
+  ConfirmModal,
   EmptyStateCard,
   IconActionButton,
   NumberCell,
   PanelCard,
   RatingControl,
+  SearchInput,
   SectionCard,
   StatusBadge,
   StatusToggle,
@@ -33,6 +35,7 @@ export function ComponentPreview({ name }: { name: string }) {
   const [rating, setRating] = useState(3);
   const [dateValue, setDateValue] = useState<string | null>("2026-06-24");
   const [visibleColumns, setVisibleColumns] = useState<string[]>(["name", "status", "amount"]);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   switch (name) {
     case "ActionButton":
@@ -138,17 +141,30 @@ export function ComponentPreview({ name }: { name: string }) {
       );
     case "ColumnToggle":
       return (
-        <ColumnToggle
-          label="字段"
-          columns={[
-            { key: "name", label: "名称", required: true },
-            { key: "status", label: "状态", defaultVisible: true },
-            { key: "amount", label: "金额", defaultVisible: true },
-            { key: "owner", label: "负责人" },
-            { key: "updated", label: "更新时间" },
-          ]}
-          visible={visibleColumns}
-          onChange={setVisibleColumns}
+        <CommandToolbar
+          filters={(
+            <>
+              <SearchInput
+                value={text}
+                onChange={setText}
+                placeholder="搜索记录..."
+                size="toolbar"
+                className="w-40"
+              />
+              <ColumnToggle
+                columns={[
+                  { key: "name", label: "名称", required: true },
+                  { key: "status", label: "状态", defaultVisible: true },
+                  { key: "amount", label: "金额", defaultVisible: true },
+                  { key: "owner", label: "负责人" },
+                  { key: "updated", label: "更新时间" },
+                ]}
+                visible={visibleColumns}
+                onChange={setVisibleColumns}
+              />
+              <ActionButton variant="secondary">重置</ActionButton>
+            </>
+          )}
         />
       );
     case "TextField":
@@ -193,6 +209,22 @@ export function ComponentPreview({ name }: { name: string }) {
           )}
           meta={<>共 24 条</>}
         />
+      );
+    case "ConfirmModal":
+      return (
+        <>
+          <ActionButton variant="danger" onClick={() => setConfirmOpen(true)}>打开确认弹窗</ActionButton>
+          <ConfirmModal
+            open={confirmOpen}
+            title="确认删除？"
+            message="删除后无法恢复，是否继续？"
+            confirmLabel="删除"
+            cancelLabel="取消"
+            confirmDanger
+            onConfirm={() => setConfirmOpen(false)}
+            onCancel={() => setConfirmOpen(false)}
+          />
+        </>
       );
     default:
       return <span className="text-xs text-slate-400">暂无实时预览</span>;

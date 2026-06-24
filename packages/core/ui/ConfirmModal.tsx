@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
+import { ActionButton } from "./ActionControls";
 
 export interface ConfirmModalProps {
   open: boolean;
@@ -70,23 +71,18 @@ export default function ConfirmModal({
         </div>
         <div className="flex justify-end gap-3">
           {showCancel && (
-            <button
-              onClick={onCancel}
-              disabled={busy}
-              className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-            >
+            <ActionButton onClick={onCancel} disabled={busy} variant="secondary" className="!h-9 !px-4 !py-2 !text-sm">
               {cancelLabel}
-            </button>
+            </ActionButton>
           )}
-          <button
+          <ActionButton
             onClick={onConfirm}
             disabled={busy}
-            className={`rounded-md px-4 py-2 text-sm font-medium text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60 ${
-              confirmDanger ? "bg-red-600 hover:bg-red-700" : "bg-emerald-600 hover:bg-emerald-700"
-            }`}
+            variant={confirmDanger ? "danger" : "primary"}
+            className="!h-9 !px-4 !py-2 !text-sm"
           >
             {busy ? "处理中..." : confirmLabel}
-          </button>
+          </ActionButton>
         </div>
       </div>
     </div>
