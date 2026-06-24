@@ -12,6 +12,7 @@ export interface RegistryBrowserItem {
   example: string;
   includedComponents: string[];
   foundationComponents: string[];
+  usedBy: string[];
   usageFiles: string[];
 }
 

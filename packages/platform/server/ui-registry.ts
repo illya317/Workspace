@@ -4,6 +4,7 @@ import {
   coreUiComponentKindMeta,
   coreUiComponentRegistry,
   coreUiComponentTierMeta,
+  getCoreUiCompositionGraph,
 } from "@workspace/core/ui/component-registry";
 import type { CoreUiComponentRegistration } from "@workspace/core/ui/component-registry";
 import type { CoreUiRegistryUsageRow } from "@workspace/platform/types";
@@ -94,6 +95,8 @@ export function getCoreUiRegistryUsageRows(): CoreUiRegistryUsageRow[] {
     }
   }
 
+  const graph = getCoreUiCompositionGraph();
+
   cachedRows = coreUiComponentRegistry
     .map((component) => {
       const registration = component as CoreUiComponentRegistration;
@@ -107,12 +110,9 @@ export function getCoreUiRegistryUsageRows(): CoreUiRegistryUsageRow[] {
         kindDescription: coreUiComponentKindMeta[registration.kind].description,
         description: registration.description,
         example: registration.example,
-        includedComponents: [
-          ...(registration.composes ?? []),
-        ],
-        foundationComponents: [
-          ...(registration.foundations ?? []),
-        ],
+        includedComponents: [...(graph.composes.get(registration.name) ?? [])],
+        foundationComponents: [...(graph.foundations.get(registration.name) ?? [])],
+        usedBy: [...(graph.usedBy.get(registration.name) ?? [])],
         usageFiles: usageByName.get(registration.name)?.sort() ?? [],
       };
     })

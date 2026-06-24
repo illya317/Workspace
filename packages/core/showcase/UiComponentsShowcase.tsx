@@ -2,34 +2,20 @@
 
 import { useMemo, useState } from "react";
 import {
-  ActionButton,
-  ActionGlyph,
-  AmountCell,
-  CheckboxChip,
-  CheckboxField,
-  ChoiceGroup,
   CommandToolbar,
   coreUiComponentKindMeta,
   coreUiComponentRegistry,
   coreUiComponentTierMeta,
   EmptyStateCard,
-  IconActionButton,
-  NumberCell,
   PageContent,
   PanelCard,
-  RatingControl,
   SearchInput,
-  SectionCard,
   SelectField,
-  StatusBadge,
-  StatusToggle,
-  SwitchField,
-  TagRemoveButton,
-  TextareaField,
-  TextField,
   ToolbarOptionGroup,
 } from "@workspace/core/ui";
+import { getCoreUiCompositionGraph } from "@workspace/core/ui/component-registry";
 import type { CoreUiComponentRegistration, CoreUiComponentTier } from "@workspace/core/ui";
+import { ComponentPreview } from "./ComponentPreview";
 
 const TIER_LABELS: Record<CoreUiComponentTier, string> = {
   foundation: coreUiComponentTierMeta.foundation.label,
@@ -40,142 +26,39 @@ const TIER_LABELS: Record<CoreUiComponentTier, string> = {
 const TIERS: CoreUiComponentTier[] = ["foundation", "primitive", "assembly", "frame"];
 const ALL_KIND = "all";
 
-function ComponentPreview({ name }: { name: string }) {
-  const [value, setValue] = useState<string | null>(null);
-  const [boolValue, setBoolValue] = useState(false);
-  const [text, setText] = useState("");
-  const [rating, setRating] = useState(3);
-
-  switch (name) {
-    case "ActionButton":
-      return (
-        <div className="flex flex-wrap items-center gap-2">
-          <ActionButton variant="primary">主操作</ActionButton>
-          <ActionButton variant="secondary">次操作</ActionButton>
-          <ActionButton variant="danger">危险</ActionButton>
-          <ActionButton variant="secondary" disabled>禁用</ActionButton>
-        </div>
-      );
-    case "IconActionButton":
-      return (
-        <div className="flex flex-wrap items-center gap-2">
-          <IconActionButton label="新增" variant="primary">+</IconActionButton>
-          <IconActionButton label="编辑" variant="secondary"><ActionGlyph kind="edit" className="h-4 w-4" /></IconActionButton>
-          <IconActionButton label="删除" variant="danger"><ActionGlyph kind="delete" /></IconActionButton>
-        </div>
-      );
-    case "ActionGlyph":
-      return (
-        <div className="flex flex-wrap items-center gap-3 text-slate-700">
-          <span className="flex items-center gap-1">x <ActionGlyph kind="x" className="h-4 w-4" /></span>
-          <span className="flex items-center gap-1">delete <ActionGlyph kind="delete" /></span>
-          <span className="flex items-center gap-1">check <ActionGlyph kind="check" className="h-4 w-4" /></span>
-          <span className="flex items-center gap-1">add <ActionGlyph kind="add" className="h-4 w-4" /></span>
-          <span className="flex items-center gap-1">edit <ActionGlyph kind="edit" className="h-4 w-4" /></span>
-          <span className="flex items-center gap-1">view <ActionGlyph kind="view" className="h-4 w-4" /></span>
-        </div>
-      );
-    case "TagRemoveButton":
-      return (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-700">
-            标签示例 <TagRemoveButton label="删除标签" confirm={false} onClick={() => {}} />
-          </span>
-        </div>
-      );
-    case "ToolbarOptionGroup":
-      return (
-        <ToolbarOptionGroup
-          ariaLabel="预览选项"
-          value={value ?? "all"}
-          options={[{ value: "all", label: "全部" }, { value: "active", label: "进行中" }, { value: "done", label: "已完成" }]}
-          onChange={(v) => setValue(v)}
-        />
-      );
-    case "StatusBadge":
-      return (
-        <div className="flex flex-wrap items-center gap-2">
-          <StatusBadge label="已启用" variant="green" />
-          <StatusBadge label="待审核" variant="yellow" />
-          <StatusBadge label="已归档" variant="gray" />
-        </div>
-      );
-    case "StatusToggle":
-      return (
-        <StatusToggle
-          active="active"
-          tabs={[{ key: "active", label: "现用", count: 12 }, { key: "all", label: "全部", count: 18 }]}
-          onChange={() => {}}
-        />
-      );
-    case "SwitchField":
-      return <SwitchField checked={boolValue} onChange={setBoolValue} ariaLabel="启用开关" />;
-    case "CheckboxField":
-      return <CheckboxField checked={boolValue} onChange={setBoolValue} ariaLabel="复选框" />;
-    case "CheckboxChip":
-      return (
-        <div className="flex flex-wrap items-center gap-2">
-          <CheckboxChip checked={boolValue} onChange={setBoolValue}>选项 A</CheckboxChip>
-          <CheckboxChip checked={!boolValue} onChange={() => setBoolValue((v) => !v)}>选项 B</CheckboxChip>
-        </div>
-      );
-    case "ChoiceGroup":
-      return (
-        <ChoiceGroup
-          value={value ?? "yes"}
-          options={["是", "否"]}
-          onChange={(v) => setValue(v)}
-        />
-      );
-    case "TextField":
-      return <TextField value={text} onChange={setText} placeholder="请输入文本" className="max-w-xs" />;
-    case "TextareaField":
-      return <TextareaField value={text} onChange={setText} placeholder="请输入多行文本" className="max-w-xs" />;
-    case "NumberCell":
-      return <NumberCell value={1280} />;
-    case "AmountCell":
-      return <AmountCell value={12800.5} />;
-    case "PanelCard":
-      return (
-        <PanelCard title="示例卡片" className="max-w-xs">
-          <p className="text-sm text-slate-600">这是一个 PanelCard 示例内容。</p>
-        </PanelCard>
-      );
-    case "SectionCard":
-      return (
-        <SectionCard title="示例小节">
-          <p className="text-sm text-slate-600">这是一个 SectionCard 示例内容。</p>
-        </SectionCard>
-      );
-    case "EmptyStateCard":
-      return <EmptyStateCard compact>暂无数据</EmptyStateCard>;
-    case "RatingControl":
-      return <RatingControl value={rating} onChange={setRating} max={5} label="重要度" />;
-    case "CommandToolbar":
-      return (
-        <CommandToolbar
-          filters={(
-            <ToolbarOptionGroup
-              ariaLabel="预览筛选"
-              value={value ?? "all"}
-              options={[{ value: "all", label: "全部" }, { value: "active", label: "进行中" }]}
-              onChange={(v) => setValue(v)}
-            />
-          )}
-          editActions={(
-            <ActionButton variant="primary">新建</ActionButton>
-          )}
-          meta={<>共 24 条</>}
-        />
-      );
-    default:
-      return <span className="text-xs text-slate-400">暂无实时预览</span>;
-  }
+function RelationTags({
+  label,
+  names,
+  color,
+}: {
+  label: string;
+  names: readonly string[];
+  color: "blue" | "amber" | "emerald";
+}) {
+  if (!names.length) return null;
+  const colorClass = {
+    blue: "bg-blue-50 text-blue-700",
+    amber: "bg-amber-50 text-amber-700",
+    emerald: "bg-emerald-50 text-emerald-700",
+  }[color];
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-2">
+      <span className="text-xs text-slate-400">{label}：</span>
+      {names.map((name) => (
+        <code key={name} className={`rounded px-1.5 py-0.5 text-[11px] ${colorClass}`}>
+          {name}
+        </code>
+      ))}
+    </div>
+  );
 }
+
 export default function UiComponentsShowcase() {
   const [tier, setTier] = useState<CoreUiComponentTier>("primitive");
   const [kind, setKind] = useState<string>(ALL_KIND);
   const [query, setQuery] = useState("");
+
+  const graph = useMemo(() => getCoreUiCompositionGraph(), []);
 
   const kindOptions = useMemo(() => {
     const options = [{ value: ALL_KIND, label: "全部分类" }];
@@ -185,6 +68,7 @@ export default function UiComponentsShowcase() {
     }
     return options;
   }, []);
+
   const filteredItems = useMemo(() => {
     return coreUiComponentRegistry.filter((component) => {
       if (component.tier !== tier) return false;
@@ -198,12 +82,13 @@ export default function UiComponentsShowcase() {
       return true;
     });
   }, [tier, kind, query]);
+
   return (
     <PageContent className="max-w-6xl py-8">
       <CommandToolbar
         viewControls={(
           <ToolbarOptionGroup
-            ariaLabel="组件层级"
+            ariaLabel="注册项层级"
             value={tier}
             options={TIERS.map((value) => ({
               value,
@@ -218,7 +103,7 @@ export default function UiComponentsShowcase() {
         filters={(
           <>
             <SelectField
-              ariaLabel="组件分类"
+              ariaLabel="注册项分类"
               options={kindOptions}
               value={kind}
               onChange={setKind}
@@ -228,18 +113,23 @@ export default function UiComponentsShowcase() {
             <SearchInput
               value={query}
               onChange={setQuery}
-              placeholder="搜索组件..."
+              placeholder="搜索注册项..."
               size="toolbar"
               className="w-48"
             />
           </>
         )}
-        meta={<>共 {filteredItems.length} 个组件</>}
+        meta={<>共 {filteredItems.length} 个注册项</>}
       />
+
       <div className="mt-5 grid gap-4 md:grid-cols-2">
         {filteredItems.map((component) => {
           const registration = component as CoreUiComponentRegistration;
           const kindMeta = coreUiComponentKindMeta[registration.kind];
+          const composes = graph.composes.get(registration.name) ?? [];
+          const foundations = graph.foundations.get(registration.name) ?? [];
+          const usedBy = graph.usedBy.get(registration.name) ?? [];
+          const isFoundation = registration.tier === "foundation";
           return (
             <PanelCard
               key={registration.name}
@@ -258,40 +148,26 @@ export default function UiComponentsShowcase() {
               <p className="text-sm text-slate-700">{registration.description}</p>
               {registration.example && (
                 <div className="mt-3 rounded-md border border-slate-100 bg-slate-50 px-3 py-2">
-                  <p className="text-xs font-medium text-slate-500">示例</p>
+                  <p className="text-xs font-medium text-slate-500">{isFoundation ? "Recipe 示例" : "示例"}</p>
                   <p className="mt-1 text-sm text-slate-600">{registration.example}</p>
                 </div>
               )}
               <div className="mt-4 rounded-md border border-dashed border-slate-200 bg-white p-4">
-                <p className="mb-3 text-xs font-medium text-slate-400">实时预览</p>
-                <ComponentPreview name={registration.name} />
+                <p className="mb-3 text-xs font-medium text-slate-400">{isFoundation ? "Recipe 示意（非 React 组件）" : "实时预览"}</p>
+                {isFoundation
+                  ? <span className="text-xs text-slate-400">Foundation 为样式 recipe / token，不提供运行时组件预览。</span>
+                  : <ComponentPreview name={registration.name} />}
               </div>
-              {(registration.composes && registration.composes.length > 0) && (
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-slate-400">组合：</span>
-                  {registration.composes.map((name) => (
-                    <code key={name} className="rounded bg-blue-50 px-1.5 py-0.5 text-[11px] text-blue-700">
-                      {name}
-                    </code>
-                  ))}
-                </div>
-              )}
-              {(registration.foundations && registration.foundations.length > 0) && (
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-slate-400">基础：</span>
-                  {registration.foundations.map((name) => (
-                    <code key={name} className="rounded bg-amber-50 px-1.5 py-0.5 text-[11px] text-amber-700">
-                      {name}
-                    </code>
-                  ))}
-                </div>
-              )}
+              <RelationTags label="组合" names={composes} color="blue" />
+              <RelationTags label="基础" names={foundations} color="amber" />
+              <RelationTags label="被使用" names={usedBy} color="emerald" />
             </PanelCard>
           );
         })}
       </div>
+
       {filteredItems.length === 0 && (
-        <EmptyStateCard className="mt-5">没有找到匹配的组件</EmptyStateCard>
+        <EmptyStateCard className="mt-5">没有找到匹配的注册项</EmptyStateCard>
       )}
     </PageContent>
   );

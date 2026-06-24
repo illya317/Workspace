@@ -1,5 +1,6 @@
 import { checkAuth } from "./auth";
 import { checkAppRouteHierarchy } from "./app-route-hierarchy";
+import { checkCoreUiRegistry } from "./core-ui-registry";
 import { checkDeps } from "./deps";
 import { checkDomainValidation } from "./domain-validation";
 import { checkLevel2Ratchet } from "./level2-enforce";
@@ -13,6 +14,7 @@ export async function archGate() {
   const checks: GateCheck[] = [
     ["scan", scan],
     ["deps", checkDeps],
+    ["core-ui-registry", checkCoreUiRegistry],
     ["modules", checkModules],
     ["open-api", checkOpenApi],
     ["app-route-hierarchy", checkAppRouteHierarchy],

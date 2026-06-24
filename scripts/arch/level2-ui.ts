@@ -89,6 +89,7 @@ const CORE_UI_NON_COMPONENT_EXPORTS = new Set([
   "coreUiComponentKindMeta",
   "coreUiComponentTierMeta",
   "dataTableClassNames",
+  "getCoreUiCompositionGraph",
   "getDefaultVisibleColumns",
   "getModuleCardClassName",
   "hierarchyBadgeClassName",

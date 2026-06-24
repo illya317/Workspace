@@ -12,5 +12,6 @@ export interface CoreUiRegistryUsageRow {
   example: string;
   includedComponents: string[];
   foundationComponents: string[];
+  usedBy: string[];
   usageFiles: string[];
 }

@@ -189,7 +189,7 @@ export const coreUiComponentRegistry = [
   { name: "Toast", tier: "primitive", kind: "feedback", description: "轻量成功提示组件；错误反馈统一转为默认弹窗。", example: "保存成功后显示绿色提示，失败时显示确认弹窗。" },
   { name: "Toolbar", tier: "assembly", kind: "toolbar", description: "CommandToolbar 的兼容别名导出，保留旧消费路径，新增代码优先使用 CommandToolbar。", example: "旧业务文件 import Toolbar 时仍获得统一命令栏实现。", composes: ["CommandToolbar"] },
   { name: "ToolbarSelectFilter", tier: "assembly", kind: "toolbar", description: "工具栏专用下拉筛选，统一“标签 + 当前值 + 下拉菜单”的紧凑列表筛选样式。", example: "合同台账里用“类型 全部”“状态 执行中”筛选记录，避免业务页手写下拉筛选按钮。", composes: ["SearchInput"] },
-  { name: "ToolbarShowcase", tier: "assembly", kind: "toolbar", description: "页面样式预览的兼容导出入口，真实实现已收敛到 PageStyleShowcase。", example: "旧页面继续 import ToolbarShowcase 时仍进入统一页面样式预览。", composes: ["PageStyleShowcase"] },
+  { name: "ToolbarShowcase", tier: "frame", kind: "toolbar", description: "页面样式预览的兼容导出入口，真实实现已收敛到 PageStyleShowcase。", example: "旧页面继续 import ToolbarShowcase 时仍进入统一页面样式预览。", composes: ["PageStyleShowcase"] },
   { name: "page-style-preview", tier: "frame", kind: "layout", description: "页面样式预览配置深导入命名空间，用于设置页和平台视图注册读取模板数据。", example: "设置页从 page-style-preview/template-data 获取页面模板路由和分组。" },
   { name: "TreeNodeBranch", tier: "assembly", kind: "layout", description: "树节点分支容器，统一层级缩进和连接关系。", example: "组织树中展示父部门和多个子部门节点。", composes: ["TreeNodeCard"] },
   { name: "TreeNodeCard", tier: "assembly", kind: "layout", description: "树节点卡片，统一节点标题、副标题、层级徽标和选中态。", example: "组织架构中展示“生产中心 / 一级部门 / 现用”。", composes: ["HierarchyBadge"], foundations: ["hierarchyBadgeClassName"] },
@@ -203,3 +203,46 @@ export const coreUiComponentRegistry = [
 export const registeredCoreUiComponentNames = new Set<string>(
   coreUiComponentRegistry.map((component) => component.name),
 );
+
+export type CoreUiCompositionGraph = {
+  composes: ReadonlyMap<string, readonly string[]>;
+  foundations: ReadonlyMap<string, readonly string[]>;
+  usedBy: ReadonlyMap<string, readonly string[]>;
+};
+
+/**
+ * 反向计算组合关系：由 composes/foundations 推导出每个 entry 被谁使用。
+ * 注意：usedBy 不要手写，必须由 registry 反向计算，否则会和 composes 漂移。
+ */
+export function getCoreUiCompositionGraph(): CoreUiCompositionGraph {
+  const composes = new Map<string, readonly string[]>();
+  const foundations = new Map<string, readonly string[]>();
+  const usedBy = new Map<string, string[]>();
+
+  for (const component of coreUiComponentRegistry) {
+    const registration = component as CoreUiComponentRegistration;
+    const compositionTargets = registration.composes ?? registration.includes ?? [];
+    const foundationTargets = registration.foundations ?? [];
+
+    composes.set(registration.name, compositionTargets);
+    foundations.set(registration.name, foundationTargets);
+
+    for (const target of compositionTargets) {
+      const list = usedBy.get(target) ?? [];
+      list.push(registration.name);
+      usedBy.set(target, list);
+    }
+    for (const target of foundationTargets) {
+      const list = usedBy.get(target) ?? [];
+      list.push(registration.name);
+      usedBy.set(target, list);
+    }
+  }
+
+  const sortedUsedBy = new Map<string, readonly string[]>();
+  for (const [name, list] of usedBy) {
+    sortedUsedBy.set(name, [...new Set(list)].sort());
+  }
+
+  return { composes, foundations, usedBy: sortedUsedBy };
+}
