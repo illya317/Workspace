@@ -16,7 +16,9 @@ npm run dev
 
 ## 发布流程
 
-本地不直连服务器部署。`git push github main` 触发 GitHub Actions CI；`git push origin main` 只同步 CNB 源码，不触发生产发布，也不作为常规 CI 使用。不要依赖 push 自动部署。
+生产维护默认在本地完成代码、migration、文档和检查，然后通过 CNB 部署过去。服务器 SSH 只用于只读诊断、日志/状态确认和部署后验证；不要在服务器上手改源码、生成物或数据库结构来替代正式提交。紧急止血若必须手工处理数据或 schema，事后必须补成 migration/脚本并走正常部署。
+
+当前本地 remote 口径：`origin` 是 GitHub，`cnb` 是 CNB。`git push origin main` 触发 GitHub Actions CI；`git push cnb main` 只同步 CNB 源码，不触发生产发布，也不作为常规 CI 使用。不要依赖 push 自动部署。
 
 源码同步流程：
 
@@ -24,8 +26,8 @@ npm run dev
 git status --short
 git add <files>
 git commit -m "<message>"
-git push github main
-git -c credential.helper= -c credential.helper='!cnb git-credential' push origin main
+git push origin main
+git -c credential.helper= -c credential.helper='!cnb git-credential' push cnb main
 ```
 
 生产发布必须基于已同步到 GitHub 与 CNB 的 commit，通过 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger`：
@@ -83,6 +85,8 @@ bash ./ops/deploy.sh
 | `RUN_LOCAL_CHECKS` | 可选，默认 `1`；设为 `0` 时跳过 CI 机上的静态检查 |
 | `BACKUP_RETENTION_DAYS` | 可选，运行态备份保留天数，默认 `30` |
 | `BACKUP_RETENTION_COUNT` | 可选，运行态备份最多保留份数，默认 `20` |
+
+本机只读诊断可用腾讯云 SSH 私钥：`/Users/koito/Desktop/.System/tencent/FH002.pem`。使用时只引用路径，不打印、不复制、不提交密钥内容；常用目标为 `ubuntu@111.229.86.81`。部署流水线仍使用 CNB 加密变量 `KEY_CONTENT`，不要改成本地私钥直传。
 
 ## 部署行为
 

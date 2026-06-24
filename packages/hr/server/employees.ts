@@ -4,7 +4,7 @@ import { mapValidationToServiceResult } from "@workspace/platform/server/domain-
 import type { DeleteGuardContext } from "@workspace/platform/server/delete-guard";
 import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
 import { snapshotHistory } from "@workspace/platform/server/history";
-import { prisma } from "@workspace/platform/server/prisma";
+import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { fkDisplay, resolveFkValues } from "@workspace/platform/server/resolve-fk";
 import { handleDelete, handleUpdateField } from "./hr-crud";
 import { matchAnyField, matchEmployee, matchText } from "@workspace/platform/search";
@@ -20,6 +20,7 @@ import { employeePositionFilterInclude, employeePositionMatches } from "./employ
 const EMPLOYEE_ID_PATTERN = /^\d{5}$/;
 const USERNAME_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
 const EMPLOYEE_DIRECTORY_FILTER_FIELDS = new Set(["gender", "education", "positionName", "directDepartmentName"]);
+const FAST_DIRECTORY_FILTER_FIELDS = new Set(["gender", "education"]);
 
 function randomUsername() {
   const bytes = randomBytes(8);
@@ -102,6 +103,37 @@ function activeFilterValue(value: string | null | undefined) {
   return null;
 }
 
+function buildFastDirectoryWhere(input: {
+  isActive: boolean | null;
+  filterField?: string;
+  filterValue?: string;
+}): Prisma.EmployeeWhereInput {
+  const where: Prisma.EmployeeWhereInput = {};
+  if (input.isActive === true) where.employments = { some: { isActive: true } };
+  if (input.isActive === false) where.employments = { none: { isActive: true } };
+  if (input.filterField === "gender" && input.filterValue) {
+    if (input.filterValue === "男") where.gender = true;
+    if (input.filterValue === "女") where.gender = false;
+  }
+  if (input.filterField === "education" && input.filterValue) {
+    where.education = { contains: input.filterValue };
+  }
+  return where;
+}
+
+function attachEmployeeDirectoryFields<T extends { employments: Array<{ isActive: boolean; currentCompany: string | null; contracts: string | null }>; positions: Array<{ position?: { name: string | null; department?: { name: string | null } | null } | null; department?: { name: string | null } | null }> }>(employees: T[]) {
+  for (const employee of employees) {
+    const primaryPosition = employee.positions[0];
+    (employee as Record<string, unknown>).positionName = primaryPosition?.position?.name ?? null;
+    (employee as Record<string, unknown>).directDepartmentName =
+      primaryPosition?.position?.department?.name ?? primaryPosition?.department?.name ?? null;
+    const currentEmployment = employee.employments.find((employment) => employment.isActive) ?? employee.employments[0];
+    (employee as Record<string, unknown>).currentCompany = currentEmployment
+      ? primaryContractCompany(currentEmployment.contracts, currentEmployment.currentCompany)
+      : null;
+  }
+}
+
 export async function listEmployees(input: {
   employmentStatus?: "active" | "inactive";
   isActive?: string | null;
@@ -114,6 +146,47 @@ export async function listEmployees(input: {
   page: number;
   pageSize: number;
 }) {
+  const isActive = activeFilterValue(input.isActive ?? (input.employmentStatus === "active" ? "true" : input.employmentStatus === "inactive" ? "false" : null));
+  const canUseFastDirectoryQuery =
+    !input.keyword
+    && !input.company
+    && !input.department
+    && !input.position
+    && (!input.filterField || FAST_DIRECTORY_FILTER_FIELDS.has(input.filterField));
+
+  if (canUseFastDirectoryQuery) {
+    const where = buildFastDirectoryWhere({
+      isActive,
+      filterField: input.filterField,
+      filterValue: input.filterValue,
+    });
+    const [total, employees] = await Promise.all([
+      prisma.employee.count({ where }),
+      prisma.employee.findMany({
+        where,
+        include: {
+          employments: {
+            select: { isActive: true, currentCompany: true, contracts: true },
+            orderBy: [{ isActive: "desc" }, { id: "desc" }],
+          },
+          positions: {
+            include: employeePositionFilterInclude,
+            orderBy: [{ isPrimary: "desc" }, { id: "asc" }],
+          },
+        },
+        orderBy: { id: "asc" },
+        skip: (input.page - 1) * input.pageSize,
+        take: input.pageSize,
+      }),
+    ]);
+    attachEmployeeDirectoryFields(employees);
+    const fkMap = await resolveFkValues(employees as unknown as Record<string, unknown>[]);
+    for (const employee of employees) {
+      (employee as Record<string, unknown>).userIdName = fkDisplay("userId", String(employee.userId ?? ""), fkMap);
+    }
+    return { employees, total };
+  }
+
   let employees = await prisma.employee.findMany({
     include: {
       employments: {
@@ -127,17 +200,7 @@ export async function listEmployees(input: {
     },
     orderBy: { id: "asc" },
   });
-  const isActive = activeFilterValue(input.isActive ?? (input.employmentStatus === "active" ? "true" : input.employmentStatus === "inactive" ? "false" : null));
-  for (const employee of employees) {
-    const primaryPosition = employee.positions[0];
-    (employee as Record<string, unknown>).positionName = primaryPosition?.position?.name ?? null;
-    (employee as Record<string, unknown>).directDepartmentName =
-      primaryPosition?.position?.department?.name ?? primaryPosition?.department?.name ?? null;
-    const currentEmployment = employee.employments.find((employment) => employment.isActive) ?? employee.employments[0];
-    (employee as Record<string, unknown>).currentCompany = currentEmployment
-      ? primaryContractCompany(currentEmployment.contracts, currentEmployment.currentCompany)
-      : null;
-  }
+  attachEmployeeDirectoryFields(employees);
   if (isActive !== null) {
     employees = employees.filter((employee) => {
       const hasActiveEmployment = employee.employments.some((employment) => employment.isActive);

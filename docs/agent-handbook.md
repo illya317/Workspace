@@ -11,11 +11,12 @@
 
 ## 2. 部署与运行态同步
 
-仓库有两个主要远端：`github` 用于公开 CI，`origin` 使用 CNB 用于私有 CD/生产发布。
+仓库有两个主要远端：`origin` 是 GitHub，用于公开 CI；`cnb` 是 CNB，用于私有 CD/生产发布源码同步。
 
-- `git push github main` 触发 GitHub Actions CI；CI 执行 `npm run ci`。
-- `git push origin main` 只同步 CNB 源码，不触发生产发布，也不作为常规 CI 使用。
-- 本地不直连服务器部署；正式发布必须先 commit，并同步 push 到 GitHub 与 CNB，再用 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger`。
+- `git push origin main` 触发 GitHub Actions CI；CI 执行 `npm run ci`。
+- `git -c credential.helper= -c credential.helper='!cnb git-credential' push cnb main` 只同步 CNB 源码，不触发生产发布，也不作为常规 CI 使用。
+- 生产维护尽量在本地完成代码、migration、文档和检查，再通过 CNB 部署过去。服务器 SSH 只做只读诊断、日志/状态确认和部署后验证；不要在服务器上手改源码、生成物或数据库结构来替代正式提交。
+- 正式发布必须先 commit，并同步 push 到 GitHub 与 CNB，再用 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger`。
 - CNB/API 部署使用 `./ops/deploy.sh`，在 CNB/Linux CD 容器里完成部署构建，然后只把 `.next/standalone` 产物包上传到服务器；服务器不执行 `npm ci` / `npm run build`。
 - 服务器运行态只来自 `REMOTE_WORKSPACE_CONFIG_DIR`，包括 `.env`、`data/`、`public/company`、`public/assets/agent/avatar/` 等，不随构建产物覆盖；每次部署会先备份该目录。
 - `data/` 以服务器为准：本地 `data/` 不上传覆盖服务器。
@@ -28,8 +29,8 @@
 git status --short
 git add <files>
 git commit -m "<message>"
-git push github main
 git push origin main
+git -c credential.helper= -c credential.helper='!cnb git-credential' push cnb main
 ```
 
 生产发布流程：
@@ -49,10 +50,12 @@ cnb build start-build \
 部署后用返回的 `sn` 查询状态：
 
 ```bash
-cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
+cnb build get-build-status --repo illya317/Workspace --sn "<sn>" --verbose
 ```
 
 如果部署失败，用同一个 `sn` 和 pipeline/stage id 拉取失败 stage 日志；不要再额外 push 一次制造第二条部署记录。
+
+本机只读诊断腾讯云 CVM 可用 `/Users/koito/Desktop/.System/tencent/FH002.pem`，目标 `ubuntu@111.229.86.81`；只引用路径，不打印、不复制、不提交密钥内容。部署流水线使用 CNB 加密变量 `KEY_CONTENT`，不要改成本地私钥直传。
 
 新环境构造、`.workspace` 目录恢复、服务器 data 拉取规则见 `/Users/koito/Desktop/workspace/.workspace/AGENTS.md`。部署专题说明见 `docs/ops/deploy.md` 和 `docs/ops/environment.md`。
 
