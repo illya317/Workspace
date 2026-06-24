@@ -88,6 +88,7 @@ export const coreUiComponentRegistry = [
   { name: "DataTable", kind: "data", description: "通用数据表格 primitive，只负责列、行、空态和加载态。", example: "渲染科目、凭证明细、合同或资料库文件列表。", includes: ["dataTableClassNames", "DataTableColumn", "DataTableActionsCell"] },
   { name: "DataTableActionsCell", kind: "data", description: "表格操作列模板，统一查看、编辑、删除等行级动作图标。", example: "员工资料和批次记录表格都用查看/删除图标，不再手写操作列按钮。" },
   { name: "DataTableActionButton", kind: "data", description: "表格行级单按钮 primitive，供少量自定义操作列复用 DataTable 图标按钮规范。", example: "只有一个查看或删除入口的业务表格，直接复用 DataTableActionButton。" },
+  { name: "createDataTableEditActions", kind: "data", description: "DataTable 行编辑动作工厂，统一详情、编辑、保存、取消和删除动作组合。", example: "项目阶段、项目任务和工作项表格用同一套编辑态行级动作。", includes: ["DataTableActionsCell"] },
   { name: "DatabasePageFrame", kind: "layout", description: "数据库页骨架，统一 Tab、筛选工具条、摘要和表格内容排列。", example: "员工资料、财务科目、报表配置和注册表页面只传筛选区与 DataTable。" },
   { name: "DetailModal", kind: "overlay", description: "详情弹层容器，用于业务详情或编辑面板的统一包裹。", example: "在资料库中打开文件详情或在审计页查看记录明细。" },
   { name: "DisclosureRecordCard", kind: "data", description: "可展开记录卡片，统一历史、日志和明细记录的折叠头、详情区和行级动作。", example: "审计历史里点击一条记录展开变更详情，并显示“还原到此版本”动作。" },

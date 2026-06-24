@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { isValidDateValue } from "@workspace/platform/server/api";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { canEditProject, canViewProject, getProjectPermissionsById } from "./access";
+import { isValidProjectPlanDateValue, normalizeProjectPlanText, validateProjectPlanCommand } from "./domain/project-plan-validation";
+import { validateProjectTaskPlanBatch } from "./domain/project-task-validation";
 import { formatDate, parseDate } from "./project-normalization";
-import { validateProjectTaskPlanBatch } from "./project-task-validation";
 
 export const PLAN_ITEM_KINDS = ["project", "task", "phase"] as const;
 export type PlanItemKind = (typeof PLAN_ITEM_KINDS)[number];
@@ -60,27 +60,18 @@ function normalizePositiveInt(value: unknown) {
   return Number.isInteger(number) && number > 0 ? number : Number.NaN;
 }
 
-function normalizeNullablePositiveInt(value: unknown) {
-  if (value === null || value === undefined || value === "") return null;
-  return normalizePositiveInt(value);
-}
+function normalizeNullablePositiveInt(value: unknown) { return value === null || value === undefined || value === "" ? null : normalizePositiveInt(value); }
 
 function normalizeNullableDate(value: unknown) {
-  if (!isValidDateValue(value)) return Number.NaN;
+  if (!isValidProjectPlanDateValue(value)) return Number.NaN;
   return parseDate(typeof value === "string" ? value : null);
 }
 
-function isInvalidDate(value: Date | null | number): value is number {
-  return typeof value === "number" && Number.isNaN(value);
-}
+function isInvalidDate(value: Date | null | number): value is number { return typeof value === "number" && Number.isNaN(value); }
 
-function planKey(kind: string, id: number) {
-  return `${kind}:${id}`;
-}
+function planKey(kind: string, id: number) { return `${kind}:${id}`; }
 
-function serviceError(error: string, status = 400) {
-  return { ok: false as const, error, status };
-}
+function serviceError(error: string, status = 400) { return { ok: false as const, error, status }; }
 
 export async function listProjectPlanGantt(input: { userId: number; projectId: number }) {
   const permissions = await getProjectPermissionsById(input.userId, input.projectId);
@@ -238,6 +229,8 @@ export async function saveProjectPlanGantt(input: { userId: number; projectId: n
 }
 
 export async function syncProjectPlanDependencies(input: { userId: number; projectId: number; body: { dependencies?: DependencyInput[] } }) {
+  const command = validateProjectPlanCommand("syncProjectPlanDependencies");
+  if (!command.ok) return serviceError(command.issue.message, command.issue.status);
   if (!(await canEditProject(input.userId, input.projectId))) return serviceError("无权限", 403);
   const scope = await loadPlanScope(input.projectId);
   const dependencies: NormalizedDependency[] = [];
@@ -277,6 +270,8 @@ export async function listProjectPlanPhases(input: { userId: number; projectId: 
 }
 
 export async function createProjectPlanPhase(input: { userId: number; projectId: number; body: PlanPhaseInput }) {
+  const command = validateProjectPlanCommand("createProjectPlanPhase");
+  if (!command.ok) return serviceError(command.issue.message, command.issue.status);
   if (!(await canEditProject(input.userId, input.projectId))) return serviceError("无权限", 403);
   const normalized = await normalizePlanPhaseInput(input.projectId, input.body, "create");
   if ("error" in normalized) return serviceError(String(normalized.error || "参数错误"));
@@ -291,6 +286,8 @@ export async function createProjectPlanPhase(input: { userId: number; projectId:
 }
 
 export async function updateProjectPlanPhase(input: { userId: number; projectId: number; phaseId: number; body: PlanPhaseInput }) {
+  const command = validateProjectPlanCommand("updateProjectPlanPhase");
+  if (!command.ok) return serviceError(command.issue.message, command.issue.status);
   if (!(await canEditProject(input.userId, input.projectId))) return serviceError("无权限", 403);
   const existing = await prisma.projectPlanPhase.findUnique({ where: { id: input.phaseId }, select: { projectId: true } });
   if (!existing || existing.projectId !== input.projectId) return serviceError("项目阶段不存在", 404);
@@ -312,6 +309,8 @@ function derivePhaseBaseline(phases: Array<{ startDate: Date | null; endDate: Da
 }
 
 export async function deleteProjectPlanPhase(input: { userId: number; projectId: number; phaseId: number }) {
+  const command = validateProjectPlanCommand("deleteProjectPlanPhase");
+  if (!command.ok) return serviceError(command.issue.message, command.issue.status);
   if (!(await canEditProject(input.userId, input.projectId))) return serviceError("无权限", 403);
   const existing = await prisma.projectPlanPhase.findUnique({ where: { id: input.phaseId }, select: { projectId: true } });
   if (!existing || existing.projectId !== input.projectId) return serviceError("项目阶段不存在", 404);
@@ -334,7 +333,7 @@ function mapPlanPhase(phase: { id: number; projectId: number; sequenceNo: number
 async function normalizePlanPhaseInput(projectId: number, input: PlanPhaseInput, mode: "create" | "update") {
   const data: { sequenceNo?: number; name?: string; startDate?: Date | null; endDate?: Date | null; note?: string | null } = {};
   if (mode === "create" || input.name !== undefined) {
-    const name = String(input.name ?? "").trim();
+    const name = normalizeProjectPlanText(input.name);
     if (!name) return { error: "项目阶段名称不能为空" };
     data.name = name;
   }
@@ -351,7 +350,7 @@ async function normalizePlanPhaseInput(projectId: number, input: PlanPhaseInput,
     if (isInvalidDate(value)) return { error: "日期格式错误" };
     data[field] = value;
   }
-  if (input.note !== undefined) data.note = String(input.note ?? "").trim() || null;
+  if (input.note !== undefined) data.note = normalizeProjectPlanText(input.note) || null;
   if (data.startDate && data.endDate && data.endDate < data.startDate) return { error: "结束日期不能早于开始日期" };
   return { data };
 }
@@ -431,9 +430,7 @@ function findDependencyCycle(dependencies: Array<{ predecessorKind: string; pred
     if (visiting.has(key)) return true;
     if (visited.has(key)) return false;
     visiting.add(key);
-    for (const next of nextByKey.get(key) || []) {
-      if (visit(next)) return true;
-    }
+    for (const next of nextByKey.get(key) || []) if (visit(next)) return true;
     visiting.delete(key);
     visited.add(key);
     return false;
@@ -444,6 +441,5 @@ function findDependencyCycle(dependencies: Array<{ predecessorKind: string; pred
 function deriveProjectStatus(endDate: Date | null) { return endDate ? "已完成" : "进行中"; }
 
 export function projectPlanServiceResponse<T>(result: { ok: true; data: T } | { ok: false; error: string; status?: number }) {
-  if (result.ok) return NextResponse.json(result.data);
-  return NextResponse.json({ error: result.error }, { status: result.status || 400 });
+  return result.ok ? NextResponse.json(result.data) : NextResponse.json({ error: result.error }, { status: result.status || 400 });
 }

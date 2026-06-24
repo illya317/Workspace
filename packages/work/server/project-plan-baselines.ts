@@ -1,5 +1,6 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { canEditProject, canViewProject } from "./access";
+import { normalizeProjectPlanText, validateProjectPlanCommand } from "./domain/project-plan-validation";
 
 type BaselineInput = {
   name?: unknown;
@@ -25,8 +26,8 @@ export async function listProjectPlanBaselines(input: { userId: number; projectI
 
 export async function createProjectPlanBaseline(input: { userId: number; projectId: number; body: BaselineInput }) {
   if (!(await canEditProject(input.userId, input.projectId))) return serviceError("无权限", 403);
-  const name = String(input.body.name ?? "").trim() || `基准 ${new Date().toISOString().slice(0, 10)}`;
-  const note = String(input.body.note ?? "").trim() || null;
+  const name = normalizeProjectPlanText(input.body.name) || `基准 ${new Date().toISOString().slice(0, 10)}`;
+  const note = normalizeProjectPlanText(input.body.note) || null;
   const snapshot = await buildBaselineSnapshot(input.projectId);
   const baseline = await prisma.$transaction(async (tx) => {
     await tx.projectPlanBaseline.updateMany({ where: { projectId: input.projectId }, data: { isActive: false } });
@@ -49,6 +50,8 @@ export async function createProjectPlanBaseline(input: { userId: number; project
 }
 
 export async function activateProjectPlanBaseline(input: { userId: number; projectId: number; baselineId: number }) {
+  const command = validateProjectPlanCommand("activateProjectPlanBaseline");
+  if (!command.ok) return serviceError(command.issue.message, command.issue.status);
   if (!(await canEditProject(input.userId, input.projectId))) return serviceError("无权限", 403);
   const baseline = await prisma.projectPlanBaseline.findUnique({ where: { id: input.baselineId }, select: { projectId: true } });
   if (!baseline || baseline.projectId !== input.projectId) return serviceError("基准不存在", 404);

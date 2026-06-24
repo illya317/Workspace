@@ -5,6 +5,7 @@ import {
   workSpaceRoleAllows,
   type WorkSpaceTargetType,
 } from "./access";
+import { normalizeWorkReportText, validateWorkReportCommand } from "./domain/work-report-validation";
 import { listWorkTaskSpaces } from "./task-spaces";
 
 export type WorkReportPeriod = {
@@ -61,6 +62,8 @@ export async function saveWorkReport(input: {
   periodStart?: string | null;
   items: WorkReportItemInput[];
 }) {
+  const command = validateWorkReportCommand("saveWorkReport");
+  if (!command.ok) return { ok: false as const, error: command.issue.message, status: command.issue.status };
   if (!(await canEditWorkTask(input.userId, input.targetType, input.targetId))) {
     return { ok: false as const, error: "无权限填写工作汇报", status: 403 };
   }
@@ -161,14 +164,14 @@ function normalizeReportItemInput(
   previousLookup: ReturnType<typeof buildPreviousLookup>,
 ) {
   const workItemId = toNullableInt(item.workItemId);
-  const title = (item.title || "").trim();
-  const previousPlanSnapshot = (item.previousPlanSnapshot || lookupPreviousPlan(previousLookup, workItemId, title) || "").trim();
+  const title = normalizeWorkReportText(item.title);
+  const previousPlanSnapshot = normalizeWorkReportText(item.previousPlanSnapshot || lookupPreviousPlan(previousLookup, workItemId, title));
   return {
     workItemId,
     title,
     previousPlanSnapshot,
-    doneThisWeek: (item.doneThisWeek || "").trim(),
-    planNextWeek: (item.planNextWeek || "").trim(),
+    doneThisWeek: normalizeWorkReportText(item.doneThisWeek),
+    planNextWeek: normalizeWorkReportText(item.planNextWeek),
     sortOrder: Number.isFinite(Number(item.sortOrder)) ? Number(item.sortOrder) : (index + 1) * 10,
   };
 }

@@ -15,7 +15,7 @@ export default function AppVersionGuard({ version }: { version: string }) {
 
     async function checkVersion() {
       try {
-        const response = await fetch(workspacePath(`/api/version?t=${Date.now()}`), { cache: "no-store" });
+        const response = await fetch(workspacePath(`/api/settings/version?t=${Date.now()}`), { cache: "no-store" });
         if (!response.ok) return;
         const payload = await response.json() as { version?: string };
         const nextVersion = payload.version;

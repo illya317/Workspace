@@ -37,7 +37,7 @@ export const registeredModuleDefinitions = [
       resourceKey: "work",
       resourceSortOrder: 0,
       children: [
-        { key: "tasks", label: "工作计划", desc: "个人计划、待办任务和执行跟踪", href: "/work/tasks", resourceKey: "work.tasks", apiPrefixes: ["/api/modules/work/tasks", "/api/modules/work/task-spaces", "/api/modules/work/task-reports"] },
+        { key: "tasks", label: "工作计划", desc: "个人计划、待办任务和执行跟踪", href: "/work/tasks", resourceKey: "work.tasks", apiPrefixes: ["/api/modules/work/tasks"] },
         { key: "projects", label: "项目管理", desc: "组织项目、角色分工、预算和风险", href: "/work/projects", resourceKey: "work.projects", apiPrefixes: ["/api/modules/work/projects"] },
       ],
     },
@@ -295,6 +295,7 @@ export const registeredModuleDefinitions = [
     ],
     routes: ["/settings", "/settings/account", "/settings/admin", "/settings/api", "/settings/api/hr-generated"],
     apiRoutes: [
+      { method: "GET", pathPrefix: "/api/settings/version", access: "public" },
       { method: "GET", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
       { method: "POST", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
       { method: "PUT", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },

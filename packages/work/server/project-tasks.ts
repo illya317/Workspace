@@ -9,7 +9,7 @@ import {
   type NormalizedTaskAssignee,
   type ProjectTaskInput,
 } from "./project-task-input";
-import { validateAssignees, validateOwner, validateTaskPlanConstraints } from "./project-task-validation";
+import { validateAssignees, validateOwner, validateProjectTaskCommand, validateTaskPlanConstraints } from "./domain/project-task-validation";
 
 async function nextSortOrder(projectId: number) {
   const last = await prisma.projectTask.findFirst({
@@ -295,6 +295,8 @@ async function syncTaskAssignments(
 }
 
 export async function deleteProjectTask(input: { userId: number; projectId: number; taskId: number }) {
+  const command = validateProjectTaskCommand("deleteProjectTask");
+  if (!command.ok) return { ok: false as const, error: command.issue.message, status: command.issue.status };
   const existing = await prisma.projectTask.findUnique({
     where: { id: input.taskId },
     select: { id: true, projectId: true },

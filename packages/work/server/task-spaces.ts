@@ -5,10 +5,10 @@ import {
   getWorkSpaceRole,
   hasWorkAdmin,
   normalizeWorkSpaceRole,
-  workSpaceRoleAllows,
   type WorkSpaceRole,
   type WorkSpaceTargetType,
 } from "./access";
+import { canPersistWorkSpaceRole } from "./domain/work-space-validation";
 
 export type WorkTaskSpace = {
   targetType: WorkSpaceTargetType;
@@ -223,7 +223,7 @@ export async function updateWorkSpacePermissions(input: {
       role: normalizeWorkSpaceRole(item.role),
       kind: "task" as const,
     }))
-    .filter((item) => Number.isInteger(item.userId) && item.userId > 0 && workSpaceRoleAllows(item.role, "viewer"));
+    .filter((item) => Number.isInteger(item.userId) && item.userId > 0 && canPersistWorkSpaceRole(item.role));
   const users = rows.length ? await prisma.user.findMany({ where: { id: { in: rows.map((item) => item.userId) } }, select: { id: true } }) : [];
   const userIds = new Set(users.map((user) => user.id));
   if (rows.some((row) => !userIds.has(row.userId))) return { ok: false as const, error: "授权用户不存在", status: 400 };

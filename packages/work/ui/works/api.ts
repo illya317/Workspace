@@ -20,7 +20,7 @@ async function readJson<T>(response: Response, fallbackError: string): Promise<T
 }
 
 export async function listTaskSpaces() {
-  const response = await fetch(workspacePath("/api/modules/work/task-spaces"));
+  const response = await fetch(workspacePath("/api/modules/work/tasks/spaces"));
   const data = await readJson<{ spaces?: WorkTaskSpace[] }>(response, "加载工作空间失败");
   return data.spaces || [];
 }
@@ -70,13 +70,13 @@ export async function listProjectTaskOptions(projectId: number | null) {
 }
 
 export async function listSpacePermissions(target: WorkTarget) {
-  const response = await fetch(workspacePath(`/api/modules/work/task-spaces/${target.targetType}/${target.targetId}/permissions`));
+  const response = await fetch(workspacePath(`/api/modules/work/tasks/spaces/${target.targetType}/${target.targetId}/permissions`));
   const data = await readJson<{ permissions?: WorkSpacePermissionRow[] }>(response, "加载空间权限失败");
   return data.permissions || [];
 }
 
 export async function saveSpacePermissions(target: WorkTarget, permissions: Array<{ userId: number; role: string }>) {
-  const response = await fetch(workspacePath(`/api/modules/work/task-spaces/${target.targetType}/${target.targetId}/permissions`), {
+  const response = await fetch(workspacePath(`/api/modules/work/tasks/spaces/${target.targetType}/${target.targetId}/permissions`), {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ permissions }),
@@ -90,12 +90,12 @@ export async function getWorkReportDraft(target: WorkTarget, periodStart: string
     targetId: String(target.targetId),
     periodStart,
   });
-  const response = await fetch(workspacePath(`/api/modules/work/task-reports?${params.toString()}`));
+  const response = await fetch(workspacePath(`/api/modules/work/tasks/reports?${params.toString()}`));
   return readJson<WorkReportDraftResponse>(response, "加载工作汇报失败");
 }
 
 export async function saveWorkReport(target: WorkTarget, periodStart: string, items: WorkReportItem[]) {
-  const response = await fetch(workspacePath("/api/modules/work/task-reports"), {
+  const response = await fetch(workspacePath("/api/modules/work/tasks/reports"), {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -116,6 +116,6 @@ export async function saveWorkReport(target: WorkTarget, periodStart: string, it
 
 export async function listWorkReportCollection(periodStart: string) {
   const params = new URLSearchParams({ periodStart });
-  const response = await fetch(workspacePath(`/api/modules/work/task-reports/collection?${params.toString()}`));
+  const response = await fetch(workspacePath(`/api/modules/work/tasks/reports/collection?${params.toString()}`));
   return readJson<WorkReportCollectionResponse>(response, "加载汇报汇总失败");
 }

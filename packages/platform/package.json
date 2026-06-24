@@ -45,6 +45,7 @@
     "./server/open-api/*": "./server/open-api/*.ts",
     "./server/permissions": "./server/permissions.ts",
     "./server/prisma": "./server/prisma.ts",
+    "./server/rbac/implicit": "./server/rbac/implicit.ts",
     "./server/reference-guards": "./server/reference-guards.ts",
     "./server/reference-options": "./server/reference-options.ts",
     "./server/resolve-fk": "./server/resolve-fk.ts",

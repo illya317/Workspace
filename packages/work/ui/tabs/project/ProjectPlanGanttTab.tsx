@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ActionButton, CommandToolbar, EmptyStateCard, SearchInput, ToolbarOptionGroup, useConfirm } from "@workspace/core/ui";
+import { ActionButton, CommandToolbar, EmptyStateCard, SearchInput, SelectField, ToolbarOptionGroup, useConfirm } from "@workspace/core/ui";
 import type { ProjectItem } from "./model";
 import {
   listProjectOptions,
@@ -110,14 +110,17 @@ export default function ProjectPlanGanttTab({ requestedProjectId }: { requestedP
         filters={(
           <>
             <SearchInput value={keyword} onChange={setKeyword} placeholder="搜索项目..." ariaLabel="搜索项目" size="toolbar" className="w-52" />
-            <select
-              value={selectedProjectId ?? ""}
-              onChange={(event) => setSelectedProjectId(event.target.value ? Number(event.target.value) : null)}
-              className="h-10 min-w-52 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 shadow-sm"
-            >
-              <option value="">选择项目</option>
-              {filteredProjects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
-            </select>
+            <SelectField
+              ariaLabel="选择项目"
+              value={selectedProjectId ? String(selectedProjectId) : ""}
+              placeholder="选择项目"
+              size="toolbar"
+              searchable
+              className="min-w-52"
+              selectClassName="min-w-52"
+              options={filteredProjects.map((project) => ({ value: String(project.id), label: project.name }))}
+              onChange={(value) => setSelectedProjectId(value ? Number(value) : null)}
+            />
           </>
         )}
         editActions={(
