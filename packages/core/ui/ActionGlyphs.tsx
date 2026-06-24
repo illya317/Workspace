@@ -21,8 +21,9 @@ export function ActionGlyph({ kind, className = "h-5 w-5" }: ActionGlyphProps) {
   }
   if (kind === "x") {
     return (
-      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} viewBox="0 0 24 24">
-        <path d="M6 6l12 12M18 6 6 18" />
+      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M6 6l12 12" />
       </svg>
     );
   }
