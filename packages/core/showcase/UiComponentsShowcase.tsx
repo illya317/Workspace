@@ -152,9 +152,6 @@ export default function UiComponentsShowcase({
     setSelectedName(name);
     if (component.tier === "foundation") return;
 
-    setFilterValue(ALL_TIER);
-    setVerifiedFilter(ALL_VERIFIED);
-    setQuery("");
     setExpandedNames((current) => new Set([...current, name]));
     setSideOpen(true);
     setDrawerOpen(false);
