@@ -4,6 +4,7 @@ import AppShell from "../AppShell";
 import SettingsClient from "./SettingsClient";
 import SettingsApiClient from "./SettingsApiClient";
 import UiComponentsShowcase from "@workspace/core/showcase/UiComponentsShowcase";
+import { getCoreUiRegistryUsageRows } from "@workspace/platform/server/ui-registry";
 import { type ApiAccessModuleRow } from "./ApiAccessClient";
 
 function buildApiAccessModules(): ApiAccessModuleRow[] {
@@ -53,9 +54,14 @@ export function SettingsApiPage({
 }
 
 export function SettingsUiPage({ user }: { user: SessionUser }) {
+  const usageRows = getCoreUiRegistryUsageRows().map((row) => ({
+    name: row.name,
+    usageFiles: row.usageFiles,
+  }));
+
   return (
     <AppShell title="UI 组件库" backHref="/settings" user={user}>
-      <UiComponentsShowcase />
+      <UiComponentsShowcase usageRows={usageRows} />
     </AppShell>
   );
 }
