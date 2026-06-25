@@ -39,7 +39,7 @@ git -c credential.helper= -c credential.helper='!cnb git-credential' push cnb ma
 sha="$(git rev-parse HEAD)"
 cnb build start-build \
   --repo <CNB_REPO> \
-  --branch main \
+  --branch cnb-release \
   --sha "$sha" \
   --event api_trigger_manual \
   --title "deploy ${sha:0:8}" \
