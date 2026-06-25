@@ -13,8 +13,8 @@ try:
     import fitz
 except ModuleNotFoundError as exc:
     raise SystemExit(
-        "Missing PyMuPDF (fitz). Run with /Users/koito/bin/bin/python3 "
-        "or install pymupdf into the active Python."
+        "Missing PyMuPDF (fitz). Please run this script with a Python environment "
+        "that has pymupdf installed, or install it with: pip install pymupdf"
     ) from exc
 
 fitz.TOOLS.mupdf_display_errors(False)

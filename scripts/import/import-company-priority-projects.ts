@@ -55,9 +55,11 @@ function requireDatabasePath() {
 }
 
 function parseArgs(argv: string[]): CliOptions {
+  const inputDir = process.env.COMPANY_TASK_PLANS_INPUT_DIR?.trim() || ".";
+  const outputDir = process.env.COMPANY_TASK_PLANS_OUTPUT_DIR?.trim() || ".";
   const defaults = {
-    file: "/Users/koito/Desktop/计划/公司6月份重点工作计划2026.5.26.xlsx",
-    jsonOut: "/Users/koito/Desktop/计划/公司6月份重点工作计划2026.5.26.company-projects.json",
+    file: path.join(inputDir, "公司6月份重点工作计划2026.5.26.xlsx"),
+    jsonOut: path.join(outputDir, "公司6月份重点工作计划2026.5.26.company-projects.json"),
     execute: false,
   };
   const options: CliOptions = { ...defaults };

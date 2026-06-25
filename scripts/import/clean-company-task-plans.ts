@@ -32,8 +32,16 @@ type FlatTask = {
   subTaskTitle: string;
 };
 
-const INPUT_DIR = "/Users/koito/Desktop/计划/RAW";
-const OUTPUT_DIR = "/Users/koito/Desktop/计划";
+function requireEnvDir(key: string): string {
+  const value = process.env[key]?.trim();
+  if (!value) {
+    throw new Error(`缺少环境变量 ${key}，请设置为公司重点工作计划 Excel 所在的本地目录。`);
+  }
+  return value;
+}
+
+const INPUT_DIR = requireEnvDir("COMPANY_TASK_PLANS_INPUT_DIR");
+const OUTPUT_DIR = requireEnvDir("COMPANY_TASK_PLANS_OUTPUT_DIR");
 const GROUPED_OUT = path.join(OUTPUT_DIR, "公司重点工作计划_2026H1_grouped.json");
 const FLAT_OUT = path.join(OUTPUT_DIR, "公司重点工作计划_2026H1_flat.json");
 
