@@ -1,13 +1,14 @@
 main:
   # 关闭 GitHub 镜像同步后的自动部署；手动触发用 api_trigger_manual。
-  # 所有部署目标、SSH 密钥、健康检查地址等私有参数均通过 imports 注入，
-  # 不在本公开文件中硬编码。
+  # 本文件只保留公开流水线形状。真实 CNB env import 地址和部署目标值
+  # 在私有 ops (/Users/koito/Desktop/workspace/ops/cnb.yml) 中维护，发布前
+  # 由运维流程注入或替换本文件中的占位符。
   api_trigger_manual:
     - name: deploy-prod
       docker:
         image: node:22-bookworm
       imports:
-        - https://cnb.cool/illya317/env/-/blob/main/server-prod.yaml
+        - https://cnb.cool/<owner>/<env-repo>/-/blob/main/server-prod.yaml
       stages:
         - name: install-deploy-tools
           script: |

@@ -292,6 +292,28 @@ function validateEnv(workspaceDir, workspaceEnv) {
 async function main() {
   const repoEnv = parseKeyValueFile(REPO_ENV_FILE);
   const opsEnv = options.opsEnvFile ? parseKeyValueFile(options.opsEnvFile) : new Map();
+
+  if (options.opsEnvFile) {
+    if (!fs.existsSync(options.opsEnvFile)) {
+      fail(`Private ops env file not found: ${options.opsEnvFile}`);
+      process.exit(exitCode || 1);
+    }
+    if (opsEnv.size === 0) {
+      fail(`Private ops env file is empty: ${options.opsEnvFile}`);
+      process.exit(exitCode || 1);
+    }
+    const requiredOpsKeys = ["SERVER", "REMOTE_DIR", "PM2_NAME"];
+    const missingOpsKeys = requiredOpsKeys.filter(
+      (key) => !opsEnv.get(key) || opsEnv.get(key).trim() === ""
+    );
+    if (missingOpsKeys.length > 0) {
+      fail(
+        `Private ops env missing required keys: ${missingOpsKeys.join(", ")}`
+      );
+      process.exit(exitCode || 1);
+    }
+  }
+
   const workspaceDir = resolveWorkspaceDir(repoEnv);
 
   console.log(`Workspace runtime check`);
