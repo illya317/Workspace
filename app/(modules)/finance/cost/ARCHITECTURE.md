@@ -5,12 +5,12 @@
 生命周期状态：`workspace-owned`。成本模块使用 Workspace 本地资料、历史 Excel 导入和本地数据库表；不再通过 ERP/ERPNext API 取数。标准生产成本、库存成本和业务单据事实后续按 Workspace 自有生产模块口径扩展。
 
 ### raw JSON
-- 位置：`/Users/koito/Desktop/.财务数据库/成本分析飞书实验版/json/raw`
+- 位置：本地资料库中的成本分析原始 Excel 导出目录（例如 `<本地资料库>/成本分析/json/raw`）
 - 用途：保留 Excel 原始结构，用于审计、排查、重新转换
 - **不直接进业务 UI，不导入 DB**
 
 ### normalized JSON
-- 位置：`/Users/koito/Desktop/.财务数据库/成本分析飞书实验版/json/normalized`
+- 位置：本地资料库中的成本分析归一化目录（例如 `<本地资料库>/成本分析/json/normalized`）
 - 用途：作为导入 DB 的中间数据，保留了原始 sheet/row 追溯信息
 - **不是最终 DB schema**，需要 agent 判断哪些是事实字段、哪些是计算字段
 

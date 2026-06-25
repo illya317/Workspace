@@ -25,8 +25,8 @@
 
 相关内部文档：
 
-- [ERPNext 集成规划](/Users/koito/Desktop/Project/Workspace/docs/planning/erpnext-integration-roadmap.md)
-- [Finance 财务总账模块架构](/Users/koito/Desktop/Project/Workspace/app/finance/ARCHITECTURE.md)
+- [ERPNext 集成规划](./erpnext-integration-roadmap.md)
+- [Finance 财务总账模块架构](../../app/finance/ARCHITECTURE.md)
 
 ## 1. 管理层汇报主线
 
