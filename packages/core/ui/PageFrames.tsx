@@ -1,9 +1,11 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { ActionButton } from "./ActionControls";
 import PageContent from "./PageContent";
 import TabBar, { type TabDef } from "./TabBar";
-import SplitWorkspace, { SplitWorkspaceToolbar, type SplitWorkspaceMode } from "./SplitWorkspace";
+import SplitWorkspace, { type SplitWorkspaceMode } from "./SplitWorkspace";
+import { Toolbar, type ToolbarItem } from "./Toolbar";
 import { joinClassNames } from "./card-utils";
 
 type PageFrameTab = TabDef;
@@ -67,19 +69,51 @@ export function WorkspaceSplitPage({
   showSideControls = true,
   splitRatio,
 }: WorkspaceSplitPageProps) {
+  const toolbarItems: ToolbarItem[] = [];
+  if (showSideControls) {
+    toolbarItems.push({
+      kind: "custom",
+      key: "mobile-side-toggle",
+      section: "view",
+      content: (
+        <span className="lg:hidden">
+          <ActionButton
+            kind="panel-open"
+            label={`显示${sideLabel}`}
+            onClick={() => onDrawerOpenChange(true)}
+            className="!h-9 !w-10 !px-0"
+          />
+        </span>
+      ),
+    });
+    toolbarItems.push({
+      kind: "custom",
+      key: "desktop-side-toggle",
+      section: "view",
+      content: (
+        <span className="hidden lg:block">
+          <ActionButton
+            kind={sideOpen ? "panel-open" : "panel-close"}
+            label={`${sideOpen ? "隐藏" : "显示"}${sideLabel}`}
+            onClick={() => onSideOpenChange(!sideOpen)}
+            variant={sideOpen ? "primary" : "secondary"}
+            className="!h-9 !w-10 !px-0"
+          />
+        </span>
+      ),
+    });
+  }
+  if (toolbar) {
+    toolbarItems.push({ kind: "custom", key: "toolbar", section: "edit", content: toolbar });
+  }
+
   return (
     <PageContent className={contentClassName}>
       <div className={joinClassNames("space-y-5", className)}>
         {header}
-        <SplitWorkspaceToolbar
-          sideOpen={sideOpen}
-          sideLabel={sideLabel}
-          onSideOpenChange={onSideOpenChange}
-          onDrawerOpen={() => onDrawerOpenChange(true)}
-          showSideControls={showSideControls}
-        >
-          {toolbar}
-        </SplitWorkspaceToolbar>
+        {toolbarItems.length > 0 && (
+          <Toolbar items={toolbarItems} variant="inline" className="w-full justify-start" />
+        )}
         {beforeSplit}
         <SplitWorkspace
           sideOpen={sideOpen}

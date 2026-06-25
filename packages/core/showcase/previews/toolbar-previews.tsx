@@ -5,9 +5,7 @@ import {
   ActionButton,
   ActionGlyph,
   FieldValueFilter,
-  PageToolbar,
   RefreshActionButton,
-  SplitWorkspaceToolbar,
   ToolbarOptionGroup,
 } from "@workspace/core/ui";
 import {
@@ -15,7 +13,6 @@ import {
   ACTION_GLYPH_ORDER,
   ACTION_GLYPH_TOOLBAR_GROUPS,
 } from "@workspace/core/ui/ActionGlyphs";
-import type { PageToolbarFeature } from "@workspace/core/ui";
 import ToolbarPreview from "./ToolbarPreview";
 
 function ActionButtonPreview() {
@@ -106,66 +103,8 @@ function ToolbarOptionGroupPreview() {
   return <ToolbarOptionGroup ariaLabel="预览选项" value={value ?? "all"} options={[{ value: "all", label: "全部" }, { value: "active", label: "进行中" }, { value: "done", label: "已完成" }]} onChange={(v) => setValue(v)} />;
 }
 
-const ALL_FEATURES: PageToolbarFeature[] = [
-  "view", "search", "filter", "action", "edit", "meta", "columns", "pageSize",
-];
-
-function PageToolbarPreview() {
-  const [features, setFeatures] = useState<PageToolbarFeature[]>(ALL_FEATURES);
-  const [status, setStatus] = useState("all");
-  const [editMode, setEditMode] = useState(false);
-  const toggleFeature = (key: string) => {
-    setFeatures((current) => {
-      const next = new Set(current);
-      if (next.has(key as never)) next.delete(key as never);
-      else next.add(key as never);
-      return [...next] as PageToolbarFeature[];
-    });
-  };
-
-  return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
-        <span className="text-xs font-semibold text-slate-500">参数开关：</span>
-        {ALL_FEATURES.map((key) => (
-          <label key={key} className="flex items-center gap-1 text-xs text-slate-700">
-            <input
-              type="checkbox"
-              checked={features.includes(key)}
-              onChange={() => toggleFeature(key)}
-              className="h-3.5 w-3.5 rounded border-slate-300 text-emerald-600"
-            />
-            {key}
-          </label>
-        ))}
-      </div>
-      <PageToolbar
-        features={features}
-        onCreate={() => {}}
-        onToggleList={() => {}}
-        listVisible
-        optionGroups={[{ value: status, options: [{ value: "all", label: "全部" }, { value: "active", label: "进行中" }, { value: "done", label: "已完成" }], onChange: setStatus, ariaLabel: "状态" }]}
-        actions={[{ label: "导出", icon: "download" }, { label: "批量删除", icon: "delete-bin", variant: "danger" }]}
-        editProps={{ editMode, onStartEdit: () => setEditMode(true), onSave: async () => setEditMode(false), onCancel: () => setEditMode(false), onShowHistory: () => {} }}
-        meta={<>共 86 条</>}
-      />
-    </div>
-  );
-}
-
 function getToolbarActionClassNamePreview() {
   return <div className="text-xs text-slate-400"><p className="font-medium">getToolbarActionClassName</p><p>工具栏动作按钮样式 token，用于少量需要自定义按钮挂载点的场景。</p><p className="mt-1 text-slate-300">Foundation / 样式 recipe，无运行时组件预览。</p></div>;
-}
-
-function SplitWorkspaceToolbarPreview() {
-  const [sideOpen, setSideOpen] = useState(true);
-  return (
-    <div className="max-w-md">
-      <SplitWorkspaceToolbar sideOpen={sideOpen} sideLabel="列表" onSideOpenChange={setSideOpen} onDrawerOpen={() => {}}>
-        <ActionButton kind="save" label="保存" size="sm" variant="primary" />
-      </SplitWorkspaceToolbar>
-    </div>
-  );
 }
 
 export const toolbarPreviewByName: Record<string, FC> = {
@@ -173,9 +112,7 @@ export const toolbarPreviewByName: Record<string, FC> = {
   ActionGlyph: ActionGlyphPreview,
   RefreshActionButton: RefreshActionButtonPreview,
   Toolbar: ToolbarPreview,
-  PageToolbar: PageToolbarPreview,
   FieldValueFilter: FieldValueFilterPreview,
   ToolbarOptionGroup: ToolbarOptionGroupPreview,
   getToolbarActionClassName: getToolbarActionClassNamePreview,
-  SplitWorkspaceToolbar: SplitWorkspaceToolbarPreview,
 };

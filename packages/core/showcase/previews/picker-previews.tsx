@@ -6,7 +6,6 @@ import {
   FkFieldInput,
   OptionPicker,
   PanelCard,
-  Picker,
   PickerOptionButton,
   PickerShell,
   SearchableOptionInput,
@@ -34,8 +33,9 @@ function FkFieldInputPreview() {
 
 function OptionPickerPreview() {
   const [value, setValue] = useState<string | null>("");
+  const [grouped, setGrouped] = useState<string | null>("pharmacy");
   return (
-    <div className="max-w-xs">
+    <div className="flex max-w-xs flex-col gap-4">
       <OptionPicker
         value={value}
         onChange={setValue}
@@ -53,43 +53,7 @@ function OptionPickerPreview() {
         commonValues={["beijing", "shanghai", "guangzhou"]}
         visibleCount={4}
       />
-    </div>
-  );
-}
-
-function PickerOptionButtonPreview() {
-  const [selected, setSelected] = useState<string | null>("a");
-  return (
-    <div className="flex flex-wrap gap-2">
-      <PickerOptionButton selected={selected === "a"} onClick={() => setSelected("a")}>选项 A</PickerOptionButton>
-      <PickerOptionButton selected={selected === "b"} onClick={() => setSelected("b")}>选项 B</PickerOptionButton>
-      <PickerOptionButton selected={selected === "c"} onClick={() => setSelected("c")} size="compact">紧凑</PickerOptionButton>
-      <PickerOptionButton selected={selected === "d"} onClick={() => setSelected("d")} align="left">左对齐长文本选项</PickerOptionButton>
-      <PickerOptionButton variant="placeholder" selected={selected === ""} onClick={() => setSelected("")} size="compact">未设置</PickerOptionButton>
-    </div>
-  );
-}
-
-function PickerPreview() {
-  const [direct, setDirect] = useState<string | null>("beijing");
-  const [grouped, setGrouped] = useState<string | null>("pharmacy");
-  return (
-    <div className="flex flex-col gap-4 max-w-xs">
-      <Picker
-        value={direct}
-        onChange={setDirect}
-        placeholder="选择城市"
-        description="直接模式：从平铺选项中选择一个城市。"
-        options={[
-          { value: "beijing", label: "北京" },
-          { value: "shanghai", label: "上海" },
-          { value: "guangzhou", label: "广州" },
-          { value: "shenzhen", label: "深圳" },
-          { value: "hangzhou", label: "杭州" },
-          { value: "chengdu", label: "成都" },
-        ]}
-      />
-      <Picker
+      <OptionPicker
         value={grouped}
         onChange={setGrouped}
         placeholder="未设置专业"
@@ -113,6 +77,19 @@ function PickerPreview() {
           },
         ]}
       />
+    </div>
+  );
+}
+
+function PickerOptionButtonPreview() {
+  const [selected, setSelected] = useState<string | null>("a");
+  return (
+    <div className="flex flex-wrap gap-2">
+      <PickerOptionButton selected={selected === "a"} onClick={() => setSelected("a")}>选项 A</PickerOptionButton>
+      <PickerOptionButton selected={selected === "b"} onClick={() => setSelected("b")}>选项 B</PickerOptionButton>
+      <PickerOptionButton selected={selected === "c"} onClick={() => setSelected("c")} size="compact">紧凑</PickerOptionButton>
+      <PickerOptionButton selected={selected === "d"} onClick={() => setSelected("d")} align="left">左对齐长文本选项</PickerOptionButton>
+      <PickerOptionButton variant="placeholder" selected={selected === ""} onClick={() => setSelected("")} size="compact">未设置</PickerOptionButton>
     </div>
   );
 }
@@ -234,7 +211,6 @@ function SelectorCardPreview() {
 export const pickerPreviewByName: Record<string, FC> = {
   FkFieldInput: FkFieldInputPreview,
   OptionPicker: OptionPickerPreview,
-  Picker: PickerPreview,
   PickerOptionButton: PickerOptionButtonPreview,
   PickerShell: PickerShellPreview,
   SearchableOptionInput: SearchableOptionInputPreview,

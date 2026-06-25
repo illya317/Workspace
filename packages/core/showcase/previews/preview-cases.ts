@@ -20,7 +20,6 @@ export const previewCaseByName: Record<string, readonly string[]> = {
   "SelectorList": ["Badge"],
   "SelectorPanel": ["Badge"],
   "SelectorTree": ["SelectorPanel"],
-  "SplitWorkspaceToolbar": ["ActionButton"],
   "StructuredTable": ["TableScrollFrame"],
   "Toast": ["ActionButton"],
   "Toolbar": ["Badge"],

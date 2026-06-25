@@ -1,4 +1,4 @@
-import type { PickerProps } from "@workspace/core/ui";
+import type { OptionPickerProps } from "@workspace/core/ui";
 
 export interface HrPickerProps {
   value: unknown;
@@ -9,7 +9,7 @@ export interface HrPickerProps {
 }
 
 export type HrGroupedPickerProps = Pick<
-  PickerProps,
+  OptionPickerProps,
   | "placeholder"
 > & {
   groupLabel: string;

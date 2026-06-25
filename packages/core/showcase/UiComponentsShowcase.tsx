@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   EmptyStateCard,
-  PageToolbar,
+  Toolbar,
   WorkspaceSplitPage,
   type ColumnDef,
+  type ToolbarItem,
 } from "@workspace/core/ui";
 import {
   coreUiComponentRegistry,
@@ -166,6 +167,62 @@ export default function UiComponentsShowcase({
     setSideOpen((open) => !open);
   }
 
+  const toolbarItems = useMemo<ToolbarItem[]>(() => [
+    {
+      kind: "icon-button",
+      key: "toggle-list",
+      section: "view",
+      icon: sideOpen ? "panel-open" : "panel-close",
+      label: sideOpen ? "隐藏组件目录" : "显示组件目录",
+      variant: sideOpen ? "primary" : "secondary",
+      onClick: toggleSideFromToolbar,
+    },
+    {
+      kind: "search",
+      key: "search",
+      section: "search",
+      value: query,
+      onChange: setQuery,
+      placeholder: "搜索组件...",
+    },
+    {
+      kind: "option-group",
+      key: "verified",
+      section: "filter",
+      value: verifiedFilter,
+      options: [
+        { value: ALL_VERIFIED, label: "全部" },
+        { value: "verified", label: "已验证" },
+        { value: "unverified", label: "未验证" },
+      ],
+      onChange: (value) => setVerifiedFilter(value as VerifiedFilter),
+      ariaLabel: "验证状态",
+    },
+    {
+      kind: "option-group",
+      key: "tier",
+      section: "filter",
+      value: filterValue,
+      options: TIER_OPTIONS,
+      onChange: (value) => setFilterValue(value as TreeTierFilter),
+      ariaLabel: "层级",
+    },
+    {
+      kind: "text",
+      key: "meta",
+      section: "meta",
+      content: <>共 {filteredRoots.length} 个组件</>,
+    },
+    {
+      kind: "column-toggle",
+      key: "columns",
+      section: "meta",
+      columns: META_COLUMNS,
+      visible: visibleMeta,
+      onChange: setVisibleMeta,
+    },
+  ], [filterValue, filteredRoots.length, query, sideOpen, verifiedFilter, visibleMeta]);
+
   return (
     <WorkspaceSplitPage
       sideOpen={sideOpen}
@@ -177,40 +234,7 @@ export default function UiComponentsShowcase({
       contentClassName="max-w-7xl py-8"
       showSideControls={false}
       header={(
-        <PageToolbar
-          features={["view", "search", "filter", "meta", "columns"]}
-          onToggleList={toggleSideFromToolbar}
-          listVisible={sideOpen}
-          search={{
-            value: query,
-            onChange: setQuery,
-            placeholder: "搜索组件...",
-          }}
-          optionGroups={[
-            {
-              value: verifiedFilter,
-              options: [
-                { value: ALL_VERIFIED, label: "全部" },
-                { value: "verified", label: "已验证" },
-                { value: "unverified", label: "未验证" },
-              ],
-              onChange: (value) => setVerifiedFilter(value as VerifiedFilter),
-              ariaLabel: "验证状态",
-            },
-            {
-              value: filterValue,
-              options: TIER_OPTIONS,
-              onChange: (value) => setFilterValue(value as TreeTierFilter),
-              ariaLabel: "层级",
-            },
-          ]}
-          columns={{
-            defs: META_COLUMNS,
-            visible: visibleMeta,
-            onChange: setVisibleMeta,
-          }}
-          meta={<>共 {filteredRoots.length} 个组件</>}
-        />
+        <Toolbar items={toolbarItems} />
       )}
       renderSide={() => (
         <UiComponentTreePanel

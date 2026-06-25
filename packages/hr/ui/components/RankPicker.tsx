@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Picker } from "@workspace/core/ui";
+import { OptionPicker } from "@workspace/core/ui";
 import { hrGroupedPickerLabels, type HrPickerProps } from "./HrPicker";
 
 interface RankPickerProps extends HrPickerProps {
@@ -52,7 +52,7 @@ export default function RankPicker({
   }, [options]);
 
   return (
-    <Picker
+    <OptionPicker
       value={current}
       groups={groups}
       disabled={disabled}

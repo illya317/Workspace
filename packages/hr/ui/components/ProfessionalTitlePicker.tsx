@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Picker } from "@workspace/core/ui";
+import { OptionPicker } from "@workspace/core/ui";
 import {
   HR_PROFESSIONAL_TITLE_GROUPS,
   normalizeProfessionalTitle,
@@ -31,7 +31,7 @@ export default function ProfessionalTitlePicker({
   );
 
   return (
-    <Picker
+    <OptionPicker
       value={current}
       groups={groups}
       disabled={disabled}

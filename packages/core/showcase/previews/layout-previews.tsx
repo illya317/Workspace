@@ -12,7 +12,6 @@ import {
   ModuleGridPage,
   PageContent,
   PageShell,
-  PageStyleShowcase,
   PanelCard,
   SectionCard,
   SplitWorkspace,
@@ -21,7 +20,6 @@ import {
   TreeNodeCard,
   WorkspaceSplitPage,
 } from "@workspace/core/ui";
-import type { ModuleTemplate, PageStyleRouteModule, PageViewDefinition } from "@workspace/core/ui/page-style-preview/template-data";
 
 function AnalysisBlockPreview() {
   return (
@@ -97,29 +95,6 @@ function PageShellPreview() {
       </PageShell>
     </div>
   );
-}
-
-const showcaseModules: ModuleTemplate[] = [{
-  key: "finance", label: "财务", overviewLabel: "概览",
-  pages: [
-    { key: "subjects", label: "科目设置", title: "科目设置", kind: "table", toolbar: true, tableColumns: ["编码", "名称", "类别"] },
-    { key: "vouchers", label: "凭证明细", title: "凭证明细", kind: "table", toolbar: true, tableColumns: ["日期", "摘要", "金额"] },
-  ],
-}];
-const showcaseRouteModules: PageStyleRouteModule[] = [{
-  key: "finance", label: "财务", route: "/finance",
-  children: [
-    { key: "subjects", label: "科目设置", route: "/finance/subjects" },
-    { key: "vouchers", label: "凭证明细", route: "/finance/vouchers" },
-  ],
-}];
-const showcaseViewDefinitions: PageViewDefinition[] = [
-  { route: "/finance/subjects", moduleKey: "finance", label: "科目设置", views: [{ key: "list", label: "列表" }] },
-  { route: "/finance/vouchers", moduleKey: "finance", label: "凭证明细", views: [{ key: "list", label: "列表" }] },
-];
-
-function PageStyleShowcasePreview() {
-  return <div className="max-h-96 overflow-auto rounded-lg border border-slate-200"><PageStyleShowcase modules={showcaseModules} routeModules={showcaseRouteModules} viewDefinitions={showcaseViewDefinitions} /></div>;
 }
 
 function PanelCardPreview() { return <PanelCard title="示例卡片" className="max-w-xs"><p className="text-sm text-slate-600">这是一个 PanelCard 示例内容。</p></PanelCard>; }
@@ -246,7 +221,6 @@ export const layoutPreviewByName: Record<string, FC> = {
   ModuleGridPage: ModuleGridPagePreview,
   PageContent: PageContentPreview,
   PageShell: PageShellPreview,
-  PageStyleShowcase: PageStyleShowcasePreview,
   PanelCard: PanelCardPreview,
   SectionCard: SectionCardPreview,
   SplitWorkspace: SplitWorkspacePreview,
