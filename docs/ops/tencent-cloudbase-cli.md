@@ -1,5 +1,7 @@
-# 腾讯云 CloudBase CLI 文档
+# 腾讯云 CloudBase CLI 文档（已废弃）
 
+> ⚠️ 旧 CloudBase/tcb 云托管方案已经不是当前生产路径，本文档仅作历史参考。
+>
 > 原文：https://cloud.tencent.com/document/product/876/41539
 > 抓取时间：2026-05-16
 

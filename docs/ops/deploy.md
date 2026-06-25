@@ -1,8 +1,10 @@
 # 丰华工作台部署说明
 
-当前流水线分工：GitHub Actions 负责公开 CI，CNB 只负责私有 CD/生产发布。生产部署只有一条主链路：本地提交代码，同步 push 到 GitHub 与 CNB，通过 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger`，CNB/Linux CD 容器执行 `ops/deploy.sh` 构建 Next standalone 产物并上传到 CVM，服务器只解包、挂载运行态目录并用 PM2 重启。
+当前流水线分工：GitHub Actions 负责公开 CI，CNB 只负责私有 CD/生产发布。生产部署只有一条主链路：本地提交代码，同步 push 到 GitHub 与 CNB，通过 CNB API/CLI 手动触发 `.cnb.yml` 的 `api_trigger_manual`，CNB/Linux CD 容器执行 `ops/deploy.sh` 构建 Next standalone 产物并上传到 CVM，服务器只解包、挂载运行态目录并用 PM2 重启。
 
-旧 CloudBase/tcb 云托管方案已经不是当前生产路径，不再作为部署参考。
+旧 CloudBase/tcb 云托管方案已经不是当前生产路径，`docs/ops/tencent-cloudbase-cli.md` 仅作历史参考。
+
+> 2026-06-25 更新：`.cnb.yml` 的触发器已从 `api_trigger` 改为 `api_trigger_manual`，push 到 CNB 不再自动部署，需要手动触发。
 
 ## 本地开发
 
@@ -26,11 +28,15 @@ npm run dev
 git status --short
 git add <files>
 git commit -m "<message>"
-git push origin main
-git -c credential.helper= -c credential.helper='!cnb git-credential' push cnb main
+
+# GitHub 需要走本地代理 7897
+HTTPS_PROXY=http://127.0.0.1:7897 git push origin main
+
+# CNB 已配置 credential store，直接 push
+git push cnb main
 ```
 
-生产发布必须基于已同步到 GitHub 与 CNB 的 commit，通过 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger`：
+生产发布必须基于已同步到 GitHub 与 CNB 的 commit，通过 CNB API/CLI 手动触发 `.cnb.yml` 的 `api_trigger_manual`：
 
 ```bash
 sha="$(git rev-parse HEAD)"
@@ -38,7 +44,7 @@ cnb build start-build \
   --repo illya317/Workspace \
   --branch main \
   --sha "$sha" \
-  --event api_trigger \
+  --event api_trigger_manual \
   --title "deploy ${sha:0:8}" \
   --sync false \
   --verbose
@@ -51,6 +57,40 @@ cnb build get-build-status --repo illya317/Workspace --sn "<sn>" --verbose
 ```
 
 如果部署失败，用同一个 `sn` 和 pipeline/stage id 拉取失败 stage 日志；不要再额外 push 一次制造第二条部署记录。
+
+## CNB Git 认证
+
+| 项 | 值 |
+|----|----|
+| 仓库地址 | `https://cnb.cool/illya317/Workspace.git` |
+| 用户名 | `cnb`（固定） |
+| 密码 | CNB git token（不是登录密码，也不是 API OAuth token） |
+| 当前 token 名 | `FH` |
+
+已配置全局 credential helper：
+
+```bash
+git config --global credential.helper store
+```
+
+> 注意：`cnb git-credential` 返回的 token 只能调 CNB OpenAPI，**不能用于 git push**。git push 必须使用专门的 git token。
+
+常见错误：
+
+| 错误 | 原因 |
+|------|------|
+| `Repository Not Found` | git 地址大小写错误，或用了旧的 `/u/` 前缀 |
+| `Invalid Credentials` | 用了 API token 而不是 git token，或 token 没有 `write_repository` 权限 |
+
+## GitHub 镜像同步
+
+CNB 仓库可以从 GitHub 自动同步 `main` 分支。需要在 CNB 网页后台设置：
+
+1. 打开 `https://cnb.cool/illya317/Workspace`
+2. 进入仓库设置 → 镜像/同步
+3. 添加 GitHub 源：`https://github.com/illya317/Workspace.git`
+
+同步后仍不会自动部署（触发器为 `api_trigger_manual`）。
 
 ## CNB 配置
 
