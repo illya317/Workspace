@@ -140,6 +140,10 @@ export function ComponentPreview({ item }: { item: RegistryBrowserItem }) {
     case "NumberCell":
       preview = <span className="font-mono text-sm font-semibold text-slate-900">1,280</span>;
       break;
+    case "Toolbar":
+    case "PageToolbar":
+      preview = <ToolbarPreview variant="full" />;
+      break;
     case "FilterToolbar":
     case "FilterBar":
     case "CommandToolbar":
@@ -192,9 +196,6 @@ export function ComponentPreview({ item }: { item: RegistryBrowserItem }) {
       break;
     case "SelectorCard":
       preview = <SelectorPreview />;
-      break;
-    case "EntitySelectorPanel":
-      preview = <PreviewNote title="实体范围选择">用同一选择器切换不同实体范围；归档等具体语义由业务文案传入。</PreviewNote>;
       break;
     case "PageContent":
     case "PageShell":
@@ -272,10 +273,10 @@ function InlineCreatePreview() {
       onSubmit={() => {}}
       onCancel={() => {}}
     >
-      <FormField label="名称" required layout="inline" className="w-64">
-        <TextField value="" onChange={() => {}} placeholder="输入名称" className="h-10" />
+      <FormField label="名称" required className="w-64">
+        <TextField value="" onChange={() => {}} placeholder="输入名称" />
       </FormField>
-      <FormField label="状态" required layout="inline" className="w-56">
+      <FormField label="状态" required className="w-56">
         <SelectField
           value="active"
           onChange={() => {}}

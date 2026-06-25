@@ -3,43 +3,19 @@
 import { useState, type FC } from "react";
 import {
   Badge,
-  EntitySelectorPanel,
   FkFieldInput,
   GroupedOptionPicker,
   OptionPicker,
-  PickerActionRow,
+  PanelCard,
+  Picker,
   PickerOptionButton,
   PickerShell,
   SearchableOptionInput,
   SelectorCard,
+  TabBar,
 } from "@workspace/core/ui";
 
-function EntitySelectorPanelPreview() {
-  const [tab, setTab] = useState<"active" | "archived">("active");
-  const [selectedId, setSelectedId] = useState<string | number | null>("emp-1");
-  const items = [
-    { id: "emp-1", title: "张三", code: "EMP001", badge: <Badge label="现用" tone="emerald" />, meta: "人力资源部" },
-    { id: "emp-2", title: "李四", code: "EMP002", badge: <Badge label="现用" tone="emerald" />, meta: "信息技术部" },
-    { id: "emp-3", title: "王五", code: "EMP003", badge: <Badge label="已归档" tone="slate" />, meta: "财务部" },
-  ];
-  return (
-    <div className="max-w-md">
-      <EntitySelectorPanel
-        title="选择员工"
-        subtitle="切换现用 / 已归档"
-        tabs={[
-          { id: "active", label: "现用", count: 2 },
-          { id: "archived", label: "已归档", count: 1 },
-        ]}
-        activeTab={tab}
-        onTabChange={setTab}
-        items={items}
-        activeItemId={selectedId}
-        onItemSelect={(item) => setSelectedId(item.id)}
-      />
-    </div>
-  );
-}
+
 
 function FkFieldInputPreview() {
   return (
@@ -113,20 +89,6 @@ function OptionPickerPreview() {
   );
 }
 
-function PickerActionRowPreview() {
-  return (
-    <div className="max-w-xs space-y-2">
-      <PickerActionRow>
-        <button type="button" className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600 hover:bg-slate-50">清空</button>
-        <button type="button" className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600 hover:bg-slate-50">更换分组</button>
-      </PickerActionRow>
-      <PickerActionRow align="start">
-        <span className="text-xs text-slate-500">左侧对齐动作行</span>
-      </PickerActionRow>
-    </div>
-  );
-}
-
 function PickerOptionButtonPreview() {
   const [selected, setSelected] = useState<string | null>("a");
   return (
@@ -135,6 +97,54 @@ function PickerOptionButtonPreview() {
       <PickerOptionButton selected={selected === "b"} onClick={() => setSelected("b")}>选项 B</PickerOptionButton>
       <PickerOptionButton selected={selected === "c"} onClick={() => setSelected("c")} size="compact">紧凑</PickerOptionButton>
       <PickerOptionButton selected={selected === "d"} onClick={() => setSelected("d")} align="left">左对齐长文本选项</PickerOptionButton>
+      <PickerOptionButton variant="placeholder" selected={selected === ""} onClick={() => setSelected("")} size="compact">未设置</PickerOptionButton>
+    </div>
+  );
+}
+
+function PickerPreview() {
+  const [direct, setDirect] = useState<string | null>("beijing");
+  const [grouped, setGrouped] = useState<string | null>("pharmacy");
+  return (
+    <div className="flex flex-col gap-4 max-w-xs">
+      <Picker
+        value={direct}
+        onChange={setDirect}
+        placeholder="选择城市"
+        description="直接模式：从平铺选项中选择一个城市。"
+        options={[
+          { value: "beijing", label: "北京" },
+          { value: "shanghai", label: "上海" },
+          { value: "guangzhou", label: "广州" },
+          { value: "shenzhen", label: "深圳" },
+          { value: "hangzhou", label: "杭州" },
+          { value: "chengdu", label: "成都" },
+        ]}
+      />
+      <Picker
+        value={grouped}
+        onChange={setGrouped}
+        placeholder="未设置专业"
+        description="分组模式：先选学科分类，再选具体专业。"
+        groups={[
+          {
+            key: "science",
+            label: "理学",
+            options: [
+              { value: "math", label: "数学" },
+              { value: "physics", label: "物理学" },
+            ],
+          },
+          {
+            key: "medicine",
+            label: "医学",
+            options: [
+              { value: "pharmacy", label: "药学", description: "四年制" },
+              { value: "clinical", label: "临床医学", description: "五年制" },
+            ],
+          },
+        ]}
+      />
     </div>
   );
 }
@@ -187,42 +197,77 @@ function SearchableOptionInputPreview() {
 }
 
 function SelectorCardPreview() {
+  const [tab, setTab] = useState<"all" | "active" | "archived">("all");
   const [selected, setSelected] = useState<string | null>("card-1");
+  const items = [
+    { id: "card-1", title: "项目 Alpha", subtitle: "2026-06-01 创建", meta: ["阶段 3/5", "负责人 张三"], trailing: <Badge label="进行中" tone="emerald" />, archived: false },
+    { id: "card-2", title: "项目 Beta", subtitle: "2026-05-20 创建", meta: ["阶段 5/5", "负责人 李四"], trailing: <Badge label="已完成" tone="slate" />, archived: false },
+    { id: "card-3", title: "已归档项目", subtitle: "2025-12-01 归档", meta: ["仅查看"], archived: true },
+    { id: "card-4", title: "张三", code: "EMP001", metaLine: "人力资源部", leading: <Badge label="现用" tone="emerald" />, archived: false },
+  ];
+  const filteredItems = tab === "all"
+    ? items
+    : tab === "active"
+      ? items.filter((item) => !item.archived)
+      : items.filter((item) => item.archived);
   return (
-    <div className="flex flex-col gap-2 max-w-xs">
-      <SelectorCard
-        title="项目 Alpha"
-        subtitle="2026-06-01 创建"
-        meta={["阶段 3/5", "负责人 张三"]}
-        trailing={<Badge label="进行中" tone="emerald" />}
-        active={selected === "card-1"}
-        onClick={() => setSelected("card-1")}
-      />
-      <SelectorCard
-        title="项目 Beta"
-        subtitle="2026-05-20 创建"
-        meta={["阶段 5/5", "负责人 李四"]}
-        trailing={<Badge label="已完成" tone="slate" />}
-        active={selected === "card-2"}
-        onClick={() => setSelected("card-2")}
-      />
-      <SelectorCard
-        title="已归档项目"
-        subtitle="2025-12-01 归档"
-        meta={["仅查看"]}
-        archived
-        onClick={() => setSelected("card-3")}
-      />
+    <div className="flex flex-col gap-4 max-w-xs">
+      <div className="flex flex-col gap-2">
+        <SelectorCard
+          title="项目 Alpha"
+          subtitle="2026-06-01 创建"
+          meta={["阶段 3/5", "负责人 张三"]}
+          trailing={<Badge label="进行中" tone="emerald" />}
+          active={selected === "card-1"}
+          onClick={() => setSelected("card-1")}
+        />
+        <SelectorCard
+          title="已归档项目"
+          subtitle="2025-12-01 归档"
+          meta={["仅查看"]}
+          archived
+          onClick={() => setSelected("card-3")}
+        />
+      </div>
+      <PanelCard bodyClassName="p-3">
+        <TabBar
+          variant="micro"
+          active={tab}
+          onChange={(key) => setTab(key as typeof tab)}
+          tabs={[
+            { key: "all", label: "全部" },
+            { key: "active", label: "现用" },
+            { key: "archived", label: "已归档" },
+          ]}
+        />
+        <div className="mt-3 space-y-2">
+          {filteredItems.map((item) => (
+            <SelectorCard
+              key={item.id}
+              size="sm"
+              title={item.title}
+              subtitle={item.subtitle}
+              code={item.code}
+              meta={item.meta}
+              metaLine={item.metaLine}
+              leading={item.leading}
+              trailing={item.trailing}
+              archived={item.archived}
+              active={selected === item.id}
+              onClick={() => setSelected(item.id)}
+            />
+          ))}
+        </div>
+      </PanelCard>
     </div>
   );
 }
 
 export const pickerPreviewByName: Record<string, FC> = {
-  EntitySelectorPanel: EntitySelectorPanelPreview,
   FkFieldInput: FkFieldInputPreview,
   GroupedOptionPicker: GroupedOptionPickerPreview,
   OptionPicker: OptionPickerPreview,
-  PickerActionRow: PickerActionRowPreview,
+  Picker: PickerPreview,
   PickerOptionButton: PickerOptionButtonPreview,
   PickerShell: PickerShellPreview,
   SearchableOptionInput: SearchableOptionInputPreview,

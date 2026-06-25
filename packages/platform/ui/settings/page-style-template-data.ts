@@ -138,8 +138,7 @@ const baseModuleTemplates: ModuleTemplate[] = [
     overviewLabel: "文档中心",
     entryRoutes: ["/docs"],
     pages: [
-      { key: "positions", label: "岗位文档", title: "岗位文档", kind: "table", section: "岗位说明书", group: "岗位制度", routes: ["/docs/positions"], tableColumns: ["岗位", "部门", "版本", "状态", "更新时间"] },
-      { key: "gmp-list", label: "GMP 列表", title: "GMP 岗位", kind: "table", section: "岗位说明书", group: "岗位制度", routes: ["/docs/positions/GMP"], tableColumns: ["岗位编码", "岗位名称", "分类", "版本", "状态"], embedded: { title: "岗位详情", kind: "document", routes: ["/docs/positions/GMP/[code]"] } },
+      { key: "positions", label: "岗位文档", title: "岗位文档", kind: "table", section: "岗位说明书", group: "岗位制度", routes: ["/docs/positions"], tableColumns: ["岗位编码", "岗位名称", "部门", "版本", "状态"], embedded: { title: "岗位详情", kind: "document", routes: ["/docs/positions/[code]"] } },
       { key: "company", label: "公司文档", title: "公司文档", kind: "document", section: "公司管理", group: "文档阅读", routes: ["/docs/company"] },
       { key: "handbook", label: "员工手册", title: "员工手册", kind: "document", section: "公司管理", group: "文档阅读", routes: ["/docs"] },
       { key: "guide", label: "操作指南", title: "操作指南", kind: "document", section: "公司管理", group: "文档阅读", routes: ["/docs"] },

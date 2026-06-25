@@ -124,7 +124,7 @@ export function QcBatchCreatePanel({
       submitDisabled={submitting || !productKey || !batchNumber.trim()}
       submitting={submitting}
     >
-      <FormField label="产品" required layout="inline">
+      <FormField label="产品" required>
         <SelectField
           value={productKey}
           onChange={onProductKeyChange}
@@ -133,7 +133,7 @@ export function QcBatchCreatePanel({
           triggerClassName="!w-[7.5rem] !min-w-[7.5rem]"
         />
       </FormField>
-      <FormField label="批号" required layout="inline">
+      <FormField label="批号" required>
         <TextField
           value={batchNumber}
           onChange={onBatchNumberChange}

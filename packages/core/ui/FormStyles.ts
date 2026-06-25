@@ -39,7 +39,7 @@ export function getTagInputShellClassName(className = "") {
 
 export function getTagPillClassName(className = "") {
   return [
-    `inline-flex h-6 max-w-full items-center gap-1 rounded-full border border-sky-200 bg-sky-100 px-2 ${FIELD_CONTROL_TEXT_CLASS} font-medium leading-none text-sky-900 shadow-sm`,
+    `inline-flex h-6 max-w-full items-center gap-1 rounded-full border border-sky-200 bg-sky-100 px-2 text-xs font-medium leading-none text-sky-900 shadow-sm`,
     className,
   ].filter(Boolean).join(" ");
 }

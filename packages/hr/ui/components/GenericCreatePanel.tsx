@@ -33,7 +33,6 @@ export default function GenericCreatePanel({
           key={field.key}
           label={field.label}
           required
-          layout="inline"
           className={field.type === "textarea" ? "w-72 max-w-full" : "w-64 max-w-full"}
         >
           <GenericFieldInput

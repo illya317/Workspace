@@ -81,7 +81,7 @@ export default function SettingsClient({
 
           <ModuleCard
             title="UI 组件库"
-            description="按 primitive / assembly / frame 查看核心 UI 组件注册表。"
+            description="查看核心 UI 组件注册表。"
             color="emerald"
             icon={
               <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">

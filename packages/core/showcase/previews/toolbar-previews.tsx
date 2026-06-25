@@ -11,11 +11,14 @@ import {
   FilterBar,
   FilterToolbar,
   IconActionButton,
+  PageToolbar,
   RefreshActionButton,
   SearchInput,
   SplitWorkspaceToolbar,
+  Toolbar,
   ToolbarOptionGroup,
 } from "@workspace/core/ui";
+import type { PageToolbarFeature } from "@workspace/core/ui";
 
 function ActionButtonPreview() {
   return (
@@ -37,7 +40,7 @@ function ActionButtonPreview() {
 }
 
 function ActionGlyphPreview() {
-  const kinds: Array<Parameters<typeof ActionGlyph>[0]["kind"]> = ["add", "edit", "check", "cancel", "copy", "save", "delete", "delete-bin", "delete-minus", "view", "eye", "eye-off", "search", "filter", "refresh", "more", "download", "upload", "archive"];
+  const kinds: Array<Parameters<typeof ActionGlyph>[0]["kind"]> = ["add", "edit", "check", "verified", "cancel", "copy", "save", "delete", "delete-bin", "delete-minus", "view", "eye", "eye-off", "search", "filter", "refresh", "more", "download", "upload", "archive"];
   return (
     <div className="flex flex-wrap items-center gap-3 text-slate-700">
       {kinds.map((kind) => <span key={kind} className="flex items-center gap-1">{kind} <ActionGlyph kind={kind} className="h-4 w-4" /></span>)}
@@ -50,8 +53,8 @@ function ActionToolbarPreview() {
     <div className="max-w-2xl">
       <ActionToolbar
         leftSlot={<span className="text-sm font-semibold">已选择 2 条记录</span>}
-        primaryActions={[{ label: "导出", kind: "download", size: "sm", onClick: () => {} }]}
-        secondaryActions={[{ label: "取消选择", kind: "cancel", size: "sm", onClick: () => {} }]}
+        primaryActions={[{ label: "导出", kind: "download", onClick: () => {} }]}
+        secondaryActions={[{ label: "取消选择", kind: "cancel", onClick: () => {} }]}
         rightSlot={<IconActionButton kind="add" label="新增" variant="primary" size="sm" />}
       />
     </div>
@@ -81,6 +84,26 @@ function RefreshActionButtonPreview() {
 function CommandToolbarPreview() {
   const [value, setValue] = useState<string | null>(null);
   return <CommandToolbar filters={<ToolbarOptionGroup ariaLabel="预览筛选" value={value ?? "all"} options={[{ value: "all", label: "全部" }, { value: "active", label: "进行中" }]} onChange={(v) => setValue(v)} />} editActions={<ActionButton variant="primary">新建</ActionButton>} meta={<>共 24 条</>} />;
+}
+
+function ToolbarPreview() {
+  const [keyword, setKeyword] = useState("");
+  const [status, setStatus] = useState("all");
+  const [selected, setSelected] = useState(0);
+  return (
+    <div className="max-w-4xl">
+      <Toolbar
+        items={[
+          { kind: "icon-button", key: "panel", section: "view", icon: "panel-open", label: "显示列表", onClick: () => {} },
+          { kind: "button", key: "new", section: "view", label: "新建", variant: "primary", onClick: () => {} },
+          { kind: "search", key: "search", value: keyword, onChange: setKeyword, placeholder: "搜索..." },
+          { kind: "option-group", key: "status", value: status, options: [{ value: "all", label: "全部" }, { value: "active", label: "进行中" }, { value: "done", label: "已完成" }], onChange: setStatus, ariaLabel: "状态" },
+          { kind: "icon-button", key: "refresh", icon: "refresh", label: "刷新", onClick: () => setSelected((n) => n + 1) },
+          { kind: "text", key: "meta", content: <>已选择 {selected} 条 / 共 24 条</> },
+        ]}
+      />
+    </div>
+  );
 }
 
 function EditToolbarPreview() {
@@ -154,6 +177,54 @@ function ToolbarOptionGroupPreview() {
   return <ToolbarOptionGroup ariaLabel="预览选项" value={value ?? "all"} options={[{ value: "all", label: "全部" }, { value: "active", label: "进行中" }, { value: "done", label: "已完成" }]} onChange={(v) => setValue(v)} />;
 }
 
+const ALL_FEATURES: PageToolbarFeature[] = [
+  "title", "view", "search", "filter", "action", "edit", "meta", "columns", "pageSize",
+];
+
+function PageToolbarPreview() {
+  const [features, setFeatures] = useState<PageToolbarFeature[]>(ALL_FEATURES);
+  const [status, setStatus] = useState("all");
+  const [editMode, setEditMode] = useState(false);
+  const toggleFeature = (key: string) => {
+    setFeatures((current) => {
+      const next = new Set(current);
+      if (next.has(key as never)) next.delete(key as never);
+      else next.add(key as never);
+      return [...next] as PageToolbarFeature[];
+    });
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
+        <span className="text-xs font-semibold text-slate-500">参数开关：</span>
+        {ALL_FEATURES.map((key) => (
+          <label key={key} className="flex items-center gap-1 text-xs text-slate-700">
+            <input
+              type="checkbox"
+              checked={features.includes(key)}
+              onChange={() => toggleFeature(key)}
+              className="h-3.5 w-3.5 rounded border-slate-300 text-emerald-600"
+            />
+            {key}
+          </label>
+        ))}
+      </div>
+      <PageToolbar
+        features={features}
+        title="页面工具栏接口"
+        onCreate={() => {}}
+        onToggleList={() => {}}
+        listVisible
+        optionGroups={[{ value: status, options: [{ value: "all", label: "全部" }, { value: "active", label: "进行中" }, { value: "done", label: "已完成" }], onChange: setStatus, ariaLabel: "状态" }]}
+        actions={[{ label: "导出", kind: "icon", icon: "download" }, { label: "批量删除", variant: "danger" }]}
+        editProps={{ editMode, onStartEdit: () => setEditMode(true), onSave: async () => setEditMode(false), onCancel: () => setEditMode(false), onShowHistory: () => {} }}
+        meta={<>共 86 条</>}
+      />
+    </div>
+  );
+}
+
 function getToolbarActionClassNamePreview() {
   return <div className="text-xs text-slate-400"><p className="font-medium">getToolbarActionClassName</p><p>工具栏动作按钮样式 token，用于少量需要自定义按钮挂载点的场景。</p><p className="mt-1 text-slate-300">Foundation / 样式 recipe，无运行时组件预览。</p></div>;
 }
@@ -177,6 +248,8 @@ export const toolbarPreviewByName: Record<string, FC> = {
   RefreshActionButton: RefreshActionButtonPreview,
   CommandToolbar: CommandToolbarPreview,
   EditToolbar: EditToolbarPreview,
+  Toolbar: ToolbarPreview,
+  PageToolbar: PageToolbarPreview,
   FieldValueFilter: FieldValueFilterPreview,
   FilterBar: FilterBarPreview,
   FilterToolbar: FilterToolbarPreview,

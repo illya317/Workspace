@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useEffect } from "react";
 import { matchEmployee } from "@workspace/platform/search";
-import { ActionButton, FilterBar, SearchInput, SectionCard, SelectField, SelectorCard } from "@workspace/core/ui";
+import { ActionButton, FilterBar, SearchInput, SectionCard, SelectField, SelectorList } from "@workspace/core/ui";
 
 export interface EmployeePerm {
   employeeId: string; name: string; userId: number | null; username: string | null;
@@ -88,20 +88,17 @@ export default function PermissionDrilldown({ drillKey, empPerms, empLoading, fC
         />
       </FilterBar>
       {empLoading ? <p className="py-4 text-center text-sm text-gray-500">加载中...</p> : (
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {filtered.map(emp => {
-            const has = empHasAccess(emp, drillKey);
-            return (
-              <SelectorCard
-                key={emp.employeeId}
-                title={emp.name}
-                subtitle={emp.employeeId}
-                active={has}
-                onClick={() => onToggle(emp)}
-              />
-            );
+        <SelectorList
+          items={filtered}
+          onSelect={onToggle}
+          getKey={(emp) => emp.employeeId}
+          renderItem={(emp) => ({
+            title: emp.name,
+            subtitle: emp.employeeId,
+            active: empHasAccess(emp, drillKey),
           })}
-        </div>
+          className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+        />
       )}
     </SectionCard>
   );

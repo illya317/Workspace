@@ -2,8 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { ActionGlyph } from "./ActionGlyphs";
 import type { ActionGlyphKind } from "./ActionGlyphs";
 import { joinClassNames } from "./card-utils";
-
-export type ActionButtonSize = "sm" | "md";
+import { getToolbarActionClassName, type ActionButtonSize } from "./toolbar-styles";
 
 export interface ToolbarAction {
   label: string;
@@ -33,33 +32,6 @@ export type IconActionButtonProps = Omit<ActionButtonProps, "children"> & {
 export type RefreshActionButtonProps = Omit<IconActionButtonProps, "label" | "kind"> & {
   label?: string;
 };
-
-export type ActionToolbarAction = Omit<ToolbarAction, "kind"> & { kind: ActionGlyphKind };
-
-export interface ActionToolbarProps {
-  primaryActions?: ActionToolbarAction[];
-  secondaryActions?: ActionToolbarAction[];
-  leftSlot?: ReactNode;
-  rightSlot?: ReactNode;
-  className?: string;
-}
-
-export function getToolbarActionClassName(
-  variant: ToolbarAction["variant"] = "secondary",
-  size: ActionButtonSize = "md",
-) {
-  const sizeClass =
-    size === "sm"
-      ? "h-8 px-2.5 py-1.5 text-xs"
-      : "h-10 px-4 py-2 text-xs";
-  if (variant === "primary") {
-    return `inline-flex ${sizeClass} items-center justify-center rounded-lg bg-emerald-600 font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300`;
-  }
-  if (variant === "danger") {
-    return `inline-flex ${sizeClass} items-center justify-center rounded-lg border border-red-200 bg-white font-semibold text-red-600 shadow-sm transition hover:bg-red-50 disabled:cursor-not-allowed disabled:text-slate-300`;
-  }
-  return `inline-flex ${sizeClass} items-center justify-center rounded-lg border border-slate-300 bg-white font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300`;
-}
 
 export function ActionButton({
   children,
@@ -117,51 +89,5 @@ export function RefreshActionButton({
         className,
       )}
     />
-  );
-}
-
-function ToolbarActionButton({ action }: { action: ActionToolbarAction }) {
-  return (
-    <IconActionButton
-      kind={action.kind}
-      label={action.label}
-      type={action.type}
-      onClick={action.onClick}
-      disabled={action.disabled}
-      variant={action.variant}
-      size={action.size}
-    />
-  );
-}
-
-export function ActionToolbar({
-  primaryActions = [],
-  secondaryActions = [],
-  leftSlot,
-  rightSlot,
-  className = "",
-}: ActionToolbarProps) {
-  const hasActions = primaryActions.length > 0 || secondaryActions.length > 0 || rightSlot;
-
-  return (
-    <div
-      className={joinClassNames(
-        "flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between",
-        className,
-      )}
-    >
-      <div className="min-w-0 text-base font-semibold text-slate-900">{leftSlot}</div>
-      {hasActions && (
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
-          {secondaryActions.map((action, index) => (
-            <ToolbarActionButton key={`secondary-${index}`} action={action} />
-          ))}
-          {primaryActions.map((action, index) => (
-            <ToolbarActionButton key={`primary-${index}`} action={{ ...action, variant: action.variant ?? "primary" }} />
-          ))}
-          {rightSlot}
-        </div>
-      )}
-    </div>
   );
 }

@@ -4,23 +4,10 @@ function joinClassNames(...classNames: Array<string | false | null | undefined>)
   return classNames.filter(Boolean).join(" ");
 }
 
-export interface PickerActionRowProps {
-  children: ReactNode;
-  align?: "start" | "between";
-  className?: string;
-}
-
-export function PickerActionRow({ children, align = "between", className = "" }: PickerActionRowProps) {
-  return (
-    <div className={joinClassNames("mb-3 flex items-center gap-2", align === "between" && "justify-between", className)}>
-      {children}
-    </div>
-  );
-}
-
 export interface PickerOptionButtonProps extends Pick<ButtonHTMLAttributes<HTMLButtonElement>, "onMouseDown" | "onMouseEnter"> {
   children: ReactNode;
   selected?: boolean;
+  variant?: "default" | "placeholder";
   onClick: () => void;
   className?: string;
   align?: "left" | "center";
@@ -30,6 +17,7 @@ export interface PickerOptionButtonProps extends Pick<ButtonHTMLAttributes<HTMLB
 export function PickerOptionButton({
   children,
   selected = false,
+  variant = "default",
   onClick,
   onMouseDown,
   onMouseEnter,
@@ -37,6 +25,10 @@ export function PickerOptionButton({
   align = "center",
   size = "normal",
 }: PickerOptionButtonProps) {
+  const selectedClass = variant === "placeholder"
+    ? "border-slate-300 bg-slate-100 text-slate-900"
+    : "border-emerald-500 bg-emerald-50 text-emerald-700";
+
   return (
     <button
       type="button"
@@ -47,9 +39,7 @@ export function PickerOptionButton({
         "rounded-md border font-medium transition",
         size === "compact" ? "px-3 py-1.5 text-xs" : "px-3 py-2 text-sm",
         align === "left" && "text-left",
-        selected
-          ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50",
+        selected ? selectedClass : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50",
         className
       )}
     >

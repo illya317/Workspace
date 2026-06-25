@@ -2,6 +2,7 @@
 
 import type { CSSProperties, ReactNode } from "react";
 import { IconActionButton } from "./ActionControls";
+import { Toolbar, type ToolbarItem } from "./Toolbar";
 
 export type SplitWorkspaceMode = "desktop" | "drawer";
 
@@ -37,32 +38,47 @@ export function SplitWorkspaceToolbar({
   const mobileButtonShellClassName = desktopBreakpoint === "xl" ? "xl:hidden" : "lg:hidden";
   const desktopButtonShellClassName = desktopBreakpoint === "xl" ? "hidden xl:block" : "hidden lg:block";
 
-  return (
-    <div className="flex w-full flex-wrap items-center justify-start gap-2">
-      {showSideControls && (
-        <>
-          <span className={mobileButtonShellClassName}>
-            <IconActionButton
-              kind="panel-open"
-              label={`显示${sideLabel}`}
-              onClick={onDrawerOpen}
-              className="!h-9 !w-10 !px-0"
-            />
-          </span>
-          <span className={desktopButtonShellClassName}>
-            <IconActionButton
-              kind={sideOpen ? "panel-open" : "panel-close"}
-              label={`${sideOpen ? "隐藏" : "显示"}${sideLabel}`}
-              onClick={() => onSideOpenChange(!sideOpen)}
-              variant={sideOpen ? "primary" : "secondary"}
-              className="!h-9 !w-10 !px-0"
-            />
-          </span>
-        </>
-      )}
-      {children}
-    </div>
-  );
+  const items: ToolbarItem[] = [];
+
+  if (showSideControls) {
+    items.push({
+      kind: "custom",
+      key: "mobile-side-toggle",
+      section: "view",
+      content: (
+        <span className={mobileButtonShellClassName}>
+          <IconActionButton
+            kind="panel-open"
+            label={`显示${sideLabel}`}
+            onClick={onDrawerOpen}
+            className="!h-9 !w-10 !px-0"
+          />
+        </span>
+      ),
+    });
+    items.push({
+      kind: "custom",
+      key: "desktop-side-toggle",
+      section: "view",
+      content: (
+        <span className={desktopButtonShellClassName}>
+          <IconActionButton
+            kind={sideOpen ? "panel-open" : "panel-close"}
+            label={`${sideOpen ? "隐藏" : "显示"}${sideLabel}`}
+            onClick={() => onSideOpenChange(!sideOpen)}
+            variant={sideOpen ? "primary" : "secondary"}
+            className="!h-9 !w-10 !px-0"
+          />
+        </span>
+      ),
+    });
+  }
+
+  if (children) {
+    items.push({ kind: "custom", key: "children", section: "edit", content: children });
+  }
+
+  return <Toolbar items={items} variant="inline" className="w-full justify-start" />;
 }
 
 export default function SplitWorkspace({

@@ -255,7 +255,7 @@ export const registeredModuleDefinitions = [
         { key: "expense", label: "报销规范", desc: "报销流程与标准", href: "/docs/expense", resourceKey: "docs.expense", resourceMaxRoleKey: "access", noApiReason: "静态文档页面，无独立业务 API" },
       ],
     },
-    routes: ["/docs", "/docs/positions", "/docs/positions/GMP", "/docs/company", "/docs/expense"],
+    routes: ["/docs", "/docs/positions", "/docs/positions/[code]", "/docs/company", "/docs/expense"],
   },
   {
     packageName: "@workspace/library",
@@ -301,7 +301,7 @@ export const registeredModuleDefinitions = [
         { key: "account", label: "账号与接入", desc: "", href: "/settings/account", resourceKey: "settings.account", resourceMaxRoleKey: "access", apiPrefixes: ["/api/settings/account"] },
         { key: "admin", label: "系统管理", desc: "用户、权限、资源和管理员配置", href: "/settings/admin", resourceKey: "settings.admin", apiPrefixes: ["/api/settings/admin"] },
         { key: "api", label: "API 接入", desc: "Open API Client、Scope 授权和调用日志", href: "/settings/api", resourceKey: "settings.api", resourceMaxRoleKey: "access", apiPrefixes: ["/api/settings/api"] },
-        { key: "ui", label: "UI 组件库", desc: "按 primitive / assembly / frame 查看核心 UI 组件注册表", href: "/settings/ui", resourceKey: "settings.ui", resourceMaxRoleKey: "access", noApiReason: "纯客户端组件浏览页面，无服务端 API" },
+        { key: "ui", label: "UI 组件库", desc: "查看核心 UI 组件注册表", href: "/settings/ui", resourceKey: "settings.ui", resourceMaxRoleKey: "access", noApiReason: "纯客户端组件浏览页面，无服务端 API" },
       ],
     },
     resourceDefs: [

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { ReactNode } from "react";
 import {
   Badge,
@@ -30,14 +31,14 @@ export function OrganizationView({
   renderOrganizationBranch: (department: Department, level?: number) => ReactNode;
   onDrawerOpenChange: (open: boolean) => void;
 }) {
+  const [sideOpen, setSideOpen] = useState(true);
   return (
     <WorkspaceSplitPage
-      sideOpen={true}
+      sideOpen={sideOpen}
       sideLabel="一级部门"
-      onSideOpenChange={() => undefined}
+      onSideOpenChange={setSideOpen}
       drawerOpen={drawerOpen}
       onDrawerOpenChange={onDrawerOpenChange}
-      showSideControls={false}
       renderSide={renderSide}
     >
       <PanelCard className="min-h-[520px]" bodyClassName="p-4">

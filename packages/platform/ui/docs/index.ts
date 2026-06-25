@@ -1,9 +1,8 @@
 export { default as DocsClient } from "./DocsClient";
 export {
   DocsPlaceholderPage,
-  DocsPositionsIndex,
-  GmpPositionDetailPage,
-  GmpPositionsPage,
+  DocsPositionsPage,
+  DocsPositionDetailPage,
 } from "./pages";
-export { default as GmpPositionDetailClient } from "./positions/gmp/GmpPositionDetailClient";
-export { default as GmpPositionsClient } from "./positions/gmp/GmpPositionsClient";
+export { default as PositionDetailClient } from "./positions/PositionDetailClient";
+export { default as PositionsClient } from "./positions/PositionsClient";

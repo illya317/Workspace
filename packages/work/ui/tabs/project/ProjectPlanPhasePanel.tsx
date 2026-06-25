@@ -12,7 +12,6 @@ import {
   TableScrollFrame,
   TextField,
   createDataTableEditActions,
-  isDataTableEditDirty,
   useConfirm,
   useConfirmDelete,
   type DataTableColumn,
@@ -205,7 +204,6 @@ function PhaseRows({
       required: true,
       render: (phase) => {
         const editing = editingId === phase.id;
-        const dirty = isDataTableEditDirty(phaseDraftFromItem(phase), editDraft);
         return canEdit ? (
           <DataTableActionsCell
             actions={[
@@ -214,7 +212,8 @@ function PhaseRows({
                 editing,
                 canEdit,
                 canSave: Boolean(editDraft.name.trim()),
-                dirty,
+                initial: phaseDraftFromItem(phase),
+                current: editDraft,
                 disabled,
                 editLabel: "编辑阶段",
                 saveLabel: "保存阶段",

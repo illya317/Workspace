@@ -97,7 +97,6 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
           sideLabel="项目列表"
           onSideOpenChange={model.setProjectListOpen}
           onDrawerOpen={() => model.setProjectListDrawerOpen(true)}
-          showSideControls={false}
         >
           <ProjectToolbar
             canCreateProject={model.canCreateProject}

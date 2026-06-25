@@ -5,12 +5,15 @@ export interface DataTableEditActionsOptions<T> {
   editing: boolean;
   canEdit: boolean;
   canSave?: boolean;
-  dirty?: boolean;
   disabled?: boolean;
   saving?: boolean;
   editLabel: string;
   saveLabel: string;
   cancelLabel: string;
+  /** 原始行数据；提供时内部会与 current 比较，自动判断是否有修改。 */
+  initial?: unknown;
+  /** 当前编辑中的行数据；与 initial 一起用于自动判断 dirty。 */
+  current?: unknown | null | undefined;
   onEdit: (row: T) => void;
   onSave: () => void;
   onCancel: () => void;
@@ -21,17 +24,19 @@ export function createDataTableEditActions<T>({
   editing,
   canEdit,
   canSave = true,
-  dirty = true,
   disabled,
   saving,
   editLabel,
   saveLabel,
   cancelLabel,
+  initial,
+  current,
   onEdit,
   onSave,
   onCancel,
 }: DataTableEditActionsOptions<T>): DataTableRowAction[] {
   if (!canEdit) return [];
+  const dirty = initial !== undefined ? isDataTableEditDirty(initial, current) : true;
   if (editing) {
     return [
       {
@@ -59,7 +64,7 @@ export function createDataTableEditActions<T>({
   }];
 }
 
-export function isDataTableEditDirty<T>(initial: T, current: T | null | undefined) {
+function isDataTableEditDirty<T>(initial: T, current: T | null | undefined) {
   if (!current) return false;
   return stableSnapshot(initial) !== stableSnapshot(current);
 }

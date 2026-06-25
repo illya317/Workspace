@@ -9,7 +9,6 @@ import {
   SectionCard,
   TableScrollFrame,
   createDataTableEditActions,
-  isDataTableEditDirty,
   useConfirmDelete,
   type DataTableColumn,
   type PickerOption,
@@ -162,7 +161,6 @@ export default function ProjectTasksSection({
       render: (task) => {
         const editing = editingTaskId === task.id;
         const canSave = Boolean(editDraft && isTaskDraftSubmittable(editDraft));
-        const dirty = isDataTableEditDirty(createProjectTaskDraft(task), editDraft);
         return (
           <DataTableActionsCell
             actions={[
@@ -171,7 +169,8 @@ export default function ProjectTasksSection({
                 editing,
                 canEdit,
                 canSave,
-                dirty,
+                initial: createProjectTaskDraft(task),
+                current: editDraft,
                 saving,
                 disabled,
                 editLabel: "编辑任务",

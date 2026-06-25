@@ -1,10 +1,26 @@
-import { ActionToolbar } from "../../ActionControls";
+import ActionToolbar from "../../ActionToolbar";
 import EditToolbar from "../../EditToolbar";
 import FilterToolbar from "../../FilterToolbar";
+import PageToolbar from "../../PageToolbar";
 import SelectField from "../../SelectField";
 import { MiniButton } from "./PreviewBits";
 
-export function ToolbarPreview({ variant }: { variant: "filter" | "action" | "edit" | "split" }) {
+export function ToolbarPreview({ variant }: { variant: "filter" | "action" | "edit" | "split" | "full" }) {
+  if (variant === "full") {
+    return (
+      <PageToolbar
+        title="页面工具栏"
+        onCreate={() => {}}
+        onToggleList={() => {}}
+        listVisible
+        optionGroups={[{ value: "all", options: [{ value: "all", label: "全部" }, { value: "active", label: "现用" }, { value: "done", label: "已完成" }], onChange: () => {}, ariaLabel: "状态" }]}
+        actions={[{ label: "导出", kind: "icon", icon: "download" }, { label: "删除", variant: "danger" }]}
+        editProps={{ editMode: false, onStartEdit: async () => {}, onSave: async () => {}, onCancel: () => {} }}
+        meta={<>共 86 条</>}
+      />
+    );
+  }
+
   if (variant === "filter") {
     return (
       <FilterToolbar

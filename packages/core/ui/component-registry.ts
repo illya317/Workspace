@@ -10,7 +10,7 @@ export type CoreUiComponentKind =
   | "status"
   | "toolbar";
 
-export type CoreUiComponentTier = "foundation" | "primitive" | "assembly" | "frame";
+export type CoreUiComponentTier = "foundation" | "primitive" | "assembly" | "shell" | "frame";
 
 export type CoreUiComponentRegistration = {
   name: string;
@@ -74,33 +74,37 @@ export const coreUiComponentKindMeta = {
 
 export const coreUiComponentTierMeta = {
   foundation: {
-    label: "风格基础 Foundation",
-    description: "非业务、非页面的样式 recipe / token / class helper。定义元素级视觉语言，但不一定是 React 组件。",
+    label: "风格基础",
+    description: "非业务、非页面的样式配方、标记与类辅助。定义元素级视觉语言，但不一定是组件。",
   },
   primitive: {
-    label: "原子组件 Primitive",
-    description: "最小可交互组件或稳定微展示单元，组合 foundation recipe 但不组合复杂业务结构。",
+    label: "原子组件",
+    description: "最小可交互组件或稳定微展示单元，组合风格基础配方但不组合复杂业务结构。",
   },
   assembly: {
-    label: "常用组合 Assembly",
-    description: "由 primitives 组合而成的可复用模式，可能有布局观点但不含业务事实。",
+    label: "常用组合",
+    description: "由原子组件组合而成的可复用模式，可能有布局观点但不含业务事实。",
+  },
+  shell: {
+    label: "页面接口",
+    description: "页面接口（Page API）层：智能体直接引用的可复用顶层容器；当前被页面框架引用而自动提升，未来可能进一步下沉或保留为智能体可见层。",
   },
   frame: {
-    label: "页面框架 Frame",
+    label: "页面框架",
     description: "页面或工作区骨架，定义内容区域之间的结构关系。",
   },
 } as const satisfies Record<CoreUiComponentTier, { label: string; description: string }>;
 
-export const coreUiComponentRegistry = [
+const coreUiComponentRegistryRaw = [
   { name: "ActionButton", tier: "primitive", kind: "toolbar", description: "通用动作按钮 primitive，统一主操作、次操作和危险操作按钮。", example: "详情页中显示“保存”“取消”“删除”，业务只传动作和状态。", foundations: ["getToolbarActionClassName"] },
   { name: "ActionGlyph", tier: "primitive", kind: "toolbar", description: "通用动作图标 glyph，统一新增、归档、编辑、查看、确认、取消、删除、复制、筛选、搜索、刷新、下载、上传、显示/隐藏和更多操作的图形表达。", example: "工具栏、DataTable 行动作、新建确认和查看/隐藏切换都复用同一套图标。" },
-  { name: "ActionToolbar", tier: "assembly", kind: "toolbar", description: "通用页面动作栏，承接主按钮、次按钮和左右插槽。", example: "在资料库列表顶部显示“已选择 2 条记录 / 导出 / 新增”。", composes: ["IconActionButton"] },
+  { name: "ActionToolbar", tier: "assembly", kind: "toolbar", description: "通用页面动作栏，承接主按钮、次按钮和左右插槽；内部复用 Toolbar 统一渲染。", example: "在资料库列表顶部显示“已选择 2 条记录 / 导出 / 新增”。", composes: ["Toolbar", "IconActionButton", "ActionButton"] },
+  { name: "Toolbar", tier: "assembly", kind: "toolbar", description: "统一工具栏，通过 items 配置视图控制、筛选、操作、编辑和元信息区域，替代分散的 CommandToolbar / FilterToolbar / ActionToolbar 手写组合。", example: "列表页顶部统一配置搜索、状态筛选、新建按钮和分页信息。", composes: ["ActionButton", "IconActionButton", "SearchInput", "SelectField", "ToolbarOptionGroup", "ColumnToggle"] },
   { name: "IconActionButton", tier: "primitive", kind: "toolbar", description: "工具栏图标动作按钮，统一隐藏列表、新建等紧凑入口的尺寸、提示和可访问名称。", example: "Toolbar 左侧用列表图标切换侧栏，用 + 进入新建流程。", composes: ["ActionButton", "ActionGlyph"], foundations: ["getToolbarActionClassName"] },
   { name: "RefreshActionButton", tier: "assembly", kind: "toolbar", description: "工具栏刷新动作按钮，使用无边框图标样式和统一可访问名称。", example: "Toolbar 的刷新入口统一显示刷新图标，而不是文字按钮。", composes: ["IconActionButton"] },
   { name: "AmountCell", tier: "primitive", kind: "cell", description: "金额单元格，统一数值对齐、正负值和空值展示。", example: "在财务表格中展示 ¥ 12,800.00，并保持金额列右对齐。", composes: ["NumberCell"] },
   { name: "AnalysisBlock", tier: "assembly", kind: "layout", description: "分析页内容块，用于 KPI、图表或摘要区的统一分组。", example: "在人事分析页包裹趋势图、KPI 和预警摘要。", composes: ["PanelCard"] },
   { name: "AnalysisPageFrame", tier: "frame", kind: "layout", description: "分析页骨架，统一页内 Tab、指标条和分析内容块间距。", example: "人力分析或财务分析页面只传 tabs、metrics 和 AnalysisBlock 内容。", composes: ["PageContent", "TabBar"] },
-  { name: "EntitySelectorPanel", tier: "assembly", kind: "picker", description: "实体范围选择面板，支持 Tab 切换和单列选择；业务文案可表达为现用、全部或已归档等语义。", example: "选择现用、全部或已归档实体时，业务只传入文案和数据。", composes: ["EmptyStateCard", "PanelCard"] },
   { name: "AutoSizeTextField", tier: "primitive", kind: "form", description: "自适应宽度文本输入 primitive，用于表格行内编辑等紧凑场景。", example: "HR 批量表格中编辑手机号或身份证号时，输入框随内容宽度伸缩。" },
   { name: "BlockCreatePanel", tier: "assembly", kind: "form", description: "块状新建模式，用于需要多行或多字段的新建表单；标题旁只承载 +、取消和确认动作，编辑入口应放到行级 DataTable actions。", example: "项目阶段和项目任务这类多字段新增，不常驻表单，点击标题旁 + 后展开维护。", composes: ["SectionCard", "CreateStartButton", "CreateConfirmActions"] },
   { name: "CalendarDateInput", tier: "primitive", kind: "form", description: "日期输入 primitive，替代原生 date input 并统一日期交互；时间必须使用 TimeField 单独表达。", example: "在人事入职日期或合同截止日期字段中选择 2026-06-20。", foundations: ["getFieldInputClassName"] },
@@ -109,26 +113,25 @@ export const coreUiComponentRegistry = [
   { name: "ChoiceGroup", tier: "primitive", kind: "form", description: "纸面记录专用的单选/复选组选项 primitive，统一隐藏原生输入、选中标记和候选项排列；不适合普通表单场景。", example: "纸面记录里选择“是 / 否”，业务只传选项和值。" },
   { name: "ColumnToggle", tier: "primitive", kind: "data", description: "表格列显隐控制，和 DataTable 共用列定义。", example: "在财务明细表里让用户切换显示字段 3/5。", composes: ["CheckboxField"], foundations: ["getToolbarActionClassName"] },
   { name: "CodeBlock", tier: "primitive", kind: "data", description: "代码块和密钥信息展示 primitive，统一技术文本、背景和等宽字体。", example: "API 接入指南中展示 Bearer Client secret 请求头。" },
-  { name: "CommandToolbar", tier: "assembly", kind: "toolbar", description: "综合命令栏容器，按隐藏/显示、新建、搜索、互斥筛选、字段筛选、刷新、页面动作、编辑动作和分页信息分区；一行优先，空间不足自动换行。", example: "列表页同时承载左右分栏控制、新建入口、搜索筛选、导出、编辑保存和分页信息。", composes: ["SearchInput", "ToolbarOptionGroup", "FieldValueFilter", "IconActionButton", "RefreshActionButton", "ActionButton", "SelectField"] },
+  { name: "CommandToolbar", tier: "assembly", kind: "toolbar", description: "综合命令栏容器，按隐藏/显示、新建、搜索、互斥筛选、字段筛选、刷新、页面动作、编辑动作和分页信息分区；一行优先，空间不足自动换行。", example: "列表页同时承载左右分栏控制、新建入口、搜索筛选、导出、编辑保存和分页信息。", composes: ["Toolbar", "SearchInput", "ToolbarOptionGroup", "FieldValueFilter", "IconActionButton", "RefreshActionButton", "ActionButton", "SelectField"] },
   { name: "ConfirmModal", tier: "primitive", kind: "overlay", description: "确认弹窗基础组件，统一危险操作和取消确认体验。", example: "删除合同、归档项目或停用记录前显示确认文案和危险按钮。", composes: ["ActionButton"] },
   { name: "ConfirmProvider", tier: "assembly", kind: "overlay", description: "确认弹窗上下文入口，提供命令式 confirm/delete 能力。", example: "页面调用 confirm()，由 Provider 统一渲染确认弹窗。", composes: ["ConfirmModal"] },
   { name: "CreateConfirmActions", tier: "assembly", kind: "form", description: "新建模式的确认/取消图标动作 primitive，供 InlineCreatePanel、BlockCreatePanel 和工具条新建态共享。", example: "新建态标题旁展示取消和确认按钮，不在业务页手写 x/勾图标。", composes: ["IconActionButton"] },
   { name: "CreateStartButton", tier: "assembly", kind: "form", description: "新建模式的 + 入口 primitive，统一普通态、激活态和禁用态。", example: "列表、阶段或任务区进入新建态时，标题旁 + 高亮。", composes: ["IconActionButton"] },
   { name: "DataTable", tier: "assembly", kind: "data", description: "通用数据表格 primitive，只负责列、行、空态和加载态。", example: "渲染科目、凭证明细、合同或资料库文件列表。", composes: ["DataTableActionsCell"], foundations: ["dataTableClassNames"] },
   { name: "DataTableActionsCell", tier: "primitive", kind: "data", description: "表格操作列模板，统一查看、编辑、删除等行级动作图标。", example: "员工资料和批次记录表格都用查看/删除图标，不再手写操作列按钮。", composes: ["ActionGlyph"] },
-  { name: "createDataTableEditActions", tier: "assembly", kind: "data", description: "DataTable 行编辑动作工厂，统一详情、编辑、保存、取消和删除动作组合。", example: "项目阶段、项目任务和工作项表格用同一套编辑态行级动作。", composes: ["DataTableActionsCell"] },
-  { name: "isDataTableEditDirty", tier: "assembly", kind: "data", description: "DataTable 行编辑 dirty 判断工具，和 createDataTableEditActions 配套使用。", example: "项目任务和工作项行编辑时统一判断保存按钮是否需要高亮。" },
+  { name: "createDataTableEditActions", tier: "assembly", kind: "data", description: "DataTable 行编辑动作工厂，统一详情、编辑、保存、取消动作组合；传入 initial/current 后自动判断 dirty，不再单独调用 dirty 工具。", example: "项目阶段、项目任务和工作项表格用同一套编辑态行级动作。", composes: ["DataTableActionsCell"] },
   { name: "DatabasePageFrame", tier: "frame", kind: "layout", description: "数据库页骨架，统一 Tab、筛选工具条、摘要和表格内容排列。", example: "员工资料、财务科目、报表配置和注册表页面只传筛选区与 DataTable。", composes: ["PageContent", "TabBar"] },
   { name: "DetailModal", tier: "primitive", kind: "overlay", description: "详情弹层容器，用于业务详情或编辑面板的统一包裹。", example: "在资料库中打开文件详情或在审计页查看记录明细。" },
   { name: "DisclosureRecordCard", tier: "assembly", kind: "data", description: "可展开记录卡片，统一历史、日志和明细记录的折叠头、详情区和行级动作。", example: "审计历史里点击一条记录展开变更详情，并显示“还原到此版本”动作。" },
   { name: "DisclosureSectionHeader", tier: "primitive", kind: "navigation", description: "可折叠分组标题 primitive，统一展开箭头、数量徽标和点击区域。", example: "工作计划中切换“日常工作 / 其他工作 / 已归档”分组。" },
   { name: "DropdownMenu", tier: "primitive", kind: "overlay", description: "通用下拉菜单 primitive，统一触发按钮、浮层、分隔线和危险动作样式；内部封装 DropdownSurface 下拉浮层行为。", example: "平台用户菜单展示“设置 / 登出”，业务只提供动作列表。" },
-  { name: "EditToolbar", tier: "assembly", kind: "toolbar", description: "编辑场景工具栏，统一保存、取消和辅助动作排列。", example: "员工资料详情进入编辑态后显示“保存 / 取消 / 历史”。", composes: ["ActionButton", "IconActionButton"] },
+  { name: "EditToolbar", tier: "assembly", kind: "toolbar", description: "编辑场景工具栏，统一保存、取消和辅助动作排列；内部复用 Toolbar inline 变体统一渲染。", example: "员工资料详情进入编辑态后显示“保存 / 取消 / 历史”。", composes: ["Toolbar"] },
   { name: "EmptyStateCard", tier: "assembly", kind: "layout", description: "空状态卡片，用于无数据、无匹配或待配置提示。", example: "筛选后无结果时显示“暂无数据，调整筛选条件”。" },
-  { name: "FkFieldInput", tier: "assembly", kind: "picker", description: "外键实体搜索输入，只负责展示和选择；业务域传入 reference-options endpoint，Platform registry 校验 FK 契约。", example: "搜索“张”后从员工候选项中选择一个负责人。", composes: ["SearchInput"] },
+  { name: "FkFieldInput", tier: "shell", kind: "picker", description: "外键实体搜索输入，只负责展示和选择；业务域传入 reference-options endpoint，Platform registry 校验 FK 契约。", example: "搜索“张”后从员工候选项中选择一个负责人。", composes: ["SearchInput"] },
   { name: "FieldValueFilter", tier: "assembly", kind: "toolbar", description: "字段和值组合筛选，工具栏只显示“字段：值”，点击后再选择字段和值；字段可声明 FK，并由业务域传入 reference-options endpoint。", example: "显示“员工：张文孝”，点击后先选字段，再用 HR reference-options 搜索选择员工。", composes: ["SelectField", "SearchInput", "FkFieldInput", "PickerOptionButton"] },
   { name: "FilterBar", tier: "assembly", kind: "toolbar", description: "筛选栏容器，用于承载多个筛选字段和操作区。", example: "在数据库页承载关键词、状态、部门和分页大小控件。" },
-  { name: "FilterToolbar", tier: "assembly", kind: "toolbar", description: "列表筛选工具栏，统一搜索、下拉筛选和操作按钮。", example: "在项目列表顶部统一展示搜索、状态下拉和每页条数。", composes: ["FilterBar", "SearchInput", "SelectField", "ActionButton", "ColumnToggle", "ToolbarOptionGroup"] },
+  { name: "FilterToolbar", tier: "assembly", kind: "toolbar", description: "列表筛选工具栏，统一搜索、下拉筛选和操作按钮；内部复用 Toolbar 统一渲染。", example: "在项目列表顶部统一展示搜索、状态下拉和每页条数。", composes: ["Toolbar", "SearchInput", "SelectField", "ActionButton", "ColumnToggle", "ToolbarOptionGroup"] },
   { name: "ToolbarOptionGroup", tier: "primitive", kind: "toolbar", description: "工具栏参数组选项，统一“全部/状态/模式”等短参数切换，不让业务页手写一排按钮。", example: "在筛选栏里切换“全部 / 30天 / 90天 / 已到期”或“姓名 / 全部”。" },
   { name: "useUnsavedChangesPrompt", tier: "assembly", kind: "overlay", description: "未保存离开确认 hook，统一保存按钮 dirty 状态下的离开提醒和 beforeunload 拦截。", example: "详情页只传 hasUnsavedChanges，AppShell 或页内 Tab 统一确认是否离开。", composes: ["ConfirmProvider"] },
   { name: "FileField", tier: "primitive", kind: "form", description: "文件选择输入 primitive，统一上传按钮、文件名和禁用态样式。", example: "在财务导入或余额核对中选择 Excel 文件，不在业务页手写原生 file input。" },
@@ -144,38 +147,43 @@ export const coreUiComponentRegistry = [
   { name: "getTagInlineInputClassName", tier: "foundation", kind: "form", description: "标签内联输入样式 token，用于 chip 输入末尾的轻量文本输入。", example: "员工别名标签末尾继续输入新别名时复用统一内联输入样式。" },
   { name: "getTagPillClassName", tier: "foundation", kind: "form", description: "标签项样式 token，统一别名、标签和可删除 chip 外观。", example: "展示“重点客户”“GMP”这类可删除标签 chip。" },
   { name: "getToolbarActionClassName", tier: "foundation", kind: "toolbar", description: "工具栏动作按钮样式 token，用于少量需要自定义按钮挂载点的场景。", example: "在 FilterToolbar 的 extraRight 中挂一个“生成文档”主按钮。" },
-  { name: "GroupedOptionPicker", tier: "assembly", kind: "picker", description: "分组选项选择器，统一分组切换、清空和候选项按钮样式。", example: "专业、职称、职级这类先选分类再选具体值的字段。", composes: ["PickerShell"] },
+  { name: "GroupedOptionPicker", tier: "shell", kind: "picker", description: "分组选项选择器，统一分组切换、清空和候选项按钮样式。", example: "专业、职称、职级这类先选分类再选具体值的字段。", composes: ["Picker", "PickerOptionButton"] },
   { name: "Badge", tier: "primitive", kind: "status", description: "通用徽标 primitive，统一状态、层级等轻量标签展示。", example: "显示状态标签“已启用”，或层级标签“L2”。" },
   { name: "HiddenDataField", tier: "primitive", kind: "form", description: "隐藏数据字段 primitive，用于纸面模板或集成场景保留机器可读字段。", example: "QC 纸面日期展示为中文年月日，同时提交 ISO 日期值。" },
-  { name: "InlineCreatePanel", tier: "assembly", kind: "form", description: "统一新建入口：在页面内单行展开，只放创建所需的 required/FK 字段和创建/取消动作；业务可选择输入控件，但不能自定义字段间距、改按钮文案或改成弹窗。", example: "在列表顶部展开新建员工、批次、部门或岗位表单，填写 required 字段后确认创建。", composes: ["CreateConfirmActions"] },
+  { name: "InlineCreatePanel", tier: "assembly", kind: "form", description: "统一新建入口：在页面内单行展开，只放创建所需的 required/FK 字段和创建/取消动作；业务可选择输入控件，但不能自定义字段间距、改按钮文案或改成弹窗。", example: "在列表顶部展开新建员工、批次、部门或岗位表单，填写 required 字段后确认创建。", composes: ["CreateConfirmActions", "FormField"] },
   { name: "MetricCard", tier: "assembly", kind: "layout", description: "指标卡片，用于展示单个统计值和标签。", example: "分析页展示“本月 128”“同比 +12%”“预警 3”。" },
   { name: "ModalCreatePanel", tier: "assembly", kind: "overlay", description: "弹窗新建/编辑面板，复用 DetailModal 和统一动作按钮，适合字段较多、不宜内联展开的记录维护。", example: "合同列表点击新建后弹出完整表单，底部使用统一取消和保存动作。", composes: ["DetailModal", "ActionButton"] },
-  { name: "ModuleCardBody", tier: "assembly", kind: "layout", description: "模块入口卡片主体，封装图标、标题、描述、徽标和动作。", example: "设置首页或模块首页展示可进入的功能卡片。", foundations: ["moduleCardColorClasses", "getToolbarActionClassName"] },
+  { name: "ModuleCardBody", tier: "assembly", kind: "layout", description: "模块入口卡片主体，封装图标、标题、描述和徽标。", example: "设置首页或模块首页展示可进入的功能卡片。", foundations: ["moduleCardColorClasses"] },
   { name: "ModuleGridPage", tier: "frame", kind: "layout", description: "低密度模块入口页骨架，统一标题、说明和模块卡片网格。", example: "设置首页或模块首页使用卡片网格。", composes: ["PageContent"] },
   { name: "NumberCell", tier: "primitive", kind: "cell", description: "数字单元格，统一数值格式、对齐和空值展示。", example: "在库存或财务表格中展示 1,280 这类数量值。" },
-  { name: "OptionPicker", tier: "assembly", kind: "picker", description: "本地选项选择器，支持搜索过滤和 PickerShell 结构。", example: "从少量本地枚举中选择部门、状态或类别。", composes: ["PickerShell", "SearchInput"] },
-  { name: "PickerActionRow", tier: "assembly", kind: "picker", description: "选择器弹层内的动作行，统一清空、更换分组和辅助动作排列。", example: "专业选择器顶部显示“未设置 / 更换学科门类”。" },
-  { name: "PickerOptionButton", tier: "primitive", kind: "picker", description: "选择器候选项按钮，统一选中态、普通态和紧凑尺寸。", example: "职级选择器里展示 M/P/T 下面的等级按钮。" },
+  { name: "OptionPicker", tier: "shell", kind: "picker", description: "本地选项选择器，支持搜索过滤和 PickerShell 结构。", example: "从少量本地枚举中选择部门、状态或类别。", composes: ["PickerShell", "SearchInput", "PickerOptionButton"] },
+  { name: "Picker", tier: "shell", kind: "picker", description: "统一选择器外壳，支持直接选项和分组间接选项两种形态，顶部动作、说明区和选项网格全部使用固定尺寸按钮。", example: "从分类再选具体值（如专业、职称），或从平铺枚举中直接选择。", composes: ["PickerShell", "PickerOptionButton"] },
+  { name: "PickerOptionButton", tier: "primitive", kind: "picker", description: "选择器候选项按钮，统一选中态、普通态、紧凑尺寸和占位未设置变体。", example: "职级选择器里展示 M/P/T 下面的等级按钮；分组选择器顶部用占位变体展示“未设置”。" },
   { name: "PageContent", tier: "frame", kind: "layout", description: "页面内容宽度和内边距容器，避免业务页重复写主内容壳。", example: "AppShell 下方包裹页面主体，统一最大宽度和上下留白。" },
   { name: "PageShell", tier: "frame", kind: "layout", description: "页面标题、返回、动作和顶部结构骨架。", example: "子页面显示返回按钮、标题、副标题和右侧主操作。" },
   { name: "PageStyleShowcase", tier: "frame", kind: "layout", description: "页面样式预览中心，按八大业务板块展示页眉、Tab、Toolbar、主体、页脚、预览和弹出框模板。", example: "架构任务用它审阅财务、生产、人事、工作、行政、外部关系、文档中心和资料库页面样式。", composes: ["TabBar", "CommandToolbar", "DataTable", "Pagination", "SplitWorkspace", "AnalysisBlock", "StructuredTable", "DatabasePageFrame", "PanelCard"] },
+  { name: "PageToolbar", tier: "shell", kind: "toolbar", description: "页面级工具栏接口，通过 features 参数让智能体选择需要展示的区块（标题、视图、搜索、筛选、操作、编辑、元信息、列控制、分页），内部统一复用 Toolbar。", example: "列表页顶部只传 features 数组和业务回调，即可组合出视图切换、搜索、状态筛选、新建、导出、编辑和分页信息。", composes: ["Toolbar", "EditToolbar", "ActionButton", "IconActionButton", "SelectField", "ColumnToggle", "ToolbarOptionGroup"] },
   { name: "Pagination", tier: "primitive", kind: "navigation", description: "分页控制 primitive，统一页码、上一页下一页和数量展示。", example: "数据库表格底部展示第 2/5 页和总计 48 条。" },
   { name: "PanelCard", tier: "assembly", kind: "layout", description: "通用面板卡片，提供标题、说明、操作和内容区。", example: "表单小节、详情块或数据分析块的基础容器。" },
   { name: "PickerShell", tier: "assembly", kind: "picker", description: "选择器外壳，统一搜索、列表、空态和候选项区域。", example: "组合搜索框、候选列表和无匹配提示的选择器外壳。", composes: ["SearchInput"], foundations: ["getFieldInputClassName"] },
-  { name: "RegistryBrowserCard", tier: "assembly", kind: "data", description: "注册表浏览卡片，以 3/7 分栏展示分类和注册项明细。", example: "架构任务展示 Core UI 分类、说明、示例和消费文件。" },
-  { name: "RemovableTag", tier: "assembly", kind: "form", description: "可删除标签模板，统一 chip 外观、内置 x 删除入口和确认弹窗；业务不要手写 tag 内删除按钮。", example: "项目成员、岗位别名、人事标签列表都用 RemovableTag，点击 x 删除，点击标签文本不触发删除。", composes: ["TagRemoveButton"], foundations: ["getTagPillClassName"] },
+  { name: "RegistryBrowserCard", tier: "assembly", kind: "data", description: "注册表浏览卡片，以 3/7 分栏展示分类和注册项明细。", example: "架构任务展示 Core UI 分类、说明、示例和消费文件。", composes: ["ToolbarOptionGroup"] },
+  { name: "TagPill", tier: "primitive", kind: "form", description: "标签 pill 纯内核，默认长文本按 8 个字符截断并显示省略号，不承载任何交互。", example: "作为 RemovableTag、TagPillButton 的共同视觉内核，也允许业务在需要时直接展示只读标签。", foundations: ["getTagPillClassName"] },
+  { name: "RemovableTag", tier: "assembly", kind: "form", description: "可删除标签模板，统一 chip 外观、内置 x 删除入口和确认弹窗；业务不要手写 tag 内删除按钮。", example: "项目成员、岗位别名、人事标签列表都用 RemovableTag，点击 x 删除，点击标签文本不触发删除。", composes: ["TagPill", "TagRemoveButton"], foundations: ["getTagPillClassName"] },
   { name: "RatingControl", tier: "primitive", kind: "form", description: "星级评分 primitive，统一只读和可编辑评分按钮样式。", example: "工作计划中展示或编辑重要度、紧急度评分。" },
-  { name: "SearchableOptionInput", tier: "assembly", kind: "picker", description: "可搜索选项输入，统一输入、清空、候选列表和键盘选择交互。", example: "学校、供应商或本地白名单实体通过中文、拼音和别名搜索后选择。" },
+  { name: "SearchableOptionInput", tier: "shell", kind: "picker", description: "可搜索选项输入，统一输入、清空、候选列表和键盘选择交互。", example: "学校、供应商或本地白名单实体通过中文、拼音和别名搜索后选择。" },
   { name: "SearchInput", tier: "primitive", kind: "form", description: "统一搜索输入，覆盖页面搜索、工具栏搜索和紧凑搜索。", example: "输入“张”按姓名、编码、拼音搜索或筛选记录。" },
   { name: "SectionCard", tier: "assembly", kind: "layout", description: "带标题的小节卡片，基于 PanelCard 收敛 section 样式。", example: "资料详情页展示“基础信息”“权限设置”等小节。", composes: ["PanelCard"] },
   { name: "SelectField", tier: "primitive", kind: "form", description: "统一下拉选择字段，支持搜索和不同密度尺寸。", example: "从“现用 / 已归档 / 全部”中选择筛选范围。", composes: ["SearchInput"] },
   { name: "SelectorCard", tier: "assembly", kind: "picker", description: "可点击选择卡片，用于实体列表、主从选择和状态标记。", example: "左侧列表中选择一个项目或员工记录。" },
+  { name: "SelectorList", tier: "shell", kind: "picker", description: "数据驱动的选择列表渲染器，统一把 items 映射成 SelectorCard 列表，支持分组和自定义 active。", example: "项目列表、岗位列表、权限人员网格等业务侧只传数据和选中项，不再手写 map + PanelCard。", composes: ["SelectorCard", "EmptyStateCard"] },
+  { name: "SelectorTree", tier: "shell", kind: "picker", description: "数据驱动的树形选择渲染器，基于 TreeNodeCard 自动处理展开/收起和层级。", example: "目录树、部门树等业务侧只传树形数据和选中项。", composes: ["TreeNodeCard", "TreeNodeBranch"] },
+  { name: "SelectorPanel", tier: "shell", kind: "picker", description: "选择器面板外壳，统一 PanelCard、搜索筛选、列表/树渲染和空态。", example: "列表页左侧选择区：可选搜索框 + SelectorList 或 SelectorTree + EmptyStateCard。", composes: ["PanelCard", "SearchInput", "SelectorList", "SelectorTree", "EmptyStateCard"] },
   { name: "SplitWorkspace", tier: "assembly", kind: "layout", description: "左右分栏工作区，适合列表加详情的主从工作流。", example: "左侧项目列表，右侧保持当前项目详情编辑区。", composes: ["SplitWorkspaceToolbar"] },
-  { name: "SplitWorkspaceToolbar", tier: "assembly", kind: "toolbar", description: "分栏工作区工具条，承接折叠、模式和辅助操作。", example: "在左右分栏顶部提供收起列表和保存详情按钮。", composes: ["IconActionButton"] },
+  { name: "SplitWorkspaceToolbar", tier: "assembly", kind: "toolbar", description: "分栏工作区工具条，承接折叠、模式和辅助操作；内部复用 Toolbar inline 变体统一渲染。", example: "在左右分栏顶部提供收起列表和保存详情按钮。", composes: ["Toolbar", "IconActionButton"] },
   { name: "SwitchField", tier: "primitive", kind: "form", description: "开关输入 primitive，统一布尔字段的切换外观、可访问性和禁用态。", example: "在行内编辑中切换“启用 / 停用”或“是 / 否”。" },
   { name: "StructuredTable", tier: "assembly", kind: "data", description: "结构化表格 primitive，支持 colSpan、rowSpan、列宽和单元格内容插槽。", example: "检验记录、键值摘要或纸面格式表格只传通用行列结构，不在业务包手写 table。" },
   { name: "TabBar", tier: "primitive", kind: "navigation", description: "统一 Tab 切换 primitive，支持 large / mid / small / micro 四种尺寸；large 与 small 可开启 accordion 横向展开子 Tab。", example: "页面级用 variant='large' accordion 展示一级 Tab 及其子 Tab；工具栏紧凑手风琴用 variant='small' accordion；普通页内 Tab 用 variant='mid'；选择器弹层内小型分段 tabs 用 variant='micro'。" },
-  { name: "TagPillButton", tier: "assembly", kind: "form", description: "可点击标签按钮，统一 chip 外观、单行省略、hover 和焦点态。", example: "在关系表里点击一个岗位标签跳转到对应实体，同时长文本自动省略。", foundations: ["getTagPillClassName"] },
+  { name: "TagPillButton", tier: "assembly", kind: "form", description: "可点击标签按钮，统一 chip 外观、单行省略、hover 和焦点态。", example: "在关系表里点击一个岗位标签跳转到对应实体，同时长文本自动省略。", composes: ["TagPill"], foundations: ["getTagPillClassName"] },
   { name: "TagRemoveButton", tier: "primitive", kind: "form", description: "标签删除按钮 primitive，统一 chip 内删除动作尺寸、hover、禁用态和删除确认弹窗。", example: "员工别名、岗位别名或标签输入中删除某个 chip；业务只传 onConfirm 和确认文案。" },
   { name: "TableScrollFrame", tier: "assembly", kind: "data", description: "表格横向滚动外壳，避免业务包重复手写 overflow-x-auto 表格容器。", example: "宽表格在小屏幕中横向滚动，DataTable 本身只负责表格结构。", composes: ["DataTable"] },
   { name: "TemplateWorkbenchFrame", tier: "frame", kind: "layout", description: "模板结构工作台骨架，统一左侧模板选择、顶部搜索筛选、右侧阶段/项目行和行级动作承载区。", example: "生产检验模板页把产品、阶段、检测项和业务反馈/预览动作映射进来，特化弹窗留在业务包设计。", composes: ["CommandToolbar", "SearchInput", "SelectorCard", "PanelCard", "Badge", "ActionButton", "EmptyStateCard"] },
@@ -193,27 +201,14 @@ export const coreUiComponentRegistry = [
   { name: "getModuleCardClassName", tier: "foundation", kind: "layout", description: "模块卡片样式 recipe，按颜色分类返回图标背景、悬停和 ring class。", example: "设置首页功能卡片按人力资源、财务等分类使用统一颜色变体。", foundations: ["moduleCardColorClasses"] },
 ] as const satisfies readonly CoreUiComponentRegistration[];
 
-export const registeredCoreUiComponentNames = new Set<string>(
-  coreUiComponentRegistry.map((component) => component.name),
-);
-
-export type CoreUiCompositionGraph = {
-  composes: ReadonlyMap<string, readonly string[]>;
-  foundations: ReadonlyMap<string, readonly string[]>;
-  usedBy: ReadonlyMap<string, readonly string[]>;
-};
-
-/**
- * 反向计算组合关系：由 composes/foundations 推导出每个 entry 被谁使用。
- * 注意：usedBy 不要手写，必须由 registry 反向计算，否则会和 composes 漂移。
- */
-export function getCoreUiCompositionGraph(): CoreUiCompositionGraph {
+function buildCoreUiCompositionGraph(
+  registrations: readonly CoreUiComponentRegistration[],
+): CoreUiCompositionGraph {
   const composes = new Map<string, readonly string[]>();
   const foundations = new Map<string, readonly string[]>();
   const usedBy = new Map<string, string[]>();
 
-  for (const component of coreUiComponentRegistry) {
-    const registration = component as CoreUiComponentRegistration;
+  for (const registration of registrations) {
     const compositionTargets = registration.composes ?? registration.includes ?? [];
     const foundationTargets = registration.foundations ?? [];
 
@@ -238,4 +233,48 @@ export function getCoreUiCompositionGraph(): CoreUiCompositionGraph {
   }
 
   return { composes, foundations, usedBy: sortedUsedBy };
+}
+
+const coreUiCompositionGraph = buildCoreUiCompositionGraph(coreUiComponentRegistryRaw);
+
+const frameComponentNames = new Set<string>(
+  coreUiComponentRegistryRaw
+    .filter((component) => component.tier === "frame")
+    .map((component) => component.name),
+);
+
+function deriveComponentTier(
+  registration: CoreUiComponentRegistration,
+): CoreUiComponentTier {
+  if (registration.tier !== "primitive" && registration.tier !== "assembly") {
+    return registration.tier;
+  }
+  const usedBy = coreUiCompositionGraph.usedBy.get(registration.name) ?? [];
+  if (usedBy.some((name) => frameComponentNames.has(name))) {
+    return "shell";
+  }
+  return registration.tier;
+}
+
+export const coreUiComponentRegistry = coreUiComponentRegistryRaw.map((component) => ({
+  ...component,
+  tier: deriveComponentTier(component as CoreUiComponentRegistration),
+})) satisfies readonly CoreUiComponentRegistration[];
+
+export const registeredCoreUiComponentNames = new Set<string>(
+  coreUiComponentRegistry.map((component) => component.name),
+);
+
+export type CoreUiCompositionGraph = {
+  composes: ReadonlyMap<string, readonly string[]>;
+  foundations: ReadonlyMap<string, readonly string[]>;
+  usedBy: ReadonlyMap<string, readonly string[]>;
+};
+
+/**
+ * 反向计算组合关系：由 composes/foundations 推导出每个 entry 被谁使用。
+ * 注意：usedBy 不要手写，必须由 registry 反向计算，否则会和 composes 漂移。
+ */
+export function getCoreUiCompositionGraph(): CoreUiCompositionGraph {
+  return coreUiCompositionGraph;
 }

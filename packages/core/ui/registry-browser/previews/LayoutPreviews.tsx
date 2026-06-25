@@ -1,17 +1,16 @@
-import { AnalysisBlock, EmptyStateCard, MetricCard, ModuleCardBody, PanelCard, SelectorCard } from "../../Card";
+import { AnalysisBlock, EmptyStateCard, getModuleCardClassName, MetricCard, ModuleCardBody, PanelCard, SelectorCard } from "../../Card";
 import { MiniButton, MiniField } from "./PreviewBits";
 
 export function LayoutPreview({ variant }: { variant: "page" | "module" | "split" | "tree" | "empty" | "analysis" }) {
   if (variant === "module") {
     return (
-      <div className="rounded-xl border border-slate-200 bg-white p-4 text-center shadow-sm">
+      <div className={getModuleCardClassName("blue")}>
         <ModuleCardBody
           title="模块入口"
-          description="统一展示入口说明、状态和操作。"
+          description="统一展示入口说明和状态。"
           color="blue"
           badge="Core"
-          icon={<span className="text-lg font-bold">UI</span>}
-          actions={[{ label: "进入" }]}
+          icon={<svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6.5A2.5 2.5 0 016.5 4H10l2 2h5.5A2.5 2.5 0 0120 8.5v8A2.5 2.5 0 0117.5 19h-11A2.5 2.5 0 014 16.5v-10z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 11h8M8 14h5" /></svg>}
         />
       </div>
     );

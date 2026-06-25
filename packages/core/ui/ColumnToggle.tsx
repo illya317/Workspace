@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import type { ReactNode } from "react";
-import { getToolbarActionClassName } from "./ActionControls";
+import { getToolbarActionClassName } from "./toolbar-styles";
 import CheckboxField from "./CheckboxField";
 import { joinClassNames } from "./card-utils";
 

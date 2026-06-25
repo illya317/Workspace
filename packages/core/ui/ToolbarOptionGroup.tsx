@@ -28,7 +28,7 @@ export default function ToolbarOptionGroup({
     <div
       role="group"
       aria-label={ariaLabel}
-      className={joinClassNames("inline-flex h-10 items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1 align-middle", className)}
+      className={joinClassNames("inline-flex min-h-10 flex-wrap items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1 align-middle", className)}
     >
       {options.map((option) => {
         const active = option.value === value;

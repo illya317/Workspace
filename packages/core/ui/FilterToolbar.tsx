@@ -1,27 +1,26 @@
 "use client";
 
-import FilterBar from "./FilterBar";
-import SelectField from "./SelectField";
-import ColumnToggle, { type ColumnDef } from "./ColumnToggle";
-import SearchInput from "./SearchInput";
-import { ActionButton, type ToolbarAction } from "./ActionControls";
-import ToolbarOptionGroup, { type ToolbarOption } from "./ToolbarOptionGroup";
+import type { ReactNode } from "react";
+import { Toolbar, type ToolbarItem } from "./Toolbar";
+import type { ColumnDef } from "./ColumnToggle";
+import type { ToolbarAction } from "./ActionControls";
+import type { ToolbarOption } from "./ToolbarOptionGroup";
 
 export interface FilterToolbarProps {
   keyword?: string;
   onKeywordChange?: (value: string) => void;
   searchScope?: "full" | readonly string[];
   searchPlaceholder?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
   columns?: ColumnDef[];
   visibleColumns?: string[];
   onColumnsChange?: (visible: string[]) => void;
   pageSize?: number;
   pageSizeOptions?: number[];
   onPageSizeChange?: (value: number) => void;
-  meta?: React.ReactNode;
+  meta?: ReactNode;
   onReset?: () => void;
-  resetLabel?: React.ReactNode;
+  resetLabel?: ReactNode;
   primaryAction?: ToolbarAction;
   optionGroups?: Array<{
     value: string;
@@ -30,8 +29,9 @@ export interface FilterToolbarProps {
     ariaLabel?: string;
   }>;
   secondaryActions?: ToolbarAction[];
-  extraRight?: React.ReactNode;
+  extraRight?: ReactNode;
   searchClassName?: string;
+  className?: string;
 }
 
 export default function FilterToolbar({
@@ -54,93 +54,111 @@ export default function FilterToolbar({
   secondaryActions = [],
   extraRight,
   searchClassName,
+  className = "",
 }: FilterToolbarProps) {
   const sizeOptions = pageSizeOptions.map((size) => ({
     value: String(size),
     label: `${size}条/页`,
   }));
-  const searchAriaLabel = searchScope === "full" ? "搜索全部字段" : `搜索${searchScope.join("、")}`;
   const resetText = typeof resetLabel === "string" ? resetLabel : "清除筛选";
 
-  return (
-    <FilterBar>
-      {primaryAction && (
-        <ActionButton
-          onClick={primaryAction.onClick}
-          disabled={primaryAction.disabled}
-          type={primaryAction.type}
-          variant={primaryAction.variant ?? "primary"}
-        >
-          {primaryAction.label}
-        </ActionButton>
-      )}
+  const items: ToolbarItem[] = [];
 
-      {onKeywordChange && (
-        <SearchInput
-          value={keyword}
-          onChange={onKeywordChange}
-          placeholder={searchPlaceholder}
-          ariaLabel={searchAriaLabel}
-          className={searchClassName ?? "min-w-0"}
-        />
-      )}
+  if (primaryAction) {
+    items.push({
+      kind: "button",
+      key: "primary",
+      section: "filter",
+      label: primaryAction.label,
+      variant: primaryAction.variant ?? "primary",
+      type: primaryAction.type,
+      disabled: primaryAction.disabled,
+      onClick: primaryAction.onClick,
+    });
+  }
 
-      {optionGroups.map((group, index) => (
-        <ToolbarOptionGroup
-          key={`option-group-${index}`}
-          value={group.value}
-          options={group.options}
-          onChange={group.onChange}
-          ariaLabel={group.ariaLabel}
-        />
-      ))}
+  if (onKeywordChange) {
+    items.push({
+      kind: "search",
+      key: "search",
+      section: "filter",
+      value: keyword,
+      onChange: onKeywordChange,
+      placeholder: searchPlaceholder,
+      scope: searchScope,
+      className: searchClassName ?? "min-w-0",
+    });
+  }
 
-      {children}
+  optionGroups.forEach((group, index) => {
+    items.push({
+      kind: "option-group",
+      key: `option-group-${index}`,
+      section: "filter",
+      value: group.value,
+      options: group.options,
+      onChange: group.onChange,
+      ariaLabel: group.ariaLabel,
+    });
+  });
 
-      {onReset && (
-        <ActionButton
-          onClick={onReset}
-          aria-label={resetText}
-          title={resetText}
-        >
-          {resetText}
-        </ActionButton>
-      )}
+  if (children) {
+    items.push({ kind: "custom", key: "children", section: "filter", content: children });
+  }
 
-      {secondaryActions.map((action, index) => (
-        <ActionButton
-          key={`secondary-${index}`}
-          onClick={action.onClick}
-          disabled={action.disabled}
-          type={action.type}
-          variant={action.variant ?? "secondary"}
-        >
-          {action.label}
-        </ActionButton>
-      ))}
+  if (onReset) {
+    items.push({
+      kind: "button",
+      key: "reset",
+      section: "filter",
+      label: resetText,
+      onClick: onReset,
+    });
+  }
 
-      <div className="flex-1" />
+  secondaryActions.forEach((action, index) => {
+    items.push({
+      kind: "button",
+      key: `secondary-${index}`,
+      section: "filter",
+      label: action.label,
+      variant: action.variant,
+      type: action.type,
+      disabled: action.disabled,
+      onClick: action.onClick,
+    });
+  });
 
-      {meta && <div className="shrink-0 text-xs font-medium text-slate-500">{meta}</div>}
+  if (meta) {
+    items.push({ kind: "text", key: "meta", section: "meta", content: meta });
+  }
 
-      {columns && onColumnsChange && visibleColumns && (
-        <ColumnToggle
-          columns={columns}
-          visible={visibleColumns}
-          onChange={onColumnsChange}
-        />
-      )}
+  if (columns && onColumnsChange && visibleColumns) {
+    items.push({
+      kind: "column-toggle",
+      key: "columns",
+      section: "meta",
+      columns,
+      visible: visibleColumns,
+      onChange: onColumnsChange,
+    });
+  }
 
-      {onPageSizeChange && (
-        <SelectField
-          options={sizeOptions}
-          value={String(pageSize)}
-          onChange={(value) => onPageSizeChange(Number(value))}
-          triggerClassName="!w-[6.5rem] !min-w-[6.5rem]"
-        />
-      )}
+  if (onPageSizeChange) {
+    items.push({
+      kind: "select",
+      key: "page-size",
+      section: "meta",
+      value: String(pageSize),
+      options: sizeOptions,
+      onChange: (value) => onPageSizeChange(Number(value)),
+      triggerClassName: "!w-[6.5rem] !min-w-[6.5rem]",
+    });
+  }
 
-      {extraRight}
-    </FilterBar>
-  );
+  if (extraRight) {
+    items.push({ kind: "custom", key: "extra-right", section: "meta", content: extraRight });
+  }
+
+  return <Toolbar items={items} className={className} />;
 }

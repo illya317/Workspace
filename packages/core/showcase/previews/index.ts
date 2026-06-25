@@ -5,6 +5,8 @@ export { layoutPreviewByName } from "./layout-previews";
 export { overlayPreviewByName } from "./overlay-previews";
 export { navigationPreviewByName } from "./navigation-previews";
 export { pickerPreviewByName } from "./picker-previews";
+export { selectorPreviewByName } from "./selector-previews";
 export { statusPreviewByName } from "./status-previews";
 export { cellPreviewByName } from "./cell-previews";
 export { feedbackPreviewByName } from "./feedback-previews";
+export { previewCaseByName } from "./preview-cases";

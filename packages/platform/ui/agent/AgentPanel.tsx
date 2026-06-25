@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ActionButton, PanelCard, SelectorCard, TextField } from "@workspace/core/ui";
+import { ActionButton, PanelCard, SelectorPanel, TextField } from "@workspace/core/ui";
 import type { AgentMood, AgentMessage } from "./types";
 import type { SavedConversation } from "./useAgentSession";
 import AgentAvatar from "./AgentAvatar";
@@ -130,21 +130,22 @@ export default function AgentPanel({
                 </svg>
               </ActionButton>
               {showHistory && savedConversations && savedConversations.length > 0 && (
-                <PanelCard
+                <SelectorPanel
                   className="absolute right-0 top-8 z-50 max-h-64 w-64 overflow-y-auto"
                   title="历史对话"
-                  bodyClassName="space-y-2 p-2"
-                >
-                  {savedConversations.map((c) => (
-                    <SelectorCard
-                      key={c.id}
-                      title={c.title}
-                      subtitle={c.preview || c.messages.slice(-1)[0]?.content.slice(0, 40)}
-                      meta={[new Date(c.updatedAt).toLocaleString("zh-CN")]}
-                      onClick={() => { onLoadConversation?.(c); setShowHistory(false); }}
-                    />
-                  ))}
-                </PanelCard>
+                  items={savedConversations}
+                  selectedId={null}
+                  onSelect={(c) => { onLoadConversation?.(c); setShowHistory(false); }}
+                  getKey={(c) => c.id}
+                  renderItem={(c) => ({
+                    title: c.title,
+                    subtitle: c.preview || c.messages.slice(-1)[0]?.content.slice(0, 40),
+                    meta: [new Date(c.updatedAt).toLocaleString("zh-CN")],
+                  })}
+                  size="sm"
+                  bodyClassName="p-2"
+                  contentClassName="space-y-2"
+                />
               )}
             </div>
             <ActionButton onClick={onClear} className="p-1.5" title="新对话">

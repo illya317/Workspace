@@ -237,12 +237,12 @@ const basePageViewDefinitions: PageViewDefinition[] = [
     ],
   },
   {
-    route: "/docs/positions/GMP",
+    route: "/docs/positions",
     moduleKey: "docs",
     label: "岗位说明书",
-    recordRoutes: ["/docs/positions/GMP/[code]"],
+    recordRoutes: ["/docs/positions/[code]"],
     views: [
-      { key: "gmp-list", label: "GMP 列表" },
+      { key: "positions", label: "岗位列表" },
     ],
   },
   {

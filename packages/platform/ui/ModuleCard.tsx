@@ -5,27 +5,17 @@ import {
   ActionButton,
   ModuleCardBody,
   getModuleCardClassName,
-  type ModuleCardAction,
   type ModuleCardColor,
   type ModuleCardProps,
 } from "@workspace/core/ui";
 
-export type { ModuleCardAction, ModuleCardColor, ModuleCardProps };
+export type { ModuleCardColor, ModuleCardProps };
 
 export default function ModuleCard({ href, onClick, className = "", ...props }: ModuleCardProps) {
   const mergedClassName = getModuleCardClassName(props.color, className);
-  const body = (
-    <ModuleCardBody
-      {...props}
-      renderActionLink={(action: ModuleCardAction, actionClassName: string) => (
-        <Link href={action.href || "#"} className={actionClassName}>
-          {action.label}
-        </Link>
-      )}
-    />
-  );
+  const body = <ModuleCardBody {...props} />;
 
-  if (href && !props.actions?.length) {
+  if (href) {
     return (
       <Link href={href} className={mergedClassName}>
         {body}
@@ -33,7 +23,7 @@ export default function ModuleCard({ href, onClick, className = "", ...props }: 
     );
   }
 
-  if (onClick && !props.actions?.length) {
+  if (onClick) {
     return (
       <ActionButton
         onClick={onClick}

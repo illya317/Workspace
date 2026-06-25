@@ -86,10 +86,12 @@ export function OrganizationModePanel({
   positions,
   positionsByDepartment,
   renderSide,
+  sideOpen,
   canEdit,
   onDrawerOpenChange,
   onOpenPositionDetails,
   onSelectPosition,
+  onSideOpenChange,
   onUnsavedChange,
   onReload,
 }: {
@@ -101,10 +103,12 @@ export function OrganizationModePanel({
   positions: Position[];
   positionsByDepartment: Map<number, Position[]>;
   renderSide: (mode: "desktop" | "drawer") => ReactNode;
+  sideOpen: boolean;
   canEdit: boolean;
   onDrawerOpenChange: (open: boolean) => void;
   onOpenPositionDetails?: (positionId: number) => void;
   onSelectPosition: (position: Position) => void;
+  onSideOpenChange: (open: boolean) => void;
   onUnsavedChange?: (dirty: boolean) => void;
   onReload: () => Promise<void>;
 }) {
@@ -274,12 +278,11 @@ export function OrganizationModePanel({
   return (
     <>
       <WorkspaceSplitPage
-        sideOpen
+        sideOpen={sideOpen}
         sideLabel="全部部门层级"
-        onSideOpenChange={() => undefined}
+        onSideOpenChange={onSideOpenChange}
         drawerOpen={drawerOpen}
         onDrawerOpenChange={onDrawerOpenChange}
-        showSideControls={false}
         contentClassName="!max-w-none !px-0 !py-0"
         renderSide={renderSide}
       >

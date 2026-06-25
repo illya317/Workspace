@@ -49,7 +49,7 @@ export function PositionCreatePanel({
       submitting={saving}
       className={className}
     >
-      <FormField label="部门" required layout="inline" className="w-auto max-w-full">
+      <FormField label="部门" required className="w-auto max-w-full">
         {positionDepartmentReadOnly ? (
           <TextField
             value={readOnlyDepartmentName}
@@ -67,7 +67,7 @@ export function PositionCreatePanel({
           />
         )}
       </FormField>
-      <FormField label="岗位名" required layout="inline" className="w-auto">
+      <FormField label="岗位名" required className="w-auto">
         <TextField
           value={createPositionDraft.name}
           onChange={(next) => setCreatePositionDraft((prev) => ({ ...prev, name: next }))}
@@ -75,7 +75,7 @@ export function PositionCreatePanel({
           className={compactFormInputClassName}
         />
       </FormField>
-      <FormField label="编码" required layout="inline" className="w-auto">
+      <FormField label="编码" required className="w-auto">
         <TextField
           value={createPositionCode}
           disabled

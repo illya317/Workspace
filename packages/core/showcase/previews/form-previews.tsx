@@ -5,7 +5,7 @@ import {
   AutoSizeTextField, BlockCreatePanel, CalendarDateInput, CheckboxChip, CheckboxField, ChoiceGroup,
   CreateConfirmActions, CreateStartButton, FileField, FormField, FormShell, HiddenDataField,
   InlineCreatePanel, RemovableTag, RatingControl, SearchInput, SelectField, SwitchField,
-  TagPillButton, TagRemoveButton, TextField, TextareaField, TimeField,
+  TagPill, TagPillButton, TagRemoveButton, TextField, TextareaField, TimeField,
 } from "@workspace/core/ui";
 
 function AutoSizeTextFieldPreview() {
@@ -50,7 +50,7 @@ function CheckboxFieldPreview() {
 function ChoiceGroupPreview() { const [value, setValue] = useState<string | null>(null); return <ChoiceGroup value={value ?? "yes"} options={["是", "否"]} onChange={(v) => setValue(v)} />; }
 
 function CreateConfirmActionsPreview() {
-  return <div className="flex flex-wrap items-center gap-3"><CreateConfirmActions onSubmit={() => {}} onCancel={() => {}} /><CreateConfirmActions onSubmit={() => {}} onCancel={() => {}} order="cancel-first" submitDisabled /></div>;
+  return <div className="flex flex-wrap items-center gap-3"><CreateConfirmActions onSubmit={() => {}} onCancel={() => {}} /><CreateConfirmActions onSubmit={() => {}} onCancel={() => {}} submitDisabled /></div>;
 }
 
 function CreateStartButtonPreview() {
@@ -79,13 +79,19 @@ function FormFieldPreview() {
   const [value, setValue] = useState("");
   return (
     <div className="flex flex-col gap-4">
-      <div className="max-w-xs space-y-3">
-        <FormField label="堆叠布局" required hint="这是提示文案"><TextField value={value} onChange={setValue} placeholder="请输入" className="w-full" /></FormField>
-        <FormField label="错误态" error="字段不能为空"><TextField value="" onChange={() => {}} placeholder="请输入" className="w-full" /></FormField>
+      <div>
+        <p className="mb-2 text-xs font-medium text-slate-400">标签在上（stacked）</p>
+        <div className="max-w-xs space-y-3">
+          <FormField label="堆叠布局" required hint="这是提示文案"><TextField value={value} onChange={setValue} placeholder="请输入" className="w-full" /></FormField>
+          <FormField label="错误态" error="字段不能为空"><TextField value="" onChange={() => {}} placeholder="请输入" className="w-full" /></FormField>
+        </div>
       </div>
-      <div className="flex flex-wrap items-center gap-3">
-        <FormField label="行内布局" layout="inline"><SelectField value="all" onChange={() => {}} options={[{ value: "all", label: "全部" }, { value: "active", label: "进行中" }]} /></FormField>
-        <FormField label="状态" layout="inline" hint="筛选状态"><SelectField value="active" onChange={() => {}} options={[{ value: "active", label: "现用" }, { value: "archived", label: "已归档" }]} /></FormField>
+      <div>
+        <p className="mb-2 text-xs font-medium text-slate-400">标签在左（inline）</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <FormField label="行内布局" layout="inline"><TextField value={value} onChange={setValue} placeholder="请输入" /></FormField>
+          <FormField label="状态" layout="inline" hint="筛选状态"><SelectField value="active" onChange={() => {}} options={[{ value: "active", label: "现用" }, { value: "archived", label: "已归档" }]} /></FormField>
+        </div>
       </div>
     </div>
   );
@@ -126,8 +132,8 @@ function InlineCreatePanelPreview() {
   return (
     <div className="max-w-2xl">
       <InlineCreatePanel title="新增员工" onSubmit={() => setSubmitted(name || "（空）")} onCancel={() => { setName(""); setSubmitted(null); }}>
-        <FormField label="姓名" required><TextField value={name} onChange={setName} placeholder="输入姓名" className="w-40" /></FormField>
-        <FormField label="部门"><SelectField value="" onChange={() => {}} options={[{ value: "", label: "请选择" }, { value: "hr", label: "人力资源" }, { value: "it", label: "信息技术" }]} className="w-40" /></FormField>
+        <FormField label="姓名" required><TextField value={name} onChange={setName} placeholder="输入姓名" /></FormField>
+        <FormField label="部门"><SelectField value="" onChange={() => {}} options={[{ value: "", label: "请选择" }, { value: "hr", label: "人力资源" }, { value: "it", label: "信息技术" }]} /></FormField>
       </InlineCreatePanel>
       {submitted && <p className="mt-2 text-xs text-slate-500">尝试创建：{submitted}</p>}
     </div>
@@ -153,6 +159,8 @@ function SelectFieldPreview() {
 }
 
 function SwitchFieldPreview() { const [boolValue, setBoolValue] = useState<boolean>(false); return <SwitchField checked={boolValue} onChange={setBoolValue} ariaLabel="启用开关" />; }
+
+function TagPillPreview() { return <div className="flex flex-wrap items-center gap-2"><TagPill>短标签</TagPill><TagPill>超过八个字符的长文本标签</TagPill><TagPill maxLength={12}>自定义截断长度标签示例</TagPill></div>; }
 
 function TagPillButtonPreview() { return <div className="flex flex-wrap items-center gap-2"><TagPillButton onClick={() => {}}>可点击标签</TagPillButton><TagPillButton onClick={() => {}}>长文本标签会自动省略显示</TagPillButton><TagPillButton onClick={() => {}} disabled>禁用标签</TagPillButton></div>; }
 
@@ -182,7 +190,7 @@ export const formPreviewByName: Record<string, FC> = {
   getTagInputShellClassName: getTagInputShellClassNamePreview, getTagInlineInputClassName: getTagInlineInputClassNamePreview,
   getTagPillClassName: getTagPillClassNamePreview, HiddenDataField: HiddenDataFieldPreview, InlineCreatePanel: InlineCreatePanelPreview,
   RemovableTag: RemovableTagPreview, RatingControl: RatingControlPreview, SearchInput: SearchInputPreview,
-  SelectField: SelectFieldPreview, SwitchField: SwitchFieldPreview, TagPillButton: TagPillButtonPreview,
+  SelectField: SelectFieldPreview, SwitchField: SwitchFieldPreview, TagPill: TagPillPreview, TagPillButton: TagPillButtonPreview,
   TagRemoveButton: TagRemoveButtonPreview, TextareaField: TextareaFieldPreview, TextField: TextFieldPreview,
   TimeField: TimeFieldPreview,
 };

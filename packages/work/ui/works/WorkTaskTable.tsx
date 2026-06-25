@@ -8,7 +8,6 @@ import {
   Badge,
   TableScrollFrame,
   createDataTableEditActions,
-  isDataTableEditDirty,
   type DataTableColumn,
 } from "@workspace/core/ui";
 import { createWorkDraft, getStatusLabel, getWorkItemTypeLabel, getWorkPeriodLabel, getWorkSourceTypeLabel } from "./model";
@@ -255,7 +254,6 @@ function createColumns({
       render: (work) => {
         const editing = editingId === work.id;
         const canSave = Boolean(editDraft?.content.trim());
-        const dirty = isDataTableEditDirty(createWorkDraft(work), editDraft);
         return (
           <DataTableActionsCell
             actions={[
@@ -264,7 +262,8 @@ function createColumns({
                 editing,
                 canEdit,
                 canSave,
-                dirty,
+                initial: createWorkDraft(work),
+                current: editDraft,
                 saving,
                 editLabel: "编辑工作项",
                 saveLabel: "保存工作项",

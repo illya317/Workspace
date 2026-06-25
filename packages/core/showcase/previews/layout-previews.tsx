@@ -6,6 +6,7 @@ import {
   AnalysisPageFrame,
   DatabasePageFrame,
   EmptyStateCard,
+  getModuleCardClassName,
   MetricCard,
   ModuleCardBody,
   ModuleGridPage,
@@ -63,8 +64,8 @@ function MetricCardPreview() {
 function ModuleCardBodyPreview() {
   return (
     <div className="grid max-w-md grid-cols-2 gap-3">
-      <div className="rounded-lg bg-white p-4 text-center shadow-sm"><ModuleCardBody title="人力资源" description="员工、岗位、部门管理" color="emerald" badge="核心" icon={<span className="text-2xl">👥</span>} actions={[{ label: "进入", onClick: () => {} }]} /></div>
-      <div className="rounded-lg bg-white p-4 text-center shadow-sm"><ModuleCardBody title="财务报表" description="科目、凭证、报表" color="blue" icon={<span className="text-2xl">📊</span>} actions={[{ label: "进入", variant: "secondary", onClick: () => {} }]} /></div>
+      <div className={getModuleCardClassName("emerald")}><ModuleCardBody title="人力资源" description="员工、岗位、部门管理" color="emerald" badge="核心" icon={<svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>} /></div>
+      <div className={getModuleCardClassName("blue")}><ModuleCardBody title="财务报表" description="科目、凭证、报表" color="blue" icon={<svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>} /></div>
     </div>
   );
 }
@@ -73,8 +74,8 @@ function ModuleGridPagePreview() {
   return (
     <div className="max-h-80 overflow-hidden rounded-lg border border-slate-200 bg-gray-50">
       <ModuleGridPage title="工作台" summary="选择要进入的模块" gridClassName="grid-cols-2">
-        <div className="rounded-lg bg-white p-4 text-center shadow-sm"><ModuleCardBody title="人事" icon={<span className="text-2xl">👤</span>} color="emerald" /></div>
-        <div className="rounded-lg bg-white p-4 text-center shadow-sm"><ModuleCardBody title="财务" icon={<span className="text-2xl">💰</span>} color="blue" /></div>
+        <div className={getModuleCardClassName("emerald")}><ModuleCardBody title="人事" icon={<svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 7.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a7.5 7.5 0 0115 0" /></svg>} color="emerald" /></div>
+        <div className={getModuleCardClassName("blue")}><ModuleCardBody title="财务" icon={<svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" strokeWidth="1.5" /><text x="12" y="16.5" textAnchor="middle" fontSize="11" fontWeight="700" fill="currentColor" stroke="none">¥</text></svg>} color="blue" /></div>
       </ModuleGridPage>
     </div>
   );

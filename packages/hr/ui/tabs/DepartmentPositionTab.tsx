@@ -333,9 +333,11 @@ export default function DepartmentPositionTab({
         positions={positions}
         positionsByDepartment={positionsByDepartment}
         renderSide={renderTreePanel}
+        sideOpen={treeOpen}
         onDrawerOpenChange={setTreeDrawerOpen}
         onOpenPositionDetails={onOpenPositionDetails}
         onSelectPosition={(position) => selectItem({ type: "position", id: position.id })}
+        onSideOpenChange={setTreeOpen}
         onUnsavedChange={onUnsavedChange}
         onReload={loadData}
       />
@@ -360,9 +362,9 @@ export default function DepartmentPositionTab({
       </div>
 
       <DepartmentPositionActiveWorkspace
-        sideOpen={true}
+        sideOpen={treeOpen}
         drawerOpen={treeDrawerOpen}
-        onSideOpenChange={() => {}}
+        onSideOpenChange={setTreeOpen}
         onDrawerOpenChange={setTreeDrawerOpen}
         renderSide={renderTreePanel}
       >

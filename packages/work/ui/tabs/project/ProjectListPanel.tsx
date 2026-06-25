@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  EmptyStateCard,
-  PanelCard,
-  SelectorCard,
-  type SplitWorkspaceMode,
-} from "@workspace/core/ui";
+import { SelectorPanel, type SplitWorkspaceMode } from "@workspace/core/ui";
 import { projectCode, type ProjectItem, type ProjectListFilter } from "./model";
 
 export default function ProjectListPanel({
@@ -22,24 +17,21 @@ export default function ProjectListPanel({
   onSelect: (projectId: number) => void;
 }) {
   return (
-    <PanelCard
+    <SelectorPanel
       className={mode === "drawer" ? "h-full overflow-hidden" : ""}
-      bodyClassName={`${mode === "drawer" ? "h-full" : "max-h-[760px]"} space-y-2 overflow-auto p-3`}
-    >
-      {projects.map((project) => (
-        <SelectorCard
-          key={project.id}
-          title={<ProjectTitle name={project.name} status={project.status} />}
-          subtitle={projectCode(project, null)}
-          active={selection === project.id}
-          archived={project.isArchived}
-          onClick={() => onSelect(project.id)}
-        />
-      ))}
-      {projects.length === 0 && (
-        <EmptyStateCard compact>{emptyTextForFilter(filter)}</EmptyStateCard>
-      )}
-    </PanelCard>
+      bodyClassName={`${mode === "drawer" ? "h-full" : "max-h-[760px]"} overflow-auto p-3`}
+      contentClassName="space-y-2"
+      items={projects}
+      selectedId={selection}
+      onSelect={(project) => onSelect(project.id)}
+      getKey={(project) => project.id}
+      renderItem={(project) => ({
+        title: <ProjectTitle name={project.name} status={project.status} />,
+        subtitle: projectCode(project, null),
+        archived: project.isArchived,
+      })}
+      emptyText={emptyTextForFilter(filter)}
+    />
   );
 }
 

@@ -1,7 +1,7 @@
 import { requireRouteAccess } from "@workspace/platform/server/auth";
-import { DocsPositionsIndex } from "@workspace/platform/ui/docs";
+import { DocsPositionsPage } from "@workspace/platform/ui/docs";
 
-export default async function DocsPositionsPage() {
+export default async function DocsPositionsRoute() {
   const user = await requireRouteAccess("/docs/positions");
-  return <DocsPositionsIndex user={user} />;
+  return <DocsPositionsPage user={user} />;
 }

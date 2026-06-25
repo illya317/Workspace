@@ -13,8 +13,7 @@ export { default as PortalClient } from "./PortalClient";
 export { default as UserMenu } from "./UserMenu";
 export {
   DocsPlaceholderPage,
-  DocsPositionsIndex,
-  GmpPositionDetailPage,
-  GmpPositionsPage,
+  DocsPositionsPage,
+  DocsPositionDetailPage,
 } from "./docs";
 export { SettingsClient } from "./settings";

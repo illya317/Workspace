@@ -272,12 +272,11 @@ export default function EmployeeDirectory({
           submitDisabled={creating || !newEmployeeName.trim()}
           submitting={creating}
         >
-          <FormField label="姓名" required layout="inline" className="w-44 max-w-full">
+          <FormField label="姓名" required className="w-44 max-w-full">
             <TextField
               value={newEmployeeName}
               onChange={setNewEmployeeName}
               placeholder="输入姓名"
-              className="h-10"
             />
           </FormField>
         </InlineCreatePanel>

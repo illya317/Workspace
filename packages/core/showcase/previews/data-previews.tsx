@@ -96,17 +96,7 @@ function createDataTableEditActionsPreview() {
   return (
     <div className="text-xs text-slate-400">
       <p className="font-medium">createDataTableEditActions</p>
-      <p>DataTable 行编辑动作工厂，统一详情、编辑、保存、取消和删除动作组合。</p>
-      <p className="mt-1 text-slate-300">Hook / 工具函数，无组件级实时预览。</p>
-    </div>
-  );
-}
-
-function isDataTableEditDirtyPreview() {
-  return (
-    <div className="text-xs text-slate-400">
-      <p className="font-medium">isDataTableEditDirty</p>
-      <p>DataTable 行编辑 dirty 判断工具，和 createDataTableEditActions 配套使用。</p>
+      <p>DataTable 行编辑动作工厂，统一编辑、保存、取消动作组合；传入 initial/current 后自动判断 dirty。</p>
       <p className="mt-1 text-slate-300">Hook / 工具函数，无组件级实时预览。</p>
     </div>
   );
@@ -256,7 +246,6 @@ export const dataPreviewByName: Record<string, FC> = {
   DataTable: DataTablePreview,
   DataTableActionsCell: DataTableActionsCellPreview,
   createDataTableEditActions: createDataTableEditActionsPreview,
-  isDataTableEditDirty: isDataTableEditDirtyPreview,
   DisclosureRecordCard: DisclosureRecordCardPreview,
   RegistryBrowserCard: RegistryBrowserCardPreview,
   StructuredTable: StructuredTablePreview,

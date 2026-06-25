@@ -1,16 +1,8 @@
 import type { ReactNode } from "react";
 import PageContent from "./PageContent";
-import { getToolbarActionClassName } from "./ActionControls";
 import { joinClassNames } from "./card-utils";
 
 export type ModuleCardColor = "emerald" | "blue" | "indigo" | "purple" | "amber" | "cyan" | "orange" | string;
-
-export interface ModuleCardAction {
-  label: string;
-  href?: string;
-  onClick?: () => void;
-  variant?: "primary" | "secondary";
-}
 
 export interface ModuleCardProps {
   title: string;
@@ -20,7 +12,6 @@ export interface ModuleCardProps {
   href?: string;
   onClick?: () => void;
   badge?: string;
-  actions?: ModuleCardAction[];
   className?: string;
 }
 
@@ -43,9 +34,7 @@ export function getModuleCardClassName(color: ModuleCardColor = "emerald", class
   );
 }
 
-export interface ModuleCardBodyProps extends Omit<ModuleCardProps, "href" | "onClick" | "className"> {
-  renderActionLink?: (action: ModuleCardAction, className: string) => ReactNode;
-}
+export type ModuleCardBodyProps = Omit<ModuleCardProps, "href" | "onClick" | "className">;
 
 export function ModuleCardBody({
   title,
@@ -53,13 +42,11 @@ export function ModuleCardBody({
   icon,
   color = "emerald",
   badge,
-  actions = [],
-  renderActionLink,
 }: ModuleCardBodyProps) {
   const colorClass = moduleCardColorClasses[color] || moduleCardColorClasses.emerald;
 
   return (
-    <>
+    <div className="flex flex-col items-center justify-center text-center">
       <div className={joinClassNames("mb-3 flex h-12 w-12 items-center justify-center rounded-full [&>svg]:h-6 [&>svg]:w-6", colorClass.icon)}>
         {icon}
       </div>
@@ -71,33 +58,8 @@ export function ModuleCardBody({
           </span>
         )}
       </div>
-      {description && <p className="mt-1.5 text-xs leading-5 text-gray-500">{description}</p>}
-      {actions.length > 0 && (
-        <div className="mt-5 flex flex-wrap justify-center gap-2">
-          {actions.map((action) => {
-            const actionClass = getToolbarActionClassName(action.variant ?? "primary");
-
-            if (action.href && renderActionLink) {
-              return <span key={action.label}>{renderActionLink(action, actionClass)}</span>;
-            }
-
-            if (action.href) {
-              return (
-                <a key={action.label} href={action.href} className={actionClass}>
-                  {action.label}
-                </a>
-              );
-            }
-
-            return (
-              <button key={action.label} type="button" onClick={action.onClick} className={actionClass}>
-                {action.label}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </>
+      {description && <p className="mt-1.5 text-center text-xs leading-5 text-gray-500">{description}</p>}
+    </div>
   );
 }
 

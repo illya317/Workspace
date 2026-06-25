@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { matchText } from "../search";
 import PickerShell from "./PickerShell";
+import { PickerOptionButton } from "./PickerParts";
 import SearchInput from "./SearchInput";
 
 export interface PickerOption {
@@ -42,7 +43,7 @@ function uniqOptions(options: PickerOption[]) {
   return next;
 }
 
-const pickerOptionTextClassName = "text-xs font-medium leading-5";
+const optionButtonClassName = "whitespace-nowrap";
 
 export default function OptionPicker({
   value,
@@ -129,27 +130,24 @@ export default function OptionPicker({
             {(!placeholderInGrid || hasExplicitEmptyOption || moreOptions.length > 0) && (
               <div className="mb-2 flex items-center justify-between gap-2">
                 {(!placeholderInGrid || hasExplicitEmptyOption) && (
-                  <button
-                    type="button"
+                  <PickerOptionButton
+                    variant="placeholder"
+                    selected={isUnset}
+                    size="compact"
                     onClick={() => choose(null)}
-                    className={`whitespace-nowrap rounded-md border px-2.5 py-1.5 transition ${pickerOptionTextClassName} ${isUnset ? "border-slate-300 bg-slate-100 text-slate-900" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
                   >
                     {placeholder}
-                  </button>
+                  </PickerOptionButton>
                 )}
-              {moreOptions.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setShowMore((next) => !next)}
-                  className={`whitespace-nowrap rounded-md border px-2.5 py-1.5 transition ${pickerOptionTextClassName} ${
-                    showMore
-                      ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                  }`}
-                >
-                  更多
-                </button>
-              )}
+                {moreOptions.length > 0 && (
+                  <PickerOptionButton
+                    selected={showMore}
+                    size="compact"
+                    onClick={() => setShowMore((next) => !next)}
+                  >
+                    更多
+                  </PickerOptionButton>
+                )}
               </div>
             )}
 
@@ -158,23 +156,19 @@ export default function OptionPicker({
               style={{ gridTemplateColumns: `repeat(${visibleGridColumnCount}, max-content)` }}
             >
               {gridOptions.map((option) => {
-                const selected = !isUnset && option.value === current;
-                const selectedUnset = isUnset && option.value === "";
+                const isPlaceholderOption = option.value === "";
+                const selected = isPlaceholderOption ? isUnset : !isUnset && option.value === current;
                 return (
-                  <button
+                  <PickerOptionButton
                     key={option.value}
-                    type="button"
-                    onClick={() => choose(option.value || null)}
-                    className={`min-w-0 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center transition ${pickerOptionTextClassName} ${
-                      selected || selectedUnset
-                        ? option.value === ""
-                          ? "border-slate-300 bg-slate-100 text-slate-900"
-                          : "border-emerald-500 bg-emerald-50 text-emerald-700"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-                    }`}
+                    variant={isPlaceholderOption ? "placeholder" : "default"}
+                    selected={selected}
+                    size="compact"
+                    className={optionButtonClassName}
+                    onClick={() => choose(isPlaceholderOption ? null : option.value)}
                   >
                     {option.label}
-                  </button>
+                  </PickerOptionButton>
                 );
               })}
             </div>
@@ -196,18 +190,15 @@ export default function OptionPicker({
                     {filteredMore.map((option) => {
                       const selected = !isUnset && option.value === current;
                       return (
-                        <button
+                        <PickerOptionButton
                           key={option.value}
-                          type="button"
+                          selected={selected}
+                          size="compact"
+                          className={optionButtonClassName}
                           onClick={() => choose(option.value)}
-                          className={`min-w-0 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center transition ${pickerOptionTextClassName} ${
-                            selected
-                              ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                              : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-                          }`}
                         >
                           {option.label}
-                        </button>
+                        </PickerOptionButton>
                       );
                     })}
                   </div>
