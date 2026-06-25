@@ -35,3 +35,17 @@ export function buildComponentNestDepthMap(componentNames: readonly string[]): M
   }
   return nestDepthByName;
 }
+
+export const NEST_DEPTH_CAP = 6;
+
+export function formatNestDepth(depth: number): string {
+  if (depth >= NEST_DEPTH_CAP) return `${NEST_DEPTH_CAP}+`;
+  return String(depth);
+}
+
+export function nestDepthBadgeClasses(depth: number): string {
+  if (depth === 1) return "bg-slate-100 text-slate-600";
+  if (depth === 2) return "bg-blue-50 text-blue-700";
+  if (depth === 3) return "bg-emerald-50 text-emerald-700";
+  return "bg-amber-50 text-amber-700";
+}

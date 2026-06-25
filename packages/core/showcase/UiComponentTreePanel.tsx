@@ -8,19 +8,16 @@ import {
   coreUiComponentKindMeta,
   coreUiComponentTierMeta,
 } from "@workspace/core/ui/component-registry";
+import {
+  formatNestDepth,
+  nestDepthBadgeClasses,
+} from "@workspace/core/ui/component-nest-depth";
 import type { CoreUiComponentTreeNode } from "@workspace/core/ui/component-registry-view";
 
 export type UiComponentTreeMetaKey = "kind" | "tier" | "usedBy" | "files" | "verified";
 
 function nodeId(name: string) {
   return `ui-component-root-${name}`;
-}
-
-function nestDepthBadgeClasses(depth: number) {
-  if (depth === 1) return "bg-slate-100 text-slate-600";
-  if (depth === 2) return "bg-blue-50 text-blue-700";
-  if (depth === 3) return "bg-emerald-50 text-emerald-700";
-  return "bg-amber-50 text-amber-700";
 }
 
 function buildMeta(node: CoreUiComponentTreeNode, visibleMeta: readonly string[]) {
@@ -56,8 +53,11 @@ function TreeNodeView({
       title={(
         <span className="flex items-center gap-2">
           <span className="truncate">{node.name}</span>
-          <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${nestDepthBadgeClasses(node.nestDepth)}`}>
-            套 {node.nestDepth} 层
+          <span
+            className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${nestDepthBadgeClasses(node.nestDepth)}`}
+            title={`向下组合最大嵌套 ${node.nestDepth} 层`}
+          >
+            {formatNestDepth(node.nestDepth)}
           </span>
         </span>
       )}
