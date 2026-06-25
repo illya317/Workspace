@@ -125,12 +125,14 @@ export default function UiComponentsShowcase({
       if (verifiedFilter === "verified" && !node.verified) return false;
       if (verifiedFilter === "unverified" && node.verified) return false;
       if (!keyword) return true;
+      const usageFiles = usageFilesByName.get(node.name) ?? [];
       return matchText(node.name, keyword)
         || matchText(node.component.description, keyword)
         || matchText(coreUiComponentKindMeta[node.kind].label, keyword)
-        || matchText(coreUiComponentTierMeta[node.tier].label, keyword);
+        || matchText(coreUiComponentTierMeta[node.tier].label, keyword)
+        || usageFiles.some((file) => matchText(file, keyword));
     });
-  }, [filterFieldKey, filterValue, query, treeRoots, verifiedFilter]);
+  }, [filterFieldKey, filterValue, query, treeRoots, usageFilesByName, verifiedFilter]);
 
   const visibleRoots = filteredRoots.slice(0, pageSize);
   const selectedComponent = componentByName.get(selectedName) ?? null;

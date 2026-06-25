@@ -66,7 +66,6 @@ function TreeNodeView({
           </span>
         </span>
       )}
-      level={node.depth}
       active={selectedName === node.name}
       meta={buildMeta(node, visibleMeta)}
       showToggle={canShowChildren}
