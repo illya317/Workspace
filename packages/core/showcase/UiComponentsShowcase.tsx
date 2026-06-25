@@ -16,6 +16,7 @@ import { getCoreUiCompositionGraph } from "@workspace/core/ui/component-registry
 import type { CoreUiComponentRegistration, CoreUiComponentTier } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import { ComponentPreview } from "./ComponentPreview";
+import FullToolbarDemo from "./FullToolbarDemo";
 import { previewCaseByName } from "./previews";
 
 const TIER_LABELS: Record<CoreUiComponentTier, string> = {
@@ -223,6 +224,7 @@ export default function UiComponentsShowcase() {
   return (
     <PageContent className="max-w-6xl py-8">
       <Toolbar items={toolbarItems} className="mb-5" />
+      <FullToolbarDemo />
 
       <div className="mt-5 columns-1 gap-4 md:columns-2">
         {filteredItems.map((component) => {
