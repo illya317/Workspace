@@ -105,6 +105,50 @@ copy_runtime_package() {
   cp -R "node_modules/$pkg" ".next/standalone/node_modules/$pkg"
 }
 
+copy_runtime_package_tree() {
+  node - "$@" <<'NODE' | while IFS= read -r pkg; do
+const fs = require("fs");
+const path = require("path");
+
+const root = process.cwd();
+const roots = process.argv.slice(2);
+const seen = new Set();
+
+function packageDir(name) {
+  if (name.startsWith("@")) {
+    return path.join(root, "node_modules", ...name.split("/"));
+  }
+  return path.join(root, "node_modules", name);
+}
+
+function walk(name, optional = false) {
+  if (seen.has(name)) return;
+  const packageJson = path.join(packageDir(name), "package.json");
+  if (!fs.existsSync(packageJson)) {
+    if (optional) return;
+    throw new Error(`Missing runtime dependency: ${name}`);
+  }
+  seen.add(name);
+  const pkg = JSON.parse(fs.readFileSync(packageJson, "utf8"));
+  for (const dependency of Object.keys(pkg.dependencies || {})) {
+    walk(dependency);
+  }
+  for (const dependency of Object.keys(pkg.optionalDependencies || {})) {
+    walk(dependency, true);
+  }
+}
+
+for (const name of roots) {
+  walk(name);
+}
+for (const name of [...seen].sort()) {
+  console.log(name);
+}
+NODE
+    copy_runtime_package "$pkg"
+  done
+}
+
 copy_prisma_deploy_files() {
   echo "==> 打包 Prisma schema、migrations 和 CLI..."
   test -f prisma.config.ts
@@ -229,9 +273,7 @@ build_artifact() {
   # Next standalone tracing can leave native/runtime packages as partial shells.
   # Keep the SQLite adapter stack complete so production does not depend on
   # bundler internals for database access.
-  for pkg in better-sqlite3 @prisma/adapter-better-sqlite3 @prisma/client dotenv; do
-    copy_runtime_package "$pkg"
-  done
+  copy_runtime_package_tree better-sqlite3 @prisma/adapter-better-sqlite3 @prisma/client dotenv
   copy_prisma_deploy_files
   copy_resource_seed_files
 
