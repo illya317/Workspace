@@ -3,12 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   DataTable,
-  DataTableActionsCell,
   EmptyStateCard,
   Badge,
   TableScrollFrame,
-  createDataTableEditActions,
   type DataTableColumn,
+  type DataTableRowEditActionConfig,
 } from "@workspace/core/ui";
 import { createWorkDraft, getStatusLabel, getWorkItemTypeLabel, getWorkPeriodLabel, getWorkSourceTypeLabel } from "./model";
 import { WorkTaskDetail } from "./WorkTaskDetail";
@@ -77,10 +76,6 @@ export default function WorkTaskTable({
   }, [works]);
 
   const columns = createColumns({
-    canEdit,
-    saving,
-    editingId,
-    editDraft,
     showOwner,
     expandedIds,
     onToggleExpand: (work) => {
@@ -91,10 +86,6 @@ export default function WorkTaskTable({
         return next;
       });
     },
-    onEdit,
-    onSave,
-    onCancelEdit,
-    onDelete,
   });
 
   if (!loading && tree.rows.length === 0) {
@@ -124,35 +115,45 @@ export default function WorkTaskTable({
             onChange={onEditDraftChange}
           />
         ) : <WorkTaskDetail work={work} />}
+        rowEditActions={(work): DataTableRowEditActionConfig<TreeRow> => ({
+          editing: editingId === work.id,
+          canEdit,
+          canSave: Boolean(editDraft?.content.trim()),
+          initial: createWorkDraft(work),
+          current: editDraft,
+          saving,
+          editLabel: "编辑工作项",
+          saveLabel: "保存工作项",
+          cancelLabel: "取消编辑",
+          onEdit,
+          onSave,
+          onCancel: onCancelEdit,
+        })}
+        rowActions={(work) => {
+          if (!canEdit || editingId === work.id) return [];
+          return [
+            {
+              key: "delete",
+              kind: "delete",
+              label: "删除工作项",
+              onClick: () => onDelete(work),
+              disabled: saving,
+            },
+          ];
+        }}
       />
     </TableScrollFrame>
   );
 }
 
 function createColumns({
-  canEdit,
-  saving,
-  editingId,
-  editDraft,
   showOwner,
   expandedIds,
   onToggleExpand,
-  onEdit,
-  onSave,
-  onCancelEdit,
-  onDelete,
 }: {
-  canEdit: boolean;
-  saving: boolean;
-  editingId: number | null;
-  editDraft: WorkItemDraft | null;
   showOwner: boolean;
   expandedIds: Set<number>;
   onToggleExpand: (work: TreeRow) => void;
-  onEdit: (work: WorkItem) => void;
-  onSave: () => void;
-  onCancelEdit: () => void;
-  onDelete: (work: WorkItem) => void;
 }): DataTableColumn<TreeRow>[] {
   return [
     {
@@ -245,45 +246,7 @@ function createColumns({
       cellClassName: "min-w-48 max-w-72",
       render: (work) => <SourceCell work={work} />,
     },
-    {
-      key: "actions",
-      label: "操作",
-      required: true,
-      headerClassName: "w-36",
-      cellClassName: "w-36",
-      render: (work) => {
-        const editing = editingId === work.id;
-        const canSave = Boolean(editDraft?.content.trim());
-        return (
-          <DataTableActionsCell
-            actions={[
-              ...createDataTableEditActions({
-                row: work,
-                editing,
-                canEdit,
-                canSave,
-                initial: createWorkDraft(work),
-                current: editDraft,
-                saving,
-                editLabel: "编辑工作项",
-                saveLabel: "保存工作项",
-                cancelLabel: "取消编辑",
-                onEdit,
-                onSave,
-                onCancel: onCancelEdit,
-              }),
-              ...(canEdit && !editing ? [{
-                key: "delete",
-                kind: "delete",
-                label: "删除工作项",
-                onClick: () => onDelete(work),
-                disabled: saving,
-              } as const] : []),
-            ]}
-          />
-        );
-      },
-    },
+
   ];
 }
 

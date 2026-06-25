@@ -1,16 +1,15 @@
 "use client";
 
 import {
+  CalendarDateInput,
   FormField,
   OptionPicker,
+  ReadOnlyField,
   TextField,
-  getFieldInputClassName,
-  getReadOnlyFieldClassName,
   type PickerOption,
 } from "@workspace/core/ui";
-import CalendarDateInput from "@workspace/core/ui/CalendarDateInput";
 
-const inputClassName = getFieldInputClassName("h-10");
+const inputClassName = "h-10";
 const pickerButtonClassName = `${inputClassName} text-left`;
 const pickerPopoverClassName = "absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-72 rounded-lg border border-slate-200 bg-white p-3 shadow-xl";
 
@@ -42,7 +41,6 @@ export function PercentField({
             onChange(Number.isFinite(number) ? number : value ?? null);
           }}
           className={`${inputClassName} rounded-r-none`}
-          unstyled
         />
         <span className="flex h-10 w-12 items-center justify-center rounded-r-md border border-l-0 border-sky-200 bg-slate-50 text-sm font-semibold text-slate-500 shadow-sm">%</span>
       </div>
@@ -93,14 +91,13 @@ export function ParentProjectField({ value, disabled, onClick }: { value: string
 export function LinkedInfoField({ label, value, disabled, onClick }: { label: string; value: string; disabled: boolean; onClick: () => void }) {
   return (
     <FormField label={label}>
-      <button
-        type="button"
+      <ReadOnlyField
         disabled={disabled}
         onClick={onClick}
-        className={getReadOnlyFieldClassName("h-10 w-full truncate text-left font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-white hover:text-sky-700 disabled:cursor-default disabled:text-slate-500 disabled:hover:border-sky-200 disabled:hover:bg-sky-50")}
+        className="h-10 w-full truncate text-left font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-white hover:text-sky-700 disabled:cursor-default disabled:text-slate-500 disabled:hover:border-sky-200 disabled:hover:bg-sky-50"
       >
         {value}
-      </button>
+      </ReadOnlyField>
     </FormField>
   );
 }
@@ -108,12 +105,7 @@ export function LinkedInfoField({ label, value, disabled, onClick }: { label: st
 export function ReadOnlyInfoField({ label, value }: { label: string; value: string }) {
   return (
     <FormField label={label}>
-      <TextField
-        value={value}
-        readOnly
-        className={getReadOnlyFieldClassName("h-10 cursor-default text-slate-600")}
-        unstyled
-      />
+      <ReadOnlyField value={value} className="h-10 cursor-default text-slate-600" />
     </FormField>
   );
 }

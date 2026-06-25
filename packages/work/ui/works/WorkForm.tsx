@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FormField, PanelCard, RatingControl, TextField, Toolbar, type ToolbarItem } from "@workspace/core/ui";
-import SelectField from "@workspace/core/ui/SelectField";
+import { FormField, PanelCard, RatingControl, SelectField, TextField, Toolbar, type ToolbarItem } from "@workspace/core/ui";
 import type { WorkItem } from "./types";
 
 export default function WorkForm({

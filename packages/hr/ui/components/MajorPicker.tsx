@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { matchText } from "@workspace/core/search";
-import { PanelCard, SearchInput, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, PanelCard, SearchInput } from "@workspace/core/ui";
 import { HR_MAJOR_OPTIONS, normalizeHrMajorItems, type HRMajorItem } from "@workspace/hr/constants/field-options";
 import type { HrPickerProps } from "./HrPicker";
 function currentMajor(value: unknown): HRMajorItem | undefined {
@@ -64,9 +64,14 @@ export default function MajorPicker({
           {!keyword.trim() ? <div className="px-2 py-1.5 text-xs text-slate-400">输入专业名称搜索</div> : options.length === 0 ? <div className="px-2 py-1.5 text-xs text-slate-400">无匹配专业</div> : <div className="grid grid-cols-3 gap-2">
               {options.map(option => {
           const selected = current?.specialty === option.specialty;
-          return <button type="button" key={`${option.category}-${option.specialty}`} onClick={() => choose(option)} className={[getToolbarActionClassName(), `!h-auto min-w-28 !justify-start !px-2.5 !py-1.5 !text-left ${selected ? "!border-sky-400 !bg-sky-50 !text-sky-800" : "!border-slate-200 !bg-white !text-slate-700 hover:!border-sky-200 hover:!bg-sky-50"}`].filter(Boolean).join(" ")}>
+          return <CommandButton
+                    key={`${option.category}-${option.specialty}`}
+                    onClick={() => choose(option)}
+                    size="sm"
+                    className={`!h-auto min-w-28 !justify-start !px-2.5 !py-1.5 !text-left ${selected ? "!border-sky-400 !bg-sky-50 !text-sky-800" : "!border-slate-200 !bg-white !text-slate-700 hover:!border-sky-200 hover:!bg-sky-50"}`}
+                  >
                     <span className="block truncate font-semibold">{option.specialty}</span>
-                  </button>;
+                  </CommandButton>;
         })}
             </div>}
         </PanelCard>}

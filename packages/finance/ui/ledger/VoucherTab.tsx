@@ -2,11 +2,9 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo } from "react";
-import Toast from "@workspace/core/ui/Toast";
 import { useToast } from "@workspace/core/hooks";
-import { DataTable, getDefaultVisibleColumns, PanelCard, TabBar } from "@workspace/core/ui";
+import { DataTable, Pagination, PanelCard, TabBar, Toast } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
-import { Pagination } from "@workspace/core/ui";
 import { BASE_ITEM_COLUMNS, type VoucherItemRow } from "../components/VoucherItemTable";
 import { useReclassResults } from "./useReclassResults";
 import ReclassReviewView from "../components/ReclassReviewView";
@@ -33,7 +31,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   const [reclassStatus, setReclassStatus] = useState("adjusted");
   const voucherColumns = useMemo(() => getVoucherColumns(expandedVoucherId), [expandedVoucherId]);
   const [visibleColumns, setVisibleColumns] = useState<string[]>(
-    () => getDefaultVisibleColumns(voucherColumns)
+    () => voucherColumns.filter((c) => c.required || c.defaultVisible).map((c) => c.key)
   );
 
   // 选好公司+年+月后台静默生成重分类结果

@@ -3,7 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
 import { workspacePath } from "@workspace/core/routing";
-import { EmptyStateCard, FormField, FormShell, PanelCard, TextField, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, EmptyStateCard, FormField, FormShell, PanelCard, TextField } from "@workspace/core/ui";
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 function getSafeNextPath() {
   const next = new URLSearchParams(window.location.search).get("next");
@@ -81,18 +81,18 @@ export default function LoginClient() {
 
             {error && <EmptyStateCard compact className="border-red-100 bg-red-50 text-red-600">{error}</EmptyStateCard>}
 
-            <button type="submit" disabled={loading} className={[getToolbarActionClassName("primary"), "w-full justify-center"].filter(Boolean).join(" ")}>
+            <CommandButton type="submit" variant="primary" disabled={loading} className="w-full justify-center">
               {loading ? "登录中..." : "登录"}
-            </button>
+            </CommandButton>
         </FormShell>
         <div className="my-5 flex items-center gap-3 text-xs text-gray-400">
           <span className="h-px flex-1 bg-gray-200" />
           <span>或</span>
           <span className="h-px flex-1 bg-gray-200" />
         </div>
-        <button type="button" onClick={handleWecomLogin} className={[getToolbarActionClassName(), "w-full justify-center border-emerald-200 text-emerald-700 hover:bg-emerald-50"].filter(Boolean).join(" ")}>
+        <CommandButton onClick={handleWecomLogin} className="w-full justify-center border-emerald-200 text-emerald-700 hover:bg-emerald-50">
           企业微信登录
-        </button>
+        </CommandButton>
       </PanelCard>
     </main>;
 }

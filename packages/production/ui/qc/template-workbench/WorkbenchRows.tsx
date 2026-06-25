@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { matchText } from "@workspace/core/search";
-import { PanelCard, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, PanelCard } from "@workspace/core/ui";
 import type { QcTemplateDetail, QcTemplateFeedbackState, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 import {
   feedbackContext,
@@ -31,7 +31,7 @@ export function testMatches(test: QcTemplateTestItem, keyword: string) {
     .some((value) => matchText(String(value ?? ""), keyword));
 }
 
-function RowActionButton({
+function FeedbackCommandButton({
   state,
   children,
   onClick,
@@ -47,14 +47,14 @@ function RowActionButton({
       : "";
   const dotClass = state === "open" ? "bg-red-600" : state === "resolved" ? "bg-emerald-700" : "";
   return (
-    <button
-      type="button"
+    <CommandButton
+      variant="secondary"
       onClick={onClick}
-      className={`${getToolbarActionClassName("secondary")} h-9 px-3 text-xs ${activeClass}`}
+      className={`h-9 px-3 text-xs ${activeClass}`}
     >
       {state && <span className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full align-middle ${dotClass}`} />}
       {children}
-    </button>
+    </CommandButton>
   );
 }
 
@@ -87,8 +87,8 @@ function TemplateRow({
         </div>
       </div>
       <div className="flex shrink-0 gap-2 md:justify-self-end">
-        <RowActionButton state={feedbackState} onClick={onFeedback}>反馈</RowActionButton>
-        <RowActionButton onClick={onPreview}>{previewLoading ? "加载中" : "预览"}</RowActionButton>
+        <FeedbackCommandButton state={feedbackState} onClick={onFeedback}>反馈</FeedbackCommandButton>
+        <FeedbackCommandButton onClick={onPreview}>{previewLoading ? "加载中" : "预览"}</FeedbackCommandButton>
       </div>
     </div>
   );
@@ -181,9 +181,9 @@ export default function StageRows({
         </span>
       }
       actions={
-        <button type="button" onClick={onToggle} className={`${getToolbarActionClassName("secondary", "sm")} px-3 py-1.5 text-sm`}>
+        <CommandButton variant="secondary" size="sm" onClick={onToggle} className="px-3 py-1.5 text-sm">
           {expanded ? "收起" : "展开"} · {stage.tests.length} 个实验项目
-        </button>
+        </CommandButton>
       }
     >
       {expanded && (

@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dispatch, ReactNode, SetStateAction } from "react";
-import { Badge, FormField, MetricCard, PanelCard, TextField, getToolbarActionClassName } from "@workspace/core/ui";
+import { Badge, CommandButton, FormField, MetricCard, PanelCard, TextField } from "@workspace/core/ui";
 import PositionAliasTagsInput from "./PositionAliasTagsInput";
 import { DetailSectionHeader, formInputClassName, readOnlyInputClassName } from "./detail-editors";
 import { DepartmentDescriptionsPanel } from "./department-descriptions-panel";
@@ -81,12 +81,12 @@ export function DepartmentDetailPane({
           <PanelCard bodyClassName="p-4">
             <DetailSectionHeader title="部门信息" meta={<Badge level={selectedDepartment.level} className="shrink-0 px-2 py-0.5 font-semibold" />} actions={<div className="flex items-center gap-2">
                   {canEditDepartment && (departmentDirty || departmentDescriptionDirty) && <span className="text-xs text-amber-600">有未保存修改</span>}
-                  {canEditDepartment && <button type="button" disabled={!canEditDepartment || !departmentDirty && !departmentDescriptionDirty || saving} onClick={() => void saveDepartment()} className={getToolbarActionClassName("primary")}>
+                  {canEditDepartment && <CommandButton variant="primary" disabled={!canEditDepartment || !departmentDirty && !departmentDescriptionDirty || saving} onClick={() => void saveDepartment()}>
                       {saving ? "保存中..." : "保存"}
-                    </button>}
-                  {canEdit && <button type="button" disabled={saving} onClick={() => void onArchiveDepartment(selectedDepartment.id, !showArchived)} className={getToolbarActionClassName()}>
+                    </CommandButton>}
+                  {canEdit && <CommandButton disabled={saving} onClick={() => void onArchiveDepartment(selectedDepartment.id, !showArchived)}>
                       {showArchived ? "恢复" : "归档"}
-                    </button>}
+                    </CommandButton>}
                 </div>} />
             {departmentDraft && <div className="mt-4 space-y-3">
                 <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">

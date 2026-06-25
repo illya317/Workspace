@@ -1,6 +1,6 @@
 "use client";
 
-import { FormField, PanelCard, SelectField, Badge, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, FormField, PanelCard, SelectField, Badge } from "@workspace/core/ui";
 interface DeptBudgetFiltersProps {
   deptFilter: string;
   setDeptFilter: (v: string) => void;
@@ -47,13 +47,13 @@ export default function DeptBudgetFilters({
           label: a
         }))} triggerClassName="min-w-28 px-2 py-1 text-xs" />
         </FormField>
-        {(deptFilter || typeFilter || accountFilter) && <button type="button" onClick={() => {
+        {(deptFilter || typeFilter || accountFilter) && <CommandButton onClick={() => {
         setDeptFilter("");
         setTypeFilter("");
         setAccountFilter("");
-      }} className={[getToolbarActionClassName(), "border-0 px-2 py-1 text-xs shadow-none"].filter(Boolean).join(" ")}>
+      }} className="border-0 px-2 py-1 text-xs shadow-none">
             重置筛选
-          </button>}
+          </CommandButton>}
         <span className="ml-auto text-xs text-gray-400">
           共 {count} 条，合计 {total.toFixed(2)} 万元
         </span>

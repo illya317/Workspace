@@ -94,6 +94,7 @@ export function ToolbarItemRenderer({ item }: { item: ToolbarItem }) {
           disabled={item.disabled}
           onClick={item.onClick}
           className={item.className}
+          iconClassName={item.iconClassName}
         />
       );
     case "search": {

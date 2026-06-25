@@ -25,6 +25,7 @@ export interface OptionPickerProps {
   optionLabel?: string;
   changeGroupLabel?: string;
   formatValueLabel?: (value: string, option?: PickerOption, group?: PickerGroupItem) => string;
+  renderOption?: (option: PickerOption, context: { selected: boolean }) => ReactNode;
   searchPlaceholder?: string;
   commonValues?: string[];
   visibleCount?: number;

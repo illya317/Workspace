@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DetailModal, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DetailModal } from "@workspace/core/ui";
 import type { QcLayoutBlock, QcTemplateTestItem } from "@workspace/production/server/qc";
 import QcLayoutPaper from "../QcLayoutPaper";
 import TemplateInlineFeedback from "./TemplateInlineFeedback";
@@ -70,9 +70,9 @@ export default function TemplatePreviewModal({
     }}>
           <div className="mb-6 grid grid-cols-[1fr_auto] items-start gap-4 text-sm font-semibold text-slate-950">
             <span />
-            <button type="button" onClick={() => setAdvancedMode(current => !current)} className={[getToolbarActionClassName(advancedMode ? "danger" : "primary"), "justify-self-center"].filter(Boolean).join(" ")}>
+            <CommandButton variant={advancedMode ? "danger" : "primary"} onClick={() => setAdvancedMode(current => !current)} className="justify-self-center">
               {advancedMode ? "开发模式" : "预览模式"}
-            </button>
+            </CommandButton>
           </div>
           {selection.kind === "precheck" && <TemplateInlineFeedback selection={selection} onSaved={onSaved}>
               <h3 className="mb-5 text-center text-lg font-semibold text-slate-950">

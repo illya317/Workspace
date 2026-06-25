@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
-import { DataTable, EmptyStateCard, PanelCard, type DataTableColumn, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DataTable, EmptyStateCard, PanelCard, type DataTableColumn } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
 import { useCSV } from "@workspace/core/hooks";
 import { formatFinanceAmount } from "../formatters";
@@ -85,9 +85,9 @@ export default function ReclassTab() {
   const exportCSV = useCSV(`重分类_${companyFilter}_${yearFilter}${monthFilter}.csv`, "科目编码,科目名称,方向,借方余额,贷方余额,净额,说明\n", () => entries.map(e => `"${e.accountCode}","${e.accountName}","${sideLabel(e.fromSide)}",${e.closingDebit},${e.closingCredit},${Math.abs(e.netAmount)},"${e.reason}"`).join("\n"));
   return <div className="space-y-4">
       <FinanceFilters companyFilter={companyFilter} yearFilter={yearFilter} monthFilter={monthFilter} onCompanyChange={setCompanyFilter} onYearChange={setYearFilter} onMonthChange={setMonthFilter} showPageSize={false} extra={<>
-            <button type="button" onClick={exportCSV} disabled={entries.length === 0} title="导出CSV" className={getToolbarActionClassName()}>
+            <CommandButton onClick={exportCSV} disabled={entries.length === 0} title="导出CSV">
               导出CSV
-            </button>
+            </CommandButton>
             <span className="text-xs text-gray-400">{entries.length} 项</span>
           </>} />
 

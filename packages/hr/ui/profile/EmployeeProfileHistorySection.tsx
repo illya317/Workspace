@@ -1,4 +1,4 @@
-import { DataTable, DisclosureRecordCard, EmptyStateCard, type DataTableColumn, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DataTable, DisclosureRecordCard, EmptyStateCard, type DataTableColumn } from "@workspace/core/ui";
 import { SectionShell } from "./ProfileFormControls";
 export interface ProfileHistoryEntry {
   id: number;
@@ -46,7 +46,7 @@ export function HistorySection({
     required: true,
     render: change => <span className="text-slate-900">{change.to}</span>
   }];
-  return <SectionShell title="历史记录" subtitle="记录谁在什么时候修改了哪些字段。" actions={<button type="button" onClick={onRefresh} className={getToolbarActionClassName("secondary")}>刷新</button>} className={className}>
+  return <SectionShell title="历史记录" subtitle="记录谁在什么时候修改了哪些字段。" actions={<CommandButton variant="secondary" onClick={onRefresh}>刷新</CommandButton>} className={className}>
       <div className="space-y-3">
         {loading ? <EmptyStateCard compact>正在加载历史记录...</EmptyStateCard> : entries.length === 0 ? <EmptyStateCard compact>暂无变更记录</EmptyStateCard> : entries.map(entry => {
         const expanded = expandedId === entry.id;

@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
-import { DataTable, TextField, type DataTableColumn, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DataTable, TextField, type DataTableColumn } from "@workspace/core/ui";
 import PersonListModal from "./components/PersonListModal";
 import PositionDeptModal from "./components/PositionDeptModal";
 import { hrCanEdit, type HRUser as User } from "@workspace/hr/types";
@@ -209,9 +209,9 @@ export default function CodeTable({
               <TextField value={newName} onChange={setNewName} onKeyDown={event => {
             if (event.key === "Enter") handleAdd();
           }} placeholder="名称" className="h-7 px-2 py-0.5 text-xs" />
-              <button type="button" onClick={handleAdd} className={[getToolbarActionClassName("primary"), "px-3 py-1 text-xs"].filter(Boolean).join(" ")}>
+              <CommandButton variant="primary" onClick={handleAdd} className="px-3 py-1 text-xs">
                 添加
-              </button>
+              </CommandButton>
             </div>;
       }
       if (editRow === row.item.code) {

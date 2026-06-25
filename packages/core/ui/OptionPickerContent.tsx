@@ -37,6 +37,7 @@ interface OptionPickerContentProps {
   setQuery: (query: string) => void;
   searchPlaceholder: string;
   choose: (value: string | null) => void;
+  renderOption?: (option: PickerOption, context: { selected: boolean }) => ReactNode;
 }
 
 const optionButtonClassName = "whitespace-nowrap";
@@ -69,6 +70,7 @@ export default function OptionPickerContent({
   setQuery,
   searchPlaceholder,
   choose,
+  renderOption,
 }: OptionPickerContentProps) {
   if (grouped) {
     return (
@@ -88,6 +90,7 @@ export default function OptionPickerContent({
         gridColumns={gridColumns}
         gridColumnCount={gridColumnCount}
         choose={choose}
+        renderOption={renderOption}
       />
     );
   }
@@ -111,6 +114,7 @@ export default function OptionPickerContent({
       gridColumns={gridColumns}
       gridColumnCount={gridColumnCount}
       choose={choose}
+      renderOption={renderOption}
     />
   );
 }
@@ -131,6 +135,7 @@ function GroupedOptions({
   gridColumns,
   gridColumnCount,
   choose,
+  renderOption,
 }: Omit<OptionPickerContentProps, "grouped" | "isUnset" | "gridOptions" | "visibleGridColumnCount" | "hasExplicitEmptyOption" | "placeholderInGrid" | "moreOptions" | "showMore" | "setShowMore" | "query" | "setQuery" | "searchPlaceholder">) {
   const activeGroup = groupItems.find((group) => group.key === activeGroupKey) ?? groupItems[0];
   const columnCount = gridColumns ?? gridColumnCount ?? 3;
@@ -183,7 +188,7 @@ function GroupedOptions({
           {activeGroup.options.length === 0 ? (
             <Empty placeholder={emptyText} />
           ) : (
-            <OptionGrid options={activeGroup.options} current={current} onSelect={choose} columns={columnCount} />
+            <OptionGrid options={activeGroup.options} current={current} onSelect={choose} columns={columnCount} renderOption={renderOption} />
           )}
         </div>
       ) : (
@@ -211,6 +216,7 @@ function FlatOptions({
   gridColumns,
   gridColumnCount,
   choose,
+  renderOption,
 }: Omit<OptionPickerContentProps, "grouped" | "emptyText" | "groupLabel" | "optionLabel" | "changeGroupLabel" | "groupItems" | "activeGroupKey" | "setActiveGroupKey" | "step" | "setStep">) {
   const keyword = query.trim();
   const filteredMore = keyword
@@ -248,7 +254,7 @@ function FlatOptions({
               className={optionButtonClassName}
               onClick={() => choose(isPlaceholderOption ? null : option.value)}
             >
-              {option.label}
+              {renderOption ? renderOption(option, { selected }) : option.label}
             </PickerOptionButton>
           );
         })}
@@ -267,7 +273,7 @@ function FlatOptions({
                   className={optionButtonClassName}
                   onClick={() => choose(option.value)}
                 >
-                  {option.label}
+                  {renderOption ? renderOption(option, { selected: !isUnset && option.value === current }) : option.label}
                 </PickerOptionButton>
               ))}
             </div>

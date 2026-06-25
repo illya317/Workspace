@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { TableScrollFrame, Toolbar, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, TableScrollFrame, Toolbar } from "@workspace/core/ui";
 import type { QcBatchSummary, QcLayoutBlock, QcTemplateDetail, QcTemplateStage } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcLayoutPaper from "./QcLayoutPaper";
@@ -69,7 +69,7 @@ export default function QcBatchStagePrecheck({
           <QcLayoutPaper blocks={blocks} referenceValues={referenceValues} />
         </div>}
       <div className="mx-auto mt-8 max-w-[210mm] text-center">
-        <button type="button" disabled={locked} className={[getToolbarActionClassName("primary"), "px-8"].filter(Boolean).join(" ")}>保存</button>
+        <CommandButton variant="primary" disabled={locked} className="px-8">保存</CommandButton>
       </div>
     </TableScrollFrame>;
 }

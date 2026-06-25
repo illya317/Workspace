@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { DataTable, PanelCard, Badge, type DataTableColumn, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DataTable, PanelCard, Badge, type DataTableColumn } from "@workspace/core/ui";
 export interface BalanceCheckAccountNode {
   code: string;
   name: string;
@@ -92,12 +92,12 @@ export default function BalanceCheckTable({
     }) => <span className="flex items-center gap-1" style={{
       paddingLeft: `${depth * 16 + 8}px`
     }}>
-          {hasVisibleChildren(node, maxLevel) ? <button type="button" onClick={event => {
+          {hasVisibleChildren(node, maxLevel) ? <CommandButton onClick={event => {
         event.stopPropagation();
         onToggleNode(node.code);
-      }} aria-label={expanded.has(node.code) ? "收起科目" : "展开科目"} className={[getToolbarActionClassName(), "w-4 border-0 bg-transparent px-0 py-0 text-base leading-none text-slate-300 shadow-none hover:bg-transparent hover:text-slate-600"].filter(Boolean).join(" ")}>
+      }} aria-label={expanded.has(node.code) ? "收起科目" : "展开科目"} size="sm" className="w-4 border-0 bg-transparent px-0 py-0 text-base leading-none text-slate-300 shadow-none hover:bg-transparent hover:text-slate-600">
               {expanded.has(node.code) ? "▼" : "▶"}
-            </button> : <span className="w-4" />}
+            </CommandButton> : <span className="w-4" />}
           <span className="font-mono text-slate-700">{node.code}</span>
         </span>
   }, {

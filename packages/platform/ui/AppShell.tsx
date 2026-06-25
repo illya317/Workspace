@@ -5,7 +5,7 @@ import Image from "next/image";
 import { workspacePath } from "@workspace/core/routing";
 import UserMenu from "./UserMenu";
 import NotificationBell from "./NotificationBell";
-import { PageShell, useUnsavedChangesPrompt, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, PageShell, useUnsavedChangesPrompt } from "@workspace/core/ui";
 import type { SessionUser } from "../types";
 import type { ReactNode } from "react";
 interface NavLinkDef {
@@ -40,9 +40,9 @@ export default function AppShell({
   return <PageShell title={title} backLabel={backLabel} onBack={backHref ? () => void navigate(backHref) : undefined} actions={navLinks?.map(link => ({
     label: link.label,
     onClick: () => void navigate(link.href)
-  }))} leading={<button type="button" onClick={() => void navigate("/portal")} aria-label="返回入口" className={[getToolbarActionClassName(), "flex-shrink-0 border-0 bg-transparent p-0 shadow-none hover:bg-transparent"].filter(Boolean).join(" ")}>
+  }))} leading={<CommandButton onClick={() => void navigate("/portal")} aria-label="返回入口" className="flex-shrink-0 border-0 bg-transparent p-0 shadow-none hover:bg-transparent">
           <Image src={workspacePath("/company/logo.png")} alt="Logo" width={28} height={28} className="h-7 w-auto object-contain" />
-        </button>} trailing={<div className="flex items-center gap-2">
+        </CommandButton>} trailing={<div className="flex items-center gap-2">
           <NotificationBell onBeforeNavigate={() => confirmNavigation()} />
           <UserMenu user={user} onBeforeNavigate={() => confirmNavigation()} />
         </div>}>

@@ -12,6 +12,8 @@ export interface InlineCreatePanelProps {
   onCancel: () => void;
   submitDisabled?: boolean;
   submitting?: boolean;
+  submitLabel?: string;
+  cancelLabel?: string;
   hideTitle?: boolean;
   className?: string;
 }
@@ -37,6 +39,8 @@ export default function InlineCreatePanel({
   onCancel,
   submitDisabled,
   submitting,
+  submitLabel,
+  cancelLabel,
   hideTitle = false,
   className = "",
 }: InlineCreatePanelProps) {
@@ -54,7 +58,14 @@ export default function InlineCreatePanel({
         <div className="flex min-w-0 max-w-full flex-wrap items-center gap-x-3 gap-y-2 [&_[data-field-control]]:!h-9 [&_[data-field-control]]:min-w-28 [&_[data-field-control]>*]:w-full [&_[data-field-label]]:!h-9 [&_[data-field-label]]:text-xs">
           {inlineChildren}
         </div>
-        <CreateConfirmActions onSubmit={onSubmit} onCancel={onCancel} submitDisabled={submitDisabled} submitting={submitting} />
+        <CreateConfirmActions
+          onSubmit={onSubmit}
+          onCancel={onCancel}
+          submitDisabled={submitDisabled}
+          submitting={submitting}
+          submitLabel={submitLabel}
+          cancelLabel={cancelLabel}
+        />
       </form>
     </section>
   );

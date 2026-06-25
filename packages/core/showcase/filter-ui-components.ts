@@ -1,6 +1,7 @@
 import {
+  coreUiComponentAccessLayerMeta,
   coreUiComponentKindMeta,
-  coreUiComponentTierMeta,
+  type CoreUiComponentAccessLayer,
   type CoreUiComponentKind,
   type CoreUiComponentTier,
 } from "@workspace/core/ui/component-registry";
@@ -11,12 +12,14 @@ export type UiComponentFilterNode = {
   component: { description: string };
   kind: CoreUiComponentKind;
   tier: CoreUiComponentTier;
+  accessLayer: CoreUiComponentAccessLayer;
   verified: boolean;
 };
 
 export type UiComponentFilterInput = {
   keyword: string;
   tierValue: string;
+  accessLayerValue: string;
   verifiedFilter: "verified" | "unverified" | "all";
   usageFilesByName: ReadonlyMap<string, readonly string[]>;
   usedByNamesByName: ReadonlyMap<string, readonly string[]>;
@@ -24,10 +27,11 @@ export type UiComponentFilterInput = {
 
 function matchesBaseFilters(
   node: UiComponentFilterNode,
-  input: Pick<UiComponentFilterInput, "tierValue" | "verifiedFilter">,
+  input: Pick<UiComponentFilterInput, "tierValue" | "accessLayerValue" | "verifiedFilter">,
 ) {
-  const { tierValue, verifiedFilter } = input;
+  const { tierValue, accessLayerValue, verifiedFilter } = input;
   if (tierValue !== "all" && node.tier !== tierValue) return false;
+  if (accessLayerValue !== "all" && node.accessLayer !== accessLayerValue) return false;
   if (verifiedFilter === "verified" && !node.verified) return false;
   if (verifiedFilter === "unverified" && node.verified) return false;
   return true;
@@ -41,7 +45,7 @@ function matchesKeyword(
   return matchText(node.name, keyword)
     || matchText(node.component.description, keyword)
     || matchText(coreUiComponentKindMeta[node.kind].label, keyword)
-    || matchText(coreUiComponentTierMeta[node.tier].label, keyword)
+    || matchText(coreUiComponentAccessLayerMeta[node.accessLayer].label, keyword)
     || usageFiles.some((file) => matchText(file, keyword));
 }
 

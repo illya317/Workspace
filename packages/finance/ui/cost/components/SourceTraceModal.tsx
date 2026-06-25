@@ -1,6 +1,6 @@
 "use client";
 
-import { DetailModal, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DetailModal } from "@workspace/core/ui";
 import type { SourceTraceInfo } from "../types";
 interface Props {
   open: boolean;
@@ -30,9 +30,9 @@ export default function SourceTraceModal({
         </div>
 
         <div className="mt-6 flex justify-end">
-          <button type="button" onClick={onClose} className={getToolbarActionClassName("primary")}>
+          <CommandButton variant="primary" onClick={onClose}>
             关闭
-          </button>
+          </CommandButton>
         </div>
     </DetailModal>;
 }

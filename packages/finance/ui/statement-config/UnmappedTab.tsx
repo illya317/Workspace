@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
-import { DataTable, EmptyStateCard, PanelCard, Badge, type DataTableColumn, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DataTable, EmptyStateCard, PanelCard, Badge, type DataTableColumn } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
 import { useStatementConfig } from "./StatementConfigContext";
 interface Node {
@@ -173,7 +173,7 @@ export default function UnmappedTab() {
   if (error) {
     return <PanelCard bodyClassName="space-y-3 p-4 text-center">
         <p className="text-sm text-red-600">{error}</p>
-        <button type="button" onClick={load} className={getToolbarActionClassName("danger")}>重试</button>
+        <CommandButton variant="danger" onClick={load}>重试</CommandButton>
       </PanelCard>;
   }
   const subtractOnly = items.filter(a => a.status === "subtractOnly");

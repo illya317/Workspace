@@ -21,6 +21,7 @@ export interface ToolbarIconButtonItem extends ToolbarItemBase {
   disabled?: boolean;
   onClick?: () => void;
   className?: string;
+  iconClassName?: string;
 }
 
 export interface ToolbarSearchItem extends ToolbarItemBase {

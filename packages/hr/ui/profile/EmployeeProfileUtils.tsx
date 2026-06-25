@@ -1,9 +1,7 @@
 "use client";
 
 import {
-  getFieldGridCellClassName,
-  getFieldGridLabelClassName,
-  getFieldGridValueClassName,
+  FieldGrid,
 } from "@workspace/core/ui";
 import { ProfileFieldInput } from "./ProfileFormControls";
 import { FieldRegion } from "./EmployeeProfileFieldRegion";
@@ -128,34 +126,30 @@ export function fieldGrid(
 ) {
   const defaultGrid = gridClassName === "grid-cols-3";
   return (
-    <div className={`grid gap-2 ${gridClassName}`}>
+    <FieldGrid className={gridClassName}>
       {fields.map((field) => {
         const disabledByStatus = record.isActive === true && (field.key === "leaveDate" || field.key === "leaveReason" || field.key === "leaveNote");
         const disabledByRule = isFieldDisabled?.(field, record) ?? false;
         const wide = field.span === "wide";
         return (
-          <div
+          <FieldGrid.Cell
             key={field.key}
-            className={getFieldGridCellClassName(wide && defaultGrid ? "col-span-3" : "")}
+            label={field.label}
+            required={field.required}
+            className={wide && defaultGrid ? "col-span-3" : ""}
           >
-            <div className={getFieldGridLabelClassName()}>
-              {field.label}
-              {field.required && <span className="ml-0.5 text-red-500">*</span>}
-            </div>
-            <div className={getFieldGridValueClassName()}>
-              <ProfileFieldInput
-                field={field}
-                value={field.type === "lunarBirthday" ? record.birthDate : record[field.key]}
-                record={record}
-                displayValue={field.displayKey ? String(record[field.displayKey] || "") : undefined}
-                disabled={disabled || field.readOnly || disabledByStatus || disabledByRule}
-                onChange={onChange}
-              />
-            </div>
-          </div>
+            <ProfileFieldInput
+              field={field}
+              value={field.type === "lunarBirthday" ? record.birthDate : record[field.key]}
+              record={record}
+              displayValue={field.displayKey ? String(record[field.displayKey] || "") : undefined}
+              disabled={disabled || field.readOnly || disabledByStatus || disabledByRule}
+              onChange={onChange}
+            />
+          </FieldGrid.Cell>
         );
       })}
-    </div>
+    </FieldGrid>
   );
 }
 

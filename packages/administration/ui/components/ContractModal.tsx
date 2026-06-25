@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDateInput, FormField, ModalCreatePanel, TextareaField, TextField } from "@workspace/core/ui";
+import { CalendarDateInput, CreatePanel, FormField, TextareaField, TextField } from "@workspace/core/ui";
 import type { Contract, ModalMode } from "@workspace/administration/types";
 
 const FORM_FIELDS = [
@@ -30,7 +30,8 @@ export default function ContractModal({ mode, editing, onChange, onSave, onClose
   if (!mode) return null;
 
   return (
-    <ModalCreatePanel
+    <CreatePanel
+      variant="modal"
       open={Boolean(mode)}
       title={mode === "create" ? "新增合同" : "编辑合同"}
       onCancel={onClose}
@@ -83,6 +84,6 @@ export default function ContractModal({ mode, editing, onChange, onSave, onClose
           rows={2}
         />
       </FormField>
-    </ModalCreatePanel>
+    </CreatePanel>
   );
 }

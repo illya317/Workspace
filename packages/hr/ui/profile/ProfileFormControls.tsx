@@ -1,15 +1,15 @@
 "use client";
 
 import type { ReactNode } from "react";
-import CalendarDateInput from "@workspace/core/ui/CalendarDateInput";
 import {
+  CalendarDateInput,
+  FieldInputShell,
   FkFieldInput,
   OptionPicker,
+  ReadOnlyField,
   SectionCard,
   TextField,
   TextareaField,
-  getFieldInputClassName,
-  getReadOnlyFieldClassName,
 } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import EthnicityPicker from "../components/EthnicityPicker";
@@ -43,12 +43,7 @@ export function ProfileFieldInput({
 }: FieldInputProps) {
   if (field.type === "lunarBirthday") {
     return (
-      <div
-        aria-readonly="true"
-        className={getReadOnlyFieldClassName()}
-      >
-        {solarToLunarBirthday(value) || <span className="text-slate-400">未设置</span>}
-      </div>
+      <ReadOnlyField value={solarToLunarBirthday(value) || <span className="text-slate-400">未设置</span>} />
     );
   }
 
@@ -122,12 +117,7 @@ export function ProfileFieldInput({
     const reportToDisabled = isEdpReportTo && !reportToPositionId;
     if (disabled) {
       return (
-        <div
-          aria-readonly="true"
-          className={getReadOnlyFieldClassName()}
-        >
-          {display || normalizeInputValue(value) || <span className="text-slate-400">未设置</span>}
-        </div>
+        <ReadOnlyField value={display || normalizeInputValue(value) || <span className="text-slate-400">未设置</span>} />
       );
     }
     return (
@@ -221,7 +211,7 @@ export function ProfileFieldInput({
 
   if (field.type === "percent") {
     return (
-      <div className={getFieldInputClassName("flex overflow-hidden px-0 py-0 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500")}>
+      <FieldInputShell className="focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
         <TextField
           disabled={disabled}
           type="number"
@@ -234,7 +224,7 @@ export function ProfileFieldInput({
           className="min-w-0 flex-1 border-0 bg-transparent px-3 py-2 outline-none disabled:bg-slate-100 disabled:text-slate-500"
         />
         <span className="grid w-10 place-items-center border-l border-slate-200 bg-slate-50 text-slate-500">%</span>
-      </div>
+      </FieldInputShell>
     );
   }
 

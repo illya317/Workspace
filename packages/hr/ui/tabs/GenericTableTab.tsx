@@ -3,9 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo, useRef } from "react";
 import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
-import Toast from "@workspace/core/ui/Toast";
-import { Pagination, PanelCard, Toolbar, useConfirm } from "@workspace/core/ui";
-import type { ToolbarItem } from "@workspace/core/ui";
+import { Pagination, PanelCard, Toast, Toolbar, useConfirm, type ToolbarItem } from "@workspace/core/ui";
 import { useToast } from "@workspace/core/hooks";
 import GenericCreatePanel from "../components/GenericCreatePanel";
 import GenericFieldInput from "../components/GenericFieldInput";

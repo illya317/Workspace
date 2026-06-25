@@ -4,12 +4,11 @@ import type { ReactNode } from "react";
 import {
   Badge,
   EmptyStateCard,
-  ActionButton,
   PanelCard,
   SelectorList,
   TabBar,
-  TagPill,
   Toast,
+  Toolbar,
   WorkspaceSplitPage,
 } from "@workspace/core/ui";
 import type { ArchivedEntityTab, Department, Position, Selection } from "./types";
@@ -64,7 +63,7 @@ export function ArchivedDepartmentPositionPage({
       id: position.id,
       title: position.name,
       code: position.code,
-      badge: <TagPill>{shortPositionCode(position.code)}</TagPill>,
+      badge: <Badge label={shortPositionCode(position.code)} tone="slate" className="shrink-0 px-2 py-0.5 font-semibold" />,
       meta: `部门：${position.departmentName || "-"} · 归档：${formatArchiveTime(position.archivedAt)}`,
     }));
   const activeItemId = archivedTab === "departments"
@@ -84,10 +83,17 @@ export function ArchivedDepartmentPositionPage({
           <PanelCard className={mode === "drawer" ? "h-full overflow-hidden" : ""} bodyClassName="p-3">
             {mode === "drawer" && (
               <div className="flex justify-end">
-                <ActionButton
-                  kind="panel-close"
-                  label="关闭"
-                  onClick={() => onDrawerOpenChange(false)}
+                <Toolbar
+                  variant="inline"
+                  items={[
+                    {
+                      kind: "icon-button",
+                      key: "close",
+                      icon: "panel-close",
+                      label: "关闭",
+                      onClick: () => onDrawerOpenChange(false),
+                    },
+                  ]}
                 />
               </div>
             )}

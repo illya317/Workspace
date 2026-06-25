@@ -1,8 +1,8 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { useState, useRef, useEffect, useCallback } from "react";
-import { PickerOptionButton, SearchInput } from "@workspace/core/ui";
+import { useState, useRef, useCallback, useMemo } from "react";
+import { SearchableOptionInput } from "@workspace/core/ui";
 
 interface AccountOption { code: string; name: string; }
 
@@ -16,18 +16,18 @@ interface Props {
 }
 
 export default function AccountCodeInput({ companyCode, year, value, onChange, placeholder, className }: Props) {
-  const [query, setQuery] = useState(value);
   const [options, setOptions] = useState<AccountOption[]>([]);
-  const [open, setOpen] = useState(false);
-  const [highlight, setHighlight] = useState(-1);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  useEffect(() => { setQuery(value); }, [value]);
+  const searchableOptions = useMemo(
+    () => options.map((opt) => ({ value: opt.code, label: `${opt.code} ${opt.name}`, searchText: opt.name })),
+    [options],
+  );
 
-  // API now supports pinyin via matchText on server side
   const search = useCallback(async (q: string) => {
-    if (q.length < 2) { setOptions([]); setOpen(false); return; }
+    if (q.length < 2) { setOptions([]); setLoading(false); return; }
+    setLoading(true);
     try {
       const params = new URLSearchParams({ keyword: q, companyCode, year, scope: "all", pageSize: "10" });
       const res = await fetch(workspacePath(`/api/modules/finance/ledger/accounts?${params}`));
@@ -37,72 +37,29 @@ export default function AccountCodeInput({ companyCode, year, value, onChange, p
           (a: { code: string; name: string }) => ({ code: a.code, name: a.name }),
         );
         setOptions(items);
-        setOpen(items.length > 0);
-        setHighlight(-1);
       }
     } catch { /* ignore */ }
+    setLoading(false);
   }, [companyCode, year]);
 
-  function onInput(v: string) {
-    setQuery(v);
-    // 不调用 onChange — 只有 select 时才算选中有效科目
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => search(v), 300);
-  }
-
-  function select(opt: AccountOption) {
-    setQuery(opt.code);
-    onChange(opt.code);
-    setOpen(false);
-    inputRef.current?.focus();
-  }
-
-  function onKeyDown(e: React.KeyboardEvent) {
-    if (!open) return;
-    if (e.key === "ArrowDown") { e.preventDefault(); setHighlight((h) => Math.min(h + 1, options.length - 1)); }
-    else if (e.key === "ArrowUp") { e.preventDefault(); setHighlight((h) => Math.max(h - 1, 0)); }
-    else if (e.key === "Enter") { e.preventDefault(); if (highlight >= 0) select(options[highlight]); }
-    else if (e.key === "Escape") { setOpen(false); }
-  }
-
   return (
-    <div className="relative">
-      <SearchInput
-        ref={inputRef}
-        value={query}
-        placeholder={placeholder || "输入科目编码搜索..."}
-        onChange={onInput}
-        onFocus={() => { if (options.length > 0) setOpen(true); }}
-        onBlur={() => setTimeout(() => setOpen(false), 150)}
-        onKeyDown={onKeyDown}
-        className={className || "w-32"}
-      />
-      {open && (
-        <div className="absolute left-0 top-full z-20 mt-0.5 max-h-40 w-56 overflow-auto rounded border border-gray-200 bg-white shadow-lg">
-          {options.length === 0 ? (
-            <div className="px-3 py-2 text-xs text-gray-400">无匹配科目</div>
-          ) : (
-            options.map((opt, i) => (
-              <PickerOptionButton
-                key={opt.code}
-                onClick={() => select(opt)}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  select(opt);
-                }}
-                onMouseEnter={() => setHighlight(i)}
-                selected={i === highlight}
-                align="left"
-                size="compact"
-                className="flex w-full items-center gap-2 border-0 shadow-none"
-              >
-                <span className="font-mono text-gray-500">{opt.code}</span>
-                <span className="truncate">{opt.name}</span>
-              </PickerOptionButton>
-            ))
-          )}
-        </div>
-      )}
-    </div>
+    <SearchableOptionInput
+      value={value}
+      options={searchableOptions}
+      onChange={(code) => onChange(code ?? "")}
+      onQueryChange={(q) => {
+        clearTimeout(timerRef.current);
+        if (q.length < 2) {
+          setOptions([]);
+          setLoading(false);
+          return;
+        }
+        timerRef.current = setTimeout(() => search(q), 300);
+      }}
+      loading={loading}
+      placeholder={placeholder || "输入科目编码搜索..."}
+      emptyText="无匹配科目"
+      className={className || "w-32"}
+    />
   );
 }

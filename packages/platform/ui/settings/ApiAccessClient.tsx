@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { CodeBlock, ConfirmModal, SectionCard, getToolbarActionClassName } from "@workspace/core/ui";
+import { CodeBlock, CommandButton, ConfirmModal, SectionCard } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 const API_BASE_URL = typeof window !== "undefined" ? `${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH || ""}` : "";
 export type ApiAccessModuleRow = {
@@ -86,14 +86,14 @@ export default function ApiAccessClient({
   }
   return <div className="space-y-6 py-6">
       {canUsePersonalApi && <SectionCard title="API 接入" actions={<div className="flex flex-wrap gap-2">
-            {apiKey ? <button type="button" onClick={() => setConfirmOpen(true)} disabled={loading} className={getToolbarActionClassName()}>
+            {apiKey ? <CommandButton onClick={() => setConfirmOpen(true)} disabled={loading}>
                 {loading ? "申请中..." : "重新申请"}
-              </button> : <button type="button" onClick={rotateApiKey} disabled={loading} className={getToolbarActionClassName()}>
+              </CommandButton> : <CommandButton onClick={rotateApiKey} disabled={loading}>
                 {loading ? "申请中..." : "申请 Key"}
-              </button>}
-            <button type="button" onClick={copyConnectionBlock} className={getToolbarActionClassName("primary")}>
+              </CommandButton>}
+            <CommandButton variant="primary" onClick={copyConnectionBlock}>
               {copied ? "已复制" : "复制接入信息"}
-            </button>
+            </CommandButton>
           </div>}>
         <CodeBlock className="space-y-1">
           <div>URL: {API_BASE_URL}</div>

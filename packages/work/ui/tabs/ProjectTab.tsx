@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { DatabasePageFrame, EmptyStateCard, ActionButton, SplitWorkspace, Toast, Toolbar, useConfirm, useConfirmDelete } from "@workspace/core/ui";
+import { DatabasePageFrame, EmptyStateCard, Toast, Toolbar, WorkspaceSplitPage, useConfirm, useConfirmDelete } from "@workspace/core/ui";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 import type { WorkUser } from "@workspace/work/types";
 import ProjectDetailEditor from "./project/ProjectDetailEditor";
@@ -75,126 +75,122 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
 
   if (model.loading || model.error) {
     return (
-      <SplitWorkspace
+      <WorkspaceSplitPage
         sideOpen={model.projectListOpen}
         drawerOpen={model.projectListDrawerOpen}
+        onSideOpenChange={model.setProjectListOpen}
         onDrawerOpenChange={model.setProjectListDrawerOpen}
+        sideLabel="项目列表"
         splitRatio={[2, 8]}
+        showSideControls={false}
+        contentClassName="!p-0 !max-w-none"
         renderSide={() => <EmptyStateCard compact={false}>{model.loading ? "加载中..." : "暂无项目"}</EmptyStateCard>}
       >
         <EmptyStateCard compact={false} className={model.error ? "border-red-200 text-red-600" : ""}>
           {model.error || "加载中..."}
         </EmptyStateCard>
-      </SplitWorkspace>
+      </WorkspaceSplitPage>
     );
   }
 
   return (
     <>
-      <div className="space-y-5">
-        <Toolbar
-          variant="inline"
-          className="w-full justify-start"
-          items={[
-            {
-              kind: "custom",
-              key: "mobile-side-toggle",
-              section: "view",
-              content: (
-                <span className="lg:hidden">
-                  <ActionButton
-                    kind="panel-open"
-                    label="显示项目列表"
-                    onClick={() => model.setProjectListDrawerOpen(true)}
-                    className="!h-9 !w-10 !px-0"
-                  />
-                </span>
-              ),
-            },
-            {
-              kind: "custom",
-              key: "desktop-side-toggle",
-              section: "view",
-              content: (
-                <span className="hidden lg:block">
-                  <ActionButton
-                    kind={model.projectListOpen ? "panel-open" : "panel-close"}
-                    label={`${model.projectListOpen ? "隐藏" : "显示"}项目列表`}
-                    onClick={() => model.setProjectListOpen(!model.projectListOpen)}
-                    variant={model.projectListOpen ? "primary" : "secondary"}
-                    className="!h-9 !w-10 !px-0"
-                  />
-                </span>
-              ),
-            },
-            {
-              kind: "option-group",
-              key: "project-filter",
-              section: "filter",
-              value: model.projectListFilter,
-              options: PROJECT_LIST_FILTER_OPTIONS,
-              onChange: (value) => model.setProjectListFilter(value as ProjectListFilter),
-              ariaLabel: "项目筛选",
-            },
-            ...(model.canCreateProject
-              ? [{
-                  kind: "create" as const,
-                  key: "create-project",
-                  label: "新建部门项目",
-                  active: model.creating,
-                  onClick: startDepartmentProjectCreate,
-                }]
-              : []),
-          ]}
-        />
-        <SplitWorkspace
-          sideOpen={model.projectListOpen}
-          drawerOpen={model.projectListDrawerOpen}
-          onDrawerOpenChange={model.setProjectListDrawerOpen}
-          splitRatio={[2, 8]}
-          renderSide={(mode) => (
-            <ProjectListPanel
-              mode={mode}
-              projects={model.filteredProjects}
-              filter={model.projectListFilter}
-              selection={model.selection}
-              onSelect={(projectId) => {
-                model.setCreating(false);
-                model.setSelection(projectId);
-                model.setProjectListDrawerOpen(false);
-              }}
-            />
-          )}
-        >
-          <ProjectDetailEditor
-            editorTitle={editorTitle}
-            dirty={model.dirty}
-            draft={model.draft}
-            selectedProject={model.selectedProject}
-            canEditCurrent={model.canEditCurrent}
-            canManageCurrent={model.canManageCurrent}
-            canDeleteCurrent={model.canDeleteCurrent}
-            saving={model.saving}
-            canSave={model.canSave}
-            rasciRows={model.rasciRows}
-            creating={model.creating}
-            onCancelCreate={model.cancelCreateProject}
-            onDeleteProject={() => void confirmDeleteProject()}
-            onSave={() => void model.saveProject()}
-            onDraftChange={model.updateDraft}
-            onLeaderChange={model.setLeader}
-            onRoleMembersChange={model.setRoleMembers}
-            onCreateChildProject={model.startCreateChildProject}
-            onOpenProject={(projectId) => {
-              model.setCreating(false);
-              model.setProjectListFilter("all");
-              model.setSelection(projectId);
-            }}
-            onProjectTasksChanged={(projectId) => void model.loadSelectedTasks(projectId)}
-            onToast={model.setToast}
+      <WorkspaceSplitPage
+        sideOpen={model.projectListOpen}
+        drawerOpen={model.projectListDrawerOpen}
+        onSideOpenChange={model.setProjectListOpen}
+        onDrawerOpenChange={model.setProjectListDrawerOpen}
+        sideLabel="项目列表"
+        splitRatio={[2, 8]}
+        showSideControls={false}
+        contentClassName="!p-0 !max-w-none"
+        beforeSplit={(
+          <Toolbar
+            variant="inline"
+            className="w-full justify-start"
+            items={[
+              {
+                kind: "icon-button",
+                key: "mobile-side-toggle",
+                section: "view",
+                icon: "panel-open",
+                label: "显示项目列表",
+                className: "!h-9 !w-10 !px-0 lg:hidden",
+                onClick: () => model.setProjectListDrawerOpen(true),
+              },
+              {
+                kind: "icon-button",
+                key: "desktop-side-toggle",
+                section: "view",
+                icon: model.projectListOpen ? "panel-open" : "panel-close",
+                label: `${model.projectListOpen ? "隐藏" : "显示"}项目列表`,
+                variant: model.projectListOpen ? "primary" : "secondary",
+                className: "!h-9 !w-10 !px-0 hidden lg:inline-flex",
+                onClick: () => model.setProjectListOpen(!model.projectListOpen),
+              },
+              {
+                kind: "option-group",
+                key: "project-filter",
+                section: "filter",
+                value: model.projectListFilter,
+                options: PROJECT_LIST_FILTER_OPTIONS,
+                onChange: (value) => model.setProjectListFilter(value as ProjectListFilter),
+                ariaLabel: "项目筛选",
+              },
+              ...(model.canCreateProject
+                ? [{
+                    kind: "create" as const,
+                    key: "create-project",
+                    label: "新建部门项目",
+                    active: model.creating,
+                    onClick: startDepartmentProjectCreate,
+                  }]
+                : []),
+            ]}
           />
-        </SplitWorkspace>
-      </div>
+        )}
+        renderSide={(mode) => (
+          <ProjectListPanel
+            mode={mode}
+            projects={model.filteredProjects}
+            filter={model.projectListFilter}
+            selection={model.selection}
+            onSelect={(projectId) => {
+              model.setCreating(false);
+              model.setSelection(projectId);
+              model.setProjectListDrawerOpen(false);
+            }}
+          />
+        )}
+      >
+        <ProjectDetailEditor
+          editorTitle={editorTitle}
+          dirty={model.dirty}
+          draft={model.draft}
+          selectedProject={model.selectedProject}
+          canEditCurrent={model.canEditCurrent}
+          canManageCurrent={model.canManageCurrent}
+          canDeleteCurrent={model.canDeleteCurrent}
+          saving={model.saving}
+          canSave={model.canSave}
+          rasciRows={model.rasciRows}
+          creating={model.creating}
+          onCancelCreate={model.cancelCreateProject}
+          onDeleteProject={() => void confirmDeleteProject()}
+          onSave={() => void model.saveProject()}
+          onDraftChange={model.updateDraft}
+          onLeaderChange={model.setLeader}
+          onRoleMembersChange={model.setRoleMembers}
+          onCreateChildProject={model.startCreateChildProject}
+          onOpenProject={(projectId) => {
+            model.setCreating(false);
+            model.setProjectListFilter("all");
+            model.setSelection(projectId);
+          }}
+          onProjectTasksChanged={(projectId) => void model.loadSelectedTasks(projectId)}
+          onToast={model.setToast}
+        />
+      </WorkspaceSplitPage>
 
       <Toast
         type={model.toast?.type}

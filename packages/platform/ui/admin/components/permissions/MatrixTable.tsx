@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable, EmptyStateCard, PanelCard, type DataTableColumn, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DataTable, EmptyStateCard, PanelCard, type DataTableColumn } from "@workspace/core/ui";
 import PermissionCell from "./PermissionCell";
 import PermissionDetails from "./PermissionDetails";
 import type { PermissionsTabState } from "../../hooks/usePermissionsTab";
@@ -70,9 +70,9 @@ export default function MatrixTable({
     label: "",
     required: true,
     cellClassName: "text-right",
-    render: subject => <button type="button" onClick={() => s.toggleRowExpand(subject.id)} className={[getToolbarActionClassName(), "px-2 py-1 text-xs"].filter(Boolean).join(" ")}>
+    render: subject => <CommandButton onClick={() => s.toggleRowExpand(subject.id)} size="sm" className="px-2 py-1 text-xs">
           {s.expandedRows.has(subject.id) ? "收起" : "详情"}
-        </button>
+        </CommandButton>
   }];
   return <PanelCard className="mt-4">
       <DataTable rows={s.subjects} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={subject => subject.id} expandedRowKeys={s.expandedRows} renderExpandedRow={subject => <PermissionDetails subject={subject} s={s} />} />

@@ -1,6 +1,6 @@
 "use client";
 
-import { PanelCard, SelectField, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, PanelCard, SelectField } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 const YS = ["2024", "2025", "2026"];
 const MS = Array.from({
@@ -55,6 +55,6 @@ export default function ReviewFilters({
       value: report.v,
       label: report.l
     }))} value={rt} onChange={setRt} placeholder="—" />
-      <button type="button" onClick={onLoad} disabled={loading} className={getToolbarActionClassName("primary")}>读取底稿</button>
+      <CommandButton variant="primary" onClick={onLoad} disabled={loading}>读取底稿</CommandButton>
     </PanelCard>;
 }

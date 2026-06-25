@@ -1,12 +1,11 @@
 "use client";
 
-import { EmptyStateCard, FormField, PanelCard, RemovableTag, TextField, getTagInputShellClassName, useConfirmDelete, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, EmptyStateCard, FormField, PanelCard, TagListInput, TextField, useConfirmDelete } from "@workspace/core/ui";
 import { normalizeHrMajorItems, type HRMajorItem } from "@workspace/hr/constants/field-options";
 import { OptionPicker } from "@workspace/core/ui";
 import MajorPicker from "../../components/MajorPicker";
 import { ENVIRONMENT_FACTOR_OPTIONS, WORK_AREA_OPTIONS, pickerOptions, primitiveListItems } from "./description-details";
 import { OptionTagListEditor } from "./detail-editor-primitives";
-const tagInputShellClassName = getTagInputShellClassName("content-start");
 type WorkEnvironmentItem = {
   area: string;
   factors: string[];
@@ -71,9 +70,9 @@ export function WorkEnvironmentEditor({
                 area: next || ""
               })} />
                 </div>
-                {!disabled && <button type="button" aria-label={`删除工作区域 ${item.area}`} onClick={() => void removeArea(index)} className={[getToolbarActionClassName("danger"), "grid size-9 place-items-center rounded-full border-0 bg-transparent p-0 text-slate-400 shadow-none hover:bg-red-50 hover:text-red-500"].filter(Boolean).join(" ")}>
+                {!disabled && <CommandButton aria-label={`删除工作区域 ${item.area}`} onClick={() => void removeArea(index)} variant="danger" size="sm" className="grid size-9 place-items-center rounded-full border-0 bg-transparent p-0 text-slate-400 shadow-none hover:bg-red-50 hover:text-red-500">
                     ×
-                  </button>}
+                  </CommandButton>}
               </div>
               <OptionTagListEditor label="环境因素" value={item.factors} options={ENVIRONMENT_FACTOR_OPTIONS} disabled={disabled} placeholder="添加环境因素" onChange={factors => updateItem(index, {
             factors
@@ -130,17 +129,28 @@ export function MajorRequirementsEditor({
   function removeItem(index: number) {
     onChange(items.filter((_, itemIndex) => itemIndex !== index));
   }
-  return <div className="space-y-2">
+  return (
+    <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <div className={tagInputShellClassName}>
-        {items.map((item, index) => <RemovableTag key={`${item.category}-${item.specialty}-${index}`} label={`删除${label} ${item.specialty || item.category}`} title={item.category ? `${item.category} / ${item.specialty}` : item.specialty} confirmMessage={`确定删除专业要求「${item.category || ""}${item.specialty ? ` / ${item.specialty}` : ""}」吗？删除后需要保存才会生效。`} disabled={disabled} onRemove={() => removeItem(index)}>
-            {item.specialty || item.category}
-          </RemovableTag>)}
-        {disabled ? items.length === 0 ? <span className="text-slate-400">未设置</span> : null : <div className="min-w-40 flex-1">
+      <TagListInput
+        items={items}
+        getKey={(item, index) => `${item.category}-${item.specialty}-${index}`}
+        getLabel={(item) => item.specialty || item.category}
+        onRemove={(_, index) => removeItem(index)}
+        disabled={disabled}
+        confirmMessage={(item) => `确定删除专业要求「${item.category || ""}${item.specialty ? ` / ${item.specialty}` : ""}」吗？删除后需要保存才会生效。`}
+        itemTitle={(item) => (item.category ? `${item.category} / ${item.specialty}` : item.specialty)}
+        emptyText={disabled ? "未设置" : undefined}
+        shellClassName="content-start"
+      >
+        {!disabled && (
+          <div className="min-w-40 flex-1">
             <MajorPicker value="" disabled={disabled} onChange={addItem} className="w-full" />
-          </div>}
-      </div>
-    </div>;
+          </div>
+        )}
+      </TagListInput>
+    </div>
+  );
 }
 export function ExperienceRequirementsEditor({
   label,
@@ -177,9 +187,9 @@ export function ExperienceRequirementsEditor({
   return <div className="space-y-2">
       <div className="flex items-center gap-3">
         <span className="text-xs font-medium text-slate-500">{label}</span>
-        {!disabled && <button type="button" onClick={addItem} className={[getToolbarActionClassName("secondary"), "px-2 py-1 text-xs"].filter(Boolean).join(" ")}>
+        {!disabled && <CommandButton onClick={addItem} size="sm" className="px-2 py-1 text-xs">
             新增
-          </button>}
+          </CommandButton>}
       </div>
       <PanelCard bodyClassName="space-y-2 p-3">
         {items.map((item, index) => <PanelCard key={index} bodyClassName="grid grid-cols-1 gap-2 p-3 md:grid-cols-[150px_minmax(0,1fr)_40px]">
@@ -196,9 +206,9 @@ export function ExperienceRequirementsEditor({
             requirement: next
           })} />
             </FormField>
-            {!disabled && <button type="button" aria-label={`删除${label} ${index + 1}`} onClick={() => void removeItem(index)} className={[getToolbarActionClassName("danger"), "mt-5 grid size-9 place-items-center rounded-full border-0 bg-transparent p-0 text-slate-400 shadow-none hover:bg-red-50 hover:text-red-500"].filter(Boolean).join(" ")}>
+            {!disabled && <CommandButton aria-label={`删除${label} ${index + 1}`} onClick={() => void removeItem(index)} variant="danger" size="sm" className="mt-5 grid size-9 place-items-center rounded-full border-0 bg-transparent p-0 text-slate-400 shadow-none hover:bg-red-50 hover:text-red-500">
                 ×
-              </button>}
+              </CommandButton>}
           </PanelCard>)}
         {items.length === 0 && <EmptyStateCard compact>未设置</EmptyStateCard>}
       </PanelCard>

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormField, InlineCreatePanel } from "@workspace/core/ui";
+import { CreatePanel, FormField } from "@workspace/core/ui";
 import GenericFieldInput from "./GenericFieldInput";
 import type { TabConfig } from "@workspace/hr/types";
 
@@ -22,7 +22,8 @@ export default function GenericCreatePanel({
   const requiredFields = config.fields.filter((field) => field.required && !field.hidden);
 
   return (
-    <InlineCreatePanel
+    <CreatePanel
+      variant="inline"
       title={`新建${config.title}`}
       onSubmit={onSubmit}
       onCancel={onCancel}
@@ -45,6 +46,6 @@ export default function GenericCreatePanel({
           />
         </FormField>
       ))}
-    </InlineCreatePanel>
+    </CreatePanel>
   );
 }

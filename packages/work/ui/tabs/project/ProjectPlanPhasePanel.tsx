@@ -2,19 +2,18 @@
 
 import { useState } from "react";
 import {
-  BlockCreatePanel,
   CalendarDateInput,
+  CreatePanel,
   DataTable,
-  DataTableActionsCell,
   EmptyStateCard,
   FormField,
   PanelCard,
   TableScrollFrame,
   TextField,
-  createDataTableEditActions,
   useConfirm,
   useConfirmDelete,
   type DataTableColumn,
+  type DataTableRowEditActionConfig,
 } from "@workspace/core/ui";
 import { createProjectPlanPhase, deleteProjectPlanPhase, updateProjectPlanPhase } from "./api";
 import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
@@ -99,7 +98,8 @@ export default function ProjectPlanPhasePanel({
   }
 
   return (
-    <BlockCreatePanel
+    <CreatePanel
+      variant="block"
       title="项目阶段"
       creating={creating}
       canCreate={canEdit}
@@ -109,11 +109,11 @@ export default function ProjectPlanPhasePanel({
       addLabel="新增项目阶段"
       submitLabel="保存项目阶段"
       onStartCreate={() => setCreating(true)}
-      onCancelCreate={() => {
+      onCancel={() => {
         setCreating(false);
         setDraft(EMPTY_DRAFT);
       }}
-      onSubmitCreate={submitCreate}
+      onSubmit={submitCreate}
       createContent={(
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.4fr_minmax(0,2fr)]">
           <PhaseFields draft={draft} disabled={disabled || busy} onChange={setDraft} />
@@ -137,7 +137,7 @@ export default function ProjectPlanPhasePanel({
         onSubmitEdit={submitEdit}
         onDelete={handleDelete}
       />
-    </BlockCreatePanel>
+    </CreatePanel>
   );
 }
 
@@ -198,42 +198,6 @@ function PhaseRows({
       cellClassName: "min-w-64 max-w-xl whitespace-normal text-slate-500",
       render: (phase) => phase.note || "",
     },
-    {
-      key: "actions",
-      label: "操作",
-      required: true,
-      render: (phase) => {
-        const editing = editingId === phase.id;
-        return canEdit ? (
-          <DataTableActionsCell
-            actions={[
-              ...createDataTableEditActions({
-                row: phase,
-                editing,
-                canEdit,
-                canSave: Boolean(editDraft.name.trim()),
-                initial: phaseDraftFromItem(phase),
-                current: editDraft,
-                disabled,
-                editLabel: "编辑阶段",
-                saveLabel: "保存阶段",
-                cancelLabel: "取消编辑",
-                onEdit: onStartEdit,
-                onSave: () => onSubmitEdit(phase.id),
-                onCancel: onCancelEdit,
-              }),
-              ...(!editing ? [{
-                key: "delete",
-                kind: "delete",
-                label: "删除阶段",
-                onClick: () => onDelete(phase.id),
-                disabled,
-              } as const] : []),
-            ]}
-          />
-        ) : null;
-      },
-    },
   ];
 
   if (phases.length === 0) {
@@ -256,6 +220,30 @@ function PhaseRows({
             </div>
           </PanelCard>
         )}
+        rowEditActions={canEdit ? (phase): DataTableRowEditActionConfig<ProjectPlanPhaseItem> => ({
+          editing: editingId === phase.id,
+          canEdit,
+          canSave: Boolean(editDraft.name.trim()),
+          initial: phaseDraftFromItem(phase),
+          current: editDraft,
+          disabled,
+          editLabel: "编辑阶段",
+          saveLabel: "保存阶段",
+          cancelLabel: "取消编辑",
+          onEdit: onStartEdit,
+          onSave: () => onSubmitEdit(phase.id),
+          onCancel: onCancelEdit,
+        }) : undefined}
+        rowActions={canEdit ? (phase) => {
+          if (editingId === phase.id) return [];
+          return [{
+            key: "delete",
+            kind: "delete" as const,
+            label: "删除阶段",
+            onClick: () => onDelete(phase.id),
+            disabled,
+          }];
+        } : undefined}
       />
     </TableScrollFrame>
   );

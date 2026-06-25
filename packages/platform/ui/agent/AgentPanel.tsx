@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { PanelCard, SelectorPanel, TextField, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, PanelCard, SelectorPanel, TextField } from "@workspace/core/ui";
 import type { AgentMood, AgentMessage } from "./types";
 import type { SavedConversation } from "./useAgentSession";
 import AgentAvatar from "./AgentAvatar";
@@ -139,11 +139,11 @@ export default function AgentPanel({
             </div>
             {/* History */}
             <div className="relative">
-              <button type="button" onClick={() => setShowHistory(!showHistory)} disabled={!savedConversations || savedConversations.length === 0} title="历史对话" className={[getToolbarActionClassName(), "p-1.5"].filter(Boolean).join(" ")}>
+              <CommandButton onClick={() => setShowHistory(!showHistory)} disabled={!savedConversations || savedConversations.length === 0} title="历史对话" size="sm" className="p-1.5">
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-              </button>
+              </CommandButton>
               {showHistory && savedConversations && savedConversations.length > 0 && <SelectorPanel className="absolute right-0 top-8 z-50 max-h-64 w-64 overflow-y-auto" title="历史对话" items={savedConversations} selectedId={null} onSelect={c => {
               onLoadConversation?.(c);
               setShowHistory(false);
@@ -153,16 +153,16 @@ export default function AgentPanel({
               meta: [new Date(c.updatedAt).toLocaleString("zh-CN")]
             })} size="sm" bodyClassName="p-2" contentClassName="space-y-2" />}
             </div>
-            <button type="button" onClick={onClear} title="新对话" className={[getToolbarActionClassName(), "p-1.5"].filter(Boolean).join(" ")}>
+            <CommandButton onClick={onClear} title="新对话" size="sm" className="p-1.5">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-            </button>
-            <button type="button" onClick={onClose} title="关闭" className={[getToolbarActionClassName(), "p-1.5"].filter(Boolean).join(" ")}>
+            </CommandButton>
+            <CommandButton onClick={onClose} title="关闭" size="sm" className="p-1.5">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
-            </button>
+            </CommandButton>
           </div>
 
           {/* Messages */}
@@ -174,9 +174,9 @@ export default function AgentPanel({
           {/* Input */}
           <div className="flex items-center gap-2 border-t px-4 py-3">
             <TextField ref={inputRef} value={input} onChange={setInput} onKeyDown={handleKeyDown} placeholder="输入消息..." disabled={loading} className="flex-1" maxLength={2000} />
-            <button type="button" onClick={handleSend} disabled={loading || !input.trim()} className={getToolbarActionClassName("primary")}>
+            <CommandButton variant="primary" onClick={handleSend} disabled={loading || !input.trim()}>
               发送
-            </button>
+            </CommandButton>
           </div>
         </PanelCard>
       </div>

@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FileField, FormField, PageContent, PanelCard, TextField, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, FileField, FormField, PageContent, PanelCard, TextField } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import ApiAccessClient, { type ApiAccessModuleRow } from "./ApiAccessClient";
 type Message = {
@@ -222,9 +222,9 @@ export default function AccountSettingsPanel({
           }} />
           </FormField>
           <FormMessage message={passwordMessage} />
-          <button type="button" onClick={() => void savePassword()} className={[getToolbarActionClassName("secondary"), "w-full"].filter(Boolean).join(" ")}>
+          <CommandButton variant="secondary" onClick={() => void savePassword()} className="w-full">
             保存密码
-          </button>
+          </CommandButton>
         </PanelCard>
 
         <PanelCard title="修改头像" className="h-full" bodyClassName="p-4">
@@ -236,9 +236,9 @@ export default function AccountSettingsPanel({
             </span>
             <div className="grid w-full grid-cols-2 gap-2">
               <FileField accept="image/png,image/jpeg,image/webp,image/gif" className="w-full" inputClassName="h-10 w-full" showFileName={false} onChange={selectAvatar} />
-              <button type="button" disabled={!avatarFile || avatarSaving} onClick={() => void saveAvatar()} className={[getToolbarActionClassName("primary"), "w-full"].filter(Boolean).join(" ")}>
+              <CommandButton variant="primary" disabled={!avatarFile || avatarSaving} onClick={() => void saveAvatar()} className="w-full">
                 {avatarSaving ? "保存中..." : "保存头像"}
-              </button>
+              </CommandButton>
             </div>
             <FormMessage message={avatarMessage} />
           </div>

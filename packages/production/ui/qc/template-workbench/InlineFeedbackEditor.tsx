@@ -1,6 +1,6 @@
 "use client";
 
-import { PanelCard, TextareaField, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, PanelCard, TextareaField } from "@workspace/core/ui";
 import { selectionTitle, type WorkbenchSelection } from "./types";
 import type { InlineAnchor, InlineEntry } from "./inline-feedback-utils";
 export default function InlineFeedbackEditor({
@@ -41,9 +41,9 @@ export default function InlineFeedbackEditor({
             {anchor.section ? `${anchor.section} · ` : ""}{anchor.label}
           </div>
         </div>
-        <button type="button" onClick={onClose} aria-label="关闭字段反馈" className={[getToolbarActionClassName(), "px-2 py-1"].filter(Boolean).join(" ")}>
+        <CommandButton onClick={onClose} aria-label="关闭字段反馈" className="px-2 py-1">
           ×
-        </button>
+        </CommandButton>
       </div>
       <PanelCard bodyClassName="px-2 py-2 text-[12px] text-slate-600" className="mb-2">
         {selectionTitle(selection)}
@@ -61,12 +61,12 @@ export default function InlineFeedbackEditor({
       <TextareaField value={note} onChange={onNoteChange} rows={5} placeholder="描述这个标题或字段的问题。" unstyled className="w-full resize-y rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500" disabled={loading || saving} />
       {error ? <div className="mt-2 text-xs font-medium text-red-600">{error}</div> : null}
       <div className="mt-3 flex justify-end gap-2">
-        <button type="button" onClick={onClose} disabled={saving} className={[getToolbarActionClassName(), "px-3 py-2 text-xs"].filter(Boolean).join(" ")}>
+        <CommandButton onClick={onClose} disabled={saving} className="px-3 py-2 text-xs">
           取消
-        </button>
-        <button type="button" onClick={onSave} disabled={saving || loading} className={[getToolbarActionClassName("primary"), "px-3 py-2 text-xs"].filter(Boolean).join(" ")}>
+        </CommandButton>
+        <CommandButton variant="primary" onClick={onSave} disabled={saving || loading} className="px-3 py-2 text-xs">
           {saving ? "保存中" : "保存"}
-        </button>
+        </CommandButton>
       </div>
     </PanelCard>;
 }

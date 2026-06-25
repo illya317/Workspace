@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable, PanelCard, SectionCard, type DataTableColumn, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DataTable, PanelCard, SectionCard, type DataTableColumn } from "@workspace/core/ui";
 import type { PreviewAccount, PreviewBalance, PreviewResult, PreviewVoucher, PreviewVoucherItem } from "./types";
 interface ImportPreviewProps {
   preview: PreviewResult;
@@ -185,9 +185,9 @@ export default function ImportPreview({
     ...balance,
     id: balance.accountCode
   }));
-  const actions = preview.errors.length === 0 ? <button type="button" onClick={onConfirm} disabled={importing} className={getToolbarActionClassName("primary")}>
+  const actions = preview.errors.length === 0 ? <CommandButton variant="primary" onClick={onConfirm} disabled={importing}>
       {importing ? "导入中..." : "确认导入"}
-    </button> : null;
+    </CommandButton> : null;
   return <SectionCard title={`预览：${typeLabel}（${preview.year}年）`} subtitle={`共 ${preview.rows} 行原始数据，解析出 ${preview.accounts.length} 个科目${preview.balances ? `，${preview.balances.length} 条余额` : ""}${preview.vouchers ? `，${preview.vouchers.length} 张凭证` : ""}`} actions={actions}>
       <NoticeList title="错误" items={preview.errors} tone="red" />
       <NoticeList title="警告" items={preview.warnings} tone="yellow" />

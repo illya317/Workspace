@@ -1,6 +1,6 @@
 "use client";
 
-import { getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton } from "@workspace/core/ui";
 export function RowActions({
   canEdit,
   saving,
@@ -11,7 +11,7 @@ export function RowActions({
   onDelete: () => Promise<void>;
 }) {
   if (!canEdit) return null;
-  return <button type="button" disabled={saving !== null} onClick={onDelete} className={[getToolbarActionClassName("danger"), "px-3 py-1.5 text-xs"].filter(Boolean).join(" ")}>
+  return <CommandButton variant="danger" disabled={saving !== null} onClick={onDelete} className="px-3 py-1.5 text-xs">
       删除
-    </button>;
+    </CommandButton>;
 }

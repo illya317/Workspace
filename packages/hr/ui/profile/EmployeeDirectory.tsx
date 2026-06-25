@@ -4,15 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   DataTable,
-  DataTableActionsCell,
   EmptyStateCard,
   FieldValueFilter,
   FormField,
-  CreateStartButton,
-  InlineCreatePanel,
+  CreatePanel,
   PanelCard,
   Pagination,
-  RefreshActionButton,
   SearchInput,
   SelectField,
   TextField,
@@ -107,25 +104,9 @@ export default function EmployeeDirectory({
         defaultVisible: true,
         render: (employee) => employee.directDepartmentName || "-",
       },
-      {
-        key: "action",
-        label: "操作",
-        required: true,
-        render: (employee) => (
-          <DataTableActionsCell
-            actions={[
-              {
-                key: "view",
-                label: "查看员工资料",
-                kind: "view",
-                onClick: () => router.push(`/hr/roster/employees/${employee.employeeId}`),
-              },
-            ]}
-          />
-        ),
-      },
+
     ],
-    [router]
+    []
   );
 
   useEffect(() => {
@@ -201,17 +182,13 @@ export default function EmployeeDirectory({
         items={[
           canEdit
             ? ({
-                kind: "custom",
+                kind: "create",
                 key: "create",
                 section: "view",
-                content: (
-                  <CreateStartButton
-                    label="新建员工资料"
-                    active={createOpen}
-                    onClick={() => setCreateOpen((open) => !open)}
-                    disabled={creating}
-                  />
-                ),
+                label: "新建员工资料",
+                active: createOpen,
+                disabled: creating,
+                onClick: () => setCreateOpen((open) => !open),
               } as ToolbarItem)
             : null,
           {
@@ -248,20 +225,19 @@ export default function EmployeeDirectory({
             ),
           } as ToolbarItem,
           {
-            kind: "custom",
+            kind: "icon-button",
             key: "reset",
             section: "action",
-            content: (
-              <RefreshActionButton
-                label="重置"
-                onClick={() => {
-                  setKeyword("");
-                  setFilterField("");
-                  setFilterValue("");
-                  setPage(1);
-                }}
-              />
-            ),
+            icon: "refresh",
+            label: "重置",
+            className:
+              "!border-0 !bg-transparent !shadow-none !text-slate-700 hover:!bg-slate-100 focus:!ring-2 focus:!ring-emerald-100",
+            onClick: () => {
+              setKeyword("");
+              setFilterField("");
+              setFilterValue("");
+              setPage(1);
+            },
           } as ToolbarItem,
           {
             kind: "custom",
@@ -287,7 +263,8 @@ export default function EmployeeDirectory({
       />
 
       {canEdit && createOpen && (
-        <InlineCreatePanel
+        <CreatePanel
+          variant="inline"
           title="新建员工资料"
           onSubmit={() => void createEmployee()}
           onCancel={() => {
@@ -304,7 +281,7 @@ export default function EmployeeDirectory({
               placeholder="输入姓名"
             />
           </FormField>
-        </InlineCreatePanel>
+        </CreatePanel>
       )}
 
       {error && <EmptyStateCard compact className="border-red-100 text-red-600">{error}</EmptyStateCard>}
@@ -313,11 +290,18 @@ export default function EmployeeDirectory({
         <DataTable
           rows={employees}
           columns={columns}
-          visibleColumns={columns.map((column) => column.key)}
           loading={loading}
           emptyText="暂无员工"
           rowKey={(employee) => employee.id}
           onRowClick={(employee) => router.push(`/hr/roster/employees/${employee.employeeId}`)}
+          rowActions={(employee) => [
+            {
+              key: "view",
+              label: "查看员工资料",
+              kind: "view",
+              onClick: () => router.push(`/hr/roster/employees/${employee.employeeId}`),
+            },
+          ]}
         />
         <Pagination
           page={page}

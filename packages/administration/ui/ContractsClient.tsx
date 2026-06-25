@@ -37,7 +37,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
     setModalMode("edit");
   };
 
-  const toolbarColumns = getContractTableColumns(openEdit, setDeleteId);
+  const toolbarColumns = getContractTableColumns();
 
   const closeModal = () => {
     setModalMode(null);

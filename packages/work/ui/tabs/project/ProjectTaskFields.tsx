@@ -1,12 +1,11 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { FkFieldInput, FormField, OptionPicker, PanelCard, RemovableTag, TextareaField, TextField, getFieldInputClassName, type FkFieldOption, type PickerOption, getToolbarActionClassName } from "@workspace/core/ui";
-import CalendarDateInput from "@workspace/core/ui/CalendarDateInput";
+import { CalendarDateInput, CommandButton, FkFieldInput, FormField, OptionPicker, PanelCard, TagListInput, TextareaField, TextField, type FkFieldOption, type PickerOption } from "@workspace/core/ui";
 import { PROJECT_MILESTONE_PICKER_OPTIONS, type ProjectTaskDraft, type ProjectTaskItem } from "./model";
 import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
 import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
-const inputClassName = getFieldInputClassName("h-10");
+const inputClassName = "h-10";
 const pickerButtonClassName = `${inputClassName} text-left`;
 const pickerPopoverClassName = "absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-64 rounded-lg border border-slate-200 bg-white p-3 shadow-xl";
 export function ProjectTaskForm({
@@ -114,17 +113,24 @@ export function ProjectTaskForm({
         <FormField label="前置任务" className="lg:col-span-4">
           <div className="space-y-2">
             <OptionPicker value={null} options={predecessorOptions} disabled={disabled || predecessorOptions.length === 0} placeholder={predecessorOptions.length > 0 ? "添加前置任务" : "无可选前置任务"} onChange={addPredecessor} visibleCount={6} buttonClassName={pickerButtonClassName} popoverClassName={pickerPopoverClassName} />
-            {draft.predecessorTaskIds.length > 0 && <div className="flex flex-wrap gap-2">
-                {draft.predecessorTaskIds.map(id => <RemovableTag key={id} disabled={disabled} label={`移除前置任务 ${taskLabelById.get(id) || id}`} onRemove={() => removePredecessor(id)}>
-                    {taskLabelById.get(id) || `任务 ${id}`}
-                  </RemovableTag>)}
-              </div>}
+            {draft.predecessorTaskIds.length > 0 && (
+              <TagListInput
+                items={draft.predecessorTaskIds}
+                getKey={(id) => id}
+                getLabel={(id) => taskLabelById.get(id) || `任务 ${id}`}
+                onRemove={(_, index) => removePredecessor(draft.predecessorTaskIds[index])}
+                disabled={disabled}
+                confirm={false}
+                className="mt-2"
+                shellClassName="flex flex-wrap gap-2 border-0 bg-transparent p-0 shadow-none"
+              />
+            )}
           </div>
         </FormField>
       </div>
       {(onCancel || submitLabel && onSubmit) && <div className="mt-3 flex flex-wrap justify-end gap-2">
-          {onCancel && <button type="button" disabled={disabled} onClick={onCancel} className={getToolbarActionClassName()}>取消</button>}
-          {submitLabel && onSubmit && <button type="button" disabled={disabled} onClick={onSubmit} className={getToolbarActionClassName("primary")}>{submitLabel}</button>}
+          {onCancel && <CommandButton disabled={disabled} onClick={onCancel}>取消</CommandButton>}
+          {submitLabel && onSubmit && <CommandButton variant="primary" disabled={disabled} onClick={onSubmit}>{submitLabel}</CommandButton>}
         </div>}
     </FormWrapper>;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ActionButton, DatabasePageFrame, EmptyStateCard, PanelCard, SectionCard, Toast, Toolbar, useConfirmDelete, type ToolbarItem } from "@workspace/core/ui";
+import { DatabasePageFrame, EmptyStateCard, PanelCard, SectionCard, Toast, Toolbar, useConfirmDelete, type ToolbarItem } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import type { SessionUser } from "@workspace/platform/types";
 import { listTaskSpaces } from "./api";
@@ -129,35 +129,23 @@ export default function WorksClient({
               <Toolbar
                 items={[
                   {
-                    kind: "custom",
+                    kind: "icon-button",
                     key: "mobile-side-toggle",
                     section: "view",
-                    content: (
-                      <span className="xl:hidden">
-                        <ActionButton
-                          kind="panel-open"
-                          label="显示工作空间"
-                          onClick={() => setDrawerOpen(true)}
-                          className="!h-9 !w-10 !px-0"
-                        />
-                      </span>
-                    ),
+                    icon: "panel-open",
+                    label: "显示工作空间",
+                    className: "!h-9 !w-10 !px-0 xl:hidden",
+                    onClick: () => setDrawerOpen(true),
                   },
                   {
-                    kind: "custom",
+                    kind: "icon-button",
                     key: "desktop-side-toggle",
                     section: "view",
-                    content: (
-                      <span className="hidden xl:block">
-                        <ActionButton
-                          kind={sideOpen ? "panel-open" : "panel-close"}
-                          label={`${sideOpen ? "隐藏" : "显示"}工作空间`}
-                          onClick={() => setSideOpen(!sideOpen)}
-                          variant={sideOpen ? "primary" : "secondary"}
-                          className="!h-9 !w-10 !px-0"
-                        />
-                      </span>
-                    ),
+                    icon: sideOpen ? "panel-open" : "panel-close",
+                    label: `${sideOpen ? "隐藏" : "显示"}工作空间`,
+                    variant: sideOpen ? "primary" : "secondary",
+                    className: "!h-9 !w-10 !px-0 hidden xl:inline-flex",
+                    onClick: () => setSideOpen(!sideOpen),
                   },
                   {
                     kind: "custom",

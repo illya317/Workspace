@@ -2,10 +2,8 @@
 
 import { useMemo, useState } from "react";
 import {
-  RemovableTag,
-  TextField,
-  getTagInlineInputClassName,
-  getTagInputShellClassName,
+  TagInlineTextField,
+  TagListInput,
 } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import type { ProfileField } from "@workspace/hr/types";
@@ -72,21 +70,17 @@ export function AliasTagEditor({
   }
 
   return (
-    <div className={getTagInputShellClassName()}>
-      {tags.map((tag, index) => (
-        <RemovableTag
-          key={`${tag}-${index}`}
-          label={`删除别名 ${tag}`}
-          disabled={disabled}
-          onRemove={() => removeTag(index)}
-        >
-          {tag}
-        </RemovableTag>
-      ))}
-      {disabled ? (
-        tags.length === 0 ? <span className="text-slate-400">未设置</span> : null
-      ) : (
-        <TextField
+    <TagListInput
+      items={tags}
+      getKey={(tag, index) => `${tag}-${index}`}
+      getLabel={(tag) => tag}
+      onRemove={(_, index) => removeTag(index)}
+      disabled={disabled}
+      emptyText={disabled ? "未设置" : undefined}
+      shellClassName="content-start"
+    >
+      {!disabled && (
+        <TagInlineTextField
           value={draft}
           onChange={setDraft}
           onBlur={commitDraft}
@@ -100,11 +94,9 @@ export function AliasTagEditor({
             if (event.key === "Backspace" && !draft && tags.length > 0) removeTag(tags.length - 1);
           }}
           placeholder={tags.length === 0 ? "添加别名" : ""}
-          unstyled
-          className={getTagInlineInputClassName()}
         />
       )}
-    </div>
+    </TagListInput>
   );
 }
 

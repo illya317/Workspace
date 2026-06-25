@@ -1,6 +1,6 @@
 "use client";
 
-import DataTable, { type DataTableColumn } from "@workspace/core/ui/DataTable";
+import { DataTable, type DataTableColumn } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
 
 export interface ReportLine {

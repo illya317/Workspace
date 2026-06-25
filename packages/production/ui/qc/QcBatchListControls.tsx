@@ -1,6 +1,6 @@
 "use client";
 
-import { FormField, InlineCreatePanel, SelectField, TextField } from "@workspace/core/ui";
+import { CreatePanel, FormField, SelectField, TextField } from "@workspace/core/ui";
 interface QcProductOption {
   id: string;
   productName: string;
@@ -48,7 +48,7 @@ export function QcBatchCreatePanel({
   onCancel
 }: QcBatchCreatePanelProps) {
   if (!open) return null;
-  return <InlineCreatePanel title="新建批次" onSubmit={onSubmit} onCancel={onCancel} submitDisabled={submitting || !productKey || !batchNumber.trim()} submitting={submitting}>
+  return <CreatePanel variant="inline" title="新建批次" onSubmit={onSubmit} onCancel={onCancel} submitDisabled={submitting || !productKey || !batchNumber.trim()} submitting={submitting}>
       <FormField label="产品" required>
         <SelectField value={productKey} onChange={onProductKeyChange} options={products.map(product => ({
         value: product.id,
@@ -60,5 +60,5 @@ export function QcBatchCreatePanel({
         width: "9rem"
       }} />
       </FormField>
-    </InlineCreatePanel>;
+    </CreatePanel>;
 }

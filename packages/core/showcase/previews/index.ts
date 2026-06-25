@@ -7,6 +7,7 @@ export { navigationPreviewByName } from "./navigation-previews";
 export { pickerPreviewByName } from "./picker-previews";
 export { selectorPreviewByName } from "./selector-previews";
 export { statusPreviewByName } from "./status-previews";
+export { tagPreviewByName } from "./tag-previews";
 export { cellPreviewByName } from "./cell-previews";
 export { feedbackPreviewByName } from "./feedback-previews";
 export { previewCaseByName } from "./preview-cases";

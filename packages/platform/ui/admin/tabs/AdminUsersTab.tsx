@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useRef } from "react";
 import { matchSearchFields, matchText } from "@workspace/platform/search";
-import { DataTable, Pagination, PanelCard, SearchInput, SelectField, Badge, TextField, type DataTableColumn, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DataTable, Pagination, PanelCard, SearchInput, SelectField, Badge, TextField, type DataTableColumn } from "@workspace/core/ui";
 import type { ResourceItem } from "../types";
 import { formatSummaryTooltip, ROLE_COLORS, summarizeResourcePermissions, type PermissionGrantLike } from "../lib/permission-summary";
 function copyFallback(text: string) {
@@ -176,9 +176,9 @@ export default function AdminUsersTab({
     label: "状态",
     required: true,
     cellClassName: "w-20",
-    render: u => <button type="button" onClick={() => toggleLogin(u.id, u.canLogin)} className={[getToolbarActionClassName(u.canLogin ? "secondary" : "danger"), "px-2 py-1 text-xs"].filter(Boolean).join(" ")}>
+    render: u => <CommandButton variant={u.canLogin ? "secondary" : "danger"} onClick={() => toggleLogin(u.id, u.canLogin)} className="px-2 py-1 text-xs">
           {u.canLogin ? "启用" : "停用"}
-        </button>
+        </CommandButton>
   }, {
     key: "permissions",
     label: <>
@@ -199,17 +199,17 @@ export default function AdminUsersTab({
     label: "操作",
     required: true,
     cellClassName: "w-32",
-    render: u => <button type="button" onClick={() => resetPassword(u)} className={[getToolbarActionClassName(), "px-2 py-1 text-xs"].filter(Boolean).join(" ")}>
+    render: u => <CommandButton onClick={() => resetPassword(u)} className="px-2 py-1 text-xs">
           重置密码
-        </button>
+        </CommandButton>
   }];
   return <div className="space-y-4">
       <div className="flex items-center gap-4">
         <div className="flex items-center">
           <SearchInput value={keyword} onChange={onKeywordChange} placeholder={searchMode === "name" ? "搜索姓名..." : "搜索全部..."} className="w-64" />
-          <button type="button" onClick={() => setSearchMode(m => m === "name" ? "all" : "name")} className={getToolbarActionClassName(searchMode === "name" ? "secondary" : "primary")}>
+          <CommandButton variant={searchMode === "name" ? "secondary" : "primary"} onClick={() => setSearchMode(m => m === "name" ? "all" : "name")}>
             {searchMode === "name" ? "姓名" : "全部"}
-          </button>
+          </CommandButton>
         </div>
         <span className="text-sm text-gray-400">{filtered.length} 个用户{keyword && ` (共${users.length})`}</span>
         <div className="flex-1" />
@@ -217,25 +217,25 @@ export default function AdminUsersTab({
         value: String(n),
         label: `${n}条/页`
       }))} triggerClassName="min-w-32" />
-        <button type="button" onClick={() => {
+        <CommandButton variant="primary" onClick={() => {
         setCreating(true);
         setTimeout(() => nameRef.current?.focus(), 50);
-      }} className={getToolbarActionClassName("primary")}>
+      }}>
           新建
-        </button>
+        </CommandButton>
       </div>
 
       {creating && <PanelCard bodyClassName="flex flex-wrap items-center gap-3 p-3">
           <TextField ref={nameRef} value={newNickname} onChange={setNewNickname} placeholder="昵称 *" className="w-40" onKeyDown={e => e.key === "Enter" && handleCreate()} />
           <TextField value={newUsername} onChange={setNewUsername} placeholder="用户名（可选）" className="w-52" onKeyDown={e => e.key === "Enter" && handleCreate()} />
-          <button type="button" onClick={handleCreate} className={getToolbarActionClassName("primary")}>保存</button>
-          <button type="button" onClick={() => {
+          <CommandButton variant="primary" onClick={handleCreate}>保存</CommandButton>
+          <CommandButton onClick={() => {
         setCreating(false);
         setNewNickname("");
         setNewUsername("");
-      }} className={getToolbarActionClassName()}>
+      }}>
             取消
-          </button>
+          </CommandButton>
         </PanelCard>}
 
       {loading ? <p className="text-gray-500">加载中...</p> : <PanelCard>

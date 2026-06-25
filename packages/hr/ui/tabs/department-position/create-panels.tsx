@@ -2,11 +2,11 @@
 
 import type { Dispatch, SetStateAction } from "react";
 import {
+  CreatePanel,
   FkFieldInput,
   FormField,
-  InlineCreatePanel,
+  ReadOnlyField,
   TextField,
-  getReadOnlyFieldClassName,
 } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
@@ -41,7 +41,8 @@ export function PositionCreatePanel({
   const readOnlyDepartmentName = createPositionDepartment?.name || departmentDisplayName;
 
   return (
-    <InlineCreatePanel
+    <CreatePanel
+      variant="inline"
       title="新建岗位"
       onSubmit={() => void onCreatePosition()}
       onCancel={onCancel}
@@ -51,11 +52,7 @@ export function PositionCreatePanel({
     >
       <FormField label="部门" required className="w-auto max-w-full">
         {positionDepartmentReadOnly ? (
-          <TextField
-            value={readOnlyDepartmentName}
-            disabled
-            className={getReadOnlyFieldClassName("h-9 py-0 text-xs")}
-          />
+          <ReadOnlyField value={readOnlyDepartmentName} className="h-9 py-0 text-xs" />
         ) : (
           <FkFieldInput
             fkKey="hr.department"
@@ -76,12 +73,8 @@ export function PositionCreatePanel({
         />
       </FormField>
       <FormField label="编码" required className="w-auto">
-        <TextField
-          value={createPositionCode}
-          disabled
-          className={getReadOnlyFieldClassName("h-9 py-0 font-mono text-xs")}
-        />
+        <ReadOnlyField value={createPositionCode} className="h-9 py-0 font-mono text-xs" />
       </FormField>
-    </InlineCreatePanel>
+    </CreatePanel>
   );
 }

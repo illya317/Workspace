@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { usePermissionsTab } from "../hooks/usePermissionsTab";
-import { EmptyStateCard, PickerOptionButton, SearchInput, SectionCard, SelectField, TabBar, Toolbar } from "@workspace/core/ui";
+import { EmptyStateCard, SearchInput, SectionCard, SelectField, TabBar, Toolbar } from "@workspace/core/ui";
 import ResourceTree from "../components/ResourceTree";
 import MatrixTable from "../components/permissions/MatrixTable";
 import type { ResourceItem, SubjectType } from "../types";
@@ -110,18 +110,15 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, showToa
               bodyClassName="p-3"
             >
               {ownerCapabilities.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {ownerCapabilities.map((capability) => (
-                    <PickerOptionButton
-                      key={capability.key}
-                      onClick={() => s.setSelectedResource(capability.key)}
-                      selected={s.selectedResource === capability.key}
-                      className="w-auto"
-                    >
-                      {capability.name}
-                    </PickerOptionButton>
-                  ))}
-                </div>
+                <TabBar
+                  variant="micro"
+                  active={resourceMode === "capability" ? s.selectedResource ?? "" : ""}
+                  onChange={(key) => s.setSelectedResource(key)}
+                  tabs={ownerCapabilities.map((capability) => ({
+                    key: capability.key,
+                    label: capability.name,
+                  }))}
+                />
               ) : (
                 <p className="text-sm text-slate-400">暂无独立设置能力</p>
               )}

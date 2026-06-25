@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable, Pagination, PanelCard, type DataTableColumn, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DataTable, Pagination, PanelCard, type DataTableColumn } from "@workspace/core/ui";
 import type { SourceTraceInfo } from "../types";
 export type CostRecord = Record<string, unknown>;
 export type CostColumn = DataTableColumn<CostRecord>;
@@ -37,9 +37,9 @@ export function CostTraceButton({
   row: CostRecord;
   onTrace: (info: SourceTraceInfo) => void;
 }) {
-  return <button type="button" onClick={() => onTrace(sourceTraceFromRow(row))} className={[getToolbarActionClassName("secondary"), "border-0 bg-transparent p-0 text-xs text-emerald-600 shadow-none hover:bg-transparent hover:underline"].filter(Boolean).join(" ")}>
+  return <CommandButton onClick={() => onTrace(sourceTraceFromRow(row))} size="sm" className="border-0 bg-transparent p-0 text-xs text-emerald-600 shadow-none hover:bg-transparent hover:underline">
       查看
-    </button>;
+    </CommandButton>;
 }
 export default function CostDataTable({
   rows,

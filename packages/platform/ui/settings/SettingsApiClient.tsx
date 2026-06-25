@@ -1,7 +1,7 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { CheckboxChip, DataTable, DatabasePageFrame, FormField, SectionCard, TextField, type DataTableColumn, getToolbarActionClassName } from "@workspace/core/ui";
+import { CheckboxChip, CommandButton, DataTable, DatabasePageFrame, FormField, SectionCard, TextField, type DataTableColumn } from "@workspace/core/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { postJson, putJson, requestJson } from "../api-client";
 type OpenApiRegistrationRow = {
@@ -257,7 +257,7 @@ export default function SettingsApiClient({
   }, {
     key: "actions",
     label: "操作",
-    render: row => <button type="button" disabled={busy === `rotate-${row.id}`} onClick={() => rotateSecret(row.id)} className={getToolbarActionClassName()}>轮换密钥</button>
+    render: row => <CommandButton disabled={busy === `rotate-${row.id}`} onClick={() => rotateSecret(row.id)}>轮换密钥</CommandButton>
   }];
   const logColumns: DataTableColumn<OpenApiLogRow>[] = [{
     key: "createdAt",
@@ -286,7 +286,7 @@ export default function SettingsApiClient({
   }];
   return <DatabasePageFrame contentClassName="py-8">
       {message && <div className="rounded-lg border border-cyan-200 bg-cyan-50 px-4 py-3 text-sm text-cyan-800">{message}</div>}
-      {freshSecret && <SectionCard title="新密钥" subtitle="只在本次操作后显示。" actions={<button type="button" onClick={() => setFreshSecret(null)} className={getToolbarActionClassName()}>隐藏</button>}>
+      {freshSecret && <SectionCard title="新密钥" subtitle="只在本次操作后显示。" actions={<CommandButton onClick={() => setFreshSecret(null)}>隐藏</CommandButton>}>
           <code className="block overflow-x-auto rounded-md bg-slate-950 px-4 py-3 text-xs text-white">{freshSecret}</code>
         </SectionCard>}
 
@@ -297,7 +297,7 @@ export default function SettingsApiClient({
         </div>
       </SectionCard>
 
-      <SectionCard title="Client" actions={<button type="button" onClick={() => loadData()} disabled={loading} className={getToolbarActionClassName()}>刷新</button>}>
+      <SectionCard title="Client" actions={<CommandButton onClick={() => loadData()} disabled={loading}>刷新</CommandButton>}>
         <div className="mb-4 grid gap-3 md:grid-cols-[1fr_1fr_auto]">
           <FormField label="名称" required>
             <TextField value={newClientName} onChange={setNewClientName} placeholder="Client 名称" maxLength={80} />
@@ -306,13 +306,13 @@ export default function SettingsApiClient({
             <TextField value={newClientDescription} onChange={setNewClientDescription} placeholder="用途说明" maxLength={240} />
           </FormField>
           <div className="flex items-end">
-            <button type="button" onClick={createClient} disabled={busy === "create" || !newClientName.trim()} className={getToolbarActionClassName("primary")}>创建</button>
+            <CommandButton variant="primary" onClick={createClient} disabled={busy === "create" || !newClientName.trim()}>创建</CommandButton>
           </div>
         </div>
         <DataTable rows={data?.clients ?? []} columns={clientColumns} visibleColumns={clientColumns.map(column => column.key)} loading={loading} emptyText="暂无 Client" rowKey={row => row.id} density="compact" onRowClick={row => setSelectedClientId(row.id)} rowClassName={row => row.id === selectedClientId ? "bg-emerald-50/70" : ""} />
       </SectionCard>
 
-      <SectionCard title="Scope 授权" subtitle={selectedClient ? selectedClient.name : "先选择一个 Client。"} actions={<button type="button" onClick={saveScopes} disabled={!selectedClient || busy === `scopes-${selectedClient?.id}`} className={getToolbarActionClassName()}>保存</button>}>
+      <SectionCard title="Scope 授权" subtitle={selectedClient ? selectedClient.name : "先选择一个 Client。"} actions={<CommandButton onClick={saveScopes} disabled={!selectedClient || busy === `scopes-${selectedClient?.id}`}>保存</CommandButton>}>
         <div className="flex flex-wrap gap-2">
           {visibleScopes.map(scope => <CheckboxChip key={scope.key} checked={draftScopeKeys.includes(scope.key)} onChange={checked => {
           setDraftScopeKeys(current => checked ? [...new Set([...current, scope.key])] : current.filter(key => key !== scope.key));

@@ -2,15 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  BlockCreatePanel,
+  CreatePanel,
   DataTable,
-  DataTableActionsCell,
   EmptyStateCard,
   SectionCard,
   TableScrollFrame,
-  createDataTableEditActions,
   useConfirmDelete,
   type DataTableColumn,
+  type DataTableRowEditActionConfig,
   type PickerOption,
 } from "@workspace/core/ui";
 import {
@@ -154,50 +153,7 @@ export default function ProjectTasksSection({
       defaultVisible: true,
       render: (task) => task.endDate || "未定",
     },
-    {
-      key: "actions",
-      label: "操作",
-      required: true,
-      render: (task) => {
-        const editing = editingTaskId === task.id;
-        const canSave = Boolean(editDraft && isTaskDraftSubmittable(editDraft));
-        return (
-          <DataTableActionsCell
-            actions={[
-              ...createDataTableEditActions({
-                row: task,
-                editing,
-                canEdit,
-                canSave,
-                initial: createProjectTaskDraft(task),
-                current: editDraft,
-                saving,
-                disabled,
-                editLabel: "编辑任务",
-                saveLabel: "保存任务",
-                cancelLabel: "取消编辑",
-                onEdit: handleStartEdit,
-                onSave: () => void handleUpdate(),
-                onCancel: handleCancelEdit,
-              }),
-              ...(canEdit && !editing ? [{
-                key: "create-child-project",
-                kind: "add",
-                label: task.childProjectId ? "已有子项目" : "创建子项目",
-                onClick: () => onCreateChildProject?.(task),
-                disabled: saving || disabled || Boolean(task.childProjectId) || !onCreateChildProject,
-              } as const, {
-                key: "delete",
-                kind: "delete",
-                label: "删除任务",
-                onClick: () => void handleDelete(task),
-                disabled: saving || disabled || Boolean(task.childProjectId),
-              } as const] : []),
-            ]}
-          />
-        );
-      },
-    },
+
   ];
 
   async function reloadAfterSave(message: string) {
@@ -293,7 +249,8 @@ export default function ProjectTasksSection({
   }
 
   return (
-    <BlockCreatePanel
+    <CreatePanel
+      variant="block"
       title="项目任务"
       canCreate={canEdit}
       creating={creatingTask}
@@ -303,8 +260,8 @@ export default function ProjectTasksSection({
       addLabel="新增任务"
       submitLabel="保存任务"
       onStartCreate={() => setCreatingTask(true)}
-      onCancelCreate={() => setCreatingTask(false)}
-      onSubmitCreate={() => void handleCreate()}
+      onCancel={() => setCreatingTask(false)}
+      onSubmit={() => void handleCreate()}
       createContent={<ProjectTaskForm draft={createDraft} disabled={disabled || saving} taskOptions={taskOptions} phases={phases} tasks={tasks} excludedTaskId={null} framed={false} onChange={setCreateDraft} />}
     >
         <TableScrollFrame className="overflow-y-hidden">
@@ -329,9 +286,43 @@ export default function ProjectTasksSection({
                 onChange={setEditDraft}
               />
             ) : <ProjectTaskDetail task={task} />}
+            rowEditActions={(task): DataTableRowEditActionConfig<ProjectTaskItem> => ({
+              editing: editingTaskId === task.id,
+              canEdit,
+              canSave: Boolean(editDraft && isTaskDraftSubmittable(editDraft)),
+              initial: createProjectTaskDraft(task),
+              current: editDraft,
+              saving,
+              disabled,
+              editLabel: "编辑任务",
+              saveLabel: "保存任务",
+              cancelLabel: "取消编辑",
+              onEdit: handleStartEdit,
+              onSave: () => void handleUpdate(),
+              onCancel: handleCancelEdit,
+            })}
+            rowActions={(task) => {
+              if (!canEdit || editingTaskId === task.id) return [];
+              return [
+                {
+                  key: "create-child-project",
+                  kind: "add" as const,
+                  label: task.childProjectId ? "已有子项目" : "创建子项目",
+                  onClick: () => onCreateChildProject?.(task),
+                  disabled: saving || disabled || Boolean(task.childProjectId) || !onCreateChildProject,
+                },
+                {
+                  key: "delete",
+                  kind: "delete" as const,
+                  label: "删除任务",
+                  onClick: () => void handleDelete(task),
+                  disabled: saving || disabled || Boolean(task.childProjectId),
+                },
+              ];
+            }}
           />
         </TableScrollFrame>
-    </BlockCreatePanel>
+    </CreatePanel>
   );
 }
 

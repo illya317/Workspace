@@ -1,6 +1,6 @@
 "use client";
 
-import { EmptyStateCard, Badge, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, EmptyStateCard, Badge } from "@workspace/core/ui";
 import { SectionShell } from "./ProfileFormControls";
 import { edpFields, employmentFields } from "@workspace/hr/constants";
 import type { ContractRow, EdpRow, EmploymentRow, ProfileField } from "@workspace/hr/types";
@@ -33,9 +33,9 @@ export function RowsSection<T extends RowBase>({
 }) {
   return <SectionShell title={null} className={className}>
       <div className="space-y-4">
-        {rows.length === 0 ? <EmptyStateCard compact>暂无记录</EmptyStateCard> : rows.map((row, index) => <FieldRegion key={row.id ?? `new-${index}`} title={getRowTitle(row, title)} actions={canEdit && allowDelete && onDelete ? <button type="button" disabled={saving !== null} onClick={() => onDelete(row, index)} className={[getToolbarActionClassName("danger"), "px-3 py-1.5 text-xs"].filter(Boolean).join(" ")}>
+        {rows.length === 0 ? <EmptyStateCard compact>暂无记录</EmptyStateCard> : rows.map((row, index) => <FieldRegion key={row.id ?? `new-${index}`} title={getRowTitle(row, title)} actions={canEdit && allowDelete && onDelete ? <CommandButton variant="danger" disabled={saving !== null} onClick={() => onDelete(row, index)} className="px-3 py-1.5 text-xs">
                   删除
-                </button> : null}>
+                </CommandButton> : null}>
               {fieldGrid(fields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
           const field = fields.find(item => item.key === key);
           if (field) onChange(index, field, value, option);
@@ -119,7 +119,7 @@ export function EdpSection({
                       {row.isPrimary && <Badge label="主岗" tone="blue" />}
                       <span className="text-xs font-medium text-slate-500">{row.departmentName || "未设置部门"} · 占比 {row.workPercent || "未设置"}</span>
                     </div>} actions={canEdit ? <>
-                      <button type="button" onClick={addRow} disabled={saving !== null} className={[getToolbarActionClassName("secondary"), "px-3 py-1.5 text-xs"].filter(Boolean).join(" ")}>新增</button>
+                      <CommandButton variant="secondary" onClick={addRow} disabled={saving !== null} className="px-3 py-1.5 text-xs">新增</CommandButton>
                       <RowActions canEdit={canEdit} saving={saving} onDelete={() => onDelete(row, index)} />
                     </> : null}>
                   {fieldGrid(allFields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {

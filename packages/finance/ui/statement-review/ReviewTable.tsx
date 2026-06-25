@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable, PanelCard, TextField, type DataTableColumn, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DataTable, PanelCard, TextField, type DataTableColumn } from "@workspace/core/ui";
 import type { RvLine } from "@workspace/finance/types";
 const FMT = (n: number) => n.toLocaleString("en-US", {
   minimumFractionDigits: 2,
@@ -90,14 +90,14 @@ export default function ReviewTable({
           if (event.key === "Escape") setEditingAmt(null);
         }} className="text-right" />;
       }
-      return <button type="button" onClick={() => {
+      return <CommandButton onClick={() => {
         if (!isReadOnly) {
           setEditingAmt(line.lineCode);
           setEditAmt(state.adjustedAmount != null ? String(state.adjustedAmount) : "");
         }
-      }} disabled={isReadOnly} className={[getToolbarActionClassName(), `${state.adjustedAmount != null ? "text-blue-600" : "text-gray-400"} border-0 bg-transparent px-1 py-0.5 shadow-none hover:bg-gray-100 disabled:bg-transparent`].filter(Boolean).join(" ")}>
+      }} disabled={isReadOnly} size="sm" className={`${state.adjustedAmount != null ? "text-blue-600" : "text-gray-400"} border-0 bg-transparent px-1 py-0.5 shadow-none hover:bg-gray-100 disabled:bg-transparent`}>
             {state.adjustedAmount != null ? FMT(state.adjustedAmount) : "—"}
-          </button>;
+          </CommandButton>;
     }
   }, {
     key: "finalAmount",
@@ -114,9 +114,9 @@ export default function ReviewTable({
     headerClassName: "text-center",
     render: line => {
       const status = getLineState(line).status;
-      return <button type="button" onClick={() => toggleStatus(line)} disabled={isReadOnly} className={[getToolbarActionClassName(), `px-1.5 py-0.5 text-xs ${status === "confirmed" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : status === "adjusted" ? "border-blue-200 bg-blue-50 text-blue-700" : status === "flagged" ? "border-red-200 bg-red-100 text-red-700" : "border-gray-200 bg-gray-100 text-gray-500"}`].filter(Boolean).join(" ")}>
+      return <CommandButton onClick={() => toggleStatus(line)} disabled={isReadOnly} size="sm" className={`px-1.5 py-0.5 text-xs ${status === "confirmed" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : status === "adjusted" ? "border-blue-200 bg-blue-50 text-blue-700" : status === "flagged" ? "border-red-200 bg-red-100 text-red-700" : "border-gray-200 bg-gray-100 text-gray-500"}`}>
             {STS[status] || status}
-          </button>;
+          </CommandButton>;
     }
   }, {
     key: "comment",
@@ -132,14 +132,14 @@ export default function ReviewTable({
           if (event.key === "Escape") setEditingCmt(null);
         }} />;
       }
-      return <button type="button" onClick={() => {
+      return <CommandButton onClick={() => {
         if (!isReadOnly) {
           setEditingCmt(line.lineCode);
           setEditCmt(state.comment || "");
         }
-      }} disabled={isReadOnly} className={[getToolbarActionClassName(), `w-full justify-start border-0 bg-transparent px-1 py-0.5 text-left shadow-none hover:bg-gray-100 disabled:bg-transparent ${state.comment ? "text-gray-600" : state.status === "flagged" ? "text-red-400 italic" : "text-gray-300"}`].filter(Boolean).join(" ")}>
+      }} disabled={isReadOnly} size="sm" className={`w-full justify-start border-0 bg-transparent px-1 py-0.5 text-left shadow-none hover:bg-gray-100 disabled:bg-transparent ${state.comment ? "text-gray-600" : state.status === "flagged" ? "text-red-400 italic" : "text-gray-300"}`}>
             {state.comment || (state.status === "flagged" ? "请填写标记原因…" : "—")}
-          </button>;
+          </CommandButton>;
     }
   }];
   return <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">

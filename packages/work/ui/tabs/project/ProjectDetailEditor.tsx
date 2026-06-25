@@ -10,8 +10,6 @@ import {
   TextareaField,
   TextField,
   Toolbar,
-  getFieldInputClassName,
-  getReadOnlyFieldClassName,
 } from "@workspace/core/ui";
 import type { FkFieldOption, ToolbarItem } from "@workspace/core/ui";
 import { DateField, OptionField, ParentProjectField, PercentField, ReadOnlyInfoField, LinkedInfoField } from "./ProjectDetailFields";
@@ -33,7 +31,7 @@ import {
 } from "./model";
 import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
 
-const inputClassName = getFieldInputClassName("h-10");
+const inputClassName = "h-10";
 
 export default function ProjectDetailEditor({
   editorTitle,
@@ -176,8 +174,7 @@ export default function ProjectDetailEditor({
                     <TextField
                       value={projectCode(selectedProject, draft)}
                       readOnly
-                      className={getReadOnlyFieldClassName("h-10 cursor-default font-mono text-slate-600")}
-                      unstyled
+                      className="h-10 cursor-default font-mono text-slate-600"
                     />
                     <p className="mt-1 text-xs font-medium text-slate-400">
                       {draft.projectType === "company" ? "公司项目按 FH-YY-NN 自动编号" : draft.projectType === "department" ? "部门项目按部门编码-YY-NN 自动编号" : "其他项目不自动编号"}
@@ -194,8 +191,7 @@ export default function ProjectDetailEditor({
                     <TextField
                       value={draft.leader?.name || "未设置"}
                       readOnly
-                      className={getReadOnlyFieldClassName("h-10 cursor-default text-slate-600")}
-                      unstyled
+                      className="h-10 cursor-default text-slate-600"
                     />
                   </FormField>
                   <FormField label="项目名称" required>

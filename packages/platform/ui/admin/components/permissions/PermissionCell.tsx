@@ -1,6 +1,6 @@
 "use client";
 
-import { getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton } from "@workspace/core/ui";
 import { sourceLabel } from "../../lib";
 interface PermissionCellProps {
   state: {
@@ -23,16 +23,16 @@ export default function PermissionCell({
     const isInherited = !isChild && state.source !== "direct";
     if (isChild || isInherited) {
       const label = isChild ? "子资源" : "继承";
-      return <button type="button" onClick={onClick} title={isChild ? "子资源已授权，点击添加直接授权" : state.source ? `来源: ${sourceLabel(state.source)}，点击添加直接授权` : "点击添加直接授权"} className={[getToolbarActionClassName(), `py-1 text-xs ${isChild ? "!px-2" : "!px-4"}`].filter(Boolean).join(" ")}>
+      return <CommandButton onClick={onClick} title={isChild ? "子资源已授权，点击添加直接授权" : state.source ? `来源: ${sourceLabel(state.source)}，点击添加直接授权` : "点击添加直接授权"} size="sm" className={`py-1 text-xs ${isChild ? "!px-2" : "!px-4"}`}>
           <span className="opacity-60">✓</span>
           <span>{label}</span>
-        </button>;
+        </CommandButton>;
     }
-    return <button type="button" onClick={onClick} title={state.source ? `来源: ${sourceLabel(state.source)}` : undefined} className={[getToolbarActionClassName("primary"), "px-2 py-1 text-xs"].filter(Boolean).join(" ")}>
+    return <CommandButton variant="primary" onClick={onClick} title={state.source ? `来源: ${sourceLabel(state.source)}` : undefined} size="sm" className="px-2 py-1 text-xs">
         ✓
-      </button>;
+      </CommandButton>;
   }
-  return <button type="button" onClick={onClick} title="点击授权" className={[getToolbarActionClassName(), "px-2 py-1 text-xs"].filter(Boolean).join(" ")}>
+  return <CommandButton onClick={onClick} title="点击授权" size="sm" className="px-2 py-1 text-xs">
       +
-    </button>;
+    </CommandButton>;
 }

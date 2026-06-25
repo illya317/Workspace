@@ -2,12 +2,13 @@ import {
   ActionGlyph,
   EmptyStateCard,
   PanelCard,
-  TreeNodeBranch,
-  TreeNodeCard,
 } from "@workspace/core/ui";
+import { TreeNodeBranch, TreeNodeCard } from "../ui/HierarchyTree";
 import {
+  coreUiComponentAccessLayerMeta,
   coreUiComponentKindMeta,
   coreUiComponentTierMeta,
+  coreUiFrameMaturityMeta,
 } from "@workspace/core/ui/component-registry";
 import {
   formatNestDepth,
@@ -15,19 +16,55 @@ import {
 } from "@workspace/core/ui/component-nest-depth";
 import type { CoreUiComponentTreeNode } from "@workspace/core/ui/component-registry-view";
 
-export type UiComponentTreeMetaKey = "kind" | "tier" | "usedBy" | "files" | "verified";
+export type UiComponentTreeMetaKey =
+  | "kind"
+  | "accessLayer"
+  | "tier"
+  | "usedBy"
+  | "files"
+  | "verified";
 
 function nodeId(name: string) {
   return `ui-component-root-${name}`;
 }
 
+function VerifiedBadge({ verified }: { verified: boolean }) {
+  return (
+    <span
+      className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
+        verified ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+      }`}
+      title={verified ? "当前不需要改" : "待进入改造队列"}
+    >
+      {verified ? "无需改造" : "待改造"}
+    </span>
+  );
+}
+
+function FrameMaturityBadge({ maturity }: { maturity?: string }) {
+  if (!maturity) return null;
+  const meta = maturity === "stable"
+    ? { label: "Stable", classes: "bg-emerald-100 text-emerald-700" }
+    : maturity === "tbc"
+      ? { label: "TBC", classes: "bg-orange-100 text-orange-700" }
+      : { label: "Internal", classes: "bg-slate-200 text-slate-700" };
+  return (
+    <span
+      className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${meta.classes}`}
+      title={coreUiFrameMaturityMeta[maturity as keyof typeof coreUiFrameMaturityMeta]?.description ?? ""}
+    >
+      {meta.label}
+    </span>
+  );
+}
+
 function buildMeta(node: CoreUiComponentTreeNode, visibleMeta: readonly string[]) {
   const parts: string[] = [];
   if (visibleMeta.includes("kind")) parts.push(coreUiComponentKindMeta[node.kind].label);
+  if (visibleMeta.includes("accessLayer")) parts.push(coreUiComponentAccessLayerMeta[node.accessLayer].label);
   if (visibleMeta.includes("tier")) parts.push(coreUiComponentTierMeta[node.tier].label);
   if (visibleMeta.includes("usedBy")) parts.push(`被引用 ${node.usedByCount}`);
   if (visibleMeta.includes("files")) parts.push(`文件 ${node.usageFileCount}`);
-  if (visibleMeta.includes("verified")) parts.push(node.verified ? "已验证" : "未验证");
   return parts.join(" · ");
 }
 
@@ -48,6 +85,7 @@ function TreeNodeView({
 }) {
   const expanded = expandedNames.has(node.name);
   const canShowChildren = node.depth < 3 && node.children.length > 0;
+  const isFrame = node.accessLayer === "page-frame";
 
   return (
     <TreeNodeCard
@@ -56,7 +94,7 @@ function TreeNodeView({
           <span className="truncate">{node.name}</span>
           <ActionGlyph
             kind="verified"
-            className={`h-4 w-4 shrink-0 ${node.verified ? "text-emerald-600" : "text-red-500"}`}
+            className={`h-4 w-4 shrink-0 ${node.verified ? "text-emerald-600" : "text-amber-500"}`}
           />
           <span
             className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${nestDepthBadgeClasses(node.nestDepth)}`}
@@ -64,6 +102,8 @@ function TreeNodeView({
           >
             {formatNestDepth(node.nestDepth)}
           </span>
+          {isFrame && <FrameMaturityBadge maturity={node.component.frameMaturity} />}
+          {visibleMeta.includes("verified") && <VerifiedBadge verified={node.verified} />}
         </span>
       )}
       active={selectedName === node.name}
@@ -77,7 +117,7 @@ function TreeNodeView({
       } : undefined}
       onClick={() => onSelect(node.name)}
       className="shadow-none"
-      titleClassName={node.tier === "foundation" ? "text-slate-500" : undefined}
+      titleClassName={node.accessLayer === "foundation" ? "text-slate-500" : undefined}
     >
       {expanded && (
         <div className="space-y-2">

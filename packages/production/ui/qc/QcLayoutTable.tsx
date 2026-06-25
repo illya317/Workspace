@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { dataTableClassNames, StructuredTable, type StructuredTableCell } from "@workspace/core/ui";
+import { StructuredTable, type StructuredTableCell } from "@workspace/core/ui";
 import type { QcLayoutBlock } from "@workspace/production/server/qc";
 import { CellContent } from "./qc-layout-table/cell-content";
 import { Part } from "./qc-layout-table/parts";
@@ -70,7 +70,7 @@ export function TableBlock({
       rows={rows}
       colWidths={block.columnWidths}
       rowHeights={block.rowHeights}
-      className={`${dataTableClassNames.table} ${marginClass} w-full table-fixed border-collapse ${TABLE_BODY_TEXT_CLASS} ${className}`}
+      className={`min-w-full text-left text-sm ${marginClass} w-full table-fixed border-collapse ${TABLE_BODY_TEXT_CLASS} ${className}`}
     />
   );
 }

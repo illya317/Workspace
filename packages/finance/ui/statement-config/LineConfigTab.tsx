@@ -2,8 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { DataTable, PanelCard, type DataTableColumn, getToolbarActionClassName } from "@workspace/core/ui";
-import { useConfirmDelete } from "@workspace/core/ui/ConfirmProvider";
+import { CommandButton, DataTable, PanelCard, type DataTableColumn, useConfirmDelete } from "@workspace/core/ui";
 import { matchSearchFields } from "@workspace/platform/search";
 import { useStatementConfig } from "./StatementConfigContext";
 import LineMappingsPanel from "./LineMappingsPanel";
@@ -247,7 +246,7 @@ export default function LineConfigTab() {
   if (error) {
     return <div className="space-y-3 py-8 text-center">
         <p className="text-sm text-red-600">{error}</p>
-        <button type="button" onClick={load} className={getToolbarActionClassName("danger")}>重试</button>
+        <CommandButton variant="danger" onClick={load}>重试</CommandButton>
       </div>;
   }
   return <div className="space-y-4">

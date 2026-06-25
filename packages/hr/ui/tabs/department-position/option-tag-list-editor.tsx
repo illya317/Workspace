@@ -2,12 +2,9 @@
 
 import {
   OptionPicker,
-  RemovableTag,
-  getTagInputShellClassName,
+  TagListInput,
 } from "@workspace/core/ui";
 import { pickerOptions, primitiveListItems } from "./description-details";
-
-const tagInputShellClassName = getTagInputShellClassName("content-start");
 
 export function OptionTagListEditor({
   label,
@@ -39,21 +36,17 @@ export function OptionTagListEditor({
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <div className={tagInputShellClassName}>
-        {items.map((item, index) => (
-          <RemovableTag
-            key={`${item}-${index}`}
-            label={`删除${label} ${item}`}
-            confirmMessage={`确定删除「${items[index] || label}」吗？删除后需要保存才会生效。`}
-            disabled={disabled}
-            onRemove={() => removeItem(index)}
-          >
-            {item}
-          </RemovableTag>
-        ))}
-        {disabled ? (
-          items.length === 0 ? <span className="text-slate-400">未设置</span> : null
-        ) : (
+      <TagListInput
+        items={items}
+        getKey={(item, index) => `${item}-${index}`}
+        getLabel={(item) => item}
+        onRemove={(_, index) => removeItem(index)}
+        disabled={disabled}
+        confirmMessage={(item) => `确定删除「${item || label}」吗？删除后需要保存才会生效。`}
+        emptyText={disabled ? "未设置" : undefined}
+        shellClassName="content-start"
+      >
+        {!disabled && (
           <div className="min-w-40 flex-1">
             <OptionPicker
               value=""
@@ -66,7 +59,7 @@ export function OptionTagListEditor({
             />
           </div>
         )}
-      </div>
+      </TagListInput>
     </div>
   );
 }

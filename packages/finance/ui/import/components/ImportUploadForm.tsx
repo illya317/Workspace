@@ -1,6 +1,6 @@
 "use client";
 
-import { FileField, SectionCard, SelectField, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, FileField, SectionCard, SelectField } from "@workspace/core/ui";
 import type { Company } from "./types";
 interface ImportUploadFormProps {
   companies: Company[];
@@ -62,9 +62,9 @@ export default function ImportUploadForm({
         </p>}
 
       <div className="flex items-center gap-3">
-        <button type="button" onClick={onPreview} disabled={!file || !companyCode || loading} className={getToolbarActionClassName("primary")}>
+        <CommandButton variant="primary" onClick={onPreview} disabled={!file || !companyCode || loading}>
           {loading ? "解析中..." : "预览数据"}
-        </button>
+        </CommandButton>
         {file && <span className="text-xs text-gray-400">
             {(file.size / 1024).toFixed(1)} KB
           </span>}

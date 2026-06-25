@@ -1,7 +1,6 @@
 "use client";
 
-import { ActionButton, CreateStartButton, EmptyStateCard, FormField, PanelCard, TextField, useConfirmDelete } from "@workspace/core/ui";
-import CalendarDateInput from "@workspace/core/ui/CalendarDateInput";
+import { CalendarDateInput, EmptyStateCard, FormField, PanelCard, TextField, Toolbar, useConfirmDelete } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { formatHistoryVersion, normalizeDateValue, versionNumber } from "./draft-utils";
 import { EntityValueInput, StringListEditor, formInputClassName } from "./detail-editor-primitives";
@@ -46,7 +45,7 @@ export function PositionDutyEditor({
   return <div key={detailKey} className="space-y-3 md:col-span-2">
       <div className="flex items-center gap-3">
         <span className="text-xs font-semibold text-slate-600">{label}</span>
-        {!disabled && <CreateStartButton label={`新增${label}`} onClick={addDuty} />}
+        {!disabled && <Toolbar variant="inline" items={[{ kind: "create", key: "add-duty", label: `新增${label}`, onClick: addDuty }]} />}
       </div>
       {records.map((record, index) => {
       const items = Array.isArray(record.items) ? record.items : [];
@@ -54,7 +53,7 @@ export function PositionDutyEditor({
             <PanelCard bodyClassName="p-3">
               <div className="mb-2 flex items-center gap-3">
                 <span className="text-xs font-medium text-slate-500">职责 {index + 1}</span>
-                {!disabled && <ActionButton kind="delete" label={`删除${label} ${index + 1}`} onClick={() => void removeDuty(index)} className="!size-6 !rounded-full" iconClassName="h-3 w-3" />}
+                {!disabled && <Toolbar variant="inline" items={[{ kind: "icon-button", key: "delete-duty", icon: "delete", label: `删除${label} ${index + 1}`, onClick: () => void removeDuty(index), className: "!size-6 !rounded-full", iconClassName: "h-3 w-3" }]} />}
               </div>
               <div className="grid grid-cols-1 gap-2">
                 <TextField value={String(record.title || "")} disabled={disabled} placeholder="职责标题" onChange={next => updateDuty(index, {
@@ -109,7 +108,7 @@ export function PositionChangeHistoryEditor({
   return <div key="changeHistory" className="space-y-3 md:col-span-2">
       <div className="flex items-center gap-3">
         <span className="text-xs font-semibold text-slate-600">变更历史</span>
-        {!disabled && <CreateStartButton label="新增变更历史" onClick={addRecord} />}
+        {!disabled && <Toolbar variant="inline" items={[{ kind: "create", key: "add-history", label: "新增变更历史", onClick: addRecord }]} />}
       </div>
       {records.map((record, index) => {
       const rawDate = String(record.effectiveDate || "");
@@ -133,7 +132,7 @@ export function PositionChangeHistoryEditor({
               <EntityValueInput label="批准" entity="employee" value={record.approver} disabled={disabled} invalid={approverInvalid} onChange={next => updateRecord(index, {
             approver: next || ""
           })} />
-              {!disabled && <ActionButton kind="delete" label={`删除变更历史 ${index + 1}`} onClick={() => void removeRecord(index)} className="!size-6 !rounded-full md:col-span-4 md:justify-self-end" iconClassName="h-3 w-3" />}
+              {!disabled && <Toolbar variant="inline" className="md:col-span-4 md:justify-self-end" items={[{ kind: "icon-button", key: "delete-history", icon: "delete", label: `删除变更历史 ${index + 1}`, onClick: () => void removeRecord(index), className: "!size-6 !rounded-full", iconClassName: "h-3 w-3" }]} />}
             </PanelCard>
           </div>;
     })}

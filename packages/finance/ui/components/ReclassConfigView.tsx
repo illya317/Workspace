@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useRef, useMemo } from "react";
-import { DataTable, PanelCard, Toast, useConfirmDelete, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DataTable, PanelCard, Toast, useConfirmDelete } from "@workspace/core/ui";
 import type { DataTableColumn } from "@workspace/core/ui";
 import { useToast } from "@workspace/core/hooks";
 import { matchText } from "@workspace/core/search";
@@ -285,29 +285,29 @@ export default function ReclassCandidateList({
     cellClassName: "text-center",
     render: (candidate: RuleCandidate) => {
       if (candidate.existingRuleId) {
-        return <button type="button" onClick={event => {
+        return <CommandButton onClick={event => {
           event.stopPropagation();
           void clearRule(candidate);
-        }} className={[getToolbarActionClassName(), "px-2 py-1 text-xs"].filter(Boolean).join(" ")}>
+        }} size="sm" className="px-2 py-1 text-xs">
               清除规则
-            </button>;
+            </CommandButton>;
       }
       if (candidate.suggestedTarget) {
-        return <button type="button" onClick={event => {
+        return <CommandButton onClick={event => {
           event.stopPropagation();
           void saveRule(candidate, candidate.suggestedTarget).then(saved => {
             if (saved) showToast("已确认规则");
           });
-        }} className={[getToolbarActionClassName(), "px-2 py-1 text-xs"].filter(Boolean).join(" ")}>
+        }} size="sm" className="px-2 py-1 text-xs">
               确认
-            </button>;
+            </CommandButton>;
       }
-      return <button type="button" onClick={event => {
+      return <CommandButton onClick={event => {
         event.stopPropagation();
         startEdit(candidate);
-      }} className={[getToolbarActionClassName(), "px-2 py-1 text-xs"].filter(Boolean).join(" ")}>
+      }} size="sm" className="px-2 py-1 text-xs">
             调整
-          </button>;
+          </CommandButton>;
     }
   } satisfies DataTableColumn<RuleCandidate>] : [])];
   function onStartEdit(candidate: RuleCandidate) {

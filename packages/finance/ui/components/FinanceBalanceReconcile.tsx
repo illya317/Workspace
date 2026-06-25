@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { DataTable, EmptyStateCard, FileField, PanelCard, SectionCard, getToolbarActionClassName } from "@workspace/core/ui";
-import type { DataTableColumn } from "@workspace/core/ui";
-import SelectField from "@workspace/core/ui/SelectField";
+import { CommandButton, DataTable, EmptyStateCard, FileField, PanelCard, SectionCard, SelectField, type DataTableColumn } from "@workspace/core/ui";
 interface Company {
   code: string;
   name: string;
@@ -86,9 +84,9 @@ export default function FinanceBalanceReconcile({
         label: company.name
       }))} triggerClassName="min-w-32 px-3 py-1.5 text-sm" />
         <FileField label="余额表Excel" accept=".xls,.xlsx" onChange={setFile} />
-        <button type="button" onClick={handleReconcile} disabled={loading} className={getToolbarActionClassName("primary")}>
+        <CommandButton variant="primary" onClick={handleReconcile} disabled={loading}>
           {loading ? "核对中..." : "开始核对"}
-        </button>
+        </CommandButton>
       </div>
 
       {result && <div className="mt-4 space-y-3">

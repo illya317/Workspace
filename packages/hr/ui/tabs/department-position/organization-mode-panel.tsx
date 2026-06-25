@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { putJson } from "@workspace/platform/ui/api-client";
-import { DataTable, type DataTableColumn, EmptyStateCard, FkFieldInput, type FkFieldOption, PanelCard, TagPillButton, Toast, WorkspaceSplitPage, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DataTable, type DataTableColumn, EmptyStateCard, FkFieldInput, type FkFieldOption, PanelCard, TagListInput, Toast, WorkspaceSplitPage } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { selectedEntityName } from "./detail-editor-primitives";
 import { createDepartmentDescriptionDraft, departmentDescriptionPayload, departmentManagerPositionName, sanitizeDepartmentDescriptionDetails } from "./draft-utils";
@@ -120,9 +120,14 @@ export function OrganizationModePanel({
     render: ({
       position
     }) => <div className="min-w-0">
-          <button type="button" title={`打开 ${position.name} 的部门岗位说明`} onClick={() => onOpenPositionDetails?.(position.id)} className={[getToolbarActionClassName(), "!h-auto !justify-start !border-0 !bg-transparent !p-0 !text-left !text-sm !font-semibold !leading-5 !text-slate-900 !shadow-none hover:!bg-transparent hover:!text-sky-700 hover:!underline"].filter(Boolean).join(" ")}>
+          <CommandButton
+            title={`打开 ${position.name} 的部门岗位说明`}
+            onClick={() => onOpenPositionDetails?.(position.id)}
+            size="sm"
+            className="!h-auto !justify-start !border-0 !bg-transparent !p-0 !text-left !text-sm !font-semibold !leading-5 !text-slate-900 !shadow-none hover:!bg-transparent hover:!text-sky-700 hover:!underline"
+          >
             <span className="whitespace-normal break-words">{position.name}</span>
-          </button>
+          </CommandButton>
           <div className="mt-0.5 font-mono text-xs text-slate-400">{position.code}</div>
         </div>
   }, {
@@ -159,9 +164,17 @@ export function OrganizationModePanel({
     render: ({
       subordinates
     }) => <div className="flex min-w-0 flex-col items-start gap-1.5">
-          {subordinates.length > 0 ? subordinates.map(item => <TagPillButton key={item.id} title={`跳转到 ${item.name}`} onClick={() => onSelectPosition(item)} className="border-slate-300 bg-white">
-              {item.name}
-            </TagPillButton>) : <span className="text-xs text-slate-400">-</span>}
+          {subordinates.length > 0 ? (
+            <TagListInput
+              items={subordinates}
+              getKey={(item) => item.id}
+              getLabel={(item) => item.name}
+              itemTitle={(item) => `跳转到 ${item.name}`}
+              itemActionLabel={(item) => `跳转到 ${item.name}`}
+              itemClassName={() => "border-slate-300 bg-white"}
+              onItemClick={(item) => onSelectPosition(item)}
+            />
+          ) : <span className="text-xs text-slate-400">-</span>}
         </div>
   }, {
     key: "note",
@@ -257,9 +270,9 @@ export function OrganizationModePanel({
                   setManagerDraft(selectedEntityName("position", option));
                 }} />
                   </div>
-                  <button type="button" disabled={!canEdit || saving || dirtyChangeCount === 0} onClick={() => void saveChanges()} className={getToolbarActionClassName("primary")}>
+                  <CommandButton variant="primary" disabled={!canEdit || saving || dirtyChangeCount === 0} onClick={() => void saveChanges()}>
                     {saving ? "保存中..." : dirtyChangeCount > 0 ? `保存修改 (${dirtyChangeCount})` : "保存修改"}
-                  </button>
+                  </CommandButton>
                 </div>
               </div>
 

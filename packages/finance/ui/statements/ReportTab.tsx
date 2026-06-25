@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { FormField, PanelCard, SelectField, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, FormField, PanelCard, SelectField } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
 import ReportBanner from "./ReportBanner";
 import ReportLines, { type AccountDetail, type ReportLine } from "./ReportLines";
@@ -103,7 +103,7 @@ export default function ReportTab() {
           label: "现金流量表"
         }]} triggerClassName="min-w-28 px-2 py-1 text-xs" />
             </FormField>
-            <button type="button" onClick={loadReport} className={getToolbarActionClassName("primary")}>生成报表</button>
+            <CommandButton variant="primary" onClick={loadReport}>生成报表</CommandButton>
           </>} />
 
       {loading && <p className="p-8 text-center text-gray-500">加载中...</p>}

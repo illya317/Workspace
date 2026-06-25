@@ -1,7 +1,6 @@
 "use client";
 
-import DetailModal from "@workspace/core/ui/DetailModal";
-import { DataTable, type DataTableColumn } from "@workspace/core/ui";
+import { DataTable, DetailModal, type DataTableColumn } from "@workspace/core/ui";
 import type { Employee, CodeItem } from "@workspace/hr/types";
 
 interface PersonListModalProps {

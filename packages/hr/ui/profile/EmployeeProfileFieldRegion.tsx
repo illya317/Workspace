@@ -2,9 +2,9 @@
 
 import type { ReactNode } from "react";
 import {
+  FieldGrid,
   PanelCard,
   Toolbar,
-  getFieldGroupTitleClassName,
 } from "@workspace/core/ui";
 
 export function FieldRegion({
@@ -27,7 +27,7 @@ export function FieldRegion({
             kind: "custom",
             key: "title",
             section: "view",
-            content: <div className={getFieldGroupTitleClassName("mb-0")}>{title}</div>,
+            content: <FieldGrid.GroupTitle className="mb-0">{title}</FieldGrid.GroupTitle>,
           },
           ...(actions
             ? [

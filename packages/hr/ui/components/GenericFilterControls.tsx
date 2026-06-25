@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FieldValueFilter, SearchInput, SelectField, ToolbarOptionGroup } from "@workspace/core/ui";
+import { FieldValueFilter, SearchInput, SelectField, Toolbar } from "@workspace/core/ui";
 import type { AdvancedFilterConfig, FilterConfig } from "@workspace/hr/types";
 import type { FieldValueFilterField, SelectFieldOption } from "@workspace/core/ui";
 
@@ -96,15 +96,22 @@ export default function GenericFilterControls({
     <>
       {filters?.map((f) =>
         f.type === "boolean" && f.key === "isActive" ? (
-          <ToolbarOptionGroup
+          <Toolbar
             key={f.key}
-            value={(filterValues[f.key] as string) ?? ""}
-            onChange={(value) => onFilterChange(f.key, value)}
-            ariaLabel={f.label}
-            options={[
-              { label: "全部", value: "" },
-              { label: "在职", value: "true" },
-              { label: "离职", value: "false" },
+            variant="inline"
+            items={[
+              {
+                kind: "option-group",
+                key: f.key,
+                value: (filterValues[f.key] as string) ?? "",
+                onChange: (value) => onFilterChange(f.key, value),
+                ariaLabel: f.label,
+                options: [
+                  { label: "全部", value: "" },
+                  { label: "在职", value: "true" },
+                  { label: "离职", value: "false" },
+                ],
+              },
             ]}
           />
         ) : f.type === "boolean" ? (

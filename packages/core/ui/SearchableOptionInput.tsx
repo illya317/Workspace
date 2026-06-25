@@ -15,6 +15,8 @@ export interface SearchableOptionInputProps {
   options: SearchableOption[];
   disabled?: boolean;
   onChange: (value: string | null, option?: SearchableOption) => void;
+  onQueryChange?: (query: string) => void;
+  loading?: boolean;
   placeholder?: string;
   emptyText?: string;
   clearLabel?: string;
@@ -37,6 +39,8 @@ export default function SearchableOptionInput({
   options,
   disabled,
   onChange,
+  onQueryChange,
+  loading = false,
   placeholder = "未设置",
   emptyText = "无匹配选项",
   clearLabel = "清空",
@@ -132,8 +136,10 @@ export default function SearchableOptionInput({
           placeholder={placeholder}
           onFocus={() => setOpen(true)}
           onChange={(event) => {
-            setQuery(event.target.value);
+            const next = event.target.value;
+            setQuery(next);
             setOpen(true);
+            onQueryChange?.(next);
           }}
           onKeyDown={handleKeyDown}
           className={
@@ -180,9 +186,9 @@ export default function SearchableOptionInput({
                 </button>
               );
             })}
-            {filteredOptions.length === 0 && (
+            {(filteredOptions.length === 0 || loading) && (
               <div className="rounded-md border border-dashed border-slate-200 px-3 py-8 text-center text-sm text-slate-400">
-                {emptyText}
+                {loading ? "加载中..." : emptyText}
               </div>
             )}
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { PanelCard, RatingControl, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, PanelCard, RatingControl } from "@workspace/core/ui";
 import type { WorkItem } from "./types";
 export default function WorkCard({
   work,
@@ -28,25 +28,25 @@ export default function WorkCard({
         <div className="text-sm font-semibold text-gray-800">{work.content}</div>
         {isAdmin && <div className="ml-auto flex items-center gap-1">
             {!work.isArchived && <>
-                <button type="button" onClick={() => onMove(work.id, -1)} disabled={isFirst} className={[getToolbarActionClassName(), "px-1.5 py-0.5 text-xs"].filter(Boolean).join(" ")}>
+                <CommandButton onClick={() => onMove(work.id, -1)} disabled={isFirst} size="sm" className="px-1.5 py-0.5 text-xs">
                   ↑
-                </button>
-                <button type="button" onClick={() => onMove(work.id, 1)} disabled={isLast} className={[getToolbarActionClassName(), "px-1.5 py-0.5 text-xs"].filter(Boolean).join(" ")}>
+                </CommandButton>
+                <CommandButton onClick={() => onMove(work.id, 1)} disabled={isLast} size="sm" className="px-1.5 py-0.5 text-xs">
                   ↓
-                </button>
-                <button type="button" onClick={() => onEdit(work)} className={[getToolbarActionClassName(), "px-1.5 py-0.5 text-xs"].filter(Boolean).join(" ")}>
+                </CommandButton>
+                <CommandButton onClick={() => onEdit(work)} size="sm" className="px-1.5 py-0.5 text-xs">
                   编辑
-                </button>
-                <button type="button" onClick={() => onArchive?.(work.id)} className={[getToolbarActionClassName(), "px-1.5 py-0.5 text-xs"].filter(Boolean).join(" ")}>
+                </CommandButton>
+                <CommandButton onClick={() => onArchive?.(work.id)} size="sm" className="px-1.5 py-0.5 text-xs">
                   归档
-                </button>
+                </CommandButton>
               </>}
-            {work.isArchived && <button type="button" onClick={() => onRestore?.(work.id)} className={[getToolbarActionClassName(), "px-1.5 py-0.5 text-xs"].filter(Boolean).join(" ")}>
+            {work.isArchived && <CommandButton onClick={() => onRestore?.(work.id)} size="sm" className="px-1.5 py-0.5 text-xs">
                 恢复
-              </button>}
-            <button type="button" onClick={() => onDelete(work.id)} className={[getToolbarActionClassName("danger"), "px-1.5 py-0.5 text-xs"].filter(Boolean).join(" ")}>
+              </CommandButton>}
+            <CommandButton variant="danger" onClick={() => onDelete(work.id)} size="sm" className="px-1.5 py-0.5 text-xs">
               删除
-            </button>
+            </CommandButton>
           </div>}
       </div>
       <div className="flex flex-wrap items-center gap-4">

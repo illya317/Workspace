@@ -1,8 +1,15 @@
 import type { ReactNode } from "react";
 import PageContent from "./PageContent";
 import { joinClassNames } from "./card-utils";
+import { getToolbarActionClassName } from "./toolbar-styles";
 
 export type ModuleCardColor = "emerald" | "blue" | "indigo" | "purple" | "amber" | "cyan" | "orange" | string;
+
+export type ModuleCardRenderLink = (props: {
+  href: string;
+  className: string;
+  children: ReactNode;
+}) => ReactNode;
 
 export interface ModuleCardProps {
   title: string;
@@ -13,6 +20,7 @@ export interface ModuleCardProps {
   onClick?: () => void;
   badge?: string;
   className?: string;
+  renderLink?: ModuleCardRenderLink;
 }
 
 export const moduleCardColorClasses: Record<string, { icon: string; ring: string }> = {
@@ -34,7 +42,7 @@ export function getModuleCardClassName(color: ModuleCardColor = "emerald", class
   );
 }
 
-export type ModuleCardBodyProps = Omit<ModuleCardProps, "href" | "onClick" | "className">;
+export type ModuleCardBodyProps = Omit<ModuleCardProps, "href" | "onClick" | "className" | "renderLink">;
 
 export function ModuleCardBody({
   title,
@@ -74,6 +82,46 @@ export interface ModuleGridPageProps {
   className?: string;
   contentClassName?: string;
   gridClassName?: string;
+}
+
+export function ModuleCard({
+  title,
+  description,
+  icon,
+  color = "emerald",
+  href,
+  onClick,
+  badge,
+  className = "",
+  renderLink,
+}: ModuleCardProps) {
+  const mergedClassName = getModuleCardClassName(color, className);
+  const body = <ModuleCardBody title={title} description={description} icon={icon} color={color} badge={badge} />;
+
+  if (href) {
+    if (renderLink) {
+      return renderLink({ href, className: mergedClassName, children: body });
+    }
+    return (
+      <a href={href} className={mergedClassName}>
+        {body}
+      </a>
+    );
+  }
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className={[getToolbarActionClassName(), `${mergedClassName} border-0 text-inherit`].filter(Boolean).join(" ")}
+      >
+        {body}
+      </button>
+    );
+  }
+
+  return <section className={mergedClassName}>{body}</section>;
 }
 
 export function ModuleGridPage({

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { DataTable, SearchInput, SelectField, Badge, type DataTableColumn, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DataTable, SearchInput, SelectField, Badge, type DataTableColumn } from "@workspace/core/ui";
 import type { AcctInfo, InheritedAcct, LineCfg, Mapping, StatementOperator } from "./types";
 import { formatStatementAmount, isDefaultMapping } from "./types";
 interface LineMappingsPanelProps {
@@ -37,14 +37,14 @@ function MappingAction({
   onToggleOperator: () => void;
 }) {
   if (mapping.operator === "exclude") {
-    return <button type="button" onClick={onRestoreDefault} disabled={saving} className={getToolbarActionClassName()}>恢复默认</button>;
+    return <CommandButton onClick={onRestoreDefault} disabled={saving}>恢复默认</CommandButton>;
   }
   if (isDefaultMapping(mapping)) {
-    return <button type="button" onClick={onExcludeDefault} disabled={saving} className={getToolbarActionClassName()}>排除默认</button>;
+    return <CommandButton onClick={onExcludeDefault} disabled={saving}>排除默认</CommandButton>;
   }
-  return <button type="button" onClick={onToggleOperator} disabled={saving} className={getToolbarActionClassName(mapping.operator === "subtract" ? "danger" : "secondary")}>
+  return <CommandButton variant={mapping.operator === "subtract" ? "danger" : "secondary"} onClick={onToggleOperator} disabled={saving}>
       {mapping.operator === "subtract" ? "减" : "加"}
-    </button>;
+    </CommandButton>;
 }
 function MappingStatus({
   mapping
@@ -125,9 +125,9 @@ export default function LineMappingsPanel({
     cellClassName: "text-center",
     render: mapping => {
       const isSaving = saving.has(mapping.accountCode);
-      return isDefaultMapping(mapping) || mapping.operator === "exclude" ? <MappingStatus mapping={mapping} /> : <button type="button" onClick={() => onRestoreDefault(mapping.accountCode)} disabled={isSaving} className={getToolbarActionClassName("danger")}>
+      return isDefaultMapping(mapping) || mapping.operator === "exclude" ? <MappingStatus mapping={mapping} /> : <CommandButton variant="danger" onClick={() => onRestoreDefault(mapping.accountCode)} disabled={isSaving}>
             删除配置
-          </button>;
+          </CommandButton>;
     }
   }], [accountMap, line.lineCode, onExcludeDefault, onRestoreDefault, onToggleOperator, saving]);
   const inheritedColumns = useMemo<DataTableColumn<InheritedAcct>[]>(() => [{
@@ -166,9 +166,9 @@ export default function LineMappingsPanel({
     label: "操作",
     required: true,
     cellClassName: "text-center",
-    render: account => <button type="button" onClick={() => onSaveMapping(account.accountCode, line.lineCode, "exclude")} disabled={saving.has(`${line.lineCode}:${account.accountCode}`)} className={getToolbarActionClassName()}>
+    render: account => <CommandButton onClick={() => onSaveMapping(account.accountCode, line.lineCode, "exclude")} disabled={saving.has(`${line.lineCode}:${account.accountCode}`)}>
           排除
-        </button>
+        </CommandButton>
   }], [line.lineCode, onSaveMapping, saving]);
   const isAdding = addingFor === line.lineCode;
   return <div className="space-y-3">
@@ -184,14 +184,14 @@ export default function LineMappingsPanel({
           value: account.code,
           label: `${account.code} ${account.name}`
         }))} triggerClassName="w-64 px-2 py-1 text-sm" />
-            <button type="button" onClick={() => onSaveMapping(newAccount, line.lineCode, "add")} disabled={!newAccount} className={getToolbarActionClassName("primary")}>
+            <CommandButton variant="primary" onClick={() => onSaveMapping(newAccount, line.lineCode, "add")} disabled={!newAccount}>
               添加（加）
-            </button>
-            <button type="button" onClick={() => onSaveMapping(newAccount, line.lineCode, "subtract")} disabled={!newAccount} className={getToolbarActionClassName("danger")}>
+            </CommandButton>
+            <CommandButton variant="danger" onClick={() => onSaveMapping(newAccount, line.lineCode, "subtract")} disabled={!newAccount}>
               添加（减）
-            </button>
-            <button type="button" onClick={onCancelAdding} className={getToolbarActionClassName()}>取消</button>
+            </CommandButton>
+            <CommandButton onClick={onCancelAdding}>取消</CommandButton>
           </div>
-        </div> : <button type="button" onClick={() => onStartAdding(line.lineCode)} className={getToolbarActionClassName()}>添加科目</button>}
+        </div> : <CommandButton onClick={() => onStartAdding(line.lineCode)}>添加科目</CommandButton>}
     </div>;
 }

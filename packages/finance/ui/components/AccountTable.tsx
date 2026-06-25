@@ -1,9 +1,6 @@
 "use client";
 
-import DataTable, {
-  type DataTableColumn,
-  getDefaultVisibleColumns,
-} from "@workspace/core/ui/DataTable";
+import { DataTable, type DataTableColumn } from "@workspace/core/ui";
 import CompanyNameCell from "@workspace/platform/ui/CompanyNameCell";
 
 export interface Account {
@@ -134,7 +131,7 @@ interface AccountTableProps {
 export default function AccountTable({
   accounts,
   loading,
-  visibleColumns = getDefaultVisibleColumns(ACCOUNT_COLUMNS),
+  visibleColumns,
 }: AccountTableProps) {
   return (
     <DataTable

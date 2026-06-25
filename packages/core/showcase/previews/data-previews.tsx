@@ -5,7 +5,6 @@ import {
   AmountCell,
   CodeBlock,
   DataTable,
-  DataTableActionsCell,
   DisclosureRecordCard,
   Badge,
   StructuredTable,
@@ -21,7 +20,6 @@ function CodeBlockPreview() {
 }
 
 function DataTablePreview() {
-  const visibleColumns = ["name", "status", "amount"];
   return (
     <DataTable
       rows={[
@@ -33,50 +31,14 @@ function DataTablePreview() {
         { key: "name", label: "名称", required: true, render: (row) => row.name },
         { key: "status", label: "状态", defaultVisible: true, render: (row) => <Badge label={row.status} tone={row.status === "已生效" ? "green" : row.status === "待审核" ? "yellow" : "gray"} /> },
         { key: "amount", label: "金额", defaultVisible: true, render: (row) => <AmountCell value={row.amount} /> },
-        { key: "actions", label: "操作", required: true, render: () => <DataTableActionsCell actions={[{ key: "view", kind: "view", label: "查看", onClick: () => {} }, { key: "edit", kind: "edit", label: "编辑", onClick: () => {} }]} /> },
       ]}
-      visibleColumns={visibleColumns}
+      rowActions={() => [
+        { key: "view", kind: "view", label: "查看", onClick: () => {} },
+        { key: "edit", kind: "edit", label: "编辑", onClick: () => {} },
+      ]}
       rowKey={(row) => row.id}
       tableClassName="w-full"
     />
-  );
-}
-
-function DataTableActionsCellPreview() {
-  return (
-    <div className="flex flex-col gap-3">
-      <p className="text-xs text-slate-400">操作列单元格，自动把多个动作排成一行</p>
-      <div className="flex flex-wrap items-center gap-4">
-        <DataTableActionsCell
-          actions={[
-            { key: "view", kind: "view", label: "查看", onClick: () => {} },
-            { key: "edit", kind: "edit", label: "编辑", onClick: () => {} },
-            { key: "delete", kind: "delete", label: "删除", onClick: () => {} },
-          ]}
-        />
-        <DataTableActionsCell
-          actions={[
-            { key: "save", kind: "save", label: "保存", onClick: () => {} },
-            { key: "cancel", kind: "cancel", label: "取消", onClick: () => {} },
-          ]}
-        />
-        <DataTableActionsCell
-          actions={[
-            { key: "add", kind: "add", label: "新增", onClick: () => {} },
-          ]}
-        />
-      </div>
-    </div>
-  );
-}
-
-function createDataTableEditActionsPreview() {
-  return (
-    <div className="text-xs text-slate-400">
-      <p className="font-medium">createDataTableEditActions</p>
-      <p>DataTable 行编辑动作工厂，统一编辑、保存、取消动作组合；传入 initial/current 后自动判断 dirty。</p>
-      <p className="mt-1 text-slate-300">Hook / 工具函数，无组件级实时预览。</p>
-    </div>
   );
 }
 
@@ -177,8 +139,6 @@ function dataTableClassNamesPreview() {
 export const dataPreviewByName: Record<string, FC> = {
   CodeBlock: CodeBlockPreview,
   DataTable: DataTablePreview,
-  DataTableActionsCell: DataTableActionsCellPreview,
-  createDataTableEditActions: createDataTableEditActionsPreview,
   DisclosureRecordCard: DisclosureRecordCardPreview,
   StructuredTable: StructuredTablePreview,
   TableScrollFrame: TableScrollFramePreview,

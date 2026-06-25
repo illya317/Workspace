@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { DataTable, DataTableActionsCell, EmptyStateCard, FkFieldInput, FormField, OptionPicker, PanelCard, TableScrollFrame, type DataTableColumn, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DataTable, EmptyStateCard, FkFieldInput, FormField, OptionPicker, PanelCard, TableScrollFrame, type DataTableColumn, type DataTableRowAction } from "@workspace/core/ui";
 import { listSpacePermissions, saveSpacePermissions, WORK_REFERENCE_OPTIONS_ENDPOINT } from "./api";
 import { WORK_ROLE_OPTIONS } from "./model";
 import type { WorkSpacePermissionRow, WorkSpaceRole, WorkTarget } from "./types";
@@ -63,18 +63,17 @@ export default function WorkPermissionsPanel({
     render: row => row.locked ? roleLabel(row.role) : <OptionPicker value={row.role} options={[...WORK_ROLE_OPTIONS]} visibleCount={4} gridColumnCount={2} onChange={value => patchRow(row.userId, {
       role: normalizeRole(value)
     })} />
-  }, {
-    key: "actions",
-    label: "操作",
-    required: true,
-    render: row => row.locked ? <span className="text-xs text-slate-300">锁定</span> : <DataTableActionsCell actions={[{
+  }], []);
+  function getPermissionRowActions(row: WorkSpacePermissionRow): DataTableRowAction[] {
+    if (row.locked) return [];
+    return [{
       key: "delete",
       kind: "delete",
       label: "移除授权",
       onClick: () => setRows(current => current.filter(item => item.userId !== row.userId)),
       disabled: saving
-    }]} />
-  }], [saving]);
+    }];
+  }
   function patchRow(userId: number, patch: Partial<WorkSpacePermissionRow>) {
     setRows(current => current.map(row => row.userId === userId ? {
       ...row,
@@ -143,18 +142,18 @@ export default function WorkPermissionsPanel({
         }))} />
         </FormField>
         <div className="flex items-end">
-          <button type="button" disabled={!draft.userId || saving} onClick={addDraft} className={getToolbarActionClassName("primary")}>
+          <CommandButton variant="primary" disabled={!draft.userId || saving} onClick={addDraft}>
             添加
-          </button>
+          </CommandButton>
         </div>
       </PanelCard>
       <TableScrollFrame className="overflow-y-hidden rounded-lg border border-slate-200">
-        <DataTable rows={rows} columns={columns} visibleColumns={["role"]} rowKey={row => row.userId} density="compact" loading={loading} emptyText="暂无额外授权" />
+        <DataTable rows={rows} columns={columns} visibleColumns={["role"]} rowKey={row => row.userId} density="compact" loading={loading} emptyText="暂无额外授权" rowActions={getPermissionRowActions} />
       </TableScrollFrame>
       <div className="flex justify-end">
-        <button type="button" disabled={saving} onClick={() => void save()} className={getToolbarActionClassName("primary")}>
+        <CommandButton variant="primary" disabled={saving} onClick={() => void save()}>
           保存权限
-        </button>
+        </CommandButton>
       </div>
     </div>;
 }

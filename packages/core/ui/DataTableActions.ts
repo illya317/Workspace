@@ -1,23 +1,4 @@
-import type { DataTableRowAction } from "./DataTable";
-
-export interface DataTableEditActionsOptions<T> {
-  row: T;
-  editing: boolean;
-  canEdit: boolean;
-  canSave?: boolean;
-  disabled?: boolean;
-  saving?: boolean;
-  editLabel: string;
-  saveLabel: string;
-  cancelLabel: string;
-  /** 原始行数据；提供时内部会与 current 比较，自动判断是否有修改。 */
-  initial?: unknown;
-  /** 当前编辑中的行数据；与 initial 一起用于自动判断 dirty。 */
-  current?: unknown | null | undefined;
-  onEdit: (row: T) => void;
-  onSave: () => void;
-  onCancel: () => void;
-}
+import type { DataTableRowAction, DataTableRowEditActionConfig } from "./DataTable.types";
 
 export function createDataTableEditActions<T>({
   row,
@@ -34,7 +15,7 @@ export function createDataTableEditActions<T>({
   onEdit,
   onSave,
   onCancel,
-}: DataTableEditActionsOptions<T>): DataTableRowAction[] {
+}: DataTableRowEditActionConfig<T> & { row: T }): DataTableRowAction[] {
   if (!canEdit) return [];
   const dirty = initial !== undefined ? isDataTableEditDirty(initial, current) : true;
   if (editing) {

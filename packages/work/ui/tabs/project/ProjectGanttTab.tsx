@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ActionButton, EmptyStateCard, PickerOptionButton, PickerShell, SearchInput, ToolbarOptionGroup, Toolbar } from "@workspace/core/ui";
+import { EmptyStateCard, OptionPicker, Toolbar } from "@workspace/core/ui";
 import type { WorkUser } from "@workspace/work/types";
 import { listProjectGantt } from "./api";
 import ProjectGanttChart from "./ProjectGanttChart";
@@ -68,26 +68,72 @@ export default function ProjectGanttTab({
   }
   return <div className="space-y-4">
       <Toolbar items={[{
-      kind: "custom",
-      key: "filters",
+      kind: "search",
+      key: "search",
       section: "filter",
-      content: <>
-                <SearchInput value={keyword} onChange={setKeyword} placeholder="搜索项目、部门、任务..." ariaLabel="搜索公司甘特" className="w-52" />
-                <ToolbarOptionGroup ariaLabel="是否包括任务" value={includeTasks ? "1" : "0"} options={PROJECT_GANTT_TASK_OPTIONS} onChange={value => setIncludeTasks(value === "1")} />
-                <LevelFilter level={level} onChange={setLevel} />
-              </>
+      value: keyword,
+      onChange: setKeyword,
+      placeholder: "搜索项目、部门、任务...",
+      ariaLabel: "搜索公司甘特",
+      className: "w-52",
+    }, {
+      kind: "option-group",
+      key: "include-tasks",
+      section: "filter",
+      ariaLabel: "是否包括任务",
+      value: includeTasks ? "1" : "0",
+      options: PROJECT_GANTT_TASK_OPTIONS,
+      onChange: value => setIncludeTasks(value === "1"),
     }, {
       kind: "custom",
-      key: "edit-actions",
+      key: "level-filter",
+      section: "filter",
+      content: <LevelFilter level={level} onChange={setLevel} />,
+    }, {
+      kind: "option-group",
+      key: "zoom",
       section: "edit",
-      content: <>
-                <ToolbarOptionGroup ariaLabel="甘特时间缩放" value={zoom} options={PROJECT_GANTT_ZOOM_OPTIONS} onChange={value => changeZoom(value as ProjectGanttZoom)} />
-                <div className="inline-flex h-10 items-center overflow-hidden rounded-lg border border-slate-200 bg-white">
-                  <ActionButton kind="panel-close" label="上一期间" onClick={() => setCurrentStart(current => shiftPeriod(current, zoom, -1))} className="!h-10 !w-auto rounded-none border-0 px-3 shadow-none hover:bg-slate-50" iconClassName="h-4 w-4" />
-                  <div className="min-w-28 border-x border-slate-200 px-3 text-center text-xs font-semibold text-slate-600">{periodLabel(currentStart, zoom)}</div>
-                  <ActionButton kind="panel-open" label="下一期间" onClick={() => setCurrentStart(current => shiftPeriod(current, zoom, 1))} className="!h-10 !w-auto rounded-none border-0 px-3 shadow-none hover:bg-slate-50" iconClassName="h-4 w-4" />
-                </div>
-              </>
+      ariaLabel: "甘特时间缩放",
+      value: zoom,
+      options: PROJECT_GANTT_ZOOM_OPTIONS,
+      onChange: value => changeZoom(value as ProjectGanttZoom),
+    }, {
+      kind: "custom",
+      key: "period-controls",
+      section: "edit",
+      content: (
+        <div className="inline-flex h-10 items-center overflow-hidden rounded-lg border border-slate-200 bg-white">
+          <Toolbar
+            variant="inline"
+            items={[
+              {
+                kind: "icon-button",
+                key: "prev-period",
+                icon: "panel-close",
+                label: "上一期间",
+                className: "!h-10 !w-auto rounded-none border-0 px-3 shadow-none hover:bg-slate-50",
+                iconClassName: "h-4 w-4",
+                onClick: () => setCurrentStart(current => shiftPeriod(current, zoom, -1)),
+              },
+            ]}
+          />
+          <div className="min-w-28 border-x border-slate-200 px-3 text-center text-xs font-semibold text-slate-600">{periodLabel(currentStart, zoom)}</div>
+          <Toolbar
+            variant="inline"
+            items={[
+              {
+                kind: "icon-button",
+                key: "next-period",
+                icon: "panel-open",
+                label: "下一期间",
+                className: "!h-10 !w-auto rounded-none border-0 px-3 shadow-none hover:bg-slate-50",
+                iconClassName: "h-4 w-4",
+                onClick: () => setCurrentStart(current => shiftPeriod(current, zoom, 1)),
+              },
+            ]}
+          />
+        </div>
+      ),
     }, {
       kind: "text",
       key: "meta",
@@ -105,15 +151,20 @@ function LevelFilter({
   level: ProjectGanttLevelFilter;
   onChange: (level: ProjectGanttLevelFilter) => void;
 }) {
-  const active = level !== "all";
-  const label = PROJECT_GANTT_LEVEL_OPTIONS.find(option => option.value === level)?.label ?? "全部";
-  return <PickerShell valueLabel={active ? `级别 ${label}` : "级别"} buttonClassName={`h-10 rounded-lg border px-4 text-xs font-semibold shadow-sm transition ${active ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}`} popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-56 rounded-lg border border-slate-200 bg-white p-2.5 shadow-xl">
-      {() => <div className="grid grid-cols-3 gap-2">
-          {PROJECT_GANTT_LEVEL_OPTIONS.map(option => <PickerOptionButton key={option.value} selected={option.value === level} onClick={() => onChange(option.value)} size="compact" className="px-2.5 py-2 font-semibold">
-              {option.label}
-            </PickerOptionButton>)}
-        </div>}
-    </PickerShell>;
+  return (
+    <OptionPicker
+      value={level}
+      options={[...PROJECT_GANTT_LEVEL_OPTIONS]}
+      onChange={(value) => onChange((value ?? "all") as ProjectGanttLevelFilter)}
+      placeholder="级别"
+      formatValueLabel={(value, option) => value === "all" ? "级别" : `级别 ${option?.label ?? value}`}
+      buttonClassName="h-10 rounded-lg border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+      popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-56 rounded-lg border border-slate-200 bg-white p-2.5 shadow-xl"
+      gridColumns={3}
+      visibleCount={PROJECT_GANTT_LEVEL_OPTIONS.length}
+      placeholderInGrid
+    />
+  );
 }
 function periodLabel(start: Date, zoom: ProjectGanttZoom) {
   if (zoom === "year") return `${start.getFullYear()}年`;

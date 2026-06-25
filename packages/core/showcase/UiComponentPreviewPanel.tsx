@@ -1,8 +1,9 @@
 import { type ReactNode } from "react";
 import { ActionGlyph, PanelCard } from "@workspace/core/ui";
 import {
+  coreUiComponentAccessLayerMeta,
   coreUiComponentKindMeta,
-  coreUiComponentTierMeta,
+  coreUiFrameMaturityMeta,
   type CoreUiComponentRegistration,
 } from "@workspace/core/ui/component-registry";
 import {
@@ -58,7 +59,8 @@ export function UiComponentPreviewPanel({
   canWrite: boolean;
   onToggleVerified: () => void;
 }) {
-  const isFoundation = component.tier === "foundation";
+  const isFoundation = component.accessLayer === "foundation";
+  const isPageFrame = component.accessLayer === "page-frame";
 
   return (
     <PanelCard
@@ -74,16 +76,29 @@ export function UiComponentPreviewPanel({
             {formatNestDepth(nestDepth)}
           </span>
           <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
-            {coreUiComponentTierMeta[component.tier].label}
+            {coreUiComponentAccessLayerMeta[component.accessLayer].label}
           </span>
           <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
             {coreUiComponentKindMeta[component.kind].label}
           </span>
+          {isPageFrame && component.frameMaturity && (
+            <span
+              className={joinClassNames(
+                "rounded-full px-2 py-0.5 text-[11px] font-medium",
+                component.frameMaturity === "stable" && "bg-emerald-100 text-emerald-700",
+                component.frameMaturity === "tbc" && "bg-orange-100 text-orange-700",
+                component.frameMaturity === "internal-only" && "bg-slate-200 text-slate-700",
+              )}
+              title={coreUiFrameMaturityMeta[component.frameMaturity].description}
+            >
+              {coreUiFrameMaturityMeta[component.frameMaturity].label}
+            </span>
+          )}
           <span className={joinClassNames(
             "rounded-full px-2 py-0.5 text-[11px] font-medium",
-            verified ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600",
+            verified ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700",
           )}>
-            {verified ? "已验证" : "未验证"}
+            {verified ? "无需改造" : "待改造"}
           </span>
         </span>
       )}
@@ -92,9 +107,9 @@ export function UiComponentPreviewPanel({
           type="button"
           disabled={!canWrite}
           onClick={onToggleVerified}
-          className={`transition ${verified ? "text-emerald-600" : "text-red-500 hover:text-red-600"} disabled:cursor-not-allowed disabled:opacity-50`}
-          title={canWrite ? (verified ? "已验证" : "未验证") : "无权限修改"}
-          aria-label={`${component.name} ${verified ? "已验证" : "未验证"}`}
+          className={`transition ${verified ? "text-emerald-600" : "text-amber-500 hover:text-amber-600"} disabled:cursor-not-allowed disabled:opacity-50`}
+          title={canWrite ? (verified ? "无需改造" : "待改造") : "无权限修改"}
+          aria-label={`${component.name} ${verified ? "无需改造" : "待改造"}`}
         >
           <ActionGlyph kind="verified" className="h-5 w-5" />
         </button>
@@ -104,7 +119,7 @@ export function UiComponentPreviewPanel({
       <p className="text-sm text-slate-700">{component.description}</p>
       <PreviewBlock name={component.name} isFoundation={isFoundation}>
         {isFoundation
-          ? "Foundation 是样式 recipe / token，不提供运行时组件预览。"
+          ? "Foundation 是样式 recipe / token，不作为可渲染 UI。"
           : <ComponentPreview name={component.name} />}
       </PreviewBlock>
     </PanelCard>

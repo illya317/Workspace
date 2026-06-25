@@ -2,13 +2,11 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
-import Toast from "@workspace/core/ui/Toast";
 import { useToast } from "@workspace/core/hooks";
-import { FieldValueFilter, getDefaultVisibleColumns, PanelCard, TabBar } from "@workspace/core/ui";
+import { FieldValueFilter, Pagination, PanelCard, TabBar, Toast } from "@workspace/core/ui";
 import AccountTable, { ACCOUNT_COLUMNS, type Account } from "../components/AccountTable";
 import ReclassConfigView from "../components/ReclassConfigView";
 import FinanceFilters from "../components/FinanceFilters";
-import { Pagination } from "@workspace/core/ui";
 
 // Account type and column definitions from shared AccountTable
 
@@ -30,7 +28,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [visibleColumns, setVisibleColumns] = useState<string[]>(
-    () => getDefaultVisibleColumns(ACCOUNT_COLUMNS)
+    () => ACCOUNT_COLUMNS.filter((c) => c.required || c.defaultVisible).map((c) => c.key)
   );
   const { toast, showToast, closeToast } = useToast();
 

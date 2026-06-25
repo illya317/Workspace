@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { BlockCreatePanel, DatabasePageFrame, EmptyStateCard, Toolbar, ToolbarOptionGroup, Toast } from "@workspace/core/ui";
+import { CreatePanel, DatabasePageFrame, EmptyStateCard, Toolbar, Toast } from "@workspace/core/ui";
 import type { ToolbarItem } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { InputBox, SelectBox } from "./MeetingControls";
@@ -211,16 +211,19 @@ export default function MeetingsPage({
   }
 
   const toolbarItems: ToolbarItem[] = [{
-    kind: "custom",
+    kind: "option-group",
     key: "type-filter",
     section: "filter",
-    content: <ToolbarOptionGroup ariaLabel="会议类型" value={typeFilter} options={[{
+    ariaLabel: "会议类型",
+    value: typeFilter,
+    options: [{
       value: "all",
       label: "全部会议",
     }, ...types.map(type => ({
       value: String(type.id),
       label: type.name,
-    }))]} onChange={setTypeFilter} />,
+    }))],
+    onChange: setTypeFilter,
   }, {
     kind: "action-group",
     key: "refresh",
@@ -234,7 +237,8 @@ export default function MeetingsPage({
   }];
 
   return <DatabasePageFrame>
-      <BlockCreatePanel
+      <CreatePanel
+        variant="block"
         title="会议"
         canCreate
         creating={creating}
@@ -244,8 +248,8 @@ export default function MeetingsPage({
         addLabel="新建会议"
         submitLabel="保存会议"
         onStartCreate={() => setCreating(true)}
-        onCancelCreate={() => setCreating(false)}
-        onSubmitCreate={() => void handleCreateMeeting()}
+        onCancel={() => setCreating(false)}
+        onSubmit={() => void handleCreateMeeting()}
         createContent={<MeetingCreateFields
           createDraft={createDraft}
           selectedType={selectedType}
@@ -287,7 +291,7 @@ export default function MeetingsPage({
             </main>
           </div>
         </div>
-      </BlockCreatePanel>
+      </CreatePanel>
       <Toast type={toast?.type} message={toast?.message || ""} show={!!toast} onClose={() => setToast(null)} />
     </DatabasePageFrame>;
 }

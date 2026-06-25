@@ -2,8 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState } from "react";
-import { type DataTableColumn, getToolbarActionClassName } from "@workspace/core/ui";
-import { useConfirmDelete } from "@workspace/core/ui/ConfirmProvider";
+import { CommandButton, type DataTableColumn, useConfirmDelete } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState } from "../types";
 import CostDataTable, { type CostRecord } from "./CostDataTable";
@@ -95,9 +94,9 @@ export default function ImportHistoryTable({
     key: "actions",
     label: "操作",
     required: true,
-    render: row => <button type="button" disabled={deleting === row.id} onClick={() => handleDelete(Number(row.id))} className={[getToolbarActionClassName("danger"), "border-0 bg-transparent p-0 text-xs shadow-none hover:bg-transparent hover:underline"].filter(Boolean).join(" ")}>
+    render: row => <CommandButton disabled={deleting === row.id} onClick={() => handleDelete(Number(row.id))} variant="danger" size="sm" className="border-0 bg-transparent p-0 text-xs shadow-none hover:bg-transparent hover:underline">
           {deleting === row.id ? "删除中…" : "删除"}
-        </button>
+        </CommandButton>
   }];
   return <div className="space-y-4">
       {localError && <p className="text-sm text-red-500">{localError}</p>}

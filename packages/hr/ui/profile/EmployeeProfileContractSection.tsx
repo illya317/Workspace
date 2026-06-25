@@ -1,6 +1,6 @@
 "use client";
 
-import { EmptyStateCard, Badge, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, EmptyStateCard, Badge } from "@workspace/core/ui";
 import { contractFields } from "@workspace/hr/constants";
 import type { ContractRow, ProfileField } from "@workspace/hr/types";
 import type { FkFieldOption } from "@workspace/core/ui";
@@ -68,7 +68,7 @@ function ContractCard({
           {row.isPrimary && <Badge label="主合同" tone="blue" className="px-2 py-1 text-sm" />}
           {summary ? <span className="text-sm font-medium text-slate-500">{summary}</span> : null}
         </div>} actions={canEdit ? <>
-          <button type="button" onClick={onAdd} disabled={saving !== null} className={[getToolbarActionClassName("secondary"), "px-3 py-1.5 text-xs"].filter(Boolean).join(" ")}>新增</button>
+          <CommandButton variant="secondary" onClick={onAdd} disabled={saving !== null} className="px-3 py-1.5 text-xs">新增</CommandButton>
           <RowActions canEdit={canEdit} saving={saving} onDelete={() => onDelete(row, index)} />
         </> : null}>
       {fieldGrid(fields, normalizedRow as unknown as EditableRecord, !canEdit, (key, value, option) => {

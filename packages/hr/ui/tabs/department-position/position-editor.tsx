@@ -1,6 +1,6 @@
 "use client";
 
-import { FkFieldInput, FormField, PanelCard, TextField, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, FkFieldInput, FormField, PanelCard, TextField } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import PositionAliasTagsInput from "./PositionAliasTagsInput";
 import { type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
@@ -95,12 +95,12 @@ export function PositionEditor({
       {position.departmentId ? <DirectPositionPanel departmentId={position.departmentId} positionsByDepartment={positionsByDepartment} selection={selection} onSelect={onSelect} /> : null}
       <PanelCard bodyClassName="p-4">
         <DetailSectionHeader title="岗位信息" meta={dirty && <span className="text-xs text-amber-600">有未保存修改</span>} actions={<div className="flex items-center gap-2">
-              <button type="button" disabled={!canEditPosition || !dirty || saving} onClick={() => void onSavePosition()} className={getToolbarActionClassName("primary")}>
+              <CommandButton variant="primary" disabled={!canEditPosition || !dirty || saving} onClick={() => void onSavePosition()}>
                 {saving ? "保存中..." : "保存"}
-              </button>
-              {canEdit && <button type="button" disabled={saving} onClick={() => void onArchivePosition(position.id, !showArchived)} className={getToolbarActionClassName()}>
+              </CommandButton>
+              {canEdit && <CommandButton disabled={saving} onClick={() => void onArchivePosition(position.id, !showArchived)}>
                   {showArchived ? "恢复" : "归档"}
-                </button>}
+                </CommandButton>}
             </div>} />
         {draft && <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <FormField label="岗位编码">

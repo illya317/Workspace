@@ -1,7 +1,6 @@
 "use client";
 
-import type { DataTableColumn } from "@workspace/core/ui/DataTable";
-import { getDefaultVisibleColumns } from "@workspace/core/ui/DataTable";
+import type { DataTableColumn } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
 
 interface VoucherItem {
@@ -67,5 +66,4 @@ export const BASE_ITEM_COLUMNS: DataTableColumn<VoucherItemRow>[] = [
   },
 ];
 
-export { getDefaultVisibleColumns };
 export type { VoucherItem };

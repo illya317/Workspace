@@ -4,6 +4,7 @@ import { useState, type FC } from "react";
 import {
   ActionButton,
   ActionGlyph,
+  CommandButton,
   FieldValueFilter,
   RefreshActionButton,
   ToolbarOptionGroup,
@@ -75,6 +76,18 @@ function RefreshActionButtonPreview() {
   return <RefreshActionButton onClick={() => {}} />;
 }
 
+function CommandButtonPreview() {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <CommandButton variant="primary" size="md">主按钮</CommandButton>
+      <CommandButton variant="secondary" size="md">次按钮</CommandButton>
+      <CommandButton variant="danger" size="md">危险按钮</CommandButton>
+      <CommandButton variant="secondary" size="sm">小按钮</CommandButton>
+      <CommandButton variant="primary" size="sm" disabled>禁用</CommandButton>
+    </div>
+  );
+}
+
 function FieldValueFilterPreview() {
   const [fieldKey, setFieldKey] = useState("status");
   const [value, setValue] = useState("active");
@@ -110,6 +123,7 @@ function getToolbarActionClassNamePreview() {
 export const toolbarPreviewByName: Record<string, FC> = {
   ActionButton: ActionButtonPreview,
   ActionGlyph: ActionGlyphPreview,
+  CommandButton: CommandButtonPreview,
   RefreshActionButton: RefreshActionButtonPreview,
   Toolbar: ToolbarPreview,
   FieldValueFilter: FieldValueFilterPreview,

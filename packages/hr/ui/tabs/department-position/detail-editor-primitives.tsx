@@ -2,26 +2,59 @@
 
 import { useState, type ReactNode } from "react";
 import {
+  FieldInputShell,
   FkFieldInput,
   FormField,
   PanelCard,
-  RemovableTag,
+  TagInlineTextField,
+  TagListInput,
   TextField,
-  getFieldInputClassName,
-  getReadOnlyFieldClassName,
-  getTagInputShellClassName,
-  useConfirmDelete,
 } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
 import { primitiveListItems } from "./description-details";
 
-export const formInputClassName = getFieldInputClassName();
-export const compactFormInputClassName = getFieldInputClassName("h-10 py-0");
-export const readOnlyInputClassName = getReadOnlyFieldClassName();
-export const compactReadOnlyInputClassName = getReadOnlyFieldClassName();
-const tagInputShellClassName = getTagInputShellClassName("content-start");
+export const formInputClassName = "";
+export const compactFormInputClassName = "h-10 py-0";
+export const readOnlyInputClassName = "";
+export const compactReadOnlyInputClassName = "";
 export { OptionTagListEditor } from "./option-tag-list-editor";
+
+export function PercentageField({
+  label,
+  value,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  value: number | null;
+  disabled?: boolean;
+  onChange: (value: number | null) => void;
+}) {
+  return (
+    <FormField label={label}>
+      <FieldInputShell>
+        <TextField
+          type="number"
+          min={0}
+          max={100}
+          step="0.01"
+          value={value == null ? "" : String(value)}
+          disabled={disabled}
+          onChange={(next) => {
+            if (next.trim() === "") return onChange(null);
+            const number = Number(next);
+            onChange(Number.isFinite(number) ? number : value ?? null);
+          }}
+          unstyled
+          className="min-w-0 flex-1 border-0 bg-transparent px-3 py-2 outline-none disabled:bg-slate-100 disabled:text-slate-500"
+        />
+        <span className="grid w-10 place-items-center border-l border-slate-200 bg-slate-50 text-slate-500">%</span>
+      </FieldInputShell>
+    </FormField>
+  );
+}
+
 
 export function sectionTitle(title: string, extra?: ReactNode) {
   return (
@@ -122,7 +155,6 @@ export function StringListEditor({
   onChange: (items: string[]) => void;
   placeholder?: string;
 }) {
-  const confirmDelete = useConfirmDelete();
   const [draft, setDraft] = useState("");
   const items = primitiveListItems(value);
 
@@ -133,35 +165,26 @@ export function StringListEditor({
     setDraft("");
   }
 
-  async function removeItem(index: number) {
-    const confirmed = await confirmDelete({
-      message: `确定删除「${items[index] || label}」吗？删除后需要保存才会生效。`,
-    });
-    if (!confirmed) return;
+  function removeItem(index: number) {
     onChange(items.filter((_, itemIndex) => itemIndex !== index));
   }
 
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <div className={tagInputShellClassName}>
-        {items.map((item, index) => (
-          <RemovableTag
-            key={`${item}-${index}`}
-            label={`删除${label} ${item || index + 1}`}
-            confirmMessage={`确定删除「${items[index] || label}」吗？删除后需要保存才会生效。`}
-            disabled={disabled}
-            onRemove={() => removeItem(index)}
-            className="h-auto min-h-6 items-start rounded-xl py-1 leading-snug"
-            textClassName="min-w-0 whitespace-normal break-words leading-snug"
-          >
-            {item}
-          </RemovableTag>
-        ))}
-        {disabled ? (
-          items.length === 0 ? <span className="text-slate-400">未设置</span> : null
-        ) : (
-          <TextField
+      <TagListInput
+        items={items}
+        getKey={(item, index) => `${item}-${index}`}
+        getLabel={(item) => item}
+        onRemove={(_, index) => removeItem(index)}
+        disabled={disabled}
+        confirmMessage={(item) => `确定删除「${item || label}」吗？删除后需要保存才会生效。`}
+        emptyText={disabled ? "未设置" : undefined}
+        itemClassName={() => "h-auto min-h-6 items-start rounded-xl py-1 leading-snug"}
+        shellClassName="content-start"
+      >
+        {!disabled && (
+          <TagInlineTextField
             value={draft}
             onChange={setDraft}
             onBlur={commitDraft}
@@ -173,15 +196,14 @@ export function StringListEditor({
                 }
               }
               if (event.key === "Backspace" && !draft && items.length > 0) {
-                void removeItem(items.length - 1);
+                removeItem(items.length - 1);
               }
             }}
             placeholder={items.length === 0 ? placeholder : ""}
-            unstyled
-            className={`${items.length === 0 ? "min-w-32 flex-1" : "w-6 flex-none"} border-0 bg-transparent px-1 py-1 text-sm text-slate-800 outline-none placeholder:text-slate-400`}
+            className={`${items.length === 0 ? "min-w-32 flex-1" : "w-6 flex-none"} px-1 py-1`}
           />
         )}
-      </div>
+      </TagListInput>
     </div>
   );
 }

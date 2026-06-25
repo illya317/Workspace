@@ -3,8 +3,8 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { PanelCard } from "@workspace/core/ui";
 import {
+  coreUiComponentAccessLayerMeta,
   coreUiComponentKindMeta,
-  coreUiComponentTierMeta,
   type CoreUiComponentRegistration,
 } from "@workspace/core/ui/component-registry";
 import type { CoreUiComponentRelationView } from "@workspace/core/ui/component-registry-view";
@@ -131,11 +131,11 @@ function UsedByBlock({
   return (
     <div className="space-y-3">
       {relation.usedByGrouped.map((group) => {
-        const groupKey = `usedBy:${group.tier}:${group.kind}`;
+        const groupKey = `usedBy:${group.accessLayer}:${group.kind}`;
         return (
           <div key={groupKey}>
             <p className="mb-1 text-xs font-medium text-slate-400">
-              {coreUiComponentTierMeta[group.tier].label} / {coreUiComponentKindMeta[group.kind].label}
+              {coreUiComponentAccessLayerMeta[group.accessLayer].label} / {coreUiComponentKindMeta[group.kind].label}
             </p>
             <LimitedList
               items={group.components}

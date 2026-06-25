@@ -7,10 +7,10 @@ import {
   ConfirmProvider,
   DetailModal,
   DropdownMenu,
-  ModalCreatePanel,
   useConfirm,
   useConfirmDelete,
 } from "@workspace/core/ui";
+import ModalCreatePanel from "../../ui/ModalCreatePanel";
 
 function ConfirmModalPreview() {
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);

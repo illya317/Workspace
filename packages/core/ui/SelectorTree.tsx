@@ -20,6 +20,7 @@ export interface SelectorTreeProps<T> {
   expandedIds?: Iterable<string | number>;
   defaultExpandedIds?: Iterable<string | number>;
   onToggle?: (id: string | number, expanded: boolean) => void;
+  collapsible?: boolean;
   emptyText?: ReactNode;
   className?: string;
 }
@@ -42,6 +43,7 @@ export function SelectorTree<T>({
   expandedIds,
   defaultExpandedIds,
   onToggle,
+  collapsible = true,
   emptyText = "暂无数据",
   className = "",
 }: SelectorTreeProps<T>) {
@@ -75,7 +77,7 @@ export function SelectorTree<T>({
     const id = getKey(item);
     const children = getChildren(item);
     const hasChildren = Boolean(children && children.length > 0);
-    const expanded = expandedSet.has(id);
+    const expanded = !collapsible && hasChildren ? true : expandedSet.has(id);
     const active = selectedId === id;
     const cardProps = renderItem(item, { level, expanded, hasChildren });
 
@@ -85,7 +87,7 @@ export function SelectorTree<T>({
         active={active}
         onClick={() => onSelect(item)}
         toggle={
-          hasChildren
+          hasChildren && collapsible
             ? {
                 enabled: true,
                 expanded,

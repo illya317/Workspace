@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckboxChip, FormField, PanelCard, TextField, getToolbarActionClassName } from "@workspace/core/ui";
+import { CheckboxChip, CommandButton, FormField, PanelCard, TextField } from "@workspace/core/ui";
 import { DETAIL_FIELD_LABELS, POSITION_DESCRIPTION_TEMPLATE_FIELD_GROUPS } from "./description-details";
 import { formInputClassName } from "./detail-editors";
 export function PositionDescriptionTemplateEditor({
@@ -24,8 +24,8 @@ export function PositionDescriptionTemplateEditor({
           <TextField value={name} onChange={onNameChange} className={formInputClassName} />
         </FormField>
         <div className="flex gap-2">
-          <button type="button" onClick={() => void onSave()} className={getToolbarActionClassName("primary")}>保存模板</button>
-          <button type="button" onClick={onCancel} className={getToolbarActionClassName()}>取消</button>
+          <CommandButton variant="primary" onClick={() => void onSave()}>保存模板</CommandButton>
+          <CommandButton onClick={onCancel}>取消</CommandButton>
         </div>
       </div>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">

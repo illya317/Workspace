@@ -42,6 +42,7 @@ export default function OptionPicker({
   optionLabel = "选项",
   changeGroupLabel = "更换分类",
   formatValueLabel,
+  renderOption,
   searchPlaceholder = "搜索选项",
   commonValues,
   visibleCount = 6,
@@ -157,6 +158,7 @@ export default function OptionPicker({
             setQuery={setQuery}
             searchPlaceholder={searchPlaceholder}
             choose={choose}
+            renderOption={renderOption}
           />
         );
       }}

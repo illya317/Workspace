@@ -4,7 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { TableScrollFrame, Toolbar, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, TableScrollFrame, Toolbar } from "@workspace/core/ui";
 import type { QcBatchSummary, QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcLayoutPaper from "./QcLayoutPaper";
@@ -131,12 +131,12 @@ export default function QcBatchTestRecord({
       </div>
 
       <div className="mx-auto mt-8 flex max-w-[210mm] items-center justify-center gap-3">
-        {testStatus?.canSaveInspection ? <button type="button" onClick={save} disabled={isPending} className={[getToolbarActionClassName("primary"), "px-8"].filter(Boolean).join(" ")}>
+        {testStatus?.canSaveInspection ? <CommandButton onClick={save} disabled={isPending} variant="primary" className="px-8">
             {isPending ? "保存中" : "保存检验"}
-          </button> : null}
-        {testStatus?.canApproveReview ? <button type="button" onClick={approveReview} disabled={isPending} className={[getToolbarActionClassName("primary"), "px-8"].filter(Boolean).join(" ")}>
+          </CommandButton> : null}
+        {testStatus?.canApproveReview ? <CommandButton onClick={approveReview} disabled={isPending} variant="primary" className="px-8">
             {isPending ? "复核中" : "复核通过"}
-          </button> : null}
+          </CommandButton> : null}
         {saveState === "saved" && <span className="text-sm text-emerald-700">{statusText || "已保存"}</span>}
         {saveState === "error" && <span className="text-sm text-red-700">{statusText || "操作失败"}</span>}
       </div>

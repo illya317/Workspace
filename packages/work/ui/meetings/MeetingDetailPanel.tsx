@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckboxField, FormField, getToolbarActionClassName } from "@workspace/core/ui";
+import { CheckboxField, CommandButton, FormField } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import type { ActionDraft, MeetingDetail } from "./meeting-types";
 import { AgendaSelect, DecisionSelect, InlineForm, InputBox, Section, SelectBox, SimpleList } from "./MeetingControls";
@@ -80,9 +80,9 @@ export function MeetingDetailPanel({
             })} />
               </FormField>
               <div className="self-end">
-                <button type="button" disabled={saving || !participantDraft.userId} onClick={() => void onMutate<{
+                <CommandButton variant="primary" size="sm" disabled={saving || !participantDraft.userId} onClick={() => void onMutate<{
               meeting: MeetingDetail;
-            }>(`/api/modules/work/meetings/${meeting.id}/participants`, participantDraft, "参会人已保存")} className={getToolbarActionClassName("primary", "sm")}>保存参会人</button>
+            }>(`/api/modules/work/meetings/${meeting.id}/participants`, participantDraft, "参会人已保存")}>保存参会人</CommandButton>
               </div>
             </InlineForm>}
         </Section>
@@ -103,14 +103,14 @@ export function MeetingDetailPanel({
             description,
           })} />
               <div className="self-end">
-                <button type="button" disabled={saving || !agendaDraft.title.trim()} onClick={() => void onMutate<{
+                <CommandButton variant="primary" size="sm" disabled={saving || !agendaDraft.title.trim()} onClick={() => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/agenda`, agendaDraft, "议题已新增", () => onAgendaDraftChange({
               title: "",
               description: "",
-            }))} className={getToolbarActionClassName("primary", "sm")}>
+            }))}>
                   新增议题
-                </button>
+                </CommandButton>
               </div>
             </InlineForm>}
         </Section>
@@ -131,14 +131,14 @@ export function MeetingDetailPanel({
             content,
           })} className="md:col-span-2" />
               <div className="self-end">
-                <button type="button" disabled={saving || !minuteDraft.content.trim()} onClick={() => void onMutate<{
+                <CommandButton variant="primary" size="sm" disabled={saving || !minuteDraft.content.trim()} onClick={() => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/minutes`, normalizeOptionalIds(minuteDraft), "纪要已记录", () => onMinuteDraftChange({
               agendaItemId: "",
               content: "",
-            }))} className={getToolbarActionClassName("primary", "sm")}>
+            }))}>
                   记录纪要
-                </button>
+                </CommandButton>
               </div>
             </InlineForm>}
         </Section>
@@ -193,7 +193,7 @@ export function MeetingDetailPanel({
             content,
           })} className="md:col-span-2" />
               <div className="self-end">
-                <button type="button" disabled={saving || !proposalDraft.title.trim()} onClick={() => void onMutate<{
+                <CommandButton variant="primary" size="sm" disabled={saving || !proposalDraft.title.trim()} onClick={() => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/votes`, {
               action: "create",
@@ -204,9 +204,9 @@ export function MeetingDetailPanel({
               content: "",
               voteVisibility: "named",
               minVotesRequired: "",
-            }))} className={getToolbarActionClassName("primary", "sm")}>
+            }))}>
                   创建表决
-                </button>
+                </CommandButton>
               </div>
             </InlineForm>}
         </Section>
@@ -235,7 +235,7 @@ export function MeetingDetailPanel({
             content,
           })} className="md:col-span-2" />
               <div className="self-end">
-                <button type="button" disabled={saving || !decisionDraft.title.trim()} onClick={() => void onMutate<{
+                <CommandButton variant="primary" size="sm" disabled={saving || !decisionDraft.title.trim()} onClick={() => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/decisions`, normalizeOptionalIds(decisionDraft), "决议已保存", () => onDecisionDraftChange({
               agendaItemId: "",
@@ -244,9 +244,9 @@ export function MeetingDetailPanel({
               title: "",
               content: "",
               effectiveDate: "",
-            }))} className={getToolbarActionClassName("primary", "sm")}>
+            }))}>
                   保存决议
-                </button>
+                </CommandButton>
               </div>
             </InlineForm>}
         </Section>
@@ -286,7 +286,7 @@ export function MeetingDetailPanel({
             description,
           })} className="md:col-span-2" />
               <div className="self-end">
-                <button type="button" disabled={saving || !candidateDraft.title.trim()} onClick={() => void onMutate<{
+                <CommandButton variant="primary" size="sm" disabled={saving || !candidateDraft.title.trim()} onClick={() => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/action-candidates`, normalizeOptionalIds(candidateDraft), "行动候选已新增", () => onCandidateDraftChange({
               agendaItemId: "",
@@ -294,9 +294,9 @@ export function MeetingDetailPanel({
               title: "",
               description: "",
               targetKind: "work_item",
-            }))} className={getToolbarActionClassName("primary", "sm")}>
+            }))}>
                   新增候选
-                </button>
+                </CommandButton>
               </div>
             </InlineForm>}
         </Section>

@@ -2,8 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useCallback } from "react";
-import { DetailModal, Pagination } from "@workspace/core/ui";
-import SelectField from "@workspace/core/ui/SelectField";
+import { DetailModal, Pagination, SelectField } from "@workspace/core/ui";
 import AuditLogEntry, { type AuditEntry } from "./AuditLogEntry";
 
 export interface AuditLogModalProps {

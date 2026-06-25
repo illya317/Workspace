@@ -22,6 +22,7 @@ interface CreatePanelBaseProps {
 
 export interface CreatePanelInlineProps extends CreatePanelBaseProps {
   variant: "inline";
+  hideTitle?: boolean;
 }
 
 export interface CreatePanelBlockProps extends CreatePanelBaseProps {
@@ -30,6 +31,10 @@ export interface CreatePanelBlockProps extends CreatePanelBaseProps {
   onStartCreate: () => void;
   canCreate?: boolean;
   createContent: ReactNode;
+  disabled?: boolean;
+  addLabel?: string;
+  bodyClassName?: string;
+  createClassName?: string;
 }
 
 export interface CreatePanelModalProps extends CreatePanelBaseProps {
@@ -59,6 +64,7 @@ export default function CreatePanel(props: CreatePanelProps) {
   } = props;
 
   if (variant === "inline") {
+    const { hideTitle } = props as CreatePanelInlineProps;
     return (
       <InlineCreatePanel
         title={title}
@@ -66,6 +72,9 @@ export default function CreatePanel(props: CreatePanelProps) {
         onCancel={onCancel}
         submitDisabled={submitDisabled}
         submitting={submitting}
+        submitLabel={submitLabel}
+        cancelLabel={cancelLabel}
+        hideTitle={hideTitle}
         className={className}
       >
         {children}
@@ -74,20 +83,33 @@ export default function CreatePanel(props: CreatePanelProps) {
   }
 
   if (variant === "block") {
-    const { creating, onStartCreate, canCreate, createContent } = props as CreatePanelBlockProps;
+    const {
+      creating,
+      onStartCreate,
+      canCreate,
+      createContent,
+      disabled,
+      addLabel,
+      bodyClassName,
+      createClassName,
+    } = props as CreatePanelBlockProps;
     return (
       <BlockCreatePanel
         title={title}
         creating={creating}
         canCreate={canCreate}
+        disabled={disabled}
         onStartCreate={onStartCreate}
         onSubmitCreate={onSubmit}
         onCancelCreate={onCancel}
         submitting={submitting}
         submitDisabled={submitDisabled}
+        addLabel={addLabel}
         submitLabel={submitLabel}
         cancelLabel={cancelLabel}
         createContent={createContent}
+        bodyClassName={bodyClassName}
+        createClassName={createClassName}
         className={className}
       >
         {children}

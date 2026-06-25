@@ -3,8 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect } from "react";
 import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
-import Toast from "@workspace/core/ui/Toast";
-import { EmptyStateCard, PanelCard, Toolbar, type ToolbarItem } from "@workspace/core/ui";
+import { EmptyStateCard, PanelCard, Toast, Toolbar, type ToolbarItem } from "@workspace/core/ui";
 import { useCodeTab } from "./useCodeTab";
 import CodeTable from "./CodeTable";
 

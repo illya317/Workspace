@@ -1,6 +1,6 @@
 "use client";
 
-import { EmptyStateCard, PanelCard, SelectorCard, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, EmptyStateCard, PanelCard, SelectorList } from "@workspace/core/ui";
 import type { ActionDraft, MeetingDetail, MeetingParticipant, MeetingSummary } from "./meeting-types";
 import { EmptyLine, InputBox, StatusPill } from "./MeetingControls";
 import { candidateStatusLabel, decisionKindLabel, emptyActionDraft, formatDateTime, roleLabel, voteChoiceLabel } from "./meeting-utils";
@@ -17,9 +17,21 @@ export function MeetingList({
   onSelect: (id: number) => void;
 }) {
   return <PanelCard className="min-w-0" title="会议列表" bodyClassName="max-h-[calc(100vh-14rem)] overflow-y-auto p-2">
-      {loading ? <EmptyStateCard compact>加载中...</EmptyStateCard> : meetings.length === 0 ? <EmptyStateCard compact>暂无会议</EmptyStateCard> : <div className="space-y-2">
-          {meetings.map(meeting => <SelectorCard key={meeting.id} active={selectedId === meeting.id} onClick={() => onSelect(meeting.id)} title={meeting.title} subtitle={`${meeting.typeName} · ${formatDateTime(meeting.startAt) || "未定时间"}`} trailing={<StatusPill status={meeting.status} />} meta={[`议题 ${meeting.counts.agendaItems}`, `表决 ${meeting.counts.proposals}`, `决议 ${meeting.counts.decisions}`]} />)}
-        </div>}
+      {loading ? <EmptyStateCard compact>加载中...</EmptyStateCard> : meetings.length === 0 ? <EmptyStateCard compact>暂无会议</EmptyStateCard> : (
+        <SelectorList
+          items={meetings}
+          selectedId={selectedId}
+          onSelect={(meeting) => onSelect(meeting.id)}
+          getKey={(meeting) => meeting.id}
+          className="space-y-2"
+          renderItem={(meeting) => ({
+            title: meeting.title,
+            subtitle: `${meeting.typeName} · ${formatDateTime(meeting.startAt) || "未定时间"}`,
+            trailing: <StatusPill status={meeting.status} />,
+            meta: [`议题 ${meeting.counts.agendaItems}`, `表决 ${meeting.counts.proposals}`, `决议 ${meeting.counts.decisions}`],
+          })}
+        />
+      )}
     </PanelCard>;
 }
 
@@ -50,18 +62,18 @@ export function MeetingHeader({
           {meeting.description && <p className="mt-3 whitespace-pre-wrap text-sm text-slate-600">{meeting.description}</p>}
         </div>
         {meeting.permissions.canEdit && <div className="flex flex-wrap gap-2">
-            <button type="button" disabled={saving || meeting.status === "in_progress"} onClick={() => onUpdate({
+            <CommandButton variant="secondary" size="sm" disabled={saving || meeting.status === "in_progress"} onClick={() => onUpdate({
           status: "in_progress",
-        }, "会议已开始")} className={getToolbarActionClassName("secondary", "sm")}>开始</button>
-            <button type="button" disabled={saving || meeting.status === "closed"} onClick={() => onUpdate({
+        }, "会议已开始")}>开始</CommandButton>
+            <CommandButton variant="secondary" size="sm" disabled={saving || meeting.status === "closed"} onClick={() => onUpdate({
           status: "closed",
-        }, "会议已关闭")} className={getToolbarActionClassName("secondary", "sm")}>关闭</button>
-            <button type="button" disabled={saving || meeting.visibility === "participants_only"} onClick={() => onUpdate({
+        }, "会议已关闭")}>关闭</CommandButton>
+            <CommandButton variant="secondary" size="sm" disabled={saving || meeting.visibility === "participants_only"} onClick={() => onUpdate({
           visibility: "participants_only",
-        }, "可见性已更新")} className={getToolbarActionClassName("secondary", "sm")}>参会可见</button>
-            <button type="button" disabled={saving || meeting.visibility === "public"} onClick={() => onUpdate({
+        }, "可见性已更新")}>参会可见</CommandButton>
+            <CommandButton variant="secondary" size="sm" disabled={saving || meeting.visibility === "public"} onClick={() => onUpdate({
           visibility: "public",
-        }, "可见性已更新")} className={getToolbarActionClassName("secondary", "sm")}>公开</button>
+        }, "可见性已更新")}>公开</CommandButton>
           </div>}
       </div>
     </PanelCard>;
@@ -115,12 +127,12 @@ export function ProposalList({
             </div>}
           <div className="mt-3 flex flex-wrap gap-2">
             {meeting.permissions.canVote && proposal.status === "open" && <>
-                <button type="button" disabled={saving} onClick={() => onVote(proposal.id, "yes")} className={getToolbarActionClassName(proposal.myVote?.choice === "yes" ? "primary" : "secondary", "sm")}>赞成</button>
-                <button type="button" disabled={saving} onClick={() => onVote(proposal.id, "no")} className={getToolbarActionClassName(proposal.myVote?.choice === "no" ? "primary" : "secondary", "sm")}>反对</button>
-                <button type="button" disabled={saving} onClick={() => onVote(proposal.id, "abstain")} className={getToolbarActionClassName(proposal.myVote?.choice === "abstain" ? "primary" : "secondary", "sm")}>弃权</button>
+                <CommandButton variant={proposal.myVote?.choice === "yes" ? "primary" : "secondary"} size="sm" disabled={saving} onClick={() => onVote(proposal.id, "yes")}>赞成</CommandButton>
+                <CommandButton variant={proposal.myVote?.choice === "no" ? "primary" : "secondary"} size="sm" disabled={saving} onClick={() => onVote(proposal.id, "no")}>反对</CommandButton>
+                <CommandButton variant={proposal.myVote?.choice === "abstain" ? "primary" : "secondary"} size="sm" disabled={saving} onClick={() => onVote(proposal.id, "abstain")}>弃权</CommandButton>
               </>}
-            {meeting.permissions.canEdit && proposal.status === "open" && <button type="button" disabled={saving} onClick={() => onClose(proposal.id)} className={getToolbarActionClassName("secondary", "sm")}>关闭表决</button>}
-            {meeting.permissions.canEdit && proposal.status === "passed" && <button type="button" disabled={saving} onClick={() => onDecision(proposal)} className={getToolbarActionClassName("secondary", "sm")}>生成决议</button>}
+            {meeting.permissions.canEdit && proposal.status === "open" && <CommandButton variant="secondary" size="sm" disabled={saving} onClick={() => onClose(proposal.id)}>关闭表决</CommandButton>}
+            {meeting.permissions.canEdit && proposal.status === "passed" && <CommandButton variant="secondary" size="sm" disabled={saving} onClick={() => onDecision(proposal)}>生成决议</CommandButton>}
           </div>
         </div>)}
     </div>;
@@ -190,11 +202,11 @@ export function CandidateList({
             targetId,
           })} />
                 <div className="flex flex-wrap items-end gap-2 md:col-span-4">
-                  <button type="button" disabled={saving || !draft.workItemId} onClick={() => onAction(candidate.id, "linkWorkItem", draft)} className={getToolbarActionClassName("secondary", "sm")}>链接工作项</button>
-                  <button type="button" disabled={saving} onClick={() => onAction(candidate.id, "createWorkItem", draft)} className={getToolbarActionClassName("secondary", "sm")}>创建工作项</button>
-                  <button type="button" disabled={saving || !draft.projectTaskId} onClick={() => onAction(candidate.id, "linkProjectTask", draft)} className={getToolbarActionClassName("secondary", "sm")}>链接项目任务</button>
-                  <button type="button" disabled={saving || !draft.projectId} onClick={() => onAction(candidate.id, "createProjectTask", draft)} className={getToolbarActionClassName("secondary", "sm")}>创建项目任务</button>
-                  <button type="button" disabled={saving} onClick={() => onAction(candidate.id, "ignore", draft)} className={getToolbarActionClassName("danger", "sm")}>忽略</button>
+                  <CommandButton variant="secondary" size="sm" disabled={saving || !draft.workItemId} onClick={() => onAction(candidate.id, "linkWorkItem", draft)}>链接工作项</CommandButton>
+                  <CommandButton variant="secondary" size="sm" disabled={saving} onClick={() => onAction(candidate.id, "createWorkItem", draft)}>创建工作项</CommandButton>
+                  <CommandButton variant="secondary" size="sm" disabled={saving || !draft.projectTaskId} onClick={() => onAction(candidate.id, "linkProjectTask", draft)}>链接项目任务</CommandButton>
+                  <CommandButton variant="secondary" size="sm" disabled={saving || !draft.projectId} onClick={() => onAction(candidate.id, "createProjectTask", draft)}>创建项目任务</CommandButton>
+                  <CommandButton variant="danger" size="sm" disabled={saving} onClick={() => onAction(candidate.id, "ignore", draft)}>忽略</CommandButton>
                 </div>
               </div>}
           </div>;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Toolbar, type ToolbarItem, DetailModal, FormField, TextareaField, TextField, getReadOnlyFieldClassName } from "@workspace/core/ui";
+import { Toolbar, type ToolbarItem, DetailModal, FormField, ReadOnlyField, TextareaField, TextField } from "@workspace/core/ui";
 import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
 import AccountCodeInput from "./AccountCodeInput";
 
@@ -55,11 +55,11 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
     <DetailModal open title="调整重分类" onClose={handleClose} maxWidth="max-w-sm">
         <div className="space-y-3">
           <FormField label="凭证号">
-            <p className={getReadOnlyFieldClassName("font-mono text-gray-700")}>{item.voucherNo}</p>
+            <ReadOnlyField value={item.voucherNo} className="font-mono text-gray-700" />
           </FormField>
           {item.description && (
             <FormField label="摘要">
-              <p className={getReadOnlyFieldClassName("text-gray-700")}>{item.description}</p>
+              <ReadOnlyField value={item.description} className="text-gray-700" />
             </FormField>
           )}
           <FormField label="调整科目" required>

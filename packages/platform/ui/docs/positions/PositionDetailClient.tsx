@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { DatabasePageFrame, EmptyStateCard, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DatabasePageFrame, EmptyStateCard } from "@workspace/core/ui";
 import { PositionDescriptionReadOnlyView, type PositionDescriptionReadOnlyData } from "@workspace/platform/ui/position-description/PositionDescriptionReadOnlyView";
 export default function GmpDetailClient({
   code
@@ -34,9 +34,9 @@ export default function GmpDetailClient({
         <EmptyStateCard compact={false}>
           <div className="space-y-4">
             <div>{error || "未找到"}</div>
-            <button type="button" onClick={() => router.push("/docs/positions")} className={[getToolbarActionClassName(), "mt-4"].filter(Boolean).join(" ")}>
+            <CommandButton onClick={() => router.push("/docs/positions")} className="mt-4">
               返回列表
-            </button>
+            </CommandButton>
           </div>
         </EmptyStateCard>
       </DatabasePageFrame>;
@@ -44,7 +44,7 @@ export default function GmpDetailClient({
   return <DatabasePageFrame contentClassName="py-8">
       <PositionDescriptionReadOnlyView data={pos} />
       <div className="mt-8 flex justify-end">
-        <button type="button" onClick={() => router.push("/docs/positions")} className={getToolbarActionClassName()}>返回列表</button>
+        <CommandButton onClick={() => router.push("/docs/positions")}>返回列表</CommandButton>
       </div>
     </DatabasePageFrame>;
 }

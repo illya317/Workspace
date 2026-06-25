@@ -1,6 +1,6 @@
 "use client";
 
-import { EmptyStateCard, SectionCard, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, EmptyStateCard, SectionCard } from "@workspace/core/ui";
 import WorkForm from "./WorkForm";
 import type { WorkItem } from "./types";
 export interface WorkFormData {
@@ -27,9 +27,9 @@ export default function WorkFormSection({
   onCancelForm,
   onSave
 }: WorkFormSectionProps) {
-  return <SectionCard title="部门工作计划" className="mb-6" actions={isAdmin && !showForm && !editingWork ? <button type="button" onClick={onAddClick} className={[getToolbarActionClassName("primary"), "ml-auto"].filter(Boolean).join(" ")}>
+  return <SectionCard title="部门工作计划" className="mb-6" actions={isAdmin && !showForm && !editingWork ? <CommandButton variant="primary" onClick={onAddClick} className="ml-auto">
             + 添加工作项
-          </button> : null}>
+          </CommandButton> : null}>
       {!isAdmin && <EmptyStateCard compact className="mb-4">
           仅部门管理员可编辑工作计划
         </EmptyStateCard>}

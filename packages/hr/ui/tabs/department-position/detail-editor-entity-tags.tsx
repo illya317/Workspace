@@ -1,12 +1,10 @@
 "use client";
 
-import { FkFieldInput, RemovableTag, getTagInputShellClassName } from "@workspace/core/ui";
+import { FkFieldInput, TagListInput } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
 import { primitiveListItems } from "./description-details";
 import { selectedEntityName } from "./detail-editor-primitives";
-
-const tagInputShellClassName = getTagInputShellClassName("content-start");
 
 export function EntityTagListEditor({
   label,
@@ -40,28 +38,25 @@ export function EntityTagListEditor({
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <div className={tagInputShellClassName}>
-        {items.map((item, index) => {
-          const matched = !validNames || validNames.has(item);
-          return (
-            <RemovableTag
-              key={`${item}-${index}`}
-              title={matched ? undefined : "当前主数据中未找到对应记录"}
-              label={`删除${label} ${item}`}
-              confirmMessage={`确定删除「${items[index] || label}」吗？删除后需要保存才会生效。`}
-              disabled={disabled}
-              onRemove={() => removeItem(index)}
-              className={`max-w-full text-xs ${
-                matched ? "border-slate-300 bg-white text-slate-800" : "border-red-300 bg-red-50 text-red-700"
-              }`}
-            >
-              {item}
-            </RemovableTag>
-          );
-        })}
-        {disabled ? (
-          items.length === 0 ? <span className="text-slate-400">未设置</span> : null
-        ) : (
+      <TagListInput
+        items={items}
+        getKey={(item, index) => `${item}-${index}`}
+        getLabel={(item) => item}
+        onRemove={(_, _index) => removeItem(_index)}
+        disabled={disabled}
+        confirmMessage={(item) => `确定删除「${item || label}」吗？删除后需要保存才会生效。`}
+        itemTitle={(item) => (validNames && !validNames.has(item) ? "当前主数据中未找到对应记录" : undefined)}
+        itemClassName={(item) =>
+          `max-w-full text-xs ${
+            validNames && !validNames.has(item)
+              ? "border-red-300 bg-red-50 text-red-700"
+              : "border-slate-300 bg-white text-slate-800"
+          }`
+        }
+        emptyText={disabled ? "未设置" : undefined}
+        shellClassName="content-start"
+      >
+        {!disabled && (
           <div className="min-w-40 flex-1">
             <FkFieldInput
               fkKey={fkKeyForEntity(entity)}
@@ -74,7 +69,7 @@ export function EntityTagListEditor({
             />
           </div>
         )}
-      </div>
+      </TagListInput>
     </div>
   );
 }
@@ -89,19 +84,15 @@ export function SubordinateTagsEditor({
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <div className={tagInputShellClassName}>
-        {items.map((item, index) => (
-          <RemovableTag
-            key={`${item}-${index}`}
-            label={`下属岗位 ${item}`}
-            disabled
-            className="max-w-full border-slate-300 bg-white text-xs text-slate-800"
-          >
-            {item}
-          </RemovableTag>
-        ))}
-        {items.length === 0 ? <span className="text-slate-400">未设置</span> : null}
-      </div>
+      <TagListInput
+        items={items}
+        getKey={(item, index) => `${item}-${index}`}
+        getLabel={(item) => item}
+        disabled
+        emptyText="未设置"
+        itemClassName={() => "max-w-full border-slate-300 bg-white text-xs text-slate-800"}
+        shellClassName="content-start"
+      />
     </div>
   );
 }

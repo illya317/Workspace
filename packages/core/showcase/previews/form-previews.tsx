@@ -2,11 +2,15 @@
 
 import { useState, type FC } from "react";
 import {
-  AutoSizeTextField, BlockCreatePanel, CalendarDateInput, CheckboxChip, CheckboxField, ChoiceGroup,
-  CreateConfirmActions, CreatePanel, CreateStartButton, FileField, FormField, FormShell, HiddenDataField,
-  InlineCreatePanel, RemovableTag, RatingControl, SearchInput, SelectField, SwitchField,
-  TagPill, TagPillButton, TagRemoveButton, TextField, TextareaField, TimeField,
+  AutoSizeTextField, CalendarDateInput, CheckboxChip, CheckboxField, ChoiceGroup,
+  CreatePanel, FieldGrid, FieldInputShell,
+  FileField, FormField, FormShell, HiddenDataField, RatingControl, ReadOnlyField,
+  SearchInput, SelectField, SwitchField,
+  TagInlineTextField, TextField, TextareaField, TimeField,
 } from "@workspace/core/ui";
+import BlockCreatePanel from "../../ui/BlockCreatePanel";
+import InlineCreatePanel from "../../ui/InlineCreatePanel";
+import { CreateConfirmActions, CreateStartButton } from "../../ui/CreateActionControls";
 
 function AutoSizeTextFieldPreview() {
   const [text, setText] = useState("自适应宽度");
@@ -124,6 +128,25 @@ const getTagInputShellClassNamePreview = foundationPreview("getTagInputShellClas
 const getTagInlineInputClassNamePreview = foundationPreview("getTagInlineInputClassName", "标签内联输入样式 token，用于 chip 输入末尾的轻量文本输入。");
 const getTagPillClassNamePreview = foundationPreview("getTagPillClassName", "标签项样式 token，统一别名、标签和可删除 chip 外观。");
 
+function ReadOnlyFieldPreview() {
+  const [clicked, setClicked] = useState(false);
+  return <div className="max-w-sm space-y-3"><ReadOnlyField value="只读值，保持表单视觉一致" /><ReadOnlyField value="可点击只读字段" onClick={() => setClicked((v) => !v)} />{clicked && <span className="text-xs text-slate-400">已点击</span>}</div>;
+}
+
+function FieldInputShellPreview() {
+  const [value, setValue] = useState("50");
+  return <div className="max-w-xs"><FieldInputShell className="focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500"><TextField value={value} onChange={setValue} unstyled className="h-9 flex-1 border-0 bg-transparent px-3 py-0 text-sm outline-none" /><span className="flex items-center border-l border-slate-200 bg-slate-50 px-3 text-sm text-slate-500">%</span></FieldInputShell></div>;
+}
+
+function FieldGridPreview() {
+  return <div className="max-w-2xl space-y-3"><FieldGrid.GroupTitle>基础资料</FieldGrid.GroupTitle><FieldGrid className="grid-cols-2"><FieldGrid.Cell label="姓名" required><TextField value="张三" onChange={() => {}} /></FieldGrid.Cell><FieldGrid.Cell label="员工编码"><ReadOnlyField value="EMP001" /></FieldGrid.Cell><FieldGrid.Cell label="备注" className="col-span-2"><TextareaField value="跨列字段" onChange={() => {}} /></FieldGrid.Cell></FieldGrid></div>;
+}
+
+function TagInlineTextFieldPreview() {
+  const [value, setValue] = useState("");
+  return <div className="max-w-sm rounded-md border border-sky-200 bg-white px-2 py-1 shadow-sm"><TagInlineTextField value={value} onChange={setValue} placeholder="输入新标签…" /></div>;
+}
+
 function HiddenDataFieldPreview() { return <div className="space-y-2"><p className="text-xs text-slate-400">HiddenDataField 渲染为不可见 input，DOM 中保留 data-field-key</p><HiddenDataField fieldKey="recordId" value="12345" /><p className="text-xs text-slate-500">已渲染 recordId=12345 的隐藏字段（检查 DOM 可见）</p></div>; }
 
 function InlineCreatePanelPreview() {
@@ -138,11 +161,6 @@ function InlineCreatePanelPreview() {
       {submitted && <p className="mt-2 text-xs text-slate-500">尝试创建：{submitted}</p>}
     </div>
   );
-}
-
-function RemovableTagPreview() {
-  const [tags, setTags] = useState(["重点项目", "GMP", "长期客户"]);
-  return <div className="flex flex-wrap items-center gap-2">{tags.map((tag) => <RemovableTag key={tag} label={`删除 ${tag}`} onRemove={() => setTags((prev) => prev.filter((t) => t !== tag))} confirmMessage={`确定删除标签「${tag}」？`}>{tag}</RemovableTag>)}</div>;
 }
 
 function RatingControlPreview() { const [rating, setRating] = useState<number>(3); return <RatingControl value={rating} onChange={setRating} max={5} label="重要度" />; }
@@ -180,12 +198,6 @@ function SelectFieldPreview() {
 }
 
 function SwitchFieldPreview() { const [boolValue, setBoolValue] = useState<boolean>(false); return <SwitchField checked={boolValue} onChange={setBoolValue} ariaLabel="启用开关" />; }
-
-function TagPillPreview() { return <div className="flex flex-wrap items-center gap-2"><TagPill>短标签</TagPill><TagPill>超过八个字符的长文本标签</TagPill><TagPill maxLength={12}>自定义截断长度标签示例</TagPill></div>; }
-
-function TagPillButtonPreview() { return <div className="flex flex-wrap items-center gap-2"><TagPillButton onClick={() => {}}>可点击标签</TagPillButton><TagPillButton onClick={() => {}}>长文本标签会自动省略显示</TagPillButton><TagPillButton onClick={() => {}} disabled>禁用标签</TagPillButton></div>; }
-
-function TagRemoveButtonPreview() { return <div className="flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-700">标签示例 <TagRemoveButton label="删除标签" confirm={false} onClick={() => {}} /></span></div>; }
 
 function TextareaFieldPreview() { const [text, setText] = useState<string>(""); return <TextareaField value={text} onChange={setText} placeholder="请输入多行文本" className="max-w-xs" />; }
 
@@ -271,14 +283,14 @@ export const formPreviewByName: Record<string, FC> = {
   AutoSizeTextField: AutoSizeTextFieldPreview, BlockCreatePanel: BlockCreatePanelPreview, CalendarDateInput: CalendarDateInputPreview,
   CheckboxChip: CheckboxChipPreview, CheckboxField: CheckboxFieldPreview, ChoiceGroup: ChoiceGroupPreview,
   CreateConfirmActions: CreateConfirmActionsPreview, CreatePanel: CreatePanelPreview, CreateStartButton: CreateStartButtonPreview, FileField: FileFieldPreview,
-  FormField: FormFieldPreview, FormShell: FormShellPreview,
+  FieldGrid: FieldGridPreview, FieldInputShell: FieldInputShellPreview, FormField: FormFieldPreview, FormShell: FormShellPreview,
   getFieldInputClassName: getFieldInputClassNamePreview, getFieldGridCellClassName: getFieldGridCellClassNamePreview,
   getFieldGridLabelClassName: getFieldGridLabelClassNamePreview, getFieldGridValueClassName: getFieldGridValueClassNamePreview,
   getFieldGroupTitleClassName: getFieldGroupTitleClassNamePreview, getReadOnlyFieldClassName: getReadOnlyFieldClassNamePreview,
   getTagInputShellClassName: getTagInputShellClassNamePreview, getTagInlineInputClassName: getTagInlineInputClassNamePreview,
   getTagPillClassName: getTagPillClassNamePreview, HiddenDataField: HiddenDataFieldPreview, InlineCreatePanel: InlineCreatePanelPreview,
-  RemovableTag: RemovableTagPreview, RatingControl: RatingControlPreview, SearchInput: SearchInputPreview,
-  SelectField: SelectFieldPreview, SwitchField: SwitchFieldPreview, TagPill: TagPillPreview, TagPillButton: TagPillButtonPreview,
-  TagRemoveButton: TagRemoveButtonPreview, TextareaField: TextareaFieldPreview, TextField: TextFieldPreview,
+  RatingControl: RatingControlPreview, ReadOnlyField: ReadOnlyFieldPreview, SearchInput: SearchInputPreview,
+  SelectField: SelectFieldPreview, SwitchField: SwitchFieldPreview, TagInlineTextField: TagInlineTextFieldPreview,
+  TextareaField: TextareaFieldPreview, TextField: TextFieldPreview,
   TimeField: TimeFieldPreview,
 };

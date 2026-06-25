@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { TreeNodeBranch, TreeNodeCard } from "@workspace/core/ui";
+import { SelectorList, SelectorTree } from "@workspace/core/ui";
 import { departmentManagerPositionName } from "./draft-utils";
 import type { Department, DepartmentPositionStats, Selection } from "./types";
 
@@ -12,9 +12,26 @@ const emptyStats: DepartmentPositionStats = {
   totalHeadcount: 0,
 };
 
+function departmentChildren(departments: Department[], department: Department): Department[] {
+  return departments.filter((item) => item.parentId === department.id).sort((a, b) => a.id - b.id);
+}
+
+function departmentStatsMeta(stats: DepartmentPositionStats): ReactNode {
+  return (
+    <span className="flex flex-wrap gap-2">
+      <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600" title="含下级部门总岗位">
+        总岗位 {stats.totalPositions}
+      </span>
+      <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600" title="含下级部门总编制">
+        总编制 {stats.totalHeadcount}
+      </span>
+    </span>
+  );
+}
+
 export function DepartmentNode({
   department,
-  level = 0,
+  level: _level,
   departments,
   visibleDepartmentIds,
   selection,
@@ -36,61 +53,45 @@ export function DepartmentNode({
   onToggle: (departmentId: number) => void;
 }) {
   if (visibleDepartmentIds && !visibleDepartmentIds.has(department.id)) return null;
-  const children = departments.filter((item) => item.parentId === department.id).sort((a, b) => a.id - b.id);
-  const isSelected = selection?.type === "department" && selection.id === department.id;
-  const hasChildren = children.length > 0;
   const isCollapsed = !search.trim() && collapsedDepartments.has(department.id);
-  const stats = departmentStats.get(department.id) ?? emptyStats;
+  const expandedIds = isCollapsed
+    ? new Set<number>()
+    : new Set(
+        departments
+          .filter((d) => !collapsedDepartments.has(d.id))
+          .map((d) => d.id),
+      );
+
+  function getChildren(item: Department): Department[] | undefined {
+    const children = departmentChildren(departments, item);
+    return children.length > 0 ? children : undefined;
+  }
 
   return (
-    <div className={level > 0 ? "ml-3 border-l border-slate-200 pl-2" : ""}>
-      <TreeNodeCard
-        title={department.name}
-        code={department.code}
-        level={department.level}
-        active={isSelected}
-        onClick={() => onSelect({ type: "department", id: department.id })}
-        toggle={{
-          enabled: hasChildren,
-          expanded: !isCollapsed,
-          label: isCollapsed ? "展开部门" : "收起部门",
-          onClick: () => onToggle(department.id),
-        }}
-        meta={
-          <span className="flex flex-wrap gap-2">
-            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600" title="含下级部门总岗位">
-              总岗位 {stats.totalPositions}
-            </span>
-            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600" title="含下级部门总编制">
-              总编制 {stats.totalHeadcount}
-            </span>
-          </span>
-        }
-        className="my-2"
-      />
-
-      {!isCollapsed && children.map((child) => (
-        <DepartmentNode
-          key={child.id}
-          department={child}
-          level={level + 1}
-          departments={departments}
-          visibleDepartmentIds={visibleDepartmentIds}
-          selection={selection}
-          collapsedDepartments={collapsedDepartments}
-          search={search}
-          departmentStats={departmentStats}
-          onSelect={onSelect}
-          onToggle={onToggle}
-        />
-      ))}
-    </div>
+    <SelectorTree
+      items={[department]}
+      selectedId={selection?.type === "department" ? selection.id : null}
+      onSelect={(item) => onSelect({ type: "department", id: item.id })}
+      getKey={(item) => item.id}
+      getChildren={getChildren}
+      expandedIds={expandedIds}
+      onToggle={(id) => onToggle(Number(id))}
+      renderItem={(item) => {
+        const stats = departmentStats.get(item.id) ?? emptyStats;
+        return {
+          title: item.name,
+          code: item.code,
+          level: item.level,
+          meta: departmentStatsMeta(stats),
+        };
+      }}
+    />
   );
 }
 
 export function OrganizationBranchNode({
   department,
-  level = 0,
+  level: _level,
   departments,
   visibleDepartmentIds,
   collapsedDepartments,
@@ -106,45 +107,44 @@ export function OrganizationBranchNode({
   onToggle: (departmentId: number) => void;
 }) {
   if (visibleDepartmentIds && !visibleDepartmentIds.has(department.id)) return null;
-  const children = departments.filter((item) => item.parentId === department.id).sort((a, b) => a.id - b.id);
-  const hasChildren = children.length > 0;
   const isCollapsed = !search.trim() && collapsedDepartments.has(department.id);
-  const managerName = departmentManagerPositionName(department);
-  const childNodes: ReactNode[] = !isCollapsed
-    ? children.map((child) => (
-      <OrganizationBranchNode
-        key={child.id}
-        department={child}
-        level={level + 1}
-        departments={departments}
-        visibleDepartmentIds={visibleDepartmentIds}
-        collapsedDepartments={collapsedDepartments}
-        search={search}
-        onToggle={onToggle}
-      />
-    )).filter(Boolean)
-    : [];
+  const expandedIds = isCollapsed
+    ? new Set<number>()
+    : new Set(
+        departments
+          .filter((d) => !collapsedDepartments.has(d.id))
+          .map((d) => d.id),
+      );
+
+  function getChildren(item: Department): Department[] | undefined {
+    const children = departmentChildren(departments, item);
+    return children.length > 0 ? children : undefined;
+  }
 
   return (
-    <TreeNodeBranch>
-      <TreeNodeCard
-        title={department.name}
-        code={department.code}
-        level={department.level}
-        tone={level === 1 ? "blue" : "amber"}
-        meta={managerName ? `负责人：${managerName} · 下级 ${children.length}` : `下级 ${children.length}`}
-        titleClassName="text-sm"
-        toggle={{
-          enabled: hasChildren,
-          expanded: !isCollapsed,
-          label: isCollapsed ? "展开部门" : "收起部门",
-          onClick: () => onToggle(department.id),
-        }}
-        onClick={() => hasChildren && onToggle(department.id)}
-      >
-        {childNodes.length > 0 ? childNodes : null}
-      </TreeNodeCard>
-    </TreeNodeBranch>
+    <SelectorTree
+      items={[department]}
+      selectedId={null}
+      onSelect={(item) => {
+        const children = departmentChildren(departments, item);
+        if (children.length > 0) onToggle(item.id);
+      }}
+      getKey={(item) => item.id}
+      getChildren={getChildren}
+      expandedIds={expandedIds}
+      onToggle={(id) => onToggle(Number(id))}
+      renderItem={(item, ctx) => {
+        const children = departmentChildren(departments, item);
+        const managerName = departmentManagerPositionName(item);
+        return {
+          title: item.name,
+          code: item.code,
+          level: item.level,
+          tone: ctx.level === 1 ? "blue" : "amber",
+          meta: managerName ? `负责人：${managerName} · 下级 ${children.length}` : `下级 ${children.length}`,
+        };
+      }}
+    />
   );
 }
 
@@ -159,23 +159,25 @@ export function OrganizationRootCard({
   departments: Department[];
   onSelect: (departmentId: number) => void;
 }) {
-  const children = departments.filter((item) => item.parentId === department.id).sort((a, b) => a.id - b.id);
+  const children = departmentChildren(departments, department);
   const managerName = departmentManagerPositionName(department);
 
   return (
-    <TreeNodeCard
-      title={department.name}
-      code={department.code}
-      level={1}
-      showToggle={false}
-      active={active}
-      meta={
-        <span className="flex min-w-0 items-center gap-2">
-          {managerName && <span className="min-w-0 flex-1 truncate whitespace-nowrap" title={`负责人：${managerName}`}>负责人：{managerName}</span>}
-          <span className="shrink-0 whitespace-nowrap">下级 {children.length}</span>
-        </span>
-      }
-      onClick={() => onSelect(department.id)}
+    <SelectorList
+      items={[department]}
+      selectedId={active ? department.id : null}
+      onSelect={(item) => onSelect(item.id)}
+      getKey={(item) => item.id}
+      className="mb-2"
+      renderItem={(item) => ({
+        title: item.name,
+        code: item.code,
+        level: 1,
+        meta: [
+          managerName && <span key="manager" className="min-w-0 flex-1 truncate whitespace-nowrap" title={`负责人：${managerName}`}>负责人：{managerName}</span>,
+          <span key="children" className="shrink-0 whitespace-nowrap">下级 {children.length}</span>,
+        ],
+      })}
     />
   );
 }

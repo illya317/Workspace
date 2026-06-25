@@ -1,6 +1,6 @@
 "use client";
 
-import SelectField from "@workspace/core/ui/SelectField";
+import { SelectField } from "@workspace/core/ui";
 
 interface CompanyPeriodPickerProps {
   company: string;

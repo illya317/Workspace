@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable, DataTableActionsCell, PanelCard, Badge, type DataTableColumn } from "@workspace/core/ui";
+import { DataTable, PanelCard, Badge, type DataTableColumn } from "@workspace/core/ui";
 import type { Contract } from "@workspace/administration/types";
 
 interface ContractsTableProps {
@@ -12,10 +12,7 @@ interface ContractsTableProps {
 
 export const CONTRACT_DEFAULT_VISIBLE_COLUMNS = ["name", "partyA", "partyB", "category", "signDate"];
 
-export function getContractTableColumns(
-  onEdit: (contract: Contract) => void,
-  onDelete: (id: number) => void,
-): DataTableColumn<Contract>[] {
+export function getContractTableColumns(): DataTableColumn<Contract>[] {
   return [
     { key: "contractNo", label: "编号", render: (c) => c.contractNo || "-" },
     { key: "name", label: "名称", defaultVisible: true, render: (c) => <span className="font-medium text-slate-900">{c.name}</span> },
@@ -44,28 +41,11 @@ export function getContractTableColumns(
     },
     { key: "handler", label: "经办人", render: (c) => c.handler || "-" },
     { key: "location", label: "位置", render: (c) => c.location || "-" },
-    {
-      key: "actions",
-      label: "操作",
-      required: true,
-      headerClassName: "text-center",
-      cellClassName: "text-center",
-      render: (c) => (
-        <div className="flex justify-center">
-          <DataTableActionsCell
-            actions={[
-              { key: "edit", label: "编辑", kind: "edit", onClick: () => onEdit(c) },
-              { key: "delete", label: "删除", kind: "delete", onClick: () => onDelete(c.id) },
-            ]}
-          />
-        </div>
-      ),
-    },
   ];
 }
 
 export default function ContractsTable({ contracts, visibleColumns, onEdit, onDelete }: ContractsTableProps) {
-  const columns = getContractTableColumns(onEdit, onDelete);
+  const columns = getContractTableColumns();
 
   return (
     <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
@@ -75,6 +55,11 @@ export default function ContractsTable({ contracts, visibleColumns, onEdit, onDe
         visibleColumns={visibleColumns}
         rowKey={(contract) => contract.id}
         emptyText="暂无数据"
+        rowActions={(c) => [
+          { key: "edit", label: "编辑", kind: "edit", onClick: () => onEdit(c) },
+          { key: "delete", label: "删除", kind: "delete", onClick: () => onDelete(c.id) },
+        ]}
+        actionsColumn={{ centered: true }}
       />
     </PanelCard>
   );

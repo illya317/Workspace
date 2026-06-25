@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AnalysisBlock, DataTable, MetricCard, SearchInput, type DataTableColumn, getToolbarActionClassName } from "@workspace/core/ui";
+import { AnalysisBlock, DataTable, MetricCard, SearchInput, TabBar, type DataTableColumn } from "@workspace/core/ui";
 import type { Contract } from "./useAnalyticsData";
 import { computeStats, enrichContracts, filterContracts, statusBadge, statusLabel, type EnrichedContract } from "./contract-helpers";
 export default function ContractAnalytics({
@@ -111,11 +111,12 @@ export default function ContractAnalytics({
       </div>
 
       <AnalysisBlock title="合同到期预警" toolbar={<div className="flex flex-1 items-center gap-3">
-          <div className="flex gap-1">
-            {(["all", "expiring30", "expiring90", "expired"] as const).map(f => <button type="button" key={f} onClick={() => setFilter(f)} className={getToolbarActionClassName(filter === f ? "primary" : "secondary")}>
-                {f === "all" ? "全部" : f === "expiring30" ? "30天" : f === "expiring90" ? "90天" : "已到期"}
-              </button>)}
-          </div>
+          <TabBar variant="small" tabs={[
+            { key: "all", label: "全部" },
+            { key: "expiring30", label: "30天" },
+            { key: "expiring90", label: "90天" },
+            { key: "expired", label: "已到期" }
+          ]} active={filter} onChange={key => setFilter(key as typeof filter)} />
           <SearchInput placeholder="搜索姓名、工号、公司..." value={search} onChange={setSearch} className="ml-auto max-w-xs" />
           <span className="text-xs text-gray-400">{filtered.length} 人</span>
           </div>}>

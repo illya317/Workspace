@@ -2,6 +2,11 @@
 # Pre-commit hook: keep local feedback fast. Full validation runs elsewhere.
 
 echo "→ Running quick local checks..."
+node scripts/check/check-core-ui-guard.js --staged || {
+  echo "✗ Core UI guard failed. Commit aborted."
+  exit 1
+}
+
 npm run check:quick || {
   echo "✗ Quick checks failed. Commit aborted."
   exit 1

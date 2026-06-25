@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
-import { ActionButton, PanelCard } from "@workspace/core/ui";
+import { PanelCard, Toolbar } from "@workspace/core/ui";
 type NotificationItem = {
   id: number;
   type: string;
@@ -259,11 +259,41 @@ export default function NotificationBell({
           title={<div className="whitespace-nowrap text-sm font-semibold text-slate-900">通知</div>}
           subtitle={<div className="whitespace-nowrap text-xs text-slate-400">{data.pendingCount} 条待确认 · {data.unreadCount} 条未读 · 共 {data.total} 条</div>}
           actions={(
-            <div className="flex items-center gap-1">
-              <ActionButton kind="refresh" label="刷新" onClick={() => void load(0)} className="!h-7 !w-7" iconClassName="h-4 w-4" />
-              <ActionButton kind="check" label="全部已读" onClick={() => void markAllRead()} disabled={markingRead || data.unreadCount === 0} className="!h-7 !w-7" iconClassName="h-4 w-4" />
-              <ActionButton kind="delete-bin" label="清空已读" onClick={() => void clearNotifications()} disabled={clearing || data.total === 0} className="!h-7 !w-7" variant="danger" iconClassName="h-4 w-4" />
-            </div>
+            <Toolbar
+              variant="inline"
+              items={[
+                {
+                  kind: "icon-button",
+                  key: "refresh",
+                  icon: "refresh",
+                  label: "刷新",
+                  className: "!h-7 !w-7",
+                  iconClassName: "h-4 w-4",
+                  onClick: () => void load(0),
+                },
+                {
+                  kind: "icon-button",
+                  key: "mark-all-read",
+                  icon: "check",
+                  label: "全部已读",
+                  className: "!h-7 !w-7",
+                  iconClassName: "h-4 w-4",
+                  disabled: markingRead || data.unreadCount === 0,
+                  onClick: () => void markAllRead(),
+                },
+                {
+                  kind: "icon-button",
+                  key: "clear-read",
+                  icon: "delete-bin",
+                  label: "清空已读",
+                  variant: "danger",
+                  className: "!h-7 !w-7",
+                  iconClassName: "h-4 w-4",
+                  disabled: clearing || data.total === 0,
+                  onClick: () => void clearNotifications(),
+                },
+              ]}
+            />
           )}
           bodyClassName="max-h-96 overflow-y-auto py-1"
         >
@@ -285,16 +315,53 @@ export default function NotificationBell({
                         </div>
                         <div className="mt-1 text-xs leading-5 text-slate-600">{item.body}</div>
                       </div>
-                      <ActionButton kind="delete" label="清除通知" className="!size-6 !rounded-full !border-0 !bg-transparent !text-lg !leading-none !text-slate-300 hover:!bg-slate-100 hover:!text-slate-600 disabled:!text-slate-200" disabled={busyId === item.id} onClick={() => void updateNotification(item.id, "clear")} />
+                      <Toolbar
+                        variant="inline"
+                        items={[
+                          {
+                            kind: "icon-button",
+                            key: "clear-notification",
+                            icon: "delete",
+                            label: "清除通知",
+                            className:
+                              "!size-6 !rounded-full !border-0 !bg-transparent !text-lg !leading-none !text-slate-300 hover:!bg-slate-100 hover:!text-slate-600 disabled:!text-slate-200",
+                            disabled: busyId === item.id,
+                            onClick: () => void updateNotification(item.id, "clear"),
+                          },
+                        ]}
+                      />
                     </div>
                     <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
                       <div className="min-w-0 truncate text-left text-[11px] text-slate-400">
                         {item.actor ? `${item.actor.name} · ` : ""}{formatNotificationTime(item.createdAt)}
                       </div>
-                      {pendingAcknowledgement && <div className="flex shrink-0 items-center gap-1.5">
-                          <ActionButton kind="check" label="确认" onClick={() => void updateNotification(item.id, "acknowledge")} disabled={busyId === item.id} className="!h-6 !w-6" iconClassName="h-3 w-3" variant="primary" />
-                          <ActionButton kind="cancel" label="拒绝" onClick={() => void updateNotification(item.id, "reject")} disabled={busyId === item.id} className="!h-6 !w-6" iconClassName="h-3 w-3" variant="danger" />
-                        </div>}
+                      {pendingAcknowledgement && <Toolbar
+                          variant="inline"
+                          items={[
+                            {
+                              kind: "icon-button",
+                              key: "acknowledge",
+                              icon: "check",
+                              label: "确认",
+                              variant: "primary",
+                              className: "!h-6 !w-6",
+                              iconClassName: "h-3 w-3",
+                              disabled: busyId === item.id,
+                              onClick: () => void updateNotification(item.id, "acknowledge"),
+                            },
+                            {
+                              kind: "icon-button",
+                              key: "reject",
+                              icon: "cancel",
+                              label: "拒绝",
+                              variant: "danger",
+                              className: "!h-6 !w-6",
+                              iconClassName: "h-3 w-3",
+                              disabled: busyId === item.id,
+                              onClick: () => void updateNotification(item.id, "reject"),
+                            },
+                          ]}
+                        />}
                     </div>
                   </div>;
           })}

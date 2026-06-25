@@ -1,69 +1,26 @@
 "use client";
 
-import { type ReactNode, Fragment } from "react";
+import { Fragment } from "react";
 import { ActionButton } from "./ActionControls";
 import type { ActionGlyphKind } from "./ActionGlyphs";
+import { createDataTableEditActions } from "./DataTableActions";
+import type { DataTableActionKind, DataTableColumn, DataTableProps, DataTableRowAction } from "./DataTable.types";
 
-export interface ColumnDef {
-  key: string;
-  label: ReactNode;
-  defaultVisible?: boolean;
-  /** 必选列，不可隐藏。如科目编码、凭证号。 */
-  required?: boolean;
-}
-
-/**
- * 通用表格列定义。
- * 同一份 columns 数组可同时传给列显隐控件和 <DataTable>。
- */
-export interface DataTableColumn<T> extends ColumnDef {
-  /** 应用到该列每个 td 的额外 className。 */
-  className?: string;
-  /** 应用到该列 th 的额外 className。 */
-  headerClassName?: string;
-  /** 应用到该列每个 td 的额外 className（与 className 合并）。 */
-  cellClassName?: string;
-  /** 表头点击回调，用于排序等表格级交互。 */
-  onHeaderClick?: () => void;
-  /** 单元格渲染函数。如需行内编辑，在此实现并处理好事件冒泡。 */
-  render: (row: T) => ReactNode;
-}
-
-export interface DataTableProps<T> {
-  rows: T[];
-  columns: DataTableColumn<T>[];
-  visibleColumns: string[];
-  density?: "normal" | "compact";
-  loading?: boolean;
-  emptyText?: string;
-  rowKey: (row: T, index: number) => string | number;
-  /** 行点击回调。如需阻止冒泡，在 render 的交互元素上 e.stopPropagation()。 */
-  onRowClick?: (row: T) => void;
-  rowClassName?: (row: T) => string;
-  tableClassName?: string;
-  /** 展开行的 key，与 rowKey 返回值比较。匹配时在该行下方渲染 expandedRow。 */
-  expandedRowKey?: string | number | null;
-  /** 多个展开行的 key。适用于权限矩阵这类可同时展开多行详情的表格。 */
-  expandedRowKeys?: Array<string | number> | Set<string | number> | null;
-  /** 展开行内容（colSpan 自动填满所有可见列）。 */
-  renderExpandedRow?: (row: T) => ReactNode;
-}
-
-export type DataTableActionKind = "view" | "add" | "edit" | "save" | "cancel" | "delete";
-
-export interface DataTableRowAction {
-  key: string;
-  label: string;
-  kind: DataTableActionKind;
-  onClick: () => void;
-  disabled?: boolean;
-}
+export type {
+  ColumnDef,
+  DataTableActionKind,
+  DataTableActionsColumnConfig,
+  DataTableColumn,
+  DataTableProps,
+  DataTableRowAction,
+  DataTableRowEditActionConfig,
+} from "./DataTable.types";
 
 /**
  * 从列定义中提取默认可见列的 key 列表。
  * required 或 defaultVisible 为 true 的列默认显示。
  */
-export function getDefaultVisibleColumns<T>(
+function getDefaultVisibleColumns<T>(
   columns: DataTableColumn<T>[]
 ): string[] {
   return columns
@@ -98,7 +55,7 @@ function actionVariant(kind: DataTableActionKind) {
   return "secondary";
 }
 
-export function DataTableActionsCell({ actions }: { actions: DataTableRowAction[] }) {
+function DataTableActionsCell({ actions }: { actions: DataTableRowAction[] }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       {actions.map((action) => (
@@ -129,6 +86,21 @@ export function DataTableActionsCell({ actions }: { actions: DataTableRowAction[
  * 典型组合：
  *   Toolbar + DataTable + Pagination
  */
+function getRowActions<T>(
+  row: T,
+  rowActions: DataTableProps<T>["rowActions"],
+  rowEditActions: DataTableProps<T>["rowEditActions"]
+): DataTableRowAction[] {
+  const actions: DataTableRowAction[] = [];
+  if (rowEditActions) {
+    actions.push(...createDataTableEditActions({ ...rowEditActions(row), row }));
+  }
+  if (rowActions) {
+    actions.push(...rowActions(row));
+  }
+  return actions;
+}
+
 export default function DataTable<T>({
   rows,
   columns,
@@ -143,10 +115,40 @@ export default function DataTable<T>({
   expandedRowKey,
   expandedRowKeys,
   renderExpandedRow,
+  rowActions,
+  rowEditActions,
+  actionsColumn,
 }: DataTableProps<T>) {
+  const hasActions = Boolean(rowActions || rowEditActions);
+  const actionsKey = actionsColumn?.key ?? "actions";
+  // 自动追加操作列；业务不再需要在 columns 里手写操作列
+  const allColumns = hasActions
+    ? [
+        ...columns,
+        {
+          key: actionsKey,
+          label: actionsColumn?.label ?? "操作",
+          required: true,
+          headerClassName: actionsColumn?.headerClassName,
+          cellClassName: actionsColumn?.cellClassName,
+          render: (row: T) => {
+            const actions = getRowActions(row, rowActions, rowEditActions);
+            if (actions.length === 0) return null;
+            const cell = <DataTableActionsCell actions={actions} />;
+            return actionsColumn?.centered ? (
+              <div className="flex justify-center">{cell}</div>
+            ) : (
+              cell
+            );
+          },
+        } as DataTableColumn<T>,
+      ]
+    : columns;
+
   // required 列始终显示，不依赖 visibleColumns 是否包含它
-  const visible = columns.filter(
-    (c) => c.required || visibleColumns.includes(c.key)
+  const resolvedVisibleColumns = visibleColumns ?? getDefaultVisibleColumns(allColumns);
+  const visible = allColumns.filter(
+    (c) => c.required || resolvedVisibleColumns.includes(c.key)
   );
 
   if (loading) {

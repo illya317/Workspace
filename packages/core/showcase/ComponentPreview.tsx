@@ -11,6 +11,7 @@ import {
   pickerPreviewByName,
   selectorPreviewByName,
   statusPreviewByName,
+  tagPreviewByName,
   cellPreviewByName,
   feedbackPreviewByName,
 } from "./previews";
@@ -25,6 +26,7 @@ const previewByName: Record<string, FC> = {
   ...pickerPreviewByName,
   ...selectorPreviewByName,
   ...statusPreviewByName,
+  ...tagPreviewByName,
   ...cellPreviewByName,
   ...feedbackPreviewByName,
 };

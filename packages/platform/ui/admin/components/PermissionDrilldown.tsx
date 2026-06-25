@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useEffect } from "react";
 import { matchEmployee } from "@workspace/platform/search";
-import { SectionCard, SelectorList, Toolbar, type ToolbarItem, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, SectionCard, SelectorList, Toolbar, type ToolbarItem } from "@workspace/core/ui";
 export interface EmployeePerm {
   employeeId: string;
   name: string;
@@ -92,7 +92,7 @@ export default function PermissionDrilldown({
     const bHas = empHasAccess(b, drillKey) ? 0 : 1;
     return aHas - bHas;
   }), [empPerms, fCompany, fDept, fKeyword, drillKey, empHasAccess, companyMap]);
-  return <SectionCard title={`人员 · ${drillKey}`} actions={<button type="button" onClick={onClose} className={[getToolbarActionClassName(), "px-3 py-1.5 text-xs"].filter(Boolean).join(" ")}>关闭</button>} bodyClassName="space-y-3 p-4">
+  return <SectionCard title={`人员 · ${drillKey}`} actions={<CommandButton onClick={onClose} className="px-3 py-1.5 text-xs">关闭</CommandButton>} bodyClassName="space-y-3 p-4">
       <Toolbar
         items={[
           {

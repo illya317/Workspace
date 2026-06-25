@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { ConfirmModal, DetailModal, Toast, Toolbar, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, ConfirmModal, DetailModal, Toast, Toolbar } from "@workspace/core/ui";
 import { useToast } from "@workspace/core/hooks";
 import { useDocumentDetail, updateDocument, deleteDocument } from "../hooks/useLibraryDocuments";
 import LibraryEditForm from "./LibraryEditForm";
@@ -174,9 +174,9 @@ export default function LibraryDetailModal({
                       </a>
                     </div>}
                   {canDelete && <div className="pt-4">
-                      <button type="button" onClick={() => setShowDeleteConfirm(true)} className={getToolbarActionClassName("danger")}>
+                      <CommandButton onClick={() => setShowDeleteConfirm(true)} variant="danger">
                         删除
-                      </button>
+                      </CommandButton>
                     </div>}
                 </>}
             </div>}

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormField, PanelCard, SelectField, Badge, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, FormField, PanelCard, SelectField, Badge } from "@workspace/core/ui";
 interface RdBudgetFiltersProps {
   projectFilter: string;
   setProjectFilter: (v: string) => void;
@@ -35,12 +35,12 @@ export default function RdBudgetFilters({
           label: c
         }))} triggerClassName="min-w-28 px-2 py-1 text-xs" />
         </FormField>
-        {(projectFilter || categoryFilter) && <button type="button" onClick={() => {
+        {(projectFilter || categoryFilter) && <CommandButton onClick={() => {
         setProjectFilter("");
         setCategoryFilter("");
-      }} className={[getToolbarActionClassName(), "border-0 px-2 py-1 text-xs shadow-none"].filter(Boolean).join(" ")}>
+      }} className="border-0 px-2 py-1 text-xs shadow-none">
             重置筛选
-          </button>}
+          </CommandButton>}
         <span className="ml-auto text-xs text-gray-400">
           共 {count} 条，合计 {total.toFixed(2)} 万元
         </span>

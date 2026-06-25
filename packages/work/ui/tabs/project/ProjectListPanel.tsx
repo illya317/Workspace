@@ -1,7 +1,9 @@
 "use client";
 
-import { SelectorPanel, type SplitWorkspaceMode } from "@workspace/core/ui";
+import { SelectorPanel } from "@workspace/core/ui";
 import { projectCode, type ProjectItem, type ProjectListFilter } from "./model";
+
+type ProjectListPanelMode = "desktop" | "drawer";
 
 export default function ProjectListPanel({
   mode,
@@ -10,7 +12,7 @@ export default function ProjectListPanel({
   selection,
   onSelect,
 }: {
-  mode: SplitWorkspaceMode;
+  mode: ProjectListPanelMode;
   projects: ProjectItem[];
   filter: ProjectListFilter;
   selection: number | null;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { DataTable, PanelCard, type DataTableColumn, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DataTable, PanelCard, type DataTableColumn } from "@workspace/core/ui";
 import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
 import ReclassReviewModal from "./ReclassReviewModal";
 import { formatFinanceAmount } from "../formatters";
@@ -133,9 +133,9 @@ export default function ReclassReviewView({
         const kind = row.kind as string || "normal";
         const isNormal = kind === "normal";
         const hasTarget = !!(row.suggestedTarget || row.targetAccount);
-        return <button type="button" onClick={() => setAdjustItem(row)} className={[getToolbarActionClassName(), "px-2 py-0.5 text-xs"].filter(Boolean).join(" ")}>
+        return <CommandButton onClick={() => setAdjustItem(row)} size="sm" className="px-2 py-0.5 text-xs">
             {isNormal && !hasTarget ? "设置" : isNormal ? "使用建议" : "修改"}
-          </button>;
+          </CommandButton>;
       }
     });
   }

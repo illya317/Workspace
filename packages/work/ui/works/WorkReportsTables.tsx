@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { DataTable, EmptyStateCard, PanelCard, Badge, TableScrollFrame, TextareaField, TextField, type DataTableColumn, getToolbarActionClassName } from "@workspace/core/ui";
+import { CommandButton, DataTable, EmptyStateCard, PanelCard, Badge, TableScrollFrame, TextareaField, TextField, type DataTableColumn } from "@workspace/core/ui";
 import type { WorkReportCollectionResponse, WorkReportCollectionSpace, WorkReportDraftResponse, WorkReportItem } from "./types";
 export function ReportDraftTable({
   draft,
@@ -55,9 +55,9 @@ export function ReportDraftTable({
     required: true,
     headerClassName: "w-24",
     cellClassName: "w-24 align-middle",
-    render: item => canEdit && item.source !== "work" ? <button type="button" onClick={() => onRemove(item.rowIndex)} className={[getToolbarActionClassName("danger"), "!h-9 !px-3"].filter(Boolean).join(" ")}>
+    render: item => canEdit && item.source !== "work" ? <CommandButton onClick={() => onRemove(item.rowIndex)} variant="danger" size="sm" className="!h-9 !px-3">
           移除
-        </button> : <span className="text-xs text-slate-400">锁定</span>
+        </CommandButton> : <span className="text-xs text-slate-400">锁定</span>
   }];
   return <TableScrollFrame className="overflow-y-hidden rounded-lg border border-slate-200 bg-white">
       <DataTable rows={rows} columns={columns} visibleColumns={[]} density="compact" loading={loading} emptyText="暂无可汇报事项" rowKey={(item, index) => item.id || item.workItemId || `new-${index}`} />

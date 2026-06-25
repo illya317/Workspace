@@ -9,6 +9,7 @@ import {
   type ToolbarItem,
 } from "@workspace/core/ui";
 import {
+  coreUiComponentAccessLayerMeta,
   coreUiComponentRegistry,
   coreUiComponentTierMeta,
   getCoreUiCompositionGraph,
@@ -18,6 +19,7 @@ import {
   getCoreUiComponentRelationView,
 } from "@workspace/core/ui/component-registry-view";
 import type {
+  CoreUiComponentAccessLayer,
   CoreUiComponentRegistration,
   CoreUiComponentTier,
 } from "@workspace/core/ui/component-registry";
@@ -33,6 +35,7 @@ import { filterUiComponents } from "./filter-ui-components";
 import { useUiComponentVerified } from "./use-ui-component-verified";
 
 const ALL_TIER = "all";
+const ALL_ACCESS_LAYER = "all";
 const ALL_VERIFIED = "all";
 
 type UiComponentsShowcaseProps = {
@@ -42,26 +45,37 @@ type UiComponentsShowcaseProps = {
   }>;
 };
 
-type TreeTierFilter = Exclude<CoreUiComponentTier, "foundation"> | typeof ALL_TIER;
+type TreeTierFilter = CoreUiComponentTier | typeof ALL_TIER;
+type TreeAccessLayerFilter = CoreUiComponentAccessLayer | typeof ALL_ACCESS_LAYER;
 type VerifiedFilter = "verified" | "unverified" | typeof ALL_VERIFIED;
 
 const TIER_OPTIONS: Array<{ value: TreeTierFilter; label: string }> = [
-  { value: ALL_TIER, label: "全部层级" },
+  { value: ALL_TIER, label: "全部旧层级" },
   { value: "primitive", label: coreUiComponentTierMeta.primitive.label },
   { value: "assembly", label: coreUiComponentTierMeta.assembly.label },
   { value: "shell", label: coreUiComponentTierMeta.shell.label },
   { value: "frame", label: coreUiComponentTierMeta.frame.label },
+  { value: "foundation", label: coreUiComponentTierMeta.foundation.label },
+];
+
+const ACCESS_LAYER_OPTIONS: Array<{ value: TreeAccessLayerFilter; label: string }> = [
+  { value: ALL_ACCESS_LAYER, label: "全部开放层" },
+  { value: "page-frame", label: coreUiComponentAccessLayerMeta["page-frame"].label },
+  { value: "page-api", label: coreUiComponentAccessLayerMeta["page-api"].label },
+  { value: "core-internal", label: coreUiComponentAccessLayerMeta["core-internal"].label },
+  { value: "foundation", label: coreUiComponentAccessLayerMeta.foundation.label },
 ];
 
 const META_COLUMNS: ColumnDef[] = [
   { key: "kind", label: "分类", defaultVisible: true },
-  { key: "tier", label: "层级", defaultVisible: true },
+  { key: "accessLayer", label: "开放层", defaultVisible: true },
+  { key: "tier", label: "旧层级", defaultVisible: false },
   { key: "usedBy", label: "被引用", defaultVisible: true },
   { key: "files", label: "文件", defaultVisible: true },
-  { key: "verified", label: "验证", defaultVisible: true },
+  { key: "verified", label: "改造状态", defaultVisible: true },
 ];
 
-const DEFAULT_VISIBLE_META: UiComponentTreeMetaKey[] = ["kind", "tier", "usedBy", "files", "verified"];
+const DEFAULT_VISIBLE_META: UiComponentTreeMetaKey[] = ["kind", "accessLayer", "usedBy", "files", "verified"];
 
 function findComponent(name: string) {
   return coreUiComponentRegistry.find((component) => component.name === name) as CoreUiComponentRegistration | undefined;
@@ -70,8 +84,11 @@ function findComponent(name: string) {
 export default function UiComponentsShowcase({
   usageRows = [],
 }: UiComponentsShowcaseProps) {
-  const firstRoot = coreUiComponentRegistry.find((component) => component.tier !== "foundation");
+  const firstRoot = coreUiComponentRegistry.find(
+    (component) => component.accessLayer !== "private-impl",
+  );
   const [filterValue, setFilterValue] = useState<string>(ALL_TIER);
+  const [accessLayerValue, setAccessLayerValue] = useState<string>(ALL_ACCESS_LAYER);
   const [verifiedFilter, setVerifiedFilter] = useState<VerifiedFilter>(ALL_VERIFIED);
   const [query, setQuery] = useState("");
   const [selectedName, setSelectedName] = useState<string>(firstRoot?.name ?? "");
@@ -109,11 +126,12 @@ export default function UiComponentsShowcase({
     return filterUiComponents(treeRoots, {
       keyword: query.trim(),
       tierValue: filterValue,
+      accessLayerValue: accessLayerValue,
       verifiedFilter,
       usageFilesByName,
       usedByNamesByName,
     });
-  }, [filterValue, query, treeRoots, usageFilesByName, usedByNamesByName, verifiedFilter]);
+  }, [filterValue, accessLayerValue, query, treeRoots, usageFilesByName, usedByNamesByName, verifiedFilter]);
 
   const visibleRoots = filteredRoots;
   const selectedComponent = componentByName.get(selectedName) ?? null;
@@ -151,7 +169,7 @@ export default function UiComponentsShowcase({
     const component = findComponent(name);
     if (!component) return;
     setSelectedName(name);
-    if (component.tier === "foundation") return;
+    if (component.accessLayer === "private-impl") return;
 
     setExpandedNames((current) => new Set([...current, name]));
     setSideOpen(true);
@@ -187,16 +205,25 @@ export default function UiComponentsShowcase({
     },
     {
       kind: "option-group",
+      key: "access-layer",
+      section: "filter",
+      value: accessLayerValue,
+      options: ACCESS_LAYER_OPTIONS,
+      onChange: (value) => setAccessLayerValue(value as TreeAccessLayerFilter),
+      ariaLabel: "开放层",
+    },
+    {
+      kind: "option-group",
       key: "verified",
       section: "filter",
       value: verifiedFilter,
       options: [
         { value: ALL_VERIFIED, label: "全部" },
-        { value: "verified", label: "已验证" },
-        { value: "unverified", label: "未验证" },
+        { value: "verified", label: "无需改造" },
+        { value: "unverified", label: "待改造" },
       ],
       onChange: (value) => setVerifiedFilter(value as VerifiedFilter),
-      ariaLabel: "验证状态",
+      ariaLabel: "改造状态",
     },
     {
       kind: "option-group",
@@ -205,7 +232,7 @@ export default function UiComponentsShowcase({
       value: filterValue,
       options: TIER_OPTIONS,
       onChange: (value) => setFilterValue(value as TreeTierFilter),
-      ariaLabel: "层级",
+      ariaLabel: "旧层级",
     },
     {
       kind: "text",
@@ -221,7 +248,7 @@ export default function UiComponentsShowcase({
       visible: visibleMeta,
       onChange: setVisibleMeta,
     },
-  ], [filterValue, filteredRoots.length, query, sideOpen, verifiedFilter, visibleMeta]);
+  ], [accessLayerValue, filterValue, filteredRoots.length, query, sideOpen, verifiedFilter, visibleMeta]);
 
   return (
     <WorkspaceSplitPage

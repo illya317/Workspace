@@ -2,7 +2,6 @@
 
 import {
   DataTable,
-  DataTableActionsCell,
   PanelCard,
   Pagination,
   TableScrollFrame,
@@ -56,23 +55,11 @@ export function QcBatchTable({
       <TableScrollFrame>
         <DataTable
           rows={rows}
-          columns={[
-            ...batchColumns,
-            {
-              key: "actions",
-              label: "操作",
-              required: true,
-              render: (batch) => (
-                <DataTableActionsCell
-                  actions={[
-                    { key: "view", label: "查看检验记录", kind: "view", onClick: () => onView(batch) },
-                    { key: "delete", label: "删除", kind: "delete", onClick: () => onDelete(batch) },
-                  ]}
-                />
-              ),
-            },
+          columns={batchColumns}
+          rowActions={(batch) => [
+            { key: "view", label: "查看检验记录", kind: "view", onClick: () => onView(batch) },
+            { key: "delete", label: "删除", kind: "delete", onClick: () => onDelete(batch) },
           ]}
-          visibleColumns={batchColumns.map((column) => column.key).concat("actions")}
           rowKey={(batch) => batch.id}
           emptyText="暂无批次记录。"
           tableClassName="min-w-[920px]"

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Badge, TreeNodeBranch, TreeNodeCard } from "@workspace/core/ui";
+import { useMemo, useState } from "react";
+import { Badge, SelectorTree } from "@workspace/core/ui";
 
 type StatusVariant = "green" | "yellow" | "gray";
 
@@ -20,7 +20,6 @@ interface ResourceTreeProps {
   resources: ResourceTreeNode[];
   selectedResource: string | null;
   onSelect: (key: string) => void;
-  depth?: number;
   collapsible?: boolean;
   defaultExpanded?: boolean;
   forceExpanded?: boolean;
@@ -30,23 +29,32 @@ export default function ResourceTree({
   resources,
   selectedResource,
   onSelect,
-  depth = 0,
   collapsible = true,
   defaultExpanded = false,
   forceExpanded = false,
 }: ResourceTreeProps) {
-  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(
-    () => new Set(defaultExpanded ? resources.map((resource) => resource.key) : []),
-  );
+  const initialExpanded = useMemo(() => {
+    if (forceExpanded) {
+      const set = new Set<string>();
+      function visit(nodes: ResourceTreeNode[]) {
+        for (const node of nodes) {
+          if (node.children && node.children.length > 0) {
+            set.add(node.key);
+            visit(node.children);
+          }
+        }
+      }
+      visit(resources);
+      return set;
+    }
+    if (defaultExpanded) {
+      return new Set(resources.map((resource) => resource.key));
+    }
+    return new Set<string>();
+  }, [resources, forceExpanded, defaultExpanded]);
+  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(initialExpanded);
 
-  function toggle(key: string) {
-    setExpandedKeys((current) => {
-      const next = new Set(current);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
-  }
+  const expandedIds = forceExpanded ? undefined : expandedKeys;
 
   function renderStatus(resource: ResourceTreeNode) {
     if (resource.statusLabel) {
@@ -62,48 +70,32 @@ export default function ResourceTree({
     return null;
   }
 
-  return (
-    <div className={depth === 0 ? "space-y-1" : ""}>
-      {resources.map((resource) => {
-        const isSelected = selectedResource === resource.key;
-        const hasChildren = !!(resource.children && resource.children.length > 0);
-        const expanded = hasChildren && (forceExpanded || !collapsible || expandedKeys.has(resource.key));
-        const status = renderStatus(resource);
-        const card = (
-          <TreeNodeCard
-            title={resource.name}
-            code={status}
-            level={depth + 1}
-            active={isSelected}
-            onClick={() => onSelect(resource.key)}
-            toggle={{
-              enabled: collapsible && hasChildren,
-              expanded,
-              label: expanded ? "收起资源" : "展开资源",
-              onClick: () => toggle(resource.key),
-            }}
-            showToggle={collapsible}
-            className="mb-2"
-          />
-        );
+  function getChildren(resource: ResourceTreeNode): ResourceTreeNode[] | undefined {
+    return resource.children;
+  }
 
-        return (
-          <div key={resource.key}>
-            {depth > 0 ? <TreeNodeBranch className="ml-3">{card}</TreeNodeBranch> : card}
-            {expanded && (
-              <ResourceTree
-                resources={resource.children!}
-                selectedResource={selectedResource}
-                onSelect={onSelect}
-                depth={depth + 1}
-                collapsible={collapsible}
-                defaultExpanded={defaultExpanded}
-                forceExpanded={forceExpanded}
-              />
-            )}
-          </div>
-        );
+  return (
+    <SelectorTree
+      items={resources}
+      selectedId={selectedResource}
+      onSelect={(resource) => onSelect(resource.key)}
+      getKey={(resource) => resource.key}
+      getChildren={getChildren}
+      expandedIds={expandedIds}
+      collapsible={collapsible && !forceExpanded}
+      onToggle={(key, expanded) => {
+        setExpandedKeys((prev) => {
+          const next = new Set(prev);
+          if (expanded) next.add(String(key));
+          else next.delete(String(key));
+          return next;
+        });
+      }}
+      renderItem={(resource, ctx) => ({
+        title: resource.name,
+        code: renderStatus(resource),
+        level: ctx.level,
       })}
-    </div>
+    />
   );
 }

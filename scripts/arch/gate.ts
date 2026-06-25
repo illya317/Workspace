@@ -1,5 +1,6 @@
 import { checkAuth } from "./auth";
 import { checkAppRouteHierarchy } from "./app-route-hierarchy";
+import { checkCoreUiGuard } from "./core-ui-guard";
 import { checkCoreUiRegistry } from "./core-ui-registry";
 import { checkDeps } from "./deps";
 import { checkDomainValidation } from "./domain-validation";
@@ -13,6 +14,7 @@ type GateCheck = [name: string, run: () => boolean | Promise<boolean>];
 export async function archGate() {
   const checks: GateCheck[] = [
     ["scan", scan],
+    ["core-ui-guard", checkCoreUiGuard],
     ["deps", checkDeps],
     ["core-ui-registry", checkCoreUiRegistry],
     ["modules", checkModules],
