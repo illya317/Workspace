@@ -4,66 +4,130 @@ import {
   TreeNodeBranch,
   TreeNodeCard,
 } from "@workspace/core/ui";
-import type { CoreUiRegistryTreeGroup } from "@workspace/core/ui/component-registry-view";
+import {
+  coreUiComponentKindMeta,
+  coreUiComponentTierMeta,
+} from "@workspace/core/ui/component-registry";
+import type { CoreUiComponentTreeNode } from "@workspace/core/ui/component-registry-view";
+
+export type UiComponentTreeMetaKey = "kind" | "tier" | "usedBy" | "files" | "verified";
+
+function nodeId(name: string) {
+  return `ui-component-root-${name}`;
+}
+
+function buildMeta(node: CoreUiComponentTreeNode, visibleMeta: readonly string[]) {
+  const parts: string[] = [];
+  if (visibleMeta.includes("kind")) parts.push(coreUiComponentKindMeta[node.kind].label);
+  if (visibleMeta.includes("tier")) parts.push(coreUiComponentTierMeta[node.tier].label);
+  if (visibleMeta.includes("usedBy")) parts.push(`被引用 ${node.usedByCount}`);
+  if (visibleMeta.includes("files")) parts.push(`文件 ${node.usageFileCount}`);
+  if (visibleMeta.includes("verified")) parts.push(node.verified ? "已验证" : "未验证");
+  return parts.join(" · ");
+}
+
+function TreeNodeView({
+  node,
+  selectedName,
+  expandedNames,
+  visibleMeta,
+  onSelect,
+  onToggle,
+}: {
+  node: CoreUiComponentTreeNode;
+  selectedName: string;
+  expandedNames: ReadonlySet<string>;
+  visibleMeta: readonly string[];
+  onSelect: (name: string) => void;
+  onToggle: (name: string) => void;
+}) {
+  const expanded = expandedNames.has(node.name);
+  const canShowChildren = node.depth < 3 && node.children.length > 0;
+
+  return (
+    <TreeNodeCard
+      title={node.name}
+      level={node.depth}
+      active={selectedName === node.name}
+      meta={buildMeta(node, visibleMeta)}
+      showToggle={canShowChildren}
+      toggle={canShowChildren ? {
+        enabled: true,
+        expanded,
+        label: `${expanded ? "收起" : "展开"}${node.name}`,
+        onClick: () => onToggle(node.name),
+      } : undefined}
+      onClick={() => onSelect(node.name)}
+      className="shadow-none"
+      titleClassName={node.tier === "foundation" ? "text-slate-500" : undefined}
+    >
+      {expanded && (
+        <div className="space-y-2">
+          {node.depth === 1 && (
+            <p className="rounded-md bg-slate-50 px-3 py-2 text-xs leading-5 text-slate-500">
+              {node.component.description}
+            </p>
+          )}
+          {canShowChildren && (
+            <TreeNodeBranch>
+              {node.children.map((child) => (
+                <TreeNodeView
+                  key={child.path.join(">")}
+                  node={child}
+                  selectedName={selectedName}
+                  expandedNames={expandedNames}
+                  visibleMeta={visibleMeta}
+                  onSelect={onSelect}
+                  onToggle={onToggle}
+                />
+              ))}
+            </TreeNodeBranch>
+          )}
+        </div>
+      )}
+    </TreeNodeCard>
+  );
+}
 
 export function UiComponentTreePanel({
-  groups,
+  nodes,
   selectedName,
+  expandedNames,
+  visibleMeta,
   onSelect,
+  onToggle,
 }: {
-  groups: CoreUiRegistryTreeGroup[];
+  nodes: CoreUiComponentTreeNode[];
   selectedName: string;
+  expandedNames: ReadonlySet<string>;
+  visibleMeta: readonly string[];
   onSelect: (name: string) => void;
+  onToggle: (name: string) => void;
 }) {
   return (
     <PanelCard title="组件目录" bodyClassName="max-h-[calc(100vh-12rem)] overflow-y-auto p-3">
-      {groups.length === 0 ? (
+      {nodes.length === 0 ? (
         <EmptyStateCard compact>没有找到匹配的注册项</EmptyStateCard>
       ) : (
         <div className="space-y-2">
-          {groups.map((tierGroup) => {
-            const tierCount = tierGroup.kinds.reduce((sum, kindGroup) => sum + kindGroup.nodes.length, 0);
-            return (
-              <TreeNodeCard
-                key={tierGroup.tier}
-                title={tierGroup.tierLabel}
-                level={1}
-                meta={`${tierCount} 个组件`}
-                showToggle={false}
-                className="shadow-none"
-              >
-                <TreeNodeBranch>
-                  {tierGroup.kinds.map((kindGroup) => (
-                    <TreeNodeCard
-                      key={`${tierGroup.tier}:${kindGroup.kind}`}
-                      title={kindGroup.kindLabel}
-                      level={2}
-                      meta={`${kindGroup.nodes.length} 个组件`}
-                      showToggle={false}
-                      className="shadow-none"
-                    >
-                      <TreeNodeBranch>
-                        {kindGroup.nodes.map((node) => (
-                          <TreeNodeCard
-                            key={node.name}
-                            title={node.name}
-                            level={3}
-                            active={selectedName === node.name}
-                            meta={`被引用 ${node.directUsedByCount} · 文件 ${node.usageFileCount} · ${node.verified ? "已验证" : "未验证"}`}
-                            showToggle={false}
-                            onClick={() => onSelect(node.name)}
-                            className="shadow-none"
-                          />
-                        ))}
-                      </TreeNodeBranch>
-                    </TreeNodeCard>
-                  ))}
-                </TreeNodeBranch>
-              </TreeNodeCard>
-            );
-          })}
+          {nodes.map((node) => (
+            <div key={node.name} id={nodeId(node.name)}>
+              <TreeNodeView
+                node={node}
+                selectedName={selectedName}
+                expandedNames={expandedNames}
+                visibleMeta={visibleMeta}
+                onSelect={onSelect}
+                onToggle={onToggle}
+              />
+            </div>
+          ))}
         </div>
       )}
     </PanelCard>
   );
+}
+
+export function getUiComponentTreeRootId(name: string) {
+  return nodeId(name);
 }

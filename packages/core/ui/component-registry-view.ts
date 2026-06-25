@@ -1,20 +1,11 @@
 import {
   coreUiComponentKindMeta,
   coreUiComponentRegistry,
-  coreUiComponentTierMeta,
   getCoreUiCompositionGraph,
   type CoreUiComponentKind,
   type CoreUiComponentRegistration,
   type CoreUiComponentTier,
 } from "./component-registry";
-
-export const coreUiComponentTierOrder = [
-  "foundation",
-  "primitive",
-  "assembly",
-  "shell",
-  "frame",
-] as const satisfies readonly CoreUiComponentTier[];
 
 export const coreUiComponentUsedByTierOrder = [
   "frame",
@@ -26,25 +17,19 @@ export const coreUiComponentUsedByTierOrder = [
 
 export const coreUiComponentKindOrder = Object.keys(coreUiComponentKindMeta) as CoreUiComponentKind[];
 
-export type CoreUiRegistryTreeNode = {
+export type CoreUiComponentTreeNode = {
   component: CoreUiComponentRegistration;
   name: string;
   tier: CoreUiComponentTier;
   kind: CoreUiComponentKind;
+  depth: number;
+  path: string[];
   verified: boolean;
-  directDependencyCount: number;
-  directUsedByCount: number;
+  dependencyCount: number;
+  usedByCount: number;
   usageFileCount: number;
-};
-
-export type CoreUiRegistryTreeGroup = {
-  tier: CoreUiComponentTier;
-  tierLabel: string;
-  kinds: Array<{
-    kind: CoreUiComponentKind;
-    kindLabel: string;
-    nodes: CoreUiRegistryTreeNode[];
-  }>;
+  hasChildren: boolean;
+  children: CoreUiComponentTreeNode[];
 };
 
 export type CoreUiComponentRelationView = {
@@ -151,53 +136,126 @@ function groupUsageFiles(files: readonly string[]) {
     .sort((a, b) => a.group.localeCompare(b.group));
 }
 
-export function buildCoreUiRegistryTreeGroups({
+function getDependencyNames(componentName: string) {
+  const graph = getCoreUiCompositionGraph();
+  return [
+    ...(graph.composes.get(componentName) ?? []),
+    ...(graph.foundations.get(componentName) ?? []),
+  ];
+}
+
+function buildComponentTreeLeaf({
+  component,
+  verifiedNames,
+  usageFilesByName,
+  path,
+  depth,
+}: {
+  component: CoreUiComponentRegistration;
+  verifiedNames?: ReadonlySet<string>;
+  usageFilesByName?: ReadonlyMap<string, readonly string[]>;
+  path: string[];
+  depth: number;
+}): CoreUiComponentTreeNode {
+  const graph = getCoreUiCompositionGraph();
+  const dependencyNames = [...new Set(getDependencyNames(component.name))].sort();
+  return {
+    component,
+    name: component.name,
+    tier: component.tier,
+    kind: component.kind,
+    depth,
+    path,
+    verified: Boolean(verifiedNames?.has(component.name)),
+    dependencyCount: dependencyNames.length,
+    usedByCount: graph.usedBy.get(component.name)?.length ?? 0,
+    usageFileCount: usageFilesByName?.get(component.name)?.length ?? 0,
+    hasChildren: false,
+    children: [],
+  };
+}
+
+function buildComponentTreeNode({
+  component,
+  componentByName,
+  verifiedNames,
+  usageFilesByName,
+  path,
+  depth,
+}: {
+  component: CoreUiComponentRegistration;
+  componentByName: ReadonlyMap<string, CoreUiComponentRegistration>;
+  verifiedNames?: ReadonlySet<string>;
+  usageFilesByName?: ReadonlyMap<string, readonly string[]>;
+  path: string[];
+  depth: number;
+}): CoreUiComponentTreeNode {
+  const graph = getCoreUiCompositionGraph();
+  const dependencyNames = [...new Set(getDependencyNames(component.name))].sort();
+  const nextPath = [...path, component.name];
+  const canExpand = depth < 3;
+  const children = canExpand
+    ? dependencyNames
+      .map((name) => componentByName.get(name))
+      .filter((child): child is CoreUiComponentRegistration => Boolean(child))
+      .sort(compareComponentsByName)
+      .map((child) => {
+        const childPath = [...nextPath, child.name];
+        if (nextPath.includes(child.name)) {
+          return buildComponentTreeLeaf({
+            component: child,
+            verifiedNames,
+            usageFilesByName,
+            path: childPath,
+            depth: depth + 1,
+          });
+        }
+        return buildComponentTreeNode({
+          component: child,
+          componentByName,
+          verifiedNames,
+          usageFilesByName,
+          path: nextPath,
+          depth: depth + 1,
+        });
+      })
+    : [];
+
+  return {
+    component,
+    name: component.name,
+    tier: component.tier,
+    kind: component.kind,
+    depth,
+    path: nextPath,
+    verified: Boolean(verifiedNames?.has(component.name)),
+    dependencyCount: dependencyNames.length,
+    usedByCount: graph.usedBy.get(component.name)?.length ?? 0,
+    usageFileCount: usageFilesByName?.get(component.name)?.length ?? 0,
+    hasChildren: canExpand && dependencyNames.length > 0,
+    children,
+  };
+}
+
+export function buildCoreUiComponentTree({
   verifiedNames,
   usageFilesByName,
 }: {
   verifiedNames?: ReadonlySet<string>;
   usageFilesByName?: ReadonlyMap<string, readonly string[]>;
-} = {}): CoreUiRegistryTreeGroup[] {
-  const graph = getCoreUiCompositionGraph();
-  const groups = new Map<CoreUiComponentTier, Map<CoreUiComponentKind, CoreUiRegistryTreeNode[]>>();
-
-  for (const component of [...coreUiComponentRegistry].sort(compareComponentsByName)) {
-    const tierGroup = groups.get(component.tier) ?? new Map<CoreUiComponentKind, CoreUiRegistryTreeNode[]>();
-    const nodes = tierGroup.get(component.kind) ?? [];
-    const composes = graph.composes.get(component.name) ?? [];
-    const foundations = graph.foundations.get(component.name) ?? [];
-    const usedBy = graph.usedBy.get(component.name) ?? [];
-    nodes.push({
+} = {}): CoreUiComponentTreeNode[] {
+  const componentByName = buildComponentMap();
+  return [...coreUiComponentRegistry]
+    .filter((component) => component.tier !== "foundation")
+    .sort(compareComponentsByName)
+    .map((component) => buildComponentTreeNode({
       component,
-      name: component.name,
-      tier: component.tier,
-      kind: component.kind,
-      verified: Boolean(verifiedNames?.has(component.name)),
-      directDependencyCount: composes.length + foundations.length,
-      directUsedByCount: usedBy.length,
-      usageFileCount: usageFilesByName?.get(component.name)?.length ?? 0,
-    });
-    tierGroup.set(component.kind, nodes);
-    groups.set(component.tier, tierGroup);
-  }
-
-  return coreUiComponentTierOrder.flatMap((tier) => {
-    const tierGroup = groups.get(tier);
-    if (!tierGroup) return [];
-    return [{
-      tier,
-      tierLabel: coreUiComponentTierMeta[tier].label,
-      kinds: coreUiComponentKindOrder.flatMap((kind) => {
-        const nodes = tierGroup.get(kind);
-        if (!nodes?.length) return [];
-        return [{
-          kind,
-          kindLabel: coreUiComponentKindMeta[kind].label,
-          nodes,
-        }];
-      }),
-    }];
-  });
+      componentByName,
+      verifiedNames,
+      usageFilesByName,
+      path: [],
+      depth: 1,
+    }));
 }
 
 export function getCoreUiComponentRelationView(

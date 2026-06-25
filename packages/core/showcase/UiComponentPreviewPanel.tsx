@@ -1,11 +1,10 @@
 import { type ReactNode } from "react";
+import { ActionGlyph, PanelCard } from "@workspace/core/ui";
 import {
-  ActionGlyph,
   coreUiComponentKindMeta,
   coreUiComponentTierMeta,
-  PanelCard,
   type CoreUiComponentRegistration,
-} from "@workspace/core/ui";
+} from "@workspace/core/ui/component-registry";
 import { ComponentPreview } from "./ComponentPreview";
 
 function joinClassNames(...classNames: Array<string | false | null | undefined>) {

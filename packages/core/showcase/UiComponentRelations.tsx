@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { PanelCard } from "@workspace/core/ui";
 import {
   coreUiComponentKindMeta,
   coreUiComponentTierMeta,
-  PanelCard,
+  getCoreUiCompositionGraph,
   type CoreUiComponentRegistration,
-} from "@workspace/core/ui";
-import { getCoreUiCompositionGraph } from "@workspace/core/ui/component-registry";
+} from "@workspace/core/ui/component-registry";
 import type { CoreUiComponentRelationView } from "@workspace/core/ui/component-registry-view";
 import { UiComponentUpstreamChains } from "./UiComponentUpstreamChains";
 

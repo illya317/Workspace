@@ -2,31 +2,40 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
+  EmptyStateCard,
+  FieldValueFilter,
+  PageToolbar,
+  WorkspaceSplitPage,
+  type ColumnDef,
+} from "@workspace/core/ui";
+import {
   coreUiComponentKindMeta,
   coreUiComponentRegistry,
   coreUiComponentTierMeta,
-  EmptyStateCard,
-  PageContent,
-  Toolbar,
-  type ToolbarItem,
-} from "@workspace/core/ui";
+} from "@workspace/core/ui/component-registry";
 import {
-  buildCoreUiRegistryTreeGroups,
+  buildCoreUiComponentTree,
   getCoreUiComponentRelationView,
 } from "@workspace/core/ui/component-registry-view";
 import type {
   CoreUiComponentKind,
   CoreUiComponentRegistration,
   CoreUiComponentTier,
-} from "@workspace/core/ui";
+} from "@workspace/core/ui/component-registry";
 import { matchText } from "@workspace/core/search";
 import { UiComponentPreviewPanel } from "./UiComponentPreviewPanel";
 import { UiComponentRelationPanel } from "./UiComponentRelations";
-import { UiComponentTreePanel } from "./UiComponentTreePanel";
+import {
+  getUiComponentTreeRootId,
+  UiComponentTreePanel,
+  type UiComponentTreeMetaKey,
+} from "./UiComponentTreePanel";
 import { useUiComponentVerified } from "./use-ui-component-verified";
 
 const ALL_TIER = "all";
 const ALL_KIND = "all";
+const ALL_VERIFIED = "all";
+const PAGE_SIZE_OPTIONS = [20, 50, 100, 200];
 
 type UiComponentsShowcaseProps = {
   usageRows?: Array<{
@@ -35,25 +44,51 @@ type UiComponentsShowcaseProps = {
   }>;
 };
 
-type TreeTierFilter = CoreUiComponentTier | typeof ALL_TIER;
-type TreeKindFilter = CoreUiComponentKind | typeof ALL_KIND;
+type TreeTierFilter = Exclude<CoreUiComponentTier, "foundation"> | typeof ALL_TIER;
+type VerifiedFilter = "verified" | "unverified" | typeof ALL_VERIFIED;
 
 const TIER_OPTIONS: Array<{ value: TreeTierFilter; label: string }> = [
-  { value: ALL_TIER, label: "全部" },
-  { value: "foundation", label: coreUiComponentTierMeta.foundation.label },
+  { value: ALL_TIER, label: "全部层级" },
   { value: "primitive", label: coreUiComponentTierMeta.primitive.label },
   { value: "assembly", label: coreUiComponentTierMeta.assembly.label },
   { value: "shell", label: coreUiComponentTierMeta.shell.label },
   { value: "frame", label: coreUiComponentTierMeta.frame.label },
 ];
 
+const META_COLUMNS: ColumnDef[] = [
+  { key: "kind", label: "分类", defaultVisible: true },
+  { key: "tier", label: "层级", defaultVisible: true },
+  { key: "usedBy", label: "被引用", defaultVisible: true },
+  { key: "files", label: "文件", defaultVisible: true },
+  { key: "verified", label: "验证", defaultVisible: true },
+];
+
+const DEFAULT_VISIBLE_META: UiComponentTreeMetaKey[] = ["kind", "tier", "usedBy", "files", "verified"];
+
+function findComponent(name: string) {
+  return coreUiComponentRegistry.find((component) => component.name === name) as CoreUiComponentRegistration | undefined;
+}
+
+function getPageSizeForIndex(index: number, currentSize: number) {
+  if (index < currentSize) return currentSize;
+  return PAGE_SIZE_OPTIONS.find((size) => index < size) ?? PAGE_SIZE_OPTIONS[PAGE_SIZE_OPTIONS.length - 1];
+}
+
 export default function UiComponentsShowcase({
   usageRows = [],
 }: UiComponentsShowcaseProps) {
-  const [tier, setTier] = useState<TreeTierFilter>(ALL_TIER);
-  const [kind, setKind] = useState<TreeKindFilter>(ALL_KIND);
+  const firstRoot = coreUiComponentRegistry.find((component) => component.tier !== "foundation");
+  const [filterFieldKey, setFilterFieldKey] = useState<"tier" | "kind">("tier");
+  const [filterValue, setFilterValue] = useState<string>(ALL_TIER);
+  const [verifiedFilter, setVerifiedFilter] = useState<VerifiedFilter>(ALL_VERIFIED);
   const [query, setQuery] = useState("");
-  const [selectedName, setSelectedName] = useState<string>(coreUiComponentRegistry[0]?.name ?? "");
+  const [selectedName, setSelectedName] = useState<string>(firstRoot?.name ?? "");
+  const [expandedNames, setExpandedNames] = useState<Set<string>>(new Set());
+  const [sideOpen, setSideOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [pageSize, setPageSize] = useState(50);
+  const [visibleMeta, setVisibleMeta] = useState<string[]>(DEFAULT_VISIBLE_META);
+  const [pendingScrollName, setPendingScrollName] = useState<string | null>(null);
   const { verifiedNames, toggleVerified, canWrite } = useUiComponentVerified();
 
   const componentByName = useMemo(() => {
@@ -68,8 +103,8 @@ export default function UiComponentsShowcase({
     );
   }, [usageRows]);
 
-  const treeGroups = useMemo(() => {
-    return buildCoreUiRegistryTreeGroups({ verifiedNames, usageFilesByName });
+  const treeRoots = useMemo(() => {
+    return buildCoreUiComponentTree({ verifiedNames, usageFilesByName });
   }, [usageFilesByName, verifiedNames]);
 
   const kindOptions = useMemo(() => {
@@ -82,32 +117,22 @@ export default function UiComponentsShowcase({
     ];
   }, []);
 
-  const filteredTreeGroups = useMemo(() => {
+  const filteredRoots = useMemo(() => {
     const keyword = query.trim();
-    return treeGroups.flatMap((tierGroup) => {
-      if (tier !== ALL_TIER && tierGroup.tier !== tier) return [];
-      const kinds = tierGroup.kinds.flatMap((kindGroup) => {
-        if (kind !== ALL_KIND && kindGroup.kind !== kind) return [];
-        const nodes = kindGroup.nodes.filter((node) => {
-          if (!keyword) return true;
-          return matchText(node.name, keyword)
-            || matchText(node.component.description, keyword)
-            || matchText(node.kind, keyword)
-            || matchText(coreUiComponentKindMeta[node.kind].label, keyword)
-            || matchText(coreUiComponentTierMeta[node.tier].label, keyword);
-        });
-        return nodes.length ? [{ ...kindGroup, nodes }] : [];
-      });
-      return kinds.length ? [{ ...tierGroup, kinds }] : [];
+    return treeRoots.filter((node) => {
+      if (filterFieldKey === "tier" && filterValue !== ALL_TIER && node.tier !== filterValue) return false;
+      if (filterFieldKey === "kind" && filterValue !== ALL_KIND && node.kind !== filterValue) return false;
+      if (verifiedFilter === "verified" && !node.verified) return false;
+      if (verifiedFilter === "unverified" && node.verified) return false;
+      if (!keyword) return true;
+      return matchText(node.name, keyword)
+        || matchText(node.component.description, keyword)
+        || matchText(coreUiComponentKindMeta[node.kind].label, keyword)
+        || matchText(coreUiComponentTierMeta[node.tier].label, keyword);
     });
-  }, [kind, query, tier, treeGroups]);
+  }, [filterFieldKey, filterValue, query, treeRoots, verifiedFilter]);
 
-  const filteredNodeCount = useMemo(() => {
-    return filteredTreeGroups.reduce((sum, tierGroup) => (
-      sum + tierGroup.kinds.reduce((kindSum, kindGroup) => kindSum + kindGroup.nodes.length, 0)
-    ), 0);
-  }, [filteredTreeGroups]);
-
+  const visibleRoots = filteredRoots.slice(0, pageSize);
   const selectedComponent = componentByName.get(selectedName) ?? null;
   const selectedRelation = selectedComponent
     ? getCoreUiComponentRelationView(selectedComponent.name, {
@@ -117,82 +142,142 @@ export default function UiComponentsShowcase({
 
   useEffect(() => {
     if (selectedComponent) return;
-    const firstNode = filteredTreeGroups[0]?.kinds[0]?.nodes[0];
-    if (firstNode) setSelectedName(firstNode.name);
-  }, [filteredTreeGroups, selectedComponent]);
+    if (visibleRoots[0]) setSelectedName(visibleRoots[0].name);
+  }, [selectedComponent, visibleRoots]);
 
-  function selectComponent(name: string) {
-    if (componentByName.has(name)) setSelectedName(name);
+  useEffect(() => {
+    if (!pendingScrollName) return;
+    const target = document.getElementById(getUiComponentTreeRootId(pendingScrollName));
+    target?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    setPendingScrollName(null);
+  }, [pendingScrollName, visibleRoots]);
+
+  function toggleExpanded(name: string) {
+    setExpandedNames((current) => {
+      const next = new Set(current);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
   }
 
-  const toolbarItems: ToolbarItem[] = useMemo(
-    () => [
-      {
-        kind: "option-group",
-        key: "tier",
-        section: "view",
-        value: tier,
-        options: TIER_OPTIONS,
-        onChange: (value) => setTier(value as TreeTierFilter),
-        ariaLabel: "注册项层级",
-      },
-      {
-        kind: "select",
-        key: "kind",
-        section: "filter",
-        value: kind,
-        options: kindOptions,
-        onChange: (value) => setKind(value as TreeKindFilter),
-        placeholder: "全部分类",
-        triggerClassName: "!w-32",
-      },
-      {
-        kind: "search",
-        key: "query",
-        section: "filter",
-        value: query,
-        onChange: setQuery,
-        placeholder: "搜索注册项...",
-        ariaLabel: "搜索注册项",
-        className: "w-48",
-      },
-      {
-        kind: "text",
-        key: "count",
-        section: "meta",
-        content: <>共 {filteredNodeCount} 个注册项</>,
-      },
-    ],
-    [filteredNodeCount, kind, kindOptions, query, tier],
+  function focusComponent(name: string) {
+    const component = findComponent(name);
+    if (!component) return;
+    setSelectedName(name);
+    if (component.tier === "foundation") return;
+
+    const rootIndex = treeRoots.findIndex((node) => node.name === name);
+    setFilterFieldKey("tier");
+    setFilterValue(ALL_TIER);
+    setVerifiedFilter(ALL_VERIFIED);
+    setQuery("");
+    setExpandedNames((current) => new Set([...current, name]));
+    setPageSize((current) => rootIndex >= 0 ? getPageSizeForIndex(rootIndex, current) : current);
+    setSideOpen(true);
+    setDrawerOpen(false);
+    setPendingScrollName(name);
+  }
+
+  function toggleSideFromToolbar() {
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setDrawerOpen(true);
+      return;
+    }
+    setSideOpen((open) => !open);
+  }
+
+  const filters = (
+    <FieldValueFilter
+      fieldKey={filterFieldKey}
+      onFieldKeyChange={(value) => {
+        const nextField = value === "kind" ? "kind" : "tier";
+        setFilterFieldKey(nextField);
+      }}
+      value={filterValue}
+      onValueChange={setFilterValue}
+      fields={[
+        { value: "tier", label: "层级" },
+        { value: "kind", label: "分类" },
+      ]}
+      valueOptions={{
+        tier: TIER_OPTIONS,
+        kind: kindOptions,
+      }}
+      placeholder="筛选"
+    />
   );
 
   return (
-    <PageContent className="max-w-7xl py-8">
-      <Toolbar items={toolbarItems} className="mb-5" />
-
-      <div className="grid gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]">
-        <UiComponentTreePanel
-          groups={filteredTreeGroups}
-          selectedName={selectedName}
-          onSelect={selectComponent}
+    <WorkspaceSplitPage
+      sideOpen={sideOpen}
+      drawerOpen={drawerOpen}
+      onSideOpenChange={setSideOpen}
+      onDrawerOpenChange={setDrawerOpen}
+      sideLabel="组件目录"
+      splitRatio={[3, 7]}
+      contentClassName="max-w-7xl py-8"
+      showSideControls={false}
+      header={(
+        <PageToolbar
+          onToggleList={toggleSideFromToolbar}
+          listVisible={sideOpen}
+          search={{
+            value: query,
+            onChange: setQuery,
+            placeholder: "搜索组件...",
+          }}
+          optionGroups={[{
+            value: verifiedFilter,
+            options: [
+              { value: ALL_VERIFIED, label: "全部" },
+              { value: "verified", label: "已验证" },
+              { value: "unverified", label: "未验证" },
+            ],
+            onChange: (value) => setVerifiedFilter(value as VerifiedFilter),
+            ariaLabel: "验证状态",
+          }]}
+          filters={filters}
+          columns={{
+            defs: META_COLUMNS,
+            visible: visibleMeta,
+            onChange: setVisibleMeta,
+          }}
+          pageSize={{
+            value: pageSize,
+            options: PAGE_SIZE_OPTIONS,
+            onChange: setPageSize,
+          }}
+          meta={<>共 {filteredRoots.length} 个组件</>}
         />
-        {selectedComponent && selectedRelation ? (
-          <div className="space-y-4">
-            <UiComponentPreviewPanel
-              component={selectedComponent}
-              verified={verifiedNames.has(selectedComponent.name)}
-              canWrite={canWrite}
-              onToggleVerified={() => toggleVerified(selectedComponent.name)}
-            />
-            <UiComponentRelationPanel
-              relation={selectedRelation}
-              onSelect={selectComponent}
-            />
-          </div>
-        ) : (
-          <EmptyStateCard>请选择一个组件</EmptyStateCard>
-        )}
-      </div>
-    </PageContent>
+      )}
+      renderSide={() => (
+        <UiComponentTreePanel
+          nodes={visibleRoots}
+          selectedName={selectedName}
+          expandedNames={expandedNames}
+          visibleMeta={visibleMeta}
+          onSelect={focusComponent}
+          onToggle={toggleExpanded}
+        />
+      )}
+    >
+      {selectedComponent && selectedRelation ? (
+        <div className="space-y-4">
+          <UiComponentPreviewPanel
+            component={selectedComponent}
+            verified={verifiedNames.has(selectedComponent.name)}
+            canWrite={canWrite}
+            onToggleVerified={() => toggleVerified(selectedComponent.name)}
+          />
+          <UiComponentRelationPanel
+            relation={selectedRelation}
+            onSelect={focusComponent}
+          />
+        </div>
+      ) : (
+        <EmptyStateCard>请选择一个组件</EmptyStateCard>
+      )}
+    </WorkspaceSplitPage>
   );
 }

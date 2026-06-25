@@ -1,4 +1,4 @@
-import { coreUiComponentRegistry, type CoreUiComponentRegistration } from "@workspace/core/ui";
+import { coreUiComponentRegistry, type CoreUiComponentRegistration } from "@workspace/core/ui/component-registry";
 import type { CoreUiComponentRelationView } from "@workspace/core/ui/component-registry-view";
 
 function UpstreamChainNode({
@@ -34,7 +34,7 @@ function UpstreamChainNode({
         >
           {component.name}
         </button>
-        {children.length > 0 && depth < 4 && (
+        {children.length > 0 && depth < 3 && (
           <button
             type="button"
             onClick={() => togglePathName(component.name)}
@@ -44,7 +44,7 @@ function UpstreamChainNode({
           </button>
         )}
       </div>
-      {expanded && depth < 4 && children.length > 0 && (
+      {expanded && depth < 3 && children.length > 0 && (
         <div className="ml-3 border-l border-slate-200 pl-3">
           {children.map((child) => (
             <UpstreamChainNode
