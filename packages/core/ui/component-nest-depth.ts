@@ -36,7 +36,7 @@ export function buildComponentNestDepthMap(componentNames: readonly string[]): M
   return nestDepthByName;
 }
 
-export const NEST_DEPTH_CAP = 6;
+export const NEST_DEPTH_CAP = 4;
 
 export function formatNestDepth(depth: number): string {
   if (depth >= NEST_DEPTH_CAP) return `${NEST_DEPTH_CAP}+`;
