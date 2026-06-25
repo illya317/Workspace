@@ -94,7 +94,7 @@ export const coreUiComponentTierMeta = {
 export const coreUiComponentRegistry = [
   { name: "ActionButton", tier: "primitive", kind: "toolbar", description: "通用动作按钮 primitive，统一主操作、次操作和危险操作按钮。", example: "详情页中显示“保存”“取消”“删除”，业务只传动作和状态。", foundations: ["getToolbarActionClassName"] },
   { name: "ActionGlyph", tier: "primitive", kind: "toolbar", description: "通用动作图标 glyph，统一新增、归档、编辑、查看、确认、取消、删除、复制、筛选、搜索、刷新、下载、上传、显示/隐藏和更多操作的图形表达。", example: "工具栏、DataTable 行动作、新建确认和查看/隐藏切换都复用同一套图标。" },
-  { name: "ActionToolbar", tier: "assembly", kind: "toolbar", description: "通用页面动作栏，承接主按钮、次按钮和左右插槽。", example: "在资料库列表顶部显示“已选择 2 条记录 / 导出 / 新增”。", composes: ["ActionButton"] },
+  { name: "ActionToolbar", tier: "assembly", kind: "toolbar", description: "通用页面动作栏，承接主按钮、次按钮和左右插槽。", example: "在资料库列表顶部显示“已选择 2 条记录 / 导出 / 新增”。", composes: ["ActionButton", "ActionGlyph"] },
   { name: "IconActionButton", tier: "primitive", kind: "toolbar", description: "工具栏图标动作按钮，统一隐藏列表、新建等紧凑入口的尺寸、提示和可访问名称。", example: "Toolbar 左侧用列表图标切换侧栏，用 + 进入新建流程。", composes: ["ActionButton", "ActionGlyph"], foundations: ["getToolbarActionClassName"] },
   { name: "RefreshActionButton", tier: "assembly", kind: "toolbar", description: "工具栏刷新动作按钮，使用无边框图标样式和统一可访问名称。", example: "Toolbar 的刷新入口统一显示刷新图标，而不是文字按钮。", composes: ["IconActionButton"] },
   { name: "AmountCell", tier: "primitive", kind: "cell", description: "金额单元格，统一数值对齐、正负值和空值展示。", example: "在财务表格中展示 ¥ 12,800.00，并保持金额列右对齐。", composes: ["NumberCell"] },
