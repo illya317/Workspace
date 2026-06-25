@@ -1,7 +1,6 @@
 "use client";
 
-import { ActionButton, IconActionButton } from "./ActionControls";
-import { ActionGlyph } from "./ActionGlyphs";
+import { IconActionButton } from "./ActionControls";
 
 export interface CreateStartButtonProps {
   label: string;
@@ -43,11 +42,10 @@ export function CreateConfirmActions({
   order = "submit-first",
 }: CreateConfirmActionsProps) {
   const submit = (
-    <ActionButton
+    <IconActionButton
       key="submit"
-      type="button"
-      aria-label={submitLabel}
-      title={submitLabel}
+      kind="check"
+      label={submitLabel}
       disabled={submitDisabled || submitting}
       variant="primary"
       className="!h-9 !w-10 !px-0 !text-[11px] !leading-none"
@@ -55,23 +53,19 @@ export function CreateConfirmActions({
         event.stopPropagation();
         if (!submitDisabled && !submitting) onSubmit();
       }}
-    >
-      <ActionGlyph kind="check" className="h-4 w-4" />
-    </ActionButton>
+    />
   );
   const cancel = (
-    <ActionButton
+    <IconActionButton
       key="cancel"
-      aria-label={cancelLabel}
-      title={cancelLabel}
+      kind="cancel"
+      label={cancelLabel}
+      className="!h-9 !w-10 !px-0 !text-[11px] !leading-none"
       onClick={(event) => {
         event.stopPropagation();
         onCancel();
       }}
-      className="!h-9 !w-10 !px-0 !text-[11px] !leading-none"
-    >
-      <ActionGlyph kind="cancel" className="h-4 w-4" />
-    </ActionButton>
+    />
   );
   return (
     <div className="flex shrink-0 flex-wrap items-center gap-2">
