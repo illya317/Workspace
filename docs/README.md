@@ -21,6 +21,7 @@
 | 开工分流 | `docs/agent-startup.md`, `docs/SUBAGENT.md` |
 | 架构边界和 gate | `docs/architecture-governance.md`, `docs/module-boundaries.md` |
 | Level 2 任务包执行 | `docs/level2-agent-execution.md` |
+| Core UI 五层治理 | `docs/core-ui-governance.md` |
 | Core UI 和页面 primitive | `docs/reusable-components.md` |
 | Core / Platform / Apps 迁移归属 | `docs/core-platform-apps-migration-map.md` |
 | 新模块接入 | `docs/new-module-checklist.md`, `docs/planning/new-domain-template.md` |
