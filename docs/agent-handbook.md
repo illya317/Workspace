@@ -57,7 +57,7 @@ cnb build get-build-status --repo <CNB_REPO> --sn "<sn>" --verbose
 
 生产服务器地址、SSH 密钥路径和 `CNB_REPO` 在桌面私有 ops `.env` 中维护。本机只读诊断时使用私有 ops `.env` 中的 `KEY`，只引用路径，不打印、不复制、不提交密钥内容。部署流水线使用 CNB 加密变量 `KEY_CONTENT`，不要改成本地私钥直传。
 
-新环境构造、`.workspace` 目录恢复、服务器 data 拉取规则见 `/Users/koito/Desktop/workspace/ops/AGENTS.md`。部署专题说明见 `/Users/koito/Desktop/workspace/ops/docs/deploy.md` 和 `/Users/koito/Desktop/workspace/ops/docs/environment.md`。
+新环境构造、`.workspace` 目录恢复、服务器 data 拉取规则见 `$PRIVATE_OPS_DIR/AGENTS.md`。部署专题说明见 `$PRIVATE_OPS_DIR/docs/deploy.md` 和 `$PRIVATE_OPS_DIR/docs/environment.md`。
 
 ## 3. 项目地图
 

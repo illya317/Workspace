@@ -1,8 +1,8 @@
-main:
+cnb-release:
   # 关闭 GitHub 镜像同步后的自动部署；手动触发用 api_trigger_manual。
   # 本文件只保留公开流水线形状。真实 CNB env import 地址和部署目标值
-  # 在私有 ops (/Users/koito/Desktop/workspace/ops/cnb.yml) 中维护，发布前
-  # 由运维流程注入或替换本文件中的占位符。
+  # 在私有 ops ($PRIVATE_OPS_DIR/cnb.yml) 中维护，发布脚本会把真实配置
+  # 注入到 cnb-release 分支后再推送到 CNB。
   api_trigger_manual:
     - name: deploy-prod
       docker:

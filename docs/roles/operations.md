@@ -6,7 +6,7 @@ Operations 负责 CI、部署、环境和脚本运行态。
 
 - `docs/agent-startup.md`
 - `.github/workflows/ci.yml`
-- 私有部署文档在桌面 ops：`/Users/koito/Desktop/workspace/ops/docs/`
+- 私有部署文档在桌面 ops：`$PRIVATE_OPS_DIR/docs/`
 
 ## 职责
 
