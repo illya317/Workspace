@@ -1,15 +1,16 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { StatusBadge } from "@workspace/core/ui";
+import { PanelCard, StatusBadge } from "@workspace/core/ui";
 import { getStatusLabel, getWorkItemTypeLabel, getWorkPeriodLabel, getWorkSourceTypeLabel } from "./model";
 import type { WorkItem } from "./types";
 
 export function WorkTaskDetail({ work }: { work: WorkItem }) {
   const status = work.itemType === "task" ? (work.isArchived ? "archived" : work.status) : null;
   return (
-    <div className="grid gap-4 rounded-lg border border-slate-200 bg-white p-4 text-sm lg:grid-cols-2">
-      <DetailItem label="节点内容" className="lg:col-span-2">
+    <PanelCard className="shadow-none" bodyClassName="p-4">
+      <div className="grid gap-4 text-sm lg:grid-cols-2">
+        <DetailItem label="节点内容" className="lg:col-span-2">
         <p className="whitespace-pre-wrap text-slate-900">{work.content}</p>
       </DetailItem>
       {work.description && (
@@ -31,7 +32,8 @@ export function WorkTaskDetail({ work }: { work: WorkItem }) {
       {work.sourceType === "meeting" && <DetailItem label="来源会议">{work.sourceMeetingTitle || "未关联"}</DetailItem>}
       {work.sourceType === "meeting" && <DetailItem label="会议决议">{work.sourceMeetingDecisionTitle || "未关联"}</DetailItem>}
       {work.sourceType === "meeting" && <DetailItem label="行动候选">{work.sourceMeetingActionCandidateTitle || "未关联"}</DetailItem>}
-    </div>
+      </div>
+    </PanelCard>
   );
 }
 

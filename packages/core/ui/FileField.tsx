@@ -1,33 +1,50 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 
 export interface FileFieldProps {
   label?: string;
   accept?: string;
+  multiple?: boolean;
   disabled?: boolean;
+  resetOnChange?: boolean;
   className?: string;
   inputClassName?: string;
+  controlsClassName?: string;
   showFileName?: boolean;
+  buttonLabel?: ReactNode;
   onChange: (file: File | null) => void;
+  onFilesChange?: (files: FileList | null) => void;
 }
 
 export default function FileField({
   label,
   accept,
+  multiple = false,
   disabled = false,
+  resetOnChange = false,
   className = "",
   inputClassName = "",
+  controlsClassName = "",
   showFileName = true,
+  buttonLabel = "选择文件",
   onChange,
+  onFilesChange,
 }: FileFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0] ?? null;
+    const files = event.target.files;
+    const file = files?.[0] ?? null;
     setFileName(file?.name ?? "");
     onChange(file);
+    if (onFilesChange) {
+      onFilesChange(files);
+    }
+    if (resetOnChange) {
+      event.currentTarget.value = "";
+    }
   }
 
   return (
@@ -37,11 +54,12 @@ export default function FileField({
         ref={inputRef}
         type="file"
         accept={accept}
+        multiple={multiple}
         disabled={disabled}
         onChange={handleChange}
         className="sr-only"
       />
-      <div className="flex flex-wrap items-center gap-2">
+      <div className={`flex flex-wrap items-center gap-2 ${controlsClassName}`}>
         <button
           type="button"
           disabled={disabled}
@@ -52,7 +70,7 @@ export default function FileField({
           inputClassName,
         ].filter(Boolean).join(" ")}
         >
-          选择文件
+          {buttonLabel}
         </button>
         {showFileName && fileName && <span className="max-w-full truncate text-sm text-slate-500">{fileName}</span>}
       </div>

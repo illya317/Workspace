@@ -2,20 +2,24 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { ActionGlyph } from "./ActionGlyphs";
 import { joinClassNames } from "./card-utils";
 
+export type ActionButtonSize = "sm" | "md";
+
 export interface ToolbarAction {
   label: ReactNode;
   onClick?: () => void;
   disabled?: boolean;
   variant?: "primary" | "secondary" | "danger";
   type?: "button" | "submit";
+  size?: ActionButtonSize;
 }
 
-export interface ActionButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children" | "className" | "disabled" | "onClick" | "type"> {
+export interface ActionButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children" | "className" | "disabled" | "onClick" | "size" | "type"> {
   children: ReactNode;
   onClick?: ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
   disabled?: boolean;
   variant?: ToolbarAction["variant"];
   type?: "button" | "submit";
+  size?: ActionButtonSize;
   className?: string;
 }
 
@@ -35,14 +39,21 @@ export interface ActionToolbarProps {
   className?: string;
 }
 
-export function getToolbarActionClassName(variant: ToolbarAction["variant"] = "secondary") {
+export function getToolbarActionClassName(
+  variant: ToolbarAction["variant"] = "secondary",
+  size: ActionButtonSize = "md",
+) {
+  const sizeClass =
+    size === "sm"
+      ? "h-8 px-2.5 py-1.5 text-xs"
+      : "h-10 px-4 py-2 text-xs";
   if (variant === "primary") {
-    return "inline-flex h-10 items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300";
+    return `inline-flex ${sizeClass} items-center justify-center rounded-lg bg-emerald-600 font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300`;
   }
   if (variant === "danger") {
-    return "inline-flex h-10 items-center justify-center rounded-lg border border-red-200 bg-white px-4 py-2 text-xs font-semibold text-red-600 shadow-sm transition hover:bg-red-50 disabled:cursor-not-allowed disabled:text-slate-300";
+    return `inline-flex ${sizeClass} items-center justify-center rounded-lg border border-red-200 bg-white font-semibold text-red-600 shadow-sm transition hover:bg-red-50 disabled:cursor-not-allowed disabled:text-slate-300`;
   }
-  return "inline-flex h-10 items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300";
+  return `inline-flex ${sizeClass} items-center justify-center rounded-lg border border-slate-300 bg-white font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300`;
 }
 
 export function ActionButton({
@@ -50,6 +61,7 @@ export function ActionButton({
   onClick,
   disabled,
   variant = "secondary",
+  size = "md",
   type = "button",
   className = "",
   ...buttonProps
@@ -60,7 +72,7 @@ export function ActionButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={joinClassNames(getToolbarActionClassName(variant), className)}
+      className={joinClassNames(getToolbarActionClassName(variant, size), className)}
     >
       {children}
     </button>
@@ -111,6 +123,7 @@ function ToolbarActionButton({ action }: { action: ToolbarAction }) {
       onClick={action.onClick}
       disabled={action.disabled}
       variant={action.variant}
+      size={action.size}
     >
       {action.label}
     </ActionButton>

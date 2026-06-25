@@ -4,7 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ActionButton, ActionToolbar } from "@workspace/core/ui";
+import { ActionButton, ActionToolbar, TableScrollFrame } from "@workspace/core/ui";
 import type { QcBatchSummary, QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcLayoutPaper from "./QcLayoutPaper";
@@ -94,7 +94,7 @@ export default function QcBatchTestRecord({ batch, productName, detail, stage, t
           : "待检验";
 
   return (
-    <section className="overflow-x-auto pb-8">
+    <TableScrollFrame className="pb-8">
       <div className="mx-auto max-w-[210mm]">
         <nav className="mb-5 flex flex-wrap gap-2 text-xs">
           <Link href={`/production/qc-batches/${batch.id}`} className="rounded bg-blue-100 px-3 py-2 font-medium text-blue-800">
@@ -169,6 +169,6 @@ export default function QcBatchTestRecord({ batch, productName, detail, stage, t
         {saveState === "saved" && <span className="text-sm text-emerald-700">{statusText || "已保存"}</span>}
         {saveState === "error" && <span className="text-sm text-red-700">{statusText || "操作失败"}</span>}
       </div>
-    </section>
+    </TableScrollFrame>
   );
 }

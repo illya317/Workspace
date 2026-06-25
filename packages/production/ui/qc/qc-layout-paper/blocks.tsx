@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
-import { HiddenDataField } from "@workspace/core/ui";
+import type { ReactNode } from "react";
+import { FileField, HiddenDataField } from "@workspace/core/ui";
 import type { QcLayoutCell, QcLayoutPart } from "@workspace/production/server/qc";
 import QcConfirmationTable from "../QcConfirmationTable";
 import { Part, TableBlock } from "../QcLayoutTable";
@@ -156,7 +156,6 @@ function readImageFile(file: File): Promise<RawDataAttachment> {
 }
 
 function AttachmentUploadBlock({ block, context }: { block: NumberedBlock; context: LayoutRenderContext }) {
-  const inputRef = useRef<HTMLInputElement | null>(null);
   const key = scopedFieldKey(block.fieldKey || "layout/raw_data/attachments", context);
   const text = block.text || "原始数据、图谱、待包装品检验报告单见数据图谱粘贴页。";
   const attachments = parseAttachments(context.values[key]);
@@ -167,28 +166,23 @@ function AttachmentUploadBlock({ block, context }: { block: NumberedBlock; conte
     if (!imageFiles.length) return;
     const next = [...attachments, ...await Promise.all(imageFiles.map(readImageFile))];
     context.onFieldChange(key, serializeAttachments(next));
-    if (inputRef.current) inputRef.current.value = "";
   }
 
   return (
     <PostSection block={block} title="原始数据">
-      <input
-        ref={inputRef}
-        type="file"
+      <FileField
         accept="image/*"
         multiple
-        className="sr-only"
         disabled={!canEdit}
-        onChange={(event) => void upload(event.target.files)}
+        showFileName={false}
+        buttonLabel={text}
+        className="inline text-inherit"
+        controlsClassName="inline"
+        inputClassName="inline cursor-pointer bg-transparent p-0 text-left align-baseline text-inherit outline-none disabled:cursor-default"
+        resetOnChange
+        onChange={() => undefined}
+        onFilesChange={(files) => void upload(files)}
       />
-      <button
-        type="button"
-        className="inline cursor-pointer bg-transparent p-0 text-left align-baseline text-inherit outline-none disabled:cursor-default"
-        disabled={!canEdit}
-        onClick={() => inputRef.current?.click()}
-      >
-        {text}
-      </button>
       <HiddenDataField fieldKey={key} value={context.values[key]} />
     </PostSection>
   );

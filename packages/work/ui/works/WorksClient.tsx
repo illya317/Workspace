@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CommandToolbar, CreateConfirmActions, CreateStartButton, DatabasePageFrame, EmptyStateCard, SelectField, SectionCard, SplitWorkspaceToolbar, Toast, ToolbarOptionGroup, useConfirmDelete } from "@workspace/core/ui";
+import { CommandToolbar, CreateConfirmActions, CreateStartButton, DatabasePageFrame, EmptyStateCard, MetricCard, PanelCard, SelectField, SectionCard, SplitWorkspaceToolbar, Toast, ToolbarOptionGroup, useConfirmDelete } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import type { SessionUser } from "@workspace/platform/types";
 import { listTaskSpaces } from "./api";
@@ -232,16 +232,16 @@ export default function WorksClient({
               ) : (
                 <SectionCard title="工作项">
                   {worksState.creating && (
-                    <div className="mb-4 rounded-lg border border-slate-200 bg-white p-3">
-                    <WorkTaskForm
-                      draft={worksState.createDraft}
-                      works={worksState.works}
-                      disabled={worksState.saving}
-                      excludedWorkId={null}
-                      targetType={currentSpace.targetType}
-                      onChange={worksState.setCreateDraft}
-                    />
-                    </div>
+                    <PanelCard className="mb-4" bodyClassName="p-3">
+                      <WorkTaskForm
+                        draft={worksState.createDraft}
+                        works={worksState.works}
+                        disabled={worksState.saving}
+                        excludedWorkId={null}
+                        targetType={currentSpace.targetType}
+                        onChange={worksState.setCreateDraft}
+                      />
+                    </PanelCard>
                   )}
                   <WorkTaskTable
                     works={worksState.works}
@@ -318,30 +318,21 @@ function MobileSpaceSwitcher({
 
 function SpaceHeader({ space }: { space: WorkTaskSpace }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white px-5 py-4 shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <PanelCard bodyClassName="px-5 py-4">
+      <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
         <div className="min-w-0">
           <div className="text-xs font-semibold text-emerald-600">{getWorkSpaceLabel(space.targetType)}工作计划</div>
           <h2 className="mt-1 truncate text-xl font-semibold text-slate-950">{space.name}</h2>
           {space.subtitle && <p className="mt-1 text-sm text-slate-500">{space.subtitle}</p>}
         </div>
         <div className="grid grid-cols-4 gap-2 text-center">
-          <Metric label="目标" value={space.counts.objective} />
-          <Metric label="结果" value={space.counts.keyResult} />
-          <Metric label="任务" value={space.counts.task} />
-          <Metric label="归档" value={space.counts.archived} />
+          <MetricCard label="目标" value={space.counts.objective} className="px-3 py-2" />
+          <MetricCard label="结果" value={space.counts.keyResult} className="px-3 py-2" />
+          <MetricCard label="任务" value={space.counts.task} className="px-3 py-2" />
+          <MetricCard label="归档" value={space.counts.archived} className="px-3 py-2" />
         </div>
       </div>
-    </div>
-  );
-}
-
-function Metric({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="min-w-16 rounded-md bg-slate-50 px-3 py-2">
-      <div className="text-xs text-slate-400">{label}</div>
-      <div className="text-lg font-semibold text-slate-900">{value}</div>
-    </div>
+    </PanelCard>
   );
 }
 

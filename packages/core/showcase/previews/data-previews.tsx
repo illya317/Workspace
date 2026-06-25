@@ -7,8 +7,13 @@ import {
   ColumnToggle,
   DataTable,
   DataTableActionsCell,
+  DisclosureRecordCard,
+  RegistryBrowserCard,
   StatusBadge,
+  StructuredTable,
+  TableScrollFrame,
 } from "@workspace/core/ui";
+import type { RegistryBrowserItem } from "@workspace/core/ui";
 
 function ColumnTogglePreview() {
   const [visibleColumns, setVisibleColumns] = useState<string[]>(["name", "status", "amount"]);
@@ -38,7 +43,7 @@ function CodeBlockPreview() {
 }
 
 function DataTablePreview() {
-  const [visibleColumns, setVisibleColumns] = useState<string[]>(["name", "status", "amount"]);
+  const visibleColumns = ["name", "status", "amount"];
   return (
     <DataTable
       rows={[
@@ -88,31 +93,161 @@ function DataTableActionsCellPreview() {
 }
 
 function createDataTableEditActionsPreview() {
-    return <div className="text-xs text-slate-400"><p className="font-medium">createDataTableEditActions</p><p>DataTable 行编辑动作工厂，统一详情、编辑、保存、取消和删除动作组合。</p><p className="mt-1 text-slate-300">Hook / 工具函数，无组件级实时预览。</p></div>;
+  return (
+    <div className="text-xs text-slate-400">
+      <p className="font-medium">createDataTableEditActions</p>
+      <p>DataTable 行编辑动作工厂，统一详情、编辑、保存、取消和删除动作组合。</p>
+      <p className="mt-1 text-slate-300">Hook / 工具函数，无组件级实时预览。</p>
+    </div>
+  );
 }
 
 function isDataTableEditDirtyPreview() {
-    return <div className="text-xs text-slate-400"><p className="font-medium">isDataTableEditDirty</p><p>DataTable 行编辑 dirty 判断工具，和 createDataTableEditActions 配套使用。</p><p className="mt-1 text-slate-300">Hook / 工具函数，无组件级实时预览。</p></div>;
+  return (
+    <div className="text-xs text-slate-400">
+      <p className="font-medium">isDataTableEditDirty</p>
+      <p>DataTable 行编辑 dirty 判断工具，和 createDataTableEditActions 配套使用。</p>
+      <p className="mt-1 text-slate-300">Hook / 工具函数，无组件级实时预览。</p>
+    </div>
+  );
 }
 
 function DisclosureRecordCardPreview() {
-    return <div className="text-xs text-slate-400"><p className="font-medium">DisclosureRecordCard</p><p>可展开记录卡片，统一历史、日志和明细记录的折叠头、详情区和行级动作。</p><p className="mt-1 text-slate-300">实时预览待补充。</p></div>;
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div className="max-w-md">
+      <DisclosureRecordCard
+        expanded={expanded}
+        onToggle={() => setExpanded((v) => !v)}
+        header={<span className="text-sm font-semibold text-slate-900">2026-06-20 合同变更记录</span>}
+        summary={<StatusBadge label="已生效" variant="green" />}
+        detailTitle="变更详情"
+        detailAction={{ label: "还原", onClick: () => {} }}
+      >
+        <div className="space-y-2 text-sm text-slate-600">
+          <p>负责人由 张三 变更为 李四</p>
+          <p>金额由 ¥100,000 调整为 ¥125,000</p>
+        </div>
+      </DisclosureRecordCard>
+    </div>
+  );
 }
 
 function RegistryBrowserCardPreview() {
-    return <div className="text-xs text-slate-400"><p className="font-medium">RegistryBrowserCard</p><p>注册表浏览卡片，以 3/7 分栏展示分类和注册项明细。</p><p className="mt-1 text-slate-300">实时预览待补充。</p></div>;
+  const items: RegistryBrowserItem[] = [
+    {
+      name: "ActionButton",
+      tier: "primitive",
+      tierLabel: "原子组件",
+      tierDescription: "最小可交互组件",
+      kind: "toolbar",
+      kindLabel: "工具栏",
+      kindDescription: "页面动作集合",
+      description: "通用动作按钮 primitive",
+      example: "详情页保存、取消、删除",
+      includedComponents: [],
+      foundationComponents: ["getToolbarActionClassName"],
+      usedBy: ["ActionToolbar", "IconActionButton"],
+      usageFiles: ["packages/core/ui/ActionControls.tsx"],
+    },
+    {
+      name: "DataTable",
+      tier: "assembly",
+      tierLabel: "常用组合",
+      tierDescription: "由 primitives 组合而成",
+      kind: "data",
+      kindLabel: "数据视图",
+      kindDescription: "表格和数据阅读",
+      description: "通用数据表格 primitive",
+      example: "渲染科目、合同列表",
+      includedComponents: ["DataTableActionsCell"],
+      foundationComponents: ["dataTableClassNames"],
+      usedBy: [],
+      usageFiles: ["packages/core/ui/DataTable.tsx"],
+    },
+  ];
+  return (
+    <div className="max-w-2xl">
+      <RegistryBrowserCard
+        title="Core UI 注册浏览器"
+        subtitle="按分层和分类浏览已注册组件"
+        items={items}
+      />
+    </div>
+  );
 }
 
 function StructuredTablePreview() {
-    return <div className="text-xs text-slate-400"><p className="font-medium">StructuredTable</p><p>结构化表格 primitive，支持 colSpan、rowSpan、列宽和单元格内容插槽。</p><p className="mt-1 text-slate-300">实时预览待补充。</p></div>;
+  return (
+    <TableScrollFrame className="rounded-lg border border-slate-200">
+      <StructuredTable
+        className="w-full text-sm"
+        cellClassName="border border-slate-200 px-3 py-2 text-slate-700"
+        headerCellClassName="border border-slate-200 bg-slate-50 px-3 py-2 font-semibold text-slate-800"
+        colWidths={[120, 120, 160, 120]}
+        rows={[
+          [
+            { content: "项目", header: true, rowSpan: 2 },
+            { content: "阶段", header: true, rowSpan: 2 },
+            { content: "2026 H1", header: true, colSpan: 2 },
+          ],
+          [
+            { content: "预算", header: true },
+            { content: "实际", header: true },
+          ],
+          [
+            { content: "生产中心", rowSpan: 2 },
+            { content: "Q1" },
+            { content: "¥120,000" },
+            { content: "¥98,000" },
+          ],
+          [
+            { content: "Q2" },
+            { content: "¥150,000" },
+            { content: "¥142,000" },
+          ],
+        ]}
+      />
+    </TableScrollFrame>
+  );
 }
 
 function TableScrollFramePreview() {
-    return <div className="text-xs text-slate-400"><p className="font-medium">TableScrollFrame</p><p>表格横向滚动外壳，避免业务包重复手写 overflow-x-auto 表格容器。</p><p className="mt-1 text-slate-300">实时预览待补充。</p></div>;
+  return (
+    <div className="space-y-2">
+      <p className="text-xs text-slate-400">宽表格横向滚动外壳</p>
+      <TableScrollFrame className="rounded-lg border border-slate-200">
+        <table className="w-[40rem] text-sm">
+          <thead className="bg-slate-50">
+            <tr>
+              {["A", "B", "C", "D", "E", "F"].map((h) => (
+                <th key={h} className="border-b border-slate-200 px-3 py-2 text-left font-semibold text-slate-700">列 {h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {[1, 2, 3].map((row) => (
+              <tr key={row}>
+                {["A", "B", "C", "D", "E", "F"].map((h) => (
+                  <td key={h} className="border-b border-slate-100 px-3 py-2 text-slate-600">R{row}-{h}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </TableScrollFrame>
+    </div>
+  );
 }
 
 function dataTableClassNamesPreview() {
-    return <div className="text-xs text-slate-400"><p className="font-medium">dataTableClassNames</p><p>DataTable 样式 recipe，统一表头、行、单元格和空态 class 组合。</p><p className="mt-1 text-slate-300">Foundation / 样式 recipe，无运行时组件预览。</p></div>;
+  return (
+    <div className="text-xs text-slate-400">
+      <p className="font-medium">dataTableClassNames</p>
+      <p>DataTable 样式 recipe，统一表头、行、单元格和空态 class 组合。</p>
+      <p className="mt-1 text-slate-300">Foundation / 样式 recipe，无运行时组件预览。</p>
+    </div>
+  );
 }
 
 export const dataPreviewByName: Record<string, FC> = {

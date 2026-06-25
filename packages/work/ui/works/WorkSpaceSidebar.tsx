@@ -1,5 +1,6 @@
 "use client";
 
+import { EmptyStateCard, PanelCard, SelectorCard } from "@workspace/core/ui";
 import { getWorkSpaceLabel } from "./model";
 import type { WorkTarget, WorkTaskSpace, WorkTargetType } from "./types";
 
@@ -22,10 +23,10 @@ export default function WorkSpaceSidebar({
   ];
 
   return (
-    <aside className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+    <PanelCard bodyClassName="p-3">
       <div className="mb-3 px-1 text-xs font-semibold text-slate-400">工作空间</div>
       {loading ? (
-        <div className="rounded-md border border-dashed border-slate-200 px-3 py-8 text-center text-sm text-slate-400">加载中...</div>
+        <EmptyStateCard compact>加载中...</EmptyStateCard>
       ) : (
         <div className="space-y-4">
           {groups.map((group) => {
@@ -38,25 +39,15 @@ export default function WorkSpaceSidebar({
                   {items.map((space) => {
                     const selected = active?.targetType === space.targetType && active.targetId === space.targetId;
                     return (
-                      <button
+                      <SelectorCard
                         key={`${space.targetType}:${space.targetId}`}
-                        type="button"
+                        title={space.name}
+                        subtitle={space.subtitle || getWorkSpaceLabel(space.targetType)}
+                        meta={[`${space.counts.objective + space.counts.keyResult + space.counts.task}`]}
+                        trailing={<span className="shrink-0 rounded bg-white/80 px-1.5 py-0.5 text-xs text-slate-400">{roleLabel(space.role)}</span>}
+                        active={selected}
                         onClick={() => onSelect(space)}
-                        className={`w-full rounded-md px-3 py-2 text-left transition ${
-                          selected
-                            ? "bg-emerald-50 text-emerald-800"
-                            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="truncate text-sm font-medium">{space.name}</span>
-                          <span className="shrink-0 rounded bg-white/80 px-1.5 py-0.5 text-xs text-slate-400">{roleLabel(space.role)}</span>
-                        </div>
-                        <div className="mt-1 flex min-w-0 items-center justify-between gap-2 text-xs text-slate-400">
-                          <span className="truncate">{space.subtitle || getWorkSpaceLabel(space.targetType)}</span>
-                          <span>{space.counts.objective + space.counts.keyResult + space.counts.task}</span>
-                        </div>
-                      </button>
+                      />
                     );
                   })}
                 </div>
@@ -65,7 +56,7 @@ export default function WorkSpaceSidebar({
           })}
         </div>
       )}
-    </aside>
+    </PanelCard>
   );
 }
 

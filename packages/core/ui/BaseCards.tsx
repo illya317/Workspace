@@ -67,7 +67,7 @@ export interface EmptyStateCardProps {
 
 export function EmptyStateCard({ children, className = "", compact = false }: EmptyStateCardProps) {
   return (
-    <p
+    <div
       className={joinClassNames(
         "rounded-md border border-dashed border-slate-200 px-3 text-center text-sm text-slate-400",
         compact ? "py-6" : "py-10",
@@ -75,7 +75,7 @@ export function EmptyStateCard({ children, className = "", compact = false }: Em
       )}
     >
       {children}
-    </p>
+    </div>
   );
 }
 

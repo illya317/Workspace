@@ -15,6 +15,7 @@ import {
 } from "@workspace/core/ui";
 import { getCoreUiCompositionGraph } from "@workspace/core/ui/component-registry";
 import type { CoreUiComponentRegistration, CoreUiComponentTier } from "@workspace/core/ui";
+import { matchText } from "@workspace/core/search";
 import { ComponentPreview } from "./ComponentPreview";
 
 const TIER_LABELS: Record<CoreUiComponentTier, string> = {
@@ -104,10 +105,10 @@ export default function UiComponentsShowcase() {
       if (component.tier !== tier) return false;
       if (kind !== ALL_KIND && component.kind !== kind) return false;
       if (query.trim()) {
-        const keyword = query.trim().toLowerCase();
-        return component.name.toLowerCase().includes(keyword)
-          || component.description.toLowerCase().includes(keyword)
-          || component.kind.toLowerCase().includes(keyword);
+        const keyword = query.trim();
+        return matchText(component.name, keyword)
+          || matchText(component.description, keyword)
+          || matchText(component.kind, keyword);
       }
       return true;
     });

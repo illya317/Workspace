@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { usePermissionsTab } from "../hooks/usePermissionsTab";
-import { EmptyStateCard, FilterBar, PickerOptionButton, PickerSegmentedControl, SearchInput, SectionCard, SelectField } from "@workspace/core/ui";
+import { EmptyStateCard, FilterBar, PickerOptionButton, SearchInput, SectionCard, SelectField, TabBar } from "@workspace/core/ui";
 import ResourceTree from "../components/ResourceTree";
 import MatrixTable from "../components/permissions/MatrixTable";
 import type { ResourceItem, SubjectType } from "../types";
@@ -92,13 +92,13 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, showToa
 
         <div className="min-w-0 flex-1">
           {selectedOwnerKey && ownerCapabilities.length > 0 && (
-            <PickerSegmentedControl
+            <TabBar
               className="mb-4"
-              value={resourceMode}
+              active={resourceMode}
               onChange={switchMode}
-              options={[
-                { value: "entry", label: "入口权限" },
-                { value: "capability", label: "设置" },
+              tabs={[
+                { key: "entry", label: "入口权限" },
+                { key: "capability", label: "设置" },
               ]}
             />
           )}
@@ -128,14 +128,14 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, showToa
             </SectionCard>
           )}
 
-          <PickerSegmentedControl
+          <TabBar
             className="mb-4"
-            value={s.subjectType}
+            active={s.subjectType}
             onChange={(value) => s.setSubjectType(value as SubjectType)}
-            options={[
-              { value: "user", label: "员工" },
-              { value: "position", label: "岗位" },
-              { value: "department", label: "部门" },
+            tabs={[
+              { key: "user", label: "员工" },
+              { key: "position", label: "岗位" },
+              { key: "department", label: "部门" },
             ]}
           />
 

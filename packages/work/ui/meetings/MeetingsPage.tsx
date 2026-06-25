@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { BlockCreatePanel, CommandToolbar, DatabasePageFrame, EmptyStateCard, SelectField, Toast, ToolbarOptionGroup } from "@workspace/core/ui";
+import { ActionButton, BlockCreatePanel, CalendarDateInput, CheckboxField, CommandToolbar, DatabasePageFrame, EmptyStateCard, FormField, PanelCard, SectionCard, SelectField, SelectorCard, TextField, Toast, ToolbarOptionGroup, type TextFieldProps } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 
 type ToastState = { type: "success" | "error"; message: string } | null;
@@ -322,7 +322,7 @@ export default function MeetingsPage({ user }: { user: SessionUser }) {
                 onChange={setTypeFilter}
               />
             )}
-            selectionActions={<button type="button" className={secondaryButtonClass} onClick={() => void loadMeetings()} disabled={loading || saving}>刷新</button>}
+            selectionActions={<ActionButton size="sm" variant="secondary" onClick={() => void loadMeetings()} disabled={loading || saving}>刷新</ActionButton>}
           />
         <div className="grid gap-4 xl:grid-cols-[20rem_minmax(0,1fr)]">
           <MeetingList
@@ -344,11 +344,12 @@ export default function MeetingsPage({ user }: { user: SessionUser }) {
                       <InlineForm>
                         <InputBox label="用户 ID" value={participantDraft.userId} onChange={(userId) => setParticipantDraft((draft) => ({ ...draft, userId }))} />
                         <SelectBox label="角色" value={participantDraft.role} options={ROLE_OPTIONS} onChange={(role) => setParticipantDraft((draft) => ({ ...draft, role, canVote: role === "owner" || role === "voter" }))} />
-                        <label className="flex items-end gap-2 pb-2 text-sm text-slate-600">
-                          <input type="checkbox" checked={participantDraft.canVote} onChange={(event) => setParticipantDraft((draft) => ({ ...draft, canVote: event.target.checked }))} />
-                          可投票
-                        </label>
-                        <button type="button" className={primaryButtonClass} disabled={saving || !participantDraft.userId} onClick={() => void mutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/participants`, participantDraft, "参会人已保存")}>保存参会人</button>
+                        <FormField label="可投票" layout="inline" className="self-end">
+                          <CheckboxField checked={participantDraft.canVote} onChange={(checked) => setParticipantDraft((draft) => ({ ...draft, canVote: checked }))} />
+                        </FormField>
+                        <div className="self-end">
+                          <ActionButton size="sm" variant="primary" disabled={saving || !participantDraft.userId} onClick={() => void mutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/participants`, participantDraft, "参会人已保存")}>保存参会人</ActionButton>
+                        </div>
                       </InlineForm>
                     )}
                   </Section>
@@ -363,14 +364,16 @@ export default function MeetingsPage({ user }: { user: SessionUser }) {
                       <InlineForm>
                         <InputBox label="议题" value={agendaDraft.title} onChange={(title) => setAgendaDraft((draft) => ({ ...draft, title }))} />
                         <InputBox label="说明" value={agendaDraft.description} onChange={(description) => setAgendaDraft((draft) => ({ ...draft, description }))} />
-                        <button
-                          type="button"
-                          className={primaryButtonClass}
-                          disabled={saving || !agendaDraft.title.trim()}
-                          onClick={() => void mutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/agenda`, agendaDraft, "议题已新增", () => setAgendaDraft({ title: "", description: "" }))}
-                        >
-                          新增议题
-                        </button>
+                        <div className="self-end">
+                          <ActionButton
+                            size="sm"
+                            variant="primary"
+                            disabled={saving || !agendaDraft.title.trim()}
+                            onClick={() => void mutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/agenda`, agendaDraft, "议题已新增", () => setAgendaDraft({ title: "", description: "" }))}
+                          >
+                            新增议题
+                          </ActionButton>
+                        </div>
                       </InlineForm>
                     )}
                   </Section>
@@ -385,14 +388,16 @@ export default function MeetingsPage({ user }: { user: SessionUser }) {
                       <InlineForm>
                         <AgendaSelect meeting={meeting} value={minuteDraft.agendaItemId} onChange={(agendaItemId) => setMinuteDraft((draft) => ({ ...draft, agendaItemId }))} />
                         <InputBox label="内容" value={minuteDraft.content} onChange={(content) => setMinuteDraft((draft) => ({ ...draft, content }))} className="md:col-span-2" />
-                        <button
-                          type="button"
-                          className={primaryButtonClass}
-                          disabled={saving || !minuteDraft.content.trim()}
-                          onClick={() => void mutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/minutes`, normalizeOptionalIds(minuteDraft), "纪要已记录", () => setMinuteDraft({ agendaItemId: "", content: "" }))}
-                        >
-                          记录纪要
-                        </button>
+                        <div className="self-end">
+                          <ActionButton
+                            size="sm"
+                            variant="primary"
+                            disabled={saving || !minuteDraft.content.trim()}
+                            onClick={() => void mutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/minutes`, normalizeOptionalIds(minuteDraft), "纪要已记录", () => setMinuteDraft({ agendaItemId: "", content: "" }))}
+                          >
+                            记录纪要
+                          </ActionButton>
+                        </div>
                       </InlineForm>
                     )}
                   </Section>
@@ -421,14 +426,16 @@ export default function MeetingsPage({ user }: { user: SessionUser }) {
                         <SelectBox label="展示方式" value={proposalDraft.voteVisibility} options={[{ value: "named", label: "实名" }, { value: "anonymous", label: "匿名展示" }]} onChange={(voteVisibility) => setProposalDraft((draft) => ({ ...draft, voteVisibility }))} />
                         <InputBox label="最低人数" value={proposalDraft.minVotesRequired} onChange={(minVotesRequired) => setProposalDraft((draft) => ({ ...draft, minVotesRequired }))} />
                         <InputBox label="内容" value={proposalDraft.content} onChange={(content) => setProposalDraft((draft) => ({ ...draft, content }))} className="md:col-span-2" />
-                        <button
-                          type="button"
-                          className={primaryButtonClass}
-                          disabled={saving || !proposalDraft.title.trim()}
-                          onClick={() => void mutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/votes`, { action: "create", ...normalizeOptionalIds(proposalDraft) }, "表决已创建", () => setProposalDraft({ agendaItemId: "", title: "", content: "", voteVisibility: "named", minVotesRequired: "" }))}
-                        >
-                          创建表决
-                        </button>
+                        <div className="self-end">
+                          <ActionButton
+                            size="sm"
+                            variant="primary"
+                            disabled={saving || !proposalDraft.title.trim()}
+                            onClick={() => void mutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/votes`, { action: "create", ...normalizeOptionalIds(proposalDraft) }, "表决已创建", () => setProposalDraft({ agendaItemId: "", title: "", content: "", voteVisibility: "named", minVotesRequired: "" }))}
+                          >
+                            创建表决
+                          </ActionButton>
+                        </div>
                       </InlineForm>
                     )}
                   </Section>
@@ -442,14 +449,16 @@ export default function MeetingsPage({ user }: { user: SessionUser }) {
                         <InputBox label="生效日期" type="date" value={decisionDraft.effectiveDate} onChange={(effectiveDate) => setDecisionDraft((draft) => ({ ...draft, effectiveDate }))} />
                         <InputBox label="标题" value={decisionDraft.title} onChange={(title) => setDecisionDraft((draft) => ({ ...draft, title }))} />
                         <InputBox label="内容" value={decisionDraft.content} onChange={(content) => setDecisionDraft((draft) => ({ ...draft, content }))} className="md:col-span-2" />
-                        <button
-                          type="button"
-                          className={primaryButtonClass}
-                          disabled={saving || !decisionDraft.title.trim()}
-                          onClick={() => void mutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/decisions`, normalizeOptionalIds(decisionDraft), "决议已保存", () => setDecisionDraft({ agendaItemId: "", proposalId: "", kind: "decision", title: "", content: "", effectiveDate: "" }))}
-                        >
-                          保存决议
-                        </button>
+                        <div className="self-end">
+                          <ActionButton
+                            size="sm"
+                            variant="primary"
+                            disabled={saving || !decisionDraft.title.trim()}
+                            onClick={() => void mutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/decisions`, normalizeOptionalIds(decisionDraft), "决议已保存", () => setDecisionDraft({ agendaItemId: "", proposalId: "", kind: "decision", title: "", content: "", effectiveDate: "" }))}
+                          >
+                            保存决议
+                          </ActionButton>
+                        </div>
                       </InlineForm>
                     )}
                   </Section>
@@ -469,14 +478,16 @@ export default function MeetingsPage({ user }: { user: SessionUser }) {
                         <SelectBox label="目标" value={candidateDraft.targetKind} options={[{ value: "work_item", label: "工作计划" }, { value: "project_task", label: "项目任务" }]} onChange={(targetKind) => setCandidateDraft((draft) => ({ ...draft, targetKind }))} />
                         <InputBox label="候选事项" value={candidateDraft.title} onChange={(title) => setCandidateDraft((draft) => ({ ...draft, title }))} />
                         <InputBox label="说明" value={candidateDraft.description} onChange={(description) => setCandidateDraft((draft) => ({ ...draft, description }))} className="md:col-span-2" />
-                        <button
-                          type="button"
-                          className={primaryButtonClass}
-                          disabled={saving || !candidateDraft.title.trim()}
-                          onClick={() => void mutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/action-candidates`, normalizeOptionalIds(candidateDraft), "行动候选已新增", () => setCandidateDraft({ agendaItemId: "", decisionId: "", title: "", description: "", targetKind: "work_item" }))}
-                        >
-                          新增候选
-                        </button>
+                        <div className="self-end">
+                          <ActionButton
+                            size="sm"
+                            variant="primary"
+                            disabled={saving || !candidateDraft.title.trim()}
+                            onClick={() => void mutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/action-candidates`, normalizeOptionalIds(candidateDraft), "行动候选已新增", () => setCandidateDraft({ agendaItemId: "", decisionId: "", title: "", description: "", targetKind: "work_item" }))}
+                          >
+                            新增候选
+                          </ActionButton>
+                        </div>
                       </InlineForm>
                     )}
                   </Section>
@@ -504,34 +515,27 @@ function MeetingList({
   onSelect: (id: number) => void;
 }) {
   return (
-    <aside className="min-w-0 rounded-lg border border-slate-200 bg-white">
-      <div className="border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-800">会议列表</div>
-      <div className="max-h-[calc(100vh-14rem)] overflow-y-auto p-2">
-        {loading ? (
-          <div className="px-3 py-8 text-center text-sm text-slate-400">加载中...</div>
-        ) : meetings.length === 0 ? (
-          <div className="px-3 py-8 text-center text-sm text-slate-400">暂无会议</div>
-        ) : meetings.map((meeting) => (
-          <button
-            key={meeting.id}
-            type="button"
-            onClick={() => onSelect(meeting.id)}
-            className={`mb-2 w-full rounded-md border px-3 py-2 text-left transition ${selectedId === meeting.id ? "border-emerald-300 bg-emerald-50" : "border-transparent hover:border-slate-200 hover:bg-slate-50"}`}
-          >
-            <div className="flex min-w-0 items-center justify-between gap-2">
-              <span className="truncate text-sm font-medium text-slate-900">{meeting.title}</span>
-              <StatusPill status={meeting.status} />
-            </div>
-            <div className="mt-1 truncate text-xs text-slate-500">{meeting.typeName} · {formatDateTime(meeting.startAt) || "未定时间"}</div>
-            <div className="mt-2 flex flex-wrap gap-1.5 text-xs text-slate-500">
-              <span className="rounded bg-slate-100 px-1.5 py-0.5">议题 {meeting.counts.agendaItems}</span>
-              <span className="rounded bg-slate-100 px-1.5 py-0.5">表决 {meeting.counts.proposals}</span>
-              <span className="rounded bg-slate-100 px-1.5 py-0.5">决议 {meeting.counts.decisions}</span>
-            </div>
-          </button>
-        ))}
-      </div>
-    </aside>
+    <PanelCard className="min-w-0" title="会议列表" bodyClassName="max-h-[calc(100vh-14rem)] overflow-y-auto p-2">
+      {loading ? (
+        <EmptyStateCard compact>加载中...</EmptyStateCard>
+      ) : meetings.length === 0 ? (
+        <EmptyStateCard compact>暂无会议</EmptyStateCard>
+      ) : (
+        <div className="space-y-2">
+          {meetings.map((meeting) => (
+            <SelectorCard
+              key={meeting.id}
+              active={selectedId === meeting.id}
+              onClick={() => onSelect(meeting.id)}
+              title={meeting.title}
+              subtitle={`${meeting.typeName} · ${formatDateTime(meeting.startAt) || "未定时间"}`}
+              trailing={<StatusPill status={meeting.status} />}
+              meta={[`议题 ${meeting.counts.agendaItems}`, `表决 ${meeting.counts.proposals}`, `决议 ${meeting.counts.decisions}`]}
+            />
+          ))}
+        </div>
+      )}
+    </PanelCard>
   );
 }
 
@@ -545,8 +549,8 @@ function MeetingHeader({
   onUpdate: (body: Record<string, unknown>, success: string) => void;
 }) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <PanelCard bodyClassName="p-4">
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
         <div className="min-w-0">
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <span className="rounded bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">{meeting.typeName}</span>
@@ -564,14 +568,14 @@ function MeetingHeader({
         </div>
         {meeting.permissions.canEdit && (
           <div className="flex flex-wrap gap-2">
-            <button type="button" className={secondaryButtonClass} disabled={saving || meeting.status === "in_progress"} onClick={() => onUpdate({ status: "in_progress" }, "会议已开始")}>开始</button>
-            <button type="button" className={secondaryButtonClass} disabled={saving || meeting.status === "closed"} onClick={() => onUpdate({ status: "closed" }, "会议已关闭")}>关闭</button>
-            <button type="button" className={secondaryButtonClass} disabled={saving || meeting.visibility === "participants_only"} onClick={() => onUpdate({ visibility: "participants_only" }, "可见性已更新")}>参会可见</button>
-            <button type="button" className={secondaryButtonClass} disabled={saving || meeting.visibility === "public"} onClick={() => onUpdate({ visibility: "public" }, "可见性已更新")}>公开</button>
+            <ActionButton size="sm" variant="secondary" disabled={saving || meeting.status === "in_progress"} onClick={() => onUpdate({ status: "in_progress" }, "会议已开始")}>开始</ActionButton>
+            <ActionButton size="sm" variant="secondary" disabled={saving || meeting.status === "closed"} onClick={() => onUpdate({ status: "closed" }, "会议已关闭")}>关闭</ActionButton>
+            <ActionButton size="sm" variant="secondary" disabled={saving || meeting.visibility === "participants_only"} onClick={() => onUpdate({ visibility: "participants_only" }, "可见性已更新")}>参会可见</ActionButton>
+            <ActionButton size="sm" variant="secondary" disabled={saving || meeting.visibility === "public"} onClick={() => onUpdate({ visibility: "public" }, "可见性已更新")}>公开</ActionButton>
           </div>
         )}
       </div>
-    </section>
+    </PanelCard>
   );
 }
 
@@ -628,13 +632,13 @@ function ProposalList({
           <div className="mt-3 flex flex-wrap gap-2">
             {meeting.permissions.canVote && proposal.status === "open" && (
               <>
-                <button type="button" className={smallButtonClass(proposal.myVote?.choice === "yes")} disabled={saving} onClick={() => onVote(proposal.id, "yes")}>赞成</button>
-                <button type="button" className={smallButtonClass(proposal.myVote?.choice === "no")} disabled={saving} onClick={() => onVote(proposal.id, "no")}>反对</button>
-                <button type="button" className={smallButtonClass(proposal.myVote?.choice === "abstain")} disabled={saving} onClick={() => onVote(proposal.id, "abstain")}>弃权</button>
+                <ActionButton size="sm" variant={proposal.myVote?.choice === "yes" ? "primary" : "secondary"} disabled={saving} onClick={() => onVote(proposal.id, "yes")}>赞成</ActionButton>
+                <ActionButton size="sm" variant={proposal.myVote?.choice === "no" ? "primary" : "secondary"} disabled={saving} onClick={() => onVote(proposal.id, "no")}>反对</ActionButton>
+                <ActionButton size="sm" variant={proposal.myVote?.choice === "abstain" ? "primary" : "secondary"} disabled={saving} onClick={() => onVote(proposal.id, "abstain")}>弃权</ActionButton>
               </>
             )}
-            {meeting.permissions.canEdit && proposal.status === "open" && <button type="button" className={secondaryButtonClass} disabled={saving} onClick={() => onClose(proposal.id)}>关闭表决</button>}
-            {meeting.permissions.canEdit && proposal.status === "passed" && <button type="button" className={secondaryButtonClass} disabled={saving} onClick={() => onDecision(proposal)}>生成决议</button>}
+            {meeting.permissions.canEdit && proposal.status === "open" && <ActionButton size="sm" variant="secondary" disabled={saving} onClick={() => onClose(proposal.id)}>关闭表决</ActionButton>}
+            {meeting.permissions.canEdit && proposal.status === "passed" && <ActionButton size="sm" variant="secondary" disabled={saving} onClick={() => onDecision(proposal)}>生成决议</ActionButton>}
           </div>
         </div>
       ))}
@@ -699,11 +703,11 @@ function CandidateList({
                 <InputBox label="项目 ID" value={draft.projectId} onChange={(projectId) => onDraftChange(candidate.id, { ...draft, projectId })} />
                 <InputBox label="工作计划目标" value={draft.targetId} onChange={(targetId) => onDraftChange(candidate.id, { ...draft, targetId })} />
                 <div className="flex flex-wrap items-end gap-2 md:col-span-4">
-                  <button type="button" className={secondaryButtonClass} disabled={saving || !draft.workItemId} onClick={() => onAction(candidate.id, "linkWorkItem", draft)}>链接工作项</button>
-                  <button type="button" className={secondaryButtonClass} disabled={saving} onClick={() => onAction(candidate.id, "createWorkItem", draft)}>创建工作项</button>
-                  <button type="button" className={secondaryButtonClass} disabled={saving || !draft.projectTaskId} onClick={() => onAction(candidate.id, "linkProjectTask", draft)}>链接项目任务</button>
-                  <button type="button" className={secondaryButtonClass} disabled={saving || !draft.projectId} onClick={() => onAction(candidate.id, "createProjectTask", draft)}>创建项目任务</button>
-                  <button type="button" className={dangerButtonClass} disabled={saving} onClick={() => onAction(candidate.id, "ignore", draft)}>忽略</button>
+                  <ActionButton size="sm" variant="secondary" disabled={saving || !draft.workItemId} onClick={() => onAction(candidate.id, "linkWorkItem", draft)}>链接工作项</ActionButton>
+                  <ActionButton size="sm" variant="secondary" disabled={saving} onClick={() => onAction(candidate.id, "createWorkItem", draft)}>创建工作项</ActionButton>
+                  <ActionButton size="sm" variant="secondary" disabled={saving || !draft.projectTaskId} onClick={() => onAction(candidate.id, "linkProjectTask", draft)}>链接项目任务</ActionButton>
+                  <ActionButton size="sm" variant="secondary" disabled={saving || !draft.projectId} onClick={() => onAction(candidate.id, "createProjectTask", draft)}>创建项目任务</ActionButton>
+                  <ActionButton size="sm" variant="danger" disabled={saving} onClick={() => onAction(candidate.id, "ignore", draft)}>忽略</ActionButton>
                 </div>
               </div>
             )}
@@ -716,10 +720,9 @@ function CandidateList({
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="min-w-0 rounded-lg border border-slate-200 bg-white p-4">
-      <h3 className="mb-3 text-sm font-semibold text-slate-900">{title}</h3>
+    <SectionCard title={title} className="min-w-0">
       <div className="space-y-3">{children}</div>
-    </section>
+    </SectionCard>
   );
 }
 
@@ -741,15 +744,13 @@ function InputBox({
   className?: string;
 }) {
   return (
-    <label className={`block min-w-0 text-sm ${className}`}>
-      <span className="mb-1 block text-xs font-medium text-slate-500">{label}</span>
-      <input
-        type={type}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-400"
-      />
-    </label>
+    <FormField label={label} className={className}>
+      {type === "date" ? (
+        <CalendarDateInput value={value} onChange={(next) => onChange(next ?? "")} className="w-full" />
+      ) : (
+        <TextField type={type as TextFieldProps["type"]} value={value} onChange={onChange} className="w-full" />
+      )}
+    </FormField>
   );
 }
 
@@ -765,9 +766,9 @@ function SelectBox({
   options: Array<{ value: string; label: string }>;
 }) {
   return (
-    <div className="min-w-0 text-sm">
-      <SelectField label={label} value={value} options={options} onChange={onChange} className="w-full" selectClassName="w-full" searchable={options.length > 6} />
-    </div>
+    <FormField label={label} className="min-w-0">
+      <SelectField value={value} options={options} onChange={onChange} className="w-full" selectClassName="w-full" searchable={options.length > 6} />
+    </FormField>
   );
 }
 
@@ -920,14 +921,4 @@ function candidateStatusLabel(status: string) {
   if (status === "linked") return "已链接";
   if (status === "ignored") return "已忽略";
   return "候选";
-}
-
-const primaryButtonClass = "rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300";
-const secondaryButtonClass = "rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300";
-const dangerButtonClass = "rounded-md border border-rose-200 bg-white px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:text-slate-300";
-
-function smallButtonClass(active: boolean) {
-  return active
-    ? "rounded-md bg-emerald-600 px-2.5 py-1.5 text-xs font-medium text-white disabled:cursor-not-allowed disabled:bg-slate-300"
-    : "rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300";
 }

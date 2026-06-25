@@ -4,8 +4,11 @@ import { useState, type FC } from "react";
 import {
   ActionButton,
   ConfirmModal,
+  ConfirmProvider,
   DetailModal,
   DropdownMenu,
+  ModalCreatePanel,
+  useConfirm,
 } from "@workspace/core/ui";
 
 function ConfirmModalPreview() {
@@ -28,7 +31,29 @@ function ConfirmModalPreview() {
 }
 
 function ConfirmProviderPreview() {
-    return <div className="text-xs text-slate-400"><p className="font-medium">ConfirmProvider</p><p>确认弹窗上下文入口，提供命令式 confirm/delete 能力。</p><p className="mt-1 text-slate-300">实时预览待补充。</p></div>;
+  return (
+    <ConfirmProvider>
+      <ConfirmProviderDemo />
+    </ConfirmProvider>
+  );
+}
+
+function ConfirmProviderDemo() {
+  const confirm = useConfirm();
+  const [result, setResult] = useState<string | null>(null);
+  return (
+    <div className="flex flex-col gap-2">
+      <ActionButton
+        onClick={async () => {
+          const ok = await confirm({ title: "请确认", message: "是否执行该操作？", confirmLabel: "执行" });
+          setResult(ok ? "已确认" : "已取消");
+        }}
+      >
+        触发命令式确认
+      </ActionButton>
+      {result && <span className="text-xs text-slate-500">结果：{result}</span>}
+    </div>
+  );
 }
 
 function DetailModalPreview() {
@@ -66,11 +91,41 @@ function DropdownMenuPreview() {
 }
 
 function useUnsavedChangesPromptPreview() {
-    return <div className="text-xs text-slate-400"><p className="font-medium">useUnsavedChangesPrompt</p><p>未保存离开确认 hook，统一保存按钮 dirty 状态下的离开提醒和 beforeunload 拦截。</p><p className="mt-1 text-slate-300">Hook / 工具函数，无组件级实时预览。</p></div>;
+  return (
+    <div className="text-xs text-slate-400">
+      <p className="font-medium">useUnsavedChangesPrompt</p>
+      <p>未保存离开确认 hook，统一保存按钮 dirty 状态下的离开提醒和 beforeunload 拦截。</p>
+      <p className="mt-1 text-slate-300">Hook / 工具函数，无组件级实时预览。</p>
+    </div>
+  );
 }
 
 function ModalCreatePanelPreview() {
-    return <div className="text-xs text-slate-400"><p className="font-medium">ModalCreatePanel</p><p>弹窗新建/编辑面板，复用 DetailModal 和统一动作按钮，适合字段较多、不宜内联展开的记录维护。</p><p className="mt-1 text-slate-300">实时预览待补充。</p></div>;
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  return (
+    <>
+      <ActionButton onClick={() => setOpen(true)}>打开弹窗新建面板</ActionButton>
+      <ModalCreatePanel
+        open={open}
+        title="新建合同"
+        onSubmit={() => setOpen(false)}
+        onCancel={() => setOpen(false)}
+        submitDisabled={!name}
+      >
+        <div className="space-y-4 md:col-span-2">
+          <label className="block text-xs font-semibold text-slate-500">合同名称</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="请输入合同名称"
+            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500"
+          />
+        </div>
+      </ModalCreatePanel>
+    </>
+  );
 }
 
 export const overlayPreviewByName: Record<string, FC> = {

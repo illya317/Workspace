@@ -6,7 +6,11 @@ import {
   CalendarDateInput,
   DataTable,
   DataTableActionsCell,
+  EmptyStateCard,
+  FormField,
+  PanelCard,
   TableScrollFrame,
+  TextField,
   createDataTableEditActions,
   isDataTableEditDirty,
   useConfirm,
@@ -234,7 +238,7 @@ function PhaseRows({
   ];
 
   if (phases.length === 0) {
-    return <div className="rounded-lg border border-dashed border-slate-200 py-8 text-center text-sm font-semibold text-slate-400">暂无项目阶段</div>;
+    return <EmptyStateCard compact>暂无项目阶段</EmptyStateCard>;
   }
   return (
     <TableScrollFrame className="overflow-y-hidden">
@@ -247,11 +251,11 @@ function PhaseRows({
         visibleColumns={["startDate", "endDate", "note"]}
         expandedRowKey={editingId}
         renderExpandedRow={(_phase) => (
-          <div className="rounded-lg border border-slate-200 bg-white p-3">
+          <PanelCard bodyClassName="p-3">
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.4fr_minmax(0,2fr)]">
               <PhaseFields draft={editDraft} disabled={disabled} onChange={onEditDraftChange} />
             </div>
-          </div>
+          </PanelCard>
         )}
       />
     </TableScrollFrame>
@@ -269,35 +273,29 @@ function PhaseFields({
 }) {
   return (
     <>
-      <label className="space-y-1">
-        <span className="text-xs font-semibold text-slate-500">阶段</span>
-        <input value={draft.name} disabled={disabled} onChange={(event) => onChange({ ...draft, name: event.target.value })} className={inputClassName} placeholder="例如：方案确认" />
-      </label>
-      <label className="space-y-1">
-        <span className="text-xs font-semibold text-slate-500">说明</span>
-        <input value={draft.note} disabled={disabled} onChange={(event) => onChange({ ...draft, note: event.target.value })} className={inputClassName} />
-      </label>
+      <FormField label="阶段">
+        <TextField value={draft.name} disabled={disabled} onChange={(value) => onChange({ ...draft, name: value })} placeholder="例如：方案确认" />
+      </FormField>
+      <FormField label="说明">
+        <TextField value={draft.note} disabled={disabled} onChange={(value) => onChange({ ...draft, note: value })} />
+      </FormField>
       <div className="grid grid-cols-1 gap-3 lg:col-span-2 sm:grid-cols-2">
-        <label className="space-y-1">
-          <span className="text-xs font-semibold text-slate-500">开始日期</span>
+        <FormField label="开始日期">
           <CalendarDateInput
             value={draft.startDate || null}
             disabled={disabled}
             onChange={(value) => onChange({ ...draft, startDate: value || "" })}
-            className={inputClassName}
             popoverMode="fixed"
           />
-        </label>
-        <label className="space-y-1">
-          <span className="text-xs font-semibold text-slate-500">结束日期</span>
+        </FormField>
+        <FormField label="结束日期">
           <CalendarDateInput
             value={draft.endDate || null}
             disabled={disabled}
             onChange={(value) => onChange({ ...draft, endDate: value || "" })}
-            className={inputClassName}
             popoverMode="fixed"
           />
-        </label>
+        </FormField>
       </div>
     </>
   );
@@ -320,5 +318,3 @@ function phaseDraftFromItem(phase: ProjectPlanPhaseItem): PhaseDraft {
     note: phase.note ?? "",
   };
 }
-
-const inputClassName = "h-10 w-full rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-800 shadow-sm disabled:bg-slate-50 disabled:text-slate-400";

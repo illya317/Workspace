@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FC } from "react";
+import type { FC } from "react";
 import {
   AmountCell,
   NumberCell,

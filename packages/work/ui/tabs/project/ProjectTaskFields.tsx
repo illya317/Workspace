@@ -1,10 +1,12 @@
 "use client";
 
+import type { ReactNode } from "react";
 import {
   ActionButton,
   FkFieldInput,
   FormField,
   OptionPicker,
+  PanelCard,
   RemovableTag,
   TextareaField,
   TextField,
@@ -87,7 +89,7 @@ export function ProjectTaskForm({
   }
 
   return (
-    <div className={framed ? "rounded-lg border border-slate-200 bg-white p-3" : ""}>
+    <FormWrapper framed={framed}>
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
         <FormField label="任务名称" required className="lg:col-span-2">
           <TextField value={draft.name} disabled={disabled} className={inputClassName} onChange={(value) => patch({ name: value })} unstyled />
@@ -169,8 +171,13 @@ export function ProjectTaskForm({
           {submitLabel && onSubmit && <ActionButton variant="primary" disabled={disabled} onClick={onSubmit}>{submitLabel}</ActionButton>}
         </div>
       )}
-    </div>
+    </FormWrapper>
   );
+}
+
+function FormWrapper({ framed, children }: { framed: boolean; children: ReactNode }) {
+  if (!framed) return <>{children}</>;
+  return <PanelCard className="shadow-none" bodyClassName="p-3">{children}</PanelCard>;
 }
 
 export function ProjectTaskDetail({ task }: { task: ProjectTaskItem }) {
@@ -187,7 +194,7 @@ export function ProjectTaskDetail({ task }: { task: ProjectTaskItem }) {
   ];
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3">
+    <PanelCard className="shadow-none" bodyClassName="p-3">
       <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2 xl:grid-cols-3">
         {detailItems.map((item) => (
           <div key={item.label} className="min-w-0">
@@ -200,7 +207,7 @@ export function ProjectTaskDetail({ task }: { task: ProjectTaskItem }) {
         <div className="text-xs font-medium text-slate-400">任务描述</div>
         <div className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-800">{task.description || "未填写"}</div>
       </div>
-    </div>
+    </PanelCard>
   );
 }
 

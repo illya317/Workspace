@@ -5,6 +5,7 @@ import {
   ActionButton,
   DataTable,
   EmptyStateCard,
+  PanelCard,
   StatusBadge,
   TableScrollFrame,
   TextareaField,
@@ -176,7 +177,11 @@ function ReportStack({ space }: { space: WorkReportCollectionSpace }) {
   return (
     <div className="space-y-3">
       {space.reports.map((report) => (
-        <div key={report.id} className="rounded-lg border border-slate-100 bg-slate-50/70 p-3">
+        <PanelCard
+          key={report.id}
+          className="border-slate-100 bg-slate-50/70 shadow-none"
+          bodyClassName="p-3"
+        >
           <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
             <span className="font-semibold text-slate-700">{report.submitterName}</span>
             <span>{formatDateTime(report.submittedAt)}</span>
@@ -191,7 +196,7 @@ function ReportStack({ space }: { space: WorkReportCollectionSpace }) {
               </div>
             ))}
           </div>
-        </div>
+        </PanelCard>
       ))}
     </div>
   );

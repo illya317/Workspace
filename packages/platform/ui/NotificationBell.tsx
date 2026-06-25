@@ -331,7 +331,7 @@ export default function NotificationBell({
                       ×
                     </IconActionButton>
                   </div>
-                  <div className="mt-2 flex items-center justify-between gap-3">
+                  <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
                     <div className="min-w-0 truncate text-left text-[11px] text-slate-400">
                       {item.actor ? `${item.actor.name} · ` : ""}{formatNotificationTime(item.createdAt)}
                     </div>

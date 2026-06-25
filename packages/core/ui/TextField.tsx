@@ -6,7 +6,7 @@ import { getFieldInputClassName } from "./FormStyles";
 export interface TextFieldProps {
   value?: string;
   onChange?: (value: string) => void;
-  type?: "text" | "password" | "email" | "tel" | "url" | "number" | "date";
+  type?: "text" | "password" | "email" | "tel" | "url" | "number" | "date" | "datetime-local";
   placeholder?: string;
   className?: string;
   autoFocus?: boolean;

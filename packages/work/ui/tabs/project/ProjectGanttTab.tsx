@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CommandToolbar, EmptyStateCard, PickerShell, SearchInput, ToolbarOptionGroup } from "@workspace/core/ui";
+import { ActionButton, CommandToolbar, EmptyStateCard, PickerOptionButton, PickerShell, SearchInput, ToolbarOptionGroup } from "@workspace/core/ui";
 import type { WorkUser } from "@workspace/work/types";
 import { listProjectGantt } from "./api";
 import ProjectGanttChart from "./ProjectGanttChart";
@@ -107,9 +107,9 @@ export default function ProjectGanttTab({ user }: { user: WorkUser }) {
               onChange={(value) => changeZoom(value as ProjectGanttZoom)}
             />
             <div className="inline-flex h-10 items-center overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-              <button type="button" className="h-10 px-3 text-sm font-semibold text-slate-600 hover:bg-slate-50" onClick={() => setCurrentStart((current) => shiftPeriod(current, zoom, -1))}>‹</button>
+              <ActionButton variant="secondary" className="rounded-none border-0 px-3 text-sm shadow-none hover:bg-slate-50" onClick={() => setCurrentStart((current) => shiftPeriod(current, zoom, -1))}>‹</ActionButton>
               <div className="min-w-28 border-x border-slate-200 px-3 text-center text-xs font-semibold text-slate-600">{periodLabel(currentStart, zoom)}</div>
-              <button type="button" className="h-10 px-3 text-sm font-semibold text-slate-600 hover:bg-slate-50" onClick={() => setCurrentStart((current) => shiftPeriod(current, zoom, 1))}>›</button>
+              <ActionButton variant="secondary" className="rounded-none border-0 px-3 text-sm shadow-none hover:bg-slate-50" onClick={() => setCurrentStart((current) => shiftPeriod(current, zoom, 1))}>›</ActionButton>
             </div>
           </>
         )}
@@ -153,21 +153,17 @@ function LevelFilter({
     >
       {() => (
         <div className="grid grid-cols-3 gap-2">
-          {PROJECT_GANTT_LEVEL_OPTIONS.map((option) => {
-            const selected = option.value === level;
-            return (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => onChange(option.value)}
-                className={`rounded-md border px-2.5 py-2 text-center text-xs font-semibold transition ${
-                  selected ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                {option.label}
-              </button>
-            );
-          })}
+          {PROJECT_GANTT_LEVEL_OPTIONS.map((option) => (
+            <PickerOptionButton
+              key={option.value}
+              selected={option.value === level}
+              onClick={() => onChange(option.value)}
+              size="compact"
+              className="px-2.5 py-2 font-semibold"
+            >
+              {option.label}
+            </PickerOptionButton>
+          ))}
         </div>
       )}
     </PickerShell>

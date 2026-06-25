@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ActionButton, ActionToolbar } from "@workspace/core/ui";
+import { ActionButton, ActionToolbar, TableScrollFrame } from "@workspace/core/ui";
 import type { QcBatchSummary, QcLayoutBlock, QcTemplateDetail, QcTemplateStage } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcLayoutPaper from "./QcLayoutPaper";
@@ -34,7 +34,7 @@ export default function QcBatchStagePrecheck({ batch, productName, detail, stage
   const locked = !stageStatus?.unlocked;
 
   return (
-    <section className="overflow-x-auto pb-8">
+    <TableScrollFrame className="pb-8">
       <div className="mx-auto max-w-[210mm]">
         <nav className="mb-5 flex flex-wrap gap-2 text-xs">
           <Link href={`/production/qc-batches/${batch.id}`} className="rounded bg-blue-100 px-3 py-2 font-medium text-blue-800">
@@ -79,6 +79,6 @@ export default function QcBatchStagePrecheck({ batch, productName, detail, stage
       <div className="mx-auto mt-8 max-w-[210mm] text-center">
         <ActionButton variant="primary" className="px-8" disabled={locked}>保存</ActionButton>
       </div>
-    </section>
+    </TableScrollFrame>
   );
 }

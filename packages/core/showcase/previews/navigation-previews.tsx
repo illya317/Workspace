@@ -2,13 +2,43 @@
 
 import { useState, type FC } from "react";
 import {
+  AccordionTabBar,
   DisclosureSectionHeader,
   Pagination,
   TabBar,
 } from "@workspace/core/ui";
 
 function AccordionTabBarPreview() {
-    return <div className="text-xs text-slate-400"><p className="font-medium">AccordionTabBar</p><p>横版手风琴 Tab，一级 Tab 在 Toolbar 上方；选中含子项的 Tab 时横向展开子 Tab。</p><p className="mt-1 text-slate-300">实时预览待补充。</p></div>;
+  const [activeTab, setActiveTab] = useState("hr");
+  const [activeChild, setActiveChild] = useState("roster");
+  return (
+    <AccordionTabBar
+      tabs={[
+        {
+          key: "hr",
+          label: "人事",
+          children: [
+            { key: "roster", label: "花名册" },
+            { key: "fields", label: "字段维护" },
+            { key: "import", label: "导入" },
+          ],
+        },
+        {
+          key: "finance",
+          label: "财务",
+          children: [
+            { key: "subjects", label: "科目" },
+            { key: "vouchers", label: "凭证" },
+          ],
+        },
+        { key: "work", label: "工作" },
+      ]}
+      activeTab={activeTab}
+      activeChild={activeChild}
+      onTabChange={setActiveTab}
+      onChildChange={setActiveChild}
+    />
+  );
 }
 
 function DisclosureSectionHeaderPreview() {

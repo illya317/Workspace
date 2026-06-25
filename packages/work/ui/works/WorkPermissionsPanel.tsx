@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  ActionButton,
   DataTable,
   DataTableActionsCell,
   EmptyStateCard,
   FkFieldInput,
   FormField,
   OptionPicker,
+  PanelCard,
   TableScrollFrame,
   type DataTableColumn,
 } from "@workspace/core/ui";
@@ -137,7 +139,7 @@ export default function WorkPermissionsPanel({
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 md:grid-cols-[1fr_12rem_auto]">
+      <PanelCard bodyClassName="grid gap-3 p-4 md:grid-cols-[1fr_12rem_auto]">
         <FormField label="授权用户">
           <FkFieldInput
             fkKey="work.tasks.permission.user"
@@ -162,16 +164,11 @@ export default function WorkPermissionsPanel({
           />
         </FormField>
         <div className="flex items-end">
-          <button
-            type="button"
-            disabled={!draft.userId || saving}
-            onClick={addDraft}
-            className="h-10 rounded-lg bg-emerald-600 px-4 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400"
-          >
+          <ActionButton variant="primary" disabled={!draft.userId || saving} onClick={addDraft}>
             添加
-          </button>
+          </ActionButton>
         </div>
-      </div>
+      </PanelCard>
       <TableScrollFrame className="overflow-y-hidden rounded-lg border border-slate-200">
         <DataTable
           rows={rows}
@@ -184,14 +181,9 @@ export default function WorkPermissionsPanel({
         />
       </TableScrollFrame>
       <div className="flex justify-end">
-        <button
-          type="button"
-          disabled={saving}
-          onClick={() => void save()}
-          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400"
-        >
+        <ActionButton variant="primary" disabled={saving} onClick={() => void save()}>
           保存权限
-        </button>
+        </ActionButton>
       </div>
     </div>
   );

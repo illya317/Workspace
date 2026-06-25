@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Badge from "./Badge";
 
 type HierarchyTone = "blue" | "emerald" | "amber" | "slate";
 
@@ -28,6 +29,9 @@ function cardToneClassName(tone: HierarchyTone, active: boolean) {
   return "border-slate-200 bg-white";
 }
 
+/**
+ * @deprecated 请直接使用 Badge。
+ */
 export interface HierarchyBadgeProps {
   level?: number;
   label?: ReactNode;
@@ -35,12 +39,20 @@ export interface HierarchyBadgeProps {
   className?: string;
 }
 
+/**
+ * @deprecated 请直接使用 Badge。
+ */
 export function HierarchyBadge({ level, label, tone, className = "" }: HierarchyBadgeProps) {
-  const resolvedTone = tone || toneFromLevel(level || 0);
+  const resolvedTone = tone
+    ? (tone === "emerald" ? "emerald" : tone === "amber" ? "amber" : tone === "blue" ? "blue" : "slate")
+    : undefined;
   return (
-    <span className={joinClassNames("shrink-0 rounded px-2 py-0.5 text-xs font-semibold", badgeToneClassName(resolvedTone), className)}>
-      {label ?? (level ? `L${level}` : null)}
-    </span>
+    <Badge
+      level={level}
+      label={label}
+      tone={resolvedTone}
+      className={`shrink-0 px-2 py-0.5 font-semibold ${className}`}
+    />
   );
 }
 
@@ -128,7 +140,7 @@ export function TreeNodeCard({
             {toggleMark}
           </span>
         )}
-        {level ? <HierarchyBadge level={level} /> : null}
+        {level ? <Badge level={level} className="shrink-0 px-2 py-0.5 font-semibold" /> : null}
         <span className="min-w-0 flex-1">
           <span className="flex min-w-0 items-baseline gap-2">
             <span className={joinClassNames("min-w-0 flex-1 truncate whitespace-nowrap text-sm font-semibold text-slate-900", titleClassName)}>
