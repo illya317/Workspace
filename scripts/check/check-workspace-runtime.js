@@ -16,6 +16,7 @@ const args = process.argv.slice(2);
 const options = {
   strict: false,
   workspaceDir: "",
+  opsEnvFile: process.env.OPS_ENV_FILE || "",
 };
 
 let exitCode = 0;
@@ -43,6 +44,10 @@ for (let i = 0; i < args.length; i += 1) {
     options.workspaceDir = args[++i] || "";
   } else if (arg.startsWith("--workspace=")) {
     options.workspaceDir = arg.slice("--workspace=".length);
+  } else if (arg === "--ops-env") {
+    options.opsEnvFile = args[++i] || "";
+  } else if (arg.startsWith("--ops-env=")) {
+    options.opsEnvFile = arg.slice("--ops-env=".length);
   } else {
     fail(`Unknown option: ${arg}`);
   }
@@ -120,7 +125,13 @@ function validateOptionalFile(root, relativePath, label) {
   return true;
 }
 
-function validateWorkspaceManifest(workspaceDir) {
+function parseServerHost(serverValue) {
+  if (!serverValue) return "";
+  const withoutUser = serverValue.includes("@") ? serverValue.split("@").pop() : serverValue;
+  return withoutUser.split(":")[0];
+}
+
+function validateWorkspaceManifest(workspaceDir, opsEnv) {
   const manifestPath = path.join(workspaceDir, "manifest.json");
   if (!validateRequiredFile(workspaceDir, "manifest.json", "workspace manifest")) return;
 
@@ -144,6 +155,35 @@ function validateWorkspaceManifest(workspaceDir) {
   }
   if (exitCode === 0) {
     ok("workspace manifest has productionTarget");
+  }
+
+  if (!opsEnv || opsEnv.size === 0) return;
+
+  const serverHost = parseServerHost(opsEnv.get("SERVER") || "");
+  if (serverHost && productionTarget.serverHost !== serverHost) {
+    fail(
+      `workspace manifest productionTarget.serverHost (${productionTarget.serverHost}) does not match private ops SERVER host (${serverHost})`
+    );
+  } else if (serverHost) {
+    ok("workspace manifest serverHost matches private ops SERVER");
+  }
+
+  const remoteDir = opsEnv.get("REMOTE_DIR") || "";
+  if (remoteDir && productionTarget.remoteDir !== remoteDir) {
+    fail(
+      `workspace manifest productionTarget.remoteDir (${productionTarget.remoteDir}) does not match private ops REMOTE_DIR`
+    );
+  } else if (remoteDir) {
+    ok("workspace manifest remoteDir matches private ops REMOTE_DIR");
+  }
+
+  const pm2Name = opsEnv.get("PM2_NAME") || "";
+  if (pm2Name && productionTarget.pm2Name !== pm2Name) {
+    fail(
+      `workspace manifest productionTarget.pm2Name (${productionTarget.pm2Name}) does not match private ops PM2_NAME`
+    );
+  } else if (pm2Name) {
+    ok("workspace manifest pm2Name matches private ops PM2_NAME");
   }
 }
 
@@ -251,10 +291,14 @@ function validateEnv(workspaceDir, workspaceEnv) {
 
 async function main() {
   const repoEnv = parseKeyValueFile(REPO_ENV_FILE);
+  const opsEnv = options.opsEnvFile ? parseKeyValueFile(options.opsEnvFile) : new Map();
   const workspaceDir = resolveWorkspaceDir(repoEnv);
 
   console.log(`Workspace runtime check`);
   console.log(`Workspace dir: ${workspaceDir}`);
+  if (options.opsEnvFile) {
+    console.log(`Private ops env: ${options.opsEnvFile}`);
+  }
 
   if (!fs.existsSync(workspaceDir)) {
     fail(`Workspace dir does not exist: ${workspaceDir}`);
@@ -263,7 +307,7 @@ async function main() {
 
   const workspaceEnvPath = path.join(workspaceDir, ".env");
   validateRequiredFile(workspaceDir, ".env", "workspace .env");
-  validateWorkspaceManifest(workspaceDir);
+  validateWorkspaceManifest(workspaceDir, opsEnv);
   validateRequiredFile(workspaceDir, "data/dev.db", "workspace database");
   validateRequiredFile(workspaceDir, "assets/brand/company/logo.png", "company logo");
   validateRequiredFile(workspaceDir, "assets/brand/favicon.ico", "favicon.ico");

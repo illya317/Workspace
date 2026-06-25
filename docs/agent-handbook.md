@@ -16,7 +16,7 @@
 - `git push origin main` 触发 GitHub Actions CI；CI 执行 `npm run ci`。
 - `git -c credential.helper= -c credential.helper='!cnb git-credential' push cnb main` 只同步 CNB 源码，不触发生产发布，也不作为常规 CI 使用。
 - 生产维护尽量在本地完成代码、migration、文档和检查，再通过 CNB 部署过去。服务器 SSH 只做只读诊断、日志/状态确认和部署后验证；不要在服务器上手改源码、生成物或数据库结构来替代正式提交。
-- 正式发布必须先 commit，并同步 push 到 GitHub 与 CNB，再用 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger`。
+- 正式发布必须先 commit，并同步 push 到 GitHub 与 CNB，再用 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger_manual`。
 - CNB/API 部署使用 `./ops/deploy.sh`，在 CNB/Linux CD 容器里完成部署构建，然后只把 `.next/standalone` 产物包上传到服务器；服务器不执行 `npm ci` / `npm run build`。
 - 服务器运行态只来自 `REMOTE_WORKSPACE_CONFIG_DIR`，包括 `.env`、`data/`、`public/company`、`public/assets/agent/avatar/` 等，不随构建产物覆盖；每次部署会先备份该目录。
 - `data/` 以服务器为准：本地 `data/` 不上传覆盖服务器。

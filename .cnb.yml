@@ -1,17 +1,13 @@
 main:
   # 关闭 GitHub 镜像同步后的自动部署；手动触发用 api_trigger_manual。
+  # 所有部署目标、SSH 密钥、健康检查地址等私有参数均通过 imports 注入，
+  # 不在本公开文件中硬编码。
   api_trigger_manual:
     - name: deploy-prod
       docker:
         image: node:22-bookworm
       imports:
         - https://cnb.cool/illya317/env/-/blob/main/server-prod.yaml
-      env:
-        REMOTE_DIR: "/home/ubuntu/workspace"
-        PM2_NAME: "workspace"
-        REMOTE_WORKSPACE_CONFIG_DIR: "/home/ubuntu/workspace/.workspace"
-        HEALTHCHECK_URL: "http://127.0.0.1:3000/workspace/login"
-        RUN_LOCAL_CHECKS: "0"
       stages:
         - name: install-deploy-tools
           script: |
