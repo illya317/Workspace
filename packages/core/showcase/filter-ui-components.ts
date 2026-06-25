@@ -16,8 +16,7 @@ export type UiComponentFilterNode = {
 
 export type UiComponentFilterInput = {
   keyword: string;
-  filterFieldKey: "tier" | "kind";
-  filterValue: string;
+  tierValue: string;
   verifiedFilter: "verified" | "unverified" | "all";
   usageFilesByName: ReadonlyMap<string, readonly string[]>;
   usedByNamesByName: ReadonlyMap<string, readonly string[]>;
@@ -25,11 +24,10 @@ export type UiComponentFilterInput = {
 
 function matchesBaseFilters(
   node: UiComponentFilterNode,
-  input: Pick<UiComponentFilterInput, "filterFieldKey" | "filterValue" | "verifiedFilter">,
+  input: Pick<UiComponentFilterInput, "tierValue" | "verifiedFilter">,
 ) {
-  const { filterFieldKey, filterValue, verifiedFilter } = input;
-  if (filterFieldKey === "tier" && filterValue !== "all" && node.tier !== filterValue) return false;
-  if (filterFieldKey === "kind" && filterValue !== "all" && node.kind !== filterValue) return false;
+  const { tierValue, verifiedFilter } = input;
+  if (tierValue !== "all" && node.tier !== tierValue) return false;
   if (verifiedFilter === "verified" && !node.verified) return false;
   if (verifiedFilter === "unverified" && node.verified) return false;
   return true;

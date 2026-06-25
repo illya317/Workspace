@@ -3,13 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   EmptyStateCard,
-  FieldValueFilter,
   PageToolbar,
   WorkspaceSplitPage,
   type ColumnDef,
 } from "@workspace/core/ui";
 import {
-  coreUiComponentKindMeta,
   coreUiComponentRegistry,
   coreUiComponentTierMeta,
   getCoreUiCompositionGraph,
@@ -19,7 +17,6 @@ import {
   getCoreUiComponentRelationView,
 } from "@workspace/core/ui/component-registry-view";
 import type {
-  CoreUiComponentKind,
   CoreUiComponentRegistration,
   CoreUiComponentTier,
 } from "@workspace/core/ui/component-registry";
@@ -35,7 +32,6 @@ import { filterUiComponents } from "./filter-ui-components";
 import { useUiComponentVerified } from "./use-ui-component-verified";
 
 const ALL_TIER = "all";
-const ALL_KIND = "all";
 const ALL_VERIFIED = "all";
 const PAGE_SIZE_OPTIONS = [20, 50, 100, 200];
 
@@ -80,7 +76,6 @@ export default function UiComponentsShowcase({
   usageRows = [],
 }: UiComponentsShowcaseProps) {
   const firstRoot = coreUiComponentRegistry.find((component) => component.tier !== "foundation");
-  const [filterFieldKey, setFilterFieldKey] = useState<"tier" | "kind">("tier");
   const [filterValue, setFilterValue] = useState<string>(ALL_TIER);
   const [verifiedFilter, setVerifiedFilter] = useState<VerifiedFilter>(ALL_VERIFIED);
   const [query, setQuery] = useState("");
@@ -116,26 +111,15 @@ export default function UiComponentsShowcase({
     return buildCoreUiComponentTree({ verifiedNames, usageFilesByName });
   }, [usageFilesByName, verifiedNames]);
 
-  const kindOptions = useMemo(() => {
-    return [
-      { value: ALL_KIND, label: "全部分类" },
-      ...Object.keys(coreUiComponentKindMeta).map((key) => {
-        const typedKey = key as CoreUiComponentKind;
-        return { value: typedKey, label: coreUiComponentKindMeta[typedKey].label };
-      }),
-    ];
-  }, []);
-
   const filteredRoots = useMemo(() => {
     return filterUiComponents(treeRoots, {
       keyword: query.trim(),
-      filterFieldKey,
-      filterValue,
+      tierValue: filterValue,
       verifiedFilter,
       usageFilesByName,
       usedByNamesByName,
     });
-  }, [filterFieldKey, filterValue, query, treeRoots, usageFilesByName, usedByNamesByName, verifiedFilter]);
+  }, [filterValue, query, treeRoots, usageFilesByName, usedByNamesByName, verifiedFilter]);
 
   const visibleRoots = filteredRoots.slice(0, pageSize);
   const selectedComponent = componentByName.get(selectedName) ?? null;
@@ -176,7 +160,6 @@ export default function UiComponentsShowcase({
     if (component.tier === "foundation") return;
 
     const rootIndex = treeRoots.findIndex((node) => node.name === name);
-    setFilterFieldKey("tier");
     setFilterValue(ALL_TIER);
     setVerifiedFilter(ALL_VERIFIED);
     setQuery("");
@@ -194,27 +177,6 @@ export default function UiComponentsShowcase({
     }
     setSideOpen((open) => !open);
   }
-
-  const filters = (
-    <FieldValueFilter
-      fieldKey={filterFieldKey}
-      onFieldKeyChange={(value) => {
-        const nextField = value === "kind" ? "kind" : "tier";
-        setFilterFieldKey(nextField);
-      }}
-      value={filterValue}
-      onValueChange={setFilterValue}
-      fields={[
-        { value: "tier", label: "层级" },
-        { value: "kind", label: "分类" },
-      ]}
-      valueOptions={{
-        tier: TIER_OPTIONS,
-        kind: kindOptions,
-      }}
-      placeholder="筛选"
-    />
-  );
 
   return (
     <WorkspaceSplitPage
@@ -235,17 +197,24 @@ export default function UiComponentsShowcase({
             onChange: setQuery,
             placeholder: "搜索组件...",
           }}
-          optionGroups={[{
-            value: verifiedFilter,
-            options: [
-              { value: ALL_VERIFIED, label: "全部" },
-              { value: "verified", label: "已验证" },
-              { value: "unverified", label: "未验证" },
-            ],
-            onChange: (value) => setVerifiedFilter(value as VerifiedFilter),
-            ariaLabel: "验证状态",
-          }]}
-          filters={filters}
+          optionGroups={[
+            {
+              value: verifiedFilter,
+              options: [
+                { value: ALL_VERIFIED, label: "全部" },
+                { value: "verified", label: "已验证" },
+                { value: "unverified", label: "未验证" },
+              ],
+              onChange: (value) => setVerifiedFilter(value as VerifiedFilter),
+              ariaLabel: "验证状态",
+            },
+            {
+              value: filterValue,
+              options: TIER_OPTIONS,
+              onChange: (value) => setFilterValue(value as TreeTierFilter),
+              ariaLabel: "层级",
+            },
+          ]}
           columns={{
             defs: META_COLUMNS,
             visible: visibleMeta,
