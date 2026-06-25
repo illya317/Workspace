@@ -1,4 +1,5 @@
 import {
+  ActionGlyph,
   EmptyStateCard,
   PanelCard,
   TreeNodeBranch,
@@ -53,6 +54,10 @@ function TreeNodeView({
       title={(
         <span className="flex items-center gap-2">
           <span className="truncate">{node.name}</span>
+          <ActionGlyph
+            kind="verified"
+            className={`h-4 w-4 shrink-0 ${node.verified ? "text-emerald-600" : "text-red-500"}`}
+          />
           <span
             className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${nestDepthBadgeClasses(node.nestDepth)}`}
             title={`向下组合最大嵌套 ${node.nestDepth} 层`}
