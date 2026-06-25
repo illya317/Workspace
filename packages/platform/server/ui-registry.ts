@@ -3,7 +3,6 @@ import path from "node:path";
 import {
   coreUiComponentKindMeta,
   coreUiComponentRegistry,
-  coreUiComponentTierMeta,
   getCoreUiCompositionGraph,
 } from "@workspace/core/ui/component-registry";
 import type { CoreUiComponentRegistration } from "@workspace/core/ui/component-registry";
@@ -102,9 +101,6 @@ export function getCoreUiRegistryUsageRows(): CoreUiRegistryUsageRow[] {
       const registration = component as CoreUiComponentRegistration;
       return {
         name: registration.name,
-        tier: registration.tier,
-        tierLabel: coreUiComponentTierMeta[registration.tier].label,
-        tierDescription: coreUiComponentTierMeta[registration.tier].description,
         kind: registration.kind,
         kindLabel: coreUiComponentKindMeta[registration.kind].label,
         kindDescription: coreUiComponentKindMeta[registration.kind].description,

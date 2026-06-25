@@ -3,7 +3,6 @@ import {
   coreUiComponentKindMeta,
   type CoreUiComponentAccessLayer,
   type CoreUiComponentKind,
-  type CoreUiComponentTier,
 } from "@workspace/core/ui/component-registry";
 import { matchText } from "@workspace/core/search";
 
@@ -11,14 +10,12 @@ export type UiComponentFilterNode = {
   name: string;
   component: { description: string };
   kind: CoreUiComponentKind;
-  tier: CoreUiComponentTier;
   accessLayer: CoreUiComponentAccessLayer;
   verified: boolean;
 };
 
 export type UiComponentFilterInput = {
   keyword: string;
-  tierValue: string;
   accessLayerValue: string;
   verifiedFilter: "verified" | "unverified" | "all";
   usageFilesByName: ReadonlyMap<string, readonly string[]>;
@@ -27,10 +24,9 @@ export type UiComponentFilterInput = {
 
 function matchesBaseFilters(
   node: UiComponentFilterNode,
-  input: Pick<UiComponentFilterInput, "tierValue" | "accessLayerValue" | "verifiedFilter">,
+  input: Pick<UiComponentFilterInput, "accessLayerValue" | "verifiedFilter">,
 ) {
-  const { tierValue, accessLayerValue, verifiedFilter } = input;
-  if (tierValue !== "all" && node.tier !== tierValue) return false;
+  const { accessLayerValue, verifiedFilter } = input;
   if (accessLayerValue !== "all" && node.accessLayer !== accessLayerValue) return false;
   if (verifiedFilter === "verified" && !node.verified) return false;
   if (verifiedFilter === "unverified" && node.verified) return false;

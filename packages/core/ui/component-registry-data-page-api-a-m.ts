@@ -3,7 +3,6 @@ import type { CoreUiComponentRegistration } from "./component-registry-types";
 export const page_api_registry_entries = [
   {
     name: "AmountCell",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "cell",
     description: "金额单元格",
@@ -12,7 +11,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "AnalysisBlock",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "layout",
     description: "分析内容块",
@@ -21,7 +19,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "AutoSizeTextField",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "form",
     description: "自适应文本输入",
@@ -29,7 +26,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "CalendarDateInput",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "form",
     description: "日期输入框",
@@ -38,7 +34,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "CheckboxChip",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "form",
     description: "复选标签",
@@ -47,7 +42,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "CheckboxField",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "form",
     description: "复选框",
@@ -55,7 +49,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "ChoiceGroup",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "form",
     description: "纸面选择组",
@@ -63,7 +56,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "CodeBlock",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "data",
     description: "代码块展示",
@@ -71,7 +63,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "CommandButton",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "toolbar",
     description: "文字命令按钮",
@@ -80,7 +71,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "ConfirmModal",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "overlay",
     description: "确认弹窗",
@@ -90,7 +80,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "ConfirmProvider",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "overlay",
     description: "确认弹窗上下文",
@@ -99,7 +88,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "DataTable",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "data",
     description: "通用数据表格",
@@ -109,7 +97,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "DetailModal",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "overlay",
     description: "详情弹窗",
@@ -117,7 +104,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "DisclosureRecordCard",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "data",
     description: "可展开记录卡片",
@@ -125,7 +111,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "DisclosureSectionHeader",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "navigation",
     description: "可折叠分组标题",
@@ -133,7 +118,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "DropdownMenu",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "overlay",
     description: "下拉菜单",
@@ -142,7 +126,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "EmptyStateCard",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "layout",
     description: "空状态卡片",
@@ -150,7 +133,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "FkFieldInput",
-    tier: "shell",
     accessLayer: "page-api",
     kind: "picker",
     description: "外键搜索输入",
@@ -159,7 +141,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "FieldValueFilter",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "picker",
     description: "字段值筛选",
@@ -168,7 +149,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "FileField",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "form",
     description: "文件选择字段",
@@ -176,7 +156,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "FormField",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "form",
     description: "表单字段容器",
@@ -184,7 +163,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "FormShell",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "form",
     description: "表单外壳",
@@ -192,7 +170,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "Badge",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "status",
     description: "通用徽标",
@@ -200,7 +177,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "HiddenDataField",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "form",
     description: "隐藏数据字段",
@@ -208,7 +184,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "ReadOnlyField",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "form",
     description: "只读字段展示",
@@ -217,7 +192,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "FieldInputShell",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "form",
     description: "字段输入外壳",
@@ -226,7 +200,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "FieldGrid",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "form",
     description: "字段网格",
@@ -240,7 +213,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "TagInlineTextField",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "form",
     description: "标签内联文本输入",
@@ -249,7 +221,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "CreatePanel",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "form",
     description: "新建入口封装",
@@ -258,7 +229,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "MetricCard",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "layout",
     description: "指标卡片",
@@ -266,7 +236,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "ModuleCard",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "layout",
     description: "模块入口卡片",

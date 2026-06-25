@@ -1,6 +1,5 @@
 export type {
   CoreUiComponentKind,
-  CoreUiComponentTier,
   CoreUiComponentAccessLayer,
   CoreUiFrameMaturity,
   CoreUiComponentRegistration,
@@ -56,32 +55,6 @@ export const coreUiComponentKindMeta = {
   },
 } as const satisfies Record<
   import("./component-registry-types").CoreUiComponentKind,
-  { label: string; description: string }
->;
-
-export const coreUiComponentTierMeta = {
-  foundation: {
-    label: "风格基础",
-    description: "非业务、非页面的样式配方、标记与类辅助。定义元素级视觉语言，但不一定是组件。",
-  },
-  primitive: {
-    label: "原子组件",
-    description: "最小可交互组件或稳定微展示单元，组合风格基础配方但不组合复杂业务结构。",
-  },
-  assembly: {
-    label: "常用组合",
-    description: "由原子组件组合而成的可复用模式，可能有布局观点但不含业务事实。",
-  },
-  shell: {
-    label: "页面接口",
-    description: "页面接口（Page API）层：智能体直接引用的可复用顶层容器；当前被页面框架引用而自动提升，未来可能进一步下沉或保留为智能体可见层。",
-  },
-  frame: {
-    label: "页面框架",
-    description: "页面或工作区骨架，定义内容区域之间的结构关系。",
-  },
-} as const satisfies Record<
-  import("./component-registry-types").CoreUiComponentTier,
   { label: string; description: string }
 >;
 

@@ -3,7 +3,6 @@ import type { CoreUiComponentRegistration } from "./component-registry-types";
 export const page_frame_registry_entries = [
   {
     name: "AnalysisPageFrame",
-    tier: "frame",
     accessLayer: "page-frame",
     frameMaturity: "tbc",
     kind: "layout",
@@ -13,7 +12,6 @@ export const page_frame_registry_entries = [
   },
   {
     name: "DatabasePageFrame",
-    tier: "frame",
     accessLayer: "page-frame",
     frameMaturity: "tbc",
     kind: "layout",
@@ -23,7 +21,6 @@ export const page_frame_registry_entries = [
   },
   {
     name: "ModuleGridPage",
-    tier: "frame",
     accessLayer: "page-frame",
     frameMaturity: "tbc",
     kind: "layout",
@@ -33,7 +30,6 @@ export const page_frame_registry_entries = [
   },
   {
     name: "TemplateWorkbenchFrame",
-    tier: "frame",
     accessLayer: "page-frame",
     frameMaturity: "tbc",
     kind: "layout",
@@ -44,7 +40,6 @@ export const page_frame_registry_entries = [
   },
   {
     name: "page-style-preview",
-    tier: "frame",
     accessLayer: "page-frame",
     frameMaturity: "internal-only",
     kind: "layout",
@@ -53,7 +48,6 @@ export const page_frame_registry_entries = [
   },
   {
     name: "WorkspaceSplitPage",
-    tier: "frame",
     accessLayer: "page-frame",
     frameMaturity: "tbc",
     kind: "layout",

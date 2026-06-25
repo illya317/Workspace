@@ -1,6 +1,5 @@
 import type {
   CoreUiComponentRegistration,
-  CoreUiComponentTier,
   CoreUiCompositionGraph,
 } from "./component-registry-types";
 import { core_internal_registry_entries } from "./component-registry-data-core-internal";
@@ -53,31 +52,7 @@ function buildCoreUiCompositionGraph(
 
 const coreUiCompositionGraph = buildCoreUiCompositionGraph(coreUiComponentRegistryRaw);
 
-const frameComponentNames = new Set<string>(
-  coreUiComponentRegistryRaw
-    .filter((component) => component.tier === "frame")
-    .map((component) => component.name),
-);
-
-function deriveComponentTier(
-  registration: CoreUiComponentRegistration,
-): CoreUiComponentTier {
-  if (registration.tier !== "primitive" && registration.tier !== "assembly") {
-    return registration.tier;
-  }
-  const usedBy = coreUiCompositionGraph.usedBy.get(registration.name) ?? [];
-  if (usedBy.some((name) => frameComponentNames.has(name))) {
-    return "shell";
-  }
-  return registration.tier;
-}
-
-export const coreUiComponentRegistry: readonly CoreUiComponentRegistration[] = coreUiComponentRegistryRaw.map(
-  (component) => ({
-    ...component,
-    tier: deriveComponentTier(component as CoreUiComponentRegistration),
-  }),
-);
+export const coreUiComponentRegistry: readonly CoreUiComponentRegistration[] = coreUiComponentRegistryRaw;
 
 export const registeredCoreUiComponentNames = new Set<string>(
   coreUiComponentRegistry.map((component) => component.name),

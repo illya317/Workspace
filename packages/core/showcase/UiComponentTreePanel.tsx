@@ -7,7 +7,6 @@ import { TreeNodeBranch, TreeNodeCard } from "../ui/HierarchyTree";
 import {
   coreUiComponentAccessLayerMeta,
   coreUiComponentKindMeta,
-  coreUiComponentTierMeta,
   coreUiFrameMaturityMeta,
 } from "@workspace/core/ui/component-registry";
 import {
@@ -19,7 +18,6 @@ import type { CoreUiComponentTreeNode } from "@workspace/core/ui/component-regis
 export type UiComponentTreeMetaKey =
   | "kind"
   | "accessLayer"
-  | "tier"
   | "usedBy"
   | "files"
   | "verified";
@@ -62,7 +60,6 @@ function buildMeta(node: CoreUiComponentTreeNode, visibleMeta: readonly string[]
   const parts: string[] = [];
   if (visibleMeta.includes("kind")) parts.push(coreUiComponentKindMeta[node.kind].label);
   if (visibleMeta.includes("accessLayer")) parts.push(coreUiComponentAccessLayerMeta[node.accessLayer].label);
-  if (visibleMeta.includes("tier")) parts.push(coreUiComponentTierMeta[node.tier].label);
   if (visibleMeta.includes("usedBy")) parts.push(`被引用 ${node.usedByCount}`);
   if (visibleMeta.includes("files")) parts.push(`文件 ${node.usageFileCount}`);
   return parts.join(" · ");

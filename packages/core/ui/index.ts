@@ -1,5 +1,5 @@
 export { default as ConfirmModal } from "./ConfirmModal";
-export type { CoreUiComponentKind, CoreUiCompositionGraph, CoreUiComponentRegistration, CoreUiComponentTier } from "./component-registry";
+export type { CoreUiComponentKind, CoreUiCompositionGraph, CoreUiComponentRegistration } from "./component-registry";
 export { default as CodeBlock } from "./CodeBlock";
 export type { CodeBlockProps } from "./CodeBlock";
 

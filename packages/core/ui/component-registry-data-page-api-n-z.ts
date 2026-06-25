@@ -3,7 +3,6 @@ import type { CoreUiComponentRegistration } from "./component-registry-types";
 export const page_api_registry_entries = [
   {
     name: "Toolbar",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "toolbar",
     description: "统一工具栏",
@@ -12,7 +11,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "useConfirm",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "overlay",
     description: "确认弹窗 Hook",
@@ -21,7 +19,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "useConfirmDelete",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "overlay",
     description: "删除确认 Hook",
@@ -30,7 +27,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "useUnsavedChangesPrompt",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "overlay",
     description: "未保存离开提示",
@@ -39,7 +35,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "NumberCell",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "cell",
     description: "数字单元格",
@@ -47,7 +42,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "OptionPicker",
-    tier: "shell",
     accessLayer: "page-api",
     kind: "picker",
     description: "统一选项选择器，支持平铺枚举、常用项 + 更多搜索，以及先选分类再选值的分组模式。",
@@ -56,7 +50,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "PageContent",
-    tier: "frame",
     accessLayer: "page-api",
     kind: "layout",
     description: "页面内容容器",
@@ -64,7 +57,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "PageShell",
-    tier: "frame",
     accessLayer: "page-api",
     kind: "layout",
     description: "页面顶部骨架",
@@ -72,7 +64,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "Pagination",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "navigation",
     description: "分页控件",
@@ -80,7 +71,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "PanelCard",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "layout",
     description: "通用面板卡片",
@@ -88,7 +78,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "RatingControl",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "form",
     description: "星级评分",
@@ -96,7 +85,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "SearchableOptionInput",
-    tier: "shell",
     accessLayer: "page-api",
     kind: "picker",
     description: "可搜索选项输入",
@@ -104,7 +92,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "SearchInput",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "form",
     description: "搜索输入框",
@@ -112,7 +99,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "SectionCard",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "layout",
     description: "小节卡片",
@@ -121,7 +107,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "SelectField",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "form",
     description: "下拉选择字段",
@@ -130,7 +115,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "SelectorList",
-    tier: "shell",
     accessLayer: "page-api",
     kind: "picker",
     description: "选择列表渲染器",
@@ -139,7 +123,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "SelectorTree",
-    tier: "shell",
     accessLayer: "page-api",
     kind: "picker",
     description: "树形选择渲染器",
@@ -148,7 +131,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "SelectorPanel",
-    tier: "shell",
     accessLayer: "page-api",
     kind: "picker",
     description: "选择器面板",
@@ -157,7 +139,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "SwitchField",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "form",
     description: "开关字段",
@@ -165,7 +146,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "TagListInput",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "form",
     description: "标签列表输入",
@@ -175,7 +155,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "StructuredTable",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "data",
     description: "结构化表格",
@@ -183,7 +162,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "TabBar",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "navigation",
     description: "Tab 切换栏",
@@ -191,7 +169,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "TableScrollFrame",
-    tier: "assembly",
     accessLayer: "page-api",
     kind: "data",
     description: "表格滚动外壳",
@@ -200,7 +177,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "TextareaField",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "form",
     description: "多行文本输入",
@@ -208,7 +184,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "TextField",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "form",
     description: "通用文本输入",
@@ -217,7 +192,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "TimeField",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "form",
     description: "时间输入框",
@@ -226,7 +200,6 @@ export const page_api_registry_entries = [
   },
   {
     name: "Toast",
-    tier: "primitive",
     accessLayer: "page-api",
     kind: "feedback",
     description: "成功提示",

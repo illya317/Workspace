@@ -3,17 +3,14 @@ import type { CoreUiComponentRegistration } from "./component-registry-types";
 export const core_internal_registry_entries = [
   {
     name: "ActionButton",
-    tier: "primitive",
     accessLayer: "core-internal",
     kind: "toolbar",
     description: "工具栏动作按钮",
     example: "Toolbar、DataTable 行动作和新建确认都传 kind=\"save\" / kind=\"cancel\" 这类 glyph 动作。",
-    composes: ["ActionGlyph"],
-    foundations: ["getToolbarActionClassName"],
+    foundations: ["ActionGlyph", "getToolbarActionClassName"],
   },
   {
     name: "RefreshActionButton",
-    tier: "assembly",
     accessLayer: "core-internal",
     kind: "toolbar",
     description: "工具栏刷新按钮",
@@ -22,7 +19,6 @@ export const core_internal_registry_entries = [
   },
   {
     name: "BlockCreatePanel",
-    tier: "assembly",
     accessLayer: "core-internal",
     kind: "form",
     description: "块状新建面板",
@@ -31,7 +27,6 @@ export const core_internal_registry_entries = [
   },
   {
     name: "CreateConfirmActions",
-    tier: "assembly",
     accessLayer: "core-internal",
     kind: "form",
     description: "新建确认动作",
@@ -40,7 +35,6 @@ export const core_internal_registry_entries = [
   },
   {
     name: "CreateStartButton",
-    tier: "assembly",
     accessLayer: "core-internal",
     kind: "form",
     description: "新建开始按钮",
@@ -49,7 +43,6 @@ export const core_internal_registry_entries = [
   },
   {
     name: "DropdownSurface",
-    tier: "primitive",
     accessLayer: "core-internal",
     kind: "overlay",
     description: "下拉浮层",
@@ -57,7 +50,6 @@ export const core_internal_registry_entries = [
   },
   {
     name: "ToolbarOptionGroup",
-    tier: "primitive",
     accessLayer: "core-internal",
     kind: "toolbar",
     description: "工具栏选项组",
@@ -65,7 +57,6 @@ export const core_internal_registry_entries = [
   },
   {
     name: "InlineCreatePanel",
-    tier: "assembly",
     accessLayer: "core-internal",
     kind: "form",
     description: "内联新建面板",
@@ -74,7 +65,6 @@ export const core_internal_registry_entries = [
   },
   {
     name: "ModalCreatePanel",
-    tier: "assembly",
     accessLayer: "core-internal",
     kind: "overlay",
     description: "弹窗新建面板",
@@ -84,7 +74,6 @@ export const core_internal_registry_entries = [
   },
   {
     name: "ModuleCardBody",
-    tier: "assembly",
     accessLayer: "core-internal",
     kind: "layout",
     description: "模块卡片主体",
@@ -93,7 +82,6 @@ export const core_internal_registry_entries = [
   },
   {
     name: "PickerOptionButton",
-    tier: "primitive",
     accessLayer: "core-internal",
     kind: "picker",
     description: "选择器选项按钮",
@@ -101,7 +89,6 @@ export const core_internal_registry_entries = [
   },
   {
     name: "PickerShell",
-    tier: "assembly",
     accessLayer: "core-internal",
     kind: "picker",
     description: "选择器外壳",
@@ -111,7 +98,6 @@ export const core_internal_registry_entries = [
   },
   {
     name: "TagPill",
-    tier: "primitive",
     accessLayer: "core-internal",
     kind: "form",
     description: "标签内核",
@@ -120,7 +106,6 @@ export const core_internal_registry_entries = [
   },
   {
     name: "RemovableTag",
-    tier: "assembly",
     accessLayer: "core-internal",
     kind: "form",
     description: "可删除标签",
@@ -130,7 +115,6 @@ export const core_internal_registry_entries = [
   },
   {
     name: "SelectorCard",
-    tier: "assembly",
     accessLayer: "core-internal",
     kind: "picker",
     description: "选择卡片",
@@ -138,7 +122,6 @@ export const core_internal_registry_entries = [
   },
   {
     name: "SplitWorkspace",
-    tier: "assembly",
     accessLayer: "core-internal",
     kind: "layout",
     description: "左右分栏工作区",
@@ -147,7 +130,6 @@ export const core_internal_registry_entries = [
   },
   {
     name: "TagRemoveButton",
-    tier: "assembly",
     accessLayer: "core-internal",
     kind: "form",
     description: "标签删除按钮",
@@ -156,7 +138,6 @@ export const core_internal_registry_entries = [
   },
   {
     name: "TreeNodeBranch",
-    tier: "assembly",
     accessLayer: "core-internal",
     kind: "layout",
     description: "树节点分支",
@@ -165,7 +146,6 @@ export const core_internal_registry_entries = [
   },
   {
     name: "TreeNodeCard",
-    tier: "assembly",
     accessLayer: "core-internal",
     kind: "layout",
     description: "树节点卡片",

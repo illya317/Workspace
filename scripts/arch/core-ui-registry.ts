@@ -7,12 +7,6 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import ts from "typescript";
 
-const TIER_ORDER: Record<string, number> = {
-  foundation: 0,
-  primitive: 1,
-  assembly: 2,
-  frame: 3,
-};
 const ROOT = path.resolve(__dirname, "../..");
 const CORE_UI_DIR = path.join(ROOT, "packages/core/ui");
 const CORE_UI_INDEX = path.join(CORE_UI_DIR, "index.ts");
@@ -314,31 +308,29 @@ export function validateCoreUiRegistry() {
     visit(registration.name, [], new Set());
   }
 
-  // 3. foundation 不能反向依赖 primitive/assembly/frame
-  //    foundation 只能有 foundations，且目标也必须是 foundation
+  // 3. Foundation entry 不能声明 composes/includes，且 foundations 目标也必须是 Foundation。
   for (const registration of byName.values()) {
-    if (registration.tier === "foundation") {
+    if (registration.accessLayer === "foundation") {
       if ((registration.composes && registration.composes.length > 0) || (registration.includes && registration.includes.length > 0)) {
         errors.push(`${registration.name} 是 foundation，不能声明 composes/includes`);
       }
       for (const target of registration.foundations ?? []) {
         const targetReg = byName.get(target);
-        if (targetReg && targetReg.tier !== "foundation") {
-          errors.push(`${registration.name}.foundations 指向了非 foundation 入口 ${target}（${targetReg.tier}）`);
+        if (targetReg && targetReg.accessLayer !== "foundation") {
+          errors.push(`${registration.name}.foundations 指向了非 foundation 入口 ${target}（${targetReg.accessLayer}）`);
         }
       }
     }
   }
 
-  // 4. 非 foundation 不能通过 composes/includes 依赖 foundation
-  //    应该使用 foundations 字段
+  // 4. 非 Foundation 不能通过 composes/includes 依赖 Foundation，应该使用 foundations 字段。
   for (const registration of byName.values()) {
-    if (registration.tier === "foundation") continue;
+    if (registration.accessLayer === "foundation") continue;
     const targets = [...(registration.composes ?? []), ...(registration.includes ?? [])];
     for (const target of targets) {
       const targetReg = byName.get(target);
-      if (targetReg && targetReg.tier === "foundation") {
-        errors.push(`${registration.name}（${registration.tier}）通过 composes/includes 依赖了 foundation ${target}，应改为 foundations 字段`);
+      if (targetReg && targetReg.accessLayer === "foundation") {
+        errors.push(`${registration.name}（${registration.accessLayer}）通过 composes/includes 依赖了 foundation ${target}，应改为 foundations 字段`);
       }
     }
   }
@@ -357,19 +349,7 @@ export function validateCoreUiRegistry() {
     for (const target of registration.foundations ?? []) check(target, "foundations");
   }
 
-  // 6. 层级方向：composes/includes 的目标 tier 不能高于来源（不能反向依赖）
-  for (const registration of byName.values()) {
-    const targets = [...(registration.composes ?? []), ...(registration.includes ?? [])];
-    for (const target of targets) {
-      const targetReg = byName.get(target);
-      if (!targetReg) continue;
-      if (TIER_ORDER[targetReg.tier] > TIER_ORDER[registration.tier]) {
-        errors.push(`${registration.name}（${registration.tier}）composes/includes 了更高层 ${target}（${targetReg.tier}）`);
-      }
-    }
-  }
-
-  // 7. 实现代码里的 core UI 依赖必须写入 registry 关系。
+  // 6. 实现代码里的 core UI 依赖必须写入 registry 关系。
   //    按导出入口归因；同文件私有 helper 会递归追踪，同文件已注册入口只记直接依赖，避免把间接依赖摊平。
   const namesBySource = new Map<string, string[]>();
   for (const registration of byName.values()) {
@@ -395,7 +375,7 @@ export function validateCoreUiRegistry() {
       for (const target of actualTargets) {
         if (declaredTargets.has(target)) continue;
         const targetReg = byName.get(target);
-        const field = targetReg?.tier === "foundation" ? "foundations" : "composes";
+        const field = targetReg?.accessLayer === "foundation" ? "foundations" : "composes";
         errors.push(`${sourceName} 在 ${path.relative(ROOT, sourcePath)} 中使用了 ${target}，但 registry 未声明 ${field}: ["${target}"]`);
       }
     }

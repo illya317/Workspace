@@ -3,7 +3,6 @@ import type { CoreUiComponentRegistration } from "./component-registry-types";
 export const foundation_registry_entries = [
   {
     name: "ActionGlyph",
-    tier: "primitive",
     accessLayer: "foundation",
     kind: "toolbar",
     description: "通用动作图标",
@@ -12,7 +11,6 @@ export const foundation_registry_entries = [
   },
   {
     name: "ACTION_GLYPH_KINDS",
-    tier: "foundation",
     accessLayer: "foundation",
     kind: "toolbar",
     description: "动作图标种类集合",
@@ -21,7 +19,6 @@ export const foundation_registry_entries = [
   },
   {
     name: "ACTION_GLYPH_ORDER",
-    tier: "foundation",
     accessLayer: "foundation",
     kind: "toolbar",
     description: "动作图标排序配置",
@@ -30,7 +27,6 @@ export const foundation_registry_entries = [
   },
   {
     name: "ACTION_GLYPH_GROUPS",
-    tier: "foundation",
     accessLayer: "foundation",
     kind: "toolbar",
     description: "动作图标语义分组",
@@ -39,7 +35,6 @@ export const foundation_registry_entries = [
   },
   {
     name: "ACTION_GLYPH_TOOLBAR_GROUPS",
-    tier: "foundation",
     accessLayer: "foundation",
     kind: "toolbar",
     description: "工具栏动作分组配置",
@@ -48,7 +43,6 @@ export const foundation_registry_entries = [
   },
   {
     name: "getFieldInputClassName",
-    tier: "foundation",
     accessLayer: "foundation",
     kind: "form",
     description: "字段输入样式",
@@ -57,7 +51,6 @@ export const foundation_registry_entries = [
   },
   {
     name: "getFieldGridCellClassName",
-    tier: "foundation",
     accessLayer: "foundation",
     kind: "form",
     description: "字段网格单元样式",
@@ -66,7 +59,6 @@ export const foundation_registry_entries = [
   },
   {
     name: "getFieldGridLabelClassName",
-    tier: "foundation",
     accessLayer: "foundation",
     kind: "form",
     description: "字段网格标签样式",
@@ -75,7 +67,6 @@ export const foundation_registry_entries = [
   },
   {
     name: "getFieldGridValueClassName",
-    tier: "foundation",
     accessLayer: "foundation",
     kind: "form",
     description: "字段网格值区样式",
@@ -84,7 +75,6 @@ export const foundation_registry_entries = [
   },
   {
     name: "getFieldGroupTitleClassName",
-    tier: "foundation",
     accessLayer: "foundation",
     kind: "form",
     description: "字段分组标题样式",
@@ -93,7 +83,6 @@ export const foundation_registry_entries = [
   },
   {
     name: "getReadOnlyFieldClassName",
-    tier: "foundation",
     accessLayer: "foundation",
     kind: "form",
     description: "只读字段样式",
@@ -102,7 +91,6 @@ export const foundation_registry_entries = [
   },
   {
     name: "getTagInputShellClassName",
-    tier: "foundation",
     accessLayer: "foundation",
     kind: "form",
     description: "标签输入外壳样式",
@@ -111,7 +99,6 @@ export const foundation_registry_entries = [
   },
   {
     name: "getTagInlineInputClassName",
-    tier: "foundation",
     accessLayer: "foundation",
     kind: "form",
     description: "标签内联输入样式",
@@ -120,7 +107,6 @@ export const foundation_registry_entries = [
   },
   {
     name: "getTagPillClassName",
-    tier: "foundation",
     accessLayer: "foundation",
     kind: "form",
     description: "标签项样式",
@@ -129,7 +115,6 @@ export const foundation_registry_entries = [
   },
   {
     name: "getToolbarActionClassName",
-    tier: "foundation",
     accessLayer: "foundation",
     kind: "toolbar",
     description: "工具栏动作样式",
@@ -138,7 +123,6 @@ export const foundation_registry_entries = [
   },
   {
     name: "dataTableClassNames",
-    tier: "foundation",
     accessLayer: "foundation",
     kind: "data",
     description: "表格样式配方",
@@ -147,7 +131,6 @@ export const foundation_registry_entries = [
   },
   {
     name: "moduleCardColorClasses",
-    tier: "foundation",
     accessLayer: "foundation",
     kind: "layout",
     description: "模块卡片颜色",
@@ -156,7 +139,6 @@ export const foundation_registry_entries = [
   },
   {
     name: "getModuleCardClassName",
-    tier: "foundation",
     accessLayer: "foundation",
     kind: "layout",
     description: "模块卡片样式",

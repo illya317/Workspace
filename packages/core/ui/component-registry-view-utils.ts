@@ -3,7 +3,6 @@ import type {
   CoreUiComponentAccessLayer,
   CoreUiComponentKind,
   CoreUiComponentRegistration,
-  CoreUiComponentTier,
 } from "./component-registry-types";
 
 export const coreUiComponentAccessLayerOrder = [
@@ -37,7 +36,6 @@ function compareComponentsByName(
 export type CoreUiComponentTreeNode = {
   component: CoreUiComponentRegistration;
   name: string;
-  tier: CoreUiComponentTier;
   accessLayer: CoreUiComponentAccessLayer;
   kind: CoreUiComponentKind;
   depth: number;
@@ -149,7 +147,6 @@ export function buildComponentTreeLeaf({
   return {
     component,
     name: component.name,
-    tier: component.tier,
     accessLayer: component.accessLayer,
     kind: component.kind,
     depth,
@@ -217,7 +214,6 @@ export function buildComponentTreeNode({
   return {
     component,
     name: component.name,
-    tier: component.tier,
     accessLayer: component.accessLayer,
     kind: component.kind,
     depth,

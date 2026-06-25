@@ -10,8 +10,6 @@ export type CoreUiComponentKind =
   | "status"
   | "toolbar";
 
-export type CoreUiComponentTier = "foundation" | "primitive" | "assembly" | "shell" | "frame";
-
 export type CoreUiComponentAccessLayer =
   | "page-frame"
   | "page-api"
@@ -23,7 +21,6 @@ export type CoreUiFrameMaturity = "stable" | "tbc" | "internal-only";
 
 export type CoreUiComponentRegistration = {
   name: string;
-  tier: CoreUiComponentTier;
   kind: CoreUiComponentKind;
   description: string;
   example: string;
