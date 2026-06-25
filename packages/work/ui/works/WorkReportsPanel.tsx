@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  ActionGlyph,
   CalendarDateInput,
   CommandToolbar,
   CreateStartButton,
@@ -160,14 +159,13 @@ export default function WorkReportsPanel({
               onClick={addAdHocItem}
             />
             <IconActionButton
+              kind="check"
               label={saving ? "保存中..." : "保存汇报"}
               variant="primary"
               onClick={handleSave}
               disabled={loading || saving || !draft || !hasDraftChanges}
               className="!h-9 !w-10 !px-0 !text-[11px] !leading-none"
-            >
-              <ActionGlyph kind="check" className="h-4 w-4" />
-            </IconActionButton>
+            />
           </>
         ) : null}
       />

@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { ActionGlyph } from "./ActionGlyphs";
+import type { ActionGlyphKind } from "./ActionGlyphs";
 import { joinClassNames } from "./card-utils";
 
 export type ActionButtonSize = "sm" | "md";
@@ -23,11 +24,12 @@ export interface ActionButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonE
   className?: string;
 }
 
-export type IconActionButtonProps = ActionButtonProps & {
+export type IconActionButtonProps = Omit<ActionButtonProps, "children"> & {
   label: string;
+  kind: ActionGlyphKind;
 };
 
-export type RefreshActionButtonProps = Omit<IconActionButtonProps, "children" | "label"> & {
+export type RefreshActionButtonProps = Omit<IconActionButtonProps, "label" | "kind"> & {
   label?: string;
 };
 
@@ -80,7 +82,7 @@ export function ActionButton({
 }
 
 export function IconActionButton({
-  children,
+  kind,
   label,
   className = "",
   ...buttonProps
@@ -92,7 +94,7 @@ export function IconActionButton({
       title={label}
       className={joinClassNames("!w-10 !px-0 text-base leading-none", className)}
     >
-      {children}
+      <ActionGlyph kind={kind} className="h-4 w-4" />
     </ActionButton>
   );
 }
@@ -105,14 +107,13 @@ export function RefreshActionButton({
   return (
     <IconActionButton
       {...buttonProps}
+      kind="refresh"
       label={label}
       className={joinClassNames(
         "!border-0 !bg-transparent !shadow-none !text-slate-700 hover:!bg-slate-100 focus:!ring-2 focus:!ring-emerald-100",
         className,
       )}
-    >
-      <ActionGlyph kind="refresh" className="h-6 w-6" />
-    </IconActionButton>
+    />
   );
 }
 

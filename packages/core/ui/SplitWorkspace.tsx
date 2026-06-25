@@ -43,46 +43,25 @@ export function SplitWorkspaceToolbar({
         <>
           <span className={mobileButtonShellClassName}>
             <IconActionButton
+              kind="panel-open"
               label={`显示${sideLabel}`}
               onClick={onDrawerOpen}
               className="!h-9 !w-10 !px-0"
-            >
-              <SidePanelIcon open />
-            </IconActionButton>
+            />
           </span>
           <span className={desktopButtonShellClassName}>
             <IconActionButton
+              kind={sideOpen ? "panel-open" : "panel-close"}
               label={`${sideOpen ? "隐藏" : "显示"}${sideLabel}`}
               onClick={() => onSideOpenChange(!sideOpen)}
               variant={sideOpen ? "primary" : "secondary"}
               className="!h-9 !w-10 !px-0"
-            >
-              <SidePanelIcon open={sideOpen} />
-            </IconActionButton>
+            />
           </span>
         </>
       )}
       {children}
     </div>
-  );
-}
-
-function SidePanelIcon({ open }: { open: boolean }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-4 w-4"
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      viewBox="0 0 24 24"
-    >
-      <rect x="3" y="4" width="18" height="16" rx="2" />
-      <path d="M9 4v16" />
-      {open ? <path d="m14 9 3 3-3 3" /> : <path d="m17 9-3 3 3 3" />}
-    </svg>
   );
 }
 

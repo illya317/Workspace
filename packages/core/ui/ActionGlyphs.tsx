@@ -17,7 +17,11 @@ export type ActionGlyphKind =
   | "more"
   | "download"
   | "upload"
-  | "archive";
+  | "archive"
+  | "list"
+  | "history"
+  | "panel-open"
+  | "panel-close";
 
 export interface ActionGlyphProps {
   kind: ActionGlyphKind;
@@ -167,6 +171,38 @@ export function ActionGlyph({ kind, className = "h-5 w-5" }: ActionGlyphProps) {
         <path d="M21 8v13H3V8" />
         <path d="M1 3h22v5H1z" />
         <path d="M10 12h4" />
+      </svg>
+    );
+  }
+  if (kind === "list") {
+    return (
+      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} viewBox="0 0 24 24">
+        <path d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    );
+  }
+  if (kind === "history") {
+    return (
+      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} viewBox="0 0 24 24">
+        <path d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    );
+  }
+  if (kind === "panel-open") {
+    return (
+      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M9 4v16" />
+        <path d="m14 9 3 3-3 3" />
+      </svg>
+    );
+  }
+  if (kind === "panel-close") {
+    return (
+      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M9 4v16" />
+        <path d="m17 9-3 3 3 3" />
       </svg>
     );
   }

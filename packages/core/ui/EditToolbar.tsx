@@ -34,11 +34,7 @@ export default function EditToolbar({
   return (
     <div className="flex items-center gap-2">
       {onDownload && (
-        <IconActionButton label="下载" onClick={onDownload} disabled={downloading}>
-          <svg className="inline h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0 4-4m-4 4-4-4M4 19h16" />
-          </svg>
-        </IconActionButton>
+        <IconActionButton kind="download" label="下载" onClick={onDownload} disabled={downloading} />
       )}
       {!editMode ? (
         <>
@@ -48,11 +44,7 @@ export default function EditToolbar({
             </ActionButton>
           )}
           {canEdit && onShowHistory && (
-            <IconActionButton label="最近改动" onClick={onShowHistory}>
-              <svg className="inline h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </IconActionButton>
+            <IconActionButton kind="history" label="最近改动" onClick={onShowHistory} />
           )}
         </>
       ) : (
@@ -74,11 +66,7 @@ export default function EditToolbar({
             </>
           )}
           {canEdit && onShowHistory && (
-            <IconActionButton label="最近改动" onClick={onShowHistory}>
-              <svg className="inline h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </IconActionButton>
+            <IconActionButton kind="history" label="最近改动" onClick={onShowHistory} />
           )}
         </>
       )}

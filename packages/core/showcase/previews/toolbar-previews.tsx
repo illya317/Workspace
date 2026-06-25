@@ -52,7 +52,7 @@ function ActionToolbarPreview() {
         leftSlot={<span className="text-sm font-semibold">已选择 2 条记录</span>}
         primaryActions={[{ label: <ActionGlyph kind="download" className="h-4 w-4" />, size: "sm", onClick: () => {} }]}
         secondaryActions={[{ label: <ActionGlyph kind="cancel" className="h-4 w-4" />, size: "sm", onClick: () => {} }]}
-        rightSlot={<IconActionButton label="新增" variant="primary" size="sm"><ActionGlyph kind="add" className="h-4 w-4" /></IconActionButton>}
+        rightSlot={<IconActionButton kind="add" label="新增" variant="primary" size="sm" />}
       />
     </div>
   );
@@ -69,7 +69,7 @@ function IconActionButtonPreview() {
   ];
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {items.map((item) => <IconActionButton key={item.label} label={item.label} variant={item.variant}><ActionGlyph kind={item.kind} className="h-4 w-4" /></IconActionButton>)}
+      {items.map((item) => <IconActionButton key={item.label} kind={item.kind} label={item.label} variant={item.variant} />)}
     </div>
   );
 }

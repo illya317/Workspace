@@ -1,6 +1,5 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { ActionButton, IconActionButton } from "./ActionControls";
 import { ActionGlyph } from "./ActionGlyphs";
 
@@ -9,7 +8,6 @@ export interface CreateStartButtonProps {
   active?: boolean;
   disabled?: boolean;
   onClick: () => void;
-  children?: ReactNode;
 }
 
 export interface CreateConfirmActionsProps {
@@ -22,17 +20,16 @@ export interface CreateConfirmActionsProps {
   order?: "submit-first" | "cancel-first";
 }
 
-export function CreateStartButton({ label, active, disabled, onClick, children = <ActionGlyph kind="add" /> }: CreateStartButtonProps) {
+export function CreateStartButton({ label, active, disabled, onClick }: CreateStartButtonProps) {
   return (
     <IconActionButton
+      kind="add"
       label={label}
       variant={active ? "secondary" : "primary"}
       disabled={disabled || active}
       onClick={onClick}
       className="!h-9 !w-10 !px-0 !text-[11px] !leading-none"
-    >
-      {children}
-    </IconActionButton>
+    />
   );
 }
 

@@ -333,13 +333,12 @@ export default function NotificationBell({
                       <div className="mt-1 text-xs leading-5 text-slate-600">{item.body}</div>
                     </div>
                     <IconActionButton
+                      kind="delete"
                       label="清除通知"
                       className="!size-6 !rounded-full !border-0 !bg-transparent !text-lg !leading-none !text-slate-300 hover:!bg-slate-100 hover:!text-slate-600 disabled:!text-slate-200"
                       disabled={busyId === item.id}
                       onClick={() => void updateNotification(item.id, "clear")}
-                    >
-                      ×
-                    </IconActionButton>
+                    />
                   </div>
                   <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
                     <div className="min-w-0 truncate text-left text-[11px] text-slate-400">

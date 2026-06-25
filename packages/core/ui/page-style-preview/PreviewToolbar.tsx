@@ -64,17 +64,14 @@ export default function PreviewToolbar({
     <>
       {onToggleList && (
         <IconActionButton
+          kind="list"
           label={listVisible ? "隐藏" : "显示"}
           variant={listVisible ? "primary" : "secondary"}
           onClick={onToggleList}
-        >
-          ☰
-        </IconActionButton>
+        />
       )}
       {onCreate && (
-        <IconActionButton label="新建" variant="primary" onClick={onCreate}>
-          +
-        </IconActionButton>
+        <IconActionButton kind="add" label="新建" variant="primary" onClick={onCreate} />
       )}
     </>
   ) : undefined;
