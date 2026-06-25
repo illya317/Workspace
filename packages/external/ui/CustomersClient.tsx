@@ -10,7 +10,7 @@ export default function CustomersClient() {
         title="客户列表"
         actions={
           <ActionToolbar
-            primaryActions={[{ label: "新增客户", disabled: true, variant: "primary" }]}
+            primaryActions={[{ label: "新增客户", kind: "add", disabled: true, variant: "primary" }]}
           />
         }
       >

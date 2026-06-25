@@ -31,8 +31,8 @@ export function ToolbarPreview({ variant }: { variant: "filter" | "action" | "ed
     return (
       <ActionToolbar
         leftSlot={<span className="text-sm font-semibold text-slate-800">已选择 2 条记录</span>}
-        secondaryActions={[{ label: "导出" }]}
-        primaryActions={[{ label: "新增" }]}
+        secondaryActions={[{ label: "导出", kind: "download" }]}
+        primaryActions={[{ label: "新增", kind: "add" }]}
       />
     );
   }

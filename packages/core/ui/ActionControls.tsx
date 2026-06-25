@@ -6,13 +6,13 @@ import { joinClassNames } from "./card-utils";
 export type ActionButtonSize = "sm" | "md";
 
 export interface ToolbarAction {
-  label: ReactNode;
+  label: string;
+  kind?: ActionGlyphKind;
   onClick?: () => void;
   disabled?: boolean;
   variant?: "primary" | "secondary" | "danger";
   type?: "button" | "submit";
   size?: ActionButtonSize;
-  kind?: ActionGlyphKind;
 }
 
 export interface ActionButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children" | "className" | "disabled" | "onClick" | "size" | "type"> {
@@ -34,9 +34,11 @@ export type RefreshActionButtonProps = Omit<IconActionButtonProps, "label" | "ki
   label?: string;
 };
 
+export type ActionToolbarAction = Omit<ToolbarAction, "kind"> & { kind: ActionGlyphKind };
+
 export interface ActionToolbarProps {
-  primaryActions?: ToolbarAction[];
-  secondaryActions?: ToolbarAction[];
+  primaryActions?: ActionToolbarAction[];
+  secondaryActions?: ActionToolbarAction[];
   leftSlot?: ReactNode;
   rightSlot?: ReactNode;
   className?: string;
@@ -118,29 +120,17 @@ export function RefreshActionButton({
   );
 }
 
-function ToolbarActionButton({ action }: { action: ToolbarAction }) {
-  if (action.kind) {
-    return (
-      <IconActionButton
-        kind={action.kind}
-        label={typeof action.label === "string" ? action.label : action.kind}
-        onClick={action.onClick}
-        disabled={action.disabled}
-        variant={action.variant}
-        size={action.size}
-      />
-    );
-  }
+function ToolbarActionButton({ action }: { action: ActionToolbarAction }) {
   return (
-    <ActionButton
+    <IconActionButton
+      kind={action.kind}
+      label={action.label}
       type={action.type}
       onClick={action.onClick}
       disabled={action.disabled}
       variant={action.variant}
       size={action.size}
-    >
-      {action.label}
-    </ActionButton>
+    />
   );
 }
 

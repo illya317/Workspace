@@ -135,10 +135,11 @@ export default function EmployeeProfileView({
         leftSlot={profileTabs}
         primaryActions={canEdit && activeSection !== "history" ? [{
           label: saving === "all" ? "保存中..." : "保存",
+          kind: "save",
           disabled: saving !== null || !dirtyState.all,
           onClick: onSaveAll,
         }] : []}
-        secondaryActions={[{ label: "返回列表", onClick: onBack }]}
+        secondaryActions={[{ label: "返回列表", kind: "cancel", onClick: onBack }]}
       />
 
       {error && <EmptyStateCard compact>{error}</EmptyStateCard>}

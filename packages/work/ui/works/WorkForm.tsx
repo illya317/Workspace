@@ -69,10 +69,11 @@ export default function WorkForm({
         </FormField>
         <ActionToolbar
           className="justify-end border-0 p-0 shadow-none"
-          secondaryActions={[{ label: "取消", onClick: onCancel }]}
+          secondaryActions={[{ label: "取消", kind: "cancel", onClick: onCancel }]}
           primaryActions={[
             {
               label: initial ? "保存" : "添加",
+              kind: initial ? "save" : "add",
               disabled: !content.trim(),
               onClick: () =>
                 onSave({

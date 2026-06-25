@@ -81,8 +81,8 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
 
         <ActionToolbar
           className="mt-5 justify-end border-0 p-0 shadow-none"
-          secondaryActions={[{ label: "取消", onClick: handleClose }]}
-          primaryActions={[{ label: saving ? "提交中..." : "确认调整", onClick: handleSubmit, disabled: saving }]}
+          secondaryActions={[{ label: "取消", kind: "cancel", onClick: handleClose }]}
+          primaryActions={[{ label: saving ? "提交中..." : "确认调整", kind: "check", onClick: handleSubmit, disabled: saving }]}
         />
     </DetailModal>
   );

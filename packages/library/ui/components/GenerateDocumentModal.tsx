@@ -138,8 +138,8 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
 
             <ActionToolbar
               className="justify-end border-0 p-0 shadow-none"
-              secondaryActions={[{ label: "取消", onClick: onClose }]}
-              primaryActions={[{ label: generating ? "生成中..." : "生成", onClick: handleGenerate, disabled: generating || !title.trim() }]}
+              secondaryActions={[{ label: "取消", kind: "cancel", onClick: onClose }]}
+              primaryActions={[{ label: generating ? "生成中..." : "生成", kind: "add", onClick: handleGenerate, disabled: generating || !title.trim() }]}
             />
           </>
         )}

@@ -65,7 +65,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
           <>
             <ActionToolbar
               leftSlot={<span className="text-xs font-medium text-gray-500">目录</span>}
-              secondaryActions={mode === "drawer" ? [{ label: "关闭", onClick: () => setSidebarDrawerOpen(false) }] : []}
+              secondaryActions={mode === "drawer" ? [{ label: "关闭", kind: "cancel", onClick: () => setSidebarDrawerOpen(false) }] : []}
               className="mb-3"
             />
             {dirError && <EmptyStateCard compact className="mb-3 border-red-100 bg-red-50 text-red-600">目录加载失败: {dirError}</EmptyStateCard>}

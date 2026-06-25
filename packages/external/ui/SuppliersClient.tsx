@@ -10,7 +10,7 @@ export default function SuppliersClient() {
         title="供应商列表"
         actions={
           <ActionToolbar
-            primaryActions={[{ label: "新增供应商", disabled: true, variant: "primary" }]}
+            primaryActions={[{ label: "新增供应商", kind: "add", disabled: true, variant: "primary" }]}
           />
         }
       >

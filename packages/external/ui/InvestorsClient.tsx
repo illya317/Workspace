@@ -10,7 +10,7 @@ export default function InvestorsClient() {
         title="投资人列表"
         actions={
           <ActionToolbar
-            primaryActions={[{ label: "新增投资人", disabled: true, variant: "primary" }]}
+            primaryActions={[{ label: "新增投资人", kind: "add", disabled: true, variant: "primary" }]}
           />
         }
       >

@@ -106,11 +106,12 @@ export default function ProjectDetailEditor({
           </div>
         }
         secondaryActions={[
-          ...(!creating && selectedProject && canDeleteCurrent ? [{ label: "删除项目", onClick: onDeleteProject, disabled: saving, variant: "danger" as const }] : []),
-          ...(creating ? [{ label: "取消", onClick: onCancelCreate }] : []),
+          ...(!creating && selectedProject && canDeleteCurrent ? [{ label: "删除项目", kind: "delete-bin" as const, onClick: onDeleteProject, disabled: saving, variant: "danger" as const }] : []),
+          ...(creating ? [{ label: "取消", kind: "cancel" as const, onClick: onCancelCreate }] : []),
         ]}
         primaryActions={draft && (selectedProject || creating) ? [{
           label: saving ? "保存中..." : creating ? "创建项目" : "保存项目",
+          kind: creating ? "add" : "save",
           disabled: !canSave,
           onClick: onSave,
         }] : []}
