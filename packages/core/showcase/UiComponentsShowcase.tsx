@@ -33,7 +33,6 @@ import { useUiComponentVerified } from "./use-ui-component-verified";
 
 const ALL_TIER = "all";
 const ALL_VERIFIED = "all";
-const PAGE_SIZE_OPTIONS = [20, 50, 100, 200];
 
 type UiComponentsShowcaseProps = {
   usageRows?: Array<{
@@ -67,11 +66,6 @@ function findComponent(name: string) {
   return coreUiComponentRegistry.find((component) => component.name === name) as CoreUiComponentRegistration | undefined;
 }
 
-function getPageSizeForIndex(index: number, currentSize: number) {
-  if (index < currentSize) return currentSize;
-  return PAGE_SIZE_OPTIONS.find((size) => index < size) ?? PAGE_SIZE_OPTIONS[PAGE_SIZE_OPTIONS.length - 1];
-}
-
 export default function UiComponentsShowcase({
   usageRows = [],
 }: UiComponentsShowcaseProps) {
@@ -83,7 +77,6 @@ export default function UiComponentsShowcase({
   const [expandedNames, setExpandedNames] = useState<Set<string>>(new Set());
   const [sideOpen, setSideOpen] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [pageSize, setPageSize] = useState(50);
   const [visibleMeta, setVisibleMeta] = useState<string[]>(DEFAULT_VISIBLE_META);
   const [pendingScrollName, setPendingScrollName] = useState<string | null>(null);
   const { verifiedNames, toggleVerified, canWrite } = useUiComponentVerified();
@@ -121,7 +114,7 @@ export default function UiComponentsShowcase({
     });
   }, [filterValue, query, treeRoots, usageFilesByName, usedByNamesByName, verifiedFilter]);
 
-  const visibleRoots = filteredRoots.slice(0, pageSize);
+  const visibleRoots = filteredRoots;
   const selectedComponent = componentByName.get(selectedName) ?? null;
   const selectedRelation = selectedComponent
     ? getCoreUiComponentRelationView(selectedComponent.name, {
@@ -159,12 +152,10 @@ export default function UiComponentsShowcase({
     setSelectedName(name);
     if (component.tier === "foundation") return;
 
-    const rootIndex = treeRoots.findIndex((node) => node.name === name);
     setFilterValue(ALL_TIER);
     setVerifiedFilter(ALL_VERIFIED);
     setQuery("");
     setExpandedNames((current) => new Set([...current, name]));
-    setPageSize((current) => rootIndex >= 0 ? getPageSizeForIndex(rootIndex, current) : current);
     setSideOpen(true);
     setDrawerOpen(false);
     setPendingScrollName(name);
@@ -190,6 +181,7 @@ export default function UiComponentsShowcase({
       showSideControls={false}
       header={(
         <PageToolbar
+          features={["view", "search", "filter", "meta", "columns"]}
           onToggleList={toggleSideFromToolbar}
           listVisible={sideOpen}
           search={{
@@ -219,11 +211,6 @@ export default function UiComponentsShowcase({
             defs: META_COLUMNS,
             visible: visibleMeta,
             onChange: setVisibleMeta,
-          }}
-          pageSize={{
-            value: pageSize,
-            options: PAGE_SIZE_OPTIONS,
-            onChange: setPageSize,
           }}
           meta={<>共 {filteredRoots.length} 个组件</>}
         />
