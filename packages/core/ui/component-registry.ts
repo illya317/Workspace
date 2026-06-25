@@ -132,7 +132,6 @@ const coreUiComponentRegistryRaw = [
   { name: "EmptyStateCard", tier: "assembly", kind: "layout", description: "空状态卡片", example: "筛选后无结果时显示“暂无数据，调整筛选条件”。" },
   { name: "FkFieldInput", tier: "shell", kind: "picker", description: "外键搜索输入", example: "搜索“张”后从员工候选项中选择一个负责人。", composes: ["SearchInput"] },
   { name: "FieldValueFilter", tier: "assembly", kind: "picker", description: "字段值筛选", example: "显示“员工：张文孝”，点击后先选字段，再用 HR reference-options 搜索选择员工。", composes: ["SelectField", "SearchInput", "FkFieldInput", "PickerOptionButton"] },
-  { name: "ToolbarFieldFilter", tier: "assembly", kind: "toolbar", description: "工具栏字段筛选", example: "在 Toolbar 的 filter 区配置字段筛选，支持 FK 搜索和普通字段值切换。", composes: ["FieldValueFilter", "PickerOptionButton", "DropdownSurface"] },
   { name: "ToolbarOptionGroup", tier: "primitive", kind: "toolbar", description: "工具栏选项组", example: "在筛选栏里切换“全部 / 30天 / 90天 / 已到期”或“姓名 / 全部”。" },
   { name: "useUnsavedChangesPrompt", tier: "assembly", kind: "overlay", description: "未保存离开提示", example: "详情页只传 hasUnsavedChanges，AppShell 或页内 Tab 统一确认是否离开。", composes: ["ConfirmProvider", "useConfirm"] },
   { name: "FileField", tier: "primitive", kind: "form", description: "文件选择字段", example: "在财务导入或余额核对中选择 Excel 文件，不在业务页手写原生 file input。" },
