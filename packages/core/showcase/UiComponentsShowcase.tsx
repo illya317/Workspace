@@ -23,7 +23,7 @@ import type {
   CoreUiComponentRegistration,
   CoreUiComponentTier,
 } from "@workspace/core/ui/component-registry";
-import { matchText } from "@workspace/core/search";
+
 import { UiComponentPreviewPanel } from "./UiComponentPreviewPanel";
 import { UiComponentRelationPanel } from "./UiComponentRelations";
 import {
@@ -31,6 +31,7 @@ import {
   UiComponentTreePanel,
   type UiComponentTreeMetaKey,
 } from "./UiComponentTreePanel";
+import { filterUiComponents } from "./filter-ui-components";
 import { useUiComponentVerified } from "./use-ui-component-verified";
 
 const ALL_TIER = "all";
@@ -126,21 +127,13 @@ export default function UiComponentsShowcase({
   }, []);
 
   const filteredRoots = useMemo(() => {
-    const keyword = query.trim();
-    return treeRoots.filter((node) => {
-      if (filterFieldKey === "tier" && filterValue !== ALL_TIER && node.tier !== filterValue) return false;
-      if (filterFieldKey === "kind" && filterValue !== ALL_KIND && node.kind !== filterValue) return false;
-      if (verifiedFilter === "verified" && !node.verified) return false;
-      if (verifiedFilter === "unverified" && node.verified) return false;
-      if (!keyword) return true;
-      const usageFiles = usageFilesByName.get(node.name) ?? [];
-      const usedByNames = usedByNamesByName.get(node.name) ?? [];
-      return matchText(node.name, keyword)
-        || matchText(node.component.description, keyword)
-        || matchText(coreUiComponentKindMeta[node.kind].label, keyword)
-        || matchText(coreUiComponentTierMeta[node.tier].label, keyword)
-        || usageFiles.some((file) => matchText(file, keyword))
-        || usedByNames.some((name) => matchText(name, keyword));
+    return filterUiComponents(treeRoots, {
+      keyword: query.trim(),
+      filterFieldKey,
+      filterValue,
+      verifiedFilter,
+      usageFilesByName,
+      usedByNamesByName,
     });
   }, [filterFieldKey, filterValue, query, treeRoots, usageFilesByName, usedByNamesByName, verifiedFilter]);
 

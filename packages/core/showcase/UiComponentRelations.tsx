@@ -1,15 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { PanelCard } from "@workspace/core/ui";
 import {
   coreUiComponentKindMeta,
   coreUiComponentTierMeta,
-  getCoreUiCompositionGraph,
   type CoreUiComponentRegistration,
 } from "@workspace/core/ui/component-registry";
 import type { CoreUiComponentRelationView } from "@workspace/core/ui/component-registry-view";
-import { UiComponentUpstreamChains } from "./UiComponentUpstreamChains";
 
 const RELATION_LIMIT = 6;
 
@@ -205,14 +203,9 @@ export function UiComponentRelationPanel({
   onSelect: (name: string) => void;
 }) {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
-  const [upstreamOpen, setUpstreamOpen] = useState(false);
-  const [expandedPathNames, setExpandedPathNames] = useState<Set<string>>(new Set());
-  const graph = useMemo(() => getCoreUiCompositionGraph(), []);
 
   useEffect(() => {
     setExpandedGroups(new Set());
-    setUpstreamOpen(false);
-    setExpandedPathNames(new Set());
   }, [relation.component.name]);
 
   function toggleSet(setter: (updater: (current: Set<string>) => Set<string>) => void, key: string) {
@@ -234,17 +227,6 @@ export function UiComponentRelationPanel({
       </RelationBlock>
       <RelationBlock title="文件引用">
         <UsageFilesBlock relation={relation} expandedGroups={expandedGroups} toggleGroup={(key) => toggleSet(setExpandedGroups, key)} />
-      </RelationBlock>
-      <RelationBlock title="向上链路">
-        <UiComponentUpstreamChains
-          relation={relation}
-          open={upstreamOpen}
-          onToggleOpen={() => setUpstreamOpen((value) => !value)}
-          expandedPathNames={expandedPathNames}
-          togglePathName={(name) => toggleSet(setExpandedPathNames, name)}
-          onSelect={onSelect}
-          usedByByName={graph.usedBy}
-        />
       </RelationBlock>
     </PanelCard>
   );
