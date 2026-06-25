@@ -12,11 +12,11 @@ import Pagination from "../../Pagination";
 import SearchInput from "../../SearchInput";
 import SearchableOptionInput from "../../SearchableOptionInput";
 import SelectField from "../../SelectField";
-import StatusBadge from "../../StatusBadge";
-import StatusToggle from "../../StatusToggle";
+import Badge from "../../Badge";
 import SwitchField from "../../SwitchField";
 import TextareaField from "../../TextareaField";
 import TextField from "../../TextField";
+import TimeField from "../../TimeField";
 import ToolbarOptionGroup from "../../ToolbarOptionGroup";
 import { PreviewFrame } from "../PreviewFrame";
 import type { RegistryBrowserItem } from "../types";
@@ -42,7 +42,7 @@ export function ComponentPreview({ item }: { item: RegistryBrowserItem }) {
 
   switch (item.name) {
     case "SearchInput":
-      preview = <SearchInput value="张" onChange={() => {}} placeholder="搜索姓名、编码、拼音" size="compact" />;
+      preview = <SearchInput value="张" onChange={() => {}} placeholder="搜索姓名、编码、拼音" />;
       break;
     case "TextField":
       preview = <TextField value="张慧君" onChange={() => {}} placeholder="输入文本" />;
@@ -56,7 +56,6 @@ export function ComponentPreview({ item }: { item: RegistryBrowserItem }) {
           value="active"
           onChange={() => {}}
           options={[{ value: "active", label: "现用" }, { value: "archived", label: "已归档" }]}
-          size="compact"
         />
       );
       break;
@@ -91,6 +90,9 @@ export function ComponentPreview({ item }: { item: RegistryBrowserItem }) {
     case "CalendarDateInput":
       preview = <CalendarDateInput value="2026-06-20" onChange={() => {}} />;
       break;
+    case "TimeField":
+      preview = <TimeField value="09:30" onChange={() => {}} className="max-w-[8rem]" />;
+      break;
     case "ChoiceGroup":
       preview = (
         <ChoiceGroup
@@ -109,11 +111,8 @@ export function ComponentPreview({ item }: { item: RegistryBrowserItem }) {
     case "SwitchField":
       preview = <SwitchField checked onChange={() => {}} />;
       break;
-    case "StatusBadge":
-      preview = <StatusBadge label="已启用" variant="green" />;
-      break;
-    case "StatusToggle":
-      preview = <StatusToggle active="active" onChange={() => {}} tabs={[{ key: "active", label: "现用", count: 12 }, { key: "all", label: "全部", count: 18 }]} />;
+    case "Badge":
+      preview = <Badge label="已启用" tone="green" />;
       break;
     case "Pagination":
       preview = <Pagination page={2} totalPages={5} total={48} onPageChange={() => {}} compact />;
@@ -194,8 +193,8 @@ export function ComponentPreview({ item }: { item: RegistryBrowserItem }) {
     case "SelectorCard":
       preview = <SelectorPreview />;
       break;
-    case "ArchiveSelectorPanel":
-      preview = <PreviewNote title="归档范围选择">用同一选择器切换“现用 / 全部 / 已归档”，归档语义由业务文案传入。</PreviewNote>;
+    case "EntitySelectorPanel":
+      preview = <PreviewNote title="实体范围选择">用同一选择器切换不同实体范围；归档等具体语义由业务文案传入。</PreviewNote>;
       break;
     case "PageContent":
     case "PageShell":

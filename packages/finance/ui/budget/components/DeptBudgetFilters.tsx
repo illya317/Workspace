@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionButton, FormField, PanelCard, SelectField, StatusBadge } from "@workspace/core/ui";
+import { ActionButton, FormField, PanelCard, SelectField, Badge } from "@workspace/core/ui";
 
 interface DeptBudgetFiltersProps {
   deptFilter: string;
@@ -38,7 +38,7 @@ export default function DeptBudgetFilters({
             onChange={setDeptFilter}
             placeholder="全部部门"
             options={deptOptions.map((d) => ({ value: d, label: d }))}
-            selectClassName="min-w-28 px-2 py-1 text-xs"
+            triggerClassName="min-w-28 px-2 py-1 text-xs"
           />
         </FormField>
         <FormField label="费用类型" layout="inline">
@@ -47,7 +47,7 @@ export default function DeptBudgetFilters({
             onChange={setTypeFilter}
             placeholder="全部类型"
             options={typeOptions.map((t) => ({ value: t, label: t }))}
-            selectClassName="min-w-28 px-2 py-1 text-xs"
+            triggerClassName="min-w-28 px-2 py-1 text-xs"
           />
         </FormField>
         <FormField label="科目" layout="inline">
@@ -56,7 +56,7 @@ export default function DeptBudgetFilters({
             onChange={setAccountFilter}
             placeholder="全部科目"
             options={accountOptions.map((a) => ({ value: a, label: a }))}
-            selectClassName="min-w-28 px-2 py-1 text-xs"
+            triggerClassName="min-w-28 px-2 py-1 text-xs"
           />
         </FormField>
         {(deptFilter || typeFilter || accountFilter) && (
@@ -74,9 +74,9 @@ export default function DeptBudgetFilters({
       {(deptFilter || typeFilter || accountFilter) && (
         <div className="flex flex-wrap gap-2 text-xs text-gray-500">
           <span>当前筛选：</span>
-          {deptFilter && <StatusBadge label={`部门：${deptFilter}`} variant="gray" />}
-          {typeFilter && <StatusBadge label={`类型：${typeFilter}`} variant="gray" />}
-          {accountFilter && <StatusBadge label={`科目：${accountFilter}`} variant="gray" />}
+          {deptFilter && <Badge label={`部门：${deptFilter}`} tone="gray" />}
+          {typeFilter && <Badge label={`类型：${typeFilter}`} tone="gray" />}
+          {accountFilter && <Badge label={`科目：${accountFilter}`} tone="gray" />}
         </div>
       )}
     </>

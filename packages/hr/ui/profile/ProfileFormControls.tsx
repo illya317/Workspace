@@ -140,7 +140,6 @@ export function ProfileFieldInput({
         lifecycleScope={field.activeOnly ? "active" : undefined}
         queryParams={isEdpReportTo ? { positionId: reportToPositionId } : undefined}
         placeholder={reportToDisabled ? "先选择岗位" : `搜索${field.label}`}
-        size="compact"
         className="w-full"
         onChange={(_label, option) => {
           const next =

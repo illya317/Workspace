@@ -95,7 +95,6 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
               onChange={(value) => setFilter("status", value || undefined)}
               options={STATUS_OPTIONS.slice(1)}
               placeholder={STATUS_OPTIONS[0]?.label}
-              size="toolbar"
             />
             <SelectField
               value={filters.confidentialityLevel !== undefined ? String(filters.confidentialityLevel) : ""}
@@ -104,7 +103,6 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
               }
               options={CONFIDENTIALITY_OPTIONS.slice(1)}
               placeholder={CONFIDENTIALITY_OPTIONS[0]?.label}
-              size="toolbar"
             />
           </FilterToolbar>
         )}

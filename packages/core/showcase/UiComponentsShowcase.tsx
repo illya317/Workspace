@@ -138,14 +138,12 @@ export default function UiComponentsShowcase() {
               options={kindOptions}
               value={kind}
               onChange={setKind}
-              size="toolbar"
               className="w-32"
             />
             <SearchInput
               value={query}
               onChange={setQuery}
               placeholder="搜索注册项..."
-              size="toolbar"
               className="w-48"
             />
           </>

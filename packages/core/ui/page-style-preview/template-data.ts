@@ -1,4 +1,4 @@
-import type { AccordionTabItem } from "../AccordionTabBar";
+import type { TabDef } from "../TabBar";
 
 export type TemplateKind = "table" | "split" | "form" | "analysis" | "document" | "production" | "upload";
 export type EmbeddedKind = "form" | "document" | "production";
@@ -95,7 +95,7 @@ export function getPageGroups(module: ModuleTemplate, sectionKey: string): PageG
   return groups;
 }
 
-export function getPageGroupTabs(module: ModuleTemplate, sectionKey: string): AccordionTabItem[] {
+export function getPageGroupTabs(module: ModuleTemplate, sectionKey: string): TabDef[] {
   return getPageGroups(module, sectionKey).map((group) => ({
     key: group.key,
     label: group.label,

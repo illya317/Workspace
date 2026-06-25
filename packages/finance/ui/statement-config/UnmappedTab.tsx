@@ -7,7 +7,7 @@ import {
   DataTable,
   EmptyStateCard,
   PanelCard,
-  StatusBadge,
+  Badge,
   type DataTableColumn,
 } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
@@ -91,12 +91,12 @@ const columns: DataTableColumn<DisplayItem>[] = [
 
 function UnmappedStatus({ item }: { item: DisplayItem }) {
   if (item.status === "excluded") {
-    return <StatusBadge label="已排除" variant="gray" />;
+    return <Badge label="已排除" tone="gray" />;
   }
   if (item.status === "subtractOnly") {
-    return <StatusBadge label={`仅减项 → ${item.subtractSourceLine ?? "?"}`} variant="yellow" />;
+    return <Badge label={`仅减项 → ${item.subtractSourceLine ?? "?"}`} tone="yellow" />;
   }
-  return <StatusBadge label="未映射" variant="red" />;
+  return <Badge label="未映射" tone="red" />;
 }
 
 export default function UnmappedTab() {

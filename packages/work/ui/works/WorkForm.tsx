@@ -40,7 +40,7 @@ export default function WorkForm({
               { value: "routine", label: "日常工作" },
               { value: "non-routine", label: "其他工作" },
             ]}
-            selectClassName="w-auto min-w-28 px-2 py-1.5 text-sm"
+            triggerClassName="w-auto min-w-28 px-2 py-1.5 text-sm"
           />
         </FormField>
         <FormField label="工作内容" required>

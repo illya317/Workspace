@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable, DataTableActionsCell, PanelCard, StatusBadge, type DataTableColumn } from "@workspace/core/ui";
+import { DataTable, DataTableActionsCell, PanelCard, Badge, type DataTableColumn } from "@workspace/core/ui";
 import type { Contract } from "@workspace/administration/types";
 
 interface ContractsTableProps {
@@ -26,7 +26,7 @@ export function getContractTableColumns(
     {
       key: "status",
       label: "状态",
-      render: (c) => <StatusBadge label={c.status || "-"} variant={c.status === "执行中" ? "green" : c.status === "已结束" ? "gray" : "blue"} />,
+      render: (c) => <Badge label={c.status || "-"} tone={c.status === "执行中" ? "green" : c.status === "已结束" ? "gray" : "blue"} />,
     },
     {
       key: "amount",

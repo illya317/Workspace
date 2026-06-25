@@ -186,7 +186,6 @@ export default function OptionPicker({
                   value={query}
                   onChange={setQuery}
                   placeholder={searchPlaceholder}
-                  size="compact"
                   className="mb-2"
                 />
                 <div className="max-h-64 overflow-auto pr-1">

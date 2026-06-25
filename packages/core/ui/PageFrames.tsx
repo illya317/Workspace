@@ -2,11 +2,11 @@
 
 import type { ReactNode } from "react";
 import PageContent from "./PageContent";
-import AccordionTabBar, { type AccordionTabItem } from "./AccordionTabBar";
+import TabBar, { type TabDef } from "./TabBar";
 import SplitWorkspace, { SplitWorkspaceToolbar, type SplitWorkspaceMode } from "./SplitWorkspace";
 import { joinClassNames } from "./card-utils";
 
-type PageFrameTab = AccordionTabItem;
+type PageFrameTab = TabDef;
 
 function PageFrameTabs({
   tabs,
@@ -22,11 +22,13 @@ function PageFrameTabs({
   onChildChange?: (child: string) => void;
 }) {
   return (
-    <AccordionTabBar
+    <TabBar
+      variant="large"
+      accordion
       tabs={tabs}
-      activeTab={activeTab}
+      active={activeTab}
       activeChild={activeChild}
-      onTabChange={onTabChange}
+      onChange={onTabChange}
       onChildChange={onChildChange}
     />
   );

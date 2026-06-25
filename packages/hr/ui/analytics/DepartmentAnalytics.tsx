@@ -100,7 +100,6 @@ export default function DepartmentAnalytics({ departments, edps }: { departments
             placeholder="搜索部门名称、编码、别名..."
             value={search}
             onChange={setSearch}
-            size="toolbar"
             className="max-w-sm"
           />
         }

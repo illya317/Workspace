@@ -3,8 +3,8 @@
 import type { Dispatch, SetStateAction } from "react";
 import {
   ActionToolbar,
-  AccordionTabBar,
   EmptyStateCard,
+  TabBar,
 } from "@workspace/core/ui";
 import { DatabasePageFrame } from "@workspace/core/ui";
 import { employeeFields } from "@workspace/hr/constants";
@@ -113,15 +113,17 @@ export default function EmployeeProfileView({
     { title: "联系与账号", fields: getEmployeeFields(["phone", "idNumber", "otherId", "userId"]) },
   ];
   const profileTabs = (
-    <AccordionTabBar
+    <TabBar
+      variant="large"
+      accordion
       tabs={[
         { key: "basic", label: "基本信息" },
         { key: "employment", label: "雇佣关系" },
         { key: "edp", label: "部门岗位" },
         { key: "history", label: "历史记录" },
       ]}
-      activeTab={activeSection}
-      onTabChange={(key) => onSectionChange(key as ProfileSection)}
+      active={activeSection}
+      onChange={(key) => onSectionChange(key as ProfileSection)}
       className="border-0 bg-transparent p-0 shadow-none"
     />
   );

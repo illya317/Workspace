@@ -5,7 +5,7 @@ import { DatabasePageFrame } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import type { ReactNode } from "react";
 import { useState } from "react";
-import { PanelCard, type AccordionTabItem } from "@workspace/core/ui";
+import { PanelCard, type TabDef } from "@workspace/core/ui";
 
 interface QcPanel {
   title: string;
@@ -20,7 +20,7 @@ interface Props {
   activeResourceKey: string;
   backHref?: string;
   panels?: QcPanel[];
-  viewTabs?: AccordionTabItem[];
+  viewTabs?: TabDef[];
   children?: ReactNode;
 }
 

@@ -86,7 +86,6 @@ export default function HRToolbar({
             value={keyword}
             onChange={onKeywordChange}
             placeholder={keywordPlaceholder}
-            size="toolbar"
           />
           {children}
           {columns && visibleColumns && onColumnsChange && (

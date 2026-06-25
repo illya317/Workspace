@@ -306,7 +306,6 @@ export function OrganizationModePanel({
                       displayValue={managerDraft}
                       disabled={!canEdit || saving}
                       placeholder="搜索负责人岗位"
-                      size="compact"
                       onChange={(_label, option?: FkFieldOption) => {
                         setManagerDraft(selectedEntityName("position", option));
                       }}

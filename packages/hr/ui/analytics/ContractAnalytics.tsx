@@ -121,7 +121,6 @@ export default function ContractAnalytics({ contracts }: { contracts: Contract[]
             placeholder="搜索姓名、工号、公司..."
             value={search}
             onChange={setSearch}
-            size="toolbar"
             className="ml-auto max-w-xs"
           />
           <span className="text-xs text-gray-400">{filtered.length} 人</span>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import AccordionTabBar from "./AccordionTabBar";
+import TabBar from "./TabBar";
 import { DatabasePageFrame } from "./PageFrames";
 import { PanelCard } from "./BaseCards";
 import ModuleTemplatePreview from "./page-style-preview/ModuleTemplatePreview";
@@ -83,15 +83,17 @@ export default function PageStyleShowcase({
           title="页面样式预览"
           bodyClassName="space-y-4 p-4"
         >
-          <AccordionTabBar
+          <TabBar
+            variant="large"
+            accordion
             tabs={routeModules.map((module) => ({
               key: module.key,
               label: module.label,
               children: module.children.map((child) => ({ key: child.route, label: child.label })),
             }))}
-            activeTab={activeModuleKey}
+            active={activeModuleKey}
             activeChild={activeRoute}
-            onTabChange={changeModule}
+            onChange={changeModule}
             onChildChange={changeRoute}
           />
           {activeModule && (

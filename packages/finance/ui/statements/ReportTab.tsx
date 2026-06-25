@@ -111,7 +111,7 @@ export default function ReportTab() {
                   { value: "income", label: "利润表" },
                   { value: "cashflow", label: "现金流量表" },
                 ]}
-                selectClassName="min-w-28 px-2 py-1 text-xs"
+                triggerClassName="min-w-28 px-2 py-1 text-xs"
               />
             </FormField>
             <ActionButton onClick={loadReport} variant="primary">生成报表</ActionButton>

@@ -24,9 +24,8 @@ function SharedFilters() {
         value={company}
         onChange={setCompany}
         placeholder="—"
-        size="toolbar"
         className="min-w-max"
-        selectClassName="min-w-44"
+        triggerClassName="min-w-44"
       />
       <SelectField
         label="年度"
@@ -34,9 +33,8 @@ function SharedFilters() {
         value={year}
         onChange={setYear}
         placeholder="—"
-        size="toolbar"
         className="min-w-max"
-        selectClassName="min-w-36"
+        triggerClassName="min-w-36"
       />
       <span className="whitespace-nowrap text-sm text-slate-400">
         {loading ? "加载可用期间…" : `全部 tab 共享，已加载 ${availablePairs.length} 个（公司、年度）组合`}

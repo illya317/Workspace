@@ -174,11 +174,9 @@ function AttachmentUploadBlock({ block, context }: { block: NumberedBlock; conte
         accept="image/*"
         multiple
         disabled={!canEdit}
+        variant="inline"
         showFileName={false}
         buttonLabel={text}
-        className="inline text-inherit"
-        controlsClassName="inline"
-        inputClassName="inline cursor-pointer bg-transparent p-0 text-left align-baseline text-inherit outline-none disabled:cursor-default"
         resetOnChange
         onChange={() => undefined}
         onFilesChange={(files) => void upload(files)}

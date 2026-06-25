@@ -92,7 +92,7 @@ export default function LibraryEditForm({ doc, form, setForm, canWrite, canAdmin
           onChange={(value) => setForm((f) => ({ ...f, confidentialityLevel: parseInt(value, 10) }))}
           options={CONFIDENTIALITY_OPTIONS}
           className="block text-gray-400"
-          selectClassName="min-h-10 px-3 py-2 text-sm"
+          triggerClassName="min-h-10 px-3 py-2 text-sm"
         />
         {!canAdmin && (
           <p className="text-xs text-gray-400 mt-1">需要管理权限才能修改保密等级</p>
@@ -106,7 +106,7 @@ export default function LibraryEditForm({ doc, form, setForm, canWrite, canAdmin
           onChange={(value) => setForm((f) => ({ ...f, status: value }))}
           options={STATUS_OPTIONS}
           className="block text-gray-400"
-          selectClassName="min-h-10 px-3 py-2 text-sm"
+          triggerClassName="min-h-10 px-3 py-2 text-sm"
         />
       </div>
     </div>

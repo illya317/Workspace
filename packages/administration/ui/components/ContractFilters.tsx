@@ -44,7 +44,6 @@ export default function ContractFilters({
               value={q}
               onChange={onQChange}
               placeholder="搜索合同名称、签署方、内容..."
-              size="toolbar"
             />
             <ToolbarSelectFilter
               label="类型"

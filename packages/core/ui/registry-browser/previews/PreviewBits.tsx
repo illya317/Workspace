@@ -53,7 +53,7 @@ export function MiniField({ label, value }: { label: string; value: string }) {
 export function EntitySearchPreview({ mode }: { mode: "single" | "multiple" }) {
   return (
     <div className="space-y-2">
-      <SearchInput value="示例" onChange={() => {}} placeholder="搜索名称、编码、拼音" size="compact" />
+      <SearchInput value="示例" onChange={() => {}} placeholder="搜索名称、编码、拼音" />
       <div className="space-y-1.5 rounded-md border border-slate-200 p-2">
         {[
           ["示例记录 A", "目标 · A-1024"],

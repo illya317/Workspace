@@ -7,6 +7,7 @@ export interface FileFieldProps {
   accept?: string;
   multiple?: boolean;
   disabled?: boolean;
+  variant?: "button" | "inline";
   resetOnChange?: boolean;
   className?: string;
   inputClassName?: string;
@@ -22,6 +23,7 @@ export default function FileField({
   accept,
   multiple = false,
   disabled = false,
+  variant = "button",
   resetOnChange = false,
   className = "",
   inputClassName = "",
@@ -33,6 +35,7 @@ export default function FileField({
 }: FileFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
+  const inlineMode = variant === "inline";
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const files = event.target.files;
@@ -48,7 +51,7 @@ export default function FileField({
   }
 
   return (
-    <div className={`block text-xs ${className}`}>
+    <div className={`${inlineMode ? "inline" : "block"} text-xs ${className}`}>
       {label && <span className="mb-1 block text-gray-500">{label}</span>}
       <input
         ref={inputRef}
@@ -59,16 +62,17 @@ export default function FileField({
         onChange={handleChange}
         className="sr-only"
       />
-      <div className={`flex flex-wrap items-center gap-2 ${controlsClassName}`}>
+      <div className={`${inlineMode ? "inline" : "flex flex-wrap items-center gap-2"} ${controlsClassName}`}>
         <button
           type="button"
           disabled={disabled}
           onClick={() => inputRef.current?.click()}
           className={[
-            "rounded-md border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-700 transition",
-            "hover:border-emerald-200 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400",
-          inputClassName,
-        ].filter(Boolean).join(" ")}
+            inlineMode
+              ? "inline cursor-pointer border-0 bg-transparent p-0 text-left align-baseline font-inherit text-inherit underline-offset-2 transition hover:underline disabled:cursor-default disabled:no-underline print:hidden"
+              : "rounded-md border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-700 transition hover:border-emerald-200 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400",
+            inputClassName,
+          ].filter(Boolean).join(" ")}
         >
           {buttonLabel}
         </button>

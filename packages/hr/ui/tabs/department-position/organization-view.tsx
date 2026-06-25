@@ -2,8 +2,8 @@
 
 import type { ReactNode } from "react";
 import {
+  Badge,
   EmptyStateCard,
-  HierarchyBadge,
   PanelCard,
   WorkspaceSplitPage,
 } from "@workspace/core/ui";
@@ -57,7 +57,7 @@ export function OrganizationView({
                   <span className="shrink-0 font-mono text-sm text-slate-400">{activeOrganizationRoot.code}</span>
                 </div>
               </div>
-              <HierarchyBadge level={activeOrganizationRoot.level} className="px-2.5 py-1" />
+              <Badge level={activeOrganizationRoot.level} className="shrink-0 px-2 py-0.5 font-semibold px-2.5 py-1" />
             </div>
             {activeOrganizationChildren.length > 0 ? (
               <div className="max-w-4xl">

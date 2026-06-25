@@ -14,7 +14,6 @@ import {
   RefreshActionButton,
   SearchInput,
   SplitWorkspaceToolbar,
-  Toolbar,
   ToolbarOptionGroup,
   ToolbarSelectFilter,
 } from "@workspace/core/ui";
@@ -50,7 +49,12 @@ function ActionGlyphPreview() {
 function ActionToolbarPreview() {
   return (
     <div className="max-w-2xl">
-      <ActionToolbar leftSlot={<span className="text-sm font-semibold">已选择 2 条记录</span>} primaryActions={[{ label: "导出", onClick: () => {} }]} secondaryActions={[{ label: "取消选择", onClick: () => {} }]} rightSlot={<ActionButton size="sm" variant="primary">新增</ActionButton>} />
+      <ActionToolbar
+        leftSlot={<span className="text-sm font-semibold">已选择 2 条记录</span>}
+        primaryActions={[{ label: <><ActionGlyph kind="download" className="h-4 w-4" /> 导出</>, onClick: () => {} }]}
+        secondaryActions={[{ label: <><ActionGlyph kind="cancel" className="h-4 w-4" /> 取消选择</>, onClick: () => {} }]}
+        rightSlot={<ActionButton size="sm" variant="primary"><ActionGlyph kind="add" className="h-4 w-4" /> 新增</ActionButton>}
+      />
     </div>
   );
 }
@@ -72,7 +76,7 @@ function IconActionButtonPreview() {
 }
 
 function RefreshActionButtonPreview() {
-  return <div className="flex items-center gap-3"><RefreshActionButton onClick={() => {}} /><RefreshActionButton label="刷新列表" onClick={() => {}} /><RefreshActionButton disabled onClick={() => {}} /></div>;
+  return <RefreshActionButton onClick={() => {}} />;
 }
 
 function CommandToolbarPreview() {
@@ -117,7 +121,7 @@ function FilterBarPreview() {
   const [keyword, setKeyword] = useState("");
   return (
     <FilterBar>
-      <SearchInput value={keyword} onChange={setKeyword} size="toolbar" placeholder="搜索..." className="min-w-0" />
+      <SearchInput value={keyword} onChange={setKeyword} placeholder="搜索..." className="min-w-0" />
       <ActionButton size="sm" variant="primary">查询</ActionButton>
       <ActionButton size="sm" variant="secondary">重置</ActionButton>
     </FilterBar>
@@ -166,11 +170,6 @@ function SplitWorkspaceToolbarPreview() {
   );
 }
 
-function ToolbarPreview() {
-  const [keyword, setKeyword] = useState("");
-  return <Toolbar filters={<SearchInput value={keyword} onChange={setKeyword} size="toolbar" placeholder="搜索..." className="min-w-[12rem]" />} selectionActions={<ActionButton variant="primary">新建</ActionButton>} meta={<>CommandToolbar 兼容别名</>} />;
-}
-
 function ToolbarSelectFilterPreview() {
   const [value, setValue] = useState("");
   return <ToolbarSelectFilter label="类型" value={value} onChange={setValue} options={[{ value: "contract", label: "合同" }, { value: "project", label: "项目" }, { value: "task", label: "任务" }]} placeholder="全部" />;
@@ -190,6 +189,5 @@ export const toolbarPreviewByName: Record<string, FC> = {
   ToolbarOptionGroup: ToolbarOptionGroupPreview,
   getToolbarActionClassName: getToolbarActionClassNamePreview,
   SplitWorkspaceToolbar: SplitWorkspaceToolbarPreview,
-  Toolbar: ToolbarPreview,
   ToolbarSelectFilter: ToolbarSelectFilterPreview,
 };

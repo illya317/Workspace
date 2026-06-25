@@ -4,14 +4,13 @@ import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo } from "react";
 import Toast from "@workspace/core/ui/Toast";
 import { useToast } from "@workspace/core/hooks";
-import { ActionButton, DataTable, getDefaultVisibleColumns, PanelCard } from "@workspace/core/ui";
+import { DataTable, getDefaultVisibleColumns, PanelCard, TabBar } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
 import { Pagination } from "@workspace/core/ui";
 import { BASE_ITEM_COLUMNS, type VoucherItemRow } from "../components/VoucherItemTable";
 import { useReclassResults } from "./useReclassResults";
 import ReclassReviewView from "../components/ReclassReviewView";
 import { getVoucherColumns } from "./VoucherColumns";
-import StatusToggle from "@workspace/core/ui/StatusToggle";
 import type { Voucher, VoucherResponse } from "@workspace/finance/types";
 
 // ─── Component ───────────────────────────────────────────
@@ -117,26 +116,26 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
         extra={
           <>
             {canWrite && (
-              <>
-                <ActionButton
-                  onClick={() => setViewMode(viewMode === "reclass" ? "vouchers" : "reclass")}
-                  variant={viewMode === "reclass" ? "primary" : "secondary"}
-                >
-                  重分类
-                </ActionButton>
-                {viewMode === "reclass" && (
-                  <StatusToggle
-                    tabs={[
-                      { key: "adjusted", label: "已调整", count: reclassCounts.adjusted },
-                      { key: "configured", label: "已配置", count: reclassCounts.configured },
-                      { key: "unconfigured", label: "未配置", count: reclassCounts.unconfigured },
-                      { key: "all", label: "全部", count: reclassCounts.total },
-                    ]}
-                    active={reclassStatus}
-                    onChange={setReclassStatus}
-                  />
-                )}
-              </>
+              <TabBar
+                variant="small"
+                accordion
+                tabs={[
+                  {
+                    key: "reclass",
+                    label: "重分类",
+                    children: [
+                      { key: "adjusted", label: `已调整 ${reclassCounts.adjusted}` },
+                      { key: "configured", label: `已配置 ${reclassCounts.configured}` },
+                      { key: "unconfigured", label: `未配置 ${reclassCounts.unconfigured}` },
+                      { key: "all", label: `全部 ${reclassCounts.total}` },
+                    ],
+                  },
+                ]}
+                active={viewMode === "reclass" ? "reclass" : ""}
+                activeChild={reclassStatus}
+                onChange={() => setViewMode(viewMode === "reclass" ? "vouchers" : "reclass")}
+                onChildChange={setReclassStatus}
+              />
             )}
           </>
         }

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { PanelCard, StatusBadge } from "@workspace/core/ui";
+import { PanelCard, Badge } from "@workspace/core/ui";
 import { getStatusLabel, getWorkItemTypeLabel, getWorkPeriodLabel, getWorkSourceTypeLabel } from "./model";
 import type { WorkItem } from "./types";
 
@@ -21,7 +21,7 @@ export function WorkTaskDetail({ work }: { work: WorkItem }) {
       <DetailItem label="节点类型">{getWorkItemTypeLabel(work.itemType)}</DetailItem>
       <DetailItem label="来源">{getWorkSourceTypeLabel(work.sourceType)}</DetailItem>
       {work.targetType !== "personal" && <DetailItem label="负责人">{work.ownerEmployeeName || "未设置"}</DetailItem>}
-      {status && <DetailItem label="状态"><StatusBadge label={getStatusLabel(status)} variant={statusVariant(status)} /></DetailItem>}
+      {status && <DetailItem label="状态"><Badge label={getStatusLabel(status)} tone={statusVariant(status)} /></DetailItem>}
       <DetailItem label="计划周期">{getWorkPeriodLabel(work)}</DetailItem>
       {work.itemType === "task" && <DetailItem label="起止时间">{dateRange(work.startDate, work.dueDate)}</DetailItem>}
       {work.itemType === "key_result" && <DetailItem label="结果">{krRange(work)}</DetailItem>}

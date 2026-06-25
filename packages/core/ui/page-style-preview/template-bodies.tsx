@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { ActionButton } from "../ActionControls";
 import { AnalysisBlock, MetricCard, PanelCard } from "../BaseCards";
-import StatusBadge from "../StatusBadge";
+import Badge from "../Badge";
 import QcPaperPreview from "./QcPaperPreview";
 import { PreviewTable } from "./sample-data";
 import { usePageStylePreviewSamples } from "./sample-context";
@@ -198,7 +198,7 @@ function DocumentSurface() {
     <div className="min-h-80 rounded-lg border border-slate-200 bg-slate-50 p-5 text-sm leading-7 text-slate-600">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="h-3 w-40 rounded bg-slate-300" />
-        <StatusBadge label="预览" variant="blue" />
+        <Badge label="预览" tone="blue" />
       </div>
       <div className="space-y-2">
         <div className="h-2 rounded bg-slate-200" />

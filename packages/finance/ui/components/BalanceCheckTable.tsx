@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { ActionButton, DataTable, PanelCard, StatusBadge, type DataTableColumn } from "@workspace/core/ui";
+import { ActionButton, DataTable, PanelCard, Badge, type DataTableColumn } from "@workspace/core/ui";
 
 export interface BalanceCheckAccountNode {
   code: string;
@@ -66,12 +66,12 @@ function DifferenceCell({ node, side }: { node: BalanceCheckAccountNode; side: "
 
 function StatusCell({ node }: { node: BalanceCheckAccountNode }) {
   if (node.children.length === 0) {
-    return <StatusBadge label="明细" variant="gray" />;
+    return <Badge label="明细" tone="gray" />;
   }
   return node.isBalanced ? (
-    <StatusBadge label="平衡" variant="green" />
+    <Badge label="平衡" tone="green" />
   ) : (
-    <StatusBadge label="不一致" variant="red" />
+    <Badge label="不一致" tone="red" />
   );
 }
 

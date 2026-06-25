@@ -195,7 +195,6 @@ export default function FieldValueFilter({
                     }}
                     placeholder={valuePlaceholder}
                     lifecycleScope={draftField.lifecycleScope ?? "all"}
-                    size="compact"
                     className="w-full"
                   />
                 </div>
@@ -204,7 +203,6 @@ export default function FieldValueFilter({
                   value={draftValue}
                   onChange={(nextValue) => commitValue(nextValue, false)}
                   placeholder={valuePlaceholder}
-                  size="compact"
                   className="w-full"
                 />
               )}

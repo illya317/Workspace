@@ -144,7 +144,6 @@ export default function RosterGeneratedTab({ variant, canEdit }: { variant: Rost
               onChange={setKeyword}
               placeholder="搜索员工、公司、部门、岗位"
               ariaLabel="搜索员工、公司、部门、岗位"
-              size="toolbar"
               className="min-w-64"
             />
             <ToolbarOptionGroup

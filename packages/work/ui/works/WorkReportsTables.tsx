@@ -6,7 +6,7 @@ import {
   DataTable,
   EmptyStateCard,
   PanelCard,
-  StatusBadge,
+  Badge,
   TableScrollFrame,
   TextareaField,
   TextField,
@@ -144,8 +144,8 @@ export function ReportCollectionTable({
       headerClassName: "w-28",
       cellClassName: "w-28",
       render: (space) => space.status === "submitted"
-        ? <StatusBadge label="已提交" variant="green" />
-        : <StatusBadge label="未提交" variant="orange" />,
+        ? <Badge label="已提交" tone="green" />
+        : <Badge label="未提交" tone="orange" />,
     },
     {
       key: "reports",

@@ -72,21 +72,18 @@ export default function PermissionDrilldown({ drillKey, empPerms, empLoading, fC
           value={fCompany}
           onChange={(nextValue) => { setFCompany(nextValue); setFDept("全部"); }}
           options={allCompanies.map((c) => ({ value: c, label: c }))}
-          size="toolbar"
-          selectClassName="min-w-40"
+          triggerClassName="min-w-40"
         />
         <SelectField
           value={fDept}
           onChange={setFDept}
           options={allDepts.map((d) => ({ value: d, label: d }))}
-          size="toolbar"
-          selectClassName="min-w-40"
+          triggerClassName="min-w-40"
         />
         <SearchInput
           value={fKeyword}
           onChange={setFKeyword}
           placeholder="搜索姓名/工号..."
-          size="toolbar"
           className="min-w-0 sm:w-[22rem]"
         />
       </FilterBar>

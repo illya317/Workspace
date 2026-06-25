@@ -3,7 +3,7 @@
 import {
   ActionButton,
   EmptyStateCard,
-  StatusBadge,
+  Badge,
 } from "@workspace/core/ui";
 import { contractFields } from "@workspace/hr/constants";
 import type { ContractRow, ProfileField } from "@workspace/hr/types";
@@ -119,8 +119,8 @@ function ContractCard({
       title={(
         <div className="flex flex-wrap items-center gap-3">
           <span>{title}</span>
-          <StatusBadge label={current ? "生效中" : "已失效"} variant={current ? "green" : "gray"} className="px-2 py-1 text-sm" />
-          {row.isPrimary && <StatusBadge label="主合同" variant="blue" className="px-2 py-1 text-sm" />}
+          <Badge label={current ? "生效中" : "已失效"} tone={current ? "green" : "gray"} className="px-2 py-1 text-sm" />
+          {row.isPrimary && <Badge label="主合同" tone="blue" className="px-2 py-1 text-sm" />}
           {summary ? <span className="text-sm font-medium text-slate-500">{summary}</span> : null}
         </div>
       )}

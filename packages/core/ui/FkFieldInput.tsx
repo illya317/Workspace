@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import SearchInput, { type SearchInputSize } from "./SearchInput";
+import SearchInput from "./SearchInput";
 
 export type LifecycleScope = "active" | "all" | "archived";
 
@@ -25,7 +25,6 @@ export interface FkFieldInputProps {
   disabled?: boolean;
   lifecycleScope?: LifecycleScope;
   queryParams?: Record<string, string | number | boolean | null | undefined>;
-  size?: SearchInputSize;
   className?: string;
 }
 
@@ -39,7 +38,6 @@ export default function FkFieldInput({
   disabled,
   lifecycleScope = "active",
   queryParams,
-  size = "compact",
   className,
 }: FkFieldInputProps) {
   const [keyword, setKeyword] = useState("");
@@ -131,7 +129,6 @@ export default function FkFieldInput({
         }}
         disabled={disabled}
         placeholder={selectedName || placeholder}
-        size={size}
         className={className}
       />
       {showDropdown && searching && (

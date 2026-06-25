@@ -71,7 +71,7 @@ export default function EmployeeAnalytics({ employees, employments, edps }: { em
             value={feature}
             onChange={(value) => setFeature(value as DimKey)}
             options={featureList.map((item) => ({ value: item, label: `${DIM_LABELS[item]}分布` }))}
-            selectClassName="min-h-8 w-32"
+            triggerClassName="min-h-8 w-32"
           />
           <span className="text-xs text-gray-400">基于 {stats.active} 位在职员工</span>
           </div>

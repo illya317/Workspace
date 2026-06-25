@@ -3,7 +3,7 @@
 import {
   ActionButton,
   EmptyStateCard,
-  StatusBadge,
+  Badge,
 } from "@workspace/core/ui";
 import { SectionShell } from "./ProfileFormControls";
 import {
@@ -183,8 +183,8 @@ export function EdpSection({
                   title={(
                     <div className="flex flex-wrap items-center gap-2">
                       <span>{row.isNew ? "新增岗位记录" : row.positionName || `岗位记录 #${row.id}`}</span>
-                      <StatusBadge label={current ? "当前岗位" : "历史岗位"} variant={current ? "green" : "gray"} />
-                      {row.isPrimary && <StatusBadge label="主岗" variant="blue" />}
+                      <Badge label={current ? "当前岗位" : "历史岗位"} tone={current ? "green" : "gray"} />
+                      {row.isPrimary && <Badge label="主岗" tone="blue" />}
                       <span className="text-xs font-medium text-slate-500">{row.departmentName || "未设置部门"} · 占比 {row.workPercent || "未设置"}</span>
                     </div>
                   )}

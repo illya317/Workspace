@@ -9,7 +9,7 @@ import {
   FormField,
   SearchInput,
   SectionCard,
-  StatusBadge,
+  Badge,
   SwitchField,
 } from "@workspace/core/ui";
 import ResourceTree, { type ResourceTreeNode } from "../components/ResourceTree";
@@ -94,7 +94,7 @@ function moduleMatches(module: ModuleNode, query: string) {
 }
 
 function StatusPill({ status }: { status: ModuleStatus }) {
-  return <StatusBadge label={STATUS_LABEL[status]} variant={STATUS_VARIANT[status]} />;
+  return <Badge label={STATUS_LABEL[status]} tone={STATUS_VARIANT[status]} />;
 }
 
 function DetailLine({ label, children }: { label: string; children: React.ReactNode }) {
@@ -211,7 +211,6 @@ export default function ModuleManagementTab({ showToast }: Props) {
             value={query}
             onChange={setQuery}
             placeholder="搜索模块"
-            size="compact"
             className="w-full"
           />
         </FilterBar>

@@ -5,7 +5,7 @@ import {
   AutoSizeTextField, BlockCreatePanel, CalendarDateInput, CheckboxChip, CheckboxField, ChoiceGroup,
   CreateConfirmActions, CreateStartButton, FileField, FormField, FormShell, HiddenDataField,
   InlineCreatePanel, RemovableTag, RatingControl, SearchInput, SelectField, SwitchField,
-  TagPillButton, TagRemoveButton, TextField, TextareaField,
+  TagPillButton, TagRemoveButton, TextField, TextareaField, TimeField,
 } from "@workspace/core/ui";
 
 function AutoSizeTextFieldPreview() {
@@ -32,7 +32,10 @@ function BlockCreatePanelPreview() {
   );
 }
 
-function CalendarDateInputPreview() { const [dateValue, setDateValue] = useState<string | null>("2026-06-24"); return <CalendarDateInput value={dateValue} onChange={setDateValue} className="max-w-xs" />; }
+function CalendarDateInputPreview() {
+  const [dateValue, setDateValue] = useState<string | null>("2026-06-24");
+  return <CalendarDateInput value={dateValue} onChange={setDateValue} className="max-w-xs" />;
+}
 
 function CheckboxChipPreview() {
   const [boolValue, setBoolValue] = useState<boolean>(false);
@@ -65,7 +68,7 @@ function FileFieldPreview() {
       <div className="space-y-2"><span className="text-xs font-medium text-slate-600">多文件图片</span><FileField accept="image/*" multiple buttonLabel="选择图片" resetOnChange onChange={() => {}} onFilesChange={(files) => setImageFiles(files ? Array.from(files) : [])} />{imageFiles.length > 0 && <ul className="text-xs text-slate-500">{imageFiles.map((f) => <li key={f.name}>· {f.name}</li>)}</ul>}</div>
       <div className="space-y-2">
         <span className="text-xs font-medium text-slate-600">内联纸面触发样式</span>
-        <div className="text-sm text-slate-700">点击<FileField buttonLabel="此处上传附件" showFileName={false} resetOnChange className="inline text-inherit" controlsClassName="inline" inputClassName="inline cursor-pointer bg-transparent p-0 text-left align-baseline text-inherit outline-none disabled:cursor-default" onChange={() => {}} onFilesChange={(files) => setPaperFiles(files ? Array.from(files) : [])} />上传记录。</div>
+        <div className="text-sm text-slate-700"><FileField variant="inline" buttonLabel="原始数据、图谱、待包装品检验报告单见数据图谱粘贴页。" showFileName={false} resetOnChange onChange={() => {}} onFilesChange={(files) => setPaperFiles(files ? Array.from(files) : [])} /></div>
         {paperFiles.length > 0 && <ul className="text-xs text-slate-500">{paperFiles.map((f) => <li key={f.name}>· {f.name}</li>)}</ul>}
       </div>
     </div>
@@ -139,10 +142,8 @@ function RemovableTagPreview() {
 function RatingControlPreview() { const [rating, setRating] = useState<number>(3); return <RatingControl value={rating} onChange={setRating} max={5} label="重要度" />; }
 
 function SearchInputPreview() {
-  const [page, setPage] = useState("");
-  const [toolbar, setToolbar] = useState("");
-  const [compact, setCompact] = useState("");
-  return <div className="flex flex-col gap-2"><SearchInput value={page} onChange={setPage} size="page" placeholder="页面级搜索..." /><SearchInput value={toolbar} onChange={setToolbar} size="toolbar" placeholder="工具栏搜索..." /><SearchInput value={compact} onChange={setCompact} size="compact" placeholder="紧凑搜索..." /></div>;
+  const [value, setValue] = useState("");
+  return <SearchInput value={value} onChange={setValue} placeholder="搜索..." />;
 }
 
 function SelectFieldPreview() {
@@ -161,8 +162,13 @@ function TextareaFieldPreview() { const [text, setText] = useState<string>(""); 
 
 function TextFieldPreview() {
   const [text, setText] = useState<string>("");
-  const [datetime, setDatetime] = useState<string>("2026-06-24T09:00");
-  return <div className="flex flex-col gap-3"><TextField value={text} onChange={setText} placeholder="请输入文本" className="max-w-xs" /><div className="space-y-1"><TextField type="datetime-local" value={datetime} onChange={setDatetime} className="max-w-xs" /><span className="text-xs text-slate-400">当前值：{datetime}</span></div></div>;
+  const [amount, setAmount] = useState<string>("12");
+  return <div className="flex flex-col gap-3"><TextField value={text} onChange={setText} placeholder="请输入文本" className="max-w-xs" /><TextField type="number" value={amount} onChange={setAmount} className="max-w-xs" /></div>;
+}
+
+function TimeFieldPreview() {
+  const [time, setTime] = useState<string | null>("09:30");
+  return <TimeField value={time} onChange={setTime} className="max-w-[8rem]" />;
 }
 
 export const formPreviewByName: Record<string, FC> = {
@@ -178,4 +184,5 @@ export const formPreviewByName: Record<string, FC> = {
   RemovableTag: RemovableTagPreview, RatingControl: RatingControlPreview, SearchInput: SearchInputPreview,
   SelectField: SelectFieldPreview, SwitchField: SwitchFieldPreview, TagPillButton: TagPillButtonPreview,
   TagRemoveButton: TagRemoveButtonPreview, TextareaField: TextareaFieldPreview, TextField: TextFieldPreview,
+  TimeField: TimeFieldPreview,
 };

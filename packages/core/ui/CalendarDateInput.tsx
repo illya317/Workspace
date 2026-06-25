@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { forwardRef, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { joinClassNames } from "./card-utils";
 import { CalendarDatePopover, parseDate, type PickerMode } from "./CalendarDatePopover";
 import { getFieldInputClassName } from "./FormStyles";
@@ -10,9 +10,14 @@ interface CalendarDateInputProps {
   onChange: (value: string | null) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
   disabled?: boolean;
+  readOnly?: boolean;
   className?: string;
+  wrapperClassName?: string;
   placeholder?: string;
   popoverMode?: "absolute" | "fixed";
+  style?: CSSProperties;
+  title?: string;
+  unstyled?: boolean;
 }
 
 const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
@@ -22,13 +27,19 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
       onChange,
       onKeyDown,
       disabled,
+      readOnly,
       className,
-      placeholder = "选择日期",
+      wrapperClassName = "relative",
+      placeholder,
       popoverMode = "absolute",
+      style,
+      title,
+      unstyled = false,
     },
     ref,
   ) {
     const selected = parseDate(value);
+    const inputPlaceholder = placeholder ?? "选择日期";
     const today = useMemo(() => new Date(), []);
     const [open, setOpen] = useState(false);
     const [mode, setMode] = useState<PickerMode>("day");
@@ -58,10 +69,10 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
     }, [popoverMode]);
 
     const openPicker = useCallback(() => {
-      if (disabled) return;
+      if (disabled || readOnly) return;
       updateFixedPosition();
       setOpen(true);
-    }, [disabled, updateFixedPosition]);
+    }, [disabled, readOnly, updateFixedPosition]);
 
     useEffect(() => {
       if (!open) return;
@@ -95,7 +106,7 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
     }, [open, popoverMode, updateFixedPosition]);
 
     return (
-      <div ref={wrapperRef} className="relative">
+      <div ref={wrapperRef} className={wrapperClassName}>
         <input
           ref={assignInputRef}
           type="text"
@@ -105,11 +116,18 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
           onClick={openPicker}
           onKeyDown={onKeyDown}
           disabled={disabled}
-          placeholder={placeholder}
-          className={joinClassNames(
-            getFieldInputClassName("cursor-pointer caret-transparent text-slate-900"),
-            className,
-          )}
+          aria-readonly={readOnly}
+          placeholder={inputPlaceholder}
+          style={style}
+          title={title}
+          className={
+            unstyled
+              ? className
+              : joinClassNames(
+                  getFieldInputClassName("cursor-pointer caret-transparent text-slate-900"),
+                  className,
+                )
+          }
         />
         {open && !disabled && (
           <CalendarDatePopover

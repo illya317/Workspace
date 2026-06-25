@@ -75,7 +75,6 @@ export default function AccountCodeInput({ companyCode, year, value, onChange, p
         onFocus={() => { if (options.length > 0) setOpen(true); }}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         onKeyDown={onKeyDown}
-        size="compact"
         className={className || "w-32"}
       />
       {open && (

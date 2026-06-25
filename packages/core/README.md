@@ -14,7 +14,6 @@ Workspace 底座包。这里放通用契约和不依赖业务事实、权限、P
 - `ui/SelectField`
 - `ui/FieldValueFilter`
 - `ui/StatusBadge`
-- `ui/StatusToggle`
 - `ui/NumberCell`
 - `ui/AmountCell`
 - `ui/ColumnToggle`

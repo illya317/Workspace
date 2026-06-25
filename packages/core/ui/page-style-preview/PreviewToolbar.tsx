@@ -84,7 +84,7 @@ export default function PreviewToolbar({
       viewControls={viewControls}
       filters={(
         <>
-          <SearchInput value={keyword} onChange={setKeyword} placeholder="搜索" size="toolbar" />
+          <SearchInput value={keyword} onChange={setKeyword} placeholder="搜索" />
           <ToolbarOptionGroup value={mode} onChange={setMode} options={modeOptions} />
           <FieldValueFilter
             fields={fieldOptions}
@@ -119,7 +119,7 @@ export default function PreviewToolbar({
             options={pageSizeOptions}
             value="50"
             onChange={() => {}}
-            selectClassName="!w-[5.75rem] !min-w-[5.75rem]"
+            triggerClassName="!w-[5.75rem] !min-w-[5.75rem]"
           />
         </>
       ) : undefined}

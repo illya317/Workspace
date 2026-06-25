@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dispatch, ReactNode, SetStateAction } from "react";
-import { ActionButton, FormField, HierarchyBadge, MetricCard, PanelCard, TextField } from "@workspace/core/ui";
+import { ActionButton, Badge, FormField, MetricCard, PanelCard, TextField } from "@workspace/core/ui";
 import PositionAliasTagsInput from "./PositionAliasTagsInput";
 import { DetailSectionHeader, formInputClassName, readOnlyInputClassName } from "./detail-editors";
 import { DepartmentDescriptionsPanel } from "./department-descriptions-panel";
@@ -102,7 +102,7 @@ export function DepartmentDetailPane({
           <PanelCard bodyClassName="p-4">
             <DetailSectionHeader
               title="部门信息"
-              meta={<HierarchyBadge level={selectedDepartment.level} />}
+              meta={<Badge level={selectedDepartment.level} className="shrink-0 px-2 py-0.5 font-semibold" />}
               actions={
                 <div className="flex items-center gap-2">
                   {canEditDepartment && (departmentDirty || departmentDescriptionDirty) && (

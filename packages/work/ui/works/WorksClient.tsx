@@ -305,8 +305,7 @@ function MobileSpaceSwitcher({
         disabled={loading || spaces.length === 0}
         placeholder={loading ? "加载中" : "选择空间"}
         searchable
-        size="toolbar"
-        selectClassName="min-w-[14rem] max-w-[calc(100vw-8rem)]"
+        triggerClassName="min-w-[14rem] max-w-[calc(100vw-8rem)]"
         onChange={(nextValue) => {
           const space = spaces.find((item) => targetKey(item) === nextValue);
           if (space) onSelect(space);

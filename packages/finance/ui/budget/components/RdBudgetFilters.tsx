@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionButton, FormField, PanelCard, SelectField, StatusBadge } from "@workspace/core/ui";
+import { ActionButton, FormField, PanelCard, SelectField, Badge } from "@workspace/core/ui";
 
 interface RdBudgetFiltersProps {
   projectFilter: string;
@@ -32,7 +32,7 @@ export default function RdBudgetFilters({
             onChange={setProjectFilter}
             placeholder="全部项目"
             options={projectOptions.map((p) => ({ value: p, label: p }))}
-            selectClassName="min-w-28 px-2 py-1 text-xs"
+            triggerClassName="min-w-28 px-2 py-1 text-xs"
           />
         </FormField>
         <FormField label="产品类别" layout="inline">
@@ -41,7 +41,7 @@ export default function RdBudgetFilters({
             onChange={setCategoryFilter}
             placeholder="全部类别"
             options={categoryOptions.map((c) => ({ value: c, label: c }))}
-            selectClassName="min-w-28 px-2 py-1 text-xs"
+            triggerClassName="min-w-28 px-2 py-1 text-xs"
           />
         </FormField>
         {(projectFilter || categoryFilter) && (
@@ -59,8 +59,8 @@ export default function RdBudgetFilters({
       {(projectFilter || categoryFilter) && (
         <div className="flex flex-wrap gap-2 text-xs text-gray-500">
           <span>当前筛选：</span>
-          {projectFilter && <StatusBadge label={`项目：${projectFilter}`} variant="gray" />}
-          {categoryFilter && <StatusBadge label={`类别：${categoryFilter}`} variant="gray" />}
+          {projectFilter && <Badge label={`项目：${projectFilter}`} tone="gray" />}
+          {categoryFilter && <Badge label={`类别：${categoryFilter}`} tone="gray" />}
         </div>
       )}
     </>

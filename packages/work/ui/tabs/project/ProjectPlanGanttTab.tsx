@@ -112,15 +112,14 @@ export default function ProjectPlanGanttTab({ requestedProjectId }: { requestedP
       <CommandToolbar
         filters={(
           <>
-            <SearchInput value={keyword} onChange={setKeyword} placeholder="搜索项目..." ariaLabel="搜索项目" size="toolbar" className="w-52" />
+            <SearchInput value={keyword} onChange={setKeyword} placeholder="搜索项目..." ariaLabel="搜索项目" className="w-52" />
             <SelectField
               ariaLabel="选择项目"
               value={selectedProjectId ? String(selectedProjectId) : ""}
               placeholder="选择项目"
-              size="toolbar"
               searchable
               className="min-w-52"
-              selectClassName="min-w-52"
+              triggerClassName="min-w-52"
               options={filteredProjects.map((project) => ({ value: String(project.id), label: project.name }))}
               onChange={(value) => setSelectedProjectId(value ? Number(value) : null)}
             />

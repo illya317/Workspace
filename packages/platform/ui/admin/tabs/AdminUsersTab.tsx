@@ -10,7 +10,7 @@ import {
   PanelCard,
   SearchInput,
   SelectField,
-  StatusBadge,
+  Badge,
   TextField,
   type DataTableColumn,
 } from "@workspace/core/ui";
@@ -183,12 +183,12 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
         const summaries = summarizeResourcePermissions(resources, u.resourceRoles as PermissionGrantLike[]);
         return (
           <div className="flex flex-wrap gap-1">
-            {u.isWorkListAdmin && <StatusBadge label="管理员" variant="blue" />}
+            {u.isWorkListAdmin && <Badge label="管理员" tone="blue" />}
             {summaries.map((s) => (
               <span key={s.key} title={formatSummaryTooltip(s)}>
-                <StatusBadge
+                <Badge
                   label={`${s.label}${s.totalChildren > 0 && s.coveredChildren < s.totalChildren ? ` ${s.coveredChildren}/${s.totalChildren}` : ""}`}
-                  variant={ROLE_VARIANTS[ROLE_COLORS[s.roleKey] || "gray"] ?? "gray"}
+                  tone={ROLE_VARIANTS[ROLE_COLORS[s.roleKey] || "gray"] ?? "gray"}
                 />
               </span>
             ))}
@@ -217,7 +217,6 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
             value={keyword}
             onChange={onKeywordChange}
             placeholder={searchMode === "name" ? "搜索姓名..." : "搜索全部..."}
-            size="toolbar"
             className="w-64"
           />
           <ActionButton
@@ -233,8 +232,7 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
           value={String(pageSize)}
           onChange={(nextValue) => onPageSizeChange(Number(nextValue))}
           options={[20, 50, 100].map((n) => ({ value: String(n), label: `${n}条/页` }))}
-          size="toolbar"
-          selectClassName="min-w-32"
+          triggerClassName="min-w-32"
         />
         <ActionButton variant="primary" onClick={() => { setCreating(true); setTimeout(() => nameRef.current?.focus(), 50); }}>
           新建

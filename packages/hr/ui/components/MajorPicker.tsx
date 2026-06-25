@@ -78,7 +78,6 @@ export default function MajorPicker({
         }}
         disabled={disabled}
         placeholder={current?.specialty || "搜索专业"}
-        size="compact"
       />
       {searching && !disabled && (
         <PanelCard className="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-max min-w-full max-w-[min(34rem,calc(100vw-2rem))]" bodyClassName="max-h-64 overflow-auto p-2">

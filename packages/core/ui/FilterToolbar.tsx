@@ -3,8 +3,7 @@
 import FilterBar from "./FilterBar";
 import SelectField from "./SelectField";
 import ColumnToggle, { type ColumnDef } from "./ColumnToggle";
-import SearchInput, { type SearchInputSize } from "./SearchInput";
-import type { SelectFieldSize } from "./SelectField";
+import SearchInput from "./SearchInput";
 import { ActionButton, type ToolbarAction } from "./ActionControls";
 import ToolbarOptionGroup, { type ToolbarOption } from "./ToolbarOptionGroup";
 
@@ -32,8 +31,6 @@ export interface FilterToolbarProps {
   }>;
   secondaryActions?: ToolbarAction[];
   extraRight?: React.ReactNode;
-  controlSize?: SelectFieldSize;
-  searchSize?: SearchInputSize;
   searchClassName?: string;
 }
 
@@ -56,8 +53,6 @@ export default function FilterToolbar({
   optionGroups = [],
   secondaryActions = [],
   extraRight,
-  controlSize = "toolbar",
-  searchSize = "toolbar",
   searchClassName,
 }: FilterToolbarProps) {
   const sizeOptions = pageSizeOptions.map((size) => ({
@@ -86,7 +81,6 @@ export default function FilterToolbar({
           onChange={onKeywordChange}
           placeholder={searchPlaceholder}
           ariaLabel={searchAriaLabel}
-          size={searchSize}
           className={searchClassName ?? "min-w-0"}
         />
       )}
@@ -142,8 +136,7 @@ export default function FilterToolbar({
           options={sizeOptions}
           value={String(pageSize)}
           onChange={(value) => onPageSizeChange(Number(value))}
-          size={controlSize}
-          selectClassName="!w-[6.5rem] !min-w-[6.5rem]"
+          triggerClassName="!w-[6.5rem] !min-w-[6.5rem]"
         />
       )}
 

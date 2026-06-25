@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { DatabasePageFrame } from "@workspace/core/ui";
-import { type AccordionTabItem } from "@workspace/core/ui";
+import { type TabDef } from "@workspace/core/ui";
 import { getPageViewTabsForUser } from "@workspace/platform/view-registry";
 
 import {
@@ -33,7 +33,7 @@ type HRTab =
 
 type HRView = "employee" | "organization" | "department-position" | "bulk" | "generated";
 
-type HRViewTab = AccordionTabItem & { key: HRView };
+type HRViewTab = TabDef & { key: HRView };
 
 function toHRUser(user: SessionUser): HRUser {
   return {

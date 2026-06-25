@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { ActionButton, BlockCreatePanel, CalendarDateInput, CheckboxField, CommandToolbar, DatabasePageFrame, EmptyStateCard, FormField, PanelCard, SectionCard, SelectField, SelectorCard, TextField, Toast, ToolbarOptionGroup, type TextFieldProps } from "@workspace/core/ui";
+import { ActionButton, BlockCreatePanel, CalendarDateInput, CheckboxField, CommandToolbar, DatabasePageFrame, EmptyStateCard, FormField, PanelCard, SectionCard, SelectField, SelectorCard, TextField, TimeField, Toast, ToolbarOptionGroup } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 
 type ToastState = { type: "success" | "error"; message: string } | null;
@@ -303,8 +303,8 @@ export default function MeetingsPage({ user }: { user: SessionUser }) {
             <SelectBox label="会议类型" value={createDraft.typeId} options={types.map((type) => ({ value: String(type.id), label: type.name }))} onChange={(typeId) => setCreateDraft((draft) => ({ ...draft, typeId }))} />
             <InputBox label="会议主题" value={createDraft.title} onChange={(title) => setCreateDraft((draft) => ({ ...draft, title }))} />
             <InputBox label="地点" value={createDraft.location} onChange={(location) => setCreateDraft((draft) => ({ ...draft, location }))} />
-            <InputBox label="开始时间" type="datetime-local" value={createDraft.startAt} onChange={(startAt) => setCreateDraft((draft) => ({ ...draft, startAt }))} />
-            <InputBox label="结束时间" type="datetime-local" value={createDraft.endAt} onChange={(endAt) => setCreateDraft((draft) => ({ ...draft, endAt }))} />
+            <InputBox label="开始时间" kind="datetime" value={createDraft.startAt} onChange={(startAt) => setCreateDraft((draft) => ({ ...draft, startAt }))} />
+            <InputBox label="结束时间" kind="datetime" value={createDraft.endAt} onChange={(endAt) => setCreateDraft((draft) => ({ ...draft, endAt }))} />
             <SelectBox label="可见性" value={createDraft.visibility} options={[{ value: "participants_only", label: selectedType?.defaultVisibility === "public" ? "参会人可见" : "参会人可见" }, { value: "public", label: "模块内公开" }]} onChange={(visibility) => setCreateDraft((draft) => ({ ...draft, visibility: visibility as CreateMeetingDraft["visibility"] }))} />
             <InputBox label="参会用户 ID" value={createDraft.participantUserIds} onChange={(participantUserIds) => setCreateDraft((draft) => ({ ...draft, participantUserIds }))} />
             <InputBox label="说明" value={createDraft.description} onChange={(description) => setCreateDraft((draft) => ({ ...draft, description }))} className="xl:col-span-2" />
@@ -446,7 +446,7 @@ export default function MeetingsPage({ user }: { user: SessionUser }) {
                       <InlineForm>
                         <AgendaSelect meeting={meeting} value={decisionDraft.agendaItemId} onChange={(agendaItemId) => setDecisionDraft((draft) => ({ ...draft, agendaItemId }))} />
                         <SelectBox label="类型" value={decisionDraft.kind} options={DECISION_KIND_OPTIONS} onChange={(kind) => setDecisionDraft((draft) => ({ ...draft, kind }))} />
-                        <InputBox label="生效日期" type="date" value={decisionDraft.effectiveDate} onChange={(effectiveDate) => setDecisionDraft((draft) => ({ ...draft, effectiveDate }))} />
+                        <InputBox label="生效日期" kind="date" value={decisionDraft.effectiveDate} onChange={(effectiveDate) => setDecisionDraft((draft) => ({ ...draft, effectiveDate }))} />
                         <InputBox label="标题" value={decisionDraft.title} onChange={(title) => setDecisionDraft((draft) => ({ ...draft, title }))} />
                         <InputBox label="内容" value={decisionDraft.content} onChange={(content) => setDecisionDraft((draft) => ({ ...draft, content }))} className="md:col-span-2" />
                         <div className="self-end">
@@ -734,24 +734,51 @@ function InputBox({
   label,
   value,
   onChange,
-  type = "text",
+  kind = "text",
   className = "",
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  type?: string;
+  kind?: "text" | "number" | "date" | "datetime";
   className?: string;
 }) {
+  const dateTime = splitDateTimeValue(value);
   return (
     <FormField label={label} className={className}>
-      {type === "date" ? (
+      {kind === "date" ? (
         <CalendarDateInput value={value} onChange={(next) => onChange(next ?? "")} className="w-full" />
+      ) : kind === "datetime" ? (
+        <div className="grid grid-cols-[minmax(0,1fr)_7.5rem] gap-2">
+          <CalendarDateInput
+            value={dateTime.date}
+            onChange={(date) => onChange(combineDateTimeValue(date, dateTime.time))}
+            className="w-full"
+          />
+          <TimeField
+            value={dateTime.time}
+            onChange={(time) => onChange(combineDateTimeValue(dateTime.date, time))}
+            className="w-full"
+          />
+        </div>
       ) : (
-        <TextField type={type as TextFieldProps["type"]} value={value} onChange={onChange} className="w-full" />
+        <TextField type={kind === "number" ? "number" : "text"} value={value} onChange={onChange} className="w-full" />
       )}
     </FormField>
   );
+}
+
+function splitDateTimeValue(value: string) {
+  const match = value.match(/^(\d{4}-\d{2}-\d{2})(?:T(\d{2}:\d{2}))?/);
+  return {
+    date: match?.[1] ?? "",
+    time: match?.[2] ?? "",
+  };
+}
+
+function combineDateTimeValue(date: string | null, time: string | null) {
+  if (!date) return "";
+  return `${date}T${time || "09:00"}`;
 }
 
 function SelectBox({
@@ -767,7 +794,7 @@ function SelectBox({
 }) {
   return (
     <FormField label={label} className="min-w-0">
-      <SelectField value={value} options={options} onChange={onChange} className="w-full" selectClassName="w-full" searchable={options.length > 6} />
+      <SelectField value={value} options={options} onChange={onChange} className="w-full" triggerClassName="w-full" searchable={options.length > 6} />
     </FormField>
   );
 }

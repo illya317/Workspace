@@ -8,7 +8,7 @@ import {
   RefreshActionButton,
   SelectField,
   TextField,
-  Toolbar,
+  CommandToolbar,
   ToolbarOptionGroup,
 } from "@workspace/core/ui";
 
@@ -58,7 +58,7 @@ export function QcBatchToolbar({
   onExport,
 }: QcBatchToolbarProps) {
   return (
-    <Toolbar
+    <CommandToolbar
       viewControls={(
         <CreateStartButton label="新建批次" active={createOpen} onClick={onToggleCreate} />
       )}
@@ -72,8 +72,7 @@ export function QcBatchToolbar({
             placeholder="全部"
             options={productOptions}
             ariaLabel="筛选产品"
-            size="toolbar"
-            selectClassName="min-w-[7.5rem]"
+            triggerClassName="min-w-[7.5rem]"
           />
           <RefreshActionButton onClick={onRefresh} />
         </>
@@ -84,8 +83,7 @@ export function QcBatchToolbar({
           options={pageSizeOptions}
           value={String(pageSize)}
           onChange={(value) => onPageSizeChange(Number(value))}
-          size="toolbar"
-          selectClassName="!w-[6.5rem] !min-w-[6.5rem]"
+          triggerClassName="!w-[6.5rem] !min-w-[6.5rem]"
           ariaLabel="每页条数"
         />
       )}
@@ -132,8 +130,7 @@ export function QcBatchCreatePanel({
           onChange={onProductKeyChange}
           options={products.map((product) => ({ value: product.id, label: product.productName }))}
           ariaLabel="产品"
-          size="toolbar"
-          selectClassName="!w-[7.5rem] !min-w-[7.5rem]"
+          triggerClassName="!w-[7.5rem] !min-w-[7.5rem]"
         />
       </FormField>
       <FormField label="批号" required layout="inline">

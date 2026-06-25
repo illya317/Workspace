@@ -1,6 +1,6 @@
 "use client";
 
-import { PanelCard, StatusBadge } from "@workspace/core/ui";
+import { PanelCard, Badge } from "@workspace/core/ui";
 
 interface ImportResultProps {
   success: boolean;
@@ -13,7 +13,7 @@ export default function ImportResult({ success, message }: ImportResultProps) {
       className={success ? "mb-6 border-emerald-100 bg-emerald-50" : "mb-6 border-red-100 bg-red-50"}
       bodyClassName={success ? "flex items-center gap-3 p-4 text-sm text-emerald-700" : "flex items-center gap-3 p-4 text-sm text-red-700"}
     >
-      <StatusBadge label={success ? "成功" : "失败"} variant={success ? "green" : "red"} />
+      <Badge label={success ? "成功" : "失败"} tone={success ? "green" : "red"} />
       <span>{message}</span>
     </PanelCard>
   );

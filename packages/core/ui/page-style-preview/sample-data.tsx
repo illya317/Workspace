@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import DataTable, { type DataTableColumn } from "../DataTable";
-import StatusBadge from "../StatusBadge";
+import Badge from "../Badge";
 import { type PreviewRow, usePageStylePreviewSamples } from "./sample-context";
 
 function getPreviewColumns(): DataTableColumn<PreviewRow>[] {
@@ -14,7 +14,7 @@ function getPreviewColumns(): DataTableColumn<PreviewRow>[] {
       key: "status",
       label: "状态",
       defaultVisible: true,
-      render: (row) => <StatusBadge label={row.status} variant={row.status === "归档" ? "gray" : "green"} />,
+      render: (row) => <Badge label={row.status} tone={row.status === "归档" ? "gray" : "green"} />,
     },
     { key: "updated", label: "更新时间", defaultVisible: true, render: (row) => row.updated },
   ];
@@ -26,14 +26,14 @@ const columnValueByLabel: Record<string, (row: PreviewRow) => ReactNode> = {
   负责人: (row) => row.owner,
   类型: (row) => row.type,
   范围: (row) => row.scope,
-  状态: (row) => <StatusBadge label={row.status} variant={row.status === "归档" ? "gray" : "green"} />,
+  状态: (row) => <Badge label={row.status} tone={row.status === "归档" ? "gray" : "green"} />,
   更新时间: (row) => row.updated,
 };
 
 function resolveColumnValue(label: string, row: PreviewRow, index: number) {
   const explicit = columnValueByLabel[label];
   if (explicit) return explicit(row);
-  if (label.includes("状态")) return <StatusBadge label={row.status} variant={row.status === "归档" ? "gray" : "green"} />;
+  if (label.includes("状态")) return <Badge label={row.status} tone={row.status === "归档" ? "gray" : "green"} />;
   if (label.includes("日期") || label.includes("时间") || label.includes("到期")) return row.updated;
   if (label.includes("金额") || label.includes("预算") || label.includes("余额") || label.includes("差额")) return "12,800";
   if (label.includes("编码") || label.includes("编号") || label.includes("批号")) return row.code;

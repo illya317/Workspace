@@ -22,7 +22,6 @@ export function ToolbarPreview({ variant }: { variant: "filter" | "action" | "ed
             { value: "active", label: "现用" },
             { value: "archived", label: "已归档" },
           ]}
-          size="toolbar"
         />
       </FilterToolbar>
     );

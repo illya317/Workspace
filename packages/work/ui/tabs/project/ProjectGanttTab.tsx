@@ -86,7 +86,6 @@ export default function ProjectGanttTab({ user }: { user: WorkUser }) {
               onChange={setKeyword}
               placeholder="搜索项目、部门、任务..."
               ariaLabel="搜索公司甘特"
-              size="toolbar"
               className="w-52"
             />
             <ToolbarOptionGroup

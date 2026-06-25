@@ -105,7 +105,7 @@ export default function FinanceBalanceReconcile({
             value: company.code,
             label: company.name,
           }))}
-          selectClassName="min-w-32 px-3 py-1.5 text-sm"
+          triggerClassName="min-w-32 px-3 py-1.5 text-sm"
         />
         <FileField label="余额表Excel" accept=".xls,.xlsx" onChange={setFile} />
         <ActionButton

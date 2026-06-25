@@ -79,7 +79,7 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, showToa
                   { value: "write", label: "编辑" },
                   { value: "delete", label: "删除" },
                 ]}
-                selectClassName="min-h-6 min-w-16 px-1 py-0.5 text-xs text-gray-600"
+                triggerClassName="min-h-6 min-w-16 px-1 py-0.5 text-xs text-gray-600"
               />
             </div>
           )}
@@ -148,8 +148,7 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, showToa
 	                  options={s.l1Options.flatMap((d) =>
 	                    d ? [{ value: d, label: d === "全部" ? "一级部门" : d }] : []
 	                  )}
-	                  size="toolbar"
-	                  selectClassName="min-w-40"
+	                  triggerClassName="min-w-40"
 	                />
 	                {s.l2Options.length > 1 && (
 	                  <SelectField
@@ -158,8 +157,7 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, showToa
 	                    options={s.l2Options.flatMap((d) =>
 	                      d ? [{ value: d, label: d === "全部" ? "二级部门" : d }] : []
 	                    )}
-	                    size="toolbar"
-	                    selectClassName="min-w-40"
+	                    triggerClassName="min-w-40"
 	                  />
 	                )}
 	                {s.l3Options.length > 1 && (
@@ -169,8 +167,7 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, showToa
 	                    options={s.l3Options.flatMap((d) =>
 	                      d ? [{ value: d, label: d === "全部" ? "三级部门" : d }] : []
 	                    )}
-	                    size="toolbar"
-	                    selectClassName="min-w-40"
+	                    triggerClassName="min-w-40"
 	                  />
                 )}
               </>
@@ -185,7 +182,6 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, showToa
               }
               value={s.nameSearch}
               onChange={s.setNameSearch}
-              size="toolbar"
               className="min-w-0 sm:w-[22rem]"
             />
           </FilterBar>

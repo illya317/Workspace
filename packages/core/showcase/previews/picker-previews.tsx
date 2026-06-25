@@ -2,20 +2,19 @@
 
 import { useState, type FC } from "react";
 import {
-  ArchiveSelectorPanel,
   Badge,
+  EntitySelectorPanel,
   FkFieldInput,
   GroupedOptionPicker,
   OptionPicker,
   PickerActionRow,
   PickerOptionButton,
-  PickerSegmentedControl,
   PickerShell,
   SearchableOptionInput,
   SelectorCard,
 } from "@workspace/core/ui";
 
-function ArchiveSelectorPanelPreview() {
+function EntitySelectorPanelPreview() {
   const [tab, setTab] = useState<"active" | "archived">("active");
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | number | null>("emp-1");
@@ -26,7 +25,7 @@ function ArchiveSelectorPanelPreview() {
   ];
   return (
     <div className="max-w-md">
-      <ArchiveSelectorPanel
+      <EntitySelectorPanel
         title="选择员工"
         subtitle="切换现用 / 已归档"
         tabs={[
@@ -56,7 +55,6 @@ function FkFieldInputPreview() {
         onChange={() => {}}
         placeholder="输入姓名搜索..."
         disabled
-        size="compact"
       />
     </div>
   );
@@ -171,21 +169,6 @@ function PickerShellPreview() {
   );
 }
 
-function PickerSegmentedControlPreview() {
-  const [value, setValue] = useState("day");
-  return (
-    <PickerSegmentedControl
-      value={value}
-      onChange={setValue}
-      options={[
-        { label: "日", value: "day" },
-        { label: "周", value: "week" },
-        { label: "月", value: "month" },
-      ]}
-    />
-  );
-}
-
 function SearchableOptionInputPreview() {
   const [value, setValue] = useState<string | null>("zh");
   return (
@@ -238,14 +221,13 @@ function SelectorCardPreview() {
 }
 
 export const pickerPreviewByName: Record<string, FC> = {
-  ArchiveSelectorPanel: ArchiveSelectorPanelPreview,
+  EntitySelectorPanel: EntitySelectorPanelPreview,
   FkFieldInput: FkFieldInputPreview,
   GroupedOptionPicker: GroupedOptionPickerPreview,
   OptionPicker: OptionPickerPreview,
   PickerActionRow: PickerActionRowPreview,
   PickerOptionButton: PickerOptionButtonPreview,
   PickerShell: PickerShellPreview,
-  PickerSegmentedControl: PickerSegmentedControlPreview,
   SearchableOptionInput: SearchableOptionInputPreview,
   SelectorCard: SelectorCardPreview,
 };

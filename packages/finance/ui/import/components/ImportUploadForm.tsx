@@ -39,7 +39,6 @@ export default function ImportUploadForm({
           onChange={onCompanyChange}
           placeholder="请选择公司"
           options={companies.map((c) => ({ value: c.code, label: `${c.code} ${c.name}` }))}
-          size="toolbar"
         />
         <SelectField
           label="导入类型"
@@ -52,7 +51,6 @@ export default function ImportUploadForm({
             { value: "journal", label: "序时账" },
             { value: "account", label: "科目表" },
           ]}
-          size="toolbar"
         />
         <SelectField
           label="年度"
@@ -63,7 +61,6 @@ export default function ImportUploadForm({
             { value: "2025", label: "2025" },
             { value: "2026", label: "2026" },
           ]}
-          size="toolbar"
         />
         <FileField
           label="Excel 文件"

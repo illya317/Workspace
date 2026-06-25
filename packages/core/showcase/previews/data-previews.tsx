@@ -9,7 +9,7 @@ import {
   DataTableActionsCell,
   DisclosureRecordCard,
   RegistryBrowserCard,
-  StatusBadge,
+  Badge,
   StructuredTable,
   TableScrollFrame,
 } from "@workspace/core/ui";
@@ -53,7 +53,7 @@ function DataTablePreview() {
       ]}
       columns={[
         { key: "name", label: "名称", required: true, render: (row) => row.name },
-        { key: "status", label: "状态", defaultVisible: true, render: (row) => <StatusBadge label={row.status} variant={row.status === "已生效" ? "green" : row.status === "待审核" ? "yellow" : "gray"} /> },
+        { key: "status", label: "状态", defaultVisible: true, render: (row) => <Badge label={row.status} tone={row.status === "已生效" ? "green" : row.status === "待审核" ? "yellow" : "gray"} /> },
         { key: "amount", label: "金额", defaultVisible: true, render: (row) => <AmountCell value={row.amount} /> },
         { key: "actions", label: "操作", required: true, render: () => <DataTableActionsCell actions={[{ key: "view", kind: "view", label: "查看", onClick: () => {} }, { key: "edit", kind: "edit", label: "编辑", onClick: () => {} }]} /> },
       ]}
@@ -120,7 +120,7 @@ function DisclosureRecordCardPreview() {
         expanded={expanded}
         onToggle={() => setExpanded((v) => !v)}
         header={<span className="text-sm font-semibold text-slate-900">2026-06-20 合同变更记录</span>}
-        summary={<StatusBadge label="已生效" variant="green" />}
+        summary={<Badge label="已生效" tone="green" />}
         detailTitle="变更详情"
         detailAction={{ label: "还原", onClick: () => {} }}
       >

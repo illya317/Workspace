@@ -16,7 +16,7 @@ import {
   SearchInput,
   SelectField,
   TextField,
-  Toolbar,
+  CommandToolbar,
   type DataTableColumn,
   type SelectFieldOption,
 } from "@workspace/core/ui";
@@ -196,7 +196,7 @@ export default function EmployeeDirectory({
 
   return (
     <div className="space-y-5">
-      <Toolbar
+      <CommandToolbar
         viewControls={canEdit ? (
           <CreateStartButton
             label="新建员工资料"
@@ -215,7 +215,6 @@ export default function EmployeeDirectory({
             }}
             placeholder="搜索员工编号、姓名、拼音"
             ariaLabel="搜索员工编号、姓名、拼音"
-            size="toolbar"
             className="min-w-0"
           />
           <FieldValueFilter
@@ -255,8 +254,7 @@ export default function EmployeeDirectory({
                 setPageSize(Number(value));
                 setPage(1);
               }}
-              size="toolbar"
-              selectClassName="!w-[6.5rem] !min-w-[6.5rem]"
+              triggerClassName="!w-[6.5rem] !min-w-[6.5rem]"
               ariaLabel="每页条数"
             />
           </>

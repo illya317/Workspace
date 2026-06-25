@@ -4,8 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
 import Toast from "@workspace/core/ui/Toast";
 import { useToast } from "@workspace/core/hooks";
-import { ActionButton, FieldValueFilter, getDefaultVisibleColumns, PanelCard } from "@workspace/core/ui";
-import StatusToggle from "@workspace/core/ui/StatusToggle";
+import { FieldValueFilter, getDefaultVisibleColumns, PanelCard, TabBar } from "@workspace/core/ui";
 import AccountTable, { ACCOUNT_COLUMNS, type Account } from "../components/AccountTable";
 import ReclassConfigView from "../components/ReclassConfigView";
 import FinanceFilters from "../components/FinanceFilters";
@@ -111,25 +110,25 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
               />
             )}
             {canWrite && (
-              <>
-                <ActionButton
-                  onClick={() => setReclassMode(!reclassMode)}
-                  variant={reclassMode ? "primary" : "secondary"}
-                >
-                  重分类
-                </ActionButton>
-                {reclassMode && (
-                  <StatusToggle
-                    tabs={[
-                      { key: "hasRule", label: "已配置", count: reclassStats.hasRule },
-                      { key: "noRule", label: "未配置", count: reclassStats.noRule },
-                      { key: "all", label: "全部", count: reclassStats.total },
-                    ]}
-                    active={reclassStatus}
-                    onChange={(k) => setReclassStatus(k as typeof reclassStatus)}
-                  />
-                )}
-              </>
+              <TabBar
+                variant="small"
+                accordion
+                tabs={[
+                  {
+                    key: "reclass",
+                    label: "重分类",
+                    children: [
+                      { key: "hasRule", label: `已配置 ${reclassStats.hasRule}` },
+                      { key: "noRule", label: `未配置 ${reclassStats.noRule}` },
+                      { key: "all", label: `全部 ${reclassStats.total}` },
+                    ],
+                  },
+                ]}
+                active={reclassMode ? "reclass" : ""}
+                activeChild={reclassStatus}
+                onChange={() => setReclassMode(!reclassMode)}
+                onChildChange={(key) => setReclassStatus(key as typeof reclassStatus)}
+              />
             )}
           </>
         }

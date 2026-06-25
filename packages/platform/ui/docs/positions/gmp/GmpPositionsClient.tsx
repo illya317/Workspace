@@ -151,7 +151,6 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
             value={search}
             onChange={setSearch}
             placeholder="搜索岗位..."
-            size="toolbar"
           />
         }
       />

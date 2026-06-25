@@ -162,7 +162,6 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
             placeholder="搜索原因..."
             value={reasonSearch}
             onChange={setReasonSearch}
-            size="toolbar"
             className="max-w-xs"
           />
           <span className="text-xs text-gray-400">{stats.totalLeft} 人</span>

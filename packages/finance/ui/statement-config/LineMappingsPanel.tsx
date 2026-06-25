@@ -6,7 +6,7 @@ import {
   DataTable,
   SearchInput,
   SelectField,
-  StatusBadge,
+  Badge,
   type DataTableColumn,
 } from "@workspace/core/ui";
 import type { AcctInfo, InheritedAcct, LineCfg, Mapping, StatementOperator } from "./types";
@@ -64,10 +64,10 @@ function MappingAction({
 
 function MappingStatus({ mapping }: { mapping: Mapping }) {
   if (mapping.operator === "exclude") {
-    return <StatusBadge label="已排除" variant="gray" />;
+    return <Badge label="已排除" tone="gray" />;
   }
   if (isDefaultMapping(mapping)) {
-    return <StatusBadge label="系统建议" variant="yellow" />;
+    return <Badge label="系统建议" tone="yellow" />;
   }
   return null;
 }
@@ -168,7 +168,7 @@ export default function LineMappingsPanel({
       key: "source",
       label: "来源",
       required: true,
-      render: () => <StatusBadge label="继承" variant="gray" />,
+      render: () => <Badge label="继承" tone="gray" />,
     },
     { key: "accountCode", label: "科目编码", required: true, cellClassName: "font-mono text-gray-500", render: (account) => account.accountCode },
     { key: "accountName", label: "科目名称", required: true, cellClassName: "text-gray-500", render: (account) => account.accountName },
@@ -224,7 +224,6 @@ export default function LineMappingsPanel({
             placeholder="搜索科目编码或名称..."
             value={accountSearch}
             onChange={onAccountSearchChange}
-            size="compact"
             className="w-64"
           />
           <div className="flex items-center gap-2">
@@ -236,7 +235,7 @@ export default function LineMappingsPanel({
                 value: account.code,
                 label: `${account.code} ${account.name}`,
               }))}
-              selectClassName="w-64 px-2 py-1 text-sm"
+              triggerClassName="w-64 px-2 py-1 text-sm"
             />
             <ActionButton
               onClick={() => onSaveMapping(newAccount, line.lineCode, "add")}

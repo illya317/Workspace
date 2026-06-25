@@ -7,13 +7,13 @@ function joinClassNames(...classNames: Array<string | false | null | undefined>)
   return classNames.filter(Boolean).join(" ");
 }
 
-export interface ArchiveSelectorTab<T extends string> {
+export interface EntitySelectorTab<T extends string> {
   id: T;
   label: ReactNode;
   count?: ReactNode;
 }
 
-export interface ArchiveSelectorItem {
+export interface EntitySelectorItem {
   id: string | number;
   title: ReactNode;
   code?: ReactNode;
@@ -21,18 +21,18 @@ export interface ArchiveSelectorItem {
   meta?: ReactNode;
 }
 
-export interface ArchiveSelectorPanelProps<T extends string> {
+export interface EntitySelectorPanelProps<T extends string> {
   title: ReactNode;
   subtitle?: ReactNode;
-  tabs: ArchiveSelectorTab<T>[];
+  tabs: EntitySelectorTab<T>[];
   activeTab: T;
   onTabChange: (tab: T) => void;
   searchValue: string;
   onSearchChange: (value: string) => void;
   searchPlaceholder?: string;
-  items: ArchiveSelectorItem[];
+  items: EntitySelectorItem[];
   activeItemId?: string | number | null;
-  onItemSelect: (item: ArchiveSelectorItem) => void;
+  onItemSelect: (item: EntitySelectorItem) => void;
   emptyText?: ReactNode;
   onClose?: () => void;
   className?: string;
@@ -40,7 +40,7 @@ export interface ArchiveSelectorPanelProps<T extends string> {
   showSearch?: boolean;
 }
 
-export default function ArchiveSelectorPanel<T extends string>({
+export default function EntitySelectorPanel<T extends string>({
   title,
   subtitle,
   tabs,
@@ -52,12 +52,12 @@ export default function ArchiveSelectorPanel<T extends string>({
   items,
   activeItemId,
   onItemSelect,
-  emptyText = "暂无归档数据",
+  emptyText = "暂无可选数据",
   onClose,
   className = "",
   showHeader = true,
   showSearch = true,
-}: ArchiveSelectorPanelProps<T>) {
+}: EntitySelectorPanelProps<T>) {
   return (
     <PanelCard className={className} bodyClassName="p-3">
       {(showHeader || onClose) && (
@@ -104,7 +104,6 @@ export default function ArchiveSelectorPanel<T extends string>({
           value={searchValue}
           onChange={onSearchChange}
           placeholder={searchPlaceholder}
-          size="page"
           className="mt-3"
         />
       )}

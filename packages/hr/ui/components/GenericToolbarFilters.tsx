@@ -118,7 +118,6 @@ export default function GenericToolbarFilters({
               { label: "否", value: "false" },
             ]}
             placeholder="全部"
-            size="toolbar"
           />
         ) : f.type === "select" && f.options ? (
           <SelectField
@@ -128,7 +127,6 @@ export default function GenericToolbarFilters({
             label={f.label}
             options={f.options}
             placeholder="全部"
-            size="toolbar"
           />
         ) : (
           <SearchInput
@@ -136,7 +134,6 @@ export default function GenericToolbarFilters({
             value={(filterValues[f.key] as string) ?? ""}
             onChange={(value) => onFilterChange(f.key, value)}
             placeholder={f.label}
-            size="toolbar"
           />
         )
       )}

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { DataTable, EmptyStateCard, PanelCard, StatusBadge, type DataTableColumn } from "@workspace/core/ui";
+import { DataTable, EmptyStateCard, PanelCard, Badge, type DataTableColumn } from "@workspace/core/ui";
 import type { LibraryDocumentItem } from "@workspace/library/types";
 import LibraryDetailModal from "./LibraryDetailModal";
 
@@ -66,7 +66,7 @@ export default function LibraryTable({
       render: (d) => d.tags && d.tags.length > 0 ? (
         <div className="flex flex-wrap gap-1">
           {d.tags.map((tag) => (
-            <StatusBadge key={tag} label={tag} variant="green" />
+            <Badge key={tag} label={tag} tone="green" />
           ))}
         </div>
       ) : <span className="text-gray-300">—</span>,

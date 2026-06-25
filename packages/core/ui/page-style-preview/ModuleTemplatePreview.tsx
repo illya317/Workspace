@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import AccordionTabBar from "../AccordionTabBar";
+import TabBar from "../TabBar";
 import PreviewToolbar from "./PreviewToolbar";
 import { getPreviewPages, type ModuleTemplate, type PageTemplate, type PageViewDefinition } from "./template-data";
 import TemplateFooter from "./TemplateFooter";
@@ -43,11 +43,13 @@ export default function ModuleTemplatePreview({
       <TemplateHeader page={page} />
 
       {viewDefinition && (
-        <AccordionTabBar
+        <TabBar
+          variant="large"
+          accordion
           tabs={viewDefinition.views}
-          activeTab={activeView}
+          active={activeView}
           activeChild={activeChild}
-          onTabChange={onActiveViewChange}
+          onChange={onActiveViewChange}
           onChildChange={onActiveChildChange}
         />
       )}

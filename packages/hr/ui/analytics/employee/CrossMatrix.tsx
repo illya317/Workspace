@@ -94,7 +94,7 @@ export default function CrossMatrix({
             value={crossRow}
             onChange={(value) => setCrossRow(value as DimKey)}
             options={rowOptions}
-            selectClassName="min-h-7 w-28"
+            triggerClassName="min-h-7 w-28"
           />
         </div>
         <span className="text-xs text-gray-300">&times;</span>
@@ -104,7 +104,7 @@ export default function CrossMatrix({
             value={crossCol}
             onChange={(value) => setCrossCol(value as DimKey)}
             options={colOptions}
-            selectClassName="min-h-7 w-28"
+            triggerClassName="min-h-7 w-28"
           />
         </div>
         <span className="text-xs text-gray-400">共 {statsActive} 人</span>

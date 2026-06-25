@@ -89,7 +89,7 @@ export function PositionDescriptionPanel({
                 { value: NEW_POSITION_DESCRIPTION_TEMPLATE_OPTION, label: "新建模板..." },
               ]}
               className="w-32"
-              selectClassName="min-h-7 text-slate-700"
+              triggerClassName="min-h-7 text-slate-700"
             />
           </FormField>
           <ActionButton

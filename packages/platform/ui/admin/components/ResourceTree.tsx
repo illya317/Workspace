@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { StatusBadge, TreeNodeBranch, TreeNodeCard } from "@workspace/core/ui";
+import { Badge, TreeNodeBranch, TreeNodeCard } from "@workspace/core/ui";
 
 type StatusVariant = "green" | "yellow" | "gray";
 
@@ -51,14 +51,14 @@ export default function ResourceTree({
   function renderStatus(resource: ResourceTreeNode) {
     if (resource.statusLabel) {
       return (
-        <StatusBadge
+        <Badge
           label={resource.statusLabel}
-          variant={resource.statusVariant ?? "gray"}
+          tone={resource.statusVariant ?? "gray"}
         />
       );
     }
-    if (resource.hidden) return <StatusBadge label="隐藏" variant="yellow" />;
-    if (resource.enabled === false) return <StatusBadge label="停用" variant="gray" />;
+    if (resource.hidden) return <Badge label="隐藏" tone="yellow" />;
+    if (resource.enabled === false) return <Badge label="停用" tone="gray" />;
     return null;
   }
 

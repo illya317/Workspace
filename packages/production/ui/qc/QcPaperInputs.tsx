@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { ChoiceGroup, TextareaField, TextField } from "@workspace/core/ui";
+import { CalendarDateInput, ChoiceGroup, TextareaField, TextField } from "@workspace/core/ui";
 import type { QcLayoutPart } from "@workspace/production/server/qc";
 
 const PAPER_INPUT_TEXT_CLASS = "text-[15px]";
@@ -73,11 +73,6 @@ function selectRootBorderClass(part: QcLayoutPart, inTable?: boolean) {
   return "border-b border-slate-950";
 }
 
-function textInputType(part: QcLayoutPart) {
-  if (part.inputType === "date") return "date";
-  return "text";
-}
-
 export function QcPaperLineInput({
   part,
   readOnly,
@@ -113,6 +108,21 @@ export function QcPaperLineInput({
       />
     );
   }
+  if (part.inputType === "date") {
+    return (
+      <CalendarDateInput
+        value={currentValue}
+        onChange={(next) => onChange?.(next ?? "")}
+        placeholder={part.placeholder}
+        readOnly={isReadOnly}
+        title={error}
+        unstyled
+        wrapperClassName="relative inline-block align-middle"
+        className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-[4.5em] border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass()} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
+        style={inputWidth(part, inTable, currentValue)}
+      />
+    );
+  }
   return (
     <TextField
       aria-label={part.fieldKey || part.field || part.name || "填写项"}
@@ -122,7 +132,7 @@ export function QcPaperLineInput({
       placeholder={part.placeholder}
       readOnly={isReadOnly}
       inputMode={part.inputType === "number" ? "decimal" : undefined}
-      type={textInputType(part)}
+      type="text"
       title={error}
       unstyled
       className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-[4.5em] border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass()} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}

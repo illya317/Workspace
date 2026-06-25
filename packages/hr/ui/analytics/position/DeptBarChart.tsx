@@ -82,7 +82,7 @@ export default function DeptBarChart({
           placeholder="全部事业部"
           options={l1List.map((dept) => ({ value: String(dept.id), label: dept.name }))}
           className="ml-auto w-40"
-          selectClassName="min-h-8"
+          triggerClassName="min-h-8"
         />
       }
     >

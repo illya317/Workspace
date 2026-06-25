@@ -63,7 +63,6 @@ export default function PositionTable({
           placeholder="搜索岗位名、编码、部门..."
           value={search}
           onChange={setSearch}
-          size="toolbar"
           className="max-w-sm"
         />
         <span className="text-xs text-gray-400">共 {filtered.length} 个岗位</span>

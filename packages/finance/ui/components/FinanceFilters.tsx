@@ -86,8 +86,7 @@ export default function FinanceFilters({
           value={companyFilter}
           onChange={onCompanyChange}
           placeholder="全部"
-          size="toolbar"
-          selectClassName="min-w-32"
+          triggerClassName="min-w-32"
         />
       )}
       {showCompanyYear && onYearChange && (
@@ -97,8 +96,7 @@ export default function FinanceFilters({
           value={yearFilter}
           onChange={onYearChange}
           placeholder="全部"
-          size="toolbar"
-          selectClassName="min-w-32"
+          triggerClassName="min-w-32"
         />
       )}
       {showMonth && onMonthChange && (
@@ -108,8 +106,7 @@ export default function FinanceFilters({
           value={monthFilter}
           onChange={onMonthChange}
           placeholder="全部"
-          size="toolbar"
-          selectClassName="min-w-32"
+          triggerClassName="min-w-32"
         />
       )}
       {showLevel && onLevelChange && (
@@ -119,8 +116,7 @@ export default function FinanceFilters({
           value={levelFilter}
           onChange={onLevelChange}
           placeholder="全部"
-          size="toolbar"
-          selectClassName="min-w-32"
+          triggerClassName="min-w-32"
         />
       )}
       {extra}

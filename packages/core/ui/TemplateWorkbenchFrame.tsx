@@ -7,7 +7,7 @@ import { joinClassNames } from "./card-utils";
 import CommandToolbar from "./CommandToolbar";
 import SearchInput from "./SearchInput";
 import SelectorCard, { type SelectorCardMetaItem } from "./SelectorCard";
-import StatusBadge, { type StatusBadgeProps } from "./StatusBadge";
+import Badge, { type BadgeProps } from "./Badge";
 import { matchText } from "../search";
 
 export interface TemplateWorkbenchSelectorItem {
@@ -43,7 +43,7 @@ export interface TemplateWorkbenchSection {
   title: ReactNode;
   subtitle?: ReactNode;
   searchText?: Array<string | number | null | undefined>;
-  status?: { label: string; variant: StatusBadgeProps["variant"] };
+  status?: { label: string; tone: BadgeProps["tone"] };
   collapsible?: boolean;
   defaultExpanded?: boolean;
   expanded?: boolean;
@@ -122,7 +122,7 @@ function TemplateSection({ section, onToggle }: { section: SectionView; onToggle
   const title = (
     <span className="flex min-w-0 items-center gap-3">
       <span className="truncate">{section.title}</span>
-      {section.status && <StatusBadge label={section.status.label} variant={section.status.variant} />}
+      {section.status && <Badge label={section.status.label} tone={section.status.tone} />}
     </span>
   );
   const canToggle = section.collapsible || section.onToggle;
@@ -192,7 +192,7 @@ export default function TemplateWorkbenchFrame({
 
   const filters = (
     <>
-      <SearchInput value={searchValue} onChange={updateQuery} placeholder={searchPlaceholder} size="toolbar" className="min-w-[260px] flex-1" />
+      <SearchInput value={searchValue} onChange={updateQuery} placeholder={searchPlaceholder} className="min-w-[260px] flex-1" />
       {toolbarFilters}
     </>
   );

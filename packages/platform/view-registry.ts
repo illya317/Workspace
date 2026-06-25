@@ -1,4 +1,4 @@
-import type { AccordionTabItem } from "@workspace/core/ui";
+import type { TabDef } from "@workspace/core/ui";
 import type { PageStyleRouteModule, PageViewDefinition, PageViewNode } from "@workspace/core/ui/page-style-preview/template-data";
 import { effectiveModuleDefinitions } from "./effective-module-registry";
 import { applyRouteRuntimeLabel, getRouteRuntimeMeta, type RouteRuntimeMeta } from "./route-runtime-labels";
@@ -343,16 +343,16 @@ export function getPageViewDefinition(route: string) {
   return pageViewDefinitions.find((definition) => definition.route === route);
 }
 
-export function getPageViewTabs(route: string): AccordionTabItem[] {
-  return toAccordionTabs(getPageViewDefinition(route)?.views ?? []);
+export function getPageViewTabs(route: string): TabDef[] {
+  return toTabDefs(getPageViewDefinition(route)?.views ?? []);
 }
 
-export function getPageViewTabsForUser(route: string, visibleResourceKeys: readonly string[]): AccordionTabItem[] {
+export function getPageViewTabsForUser(route: string, visibleResourceKeys: readonly string[]): TabDef[] {
   const visible = new Set(visibleResourceKeys);
-  return toAccordionTabs(filterViewNodesByResource(getPageViewDefinition(route)?.views ?? [], visible));
+  return toTabDefs(filterViewNodesByResource(getPageViewDefinition(route)?.views ?? [], visible));
 }
 
-export function toAccordionTabs(nodes: PageViewNode[]): AccordionTabItem[] {
+export function toTabDefs(nodes: PageViewNode[]): TabDef[] {
   return nodes.map((node) => ({
     key: node.key,
     label: node.label,

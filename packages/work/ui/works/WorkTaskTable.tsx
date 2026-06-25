@@ -5,7 +5,7 @@ import {
   DataTable,
   DataTableActionsCell,
   EmptyStateCard,
-  StatusBadge,
+  Badge,
   TableScrollFrame,
   createDataTableEditActions,
   isDataTableEditDirty,
@@ -222,7 +222,7 @@ function createColumns({
       render: (work) => {
         const status = work.itemType === "task" ? (work.isArchived ? "archived" : work.status) : null;
         if (!status) return <span className="text-sm text-slate-300">-</span>;
-        return <StatusBadge label={getStatusLabel(status)} variant={statusVariant(status)} />;
+        return <Badge label={getStatusLabel(status)} tone={statusVariant(status)} />;
       },
     },
     {

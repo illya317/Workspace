@@ -48,8 +48,8 @@ function stageFeedbackSummary(template: QcTemplateDetail, stage: QcTemplateStage
   ].filter(Boolean);
   const open = states.filter((state) => state === "open").length;
   const resolved = states.filter((state) => state === "resolved").length;
-  if (open > 0) return { label: `${open} 项待处理`, variant: "red" as const };
-  if (resolved > 0) return { label: `${resolved} 项已解决`, variant: "green" as const };
+  if (open > 0) return { label: `${open} 项待处理`, tone: "red" as const };
+  if (resolved > 0) return { label: `${resolved} 项已解决`, tone: "green" as const };
   return undefined;
 }
 

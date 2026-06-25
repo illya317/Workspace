@@ -81,7 +81,7 @@ export default function DepartmentSwitcher({ onChange }: { onChange?: (deptId: n
         onChange={handleCompanyChange}
         placeholder="选择公司"
         options={companies.map((c) => ({ value: c, label: c }))}
-        selectClassName="min-w-24 px-2 py-1 text-xs"
+        triggerClassName="min-w-24 px-2 py-1 text-xs"
       />
       <SelectField
         value={selectedDeptId == null ? "" : String(selectedDeptId)}
@@ -94,7 +94,7 @@ export default function DepartmentSwitcher({ onChange }: { onChange?: (deptId: n
           value: String(d.id),
           label: d.id === selectedDeptId ? `${d.name}（当前）` : d.name,
         }))}
-        selectClassName="min-w-28 px-2 py-1 text-xs"
+        triggerClassName="min-w-28 px-2 py-1 text-xs"
       />
     </div>
   );

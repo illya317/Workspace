@@ -2,10 +2,10 @@
 
 import type { ReactNode } from "react";
 import {
-  ArchiveSelectorPanel,
-  HierarchyBadge,
+  EntitySelectorPanel,
+  Badge,
   Toast,
-  type ArchiveSelectorItem,
+  type EntitySelectorItem,
   WorkspaceSplitPage,
 } from "@workspace/core/ui";
 import type { ArchivedEntityTab, Department, Position, Selection } from "./types";
@@ -44,12 +44,12 @@ export function ArchivedDepartmentPositionPage({
   onToastClose: () => void;
   children: ReactNode;
 }) {
-  const archivedItems: ArchiveSelectorItem[] = archivedTab === "departments"
+  const archivedItems: EntitySelectorItem[] = archivedTab === "departments"
     ? archivedDepartments.map((department) => ({
       id: department.id,
       title: department.name,
       code: department.code,
-      badge: <HierarchyBadge level={department.level} />,
+      badge: <Badge level={department.level} className="shrink-0 px-2 py-0.5 font-semibold" />,
       meta: `上级：${department.parentName || "-"} · 归档：${formatArchiveTime(department.archivedAt)}`,
     }))
     : archivedPositions.map((position) => ({
@@ -73,7 +73,7 @@ export function ArchivedDepartmentPositionPage({
         onDrawerOpenChange={onDrawerOpenChange}
         showSideControls={false}
         renderSide={(mode) => (
-          <ArchiveSelectorPanel
+          <EntitySelectorPanel
             title=""
             className={mode === "drawer" ? "h-full overflow-hidden" : ""}
             tabs={[

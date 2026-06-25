@@ -1,7 +1,7 @@
 "use client";
 
 import { PanelCard } from "../BaseCards";
-import StatusBadge from "../StatusBadge";
+import Badge from "../Badge";
 import type { PageTemplate } from "./template-data";
 
 const kindLabels: Record<PageTemplate["kind"], string> = {
@@ -30,7 +30,7 @@ export default function TemplateHeader({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-lg font-semibold text-slate-950">{page.title}</h2>
-            <StatusBadge label={getKindLabel(page)} variant="blue" />
+            <Badge label={getKindLabel(page)} tone="blue" />
           </div>
           <p className="mt-1 text-sm text-slate-500">{page.label}</p>
         </div>

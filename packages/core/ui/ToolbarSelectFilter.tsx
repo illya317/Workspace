@@ -107,7 +107,6 @@ export default function ToolbarSelectFilter({
               value={query}
               onChange={setQuery}
               placeholder="搜索..."
-              size="compact"
               className="mb-1"
             />
           )}
