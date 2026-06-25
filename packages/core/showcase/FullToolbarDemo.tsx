@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PanelCard, Toolbar, type ColumnDef, type ToolbarItem } from "@workspace/core/ui";
+import { Toolbar, type ColumnDef, type ToolbarItem } from "@workspace/core/ui";
 
 const noop = () => undefined;
 
@@ -106,9 +106,5 @@ export default function FullToolbarDemo() {
     [demoVisibleColumns],
   );
 
-  return (
-    <PanelCard title="完整版 Toolbar 示例（全参数）" bodyClassName="p-4">
-      <Toolbar items={fullToolbarItems} />
-    </PanelCard>
-  );
+  return <Toolbar items={fullToolbarItems} className="mb-5" />;
 }
