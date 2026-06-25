@@ -27,7 +27,7 @@
 | 现有模块新增能力 | `docs/existing-module-feature-checklist.md` |
 | 数据库和 schema | `docs/schema-governance.md`, `docs/database.md` |
 | 权限模型 | `docs/security/rbac.md`, `docs/security/permission-matrix.md` |
-| 环境和部署 | `docs/ops/environment.md`, `docs/ops/deploy.md` |
+| 环境和部署 | `docs/ops/README.md`（公开说明）；私有部署文档在 `/Users/koito/Desktop/workspace/ops/docs/` |
 
 ## 参考资料
 

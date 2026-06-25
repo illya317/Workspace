@@ -66,8 +66,9 @@ next-env.d.ts
 # Deployment lock file
 .deploying
 
-# Server deployment secrets
+# Server deployment secrets and local ops overrides
 ops/server.env.sh
+ops/*.local.sh
 
 # Playwright test results
 /test-results/

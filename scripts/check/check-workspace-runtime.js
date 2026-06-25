@@ -3,23 +3,18 @@
  * Validate the external runtime workspace used for local restore and deploys.
  *
  * This intentionally prints only paths, counts, and key names. It must never
- * print secret values from .env or ops/server.env.sh.
+ * print secret values from .env.
  */
 
 const fs = require("fs");
 const path = require("path");
-const dns = require("dns");
 
 const ROOT = path.resolve(__dirname, "..", "..");
-const TARGETS_FILE = path.join(ROOT, "ops", "deploy-targets.json");
-const SERVER_ENV_FILE = path.join(ROOT, "ops", "server.env.sh");
 const REPO_ENV_FILE = path.join(ROOT, ".env");
 
 const args = process.argv.slice(2);
 const options = {
-  target: "production",
   strict: false,
-  checkDns: false,
   workspaceDir: "",
 };
 
@@ -44,12 +39,6 @@ for (let i = 0; i < args.length; i += 1) {
   const arg = args[i];
   if (arg === "--strict") {
     options.strict = true;
-  } else if (arg === "--check-dns") {
-    options.checkDns = true;
-  } else if (arg === "--target") {
-    options.target = args[++i] || options.target;
-  } else if (arg.startsWith("--target=")) {
-    options.target = arg.slice("--target=".length);
   } else if (arg === "--workspace") {
     options.workspaceDir = args[++i] || "";
   } else if (arg.startsWith("--workspace=")) {
@@ -83,29 +72,15 @@ function parseKeyValueFile(filePath) {
   return values;
 }
 
-function readTargets() {
-  if (!fs.existsSync(TARGETS_FILE)) {
-    fail(`Missing deploy target manifest: ${path.relative(ROOT, TARGETS_FILE)}`);
-    return {};
-  }
-  try {
-    return JSON.parse(fs.readFileSync(TARGETS_FILE, "utf8"));
-  } catch (error) {
-    fail(`Cannot parse ${path.relative(ROOT, TARGETS_FILE)}: ${error.message}`);
-    return {};
-  }
-}
-
 function stripFilePrefix(databaseUrl) {
   if (!databaseUrl.startsWith("file:")) return "";
   return databaseUrl.slice("file:".length).replace(/^\/\/(?=\/)/, "");
 }
 
-function resolveWorkspaceDir(serverEnv, repoEnv) {
+function resolveWorkspaceDir(repoEnv) {
   const candidates = [
     options.workspaceDir,
     process.env.LOCAL_WORKSPACE_CONFIG_DIR,
-    serverEnv.get("LOCAL_WORKSPACE_CONFIG_DIR"),
     process.env.WORKSPACE_CONFIG_DIR,
     repoEnv.get("WORKSPACE_CONFIG_DIR"),
     path.join(ROOT, "..", ".workspace"),
@@ -145,7 +120,7 @@ function validateOptionalFile(root, relativePath, label) {
   return true;
 }
 
-function validateWorkspaceManifest(workspaceDir, target) {
+function validateWorkspaceManifest(workspaceDir) {
   const manifestPath = path.join(workspaceDir, "manifest.json");
   if (!validateRequiredFile(workspaceDir, "manifest.json", "workspace manifest")) return;
 
@@ -158,24 +133,21 @@ function validateWorkspaceManifest(workspaceDir, target) {
   }
 
   const productionTarget = manifest.productionTarget || {};
-  const checks = [
-    ["serverHost", target.serverHost],
-    ["remoteDir", target.remoteDir],
-    ["pm2Name", target.pm2Name],
-  ];
-  for (const [key, expected] of checks) {
-    if (!expected) continue;
-    if (productionTarget[key] !== expected) {
-      fail(`workspace manifest productionTarget.${key} is ${productionTarget[key] || "(missing)"}, expected ${expected}`);
+  const requiredKeys = ["serverHost", "remoteDir", "pm2Name"];
+  for (const key of requiredKeys) {
+    if (!productionTarget[key]) {
+      fail(`workspace manifest productionTarget.${key} is missing`);
     }
   }
-  if (target.domain && productionTarget.domain !== target.domain) {
-    fail(`workspace manifest productionTarget.domain is ${productionTarget.domain || "(missing)"}, expected ${target.domain}`);
+  if (!manifest.productionTarget) {
+    fail("workspace manifest productionTarget is missing");
   }
-  ok("workspace manifest matches deploy target");
+  if (exitCode === 0) {
+    ok("workspace manifest has productionTarget");
+  }
 }
 
-function validateDatabase(dbPath, target) {
+function validateDatabase(dbPath) {
   if (!fs.existsSync(dbPath)) {
     fail(`Database file missing: ${dbPath}`);
     return;
@@ -218,55 +190,9 @@ function validateDatabase(dbPath, target) {
       )
       .get().count;
     ok(`Database users: ${users}; WeCom-linked users: ${wxUsers}`);
-    if (target.requiresWecomUserIds && wxUsers === 0) {
-      fail("Production target requires WeCom-linked users, but none were found");
-    }
     db.close();
   } catch (error) {
     fail(`Cannot read SQLite database: ${error.message}`);
-  }
-}
-
-function parseServerHost(serverValue) {
-  if (!serverValue) return "";
-  const withoutUser = serverValue.includes("@") ? serverValue.split("@").pop() : serverValue;
-  return withoutUser.split(":")[0];
-}
-
-function validateDeployConfig(target, serverEnv) {
-  if (!fs.existsSync(SERVER_ENV_FILE)) {
-    warn("ops/server.env.sh not found; deploy target config was not checked");
-    return;
-  }
-
-  const server = serverEnv.get("SERVER");
-  const host = parseServerHost(server);
-  if (!host) {
-    fail("SERVER is missing in ops/server.env.sh");
-  } else if (target.serverHost && host !== target.serverHost) {
-    fail(`SERVER host is ${host}, expected ${target.serverHost} for ${options.target}`);
-  } else {
-    ok(`Deploy server matches ${options.target}: ${host}`);
-  }
-
-  const remoteDir = serverEnv.get("REMOTE_DIR");
-  if (target.remoteDir && remoteDir !== target.remoteDir) {
-    fail(`REMOTE_DIR is ${remoteDir || "(missing)"}, expected ${target.remoteDir}`);
-  } else {
-    ok(`REMOTE_DIR matches ${target.remoteDir}`);
-  }
-
-  const pm2Name = serverEnv.get("PM2_NAME");
-  if (target.pm2Name && pm2Name !== target.pm2Name) {
-    fail(`PM2_NAME is ${pm2Name || "(missing)"}, expected ${target.pm2Name}`);
-  } else {
-    ok(`PM2_NAME matches ${target.pm2Name}`);
-  }
-
-  if (serverEnv.has("KEY_CONTENT") || serverEnv.has("KEY")) {
-    ok("SSH key config is present");
-  } else {
-    fail("SSH key config is missing; set KEY or KEY_CONTENT in ops/server.env.sh");
   }
 }
 
@@ -323,33 +249,11 @@ function validateEnv(workspaceDir, workspaceEnv) {
   return databasePath;
 }
 
-async function validateDns(target) {
-  if (!options.checkDns || !target.domain || !target.serverHost) return;
-  try {
-    const addresses = await dns.promises.resolve4(target.domain);
-    if (addresses.includes(target.serverHost)) {
-      ok(`${target.domain} resolves to ${target.serverHost}`);
-    } else {
-      fail(`${target.domain} resolves to ${addresses.join(", ")}, expected ${target.serverHost}`);
-    }
-  } catch (error) {
-    fail(`Cannot resolve ${target.domain}: ${error.message}`);
-  }
-}
-
 async function main() {
-  const targets = readTargets();
-  const target = targets[options.target];
-  if (!target) {
-    fail(`Unknown deploy target: ${options.target}`);
-    process.exit(exitCode);
-  }
-
-  const serverEnv = parseKeyValueFile(SERVER_ENV_FILE);
   const repoEnv = parseKeyValueFile(REPO_ENV_FILE);
-  const workspaceDir = resolveWorkspaceDir(serverEnv, repoEnv);
+  const workspaceDir = resolveWorkspaceDir(repoEnv);
 
-  console.log(`Workspace runtime check: ${options.target}`);
+  console.log(`Workspace runtime check`);
   console.log(`Workspace dir: ${workspaceDir}`);
 
   if (!fs.existsSync(workspaceDir)) {
@@ -359,7 +263,7 @@ async function main() {
 
   const workspaceEnvPath = path.join(workspaceDir, ".env");
   validateRequiredFile(workspaceDir, ".env", "workspace .env");
-  validateWorkspaceManifest(workspaceDir, target);
+  validateWorkspaceManifest(workspaceDir);
   validateRequiredFile(workspaceDir, "data/dev.db", "workspace database");
   validateRequiredFile(workspaceDir, "assets/brand/company/logo.png", "company logo");
   validateRequiredFile(workspaceDir, "assets/brand/favicon.ico", "favicon.ico");
@@ -385,9 +289,7 @@ async function main() {
 
   const workspaceEnv = parseKeyValueFile(workspaceEnvPath);
   const databasePath = validateEnv(workspaceDir, workspaceEnv);
-  if (databasePath) validateDatabase(databasePath, target);
-  validateDeployConfig(target, serverEnv);
-  await validateDns(target);
+  if (databasePath) validateDatabase(databasePath);
 
   if (options.strict && warnings.length > 0) {
     fail(`Strict mode treats ${warnings.length} warning(s) as failures`);

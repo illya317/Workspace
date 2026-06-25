@@ -27,7 +27,7 @@ if [ -z "$SERVER" ]; then
 fi
 
 if [ -z "$REMOTE_DIR" ]; then
-  echo "[错误] 缺少 REMOTE_DIR 环境变量，例如 /home/ubuntu/workspace"
+  echo "[错误] 缺少 REMOTE_DIR 环境变量，例如 /home/<user>/workspace"
   exit 1
 fi
 

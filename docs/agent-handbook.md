@@ -38,10 +38,10 @@ git -c credential.helper= -c credential.helper='!cnb git-credential' push cnb ma
 ```bash
 sha="$(git rev-parse HEAD)"
 cnb build start-build \
-  --repo illya317/workspace \
+  --repo <CNB_REPO> \
   --branch main \
   --sha "$sha" \
-  --event api_trigger \
+  --event api_trigger_manual \
   --title "deploy ${sha:0:8}" \
   --sync false \
   --verbose
@@ -50,14 +50,14 @@ cnb build start-build \
 部署后用返回的 `sn` 查询状态：
 
 ```bash
-cnb build get-build-status --repo illya317/Workspace --sn "<sn>" --verbose
+cnb build get-build-status --repo <CNB_REPO> --sn "<sn>" --verbose
 ```
 
 如果部署失败，用同一个 `sn` 和 pipeline/stage id 拉取失败 stage 日志；不要再额外 push 一次制造第二条部署记录。
 
-本机只读诊断腾讯云 CVM 可用 `/Users/koito/Desktop/.System/tencent/FH002.pem`，目标 `ubuntu@111.229.86.81`；只引用路径，不打印、不复制、不提交密钥内容。部署流水线使用 CNB 加密变量 `KEY_CONTENT`，不要改成本地私钥直传。
+生产服务器地址、SSH 密钥路径和 `CNB_REPO` 在桌面私有 ops `.env` 中维护。本机只读诊断时使用私有 ops `.env` 中的 `KEY`，只引用路径，不打印、不复制、不提交密钥内容。部署流水线使用 CNB 加密变量 `KEY_CONTENT`，不要改成本地私钥直传。
 
-新环境构造、`.workspace` 目录恢复、服务器 data 拉取规则见 `/Users/koito/Desktop/workspace/.workspace/AGENTS.md`。部署专题说明见 `docs/ops/deploy.md` 和 `docs/ops/environment.md`。
+新环境构造、`.workspace` 目录恢复、服务器 data 拉取规则见 `/Users/koito/Desktop/workspace/ops/AGENTS.md`。部署专题说明见 `/Users/koito/Desktop/workspace/ops/docs/deploy.md` 和 `/Users/koito/Desktop/workspace/ops/docs/environment.md`。
 
 ## 3. 项目地图
 

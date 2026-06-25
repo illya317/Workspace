@@ -5,9 +5,8 @@ Operations 负责 CI、部署、环境和脚本运行态。
 ## 先读
 
 - `docs/agent-startup.md`
-- `docs/ops/environment.md`
-- `docs/ops/deploy.md`
 - `.github/workflows/ci.yml`
+- 私有部署文档在桌面 ops：`/Users/koito/Desktop/workspace/ops/docs/`
 
 ## 职责
 
@@ -25,9 +24,9 @@ Operations 负责 CI、部署、环境和脚本运行态。
 
 ## 生产诊断
 
-- 当前 CVM 目标：`ubuntu@111.229.86.81`。
-- 本机只读诊断私钥：`/Users/koito/Desktop/.System/tencent/FH002.pem`。只引用路径，不打印、不复制、不提交密钥内容。
-- 部署仍使用 CNB 加密变量 `KEY_CONTENT` 和 `ops/deploy.sh`，不要把本地私钥塞进仓库或部署脚本。
+- 生产服务器地址、SSH 密钥路径和部署目标在桌面私有 ops `.env` 中维护，不进入公共仓库。
+- 本机只读诊断时使用私有 ops `.env` 中的 `KEY`，只引用路径，不打印、不复制、不提交密钥内容。
+- 部署仍使用 CNB 加密变量 `KEY_CONTENT` 和源码中的 `ops/deploy.sh`，不要把本地私钥塞进仓库或部署脚本。
 
 ## 验证
 

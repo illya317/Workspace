@@ -10,7 +10,9 @@ import {
 } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 
-const API_BASE_URL = "https://fh-bio.cn/workspace";
+const API_BASE_URL = typeof window !== "undefined"
+  ? `${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH || ""}`
+  : "";
 
 export type ApiAccessModuleRow = {
   key: string;
