@@ -7,8 +7,7 @@ Workspace 底座包。这里放通用契约和不依赖业务事实、权限、P
 - `ui/ConfirmModal`
 - `ui/ConfirmProvider`
 - `ui/DetailModal`
-- `ui/FilterBar`
-- `ui/FilterToolbar`
+- `ui/Toolbar`
 - `ui/Toast`
 - `ui/CalendarDateInput`
 - `ui/SelectField`
@@ -21,9 +20,7 @@ Workspace 底座包。这里放通用契约和不依赖业务事实、权限、P
 - `ui/PageContent`
 - `ui/TabBar`
 - `ui/DataTable`
-- `ui/EditToolbar`
 - `ui/SplitWorkspace`
-- `ui/SplitWorkspaceToolbar`
 - `hooks/useCSV`
 - `hooks/useToast`
 - `routing/workspacePath`

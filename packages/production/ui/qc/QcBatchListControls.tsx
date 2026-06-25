@@ -1,11 +1,11 @@
 "use client";
 
-import { CreateStartButton, FormField, InlineCreatePanel, RefreshActionButton, SelectField, TextField, Toolbar, ToolbarOptionGroup, getToolbarActionClassName } from "@workspace/core/ui";
+import { FormField, InlineCreatePanel, SelectField, TextField } from "@workspace/core/ui";
 interface QcProductOption {
   id: string;
   productName: string;
 }
-const statusOptions = [{
+export const QC_BATCH_STATUS_OPTIONS = [{
   value: "all",
   label: "全部"
 }, {
@@ -21,65 +21,10 @@ const statusOptions = [{
   value: "reviewing",
   label: "待复核"
 }];
-const pageSizeOptions = [20, 50, 100, 200].map(size => ({
+export const QC_BATCH_PAGE_SIZE_OPTIONS = [20, 50, 100, 200].map(size => ({
   value: String(size),
   label: `${size}条/页`
 }));
-interface QcBatchToolbarProps {
-  statusFilter: string;
-  productFilter: string;
-  productOptions: Array<{
-    value: string;
-    label: string;
-  }>;
-  pageSize: number;
-  createOpen: boolean;
-  onToggleCreate: () => void;
-  onStatusFilterChange: (value: string) => void;
-  onProductFilterChange: (value: string) => void;
-  onPageSizeChange: (value: number) => void;
-  onRefresh: () => void;
-  onExport: () => void;
-}
-export function QcBatchToolbar({
-  statusFilter,
-  productFilter,
-  productOptions,
-  pageSize,
-  createOpen,
-  onToggleCreate,
-  onStatusFilterChange,
-  onProductFilterChange,
-  onPageSizeChange,
-  onRefresh,
-  onExport
-}: QcBatchToolbarProps) {
-  return <Toolbar items={[{
-    kind: "custom",
-    key: "create",
-    section: "view",
-    content: <CreateStartButton label="新建批次" active={createOpen} onClick={onToggleCreate} />
-  }, {
-    kind: "custom",
-    key: "filters",
-    section: "filter",
-    content: <>
-              <ToolbarOptionGroup value={statusFilter} onChange={onStatusFilterChange} options={statusOptions} />
-              <SelectField label="产品" value={productFilter} onChange={onProductFilterChange} placeholder="全部" options={productOptions} ariaLabel="筛选产品" triggerClassName="min-w-[7.5rem]" />
-              <RefreshActionButton onClick={onRefresh} />
-            </>
-  }, {
-    kind: "custom",
-    key: "export",
-    section: "action",
-    content: <button type="button" onClick={onExport} className={getToolbarActionClassName()}>导出</button>
-  }, {
-    kind: "custom",
-    key: "page-size",
-    section: "meta",
-    content: <SelectField options={pageSizeOptions} value={String(pageSize)} onChange={value => onPageSizeChange(Number(value))} triggerClassName="!w-[6.5rem] !min-w-[6.5rem]" ariaLabel="每页条数" />
-  }]} />;
-}
 interface QcBatchCreatePanelProps {
   open: boolean;
   products: QcProductOption[];

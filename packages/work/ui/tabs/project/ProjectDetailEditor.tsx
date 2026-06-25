@@ -4,18 +4,17 @@ import { useEffect, useState } from "react";
 import {
   FkFieldInput,
   FormField,
-  OptionPicker,
   PanelCard,
   SectionCard,
   TabBar,
   TextareaField,
   TextField,
+  Toolbar,
   getFieldInputClassName,
   getReadOnlyFieldClassName,
 } from "@workspace/core/ui";
-import type { FkFieldOption, PickerOption } from "@workspace/core/ui";
-import CalendarDateInput from "@workspace/core/ui/CalendarDateInput";
-import ProjectDetailToolbar from "./ProjectDetailToolbar";
+import type { FkFieldOption, ToolbarItem } from "@workspace/core/ui";
+import { DateField, OptionField, ParentProjectField, PercentField, ReadOnlyInfoField, LinkedInfoField } from "./ProjectDetailFields";
 import ProjectMemberTagsInput from "./ProjectMemberTagsInput";
 import ProjectPlanManagementSection from "./ProjectPlanManagementSection";
 import ProjectRasciMatrix from "./ProjectRasciMatrix";
@@ -35,8 +34,6 @@ import {
 import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
 
 const inputClassName = getFieldInputClassName("h-10");
-const pickerButtonClassName = `${inputClassName} text-left`;
-const pickerPopoverClassName = "absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-72 rounded-lg border border-slate-200 bg-white p-3 shadow-xl";
 
 export default function ProjectDetailEditor({
   editorTitle,
@@ -94,22 +91,54 @@ export default function ProjectDetailEditor({
   }, [activeTab]);
 
   const openParentProjectPlan = (projectId: number | null) => { if (projectId) { setActiveTab("plan"); onOpenProject(projectId); } };
+  const detailToolbarItems: ToolbarItem[] = [
+    {
+      kind: "custom",
+      key: "title",
+      section: "view",
+      content: (
+        <div>
+          <div className="text-sm font-semibold text-slate-900">{editorTitle}</div>
+          {dirty && <p className="mt-1 text-xs text-amber-600">有未保存修改</p>}
+        </div>
+      ),
+    },
+    ...(!creating && selectedProject && canDeleteCurrent
+      ? [{
+          kind: "icon-button" as const,
+          key: "delete-project",
+          icon: "delete-bin" as const,
+          label: "删除项目",
+          variant: "danger" as const,
+          disabled: saving,
+          onClick: onDeleteProject,
+        }]
+      : []),
+    ...(creating
+      ? [{
+          kind: "icon-button" as const,
+          key: "cancel-create",
+          icon: "cancel" as const,
+          label: "取消",
+          onClick: onCancelCreate,
+        }]
+      : []),
+    ...(draft && (selectedProject || creating)
+      ? [{
+          kind: "icon-button" as const,
+          key: "save-project",
+          icon: creating ? "add" as const : "save" as const,
+          label: saving ? "保存中..." : creating ? "创建项目" : "保存项目",
+          variant: "primary" as const,
+          disabled: !canSave,
+          onClick: onSave,
+        }]
+      : []),
+  ];
 
   return (
     <PanelCard className="bg-slate-50" bodyClassName="p-4">
-      <ProjectDetailToolbar
-        editorTitle={editorTitle}
-        dirty={dirty}
-        creating={creating}
-        hasDraft={Boolean(draft)}
-        hasSelectedProject={Boolean(selectedProject)}
-        saving={saving}
-        canSave={canSave}
-        canDeleteCurrent={canDeleteCurrent}
-        onSave={onSave}
-        onCancelCreate={onCancelCreate}
-        onDeleteProject={onDeleteProject}
-      />
+      <Toolbar className="mb-4 p-4" items={detailToolbarItems} />
 
       {draft ? (
         <div className="space-y-4">
@@ -277,118 +306,5 @@ export default function ProjectDetailEditor({
         </div>
       )}
     </PanelCard>
-  );
-}
-
-function PercentField({
-  label,
-  value,
-  disabled,
-  onChange,
-}: {
-  label: string;
-  value: number | null;
-  disabled: boolean;
-  onChange: (value: number | null) => void;
-}) {
-  return (
-    <FormField label={label}>
-      <div className="flex">
-        <TextField
-          value={value === null || value === undefined ? "" : String(value)}
-          type="number"
-          min={0}
-          step="0.01"
-          inputMode="decimal"
-          disabled={disabled}
-          placeholder="输入完成度"
-          onChange={(nextValue) => {
-            if (nextValue.trim() === "") return onChange(null);
-            const number = Number(nextValue);
-            onChange(Number.isFinite(number) ? number : value ?? null);
-          }}
-          className={`${inputClassName} rounded-r-none`}
-          unstyled
-        />
-        <span className="flex h-10 w-12 items-center justify-center rounded-r-md border border-l-0 border-sky-200 bg-slate-50 text-sm font-semibold text-slate-500 shadow-sm">%</span>
-      </div>
-    </FormField>
-  );
-}
-
-function OptionField({
-  label,
-  value,
-  options,
-  disabled,
-  onChange,
-  placeholder = "未设置",
-  searchPlaceholder,
-  popoverClassName = pickerPopoverClassName,
-}: {
-  label: string;
-  value: string | null;
-  options: PickerOption[];
-  disabled: boolean;
-  onChange: (value: string | null) => void;
-  placeholder?: string;
-  searchPlaceholder?: string;
-  popoverClassName?: string;
-}) {
-  return (
-    <FormField label={label}>
-      <OptionPicker
-        value={value}
-        options={options}
-        disabled={disabled}
-        onChange={onChange}
-        placeholder={placeholder}
-        searchPlaceholder={searchPlaceholder}
-        visibleCount={6}
-        buttonClassName={pickerButtonClassName}
-        popoverClassName={popoverClassName}
-      />
-    </FormField>
-  );
-}
-
-function ParentProjectField({ value, disabled, onClick }: { value: string; disabled: boolean; onClick: () => void }) {
-  return <LinkedInfoField label="上级项目" value={value} disabled={disabled} onClick={onClick} />;
-}
-
-function LinkedInfoField({ label, value, disabled, onClick }: { label: string; value: string; disabled: boolean; onClick: () => void }) {
-  return (
-    <FormField label={label}>
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={onClick}
-        className={getReadOnlyFieldClassName("h-10 w-full truncate text-left font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-white hover:text-sky-700 disabled:cursor-default disabled:text-slate-500 disabled:hover:border-sky-200 disabled:hover:bg-sky-50")}
-      >
-        {value}
-      </button>
-    </FormField>
-  );
-}
-
-function ReadOnlyInfoField({ label, value }: { label: string; value: string }) {
-  return (
-    <FormField label={label}>
-      <TextField
-        value={value}
-        readOnly
-        className={getReadOnlyFieldClassName("h-10 cursor-default text-slate-600")}
-        unstyled
-      />
-    </FormField>
-  );
-}
-
-function DateField({ label, value, disabled, hint, onChange }: { label: string; value: string | null; disabled: boolean; hint?: string; onChange: (value: string | null) => void }) {
-  return (
-    <FormField label={label}>
-      <CalendarDateInput value={value} disabled={disabled} onChange={onChange} className={inputClassName} />
-      {hint && <p className="mt-1 text-xs font-medium text-slate-400">{hint}</p>}
-    </FormField>
   );
 }

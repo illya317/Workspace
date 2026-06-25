@@ -3,11 +3,12 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { EmptyStateCard } from "@workspace/core/ui";
+import Link from "next/link";
+import { EmptyStateCard, PanelCard, Toolbar } from "@workspace/core/ui";
+import type { ToolbarItem } from "@workspace/core/ui";
 import ReviewAlerts from "./ReviewAlerts";
 import ReviewFilters from "./ReviewFilters";
 import ReviewTable, { type LineState } from "./ReviewTable";
-import ReviewToolbar from "./ReviewToolbar";
 import type { RvLine } from "@workspace/finance/types";
 
 interface WpLine { id: number; lineCode: string; manualAmount: number; importedAmount: number; }
@@ -174,6 +175,74 @@ export default function ReviewClient() {
     const state = getLineState(line);
     return state.status === "flagged" && !state.comment;
   }) : false;
+  const rawReviewItems: Array<ToolbarItem | null> = [
+    wp
+      ? {
+          kind: "text",
+          key: "loaded",
+          section: "view",
+          content: `底稿已加载${!wp.id ? "（空草稿，请先在底稿页录入数据）" : ""}`,
+        }
+      : null,
+    rv
+      ? {
+          kind: "custom",
+          key: "status",
+          section: "filter",
+          content: (
+            <span className="text-xs text-gray-500">
+              校对状态：
+              <b className={rv.status === "confirmed" && rv.isStale ? "text-amber-600" : rv.status === "confirmed" ? "text-emerald-600" : "text-blue-600"}>
+                {rv.status === "confirmed" && rv.isStale ? "已过期" : rv.status === "confirmed" ? "已确认" : "草稿"}
+              </b>
+            </span>
+          ),
+        }
+      : null,
+    wp && wp.id > 0 && (!rv || rv.isStale)
+      ? {
+          kind: "action-group",
+          key: "generate",
+          actions: [{
+            key: "generate",
+            kind: "generate",
+            label: rv?.isStale ? "重新生成校对" : "生成校对",
+            variant: "primary" as const,
+            disabled: loading,
+            onClick: generate,
+          }],
+        }
+      : null,
+    rv && changedCount > 0
+      ? {
+          kind: "action-group",
+          key: "save",
+          actions: [{
+            key: "save",
+            kind: "save",
+            label: `保存修改 (${changedCount})`,
+            variant: "primary" as const,
+            disabled: saving || isReadOnly,
+            onClick: saveEdits,
+          }],
+        }
+      : null,
+    rv && rv.status !== "confirmed"
+      ? {
+          kind: "action-group",
+          key: "confirm",
+          actions: [{
+            key: "confirm",
+            kind: "check",
+            label: "确认校对",
+            variant: "primary" as const,
+            disabled: saving || changedCount > 0,
+            onClick: doConfirm,
+          }],
+        }
+      : null,
+  ];
+  const reviewItems = rawReviewItems.filter((item): item is ToolbarItem => item !== null);
 
   return (
     <div className="space-y-4">
@@ -181,21 +250,20 @@ export default function ReviewClient() {
 
       <ReviewAlerts error={error} isStale={rv?.isStale} hasFlaggedWithoutComment={hasFlaggedWithoutComment} />
 
-      <ReviewToolbar
-        wp={wp}
-        rv={rv}
-        changedCount={changedCount}
-        saving={saving}
-        loading={loading}
-        isReadOnly={isReadOnly}
-        co={co}
-        yr={yr}
-        mo={mo}
-        rt={rt}
-        onGenerate={generate}
-        onSave={saveEdits}
-        onConfirm={doConfirm}
-      />
+      {wp && (
+        <PanelCard bodyClassName="px-4 py-3">
+          <Toolbar items={reviewItems} variant="inline" />
+        </PanelCard>
+      )}
+
+      {rv?.status === "confirmed" && !rv.isStale && (
+        <PanelCard className="border-emerald-200 bg-emerald-50" bodyClassName="flex items-center justify-between px-4 py-3">
+          <span className="text-sm text-emerald-700">校对已确认</span>
+          <Link href={`/finance/statements?companyCode=${co}&year=${yr}&month=${mo}&reportType=${rt === "incomeStatement" ? "income" : "cashflow"}`} className="rounded bg-emerald-600 px-3 py-1.5 text-xs text-white hover:bg-emerald-700">
+            前往财务报表查看最终结果
+          </Link>
+        </PanelCard>
+      )}
 
       {rv && (
         <ReviewTable

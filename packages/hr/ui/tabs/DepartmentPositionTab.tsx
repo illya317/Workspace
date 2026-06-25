@@ -15,7 +15,7 @@ import { useDepartmentPositionSideEffects } from "./department-position/use-depa
 import { useDepartmentPositionTreeRenderers } from "./department-position/use-department-position-tree-renderers";
 import { useDepartmentPositionViewRenderers } from "./department-position/use-department-position-view-renderers";
 import { usePositionDescriptionTemplates } from "./department-position/use-position-description-templates";
-import { DepartmentPositionToolbar } from "./department-position/department-position-toolbar";
+import { DepartmentPositionSearch } from "./department-position/department-position-search";
 
 export default function DepartmentPositionTab({
   user,
@@ -351,7 +351,7 @@ export default function DepartmentPositionTab({
   return (
     <>
       <div className="mb-3">
-        <DepartmentPositionToolbar
+        <DepartmentPositionSearch
           departments={departments}
           departmentById={departmentById}
           keyword={search}

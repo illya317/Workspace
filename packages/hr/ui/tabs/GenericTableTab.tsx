@@ -2,14 +2,14 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo, useRef } from "react";
-import HRToolbar from "../components/HRToolbar";
 import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
 import Toast from "@workspace/core/ui/Toast";
-import { Pagination, PanelCard, useConfirm } from "@workspace/core/ui";
+import { Pagination, PanelCard, Toolbar, useConfirm } from "@workspace/core/ui";
+import type { ToolbarItem } from "@workspace/core/ui";
 import { useToast } from "@workspace/core/hooks";
 import GenericCreatePanel from "../components/GenericCreatePanel";
 import GenericFieldInput from "../components/GenericFieldInput";
-import GenericToolbarFilters from "../components/GenericToolbarFilters";
+import GenericFilterControls from "../components/GenericFilterControls";
 import { useGenericTab } from "../hooks/useGenericTab";
 import EditableTable, { formatEditableTableCell } from "./EditableTable";
 import { type TabConfig, type FieldConfig, type HRUser, hrCanEdit } from "@workspace/hr/types";
@@ -193,36 +193,86 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
   const editingField = editingCell
     ? config.fields.find((f) => f.key === editingCell.field)
     : undefined;
-
-  return (
-    <div className="space-y-4">
-      <HRToolbar
-        keyword={keyword} onKeywordChange={setKeyword}
-        onKeywordEnter={load}
-        onReset={() => { setKeyword(""); resetFilters(); load(); }}
-        columns={columnToggleColumns}
-        visibleColumns={visibleColumns}
-        onColumnsChange={setVisibleColumns}
-        showEdit={canEdit}
-        editProps={{
-          editMode, onStartEdit: () => setEditMode(true),
-          onSave: handleSave, onCancel: () => { cancelEdit(); setEditMode(false); },
-          canEdit: canEdit, saving,
-          onShowHistory: () => setShowHistory(true),
-        }}
-        canCreate={!!config.canCreate && canEdit}
-        createActive={creating}
-        onCreate={() => setCreating(true)}
-        onDownload={handleDownload}
-        downloading={downloading}
-      >
-        <GenericToolbarFilters
+  const rawToolbarItems: Array<ToolbarItem | null> = [
+    canEdit && config.canCreate
+      ? {
+          kind: "create",
+          key: "create",
+          section: "view",
+          label: "新建",
+          active: creating,
+          onClick: () => setCreating(true),
+        }
+      : null,
+    {
+      kind: "search",
+      key: "search",
+      section: "filter",
+      value: keyword,
+      onChange: setKeyword,
+      placeholder: "搜索...",
+    },
+    {
+      kind: "custom",
+      key: "filters",
+      section: "filter",
+      content: (
+        <GenericFilterControls
           filters={config.filters || []}
           advancedFilters={config.advancedFilters ?? []}
           filterValues={filters}
           onFilterChange={(key, val) => setFilter(key, val)}
         />
-      </HRToolbar>
+      ),
+    },
+    {
+      kind: "column-toggle",
+      key: "columns",
+      columns: columnToggleColumns,
+      visible: visibleColumns,
+      onChange: setVisibleColumns,
+    },
+    {
+      kind: "action-group",
+      key: "reset",
+      actions: [
+        {
+          key: "reset",
+          kind: "refresh",
+          label: "重置",
+          onClick: () => {
+            setKeyword("");
+            resetFilters();
+            load();
+          },
+        },
+      ],
+    },
+    canEdit
+      ? {
+          kind: "edit-group",
+          key: "edit",
+          section: "edit",
+          editMode,
+          onStartEdit: () => setEditMode(true),
+          onSave: handleSave,
+          onCancel: () => {
+            cancelEdit();
+            setEditMode(false);
+          },
+          canEdit,
+          saving,
+          onShowHistory: () => setShowHistory(true),
+          onDownload: handleDownload,
+          downloading,
+        }
+      : null,
+  ];
+  const toolbarItems = rawToolbarItems.filter((item): item is ToolbarItem => item !== null);
+
+  return (
+    <div className="space-y-4">
+      <Toolbar items={toolbarItems} onSubmit={load} />
 
       {creating && (
         <GenericCreatePanel

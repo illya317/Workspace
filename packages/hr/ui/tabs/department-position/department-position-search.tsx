@@ -10,7 +10,7 @@ type SearchResult =
   | { key: string; type: "department"; label: string; subtitle: string; selection: Selection }
   | { key: string; type: "position"; label: string; subtitle: string; selection: Selection };
 
-export function DepartmentPositionToolbar({
+export function DepartmentPositionSearch({
   departments,
   departmentById,
   keyword,

@@ -2,8 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CreateStartButton, DatabasePageFrame, EmptyStateCard, ActionButton, SplitWorkspace, Toast, Toolbar, ToolbarOptionGroup, useConfirm, useConfirmDelete } from "@workspace/core/ui";
-import type { ToolbarItem } from "@workspace/core/ui";
+import { DatabasePageFrame, EmptyStateCard, ActionButton, SplitWorkspace, Toast, Toolbar, useConfirm, useConfirmDelete } from "@workspace/core/ui";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 import type { WorkUser } from "@workspace/work/types";
 import ProjectDetailEditor from "./project/ProjectDetailEditor";
@@ -129,19 +128,23 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
               ),
             },
             {
-              kind: "custom",
-              key: "project-toolbar",
-              section: "edit",
-              content: (
-                <ProjectToolbar
-                  canCreateProject={model.canCreateProject}
-                  creating={model.creating}
-                  filter={model.projectListFilter}
-                  onCreate={startDepartmentProjectCreate}
-                  onFilterChange={model.setProjectListFilter}
-                />
-              ),
+              kind: "option-group",
+              key: "project-filter",
+              section: "filter",
+              value: model.projectListFilter,
+              options: PROJECT_LIST_FILTER_OPTIONS,
+              onChange: (value) => model.setProjectListFilter(value as ProjectListFilter),
+              ariaLabel: "项目筛选",
             },
+            ...(model.canCreateProject
+              ? [{
+                  kind: "create" as const,
+                  key: "create-project",
+                  label: "新建部门项目",
+                  active: model.creating,
+                  onClick: startDepartmentProjectCreate,
+                }]
+              : []),
           ]}
         />
         <SplitWorkspace
@@ -201,44 +204,4 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
       />
     </>
   );
-}
-
-function ProjectToolbar({
-  canCreateProject,
-  creating,
-  filter,
-  onCreate,
-  onFilterChange,
-}: {
-  canCreateProject: boolean;
-  creating: boolean;
-  filter: ProjectListFilter;
-  onCreate: () => void;
-  onFilterChange: (filter: ProjectListFilter) => void;
-}) {
-  const items = [
-    canCreateProject
-      ? ({
-          kind: "custom",
-          key: "create",
-          section: "view",
-          content: <CreateStartButton label="新建部门项目" active={creating} onClick={onCreate} />,
-        } as ToolbarItem)
-      : null,
-    {
-      kind: "custom",
-      key: "filter",
-      section: "filter",
-      content: (
-        <ToolbarOptionGroup
-          ariaLabel="项目筛选"
-          value={filter}
-          options={PROJECT_LIST_FILTER_OPTIONS}
-          onChange={(value) => onFilterChange(value as ProjectListFilter)}
-        />
-      ),
-    } as ToolbarItem,
-  ].filter((item): item is ToolbarItem => item !== null);
-
-  return <Toolbar items={items} className="w-full" />;
 }

@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  CreateStartButton,
-  RefreshActionButton,
   SearchInput,
   SelectField,
   Toolbar,
@@ -35,10 +33,11 @@ export default function ContractFilters({
 }: ContractFiltersProps) {
   const items: ToolbarItem[] = [
     {
-      kind: "custom",
+      kind: "create",
       key: "create",
       section: "view",
-      content: <CreateStartButton label="新增合同" onClick={onCreate} />,
+      label: "新增合同",
+      onClick: onCreate,
     },
     {
       kind: "custom",
@@ -65,21 +64,20 @@ export default function ContractFilters({
             placeholder="全部"
             options={statuses.map((value) => ({ value, label: value }))}
           />
-          <SelectField
-            multiple
-            summaryMode="count"
-            label="字段"
-            options={columns.map((column) => ({
-              value: column.key,
-              label: String(column.label),
-              disabled: column.required,
-            }))}
-            value={visibleColumns}
-            onChange={onColumnsChange}
-          />
-          <RefreshActionButton onClick={onReset} label="重置" />
         </>
       ),
+    },
+    {
+      kind: "action-group",
+      key: "reset",
+      actions: [{ key: "reset", kind: "refresh", label: "重置", onClick: onReset }],
+    },
+    {
+      kind: "column-toggle",
+      key: "columns",
+      columns,
+      visible: visibleColumns,
+      onChange: onColumnsChange,
     },
   ];
 

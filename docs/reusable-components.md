@@ -24,9 +24,8 @@
 | 常用项 + 更多选择 | `@workspace/core/ui` 的 `OptionPicker` | 民族、固定选项、候选较多但可先展示常用项的字段 | 每个业务包复制按钮组 + 更多弹层 |
 | 分级/自定义选择弹层 | `@workspace/core/ui` 的 `PickerShell` | 专业、职称、职级等需要业务自定义面板的字段 | 每个业务组件重复手写触发按钮、外部点击关闭和 Escape 关闭 |
 | 二段式筛选 | `@workspace/core/ui` 的 `FieldValueFilter` | 工具栏显示 `字段：值`，点击后先选字段再选值 | 每个模块复制一份筛选 UI，或把两个下拉框常驻拼在工具栏上 |
-| 筛选栏 | `@workspace/core/ui` 的 `FilterBar` | 列表页搜索、筛选、重置、批量工具 | 页面里散落按钮和输入框 |
-| 标准筛选工具栏 | `@workspace/core/ui` 的 `FilterToolbar` | 搜索、字段显隐、每页数量、筛选插槽组合 | 每个模块重写搜索框 + 字段按钮 + 每页下拉 |
-| 页面工具栏 | `@workspace/core/ui` 的 `Toolbar` / `PageToolbar` | 页面顶部 view/search/filter/edit/meta 区块、动作图标、字段筛选、列显隐 | 业务包手写一整条 toolbar，或在业务侧手排动作图标/分隔线 |
+| 统一工具栏 | `@workspace/core/ui` 的 `Toolbar` | 列表页搜索、筛选、动作、编辑、重置、批量工具和元信息组合 | 页面里散落按钮和输入框，或每个模块重写搜索框 + 字段按钮 + 每页下拉 |
+| 页面工具栏 | `@workspace/core/ui` 的 `Toolbar` | 页面顶部 view/search/filter/edit/meta 区块、动作图标、字段筛选、列显隐 | 业务包手写一整条 toolbar，或在业务侧手排动作图标/分隔线 |
 | 动作图标 | `@workspace/core/ui` 的 `ActionGlyph` / `ActionButton` / `action-group` | 新增、编辑、保存、删除、刷新、下载、上传、归档、打印等 toolbar 图标动作 | 文本按钮混入 toolbar，业务侧直接引第三方 icon，或绕过 `ActionGlyph` 自绘动作图标 |
 | 搜索输入 | `@workspace/core/ui` 的 `SearchInput` | 内容检索、列表主搜索、筛选栏搜索、弹层内搜索 | 页面或业务包手写 `<input placeholder="搜索...">` |
 | FK 字段输入 | `@workspace/core/ui` 的 `FkFieldInput` 或基于它的领域薄包装 | 选择部门、员工、计划、科目等关联实体 | 把 FK 搜索做成自由 `entity: string` 一次性控件 |
@@ -93,7 +92,7 @@ C 渲染：<CoreTemplate {...viewModel} />
 
 - Core 源头层负责左右布局、toolbar、搜索、折叠、分页和行级动作承载区等可跨业务复用的体验；这些能力可以拆成多个 Core 文件/组件，但仍同属 A。反馈/预览这类强业务弹窗留在业务包，Core 只承载按钮位置。
 - Core 应导出稳定 ViewModel 类型，例如 `TemplateWorkbenchViewModel`；业务 adapter/model 函数必须返回这个类型。
-- 业务 B 建议放在 `packages/<domain>/ui/**/<feature>-view-model.ts` 或 `adapter.ts`，只做数据映射、状态标记和真实 callback，不直接渲染 `PanelCard`、`SelectorCard`、`CommandToolbar`、`SearchInput`、`ActionButton`、`DetailModal` 等 Core primitive。
+- 业务 B 建议放在 `packages/<domain>/ui/**/<feature>-view-model.ts` 或 `adapter.ts`，只做数据映射、状态标记和真实 callback，不直接渲染 `PanelCard`、`SelectorCard`、`Toolbar`、`SearchInput`、`ActionButton`、`DetailModal` 等 Core primitive。
 - 业务组件只组合 `const viewModel = createXxxViewModel(...)` 与 `<CoreTemplate {...viewModel} />`，再挂必须的业务 modal 或 service 状态。
 - 不要为了页面样式预览再维护一套 B2，也不要在 showcase 里重写 toolbar、折叠、反馈、预览按钮或弹窗。没有共用真实 B 时，宁可不做该模板预览，避免预览和业务长期漂移。
 - 如果用户看着业务页或样式预览说“这里样式/默认交互不对”，agent 首先判断能否改 A 的对应子件。只有字段文案、业务状态、权限、真实回调或数据筛选属于 B；通用视觉和交互改动不应补在 B 里。
@@ -114,7 +113,7 @@ Finance 当前已经有第一层统一模板，但业务页面还在渐进迁移
 
 - 已经下沉到 `packages/finance/ui`：`Pagination`、`AccountCodeInput`、`ReclassConfigRow`、`ReclassConfigView`、`reclassColumns` 等重分类相关组件。
 - 已经下沉到 `packages/finance/ui`：`FinanceShell`、`CompanyPeriodPicker`、`FinanceFilters`、`Pagination`、重分类配置/审核组件。旧 `app/finance/components` 兼容目录已删除。
-- `FinanceFilters` 基于 Core `FilterToolbar` / `SelectField`，不允许财务页面再手写公司/年度/月度/层级筛选组合。
+- `FinanceFilters` 基于 Core `Toolbar` / `SelectField`，不允许财务页面再手写公司/年度/月度/层级筛选组合。
 - 预算、成本、导入、报表配置、部分总账页面仍可能存在旧目录下的页面结构债务；新增和重构必须改用 Core/Finance 组件。
 
 后续 agent 改 Finance 时按以下方向收口：

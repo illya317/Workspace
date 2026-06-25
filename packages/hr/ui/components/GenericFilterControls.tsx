@@ -5,19 +5,19 @@ import { FieldValueFilter, SearchInput, SelectField, ToolbarOptionGroup } from "
 import type { AdvancedFilterConfig, FilterConfig } from "@workspace/hr/types";
 import type { FieldValueFilterField, SelectFieldOption } from "@workspace/core/ui";
 
-interface GenericToolbarFiltersProps {
+interface GenericFilterControlsProps {
   filters: FilterConfig[];
   advancedFilters?: AdvancedFilterConfig[];
   filterValues: Record<string, unknown>;
   onFilterChange: (key: string, value: string) => void;
 }
 
-export default function GenericToolbarFilters({
+export default function GenericFilterControls({
   filters,
   advancedFilters = [],
   filterValues,
   onFilterChange,
-}: GenericToolbarFiltersProps) {
+}: GenericFilterControlsProps) {
   const toolbarAdvancedFilters = useMemo(() => {
     const inlineKeys = new Set(filters.map((filter) => filter.key));
     return advancedFilters.filter((filter) => !inlineKeys.has(filter.key) && !inlineKeys.has(filter.queryParam));

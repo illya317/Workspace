@@ -5,8 +5,10 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import ConfirmModal from "@workspace/core/ui/ConfirmModal";
 import Toast from "@workspace/core/ui/Toast";
+import { Toolbar } from "@workspace/core/ui";
+import type { ToolbarItem } from "@workspace/core/ui";
 import type { QcBatchSummary } from "@workspace/production/server/qc";
-import { QcBatchCreatePanel, QcBatchToolbar } from "./QcBatchListControls";
+import { QC_BATCH_PAGE_SIZE_OPTIONS, QC_BATCH_STATUS_OPTIONS, QcBatchCreatePanel } from "./QcBatchListControls";
 import { QcBatchTable, formatQcBatchDate, qcBatchStatusText, type QcBatchTableRow } from "./QcBatchTable";
 
 interface Props {
@@ -117,30 +119,64 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
     });
   }
 
+  const toolbarItems: ToolbarItem[] = [
+    {
+      kind: "create",
+      key: "create",
+      label: "新建批次",
+      active: createOpen,
+      onClick: () => setCreateOpen((open) => !open),
+    },
+    {
+      kind: "option-group",
+      key: "status",
+      section: "filter",
+      value: statusFilter,
+      options: QC_BATCH_STATUS_OPTIONS,
+      onChange: (value) => {
+        setStatusFilter(value);
+        setPage(1);
+      },
+      ariaLabel: "批次状态",
+    },
+    {
+      kind: "select",
+      key: "product",
+      section: "filter",
+      value: productFilter,
+      onChange: (value) => {
+        setProductFilter(value);
+        setPage(1);
+      },
+      placeholder: "全部",
+      options: productFilterOptions,
+      triggerClassName: "min-w-[7.5rem]",
+    },
+    {
+      kind: "action-group",
+      key: "actions",
+      actions: [
+        { key: "refresh", kind: "refresh", label: "刷新", onClick: refreshBatches },
+        { key: "export", kind: "download", label: "导出", onClick: exportBatches },
+      ],
+    },
+    {
+      kind: "select",
+      key: "page-size",
+      section: "meta",
+      value: String(pageSize),
+      onChange: (value) => {
+        setPageSize(Number(value));
+        setPage(1);
+      },
+      options: QC_BATCH_PAGE_SIZE_OPTIONS,
+      triggerClassName: "!w-[6.5rem] !min-w-[6.5rem]",
+    },
+  ];
+
   return (
     <section className="space-y-4">
-      <QcBatchToolbar
-        statusFilter={statusFilter}
-        productFilter={productFilter}
-        productOptions={productFilterOptions}
-        pageSize={pageSize}
-        createOpen={createOpen}
-        onToggleCreate={() => setCreateOpen((open) => !open)}
-        onStatusFilterChange={(value) => {
-          setStatusFilter(value);
-          setPage(1);
-        }}
-        onProductFilterChange={(value) => {
-          setProductFilter(value);
-          setPage(1);
-        }}
-        onPageSizeChange={(value) => {
-          setPageSize(value);
-          setPage(1);
-        }}
-        onRefresh={refreshBatches}
-        onExport={exportBatches}
-      />
+      <Toolbar items={toolbarItems} />
 
       <QcBatchCreatePanel
         open={createOpen}

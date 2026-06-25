@@ -1,12 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CommandToolbar, CreateConfirmActions, CreateStartButton, DatabasePageFrame, EmptyStateCard, MetricCard, PanelCard, SelectField, SectionCard, SplitWorkspaceToolbar, Toast, ToolbarOptionGroup, useConfirmDelete } from "@workspace/core/ui";
+import { ActionButton, DatabasePageFrame, EmptyStateCard, PanelCard, SectionCard, Toast, Toolbar, useConfirmDelete, type ToolbarItem } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import type { SessionUser } from "@workspace/platform/types";
 import { listTaskSpaces } from "./api";
-import { createEmptyWorkDraft, getPeriodTypeLabel, getWorkSpaceLabel, getWorkSpacePath, getWorkTargetFromPath, WORK_ITEM_TYPE_OPTIONS, WORK_SOURCE_TYPE_OPTIONS } from "./model";
+import { createEmptyWorkDraft, getPeriodTypeLabel, getWorkSpacePath, getWorkTargetFromPath, WORK_ITEM_TYPE_OPTIONS, WORK_SOURCE_TYPE_OPTIONS } from "./model";
 import { useWorks } from "./useWorks";
+import { MobileSpaceSwitcher, SpaceHeader } from "./WorkSpaceHeaderControls";
 import WorkPermissionsPanel from "./WorkPermissionsPanel";
 import WorkReportsPanel from "./WorkReportsPanel";
 import WorkSpaceSidebar from "./WorkSpaceSidebar";
@@ -125,43 +126,75 @@ export default function WorksClient({
           {currentSpace ? (
             <>
               <SpaceHeader space={currentSpace} />
-              <CommandToolbar
-                viewControls={(
-                  <SplitWorkspaceToolbar
-                    sideOpen={sideOpen}
-                    sideLabel="工作空间"
-                    onSideOpenChange={setSideOpen}
-                    onDrawerOpen={() => setDrawerOpen(true)}
-                    desktopBreakpoint="xl"
-                  />
-                )}
-                filters={(
-                  <>
-                    <MobileSpaceSwitcher
-                      spaces={spaces} active={activeTarget} loading={spacesLoading} onSelect={selectSpace}
-                    />
-                    <ToolbarOptionGroup
-                      ariaLabel="工作计划主标签"
-                      value={activeTab}
-                      options={tabs}
-                      onChange={(value) => setActiveTab(value)}
-                    />
-                    {activeTab === "tasks" && (
-                      <>
-                        <ToolbarOptionGroup
-                          ariaLabel="任务状态"
-                          value={statusFilter}
-                          options={[
+              <Toolbar
+                items={[
+                  {
+                    kind: "custom",
+                    key: "mobile-side-toggle",
+                    section: "view",
+                    content: (
+                      <span className="xl:hidden">
+                        <ActionButton
+                          kind="panel-open"
+                          label="显示工作空间"
+                          onClick={() => setDrawerOpen(true)}
+                          className="!h-9 !w-10 !px-0"
+                        />
+                      </span>
+                    ),
+                  },
+                  {
+                    kind: "custom",
+                    key: "desktop-side-toggle",
+                    section: "view",
+                    content: (
+                      <span className="hidden xl:block">
+                        <ActionButton
+                          kind={sideOpen ? "panel-open" : "panel-close"}
+                          label={`${sideOpen ? "隐藏" : "显示"}工作空间`}
+                          onClick={() => setSideOpen(!sideOpen)}
+                          variant={sideOpen ? "primary" : "secondary"}
+                          className="!h-9 !w-10 !px-0"
+                        />
+                      </span>
+                    ),
+                  },
+                  {
+                    kind: "custom",
+                    key: "mobile-space",
+                    section: "filter",
+                    content: <MobileSpaceSwitcher spaces={spaces} active={activeTarget} loading={spacesLoading} onSelect={selectSpace} />,
+                  },
+                  {
+                    kind: "option-group",
+                    key: "tab",
+                    section: "filter",
+                    value: activeTab,
+                    options: tabs,
+                    onChange: (value) => setActiveTab(value),
+                    ariaLabel: "工作计划主标签",
+                  },
+                  ...(activeTab === "tasks"
+                    ? [
+                        {
+                          kind: "option-group" as const,
+                          key: "status",
+                          section: "filter" as const,
+                          value: statusFilter,
+                          options: [
                             { value: "active", label: "进行中" },
                             { value: "done", label: "已完成" },
                             { value: "archived", label: "已归档" },
-                          ]}
-                          onChange={(value) => setStatusFilter(value as typeof statusFilter)}
-                        />
-                        <ToolbarOptionGroup
-                          ariaLabel="计划周期"
-                          value={periodFilter}
-                          options={[
+                          ],
+                          onChange: (value: string) => setStatusFilter(value as typeof statusFilter),
+                          ariaLabel: "任务状态",
+                        },
+                        {
+                          kind: "option-group" as const,
+                          key: "period",
+                          section: "filter" as const,
+                          value: periodFilter,
+                          options: [
                             { value: "all", label: "全部周期" },
                             { value: "long-term", label: "长期" },
                             { value: "daily", label: getPeriodTypeLabel("daily") },
@@ -169,55 +202,77 @@ export default function WorksClient({
                             { value: "monthly", label: getPeriodTypeLabel("monthly") },
                             { value: "quarterly", label: getPeriodTypeLabel("quarterly") },
                             { value: "yearly", label: getPeriodTypeLabel("yearly") },
-                          ]}
-                          onChange={setPeriodFilter}
-                        />
-                        <ToolbarOptionGroup
-                          ariaLabel="节点类型"
-                          value={itemTypeFilter}
-                          options={[
+                          ],
+                          onChange: setPeriodFilter,
+                          ariaLabel: "计划周期",
+                        },
+                        {
+                          kind: "option-group" as const,
+                          key: "type",
+                          section: "filter" as const,
+                          value: itemTypeFilter,
+                          options: [
                             { value: "all", label: "全部类型" },
                             ...WORK_ITEM_TYPE_OPTIONS,
-                          ]}
-                          onChange={setItemTypeFilter}
-                        />
-                        <ToolbarOptionGroup
-                          ariaLabel="来源类型"
-                          value={sourceFilter}
-                          options={[
+                          ],
+                          onChange: setItemTypeFilter,
+                          ariaLabel: "节点类型",
+                        },
+                        {
+                          kind: "option-group" as const,
+                          key: "source",
+                          section: "filter" as const,
+                          value: sourceFilter,
+                          options: [
                             { value: "all", label: "全部来源" },
                             ...WORK_SOURCE_TYPE_OPTIONS,
-                          ]}
-                          onChange={setSourceFilter}
-                        />
-                      </>
-                    )}
-                  </>
-                )}
-                selectionActions={activeTab === "tasks" && canEdit ? (
-                  <>
-                    <CreateStartButton
-                      label="新增工作项"
-                      active={worksState.creating}
-                      disabled={worksState.saving || editing}
-                      onClick={() => {
-                        worksState.setCreating(true);
-                        worksState.setCreateDraft(createEmptyWorkDraft(nextSortOrder(worksState.works)));
-                      }}
-                    />
-                    {worksState.creating && (
-                      <CreateConfirmActions
-                        order="cancel-first"
-                        submitLabel="保存工作项"
-                        cancelLabel="取消新增"
-                        submitting={worksState.saving}
-                        submitDisabled={worksState.saving || !worksState.createDraft.content.trim()}
-                        onCancel={() => worksState.setCreating(false)}
-                        onSubmit={() => void worksState.handleCreate().then(loadSpaces)}
-                      />
-                    )}
-                  </>
-                ) : null}
+                          ],
+                          onChange: setSourceFilter,
+                          ariaLabel: "来源类型",
+                        },
+                      ]
+                    : []),
+                  ...(activeTab === "tasks" && canEdit
+                    ? [
+                        {
+                          kind: "create" as const,
+                          key: "create",
+                          label: "新增工作项",
+                          active: worksState.creating,
+                          disabled: worksState.saving || editing,
+                          onClick: () => {
+                            worksState.setCreating(true);
+                            worksState.setCreateDraft(createEmptyWorkDraft(nextSortOrder(worksState.works)));
+                          },
+                        },
+                        ...(worksState.creating
+                          ? [
+                              {
+                                kind: "action-group" as const,
+                                key: "create-actions",
+                                section: "edit" as const,
+                                actions: [
+                                  {
+                                    key: "cancel",
+                                    kind: "cancel" as const,
+                                    label: "取消新增",
+                                    onClick: () => worksState.setCreating(false),
+                                  },
+                                  {
+                                    key: "save",
+                                    kind: "check" as const,
+                                    label: "保存工作项",
+                                    variant: "primary" as const,
+                                    disabled: worksState.saving || !worksState.createDraft.content.trim(),
+                                    onClick: () => void worksState.handleCreate().then(loadSpaces),
+                                  },
+                                ],
+                              },
+                            ]
+                          : []),
+                      ]
+                    : []),
+                ] satisfies ToolbarItem[]}
               />
               {activeTab === "permissions" ? (
                 <WorkPermissionsPanel
@@ -281,60 +336,6 @@ export default function WorksClient({
   );
 }
 
-function MobileSpaceSwitcher({
-  spaces,
-  active,
-  loading,
-  onSelect,
-}: {
-  spaces: WorkTaskSpace[];
-  active: WorkTarget | null;
-  loading: boolean;
-  onSelect: (space: WorkTaskSpace) => void;
-}) {
-  const value = active ? targetKey(active) : "";
-  return (
-    <div className="xl:hidden">
-      <SelectField
-        label="工作空间"
-        value={value}
-        options={spaces.map((space) => ({
-          value: targetKey(space),
-          label: `${getWorkSpaceLabel(space.targetType)} · ${space.name}`,
-        }))}
-        disabled={loading || spaces.length === 0}
-        placeholder={loading ? "加载中" : "选择空间"}
-        searchable
-        triggerClassName="min-w-[14rem] max-w-[calc(100vw-8rem)]"
-        onChange={(nextValue) => {
-          const space = spaces.find((item) => targetKey(item) === nextValue);
-          if (space) onSelect(space);
-        }}
-      />
-    </div>
-  );
-}
-
-function SpaceHeader({ space }: { space: WorkTaskSpace }) {
-  return (
-    <PanelCard bodyClassName="px-5 py-4">
-      <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
-        <div className="min-w-0">
-          <div className="text-xs font-semibold text-emerald-600">{getWorkSpaceLabel(space.targetType)}工作计划</div>
-          <h2 className="mt-1 truncate text-xl font-semibold text-slate-950">{space.name}</h2>
-          {space.subtitle && <p className="mt-1 text-sm text-slate-500">{space.subtitle}</p>}
-        </div>
-        <div className="grid grid-cols-4 gap-2 text-center">
-          <MetricCard label="目标" value={space.counts.objective} className="px-3 py-2" />
-          <MetricCard label="结果" value={space.counts.keyResult} className="px-3 py-2" />
-          <MetricCard label="任务" value={space.counts.task} className="px-3 py-2" />
-          <MetricCard label="归档" value={space.counts.archived} className="px-3 py-2" />
-        </div>
-      </div>
-    </PanelCard>
-  );
-}
-
 function roleAllows(role: string | null | undefined, required: "viewer" | "editor" | "manager") {
   const levels = { viewer: 0, editor: 1, delete: 2, manager: 3 };
   return role ? levels[role as keyof typeof levels] >= levels[required] : false;
@@ -342,10 +343,6 @@ function roleAllows(role: string | null | undefined, required: "viewer" | "edito
 
 function sameTarget(a: WorkTarget | null | undefined, b: WorkTarget | null | undefined) {
   return Boolean(a && b && a.targetType === b.targetType && a.targetId === b.targetId);
-}
-
-function targetKey(target: WorkTarget) {
-  return `${target.targetType}:${target.targetId}`;
 }
 
 function normalizeInitialTarget(target?: WorkTarget) {
