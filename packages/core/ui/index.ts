@@ -156,8 +156,6 @@ export { default as TextField } from "./TextField";
 export type { TextFieldProps } from "./TextField";
 export { default as TimeField } from "./TimeField";
 export type { TimeFieldProps } from "./TimeField";
-export { default as ToolbarSelectFilter } from "./ToolbarSelectFilter";
-export type { ToolbarSelectFilterProps } from "./ToolbarSelectFilter";
 export { default as ToolbarOptionGroup } from "./ToolbarOptionGroup";
 export type { ToolbarOption, ToolbarOptionGroupProps } from "./ToolbarOptionGroup";
 export { default as PageStyleShowcase } from "./PageStyleShowcase";

@@ -6,7 +6,7 @@ import {
   CreateStartButton,
   RefreshActionButton,
   SearchInput,
-  ToolbarSelectFilter,
+  SelectField,
 } from "@workspace/core/ui";
 import type { ColumnDef } from "@workspace/core/ui";
 
@@ -45,14 +45,14 @@ export default function ContractFilters({
               onChange={onQChange}
               placeholder="搜索合同名称、签署方、内容..."
             />
-            <ToolbarSelectFilter
+            <SelectField
               label="类型"
               value={categoryFilter}
               onChange={onCategoryChange}
               placeholder="全部"
               options={categories.map((value) => ({ value, label: value }))}
             />
-            <ToolbarSelectFilter
+            <SelectField
               label="状态"
               value={statusFilter}
               onChange={onStatusChange}

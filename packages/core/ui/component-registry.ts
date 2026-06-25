@@ -183,7 +183,6 @@ export const coreUiComponentRegistry = [
   { name: "TextField", tier: "primitive", kind: "form", description: "通用文本输入 primitive，仅用于文本、密码、邮箱、电话、URL 和数字；日期统一使用 CalendarDateInput，时间统一使用 TimeField。", example: "设置弹窗中输入用户名、密码或短文本字段。", foundations: ["getFieldInputClassName"] },
   { name: "TimeField", tier: "primitive", kind: "form", description: "时间输入 primitive，仅负责 HH:mm；需要日期时间时由业务或组合层与 CalendarDateInput 合成。", example: "会议开始时间拆成日期字段和 09:30 时间字段，提交时组合为 2026-06-20T09:30。", foundations: ["getFieldInputClassName"] },
   { name: "Toast", tier: "primitive", kind: "feedback", description: "轻量成功提示组件；错误反馈统一转为默认弹窗。", example: "保存成功后显示绿色提示，失败时显示确认弹窗。", composes: ["ConfirmModal"] },
-  { name: "ToolbarSelectFilter", tier: "assembly", kind: "toolbar", description: "工具栏专用下拉筛选，统一“标签 + 当前值 + 下拉菜单”的紧凑列表筛选样式。", example: "合同台账里用“类型 全部”“状态 执行中”筛选记录，避免业务页手写下拉筛选按钮。", composes: ["SearchInput"] },
   { name: "page-style-preview", tier: "frame", kind: "layout", description: "页面样式预览配置深导入命名空间，用于设置页和平台视图注册读取模板数据。", example: "设置页从 page-style-preview/template-data 获取页面模板路由和分组。" },
   { name: "TreeNodeBranch", tier: "assembly", kind: "layout", description: "树节点分支容器，统一层级缩进和连接关系。", example: "组织树中展示父部门和多个子部门节点。", composes: ["TreeNodeCard"] },
   { name: "TreeNodeCard", tier: "assembly", kind: "layout", description: "树节点卡片，统一节点标题、副标题、层级徽标和选中态。", example: "组织架构中展示“生产中心 / 一级部门 / 现用”。", composes: ["Badge"] },

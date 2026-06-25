@@ -15,7 +15,6 @@ import {
   SearchInput,
   SplitWorkspaceToolbar,
   ToolbarOptionGroup,
-  ToolbarSelectFilter,
 } from "@workspace/core/ui";
 
 function ActionButtonPreview() {
@@ -51,9 +50,9 @@ function ActionToolbarPreview() {
     <div className="max-w-2xl">
       <ActionToolbar
         leftSlot={<span className="text-sm font-semibold">已选择 2 条记录</span>}
-        primaryActions={[{ label: <><ActionGlyph kind="download" className="h-4 w-4" /> 导出</>, onClick: () => {} }]}
-        secondaryActions={[{ label: <><ActionGlyph kind="cancel" className="h-4 w-4" /> 取消选择</>, onClick: () => {} }]}
-        rightSlot={<ActionButton size="sm" variant="primary"><ActionGlyph kind="add" className="h-4 w-4" /> 新增</ActionButton>}
+        primaryActions={[{ label: <ActionGlyph kind="download" className="h-4 w-4" />, size: "sm", onClick: () => {} }]}
+        secondaryActions={[{ label: <ActionGlyph kind="cancel" className="h-4 w-4" />, size: "sm", onClick: () => {} }]}
+        rightSlot={<IconActionButton label="新增" variant="primary" size="sm"><ActionGlyph kind="add" className="h-4 w-4" /></IconActionButton>}
       />
     </div>
   );
@@ -170,11 +169,6 @@ function SplitWorkspaceToolbarPreview() {
   );
 }
 
-function ToolbarSelectFilterPreview() {
-  const [value, setValue] = useState("");
-  return <ToolbarSelectFilter label="类型" value={value} onChange={setValue} options={[{ value: "contract", label: "合同" }, { value: "project", label: "项目" }, { value: "task", label: "任务" }]} placeholder="全部" />;
-}
-
 export const toolbarPreviewByName: Record<string, FC> = {
   ActionButton: ActionButtonPreview,
   ActionGlyph: ActionGlyphPreview,
@@ -189,5 +183,4 @@ export const toolbarPreviewByName: Record<string, FC> = {
   ToolbarOptionGroup: ToolbarOptionGroupPreview,
   getToolbarActionClassName: getToolbarActionClassNamePreview,
   SplitWorkspaceToolbar: SplitWorkspaceToolbarPreview,
-  ToolbarSelectFilter: ToolbarSelectFilterPreview,
 };

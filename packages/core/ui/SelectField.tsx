@@ -77,10 +77,13 @@ export default function SelectField({
   const shouldSearch = searchable ?? options.length > 6;
   const normalizedPlaceholder = placeholder?.startsWith("全部") ? "全部" : placeholder;
   const toolbarFieldLabel = label ?? (placeholder?.startsWith("全部") ? placeholder.slice(2) : undefined);
-  const valueOptions = useMemo(
-    () => (normalizedPlaceholder ? [{ value: "", label: normalizedPlaceholder }, ...options] : options),
-    [options, normalizedPlaceholder],
-  );
+  const valueOptions = useMemo(() => {
+    if (!normalizedPlaceholder) return options;
+    const placeholderOption = { value: "", label: normalizedPlaceholder };
+    // 固定语义："请选择" 置顶，"全部" 置底
+    if (normalizedPlaceholder === "全部") return [...options, placeholderOption];
+    return [placeholderOption, ...options];
+  }, [options, normalizedPlaceholder]);
   const selected = valueOptions.find((option) => option.value === value);
   const filteredOptions = useMemo(() => {
     const q = query.trim();
@@ -106,9 +109,9 @@ export default function SelectField({
   return (
     <label style={style} className={`${rootClassName} relative text-xs ${className ?? ""}`}>
       <DropdownSurface
-        align="left"
+        align="right"
         className={dropdownRootClassName}
-        surfaceClassName="mt-0 top-[calc(100%+0.25rem)] min-w-full py-1"
+        surfaceClassName="mt-0 top-[calc(100%+0.25rem)] w-max py-1"
         trigger={({ open, toggle }) => (
           <>
             {toolbarFieldLabel && <span className={labelClassName}>{toolbarFieldLabel}</span>}
@@ -159,14 +162,14 @@ export default function SelectField({
                       close();
                       choose(option.value);
                     }}
-                    className={getDropdownItemClassName()}
+                    className={`${getDropdownItemClassName()} text-xs`}
                   >
-                    <span className="block truncate">{option.label}</span>
+                    <span className="block whitespace-nowrap">{option.label}</span>
                   </button>
                 );
               })}
               {filteredOptions.length === 0 && (
-                <div className="px-4 py-2 text-sm text-gray-400">无匹配选项</div>
+                <div className="px-4 py-2 text-xs text-gray-400">无匹配选项</div>
               )}
             </div>
           </SelectFieldDropdown>
