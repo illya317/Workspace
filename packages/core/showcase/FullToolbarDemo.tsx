@@ -17,10 +17,10 @@ export default function FullToolbarDemo() {
   const fullToolbarItems: ToolbarItem[] = useMemo(
     () => [
       {
-        kind: "custom",
+        kind: "text",
         key: "full-title",
         section: "view",
-        content: <span className="text-base font-semibold text-slate-900">完整版 Toolbar（全 item kind）</span>,
+        content: "示例",
       },
       {
         kind: "button",
