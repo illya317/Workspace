@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dispatch, ReactNode, SetStateAction } from "react";
-import { EmptyStateCard, PanelCard, getToolbarActionClassName } from "@workspace/core/ui";
+import { ActionButton, CreateStartButton, EmptyStateCard, PanelCard, PickerOptionButton } from "@workspace/core/ui";
 import { PositionCreatePanel } from "./create-panels";
 import type { CreatePositionDraft, Department, Position, Selection } from "./types";
 import { sectionTitle } from "./detail-editors";
@@ -40,38 +40,49 @@ export function DirectPositionPanel({
   const directPositions = positionsByDepartment.get(departmentId) || [];
   const canRenderCreate = canCreatePosition && createPositionDraft && departmentById && setCreatePanel && setCreatePositionDraft && onCreatePosition;
   const creatingPositionHere = createPanel === "position" && createPositionDraft?.departmentId === departmentId;
-  const addPositionButton = canRenderCreate ? <button type="button" aria-label="新建岗位" title="新建岗位" onClick={() => {
-    if (creatingPositionHere) {
-      setCreatePanel(null);
-      return;
-    }
-    setCreatePositionDraft({
-      departmentId,
-      name: ""
-    });
-    setCreatePanel("position");
-  }} className={[getToolbarActionClassName(), "!h-8 !w-8 !rounded-full !bg-emerald-600 !p-0 !text-base !leading-none !text-white hover:!bg-emerald-700"].filter(Boolean).join(" ")}>
-      +
-    </button> : null;
+  const addPositionButton = canRenderCreate ? (
+    <CreateStartButton
+      label="新建岗位"
+      active={creatingPositionHere}
+      onClick={() => {
+        if (creatingPositionHere) {
+          setCreatePanel(null);
+          return;
+        }
+        setCreatePositionDraft({
+          departmentId,
+          name: ""
+        });
+        setCreatePanel("position");
+      }}
+    />
+  ) : null;
   return <PanelCard bodyClassName="p-4">
       {sectionTitle("直属岗位", <span className="text-xs font-medium text-slate-500">{directPositions.length} 个</span>)}
       {directPositions.length > 0 ? <div className="flex flex-wrap items-center gap-2">
           {directPositions.map(position => {
         const active = selection?.type === "position" && selection.id === position.id;
-        return <button type="button" key={position.id} onClick={() => onSelect({
-          type: "position",
-          id: position.id
-        })} className={[getToolbarActionClassName(), `inline-flex max-w-full items-start gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium shadow-sm transition ${active ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-slate-300 bg-white text-slate-800 hover:border-blue-300 hover:bg-blue-50"}`].filter(Boolean).join(" ")}>
-                <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 font-mono text-xs text-blue-700">{shortPositionCode(position.code)}</span>
-                <span className="max-w-80 whitespace-normal break-words text-left leading-5">{position.name}</span>
-              </button>;
+        return <PickerOptionButton
+              key={position.id}
+              selected={active}
+              align="left"
+              size="compact"
+              onClick={() => onSelect({
+                type: "position",
+                id: position.id
+              })}>
+                <span className="inline-flex max-w-full items-start gap-2">
+                  <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 font-mono text-xs text-blue-700">{shortPositionCode(position.code)}</span>
+                  <span className="max-w-80 whitespace-normal break-words text-left leading-5">{position.name}</span>
+                </span>
+              </PickerOptionButton>;
       })}
           {addPositionButton}
         </div> : <div className="flex items-center gap-3">
           <EmptyStateCard compact className="flex-1">暂无直属岗位</EmptyStateCard>
           {addPositionButton}
         </div>}
-      {creatingPositionHere && canRenderCreate && <PositionCreatePanel createPositionDraft={createPositionDraft} createPositionDepartment={createPositionDepartment} createPositionCode={createPositionCode || ""} departmentById={departmentById} saving={saving} positionDepartmentReadOnly className="mt-3 rounded-lg border border-slate-200 bg-slate-50/60 px-2 py-2" setCreatePositionDraft={setCreatePositionDraft} onCreatePosition={onCreatePosition} onCancel={() => setCreatePanel(null)} />}
+      {creatingPositionHere && canRenderCreate && <PositionCreatePanel createPositionDraft={createPositionDraft} createPositionDepartment={createPositionDepartment} createPositionCode={createPositionCode || ""} departmentById={departmentById} saving={saving} positionDepartmentReadOnly className="mt-3" setCreatePositionDraft={setCreatePositionDraft} onCreatePosition={onCreatePosition} onCancel={() => setCreatePanel(null)} />}
     </PanelCard>;
 }
 export function DepartmentTreePanel({
@@ -93,7 +104,7 @@ export function DepartmentTreePanel({
   onCollapseAll: (collapsed: boolean) => void;
   renderDepartmentNode: (department: Department) => ReactNode;
 }) {
-  return <PanelCard className={mode === "drawer" ? "h-full overflow-hidden" : ""} actions={mode === "drawer" ? <button type="button" onClick={onClose} className={[getToolbarActionClassName(), "px-2 py-1"].filter(Boolean).join(" ")}>关闭</button> : undefined}>
+  return <PanelCard className={mode === "drawer" ? "h-full overflow-hidden" : ""} actions={mode === "drawer" ? <ActionButton kind="panel-close" label="关闭" onClick={onClose} /> : undefined}>
       <div className={`${mode === "drawer" ? "h-[calc(100%-48px)]" : "max-h-[760px]"} overflow-auto p-1`}>
         {loading && <EmptyStateCard compact>加载中...</EmptyStateCard>}
         {error && <EmptyStateCard compact className="border-red-100 bg-red-50 text-red-600">{error}</EmptyStateCard>}
@@ -116,7 +127,7 @@ export function OrganizationRootPanel({
   onClose?: () => void;
   renderOrganizationRoot: (department: Department) => ReactNode;
 }) {
-  return <PanelCard className={mode === "drawer" ? "h-full overflow-hidden" : ""} actions={mode === "drawer" ? <button type="button" onClick={onClose} className={[getToolbarActionClassName(), "px-2 py-1"].filter(Boolean).join(" ")}>关闭</button> : undefined}>
+  return <PanelCard className={mode === "drawer" ? "h-full overflow-hidden" : ""} actions={mode === "drawer" ? <ActionButton kind="panel-close" label="关闭" onClick={onClose} /> : undefined}>
       <div className={`${mode === "drawer" ? "h-full" : "max-h-[760px]"} overflow-auto p-1`}>
         {loading && <EmptyStateCard compact>加载中...</EmptyStateCard>}
         {error && <EmptyStateCard compact className="border-red-100 bg-red-50 text-red-600">{error}</EmptyStateCard>}

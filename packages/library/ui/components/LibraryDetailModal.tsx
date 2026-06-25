@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { ConfirmModal, DetailModal, EditToolbar, Toast, getToolbarActionClassName } from "@workspace/core/ui";
+import { ConfirmModal, DetailModal, Toast, Toolbar, getToolbarActionClassName } from "@workspace/core/ui";
 import { useToast } from "@workspace/core/hooks";
 import { useDocumentDetail, updateDocument, deleteDocument } from "../hooks/useLibraryDocuments";
 import LibraryEditForm from "./LibraryEditForm";
@@ -132,7 +132,22 @@ export default function LibraryDetailModal({
       <Toast show={!!toast} message={toast?.message || ""} type={toast?.type} onClose={closeToast} />
       <DetailModal open={true} title={doc?.title || doc?.fileName || "资料详情"} onClose={onClose}>
         <div className="max-w-lg mx-auto">
-          {canEdit && <EditToolbar editMode={editing} onStartEdit={() => setEditing(true)} onSave={handleSave} onCancel={handleCancel} saving={saving} />}
+          {canEdit && (
+            <Toolbar
+              variant="inline"
+              items={[
+                {
+                  kind: "edit-group",
+                  key: "edit",
+                  editMode: editing,
+                  onStartEdit: () => setEditing(true),
+                  onSave: handleSave,
+                  onCancel: handleCancel,
+                  saving,
+                },
+              ]}
+            />
+          )}
 
           {loading || !doc ? <div className="py-12 text-center text-gray-400">加载中…</div> : <div className="mt-4 space-y-1">
               {editing ? <LibraryEditForm doc={doc} form={form} setForm={setForm} canWrite={canWrite} canAdmin={canAdmin} /> : <>

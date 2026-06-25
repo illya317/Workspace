@@ -153,7 +153,7 @@ const FOUNDATION_COMPONENT_RULES = [
   { pattern: /(Date.*Input|DatePicker)/, imports: [/^@workspace\/core\/ui(\/|$)/], reason: "date inputs must be based on Core CalendarDateInput" },
   { pattern: /(Search)/, imports: [/^@workspace\/core\/ui(\/|$)/, /^@workspace\/core\/search(\/|$)/], reason: "search UI must use Core SearchInput or Core pinyin-aware search helpers" },
   { pattern: /(Table)/, imports: [/^@workspace\/core\/ui(\/|$)/], reason: "tables must be based on Core DataTable unless allowlisted as a business-specific layout" },
-  { pattern: /(Filter)/, imports: [/^@workspace\/core\/ui(\/|$)/, /^@workspace\/core\/search(\/|$)/], reason: "filter UI must be based on Core FilterToolbar/FilterBar/SearchInput" },
+  { pattern: /(Filter)/, imports: [/^@workspace\/core\/ui(\/|$)/, /^@workspace\/core\/search(\/|$)/], reason: "filter UI must be based on Core Toolbar/SearchInput/FieldValueFilter" },
   { pattern: /(Shell)/, imports: [/^@workspace\/core\/ui(\/|$)/, /^@workspace\/platform\/ui(\/|$)/], reason: "page shells must use Core PageShell or Platform AppShell" },
   { pattern: /(Toolbar)/, imports: [/^@workspace\/core\/ui(\/|$)/], reason: "toolbars must be based on Core toolbar primitives" },
   { pattern: /(Modal)/, imports: [/^@workspace\/core\/ui(\/|$)/], reason: "modal UI must be based on Core DetailModal or ConfirmModal" },
@@ -161,17 +161,14 @@ const FOUNDATION_COMPONENT_RULES = [
   { pattern: /(TabBar|Tabs?)/, imports: [/^@workspace\/core\/ui(\/|$)/], reason: "tabs must be based on Core TabBar unless allowlisted as a business-specific layout" },
 ];
 
-const FOUNDATION_COMPONENT_ALLOWLIST = {
-  "packages/hr/ui/components/EntitySearchInput.tsx": "Temporary HR FK search component; must be folded into a Core combobox/search primitive before extending it.",
-  "packages/work/ui/components/EntitySearchInput.tsx": "Temporary Work split debt from HR Project extraction; coordinate with Work thread before enforcing Core combobox here.",
-};
+const FOUNDATION_COMPONENT_ALLOWLIST = {};
 
 const violations = [];
 
 const FORBIDDEN_LEGACY_FILES = [
   {
     file: "app/components/SearchBox.tsx",
-    reason: "legacy app-layer SearchBox mixed Core UI with HR autocomplete semantics; use Core FilterToolbar/input or an app-owned field component",
+    reason: "legacy app-layer SearchBox mixed Core UI with HR autocomplete semantics; use Core Toolbar/SearchInput or an app-owned field component",
   },
   {
     file: "app/hooks/useSearch.ts",

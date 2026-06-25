@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ActionToolbar, FormField, PanelCard, RatingControl, TextField } from "@workspace/core/ui";
+import { FormField, PanelCard, RatingControl, TextField, Toolbar, type ToolbarItem } from "@workspace/core/ui";
 import SelectField from "@workspace/core/ui/SelectField";
 import type { WorkItem } from "./types";
 
@@ -67,25 +67,34 @@ export default function WorkForm({
             placeholder="多个名字用逗号分隔"
           />
         </FormField>
-        <ActionToolbar
+        <Toolbar
           className="justify-end border-0 p-0 shadow-none"
-          secondaryActions={[{ label: "取消", kind: "cancel", onClick: onCancel }]}
-          primaryActions={[
+          items={[
             {
-              label: initial ? "保存" : "添加",
-              kind: initial ? "save" : "add",
-              disabled: !content.trim(),
-              onClick: () =>
-                onSave({
-                  category,
-                  content,
-                  importance,
-                  urgency,
-                  participants,
-                  sortOrder: initial?.sortOrder ?? 0,
-                }),
+              kind: "action-group",
+              key: "actions",
+              section: "edit",
+              actions: [
+                { key: "cancel", kind: "cancel", label: "取消", onClick: onCancel },
+                {
+                  key: "save",
+                  kind: initial ? "save" : "add",
+                  label: initial ? "保存" : "添加",
+                  disabled: !content.trim(),
+                  variant: "primary",
+                  onClick: () =>
+                    onSave({
+                      category,
+                      content,
+                      importance,
+                      urgency,
+                      participants,
+                      sortOrder: initial?.sortOrder ?? 0,
+                    }),
+                },
+              ],
             },
-          ]}
+          ] satisfies ToolbarItem[]}
         />
       </div>
     </PanelCard>

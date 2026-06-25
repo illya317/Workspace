@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
-import { ActionButton, getToolbarActionClassName } from "@workspace/core/ui";
+import { ActionButton, PanelCard } from "@workspace/core/ui";
 type NotificationItem = {
   id: number;
   type: string;
@@ -247,71 +247,63 @@ export default function NotificationBell({
           </span>}
       </button>
 
-      {open && <div className="fixed z-50 rounded-lg border border-slate-200 bg-white shadow-lg" style={{
-      top: panelPosition.top,
-      right: panelPosition.right,
-      width: "min(24rem, calc(100vw - 2rem))"
-    }}>
-          <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3">
-            <div className="min-w-0">
-              <div className="whitespace-nowrap text-sm font-semibold text-slate-900">通知</div>
-              <div className="whitespace-nowrap text-xs text-slate-400">{data.pendingCount} 条待确认 · {data.unreadCount} 条未读 · 共 {data.total} 条</div>
+      {open && (
+        <PanelCard
+          className="z-50"
+          style={{
+            position: "fixed",
+            top: panelPosition.top,
+            right: panelPosition.right,
+            width: "min(24rem, calc(100vw - 2rem))"
+          }}
+          title={<div className="whitespace-nowrap text-sm font-semibold text-slate-900">通知</div>}
+          subtitle={<div className="whitespace-nowrap text-xs text-slate-400">{data.pendingCount} 条待确认 · {data.unreadCount} 条未读 · 共 {data.total} 条</div>}
+          actions={(
+            <div className="flex items-center gap-1">
+              <ActionButton kind="refresh" label="刷新" onClick={() => void load(0)} className="!h-7 !w-7" iconClassName="h-4 w-4" />
+              <ActionButton kind="check" label="全部已读" onClick={() => void markAllRead()} disabled={markingRead || data.unreadCount === 0} className="!h-7 !w-7" iconClassName="h-4 w-4" />
+              <ActionButton kind="delete-bin" label="清空已读" onClick={() => void clearNotifications()} disabled={clearing || data.total === 0} className="!h-7 !w-7" variant="danger" iconClassName="h-4 w-4" />
             </div>
-            <div className="ml-auto flex items-center gap-1">
-              <button type="button" onClick={() => void load(0)} className={[getToolbarActionClassName("secondary"), "!h-7 !px-2 !text-[11px] !font-medium"].filter(Boolean).join(" ")}>
-                刷新
-              </button>
-              <button type="button" disabled={markingRead || data.unreadCount === 0} onClick={() => void markAllRead()} className={[getToolbarActionClassName("secondary"), "!h-7 !px-2 !text-[11px] !font-medium"].filter(Boolean).join(" ")}>
-                全部已读
-              </button>
-              <button type="button" disabled={clearing || data.total === 0} onClick={() => void clearNotifications()} className={[getToolbarActionClassName("secondary"), "!h-7 !px-2 !text-[11px] !font-medium !text-red-600 hover:!bg-red-50"].filter(Boolean).join(" ")}>
-                清空已读
-              </button>
-            </div>
-          </div>
-
-          <div className="max-h-96 overflow-y-auto py-1">
-            {data.items.length === 0 ? <p className="px-4 py-8 text-center text-sm text-slate-400">暂无通知</p> : data.items.map(item => {
-          const pendingAcknowledgement = item.requiresAcknowledgement && !item.acknowledgedAt && !item.rejectedAt;
-          const unread = !item.readAt;
-          const itemToneClass = item.isImportant ? "bg-red-50/60" : unread ? "bg-sky-50/40" : "bg-white";
-          const titleToneClass = unread && item.isImportant ? "font-semibold text-red-600" : unread ? "font-semibold text-slate-950" : "font-medium text-slate-700";
-          const titleHoverClass = unread && item.isImportant ? "hover:text-red-700" : "hover:text-emerald-700";
-          return <div key={item.id} className={`border-b border-slate-100 px-4 py-3 last:border-b-0 ${itemToneClass}`} onMouseEnter={() => void markNotificationRead(item)}>
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="flex min-w-0 items-center gap-1.5">
-                        {unread && <span aria-label="未读" className="size-1.5 shrink-0 rounded-full bg-sky-500" />}
-                        {item.href ? <button type="button" className={`min-w-0 truncate text-left text-sm ${titleToneClass} ${titleHoverClass}`} onClick={() => void openHref(item)}>
-                            {item.title}
-                          </button> : <div className={`truncate text-sm ${titleToneClass}`}>{item.title}</div>}
-                        {item.rejectedAt ? <span className="shrink-0 rounded-full bg-red-50 px-2 py-1 text-[11px] font-medium leading-none text-red-600">已拒绝</span> : item.acknowledgedAt ? <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-medium leading-none text-emerald-700">已确认</span> : pendingAcknowledgement ? <span className="shrink-0 rounded-full bg-amber-100 px-2 py-1 text-[11px] font-medium leading-none text-amber-700">待确认</span> : null}
+          )}
+          bodyClassName="max-h-96 overflow-y-auto py-1"
+        >
+          {data.items.length === 0 ? <p className="px-4 py-8 text-center text-sm text-slate-400">暂无通知</p> : data.items.map(item => {
+            const pendingAcknowledgement = item.requiresAcknowledgement && !item.acknowledgedAt && !item.rejectedAt;
+            const unread = !item.readAt;
+            const itemToneClass = item.isImportant ? "bg-red-50/60" : unread ? "bg-sky-50/40" : "bg-white";
+            const titleToneClass = unread && item.isImportant ? "font-semibold text-red-600" : unread ? "font-semibold text-slate-950" : "font-medium text-slate-700";
+            const titleHoverClass = unread && item.isImportant ? "hover:text-red-700" : "hover:text-emerald-700";
+            return <div key={item.id} className={`border-b border-slate-100 px-4 py-3 last:border-b-0 ${itemToneClass}`} onMouseEnter={() => void markNotificationRead(item)}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex min-w-0 items-center gap-1.5">
+                          {unread && <span aria-label="未读" className="size-1.5 shrink-0 rounded-full bg-sky-500" />}
+                          {item.href ? <button type="button" className={`min-w-0 truncate text-left text-sm ${titleToneClass} ${titleHoverClass}`} onClick={() => void openHref(item)}>
+                              {item.title}
+                            </button> : <div className={`truncate text-sm ${titleToneClass}`}>{item.title}</div>}
+                          {item.rejectedAt ? <span className="shrink-0 rounded-full bg-red-50 px-2 py-1 text-[11px] font-medium leading-none text-red-600">已拒绝</span> : item.acknowledgedAt ? <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-medium leading-none text-emerald-700">已确认</span> : pendingAcknowledgement ? <span className="shrink-0 rounded-full bg-amber-100 px-2 py-1 text-[11px] font-medium leading-none text-amber-700">待确认</span> : null}
+                        </div>
+                        <div className="mt-1 text-xs leading-5 text-slate-600">{item.body}</div>
                       </div>
-                      <div className="mt-1 text-xs leading-5 text-slate-600">{item.body}</div>
+                      <ActionButton kind="delete" label="清除通知" className="!size-6 !rounded-full !border-0 !bg-transparent !text-lg !leading-none !text-slate-300 hover:!bg-slate-100 hover:!text-slate-600 disabled:!text-slate-200" disabled={busyId === item.id} onClick={() => void updateNotification(item.id, "clear")} />
                     </div>
-                    <ActionButton kind="delete" label="清除通知" className="!size-6 !rounded-full !border-0 !bg-transparent !text-lg !leading-none !text-slate-300 hover:!bg-slate-100 hover:!text-slate-600 disabled:!text-slate-200" disabled={busyId === item.id} onClick={() => void updateNotification(item.id, "clear")} />
-                  </div>
-                  <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-                    <div className="min-w-0 truncate text-left text-[11px] text-slate-400">
-                      {item.actor ? `${item.actor.name} · ` : ""}{formatNotificationTime(item.createdAt)}
+                    <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+                      <div className="min-w-0 truncate text-left text-[11px] text-slate-400">
+                        {item.actor ? `${item.actor.name} · ` : ""}{formatNotificationTime(item.createdAt)}
+                      </div>
+                      {pendingAcknowledgement && <div className="flex shrink-0 items-center gap-1.5">
+                          <ActionButton kind="check" label="确认" onClick={() => void updateNotification(item.id, "acknowledge")} disabled={busyId === item.id} className="!h-6 !w-6" iconClassName="h-3 w-3" variant="primary" />
+                          <ActionButton kind="cancel" label="拒绝" onClick={() => void updateNotification(item.id, "reject")} disabled={busyId === item.id} className="!h-6 !w-6" iconClassName="h-3 w-3" variant="danger" />
+                        </div>}
                     </div>
-                    {pendingAcknowledgement && <div className="flex shrink-0 items-center gap-1.5">
-                        <button type="button" disabled={busyId === item.id} onClick={() => void updateNotification(item.id, "acknowledge")} className={[getToolbarActionClassName("primary"), "!h-6 !rounded-full !px-2.5 !text-[11px] !font-medium !leading-none"].filter(Boolean).join(" ")}>
-                          确认
-                        </button>
-                        <button type="button" disabled={busyId === item.id} onClick={() => void updateNotification(item.id, "reject")} className={[getToolbarActionClassName("secondary"), "!h-6 !rounded-full !px-2.5 !text-[11px] !font-medium !leading-none !text-red-600 hover:!bg-red-50"].filter(Boolean).join(" ")}>
-                          拒绝
-                        </button>
-                      </div>}
-                  </div>
-                </div>;
-        })}
-            {data.hasMore && <div className="border-t border-slate-100 px-4 py-3 text-center">
-                <button type="button" className="text-xs font-medium text-slate-500 hover:text-slate-900" onClick={() => void load(data.items.length, true)}>
-                  更多
-                </button>
-              </div>}
-          </div>
-        </div>}
+                  </div>;
+          })}
+          {data.hasMore && <div className="border-t border-slate-100 px-4 py-3 text-center">
+              <button type="button" className="text-xs font-medium text-slate-500 hover:text-slate-900" onClick={() => void load(data.items.length, true)}>
+                更多
+              </button>
+            </div>}
+        </PanelCard>
+      )}
     </div>;
 }

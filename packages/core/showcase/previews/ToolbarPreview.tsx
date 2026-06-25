@@ -64,7 +64,7 @@ export default function ToolbarPreview() {
       },
       placeholder: "字段",
     },
-    { kind: "column-toggle", key: "columns", section: "filter", columns, visible: s.visibleColumns, onChange: s.setVisibleColumns },
+    { kind: "column-toggle", key: "columns", columns, visible: s.visibleColumns, onChange: s.setVisibleColumns },
     {
       kind: "action-group",
       key: "actions",

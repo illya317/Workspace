@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useEffect } from "react";
 import { matchEmployee } from "@workspace/platform/search";
-import { FilterBar, SearchInput, SectionCard, SelectField, SelectorList, getToolbarActionClassName } from "@workspace/core/ui";
+import { SectionCard, SelectorList, Toolbar, type ToolbarItem, getToolbarActionClassName } from "@workspace/core/ui";
 export interface EmployeePerm {
   employeeId: string;
   name: string;
@@ -93,20 +93,40 @@ export default function PermissionDrilldown({
     return aHas - bHas;
   }), [empPerms, fCompany, fDept, fKeyword, drillKey, empHasAccess, companyMap]);
   return <SectionCard title={`人员 · ${drillKey}`} actions={<button type="button" onClick={onClose} className={[getToolbarActionClassName(), "px-3 py-1.5 text-xs"].filter(Boolean).join(" ")}>关闭</button>} bodyClassName="space-y-3 p-4">
-      <FilterBar>
-        <SelectField value={fCompany} onChange={nextValue => {
-        setFCompany(nextValue);
-        setFDept("全部");
-      }} options={allCompanies.map(c => ({
-        value: c,
-        label: c
-      }))} triggerClassName="min-w-40" />
-        <SelectField value={fDept} onChange={setFDept} options={allDepts.map(d => ({
-        value: d,
-        label: d
-      }))} triggerClassName="min-w-40" />
-        <SearchInput value={fKeyword} onChange={setFKeyword} placeholder="搜索姓名/工号..." className="min-w-0 sm:w-[22rem]" />
-      </FilterBar>
+      <Toolbar
+        items={[
+          {
+            kind: "select",
+            key: "company",
+            section: "filter",
+            value: fCompany,
+            onChange: (nextValue) => {
+              setFCompany(nextValue);
+              setFDept("全部");
+            },
+            options: allCompanies.map((c) => ({ value: c, label: c })),
+            triggerClassName: "min-w-40",
+          },
+          {
+            kind: "select",
+            key: "dept",
+            section: "filter",
+            value: fDept,
+            onChange: setFDept,
+            options: allDepts.map((d) => ({ value: d, label: d })),
+            triggerClassName: "min-w-40",
+          },
+          {
+            kind: "search",
+            key: "keyword",
+            section: "filter",
+            value: fKeyword,
+            onChange: setFKeyword,
+            placeholder: "搜索姓名/工号...",
+            className: "min-w-0 sm:w-[22rem]",
+          },
+        ] satisfies ToolbarItem[]}
+      />
       {empLoading ? <p className="py-4 text-center text-sm text-gray-500">加载中...</p> : <SelectorList items={filtered} onSelect={onToggle} getKey={emp => emp.employeeId} renderItem={emp => ({
       title: emp.name,
       subtitle: emp.employeeId,

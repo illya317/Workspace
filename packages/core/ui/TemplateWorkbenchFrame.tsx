@@ -3,8 +3,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { EmptyStateCard, PanelCard } from "./BaseCards";
 import { joinClassNames } from "./card-utils";
-import CommandToolbar from "./CommandToolbar";
-import SearchInput from "./SearchInput";
+import { Toolbar, type ToolbarItem } from "./Toolbar";
 import SelectorCard, { type SelectorCardMetaItem } from "./SelectorCard";
 import Badge, { type BadgeProps } from "./Badge";
 import { matchText } from "../search";
@@ -203,16 +202,29 @@ export default function TemplateWorkbenchFrame({
     })
     .filter((section) => section.rows.length > 0 || !keyword || textMatches(section.searchText ?? [section.title, section.subtitle], keyword)), [expandedOverrides, keyword, sections, selectedKey]);
 
-  const filters = (
-    <>
-      <SearchInput value={searchValue} onChange={updateQuery} placeholder={searchPlaceholder} className="min-w-[260px] flex-1" />
-      {toolbarFilters}
-    </>
-  );
+  const toolbarItems: ToolbarItem[] = [];
+  toolbarItems.push({
+    kind: "search",
+    key: "search",
+    section: "filter",
+    value: searchValue,
+    onChange: updateQuery,
+    placeholder: searchPlaceholder,
+    className: "min-w-[260px] flex-1",
+  });
+  if (toolbarFilters) {
+    toolbarItems.push({ kind: "custom", key: "filters", section: "filter", content: toolbarFilters });
+  }
+  if (toolbarActions) {
+    toolbarItems.push({ kind: "custom", key: "actions", section: "action", content: toolbarActions });
+  }
+  if (toolbarMeta) {
+    toolbarItems.push({ kind: "text", key: "meta", section: "meta", content: toolbarMeta });
+  }
 
   return (
     <section className={joinClassNames("space-y-5", className)}>
-      {!hideToolbar && <CommandToolbar filters={filters} selectionActions={toolbarActions} meta={toolbarMeta} />}
+      {!hideToolbar && <Toolbar items={toolbarItems} />}
       <div className="grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
         <PanelCard title={selectorTitle} bodyClassName="p-3">
           <div className="space-y-2">

@@ -37,11 +37,6 @@ function BadgePreview() {
   );
 }
 
-function hierarchyBadgeClassNamePreview() {
-    return <div className="text-xs text-slate-400"><p className="font-medium">hierarchyBadgeClassName</p><p>层级徽标样式 recipe，统一组织树节点层级标识 class。</p><p className="mt-1 text-slate-300">Foundation / 样式 recipe，无运行时组件预览。</p></div>;
-}
-
 export const statusPreviewByName: Record<string, FC> = {
   Badge: BadgePreview,
-  hierarchyBadgeClassName: hierarchyBadgeClassNamePreview,
 };

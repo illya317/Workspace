@@ -7,12 +7,10 @@ import {
   DataTable,
   DataTableActionsCell,
   DisclosureRecordCard,
-  RegistryBrowserCard,
   Badge,
   StructuredTable,
   TableScrollFrame,
 } from "@workspace/core/ui";
-import type { RegistryBrowserItem } from "@workspace/core/ui";
 
 function CodeBlockPreview() {
   return (
@@ -103,50 +101,6 @@ function DisclosureRecordCardPreview() {
   );
 }
 
-function RegistryBrowserCardPreview() {
-  const items: RegistryBrowserItem[] = [
-    {
-      name: "ActionButton",
-      tier: "primitive",
-      tierLabel: "原子组件",
-      tierDescription: "最小可交互组件",
-      kind: "toolbar",
-      kindLabel: "工具栏",
-      kindDescription: "页面动作集合",
-      description: "通用动作按钮 primitive",
-      example: "详情页保存、取消、删除",
-      includedComponents: [],
-      foundationComponents: ["getToolbarActionClassName"],
-      usedBy: ["ActionToolbar", "ActionButton"],
-      usageFiles: ["packages/core/ui/ActionControls.tsx"],
-    },
-    {
-      name: "DataTable",
-      tier: "assembly",
-      tierLabel: "常用组合",
-      tierDescription: "由 primitives 组合而成",
-      kind: "data",
-      kindLabel: "数据视图",
-      kindDescription: "表格和数据阅读",
-      description: "通用数据表格 primitive",
-      example: "渲染科目、合同列表",
-      includedComponents: ["DataTableActionsCell"],
-      foundationComponents: ["dataTableClassNames"],
-      usedBy: [],
-      usageFiles: ["packages/core/ui/DataTable.tsx"],
-    },
-  ];
-  return (
-    <div className="max-w-2xl">
-      <RegistryBrowserCard
-        title="Core UI 注册浏览器"
-        subtitle="按分层和分类浏览已注册组件"
-        items={items}
-      />
-    </div>
-  );
-}
-
 function StructuredTablePreview() {
   return (
     <TableScrollFrame className="rounded-lg border border-slate-200">
@@ -226,7 +180,6 @@ export const dataPreviewByName: Record<string, FC> = {
   DataTableActionsCell: DataTableActionsCellPreview,
   createDataTableEditActions: createDataTableEditActionsPreview,
   DisclosureRecordCard: DisclosureRecordCardPreview,
-  RegistryBrowserCard: RegistryBrowserCardPreview,
   StructuredTable: StructuredTablePreview,
   TableScrollFrame: TableScrollFramePreview,
   dataTableClassNames: dataTableClassNamesPreview,

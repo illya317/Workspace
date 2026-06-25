@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { GroupedOptionPicker } from "@workspace/core/ui";
+import { Picker } from "@workspace/core/ui";
 import { hrGroupedPickerLabels, type HrPickerProps } from "./HrPicker";
 
 interface RankPickerProps extends HrPickerProps {
@@ -52,7 +52,7 @@ export default function RankPicker({
   }, [options]);
 
   return (
-    <GroupedOptionPicker
+    <Picker
       value={current}
       groups={groups}
       disabled={disabled}
@@ -60,8 +60,6 @@ export default function RankPicker({
       {...hrGroupedPickerLabels({ groupLabel: "职级序列", optionLabel: "等级", changeGroupLabel: "更换序列" })}
       className={className}
       buttonClassName={buttonClassName}
-      groupColumnsClassName="grid-cols-3"
-      optionColumnsClassName="grid-cols-5"
       formatValueLabel={(nextValue) => nextValue}
     />
   );

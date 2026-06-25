@@ -4,7 +4,6 @@ import { useState, type FC } from "react";
 import {
   Badge,
   FkFieldInput,
-  GroupedOptionPicker,
   OptionPicker,
   PanelCard,
   Picker,
@@ -28,37 +27,6 @@ function FkFieldInputPreview() {
         onChange={() => {}}
         placeholder="输入姓名搜索..."
         disabled
-      />
-    </div>
-  );
-}
-
-function GroupedOptionPickerPreview() {
-  const [value, setValue] = useState<string | null>("pharmacy");
-  return (
-    <div className="max-w-xs">
-      <GroupedOptionPicker
-        value={value}
-        onChange={setValue}
-        placeholder="未设置专业"
-        groups={[
-          {
-            key: "science",
-            label: "理学",
-            options: [
-              { value: "math", label: "数学" },
-              { value: "physics", label: "物理学" },
-            ],
-          },
-          {
-            key: "medicine",
-            label: "医学",
-            options: [
-              { value: "pharmacy", label: "药学", description: "四年制" },
-              { value: "clinical", label: "临床医学", description: "五年制" },
-            ],
-          },
-        ]}
       />
     </div>
   );
@@ -265,7 +233,6 @@ function SelectorCardPreview() {
 
 export const pickerPreviewByName: Record<string, FC> = {
   FkFieldInput: FkFieldInputPreview,
-  GroupedOptionPicker: GroupedOptionPickerPreview,
   OptionPicker: OptionPickerPreview,
   Picker: PickerPreview,
   PickerOptionButton: PickerOptionButtonPreview,

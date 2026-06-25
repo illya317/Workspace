@@ -5,7 +5,7 @@ import LineConfigTab from "./LineConfigTab";
 import UnmappedTab from "./UnmappedTab";
 import BalanceCheckTab from "./BalanceCheckTab";
 import { StatementConfigProvider, useStatementConfig } from "./StatementConfigContext";
-import { SelectField, Toolbar, ToolbarItem } from "@workspace/core/ui";
+import { SelectField, Toolbar, type ToolbarItem } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 import { DatabasePageFrame } from "@workspace/core/ui";

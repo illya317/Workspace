@@ -1,6 +1,6 @@
 "use client";
 
-import { EmptyStateCard, FormField, PanelCard, TextareaField, TextField, useConfirmDelete, getToolbarActionClassName } from "@workspace/core/ui";
+import { ActionButton, CreateStartButton, EmptyStateCard, FormField, PanelCard, TextareaField, TextField, useConfirmDelete } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { detailFieldRows, detailValueToText, isPrimitiveArray, parseDetailsObject, textToDetailValue } from "./description-details";
 import { StringListEditor } from "./detail-editor-primitives";
@@ -59,9 +59,7 @@ export function DepartmentDescriptionDetailsEditor({
     return <div className="space-y-3 md:col-span-2">
         <div className="flex items-center gap-3 border-b border-slate-200 pb-1">
           <span className="text-sm font-semibold text-slate-900">部门职责描述</span>
-          {!disabled && <button type="button" onClick={addRecord} className={[getToolbarActionClassName(), "px-2 py-1 text-xs"].filter(Boolean).join(" ")}>
-              新增
-            </button>}
+          {!disabled && <CreateStartButton label="新增职责" onClick={addRecord} />}
         </div>
         {records.map((record, index) => {
         const items = Array.isArray(record.items) ? record.items : [];
@@ -69,9 +67,7 @@ export function DepartmentDescriptionDetailsEditor({
               <PanelCard bodyClassName="p-3">
                 <div className="mb-2 flex items-center gap-3">
                   <span className="text-xs font-medium text-slate-500">职责 {index + 1}</span>
-                  {!disabled && <button type="button" aria-label={`删除部门职责 ${index + 1}`} onClick={() => void removeRecord(index)} className={[getToolbarActionClassName(), "!h-auto rounded-full !px-2 !py-0.5 text-[11px] hover:!border-rose-200 hover:!bg-rose-50 hover:!text-rose-600"].filter(Boolean).join(" ")}>
-                      移除
-                    </button>}
+                  {!disabled && <ActionButton kind="delete" label={`删除部门职责 ${index + 1}`} onClick={() => void removeRecord(index)} className="!size-6 !rounded-full" iconClassName="h-3 w-3" />}
                 </div>
                 <div className="grid grid-cols-1 gap-2">
                   <TextField value={String(record.title || "")} disabled={disabled} placeholder="职责标题" onChange={next => updateRecord(index, {

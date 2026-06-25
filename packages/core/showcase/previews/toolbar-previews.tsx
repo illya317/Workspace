@@ -4,21 +4,17 @@ import { useState, type FC } from "react";
 import {
   ActionButton,
   ActionGlyph,
-  ACTION_GLYPH_GROUPS,
-  ACTION_GLYPH_ORDER,
-  ACTION_GLYPH_TOOLBAR_GROUPS,
-  ActionToolbar,
-  CommandToolbar,
-  EditToolbar,
   FieldValueFilter,
-  FilterBar,
-  FilterToolbar,
   PageToolbar,
   RefreshActionButton,
-  SearchInput,
   SplitWorkspaceToolbar,
   ToolbarOptionGroup,
 } from "@workspace/core/ui";
+import {
+  ACTION_GLYPH_GROUPS,
+  ACTION_GLYPH_ORDER,
+  ACTION_GLYPH_TOOLBAR_GROUPS,
+} from "@workspace/core/ui/ActionGlyphs";
 import type { PageToolbarFeature } from "@workspace/core/ui";
 import ToolbarPreview from "./ToolbarPreview";
 
@@ -78,36 +74,8 @@ function ActionGlyphPreview() {
   );
 }
 
-function ActionToolbarPreview() {
-  return (
-    <div className="max-w-2xl">
-      <ActionToolbar
-        leftSlot={<span className="text-sm font-semibold">已选择 2 条记录</span>}
-        primaryActions={[{ label: "导出", kind: "download", onClick: () => {} }]}
-        secondaryActions={[{ label: "取消选择", kind: "cancel", onClick: () => {} }]}
-        rightSlot={<ActionButton kind="add" label="新增" variant="primary" size="sm" />}
-      />
-    </div>
-  );
-}
-
 function RefreshActionButtonPreview() {
   return <RefreshActionButton onClick={() => {}} />;
-}
-
-function CommandToolbarPreview() {
-  const [value, setValue] = useState<string | null>(null);
-  return <CommandToolbar filters={<ToolbarOptionGroup ariaLabel="预览筛选" value={value ?? "all"} options={[{ value: "all", label: "全部" }, { value: "active", label: "进行中" }]} onChange={(v) => setValue(v)} />} editActions={<ActionButton kind="add" label="新建" variant="primary" />} meta={<>共 24 条</>} />;
-}
-
-function EditToolbarPreview() {
-  const [editMode, setEditMode] = useState(false);
-  return (
-    <div className="flex flex-col gap-3">
-      <EditToolbar editMode={editMode} onStartEdit={() => setEditMode(true)} onSave={async () => { setEditMode(false); }} onCancel={() => setEditMode(false)} onDownload={() => {}} onShowHistory={() => {}} />
-      <div className="text-xs text-slate-400">当前模式：{editMode ? "编辑中" : "只读"}</div>
-    </div>
-  );
 }
 
 function FieldValueFilterPreview() {
@@ -129,39 +97,6 @@ function FieldValueFilterPreview() {
       onFieldKeyChange={setFieldKey}
       value={value}
       onValueChange={setValue}
-    />
-  );
-}
-
-function FilterBarPreview() {
-  const [keyword, setKeyword] = useState("");
-  return (
-    <FilterBar>
-      <SearchInput value={keyword} onChange={setKeyword} placeholder="搜索..." className="min-w-0" />
-      <ActionButton kind="search" label="查询" size="sm" variant="primary" />
-      <ActionButton kind="reset" label="重置" size="sm" variant="secondary" />
-    </FilterBar>
-  );
-}
-
-function FilterToolbarPreview() {
-  const [keyword, setKeyword] = useState("");
-  const [status, setStatus] = useState("all");
-  const [pageSize, setPageSize] = useState(50);
-  const [visibleColumns, setVisibleColumns] = useState(["name", "status", "amount"]);
-  return (
-    <FilterToolbar
-      keyword={keyword}
-      onKeywordChange={setKeyword}
-      optionGroups={[{ value: status, options: [{ value: "all", label: "全部" }, { value: "active", label: "进行中" }, { value: "done", label: "已完成" }], onChange: setStatus, ariaLabel: "状态筛选" }]}
-      pageSize={pageSize}
-      onPageSizeChange={setPageSize}
-      meta={<>共 86 条</>}
-      onReset={() => { setKeyword(""); setStatus("all"); }}
-      primaryAction={{ label: "新建", kind: "add", onClick: () => {} }}
-      columns={[{ key: "name", label: "名称", required: true }, { key: "status", label: "状态", defaultVisible: true }, { key: "amount", label: "金额", defaultVisible: true }, { key: "owner", label: "负责人" }]}
-      visibleColumns={visibleColumns}
-      onColumnsChange={setVisibleColumns}
     />
   );
 }
@@ -236,15 +171,10 @@ function SplitWorkspaceToolbarPreview() {
 export const toolbarPreviewByName: Record<string, FC> = {
   ActionButton: ActionButtonPreview,
   ActionGlyph: ActionGlyphPreview,
-  ActionToolbar: ActionToolbarPreview,
   RefreshActionButton: RefreshActionButtonPreview,
-  CommandToolbar: CommandToolbarPreview,
-  EditToolbar: EditToolbarPreview,
   Toolbar: ToolbarPreview,
   PageToolbar: PageToolbarPreview,
   FieldValueFilter: FieldValueFilterPreview,
-  FilterBar: FilterBarPreview,
-  FilterToolbar: FilterToolbarPreview,
   ToolbarOptionGroup: ToolbarOptionGroupPreview,
   getToolbarActionClassName: getToolbarActionClassNamePreview,
   SplitWorkspaceToolbar: SplitWorkspaceToolbarPreview,

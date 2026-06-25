@@ -242,9 +242,8 @@ API 权限规则：
 |------|------|------|
 | `ConfirmModal` | 确认弹框 | `@workspace/core/ui` |
 | `DetailModal` | 通用详情弹窗 | `@workspace/core/ui` |
-| `EditToolbar` | 编辑工具栏，编辑、保存、取消、版本 | `@workspace/core/ui` |
+| `Toolbar`（含 `edit-group`/`action-group`） | 统一工具栏，承载编辑、保存、取消、筛选、动作和元信息 | `@workspace/core/ui` |
 | `Toast` + `useToast` | 通知提示 | `@workspace/core/ui` + `@workspace/core/hooks` |
-| `FilterBar` | 筛选栏容器 | `@workspace/core/ui` |
 | `AppShell` / `ModuleHome` | 登录后页面壳和模块首页 | `@workspace/platform/ui` |
 
 规范：

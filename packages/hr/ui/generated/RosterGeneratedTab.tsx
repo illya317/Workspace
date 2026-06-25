@@ -2,17 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  CommandToolbar,
-  EditToolbar,
   EmptyStateCard,
-  FieldValueFilter,
   PanelCard,
-  RefreshActionButton,
-  SearchInput,
-  SelectField,
-  ToolbarOptionGroup,
+  Toolbar,
   type ColumnDef,
   type FieldValueFilterField,
+  type ToolbarItem,
 } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "@workspace/hr/ui/fk-keys";
@@ -135,76 +130,93 @@ export default function RosterGeneratedTab({ variant, canEdit }: { variant: Rost
 
   return (
     <div className="space-y-4">
-      <CommandToolbar
+      <Toolbar
         onSubmit={() => void loadPreview()}
-        filters={(
-          <>
-            <SearchInput
-              value={keyword}
-              onChange={setKeyword}
-              placeholder="搜索员工、公司、部门、岗位"
-              ariaLabel="搜索员工、公司、部门、岗位"
-              className="min-w-64"
-            />
-            <ToolbarOptionGroup
-              value={status}
-              options={statusOptions}
-              onChange={(value) => setStatus(value as RosterGeneratedStatus)}
-              ariaLabel="花名册人员状态"
-            />
-            <FieldValueFilter
-              fields={filterFields}
-              valueOptions={{}}
-              referenceEndpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
-              fieldKey={filterField}
-              onFieldKeyChange={setFilterField}
-              value={filterValue}
-              onValueChange={setFilterValue}
-            />
-            <SelectField
-              multiple
-              summaryMode="count"
-              label="字段"
-              options={columnDefs.map((column) => ({
-                value: column.key,
-                label: String(column.label),
-                disabled: column.required,
-              }))}
-              value={visibleColumns}
-              onChange={setVisibleColumns}
-            />
-            <RefreshActionButton
-              label="刷新生成"
-              onClick={() => void loadPreview()}
-              disabled={loading}
-            />
-          </>
-        )}
-        editActions={(
-          <EditToolbar
-            editMode={editMode}
-            onStartEdit={() => setEditMode(true)}
-            onSave={applyEdits}
-            onCancel={() => {
+        items={[
+          {
+            kind: "search",
+            key: "search",
+            section: "filter",
+            value: keyword,
+            onChange: setKeyword,
+            placeholder: "搜索员工、公司、部门、岗位",
+            ariaLabel: "搜索员工、公司、部门、岗位",
+            className: "min-w-64",
+          },
+          {
+            kind: "option-group",
+            key: "status",
+            section: "filter",
+            value: status,
+            options: statusOptions,
+            onChange: (value) => setStatus(value as RosterGeneratedStatus),
+            ariaLabel: "花名册人员状态",
+          },
+          {
+            kind: "field-filter",
+            key: "field-filter",
+            section: "filter",
+            fields: filterFields,
+            valueOptions: {},
+            referenceEndpoint: HR_REFERENCE_OPTIONS_ENDPOINT,
+            fieldKey: filterField,
+            onFieldKeyChange: setFilterField,
+            value: filterValue,
+            onValueChange: setFilterValue,
+          },
+          {
+            kind: "column-toggle",
+            key: "columns",
+            columns: columnDefs,
+            visible: visibleColumns,
+            onChange: setVisibleColumns,
+          },
+          {
+            kind: "action-group",
+            key: "refresh",
+            section: "edit",
+            actions: [
+              {
+                key: "refresh",
+                kind: "refresh",
+                label: "刷新生成",
+                disabled: loading,
+                onClick: () => void loadPreview(),
+              },
+            ],
+          },
+          {
+            kind: "edit-group",
+            key: "edit",
+            section: "edit",
+            editMode,
+            onStartEdit: () => setEditMode(true),
+            onSave: applyEdits,
+            onCancel: () => {
               setGroups(preview?.groups ?? []);
               setEditMode(false);
-            }}
-            onDownload={downloadCsv}
-            canEdit={canEdit}
-            downloading={false}
-            saveLabel="应用到预览"
-            editLabel="编辑预览"
-            saving={saving}
-          />
-        )}
-        meta={preview ? (
-          <>
-            <span>{preview.title}</span>
-            <span>{preview.totalEmployees} 人</span>
-            <span>{preview.totalRows} 行</span>
-            {editMode && <span>编辑仅影响本次预览和导出</span>}
-          </>
-        ) : null}
+            },
+            onDownload: downloadCsv,
+            canEdit,
+            downloading: false,
+            saveLabel: "应用到预览",
+            editLabel: "编辑预览",
+            saving,
+          },
+          {
+            kind: "text",
+            key: "meta",
+            section: "meta",
+            content: preview ? (
+              <>
+                <span>{preview.title}</span>
+                <span>{preview.totalEmployees} 人</span>
+                <span>{preview.totalRows} 行</span>
+                {editMode && <span>编辑仅影响本次预览和导出</span>}
+              </>
+            ) : null,
+          },
+        ] satisfies ToolbarItem[]}
       />
 
       {error && <EmptyStateCard compact className="border-red-100 text-red-600">{error}</EmptyStateCard>}

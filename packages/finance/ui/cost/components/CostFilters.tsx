@@ -1,6 +1,6 @@
 "use client";
 
-import { SearchInput, SelectField, Toolbar, ToolbarItem } from "@workspace/core/ui";
+import { SearchInput, SelectField, Toolbar, type ToolbarItem } from "@workspace/core/ui";
 import type { CostFiltersState } from "../types";
 
 interface Props {

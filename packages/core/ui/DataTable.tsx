@@ -127,7 +127,7 @@ export function DataTableActionsCell({ actions }: { actions: DataTableRowAction[
  * 只负责：表头渲染、数据行渲染、加载态、空状态、列可见性。
  *
  * 典型组合：
- *   FilterToolbar + DataTable + Pagination
+ *   Toolbar + DataTable + Pagination
  */
 export default function DataTable<T>({
   rows,

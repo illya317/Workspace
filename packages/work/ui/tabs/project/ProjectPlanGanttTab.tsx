@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CommandToolbar, EmptyStateCard, SearchInput, SelectField, ToolbarOptionGroup, useConfirm, getToolbarActionClassName } from "@workspace/core/ui";
+import { EmptyStateCard, Toolbar, useConfirm, type ToolbarItem } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { ProjectItem } from "./model";
 import { listProjectOptions, listProjectPlanGantt, saveProjectPlanDependencies, saveProjectPlanGantt } from "./api";
@@ -100,21 +100,73 @@ export default function ProjectPlanGanttTab({
     }
   }
   return <div className="space-y-4">
-      <CommandToolbar filters={<>
-            <SearchInput value={keyword} onChange={setKeyword} placeholder="搜索项目..." ariaLabel="搜索项目" className="w-52" />
-            <SelectField ariaLabel="选择项目" value={selectedProjectId ? String(selectedProjectId) : ""} placeholder="选择项目" searchable className="min-w-52" triggerClassName="min-w-52" options={filteredProjects.map(project => ({
-        value: String(project.id),
-        label: project.name
-      }))} onChange={value => setSelectedProjectId(value ? Number(value) : null)} />
-          </>} editActions={<>
-            <ToolbarOptionGroup ariaLabel="甘特时间缩放" value={zoom} options={PROJECT_GANTT_ZOOM_OPTIONS} onChange={value => changeZoom(value as ProjectGanttZoom)} />
-            <div className="inline-flex h-10 items-center overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-              <button type="button" className="h-10 px-3 text-sm font-semibold text-slate-600 hover:bg-slate-50" onClick={() => setCurrentStart(current => shiftPeriod(current, zoom, -1))}>‹</button>
-              <div className="min-w-28 border-x border-slate-200 px-3 text-center text-xs font-semibold text-slate-600">{periodLabel(currentStart, zoom)}</div>
-              <button type="button" className="h-10 px-3 text-sm font-semibold text-slate-600 hover:bg-slate-50" onClick={() => setCurrentStart(current => shiftPeriod(current, zoom, 1))}>›</button>
-            </div>
-            <button type="button" onClick={handleSave} disabled={!canEdit || saving || !dirty} className={getToolbarActionClassName("primary")}>{saving ? "保存中..." : "保存甘特"}</button>
-          </>} meta="基线来自项目阶段" />
+      <Toolbar
+        items={[
+          {
+            kind: "search",
+            key: "search",
+            section: "filter",
+            value: keyword,
+            onChange: setKeyword,
+            placeholder: "搜索项目...",
+            ariaLabel: "搜索项目",
+            className: "w-52",
+          },
+          {
+            kind: "select",
+            key: "project",
+            section: "filter",
+            value: selectedProjectId ? String(selectedProjectId) : "",
+            placeholder: "选择项目",
+            options: filteredProjects.map((project) => ({ value: String(project.id), label: project.name })),
+            onChange: (value) => setSelectedProjectId(value ? Number(value) : null),
+            className: "min-w-52",
+            triggerClassName: "min-w-52",
+          },
+          {
+            kind: "option-group",
+            key: "zoom",
+            section: "filter",
+            value: zoom,
+            options: PROJECT_GANTT_ZOOM_OPTIONS,
+            onChange: (value) => changeZoom(value as ProjectGanttZoom),
+            ariaLabel: "甘特时间缩放",
+          },
+          {
+            kind: "custom",
+            key: "period-nav",
+            section: "filter",
+            content: (
+              <div className="inline-flex h-10 items-center overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+                <button type="button" className="h-10 px-3 text-sm font-semibold text-slate-600 hover:bg-slate-50" onClick={() => setCurrentStart((current) => shiftPeriod(current, zoom, -1))}>‹</button>
+                <div className="min-w-28 border-x border-slate-200 px-3 text-center text-xs font-semibold text-slate-600">{periodLabel(currentStart, zoom)}</div>
+                <button type="button" className="h-10 px-3 text-sm font-semibold text-slate-600 hover:bg-slate-50" onClick={() => setCurrentStart((current) => shiftPeriod(current, zoom, 1))}>›</button>
+              </div>
+            ),
+          },
+          {
+            kind: "action-group",
+            key: "save",
+            section: "edit",
+            actions: [
+              {
+                key: "save",
+                kind: "save",
+                label: saving ? "保存中..." : "保存甘特",
+                disabled: !canEdit || saving || !dirty,
+                variant: "primary",
+                onClick: handleSave,
+              },
+            ],
+          },
+          {
+            kind: "text",
+            key: "meta",
+            section: "meta",
+            content: "基线来自项目阶段",
+          },
+        ] satisfies ToolbarItem[]}
+      />
 
       {error ? <EmptyStateCard compact={false} className="border-red-200 text-red-600">{error}</EmptyStateCard> : loading ? <EmptyStateCard compact={false}>加载项目甘特...</EmptyStateCard> : !data ? <EmptyStateCard compact={false}>请选择项目</EmptyStateCard> : <ProjectPlanGanttTimeline items={items} phases={data.phases} dependencies={dependencies} periodStart={currentStart} zoom={zoom} />}
     </div>;

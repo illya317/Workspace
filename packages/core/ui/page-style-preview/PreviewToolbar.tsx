@@ -1,13 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ActionButton, RefreshActionButton } from "../ActionControls";
-import CommandToolbar from "../CommandToolbar";
-import EditToolbar from "../EditToolbar";
-import FieldValueFilter from "../FieldValueFilter";
-import SearchInput from "../SearchInput";
-import SelectField from "../SelectField";
-import ToolbarOptionGroup from "../ToolbarOptionGroup";
+import { Toolbar, type ToolbarItem } from "../Toolbar";
+import type { ToolbarActionGroupAction } from "../Toolbar.types";
 
 const fieldOptions = [
   { value: "status", label: "状态" },
@@ -60,66 +55,84 @@ export default function PreviewToolbar({
   const [field, setField] = useState("status");
   const [fieldValue, setFieldValue] = useState("");
   const [editMode, setEditMode] = useState(false);
-  const viewControls = (onToggleList || onCreate) ? (
-    <>
-      {onToggleList && (
-        <ActionButton
-          kind="list"
-          label={listVisible ? "隐藏" : "显示"}
-          variant={listVisible ? "primary" : "secondary"}
-          onClick={onToggleList}
-        />
-      )}
-      {onCreate && (
-        <ActionButton kind="add" label="新建" variant="primary" onClick={onCreate} />
-      )}
-    </>
-  ) : undefined;
 
-  return (
-    <CommandToolbar
-      viewControls={viewControls}
-      filters={(
-        <>
-          <SearchInput value={keyword} onChange={setKeyword} placeholder="搜索" />
-          <ToolbarOptionGroup value={mode} onChange={setMode} options={modeOptions} />
-          <FieldValueFilter
-            fields={fieldOptions}
-            valueOptions={valueOptions}
-            fieldKey={field}
-            onFieldKeyChange={setField}
-            value={fieldValue}
-            onValueChange={setFieldValue}
-          />
-          <RefreshActionButton />
-        </>
-      )}
-      selectionActions={(
-        <>
-          {showPreviewAction && <ActionButton kind="view" label="预览" />}
-          <ActionButton kind="download" label="导出" />
-        </>
-      )}
-      editActions={(
-        <EditToolbar
-          editMode={editMode}
-          onStartEdit={() => setEditMode(true)}
-          onSave={async () => setEditMode(false)}
-          onCancel={() => setEditMode(false)}
-          onShowHistory={() => {}}
-        />
-      )}
-      meta={showMeta ? (
-        <>
-          <span>{totalLabel}</span>
-          <SelectField
-            options={pageSizeOptions}
-            value="50"
-            onChange={() => {}}
-            triggerClassName="!w-[5.75rem] !min-w-[5.75rem]"
-          />
-        </>
-      ) : undefined}
-    />
-  );
+  const viewActions: ToolbarActionGroupAction[] = [];
+  if (onToggleList) {
+    viewActions.push({
+      key: "toggle-list",
+      kind: listVisible ? "panel-open" : "panel-close",
+      label: listVisible ? "隐藏" : "显示",
+      variant: listVisible ? "primary" : "secondary",
+      onClick: onToggleList,
+    });
+  }
+  if (onCreate) {
+    viewActions.push({ key: "create", kind: "add", label: "新建", variant: "primary", onClick: onCreate });
+  }
+
+  const editActions: ToolbarActionGroupAction[] = [];
+  if (showPreviewAction) {
+    editActions.push({ key: "preview", kind: "view", label: "预览", variant: "secondary" });
+  }
+  editActions.push({ key: "download", kind: "download", label: "导出", variant: "secondary" });
+
+  const items: ToolbarItem[] = [];
+  if (viewActions.length > 0) {
+    items.push({ kind: "action-group", key: "view-actions", section: "view", actions: viewActions });
+  }
+  items.push({
+    kind: "search",
+    key: "search",
+    section: "search",
+    value: keyword,
+    onChange: setKeyword,
+    placeholder: "搜索",
+  });
+  items.push({
+    kind: "option-group",
+    key: "mode",
+    section: "filter",
+    value: mode,
+    options: modeOptions,
+    onChange: setMode,
+    ariaLabel: "模式",
+  });
+  items.push({
+    kind: "field-filter",
+    key: "field-filter",
+    section: "filter",
+    fieldKey: field,
+    onFieldKeyChange: setField,
+    value: fieldValue,
+    onValueChange: setFieldValue,
+    fields: fieldOptions,
+    valueOptions,
+  });
+  if (editActions.length > 0) {
+    items.push({ kind: "action-group", key: "actions", section: "edit", actions: editActions });
+  }
+  items.push({
+    kind: "edit-group",
+    key: "edit",
+    section: "edit",
+    editMode,
+    onStartEdit: () => setEditMode(true),
+    onSave: async () => setEditMode(false),
+    onCancel: () => setEditMode(false),
+    onShowHistory: () => {},
+  });
+  if (showMeta) {
+    items.push({ kind: "text", key: "meta", section: "meta", content: <span>{totalLabel}</span> });
+    items.push({
+      kind: "select",
+      key: "page-size",
+      section: "meta",
+      value: "50",
+      options: pageSizeOptions,
+      onChange: () => {},
+      triggerClassName: "!w-[5.75rem] !min-w-[5.75rem]",
+    });
+  }
+
+  return <Toolbar items={items} />;
 }

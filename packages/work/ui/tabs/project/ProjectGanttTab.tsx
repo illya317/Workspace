@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { EmptyStateCard, PickerOptionButton, PickerShell, SearchInput, ToolbarOptionGroup, Toolbar, getToolbarActionClassName } from "@workspace/core/ui";
+import { ActionButton, EmptyStateCard, PickerOptionButton, PickerShell, SearchInput, ToolbarOptionGroup, Toolbar } from "@workspace/core/ui";
 import type { WorkUser } from "@workspace/work/types";
 import { listProjectGantt } from "./api";
 import ProjectGanttChart from "./ProjectGanttChart";
@@ -82,10 +82,10 @@ export default function ProjectGanttTab({
       section: "edit",
       content: <>
                 <ToolbarOptionGroup ariaLabel="甘特时间缩放" value={zoom} options={PROJECT_GANTT_ZOOM_OPTIONS} onChange={value => changeZoom(value as ProjectGanttZoom)} />
-                <div className="inline-flex h-10 items-center overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-                  <button type="button" onClick={() => setCurrentStart(current => shiftPeriod(current, zoom, -1))} className={[getToolbarActionClassName("secondary"), "rounded-none border-0 px-3 text-sm shadow-none hover:bg-slate-50"].filter(Boolean).join(" ")}>‹</button>
+                <div className="inline-flex h-10 items-center overflow-hidden rounded-lg border border-slate-200 bg-white">
+                  <ActionButton kind="panel-close" label="上一期间" onClick={() => setCurrentStart(current => shiftPeriod(current, zoom, -1))} className="!h-10 !w-auto rounded-none border-0 px-3 shadow-none hover:bg-slate-50" iconClassName="h-4 w-4" />
                   <div className="min-w-28 border-x border-slate-200 px-3 text-center text-xs font-semibold text-slate-600">{periodLabel(currentStart, zoom)}</div>
-                  <button type="button" onClick={() => setCurrentStart(current => shiftPeriod(current, zoom, 1))} className={[getToolbarActionClassName("secondary"), "rounded-none border-0 px-3 text-sm shadow-none hover:bg-slate-50"].filter(Boolean).join(" ")}>›</button>
+                  <ActionButton kind="panel-open" label="下一期间" onClick={() => setCurrentStart(current => shiftPeriod(current, zoom, 1))} className="!h-10 !w-auto rounded-none border-0 px-3 shadow-none hover:bg-slate-50" iconClassName="h-4 w-4" />
                 </div>
               </>
     }, {

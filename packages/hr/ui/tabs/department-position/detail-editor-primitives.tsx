@@ -2,7 +2,6 @@
 
 import { useState, type ReactNode } from "react";
 import {
-  ActionToolbar,
   FkFieldInput,
   FormField,
   PanelCard,
@@ -26,11 +25,10 @@ export { OptionTagListEditor } from "./option-tag-list-editor";
 
 export function sectionTitle(title: string, extra?: ReactNode) {
   return (
-    <ActionToolbar
-      leftSlot={title}
-      rightSlot={extra}
-      className="mb-3 border-0 border-b border-slate-200 p-0 pb-2 shadow-none"
-    />
+    <div className="mb-3 grid grid-cols-[1fr_auto] items-center gap-3 border-b border-slate-200 pb-2">
+      <span className="min-w-0 text-base font-semibold text-slate-900">{title}</span>
+      {extra ? <div className="flex shrink-0 flex-wrap items-center gap-2">{extra}</div> : null}
+    </div>
   );
 }
 
@@ -44,16 +42,13 @@ export function DetailSectionHeader({
   actions?: ReactNode;
 }) {
   return (
-    <ActionToolbar
-      className="mb-4 border-0 border-b border-slate-200 p-0 pb-3 shadow-none"
-      leftSlot={(
-        <div className="flex min-w-0 items-center gap-2">
-          <h3 className="text-base font-semibold text-slate-900">{title}</h3>
-          {meta}
-        </div>
-      )}
-      rightSlot={actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : undefined}
-    />
+    <div className="mb-4 grid grid-cols-[1fr_auto] items-center gap-3 border-b border-slate-200 pb-3">
+      <div className="flex min-w-0 items-center gap-2">
+        <h3 className="text-base font-semibold text-slate-900">{title}</h3>
+        {meta}
+      </div>
+      {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
+    </div>
   );
 }
 

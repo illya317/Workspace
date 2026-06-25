@@ -4,8 +4,8 @@ import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import type { ActionGlyphKind } from "./ActionGlyphs";
 import type { ColumnDef } from "./DataTable";
-import type { EditToolbarProps } from "./EditToolbar";
 import { Toolbar, type ToolbarItem } from "./Toolbar";
+import type { ToolbarEditGroupItem } from "./Toolbar.types";
 
 export type PageToolbarFeature =
   | "view"
@@ -46,7 +46,7 @@ export interface PageToolbarProps {
   optionGroups?: PageToolbarOptionGroup[];
   filters?: ReactNode;
   actions?: PageToolbarAction[];
-  editProps?: EditToolbarProps;
+  editProps?: Omit<ToolbarEditGroupItem, "kind" | "key" | "section">;
   meta?: ReactNode;
   pageSize?: {
     value?: number;

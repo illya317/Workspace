@@ -3,10 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   CalendarDateInput,
-  CommandToolbar,
-  CreateStartButton,
-  ActionButton,
-  ToolbarOptionGroup,
+  Toolbar,
+  type ToolbarItem,
 } from "@workspace/core/ui";
 import {
   getWorkReportDraft,
@@ -134,40 +132,58 @@ export default function WorkReportsPanel({
 
   return (
     <div className="space-y-4">
-      <CommandToolbar
-        filters={(
-          <>
-            <ToolbarOptionGroup
-              ariaLabel="工作汇报视图"
-              value={mode}
-              options={[
-                { value: "fill", label: "填写汇报" },
-                { value: "collection", label: "汇总查看" },
-              ]}
-              onChange={(value) => setMode(value as ReportMode)}
-            />
-            <div className="h-8 w-px bg-slate-200" />
-            <CalendarDateInput value={periodStart} onChange={updatePeriodStart} />
-          </>
-        )}
-        editActions={mode === "fill" && canEdit ? (
-          <>
-            <CreateStartButton
-              label="新增事项"
-              active={false}
-              disabled={loading || saving}
-              onClick={addAdHocItem}
-            />
-            <ActionButton
-              kind="check"
-              label={saving ? "保存中..." : "保存汇报"}
-              variant="primary"
-              onClick={handleSave}
-              disabled={loading || saving || !draft || !hasDraftChanges}
-              className="!h-9 !w-10 !px-0 !text-[11px] !leading-none"
-            />
-          </>
-        ) : null}
+      <Toolbar
+        items={[
+          {
+            kind: "option-group",
+            key: "mode",
+            section: "filter",
+            value: mode,
+            options: [
+              { value: "fill", label: "填写汇报" },
+              { value: "collection", label: "汇总查看" },
+            ],
+            onChange: (value) => setMode(value as ReportMode),
+            ariaLabel: "工作汇报视图",
+          },
+          {
+            kind: "custom",
+            key: "period",
+            section: "filter",
+            content: (
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-px bg-slate-200" />
+                <CalendarDateInput value={periodStart} onChange={updatePeriodStart} />
+              </div>
+            ),
+          },
+          ...(mode === "fill" && canEdit
+            ? [
+                {
+                  kind: "create" as const,
+                  key: "create",
+                  label: "新增事项",
+                  disabled: loading || saving,
+                  onClick: addAdHocItem,
+                },
+                {
+                  kind: "action-group" as const,
+                  key: "save",
+                  section: "edit" as const,
+                  actions: [
+                    {
+                      key: "save",
+                      kind: "check" as const,
+                      label: saving ? "保存中..." : "保存汇报",
+                      variant: "primary" as const,
+                      onClick: handleSave,
+                      disabled: loading || saving || !draft || !hasDraftChanges,
+                    },
+                  ],
+                },
+              ]
+            : []),
+        ] satisfies ToolbarItem[]}
       />
 
       {mode === "fill" ? (

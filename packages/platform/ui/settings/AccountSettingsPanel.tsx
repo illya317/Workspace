@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ActionToolbar, FileField, FormField, PageContent, PanelCard, TextField, getToolbarActionClassName } from "@workspace/core/ui";
+import { FileField, FormField, PageContent, PanelCard, TextField, getToolbarActionClassName } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import ApiAccessClient, { type ApiAccessModuleRow } from "./ApiAccessClient";
 type Message = {
@@ -179,17 +179,17 @@ export default function AccountSettingsPanel({
     setTimeout(() => router.push("/login"), 1500);
   }
   return <PageContent className="max-w-4xl py-10">
-      <ActionToolbar leftSlot={<div className="flex min-w-0 items-center gap-4">
-            <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-50 bg-cover bg-center text-xl font-semibold text-emerald-700" style={avatar ? {
+      <div className="flex min-w-0 items-center gap-4 p-4">
+        <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-50 bg-cover bg-center text-xl font-semibold text-emerald-700" style={avatar ? {
         backgroundImage: `url(${avatar})`
       } : undefined} aria-hidden="true">
-              {avatar ? null : user.nickname?.slice(0, 1) || "?"}
-            </span>
-            <span className="min-w-0">
-              <span className="block truncate text-lg font-semibold text-slate-900">{user.nickname || "当前用户"}</span>
-              <span className="mt-1 block text-sm font-normal text-slate-500">用户名：{user.username || "(未设置)"}</span>
-            </span>
-          </div>} />
+          {avatar ? null : user.nickname?.slice(0, 1) || "?"}
+        </span>
+        <span className="min-w-0">
+          <span className="block truncate text-lg font-semibold text-slate-900">{user.nickname || "当前用户"}</span>
+          <span className="mt-1 block text-sm font-normal text-slate-500">用户名：{user.username || "(未设置)"}</span>
+        </span>
+      </div>
 
       <div className="mt-6 grid gap-5 lg:grid-cols-3">
         <PanelCard title="修改账号" className="h-full" bodyClassName="space-y-3 p-4">

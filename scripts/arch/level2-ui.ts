@@ -84,42 +84,7 @@ const UI_PATTERN_RULES: Array<{ name: string; regex: RegExp }> = [
   { name: "date", regex: /date(input|picker|field)|calendar/i },
 ];
 
-const CORE_UI_NON_COMPONENT_EXPORTS = new Set([
-  "coreUiComponentRegistry",
-  "coreUiComponentKindMeta",
-  "coreUiComponentTierMeta",
-  "dataTableClassNames",
-  "getCoreUiCompositionGraph",
-  "getDefaultVisibleColumns",
-  "getModuleCardClassName",
-  "hierarchyBadgeClassName",
-  "moduleCardColorClasses",
-  "registeredCoreUiComponentNames",
-  "useConfirm",
-  "useConfirmDelete",
-  // Toolbar / DataTable 类型导出，业务侧用于 items 配置，不是独立组件。
-  "ToolbarItem",
-  "ToolbarSection",
-  "ToolbarProps",
-  "ToolbarButtonItem",
-  "ToolbarIconButtonItem",
-  "ToolbarSearchItem",
-  "ToolbarSelectItem",
-  "ToolbarOptionGroupItem",
-  "ToolbarFieldFilterItem",
-  "ToolbarColumnToggleItem",
-  "ToolbarTextItem",
-  "ToolbarCustomItem",
-  "ToolbarActionGroupItem",
-  "ToolbarActionGroupAction",
-  "ToolbarEditGroupItem",
-  "ToolbarCreateItem",
-  "ColumnDef",
-  "DataTableActionKind",
-  "DataTableColumn",
-  "DataTableProps",
-  "DataTableRowAction",
-]);
+const CORE_UI_NON_COMPONENT_EXPORTS = new Set<string>();
 
 const PAGE_DESIGN_INTRINSIC_TAGS = new Set([
   "article",
