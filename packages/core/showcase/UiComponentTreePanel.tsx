@@ -16,6 +16,13 @@ function nodeId(name: string) {
   return `ui-component-root-${name}`;
 }
 
+function nestDepthBadgeClasses(depth: number) {
+  if (depth === 1) return "bg-slate-100 text-slate-600";
+  if (depth === 2) return "bg-blue-50 text-blue-700";
+  if (depth === 3) return "bg-emerald-50 text-emerald-700";
+  return "bg-amber-50 text-amber-700";
+}
+
 function buildMeta(node: CoreUiComponentTreeNode, visibleMeta: readonly string[]) {
   const parts: string[] = [];
   if (visibleMeta.includes("kind")) parts.push(coreUiComponentKindMeta[node.kind].label);
@@ -46,7 +53,14 @@ function TreeNodeView({
 
   return (
     <TreeNodeCard
-      title={node.name}
+      title={(
+        <span className="flex items-center gap-2">
+          <span className="truncate">{node.name}</span>
+          <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${nestDepthBadgeClasses(node.nestDepth)}`}>
+            套 {node.nestDepth} 层
+          </span>
+        </span>
+      )}
       level={node.depth}
       active={selectedName === node.name}
       meta={buildMeta(node, visibleMeta)}

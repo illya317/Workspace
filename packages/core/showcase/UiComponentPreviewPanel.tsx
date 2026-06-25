@@ -11,6 +11,13 @@ function joinClassNames(...classNames: Array<string | false | null | undefined>)
   return classNames.filter(Boolean).join(" ");
 }
 
+function nestDepthBadgeClasses(depth: number) {
+  if (depth === 1) return "bg-slate-100 text-slate-600";
+  if (depth === 2) return "bg-blue-50 text-blue-700";
+  if (depth === 3) return "bg-emerald-50 text-emerald-700";
+  return "bg-amber-50 text-amber-700";
+}
+
 function PreviewBlock({
   name,
   isFoundation,
@@ -43,11 +50,13 @@ function PreviewBlock({
 
 export function UiComponentPreviewPanel({
   component,
+  nestDepth,
   verified,
   canWrite,
   onToggleVerified,
 }: {
   component: CoreUiComponentRegistration;
+  nestDepth: number;
   verified: boolean;
   canWrite: boolean;
   onToggleVerified: () => void;
@@ -61,6 +70,9 @@ export function UiComponentPreviewPanel({
           <code className="rounded bg-slate-100 px-1.5 py-0.5 text-sm font-semibold text-slate-900">
             {component.name}
           </code>
+          <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${nestDepthBadgeClasses(nestDepth)}`}>
+            套 {nestDepth} 层
+          </span>
           <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
             {coreUiComponentTierMeta[component.tier].label}
           </span>

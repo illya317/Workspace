@@ -139,6 +139,9 @@ export default function UiComponentsShowcase({
       usageFiles: usageFilesByName.get(selectedComponent.name) ?? [],
     })
     : null;
+  const selectedNestDepth = useMemo(() => {
+    return treeRoots.find((node) => node.name === selectedName)?.nestDepth ?? 1;
+  }, [treeRoots, selectedName]);
 
   useEffect(() => {
     if (selectedComponent) return;
@@ -266,6 +269,7 @@ export default function UiComponentsShowcase({
         <div className="space-y-4">
           <UiComponentPreviewPanel
             component={selectedComponent}
+            nestDepth={selectedNestDepth}
             verified={verifiedNames.has(selectedComponent.name)}
             canWrite={canWrite}
             onToggleVerified={() => toggleVerified(selectedComponent.name)}

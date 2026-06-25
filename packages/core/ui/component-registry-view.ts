@@ -6,6 +6,7 @@ import {
   type CoreUiComponentRegistration,
   type CoreUiComponentTier,
 } from "./component-registry";
+import { buildComponentNestDepthMap } from "./component-nest-depth";
 
 export const coreUiComponentUsedByTierOrder = [
   "frame",
@@ -23,6 +24,7 @@ export type CoreUiComponentTreeNode = {
   tier: CoreUiComponentTier;
   kind: CoreUiComponentKind;
   depth: number;
+  nestDepth: number;
   path: string[];
   verified: boolean;
   dependencyCount: number;
@@ -146,12 +148,14 @@ function getDependencyNames(componentName: string) {
 
 function buildComponentTreeLeaf({
   component,
+  nestDepthByName,
   verifiedNames,
   usageFilesByName,
   path,
   depth,
 }: {
   component: CoreUiComponentRegistration;
+  nestDepthByName: ReadonlyMap<string, number>;
   verifiedNames?: ReadonlySet<string>;
   usageFilesByName?: ReadonlyMap<string, readonly string[]>;
   path: string[];
@@ -165,6 +169,7 @@ function buildComponentTreeLeaf({
     tier: component.tier,
     kind: component.kind,
     depth,
+    nestDepth: nestDepthByName.get(component.name) ?? 1,
     path,
     verified: Boolean(verifiedNames?.has(component.name)),
     dependencyCount: dependencyNames.length,
@@ -178,6 +183,7 @@ function buildComponentTreeLeaf({
 function buildComponentTreeNode({
   component,
   componentByName,
+  nestDepthByName,
   verifiedNames,
   usageFilesByName,
   path,
@@ -185,6 +191,7 @@ function buildComponentTreeNode({
 }: {
   component: CoreUiComponentRegistration;
   componentByName: ReadonlyMap<string, CoreUiComponentRegistration>;
+  nestDepthByName: ReadonlyMap<string, number>;
   verifiedNames?: ReadonlySet<string>;
   usageFilesByName?: ReadonlyMap<string, readonly string[]>;
   path: string[];
@@ -204,6 +211,7 @@ function buildComponentTreeNode({
         if (nextPath.includes(child.name)) {
           return buildComponentTreeLeaf({
             component: child,
+            nestDepthByName,
             verifiedNames,
             usageFilesByName,
             path: childPath,
@@ -213,6 +221,7 @@ function buildComponentTreeNode({
         return buildComponentTreeNode({
           component: child,
           componentByName,
+          nestDepthByName,
           verifiedNames,
           usageFilesByName,
           path: nextPath,
@@ -227,6 +236,7 @@ function buildComponentTreeNode({
     tier: component.tier,
     kind: component.kind,
     depth,
+    nestDepth: nestDepthByName.get(component.name) ?? 1,
     path: nextPath,
     verified: Boolean(verifiedNames?.has(component.name)),
     dependencyCount: dependencyNames.length,
@@ -245,12 +255,17 @@ export function buildCoreUiComponentTree({
   usageFilesByName?: ReadonlyMap<string, readonly string[]>;
 } = {}): CoreUiComponentTreeNode[] {
   const componentByName = buildComponentMap();
+  const nestDepthByName = buildComponentNestDepthMap(
+    coreUiComponentRegistry.map((component) => component.name),
+  );
+
   return [...coreUiComponentRegistry]
     .filter((component) => component.tier !== "foundation")
     .sort(compareComponentsByName)
     .map((component) => buildComponentTreeNode({
       component,
       componentByName,
+      nestDepthByName,
       verifiedNames,
       usageFilesByName,
       path: [],
