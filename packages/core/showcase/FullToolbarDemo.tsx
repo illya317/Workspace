@@ -17,12 +17,6 @@ export default function FullToolbarDemo() {
   const fullToolbarItems: ToolbarItem[] = useMemo(
     () => [
       {
-        kind: "text",
-        key: "full-title",
-        section: "view",
-        content: "示例",
-      },
-      {
         kind: "button",
         key: "full-primary",
         section: "action",
