@@ -12,6 +12,7 @@ import {
   coreUiComponentKindMeta,
   coreUiComponentRegistry,
   coreUiComponentTierMeta,
+  getCoreUiCompositionGraph,
 } from "@workspace/core/ui/component-registry";
 import {
   buildCoreUiComponentTree,
@@ -103,6 +104,13 @@ export default function UiComponentsShowcase({
     );
   }, [usageRows]);
 
+  const usedByNamesByName = useMemo(() => {
+    const graph = getCoreUiCompositionGraph();
+    return new Map<string, readonly string[]>(
+      [...graph.usedBy.entries()].map(([name, usedBy]) => [name, usedBy]),
+    );
+  }, []);
+
   const treeRoots = useMemo(() => {
     return buildCoreUiComponentTree({ verifiedNames, usageFilesByName });
   }, [usageFilesByName, verifiedNames]);
@@ -126,13 +134,15 @@ export default function UiComponentsShowcase({
       if (verifiedFilter === "unverified" && node.verified) return false;
       if (!keyword) return true;
       const usageFiles = usageFilesByName.get(node.name) ?? [];
+      const usedByNames = usedByNamesByName.get(node.name) ?? [];
       return matchText(node.name, keyword)
         || matchText(node.component.description, keyword)
         || matchText(coreUiComponentKindMeta[node.kind].label, keyword)
         || matchText(coreUiComponentTierMeta[node.tier].label, keyword)
-        || usageFiles.some((file) => matchText(file, keyword));
+        || usageFiles.some((file) => matchText(file, keyword))
+        || usedByNames.some((name) => matchText(name, keyword));
     });
-  }, [filterFieldKey, filterValue, query, treeRoots, usageFilesByName, verifiedFilter]);
+  }, [filterFieldKey, filterValue, query, treeRoots, usageFilesByName, usedByNamesByName, verifiedFilter]);
 
   const visibleRoots = filteredRoots.slice(0, pageSize);
   const selectedComponent = componentByName.get(selectedName) ?? null;
