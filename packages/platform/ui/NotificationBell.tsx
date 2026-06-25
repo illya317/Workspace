@@ -81,10 +81,14 @@ export default function NotificationBell({
   const [panelPosition, setPanelPosition] = useState({ top: 56, right: 16 });
 
   const load = useCallback(async (offset = 0, append = false) => {
-    const res = await fetch(workspacePath(`/api/settings/account/notifications?limit=${PAGE_SIZE}&offset=${offset}`));
-    if (!res.ok) return;
-    const next = await res.json() as NotificationResponse;
-    setData((current) => append ? { ...next, items: mergeNotificationItems(current.items, next.items) } : next);
+    try {
+      const res = await fetch(workspacePath(`/api/settings/account/notifications?limit=${PAGE_SIZE}&offset=${offset}`));
+      if (!res.ok) return;
+      const next = await res.json() as NotificationResponse;
+      setData((current) => append ? { ...next, items: mergeNotificationItems(current.items, next.items) } : next);
+    } catch {
+      // Network or parse errors are expected in offline/dev environments; keep current state.
+    }
   }, []);
 
   useEffect(() => {
@@ -146,6 +150,8 @@ export default function NotificationBell({
         body: JSON.stringify({ action }),
       });
       await load(0);
+    } catch {
+      /* ignore network errors */
     } finally {
       setBusyId(null);
     }
@@ -179,6 +185,8 @@ export default function NotificationBell({
     try {
       await fetch(workspacePath("/api/settings/account/notifications"), { method: "DELETE" });
       await load(0);
+    } catch {
+      /* ignore network errors */
     } finally {
       setClearing(false);
     }
@@ -193,6 +201,8 @@ export default function NotificationBell({
         body: JSON.stringify({ action: "markAllRead" }),
       });
       await load(0);
+    } catch {
+      /* ignore network errors */
     } finally {
       setMarkingRead(false);
     }
