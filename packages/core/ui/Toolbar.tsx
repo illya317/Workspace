@@ -9,7 +9,7 @@ import SearchInput from "./SearchInput";
 import SelectField, { type SelectFieldOption } from "./SelectField";
 import ToolbarOptionGroup, { type ToolbarOption } from "./ToolbarOptionGroup";
 
-export type ToolbarSection = "view" | "filter" | "action" | "edit" | "meta";
+export type ToolbarSection = "search" | "view" | "filter" | "action" | "edit" | "meta";
 
 export interface ToolbarItemBase {
   section?: ToolbarSection;
@@ -104,7 +104,7 @@ export interface ToolbarProps {
   variant?: "bar" | "inline";
 }
 
-const SECTION_ORDER: ToolbarSection[] = ["view", "filter", "action", "edit", "meta"];
+const SECTION_ORDER: ToolbarSection[] = ["search", "view", "filter", "action", "edit", "meta"];
 
 function ToolbarDivider() {
   return <span aria-hidden="true" className="hidden h-6 w-px shrink-0 bg-slate-200 sm:inline-block" />;
@@ -147,7 +147,7 @@ function ToolbarItemRenderer({ item }: { item: ToolbarItem }) {
           onChange={item.onChange}
           placeholder={item.placeholder}
           ariaLabel={ariaLabel}
-          className={item.className ?? "min-w-0"}
+          className={joinClassNames("!text-xs min-w-0", item.className)}
         />
       );
     }
@@ -213,7 +213,7 @@ export function Toolbar({ items, className = "", onSubmit, variant = "bar" }: To
 
   const sections = new Map<ToolbarSection, ToolbarItem[]>();
   for (const item of items) {
-    const section = inferSection(item);
+    const section: ToolbarSection = item.kind === "search" ? "search" : (item.section ?? inferSection(item));
     const list = sections.get(section) ?? [];
     list.push(item);
     sections.set(section, list);
@@ -270,6 +270,7 @@ function inferSection(item: ToolbarItem): ToolbarSection {
   if (item.section) return item.section;
   switch (item.kind) {
     case "search":
+      return "search";
     case "select":
     case "option-group":
       return "filter";
