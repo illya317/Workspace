@@ -12,6 +12,7 @@ export interface ToolbarAction {
   variant?: "primary" | "secondary" | "danger";
   type?: "button" | "submit";
   size?: ActionButtonSize;
+  kind?: ActionGlyphKind;
 }
 
 export interface ActionButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children" | "className" | "disabled" | "onClick" | "size" | "type"> {
@@ -118,6 +119,18 @@ export function RefreshActionButton({
 }
 
 function ToolbarActionButton({ action }: { action: ToolbarAction }) {
+  if (action.kind) {
+    return (
+      <IconActionButton
+        kind={action.kind}
+        label={typeof action.label === "string" ? action.label : action.kind}
+        onClick={action.onClick}
+        disabled={action.disabled}
+        variant={action.variant}
+        size={action.size}
+      />
+    );
+  }
   return (
     <ActionButton
       type={action.type}

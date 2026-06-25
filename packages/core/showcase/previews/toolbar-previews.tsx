@@ -50,8 +50,8 @@ function ActionToolbarPreview() {
     <div className="max-w-2xl">
       <ActionToolbar
         leftSlot={<span className="text-sm font-semibold">已选择 2 条记录</span>}
-        primaryActions={[{ label: <ActionGlyph kind="download" className="h-4 w-4" />, size: "sm", onClick: () => {} }]}
-        secondaryActions={[{ label: <ActionGlyph kind="cancel" className="h-4 w-4" />, size: "sm", onClick: () => {} }]}
+        primaryActions={[{ label: "导出", kind: "download", size: "sm", onClick: () => {} }]}
+        secondaryActions={[{ label: "取消选择", kind: "cancel", size: "sm", onClick: () => {} }]}
         rightSlot={<IconActionButton kind="add" label="新增" variant="primary" size="sm" />}
       />
     </div>
