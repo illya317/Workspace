@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes } from "react";
 import { ActionGlyph } from "./ActionGlyphs";
 import type { ActionGlyphKind } from "./ActionGlyphs";
 import { joinClassNames } from "./card-utils";
@@ -6,7 +6,7 @@ import { getToolbarActionClassName, type ActionButtonSize } from "./toolbar-styl
 
 export interface ToolbarAction {
   label: string;
-  kind?: ActionGlyphKind;
+  kind: ActionGlyphKind;
   onClick?: () => void;
   disabled?: boolean;
   variant?: "primary" | "secondary" | "danger";
@@ -15,32 +15,31 @@ export interface ToolbarAction {
 }
 
 export interface ActionButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children" | "className" | "disabled" | "onClick" | "size" | "type"> {
-  children: ReactNode;
+  label: string;
+  kind: ActionGlyphKind;
   onClick?: ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
   disabled?: boolean;
   variant?: ToolbarAction["variant"];
   type?: "button" | "submit";
   size?: ActionButtonSize;
   className?: string;
+  iconClassName?: string;
 }
 
-export type IconActionButtonProps = Omit<ActionButtonProps, "children"> & {
-  label: string;
-  kind: ActionGlyphKind;
-};
-
-export type RefreshActionButtonProps = Omit<IconActionButtonProps, "label" | "kind"> & {
+export type RefreshActionButtonProps = Omit<ActionButtonProps, "label" | "kind"> & {
   label?: string;
 };
 
 export function ActionButton({
-  children,
+  kind,
+  label,
   onClick,
   disabled,
   variant = "secondary",
   size = "md",
   type = "button",
   className = "",
+  iconClassName = "h-4 w-4",
   ...buttonProps
 }: ActionButtonProps) {
   return (
@@ -49,28 +48,12 @@ export function ActionButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={joinClassNames(getToolbarActionClassName(variant, size), className)}
+      aria-label={buttonProps["aria-label"] ?? label}
+      title={buttonProps.title ?? label}
+      className={joinClassNames(getToolbarActionClassName(variant, size), "!w-10 !px-0 text-base leading-none", className)}
     >
-      {children}
+      <ActionGlyph kind={kind} className={iconClassName} />
     </button>
-  );
-}
-
-export function IconActionButton({
-  kind,
-  label,
-  className = "",
-  ...buttonProps
-}: IconActionButtonProps) {
-  return (
-    <ActionButton
-      {...buttonProps}
-      aria-label={label}
-      title={label}
-      className={joinClassNames("!w-10 !px-0 text-base leading-none", className)}
-    >
-      <ActionGlyph kind={kind} className="h-4 w-4" />
-    </ActionButton>
   );
 }
 
@@ -80,7 +63,7 @@ export function RefreshActionButton({
   ...buttonProps
 }: RefreshActionButtonProps) {
   return (
-    <IconActionButton
+    <ActionButton
       {...buttonProps}
       kind="refresh"
       label={label}

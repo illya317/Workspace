@@ -4,46 +4,76 @@ import { useState, type FC } from "react";
 import {
   ActionButton,
   ActionGlyph,
+  ACTION_GLYPH_GROUPS,
+  ACTION_GLYPH_ORDER,
+  ACTION_GLYPH_TOOLBAR_GROUPS,
   ActionToolbar,
   CommandToolbar,
   EditToolbar,
   FieldValueFilter,
   FilterBar,
   FilterToolbar,
-  IconActionButton,
   PageToolbar,
   RefreshActionButton,
   SearchInput,
   SplitWorkspaceToolbar,
-  Toolbar,
   ToolbarOptionGroup,
 } from "@workspace/core/ui";
 import type { PageToolbarFeature } from "@workspace/core/ui";
+import ToolbarPreview from "./ToolbarPreview";
 
 function ActionButtonPreview() {
+  const items: Array<{ label: string; variant: "primary" | "secondary" | "danger"; kind: Parameters<typeof ActionGlyph>[0]["kind"]; disabled?: boolean; size?: "sm" | "md" }> = [
+    { label: "新增", variant: "primary", kind: "add" },
+    { label: "编辑", variant: "secondary", kind: "edit" },
+    { label: "删除", variant: "danger", kind: "delete-bin" },
+    { label: "禁用", variant: "secondary", kind: "download", disabled: true },
+    { label: "确认", variant: "primary", kind: "check", size: "sm" },
+    { label: "取消", variant: "secondary", kind: "cancel", size: "sm" },
+  ];
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <ActionButton variant="primary">主操作</ActionButton>
-        <ActionButton variant="secondary">次操作</ActionButton>
-        <ActionButton variant="danger">危险</ActionButton>
-        <ActionButton variant="secondary" disabled>禁用</ActionButton>
-      </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <ActionButton size="sm" variant="primary">主操作</ActionButton>
-        <ActionButton size="sm" variant="secondary">次操作</ActionButton>
-        <ActionButton size="sm" variant="danger">危险</ActionButton>
-        <ActionButton size="sm" variant="secondary" disabled>禁用</ActionButton>
-      </div>
+    <div className="flex flex-wrap items-center gap-2">
+      {items.map((item) => <ActionButton key={item.label} kind={item.kind} label={item.label} variant={item.variant} size={item.size} disabled={item.disabled} />)}
     </div>
   );
 }
 
 function ActionGlyphPreview() {
-  const kinds: Array<Parameters<typeof ActionGlyph>[0]["kind"]> = ["add", "edit", "check", "verified", "cancel", "copy", "save", "delete", "delete-bin", "delete-minus", "view", "eye", "eye-off", "search", "filter", "refresh", "more", "download", "upload", "archive"];
+  const groupByKey = new Map(ACTION_GLYPH_GROUPS.map((group) => [group.key, group]));
+  const orderedIconsBySubgroup = new Map(
+    ACTION_GLYPH_GROUPS.map((group) => [
+      group.key,
+      ACTION_GLYPH_ORDER
+        .filter((item) => item.subgroup === group.key)
+        .sort((a, b) => a.order - b.order)
+        .map((item) => item.icon),
+    ]),
+  );
   return (
-    <div className="flex flex-wrap items-center gap-3 text-slate-700">
-      {kinds.map((kind) => <span key={kind} className="flex items-center gap-1">{kind} <ActionGlyph kind={kind} className="h-4 w-4" /></span>)}
+    <div className="space-y-3">
+      {ACTION_GLYPH_TOOLBAR_GROUPS.map((toolbarGroup) => (
+        <div key={toolbarGroup.key} className="rounded-md border border-slate-200 bg-white p-3 text-slate-700">
+          <div className="mb-3 text-sm font-semibold text-slate-700">{toolbarGroup.label}</div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {toolbarGroup.groupKeys.map((groupKey) => {
+              const group = groupByKey.get(groupKey);
+              if (!group) return null;
+              return (
+                <div key={group.key} className="rounded-md bg-slate-50 px-3 py-2">
+                  <div className="mb-2 min-h-6 text-xs font-semibold text-slate-500">{group.label}</div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {(orderedIconsBySubgroup.get(group.key) ?? group.kinds).map((kind) => (
+                      <span key={kind} className="flex h-8 w-8 items-center justify-center rounded-md bg-white text-slate-700">
+                        <ActionGlyph kind={kind} className="h-4 w-4" />
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -55,24 +85,8 @@ function ActionToolbarPreview() {
         leftSlot={<span className="text-sm font-semibold">已选择 2 条记录</span>}
         primaryActions={[{ label: "导出", kind: "download", onClick: () => {} }]}
         secondaryActions={[{ label: "取消选择", kind: "cancel", onClick: () => {} }]}
-        rightSlot={<IconActionButton kind="add" label="新增" variant="primary" size="sm" />}
+        rightSlot={<ActionButton kind="add" label="新增" variant="primary" size="sm" />}
       />
-    </div>
-  );
-}
-
-function IconActionButtonPreview() {
-  const items: Array<{ label: string; variant: "primary" | "secondary" | "danger"; kind: Parameters<typeof ActionGlyph>[0]["kind"] }> = [
-    { label: "新增", variant: "primary", kind: "add" },
-    { label: "编辑", variant: "secondary", kind: "edit" },
-    { label: "删除", variant: "danger", kind: "delete-bin" },
-    { label: "刷新", variant: "secondary", kind: "refresh" },
-    { label: "搜索", variant: "secondary", kind: "search" },
-    { label: "筛选", variant: "secondary", kind: "filter" },
-  ];
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      {items.map((item) => <IconActionButton key={item.label} kind={item.kind} label={item.label} variant={item.variant} />)}
     </div>
   );
 }
@@ -83,27 +97,7 @@ function RefreshActionButtonPreview() {
 
 function CommandToolbarPreview() {
   const [value, setValue] = useState<string | null>(null);
-  return <CommandToolbar filters={<ToolbarOptionGroup ariaLabel="预览筛选" value={value ?? "all"} options={[{ value: "all", label: "全部" }, { value: "active", label: "进行中" }]} onChange={(v) => setValue(v)} />} editActions={<ActionButton variant="primary">新建</ActionButton>} meta={<>共 24 条</>} />;
-}
-
-function ToolbarPreview() {
-  const [keyword, setKeyword] = useState("");
-  const [status, setStatus] = useState("all");
-  const [selected, setSelected] = useState(0);
-  return (
-    <div className="max-w-4xl">
-      <Toolbar
-        items={[
-          { kind: "icon-button", key: "panel", section: "view", icon: "panel-open", label: "显示列表", onClick: () => {} },
-          { kind: "button", key: "new", section: "view", label: "新建", variant: "primary", onClick: () => {} },
-          { kind: "search", key: "search", value: keyword, onChange: setKeyword, placeholder: "搜索..." },
-          { kind: "option-group", key: "status", value: status, options: [{ value: "all", label: "全部" }, { value: "active", label: "进行中" }, { value: "done", label: "已完成" }], onChange: setStatus, ariaLabel: "状态" },
-          { kind: "icon-button", key: "refresh", icon: "refresh", label: "刷新", onClick: () => setSelected((n) => n + 1) },
-          { kind: "text", key: "meta", content: <>已选择 {selected} 条 / 共 24 条</> },
-        ]}
-      />
-    </div>
-  );
+  return <CommandToolbar filters={<ToolbarOptionGroup ariaLabel="预览筛选" value={value ?? "all"} options={[{ value: "all", label: "全部" }, { value: "active", label: "进行中" }]} onChange={(v) => setValue(v)} />} editActions={<ActionButton kind="add" label="新建" variant="primary" />} meta={<>共 24 条</>} />;
 }
 
 function EditToolbarPreview() {
@@ -144,8 +138,8 @@ function FilterBarPreview() {
   return (
     <FilterBar>
       <SearchInput value={keyword} onChange={setKeyword} placeholder="搜索..." className="min-w-0" />
-      <ActionButton size="sm" variant="primary">查询</ActionButton>
-      <ActionButton size="sm" variant="secondary">重置</ActionButton>
+      <ActionButton kind="search" label="查询" size="sm" variant="primary" />
+      <ActionButton kind="reset" label="重置" size="sm" variant="secondary" />
     </FilterBar>
   );
 }
@@ -164,7 +158,7 @@ function FilterToolbarPreview() {
       onPageSizeChange={setPageSize}
       meta={<>共 86 条</>}
       onReset={() => { setKeyword(""); setStatus("all"); }}
-      primaryAction={{ label: "新建", onClick: () => {} }}
+      primaryAction={{ label: "新建", kind: "add", onClick: () => {} }}
       columns={[{ key: "name", label: "名称", required: true }, { key: "status", label: "状态", defaultVisible: true }, { key: "amount", label: "金额", defaultVisible: true }, { key: "owner", label: "负责人" }]}
       visibleColumns={visibleColumns}
       onColumnsChange={setVisibleColumns}
@@ -178,7 +172,7 @@ function ToolbarOptionGroupPreview() {
 }
 
 const ALL_FEATURES: PageToolbarFeature[] = [
-  "title", "view", "search", "filter", "action", "edit", "meta", "columns", "pageSize",
+  "view", "search", "filter", "action", "edit", "meta", "columns", "pageSize",
 ];
 
 function PageToolbarPreview() {
@@ -212,12 +206,11 @@ function PageToolbarPreview() {
       </div>
       <PageToolbar
         features={features}
-        title="页面工具栏接口"
         onCreate={() => {}}
         onToggleList={() => {}}
         listVisible
         optionGroups={[{ value: status, options: [{ value: "all", label: "全部" }, { value: "active", label: "进行中" }, { value: "done", label: "已完成" }], onChange: setStatus, ariaLabel: "状态" }]}
-        actions={[{ label: "导出", kind: "icon", icon: "download" }, { label: "批量删除", variant: "danger" }]}
+        actions={[{ label: "导出", icon: "download" }, { label: "批量删除", icon: "delete-bin", variant: "danger" }]}
         editProps={{ editMode, onStartEdit: () => setEditMode(true), onSave: async () => setEditMode(false), onCancel: () => setEditMode(false), onShowHistory: () => {} }}
         meta={<>共 86 条</>}
       />
@@ -234,7 +227,7 @@ function SplitWorkspaceToolbarPreview() {
   return (
     <div className="max-w-md">
       <SplitWorkspaceToolbar sideOpen={sideOpen} sideLabel="列表" onSideOpenChange={setSideOpen} onDrawerOpen={() => {}}>
-        <ActionButton size="sm" variant="primary">保存</ActionButton>
+        <ActionButton kind="save" label="保存" size="sm" variant="primary" />
       </SplitWorkspaceToolbar>
     </div>
   );
@@ -244,7 +237,6 @@ export const toolbarPreviewByName: Record<string, FC> = {
   ActionButton: ActionButtonPreview,
   ActionGlyph: ActionGlyphPreview,
   ActionToolbar: ActionToolbarPreview,
-  IconActionButton: IconActionButtonPreview,
   RefreshActionButton: RefreshActionButtonPreview,
   CommandToolbar: CommandToolbarPreview,
   EditToolbar: EditToolbarPreview,

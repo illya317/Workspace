@@ -1,6 +1,6 @@
 "use client";
 
-import { IconActionButton } from "./ActionControls";
+import { ActionButton } from "./ActionControls";
 
 export interface CreateStartButtonProps {
   label: string;
@@ -21,7 +21,7 @@ export interface CreateConfirmActionsProps {
 
 export function CreateStartButton({ label, active, disabled, onClick }: CreateStartButtonProps) {
   return (
-    <IconActionButton
+    <ActionButton
       kind="add"
       label={label}
       variant={active ? "secondary" : "primary"}
@@ -42,7 +42,7 @@ export function CreateConfirmActions({
   order = "submit-first",
 }: CreateConfirmActionsProps) {
   const submit = (
-    <IconActionButton
+    <ActionButton
       key="submit"
       kind="check"
       label={submitLabel}
@@ -56,7 +56,7 @@ export function CreateConfirmActions({
     />
   );
   const cancel = (
-    <IconActionButton
+    <ActionButton
       key="cancel"
       kind="cancel"
       label={cancelLabel}

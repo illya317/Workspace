@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { Toolbar, type ToolbarItem } from "./Toolbar";
-import type { ColumnDef } from "./ColumnToggle";
+import type { ColumnDef } from "./DataTable";
 import type { ToolbarAction } from "./ActionControls";
 import type { ToolbarOption } from "./ToolbarOptionGroup";
 
@@ -66,9 +66,10 @@ export default function FilterToolbar({
 
   if (primaryAction) {
     items.push({
-      kind: "button",
+      kind: "icon-button",
       key: "primary",
       section: "filter",
+      icon: primaryAction.kind,
       label: primaryAction.label,
       variant: primaryAction.variant ?? "primary",
       type: primaryAction.type,
@@ -108,9 +109,10 @@ export default function FilterToolbar({
 
   if (onReset) {
     items.push({
-      kind: "button",
+      kind: "icon-button",
       key: "reset",
       section: "filter",
+      icon: "reset",
       label: resetText,
       onClick: onReset,
     });
@@ -118,9 +120,10 @@ export default function FilterToolbar({
 
   secondaryActions.forEach((action, index) => {
     items.push({
-      kind: "button",
+      kind: "icon-button",
       key: `secondary-${index}`,
       section: "filter",
+      icon: action.kind,
       label: action.label,
       variant: action.variant,
       type: action.type,

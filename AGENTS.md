@@ -55,12 +55,16 @@ app/*                         只做 Next route shell
 4. **写入三段式**：写入入口固定为 `Zod schema -> domain validator -> service/Prisma`。Zod 只校验请求形状并 strip；domain 只 pick 业务可写字段并校验 FK/状态/归属/跨字段规则；service 只接已验证 command，负责事务、版本、审计和落库。
 5. **app 不是实现层**：页面组件、hook、表格、弹窗、业务计算、Prisma 写入都不能新增在 `app/` route 文件里。
 6. **同页状态别走整页导航**：tab、筛选、选中部门/项目/记录这类同一个客户端体验内的状态切换，不要用 `router.push/replace`、`redirect` 或 `<Link>` 只为同步 URL；需要深链时用组件状态 + `window.history.pushState/replaceState`，并通过 `workspacePath` 处理 basePath、补 `popstate` 回读。`router` / `<Link>` 只留给真正跨页面或资源详情导航。
-7. **删除也要同步**：删 L1/L2 时同步删 app route、API route、registry child/resourceKey、docs；跑 `npm run db:seed:resources` 清 stale resource。
+7. **Toolbar 动作统一**：Toolbar 动作按钮只能来自 Core `ActionGlyph` / `ActionButton` / `action-group`，业务只选 icon，不手排动作顺序、分组和分隔线；详细规则见 `docs/reusable-components.md` 的 Toolbar / ActionGlyph 规则。
+8. **删除也要同步**：删 L1/L2 时同步删 app route、API route、registry child/resourceKey、docs；跑 `npm run db:seed:resources` 清 stale resource。
 
 ## 检查
 
 - 不要每个小改都高频跑完整检查；部署前、一个任务收口、或多文件/大量改动时按风险跑。
-- 架构、权限、registry、API、Core/Platform 基建：跑 `npm run arch:gate`。
-- 普通 TS/TSX：跑 `npm run lint:changed` 和 `npm run typecheck:quick`。
-- 文档改动：跑 `npm run docs:check`。
+- 小任务默认不跑 npm 检查。只改少量局部 TS/TSX、文案、样式或文档时，先靠阅读 diff、类型引用和相关文件自查收口，并在交付里说明“未跑 npm 检查，等待统一验证”。
+- 多 agent 并行时，普通执行 agent 不主动跑 `lint` / `typecheck` / `arch:gate` / `build`；只有收口/集成/提交前验证的 agent 统一跑，或用户明确要求当前 agent 验证时才跑。
+- 本地重型检查已通过 `scripts/check/with-check-lock.js` 串行限流；看到 `Waiting for project check lock` 就等当前检查结束，不要另开同类 `npm run lint` / `tsc` / `build`。
+- 收口验证时按风险选择：架构、权限、registry、API、Core/Platform 基建跑 `npm run arch:gate`。
+- 收口验证时按风险选择：普通 TS/TSX 跑 `npm run lint:changed` 和 `npm run typecheck:quick`。
+- 收口验证时按风险选择：文档改动跑 `npm run docs:check`。
 - 提交前必须看 `git status --short`，只 stage 本任务文件；不要回滚、格式化或提交别人的改动。

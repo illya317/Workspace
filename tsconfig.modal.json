@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "packages/core/**/*.ts",
+    "packages/core/**/*.tsx",
+    "packages/library/ui/components/GenerateDocumentModal.tsx"
+  ],
+  "exclude": ["node_modules"]
+}

@@ -135,11 +135,17 @@ baseline 是历史债锁，不是白名单。
 - Production/QC Data 线程可能改 `.workspace/config/scripts/generate-product-stage-tests.mjs` 和 pharma-qc 生成物。其他 agent 不要提交、格式化或回滚这些文件。
 - Architecture 线程改文档、gate、registry、API contract 和 baseline。Feature/Data/Operations 不要私自修改这些文件。
 
-## 8. 最低验证
+## 8. 收口验证
 
-按角色选择验证，不需要为了小文档改动跑完整 build：
+并行执行期间，小任务默认延后 npm 验证。Feature/Data/Operations agent 完成少量局部文件动作后，优先做 diff/相关文件自查并在交付说明中标注未跑 npm 检查；由收口/集成/提交前验证统一跑完整检查。
 
-| 角色 | 最低验证 |
+只有以下情况当前 agent 主动跑 npm 检查：任务包明确要求、用户明确要求、当前 agent 负责收口验证、改动触及共享脚本/CI/package 配置/schema/权限/registry/gate/跨模块 contract，或局部自查无法判断风险。
+
+本地重型检查由项目锁串行执行，避免多个 agent 同时跑 lint、tsc、build。看到 `Waiting for project check lock` 时等待当前检查结束；不要手动绕过锁并行启动同类命令。
+
+收口/集成/提交前验证按角色选择命令，不需要为了小文档改动跑完整 build：
+
+| 角色 | 收口验证 |
 |---|---|
 | Architecture | `npm run docs:check`; 改 gate/registry/baseline 时加 `npm run arch:gate` |
 | Feature | `npm run arch:gate`; `npm run typecheck:quick`; 涉及 UI 时按需浏览器验证 |

@@ -1,9 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ActionButton } from "./ActionControls";
 import DetailModal from "./DetailModal";
 import { joinClassNames } from "./card-utils";
+import { getToolbarActionClassName } from "./toolbar-styles";
 
 export interface ModalCreatePanelProps {
   open: boolean;
@@ -45,12 +45,12 @@ export default function ModalCreatePanel({
           {children}
         </div>
         <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
-          <ActionButton type="button" onClick={onCancel}>
+          <button type="button" onClick={onCancel} className={getToolbarActionClassName("secondary")}>
             {cancelLabel}
-          </ActionButton>
-          <ActionButton type="submit" variant="primary" disabled={submitDisabled || submitting}>
+          </button>
+          <button type="submit" disabled={submitDisabled || submitting} className={getToolbarActionClassName("primary")}>
             {submitting ? "保存中..." : submitLabel}
-          </ActionButton>
+          </button>
         </div>
       </form>
     </DetailModal>

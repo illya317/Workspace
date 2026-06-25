@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import {
   Badge,
   EmptyStateCard,
-  IconActionButton,
+  ActionButton,
   PanelCard,
   SelectorList,
   TabBar,
@@ -84,7 +84,7 @@ export function ArchivedDepartmentPositionPage({
           <PanelCard className={mode === "drawer" ? "h-full overflow-hidden" : ""} bodyClassName="p-3">
             {mode === "drawer" && (
               <div className="flex justify-end">
-                <IconActionButton
+                <ActionButton
                   kind="panel-close"
                   label="关闭"
                   onClick={() => onDrawerOpenChange(false)}

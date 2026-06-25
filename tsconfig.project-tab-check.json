@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "next-env.d.ts",
+    "packages/work/ui/tabs/ProjectTab.tsx",
+    "packages/work/ui/tabs/project/**/*.ts",
+    "packages/work/ui/tabs/project/**/*.tsx",
+    "packages/work/types/**/*.ts",
+    "packages/core/ui/**/*.ts",
+    "packages/core/ui/**/*.tsx",
+    "packages/platform/**/*.ts",
+    "packages/platform/**/*.tsx"
+  ],
+  "exclude": ["node_modules"]
+}

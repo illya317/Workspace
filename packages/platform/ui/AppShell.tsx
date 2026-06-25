@@ -5,12 +5,13 @@ import Image from "next/image";
 import { workspacePath } from "@workspace/core/routing";
 import UserMenu from "./UserMenu";
 import NotificationBell from "./NotificationBell";
-import { ActionButton, PageShell, useUnsavedChangesPrompt } from "@workspace/core/ui";
+import { PageShell, useUnsavedChangesPrompt, getToolbarActionClassName } from "@workspace/core/ui";
 import type { SessionUser } from "../types";
 import type { ReactNode } from "react";
-
-interface NavLinkDef { label: string; href: string; }
-
+interface NavLinkDef {
+  label: string;
+  href: string;
+}
 interface Props {
   title: string;
   backHref?: string;
@@ -21,45 +22,30 @@ interface Props {
   user: SessionUser;
   children?: ReactNode;
 }
-
-export default function AppShell({ title, backHref, backLabel, navLinks, hasUnsavedChanges = false, user, children }: Props) {
+export default function AppShell({
+  title,
+  backHref,
+  backLabel,
+  navLinks,
+  hasUnsavedChanges = false,
+  user,
+  children
+}: Props) {
   const router = useRouter();
   const confirmNavigation = useUnsavedChangesPrompt(hasUnsavedChanges);
-
   async function navigate(href: string) {
     if (!(await confirmNavigation())) return;
     router.push(href);
   }
-
-  return (
-    <PageShell
-      title={title}
-      backLabel={backLabel}
-      onBack={backHref ? () => void navigate(backHref) : undefined}
-      actions={navLinks?.map((link) => ({ label: link.label, onClick: () => void navigate(link.href) }))}
-      leading={(
-        <ActionButton
-          onClick={() => void navigate("/portal")}
-          className="flex-shrink-0 border-0 bg-transparent p-0 shadow-none hover:bg-transparent"
-          aria-label="返回入口"
-        >
-          <Image
-            src={workspacePath("/company/logo.png")}
-            alt="Logo"
-            width={28}
-            height={28}
-            className="h-7 w-auto object-contain"
-          />
-        </ActionButton>
-      )}
-      trailing={(
-        <div className="flex items-center gap-2">
+  return <PageShell title={title} backLabel={backLabel} onBack={backHref ? () => void navigate(backHref) : undefined} actions={navLinks?.map(link => ({
+    label: link.label,
+    onClick: () => void navigate(link.href)
+  }))} leading={<button type="button" onClick={() => void navigate("/portal")} aria-label="返回入口" className={[getToolbarActionClassName(), "flex-shrink-0 border-0 bg-transparent p-0 shadow-none hover:bg-transparent"].filter(Boolean).join(" ")}>
+          <Image src={workspacePath("/company/logo.png")} alt="Logo" width={28} height={28} className="h-7 w-auto object-contain" />
+        </button>} trailing={<div className="flex items-center gap-2">
           <NotificationBell onBeforeNavigate={() => confirmNavigation()} />
           <UserMenu user={user} onBeforeNavigate={() => confirmNavigation()} />
-        </div>
-      )}
-    >
+        </div>}>
       {children}
-    </PageShell>
-  );
+    </PageShell>;
 }

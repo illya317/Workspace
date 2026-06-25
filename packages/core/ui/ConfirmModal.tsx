@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
-import { ActionButton } from "./ActionControls";
+import { joinClassNames } from "./card-utils";
+import { getToolbarActionClassName } from "./toolbar-styles";
 
 export interface ConfirmModalProps {
   open: boolean;
@@ -71,18 +72,23 @@ export default function ConfirmModal({
         </div>
         <div className="flex justify-end gap-3">
           {showCancel && (
-            <ActionButton onClick={onCancel} disabled={busy} variant="secondary" className="!h-9 !px-4 !py-2 !text-sm">
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={busy}
+              className={joinClassNames(getToolbarActionClassName("secondary"), "!h-9 !px-4 !py-2 !text-sm")}
+            >
               {cancelLabel}
-            </ActionButton>
+            </button>
           )}
-          <ActionButton
+          <button
+            type="button"
             onClick={onConfirm}
             disabled={busy}
-            variant={confirmDanger ? "danger" : "primary"}
-            className="!h-9 !px-4 !py-2 !text-sm"
+            className={joinClassNames(getToolbarActionClassName(confirmDanger ? "danger" : "primary"), "!h-9 !px-4 !py-2 !text-sm")}
           >
             {busy ? "处理中..." : confirmLabel}
-          </ActionButton>
+          </button>
         </div>
       </div>
     </div>

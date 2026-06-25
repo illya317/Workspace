@@ -5,12 +5,12 @@ import { matchText } from "@workspace/platform/search";
 import { workspacePath } from "@workspace/core/routing";
 import {
   EmptyStateCard,
-  FilterBar,
   FormField,
   SearchInput,
   SectionCard,
   Badge,
   SwitchField,
+  Toolbar,
 } from "@workspace/core/ui";
 import ResourceTree, { type ResourceTreeNode } from "../components/ResourceTree";
 
@@ -206,14 +206,24 @@ export default function ModuleManagementTab({ showToast }: Props) {
   return (
     <div className="grid gap-6 lg:grid-cols-[18rem_minmax(0,1fr)]">
       <div className="space-y-3">
-        <FilterBar>
-          <SearchInput
-            value={query}
-            onChange={setQuery}
-            placeholder="搜索模块"
-            className="w-full"
-          />
-        </FilterBar>
+        <Toolbar
+          items={[
+            {
+              kind: "custom",
+              key: "search",
+              section: "filter",
+              content: (
+                <SearchInput
+                  value={query}
+                  onChange={setQuery}
+                  placeholder="搜索模块"
+                  className="w-full"
+                />
+              ),
+            },
+          ]}
+          className="w-full"
+        />
         <SectionCard title="模块树" bodyClassName="p-2">
           <ResourceTree
             resources={moduleTree}

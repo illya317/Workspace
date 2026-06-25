@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Toast from "@workspace/core/ui/Toast";
 import { useToast } from "@workspace/core/hooks";
-import { ActionToolbar, TabBar } from "@workspace/core/ui";
+import { Toolbar, type ToolbarItem, TabBar } from "@workspace/core/ui";
 import { useBudgetData } from "./hooks/useBudgetData";
 import { useBudgetFilters } from "./hooks/useBudgetFilters";
 import BudgetVersionSelector from "./components/BudgetVersionSelector";
@@ -24,29 +24,40 @@ export default function BudgetTab() {
     return <p className="p-8 text-center text-gray-500">加载中...</p>;
   }
 
+  const toolbarItems: ToolbarItem[] = [
+    {
+      kind: "custom",
+      key: "view-tabs",
+      section: "view",
+      content: (
+        <TabBar
+          tabs={[
+            { key: "dept", label: "部门费用预算" },
+            { key: "rd", label: "研发费用预算" },
+          ]}
+          active={view}
+          onChange={(key) => setView(key as BudgetView)}
+          className="mb-0"
+        />
+      ),
+    },
+    {
+      kind: "custom",
+      key: "version-selector",
+      section: "action",
+      content: (
+        <BudgetVersionSelector
+          versions={versions}
+          activeVersionId={activeVersionId}
+          onChange={setActiveVersionId}
+        />
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-4">
-      <ActionToolbar
-        className="border-0 bg-transparent p-0 shadow-none"
-        leftSlot={(
-          <TabBar
-            tabs={[
-              { key: "dept", label: "部门费用预算" },
-              { key: "rd", label: "研发费用预算" },
-            ]}
-            active={view}
-            onChange={(key) => setView(key as BudgetView)}
-            className="mb-0"
-          />
-        )}
-        rightSlot={(
-          <BudgetVersionSelector
-            versions={versions}
-            activeVersionId={activeVersionId}
-            onChange={setActiveVersionId}
-          />
-        )}
-      />
+      <Toolbar items={toolbarItems} className="border-0 bg-transparent p-0 shadow-none" />
 
       {view === "dept" && (
         <>

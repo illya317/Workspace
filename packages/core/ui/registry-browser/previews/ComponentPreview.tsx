@@ -153,9 +153,6 @@ export function ComponentPreview({ item }: { item: RegistryBrowserItem }) {
       preview = <ToolbarPreview variant="action" />;
       break;
     case "ActionButton":
-      preview = <MiniButton primary>新建</MiniButton>;
-      break;
-    case "IconActionButton":
       preview = <MiniButton primary>+</MiniButton>;
       break;
     case "ToolbarOptionGroup":
@@ -220,6 +217,9 @@ export function ComponentPreview({ item }: { item: RegistryBrowserItem }) {
       break;
     case "InlineCreatePanel":
       preview = <InlineCreatePreview />;
+      break;
+    case "CreatePanel":
+      preview = <PreviewNote title="CreatePanel">通过 variant 选择 inline / block / modal，内部复用已有创建面板。</PreviewNote>;
       break;
     default:
       preview = <PreviewNote title={item.name}>{item.example}</PreviewNote>;

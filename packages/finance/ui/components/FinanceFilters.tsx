@@ -1,6 +1,6 @@
 "use client";
 
-import FilterToolbar from "@workspace/core/ui/FilterToolbar";
+import { Toolbar, type ToolbarItem } from "@workspace/core/ui";
 import SelectField from "@workspace/core/ui/SelectField";
 import type { ColumnDef } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
@@ -18,6 +18,11 @@ const MONTH_OPTIONS = Array.from({ length: 12 }, (_, index) => ({
 const LEVEL_OPTIONS = [1, 2, 3, 4, 5].map((level) => ({
   value: String(level),
   label: `${level}级`,
+}));
+
+const PAGE_SIZE_OPTIONS = [20, 50, 100, 200].map((size) => ({
+  value: String(size),
+  label: `${size}条/页`,
 }));
 
 interface FinanceFiltersProps {
@@ -69,17 +74,25 @@ export default function FinanceFilters({
 }: FinanceFiltersProps) {
   const companyOptions = useCompanyOptions();
 
-  return (
-    <FilterToolbar
-      keyword={showSearch ? keyword : undefined}
-      onKeywordChange={showSearch ? onKeywordChange : undefined}
-      pageSize={showPageSize ? pageSize : undefined}
-      onPageSizeChange={showPageSize ? onPageSizeChange : undefined}
-      columns={columns}
-      visibleColumns={visibleColumns}
-      onColumnsChange={onColumnsChange}
-    >
-      {showCompanyYear && onCompanyChange && (
+  const items: ToolbarItem[] = [];
+
+  if (showSearch && onKeywordChange) {
+    items.push({
+      kind: "search",
+      key: "search",
+      section: "filter",
+      value: keyword,
+      onChange: onKeywordChange,
+      placeholder: "搜索",
+    });
+  }
+
+  if (showCompanyYear && onCompanyChange) {
+    items.push({
+      kind: "custom",
+      key: "company",
+      section: "filter",
+      content: (
         <SelectField
           label="公司"
           options={companyOptions}
@@ -88,8 +101,16 @@ export default function FinanceFilters({
           placeholder="全部"
           triggerClassName="min-w-32"
         />
-      )}
-      {showCompanyYear && onYearChange && (
+      ),
+    });
+  }
+
+  if (showCompanyYear && onYearChange) {
+    items.push({
+      kind: "custom",
+      key: "year",
+      section: "filter",
+      content: (
         <SelectField
           label="年度"
           options={YEAR_OPTIONS}
@@ -98,8 +119,16 @@ export default function FinanceFilters({
           placeholder="全部"
           triggerClassName="min-w-32"
         />
-      )}
-      {showMonth && onMonthChange && (
+      ),
+    });
+  }
+
+  if (showMonth && onMonthChange) {
+    items.push({
+      kind: "custom",
+      key: "month",
+      section: "filter",
+      content: (
         <SelectField
           label="月份"
           options={MONTH_OPTIONS}
@@ -108,8 +137,16 @@ export default function FinanceFilters({
           placeholder="全部"
           triggerClassName="min-w-32"
         />
-      )}
-      {showLevel && onLevelChange && (
+      ),
+    });
+  }
+
+  if (showLevel && onLevelChange) {
+    items.push({
+      kind: "custom",
+      key: "level",
+      section: "filter",
+      content: (
         <SelectField
           label="层级"
           options={LEVEL_OPTIONS}
@@ -118,8 +155,36 @@ export default function FinanceFilters({
           placeholder="全部"
           triggerClassName="min-w-32"
         />
-      )}
-      {extra}
-    </FilterToolbar>
-  );
+      ),
+    });
+  }
+
+  if (extra) {
+    items.push({ kind: "custom", key: "extra", section: "filter", content: extra });
+  }
+
+  if (columns && onColumnsChange && visibleColumns) {
+    items.push({
+      kind: "column-toggle",
+      key: "columns",
+      section: "meta",
+      columns,
+      visible: visibleColumns,
+      onChange: onColumnsChange,
+    });
+  }
+
+  if (showPageSize && onPageSizeChange) {
+    items.push({
+      kind: "select",
+      key: "page-size",
+      section: "meta",
+      value: String(pageSize),
+      options: PAGE_SIZE_OPTIONS,
+      onChange: (value) => onPageSizeChange(Number(value)),
+      triggerClassName: "!w-[6.5rem] !min-w-[6.5rem]",
+    });
+  }
+
+  return <Toolbar items={items} />;
 }

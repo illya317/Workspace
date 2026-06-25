@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import {
-  ActionToolbar,
   FkFieldInput,
   FormField,
   OptionPicker,
@@ -16,6 +15,7 @@ import {
 } from "@workspace/core/ui";
 import type { FkFieldOption, PickerOption } from "@workspace/core/ui";
 import CalendarDateInput from "@workspace/core/ui/CalendarDateInput";
+import ProjectDetailToolbar from "./ProjectDetailToolbar";
 import ProjectMemberTagsInput from "./ProjectMemberTagsInput";
 import ProjectPlanManagementSection from "./ProjectPlanManagementSection";
 import ProjectRasciMatrix from "./ProjectRasciMatrix";
@@ -97,24 +97,18 @@ export default function ProjectDetailEditor({
 
   return (
     <PanelCard className="bg-slate-50" bodyClassName="p-4">
-      <ActionToolbar
-        className="mb-4"
-        leftSlot={
-          <div>
-            <div className="text-sm font-semibold text-slate-900">{editorTitle}</div>
-            {dirty && <p className="mt-1 text-xs text-amber-600">有未保存修改</p>}
-          </div>
-        }
-        secondaryActions={[
-          ...(!creating && selectedProject && canDeleteCurrent ? [{ label: "删除项目", kind: "delete-bin" as const, onClick: onDeleteProject, disabled: saving, variant: "danger" as const }] : []),
-          ...(creating ? [{ label: "取消", kind: "cancel" as const, onClick: onCancelCreate }] : []),
-        ]}
-        primaryActions={draft && (selectedProject || creating) ? [{
-          label: saving ? "保存中..." : creating ? "创建项目" : "保存项目",
-          kind: creating ? "add" : "save",
-          disabled: !canSave,
-          onClick: onSave,
-        }] : []}
+      <ProjectDetailToolbar
+        editorTitle={editorTitle}
+        dirty={dirty}
+        creating={creating}
+        hasDraft={Boolean(draft)}
+        hasSelectedProject={Boolean(selectedProject)}
+        saving={saving}
+        canSave={canSave}
+        canDeleteCurrent={canDeleteCurrent}
+        onSave={onSave}
+        onCancelCreate={onCancelCreate}
+        onDeleteProject={onDeleteProject}
       />
 
       {draft ? (

@@ -1,32 +1,19 @@
 "use client";
 
-import {
-  ActionButton,
-  EmptyStateCard,
-  Badge,
-} from "@workspace/core/ui";
+import { EmptyStateCard, Badge, getToolbarActionClassName } from "@workspace/core/ui";
 import { contractFields } from "@workspace/hr/constants";
 import type { ContractRow, ProfileField } from "@workspace/hr/types";
 import type { FkFieldOption } from "@workspace/core/ui";
-import {
-  contractPeriodEndDate,
-  fieldGrid,
-  FieldRegion,
-  isCurrentByEndDate,
-  normalizeContractRow,
-  pickFields,
-  type EditableRecord,
-} from "./EmployeeProfileUtils";
+import { contractPeriodEndDate, fieldGrid, FieldRegion, isCurrentByEndDate, normalizeContractRow, pickFields, type EditableRecord } from "./EmployeeProfileUtils";
 import { RowActions } from "./EmployeeProfileRowActions";
 import { useScrollToAddedItem } from "../hooks/useScrollToAddedItem";
-
 export function ContractSection({
   rows,
   canEdit,
   saving,
   onAdd,
   onChange,
-  onDelete,
+  onDelete
 }: {
   rows: ContractRow[];
   canEdit: boolean;
@@ -35,59 +22,23 @@ export function ContractSection({
   onChange: (index: number, field: ProfileField, value: unknown, option?: FkFieldOption) => void;
   onDelete: (row: ContractRow, index: number) => Promise<void>;
 }) {
-  const { getItemRef, requestScrollToIndex } = useScrollToAddedItem(rows);
-  const cardFields = pickFields(contractFields, [
-    "company",
-    "isPrimary",
-    "insuranceStatus",
-    "legalRelation",
-    "contractType",
-    "employmentForm",
-    "confidentialityDate",
-    "nonCompeteDate",
-    "firstContractStartDate",
-    "firstContractEndDate",
-    "secondContractStartDate",
-    "secondContractEndDate",
-    "thirdContractStartDate",
-    "thirdContractEndDate",
-    "permanentContractDate",
-  ]);
-
+  const {
+    getItemRef,
+    requestScrollToIndex
+  } = useScrollToAddedItem(rows);
+  const cardFields = pickFields(contractFields, ["company", "isPrimary", "insuranceStatus", "legalRelation", "contractType", "employmentForm", "confidentialityDate", "nonCompeteDate", "firstContractStartDate", "firstContractEndDate", "secondContractStartDate", "secondContractEndDate", "thirdContractStartDate", "thirdContractEndDate", "permanentContractDate"]);
   function addRow() {
     requestScrollToIndex(0);
     onAdd();
   }
-
-  return (
-    <div className="space-y-4">
+  return <div className="space-y-4">
       <div className="space-y-4">
-        {rows.length === 0 ? (
-          <EmptyStateCard compact>暂无合同</EmptyStateCard>
-        ) : (
-          rows.map((row, index) => (
-            <div
-              key={row.id ?? `new-contract-${index}`}
-              ref={getItemRef(index)}
-            >
-              <ContractCard
-                row={row}
-                index={index}
-                canEdit={canEdit}
-                saving={saving}
-                fields={cardFields}
-                onChange={onChange}
-                onAdd={addRow}
-                onDelete={onDelete}
-              />
-            </div>
-          ))
-        )}
+        {rows.length === 0 ? <EmptyStateCard compact>暂无合同</EmptyStateCard> : rows.map((row, index) => <div key={row.id ?? `new-contract-${index}`} ref={getItemRef(index)}>
+              <ContractCard row={row} index={index} canEdit={canEdit} saving={saving} fields={cardFields} onChange={onChange} onAdd={addRow} onDelete={onDelete} />
+            </div>)}
       </div>
-    </div>
-  );
+    </div>;
 }
-
 function ContractCard({
   row,
   index,
@@ -96,7 +47,7 @@ function ContractCard({
   fields,
   onChange,
   onAdd,
-  onDelete,
+  onDelete
 }: {
   row: ContractRow;
   index: number;
@@ -110,38 +61,26 @@ function ContractCard({
   const normalizedRow = normalizeContractRow(row);
   const current = isCurrentByEndDate(normalizedRow.permanentContractDate ? normalizedRow.endDate : contractPeriodEndDate(normalizedRow));
   const title = row.company || (row.isNew ? "新增合同" : "未设置公司");
-  const summary = [
-    row.contractType,
-    row.insuranceStatus,
-  ].filter(Boolean).join(" · ");
-  return (
-    <FieldRegion
-      title={(
-        <div className="flex flex-wrap items-center gap-3">
+  const summary = [row.contractType, row.insuranceStatus].filter(Boolean).join(" · ");
+  return <FieldRegion title={<div className="flex flex-wrap items-center gap-3">
           <span>{title}</span>
           <Badge label={current ? "生效中" : "已失效"} tone={current ? "green" : "gray"} className="px-2 py-1 text-sm" />
           {row.isPrimary && <Badge label="主合同" tone="blue" className="px-2 py-1 text-sm" />}
           {summary ? <span className="text-sm font-medium text-slate-500">{summary}</span> : null}
-        </div>
-      )}
-      actions={canEdit ? (
-        <>
-          <ActionButton onClick={onAdd} disabled={saving !== null} variant="secondary" className="px-3 py-1.5 text-xs">新增</ActionButton>
+        </div>} actions={canEdit ? <>
+          <button type="button" onClick={onAdd} disabled={saving !== null} className={[getToolbarActionClassName("secondary"), "px-3 py-1.5 text-xs"].filter(Boolean).join(" ")}>新增</button>
           <RowActions canEdit={canEdit} saving={saving} onDelete={() => onDelete(row, index)} />
-        </>
-      ) : null}
-    >
+        </> : null}>
       {fieldGrid(fields, normalizedRow as unknown as EditableRecord, !canEdit, (key, value, option) => {
-        const field = contractFields.find((item) => item.key === key);
-        if (!field) return;
-        if (field.key === "permanentContractDate" && value) {
-          onChange(index, field, value, option);
-          const endDateField = contractFields.find((item) => item.key === "endDate");
-          if (endDateField) onChange(index, endDateField, null);
-          return;
-        }
+      const field = contractFields.find(item => item.key === key);
+      if (!field) return;
+      if (field.key === "permanentContractDate" && value) {
         onChange(index, field, value, option);
-      })}
-    </FieldRegion>
-  );
+        const endDateField = contractFields.find(item => item.key === "endDate");
+        if (endDateField) onChange(index, endDateField, null);
+        return;
+      }
+      onChange(index, field, value, option);
+    })}
+    </FieldRegion>;
 }

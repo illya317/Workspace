@@ -15,7 +15,7 @@ function ConfirmModalPreview() {
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
   return (
     <>
-      <ActionButton variant="danger" onClick={() => setConfirmOpen(true)}>打开确认弹窗</ActionButton>
+      <ActionButton kind="delete-bin" label="打开确认弹窗" variant="danger" onClick={() => setConfirmOpen(true)} />
       <ConfirmModal
         open={confirmOpen}
         title="确认删除？"
@@ -44,13 +44,13 @@ function ConfirmProviderDemo() {
   return (
     <div className="flex flex-col gap-2">
       <ActionButton
+        kind="check"
+        label="触发命令式确认"
         onClick={async () => {
           const ok = await confirm({ title: "请确认", message: "是否执行该操作？", confirmLabel: "执行" });
           setResult(ok ? "已确认" : "已取消");
         }}
-      >
-        触发命令式确认
-      </ActionButton>
+      />
       {result && <span className="text-xs text-slate-500">结果：{result}</span>}
     </div>
   );
@@ -60,7 +60,7 @@ function DetailModalPreview() {
   const [detailOpen, setDetailOpen] = useState<boolean>(false);
   return (
     <>
-      <ActionButton variant="secondary" onClick={() => setDetailOpen(true)}>打开详情弹窗</ActionButton>
+      <ActionButton kind="view" label="打开详情弹窗" variant="secondary" onClick={() => setDetailOpen(true)} />
       <DetailModal
         open={detailOpen}
         title="记录详情"
@@ -105,7 +105,7 @@ function ModalCreatePanelPreview() {
   const [name, setName] = useState("");
   return (
     <>
-      <ActionButton onClick={() => setOpen(true)}>打开弹窗新建面板</ActionButton>
+      <ActionButton kind="add" label="打开弹窗新建面板" onClick={() => setOpen(true)} />
       <ModalCreatePanel
         open={open}
         title="新建合同"

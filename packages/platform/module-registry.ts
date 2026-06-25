@@ -316,6 +316,8 @@ export const registeredModuleDefinitions = [
       { method: "PUT", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
       { method: "PATCH", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
       { method: "DELETE", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
+      { method: "GET", pathPrefix: "/api/settings/ui-components/verified", access: "protected", resourceKey: "settings.admin", action: "access" },
+      { method: "POST", pathPrefix: "/api/settings/ui-components/verified", access: "protected", resourceKey: "settings.admin", action: "write" },
     ],
     apiGuards: [
       ...apiResourceGuards("/api/settings/admin", "settings.admin", ["GET", "POST", "PUT", "PATCH", "DELETE"]),

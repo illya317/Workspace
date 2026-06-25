@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ActionButton, IconActionButton, RefreshActionButton } from "../ActionControls";
+import { ActionButton, RefreshActionButton } from "../ActionControls";
 import CommandToolbar from "../CommandToolbar";
 import EditToolbar from "../EditToolbar";
 import FieldValueFilter from "../FieldValueFilter";
@@ -63,7 +63,7 @@ export default function PreviewToolbar({
   const viewControls = (onToggleList || onCreate) ? (
     <>
       {onToggleList && (
-        <IconActionButton
+        <ActionButton
           kind="list"
           label={listVisible ? "隐藏" : "显示"}
           variant={listVisible ? "primary" : "secondary"}
@@ -71,7 +71,7 @@ export default function PreviewToolbar({
         />
       )}
       {onCreate && (
-        <IconActionButton kind="add" label="新建" variant="primary" onClick={onCreate} />
+        <ActionButton kind="add" label="新建" variant="primary" onClick={onCreate} />
       )}
     </>
   ) : undefined;
@@ -96,8 +96,8 @@ export default function PreviewToolbar({
       )}
       selectionActions={(
         <>
-          {showPreviewAction && <ActionButton>预览</ActionButton>}
-          <ActionButton>导出</ActionButton>
+          {showPreviewAction && <ActionButton kind="view" label="预览" />}
+          <ActionButton kind="download" label="导出" />
         </>
       )}
       editActions={(

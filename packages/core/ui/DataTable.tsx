@@ -1,13 +1,20 @@
 "use client";
 
 import { type ReactNode, Fragment } from "react";
-import { ActionGlyph } from "./ActionGlyphs";
-import type { ColumnDef } from "./ColumnToggle";
-import { joinClassNames } from "./card-utils";
+import { ActionButton } from "./ActionControls";
+import type { ActionGlyphKind } from "./ActionGlyphs";
+
+export interface ColumnDef {
+  key: string;
+  label: ReactNode;
+  defaultVisible?: boolean;
+  /** 必选列，不可隐藏。如科目编码、凭证号。 */
+  required?: boolean;
+}
 
 /**
- * 通用表格列定义，兼容 ColumnToggle。
- * 同一份 columns 数组可同时传给 <ColumnToggle> 和 <DataTable>。
+ * 通用表格列定义。
+ * 同一份 columns 数组可同时传给列显隐控件和 <DataTable>。
  */
 export interface DataTableColumn<T> extends ColumnDef {
   /** 应用到该列每个 td 的额外 className。 */
@@ -76,59 +83,38 @@ export const dataTableClassNames = {
   compactCell: "whitespace-nowrap px-4 py-2.5",
 };
 
-function DataTableActionIcon({ kind }: { kind: DataTableActionKind }) {
-  if (kind === "delete") {
-    return <ActionGlyph kind="delete" />;
-  }
-  if (kind === "save") {
-    return <ActionGlyph kind="check" />;
-  }
-  if (kind === "cancel") {
-    return <ActionGlyph kind="cancel" />;
-  }
-  if (kind === "edit") {
-    return <ActionGlyph kind="edit" />;
-  }
-  if (kind === "add") {
-    return <ActionGlyph kind="add" />;
-  }
-  return <ActionGlyph kind="view" />;
-}
+const ACTION_KIND_MAP: Record<DataTableActionKind, ActionGlyphKind> = {
+  view: "view",
+  add: "add",
+  edit: "edit",
+  save: "check",
+  cancel: "cancel",
+  delete: "delete",
+};
 
-function getDataTableActionClassName(kind: DataTableActionKind) {
-  return joinClassNames(
-    "inline-flex h-10 w-10 items-center justify-center rounded-lg border bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-300 disabled:shadow-none",
-    kind === "delete" && "border-red-200 text-red-600 hover:bg-red-50",
-    kind === "add" && "border-emerald-200 text-emerald-600 hover:bg-emerald-50",
-    kind === "save" && "border-emerald-200 text-emerald-600 hover:bg-emerald-50",
-    kind === "cancel" && "border-slate-300 text-slate-600 hover:bg-slate-50",
-    kind !== "delete" && kind !== "add" && kind !== "save" && kind !== "cancel" && "border-slate-300",
-  );
-}
-
-function DataTableActionButton({ action }: { action: DataTableRowAction }) {
-  return (
-    <button
-      type="button"
-      aria-label={action.label}
-      title={action.label}
-      disabled={action.disabled}
-      onClick={(event) => {
-        event.stopPropagation();
-        action.onClick();
-      }}
-      className={getDataTableActionClassName(action.kind)}
-    >
-      <DataTableActionIcon kind={action.kind} />
-    </button>
-  );
+function actionVariant(kind: DataTableActionKind) {
+  if (kind === "delete") return "danger";
+  if (kind === "add" || kind === "save") return "primary";
+  return "secondary";
 }
 
 export function DataTableActionsCell({ actions }: { actions: DataTableRowAction[] }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       {actions.map((action) => (
-        <DataTableActionButton key={action.key} action={action} />
+        <span
+          key={action.key}
+          className="inline-flex"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <ActionButton
+            kind={ACTION_KIND_MAP[action.kind]}
+            label={action.label}
+            variant={actionVariant(action.kind)}
+            disabled={action.disabled}
+            onClick={action.onClick}
+          />
+        </span>
       ))}
     </div>
   );
@@ -137,11 +123,11 @@ export function DataTableActionsCell({ actions }: { actions: DataTableRowAction[
 /**
  * 通用数据表格。
  *
- * 不负责：筛选、分页、列切换（ColumnToggle）、行内编辑逻辑。
+ * 不负责：筛选、分页、列切换、行内编辑逻辑。
  * 只负责：表头渲染、数据行渲染、加载态、空状态、列可见性。
  *
  * 典型组合：
- *   FinanceFilters + ColumnToggle + DataTable + Pagination
+ *   FilterToolbar + DataTable + Pagination
  */
 export default function DataTable<T>({
   rows,

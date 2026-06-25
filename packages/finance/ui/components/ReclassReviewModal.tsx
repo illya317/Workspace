@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ActionToolbar, DetailModal, FormField, TextareaField, TextField, getReadOnlyFieldClassName } from "@workspace/core/ui";
+import { Toolbar, type ToolbarItem, DetailModal, FormField, TextareaField, TextField, getReadOnlyFieldClassName } from "@workspace/core/ui";
 import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
 import AccountCodeInput from "./AccountCodeInput";
 
@@ -79,10 +79,12 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
           </FormField>
         </div>
 
-        <ActionToolbar
+        <Toolbar
           className="mt-5 justify-end border-0 p-0 shadow-none"
-          secondaryActions={[{ label: "取消", kind: "cancel", onClick: handleClose }]}
-          primaryActions={[{ label: saving ? "提交中..." : "确认调整", kind: "check", onClick: handleSubmit, disabled: saving }]}
+          items={[
+            { kind: "icon-button", key: "cancel", section: "action", icon: "cancel", label: "取消", onClick: handleClose },
+            { kind: "icon-button", key: "submit", section: "action", icon: "check", label: saving ? "提交中..." : "确认调整", variant: "primary", disabled: saving, onClick: handleSubmit },
+          ] satisfies ToolbarItem[]}
         />
     </DetailModal>
   );

@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useCallback } from "react";
-import { ActionToolbar, DetailModal, EmptyStateCard, FormField, SelectField, TextareaField, TextField } from "@workspace/core/ui";
+import { DetailModal, EmptyStateCard, FormField, SelectField, TextareaField, TextField, Toolbar } from "@workspace/core/ui";
 
 interface Source {
   key: string;
@@ -136,10 +136,21 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
               />
             </div>
 
-            <ActionToolbar
+            <Toolbar
               className="justify-end border-0 p-0 shadow-none"
-              secondaryActions={[{ label: "取消", kind: "cancel", onClick: onClose }]}
-              primaryActions={[{ label: generating ? "生成中..." : "生成", kind: "add", onClick: handleGenerate, disabled: generating || !title.trim() }]}
+              items={[
+                { kind: "icon-button", key: "cancel", section: "action", icon: "cancel", label: "取消", onClick: onClose },
+                {
+                  kind: "icon-button",
+                  key: "generate",
+                  section: "action",
+                  icon: "add",
+                  label: generating ? "生成中..." : "生成",
+                  variant: "primary",
+                  disabled: generating || !title.trim(),
+                  onClick: handleGenerate,
+                },
+              ]}
             />
           </>
         )}

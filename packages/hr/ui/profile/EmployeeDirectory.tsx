@@ -16,9 +16,10 @@ import {
   SearchInput,
   SelectField,
   TextField,
-  CommandToolbar,
+  Toolbar,
   type DataTableColumn,
   type SelectFieldOption,
+  type ToolbarItem,
 } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { HR_EDUCATIONS } from "@workspace/hr/constants";
@@ -196,69 +197,93 @@ export default function EmployeeDirectory({
 
   return (
     <div className="space-y-5">
-      <CommandToolbar
-        viewControls={canEdit ? (
-          <CreateStartButton
-            label="新建员工资料"
-            active={createOpen}
-            onClick={() => setCreateOpen((open) => !open)}
-            disabled={creating}
-          />
-        ) : undefined}
-        filters={(
-          <>
-          <SearchInput
-            value={keyword}
-            onChange={(value) => {
-              setKeyword(value.trim());
-              setPage(1);
-            }}
-            placeholder="搜索员工编号、姓名、拼音"
-            ariaLabel="搜索员工编号、姓名、拼音"
-            className="min-w-0"
-          />
-          <FieldValueFilter
-            fields={directoryFilterFields}
-            valueOptions={directoryFilterValueOptions}
-            fieldKey={filterField}
-            onFieldKeyChange={(key) => {
-              setFilterField(key);
-              setPage(1);
-            }}
-            value={filterValue}
-            onValueChange={(value) => {
-              setFilterValue(value);
-              setPage(1);
-            }}
-          />
-          </>
-        )}
-        selectionActions={(
-          <RefreshActionButton
-            label="重置"
-            onClick={() => {
-              setKeyword("");
-              setFilterField("");
-              setFilterValue("");
-              setPage(1);
-            }}
-          />
-        )}
-        meta={(
-          <>
-            <span>共 {total} 人</span>
-            <SelectField
-              options={pageSizeOptions}
-              value={String(pageSize)}
-              onChange={(value) => {
-                setPageSize(Number(value));
-                setPage(1);
-              }}
-              triggerClassName="!w-[6.5rem] !min-w-[6.5rem]"
-              ariaLabel="每页条数"
-            />
-          </>
-        )}
+      <Toolbar
+        items={[
+          canEdit
+            ? ({
+                kind: "custom",
+                key: "create",
+                section: "view",
+                content: (
+                  <CreateStartButton
+                    label="新建员工资料"
+                    active={createOpen}
+                    onClick={() => setCreateOpen((open) => !open)}
+                    disabled={creating}
+                  />
+                ),
+              } as ToolbarItem)
+            : null,
+          {
+            kind: "custom",
+            key: "filters",
+            section: "filter",
+            content: (
+              <>
+                <SearchInput
+                  value={keyword}
+                  onChange={(value) => {
+                    setKeyword(value.trim());
+                    setPage(1);
+                  }}
+                  placeholder="搜索员工编号、姓名、拼音"
+                  ariaLabel="搜索员工编号、姓名、拼音"
+                  className="min-w-0"
+                />
+                <FieldValueFilter
+                  fields={directoryFilterFields}
+                  valueOptions={directoryFilterValueOptions}
+                  fieldKey={filterField}
+                  onFieldKeyChange={(key) => {
+                    setFilterField(key);
+                    setPage(1);
+                  }}
+                  value={filterValue}
+                  onValueChange={(value) => {
+                    setFilterValue(value);
+                    setPage(1);
+                  }}
+                />
+              </>
+            ),
+          } as ToolbarItem,
+          {
+            kind: "custom",
+            key: "reset",
+            section: "action",
+            content: (
+              <RefreshActionButton
+                label="重置"
+                onClick={() => {
+                  setKeyword("");
+                  setFilterField("");
+                  setFilterValue("");
+                  setPage(1);
+                }}
+              />
+            ),
+          } as ToolbarItem,
+          {
+            kind: "custom",
+            key: "meta",
+            section: "meta",
+            content: (
+              <>
+                <span>共 {total} 人</span>
+                <SelectField
+                  options={pageSizeOptions}
+                  value={String(pageSize)}
+                  onChange={(value) => {
+                    setPageSize(Number(value));
+                    setPage(1);
+                  }}
+                  triggerClassName="!w-[6.5rem] !min-w-[6.5rem]"
+                  ariaLabel="每页条数"
+                />
+              </>
+            ),
+          } as ToolbarItem,
+        ].filter((item): item is ToolbarItem => item !== null)}
       />
 
       {canEdit && createOpen && (

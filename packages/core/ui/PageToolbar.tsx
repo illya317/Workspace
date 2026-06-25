@@ -2,13 +2,12 @@
 
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { IconActionButton } from "./ActionControls";
-import type { ColumnDef } from "./ColumnToggle";
-import EditToolbar, { type EditToolbarProps } from "./EditToolbar";
+import type { ActionGlyphKind } from "./ActionGlyphs";
+import type { ColumnDef } from "./DataTable";
+import type { EditToolbarProps } from "./EditToolbar";
 import { Toolbar, type ToolbarItem } from "./Toolbar";
 
 export type PageToolbarFeature =
-  | "title"
   | "view"
   | "search"
   | "filter"
@@ -29,12 +28,10 @@ export interface PageToolbarAction {
   label: string;
   onClick?: () => void;
   variant?: "primary" | "secondary" | "danger";
-  kind?: "button" | "icon";
-  icon?: Parameters<typeof IconActionButton>[0]["kind"];
+  icon: ActionGlyphKind;
 }
 
 export interface PageToolbarProps {
-  title?: ReactNode;
   features?: PageToolbarFeature[];
   onCreate?: () => void;
   createLabel?: string;
@@ -78,7 +75,6 @@ function useManagedState<T>(external?: T, onChange?: (value: T) => void, initial
 }
 
 const DEFAULT_FEATURES: PageToolbarFeature[] = [
-  "title",
   "view",
   "search",
   "filter",
@@ -98,7 +94,6 @@ const DEFAULT_COLUMNS: ColumnDef[] = [
 ];
 
 export default function PageToolbar({
-  title = "页面标题",
   features = DEFAULT_FEATURES,
   onCreate,
   createLabel = "新建",
@@ -135,10 +130,6 @@ export default function PageToolbar({
 
   const items: ToolbarItem[] = [];
 
-  if (featureSet.has("title") && title) {
-    items.push({ kind: "custom", key: "title", section: "view", content: <span className="text-base font-semibold text-slate-900">{title}</span> });
-  }
-
   if (featureSet.has("view") && (onToggleList || onCreate)) {
     if (onToggleList) {
       items.push({
@@ -153,11 +144,10 @@ export default function PageToolbar({
     }
     if (onCreate) {
       items.push({
-        kind: "button",
+        kind: "create",
         key: "create",
         section: "view",
         label: createLabel,
-        variant: "primary",
         onClick: onCreate,
       });
     }
@@ -193,32 +183,22 @@ export default function PageToolbar({
   }
 
   if (featureSet.has("action") && actions) {
-    actions.forEach((action, index) => {
-      if (action.kind === "icon" && action.icon) {
-        items.push({
-          kind: "icon-button",
-          key: `action-${index}`,
-          section: "action",
-          icon: action.icon,
-          label: action.label,
-          variant: action.variant,
-          onClick: action.onClick,
-        });
-      } else {
-        items.push({
-          kind: "button",
-          key: `action-${index}`,
-          section: "action",
-          label: action.label,
-          variant: action.variant ?? "secondary",
-          onClick: action.onClick,
-        });
-      }
+    items.push({
+      kind: "action-group",
+      key: "actions",
+      section: "edit",
+      actions: actions.map((action, index) => ({
+        key: `action-${index}`,
+        kind: action.icon,
+        label: action.label,
+        variant: action.variant,
+        onClick: action.onClick,
+      })),
     });
   }
 
   if (featureSet.has("edit") && editProps) {
-    items.push({ kind: "custom", key: "edit", section: "edit", content: <EditToolbar {...editProps} /> });
+    items.push({ kind: "edit-group", key: "edit", section: "edit", ...editProps });
   }
 
   if (featureSet.has("meta") && meta) {

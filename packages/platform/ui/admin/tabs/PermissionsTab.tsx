@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { usePermissionsTab } from "../hooks/usePermissionsTab";
-import { EmptyStateCard, FilterBar, PickerOptionButton, SearchInput, SectionCard, SelectField, TabBar } from "@workspace/core/ui";
+import { EmptyStateCard, PickerOptionButton, SearchInput, SectionCard, SelectField, TabBar, Toolbar } from "@workspace/core/ui";
 import ResourceTree from "../components/ResourceTree";
 import MatrixTable from "../components/permissions/MatrixTable";
 import type { ResourceItem, SubjectType } from "../types";
@@ -139,52 +139,63 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, showToa
             ]}
           />
 
-          <FilterBar>
-            {s.subjectType !== "department" && (
-              <>
-	                <SelectField
-	                  value={s.l1Dept}
-	                  onChange={s.setL1Dept}
-	                  options={s.l1Options.flatMap((d) =>
-	                    d ? [{ value: d, label: d === "全部" ? "一级部门" : d }] : []
-	                  )}
-	                  triggerClassName="min-w-40"
-	                />
-	                {s.l2Options.length > 1 && (
-	                  <SelectField
-	                    value={s.l2Dept}
-	                    onChange={s.setL2Dept}
-	                    options={s.l2Options.flatMap((d) =>
-	                      d ? [{ value: d, label: d === "全部" ? "二级部门" : d }] : []
-	                    )}
-	                    triggerClassName="min-w-40"
-	                  />
-	                )}
-	                {s.l3Options.length > 1 && (
-	                  <SelectField
-	                    value={s.l3Dept}
-	                    onChange={s.setL3Dept}
-	                    options={s.l3Options.flatMap((d) =>
-	                      d ? [{ value: d, label: d === "全部" ? "三级部门" : d }] : []
-	                    )}
-	                    triggerClassName="min-w-40"
-	                  />
-                )}
-              </>
-            )}
-            <SearchInput
-              placeholder={
-                s.subjectType === "user"
-                  ? "搜索姓名…"
-                  : s.subjectType === "position"
-                    ? "搜索岗位…"
-                    : "搜索部门…"
-              }
-              value={s.nameSearch}
-              onChange={s.setNameSearch}
-              className="min-w-0 sm:w-[22rem]"
-            />
-          </FilterBar>
+          <Toolbar
+            items={[
+              {
+                kind: "custom",
+                key: "filters",
+                section: "filter",
+                content: (
+                  <div className="flex flex-wrap items-center gap-3">
+                    {s.subjectType !== "department" && (
+                      <>
+                        <SelectField
+                          value={s.l1Dept}
+                          onChange={s.setL1Dept}
+                          options={s.l1Options.flatMap((d) =>
+                            d ? [{ value: d, label: d === "全部" ? "一级部门" : d }] : []
+                          )}
+                          triggerClassName="min-w-40"
+                        />
+                        {s.l2Options.length > 1 && (
+                          <SelectField
+                            value={s.l2Dept}
+                            onChange={s.setL2Dept}
+                            options={s.l2Options.flatMap((d) =>
+                              d ? [{ value: d, label: d === "全部" ? "二级部门" : d }] : []
+                            )}
+                            triggerClassName="min-w-40"
+                          />
+                        )}
+                        {s.l3Options.length > 1 && (
+                          <SelectField
+                            value={s.l3Dept}
+                            onChange={s.setL3Dept}
+                            options={s.l3Options.flatMap((d) =>
+                              d ? [{ value: d, label: d === "全部" ? "三级部门" : d }] : []
+                            )}
+                            triggerClassName="min-w-40"
+                          />
+                        )}
+                      </>
+                    )}
+                    <SearchInput
+                      placeholder={
+                        s.subjectType === "user"
+                          ? "搜索姓名…"
+                          : s.subjectType === "position"
+                            ? "搜索岗位…"
+                            : "搜索部门…"
+                      }
+                      value={s.nameSearch}
+                      onChange={s.setNameSearch}
+                      className="min-w-0 sm:w-[22rem]"
+                    />
+                  </div>
+                ),
+              },
+            ]}
+          />
 
           {s.loading ? (
             <EmptyStateCard compact className="mt-4">加载中...</EmptyStateCard>

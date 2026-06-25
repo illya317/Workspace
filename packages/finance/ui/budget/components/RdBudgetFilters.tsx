@@ -1,7 +1,6 @@
 "use client";
 
-import { ActionButton, FormField, PanelCard, SelectField, Badge } from "@workspace/core/ui";
-
+import { FormField, PanelCard, SelectField, Badge, getToolbarActionClassName } from "@workspace/core/ui";
 interface RdBudgetFiltersProps {
   projectFilter: string;
   setProjectFilter: (v: string) => void;
@@ -12,7 +11,6 @@ interface RdBudgetFiltersProps {
   count: number;
   total: number;
 }
-
 export default function RdBudgetFilters({
   projectFilter,
   setProjectFilter,
@@ -21,48 +19,36 @@ export default function RdBudgetFilters({
   projectOptions,
   categoryOptions,
   count,
-  total,
+  total
 }: RdBudgetFiltersProps) {
-  return (
-    <>
+  return <>
       <PanelCard bodyClassName="flex flex-wrap items-center gap-3 p-3">
         <FormField label="研发项目" layout="inline">
-          <SelectField
-            value={projectFilter}
-            onChange={setProjectFilter}
-            placeholder="全部项目"
-            options={projectOptions.map((p) => ({ value: p, label: p }))}
-            triggerClassName="min-w-28 px-2 py-1 text-xs"
-          />
+          <SelectField value={projectFilter} onChange={setProjectFilter} placeholder="全部项目" options={projectOptions.map(p => ({
+          value: p,
+          label: p
+        }))} triggerClassName="min-w-28 px-2 py-1 text-xs" />
         </FormField>
         <FormField label="产品类别" layout="inline">
-          <SelectField
-            value={categoryFilter}
-            onChange={setCategoryFilter}
-            placeholder="全部类别"
-            options={categoryOptions.map((c) => ({ value: c, label: c }))}
-            triggerClassName="min-w-28 px-2 py-1 text-xs"
-          />
+          <SelectField value={categoryFilter} onChange={setCategoryFilter} placeholder="全部类别" options={categoryOptions.map(c => ({
+          value: c,
+          label: c
+        }))} triggerClassName="min-w-28 px-2 py-1 text-xs" />
         </FormField>
-        {(projectFilter || categoryFilter) && (
-          <ActionButton
-            onClick={() => { setProjectFilter(""); setCategoryFilter(""); }}
-            className="border-0 px-2 py-1 text-xs shadow-none"
-          >
+        {(projectFilter || categoryFilter) && <button type="button" onClick={() => {
+        setProjectFilter("");
+        setCategoryFilter("");
+      }} className={[getToolbarActionClassName(), "border-0 px-2 py-1 text-xs shadow-none"].filter(Boolean).join(" ")}>
             重置筛选
-          </ActionButton>
-        )}
+          </button>}
         <span className="ml-auto text-xs text-gray-400">
           共 {count} 条，合计 {total.toFixed(2)} 万元
         </span>
       </PanelCard>
-      {(projectFilter || categoryFilter) && (
-        <div className="flex flex-wrap gap-2 text-xs text-gray-500">
+      {(projectFilter || categoryFilter) && <div className="flex flex-wrap gap-2 text-xs text-gray-500">
           <span>当前筛选：</span>
           {projectFilter && <Badge label={`项目：${projectFilter}`} tone="gray" />}
           {categoryFilter && <Badge label={`类别：${categoryFilter}`} tone="gray" />}
-        </div>
-      )}
-    </>
-  );
+        </div>}
+    </>;
 }

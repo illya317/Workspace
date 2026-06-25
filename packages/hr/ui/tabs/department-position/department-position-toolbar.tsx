@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { matchText } from "@workspace/core/search";
-import { FilterToolbar } from "@workspace/core/ui";
+import { Toolbar, type ToolbarItem } from "@workspace/core/ui";
 import type { Department, Position, Selection } from "./types";
 import { departmentPath } from "./utils";
 
@@ -73,16 +73,31 @@ export function DepartmentPositionToolbar({
     onKeywordChange("");
   }
 
+  const items: ToolbarItem[] = [
+    {
+      kind: "search",
+      key: "search",
+      section: "filter",
+      value: keyword,
+      onChange: onKeywordChange,
+      placeholder: "搜索部门/岗位",
+      scope: ["部门", "岗位"],
+      className: "w-full min-w-[18rem] sm:w-80",
+    },
+  ];
+
+  if (keyword.trim()) {
+    items.push({
+      kind: "text",
+      key: "meta",
+      section: "meta",
+      content: `${results.length} 个匹配`,
+    });
+  }
+
   return (
     <div className="relative">
-      <FilterToolbar
-        keyword={keyword}
-        onKeywordChange={onKeywordChange}
-        searchPlaceholder="搜索部门/岗位"
-        searchScope={["部门", "岗位"]}
-        searchClassName="w-full min-w-[18rem] sm:w-80"
-        meta={keyword.trim() ? `${results.length} 个匹配` : undefined}
-      />
+      <Toolbar items={items} />
 
       {keyword.trim() && (
         <div className="absolute left-3 top-[calc(100%+6px)] z-30 w-[min(36rem,calc(100vw-2rem))] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">

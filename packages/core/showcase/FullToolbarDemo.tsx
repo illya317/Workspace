@@ -13,91 +13,54 @@ const demoColumns: ColumnDef[] = [
 
 export default function FullToolbarDemo() {
   const [demoVisibleColumns, setDemoVisibleColumns] = useState<string[]>(["name", "status"]);
+  const [demoFieldKey, setDemoFieldKey] = useState<string>("education");
+  const [demoFieldValue, setDemoFieldValue] = useState<string>("bachelor");
+  const [keyword, setKeyword] = useState("");
+  const [status, setStatus] = useState("all");
+  const [scope, setScope] = useState("all");
+  const [editMode, setEditMode] = useState(false);
 
   const fullToolbarItems: ToolbarItem[] = useMemo(
     () => [
       {
-        kind: "button",
-        key: "full-primary",
-        section: "action",
-        label: "主要按钮",
-        variant: "primary",
-        onClick: noop,
-      },
-      {
-        kind: "button",
-        key: "full-secondary",
-        section: "action",
-        label: "次要按钮",
-        variant: "secondary",
-        onClick: noop,
-      },
-      {
-        kind: "icon-button",
-        key: "full-icon",
-        section: "action",
-        icon: "add",
-        label: "新增",
-        variant: "primary",
-        onClick: noop,
-      },
-      {
-        kind: "option-group",
-        key: "full-option-group",
-        section: "filter",
-        value: "a",
-        options: [
-          { value: "a", label: "选项 A" },
-          { value: "b", label: "选项 B" },
+        kind: "action-group",
+        key: "full-demo-actions",
+        section: "edit",
+        actions: [
+          { kind: "print", label: "打印" },
+          { kind: "delete-bin", label: "删除", variant: "danger" },
+          { kind: "download", label: "下载" },
+          { kind: "refresh", label: "刷新" },
+          { kind: "copy", label: "复制" },
         ],
-        onChange: noop,
-        ariaLabel: "示例选项",
       },
+      { kind: "icon-button", key: "full-toggle-list", section: "view", icon: "panel-open", label: "显示列表", onClick: noop },
+      { kind: "create", key: "full-create", section: "view", onClick: noop },
+      { kind: "search", key: "full-search", section: "search", value: keyword, onChange: setKeyword, placeholder: "搜索..." },
+      { kind: "select", key: "full-status", section: "filter", value: status, options: [{ value: "all", label: "全部" }, { value: "active", label: "进行中" }, { value: "done", label: "已完成" }], onChange: setStatus, placeholder: "状态" },
+      { kind: "option-group", key: "full-scope", section: "filter", value: scope, options: [{ value: "all", label: "全部" }, { value: "mine", label: "我的" }], onChange: setScope, ariaLabel: "范围" },
       {
-        kind: "select",
-        key: "full-select",
+        kind: "field-filter",
+        key: "full-field-filter",
         section: "filter",
-        value: "all",
-        options: [
-          { value: "all", label: "全部" },
-          { value: "one", label: "选项 1" },
-        ],
-        onChange: noop,
-        placeholder: "请选择",
-        triggerClassName: "!w-32",
+        fieldKey: demoFieldKey,
+        onFieldKeyChange: setDemoFieldKey,
+        value: demoFieldValue,
+        onValueChange: setDemoFieldValue,
+        fields: [{ value: "gender", label: "性别" }, { value: "education", label: "学历" }, { value: "position", label: "岗位" }, { value: "department", label: "直属部门" }],
+        valueOptions: {
+          gender: [{ value: "female", label: "女" }, { value: "male", label: "男" }],
+          education: [{ value: "bachelor", label: "本科" }, { value: "master", label: "硕士" }],
+          position: [{ value: "manager", label: "经理" }, { value: "engineer", label: "工程师" }],
+          department: [{ value: "hr", label: "人事" }, { value: "finance", label: "财务" }],
+        },
+        placeholder: "字段",
       },
-      {
-        kind: "search",
-        key: "full-search",
-        section: "filter",
-        value: "",
-        onChange: noop,
-        placeholder: "搜索...",
-        ariaLabel: "示例搜索",
-        className: "w-48",
-      },
-      {
-        kind: "column-toggle",
-        key: "full-columns",
-        section: "meta",
-        columns: demoColumns,
-        visible: demoVisibleColumns,
-        onChange: setDemoVisibleColumns,
-      },
-      {
-        kind: "text",
-        key: "full-meta",
-        section: "meta",
-        content: "共 0 项",
-      },
-      {
-        kind: "custom",
-        key: "full-custom-meta",
-        section: "meta",
-        content: <span className="rounded bg-slate-100 px-2 py-1 text-xs text-slate-600">自定义插槽</span>,
-      },
+      { kind: "edit-group", key: "full-edit", section: "edit", editMode, onStartEdit: () => setEditMode(true), onSave: async () => { setEditMode(false); }, onCancel: () => setEditMode(false) },
+      { kind: "column-toggle", key: "full-columns", section: "meta", columns: demoColumns, visible: demoVisibleColumns, onChange: setDemoVisibleColumns },
+      { kind: "text", key: "full-meta", section: "meta", content: "共 0 项" },
     ],
-    [demoVisibleColumns],
+    [demoVisibleColumns, demoFieldKey, demoFieldValue, keyword, status, scope, editMode],
   );
 
   return <Toolbar items={fullToolbarItems} className="mb-5" />;

@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
-import { ActionButton, type ActionButtonProps } from "./ActionControls";
 import { EmptyStateCard, PanelCard } from "./BaseCards";
 import { joinClassNames } from "./card-utils";
 import CommandToolbar from "./CommandToolbar";
@@ -9,6 +8,7 @@ import SearchInput from "./SearchInput";
 import SelectorCard, { type SelectorCardMetaItem } from "./SelectorCard";
 import Badge, { type BadgeProps } from "./Badge";
 import { matchText } from "../search";
+import { getToolbarActionClassName } from "./toolbar-styles";
 
 export interface TemplateWorkbenchSelectorItem {
   key: string;
@@ -23,7 +23,7 @@ export interface TemplateWorkbenchRowAction {
   onClick: () => void;
   disabled?: boolean;
   loading?: boolean;
-  variant?: ActionButtonProps["variant"];
+  variant?: "primary" | "secondary" | "danger";
   indicator?: "danger" | "success";
 }
 
@@ -88,10 +88,15 @@ function textMatches(values: Array<ReactNode | string | number | null | undefine
 
 function RowAction({ action }: { action: TemplateWorkbenchRowAction }) {
   return (
-    <ActionButton onClick={action.onClick} disabled={action.disabled || action.loading} variant={action.variant} className="h-9 px-3 text-xs">
+    <button
+      type="button"
+      onClick={action.onClick}
+      disabled={action.disabled || action.loading}
+      className={joinClassNames(getToolbarActionClassName(action.variant), "h-9 px-3 text-xs")}
+    >
       {action.indicator && <span className={joinClassNames("mr-1.5 inline-block h-1.5 w-1.5 rounded-full align-middle", indicatorClassNames[action.indicator])} />}
       {action.loading ? "加载中" : action.label}
-    </ActionButton>
+    </button>
   );
 }
 
@@ -128,7 +133,15 @@ function TemplateSection({ section, onToggle }: { section: SectionView; onToggle
   const canToggle = section.collapsible || section.onToggle;
 
   return (
-    <PanelCard title={title} subtitle={section.subtitle} actions={canToggle && <ActionButton onClick={section.onToggle ?? onToggle} className="px-3 py-1.5 text-sm">{toggleText(section)}</ActionButton>}>
+    <PanelCard
+      title={title}
+      subtitle={section.subtitle}
+      actions={canToggle && (
+        <button type="button" onClick={section.onToggle ?? onToggle} className={joinClassNames(getToolbarActionClassName("secondary", "sm"), "px-3 py-1.5 text-sm")}>
+          {toggleText(section)}
+        </button>
+      )}
+    >
       {section.expandedView && <div className="divide-y divide-slate-100">{section.rows.map((row) => <TemplateRow key={row.key} row={row} />)}</div>}
     </PanelCard>
   );

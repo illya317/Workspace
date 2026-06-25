@@ -26,18 +26,29 @@
 | 二段式筛选 | `@workspace/core/ui` 的 `FieldValueFilter` | 工具栏显示 `字段：值`，点击后先选字段再选值 | 每个模块复制一份筛选 UI，或把两个下拉框常驻拼在工具栏上 |
 | 筛选栏 | `@workspace/core/ui` 的 `FilterBar` | 列表页搜索、筛选、重置、批量工具 | 页面里散落按钮和输入框 |
 | 标准筛选工具栏 | `@workspace/core/ui` 的 `FilterToolbar` | 搜索、字段显隐、每页数量、筛选插槽组合 | 每个模块重写搜索框 + 字段按钮 + 每页下拉 |
+| 页面工具栏 | `@workspace/core/ui` 的 `Toolbar` / `PageToolbar` | 页面顶部 view/search/filter/edit/meta 区块、动作图标、字段筛选、列显隐 | 业务包手写一整条 toolbar，或在业务侧手排动作图标/分隔线 |
+| 动作图标 | `@workspace/core/ui` 的 `ActionGlyph` / `ActionButton` / `action-group` | 新增、编辑、保存、删除、刷新、下载、上传、归档、打印等 toolbar 图标动作 | 文本按钮混入 toolbar，业务侧直接引第三方 icon，或绕过 `ActionGlyph` 自绘动作图标 |
 | 搜索输入 | `@workspace/core/ui` 的 `SearchInput` | 内容检索、列表主搜索、筛选栏搜索、弹层内搜索 | 页面或业务包手写 `<input placeholder="搜索...">` |
 | FK 字段输入 | `@workspace/core/ui` 的 `FkFieldInput` 或基于它的领域薄包装 | 选择部门、员工、计划、科目等关联实体 | 把 FK 搜索做成自由 `entity: string` 一次性控件 |
 | 日期输入 | `@workspace/core/ui` 的 `CalendarDateInput` | 所有日期字段 | 原生 `input[type=date]` 或浏览器默认日期弹层 |
 | 确认弹窗 | `@workspace/core/ui` 的 `ConfirmProvider` / `ConfirmModal` | 删除、覆盖、危险操作 | `window.confirm`、自定义一次性确认弹窗 |
 | Toast | `@workspace/core/ui` + `@workspace/core/hooks` | 保存成功、失败、校验提示 | 页面内裸 `setTimeout` 或临时提示块 |
 | 表格 | `@workspace/core/ui` 的 `DataTable` | 标准列表、批量表格、可见列管理 | 每个模块重新写表头/分页/空态 |
-| 列显隐 | `@workspace/core/ui` 的 `ColumnToggle` | 表格列配置 | 模块自写列配置弹层 |
+| 列显隐 | `@workspace/core/ui` 的 `SelectField`（multiple） | 表格列配置 | 模块自写列配置弹层 |
 | 数字/金额单元格 | `@workspace/core/ui` 的 `NumberCell` / `AmountCell` | 财务、预算、成本、数量字段 | 每张表重复写格式化 |
 | Tab | `@workspace/core/ui` 的 `TabBar` | 模块内平级页签 | 页面内临时拼 tab |
 | 页面骨架 | `@workspace/core/ui` 的 `PageShell` | 登录后页面的标题栏、返回动作、页面内容容器 | Platform/App 里重复手写 sticky header、返回按钮、横向表头 |
 | 页面内容容器 | `@workspace/core/ui` 的 `PageContent`、`PanelCard`、`SectionCard` | 页面内容留白、卡片、章节、空态 | 在业务包里直接拼 `bg-white + rounded + shadow/border` 页面壳 |
 | 可折叠左右分栏 | Core UI 新增稳定入口后统一使用 | 列表 + 详情编辑、项目列表 + 当前详情、主从记录浏览 | 用遮罩式整屏 overlay 灰掉主内容，或在业务包重复写抽屉/分栏状态机 |
+
+### Toolbar / ActionGlyph 规则
+
+- Toolbar 的动作按钮必须来自 `ActionGlyph` 封闭集合。`ActionButton` 是纯图标按钮，只接 `kind + label`，不接 children；业务不再新增文字型 toolbar `button` item。
+- 新增动作 icon 时必须同时维护四处元数据：`ACTION_GLYPH_KINDS`、`ACTION_GLYPH_GROUPS`、`ACTION_GLYPH_TOOLBAR_GROUPS`、`ACTION_GLYPH_ORDER`。`ACTION_GLYPH_ORDER` 的字段固定为 `icon / group / subgroup / order`，order 使用大间距预留插入空间。
+- 业务侧只选择 icon，不手排顺序和分组。`action-group` 和 `edit-group` 会按 `ACTION_GLYPH_ORDER.order` 自动排序，并在 toolbar 大组变化处插入分隔。
+- 非默认动作默认从 `edit` 区开始，和编辑动作混排。`view/search/filter/meta` 只承载视图切换、搜索、筛选、字段、列显隐和计数等默认控件。
+- `ToolbarCustomItem` 只允许承载复杂 slot 或旧组合控件，不能用来绕过 `ActionGlyph` 新增动作按钮。能表达为 `search`、`select`、`option-group`、`field-filter`、`column-toggle`、`create`、`action-group`、`edit-group` 的，不要用 `custom`。
+- 列显隐统一用 `column-toggle` 内部的 `SelectField multiple summaryMode="count"`，触发器显示 `已选数/总数`，例如 `2/4`。
 
 ## 业务字段组件
 
@@ -110,7 +121,7 @@ Finance 当前已经有第一层统一模板，但业务页面还在渐进迁移
 
 - 财务模块页面统一使用一个 Finance 页面模板：标题区、公司/期间筛选区、工具栏、内容区、空态、错误态。
 - `FinanceShell`、`CompanyPeriodPicker`、`FinanceFilters`、`Pagination`、重分类配置/审核组件已进入 `@workspace/finance/ui`，后续只允许扩展这个入口，不要恢复 `app/finance/components`。
-- 财务表格默认复用 Core `DataTable`、`NumberCell`、`AmountCell`、`ColumnToggle`。
+- 财务表格默认复用 Core `DataTable`、`NumberCell`、`AmountCell`；列显隐通过 `SelectField`（multiple）实现。
 - 公司、年度、月份、报表类型、层级等固定筛选默认复用 Core `SelectField`；需要财务语义时由 `@workspace/finance/ui` 包一层，不要在每个页面手写。
 - 预算、成本、总账、报表配置、报表校对之间如果 UI 结构一致，应抽成 Finance 模板，而不是在每个页面重新写筛选栏、分页、表格工具栏。
 

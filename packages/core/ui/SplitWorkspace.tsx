@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties, ReactNode } from "react";
-import { IconActionButton } from "./ActionControls";
+import { ActionButton } from "./ActionControls";
 import { Toolbar, type ToolbarItem } from "./Toolbar";
 
 export type SplitWorkspaceMode = "desktop" | "drawer";
@@ -47,7 +47,7 @@ export function SplitWorkspaceToolbar({
       section: "view",
       content: (
         <span className={mobileButtonShellClassName}>
-          <IconActionButton
+          <ActionButton
             kind="panel-open"
             label={`显示${sideLabel}`}
             onClick={onDrawerOpen}
@@ -62,7 +62,7 @@ export function SplitWorkspaceToolbar({
       section: "view",
       content: (
         <span className={desktopButtonShellClassName}>
-          <IconActionButton
+          <ActionButton
             kind={sideOpen ? "panel-open" : "panel-close"}
             label={`${sideOpen ? "隐藏" : "显示"}${sideLabel}`}
             onClick={() => onSideOpenChange(!sideOpen)}

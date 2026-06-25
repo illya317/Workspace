@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ActionButton, PanelCard, SelectorPanel, TextField } from "@workspace/core/ui";
+import { PanelCard, SelectorPanel, TextField, getToolbarActionClassName } from "@workspace/core/ui";
 import type { AgentMood, AgentMessage } from "./types";
 import type { SavedConversation } from "./useAgentSession";
 import AgentAvatar from "./AgentAvatar";
 import AgentMessageList from "./AgentMessageList";
 import AgentReportDrawer from "./AgentReportDrawer";
-
 interface Props {
   mood: AgentMood;
   messages: AgentMessage[];
@@ -24,7 +23,6 @@ interface Props {
   hints?: string[];
   hintsLoaded?: boolean;
 }
-
 const moodLabels: Record<AgentMood, string> = {
   idle: "有什么可以帮你的？",
   listening: "正在听...",
@@ -32,26 +30,49 @@ const moodLabels: Record<AgentMood, string> = {
   success: "查询完成",
   warning: "需要确认",
   confirm: "等待确认",
-  error: "出错了",
+  error: "出错了"
 };
-
 export default function AgentPanel({
-  mood, messages, loading, drawerMsg, onOpenDrawer, onCloseDrawer,
-  isOpen, onClose, onSend, onClear, savedConversations, onLoadConversation,
-  hints, hintsLoaded,
+  mood,
+  messages,
+  loading,
+  drawerMsg,
+  onOpenDrawer,
+  onCloseDrawer,
+  isOpen,
+  onClose,
+  onSend,
+  onClear,
+  savedConversations,
+  onLoadConversation,
+  hints,
+  hintsLoaded
 }: Props) {
   const [input, setInput] = useState("");
   const [showHistory, setShowHistory] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const historyRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<{ sx: number; sy: number; px: number; py: number } | null>(null);
-  const [panelPos, setPanelPos] = useState<{ x: number; y: number } | null>(null);
+  const dragRef = useRef<{
+    sx: number;
+    sy: number;
+    px: number;
+    py: number;
+  } | null>(null);
+  const [panelPos, setPanelPos] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
 
   // 拖动 header 移动面板
   function onHeaderDown(e: React.PointerEvent) {
     const rect = (e.currentTarget as HTMLElement).closest("[data-panel]")?.getBoundingClientRect();
     if (!rect) return;
-    dragRef.current = { sx: e.clientX, sy: e.clientY, px: rect.left, py: rect.top };
+    dragRef.current = {
+      sx: e.clientX,
+      sy: e.clientY,
+      px: rect.left,
+      py: rect.top
+    };
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
   }
   function onHeaderMove(e: React.PointerEvent) {
@@ -60,9 +81,14 @@ export default function AgentPanel({
     const dy = e.clientY - dragRef.current.sy;
     const x = Math.max(0, Math.min(window.innerWidth - 380, dragRef.current.px + dx));
     const y = Math.max(0, Math.min(window.innerHeight - 100, dragRef.current.py + dy));
-    setPanelPos({ x, y });
+    setPanelPos({
+      x,
+      y
+    });
   }
-  function onHeaderUp() { dragRef.current = null; }
+  function onHeaderUp() {
+    dragRef.current = null;
+  }
 
   // 点击外部关闭历史下拉
   useEffect(() => {
@@ -75,43 +101,37 @@ export default function AgentPanel({
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
   }, [showHistory]);
-
-  useEffect(() => { if (isOpen) setTimeout(() => inputRef.current?.focus(), 100); }, [isOpen]);
-
+  useEffect(() => {
+    if (isOpen) setTimeout(() => inputRef.current?.focus(), 100);
+  }, [isOpen]);
   function handleSend() {
     const text = input.trim();
     if (!text || loading) return;
     onSend(text);
     setInput("");
   }
-
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
   }
-
   if (!isOpen) return null;
-
-  return (
-    <>
-      <div
-        data-panel
-        className="fixed z-50"
-        style={panelPos
-          ? { left: panelPos.x, top: panelPos.y, width: 380, maxHeight: "70vh" }
-          : { right: 24, bottom: 96, width: 380, maxHeight: "70vh" }
-        }
-      >
-        <PanelCard
-          className="flex h-full flex-col overflow-hidden"
-          bodyClassName="flex min-h-0 flex-1 flex-col"
-        >
+  return <>
+      <div data-panel className="fixed z-50" style={panelPos ? {
+      left: panelPos.x,
+      top: panelPos.y,
+      width: 380,
+      maxHeight: "70vh"
+    } : {
+      right: 24,
+      bottom: 96,
+      width: 380,
+      maxHeight: "70vh"
+    }}>
+        <PanelCard className="flex h-full flex-col overflow-hidden" bodyClassName="flex min-h-0 flex-1 flex-col">
           {/* Header — 可拖动 */}
-          <div
-            className="flex cursor-grab select-none items-center gap-3 border-b bg-gradient-to-r from-emerald-50 to-white px-4 py-3 active:cursor-grabbing"
-            onPointerDown={onHeaderDown}
-            onPointerMove={onHeaderMove}
-            onPointerUp={onHeaderUp}
-          >
+          <div className="flex cursor-grab select-none items-center gap-3 border-b bg-gradient-to-r from-emerald-50 to-white px-4 py-3 active:cursor-grabbing" onPointerDown={onHeaderDown} onPointerMove={onHeaderMove} onPointerUp={onHeaderUp}>
             <AgentAvatar mood={mood} size={32} />
             <div className="flex-1">
               <div className="text-sm font-semibold text-gray-800">小助手</div>
@@ -119,76 +139,49 @@ export default function AgentPanel({
             </div>
             {/* History */}
             <div className="relative">
-              <ActionButton
-                onClick={() => setShowHistory(!showHistory)}
-                className="p-1.5"
-                disabled={!savedConversations || savedConversations.length === 0}
-                title="历史对话"
-              >
+              <button type="button" onClick={() => setShowHistory(!showHistory)} disabled={!savedConversations || savedConversations.length === 0} title="历史对话" className={[getToolbarActionClassName(), "p-1.5"].filter(Boolean).join(" ")}>
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-              </ActionButton>
-              {showHistory && savedConversations && savedConversations.length > 0 && (
-                <SelectorPanel
-                  className="absolute right-0 top-8 z-50 max-h-64 w-64 overflow-y-auto"
-                  title="历史对话"
-                  items={savedConversations}
-                  selectedId={null}
-                  onSelect={(c) => { onLoadConversation?.(c); setShowHistory(false); }}
-                  getKey={(c) => c.id}
-                  renderItem={(c) => ({
-                    title: c.title,
-                    subtitle: c.preview || c.messages.slice(-1)[0]?.content.slice(0, 40),
-                    meta: [new Date(c.updatedAt).toLocaleString("zh-CN")],
-                  })}
-                  size="sm"
-                  bodyClassName="p-2"
-                  contentClassName="space-y-2"
-                />
-              )}
+              </button>
+              {showHistory && savedConversations && savedConversations.length > 0 && <SelectorPanel className="absolute right-0 top-8 z-50 max-h-64 w-64 overflow-y-auto" title="历史对话" items={savedConversations} selectedId={null} onSelect={c => {
+              onLoadConversation?.(c);
+              setShowHistory(false);
+            }} getKey={c => c.id} renderItem={c => ({
+              title: c.title,
+              subtitle: c.preview || c.messages.slice(-1)[0]?.content.slice(0, 40),
+              meta: [new Date(c.updatedAt).toLocaleString("zh-CN")]
+            })} size="sm" bodyClassName="p-2" contentClassName="space-y-2" />}
             </div>
-            <ActionButton onClick={onClear} className="p-1.5" title="新对话">
+            <button type="button" onClick={onClear} title="新对话" className={[getToolbarActionClassName(), "p-1.5"].filter(Boolean).join(" ")}>
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-            </ActionButton>
-            <ActionButton onClick={onClose} className="p-1.5" title="关闭">
+            </button>
+            <button type="button" onClick={onClose} title="关闭" className={[getToolbarActionClassName(), "p-1.5"].filter(Boolean).join(" ")}>
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
-            </ActionButton>
+            </button>
           </div>
 
           {/* Messages */}
-          <AgentMessageList
-            messages={messages} mood={mood} loading={loading}
-            hints={hints || []} hintsLoaded={hintsLoaded || false}
-            onHintClick={(h) => { setInput(h); inputRef.current?.focus(); }}
-            onOpenDrawer={onOpenDrawer}
-          />
+          <AgentMessageList messages={messages} mood={mood} loading={loading} hints={hints || []} hintsLoaded={hintsLoaded || false} onHintClick={h => {
+          setInput(h);
+          inputRef.current?.focus();
+        }} onOpenDrawer={onOpenDrawer} />
 
           {/* Input */}
           <div className="flex items-center gap-2 border-t px-4 py-3">
-            <TextField
-              ref={inputRef}
-              value={input}
-              onChange={setInput}
-              onKeyDown={handleKeyDown}
-              placeholder="输入消息..."
-              disabled={loading}
-              className="flex-1"
-              maxLength={2000}
-            />
-            <ActionButton variant="primary" onClick={handleSend} disabled={loading || !input.trim()}>
+            <TextField ref={inputRef} value={input} onChange={setInput} onKeyDown={handleKeyDown} placeholder="输入消息..." disabled={loading} className="flex-1" maxLength={2000} />
+            <button type="button" onClick={handleSend} disabled={loading || !input.trim()} className={getToolbarActionClassName("primary")}>
               发送
-            </ActionButton>
+            </button>
           </div>
         </PanelCard>
       </div>
 
       {/* Report Drawer */}
       <AgentReportDrawer message={drawerMsg} onClose={onCloseDrawer} />
-    </>
-  );
+    </>;
 }

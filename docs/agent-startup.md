@@ -86,6 +86,9 @@
 
 - 提交前再次运行 `git status --short`。只 stage 本任务文件。
 - 不要每个小 patch 都高频跑完整检查；部署前、一个任务收口、或多文件/大量改动时按风险跑。
-- 小文档改动优先 `npm run docs:check`；普通 TS/TSX 小改动优先 `npm run lint:changed` + `npm run typecheck:quick`；涉及边界、权限、registry、Core/Platform 或 API contract 时加 `npm run arch:gate`；schema、部署、构建链路或共享行为改动跑完整组。
+- 多 agent 并行时，小任务默认延后 npm 验证。普通执行 agent 完成局部改动后只做 diff/相关文件自查，并在交付说明中写清“未跑 npm 检查，等待统一验证”；不要因为一个小改动就启动 `lint`、`typecheck`、`arch:gate` 或 `build`。
+- 只有这些情况主动跑 npm 检查：用户明确要求；当前 agent 是收口/集成/提交前验证角色；改动触及共享脚本、CI、package 配置、schema、权限/registry/gate 或跨模块 contract；或局部自查无法判断风险。
+- 本地重型检查走项目锁串行执行。`lint`、`typecheck`、`arch:gate`、`build` 等 npm script 已包 `scripts/check/with-check-lock.js`；如果终端提示 `Waiting for project check lock`，说明别的 agent 正在跑检查，等待即可，不要再开并行检查。
+- 收口/集成/提交前验证时按风险选命令：文档改动跑 `npm run docs:check`；普通 TS/TSX 跑 `npm run lint:changed` + `npm run typecheck:quick`；涉及边界、权限、registry、Core/Platform 或 API contract 时加 `npm run arch:gate`；schema、部署、构建链路或共享行为改动跑完整组。
 - pre-commit 的 `check:quick` 是最后防线，不要用 `--no-verify` 绕过。检查失败时先判断是否由当前任务造成；无关并行失败要在交付说明里标明，不要顺手修或提交别人的文件。
 - 本地开发只允许一个 3000 端口 dev server。需要开 dev 前先查 `lsof -nP -iTCP:3000 -sTCP:LISTEN`。

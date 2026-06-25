@@ -5,7 +5,7 @@ import {
   CalendarDateInput,
   CommandToolbar,
   CreateStartButton,
-  IconActionButton,
+  ActionButton,
   ToolbarOptionGroup,
 } from "@workspace/core/ui";
 import {
@@ -158,7 +158,7 @@ export default function WorkReportsPanel({
               disabled={loading || saving}
               onClick={addAdHocItem}
             />
-            <IconActionButton
+            <ActionButton
               kind="check"
               label={saving ? "保存中..." : "保存汇报"}
               variant="primary"

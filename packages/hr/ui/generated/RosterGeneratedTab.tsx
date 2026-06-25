@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  ColumnToggle,
   CommandToolbar,
   EditToolbar,
   EmptyStateCard,
@@ -10,6 +9,7 @@ import {
   PanelCard,
   RefreshActionButton,
   SearchInput,
+  SelectField,
   ToolbarOptionGroup,
   type ColumnDef,
   type FieldValueFilterField,
@@ -161,7 +161,18 @@ export default function RosterGeneratedTab({ variant, canEdit }: { variant: Rost
               value={filterValue}
               onValueChange={setFilterValue}
             />
-            <ColumnToggle columns={columnDefs} visible={visibleColumns} onChange={setVisibleColumns} />
+            <SelectField
+              multiple
+              summaryMode="count"
+              label="字段"
+              options={columnDefs.map((column) => ({
+                value: column.key,
+                label: String(column.label),
+                disabled: column.required,
+              }))}
+              value={visibleColumns}
+              onChange={setVisibleColumns}
+            />
             <RefreshActionButton
               label="刷新生成"
               onClick={() => void loadPreview()}

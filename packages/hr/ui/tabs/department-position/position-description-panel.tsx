@@ -1,29 +1,11 @@
 "use client";
 
-import {
-  ActionButton,
-  FormField,
-  PanelCard,
-  SelectField,
-  TextareaField,
-  TextField,
-  getFieldInputClassName,
-} from "@workspace/core/ui";
-import {
-  NEW_POSITION_DESCRIPTION_TEMPLATE_OPTION,
-  type PositionDescriptionTemplate,
-  type PositionDescriptionTemplateId,
-} from "./description-details";
-import {
-  PositionDescriptionDetailsEditor,
-  compactReadOnlyInputClassName,
-  formInputClassName,
-  sectionTitle,
-} from "./detail-editors";
+import { FormField, PanelCard, SelectField, TextareaField, TextField, getFieldInputClassName, getToolbarActionClassName } from "@workspace/core/ui";
+import { NEW_POSITION_DESCRIPTION_TEMPLATE_OPTION, type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
+import { PositionDescriptionDetailsEditor, compactReadOnlyInputClassName, formInputClassName, sectionTitle } from "./detail-editors";
 import { deriveDescriptionMeta } from "./draft-utils";
 import { PositionDescriptionTemplateEditor } from "./position-description-template-editor";
 import type { DescriptionDraft, Position } from "./types";
-
 export function PositionDescriptionPanel({
   position,
   descriptionDraft,
@@ -47,7 +29,7 @@ export function PositionDescriptionPanel({
   onDeletePositionDescriptionTemplate,
   onTemplateEditorOpenChange,
   onTemplateDraftNameChange,
-  onTogglePositionDescriptionTemplateField,
+  onTogglePositionDescriptionTemplateField
 }: {
   position: Position;
   descriptionDraft: DescriptionDraft;
@@ -74,52 +56,26 @@ export function PositionDescriptionPanel({
   onTogglePositionDescriptionTemplateField: (field: string) => void;
 }) {
   const meta = deriveDescriptionMeta(descriptionDraft.details, descriptionDraft.version, descriptionDraft.effectiveDate);
-
-  return (
-    <PanelCard bodyClassName="p-4">
-      {sectionTitle("岗位说明书", (
-        <div className="flex items-center gap-3">
+  return <PanelCard bodyClassName="p-4">
+      {sectionTitle("岗位说明书", <div className="flex items-center gap-3">
           {descriptionDirty && <span className="text-xs text-amber-600">说明书有未保存修改</span>}
           <FormField label="模板" layout="inline">
-            <SelectField
-              value={positionDescriptionTemplate}
-              onChange={onPositionDescriptionTemplateChange}
-              options={[
-                ...positionDescriptionTemplates.map((template) => ({ value: template.id, label: template.label })),
-                { value: NEW_POSITION_DESCRIPTION_TEMPLATE_OPTION, label: "新建模板..." },
-              ]}
-              className="w-32"
-              triggerClassName="min-h-7 text-slate-700"
-            />
+            <SelectField value={positionDescriptionTemplate} onChange={onPositionDescriptionTemplateChange} options={[...positionDescriptionTemplates.map(template => ({
+          value: template.id,
+          label: template.label
+        })), {
+          value: NEW_POSITION_DESCRIPTION_TEMPLATE_OPTION,
+          label: "新建模板..."
+        }]} className="w-32" triggerClassName="min-h-7 text-slate-700" />
           </FormField>
-          <ActionButton
-            disabled={selectedPositionDescriptionTemplate.id === "full"}
-            onClick={onOpenPositionDescriptionTemplateEditor}
-            className="px-2 py-1 text-xs"
-          >
+          <button type="button" disabled={selectedPositionDescriptionTemplate.id === "full"} onClick={onOpenPositionDescriptionTemplateEditor} className={[getToolbarActionClassName(), "px-2 py-1 text-xs"].filter(Boolean).join(" ")}>
             编辑模板
-          </ActionButton>
-          {selectedPositionDescriptionTemplateStored && (
-            <ActionButton
-              onClick={() => void onDeletePositionDescriptionTemplate()}
-              variant={selectedPositionDescriptionTemplateDefault ? "secondary" : "danger"}
-              className="px-2 py-1 text-xs"
-            >
+          </button>
+          {selectedPositionDescriptionTemplateStored && <button type="button" onClick={() => void onDeletePositionDescriptionTemplate()} className={[getToolbarActionClassName(selectedPositionDescriptionTemplateDefault ? "secondary" : "danger"), "px-2 py-1 text-xs"].filter(Boolean).join(" ")}>
               {selectedPositionDescriptionTemplateDefault ? "恢复默认" : "删除模板"}
-            </ActionButton>
-          )}
-        </div>
-      ))}
-      {templateEditorOpen && (
-        <PositionDescriptionTemplateEditor
-          name={templateDraftName}
-          fields={templateDraftFields}
-          onNameChange={onTemplateDraftNameChange}
-          onToggleField={onTogglePositionDescriptionTemplateField}
-          onSave={onSavePositionDescriptionTemplate}
-          onCancel={() => onTemplateEditorOpenChange(false)}
-        />
-      )}
+            </button>}
+        </div>)}
+      {templateEditorOpen && <PositionDescriptionTemplateEditor name={templateDraftName} fields={templateDraftFields} onNameChange={onTemplateDraftNameChange} onToggleField={onTogglePositionDescriptionTemplateField} onSave={onSavePositionDescriptionTemplate} onCancel={() => onTemplateEditorOpenChange(false)} />}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <FormField label="说明书名称">
           <TextField value={position.name} disabled className={compactReadOnlyInputClassName} />
@@ -131,13 +87,7 @@ export function PositionDescriptionPanel({
           <TextField value={descriptionDraft.reportTo || "未设置"} disabled className={compactReadOnlyInputClassName} />
         </FormField>
         <FormField label="编制">
-          <TextField
-            value={descriptionDraft.headcount}
-            disabled={!canEditPosition}
-            inputMode="numeric"
-            onChange={(next) => onUpdateDescriptionDraft("headcount", next.replace(/\D/g, ""))}
-            className={formInputClassName}
-          />
+          <TextField value={descriptionDraft.headcount} disabled={!canEditPosition} inputMode="numeric" onChange={next => onUpdateDescriptionDraft("headcount", next.replace(/\D/g, ""))} className={formInputClassName} />
         </FormField>
         <FormField label="版本">
           <TextField value={meta.version} disabled className={compactReadOnlyInputClassName} />
@@ -146,34 +96,12 @@ export function PositionDescriptionPanel({
           <TextField value={meta.effectiveDate} disabled className={compactReadOnlyInputClassName} />
         </FormField>
         <FormField label="岗位目的" className="md:col-span-2">
-          <TextareaField
-            value={descriptionDraft.positionPurpose}
-            disabled={!canEditPosition}
-            rows={3}
-            onChange={(next) => onUpdateDescriptionDraft("positionPurpose", next)}
-            className={getFieldInputClassName("resize-y")}
-          />
+          <TextareaField value={descriptionDraft.positionPurpose} disabled={!canEditPosition} rows={3} onChange={next => onUpdateDescriptionDraft("positionPurpose", next)} className={getFieldInputClassName("resize-y")} />
         </FormField>
         <FormField label="摘要" className="md:col-span-2">
-          <TextareaField
-            value={descriptionDraft.summary}
-            disabled={!canEditPosition}
-            rows={3}
-            onChange={(next) => onUpdateDescriptionDraft("summary", next)}
-            className={getFieldInputClassName("resize-y")}
-          />
+          <TextareaField value={descriptionDraft.summary} disabled={!canEditPosition} rows={3} onChange={next => onUpdateDescriptionDraft("summary", next)} className={getFieldInputClassName("resize-y")} />
         </FormField>
-        <PositionDescriptionDetailsEditor
-          value={descriptionDraft.details}
-          disabled={!canEditPosition}
-          positionNames={positionNames}
-          currentPosition={position}
-          positions={positions}
-          departmentNames={departmentNames}
-          template={selectedPositionDescriptionTemplate}
-          onChange={(value) => onUpdateDescriptionDraft("details", value)}
-        />
+        <PositionDescriptionDetailsEditor value={descriptionDraft.details} disabled={!canEditPosition} positionNames={positionNames} currentPosition={position} positions={positions} departmentNames={departmentNames} template={selectedPositionDescriptionTemplate} onChange={value => onUpdateDescriptionDraft("details", value)} />
       </div>
-    </PanelCard>
-  );
+    </PanelCard>;
 }

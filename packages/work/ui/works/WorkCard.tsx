@@ -1,8 +1,7 @@
 "use client";
 
-import { ActionButton, PanelCard, RatingControl } from "@workspace/core/ui";
+import { PanelCard, RatingControl, getToolbarActionClassName } from "@workspace/core/ui";
 import type { WorkItem } from "./types";
-
 export default function WorkCard({
   work,
   isAdmin,
@@ -12,7 +11,7 @@ export default function WorkCard({
   onArchive,
   onRestore,
   isFirst,
-  isLast,
+  isLast
 }: {
   work: WorkItem;
   isAdmin: boolean;
@@ -24,72 +23,41 @@ export default function WorkCard({
   isFirst: boolean;
   isLast: boolean;
 }) {
-  return (
-    <PanelCard bodyClassName="p-4">
+  return <PanelCard bodyClassName="p-4">
       <div className="mb-2 flex items-start gap-3">
         <div className="text-sm font-semibold text-gray-800">{work.content}</div>
-        {isAdmin && (
-          <div className="ml-auto flex items-center gap-1">
-            {!work.isArchived && (
-              <>
-                <ActionButton
-                  onClick={() => onMove(work.id, -1)}
-                  disabled={isFirst}
-                  className="px-1.5 py-0.5 text-xs"
-                >
+        {isAdmin && <div className="ml-auto flex items-center gap-1">
+            {!work.isArchived && <>
+                <button type="button" onClick={() => onMove(work.id, -1)} disabled={isFirst} className={[getToolbarActionClassName(), "px-1.5 py-0.5 text-xs"].filter(Boolean).join(" ")}>
                   ↑
-                </ActionButton>
-                <ActionButton
-                  onClick={() => onMove(work.id, 1)}
-                  disabled={isLast}
-                  className="px-1.5 py-0.5 text-xs"
-                >
+                </button>
+                <button type="button" onClick={() => onMove(work.id, 1)} disabled={isLast} className={[getToolbarActionClassName(), "px-1.5 py-0.5 text-xs"].filter(Boolean).join(" ")}>
                   ↓
-                </ActionButton>
-                <ActionButton
-                  onClick={() => onEdit(work)}
-                  className="px-1.5 py-0.5 text-xs"
-                >
+                </button>
+                <button type="button" onClick={() => onEdit(work)} className={[getToolbarActionClassName(), "px-1.5 py-0.5 text-xs"].filter(Boolean).join(" ")}>
                   编辑
-                </ActionButton>
-                <ActionButton
-                  onClick={() => onArchive?.(work.id)}
-                  className="px-1.5 py-0.5 text-xs"
-                >
+                </button>
+                <button type="button" onClick={() => onArchive?.(work.id)} className={[getToolbarActionClassName(), "px-1.5 py-0.5 text-xs"].filter(Boolean).join(" ")}>
                   归档
-                </ActionButton>
-              </>
-            )}
-            {work.isArchived && (
-              <ActionButton
-                onClick={() => onRestore?.(work.id)}
-                className="px-1.5 py-0.5 text-xs"
-              >
+                </button>
+              </>}
+            {work.isArchived && <button type="button" onClick={() => onRestore?.(work.id)} className={[getToolbarActionClassName(), "px-1.5 py-0.5 text-xs"].filter(Boolean).join(" ")}>
                 恢复
-              </ActionButton>
-            )}
-            <ActionButton
-              variant="danger"
-              onClick={() => onDelete(work.id)}
-              className="px-1.5 py-0.5 text-xs"
-            >
+              </button>}
+            <button type="button" onClick={() => onDelete(work.id)} className={[getToolbarActionClassName("danger"), "px-1.5 py-0.5 text-xs"].filter(Boolean).join(" ")}>
               删除
-            </ActionButton>
-          </div>
-        )}
+            </button>
+          </div>}
       </div>
       <div className="flex flex-wrap items-center gap-4">
         <RatingControl value={work.importance} readOnly label="重要度" />
         <RatingControl value={work.urgency} readOnly label="紧急度" />
       </div>
-      {work.participants.length > 0 && (
-        <div className="mt-2 text-xs text-gray-500">
-          参与人：{work.participants.map((p) => p.name).join("、")}
-        </div>
-      )}
+      {work.participants.length > 0 && <div className="mt-2 text-xs text-gray-500">
+          参与人：{work.participants.map(p => p.name).join("、")}
+        </div>}
       <div className="mt-1 text-xs text-gray-400">
         创建于 {new Date(work.createdAt).toLocaleDateString("zh-CN")}
       </div>
-    </PanelCard>
-  );
+    </PanelCard>;
 }

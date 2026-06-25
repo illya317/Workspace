@@ -112,16 +112,25 @@ export default function FieldValueFilter({
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={toggleOpen}
-        className="inline-flex h-10 max-w-48 items-center justify-start rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-900 shadow-sm transition hover:border-slate-300 hover:shadow disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+        className="inline-flex h-9 min-w-24 items-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
       >
         {selectedField ? (
-          <span className="flex min-w-0 items-center gap-1.5">
-            <span className="shrink-0 text-xs font-semibold text-slate-400">{selectedField.label}</span>
-            <span className="min-w-0 truncate">{displayValue}</span>
-          </span>
+          <>
+            <span className="shrink-0 text-slate-400">{selectedField.label}</span>
+            <span className="min-w-0 flex-1 truncate">{displayValue}</span>
+          </>
         ) : (
           <span className="truncate">{placeholder}</span>
         )}
+        <svg
+          className={`ml-auto h-4 w-4 shrink-0 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
       </button>
 
       {open && !disabled && (

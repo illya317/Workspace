@@ -1,35 +1,15 @@
 "use client";
 
-import {
-  ActionButton,
-  EmptyStateCard,
-  Badge,
-} from "@workspace/core/ui";
+import { EmptyStateCard, Badge, getToolbarActionClassName } from "@workspace/core/ui";
 import { SectionShell } from "./ProfileFormControls";
-import {
-  edpFields,
-  employmentFields,
-} from "@workspace/hr/constants";
-import type {
-  ContractRow,
-  EdpRow,
-  EmploymentRow,
-  ProfileField,
-} from "@workspace/hr/types";
+import { edpFields, employmentFields } from "@workspace/hr/constants";
+import type { ContractRow, EdpRow, EmploymentRow, ProfileField } from "@workspace/hr/types";
 import type { FkFieldOption } from "@workspace/core/ui";
-import {
-  fieldGrid,
-  FieldRegion,
-  isCurrentByEndDate,
-  pickFields,
-  type EditableRecord,
-  type RowBase,
-} from "./EmployeeProfileUtils";
+import { fieldGrid, FieldRegion, isCurrentByEndDate, pickFields, type EditableRecord, type RowBase } from "./EmployeeProfileUtils";
 import { ContractSection } from "./EmployeeProfileContractSection";
 import { RowActions } from "./EmployeeProfileRowActions";
 import { useScrollToAddedItem } from "../hooks/useScrollToAddedItem";
 export { HistorySection, type ProfileHistoryEntry } from "./EmployeeProfileHistorySection";
-
 export function RowsSection<T extends RowBase>({
   title,
   rows,
@@ -39,7 +19,7 @@ export function RowsSection<T extends RowBase>({
   onChange,
   onDelete,
   allowDelete = true,
-  className,
+  className
 }: {
   title: string;
   rows: T[];
@@ -51,42 +31,23 @@ export function RowsSection<T extends RowBase>({
   allowDelete?: boolean;
   className?: string;
 }) {
-  return (
-    <SectionShell
-      title={null}
-      className={className}
-    >
+  return <SectionShell title={null} className={className}>
       <div className="space-y-4">
-        {rows.length === 0 ? (
-          <EmptyStateCard compact>暂无记录</EmptyStateCard>
-        ) : (
-          rows.map((row, index) => (
-            <FieldRegion
-              key={row.id ?? `new-${index}`}
-              title={getRowTitle(row, title)}
-              actions={canEdit && allowDelete && onDelete ? (
-                <ActionButton disabled={saving !== null} onClick={() => onDelete(row, index)} variant="danger" className="px-3 py-1.5 text-xs">
+        {rows.length === 0 ? <EmptyStateCard compact>暂无记录</EmptyStateCard> : rows.map((row, index) => <FieldRegion key={row.id ?? `new-${index}`} title={getRowTitle(row, title)} actions={canEdit && allowDelete && onDelete ? <button type="button" disabled={saving !== null} onClick={() => onDelete(row, index)} className={[getToolbarActionClassName("danger"), "px-3 py-1.5 text-xs"].filter(Boolean).join(" ")}>
                   删除
-                </ActionButton>
-              ) : null}
-            >
+                </button> : null}>
               {fieldGrid(fields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
-                const field = fields.find((item) => item.key === key);
-                if (field) onChange(index, field, value, option);
-              })}
-            </FieldRegion>
-          ))
-        )}
+          const field = fields.find(item => item.key === key);
+          if (field) onChange(index, field, value, option);
+        })}
+            </FieldRegion>)}
       </div>
-    </SectionShell>
-  );
+    </SectionShell>;
 }
-
 function getRowTitle<T extends RowBase>(row: T, fallback: string) {
   const item = row as Record<string, unknown>;
   return String(item.projectName || item.positionName || item.company || item.name || (row.isNew ? `新增${fallback}` : `${fallback} #${row.id ?? ""}`)).trim();
 }
-
 export function EmploymentSection({
   employment,
   contracts,
@@ -96,7 +57,7 @@ export function EmploymentSection({
   onAddContract,
   onChangeContract,
   onDeleteContract,
-  className,
+  className
 }: {
   employment: EmploymentRow | null;
   contracts: ContractRow[];
@@ -108,36 +69,19 @@ export function EmploymentSection({
   onDeleteContract: (row: ContractRow, index: number) => Promise<void>;
   className?: string;
 }) {
-  const fields = employmentFields.filter((field) => !["currentCompany", "leaveNote"].includes(field.key));
-  return (
-    <SectionShell
-      title={null}
-      className={className}
-    >
-      {!employment ? (
-        <EmptyStateCard compact>暂无雇佣主档</EmptyStateCard>
-      ) : (
-        <div className="space-y-5">
+  const fields = employmentFields.filter(field => !["currentCompany", "leaveNote"].includes(field.key));
+  return <SectionShell title={null} className={className}>
+      {!employment ? <EmptyStateCard compact>暂无雇佣主档</EmptyStateCard> : <div className="space-y-5">
           <FieldRegion title="任职状态">
             {fieldGrid(fields, employment as unknown as EditableRecord, !canEdit, (key, value, option) => {
-              const field = fields.find((item) => item.key === key);
-              if (field) onChange(field, value, option);
-            })}
+          const field = fields.find(item => item.key === key);
+          if (field) onChange(field, value, option);
+        })}
           </FieldRegion>
-          <ContractSection
-            rows={contracts}
-            canEdit={canEdit}
-            saving={saving}
-            onAdd={onAddContract}
-            onChange={onChangeContract}
-            onDelete={onDeleteContract}
-          />
-        </div>
-      )}
-    </SectionShell>
-  );
+          <ContractSection rows={contracts} canEdit={canEdit} saving={saving} onAdd={onAddContract} onChange={onChangeContract} onDelete={onDeleteContract} />
+        </div>}
+    </SectionShell>;
 }
-
 export function EdpSection({
   rows,
   canEdit,
@@ -145,7 +89,7 @@ export function EdpSection({
   onAdd,
   onChange,
   onDelete,
-  className,
+  className
 }: {
   rows: EdpRow[];
   canEdit: boolean;
@@ -155,56 +99,36 @@ export function EdpSection({
   onDelete: (row: EdpRow, index: number) => Promise<void>;
   className?: string;
 }) {
-  const allFields = [
-    ...pickFields(edpFields, ["departmentId", "positionId", "isPrimary", "workPercent", "reportTo"]),
-    ...pickFields(edpFields, ["startDate", "endDate"]),
-  ];
-  const { getItemRef, requestScrollToIndex } = useScrollToAddedItem(rows);
-
+  const allFields = [...pickFields(edpFields, ["departmentId", "positionId", "isPrimary", "workPercent", "reportTo"]), ...pickFields(edpFields, ["startDate", "endDate"])];
+  const {
+    getItemRef,
+    requestScrollToIndex
+  } = useScrollToAddedItem(rows);
   function addRow() {
     requestScrollToIndex(0);
     onAdd();
   }
-
-  return (
-    <SectionShell
-      title={null}
-      className={className}
-    >
+  return <SectionShell title={null} className={className}>
       <div className="space-y-4">
-        {rows.length === 0 ? (
-          <EmptyStateCard compact>暂无岗位记录</EmptyStateCard>
-        ) : (
-          rows.map((row, index) => {
-            const current = isCurrentByEndDate(row.endDate);
-            return (
-              <div key={row.id ?? `new-edp-${index}`} ref={getItemRef(index)}>
-                <FieldRegion
-                  title={(
-                    <div className="flex flex-wrap items-center gap-2">
+        {rows.length === 0 ? <EmptyStateCard compact>暂无岗位记录</EmptyStateCard> : rows.map((row, index) => {
+        const current = isCurrentByEndDate(row.endDate);
+        return <div key={row.id ?? `new-edp-${index}`} ref={getItemRef(index)}>
+                <FieldRegion title={<div className="flex flex-wrap items-center gap-2">
                       <span>{row.isNew ? "新增岗位记录" : row.positionName || `岗位记录 #${row.id}`}</span>
                       <Badge label={current ? "当前岗位" : "历史岗位"} tone={current ? "green" : "gray"} />
                       {row.isPrimary && <Badge label="主岗" tone="blue" />}
                       <span className="text-xs font-medium text-slate-500">{row.departmentName || "未设置部门"} · 占比 {row.workPercent || "未设置"}</span>
-                    </div>
-                  )}
-                  actions={canEdit ? (
-                    <>
-                      <ActionButton onClick={addRow} disabled={saving !== null} variant="secondary" className="px-3 py-1.5 text-xs">新增</ActionButton>
+                    </div>} actions={canEdit ? <>
+                      <button type="button" onClick={addRow} disabled={saving !== null} className={[getToolbarActionClassName("secondary"), "px-3 py-1.5 text-xs"].filter(Boolean).join(" ")}>新增</button>
                       <RowActions canEdit={canEdit} saving={saving} onDelete={() => onDelete(row, index)} />
-                    </>
-                  ) : null}
-                >
+                    </> : null}>
                   {fieldGrid(allFields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
-                    const field = edpFields.find((item) => item.key === key);
-                    if (field) onChange(index, field, value, option);
-                  })}
+              const field = edpFields.find(item => item.key === key);
+              if (field) onChange(index, field, value, option);
+            })}
                 </FieldRegion>
-              </div>
-            );
-          })
-        )}
+              </div>;
+      })}
       </div>
-    </SectionShell>
-  );
+    </SectionShell>;
 }

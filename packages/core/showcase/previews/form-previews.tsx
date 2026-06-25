@@ -3,7 +3,7 @@
 import { useState, type FC } from "react";
 import {
   AutoSizeTextField, BlockCreatePanel, CalendarDateInput, CheckboxChip, CheckboxField, ChoiceGroup,
-  CreateConfirmActions, CreateStartButton, FileField, FormField, FormShell, HiddenDataField,
+  CreateConfirmActions, CreatePanel, CreateStartButton, FileField, FormField, FormShell, HiddenDataField,
   InlineCreatePanel, RemovableTag, RatingControl, SearchInput, SelectField, SwitchField,
   TagPill, TagPillButton, TagRemoveButton, TextField, TextareaField, TimeField,
 } from "@workspace/core/ui";
@@ -154,8 +154,29 @@ function SearchInputPreview() {
 
 function SelectFieldPreview() {
   const [value, setValue] = useState("");
+  const [multiValue, setMultiValue] = useState<string[]>(["hr", "it"]);
   const options = [{ value: "active", label: "现用" }, { value: "archived", label: "已归档" }, { value: "all", label: "全部" }];
-  return <div className="space-y-3"><SelectField label="状态" options={options} value={value} onChange={setValue} placeholder="请选择" /><span className="text-xs text-slate-400">选中值：{value || "无"}</span></div>;
+  const multiOptions = [
+    { value: "hr", label: "人力资源" },
+    { value: "it", label: "信息技术" },
+    { value: "finance", label: "财务" },
+    { value: "production", label: "生产" },
+    { value: "qa", label: "质量" },
+  ];
+  return (
+    <div className="space-y-4">
+      <div className="space-y-1">
+        <p className="text-xs text-slate-400">单选</p>
+        <SelectField label="状态" options={options} value={value} onChange={setValue} placeholder="请选择" />
+        <p className="text-xs text-slate-400">选中值：{value || "无"}</p>
+      </div>
+      <div className="space-y-1">
+        <p className="text-xs text-slate-400">多选</p>
+        <SelectField multiple label="部门" options={multiOptions} value={multiValue} onChange={setMultiValue} placeholder="请选择" />
+        <p className="text-xs text-slate-400">选中值：{multiValue.join("、") || "无"}</p>
+      </div>
+    </div>
+  );
 }
 
 function SwitchFieldPreview() { const [boolValue, setBoolValue] = useState<boolean>(false); return <SwitchField checked={boolValue} onChange={setBoolValue} ariaLabel="启用开关" />; }
@@ -179,10 +200,77 @@ function TimeFieldPreview() {
   return <TimeField value={time} onChange={setTime} className="max-w-[8rem]" />;
 }
 
+function CreatePanelPreview() {
+  const [variant, setVariant] = useState<"inline" | "block" | "modal">("inline");
+  const [name, setName] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [open, setOpen] = useState(false);
+  const formContent = (
+    <>
+      <FormField label="名称" required><TextField value={name} onChange={setName} placeholder="输入名称" /></FormField>
+      <FormField label="类型"><SelectField value="" onChange={() => {}} options={[{ value: "", label: "请选择" }, { value: "a", label: "类型 A" }, { value: "b", label: "类型 B" }]} /></FormField>
+    </>
+  );
+  return (
+    <div className="max-w-2xl space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        {(["inline", "block", "modal"] as const).map((v) => (
+          <button
+            key={v}
+            type="button"
+            onClick={() => setVariant(v)}
+            className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${variant === v ? "border-emerald-600 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
+          >
+            {v}
+          </button>
+        ))}
+      </div>
+      {variant === "block" && (
+        <CreatePanel
+          variant="block"
+          title="新增项目阶段"
+          creating={creating}
+          canCreate
+          onStartCreate={() => setCreating(true)}
+          onSubmit={() => setCreating(false)}
+          onCancel={() => setCreating(false)}
+          createContent={formContent}
+        >
+          <p className="text-xs text-slate-400">非创建态下展示列表占位。</p>
+        </CreatePanel>
+      )}
+      {variant === "inline" && (
+        <CreatePanel
+          variant="inline"
+          title="新增员工"
+          onSubmit={() => {}}
+          onCancel={() => setName("")}
+        >
+          {formContent}
+        </CreatePanel>
+      )}
+      {variant === "modal" && (
+        <>
+          <button type="button" onClick={() => setOpen(true)} className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700">打开弹窗新建</button>
+          <CreatePanel
+            variant="modal"
+            title="弹窗新建"
+            open={open}
+            onSubmit={() => setOpen(false)}
+            onCancel={() => setOpen(false)}
+          >
+            {formContent}
+          </CreatePanel>
+        </>
+      )}
+    </div>
+  );
+}
+
 export const formPreviewByName: Record<string, FC> = {
   AutoSizeTextField: AutoSizeTextFieldPreview, BlockCreatePanel: BlockCreatePanelPreview, CalendarDateInput: CalendarDateInputPreview,
   CheckboxChip: CheckboxChipPreview, CheckboxField: CheckboxFieldPreview, ChoiceGroup: ChoiceGroupPreview,
-  CreateConfirmActions: CreateConfirmActionsPreview, CreateStartButton: CreateStartButtonPreview, FileField: FileFieldPreview,
+  CreateConfirmActions: CreateConfirmActionsPreview, CreatePanel: CreatePanelPreview, CreateStartButton: CreateStartButtonPreview, FileField: FileFieldPreview,
   FormField: FormFieldPreview, FormShell: FormShellPreview,
   getFieldInputClassName: getFieldInputClassNamePreview, getFieldGridCellClassName: getFieldGridCellClassNamePreview,
   getFieldGridLabelClassName: getFieldGridLabelClassNamePreview, getFieldGridValueClassName: getFieldGridValueClassNamePreview,

@@ -2,11 +2,12 @@
 
 import type { Dispatch, SetStateAction } from "react";
 import {
-  ActionToolbar,
+  DatabasePageFrame,
   EmptyStateCard,
   TabBar,
+  Toolbar,
+  type ToolbarItem,
 } from "@workspace/core/ui";
-import { DatabasePageFrame } from "@workspace/core/ui";
 import { employeeFields } from "@workspace/hr/constants";
 import type {
   ContractRow,
@@ -128,18 +129,38 @@ export default function EmployeeProfileView({
     />
   );
 
+  const toolbarItems: ToolbarItem[] = [
+    { kind: "custom", key: "tabs", section: "view", content: profileTabs },
+  ];
+
+  if (canEdit && activeSection !== "history") {
+    toolbarItems.push({
+      kind: "icon-button",
+      key: "save",
+      section: "action",
+      icon: "save",
+      label: saving === "all" ? "保存中..." : "保存",
+      variant: "primary",
+      disabled: saving !== null || !dirtyState.all,
+      onClick: onSaveAll,
+    });
+  }
+
+  toolbarItems.push({
+    kind: "icon-button",
+    key: "back",
+    section: "action",
+    icon: "cancel",
+    label: "返回列表",
+    variant: "secondary",
+    onClick: onBack,
+  });
+
   return (
     <DatabasePageFrame>
-      <ActionToolbar
-        className="sticky top-[52px] z-20 mb-0 rounded-b-none border-sky-200 border-b-0 bg-sky-100/30 shadow-none"
-        leftSlot={profileTabs}
-        primaryActions={canEdit && activeSection !== "history" ? [{
-          label: saving === "all" ? "保存中..." : "保存",
-          kind: "save",
-          disabled: saving !== null || !dirtyState.all,
-          onClick: onSaveAll,
-        }] : []}
-        secondaryActions={[{ label: "返回列表", kind: "cancel", onClick: onBack }]}
+      <Toolbar
+        className="sticky top-[52px] z-20 mb-0 rounded-b-none border-sky-200 border-b-0 bg-sky-100/30 p-4 shadow-none"
+        items={toolbarItems}
       />
 
       {error && <EmptyStateCard compact>{error}</EmptyStateCard>}

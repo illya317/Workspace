@@ -18,6 +18,7 @@ import { matchText } from "@workspace/core/search";
 import { ComponentPreview } from "./ComponentPreview";
 import FullToolbarDemo from "./FullToolbarDemo";
 import { previewCaseByName } from "./previews";
+import { useUiComponentVerified } from "./use-ui-component-verified";
 
 const TIER_LABELS: Record<CoreUiComponentTier, string> = {
   foundation: coreUiComponentTierMeta.foundation.label,
@@ -112,16 +113,7 @@ export default function UiComponentsShowcase() {
   const [kind, setKind] = useState<string>(ALL_KIND);
   const [query, setQuery] = useState("");
   const [scrollTarget, setScrollTarget] = useState<string | null>(null);
-  const [verifiedNames, setVerifiedNames] = useState<Set<string>>(new Set());
-
-  function toggleVerified(name: string) {
-    setVerifiedNames((prev) => {
-      const next = new Set(prev);
-      if (next.has(name)) next.delete(name);
-      else next.add(name);
-      return next;
-    });
-  }
+  const { verifiedNames, toggleVerified, canWrite } = useUiComponentVerified();
 
   const graph = useMemo(() => getCoreUiCompositionGraph(), []);
   const registryByName = useMemo(() => {
@@ -258,9 +250,10 @@ export default function UiComponentsShowcase() {
                 actions={(
                   <button
                     type="button"
+                    disabled={!canWrite}
                     onClick={() => toggleVerified(registration.name)}
-                    className={`transition ${verified ? "text-emerald-600" : "text-slate-300 hover:text-slate-400"}`}
-                    title={verified ? "已验证" : "未验证"}
+                    className={`transition ${verified ? "text-emerald-600" : "text-slate-300 hover:text-slate-400"} disabled:cursor-not-allowed disabled:opacity-50`}
+                    title={canWrite ? (verified ? "已验证" : "未验证") : "无权限修改"}
                     aria-label={`${registration.name} ${verified ? "已验证" : "未验证"}`}
                   >
                     <ActionGlyph kind="verified" className="h-5 w-5" />

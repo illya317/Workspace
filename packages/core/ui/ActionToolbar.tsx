@@ -31,32 +31,34 @@ export default function ActionToolbar({
       content: <div className="min-w-0 text-base font-semibold text-slate-900">{leftSlot}</div>,
     });
   }
-  secondaryActions.forEach((action, index) => {
-    items.push({
-      kind: "icon-button",
+  const actions = [
+    ...secondaryActions.map((action, index) => ({
       key: `secondary-${index}`,
-      section: "action",
-      icon: action.kind,
+      kind: action.kind,
       label: action.label,
       type: action.type,
       variant: action.variant,
       disabled: action.disabled,
       onClick: action.onClick,
-    });
-  });
-  primaryActions.forEach((action, index) => {
-    items.push({
-      kind: "icon-button",
+    })),
+    ...primaryActions.map((action, index) => ({
       key: `primary-${index}`,
-      section: "action",
-      icon: action.kind,
+      kind: action.kind,
       label: action.label,
       type: action.type,
       variant: action.variant ?? "primary",
       disabled: action.disabled,
       onClick: action.onClick,
+    })),
+  ];
+  if (actions.length > 0) {
+    items.push({
+      kind: "action-group",
+      key: "actions",
+      section: "edit",
+      actions,
     });
-  });
+  }
   if (rightSlot) {
     items.push({ kind: "custom", key: "right-slot", section: "action", content: rightSlot });
   }

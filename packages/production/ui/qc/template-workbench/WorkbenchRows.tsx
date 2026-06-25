@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { matchText } from "@workspace/core/search";
-import { ActionButton as CoreActionButton, PanelCard } from "@workspace/core/ui";
+import { PanelCard, getToolbarActionClassName } from "@workspace/core/ui";
 import type { QcTemplateDetail, QcTemplateFeedbackState, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 import {
   feedbackContext,
@@ -31,7 +31,7 @@ export function testMatches(test: QcTemplateTestItem, keyword: string) {
     .some((value) => matchText(String(value ?? ""), keyword));
 }
 
-function ActionButton({
+function RowActionButton({
   state,
   children,
   onClick,
@@ -47,13 +47,14 @@ function ActionButton({
       : "";
   const dotClass = state === "open" ? "bg-red-600" : state === "resolved" ? "bg-emerald-700" : "";
   return (
-    <CoreActionButton
+    <button
+      type="button"
       onClick={onClick}
-      className={`h-9 px-3 text-xs ${activeClass}`}
+      className={`${getToolbarActionClassName("secondary")} h-9 px-3 text-xs ${activeClass}`}
     >
       {state && <span className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full align-middle ${dotClass}`} />}
       {children}
-    </CoreActionButton>
+    </button>
   );
 }
 
@@ -86,8 +87,8 @@ function TemplateRow({
         </div>
       </div>
       <div className="flex shrink-0 gap-2 md:justify-self-end">
-        <ActionButton state={feedbackState} onClick={onFeedback}>反馈</ActionButton>
-        <ActionButton onClick={onPreview}>{previewLoading ? "加载中" : "预览"}</ActionButton>
+        <RowActionButton state={feedbackState} onClick={onFeedback}>反馈</RowActionButton>
+        <RowActionButton onClick={onPreview}>{previewLoading ? "加载中" : "预览"}</RowActionButton>
       </div>
     </div>
   );
@@ -180,9 +181,9 @@ export default function StageRows({
         </span>
       }
       actions={
-        <CoreActionButton onClick={onToggle} className="px-3 py-1.5 text-sm">
+        <button type="button" onClick={onToggle} className={`${getToolbarActionClassName("secondary", "sm")} px-3 py-1.5 text-sm`}>
           {expanded ? "收起" : "展开"} · {stage.tests.length} 个实验项目
-        </CoreActionButton>
+        </button>
       }
     >
       {expanded && (

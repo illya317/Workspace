@@ -1,9 +1,8 @@
 "use client";
 
-import { ActionButton, EmptyStateCard, SectionCard } from "@workspace/core/ui";
+import { EmptyStateCard, SectionCard, getToolbarActionClassName } from "@workspace/core/ui";
 import WorkForm from "./WorkForm";
 import type { WorkItem } from "./types";
-
 export interface WorkFormData {
   category: string;
   content: string;
@@ -12,7 +11,6 @@ export interface WorkFormData {
   participants: string;
   sortOrder: number;
 }
-
 interface WorkFormSectionProps {
   isAdmin: boolean;
   showForm: boolean;
@@ -21,41 +19,23 @@ interface WorkFormSectionProps {
   onCancelForm: () => void;
   onSave: (data: WorkFormData) => Promise<void>;
 }
-
 export default function WorkFormSection({
   isAdmin,
   showForm,
   editingWork,
   onAddClick,
   onCancelForm,
-  onSave,
+  onSave
 }: WorkFormSectionProps) {
-  return (
-    <SectionCard
-      title="部门工作计划"
-      className="mb-6"
-      actions={
-        isAdmin && !showForm && !editingWork ? (
-          <ActionButton onClick={onAddClick} variant="primary" className="ml-auto">
+  return <SectionCard title="部门工作计划" className="mb-6" actions={isAdmin && !showForm && !editingWork ? <button type="button" onClick={onAddClick} className={[getToolbarActionClassName("primary"), "ml-auto"].filter(Boolean).join(" ")}>
             + 添加工作项
-          </ActionButton>
-        ) : null
-      }
-    >
-      {!isAdmin && (
-        <EmptyStateCard compact className="mb-4">
+          </button> : null}>
+      {!isAdmin && <EmptyStateCard compact className="mb-4">
           仅部门管理员可编辑工作计划
-        </EmptyStateCard>
-      )}
+        </EmptyStateCard>}
 
-      {showForm && (
-        <div className="mb-6">
-          <WorkForm
-            onSave={onSave}
-            onCancel={onCancelForm}
-          />
-        </div>
-      )}
-    </SectionCard>
-  );
+      {showForm && <div className="mb-6">
+          <WorkForm onSave={onSave} onCancel={onCancelForm} />
+        </div>}
+    </SectionCard>;
 }

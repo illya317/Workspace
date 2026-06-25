@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CommandToolbar, CreateStartButton, DatabasePageFrame, EmptyStateCard, SplitWorkspace, SplitWorkspaceToolbar, Toast, ToolbarOptionGroup, useConfirm, useConfirmDelete } from "@workspace/core/ui";
+import { CreateStartButton, DatabasePageFrame, EmptyStateCard, ActionButton, SplitWorkspace, Toast, Toolbar, ToolbarOptionGroup, useConfirm, useConfirmDelete } from "@workspace/core/ui";
+import type { ToolbarItem } from "@workspace/core/ui";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 import type { WorkUser } from "@workspace/work/types";
 import ProjectDetailEditor from "./project/ProjectDetailEditor";
@@ -92,20 +93,57 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
   return (
     <>
       <div className="space-y-5">
-        <SplitWorkspaceToolbar
-          sideOpen={model.projectListOpen}
-          sideLabel="项目列表"
-          onSideOpenChange={model.setProjectListOpen}
-          onDrawerOpen={() => model.setProjectListDrawerOpen(true)}
-        >
-          <ProjectToolbar
-            canCreateProject={model.canCreateProject}
-            creating={model.creating}
-            filter={model.projectListFilter}
-            onCreate={startDepartmentProjectCreate}
-            onFilterChange={model.setProjectListFilter}
-          />
-        </SplitWorkspaceToolbar>
+        <Toolbar
+          variant="inline"
+          className="w-full justify-start"
+          items={[
+            {
+              kind: "custom",
+              key: "mobile-side-toggle",
+              section: "view",
+              content: (
+                <span className="lg:hidden">
+                  <ActionButton
+                    kind="panel-open"
+                    label="显示项目列表"
+                    onClick={() => model.setProjectListDrawerOpen(true)}
+                    className="!h-9 !w-10 !px-0"
+                  />
+                </span>
+              ),
+            },
+            {
+              kind: "custom",
+              key: "desktop-side-toggle",
+              section: "view",
+              content: (
+                <span className="hidden lg:block">
+                  <ActionButton
+                    kind={model.projectListOpen ? "panel-open" : "panel-close"}
+                    label={`${model.projectListOpen ? "隐藏" : "显示"}项目列表`}
+                    onClick={() => model.setProjectListOpen(!model.projectListOpen)}
+                    variant={model.projectListOpen ? "primary" : "secondary"}
+                    className="!h-9 !w-10 !px-0"
+                  />
+                </span>
+              ),
+            },
+            {
+              kind: "custom",
+              key: "project-toolbar",
+              section: "edit",
+              content: (
+                <ProjectToolbar
+                  canCreateProject={model.canCreateProject}
+                  creating={model.creating}
+                  filter={model.projectListFilter}
+                  onCreate={startDepartmentProjectCreate}
+                  onFilterChange={model.setProjectListFilter}
+                />
+              ),
+            },
+          ]}
+        />
         <SplitWorkspace
           sideOpen={model.projectListOpen}
           drawerOpen={model.projectListDrawerOpen}
@@ -178,20 +216,29 @@ function ProjectToolbar({
   onCreate: () => void;
   onFilterChange: (filter: ProjectListFilter) => void;
 }) {
-  return (
-    <CommandToolbar
-      className="w-full"
-      viewControls={canCreateProject ? (
-        <CreateStartButton label="新建部门项目" active={creating} onClick={onCreate} />
-      ) : undefined}
-      filters={
+  const items = [
+    canCreateProject
+      ? ({
+          kind: "custom",
+          key: "create",
+          section: "view",
+          content: <CreateStartButton label="新建部门项目" active={creating} onClick={onCreate} />,
+        } as ToolbarItem)
+      : null,
+    {
+      kind: "custom",
+      key: "filter",
+      section: "filter",
+      content: (
         <ToolbarOptionGroup
           ariaLabel="项目筛选"
           value={filter}
           options={PROJECT_LIST_FILTER_OPTIONS}
           onChange={(value) => onFilterChange(value as ProjectListFilter)}
         />
-      }
-    />
-  );
+      ),
+    } as ToolbarItem,
+  ].filter((item): item is ToolbarItem => item !== null);
+
+  return <Toolbar items={items} className="w-full" />;
 }

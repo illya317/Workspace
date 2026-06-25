@@ -1,38 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import {
-  ActionButton,
-  ModuleCardBody,
-  getModuleCardClassName,
-  type ModuleCardColor,
-  type ModuleCardProps,
-} from "@workspace/core/ui";
-
+import { ModuleCardBody, getModuleCardClassName, type ModuleCardColor, type ModuleCardProps, getToolbarActionClassName } from "@workspace/core/ui";
 export type { ModuleCardColor, ModuleCardProps };
-
-export default function ModuleCard({ href, onClick, className = "", ...props }: ModuleCardProps) {
+export default function ModuleCard({
+  href,
+  onClick,
+  className = "",
+  ...props
+}: ModuleCardProps) {
   const mergedClassName = getModuleCardClassName(props.color, className);
   const body = <ModuleCardBody {...props} />;
-
   if (href) {
-    return (
-      <Link href={href} className={mergedClassName}>
+    return <Link href={href} className={mergedClassName}>
         {body}
-      </Link>
-    );
+      </Link>;
   }
-
   if (onClick) {
-    return (
-      <ActionButton
-        onClick={onClick}
-        className={`${mergedClassName} border-0 text-inherit`}
-      >
+    return <button type="button" onClick={onClick} className={[getToolbarActionClassName(), `${mergedClassName} border-0 text-inherit`].filter(Boolean).join(" ")}>
         {body}
-      </ActionButton>
-    );
+      </button>;
   }
-
   return <section className={mergedClassName}>{body}</section>;
 }

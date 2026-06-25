@@ -10,7 +10,7 @@ function ToastPreview() {
   const [show, setShow] = useState(false);
   return (
     <div className="flex flex-col items-start gap-2">
-      <ActionButton variant="primary" onClick={() => setShow(true)}>显示成功提示</ActionButton>
+      <ActionButton kind="check" label="显示成功提示" variant="primary" onClick={() => setShow(true)} />
       <Toast message="保存成功" show={show} onClose={() => setShow(false)} />
     </div>
   );

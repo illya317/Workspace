@@ -6,7 +6,7 @@ import { useLibraryFilters } from "../hooks/useLibraryFilters";
 import { useLibraryDirectories } from "../hooks/useLibraryDirectories";
 import LibrarySidebar from "./LibrarySidebar";
 import LibraryTable from "./LibraryTable";
-import { ActionToolbar, EmptyStateCard, FilterToolbar, Pagination, SelectField } from "@workspace/core/ui";
+import { EmptyStateCard, Pagination, SelectField, Toolbar, type ToolbarItem } from "@workspace/core/ui";
 import { WorkspaceSplitPage } from "@workspace/core/ui";
 import GenerateDocumentModal from "./GenerateDocumentModal";
 
@@ -63,9 +63,20 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
         onDrawerOpenChange={setSidebarDrawerOpen}
         renderSide={(mode) => (
           <>
-            <ActionToolbar
-              leftSlot={<span className="text-xs font-medium text-gray-500">目录</span>}
-              secondaryActions={mode === "drawer" ? [{ label: "关闭", kind: "cancel", onClick: () => setSidebarDrawerOpen(false) }] : []}
+            <Toolbar
+              items={[
+                { kind: "custom", key: "title", section: "view", content: <span className="text-xs font-medium text-gray-500">目录</span> },
+                ...(mode === "drawer"
+                  ? [
+                      {
+                        kind: "action-group" as const,
+                        key: "close",
+                        section: "action" as const,
+                        actions: [{ key: "close", kind: "cancel" as const, label: "关闭", onClick: () => setSidebarDrawerOpen(false) }],
+                      },
+                    ]
+                  : []),
+              ] satisfies ToolbarItem[]}
               className="mb-3"
             />
             {dirError && <EmptyStateCard compact className="mb-3 border-red-100 bg-red-50 text-red-600">目录加载失败: {dirError}</EmptyStateCard>}
@@ -81,30 +92,63 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
           </>
         )}
         beforeSplit={(
-          <FilterToolbar
-            keyword={filters.keyword || ""}
-            onKeywordChange={(value) => setFilter("keyword", value || undefined)}
-            searchScope={["标题", "文件名", "简介", "标签"]}
-            searchPlaceholder="搜索"
-            onReset={clearFilters}
-            resetLabel="清除筛选"
-            primaryAction={canWrite ? { label: "+ 生成文档", onClick: () => setShowGenerate(true) } : undefined}
-          >
-            <SelectField
-              value={filters.status || ""}
-              onChange={(value) => setFilter("status", value || undefined)}
-              options={STATUS_OPTIONS.slice(1)}
-              placeholder={STATUS_OPTIONS[0]?.label}
-            />
-            <SelectField
-              value={filters.confidentialityLevel !== undefined ? String(filters.confidentialityLevel) : ""}
-              onChange={(value) =>
-                setFilter("confidentialityLevel", value ? parseInt(value, 10) : undefined)
-              }
-              options={CONFIDENTIALITY_OPTIONS.slice(1)}
-              placeholder={CONFIDENTIALITY_OPTIONS[0]?.label}
-            />
-          </FilterToolbar>
+          <Toolbar
+            items={[
+              ...(canWrite
+                ? [
+                    {
+                      kind: "icon-button" as const,
+                      key: "primary",
+                      section: "filter" as const,
+                      icon: "add" as const,
+                      label: "+ 生成文档",
+                      variant: "primary" as const,
+                      onClick: () => setShowGenerate(true),
+                    },
+                  ]
+                : []),
+              {
+                kind: "search" as const,
+                key: "search",
+                section: "filter" as const,
+                value: filters.keyword || "",
+                onChange: (value: string) => setFilter("keyword", value || undefined),
+                placeholder: "搜索",
+                scope: ["标题", "文件名", "简介", "标签"] as const,
+              },
+              {
+                kind: "custom" as const,
+                key: "filters",
+                section: "filter" as const,
+                content: (
+                  <>
+                    <SelectField
+                      value={filters.status || ""}
+                      onChange={(value) => setFilter("status", value || undefined)}
+                      options={STATUS_OPTIONS.slice(1)}
+                      placeholder={STATUS_OPTIONS[0]?.label}
+                    />
+                    <SelectField
+                      value={filters.confidentialityLevel !== undefined ? String(filters.confidentialityLevel) : ""}
+                      onChange={(value) =>
+                        setFilter("confidentialityLevel", value ? parseInt(value, 10) : undefined)
+                      }
+                      options={CONFIDENTIALITY_OPTIONS.slice(1)}
+                      placeholder={CONFIDENTIALITY_OPTIONS[0]?.label}
+                    />
+                  </>
+                ),
+              },
+              {
+                kind: "icon-button" as const,
+                key: "reset",
+                section: "filter" as const,
+                icon: "reset" as const,
+                label: "清除筛选",
+                onClick: clearFilters,
+              },
+            ] satisfies ToolbarItem[]}
+          />
         )}
       >
         {error && <EmptyStateCard compact className="mt-4 border-red-100 bg-red-50 text-red-600">{error}</EmptyStateCard>}

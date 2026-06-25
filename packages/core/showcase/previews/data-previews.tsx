@@ -4,7 +4,6 @@ import { useState, type FC } from "react";
 import {
   AmountCell,
   CodeBlock,
-  ColumnToggle,
   DataTable,
   DataTableActionsCell,
   DisclosureRecordCard,
@@ -14,25 +13,6 @@ import {
   TableScrollFrame,
 } from "@workspace/core/ui";
 import type { RegistryBrowserItem } from "@workspace/core/ui";
-
-function ColumnTogglePreview() {
-  const [visibleColumns, setVisibleColumns] = useState<string[]>(["name", "status", "amount"]);
-  return (
-    <div className="inline-flex items-center gap-2">
-      <ColumnToggle
-        columns={[
-          { key: "name", label: "名称", required: true },
-          { key: "status", label: "状态", defaultVisible: true },
-          { key: "amount", label: "金额", defaultVisible: true },
-          { key: "owner", label: "负责人" },
-          { key: "updated", label: "更新时间" },
-        ]}
-        visible={visibleColumns}
-        onChange={setVisibleColumns}
-      />
-    </div>
-  );
-}
 
 function CodeBlockPreview() {
   return (
@@ -137,7 +117,7 @@ function RegistryBrowserCardPreview() {
       example: "详情页保存、取消、删除",
       includedComponents: [],
       foundationComponents: ["getToolbarActionClassName"],
-      usedBy: ["ActionToolbar", "IconActionButton"],
+      usedBy: ["ActionToolbar", "ActionButton"],
       usageFiles: ["packages/core/ui/ActionControls.tsx"],
     },
     {
@@ -241,7 +221,6 @@ function dataTableClassNamesPreview() {
 }
 
 export const dataPreviewByName: Record<string, FC> = {
-  ColumnToggle: ColumnTogglePreview,
   CodeBlock: CodeBlockPreview,
   DataTable: DataTablePreview,
   DataTableActionsCell: DataTableActionsCellPreview,

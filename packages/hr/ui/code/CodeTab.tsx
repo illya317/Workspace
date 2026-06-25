@@ -2,10 +2,9 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect } from "react";
-import EditToolbar from "@workspace/core/ui/EditToolbar";
 import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
 import Toast from "@workspace/core/ui/Toast";
-import { ActionToolbar, EmptyStateCard, PanelCard } from "@workspace/core/ui";
+import { EmptyStateCard, PanelCard, Toolbar, type ToolbarItem } from "@workspace/core/ui";
 import { useCodeTab } from "./useCodeTab";
 import CodeTable from "./CodeTable";
 
@@ -129,23 +128,30 @@ export default function CodeTab({
 
   return (
     <div className="space-y-4">
-      <ActionToolbar
+      <Toolbar
         className="border-0 bg-transparent p-0 shadow-none"
-        leftSlot={title}
-        rightSlot={hrCanAccess(user, "hr.roster") ? (
-          <EditToolbar
-            editMode={editMode}
-            onStartEdit={() => setEditMode(true)}
-            onSave={handleSave}
-            onCancel={() => {
-              setEditRow(null);
-              setEditMode(false);
-            }}
-            canEdit={hrCanEdit(user)}
-            onShowHistory={() => setShowHistory(true)}
-            saving={saving}
-          />
-        ) : null}
+        items={[
+          { kind: "custom", key: "title", section: "view", content: title },
+          ...(hrCanAccess(user, "hr.roster")
+            ? [
+                {
+                  kind: "edit-group" as const,
+                  key: "edit",
+                  section: "edit" as const,
+                  editMode,
+                  onStartEdit: () => setEditMode(true),
+                  onSave: handleSave,
+                  onCancel: () => {
+                    setEditRow(null);
+                    setEditMode(false);
+                  },
+                  canEdit: hrCanEdit(user),
+                  onShowHistory: () => setShowHistory(true),
+                  saving,
+                } satisfies ToolbarItem,
+              ]
+            : []),
+        ]}
       />
 
       <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">

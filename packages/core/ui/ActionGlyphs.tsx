@@ -1,33 +1,155 @@
-export type ActionGlyphKind =
-  | "add"
-  | "edit"
-  | "check"
-  | "verified"
-  | "cancel"
-  | "copy"
-  | "save"
-  | "delete"
-  | "delete-bin"
-  | "delete-minus"
-  | "view"
-  | "eye"
-  | "eye-off"
-  | "search"
-  | "filter"
-  | "refresh"
-  | "more"
-  | "download"
-  | "upload"
-  | "archive"
-  | "list"
-  | "history"
-  | "panel-open"
-  | "panel-close";
+/* eslint-disable max-lines */
+/**
+ * 工具栏、行内动作、图标按钮的统一图标集合。
+ * 这是封闭集合：新增图标必须经整体 UI 评审，禁止业务侧自行引入其他图标。
+ */
+export const ACTION_GLYPH_KINDS = [
+  "add",
+  "edit",
+  "check",
+  "verified",
+  "cancel",
+  "copy",
+  "save",
+  "delete",
+  "delete-bin",
+  "delete-minus",
+  "view",
+  "eye-off",
+  "search",
+  "filter",
+  "refresh",
+  "reset",
+  "restore",
+  "link",
+  "unlink",
+  "settings",
+  "generate",
+  "print",
+  "lock",
+  "unlock",
+  "sort",
+  "more",
+  "download",
+  "upload",
+  "archive",
+  "list",
+  "history",
+  "panel-open",
+  "panel-close",
+] as const;
+
+export type ActionGlyphKind = (typeof ACTION_GLYPH_KINDS)[number];
 
 export interface ActionGlyphProps {
   kind: ActionGlyphKind;
   className?: string;
 }
+
+export interface ActionGlyphGroup {
+  key: string;
+  label: string;
+  representative: ActionGlyphKind;
+  kinds: readonly ActionGlyphKind[];
+}
+
+export const ACTION_GLYPH_GROUPS = [
+  { key: "create", label: "新建", representative: "add", kinds: ["add"] },
+  { key: "edit", label: "编辑保存", representative: "edit", kinds: ["edit", "save"] },
+  { key: "confirm", label: "确认状态", representative: "check", kinds: ["check", "verified", "cancel"] },
+  { key: "delete", label: "删除", representative: "delete-bin", kinds: ["delete", "delete-bin", "delete-minus"] },
+  { key: "view", label: "查看显示", representative: "view", kinds: ["view", "eye-off", "list", "panel-open", "panel-close"] },
+  { key: "filter", label: "搜索筛选", representative: "search", kinds: ["search", "filter", "sort"] },
+  { key: "refresh", label: "刷新恢复", representative: "refresh", kinds: ["refresh", "reset", "history"] },
+  { key: "transfer", label: "传输归档", representative: "download", kinds: ["download", "upload", "archive", "restore"] },
+  { key: "relation", label: "关联复制", representative: "link", kinds: ["link", "unlink", "copy"] },
+  { key: "system", label: "系统权限", representative: "settings", kinds: ["settings", "lock", "unlock"] },
+  { key: "output", label: "生成打印", representative: "generate", kinds: ["generate", "print"] },
+  { key: "more", label: "更多", representative: "more", kinds: ["more"] },
+] as const satisfies readonly ActionGlyphGroup[];
+
+export type ActionGlyphGroupKey = (typeof ACTION_GLYPH_GROUPS)[number]["key"];
+
+type ActionGlyphGroupDefinition = (typeof ACTION_GLYPH_GROUPS)[number];
+
+export interface ActionGlyphToolbarGroup {
+  key: string;
+  label: string;
+  groupKeys: readonly ActionGlyphGroupKey[];
+}
+
+export const ACTION_GLYPH_TOOLBAR_GROUPS = [
+  { key: "primary", label: "核心操作", groupKeys: ["create", "edit", "confirm", "delete"] },
+  { key: "browse", label: "浏览筛选", groupKeys: ["view", "filter", "refresh"] },
+  { key: "extended", label: "扩展动作", groupKeys: ["transfer", "relation", "system", "output", "more"] },
+] as const satisfies readonly ActionGlyphToolbarGroup[];
+
+export type ActionGlyphToolbarGroupKey = (typeof ACTION_GLYPH_TOOLBAR_GROUPS)[number]["key"];
+
+export interface ActionGlyphOrderItem {
+  icon: ActionGlyphKind;
+  group: ActionGlyphToolbarGroupKey;
+  subgroup: ActionGlyphGroupKey;
+  order: number;
+}
+
+export const ACTION_GLYPH_ORDER = [
+  { icon: "add", group: "primary", subgroup: "create", order: 10000 },
+  { icon: "edit", group: "primary", subgroup: "edit", order: 11000 },
+  { icon: "save", group: "primary", subgroup: "edit", order: 11100 },
+  { icon: "check", group: "primary", subgroup: "confirm", order: 12000 },
+  { icon: "verified", group: "primary", subgroup: "confirm", order: 12100 },
+  { icon: "cancel", group: "primary", subgroup: "confirm", order: 12200 },
+  { icon: "delete-bin", group: "primary", subgroup: "delete", order: 13000 },
+  { icon: "delete", group: "primary", subgroup: "delete", order: 13100 },
+  { icon: "delete-minus", group: "primary", subgroup: "delete", order: 13200 },
+
+  { icon: "view", group: "browse", subgroup: "view", order: 20000 },
+  { icon: "eye-off", group: "browse", subgroup: "view", order: 20100 },
+  { icon: "list", group: "browse", subgroup: "view", order: 20200 },
+  { icon: "panel-open", group: "browse", subgroup: "view", order: 20300 },
+  { icon: "panel-close", group: "browse", subgroup: "view", order: 20400 },
+  { icon: "search", group: "browse", subgroup: "filter", order: 21000 },
+  { icon: "filter", group: "browse", subgroup: "filter", order: 21100 },
+  { icon: "sort", group: "browse", subgroup: "filter", order: 21200 },
+  { icon: "refresh", group: "browse", subgroup: "refresh", order: 22000 },
+  { icon: "reset", group: "browse", subgroup: "refresh", order: 22100 },
+  { icon: "history", group: "browse", subgroup: "refresh", order: 22200 },
+
+  { icon: "download", group: "extended", subgroup: "transfer", order: 30000 },
+  { icon: "upload", group: "extended", subgroup: "transfer", order: 30100 },
+  { icon: "archive", group: "extended", subgroup: "transfer", order: 30200 },
+  { icon: "restore", group: "extended", subgroup: "transfer", order: 30300 },
+  { icon: "link", group: "extended", subgroup: "relation", order: 31000 },
+  { icon: "unlink", group: "extended", subgroup: "relation", order: 31100 },
+  { icon: "copy", group: "extended", subgroup: "relation", order: 31200 },
+  { icon: "settings", group: "extended", subgroup: "system", order: 32000 },
+  { icon: "lock", group: "extended", subgroup: "system", order: 32100 },
+  { icon: "unlock", group: "extended", subgroup: "system", order: 32200 },
+  { icon: "generate", group: "extended", subgroup: "output", order: 33000 },
+  { icon: "print", group: "extended", subgroup: "output", order: 33100 },
+  { icon: "more", group: "extended", subgroup: "more", order: 34000 },
+] as const satisfies readonly ActionGlyphOrderItem[];
+
+type ActionGlyphOrderDefinition = (typeof ACTION_GLYPH_ORDER)[number];
+
+export const ACTION_GLYPH_ORDER_BY_KIND: Record<ActionGlyphKind, ActionGlyphOrderDefinition> = ACTION_GLYPH_ORDER.reduce(
+  (acc, item) => {
+    acc[item.icon] = item;
+    return acc;
+  },
+  {} as Record<ActionGlyphKind, ActionGlyphOrderDefinition>,
+);
+
+export const ACTION_GLYPH_GROUP_BY_KIND: Record<ActionGlyphKind, ActionGlyphGroupDefinition> = ACTION_GLYPH_GROUPS.reduce(
+  (acc, group) => {
+    group.kinds.forEach((kind) => {
+      acc[kind] = group;
+    });
+    return acc;
+  },
+  {} as Record<ActionGlyphKind, ActionGlyphGroupDefinition>,
+);
 
 export function ActionGlyph({ kind, className = "h-5 w-5" }: ActionGlyphProps) {
   if (kind === "add") {
@@ -106,14 +228,6 @@ export function ActionGlyph({ kind, className = "h-5 w-5" }: ActionGlyphProps) {
       </svg>
     );
   }
-  if (kind === "eye") {
-    return (
-      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} viewBox="0 0 24 24">
-        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-        <circle cx="12" cy="12" r="3" />
-      </svg>
-    );
-  }
   if (kind === "eye-off") {
     return (
       <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} viewBox="0 0 24 24">
@@ -144,6 +258,95 @@ export function ActionGlyph({ kind, className = "h-5 w-5" }: ActionGlyphProps) {
         <path d="M34.7 33.7l-1.5-1.3c1.8-2 2.8-4.6 2.8-7.3 0-6.1-4.9-11-11-11-1.6 0-3.1.3-4.6 1l-.8-1.8c1.7-.8 3.5-1.2 5.4-1.2 7.2 0 13 5.8 13 13 0 3.1-1.2 6.2-3.3 8.6z" />
         <path d="M18 24h-2v-6h-6v-2h8z" />
         <path d="M40 34h-8v-8h2v6h6z" />
+      </svg>
+    );
+  }
+  if (kind === "reset") {
+    return (
+      <svg aria-hidden="true" className={className} fill="currentColor" viewBox="0 0 32 32">
+        <path d="M18,28A12,12,0,1,0,6,16v6.2L2.4,18.6,1,20l6,6,6-6-1.4-1.4L8,22.2V16H8A10,10,0,1,1,18,26Z" />
+      </svg>
+    );
+  }
+  if (kind === "restore") {
+    return (
+      <svg aria-hidden="true" className={className} fill="currentColor" stroke="currentColor" strokeLinejoin="round" strokeWidth={0.45} viewBox="0 0 36 36">
+        <rect x="6" y="22" width="24" height="2" />
+        <rect x="26" y="26" width="4" height="2" />
+        <path d="M13,9.92,17,6V19a1,1,0,1,0,2,0V6l4,3.95A1,1,0,1,0,24.38,8.5L18,2.16,11.61,8.5A1,1,0,0,0,13,9.92Z" />
+        <path d="M30.84,13.37A1.94,1.94,0,0,0,28.93,12H21v2h7.95C30,16.94,31.72,21.65,32,22.48V30H4V22.48C4.28,21.65,7.05,14,7.05,14H15V12H7.07a1.92,1.92,0,0,0-1.9,1.32C2,22,2,22.1,2,22.33V30a2,2,0,0,0,2,2H32a2,2,0,0,0,2-2V22.33C34,22.1,34,22,30.84,13.37Z" />
+      </svg>
+    );
+  }
+  if (kind === "link") {
+    return (
+      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} viewBox="0 0 24 24">
+        <path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1" />
+        <path d="M14 11a5 5 0 0 0-7.1 0l-2 2a5 5 0 0 0 7.1 7.1l1.1-1.1" />
+      </svg>
+    );
+  }
+  if (kind === "unlink") {
+    return (
+      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} viewBox="0 0 24 24">
+        <path d="M14 11a5 5 0 0 0-7.1 0l-2 2a5 5 0 0 0 7.1 7.1l1.1-1.1" />
+        <path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1" />
+        <path d="M4 4l16 16" />
+      </svg>
+    );
+  }
+  if (kind === "settings") {
+    return (
+      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} viewBox="0 0 24 24">
+        <path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z" />
+        <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 0 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1A2 2 0 0 1 4.2 17l.1-.1A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.6-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1A2 2 0 0 1 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.6V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.6h.1a1.7 1.7 0 0 0 1.9-.3l.1-.1A2 2 0 0 1 19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.6 1h.1a2 2 0 0 1 0 4H21a1.7 1.7 0 0 0-1.6 1z" />
+      </svg>
+    );
+  }
+  if (kind === "generate") {
+    return (
+      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} viewBox="0 0 24 24">
+        <path d="M14.5 4.5 13 8l-3.5 1.5L13 11l1.5 3.5L16 11l3.5-1.5L16 8z" />
+        <path d="M6.5 13.5 5.7 15.3 4 16l1.7.7.8 1.8.8-1.8L9 16l-1.7-.7z" />
+        <path d="M7.5 3.5 7 4.7 5.8 5.2 7 5.7l.5 1.2.5-1.2 1.2-.5L8 4.7z" />
+      </svg>
+    );
+  }
+  if (kind === "print") {
+    return (
+      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.9} viewBox="0 0 24 24">
+        <path d="M7 8V3h10v5" />
+        <path d="M7 17H5a2 2 0 0 1-2-2v-4a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v4a2 2 0 0 1-2 2h-2" />
+        <path d="M7 14h10v7H7z" />
+        <path d="M17 11h.01" />
+      </svg>
+    );
+  }
+  if (kind === "lock") {
+    return (
+      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.9} viewBox="0 0 24 24">
+        <rect x="5" y="10" width="14" height="10" rx="2" />
+        <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+        <path d="M12 14v2" />
+      </svg>
+    );
+  }
+  if (kind === "unlock") {
+    return (
+      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.9} viewBox="0 0 24 24">
+        <rect x="5" y="10" width="14" height="10" rx="2" />
+        <path d="M8 10V7a4 4 0 0 1 7.6-1.7" />
+        <path d="M12 14v2" />
+      </svg>
+    );
+  }
+  if (kind === "sort") {
+    return (
+      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.9} viewBox="0 0 24 24">
+        <path d="M8 4v16" />
+        <path d="m5 7 3-3 3 3" />
+        <path d="M16 20V4" />
+        <path d="m13 17 3 3 3-3" />
       </svg>
     );
   }

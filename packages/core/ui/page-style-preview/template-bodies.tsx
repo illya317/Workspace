@@ -1,14 +1,18 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ActionButton } from "../ActionControls";
 import { AnalysisBlock, MetricCard, PanelCard } from "../BaseCards";
 import Badge from "../Badge";
+import { getToolbarActionClassName } from "../toolbar-styles";
 import QcPaperPreview from "./QcPaperPreview";
 import { PreviewTable } from "./sample-data";
 import { usePageStylePreviewSamples } from "./sample-context";
 import { DetailStats, FormGrid } from "./template-fields";
 import type { EmbeddedTemplate, ModuleTemplate, PageTemplate } from "./template-data";
+
+function PreviewTextButton({ children, variant = "secondary" }: { children: ReactNode; variant?: "primary" | "secondary" | "danger" }) {
+  return <button type="button" className={getToolbarActionClassName(variant)}>{children}</button>;
+}
 
 export function TemplateBody({
   module,
@@ -46,7 +50,7 @@ function EmbeddedDetail({ detail }: { detail: EmbeddedTemplate }) {
     return (
       <PanelCard
         title={detail.title}
-        actions={templateMode ? <ActionButton>开发模式</ActionButton> : <ActionButton>预览</ActionButton>}
+        actions={templateMode ? <PreviewTextButton>开发模式</PreviewTextButton> : <PreviewTextButton>预览</PreviewTextButton>}
         bodyClassName="space-y-4 p-4"
       >
         <div className="flex flex-wrap gap-2">
@@ -73,8 +77,8 @@ function EmbeddedDetail({ detail }: { detail: EmbeddedTemplate }) {
 function EmbeddedActions({ detail }: { detail: EmbeddedTemplate }) {
   return (
     <>
-      {detail.previewAction && <ActionButton>预览</ActionButton>}
-      <ActionButton variant="primary">保存</ActionButton>
+      {detail.previewAction && <PreviewTextButton>预览</PreviewTextButton>}
+      <PreviewTextButton variant="primary">保存</PreviewTextButton>
     </>
   );
 }
@@ -120,8 +124,8 @@ function FormBody({ page }: { page: PageTemplate }) {
   const restFields = fields.slice(9);
   const actions = (
     <>
-      {page.previewAction && <ActionButton>预览</ActionButton>}
-      <ActionButton variant="primary">保存</ActionButton>
+      {page.previewAction && <PreviewTextButton>预览</PreviewTextButton>}
+      <PreviewTextButton variant="primary">保存</PreviewTextButton>
     </>
   );
 
@@ -227,7 +231,7 @@ function ProductionBody({ page }: { page: PageTemplate }) {
       </PanelCard>
       <PanelCard
         title={templateMode ? `布局预览：${qcPaper.title.replace(/^一、/, "")}` : page.title}
-        actions={templateMode ? <ActionButton>开发模式</ActionButton> : <ActionButton variant="primary">提交</ActionButton>}
+        actions={templateMode ? <PreviewTextButton>开发模式</PreviewTextButton> : <PreviewTextButton variant="primary">提交</PreviewTextButton>}
         bodyClassName="space-y-4 p-4"
       >
         <div className="flex flex-wrap gap-2">
