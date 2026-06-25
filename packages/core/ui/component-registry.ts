@@ -34,9 +34,9 @@ export const coreUiComponentKindMeta = {
     label: "单元格展示",
     description: "表格或列表里的数值、金额、状态等微型展示单元。",
   },
-  data: {
-    label: "数据视图",
-    description: "表格、列控制、密集数据阅读和行级数据呈现。",
+  status: {
+    label: "状态标识",
+    description: "徽标、开关状态、层级状态和可视状态切换。",
   },
   feedback: {
     label: "反馈提示",
@@ -46,9 +46,13 @@ export const coreUiComponentKindMeta = {
     label: "表单输入",
     description: "搜索、日期、字段输入、内联创建等可编辑输入 primitive。",
   },
-  layout: {
-    label: "页面骨架",
-    description: "页面内容区、卡片、分栏、模块入口和通用结构容器。",
+  picker: {
+    label: "选择器",
+    description: "FK 搜索、选项选择、实体选择面板和组合选择容器。",
+  },
+  data: {
+    label: "数据视图",
+    description: "表格、列控制、密集数据阅读和行级数据呈现。",
   },
   navigation: {
     label: "导航切换",
@@ -58,17 +62,13 @@ export const coreUiComponentKindMeta = {
     label: "弹层确认",
     description: "确认弹窗、详情弹层、Modal 容器和 Provider。",
   },
-  picker: {
-    label: "选择器",
-    description: "FK 搜索、选项选择、实体选择面板和组合选择容器。",
-  },
-  status: {
-    label: "状态标识",
-    description: "徽标、开关状态、层级状态和可视状态切换。",
-  },
   toolbar: {
     label: "工具栏",
     description: "筛选栏、操作栏、分栏工具条和页面动作集合。",
+  },
+  layout: {
+    label: "页面骨架",
+    description: "页面内容区、卡片、分栏、模块入口和通用结构容器。",
   },
 } as const satisfies Record<CoreUiComponentKind, { label: string; description: string }>;
 
@@ -100,7 +100,7 @@ export const coreUiComponentRegistry = [
   { name: "AmountCell", tier: "primitive", kind: "cell", description: "金额单元格，统一数值对齐、正负值和空值展示。", example: "在财务表格中展示 ¥ 12,800.00，并保持金额列右对齐。", composes: ["NumberCell"] },
   { name: "AnalysisBlock", tier: "assembly", kind: "layout", description: "分析页内容块，用于 KPI、图表或摘要区的统一分组。", example: "在人事分析页包裹趋势图、KPI 和预警摘要。", composes: ["PanelCard"] },
   { name: "AnalysisPageFrame", tier: "frame", kind: "layout", description: "分析页骨架，统一页内 Tab、指标条和分析内容块间距。", example: "人力分析或财务分析页面只传 tabs、metrics 和 AnalysisBlock 内容。", composes: ["PageContent", "TabBar"] },
-  { name: "EntitySelectorPanel", tier: "assembly", kind: "picker", description: "实体范围选择面板，支持 Tab 切换、搜索和单列选择；业务文案可表达为现用、全部或已归档等语义。", example: "选择现用、全部或已归档实体时，业务只传入文案和数据。", composes: ["EmptyStateCard", "PanelCard", "SearchInput"] },
+  { name: "EntitySelectorPanel", tier: "assembly", kind: "picker", description: "实体范围选择面板，支持 Tab 切换和单列选择；业务文案可表达为现用、全部或已归档等语义。", example: "选择现用、全部或已归档实体时，业务只传入文案和数据。", composes: ["EmptyStateCard", "PanelCard"] },
   { name: "AutoSizeTextField", tier: "primitive", kind: "form", description: "自适应宽度文本输入 primitive，用于表格行内编辑等紧凑场景。", example: "HR 批量表格中编辑手机号或身份证号时，输入框随内容宽度伸缩。" },
   { name: "BlockCreatePanel", tier: "assembly", kind: "form", description: "块状新建模式，用于需要多行或多字段的新建表单；标题旁只承载 +、取消和确认动作，编辑入口应放到行级 DataTable actions。", example: "项目阶段和项目任务这类多字段新增，不常驻表单，点击标题旁 + 后展开维护。", composes: ["SectionCard", "CreateStartButton", "CreateConfirmActions"] },
   { name: "CalendarDateInput", tier: "primitive", kind: "form", description: "日期输入 primitive，替代原生 date input 并统一日期交互；时间必须使用 TimeField 单独表达。", example: "在人事入职日期或合同截止日期字段中选择 2026-06-20。", foundations: ["getFieldInputClassName"] },

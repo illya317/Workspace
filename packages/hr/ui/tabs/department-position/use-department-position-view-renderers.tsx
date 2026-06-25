@@ -220,13 +220,11 @@ export function useDepartmentPositionViewRenderers(props: {
         archivedDepartments={props.archivedDepartments}
         archivedPositions={props.archivedPositions}
         archivedTab={props.archivedTab}
-        search={props.search}
         selection={props.selection}
         sideOpen={true}
         drawerOpen={props.treeDrawerOpen}
         toast={props.toast}
         onArchivedTabChange={props.onArchivedTabChange}
-        onSearchChange={props.onSearchChange}
         onSideOpenChange={props.onSideOpenChange}
         onDrawerOpenChange={props.onDrawerOpenChange}
         onSelect={props.onSelect}

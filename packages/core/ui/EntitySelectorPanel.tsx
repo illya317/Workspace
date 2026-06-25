@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 
 import { EmptyStateCard, PanelCard } from "./Card";
-import SearchInput from "./SearchInput";
 
 function joinClassNames(...classNames: Array<string | false | null | undefined>) {
   return classNames.filter(Boolean).join(" ");
@@ -27,9 +26,6 @@ export interface EntitySelectorPanelProps<T extends string> {
   tabs: EntitySelectorTab<T>[];
   activeTab: T;
   onTabChange: (tab: T) => void;
-  searchValue: string;
-  onSearchChange: (value: string) => void;
-  searchPlaceholder?: string;
   items: EntitySelectorItem[];
   activeItemId?: string | number | null;
   onItemSelect: (item: EntitySelectorItem) => void;
@@ -37,7 +33,6 @@ export interface EntitySelectorPanelProps<T extends string> {
   onClose?: () => void;
   className?: string;
   showHeader?: boolean;
-  showSearch?: boolean;
 }
 
 export default function EntitySelectorPanel<T extends string>({
@@ -46,9 +41,6 @@ export default function EntitySelectorPanel<T extends string>({
   tabs,
   activeTab,
   onTabChange,
-  searchValue,
-  onSearchChange,
-  searchPlaceholder = "搜索名称、编码",
   items,
   activeItemId,
   onItemSelect,
@@ -56,7 +48,6 @@ export default function EntitySelectorPanel<T extends string>({
   onClose,
   className = "",
   showHeader = true,
-  showSearch = true,
 }: EntitySelectorPanelProps<T>) {
   return (
     <PanelCard className={className} bodyClassName="p-3">
@@ -98,15 +89,6 @@ export default function EntitySelectorPanel<T extends string>({
           </button>
         ))}
       </div>
-
-      {showSearch && (
-        <SearchInput
-          value={searchValue}
-          onChange={onSearchChange}
-          placeholder={searchPlaceholder}
-          className="mt-3"
-        />
-      )}
 
       <div className="mt-3 max-h-[620px] space-y-2 overflow-auto">
         {items.length === 0 ? (

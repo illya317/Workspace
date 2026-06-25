@@ -16,7 +16,6 @@ import {
 
 function EntitySelectorPanelPreview() {
   const [tab, setTab] = useState<"active" | "archived">("active");
-  const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | number | null>("emp-1");
   const items = [
     { id: "emp-1", title: "张三", code: "EMP001", badge: <Badge label="现用" tone="emerald" />, meta: "人力资源部" },
@@ -34,8 +33,6 @@ function EntitySelectorPanelPreview() {
         ]}
         activeTab={tab}
         onTabChange={setTab}
-        searchValue={query}
-        onSearchChange={setQuery}
         items={items}
         activeItemId={selectedId}
         onItemSelect={(item) => setSelectedId(item.id)}

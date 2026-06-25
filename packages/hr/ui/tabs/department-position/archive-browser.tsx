@@ -15,13 +15,11 @@ export function ArchivedDepartmentPositionPage({
   archivedDepartments,
   archivedPositions,
   archivedTab,
-  search,
   selection,
   sideOpen,
   drawerOpen,
   toast,
   onArchivedTabChange,
-  onSearchChange,
   onSideOpenChange,
   onDrawerOpenChange,
   onSelect,
@@ -31,13 +29,11 @@ export function ArchivedDepartmentPositionPage({
   archivedDepartments: Department[];
   archivedPositions: Position[];
   archivedTab: ArchivedEntityTab;
-  search: string;
   selection: Selection;
   sideOpen: boolean;
   drawerOpen: boolean;
   toast: { message: string; type: "success" | "error" } | null;
   onArchivedTabChange: (tab: ArchivedEntityTab) => void;
-  onSearchChange: (value: string) => void;
   onSideOpenChange: (open: boolean) => void;
   onDrawerOpenChange: (open: boolean) => void;
   onSelect: (selection: Selection) => void;
@@ -82,10 +78,7 @@ export function ArchivedDepartmentPositionPage({
             ]}
             activeTab={archivedTab}
             onTabChange={(tab) => onArchivedTabChange(tab)}
-            searchValue={search}
-            onSearchChange={onSearchChange}
             showHeader={false}
-            showSearch={false}
             items={archivedItems}
             activeItemId={activeItemId}
             emptyText={archivedTab === "departments" ? "暂无归档部门" : "暂无归档岗位"}
