@@ -252,7 +252,7 @@ export default function UiComponentsShowcase() {
                     type="button"
                     disabled={!canWrite}
                     onClick={() => toggleVerified(registration.name)}
-                    className={`transition ${verified ? "text-emerald-600" : "text-slate-300 hover:text-slate-400"} disabled:cursor-not-allowed disabled:opacity-50`}
+                    className={`transition ${verified ? "text-emerald-600" : "text-red-500 hover:text-red-600"} disabled:cursor-not-allowed disabled:opacity-50`}
                     title={canWrite ? (verified ? "已验证" : "未验证") : "无权限修改"}
                     aria-label={`${registration.name} ${verified ? "已验证" : "未验证"}`}
                   >
