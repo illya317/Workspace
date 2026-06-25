@@ -40,7 +40,7 @@ export const NEST_DEPTH_CAP = 6;
 
 export function formatNestDepth(depth: number): string {
   if (depth >= NEST_DEPTH_CAP) return `${NEST_DEPTH_CAP}+`;
-  return String(depth);
+  return `${depth}+`;
 }
 
 export function nestDepthBadgeClasses(depth: number): string {
