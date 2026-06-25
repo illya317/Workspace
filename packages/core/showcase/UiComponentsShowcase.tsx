@@ -3,16 +3,14 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   ActionGlyph,
-  CommandToolbar,
   coreUiComponentKindMeta,
   coreUiComponentRegistry,
   coreUiComponentTierMeta,
   EmptyStateCard,
   PageContent,
   PanelCard,
-  SearchInput,
-  SelectField,
-  ToolbarOptionGroup,
+  Toolbar,
+  type ToolbarItem,
 } from "@workspace/core/ui";
 import { getCoreUiCompositionGraph } from "@workspace/core/ui/component-registry";
 import type { CoreUiComponentRegistration, CoreUiComponentTier } from "@workspace/core/ui";
@@ -174,42 +172,57 @@ export default function UiComponentsShowcase() {
     });
   }, [tier, kind, query]);
 
+  const toolbarItems: ToolbarItem[] = useMemo(
+    () => [
+      // view: 层级切换（option-group）
+      {
+        kind: "option-group",
+        key: "tier",
+        section: "view",
+        value: tier,
+        options: TIERS.map((value) => ({ value, label: TIER_LABELS[value] })),
+        onChange: (value) => {
+          setTier(value as CoreUiComponentTier);
+          setKind(ALL_KIND);
+        },
+        ariaLabel: "注册项层级",
+      },
+      // filter: 分类下拉（select）
+      {
+        kind: "select",
+        key: "kind",
+        section: "filter",
+        value: kind,
+        options: kindOptions,
+        onChange: setKind,
+        placeholder: "全部分类",
+        triggerClassName: "!w-32",
+      },
+      // filter: 关键词搜索（search）
+      {
+        kind: "search",
+        key: "query",
+        section: "filter",
+        value: query,
+        onChange: setQuery,
+        placeholder: "搜索注册项...",
+        ariaLabel: "搜索注册项",
+        className: "w-48",
+      },
+      // meta: 结果计数（text）
+      {
+        kind: "text",
+        key: "count",
+        section: "meta",
+        content: <>共 {filteredItems.length} 个注册项</>,
+      },
+    ],
+    [tier, kind, query, filteredItems.length, kindOptions],
+  );
+
   return (
     <PageContent className="max-w-6xl py-8">
-      <CommandToolbar
-        viewControls={(
-          <ToolbarOptionGroup
-            ariaLabel="注册项层级"
-            value={tier}
-            options={TIERS.map((value) => ({
-              value,
-              label: TIER_LABELS[value],
-            }))}
-            onChange={(value) => {
-              setTier(value as CoreUiComponentTier);
-              setKind(ALL_KIND);
-            }}
-          />
-        )}
-        filters={(
-          <>
-            <SelectField
-              ariaLabel="注册项分类"
-              options={kindOptions}
-              value={kind}
-              onChange={setKind}
-              className="w-32"
-            />
-            <SearchInput
-              value={query}
-              onChange={setQuery}
-              placeholder="搜索注册项..."
-              className="w-48"
-            />
-          </>
-        )}
-        meta={<>共 {filteredItems.length} 个注册项</>}
-      />
+      <Toolbar items={toolbarItems} className="mb-5" />
 
       <div className="mt-5 columns-1 gap-4 md:columns-2">
         {filteredItems.map((component) => {
