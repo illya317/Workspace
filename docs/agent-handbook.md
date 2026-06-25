@@ -35,17 +35,15 @@ git -c credential.helper= -c credential.helper='!cnb git-credential' push cnb ma
 
 生产发布流程：
 
+1. 运行私有发布脚本（会自动注入真实 `.cnb.yml` 并推送 `cnb-release` 分支）：
+
 ```bash
-sha="$(git rev-parse HEAD)"
-cnb build start-build \
-  --repo <CNB_REPO> \
-  --branch cnb-release \
-  --sha "$sha" \
-  --event api_trigger_manual \
-  --title "deploy ${sha:0:8}" \
-  --sync false \
-  --verbose
+OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env $PRIVATE_OPS_DIR/scripts/release-to-cnb.sh
 ```
+
+2. 复制脚本输出的 `cnb build start-build` 命令并执行，触发部署。该命令中的 `--sha` 已经是注入真实 CNB 配置后的 release commit，不要用手动 `git rev-parse HEAD` 替换。
+
+3. 部署后用返回的 `sn` 查询状态：
 
 部署后用返回的 `sn` 查询状态：
 
