@@ -63,6 +63,11 @@ export default function SearchableOptionInput({
   const [activeIndex, setActiveIndex] = useState(0);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const currentOption = useMemo(
+    () => options.find((option) => option.value === current),
+    [current, options],
+  );
+  const currentLabel = currentOption ? optionLabel(currentOption) : current;
 
   const filteredOptions = useMemo(() => {
     const keyword = query.trim();
@@ -81,8 +86,8 @@ export default function SearchableOptionInput({
   }, [maxResults, options, query, visibleCount]);
 
   useEffect(() => {
-    setQuery(current);
-  }, [current]);
+    setQuery(currentLabel);
+  }, [currentLabel]);
 
   useEffect(() => {
     setActiveIndex(0);
@@ -93,13 +98,13 @@ export default function SearchableOptionInput({
     function onPointerDown(event: PointerEvent) {
       if (!rootRef.current?.contains(event.target as Node)) {
         setOpen(false);
-        setQuery(current);
+        setQuery(currentLabel);
       }
     }
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setOpen(false);
-        setQuery(current);
+        setQuery(currentLabel);
       }
     }
     document.addEventListener("pointerdown", onPointerDown);
@@ -108,11 +113,11 @@ export default function SearchableOptionInput({
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [current, open]);
+  }, [currentLabel, open]);
 
   function choose(option?: SearchableOption | null) {
     onChange(option?.value ?? null, option ?? undefined);
-    setQuery(option?.value ?? "");
+    setQuery(option ? optionLabel(option) : "");
     setOpen(false);
   }
 
@@ -131,7 +136,8 @@ export default function SearchableOptionInput({
       event.preventDefault();
       choose(filteredOptions[activeIndex]);
     } else if (event.key === "Tab") {
-      const exact = filteredOptions.find((option) => option.value === query.trim());
+      const trimmed = query.trim();
+      const exact = filteredOptions.find((option) => option.value === trimmed || optionLabel(option) === trimmed);
       if (exact) choose(exact);
     }
   }

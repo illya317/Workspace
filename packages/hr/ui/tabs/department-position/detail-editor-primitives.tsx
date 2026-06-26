@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import {
+  CommandButton,
   FormField,
   InputControl,
   PanelCard,
@@ -116,13 +117,18 @@ export function StringListEditor({
   placeholder?: string;
 }) {
   const [draft, setDraft] = useState("");
+  const [editing, setEditing] = useState(false);
   const items = primitiveListItems(value);
 
   function commitDraft() {
     const nextItems = primitiveListItems(draft);
-    if (nextItems.length === 0) return;
+    if (nextItems.length === 0) {
+      setEditing(false);
+      return;
+    }
     onChange([...items, ...nextItems].filter((item, index, array) => array.indexOf(item) === index));
     setDraft("");
+    setEditing(false);
   }
 
   function removeItem(index: number) {
@@ -144,26 +150,43 @@ export function StringListEditor({
         shellClassName="content-start"
       >
         {!disabled && (
-          <InputControl
-            spec={{ valueType: "string", editor: "input" }}
-            value={draft}
-            onChange={(next) => setDraft(String(next ?? ""))}
-            onBlur={commitDraft}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === "Tab" || event.key === "," || event.key === "，" || event.key === "、") {
-                if (draft.trim()) {
-                  event.preventDefault();
-                  commitDraft();
+          editing ? (
+            <InputControl
+              spec={{ valueType: "string", editor: "input" }}
+              value={draft}
+              autoFocus
+              onChange={(next) => setDraft(String(next ?? ""))}
+              onBlur={commitDraft}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === "Tab" || event.key === "," || event.key === "，" || event.key === "、") {
+                  if (draft.trim()) {
+                    event.preventDefault();
+                    commitDraft();
+                  }
                 }
-              }
-              if (event.key === "Backspace" && !draft && items.length > 0) {
-                removeItem(items.length - 1);
-              }
-            }}
-            placeholder={items.length === 0 ? placeholder : ""}
-            density="compact"
-            className={items.length === 0 ? "min-w-32 flex-1" : "w-16 flex-none"}
-          />
+                if (event.key === "Escape") {
+                  setDraft("");
+                  setEditing(false);
+                }
+                if (event.key === "Backspace" && !draft && items.length > 0) {
+                  removeItem(items.length - 1);
+                }
+              }}
+              placeholder={items.length === 0 ? placeholder : ""}
+              density="compact"
+              className={items.length === 0 ? "min-w-32 flex-1" : "w-16 flex-none"}
+            />
+          ) : (
+            <CommandButton
+              aria-label={placeholder}
+              title={placeholder}
+              onClick={() => setEditing(true)}
+              size="sm"
+              className="!size-7 !rounded-full !border-slate-200 !bg-slate-50 !p-0 text-base font-semibold leading-none !text-slate-700 hover:!border-slate-300 hover:!bg-slate-100"
+            >
+              +
+            </CommandButton>
+          )
         )}
       </TagListInput>
     </div>

@@ -50,7 +50,21 @@ export function QcBatchCreatePanel({
   if (!open) return null;
   return <CreatePanel variant="inline" title="新建批次" onSubmit={onSubmit} onCancel={onCancel} submitDisabled={submitting || !productKey || !batchNumber.trim()} submitting={submitting}>
       <FormField label="产品" required>
-        <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: products.map(product => ({ value: product.id, label: product.productName })) } }} value={productKey} onChange={(value) => onProductKeyChange(String(value ?? ""))} />
+        <InputControl
+          spec={{
+            valueType: "string",
+            editor: "autocomplete",
+            options: {
+              source: "static",
+              mode: "autocomplete",
+              visibleCount: 5,
+              items: products.map(product => ({ value: product.id, label: product.productName })),
+            },
+          }}
+          value={productKey}
+          onChange={(value) => onProductKeyChange(String(value ?? ""))}
+          placeholder="搜索产品"
+        />
       </FormField>
       <FormField label="批号" required>
         <InputControl spec={{ valueType: "string", editor: "input" }} value={batchNumber} onChange={(value) => onBatchNumberChange(String(value ?? ""))} placeholder="请输入批号" className="w-36" />

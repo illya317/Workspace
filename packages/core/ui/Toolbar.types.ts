@@ -64,6 +64,19 @@ export interface ToolbarSelectItem extends ToolbarItemBase {
   triggerClassName?: string;
 }
 
+export interface ToolbarAutocompleteItem extends ToolbarItemBase {
+  kind: "autocomplete";
+  key: string;
+  value: string;
+  options: SelectFieldOption[];
+  onChange: (value: string) => void;
+  placeholder?: string;
+  ariaLabel?: string;
+  visibleCount?: number;
+  className?: string;
+  inputClassName?: string;
+}
+
 export interface ToolbarOptionGroupItem extends ToolbarItemBase {
   kind: "option-group";
   key: string;
@@ -182,6 +195,7 @@ export type ToolbarItem =
   | ToolbarPanelToggleItem
   | ToolbarSearchItem
   | ToolbarSelectItem
+  | ToolbarAutocompleteItem
   | ToolbarOptionGroupItem
   | ToolbarFieldFilterItem
   | ToolbarColumnToggleItem

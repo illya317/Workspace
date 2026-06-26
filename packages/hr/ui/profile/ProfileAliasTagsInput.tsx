@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import {
+  CommandButton,
   InputControl,
   TagListInput,
 } from "@workspace/core/ui";
@@ -56,13 +57,18 @@ export function AliasTagEditor({
   onChange: (value: string | null) => void;
 }) {
   const [draft, setDraft] = useState("");
+  const [editing, setEditing] = useState(false);
   const tags = useMemo(() => readAliasTags(value), [value]);
 
   function commitDraft() {
     const nextTags = splitDraftTags(draft);
-    if (nextTags.length === 0) return;
+    if (nextTags.length === 0) {
+      setEditing(false);
+      return;
+    }
     onChange(serializeAliasTags([...tags, ...nextTags]));
     setDraft("");
+    setEditing(false);
   }
 
   function removeTag(index: number) {
@@ -80,23 +86,40 @@ export function AliasTagEditor({
       shellClassName="content-start"
     >
       {!disabled && (
-        <InputControl
-          spec={{ valueType: "string", editor: "input" }}
-          value={draft}
-          onChange={(next) => setDraft(String(next ?? ""))}
-          onBlur={commitDraft}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === "Tab" || event.key === "," || event.key === "，" || event.key === "、") {
-              if (draft.trim()) {
-                event.preventDefault();
-                commitDraft();
+        editing ? (
+          <InputControl
+            spec={{ valueType: "string", editor: "input" }}
+            value={draft}
+            autoFocus
+            onChange={(next) => setDraft(String(next ?? ""))}
+            onBlur={commitDraft}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === "Tab" || event.key === "," || event.key === "，" || event.key === "、") {
+                if (draft.trim()) {
+                  event.preventDefault();
+                  commitDraft();
+                }
               }
-            }
-            if (event.key === "Backspace" && !draft && tags.length > 0) removeTag(tags.length - 1);
-          }}
-          placeholder={tags.length === 0 ? "添加别名" : ""}
-          density="compact"
-        />
+              if (event.key === "Escape") {
+                setDraft("");
+                setEditing(false);
+              }
+              if (event.key === "Backspace" && !draft && tags.length > 0) removeTag(tags.length - 1);
+            }}
+            placeholder={tags.length === 0 ? "添加别名" : ""}
+            density="compact"
+          />
+        ) : (
+          <CommandButton
+            aria-label="添加别名"
+            title="添加别名"
+            onClick={() => setEditing(true)}
+            size="sm"
+            className="!size-7 !rounded-full !border-slate-200 !bg-slate-50 !p-0 text-base font-semibold leading-none !text-slate-700 hover:!border-slate-300 hover:!bg-slate-100"
+          >
+            +
+          </CommandButton>
+        )
       )}
     </TagListInput>
   );

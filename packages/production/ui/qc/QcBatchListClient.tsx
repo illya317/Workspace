@@ -137,9 +137,10 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
         setPage(1);
       },
       ariaLabel: "批次状态",
+      presentation: "segmented",
     },
     {
-      kind: "select",
+      kind: "autocomplete",
       key: "product",
       section: "filter",
       value: productFilter,
@@ -148,8 +149,9 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
         setPage(1);
       },
       placeholder: "全部",
+      visibleCount: 5,
       options: productFilterOptions,
-      triggerClassName: "min-w-[7.5rem]",
+      inputClassName: "min-w-[7.5rem]",
     },
     {
       kind: "action-group",

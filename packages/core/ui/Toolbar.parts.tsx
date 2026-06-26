@@ -8,10 +8,12 @@ import { CONTROL_SIZES, TEXT_STYLES } from "./interactionTokens";
 import type { ControlSize } from "./interactionTokens";
 import FieldValueFilter from "./FieldValueFilter";
 import SearchInput from "./SearchInput";
+import SearchableOptionInput from "./SearchableOptionInput";
 import SelectField from "./SelectField";
 import { ToolbarPeriodControl } from "./ToolbarPeriodControl";
 import ToolbarOptionGroup from "./ToolbarOptionGroup";
 import type { ToolbarItem } from "./Toolbar.types";
+import { joinClassNames } from "./card-utils";
 
 export function ToolbarDivider() {
   return <span aria-hidden="true" className="hidden h-6 w-px shrink-0 bg-slate-200 sm:inline-block" />;
@@ -84,6 +86,19 @@ function renderOrderedActions(actions: ToolbarRenderableAction[], keyPrefix: str
   });
 }
 
+function getToolbarAutocompleteInputClassName(size: ControlSize, className?: string) {
+  return joinClassNames(
+    "border border-slate-200 bg-white font-semibold text-slate-700 shadow-sm placeholder:text-slate-400 transition focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:bg-slate-100 disabled:text-slate-500",
+    CONTROL_SIZES[size].height,
+    CONTROL_SIZES[size].radius,
+    CONTROL_SIZES[size].paddingX,
+    CONTROL_SIZES[size].text,
+    CONTROL_SIZES[size].leading,
+    CONTROL_SIZES[size].minWidth,
+    className,
+  );
+}
+
 export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; size?: ControlSize }) {
   switch (item.kind) {
     case "icon-button":
@@ -130,6 +145,18 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
           appearance="toolbar"
           className={item.className}
           triggerClassName={item.triggerClassName}
+        />
+      );
+    case "autocomplete":
+      return (
+        <SearchableOptionInput
+          value={item.value}
+          options={item.options}
+          onChange={(next) => item.onChange(next ?? "")}
+          placeholder={item.placeholder}
+          maxResults={item.visibleCount ?? 5}
+          className={item.className}
+          inputClassName={getToolbarAutocompleteInputClassName(size, item.inputClassName)}
         />
       );
     case "option-group":
