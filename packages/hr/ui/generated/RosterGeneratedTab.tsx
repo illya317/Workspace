@@ -38,6 +38,7 @@ export default function RosterGeneratedTab({ variant, canEdit }: { variant: Rost
   const [error, setError] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [pageSize, setPageSize] = useState("50");
 
   const columns = useMemo(() => preview?.columns ?? [], [preview]);
   const columnDefs = useMemo<ColumnDef[]>(
@@ -59,7 +60,7 @@ export default function RosterGeneratedTab({ variant, canEdit }: { variant: Rost
   useEffect(() => {
     void loadPreview();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variant, status]);
+  }, [variant, status, pageSize]);
 
   async function loadPreview() {
     setLoading(true);
@@ -69,7 +70,7 @@ export default function RosterGeneratedTab({ variant, canEdit }: { variant: Rost
       const params = new URLSearchParams({
         variant,
         status,
-        pageSize: "100",
+        pageSize,
       });
       if (keyword.trim()) params.set("keyword", keyword.trim());
       if (filterField && filterValue) {
@@ -205,16 +206,21 @@ export default function RosterGeneratedTab({ variant, canEdit }: { variant: Rost
           },
           {
             kind: "text",
-            key: "meta",
+            key: "meta-count",
             section: "meta",
-            content: preview ? (
-              <>
-                <span>{preview.title}</span>
-                <span>{preview.totalEmployees} 人</span>
-                <span>{preview.totalRows} 行</span>
-                {editMode && <span>编辑仅影响本次预览和导出</span>}
-              </>
-            ) : null,
+            content: preview ? <span>共 {preview.totalEmployees} 人</span> : null,
+          },
+          {
+            kind: "select",
+            key: "page-size",
+            section: "meta",
+            value: pageSize,
+            options: [
+              { value: "50", label: "50条/页" },
+              { value: "100", label: "100条/页" },
+              { value: "200", label: "200条/页" },
+            ],
+            onChange: setPageSize,
           },
         ] satisfies ToolbarItem[]}
       />

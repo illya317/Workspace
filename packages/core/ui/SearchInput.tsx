@@ -15,7 +15,7 @@ export interface SearchInputProps {
   onKeyDown?: KeyboardEventHandler<HTMLInputElement>;
 }
 
-const SEARCH_INPUT_CLASSES = "h-9 w-36 rounded-md border border-sky-200 bg-white px-3 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:bg-sky-100/60 disabled:text-slate-500";
+const SEARCH_INPUT_CLASSES = "h-9 w-36 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:bg-slate-100 disabled:text-slate-500";
 
 function getDisplayPlaceholder(placeholder: string) {
   if (placeholder.startsWith("搜索") && placeholder.length > 6) return "搜索";

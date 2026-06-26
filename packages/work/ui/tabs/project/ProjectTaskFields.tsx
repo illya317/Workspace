@@ -1,13 +1,24 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { CalendarDateInput, CommandButton, FkFieldInput, FormField, OptionPicker, PanelCard, TagListInput, TextareaField, TextField, type FkFieldOption, type PickerOption } from "@workspace/core/ui";
+import {
+  CalendarDateInput,
+  CommandButton,
+  FieldGrid,
+  FkFieldInput,
+  OptionPicker,
+  PanelCard,
+  ReadOnlyField,
+  TagListInput,
+  TextareaField,
+  TextField,
+  type FkFieldOption,
+  type PickerOption,
+} from "@workspace/core/ui";
 import { PROJECT_MILESTONE_PICKER_OPTIONS, type ProjectTaskDraft, type ProjectTaskItem } from "./model";
 import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
 import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
-const inputClassName = "h-10";
-const pickerButtonClassName = `${inputClassName} text-left`;
-const pickerPopoverClassName = "absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-64 rounded-lg border border-slate-200 bg-white p-3 shadow-xl";
+
 export function ProjectTaskForm({
   draft,
   disabled,
@@ -19,7 +30,7 @@ export function ProjectTaskForm({
   onChange,
   onSubmit,
   onCancel,
-  framed = true
+  framed = true,
 }: {
   draft: ProjectTaskDraft;
   disabled: boolean;
@@ -38,81 +49,98 @@ export function ProjectTaskForm({
     blockedPredecessorIds.add(String(excludedTaskId));
     for (const id of downstreamTaskIds(tasks, excludedTaskId)) blockedPredecessorIds.add(String(id));
   }
-  const predecessorOptions = taskOptions.filter(option => !blockedPredecessorIds.has(option.value));
-  const taskLabelById = new Map(taskOptions.map(option => [Number(option.value), option.label]));
-  const phaseOptions = phases.map(phase => ({
+  const predecessorOptions = taskOptions.filter((option) => !blockedPredecessorIds.has(option.value));
+  const taskLabelById = new Map(taskOptions.map((option) => [Number(option.value), option.label]));
+  const phaseOptions = phases.map((phase) => ({
     value: String(phase.id),
-    label: phase.name
+    label: phase.name,
   }));
-  const selectedPhase = phases.find(phase => phase.id === draft.planPhaseId) ?? null;
-  const phaseHint = selectedPhase ? `阶段范围：${selectedPhase.startDate || "未设置"} - ${selectedPhase.endDate || "未设置"}` : phaseOptions.length > 0 ? "未选择时任务直接显示在项目下" : "暂无项目阶段，任务会直接显示在项目下";
+  const selectedPhase = phases.find((phase) => phase.id === draft.planPhaseId) ?? null;
+  const phaseHint = selectedPhase
+    ? `阶段范围：${selectedPhase.startDate || "未设置"} - ${selectedPhase.endDate || "未设置"}`
+    : undefined;
+
   function patch(next: Partial<ProjectTaskDraft>) {
-    onChange({
-      ...draft,
-      ...next
-    });
+    onChange({ ...draft, ...next });
   }
   function setOwner(option?: FkFieldOption) {
     patch({
       ownerEmployeeId: option?.id ?? null,
       ownerEmployeeNumber: option?.subtitle ?? null,
-      ownerEmployeeName: option?.name ?? null
+      ownerEmployeeName: option?.name ?? null,
     });
   }
   function addPredecessor(value: string | null) {
     if (!value) return;
     const id = Number(value);
     if (!Number.isInteger(id) || draft.predecessorTaskIds.includes(id)) return;
-    patch({
-      predecessorTaskIds: [...draft.predecessorTaskIds, id]
-    });
+    patch({ predecessorTaskIds: [...draft.predecessorTaskIds, id] });
   }
   function removePredecessor(id: number) {
-    patch({
-      predecessorTaskIds: draft.predecessorTaskIds.filter(item => item !== id)
-    });
+    patch({ predecessorTaskIds: draft.predecessorTaskIds.filter((item) => item !== id) });
   }
-  return <FormWrapper framed={framed}>
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
-        <FormField label="任务名称" required className="lg:col-span-2">
-          <TextField value={draft.name} disabled={disabled} className={inputClassName} onChange={value => patch({
-          name: value
-        })} unstyled />
-        </FormField>
-        <FormField label="项目阶段">
-          <OptionPicker value={draft.planPhaseId ? String(draft.planPhaseId) : null} options={phaseOptions} disabled={disabled || phaseOptions.length === 0} placeholder={phaseOptions.length > 0 ? "选择项目阶段（可选）" : "无项目阶段"} onChange={value => patch({
-          planPhaseId: value ? Number(value) : null
-        })} visibleCount={6} buttonClassName={pickerButtonClassName} popoverClassName={pickerPopoverClassName} />
-          <p className="mt-1 text-xs font-medium text-slate-400">{phaseHint}</p>
-        </FormField>
-        <FormField label="负责人">
-          <FkFieldInput fkKey="work.projects.member.employee" endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT} value={draft.ownerEmployeeNumber || ""} displayValue={draft.ownerEmployeeName || ""} disabled={disabled} placeholder="搜索负责人" onChange={(_label, option) => setOwner(option)} />
-        </FormField>
-        <FormField label="里程碑">
-          <OptionPicker value={draft.isMilestone ? "true" : "false"} options={PROJECT_MILESTONE_PICKER_OPTIONS} disabled={disabled} onChange={value => patch({
-          isMilestone: value === "true"
-        })} visibleCount={2} buttonClassName={pickerButtonClassName} popoverClassName={pickerPopoverClassName} />
-        </FormField>
-        <DateField label="基线开始" value={draft.baselineStartDate} disabled={disabled} onChange={value => patch({
-        baselineStartDate: value
-      })} />
-        <DateField label="基线结束" value={draft.baselineEndDate} disabled={disabled} onChange={value => patch({
-        baselineEndDate: value
-      })} />
-        <DateField label="实际开始" value={draft.startDate} disabled={disabled} onChange={value => patch({
-        startDate: value
-      })} />
-        <DateField label="实际结束" value={draft.endDate} disabled={disabled} onChange={value => patch({
-        endDate: value
-      })} />
-        <FormField label="任务描述" className="lg:col-span-4">
-          <TextareaField value={draft.description} disabled={disabled} rows={2} className="text-sm" onChange={value => patch({
-          description: value
-        })} />
-        </FormField>
-        <FormField label="前置任务" className="lg:col-span-4">
+
+  return (
+    <FormWrapper framed={framed}>
+      <FieldGrid columns={3} mode="mixed">
+        <FieldGrid.Cell label="任务名称" required span="wide">
+          <TextField value={draft.name} disabled={disabled} onChange={(value) => patch({ name: value })} />
+        </FieldGrid.Cell>
+        <FieldGrid.Cell label="项目阶段" hint={phaseHint}>
+          <OptionPicker
+            value={draft.planPhaseId ? String(draft.planPhaseId) : null}
+            options={phaseOptions}
+            disabled={disabled || phaseOptions.length === 0}
+            placeholder={phaseOptions.length > 0 ? "选择项目阶段（可选）" : "无项目阶段"}
+            onChange={(value) => patch({ planPhaseId: value ? Number(value) : null })}
+            visibleCount={6}
+          />
+        </FieldGrid.Cell>
+        <FieldGrid.Cell label="负责人">
+          <FkFieldInput
+            fkKey="work.projects.member.employee"
+            endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
+            value={draft.ownerEmployeeNumber || ""}
+            displayValue={draft.ownerEmployeeName || ""}
+            disabled={disabled}
+            placeholder="搜索负责人"
+            onChange={(_label, option) => setOwner(option)}
+          />
+        </FieldGrid.Cell>
+        <FieldGrid.Cell label="里程碑">
+          <OptionPicker
+            value={draft.isMilestone ? "true" : "false"}
+            options={PROJECT_MILESTONE_PICKER_OPTIONS}
+            disabled={disabled}
+            onChange={(value) => patch({ isMilestone: value === "true" })}
+            visibleCount={2}
+          />
+        </FieldGrid.Cell>
+        <FieldGrid.Cell label="基线开始">
+          <CalendarDateInput value={draft.baselineStartDate} disabled={disabled} onChange={(value) => patch({ baselineStartDate: value })} popoverMode="fixed" />
+        </FieldGrid.Cell>
+        <FieldGrid.Cell label="基线结束">
+          <CalendarDateInput value={draft.baselineEndDate} disabled={disabled} onChange={(value) => patch({ baselineEndDate: value })} popoverMode="fixed" />
+        </FieldGrid.Cell>
+        <FieldGrid.Cell label="实际开始">
+          <CalendarDateInput value={draft.startDate} disabled={disabled} onChange={(value) => patch({ startDate: value })} popoverMode="fixed" />
+        </FieldGrid.Cell>
+        <FieldGrid.Cell label="实际结束">
+          <CalendarDateInput value={draft.endDate} disabled={disabled} onChange={(value) => patch({ endDate: value })} popoverMode="fixed" />
+        </FieldGrid.Cell>
+        <FieldGrid.Cell label="任务描述" span="wide">
+          <TextareaField value={draft.description} disabled={disabled} rows={2} onChange={(value) => patch({ description: value })} />
+        </FieldGrid.Cell>
+        <FieldGrid.Cell label="前置任务" span="wide">
           <div className="space-y-2">
-            <OptionPicker value={null} options={predecessorOptions} disabled={disabled || predecessorOptions.length === 0} placeholder={predecessorOptions.length > 0 ? "添加前置任务" : "无可选前置任务"} onChange={addPredecessor} visibleCount={6} buttonClassName={pickerButtonClassName} popoverClassName={pickerPopoverClassName} />
+            <OptionPicker
+              value={null}
+              options={predecessorOptions}
+              disabled={disabled || predecessorOptions.length === 0}
+              placeholder={predecessorOptions.length > 0 ? "添加前置任务" : "无可选前置任务"}
+              onChange={addPredecessor}
+              visibleCount={6}
+            />
             {draft.predecessorTaskIds.length > 0 && (
               <TagListInput
                 items={draft.predecessorTaskIds}
@@ -121,75 +149,61 @@ export function ProjectTaskForm({
                 onRemove={(_, index) => removePredecessor(draft.predecessorTaskIds[index])}
                 disabled={disabled}
                 confirm={false}
-                className="mt-2"
-                shellClassName="flex flex-wrap gap-2 border-0 bg-transparent p-0 shadow-none"
               />
             )}
           </div>
-        </FormField>
-      </div>
-      {(onCancel || submitLabel && onSubmit) && <div className="mt-3 flex flex-wrap justify-end gap-2">
+        </FieldGrid.Cell>
+      </FieldGrid>
+      {(onCancel || (submitLabel && onSubmit)) && (
+        <div className="mt-3 flex flex-wrap justify-end gap-2">
           {onCancel && <CommandButton disabled={disabled} onClick={onCancel}>取消</CommandButton>}
-          {submitLabel && onSubmit && <CommandButton variant="primary" disabled={disabled} onClick={onSubmit}>{submitLabel}</CommandButton>}
-        </div>}
-    </FormWrapper>;
+          {submitLabel && onSubmit && (
+            <CommandButton variant="primary" disabled={disabled} onClick={onSubmit}>{submitLabel}</CommandButton>
+          )}
+        </div>
+      )}
+    </FormWrapper>
+  );
 }
-function FormWrapper({
-  framed,
-  children
-}: {
-  framed: boolean;
-  children: ReactNode;
-}) {
+
+function FormWrapper({ framed, children }: { framed: boolean; children: ReactNode }) {
   if (!framed) return <>{children}</>;
   return <PanelCard className="shadow-none" bodyClassName="p-3">{children}</PanelCard>;
 }
-export function ProjectTaskDetail({
-  task
-}: {
-  task: ProjectTaskItem;
-}) {
-  const detailItems = [{
-    label: "任务名称",
-    value: task.name
-  }, {
-    label: "项目阶段",
-    value: task.planPhaseName || "未设置"
-  }, {
-    label: "负责人",
-    value: task.ownerEmployeeName || "未设置"
-  }, {
-    label: "基线时间",
-    value: [task.baselineStartDate || "未定", task.baselineEndDate || "未定"].join(" - ")
-  }, {
-    label: "实际时间",
-    value: [task.startDate || "未定", task.endDate || "未定"].join(" - ")
-  }, {
-    label: "派生子项目",
-    value: task.childProjectId ? [task.childProjectCode, task.childProjectName, task.childProjectStatus].filter(Boolean).join(" · ") : "未派生"
-  }, {
-    label: "里程碑",
-    value: task.isMilestone ? "是" : "否"
-  }, {
-    label: "前置任务",
-    value: task.predecessorTaskNames.length > 0 ? task.predecessorTaskNames.join("、") : "无"
-  }, {
-    label: "后置任务",
-    value: task.successorTasks.length > 0 ? task.successorTasks.map(item => item.name).join("、") : "无"
-  }];
-  return <PanelCard className="shadow-none" bodyClassName="p-3">
-      <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2 xl:grid-cols-3">
-        {detailItems.map(item => <div key={item.label} className="min-w-0">
-            <div className="text-xs font-medium text-slate-400">{item.label}</div>
-            <div className="mt-1 min-w-0 break-words text-slate-800">{item.value}</div>
-          </div>)}
-      </div>
-      <div className="mt-3 border-t border-slate-100 pt-3">
-        <div className="text-xs font-medium text-slate-400">任务描述</div>
-        <div className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-800">{task.description || "未填写"}</div>
-      </div>
-    </PanelCard>;
+
+export function ProjectTaskDetail({ task }: { task: ProjectTaskItem }) {
+  const detailItems = [
+    { label: "任务名称", value: task.name },
+    { label: "项目阶段", value: task.planPhaseName || "未设置" },
+    { label: "负责人", value: task.ownerEmployeeName || "未设置" },
+    { label: "基线时间", value: [task.baselineStartDate || "未定", task.baselineEndDate || "未定"].join(" - ") },
+    { label: "实际时间", value: [task.startDate || "未定", task.endDate || "未定"].join(" - ") },
+    {
+      label: "派生子项目",
+      value: task.childProjectId
+        ? [task.childProjectCode, task.childProjectName, task.childProjectStatus].filter(Boolean).join(" · ")
+        : "未派生",
+    },
+    { label: "里程碑", value: task.isMilestone ? "是" : "否" },
+    { label: "前置任务", value: task.predecessorTaskNames.length > 0 ? task.predecessorTaskNames.join("、") : "无" },
+    { label: "后置任务", value: task.successorTasks.length > 0 ? task.successorTasks.map((item) => item.name).join("、") : "无" },
+  ];
+  return (
+    <PanelCard className="shadow-none" bodyClassName="p-3">
+      <FieldGrid columns={3} mode="view">
+        {detailItems.map((item) => (
+          <FieldGrid.Cell key={item.label} label={item.label}>
+            <ReadOnlyField value={item.value} />
+          </FieldGrid.Cell>
+        ))}
+        <FieldGrid.Cell label="任务描述" span="wide">
+          <ReadOnlyField value={task.description || "未填写"} />
+        </FieldGrid.Cell>
+      </FieldGrid>
+    </PanelCard>
+  );
 }
+
 function downstreamTaskIds(tasks: ProjectTaskItem[], taskId: number) {
   const successorsByPredecessor = new Map<number, number[]>();
   for (const task of tasks) {
@@ -206,19 +220,4 @@ function downstreamTaskIds(tasks: ProjectTaskItem[], taskId: number) {
     stack.push(...(successorsByPredecessor.get(id) || []));
   }
   return result;
-}
-function DateField({
-  label,
-  value,
-  disabled,
-  onChange
-}: {
-  label: string;
-  value: string | null;
-  disabled: boolean;
-  onChange: (value: string | null) => void;
-}) {
-  return <FormField label={label}>
-      <CalendarDateInput value={value} disabled={disabled} onChange={onChange} className={inputClassName} popoverMode="fixed" />
-    </FormField>;
 }

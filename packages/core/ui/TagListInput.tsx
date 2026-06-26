@@ -2,8 +2,8 @@
 
 import { Fragment, type ReactNode } from "react";
 import RemovableTag from "./RemovableTag";
+import TagInputShell from "./TagInputShell";
 import TagPill from "./TagPill";
-import { getTagInputShellClassName } from "./FormStyles";
 import { joinClassNames } from "./card-utils";
 import type { ConfirmOptions } from "./ConfirmProvider";
 
@@ -59,12 +59,9 @@ export default function TagListInput<T>({
 }: TagListInputProps<T>) {
   return (
     <div className={className}>
-      <div
-        className={joinClassNames(
-          getTagInputShellClassName(),
-          disabled && "bg-slate-100",
-          shellClassName,
-        )}
+      <TagInputShell
+        disabled={disabled}
+        className={shellClassName}
       >
         {items.length === 0 && emptyText !== undefined ? (
           <span className="text-sm text-slate-400">{emptyText}</span>
@@ -145,7 +142,7 @@ export default function TagListInput<T>({
         )}
         {append}
         {children}
-      </div>
+      </TagInputShell>
     </div>
   );
 }

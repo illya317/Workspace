@@ -2,10 +2,11 @@
 
 import type { ReactNode } from "react";
 import BlockCreatePanel from "./BlockCreatePanel";
+import DetailCreatePanel from "./DetailCreatePanel";
 import InlineCreatePanel from "./InlineCreatePanel";
 import ModalCreatePanel from "./ModalCreatePanel";
 
-export type CreatePanelVariant = "inline" | "block" | "modal";
+export type CreatePanelVariant = "inline" | "block" | "modal" | "detail";
 
 interface CreatePanelBaseProps {
   variant: CreatePanelVariant;
@@ -44,10 +45,40 @@ export interface CreatePanelModalProps extends CreatePanelBaseProps {
   bodyClassName?: string;
 }
 
+export interface CreatePanelDetailProps {
+  variant: "detail";
+  title: string;
+  createTitle?: string;
+  children: ReactNode;
+  createContent: ReactNode;
+  creating: boolean;
+  onStartCreate?: () => void;
+  onSubmit: () => void;
+  onCancel: () => void;
+  canCreate?: boolean;
+  addLabel?: string;
+  dirty?: boolean;
+  dirtyHint?: string;
+  onSave?: () => void;
+  canSave?: boolean;
+  saveLabel?: string;
+  onDelete?: () => void;
+  canDelete?: boolean;
+  deleteLabel?: string;
+  viewActions?: ReactNode;
+  submitDisabled?: boolean;
+  submitting?: boolean;
+  submitLabel?: string;
+  cancelLabel?: string;
+  className?: string;
+  bodyClassName?: string;
+}
+
 export type CreatePanelProps =
   | CreatePanelInlineProps
   | CreatePanelBlockProps
-  | CreatePanelModalProps;
+  | CreatePanelModalProps
+  | CreatePanelDetailProps;
 
 export default function CreatePanel(props: CreatePanelProps) {
   const {
@@ -117,21 +148,72 @@ export default function CreatePanel(props: CreatePanelProps) {
     );
   }
 
-  const { open, maxWidth, bodyClassName } = props as CreatePanelModalProps;
+  if (variant === "modal") {
+    const { open, maxWidth, bodyClassName } = props as CreatePanelModalProps;
+    return (
+      <ModalCreatePanel
+        open={open}
+        title={title}
+        onSubmit={onSubmit}
+        onCancel={onCancel}
+        submitDisabled={submitDisabled}
+        submitting={submitting}
+        submitLabel={submitLabel}
+        cancelLabel={cancelLabel}
+        maxWidth={maxWidth}
+        bodyClassName={bodyClassName}
+      >
+        {children}
+      </ModalCreatePanel>
+    );
+  }
+
+  const {
+    createTitle,
+    createContent,
+    creating,
+    onStartCreate,
+    canCreate,
+    addLabel,
+    dirty,
+    dirtyHint,
+    onSave,
+    canSave,
+    saveLabel,
+    onDelete,
+    canDelete,
+    deleteLabel,
+    viewActions,
+    bodyClassName,
+  } = props as CreatePanelDetailProps;
   return (
-    <ModalCreatePanel
-      open={open}
+    <DetailCreatePanel
       title={title}
-      onSubmit={onSubmit}
-      onCancel={onCancel}
+      createTitle={createTitle}
+      creating={creating}
+      canCreate={canCreate}
+      onStartCreate={onStartCreate}
+      onSubmitCreate={onSubmit}
+      onCancelCreate={onCancel}
+      dirty={dirty}
+      dirtyHint={dirtyHint}
+      onSave={onSave}
+      canSave={canSave}
+      saveLabel={saveLabel}
+      onDelete={onDelete}
+      canDelete={canDelete}
+      deleteLabel={deleteLabel}
+      viewActions={viewActions}
       submitDisabled={submitDisabled}
       submitting={submitting}
+      addLabel={addLabel}
       submitLabel={submitLabel}
       cancelLabel={cancelLabel}
-      maxWidth={maxWidth}
+      createContent={createContent}
       bodyClassName={bodyClassName}
+      className={className}
     >
       {children}
-    </ModalCreatePanel>
+    </DetailCreatePanel>
   );
 }

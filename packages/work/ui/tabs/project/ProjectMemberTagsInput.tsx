@@ -33,7 +33,7 @@ export default function ProjectMemberTagsInput({
     setPickerOpen(false);
   }
   function remove(id: number) {
-    onChange(value.filter(member => member.id !== id));
+    onChange(value.filter((member) => member.id !== id));
   }
   return (
     <TagListInput
@@ -49,26 +49,33 @@ export default function ProjectMemberTagsInput({
           ? "!border-amber-200 !bg-amber-50 !text-amber-800 shadow-amber-100"
           : ""
       }
-      shellClassName="relative flex min-h-9 w-full flex-wrap items-center gap-1.5 rounded-md border border-sky-200 bg-white px-2 py-1 text-sm text-slate-800 shadow-sm focus-within:border-sky-500 focus-within:ring-1 focus-within:ring-sky-500"
-    >
-      {!disabled && (
-        <div ref={pickerRef} className="relative">
-          <CommandButton
-            aria-label="添加项目人员"
-            title="添加项目人员"
-            onClick={() => setPickerOpen((open) => !open)}
-            size="sm"
-            className="!grid !size-6 !place-items-center rounded-full !border-sky-200 !bg-sky-50 !p-0 text-base font-semibold leading-none !text-sky-700 hover:!border-sky-300 hover:!bg-sky-100"
-          >
-            +
-          </CommandButton>
-          {pickerOpen && (
-            <div className="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-72 border border-slate-200 bg-slate-50/95 p-2 shadow-xl">
-              <FkFieldInput fkKey="work.projects.member.employee" endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT} value="" placeholder="搜索员工" className="!w-full" onChange={(_label, option) => add(option)} />
-            </div>
-          )}
-        </div>
-      )}
-    </TagListInput>
+      append={
+        !disabled && (
+          <div ref={pickerRef} className="relative">
+            <CommandButton
+              aria-label="添加项目人员"
+              title="添加项目人员"
+              onClick={() => setPickerOpen((open) => !open)}
+              size="sm"
+              className="!size-6 !rounded-full !border-slate-200 !bg-slate-50 !p-0 text-base font-semibold leading-none !text-slate-700 hover:!border-slate-300 hover:!bg-slate-100"
+            >
+              +
+            </CommandButton>
+            {pickerOpen && (
+              <div className="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-72 border border-slate-200 bg-slate-50/95 p-2 shadow-xl">
+                <FkFieldInput
+                  fkKey="work.projects.member.employee"
+                  endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
+                  value=""
+                  placeholder="搜索员工"
+                  className="w-full"
+                  onChange={(_label, option) => add(option)}
+                />
+              </div>
+            )}
+          </div>
+        )
+      }
+    />
   );
 }

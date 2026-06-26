@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { getFieldHelperClassName, getFieldLabelClassName } from "./FormStyles";
 import { joinClassNames } from "./card-utils";
 
 export interface FormFieldProps {
@@ -39,14 +40,14 @@ export default function FormField({
 
   if (inline) {
     return (
-      <div className={joinClassNames("inline-flex h-10 min-w-0 items-center gap-1.5 text-xs leading-none", className)}>
-        <span data-field-label="true" className="inline-flex h-10 shrink-0 items-center whitespace-nowrap text-xs font-semibold leading-none text-slate-500">
+      <div className={joinClassNames("inline-flex h-10 min-w-0 items-center gap-1.5 text-sm leading-none", className)}>
+        <span data-field-label="true" className={joinClassNames("inline-flex h-10 shrink-0 items-center whitespace-nowrap leading-none", getFieldLabelClassName())}>
           {labelNode}
         </span>
-        <span data-field-control="true" className="inline-flex h-10 min-w-0 items-center text-xs leading-none [&_button]:text-xs [&_input]:font-sans [&_input]:text-xs [&_input]:leading-none [&_input]:tabular-nums">
+        <span data-field-control="true" className="inline-flex h-10 min-w-0 items-center text-sm leading-none [&_button]:text-sm [&_input]:font-sans [&_input]:text-sm [&_input]:leading-none [&_input]:tabular-nums">
           {children}
         </span>
-        {hint && !error && <span className="text-xs text-slate-400">{hint}</span>}
+        {hint && !error && <span className={getFieldHelperClassName()}>{hint}</span>}
         {error && <span className="text-xs text-red-500">{error}</span>}
       </div>
     );
@@ -54,11 +55,11 @@ export default function FormField({
 
   return (
     <div className={joinClassNames("block min-w-0", className)}>
-      <span className="mb-0.5 block text-xs font-semibold text-slate-500">
+      <span className={joinClassNames("mb-0.5 block", getFieldLabelClassName())}>
         {labelNode}
       </span>
       {children}
-      {hint && !error && <span className="mt-1 block text-xs text-slate-400">{hint}</span>}
+      {hint && !error && <span className={joinClassNames("mt-1 block", getFieldHelperClassName())}>{hint}</span>}
       {error && <span className="mt-1 block text-xs text-red-500">{error}</span>}
     </div>
   );

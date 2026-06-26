@@ -73,6 +73,15 @@ export const core_internal_registry_entries = [
     foundations: ["getToolbarActionClassName"],
   },
   {
+    name: "DetailCreatePanel",
+    accessLayer: "core-internal",
+    kind: "form",
+    description: "详情 pane 新建面板",
+    example: "右侧详情区进入 create mode，左侧列表/工作区不变，由 core 统一生成标题和取消/创建动作。",
+    composes: ["CommandButton", "CreateStartButton"],
+    foundations: ["getToolbarActionClassName"],
+  },
+  {
     name: "ModuleCardBody",
     accessLayer: "core-internal",
     kind: "layout",
@@ -101,7 +110,7 @@ export const core_internal_registry_entries = [
     accessLayer: "core-internal",
     kind: "form",
     description: "标签内核",
-    example: "作为 RemovableTag 和 TagListInput 的共同视觉内核，不直接暴露给业务。",
+    example: "作为 RemovableTag 和 TagListInput 的共同视觉内核，业务统一使用 TagListInput。",
     foundations: ["getTagPillClassName"],
   },
   {
@@ -109,7 +118,7 @@ export const core_internal_registry_entries = [
     accessLayer: "core-internal",
     kind: "form",
     description: "可删除标签",
-    example: "TagListInput 内部使用；业务统一使用 TagListInput。",
+    example: "TagListInput 内部使用；业务统一使用 TagListInput，不要直接 import RemovableTag。",
     composes: ["TagPill", "TagRemoveButton"],
     foundations: ["getTagPillClassName"],
   },

@@ -34,6 +34,8 @@ export {
   getTagPillClassName,
   getTagInlineInputClassName,
   getFieldGridCellClassName,
+  getFieldGridMainRowClassName,
+  getFieldGridHelperRowClassName,
   getFieldGridLabelClassName,
   getFieldGridValueClassName,
   getFieldGroupTitleClassName,
@@ -42,8 +44,10 @@ export { default as ReadOnlyField } from "./ReadOnlyField";
 export type { ReadOnlyFieldProps } from "./ReadOnlyField";
 export { default as FieldInputShell } from "./FieldInputShell";
 export type { FieldInputShellProps } from "./FieldInputShell";
+export { default as PercentField } from "./PercentField";
+export type { PercentFieldProps } from "./PercentField";
 export { default as FieldGrid } from "./FieldGrid";
-export type { FieldGridCellProps, FieldGridProps, FieldGroupTitleProps } from "./FieldGrid";
+export type { FieldGridCellProps, FieldGridNoteProps, FieldGridProps, FieldGridMode, FieldGroupTitleProps } from "./FieldGrid";
 export { default as TagInlineTextField } from "./TagInlineTextField";
 export type { TagInlineTextFieldProps } from "./TagInlineTextField";
 export { ActionGlyph } from "./ActionGlyphs";

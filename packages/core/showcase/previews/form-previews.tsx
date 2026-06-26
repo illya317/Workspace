@@ -3,14 +3,15 @@
 import { useState, type FC } from "react";
 import {
   AutoSizeTextField, CalendarDateInput, CheckboxChip, CheckboxField, ChoiceGroup,
-  CreatePanel, FieldGrid, FieldInputShell,
-  FileField, FormField, FormShell, HiddenDataField, RatingControl, ReadOnlyField,
+  FieldGrid, FieldInputShell,
+  FileField, FormField, FormShell, HiddenDataField, PercentField, RatingControl, ReadOnlyField,
   SearchInput, SelectField, SwitchField,
   TagInlineTextField, TextField, TextareaField, TimeField,
 } from "@workspace/core/ui";
 import BlockCreatePanel from "../../ui/BlockCreatePanel";
 import InlineCreatePanel from "../../ui/InlineCreatePanel";
 import { CreateConfirmActions, CreateStartButton } from "../../ui/CreateActionControls";
+import { CreatePanelPreview } from "./create-panel-preview";
 
 function AutoSizeTextFieldPreview() {
   const [text, setText] = useState("自适应宽度");
@@ -119,7 +120,9 @@ function foundationPreview(name: string, description: string) {
   return function FoundationPreview() { return <div className="text-xs text-slate-400"><p className="font-medium">{name}</p><p>{description}</p><p className="mt-1 text-slate-300">Foundation / 样式 recipe，无运行时组件预览。</p></div>; };
 }
 const getFieldInputClassNamePreview = foundationPreview("getFieldInputClassName", "字段输入框样式 token，用于少量需要业务自渲染输入的场景。");
-const getFieldGridCellClassNamePreview = foundationPreview("getFieldGridCellClassName", "字段网格单元样式 token，用于自渲染字段网格时保持统一边框、背景和间距。");
+const getFieldGridCellClassNamePreview = foundationPreview("getFieldGridCellClassName", "字段网格单元容器样式 token，由 main row 与可选 helper row 组成，避免说明文案撑高同行。");
+const getFieldGridMainRowClassNamePreview = foundationPreview("getFieldGridMainRowClassName", "字段网格主行样式 token，固定 label + value 行高，隔离 helper 行高影响。");
+const getFieldGridHelperRowClassNamePreview = foundationPreview("getFieldGridHelperRowClassName", "字段网格辅助行样式 token，短提示落入独立行，不干扰主体字段对齐。");
 const getFieldGridLabelClassNamePreview = foundationPreview("getFieldGridLabelClassName", "字段网格 label 样式 token，用于自渲染字段网格时统一标签列视觉。");
 const getFieldGridValueClassNamePreview = foundationPreview("getFieldGridValueClassName", "字段网格值区域样式 token，用于自渲染字段网格时统一值区布局。");
 const getFieldGroupTitleClassNamePreview = foundationPreview("getFieldGroupTitleClassName", "字段分组标题样式 token，用于表单详情页的分组标题。");
@@ -130,16 +133,60 @@ const getTagPillClassNamePreview = foundationPreview("getTagPillClassName", "标
 
 function ReadOnlyFieldPreview() {
   const [clicked, setClicked] = useState(false);
-  return <div className="max-w-sm space-y-3"><ReadOnlyField value="只读值，保持表单视觉一致" /><ReadOnlyField value="可点击只读字段" onClick={() => setClicked((v) => !v)} />{clicked && <span className="text-xs text-slate-400">已点击</span>}</div>;
+  return (
+    <div className="max-w-sm space-y-3">
+      <ReadOnlyField value="input-like 只读值" />
+      <ReadOnlyField value="plain 只读值" variant="plain" />
+      <ReadOnlyField value="可点击只读字段" onClick={() => setClicked((v) => !v)} />
+      {clicked && <span className="text-xs text-slate-400">已点击</span>}
+    </div>
+  );
 }
 
 function FieldInputShellPreview() {
   const [value, setValue] = useState("50");
-  return <div className="max-w-xs"><FieldInputShell className="focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500"><TextField value={value} onChange={setValue} unstyled className="h-9 flex-1 border-0 bg-transparent px-3 py-0 text-sm outline-none" /><span className="flex items-center border-l border-slate-200 bg-slate-50 px-3 text-sm text-slate-500">%</span></FieldInputShell></div>;
+  return (
+    <div className="max-w-xs space-y-3">
+      <FieldInputShell suffix="%" className="focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+        <TextField value={value} onChange={setValue} unstyled className="h-9 flex-1 border-0 bg-transparent px-3 py-0 text-sm outline-none" />
+      </FieldInputShell>
+      <FieldInputShell prefix="¥" className="focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+        <TextField value={value} onChange={setValue} unstyled className="h-9 flex-1 border-0 bg-transparent px-3 py-0 text-sm outline-none" />
+      </FieldInputShell>
+    </div>
+  );
+}
+
+function PercentFieldPreview() {
+  const [value, setValue] = useState<number | null>(75);
+  return <div className="max-w-xs"><PercentField value={value} onChange={setValue} /></div>;
 }
 
 function FieldGridPreview() {
-  return <div className="max-w-2xl space-y-3"><FieldGrid.GroupTitle>基础资料</FieldGrid.GroupTitle><FieldGrid className="grid-cols-2"><FieldGrid.Cell label="姓名" required><TextField value="张三" onChange={() => {}} /></FieldGrid.Cell><FieldGrid.Cell label="员工编码"><ReadOnlyField value="EMP001" /></FieldGrid.Cell><FieldGrid.Cell label="备注" className="col-span-2"><TextareaField value="跨列字段" onChange={() => {}} /></FieldGrid.Cell></FieldGrid></div>;
+  return (
+    <div className="max-w-3xl space-y-6">
+      <div>
+        <FieldGrid.GroupTitle>基础资料（编辑态）</FieldGrid.GroupTitle>
+        <FieldGrid columns={2} mode="mixed">
+          <FieldGrid.Cell label="姓名" required><TextField value="张三" onChange={() => {}} /></FieldGrid.Cell>
+          <FieldGrid.Cell label="员工编码"><ReadOnlyField value="EMP001" /></FieldGrid.Cell>
+          <FieldGrid.Cell label="完成度"><PercentField value={85} onChange={() => {}} /></FieldGrid.Cell>
+          <FieldGrid.Cell label="入职日期"><CalendarDateInput value="2026-06-24" onChange={() => {}} /></FieldGrid.Cell>
+          <FieldGrid.Cell label="备注" span="wide" hint="跨列字段的短提示"><TextareaField value="跨列字段" onChange={() => {}} /></FieldGrid.Cell>
+          <FieldGrid.Note>整行说明：长说明应使用 FieldGrid.Note，避免把长文本塞进单个 cell 的 hint 撑高行。</FieldGrid.Note>
+        </FieldGrid>
+      </div>
+      <div>
+        <FieldGrid.GroupTitle>基础资料（只读态）</FieldGrid.GroupTitle>
+        <FieldGrid columns={3} mode="view">
+          <FieldGrid.Cell label="项目编码"><ReadOnlyField value="PRJ-2026-001" /></FieldGrid.Cell>
+          <FieldGrid.Cell label="项目类型"><ReadOnlyField value="公司项目" /></FieldGrid.Cell>
+          <FieldGrid.Cell label="项目级别"><ReadOnlyField value="普通" /></FieldGrid.Cell>
+          <FieldGrid.Cell label="项目描述" span="wide"><ReadOnlyField value="跨列的只读描述信息" /></FieldGrid.Cell>
+        </FieldGrid>
+      </div>
+    </div>
+  );
 }
 
 function TagInlineTextFieldPreview() {
@@ -212,84 +259,18 @@ function TimeFieldPreview() {
   return <TimeField value={time} onChange={setTime} className="max-w-[8rem]" />;
 }
 
-function CreatePanelPreview() {
-  const [variant, setVariant] = useState<"inline" | "block" | "modal">("inline");
-  const [name, setName] = useState("");
-  const [creating, setCreating] = useState(false);
-  const [open, setOpen] = useState(false);
-  const formContent = (
-    <>
-      <FormField label="名称" required><TextField value={name} onChange={setName} placeholder="输入名称" /></FormField>
-      <FormField label="类型"><SelectField value="" onChange={() => {}} options={[{ value: "", label: "请选择" }, { value: "a", label: "类型 A" }, { value: "b", label: "类型 B" }]} /></FormField>
-    </>
-  );
-  return (
-    <div className="max-w-2xl space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
-        {(["inline", "block", "modal"] as const).map((v) => (
-          <button
-            key={v}
-            type="button"
-            onClick={() => setVariant(v)}
-            className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${variant === v ? "border-emerald-600 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
-          >
-            {v}
-          </button>
-        ))}
-      </div>
-      {variant === "block" && (
-        <CreatePanel
-          variant="block"
-          title="新增项目阶段"
-          creating={creating}
-          canCreate
-          onStartCreate={() => setCreating(true)}
-          onSubmit={() => setCreating(false)}
-          onCancel={() => setCreating(false)}
-          createContent={formContent}
-        >
-          <p className="text-xs text-slate-400">非创建态下展示列表占位。</p>
-        </CreatePanel>
-      )}
-      {variant === "inline" && (
-        <CreatePanel
-          variant="inline"
-          title="新增员工"
-          onSubmit={() => {}}
-          onCancel={() => setName("")}
-        >
-          {formContent}
-        </CreatePanel>
-      )}
-      {variant === "modal" && (
-        <>
-          <button type="button" onClick={() => setOpen(true)} className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700">打开弹窗新建</button>
-          <CreatePanel
-            variant="modal"
-            title="弹窗新建"
-            open={open}
-            onSubmit={() => setOpen(false)}
-            onCancel={() => setOpen(false)}
-          >
-            {formContent}
-          </CreatePanel>
-        </>
-      )}
-    </div>
-  );
-}
-
 export const formPreviewByName: Record<string, FC> = {
   AutoSizeTextField: AutoSizeTextFieldPreview, BlockCreatePanel: BlockCreatePanelPreview, CalendarDateInput: CalendarDateInputPreview,
   CheckboxChip: CheckboxChipPreview, CheckboxField: CheckboxFieldPreview, ChoiceGroup: ChoiceGroupPreview,
   CreateConfirmActions: CreateConfirmActionsPreview, CreatePanel: CreatePanelPreview, CreateStartButton: CreateStartButtonPreview, FileField: FileFieldPreview,
   FieldGrid: FieldGridPreview, FieldInputShell: FieldInputShellPreview, FormField: FormFieldPreview, FormShell: FormShellPreview,
   getFieldInputClassName: getFieldInputClassNamePreview, getFieldGridCellClassName: getFieldGridCellClassNamePreview,
+  getFieldGridMainRowClassName: getFieldGridMainRowClassNamePreview, getFieldGridHelperRowClassName: getFieldGridHelperRowClassNamePreview,
   getFieldGridLabelClassName: getFieldGridLabelClassNamePreview, getFieldGridValueClassName: getFieldGridValueClassNamePreview,
   getFieldGroupTitleClassName: getFieldGroupTitleClassNamePreview, getReadOnlyFieldClassName: getReadOnlyFieldClassNamePreview,
   getTagInputShellClassName: getTagInputShellClassNamePreview, getTagInlineInputClassName: getTagInlineInputClassNamePreview,
   getTagPillClassName: getTagPillClassNamePreview, HiddenDataField: HiddenDataFieldPreview, InlineCreatePanel: InlineCreatePanelPreview,
-  RatingControl: RatingControlPreview, ReadOnlyField: ReadOnlyFieldPreview, SearchInput: SearchInputPreview,
+  PercentField: PercentFieldPreview, RatingControl: RatingControlPreview, ReadOnlyField: ReadOnlyFieldPreview, SearchInput: SearchInputPreview,
   SelectField: SelectFieldPreview, SwitchField: SwitchFieldPreview, TagInlineTextField: TagInlineTextFieldPreview,
   TextareaField: TextareaFieldPreview, TextField: TextFieldPreview,
   TimeField: TimeFieldPreview,
