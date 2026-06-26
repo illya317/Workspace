@@ -2,7 +2,7 @@
 
 import WorkCard from "./WorkCard";
 import WorkForm from "./WorkForm";
-import { DisclosureSectionHeader, EmptyStateCard } from "@workspace/core/ui";
+import { DataSurface, NavigationSurface } from "@workspace/core/ui";
 import type { WorkItem } from "./types";
 import type { WorkFormData } from "./WorkFormSection";
 
@@ -51,12 +51,7 @@ export default function WorksList({
     <>
       {/* 日常工作 */}
       <div className="mb-8">
-        <DisclosureSectionHeader
-          title="日常工作"
-          count={routineWorks.length}
-          expanded={routineExpanded}
-          onToggle={onToggleRoutine}
-        />
+        <NavigationSurface kind="disclosure" title="日常工作" count={routineWorks.length} expanded={routineExpanded} onToggle={onToggleRoutine} />
         {routineExpanded && (
           <div className="space-y-3">
             {routineWorks.map((work, index) =>
@@ -82,7 +77,7 @@ export default function WorksList({
               )
             )}
             {routineWorks.length === 0 && (
-              <EmptyStateCard compact>暂无日常工作项</EmptyStateCard>
+              <DataSurface kind="records" records={[]} empty="暂无日常工作项" />
             )}
           </div>
         )}
@@ -90,12 +85,7 @@ export default function WorksList({
 
       {/* 其他工作 */}
       <div className="mb-8">
-        <DisclosureSectionHeader
-          title="其他工作"
-          count={nonRoutineWorks.length}
-          expanded={nonRoutineExpanded}
-          onToggle={onToggleNonRoutine}
-        />
+        <NavigationSurface kind="disclosure" title="其他工作" count={nonRoutineWorks.length} expanded={nonRoutineExpanded} onToggle={onToggleNonRoutine} />
         {nonRoutineExpanded && (
           <div className="space-y-3">
             {nonRoutineWorks.map((work, index) =>
@@ -121,7 +111,7 @@ export default function WorksList({
               )
             )}
             {nonRoutineWorks.length === 0 && (
-              <EmptyStateCard compact>暂无其他工作项</EmptyStateCard>
+              <DataSurface kind="records" records={[]} empty="暂无其他工作项" />
             )}
           </div>
         )}
@@ -130,12 +120,7 @@ export default function WorksList({
       {/* 已归档 */}
       {archivedWorks.length > 0 && (
         <div>
-          <DisclosureSectionHeader
-            title="已归档"
-            count={archivedWorks.length}
-            expanded={archivedExpanded}
-            onToggle={onToggleArchived}
-          />
+          <NavigationSurface kind="disclosure" title="已归档" count={archivedWorks.length} expanded={archivedExpanded} onToggle={onToggleArchived} />
           {archivedExpanded && (
             <div className="space-y-3">
               {archivedWorks.map((work) =>

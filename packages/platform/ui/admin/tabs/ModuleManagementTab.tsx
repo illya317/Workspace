@@ -4,12 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { matchText } from "@workspace/platform/search";
 import { workspacePath } from "@workspace/core/routing";
 import {
-  EmptyStateCard,
-  FormField,
-  InputControl,
-  SectionCard,
-  Badge,
-  Toolbar,
+  FormSurface,
+  PageSurface,
+  type PageSurfaceBlockSpec,
 } from "@workspace/core/ui";
 import ResourceTree, { type ResourceTreeNode } from "../components/ResourceTree";
 
@@ -93,7 +90,13 @@ function moduleMatches(module: ModuleNode, query: string) {
 }
 
 function StatusPill({ status }: { status: ModuleStatus }) {
-  return <Badge label={STATUS_LABEL[status]} tone={STATUS_VARIANT[status]} />;
+  const toneClass =
+    status === "enabled"
+      ? "bg-emerald-50 text-emerald-600"
+      : status === "hidden"
+        ? "bg-yellow-50 text-yellow-700"
+        : "bg-gray-100 text-gray-600";
+  return <span className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium ${toneClass}`}>{STATUS_LABEL[status]}</span>;
 }
 
 function DetailLine({ label, children }: { label: string; children: React.ReactNode }) {
@@ -193,8 +196,8 @@ export default function ModuleManagementTab({ showToast }: Props) {
     }
   }
 
-  if (loading) return <EmptyStateCard>加载模块管理...</EmptyStateCard>;
-  if (!data) return <EmptyStateCard>暂无模块管理数据</EmptyStateCard>;
+  if (loading) return <PageSurface kind="settings" embedded contentClassName="py-0" empty={{ content: "加载模块管理..." }} />;
+  if (!data) return <PageSurface kind="settings" embedded contentClassName="py-0" empty={{ content: "暂无模块管理数据" }} />;
 
   const switchDisabled = saving || (selectedModule?.level === "L2" && selectedModule.parentEnabled === false);
   const apiText = selectedModule?.apiPrefixes.length
@@ -202,81 +205,143 @@ export default function ModuleManagementTab({ showToast }: Props) {
     : selectedModule?.noApiReason ?? "未声明 API";
   const pageText = selectedModule?.pageHref ?? selectedModule?.noPageReason ?? "无页面";
 
-  return (
-    <div className="grid gap-6 lg:grid-cols-[18rem_minmax(0,1fr)]">
-      <div className="space-y-3">
-        <Toolbar
-          items={[
-            {
-              kind: "search",
-              key: "search",
-              section: "filter",
-              value: query,
-              onChange: setQuery,
-              placeholder: "搜索模块",
-              className: "w-full",
-            },
-          ]}
-          className="w-full"
-        />
-        <SectionCard title="模块树" bodyClassName="p-2">
-          <ResourceTree
-            resources={moduleTree}
-            selectedResource={selectedResourceKey}
-            onSelect={setSelectedResourceKey}
-            forceExpanded={query.trim().length > 0}
-          />
-        </SectionCard>
-      </div>
-
-      <div className="space-y-4">
-        {selectedModule ? (
-          <SectionCard
-            title={selectedModule.label}
-            subtitle={`${selectedModule.level} · ${selectedModule.resourceKey}`}
-            actions={<StatusPill status={selectedModule.status} />}
-          >
-            <div className="space-y-4">
-              <FormField label="模块开关" layout="inline">
-                <div className="inline-flex items-center gap-2 text-sm text-slate-700">
-                  <InputControl spec={{ valueType: "boolean", editor: "switch", state: switchDisabled ? "disabled" : "normal" }} value={selectedModule.enabled} onChange={(value) => updateModuleEnabled(Boolean(value))} />
-                  <span>{selectedModule.enabled ? "开启" : "关闭"}</span>
-                </div>
-              </FormField>
-              {selectedModule.level === "L2" && selectedModule.parentEnabled === false && (
-                <p className="text-sm text-amber-700">上级 L1 已关闭，需要先开启上级模块。</p>
-              )}
-              <div className="grid gap-4 md:grid-cols-2">
-                <DetailLine label="页面">{pageText}</DetailLine>
-                <DetailLine label="API">{apiText}</DetailLine>
-                <DetailLine label="Resource">{selectedModule.resourceKey}</DetailLine>
-                <DetailLine label="Package">{selectedModule.packageName}</DetailLine>
-              </div>
-              <p className="text-sm text-slate-500">{data.rule}</p>
-              {selectedModule.disabledReason && (
-                <p className="text-sm text-slate-400">{selectedModule.disabledReason}</p>
-              )}
-            </div>
-          </SectionCard>
-        ) : (
-          <EmptyStateCard>请选择一个模块</EmptyStateCard>
-        )}
-
-        <SectionCard title="辅助资源" subtitle="不属于 L1/L2 主模块，但会跟随所属模块或独立规则治理。">
-          <div className="space-y-2">
-            {data.auxiliaryResources.map((resource) => (
-              <div key={resource.key} className="grid gap-2 text-sm md:grid-cols-[1fr_auto]">
-                <div>
-                  <div className="font-medium text-slate-800">{resource.name}</div>
-                  <div className="text-xs text-slate-400">{resource.key}</div>
-                  {resource.disabledReason && <div className="text-xs text-slate-400">{resource.disabledReason}</div>}
-                </div>
-                <StatusPill status={resource.status} />
-              </div>
-            ))}
+  const detailBlocks: PageSurfaceBlockSpec[] = selectedModule ? [{
+    kind: "section",
+    key: "selected-module",
+    title: selectedModule.label,
+    subtitle: `${selectedModule.level} · ${selectedModule.resourceKey}`,
+    blocks: [{
+      kind: "message",
+      key: "module-detail",
+      className: "border-0 bg-transparent p-0 text-inherit",
+      content: (
+        <div className="space-y-4">
+          <div className="flex justify-end">
+            <StatusPill status={selectedModule.status} />
           </div>
-        </SectionCard>
-      </div>
-    </div>
+          <FormSurface
+            kind="inline"
+            fields={[
+              {
+                key: "enabled",
+                label: "模块开关",
+                spec: { valueType: "boolean", editor: "switch", state: switchDisabled ? "disabled" : "normal" },
+                value: selectedModule.enabled,
+                onChange: (value) => updateModuleEnabled(Boolean(value)),
+              },
+              {
+                kind: "note" as const,
+                key: "enabled-label",
+                content: selectedModule.enabled ? "开启" : "关闭",
+                className: "text-sm text-slate-700",
+              },
+            ]}
+          />
+          {selectedModule.level === "L2" && selectedModule.parentEnabled === false && (
+            <p className="text-sm text-amber-700">上级 L1 已关闭，需要先开启上级模块。</p>
+          )}
+          <div className="grid gap-4 md:grid-cols-2">
+            <DetailLine label="页面">{pageText}</DetailLine>
+            <DetailLine label="API">{apiText}</DetailLine>
+            <DetailLine label="Resource">{selectedModule.resourceKey}</DetailLine>
+            <DetailLine label="Package">{selectedModule.packageName}</DetailLine>
+          </div>
+          <p className="text-sm text-slate-500">{data.rule}</p>
+          {selectedModule.disabledReason && (
+            <p className="text-sm text-slate-400">{selectedModule.disabledReason}</p>
+          )}
+        </div>
+      ),
+    }],
+  }] : [{ kind: "empty", key: "empty-selected", content: "请选择一个模块" }];
+
+  return (
+    <PageSurface
+      kind="settings"
+      embedded
+      contentClassName="py-0"
+      blocks={[{
+        kind: "surfaceGroup",
+        key: "module-management",
+        layout: "grid",
+        className: "lg:grid-cols-[18rem_minmax(0,1fr)]",
+        blocks: [
+          {
+            kind: "surfaceGroup",
+            key: "module-tree-column",
+            blocks: [
+              {
+                kind: "form",
+                key: "search",
+                surface: {
+                  kind: "inline",
+                  className: "w-full",
+                  fields: [{
+                    key: "search",
+                    label: "搜索",
+                    spec: { valueType: "string", editor: "input" },
+                    value: query,
+                    onChange: (value) => setQuery(String(value ?? "")),
+                    placeholder: "搜索模块",
+                    className: "w-full",
+                  }],
+                },
+              },
+              {
+                kind: "section",
+                key: "tree",
+                title: "模块树",
+                bodyClassName: "p-2",
+                blocks: [{
+                  kind: "message",
+                  key: "tree-body",
+                  className: "border-0 bg-transparent p-0 text-inherit",
+                  content: (
+                    <ResourceTree
+                      resources={moduleTree}
+                      selectedResource={selectedResourceKey}
+                      onSelect={setSelectedResourceKey}
+                      forceExpanded={query.trim().length > 0}
+                    />
+                  ),
+                }],
+              },
+            ],
+          },
+          {
+            kind: "surfaceGroup",
+            key: "module-detail-column",
+            blocks: [
+              ...detailBlocks,
+              {
+                kind: "section",
+                key: "auxiliary",
+                title: "辅助资源",
+                subtitle: "不属于 L1/L2 主模块，但会跟随所属模块或独立规则治理。",
+                blocks: [{
+                  kind: "message",
+                  key: "auxiliary-list",
+                  className: "border-0 bg-transparent p-0 text-inherit",
+                  content: (
+                    <div className="space-y-2">
+                      {data.auxiliaryResources.map((resource) => (
+                        <div key={resource.key} className="grid gap-2 text-sm md:grid-cols-[1fr_auto]">
+                          <div>
+                            <div className="font-medium text-slate-800">{resource.name}</div>
+                            <div className="text-xs text-slate-400">{resource.key}</div>
+                            {resource.disabledReason && <div className="text-xs text-slate-400">{resource.disabledReason}</div>}
+                          </div>
+                          <StatusPill status={resource.status} />
+                        </div>
+                      ))}
+                    </div>
+                  ),
+                }],
+              },
+            ],
+          },
+        ],
+      }]}
+    />
   );
 }

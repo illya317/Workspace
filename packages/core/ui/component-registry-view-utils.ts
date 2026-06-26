@@ -1,6 +1,13 @@
-import { coreUiComponentKindMeta, coreUiComponentRegistry, getCoreUiCompositionGraph } from "./component-registry";
+import {
+  coreUiComponentKindMeta,
+  coreUiComponentRegistry,
+  getCoreUiCompositionGraph,
+  isCoreUiComponentVisibleInShowcase,
+  resolveCoreUiComponentUiLevel,
+} from "./component-registry";
 import type {
   CoreUiComponentAccessLayer,
+  CoreUiComponentUiLevel,
   CoreUiComponentKind,
   CoreUiComponentRegistration,
 } from "./component-registry-types";
@@ -37,6 +44,7 @@ export type CoreUiComponentTreeNode = {
   component: CoreUiComponentRegistration;
   name: string;
   accessLayer: CoreUiComponentAccessLayer;
+  uiLevel: CoreUiComponentUiLevel;
   kind: CoreUiComponentKind;
   depth: number;
   nestDepth: number;
@@ -53,6 +61,17 @@ export function buildComponentMap() {
   return new Map<string, CoreUiComponentRegistration>(
     coreUiComponentRegistry.map((component) => [component.name, component]),
   );
+}
+
+function resolveVisibleDependencyComponents(
+  names: readonly string[],
+  componentByName: ReadonlyMap<string, CoreUiComponentRegistration>,
+) {
+  return names
+    .map((name) => componentByName.get(name))
+    .filter((component): component is CoreUiComponentRegistration => Boolean(component))
+    .filter(isCoreUiComponentVisibleInShowcase)
+    .sort(compareComponentsByName);
 }
 
 export function resolveComponents(
@@ -148,6 +167,7 @@ export function buildComponentTreeLeaf({
     component,
     name: component.name,
     accessLayer: component.accessLayer,
+    uiLevel: resolveCoreUiComponentUiLevel(component),
     kind: component.kind,
     depth,
     nestDepth: nestDepthByName.get(component.name) ?? 1,
@@ -182,12 +202,9 @@ export function buildComponentTreeNode({
   const dependencyNames = [...new Set(getDependencyNames(component.name))].sort();
   const nextPath = [...path, component.name];
   const canExpand = depth < 3;
+  const visibleDependencyComponents = resolveVisibleDependencyComponents(dependencyNames, componentByName);
   const children = canExpand
-    ? dependencyNames
-      .map((name) => componentByName.get(name))
-      .filter((child): child is CoreUiComponentRegistration => Boolean(child))
-      .sort(compareComponentsByName)
-      .map((child) => {
+    ? visibleDependencyComponents.map((child) => {
         const childPath = [...nextPath, child.name];
         if (nextPath.includes(child.name)) {
           return buildComponentTreeLeaf({
@@ -215,15 +232,16 @@ export function buildComponentTreeNode({
     component,
     name: component.name,
     accessLayer: component.accessLayer,
+    uiLevel: resolveCoreUiComponentUiLevel(component),
     kind: component.kind,
     depth,
     nestDepth: nestDepthByName.get(component.name) ?? 1,
     path: nextPath,
     verified: Boolean(verifiedNames?.has(component.name)),
-    dependencyCount: dependencyNames.length,
+    dependencyCount: visibleDependencyComponents.length,
     usedByCount: graph.usedBy.get(component.name)?.length ?? 0,
     usageFileCount: usageFilesByName?.get(component.name)?.length ?? 0,
-    hasChildren: canExpand && dependencyNames.length > 0,
+    hasChildren: canExpand && visibleDependencyComponents.length > 0,
     children,
   };
 }

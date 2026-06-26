@@ -1,9 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { workspacePath } from "@workspace/core/routing";
-import { CommandButton, PageShell } from "@workspace/core/ui";
+import { PageSurface } from "@workspace/core/ui";
 import { MODULE_LIFECYCLE_BY_RESOURCE, MODULE_LIFECYCLE_LABELS } from "@workspace/platform/module-lifecycle";
 import { UserMenu } from "@workspace/platform/ui";
 import type { SessionUser } from "@workspace/platform/types";
@@ -24,19 +22,51 @@ export default function FinanceShell({
   const navItems = getFinanceNavItems(user);
   const lifecycleStatus = MODULE_LIFECYCLE_BY_RESOURCE[`finance.${activeNav}`];
   const title = "财务管理";
-  return <>
-      {!hideShell ? <PageShell title={title} onBack={() => router.push(activeNav ? "/finance" : "/portal")} backLabel="返回入口" actions={navItems.map(item => ({
-      label: item.label,
-      onClick: () => router.push(item.href)
-    }))} leading={<CommandButton onClick={() => router.push("/finance")} className="border-0 bg-transparent p-0 shadow-none hover:bg-transparent">
-              <Image src={workspacePath("/company/logo.png")} alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "公司"} width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
-            </CommandButton>} trailing={<UserMenu user={user} />}>
-          {lifecycleStatus && lifecycleStatus !== "workspace-owned" && <div className="border-b border-amber-200 bg-amber-50">
-              <div className="mx-auto max-w-5xl px-4 py-2 text-xs text-amber-800">
-                {MODULE_LIFECYCLE_LABELS[lifecycleStatus]}
-              </div>
-            </div>}
-          {children}
-        </PageShell> : children}
-    </>;
+  const activeHref = navItems.find(item => item.href.includes(activeNav))?.href ?? "";
+  if (hideShell) return <>{children}</>;
+  return <div className="min-h-screen">
+      <PageSurface
+        kind="list"
+        embedded
+        blocks={[
+          {
+            kind: "form",
+            key: "shell-actions",
+            surface: {
+              kind: "inline",
+              actions: [
+                { key: "home", label: title, variant: "secondary", onClick: () => router.push("/finance") },
+                { key: "back", label: "返回入口", variant: "secondary", onClick: () => router.push(activeNav ? "/finance" : "/portal") },
+              ],
+            },
+          },
+          {
+            kind: "navigation",
+            key: "finance-nav",
+            surface: {
+              kind: "tabs",
+              tabs: {
+                tabs: navItems.map(item => ({ key: item.href, label: item.label })),
+                active: activeHref,
+                onChange: (href: string) => router.push(href),
+                variant: "small",
+                ariaLabel: "财务导航",
+              },
+            },
+          },
+          {
+            kind: "moduleView",
+            key: "user-menu",
+            view: <UserMenu user={user} />,
+          },
+          ...(lifecycleStatus && lifecycleStatus !== "workspace-owned" ? [{
+            kind: "message" as const,
+            key: "lifecycle",
+            tone: "warning" as const,
+            content: MODULE_LIFECYCLE_LABELS[lifecycleStatus],
+          }] : []),
+        ]}
+      />
+      {children}
+    </div>;
 }

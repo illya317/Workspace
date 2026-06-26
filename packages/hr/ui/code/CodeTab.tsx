@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect } from "react";
 import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
-import { EmptyStateCard, PanelCard, Toolbar, type ToolbarItem } from "@workspace/core/ui";
+import { type ToolbarItem } from "@workspace/core/ui";
 import { useCodeTab } from "./useCodeTab";
 import CodeTable from "./CodeTable";
 
@@ -122,69 +122,59 @@ export default function CodeTab({
     selectedCompany,
     departmentCode,
   });
+  const toolbarItems = [{
+    kind: "edit-group",
+    key: "edit",
+    section: "edit",
+    editMode,
+    onStartEdit: () => setEditMode(true),
+    onSave: handleSave,
+    onCancel: () => {
+      setEditRow(null);
+      setEditMode(false);
+    },
+    canEdit: hrCanEdit(user),
+    onShowHistory: () => setShowHistory(true),
+    saving,
+  } satisfies ToolbarItem];
 
   return (
     <div className="space-y-4">
-      <div className="flex min-h-9 items-center gap-3">
-        <h2 className="truncate text-base font-semibold text-slate-900">{title}</h2>
-        {hrCanAccess(user, "hr.roster") && (
-          <Toolbar
-            variant="inline"
-            className="ml-auto"
-            items={[{
-              kind: "edit-group",
-              key: "edit",
-              section: "edit",
-              editMode,
-              onStartEdit: () => setEditMode(true),
-              onSave: handleSave,
-              onCancel: () => {
-                setEditRow(null);
-                setEditMode(false);
-              },
-              canEdit: hrCanEdit(user),
-              onShowHistory: () => setShowHistory(true),
-              saving,
-            } satisfies ToolbarItem]}
-          />
-        )}
-      </div>
-
-      <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
-        {loading ? (
-          <EmptyStateCard compact>加载中...</EmptyStateCard>
-        ) : (
-          <CodeTable
-            sortedCodes={sortedCodes}
-            stats={stats}
-            sortField={sortField}
-            sortDirection={sortDirection}
-            toggleSort={toggleSort}
-            editMode={editMode}
-            editRow={editRow}
-            editCodeValue={editCodeValue}
-            setEditCodeValue={setEditCodeValue}
-            editNameValue={editNameValue}
-            setEditNameValue={setEditNameValue}
-            newCode={newCode}
-            setNewCode={setNewCode}
-            newName={newName}
-            setNewName={setNewName}
-            startEditRow={startEditRow}
-            handleAdd={handleAdd}
-            onSelect={onSelect}
-            selectedCode={selectedCode}
-            detailModal={detailModal}
-            setDetailModal={setDetailModal}
-            positionDeptModal={positionDeptModal}
-            setPositionDeptModal={setPositionDeptModal}
-            getDetailList={getDetailList}
-            loadPositionDepts={loadPositionDepts}
-            user={user}
-            type={type}
-          />
-        )}
-      </PanelCard>
+      <CodeTable
+        framed
+        title={title}
+        toolbar={hrCanAccess(user, "hr.roster") ? { variant: "inline", items: toolbarItems } : undefined}
+        loading={loading}
+        emptyText="加载中..."
+        bodyClassName="overflow-x-auto"
+        sortedCodes={sortedCodes}
+        stats={stats}
+        sortField={sortField}
+        sortDirection={sortDirection}
+        toggleSort={toggleSort}
+        editMode={editMode}
+        editRow={editRow}
+        editCodeValue={editCodeValue}
+        setEditCodeValue={setEditCodeValue}
+        editNameValue={editNameValue}
+        setEditNameValue={setEditNameValue}
+        newCode={newCode}
+        setNewCode={setNewCode}
+        newName={newName}
+        setNewName={setNewName}
+        startEditRow={startEditRow}
+        handleAdd={handleAdd}
+        onSelect={onSelect}
+        selectedCode={selectedCode}
+        detailModal={detailModal}
+        setDetailModal={setDetailModal}
+        positionDeptModal={positionDeptModal}
+        setPositionDeptModal={setPositionDeptModal}
+        getDetailList={getDetailList}
+        loadPositionDepts={loadPositionDepts}
+        user={user}
+        type={type}
+      />
 
       <AuditLogModal
         open={showHistory}

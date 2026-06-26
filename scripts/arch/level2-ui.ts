@@ -45,6 +45,12 @@ export type UnregisteredCoreUiImport = {
   specifier: string;
 };
 
+export type BusinessCoreUiSurfaceBypassImport = {
+  file: string;
+  importedName: string;
+  specifier: string;
+};
+
 export type PageDesignDriftFile = {
   file: string;
   signals: string[];
@@ -84,7 +90,27 @@ const UI_PATTERN_RULES: Array<{ name: string; regex: RegExp }> = [
   { name: "date", regex: /date(input|picker|field)|calendar/i },
 ];
 
-const CORE_UI_NON_COMPONENT_EXPORTS = new Set<string>();
+const CORE_UI_NON_COMPONENT_EXPORTS = new Set<string>([
+  "FLOATING_OVERLAY_OPEN_EVENT",
+  "announceFloatingOverlayOpen",
+  "getFloatingOverlayOpenDetail",
+]);
+const BUSINESS_PACKAGE_NAMES = new Set([
+  "administration",
+  "external",
+  "finance",
+  "hr",
+  "library",
+  "production",
+  "work",
+]);
+const CORE_UI_BUSINESS_SURFACE_IMPORT_ALLOWLIST = new Set([
+  "DataSurface",
+  "FormSurface",
+  "NavigationSurface",
+  "PageSurface",
+  "useFeedback",
+]);
 
 const PAGE_DESIGN_INTRINSIC_TAGS = new Set([
   "article",
@@ -201,6 +227,14 @@ function coreUiDeepImportName(specifier: string) {
   return name && name !== "component-registry" ? name : null;
 }
 
+function isBusinessUiSurfaceScanFile(file: SourceInfo) {
+  if (!/\.(ts|tsx)$/.test(file.relPath)) return false;
+  if (file.relPath.startsWith("app/(modules)/")) return true;
+
+  const match = /^packages\/([^/]+)\/ui\//.exec(file.relPath);
+  return Boolean(match && BUSINESS_PACKAGE_NAMES.has(match[1]));
+}
+
 export function findUnregisteredCoreUiImports(files: SourceInfo[]) {
   const candidates: UnregisteredCoreUiImport[] = [];
 
@@ -233,6 +267,46 @@ export function findUnregisteredCoreUiImports(files: SourceInfo[]) {
       const deepImportName = coreUiDeepImportName(specifier);
       if (deepImportName && !registeredCoreUiComponentNames.has(deepImportName)) {
         candidates.push({ file: file.relPath, importedName: deepImportName, specifier });
+      }
+    }
+  }
+
+  return candidates.sort((left, right) => `${left.file}:${left.importedName}`.localeCompare(`${right.file}:${right.importedName}`));
+}
+
+export function findBusinessCoreUiSurfaceBypassImports(files: SourceInfo[]) {
+  const candidates: BusinessCoreUiSurfaceBypassImport[] = [];
+
+  for (const file of files) {
+    if (!isBusinessUiSurfaceScanFile(file)) continue;
+
+    for (const statement of file.sourceFile.statements) {
+      if (!ts.isImportDeclaration(statement)) continue;
+      if (!statement.moduleSpecifier || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
+      const specifier = statement.moduleSpecifier.text;
+      if (specifier !== "@workspace/core/ui") continue;
+
+      const importClause = statement.importClause;
+      if (!importClause || importClause.isTypeOnly) continue;
+
+      if (importClause.name) {
+        candidates.push({ file: file.relPath, importedName: importClause.name.text, specifier });
+      }
+
+      const namedBindings = importClause.namedBindings;
+      if (!namedBindings) continue;
+
+      if (ts.isNamespaceImport(namedBindings)) {
+        candidates.push({ file: file.relPath, importedName: namedBindings.name.text, specifier });
+        continue;
+      }
+
+      for (const element of namedBindings.elements) {
+        if (element.isTypeOnly) continue;
+        const importedName = element.propertyName?.text ?? element.name.text;
+        if (!CORE_UI_BUSINESS_SURFACE_IMPORT_ALLOWLIST.has(importedName)) {
+          candidates.push({ file: file.relPath, importedName, specifier });
+        }
       }
     }
   }

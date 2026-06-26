@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { matchText } from "@workspace/core/search";
-import { CommandButton, PanelCard } from "@workspace/core/ui";
+import { DataSurface } from "@workspace/core/ui";
 import type { QcTemplateDetail, QcTemplateFeedbackState, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 import {
   feedbackContext,
@@ -26,48 +26,8 @@ interface StageRowsProps {
   onFeedback: (target: FeedbackTarget) => void;
 }
 
-export function testMatches(test: QcTemplateTestItem, keyword: string) {
-  return [test.sequence, test.name, test.englishName, test.methodName, test.layout?.templateId]
-    .some((value) => matchText(String(value ?? ""), keyword));
-}
-
-function FeedbackCommandButton({
-  state,
-  children,
-  onClick,
-}: {
-  state?: QcTemplateFeedbackState;
-  children: ReactNode;
-  onClick: () => void;
-}) {
-  const activeClass = state === "open"
-    ? "border-red-300 bg-red-50 text-red-700 shadow-none hover:bg-red-100"
-    : state === "resolved"
-      ? "border-emerald-300 bg-emerald-50 text-emerald-800 shadow-none hover:bg-emerald-100"
-      : "";
-  const dotClass = state === "open" ? "bg-red-600" : state === "resolved" ? "bg-emerald-700" : "";
-  return (
-    <CommandButton
-      variant="secondary"
-      onClick={onClick}
-      className={`h-9 px-3 text-xs ${activeClass}`}
-    >
-      {state && <span className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full align-middle ${dotClass}`} />}
-      {children}
-    </CommandButton>
-  );
-}
-
-function TemplateRow({
-  badge,
-  title,
-  description,
-  inset,
-  feedbackState,
-  previewLoading,
-  onPreview,
-  onFeedback,
-}: {
+interface TemplateDisplayRow {
+  key: string;
   badge: string;
   title: string;
   description: string;
@@ -76,21 +36,24 @@ function TemplateRow({
   previewLoading?: boolean;
   onPreview: () => void;
   onFeedback: () => void;
-}) {
+}
+
+export function testMatches(test: QcTemplateTestItem, keyword: string) {
+  return [test.sequence, test.name, test.englishName, test.methodName, test.layout?.templateId]
+    .some((value) => matchText(String(value ?? ""), keyword));
+}
+
+function feedbackVariant(state?: QcTemplateFeedbackState) {
+  return state === "open" ? "danger" : "secondary";
+}
+
+function feedbackLabel(state: QcTemplateFeedbackState | undefined, label: ReactNode) {
+  const dotClass = state === "open" ? "bg-red-600" : state === "resolved" ? "bg-emerald-700" : undefined;
   return (
-    <div className={`grid gap-4 px-4 py-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center ${inset ? "pl-9" : ""}`}>
-      <div className="flex min-w-0 items-start gap-3">
-        <span className="min-w-9 rounded-full bg-blue-50 px-3 py-1 text-center text-xs font-semibold text-blue-700">{badge}</span>
-        <div className="min-w-0">
-          <div className="truncate font-semibold text-slate-900">{title}</div>
-          <div className="mt-1 truncate text-xs text-slate-500">{description}</div>
-        </div>
-      </div>
-      <div className="flex shrink-0 gap-2 md:justify-self-end">
-        <FeedbackCommandButton state={feedbackState} onClick={onFeedback}>反馈</FeedbackCommandButton>
-        <FeedbackCommandButton onClick={onPreview}>{previewLoading ? "加载中" : "预览"}</FeedbackCommandButton>
-      </div>
-    </div>
+    <>
+      {dotClass ? <span className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full align-middle ${dotClass}`} /> : null}
+      {label}
+    </>
   );
 }
 
@@ -172,55 +135,105 @@ export default function StageRows({
     return `${selection.template.id}:${selection.stage.key}:${selection.kind}:${selection.test?.englishName || ""}`;
   }
 
+  const rows: TemplateDisplayRow[] = [
+    {
+      key: "precheck",
+      badge: "1",
+      title: "检验前确认",
+      description: "L1 模块 · YAML 文件清单 / 确认项 / 环境确认",
+      feedbackState: feedbackState(select("precheck")),
+      previewLoading: previewLoadingKey === previewKey(select("precheck")),
+      onPreview: () => onPreview(select("precheck")),
+      onFeedback: () => feedback(select("precheck")),
+    },
+    {
+      key: "experiment",
+      badge: "2",
+      title: "实验项目",
+      description: `L1 模块 · ${stage.tests.length} 个项目`,
+      feedbackState: feedbackState(select("experiment")),
+      previewLoading: previewLoadingKey === previewKey(select("experiment")),
+      onPreview: () => onPreview(select("experiment")),
+      onFeedback: () => feedback(select("experiment")),
+    },
+    ...tests.map((test): TemplateDisplayRow => ({
+      key: `test:${test.englishName}`,
+      badge: test.sequence,
+      title: test.name,
+      description: `${test.methodName || "未配置方法"} · ${test.layout?.templateId || "未映射组件"}`,
+      inset: true,
+      feedbackState: feedbackState(select("test", test)),
+      previewLoading: previewLoadingKey === previewKey(select("test", test)),
+      onPreview: () => onPreview(select("test", test)),
+      onFeedback: () => feedback(select("test", test)),
+    })),
+  ];
+
   return (
-    <PanelCard
+    <DataSurface<TemplateDisplayRow>
+      kind="table"
+      framed
       title={
         <span className="flex min-w-0 items-center gap-3">
           <span className="truncate">{numerals[index] ?? index + 1}、{template.productName}{stage.label}</span>
           <StageFeedbackBadge summary={summary} />
         </span>
       }
-      actions={
-        <CommandButton variant="secondary" size="sm" onClick={onToggle} className="px-3 py-1.5 text-sm">
-          {expanded ? "收起" : "展开"} · {stage.tests.length} 个实验项目
-        </CommandButton>
-      }
-    >
-      {expanded && (
-        <div className="divide-y divide-slate-100">
-          <TemplateRow
-            badge="1"
-            title="检验前确认"
-            description="L1 模块 · YAML 文件清单 / 确认项 / 环境确认"
-            feedbackState={feedbackState(select("precheck"))}
-            previewLoading={previewLoadingKey === previewKey(select("precheck"))}
-            onPreview={() => onPreview(select("precheck"))}
-            onFeedback={() => feedback(select("precheck"))}
-          />
-          <TemplateRow
-            badge="2"
-            title="实验项目"
-            description={`L1 模块 · ${stage.tests.length} 个项目`}
-            feedbackState={feedbackState(select("experiment"))}
-            previewLoading={previewLoadingKey === previewKey(select("experiment"))}
-            onPreview={() => onPreview(select("experiment"))}
-            onFeedback={() => feedback(select("experiment"))}
-          />
-          {tests.map((test) => (
-            <TemplateRow
-              key={test.englishName}
-              badge={test.sequence}
-              title={test.name}
-              description={`${test.methodName || "未配置方法"} · ${test.layout?.templateId || "未映射组件"}`}
-              inset
-              feedbackState={feedbackState(select("test", test))}
-              previewLoading={previewLoadingKey === previewKey(select("test", test))}
-              onPreview={() => onPreview(select("test", test))}
-              onFeedback={() => feedback(select("test", test))}
-            />
-          ))}
-        </div>
-      )}
-    </PanelCard>
+      actions={[{
+        key: "toggle",
+        label: `${expanded ? "收起" : "展开"} · ${stage.tests.length} 个实验项目`,
+        variant: "secondary",
+        size: "sm",
+        className: "px-3 py-1.5 text-sm",
+        onClick: onToggle,
+      }]}
+      rows={expanded ? rows : []}
+      columns={[
+        {
+          key: "title",
+          label: "项目",
+          required: true,
+          cell: (row) => (
+            <div className={`flex min-w-0 items-start gap-3 ${row.inset ? "pl-5" : ""}`}>
+              <span className="min-w-9 rounded-full bg-blue-50 px-3 py-1 text-center text-xs font-semibold text-blue-700">{row.badge}</span>
+              <span className="min-w-0">
+                <span className="block truncate font-semibold text-slate-900">{row.title}</span>
+                <span className="mt-1 block truncate text-xs text-slate-500">{row.description}</span>
+              </span>
+            </div>
+          ),
+        },
+        {
+          key: "actions",
+          label: "操作",
+          required: true,
+          cell: (row) => ({
+            kind: "actions",
+            align: "right",
+            actions: [
+              {
+                key: "feedback",
+                label: feedbackLabel(row.feedbackState, "反馈"),
+                variant: feedbackVariant(row.feedbackState),
+                size: "sm",
+                className: "h-9 px-3 text-xs",
+                onClick: row.onFeedback,
+              },
+              {
+                key: "preview",
+                label: row.previewLoading ? "加载中" : "预览",
+                disabled: row.previewLoading,
+                size: "sm",
+                className: "h-9 px-3 text-xs",
+                onClick: row.onPreview,
+              },
+            ],
+          }),
+        },
+      ]}
+      visibleColumns={["title", "actions"]}
+      rowKey={(row) => row.key}
+      emptyText={expanded ? "暂无项目。" : "已收起。"}
+    />
   );
 }

@@ -1,8 +1,5 @@
 "use client";
 
-import {
-  Toolbar,
-} from "@workspace/core/ui";
 import type { ColumnDef, ToolbarItem } from "@workspace/core/ui";
 
 interface ContractFiltersProps {
@@ -21,15 +18,15 @@ interface ContractFiltersProps {
   onReset: () => void;
 }
 
-export default function ContractFilters({
+export default function getContractFilterToolbarItems({
   q, onQChange,
   categoryFilter, onCategoryChange,
   statusFilter, onStatusChange,
   categories, statuses,
   columns, visibleColumns, onColumnsChange,
   onCreate, onReset,
-}: ContractFiltersProps) {
-  const items: ToolbarItem[] = [
+}: ContractFiltersProps): ToolbarItem[] {
+  return [
     {
       kind: "create",
       key: "create",
@@ -78,10 +75,4 @@ export default function ContractFilters({
       onChange: onColumnsChange,
     },
   ];
-
-  return (
-    <div className="mb-4">
-      <Toolbar items={items} />
-    </div>
-  );
 }

@@ -11,6 +11,7 @@ import {
   ModuleGridPage,
   PageContent,
   PageShell,
+  PageSurface,
   PanelCard,
   SectionCard,
   TemplateWorkbenchFrame,
@@ -100,6 +101,39 @@ function PageShellPreview() {
   );
 }
 
+function PageSurfacePreview() {
+  return (
+    <div className="max-h-80 overflow-hidden rounded-lg border border-slate-200">
+      <PageSurface
+        kind="list"
+        contentClassName="py-4"
+        toolbar={{
+          items: [
+            { kind: "search", key: "search", value: "", onChange: () => {}, placeholder: "搜索..." },
+            { kind: "text", key: "count", content: "共 12 条" },
+          ],
+        }}
+        blocks={[
+          {
+            kind: "section",
+            key: "records",
+            title: "列表 Surface",
+            subtitle: "toolbar / blocks / empty 都通过明确 spec 传入",
+            blocks: [
+              {
+                kind: "empty",
+                key: "empty",
+                content: "暂无数据",
+                compact: true,
+              },
+            ],
+          },
+        ]}
+      />
+    </div>
+  );
+}
+
 function PanelCardPreview() { return <PanelCard title="示例卡片" className="max-w-xs"><p className="text-sm text-slate-600">这是一个 PanelCard 示例内容。</p></PanelCard>; }
 
 function SectionCardPreview() { return <SectionCard title="示例小节"><p className="text-sm text-slate-600">这是一个 SectionCard 示例内容。</p></SectionCard>; }
@@ -175,6 +209,7 @@ export const layoutPreviewByName: Record<string, FC> = {
   ModuleGridPage: ModuleGridPagePreview,
   PageContent: PageContentPreview,
   PageShell: PageShellPreview,
+  PageSurface: PageSurfacePreview,
   PanelCard: PanelCardPreview,
   SectionCard: SectionCardPreview,
   TemplateWorkbenchFrame: TemplateWorkbenchFramePreview,

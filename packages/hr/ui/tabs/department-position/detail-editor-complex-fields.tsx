@@ -1,8 +1,7 @@
 "use client";
 
-import { CommandButton, EmptyStateCard, FormField, InputControl, PanelCard, TagListInput, useFeedback } from "@workspace/core/ui";
-import { normalizeHrMajorItems, type HRMajorItem } from "@workspace/hr/constants/field-options";
-import MajorPicker from "../../components/MajorPicker";
+import { FormSurface, PageSurface, useFeedback } from "@workspace/core/ui";
+import { HR_MAJOR_OPTIONS, normalizeHrMajorItems, type HRMajorItem } from "@workspace/hr/constants/field-options";
 import { ENVIRONMENT_FACTOR_OPTIONS, WORK_AREA_OPTIONS, pickerOptions, primitiveListItems } from "./description-details";
 import { OptionTagListEditor } from "./detail-editor-primitives";
 type WorkEnvironmentItem = {
@@ -59,30 +58,71 @@ export function WorkEnvironmentEditor({
   }
   return <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <PanelCard bodyClassName="space-y-3 p-3">
+      <PageSurface
+        embedded
+        kind="detail"
+        blocks={[{
+          kind: "panel",
+          key: "work-environments",
+          bodyClassName: "space-y-3 p-3",
+          blocks: [{
+            kind: "moduleView",
+            key: "content",
+            view: <>
         {items.map((item, index) => {
         const areaOptions = [item.area, ...availableAreas].filter((area, areaIndex, array) => array.indexOf(area) === areaIndex);
-        return <PanelCard key={`${item.area}-${index}`} bodyClassName="p-3">
-              <div className="mb-3 flex items-start gap-3">
-                <div className="min-w-48 flex-1">
-                  <InputControl spec={{ valueType: "string", editor: "select", state: disabled ? "disabled" : "normal", options: { source: "static", items: pickerOptions(areaOptions), searchPlaceholder: "搜索工作区域" } }} value={item.area} placeholder="选择工作区域" onChange={next => updateItem(index, {
-                area: String(next ?? "")
-              })} />
+        return <PageSurface
+          key={`${item.area}-${index}`}
+          embedded
+          kind="detail"
+          blocks={[{
+            kind: "panel",
+            key: `work-environment-${index}`,
+            bodyClassName: "p-3",
+            blocks: [{
+              kind: "moduleView",
+              key: "content",
+              view: <>
+                <div className="mb-3 flex items-start gap-3">
+                  <div className="min-w-48 flex-1">
+                    <FormSurface
+                      kind="control"
+                      control={{
+                        kind: "inputControl",
+                        spec: { valueType: "string", editor: "select", state: disabled ? "disabled" : "normal", options: { source: "static", items: pickerOptions(areaOptions), searchPlaceholder: "搜索工作区域" } },
+                        value: item.area,
+                        placeholder: "选择工作区域",
+                        onChange: next => updateItem(index, { area: String(next ?? "") }),
+                      }}
+                    />
+                  </div>
+                  {!disabled && <FormSurface kind="inline" actions={[{ key: "delete-area", label: "删除", variant: "danger", size: "sm", onClick: () => void removeArea(index), className: "px-2 py-1 text-xs" }]} />}
                 </div>
-                {!disabled && <CommandButton aria-label={`删除工作区域 ${item.area}`} onClick={() => void removeArea(index)} variant="danger" size="sm" className="grid size-9 place-items-center rounded-full border-0 bg-transparent p-0 text-slate-400 shadow-none hover:bg-red-50 hover:text-red-500">
-                    ×
-                  </CommandButton>}
-              </div>
-              <OptionTagListEditor label="环境因素" value={item.factors} options={ENVIRONMENT_FACTOR_OPTIONS} disabled={disabled} placeholder="添加环境因素" onChange={factors => updateItem(index, {
-            factors
-          })} />
-            </PanelCard>;
+                <OptionTagListEditor label="环境因素" value={item.factors} options={ENVIRONMENT_FACTOR_OPTIONS} disabled={disabled} placeholder="添加环境因素" onChange={factors => updateItem(index, {
+                  factors
+                })} />
+              </>,
+            }],
+          }]}
+        />;
       })}
-        {items.length === 0 && <EmptyStateCard compact>未设置</EmptyStateCard>}
+        {items.length === 0 && <PageSurface embedded kind="detail" empty={{ content: "未设置", compact: true }} />}
         {!disabled && <div className="max-w-sm">
-            <InputControl spec={{ valueType: "string", editor: "select", state: availableAreas.length === 0 ? "disabled" : "normal", options: { source: "static", items: pickerOptions(availableAreas), searchPlaceholder: "搜索工作区域" } }} value="" placeholder="新增工作区域" onChange={(next) => addArea(next == null ? null : String(next))} />
+            <FormSurface
+              kind="control"
+              control={{
+                kind: "inputControl",
+                spec: { valueType: "string", editor: "select", state: availableAreas.length === 0 ? "disabled" : "normal", options: { source: "static", items: pickerOptions(availableAreas), searchPlaceholder: "搜索工作区域" } },
+                value: "",
+                placeholder: "新增工作区域",
+                onChange: (next) => addArea(next == null ? null : String(next)),
+              }}
+            />
           </div>}
-      </PanelCard>
+            </>,
+          }],
+        }]}
+      />
     </div>;
 }
 type ExperienceRequirementItem = {
@@ -131,23 +171,50 @@ export function MajorRequirementsEditor({
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <TagListInput
-        items={items}
-        getKey={(item, index) => `${item.category}-${item.specialty}-${index}`}
-        getLabel={(item) => item.specialty || item.category}
-        onRemove={(_, index) => removeItem(index)}
-        disabled={disabled}
-        confirmMessage={(item) => `确定删除专业要求「${item.category || ""}${item.specialty ? ` / ${item.specialty}` : ""}」吗？删除后需要保存才会生效。`}
-        itemTitle={(item) => (item.category ? `${item.category} / ${item.specialty}` : item.specialty)}
-        emptyText={disabled ? "未设置" : undefined}
-        shellClassName="content-start"
-      >
-        {!disabled && (
-          <div className="min-w-40 flex-1">
-            <MajorPicker value="" disabled={disabled} onChange={addItem} />
-          </div>
-        )}
-      </TagListInput>
+      <FormSurface<HRMajorItem>
+        kind="inline"
+        fields={[{
+          kind: "tagList",
+          key: "majorRequirements",
+          label: "",
+          items,
+          getKey: (item, index) => `${item.category}-${item.specialty}-${index}`,
+          getLabel: (item) => item.specialty || item.category,
+          onRemove: (_, index) => removeItem(index),
+          disabled,
+          confirmMessage: (item) => `确定删除专业要求「${item.category || ""}${item.specialty ? ` / ${item.specialty}` : ""}」吗？删除后需要保存才会生效。`,
+          itemTitle: (item) => (item.category ? `${item.category} / ${item.specialty}` : item.specialty),
+          emptyText: disabled ? "未设置" : undefined,
+          shellClassName: "content-start",
+          append: disabled
+            ? undefined
+            : {
+                className: "min-w-40 flex-1",
+                field: {
+                  key: "majorAppend",
+                  label: "",
+                  spec: {
+                    valueType: "string",
+                    editor: "autocomplete",
+                    state: disabled ? "disabled" : "normal",
+                    options: {
+                      source: "static",
+                      items: HR_MAJOR_OPTIONS.map((option) => ({
+                        value: option.specialty,
+                        label: option.specialty,
+                        subtitle: option.category,
+                        searchText: option.category,
+                      })),
+                      visibleCount: 5,
+                    },
+                  },
+                  value: "",
+                  placeholder: "未设置",
+                  onChange: (next) => addItem(next == null ? null : String(next)),
+                },
+              },
+        }]}
+      />
     </div>
   );
 }
@@ -186,30 +253,70 @@ export function ExperienceRequirementsEditor({
   return <div className="space-y-2">
       <div className="flex items-center gap-3">
         <span className="text-xs font-medium text-slate-500">{label}</span>
-        {!disabled && <CommandButton onClick={addItem} size="sm" className="px-2 py-1 text-xs">
-            新增
-          </CommandButton>}
+        {!disabled && <FormSurface kind="inline" actions={[{ key: "add-experience", label: "新增", size: "sm", onClick: addItem, className: "px-2 py-1 text-xs" }]} />}
       </div>
-      <PanelCard bodyClassName="space-y-2 p-3">
-        {items.map((item, index) => <PanelCard key={index} bodyClassName="grid grid-cols-1 gap-2 p-3 md:grid-cols-[150px_minmax(0,1fr)_40px]">
-            <FormField label="年限">
-              <div className="grid grid-cols-[minmax(0,1fr)_auto] overflow-hidden">
-                <InputControl spec={{ valueType: "number", editor: "input", state: disabled ? "disabled" : "normal" }} value={item.years} inputMode="numeric" placeholder="1" onChange={next => updateItem(index, {
-              years: positiveIntegerText(String(next ?? ""))
-            })} />
-                <span className="whitespace-nowrap border-l border-slate-200 bg-slate-50 px-2.5 py-2 text-sm text-slate-500">年以上</span>
-              </div>
-            </FormField>
-            <FormField label="要求内容">
-              <InputControl spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }} value={item.requirement} placeholder="经验要求" onChange={next => updateItem(index, {
-            requirement: String(next ?? "")
-          })} />
-            </FormField>
-            {!disabled && <CommandButton aria-label={`删除${label} ${index + 1}`} onClick={() => void removeItem(index)} variant="danger" size="sm" className="mt-5 grid size-9 place-items-center rounded-full border-0 bg-transparent p-0 text-slate-400 shadow-none hover:bg-red-50 hover:text-red-500">
-                ×
-              </CommandButton>}
-          </PanelCard>)}
-        {items.length === 0 && <EmptyStateCard compact>未设置</EmptyStateCard>}
-      </PanelCard>
+      <PageSurface
+        embedded
+        kind="detail"
+        blocks={[{
+          kind: "panel",
+          key: "experience-requirements",
+          bodyClassName: "space-y-2 p-3",
+          blocks: [{
+            kind: "moduleView",
+            key: "content",
+            view: <>
+              {items.map((item, index) => (
+                <PageSurface
+                  key={index}
+                  embedded
+                  kind="detail"
+                  blocks={[{
+                    kind: "panel",
+                    key: `experience-${index}`,
+                    bodyClassName: "grid grid-cols-1 gap-2 p-3 md:grid-cols-[150px_minmax(0,1fr)_40px]",
+                    blocks: [{
+                      kind: "moduleView",
+                      key: "content",
+                      view: <>
+                        <FormSurface
+                          kind="fields"
+                          className="contents"
+                          bodyClassName="contents"
+                          fields={[{
+                            key: "years",
+                            label: "年限",
+                            spec: { valueType: "number", editor: "input", state: disabled ? "disabled" : "normal" },
+                            value: item.years,
+                            inputMode: "numeric",
+                            placeholder: "1",
+                            onChange: next => updateItem(index, { years: positiveIntegerText(String(next ?? "")) }),
+                          }]}
+                        />
+                        <span className="self-end whitespace-nowrap border-l border-slate-200 bg-slate-50 px-2.5 py-2 text-sm text-slate-500">年以上</span>
+                        <FormSurface
+                          kind="fields"
+                          className="contents"
+                          bodyClassName="contents"
+                          fields={[{
+                            key: "requirement",
+                            label: "要求内容",
+                            spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" },
+                            value: item.requirement,
+                            placeholder: "经验要求",
+                            onChange: next => updateItem(index, { requirement: String(next ?? "") }),
+                          }]}
+                        />
+                        {!disabled && <FormSurface kind="inline" className="mt-5" actions={[{ key: "delete-experience", label: "删除", variant: "danger", size: "sm", onClick: () => void removeItem(index), className: "px-2 py-1 text-xs" }]} />}
+                      </>,
+                    }],
+                  }]}
+                />
+              ))}
+              {items.length === 0 && <PageSurface embedded kind="detail" empty={{ content: "未设置", compact: true }} />}
+            </>,
+          }],
+        }]}
+      />
     </div>;
 }

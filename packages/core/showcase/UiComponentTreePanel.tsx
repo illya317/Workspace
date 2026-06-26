@@ -7,6 +7,7 @@ import { TreeNodeBranch, TreeNodeCard } from "../ui/HierarchyTree";
 import {
   coreUiComponentAccessLayerMeta,
   coreUiComponentKindMeta,
+  coreUiComponentUiLevelMeta,
   coreUiFrameMaturityMeta,
 } from "@workspace/core/ui/component-registry";
 import {
@@ -18,6 +19,7 @@ import type { CoreUiComponentTreeNode } from "@workspace/core/ui/component-regis
 export type UiComponentTreeMetaKey =
   | "kind"
   | "accessLayer"
+  | "uiLevel"
   | "usedBy"
   | "files"
   | "verified";
@@ -60,6 +62,7 @@ function buildMeta(node: CoreUiComponentTreeNode, visibleMeta: readonly string[]
   const parts: string[] = [];
   if (visibleMeta.includes("kind")) parts.push(coreUiComponentKindMeta[node.kind].label);
   if (visibleMeta.includes("accessLayer")) parts.push(coreUiComponentAccessLayerMeta[node.accessLayer].label);
+  if (visibleMeta.includes("uiLevel")) parts.push(coreUiComponentUiLevelMeta[node.uiLevel].label);
   if (visibleMeta.includes("usedBy")) parts.push(`被引用 ${node.usedByCount}`);
   if (visibleMeta.includes("files")) parts.push(`文件 ${node.usageFileCount}`);
   return parts.join(" · ");
@@ -100,6 +103,12 @@ function TreeNodeView({
             {formatNestDepth(node.nestDepth)}
           </span>
           {isFrame && <FrameMaturityBadge maturity={node.component.frameMaturity} />}
+          <span
+            className="shrink-0 rounded-full bg-indigo-50 px-1.5 py-0.5 text-[10px] font-medium text-indigo-700"
+            title={coreUiComponentUiLevelMeta[node.uiLevel].description}
+          >
+            {coreUiComponentUiLevelMeta[node.uiLevel].label}
+          </span>
           {visibleMeta.includes("verified") && <VerifiedBadge verified={node.verified} />}
         </span>
       )}

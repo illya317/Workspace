@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Toolbar, useFeedback, type ToolbarItem } from "@workspace/core/ui";
+import { FormSurface, useFeedback } from "@workspace/core/ui";
 import type { QcBatchSummary } from "@workspace/production/server/qc";
 import { QC_BATCH_PAGE_SIZE_OPTIONS, QC_BATCH_STATUS_OPTIONS, QcBatchCreatePanel } from "./QcBatchListControls";
 import { QcBatchTable, formatQcBatchDate, qcBatchStatusText, type QcBatchTableRow } from "./QcBatchTable";
@@ -118,66 +118,56 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
     });
   }
 
-  const toolbarItems: ToolbarItem[] = [
-    {
-      kind: "create",
-      key: "create",
-      label: "新建批次",
-      active: createOpen,
-      onClick: () => setCreateOpen((open) => !open),
-    },
-    {
-      kind: "option-group",
-      key: "status",
-      section: "filter",
-      value: statusFilter,
-      options: QC_BATCH_STATUS_OPTIONS,
-      onChange: (value) => {
-        setStatusFilter(value);
-        setPage(1);
-      },
-      ariaLabel: "批次状态",
-      presentation: "segmented",
-    },
-    {
-      kind: "autocomplete",
-      key: "product",
-      section: "filter",
-      value: productFilter,
-      onChange: (value) => {
-        setProductFilter(value);
-        setPage(1);
-      },
-      placeholder: "全部",
-      visibleCount: 5,
-      options: productFilterOptions,
-      inputClassName: "min-w-[7.5rem]",
-    },
-    {
-      kind: "action-group",
-      key: "actions",
-      actions: [
-        { key: "refresh", kind: "refresh", label: "刷新", onClick: refreshBatches },
-        { key: "export", kind: "download", label: "导出", onClick: exportBatches },
-      ],
-    },
-    {
-      kind: "select",
-      key: "page-size",
-      section: "meta",
-      value: String(pageSize),
-      onChange: (value) => {
-        setPageSize(Number(value));
-        setPage(1);
-      },
-      options: QC_BATCH_PAGE_SIZE_OPTIONS,
-      triggerClassName: "!w-[6.5rem] !min-w-[6.5rem]",
-    },
-  ];
-
   return (
     <section className="space-y-4">
-      <Toolbar items={toolbarItems} />
+      <FormSurface
+        kind="filters"
+        fields={[
+          {
+            key: "status",
+            label: "状态",
+            spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: QC_BATCH_STATUS_OPTIONS } },
+            value: statusFilter,
+            onChange: (value) => {
+              setStatusFilter(String(value ?? "all"));
+              setPage(1);
+            },
+          },
+          {
+            key: "product",
+            label: "产品",
+            spec: { valueType: "string", editor: "autocomplete", options: { source: "static", mode: "autocomplete", visibleCount: 5, items: productFilterOptions } },
+            value: productFilter,
+            onChange: (value) => {
+              setProductFilter(String(value ?? ""));
+              setPage(1);
+            },
+            placeholder: "全部",
+            className: "min-w-[7.5rem]",
+          },
+          {
+            key: "pageSize",
+            label: "分页",
+            spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: QC_BATCH_PAGE_SIZE_OPTIONS } },
+            value: String(pageSize),
+            onChange: (value) => {
+              setPageSize(Number(value));
+              setPage(1);
+            },
+            className: "w-[6.5rem]",
+          },
+        ]}
+        actions={[
+          {
+            key: "create",
+            label: createOpen ? "收起新建" : "新建批次",
+            variant: createOpen ? "secondary" : "primary",
+            onClick: () => setCreateOpen((open) => !open),
+          },
+          { key: "refresh", label: "刷新", onClick: refreshBatches },
+          { key: "export", label: "导出", onClick: exportBatches },
+        ]}
+      />
 
       <QcBatchCreatePanel
         open={createOpen}

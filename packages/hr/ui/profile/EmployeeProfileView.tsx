@@ -2,10 +2,8 @@
 
 import type { Dispatch, SetStateAction } from "react";
 import {
-  DatabasePageFrame,
-  EmptyStateCard,
-  TabBar,
-  type TabBarAction,
+  PageSurface,
+  type PageSurfaceCommandSpec,
 } from "@workspace/core/ui";
 import { employeeFields } from "@workspace/hr/constants";
 import type {
@@ -96,9 +94,9 @@ export default function EmployeeProfileView({
   onHistoryRefresh: () => void;
   confirmDelete: (options: { message: string }) => Promise<boolean>;
 }) {
-  if (loading) return <DatabasePageFrame><EmptyStateCard>加载员工资料...</EmptyStateCard></DatabasePageFrame>;
+  if (loading) return <PageSurface kind="detail" empty={{ content: "加载员工资料..." }} />;
   if (!profile || !employeeDraft) {
-    return <DatabasePageFrame><EmptyStateCard compact>{error || "员工资料不存在"}</EmptyStateCard></DatabasePageFrame>;
+    return <PageSurface kind="detail" empty={{ content: error || "员工资料不存在", compact: true }} />;
   }
 
   const activeEmploymentIndex = employments.findIndex((row) => row.isActive);
@@ -119,12 +117,11 @@ export default function EmployeeProfileView({
     { key: "history", label: "历史记录" },
   ];
 
-  const trailingActions: TabBarAction[] = [];
+  const pageActions: PageSurfaceCommandSpec[] = [];
 
   if (canEdit && activeSection !== "history") {
-    trailingActions.push({
+    pageActions.push({
       key: "save",
-      icon: "save",
       label: saving === "all" ? "保存中..." : "保存",
       variant: "primary",
       disabled: saving !== null || !dirtyState.all,
@@ -132,30 +129,15 @@ export default function EmployeeProfileView({
     });
   }
 
-  trailingActions.push({
+  pageActions.push({
     key: "back",
-    icon: "cancel",
     label: "返回列表",
     variant: "secondary",
     onClick: onBack,
   });
 
-  return (
-    <DatabasePageFrame>
-      <div className="sticky top-[52px] z-30 mb-3">
-        <TabBar
-          variant="large"
-          accordion
-          tabs={profileTabs}
-          active={activeSection}
-          onChange={(key) => onSectionChange(key as ProfileSection)}
-          trailingActions={trailingActions}
-        />
-      </div>
-
-      {error && <EmptyStateCard compact>{error}</EmptyStateCard>}
-      {message && <EmptyStateCard compact>{message}</EmptyStateCard>}
-
+  const moduleView = (
+    <>
       <div>
         {activeSection === "basic" && (
           <SectionShell title={null} className={sectionCardClassName}>
@@ -201,7 +183,22 @@ export default function EmployeeProfileView({
           <HistorySection entries={historyEntries} loading={historyLoading} expandedId={expandedHistoryId} onToggle={onHistoryToggle} onRefresh={onHistoryRefresh} className={sectionCardClassName} />
         )}
       </div>
-    </DatabasePageFrame>
+    </>
+  );
+
+  return (
+    <PageSurface
+      kind="detail"
+      tabs={profileTabs}
+      activeTab={activeSection}
+      onTabChange={(key) => onSectionChange(key as ProfileSection)}
+      actions={pageActions}
+      blocks={[
+        ...(error ? [{ kind: "message" as const, key: "error", tone: "danger" as const, content: error }] : []),
+        ...(message ? [{ kind: "message" as const, key: "message", content: message }] : []),
+        { kind: "moduleView", key: activeSection, view: moduleView },
+      ]}
+    />
   );
 }
 

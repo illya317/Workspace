@@ -5,10 +5,9 @@ import LineConfigTab from "./LineConfigTab";
 import UnmappedTab from "./UnmappedTab";
 import BalanceCheckTab from "./BalanceCheckTab";
 import { StatementConfigProvider, useStatementConfig } from "./StatementConfigContext";
-import { Toolbar, type ToolbarItem } from "@workspace/core/ui";
+import { FormSurface, NavigationSurface, type ToolbarItem } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
-import { DatabasePageFrame } from "@workspace/core/ui";
 
 const tabs = getPageViewTabs("/finance/statement-config");
 
@@ -53,24 +52,21 @@ function SharedFilters() {
     },
   ];
 
-  return <Toolbar items={toolbarItems} />;
+  return <FormSurface kind="filters" toolbar={{ items: toolbarItems }} />;
 }
 
 function TabContent() {
   const [activeTab, setActiveTab] = useState("lines");
   return (
-    <DatabasePageFrame
-      tabs={tabs}
-      activeTab={activeTab}
-      onTabChange={setActiveTab}
-    >
+    <div className="space-y-4">
+      <NavigationSurface kind="tabs" tabs={{ tabs, active: activeTab, onChange: setActiveTab }} />
       <SharedFilters />
       <div>
         {activeTab === "lines" && <LineConfigTab />}
         {activeTab === "unmapped" && <UnmappedTab />}
         {activeTab === "balance" && <BalanceCheckTab />}
       </div>
-    </DatabasePageFrame>
+    </div>
   );
 }
 

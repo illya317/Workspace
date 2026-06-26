@@ -1,9 +1,4 @@
-import type {
-  TemplateWorkbenchRowAction,
-  TemplateWorkbenchSection,
-  TemplateWorkbenchSelectorItem,
-  TemplateWorkbenchViewModel,
-} from "@workspace/core/ui";
+import type { ReactNode } from "react";
 import type {
   QcTemplateDetail,
   QcTemplateFeedbackState,
@@ -19,11 +14,65 @@ import {
   type WorkbenchSelection,
 } from "./types";
 
+export interface QcTemplateWorkbenchSelectorItem {
+  key: string;
+  title: ReactNode;
+  subtitle?: ReactNode;
+  trailing?: ReactNode;
+}
+
+export interface QcTemplateWorkbenchRowAction {
+  label: ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+  variant?: "primary" | "secondary" | "danger";
+  indicator?: "danger" | "success";
+}
+
+export interface QcTemplateWorkbenchRow {
+  key: string;
+  badge: ReactNode;
+  title: ReactNode;
+  description?: ReactNode;
+  inset?: boolean;
+  searchText?: Array<string | number | null | undefined>;
+  actions?: QcTemplateWorkbenchRowAction[];
+}
+
+export interface QcTemplateWorkbenchSection {
+  key: string;
+  selectorKey?: string;
+  title: ReactNode;
+  subtitle?: ReactNode;
+  searchText?: Array<string | number | null | undefined>;
+  status?: { label: string; tone: "red" | "green" };
+  collapsible?: boolean;
+  defaultExpanded?: boolean;
+  expanded?: boolean;
+  toggleLabel?: ReactNode;
+  toggleUnit?: string;
+  toggleCount?: number;
+  onToggle?: () => void;
+  rows: QcTemplateWorkbenchRow[];
+}
+
+export interface QcTemplateWorkbenchViewModel {
+  selectorTitle: ReactNode;
+  selectorItems: QcTemplateWorkbenchSelectorItem[];
+  sections: QcTemplateWorkbenchSection[];
+  defaultSelectorKey?: string;
+  searchPlaceholder?: string;
+  toolbarMeta?: ReactNode;
+  emptyText?: ReactNode;
+  hideToolbar?: boolean;
+}
+
 interface Options {
   templates: QcTemplateDetail[];
   feedbackStates: Record<string, QcTemplateFeedbackState>;
   previewLoading: string;
-  toolbarMeta?: TemplateWorkbenchViewModel["toolbarMeta"];
+  toolbarMeta?: QcTemplateWorkbenchViewModel["toolbarMeta"];
   onPreview: (selection: WorkbenchSelection) => void;
   onFeedback: (target: FeedbackTarget) => void;
 }
@@ -53,13 +102,13 @@ function stageFeedbackSummary(template: QcTemplateDetail, stage: QcTemplateStage
   return undefined;
 }
 
-function actionIndicator(state?: QcTemplateFeedbackState): TemplateWorkbenchRowAction["indicator"] {
+function actionIndicator(state?: QcTemplateFeedbackState): QcTemplateWorkbenchRowAction["indicator"] {
   if (state === "open") return "danger";
   if (state === "resolved") return "success";
   return undefined;
 }
 
-function rowActions(selection: WorkbenchSelection, options: Options): TemplateWorkbenchRowAction[] {
+function rowActions(selection: WorkbenchSelection, options: Options): QcTemplateWorkbenchRowAction[] {
   const state = options.feedbackStates[feedbackKey(feedbackContext(selection))];
   return [
     {
@@ -76,7 +125,7 @@ function rowActions(selection: WorkbenchSelection, options: Options): TemplateWo
   ];
 }
 
-function createSections(options: Options): TemplateWorkbenchSection[] {
+function createSections(options: Options): QcTemplateWorkbenchSection[] {
   const firstStageKey = options.templates[0]?.stages[0] ? `${options.templates[0].id}:${options.templates[0].stages[0].key}` : "";
   return options.templates.flatMap((template) => template.stages.map((stage, index) => {
     const sectionKey = `${template.id}:${stage.key}`;
@@ -128,7 +177,7 @@ function createSections(options: Options): TemplateWorkbenchSection[] {
   }));
 }
 
-function createSelectorItems(templates: QcTemplateDetail[]): TemplateWorkbenchSelectorItem[] {
+function createSelectorItems(templates: QcTemplateDetail[]): QcTemplateWorkbenchSelectorItem[] {
   return [
     { key: "all", title: "全部产品", trailing: templates.length },
     ...templates.map((template) => ({
@@ -140,7 +189,7 @@ function createSelectorItems(templates: QcTemplateDetail[]): TemplateWorkbenchSe
   ];
 }
 
-export function createQcTemplateWorkbenchViewModel(options: Options): TemplateWorkbenchViewModel {
+export function createQcTemplateWorkbenchViewModel(options: Options): QcTemplateWorkbenchViewModel {
   return {
     selectorTitle: "产品",
     selectorItems: createSelectorItems(options.templates),

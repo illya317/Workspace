@@ -28,9 +28,11 @@ import {
   findHandwrittenSearchMatches,
   type HandwrittenSearchMatchCandidate,
 } from "./level2-search";
+import { countApiContractsByOwner, findAppJsxFiles } from "./level2-report-helpers";
 import {
   findAppHookFiles,
   findAppHookImplementationFiles,
+  findBusinessCoreUiSurfaceBypassImports,
   findDuplicateCoreUiRegistrations,
   findGeneratedFilterContractDrift,
   findHookPatternCandidates,
@@ -39,6 +41,7 @@ import {
   findUiPatternCandidates,
   findUnregisteredCoreUiExports,
   findUnregisteredCoreUiImports,
+  type BusinessCoreUiSurfaceBypassImport,
   type DuplicateCoreUiRegistration,
   type GeneratedFilterContractDrift,
   type HookPatternCandidate,
@@ -156,6 +159,7 @@ type Level2Report = {
     nativeSearchInputFiles: number;
     handwrittenSearchMatchFiles: number;
     generatedFilterContractDriftFiles: number;
+    businessCoreUiSurfaceBypassImports: number;
   };
   registries: {
     modules: Array<{
@@ -181,6 +185,7 @@ type Level2Report = {
     nativeSearchInputFiles: NativeSearchInputFile[];
     handwrittenSearchMatches: HandwrittenSearchMatchCandidate[];
     generatedFilterContractDrift: GeneratedFilterContractDrift[];
+    businessCoreUiSurfaceBypassImports: BusinessCoreUiSurfaceBypassImport[];
   };
   drift: {
     appJsxFiles: string[];
@@ -212,6 +217,7 @@ type Level2Report = {
     nativeSearchInputFiles: NativeSearchInputFile[];
     handwrittenSearchMatches: HandwrittenSearchMatchCandidate[];
     generatedFilterContractDrift: GeneratedFilterContractDrift[];
+    businessCoreUiSurfaceBypassImports: BusinessCoreUiSurfaceBypassImport[];
     repeatedServiceGroups: ServicePatternGroup[];
     routePrimitiveSchemaDuplicates: RoutePrimitiveSchemaCandidate[];
     apiRouteHelperDuplicates: ApiRouteHelperCandidate[];
@@ -702,24 +708,6 @@ function findRepeatedServiceGroups(files: SourceInfo[]) {
     .sort((left, right) => left.name.localeCompare(right.name));
 }
 
-function countByOwner() {
-  const result: Record<string, number> = {};
-  for (const contract of apiContracts) {
-    result[contract.ownerPackage] = (result[contract.ownerPackage] ?? 0) + 1;
-  }
-  return Object.fromEntries(Object.entries(result).sort(([left], [right]) => left.localeCompare(right)));
-}
-
-function findAppJsxFiles(files: SourceInfo[]) {
-  return files
-    .filter((file) => file.relPath.startsWith("app/"))
-    .filter((file) => !file.relPath.startsWith("app/api/"))
-    .filter((file) => file.relPath.endsWith(".tsx"))
-    .filter((file) => file.hasJsx)
-    .map((file) => file.relPath)
-    .sort();
-}
-
 export function createLevel2Report(): Level2Report {
   const sourceFiles = SCAN_ROOTS
     .flatMap((rootName) => walk(path.join(ROOT, rootName)))
@@ -741,6 +729,7 @@ export function createLevel2Report(): Level2Report {
   const nativeSearchInputFiles = findNativeSearchInputFiles(sourceFiles);
   const handwrittenSearchMatches = findHandwrittenSearchMatches(sourceFiles);
   const generatedFilterContractDrift = findGeneratedFilterContractDrift(generatedUiSourceFiles);
+  const businessCoreUiSurfaceBypassImports = findBusinessCoreUiSurfaceBypassImports(sourceFiles);
   const repeatedServiceGroups = findRepeatedServiceGroups(sourceFiles);
   const uncontractedApiRouteMethods = apiRouteMethods.filter((route) => route.contractKey === null);
   const apiRoutesWithDirectPrismaSignal = apiRouteMethods.filter((route) => route.hasDirectPrismaSignal);
@@ -822,6 +811,7 @@ export function createLevel2Report(): Level2Report {
       nativeSearchInputFiles: nativeSearchInputFiles.length,
       handwrittenSearchMatchFiles: new Set(handwrittenSearchMatches.map((candidate) => candidate.file)).size,
       generatedFilterContractDriftFiles: new Set(generatedFilterContractDrift.map((candidate) => candidate.file)).size,
+      businessCoreUiSurfaceBypassImports: businessCoreUiSurfaceBypassImports.length,
     },
     registries: {
       modules: registeredModuleDefinitions
@@ -833,7 +823,7 @@ export function createLevel2Report(): Level2Report {
           apiGuardCount: definition.apiGuards?.length ?? 0,
         }))
         .sort((left, right) => left.packageName.localeCompare(right.packageName)),
-      apiContractsByOwner: countByOwner(),
+      apiContractsByOwner: countApiContractsByOwner(apiContracts),
     },
     patterns: {
       uiPatternCandidates,
@@ -849,6 +839,7 @@ export function createLevel2Report(): Level2Report {
       nativeSearchInputFiles,
       handwrittenSearchMatches,
       generatedFilterContractDrift,
+      businessCoreUiSurfaceBypassImports,
     },
     drift: {
       appJsxFiles: findAppJsxFiles(sourceFiles),
@@ -880,6 +871,7 @@ export function createLevel2Report(): Level2Report {
       nativeSearchInputFiles,
       handwrittenSearchMatches,
       generatedFilterContractDrift,
+      businessCoreUiSurfaceBypassImports,
       repeatedServiceGroups,
       routePrimitiveSchemaDuplicates,
       apiRouteHelperDuplicates,

@@ -2,9 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  EmptyStateCard,
-  PanelCard,
-  Toolbar,
+  PageSurface,
+  type PageSurfaceBlockSpec,
   type ColumnDef,
   type FieldValueFilterField,
 } from "@workspace/core/ui";
@@ -179,28 +178,42 @@ export default function RosterGeneratedTab({ variant, canEdit }: { variant: Rost
     },
   });
 
+  const tableBlocks: PageSurfaceBlockSpec[] = loading
+    ? [{ kind: "message", key: "loading", content: "正在生成预览...", tone: "muted" }]
+    : groups.length === 0
+      ? [{ kind: "empty", key: "empty", presentation: "plain", content: "暂无花名册数据" }]
+      : [{
+          kind: "moduleView",
+          key: "table",
+          view: (
+            <RosterGeneratedTable
+              columns={visibleTableColumns}
+              groups={groups}
+              editMode={editMode}
+              onEmployeeCellChange={updateEmployeeCell}
+              onRowCellChange={updateRowCell}
+            />
+          ),
+        }];
+
+  const blocks: PageSurfaceBlockSpec[] = [
+    ...(error ? [{ kind: "message" as const, key: "error", content: error, tone: "danger" as const }] : []),
+    {
+      kind: "panel",
+      key: "preview",
+      className: "overflow-hidden",
+      bodyClassName: "overflow-x-auto",
+      blocks: tableBlocks,
+    },
+  ];
+
   return (
-    <div className="space-y-4">
-      <Toolbar items={toolbarItems} onSubmit={() => void loadPreview()} />
-
-      {error && <EmptyStateCard compact className="border-red-100 text-red-600">{error}</EmptyStateCard>}
-
-      <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
-        {loading ? (
-          <EmptyStateCard compact>正在生成预览...</EmptyStateCard>
-        ) : groups.length === 0 ? (
-          <EmptyStateCard compact>暂无花名册数据</EmptyStateCard>
-        ) : (
-          <RosterGeneratedTable
-            columns={visibleTableColumns}
-            groups={groups}
-            editMode={editMode}
-            onEmployeeCellChange={updateEmployeeCell}
-            onRowCellChange={updateRowCell}
-          />
-        )}
-      </PanelCard>
-    </div>
+    <PageSurface
+      embedded
+      kind="list"
+      toolbar={{ items: toolbarItems, onSubmit: () => void loadPreview() }}
+      blocks={blocks}
+    />
   );
 }
 

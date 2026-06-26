@@ -1,6 +1,6 @@
 "use client";
 
-import { FormField, InputControl } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 
 interface Version {
   id: number;
@@ -28,9 +28,12 @@ export default function BudgetVersionSelector({ versions, activeVersionId, onCha
   }
 
   return (
-    <FormField label="预算版本" layout="inline">
-      <InputControl
-        spec={{
+    <FormSurface
+      kind="inline"
+      field={{
+        key: "version",
+        label: "预算版本",
+        spec: {
           valueType: "number",
           editor: "select",
           options: {
@@ -41,12 +44,12 @@ export default function BudgetVersionSelector({ versions, activeVersionId, onCha
               label: `${v.name} (${statusLabel(v.status)})`,
             })),
           },
-        }}
-        value={activeVersionId == null ? "" : String(activeVersionId)}
-        onChange={(nextValue) => {
+        },
+        value: activeVersionId == null ? "" : String(activeVersionId),
+        onChange: (nextValue) => {
           if (nextValue) onChange(parseInt(String(nextValue), 10));
-        }}
-      />
-    </FormField>
+        },
+      }}
+    />
   );
 }

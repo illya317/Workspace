@@ -1,8 +1,5 @@
 "use client";
 
-import {
-  FieldGrid,
-} from "@workspace/core/ui";
 import { ProfileFieldInput } from "./ProfileFormControls";
 import { FieldRegion } from "./EmployeeProfileFieldRegion";
 import type { ContractRow, EdpRow, ProfileField } from "@workspace/hr/types";
@@ -126,18 +123,20 @@ export function fieldGrid(
 ) {
   const defaultGrid = gridClassName === "grid-cols-3";
   return (
-    <FieldGrid className={gridClassName}>
+    <div className={`grid gap-3 ${gridClassName}`}>
       {fields.map((field) => {
         const disabledByStatus = record.isActive === true && (field.key === "leaveDate" || field.key === "leaveReason" || field.key === "leaveNote");
         const disabledByRule = isFieldDisabled?.(field, record) ?? false;
         const wide = field.span === "wide";
         return (
-          <FieldGrid.Cell
+          <div
             key={field.key}
-            label={field.label}
-            required={field.required}
             className={wide && defaultGrid ? "col-span-3" : ""}
           >
+            <div className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-500">
+              <span>{field.label}</span>
+              {field.required ? <span className="text-red-500">*</span> : null}
+            </div>
             <ProfileFieldInput
               field={field}
               value={field.type === "lunarBirthday" ? record.birthDate : record[field.key]}
@@ -146,10 +145,10 @@ export function fieldGrid(
               disabled={disabled || field.readOnly || disabledByStatus || disabledByRule}
               onChange={onChange}
             />
-          </FieldGrid.Cell>
+          </div>
         );
       })}
-    </FieldGrid>
+    </div>
   );
 }
 

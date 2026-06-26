@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { DetailModal, FormField, InputControl, ReadOnlyField, Toolbar, type ToolbarItem } from "@workspace/core/ui";
+import { workspacePath } from "@workspace/core/routing";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { FormSurface } from "@workspace/core/ui";
 import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
-import AccountCodeInput from "./AccountCodeInput";
 
 interface Props {
   item: ReclassResultRow | null;
@@ -19,6 +19,38 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
+  const [accountOptions, setAccountOptions] = useState<Array<{ code: string; name: string }>>([]);
+  const [accountLoading, setAccountLoading] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const searchableAccountOptions = useMemo(
+    () => accountOptions.map((option) => ({ value: option.code, label: `${option.code} ${option.name}`, searchText: option.name })),
+    [accountOptions],
+  );
+
+  const searchAccounts = useCallback(async (query: string) => {
+    if (query.length < 2) {
+      setAccountOptions([]);
+      setAccountLoading(false);
+      return;
+    }
+    setAccountLoading(true);
+    try {
+      const params = new URLSearchParams({ keyword: query, companyCode, year, scope: "all", pageSize: "10" });
+      const response = await fetch(workspacePath(`/api/modules/finance/ledger/accounts?${params}`));
+      if (response.ok) {
+        const data = await response.json();
+        setAccountOptions((data.data || data.accounts || []).map((account: { code: string; name: string }) => ({
+          code: account.code,
+          name: account.name,
+        })));
+      }
+    } catch {
+      // Search failures should not block manual entry.
+    } finally {
+      setAccountLoading(false);
+    }
+  }, [companyCode, year]);
 
   useEffect(() => {
     if (open && item) {
@@ -52,43 +84,61 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
   }
 
   return (
-    <DetailModal open title="调整重分类" onClose={handleClose} maxWidth="max-w-sm">
-        <div className="space-y-3">
-          <FormField label="凭证号">
-            <ReadOnlyField value={item.voucherNo} fontRole="mono" />
-          </FormField>
-          {item.description && (
-            <FormField label="摘要">
-              <ReadOnlyField value={item.description} />
-            </FormField>
-          )}
-          <FormField label="调整科目" required>
-            <AccountCodeInput companyCode={companyCode} year={year} value={targetAccount} onChange={setTargetAccount} placeholder="搜索科目编码..." />
-          </FormField>
-          <FormField label="重分类金额" required>
-            <InputControl
-              spec={{
-                valueType: "number",
-                editor: "number",
-                validation: item.amount > 0 ? { max: item.amount } : undefined,
-              }}
-              step="0.01"
-              value={amount}
-              onChange={(value) => setAmount(String(value ?? ""))}
-            />
-          </FormField>
-          <FormField label="审核备注">
-            <InputControl spec={{ valueType: "string", editor: "textarea" }} value={note} onChange={(value) => setNote(String(value ?? ""))} rows={2} />
-          </FormField>
-        </div>
-
-        <Toolbar
-          className="mt-5 justify-end border-0 p-0 shadow-none"
-          items={[
-            { kind: "icon-button", key: "cancel", section: "action", icon: "cancel", label: "取消", onClick: handleClose },
-            { kind: "icon-button", key: "submit", section: "action", icon: "check", label: saving ? "提交中..." : "确认调整", variant: "primary", disabled: saving, onClick: handleSubmit },
-          ] satisfies ToolbarItem[]}
-        />
-    </DetailModal>
+    <FormSurface
+      kind="modal"
+      open
+      title="调整重分类"
+      onClose={handleClose}
+      maxWidth="max-w-sm"
+      fields={[
+        { kind: "readonly", key: "voucherNo", label: "凭证号", value: item.voucherNo, fontRole: "mono" },
+        ...(item.description ? [{ kind: "readonly" as const, key: "description", label: "摘要", value: item.description }] : []),
+        {
+          key: "targetAccount",
+          label: "调整科目",
+          required: true,
+          spec: {
+            valueType: "string",
+            editor: "autocomplete",
+            options: { source: "static", mode: "autocomplete", items: searchableAccountOptions, visibleCount: 5 },
+          },
+          value: targetAccount,
+          onChange: (value) => setTargetAccount(String(value ?? "")),
+          onQueryChange: (query) => {
+            clearTimeout(timerRef.current);
+            if (query.length < 2) {
+              setAccountOptions([]);
+              setAccountLoading(false);
+              return;
+            }
+            timerRef.current = setTimeout(() => searchAccounts(query), 300);
+          },
+          loading: accountLoading,
+          placeholder: "搜索科目编码...",
+          emptyText: "无匹配科目",
+        },
+        {
+          key: "amount",
+          label: "重分类金额",
+          required: true,
+          spec: { valueType: "number", editor: "number", validation: item.amount > 0 ? { max: item.amount } : undefined },
+          step: "0.01",
+          value: amount,
+          onChange: (value) => setAmount(String(value ?? "")),
+        },
+        {
+          key: "note",
+          label: "审核备注",
+          spec: { valueType: "string", editor: "textarea" },
+          value: note,
+          onChange: (value) => setNote(String(value ?? "")),
+          rows: 2,
+        },
+      ]}
+      actions={[
+        { key: "cancel", label: "取消", onClick: handleClose },
+        { key: "submit", label: saving ? "提交中..." : "确认调整", variant: "primary", disabled: saving, onClick: handleSubmit },
+      ]}
+    />
   );
 }

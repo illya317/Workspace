@@ -1,4 +1,4 @@
-import { EmptyStateCard, ModuleGridPage } from "@workspace/core/ui";
+import { PageSurface } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import AppShell from "../AppShell";
 import PositionDetailClient from "./positions/PositionDetailClient";
@@ -15,11 +15,17 @@ export function DocsPlaceholderPage({
 }) {
   return (
     <AppShell title={title} backHref="/docs" user={user}>
-      <ModuleGridPage title={title} summary={description} centered>
-        <div className="col-span-full">
-          <EmptyStateCard compact={false}>内容建设中</EmptyStateCard>
-        </div>
-      </ModuleGridPage>
+      <PageSurface
+        kind="settings"
+        contentClassName="py-10"
+        blocks={[{
+          kind: "section",
+          key: "placeholder",
+          title,
+          subtitle: description,
+          blocks: [{ kind: "empty", key: "empty", content: "内容建设中" }],
+        }]}
+      />
     </AppShell>
   );
 }

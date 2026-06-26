@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable, DetailModal, EmptyStateCard, PanelCard, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, FormSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { AgentMessage } from "./types";
 
 function stripMd(t: string): string {
@@ -60,11 +60,11 @@ export default function AgentReportDrawer({ message, onClose }: Props) {
     : [];
 
   const rows = (items as Record<string, unknown>[]).map((item, index) => ({ ...item, __rowIndex: index }));
-  const columns: DataTableColumn<AgentReportRow>[] = visibleKeys.map((key) => ({
+  const columns: DataSurfaceColumnSpec<AgentReportRow>[] = visibleKeys.map((key) => ({
     key,
     label: fieldLabel(key),
     required: true,
-    render: (row) => fmt(row[key]),
+    cell: (row) => fmt(row[key]),
   }));
 
   // 格式化值
@@ -76,25 +76,36 @@ export default function AgentReportDrawer({ message, onClose }: Props) {
   }
 
   return (
-    <DetailModal open title={`查询报告 · 共 ${total} 条记录`} onClose={onClose} maxWidth="max-w-5xl">
-      <div className="space-y-3">
-        <PanelCard bodyClassName="p-3">
-          <p className="whitespace-pre-wrap text-sm text-slate-700">{stripMd(message.content)}</p>
-        </PanelCard>
-        {rows.length > 0 ? (
-          <PanelCard>
-            <DataTable
+    <FormSurface
+      kind="modal"
+      open
+      title={`查询报告 · 共 ${total} 条记录`}
+      onClose={onClose}
+      maxWidth="max-w-5xl"
+      fields={[
+        {
+          kind: "note" as const,
+          key: "summary",
+          content: <p className="whitespace-pre-wrap rounded-md border border-slate-200 p-3 text-sm text-slate-700">{stripMd(message.content)}</p>,
+        },
+        {
+          kind: "note" as const,
+          key: "table",
+          content: rows.length > 0 ? (
+            <DataSurface
+              kind="table"
+              framed
               rows={rows}
               columns={columns}
               visibleColumns={columns.map((column) => column.key)}
               density="compact"
               rowKey={(row) => row.__rowIndex}
             />
-          </PanelCard>
-        ) : (
-          <EmptyStateCard>无详细数据</EmptyStateCard>
-        )}
-      </div>
-    </DetailModal>
+          ) : (
+            <div className="rounded-md border border-slate-200 px-4 py-6 text-center text-sm text-slate-500">无详细数据</div>
+          ),
+        },
+      ]}
+    />
   );
 }

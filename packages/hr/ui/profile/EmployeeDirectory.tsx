@@ -3,14 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  DataTable,
-  EmptyStateCard,
-  FormField,
-  CreatePanel,
-  InputControl,
-  PanelCard,
-  Pagination,
-  Toolbar,
+  DataSurface,
+  FormSurface,
   type DataTableColumn,
   type SelectFieldOption,
 } from "@workspace/core/ui";
@@ -238,60 +232,72 @@ export default function EmployeeDirectory({
 
   return (
     <div className="space-y-5">
-      <Toolbar items={toolbarItems} />
-
       {canEdit && createOpen && (
-        <CreatePanel
-          variant="inline"
-          title="新建员工资料"
+        <FormSurface
+          kind="fields"
+          fields={[{
+            key: "name",
+            label: "姓名",
+            required: true,
+            spec: { valueType: "string", editor: "input" },
+            value: newEmployeeName,
+            onChange: (value) => setNewEmployeeName(String(value ?? "")),
+            placeholder: "输入姓名",
+          }]}
           onSubmit={() => void createEmployee()}
-          onCancel={() => {
-            setCreateOpen(false);
-            setNewEmployeeName("");
-          }}
-          submitDisabled={creating || !newEmployeeName.trim()}
-          submitting={creating}
-        >
-          <FormField label="姓名" required>
-            <InputControl
-              spec={{ valueType: "string", editor: "input" }}
-              value={newEmployeeName}
-              onChange={(value) => setNewEmployeeName(String(value ?? ""))}
-              placeholder="输入姓名"
-            />
-          </FormField>
-        </CreatePanel>
-      )}
-
-      {error && <EmptyStateCard compact className="border-red-100 text-red-600">{error}</EmptyStateCard>}
-
-      <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
-        <DataTable
-          rows={employees}
-          columns={columns}
-          visibleColumns={visibleColumns}
-          loading={loading}
-          emptyText="暂无员工"
-          rowKey={(employee) => employee.id}
-          onRowClick={(employee) => router.push(`/hr/roster/employees/${employee.employeeId}`)}
-          rowActions={(employee) => [
+          actions={[
             {
-              key: "view",
-              label: "查看员工资料",
-              kind: "view",
-              onClick: () => router.push(`/hr/roster/employees/${employee.employeeId}`),
+              key: "submit",
+              type: "submit",
+              variant: "primary",
+              disabled: creating || !newEmployeeName.trim(),
+              label: creating ? "创建中..." : "新建员工资料",
+            },
+            {
+              key: "cancel",
+              type: "button",
+              variant: "secondary",
+              label: "取消",
+              onClick: () => {
+                setCreateOpen(false);
+                setNewEmployeeName("");
+              },
             },
           ]}
         />
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          total={total}
-          onPageChange={setPage}
-          className="border-t border-slate-200 px-4 py-3"
-          compact
-        />
-      </PanelCard>
+      )}
+
+      {error && <p className="rounded-lg border border-red-100 bg-white px-4 py-3 text-sm text-red-600">{error}</p>}
+
+      <DataSurface
+        kind="table"
+        framed
+        toolbar={{ items: toolbarItems }}
+        rows={employees}
+        columns={columns}
+        visibleColumns={visibleColumns}
+        loading={loading}
+        emptyText="暂无员工"
+        rowKey={(employee) => employee.id}
+        onRowClick={(employee) => router.push(`/hr/roster/employees/${employee.employeeId}`)}
+        rowActions={(employee) => [
+          {
+            key: "view",
+            label: "查看员工资料",
+            kind: "view",
+            onClick: () => router.push(`/hr/roster/employees/${employee.employeeId}`),
+          },
+        ]}
+        bodyClassName="overflow-x-auto"
+        pagination={{
+          page,
+          totalPages,
+          total,
+          onPageChange: setPage,
+          className: "border-t border-slate-200 px-4 py-3",
+          compact: true,
+        }}
+      />
     </div>
   );
 }

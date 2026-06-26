@@ -3,6 +3,7 @@
 import { useState, type FC } from "react";
 import {
   DisclosureSectionHeader,
+  NavigationSurface,
   Pagination,
   TabBar,
   ToolbarOptionGroup,
@@ -30,6 +31,22 @@ function DisclosureSectionHeaderPreview() {
 function PaginationPreview() {
   const [page, setPage] = useState(3);
   return <Pagination page={page} totalPages={8} total={76} onPageChange={setPage} />;
+}
+
+function NavigationSurfacePreview() {
+  const [active, setActive] = useState("basic");
+  return (
+    <NavigationSurface
+      kind="steps"
+      active={active}
+      onChange={setActive}
+      steps={[
+        { key: "basic", label: "基础" },
+        { key: "fields", label: "字段" },
+        { key: "confirm", label: "确认" },
+      ]}
+    />
+  );
 }
 
 function TabBarPreview() {
@@ -172,6 +189,7 @@ function TabBarPreview() {
 
 export const navigationPreviewByName: Record<string, FC> = {
   DisclosureSectionHeader: DisclosureSectionHeaderPreview,
+  NavigationSurface: NavigationSurfacePreview,
   Pagination: PaginationPreview,
   TabBar: TabBarPreview,
 };

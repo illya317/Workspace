@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { SessionUser } from "@workspace/platform/types";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
-import { DatabasePageFrame } from "@workspace/core/ui";
+import { NavigationSurface } from "@workspace/core/ui";
 import CostFilters from "./components/CostFilters";
 import CostSummary from "./components/CostSummary";
 import ShipmentTable from "./components/ShipmentTable";
@@ -26,11 +26,8 @@ export default function FinanceCostClient({ user: _user }: { user: SessionUser }
   });
 
   return (
-    <DatabasePageFrame
-      tabs={TABS}
-      activeTab={tab}
-      onTabChange={(key) => setTab(key as CostTab)}
-    >
+    <div className="space-y-4">
+      <NavigationSurface kind="tabs" tabs={{ tabs: TABS, active: tab, onChange: (key) => setTab(key as CostTab) }} />
       <CostFilters filters={filters} onChange={setFilters} />
       <div>
         {tab === "overview" && <CostSummary filters={filters} />}
@@ -41,6 +38,6 @@ export default function FinanceCostClient({ user: _user }: { user: SessionUser }
         {tab === "salary" && <SalesSalaryTable filters={filters} />}
         {tab === "imports" && <ImportHistoryTable filters={filters} />}
       </div>
-    </DatabasePageFrame>
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, CommandButton, FormField, InputControl, PanelCard } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 interface DeptBudgetFiltersProps {
   deptFilter: string;
   setDeptFilter: (v: string) => void;
@@ -27,33 +27,54 @@ export default function DeptBudgetFilters({
   count,
   total
 }: DeptBudgetFiltersProps) {
+  const hasFilters = Boolean(deptFilter || typeFilter || accountFilter);
   return <>
-      <PanelCard bodyClassName="flex flex-wrap items-center gap-3 p-3">
-        <FormField label="部门" layout="inline">
-          <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: deptOptions.map(d => ({ value: d, label: d })) } }} value={deptFilter} onChange={(value) => setDeptFilter(String(value ?? ""))} placeholder="全部部门" />
-        </FormField>
-        <FormField label="费用类型" layout="inline">
-          <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: typeOptions.map(t => ({ value: t, label: t })) } }} value={typeFilter} onChange={(value) => setTypeFilter(String(value ?? ""))} placeholder="全部类型" />
-        </FormField>
-        <FormField label="科目" layout="inline">
-          <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: accountOptions.map(a => ({ value: a, label: a })) } }} value={accountFilter} onChange={(value) => setAccountFilter(String(value ?? ""))} placeholder="全部科目" />
-        </FormField>
-        {(deptFilter || typeFilter || accountFilter) && <CommandButton onClick={() => {
-        setDeptFilter("");
-        setTypeFilter("");
-        setAccountFilter("");
-      }} className="border-0 px-2 py-1 text-xs shadow-none">
-            重置筛选
-          </CommandButton>}
+      <FormSurface
+        kind="filters"
+        fields={[
+          {
+            key: "dept",
+            label: "部门",
+            spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: deptOptions.map(d => ({ value: d, label: d })) } },
+            value: deptFilter,
+            onChange: (value) => setDeptFilter(String(value ?? "")),
+            placeholder: "全部部门",
+          },
+          {
+            key: "type",
+            label: "费用类型",
+            spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: typeOptions.map(t => ({ value: t, label: t })) } },
+            value: typeFilter,
+            onChange: (value) => setTypeFilter(String(value ?? "")),
+            placeholder: "全部类型",
+          },
+          {
+            key: "account",
+            label: "科目",
+            spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: accountOptions.map(a => ({ value: a, label: a })) } },
+            value: accountFilter,
+            onChange: (value) => setAccountFilter(String(value ?? "")),
+            placeholder: "全部科目",
+          },
+        ]}
+        actions={hasFilters ? [{
+          key: "reset",
+          label: "重置筛选",
+          onClick: () => {
+            setDeptFilter("");
+            setTypeFilter("");
+            setAccountFilter("");
+          },
+        }] : undefined}
+      />
         <span className="ml-auto text-xs text-gray-400">
           共 {count} 条，合计 {total.toFixed(2)} 万元
         </span>
-      </PanelCard>
-      {(deptFilter || typeFilter || accountFilter) && <div className="flex flex-wrap gap-2 text-xs text-gray-500">
+      {hasFilters && <div className="flex flex-wrap gap-2 text-xs text-gray-500">
           <span>当前筛选：</span>
-          {deptFilter && <Badge label={`部门：${deptFilter}`} tone="gray" />}
-          {typeFilter && <Badge label={`类型：${typeFilter}`} tone="gray" />}
-          {accountFilter && <Badge label={`科目：${accountFilter}`} tone="gray" />}
+          {deptFilter && <span className="rounded bg-slate-100 px-2 py-0.5">部门：{deptFilter}</span>}
+          {typeFilter && <span className="rounded bg-slate-100 px-2 py-0.5">类型：{typeFilter}</span>}
+          {accountFilter && <span className="rounded bg-slate-100 px-2 py-0.5">科目：{accountFilter}</span>}
         </div>}
     </>;
 }

@@ -7,24 +7,33 @@ Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页
 | 层 | 用途 | 业务/agent 可直接使用 |
 |---|---|---|
 | `Page Frame` | 页面骨架，只管理区域、slot 和结构关系 | 仅 `stable` 可默认使用；`tbc` 只能在明确 UI-system 任务中打磨 |
-| `Page API` | 业务页可直接 import 的公开 UI 接口 | 可以 |
+| `Page API` | L1 Surface 与 L2/L3 可读能力层 | 仅 L1 可 runtime import；L2/L3 只作 Core 内部、showcase、迁移阅读或 type-only 兼容 |
 | `Core Internal` | 只服务 Page API 的内部组合或部件 | 不可以 |
 | `Foundation` | token、recipe、glyph taxonomy、class helper 等视觉材料 | 不可以 |
 | `Private Impl` | 某个公开 UI 的私有实现文件 | 不可以 |
 
-只有 `accessLayer` 是治理层。旧 `tier / primitive / assembly / shell` 已删除，不再作为分类、筛选、展示或 gate 依据。
+`accessLayer` 仍是开放/引用治理层。组件库主展示另有 `uiLevel`：
+
+- L1：公开入口，只允许 `PageSurface`、`FormSurface`、`DataSurface`、`NavigationSurface` 和 `useFeedback`。
+- L2：Surface 的 `kind` / `variant` / `spec` 能力层，过渡期承接旧 Page API 阅读。
+- L3：Core 内部可见组合层，供迁移、关系图和 review 使用。
+- L4+：Foundation、Private Impl 和更深实现层，只保留在 registry 关系数据中，不进入 `/settings/ui` 主展示。
+
+旧 `tier / primitive / assembly / shell` 已删除，不再作为分类、筛选、展示或 gate 依据。
 
 ## 2. Agent 使用规则
 
 普通 Feature/Data/Operations agent：
 
 - Toolbar 规则另见 `docs/core-toolbar.md`；该文档是所有页面级工具栏的专门规范。
-- 只从 `@workspace/core/ui` 使用已注册的 `Page API`。
+- 只从 `@workspace/core/ui` 使用 L1 公开入口：`PageSurface`、`FormSurface`、`DataSurface`、`NavigationSurface`、`useFeedback`。
 - 只在明确确认为 `stable` 时使用 `Page Frame`；`tbc` Frame 不作为默认页面骨架。
+- 不直接 import L2/L3 组件作为业务 runtime 组件；过渡期允许保留必要 type-only 引用。
 - 不直接 import `Core Internal`、`Foundation`、`Private Impl`。
 - 不新增业务包 `Toolbar`、`Picker`、`Select`、`Search`、`Table`、`Modal`、`DateInput`、`Pagination`、`Tab` 等重复基础 UI。
-- 业务页不得在 Core Page API 中塞 `custom` 渲染自定义控件；例如 `Toolbar` 业务调用禁止 `kind: "custom"`。`custom` 和手搓 UI 没有本质区别，会绕过 Core 的尺寸、字号、排序、对齐、预览和审计规则。
+- 业务页不得在 Surface spec 中塞 `custom` 渲染自定义控件；例如 toolbar/action spec 禁止 `kind: "custom"`。`custom` 和手搓 UI 没有本质区别，会绕过 Core 的尺寸、字号、排序、对齐、预览和审计规则。
 - 发现现有 Page API 不够用时，先停下来写清缺口；由 Architecture/Core UI 任务补公开接口，再回业务页替换。
+- Platform 系统壳和 Agent 系统 UI 例外独立治理：`AppShell -> PageShell`、`UserMenu -> DropdownMenu`、`AgentConfirmModal -> ConfirmModal`、`AgentPanel -> PanelCard` 是 Platform-owned system shell/agent candidates，不是业务 Page API，不进入业务 Surface allowlist。
 
 Architecture/Core UI agent：
 
@@ -39,7 +48,7 @@ Review agent：
 - 优先检查 Core UI 新增/删除是否同步 registry、preview、关系图和文档。
 - 重点审查是否有人为了过 gate 随手新增 Core UI registry、页面/API/resource registry 或 baseline；注册项必须对应真实可复用入口，不能只为单页手搓组件背书。
 - 重点审查重复和可拆除项：只在 showcase 使用、没有业务消费、或与现有 Toolbar/Picker/Table/Modal/Page Frame 重叠的组件，应要求删除、合并或下沉到既有入口。
-- 重点审查业务是否直接 import `SelectorList`、`SelectorTree`、`SelectorCard`，或手写 `PanelCard + Selector*` 作为左侧选择区；业务应改用 `SelectorPanel`。
+- 重点审查业务是否直接 import `SelectorList`、`SelectorTree`、`SelectorCard`，或手写 `PanelCard + Selector*` 作为左侧选择区；业务应改用 `NavigationSurface` 的 selector/disclosure spec。
 - 发现 `Core Internal` / `Foundation` 业务直引时，结论必须是不通过，除非该文件是明确的 Core UI-system 任务。
 
 ## 3. Layout 引用契约
@@ -124,9 +133,19 @@ Frame 成熟度：
 
 TBC Frame 是当前唯一允许保留的历史债类别。它不能用来掩盖业务包重复造页面结构。
 
-## 5. Page API
+## 5. Page API / Surface
 
-Page API 是业务页可以直接使用的公开接口，必须满足：
+Page API 是 registry/accessLayer 概念；业务 runtime 的直接入口已经收敛为 L1 Surface：
+
+- `PageSurface`
+- `FormSurface`
+- `DataSurface`
+- `NavigationSurface`
+- `useFeedback`
+
+L2/L3 组件可以在 UI component library 中用于关系图、阅读和迁移，但业务包与 `app/(modules)` 不得 runtime import 它们。历史的 Page API 名称只能作为 Surface 的内部实现、showcase 可见层、兼容迁移说明或 type-only 引用。
+
+所有 Page API registry entry 必须满足：
 
 - 在 registry 中登记。
 - 有中文 `description` 和中文 `example`。
@@ -134,7 +153,7 @@ Page API 是业务页可以直接使用的公开接口，必须满足：
 - props 契约稳定。
 - 不暴露内部样式 recipe 或内部部件给业务页。
 
-典型 Page API：
+典型 L2/L3 可见能力层：
 
 - 页面/布局：`PageShell`、`PageContent`、`PanelCard`、`SectionCard`、`WorkspaceSplitPage`
 - 工具栏：`Toolbar`、`CommandButton`
@@ -144,14 +163,15 @@ Page API 是业务页可以直接使用的公开接口，必须满足：
 - 标签：`TagListInput`
 - 反馈：`ConfirmModal`、`ConfirmProvider`、`Toast`
 
-Page API 使用红线：
+Surface 使用红线：
 
-- `Toolbar` 只能接收语义化 item：`create`、`search`、`field-filter`、`option-group`、`column-toggle`、`page-size`、`text`、`icon-button`、`action-group`、`edit-group` 等。
-- 业务调用 `Toolbar` 禁止使用 `kind: "custom"` 拼装搜索、筛选、统计、分页、动作或任意自定义节点。
-- 如果现有语义 item 不够表达业务需要，必须扩展 `Toolbar` 的 Page API 或写入 special-to-be-reviewed 说明等待 Core UI 评审；不得用 `custom` 临时绕过。
+- 业务 runtime 不直接 import `Toolbar`、`PanelCard`、`DataTable`、`SelectField`、`ConfirmModal` 等 L2/L3 entry；通过四个 Surface 的 kind/spec 或 `useFeedback` 表达。
+- Surface 内部的 `Toolbar` 只能接收语义化 item：`create`、`search`、`field-filter`、`option-group`、`column-toggle`、`page-size`、`text`、`icon-button`、`action-group`、`edit-group` 等。
+- 业务传给 Surface 的 toolbar/action spec 禁止使用 `kind: "custom"` 拼装搜索、筛选、统计、分页、动作或任意自定义节点。
+- 如果现有语义 spec 不够表达业务需要，必须扩展 L1 Surface 或对应 L2/L3 Core 能力，并写入 special-to-be-reviewed 说明等待 Core UI 评审；不得用 `custom` 临时绕过。
 - Core 内部 preview/showcase 或明确 UI-system 任务也不得恢复 `ToolbarCustomItem`；临时验证应扩展标准 item 或使用非 Toolbar 的普通预览容器。
-- Toolbar 内 `option-group` 默认是 micro accordion；普通 agent 不要把长分段筛选常驻铺开。
-- 业务侧左侧列表、目录树、选择区统一使用 `SelectorPanel`；`SelectorList`、`SelectorTree`、`SelectorCard` 是 Core 内部组合件，不作为业务 Page API。
+- Surface 内部 toolbar 的 `option-group` 默认是 micro accordion；普通 agent 不要把长分段筛选常驻铺开。
+- 业务侧左侧列表、目录树、选择区统一使用 `NavigationSurface` 的 selector/disclosure spec；`SelectorPanel`、`SelectorList`、`SelectorTree`、`SelectorCard` 是 L2/L3 或 Core 内部组合件，不作为业务 runtime import。
 
 新增 Page API 时必须同步：
 
@@ -160,6 +180,8 @@ Page API 使用红线：
 3. `packages/core/ui/component-registry-data-*.ts`
 4. `packages/core/showcase/previews/*`
 5. 必要时更新 `docs/core-ui-governance.md` 或 `docs/reusable-components.md`
+
+新增 L1 Surface 时必须显式设置 registry `uiLevel: 1`。L1 名单由 gate 硬锁为 `PageSurface`、`FormSurface`、`DataSurface`、`NavigationSurface`、`useFeedback`；任何其他 registry entry 声明或解析为 L1 都会失败。L2/L3 可以省略 `uiLevel` 使用默认派生；L4+ 必须由 `isCoreUiComponentVisibleInShowcase` 隐藏，且不得作为 UI 组件库主展示根节点或可见直接关系暴露。
 
 ## 6. Core Internal
 
@@ -240,8 +262,10 @@ Private Impl 修改等同于修改所属公开 UI，必须按 Core UI-system 任
 收口/CI：
 
 - `npm run arch:gate` 会运行 Core UI guard、registry relation validation、Level 2 ratchet 和 package boundary。
-- `Core Internal` / `Foundation` 业务直引、新增未注册 Core UI、重复 registry、页面设计漂移、重复基础 UI 都必须由 gate 或 baseline ratchet 拦住。
+- `Core Internal` / `Foundation` 业务直引、新增未注册 Core UI、重复 registry、非法 `uiLevel`、L4+ 主展示泄漏、页面设计漂移、重复基础 UI 都必须由 gate 或 baseline ratchet 拦住。
+- 业务 UI 和 `app/(modules)` 只能从 `@workspace/core/ui` runtime 引入 `PageSurface`、`FormSurface`、`DataSurface`、`NavigationSurface`、`useFeedback`；其他 Core UI runtime 直引由 `businessCoreUiSurfaceBypassImports` baseline 锁定，只能减少。
 - baseline 只能减少，不能把新增违规写入 baseline。
+- 大规模 UI 迁移前后必须阅读或运行 Core UI governance checks，确认 L1/L2/L3/L4 展示层级、registry 关系和 `businessCoreUiSurfaceBypassImports` baseline 都在收敛；长期迁移按阶段定期复查，而不是等最后一次性补 gate。
 
 授权方式：
 

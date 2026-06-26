@@ -1,6 +1,35 @@
 "use client";
 
-import { CommandButton } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
+
+export function ProfileAction({
+  label,
+  variant,
+  disabled,
+  onClick,
+}: {
+  label: string;
+  variant: "primary" | "secondary" | "danger";
+  disabled?: boolean;
+  onClick: () => void | Promise<void>;
+}) {
+  return (
+    <FormSurface
+      kind="inline"
+      actions={[{
+        key: label,
+        label,
+        variant,
+        disabled,
+        type: "button",
+        size: "sm",
+        className: "px-3 py-1.5 text-xs",
+        onClick: () => void onClick(),
+      }]}
+    />
+  );
+}
+
 export function RowActions({
   canEdit,
   saving,
@@ -11,7 +40,5 @@ export function RowActions({
   onDelete: () => Promise<void>;
 }) {
   if (!canEdit) return null;
-  return <CommandButton variant="danger" disabled={saving !== null} onClick={onDelete} className="px-3 py-1.5 text-xs">
-      删除
-    </CommandButton>;
+  return <ProfileAction label="删除" variant="danger" disabled={saving !== null} onClick={onDelete} />;
 }

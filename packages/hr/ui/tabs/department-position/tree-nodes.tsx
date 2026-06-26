@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { SelectorPanel } from "@workspace/core/ui";
+import { NavigationSurface } from "@workspace/core/ui";
 import { departmentManagerPositionName } from "./draft-utils";
 import type { Department, DepartmentPositionStats, Selection } from "./types";
 
@@ -68,24 +68,27 @@ export function DepartmentNode({
   }
 
   return (
-    <SelectorPanel
-      mode="tree"
-      framed={false}
-      items={[department]}
-      selectedId={selection?.type === "department" ? selection.id : null}
-      onSelect={(item) => onSelect({ type: "department", id: item.id })}
-      getKey={(item) => item.id}
-      getChildren={getChildren}
-      expandedIds={expandedIds}
-      onToggle={(id) => onToggle(Number(id))}
-      renderItem={(item) => {
-        const stats = departmentStats.get(item.id) ?? emptyStats;
-        return {
-          title: item.name,
-          code: item.code,
-          level: item.level,
-          meta: departmentStatsMeta(stats),
-        };
+    <NavigationSurface
+      kind="selector"
+      selector={{
+        mode: "tree",
+        framed: false,
+        items: [department],
+        selectedId: selection?.type === "department" ? selection.id : null,
+        onSelect: (item) => onSelect({ type: "department", id: item.id }),
+        getKey: (item) => item.id,
+        getChildren,
+        expandedIds,
+        onToggle: (id) => onToggle(Number(id)),
+        renderItem: (item) => {
+          const stats = departmentStats.get(item.id) ?? emptyStats;
+          return {
+            title: item.name,
+            code: item.code,
+            level: item.level,
+            meta: departmentStatsMeta(stats),
+          };
+        },
       }}
     />
   );
@@ -124,29 +127,32 @@ export function OrganizationBranchNode({
   }
 
   return (
-    <SelectorPanel
-      mode="tree"
-      framed={false}
-      items={[department]}
-      selectedId={null}
-      onSelect={(item) => {
-        const children = departmentChildren(departments, item);
-        if (children.length > 0) onToggle(item.id);
-      }}
-      getKey={(item) => item.id}
-      getChildren={getChildren}
-      expandedIds={expandedIds}
-      onToggle={(id) => onToggle(Number(id))}
-      renderItem={(item, ctx) => {
-        const children = departmentChildren(departments, item);
-        const managerName = departmentManagerPositionName(item);
-        return {
-          title: item.name,
-          code: item.code,
-          level: item.level,
-          tone: ctx.level === 1 ? "blue" : "amber",
-          meta: managerName ? `负责人：${managerName} · 下级 ${children.length}` : `下级 ${children.length}`,
-        };
+    <NavigationSurface
+      kind="selector"
+      selector={{
+        mode: "tree",
+        framed: false,
+        items: [department],
+        selectedId: null,
+        onSelect: (item) => {
+          const children = departmentChildren(departments, item);
+          if (children.length > 0) onToggle(item.id);
+        },
+        getKey: (item) => item.id,
+        getChildren,
+        expandedIds,
+        onToggle: (id) => onToggle(Number(id)),
+        renderItem: (item, ctx) => {
+          const children = departmentChildren(departments, item);
+          const managerName = departmentManagerPositionName(item);
+          return {
+            title: item.name,
+            code: item.code,
+            level: item.level,
+            tone: ctx.level === 1 ? "blue" : "amber",
+            meta: managerName ? `负责人：${managerName} · 下级 ${children.length}` : `下级 ${children.length}`,
+          };
+        },
       }}
     />
   );
@@ -167,22 +173,25 @@ export function OrganizationRootCard({
   const managerName = departmentManagerPositionName(department);
 
   return (
-    <SelectorPanel
-      framed={false}
-      items={[department]}
-      selectedId={active ? department.id : null}
-      onSelect={(item) => onSelect(item.id)}
-      getKey={(item) => item.id}
-      className="mb-2"
-      renderItem={(item) => ({
-        title: item.name,
-        code: item.code,
-        level: 1,
-        meta: [
-          managerName && <span key="manager" className="min-w-0 flex-1 truncate whitespace-nowrap" title={`负责人：${managerName}`}>负责人：{managerName}</span>,
-          <span key="children" className="shrink-0 whitespace-nowrap">下级 {children.length}</span>,
-        ],
-      })}
+    <NavigationSurface
+      kind="selector"
+      selector={{
+        framed: false,
+        items: [department],
+        selectedId: active ? department.id : null,
+        onSelect: (item) => onSelect(item.id),
+        getKey: (item) => item.id,
+        className: "mb-2",
+        renderItem: (item) => ({
+          title: item.name,
+          code: item.code,
+          level: 1,
+          meta: [
+            managerName && <span key="manager" className="min-w-0 flex-1 truncate whitespace-nowrap" title={`负责人：${managerName}`}>负责人：{managerName}</span>,
+            <span key="children" className="shrink-0 whitespace-nowrap">下级 {children.length}</span>,
+          ],
+        }),
+      }}
     />
   );
 }

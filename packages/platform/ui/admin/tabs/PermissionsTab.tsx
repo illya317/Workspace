@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { usePermissionsTab } from "../hooks/usePermissionsTab";
-import { EmptyStateCard, InputControl, SectionCard, TabBar, Toolbar, type ToolbarItem } from "@workspace/core/ui";
+import { FormSurface, NavigationSurface, PageSurface } from "@workspace/core/ui";
 import ResourceTree from "../components/ResourceTree";
 import MatrixTable from "../components/permissions/MatrixTable";
 import type { ResourceItem, SubjectType } from "../types";
@@ -69,10 +69,13 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, showToa
         <div className="w-full shrink-0 lg:w-72">
           <div className="mb-2 text-sm font-semibold text-gray-700">资源模块</div>
           {s.selectedResource && s.isSystemAdmin && (
-            <div className="mb-2 flex items-center gap-2 text-xs text-gray-500">
-              最高业务权限：
-              <InputControl
-                spec={{
+            <FormSurface
+              kind="inline"
+              className="mb-2 text-xs text-gray-500"
+              fields={[{
+                key: "max-role",
+                label: "最高业务权限",
+                spec: {
                   valueType: "string",
                   editor: "select",
                   options: {
@@ -84,11 +87,11 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, showToa
                       { value: "delete", label: "删除" },
                     ],
                   },
-                }}
-                value={s.maxRoleKey === "admin" ? "delete" : s.maxRoleKey}
-                onChange={(value) => s.updateMaxRole(String(value ?? ""))}
-              />
-            </div>
+                },
+                value: s.maxRoleKey === "admin" ? "delete" : s.maxRoleKey,
+                onChange: (value) => s.updateMaxRole(String(value ?? "")),
+              }]}
+            />
           )}
           <ResourceTree
             resources={resources}
@@ -99,105 +102,117 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, showToa
 
         <div className="min-w-0 flex-1">
           {selectedOwnerKey && ownerCapabilities.length > 0 && (
-            <TabBar
+            <NavigationSurface
+              kind="tabs"
               className="mb-4"
-              active={resourceMode}
-              onChange={switchMode}
-              tabs={[
-                { key: "entry", label: "入口权限" },
-                { key: "capability", label: "设置" },
-              ]}
+              tabs={{
+                active: resourceMode,
+                onChange: switchMode,
+                tabs: [
+                  { key: "entry", label: "入口权限" },
+                  { key: "capability", label: "设置" },
+                ],
+              }}
             />
           )}
 
           {resourceMode === "capability" && selectedOwnerKey && (
-            <SectionCard
-              title={`${selectedEntry?.name ?? selectedOwnerKey} 的设置能力`}
+            <PageSurface
+              kind="settings"
+              embedded
               className="mb-4"
-              bodyClassName="p-3"
-            >
-              {ownerCapabilities.length > 0 ? (
-                <TabBar
-                  variant="micro"
-                  active={resourceMode === "capability" ? s.selectedResource ?? "" : ""}
-                  onChange={(key) => s.setSelectedResource(key)}
-                  tabs={ownerCapabilities.map((capability) => ({
-                    key: capability.key,
-                    label: capability.name,
-                  }))}
-                />
-              ) : (
-                <p className="text-sm text-slate-400">暂无独立设置能力</p>
-              )}
-            </SectionCard>
+              blocks={[{
+                kind: "panel",
+                key: "owner-capabilities",
+                title: `${selectedEntry?.name ?? selectedOwnerKey} 的设置能力`,
+                bodyClassName: "p-3",
+                blocks: ownerCapabilities.length > 0 ? [{
+                  kind: "navigation",
+                  key: "capability-tabs",
+                  surface: {
+                    kind: "tabs",
+                    tabs: {
+                      variant: "micro",
+                      active: resourceMode === "capability" ? s.selectedResource ?? "" : "",
+                      onChange: (key) => s.setSelectedResource(key),
+                      tabs: ownerCapabilities.map((capability) => ({
+                        key: capability.key,
+                        label: capability.name,
+                      })),
+                    },
+                  },
+                }] : [{ kind: "message", key: "empty-capabilities", tone: "muted", content: "暂无独立设置能力" }],
+              }]}
+            />
           )}
 
-          <TabBar
+          <NavigationSurface
+            kind="tabs"
             className="mb-4"
-            active={s.subjectType}
-            onChange={(value) => s.setSubjectType(value as SubjectType)}
-            tabs={[
-              { key: "user", label: "员工" },
-              { key: "position", label: "岗位" },
-              { key: "department", label: "部门" },
-            ]}
+            tabs={{
+              active: s.subjectType,
+              onChange: (value) => s.setSubjectType(value as SubjectType),
+              tabs: [
+                { key: "user", label: "员工" },
+                { key: "position", label: "岗位" },
+                { key: "department", label: "部门" },
+              ],
+            }}
           />
 
-          <Toolbar
-            items={[
+          <FormSurface
+            kind="inline"
+            fields={[
               ...(s.subjectType !== "department"
                 ? [
                     {
-                      kind: "select" as const,
                       key: "l1-dept",
-                      section: "filter" as const,
+                      label: "一级部门",
+                      spec: { valueType: "string" as const, editor: "select" as const, options: { source: "static" as const, mode: "dropdown" as const, items: s.l1Options.flatMap((d) => d ? [{ value: d, label: d === "全部" ? "一级部门" : d }] : []) } },
                       value: s.l1Dept,
-                      onChange: s.setL1Dept,
-                      options: s.l1Options.flatMap((d) => d ? [{ value: d, label: d === "全部" ? "一级部门" : d }] : []),
-                      triggerClassName: "min-w-40",
+                      onChange: (value: unknown) => s.setL1Dept(String(value ?? "")),
+                      className: "min-w-40",
                     },
                     ...(s.l2Options.length > 1
                       ? [{
-                          kind: "select" as const,
                           key: "l2-dept",
-                          section: "filter" as const,
+                          label: "二级部门",
+                          spec: { valueType: "string" as const, editor: "select" as const, options: { source: "static" as const, mode: "dropdown" as const, items: s.l2Options.flatMap((d) => d ? [{ value: d, label: d === "全部" ? "二级部门" : d }] : []) } },
                           value: s.l2Dept,
-                          onChange: s.setL2Dept,
-                          options: s.l2Options.flatMap((d) => d ? [{ value: d, label: d === "全部" ? "二级部门" : d }] : []),
-                          triggerClassName: "min-w-40",
+                          onChange: (value: unknown) => s.setL2Dept(String(value ?? "")),
+                          className: "min-w-40",
                         }]
                       : []),
                     ...(s.l3Options.length > 1
                       ? [{
-                          kind: "select" as const,
                           key: "l3-dept",
-                          section: "filter" as const,
+                          label: "三级部门",
+                          spec: { valueType: "string" as const, editor: "select" as const, options: { source: "static" as const, mode: "dropdown" as const, items: s.l3Options.flatMap((d) => d ? [{ value: d, label: d === "全部" ? "三级部门" : d }] : []) } },
                           value: s.l3Dept,
-                          onChange: s.setL3Dept,
-                          options: s.l3Options.flatMap((d) => d ? [{ value: d, label: d === "全部" ? "三级部门" : d }] : []),
-                          triggerClassName: "min-w-40",
+                          onChange: (value: unknown) => s.setL3Dept(String(value ?? "")),
+                          className: "min-w-40",
                         }]
                       : []),
                   ]
                 : []),
               {
-                kind: "search" as const,
                 key: "name",
-                section: "search" as const,
+                label: "搜索",
+                spec: { valueType: "string", editor: "input" },
                 placeholder: s.subjectType === "user"
                   ? "搜索姓名…"
                   : s.subjectType === "position"
                     ? "搜索岗位…"
                     : "搜索部门…",
                 value: s.nameSearch,
-                onChange: s.setNameSearch,
+                onChange: (value: unknown) => s.setNameSearch(String(value ?? "")),
                 className: "min-w-0 sm:w-[22rem]",
               },
-            ] satisfies ToolbarItem[]}
+            ]}
           />
 
           {s.loading ? (
-            <EmptyStateCard compact className="mt-4">加载中...</EmptyStateCard>
+            <PageSurface kind="settings" embedded className="mt-4" empty={{ content: "加载中..." }} />
           ) : (
             <MatrixTable s={s} />
           )}

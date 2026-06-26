@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { PanelCard } from "@workspace/core/ui";
+import { PageSurface } from "@workspace/core/ui";
 
 export default function ErrorBoundary({
   error,
@@ -19,10 +19,26 @@ export default function ErrorBoundary({
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <PanelCard title="出错了" bodyClassName="p-8 pt-4 text-center">
-        <p className="text-gray-600">{error.message}</p>
-      </PanelCard>
-    </div>
+    <PageSurface
+      kind="detail"
+      contentClassName="flex min-h-screen items-center justify-center bg-gray-50"
+      className="w-full max-w-md"
+      blocks={[
+        {
+          kind: "panel",
+          key: "error",
+          title: "出错了",
+          bodyClassName: "p-8 pt-4 text-center",
+          blocks: [
+            {
+              kind: "empty",
+              key: "message",
+              compact: true,
+              content: <p className="text-gray-600">{error.message}</p>,
+            },
+          ],
+        },
+      ]}
+    />
   );
 }

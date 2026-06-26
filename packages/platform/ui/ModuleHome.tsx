@@ -1,14 +1,14 @@
 "use client";
 
 import type React from "react";
-import { EmptyStateCard, ModuleGridPage } from "@workspace/core/ui";
+import { useRouter } from "next/navigation";
+import { PageSurface } from "@workspace/core/ui";
 import type { SessionUser } from "../types";
 import {
   MODULE_LIFECYCLE_BY_RESOURCE,
   MODULE_LIFECYCLE_LABELS,
 } from "../module-lifecycle";
 import { getEmptyMessage, getSubModules, type ModuleDef } from "../module-nav";
-import ModuleCard from "./ModuleCard";
 
 /** 子模块图标映射，与 L0 风格一致的 SVG */
 const subIcons: Record<string, React.ReactNode> = {
@@ -51,34 +51,46 @@ interface Props {
 
 /** L1 模块首页，图标风格与 L0 Portal 一致 */
 export default function ModuleHome({ module, user }: Props) {
+  const router = useRouter();
   const children = getSubModules(user, module.key);
 
   if (children.length === 0) {
     return (
-      <ModuleGridPage title={module.label} centered>
-        <div className="col-span-full">
-          <EmptyStateCard compact={false}>{getEmptyMessage(module.key)}</EmptyStateCard>
-        </div>
-      </ModuleGridPage>
+      <PageSurface
+        kind="settings"
+        contentClassName="py-10"
+        blocks={[{
+          kind: "section",
+          key: "empty-module",
+          title: module.label,
+          blocks: [{ kind: "empty", key: "empty", content: getEmptyMessage(module.key) }],
+        }]}
+      />
     );
   }
 
   return (
-    <ModuleGridPage title={module.label} centered>
-      {children.map((child) => {
-        const lifecycleStatus = child.lifecycleStatus || MODULE_LIFECYCLE_BY_RESOURCE[child.resourceKey];
-        return (
-          <ModuleCard
-            key={child.key}
-            title={child.label}
-            description={child.desc}
-            icon={subIcons[child.key]}
-            color={module.color}
-            href={child.href}
-            badge={lifecycleStatus && lifecycleStatus !== "workspace-owned" ? MODULE_LIFECYCLE_LABELS[lifecycleStatus] : undefined}
-          />
-        );
-      })}
-    </ModuleGridPage>
+    <PageSurface
+      kind="settings"
+      contentClassName="py-10"
+      blocks={[{
+        kind: "moduleGrid",
+        key: "module-grid",
+        centered: true,
+        title: module.label,
+        items: children.map((child) => {
+          const lifecycleStatus = child.lifecycleStatus || MODULE_LIFECYCLE_BY_RESOURCE[child.resourceKey];
+          return {
+            key: child.key,
+            title: child.label,
+            description: child.desc,
+            icon: subIcons[child.key],
+            color: module.color,
+            onClick: () => router.push(child.href),
+            badge: lifecycleStatus && lifecycleStatus !== "workspace-owned" ? MODULE_LIFECYCLE_LABELS[lifecycleStatus] : undefined,
+          };
+        }),
+      }]}
+    />
   );
 }

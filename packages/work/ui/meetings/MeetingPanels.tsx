@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandButton, PanelCard, SelectorPanel } from "@workspace/core/ui";
+import { FormSurface, NavigationSurface } from "@workspace/core/ui";
 import type { ActionDraft, MeetingDetail, MeetingParticipant, MeetingSummary } from "./meeting-types";
 import { EmptyLine, InputBox, StatusPill } from "./MeetingControls";
 import { candidateStatusLabel, decisionKindLabel, emptyActionDraft, formatDateTime, roleLabel, voteChoiceLabel } from "./meeting-utils";
@@ -17,24 +17,27 @@ export function MeetingList({
   onSelect: (id: number) => void;
 }) {
   return (
-    <SelectorPanel
+    <NavigationSurface<MeetingSummary>
+      kind="selector"
       className="min-w-0"
-      title="会议列表"
-      bodyClassName="max-h-[calc(100vh-14rem)] overflow-y-auto p-2"
-      loading={loading}
-      loadingText="加载中..."
-      emptyText="暂无会议"
-      items={meetings}
-      selectedId={selectedId}
-      onSelect={(meeting) => onSelect(meeting.id)}
-      getKey={(meeting) => meeting.id}
-      contentClassName="space-y-2"
-      renderItem={(meeting) => ({
-        title: meeting.title,
-        subtitle: `${meeting.typeName} · ${formatDateTime(meeting.startAt) || "未定时间"}`,
-        trailing: <StatusPill status={meeting.status} />,
-        meta: [`议题 ${meeting.counts.agendaItems}`, `表决 ${meeting.counts.proposals}`, `决议 ${meeting.counts.decisions}`],
-      })}
+      selector={{
+        title: "会议列表",
+        bodyClassName: "max-h-[calc(100vh-14rem)] overflow-y-auto p-2",
+        loading,
+        loadingText: "加载中...",
+        emptyText: "暂无会议",
+        items: meetings,
+        selectedId,
+        onSelect: (meeting) => onSelect(meeting.id),
+        getKey: (meeting) => meeting.id,
+        contentClassName: "space-y-2",
+        renderItem: (meeting) => ({
+          title: meeting.title,
+          subtitle: `${meeting.typeName} · ${formatDateTime(meeting.startAt) || "未定时间"}`,
+          trailing: <StatusPill status={meeting.status} />,
+          meta: [`议题 ${meeting.counts.agendaItems}`, `表决 ${meeting.counts.proposals}`, `决议 ${meeting.counts.decisions}`],
+        }),
+      }}
     />
   );
 }
@@ -48,8 +51,13 @@ export function MeetingHeader({
   saving: boolean;
   onUpdate: (body: Record<string, unknown>, success: string) => void;
 }) {
-  return <PanelCard bodyClassName="p-4">
-      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+  return <FormSurface
+    kind="detail"
+    className="rounded-lg border border-slate-200 bg-white p-4"
+    fields={[{
+      kind: "note",
+      key: "meeting-header",
+      content: <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
         <div className="min-w-0">
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <span className="rounded bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">{meeting.typeName}</span>
@@ -65,22 +73,15 @@ export function MeetingHeader({
           </div>
           {meeting.description && <p className="mt-3 whitespace-pre-wrap text-sm text-slate-600">{meeting.description}</p>}
         </div>
-        {meeting.permissions.canEdit && <div className="flex flex-wrap gap-2">
-            <CommandButton variant="secondary" size="sm" disabled={saving || meeting.status === "in_progress"} onClick={() => onUpdate({
-          status: "in_progress",
-        }, "会议已开始")}>开始</CommandButton>
-            <CommandButton variant="secondary" size="sm" disabled={saving || meeting.status === "closed"} onClick={() => onUpdate({
-          status: "closed",
-        }, "会议已关闭")}>关闭</CommandButton>
-            <CommandButton variant="secondary" size="sm" disabled={saving || meeting.visibility === "participants_only"} onClick={() => onUpdate({
-          visibility: "participants_only",
-        }, "可见性已更新")}>参会可见</CommandButton>
-            <CommandButton variant="secondary" size="sm" disabled={saving || meeting.visibility === "public"} onClick={() => onUpdate({
-          visibility: "public",
-        }, "可见性已更新")}>公开</CommandButton>
-          </div>}
+        {meeting.permissions.canEdit && <FormSurface kind="inline" actions={[
+          { key: "start", label: "开始", variant: "secondary", size: "sm", disabled: saving || meeting.status === "in_progress", onClick: () => onUpdate({ status: "in_progress" }, "会议已开始") },
+          { key: "close", label: "关闭", variant: "secondary", size: "sm", disabled: saving || meeting.status === "closed", onClick: () => onUpdate({ status: "closed" }, "会议已关闭") },
+          { key: "participants-only", label: "参会可见", variant: "secondary", size: "sm", disabled: saving || meeting.visibility === "participants_only", onClick: () => onUpdate({ visibility: "participants_only" }, "可见性已更新") },
+          { key: "public", label: "公开", variant: "secondary", size: "sm", disabled: saving || meeting.visibility === "public", onClick: () => onUpdate({ visibility: "public" }, "可见性已更新") },
+        ]} />}
       </div>
-    </PanelCard>;
+    }]}
+  />;
 }
 
 export function ParticipantList({
@@ -129,15 +130,15 @@ export function ProposalList({
           {proposal.votes.length > 0 && <div className="mt-2 grid gap-1 text-xs text-slate-500">
               {proposal.votes.map(vote => <span key={vote.id}>{vote.voterName || `用户 ${vote.voterUserId}`}：{voteChoiceLabel(vote.choice)}</span>)}
             </div>}
-          <div className="mt-3 flex flex-wrap gap-2">
-            {meeting.permissions.canVote && proposal.status === "open" && <>
-                <CommandButton variant={proposal.myVote?.choice === "yes" ? "primary" : "secondary"} size="sm" disabled={saving} onClick={() => onVote(proposal.id, "yes")}>赞成</CommandButton>
-                <CommandButton variant={proposal.myVote?.choice === "no" ? "primary" : "secondary"} size="sm" disabled={saving} onClick={() => onVote(proposal.id, "no")}>反对</CommandButton>
-                <CommandButton variant={proposal.myVote?.choice === "abstain" ? "primary" : "secondary"} size="sm" disabled={saving} onClick={() => onVote(proposal.id, "abstain")}>弃权</CommandButton>
-              </>}
-            {meeting.permissions.canEdit && proposal.status === "open" && <CommandButton variant="secondary" size="sm" disabled={saving} onClick={() => onClose(proposal.id)}>关闭表决</CommandButton>}
-            {meeting.permissions.canEdit && proposal.status === "passed" && <CommandButton variant="secondary" size="sm" disabled={saving} onClick={() => onDecision(proposal)}>生成决议</CommandButton>}
-          </div>
+          <FormSurface kind="inline" className="mt-3" actions={[
+            ...(meeting.permissions.canVote && proposal.status === "open" ? [
+              { key: "yes", label: "赞成", variant: proposal.myVote?.choice === "yes" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onVote(proposal.id, "yes") },
+              { key: "no", label: "反对", variant: proposal.myVote?.choice === "no" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onVote(proposal.id, "no") },
+              { key: "abstain", label: "弃权", variant: proposal.myVote?.choice === "abstain" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onVote(proposal.id, "abstain") },
+            ] : []),
+            ...(meeting.permissions.canEdit && proposal.status === "open" ? [{ key: "close", label: "关闭表决", variant: "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onClose(proposal.id) }] : []),
+            ...(meeting.permissions.canEdit && proposal.status === "passed" ? [{ key: "decision", label: "生成决议", variant: "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onDecision(proposal) }] : []),
+          ]} />
         </div>)}
     </div>;
 }
@@ -205,13 +206,13 @@ export function CandidateList({
             ...draft,
             targetId,
           })} />
-                <div className="flex flex-wrap items-end gap-2 md:col-span-4">
-                  <CommandButton variant="secondary" size="sm" disabled={saving || !draft.workItemId} onClick={() => onAction(candidate.id, "linkWorkItem", draft)}>链接工作项</CommandButton>
-                  <CommandButton variant="secondary" size="sm" disabled={saving} onClick={() => onAction(candidate.id, "createWorkItem", draft)}>创建工作项</CommandButton>
-                  <CommandButton variant="secondary" size="sm" disabled={saving || !draft.projectTaskId} onClick={() => onAction(candidate.id, "linkProjectTask", draft)}>链接项目任务</CommandButton>
-                  <CommandButton variant="secondary" size="sm" disabled={saving || !draft.projectId} onClick={() => onAction(candidate.id, "createProjectTask", draft)}>创建项目任务</CommandButton>
-                  <CommandButton variant="danger" size="sm" disabled={saving} onClick={() => onAction(candidate.id, "ignore", draft)}>忽略</CommandButton>
-                </div>
+                <FormSurface kind="inline" className="md:col-span-4" actions={[
+                  { key: "linkWorkItem", label: "链接工作项", variant: "secondary", size: "sm", disabled: saving || !draft.workItemId, onClick: () => onAction(candidate.id, "linkWorkItem", draft) },
+                  { key: "createWorkItem", label: "创建工作项", variant: "secondary", size: "sm", disabled: saving, onClick: () => onAction(candidate.id, "createWorkItem", draft) },
+                  { key: "linkProjectTask", label: "链接项目任务", variant: "secondary", size: "sm", disabled: saving || !draft.projectTaskId, onClick: () => onAction(candidate.id, "linkProjectTask", draft) },
+                  { key: "createProjectTask", label: "创建项目任务", variant: "secondary", size: "sm", disabled: saving || !draft.projectId, onClick: () => onAction(candidate.id, "createProjectTask", draft) },
+                  { key: "ignore", label: "忽略", variant: "danger", size: "sm", disabled: saving, onClick: () => onAction(candidate.id, "ignore", draft) },
+                ]} />
               </div>}
           </div>;
     })}

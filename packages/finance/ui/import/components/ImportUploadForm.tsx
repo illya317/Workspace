@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandButton, FormField, InputControl, SectionCard } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 import type { Company } from "./types";
 interface ImportUploadFormProps {
   companies: Company[];
@@ -28,11 +28,18 @@ export default function ImportUploadForm({
   onFileChange,
   onPreview
 }: ImportUploadFormProps) {
-  return <SectionCard title="上传文件" className="mb-6" bodyClassName="p-6">
-      <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <FormField label="公司">
-          <InputControl
-            spec={{
+  return <div className="mb-6 space-y-4">
+      <div>
+        <h2 className="text-base font-semibold text-slate-800">上传文件</h2>
+      </div>
+      <FormSurface
+        kind="fields"
+        columns={3}
+        fields={[
+          {
+            key: "company",
+            label: "公司",
+            spec: {
               valueType: "string",
               editor: "select",
               options: {
@@ -40,15 +47,15 @@ export default function ImportUploadForm({
                 mode: "dropdown",
                 items: companies.map(c => ({ value: c.code, label: `${c.code} ${c.name}` })),
               },
-            }}
-            value={companyCode}
-            onChange={(value) => onCompanyChange(String(value ?? ""))}
-            placeholder="请选择公司"
-          />
-        </FormField>
-        <FormField label="导入类型">
-          <InputControl
-            spec={{
+            },
+            value: companyCode,
+            onChange: (value) => onCompanyChange(String(value ?? "")),
+            placeholder: "请选择公司",
+          },
+          {
+            key: "type",
+            label: "导入类型",
+            spec: {
               valueType: "string",
               editor: "select",
               options: {
@@ -60,14 +67,14 @@ export default function ImportUploadForm({
                   { value: "account", label: "科目表" },
                 ],
               },
-            }}
-            value={importType}
-            onChange={(value) => onTypeChange(value as "balance" | "journal" | "account")}
-          />
-        </FormField>
-        <FormField label="年度">
-          <InputControl
-            spec={{
+            },
+            value: importType,
+            onChange: (value) => onTypeChange(value as "balance" | "journal" | "account"),
+          },
+          {
+            key: "year",
+            label: "年度",
+            spec: {
               valueType: "string",
               editor: "select",
               options: {
@@ -79,31 +86,34 @@ export default function ImportUploadForm({
                   { value: "2026", label: "2026" },
                 ],
               },
-            }}
-            value={year}
-            onChange={(value) => onYearChange(String(value ?? ""))}
-          />
-        </FormField>
-        <FormField label="Excel 文件" className="sm:col-span-3">
-          <InputControl
-            spec={{ valueType: "file", editor: "upload" }}
-            accept=".xls,.xlsx"
-            onChange={(fileValue) => onFileChange(fileValue instanceof File ? fileValue : null)}
-          />
-        </FormField>
-      </div>
+            },
+            value: year,
+            onChange: (value) => onYearChange(String(value ?? "")),
+          },
+          {
+            key: "file",
+            label: "Excel 文件",
+            spec: { valueType: "file", editor: "upload" },
+            accept: ".xls,.xlsx",
+            onChange: (fileValue) => onFileChange(fileValue instanceof File ? fileValue : null),
+            span: 3,
+          },
+        ]}
+        actions={[{
+          key: "preview",
+          label: loading ? "解析中..." : "预览数据",
+          variant: "primary",
+          onClick: onPreview,
+          disabled: !file || !companyCode || loading,
+        }]}
+      />
 
       {importType === "balance" && <p className="mb-4 text-sm text-blue-700">
           余额表按年度快照导入：2024 年作为月度余额滚动计算基准，2025 年及之后作为校准快照，不直接覆盖月度余额表。
         </p>}
 
-      <div className="flex items-center gap-3">
-        <CommandButton variant="primary" onClick={onPreview} disabled={!file || !companyCode || loading}>
-          {loading ? "解析中..." : "预览数据"}
-        </CommandButton>
-        {file && <span className="text-xs text-gray-400">
-            {(file.size / 1024).toFixed(1)} KB
-          </span>}
-      </div>
-    </SectionCard>;
+      {file && <span className="text-xs text-gray-400">
+          {(file.size / 1024).toFixed(1)} KB
+        </span>}
+    </div>;
 }

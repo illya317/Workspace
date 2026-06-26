@@ -1,6 +1,6 @@
 "use client";
 
-import { EmptyStateCard, SelectField, StructuredTable, TextField, type StructuredTableCell } from "@workspace/core/ui";
+import { DataSurface, FormSurface, PageSurface, type DataSurfaceStructuredCellSpec } from "@workspace/core/ui";
 import type { QcTemplateMethodField, QcTemplateTestItem } from "@workspace/production/server/qc";
 import { QcPaperChoiceInput } from "./QcPaperInputs";
 import { useQcFormulaEngine, type QcFieldValues } from "./useQcFormulaEngine";
@@ -43,17 +43,20 @@ function FieldInput({
   if (field.type === "select") {
     return (
       <div className="flex min-h-9 items-center justify-center gap-2">
-        <SelectField
-          ariaLabel={field.name || field.fieldKey || "选择项"}
-          dataFieldKey={field.fieldKey}
-          value={value}
-          onChange={onChange}
-          disabled={readOnly || calculated || field.attr === "prefilled"}
-          placeholder=" "
-          options={(field.options ?? []).map((option) => ({ value: option, label: option }))}
-
-          visualVariant="paperUnderline"
-          textAlign="center"
+        <FormSurface
+          kind="control"
+          control={{
+            kind: "select",
+            ariaLabel: field.name || field.fieldKey || "选择项",
+            dataFieldKey: field.fieldKey,
+            value,
+            onChange,
+            disabled: readOnly || calculated || field.attr === "prefilled",
+            placeholder: " ",
+            options: (field.options ?? []).map((option) => ({ value: option, label: option })),
+            visualVariant: "paperUnderline",
+            textAlign: "center",
+          }}
         />
         {field.unit && <span className="text-xs text-slate-700">{field.unit}</span>}
       </div>
@@ -61,14 +64,18 @@ function FieldInput({
   }
   return (
     <div className="flex min-h-9 items-center justify-center gap-2">
-      <TextField
-        dataFieldKey={field.fieldKey}
-        value={value}
-        onChange={onChange}
-        readOnly={readOnly || calculated || field.attr === "prefilled"}
-        inputMode={field.type === "number" ? "decimal" : "text"}
-        unstyled
-        className={`h-8 min-w-24 border-0 border-b border-slate-950 bg-transparent px-2 text-center text-sm outline-none ${calculated ? "text-slate-950" : ""}`}
+      <FormSurface
+        kind="control"
+        control={{
+          kind: "text",
+          dataFieldKey: field.fieldKey,
+          value,
+          onChange,
+          readOnly: readOnly || calculated || field.attr === "prefilled",
+          inputMode: field.type === "number" ? "decimal" : "text",
+          unstyled: true,
+          className: `h-8 min-w-24 border-0 border-b border-slate-950 bg-transparent px-2 text-center text-sm outline-none ${calculated ? "text-slate-950" : ""}`,
+        }}
       />
       {field.unit && <span className="text-xs text-slate-700">{field.unit}</span>}
     </div>
@@ -81,15 +88,15 @@ export default function QcMethodFieldTable({ test, compact, values: controlledVa
   const setValue = onFieldChange || form.setValue;
 
   if (test.methodGroups.length === 0) {
-    return <EmptyStateCard compact className="border-slate-950 text-slate-500">该方法暂未配置字段。</EmptyStateCard>;
+    return <PageSurface kind="detail" embedded empty={{ content: "该方法暂未配置字段。", compact: true, className: "border-slate-950 text-slate-500" }} />;
   }
 
   return (
     <div className="space-y-4">
       {test.methodGroups.map((group) => {
-        const rows: StructuredTableCell[][] = [
+        const rows: DataSurfaceStructuredCellSpec[][] = [
           [{ content: group.name, colSpan: compact ? 3 : 4, className: "border border-slate-950 px-3 py-2 font-semibold" }],
-          ...group.fields.map((field): StructuredTableCell[] => {
+          ...group.fields.map((field): DataSurfaceStructuredCellSpec[] => {
             const calculated = field.attr === "calculated" || !!field.formula;
             const helpText = field.formula ? `公式：${field.formula}` : field.rule ? `规则：${field.rule}` : field.attr === "prefilled" ? "预填" : " ";
             return [
@@ -111,8 +118,11 @@ export default function QcMethodFieldTable({ test, compact, values: controlledVa
           }),
         ];
         return (
-          <StructuredTable
+          <DataSurface
             key={group.name}
+            kind="structured"
+            wrap={false}
+            structuredScroll={false}
             rows={rows}
             className="w-full border-collapse text-sm text-slate-950"
           />

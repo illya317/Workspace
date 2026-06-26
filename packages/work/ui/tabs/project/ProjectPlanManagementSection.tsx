@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { EmptyStateCard, SectionCard } from "@workspace/core/ui";
+import { DataSurface } from "@workspace/core/ui";
 import { listProjectPlanGantt } from "./api";
 import ProjectPlanPhasePanel from "./ProjectPlanPhasePanel";
 import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
@@ -40,9 +40,7 @@ export default function ProjectPlanManagementSection({
 
   if (!projectId) {
     return (
-      <SectionCard title="项目阶段">
-        <EmptyStateCard compact>项目保存后可维护项目阶段。</EmptyStateCard>
-      </SectionCard>
+      <DataSurface kind="records" framed title="项目阶段" records={[]} empty="项目保存后可维护项目阶段。" />
     );
   }
 

@@ -1,15 +1,32 @@
 "use client";
 
-import { CommandButton, EmptyStateCard, Badge } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 import { SectionShell } from "./ProfileFormControls";
 import { edpFields, employmentFields } from "@workspace/hr/constants";
 import type { ContractRow, EdpRow, EmploymentRow, ProfileField } from "@workspace/hr/types";
 import type { FkFieldOption } from "@workspace/core/ui";
 import { fieldGrid, FieldRegion, isCurrentByEndDate, pickFields, type EditableRecord, type RowBase } from "./EmployeeProfileUtils";
 import { ContractSection } from "./EmployeeProfileContractSection";
-import { RowActions } from "./EmployeeProfileRowActions";
+import { ProfileAction, RowActions } from "./EmployeeProfileRowActions";
 import { useScrollToAddedItem } from "../hooks/useScrollToAddedItem";
 export { HistorySection, type ProfileHistoryEntry } from "./EmployeeProfileHistorySection";
+
+function InlineStatusChip({
+  label,
+  tone = "gray",
+}: {
+  label: string;
+  tone?: "green" | "blue" | "gray";
+}) {
+  const toneClass =
+    tone === "green"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+      : tone === "blue"
+        ? "border-blue-200 bg-blue-50 text-blue-700"
+        : "border-slate-200 bg-slate-100 text-slate-600";
+  return <span className={`inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-xs font-semibold ${toneClass}`}>{label}</span>;
+}
+
 export function RowsSection<T extends RowBase>({
   title,
   rows,
@@ -33,9 +50,7 @@ export function RowsSection<T extends RowBase>({
 }) {
   return <SectionShell title={null} className={className}>
       <div className="space-y-4">
-        {rows.length === 0 ? <EmptyStateCard compact>暂无记录</EmptyStateCard> : rows.map((row, index) => <FieldRegion key={row.id ?? `new-${index}`} title={getRowTitle(row, title)} actions={canEdit && allowDelete && onDelete ? <CommandButton variant="danger" disabled={saving !== null} onClick={() => onDelete(row, index)} className="px-3 py-1.5 text-xs">
-                  删除
-                </CommandButton> : null}>
+        {rows.length === 0 ? <FormSurface kind="detail" fields={[{ kind: "note", key: "empty", content: "暂无记录" }]} /> : rows.map((row, index) => <FieldRegion key={row.id ?? `new-${index}`} title={getRowTitle(row, title)} actions={canEdit && allowDelete && onDelete ? <RowActions canEdit={canEdit} saving={saving} onDelete={() => onDelete(row, index)} /> : null}>
               {fieldGrid(fields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
           const field = fields.find(item => item.key === key);
           if (field) onChange(index, field, value, option);
@@ -71,7 +86,7 @@ export function EmploymentSection({
 }) {
   const fields = employmentFields.filter(field => !["currentCompany", "leaveNote"].includes(field.key));
   return <SectionShell title={null} className={className}>
-      {!employment ? <EmptyStateCard compact>暂无雇佣主档</EmptyStateCard> : <div className="space-y-5">
+      {!employment ? <FormSurface kind="detail" fields={[{ kind: "note", key: "empty", content: "暂无雇佣主档" }]} /> : <div className="space-y-5">
           <FieldRegion title="任职状态">
             {fieldGrid(fields, employment as unknown as EditableRecord, !canEdit, (key, value, option) => {
           const field = fields.find(item => item.key === key);
@@ -110,16 +125,16 @@ export function EdpSection({
   }
   return <SectionShell title={null} className={className}>
       <div className="space-y-4">
-        {rows.length === 0 ? <EmptyStateCard compact>暂无岗位记录</EmptyStateCard> : rows.map((row, index) => {
+        {rows.length === 0 ? <FormSurface kind="detail" fields={[{ kind: "note", key: "empty", content: "暂无岗位记录" }]} /> : rows.map((row, index) => {
         const current = isCurrentByEndDate(row.endDate);
         return <div key={row.id ?? `new-edp-${index}`} ref={getItemRef(index)}>
                 <FieldRegion title={<div className="flex flex-wrap items-center gap-2">
                       <span>{row.isNew ? "新增岗位记录" : row.positionName || `岗位记录 #${row.id}`}</span>
-                      <Badge label={current ? "当前岗位" : "历史岗位"} tone={current ? "green" : "gray"} />
-                      {row.isPrimary && <Badge label="主岗" tone="blue" />}
+                      <InlineStatusChip label={current ? "当前岗位" : "历史岗位"} tone={current ? "green" : "gray"} />
+                      {row.isPrimary && <InlineStatusChip label="主岗" tone="blue" />}
                       <span className="text-xs font-medium text-slate-500">{row.departmentName || "未设置部门"} · 占比 {row.workPercent || "未设置"}</span>
                     </div>} actions={canEdit ? <>
-                      <CommandButton variant="secondary" onClick={addRow} disabled={saving !== null} className="px-3 py-1.5 text-xs">新增</CommandButton>
+                      <ProfileAction label="新增" variant="secondary" disabled={saving !== null} onClick={addRow} />
                       <RowActions canEdit={canEdit} saving={saving} onDelete={() => onDelete(row, index)} />
                     </> : null}>
                   {fieldGrid(allFields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {

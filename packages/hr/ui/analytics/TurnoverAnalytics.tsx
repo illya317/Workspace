@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AnalysisBlock, DataTable, MetricCard, type DataTableColumn } from "@workspace/core/ui";
+import { PageSurface, type DataTableColumn } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { Employee, Employment } from "./useAnalyticsData";
 
@@ -107,88 +107,134 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <MetricCard label="累计离职" value={stats.totalLeft} />
-        <MetricCard label="本月离职" value={stats.leftThisMonth} />
-        <MetricCard label="本月入职" value={stats.joinedThisMonth} />
-        <MetricCard label="本月净变动" value={stats.netChange > 0 ? `+${stats.netChange}` : stats.netChange} />
-        <MetricCard label="累计离职率" value={`${stats.turnoverRate}%`} />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <AnalysisBlock title="离职月度趋势（近12个月）">
-          <div className="flex items-end gap-1 h-40">
-            {stats.monthCounts.map((c, i) => {
-              const h = Math.round((c / stats.maxMonthCount) * 100);
-              return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <span className="text-xs text-gray-500 font-medium">{c || ""}</span>
-                  <div
-                    className="w-full bg-rose-400 rounded-t"
-                    style={{ height: `${Math.max(h, c > 0 ? 4 : 1)}%` }}
-                  />
-                  <span className="text-[9px] text-gray-400 whitespace-nowrap">{stats.monthLabels[i].slice(2)}</span>
-                </div>
-              );
-            })}
-          </div>
-        </AnalysisBlock>
-
-        <AnalysisBlock title="离职司龄分布">
-          <div className="space-y-2">
-            {stats.tenureDist.map(([k, v]) => {
-              const max = Math.max(...stats.tenureDist.map(([, x]) => x), 1);
-              const pct = Math.round((v / max) * 100);
-              return (
-                <div key={k} className="flex items-center gap-3">
-                  <span className="w-16 text-xs text-gray-600">{k}</span>
-                  <div className="flex-1 h-5 bg-gray-100 rounded overflow-hidden">
-                    <div className="h-full bg-amber-400 rounded" style={{ width: `${pct}%` }} />
+    <PageSurface
+      kind="analysis"
+      blocks={[
+        {
+          kind: "data",
+          key: "stats",
+          surface: {
+            kind: "metrics",
+            metrics: [
+              { key: "totalLeft", label: "累计离职", value: stats.totalLeft },
+              { key: "leftThisMonth", label: "本月离职", value: stats.leftThisMonth },
+              { key: "joinedThisMonth", label: "本月入职", value: stats.joinedThisMonth },
+              { key: "netChange", label: "本月净变动", value: stats.netChange > 0 ? `+${stats.netChange}` : stats.netChange },
+              { key: "turnoverRate", label: "累计离职率", value: `${stats.turnoverRate}%` },
+            ],
+          },
+        },
+        {
+          kind: "surfaceGroup",
+          key: "charts",
+          layout: "grid",
+          blocks: [
+            {
+              kind: "analysis",
+              key: "monthly-trend",
+              title: "离职月度趋势（近12个月）",
+              blocks: [{
+                kind: "moduleView",
+                key: "monthly-chart",
+                view: (
+                  <div className="flex items-end gap-1 h-40">
+                    {stats.monthCounts.map((c, i) => {
+                      const h = Math.round((c / stats.maxMonthCount) * 100);
+                      return (
+                        <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                          <span className="text-xs text-gray-500 font-medium">{c || ""}</span>
+                          <div
+                            className="w-full bg-rose-400 rounded-t"
+                            style={{ height: `${Math.max(h, c > 0 ? 4 : 1)}%` }}
+                          />
+                          <span className="text-[9px] text-gray-400 whitespace-nowrap">{stats.monthLabels[i].slice(2)}</span>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <span className="w-10 text-right text-xs font-medium text-gray-700">{v}</span>
-                </div>
-              );
-            })}
-          </div>
-        </AnalysisBlock>
-      </div>
-
-      <AnalysisBlock
-        title="离职原因分布"
-        toolbarItems={[
-          { kind: "search", key: "reason-search", value: reasonSearch, onChange: setReasonSearch, placeholder: "搜索原因...", className: "max-w-xs" },
-          { kind: "text", key: "meta", content: <>{stats.totalLeft} 人</> },
-        ]}
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
-          {filteredReasons.map(([k, v]) => {
-            const max = Math.max(...filteredReasons.map(([, x]) => x), 1);
-            const pct = Math.round((v / stats.totalLeft) * 100);
-            const barPct = Math.round((v / max) * 100);
-            return (
-              <div key={k} className="flex items-center gap-3 py-1">
-                <span className="w-24 shrink-0 text-xs text-gray-600 truncate" title={k}>{k}</span>
-                <div className="flex-1 h-4 bg-gray-100 rounded overflow-hidden">
-                  <div className="h-full bg-rose-300 rounded" style={{ width: `${barPct}%` }} />
-                </div>
-                <span className="w-8 text-right text-xs font-medium text-gray-700">{v}</span>
-                <span className="w-8 text-right text-xs text-gray-400">{pct}%</span>
+                ),
+              }],
+            },
+            {
+              kind: "analysis",
+              key: "tenure",
+              title: "离职司龄分布",
+              blocks: [{
+                kind: "moduleView",
+                key: "tenure-chart",
+                view: (
+                  <div className="space-y-2">
+                    {stats.tenureDist.map(([k, v]) => {
+                      const max = Math.max(...stats.tenureDist.map(([, x]) => x), 1);
+                      const pct = Math.round((v / max) * 100);
+                      return (
+                        <div key={k} className="flex items-center gap-3">
+                          <span className="w-16 text-xs text-gray-600">{k}</span>
+                          <div className="flex-1 h-5 bg-gray-100 rounded overflow-hidden">
+                            <div className="h-full bg-amber-400 rounded" style={{ width: `${pct}%` }} />
+                          </div>
+                          <span className="w-10 text-right text-xs font-medium text-gray-700">{v}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ),
+              }],
+            },
+          ],
+        },
+        {
+          kind: "analysis",
+          key: "reasons",
+          title: "离职原因分布",
+          toolbar: {
+            items: [
+              { kind: "search", key: "reason-search", value: reasonSearch, onChange: setReasonSearch, placeholder: "搜索原因...", className: "max-w-xs" },
+              { kind: "text", key: "meta", content: <>{stats.totalLeft} 人</> },
+            ],
+          },
+          blocks: [{
+            kind: "moduleView",
+            key: "reason-bars",
+            view: (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
+                {filteredReasons.map(([k, v]) => {
+                  const max = Math.max(...filteredReasons.map(([, x]) => x), 1);
+                  const pct = Math.round((v / stats.totalLeft) * 100);
+                  const barPct = Math.round((v / max) * 100);
+                  return (
+                    <div key={k} className="flex items-center gap-3 py-1">
+                      <span className="w-24 shrink-0 text-xs text-gray-600 truncate" title={k}>{k}</span>
+                      <div className="flex-1 h-4 bg-gray-100 rounded overflow-hidden">
+                        <div className="h-full bg-rose-300 rounded" style={{ width: `${barPct}%` }} />
+                      </div>
+                      <span className="w-8 text-right text-xs font-medium text-gray-700">{v}</span>
+                      <span className="w-8 text-right text-xs text-gray-400">{pct}%</span>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
-      </AnalysisBlock>
-
-      <AnalysisBlock title="最近离职（前20）">
-        <DataTable
-          rows={stats.recentLeaves}
-          columns={columns}
-          visibleColumns={columns.map((column) => column.key)}
-          rowKey={(employment) => employment.id}
-          emptyText="暂无数据"
-        />
-      </AnalysisBlock>
-    </div>
+            ),
+          }],
+        },
+        {
+          kind: "analysis",
+          key: "recent-leaves",
+          title: "最近离职（前20）",
+          blocks: [{
+            kind: "data",
+            key: "recent-leaves-table",
+            surface: {
+              kind: "table",
+              rows: stats.recentLeaves,
+              columns,
+              visibleColumns: columns.map((column) => column.key),
+              rowKey: (employment) => employment.id,
+              emptyText: "暂无数据",
+            },
+          }],
+        },
+      ]}
+    />
   );
 }

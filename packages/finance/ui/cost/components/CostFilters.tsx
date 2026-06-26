@@ -1,6 +1,6 @@
 "use client";
 
-import { Toolbar, type ToolbarItem } from "@workspace/core/ui";
+import { FormSurface, type ToolbarItem } from "@workspace/core/ui";
 import type { CostFiltersState } from "../types";
 
 interface Props {
@@ -59,5 +59,5 @@ export default function CostFilters({ filters, onChange }: Props) {
     },
   ];
 
-  return <Toolbar items={items} />;
+  return <FormSurface kind="filters" toolbar={{ items }} />;
 }

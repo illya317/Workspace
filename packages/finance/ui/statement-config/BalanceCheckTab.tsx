@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { CommandButton, PanelCard } from "@workspace/core/ui";
+import { DataSurface, FormSurface } from "@workspace/core/ui";
 import BalanceCheckTable, { flattenBalanceAccountTree, formatBalanceAmount, type BalanceCheckAccountNode } from "../components/BalanceCheckTable";
 import FinanceFilters from "../components/FinanceFilters";
 import { useStatementConfig } from "./StatementConfigContext";
@@ -114,30 +114,29 @@ export default function BalanceCheckTab() {
   }, [tree]);
   return <div className="space-y-4 mt-4">
       <FinanceFilters showCompanyYear={false} levelFilter={levelFilter} onLevelChange={setLevelFilter} showMonth={false} showLevel showSearch={false} showPageSize={false} />
-      <div className="flex flex-wrap items-center gap-3">
-        <CommandButton variant="primary" onClick={load}>刷新</CommandButton>
-      </div>
+      <FormSurface kind="inline" actions={[{ key: "refresh", label: "刷新", variant: "primary", onClick: load }]} />
 
       {loading && <p className="p-12 text-center text-sm text-gray-400">加载中...</p>}
 
       {!loading && error && <div className="space-y-3 py-8 text-center">
           <p className="text-sm text-red-600">{error}</p>
-          <CommandButton variant="danger" onClick={load}>重试</CommandButton>
+          <FormSurface kind="inline" actions={[{ key: "retry", label: "重试", variant: "danger", onClick: load }]} />
         </div>}
 
       {!loading && !error && tree && flatNodes.length === 0 && <p className="p-12 text-center text-sm text-gray-400">暂无科目余额数据</p>}
 
       {!loading && !error && tree && flatNodes.length > 0 && <>
-          {/* Summary */}
-          {summary && <PanelCard bodyClassName="flex flex-wrap gap-4 px-4 py-2 text-sm text-slate-500">
-              <span>叶子借: <b className="text-gray-700">{formatBalanceAmount(summary.leafDebit)}</b></span>
-              <span>叶子贷: <b className="text-gray-700">{formatBalanceAmount(summary.leafCredit)}</b></span>
-              <span>
-                叶子平衡:{" "}
-                {summary.leafBalanced ? <b className="text-emerald-600">✓ 平衡</b> : <b className="text-red-500">✗ 不平衡 {formatBalanceAmount(Math.abs(summary.leafDebit - summary.leafCredit))}</b>}
-              </span>
-              {inconsistentCount > 0 && <span>父子不一致: <b className="text-red-500">{inconsistentCount}</b> 项</span>}
-            </PanelCard>}
+          {summary && <DataSurface
+              kind="metrics"
+              framed
+              title="余额校验汇总"
+              metrics={[
+                { key: "leaf-debit", label: "叶子借", value: formatBalanceAmount(summary.leafDebit) },
+                { key: "leaf-credit", label: "叶子贷", value: formatBalanceAmount(summary.leafCredit) },
+                { key: "leaf-balanced", label: "叶子平衡", value: summary.leafBalanced ? "平衡" : `不平衡 ${formatBalanceAmount(Math.abs(summary.leafDebit - summary.leafCredit))}` },
+                ...(inconsistentCount > 0 ? [{ key: "inconsistent", label: "父子不一致", value: `${inconsistentCount} 项` }] : []),
+              ]}
+            />}
 
           <BalanceCheckTable rows={flatNodes} expanded={expanded} maxLevel={maxLevel} onToggleNode={toggleNode} />
         </>}

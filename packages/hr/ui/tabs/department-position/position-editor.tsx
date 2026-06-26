@@ -1,7 +1,6 @@
 "use client";
 
-import { CommandButton, FormField, InputControl, PanelCard } from "@workspace/core/ui";
-import type { FkFieldOption } from "@workspace/core/ui";
+import { FormSurface, PageSurface, type FkFieldOption } from "@workspace/core/ui";
 import { SegmentedCodeInput } from "@workspace/platform/ui";
 import PositionAliasTagsInput from "./PositionAliasTagsInput";
 import { type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
@@ -93,17 +92,29 @@ export function PositionEditor({
   const draftDepartmentDisplay = departmentPath(draftDepartment, departmentById) || position.departmentName || "";
   return <div className="space-y-5">
       {position.departmentId ? <DirectPositionPanel departmentId={position.departmentId} positionsByDepartment={positionsByDepartment} selection={selection} onSelect={onSelect} /> : null}
-      <PanelCard bodyClassName="p-4">
+      <PageSurface
+        embedded
+        kind="detail"
+        blocks={[{
+          kind: "panel",
+          key: "position-info",
+          bodyClassName: "p-4",
+          blocks: [{
+            kind: "moduleView",
+            key: "content",
+            view: <>
         <DetailSectionHeader title="岗位信息" meta={dirty && <span className="text-xs text-amber-600">有未保存修改</span>} actions={<div className="flex items-center gap-2">
-              <CommandButton variant="primary" disabled={!canEditPosition || !dirty || saving} onClick={() => void onSavePosition()}>
-                {saving ? "保存中..." : "保存"}
-              </CommandButton>
-              {canEdit && <CommandButton disabled={saving} onClick={() => void onArchivePosition(position.id, !showArchived)}>
-                  {showArchived ? "恢复" : "归档"}
-                </CommandButton>}
+              <FormSurface
+                kind="inline"
+                actions={[
+                  { key: "save", label: saving ? "保存中..." : "保存", variant: "primary", disabled: !canEditPosition || !dirty || saving, onClick: () => void onSavePosition() },
+                  ...(canEdit ? [{ key: "archive", label: showArchived ? "恢复" : "归档", disabled: saving, onClick: () => void onArchivePosition(position.id, !showArchived) }] : []),
+                ]}
+              />
             </div>} />
         {draft && <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <FormField label="岗位编码">
+            <div>
+              <div className="mb-1 text-xs font-medium text-slate-500">岗位编码</div>
               <SegmentedCodeInput
                 value={draft.code}
                 disabled={!canEditPosition || !draftCodePrefix}
@@ -120,18 +131,32 @@ export function PositionEditor({
                 }}
                 onChange={(nextCode) => onUpdateDraftCodeSuffix(positionCodeSuffix(nextCode), true)}
               />
-            </FormField>
-            <FormField label="岗位名称">
-              <InputControl spec={{ valueType: "string", editor: "input", state: !canEditPosition ? "disabled" : "normal" }} value={draft.name} onChange={next => onUpdateDraft("name", String(next ?? ""))} />
-            </FormField>
-            <FormField label="别名" className="md:col-span-2">
+            </div>
+            <FormSurface kind="fields" fields={[{
+              key: "name",
+              label: "岗位名称",
+              spec: { valueType: "string", editor: "input", state: !canEditPosition ? "disabled" : "normal" },
+              value: draft.name,
+              onChange: next => onUpdateDraft("name", String(next ?? "")),
+            }]} />
+            <div className="md:col-span-2">
+              <div className="mb-1 text-xs font-medium text-slate-500">别名</div>
               <PositionAliasTagsInput value={draft.alias || ""} disabled={!canEditPosition} onChange={value => onUpdateDraft("alias", value)} />
-            </FormField>
-            <FormField label="直属部门">
-              <InputControl spec={{ valueType: "reference", editor: "autocomplete", state: !canEditPosition ? "disabled" : "normal", options: { source: "remote", fkKey: "hr.department", endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" } }} value={draft.departmentId == null ? "" : String(draft.departmentId)} displayValue={draftDepartmentDisplay} placeholder="搜索部门" onChange={(_label, option) => onUpdateDraftDepartment((option as FkFieldOption | undefined)?.id ?? null)} />
-            </FormField>
+            </div>
+            <FormSurface kind="fields" fields={[{
+              key: "department",
+              label: "直属部门",
+              spec: { valueType: "reference", editor: "autocomplete", state: !canEditPosition ? "disabled" : "normal", options: { source: "remote", fkKey: "hr.department", endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" } },
+              value: draft.departmentId == null ? "" : String(draft.departmentId),
+              displayValue: draftDepartmentDisplay,
+              placeholder: "搜索部门",
+              onChange: (_label, option) => onUpdateDraftDepartment((option as FkFieldOption | undefined)?.id ?? null),
+            }]} />
           </div>}
-      </PanelCard>
+            </>,
+          }],
+        }]}
+      />
 
       {descriptionDraft && <PositionDescriptionPanel position={position} descriptionDraft={descriptionDraft} canEditPosition={canEditPosition} descriptionDirty={descriptionDirty} positionDescriptionTemplate={positionDescriptionTemplate} positionDescriptionTemplates={positionDescriptionTemplates} selectedPositionDescriptionTemplate={selectedPositionDescriptionTemplate} selectedPositionDescriptionTemplateStored={selectedPositionDescriptionTemplateStored} selectedPositionDescriptionTemplateDefault={selectedPositionDescriptionTemplateDefault} templateEditorOpen={templateEditorOpen} templateDraftName={templateDraftName} templateDraftFields={templateDraftFields} positionNames={positionNames} positions={positions} departmentNames={departmentNames} onUpdateDescriptionDraft={onUpdateDescriptionDraft} onPositionDescriptionTemplateChange={onPositionDescriptionTemplateChange} onOpenPositionDescriptionTemplateEditor={onOpenPositionDescriptionTemplateEditor} onSavePositionDescriptionTemplate={onSavePositionDescriptionTemplate} onDeletePositionDescriptionTemplate={onDeletePositionDescriptionTemplate} onTemplateEditorOpenChange={onTemplateEditorOpenChange} onTemplateDraftNameChange={onTemplateDraftNameChange} onTogglePositionDescriptionTemplateField={onTogglePositionDescriptionTemplateField} />}
     </div>;

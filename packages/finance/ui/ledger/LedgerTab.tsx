@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useCallback } from "react";
-import { DataTable, Pagination, PanelCard, useFeedback, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, useFeedback, type DataTableColumn } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
 import FinanceBalanceReconcile from "../components/FinanceBalanceReconcile";
 import { formatFinanceAmount } from "../formatters";
@@ -173,18 +173,19 @@ export default function LedgerTab() {
         <span className="text-xs text-gray-400">共 {total} 条</span>
       </div>
 
-      <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
-        <DataTable
-          rows={balances}
-          columns={columns}
-          visibleColumns={columns.map((column) => column.key)}
-          loading={loading}
-          emptyText="暂无余额数据，请先录入凭证并计算余额"
-          rowKey={(balance) => balance.id}
-        />
-      </PanelCard>
-
-      <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
+      <DataSurface
+        kind="table"
+        framed
+        className="overflow-hidden"
+        bodyClassName="overflow-x-auto"
+        rows={balances}
+        columns={columns}
+        visibleColumns={columns.map((column) => column.key)}
+        loading={loading}
+        emptyText="暂无余额数据，请先录入凭证并计算余额"
+        rowKey={(balance) => balance.id}
+        pagination={{ page, totalPages, total, onPageChange: setPage }}
+      />
 
       <FinanceBalanceReconcile showToast={feedback.notify} />
     </div>

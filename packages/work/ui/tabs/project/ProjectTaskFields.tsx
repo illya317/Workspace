@@ -1,14 +1,9 @@
 "use client";
 
-import type { ReactNode } from "react";
 import {
-  CommandButton,
-  FieldGrid,
-  InputControl,
-  PanelCard,
-  ReadOnlyField,
-  TagListInput,
+  FormSurface,
   type FkFieldOption,
+  type FormSurfaceItemSpec,
   type PickerOption,
 } from "@workspace/core/ui";
 import { PROJECT_MILESTONE_PICKER_OPTIONS, type ProjectTaskDraft, type ProjectTaskItem } from "./model";
@@ -76,87 +71,52 @@ export function ProjectTaskForm({
     patch({ predecessorTaskIds: draft.predecessorTaskIds.filter((item) => item !== id) });
   }
 
-  return (
-    <FormWrapper framed={framed}>
-      <FieldGrid columns={3} mode="mixed">
-        <FieldGrid.Cell label="任务名称" required span="wide">
-          <InputControl spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }} value={draft.name} onChange={(value) => patch({ name: String(value ?? "") })} />
-        </FieldGrid.Cell>
-        <FieldGrid.Cell label="项目阶段" hint={phaseHint}>
-          <InputControl
-            spec={{ valueType: "string", editor: "select", options: { source: "static", items: phaseOptions, visibleCount: 6 }, state: disabled || phaseOptions.length === 0 ? "disabled" : "normal" }}
-            value={draft.planPhaseId ? String(draft.planPhaseId) : null}
-            placeholder={phaseOptions.length > 0 ? "选择项目阶段（可选）" : "无项目阶段"}
-            onChange={(value) => patch({ planPhaseId: value ? Number(value) : null })}
-          />
-        </FieldGrid.Cell>
-        <FieldGrid.Cell label="负责人">
-          <InputControl
-            spec={{ valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.projects.member.employee", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: disabled ? "disabled" : "normal" }}
-            value={draft.ownerEmployeeNumber || ""}
-            displayValue={draft.ownerEmployeeName || ""}
-            placeholder="搜索负责人"
-            onChange={(_value, option) => setOwner(option as FkFieldOption | undefined)}
-          />
-        </FieldGrid.Cell>
-        <FieldGrid.Cell label="里程碑">
-          <InputControl
-            spec={{ valueType: "boolean", editor: "select", options: { source: "static", items: PROJECT_MILESTONE_PICKER_OPTIONS, visibleCount: 2 }, state: disabled ? "disabled" : "normal" }}
-            value={draft.isMilestone ? "true" : "false"}
-            onChange={(value) => patch({ isMilestone: value === "true" })}
-          />
-        </FieldGrid.Cell>
-        <FieldGrid.Cell label="基线开始">
-          <InputControl spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }} value={draft.baselineStartDate} onChange={(value) => patch({ baselineStartDate: String(value || "") })} placeholder="选择日期" />
-        </FieldGrid.Cell>
-        <FieldGrid.Cell label="基线结束">
-          <InputControl spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }} value={draft.baselineEndDate} onChange={(value) => patch({ baselineEndDate: String(value || "") })} placeholder="选择日期" />
-        </FieldGrid.Cell>
-        <FieldGrid.Cell label="实际开始">
-          <InputControl spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }} value={draft.startDate} onChange={(value) => patch({ startDate: String(value || "") })} placeholder="选择日期" />
-        </FieldGrid.Cell>
-        <FieldGrid.Cell label="实际结束">
-          <InputControl spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }} value={draft.endDate} onChange={(value) => patch({ endDate: String(value || "") })} placeholder="选择日期" />
-        </FieldGrid.Cell>
-        <FieldGrid.Cell label="任务描述" span="wide">
-          <InputControl spec={{ valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" }} value={draft.description} onChange={(value) => patch({ description: String(value ?? "") })} />
-        </FieldGrid.Cell>
-        <FieldGrid.Cell label="前置任务" span="wide">
-          <div className="space-y-2">
-            <InputControl
-              spec={{ valueType: "string", editor: "select", options: { source: "static", items: predecessorOptions, visibleCount: 6 }, state: disabled || predecessorOptions.length === 0 ? "disabled" : "normal" }}
-              value={null}
-              placeholder={predecessorOptions.length > 0 ? "添加前置任务" : "无可选前置任务"}
-              onChange={(value) => addPredecessor(String(value || ""))}
-            />
-            {draft.predecessorTaskIds.length > 0 && (
-              <TagListInput
-                items={draft.predecessorTaskIds}
-                getKey={(id) => id}
-                getLabel={(id) => taskLabelById.get(id) || `任务 ${id}`}
-                onRemove={(_, index) => removePredecessor(draft.predecessorTaskIds[index])}
-                disabled={disabled}
-                confirm={false}
-              />
-            )}
-          </div>
-        </FieldGrid.Cell>
-      </FieldGrid>
-      {(onCancel || (submitLabel && onSubmit)) && (
-        <div className="mt-3 flex flex-wrap justify-end gap-2">
-          {onCancel && <CommandButton disabled={disabled} onClick={onCancel}>取消</CommandButton>}
-          {submitLabel && onSubmit && (
-            <CommandButton variant="primary" disabled={disabled} onClick={onSubmit}>{submitLabel}</CommandButton>
-          )}
-        </div>
-      )}
-    </FormWrapper>
-  );
-}
+  const fields: FormSurfaceItemSpec<number>[] = [
+    { key: "name", label: "任务名称", required: true, span: "wide", spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }, value: draft.name, onChange: (value) => patch({ name: String(value ?? "") }) },
+    { key: "phase", label: "项目阶段", hint: phaseHint, spec: { valueType: "string", editor: "select", options: { source: "static", items: phaseOptions, visibleCount: 6 }, state: disabled || phaseOptions.length === 0 ? "disabled" : "normal" }, value: draft.planPhaseId ? String(draft.planPhaseId) : null, placeholder: phaseOptions.length > 0 ? "选择项目阶段（可选）" : "无项目阶段", onChange: (value) => patch({ planPhaseId: value ? Number(value) : null }) },
+    { key: "owner", label: "负责人", spec: { valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.projects.member.employee", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: disabled ? "disabled" : "normal" }, value: draft.ownerEmployeeNumber || "", displayValue: draft.ownerEmployeeName || "", placeholder: "搜索负责人", onChange: (_value, option) => setOwner(option as FkFieldOption | undefined) },
+    { key: "milestone", label: "里程碑", spec: { valueType: "boolean", editor: "select", options: { source: "static", items: PROJECT_MILESTONE_PICKER_OPTIONS, visibleCount: 2 }, state: disabled ? "disabled" : "normal" }, value: draft.isMilestone ? "true" : "false", onChange: (value) => patch({ isMilestone: value === "true" }) },
+    { key: "baselineStartDate", label: "基线开始", spec: { valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }, value: draft.baselineStartDate, onChange: (value) => patch({ baselineStartDate: String(value || "") }), placeholder: "选择日期" },
+    { key: "baselineEndDate", label: "基线结束", spec: { valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }, value: draft.baselineEndDate, onChange: (value) => patch({ baselineEndDate: String(value || "") }), placeholder: "选择日期" },
+    { key: "startDate", label: "实际开始", spec: { valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }, value: draft.startDate, onChange: (value) => patch({ startDate: String(value || "") }), placeholder: "选择日期" },
+    { key: "endDate", label: "实际结束", spec: { valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }, value: draft.endDate, onChange: (value) => patch({ endDate: String(value || "") }), placeholder: "选择日期" },
+    { key: "description", label: "任务描述", span: "wide", spec: { valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" }, value: draft.description, onChange: (value) => patch({ description: String(value ?? "") }) },
+    {
+      kind: "tagList",
+      key: "predecessors",
+      label: "前置任务",
+      span: "wide",
+      items: draft.predecessorTaskIds,
+      getKey: (id) => id,
+      getLabel: (id) => taskLabelById.get(id) || `任务 ${id}`,
+      onRemove: (_, index) => removePredecessor(draft.predecessorTaskIds[index]),
+      disabled,
+      confirm: false,
+      append: {
+        field: {
+          key: "add-predecessor",
+          label: "添加前置任务",
+          spec: { valueType: "string", editor: "select", options: { source: "static", items: predecessorOptions, visibleCount: 6 }, state: disabled || predecessorOptions.length === 0 ? "disabled" : "normal" },
+          value: null,
+          placeholder: predecessorOptions.length > 0 ? "添加前置任务" : "无可选前置任务",
+          onChange: (value) => addPredecessor(String(value || "")),
+        },
+      },
+    },
+  ];
 
-function FormWrapper({ framed, children }: { framed: boolean; children: ReactNode }) {
-  if (!framed) return <>{children}</>;
-  return <PanelCard className="shadow-none" bodyClassName="p-3">{children}</PanelCard>;
+  return (
+    <FormSurface<number>
+      kind="fields"
+      columns={3}
+      fields={fields}
+      className={framed ? "rounded-lg border border-slate-200 bg-white p-3 shadow-none" : undefined}
+      actions={[
+        ...(onCancel ? [{ key: "cancel", label: "取消", disabled, onClick: onCancel }] : []),
+        ...(submitLabel && onSubmit ? [{ key: "submit", label: submitLabel, variant: "primary" as const, disabled, onClick: onSubmit }] : []),
+      ]}
+    />
+  );
 }
 
 export function ProjectTaskDetail({ task }: { task: ProjectTaskItem }) {
@@ -177,18 +137,26 @@ export function ProjectTaskDetail({ task }: { task: ProjectTaskItem }) {
     { label: "后置任务", value: task.successorTasks.length > 0 ? task.successorTasks.map((item) => item.name).join("、") : "无" },
   ];
   return (
-    <PanelCard className="shadow-none" bodyClassName="p-3">
-      <FieldGrid columns={3} mode="view">
-        {detailItems.map((item) => (
-          <FieldGrid.Cell key={item.label} label={item.label}>
-            <ReadOnlyField value={item.value} />
-          </FieldGrid.Cell>
-        ))}
-        <FieldGrid.Cell label="任务描述" span="wide">
-          <ReadOnlyField value={task.description || "未填写"} />
-        </FieldGrid.Cell>
-      </FieldGrid>
-    </PanelCard>
+    <FormSurface
+      kind="detail"
+      columns={3}
+      className="rounded-lg border border-slate-200 bg-white p-3 shadow-none"
+      fields={[
+        ...detailItems.map((item): FormSurfaceItemSpec => ({
+          kind: "readonly",
+          key: item.label,
+          label: item.label,
+          value: item.value,
+        })),
+        {
+          kind: "readonly",
+          key: "description",
+          label: "任务描述",
+          span: "wide",
+          value: task.description || "未填写",
+        },
+      ]}
+    />
   );
 }
 

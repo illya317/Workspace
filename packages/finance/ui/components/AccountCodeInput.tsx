@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useRef, useCallback, useMemo } from "react";
-import { InputControl } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 
 interface AccountOption { code: string; name: string; }
 
@@ -43,15 +43,19 @@ export default function AccountCodeInput({ companyCode, year, value, onChange, p
   }, [companyCode, year]);
 
   return (
-    <InputControl
-      spec={{
+    <FormSurface
+      kind="inline"
+      field={{
+        key: "accountCode",
+        label: "",
+        spec: {
         valueType: "string",
         editor: "autocomplete",
         options: { source: "static", mode: "autocomplete", items: searchableOptions, visibleCount: 5 },
-      }}
-      value={value}
-      onChange={(code) => onChange(String(code ?? ""))}
-      onQueryChange={(q) => {
+        },
+        value,
+        onChange: (code) => onChange(String(code ?? "")),
+        onQueryChange: (q) => {
         clearTimeout(timerRef.current);
         if (q.length < 2) {
           setOptions([]);
@@ -59,11 +63,12 @@ export default function AccountCodeInput({ companyCode, year, value, onChange, p
           return;
         }
         timerRef.current = setTimeout(() => search(q), 300);
+        },
+        loading,
+        placeholder: placeholder || "输入科目编码搜索...",
+        emptyText: "无匹配科目",
+        className: className || "w-32",
       }}
-      loading={loading}
-      placeholder={placeholder || "输入科目编码搜索..."}
-      emptyText="无匹配科目"
-      className={className || "w-32"}
     />
   );
 }

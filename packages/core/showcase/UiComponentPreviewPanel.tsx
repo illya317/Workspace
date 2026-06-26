@@ -3,7 +3,9 @@ import { ActionGlyph, PanelCard } from "@workspace/core/ui";
 import {
   coreUiComponentAccessLayerMeta,
   coreUiComponentKindMeta,
+  coreUiComponentUiLevelMeta,
   coreUiFrameMaturityMeta,
+  resolveCoreUiComponentUiLevel,
   type CoreUiComponentRegistration,
 } from "@workspace/core/ui/component-registry";
 import {
@@ -61,6 +63,7 @@ export function UiComponentPreviewPanel({
 }) {
   const isFoundation = component.accessLayer === "foundation";
   const isPageFrame = component.accessLayer === "page-frame";
+  const uiLevel = resolveCoreUiComponentUiLevel(component);
 
   return (
     <PanelCard
@@ -80,6 +83,12 @@ export function UiComponentPreviewPanel({
           </span>
           <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
             {coreUiComponentKindMeta[component.kind].label}
+          </span>
+          <span
+            className="rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-medium text-indigo-700"
+            title={coreUiComponentUiLevelMeta[uiLevel].description}
+          >
+            {coreUiComponentUiLevelMeta[uiLevel].label}
           </span>
           {isPageFrame && component.frameMaturity && (
             <span

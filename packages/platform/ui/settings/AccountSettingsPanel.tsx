@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CommandButton, FormField, InputControl, PageContent, PanelCard } from "@workspace/core/ui";
+import { PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import ApiAccessClient, { type ApiAccessModuleRow } from "./ApiAccessClient";
 type Message = {
@@ -178,82 +178,180 @@ export default function AccountSettingsPanel({
     setConfirmPwd("");
     setTimeout(() => router.push("/login"), 1500);
   }
-  return <PageContent className="max-w-4xl py-10">
-      <div className="flex min-w-0 items-center gap-4 p-4">
-        <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-50 bg-cover bg-center text-xl font-semibold text-emerald-700" style={avatar ? {
-        backgroundImage: `url(${avatar})`
-      } : undefined} aria-hidden="true">
-          {avatar ? null : user.nickname?.slice(0, 1) || "?"}
-        </span>
-        <span>
-          <span className="block truncate text-lg font-semibold text-slate-900">{user.nickname || "当前用户"}</span>
-          <span className="mt-1 block text-sm font-normal text-slate-500">用户名：{user.username || "(未设置)"}</span>
-        </span>
-      </div>
-
-      <div className="mt-6 grid gap-5 lg:grid-cols-3">
-        <PanelCard title="修改账号" className="h-full" bodyClassName="space-y-3 p-4">
-          <FormField label="姓名">
-            <InputControl
-              spec={{ valueType: "string", editor: "input", state: "readonly" }}
-              value={user.employeeName || user.nickname || ""}
-            />
-          </FormField>
-          <FormField label="昵称">
-            <InputControl spec={{ valueType: "string", editor: "input" }} value={nickname} onChange={(value) => setNickname(String(value ?? ""))} onKeyDown={event => {
-            if (event.key === "Enter") void saveProfile();
-          }} />
-          </FormField>
-          <FormField label="用户名">
-            <InputControl spec={{ valueType: "string", editor: "input" }} value={username} onChange={(value) => setUsername(String(value ?? ""))} onKeyDown={event => {
-            if (event.key === "Enter") void saveProfile();
-          }} />
-          </FormField>
-          <FormMessage message={usernameMessage} />
-        </PanelCard>
-
-        <PanelCard title="修改密码" className="h-full" bodyClassName="space-y-3 p-4">
-          <FormField label="旧密码">
-            <InputControl spec={{ valueType: "string", editor: "input" }} type="password" value={oldPwd} onChange={(value) => setOldPwd(String(value ?? ""))} />
-          </FormField>
-          <FormField label="新密码">
-            <InputControl spec={{ valueType: "string", editor: "input" }} type="password" value={newPwd} onChange={(value) => setNewPwd(String(value ?? ""))} minLength={4} />
-          </FormField>
-          <FormField label="确认新密码">
-            <InputControl spec={{ valueType: "string", editor: "input" }} type="password" value={confirmPwd} onChange={(value) => setConfirmPwd(String(value ?? ""))} minLength={4} onKeyDown={event => {
-            if (event.key === "Enter") void savePassword();
-          }} />
-          </FormField>
-          <FormMessage message={passwordMessage} />
-          <CommandButton variant="secondary" onClick={() => void savePassword()}>
-            保存密码
-          </CommandButton>
-        </PanelCard>
-
-        <PanelCard title="修改头像" className="h-full" bodyClassName="p-4">
-          <div className="flex flex-col items-center gap-4">
-            <span className="flex h-36 w-36 shrink-0 items-center justify-center overflow-hidden rounded-full border border-emerald-100 bg-emerald-50 bg-cover bg-center text-3xl font-semibold text-emerald-700 shadow-inner" style={avatarPreviewUrl || avatar ? {
-            backgroundImage: `url(${avatarPreviewUrl || avatar})`
-          } : undefined} aria-hidden="true">
-              {avatarPreviewUrl || avatar ? null : user.nickname?.slice(0, 1) || "?"}
-            </span>
-            <div className="grid w-full grid-cols-2 gap-2">
-              <InputControl
-                spec={{ valueType: "file", editor: "upload" }}
-                value={null}
-                className="h-10 w-full"
-                accept="image/png,image/jpeg,image/webp,image/gif"
-                showFileName={false}
-                onChange={(file) => selectAvatar(file instanceof File ? file : null)}
-              />
-              <CommandButton variant="primary" disabled={!avatarFile || avatarSaving} onClick={() => void saveAvatar()}>
-                {avatarSaving ? "保存中..." : "保存头像"}
-              </CommandButton>
-            </div>
-            <FormMessage message={avatarMessage} />
-          </div>
-        </PanelCard>
-      </div>
-      <ApiAccessClient user={user} modules={apiAccessModules} />
-    </PageContent>;
+  const blocks: PageSurfaceBlockSpec[] = [
+    {
+      kind: "message",
+      key: "profile-header",
+      content: (
+        <div className="flex min-w-0 items-center gap-4">
+          <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-50 bg-cover bg-center text-xl font-semibold text-emerald-700" style={avatar ? {
+          backgroundImage: `url(${avatar})`
+        } : undefined} aria-hidden="true">
+            {avatar ? null : user.nickname?.slice(0, 1) || "?"}
+          </span>
+          <span>
+            <span className="block truncate text-lg font-semibold text-slate-900">{user.nickname || "当前用户"}</span>
+            <span className="mt-1 block text-sm font-normal text-slate-500">用户名：{user.username || "(未设置)"}</span>
+          </span>
+        </div>
+      ),
+    },
+    {
+      kind: "surfaceGroup",
+      key: "account-forms",
+      layout: "grid",
+      className: "lg:grid-cols-3",
+      blocks: [
+        {
+          kind: "section",
+          key: "profile",
+          title: "修改账号",
+          className: "h-full",
+          blocks: [{
+            kind: "form",
+            key: "profile-form",
+            surface: {
+              kind: "fields",
+              columns: 1,
+              fields: [
+                {
+                  key: "employee-name",
+                  label: "姓名",
+                  spec: { valueType: "string", editor: "input", state: "readonly" },
+                  value: user.employeeName || user.nickname || "",
+                },
+                {
+                  key: "nickname",
+                  label: "昵称",
+                  spec: { valueType: "string", editor: "input" },
+                  value: nickname,
+                  onChange: (value) => setNickname(String(value ?? "")),
+                  onKeyDown: (event) => {
+                    if (event.key === "Enter") void saveProfile();
+                  },
+                },
+                {
+                  key: "username",
+                  label: "用户名",
+                  spec: { valueType: "string", editor: "input" },
+                  value: username,
+                  onChange: (value) => setUsername(String(value ?? "")),
+                  onKeyDown: (event) => {
+                    if (event.key === "Enter") void saveProfile();
+                  },
+                },
+                ...(usernameMessage ? [{
+                  kind: "note" as const,
+                  key: "username-message",
+                  content: <FormMessage message={usernameMessage} />,
+                }] : []),
+              ],
+            },
+          }],
+        },
+        {
+          kind: "section",
+          key: "password",
+          title: "修改密码",
+          className: "h-full",
+          blocks: [{
+            kind: "form",
+            key: "password-form",
+            surface: {
+              kind: "fields",
+              columns: 1,
+              fields: [
+                {
+                  key: "old-password",
+                  label: "旧密码",
+                  spec: { valueType: "string", editor: "input" },
+                  type: "password",
+                  value: oldPwd,
+                  onChange: (value) => setOldPwd(String(value ?? "")),
+                },
+                {
+                  key: "new-password",
+                  label: "新密码",
+                  spec: { valueType: "string", editor: "input" },
+                  type: "password",
+                  value: newPwd,
+                  onChange: (value) => setNewPwd(String(value ?? "")),
+                  minLength: 4,
+                },
+                {
+                  key: "confirm-password",
+                  label: "确认新密码",
+                  spec: { valueType: "string", editor: "input" },
+                  type: "password",
+                  value: confirmPwd,
+                  onChange: (value) => setConfirmPwd(String(value ?? "")),
+                  minLength: 4,
+                  onKeyDown: (event) => {
+                    if (event.key === "Enter") void savePassword();
+                  },
+                },
+                ...(passwordMessage ? [{
+                  kind: "note" as const,
+                  key: "password-message",
+                  content: <FormMessage message={passwordMessage} />,
+                }] : []),
+              ],
+              actions: [{ key: "save-password", label: "保存密码", variant: "secondary", onClick: () => void savePassword() }],
+            },
+          }],
+        },
+        {
+          kind: "section",
+          key: "avatar",
+          title: "修改头像",
+          className: "h-full",
+          blocks: [{
+            kind: "form",
+            key: "avatar-form",
+            surface: {
+              kind: "fields",
+              columns: 1,
+              fields: [
+                {
+                  kind: "note" as const,
+                  key: "avatar-preview",
+                  content: (
+                    <div className="flex justify-center">
+                      <span className="flex h-36 w-36 shrink-0 items-center justify-center overflow-hidden rounded-full border border-emerald-100 bg-emerald-50 bg-cover bg-center text-3xl font-semibold text-emerald-700 shadow-inner" style={avatarPreviewUrl || avatar ? {
+                      backgroundImage: `url(${avatarPreviewUrl || avatar})`
+                    } : undefined} aria-hidden="true">
+                        {avatarPreviewUrl || avatar ? null : user.nickname?.slice(0, 1) || "?"}
+                      </span>
+                    </div>
+                  ),
+                },
+                {
+                  key: "avatar-file",
+                  label: "头像文件",
+                  spec: { valueType: "file", editor: "upload" },
+                  value: null,
+                  className: "h-10 w-full",
+                  accept: "image/png,image/jpeg,image/webp,image/gif",
+                  showFileName: false,
+                  onChange: (file) => selectAvatar(file instanceof File ? file : null),
+                },
+                ...(avatarMessage ? [{
+                  kind: "note" as const,
+                  key: "avatar-message",
+                  content: <FormMessage message={avatarMessage} />,
+                }] : []),
+              ],
+              actions: [{ key: "save-avatar", label: avatarSaving ? "保存中..." : "保存头像", variant: "primary", disabled: !avatarFile || avatarSaving, onClick: () => void saveAvatar() }],
+            },
+          }],
+        },
+      ],
+    },
+    {
+      kind: "surfaceGroup",
+      key: "api-access",
+      blocks: [{ kind: "message", key: "api-access-client", content: <ApiAccessClient user={user} modules={apiAccessModules} /> }],
+    },
+  ];
+  return <PageSurface kind="settings" contentClassName="max-w-4xl py-10" blocks={blocks} />;
 }

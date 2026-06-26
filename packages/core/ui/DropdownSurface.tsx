@@ -1,6 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
+import {
+  announceFloatingOverlayOpen,
+  FLOATING_OVERLAY_OPEN_EVENT,
+  getFloatingOverlayOpenDetail,
+} from "./overlay-events";
 
 export type DropdownSurfaceAlign = "left" | "right";
 
@@ -56,8 +61,19 @@ export default function DropdownSurface({
   surfaceClassName = "",
 }: DropdownSurfaceProps) {
   const [open, setOpen] = useState(false);
+  const overlayId = useId();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const alignClassName = align === "right" ? "right-0" : "left-0";
+
+  useEffect(() => {
+    function handleOverlayOpen(event: Event) {
+      const detail = getFloatingOverlayOpenDetail(event);
+      if (detail && detail.id !== overlayId) setOpen(false);
+    }
+
+    window.addEventListener(FLOATING_OVERLAY_OPEN_EVENT, handleOverlayOpen);
+    return () => window.removeEventListener(FLOATING_OVERLAY_OPEN_EVENT, handleOverlayOpen);
+  }, [overlayId]);
 
   useEffect(() => {
     if (!open) return;
@@ -81,7 +97,11 @@ export default function DropdownSurface({
     };
   }, [open]);
 
-  const toggle = useCallback(() => setOpen((current) => !current), []);
+  const toggle = useCallback(() => {
+    const nextOpen = !open;
+    if (nextOpen) announceFloatingOverlayOpen(overlayId);
+    setOpen(nextOpen);
+  }, [open, overlayId]);
   const close = useCallback(() => setOpen(false), []);
 
   const ctx: DropdownSurfaceRenderContext = { open, toggle, close };

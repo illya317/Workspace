@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { FormField, InputControl, SectionCard } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 import type { MeetingDetail } from "./meeting-types";
 import { statusLabel } from "./meeting-utils";
 
@@ -12,9 +12,17 @@ export function Section({
   title: string;
   children: ReactNode;
 }) {
-  return <SectionCard title={title}>
-      <div className="space-y-3">{children}</div>
-    </SectionCard>;
+  return (
+    <FormSurface
+      kind="fields"
+      fields={[{
+        kind: "section",
+        key: title,
+        title,
+        fields: [{ kind: "note", key: `${title}-content`, content: <div className="space-y-3">{children}</div> }],
+      }]}
+    />
+  );
 }
 
 export function InlineForm({
@@ -39,20 +47,48 @@ export function InputBox({
   className?: string;
 }) {
   const dateTime = splitDateTimeValue(value);
-  return <FormField label={label} className={className}>
-      {kind === "datetime" ? <div className="grid grid-cols-[minmax(0,1fr)_7.5rem] gap-2">
-          <InputControl spec={{ valueType: "date", editor: "datePicker" }} value={dateTime.date} onChange={date => onChange(combineDateTimeValue(String(date ?? ""), dateTime.time))} placeholder="选择日期" />
-          <InputControl spec={{ valueType: "time", editor: "timePicker" }} value={dateTime.time} onChange={time => onChange(combineDateTimeValue(dateTime.date, String(time ?? "")))} />
-        </div> : <InputControl
-          spec={{
-            valueType: kind === "number" ? "number" : kind === "date" ? "date" : "string",
-            editor: kind === "number" ? "number" : kind === "date" ? "datePicker" : "input",
-          }}
-          value={value}
-          onChange={next => onChange(String(next ?? ""))}
-          placeholder={kind === "date" ? "选择日期" : `输入${label}`}
-        />}
-    </FormField>;
+  if (kind === "datetime") {
+    return (
+      <FormSurface
+        kind="inline"
+        className={className}
+        fields={[
+          {
+            key: `${label}-date`,
+            label: `${label}日期`,
+            spec: { valueType: "date", editor: "datePicker" },
+            value: dateTime.date,
+            onChange: date => onChange(combineDateTimeValue(String(date ?? ""), dateTime.time)),
+            placeholder: "选择日期",
+          },
+          {
+            key: `${label}-time`,
+            label: `${label}时间`,
+            spec: { valueType: "time", editor: "timePicker" },
+            value: dateTime.time,
+            onChange: time => onChange(combineDateTimeValue(dateTime.date, String(time ?? ""))),
+          },
+        ]}
+      />
+    );
+  }
+  return (
+    <FormSurface
+      kind="inline"
+      className={className}
+      field={{
+        key: label,
+        label,
+        spec: {
+          valueType: kind === "number" ? "number" : kind === "date" ? "date" : "string",
+          editor: kind === "number" ? "number" : kind === "date" ? "datePicker" : "input",
+        },
+        value,
+        onChange: next => onChange(String(next ?? "")),
+        placeholder: kind === "date" ? "选择日期" : `输入${label}`,
+      }}
+    />
+  );
 }
 
 function splitDateTimeValue(value: string) {
@@ -82,18 +118,23 @@ export function SelectBox({
     label: string;
   }>;
 }) {
-  return <FormField label={label}>
-      <InputControl
-        spec={{
+  return (
+    <FormSurface
+      kind="inline"
+      field={{
+        key: label,
+        label,
+        spec: {
           valueType: "string",
           editor: options.length > 8 ? "autocomplete" : "select",
           options: { source: "static", items: options, visibleCount: 5 },
-        }}
-        value={value}
-        onChange={next => onChange(String(next ?? ""))}
-        placeholder="未设置"
-      />
-    </FormField>;
+        },
+        value,
+        onChange: next => onChange(String(next ?? "")),
+        placeholder: "未设置",
+      }}
+    />
+  );
 }
 
 export function AgendaSelect({

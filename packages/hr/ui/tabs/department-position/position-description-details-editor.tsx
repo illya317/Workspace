@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  FormField,
-  InputControl,
-} from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 import { HR_OFFICE_LOCATIONS, HR_RANKS } from "@workspace/hr/constants/field-options";
 import RankPicker from "../../components/RankPicker";
 import {
@@ -54,18 +51,16 @@ export function PositionDescriptionDetailsEditor({
   const details = parseDetailsObject(value);
   if (!details) {
     return (
-      <FormField
-        label="明细 JSON 格式错误"
-        error="请检查 JSON 内容后重新保存。"
-        className="md:col-span-2"
-      >
-        <InputControl
-          spec={{ valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" }}
-          value={value}
-          rows={14}
-          onChange={(next) => onChange(String(next ?? ""))}
-        />
-      </FormField>
+      <FormSurface kind="fields" fields={[{
+        key: "invalid-json",
+        label: "明细 JSON 格式错误",
+        error: "请检查 JSON 内容后重新保存。",
+        fieldClassName: "md:col-span-2",
+        spec: { valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" },
+        value,
+        rows: 14,
+        onChange: (next) => onChange(String(next ?? "")),
+      }]} />
     );
   }
 
@@ -109,31 +104,32 @@ export function PositionDescriptionDetailsEditor({
     }
     if (key === "rank") {
       return (
-        <FormField key={key} label={DETAIL_FIELD_LABELS[key] || key}>
+        <div key={key}>
+          <div className="mb-1 text-xs font-medium text-slate-500">{DETAIL_FIELD_LABELS[key] || key}</div>
           <RankPicker
             value={fieldValue}
             options={HR_RANKS}
             disabled={disabled}
             onChange={(next) => updateDetailValue(key, next || null)}
           />
-        </FormField>
+        </div>
       );
     }
     if (key === "education") {
       return (
-        <FormField key={key} label={DETAIL_FIELD_LABELS[key] || key}>
-          <InputControl
-            spec={{
-              valueType: "string",
-              editor: "select",
-              state: disabled ? "disabled" : "normal",
-              options: { source: "static", items: pickerOptions(EDUCATION_REQUIREMENT_OPTIONS) },
-            }}
-            value={String(fieldValue || "无要求")}
-            placeholder="无要求"
-            onChange={(next) => updateDetailValue(key, next || "无要求")}
-          />
-        </FormField>
+        <FormSurface key={key} kind="fields" fields={[{
+          key,
+          label: DETAIL_FIELD_LABELS[key] || key,
+          spec: {
+            valueType: "string",
+            editor: "select",
+            state: disabled ? "disabled" : "normal",
+            options: { source: "static", items: pickerOptions(EDUCATION_REQUIREMENT_OPTIONS) },
+          },
+          value: String(fieldValue || "无要求"),
+          placeholder: "无要求",
+          onChange: (next) => updateDetailValue(key, next || "无要求"),
+        }]} />
       );
     }
     if (key === "major") {
@@ -179,19 +175,19 @@ export function PositionDescriptionDetailsEditor({
           ? HR_OFFICE_LOCATIONS
           : WORK_SCHEDULE_OPTIONS;
       return (
-        <FormField key={key} label={DETAIL_FIELD_LABELS[key] || key}>
-          <InputControl
-            spec={{
-              valueType: "string",
-              editor: "select",
-              state: disabled ? "disabled" : "normal",
-              options: { source: "static", items: pickerOptions(options) },
-            }}
-            value={fieldValue}
-            placeholder="未设置"
-            onChange={(next) => updateDetailValue(key, next || null)}
-          />
-        </FormField>
+        <FormSurface key={key} kind="fields" fields={[{
+          key,
+          label: DETAIL_FIELD_LABELS[key] || key,
+          spec: {
+            valueType: "string",
+            editor: "select",
+            state: disabled ? "disabled" : "normal",
+            options: { source: "static", items: pickerOptions(options) },
+          },
+          value: fieldValue,
+          placeholder: "未设置",
+          onChange: (next) => updateDetailValue(key, next || null),
+        }]} />
       );
     }
     if (key === "distributionDeptNames") {
@@ -262,26 +258,19 @@ export function PositionDescriptionDetailsEditor({
     }
     const rows = detailFieldRows(fieldValue);
     return (
-      <FormField
+      <FormSurface
         key={key}
-        label={DETAIL_FIELD_LABELS[key] || key}
-        className={rows > 1 ? "md:col-span-2" : ""}
-      >
-        {rows === 1 ? (
-          <InputControl
-            spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }}
-            value={detailValueToText(fieldValue)}
-            onChange={(next) => updateDetailField(key, String(next ?? ""))}
-          />
-        ) : (
-          <InputControl
-            spec={{ valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" }}
-            value={detailValueToText(fieldValue)}
-            rows={rows}
-            onChange={(next) => updateDetailField(key, String(next ?? ""))}
-          />
-        )}
-      </FormField>
+        kind="fields"
+        fields={[{
+          key,
+          label: DETAIL_FIELD_LABELS[key] || key,
+          fieldClassName: rows > 1 ? "md:col-span-2" : "",
+          spec: { valueType: "string", editor: rows === 1 ? "input" : "textarea", state: disabled ? "disabled" : "normal" },
+          value: detailValueToText(fieldValue),
+          rows: rows === 1 ? undefined : rows,
+          onChange: (next) => updateDetailField(key, String(next ?? "")),
+        }]}
+      />
     );
   }
 

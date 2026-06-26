@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { StructuredTable, type StructuredTableCell } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceStructuredCellSpec } from "@workspace/core/ui";
 import type { QcLayoutBlock } from "@workspace/production/server/qc";
 import { CellContent } from "./qc-layout-table/cell-content";
 import { Part } from "./qc-layout-table/parts";
@@ -50,7 +50,7 @@ export function TableBlock({
     return <SignatureFooterBlock block={block} context={context} className={className} />;
   }
   const marginClass = block.compactTable ? "mb-0" : "mb-4";
-  const rows: StructuredTableCell[][] = block.rows.map((row) => row.map((cell) => {
+  const rows: DataSurfaceStructuredCellSpec[][] = block.rows.map((row) => row.map((cell) => {
     const isTableTitleCell = cell.bold && !cell.header && row.length === 1;
     const isSignatureRow = row.some((item) => item.rawText === "检验者") && row.some((item) => item.rawText === "复核者");
     const cellIndex = row.indexOf(cell);
@@ -66,7 +66,10 @@ export function TableBlock({
   }));
 
   return (
-    <StructuredTable
+    <DataSurface
+      kind="structured"
+      wrap={false}
+      structuredScroll={false}
       rows={rows}
       colWidths={block.columnWidths}
       rowHeights={block.rowHeights}

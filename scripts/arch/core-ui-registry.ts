@@ -1,6 +1,9 @@
 import {
+  CORE_UI_SHOWCASE_MAX_LEVEL,
   coreUiComponentRegistry,
+  isCoreUiComponentVisibleInShowcase,
   registeredCoreUiComponentNames,
+  resolveCoreUiComponentUiLevel,
 } from "../../packages/core/ui/component-registry";
 import type { CoreUiComponentRegistration } from "../../packages/core/ui/component-registry";
 import { existsSync, readFileSync } from "node:fs";
@@ -11,6 +14,14 @@ const ROOT = path.resolve(__dirname, "../..");
 const CORE_UI_DIR = path.join(ROOT, "packages/core/ui");
 const CORE_UI_INDEX = path.join(CORE_UI_DIR, "index.ts");
 const SOURCE_EXTENSIONS = [".tsx", ".ts"];
+const ALLOWED_UI_LEVELS = new Set([1, 2, 3, 4]);
+const CORE_UI_L1_PUBLIC_ENTRY_NAMES = new Set([
+  "DataSurface",
+  "FormSurface",
+  "NavigationSurface",
+  "PageSurface",
+  "useFeedback",
+]);
 
 type CoreUiExportMaps = {
   sourceByName: Map<string, string>;
@@ -275,7 +286,65 @@ export function validateCoreUiRegistry() {
     byName.set(registration.name, registration);
   }
 
-  // 1. 引用的名字必须存在
+  // 1. uiLevel 是展示治理硬约束：L1 名单精确匹配；L4+ 不能进入组件库主展示。
+  const resolvedL1Names = new Set<string>();
+  for (const registration of byName.values()) {
+    const explicitUiLevel = (registration as { uiLevel?: unknown }).uiLevel;
+    if (explicitUiLevel !== undefined && !ALLOWED_UI_LEVELS.has(explicitUiLevel as number)) {
+      errors.push(`${registration.name}.uiLevel 必须是 1/2/3/4，当前为 ${String(explicitUiLevel)}`);
+      continue;
+    }
+
+    const resolvedUiLevel = resolveCoreUiComponentUiLevel(registration);
+    if (!ALLOWED_UI_LEVELS.has(resolvedUiLevel)) {
+      errors.push(`${registration.name} 解析后的 uiLevel 必须是 1/2/3/4，当前为 ${String(resolvedUiLevel)}`);
+    }
+
+    if (resolvedUiLevel === 1) resolvedL1Names.add(registration.name);
+
+    const shouldBeHiddenFromShowcase = resolvedUiLevel > CORE_UI_SHOWCASE_MAX_LEVEL;
+    if (shouldBeHiddenFromShowcase && isCoreUiComponentVisibleInShowcase(registration)) {
+      errors.push(`${registration.name} 是 L${resolvedUiLevel}，必须从 UI 组件库主展示隐藏`);
+    }
+  }
+  for (const expectedName of CORE_UI_L1_PUBLIC_ENTRY_NAMES) {
+    if (!resolvedL1Names.has(expectedName)) {
+      errors.push(`Core UI L1 缺少公开入口 ${expectedName}`);
+    }
+  }
+  for (const actualName of resolvedL1Names) {
+    if (!CORE_UI_L1_PUBLIC_ENTRY_NAMES.has(actualName)) {
+      errors.push(`${actualName} 不能声明或解析为 uiLevel: 1；L1 仅允许 PageSurface/FormSurface/DataSurface/NavigationSurface/useFeedback`);
+    }
+  }
+
+  const visibleShowcaseRoots = [...byName.values()]
+    .filter(isCoreUiComponentVisibleInShowcase)
+    .map((registration) => registration.name)
+    .sort();
+  for (const rootName of visibleShowcaseRoots) {
+    const root = byName.get(rootName);
+    if (!root) continue;
+    const rootLevel = resolveCoreUiComponentUiLevel(root);
+    if (rootLevel > CORE_UI_SHOWCASE_MAX_LEVEL) {
+      errors.push(`${root.name} 是 L${rootLevel}，不能作为 UI 组件库主展示根节点`);
+    }
+    const directTargets = [
+      ...(root.composes ?? []),
+      ...(root.foundations ?? []),
+      ...(root.includes ?? []),
+    ];
+    for (const targetName of directTargets) {
+      const target = byName.get(targetName);
+      if (!target || !isCoreUiComponentVisibleInShowcase(target)) continue;
+      const targetLevel = resolveCoreUiComponentUiLevel(target);
+      if (targetLevel > CORE_UI_SHOWCASE_MAX_LEVEL) {
+        errors.push(`${root.name} 的组件库主展示直接关系暴露了 L${targetLevel} 入口 ${target.name}`);
+      }
+    }
+  }
+
+  // 2. 引用的名字必须存在
   for (const registration of byName.values()) {
     const allTargets = [
       ...(registration.composes ?? []),
@@ -289,7 +358,7 @@ export function validateCoreUiRegistry() {
     }
   }
 
-  // 2. composes/includes 不能成环
+  // 3. composes/includes 不能成环
   function visit(name: string, path: string[], seen: Set<string>) {
     if (seen.has(name)) {
       const cycleStart = path.indexOf(name);
@@ -308,7 +377,7 @@ export function validateCoreUiRegistry() {
     visit(registration.name, [], new Set());
   }
 
-  // 3. Foundation entry 不能声明 composes/includes，且 foundations 目标也必须是 Foundation。
+  // 4. Foundation entry 不能声明 composes/includes，且 foundations 目标也必须是 Foundation。
   for (const registration of byName.values()) {
     if (registration.accessLayer === "foundation") {
       if ((registration.composes && registration.composes.length > 0) || (registration.includes && registration.includes.length > 0)) {
@@ -323,7 +392,7 @@ export function validateCoreUiRegistry() {
     }
   }
 
-  // 4. 非 Foundation 不能通过 composes/includes 依赖 Foundation，应该使用 foundations 字段。
+  // 5. 非 Foundation 不能通过 composes/includes 依赖 Foundation，应该使用 foundations 字段。
   for (const registration of byName.values()) {
     if (registration.accessLayer === "foundation") continue;
     const targets = [...(registration.composes ?? []), ...(registration.includes ?? [])];
@@ -335,7 +404,7 @@ export function validateCoreUiRegistry() {
     }
   }
 
-  // 5. 同一来源的目标不能重复；同一目标不能同时出现在 composes/includes 和 foundations 中
+  // 6. 同一来源的目标不能重复；同一目标不能同时出现在 composes/includes 和 foundations 中
   for (const registration of byName.values()) {
     const targets = new Set<string>();
     const check = (target: string, field: string) => {
@@ -349,7 +418,7 @@ export function validateCoreUiRegistry() {
     for (const target of registration.foundations ?? []) check(target, "foundations");
   }
 
-  // 6. 实现代码里的 core UI 依赖必须写入 registry 关系。
+  // 7. 实现代码里的 core UI 依赖必须写入 registry 关系。
   //    按导出入口归因；同文件私有 helper 会递归追踪，同文件已注册入口只记直接依赖，避免把间接依赖摊平。
   const namesBySource = new Map<string, string[]>();
   for (const registration of byName.values()) {

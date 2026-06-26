@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable max-lines */
 import { useLayoutEffect, useRef, useState, type MutableRefObject } from "react";
-import { EmptyStateCard, SectionCard } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 import type {
   PlanItemKind,
   ProjectPlanDependency,
@@ -59,11 +59,18 @@ export default function ProjectPlanGanttTimeline({
   }, [items, phases, dependencies, periodStart, zoom]);
 
   return (
-    <SectionCard title="项目甘特" bodyClassName="min-w-0 overflow-hidden p-0">
-      {rows.length === 0 ? (
-        <EmptyStateCard compact={false}>暂无计划节点</EmptyStateCard>
-      ) : (
-        <div className="min-w-0 max-w-full overflow-hidden">
+    <FormSurface
+      kind="fields"
+      fields={[{
+        kind: "section",
+        key: "project-gantt",
+        title: "项目甘特",
+        bodyClassName: "min-w-0 overflow-hidden p-0",
+        fields: [{
+          kind: "note",
+          key: "timeline-body",
+          content: rows.length === 0 ? "暂无计划节点" : (
+            <div className="min-w-0 max-w-full overflow-hidden">
           <div className={`grid ${ROW_GRID} border-b border-slate-100 bg-slate-50 text-sm font-semibold text-slate-500`}>
             <div className="px-4 py-3">项目 / 任务</div>
             <div className="relative min-w-0 overflow-hidden px-4 py-3">
@@ -134,8 +141,10 @@ export default function ProjectPlanGanttTimeline({
             })}
           </div>
         </div>
-      )}
-    </SectionCard>
+          ),
+        }],
+      }]}
+    />
   );
 }
 

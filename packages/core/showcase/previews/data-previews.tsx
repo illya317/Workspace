@@ -4,6 +4,7 @@ import { useState, type FC } from "react";
 import {
   AmountCell,
   CodeBlock,
+  DataSurface,
   DataTable,
   DisclosureRecordCard,
   Badge,
@@ -38,6 +39,31 @@ function DataTablePreview() {
       ]}
       rowKey={(row) => row.id}
       tableClassName="w-full"
+    />
+  );
+}
+
+function DataSurfacePreview() {
+  return (
+    <DataSurface
+      kind="table"
+      rows={[
+        { id: 1, name: "合同 A", status: "已生效", amount: 125000 },
+        { id: 2, name: "合同 B", status: "待审核", amount: 48000 },
+      ]}
+      columns={[
+        { key: "name", label: "名称", required: true, render: (row) => row.name },
+        { key: "status", label: "状态", defaultVisible: true, render: (row) => <Badge label={row.status} tone={row.status === "已生效" ? "green" : "yellow"} /> },
+        { key: "amount", label: "金额", defaultVisible: true, render: (row) => <AmountCell value={row.amount} /> },
+      ]}
+      rowKey={(row) => row.id}
+      tableClassName="w-full"
+      toolbar={{
+        items: [
+          { kind: "search", key: "search", value: "", onChange: () => {}, placeholder: "搜索..." },
+          { kind: "text", key: "count", content: "共 2 条" },
+        ],
+      }}
     />
   );
 }
@@ -138,6 +164,7 @@ function dataTableClassNamesPreview() {
 
 export const dataPreviewByName: Record<string, FC> = {
   CodeBlock: CodeBlockPreview,
+  DataSurface: DataSurfacePreview,
   DataTable: DataTablePreview,
   DisclosureRecordCard: DisclosureRecordCardPreview,
   StructuredTable: StructuredTablePreview,

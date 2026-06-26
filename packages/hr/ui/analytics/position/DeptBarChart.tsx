@@ -1,6 +1,6 @@
 "use client";
 
-import { AnalysisBlock } from "@workspace/core/ui";
+import { PageSurface } from "@workspace/core/ui";
 import type { DeptEntry, FilteredDept } from "./usePositionData";
 
 const LEVEL_LABEL: Record<number, string> = { 1: "L1 事业部", 2: "L2 部门", 3: "L3 子部门" };
@@ -72,36 +72,47 @@ export default function DeptBarChart({
   globalMax: number;
 }) {
   return (
-    <AnalysisBlock
-      title="各部门编制 vs 实际"
-      subtitle="条形宽度跨层级统一比例"
-      toolbarItems={[
-        {
-          kind: "select",
-          key: "l1",
-          value: filterL1 == null ? "" : String(filterL1),
-          onChange: (value) => setFilterL1(value ? Number(value) : null),
-          placeholder: "全部事业部",
-          options: l1List.map((dept) => ({ value: String(dept.id), label: dept.name })),
-          triggerClassName: "!min-h-8 !w-40",
+    <PageSurface
+      kind="analysis"
+      blocks={[{
+        kind: "analysis",
+        key: "dept-bars",
+        title: "各部门编制 vs 实际",
+        subtitle: "条形宽度跨层级统一比例",
+        toolbar: {
+          items: [{
+            kind: "select",
+            key: "l1",
+            value: filterL1 == null ? "" : String(filterL1),
+            onChange: (value) => setFilterL1(value ? Number(value) : null),
+            placeholder: "全部事业部",
+            options: l1List.map((dept) => ({ value: String(dept.id), label: dept.name })),
+            triggerClassName: "!min-h-8 !w-40",
+          }],
         },
-      ]}
-    >
+        blocks: [{
+          kind: "moduleView",
+          key: "bars",
+          view: (
+            <>
+              <LevelSection level={1} entries={filteredDept.l1} globalMax={globalMax} />
+              <LevelSection level={2} entries={filteredDept.l2} globalMax={globalMax} />
+              <LevelSection level={3} entries={filteredDept.l3} globalMax={globalMax} />
 
-      <LevelSection level={1} entries={filteredDept.l1} globalMax={globalMax} />
-      <LevelSection level={2} entries={filteredDept.l2} globalMax={globalMax} />
-      <LevelSection level={3} entries={filteredDept.l3} globalMax={globalMax} />
+              {filteredDept.entries.length === 0 && (
+                <p className="text-sm text-gray-400 text-center py-8">暂无数据</p>
+              )}
 
-      {filteredDept.entries.length === 0 && (
-        <p className="text-sm text-gray-400 text-center py-8">暂无数据</p>
-      )}
-
-      <div className="mt-3 flex items-center gap-4 text-xs text-gray-400 border-t pt-3">
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-emerald-400 inline-block" /> 满编/平衡</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-amber-400 inline-block" /> 缺编</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-rose-400 inline-block" /> 超编</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-200 inline-block border-r-2 border-dashed border-gray-300" /> 编制参考线</span>
-      </div>
-    </AnalysisBlock>
+              <div className="mt-3 flex items-center gap-4 text-xs text-gray-400 border-t pt-3">
+                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-emerald-400 inline-block" /> 满编/平衡</span>
+                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-amber-400 inline-block" /> 缺编</span>
+                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-rose-400 inline-block" /> 超编</span>
+                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-200 inline-block border-r-2 border-dashed border-gray-300" /> 编制参考线</span>
+              </div>
+            </>
+          ),
+        }],
+      }]}
+    />
   );
 }

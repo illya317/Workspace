@@ -3,7 +3,6 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useCallback, useEffect } from "react";
 import { SessionUser } from "@workspace/platform/types";
-import { DatabasePageFrame } from "@workspace/core/ui";
 import ImportUploadForm from "./components/ImportUploadForm";
 import ImportPreview from "./components/ImportPreview";
 import ImportResult from "./components/ImportResult";
@@ -118,7 +117,7 @@ export default function ImportClient({ user: _user }: { user: SessionUser }) {
     importType === "journal" ? "序时账" : "科目表";
 
   return (
-    <DatabasePageFrame contentClassName="py-6" className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-5xl py-6">
       <ImportUploadForm
         companies={companies}
         companyCode={companyCode}
@@ -145,6 +144,6 @@ export default function ImportClient({ user: _user }: { user: SessionUser }) {
           onConfirm={handleConfirm}
         />
       )}
-    </DatabasePageFrame>
+    </div>
   );
 }

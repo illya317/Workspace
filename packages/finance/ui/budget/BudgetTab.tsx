@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TabBar } from "@workspace/core/ui";
+import { NavigationSurface } from "@workspace/core/ui";
 import { useBudgetData } from "./hooks/useBudgetData";
 import { useBudgetFilters } from "./hooks/useBudgetFilters";
 import BudgetVersionSelector from "./components/BudgetVersionSelector";
@@ -24,14 +24,17 @@ export default function BudgetTab() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
-        <TabBar
-          tabs={[
+        <NavigationSurface
+          kind="tabs"
+          tabs={{
+            tabs: [
             { key: "dept", label: "部门费用预算" },
             { key: "rd", label: "研发费用预算" },
-          ]}
-          active={view}
-          onChange={(key) => setView(key as BudgetView)}
-          className="mb-0"
+            ],
+            active: view,
+            onChange: (key) => setView(key as BudgetView),
+            className: "mb-0",
+          }}
         />
         <div className="ml-auto">
           <BudgetVersionSelector

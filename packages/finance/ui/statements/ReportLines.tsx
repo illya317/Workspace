@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, type DataTableColumn } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
 
 export interface ReportLine {
@@ -68,7 +68,8 @@ function DetailRows({ rows }: { rows: AccountDetail[] }) {
   const total = rows.reduce((sum, detail) => sum + detail.closing, 0);
   return (
     <div className="space-y-2">
-      <DataTable
+      <DataSurface
+        kind="table"
         rows={rows}
         columns={detailColumns}
         visibleColumns={detailColumns.map((column) => column.key)}
@@ -108,7 +109,8 @@ export default function ReportLines({ items, labelHeader, amountHeader, expanded
   ];
 
   return (
-    <DataTable
+    <DataSurface
+      kind="table"
       rows={items}
       columns={columns}
       visibleColumns={["label", "amount"]}

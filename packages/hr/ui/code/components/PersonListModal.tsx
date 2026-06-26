@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable, DetailModal, type DataTableColumn } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 import type { Employee, CodeItem } from "@workspace/hr/types";
 
 interface PersonListModalProps {
@@ -14,36 +14,36 @@ export default function PersonListModal({
   setDetailModal,
   getDetailList,
 }: PersonListModalProps) {
-  const columns: DataTableColumn<Employee>[] = [
-    { key: "name", label: "姓名", required: true, render: (employee) => employee.name },
-    { key: "dept1", label: "部门", required: true, render: (employee) => employee.dept1 || "-" },
-    { key: "position", label: "岗位", required: true, render: (employee) => employee.position || "-" },
-  ];
+  const list = detailModal
+    ? getDetailList({
+        code: detailModal.code,
+        name: detailModal.name,
+      })
+    : [];
 
   return (
-    <DetailModal
+    <FormSurface
+      kind="modal"
       open={!!detailModal?.open}
       title={`${detailModal?.name || ""} — 人员名单`}
       onClose={() => setDetailModal(null)}
-    >
-      {(() => {
-        if (!detailModal) return null;
-        const list = getDetailList({
-          code: detailModal.code,
-          name: detailModal.name,
-        });
-        return (
-          <DataTable
-            rows={list}
-            columns={columns}
-            visibleColumns={["name", "dept1", "position"]}
-            density="compact"
-            emptyText="暂无人员"
-            rowKey={(employee) => employee.id}
-            tableClassName="text-xs"
-          />
-        );
-      })()}
-    </DetailModal>
+      fields={list.length === 0 ? [{
+        kind: "note",
+        key: "empty",
+        content: "暂无人员",
+      }] : [{
+        kind: "repeatable",
+        key: "people",
+        items: list.map((employee) => ({
+          key: String(employee.id),
+          fields: [
+            { kind: "readonly", key: "name", label: "姓名", value: employee.name },
+            { kind: "readonly", key: "dept1", label: "部门", value: employee.dept1 || "-" },
+            { kind: "readonly", key: "position", label: "岗位", value: employee.position || "-" },
+          ],
+        })),
+        columns: 3,
+      }]}
+    />
   );
 }

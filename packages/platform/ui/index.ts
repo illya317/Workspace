@@ -6,7 +6,6 @@ export type { AuditLogModalProps } from "./AuditLogModal";
 export { default as CompanyNameCell } from "./CompanyNameCell";
 export { default as DepartmentSwitcher } from "./DepartmentSwitcher";
 export { default as LoginClient } from "./LoginClient";
-export { default as ModuleCard } from "./ModuleCard";
 export { default as ModuleHome } from "./ModuleHome";
 export { default as NavLink } from "./NavLink";
 export { default as PortalClient } from "./PortalClient";

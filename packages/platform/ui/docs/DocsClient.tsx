@@ -1,9 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ModuleGridPage } from "@workspace/core/ui";
+import { PageSurface } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
-import ModuleCard from "../ModuleCard";
 
 function getDocCategories(): Record<string, Array<{ title: string; href: string }>> {
   return {
@@ -31,25 +30,28 @@ export default function DocsClient({ user: _user, hideShell }: { user: SessionUs
   const router = useRouter();
 
   return (
-    <ModuleGridPage
-      title={hideShell ? undefined : "文档中心"}
-      summary={hideShell ? undefined : "员工手册、操作指南、规章制度等文档汇总"}
-      centered={hideShell}
-    >
-      {Object.entries(getDocCategories()).map(([category, docs]) => (
-        <ModuleCard
-          key={category}
-          title={category}
-          description={docs.map((doc) => doc.title).join("、")}
-          color="purple"
-          onClick={() => router.push(docs[0]?.href || "/docs")}
-          icon={
+    <PageSurface
+      kind="settings"
+      contentClassName="py-10"
+      blocks={[{
+        kind: "moduleGrid",
+        key: "docs-grid",
+        centered: hideShell,
+        title: hideShell ? undefined : "文档中心",
+        summary: hideShell ? undefined : "员工手册、操作指南、规章制度等文档汇总",
+        items: Object.entries(getDocCategories()).map(([category, docs]) => ({
+          key: category,
+          title: category,
+          description: docs.map((doc) => doc.title).join("、"),
+          color: "purple",
+          onClick: () => router.push(docs[0]?.href || "/docs"),
+          icon: (
             <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.75c-1.8-1.1-4.05-1.75-6.5-1.75v12c2.45 0 4.7.65 6.5 1.75m0-12c1.8-1.1 4.05-1.75 6.5-1.75v12c-2.45 0-4.7.65-6.5 1.75m0-12v12" />
             </svg>
-          }
-        />
-      ))}
-    </ModuleGridPage>
+          ),
+        })),
+      }]}
+    />
   );
 }

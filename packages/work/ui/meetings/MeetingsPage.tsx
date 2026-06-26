@@ -1,14 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CreatePanel, DatabasePageFrame, EmptyStateCard, Toolbar, useFeedback } from "@workspace/core/ui";
+import { PageSurface, useFeedback } from "@workspace/core/ui";
 import type { ToolbarItem } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
-import { InputBox, SelectBox } from "./MeetingControls";
 import { MeetingDetailPanel } from "./MeetingDetailPanel";
-import { MeetingList } from "./MeetingPanels";
+import { meetingCreateFields } from "./meeting-create-fields";
 import type { ActionDraft, CreateMeetingDraft, MeetingDetail, MeetingSummary, MeetingType } from "./meeting-types";
-import { emptyMeetingDraft, parseIdList, requestJson } from "./meeting-utils";
+import { emptyMeetingDraft, formatDateTime, parseIdList, requestJson } from "./meeting-utils";
 
 export default function MeetingsPage({
   user,
@@ -67,7 +66,6 @@ export default function MeetingsPage({
   const [actionDrafts, setActionDrafts] = useState<Record<number, ActionDraft>>({});
 
   const filteredMeetings = useMemo(() => typeFilter === "all" ? meetings : meetings.filter(item => String(item.typeId) === typeFilter), [meetings, typeFilter]);
-  const selectedType = types.find(item => item.id === Number(createDraft.typeId));
 
   const loadMeetings = useCallback(async () => {
     setLoading(true);
@@ -239,117 +237,115 @@ export default function MeetingsPage({
     }],
   }];
 
-  return <DatabasePageFrame>
-      <CreatePanel
-        variant="block"
-        title="会议"
-        canCreate
-        creating={creating}
-        disabled={saving}
-        submitting={saving}
-        submitDisabled={saving || !createDraft.title.trim() || !createDraft.typeId}
-        addLabel="新建会议"
-        submitLabel="保存会议"
-        onStartCreate={() => setCreating(true)}
-        onCancel={() => setCreating(false)}
-        onSubmit={() => void handleCreateMeeting()}
-        createContent={<MeetingCreateFields
-          createDraft={createDraft}
-          selectedType={selectedType}
-          types={types}
-          onChange={setCreateDraft}
-        />}
-        bodyClassName="p-4"
-      >
-        <div className="space-y-4">
-          <Toolbar items={toolbarItems} />
-          <div className="grid gap-4 xl:grid-cols-[20rem_minmax(0,1fr)]">
-            <MeetingList loading={loading} meetings={filteredMeetings} selectedId={selectedId} onSelect={setSelectedId} />
-            <main className="min-w-0">
-              {!meeting ? (
-                <EmptyStateCard compact={false}>{detailLoading ? "加载中..." : "暂无会议"}</EmptyStateCard>
-              ) : (
-                <MeetingDetailPanel
-                  meeting={meeting}
-                  saving={saving}
-                  user={user}
-                  actionDrafts={actionDrafts}
-                  participantDraft={participantDraft}
-                  agendaDraft={agendaDraft}
-                  minuteDraft={minuteDraft}
-                  proposalDraft={proposalDraft}
-                  decisionDraft={decisionDraft}
-                  candidateDraft={candidateDraft}
-                  onUpdate={(body, success) => void handleUpdateMeeting(body, success)}
-                  onMutate={mutate}
-                  onActionDraftsChange={setActionDrafts}
-                  onParticipantDraftChange={setParticipantDraft}
-                  onAgendaDraftChange={setAgendaDraft}
-                  onMinuteDraftChange={setMinuteDraft}
-                  onProposalDraftChange={setProposalDraft}
-                  onDecisionDraftChange={setDecisionDraft}
-                  onCandidateDraftChange={setCandidateDraft}
-                />
-              )}
-            </main>
-          </div>
-        </div>
-      </CreatePanel>
-    </DatabasePageFrame>;
-}
-
-function MeetingCreateFields({
-  createDraft,
-  selectedType,
-  types,
-  onChange,
-}: {
-  createDraft: CreateMeetingDraft;
-  selectedType?: MeetingType;
-  types: MeetingType[];
-  onChange: (draft: CreateMeetingDraft) => void;
-}) {
-  return <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-      <SelectBox label="会议类型" value={createDraft.typeId} options={types.map(type => ({
-    value: String(type.id),
-    label: type.name,
-  }))} onChange={typeId => onChange({
-    ...createDraft,
-    typeId,
-  })} />
-      <InputBox label="会议主题" value={createDraft.title} onChange={title => onChange({
-    ...createDraft,
-    title,
-  })} />
-      <InputBox label="地点" value={createDraft.location} onChange={location => onChange({
-    ...createDraft,
-    location,
-  })} />
-      <InputBox label="开始时间" kind="datetime" value={createDraft.startAt} onChange={startAt => onChange({
-    ...createDraft,
-    startAt,
-  })} />
-      <InputBox label="结束时间" kind="datetime" value={createDraft.endAt} onChange={endAt => onChange({
-    ...createDraft,
-    endAt,
-  })} />
-      <SelectBox label="可见性" value={createDraft.visibility} options={[{
-    value: "participants_only",
-    label: selectedType?.defaultVisibility === "public" ? "参会人可见" : "参会人可见",
-  }, {
-    value: "public",
-    label: "模块内公开",
-  }]} onChange={visibility => onChange({
-    ...createDraft,
-    visibility: visibility as CreateMeetingDraft["visibility"],
-  })} />
-      <InputBox label="参会用户 ID" value={createDraft.participantUserIds} onChange={participantUserIds => onChange({
-    ...createDraft,
-    participantUserIds,
-  })} />
-      <InputBox label="说明" value={createDraft.description} onChange={description => onChange({
-    ...createDraft,
-    description,
-  })} className="xl:col-span-2" />
-    </div>;
+  return (
+    <PageSurface
+      kind="list"
+      blocks={[
+        {
+          kind: "panel",
+          key: "meetings",
+          title: "会议",
+          bodyClassName: "p-4",
+          actions: [{
+            key: "create",
+            label: creating ? "收起新建" : "新建会议",
+            variant: creating ? "secondary" : "primary",
+            disabled: saving,
+            onClick: () => setCreating((current) => !current),
+          }],
+          blocks: [
+            ...(creating ? [{
+              kind: "form" as const,
+              key: "create-meeting",
+              surface: {
+                kind: "fields" as const,
+                columns: 3 as const,
+                fields: meetingCreateFields(createDraft, types, setCreateDraft),
+                actions: [
+                  { key: "cancel", label: "取消", disabled: saving, onClick: () => setCreating(false) },
+                  { key: "save", label: saving ? "保存中..." : "保存会议", variant: "primary" as const, disabled: saving || !createDraft.title.trim() || !createDraft.typeId, onClick: () => void handleCreateMeeting() },
+                ],
+              },
+            }] : []),
+            {
+              kind: "form",
+              key: "meeting-toolbar",
+              surface: {
+                kind: "inline",
+                toolbar: { items: toolbarItems },
+              },
+            },
+            {
+              kind: "surfaceGroup",
+              key: "meeting-body",
+              layout: "grid",
+              className: "xl:grid-cols-[20rem_minmax(0,1fr)]",
+              blocks: [
+                {
+                  kind: "navigation",
+                  key: "meeting-list",
+                  surface: {
+                    kind: "selector",
+                    className: "min-w-0",
+                    selector: {
+                      title: "会议列表",
+                      bodyClassName: "max-h-[calc(100vh-14rem)] overflow-y-auto p-2",
+                      loading,
+                      loadingText: "加载中...",
+                      emptyText: "暂无会议",
+                      items: filteredMeetings,
+                      selectedId,
+                      onSelect: (item: MeetingSummary) => setSelectedId(item.id),
+                      getKey: (item: MeetingSummary) => item.id,
+                      contentClassName: "space-y-2",
+                      renderItem: (item: MeetingSummary) => ({
+                        title: item.title,
+                        subtitle: `${item.typeName} · ${formatDateTime(item.startAt) || "未定时间"}`,
+                        trailing: <span className="shrink-0 rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{item.status}</span>,
+                        meta: [`议题 ${item.counts.agendaItems}`, `表决 ${item.counts.proposals}`, `决议 ${item.counts.decisions}`],
+                      }),
+                    },
+                  },
+                },
+                meeting
+                  ? {
+                      kind: "moduleView",
+                      key: "meeting-detail",
+                      view: (
+                        <MeetingDetailPanel
+                          meeting={meeting}
+                          saving={saving}
+                          user={user}
+                          actionDrafts={actionDrafts}
+                          participantDraft={participantDraft}
+                          agendaDraft={agendaDraft}
+                          minuteDraft={minuteDraft}
+                          proposalDraft={proposalDraft}
+                          decisionDraft={decisionDraft}
+                          candidateDraft={candidateDraft}
+                          onUpdate={(body, success) => void handleUpdateMeeting(body, success)}
+                          onMutate={mutate}
+                          onActionDraftsChange={setActionDrafts}
+                          onParticipantDraftChange={setParticipantDraft}
+                          onAgendaDraftChange={setAgendaDraft}
+                          onMinuteDraftChange={setMinuteDraft}
+                          onProposalDraftChange={setProposalDraft}
+                          onDecisionDraftChange={setDecisionDraft}
+                          onCandidateDraftChange={setCandidateDraft}
+                        />
+                      ),
+                    }
+                  : {
+                      kind: "message",
+                      key: "meeting-empty",
+                      content: detailLoading ? "加载中..." : "暂无会议",
+                      tone: "muted",
+                    },
+              ],
+            },
+          ],
+        },
+      ]}
+    />
+  );
 }

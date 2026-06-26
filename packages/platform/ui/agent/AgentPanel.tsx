@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ActionButton, CommandButton, InputControl, PanelCard, SelectorPanel } from "@workspace/core/ui";
+import { FormSurface, NavigationSurface, PanelCard } from "@workspace/core/ui";
 import type { AgentMood, AgentMessage } from "./types";
 import type { SavedConversation } from "./useAgentSession";
 import AgentAvatar from "./AgentAvatar";
@@ -146,23 +146,33 @@ export default function AgentPanel({
               <div className="text-xs text-gray-500">{moodLabels[mood]}</div>
             </div>
             {/* History */}
-            <div className="relative">
-              <CommandButton onClick={() => setShowHistory(!showHistory)} disabled={!savedConversations || savedConversations.length === 0} title="历史对话" size="sm" className="p-1.5">
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </CommandButton>
-            </div>
-            <CommandButton onClick={onClear} title="新对话" size="sm" className="p-1.5">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </CommandButton>
-            <CommandButton onClick={onClose} title="关闭" size="sm" className="p-1.5">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </CommandButton>
+            <FormSurface
+              kind="inline"
+              actions={[
+                {
+                  key: "history",
+                  label: <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+                  onClick: () => setShowHistory(!showHistory),
+                  disabled: !savedConversations || savedConversations.length === 0,
+                  size: "sm",
+                  className: "p-1.5",
+                },
+                {
+                  key: "clear",
+                  label: <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>,
+                  onClick: onClear,
+                  size: "sm",
+                  className: "p-1.5",
+                },
+                {
+                  key: "close",
+                  label: <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>,
+                  onClick: onClose,
+                  size: "sm",
+                  className: "p-1.5",
+                },
+              ]}
+            />
           </div>
 
           {/* Messages */}
@@ -173,24 +183,59 @@ export default function AgentPanel({
 
           {/* Input */}
           <div className="flex items-center gap-2 border-t px-4 py-3">
-            <InputControl inputRef={inputRef} spec={{ valueType: "string", editor: "input", state: loading ? "disabled" : "normal" }} value={input} onChange={(value) => setInput(String(value ?? ""))} onKeyDown={handleKeyDown} placeholder="输入消息..." maxLength={2000} />
-            {loading ? (
-              <ActionButton kind="stop" label="停止生成" variant="primary" onClick={onStop} />
-            ) : (
-              <ActionButton kind="send" label="发送" variant="primary" onClick={handleSend} disabled={!input.trim()} />
-            )}
+            <FormSurface
+              kind="inline"
+              className="min-w-0 flex-1"
+              fields={[{
+                key: "message",
+                label: "消息",
+                inputRef,
+                spec: { valueType: "string", editor: "input", state: loading ? "disabled" : "normal" },
+                value: input,
+                onChange: (value) => setInput(String(value ?? "")),
+                onKeyDown: handleKeyDown,
+                placeholder: "输入消息...",
+                maxLength: 2000,
+              }]}
+              actions={[loading ? {
+                key: "stop",
+                label: "停止生成",
+                variant: "primary",
+                onClick: onStop,
+              } : {
+                key: "send",
+                label: "发送",
+                variant: "primary",
+                onClick: handleSend,
+                disabled: !input.trim(),
+              }]}
+            />
           </div>
         </PanelCard>
         {showHistory && savedConversations && savedConversations.length > 0 && (
           <div ref={historyDropdownRef}>
-            <SelectorPanel className="absolute right-4 top-16 z-[60] max-h-64 w-64 overflow-y-auto" title="历史对话" items={savedConversations} selectedId={null} onSelect={c => {
-              onLoadConversation?.(c);
-              setShowHistory(false);
-            }} getKey={c => c.id} renderItem={c => ({
-              title: c.title,
-              metaLine: c.preview || c.messages.slice(-1)[0]?.content.slice(0, 60),
-              meta: [new Date(c.updatedAt).toLocaleString("zh-CN")]
-            })} size="sm" bodyClassName="p-2" contentClassName="space-y-2" />
+            <NavigationSurface
+              kind="selector"
+              className="absolute right-4 top-16 z-[60] max-h-64 w-64 overflow-y-auto"
+              selector={{
+                title: "历史对话",
+                items: savedConversations,
+                selectedId: null,
+                onSelect: c => {
+                  onLoadConversation?.(c);
+                  setShowHistory(false);
+                },
+                getKey: c => c.id,
+                renderItem: c => ({
+                  title: c.title,
+                  metaLine: c.preview || c.messages.slice(-1)[0]?.content.slice(0, 60),
+                  meta: [new Date(c.updatedAt).toLocaleString("zh-CN")]
+                }),
+                size: "sm",
+                bodyClassName: "p-2",
+                contentClassName: "space-y-2",
+              }}
+            />
           </div>
         )}
       </div>

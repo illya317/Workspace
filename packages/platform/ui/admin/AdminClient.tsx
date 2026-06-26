@@ -2,14 +2,13 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
-import { EmptyStateCard, FormField, InputControl, SectionCard, useFeedback } from "@workspace/core/ui";
-import { DatabasePageFrame } from "@workspace/core/ui";
+import { PageSurface, useFeedback, type FormSurfaceItemSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import AdminUsersTab from "./tabs/AdminUsersTab";
 import ModuleManagementTab from "./tabs/ModuleManagementTab";
 import PermissionsTab from "./tabs/PermissionsTab";
 
 import type { ResourceItem } from "./types";
-import { SessionUser } from "@workspace/platform/types";
+import type { SessionUser } from "@workspace/platform/types";
 
 export default function AdminClient({ user }: { user: SessionUser }) {
   const [loading, setLoading] = useState(true);
@@ -71,9 +70,11 @@ export default function AdminClient({ user }: { user: SessionUser }) {
 
   if (loading) {
     return (
-      <DatabasePageFrame contentClassName="py-8">
-        <EmptyStateCard>加载中...</EmptyStateCard>
-      </DatabasePageFrame>
+      <PageSurface
+        kind="settings"
+        contentClassName="py-8"
+        empty={{ content: "加载中..." }}
+      />
     );
   }
 
@@ -83,55 +84,82 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     ...(isSuperAdmin ? [{ key: "modules" as const, label: "模块管理" }] : []),
   ];
 
-  return (
-    <>
-      <DatabasePageFrame
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={(k) => setActiveTab(k as typeof activeTab)}
-        contentClassName="py-8"
-      >
-        <div className="space-y-4">
-          {activeTab === "users" && <AdminUsersTab showToast={showToast} resources={fullResourceTree} />}
-          {activeTab === "modules" && <ModuleManagementTab showToast={showToast} />}
-          {activeTab === "permissions" && (
-            <PermissionsTab
-              resources={resources}
-              capabilitiesByOwner={capabilitiesByOwner}
-              showToast={showToast}
-            />
-          )}
-        </div>
+  const conflictStrategyFields = [
+    {
+      key: "strategy",
+      label: "权限冲突策略",
+      spec: {
+        valueType: "string" as const,
+        editor: "select" as const,
+        options: {
+          source: "static" as const,
+          mode: "dropdown" as const,
+          items: [
+            { value: "union", label: "并集（任一有权限即可）" },
+            { value: "deny_override", label: "拒绝优先" },
+          ],
+        },
+      },
+      value: conflictStrategy,
+      onChange: (value: unknown) => saveConflictStrategy(String(value ?? "")),
+    },
+    {
+      kind: "note" as const,
+      key: "strategy-note",
+      content: conflictStrategy === "union" ? "用户、岗位、部门任一授权即通过" : "任一来源拒绝则拒绝",
+      className: "text-xs text-gray-400",
+    },
+  ] satisfies FormSurfaceItemSpec[];
 
-        {/* System Config */}
-        {isSuperAdmin && (
-          <SectionCard title="系统配置" className="mt-8">
-            <div className="flex items-center gap-4">
-              <FormField label="权限冲突策略" layout="inline">
-                <InputControl
-                  spec={{
-                    valueType: "string",
-                    editor: "select",
-                    options: {
-                      source: "static",
-                      mode: "dropdown",
-                      items: [
-                        { value: "union", label: "并集（任一有权限即可）" },
-                        { value: "deny_override", label: "拒绝优先" },
-                      ],
-                    },
-                  }}
-                  value={conflictStrategy}
-                  onChange={(value) => saveConflictStrategy(String(value ?? ""))}
-                />
-              </FormField>
-              <span className="text-xs text-gray-400">
-                {conflictStrategy === "union" ? "用户、岗位、部门任一授权即通过" : "任一来源拒绝则拒绝"}
-              </span>
-            </div>
-          </SectionCard>
-        )}
-      </DatabasePageFrame>
-    </>
+  const systemConfigBlock = {
+    kind: "section" as const,
+    key: "system-config",
+    title: "系统配置",
+    className: "mt-8",
+    blocks: [{
+      kind: "form" as const,
+      key: "conflict-strategy",
+      surface: {
+        kind: "inline" as const,
+        fields: conflictStrategyFields,
+      },
+    }],
+  } satisfies PageSurfaceBlockSpec;
+
+  const blocks: PageSurfaceBlockSpec[] = [
+    {
+      kind: "surfaceGroup",
+      key: "active-admin-tab",
+      blocks: [{
+        kind: "message",
+        key: activeTab,
+        className: "border-0 bg-transparent p-0 text-inherit",
+        content: (
+          <div className="space-y-4">
+            {activeTab === "users" && <AdminUsersTab showToast={showToast} resources={fullResourceTree} />}
+            {activeTab === "modules" && <ModuleManagementTab showToast={showToast} />}
+            {activeTab === "permissions" && (
+              <PermissionsTab
+                resources={resources}
+                capabilitiesByOwner={capabilitiesByOwner}
+                showToast={showToast}
+              />
+            )}
+          </div>
+        ),
+      }],
+    },
+    ...(isSuperAdmin ? [systemConfigBlock] : []),
+  ];
+
+  return (
+    <PageSurface
+      kind="settings"
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(k) => setActiveTab(k as typeof activeTab)}
+      contentClassName="py-8"
+      blocks={blocks}
+    />
   );
 }

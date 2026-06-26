@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable, PanelCard, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, type DataTableColumn } from "@workspace/core/ui";
 import type { DeptBudgetItem } from "../types";
 
 const MONTH_LABELS = [
@@ -79,15 +79,17 @@ export default function DeptBudgetTable({ items, monthTotals, total }: DeptBudge
   ];
 
   return (
-    <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
-      <DataTable
-        rows={rows}
-        columns={columns}
-        visibleColumns={columns.map((column) => column.key)}
-        emptyText="暂无数据"
-        rowKey={(row) => row.id}
-        rowClassName={(row) => row.kind === "total" ? "bg-slate-50 font-medium" : ""}
-      />
-    </PanelCard>
+    <DataSurface
+      kind="table"
+      framed
+      className="overflow-hidden"
+      bodyClassName="overflow-x-auto"
+      rows={rows}
+      columns={columns}
+      visibleColumns={columns.map((column) => column.key)}
+      emptyText="暂无数据"
+      rowKey={(row) => row.id}
+      rowClassName={(row) => row.kind === "total" ? "bg-slate-50 font-medium" : ""}
+    />
   );
 }

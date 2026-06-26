@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo } from "react";
-import { DataTable, Pagination, PanelCard, TabBar, useFeedback } from "@workspace/core/ui";
+import { DataSurface, NavigationSurface, useFeedback } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
 import { BASE_ITEM_COLUMNS, type VoucherItemRow } from "../components/VoucherItemTable";
 import { useReclassResults } from "./useReclassResults";
@@ -113,10 +113,12 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
       />
       {canWrite && (
         <div className="flex flex-wrap items-center gap-3">
-          <TabBar
-            variant="small"
-            accordion
-            tabs={[
+          <NavigationSurface
+            kind="tabs"
+            tabs={{
+              variant: "small",
+              accordion: true,
+              tabs: [
               {
                 key: "reclass",
                 label: "重分类",
@@ -127,11 +129,12 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
                   { key: "all", label: `全部 ${reclassCounts.total}` },
                 ],
               },
-            ]}
-            active={viewMode === "reclass" ? "reclass" : ""}
-            activeChild={reclassStatus}
-            onChange={() => setViewMode(viewMode === "reclass" ? "vouchers" : "reclass")}
-            onChildChange={setReclassStatus}
+              ],
+              active: viewMode === "reclass" ? "reclass" : "",
+              activeChild: reclassStatus,
+              onChange: () => setViewMode(viewMode === "reclass" ? "vouchers" : "reclass"),
+              onChildChange: setReclassStatus,
+            }}
           />
         </div>
       )}
@@ -150,34 +153,34 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
           <p className="py-8 text-center text-sm text-gray-400">请选择公司、年度和月份以配置重分类规则</p>
         )
       ) : (
-        <PanelCard bodyClassName="overflow-x-auto">
-          <DataTable
-            rows={vouchers}
-            columns={voucherColumns}
-            visibleColumns={visibleColumns}
-            loading={loading}
-            emptyText="暂无凭证"
-            rowKey={(v) => v.id}
-            onRowClick={(v) =>
-              setExpandedVoucherId((prev) => (prev === v.id ? null : v.id))
-            }
-            expandedRowKey={expandedVoucherId}
-            renderExpandedRow={(v) => (
-              <div className="rounded-md border border-slate-200 bg-white">
-                <DataTable
-                  rows={v.items.map((it, i) => ({ ...it, _idx: i, _voucherNo: v.voucherNo }))}
-                  columns={itemColumns}
-                  visibleColumns={itemColumns.map((c) => c.key)}
-                  rowKey={(r: VoucherItemRow) => `item-${r.id}`}
-                />
-              </div>
-            )}
-          />
-        </PanelCard>
+        <DataSurface
+          kind="table"
+          framed
+          bodyClassName="overflow-x-auto"
+          rows={vouchers}
+          columns={voucherColumns}
+          visibleColumns={visibleColumns}
+          loading={loading}
+          emptyText="暂无凭证"
+          rowKey={(v) => v.id}
+          onRowClick={(v) =>
+            setExpandedVoucherId((prev) => (prev === v.id ? null : v.id))
+          }
+          expandedRowKey={expandedVoucherId}
+          renderExpandedRow={(v) => (
+            <div className="rounded-md border border-slate-200 bg-white">
+              <DataSurface
+                kind="table"
+                rows={v.items.map((it, i) => ({ ...it, _idx: i, _voucherNo: v.voucherNo }))}
+                columns={itemColumns}
+                visibleColumns={itemColumns.map((c) => c.key)}
+                rowKey={(r: VoucherItemRow) => `item-${r.id}`}
+              />
+            </div>
+          )}
+        />
       )}
-      {viewMode !== "reclass" && (
-        <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
-      )}
+      {viewMode !== "reclass" && <NavigationSurface kind="pagination" pagination={{ page, totalPages, total, onPageChange: setPage }} />}
       {adjustModal}
     </div>
   );

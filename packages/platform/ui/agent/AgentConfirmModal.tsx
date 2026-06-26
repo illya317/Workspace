@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ConfirmModal, DataTable, type DataTableColumn } from "@workspace/core/ui";
+import { ConfirmModal, DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 
 export interface ProposalInfo {
   id: number;
@@ -59,10 +59,10 @@ export default function AgentConfirmModal({ proposal, summary, onConfirm, onCanc
         },
       ];
 
-  const columns: DataTableColumn<(typeof rows)[number]>[] = [
-    { key: "field", label: "字段", required: true, render: (row) => row.field },
-    { key: "oldValue", label: "原值", required: true, render: (row) => row.oldValue || "-" },
-    { key: "newValue", label: "新值", required: true, render: (row) => row.newValue || "-" },
+  const columns: DataSurfaceColumnSpec<(typeof rows)[number]>[] = [
+    { key: "field", label: "字段", required: true, cell: (row) => row.field },
+    { key: "oldValue", label: "原值", required: true, cell: (row) => row.oldValue || "-" },
+    { key: "newValue", label: "新值", required: true, cell: (row) => row.newValue || "-" },
   ];
 
   return (
@@ -72,7 +72,8 @@ export default function AgentConfirmModal({ proposal, summary, onConfirm, onCanc
       message={(
         <div className="space-y-3">
           <p>{summary}</p>
-          <DataTable
+          <DataSurface
+            kind="table"
             rows={rows}
             columns={columns}
             visibleColumns={columns.map((column) => column.key)}

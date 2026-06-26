@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandButton, DataTable, PanelCard, SectionCard, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, FormSurface, type DataTableColumn } from "@workspace/core/ui";
 import type { PreviewAccount, PreviewBalance, PreviewResult, PreviewVoucher, PreviewVoucherItem } from "./types";
 interface ImportPreviewProps {
   preview: PreviewResult;
@@ -153,9 +153,7 @@ function PreviewDataTable<T>({
 }) {
   return <div className="mb-4">
       <div className="mb-2 text-sm font-semibold text-gray-700">{title}</div>
-      <div className="max-h-64 overflow-auto">
-        <DataTable rows={rows} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={rowKey} density="compact" emptyText="暂无数据" />
-      </div>
+      <DataSurface kind="table" rows={rows} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={rowKey} density="compact" emptyText="暂无数据" scrollClassName="max-h-64" />
     </div>;
 }
 function VoucherPreview({
@@ -167,9 +165,7 @@ function VoucherPreview({
     ...item,
     id: `${voucher.voucherNo}-${index}`
   }));
-  return <PanelCard title={voucher.voucherNo} subtitle={`${voucher.date}｜借 ${voucher.totalDebit.toFixed(2)} / 贷 ${voucher.totalCredit.toFixed(2)}`} bodyClassName="p-0">
-      <DataTable rows={rows} columns={voucherColumns} visibleColumns={voucherColumns.map(column => column.key)} rowKey={row => row.id} density="compact" emptyText="暂无分录" />
-    </PanelCard>;
+  return <DataSurface framed title={voucher.voucherNo} subtitle={`${voucher.date}｜借 ${voucher.totalDebit.toFixed(2)} / 贷 ${voucher.totalCredit.toFixed(2)}`} bodyClassName="p-0" kind="table" rows={rows} columns={voucherColumns} visibleColumns={voucherColumns.map(column => column.key)} rowKey={row => row.id} density="compact" emptyText="暂无分录" />;
 }
 export default function ImportPreview({
   preview,
@@ -185,10 +181,21 @@ export default function ImportPreview({
     ...balance,
     id: balance.accountCode
   }));
-  const actions = preview.errors.length === 0 ? <CommandButton variant="primary" onClick={onConfirm} disabled={importing}>
-      {importing ? "导入中..." : "确认导入"}
-    </CommandButton> : null;
-  return <SectionCard title={`预览：${typeLabel}（${preview.year}年）`} subtitle={`共 ${preview.rows} 行原始数据，解析出 ${preview.accounts.length} 个科目${preview.balances ? `，${preview.balances.length} 条余额` : ""}${preview.vouchers ? `，${preview.vouchers.length} 张凭证` : ""}`} actions={actions}>
+  return <div className="space-y-4">
+      <FormSurface
+        kind="inline"
+        actions={preview.errors.length === 0 ? [{
+          key: "confirm",
+          label: importing ? "导入中..." : "确认导入",
+          variant: "primary",
+          onClick: onConfirm,
+          disabled: importing,
+        }] : undefined}
+      />
+      <div>
+        <h2 className="text-base font-semibold text-slate-800">{`预览：${typeLabel}（${preview.year}年）`}</h2>
+        <p className="text-sm text-slate-500">{`共 ${preview.rows} 行原始数据，解析出 ${preview.accounts.length} 个科目${preview.balances ? `，${preview.balances.length} 条余额` : ""}${preview.vouchers ? `，${preview.vouchers.length} 张凭证` : ""}`}</p>
+      </div>
       <NoticeList title="错误" items={preview.errors} tone="red" />
       <NoticeList title="警告" items={preview.warnings} tone="yellow" />
 
@@ -204,5 +211,5 @@ export default function ImportPreview({
           </div>
         </div>}
       {preview.vouchers && preview.vouchers.length > 10 && <p className="text-xs text-gray-400">还有 {preview.vouchers.length - 10} 张未显示</p>}
-    </SectionCard>;
+    </div>;
 }

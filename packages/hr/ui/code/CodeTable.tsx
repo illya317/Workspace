@@ -1,8 +1,9 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
+import type { KeyboardEvent } from "react";
 import { useEffect, useState } from "react";
-import { CommandButton, DataTable, InputControl, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceColumnSpec, type DataSurfaceToolbarSpec } from "@workspace/core/ui";
 import PersonListModal from "./components/PersonListModal";
 import PositionDeptModal from "./components/PositionDeptModal";
 import { hrCanEdit, type HRUser as User } from "@workspace/hr/types";
@@ -53,6 +54,12 @@ interface CodeTableProps {
   loadPositionDepts: (item: CodeItem) => void;
   user: User;
   type: "department" | "position";
+  framed?: boolean;
+  title?: string;
+  toolbar?: DataSurfaceToolbarSpec;
+  loading?: boolean;
+  emptyText?: string;
+  bodyClassName?: string;
 }
 type CodeDisplayRow = {
   kind: "group";
@@ -99,7 +106,13 @@ export default function CodeTable({
   getDetailList,
   loadPositionDepts,
   user,
-  type
+  type,
+  framed,
+  title,
+  toolbar,
+  loading,
+  emptyText,
+  bodyClassName
 }: CodeTableProps) {
   const [pharmaCodesSet, setPharmaCodesSet] = useState<Set<string>>(new Set());
   useEffect(() => {
@@ -173,22 +186,34 @@ export default function CodeTable({
       openDetail(item);
     }
   }
-  const columns: DataTableColumn<CodeDisplayRow>[] = [{
+  const columns: DataSurfaceColumnSpec<CodeDisplayRow>[] = [{
     key: "code",
     label: `编号${sortField === "code" ? sortDirection === "asc" ? " ↑" : " ↓" : ""}`,
     required: true,
     onHeaderClick: () => toggleSort("code"),
     headerClassName: "w-24 hover:bg-slate-100",
     cellClassName: "px-2 py-1.5 text-xs",
-    render: row => {
+    cell: row => {
       if (row.kind === "add") {
-        return <InputControl spec={{ valueType: "string", editor: "input" }} value={newCode} onChange={(value) => setNewCode(String(value ?? ""))} onKeyDown={event => {
-          if (event.key === "Enter") handleAdd();
-        }} placeholder="如001" />;
+        return {
+          kind: "input",
+          spec: { valueType: "string", editor: "input" },
+          value: newCode,
+          onChange: (value) => setNewCode(String(value ?? "")),
+          onKeyDown: (event: KeyboardEvent) => {
+            if (event.key === "Enter") handleAdd();
+          },
+          placeholder: "如001",
+        };
       }
       if (row.kind !== "code") return null;
       if (editRow === row.item.code) {
-        return <InputControl spec={{ valueType: "string", editor: "input" }} value={editCodeValue} onChange={(value) => setEditCodeValue(String(value ?? ""))} />;
+        return {
+          kind: "input",
+          spec: { valueType: "string", editor: "input" },
+          value: editCodeValue,
+          onChange: (value) => setEditCodeValue(String(value ?? "")),
+        };
       }
       return <span className={onSelect ? "cursor-pointer hover:text-emerald-600" : ""} onClick={() => onSelect?.(row.item.code)}>
             {editRow === row.item.code ? editCodeValue : row.item.code}
@@ -201,21 +226,28 @@ export default function CodeTable({
     onHeaderClick: () => toggleSort("name"),
     headerClassName: "hover:bg-slate-100",
     cellClassName: "px-2 py-1.5 text-xs",
-    render: row => {
+    cell: row => {
       if (row.kind === "group") return <span className="font-medium text-slate-600">{row.label}</span>;
       if (row.kind === "summary") return <span className="font-medium text-slate-700">{row.label}</span>;
       if (row.kind === "add") {
-        return <div className="flex items-center gap-1">
-              <InputControl spec={{ valueType: "string", editor: "input" }} value={newName} onChange={(value) => setNewName(String(value ?? ""))} onKeyDown={event => {
+        return {
+          kind: "input",
+          spec: { valueType: "string", editor: "input" },
+          value: newName,
+          onChange: (value) => setNewName(String(value ?? "")),
+          onKeyDown: (event: KeyboardEvent) => {
             if (event.key === "Enter") handleAdd();
-          }} placeholder="名称" />
-              <CommandButton variant="primary" onClick={handleAdd} className="px-3 py-1 text-xs">
-                添加
-              </CommandButton>
-            </div>;
+          },
+          placeholder: "名称",
+        };
       }
       if (editRow === row.item.code) {
-        return <InputControl spec={{ valueType: "string", editor: "input" }} value={editNameValue} onChange={(value) => setEditNameValue(String(value ?? ""))} />;
+        return {
+          kind: "input",
+          spec: { valueType: "string", editor: "input" },
+          value: editNameValue,
+          onChange: (value) => setEditNameValue(String(value ?? "")),
+        };
       }
       return <span className="cursor-pointer hover:text-emerald-600" onClick={() => handleNameClick(row.item)}>
             {row.item.name || "-"}
@@ -228,21 +260,45 @@ export default function CodeTable({
     onHeaderClick: () => toggleSort("count"),
     headerClassName: "w-16 text-right hover:bg-slate-100",
     cellClassName: "px-2 py-1.5 text-right text-xs",
-    render: row => {
+    cell: row => {
       if (row.kind === "summary") {
-        return <span className={`${row.grand ? "bg-emerald-100 font-bold" : "bg-emerald-50 font-medium"} rounded-full px-2 py-0.5 text-xs text-emerald-700`}>
-              {row.total}
-            </span>;
+        return {
+          kind: "badge",
+          label: row.total,
+          tone: "emerald",
+          className: row.grand ? "font-bold" : "font-medium",
+        };
       }
-      if (row.kind !== "code") return row.kind === "add" ? "-" : null;
+      if (row.kind === "add") {
+        return {
+          kind: "action",
+          action: {
+            key: "add",
+            label: "添加",
+            variant: "primary",
+            size: "sm",
+            className: "px-3 py-1 text-xs",
+            onClick: handleAdd,
+          },
+        };
+      }
+      if (row.kind !== "code") return null;
       const count = stats[row.item.code] || 0;
-      return <span className="cursor-pointer rounded-full bg-slate-100 px-2 py-0.5 text-xs hover:bg-slate-200" onClick={() => openDetail(row.item)}>
-            {count}
-          </span>;
+      return {
+        kind: "action",
+        action: {
+          key: "detail-count",
+          label: count,
+          variant: "secondary",
+          size: "sm",
+          className: "rounded-full px-2 py-0.5 text-xs",
+          onClick: () => openDetail(row.item),
+        },
+      };
     }
   }];
   return <>
-      <DataTable rows={rows} columns={columns} visibleColumns={["code", "name", "count"]} density="compact" rowKey={row => row.id} tableClassName="table-fixed text-xs" rowClassName={row => {
+      <DataSurface kind="table" framed={framed} title={title} toolbar={toolbar} loading={loading} emptyText={emptyText} bodyClassName={bodyClassName} rows={rows} columns={columns} visibleColumns={["code", "name", "count"]} density="compact" rowKey={row => row.id} tableClassName="table-fixed text-xs" rowClassName={row => {
       if (row.kind === "group" || row.kind === "summary") return "bg-slate-50 hover:bg-slate-50";
       if (row.kind === "add") return "bg-slate-50";
       return selectedCode === row.item.code ? "bg-emerald-50" : "";

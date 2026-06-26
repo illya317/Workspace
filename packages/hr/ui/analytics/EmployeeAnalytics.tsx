@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import {
-  AnalysisBlock,
-  DataTable,
-  MetricCard,
+  PageSurface,
   type DataTableColumn,
 } from "@workspace/core/ui";
 import type { EDP, Employee, Employment } from "./useAnalyticsData";
@@ -51,70 +49,105 @@ export default function EmployeeAnalytics({ employees, employments, edps }: { em
   }
 
   return (
-    <div className="space-y-6">
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <MetricCard label="员工总数" value={stats.total} />
-        <MetricCard label="在职人数" value={stats.active} />
-        <MetricCard label="离职人数" value={stats.inactive} />
-        <MetricCard label="本月入职" value={stats.joinedThisMonth} />
-        <MetricCard label="本月离职" value={stats.leftThisMonth} />
-      </div>
-
-      {/* 单维度特征分布 */}
-      <AnalysisBlock
-        title="特征分布"
-        toolbarItems={[
-          {
-            kind: "select",
-            key: "feature",
-            value: feature,
-            onChange: (value) => setFeature(value as DimKey),
-            options: featureList.map((item) => ({ value: item, label: `${DIM_LABELS[item]}分布` })),
-            triggerClassName: "!min-h-8 !w-32",
+    <PageSurface
+      kind="analysis"
+      blocks={[
+        {
+          kind: "data",
+          key: "stats",
+          surface: {
+            kind: "metrics",
+            metrics: [
+              { key: "total", label: "员工总数", value: stats.total },
+              { key: "active", label: "在职人数", value: stats.active },
+              { key: "inactive", label: "离职人数", value: stats.inactive },
+              { key: "joinedThisMonth", label: "本月入职", value: stats.joinedThisMonth },
+              { key: "leftThisMonth", label: "本月离职", value: stats.leftThisMonth },
+            ],
           },
-          { kind: "text", key: "meta", content: <>基于 {stats.active} 位在职员工</> },
-        ]}
-      >
-
-        {currentDist().map(([k, v]) => (
-          <DistributionBar key={k} label={k} count={v} total={stats.active} color={DIM_COLORS[feature] || "bg-emerald-400"} />
-        ))}
-      </AnalysisBlock>
-
-      {/* 交叉分析 */}
-      <CrossMatrix
-        crossMatrix={crossMatrix}
-        crossRow={crossRow}
-        crossCol={crossCol}
-        statsActive={stats.active}
-        featureList={featureList}
-        setCrossRow={setCrossRow}
-        setCrossCol={setCrossCol}
-      />
-
-      {/* Recent changes */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <AnalysisBlock title="最近入职（前10）">
-          <DataTable
-            rows={stats.recentJoins}
-            columns={recentJoinColumns}
-            visibleColumns={recentJoinColumns.map((column) => column.key)}
-            rowKey={(row) => row.id}
-            emptyText="暂无数据"
-          />
-        </AnalysisBlock>
-
-        <AnalysisBlock title="最近离职（前10）">
-          <DataTable
-            rows={stats.recentLeaves}
-            columns={recentLeaveColumns}
-            visibleColumns={recentLeaveColumns.map((column) => column.key)}
-            rowKey={(row) => row.id}
-            emptyText="暂无数据"
-          />
-        </AnalysisBlock>
-      </div>
-    </div>
+        },
+        {
+          kind: "analysis",
+          key: "distribution",
+          title: "特征分布",
+          toolbar: {
+            items: [
+              {
+                kind: "select",
+                key: "feature",
+                value: feature,
+                onChange: (value) => setFeature(value as DimKey),
+                options: featureList.map((item) => ({ value: item, label: `${DIM_LABELS[item]}分布` })),
+                triggerClassName: "!min-h-8 !w-32",
+              },
+              { kind: "text", key: "meta", content: <>基于 {stats.active} 位在职员工</> },
+            ],
+          },
+          blocks: [{
+            kind: "moduleView",
+            key: "distribution-bars",
+            view: currentDist().map(([k, v]) => (
+              <DistributionBar key={k} label={k} count={v} total={stats.active} color={DIM_COLORS[feature] || "bg-emerald-400"} />
+            )),
+          }],
+        },
+        {
+          kind: "moduleView",
+          key: "cross-matrix",
+          view: (
+            <CrossMatrix
+              crossMatrix={crossMatrix}
+              crossRow={crossRow}
+              crossCol={crossCol}
+              statsActive={stats.active}
+              featureList={featureList}
+              setCrossRow={setCrossRow}
+              setCrossCol={setCrossCol}
+            />
+          ),
+        },
+        {
+          kind: "surfaceGroup",
+          key: "recent",
+          layout: "grid",
+          blocks: [
+            {
+              kind: "analysis",
+              key: "recent-joins",
+              title: "最近入职（前10）",
+              blocks: [{
+                kind: "data",
+                key: "recent-joins-table",
+                surface: {
+                  kind: "table",
+                  rows: stats.recentJoins,
+                  columns: recentJoinColumns,
+                  visibleColumns: recentJoinColumns.map((column) => column.key),
+                  rowKey: (row) => row.id,
+                  emptyText: "暂无数据",
+                },
+              }],
+            },
+            {
+              kind: "analysis",
+              key: "recent-leaves",
+              title: "最近离职（前10）",
+              blocks: [{
+                kind: "data",
+                key: "recent-leaves-table",
+                surface: {
+                  kind: "table",
+                  rows: stats.recentLeaves,
+                  columns: recentLeaveColumns,
+                  visibleColumns: recentLeaveColumns.map((column) => column.key),
+                  rowKey: (row) => row.id,
+                  emptyText: "暂无数据",
+                },
+              }],
+            },
+          ],
+        },
+      ]}
+    />
   );
 }

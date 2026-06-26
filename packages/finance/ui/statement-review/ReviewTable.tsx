@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandButton, DataTable, InputControl, PanelCard, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceColumnSpec, type DataTableColumn } from "@workspace/core/ui";
 import type { RvLine } from "@workspace/finance/types";
 const FMT = (n: number) => n.toLocaleString("en-US", {
   minimumFractionDigits: 2,
@@ -55,7 +55,7 @@ export default function ReviewTable({
   commitCmt,
   toggleStatus
 }: Props) {
-  const columns: DataTableColumn<RvLine>[] = [{
+  const columns: Array<DataTableColumn<RvLine> | DataSurfaceColumnSpec<RvLine>> = [{
     key: "label",
     label: "项目",
     required: true,
@@ -81,23 +81,39 @@ export default function ReviewTable({
     required: true,
     className: "w-28 text-right",
     headerClassName: "text-right",
-    render: line => {
+    cell: line => {
       const state = getLineState(line);
       const isEditing = editingAmt === line.lineCode;
       if (isEditing) {
-        return <InputControl spec={{ valueType: "number", editor: "input" }} autoFocus value={editAmt} onChange={(value) => setEditAmt(String(value ?? ""))} onBlur={() => commitAmt(line)} onKeyDown={event => {
-          if (event.key === "Enter") commitAmt(line);
-          if (event.key === "Escape") setEditingAmt(null);
-        }} />;
+        return {
+          kind: "input",
+          spec: { valueType: "number", editor: "input" },
+          autoFocus: true,
+          value: editAmt,
+          onChange: (value) => setEditAmt(String(value ?? "")),
+          onBlur: () => commitAmt(line),
+          onKeyDown: event => {
+            if (event.key === "Enter") commitAmt(line);
+            if (event.key === "Escape") setEditingAmt(null);
+          },
+        };
       }
-      return <CommandButton onClick={() => {
-        if (!isReadOnly) {
-          setEditingAmt(line.lineCode);
-          setEditAmt(state.adjustedAmount != null ? String(state.adjustedAmount) : "");
-        }
-      }} disabled={isReadOnly} size="sm" className={`${state.adjustedAmount != null ? "text-blue-600" : "text-gray-400"} border-0 bg-transparent px-1 py-0.5 shadow-none hover:bg-gray-100 disabled:bg-transparent`}>
-            {state.adjustedAmount != null ? FMT(state.adjustedAmount) : "—"}
-          </CommandButton>;
+      return {
+        kind: "action",
+        action: {
+          key: `edit-amount-${line.lineCode}`,
+          label: state.adjustedAmount != null ? FMT(state.adjustedAmount) : "—",
+          size: "sm",
+          className: `${state.adjustedAmount != null ? "text-blue-600" : "text-gray-400"} border-0 bg-transparent px-1 py-0.5 shadow-none hover:bg-gray-100 disabled:bg-transparent`,
+          disabled: isReadOnly,
+          onClick: () => {
+            if (!isReadOnly) {
+              setEditingAmt(line.lineCode);
+              setEditAmt(state.adjustedAmount != null ? String(state.adjustedAmount) : "");
+            }
+          },
+        },
+      };
     }
   }, {
     key: "finalAmount",
@@ -112,42 +128,64 @@ export default function ReviewTable({
     required: true,
     className: "w-20 text-center",
     headerClassName: "text-center",
-    render: line => {
+    cell: line => {
       const status = getLineState(line).status;
-      return <CommandButton onClick={() => toggleStatus(line)} disabled={isReadOnly} size="sm" className={`px-1.5 py-0.5 text-xs ${status === "confirmed" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : status === "adjusted" ? "border-blue-200 bg-blue-50 text-blue-700" : status === "flagged" ? "border-red-200 bg-red-100 text-red-700" : "border-gray-200 bg-gray-100 text-gray-500"}`}>
-            {STS[status] || status}
-          </CommandButton>;
+      return {
+        kind: "action",
+        action: {
+          key: `status-${line.lineCode}`,
+          label: STS[status] || status,
+          size: "sm",
+          disabled: isReadOnly,
+          className: `px-1.5 py-0.5 text-xs ${status === "confirmed" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : status === "adjusted" ? "border-blue-200 bg-blue-50 text-blue-700" : status === "flagged" ? "border-red-200 bg-red-100 text-red-700" : "border-gray-200 bg-gray-100 text-gray-500"}`,
+          onClick: () => toggleStatus(line),
+        },
+      };
     }
   }, {
     key: "comment",
     label: "备注",
     required: true,
     className: "w-40",
-    render: line => {
+    cell: line => {
       const state = getLineState(line);
       const isEditing = editingCmt === line.lineCode;
       if (isEditing) {
-        return <InputControl spec={{ valueType: "string", editor: "input" }} autoFocus value={editCmt} onChange={(value) => setEditCmt(String(value ?? ""))} onBlur={() => commitCmt(line)} onKeyDown={event => {
-          if (event.key === "Enter") commitCmt(line);
-          if (event.key === "Escape") setEditingCmt(null);
-        }} />;
+        return {
+          kind: "input",
+          spec: { valueType: "string", editor: "input" },
+          autoFocus: true,
+          value: editCmt,
+          onChange: (value) => setEditCmt(String(value ?? "")),
+          onBlur: () => commitCmt(line),
+          onKeyDown: event => {
+            if (event.key === "Enter") commitCmt(line);
+            if (event.key === "Escape") setEditingCmt(null);
+          },
+        };
       }
-      return <CommandButton onClick={() => {
-        if (!isReadOnly) {
-          setEditingCmt(line.lineCode);
-          setEditCmt(state.comment || "");
-        }
-      }} disabled={isReadOnly} size="sm" className={`w-full justify-start border-0 bg-transparent px-1 py-0.5 text-left shadow-none hover:bg-gray-100 disabled:bg-transparent ${state.comment ? "text-gray-600" : state.status === "flagged" ? "text-red-400 italic" : "text-gray-300"}`}>
-            {state.comment || (state.status === "flagged" ? "请填写标记原因…" : "—")}
-          </CommandButton>;
+      return {
+        kind: "action",
+        action: {
+          key: `comment-${line.lineCode}`,
+          label: state.comment || (state.status === "flagged" ? "请填写标记原因…" : "—"),
+          size: "sm",
+          disabled: isReadOnly,
+          className: `w-full justify-start border-0 bg-transparent px-1 py-0.5 text-left shadow-none hover:bg-gray-100 disabled:bg-transparent ${state.comment ? "text-gray-600" : state.status === "flagged" ? "text-red-400 italic" : "text-gray-300"}`,
+          onClick: () => {
+            if (!isReadOnly) {
+              setEditingCmt(line.lineCode);
+              setEditCmt(state.comment || "");
+            }
+          },
+        },
+      };
     }
   }];
-  return <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
-      <DataTable rows={rv.lines} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={line => line.lineCode} rowClassName={line => {
+  return <DataSurface kind="table" framed className="overflow-hidden" bodyClassName="overflow-x-auto" rows={rv.lines} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={line => line.lineCode} rowClassName={line => {
       const status = getLineState(line).status;
       if (status === "flagged") return "bg-red-50/50";
       if (status === "pending") return "bg-amber-50/30";
       return "";
     }} />
-    </PanelCard>;
 }

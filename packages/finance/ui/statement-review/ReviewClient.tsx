@@ -2,9 +2,8 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { EmptyStateCard, PanelCard, Toolbar } from "@workspace/core/ui";
+import { useRouter, useSearchParams } from "next/navigation";
+import { DataSurface, FormSurface, PageSurface } from "@workspace/core/ui";
 import type { ToolbarItem } from "@workspace/core/ui";
 import ReviewAlerts from "./ReviewAlerts";
 import ReviewFilters from "./ReviewFilters";
@@ -19,6 +18,7 @@ type Edits = Map<string, { adjustedAmount: number | null; status: string; commen
 const RT_SET = new Set(["incomeStatement", "cashFlow"]);
 
 export default function ReviewClient() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const rtFromQuery = searchParams.get("reportType");
   const [co, setCo] = useState(searchParams.get("companyCode") || "02");
@@ -251,18 +251,30 @@ export default function ReviewClient() {
       <ReviewAlerts error={error} isStale={rv?.isStale} hasFlaggedWithoutComment={hasFlaggedWithoutComment} />
 
       {wp && (
-        <PanelCard bodyClassName="px-4 py-3">
-          <Toolbar items={reviewItems} variant="inline" />
-        </PanelCard>
+        <FormSurface kind="inline" toolbar={{ items: reviewItems, variant: "inline" }} />
       )}
 
       {rv?.status === "confirmed" && !rv.isStale && (
-        <PanelCard className="border-emerald-200 bg-emerald-50" bodyClassName="flex items-center justify-between px-4 py-3">
-          <span className="text-sm text-emerald-700">校对已确认</span>
-          <Link href={`/finance/statements?companyCode=${co}&year=${yr}&month=${mo}&reportType=${rt === "incomeStatement" ? "income" : "cashflow"}`} className="rounded bg-emerald-600 px-3 py-1.5 text-xs text-white hover:bg-emerald-700">
-            前往财务报表查看最终结果
-          </Link>
-        </PanelCard>
+        <PageSurface
+          kind="list"
+          embedded
+          blocks={[
+            { kind: "message", key: "confirmed", tone: "success", content: "校对已确认" },
+            {
+              kind: "form",
+              key: "view-report",
+              surface: {
+                kind: "inline",
+                actions: [{
+                  key: "view-report",
+                  label: "前往财务报表查看最终结果",
+                  variant: "primary",
+                  onClick: () => router.push(`/finance/statements?companyCode=${co}&year=${yr}&month=${mo}&reportType=${rt === "incomeStatement" ? "income" : "cashflow"}`),
+                }],
+              },
+            },
+          ]}
+        />
       )}
 
       {rv && (
@@ -284,8 +296,8 @@ export default function ReviewClient() {
         />
       )}
 
-      {!wp && !loading && <EmptyStateCard>选择筛选条件后点击「读取底稿」</EmptyStateCard>}
-      {loading && <EmptyStateCard>加载中...</EmptyStateCard>}
+      {!wp && !loading && <DataSurface kind="records" records={[]} empty="选择筛选条件后点击「读取底稿」" />}
+      {loading && <DataSurface kind="records" records={[]} empty="加载中..." />}
     </div>
   );
 }

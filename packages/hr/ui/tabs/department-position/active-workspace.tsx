@@ -1,7 +1,9 @@
 "use client";
 
-import type { ComponentProps, ReactNode } from "react";
-import { WorkspaceSplitPage } from "@workspace/core/ui";
+import type { ReactNode } from "react";
+import { PageSurface, type PageSurfaceSideSpec } from "@workspace/core/ui";
+
+type SplitWorkspaceMode = "desktop" | "drawer";
 
 export function DepartmentPositionActiveWorkspace({
   children,
@@ -13,13 +15,20 @@ export function DepartmentPositionActiveWorkspace({
 }: {
   children: ReactNode;
   drawerOpen: boolean;
-  renderSide: ComponentProps<typeof WorkspaceSplitPage>["renderSide"];
+  renderSide: (mode: SplitWorkspaceMode) => ReactNode;
   sideOpen: boolean;
   onDrawerOpenChange: (open: boolean) => void;
   onSideOpenChange: (open: boolean) => void;
 }) {
+  const side: PageSurfaceSideSpec = {
+    blocks: [{ kind: "moduleView", key: "desktop", view: renderSide("desktop") }],
+    drawerBlocks: [{ kind: "moduleView", key: "drawer", view: renderSide("drawer") }],
+  };
+
   return (
-    <WorkspaceSplitPage
+    <PageSurface
+      embedded
+      kind="split"
       sideOpen={sideOpen}
       sideLabel="部门岗位"
       onSideOpenChange={onSideOpenChange}
@@ -27,9 +36,8 @@ export function DepartmentPositionActiveWorkspace({
       onDrawerOpenChange={onDrawerOpenChange}
       showSideControls={false}
       contentClassName="!max-w-none !px-0 !py-0"
-      renderSide={renderSide}
-    >
-      {children}
-    </WorkspaceSplitPage>
+      side={side}
+      blocks={[{ kind: "moduleView", key: "content", view: children }]}
+    />
   );
 }

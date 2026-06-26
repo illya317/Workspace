@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { CommandButton, DataTable, EmptyStateCard, FormField, InputControl, PanelCard, SectionCard, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, FormSurface, type DataTableColumn } from "@workspace/core/ui";
 interface Company {
   code: string;
   name: string;
@@ -73,30 +73,35 @@ export default function FinanceBalanceReconcile({
       setLoading(false);
     }
   }
-  return <SectionCard title="余额核对（与会计软件年度余额表比对）" subtitle={<>
+  return <section className="space-y-4">
+      <div>
+        <h2 className="text-base font-semibold text-slate-800">余额核对（与会计软件年度余额表比对）</h2>
+        <p className="text-sm text-slate-500">
           系统侧使用 2024
           年度余额表作为基准，再叠加序时账凭证滚动计算；上传 2025/2026
           年度余额表用于校验差异。
-        </>}>
-      <div className="flex flex-wrap items-end gap-3">
-        <FormField label="公司">
-          <InputControl
-            spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: companies.map(company => ({ value: company.code, label: company.name })) } }}
-            value={companyCode}
-            onChange={(value) => setCompanyCode(String(value ?? ""))}
-          />
-        </FormField>
-        <FormField label="余额表Excel">
-          <InputControl
-            spec={{ valueType: "file", editor: "upload" }}
-            accept=".xls,.xlsx"
-            onChange={(fileValue) => setFile(fileValue instanceof File ? fileValue : null)}
-          />
-        </FormField>
-        <CommandButton variant="primary" onClick={handleReconcile} disabled={loading}>
-          {loading ? "核对中..." : "开始核对"}
-        </CommandButton>
+        </p>
       </div>
+      <FormSurface
+        kind="filters"
+        fields={[
+          {
+            key: "company",
+            label: "公司",
+            spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: companies.map(company => ({ value: company.code, label: company.name })) } },
+            value: companyCode,
+            onChange: (value) => setCompanyCode(String(value ?? "")),
+          },
+          {
+            key: "file",
+            label: "余额表Excel",
+            spec: { valueType: "file", editor: "upload" },
+            accept: ".xls,.xlsx",
+            onChange: (fileValue) => setFile(fileValue instanceof File ? fileValue : null),
+          },
+        ]}
+        actions={[{ key: "reconcile", label: loading ? "核对中..." : "开始核对", variant: "primary", onClick: handleReconcile, disabled: loading }]}
+      />
 
       {result && <div className="mt-4 space-y-3">
           <div className="flex flex-wrap gap-4 text-sm">
@@ -135,11 +140,9 @@ export default function FinanceBalanceReconcile({
           {result.missingInSystem.length > 0 && <MissingList title={`Excel中有但系统中缺失的科目（${result.missingInSystem.length}个）`} items={result.missingInSystem} tone="yellow" />}
           {result.missingInExcel.length > 0 && <MissingList title={`系统中有但Excel中缺失的科目（${result.missingInExcel.length}个）`} items={result.missingInExcel} tone="blue" />}
           {result.differences.length > 0 && <DiffTable differences={result.differences} />}
-          {result.differences.length === 0 && result.missingInSystem.length === 0 && result.missingInExcel.length === 0 && <EmptyStateCard compact className="border-emerald-100 bg-emerald-50 text-emerald-700">
-                核对通过，所有科目余额完全一致
-              </EmptyStateCard>}
+          {result.differences.length === 0 && result.missingInSystem.length === 0 && result.missingInExcel.length === 0 && <DataSurface kind="records" records={[]} empty="核对通过，所有科目余额完全一致" />}
         </div>}
-    </SectionCard>;
+    </section>;
 }
 function MissingList({
   title,
@@ -154,12 +157,12 @@ function MissingList({
   tone: "yellow" | "blue";
 }) {
   const styles = tone === "yellow" ? "border-amber-100 bg-amber-50 text-amber-800 [&_p:last-child]:text-amber-700" : "border-blue-100 bg-blue-50 text-blue-800 [&_p:last-child]:text-blue-700";
-  return <PanelCard className={styles} bodyClassName="p-3 text-sm">
+  return <section className={`${styles} rounded border p-3 text-sm`}>
       <p className="font-medium">{title}</p>
       <p className="mt-1">
         {items.map(item => `${item.code} ${item.name}`).join("、 ")}
       </p>
-    </PanelCard>;
+    </section>;
 }
 function DiffTable({
   differences
@@ -205,7 +208,5 @@ function DiffTable({
     cellClassName: "text-right font-medium text-red-600",
     render: difference => difference.diff.toFixed(2)
   }];
-  return <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
-      <DataTable rows={differences} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={difference => `${difference.accountCode}-${difference.field}`} />
-    </PanelCard>;
+  return <DataSurface kind="table" framed className="overflow-hidden" bodyClassName="overflow-x-auto" rows={differences} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={difference => `${difference.accountCode}-${difference.field}`} />;
 }

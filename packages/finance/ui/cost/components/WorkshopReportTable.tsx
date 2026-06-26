@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MetricCard, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceColumnSpec, type DataTableColumn } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState, SourceTraceInfo } from "../types";
 import CostDataTable, { CostTraceButton, formatCostNumber, type CostRecord } from "./CostDataTable";
@@ -21,7 +21,7 @@ export default function WorkshopReportTable({ filters }: Props) {
     pageSize: 50,
   });
 
-  const columns: DataTableColumn<CostRecord>[] = [
+  const columns: Array<DataTableColumn<CostRecord> | DataSurfaceColumnSpec<CostRecord>> = [
     { key: "period", label: "年月", required: true, render: (row) => `${String(row.year)}-${String(row.month)}` },
     { key: "productName", label: "产品", required: true, render: (row) => String(row.productName ?? "—") },
     { key: "batchNo", label: "批号", required: true, render: (row) => String(row.batchNo ?? "—") },
@@ -29,16 +29,16 @@ export default function WorkshopReportTable({ filters }: Props) {
     { key: "positionName", label: "工种", required: true, render: (row) => String(row.positionName ?? "—") },
     { key: "workPoint", label: "工分", required: true, className: "text-right", headerClassName: "text-right", render: (row) => formatCostNumber(row.workPoint as number) },
     { key: "quantity", label: "数量", required: true, className: "text-right", headerClassName: "text-right", render: (row) => formatCostNumber(row.quantity as number) },
-    { key: "source", label: "来源", required: true, render: (row) => <CostTraceButton row={row} onTrace={(info) => setTrace({ open: true, info })} /> },
+    { key: "source", label: "来源", required: true, cell: (row) => CostTraceButton({ row, onTrace: (info) => setTrace({ open: true, info }) }) },
   ];
 
   return (
     <div className="space-y-4">
       {summary && (
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <MetricCard label="总工分" value={formatCostNumber(summary.totalWorkPoints as number)} />
-          <MetricCard label="总数量" value={formatCostNumber(summary.totalQuantity as number)} />
-        </div>
+        <DataSurface kind="metrics" metrics={[
+          { key: "work-points", label: "总工分", value: formatCostNumber(summary.totalWorkPoints as number) },
+          { key: "quantity", label: "总数量", value: formatCostNumber(summary.totalQuantity as number) },
+        ]} />
       )}
       <CostDataTable
         rows={data}

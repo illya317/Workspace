@@ -1,7 +1,80 @@
 export { default as ConfirmModal } from "./ConfirmModal";
-export type { CoreUiComponentKind, CoreUiCompositionGraph, CoreUiComponentRegistration } from "./component-registry";
+export type { CoreUiComponentKind, CoreUiComponentUiLevel, CoreUiCompositionGraph, CoreUiComponentRegistration } from "./component-registry";
 export { default as CodeBlock } from "./CodeBlock";
 export type { CodeBlockProps } from "./CodeBlock";
+export { default as DataSurface } from "./DataSurface";
+export type {
+  DataSurfaceCellGroupSpec,
+  DataSurfaceCellActionSpec,
+  DataSurfaceCellInputSpec,
+  DataSurfaceCellSelectionGridSpec,
+  DataSurfaceCellSpec,
+  DataSurfaceColumnSpec,
+  DataSurfaceCommandSpec,
+  DataSurfaceDisplaySpec,
+  DataSurfaceKind,
+  DataSurfaceMetricSpec,
+  DataSurfaceProps,
+  DataSurfaceRecordSpec,
+  DataSurfaceStructuredCellSpec,
+  DataSurfaceToolbarSpec,
+} from "./DataSurface";
+export { default as FormSurface } from "./FormSurface";
+export type {
+  FormSurfaceCalendarDateControlSpec,
+  FormSurfaceChoiceControlSpec,
+  FormSurfaceCommandSpec,
+  FormSurfaceControlProps,
+  FormSurfaceControlSpec,
+  FormSurfaceFieldSpec,
+  FormSurfaceFileControlSpec,
+  FormSurfaceGroupTitleSpec,
+  FormSurfaceHiddenControlSpec,
+  FormSurfaceInputControlSpec,
+  FormSurfaceItemSpec,
+  FormSurfaceKind,
+  FormSurfaceNoteSpec,
+  FormSurfaceProps,
+  FormSurfaceReadOnlyFieldSpec,
+  FormSurfaceRepeatableItemSpec,
+  FormSurfaceRepeatableSpec,
+  FormSurfaceSectionSpec,
+  FormSurfaceSelectControlSpec,
+  FormSurfaceTagListAppendSpec,
+  FormSurfaceTagListFieldSpec,
+  FormSurfaceTextareaControlSpec,
+  FormSurfaceTextControlSpec,
+  FormSurfaceToolbarSpec,
+} from "./FormSurface";
+export { default as NavigationSurface } from "./NavigationSurface";
+export type {
+  NavigationSurfaceGridSelectorProps,
+  NavigationSurfaceKind,
+  NavigationSurfaceProps,
+  NavigationSurfaceSelectorProps,
+  NavigationSurfaceSelectorSpec,
+  NavigationSurfaceStepSpec,
+} from "./NavigationSurface";
+export { default as PageSurface } from "./PageSurface";
+export type {
+  PageSurfaceAnalysisSpec,
+  PageSurfaceCommandSpec,
+  PageSurfaceBlockSpec,
+  PageSurfaceEmptySpec,
+  PageSurfaceGroupSpec,
+  PageSurfaceKind,
+  PageSurfaceMessageSpec,
+  PageSurfaceMetricSpec,
+  PageSurfaceModalSpec,
+  PageSurfaceModuleGridItemSpec,
+  PageSurfaceModuleGridSpec,
+  PageSurfaceModuleViewSpec,
+  PageSurfacePanelSpec,
+  PageSurfaceProps,
+  PageSurfaceSectionSpec,
+  PageSurfaceSideSpec,
+  PageSurfaceToolbarSpec,
+} from "./PageSurface";
 
 export type { ConfirmModalProps } from "./ConfirmModal";
 export { default as ConfirmProvider, useConfirm, useConfirmDelete } from "./ConfirmProvider";
@@ -17,6 +90,12 @@ export { default as DisclosureSectionHeader } from "./DisclosureSectionHeader";
 export type { DisclosureSectionHeaderProps } from "./DisclosureSectionHeader";
 export { default as DropdownMenu } from "./DropdownMenu";
 export type { DropdownMenuItem, DropdownMenuProps } from "./DropdownMenu";
+export {
+  announceFloatingOverlayOpen,
+  FLOATING_OVERLAY_OPEN_EVENT,
+  getFloatingOverlayOpenDetail,
+} from "./overlay-events";
+export type { FloatingOverlayOpenDetail } from "./overlay-events";
 export { default as DataTable, dataTableClassNames } from "./DataTable";
 export type { ColumnDef, DataTableActionKind, DataTableActionsColumnConfig, DataTableColumn, DataTableProps, DataTableRowAction, DataTableRowEditActionConfig } from "./DataTable.types";
 export { default as FieldValueFilter } from "./FieldValueFilter";

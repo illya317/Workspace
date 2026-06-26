@@ -1,9 +1,9 @@
 "use client";
 
-import { CommandButton, DataTable, Pagination, PanelCard, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceCellSpec, type DataSurfaceColumnSpec, type DataTableColumn } from "@workspace/core/ui";
 import type { SourceTraceInfo } from "../types";
 export type CostRecord = Record<string, unknown>;
-export type CostColumn = DataTableColumn<CostRecord>;
+export type CostColumn = DataTableColumn<CostRecord> | DataSurfaceColumnSpec<CostRecord>;
 interface CostDataTableProps {
   rows: CostRecord[];
   columns: CostColumn[];
@@ -36,10 +36,17 @@ export function CostTraceButton({
 }: {
   row: CostRecord;
   onTrace: (info: SourceTraceInfo) => void;
-}) {
-  return <CommandButton onClick={() => onTrace(sourceTraceFromRow(row))} size="sm" className="border-0 bg-transparent p-0 text-xs text-emerald-600 shadow-none hover:bg-transparent hover:underline">
-      查看
-    </CommandButton>;
+}): DataSurfaceCellSpec {
+  return {
+    kind: "action",
+    action: {
+      key: "trace",
+      label: "查看",
+      size: "sm",
+      className: "border-0 bg-transparent p-0 text-xs text-emerald-600 shadow-none hover:bg-transparent hover:underline",
+      onClick: () => onTrace(sourceTraceFromRow(row)),
+    },
+  };
 }
 export default function CostDataTable({
   rows,
@@ -55,10 +62,16 @@ export default function CostDataTable({
       {loading && <p className="text-sm text-gray-500">加载中…</p>}
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      <PanelCard bodyClassName="overflow-x-auto">
-        <DataTable rows={rows} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={rowKey} emptyText="暂无数据" />
-      </PanelCard>
-
-      <Pagination page={page} total={pagination.total} totalPages={pagination.totalPages} onPageChange={onPageChange} className="flex items-center justify-between text-sm" compact />
+      <DataSurface
+        kind="table"
+        framed
+        bodyClassName="overflow-x-auto"
+        rows={rows}
+        columns={columns}
+        visibleColumns={columns.map(column => column.key)}
+        rowKey={rowKey}
+        emptyText="暂无数据"
+        pagination={{ page, total: pagination.total, totalPages: pagination.totalPages, onPageChange, className: "flex items-center justify-between text-sm", compact: true }}
+      />
     </div>;
 }

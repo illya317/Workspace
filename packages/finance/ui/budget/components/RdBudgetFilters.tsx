@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, CommandButton, FormField, InputControl, PanelCard } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 interface RdBudgetFiltersProps {
   projectFilter: string;
   setProjectFilter: (v: string) => void;
@@ -21,28 +21,44 @@ export default function RdBudgetFilters({
   count,
   total
 }: RdBudgetFiltersProps) {
+  const hasFilters = Boolean(projectFilter || categoryFilter);
   return <>
-      <PanelCard bodyClassName="flex flex-wrap items-center gap-3 p-3">
-        <FormField label="研发项目" layout="inline">
-          <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: projectOptions.map(p => ({ value: p, label: p })) } }} value={projectFilter} onChange={(value) => setProjectFilter(String(value ?? ""))} placeholder="全部项目" />
-        </FormField>
-        <FormField label="产品类别" layout="inline">
-          <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: categoryOptions.map(c => ({ value: c, label: c })) } }} value={categoryFilter} onChange={(value) => setCategoryFilter(String(value ?? ""))} placeholder="全部类别" />
-        </FormField>
-        {(projectFilter || categoryFilter) && <CommandButton onClick={() => {
-        setProjectFilter("");
-        setCategoryFilter("");
-      }} className="border-0 px-2 py-1 text-xs shadow-none">
-            重置筛选
-          </CommandButton>}
+      <FormSurface
+        kind="filters"
+        fields={[
+          {
+            key: "project",
+            label: "研发项目",
+            spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: projectOptions.map(p => ({ value: p, label: p })) } },
+            value: projectFilter,
+            onChange: (value) => setProjectFilter(String(value ?? "")),
+            placeholder: "全部项目",
+          },
+          {
+            key: "category",
+            label: "产品类别",
+            spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: categoryOptions.map(c => ({ value: c, label: c })) } },
+            value: categoryFilter,
+            onChange: (value) => setCategoryFilter(String(value ?? "")),
+            placeholder: "全部类别",
+          },
+        ]}
+        actions={hasFilters ? [{
+          key: "reset",
+          label: "重置筛选",
+          onClick: () => {
+            setProjectFilter("");
+            setCategoryFilter("");
+          },
+        }] : undefined}
+      />
         <span className="ml-auto text-xs text-gray-400">
           共 {count} 条，合计 {total.toFixed(2)} 万元
         </span>
-      </PanelCard>
-      {(projectFilter || categoryFilter) && <div className="flex flex-wrap gap-2 text-xs text-gray-500">
+      {hasFilters && <div className="flex flex-wrap gap-2 text-xs text-gray-500">
           <span>当前筛选：</span>
-          {projectFilter && <Badge label={`项目：${projectFilter}`} tone="gray" />}
-          {categoryFilter && <Badge label={`类别：${categoryFilter}`} tone="gray" />}
+          {projectFilter && <span className="rounded bg-slate-100 px-2 py-0.5">项目：{projectFilter}</span>}
+          {categoryFilter && <span className="rounded bg-slate-100 px-2 py-0.5">类别：{categoryFilter}</span>}
         </div>}
     </>;
 }

@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
-import { CommandButton, DataTable, EmptyStateCard, PanelCard, Badge, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, PageSurface, type DataSurfaceColumnSpec, type DataTableColumn } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
 import { useStatementConfig } from "./StatementConfigContext";
 interface Node {
@@ -28,7 +28,7 @@ interface DisplayItem {
   status: Status;
   subtractSourceLine: string | null;
 }
-const columns: DataTableColumn<DisplayItem>[] = [{
+const columns: Array<DataTableColumn<DisplayItem> | DataSurfaceColumnSpec<DisplayItem>> = [{
   key: "accountCode",
   label: "科目编码",
   required: true,
@@ -73,21 +73,12 @@ const columns: DataTableColumn<DisplayItem>[] = [{
   key: "status",
   label: "状态",
   defaultVisible: true,
-  render: row => <UnmappedStatus item={row} />
+  cell: row => {
+    if (row.status === "excluded") return { kind: "badge", label: "已排除", tone: "gray" };
+    if (row.status === "subtractOnly") return { kind: "badge", label: `仅减项 → ${row.subtractSourceLine ?? "?"}`, tone: "yellow" };
+    return { kind: "badge", label: "未映射", tone: "red" };
+  }
 }];
-function UnmappedStatus({
-  item
-}: {
-  item: DisplayItem;
-}) {
-  if (item.status === "excluded") {
-    return <Badge label="已排除" tone="gray" />;
-  }
-  if (item.status === "subtractOnly") {
-    return <Badge label={`仅减项 → ${item.subtractSourceLine ?? "?"}`} tone="yellow" />;
-  }
-  return <Badge label="未映射" tone="red" />;
-}
 export default function UnmappedTab() {
   const {
     company,
@@ -169,27 +160,36 @@ export default function UnmappedTab() {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [company, year]);
-  if (loading) return <EmptyStateCard compact>加载中...</EmptyStateCard>;
+  if (loading) return <DataSurface kind="records" records={[]} empty="加载中..." />;
   if (error) {
-    return <PanelCard bodyClassName="space-y-3 p-4 text-center">
-        <p className="text-sm text-red-600">{error}</p>
-        <CommandButton variant="danger" onClick={load}>重试</CommandButton>
-      </PanelCard>;
+    return <PageSurface
+        kind="list"
+        embedded
+        blocks={[
+          { kind: "message", key: "error", tone: "danger", content: error },
+          {
+            kind: "form",
+            key: "retry",
+            surface: {
+              kind: "inline",
+              actions: [{ key: "retry", label: "重试", variant: "danger", onClick: load }],
+            },
+          },
+        ]}
+      />;
   }
   const subtractOnly = items.filter(a => a.status === "subtractOnly");
   const unmappedOnly = items.filter(a => a.status === "unmapped");
   const excluded = items.filter(a => a.status === "excluded");
   return <div className="space-y-4">
-      {items.length === 0 ? <EmptyStateCard>全部科目已正常归属，当前没有余额非零但未被 add 消费的科目。</EmptyStateCard> : <>
+      {items.length === 0 ? <DataSurface kind="records" records={[]} empty="全部科目已正常归属，当前没有余额非零但未被 add 消费的科目。" /> : <>
           <div className="flex gap-4 text-sm text-gray-500">
             <span>未映射: <b className="text-red-500">{unmappedOnly.length}</b></span>
             {subtractOnly.length > 0 && <span>仅减项: <b className="text-amber-600">{subtractOnly.length}</b></span>}
             {excluded.length > 0 && <span>已排除: <b className="text-gray-600">{excluded.length}</b></span>}
             <span className="text-gray-400">（余额非零但未被 add 消费）</span>
           </div>
-          <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
-            <DataTable rows={items} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={row => row.accountCode} tableClassName="text-base" rowClassName={row => row.status === "unmapped" ? "bg-red-50/60" : row.status === "excluded" ? "bg-slate-50" : "bg-amber-50/50"} />
-          </PanelCard>
+          <DataSurface kind="table" framed rows={items} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={row => row.accountCode} tableClassName="text-base" rowClassName={row => row.status === "unmapped" ? "bg-red-50/60" : row.status === "excluded" ? "text-slate-500" : "bg-amber-50/50"} />
         </>}
     </div>;
 }

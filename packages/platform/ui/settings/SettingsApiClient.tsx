@@ -1,7 +1,7 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { CommandButton, DataTable, DatabasePageFrame, FormField, InputControl, SectionCard, type DataTableColumn } from "@workspace/core/ui";
+import { PageSurface, type DataSurfaceColumnSpec, type FormSurfaceItemSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { postJson, putJson, requestJson } from "../api-client";
 type OpenApiRegistrationRow = {
@@ -34,13 +34,7 @@ type OpenApiEndpointRow = {
   scopeKey: string;
   registrationKey: string;
 };
-type OpenApiScopeRow = {
-  id: number;
-  key: string;
-  label: string;
-  action: string;
-  registrationKey: string;
-};
+type OpenApiScopeRow = { id: number; key: string; label: string; action: string; registrationKey: string };
 type OpenApiClientRow = {
   id: number;
   name: string;
@@ -78,25 +72,6 @@ function formatDate(value: string | null | undefined, empty = "未使用") {
   return date.toLocaleString("zh-CN", {
     hour12: false
   });
-}
-function StatusPill({
-  value
-}: {
-  value: string;
-}) {
-  const active = value === "active";
-  return <span className={`rounded-full px-2 py-0.5 text-xs ${active ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
-      {active ? "启用" : value}
-    </span>;
-}
-function MethodPill({
-  value
-}: {
-  value: string;
-}) {
-  return <span className="rounded bg-cyan-50 px-2 py-0.5 font-mono text-xs font-semibold text-cyan-700">
-      {value}
-    </span>;
 }
 export default function SettingsApiClient({
   focusRegistrationKey
@@ -204,128 +179,217 @@ export default function SettingsApiClient({
       setBusy(null);
     }
   }
-  const registrationColumns: DataTableColumn<OpenApiRegistrationRow>[] = [{
+  const registrationColumns: DataSurfaceColumnSpec<OpenApiRegistrationRow>[] = [{
     key: "label",
     label: "能力",
-    render: row => <div className="font-medium text-slate-900">{row.label}<div className="text-xs font-normal text-slate-500">{row.key}</div></div>
+    cell: row => <div className="font-medium text-slate-900">{row.label}<div className="text-xs font-normal text-slate-500">{row.key}</div></div>
   }, {
     key: "resource",
     label: "开放资源",
-    render: row => row.resources.map(resource => resource.key).join(", ")
+    cell: row => row.resources.map(resource => resource.key).join(", ")
   }, {
     key: "scope",
     label: "Scope",
-    render: row => row.scopes.map(scope => scope.key).join(", ")
+    cell: row => row.scopes.map(scope => scope.key).join(", ")
   }, {
     key: "runtime",
     label: "运行归属",
-    render: row => row.runtimeParentResourceKey
+    cell: row => row.runtimeParentResourceKey
   }, {
     key: "console",
     label: "页面",
-    render: row => <a className="text-cyan-700 hover:underline" href={workspacePath(row.consoleHref)}>进入</a>
+    cell: row => <a className="text-cyan-700 hover:underline" href={workspacePath(row.consoleHref)}>进入</a>
   }];
-  const endpointColumns: DataTableColumn<OpenApiEndpointRow>[] = [{
+  const endpointColumns: DataSurfaceColumnSpec<OpenApiEndpointRow>[] = [{
     key: "method",
     label: "Method",
-    render: row => <MethodPill value={row.method} />
+    cell: row => ({ kind: "badge", label: row.method, tone: "sky", className: "font-mono font-semibold" })
   }, {
     key: "path",
     label: "Path",
-    render: row => <code className="text-xs text-slate-700">{row.pathPrefix}</code>
+    cell: row => <code className="text-xs text-slate-700">{row.pathPrefix}</code>
   }, {
     key: "scope",
     label: "Scope",
-    render: row => row.scopeKey
+    cell: row => row.scopeKey
   }];
-  const clientColumns: DataTableColumn<OpenApiClientRow>[] = [{
+  const clientColumns: DataSurfaceColumnSpec<OpenApiClientRow>[] = [{
     key: "name",
     label: "Client",
-    render: row => <div className="font-medium text-slate-900">{row.name}<div className="text-xs font-normal text-slate-500">{row.description || "无说明"}</div></div>
+    cell: row => <div className="font-medium text-slate-900">{row.name}<div className="text-xs font-normal text-slate-500">{row.description || "无说明"}</div></div>
   }, {
     key: "status",
     label: "状态",
-    render: row => <StatusPill value={row.status} />
+    cell: row => ({ kind: "badge", label: row.status === "active" ? "启用" : row.status, tone: row.status === "active" ? "green" : "slate" })
   }, {
     key: "scopes",
     label: "Scope",
-    render: row => row.scopeKeys.length ? row.scopeKeys.join(", ") : "未授权"
+    cell: row => row.scopeKeys.length ? row.scopeKeys.join(", ") : "未授权"
   }, {
     key: "lastUsedAt",
     label: "最近调用",
-    render: row => formatDate(row.lastUsedAt)
+    cell: row => formatDate(row.lastUsedAt)
   }, {
     key: "actions",
     label: "操作",
-    render: row => <CommandButton disabled={busy === `rotate-${row.id}`} onClick={() => rotateSecret(row.id)}>轮换密钥</CommandButton>
+    cell: row => ({
+      kind: "action",
+      action: {
+        key: `rotate-${row.id}`,
+        label: "轮换密钥",
+        disabled: busy === `rotate-${row.id}`,
+        onClick: () => rotateSecret(row.id),
+      },
+    })
   }];
-  const logColumns: DataTableColumn<OpenApiLogRow>[] = [{
+  const logColumns: DataSurfaceColumnSpec<OpenApiLogRow>[] = [{
     key: "createdAt",
     label: "时间",
-    render: row => formatDate(row.createdAt, "-")
+    cell: row => formatDate(row.createdAt, "-")
   }, {
     key: "client",
     label: "Client",
-    render: row => row.clientName || "-"
+    cell: row => row.clientName || "-"
   }, {
     key: "endpoint",
     label: "Endpoint",
-    render: row => <span><MethodPill value={row.method} /> <code className="ml-2 text-xs">{row.path}</code></span>
+    cell: row => <span><span className="inline-block rounded bg-sky-100 px-1.5 py-0.5 font-mono text-xs font-medium text-sky-700">{row.method}</span> <code className="ml-2 text-xs">{row.path}</code></span>
   }, {
     key: "status",
     label: "状态",
-    render: row => <span className={row.status < 400 ? "text-emerald-700" : "text-red-600"}>{row.status}</span>
+    cell: row => ({ kind: "text", value: row.status, className: row.status < 400 ? "text-emerald-700" : "text-red-600" })
   }, {
     key: "duration",
     label: "耗时",
-    render: row => `${row.durationMs} ms`
+    cell: row => `${row.durationMs} ms`
   }, {
     key: "error",
     label: "错误",
-    render: row => row.errorCode || "-"
+    cell: row => row.errorCode || "-"
   }];
-  return <DatabasePageFrame contentClassName="py-8">
-      {message && <div className="rounded-lg border border-cyan-200 bg-cyan-50 px-4 py-3 text-sm text-cyan-800">{message}</div>}
-      {freshSecret && <SectionCard title="新密钥" subtitle="只在本次操作后显示。" actions={<CommandButton onClick={() => setFreshSecret(null)}>隐藏</CommandButton>}>
-          <code className="block overflow-x-auto rounded-md bg-slate-950 px-4 py-3 text-xs text-white">{freshSecret}</code>
-        </SectionCard>}
-
-      <SectionCard title="开放能力" subtitle="Registry 中已注册的页面、资源、Scope 和 endpoint。">
-        <DataTable rows={registrations} columns={registrationColumns} visibleColumns={registrationColumns.map(column => column.key)} loading={loading} emptyText="暂无开放能力" rowKey={row => row.key} density="compact" />
-        <div className="mt-4">
-          <DataTable rows={endpoints} columns={endpointColumns} visibleColumns={endpointColumns.map(column => column.key)} emptyText="暂无 endpoint" rowKey={row => row.key} density="compact" />
-        </div>
-      </SectionCard>
-
-      <SectionCard title="Client" actions={<CommandButton onClick={() => loadData()} disabled={loading}>刷新</CommandButton>}>
-        <div className="mb-4 grid gap-3 md:grid-cols-[1fr_1fr_auto]">
-          <FormField label="名称" required>
-            <InputControl spec={{ valueType: "string", editor: "input" }} value={newClientName} onChange={(value) => setNewClientName(String(value ?? ""))} placeholder="Client 名称" maxLength={80} />
-          </FormField>
-          <FormField label="说明">
-            <InputControl spec={{ valueType: "string", editor: "input" }} value={newClientDescription} onChange={(value) => setNewClientDescription(String(value ?? ""))} placeholder="用途说明" maxLength={240} />
-          </FormField>
-          <div className="flex items-end">
-            <CommandButton variant="primary" onClick={createClient} disabled={busy === "create" || !newClientName.trim()}>创建</CommandButton>
-          </div>
-        </div>
-        <DataTable rows={data?.clients ?? []} columns={clientColumns} visibleColumns={clientColumns.map(column => column.key)} loading={loading} emptyText="暂无 Client" rowKey={row => row.id} density="compact" onRowClick={row => setSelectedClientId(row.id)} rowClassName={row => row.id === selectedClientId ? "bg-emerald-50/70" : ""} />
-      </SectionCard>
-
-      <SectionCard title="Scope 授权" subtitle={selectedClient ? selectedClient.name : "先选择一个 Client。"} actions={<CommandButton onClick={saveScopes} disabled={!selectedClient || busy === `scopes-${selectedClient?.id}`}>保存</CommandButton>}>
-        <div className="flex flex-wrap gap-2">
-          {visibleScopes.map(scope => <label key={scope.key} className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-600">
-              <InputControl spec={{ valueType: "boolean", editor: "checkbox", state: !selectedClient ? "disabled" : "normal" }} value={draftScopeKeys.includes(scope.key)} onChange={checked => {
-            setDraftScopeKeys(current => checked ? [...new Set([...current, scope.key])] : current.filter(key => key !== scope.key));
-          }} />
-              <span>{scope.key}</span>
-            </label>)}
-          {visibleScopes.length === 0 && <span className="text-sm text-slate-500">暂无 Scope</span>}
-        </div>
-      </SectionCard>
-
-      <SectionCard title="调用日志">
-        <DataTable rows={logs} columns={logColumns} visibleColumns={logColumns.map(column => column.key)} loading={loading} emptyText="暂无调用日志" rowKey={row => row.id} density="compact" />
-      </SectionCard>
-    </DatabasePageFrame>;
+  const scopeFields: FormSurfaceItemSpec[] = visibleScopes.length
+    ? visibleScopes.map((scope) => ({
+        key: scope.key,
+        label: scope.key,
+        spec: {
+          valueType: "boolean",
+          editor: "checkbox",
+          state: !selectedClient ? "disabled" : "normal",
+        },
+        value: draftScopeKeys.includes(scope.key),
+        onChange: (checked) => {
+          setDraftScopeKeys((current) => checked ? [...new Set([...current, scope.key])] : current.filter((key) => key !== scope.key));
+        },
+      }))
+    : [{ kind: "note" as const, key: "empty-scopes", content: "暂无 Scope" }];
+  const blocks: PageSurfaceBlockSpec[] = [
+    ...(message ? [{
+      kind: "message" as const,
+      key: "message",
+      tone: "default" as const,
+      content: message,
+    }] : []),
+    ...(freshSecret ? [{
+      kind: "section" as const,
+      key: "fresh-secret",
+      title: "新密钥",
+      subtitle: "只在本次操作后显示。",
+      actions: [{ key: "hide-secret", label: "隐藏", onClick: () => setFreshSecret(null) }],
+      blocks: [{
+        kind: "data" as const,
+        key: "secret",
+        surface: { kind: "raw" as const, value: freshSecret, rawClassName: "bg-slate-950 text-white" },
+      }],
+    }] : []),
+    {
+      kind: "section",
+      key: "registrations",
+      title: "开放能力",
+      subtitle: "Registry 中已注册的页面、资源、Scope 和 endpoint。",
+      blocks: [
+        {
+          kind: "data",
+          key: "registration-table",
+          surface: { kind: "table", rows: registrations, columns: registrationColumns, visibleColumns: registrationColumns.map((column) => column.key), loading, emptyText: "暂无开放能力", rowKey: (row) => row.key, density: "compact" },
+        },
+        {
+          kind: "data",
+          key: "endpoint-table",
+          surface: { kind: "table", rows: endpoints, columns: endpointColumns, visibleColumns: endpointColumns.map((column) => column.key), emptyText: "暂无 endpoint", rowKey: (row) => row.key, density: "compact" },
+        },
+      ],
+    },
+    {
+      kind: "section",
+      key: "clients",
+      title: "Client",
+      actions: [{ key: "refresh", label: "刷新", onClick: () => loadData(), disabled: loading }],
+      blocks: [
+        {
+          kind: "form",
+          key: "client-form",
+          surface: {
+            kind: "inline",
+            fields: [
+              {
+                key: "name",
+                label: "名称",
+                required: true,
+                spec: { valueType: "string", editor: "input" },
+                value: newClientName,
+                onChange: (value) => setNewClientName(String(value ?? "")),
+                placeholder: "Client 名称",
+                maxLength: 80,
+              },
+              {
+                key: "description",
+                label: "说明",
+                spec: { valueType: "string", editor: "input" },
+                value: newClientDescription,
+                onChange: (value) => setNewClientDescription(String(value ?? "")),
+                placeholder: "用途说明",
+                maxLength: 240,
+              },
+            ],
+            actions: [{ key: "create", label: "创建", variant: "primary", onClick: createClient, disabled: busy === "create" || !newClientName.trim() }],
+          },
+        },
+        {
+          kind: "data",
+          key: "client-table",
+          surface: {
+            kind: "table",
+            rows: data?.clients ?? [],
+            columns: clientColumns,
+            visibleColumns: clientColumns.map((column) => column.key),
+            loading,
+            emptyText: "暂无 Client",
+            rowKey: (row) => row.id,
+            density: "compact",
+            onRowClick: (row) => setSelectedClientId(row.id),
+            rowClassName: (row) => row.id === selectedClientId ? "bg-emerald-50/70" : "",
+          },
+        },
+      ],
+    },
+    {
+      kind: "section",
+      key: "scopes",
+      title: "Scope 授权",
+      subtitle: selectedClient ? selectedClient.name : "先选择一个 Client。",
+      actions: [{ key: "save-scopes", label: "保存", onClick: saveScopes, disabled: !selectedClient || busy === `scopes-${selectedClient?.id}` }],
+      blocks: [{ kind: "form", key: "scope-form", surface: { kind: "fields", fields: scopeFields, columns: 3 } }],
+    },
+    {
+      kind: "section",
+      key: "logs",
+      title: "调用日志",
+      blocks: [{
+        kind: "data",
+        key: "log-table",
+        surface: { kind: "table", rows: logs, columns: logColumns, visibleColumns: logColumns.map((column) => column.key), loading, emptyText: "暂无调用日志", rowKey: (row) => row.id, density: "compact" },
+      }],
+    },
+  ];
+  return <PageSurface kind="settings" contentClassName="py-8" blocks={blocks} />;
 }

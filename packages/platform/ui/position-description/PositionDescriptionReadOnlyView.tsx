@@ -1,7 +1,6 @@
 "use client";
 
-import { DataTable, SectionCard } from "@workspace/core/ui";
-import type { DataTableColumn } from "@workspace/core/ui";
+import { PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec, type PageSurfaceCommandSpec } from "@workspace/core/ui";
 
 export interface PositionDescriptionReadOnlyData {
   id?: number | string;
@@ -92,116 +91,192 @@ function formatMajorItems(value: unknown) {
 export function PositionDescriptionReadOnlyView({
   data,
   showHeader = true,
+  actions,
 }: {
   data: PositionDescriptionReadOnlyData;
   showHeader?: boolean;
+  actions?: PageSurfaceCommandSpec[];
 }) {
   const d = data.details || {};
   const historyRows = Array.isArray(d.changeHistory) ? (d.changeHistory as Record<string, unknown>[]) : [];
-  const historyColumns: DataTableColumn<Record<string, unknown>>[] = [
+  const historyColumns: DataSurfaceColumnSpec<Record<string, unknown>>[] = [
     {
       key: "version",
       label: "版本",
       required: true,
-      render: (row) => <span className="text-slate-700">{String(row.version ?? "")}</span>,
+      cell: (row) => <span className="text-slate-700">{String(row.version ?? "")}</span>,
     },
     {
       key: "documentName",
       label: "文件名称",
       required: true,
-      render: (row) => <span className="text-slate-700">{String(row.documentName ?? "")}</span>,
+      cell: (row) => <span className="text-slate-700">{String(row.documentName ?? "")}</span>,
     },
     {
       key: "effectiveDate",
       label: "生效日期",
       required: true,
-      render: (row) => <span className="text-slate-700">{String(row.effectiveDate ?? "")}</span>,
+      cell: (row) => <span className="text-slate-700">{String(row.effectiveDate ?? "")}</span>,
     },
+  ];
+  const blocks: PageSurfaceBlockSpec[] = [
+    ...(showHeader ? [{
+      kind: "section" as const,
+      key: "header",
+      title: "岗位说明书",
+      className: "mb-6",
+      blocks: [{
+        kind: "message" as const,
+        key: "header-meta",
+        className: "border-0 bg-transparent p-0 text-sm text-gray-500",
+        content: (
+          <>
+            文件编号：{s(data.code)} &nbsp;|&nbsp; 版本：{s(data.version)} &nbsp;|&nbsp; 生效日期：{s(data.effectiveDate)}
+          </>
+        ),
+      }],
+    }] : []),
+    {
+      kind: "section",
+      key: "basic",
+      title: "基本信息",
+      className: "mb-6",
+      blocks: [{
+        kind: "message",
+        key: "basic-fields",
+        className: "border-0 bg-transparent p-0 text-inherit",
+        content: (
+          <>
+            <Pair label="岗位名称" value={data.name} />
+            <Pair label="所属部门" value={data.departmentName} />
+            <Pair label="直接上级" value={data.reportTo} />
+            {Array.isArray(d.subordinates) && d.subordinates.length > 0 ? (
+              <div className="mb-1.5 text-sm">
+                <strong className="text-gray-700">直接下级：</strong>
+                {d.subordinates.map((name: string, i: number) => (
+                  <span key={i}>
+                    {i > 0 && "、"}
+                    <span className="text-gray-600">{name}</span>
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <Pair label="直接下级" value={s(d.subordinates)} />
+            )}
+            <Pair label="编制人数" value={data.headcount} />
+          </>
+        ),
+      }],
+    },
+    ...(data.positionPurpose || data.summary ? [{
+      kind: "section" as const,
+      key: "overview",
+      title: "岗位概述",
+      className: "mb-6",
+      blocks: [{
+        kind: "message" as const,
+        key: "overview-fields",
+        className: "border-0 bg-transparent p-0 text-inherit",
+        content: (
+          <>
+            <Pair label="岗位目的" value={data.positionPurpose} />
+            <Pair label="职责概要" value={data.summary} />
+          </>
+        ),
+      }],
+    }] : []),
+    ...(Array.isArray(d.duties) && d.duties.length > 0 ? [{
+      kind: "section" as const,
+      key: "duties",
+      title: "岗位职责",
+      className: "mb-6",
+      blocks: [{
+        kind: "message" as const,
+        key: "duties-content",
+        className: "border-0 bg-transparent p-0 text-inherit",
+        content: (
+          <>
+            {d.duties.map((duty: Record<string, unknown>, i: number) => (
+              <div key={i} className="mb-4">
+                <div className="mb-1 text-sm font-semibold text-gray-700">
+                  {i + 1}. {s(duty.title)}
+                </div>
+                {Array.isArray(duty.items) && duty.items.length > 0 && (
+                  <ul className="list-disc space-y-0.5 pl-8 text-sm text-gray-600">
+                    {duty.items.map((item: string, j: number) => (
+                      <li key={j}>{item}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </>
+        ),
+      }],
+    }] : []),
+    ...(!!(d.education || formatMajorItems(d.major) || formatExperienceRequirements(d.experienceRequirements) || d.training) ? [{
+      kind: "section" as const,
+      key: "qualification",
+      title: "任职资格",
+      className: "mb-6",
+      blocks: [{
+        kind: "message" as const,
+        key: "qualification-fields",
+        className: "border-0 bg-transparent p-0 text-inherit",
+        content: (
+          <>
+            <Pair label="教育水平" value={d.education} />
+            <Pair label="专业要求" value={formatMajorItems(d.major)} />
+            <Pair label="工作经验" value={formatExperienceRequirements(d.experienceRequirements)} />
+            <Pair label="培训经历" value={d.training} />
+          </>
+        ),
+      }],
+    }] : []),
+    ...(!!(formatWorkEnvironments(d.workEnvironments) || d.workSchedule) ? [{
+      kind: "section" as const,
+      key: "conditions",
+      title: "工作条件",
+      className: "mb-6",
+      blocks: [{
+        kind: "message" as const,
+        key: "conditions-fields",
+        className: "border-0 bg-transparent p-0 text-inherit",
+        content: (
+          <>
+            <Pair label="工作环境" value={formatWorkEnvironments(d.workEnvironments)} />
+            <Pair label="工作时间" value={d.workSchedule} />
+          </>
+        ),
+      }],
+    }] : []),
+    ...(historyRows.length > 0 ? [{
+      kind: "section" as const,
+      key: "history",
+      title: "变更历史",
+      bodyClassName: "overflow-x-auto p-0",
+      className: "mb-6",
+      blocks: [{
+        kind: "data" as const,
+        key: "history-table",
+        surface: {
+          kind: "table" as const,
+          rows: historyRows,
+          columns: historyColumns,
+          visibleColumns: [],
+          density: "compact" as const,
+          rowKey: (row: Record<string, unknown>) => `${String(row.version ?? "")}:${String(row.documentName ?? "")}:${String(row.effectiveDate ?? "")}`,
+        },
+      }],
+    }] : []),
   ];
 
   return (
-    <div className="space-y-6">
-      {showHeader && (
-        <SectionCard title="岗位说明书" className="mb-6">
-          <div className="text-sm text-gray-500">
-            文件编号：{s(data.code)} &nbsp;|&nbsp; 版本：{s(data.version)} &nbsp;|&nbsp; 生效日期：{s(data.effectiveDate)}
-          </div>
-        </SectionCard>
-      )}
-
-      <SectionCard title="基本信息" className="mb-6">
-        <Pair label="岗位名称" value={data.name} />
-        <Pair label="所属部门" value={data.departmentName} />
-        <Pair label="直接上级" value={data.reportTo} />
-        {Array.isArray(d.subordinates) && d.subordinates.length > 0 ? (
-          <div className="mb-1.5 text-sm">
-            <strong className="text-gray-700">直接下级：</strong>
-            {d.subordinates.map((name: string, i: number) => (
-              <span key={i}>
-                {i > 0 && "、"}
-                <span className="text-gray-600">{name}</span>
-              </span>
-            ))}
-          </div>
-        ) : (
-          <Pair label="直接下级" value={s(d.subordinates)} />
-        )}
-        <Pair label="编制人数" value={data.headcount} />
-      </SectionCard>
-
-      {(data.positionPurpose || data.summary) && (
-        <SectionCard title="岗位概述" className="mb-6">
-          <Pair label="岗位目的" value={data.positionPurpose} />
-          <Pair label="职责概要" value={data.summary} />
-        </SectionCard>
-      )}
-
-      {Array.isArray(d.duties) && d.duties.length > 0 && (
-        <SectionCard title="岗位职责" className="mb-6">
-          {d.duties.map((duty: Record<string, unknown>, i: number) => (
-            <div key={i} className="mb-4">
-              <div className="mb-1 text-sm font-semibold text-gray-700">
-                {i + 1}. {s(duty.title)}
-              </div>
-              {Array.isArray(duty.items) && duty.items.length > 0 && (
-                <ul className="list-disc space-y-0.5 pl-8 text-sm text-gray-600">
-                  {duty.items.map((item: string, j: number) => (
-                    <li key={j}>{item}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
-        </SectionCard>
-      )}
-
-      {!!(d.education || formatMajorItems(d.major) || formatExperienceRequirements(d.experienceRequirements) || d.training) && (
-        <SectionCard title="任职资格" className="mb-6">
-          <Pair label="教育水平" value={d.education} />
-          <Pair label="专业要求" value={formatMajorItems(d.major)} />
-          <Pair label="工作经验" value={formatExperienceRequirements(d.experienceRequirements)} />
-          <Pair label="培训经历" value={d.training} />
-        </SectionCard>
-      )}
-
-      {!!(formatWorkEnvironments(d.workEnvironments) || d.workSchedule) && (
-        <SectionCard title="工作条件" className="mb-6">
-          <Pair label="工作环境" value={formatWorkEnvironments(d.workEnvironments)} />
-          <Pair label="工作时间" value={d.workSchedule} />
-        </SectionCard>
-      )}
-
-      {historyRows.length > 0 && (
-        <SectionCard title="变更历史" bodyClassName="overflow-x-auto p-0" className="mb-6">
-          <DataTable
-            rows={historyRows}
-            columns={historyColumns}
-            visibleColumns={[]}
-            density="compact"
-            rowKey={(row) => `${String(row.version ?? "")}:${String(row.documentName ?? "")}:${String(row.effectiveDate ?? "")}`}
-          />
-        </SectionCard>
-      )}
-    </div>
+    <PageSurface
+      kind="detail"
+      contentClassName="py-0"
+      actions={actions}
+      blocks={blocks}
+    />
   );
 }

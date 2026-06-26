@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useMemo, useState } from "react";
-import { DataTable, DetailModal, InputControl, PanelCard, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, FormSurface } from "@workspace/core/ui";
 import type { QcTemplateFeedbackItem, QcTemplateFeedbackState } from "@workspace/production/server/qc";
 import { feedbackKey, selectionTitle, type FeedbackTarget } from "./types";
 
@@ -73,30 +73,30 @@ function feedbackRows(items: QcTemplateFeedbackItem[]): FeedbackRow[] {
 function feedbackColumns(
   resolvingKey: string,
   setResolved: (row: FeedbackRow, resolved: boolean) => void,
-): DataTableColumn<FeedbackRow>[] {
+) {
   return [
     {
       key: "user",
       label: "反馈人",
       required: true,
-      render: (row) => <span className="font-medium text-slate-800">{row.item.userName || "未知"}</span>,
+      cell: (row: FeedbackRow) => <span className="font-medium text-slate-800">{row.item.userName || "未知"}</span>,
     },
     {
       key: "content",
       label: "反馈内容",
       required: true,
-      render: (row) => <span className="whitespace-pre-wrap leading-6 text-slate-700">{row.content}</span>,
+      cell: (row: FeedbackRow) => <span className="whitespace-pre-wrap leading-6 text-slate-700">{row.content}</span>,
     },
     {
       key: "resolved",
       label: "已解决",
       required: true,
-      render: (row) => (
-        <div className="flex items-center justify-center gap-2 text-slate-700">
-          <InputControl spec={{ valueType: "boolean", editor: "checkbox", state: resolvingKey === row.id ? "disabled" : "normal" }} value={row.resolved} onChange={(checked) => setResolved(row, Boolean(checked))} />
-          <span>已解决</span>
-        </div>
-      ),
+      cell: (row: FeedbackRow) => ({
+        kind: "input" as const,
+        spec: { valueType: "boolean" as const, editor: "checkbox" as const, state: resolvingKey === row.id ? "disabled" as const : "normal" as const },
+        value: row.resolved,
+        onChange: (checked: unknown) => setResolved(row, Boolean(checked)),
+      }),
     },
   ];
 }
@@ -151,24 +151,44 @@ export default function TemplateFeedbackModal({ target, onClose, onSaved }: Prop
   }
 
   return (
-    <DetailModal open title="反馈" onClose={onClose} maxWidth="max-w-4xl">
-      <div className="max-h-[88vh] overflow-hidden">
-        <div className="max-h-[calc(88vh-82px)] space-y-4 overflow-y-auto py-4">
-          <PanelCard bodyClassName="px-3 py-3 text-sm text-slate-700">
-            {selectionTitle(target)}
-          </PanelCard>
-          <PanelCard title="全部反馈" actions={<span className="text-xs text-slate-500">{loading ? "读取中" : `${rows.length} 条`}</span>}>
-            <DataTable
+    <FormSurface
+      kind="modal"
+      open
+      title="反馈"
+      onClose={onClose}
+      maxWidth="max-w-4xl"
+      className="max-h-[calc(88vh-82px)] overflow-y-auto py-4"
+      fields={[
+        {
+          kind: "note",
+          key: "selection",
+          className: "rounded-md border border-slate-100 bg-slate-50 px-3 py-3 text-sm text-slate-700",
+          content: selectionTitle(target),
+        },
+        {
+          kind: "note",
+          key: "feedback-table",
+          content: (
+            <DataSurface<FeedbackRow>
+              kind="table"
+              framed
+              title="全部反馈"
+              subtitle={loading ? "读取中" : `${rows.length} 条`}
               rows={rows}
               columns={feedbackColumns(resolvingKey, (row, resolved) => { void setResolved(row, resolved); })}
               visibleColumns={["user", "content", "resolved"]}
               rowKey={(row) => row.id}
               emptyText="暂无反馈。"
             />
-          </PanelCard>
-          {error && <div className="text-sm font-medium text-red-600">{error}</div>}
-        </div>
-      </div>
-    </DetailModal>
+          ),
+        },
+        ...(error ? [{
+          kind: "note" as const,
+          key: "error",
+          className: "text-sm font-medium text-red-600",
+          content: error,
+        }] : []),
+      ]}
+    />
   );
 }

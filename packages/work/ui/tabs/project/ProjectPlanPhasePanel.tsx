@@ -2,15 +2,10 @@
 
 import { useState } from "react";
 import {
-  CreatePanel,
-  DataTable,
-  EmptyStateCard,
-  FormField,
-  InputControl,
-  PanelCard,
-  TableScrollFrame,
+  DataSurface,
+  FormSurface,
   useFeedback,
-  type DataTableColumn,
+  type DataSurfaceColumnSpec,
   type DataTableRowEditActionConfig,
 } from "@workspace/core/ui";
 import { createProjectPlanPhase, deleteProjectPlanPhase, updateProjectPlanPhase } from "./api";
@@ -95,46 +90,55 @@ export default function ProjectPlanPhasePanel({
   }
 
   return (
-    <CreatePanel
-      variant="block"
-      title="项目阶段"
-      creating={creating}
-      canCreate={canEdit}
-      disabled={disabled || busy}
-      submitting={busy}
-      submitDisabled={!draft.name.trim()}
-      addLabel="新增项目阶段"
-      submitLabel="保存项目阶段"
-      onStartCreate={() => setCreating(true)}
-      onCancel={() => {
-        setCreating(false);
-        setDraft(EMPTY_DRAFT);
-      }}
-      onSubmit={submitCreate}
-      createContent={(
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.4fr_minmax(0,2fr)]">
-          <PhaseFields draft={draft} disabled={disabled || busy} onChange={setDraft} />
-        </div>
-      )}
-      bodyClassName="p-4"
-      createClassName="rounded-lg border border-slate-200 bg-white p-3"
-    >
-      <PhaseRows
-        phases={phases}
-        canEdit={canEdit}
-        disabled={disabled || busy}
-        editingId={editingId}
-        editDraft={editDraft}
-        onEditDraftChange={setEditDraft}
-        onStartEdit={startEdit}
-        onCancelEdit={() => {
-          setEditingId(null);
-          setEditDraft(EMPTY_DRAFT);
-        }}
-        onSubmitEdit={submitEdit}
-        onDelete={handleDelete}
-      />
-    </CreatePanel>
+    <FormSurface
+      kind="fields"
+      fields={[{
+        kind: "section",
+        key: "project-phases",
+        title: "项目阶段",
+        actions: canEdit && !creating ? [{
+          key: "create",
+          label: "新增项目阶段",
+          variant: "primary",
+          disabled: disabled || busy,
+          onClick: () => setCreating(true),
+        }] : undefined,
+        fields: [
+          ...(creating ? [{
+            kind: "section" as const,
+            key: "create-phase",
+            className: "rounded-lg border border-slate-200 bg-white p-3",
+            fields: [{ kind: "note" as const, key: "create-fields", content: <PhaseFields draft={draft} disabled={disabled || busy} onChange={setDraft} /> }],
+            actions: [
+              { key: "cancel", label: "取消", disabled: disabled || busy, onClick: () => {
+                setCreating(false);
+                setDraft(EMPTY_DRAFT);
+              } },
+              { key: "submit", label: busy ? "保存中..." : "保存项目阶段", variant: "primary" as const, disabled: disabled || busy || !draft.name.trim(), onClick: () => void submitCreate() },
+            ],
+          }] : []),
+          {
+            kind: "note",
+            key: "phase-rows",
+            content: <PhaseRows
+              phases={phases}
+              canEdit={canEdit}
+              disabled={disabled || busy}
+              editingId={editingId}
+              editDraft={editDraft}
+              onEditDraftChange={setEditDraft}
+              onStartEdit={startEdit}
+              onCancelEdit={() => {
+                setEditingId(null);
+                setEditDraft(EMPTY_DRAFT);
+              }}
+              onSubmitEdit={submitEdit}
+              onDelete={handleDelete}
+            />,
+          },
+        ],
+      }]}
+    />
   );
 }
 
@@ -161,88 +165,82 @@ function PhaseRows({
   onSubmitEdit: (phaseId: number) => void;
   onDelete: (phaseId: number) => void;
 }) {
-  const columns: DataTableColumn<ProjectPlanPhaseItem>[] = [
+  const columns: DataSurfaceColumnSpec<ProjectPlanPhaseItem>[] = [
     {
       key: "sequenceNo",
       label: "序号",
       required: true,
       cellClassName: "w-20 text-slate-400",
-      render: (phase) => <span className="font-semibold">{phase.sequenceNo}</span>,
+      cell: (phase) => <span className="font-semibold">{phase.sequenceNo}</span>,
     },
     {
       key: "name",
       label: "阶段",
       required: true,
       cellClassName: "min-w-40",
-      render: (phase) => <span className="break-words text-sm font-medium text-slate-900">{phase.name}</span>,
+      cell: (phase) => <span className="break-words text-sm font-medium text-slate-900">{phase.name}</span>,
     },
     {
       key: "startDate",
       label: "开始时间",
       defaultVisible: true,
-      render: (phase) => phase.startDate || "未定",
+      cell: (phase) => phase.startDate || "未定",
     },
     {
       key: "endDate",
       label: "结束时间",
       defaultVisible: true,
-      render: (phase) => phase.endDate || "未定",
+      cell: (phase) => phase.endDate || "未定",
     },
     {
       key: "note",
       label: "说明",
       defaultVisible: true,
       cellClassName: "min-w-64 max-w-xl whitespace-normal text-slate-500",
-      render: (phase) => phase.note || "",
+      cell: (phase) => phase.note || "",
     },
   ];
 
   if (phases.length === 0) {
-    return <EmptyStateCard compact>暂无项目阶段</EmptyStateCard>;
+    return <DataSurface kind="records" records={[]} empty="暂无项目阶段" />;
   }
   return (
-    <TableScrollFrame className="overflow-y-hidden">
-      <DataTable
-        rows={phases}
-        columns={columns}
-        density="compact"
-        emptyText="暂无项目阶段"
-        rowKey={(phase) => phase.id}
-        visibleColumns={["startDate", "endDate", "note"]}
-        expandedRowKey={editingId}
-        renderExpandedRow={(_phase) => (
-          <PanelCard bodyClassName="p-3">
-            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.4fr_minmax(0,2fr)]">
-              <PhaseFields draft={editDraft} disabled={disabled} onChange={onEditDraftChange} />
-            </div>
-          </PanelCard>
-        )}
-        rowEditActions={canEdit ? (phase): DataTableRowEditActionConfig<ProjectPlanPhaseItem> => ({
-          editing: editingId === phase.id,
-          canEdit,
-          canSave: Boolean(editDraft.name.trim()),
-          initial: phaseDraftFromItem(phase),
-          current: editDraft,
+    <DataSurface
+      kind="table"
+      rows={phases}
+      columns={columns}
+      density="compact"
+      emptyText="暂无项目阶段"
+      rowKey={(phase) => phase.id}
+      visibleColumns={["startDate", "endDate", "note"]}
+      expandedRowKey={editingId}
+      renderExpandedRow={(_phase) => <PhaseFields draft={editDraft} disabled={disabled} onChange={onEditDraftChange} />}
+      rowEditActions={canEdit ? (phase): DataTableRowEditActionConfig<ProjectPlanPhaseItem> => ({
+        editing: editingId === phase.id,
+        canEdit,
+        canSave: Boolean(editDraft.name.trim()),
+        initial: phaseDraftFromItem(phase),
+        current: editDraft,
+        disabled,
+        editLabel: "编辑阶段",
+        saveLabel: "保存阶段",
+        cancelLabel: "取消编辑",
+        onEdit: onStartEdit,
+        onSave: () => onSubmitEdit(phase.id),
+        onCancel: onCancelEdit,
+      }) : undefined}
+      rowActions={canEdit ? (phase) => {
+        if (editingId === phase.id) return [];
+        return [{
+          key: "delete",
+          kind: "delete" as const,
+          label: "删除阶段",
+          onClick: () => onDelete(phase.id),
           disabled,
-          editLabel: "编辑阶段",
-          saveLabel: "保存阶段",
-          cancelLabel: "取消编辑",
-          onEdit: onStartEdit,
-          onSave: () => onSubmitEdit(phase.id),
-          onCancel: onCancelEdit,
-        }) : undefined}
-        rowActions={canEdit ? (phase) => {
-          if (editingId === phase.id) return [];
-          return [{
-            key: "delete",
-            kind: "delete" as const,
-            label: "删除阶段",
-            onClick: () => onDelete(phase.id),
-            disabled,
-          }];
-        } : undefined}
-      />
-    </TableScrollFrame>
+        }];
+      } : undefined}
+      scrollClassName="overflow-y-hidden"
+    />
   );
 }
 
@@ -256,32 +254,43 @@ function PhaseFields({
   onChange: (draft: PhaseDraft) => void;
 }) {
   return (
-    <>
-      <FormField label="阶段">
-        <InputControl spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }} value={draft.name} onChange={(value) => onChange({ ...draft, name: String(value ?? "") })} placeholder="例如：方案确认" />
-      </FormField>
-      <FormField label="说明">
-        <InputControl spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }} value={draft.note} onChange={(value) => onChange({ ...draft, note: String(value ?? "") })} />
-      </FormField>
-      <div className="grid grid-cols-1 gap-3 lg:col-span-2 sm:grid-cols-2">
-        <FormField label="开始日期">
-          <InputControl
-            spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }}
-            value={draft.startDate || null}
-            onChange={(value) => onChange({ ...draft, startDate: String(value || "") })}
-            placeholder="选择日期"
-          />
-        </FormField>
-        <FormField label="结束日期">
-          <InputControl
-            spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }}
-            value={draft.endDate || null}
-            onChange={(value) => onChange({ ...draft, endDate: String(value || "") })}
-            placeholder="选择日期"
-          />
-        </FormField>
-      </div>
-    </>
+    <FormSurface
+      kind="fields"
+      columns={2}
+      fields={[
+        {
+          key: "name",
+          label: "阶段",
+          spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" },
+          value: draft.name,
+          onChange: (value) => onChange({ ...draft, name: String(value ?? "") }),
+          placeholder: "例如：方案确认",
+        },
+        {
+          key: "note",
+          label: "说明",
+          spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" },
+          value: draft.note,
+          onChange: (value) => onChange({ ...draft, note: String(value ?? "") }),
+        },
+        {
+          key: "startDate",
+          label: "开始日期",
+          spec: { valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" },
+          value: draft.startDate || null,
+          onChange: (value) => onChange({ ...draft, startDate: String(value || "") }),
+          placeholder: "选择日期",
+        },
+        {
+          key: "endDate",
+          label: "结束日期",
+          spec: { valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" },
+          value: draft.endDate || null,
+          onChange: (value) => onChange({ ...draft, endDate: String(value || "") }),
+          placeholder: "选择日期",
+        },
+      ]}
+    />
   );
 }
 

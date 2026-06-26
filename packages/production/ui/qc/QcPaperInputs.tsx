@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { CalendarDateInput, ChoiceGroup, TextareaField, TextField } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 import type { QcLayoutPart } from "@workspace/production/server/qc";
 
 const PAPER_INPUT_TEXT_CLASS = "text-[15px]";
@@ -93,50 +93,62 @@ export function QcPaperLineInput({
   const isReadOnly = readOnly || part.readonlyDisplay || !onChange;
   if (part.multiline || part.inputType === "textarea") {
     return (
-      <TextareaField
-        aria-label={part.fieldKey || part.field || part.name || "填写项"}
-        dataFieldKey={part.fieldKey || part.field || part.name}
-        value={currentValue}
-        onChange={onChange}
-        placeholder={part.placeholder}
-        readOnly={isReadOnly}
-        rows={part.rows || 2}
-        title={error}
-        unstyled
-        className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block min-w-[8em] resize-y border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass()} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
-        style={inputWidth(part, inTable, currentValue)}
+      <FormSurface
+        kind="control"
+        control={{
+          kind: "textarea",
+          ariaLabel: part.fieldKey || part.field || part.name || "填写项",
+          dataFieldKey: part.fieldKey || part.field || part.name,
+          value: currentValue,
+          onChange,
+          placeholder: part.placeholder,
+          readOnly: isReadOnly,
+          rows: part.rows || 2,
+          title: error,
+          unstyled: true,
+          className: `${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block min-w-[8em] resize-y border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass()} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`,
+          style: inputWidth(part, inTable, currentValue),
+        }}
       />
     );
   }
   if (part.inputType === "date") {
     return (
-      <CalendarDateInput
-        value={currentValue}
-        onChange={(next) => onChange?.(next ?? "")}
-        placeholder={part.placeholder}
-        readOnly={isReadOnly}
-        title={error}
-        unstyled
-        wrapperClassName="relative inline-block align-middle"
-        className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-[4.5em] border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass()} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
-        style={inputWidth(part, inTable, currentValue)}
+      <FormSurface
+        kind="control"
+        control={{
+          kind: "calendarDate",
+          value: currentValue,
+          onChange: (next) => onChange?.(next ?? ""),
+          placeholder: part.placeholder,
+          readOnly: isReadOnly,
+          title: error,
+          unstyled: true,
+          wrapperClassName: "relative inline-block align-middle",
+          className: `${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-[4.5em] border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass()} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`,
+          style: inputWidth(part, inTable, currentValue),
+        }}
       />
     );
   }
   return (
-    <TextField
-      aria-label={part.fieldKey || part.field || part.name || "填写项"}
-      dataFieldKey={part.fieldKey || part.field || part.name}
-      value={currentValue}
-      onChange={onChange}
-      placeholder={part.placeholder}
-      readOnly={isReadOnly}
-      inputMode={part.inputType === "number" ? "decimal" : undefined}
-      type="text"
-      title={error}
-      unstyled
-      className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-[4.5em] border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass()} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
-      style={inputWidth(part, inTable, currentValue)}
+    <FormSurface
+      kind="control"
+      control={{
+        kind: "text",
+        ariaLabel: part.fieldKey || part.field || part.name || "填写项",
+        dataFieldKey: part.fieldKey || part.field || part.name,
+        value: currentValue,
+        onChange,
+        placeholder: part.placeholder,
+        readOnly: isReadOnly,
+        inputMode: part.inputType === "number" ? "decimal" : undefined,
+        type: "text",
+        title: error,
+        unstyled: true,
+        className: `${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-[4.5em] border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass()} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`,
+        style: inputWidth(part, inTable, currentValue),
+      }}
     />
   );
 }
@@ -237,17 +249,21 @@ export function QcPaperChoiceInput({
   onChange?: (value: string) => void;
 }) {
   return (
-    <ChoiceGroup
-      options={options}
-      type={type}
-      name={type === "radio" ? fieldKey : undefined}
-      dataFieldKey={fieldKey}
-      value={value}
-      disabled={disabled}
-      onChange={onChange}
-      className="inline-flex flex-wrap items-center justify-center gap-x-4 gap-y-1 align-baseline"
-      optionClassName="inline-flex items-center gap-1.5 whitespace-nowrap"
-      markerClassName="inline-flex h-4 w-4 items-center justify-center border border-slate-950 bg-white text-[13px] font-semibold leading-none text-transparent peer-checked:text-slate-950"
+    <FormSurface
+      kind="control"
+      control={{
+        kind: "choice",
+        options,
+        type,
+        name: type === "radio" ? fieldKey : undefined,
+        dataFieldKey: fieldKey,
+        value,
+        disabled,
+        onChange,
+        className: "inline-flex flex-wrap items-center justify-center gap-x-4 gap-y-1 align-baseline",
+        optionClassName: "inline-flex items-center gap-1.5 whitespace-nowrap",
+        markerClassName: "inline-flex h-4 w-4 items-center justify-center border border-slate-950 bg-white text-[13px] font-semibold leading-none text-transparent peer-checked:text-slate-950",
+      }}
     />
   );
 }

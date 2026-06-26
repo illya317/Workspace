@@ -1,9 +1,17 @@
 "use client";
 
-import { CreatePanel, FormField, InputControl } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
+import type { FormSurfaceFieldSpec } from "@workspace/core/ui";
 import type { Contract, ModalMode } from "@workspace/administration/types";
 
-const FORM_FIELDS = [
+interface ContractFormFieldConfig {
+  label: string;
+  key: keyof Contract;
+  required?: boolean;
+  type?: "number";
+}
+
+const FORM_FIELDS: ContractFormFieldConfig[] = [
   { label: "合同编号", key: "contractNo" as keyof Contract },
   { label: "合同名称", key: "name" as keyof Contract, required: true },
   { label: "签署方", key: "partyA" as keyof Contract },
@@ -29,69 +37,75 @@ interface ContractModalProps {
 export default function ContractModal({ mode, editing, onChange, onSave, onClose, saving }: ContractModalProps) {
   if (!mode) return null;
 
+  const fields: FormSurfaceFieldSpec[] = [
+    ...FORM_FIELDS.map<FormSurfaceFieldSpec>((f) => ({
+      key: String(f.key),
+      label: f.label,
+      required: f.required,
+      spec: {
+        valueType: f.type === "number" ? "number" : "string",
+        editor: f.type === "number" ? "number" : "input",
+        validation: f.required ? { required: true } : undefined,
+      },
+      value: editing[f.key] === null || editing[f.key] === undefined ? "" : String(editing[f.key]),
+      onChange: (value: unknown) =>
+        onChange(
+          f.key,
+          f.type === "number"
+            ? value
+              ? parseFloat(String(value))
+              : null
+            : String(value ?? ""),
+        ),
+    })),
+    {
+      key: "signDate",
+      label: "签订日期",
+      spec: { valueType: "date", editor: "datePicker" },
+      value: editing.signDate,
+      onChange: (value: unknown) => onChange("signDate", value ? String(value) : null),
+    },
+    {
+      key: "endDate",
+      label: "结束日期",
+      spec: { valueType: "date", editor: "datePicker" },
+      value: editing.endDate,
+      onChange: (value: unknown) => onChange("endDate", value ? String(value) : null),
+    },
+    {
+      key: "content",
+      label: "合同内容",
+      span: 2,
+      spec: { valueType: "string", editor: "textarea" },
+      value: editing.content ?? "",
+      onChange: (value: unknown) => onChange("content", String(value ?? "")),
+      rows: 2,
+    },
+    {
+      key: "remark",
+      label: "备注",
+      span: 2,
+      spec: { valueType: "string", editor: "textarea" },
+      value: editing.remark ?? "",
+      onChange: (value: unknown) => onChange("remark", String(value ?? "")),
+      rows: 2,
+    },
+  ];
+
   return (
-    <CreatePanel
-      variant="modal"
+    <FormSurface
+      kind="modal"
       open={Boolean(mode)}
       title={mode === "create" ? "新增合同" : "编辑合同"}
-      onCancel={onClose}
-      onSubmit={onSave}
-      submitting={saving}
-      submitLabel="保存"
       maxWidth="max-w-2xl"
-    >
-      {FORM_FIELDS.map((f) => (
-        <FormField key={f.key} label={f.label} required={f.required}>
-          <InputControl
-            spec={{
-              valueType: f.type === "number" ? "number" : "string",
-              editor: f.type === "number" ? "number" : "input",
-              validation: f.required ? { required: true } : undefined,
-            }}
-            value={editing[f.key] === null || editing[f.key] === undefined ? "" : String(editing[f.key])}
-            onChange={(value) =>
-              onChange(
-                f.key,
-                f.type === "number"
-                  ? value
-                    ? parseFloat(String(value))
-                    : null
-                  : String(value ?? ""),
-              )
-            }
-          />
-        </FormField>
-      ))}
-      <FormField label="签订日期">
-        <InputControl
-          spec={{ valueType: "date", editor: "datePicker" }}
-          value={editing.signDate}
-          onChange={(value) => onChange("signDate", value ? String(value) : null)}
-        />
-      </FormField>
-      <FormField label="结束日期">
-        <InputControl
-          spec={{ valueType: "date", editor: "datePicker" }}
-          value={editing.endDate}
-          onChange={(value) => onChange("endDate", value ? String(value) : null)}
-        />
-      </FormField>
-      <FormField label="合同内容" className="md:col-span-2">
-        <InputControl
-          spec={{ valueType: "string", editor: "textarea" }}
-          value={editing.content ?? ""}
-          onChange={(value) => onChange("content", String(value ?? ""))}
-          rows={2}
-        />
-      </FormField>
-      <FormField label="备注" className="md:col-span-2">
-        <InputControl
-          spec={{ valueType: "string", editor: "textarea" }}
-          value={editing.remark ?? ""}
-          onChange={(value) => onChange("remark", String(value ?? ""))}
-          rows={2}
-        />
-      </FormField>
-    </CreatePanel>
+      onClose={onClose}
+      onSubmit={onSave}
+      columns={2}
+      fields={fields}
+      actions={[
+        { key: "cancel", label: "取消", onClick: onClose },
+        { key: "save", label: saving ? "保存中..." : "保存", type: "submit", variant: "primary", disabled: saving },
+      ]}
+    />
   );
 }

@@ -2,8 +2,8 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
-import { FieldValueFilter, Pagination, PanelCard, TabBar, useFeedback } from "@workspace/core/ui";
-import AccountTable, { ACCOUNT_COLUMNS, type Account } from "../components/AccountTable";
+import { DataSurface, FormSurface, NavigationSurface, useFeedback } from "@workspace/core/ui";
+import { ACCOUNT_COLUMNS, type Account } from "../components/AccountTable";
 import ReclassConfigView from "../components/ReclassConfigView";
 import FinanceFilters from "../components/FinanceFilters";
 
@@ -84,33 +84,51 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
       />
       <div className="flex flex-wrap items-center gap-3">
         {!reclassMode && (
-          <FieldValueFilter
+          <FormSurface
+            kind="filters"
             fields={[
-              { value: "level", label: "层级" },
-              { value: "scope", label: "类型" },
-            ]}
-            valueOptions={{
-              level: [{ value: "", label: "全部" }, { value: "1", label: "1级" }, { value: "2", label: "2级" }, { value: "3", label: "3级" }, { value: "4", label: "4级" }, { value: "5", label: "5级" }],
-              scope: [{ value: "", label: "全部" }, { value: "mapped", label: "集团" }, { value: "unmapped", label: "独有" }, { value: "inactive", label: "未启用" }],
-            }}
-            fieldKey={extraField}
-            onFieldKeyChange={(k) => {
+              {
+                key: "extraField",
+                label: "筛选项",
+                spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: [{ value: "level", label: "层级" }, { value: "scope", label: "类型" }] } },
+                value: extraField,
+                onChange: (k) => {
               setLevelFilter(""); setScope("");
-              setExtraField(k as typeof extraField); setExtraValue(""); setPage(1);
-            }}
-            value={extraValue}
-            onValueChange={(v) => {
-              if (extraField === "level") setLevelFilter(v);
-              else setScope(v);
-              setExtraValue(v); setPage(1);
-            }}
+                  setExtraField(k as typeof extraField); setExtraValue(""); setPage(1);
+                },
+              },
+              {
+                key: "extraValue",
+                label: "筛选值",
+                spec: {
+                  valueType: "string",
+                  editor: "select",
+                  options: {
+                    source: "static",
+                    mode: "dropdown",
+                    items: extraField === "level"
+                      ? [{ value: "", label: "全部" }, { value: "1", label: "1级" }, { value: "2", label: "2级" }, { value: "3", label: "3级" }, { value: "4", label: "4级" }, { value: "5", label: "5级" }]
+                      : [{ value: "", label: "全部" }, { value: "mapped", label: "集团" }, { value: "unmapped", label: "独有" }, { value: "inactive", label: "未启用" }],
+                  },
+                },
+                value: extraValue,
+                onChange: (v) => {
+                  const nextValue = String(v ?? "");
+                  if (extraField === "level") setLevelFilter(nextValue);
+                  else setScope(nextValue);
+                  setExtraValue(nextValue); setPage(1);
+                },
+              },
+            ]}
           />
         )}
         {canWrite && (
-          <TabBar
-            variant="small"
-            accordion
-            tabs={[
+          <NavigationSurface
+            kind="tabs"
+            tabs={{
+              variant: "small",
+              accordion: true,
+              tabs: [
               {
                 key: "reclass",
                 label: "重分类",
@@ -120,11 +138,12 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
                   { key: "all", label: `全部 ${reclassStats.total}` },
                 ],
               },
-            ]}
-            active={reclassMode ? "reclass" : ""}
-            activeChild={reclassStatus}
-            onChange={() => setReclassMode(!reclassMode)}
-            onChildChange={(key) => setReclassStatus(key as typeof reclassStatus)}
+              ],
+              active: reclassMode ? "reclass" : "",
+              activeChild: reclassStatus,
+              onChange: () => setReclassMode(!reclassMode),
+              onChildChange: (key) => setReclassStatus(key as typeof reclassStatus),
+            }}
           />
         )}
       </div>
@@ -137,10 +156,19 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
         )
       ) : (
         <>
-          <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
-            <AccountTable accounts={accounts} loading={loading} visibleColumns={visibleColumns} />
-          </PanelCard>
-          <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
+          <DataSurface
+            kind="table"
+            framed
+            className="overflow-hidden"
+            bodyClassName="overflow-x-auto"
+            rows={accounts}
+            columns={ACCOUNT_COLUMNS}
+            visibleColumns={visibleColumns}
+            loading={loading}
+            emptyText="暂无科目数据"
+            rowKey={(account) => account.id}
+            pagination={{ page, totalPages, total, onPageChange: setPage }}
+          />
         </>
       )}
     </div>

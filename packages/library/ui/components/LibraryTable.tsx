@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { DataTable, EmptyStateCard, PanelCard, Badge, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface } from "@workspace/core/ui";
+import type { DataTableColumn } from "@workspace/core/ui";
 import type { LibraryDocumentItem } from "@workspace/library/types";
 import LibraryDetailModal from "./LibraryDetailModal";
 
@@ -66,7 +67,9 @@ export default function LibraryTable({
       render: (d) => d.tags && d.tags.length > 0 ? (
         <div className="flex flex-wrap gap-1">
           {d.tags.map((tag) => (
-            <Badge key={tag} label={tag} tone="green" />
+            <span key={tag} className="inline-flex rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200">
+              {tag}
+            </span>
           ))}
         </div>
       ) : <span className="text-gray-300">—</span>,
@@ -97,25 +100,20 @@ export default function LibraryTable({
     },
   ];
 
-  if (loading) {
-    return <EmptyStateCard compact={false}>加载中...</EmptyStateCard>;
-  }
-
-  if (documents.length === 0) {
-    return <EmptyStateCard compact={false}>暂无资料</EmptyStateCard>;
-  }
-
   return (
     <>
-      <PanelCard bodyClassName="overflow-hidden">
-        <DataTable
-          rows={documents}
-          columns={columns}
-          visibleColumns={columns.map((column) => column.key)}
-          rowKey={(document) => document.id}
-          onRowClick={(document) => setDetailId(document.id)}
-        />
-      </PanelCard>
+      <DataSurface<LibraryDocumentItem>
+        kind="table"
+        framed
+        bodyClassName="overflow-hidden"
+        rows={documents}
+        columns={columns}
+        visibleColumns={columns.map((column) => column.key)}
+        rowKey={(document) => document.id}
+        onRowClick={(document) => setDetailId(document.id)}
+        loading={loading}
+        emptyText={loading ? "加载中..." : "暂无资料"}
+      />
       {detailId !== null && (
         <LibraryDetailModal
           documentId={detailId}

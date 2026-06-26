@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandButton, DataTable, EmptyStateCard, PanelCard, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, PageSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import PermissionCell from "./PermissionCell";
 import PermissionDetails from "./PermissionDetails";
 import type { PermissionsTabState } from "../../hooks/usePermissionsTab";
@@ -18,18 +18,18 @@ export default function MatrixTable({
   s
 }: MatrixTableProps) {
   if (!s.selectedResource) {
-    return <EmptyStateCard className="mt-4">请选择左侧资源模块</EmptyStateCard>;
+    return <PageSurface kind="settings" embedded className="mt-4" empty={{ content: "请选择左侧资源模块" }} />;
   }
   if (s.subjects.length === 0) {
-    return <EmptyStateCard className="mt-4">无匹配结果</EmptyStateCard>;
+    return <PageSurface kind="settings" embedded className="mt-4" empty={{ content: "无匹配结果" }} />;
   }
   const maxLevel = ROLE_HIERARCHY[s.maxRoleKey] ?? 3;
   const subjectColumnLabel = s.subjectType === "user" ? "姓名" : s.subjectType === "position" ? "岗位" : "部门";
-  const columns: DataTableColumn<MatrixSubject>[] = [{
+  const columns: DataSurfaceColumnSpec<MatrixSubject>[] = [{
     key: "subject",
     label: subjectColumnLabel,
     required: true,
-    render: subject => {
+    cell: subject => {
       const hasNoUser = s.subjectType === "user" && !subject.extra?.hasUser;
       return <div className="flex flex-col">
             <span className="font-medium text-slate-800">{subject.name}</span>
@@ -38,13 +38,13 @@ export default function MatrixTable({
             {hasNoUser && <span className="text-xs text-red-500">未关联账号</span>}
           </div>;
     }
-  }, ...s.roles.map<DataTableColumn<MatrixSubject>>(role => ({
+  }, ...s.roles.map<DataSurfaceColumnSpec<MatrixSubject>>(role => ({
     key: role.key,
     label: role.name,
     required: true,
     headerClassName: "text-center",
     cellClassName: "text-center",
-    render: subject => {
+    cell: subject => {
       const hasNoUser = s.subjectType === "user" && !subject.extra?.hasUser;
       const state = s.getPermissionState(subject, role.key);
       const roleLevel = ROLE_HIERARCHY[role.key] ?? 0;
@@ -62,7 +62,7 @@ export default function MatrixTable({
     required: true,
     headerClassName: "text-center",
     cellClassName: "text-center",
-    render: () => <span className="text-xs text-slate-400">
+    cell: () => <span className="text-xs text-slate-400">
           {s.maxRoleKey === "access" ? "访问" : s.maxRoleKey === "write" ? "编辑" : s.maxRoleKey === "delete" ? "删除" : "管理"}
         </span>
   }, {
@@ -70,11 +70,28 @@ export default function MatrixTable({
     label: "",
     required: true,
     cellClassName: "text-right",
-    render: subject => <CommandButton onClick={() => s.toggleRowExpand(subject.id)} size="sm" className="px-2 py-1 text-xs">
-          {s.expandedRows.has(subject.id) ? "收起" : "详情"}
-        </CommandButton>
+    cell: subject => ({
+      kind: "action",
+      action: {
+        key: `details-${subject.id}`,
+        label: s.expandedRows.has(subject.id) ? "收起" : "详情",
+        onClick: () => s.toggleRowExpand(subject.id),
+        size: "sm",
+        className: "px-2 py-1 text-xs",
+      },
+    })
   }];
-  return <PanelCard className="mt-4">
-      <DataTable rows={s.subjects} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={subject => subject.id} expandedRowKeys={s.expandedRows} renderExpandedRow={subject => <PermissionDetails subject={subject} s={s} />} />
-    </PanelCard>;
+  return (
+    <DataSurface
+      kind="table"
+      framed
+      className="mt-4"
+      rows={s.subjects}
+      columns={columns}
+      visibleColumns={columns.map(column => column.key)}
+      rowKey={subject => subject.id}
+      expandedRowKeys={s.expandedRows}
+      renderExpandedRow={subject => <PermissionDetails subject={subject} s={s} />}
+    />
+  );
 }

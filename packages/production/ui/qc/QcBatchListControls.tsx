@@ -1,6 +1,6 @@
 "use client";
 
-import { CreatePanel, FormField, InputControl } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 interface QcProductOption {
   id: string;
   productName: string;
@@ -48,26 +48,49 @@ export function QcBatchCreatePanel({
   onCancel
 }: QcBatchCreatePanelProps) {
   if (!open) return null;
-  return <CreatePanel variant="inline" title="新建批次" onSubmit={onSubmit} onCancel={onCancel} submitDisabled={submitting || !productKey || !batchNumber.trim()} submitting={submitting}>
-      <FormField label="产品" required>
-        <InputControl
-          spec={{
-            valueType: "string",
-            editor: "autocomplete",
-            options: {
-              source: "static",
-              mode: "autocomplete",
-              visibleCount: 5,
-              items: products.map(product => ({ value: product.id, label: product.productName })),
-            },
-          }}
-          value={productKey}
-          onChange={(value) => onProductKeyChange(String(value ?? ""))}
-          placeholder="搜索产品"
-        />
-      </FormField>
-      <FormField label="批号" required>
-        <InputControl spec={{ valueType: "string", editor: "input" }} value={batchNumber} onChange={(value) => onBatchNumberChange(String(value ?? ""))} placeholder="请输入批号" className="w-36" />
-      </FormField>
-    </CreatePanel>;
+  return <FormSurface
+    kind="inline"
+    onSubmit={onSubmit}
+    fields={[
+      { kind: "groupTitle", key: "title", title: "新建批次" },
+      {
+        key: "product",
+        label: "产品",
+        required: true,
+        spec: {
+          valueType: "string",
+          editor: "autocomplete",
+          options: {
+            source: "static",
+            mode: "autocomplete",
+            visibleCount: 5,
+            items: products.map(product => ({ value: product.id, label: product.productName })),
+          },
+        },
+        value: productKey,
+        onChange: (value) => onProductKeyChange(String(value ?? "")),
+        placeholder: "搜索产品",
+      },
+      {
+        key: "batchNumber",
+        label: "批号",
+        required: true,
+        spec: { valueType: "string", editor: "input" },
+        value: batchNumber,
+        onChange: (value) => onBatchNumberChange(String(value ?? "")),
+        placeholder: "请输入批号",
+        className: "w-36",
+      },
+    ]}
+    actions={[
+      {
+        key: "submit",
+        label: submitting ? "创建中..." : "创建",
+        type: "submit",
+        variant: "primary",
+        disabled: submitting || !productKey || !batchNumber.trim(),
+      },
+      { key: "cancel", label: "取消", onClick: onCancel },
+    ]}
+  />;
 }

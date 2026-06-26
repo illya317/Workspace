@@ -5,12 +5,14 @@ import type {
 import { core_internal_registry_entries } from "./component-registry-data-core-internal";
 import { foundation_registry_entries } from "./component-registry-data-foundation";
 import { page_api_registry_entries as pageApiAM } from "./component-registry-data-page-api-a-m";
+import { page_api_registry_entries as pageApiM } from "./component-registry-data-page-api-m";
 import { page_api_registry_entries as pageApiNZ } from "./component-registry-data-page-api-n-z";
 import { page_frame_registry_entries } from "./component-registry-data-frame";
 
 const coreUiComponentRegistryRaw = [
   ...page_frame_registry_entries,
   ...pageApiAM,
+  ...pageApiM,
   ...pageApiNZ,
   ...core_internal_registry_entries,
   ...foundation_registry_entries,

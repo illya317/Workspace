@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { InputControl } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 
 export interface SegmentedCodeInputEditableSegment {
   /** 从完整编码中提取可编辑片段 */
@@ -57,14 +57,18 @@ export default function SegmentedCodeInput({
   const displayValue = focused ? segment : value;
 
   return (
-    <InputControl
-      spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }}
-      value={displayValue}
-      placeholder={editableSegment.placeholder}
-      onChange={(next) => handleChange(String(next ?? ""))}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      className={className}
+    <FormSurface
+      kind="control"
+      control={{
+        kind: "inputControl",
+        spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" },
+        value: displayValue,
+        placeholder: editableSegment.placeholder,
+        onChange: (next) => handleChange(String(next ?? "")),
+        onFocus: handleFocus,
+        onBlur: handleBlur,
+        className,
+      }}
     />
   );
 }

@@ -1,7 +1,13 @@
+import type {
+  CoreUiComponentAccessLayer,
+  CoreUiComponentUiLevel,
+} from "./component-registry-types";
+
 export type {
   CoreUiComponentKind,
   CoreUiComponentAccessLayer,
   CoreUiFrameMaturity,
+  CoreUiComponentUiLevel,
   CoreUiComponentRegistration,
   CoreUiCompositionGraph,
 } from "./component-registry-types";
@@ -106,3 +112,51 @@ export const coreUiFrameMaturityMeta = {
   import("./component-registry-types").CoreUiFrameMaturity,
   { label: string; description: string }
 >;
+
+export const CORE_UI_SHOWCASE_MAX_LEVEL = 3;
+
+type CoreUiComponentLevelInput = {
+  accessLayer: CoreUiComponentAccessLayer;
+  uiLevel?: CoreUiComponentUiLevel;
+};
+
+export const coreUiComponentUiLevelMeta = {
+  1: {
+    label: "L1",
+    description: "公开入口：PageSurface / FormSurface / DataSurface / NavigationSurface / useFeedback。",
+    showcaseVisible: true,
+  },
+  2: {
+    label: "L2",
+    description: "Surface 的 kind / variant / spec 能力层，过渡期保留旧 Page API 阅读。",
+    showcaseVisible: true,
+  },
+  3: {
+    label: "L3",
+    description: "Core 内部可见组合层，供关系图、迁移和 review 使用。",
+    showcaseVisible: true,
+  },
+  4: {
+    label: "L4+",
+    description: "Foundation、private impl 和更深实现层，只作为 Core 内部依赖，不进入组件库主展示。",
+    showcaseVisible: false,
+  },
+} as const satisfies Record<
+  import("./component-registry-types").CoreUiComponentUiLevel,
+  { label: string; description: string; showcaseVisible: boolean }
+>;
+
+export function resolveCoreUiComponentUiLevel(
+  component: CoreUiComponentLevelInput,
+): CoreUiComponentUiLevel {
+  if (component.uiLevel) return component.uiLevel;
+  if (component.accessLayer === "foundation" || component.accessLayer === "private-impl") return 4;
+  if (component.accessLayer === "core-internal") return 3;
+  return 2;
+}
+
+export function isCoreUiComponentVisibleInShowcase(
+  component: CoreUiComponentLevelInput,
+) {
+  return resolveCoreUiComponentUiLevel(component) <= CORE_UI_SHOWCASE_MAX_LEVEL;
+}

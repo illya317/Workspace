@@ -1,5 +1,5 @@
 import type { QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
-import { EmptyStateCard, MetricCard, PanelCard } from "@workspace/core/ui";
+import { DataSurface, PageSurface, type DataSurfaceCellSpec, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 
 interface Props {
   detail: QcTemplateDetail;
@@ -9,15 +9,14 @@ function fieldCount(test: QcTemplateTestItem) {
   return test.methodGroups.reduce((sum, group) => sum + group.fields.length, 0);
 }
 
-function StatusPill({ value }: { value?: string }) {
-  if (!value) return <span className="text-xs text-slate-400">未映射</span>;
-  const tone = value === "pilot" ? "bg-cyan-50 text-cyan-700" : "bg-slate-100 text-slate-600";
-  return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${tone}`}>{value}</span>;
+function statusCell(value?: string): DataSurfaceCellSpec {
+  if (!value) return { kind: "empty", content: "未映射", className: "text-xs" };
+  return { kind: "badge", label: value, tone: value === "pilot" ? "sky" : "slate" };
 }
 
 function MethodFields({ test }: { test: QcTemplateTestItem }) {
   if (test.methodGroups.length === 0) {
-    return <EmptyStateCard compact className="py-4 text-xs">未找到方法字段</EmptyStateCard>;
+    return <div className="py-4 text-xs text-slate-400">未找到方法字段</div>;
   }
 
   return (
@@ -25,17 +24,17 @@ function MethodFields({ test }: { test: QcTemplateTestItem }) {
       {test.methodGroups.map((group) => (
         <div key={`${test.englishName}-${group.name}`}>
           <div className="text-xs font-medium text-slate-500">{group.name}</div>
-          <div className="mt-1 flex flex-wrap gap-1.5">
+          <ul className="mt-1 flex flex-wrap gap-x-2 gap-y-1">
             {group.fields.map((field) => (
-              <span
+              <li
                 key={`${group.name}-${field.name}`}
-                className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-700"
+                className="text-xs text-slate-700"
                 title={field.formula}
               >
                 {field.name}{field.unit ? ` / ${field.unit}` : ""}
-              </span>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       ))}
     </div>
@@ -45,7 +44,7 @@ function MethodFields({ test }: { test: QcTemplateTestItem }) {
 function TestItem({ test }: { test: QcTemplateTestItem }) {
   return (
     <div className="border-b border-slate-100 px-4 py-4 last:border-b-0">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex flex-wrap items-start gap-3">
         <div>
           <div className="text-sm font-semibold text-slate-900">
             {test.sequence} {test.name}
@@ -54,7 +53,6 @@ function TestItem({ test }: { test: QcTemplateTestItem }) {
             {test.englishName} · {test.methodName || "未配置方法"} · {fieldCount(test)} 个字段
           </div>
         </div>
-        <StatusPill value={test.layout?.status} />
       </div>
 
       <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(280px,1.2fr)]">
@@ -85,17 +83,33 @@ function TestItem({ test }: { test: QcTemplateTestItem }) {
 }
 
 function StageSection({ stage }: { stage: QcTemplateStage }) {
+  const columns: DataSurfaceColumnSpec<QcTemplateTestItem>[] = [
+    {
+      key: "test",
+      label: "检测项",
+      required: true,
+      cell: (test) => <TestItem test={test} />,
+    },
+    {
+      key: "layoutStatus",
+      label: "布局",
+      required: true,
+      cellClassName: "align-top whitespace-nowrap",
+      cell: (test) => statusCell(test.layout?.status),
+    },
+  ];
+
   return (
-    <PanelCard
+    <DataSurface<QcTemplateTestItem>
+      kind="table"
+      framed
       title={stage.label}
-      actions={
-        <span className="text-xs text-slate-500">
-          {stage.documentCount} 份文件 · {stage.precheckItemCount} 个确认项 · {stage.tests.length} 个检测项
-        </span>
-      }
-    >
-      <div>{stage.tests.map((test) => <TestItem key={`${stage.key}-${test.sequence}-${test.englishName}`} test={test} />)}</div>
-    </PanelCard>
+      subtitle={`${stage.documentCount} 份文件 · ${stage.precheckItemCount} 个确认项 · ${stage.tests.length} 个检测项`}
+      rows={stage.tests}
+      columns={columns}
+      rowKey={(test) => `${stage.key}-${test.sequence}-${test.englishName}`}
+      emptyText="暂无检测项。"
+    />
   );
 }
 
@@ -103,20 +117,36 @@ export default function QcTemplateDetailPanel({ detail }: Props) {
   const totalTests = detail.stages.reduce((sum, stage) => sum + stage.tests.length, 0);
   const totalFields = detail.stages.reduce((sum, stage) => sum + stage.tests.reduce((stageSum, test) => stageSum + fieldCount(test), 0), 0);
 
-  return (
-    <section className="space-y-4">
-      <div className="grid gap-3 md:grid-cols-4">
-        <MetricCard label="阶段" value={detail.stages.length} />
-        <MetricCard label="检测项" value={totalTests} />
-        <MetricCard label="方法字段" value={totalFields} />
-        <MetricCard label="布局映射" value={detail.layoutAssignmentCount} />
-      </div>
-
-      <PanelCard bodyClassName="px-4 py-3 text-xs text-slate-500">
-        <span>{detail.fileName} · {detail.source.configRoot}</span>
-      </PanelCard>
-
-      {detail.stages.map((stage) => <StageSection key={stage.key} stage={stage} />)}
-    </section>
-  );
+  return <PageSurface
+    kind="detail"
+    embedded
+    className="space-y-4"
+    blocks={[
+      {
+        kind: "data",
+        key: "template-metrics",
+        surface: {
+          kind: "metrics",
+          metrics: [
+            { key: "stages", label: "阶段", value: detail.stages.length },
+            { key: "tests", label: "检测项", value: totalTests },
+            { key: "fields", label: "方法字段", value: totalFields },
+            { key: "layoutAssignments", label: "布局映射", value: detail.layoutAssignmentCount },
+          ],
+        },
+      },
+      {
+        kind: "message",
+        key: "template-source",
+        tone: "muted",
+        className: "text-xs",
+        content: `${detail.fileName} · ${detail.source.configRoot}`,
+      },
+      ...detail.stages.map((stage) => ({
+        kind: "moduleView" as const,
+        key: stage.key,
+        view: <StageSection stage={stage} />,
+      })),
+    ]}
+  />;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormField, InputControl } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 
 interface CompanyPeriodPickerProps {
   company: string;
@@ -35,32 +35,33 @@ export default function CompanyPeriodPicker({
     }));
 
   return (
-    <>
-      <FormField label="公司">
-        <InputControl
-          spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: companies } }}
-        value={company}
-          onChange={(value) => onCompanyChange(String(value ?? ""))}
-        placeholder="全部公司"
-      />
-      </FormField>
-      <FormField label="年度">
-        <InputControl
-          spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: years } }}
-        value={year}
-          onChange={(value) => onYearChange(String(value ?? ""))}
-      />
-      </FormField>
-      {showMonth && (
-        <FormField label="月份">
-          <InputControl
-            spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: monthOptions } }}
-          value={month}
-            onChange={(value) => (onMonthChange ?? (() => {}))(String(value ?? ""))}
-          placeholder="全部"
-        />
-        </FormField>
-      )}
-    </>
+    <FormSurface
+      kind="filters"
+      fields={[
+        {
+          key: "company",
+          label: "公司",
+          spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: companies } },
+          value: company,
+          onChange: (value) => onCompanyChange(String(value ?? "")),
+          placeholder: "全部公司",
+        },
+        {
+          key: "year",
+          label: "年度",
+          spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: years } },
+          value: year,
+          onChange: (value) => onYearChange(String(value ?? "")),
+        },
+        ...(showMonth ? [{
+          key: "month",
+          label: "月份",
+          spec: { valueType: "string" as const, editor: "select" as const, options: { source: "static" as const, mode: "dropdown" as const, items: monthOptions } },
+          value: month,
+          onChange: (value: unknown) => (onMonthChange ?? (() => {}))(String(value ?? "")),
+          placeholder: "全部",
+        }] : []),
+      ]}
+    />
   );
 }

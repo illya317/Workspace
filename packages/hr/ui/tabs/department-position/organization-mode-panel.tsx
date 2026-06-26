@@ -2,7 +2,15 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { putJson } from "@workspace/platform/ui/api-client";
-import { Badge, CommandButton, DataTable, type DataTableColumn, EmptyStateCard, InputControl, type FkFieldOption, PanelCard, SelectionGrid, useFeedback, WorkspaceSplitPage } from "@workspace/core/ui";
+import {
+  type DataSurfaceColumnSpec,
+  FormSurface,
+  PageSurface,
+  type PageSurfaceBlockSpec,
+  type PageSurfaceSideSpec,
+  type FkFieldOption,
+  useFeedback,
+} from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { selectedEntityName } from "./detail-editor-primitives";
 import { createDepartmentDescriptionDraft, departmentDescriptionPayload, departmentManagerPositionName, sanitizeDepartmentDescriptionDetails } from "./draft-utils";
@@ -103,57 +111,67 @@ export function OrganizationModePanel({
     subordinates: directSubordinates(position, positions, {}),
     label: selectedDepartment ? relationLabel(position, selectedDepartment, positionsByName, {}) : ""
   }));
-  const columns: DataTableColumn<PositionRelationRow>[] = [{
+  const columns: DataSurfaceColumnSpec<PositionRelationRow>[] = [{
     key: "position",
     label: "岗位",
     required: true,
     className: "w-1/3",
     cellClassName: "whitespace-normal align-middle",
-    render: ({
+    cell: ({
       position,
       label
-    }) => <div className="min-w-0">
-          <div className="flex min-w-0 items-center gap-2">
-            <CommandButton
-              title={`打开 ${position.name} 的部门岗位说明`}
-              onClick={() => onOpenPositionDetails?.(position.id)}
-              size="sm"
-              truncate
-              className="min-w-0 !h-auto !justify-start !border-0 !bg-transparent !p-0 !text-left !text-sm !font-semibold !leading-5 !text-slate-900 !shadow-none hover:!bg-transparent hover:!text-sky-700 hover:!underline"
-            >
-              {position.name}
-            </CommandButton>
-            <Badge
-              label={label}
-              tone={label === "循环关系" || label === "待匹配" ? "red" : label === "跨部门上级" ? "amber" : label === "顶层岗位" ? "emerald" : "slate"}
-            />
-          </div>
-          <div className="mt-0.5 truncate font-mono text-xs text-slate-400" title={position.code}>{position.code}</div>
-        </div>
+    }) => ({
+      kind: "group",
+      direction: "column",
+      className: "gap-0.5",
+      items: [
+        {
+          kind: "group",
+          items: [
+            {
+              kind: "action",
+              action: {
+                key: `open-${position.id}`,
+                label: position.name,
+                onClick: () => onOpenPositionDetails?.(position.id),
+                size: "sm",
+                truncate: true,
+                className: "min-w-0 !h-auto !justify-start !border-0 !bg-transparent !p-0 !text-left !text-sm !font-semibold !leading-5 !text-slate-900 !shadow-none hover:!bg-transparent hover:!text-sky-700 hover:!underline",
+              },
+            },
+            {
+              kind: "badge",
+              label,
+              tone: label === "循环关系" || label === "待匹配" ? "red" : label === "跨部门上级" ? "amber" : label === "顶层岗位" ? "emerald" : "slate",
+            },
+          ],
+        },
+        { kind: "text", value: position.code, className: "truncate font-mono text-xs text-slate-400" },
+      ],
+    })
   }, {
     key: "subordinates",
     label: "下属岗位",
     required: true,
     className: "w-2/3",
     cellClassName: "whitespace-normal align-top",
-    render: ({
+    cell: ({
       subordinates
-    }) => subordinates.length > 0 ? (
-      <SelectionGrid
-        mode="action"
-        layout="fixed"
-        columns={2}
-        ariaLabel="下属岗位"
-        options={subordinates.map((position) => ({
-          value: String(position.id),
-          label: position.name,
-        }))}
-        onItemClick={(option) => {
-          const position = subordinates.find((p) => String(p.id) === option.value);
-          if (position) onSelectPosition(position);
-        }}
-      />
-    ) : <span className="text-xs text-slate-400">-</span>
+    }) => subordinates.length > 0 ? ({
+      kind: "selectionGrid",
+      mode: "action",
+      layout: "fixed",
+      columns: 2,
+      ariaLabel: "下属岗位",
+      options: subordinates.map((position) => ({
+        value: String(position.id),
+        label: position.name,
+      })),
+      onItemClick: (option) => {
+        const position = subordinates.find((p) => String(p.id) === option.value);
+        if (position) onSelectPosition(position);
+      },
+    }) : { kind: "empty", content: "-", className: "text-xs text-slate-400" }
   }];
   async function saveChanges() {
     if (!selectedDepartment || !managerDirty) return;
@@ -175,45 +193,111 @@ export function OrganizationModePanel({
       setSaving(false);
     }
   }
-  return <>
-      <WorkspaceSplitPage sideOpen={sideOpen} sideLabel="全部部门层级" onSideOpenChange={onSideOpenChange} drawerOpen={drawerOpen} onDrawerOpenChange={onDrawerOpenChange} contentClassName="!max-w-none !px-0 !py-0" renderSide={renderSide}>
-        <PanelCard className="min-h-[520px]" bodyClassName="p-4">
-          {loading && <EmptyStateCard compact>加载中...</EmptyStateCard>}
-          {error && <EmptyStateCard compact className="border-red-100 bg-red-50 text-red-600">{error}</EmptyStateCard>}
-          {!loading && !error && !selectedDepartment && <EmptyStateCard>请选择左侧部门查看岗位汇报关系</EmptyStateCard>}
-          {!loading && !error && selectedDepartment && <div className="space-y-4">
-              <div className="flex min-w-0 flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-4">
-                <div className="min-w-0">
-                  <div className="flex min-w-0 items-baseline gap-3">
-                    <CommandButton
-                      title={`打开 ${selectedDepartment.name} 的部门说明书`}
-                      onClick={() => onOpenDepartmentDetails?.(selectedDepartment.id)}
-                      size="sm"
-                      className="!h-auto !justify-start !border-0 !bg-transparent !p-0 !text-left !text-lg !font-semibold !leading-7 !text-slate-900 !shadow-none hover:!bg-transparent hover:!text-sky-700 hover:!underline"
-                    >
-                      <span className="truncate">{selectedDepartment.name}</span>
-                    </CommandButton>
-                    <span className="shrink-0 font-mono text-sm text-slate-400">{selectedDepartment.code}</span>
-                  </div>
-                </div>
-                <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
-                  <div className="flex min-w-0 w-72 items-center gap-2">
-                    <span className="shrink-0 text-xs font-semibold text-slate-500">负责人</span>
-                    <InputControl spec={{ valueType: "reference", editor: "autocomplete", state: !canEdit || saving ? "disabled" : "normal", options: { source: "remote", fkKey: "hr.position", endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "name" } }} value={managerDraft} displayValue={managerDraft} placeholder="搜索负责人岗位" onChange={(_label, option) => {
-                  setManagerDraft(selectedEntityName("position", option as FkFieldOption | undefined));
-                }} />
-                  </div>
-                  <CommandButton variant="primary" disabled={!canEdit || saving || !managerDirty} onClick={() => void saveChanges()}>
-                    {saving ? "保存中..." : "保存修改"}
-                  </CommandButton>
-                </div>
-              </div>
+  const side: PageSurfaceSideSpec = {
+    blocks: [{ kind: "moduleView", key: "desktop", view: renderSide("desktop") }],
+    drawerBlocks: [{ kind: "moduleView", key: "drawer", view: renderSide("drawer") }],
+  };
+  const panelBlocks: PageSurfaceBlockSpec[] = [];
 
-              {directPositions.length === 0 ? <EmptyStateCard>当前部门暂无直属岗位</EmptyStateCard> : <div className="rounded-md border border-slate-200 bg-white">
-                  <DataTable rows={relations} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={row => row.position.id} density="compact" rowClassName={row => row.position.id === selectedPositionId ? "bg-sky-50 ring-1 ring-inset ring-sky-200" : ""} />
-                </div>}
-            </div>}
-        </PanelCard>
-      </WorkspaceSplitPage>
-    </>;
+  if (loading) panelBlocks.push({ kind: "message", key: "loading", content: "加载中...", tone: "muted" });
+  if (error) panelBlocks.push({ kind: "message", key: "error", content: error, tone: "danger" });
+  if (!loading && !error && !selectedDepartment) {
+    panelBlocks.push({ kind: "empty", key: "empty", presentation: "plain", content: "请选择左侧部门查看岗位汇报关系" });
+  }
+  if (!loading && !error && selectedDepartment) {
+    panelBlocks.push({
+      kind: "moduleView",
+      key: "header",
+      view: (
+        <div className="flex min-w-0 flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-4">
+          <div className="min-w-0">
+            <div className="flex min-w-0 items-baseline gap-3">
+              <FormSurface
+                kind="inline"
+                actions={[{
+                  key: "open-department",
+                  label: <span className="truncate">{selectedDepartment.name}</span>,
+                  onClick: () => onOpenDepartmentDetails?.(selectedDepartment.id),
+                  size: "sm",
+                  className: "!h-auto !justify-start !border-0 !bg-transparent !p-0 !text-left !text-lg !font-semibold !leading-7 !text-slate-900 !shadow-none hover:!bg-transparent hover:!text-sky-700 hover:!underline",
+                }]}
+              />
+              <span className="shrink-0 font-mono text-sm text-slate-400">{selectedDepartment.code}</span>
+            </div>
+          </div>
+          <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
+            <div className="flex min-w-0 w-72 items-center gap-2">
+              <span className="shrink-0 text-xs font-semibold text-slate-500">负责人</span>
+              <FormSurface
+                kind="control"
+                control={{
+                  kind: "inputControl",
+                  spec: {
+                    valueType: "reference",
+                    editor: "autocomplete",
+                    state: !canEdit || saving ? "disabled" : "normal",
+                    options: { source: "remote", fkKey: "hr.position", endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "name" },
+                  },
+                  value: managerDraft,
+                  displayValue: managerDraft,
+                  placeholder: "搜索负责人岗位",
+                  onChange: (_label, option) => {
+                    setManagerDraft(selectedEntityName("position", option as FkFieldOption | undefined));
+                  },
+                }}
+              />
+            </div>
+            <FormSurface
+              kind="inline"
+              actions={[{
+                key: "save",
+                label: saving ? "保存中..." : "保存修改",
+                variant: "primary",
+                disabled: !canEdit || saving || !managerDirty,
+                onClick: () => void saveChanges(),
+              }]}
+            />
+          </div>
+        </div>
+      ),
+    });
+
+    panelBlocks.push(directPositions.length === 0
+      ? { kind: "empty", key: "empty-direct", presentation: "plain", content: "当前部门暂无直属岗位" }
+      : {
+          kind: "data",
+          key: "relations",
+          surface: {
+            kind: "table",
+            rows: relations,
+            columns,
+            visibleColumns: columns.map(column => column.key),
+            rowKey: row => row.position.id,
+            density: "compact",
+            rowClassName: row => row.position.id === selectedPositionId ? "bg-sky-50 ring-1 ring-inset ring-sky-200" : "",
+            className: "rounded-md border border-slate-200 bg-white",
+          },
+        });
+  }
+
+  return (
+    <PageSurface
+      embedded
+      kind="split"
+      sideOpen={sideOpen}
+      sideLabel="全部部门层级"
+      onSideOpenChange={onSideOpenChange}
+      drawerOpen={drawerOpen}
+      onDrawerOpenChange={onDrawerOpenChange}
+      contentClassName="!max-w-none !px-0 !py-0"
+      side={side}
+      blocks={[{
+        kind: "panel",
+        key: "organization-mode",
+        className: "min-h-[520px]",
+        bodyClassName: "p-4",
+        blocks: panelBlocks,
+      }]}
+    />
+  );
 }

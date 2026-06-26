@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandButton, FormField, InputControl } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import type { ActionDraft, MeetingDetail } from "./meeting-types";
 import { AgendaSelect, DecisionSelect, InlineForm, InputBox, Section, SelectBox, SimpleList } from "./MeetingControls";
@@ -73,17 +73,13 @@ export function MeetingDetailPanel({
             role,
             canVote: role === "owner" || role === "voter",
           })} />
-              <FormField label="可投票" layout="inline" className="self-end">
-                <InputControl spec={{ valueType: "boolean", editor: "checkbox" }} value={participantDraft.canVote} onChange={checked => onParticipantDraftChange({
-              ...participantDraft,
-              canVote: Boolean(checked),
-            })} />
-              </FormField>
-              <div className="self-end">
-                <CommandButton variant="primary" size="sm" disabled={saving || !participantDraft.userId} onClick={() => void onMutate<{
+              <FormSurface kind="inline" className="self-end" field={{ key: "canVote", label: "可投票", spec: { valueType: "boolean", editor: "checkbox" }, value: participantDraft.canVote, onChange: checked => onParticipantDraftChange({
+                ...participantDraft,
+                canVote: Boolean(checked),
+              }) }} />
+              <FormSurface kind="inline" className="self-end" actions={[{ key: "save-participant", label: "保存参会人", variant: "primary", size: "sm", disabled: saving || !participantDraft.userId, onClick: () => void onMutate<{
               meeting: MeetingDetail;
-            }>(`/api/modules/work/meetings/${meeting.id}/participants`, participantDraft, "参会人已保存")}>保存参会人</CommandButton>
-              </div>
+            }>(`/api/modules/work/meetings/${meeting.id}/participants`, participantDraft, "参会人已保存") }]} />
             </InlineForm>}
         </Section>
 
@@ -102,16 +98,12 @@ export function MeetingDetailPanel({
             ...agendaDraft,
             description,
           })} />
-              <div className="self-end">
-                <CommandButton variant="primary" size="sm" disabled={saving || !agendaDraft.title.trim()} onClick={() => void onMutate<{
+              <FormSurface kind="inline" className="self-end" actions={[{ key: "add-agenda", label: "新增议题", variant: "primary", size: "sm", disabled: saving || !agendaDraft.title.trim(), onClick: () => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/agenda`, agendaDraft, "议题已新增", () => onAgendaDraftChange({
               title: "",
               description: "",
-            }))}>
-                  新增议题
-                </CommandButton>
-              </div>
+            })) }]} />
             </InlineForm>}
         </Section>
 
@@ -130,16 +122,12 @@ export function MeetingDetailPanel({
             ...minuteDraft,
             content,
           })} className="md:col-span-2" />
-              <div className="self-end">
-                <CommandButton variant="primary" size="sm" disabled={saving || !minuteDraft.content.trim()} onClick={() => void onMutate<{
+              <FormSurface kind="inline" className="self-end" actions={[{ key: "add-minute", label: "记录纪要", variant: "primary", size: "sm", disabled: saving || !minuteDraft.content.trim(), onClick: () => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/minutes`, normalizeOptionalIds(minuteDraft), "纪要已记录", () => onMinuteDraftChange({
               agendaItemId: "",
               content: "",
-            }))}>
-                  记录纪要
-                </CommandButton>
-              </div>
+            })) }]} />
             </InlineForm>}
         </Section>
 
@@ -192,8 +180,7 @@ export function MeetingDetailPanel({
             ...proposalDraft,
             content,
           })} className="md:col-span-2" />
-              <div className="self-end">
-                <CommandButton variant="primary" size="sm" disabled={saving || !proposalDraft.title.trim()} onClick={() => void onMutate<{
+              <FormSurface kind="inline" className="self-end" actions={[{ key: "create-proposal", label: "创建表决", variant: "primary", size: "sm", disabled: saving || !proposalDraft.title.trim(), onClick: () => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/votes`, {
               action: "create",
@@ -204,10 +191,7 @@ export function MeetingDetailPanel({
               content: "",
               voteVisibility: "named",
               minVotesRequired: "",
-            }))}>
-                  创建表决
-                </CommandButton>
-              </div>
+            })) }]} />
             </InlineForm>}
         </Section>
 
@@ -234,8 +218,7 @@ export function MeetingDetailPanel({
             ...decisionDraft,
             content,
           })} className="md:col-span-2" />
-              <div className="self-end">
-                <CommandButton variant="primary" size="sm" disabled={saving || !decisionDraft.title.trim()} onClick={() => void onMutate<{
+              <FormSurface kind="inline" className="self-end" actions={[{ key: "save-decision", label: "保存决议", variant: "primary", size: "sm", disabled: saving || !decisionDraft.title.trim(), onClick: () => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/decisions`, normalizeOptionalIds(decisionDraft), "决议已保存", () => onDecisionDraftChange({
               agendaItemId: "",
@@ -244,10 +227,7 @@ export function MeetingDetailPanel({
               title: "",
               content: "",
               effectiveDate: "",
-            }))}>
-                  保存决议
-                </CommandButton>
-              </div>
+            })) }]} />
             </InlineForm>}
         </Section>
 
@@ -285,8 +265,7 @@ export function MeetingDetailPanel({
             ...candidateDraft,
             description,
           })} className="md:col-span-2" />
-              <div className="self-end">
-                <CommandButton variant="primary" size="sm" disabled={saving || !candidateDraft.title.trim()} onClick={() => void onMutate<{
+              <FormSurface kind="inline" className="self-end" actions={[{ key: "add-candidate", label: "新增候选", variant: "primary", size: "sm", disabled: saving || !candidateDraft.title.trim(), onClick: () => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/action-candidates`, normalizeOptionalIds(candidateDraft), "行动候选已新增", () => onCandidateDraftChange({
               agendaItemId: "",
@@ -294,10 +273,7 @@ export function MeetingDetailPanel({
               title: "",
               description: "",
               targetKind: "work_item",
-            }))}>
-                  新增候选
-                </CommandButton>
-              </div>
+            })) }]} />
             </InlineForm>}
         </Section>
       </div>

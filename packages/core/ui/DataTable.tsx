@@ -47,7 +47,7 @@ const ACTION_KIND_MAP: Record<DataTableActionKind, ActionGlyphKind> = {
   edit: "edit",
   save: "check",
   cancel: "cancel",
-  delete: "delete",
+  delete: "delete-bin",
 };
 
 function actionVariant(kind: DataTableActionKind) {

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { FileField, HiddenDataField } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 import type { QcLayoutCell, QcLayoutPart } from "@workspace/production/server/qc";
 import QcConfirmationTable from "../QcConfirmationTable";
 import { Part, TableBlock } from "../QcLayoutTable";
@@ -170,18 +170,22 @@ function AttachmentUploadBlock({ block, context }: { block: NumberedBlock; conte
 
   return (
     <PostSection block={block} title="原始数据">
-      <FileField
-        accept="image/*"
-        multiple
-        disabled={!canEdit}
-        variant="inline"
-        showFileName={false}
-        buttonLabel={text}
-        resetOnChange
-        onChange={() => undefined}
-        onFilesChange={(files) => void upload(files)}
+      <FormSurface
+        kind="control"
+        control={{
+          kind: "file",
+          accept: "image/*",
+          multiple: true,
+          disabled: !canEdit,
+          variant: "inline",
+          showFileName: false,
+          buttonLabel: text,
+          resetOnChange: true,
+          onChange: () => undefined,
+          onFilesChange: (files) => void upload(files),
+        }}
       />
-      <HiddenDataField fieldKey={key} value={context.values[key]} />
+      <FormSurface kind="control" control={{ kind: "hidden", fieldKey: key, value: context.values[key] }} />
     </PostSection>
   );
 }

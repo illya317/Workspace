@@ -1,55 +1,37 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { PanelCard, Badge } from "@workspace/core/ui";
+import { FormSurface, type FormSurfaceFieldSpec } from "@workspace/core/ui";
 import { getStatusLabel, getWorkItemTypeLabel, getWorkPeriodLabel, getWorkSourceTypeLabel } from "./model";
 import type { WorkItem } from "./types";
 
 export function WorkTaskDetail({ work }: { work: WorkItem }) {
   const status = work.itemType === "task" ? (work.isArchived ? "archived" : work.status) : null;
+  const readonlySpec = { valueType: "string" as const, editor: "textarea" as const, state: "readonly" as const };
+  const fields: FormSurfaceFieldSpec[] = [
+    { key: "content", label: "节点内容", span: "wide", spec: readonlySpec, value: work.content },
+    ...(work.description ? [{ key: "description", label: "描述", span: "wide" as const, spec: readonlySpec, value: work.description }] satisfies FormSurfaceFieldSpec[] : []),
+    { key: "itemType", label: "节点类型", spec: readonlySpec, value: getWorkItemTypeLabel(work.itemType) },
+    { key: "source", label: "来源", spec: readonlySpec, value: getWorkSourceTypeLabel(work.sourceType) },
+    ...(work.targetType !== "personal" ? [{ key: "owner", label: "负责人", spec: readonlySpec, value: work.ownerEmployeeName || "未设置" }] satisfies FormSurfaceFieldSpec[] : []),
+    ...(status ? [{ key: "status", label: "状态", spec: readonlySpec, value: getStatusLabel(status) }] satisfies FormSurfaceFieldSpec[] : []),
+    { key: "period", label: "计划周期", spec: readonlySpec, value: getWorkPeriodLabel(work) },
+    ...(work.itemType === "task" ? [{ key: "dates", label: "起止时间", spec: readonlySpec, value: dateRange(work.startDate, work.dueDate) }] satisfies FormSurfaceFieldSpec[] : []),
+    ...(work.itemType === "key_result" ? [{ key: "kr", label: "结果", spec: readonlySpec, value: krRange(work) }] satisfies FormSurfaceFieldSpec[] : []),
+    { key: "parent", label: "上级节点", spec: readonlySpec, value: work.parentWorkItemContent || "根节点" },
+    ...(work.sourceType === "project" ? [
+      { key: "project", label: "关联项目", spec: readonlySpec, value: work.linkedProjectName || "未关联" },
+      { key: "projectPhase", label: "关联项目阶段", spec: readonlySpec, value: work.linkedProjectPhaseName || "未关联" },
+      { key: "projectTask", label: "关联项目任务", spec: readonlySpec, value: work.linkedProjectTaskName || "未关联" },
+    ] satisfies FormSurfaceFieldSpec[] : []),
+    ...(work.sourceType === "meeting" ? [
+      { key: "meeting", label: "来源会议", spec: readonlySpec, value: work.sourceMeetingTitle || "未关联" },
+      { key: "meetingDecision", label: "会议决议", spec: readonlySpec, value: work.sourceMeetingDecisionTitle || "未关联" },
+      { key: "meetingCandidate", label: "行动候选", spec: readonlySpec, value: work.sourceMeetingActionCandidateTitle || "未关联" },
+    ] satisfies FormSurfaceFieldSpec[] : []),
+  ];
   return (
-    <PanelCard className="shadow-none" bodyClassName="p-4">
-      <div className="grid gap-4 text-sm lg:grid-cols-2">
-        <DetailItem label="节点内容" className="lg:col-span-2">
-        <p className="whitespace-pre-wrap text-slate-900">{work.content}</p>
-      </DetailItem>
-      {work.description && (
-        <DetailItem label="描述" className="lg:col-span-2">
-          <p className="whitespace-pre-wrap text-slate-700">{work.description}</p>
-        </DetailItem>
-      )}
-      <DetailItem label="节点类型">{getWorkItemTypeLabel(work.itemType)}</DetailItem>
-      <DetailItem label="来源">{getWorkSourceTypeLabel(work.sourceType)}</DetailItem>
-      {work.targetType !== "personal" && <DetailItem label="负责人">{work.ownerEmployeeName || "未设置"}</DetailItem>}
-      {status && <DetailItem label="状态"><Badge label={getStatusLabel(status)} tone={statusVariant(status)} /></DetailItem>}
-      <DetailItem label="计划周期">{getWorkPeriodLabel(work)}</DetailItem>
-      {work.itemType === "task" && <DetailItem label="起止时间">{dateRange(work.startDate, work.dueDate)}</DetailItem>}
-      {work.itemType === "key_result" && <DetailItem label="结果">{krRange(work)}</DetailItem>}
-      <DetailItem label="上级节点">{work.parentWorkItemContent || "根节点"}</DetailItem>
-      {work.sourceType === "project" && <DetailItem label="关联项目">{work.linkedProjectName || "未关联"}</DetailItem>}
-      {work.sourceType === "project" && <DetailItem label="关联项目阶段">{work.linkedProjectPhaseName || "未关联"}</DetailItem>}
-      {work.sourceType === "project" && <DetailItem label="关联项目任务">{work.linkedProjectTaskName || "未关联"}</DetailItem>}
-      {work.sourceType === "meeting" && <DetailItem label="来源会议">{work.sourceMeetingTitle || "未关联"}</DetailItem>}
-      {work.sourceType === "meeting" && <DetailItem label="会议决议">{work.sourceMeetingDecisionTitle || "未关联"}</DetailItem>}
-      {work.sourceType === "meeting" && <DetailItem label="行动候选">{work.sourceMeetingActionCandidateTitle || "未关联"}</DetailItem>}
-      </div>
-    </PanelCard>
+    <FormSurface kind="detail" columns={2} fields={fields} className="p-4" />
   );
-}
-
-function DetailItem({ label, children, className = "" }: { label: string; children: ReactNode; className?: string }) {
-  return (
-    <div className={className}>
-      <div className="mb-1 text-xs font-medium text-slate-400">{label}</div>
-      <div className="text-slate-700">{children}</div>
-    </div>
-  );
-}
-
-function statusVariant(status: string) {
-  if (status === "done") return "blue";
-  if (status === "archived") return "orange";
-  return "green";
 }
 
 function dateRange(startDate: string | null, dueDate: string | null) {

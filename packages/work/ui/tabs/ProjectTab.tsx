@@ -2,35 +2,38 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { DatabasePageFrame, EmptyStateCard, Toolbar, WorkspaceSplitPage, useFeedback } from "@workspace/core/ui";
+import { PageSurface, useFeedback } from "@workspace/core/ui";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 import type { WorkUser } from "@workspace/work/types";
 import ProjectDetailEditor from "./project/ProjectDetailEditor";
 import ProjectGanttTab from "./project/ProjectGanttTab";
-import ProjectListPanel from "./project/ProjectListPanel";
 import ProjectPlanGanttTab from "./project/ProjectPlanGanttTab";
-import { PROJECT_LIST_FILTER_OPTIONS, type ProjectListFilter } from "./project/model";
+import { PROJECT_LIST_FILTER_OPTIONS, projectCode, type ProjectItem, type ProjectListFilter } from "./project/model";
 import { useProjectTabModel } from "./project/use-project-tab-model";
 
 export default function ProjectTab({ user }: { user: WorkUser }) {
   const tabs = useMemo(() => getPageViewTabs("/work/projects"), []);
   const [activeChild, setActiveChild] = useState("projects");
   return (
-    <DatabasePageFrame
+    <PageSurface
+      kind="list"
       tabs={tabs}
       activeTab="projects"
       activeChild={activeChild}
       onTabChange={() => setActiveChild("projects")}
       onChildChange={setActiveChild}
-    >
-      {activeChild === "projects-gantt" ? (
-        <ProjectGanttTab user={user} />
-      ) : activeChild === "project-plan-gantt" ? (
-        <ProjectPlanGanttTab requestedProjectId={requestedProjectId()} />
-      ) : (
-        <ProjectLedgerTab user={user} />
-      )}
-    </DatabasePageFrame>
+      blocks={[{
+        kind: "moduleView",
+        key: activeChild,
+        view: activeChild === "projects-gantt" ? (
+          <ProjectGanttTab user={user} />
+        ) : activeChild === "project-plan-gantt" ? (
+          <ProjectPlanGanttTab requestedProjectId={requestedProjectId()} />
+        ) : (
+          <ProjectLedgerTab user={user} />
+        ),
+      }]}
+    />
   );
 }
 
@@ -74,7 +77,8 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
 
   if (model.loading || model.error) {
     return (
-      <WorkspaceSplitPage
+      <PageSurface
+        kind="split"
         sideOpen={model.projectListOpen}
         drawerOpen={model.projectListDrawerOpen}
         onSideOpenChange={model.setProjectListOpen}
@@ -83,31 +87,39 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
         splitRatio={[2, 8]}
         showSideControls={false}
         contentClassName="!p-0 !max-w-none"
-        renderSide={() => <EmptyStateCard compact={false}>{model.loading ? "加载中..." : "暂无项目"}</EmptyStateCard>}
-      >
-        <EmptyStateCard compact={false} className={model.error ? "border-red-200 text-red-600" : ""}>
-          {model.error || "加载中..."}
-        </EmptyStateCard>
-      </WorkspaceSplitPage>
+        side={{
+          blocks: [{
+            kind: "message",
+            key: "project-list-loading",
+            content: model.loading ? "加载中..." : "暂无项目",
+            tone: "muted",
+          }],
+        }}
+        blocks={[{
+          kind: "message",
+          key: "project-loading",
+          content: model.error || "加载中...",
+          tone: model.error ? "danger" : "muted",
+        }]}
+      />
     );
   }
 
   return (
-    <>
-      <WorkspaceSplitPage
-        sideOpen={model.projectListOpen}
-        drawerOpen={model.projectListDrawerOpen}
-        onSideOpenChange={model.setProjectListOpen}
-        onDrawerOpenChange={model.setProjectListDrawerOpen}
-        sideLabel="项目列表"
-        splitRatio={[2, 8]}
-        showSideControls={false}
-        contentClassName="!p-0 !max-w-none"
-        beforeSplit={(
-          <Toolbar
-            variant="inline"
-            className="w-full justify-start"
-            items={[
+    <PageSurface
+      kind="split"
+      sideOpen={model.projectListOpen}
+      drawerOpen={model.projectListDrawerOpen}
+      onSideOpenChange={model.setProjectListOpen}
+      onDrawerOpenChange={model.setProjectListDrawerOpen}
+      sideLabel="项目列表"
+      splitRatio={[2, 8]}
+      showSideControls={false}
+      contentClassName="!p-0 !max-w-none"
+      toolbar={{
+        variant: "inline",
+        className: "w-full justify-start",
+        items: [
               {
                 kind: "panel-toggle",
                 key: "mobile-side-toggle",
@@ -143,51 +155,110 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
                     onClick: startDepartmentProjectCreate,
                   }]
                 : []),
-            ]}
-          />
-        )}
-        renderSide={(mode) => (
-          <ProjectListPanel
-            mode={mode}
-            projects={model.filteredProjects}
-            filter={model.projectListFilter}
-            selection={model.selection}
-            onSelect={(projectId) => {
+            ],
+      }}
+      side={{
+        blocks: [projectListNavigationBlock(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
+          model.setCreating(false);
+          model.setSelection(projectId);
+          model.setProjectListDrawerOpen(false);
+        })],
+        drawerBlocks: [projectListNavigationBlock(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
+          model.setCreating(false);
+          model.setSelection(projectId);
+          model.setProjectListDrawerOpen(false);
+        }, "drawer")],
+      }}
+      blocks={[{
+        kind: "moduleView",
+        key: "project-detail",
+        view: (
+          <ProjectDetailEditor
+            editorTitle={editorTitle}
+            dirty={model.dirty}
+            draft={model.draft}
+            selectedProject={model.selectedProject}
+            canEditCurrent={model.canEditCurrent}
+            canManageCurrent={model.canManageCurrent}
+            canDeleteCurrent={model.canDeleteCurrent}
+            saving={model.saving}
+            canSave={model.canSave}
+            rasciRows={model.rasciRows}
+            creating={model.creating}
+            onCancelCreate={model.cancelCreateProject}
+            onDeleteProject={() => void confirmDeleteProject()}
+            onSave={() => void model.saveProject()}
+            onDraftChange={model.updateDraft}
+            onLeaderChange={model.setLeader}
+            onRoleMembersChange={model.setRoleMembers}
+            onCreateChildProject={model.startCreateChildProject}
+            onOpenProject={(projectId) => {
               model.setCreating(false);
+              model.setProjectListFilter("all");
               model.setSelection(projectId);
-              model.setProjectListDrawerOpen(false);
             }}
+            onProjectTasksChanged={(projectId) => void model.loadSelectedTasks(projectId)}
+            onToast={model.setToast}
           />
-        )}
-      >
-        <ProjectDetailEditor
-          editorTitle={editorTitle}
-          dirty={model.dirty}
-          draft={model.draft}
-          selectedProject={model.selectedProject}
-          canEditCurrent={model.canEditCurrent}
-          canManageCurrent={model.canManageCurrent}
-          canDeleteCurrent={model.canDeleteCurrent}
-          saving={model.saving}
-          canSave={model.canSave}
-          rasciRows={model.rasciRows}
-          creating={model.creating}
-          onCancelCreate={model.cancelCreateProject}
-          onDeleteProject={() => void confirmDeleteProject()}
-          onSave={() => void model.saveProject()}
-          onDraftChange={model.updateDraft}
-          onLeaderChange={model.setLeader}
-          onRoleMembersChange={model.setRoleMembers}
-          onCreateChildProject={model.startCreateChildProject}
-          onOpenProject={(projectId) => {
-            model.setCreating(false);
-            model.setProjectListFilter("all");
-            model.setSelection(projectId);
-          }}
-          onProjectTasksChanged={(projectId) => void model.loadSelectedTasks(projectId)}
-          onToast={model.setToast}
-        />
-      </WorkspaceSplitPage>
-    </>
+        ),
+      }]}
+    />
   );
+}
+
+function projectListNavigationBlock(
+  projects: ProjectItem[],
+  filter: ProjectListFilter,
+  selection: number | null,
+  onSelect: (projectId: number) => void,
+  mode: "desktop" | "drawer" = "desktop",
+) {
+  return {
+    kind: "navigation" as const,
+    key: `project-list-${mode}`,
+    surface: {
+      kind: "selector" as const,
+      className: mode === "drawer" ? "h-full overflow-hidden" : "",
+      selector: {
+        bodyClassName: `${mode === "drawer" ? "h-full" : "max-h-[760px]"} overflow-auto p-3`,
+        contentClassName: "space-y-2",
+        items: projects,
+        selectedId: selection,
+        onSelect: (project: ProjectItem) => onSelect(project.id),
+        getKey: (project: ProjectItem) => project.id,
+        renderItem: (project: ProjectItem) => ({
+          title: <ProjectTitle name={project.name} status={project.status} />,
+          subtitle: projectCode(project, null),
+          archived: project.isArchived,
+        }),
+        emptyText: emptyTextForFilter(filter),
+      },
+    },
+  };
+}
+
+function ProjectTitle({ name, status }: { name: string; status: string | null }) {
+  return (
+    <span className="flex min-w-0 items-center gap-1.5">
+      <span className="truncate">{name}</span>
+      {status && (
+        <span className={`shrink-0 rounded px-1.5 py-0.5 text-xs font-medium ${projectStatusClassName(status)}`}>
+          {status}
+        </span>
+      )}
+    </span>
+  );
+}
+
+function projectStatusClassName(status: string) {
+  if (status === "进行中") return "bg-emerald-50 text-emerald-700";
+  if (status === "已完成") return "bg-slate-100 text-slate-500";
+  if (status === "已终止") return "bg-rose-50 text-rose-600";
+  return "bg-sky-50 text-sky-700";
+}
+
+function emptyTextForFilter(filter: ProjectListFilter) {
+  if (filter === "普通") return "暂无普通项目";
+  if (filter === "重点") return "暂无重点项目";
+  return "暂无项目";
 }

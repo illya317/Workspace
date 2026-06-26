@@ -1,26 +1,28 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
-import { PanelCard, Toolbar } from "@workspace/core/ui";
+import {
+  announceFloatingOverlayOpen,
+  FLOATING_OVERLAY_OPEN_EVENT,
+  FormSurface,
+  getFloatingOverlayOpenDetail,
+  PageSurface,
+} from "@workspace/core/ui";
 type NotificationItem = {
   id: number;
-  type: string;
   title: string;
   body: string;
   href: string | null;
   isImportant: boolean;
-  isStrongReminder: boolean;
   requiresAcknowledgement: boolean;
   readAt: string | null;
   acknowledgedAt: string | null;
   rejectedAt: string | null;
   createdAt: string;
   actor: {
-    id: number;
     name: string;
-    avatar?: string | null;
   } | null;
 };
 type NotificationResponse = {
@@ -35,9 +37,7 @@ const POLL_INTERVAL_MS = 60_000;
 const RECENT_TIME_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 const WEEKDAY_LABELS = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"] as const;
 function formatClock(date: Date) {
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  return `${hours}:${minutes}`;
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 function formatNotificationTime(value: string) {
   const date = new Date(value);
@@ -66,24 +66,16 @@ export default function NotificationBell({
   onBeforeNavigate?: (href: string) => boolean | Promise<boolean>;
 }) {
   const router = useRouter();
+  const overlayId = useId();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const readingIdsRef = useRef<Set<number>>(new Set());
   const [open, setOpen] = useState(false);
-  const [data, setData] = useState<NotificationResponse>({
-    items: [],
-    total: 0,
-    hasMore: false,
-    unreadCount: 0,
-    pendingCount: 0
-  });
+  const [data, setData] = useState<NotificationResponse>({ items: [], total: 0, hasMore: false, unreadCount: 0, pendingCount: 0 });
   const [busyId, setBusyId] = useState<number | null>(null);
   const [clearing, setClearing] = useState(false);
   const [markingRead, setMarkingRead] = useState(false);
-  const [panelPosition, setPanelPosition] = useState({
-    top: 56,
-    right: 16
-  });
+  const [panelPosition, setPanelPosition] = useState({ top: 56, right: 16 });
   const load = useCallback(async (offset = 0, append = false) => {
     try {
       const res = await fetch(workspacePath(`/api/settings/account/notifications?limit=${PAGE_SIZE}&offset=${offset}`));
@@ -101,9 +93,7 @@ export default function NotificationBell({
     void load(0);
   }, [load]);
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      void load(0);
-    }, POLL_INTERVAL_MS);
+    const timer = window.setInterval(() => void load(0), POLL_INTERVAL_MS);
     return () => window.clearInterval(timer);
   }, [load]);
   const updatePanelPosition = useCallback(() => {
@@ -113,25 +103,29 @@ export default function NotificationBell({
     const panelWidth = Math.min(384, viewportWidth - 32);
     const preferredRight = viewportWidth - rect.right;
     const maxRight = Math.max(16, viewportWidth - panelWidth - 16);
-    setPanelPosition({
-      top: rect.bottom + 8,
-      right: Math.min(Math.max(16, preferredRight), maxRight)
-    });
+    setPanelPosition({ top: rect.bottom + 8, right: Math.min(Math.max(16, preferredRight), maxRight) });
   }, []);
   useEffect(() => {
+    function handleOverlayOpen(event: Event) {
+      const detail = getFloatingOverlayOpenDetail(event);
+      if (detail && detail.id !== overlayId) setOpen(false);
+    }
+
     function handlePointerDown(event: MouseEvent) {
       if (rootRef.current && !rootRef.current.contains(event.target as Node)) setOpen(false);
     }
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") setOpen(false);
     }
+    window.addEventListener(FLOATING_OVERLAY_OPEN_EVENT, handleOverlayOpen);
     document.addEventListener("mousedown", handlePointerDown);
     document.addEventListener("keydown", handleKeyDown);
     return () => {
+      window.removeEventListener(FLOATING_OVERLAY_OPEN_EVENT, handleOverlayOpen);
       document.removeEventListener("mousedown", handlePointerDown);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [overlayId]);
   useEffect(() => {
     if (!open) return;
     updatePanelPosition();
@@ -147,12 +141,8 @@ export default function NotificationBell({
     try {
       await fetch(workspacePath(`/api/settings/account/notifications/${id}`), {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          action
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action })
       });
       await load(0);
     } catch {
@@ -176,12 +166,8 @@ export default function NotificationBell({
     try {
       const res = await fetch(workspacePath(`/api/settings/account/notifications/${item.id}`), {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          action: "read"
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "read" })
       });
       if (!res.ok) await load(0);
     } catch {
@@ -193,9 +179,7 @@ export default function NotificationBell({
   async function clearNotifications() {
     setClearing(true);
     try {
-      await fetch(workspacePath("/api/settings/account/notifications"), {
-        method: "DELETE"
-      });
+      await fetch(workspacePath("/api/settings/account/notifications"), { method: "DELETE" });
       await load(0);
     } catch {
       /* ignore network errors */
@@ -208,12 +192,8 @@ export default function NotificationBell({
     try {
       await fetch(workspacePath("/api/settings/account/notifications"), {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          action: "markAllRead"
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "markAllRead" })
       });
       await load(0);
     } catch {
@@ -232,8 +212,10 @@ export default function NotificationBell({
   const count = data.pendingCount || data.unreadCount;
   return <div ref={rootRef} className="relative">
       <button ref={buttonRef} type="button" aria-label="通知" aria-haspopup="dialog" aria-expanded={open} onClick={() => {
-      setOpen(current => !current);
-      if (!open) {
+      const nextOpen = !open;
+      setOpen(nextOpen);
+      if (nextOpen) {
+        announceFloatingOverlayOpen(overlayId);
         updatePanelPosition();
         void load();
       }
@@ -248,7 +230,7 @@ export default function NotificationBell({
       </button>
 
       {open && (
-        <PanelCard
+        <div
           className="z-50"
           style={{
             position: "fixed",
@@ -256,121 +238,152 @@ export default function NotificationBell({
             right: panelPosition.right,
             width: "min(24rem, calc(100vw - 2rem))"
           }}
-          title={<div className="whitespace-nowrap text-sm font-semibold text-slate-900">通知</div>}
-          subtitle={<div className="whitespace-nowrap text-xs text-slate-400">{data.pendingCount} 条待确认 · {data.unreadCount} 条未读 · 共 {data.total} 条</div>}
-          actions={(
-            <Toolbar
-              variant="inline"
-              items={[
-                {
-                  kind: "icon-button",
-                  key: "refresh",
-                  icon: "refresh",
-                  label: "刷新",
-                  className: "!h-7 !w-7",
-                  iconClassName: "h-4 w-4",
-                  onClick: () => void load(0),
-                },
-                {
-                  kind: "icon-button",
-                  key: "mark-all-read",
-                  icon: "check",
-                  label: "全部已读",
-                  className: "!h-7 !w-7",
-                  iconClassName: "h-4 w-4",
-                  disabled: markingRead || data.unreadCount === 0,
-                  onClick: () => void markAllRead(),
-                },
-                {
-                  kind: "icon-button",
-                  key: "clear-read",
-                  icon: "delete-bin",
-                  label: "清空已读",
-                  variant: "danger",
-                  className: "!h-7 !w-7",
-                  iconClassName: "h-4 w-4",
-                  disabled: clearing || data.total === 0,
-                  onClick: () => void clearNotifications(),
-                },
-              ]}
-            />
-          )}
-          bodyClassName="max-h-96 overflow-y-auto py-1"
         >
-          {data.items.length === 0 ? <p className="px-4 py-8 text-center text-sm text-slate-400">暂无通知</p> : data.items.map(item => {
-            const pendingAcknowledgement = item.requiresAcknowledgement && !item.acknowledgedAt && !item.rejectedAt;
-            const unread = !item.readAt;
-            const itemToneClass = item.isImportant ? "bg-red-50/60" : unread ? "bg-sky-50/40" : "bg-white";
-            const titleToneClass = unread && item.isImportant ? "font-semibold text-red-600" : unread ? "font-semibold text-slate-950" : "font-medium text-slate-700";
-            const titleHoverClass = unread && item.isImportant ? "hover:text-red-700" : "hover:text-emerald-700";
-            return <div key={item.id} className={`border-b border-slate-100 px-4 py-3 last:border-b-0 ${itemToneClass}`} onMouseEnter={() => void markNotificationRead(item)}>
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="flex min-w-0 items-center gap-1.5">
-                          {unread && <span aria-label="未读" className="size-1.5 shrink-0 rounded-full bg-sky-500" />}
-                          {item.href ? <button type="button" className={`min-w-0 truncate text-left text-sm ${titleToneClass} ${titleHoverClass}`} onClick={() => void openHref(item)}>
-                              {item.title}
-                            </button> : <div className={`truncate text-sm ${titleToneClass}`}>{item.title}</div>}
-                          {item.rejectedAt ? <span className="shrink-0 rounded-full bg-red-50 px-2 py-1 text-[11px] font-medium leading-none text-red-600">已拒绝</span> : item.acknowledgedAt ? <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-medium leading-none text-emerald-700">已确认</span> : pendingAcknowledgement ? <span className="shrink-0 rounded-full bg-amber-100 px-2 py-1 text-[11px] font-medium leading-none text-amber-700">待确认</span> : null}
-                        </div>
-                        <div className="mt-1 text-xs leading-5 text-slate-600">{item.body}</div>
-                      </div>
-                      <Toolbar
-                        variant="inline"
-                        items={[
-                          {
-                            kind: "icon-button",
-                            key: "clear-notification",
-                            icon: "delete",
-                            label: "清除通知",
-                            className:
-                              "!size-6 !rounded-full !border-0 !bg-transparent !text-lg !leading-none !text-slate-300 hover:!bg-slate-100 hover:!text-slate-600 disabled:!text-slate-200",
-                            disabled: busyId === item.id,
-                            onClick: () => void updateNotification(item.id, "clear"),
-                          },
-                        ]}
-                      />
-                    </div>
-                    <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-                      <div className="min-w-0 truncate text-left text-[11px] text-slate-400">
-                        {item.actor ? `${item.actor.name} · ` : ""}{formatNotificationTime(item.createdAt)}
-                      </div>
-                      {pendingAcknowledgement && <Toolbar
-                          variant="inline"
-                          items={[
-                            {
-                              kind: "icon-button",
-                              key: "acknowledge",
-                              icon: "check",
-                              label: "确认",
-                              variant: "primary",
-                              className: "!h-6 !w-6",
-                              iconClassName: "h-3 w-3",
-                              disabled: busyId === item.id,
-                              onClick: () => void updateNotification(item.id, "acknowledge"),
-                            },
-                            {
-                              kind: "icon-button",
-                              key: "reject",
-                              icon: "cancel",
-                              label: "拒绝",
-                              variant: "danger",
-                              className: "!h-6 !w-6",
-                              iconClassName: "h-3 w-3",
-                              disabled: busyId === item.id,
-                              onClick: () => void updateNotification(item.id, "reject"),
-                            },
-                          ]}
-                        />}
-                    </div>
-                  </div>;
-          })}
-          {data.hasMore && <div className="border-t border-slate-100 px-4 py-3 text-center">
-              <button type="button" className="text-xs font-medium text-slate-500 hover:text-slate-900" onClick={() => void load(data.items.length, true)}>
-                更多
-              </button>
-            </div>}
-        </PanelCard>
+          <PageSurface
+            kind="settings"
+            embedded
+            blocks={[{
+              kind: "panel",
+              key: "notifications",
+              title: <div className="whitespace-nowrap text-sm font-semibold text-slate-900">通知</div>,
+              subtitle: <div className="whitespace-nowrap text-xs text-slate-400">{data.pendingCount} 条待确认 · {data.unreadCount} 条未读 · 共 {data.total} 条</div>,
+              bodyClassName: "max-h-96 overflow-y-auto !p-0",
+              blocks: [
+                {
+                  kind: "form",
+                  key: "notification-actions",
+                  surface: {
+                    kind: "inline",
+                    className: "border-b border-slate-100 px-4 py-2",
+                    toolbar: {
+                      variant: "inline",
+                      items: [
+                        {
+                          kind: "icon-button",
+                          key: "refresh",
+                          icon: "refresh",
+                          label: "刷新",
+                          className: "!h-7 !w-7",
+                          iconClassName: "h-4 w-4",
+                          onClick: () => void load(0),
+                        },
+                        {
+                          kind: "icon-button",
+                          key: "mark-all-read",
+                          icon: "check",
+                          label: "全部已读",
+                          className: "!h-7 !w-7",
+                          iconClassName: "h-4 w-4",
+                          disabled: markingRead || data.unreadCount === 0,
+                          onClick: () => void markAllRead(),
+                        },
+                        {
+                          kind: "icon-button",
+                          key: "clear-read",
+                          icon: "delete-bin",
+                          label: "清空已读",
+                          variant: "danger",
+                          className: "!h-7 !w-7",
+                          iconClassName: "h-4 w-4",
+                          disabled: clearing || data.total === 0,
+                          onClick: () => void clearNotifications(),
+                        },
+                      ],
+                    },
+                  },
+                },
+                {
+                  kind: "message",
+                  key: "notification-list",
+                  className: "border-0 bg-transparent p-0 text-inherit",
+                  content: (
+                    <>
+                      {data.items.length === 0 ? <p className="px-4 py-8 text-center text-sm text-slate-400">暂无通知</p> : data.items.map(item => {
+                        const pendingAcknowledgement = item.requiresAcknowledgement && !item.acknowledgedAt && !item.rejectedAt;
+                        const unread = !item.readAt;
+                        const itemToneClass = item.isImportant ? "bg-red-50/60" : unread ? "bg-sky-50/40" : "bg-white";
+                        const titleToneClass = unread && item.isImportant ? "font-semibold text-red-600" : unread ? "font-semibold text-slate-950" : "font-medium text-slate-700";
+                        const titleHoverClass = unread && item.isImportant ? "hover:text-red-700" : "hover:text-emerald-700";
+                        return <div key={item.id} className={`border-b border-slate-100 px-4 py-3 last:border-b-0 ${itemToneClass}`} onMouseEnter={() => void markNotificationRead(item)}>
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="min-w-0">
+                                    <div className="flex min-w-0 items-center gap-1.5">
+                                      {unread && <span aria-label="未读" className="size-1.5 shrink-0 rounded-full bg-sky-500" />}
+                                      {item.href ? <button type="button" className={`min-w-0 truncate text-left text-sm ${titleToneClass} ${titleHoverClass}`} onClick={() => void openHref(item)}>
+                                          {item.title}
+                                        </button> : <div className={`truncate text-sm ${titleToneClass}`}>{item.title}</div>}
+                                      {item.rejectedAt ? <span className="shrink-0 rounded-full bg-red-50 px-2 py-1 text-[11px] font-medium leading-none text-red-600">已拒绝</span> : item.acknowledgedAt ? <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-medium leading-none text-emerald-700">已确认</span> : pendingAcknowledgement ? <span className="shrink-0 rounded-full bg-amber-100 px-2 py-1 text-[11px] font-medium leading-none text-amber-700">待确认</span> : null}
+                                    </div>
+                                    <div className="mt-1 text-xs leading-5 text-slate-600">{item.body}</div>
+                                  </div>
+                                  <FormSurface
+                                    kind="inline"
+                                    toolbar={{
+                                      variant: "inline",
+                                      items: [
+                                        {
+                                          kind: "icon-button",
+                                          key: "clear-notification",
+                                          icon: "delete-bin",
+                                          label: "清除通知",
+                                          className:
+                                            "!size-6 !rounded-full !border-0 !bg-transparent !text-lg !leading-none !text-slate-300 hover:!bg-slate-100 hover:!text-slate-600 disabled:!text-slate-200",
+                                          disabled: busyId === item.id,
+                                          onClick: () => void updateNotification(item.id, "clear"),
+                                        },
+                                      ],
+                                    }}
+                                  />
+                                </div>
+                                <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+                                  <div className="min-w-0 truncate text-left text-[11px] text-slate-400">
+                                    {item.actor ? `${item.actor.name} · ` : ""}{formatNotificationTime(item.createdAt)}
+                                  </div>
+                                  {pendingAcknowledgement && <FormSurface
+                                      kind="inline"
+                                      toolbar={{
+                                        variant: "inline",
+                                        items: [
+                                          {
+                                            kind: "icon-button",
+                                            key: "acknowledge",
+                                            icon: "check",
+                                            label: "确认",
+                                            variant: "primary",
+                                            className: "!h-6 !w-6",
+                                            iconClassName: "h-3 w-3",
+                                            disabled: busyId === item.id,
+                                            onClick: () => void updateNotification(item.id, "acknowledge"),
+                                          },
+                                          {
+                                            kind: "icon-button",
+                                            key: "reject",
+                                            icon: "cancel",
+                                            label: "拒绝",
+                                            variant: "danger",
+                                            className: "!h-6 !w-6",
+                                            iconClassName: "h-3 w-3",
+                                            disabled: busyId === item.id,
+                                            onClick: () => void updateNotification(item.id, "reject"),
+                                          },
+                                        ],
+                                      }}
+                                    />}
+                                </div>
+                              </div>;
+                      })}
+                      {data.hasMore && <div className="border-t border-slate-100 px-4 py-3 text-center">
+                          <button type="button" className="text-xs font-medium text-slate-500 hover:text-slate-900" onClick={() => void load(data.items.length, true)}>
+                            更多
+                          </button>
+                        </div>}
+                    </>
+                  ),
+                },
+              ],
+            }]}
+          />
+        </div>
       )}
     </div>;
 }

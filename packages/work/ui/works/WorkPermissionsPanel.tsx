@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CommandButton, DataTable, EmptyStateCard, FormField, InputControl, PanelCard, TableScrollFrame, type DataTableColumn, type DataTableRowAction } from "@workspace/core/ui";
+import { DataSurface, FormSurface, type DataSurfaceColumnSpec, type DataTableRowAction } from "@workspace/core/ui";
 import { listSpacePermissions, saveSpacePermissions, WORK_REFERENCE_OPTIONS_ENDPOINT } from "./api";
 import { WORK_ROLE_OPTIONS } from "./model";
 import type { WorkSpacePermissionRow, WorkSpaceRole, WorkTarget } from "./types";
@@ -48,11 +48,11 @@ export default function WorkPermissionsPanel({
     void load();
   }, [load]);
   const explicitRows = useMemo(() => rows.filter(row => !row.locked), [rows]);
-  const columns = useMemo<DataTableColumn<WorkSpacePermissionRow>[]>(() => [{
+  const columns = useMemo<DataSurfaceColumnSpec<WorkSpacePermissionRow>[]>(() => [{
     key: "user",
     label: "用户",
     required: true,
-    render: row => <div className="flex flex-col">
+    cell: row => <div className="flex flex-col">
           <span className="font-medium text-slate-900">{row.userName}</span>
           {row.locked && <span className="text-xs text-slate-400">天然最高权限</span>}
         </div>
@@ -60,9 +60,9 @@ export default function WorkPermissionsPanel({
     key: "role",
     label: "权限",
     defaultVisible: true,
-    render: row => row.locked ? roleLabel(row.role) : <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", items: [...WORK_ROLE_OPTIONS], visibleCount: 4 } }} value={row.role} onChange={value => patchRow(row.userId, {
+    cell: row => row.locked ? roleLabel(row.role) : <FormSurface kind="inline" field={{ key: `role-${row.userId}`, label: "权限", spec: { valueType: "string", editor: "select", options: { source: "static", items: [...WORK_ROLE_OPTIONS], visibleCount: 4 } }, value: row.role, onChange: value => patchRow(row.userId, {
       role: normalizeRole(value == null ? null : String(value))
-    })} />
+    }) }} />
   }], []);
   function getPermissionRowActions(row: WorkSpacePermissionRow): DataTableRowAction[] {
     if (row.locked) return [];
@@ -125,39 +125,52 @@ export default function WorkPermissionsPanel({
       setSaving(false);
     }
   }
-  if (!canManage) return <EmptyStateCard compact>仅空间管理员可维护权限。</EmptyStateCard>;
+  if (!canManage) return <DataSurface kind="records" records={[]} empty="仅空间管理员可维护权限。" />;
   return <div className="space-y-4">
-      <PanelCard bodyClassName="grid gap-3 p-4 md:grid-cols-[1fr_12rem_auto]">
-        <FormField label="授权用户">
-          <InputControl spec={{ valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.tasks.permission.user", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" } }} value={draft.userId ? String(draft.userId) : ""} displayValue={draft.userName} placeholder="搜索用户" onChange={(value, option) => {
+      <FormSurface
+        kind="fields"
+        columns={3}
+        className="rounded-lg border border-slate-200 bg-white p-4"
+        fields={[{
+          key: "user",
+          label: "授权用户",
+          spec: { valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.tasks.permission.user", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" } },
+          value: draft.userId ? String(draft.userId) : "",
+          displayValue: draft.userName,
+          placeholder: "搜索用户",
+          onChange: (value, option) => {
           const fkOption = option as { id?: number; name?: string } | undefined;
           setDraft(current => ({
           ...current,
           userId: fkOption?.id ?? (value ? current.userId : null),
           userName: fkOption?.name ?? (value ? String(value) : "")
         }));
-        }} />
-        </FormField>
-        <FormField label="权限">
-          <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", items: [...WORK_ROLE_OPTIONS], visibleCount: 4 } }} value={draft.role} onChange={value => setDraft(current => ({
+        },
+        }, {
+          key: "role",
+          label: "权限",
+          spec: { valueType: "string", editor: "select", options: { source: "static", items: [...WORK_ROLE_OPTIONS], visibleCount: 4 } },
+          value: draft.role,
+          onChange: value => setDraft(current => ({
           ...current,
           role: normalizeRole(value == null ? null : String(value))
-        }))} />
-        </FormField>
-        <div className="flex items-end">
-          <CommandButton variant="primary" disabled={!draft.userId || saving} onClick={addDraft}>
-            添加
-          </CommandButton>
-        </div>
-      </PanelCard>
-      <TableScrollFrame className="overflow-y-hidden rounded-lg border border-slate-200">
-        <DataTable rows={rows} columns={columns} visibleColumns={["role"]} rowKey={row => row.userId} density="compact" loading={loading} emptyText="暂无额外授权" rowActions={getPermissionRowActions} />
-      </TableScrollFrame>
-      <div className="flex justify-end">
-        <CommandButton variant="primary" disabled={saving} onClick={() => void save()}>
-          保存权限
-        </CommandButton>
-      </div>
+        })),
+        }]}
+        actions={[{ key: "add", label: "添加", variant: "primary", disabled: !draft.userId || saving, onClick: addDraft }]}
+      />
+      <DataSurface
+        kind="table"
+        rows={rows}
+        columns={columns}
+        visibleColumns={["role"]}
+        rowKey={row => row.userId}
+        density="compact"
+        loading={loading}
+        emptyText="暂无额外授权"
+        rowActions={getPermissionRowActions}
+        scrollClassName="overflow-y-hidden rounded-lg border border-slate-200"
+      />
+      <FormSurface kind="inline" actions={[{ key: "save", label: "保存权限", variant: "primary", disabled: saving, onClick: () => void save() }]} className="justify-end" />
     </div>;
 }
 function normalizeRole(value: string | null): WorkSpaceRole {

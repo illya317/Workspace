@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { InputControl } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 import {
   HR_PROFESSIONAL_TITLE_GROUPS,
   normalizeProfessionalTitle,
@@ -30,23 +30,27 @@ export default function ProfessionalTitlePicker({
   );
 
   return (
-    <InputControl
-      spec={{
-        valueType: "string",
-        editor: "select",
-        options: {
-          source: "grouped",
-          groups,
-          groupLabel: "职称系列",
-          optionLabel: "职称级别",
-          changeGroupLabel: "更换职称系列",
+    <FormSurface
+      kind="control"
+      control={{
+        kind: "inputControl",
+        spec: {
+          valueType: "string",
+          editor: "select",
+          options: {
+            source: "grouped",
+            groups,
+            groupLabel: "职称系列",
+            optionLabel: "职称级别",
+            changeGroupLabel: "更换职称系列",
+          },
+          state: disabled ? "disabled" : "normal",
         },
-        state: disabled ? "disabled" : "normal",
+        value: current,
+        onChange: (next) => onChange(next === null || next === undefined || next === "" ? null : String(next)),
+        className,
+        placeholder: "未设置",
       }}
-      value={current}
-      onChange={(next) => onChange(next === null || next === undefined || next === "" ? null : String(next))}
-      className={className}
-      placeholder="未设置"
     />
   );
 }

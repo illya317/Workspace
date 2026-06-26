@@ -1,6 +1,6 @@
 "use client";
 
-import { EmptyStateCard, FormField, InputControl, PanelCard, Toolbar, useFeedback } from "@workspace/core/ui";
+import { FormSurface, PageSurface, useFeedback } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { detailFieldRows, detailValueToText, isPrimitiveArray, parseDetailsObject, textToDetailValue } from "./description-details";
 import { StringListEditor } from "./detail-editor-primitives";
@@ -22,9 +22,16 @@ export function DepartmentDescriptionDetailsEditor({
     requestScrollToIndex
   } = useScrollToAddedItem(dutyRecordsForScroll);
   if (!details) {
-    return <FormField label="部门说明书 JSON 格式错误" error="请检查 JSON 内容后重新保存。" className="md:col-span-2">
-        <InputControl spec={{ valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" }} value={value} rows={12} onChange={(next) => onChange(String(next ?? ""))} />
-      </FormField>;
+    return <FormSurface kind="fields" fields={[{
+        key: "invalid-json",
+        label: "部门说明书 JSON 格式错误",
+        error: "请检查 JSON 内容后重新保存。",
+        fieldClassName: "md:col-span-2",
+        spec: { valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" },
+        value,
+        rows: 12,
+        onChange: (next) => onChange(String(next ?? "")),
+      }]} />;
   }
   const parsedDetails = details;
   function updateDetailValue(key: string, nextValue: unknown) {
@@ -59,28 +66,50 @@ export function DepartmentDescriptionDetailsEditor({
     return <div className="space-y-3 md:col-span-2">
         <div className="flex items-center gap-3 border-b border-slate-200 pb-1">
           <span className="text-sm font-semibold text-slate-900">部门职责描述</span>
-          {!disabled && <Toolbar variant="inline" items={[{ kind: "create", key: "add-duty", label: "新增职责", onClick: addRecord }]} />}
+          {!disabled && <FormSurface kind="inline" actions={[{ key: "add-duty", label: "新增职责", onClick: addRecord }]} />}
         </div>
         {records.map((record, index) => {
         const items = Array.isArray(record.items) ? record.items : [];
         return <div key={index} ref={getItemRef(index)}>
-              <PanelCard bodyClassName="p-3">
-                <div className="mb-2 flex items-center gap-3">
-                  <span className="text-xs font-medium text-slate-500">职责 {index + 1}</span>
-                  {!disabled && <Toolbar variant="inline" items={[{ kind: "icon-button", key: "delete-duty", icon: "delete", label: `删除部门职责 ${index + 1}`, onClick: () => void removeRecord(index), className: "!size-6 !rounded-full", iconClassName: "h-3 w-3" }]} />}
-                </div>
-                <div className="grid grid-cols-1 gap-2">
-                  <InputControl spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }} value={String(record.title || "")} placeholder="职责标题" onChange={next => updateRecord(index, {
-                title: String(next ?? "")
-              })} />
-                  <StringListEditor label="职责条目" value={items} disabled={disabled} placeholder="新增职责条目" onChange={nextItems => updateRecord(index, {
-                items: nextItems
-              })} />
-                </div>
-              </PanelCard>
+              <PageSurface
+                embedded
+                kind="detail"
+                blocks={[{
+                  kind: "panel",
+                  key: `duty-${index}`,
+                  bodyClassName: "p-3",
+                  blocks: [{
+                    kind: "moduleView",
+                    key: "content",
+                    view: (
+                      <>
+                        <div className="mb-2 flex items-center gap-3">
+                          <span className="text-xs font-medium text-slate-500">职责 {index + 1}</span>
+                          {!disabled && <FormSurface kind="inline" actions={[{ key: "delete-duty", label: "删除", variant: "danger", size: "sm", onClick: () => void removeRecord(index), className: "px-2 py-1 text-xs" }]} />}
+                        </div>
+                        <div className="grid grid-cols-1 gap-2">
+                          <FormSurface
+                            kind="control"
+                            control={{
+                              kind: "inputControl",
+                              spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" },
+                              value: String(record.title || ""),
+                              placeholder: "职责标题",
+                              onChange: next => updateRecord(index, { title: String(next ?? "") }),
+                            }}
+                          />
+                          <StringListEditor label="职责条目" value={items} disabled={disabled} placeholder="新增职责条目" onChange={nextItems => updateRecord(index, {
+                            items: nextItems
+                          })} />
+                        </div>
+                      </>
+                    ),
+                  }],
+                }]}
+              />
             </div>;
       })}
-        {records.length === 0 && <EmptyStateCard compact>未设置</EmptyStateCard>}
+        {records.length === 0 && <PageSurface embedded kind="detail" empty={{ content: "未设置", compact: true }} />}
       </div>;
   }
   const remainingKeys = Object.keys(parsedDetails).filter(key => !["基本信息", "部门职责概要", "部门职责描述"].includes(key));
@@ -98,9 +127,15 @@ export function DepartmentDescriptionDetailsEditor({
                     <StringListEditor label={key} value={parsedDetails[key]} disabled={disabled} onChange={items => updateDetailValue(key, items)} />
                   </div>;
           }
-          return <FormField key={key} label={key} className="md:col-span-2">
-                  <InputControl spec={{ valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" }} value={detailValueToText(parsedDetails[key])} rows={detailFieldRows(parsedDetails[key])} onChange={next => updateDetailValue(key, textToDetailValue(parsedDetails[key], String(next ?? "")))} />
-                </FormField>;
+          return <FormSurface key={key} kind="fields" fields={[{
+                  key,
+                  label: key,
+                  fieldClassName: "md:col-span-2",
+                  spec: { valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" },
+                  value: detailValueToText(parsedDetails[key]),
+                  rows: detailFieldRows(parsedDetails[key]),
+                  onChange: next => updateDetailValue(key, textToDetailValue(parsedDetails[key], String(next ?? ""))),
+                }]} />;
         })}
           </div>
         </div>}

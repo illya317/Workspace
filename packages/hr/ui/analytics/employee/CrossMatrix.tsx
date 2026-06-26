@@ -1,6 +1,6 @@
 "use client";
 
-import { AnalysisBlock, DataTable, type DataTableColumn } from "@workspace/core/ui";
+import { PageSurface, type DataTableColumn } from "@workspace/core/ui";
 import type { CrossMatrixData } from "./useEmployeeData";
 import { DIM_LABELS, type DimKey } from "./constants";
 
@@ -84,27 +84,35 @@ export default function CrossMatrix({
   ];
 
   return (
-    <AnalysisBlock
-      title="交叉分析"
-      toolbarItems={[
-        { kind: "select", key: "row", label: "行", value: crossRow, onChange: (value) => setCrossRow(value as DimKey), options: rowOptions, triggerClassName: "!min-h-7 !w-28" },
-        { kind: "text", key: "by", content: <span className="text-gray-300">&times;</span> },
-        { kind: "select", key: "column", label: "列", value: crossCol, onChange: (value) => setCrossCol(value as DimKey), options: colOptions, triggerClassName: "!min-h-7 !w-28" },
-        { kind: "text", key: "meta", content: <>共 {statsActive} 人</> },
-      ]}
-    >
-
-      {crossMatrix.rowKeys.length === 0 ? (
-        <p className="text-xs text-gray-400 py-4">无数据</p>
-      ) : (
-        <DataTable
-          rows={[...rows, { rowKey: "合计", values: crossMatrix.colTotals, total: statsActive }]}
-          columns={columns}
-          visibleColumns={columns.map((column) => column.key)}
-          rowKey={(row) => row.rowKey}
-          rowClassName={(row) => row.rowKey === "合计" ? "bg-slate-50 font-medium" : ""}
-        />
-      )}
-    </AnalysisBlock>
+    <PageSurface
+      kind="analysis"
+      blocks={[{
+        kind: "analysis",
+        key: "cross-matrix",
+        title: "交叉分析",
+        toolbar: {
+          items: [
+            { kind: "select", key: "row", label: "行", value: crossRow, onChange: (value) => setCrossRow(value as DimKey), options: rowOptions, triggerClassName: "!min-h-7 !w-28" },
+            { kind: "text", key: "by", content: <span className="text-gray-300">&times;</span> },
+            { kind: "select", key: "column", label: "列", value: crossCol, onChange: (value) => setCrossCol(value as DimKey), options: colOptions, triggerClassName: "!min-h-7 !w-28" },
+            { kind: "text", key: "meta", content: <>共 {statsActive} 人</> },
+          ],
+        },
+        blocks: crossMatrix.rowKeys.length === 0
+          ? [{ kind: "message", key: "empty", tone: "muted", content: "无数据" }]
+          : [{
+              kind: "data",
+              key: "matrix-table",
+              surface: {
+                kind: "table",
+                rows: [...rows, { rowKey: "合计", values: crossMatrix.colTotals, total: statsActive }],
+                columns,
+                visibleColumns: columns.map((column) => column.key),
+                rowKey: (row) => row.rowKey,
+                rowClassName: (row) => row.rowKey === "合计" ? "bg-slate-50 font-medium" : "",
+              },
+            }],
+      }]}
+    />
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Badge, CommandButton, DataTable, InputControl, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, FormSurface, type DataSurfaceColumnSpec, type DataTableColumn } from "@workspace/core/ui";
 import type { AcctInfo, InheritedAcct, LineCfg, Mapping, StatementOperator } from "./types";
 import { formatStatementAmount, isDefaultMapping } from "./types";
 interface LineMappingsPanelProps {
@@ -23,42 +23,6 @@ interface LineMappingsPanelProps {
   onNewAccountChange: (value: string) => void;
   onAccountSearchChange: (value: string) => void;
 }
-function MappingAction({
-  mapping,
-  saving,
-  onExcludeDefault,
-  onRestoreDefault,
-  onToggleOperator
-}: {
-  mapping: Mapping;
-  saving: boolean;
-  onExcludeDefault: () => void;
-  onRestoreDefault: () => void;
-  onToggleOperator: () => void;
-}) {
-  if (mapping.operator === "exclude") {
-    return <CommandButton onClick={onRestoreDefault} disabled={saving}>恢复默认</CommandButton>;
-  }
-  if (isDefaultMapping(mapping)) {
-    return <CommandButton onClick={onExcludeDefault} disabled={saving}>排除默认</CommandButton>;
-  }
-  return <CommandButton variant={mapping.operator === "subtract" ? "danger" : "secondary"} onClick={onToggleOperator} disabled={saving}>
-      {mapping.operator === "subtract" ? "减" : "加"}
-    </CommandButton>;
-}
-function MappingStatus({
-  mapping
-}: {
-  mapping: Mapping;
-}) {
-  if (mapping.operator === "exclude") {
-    return <Badge label="已排除" tone="gray" />;
-  }
-  if (isDefaultMapping(mapping)) {
-    return <Badge label="系统建议" tone="yellow" />;
-  }
-  return null;
-}
 export default function LineMappingsPanel({
   line,
   mappings,
@@ -78,13 +42,29 @@ export default function LineMappingsPanel({
   onNewAccountChange,
   onAccountSearchChange
 }: LineMappingsPanelProps) {
-  const mappingColumns = useMemo<DataTableColumn<Mapping>[]>(() => [{
+  const mappingColumns = useMemo<Array<DataTableColumn<Mapping> | DataSurfaceColumnSpec<Mapping>>>(() => [{
     key: "action",
     label: "操作",
     required: true,
-    render: mapping => {
+    cell: mapping => {
       const isSaving = saving.has(`${line.lineCode}:${mapping.accountCode}`) || saving.has(mapping.accountCode);
-      return <MappingAction mapping={mapping} saving={isSaving} onExcludeDefault={() => onExcludeDefault(mapping.accountCode, line.lineCode)} onRestoreDefault={() => onRestoreDefault(mapping.accountCode)} onToggleOperator={() => onToggleOperator(mapping.accountCode, line.lineCode, mapping.operator)} />;
+      if (mapping.operator === "exclude") {
+        return { kind: "action", action: { key: "restore", label: "恢复默认", size: "sm", disabled: isSaving, onClick: () => onRestoreDefault(mapping.accountCode) } };
+      }
+      if (isDefaultMapping(mapping)) {
+        return { kind: "action", action: { key: "exclude", label: "排除默认", size: "sm", disabled: isSaving, onClick: () => onExcludeDefault(mapping.accountCode, line.lineCode) } };
+      }
+      return {
+        kind: "action",
+        action: {
+          key: "toggle",
+          label: mapping.operator === "subtract" ? "减" : "加",
+          variant: mapping.operator === "subtract" ? "danger" : "secondary",
+          size: "sm",
+          disabled: isSaving,
+          onClick: () => onToggleOperator(mapping.accountCode, line.lineCode, mapping.operator),
+        },
+      };
     }
   }, {
     key: "accountCode",
@@ -123,18 +103,28 @@ export default function LineMappingsPanel({
     label: "状态",
     required: true,
     cellClassName: "text-center",
-    render: mapping => {
+    cell: mapping => {
       const isSaving = saving.has(mapping.accountCode);
-      return isDefaultMapping(mapping) || mapping.operator === "exclude" ? <MappingStatus mapping={mapping} /> : <CommandButton variant="danger" onClick={() => onRestoreDefault(mapping.accountCode)} disabled={isSaving}>
-            删除配置
-          </CommandButton>;
+      if (mapping.operator === "exclude") return { kind: "badge", label: "已排除", tone: "gray" };
+      if (isDefaultMapping(mapping)) return { kind: "badge", label: "系统建议", tone: "yellow" };
+      return {
+        kind: "action",
+        action: {
+          key: "delete-config",
+          label: "删除配置",
+          variant: "danger",
+          size: "sm",
+          disabled: isSaving,
+          onClick: () => onRestoreDefault(mapping.accountCode),
+        },
+      };
     }
   }], [accountMap, line.lineCode, onExcludeDefault, onRestoreDefault, onToggleOperator, saving]);
-  const inheritedColumns = useMemo<DataTableColumn<InheritedAcct>[]>(() => [{
+  const inheritedColumns = useMemo<Array<DataTableColumn<InheritedAcct> | DataSurfaceColumnSpec<InheritedAcct>>>(() => [{
     key: "source",
     label: "来源",
     required: true,
-    render: () => <Badge label="继承" tone="gray" />
+    cell: () => ({ kind: "badge", label: "继承", tone: "gray" })
   }, {
     key: "accountCode",
     label: "科目编码",
@@ -166,29 +156,37 @@ export default function LineMappingsPanel({
     label: "操作",
     required: true,
     cellClassName: "text-center",
-    render: account => <CommandButton onClick={() => onSaveMapping(account.accountCode, line.lineCode, "exclude")} disabled={saving.has(`${line.lineCode}:${account.accountCode}`)}>
-          排除
-        </CommandButton>
+    cell: account => ({
+      kind: "action",
+      action: {
+        key: "exclude-inherited",
+        label: "排除",
+        size: "sm",
+        disabled: saving.has(`${line.lineCode}:${account.accountCode}`),
+        onClick: () => onSaveMapping(account.accountCode, line.lineCode, "exclude"),
+      },
+    })
   }], [line.lineCode, onSaveMapping, saving]);
   const isAdding = addingFor === line.lineCode;
   return <div className="space-y-3">
-      {mappings.length > 0 && <DataTable rows={mappings} columns={mappingColumns} visibleColumns={mappingColumns.map(column => column.key)} rowKey={mapping => mapping.accountCode} density="compact" tableClassName="text-base" rowClassName={mapping => mapping.operator === "exclude" ? "bg-slate-100/50" : ""} />}
+      {mappings.length > 0 && <DataSurface kind="table" rows={mappings} columns={mappingColumns} visibleColumns={mappingColumns.map(column => column.key)} rowKey={mapping => mapping.accountCode} density="compact" tableClassName="text-base" rowClassName={mapping => mapping.operator === "exclude" ? "bg-slate-100/50" : ""} />}
       {inheritedAccounts.length > 0 && <div className="space-y-1">
           <p className="text-base text-gray-400">继承科目（来自 prefix/父级）</p>
-          <DataTable rows={inheritedAccounts} columns={inheritedColumns} visibleColumns={inheritedColumns.map(column => column.key)} rowKey={account => account.accountCode} density="compact" tableClassName="text-base" />
+          <DataSurface kind="table" rows={inheritedAccounts} columns={inheritedColumns} visibleColumns={inheritedColumns.map(column => column.key)} rowKey={account => account.accountCode} density="compact" tableClassName="text-base" />
         </div>}
       {isAdding ? <div className="flex flex-col gap-2">
-          <InputControl spec={{ valueType: "string", editor: "input" }} placeholder="搜索科目编码或名称..." value={accountSearch} onChange={(value) => onAccountSearchChange(String(value ?? ""))} className="w-64" />
-          <div className="flex items-center gap-2">
-            <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: filteredAccounts.map(account => ({ value: account.code, label: `${account.code} ${account.name}` })) } }} value={newAccount} onChange={(value) => onNewAccountChange(String(value ?? ""))} placeholder={`选择科目 (${filteredAccounts.length})`} />
-            <CommandButton variant="primary" onClick={() => onSaveMapping(newAccount, line.lineCode, "add")} disabled={!newAccount}>
-              添加（加）
-            </CommandButton>
-            <CommandButton variant="danger" onClick={() => onSaveMapping(newAccount, line.lineCode, "subtract")} disabled={!newAccount}>
-              添加（减）
-            </CommandButton>
-            <CommandButton onClick={onCancelAdding}>取消</CommandButton>
-          </div>
-        </div> : <CommandButton onClick={() => onStartAdding(line.lineCode)}>添加科目</CommandButton>}
+          <FormSurface
+            kind="filters"
+            fields={[
+              { key: "search", label: "搜索", spec: { valueType: "string", editor: "input" }, placeholder: "搜索科目编码或名称...", value: accountSearch, onChange: (value) => onAccountSearchChange(String(value ?? "")), className: "w-64" },
+              { key: "account", label: "科目", spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: filteredAccounts.map(account => ({ value: account.code, label: `${account.code} ${account.name}` })) } }, value: newAccount, onChange: (value) => onNewAccountChange(String(value ?? "")), placeholder: `选择科目 (${filteredAccounts.length})` },
+            ]}
+            actions={[
+              { key: "add", label: "添加（加）", variant: "primary", onClick: () => onSaveMapping(newAccount, line.lineCode, "add"), disabled: !newAccount },
+              { key: "subtract", label: "添加（减）", variant: "danger", onClick: () => onSaveMapping(newAccount, line.lineCode, "subtract"), disabled: !newAccount },
+              { key: "cancel", label: "取消", onClick: onCancelAdding },
+            ]}
+          />
+        </div> : <FormSurface kind="inline" actions={[{ key: "add-account", label: "添加科目", onClick: () => onStartAdding(line.lineCode) }]} />}
     </div>;
 }

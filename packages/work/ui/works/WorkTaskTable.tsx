@@ -2,11 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  DataTable,
-  EmptyStateCard,
-  Badge,
-  TableScrollFrame,
-  type DataTableColumn,
+  DataSurface,
+  type DataSurfaceColumnSpec,
   type DataTableRowEditActionConfig,
 } from "@workspace/core/ui";
 import { createWorkDraft, getStatusLabel, getWorkItemTypeLabel, getWorkPeriodLabel, getWorkSourceTypeLabel } from "./model";
@@ -89,60 +86,60 @@ export default function WorkTaskTable({
   });
 
   if (!loading && tree.rows.length === 0) {
-    return <EmptyStateCard compact>暂无工作项。可以从上方新增目标、结果或任务。</EmptyStateCard>;
+    return <DataSurface kind="records" records={[]} empty="暂无工作项。可以从上方新增目标、结果或任务。" />;
   }
 
   return (
-    <TableScrollFrame className="overflow-y-hidden rounded-lg border border-slate-200">
-      <DataTable
-        rows={tree.rows}
-        columns={columns}
-        visibleColumns={["owner", "kr", "period", "status", "priority", "source"].filter((key) => key !== "owner" || showOwner)}
-        density="compact"
-        loading={loading}
-        emptyText="暂无工作项"
-        rowKey={(work) => work.id}
-        rowClassName={(work) => work.itemType === "objective" ? "bg-slate-50/60" : ""}
-        onRowClick={onDetail}
-        expandedRowKey={detailId}
-        renderExpandedRow={(work) => editDraft && editingId === work.id ? (
-          <WorkTaskForm
-            draft={editDraft}
-            works={works}
-            disabled={saving}
-            excludedWorkId={work.id}
-            targetType={targetType}
-            onChange={onEditDraftChange}
-          />
-        ) : <WorkTaskDetail work={work} />}
-        rowEditActions={(work): DataTableRowEditActionConfig<TreeRow> => ({
-          editing: editingId === work.id,
-          canEdit,
-          canSave: Boolean(editDraft?.content.trim()),
-          initial: createWorkDraft(work),
-          current: editDraft,
-          saving,
-          editLabel: "编辑工作项",
-          saveLabel: "保存工作项",
-          cancelLabel: "取消编辑",
-          onEdit,
-          onSave,
-          onCancel: onCancelEdit,
-        })}
-        rowActions={(work) => {
-          if (!canEdit || editingId === work.id) return [];
-          return [
-            {
-              key: "delete",
-              kind: "delete",
-              label: "删除工作项",
-              onClick: () => onDelete(work),
-              disabled: saving,
-            },
-          ];
-        }}
-      />
-    </TableScrollFrame>
+    <DataSurface
+      kind="table"
+      rows={tree.rows}
+      columns={columns}
+      visibleColumns={["owner", "kr", "period", "status", "priority", "source"].filter((key) => key !== "owner" || showOwner)}
+      density="compact"
+      loading={loading}
+      emptyText="暂无工作项"
+      rowKey={(work) => work.id}
+      rowClassName={(work) => work.itemType === "objective" ? "bg-slate-50/60" : ""}
+      onRowClick={onDetail}
+      expandedRowKey={detailId}
+      renderExpandedRow={(work) => editDraft && editingId === work.id ? (
+        <WorkTaskForm
+          draft={editDraft}
+          works={works}
+          disabled={saving}
+          excludedWorkId={work.id}
+          targetType={targetType}
+          onChange={onEditDraftChange}
+        />
+      ) : <WorkTaskDetail work={work} />}
+      rowEditActions={(work): DataTableRowEditActionConfig<TreeRow> => ({
+        editing: editingId === work.id,
+        canEdit,
+        canSave: Boolean(editDraft?.content.trim()),
+        initial: createWorkDraft(work),
+        current: editDraft,
+        saving,
+        editLabel: "编辑工作项",
+        saveLabel: "保存工作项",
+        cancelLabel: "取消编辑",
+        onEdit,
+        onSave,
+        onCancel: onCancelEdit,
+      })}
+      rowActions={(work) => {
+        if (!canEdit || editingId === work.id) return [];
+        return [
+          {
+            key: "delete",
+            kind: "delete",
+            label: "删除工作项",
+            onClick: () => onDelete(work),
+            disabled: saving,
+          },
+        ];
+      }}
+      scrollClassName="overflow-y-hidden rounded-lg border border-slate-200"
+    />
   );
 }
 
@@ -154,7 +151,7 @@ function createColumns({
   showOwner: boolean;
   expandedIds: Set<number>;
   onToggleExpand: (work: TreeRow) => void;
-}): DataTableColumn<TreeRow>[] {
+}): DataSurfaceColumnSpec<TreeRow>[] {
   return [
     {
       key: "content",
@@ -162,7 +159,7 @@ function createColumns({
       required: true,
       headerClassName: "min-w-80",
       cellClassName: "min-w-80 max-w-[32rem]",
-      render: (work) => (
+      cell: (work) => (
         <div className="flex min-w-0 items-center gap-2" style={{ paddingLeft: work.depth * 18 }}>
           {work.childCount > 0 ? (
             <button
@@ -193,7 +190,7 @@ function createColumns({
       defaultVisible: showOwner,
       headerClassName: "w-28",
       cellClassName: "w-28",
-      render: (work) => work.ownerEmployeeName || "未设置",
+      cell: (work) => work.ownerEmployeeName || "未设置",
     },
     {
       key: "kr",
@@ -201,7 +198,7 @@ function createColumns({
       defaultVisible: true,
       headerClassName: "w-44",
       cellClassName: "w-44",
-      render: (work) => work.itemType === "key_result"
+      cell: (work) => work.itemType === "key_result"
         ? <span className="text-sm text-slate-700">{krRange(work)}</span>
         : <span className="text-sm text-slate-300">-</span>,
     },
@@ -211,7 +208,7 @@ function createColumns({
       defaultVisible: true,
       headerClassName: "w-44",
       cellClassName: "w-44",
-      render: (work) => <span className="text-sm text-slate-600">{getWorkPeriodLabel(work)}</span>,
+      cell: (work) => <span className="text-sm text-slate-600">{getWorkPeriodLabel(work)}</span>,
     },
     {
       key: "status",
@@ -219,10 +216,10 @@ function createColumns({
       defaultVisible: true,
       headerClassName: "w-24",
       cellClassName: "w-24",
-      render: (work) => {
+      cell: (work) => {
         const status = work.itemType === "task" ? (work.isArchived ? "archived" : work.status) : null;
         if (!status) return <span className="text-sm text-slate-300">-</span>;
-        return <Badge label={getStatusLabel(status)} tone={statusVariant(status)} />;
+        return <span className={`inline-flex rounded px-2 py-0.5 text-xs font-medium ${statusClassName(status)}`}>{getStatusLabel(status)}</span>;
       },
     },
     {
@@ -231,7 +228,7 @@ function createColumns({
       defaultVisible: true,
       headerClassName: "w-36",
       cellClassName: "w-36",
-      render: (work) => work.itemType === "task" ? (
+      cell: (work) => work.itemType === "task" ? (
         <div className="flex flex-wrap items-center gap-1.5 text-xs font-medium text-slate-500">
           <span className="rounded bg-amber-50 px-1.5 py-0.5 text-amber-700">重要 {work.importance}</span>
           <span className="rounded bg-sky-50 px-1.5 py-0.5 text-sky-600">紧急 {work.urgency}</span>
@@ -244,7 +241,7 @@ function createColumns({
       defaultVisible: true,
       headerClassName: "min-w-48",
       cellClassName: "min-w-48 max-w-72",
-      render: (work) => <SourceCell work={work} />,
+      cell: (work) => <SourceCell work={work} />,
     },
 
   ];
@@ -350,10 +347,10 @@ function matchesPeriodFilter(work: WorkItem, filter: string) {
   return work.periodType === filter;
 }
 
-function statusVariant(status: string) {
-  if (status === "done") return "blue";
-  if (status === "archived") return "orange";
-  return "green";
+function statusClassName(status: string) {
+  if (status === "done") return "bg-sky-50 text-sky-700";
+  if (status === "archived") return "bg-amber-50 text-amber-700";
+  return "bg-emerald-50 text-emerald-700";
 }
 function krRange(work: WorkItem) {
   const unit = work.krUnit || "";

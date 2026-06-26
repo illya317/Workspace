@@ -1,7 +1,9 @@
 import {
   coreUiComponentAccessLayerMeta,
   coreUiComponentKindMeta,
+  coreUiComponentUiLevelMeta,
   type CoreUiComponentAccessLayer,
+  type CoreUiComponentUiLevel,
   type CoreUiComponentKind,
 } from "@workspace/core/ui/component-registry";
 import { matchText } from "@workspace/core/search";
@@ -11,12 +13,14 @@ export type UiComponentFilterNode = {
   component: { description: string };
   kind: CoreUiComponentKind;
   accessLayer: CoreUiComponentAccessLayer;
+  uiLevel: CoreUiComponentUiLevel;
   verified: boolean;
 };
 
 export type UiComponentFilterInput = {
   keyword: string;
   accessLayerValue: string;
+  uiLevelValue: string;
   verifiedFilter: "verified" | "unverified" | "all";
   usageFilesByName: ReadonlyMap<string, readonly string[]>;
   usedByNamesByName: ReadonlyMap<string, readonly string[]>;
@@ -24,10 +28,11 @@ export type UiComponentFilterInput = {
 
 function matchesBaseFilters(
   node: UiComponentFilterNode,
-  input: Pick<UiComponentFilterInput, "accessLayerValue" | "verifiedFilter">,
+  input: Pick<UiComponentFilterInput, "accessLayerValue" | "uiLevelValue" | "verifiedFilter">,
 ) {
-  const { accessLayerValue, verifiedFilter } = input;
+  const { accessLayerValue, uiLevelValue, verifiedFilter } = input;
   if (accessLayerValue !== "all" && node.accessLayer !== accessLayerValue) return false;
+  if (uiLevelValue !== "all" && String(node.uiLevel) !== uiLevelValue) return false;
   if (verifiedFilter === "verified" && !node.verified) return false;
   if (verifiedFilter === "unverified" && node.verified) return false;
   return true;
@@ -42,6 +47,7 @@ function matchesKeyword(
     || matchText(node.component.description, keyword)
     || matchText(coreUiComponentKindMeta[node.kind].label, keyword)
     || matchText(coreUiComponentAccessLayerMeta[node.accessLayer].label, keyword)
+    || matchText(coreUiComponentUiLevelMeta[node.uiLevel].label, keyword)
     || usageFiles.some((file) => matchText(file, keyword));
 }
 

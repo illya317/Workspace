@@ -1,31 +1,43 @@
 "use client";
 
-import { EmptyStateCard, SectionCard, Toolbar } from "@workspace/core/ui";
-import { DatabasePageFrame } from "@workspace/core/ui";
+import { PageSurface } from "@workspace/core/ui";
 
 export default function SuppliersClient() {
   return (
-    <DatabasePageFrame contentClassName="py-10">
-      <SectionCard
-        title="供应商列表"
-        actions={
-          <Toolbar
-            variant="inline"
-            items={[
-              {
-                kind: "icon-button",
-                key: "add-supplier",
-                icon: "add",
-                label: "新增供应商",
-                disabled: true,
-                variant: "primary",
+    <PageSurface
+      kind="list"
+      contentClassName="py-10"
+      blocks={[
+        {
+          kind: "section",
+          key: "suppliers",
+          title: "供应商列表",
+          blocks: [
+            {
+              kind: "data",
+              key: "empty",
+              surface: {
+                kind: "records",
+                records: [],
+                empty: "暂无供应商数据",
+                toolbar: {
+                  variant: "inline",
+                  items: [
+                    {
+                      kind: "icon-button",
+                      key: "add-supplier",
+                      icon: "add",
+                      label: "新增供应商",
+                      disabled: true,
+                      variant: "primary",
+                    },
+                  ],
+                },
               },
-            ]}
-          />
-        }
-      >
-        <EmptyStateCard compact={false}>暂无供应商数据</EmptyStateCard>
-      </SectionCard>
-    </DatabasePageFrame>
+            },
+          ],
+        },
+      ]}
+    />
   );
 }

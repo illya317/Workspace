@@ -2,11 +2,8 @@
 
 import { useState, type ReactNode } from "react";
 import {
-  CommandButton,
-  FormField,
-  InputControl,
-  PanelCard,
-  TagListInput,
+  DataSurface,
+  FormSurface,
 } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
@@ -45,16 +42,13 @@ export function DetailSectionHeader({
 
 export function DetailStatsRow({ items }: { items: Array<{ label: string; value: ReactNode }> }) {
   return (
-    <PanelCard className="md:col-span-2" bodyClassName="px-3 py-2">
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-        {items.map((item) => (
-          <div key={item.label} className="inline-flex items-baseline gap-2">
-            <span className="text-xs font-medium text-slate-500">{item.label}</span>
-            <span className="text-sm font-semibold text-slate-900">{item.value}</span>
-          </div>
-        ))}
-      </div>
-    </PanelCard>
+    <DataSurface
+      kind="metrics"
+      framed
+      className="md:col-span-2"
+      bodyClassName="px-3 py-2"
+      metrics={items.map((item) => ({ key: item.label, label: item.label, value: item.value }))}
+    />
   );
 }
 
@@ -83,23 +77,24 @@ export function EntityValueInput({
 }) {
   const current = String(value || "");
   return (
-    <FormField
-      label={label}
-      error={invalid ? "当前值不是有效引用，请重新选择。" : undefined}
-    >
-      <InputControl
-        spec={{
+    <FormSurface
+      kind="fields"
+      fields={[{
+        key: label,
+        label,
+        error: invalid ? "当前值不是有效引用，请重新选择。" : undefined,
+        spec: {
           valueType: "reference",
           editor: "autocomplete",
           state: disabled ? "disabled" : "normal",
           options: { source: "remote", fkKey: fkKeyForEntity(entity), endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "name" },
-        }}
-        value={current}
-        displayValue={current}
-        placeholder={`搜索${label}`}
-        onChange={(_label, option) => onChange(selectedEntityName(entity, option as FkFieldOption | undefined) || null)}
-      />
-    </FormField>
+        },
+        value: current,
+        displayValue: current,
+        placeholder: `搜索${label}`,
+        onChange: (_label, option) => onChange(selectedEntityName(entity, option as FkFieldOption | undefined) || null),
+      }]}
+    />
   );
 }
 
@@ -138,57 +133,64 @@ export function StringListEditor({
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <TagListInput
-        items={items}
-        getKey={(item, index) => `${item}-${index}`}
-        getLabel={(item) => item}
-        onRemove={(_, index) => removeItem(index)}
-        disabled={disabled}
-        confirmMessage={(item) => `确定删除「${item || label}」吗？删除后需要保存才会生效。`}
-        emptyText={disabled ? "未设置" : undefined}
-        itemClassName={() => "h-auto min-h-6 items-start rounded-xl py-1 leading-snug"}
-        shellClassName="content-start"
-      >
-        {!disabled && (
-          editing ? (
-            <InputControl
-              spec={{ valueType: "string", editor: "input" }}
-              value={draft}
-              autoFocus
-              onChange={(next) => setDraft(String(next ?? ""))}
-              onBlur={commitDraft}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === "Tab" || event.key === "," || event.key === "，" || event.key === "、") {
-                  if (draft.trim()) {
-                    event.preventDefault();
-                    commitDraft();
-                  }
+      <FormSurface<string>
+        kind="inline"
+        fields={[{
+          kind: "tagList",
+          key: "items",
+          label: "",
+          items,
+          getKey: (item, index) => `${item}-${index}`,
+          getLabel: (item) => item,
+          onRemove: (_, index) => removeItem(index),
+          disabled,
+          confirmMessage: (item) => `确定删除「${item || label}」吗？删除后需要保存才会生效。`,
+          emptyText: disabled ? "未设置" : undefined,
+          itemClassName: () => "h-auto min-h-6 items-start rounded-xl py-1 leading-snug",
+          shellClassName: "content-start",
+          append: disabled
+            ? undefined
+            : editing
+              ? {
+                  field: {
+                    key: "draft",
+                    label: "",
+                    spec: { valueType: "string", editor: "input" },
+                    value: draft,
+                    autoFocus: true,
+                    placeholder: items.length === 0 ? placeholder : "",
+                    density: "compact",
+                    className: items.length === 0 ? "min-w-32 flex-1" : "w-16 flex-none",
+                    onChange: (next) => setDraft(String(next ?? "")),
+                    onBlur: commitDraft,
+                    onKeyDown: (event) => {
+                      if (event.key === "Enter" || event.key === "Tab" || event.key === "," || event.key === "，" || event.key === "、") {
+                        if (draft.trim()) {
+                          event.preventDefault();
+                          commitDraft();
+                        }
+                      }
+                      if (event.key === "Escape") {
+                        setDraft("");
+                        setEditing(false);
+                      }
+                      if (event.key === "Backspace" && !draft && items.length > 0) {
+                        removeItem(items.length - 1);
+                      }
+                    },
+                  },
                 }
-                if (event.key === "Escape") {
-                  setDraft("");
-                  setEditing(false);
-                }
-                if (event.key === "Backspace" && !draft && items.length > 0) {
-                  removeItem(items.length - 1);
-                }
-              }}
-              placeholder={items.length === 0 ? placeholder : ""}
-              density="compact"
-              className={items.length === 0 ? "min-w-32 flex-1" : "w-16 flex-none"}
-            />
-          ) : (
-            <CommandButton
-              aria-label={placeholder}
-              title={placeholder}
-              onClick={() => setEditing(true)}
-              size="sm"
-              className="!size-7 !rounded-full !border-slate-200 !bg-slate-50 !p-0 text-base font-semibold leading-none !text-slate-700 hover:!border-slate-300 hover:!bg-slate-100"
-            >
-              +
-            </CommandButton>
-          )
-        )}
-      </TagListInput>
+              : {
+                  action: {
+                    key: "add",
+                    label: "+",
+                    onClick: () => setEditing(true),
+                    size: "sm",
+                    className: "!size-7 !rounded-full !border-slate-200 !bg-slate-50 !p-0 text-base font-semibold leading-none !text-slate-700 hover:!border-slate-300 hover:!bg-slate-100",
+                  },
+                },
+        }]}
+      />
     </div>
   );
 }

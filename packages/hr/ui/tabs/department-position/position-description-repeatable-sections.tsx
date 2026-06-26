@@ -1,6 +1,6 @@
 "use client";
 
-import { EmptyStateCard, FormField, InputControl, PanelCard, Toolbar, useFeedback } from "@workspace/core/ui";
+import { FormSurface, PageSurface, useFeedback } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { formatHistoryVersion, normalizeDateValue, versionNumber } from "./draft-utils";
 import { EntityValueInput, StringListEditor } from "./detail-editor-primitives";
@@ -45,28 +45,48 @@ export function PositionDutyEditor({
   return <div key={detailKey} className="space-y-3 md:col-span-2">
       <div className="flex items-center gap-3">
         <span className="text-xs font-semibold text-slate-600">{label}</span>
-        {!disabled && <Toolbar variant="inline" items={[{ kind: "create", key: "add-duty", label: `新增${label}`, onClick: addDuty }]} />}
+        {!disabled && <FormSurface kind="inline" actions={[{ key: "add-duty", label: `新增${label}`, onClick: addDuty }]} />}
       </div>
       {records.map((record, index) => {
       const items = Array.isArray(record.items) ? record.items : [];
       return <div key={index} ref={getItemRef(index)}>
-            <PanelCard bodyClassName="p-3">
-              <div className="mb-2 flex items-center gap-3">
-                <span className="text-xs font-medium text-slate-500">职责 {index + 1}</span>
-                {!disabled && <Toolbar variant="inline" items={[{ kind: "icon-button", key: "delete-duty", icon: "delete", label: `删除${label} ${index + 1}`, onClick: () => void removeDuty(index), className: "!size-6 !rounded-full", iconClassName: "h-3 w-3" }]} />}
-              </div>
-              <div className="grid grid-cols-1 gap-2">
-                <InputControl spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }} value={String(record.title || "")} placeholder="职责标题" onChange={next => updateDuty(index, {
-              title: String(next ?? "")
-            })} />
-                <StringListEditor label="职责条目" value={items} disabled={disabled} placeholder="新增职责条目" onChange={nextItems => updateDuty(index, {
-              items: nextItems
-            })} />
-              </div>
-            </PanelCard>
+            <PageSurface
+              embedded
+              kind="detail"
+              blocks={[{
+                kind: "panel",
+                key: `duty-${index}`,
+                bodyClassName: "p-3",
+                blocks: [{
+                  kind: "moduleView",
+                  key: "content",
+                  view: <>
+                    <div className="mb-2 flex items-center gap-3">
+                      <span className="text-xs font-medium text-slate-500">职责 {index + 1}</span>
+                      {!disabled && <FormSurface kind="inline" actions={[{ key: "delete-duty", label: "删除", variant: "danger", size: "sm", onClick: () => void removeDuty(index), className: "px-2 py-1 text-xs" }]} />}
+                    </div>
+                    <div className="grid grid-cols-1 gap-2">
+                      <FormSurface
+                        kind="control"
+                        control={{
+                          kind: "inputControl",
+                          spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" },
+                          value: String(record.title || ""),
+                          placeholder: "职责标题",
+                          onChange: next => updateDuty(index, { title: String(next ?? "") }),
+                        }}
+                      />
+                      <StringListEditor label="职责条目" value={items} disabled={disabled} placeholder="新增职责条目" onChange={nextItems => updateDuty(index, {
+                        items: nextItems
+                      })} />
+                    </div>
+                  </>,
+                }],
+              }]}
+            />
           </div>;
     })}
-      {records.length === 0 && <EmptyStateCard compact>未设置</EmptyStateCard>}
+      {records.length === 0 && <PageSurface embedded kind="detail" empty={{ content: "未设置", compact: true }} />}
     </div>;
 }
 export function PositionChangeHistoryEditor({
@@ -108,34 +128,44 @@ export function PositionChangeHistoryEditor({
   return <div key="changeHistory" className="space-y-3 md:col-span-2">
       <div className="flex items-center gap-3">
         <span className="text-xs font-semibold text-slate-600">变更历史</span>
-        {!disabled && <Toolbar variant="inline" items={[{ kind: "create", key: "add-history", label: "新增变更历史", onClick: addRecord }]} />}
+        {!disabled && <FormSurface kind="inline" actions={[{ key: "add-history", label: "新增变更历史", onClick: addRecord }]} />}
       </div>
       {records.map((record, index) => {
       const rawDate = String(record.effectiveDate || "");
       const dateInvalid = !!rawDate && !normalizeDateValue(rawDate);
       const approverInvalid = String(record.approver || "").includes("见首页");
       return <div key={index} ref={getItemRef(index)}>
-            <PanelCard bodyClassName="grid grid-cols-1 gap-2 p-3 md:grid-cols-[88px_minmax(0,1.5fr)_minmax(180px,0.8fr)_minmax(180px,0.8fr)]">
-              <FormField label="版本">
-                <InputControl spec={{ valueType: "string", editor: "input", state: "readonly" }} value={String(record.version || formatHistoryVersion(index))} />
-              </FormField>
-              <FormField label="文件名">
-                <InputControl spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }} value={String(record.documentName || "")} onChange={next => updateRecord(index, {
-              documentName: String(next ?? "")
-            })} />
-              </FormField>
-              <FormField label="生效日期" error={dateInvalid ? "日期格式错误，请重新选择。" : undefined}>
-                <InputControl spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }} value={rawDate} onChange={next => updateRecord(index, {
-              effectiveDate: next || ""
-            })} />
-              </FormField>
-              <EntityValueInput label="批准" entity="employee" value={record.approver} disabled={disabled} invalid={approverInvalid} onChange={next => updateRecord(index, {
-            approver: next || ""
-          })} />
-              {!disabled && <Toolbar variant="inline" className="md:col-span-4 md:justify-self-end" items={[{ kind: "icon-button", key: "delete-history", icon: "delete", label: `删除变更历史 ${index + 1}`, onClick: () => void removeRecord(index), className: "!size-6 !rounded-full", iconClassName: "h-3 w-3" }]} />}
-            </PanelCard>
+            <PageSurface
+              embedded
+              kind="detail"
+              blocks={[{
+                kind: "panel",
+                key: `history-${index}`,
+                bodyClassName: "grid grid-cols-1 gap-2 p-3 md:grid-cols-[88px_minmax(0,1.5fr)_minmax(180px,0.8fr)_minmax(180px,0.8fr)]",
+                blocks: [{
+                  kind: "moduleView",
+                  key: "content",
+                  view: <>
+                    <FormSurface
+                      kind="fields"
+                      className="contents"
+                      bodyClassName="contents"
+                      fields={[
+                        { key: "version", label: "版本", spec: { valueType: "string", editor: "input", state: "readonly" }, value: String(record.version || formatHistoryVersion(index)) },
+                        { key: "documentName", label: "文件名", spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }, value: String(record.documentName || ""), onChange: next => updateRecord(index, { documentName: String(next ?? "") }) },
+                        { key: "effectiveDate", label: "生效日期", error: dateInvalid ? "日期格式错误，请重新选择。" : undefined, spec: { valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }, value: rawDate, onChange: next => updateRecord(index, { effectiveDate: next || "" }) },
+                      ]}
+                    />
+                    <EntityValueInput label="批准" entity="employee" value={record.approver} disabled={disabled} invalid={approverInvalid} onChange={next => updateRecord(index, {
+                      approver: next || ""
+                    })} />
+                    {!disabled && <FormSurface kind="inline" className="md:col-span-4 md:justify-self-end" actions={[{ key: "delete-history", label: "删除", variant: "danger", size: "sm", onClick: () => void removeRecord(index), className: "px-2 py-1 text-xs" }]} />}
+                  </>,
+                }],
+              }]}
+            />
           </div>;
     })}
-      {records.length === 0 && <EmptyStateCard compact>未设置</EmptyStateCard>}
+      {records.length === 0 && <PageSurface embedded kind="detail" empty={{ content: "未设置", compact: true }} />}
     </div>;
 }

@@ -1,15 +1,15 @@
 import type { QcConfigOverview } from "@workspace/production/server/qc";
 import Link from "next/link";
-import { EmptyStateCard, MetricCard, PanelCard } from "@workspace/core/ui";
+import { DataSurface } from "@workspace/core/ui";
 
 interface Props {
   overview: QcConfigOverview;
   mode: "batches" | "templates";
 }
 
-function Metric({ label, value }: { label: string; value: number | string }) {
-  return <MetricCard label={label} value={value} />;
-}
+type ProductOverview = QcConfigOverview["products"][number];
+type RecordTemplateOverview = QcConfigOverview["recordTemplates"][number];
+type LayoutMappingSample = QcConfigOverview["layoutMapping"]["samples"][number];
 
 function SourceStatus({ overview }: { overview: QcConfigOverview }) {
   const hasUncommittedChanges = overview.source.dirty;
@@ -54,21 +54,38 @@ function BatchesOverview({ overview }: { overview: QcConfigOverview }) {
   const products = overview.products.slice(0, 8);
   return (
     <div className="space-y-4">
-      <div className="grid gap-3 md:grid-cols-4">
-        <Metric label="产品配置" value={overview.products.length} />
-        <Metric label="阶段配置" value={overview.products.reduce((sum, product) => sum + product.stageCount, 0)} />
-        <Metric label="检测项映射" value={overview.products.reduce((sum, product) => sum + product.itemCount, 0)} />
-        <Metric label="记录模板" value={overview.recordTemplates.length} />
-      </div>
+      <DataSurface<ProductOverview>
+        kind="metrics"
+        metrics={[
+          { key: "products", label: "产品配置", value: overview.products.length },
+          { key: "stages", label: "阶段配置", value: overview.products.reduce((sum, product) => sum + product.stageCount, 0) },
+          { key: "items", label: "检测项映射", value: overview.products.reduce((sum, product) => sum + product.itemCount, 0) },
+          { key: "templates", label: "记录模板", value: overview.recordTemplates.length },
+        ]}
+      />
 
-      <PanelCard title="产品与检验阶段">
-        <div className="divide-y divide-slate-100">
-          {products.map((product) => (
-            <div key={product.name} className="grid gap-3 px-4 py-3 md:grid-cols-[minmax(160px,1fr)_2fr]">
+      <DataSurface
+        kind="table"
+        framed
+        title="产品与检验阶段"
+        rows={products}
+        columns={[
+          {
+            key: "product",
+            label: "产品",
+            required: true,
+            render: (product) => (
               <div>
                 <div className="text-sm font-medium text-slate-900">{product.name}</div>
                 <div className="mt-1 text-xs text-slate-500">{product.itemCount} 个检测项</div>
               </div>
+            ),
+          },
+          {
+            key: "stages",
+            label: "阶段",
+            required: true,
+            render: (product) => (
               <div className="flex flex-wrap gap-2">
                 {product.stages.map((stage) => (
                   <span key={`${product.name}-${stage.key}`} className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-700">
@@ -76,11 +93,12 @@ function BatchesOverview({ overview }: { overview: QcConfigOverview }) {
                   </span>
                 ))}
               </div>
-            </div>
-          ))}
-          {products.length === 0 && <EmptyStateCard compact className="m-4">暂无可读取的产品配置。</EmptyStateCard>}
-        </div>
-      </PanelCard>
+            ),
+          },
+        ]}
+        rowKey={(product) => product.name}
+        emptyText="暂无可读取的产品配置。"
+      />
     </div>
   );
 }
@@ -88,17 +106,28 @@ function BatchesOverview({ overview }: { overview: QcConfigOverview }) {
 function TemplatesOverview({ overview }: { overview: QcConfigOverview }) {
   return (
     <div className="space-y-4">
-      <div className="grid gap-3 md:grid-cols-4">
-        <Metric label="记录模板 YAML" value={overview.recordTemplates.length} />
-        <Metric label="方法 YAML" value={overview.methods.length} />
-        <Metric label="方法字段" value={overview.methods.reduce((sum, method) => sum + method.fieldCount, 0)} />
-        <Metric label="布局映射 JSON" value={overview.layoutMapping.assignmentCount} />
-      </div>
+      <DataSurface
+        kind="metrics"
+        metrics={[
+          { key: "recordTemplates", label: "记录模板 YAML", value: overview.recordTemplates.length },
+          { key: "methods", label: "方法 YAML", value: overview.methods.length },
+          { key: "methodFields", label: "方法字段", value: overview.methods.reduce((sum, method) => sum + method.fieldCount, 0) },
+          { key: "layoutMappings", label: "布局映射 JSON", value: overview.layoutMapping.assignmentCount },
+        ]}
+      />
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <PanelCard title="记录模板">
-          <div className="divide-y divide-slate-100">
-            {overview.recordTemplates.slice(0, 8).map((template) => (
+        <DataSurface<RecordTemplateOverview>
+          kind="table"
+          framed
+          title="记录模板"
+          rows={overview.recordTemplates.slice(0, 8)}
+          columns={[
+            {
+              key: "template",
+              label: "模板",
+              required: true,
+              render: (template) => (
               <Link
                 key={template.id}
                 href={`/production/qc-templates/${template.id}`}
@@ -109,22 +138,36 @@ function TemplatesOverview({ overview }: { overview: QcConfigOverview }) {
                   {template.stageCount} 个阶段 · {template.itemCount} 个检测项 · {template.fileName}
                 </div>
               </Link>
-            ))}
-          </div>
-        </PanelCard>
+              ),
+            },
+          ]}
+          rowKey={(template) => template.id}
+          emptyText="暂无记录模板。"
+        />
 
-        <PanelCard title="布局映射样本">
-          <div className="divide-y divide-slate-100">
-            {overview.layoutMapping.samples.map((sample) => (
+        <DataSurface<LayoutMappingSample>
+          kind="table"
+          framed
+          title="布局映射样本"
+          rows={overview.layoutMapping.samples}
+          columns={[
+            {
+              key: "sample",
+              label: "映射",
+              required: true,
+              render: (sample) => (
               <div key={sample.key} className="px-4 py-3">
                 <div className="break-all text-sm font-medium text-slate-900">{sample.key}</div>
                 <div className="mt-1 text-xs text-slate-500">
                   {sample.templateId} · {sample.status}{sample.sourceRef ? ` · ${sample.sourceRef}` : ""}
                 </div>
               </div>
-            ))}
-          </div>
-        </PanelCard>
+              ),
+            },
+          ]}
+          rowKey={(sample) => sample.key}
+          emptyText="暂无布局映射样本。"
+        />
       </div>
     </div>
   );

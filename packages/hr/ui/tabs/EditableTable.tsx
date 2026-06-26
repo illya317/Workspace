@@ -1,7 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
-import { DataTable, type DataTableColumn } from "@workspace/core/ui";
+import {
+  DataSurface,
+  type DataSurfaceToolbarSpec,
+  type DataTableColumn,
+  type PaginationProps,
+} from "@workspace/core/ui";
 import type { TabConfig, FieldConfig } from "@workspace/hr/types";
 import { formatHrMajorItems } from "@workspace/hr/constants/field-options";
 
@@ -65,6 +70,12 @@ interface EditableTableProps {
   canEdit: boolean;
   renderEditInput: (fieldKey: string) => React.ReactNode;
   onStartEdit: (item: Record<string, unknown>, field: FieldConfig) => void;
+  framed?: boolean;
+  toolbar?: DataSurfaceToolbarSpec;
+  loading?: boolean;
+  emptyText?: string;
+  pagination?: PaginationProps;
+  bodyClassName?: string;
 }
 
 export default function EditableTable({
@@ -77,6 +88,12 @@ export default function EditableTable({
   canEdit,
   renderEditInput,
   onStartEdit,
+  framed,
+  toolbar,
+  loading,
+  emptyText,
+  pagination,
+  bodyClassName,
 }: EditableTableProps) {
   const columns = useMemo<DataTableColumn<Record<string, unknown>>[]>(
     () => fields.map((field) => {
@@ -109,13 +126,20 @@ export default function EditableTable({
   );
 
   return (
-    <DataTable
+    <DataSurface
+      kind="table"
+      framed={framed}
+      toolbar={toolbar}
       rows={items}
       columns={columns}
       visibleColumns={visibleColumns}
       rowKey={(item) => String(item.id)}
       density="compact"
+      loading={loading}
+      emptyText={emptyText}
       tableClassName="w-full text-xs"
+      bodyClassName={bodyClassName}
+      pagination={pagination}
     />
   );
 }

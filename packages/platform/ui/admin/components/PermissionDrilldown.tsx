@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useEffect } from "react";
 import { matchEmployee } from "@workspace/platform/search";
-import { CommandButton, SectionCard, SelectorPanel, Toolbar, type ToolbarItem } from "@workspace/core/ui";
+import { PageSurface } from "@workspace/core/ui";
 export interface EmployeePerm {
   employeeId: string;
   name: string;
@@ -92,55 +92,78 @@ export default function PermissionDrilldown({
     const bHas = empHasAccess(b, drillKey) ? 0 : 1;
     return aHas - bHas;
   }), [empPerms, fCompany, fDept, fKeyword, drillKey, empHasAccess, companyMap]);
-  return <SectionCard title={`人员 · ${drillKey}`} actions={<CommandButton onClick={onClose} className="px-3 py-1.5 text-xs">关闭</CommandButton>} bodyClassName="space-y-3 p-4">
-      <Toolbar
-        items={[
+  return (
+    <PageSurface
+      kind="settings"
+      embedded
+      blocks={[{
+        kind: "panel",
+        key: "permission-drilldown",
+        title: `人员 · ${drillKey}`,
+        actions: [{ key: "close", label: "关闭", onClick: onClose }],
+        bodyClassName: "space-y-3",
+        blocks: [
           {
-            kind: "select",
-            key: "company",
-            section: "filter",
-            value: fCompany,
-            onChange: (nextValue) => {
-              setFCompany(nextValue);
-              setFDept("全部");
+            kind: "form",
+            key: "filters",
+            surface: {
+              kind: "inline",
+              fields: [
+                {
+                  key: "company",
+                  label: "公司",
+                  spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: allCompanies.map((c) => ({ value: c, label: c })) } },
+                  value: fCompany,
+                  onChange: (nextValue) => {
+                    setFCompany(String(nextValue ?? ""));
+                    setFDept("全部");
+                  },
+                  className: "min-w-40",
+                },
+                {
+                  key: "dept",
+                  label: "部门",
+                  spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: allDepts.map((d) => ({ value: d, label: d })) } },
+                  value: fDept,
+                  onChange: (nextValue) => setFDept(String(nextValue ?? "")),
+                  className: "min-w-40",
+                },
+                {
+                  key: "keyword",
+                  label: "搜索",
+                  spec: { valueType: "string", editor: "input" },
+                  value: fKeyword,
+                  onChange: (nextValue) => setFKeyword(String(nextValue ?? "")),
+                  placeholder: "搜索姓名/工号...",
+                  className: "min-w-0 sm:w-[22rem]",
+                },
+              ],
             },
-            options: allCompanies.map((c) => ({ value: c, label: c })),
-            triggerClassName: "min-w-40",
           },
           {
-            kind: "select",
-            key: "dept",
-            section: "filter",
-            value: fDept,
-            onChange: setFDept,
-            options: allDepts.map((d) => ({ value: d, label: d })),
-            triggerClassName: "min-w-40",
+            kind: "navigation",
+            key: "employees",
+            surface: {
+              kind: "selector",
+              selector: {
+                framed: false,
+                loading: empLoading,
+                loadingText: "加载中...",
+                items: filtered,
+                selectedId: null,
+                onSelect: onToggle,
+                getKey: emp => emp.employeeId,
+                renderItem: emp => ({
+                  title: emp.name,
+                  subtitle: emp.employeeId,
+                  active: empHasAccess(emp, drillKey),
+                }),
+                contentClassName: "grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5",
+              },
+            },
           },
-          {
-            kind: "search",
-            key: "keyword",
-            section: "filter",
-            value: fKeyword,
-            onChange: setFKeyword,
-            placeholder: "搜索姓名/工号...",
-            className: "min-w-0 sm:w-[22rem]",
-          },
-        ] satisfies ToolbarItem[]}
+        ],
+      }]}
       />
-      <SelectorPanel
-        framed={false}
-        loading={empLoading}
-        loadingText="加载中..."
-        items={filtered}
-        selectedId={null}
-        onSelect={onToggle}
-        getKey={emp => emp.employeeId}
-        renderItem={emp => ({
-          title: emp.name,
-          subtitle: emp.employeeId,
-          active: empHasAccess(emp, drillKey),
-        })}
-        contentClassName="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
-      />
-    </SectionCard>;
+  );
 }

@@ -19,6 +19,8 @@ export type CoreUiComponentAccessLayer =
 
 export type CoreUiFrameMaturity = "stable" | "tbc" | "internal-only";
 
+export type CoreUiComponentUiLevel = 1 | 2 | 3 | 4;
+
 export type CoreUiComponentRegistration = {
   name: string;
   kind: CoreUiComponentKind;
@@ -35,6 +37,17 @@ export type CoreUiComponentRegistration = {
    * - private-impl: 公开 UI 的私有实现文件，不注册、不展示为独立 UI。
    */
   accessLayer: CoreUiComponentAccessLayer;
+
+  /**
+   * UI 组件库展示层级。
+   * - L1: 业务 / agent 的公开入口。当前只允许 Surface 与 useFeedback。
+   * - L2: L1 的 kind / variant / spec 能力对应的组合件。
+   * - L3: Core 内部可见组合层，供关系图和迁移阅读。
+   * - L4: Foundation / private impl / 更深实现层，不进入组件库主展示。
+   *
+   * 未填写时按 accessLayer 派生，保留旧 registry 的渐进迁移能力。
+   */
+  uiLevel?: CoreUiComponentUiLevel;
 
   /**
    * Page Frame 成熟度。只有 accessLayer === "page-frame" 才有意义。

@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useRef } from "react";
 import { matchSearchFields, matchText } from "@workspace/platform/search";
-import { Badge, CommandButton, DataTable, InputControl, Pagination, PanelCard, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, FormSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { ResourceItem } from "../types";
 import { formatSummaryTooltip, ROLE_COLORS, summarizeResourcePermissions, type PermissionGrantLike } from "../lib/permission-summary";
 function copyFallback(text: string) {
@@ -39,6 +39,20 @@ const ROLE_VARIANTS: Record<string, "gray" | "green" | "blue" | "red" | "yellow"
   emerald: "green",
   gray: "gray"
 };
+const BADGE_TONE_CLASS: Record<"gray" | "green" | "blue" | "red" | "yellow", string> = {
+  gray: "bg-gray-100 text-gray-600",
+  green: "bg-emerald-50 text-emerald-600",
+  blue: "bg-sky-50 text-sky-600",
+  red: "bg-red-50 text-red-700",
+  yellow: "bg-yellow-50 text-yellow-700",
+};
+function PermissionBadge({ label, tone }: { label: string; tone: "gray" | "green" | "blue" | "red" | "yellow" }) {
+  return (
+    <span className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium ${BADGE_TONE_CLASS[tone]}`}>
+      {label}
+    </span>
+  );
+}
 export default function AdminUsersTab({
   showToast,
   resources
@@ -155,11 +169,11 @@ export default function AdminUsersTab({
     setPageSize(size);
     setPage(0);
   }
-  const columns: DataTableColumn<UserItem>[] = [{
+  const columns: DataSurfaceColumnSpec<UserItem>[] = [{
     key: "name",
     label: "姓名",
     required: true,
-    render: u => <div>
+    cell: u => <div>
           <span className="font-medium text-slate-800">
             {u.name}
             {u.employeeId && <span className="ml-1 text-xs font-normal text-slate-400">/ {u.employeeId}</span>}
@@ -170,27 +184,34 @@ export default function AdminUsersTab({
     key: "username",
     label: "用户名",
     required: true,
-    render: u => <span className="font-mono text-slate-500">{u.username || "-"}</span>
+    cell: u => <span className="font-mono text-slate-500">{u.username || "-"}</span>
   }, {
     key: "status",
     label: "状态",
     required: true,
     cellClassName: "w-20",
-    render: u => <CommandButton variant={u.canLogin ? "secondary" : "danger"} onClick={() => toggleLogin(u.id, u.canLogin)} className="px-2 py-1 text-xs">
-          {u.canLogin ? "启用" : "停用"}
-        </CommandButton>
+    cell: u => ({
+      kind: "action",
+      action: {
+        key: `login-${u.id}`,
+        label: u.canLogin ? "启用" : "停用",
+        variant: u.canLogin ? "secondary" : "danger",
+        onClick: () => toggleLogin(u.id, u.canLogin),
+        className: "px-2 py-1 text-xs",
+      },
+    })
   }, {
     key: "permissions",
     label: <>
           权限 <span className="cursor-help text-slate-400" title="0=访问，1=编辑，2=删除，3=管理">ⓘ</span>
         </>,
     required: true,
-    render: u => {
+    cell: u => {
       const summaries = summarizeResourcePermissions(resources, u.resourceRoles as PermissionGrantLike[]);
       return <div className="flex flex-wrap gap-1">
-            {u.isWorkListAdmin && <Badge label="管理员" tone="blue" />}
+            {u.isWorkListAdmin && <PermissionBadge label="管理员" tone="blue" />}
             {summaries.map(s => <span key={s.key} title={formatSummaryTooltip(s)}>
-                <Badge label={`${s.label}${s.totalChildren > 0 && s.coveredChildren < s.totalChildren ? ` ${s.coveredChildren}/${s.totalChildren}` : ""}`} tone={ROLE_VARIANTS[ROLE_COLORS[s.roleKey] || "gray"] ?? "gray"} />
+                <PermissionBadge label={`${s.label}${s.totalChildren > 0 && s.coveredChildren < s.totalChildren ? ` ${s.coveredChildren}/${s.totalChildren}` : ""}`} tone={ROLE_VARIANTS[ROLE_COLORS[s.roleKey] || "gray"] ?? "gray"} />
               </span>)}
           </div>;
     }
@@ -199,45 +220,119 @@ export default function AdminUsersTab({
     label: "操作",
     required: true,
     cellClassName: "w-32",
-    render: u => <CommandButton onClick={() => resetPassword(u)} className="px-2 py-1 text-xs">
-          重置密码
-        </CommandButton>
+    cell: u => ({
+      kind: "action",
+      action: {
+        key: `reset-${u.id}`,
+        label: "重置密码",
+        onClick: () => resetPassword(u),
+        className: "px-2 py-1 text-xs",
+      },
+    })
   }];
   return <div className="space-y-4">
-      <div className="flex items-center gap-4">
-        <div className="flex items-center">
-          <InputControl spec={{ valueType: "string", editor: "input" }} value={keyword} onChange={(value) => onKeywordChange(String(value ?? ""))} placeholder={searchMode === "name" ? "搜索姓名..." : "搜索全部..."} className="w-64" />
-          <CommandButton variant={searchMode === "name" ? "secondary" : "primary"} onClick={() => setSearchMode(m => m === "name" ? "all" : "name")}>
-            {searchMode === "name" ? "姓名" : "全部"}
-          </CommandButton>
-        </div>
-        <span className="text-sm text-gray-400">{filtered.length} 个用户{keyword && ` (共${users.length})`}</span>
-        <div />
-        <InputControl spec={{ valueType: "number", editor: "select", options: { source: "static", mode: "dropdown", items: [20, 50, 100].map(n => ({ value: String(n), label: `${n}条/页` })) } }} value={String(pageSize)} onChange={nextValue => onPageSizeChange(Number(nextValue))} />
-        <CommandButton variant="primary" onClick={() => {
-        setCreating(true);
-        setTimeout(() => nameRef.current?.focus(), 50);
-      }}>
-          新建
-        </CommandButton>
-      </div>
+      <FormSurface
+        kind="inline"
+        fields={[
+          {
+            key: "keyword",
+            label: "搜索",
+            spec: { valueType: "string", editor: "input" },
+            value: keyword,
+            onChange: (value) => onKeywordChange(String(value ?? "")),
+            placeholder: searchMode === "name" ? "搜索姓名..." : "搜索全部...",
+            className: "w-64",
+          },
+          {
+            kind: "note" as const,
+            key: "count",
+            content: `${filtered.length} 个用户${keyword ? ` (共${users.length})` : ""}`,
+            className: "text-sm text-gray-400",
+          },
+          {
+            key: "page-size",
+            label: "分页",
+            spec: { valueType: "number", editor: "select", options: { source: "static", mode: "dropdown", items: [20, 50, 100].map(n => ({ value: String(n), label: `${n}条/页` })) } },
+            value: String(pageSize),
+            onChange: (nextValue) => onPageSizeChange(Number(nextValue)),
+          },
+        ]}
+        actions={[
+          {
+            key: "search-mode",
+            label: searchMode === "name" ? "姓名" : "全部",
+            variant: searchMode === "name" ? "secondary" : "primary",
+            onClick: () => setSearchMode(m => m === "name" ? "all" : "name"),
+          },
+          {
+            key: "create",
+            label: "新建",
+            variant: "primary",
+            onClick: () => {
+              setCreating(true);
+              setTimeout(() => nameRef.current?.focus(), 50);
+            },
+          },
+        ]}
+      />
 
-      {creating && <PanelCard bodyClassName="flex flex-wrap items-center gap-3 p-3">
-          <InputControl inputRef={nameRef} spec={{ valueType: "string", editor: "input" }} value={newNickname} onChange={(value) => setNewNickname(String(value ?? ""))} placeholder="昵称 *" onKeyDown={e => e.key === "Enter" && handleCreate()} />
-          <InputControl spec={{ valueType: "string", editor: "input" }} value={newUsername} onChange={(value) => setNewUsername(String(value ?? ""))} placeholder="用户名（可选）" onKeyDown={e => e.key === "Enter" && handleCreate()} />
-          <CommandButton variant="primary" onClick={handleCreate}>保存</CommandButton>
-          <CommandButton onClick={() => {
-        setCreating(false);
-        setNewNickname("");
-        setNewUsername("");
-      }}>
-            取消
-          </CommandButton>
-        </PanelCard>}
+      {creating && (
+        <FormSurface
+          kind="inline"
+          className="rounded-md border border-slate-200 p-3"
+          fields={[
+            {
+              key: "nickname",
+              label: "昵称",
+              inputRef: nameRef,
+              spec: { valueType: "string", editor: "input" },
+              value: newNickname,
+              onChange: (value) => setNewNickname(String(value ?? "")),
+              placeholder: "昵称 *",
+              onKeyDown: e => e.key === "Enter" && handleCreate(),
+            },
+            {
+              key: "username",
+              label: "用户名",
+              spec: { valueType: "string", editor: "input" },
+              value: newUsername,
+              onChange: (value) => setNewUsername(String(value ?? "")),
+              placeholder: "用户名（可选）",
+              onKeyDown: e => e.key === "Enter" && handleCreate(),
+            },
+          ]}
+          actions={[
+            { key: "save", label: "保存", variant: "primary", onClick: handleCreate },
+            {
+              key: "cancel",
+              label: "取消",
+              onClick: () => {
+                setCreating(false);
+                setNewNickname("");
+                setNewUsername("");
+              },
+            },
+          ]}
+        />
+      )}
 
-      {loading ? <p className="text-gray-500">加载中...</p> : <PanelCard>
-          <DataTable rows={paged} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={u => u.id} emptyText="暂无用户" />
-        </PanelCard>}
-      {filtered.length > pageSize && <Pagination page={page + 1} totalPages={totalPages} total={filtered.length} onPageChange={nextPage => setPage(nextPage - 1)} className="flex items-center justify-center gap-3" />}
+      {loading ? <p className="text-gray-500">加载中...</p> : (
+        <DataSurface
+          kind="table"
+          framed
+          rows={paged}
+          columns={columns}
+          visibleColumns={columns.map(column => column.key)}
+          rowKey={u => u.id}
+          emptyText="暂无用户"
+          pagination={filtered.length > pageSize ? {
+            page: page + 1,
+            totalPages,
+            total: filtered.length,
+            onPageChange: nextPage => setPage(nextPage - 1),
+            className: "flex items-center justify-center gap-3",
+          } : undefined}
+        />
+      )}
     </div>;
 }

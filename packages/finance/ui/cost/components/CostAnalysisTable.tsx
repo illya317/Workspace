@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { DataTableColumn } from "@workspace/core/ui";
+import type { DataSurfaceColumnSpec, DataTableColumn } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState, SourceTraceInfo } from "../types";
 import CostDataTable, { CostTraceButton, formatCostNumber, type CostRecord } from "./CostDataTable";
@@ -21,12 +21,12 @@ export default function CostAnalysisTable({ filters }: Props) {
     pageSize: 50,
   });
 
-  const columns: DataTableColumn<CostRecord>[] = [
+  const columns: Array<DataTableColumn<CostRecord> | DataSurfaceColumnSpec<CostRecord>> = [
     { key: "tableName", label: "表名", required: true, render: (row) => String(row.tableName ?? "—") },
     { key: "rowLabel", label: "行标签", required: true, render: (row) => String(row.rowLabel ?? "—") },
     { key: "metricName", label: "指标", required: true, render: (row) => String(row.metricName ?? row.metricKey ?? "—") },
     { key: "value", label: "数值", required: true, className: "text-right", headerClassName: "text-right", render: (row) => formatCostNumber(row.value as number) },
-    { key: "source", label: "来源", required: true, render: (row) => <CostTraceButton row={row} onTrace={(info) => setTrace({ open: true, info })} /> },
+    { key: "source", label: "来源", required: true, cell: (row) => CostTraceButton({ row, onTrace: (info) => setTrace({ open: true, info }) }) },
   ];
 
   return (

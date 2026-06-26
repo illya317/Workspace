@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { EmptyStateCard, Toolbar } from "@workspace/core/ui";
+import { DataSurface, FormSurface } from "@workspace/core/ui";
 import type { WorkUser } from "@workspace/work/types";
 import { listProjectGantt } from "./api";
 import ProjectGanttChart from "./ProjectGanttChart";
@@ -67,7 +67,7 @@ export default function ProjectGanttTab({
     setCurrentStart(current => getPeriodStart(current, nextZoom));
   }
   return <div className="space-y-4">
-      <Toolbar items={[{
+      <FormSurface kind="inline" toolbar={{ items: [{
       kind: "search",
       key: "search",
       section: "filter",
@@ -113,9 +113,9 @@ export default function ProjectGanttTab({
       key: "meta",
       section: "meta",
       content: `${rows.length} 行`
-    }]} />
+    }] }} />
 
-      {error ? <EmptyStateCard compact={false} className="border-red-200 text-red-600">{error}</EmptyStateCard> : loading && !hasLoaded ? <EmptyStateCard compact={false}>加载公司甘特...</EmptyStateCard> : <ProjectGanttChart rows={rows} periodStart={currentStart} zoom={zoom} onToggle={toggleExpanded} />}
+      {error ? <DataSurface kind="records" records={[]} empty={error} className="border-red-200 text-red-600" /> : loading && !hasLoaded ? <DataSurface kind="records" records={[]} empty="加载公司甘特..." /> : <ProjectGanttChart rows={rows} periodStart={currentStart} zoom={zoom} onToggle={toggleExpanded} />}
     </div>;
 }
 function periodLabel(start: Date, zoom: ProjectGanttZoom) {

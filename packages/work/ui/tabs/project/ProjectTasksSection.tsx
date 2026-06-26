@@ -2,13 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  CreatePanel,
-  DataTable,
-  EmptyStateCard,
-  SectionCard,
-  TableScrollFrame,
+  DataSurface,
+  FormSurface,
   useFeedback,
-  type DataTableColumn,
+  type DataSurfaceColumnSpec,
   type DataTableRowEditActionConfig,
   type PickerOption,
 } from "@workspace/core/ui";
@@ -92,13 +89,13 @@ export default function ProjectTasksSection({
     [tasks],
   );
 
-  const columns: DataTableColumn<ProjectTaskItem>[] = [
+  const columns: DataSurfaceColumnSpec<ProjectTaskItem>[] = [
     {
       key: "description",
       label: "任务名称",
       required: true,
       cellClassName: "min-w-64 max-w-xl",
-      render: (task) => (
+      cell: (task) => (
         <div className="flex min-w-0 flex-col gap-1.5">
           {task.predecessorTaskNames.length > 0 && (
             <span className="max-w-full truncate text-xs text-slate-400" title={`前置：${task.predecessorTaskNames.join("、")}`}>前置：{task.predecessorTaskNames.join("、")}</span>
@@ -129,7 +126,7 @@ export default function ProjectTasksSection({
       key: "childProjectStatus",
       label: "派生状态",
       defaultVisible: true,
-      render: (task) => (
+      cell: (task) => (
         <span className={`inline-flex rounded px-2 py-0.5 text-xs font-medium ${statusClassName(task.childProjectStatus)}`}>
           {task.childProjectStatus || "未派生"}
         </span>
@@ -139,19 +136,19 @@ export default function ProjectTasksSection({
       key: "owner",
       label: "负责人",
       defaultVisible: true,
-      render: (task) => task.ownerEmployeeName || "未设置",
+      cell: (task) => task.ownerEmployeeName || "未设置",
     },
     {
       key: "startDate",
       label: "开始时间",
       defaultVisible: true,
-      render: (task) => task.startDate || "未定",
+      cell: (task) => task.startDate || "未定",
     },
     {
       key: "endDate",
       label: "完成时间",
       defaultVisible: true,
-      render: (task) => task.endDate || "未定",
+      cell: (task) => task.endDate || "未定",
     },
 
   ];
@@ -242,87 +239,101 @@ export default function ProjectTasksSection({
 
   if (!projectId) {
     return (
-      <SectionCard title="项目任务">
-        <EmptyStateCard compact>项目保存后可维护任务计划。</EmptyStateCard>
-      </SectionCard>
+      <DataSurface kind="records" framed title="项目任务" records={[]} empty="项目保存后可维护任务计划。" />
     );
   }
 
   return (
-    <CreatePanel
-      variant="block"
-      title="项目任务"
-      canCreate={canEdit}
-      creating={creatingTask}
-      disabled={disabled || saving}
-      submitting={saving}
-      submitDisabled={disabled || saving || !isTaskDraftSubmittable(createDraft)}
-      addLabel="新增任务"
-      submitLabel="保存任务"
-      onStartCreate={() => setCreatingTask(true)}
-      onCancel={() => setCreatingTask(false)}
-      onSubmit={() => void handleCreate()}
-      createContent={<ProjectTaskForm draft={createDraft} disabled={disabled || saving} taskOptions={taskOptions} phases={phases} tasks={tasks} excludedTaskId={null} framed={false} onChange={setCreateDraft} />}
-    >
-        <TableScrollFrame className="overflow-y-hidden">
-          <DataTable
-            rows={tasks}
-            columns={columns}
-            density="compact"
-            loading={loading}
-            emptyText="暂无项目任务"
-            rowKey={(task) => task.id}
-            onRowClick={handleToggleDetail}
-            visibleColumns={["owner", "childProjectStatus", "startDate", "endDate"]}
-            expandedRowKey={detailTaskId}
-            renderExpandedRow={(task) => editDraft && editingTaskId === task.id ? (
-              <ProjectTaskForm
-                draft={editDraft}
-                disabled={disabled || saving}
-                taskOptions={taskOptions}
-                phases={phases}
-                tasks={tasks}
-                excludedTaskId={task.id}
-                onChange={setEditDraft}
+    <FormSurface
+      kind="fields"
+      fields={[{
+        kind: "section",
+        key: "project-tasks",
+        title: "项目任务",
+        actions: canEdit && !creatingTask ? [{
+          key: "create",
+          label: "新增任务",
+          variant: "primary",
+          disabled: disabled || saving,
+          onClick: () => setCreatingTask(true),
+        }] : undefined,
+        fields: [
+          ...(creatingTask ? [{
+            kind: "section" as const,
+            key: "create-task",
+            fields: [{ kind: "note" as const, key: "create-task-form", content: <ProjectTaskForm draft={createDraft} disabled={disabled || saving} taskOptions={taskOptions} phases={phases} tasks={tasks} excludedTaskId={null} framed={false} onChange={setCreateDraft} /> }],
+            actions: [
+              { key: "cancel", label: "取消", disabled: disabled || saving, onClick: () => setCreatingTask(false) },
+              { key: "submit", label: saving ? "保存中..." : "保存任务", variant: "primary" as const, disabled: disabled || saving || !isTaskDraftSubmittable(createDraft), onClick: () => void handleCreate() },
+            ],
+          }] : []),
+          {
+            kind: "note",
+            key: "task-table",
+            content: (
+              <DataSurface
+                kind="table"
+                rows={tasks}
+                columns={columns}
+                density="compact"
+                loading={loading}
+                emptyText="暂无项目任务"
+                rowKey={(task) => task.id}
+                onRowClick={handleToggleDetail}
+                visibleColumns={["owner", "childProjectStatus", "startDate", "endDate"]}
+                expandedRowKey={detailTaskId}
+                renderExpandedRow={(task) => editDraft && editingTaskId === task.id ? (
+                  <ProjectTaskForm
+                    draft={editDraft}
+                    disabled={disabled || saving}
+                    taskOptions={taskOptions}
+                    phases={phases}
+                    tasks={tasks}
+                    excludedTaskId={task.id}
+                    onChange={setEditDraft}
+                  />
+                ) : <ProjectTaskDetail task={task} />}
+                rowEditActions={(task): DataTableRowEditActionConfig<ProjectTaskItem> => ({
+                  editing: editingTaskId === task.id,
+                  canEdit,
+                  canSave: Boolean(editDraft && isTaskDraftSubmittable(editDraft)),
+                  initial: createProjectTaskDraft(task),
+                  current: editDraft,
+                  saving,
+                  disabled,
+                  editLabel: "编辑任务",
+                  saveLabel: "保存任务",
+                  cancelLabel: "取消编辑",
+                  onEdit: handleStartEdit,
+                  onSave: () => void handleUpdate(),
+                  onCancel: handleCancelEdit,
+                })}
+                rowActions={(task) => {
+                  if (!canEdit || editingTaskId === task.id) return [];
+                  return [
+                    {
+                      key: "create-child-project",
+                      kind: "add" as const,
+                      label: task.childProjectId ? "已有子项目" : "创建子项目",
+                      onClick: () => onCreateChildProject?.(task),
+                      disabled: saving || disabled || Boolean(task.childProjectId) || !onCreateChildProject,
+                    },
+                    {
+                      key: "delete",
+                      kind: "delete" as const,
+                      label: "删除任务",
+                      onClick: () => void handleDelete(task),
+                      disabled: saving || disabled || Boolean(task.childProjectId),
+                    },
+                  ];
+                }}
+                scrollClassName="overflow-y-hidden"
               />
-            ) : <ProjectTaskDetail task={task} />}
-            rowEditActions={(task): DataTableRowEditActionConfig<ProjectTaskItem> => ({
-              editing: editingTaskId === task.id,
-              canEdit,
-              canSave: Boolean(editDraft && isTaskDraftSubmittable(editDraft)),
-              initial: createProjectTaskDraft(task),
-              current: editDraft,
-              saving,
-              disabled,
-              editLabel: "编辑任务",
-              saveLabel: "保存任务",
-              cancelLabel: "取消编辑",
-              onEdit: handleStartEdit,
-              onSave: () => void handleUpdate(),
-              onCancel: handleCancelEdit,
-            })}
-            rowActions={(task) => {
-              if (!canEdit || editingTaskId === task.id) return [];
-              return [
-                {
-                  key: "create-child-project",
-                  kind: "add" as const,
-                  label: task.childProjectId ? "已有子项目" : "创建子项目",
-                  onClick: () => onCreateChildProject?.(task),
-                  disabled: saving || disabled || Boolean(task.childProjectId) || !onCreateChildProject,
-                },
-                {
-                  key: "delete",
-                  kind: "delete" as const,
-                  label: "删除任务",
-                  onClick: () => void handleDelete(task),
-                  disabled: saving || disabled || Boolean(task.childProjectId),
-                },
-              ];
-            }}
-          />
-        </TableScrollFrame>
-    </CreatePanel>
+            ),
+          },
+        ],
+      }]}
+    />
   );
 }
 

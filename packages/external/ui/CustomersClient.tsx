@@ -1,6 +1,7 @@
 "use client";
 
-import { DatabasePageFrame, EmptyStateCard, SectionCard, Toolbar, type ToolbarItem } from "@workspace/core/ui";
+import { PageSurface } from "@workspace/core/ui";
+import type { ToolbarItem } from "@workspace/core/ui";
 
 export default function CustomersClient() {
   const toolbarItems: ToolbarItem[] = [
@@ -16,13 +17,31 @@ export default function CustomersClient() {
   ];
 
   return (
-    <DatabasePageFrame contentClassName="py-10">
-      <SectionCard
-        title="客户列表"
-        actions={<Toolbar items={toolbarItems} className="p-4" />}
-      >
-        <EmptyStateCard compact={false}>暂无客户数据</EmptyStateCard>
-      </SectionCard>
-    </DatabasePageFrame>
+    <PageSurface
+      kind="list"
+      contentClassName="py-10"
+      blocks={[
+        {
+          kind: "section",
+          key: "customers",
+          title: "客户列表",
+          blocks: [
+            {
+              kind: "data",
+              key: "empty",
+              surface: {
+                kind: "records",
+                records: [],
+                empty: "暂无客户数据",
+                toolbar: {
+                  items: toolbarItems,
+                  className: "p-4",
+                },
+              },
+            },
+          ],
+        },
+      ]}
+    />
   );
 }

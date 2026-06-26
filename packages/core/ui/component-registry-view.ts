@@ -1,4 +1,8 @@
-import { coreUiComponentRegistry, getCoreUiCompositionGraph } from "./component-registry";
+import {
+  coreUiComponentRegistry,
+  getCoreUiCompositionGraph,
+  isCoreUiComponentVisibleInShowcase,
+} from "./component-registry";
 import { buildComponentNestDepthMap } from "./component-nest-depth";
 import type {
   CoreUiComponentAccessLayer,
@@ -51,7 +55,7 @@ export function buildCoreUiComponentTree({
   );
 
   return [...coreUiComponentRegistry]
-    .filter((component) => component.accessLayer !== "private-impl")
+    .filter(isCoreUiComponentVisibleInShowcase)
     .sort(compareComponentsByName)
     .map((component) => buildComponentTreeNode({
       component,
@@ -73,9 +77,12 @@ export function getCoreUiComponentRelationView(
   const component = componentByName.get(componentName);
   if (!component) return null;
 
-  const composes = resolveComponents(graph.composes.get(componentName) ?? [], componentByName);
-  const foundations = resolveComponents(graph.foundations.get(componentName) ?? [], componentByName);
-  const usedBy = resolveComponents(graph.usedBy.get(componentName) ?? [], componentByName);
+  const composes = resolveComponents(graph.composes.get(componentName) ?? [], componentByName)
+    .filter(isCoreUiComponentVisibleInShowcase);
+  const foundations = resolveComponents(graph.foundations.get(componentName) ?? [], componentByName)
+    .filter(isCoreUiComponentVisibleInShowcase);
+  const usedBy = resolveComponents(graph.usedBy.get(componentName) ?? [], componentByName)
+    .filter(isCoreUiComponentVisibleInShowcase);
 
   return {
     component,

@@ -1,6 +1,6 @@
 "use client";
 
-import { Toolbar } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 import { DepartmentPositionActiveWorkspace } from "./active-workspace";
 import { DepartmentPositionDetailArea } from "./department-position-detail-area";
 import { buildDepartmentPositionToolbarItems } from "./department-position-toolbar-items";
@@ -61,9 +61,7 @@ export function DepartmentPositionMainContent({
   return (
     <>
       {toolbarItems.length > 0 && (
-        <div className="mb-3">
-          <Toolbar variant="bar" items={toolbarItems} />
-        </div>
+        <FormSurface kind="inline" toolbar={{ variant: "bar", items: toolbarItems }} className="mb-3" />
       )}
       <DepartmentPositionActiveWorkspace
         sideOpen={treeOpen}

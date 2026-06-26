@@ -1,6 +1,6 @@
 "use client";
 
-import { MetricCard } from "@workspace/core/ui";
+import { DataSurface } from "@workspace/core/ui";
 import type { Department, EDP, Position } from "./useAnalyticsData";
 import { usePositionData } from "./position/usePositionData";
 import DeptBarChart from "./position/DeptBarChart";
@@ -26,13 +26,16 @@ export default function PositionAnalytics({ positions, edps, departments }: { po
   return (
     <div className="space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <MetricCard label="岗位总数" value={`${stats.total} / 编制 ${stats.hasHeadcount}`} />
-        <MetricCard label="有任职" value={`${stats.occupied} (${stats.total > 0 ? Math.round((stats.occupied / stats.total) * 100) : 0}%)`} />
-        <MetricCard label="空岗" value={stats.vacant} />
-        <MetricCard label="超编" value={stats.overStaffed} />
-        <MetricCard label="缺编" value={stats.underStaffed} />
-      </div>
+      <DataSurface
+        kind="metrics"
+        metrics={[
+          { key: "total", label: "岗位总数", value: `${stats.total} / 编制 ${stats.hasHeadcount}` },
+          { key: "occupied", label: "有任职", value: `${stats.occupied} (${stats.total > 0 ? Math.round((stats.occupied / stats.total) * 100) : 0}%)` },
+          { key: "vacant", label: "空岗", value: stats.vacant },
+          { key: "overStaffed", label: "超编", value: stats.overStaffed },
+          { key: "underStaffed", label: "缺编", value: stats.underStaffed },
+        ]}
+      />
 
       {/* 部门编制对比 — 按层级分组 */}
       <DeptBarChart

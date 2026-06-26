@@ -2,9 +2,9 @@
 
 import type { ReactNode } from "react";
 import {
-  InputControl,
-  ReadOnlyField,
-  SectionCard,
+  FormSurface,
+  PageSurface,
+  type FormSurfaceInputControlSpec,
 } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import EthnicityPicker from "../components/EthnicityPicker";
@@ -28,6 +28,10 @@ interface FieldInputProps {
   onChange: (key: string, value: unknown, option?: FkFieldOption) => void;
 }
 
+function ControlField(control: Omit<FormSurfaceInputControlSpec, "kind">) {
+  return <FormSurface kind="control" control={{ kind: "inputControl", ...control }} />;
+}
+
 export function ProfileFieldInput({
   field,
   value,
@@ -38,7 +42,11 @@ export function ProfileFieldInput({
 }: FieldInputProps) {
   if (field.type === "lunarBirthday") {
     return (
-      <ReadOnlyField value={solarToLunarBirthday(value) || <span className="text-slate-400">未设置</span>} />
+      <ControlField
+        spec={{ valueType: "string", editor: "input", state: "readonly" }}
+        value={solarToLunarBirthday(value) || ""}
+        placeholder="未设置"
+      />
     );
   }
 
@@ -86,7 +94,7 @@ export function ProfileFieldInput({
   if (field.type === "boolean") {
     const labels = field.booleanLabels ?? { true: "是", false: "否", unset: "未设置" };
     return (
-      <InputControl
+      <ControlField
         spec={{
           valueType: "boolean",
           editor: "select",
@@ -120,11 +128,15 @@ export function ProfileFieldInput({
     const reportToDisabled = isEdpReportTo && !reportToPositionId;
     if (disabled) {
       return (
-        <ReadOnlyField value={display || normalizeInputValue(value) || <span className="text-slate-400">未设置</span>} />
+        <ControlField
+          spec={{ valueType: "string", editor: "input", state: "readonly" }}
+          value={display || normalizeInputValue(value) || ""}
+          placeholder="未设置"
+        />
       );
     }
     return (
-      <InputControl
+      <ControlField
         spec={{
           valueType: "reference",
           editor: "autocomplete",
@@ -151,7 +163,7 @@ export function ProfileFieldInput({
 
   if (field.type === "textarea") {
     return (
-      <InputControl
+      <ControlField
         spec={{ valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" }}
         value={normalizeInputValue(value)}
         onChange={(next) => onChange(field.key, next || null)}
@@ -183,7 +195,7 @@ export function ProfileFieldInput({
     }
 
     return (
-      <InputControl
+      <ControlField
         spec={{
           valueType: "string",
           editor: "select",
@@ -198,7 +210,7 @@ export function ProfileFieldInput({
 
   if (field.type === "date") {
     return (
-      <InputControl
+      <ControlField
         spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }}
         value={normalizeInputValue(value)}
         onChange={(next) => onChange(field.key, next)}
@@ -208,7 +220,7 @@ export function ProfileFieldInput({
 
   if (field.type === "phone") {
     return (
-      <InputControl
+      <ControlField
         spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }}
         value={formatPhoneNumber(value)}
         onChange={(next) => onChange(field.key, normalizePhoneValue(next))}
@@ -219,7 +231,7 @@ export function ProfileFieldInput({
 
   if (field.type === "percent") {
     return (
-      <InputControl
+      <ControlField
         spec={{
           valueType: "number",
           editor: "number",
@@ -236,7 +248,7 @@ export function ProfileFieldInput({
 
   if (field.type === "chineseId") {
     return (
-      <InputControl
+      <ControlField
         spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }}
         value={normalizeChineseIdNumber(value) ?? ""}
         onChange={(next) => onChange(field.key, normalizeChineseIdNumber(next)?.slice(0, 18) ?? null)}
@@ -247,7 +259,7 @@ export function ProfileFieldInput({
   }
 
   return (
-    <InputControl
+    <ControlField
       spec={{
         valueType: field.type === "number" ? "number" : "string",
         editor: field.type === "number" ? "number" : "input",
@@ -284,14 +296,29 @@ export function SectionShell({
   ) : status ? <div>{status}</div> : null;
 
   return (
-    <SectionCard
-      title={headerTitle}
-      subtitle={subtitle}
-      actions={actions && <div className="flex shrink-0 flex-wrap gap-2 lg:justify-end">{actions}</div>}
+    <PageSurface
+      embedded
+      kind="detail"
       className={className}
-      bodyClassName="p-3"
-    >
-      {children}
-    </SectionCard>
+      blocks={[
+        {
+          kind: "section",
+          key: "section",
+          title: headerTitle,
+          subtitle,
+          blocks: [
+            ...(actions
+              ? [{
+                  kind: "moduleView" as const,
+                  key: "actions",
+                  view: <div className="flex shrink-0 flex-wrap gap-2 lg:justify-end">{actions}</div>,
+                }]
+              : []),
+            { kind: "moduleView", key: "content", view: children },
+          ],
+          bodyClassName: "p-3",
+        },
+      ]}
+    />
   );
 }

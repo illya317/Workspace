@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandButton, EmptyStateCard, SectionCard } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 import WorkForm from "./WorkForm";
 import type { WorkItem } from "./types";
 export interface WorkFormData {
@@ -27,15 +27,25 @@ export default function WorkFormSection({
   onCancelForm,
   onSave
 }: WorkFormSectionProps) {
-  return <SectionCard title="部门工作计划" className="mb-6" actions={isAdmin && !showForm && !editingWork ? <CommandButton variant="primary" onClick={onAddClick} className="ml-auto">
-            + 添加工作项
-          </CommandButton> : null}>
-      {!isAdmin && <EmptyStateCard compact className="mb-4">
-          仅部门管理员可编辑工作计划
-        </EmptyStateCard>}
-
-      {showForm && <div className="mb-6">
-          <WorkForm onSave={onSave} onCancel={onCancelForm} />
-        </div>}
-    </SectionCard>;
+  return (
+    <FormSurface
+      kind="fields"
+      className="mb-6"
+      fields={[{
+        kind: "section",
+        key: "department-work-plan",
+        title: "部门工作计划",
+        actions: isAdmin && !showForm && !editingWork ? [{
+          key: "add",
+          label: "添加工作项",
+          variant: "primary",
+          onClick: onAddClick,
+        }] : undefined,
+        fields: [
+          ...(!isAdmin ? [{ kind: "note" as const, key: "admin-only", content: "仅部门管理员可编辑工作计划", className: "mb-4 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" }] : []),
+          ...(showForm ? [{ kind: "note" as const, key: "form", content: <div className="mb-6"><WorkForm onSave={onSave} onCancel={onCancelForm} /></div> }] : []),
+        ],
+      }]}
+    />
+  );
 }

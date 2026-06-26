@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CommandButton, DetailModal } from "@workspace/core/ui";
+import { FormSurface, PageSurface } from "@workspace/core/ui";
 import type { QcLayoutBlock, QcTemplateTestItem } from "@workspace/production/server/qc";
 import QcLayoutPaper from "../QcLayoutPaper";
 import TemplateInlineFeedback from "./TemplateInlineFeedback";
@@ -64,28 +64,51 @@ export default function TemplatePreviewModal({
   if (!selection) return null;
   const fullBlocks = selection.stage.precheckLayoutBlocks ?? [];
   const precheckBlocks = fullSectionBlocks(fullBlocks, "1");
-  return <DetailModal open title={`布局预览：${selectionTitle(selection)}`} onClose={onClose} maxWidth="max-w-[min(230mm,calc(100vw-3rem))]">
-      <div className="min-h-[720px] px-2 py-2 xl:px-4" style={{
-      fontFamily: "\"FangSong\", \"STFangsong\", \"仿宋\", serif"
-    }}>
-          <div className="mb-6 grid grid-cols-[1fr_auto] items-start gap-4 text-sm font-semibold text-slate-950">
-            <span />
-            <CommandButton variant={advancedMode ? "danger" : "primary"} onClick={() => setAdvancedMode(current => !current)} className="justify-self-center">
-              {advancedMode ? "开发模式" : "预览模式"}
-            </CommandButton>
+  return <PageSurface
+    kind="detail"
+    embedded
+    blocks={[{
+      kind: "modal",
+      key: "template-preview-modal",
+      open: true,
+      title: `布局预览：${selectionTitle(selection)}`,
+      onClose,
+      maxWidth: "max-w-[min(230mm,calc(100vw-3rem))]",
+      blocks: [{
+        kind: "moduleView",
+        key: "template-preview-body",
+        view: (
+          <div className="min-h-[720px] px-2 py-2 xl:px-4" style={{
+            fontFamily: "\"FangSong\", \"STFangsong\", \"仿宋\", serif"
+          }}>
+            <div className="mb-6 grid grid-cols-[1fr_auto] items-start gap-4 text-sm font-semibold text-slate-950">
+              <span />
+              <FormSurface
+                kind="inline"
+                className="justify-self-center"
+                actions={[{
+                  key: "toggle-advanced-mode",
+                  label: advancedMode ? "开发模式" : "预览模式",
+                  variant: advancedMode ? "danger" : "primary",
+                  onClick: () => setAdvancedMode(current => !current),
+                }]}
+              />
+            </div>
+            {selection.kind === "precheck" && <TemplateInlineFeedback selection={selection} onSaved={onSaved}>
+                <h3 className="mb-5 text-center text-lg font-semibold text-slate-950">
+                  {numerals[selection.stageIndex] ?? selection.stageIndex + 1}、{selection.template.productName}{selection.stage.label}
+                </h3>
+                <QcLayoutPaper blocks={precheckBlocks} compact advancedMode={advancedMode} />
+              </TemplateInlineFeedback>}
+            {selection.kind === "experiment" && <TemplateInlineFeedback selection={selection} onSaved={onSaved}>
+                <ExperimentPreview stageBlocks={selection.stage.experimentLayoutBlocks} tests={selection.stage.tests} advancedMode={advancedMode} />
+              </TemplateInlineFeedback>}
+            {selection.kind === "test" && selection.test && <TemplateInlineFeedback selection={selection} onSaved={onSaved}>
+                <TestPreview test={selection.test} advancedMode={advancedMode} />
+              </TemplateInlineFeedback>}
           </div>
-          {selection.kind === "precheck" && <TemplateInlineFeedback selection={selection} onSaved={onSaved}>
-              <h3 className="mb-5 text-center text-lg font-semibold text-slate-950">
-                {numerals[selection.stageIndex] ?? selection.stageIndex + 1}、{selection.template.productName}{selection.stage.label}
-              </h3>
-              <QcLayoutPaper blocks={precheckBlocks} compact advancedMode={advancedMode} />
-            </TemplateInlineFeedback>}
-          {selection.kind === "experiment" && <TemplateInlineFeedback selection={selection} onSaved={onSaved}>
-              <ExperimentPreview stageBlocks={selection.stage.experimentLayoutBlocks} tests={selection.stage.tests} advancedMode={advancedMode} />
-            </TemplateInlineFeedback>}
-          {selection.kind === "test" && selection.test && <TemplateInlineFeedback selection={selection} onSaved={onSaved}>
-              <TestPreview test={selection.test} advancedMode={advancedMode} />
-            </TemplateInlineFeedback>}
-      </div>
-    </DetailModal>;
+        ),
+      }],
+    }]}
+  />;
 }

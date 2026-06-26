@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MetricCard, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceColumnSpec, type DataTableColumn } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState, SourceTraceInfo } from "../types";
 import CostDataTable, { CostTraceButton, formatCostNumber, type CostRecord } from "./CostDataTable";
@@ -21,7 +21,7 @@ export default function ShipmentTable({ filters }: Props) {
     pageSize: 50,
   });
 
-  const columns: DataTableColumn<CostRecord>[] = [
+  const columns: Array<DataTableColumn<CostRecord> | DataSurfaceColumnSpec<CostRecord>> = [
     { key: "date", label: "日期", required: true, render: (row) => String(row.date ?? "—") },
     { key: "customerName", label: "客户", required: true, render: (row) => String(row.customerName ?? "—") },
     { key: "employeeName", label: "业务员", required: true, render: (row) => String(row.employeeName ?? "厂家直销") },
@@ -30,18 +30,18 @@ export default function ShipmentTable({ filters }: Props) {
     { key: "quantity", label: "数量", required: true, className: "text-right", headerClassName: "text-right", render: (row) => formatCostNumber(row.quantity as number) },
     { key: "amount", label: "金额", required: true, className: "text-right", headerClassName: "text-right", render: (row) => formatCostNumber(row.amount as number) },
     { key: "receivedAmount", label: "已回款", required: true, className: "text-right", headerClassName: "text-right", render: (row) => formatCostNumber(row.receivedAmount as number) },
-    { key: "source", label: "来源", required: true, render: (row) => <CostTraceButton row={row} onTrace={(info) => setTrace({ open: true, info })} /> },
+    { key: "source", label: "来源", required: true, cell: (row) => CostTraceButton({ row, onTrace: (info) => setTrace({ open: true, info }) }) },
   ];
 
   return (
     <div className="space-y-4">
       {summary && (
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <MetricCard label="发货金额" value={formatCostNumber(summary.totalAmount as number)} />
-          <MetricCard label="已回款" value={formatCostNumber(summary.totalReceived as number)} />
-          <MetricCard label="未回款" value={formatCostNumber(summary.totalUnreceived as number)} />
-          <MetricCard label="回款率" value={`${(((summary.collectionRate as number) ?? 0) * 100).toFixed(1)}%`} />
-        </div>
+        <DataSurface kind="metrics" metrics={[
+          { key: "amount", label: "发货金额", value: formatCostNumber(summary.totalAmount as number) },
+          { key: "received", label: "已回款", value: formatCostNumber(summary.totalReceived as number) },
+          { key: "unreceived", label: "未回款", value: formatCostNumber(summary.totalUnreceived as number) },
+          { key: "rate", label: "回款率", value: `${(((summary.collectionRate as number) ?? 0) * 100).toFixed(1)}%` },
+        ]} />
       )}
 
       <CostDataTable

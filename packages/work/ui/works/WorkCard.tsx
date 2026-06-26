@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandButton, InputControl, PanelCard } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceCommandSpec } from "@workspace/core/ui";
 import type { WorkItem } from "./types";
 export default function WorkCard({
   work,
@@ -23,41 +23,30 @@ export default function WorkCard({
   isFirst: boolean;
   isLast: boolean;
 }) {
-  return <PanelCard bodyClassName="p-4">
-      <div className="mb-2 flex items-start gap-3">
-        <div className="text-sm font-semibold text-gray-800">{work.content}</div>
-        {isAdmin && <div className="ml-auto flex items-center gap-1">
-            {!work.isArchived && <>
-                <CommandButton onClick={() => onMove(work.id, -1)} disabled={isFirst} size="sm" className="px-1.5 py-0.5 text-xs">
-                  ↑
-                </CommandButton>
-                <CommandButton onClick={() => onMove(work.id, 1)} disabled={isLast} size="sm" className="px-1.5 py-0.5 text-xs">
-                  ↓
-                </CommandButton>
-                <CommandButton onClick={() => onEdit(work)} size="sm" className="px-1.5 py-0.5 text-xs">
-                  编辑
-                </CommandButton>
-                <CommandButton onClick={() => onArchive?.(work.id)} size="sm" className="px-1.5 py-0.5 text-xs">
-                  归档
-                </CommandButton>
-              </>}
-            {work.isArchived && <CommandButton onClick={() => onRestore?.(work.id)} size="sm" className="px-1.5 py-0.5 text-xs">
-                恢复
-              </CommandButton>}
-            <CommandButton variant="danger" onClick={() => onDelete(work.id)} size="sm" className="px-1.5 py-0.5 text-xs">
-              删除
-            </CommandButton>
-          </div>}
-      </div>
-      <div className="flex flex-wrap items-center gap-4">
-        <InputControl spec={{ valueType: "number", editor: "rating", state: "disabled" }} value={work.importance} ratingLabel="重要度" />
-        <InputControl spec={{ valueType: "number", editor: "rating", state: "disabled" }} value={work.urgency} ratingLabel="紧急度" />
-      </div>
-      {work.participants.length > 0 && <div className="mt-2 text-xs text-gray-500">
-          参与人：{work.participants.map(p => p.name).join("、")}
-        </div>}
-      <div className="mt-1 text-xs text-gray-400">
-        创建于 {new Date(work.createdAt).toLocaleDateString("zh-CN")}
-      </div>
-    </PanelCard>;
+  const actions: DataSurfaceCommandSpec[] | undefined = isAdmin ? [
+    ...(!work.isArchived ? [
+      { key: "up", label: "上移", onClick: () => onMove(work.id, -1), disabled: isFirst },
+      { key: "down", label: "下移", onClick: () => onMove(work.id, 1), disabled: isLast },
+      { key: "edit", label: "编辑", onClick: () => onEdit(work) },
+      { key: "archive", label: "归档", onClick: () => onArchive?.(work.id) },
+    ] satisfies DataSurfaceCommandSpec[] : [
+      { key: "restore", label: "恢复", onClick: () => onRestore?.(work.id) },
+    ] satisfies DataSurfaceCommandSpec[]),
+    { key: "delete", label: "删除", variant: "danger", onClick: () => onDelete(work.id) },
+  ] : undefined;
+
+  return (
+    <DataSurface
+      kind="metrics"
+      framed
+      title={work.content}
+      metrics={[
+        { key: "importance", label: "重要度", value: work.importance },
+        { key: "urgency", label: "紧急度", value: work.urgency },
+        { key: "participants", label: "参与人", value: work.participants.length > 0 ? work.participants.map(p => p.name).join("、") : "无" },
+        { key: "created", label: "创建于", value: new Date(work.createdAt).toLocaleDateString("zh-CN") },
+      ]}
+      actions={actions}
+    />
+  );
 }

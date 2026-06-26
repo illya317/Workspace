@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CommandButton, DataTable, PanelCard, useFeedback, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, FormSurface, useFeedback, type DataTableColumn } from "@workspace/core/ui";
 import { matchSearchFields } from "@workspace/platform/search";
 import { useStatementConfig } from "./StatementConfigContext";
 import LineMappingsPanel from "./LineMappingsPanel";
@@ -246,12 +246,11 @@ export default function LineConfigTab() {
   if (error) {
     return <div className="space-y-3 py-8 text-center">
         <p className="text-sm text-red-600">{error}</p>
-        <CommandButton variant="danger" onClick={load}>重试</CommandButton>
+        <FormSurface kind="inline" actions={[{ key: "retry", label: "重试", variant: "danger", onClick: load }]} />
       </div>;
   }
   return <div className="space-y-4">
-      <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
-        <DataTable rows={rows} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={row => row.id} density="compact" tableClassName="text-base" onRowClick={row => {
+      <DataSurface kind="table" framed className="overflow-hidden" bodyClassName="overflow-x-auto" rows={rows} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={row => row.id} density="compact" tableClassName="text-base" onRowClick={row => {
         if (row.kind !== "line") return;
         setExpanded(previous => {
           const next = new Set(previous);
@@ -266,6 +265,5 @@ export default function LineConfigTab() {
           setAccountSearch("");
         }} onNewAccountChange={setNewAccount} onAccountSearchChange={setAccountSearch} />;
       }} />
-      </PanelCard>
     </div>;
 }

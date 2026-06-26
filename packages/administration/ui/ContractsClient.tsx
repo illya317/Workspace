@@ -2,12 +2,12 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState } from "react";
-import { Pagination, useFeedback } from "@workspace/core/ui";
-import { DatabasePageFrame } from "@workspace/core/ui";
+import { PageSurface, useFeedback } from "@workspace/core/ui";
+import type { DataSurfaceProps } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { useContracts } from "./hooks/useContracts";
-import ContractFilters from "./components/ContractFilters";
-import ContractsTable, { CONTRACT_DEFAULT_VISIBLE_COLUMNS, getContractTableColumns } from "./components/ContractsTable";
+import getContractFilterToolbarItems from "./components/ContractFilters";
+import { CONTRACT_DEFAULT_VISIBLE_COLUMNS, getContractTableColumns } from "./components/ContractsTable";
 import ContractModal from "./components/ContractModal";
 import type { Contract, ModalMode } from "@workspace/administration/types";
 
@@ -36,6 +36,27 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
   };
 
   const toolbarColumns = getContractTableColumns();
+  const toolbarItems = getContractFilterToolbarItems({
+    q,
+    onQChange: setQ,
+    categoryFilter,
+    onCategoryChange: setCategoryFilter,
+    statusFilter,
+    onStatusChange: setStatusFilter,
+    categories,
+    statuses,
+    columns: toolbarColumns,
+    visibleColumns,
+    onColumnsChange: setVisibleColumns,
+    onCreate: openCreate,
+    onReset: () => {
+      setQ("");
+      setLocationFilter("");
+      setCategoryFilter("");
+      setStatusFilter("");
+      setVisibleColumns(CONTRACT_DEFAULT_VISIBLE_COLUMNS);
+    },
+  });
 
   const closeModal = () => {
     setModalMode(null);
@@ -96,43 +117,57 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
 
   return (
     <>
-      <DatabasePageFrame
+      <PageSurface
+        kind="list"
         contentClassName="py-6"
-        summary={<p className="text-sm text-slate-500">共 {total} 条记录</p>}
-      >
-        <ContractFilters
-          q={q} onQChange={setQ}
-          categoryFilter={categoryFilter} onCategoryChange={setCategoryFilter}
-          statusFilter={statusFilter} onStatusChange={setStatusFilter}
-          categories={categories} statuses={statuses}
-          columns={toolbarColumns}
-          visibleColumns={visibleColumns}
-          onColumnsChange={setVisibleColumns}
-          onCreate={openCreate}
-          onReset={() => {
-            setQ("");
-            setLocationFilter("");
-            setCategoryFilter("");
-            setStatusFilter("");
-            setVisibleColumns(CONTRACT_DEFAULT_VISIBLE_COLUMNS);
-          }}
-        />
-
-        <ContractsTable
-          contracts={contracts}
-          visibleColumns={visibleColumns}
-          onEdit={openEdit}
-          onDelete={(id) => void deleteContract(id)}
-        />
-
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          onPageChange={setPage}
-          compact
-          className="mt-4 flex items-center justify-center gap-3"
-        />
-      </DatabasePageFrame>
+        toolbar={{
+          items: [
+            ...toolbarItems,
+            {
+              kind: "text",
+              key: "total",
+              section: "meta",
+              content: <span className="text-sm text-slate-500">共 {total} 条记录</span>,
+            },
+          ],
+        }}
+        blocks={[
+          {
+            kind: "data",
+            key: "contracts",
+            surface: ({
+              kind: "table",
+              framed: true,
+              className: "overflow-hidden",
+              bodyClassName: "overflow-x-auto",
+              rows: contracts,
+              columns: toolbarColumns,
+              visibleColumns,
+              rowKey: (contract) => contract.id,
+              emptyText: "暂无数据",
+              rowActions: (contract) => [
+                { key: "edit", label: "编辑", kind: "edit", onClick: () => openEdit(contract) },
+                { key: "delete", label: "删除", kind: "delete", onClick: () => void deleteContract(contract.id) },
+              ],
+              actionsColumn: { centered: true },
+            } satisfies DataSurfaceProps<Contract>) as DataSurfaceProps,
+          },
+          {
+            kind: "navigation",
+            key: "pagination",
+            surface: {
+              kind: "pagination",
+              pagination: {
+                page,
+                totalPages,
+                onPageChange: setPage,
+                compact: true,
+                className: "mt-4 flex items-center justify-center gap-3",
+              },
+            },
+          },
+        ]}
+      />
 
       <ContractModal
         mode={modalMode}

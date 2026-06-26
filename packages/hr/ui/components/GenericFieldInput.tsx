@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect } from "react";
 import FKInput from "./FKInput";
-import { InputControl } from "@workspace/core/ui";
+import { FormSurface, type FormSurfaceInputControlSpec } from "@workspace/core/ui";
 import EthnicityPicker from "./EthnicityPicker";
 import MajorPicker from "./MajorPicker";
 import ProfessionalTitlePicker from "./ProfessionalTitlePicker";
@@ -22,6 +22,10 @@ interface GenericFieldInputProps {
   fkConfig?: { entity: string; fkKey?: string; displayField?: string };
   mode: "edit" | "create";
   className?: string;
+}
+
+function ControlField(control: Omit<FormSurfaceInputControlSpec, "kind">) {
+  return <FormSurface kind="control" control={{ kind: "inputControl", ...control }} />;
 }
 
 export default function GenericFieldInput({
@@ -125,7 +129,7 @@ export default function GenericFieldInput({
           ? "女"
           : "男";
     return (
-      <InputControl
+      <ControlField
         spec={{
           valueType: "string",
           editor: "select",
@@ -167,7 +171,7 @@ export default function GenericFieldInput({
     }
 
     return (
-      <InputControl
+      <ControlField
         spec={{
           valueType: "string",
           editor: selectOptions.length > 8 ? "autocomplete" : "select",
@@ -182,7 +186,7 @@ export default function GenericFieldInput({
 
   if (field.type === "boolean") {
     return (
-      <InputControl
+      <ControlField
         spec={{ valueType: "boolean", editor: mode === "edit" ? "switch" : "checkbox" }}
         value={!!value}
         onChange={onChange}
@@ -192,7 +196,7 @@ export default function GenericFieldInput({
 
   if (field.type === "textarea") {
     return (
-      <InputControl
+      <ControlField
         spec={{ valueType: "string", editor: "textarea" }}
         value={(value as string) ?? ""}
         onChange={onChange}
@@ -206,7 +210,7 @@ export default function GenericFieldInput({
 
   if (field.type === "date") {
     return (
-      <InputControl
+      <ControlField
         spec={{ valueType: "date", editor: "datePicker" }}
         value={String(value ?? "")}
         onChange={(next) => onChange(next ?? "")}
@@ -219,7 +223,7 @@ export default function GenericFieldInput({
   if (mode === "edit") {
     if (field.type === "phone") {
       return (
-        <InputControl
+        <ControlField
           inputRef={inputRef}
           spec={{ valueType: "string", editor: "input" }}
           type="tel"
@@ -232,7 +236,7 @@ export default function GenericFieldInput({
 
     if (field.type === "chineseId") {
       return (
-        <InputControl
+        <ControlField
           inputRef={inputRef}
           spec={{ valueType: "string", editor: "input" }}
           type="text"
@@ -244,7 +248,7 @@ export default function GenericFieldInput({
     }
 
     return (
-      <InputControl
+      <ControlField
         inputRef={inputRef}
         spec={{ valueType: field.type === "number" ? "number" : "string", editor: field.type === "number" ? "number" : "input" }}
         type={inputType}
@@ -256,7 +260,7 @@ export default function GenericFieldInput({
   }
 
   return (
-    <InputControl
+    <ControlField
       spec={{ valueType: field.type === "number" ? "number" : "string", editor: field.type === "number" ? "number" : "input" }}
       type={inputType}
       value={field.type === "phone" ? formatPhoneNumber(value) : field.type === "chineseId" ? normalizeChineseIdNumber(value) ?? "" : (value as string) ?? ""}

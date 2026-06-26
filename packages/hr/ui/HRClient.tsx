@@ -2,7 +2,7 @@
 
 import { useDeferredValue, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { DatabasePageFrame, useFeedback } from "@workspace/core/ui";
+import { PageSurface, useFeedback } from "@workspace/core/ui";
 import { type TabDef } from "@workspace/core/ui";
 import { getPageViewTabsForUser } from "@workspace/platform/view-registry";
 
@@ -116,53 +116,57 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
     setActiveChild(key);
   }
 
+  const renderedModuleView = (
+    <>
+      {renderedView === "employee" && <EmployeeDirectory user={hrUser} employmentStatus={employeeStatus} />}
+
+      {renderedView === "organization" && (
+        <DepartmentPositionTab
+          user={hrUser}
+          mode="organization"
+          onUnsavedChange={setHasUnsavedChanges}
+          onOpenDepartmentDetails={(departmentId) => void openDepartmentDetails(departmentId)}
+          onOpenPositionDetails={(positionId) => void openPositionDetails(positionId)}
+        />
+      )}
+
+      {renderedView === "department-position" && (
+        <DepartmentPositionTab
+          user={hrUser}
+          mode="position"
+          lifecycle={departmentLifecycle}
+          focusDepartmentId={focusDepartmentId}
+          focusPositionId={focusPositionId}
+          onUnsavedChange={setHasUnsavedChanges}
+          onFocusDepartmentConsumed={() => setFocusDepartmentId(null)}
+          onFocusPositionConsumed={() => setFocusPositionId(null)}
+        />
+      )}
+
+      {renderedView === "bulk" && (
+        <>
+          {activeBulkTab === "employee" && <GenericTableTab config={employeeConfig} user={hrUser} />}
+          {activeBulkTab === "employment" && <GenericTableTab config={employmentConfig} user={hrUser} />}
+          {activeBulkTab === "edp" && <GenericTableTab config={edpConfig} user={hrUser} />}
+          {activeBulkTab === "contract" && <GenericTableTab config={contractConfig} user={hrUser} />}
+        </>
+      )}
+
+      {renderedView === "generated" && (
+        <RosterGeneratedTab variant={activeGeneratedVariant} canEdit={canEditGenerated} />
+      )}
+    </>
+  );
+
   return (
-    <DatabasePageFrame
+    <PageSurface
+      kind="list"
       tabs={rosterViews}
       activeTab={activeView}
       activeChild={activeChild}
       onTabChange={changeView}
       onChildChange={changeChild}
-    >
-        {renderedView === "employee" && <EmployeeDirectory user={hrUser} employmentStatus={employeeStatus} />}
-
-        {renderedView === "organization" && (
-          <DepartmentPositionTab
-            user={hrUser}
-            mode="organization"
-            onUnsavedChange={setHasUnsavedChanges}
-            onOpenDepartmentDetails={(departmentId) => void openDepartmentDetails(departmentId)}
-            onOpenPositionDetails={(positionId) => void openPositionDetails(positionId)}
-          />
-        )}
-
-        {renderedView === "department-position" && (
-          <DepartmentPositionTab
-            user={hrUser}
-            mode="position"
-            lifecycle={departmentLifecycle}
-            focusDepartmentId={focusDepartmentId}
-            focusPositionId={focusPositionId}
-            onUnsavedChange={setHasUnsavedChanges}
-            onFocusDepartmentConsumed={() => setFocusDepartmentId(null)}
-            onFocusPositionConsumed={() => setFocusPositionId(null)}
-          />
-        )}
-
-        {renderedView === "bulk" && (
-          <>
-            <>
-              {activeBulkTab === "employee" && <GenericTableTab config={employeeConfig} user={hrUser} />}
-              {activeBulkTab === "employment" && <GenericTableTab config={employmentConfig} user={hrUser} />}
-              {activeBulkTab === "edp" && <GenericTableTab config={edpConfig} user={hrUser} />}
-              {activeBulkTab === "contract" && <GenericTableTab config={contractConfig} user={hrUser} />}
-            </>
-          </>
-        )}
-
-        {renderedView === "generated" && (
-          <RosterGeneratedTab variant={activeGeneratedVariant} canEdit={canEditGenerated} />
-        )}
-    </DatabasePageFrame>
+      blocks={[{ kind: "moduleView", key: renderedView, view: renderedModuleView }]}
+    />
   );
 }

@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState } from "react";
-import { CommandButton, useFeedback, type DataTableColumn } from "@workspace/core/ui";
+import { useFeedback, type DataSurfaceColumnSpec, type DataTableColumn } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState } from "../types";
 import CostDataTable, { type CostRecord } from "./CostDataTable";
@@ -51,7 +51,7 @@ export default function ImportHistoryTable({
       setDeleting(null);
     }
   };
-  const columns: DataTableColumn<CostRecord>[] = [{
+  const columns: Array<DataTableColumn<CostRecord> | DataSurfaceColumnSpec<CostRecord>> = [{
     key: "id",
     label: "ID",
     required: true,
@@ -94,9 +94,18 @@ export default function ImportHistoryTable({
     key: "actions",
     label: "操作",
     required: true,
-    render: row => <CommandButton disabled={deleting === row.id} onClick={() => handleDelete(Number(row.id))} variant="danger" size="sm" className="border-0 bg-transparent p-0 text-xs shadow-none hover:bg-transparent hover:underline">
-          {deleting === row.id ? "删除中…" : "删除"}
-        </CommandButton>
+    cell: row => ({
+      kind: "action",
+      action: {
+        key: `delete-${String(row.id)}`,
+        label: deleting === row.id ? "删除中…" : "删除",
+        variant: "danger",
+        size: "sm",
+        disabled: deleting === row.id,
+        className: "border-0 bg-transparent p-0 text-xs shadow-none hover:bg-transparent hover:underline disabled:text-slate-300",
+        onClick: () => handleDelete(Number(row.id)),
+      },
+    })
   }];
   return <div className="space-y-4">
       {localError && <p className="text-sm text-red-500">{localError}</p>}

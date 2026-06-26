@@ -1,6 +1,7 @@
 "use client";
 
-import { DataTable, PanelCard, Badge, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface } from "@workspace/core/ui";
+import type { DataTableColumn } from "@workspace/core/ui";
 import type { Contract } from "@workspace/administration/types";
 
 interface ContractsTableProps {
@@ -11,6 +12,21 @@ interface ContractsTableProps {
 }
 
 export const CONTRACT_DEFAULT_VISIBLE_COLUMNS = ["name", "partyA", "partyB", "category", "signDate"];
+
+function StatusBadge({ status }: { status?: string | null }) {
+  const toneClass =
+    status === "执行中"
+      ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+      : status === "已结束"
+        ? "bg-slate-100 text-slate-600 ring-slate-200"
+        : "bg-sky-50 text-sky-700 ring-sky-200";
+
+  return (
+    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${toneClass}`}>
+      {status || "-"}
+    </span>
+  );
+}
 
 export function getContractTableColumns(): DataTableColumn<Contract>[] {
   return [
@@ -23,7 +39,7 @@ export function getContractTableColumns(): DataTableColumn<Contract>[] {
     {
       key: "status",
       label: "状态",
-      render: (c) => <Badge label={c.status || "-"} tone={c.status === "执行中" ? "green" : c.status === "已结束" ? "gray" : "blue"} />,
+      render: (c) => <StatusBadge status={c.status} />,
     },
     {
       key: "amount",
@@ -48,19 +64,21 @@ export default function ContractsTable({ contracts, visibleColumns, onEdit, onDe
   const columns = getContractTableColumns();
 
   return (
-    <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
-      <DataTable
-        rows={contracts}
-        columns={columns}
-        visibleColumns={visibleColumns}
-        rowKey={(contract) => contract.id}
-        emptyText="暂无数据"
+    <DataSurface<Contract>
+      kind="table"
+      framed
+      className="overflow-hidden"
+      bodyClassName="overflow-x-auto"
+      rows={contracts}
+      columns={columns}
+      visibleColumns={visibleColumns}
+      rowKey={(contract) => contract.id}
+      emptyText="暂无数据"
         rowActions={(c) => [
           { key: "edit", label: "编辑", kind: "edit", onClick: () => onEdit(c) },
           { key: "delete", label: "删除", kind: "delete", onClick: () => onDelete(c.id) },
-        ]}
-        actionsColumn={{ centered: true }}
-      />
-    </PanelCard>
+      ]}
+      actionsColumn={{ centered: true }}
+    />
   );
 }

@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo, useRef } from "react";
 import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
-import { Pagination, PanelCard, Toolbar, useFeedback } from "@workspace/core/ui";
+import { useFeedback } from "@workspace/core/ui";
 import GenericCreatePanel from "../components/GenericCreatePanel";
 import GenericFieldInput from "../components/GenericFieldInput";
 import { buildHRToolbarItems } from "../components/hr-toolbar-items";
@@ -282,8 +282,6 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
 
   return (
     <div className="space-y-4">
-      <Toolbar items={toolbarItems} onSubmit={load} />
-
       {creating && (
         <GenericCreatePanel
           config={config}
@@ -294,52 +292,44 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
         />
       )}
 
-      <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
-        {loading ? (
-          <p className="p-8 text-center text-gray-500">加载中...</p>
-        ) : error ? (
-          <p className="p-8 text-center text-red-500">加载失败：{error}</p>
-        ) : items.length === 0 ? (
-          <p className="p-8 text-center text-gray-500">暂无数据</p>
-        ) : (
-          <EditableTable
-            items={items}
-            fields={tableFields}
-            visibleColumns={visibleColumns}
-            config={config}
-            editingCell={editingCell}
-            editMode={editMode}
-            canEdit={canEdit}
-            renderEditInput={(fieldKey) =>
-              editingField ? (
-                <GenericFieldInput
-                  field={editingField}
-                  value={editValue}
-                  onChange={setEditValue}
-                  onKeyDown={handleKeyDown}
-                  inputRef={inputRef}
-                  fkConfig={config.fkFields?.[fieldKey]}
-                  mode="edit"
-                />
-              ) : null
-            }
-            onStartEdit={handleStartEdit}
-          />
-        )}
-      </PanelCard>
+      <EditableTable
+        framed
+        toolbar={{ items: toolbarItems, onSubmit: load }}
+        loading={loading}
+        emptyText={error ? `加载失败：${error}` : "暂无数据"}
+        bodyClassName="overflow-x-auto"
+        pagination={total > 0 ? {
+          total,
+          page,
+          totalPages: Math.ceil(total / pageSize),
+          onPageChange: setPage,
+          className: "mt-4 flex items-center justify-between",
+          compact: true,
+        } : undefined}
+        items={items}
+        fields={tableFields}
+        visibleColumns={visibleColumns}
+        config={config}
+        editingCell={editingCell}
+        editMode={editMode}
+        canEdit={canEdit}
+        renderEditInput={(fieldKey) =>
+          editingField ? (
+            <GenericFieldInput
+              field={editingField}
+              value={editValue}
+              onChange={setEditValue}
+              onKeyDown={handleKeyDown}
+              inputRef={inputRef}
+              fkConfig={config.fkFields?.[fieldKey]}
+              mode="edit"
+            />
+          ) : null
+        }
+        onStartEdit={handleStartEdit}
+      />
 
       <AuditLogModal open={showHistory} onClose={() => setShowHistory(false)} entityType={config.entityType} onRestored={load} />
-
-      {total > 0 && (
-        <Pagination
-          total={total}
-          page={page}
-          totalPages={Math.ceil(total / pageSize)}
-          onPageChange={setPage}
-          className="mt-4 flex items-center justify-between"
-          compact
-        />
-      )}
     </div>
   );
 }

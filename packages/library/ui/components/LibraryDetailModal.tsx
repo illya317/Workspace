@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { CommandButton, DetailModal, Toolbar, useFeedback } from "@workspace/core/ui";
+import { FormSurface, useFeedback } from "@workspace/core/ui";
+import type { FormSurfaceCommandSpec, FormSurfaceFieldSpec } from "@workspace/core/ui";
 import { useDocumentDetail, updateDocument, deleteDocument } from "../hooks/useLibraryDocuments";
-import LibraryEditForm from "./LibraryEditForm";
 import type { LibraryDocumentItem } from "@workspace/library/types";
 interface Props {
   documentId: number;
@@ -122,62 +122,150 @@ export default function LibraryDetailModal({
       setDeleting(false);
     }
   };
-  const renderField = (label: string, value: React.ReactNode) => <div className="py-2 border-b border-gray-100 last:border-0">
-      <span className="text-xs text-gray-400 block mb-0.5">{label}</span>
-      <div className="text-sm text-gray-800">{value}</div>
-    </div>;
-  return <>
-      <DetailModal open={true} title={doc?.title || doc?.fileName || "资料详情"} onClose={onClose}>
-        <div className="max-w-lg mx-auto">
-          {canEdit && (
-            <Toolbar
-              variant="inline"
-              items={[
-                {
-                  kind: "edit-group",
-                  key: "edit",
-                  editMode: editing,
-                  onStartEdit: () => setEditing(true),
-                  onSave: handleSave,
-                  onCancel: handleCancel,
-                  saving,
-                },
-              ]}
-            />
-          )}
 
-          {loading || !doc ? <div className="py-12 text-center text-gray-400">加载中…</div> : <div className="mt-4 space-y-1">
-              {editing ? <LibraryEditForm doc={doc} form={form} setForm={setForm} canWrite={canWrite} canAdmin={canAdmin} /> : <>
-                  {renderField("文档编号", doc.docId || "—")}
-                  {renderField("文件名", doc.fileName)}
-                  {renderField("标题", doc.title || "—")}
-                  {renderField("简介", doc.summary || "—")}
-                  {renderField("标签", doc.tags?.length ? <div className="flex flex-wrap gap-1">{doc.tags.map(t => <span key={t} className="inline-block rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{t}</span>)}</div> : "—")}
-                  {renderField("分类", `${doc.categoryCode || "—"} ${doc.categoryName || ""}`)}
-                  {renderField("目录", doc.directoryPath || "—")}
-                  {renderField("大小", fmtSize(doc.fileSizeBytes))}
-                  {renderField("保密等级", CONFIDENTIALITY_OPTIONS.find(o => o.value === doc.confidentialityLevel)?.label || `L${doc.confidentialityLevel}`)}
-                  {renderField("状态", STATUS_OPTIONS.find(o => o.value === doc.status)?.label || doc.status)}
-                  {renderField("来源", doc.origin)}
-                  {renderField("版本", `v${doc.version}`)}
-                  {renderField("更新时间", fmtDate(doc.updatedAt))}
-                  {doc.status === "active" && <div className="py-2 border-b border-gray-100 last:border-0">
-                      <span className="text-xs text-gray-400 block mb-0.5">下载</span>
-                      <a href={workspacePath(`/api/modules/library/basic-info/documents/${doc.id}/download`)} className="inline-flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700" target="_blank" rel="noopener noreferrer">
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        下载文件
-                      </a>
-                    </div>}
-                  {canDelete && <div className="pt-4">
-                      <CommandButton onClick={() => void handleDelete()} variant="danger" disabled={deleting}>
-                        删除
-                      </CommandButton>
-                    </div>}
-                </>}
-            </div>}
-        </div>
-      </DetailModal>
-    </>;
+  const readonlySpec = { valueType: "string" as const, editor: "input" as const, state: "readonly" as const };
+  const editableState = !canWrite ? "disabled" as const : "normal" as const;
+  const fields: FormSurfaceFieldSpec[] = !doc
+    ? [{
+        key: "loading",
+        label: "状态",
+        spec: readonlySpec,
+        value: loading ? "加载中..." : "暂无资料",
+      }]
+    : editing
+      ? [
+          {
+            key: "docId",
+            label: "文档编号（docId）",
+            hint: "改名后仍可通过此编号找到文档",
+            spec: { valueType: "string", editor: "input", state: editableState },
+            value: form.docId !== undefined ? (form.docId ?? "") : (doc.docId ?? ""),
+            onChange: (value) => setForm((current) => ({ ...current, docId: String(value ?? "") })),
+            placeholder: "如 DOC-2024-001",
+          },
+          {
+            key: "title",
+            label: "标题",
+            spec: { valueType: "string", editor: "input", state: editableState },
+            value: form.title ?? doc.title ?? "",
+            onChange: (value) => setForm((current) => ({ ...current, title: String(value ?? "") })),
+          },
+          {
+            key: "summary",
+            label: "简介",
+            spec: { valueType: "string", editor: "textarea", state: editableState },
+            value: form.summary ?? doc.summary ?? "",
+            onChange: (value) => setForm((current) => ({ ...current, summary: String(value ?? "") })),
+            rows: 3,
+          },
+          {
+            key: "tags",
+            label: "标签（用逗号分隔）",
+            spec: { valueType: "string", editor: "input", state: editableState },
+            value: (form.tags !== undefined ? form.tags : (doc.tags ?? [])).join(", "),
+            onChange: (value) => {
+              const tags = String(value ?? "")
+                .split(/[,，]/)
+                .map((tag) => tag.trim())
+                .filter((tag) => tag.length > 0);
+              setForm((current) => ({ ...current, tags }));
+            },
+            placeholder: "如 年度报表, 已审计, 研发",
+          },
+          {
+            key: "categoryCode",
+            label: "分类编码",
+            spec: { valueType: "string", editor: "input", state: editableState },
+            value: form.categoryCode ?? doc.categoryCode ?? "",
+            onChange: (value) => setForm((current) => ({ ...current, categoryCode: String(value ?? "") })),
+          },
+          {
+            key: "categoryName",
+            label: "分类名称",
+            spec: { valueType: "string", editor: "input", state: editableState },
+            value: form.categoryName ?? doc.categoryName ?? "",
+            onChange: (value) => setForm((current) => ({ ...current, categoryName: String(value ?? "") })),
+          },
+          {
+            key: "confidentialityLevel",
+            label: "保密等级",
+            hint: !canAdmin ? "需要管理权限才能修改保密等级" : undefined,
+            spec: {
+              valueType: "number",
+              editor: "select",
+              state: !canAdmin ? "disabled" : "normal",
+              options: {
+                source: "static",
+                mode: "dropdown",
+                items: CONFIDENTIALITY_OPTIONS.map((option) => ({ value: String(option.value), label: option.label })),
+              },
+            },
+            value: String(form.confidentialityLevel !== undefined ? form.confidentialityLevel : doc.confidentialityLevel),
+            onChange: (value) => setForm((current) => ({ ...current, confidentialityLevel: parseInt(String(value), 10) })),
+          },
+          {
+            key: "status",
+            label: "状态",
+            spec: {
+              valueType: "string",
+              editor: "select",
+              state: editableState,
+              options: { source: "static", mode: "dropdown", items: STATUS_OPTIONS },
+            },
+            value: form.status !== undefined ? form.status : doc.status,
+            onChange: (value) => setForm((current) => ({ ...current, status: String(value ?? "") })),
+          },
+        ]
+      : [
+          { key: "docId", label: "文档编号", spec: readonlySpec, value: doc.docId || "—" },
+          { key: "fileName", label: "文件名", spec: readonlySpec, value: doc.fileName },
+          { key: "title", label: "标题", spec: readonlySpec, value: doc.title || "—" },
+          { key: "summary", label: "简介", spec: { ...readonlySpec, editor: "textarea" }, value: doc.summary || "—", rows: 3 },
+          { key: "tags", label: "标签", spec: readonlySpec, value: doc.tags?.length ? doc.tags.join(", ") : "—" },
+          { key: "category", label: "分类", spec: readonlySpec, value: `${doc.categoryCode || "—"} ${doc.categoryName || ""}` },
+          { key: "directory", label: "目录", spec: readonlySpec, value: doc.directoryPath || "—" },
+          { key: "size", label: "大小", spec: readonlySpec, value: fmtSize(doc.fileSizeBytes) },
+          {
+            key: "confidentialityLevel",
+            label: "保密等级",
+            spec: readonlySpec,
+            value: CONFIDENTIALITY_OPTIONS.find((option) => option.value === doc.confidentialityLevel)?.label || `L${doc.confidentialityLevel}`,
+          },
+          { key: "status", label: "状态", spec: readonlySpec, value: STATUS_OPTIONS.find((option) => option.value === doc.status)?.label || doc.status },
+          { key: "origin", label: "来源", spec: readonlySpec, value: doc.origin },
+          { key: "version", label: "版本", spec: readonlySpec, value: `v${doc.version}` },
+          { key: "updatedAt", label: "更新时间", spec: readonlySpec, value: fmtDate(doc.updatedAt) },
+        ];
+
+  const actions: FormSurfaceCommandSpec[] = [];
+  if (doc && canEdit) {
+    if (editing) {
+      actions.push({ key: "cancel", label: "取消", onClick: handleCancel });
+      actions.push({ key: "save", label: saving ? "保存中..." : "保存", variant: "primary", disabled: saving, onClick: () => void handleSave() });
+    } else {
+      actions.push({ key: "edit", label: "编辑", variant: "primary", onClick: () => setEditing(true) });
+    }
+  }
+  if (doc && !editing && doc.status === "active") {
+    actions.push({
+      key: "download",
+      label: "下载文件",
+      onClick: () => window.open(workspacePath(`/api/modules/library/basic-info/documents/${doc.id}/download`), "_blank", "noopener,noreferrer"),
+    });
+  }
+  if (doc && !editing && canDelete) {
+    actions.push({ key: "delete", label: deleting ? "删除中..." : "删除", variant: "danger", disabled: deleting, onClick: () => void handleDelete() });
+  }
+
+  return (
+    <FormSurface
+      kind="modal"
+      open
+      title={doc?.title || doc?.fileName || "资料详情"}
+      onClose={onClose}
+      className="max-w-lg mx-auto"
+      fields={fields}
+      actions={actions}
+    />
+  );
 }

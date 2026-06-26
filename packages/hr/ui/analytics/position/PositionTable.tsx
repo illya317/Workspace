@@ -1,6 +1,6 @@
 "use client";
 
-import { AnalysisBlock, DataTable, type DataTableColumn } from "@workspace/core/ui";
+import { PageSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { EnrichedPosition, SortKey } from "./usePositionData";
 
 export default function PositionTable({
@@ -20,12 +20,12 @@ export default function PositionTable({
   handleSort: (key: SortKey) => void;
   sortIcon: (key: SortKey) => string;
 }) {
-  const columns: DataTableColumn<EnrichedPosition>[] = [
-    { key: "code", label: `编码 ${sortIcon("code")}`, required: true, onHeaderClick: () => handleSort("code"), cellClassName: "font-mono text-slate-500", render: (position) => position.code },
-    { key: "name", label: `岗位名 ${sortIcon("name")}`, required: true, onHeaderClick: () => handleSort("name"), cellClassName: "font-medium", render: (position) => position.name },
-    { key: "dept", label: `部门 ${sortIcon("dept")}`, required: true, onHeaderClick: () => handleSort("dept"), cellClassName: "text-slate-500", render: (position) => position.departmentName || "—" },
-    { key: "headcount", label: `编制 ${sortIcon("headcount")}`, required: true, onHeaderClick: () => handleSort("headcount"), headerClassName: "text-right", cellClassName: "text-right text-slate-500", render: (position) => position.headcount || "—" },
-    { key: "actual", label: `实际 ${sortIcon("actual")}`, required: true, onHeaderClick: () => handleSort("actual"), headerClassName: "text-right", cellClassName: "text-right font-medium", render: (position) => position.actual || "—" },
+  const columns: DataSurfaceColumnSpec<EnrichedPosition>[] = [
+    { key: "code", label: `编码 ${sortIcon("code")}`, required: true, onHeaderClick: () => handleSort("code"), cellClassName: "font-mono text-slate-500", cell: (position) => position.code },
+    { key: "name", label: `岗位名 ${sortIcon("name")}`, required: true, onHeaderClick: () => handleSort("name"), cellClassName: "font-medium", cell: (position) => position.name },
+    { key: "dept", label: `部门 ${sortIcon("dept")}`, required: true, onHeaderClick: () => handleSort("dept"), cellClassName: "text-slate-500", cell: (position) => position.departmentName || "—" },
+    { key: "headcount", label: `编制 ${sortIcon("headcount")}`, required: true, onHeaderClick: () => handleSort("headcount"), headerClassName: "text-right", cellClassName: "text-right text-slate-500", cell: (position) => position.headcount || "—" },
+    { key: "actual", label: `实际 ${sortIcon("actual")}`, required: true, onHeaderClick: () => handleSort("actual"), headerClassName: "text-right", cellClassName: "text-right font-medium", cell: (position) => position.actual || "—" },
     {
       key: "diff",
       label: `差异 ${sortIcon("diff")}`,
@@ -33,7 +33,7 @@ export default function PositionTable({
       onHeaderClick: () => handleSort("diff"),
       headerClassName: "text-right",
       cellClassName: "text-right",
-      render: (position) => position.headcount > 0 ? (
+      cell: (position) => position.headcount > 0 ? (
         <span className={`font-medium ${position.diff > 0 ? "text-rose-600" : position.diff < 0 ? "text-amber-600" : "text-emerald-600"}`}>
           {position.diff > 0 ? `+${position.diff}` : position.diff}
         </span>
@@ -43,38 +43,51 @@ export default function PositionTable({
       key: "status",
       label: "状态",
       required: true,
-      render: (position) => (
-        <span className={`text-xs px-1.5 py-0.5 rounded ${
-          position.status === "超编" ? "bg-rose-100 text-rose-700" :
-          position.status === "缺编" ? "bg-purple-100 text-purple-700" :
-          position.status === "满编" ? "bg-emerald-100 text-emerald-700" :
-          position.status === "有任职" ? "bg-blue-100 text-blue-700" :
-          "bg-amber-100 text-amber-700"
-        }`}>{position.status}</span>
-      ),
+      cell: (position) => ({
+        kind: "badge",
+        label: position.status,
+        tone: position.status === "超编"
+          ? "red"
+          : position.status === "缺编"
+            ? "slate"
+            : position.status === "满编"
+              ? "emerald"
+              : position.status === "有任职"
+                ? "sky"
+                : "amber",
+      }),
     },
   ];
   return (
-    <AnalysisBlock
-      title="岗位明细"
-      toolbarItems={[
-        { kind: "search", key: "search", value: search, onChange: setSearch, placeholder: "搜索岗位名、编码、部门...", className: "max-w-sm" },
-        { kind: "text", key: "meta", content: <>共 {filtered.length} 个岗位</> },
-      ]}
-    >
-
-      <DataTable
-        rows={filtered}
-        columns={columns}
-        visibleColumns={columns.map((column) => column.key)}
-        rowKey={(position) => position.id}
-        emptyText="暂无匹配数据"
-        rowClassName={(position) =>
-          position.status === "空岗" ? "bg-amber-50/30" :
-          position.status === "超编" ? "bg-rose-50/30" :
-          position.status === "缺编" ? "bg-purple-50/20" : ""
-        }
-      />
-    </AnalysisBlock>
+    <PageSurface
+      kind="analysis"
+      blocks={[{
+        kind: "analysis",
+        key: "positions",
+        title: "岗位明细",
+        toolbar: {
+          items: [
+            { kind: "search", key: "search", value: search, onChange: setSearch, placeholder: "搜索岗位名、编码、部门...", className: "max-w-sm" },
+            { kind: "text", key: "meta", content: <>共 {filtered.length} 个岗位</> },
+          ],
+        },
+        blocks: [{
+          kind: "data",
+          key: "positions-table",
+          surface: {
+            kind: "table",
+            rows: filtered,
+            columns,
+            visibleColumns: columns.map((column) => column.key),
+            rowKey: (position) => position.id,
+            emptyText: "暂无匹配数据",
+            rowClassName: (position) =>
+              position.status === "空岗" ? "bg-amber-50/30" :
+              position.status === "超编" ? "bg-rose-50/30" :
+              position.status === "缺编" ? "bg-purple-50/20" : "",
+          },
+        }],
+      }]}
+    />
   );
 }

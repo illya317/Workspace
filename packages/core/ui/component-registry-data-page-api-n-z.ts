@@ -2,6 +2,15 @@ import type { CoreUiComponentRegistration } from "./component-registry-types";
 
 export const page_api_registry_entries = [
   {
+    name: "NavigationSurface",
+    accessLayer: "page-api",
+    uiLevel: 1,
+    kind: "navigation",
+    description: "L1 导航 Surface",
+    example: "业务页通过 kind='tabs'/'pagination'/'selector'/'disclosure'/'steps' 声明导航，不直接新增二级导航组件。",
+    composes: ["TabBar", "Pagination", "SelectorPanel", "SelectionGrid", "DisclosureSectionHeader"],
+  },
+  {
     name: "Toolbar",
     accessLayer: "page-api",
     kind: "toolbar",
@@ -12,6 +21,7 @@ export const page_api_registry_entries = [
   {
     name: "useFeedback",
     accessLayer: "page-api",
+    uiLevel: 1,
     kind: "feedback",
     description: "统一前端反馈 Hook",
     example: "const feedback = useFeedback(); feedback.success('保存成功'); await feedback.confirmDelete({ message: '确定删除吗？' });",
@@ -62,6 +72,15 @@ export const page_api_registry_entries = [
     kind: "layout",
     description: "页面内容容器",
     example: "AppShell 下方包裹页面主体，统一最大宽度和上下留白。",
+  },
+  {
+    name: "PageSurface",
+    accessLayer: "page-api",
+    uiLevel: 1,
+    kind: "layout",
+    description: "L1 页面 Surface",
+    example: "业务页通过 kind='list'/'detail'/'split'/'analysis'/'settings' 声明页面壳、toolbar、actions、empty 和 typed blocks。",
+    composes: ["DatabasePageFrame", "AnalysisPageFrame", "WorkspaceSplitPage", "AnalysisBlock", "EmptyStateCard", "MetricCard", "ModuleCard", "PanelCard", "SectionCard", "DetailModal", "Toolbar", "CommandButton", "DataSurface", "FormSurface", "NavigationSurface"],
   },
   {
     name: "PageShell",

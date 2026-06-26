@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
-import { CommandButton, DataTable, EmptyStateCard, PanelCard, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, FormSurface, type DataTableColumn } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
 import { useCSV } from "@workspace/core/hooks";
 import { formatFinanceAmount } from "../formatters";
@@ -86,14 +86,10 @@ export default function ReclassTab() {
   return <div className="space-y-4">
       <FinanceFilters companyFilter={companyFilter} yearFilter={yearFilter} monthFilter={monthFilter} onCompanyChange={setCompanyFilter} onYearChange={setYearFilter} onMonthChange={setMonthFilter} showPageSize={false} />
       <div className="flex flex-wrap items-center gap-3">
-        <CommandButton onClick={exportCSV} disabled={entries.length === 0} title="导出CSV">
-          导出CSV
-        </CommandButton>
+        <FormSurface kind="inline" actions={[{ key: "export", label: "导出CSV", onClick: exportCSV, disabled: entries.length === 0 }]} />
         <span className="text-xs text-gray-400">{entries.length} 项</span>
       </div>
 
-      {loading ? <p className="p-8 text-center text-gray-500">加载中...</p> : entries.length === 0 ? <EmptyStateCard>未发现需重分类的科目</EmptyStateCard> : <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
-          <DataTable rows={entries} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={entry => entry.accountCode} />
-        </PanelCard>}
+      {loading ? <p className="p-8 text-center text-gray-500">加载中...</p> : entries.length === 0 ? <DataSurface kind="records" records={[]} empty="未发现需重分类的科目" /> : <DataSurface kind="table" framed className="overflow-hidden" bodyClassName="overflow-x-auto" rows={entries} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={entry => entry.accountCode} />}
     </div>;
 }

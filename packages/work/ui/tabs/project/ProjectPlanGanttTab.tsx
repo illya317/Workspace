@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { EmptyStateCard, Toolbar, useFeedback, type ToolbarItem } from "@workspace/core/ui";
+import { DataSurface, FormSurface, useFeedback, type ToolbarItem } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { ProjectItem } from "./model";
 import { listProjectOptions, listProjectPlanGantt, saveProjectPlanDependencies, saveProjectPlanGantt } from "./api";
@@ -100,8 +100,9 @@ export default function ProjectPlanGanttTab({
     }
   }
   return <div className="space-y-4">
-      <Toolbar
-        items={[
+      <FormSurface
+        kind="inline"
+        toolbar={{ items: [
           {
             kind: "search",
             key: "search",
@@ -161,10 +162,10 @@ export default function ProjectPlanGanttTab({
             section: "meta",
             content: "基线来自项目阶段",
           },
-        ] satisfies ToolbarItem[]}
+        ] satisfies ToolbarItem[] }}
       />
 
-      {error ? <EmptyStateCard compact={false} className="border-red-200 text-red-600">{error}</EmptyStateCard> : loading ? <EmptyStateCard compact={false}>加载项目甘特...</EmptyStateCard> : !data ? <EmptyStateCard compact={false}>请选择项目</EmptyStateCard> : <ProjectPlanGanttTimeline items={items} phases={data.phases} dependencies={dependencies} periodStart={currentStart} zoom={zoom} />}
+      {error ? <DataSurface kind="records" records={[]} empty={error} className="border-red-200 text-red-600" /> : loading ? <DataSurface kind="records" records={[]} empty="加载项目甘特..." /> : !data ? <DataSurface kind="records" records={[]} empty="请选择项目" /> : <ProjectPlanGanttTimeline items={items} phases={data.phases} dependencies={dependencies} periodStart={currentStart} zoom={zoom} />}
     </div>;
 }
 function itemsForSave(items: ProjectPlanItem[]) {

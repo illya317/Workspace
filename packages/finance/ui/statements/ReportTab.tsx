@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CommandButton, FormField, InputControl, PanelCard } from "@workspace/core/ui";
+import { FormSurface, PageSurface } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
 import ReportBanner from "./ReportBanner";
 import ReportLines, { type AccountDetail, type ReportLine } from "./ReportLines";
@@ -91,10 +91,12 @@ export default function ReportTab() {
   };
   return <div className="space-y-4">
       <FinanceFilters companyFilter={companyFilter} yearFilter={yearFilter} monthFilter={monthFilter} onCompanyChange={setCompanyFilter} onYearChange={setYearFilter} onMonthChange={setMonthFilter} showPageSize={false} />
-      <div className="flex flex-wrap items-center gap-3">
-        <FormField label="报表" layout="inline">
-          <InputControl
-            spec={{
+      <FormSurface
+        kind="filters"
+        fields={[{
+          key: "report",
+          label: "报表",
+          spec: {
               valueType: "string",
               editor: "select",
               options: {
@@ -106,48 +108,83 @@ export default function ReportTab() {
                   { value: "cashflow", label: "现金流量表" },
                 ],
               },
-            }}
-            value={reportType}
-            onChange={(nextValue) => setReportType(nextValue as "balance" | "income" | "cashflow")}
-          />
-        </FormField>
-        <CommandButton variant="primary" onClick={loadReport}>生成报表</CommandButton>
-      </div>
+          },
+          value: reportType,
+          onChange: (nextValue) => setReportType(nextValue as "balance" | "income" | "cashflow"),
+        }]}
+        actions={[{ key: "load", label: "生成报表", variant: "primary", onClick: loadReport }]}
+      />
 
       {loading && <p className="p-8 text-center text-gray-500">加载中...</p>}
 
-      {data?.type === "balance" && <PanelCard bodyClassName="p-4">
-          <h3 className="mb-1 text-center text-base font-semibold text-gray-800">资 产 负 债 表</h3>
-          <p className="mb-4 text-center text-xs text-gray-500">{data.period.year}年{data.period.month}月</p>
-          <div className="grid grid-cols-2 gap-0">
-            <div className="border-r border-gray-200 pr-4">
-              <ReportLines items={data.assets || []} labelHeader="资 产" amountHeader="年末余额" {...lineProps} />
-            </div>
-            <div className="pl-4">
-              <div className="space-y-4">
-                <ReportLines items={data.liabilities || []} labelHeader="负债" amountHeader="年末余额" {...lineProps} />
-                <ReportLines items={data.equity || []} labelHeader="所有者权益" amountHeader="年末余额" {...lineProps} />
-              </div>
-            </div>
-          </div>
-          {data.totalLiabilitiesAndEquity !== undefined && <p className="mt-2 text-center text-xs text-gray-400">
-              资产总计 = {formatFinanceAmount(data.assets?.find(item => item.isGrandTotal)?.amount || 0)} | 负债和权益总计 = {formatFinanceAmount(data.totalLiabilitiesAndEquity)}
-              {Math.abs((data.assets?.find(item => item.isGrandTotal)?.amount || 0) - data.totalLiabilitiesAndEquity) > 0.01 && <span className="ml-2 text-red-500">不平衡</span>}
-            </p>}
-        </PanelCard>}
+      {data?.type === "balance" && <PageSurface
+          kind="analysis"
+          embedded
+          blocks={[{
+            kind: "panel",
+            key: "balance-report",
+            title: "资 产 负 债 表",
+            subtitle: `${data.period.year}年${data.period.month}月`,
+            blocks: [{
+              kind: "moduleView",
+              key: "balance-lines",
+              view: <>
+                <div className="grid grid-cols-2 gap-0">
+                  <div className="border-r border-gray-200 pr-4">
+                    <ReportLines items={data.assets || []} labelHeader="资 产" amountHeader="年末余额" {...lineProps} />
+                  </div>
+                  <div className="pl-4">
+                    <div className="space-y-4">
+                      <ReportLines items={data.liabilities || []} labelHeader="负债" amountHeader="年末余额" {...lineProps} />
+                      <ReportLines items={data.equity || []} labelHeader="所有者权益" amountHeader="年末余额" {...lineProps} />
+                    </div>
+                  </div>
+                </div>
+                {data.totalLiabilitiesAndEquity !== undefined && <p className="mt-2 text-center text-xs text-gray-400">
+                    资产总计 = {formatFinanceAmount(data.assets?.find(item => item.isGrandTotal)?.amount || 0)} | 负债和权益总计 = {formatFinanceAmount(data.totalLiabilitiesAndEquity)}
+                    {Math.abs((data.assets?.find(item => item.isGrandTotal)?.amount || 0) - data.totalLiabilitiesAndEquity) > 0.01 && <span className="ml-2 text-red-500">不平衡</span>}
+                  </p>}
+              </>,
+            }],
+          }]}
+        />}
 
-      {data?.type === "income" && <PanelCard bodyClassName="p-4">
-          <h3 className="mb-1 text-center text-base font-semibold text-gray-800">利 润 表</h3>
-          <p className="mb-4 text-center text-xs text-gray-500">{data.period.year}年{data.period.month}月</p>
-          <ReportBanner source={data.source} diagnostics={data.diagnostics} reviewHref={`/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=incomeStatement`} />
-          <ReportLines items={data.lines || []} labelHeader="项 目" amountHeader="本年金额" {...lineProps} />
-        </PanelCard>}
+      {data?.type === "income" && <PageSurface
+          kind="analysis"
+          embedded
+          blocks={[{
+            kind: "panel",
+            key: "income-report",
+            title: "利 润 表",
+            subtitle: `${data.period.year}年${data.period.month}月`,
+            blocks: [{
+              kind: "moduleView",
+              key: "income-lines",
+              view: <>
+                <ReportBanner source={data.source} diagnostics={data.diagnostics} reviewHref={`/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=incomeStatement`} />
+                <ReportLines items={data.lines || []} labelHeader="项 目" amountHeader="本年金额" {...lineProps} />
+              </>,
+            }],
+          }]}
+        />}
 
-      {data?.type === "cashflow" && <PanelCard bodyClassName="p-4">
-          <h3 className="mb-1 text-center text-base font-semibold text-gray-800">现 金 流 量 表</h3>
-          <p className="mb-4 text-center text-xs text-gray-500">{data.period.year}年{data.period.month}月</p>
-          <ReportBanner source={data.source} diagnostics={data.diagnostics} reviewHref={`/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=cashFlow`} />
-          <ReportLines items={data.lines || []} labelHeader="项 目" amountHeader="金额" {...lineProps} />
-        </PanelCard>}
+      {data?.type === "cashflow" && <PageSurface
+          kind="analysis"
+          embedded
+          blocks={[{
+            kind: "panel",
+            key: "cashflow-report",
+            title: "现 金 流 量 表",
+            subtitle: `${data.period.year}年${data.period.month}月`,
+            blocks: [{
+              kind: "moduleView",
+              key: "cashflow-lines",
+              view: <>
+                <ReportBanner source={data.source} diagnostics={data.diagnostics} reviewHref={`/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=cashFlow`} />
+                <ReportLines items={data.lines || []} labelHeader="项 目" amountHeader="金额" {...lineProps} />
+              </>,
+            }],
+          }]}
+        />}
     </div>;
 }

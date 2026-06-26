@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { CommandButton, DataTable, PanelCard, Badge, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceColumnSpec, type DataTableColumn } from "@workspace/core/ui";
 export interface BalanceCheckAccountNode {
   code: string;
   name: string;
@@ -59,16 +59,6 @@ function DifferenceCell({
       {node.children.length === 0 ? "—" : value !== 0 ? formatBalanceAmount(value) : "0.00"}
     </span>;
 }
-function StatusCell({
-  node
-}: {
-  node: BalanceCheckAccountNode;
-}) {
-  if (node.children.length === 0) {
-    return <Badge label="明细" tone="gray" />;
-  }
-  return node.isBalanced ? <Badge label="平衡" tone="green" /> : <Badge label="不一致" tone="red" />;
-}
 export default function BalanceCheckTable({
   rows,
   expanded,
@@ -81,25 +71,34 @@ export default function BalanceCheckTable({
   onToggleNode: (code: string) => void;
 }) {
   const visibleColumns = useMemo(() => ["code", "name", "closingDebit", "closingCredit", "childrenDebit", "childrenCredit", "diffDebit", "diffCredit", "status"], []);
-  const columns = useMemo<DataTableColumn<BalanceCheckFlatNode>[]>(() => [{
+  const columns = useMemo<Array<DataTableColumn<BalanceCheckFlatNode> | DataSurfaceColumnSpec<BalanceCheckFlatNode>>>(() => [{
     key: "code",
     label: "科目编码",
     required: true,
     headerClassName: "w-28",
-    render: ({
-      node,
-      depth
-    }) => <span className="flex items-center gap-1" style={{
-      paddingLeft: `${depth * 16 + 8}px`
-    }}>
-          {hasVisibleChildren(node, maxLevel) ? <CommandButton onClick={event => {
-        event.stopPropagation();
-        onToggleNode(node.code);
-      }} aria-label={expanded.has(node.code) ? "收起科目" : "展开科目"} size="sm" className="w-4 border-0 bg-transparent px-0 py-0 text-base leading-none text-slate-300 shadow-none hover:bg-transparent hover:text-slate-600">
-              {expanded.has(node.code) ? "▼" : "▶"}
-            </CommandButton> : <span className="w-4" />}
-          <span className="font-mono text-slate-700">{node.code}</span>
-        </span>
+    cell: ({
+      node
+    }) => ({
+      kind: "actions",
+      className: "gap-1",
+      actions: [
+        ...(hasVisibleChildren(node, maxLevel) ? [{
+          key: `toggle-${node.code}`,
+          label: expanded.has(node.code) ? "▼" : "▶",
+          size: "sm" as const,
+          className: "w-4 border-0 bg-transparent px-0 py-0 text-base leading-none text-slate-300 shadow-none hover:bg-transparent hover:text-slate-600",
+          onClick: () => onToggleNode(node.code),
+        }] : []),
+        {
+          key: `code-${node.code}`,
+          label: node.code,
+          size: "sm" as const,
+          className: "border-0 bg-transparent px-0 py-0 font-mono text-slate-700 shadow-none hover:bg-transparent",
+          disabled: true,
+        },
+      ],
+      align: "left",
+    })
   }, {
     key: "name",
     label: "科目名称",
@@ -168,15 +167,16 @@ export default function BalanceCheckTable({
     required: true,
     headerClassName: "w-20 text-center",
     cellClassName: "text-center",
-    render: ({
+    cell: ({
       node
-    }) => <StatusCell node={node} />
+    }) => {
+      if (node.children.length === 0) return { kind: "badge", label: "明细", tone: "gray" };
+      return node.isBalanced ? { kind: "badge", label: "平衡", tone: "green" } : { kind: "badge", label: "不一致", tone: "red" };
+    }
   }], [expanded, maxLevel, onToggleNode]);
-  return <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
-      <DataTable rows={rows} columns={columns} visibleColumns={visibleColumns} rowKey={({
+  return <DataSurface kind="table" framed className="overflow-hidden" bodyClassName="overflow-x-auto" rows={rows} columns={columns} visibleColumns={visibleColumns} rowKey={({
       node
     }) => node.code} density="compact" tableClassName="text-base" rowClassName={({
       node
     }) => !node.isBalanced && node.children.length > 0 ? "bg-red-50/60" : ""} />
-    </PanelCard>;
 }

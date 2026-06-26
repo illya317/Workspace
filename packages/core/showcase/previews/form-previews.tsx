@@ -4,7 +4,7 @@ import { useState, type FC } from "react";
 import {
   AutoSizeTextField, CalendarDateInput, CheckboxChip, CheckboxField, ChoiceGroup,
   FieldGrid, FieldInputShell,
-  FileField, FormField, FormShell, HiddenDataField, PercentField, RatingControl, ReadOnlyField,
+  FormField, FormShell, FormSurface, HiddenDataField, PercentField, RatingControl, ReadOnlyField,
   SearchInput, SelectField, SwitchField,
   TagInlineTextField, TextField, TextareaField, TimeField,
 } from "@workspace/core/ui";
@@ -12,6 +12,8 @@ import BlockCreatePanel from "../../ui/BlockCreatePanel";
 import InlineCreatePanel from "../../ui/InlineCreatePanel";
 import { CreateConfirmActions, CreateStartButton } from "../../ui/CreateActionControls";
 import { CreatePanelPreview } from "./create-panel-preview";
+import { FileFieldPreview } from "./form-file-preview";
+import { foundationFormPreviewByName } from "./form-foundation-previews";
 import { SelectionGridPreview } from "./selection-grid-preview";
 
 function AutoSizeTextFieldPreview() {
@@ -64,23 +66,6 @@ function CreateStartButtonPreview() {
   return <div className="flex flex-wrap items-center gap-3"><CreateStartButton label="新增" active={active} onClick={() => setActive((v) => !v)} /><CreateStartButton label="新增" active={!active} disabled onClick={() => {}} /></div>;
 }
 
-function FileFieldPreview() {
-  const [file, setFile] = useState<File | null>(null);
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [paperFiles, setPaperFiles] = useState<File[]>([]);
-  return (
-    <div className="space-y-4">
-      <div className="space-y-2"><span className="text-xs font-medium text-slate-600">默认单文件</span><FileField label="选择文件" onChange={setFile} />{file && <span className="text-xs text-slate-500">已选：{file.name}</span>}</div>
-      <div className="space-y-2"><span className="text-xs font-medium text-slate-600">多文件图片</span><FileField accept="image/*" multiple buttonLabel="选择图片" resetOnChange onChange={() => {}} onFilesChange={(files) => setImageFiles(files ? Array.from(files) : [])} />{imageFiles.length > 0 && <ul className="text-xs text-slate-500">{imageFiles.map((f) => <li key={f.name}>· {f.name}</li>)}</ul>}</div>
-      <div className="space-y-2">
-        <span className="text-xs font-medium text-slate-600">内联纸面触发样式</span>
-        <div className="text-sm text-slate-700"><FileField variant="inline" buttonLabel="原始数据、图谱、待包装品检验报告单见数据图谱粘贴页。" showFileName={false} resetOnChange onChange={() => {}} onFilesChange={(files) => setPaperFiles(files ? Array.from(files) : [])} /></div>
-        {paperFiles.length > 0 && <ul className="text-xs text-slate-500">{paperFiles.map((f) => <li key={f.name}>· {f.name}</li>)}</ul>}
-      </div>
-    </div>
-  );
-}
-
 function FormFieldPreview() {
   const [value, setValue] = useState("");
   return (
@@ -117,20 +102,46 @@ function FormShellPreview() {
   );
 }
 
-function foundationPreview(name: string, description: string) {
-  return function FoundationPreview() { return <div className="text-xs text-slate-400"><p className="font-medium">{name}</p><p>{description}</p><p className="mt-1 text-slate-300">Foundation / 样式 recipe，无运行时组件预览。</p></div>; };
+function FormSurfacePreview() {
+  const [name, setName] = useState("合同 A");
+  const [status, setStatus] = useState("active");
+  return (
+    <div className="max-w-2xl">
+      <FormSurface
+        kind="fields"
+        columns={2}
+        fields={[
+          {
+            key: "name",
+            label: "名称",
+            required: true,
+            spec: { valueType: "string", editor: "input", validation: { required: true } },
+            value: name,
+            onChange: (value) => setName(String(value)),
+          },
+          {
+            key: "status",
+            label: "状态",
+            spec: {
+              valueType: "string",
+              editor: "select",
+              options: {
+                source: "static",
+                items: [
+                  { value: "active", label: "现用" },
+                  { value: "archived", label: "已归档" },
+                ],
+              },
+            },
+            value: status,
+            onChange: (value) => setStatus(String(value)),
+          },
+        ]}
+        actions={[{ key: "save", label: "保存", variant: "primary" }]}
+      />
+    </div>
+  );
 }
-const getFieldInputClassNamePreview = foundationPreview("getFieldInputClassName", "字段输入框样式 token，用于少量需要业务自渲染输入的场景。");
-const getFieldGridCellClassNamePreview = foundationPreview("getFieldGridCellClassName", "字段网格单元容器样式 token，由 main row 与可选 helper row 组成，避免说明文案撑高同行。");
-const getFieldGridMainRowClassNamePreview = foundationPreview("getFieldGridMainRowClassName", "字段网格主行样式 token，固定 label + value 行高，隔离 helper 行高影响。");
-const getFieldGridHelperRowClassNamePreview = foundationPreview("getFieldGridHelperRowClassName", "字段网格辅助行样式 token，短提示落入独立行，不干扰主体字段对齐。");
-const getFieldGridLabelClassNamePreview = foundationPreview("getFieldGridLabelClassName", "字段网格 label 样式 token，用于自渲染字段网格时统一标签列视觉。");
-const getFieldGridValueClassNamePreview = foundationPreview("getFieldGridValueClassName", "字段网格值区域样式 token，用于自渲染字段网格时统一值区布局。");
-const getFieldGroupTitleClassNamePreview = foundationPreview("getFieldGroupTitleClassName", "字段分组标题样式 token，用于表单详情页的分组标题。");
-const getReadOnlyFieldClassNamePreview = foundationPreview("getReadOnlyFieldClassName", "只读字段样式 token，用于展示不可编辑但仍属于表单布局的字段。");
-const getTagInputShellClassNamePreview = foundationPreview("getTagInputShellClassName", "标签输入外壳样式 token，统一 Tag 输入容器焦点和边框状态。");
-const getTagInlineInputClassNamePreview = foundationPreview("getTagInlineInputClassName", "标签内联输入样式 token，用于 chip 输入末尾的轻量文本输入。");
-const getTagPillClassNamePreview = foundationPreview("getTagPillClassName", "标签项样式 token，统一别名、标签和可删除 chip 外观。");
 
 function ReadOnlyFieldPreview() {
   const [clicked, setClicked] = useState(false);
@@ -264,13 +275,9 @@ export const formPreviewByName: Record<string, FC> = {
   AutoSizeTextField: AutoSizeTextFieldPreview, BlockCreatePanel: BlockCreatePanelPreview, CalendarDateInput: CalendarDateInputPreview,
   CheckboxChip: CheckboxChipPreview, CheckboxField: CheckboxFieldPreview, ChoiceGroup: ChoiceGroupPreview,
   CreateConfirmActions: CreateConfirmActionsPreview, CreatePanel: CreatePanelPreview, CreateStartButton: CreateStartButtonPreview, FileField: FileFieldPreview,
-  FieldGrid: FieldGridPreview, FieldInputShell: FieldInputShellPreview, FormField: FormFieldPreview, FormShell: FormShellPreview,
-  getFieldInputClassName: getFieldInputClassNamePreview, getFieldGridCellClassName: getFieldGridCellClassNamePreview,
-  getFieldGridMainRowClassName: getFieldGridMainRowClassNamePreview, getFieldGridHelperRowClassName: getFieldGridHelperRowClassNamePreview,
-  getFieldGridLabelClassName: getFieldGridLabelClassNamePreview, getFieldGridValueClassName: getFieldGridValueClassNamePreview,
-  getFieldGroupTitleClassName: getFieldGroupTitleClassNamePreview, getReadOnlyFieldClassName: getReadOnlyFieldClassNamePreview,
-  getTagInputShellClassName: getTagInputShellClassNamePreview, getTagInlineInputClassName: getTagInlineInputClassNamePreview,
-  getTagPillClassName: getTagPillClassNamePreview, HiddenDataField: HiddenDataFieldPreview, InlineCreatePanel: InlineCreatePanelPreview,
+  FieldGrid: FieldGridPreview, FieldInputShell: FieldInputShellPreview, FormField: FormFieldPreview, FormShell: FormShellPreview, FormSurface: FormSurfacePreview,
+  ...foundationFormPreviewByName,
+  HiddenDataField: HiddenDataFieldPreview, InlineCreatePanel: InlineCreatePanelPreview,
   PercentField: PercentFieldPreview, RatingControl: RatingControlPreview, ReadOnlyField: ReadOnlyFieldPreview, SearchInput: SearchInputPreview,
   SelectField: SelectFieldPreview, SelectionGrid: SelectionGridPreview, SwitchField: SwitchFieldPreview, TagInlineTextField: TagInlineTextFieldPreview,
   TextareaField: TextareaFieldPreview, TextField: TextFieldPreview,

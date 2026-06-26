@@ -11,7 +11,9 @@ import {
 import {
   coreUiComponentAccessLayerMeta,
   coreUiComponentRegistry,
+  coreUiComponentUiLevelMeta,
   getCoreUiCompositionGraph,
+  isCoreUiComponentVisibleInShowcase,
 } from "@workspace/core/ui/component-registry";
 import {
   buildCoreUiComponentTree,
@@ -33,6 +35,7 @@ import { filterUiComponents } from "./filter-ui-components";
 import { useUiComponentVerified } from "./use-ui-component-verified";
 
 const ALL_ACCESS_LAYER = "all";
+const ALL_UI_LEVEL = "all";
 const ALL_VERIFIED = "all";
 
 type UiComponentsShowcaseProps = {
@@ -43,6 +46,7 @@ type UiComponentsShowcaseProps = {
 };
 
 type TreeAccessLayerFilter = CoreUiComponentAccessLayer | typeof ALL_ACCESS_LAYER;
+type TreeUiLevelFilter = "1" | "2" | "3" | typeof ALL_UI_LEVEL;
 type VerifiedFilter = "verified" | "unverified" | typeof ALL_VERIFIED;
 
 const ACCESS_LAYER_OPTIONS: Array<{ value: TreeAccessLayerFilter; label: string }> = [
@@ -50,18 +54,25 @@ const ACCESS_LAYER_OPTIONS: Array<{ value: TreeAccessLayerFilter; label: string 
   { value: "page-frame", label: coreUiComponentAccessLayerMeta["page-frame"].label },
   { value: "page-api", label: coreUiComponentAccessLayerMeta["page-api"].label },
   { value: "core-internal", label: coreUiComponentAccessLayerMeta["core-internal"].label },
-  { value: "foundation", label: coreUiComponentAccessLayerMeta.foundation.label },
+];
+
+const UI_LEVEL_OPTIONS: Array<{ value: TreeUiLevelFilter; label: string }> = [
+  { value: ALL_UI_LEVEL, label: "全部展示层" },
+  { value: "1", label: coreUiComponentUiLevelMeta[1].label },
+  { value: "2", label: coreUiComponentUiLevelMeta[2].label },
+  { value: "3", label: coreUiComponentUiLevelMeta[3].label },
 ];
 
 const META_COLUMNS: ColumnDef[] = [
   { key: "kind", label: "分类", defaultVisible: true },
   { key: "accessLayer", label: "开放层", defaultVisible: true },
+  { key: "uiLevel", label: "展示层", defaultVisible: true },
   { key: "usedBy", label: "被引用", defaultVisible: true },
   { key: "files", label: "文件", defaultVisible: true },
   { key: "verified", label: "改造状态", defaultVisible: true },
 ];
 
-const DEFAULT_VISIBLE_META: UiComponentTreeMetaKey[] = ["kind", "accessLayer", "usedBy", "files", "verified"];
+const DEFAULT_VISIBLE_META: UiComponentTreeMetaKey[] = ["kind", "accessLayer", "uiLevel", "usedBy", "files", "verified"];
 
 function findComponent(name: string) {
   return coreUiComponentRegistry.find((component) => component.name === name) as CoreUiComponentRegistration | undefined;
@@ -70,10 +81,9 @@ function findComponent(name: string) {
 export default function UiComponentsShowcase({
   usageRows = [],
 }: UiComponentsShowcaseProps) {
-  const firstRoot = coreUiComponentRegistry.find(
-    (component) => component.accessLayer !== "private-impl",
-  );
+  const firstRoot = coreUiComponentRegistry.find(isCoreUiComponentVisibleInShowcase);
   const [accessLayerValue, setAccessLayerValue] = useState<string>(ALL_ACCESS_LAYER);
+  const [uiLevelValue, setUiLevelValue] = useState<string>(ALL_UI_LEVEL);
   const [verifiedFilter, setVerifiedFilter] = useState<VerifiedFilter>(ALL_VERIFIED);
   const [query, setQuery] = useState("");
   const [selectedName, setSelectedName] = useState<string | null>(firstRoot?.name ?? null);
@@ -111,11 +121,12 @@ export default function UiComponentsShowcase({
     return filterUiComponents(treeRoots, {
       keyword: query.trim(),
       accessLayerValue: accessLayerValue,
+      uiLevelValue,
       verifiedFilter,
       usageFilesByName,
       usedByNamesByName,
     });
-  }, [accessLayerValue, query, treeRoots, usageFilesByName, usedByNamesByName, verifiedFilter]);
+  }, [accessLayerValue, query, treeRoots, uiLevelValue, usageFilesByName, usedByNamesByName, verifiedFilter]);
 
   const visibleRoots = filteredRoots;
   const selectedComponent = selectedName ? (componentByName.get(selectedName) ?? null) : null;
@@ -169,7 +180,7 @@ export default function UiComponentsShowcase({
     const component = findComponent(name);
     if (!component) return;
     setSelectedName(name);
-    if (component.accessLayer === "private-impl") return;
+    if (!isCoreUiComponentVisibleInShowcase(component)) return;
 
     setExpandedNames((current) => new Set([...current, name]));
     setSideOpen(true);
@@ -190,13 +201,14 @@ export default function UiComponentsShowcase({
     { kind: "panel-toggle", key: "toggle-list", icon: sideOpen ? "panel-open" : "panel-close", label: sideOpen ? "隐藏组件目录" : "显示组件目录", variant: sideOpen ? "primary" : "secondary", onClick: toggleSideFromToolbar },
     { kind: "search", key: "search", value: query, onChange: setQuery, placeholder: "搜索组件..." },
     { kind: "option-group", key: "access-layer", value: accessLayerValue, options: ACCESS_LAYER_OPTIONS, onChange: (value) => setAccessLayerValue(value as TreeAccessLayerFilter), ariaLabel: "开放层" },
+    { kind: "option-group", key: "ui-level", value: uiLevelValue, options: UI_LEVEL_OPTIONS, onChange: (value) => setUiLevelValue(value as TreeUiLevelFilter), ariaLabel: "展示层" },
     { kind: "option-group", key: "verified", value: verifiedFilter, options: [{ value: ALL_VERIFIED, label: "全部" }, { value: "verified", label: "无需改造" }, { value: "unverified", label: "待改造" }], onChange: (value) => setVerifiedFilter(value as VerifiedFilter), ariaLabel: "改造状态" },
     { kind: "icon-button", key: "refresh", icon: "refresh", label: "刷新", onClick: () => {} },
     { kind: "icon-button", key: "download", icon: "download", label: "下载", disabled: true, onClick: () => {} },
     { kind: "icon-button", key: "edit", icon: "edit", label: "编辑", disabled: true, onClick: () => {} },
     { kind: "text", key: "meta", content: <>共 {filteredRoots.length} 个组件</> },
     { kind: "column-toggle", key: "columns", columns: META_COLUMNS, visible: visibleMeta, onChange: setVisibleMeta },
-  ], [accessLayerValue, filteredRoots.length, query, sideOpen, verifiedFilter, visibleMeta]);
+  ], [accessLayerValue, filteredRoots.length, query, sideOpen, uiLevelValue, verifiedFilter, visibleMeta]);
 
   return (
     <WorkspaceSplitPage

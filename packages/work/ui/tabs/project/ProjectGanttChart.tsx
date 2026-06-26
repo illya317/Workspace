@@ -1,6 +1,6 @@
 "use client";
 
-import { EmptyStateCard, SectionCard } from "@workspace/core/ui";
+import { FormSurface } from "@workspace/core/ui";
 import {
   type GanttMilestoneEvent,
   type GanttRow,
@@ -40,11 +40,18 @@ export default function ProjectGanttChart({
   const todayLeft = datePercent(today, periodStart, periodEnd);
 
   return (
-    <SectionCard title="公司甘特" bodyClassName="min-w-0 overflow-hidden p-0">
-      {rows.length === 0 ? (
-        <EmptyStateCard compact={false}>暂无匹配项目</EmptyStateCard>
-      ) : (
-        <div className="min-w-0 max-w-full overflow-hidden">
+    <FormSurface
+      kind="fields"
+      fields={[{
+        kind: "section",
+        key: "company-gantt",
+        title: "公司甘特",
+        bodyClassName: "min-w-0 overflow-hidden p-0",
+        fields: [{
+          kind: "note",
+          key: "gantt-body",
+          content: rows.length === 0 ? "暂无匹配项目" : (
+            <div className="min-w-0 max-w-full overflow-hidden">
           <div className="min-w-0 max-w-full">
             <div className={`grid ${ROW_GRID} border-b border-slate-100 bg-slate-50 text-sm font-semibold text-slate-500`}>
               <div className="px-4 py-3">项目 / 任务</div>
@@ -122,8 +129,10 @@ export default function ProjectGanttChart({
             </div>
           </div>
         </div>
-      )}
-    </SectionCard>
+          ),
+        }],
+      }]}
+    />
   );
 }
 
