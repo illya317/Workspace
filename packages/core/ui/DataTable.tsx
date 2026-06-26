@@ -5,6 +5,7 @@ import { ActionButton } from "./ActionControls";
 import type { ActionGlyphKind } from "./ActionGlyphs";
 import { createDataTableEditActions } from "./DataTableActions";
 import type { DataTableActionKind, DataTableColumn, DataTableProps, DataTableRowAction } from "./DataTable.types";
+import { FieldContextProvider } from "./field-context";
 
 export type {
   ColumnDef,
@@ -157,6 +158,9 @@ export default function DataTable<T>({
 
   const headerPadding = density === "compact" ? "px-4 py-2.5" : "px-4 py-3";
   const cellPadding = density === "compact" ? "px-4 py-2.5" : "px-4 py-3";
+  const fieldContext = density === "compact"
+    ? { size: "sm" as const, density: "compact" as const }
+    : { size: "md" as const, density: "normal" as const };
 
   return (
     <table className={`${dataTableClassNames.table} ${tableClassName ?? ""}`}>
@@ -192,7 +196,9 @@ export default function DataTable<T>({
                     key={col.key}
                     className={`whitespace-nowrap ${cellPadding} ${col.className ?? ""} ${col.cellClassName ?? ""}`}
                   >
-                    {col.render(row)}
+                    <FieldContextProvider value={fieldContext}>
+                      {col.render(row)}
+                    </FieldContextProvider>
                   </td>
                 ))}
               </tr>

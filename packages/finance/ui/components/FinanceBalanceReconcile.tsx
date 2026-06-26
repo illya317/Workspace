@@ -82,7 +82,7 @@ export default function FinanceBalanceReconcile({
         <SelectField label="公司" value={companyCode} onChange={setCompanyCode} options={companies.map(company => ({
         value: company.code,
         label: company.name
-      }))} triggerClassName="min-w-32 px-3 py-1.5 text-sm" />
+      }))} />
         <FileField label="余额表Excel" accept=".xls,.xlsx" onChange={setFile} />
         <CommandButton variant="primary" onClick={handleReconcile} disabled={loading}>
           {loading ? "核对中..." : "开始核对"}

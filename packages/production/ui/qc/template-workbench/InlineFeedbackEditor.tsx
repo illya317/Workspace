@@ -35,7 +35,7 @@ export default function InlineFeedbackEditor({
 }) {
   return <PanelCard className="fixed z-50 w-80 shadow-xl" bodyClassName="p-4" style={style} onMouseEnter={() => onHoverChange(true)} onMouseLeave={() => onHoverChange(false)}>
       <div className="mb-2 flex items-start justify-between gap-3">
-        <div className="min-w-0">
+        <div>
           <div className="text-sm font-semibold text-slate-900">字段反馈</div>
           <div className="mt-1 truncate text-xs text-slate-500">
             {anchor.section ? `${anchor.section} · ` : ""}{anchor.label}
@@ -58,7 +58,7 @@ export default function InlineFeedbackEditor({
             </div>)}
         </div> : null}
       <div className="mb-1 text-xs font-semibold text-slate-500">我的反馈</div>
-      <TextareaField value={note} onChange={onNoteChange} rows={5} placeholder="描述这个标题或字段的问题。" unstyled className="w-full resize-y rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500" disabled={loading || saving} />
+      <TextareaField value={note} onChange={onNoteChange} rows={5} placeholder="描述这个标题或字段的问题。" unstyled resize="vertical" disabled={loading || saving} />
       {error ? <div className="mt-2 text-xs font-medium text-red-600">{error}</div> : null}
       <div className="mt-3 flex justify-end gap-2">
         <CommandButton onClick={onClose} disabled={saving} className="px-3 py-2 text-xs">

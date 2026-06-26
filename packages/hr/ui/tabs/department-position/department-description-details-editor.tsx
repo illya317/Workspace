@@ -23,7 +23,7 @@ export function DepartmentDescriptionDetailsEditor({
   } = useScrollToAddedItem(dutyRecordsForScroll);
   if (!details) {
     return <FormField label="部门说明书 JSON 格式错误" error="请检查 JSON 内容后重新保存。" className="md:col-span-2">
-        <TextareaField value={value} disabled={disabled} rows={12} onChange={onChange} className="resize-y border-red-300 font-mono leading-5 focus:border-red-500 focus:ring-red-500" />
+        <TextareaField value={value} disabled={disabled} rows={12} onChange={onChange} fontRole="mono" state="error" resize="vertical" />
       </FormField>;
   }
   const parsedDetails = details;
@@ -72,7 +72,7 @@ export function DepartmentDescriptionDetailsEditor({
                 <div className="grid grid-cols-1 gap-2">
                   <TextField value={String(record.title || "")} disabled={disabled} placeholder="职责标题" onChange={next => updateRecord(index, {
                 title: next
-              })} className="w-full rounded-md border border-sky-200 bg-white px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:bg-sky-100/60" />
+              })} visualVariant="info" />
                   <StringListEditor label="职责条目" value={items} disabled={disabled} placeholder="新增职责条目" onChange={nextItems => updateRecord(index, {
                 items: nextItems
               })} />
@@ -99,7 +99,7 @@ export function DepartmentDescriptionDetailsEditor({
                   </div>;
           }
           return <FormField key={key} label={key} className="md:col-span-2">
-                  <TextareaField value={detailValueToText(parsedDetails[key])} disabled={disabled} rows={detailFieldRows(parsedDetails[key])} onChange={next => updateDetailValue(key, textToDetailValue(parsedDetails[key], next))} className="w-full resize-y rounded-md border border-sky-200 px-3 py-2 font-mono text-xs leading-5 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:bg-sky-100/60" />
+                  <TextareaField value={detailValueToText(parsedDetails[key])} disabled={disabled} rows={detailFieldRows(parsedDetails[key])} onChange={next => updateDetailValue(key, textToDetailValue(parsedDetails[key], next))} fontRole="mono" state="info" resize="vertical" />
                 </FormField>;
         })}
           </div>

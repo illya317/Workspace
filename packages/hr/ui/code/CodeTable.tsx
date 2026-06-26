@@ -184,11 +184,11 @@ export default function CodeTable({
       if (row.kind === "add") {
         return <TextField value={newCode} onChange={setNewCode} onKeyDown={event => {
           if (event.key === "Enter") handleAdd();
-        }} placeholder="如001" className="h-7 px-2 py-0.5 text-xs" />;
+        }} placeholder="如001" />;
       }
       if (row.kind !== "code") return null;
       if (editRow === row.item.code) {
-        return <TextField value={editCodeValue} onChange={setEditCodeValue} className="h-7 px-2 py-0.5 text-xs" />;
+        return <TextField value={editCodeValue} onChange={setEditCodeValue} />;
       }
       return <span className={onSelect ? "cursor-pointer hover:text-emerald-600" : ""} onClick={() => onSelect?.(row.item.code)}>
             {editRow === row.item.code ? editCodeValue : row.item.code}
@@ -208,14 +208,14 @@ export default function CodeTable({
         return <div className="flex items-center gap-1">
               <TextField value={newName} onChange={setNewName} onKeyDown={event => {
             if (event.key === "Enter") handleAdd();
-          }} placeholder="名称" className="h-7 px-2 py-0.5 text-xs" />
+          }} placeholder="名称" />
               <CommandButton variant="primary" onClick={handleAdd} className="px-3 py-1 text-xs">
                 添加
               </CommandButton>
             </div>;
       }
       if (editRow === row.item.code) {
-        return <TextField value={editNameValue} onChange={setEditNameValue} className="h-7 px-2 py-0.5 text-xs" />;
+        return <TextField value={editNameValue} onChange={setEditNameValue} />;
       }
       return <span className="cursor-pointer hover:text-emerald-600" onClick={() => handleNameClick(row.item)}>
             {row.item.name || "-"}

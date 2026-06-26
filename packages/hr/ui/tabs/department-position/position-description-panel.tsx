@@ -3,7 +3,7 @@
 import { CommandButton, FkFieldInput, FormField, PanelCard, ReadOnlyField, SelectField, TextareaField, TextField } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { NEW_POSITION_DESCRIPTION_TEMPLATE_OPTION, type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
-import { PositionDescriptionDetailsEditor, formInputClassName, sectionTitle, selectedEntityName } from "./detail-editors";
+import { PositionDescriptionDetailsEditor, sectionTitle, selectedEntityName } from "./detail-editors";
 import { deriveDescriptionMeta } from "./draft-utils";
 import { PositionDescriptionTemplateEditor } from "./position-description-template-editor";
 import type { DescriptionDraft, Position } from "./types";
@@ -67,7 +67,7 @@ export function PositionDescriptionPanel({
         })), {
           value: NEW_POSITION_DESCRIPTION_TEMPLATE_OPTION,
           label: "新建模板..."
-        }]} className="w-32" triggerClassName="min-h-7 text-slate-700" />
+        }]} />
           </FormField>
           <CommandButton disabled={selectedPositionDescriptionTemplate.id === "full"} onClick={onOpenPositionDescriptionTemplateEditor} className="px-2 py-1 text-xs">
             编辑模板
@@ -96,7 +96,7 @@ export function PositionDescriptionPanel({
           />
         </FormField>
         <FormField label="编制">
-          <TextField value={descriptionDraft.headcount} disabled={!canEditPosition} inputMode="numeric" onChange={next => onUpdateDescriptionDraft("headcount", next.replace(/\D/g, ""))} className={formInputClassName} />
+          <TextField value={descriptionDraft.headcount} disabled={!canEditPosition} inputMode="numeric" onChange={next => onUpdateDescriptionDraft("headcount", next.replace(/\D/g, ""))} visualVariant="info" />
         </FormField>
         <FormField label="版本">
           <ReadOnlyField value={meta.version} />
@@ -105,10 +105,10 @@ export function PositionDescriptionPanel({
           <ReadOnlyField value={meta.effectiveDate} />
         </FormField>
         <FormField label="岗位目的" className="md:col-span-2">
-          <TextareaField value={descriptionDraft.positionPurpose} disabled={!canEditPosition} rows={3} onChange={next => onUpdateDescriptionDraft("positionPurpose", next)} className="resize-y" />
+          <TextareaField value={descriptionDraft.positionPurpose} disabled={!canEditPosition} rows={3} onChange={next => onUpdateDescriptionDraft("positionPurpose", next)} resize="vertical" />
         </FormField>
         <FormField label="摘要" className="md:col-span-2">
-          <TextareaField value={descriptionDraft.summary} disabled={!canEditPosition} rows={3} onChange={next => onUpdateDescriptionDraft("summary", next)} className="resize-y" />
+          <TextareaField value={descriptionDraft.summary} disabled={!canEditPosition} rows={3} onChange={next => onUpdateDescriptionDraft("summary", next)} resize="vertical" />
         </FormField>
         <PositionDescriptionDetailsEditor value={descriptionDraft.details} disabled={!canEditPosition} positionNames={positionNames} currentPosition={position} positions={positions} departmentNames={departmentNames} template={selectedPositionDescriptionTemplate} onChange={value => onUpdateDescriptionDraft("details", value)} />
       </div>

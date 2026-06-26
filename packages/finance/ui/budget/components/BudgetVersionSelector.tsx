@@ -38,7 +38,7 @@ export default function BudgetVersionSelector({ versions, activeVersionId, onCha
           value: String(v.id),
           label: `${v.name} (${statusLabel(v.status)})`,
         }))}
-        triggerClassName="min-w-44 px-3 py-1.5 text-sm"
+
       />
     </FormField>
   );

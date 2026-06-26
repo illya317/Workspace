@@ -185,7 +185,7 @@ export default function AccountSettingsPanel({
       } : undefined} aria-hidden="true">
           {avatar ? null : user.nickname?.slice(0, 1) || "?"}
         </span>
-        <span className="min-w-0">
+        <span>
           <span className="block truncate text-lg font-semibold text-slate-900">{user.nickname || "当前用户"}</span>
           <span className="mt-1 block text-sm font-normal text-slate-500">用户名：{user.username || "(未设置)"}</span>
         </span>
@@ -194,7 +194,7 @@ export default function AccountSettingsPanel({
       <div className="mt-6 grid gap-5 lg:grid-cols-3">
         <PanelCard title="修改账号" className="h-full" bodyClassName="space-y-3 p-4">
           <FormField label="姓名">
-            <TextField value={user.employeeName || user.nickname || ""} readOnly className="cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 shadow-none" />
+            <TextField value={user.employeeName || user.nickname || ""} readOnly visualVariant="muted" />
           </FormField>
           <FormField label="昵称">
             <TextField value={nickname} onChange={setNickname} onKeyDown={event => {
@@ -222,7 +222,7 @@ export default function AccountSettingsPanel({
           }} />
           </FormField>
           <FormMessage message={passwordMessage} />
-          <CommandButton variant="secondary" onClick={() => void savePassword()} className="w-full">
+          <CommandButton variant="secondary" onClick={() => void savePassword()}>
             保存密码
           </CommandButton>
         </PanelCard>
@@ -235,8 +235,8 @@ export default function AccountSettingsPanel({
               {avatarPreviewUrl || avatar ? null : user.nickname?.slice(0, 1) || "?"}
             </span>
             <div className="grid w-full grid-cols-2 gap-2">
-              <FileField accept="image/png,image/jpeg,image/webp,image/gif" className="w-full" inputClassName="h-10 w-full" showFileName={false} onChange={selectAvatar} />
-              <CommandButton variant="primary" disabled={!avatarFile || avatarSaving} onClick={() => void saveAvatar()} className="w-full">
+              <FileField accept="image/png,image/jpeg,image/webp,image/gif" inputClassName="h-10 w-full" showFileName={false} onChange={selectAvatar} />
+              <CommandButton variant="primary" disabled={!avatarFile || avatarSaving} onClick={() => void saveAvatar()}>
                 {avatarSaving ? "保存中..." : "保存头像"}
               </CommandButton>
             </div>

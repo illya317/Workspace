@@ -79,7 +79,7 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, showToa
                   { value: "write", label: "编辑" },
                   { value: "delete", label: "删除" },
                 ]}
-                triggerClassName="min-h-6 min-w-16 px-1 py-0.5 text-xs text-gray-600"
+
               />
             </div>
           )}

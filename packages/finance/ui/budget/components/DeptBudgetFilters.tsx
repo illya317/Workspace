@@ -33,19 +33,19 @@ export default function DeptBudgetFilters({
           <SelectField value={deptFilter} onChange={setDeptFilter} placeholder="全部部门" options={deptOptions.map(d => ({
           value: d,
           label: d
-        }))} triggerClassName="min-w-28 px-2 py-1 text-xs" />
+        }))} />
         </FormField>
         <FormField label="费用类型" layout="inline">
           <SelectField value={typeFilter} onChange={setTypeFilter} placeholder="全部类型" options={typeOptions.map(t => ({
           value: t,
           label: t
-        }))} triggerClassName="min-w-28 px-2 py-1 text-xs" />
+        }))} />
         </FormField>
         <FormField label="科目" layout="inline">
           <SelectField value={accountFilter} onChange={setAccountFilter} placeholder="全部科目" options={accountOptions.map(a => ({
           value: a,
           label: a
-        }))} triggerClassName="min-w-28 px-2 py-1 text-xs" />
+        }))} />
         </FormField>
         {(deptFilter || typeFilter || accountFilter) && <CommandButton onClick={() => {
         setDeptFilter("");

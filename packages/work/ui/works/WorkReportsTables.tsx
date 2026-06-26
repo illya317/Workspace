@@ -30,7 +30,7 @@ export function ReportDraftTable({
     cellClassName: "w-[8rem] min-w-[8rem] max-w-[8rem] whitespace-normal align-middle",
     render: item => item.workItemId && item.source !== "stale" ? <div className="break-words text-sm font-medium text-slate-900">{item.title}</div> : <TextField value={item.title} readOnly={!canEdit} placeholder="填写事项" onChange={value => onUpdate(item.rowIndex, {
       title: value
-    })} className="!h-9" />
+    })} />
   }, {
     key: "done",
     label: "本周完成",
@@ -39,7 +39,7 @@ export function ReportDraftTable({
     cellClassName: "w-[16rem] min-w-[16rem] max-w-[16rem] align-top",
     render: item => <TextareaField value={item.doneThisWeek} readOnly={!canEdit} rows={3} placeholder={item.previousPlanSnapshot ? `上周计划：${item.previousPlanSnapshot}` : "本周干了什么"} onChange={value => onUpdate(item.rowIndex, {
       doneThisWeek: value
-    })} className="resize-y" />
+    })} resize="vertical" />
   }, {
     key: "next",
     label: "下周计划",
@@ -48,7 +48,7 @@ export function ReportDraftTable({
     cellClassName: "w-[16rem] min-w-[16rem] max-w-[16rem] align-top",
     render: item => <TextareaField value={item.planNextWeek} readOnly={!canEdit} rows={3} placeholder="下周准备做什么" onChange={value => onUpdate(item.rowIndex, {
       planNextWeek: value
-    })} className="resize-y" />
+    })} resize="vertical" />
   }, {
     key: "actions",
     label: "操作",

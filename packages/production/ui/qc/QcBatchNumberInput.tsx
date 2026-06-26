@@ -31,7 +31,7 @@ export default function QcBatchNumberInput({ batchId, initialValue }: Props) {
       onBlur={save}
       disabled={isPending}
       unstyled
-      className="min-w-32 border-0 border-b border-slate-900 bg-white px-2 py-1 text-sm outline-none disabled:text-slate-400"
+      visualVariant="paperUnderline"
     />
   );
 }

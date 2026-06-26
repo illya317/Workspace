@@ -30,7 +30,7 @@ import {
 } from "./description-details";
 import { ExperienceRequirementsEditor, MajorRequirementsEditor, WorkEnvironmentEditor } from "./detail-editor-complex-fields";
 import { EntityTagListEditor, SubordinateTagsEditor } from "./detail-editor-entity-tags";
-import { EntityValueInput, StringListEditor, formInputClassName } from "./detail-editor-primitives";
+import { EntityValueInput, StringListEditor } from "./detail-editor-primitives";
 import { PositionChangeHistoryEditor, PositionDutyEditor } from "./position-description-repeatable-sections";
 import type { Position } from "./types";
 
@@ -66,7 +66,7 @@ export function PositionDescriptionDetailsEditor({
           disabled={disabled}
           rows={14}
           onChange={onChange}
-          className="resize-y border-red-300 font-mono leading-5 focus:border-red-500 focus:ring-red-500"
+          fontRole="mono" state="error" resize="vertical"
         />
       </FormField>
     );
@@ -256,7 +256,7 @@ export function PositionDescriptionDetailsEditor({
       );
     }
     const rows = detailFieldRows(fieldValue);
-    const className = formInputClassName;
+    const complexValue = fieldValue && typeof fieldValue === "object" && !isPrimitiveArray(fieldValue);
     return (
       <FormField
         key={key}
@@ -268,7 +268,7 @@ export function PositionDescriptionDetailsEditor({
             value={detailValueToText(fieldValue)}
             disabled={disabled}
             onChange={(next) => updateDetailField(key, next)}
-            className={className}
+            visualVariant="info"
           />
         ) : (
           <TextareaField
@@ -276,7 +276,8 @@ export function PositionDescriptionDetailsEditor({
             disabled={disabled}
             rows={rows}
             onChange={(next) => updateDetailField(key, next)}
-            className={`${className} resize-y ${fieldValue && typeof fieldValue === "object" && !isPrimitiveArray(fieldValue) ? "font-mono text-xs leading-5" : ""}`}
+            resize="vertical"
+            fontRole={complexValue ? "mono" : "default"}
           />
         )}
       </FormField>

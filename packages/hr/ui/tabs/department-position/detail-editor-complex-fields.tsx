@@ -145,7 +145,7 @@ export function MajorRequirementsEditor({
       >
         {!disabled && (
           <div className="min-w-40 flex-1">
-            <MajorPicker value="" disabled={disabled} onChange={addItem} className="w-full" />
+            <MajorPicker value="" disabled={disabled} onChange={addItem} />
           </div>
         )}
       </TagListInput>
@@ -197,7 +197,7 @@ export function ExperienceRequirementsEditor({
               <div className="flex overflow-hidden rounded-md border border-sky-200 shadow-sm focus-within:border-sky-500 focus-within:ring-1 focus-within:ring-sky-500">
                 <TextField value={item.years} disabled={disabled} inputMode="numeric" placeholder="1" onChange={next => updateItem(index, {
               years: positiveIntegerText(next)
-            })} unstyled className="w-14 min-w-0 px-3 py-2 text-sm focus:outline-none disabled:bg-slate-100" />
+            })} unstyled />
                 <span className="whitespace-nowrap border-l border-slate-200 bg-slate-50 px-2.5 py-2 text-sm text-slate-500">年以上</span>
               </div>
             </FormField>

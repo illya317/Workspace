@@ -252,7 +252,7 @@ export default function EmployeeDirectory({
           submitDisabled={creating || !newEmployeeName.trim()}
           submitting={creating}
         >
-          <FormField label="姓名" required className="w-44 max-w-full">
+          <FormField label="姓名" required>
             <TextField
               value={newEmployeeName}
               onChange={setNewEmployeeName}

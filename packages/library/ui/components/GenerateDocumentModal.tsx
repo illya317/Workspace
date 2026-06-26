@@ -100,8 +100,8 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
                 value={selectedKey}
                 onChange={handleSourceChange}
                 options={sources.map((source) => ({ value: source.key, label: source.name }))}
-                className="block text-gray-500"
-                triggerClassName="min-h-10 px-3 py-2 text-sm"
+
+
               />
             </div>
 
@@ -131,8 +131,8 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
                   value: level,
                   label: `${label} (L${level})`,
                 }))}
-                className="block text-gray-500"
-                triggerClassName="min-h-10 px-3 py-2 text-sm"
+
+
               />
             </div>
 

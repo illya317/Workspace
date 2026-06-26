@@ -1,10 +1,6 @@
 export {
   DetailSectionHeader,
   DetailStatsRow,
-  compactFormInputClassName,
-  compactReadOnlyInputClassName,
-  formInputClassName,
-  readOnlyInputClassName,
   sectionTitle,
   selectedEntityName,
 } from "./detail-editor-primitives";

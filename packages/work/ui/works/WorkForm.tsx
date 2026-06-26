@@ -39,14 +39,14 @@ export default function WorkForm({
               { value: "routine", label: "日常工作" },
               { value: "non-routine", label: "其他工作" },
             ]}
-            triggerClassName="w-auto min-w-28 px-2 py-1.5 text-sm"
+
           />
         </FormField>
         <FormField label="工作内容" required>
           <TextField
             value={content}
             onChange={setContent}
-            className="text-sm"
+
             placeholder="例如：会议纪要整理"
           />
         </FormField>
@@ -62,7 +62,7 @@ export default function WorkForm({
           <TextField
             value={participants}
             onChange={setParticipants}
-            className="text-sm"
+
             placeholder="多个名字用逗号分隔"
           />
         </FormField>

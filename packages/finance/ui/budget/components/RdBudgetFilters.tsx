@@ -27,13 +27,13 @@ export default function RdBudgetFilters({
           <SelectField value={projectFilter} onChange={setProjectFilter} placeholder="全部项目" options={projectOptions.map(p => ({
           value: p,
           label: p
-        }))} triggerClassName="min-w-28 px-2 py-1 text-xs" />
+        }))} />
         </FormField>
         <FormField label="产品类别" layout="inline">
           <SelectField value={categoryFilter} onChange={setCategoryFilter} placeholder="全部类别" options={categoryOptions.map(c => ({
           value: c,
           label: c
-        }))} triggerClassName="min-w-28 px-2 py-1 text-xs" />
+        }))} />
         </FormField>
         {(projectFilter || categoryFilter) && <CommandButton onClick={() => {
         setProjectFilter("");

@@ -1,7 +1,7 @@
 "use client";
 
-import type { CSSProperties, ReactNode, RefObject } from "react";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import { matchText } from "../search";
 import CheckboxField from "./CheckboxField";
 import DropdownSurface, { getDropdownItemClassName } from "./DropdownSurface";
@@ -9,6 +9,9 @@ import FieldInputShell from "./FieldInputShell";
 import { FIELD_CONTROL_SIZE_TOKENS } from "./FormStyles";
 import { CONTROL_SIZES, type ControlSize } from "./interactionTokens";
 import SearchInput from "./SearchInput";
+import { joinClassNames } from "./card-utils";
+import { useFieldContext } from "./field-context";
+import { SelectFieldChevron, SelectFieldDropdown } from "./select-field-parts";
 
 export type SelectFieldOption = { value: string; label: string; disabled?: boolean };
 
@@ -29,6 +32,8 @@ interface SelectFieldBaseProps {
   size?: ControlSize;
   density?: "normal" | "compact";
   appearance?: "field" | "toolbar";
+  textAlign?: "left" | "center" | "right";
+  visualVariant?: "default" | "paperUnderline" | "muted";
 }
 
 export interface SingleSelectFieldProps extends SelectFieldBaseProps {
@@ -44,28 +49,6 @@ export interface MultiSelectFieldProps extends SelectFieldBaseProps {
 }
 
 export type SelectFieldProps = SingleSelectFieldProps | MultiSelectFieldProps;
-
-function SelectFieldDropdown({
-  open,
-  shouldSearch,
-  searchRef,
-  onQueryChange,
-  children,
-}: {
-  open: boolean;
-  shouldSearch: boolean;
-  searchRef: RefObject<HTMLInputElement | null>;
-  onQueryChange: (value: string) => void;
-  children: ReactNode;
-}) {
-  useEffect(() => {
-    if (!open) return;
-    if (shouldSearch) setTimeout(() => searchRef.current?.focus(), 0);
-    return () => onQueryChange("");
-  }, [open, shouldSearch, onQueryChange, searchRef]);
-
-  return children;
-}
 
 function getSelectedLabel(options: SelectFieldOption[], value: string) {
   return options.find((option) => option.value === value)?.label;
@@ -90,17 +73,44 @@ export default function SelectField({
   dropdownHeader,
   dropdownFooter,
   summaryMode = "names",
-  size = "md",
-  density = "normal",
+  size,
+  density,
   appearance = "field",
+  textAlign = "left",
+  visualVariant = "default",
 }: SelectFieldProps) {
-  const shellSize = size === "sm" ? "sm" : size === "lg" || size === "xl" ? "lg" : "md";
+  const fieldContext = useFieldContext();
+  const resolvedSize = size ?? (fieldContext?.size === "sm" ? "sm" : fieldContext?.size === "lg" ? "lg" : "md");
+  const resolvedDensity = density ?? fieldContext?.density ?? "normal";
+  const shellSize = resolvedSize === "sm" ? "sm" : resolvedSize === "lg" || resolvedSize === "xl" ? "lg" : "md";
   const toolbarMode = appearance === "toolbar";
-  const labelTextClass = toolbarMode ? CONTROL_SIZES[size].text : FIELD_CONTROL_SIZE_TOKENS[shellSize].text;
-  const valueTextClass = toolbarMode ? CONTROL_SIZES[size].text : FIELD_CONTROL_SIZE_TOKENS[shellSize].text;
-  const valueLeadingClass = toolbarMode ? CONTROL_SIZES[size].leading : FIELD_CONTROL_SIZE_TOKENS[shellSize].leading;
-  const searchSize = toolbarMode ? size : shellSize;
+  const labelTextClass = toolbarMode ? CONTROL_SIZES[resolvedSize].text : FIELD_CONTROL_SIZE_TOKENS[shellSize].text;
+  const valueTextClass = toolbarMode ? CONTROL_SIZES[resolvedSize].text : FIELD_CONTROL_SIZE_TOKENS[shellSize].text;
+  const valueLeadingClass = toolbarMode ? CONTROL_SIZES[resolvedSize].leading : FIELD_CONTROL_SIZE_TOKENS[shellSize].leading;
+  const searchSize = toolbarMode ? resolvedSize : shellSize;
   const isMulti = multiple === true;
+  const alignClass = textAlign === "center" ? "text-center" : textAlign === "right" ? "text-right" : "text-left";
+  const paperTriggerClassName = visualVariant === "paperUnderline"
+    ? "h-8 min-h-8 rounded-none border-0 border-b border-slate-950 bg-transparent px-1 text-center shadow-none disabled:opacity-100"
+    : "";
+  const wrapperVariantClassName = visualVariant === "paperUnderline" ? "inline-block min-w-16" : "";
+  const dropdownClassName = joinClassNames(
+    "inline-block align-middle",
+    toolbarMode ? "" : "w-full",
+    wrapperVariantClassName,
+    className,
+  );
+  const toolbarButtonClassName = joinClassNames(
+    "inline-flex min-w-24 items-center gap-2 border border-slate-200 bg-white font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500",
+    CONTROL_SIZES[resolvedSize].height,
+    CONTROL_SIZES[resolvedSize].radius,
+    CONTROL_SIZES[resolvedSize].paddingX,
+    CONTROL_SIZES[resolvedSize].text,
+    CONTROL_SIZES[resolvedSize].leading,
+    paperTriggerClassName,
+    triggerClassName,
+  );
+  const fieldTriggerClassName = joinClassNames(paperTriggerClassName, triggerClassName);
   const [query, setQuery] = useState("");
   const searchRef = useRef<HTMLInputElement | null>(null);
   const listboxId = useId();
@@ -148,7 +158,7 @@ export default function SelectField({
   return (
     <DropdownSurface
       align="right"
-      className={`inline-block align-middle ${toolbarMode ? "" : "w-full"} ${className ?? ""}`}
+      className={dropdownClassName}
       surfaceClassName={toolbarMode ? "mt-1 w-max min-w-full py-1" : "mt-1 w-full py-1"}
       trigger={({ open, toggle }) => (
         toolbarMode ? (
@@ -163,37 +173,21 @@ export default function SelectField({
             data-field-key={dataFieldKey}
             onClick={toggle}
             style={style}
-            className={`inline-flex ${CONTROL_SIZES[size].height} min-w-24 items-center gap-2 ${CONTROL_SIZES[size].radius} border border-slate-200 bg-white ${CONTROL_SIZES[size].paddingX} ${CONTROL_SIZES[size].text} ${CONTROL_SIZES[size].leading} font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500 ${triggerClassName ?? ""}`}
+            className={toolbarButtonClassName}
           >
             {toolbarFieldLabel && <span className={`shrink-0 ${labelTextClass} text-slate-400`}>{toolbarFieldLabel}</span>}
             <span className="min-w-0 flex-1 truncate text-left">{selectedLabel}</span>
-            <svg
-              className={`ml-auto h-4 w-4 shrink-0 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
+            <span className="ml-auto"><SelectFieldChevron open={open} /></span>
           </button>
         ) : (
           <FieldInputShell
             disabled={disabled}
             size={shellSize}
-            density={density}
-            className={triggerClassName}
+            density={resolvedDensity}
+            className={fieldTriggerClassName}
             style={style}
             suffix={(
-              <svg
-                className={`h-4 w-4 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
+              <SelectFieldChevron open={open} />
             )}
           >
             {toolbarFieldLabel && <span className={`shrink-0 ${labelTextClass} text-slate-400`}>{toolbarFieldLabel}</span>}
@@ -219,7 +213,7 @@ export default function SelectField({
                 }
               }}
               disabled={disabled}
-              className={`h-full min-w-0 flex-1 cursor-pointer caret-transparent border-0 bg-transparent p-0 ${valueTextClass} ${valueLeadingClass} text-current outline-none placeholder:text-slate-400 disabled:bg-transparent disabled:text-slate-500`}
+              className={`h-full min-w-0 flex-1 cursor-pointer caret-transparent border-0 bg-transparent p-0 ${valueTextClass} ${valueLeadingClass} ${alignClass} text-current outline-none placeholder:text-slate-400 disabled:bg-transparent disabled:text-slate-500`}
             />
           </FieldInputShell>
         )

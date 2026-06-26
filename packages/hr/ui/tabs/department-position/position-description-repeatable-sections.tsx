@@ -3,7 +3,7 @@
 import { CalendarDateInput, EmptyStateCard, FormField, PanelCard, TextField, Toolbar, useConfirmDelete } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { formatHistoryVersion, normalizeDateValue, versionNumber } from "./draft-utils";
-import { EntityValueInput, StringListEditor, formInputClassName } from "./detail-editor-primitives";
+import { EntityValueInput, StringListEditor } from "./detail-editor-primitives";
 type DetailRecord = Record<string, unknown>;
 export function PositionDutyEditor({
   detailKey,
@@ -58,7 +58,7 @@ export function PositionDutyEditor({
               <div className="grid grid-cols-1 gap-2">
                 <TextField value={String(record.title || "")} disabled={disabled} placeholder="职责标题" onChange={next => updateDuty(index, {
               title: next
-            })} className={formInputClassName} />
+            })} visualVariant="info" />
                 <StringListEditor label="职责条目" value={items} disabled={disabled} placeholder="新增职责条目" onChange={nextItems => updateDuty(index, {
               items: nextItems
             })} />
@@ -117,12 +117,12 @@ export function PositionChangeHistoryEditor({
       return <div key={index} ref={getItemRef(index)}>
             <PanelCard bodyClassName="grid grid-cols-1 gap-2 p-3 md:grid-cols-[88px_minmax(0,1.5fr)_minmax(180px,0.8fr)_minmax(180px,0.8fr)]">
               <FormField label="版本">
-                <TextField value={String(record.version || formatHistoryVersion(index))} disabled className="w-full rounded-md border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-500" />
+                <TextField value={String(record.version || formatHistoryVersion(index))} disabled visualVariant="muted" />
               </FormField>
               <FormField label="文件名">
                 <TextField value={String(record.documentName || "")} disabled={disabled} onChange={next => updateRecord(index, {
               documentName: next
-            })} className="w-full rounded-md border border-sky-200 bg-white px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:bg-sky-100/60" />
+            })} visualVariant="info" />
               </FormField>
               <FormField label="生效日期" error={dateInvalid ? "日期格式错误，请重新选择。" : undefined}>
                 <CalendarDateInput value={rawDate} disabled={disabled} onChange={next => updateRecord(index, {

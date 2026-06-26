@@ -14,10 +14,6 @@ import type { FkFieldOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
 import { primitiveListItems } from "./description-details";
 
-export const formInputClassName = "";
-export const compactFormInputClassName = "h-10 py-0";
-export const readOnlyInputClassName = "";
-export const compactReadOnlyInputClassName = "";
 export { OptionTagListEditor } from "./option-tag-list-editor";
 
 export function PercentageField({
@@ -47,7 +43,7 @@ export function PercentageField({
             onChange(Number.isFinite(number) ? number : value ?? null);
           }}
           unstyled
-          className="min-w-0 flex-1 border-0 bg-transparent px-3 py-2 outline-none disabled:bg-slate-100 disabled:text-slate-500"
+          visualVariant="inline"
         />
         <span className="grid w-10 place-items-center border-l border-slate-200 bg-slate-50 text-slate-500">%</span>
       </FieldInputShell>

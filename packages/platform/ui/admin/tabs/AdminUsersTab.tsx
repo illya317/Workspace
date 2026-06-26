@@ -212,11 +212,11 @@ export default function AdminUsersTab({
           </CommandButton>
         </div>
         <span className="text-sm text-gray-400">{filtered.length} 个用户{keyword && ` (共${users.length})`}</span>
-        <div className="flex-1" />
+        <div />
         <SelectField value={String(pageSize)} onChange={nextValue => onPageSizeChange(Number(nextValue))} options={[20, 50, 100].map(n => ({
         value: String(n),
         label: `${n}条/页`
-      }))} triggerClassName="min-w-32" />
+      }))} />
         <CommandButton variant="primary" onClick={() => {
         setCreating(true);
         setTimeout(() => nameRef.current?.focus(), 50);
@@ -226,8 +226,8 @@ export default function AdminUsersTab({
       </div>
 
       {creating && <PanelCard bodyClassName="flex flex-wrap items-center gap-3 p-3">
-          <TextField ref={nameRef} value={newNickname} onChange={setNewNickname} placeholder="昵称 *" className="w-40" onKeyDown={e => e.key === "Enter" && handleCreate()} />
-          <TextField value={newUsername} onChange={setNewUsername} placeholder="用户名（可选）" className="w-52" onKeyDown={e => e.key === "Enter" && handleCreate()} />
+          <TextField ref={nameRef} value={newNickname} onChange={setNewNickname} placeholder="昵称 *" onKeyDown={e => e.key === "Enter" && handleCreate()} />
+          <TextField value={newUsername} onChange={setNewUsername} placeholder="用户名（可选）" onKeyDown={e => e.key === "Enter" && handleCreate()} />
           <CommandButton variant="primary" onClick={handleCreate}>保存</CommandButton>
           <CommandButton onClick={() => {
         setCreating(false);

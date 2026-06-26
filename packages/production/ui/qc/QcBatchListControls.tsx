@@ -53,10 +53,10 @@ export function QcBatchCreatePanel({
         <SelectField value={productKey} onChange={onProductKeyChange} options={products.map(product => ({
         value: product.id,
         label: product.productName
-      }))} ariaLabel="产品" triggerClassName="!w-[7.5rem] !min-w-[7.5rem]" />
+      }))} ariaLabel="产品" />
       </FormField>
       <FormField label="批号" required>
-        <TextField value={batchNumber} onChange={onBatchNumberChange} placeholder="请输入批号" className="w-36 rounded-lg border-2 border-emerald-500 px-3 shadow-sm focus:ring-2 focus:ring-emerald-100" style={{
+        <TextField value={batchNumber} onChange={onBatchNumberChange} placeholder="请输入批号" visualVariant="emphasis" style={{
         width: "9rem"
       }} />
       </FormField>

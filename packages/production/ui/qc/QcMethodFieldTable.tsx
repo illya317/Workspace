@@ -51,8 +51,9 @@ function FieldInput({
           disabled={readOnly || calculated || field.attr === "prefilled"}
           placeholder=" "
           options={(field.options ?? []).map((option) => ({ value: option, label: option }))}
-          className="inline-block min-w-16"
-          triggerClassName="h-8 min-h-8 rounded-none border-0 border-b border-slate-950 bg-transparent px-1 text-center text-sm shadow-none disabled:opacity-100"
+
+          visualVariant="paperUnderline"
+          textAlign="center"
         />
         {field.unit && <span className="text-xs text-slate-700">{field.unit}</span>}
       </div>

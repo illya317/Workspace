@@ -99,8 +99,8 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
             }}
             placeholder="全部日期"
             options={dates.map((date) => ({ value: date, label: date }))}
-            className="w-32"
-            triggerClassName="min-h-7 text-gray-600"
+
+
           />
         )}
         <div className="max-h-[58vh] overflow-auto">

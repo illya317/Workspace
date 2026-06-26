@@ -102,7 +102,7 @@ export default function ReportTab() {
         }, {
           value: "cashflow",
           label: "现金流量表"
-        }]} triggerClassName="min-w-28 px-2 py-1 text-xs" />
+        }]} />
         </FormField>
         <CommandButton variant="primary" onClick={loadReport}>生成报表</CommandButton>
       </div>

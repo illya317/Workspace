@@ -5,7 +5,7 @@ import type { FkFieldOption } from "@workspace/core/ui";
 import { SegmentedCodeInput } from "@workspace/platform/ui";
 import PositionAliasTagsInput from "./PositionAliasTagsInput";
 import { type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
-import { DetailSectionHeader, formInputClassName } from "./detail-editors";
+import { DetailSectionHeader } from "./detail-editors";
 import { DirectPositionPanel } from "./navigation-panels";
 import { PositionDescriptionPanel } from "./position-description-panel";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
@@ -122,7 +122,7 @@ export function PositionEditor({
               />
             </FormField>
             <FormField label="岗位名称">
-              <TextField value={draft.name} disabled={!canEditPosition} onChange={next => onUpdateDraft("name", next)} className={formInputClassName} />
+              <TextField value={draft.name} disabled={!canEditPosition} onChange={next => onUpdateDraft("name", next)} visualVariant="info" />
             </FormField>
             <FormField label="别名" className="md:col-span-2">
               <PositionAliasTagsInput value={draft.alias || ""} disabled={!canEditPosition} onChange={value => onUpdateDraft("alias", value)} />

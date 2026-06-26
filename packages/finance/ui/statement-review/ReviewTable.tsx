@@ -88,7 +88,7 @@ export default function ReviewTable({
         return <TextField autoFocus value={editAmt} onChange={setEditAmt} onBlur={() => commitAmt(line)} onKeyDown={event => {
           if (event.key === "Enter") commitAmt(line);
           if (event.key === "Escape") setEditingAmt(null);
-        }} className="text-right" />;
+        }} textAlign="right" />;
       }
       return <CommandButton onClick={() => {
         if (!isReadOnly) {

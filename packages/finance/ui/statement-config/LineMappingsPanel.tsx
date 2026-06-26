@@ -183,7 +183,7 @@ export default function LineMappingsPanel({
             <SelectField value={newAccount} onChange={onNewAccountChange} placeholder={`选择科目 (${filteredAccounts.length})`} options={filteredAccounts.map(account => ({
           value: account.code,
           label: `${account.code} ${account.name}`
-        }))} triggerClassName="w-64 px-2 py-1 text-sm" />
+        }))} />
             <CommandButton variant="primary" onClick={() => onSaveMapping(newAccount, line.lineCode, "add")} disabled={!newAccount}>
               添加（加）
             </CommandButton>

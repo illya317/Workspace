@@ -39,7 +39,7 @@ export default function LibraryEditForm({ doc, form, setForm, canWrite, canAdmin
 
   return (
     <div className="space-y-1">
-      <FormField label="文档编号（docId）" hint="改名后仍可通过此编号找到文档" className="py-2">
+      <FormField label="文档编号（docId）" hint="改名后仍可通过此编号找到文档">
         <TextField
           value={form.docId !== undefined ? (form.docId ?? "") : (doc.docId ?? "")}
           disabled={!canWrite}
@@ -47,14 +47,14 @@ export default function LibraryEditForm({ doc, form, setForm, canWrite, canAdmin
           placeholder="如 DOC-2024-001"
         />
       </FormField>
-      <FormField label="标题" className="py-2">
+      <FormField label="标题">
         <TextField
           value={form.title ?? doc.title ?? ""}
           disabled={!canWrite}
           onChange={(value) => setForm((f) => ({ ...f, title: value }))}
         />
       </FormField>
-      <FormField label="简介" className="py-2">
+      <FormField label="简介">
         <TextareaField
           value={form.summary ?? doc.summary ?? ""}
           disabled={!canWrite}
@@ -62,7 +62,7 @@ export default function LibraryEditForm({ doc, form, setForm, canWrite, canAdmin
           rows={3}
         />
       </FormField>
-      <FormField label="标签（用逗号分隔）" className="py-2">
+      <FormField label="标签（用逗号分隔）">
         <TextField
           value={tagsValue.join(", ")}
           disabled={!canWrite}
@@ -70,14 +70,14 @@ export default function LibraryEditForm({ doc, form, setForm, canWrite, canAdmin
           placeholder="如 年度报表, 已审计, 研发"
         />
       </FormField>
-      <FormField label="分类编码" className="py-2">
+      <FormField label="分类编码">
         <TextField
           value={form.categoryCode ?? doc.categoryCode ?? ""}
           disabled={!canWrite}
           onChange={(value) => setForm((f) => ({ ...f, categoryCode: value }))}
         />
       </FormField>
-      <FormField label="分类名称" className="py-2">
+      <FormField label="分类名称">
         <TextField
           value={form.categoryName ?? doc.categoryName ?? ""}
           disabled={!canWrite}
@@ -91,8 +91,8 @@ export default function LibraryEditForm({ doc, form, setForm, canWrite, canAdmin
           disabled={!canAdmin}
           onChange={(value) => setForm((f) => ({ ...f, confidentialityLevel: parseInt(value, 10) }))}
           options={CONFIDENTIALITY_OPTIONS}
-          className="block text-gray-400"
-          triggerClassName="min-h-10 px-3 py-2 text-sm"
+
+
         />
         {!canAdmin && (
           <p className="text-xs text-gray-400 mt-1">需要管理权限才能修改保密等级</p>
@@ -105,8 +105,8 @@ export default function LibraryEditForm({ doc, form, setForm, canWrite, canAdmin
           disabled={!canWrite}
           onChange={(value) => setForm((f) => ({ ...f, status: value }))}
           options={STATUS_OPTIONS}
-          className="block text-gray-400"
-          triggerClassName="min-h-10 px-3 py-2 text-sm"
+
+
         />
       </div>
     </div>

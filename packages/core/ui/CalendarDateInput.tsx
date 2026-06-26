@@ -4,6 +4,7 @@ import { forwardRef, useCallback, useEffect, useMemo, useRef, useState, type CSS
 import { joinClassNames } from "./card-utils";
 import { CalendarDatePopover, parseDate, type PickerMode } from "./CalendarDatePopover";
 import FieldInputShell from "./FieldInputShell";
+import { useFieldContext } from "./field-context";
 
 interface CalendarDateInputProps {
   value: string | null | undefined;
@@ -18,6 +19,7 @@ interface CalendarDateInputProps {
   style?: CSSProperties;
   title?: string;
   unstyled?: boolean;
+  state?: "default" | "error" | "info";
 }
 
 const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
@@ -35,10 +37,12 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
       style,
       title,
       unstyled = false,
+      state = "default",
     },
     ref,
   ) {
     const selected = parseDate(value);
+    const fieldContext = useFieldContext();
     const inputPlaceholder = placeholder ?? "选择日期";
     const today = useMemo(() => new Date(), []);
     const [open, setOpen] = useState(false);
@@ -131,7 +135,18 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
         {unstyled ? (
           input
         ) : (
-          <FieldInputShell disabled={disabled} readOnly={readOnly} className={className} style={style}>
+          <FieldInputShell
+            disabled={disabled}
+            readOnly={readOnly}
+            size={fieldContext?.size}
+            density={fieldContext?.density}
+            className={joinClassNames(
+              state === "error" ? "border-red-300 text-red-700 focus-within:border-red-500 focus-within:ring-red-500" : "",
+              state === "info" ? "border-sky-200 focus-within:border-sky-500 focus-within:ring-sky-500" : "",
+              className,
+            )}
+            style={style}
+          >
             {input}
           </FieldInputShell>
         )}

@@ -55,15 +55,15 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
     <DetailModal open title="调整重分类" onClose={handleClose} maxWidth="max-w-sm">
         <div className="space-y-3">
           <FormField label="凭证号">
-            <ReadOnlyField value={item.voucherNo} className="font-mono text-gray-700" />
+            <ReadOnlyField value={item.voucherNo} fontRole="mono" />
           </FormField>
           {item.description && (
             <FormField label="摘要">
-              <ReadOnlyField value={item.description} className="text-gray-700" />
+              <ReadOnlyField value={item.description} />
             </FormField>
           )}
           <FormField label="调整科目" required>
-            <AccountCodeInput companyCode={companyCode} year={year} value={targetAccount} onChange={setTargetAccount} placeholder="搜索科目编码..." className="w-full" />
+            <AccountCodeInput companyCode={companyCode} year={year} value={targetAccount} onChange={setTargetAccount} placeholder="搜索科目编码..." />
           </FormField>
           <FormField label="重分类金额" required>
             <TextField
@@ -75,7 +75,7 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
             />
           </FormField>
           <FormField label="审核备注">
-            <TextareaField value={note} onChange={setNote} rows={2} className="resize-none" />
+            <TextareaField value={note} onChange={setNote} rows={2} resize="none" />
           </FormField>
         </div>
 

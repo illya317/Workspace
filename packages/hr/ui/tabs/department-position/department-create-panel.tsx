@@ -123,10 +123,10 @@ export function DepartmentCreatePanel({
         <DetailSectionHeader title="部门信息" />
         <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
           <FormField label="部门编码" required>
-            <DepartmentCodeInput value={code} level={level} disabled={!canEdit} onChange={setCode} className="w-full" />
+            <DepartmentCodeInput value={code} level={level} disabled={!canEdit} onChange={setCode} />
           </FormField>
           <FormField label="部门名称" required>
-            <TextField value={name} disabled={!canEdit} onChange={updateDraftName} className="w-full" />
+            <TextField value={name} disabled={!canEdit} onChange={updateDraftName} />
           </FormField>
           <FormField label="部门层级">
             <SelectField
@@ -155,10 +155,10 @@ export function DepartmentCreatePanel({
             />
           </FormField>
           <FormField label="别名">
-            <TextField value={alias} disabled={!canEdit} onChange={setAlias} className="w-full" />
+            <TextField value={alias} disabled={!canEdit} onChange={setAlias} />
           </FormField>
           <FormField label="部门负责人">
-            <TextField value={managerPositionName} disabled={!canEdit} onChange={updateDraftManager} className="w-full" />
+            <TextField value={managerPositionName} disabled={!canEdit} onChange={updateDraftManager} />
           </FormField>
         </div>
       </PanelCard>

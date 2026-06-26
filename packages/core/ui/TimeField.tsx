@@ -1,6 +1,7 @@
 "use client";
 
 import FieldInputShell from "./FieldInputShell";
+import { useFieldContext } from "./field-context";
 
 export interface TimeFieldProps {
   value?: string | null;
@@ -73,6 +74,7 @@ export default function TimeField({
   className,
 }: TimeFieldProps) {
   const { hour, minute } = parseTimeValue(value);
+  const fieldContext = useFieldContext();
 
   function commit(part: "hour" | "minute", nextValue: string) {
     const nextHour = part === "hour" ? nextValue : hour;
@@ -88,6 +90,8 @@ export default function TimeField({
     <FieldInputShell
       disabled={disabled}
       readOnly={readOnly}
+      size={fieldContext?.size}
+      density={fieldContext?.density}
       className={`flex items-center justify-center gap-1 px-2 tabular-nums ${className ?? ""}`}
     >
       <TimePart

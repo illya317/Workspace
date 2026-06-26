@@ -12,7 +12,7 @@ export function Section({
   title: string;
   children: ReactNode;
 }) {
-  return <SectionCard title={title} className="min-w-0">
+  return <SectionCard title={title}>
       <div className="space-y-3">{children}</div>
     </SectionCard>;
 }
@@ -40,10 +40,10 @@ export function InputBox({
 }) {
   const dateTime = splitDateTimeValue(value);
   return <FormField label={label} className={className}>
-      {kind === "date" ? <CalendarDateInput value={value} onChange={next => onChange(next ?? "")} className="w-full" /> : kind === "datetime" ? <div className="grid grid-cols-[minmax(0,1fr)_7.5rem] gap-2">
-          <CalendarDateInput value={dateTime.date} onChange={date => onChange(combineDateTimeValue(date, dateTime.time))} className="w-full" />
-          <TimeField value={dateTime.time} onChange={time => onChange(combineDateTimeValue(dateTime.date, time))} className="w-full" />
-        </div> : <TextField type={kind === "number" ? "number" : "text"} value={value} onChange={onChange} className="w-full" />}
+      {kind === "date" ? <CalendarDateInput value={value} onChange={next => onChange(next ?? "")} /> : kind === "datetime" ? <div className="grid grid-cols-[minmax(0,1fr)_7.5rem] gap-2">
+          <CalendarDateInput value={dateTime.date} onChange={date => onChange(combineDateTimeValue(date, dateTime.time))} />
+          <TimeField value={dateTime.time} onChange={time => onChange(combineDateTimeValue(dateTime.date, time))} />
+        </div> : <TextField type={kind === "number" ? "number" : "text"} value={value} onChange={onChange} />}
     </FormField>;
 }
 
@@ -74,8 +74,8 @@ export function SelectBox({
     label: string;
   }>;
 }) {
-  return <FormField label={label} className="min-w-0">
-      <SelectField value={value} options={options} onChange={onChange} className="w-full" triggerClassName="w-full" searchable={options.length > 6} />
+  return <FormField label={label}>
+      <SelectField value={value} options={options} onChange={onChange} searchable={options.length > 6} />
     </FormField>;
 }
 

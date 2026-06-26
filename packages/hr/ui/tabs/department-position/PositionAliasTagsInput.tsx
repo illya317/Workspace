@@ -57,7 +57,7 @@ export default function PositionAliasTagsInput({
           }}
           placeholder={tags.length === 0 ? "添加别名" : ""}
           unstyled
-          className="min-w-24 flex-1 border-0 bg-transparent px-1 py-1 text-sm text-slate-800 outline-none placeholder:text-slate-400"
+          visualVariant="inline"
         />
       )}
     </TagListInput>

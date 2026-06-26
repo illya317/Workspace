@@ -114,7 +114,7 @@ export default function ProjectDetailEditor({
                     <ReadOnlyField
                       disabled={!draft.parentProjectId}
                       onClick={() => draft.parentProjectId && onOpenProject(draft.parentProjectId)}
-                      className="text-left"
+                      textAlign="left"
                     >
                       {parentProjectLabel}
                     </ReadOnlyField>
@@ -123,7 +123,7 @@ export default function ProjectDetailEditor({
                     <ReadOnlyField
                       disabled={!draft.parentProjectId}
                       onClick={() => openParentProjectPlan(draft.parentProjectId)}
-                      className="text-left"
+                      textAlign="left"
                     >
                       {draft.parentProjectTaskName || "未设置"}
                     </ReadOnlyField>
@@ -134,7 +134,7 @@ export default function ProjectDetailEditor({
                 </>
               )}
               <FieldGrid.Cell label="项目编码">
-                <ReadOnlyField value={projectCode(selectedProject, draft)} className="font-mono" />
+                <ReadOnlyField value={projectCode(selectedProject, draft)} fontRole="mono" />
               </FieldGrid.Cell>
               <FieldGrid.Cell label="项目类型">
                 <OptionPicker

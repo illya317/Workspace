@@ -2,7 +2,6 @@
 
 import { CheckboxChip, CommandButton, FormField, PanelCard, TextField } from "@workspace/core/ui";
 import { DETAIL_FIELD_LABELS, POSITION_DESCRIPTION_TEMPLATE_FIELD_GROUPS } from "./description-details";
-import { formInputClassName } from "./detail-editors";
 export function PositionDescriptionTemplateEditor({
   name,
   fields,
@@ -20,8 +19,8 @@ export function PositionDescriptionTemplateEditor({
 }) {
   return <PanelCard className="mb-4" bodyClassName="p-3">
       <div className="mb-3 flex flex-wrap items-end gap-3">
-        <FormField label="模板名称" className="min-w-64 flex-1">
-          <TextField value={name} onChange={onNameChange} className={formInputClassName} />
+        <FormField label="模板名称">
+          <TextField value={name} onChange={onNameChange} visualVariant="info" />
         </FormField>
         <div className="flex gap-2">
           <CommandButton variant="primary" onClick={() => void onSave()}>保存模板</CommandButton>

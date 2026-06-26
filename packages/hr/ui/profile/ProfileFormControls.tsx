@@ -130,7 +130,7 @@ export function ProfileFieldInput({
         lifecycleScope={field.activeOnly ? "active" : undefined}
         queryParams={isEdpReportTo ? { positionId: reportToPositionId } : undefined}
         placeholder={reportToDisabled ? "先选择岗位" : `搜索${field.label}`}
-        className="w-full"
+
         onChange={(_label, option) => {
           const next =
             field.valueFrom === "name"
@@ -221,7 +221,7 @@ export function ProfileFieldInput({
           value={toPercentDisplay(value)}
           onChange={(next) => onChange(field.key, fromPercentDisplay(next))}
           unstyled
-          className="min-w-0 flex-1 border-0 bg-transparent px-3 py-2 outline-none disabled:bg-slate-100 disabled:text-slate-500"
+          visualVariant="inline"
         />
         <span className="grid w-10 place-items-center border-l border-slate-200 bg-slate-50 text-slate-500">%</span>
       </FieldInputShell>

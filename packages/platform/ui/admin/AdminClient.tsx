@@ -115,7 +115,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
                     { value: "union", label: "并集（任一有权限即可）" },
                     { value: "deny_override", label: "拒绝优先" },
                   ]}
-                  triggerClassName="min-w-56 px-3 py-2 text-sm"
+
                 />
               </FormField>
               <span className="text-xs text-gray-400">

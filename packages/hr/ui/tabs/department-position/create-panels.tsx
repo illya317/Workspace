@@ -10,7 +10,6 @@ import {
 } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
-import { compactFormInputClassName } from "./detail-editors";
 import type { CreatePositionDraft, Department } from "./types";
 import { departmentPath } from "./utils";
 
@@ -50,9 +49,9 @@ export function PositionCreatePanel({
       submitting={saving}
       className={className}
     >
-      <FormField label="部门" required className="w-auto max-w-full">
+      <FormField label="部门" required>
         {positionDepartmentReadOnly ? (
-          <ReadOnlyField value={readOnlyDepartmentName} className="h-9 py-0 text-xs" />
+          <ReadOnlyField value={readOnlyDepartmentName} />
         ) : (
           <FkFieldInput
             fkKey="hr.department"
@@ -64,16 +63,15 @@ export function PositionCreatePanel({
           />
         )}
       </FormField>
-      <FormField label="岗位名" required className="w-auto">
+      <FormField label="岗位名" required>
         <TextField
           value={createPositionDraft.name}
           onChange={(next) => setCreatePositionDraft((prev) => ({ ...prev, name: next }))}
           placeholder="输入岗位名"
-          className={compactFormInputClassName}
         />
       </FormField>
-      <FormField label="编码" required className="w-auto">
-        <ReadOnlyField value={createPositionCode} className="h-9 py-0 font-mono text-xs" />
+      <FormField label="编码" required>
+        <ReadOnlyField value={createPositionCode} fontRole="mono" />
       </FormField>
     </CreatePanel>
   );

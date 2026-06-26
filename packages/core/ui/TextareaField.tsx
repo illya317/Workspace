@@ -2,6 +2,7 @@
 
 import type { CSSProperties, KeyboardEventHandler } from "react";
 import { getTextareaInputClassName } from "./FormStyles";
+import { joinClassNames } from "./card-utils";
 
 export interface TextareaFieldProps {
   value?: string;
@@ -17,6 +18,9 @@ export interface TextareaFieldProps {
   title?: string;
   onKeyDown?: KeyboardEventHandler<HTMLTextAreaElement>;
   unstyled?: boolean;
+  fontRole?: "default" | "mono";
+  state?: "default" | "error" | "info";
+  resize?: "none" | "vertical" | "both";
 }
 
 export default function TextareaField({
@@ -33,7 +37,18 @@ export default function TextareaField({
   title,
   onKeyDown,
   unstyled = false,
+  fontRole = "default",
+  state = "default",
+  resize = "both",
 }: TextareaFieldProps) {
+  const fontClass = fontRole === "mono" ? "font-mono" : "";
+  const stateClass = state === "error"
+    ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+    : state === "info"
+      ? "border-sky-200 focus:border-sky-500 focus:ring-sky-500 disabled:bg-sky-100/60"
+      : "";
+  const resizeClass = resize === "vertical" ? "resize-y" : resize === "none" ? "resize-none" : "";
+  const semanticClassName = joinClassNames(fontClass, stateClass, resizeClass, className);
   return (
     <textarea
       value={value}
@@ -47,7 +62,7 @@ export default function TextareaField({
       title={title}
       onKeyDown={onKeyDown}
       onChange={(event) => onChange?.(event.target.value)}
-      className={unstyled ? className : getTextareaInputClassName(className)}
+      className={unstyled ? semanticClassName : getTextareaInputClassName(semanticClassName)}
     />
   );
 }

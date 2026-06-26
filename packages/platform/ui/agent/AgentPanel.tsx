@@ -133,7 +133,7 @@ export default function AgentPanel({
           {/* Header — 可拖动 */}
           <div className="flex cursor-grab select-none items-center gap-3 border-b bg-gradient-to-r from-emerald-50 to-white px-4 py-3 active:cursor-grabbing" onPointerDown={onHeaderDown} onPointerMove={onHeaderMove} onPointerUp={onHeaderUp}>
             <AgentAvatar mood={mood} size={32} />
-            <div className="flex-1">
+            <div>
               <div className="text-sm font-semibold text-gray-800">小助手</div>
               <div className="text-xs text-gray-500">{moodLabels[mood]}</div>
             </div>
@@ -173,7 +173,7 @@ export default function AgentPanel({
 
           {/* Input */}
           <div className="flex items-center gap-2 border-t px-4 py-3">
-            <TextField ref={inputRef} value={input} onChange={setInput} onKeyDown={handleKeyDown} placeholder="输入消息..." disabled={loading} className="flex-1" maxLength={2000} />
+            <TextField ref={inputRef} value={input} onChange={setInput} onKeyDown={handleKeyDown} placeholder="输入消息..." disabled={loading} maxLength={2000} />
             <CommandButton variant="primary" onClick={handleSend} disabled={loading || !input.trim()}>
               发送
             </CommandButton>
