@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
-import { useConfirm, useConfirmDelete } from "@workspace/core/ui";
+import { useFeedback } from "@workspace/core/ui";
 import { hrCanEdit, type HRUser } from "@workspace/hr/types";
 import {
   contractFields,
@@ -35,7 +35,6 @@ import type {
   EmploymentRow,
 } from "@workspace/hr/types";
 import type { FkFieldOption } from "@workspace/core/ui";
-import { useUnsavedChangesPrompt } from "../hooks/useUnsavedChangesPrompt";
 
 type ProfileSection = "basic" | "employment" | "edp" | "history";
 
@@ -108,8 +107,6 @@ export default function EmployeeProfileClient({
   user: HRUser;
 }) {
   const router = useRouter();
-  const confirm = useConfirm();
-  const confirmDelete = useConfirmDelete();
   const canEdit = hrCanEdit(user);
   const [profile, setProfile] = useState<EmployeeProfile | null>(null);
   const [employeeDraft, setEmployeeDraft] = useState<EmployeeProfileEmployee | null>(null);
@@ -183,14 +180,14 @@ export default function EmployeeProfileClient({
       all: basic || employment || edp,
     };
   }, [contracts, edps, employeeDraft, employments, profile]);
-  const confirmNavigation = useUnsavedChangesPrompt(dirtyState.all);
+  const feedback = useFeedback({ unsavedChanges: dirtyState.all });
 
   useEffect(() => {
     onDirtyChange?.(dirtyState.all);
   }, [dirtyState.all, onDirtyChange]);
 
   async function showSavePrompt(title: string, text: string, danger: boolean) {
-    await confirm({
+    await feedback.confirm({
       title,
       message: text,
       confirmLabel: "关闭",
@@ -239,7 +236,7 @@ export default function EmployeeProfileClient({
   }
 
   async function goBack() {
-    const canLeave = await confirmNavigation();
+    const canLeave = await feedback.confirmLeave();
     if (canLeave) router.push("/hr/roster");
   }
 
@@ -291,7 +288,7 @@ export default function EmployeeProfileClient({
       onEmployeeFieldChange={updateEmployeeField}
       onHistoryToggle={(id) => setExpandedHistoryId((current) => (current === id ? null : id))}
       onHistoryRefresh={loadHistory}
-      confirmDelete={confirmDelete}
+      confirmDelete={feedback.confirmDelete}
     />
   );
 }

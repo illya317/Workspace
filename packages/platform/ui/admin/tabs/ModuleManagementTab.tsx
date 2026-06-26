@@ -6,9 +6,9 @@ import { workspacePath } from "@workspace/core/routing";
 import {
   EmptyStateCard,
   FormField,
+  InputControl,
   SectionCard,
   Badge,
-  SwitchField,
   Toolbar,
 } from "@workspace/core/ui";
 import ResourceTree, { type ResourceTreeNode } from "../components/ResourceTree";
@@ -239,12 +239,7 @@ export default function ModuleManagementTab({ showToast }: Props) {
             <div className="space-y-4">
               <FormField label="模块开关" layout="inline">
                 <div className="inline-flex items-center gap-2 text-sm text-slate-700">
-                  <SwitchField
-                    checked={selectedModule.enabled}
-                    disabled={switchDisabled}
-                    onChange={updateModuleEnabled}
-                    ariaLabel="切换模块启用状态"
-                  />
+                  <InputControl spec={{ valueType: "boolean", editor: "switch", state: switchDisabled ? "disabled" : "normal" }} value={selectedModule.enabled} onChange={(value) => updateModuleEnabled(Boolean(value))} />
                   <span>{selectedModule.enabled ? "开启" : "关闭"}</span>
                 </div>
               </FormField>

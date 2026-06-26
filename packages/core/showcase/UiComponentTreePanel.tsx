@@ -74,7 +74,7 @@ function TreeNodeView({
   onToggle,
 }: {
   node: CoreUiComponentTreeNode;
-  selectedName: string;
+  selectedName: string | null;
   expandedNames: ReadonlySet<string>;
   visibleMeta: readonly string[];
   onSelect: (name: string) => void;
@@ -153,7 +153,7 @@ export function UiComponentTreePanel({
   onToggle,
 }: {
   nodes: CoreUiComponentTreeNode[];
-  selectedName: string;
+  selectedName: string | null;
   expandedNames: ReadonlySet<string>;
   visibleMeta: readonly string[];
   onSelect: (name: string) => void;

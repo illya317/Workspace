@@ -7,9 +7,9 @@ import {
   EmptyStateCard,
   FormField,
   CreatePanel,
+  InputControl,
   PanelCard,
   Pagination,
-  TextField,
   Toolbar,
   type DataTableColumn,
   type SelectFieldOption,
@@ -253,9 +253,10 @@ export default function EmployeeDirectory({
           submitting={creating}
         >
           <FormField label="姓名" required>
-            <TextField
+            <InputControl
+              spec={{ valueType: "string", editor: "input" }}
               value={newEmployeeName}
-              onChange={setNewEmployeeName}
+              onChange={(value) => setNewEmployeeName(String(value ?? ""))}
               placeholder="输入姓名"
             />
           </FormField>

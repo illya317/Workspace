@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckboxField, CommandButton, FormField } from "@workspace/core/ui";
+import { CommandButton, FormField, InputControl } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import type { ActionDraft, MeetingDetail } from "./meeting-types";
 import { AgendaSelect, DecisionSelect, InlineForm, InputBox, Section, SelectBox, SimpleList } from "./MeetingControls";
@@ -74,9 +74,9 @@ export function MeetingDetailPanel({
             canVote: role === "owner" || role === "voter",
           })} />
               <FormField label="可投票" layout="inline" className="self-end">
-                <CheckboxField checked={participantDraft.canVote} onChange={checked => onParticipantDraftChange({
+                <InputControl spec={{ valueType: "boolean", editor: "checkbox" }} value={participantDraft.canVote} onChange={checked => onParticipantDraftChange({
               ...participantDraft,
-              canVote: checked,
+              canVote: Boolean(checked),
             })} />
               </FormField>
               <div className="self-end">

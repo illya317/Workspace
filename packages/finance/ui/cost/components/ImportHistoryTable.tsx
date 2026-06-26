@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState } from "react";
-import { CommandButton, type DataTableColumn, useConfirmDelete } from "@workspace/core/ui";
+import { CommandButton, useFeedback, type DataTableColumn } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState } from "../types";
 import CostDataTable, { type CostRecord } from "./CostDataTable";
@@ -15,7 +15,7 @@ export default function ImportHistoryTable({
   const [page, setPage] = useState(1);
   const [deleting, setDeleting] = useState<number | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
-  const confirmDelete = useConfirmDelete();
+  const feedback = useFeedback();
   const {
     data,
     pagination,
@@ -29,7 +29,7 @@ export default function ImportHistoryTable({
     pageSize: 20
   });
   const handleDelete = async (id: number) => {
-    const ok = await confirmDelete({
+    const ok = await feedback.confirmDelete({
       message: "确定删除该导入批次？关联数据将被一并删除。"
     });
     if (!ok) return;

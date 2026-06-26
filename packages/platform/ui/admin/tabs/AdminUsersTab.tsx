@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useRef } from "react";
 import { matchSearchFields, matchText } from "@workspace/platform/search";
-import { CommandButton, DataTable, Pagination, PanelCard, SearchInput, SelectField, Badge, TextField, type DataTableColumn } from "@workspace/core/ui";
+import { Badge, CommandButton, DataTable, InputControl, Pagination, PanelCard, type DataTableColumn } from "@workspace/core/ui";
 import type { ResourceItem } from "../types";
 import { formatSummaryTooltip, ROLE_COLORS, summarizeResourcePermissions, type PermissionGrantLike } from "../lib/permission-summary";
 function copyFallback(text: string) {
@@ -206,17 +206,14 @@ export default function AdminUsersTab({
   return <div className="space-y-4">
       <div className="flex items-center gap-4">
         <div className="flex items-center">
-          <SearchInput value={keyword} onChange={onKeywordChange} placeholder={searchMode === "name" ? "搜索姓名..." : "搜索全部..."} className="w-64" />
+          <InputControl spec={{ valueType: "string", editor: "input" }} value={keyword} onChange={(value) => onKeywordChange(String(value ?? ""))} placeholder={searchMode === "name" ? "搜索姓名..." : "搜索全部..."} className="w-64" />
           <CommandButton variant={searchMode === "name" ? "secondary" : "primary"} onClick={() => setSearchMode(m => m === "name" ? "all" : "name")}>
             {searchMode === "name" ? "姓名" : "全部"}
           </CommandButton>
         </div>
         <span className="text-sm text-gray-400">{filtered.length} 个用户{keyword && ` (共${users.length})`}</span>
         <div />
-        <SelectField value={String(pageSize)} onChange={nextValue => onPageSizeChange(Number(nextValue))} options={[20, 50, 100].map(n => ({
-        value: String(n),
-        label: `${n}条/页`
-      }))} />
+        <InputControl spec={{ valueType: "number", editor: "select", options: { source: "static", mode: "dropdown", items: [20, 50, 100].map(n => ({ value: String(n), label: `${n}条/页` })) } }} value={String(pageSize)} onChange={nextValue => onPageSizeChange(Number(nextValue))} />
         <CommandButton variant="primary" onClick={() => {
         setCreating(true);
         setTimeout(() => nameRef.current?.focus(), 50);
@@ -226,8 +223,8 @@ export default function AdminUsersTab({
       </div>
 
       {creating && <PanelCard bodyClassName="flex flex-wrap items-center gap-3 p-3">
-          <TextField ref={nameRef} value={newNickname} onChange={setNewNickname} placeholder="昵称 *" onKeyDown={e => e.key === "Enter" && handleCreate()} />
-          <TextField value={newUsername} onChange={setNewUsername} placeholder="用户名（可选）" onKeyDown={e => e.key === "Enter" && handleCreate()} />
+          <InputControl inputRef={nameRef} spec={{ valueType: "string", editor: "input" }} value={newNickname} onChange={(value) => setNewNickname(String(value ?? ""))} placeholder="昵称 *" onKeyDown={e => e.key === "Enter" && handleCreate()} />
+          <InputControl spec={{ valueType: "string", editor: "input" }} value={newUsername} onChange={(value) => setNewUsername(String(value ?? ""))} placeholder="用户名（可选）" onKeyDown={e => e.key === "Enter" && handleCreate()} />
           <CommandButton variant="primary" onClick={handleCreate}>保存</CommandButton>
           <CommandButton onClick={() => {
         setCreating(false);

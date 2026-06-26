@@ -1,7 +1,7 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { CheckboxChip, CommandButton, DataTable, DatabasePageFrame, FormField, SectionCard, TextField, type DataTableColumn } from "@workspace/core/ui";
+import { CommandButton, DataTable, DatabasePageFrame, FormField, InputControl, SectionCard, type DataTableColumn } from "@workspace/core/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { postJson, putJson, requestJson } from "../api-client";
 type OpenApiRegistrationRow = {
@@ -300,10 +300,10 @@ export default function SettingsApiClient({
       <SectionCard title="Client" actions={<CommandButton onClick={() => loadData()} disabled={loading}>刷新</CommandButton>}>
         <div className="mb-4 grid gap-3 md:grid-cols-[1fr_1fr_auto]">
           <FormField label="名称" required>
-            <TextField value={newClientName} onChange={setNewClientName} placeholder="Client 名称" maxLength={80} />
+            <InputControl spec={{ valueType: "string", editor: "input" }} value={newClientName} onChange={(value) => setNewClientName(String(value ?? ""))} placeholder="Client 名称" maxLength={80} />
           </FormField>
           <FormField label="说明">
-            <TextField value={newClientDescription} onChange={setNewClientDescription} placeholder="用途说明" maxLength={240} />
+            <InputControl spec={{ valueType: "string", editor: "input" }} value={newClientDescription} onChange={(value) => setNewClientDescription(String(value ?? ""))} placeholder="用途说明" maxLength={240} />
           </FormField>
           <div className="flex items-end">
             <CommandButton variant="primary" onClick={createClient} disabled={busy === "create" || !newClientName.trim()}>创建</CommandButton>
@@ -314,11 +314,12 @@ export default function SettingsApiClient({
 
       <SectionCard title="Scope 授权" subtitle={selectedClient ? selectedClient.name : "先选择一个 Client。"} actions={<CommandButton onClick={saveScopes} disabled={!selectedClient || busy === `scopes-${selectedClient?.id}`}>保存</CommandButton>}>
         <div className="flex flex-wrap gap-2">
-          {visibleScopes.map(scope => <CheckboxChip key={scope.key} checked={draftScopeKeys.includes(scope.key)} onChange={checked => {
-          setDraftScopeKeys(current => checked ? [...new Set([...current, scope.key])] : current.filter(key => key !== scope.key));
-        }} disabled={!selectedClient} ariaLabel={scope.label}>
-              {scope.key}
-            </CheckboxChip>)}
+          {visibleScopes.map(scope => <label key={scope.key} className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-600">
+              <InputControl spec={{ valueType: "boolean", editor: "checkbox", state: !selectedClient ? "disabled" : "normal" }} value={draftScopeKeys.includes(scope.key)} onChange={checked => {
+            setDraftScopeKeys(current => checked ? [...new Set([...current, scope.key])] : current.filter(key => key !== scope.key));
+          }} />
+              <span>{scope.key}</span>
+            </label>)}
           {visibleScopes.length === 0 && <span className="text-sm text-slate-500">暂无 Scope</span>}
         </div>
       </SectionCard>

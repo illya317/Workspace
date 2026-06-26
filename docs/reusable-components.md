@@ -30,8 +30,7 @@
 | 搜索输入 | `@workspace/core/ui` 的 `SearchInput` | 内容检索、列表主搜索、筛选栏搜索、弹层内搜索 | 页面或业务包手写 `<input placeholder="搜索...">` |
 | FK 字段输入 | `@workspace/core/ui` 的 `FkFieldInput` 或基于它的领域薄包装 | 选择部门、员工、计划、科目等关联实体 | 把 FK 搜索做成自由 `entity: string` 一次性控件 |
 | 日期输入 | `@workspace/core/ui` 的 `CalendarDateInput` | 所有日期字段 | 原生 `input[type=date]` 或浏览器默认日期弹层 |
-| 确认弹窗 | `@workspace/core/ui` 的 `ConfirmProvider` / `ConfirmModal` | 删除、覆盖、危险操作 | `window.confirm`、自定义一次性确认弹窗 |
-| Toast | `@workspace/core/ui` + `@workspace/core/hooks` | 保存成功、失败、校验提示 | 页面内裸 `setTimeout` 或临时提示块 |
+| 页面反馈 | `@workspace/core/ui` 的 `FeedbackProvider` / `useFeedback` | 保存成功、失败、校验提示、删除/覆盖确认、未保存离开提示 | 页面直接用 `Toast`、`ConfirmModal`、`useToast`、`useConfirm`、`useConfirmDelete`、`useUnsavedChangesPrompt` |
 | 表格 | `@workspace/core/ui` 的 `DataTable` | 标准列表、批量表格、可见列管理 | 每个模块重新写表头/分页/空态 |
 | 列显隐 | `@workspace/core/ui` 的 `SelectField`（multiple） | 表格列配置 | 模块自写列配置弹层 |
 | 数字/金额单元格 | `@workspace/core/ui` 的 `NumberCell` / `AmountCell` | 财务、预算、成本、数量字段 | 每张表重复写格式化 |
@@ -144,6 +143,7 @@ Finance 当前已经有第一层统一模板，但业务页面还在渐进迁移
 - `packages/*` 禁止出现原生 `<select>`；只能使用 Core `SelectField` 或基于 Core 的 App 字段组件。
 - `app/*` 和 `packages/*` 禁止新增搜索型原生 `<input>`；内容检索用 `SearchInput`，FK 用 `FkFieldInput` 或领域薄包装，下拉内检索用 `SelectField` / `OptionPicker`。
 - `packages/*` 禁止 `window.confirm`。
+- `app/*` 和 `packages/*/ui` 页面反馈只能使用 `useFeedback`；禁止直接使用 `Toast`、`ConfirmProvider`、`useToast`、`useConfirm`、`useConfirmDelete`、`useUnsavedChangesPrompt`，专用 Agent 确认弹窗除外。
 - `packages/*` 禁止原生 `input[type=date]`，统一用 `CalendarDateInput`。
 - 选择/搜索类组件必须使用 `@workspace/core/search` 的 `matchText` 或由服务端提供同等拼音匹配。
 - Core 禁止依赖 Platform、业务包、Prisma、权限和业务事实。

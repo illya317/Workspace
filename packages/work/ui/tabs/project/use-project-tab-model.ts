@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { z } from "zod";
-import type { FkFieldOption } from "@workspace/core/ui";
+import { useFeedback, type FkFieldOption } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { type WorkUser, workCanEdit } from "@workspace/work/types";
 import { createProject, deleteProject, listProjectTasks, syncMembers, updateProjectField } from "./api";
@@ -86,7 +86,10 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
   const [projectListDrawerOpen, setProjectListDrawerOpen] = useState(false);
   const [projectListFilter, setProjectListFilter] = useState<ProjectListFilter>("all");
   const [error, setError] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const { notify } = useFeedback();
+  const setToast = useCallback((toast: { type: "success" | "error"; message: string } | null) => {
+    if (toast) notify(toast.message, toast.type);
+  }, [notify]);
 
   const filteredProjects = useMemo(
     () => projects.filter((project) => projectMatchesFilter(project, projectListFilter)),
@@ -315,7 +318,7 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
   return {
     canCreateProject: canEdit, canDeleteCurrent, canEditCurrent, canManageCurrent, canSave, creating, dirty, draft, error,
     filteredProjects, loading, projectListDrawerOpen, projectListFilter, projectListOpen, projects, rasciRows, saving,
-    selectedProject, selection, toast,
+    selectedProject, selection,
     cancelCreateProject, deleteSelectedProject, saveProject, setCreating, setLeader, startCreateProject, startCreateChildProject,
     setProjectListDrawerOpen, setProjectListFilter, setProjectListOpen, setRoleMembers, setSelection,
     loadSelectedTasks, setToast, updateDraft,

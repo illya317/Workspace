@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandButton, FkFieldInput, FormField, PanelCard, ReadOnlyField, SelectField, TextareaField, TextField } from "@workspace/core/ui";
+import { CommandButton, FormField, InputControl, PanelCard, ReadOnlyField, type FkFieldOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { NEW_POSITION_DESCRIPTION_TEMPLATE_OPTION, type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
 import { PositionDescriptionDetailsEditor, sectionTitle, selectedEntityName } from "./detail-editors";
@@ -57,17 +57,33 @@ export function PositionDescriptionPanel({
   onTogglePositionDescriptionTemplateField: (field: string) => void;
 }) {
   const meta = deriveDescriptionMeta(descriptionDraft.details, descriptionDraft.version, descriptionDraft.effectiveDate);
+  function updateReportToFromOption(option: unknown) {
+    onUpdateDescriptionDraft("reportTo", selectedEntityName("position", option as FkFieldOption | undefined));
+  }
+
   return <PanelCard bodyClassName="p-4">
       {sectionTitle("岗位说明书", <div className="flex items-center gap-3">
           {descriptionDirty && <span className="text-xs text-amber-600">说明书有未保存修改</span>}
           <FormField label="模板" layout="inline">
-            <SelectField value={positionDescriptionTemplate} onChange={onPositionDescriptionTemplateChange} options={[...positionDescriptionTemplates.map(template => ({
-          value: template.id,
-          label: template.label
-        })), {
-          value: NEW_POSITION_DESCRIPTION_TEMPLATE_OPTION,
-          label: "新建模板..."
-        }]} />
+            <InputControl
+              spec={{
+                valueType: "string",
+                editor: "select",
+                options: {
+                  source: "static",
+                  mode: "dropdown",
+                  items: [...positionDescriptionTemplates.map(template => ({
+                    value: template.id,
+                    label: template.label
+                  })), {
+                    value: NEW_POSITION_DESCRIPTION_TEMPLATE_OPTION,
+                    label: "新建模板..."
+                  }],
+                },
+              }}
+              value={positionDescriptionTemplate}
+              onChange={(value) => onPositionDescriptionTemplateChange(String(value ?? ""))}
+            />
           </FormField>
           <CommandButton disabled={selectedPositionDescriptionTemplate.id === "full"} onClick={onOpenPositionDescriptionTemplateEditor} className="px-2 py-1 text-xs">
             编辑模板
@@ -85,18 +101,21 @@ export function PositionDescriptionPanel({
           <ReadOnlyField value={position.departmentName || "未设置"} />
         </FormField>
         <FormField label="汇报对象">
-          <FkFieldInput
-            fkKey="hr.position"
-            endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
+          <InputControl
+            spec={{
+              valueType: "reference",
+              editor: "autocomplete",
+              state: !canEditPosition ? "disabled" : "normal",
+              options: { source: "remote", fkKey: "hr.position", endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "name" },
+            }}
             value={descriptionDraft.reportTo || ""}
             displayValue={descriptionDraft.reportTo || ""}
-            disabled={!canEditPosition}
             placeholder="搜索汇报对象"
-            onChange={(_label, option) => onUpdateDescriptionDraft("reportTo", selectedEntityName("position", option))}
+            onChange={(_value, option) => updateReportToFromOption(option)}
           />
         </FormField>
         <FormField label="编制">
-          <TextField value={descriptionDraft.headcount} disabled={!canEditPosition} inputMode="numeric" onChange={next => onUpdateDescriptionDraft("headcount", next.replace(/\D/g, ""))} visualVariant="info" />
+          <InputControl spec={{ valueType: "number", editor: "input", state: !canEditPosition ? "disabled" : "normal" }} value={descriptionDraft.headcount} inputMode="numeric" onChange={value => onUpdateDescriptionDraft("headcount", String(value ?? "").replace(/\D/g, ""))} />
         </FormField>
         <FormField label="版本">
           <ReadOnlyField value={meta.version} />
@@ -105,10 +124,10 @@ export function PositionDescriptionPanel({
           <ReadOnlyField value={meta.effectiveDate} />
         </FormField>
         <FormField label="岗位目的" className="md:col-span-2">
-          <TextareaField value={descriptionDraft.positionPurpose} disabled={!canEditPosition} rows={3} onChange={next => onUpdateDescriptionDraft("positionPurpose", next)} resize="vertical" />
+          <InputControl spec={{ valueType: "string", editor: "textarea", state: !canEditPosition ? "disabled" : "normal" }} value={descriptionDraft.positionPurpose} rows={3} onChange={value => onUpdateDescriptionDraft("positionPurpose", String(value ?? ""))} />
         </FormField>
         <FormField label="摘要" className="md:col-span-2">
-          <TextareaField value={descriptionDraft.summary} disabled={!canEditPosition} rows={3} onChange={next => onUpdateDescriptionDraft("summary", next)} resize="vertical" />
+          <InputControl spec={{ valueType: "string", editor: "textarea", state: !canEditPosition ? "disabled" : "normal" }} value={descriptionDraft.summary} rows={3} onChange={value => onUpdateDescriptionDraft("summary", String(value ?? ""))} />
         </FormField>
         <PositionDescriptionDetailsEditor value={descriptionDraft.details} disabled={!canEditPosition} positionNames={positionNames} currentPosition={position} positions={positions} departmentNames={departmentNames} template={selectedPositionDescriptionTemplate} onChange={value => onUpdateDescriptionDraft("details", value)} />
       </div>

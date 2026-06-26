@@ -2,18 +2,13 @@
 
 import { useEffect, useState } from "react";
 import {
-  CalendarDateInput,
   CreatePanel,
   FieldGrid,
-  FkFieldInput,
-  OptionPicker,
+  InputControl,
   PanelCard,
-  PercentField,
   ReadOnlyField,
   SectionCard,
   TabBar,
-  TextareaField,
-  TextField,
 } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import ProjectMemberTagsInput from "./ProjectMemberTagsInput";
@@ -137,71 +132,67 @@ export default function ProjectDetailEditor({
                 <ReadOnlyField value={projectCode(selectedProject, draft)} fontRole="mono" />
               </FieldGrid.Cell>
               <FieldGrid.Cell label="项目类型">
-                <OptionPicker
+                <InputControl
+                  spec={{ valueType: "string", editor: "select", options: { source: "static", items: PROJECT_TYPE_PICKER_OPTIONS }, state: !canManageCurrent || !creating ? "disabled" : "normal" }}
                   value={draft.projectType}
-                  options={PROJECT_TYPE_PICKER_OPTIONS}
-                  disabled={!canManageCurrent || !creating}
-                  onChange={(value) => onDraftChange("projectType", (value || "department") as ProjectDraft["projectType"])}
+                  onChange={(value) => onDraftChange("projectType", (String(value || "") || "department") as ProjectDraft["projectType"])}
                 />
               </FieldGrid.Cell>
               <FieldGrid.Cell label="项目负责人">
                 <ReadOnlyField value={draft.leader?.name || "未设置"} />
               </FieldGrid.Cell>
               <FieldGrid.Cell label="项目名称" required>
-                <TextField
+                <InputControl
+                  spec={{ valueType: "string", editor: "input", state: !canManageCurrent ? "disabled" : "normal" }}
                   value={draft.name}
-                  disabled={!canManageCurrent}
-                  onChange={(value) => onDraftChange("name", value)}
+                  onChange={(value) => onDraftChange("name", String(value ?? ""))}
                 />
               </FieldGrid.Cell>
               <FieldGrid.Cell label="主导部门" required={draft.projectType === "department"}>
-                <FkFieldInput
-                  fkKey="work.projects.leadingDepartment"
-                  endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
+                <InputControl
+                  spec={{ valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.projects.leadingDepartment", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: !canManageCurrent ? "disabled" : "normal" }}
                   value={draft.leadingDepartmentId ? String(draft.leadingDepartmentId) : ""}
                   displayValue={draft.leadingDepartmentName || ""}
-                  disabled={!canManageCurrent}
                   placeholder="搜索部门名称、编码"
-                  onChange={(_label, option) => {
-                    onDraftChange("leadingDepartmentId", option?.id ?? null);
-                    onDraftChange("leadingDepartmentName", option?.name ?? null);
-                    onDraftChange("leadingDepartmentCode", option?.subtitle ?? null);
+                  onChange={(_value, option) => {
+                    const fk = option as FkFieldOption | undefined;
+                    onDraftChange("leadingDepartmentId", fk?.id ?? null);
+                    onDraftChange("leadingDepartmentName", fk?.name ?? null);
+                    onDraftChange("leadingDepartmentCode", fk?.subtitle ?? null);
                   }}
                 />
               </FieldGrid.Cell>
               <FieldGrid.Cell label="项目级别">
-                <OptionPicker
+                <InputControl
+                  spec={{ valueType: "string", editor: "select", options: { source: "static", items: PROJECT_LEVEL_PICKER_OPTIONS }, state: !canEditCurrent ? "disabled" : "normal" }}
                   value={draft.projectLevel || "普通"}
-                  options={PROJECT_LEVEL_PICKER_OPTIONS}
-                  disabled={!canEditCurrent}
-                  onChange={(value) => onDraftChange("projectLevel", value || "普通")}
+                  onChange={(value) => onDraftChange("projectLevel", String(value || "") || "普通")}
                 />
               </FieldGrid.Cell>
               <FieldGrid.Cell label="计划开始" hint={isChildProject ? "来自上级任务" : undefined}>
-                <CalendarDateInput value={draft.baselineStartDate} disabled={!canEditCurrent || isChildProject} onChange={(value) => onDraftChange("baselineStartDate", value)} />
+                <InputControl spec={{ valueType: "date", editor: "datePicker", state: !canEditCurrent || isChildProject ? "disabled" : "normal" }} value={draft.baselineStartDate} onChange={(value) => onDraftChange("baselineStartDate", String(value || ""))} placeholder="选择日期" />
               </FieldGrid.Cell>
               <FieldGrid.Cell label="计划结束" hint={isChildProject ? "来自上级任务" : undefined}>
-                <CalendarDateInput value={draft.baselineEndDate} disabled={!canEditCurrent || isChildProject} onChange={(value) => onDraftChange("baselineEndDate", value)} />
+                <InputControl spec={{ valueType: "date", editor: "datePicker", state: !canEditCurrent || isChildProject ? "disabled" : "normal" }} value={draft.baselineEndDate} onChange={(value) => onDraftChange("baselineEndDate", String(value || ""))} placeholder="选择日期" />
               </FieldGrid.Cell>
               <FieldGrid.Cell label="实际开始" hint={isChildProject ? "来自上级任务" : undefined}>
-                <CalendarDateInput value={draft.startDate} disabled={!canEditCurrent || isChildProject} onChange={(value) => onDraftChange("startDate", value)} />
+                <InputControl spec={{ valueType: "date", editor: "datePicker", state: !canEditCurrent || isChildProject ? "disabled" : "normal" }} value={draft.startDate} onChange={(value) => onDraftChange("startDate", String(value || ""))} placeholder="选择日期" />
               </FieldGrid.Cell>
               <FieldGrid.Cell label="实际结束" hint={isChildProject ? "来自上级任务" : undefined}>
-                <CalendarDateInput value={draft.endDate} disabled={!canEditCurrent || isChildProject} onChange={(value) => onDraftChange("endDate", value)} />
+                <InputControl spec={{ valueType: "date", editor: "datePicker", state: !canEditCurrent || isChildProject ? "disabled" : "normal" }} value={draft.endDate} onChange={(value) => onDraftChange("endDate", String(value || ""))} placeholder="选择日期" />
               </FieldGrid.Cell>
               <FieldGrid.Cell label="完成度">
-                <PercentField
+                <InputControl
+                  spec={{ valueType: "number", editor: "number", format: "percent", state: !canEditCurrent ? "disabled" : "normal" }}
                   value={draft.completionPercent}
-                  disabled={!canEditCurrent}
-                  onChange={(value) => onDraftChange("completionPercent", value)}
+                  onChange={(value) => onDraftChange("completionPercent", value === null || value === "" || value === undefined ? null : Number(value))}
                 />
               </FieldGrid.Cell>
               <FieldGrid.Cell label="项目描述" span="wide">
-                <TextareaField
+                <InputControl
+                  spec={{ valueType: "string", editor: "textarea", state: !canEditCurrent ? "disabled" : "normal" }}
                   value={draft.description || ""}
-                  disabled={!canEditCurrent}
-                  onChange={(value) => onDraftChange("description", value || null)}
-                  rows={3}
+                  onChange={(value) => onDraftChange("description", String(value || "") || null)}
                 />
               </FieldGrid.Cell>
             </FieldGrid>
@@ -210,15 +201,13 @@ export default function ProjectDetailEditor({
           <SectionCard title="项目人员">
             <FieldGrid columns={2} mode="mixed">
               <FieldGrid.Cell label="项目负责人">
-                <FkFieldInput
-                  fkKey="work.projects.member.employee"
-                  endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
+                <InputControl
+                  spec={{ valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.projects.member.employee", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: !canManageCurrent || creating ? "disabled" : "normal" }}
                   value={draft.leader?.employeeNumber || ""}
                   displayValue={draft.leader?.name || ""}
-                  disabled={!canManageCurrent || creating}
                   placeholder="搜索负责人"
                   className={draft.leader?.confirmationStatus === "pending" ? pendingFieldClassName : undefined}
-                  onChange={(_label, option) => onLeaderChange(option)}
+                  onChange={(_value, option) => onLeaderChange(option as FkFieldOption | undefined)}
                 />
               </FieldGrid.Cell>
               {MULTI_PROJECT_ROLES.map((role) => (

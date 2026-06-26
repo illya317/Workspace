@@ -1,6 +1,6 @@
 "use client";
 
-import { Toast, Toolbar } from "@workspace/core/ui";
+import { Toolbar } from "@workspace/core/ui";
 import { DepartmentPositionActiveWorkspace } from "./active-workspace";
 import { DepartmentPositionDetailArea } from "./department-position-detail-area";
 import { buildDepartmentPositionToolbarItems } from "./department-position-toolbar-items";
@@ -23,8 +23,6 @@ export function DepartmentPositionMainContent({
   onCollapseAll,
   onLoadData,
   renderDetailPane,
-  toast,
-  onToastClose,
   onSideOpenChange,
   onDrawerOpenChange,
 }: {
@@ -44,8 +42,6 @@ export function DepartmentPositionMainContent({
   onCollapseAll: (collapsed: boolean) => void;
   onLoadData: () => Promise<void>;
   renderDetailPane: () => React.ReactNode;
-  toast: { message: string; type: "success" | "error" } | null;
-  onToastClose: () => void;
   onSideOpenChange: (open: boolean) => void;
   onDrawerOpenChange: (open: boolean) => void;
 }) {
@@ -89,7 +85,6 @@ export function DepartmentPositionMainContent({
           renderDetailPane={renderDetailPane}
         />
       </DepartmentPositionActiveWorkspace>
-      <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={onToastClose} />
     </>
   );
 }

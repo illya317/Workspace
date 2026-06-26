@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandButton, FormField, PanelCard, SelectField, Badge } from "@workspace/core/ui";
+import { Badge, CommandButton, FormField, InputControl, PanelCard } from "@workspace/core/ui";
 interface DeptBudgetFiltersProps {
   deptFilter: string;
   setDeptFilter: (v: string) => void;
@@ -30,22 +30,13 @@ export default function DeptBudgetFilters({
   return <>
       <PanelCard bodyClassName="flex flex-wrap items-center gap-3 p-3">
         <FormField label="部门" layout="inline">
-          <SelectField value={deptFilter} onChange={setDeptFilter} placeholder="全部部门" options={deptOptions.map(d => ({
-          value: d,
-          label: d
-        }))} />
+          <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: deptOptions.map(d => ({ value: d, label: d })) } }} value={deptFilter} onChange={(value) => setDeptFilter(String(value ?? ""))} placeholder="全部部门" />
         </FormField>
         <FormField label="费用类型" layout="inline">
-          <SelectField value={typeFilter} onChange={setTypeFilter} placeholder="全部类型" options={typeOptions.map(t => ({
-          value: t,
-          label: t
-        }))} />
+          <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: typeOptions.map(t => ({ value: t, label: t })) } }} value={typeFilter} onChange={(value) => setTypeFilter(String(value ?? ""))} placeholder="全部类型" />
         </FormField>
         <FormField label="科目" layout="inline">
-          <SelectField value={accountFilter} onChange={setAccountFilter} placeholder="全部科目" options={accountOptions.map(a => ({
-          value: a,
-          label: a
-        }))} />
+          <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: accountOptions.map(a => ({ value: a, label: a })) } }} value={accountFilter} onChange={(value) => setAccountFilter(String(value ?? ""))} placeholder="全部科目" />
         </FormField>
         {(deptFilter || typeFilter || accountFilter) && <CommandButton onClick={() => {
         setDeptFilter("");

@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDateInput, CreatePanel, FormField, TextareaField, TextField } from "@workspace/core/ui";
+import { CreatePanel, FormField, InputControl } from "@workspace/core/ui";
 import type { Contract, ModalMode } from "@workspace/administration/types";
 
 const FORM_FIELDS = [
@@ -42,45 +42,53 @@ export default function ContractModal({ mode, editing, onChange, onSave, onClose
     >
       {FORM_FIELDS.map((f) => (
         <FormField key={f.key} label={f.label} required={f.required}>
-          <TextField
-            type={f.type === "number" ? "number" : "text"}
+          <InputControl
+            spec={{
+              valueType: f.type === "number" ? "number" : "string",
+              editor: f.type === "number" ? "number" : "input",
+              validation: f.required ? { required: true } : undefined,
+            }}
             value={editing[f.key] === null || editing[f.key] === undefined ? "" : String(editing[f.key])}
             onChange={(value) =>
               onChange(
                 f.key,
                 f.type === "number"
                   ? value
-                    ? parseFloat(value)
+                    ? parseFloat(String(value))
                     : null
-                  : value,
+                  : String(value ?? ""),
               )
             }
           />
         </FormField>
       ))}
       <FormField label="签订日期">
-        <CalendarDateInput
+        <InputControl
+          spec={{ valueType: "date", editor: "datePicker" }}
           value={editing.signDate}
-          onChange={(value) => onChange("signDate", value)}
+          onChange={(value) => onChange("signDate", value ? String(value) : null)}
         />
       </FormField>
       <FormField label="结束日期">
-        <CalendarDateInput
+        <InputControl
+          spec={{ valueType: "date", editor: "datePicker" }}
           value={editing.endDate}
-          onChange={(value) => onChange("endDate", value)}
+          onChange={(value) => onChange("endDate", value ? String(value) : null)}
         />
       </FormField>
       <FormField label="合同内容" className="md:col-span-2">
-        <TextareaField
+        <InputControl
+          spec={{ valueType: "string", editor: "textarea" }}
           value={editing.content ?? ""}
-          onChange={(value) => onChange("content", value)}
+          onChange={(value) => onChange("content", String(value ?? ""))}
           rows={2}
         />
       </FormField>
       <FormField label="备注" className="md:col-span-2">
-        <TextareaField
+        <InputControl
+          spec={{ valueType: "string", editor: "textarea" }}
           value={editing.remark ?? ""}
-          onChange={(value) => onChange("remark", value)}
+          onChange={(value) => onChange("remark", String(value ?? ""))}
           rows={2}
         />
       </FormField>

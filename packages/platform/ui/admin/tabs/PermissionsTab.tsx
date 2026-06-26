@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { usePermissionsTab } from "../hooks/usePermissionsTab";
-import { EmptyStateCard, SectionCard, SelectField, TabBar, Toolbar, type ToolbarItem } from "@workspace/core/ui";
+import { EmptyStateCard, InputControl, SectionCard, TabBar, Toolbar, type ToolbarItem } from "@workspace/core/ui";
 import ResourceTree from "../components/ResourceTree";
 import MatrixTable from "../components/permissions/MatrixTable";
 import type { ResourceItem, SubjectType } from "../types";
@@ -71,15 +71,22 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, showToa
           {s.selectedResource && s.isSystemAdmin && (
             <div className="mb-2 flex items-center gap-2 text-xs text-gray-500">
               最高业务权限：
-              <SelectField
+              <InputControl
+                spec={{
+                  valueType: "string",
+                  editor: "select",
+                  options: {
+                    source: "static",
+                    mode: "dropdown",
+                    items: [
+                      { value: "access", label: "访问" },
+                      { value: "write", label: "编辑" },
+                      { value: "delete", label: "删除" },
+                    ],
+                  },
+                }}
                 value={s.maxRoleKey === "admin" ? "delete" : s.maxRoleKey}
-                onChange={s.updateMaxRole}
-                options={[
-                  { value: "access", label: "访问" },
-                  { value: "write", label: "编辑" },
-                  { value: "delete", label: "删除" },
-                ]}
-
+                onChange={(value) => s.updateMaxRole(String(value ?? ""))}
               />
             </div>
           )}

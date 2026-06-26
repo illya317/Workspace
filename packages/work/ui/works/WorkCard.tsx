@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandButton, PanelCard, RatingControl } from "@workspace/core/ui";
+import { CommandButton, InputControl, PanelCard } from "@workspace/core/ui";
 import type { WorkItem } from "./types";
 export default function WorkCard({
   work,
@@ -50,8 +50,8 @@ export default function WorkCard({
           </div>}
       </div>
       <div className="flex flex-wrap items-center gap-4">
-        <RatingControl value={work.importance} readOnly label="重要度" />
-        <RatingControl value={work.urgency} readOnly label="紧急度" />
+        <InputControl spec={{ valueType: "number", editor: "rating", state: "disabled" }} value={work.importance} ratingLabel="重要度" />
+        <InputControl spec={{ valueType: "number", editor: "rating", state: "disabled" }} value={work.urgency} ratingLabel="紧急度" />
       </div>
       {work.participants.length > 0 && <div className="mt-2 text-xs text-gray-500">
           参与人：{work.participants.map(p => p.name).join("、")}

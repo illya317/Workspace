@@ -2,8 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useCallback } from "react";
-import { DataTable, Pagination, PanelCard, Toast, type DataTableColumn } from "@workspace/core/ui";
-import { useToast } from "@workspace/core/hooks";
+import { DataTable, Pagination, PanelCard, useFeedback, type DataTableColumn } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
 import FinanceBalanceReconcile from "../components/FinanceBalanceReconcile";
 import { formatFinanceAmount } from "../formatters";
@@ -35,7 +34,7 @@ export default function LedgerTab() {
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  const { toast, showToast, closeToast } = useToast();
+  const feedback = useFeedback();
 
   // 筛选
   const [companyFilter, setCompanyFilter] = useState("");
@@ -187,9 +186,7 @@ export default function LedgerTab() {
 
       <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
 
-      <FinanceBalanceReconcile showToast={showToast} />
-
-      <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
+      <FinanceBalanceReconcile showToast={feedback.notify} />
     </div>
   );
 }

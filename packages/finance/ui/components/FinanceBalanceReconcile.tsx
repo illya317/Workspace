@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { CommandButton, DataTable, EmptyStateCard, FileField, PanelCard, SectionCard, SelectField, type DataTableColumn } from "@workspace/core/ui";
+import { CommandButton, DataTable, EmptyStateCard, FormField, InputControl, PanelCard, SectionCard, type DataTableColumn } from "@workspace/core/ui";
 interface Company {
   code: string;
   name: string;
@@ -79,11 +79,20 @@ export default function FinanceBalanceReconcile({
           年度余额表用于校验差异。
         </>}>
       <div className="flex flex-wrap items-end gap-3">
-        <SelectField label="公司" value={companyCode} onChange={setCompanyCode} options={companies.map(company => ({
-        value: company.code,
-        label: company.name
-      }))} />
-        <FileField label="余额表Excel" accept=".xls,.xlsx" onChange={setFile} />
+        <FormField label="公司">
+          <InputControl
+            spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: companies.map(company => ({ value: company.code, label: company.name })) } }}
+            value={companyCode}
+            onChange={(value) => setCompanyCode(String(value ?? ""))}
+          />
+        </FormField>
+        <FormField label="余额表Excel">
+          <InputControl
+            spec={{ valueType: "file", editor: "upload" }}
+            accept=".xls,.xlsx"
+            onChange={(fileValue) => setFile(fileValue instanceof File ? fileValue : null)}
+          />
+        </FormField>
         <CommandButton variant="primary" onClick={handleReconcile} disabled={loading}>
           {loading ? "核对中..." : "开始核对"}
         </CommandButton>

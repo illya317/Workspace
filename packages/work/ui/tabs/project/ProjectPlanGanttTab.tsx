@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { EmptyStateCard, Toolbar, useConfirm, type ToolbarItem } from "@workspace/core/ui";
+import { EmptyStateCard, Toolbar, useFeedback, type ToolbarItem } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { ProjectItem } from "./model";
 import { listProjectOptions, listProjectPlanGantt, saveProjectPlanDependencies, saveProjectPlanGantt } from "./api";
@@ -15,7 +15,7 @@ export default function ProjectPlanGanttTab({
 }: {
   requestedProjectId?: number | null;
 }) {
-  const confirm = useConfirm();
+  const feedback = useFeedback();
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [keyword, setKeyword] = useState("");
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(requestedProjectId || null);
@@ -88,7 +88,7 @@ export default function ProjectPlanGanttTab({
       await saveProjectPlanDependencies(selectedProjectId, dependenciesForSave(dependencies));
       await reloadPlan(selectedProjectId);
     } catch (err) {
-      await confirm({
+      await feedback.confirm({
         title: "保存失败",
         message: err instanceof Error ? err.message : "保存项目甘特失败",
         confirmLabel: "关闭",

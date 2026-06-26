@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { DatabasePageFrame, EmptyStateCard, PanelCard, SectionCard, TabBar, Toast, Toolbar, useConfirmDelete, type ToolbarItem } from "@workspace/core/ui";
+import { DatabasePageFrame, EmptyStateCard, PanelCard, SectionCard, TabBar, Toolbar, useFeedback, type ToolbarItem } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import type { SessionUser } from "@workspace/platform/types";
 import { listTaskSpaces } from "./api";
@@ -22,7 +22,7 @@ export default function WorksClient({
   hideShell?: boolean;
   initialTarget?: WorkTarget;
 }) {
-  const confirmDelete = useConfirmDelete();
+  const feedback = useFeedback();
   const [spaces, setSpaces] = useState<WorkTaskSpace[]>([]);
   const [spacesLoading, setSpacesLoading] = useState(true);
   const [activeTarget, setActiveTarget] = useState<WorkTarget | null>(null);
@@ -100,7 +100,7 @@ export default function WorksClient({
   }
 
   async function deleteWork(work: WorkItem) {
-    const ok = await confirmDelete({
+    const ok = await feedback.confirmDelete({
       title: "删除工作项",
       message: `确定删除「${work.content}」吗？`,
       confirmLabel: "删除工作项",
@@ -317,7 +317,6 @@ export default function WorksClient({
           )}
         </main>
       </div>
-      <Toast message={worksState.toast?.message || ""} type={worksState.toast?.type} show={!!worksState.toast} onClose={worksState.closeToast} />
     </DatabasePageFrame>
   );
 }

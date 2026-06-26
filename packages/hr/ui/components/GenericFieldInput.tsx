@@ -3,8 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect } from "react";
 import FKInput from "./FKInput";
-import { AutoSizeInput } from "./AutoSizeInput";
-import { CalendarDateInput, CheckboxField, InputControl, SwitchField, TextareaField } from "@workspace/core/ui";
+import { InputControl } from "@workspace/core/ui";
 import EthnicityPicker from "./EthnicityPicker";
 import MajorPicker from "./MajorPicker";
 import ProfessionalTitlePicker from "./ProfessionalTitlePicker";
@@ -182,19 +181,19 @@ export default function GenericFieldInput({
   }
 
   if (field.type === "boolean") {
-    if (mode === "edit") {
-      return (
-        <SwitchField checked={!!value} onChange={onChange} ariaLabel={field.label || field.key} />
-      );
-    }
     return (
-      <CheckboxField checked={!!value} onChange={onChange} />
+      <InputControl
+        spec={{ valueType: "boolean", editor: mode === "edit" ? "switch" : "checkbox" }}
+        value={!!value}
+        onChange={onChange}
+      />
     );
   }
 
   if (field.type === "textarea") {
     return (
-      <TextareaField
+      <InputControl
+        spec={{ valueType: "string", editor: "textarea" }}
         value={(value as string) ?? ""}
         onChange={onChange}
         className={className}
@@ -207,8 +206,8 @@ export default function GenericFieldInput({
 
   if (field.type === "date") {
     return (
-      <CalendarDateInput
-        ref={inputRef}
+      <InputControl
+        spec={{ valueType: "date", editor: "datePicker" }}
         value={String(value ?? "")}
         onChange={(next) => onChange(next ?? "")}
         onKeyDown={onKeyDown}
@@ -220,11 +219,12 @@ export default function GenericFieldInput({
   if (mode === "edit") {
     if (field.type === "phone") {
       return (
-        <AutoSizeInput
-          ref={inputRef}
+        <InputControl
+          inputRef={inputRef}
+          spec={{ valueType: "string", editor: "input" }}
           type="tel"
           value={formatPhoneNumber(value)}
-          onChange={(e) => onChange(normalizePhoneValue(e.target.value))}
+          onChange={(next) => onChange(normalizePhoneValue(String(next ?? "")))}
           onKeyDown={onKeyDown}
         />
       );
@@ -232,35 +232,39 @@ export default function GenericFieldInput({
 
     if (field.type === "chineseId") {
       return (
-        <AutoSizeInput
-          ref={inputRef}
+        <InputControl
+          inputRef={inputRef}
+          spec={{ valueType: "string", editor: "input" }}
           type="text"
           value={normalizeChineseIdNumber(value) ?? ""}
-          onChange={(e) => onChange(normalizeChineseIdNumber(e.target.value)?.slice(0, 18) ?? null)}
+          onChange={(next) => onChange(normalizeChineseIdNumber(String(next ?? ""))?.slice(0, 18) ?? null)}
           onKeyDown={onKeyDown}
         />
       );
     }
 
     return (
-      <AutoSizeInput
-        ref={inputRef}
+      <InputControl
+        inputRef={inputRef}
+        spec={{ valueType: field.type === "number" ? "number" : "string", editor: field.type === "number" ? "number" : "input" }}
         type={inputType}
         value={String(value ?? "")}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(next) => onChange(String(next ?? ""))}
         onKeyDown={onKeyDown}
       />
     );
   }
 
   return (
-    <AutoSizeInput
+    <InputControl
+      spec={{ valueType: field.type === "number" ? "number" : "string", editor: field.type === "number" ? "number" : "input" }}
       type={inputType}
       value={field.type === "phone" ? formatPhoneNumber(value) : field.type === "chineseId" ? normalizeChineseIdNumber(value) ?? "" : (value as string) ?? ""}
-      onChange={(e) => {
-        if (field.type === "phone") onChange(normalizePhoneValue(e.target.value));
-        else if (field.type === "chineseId") onChange(normalizeChineseIdNumber(e.target.value)?.slice(0, 18) ?? null);
-        else onChange(e.target.value);
+      onChange={(next) => {
+        const text = String(next ?? "");
+        if (field.type === "phone") onChange(normalizePhoneValue(text));
+        else if (field.type === "chineseId") onChange(normalizeChineseIdNumber(text)?.slice(0, 18) ?? null);
+        else onChange(text);
       }}
       className={className}
     />

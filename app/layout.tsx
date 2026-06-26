@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import AgentProvider from "@workspace/platform/ui/agent";
 import AppVersionGuard from "@workspace/platform/ui/AppVersionGuard";
-import ConfirmProvider from "@workspace/core/ui/ConfirmProvider";
+import { FeedbackProvider } from "@workspace/core/ui";
 import { getAppVersion } from "@workspace/platform/server/app-version";
 
 export const metadata: Metadata = {
@@ -22,11 +22,11 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
-        <ConfirmProvider>
+        <FeedbackProvider>
           <AppVersionGuard version={appVersion} />
           {children}
           <AgentProvider />
-        </ConfirmProvider>
+        </FeedbackProvider>
       </body>
     </html>
   );

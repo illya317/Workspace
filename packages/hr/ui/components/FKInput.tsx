@@ -1,6 +1,6 @@
 "use client";
 
-import { FkFieldInput } from "@workspace/core/ui";
+import { InputControl, type FkFieldOption } from "@workspace/core/ui";
 import type { FKOption } from "@workspace/hr/types";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../fk-keys";
 
@@ -25,14 +25,20 @@ export default function FKInput({
 }: FKInputProps) {
   const resolvedFkKey = fkKeyForEntity(entity, fkKey);
   return (
-    <FkFieldInput
-      fkKey={resolvedFkKey}
-      endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
+    <InputControl
+      spec={{
+        valueType: "reference",
+        editor: "autocomplete",
+        state: disabled ? "disabled" : "normal",
+        options: { source: "remote", fkKey: resolvedFkKey, endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" },
+      }}
       value={value ? String(value) : ""}
       displayValue={displayValue}
-      onChange={(_label, option) => onChange(option ? { id: option.id, name: option.name, subtitle: option.subtitle } : null)}
+      onChange={(_label, option) => {
+        const fkOption = option as FkFieldOption | undefined;
+        onChange(fkOption ? { id: fkOption.id, name: fkOption.name, subtitle: fkOption.subtitle } : null);
+      }}
       placeholder={placeholder}
-      disabled={disabled}
     />
   );
 }

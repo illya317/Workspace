@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandButton, FormField, PanelCard, SelectField, Badge } from "@workspace/core/ui";
+import { Badge, CommandButton, FormField, InputControl, PanelCard } from "@workspace/core/ui";
 interface RdBudgetFiltersProps {
   projectFilter: string;
   setProjectFilter: (v: string) => void;
@@ -24,16 +24,10 @@ export default function RdBudgetFilters({
   return <>
       <PanelCard bodyClassName="flex flex-wrap items-center gap-3 p-3">
         <FormField label="研发项目" layout="inline">
-          <SelectField value={projectFilter} onChange={setProjectFilter} placeholder="全部项目" options={projectOptions.map(p => ({
-          value: p,
-          label: p
-        }))} />
+          <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: projectOptions.map(p => ({ value: p, label: p })) } }} value={projectFilter} onChange={(value) => setProjectFilter(String(value ?? ""))} placeholder="全部项目" />
         </FormField>
         <FormField label="产品类别" layout="inline">
-          <SelectField value={categoryFilter} onChange={setCategoryFilter} placeholder="全部类别" options={categoryOptions.map(c => ({
-          value: c,
-          label: c
-        }))} />
+          <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: categoryOptions.map(c => ({ value: c, label: c })) } }} value={categoryFilter} onChange={(value) => setCategoryFilter(String(value ?? ""))} placeholder="全部类别" />
         </FormField>
         {(projectFilter || categoryFilter) && <CommandButton onClick={() => {
         setProjectFilter("");

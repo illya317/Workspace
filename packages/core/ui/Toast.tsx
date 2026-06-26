@@ -9,6 +9,7 @@ export interface ToastProps {
   show: boolean;
   onClose: () => void;
   duration?: number;
+  title?: string;
 }
 
 export default function Toast({
@@ -17,6 +18,7 @@ export default function Toast({
   show,
   onClose,
   duration = 2000,
+  title,
 }: ToastProps) {
   useEffect(() => {
     if (!show || type === "error") return;
@@ -30,7 +32,7 @@ export default function Toast({
     return (
       <ConfirmModal
         open
-        title="操作失败"
+        title={title ?? "操作失败"}
         message={message}
         confirmLabel="关闭"
         confirmDanger

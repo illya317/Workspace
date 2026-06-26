@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandButton, FkFieldInput, FormField, PanelCard, TextField } from "@workspace/core/ui";
+import { CommandButton, FormField, InputControl, PanelCard } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import { SegmentedCodeInput } from "@workspace/platform/ui";
 import PositionAliasTagsInput from "./PositionAliasTagsInput";
@@ -122,13 +122,13 @@ export function PositionEditor({
               />
             </FormField>
             <FormField label="岗位名称">
-              <TextField value={draft.name} disabled={!canEditPosition} onChange={next => onUpdateDraft("name", next)} visualVariant="info" />
+              <InputControl spec={{ valueType: "string", editor: "input", state: !canEditPosition ? "disabled" : "normal" }} value={draft.name} onChange={next => onUpdateDraft("name", String(next ?? ""))} />
             </FormField>
             <FormField label="别名" className="md:col-span-2">
               <PositionAliasTagsInput value={draft.alias || ""} disabled={!canEditPosition} onChange={value => onUpdateDraft("alias", value)} />
             </FormField>
             <FormField label="直属部门">
-              <FkFieldInput fkKey="hr.department" endpoint={HR_REFERENCE_OPTIONS_ENDPOINT} value={draft.departmentId == null ? "" : String(draft.departmentId)} displayValue={draftDepartmentDisplay} disabled={!canEditPosition} placeholder="搜索部门" onChange={(_label, option?: FkFieldOption) => onUpdateDraftDepartment(option?.id ?? null)} />
+              <InputControl spec={{ valueType: "reference", editor: "autocomplete", state: !canEditPosition ? "disabled" : "normal", options: { source: "remote", fkKey: "hr.department", endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" } }} value={draft.departmentId == null ? "" : String(draft.departmentId)} displayValue={draftDepartmentDisplay} placeholder="搜索部门" onChange={(_label, option) => onUpdateDraftDepartment((option as FkFieldOption | undefined)?.id ?? null)} />
             </FormField>
           </div>}
       </PanelCard>

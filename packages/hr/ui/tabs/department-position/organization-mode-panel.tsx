@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { putJson } from "@workspace/platform/ui/api-client";
-import { Badge, CommandButton, DataTable, type DataTableColumn, EmptyStateCard, FkFieldInput, type FkFieldOption, PanelCard, SelectionGrid, Toast, WorkspaceSplitPage } from "@workspace/core/ui";
+import { Badge, CommandButton, DataTable, type DataTableColumn, EmptyStateCard, InputControl, type FkFieldOption, PanelCard, SelectionGrid, useFeedback, WorkspaceSplitPage } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { selectedEntityName } from "./detail-editor-primitives";
 import { createDepartmentDescriptionDraft, departmentDescriptionPayload, departmentManagerPositionName, sanitizeDepartmentDescriptionDetails } from "./draft-utils";
@@ -87,10 +87,7 @@ export function OrganizationModePanel({
 }) {
   const [managerDraft, setManagerDraft] = useState("");
   const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
+  const feedback = useFeedback();
   const directPositions = selectedDepartment ? positionsByDepartment.get(selectedDepartment.id) || [] : [];
   const positionsByName = useMemo(() => new Map(positions.map(position => [position.name, position])), [positions]);
   const currentManagerName = selectedDepartment ? departmentManagerPositionName(selectedDepartment) : "";
@@ -171,15 +168,9 @@ export function OrganizationModePanel({
         })]
       }, "保存部门负责人失败");
       await onReload();
-      setToast({
-        type: "success",
-        message: "部门负责人已保存"
-      });
+      feedback.success("部门负责人已保存");
     } catch (error) {
-      setToast({
-        type: "error",
-        message: error instanceof Error ? error.message : "保存部门负责人失败"
-      });
+      feedback.error(error instanceof Error ? error.message : "保存部门负责人失败");
     } finally {
       setSaving(false);
     }
@@ -208,8 +199,8 @@ export function OrganizationModePanel({
                 <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
                   <div className="flex min-w-0 w-72 items-center gap-2">
                     <span className="shrink-0 text-xs font-semibold text-slate-500">负责人</span>
-                    <FkFieldInput fkKey="hr.position" endpoint={HR_REFERENCE_OPTIONS_ENDPOINT} value={managerDraft} displayValue={managerDraft} disabled={!canEdit || saving} placeholder="搜索负责人岗位" onChange={(_label, option?: FkFieldOption) => {
-                  setManagerDraft(selectedEntityName("position", option));
+                    <InputControl spec={{ valueType: "reference", editor: "autocomplete", state: !canEdit || saving ? "disabled" : "normal", options: { source: "remote", fkKey: "hr.position", endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "name" } }} value={managerDraft} displayValue={managerDraft} placeholder="搜索负责人岗位" onChange={(_label, option) => {
+                  setManagerDraft(selectedEntityName("position", option as FkFieldOption | undefined));
                 }} />
                   </div>
                   <CommandButton variant="primary" disabled={!canEdit || saving || !managerDirty} onClick={() => void saveChanges()}>
@@ -224,6 +215,5 @@ export function OrganizationModePanel({
             </div>}
         </PanelCard>
       </WorkspaceSplitPage>
-      <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={() => setToast(null)} />
     </>;
 }

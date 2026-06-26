@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TextField } from "@workspace/core/ui";
+import { InputControl } from "@workspace/core/ui";
 
 export interface SegmentedCodeInputEditableSegment {
   /** 从完整编码中提取可编辑片段 */
@@ -57,11 +57,11 @@ export default function SegmentedCodeInput({
   const displayValue = focused ? segment : value;
 
   return (
-    <TextField
+    <InputControl
+      spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }}
       value={displayValue}
-      disabled={disabled}
       placeholder={editableSegment.placeholder}
-      onChange={handleChange}
+      onChange={(next) => handleChange(String(next ?? ""))}
       onFocus={handleFocus}
       onBlur={handleBlur}
       className={className}

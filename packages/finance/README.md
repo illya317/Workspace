@@ -15,9 +15,9 @@ import/    # 财务导入解析、清洗和校验流程
 - `ui/components/ReclassConfigView.tsx`：财务重分类配置视图。
 - `ui/components/AccountCodeInput.tsx`、`Pagination.tsx`、`ReclassConfigRow.tsx`、`ui/ledger/reclassColumns.tsx`：重分类配置视图的局部依赖。
 - `ui/components/FinanceShell.tsx`：财务模块页面壳和二级导航。
-- `ui/components/FinanceFilters.tsx`：财务全域筛选模板，基于 Core `Toolbar` / `SelectField`。
+- `ui/components/FinanceFilters.tsx`：财务全域筛选模板，基于 Core `Toolbar` / `InputControl`。
 - `ui/components/CompanyPeriodPicker.tsx`：公司、年度、月份组合选择模板。
-- `ui/components/ReclassReviewView.tsx`、`ui/components/ReclassReviewModal.tsx`：重分类审核视图和调整弹窗，基于 Core 表格与输入 primitive。
+- `ui/components/ReclassReviewView.tsx`、`ui/components/ReclassReviewModal.tsx`：重分类审核视图和调整弹窗，基于 Core 表格与 `InputControl` 字段规格。
 - `ui/budget/*`：预算管理页面、预算版本选择、部门/研发预算筛选和预算表格；旧 `app/finance/budget/{components,hooks}` 已迁入包内。
 - `ui/cost/*`：成本管理页面、筛选、汇总、追溯弹窗和成本明细表格；旧 `app/finance/cost/{components,hooks}` 已迁入包内，并统一基于 Core 表格/分页/按钮 primitive。
 - `ui/import/*`：财务导入上传、预览和结果展示；旧 `app/finance/import/{ImportClient,components}` 已迁入包内。

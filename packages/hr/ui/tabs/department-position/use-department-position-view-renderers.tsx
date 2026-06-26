@@ -68,7 +68,6 @@ export function useDepartmentPositionViewRenderers(props: {
   templateDraftFields: string[];
   templateDraftName: string;
   templateEditorOpen: boolean;
-  toast: { message: string; type: "success" | "error" } | null;
   treeDrawerOpen: boolean;
   treeOpen: boolean;
   visibleRootDepartments: Department[];
@@ -92,7 +91,6 @@ export function useDepartmentPositionViewRenderers(props: {
   onSideOpenChange: (open: boolean) => void;
   onTemplateDraftNameChange: (name: string) => void;
   onTemplateEditorOpenChange: (open: boolean) => void;
-  onToastClose: () => void;
   onTogglePositionDescriptionTemplateField: (field: string) => void;
   onUpdateDepartmentDescriptionDraft: <K extends keyof DepartmentDescriptionDraft>(index: number, key: K, value: DepartmentDescriptionDraft[K]) => void;
   onUpdateDepartmentDraft: <K extends keyof DepartmentDraft>(key: K, value: DepartmentDraft[K]) => void;
@@ -221,12 +219,10 @@ export function useDepartmentPositionViewRenderers(props: {
         selection={props.selection}
         sideOpen={props.treeOpen}
         drawerOpen={props.treeDrawerOpen}
-        toast={props.toast}
         onArchivedTabChange={props.onArchivedTabChange}
         onSideOpenChange={props.onSideOpenChange}
         onDrawerOpenChange={props.onDrawerOpenChange}
         onSelect={props.onSelect}
-        onToastClose={props.onToastClose}
       >
         {renderDetailPane()}
       </ArchivedDepartmentPositionPage>

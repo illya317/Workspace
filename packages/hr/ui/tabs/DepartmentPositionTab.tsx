@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useConfirm, useConfirmDelete } from "@workspace/core/ui";
+import { useCallback, useEffect, useState } from "react";
+import { useFeedback } from "@workspace/core/ui";
 import { type HRUser, hrCanEdit } from "@workspace/hr/types";
 import type { DepartmentPositionMode } from "./department-position/types";
 import { DepartmentPositionMainContent } from "./department-position/department-position-main-content";
@@ -41,11 +41,13 @@ export default function DepartmentPositionTab({
   onUnsavedChange?: (dirty: boolean) => void;
 }) {
   const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
-  const confirm = useConfirm();
-  const confirmDelete = useConfirmDelete();
+  const feedback = useFeedback();
+  const setToast = useCallback((toast: { message: string; type: "success" | "error" } | null) => {
+    if (toast) feedback.notify(toast.message, toast.type);
+    else feedback.closeToast();
+  }, [feedback]);
   async function showActionPrompt(title: string, message: string, danger: boolean) {
-    await confirm({
+    await feedback.confirm({
       title,
       message,
       confirmLabel: "关闭",
@@ -98,7 +100,7 @@ export default function DepartmentPositionTab({
     templateDraftName,
     templateEditorOpen,
     togglePositionDescriptionTemplateField,
-  } = usePositionDescriptionTemplates({ confirmDelete, enabled: !isOrganizationMode, setToast });
+  } = usePositionDescriptionTemplates({ confirmDelete: feedback.confirmDelete, enabled: !isOrganizationMode, setToast });
 
   const canEdit = hrCanEdit(user);
   const canEditDepartment = canEdit && !isOrganizationMode && !showArchived;
@@ -299,7 +301,6 @@ export default function DepartmentPositionTab({
     templateDraftFields,
     templateDraftName,
     templateEditorOpen,
-    toast,
     treeDrawerOpen,
     treeOpen,
     visibleRootDepartments,
@@ -323,7 +324,6 @@ export default function DepartmentPositionTab({
     onSideOpenChange: setTreeOpen,
     onTemplateDraftNameChange: setTemplateDraftName,
     onTemplateEditorOpenChange: setTemplateEditorOpen,
-    onToastClose: () => setToast(null),
     onTogglePositionDescriptionTemplateField: togglePositionDescriptionTemplateField,
     onUpdateDepartmentDescriptionDraft: updateDepartmentDescriptionDraft,
     onUpdateDepartmentDraft: updateDepartmentDraft,
@@ -379,8 +379,6 @@ export default function DepartmentPositionTab({
       onCollapseAll={setAllDepartmentsCollapsed}
       onLoadData={loadData}
       renderDetailPane={renderDetailPane}
-      toast={toast}
-      onToastClose={() => setToast(null)}
       onSideOpenChange={setTreeOpen}
       onDrawerOpenChange={setTreeDrawerOpen}
     />

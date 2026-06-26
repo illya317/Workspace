@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckboxChip, CommandButton, FormField, PanelCard, TextField } from "@workspace/core/ui";
+import { CommandButton, FormField, InputControl, PanelCard } from "@workspace/core/ui";
 import { DETAIL_FIELD_LABELS, POSITION_DESCRIPTION_TEMPLATE_FIELD_GROUPS } from "./description-details";
 export function PositionDescriptionTemplateEditor({
   name,
@@ -20,7 +20,7 @@ export function PositionDescriptionTemplateEditor({
   return <PanelCard className="mb-4" bodyClassName="p-3">
       <div className="mb-3 flex flex-wrap items-end gap-3">
         <FormField label="模板名称">
-          <TextField value={name} onChange={onNameChange} visualVariant="info" />
+          <InputControl spec={{ valueType: "string", editor: "input" }} value={name} onChange={(value) => onNameChange(String(value ?? ""))} />
         </FormField>
         <div className="flex gap-2">
           <CommandButton variant="primary" onClick={() => void onSave()}>保存模板</CommandButton>
@@ -31,9 +31,10 @@ export function PositionDescriptionTemplateEditor({
         {POSITION_DESCRIPTION_TEMPLATE_FIELD_GROUPS.map(group => <PanelCard key={group.label} bodyClassName="p-3">
             <div className="mb-2 text-xs font-semibold text-slate-600">{group.label}</div>
             <div className="flex flex-wrap gap-2">
-              {group.fields.map(field => <CheckboxChip key={field} checked={fields.includes(field)} ariaLabel={DETAIL_FIELD_LABELS[field] || field} onChange={() => onToggleField(field)}>
-                  {DETAIL_FIELD_LABELS[field] || field}
-                </CheckboxChip>)}
+              {group.fields.map(field => <label key={field} className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-600">
+                  <InputControl spec={{ valueType: "boolean", editor: "checkbox" }} value={fields.includes(field)} onChange={() => onToggleField(field)} />
+                  <span>{DETAIL_FIELD_LABELS[field] || field}</span>
+                </label>)}
             </div>
           </PanelCard>)}
       </div>

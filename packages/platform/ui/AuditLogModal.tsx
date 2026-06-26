@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useCallback } from "react";
-import { DetailModal, Pagination, SelectField } from "@workspace/core/ui";
+import { DetailModal, InputControl, Pagination } from "@workspace/core/ui";
 import AuditLogEntry, { type AuditEntry } from "./AuditLogEntry";
 
 export interface AuditLogModalProps {
@@ -91,16 +91,14 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
     >
       <div className="space-y-3">
         {dates.length > 0 && (
-          <SelectField
+          <InputControl
+            spec={{ valueType: "date", editor: "select", options: { source: "static", mode: "dropdown", items: dates.map((date) => ({ value: date, label: date })) } }}
             value={selectedDate}
             onChange={(nextDate) => {
-              setSelectedDate(nextDate);
+              setSelectedDate(String(nextDate ?? ""));
               setPage(1);
             }}
             placeholder="全部日期"
-            options={dates.map((date) => ({ value: date, label: date }))}
-
-
           />
         )}
         <div className="max-h-[58vh] overflow-auto">

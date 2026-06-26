@@ -2,11 +2,9 @@
 
 import {
   FormField,
-  TextareaField,
-  TextField,
+  InputControl,
 } from "@workspace/core/ui";
 import { HR_OFFICE_LOCATIONS, HR_RANKS } from "@workspace/hr/constants/field-options";
-import { OptionPicker } from "@workspace/core/ui";
 import RankPicker from "../../components/RankPicker";
 import {
   DETAIL_FIELD_LABELS,
@@ -61,12 +59,11 @@ export function PositionDescriptionDetailsEditor({
         error="请检查 JSON 内容后重新保存。"
         className="md:col-span-2"
       >
-        <TextareaField
+        <InputControl
+          spec={{ valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" }}
           value={value}
-          disabled={disabled}
           rows={14}
-          onChange={onChange}
-          fontRole="mono" state="error" resize="vertical"
+          onChange={(next) => onChange(String(next ?? ""))}
         />
       </FormField>
     );
@@ -125,10 +122,14 @@ export function PositionDescriptionDetailsEditor({
     if (key === "education") {
       return (
         <FormField key={key} label={DETAIL_FIELD_LABELS[key] || key}>
-          <OptionPicker
+          <InputControl
+            spec={{
+              valueType: "string",
+              editor: "select",
+              state: disabled ? "disabled" : "normal",
+              options: { source: "static", items: pickerOptions(EDUCATION_REQUIREMENT_OPTIONS) },
+            }}
             value={String(fieldValue || "无要求")}
-            options={pickerOptions(EDUCATION_REQUIREMENT_OPTIONS)}
-            disabled={disabled}
             placeholder="无要求"
             onChange={(next) => updateDetailValue(key, next || "无要求")}
           />
@@ -179,10 +180,14 @@ export function PositionDescriptionDetailsEditor({
           : WORK_SCHEDULE_OPTIONS;
       return (
         <FormField key={key} label={DETAIL_FIELD_LABELS[key] || key}>
-          <OptionPicker
+          <InputControl
+            spec={{
+              valueType: "string",
+              editor: "select",
+              state: disabled ? "disabled" : "normal",
+              options: { source: "static", items: pickerOptions(options) },
+            }}
             value={fieldValue}
-            options={pickerOptions(options)}
-            disabled={disabled}
             placeholder="未设置"
             onChange={(next) => updateDetailValue(key, next || null)}
           />
@@ -256,7 +261,6 @@ export function PositionDescriptionDetailsEditor({
       );
     }
     const rows = detailFieldRows(fieldValue);
-    const complexValue = fieldValue && typeof fieldValue === "object" && !isPrimitiveArray(fieldValue);
     return (
       <FormField
         key={key}
@@ -264,20 +268,17 @@ export function PositionDescriptionDetailsEditor({
         className={rows > 1 ? "md:col-span-2" : ""}
       >
         {rows === 1 ? (
-          <TextField
+          <InputControl
+            spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }}
             value={detailValueToText(fieldValue)}
-            disabled={disabled}
-            onChange={(next) => updateDetailField(key, next)}
-            visualVariant="info"
+            onChange={(next) => updateDetailField(key, String(next ?? ""))}
           />
         ) : (
-          <TextareaField
+          <InputControl
+            spec={{ valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" }}
             value={detailValueToText(fieldValue)}
-            disabled={disabled}
             rows={rows}
-            onChange={(next) => updateDetailField(key, next)}
-            resize="vertical"
-            fontRole={complexValue ? "mono" : "default"}
+            onChange={(next) => updateDetailField(key, String(next ?? ""))}
           />
         )}
       </FormField>

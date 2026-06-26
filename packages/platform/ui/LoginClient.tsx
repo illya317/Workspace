@@ -3,7 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
 import { workspacePath } from "@workspace/core/routing";
-import { CommandButton, EmptyStateCard, FormField, FormShell, PanelCard, TextField } from "@workspace/core/ui";
+import { CommandButton, EmptyStateCard, FormField, FormShell, InputControl, PanelCard } from "@workspace/core/ui";
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 function getSafeNextPath() {
   const next = new URLSearchParams(window.location.search).get("next");
@@ -72,11 +72,11 @@ export default function LoginClient() {
           </PanelCard>}
         <FormShell onSubmit={handleSubmit} className="mt-6">
             <FormField label="账号">
-              <TextField value={username} onChange={setUsername} required placeholder="请输入账号" />
+              <InputControl spec={{ valueType: "string", editor: "input", state: "required", validation: { required: true } }} value={username} onChange={(value) => setUsername(String(value ?? ""))} placeholder="请输入账号" />
             </FormField>
 
             <FormField label="密码">
-              <TextField type="password" value={password} onChange={setPassword} required placeholder="请输入密码" />
+              <InputControl spec={{ valueType: "string", editor: "input", state: "required", validation: { required: true } }} type="password" value={password} onChange={(value) => setPassword(String(value ?? ""))} placeholder="请输入密码" />
             </FormField>
 
             {error && <EmptyStateCard compact className="border-red-100 bg-red-50 text-red-600">{error}</EmptyStateCard>}

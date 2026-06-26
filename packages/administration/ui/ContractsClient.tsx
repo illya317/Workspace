@@ -2,8 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState } from "react";
-import { ConfirmModal, Pagination, Toast } from "@workspace/core/ui";
-import { useToast } from "@workspace/core/hooks";
+import { Pagination, useFeedback } from "@workspace/core/ui";
 import { DatabasePageFrame } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { useContracts } from "./hooks/useContracts";
@@ -20,10 +19,9 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
     categories, statuses, refresh,
   } = useContracts();
 
-  const { toast, showToast, closeToast } = useToast();
+  const feedback = useFeedback();
   const [modalMode, setModalMode] = useState<ModalMode>(null);
   const [editing, setEditing] = useState<Partial<Contract>>({});
-  const [deleteId, setDeleteId] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState<string[]>(CONTRACT_DEFAULT_VISIBLE_COLUMNS);
 
@@ -46,7 +44,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
 
   const saveContract = async () => {
     if (!editing.name) {
-      showToast("合同名称为必填", "error");
+      feedback.error("合同名称为必填");
       return;
     }
     setSaving(true);
@@ -58,7 +56,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
           body: JSON.stringify(editing),
         });
         if (!res.ok) throw new Error("创建失败");
-        showToast("创建成功", "success");
+        feedback.success("创建成功");
       } else if (editing.id) {
         const res = await fetch(workspacePath(`/api/modules/administration/contracts/${editing.id}`), {
           method: "PATCH",
@@ -66,28 +64,29 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
           body: JSON.stringify(editing),
         });
         if (!res.ok) throw new Error("保存失败");
-        showToast("保存成功", "success");
+        feedback.success("保存成功");
       }
       closeModal();
       refresh();
     } catch (e: unknown) {
-      showToast(e instanceof Error ? e.message : "操作失败", "error");
+      feedback.error(e instanceof Error ? e.message : "操作失败");
     } finally {
       setSaving(false);
     }
   };
 
-  const confirmDelete = async () => {
-    if (!deleteId) return;
+  const deleteContract = async (deleteId: number) => {
+    const ok = await feedback.confirmDelete({
+      message: "确定要删除这条合同记录吗？此操作不可撤销。",
+    });
+    if (!ok) return;
     try {
       const res = await fetch(workspacePath(`/api/modules/administration/contracts/${deleteId}`), { method: "DELETE" });
       if (!res.ok) throw new Error("删除失败");
-      showToast("删除成功", "success");
+      feedback.success("删除成功");
       refresh();
     } catch (e: unknown) {
-      showToast(e instanceof Error ? e.message : "删除失败", "error");
-    } finally {
-      setDeleteId(null);
+      feedback.error(e instanceof Error ? e.message : "删除失败");
     }
   };
 
@@ -123,7 +122,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
           contracts={contracts}
           visibleColumns={visibleColumns}
           onEdit={openEdit}
-          onDelete={setDeleteId}
+          onDelete={(id) => void deleteContract(id)}
         />
 
         <Pagination
@@ -144,15 +143,6 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
         saving={saving}
       />
 
-      <ConfirmModal
-        open={deleteId !== null}
-        title="确认删除"
-        message="确定要删除这条合同记录吗？此操作不可撤销。"
-        onConfirm={confirmDelete}
-        onCancel={() => setDeleteId(null)}
-      />
-
-      <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </>
   );
 }

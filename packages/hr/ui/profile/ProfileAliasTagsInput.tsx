@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import {
-  TagInlineTextField,
+  InputControl,
   TagListInput,
 } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
@@ -80,9 +80,10 @@ export function AliasTagEditor({
       shellClassName="content-start"
     >
       {!disabled && (
-        <TagInlineTextField
+        <InputControl
+          spec={{ valueType: "string", editor: "input" }}
           value={draft}
-          onChange={setDraft}
+          onChange={(next) => setDraft(String(next ?? ""))}
           onBlur={commitDraft}
           onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === "Tab" || event.key === "," || event.key === "，" || event.key === "、") {
@@ -94,6 +95,7 @@ export function AliasTagEditor({
             if (event.key === "Backspace" && !draft && tags.length > 0) removeTag(tags.length - 1);
           }}
           placeholder={tags.length === 0 ? "添加别名" : ""}
+          density="compact"
         />
       )}
     </TagListInput>

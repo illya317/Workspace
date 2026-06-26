@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { CodeBlock, CommandButton, ConfirmModal, SectionCard } from "@workspace/core/ui";
+import { CodeBlock, CommandButton, SectionCard, useFeedback } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 const API_BASE_URL = typeof window !== "undefined" ? `${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH || ""}` : "";
 export type ApiAccessModuleRow = {
@@ -53,7 +53,7 @@ export default function ApiAccessClient({
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const feedback = useFeedback();
   useEffect(() => {
     if (!canUsePersonalApi) return;
     fetch(workspacePath("/api/settings/account/api-key")).then(res => res.ok ? res.json() : Promise.reject()).then((data: {
@@ -82,11 +82,18 @@ export default function ApiAccessClient({
       setApiKey(data.apiKey || null);
     }
     setLoading(false);
-    setConfirmOpen(false);
+  }
+  async function confirmRotateApiKey() {
+    const ok = await feedback.confirm({
+      title: "确认覆盖",
+      message: "申请新的 API Key 将覆盖旧 Key，旧 Key 会立即失效。",
+      confirmDanger: false,
+    });
+    if (ok) await rotateApiKey();
   }
   return <div className="space-y-6 py-6">
       {canUsePersonalApi && <SectionCard title="API 接入" actions={<div className="flex flex-wrap gap-2">
-            {apiKey ? <CommandButton onClick={() => setConfirmOpen(true)} disabled={loading}>
+            {apiKey ? <CommandButton onClick={() => void confirmRotateApiKey()} disabled={loading}>
                 {loading ? "申请中..." : "重新申请"}
               </CommandButton> : <CommandButton onClick={rotateApiKey} disabled={loading}>
                 {loading ? "申请中..." : "申请 Key"}
@@ -100,7 +107,6 @@ export default function ApiAccessClient({
           <div>Key: {apiKey ? maskApiKey(apiKey) : "（先申请）"}</div>
           <div>User: {user.username || user.nickname || "（未获取）"}</div>
         </CodeBlock>
-        <ConfirmModal open={confirmOpen} title="确认覆盖" message="申请新的 API Key 将覆盖旧 Key，旧 Key 会立即失效。" onConfirm={rotateApiKey} onCancel={() => setConfirmOpen(false)} confirmDanger={false} />
       </SectionCard>}
 
     </div>;

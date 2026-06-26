@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CommandButton, FormField, PanelCard, SelectField } from "@workspace/core/ui";
+import { CommandButton, FormField, InputControl, PanelCard } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
 import ReportBanner from "./ReportBanner";
 import ReportLines, { type AccountDetail, type ReportLine } from "./ReportLines";
@@ -93,16 +93,23 @@ export default function ReportTab() {
       <FinanceFilters companyFilter={companyFilter} yearFilter={yearFilter} monthFilter={monthFilter} onCompanyChange={setCompanyFilter} onYearChange={setYearFilter} onMonthChange={setMonthFilter} showPageSize={false} />
       <div className="flex flex-wrap items-center gap-3">
         <FormField label="报表" layout="inline">
-          <SelectField value={reportType} onChange={nextValue => setReportType(nextValue as "balance" | "income" | "cashflow")} options={[{
-          value: "balance",
-          label: "资产负债表"
-        }, {
-          value: "income",
-          label: "利润表"
-        }, {
-          value: "cashflow",
-          label: "现金流量表"
-        }]} />
+          <InputControl
+            spec={{
+              valueType: "string",
+              editor: "select",
+              options: {
+                source: "static",
+                mode: "dropdown",
+                items: [
+                  { value: "balance", label: "资产负债表" },
+                  { value: "income", label: "利润表" },
+                  { value: "cashflow", label: "现金流量表" },
+                ],
+              },
+            }}
+            value={reportType}
+            onChange={(nextValue) => setReportType(nextValue as "balance" | "income" | "cashflow")}
+          />
         </FormField>
         <CommandButton variant="primary" onClick={loadReport}>生成报表</CommandButton>
       </div>

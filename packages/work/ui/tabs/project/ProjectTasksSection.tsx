@@ -7,7 +7,7 @@ import {
   EmptyStateCard,
   SectionCard,
   TableScrollFrame,
-  useConfirmDelete,
+  useFeedback,
   type DataTableColumn,
   type DataTableRowEditActionConfig,
   type PickerOption,
@@ -43,7 +43,7 @@ export default function ProjectTasksSection({
   onCreateChildProject?: (task: ProjectTaskItem) => void;
   onToast: (toast: { type: "success" | "error"; message: string }) => void;
 }) {
-  const confirmDelete = useConfirmDelete();
+  const feedback = useFeedback();
   const [tasks, setTasks] = useState<ProjectTaskItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -218,7 +218,7 @@ export default function ProjectTasksSection({
   async function handleDelete(task: ProjectTaskItem) {
     if (!projectId || saving) return;
     if (task.childProjectId) return onToast({ type: "error", message: "请先处理相关子项目" });
-    const ok = await confirmDelete({
+    const ok = await feedback.confirmDelete({
       title: "删除任务",
       message: `确定删除任务「${task.name}」吗？后置任务的前置关系会自动清空。`,
       confirmLabel: "删除任务",

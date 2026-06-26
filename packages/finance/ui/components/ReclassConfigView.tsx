@@ -2,9 +2,8 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useRef, useMemo } from "react";
-import { CommandButton, DataTable, PanelCard, Toast, useConfirmDelete } from "@workspace/core/ui";
+import { CommandButton, DataTable, PanelCard, useFeedback } from "@workspace/core/ui";
 import type { DataTableColumn } from "@workspace/core/ui";
-import { useToast } from "@workspace/core/hooks";
 import { matchText } from "@workspace/core/search";
 import type { RuleCandidate } from "@workspace/finance/types";
 import { Pagination } from "@workspace/core/ui";
@@ -41,14 +40,9 @@ export default function ReclassCandidateList({
 }: Props) {
   const [_scanned, setScanned] = useState<RuleCandidate[]>([]);
   const [allAccounts, setAllAccounts] = useState<RuleCandidate[]>([]);
-  const confirmDelete = useConfirmDelete();
+  const feedback = useFeedback();
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const {
-    toast,
-    showToast,
-    closeToast
-  } = useToast();
   const [editCode, setEditCode] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const editRef = useRef<HTMLDivElement>(null);
@@ -73,7 +67,7 @@ export default function ReclassCandidateList({
     try {
       const [scanRes, accRes] = await Promise.all([fetch(workspacePath(`/api/modules/finance/ledger/reclass-rules?companyCode=${companyCode}&year=${year}`)), fetch(workspacePath(`/api/modules/finance/ledger/accounts?companyCode=${companyCode}&year=${year}&scope=all&pageSize=2000`))]);
       if (!scanRes.ok) {
-        showToast("加载失败", "error");
+        feedback.error("加载失败");
         return;
       }
       const scanData = await scanRes.json();
@@ -111,7 +105,7 @@ export default function ReclassCandidateList({
         hasRule: all.length - noRuleCount
       });
     } catch {
-      showToast("网络错误", "error");
+      feedback.error("网络错误");
     }
     setLoading(false);
   }
@@ -148,7 +142,7 @@ export default function ReclassCandidateList({
   }, [allAccounts, onStats]);
   async function saveRule(c: RuleCandidate, target: string) {
     if (!target.trim()) {
-      showToast("请选择目标科目", "error");
+      feedback.error("请选择目标科目");
       return false;
     }
     const body = JSON.stringify({
@@ -166,7 +160,7 @@ export default function ReclassCandidateList({
       body
     });
     if (!res.ok) {
-      showToast("保存失败", "error");
+      feedback.error("保存失败");
       return false;
     }
     const data = await res.json();
@@ -175,7 +169,7 @@ export default function ReclassCandidateList({
   }
   async function clearRule(c: RuleCandidate) {
     if (!c.existingRuleId) return;
-    const ok = await confirmDelete({
+    const ok = await feedback.confirmDelete({
       title: "清除规则",
       message: `确定清除科目 ${c.accountCode} 的重分类规则吗？`,
       confirmLabel: "清除"
@@ -184,11 +178,11 @@ export default function ReclassCandidateList({
     if (!(await fetch(workspacePath(`/api/modules/finance/ledger/reclass-rules/${c.existingRuleId}`), {
       method: "DELETE"
     })).ok) {
-      showToast("清除失败", "error");
+      feedback.error("清除失败");
       return;
     }
     updateCandidate(c.accountCode, null, null, null, null);
-    showToast("已清除规则");
+    feedback.success("已清除规则");
   }
   function startEdit(c: RuleCandidate) {
     setEditCode(c.accountCode + "::" + c.abnormalSide);
@@ -199,7 +193,7 @@ export default function ReclassCandidateList({
     setEditCode(null);
     setEditValue("");
     if (val && val !== (c.existingTarget || "")) {
-      if (await saveRule(c, val)) showToast("已更新规则");
+      if (await saveRule(c, val)) feedback.success("已更新规则");
     }
   }
 
@@ -296,7 +290,7 @@ export default function ReclassCandidateList({
         return <CommandButton onClick={event => {
           event.stopPropagation();
           void saveRule(candidate, candidate.suggestedTarget).then(saved => {
-            if (saved) showToast("已确认规则");
+            if (saved) feedback.success("已确认规则");
           });
         }} size="sm" className="px-2 py-1 text-xs">
               确认
@@ -332,6 +326,5 @@ export default function ReclassCandidateList({
         <DataTable rows={paged} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={candidate => candidate.accountCode + "::" + candidate.abnormalSide} density="compact" />
       </PanelCard>
       <Pagination page={page} totalPages={totalPages} total={filtered.length} onPageChange={setPage} />
-      <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </div>;
 }

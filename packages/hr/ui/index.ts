@@ -12,7 +12,6 @@ export { useCodeTab } from "./code/useCodeTab";
 export { useGenericTab } from "./hooks/useGenericTab";
 export * from "./profile/lunar-birthday";
 export { default as HRClient } from "./HRClient";
-export { AutoSizeInput } from "./components/AutoSizeInput";
 export { default as EthnicityPicker } from "./components/EthnicityPicker";
 export { default as FKInput } from "./components/FKInput";
 export { default as GenericCreatePanel } from "./components/GenericCreatePanel";

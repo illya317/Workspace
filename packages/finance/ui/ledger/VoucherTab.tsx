@@ -2,8 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo } from "react";
-import { useToast } from "@workspace/core/hooks";
-import { DataTable, Pagination, PanelCard, TabBar, Toast } from "@workspace/core/ui";
+import { DataTable, Pagination, PanelCard, TabBar, useFeedback } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
 import { BASE_ITEM_COLUMNS, type VoucherItemRow } from "../components/VoucherItemTable";
 import { useReclassResults } from "./useReclassResults";
@@ -23,9 +22,9 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
-  const { toast, showToast, closeToast } = useToast();
+  const feedback = useFeedback();
   const { allItems, handleReview, handleGenerate, adjustModal } =
-    useReclassResults(companyFilter, yearFilter, monthFilter, showToast);
+    useReclassResults(companyFilter, yearFilter, monthFilter, feedback.notify);
   const [viewMode, setViewMode] = useState<"vouchers" | "reclass">("vouchers");
   const [keyword, setKeyword] = useState("");
   const [reclassStatus, setReclassStatus] = useState("adjusted");
@@ -74,12 +73,12 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
           }
         } else {
           const err = await res.json().catch(() => ({ error: "加载失败" }));
-          if (!cancelled) showToast(err.error || "加载失败", "error");
+          if (!cancelled) feedback.error(err.error || "加载失败");
         }
       } catch (e: unknown) {
         const err = e as Error;
         if (err.name === "AbortError") return;
-        if (!cancelled) showToast("网络错误", "error");
+        if (!cancelled) feedback.error("网络错误");
       }
       if (!cancelled) setLoading(false);
     }
@@ -179,7 +178,6 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
       {viewMode !== "reclass" && (
         <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
       )}
-      <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
       {adjustModal}
     </div>
   );

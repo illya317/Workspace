@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandButton, DataTable, PanelCard, TextField, type DataTableColumn } from "@workspace/core/ui";
+import { CommandButton, DataTable, InputControl, PanelCard, type DataTableColumn } from "@workspace/core/ui";
 import type { RvLine } from "@workspace/finance/types";
 const FMT = (n: number) => n.toLocaleString("en-US", {
   minimumFractionDigits: 2,
@@ -85,10 +85,10 @@ export default function ReviewTable({
       const state = getLineState(line);
       const isEditing = editingAmt === line.lineCode;
       if (isEditing) {
-        return <TextField autoFocus value={editAmt} onChange={setEditAmt} onBlur={() => commitAmt(line)} onKeyDown={event => {
+        return <InputControl spec={{ valueType: "number", editor: "input" }} autoFocus value={editAmt} onChange={(value) => setEditAmt(String(value ?? ""))} onBlur={() => commitAmt(line)} onKeyDown={event => {
           if (event.key === "Enter") commitAmt(line);
           if (event.key === "Escape") setEditingAmt(null);
-        }} textAlign="right" />;
+        }} />;
       }
       return <CommandButton onClick={() => {
         if (!isReadOnly) {
@@ -127,7 +127,7 @@ export default function ReviewTable({
       const state = getLineState(line);
       const isEditing = editingCmt === line.lineCode;
       if (isEditing) {
-        return <TextField autoFocus value={editCmt} onChange={setEditCmt} onBlur={() => commitCmt(line)} onKeyDown={event => {
+        return <InputControl spec={{ valueType: "string", editor: "input" }} autoFocus value={editCmt} onChange={(value) => setEditCmt(String(value ?? ""))} onBlur={() => commitCmt(line)} onKeyDown={event => {
           if (event.key === "Enter") commitCmt(line);
           if (event.key === "Escape") setEditingCmt(null);
         }} />;

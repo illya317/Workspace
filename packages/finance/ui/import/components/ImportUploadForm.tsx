@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandButton, FileField, SectionCard, SelectField } from "@workspace/core/ui";
+import { CommandButton, FormField, InputControl, SectionCard } from "@workspace/core/ui";
 import type { Company } from "./types";
 interface ImportUploadFormProps {
   companies: Company[];
@@ -30,31 +30,67 @@ export default function ImportUploadForm({
 }: ImportUploadFormProps) {
   return <SectionCard title="上传文件" className="mb-6" bodyClassName="p-6">
       <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <SelectField label="公司" value={companyCode} onChange={onCompanyChange} placeholder="请选择公司" options={companies.map(c => ({
-        value: c.code,
-        label: `${c.code} ${c.name}`
-      }))} />
-        <SelectField label="导入类型" value={importType} onChange={nextValue => onTypeChange(nextValue as "balance" | "journal" | "account")} options={[{
-        value: "balance",
-        label: "余额表"
-      }, {
-        value: "journal",
-        label: "序时账"
-      }, {
-        value: "account",
-        label: "科目表"
-      }]} />
-        <SelectField label="年度" value={year} onChange={onYearChange} options={[{
-        value: "2024",
-        label: "2024"
-      }, {
-        value: "2025",
-        label: "2025"
-      }, {
-        value: "2026",
-        label: "2026"
-      }]} />
-        <FileField label="Excel 文件" accept=".xls,.xlsx" onChange={onFileChange} className="sm:col-span-3" />
+        <FormField label="公司">
+          <InputControl
+            spec={{
+              valueType: "string",
+              editor: "select",
+              options: {
+                source: "static",
+                mode: "dropdown",
+                items: companies.map(c => ({ value: c.code, label: `${c.code} ${c.name}` })),
+              },
+            }}
+            value={companyCode}
+            onChange={(value) => onCompanyChange(String(value ?? ""))}
+            placeholder="请选择公司"
+          />
+        </FormField>
+        <FormField label="导入类型">
+          <InputControl
+            spec={{
+              valueType: "string",
+              editor: "select",
+              options: {
+                source: "static",
+                mode: "dropdown",
+                items: [
+                  { value: "balance", label: "余额表" },
+                  { value: "journal", label: "序时账" },
+                  { value: "account", label: "科目表" },
+                ],
+              },
+            }}
+            value={importType}
+            onChange={(value) => onTypeChange(value as "balance" | "journal" | "account")}
+          />
+        </FormField>
+        <FormField label="年度">
+          <InputControl
+            spec={{
+              valueType: "string",
+              editor: "select",
+              options: {
+                source: "static",
+                mode: "dropdown",
+                items: [
+                  { value: "2024", label: "2024" },
+                  { value: "2025", label: "2025" },
+                  { value: "2026", label: "2026" },
+                ],
+              },
+            }}
+            value={year}
+            onChange={(value) => onYearChange(String(value ?? ""))}
+          />
+        </FormField>
+        <FormField label="Excel 文件" className="sm:col-span-3">
+          <InputControl
+            spec={{ valueType: "file", editor: "upload" }}
+            accept=".xls,.xlsx"
+            onChange={(fileValue) => onFileChange(fileValue instanceof File ? fileValue : null)}
+          />
+        </FormField>
       </div>
 
       {importType === "balance" && <p className="mb-4 text-sm text-blue-700">

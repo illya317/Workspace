@@ -2,8 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
-import { useToast } from "@workspace/core/hooks";
-import { FieldValueFilter, Pagination, PanelCard, TabBar, Toast } from "@workspace/core/ui";
+import { FieldValueFilter, Pagination, PanelCard, TabBar, useFeedback } from "@workspace/core/ui";
 import AccountTable, { ACCOUNT_COLUMNS, type Account } from "../components/AccountTable";
 import ReclassConfigView from "../components/ReclassConfigView";
 import FinanceFilters from "../components/FinanceFilters";
@@ -30,7 +29,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
   const [visibleColumns, setVisibleColumns] = useState<string[]>(
     () => ACCOUNT_COLUMNS.filter((c) => c.required || c.defaultVisible).map((c) => c.key)
   );
-  const { toast, showToast, closeToast } = useToast();
+  const feedback = useFeedback();
 
   async function load() {
     setLoading(true);
@@ -52,7 +51,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
         setTotalPages(data.totalPages || 1);
       }
     } catch {
-      showToast("网络错误", "error");
+      feedback.error("网络错误");
     }
     setLoading(false);
   }
@@ -144,8 +143,6 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
           <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
         </>
       )}
-
-      <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </div>
   );
 }

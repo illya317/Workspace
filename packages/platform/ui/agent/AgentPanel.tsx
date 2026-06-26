@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { CommandButton, PanelCard, SelectorPanel, TextField } from "@workspace/core/ui";
+import { CommandButton, InputControl, PanelCard, SelectorPanel } from "@workspace/core/ui";
 import type { AgentMood, AgentMessage } from "./types";
 import type { SavedConversation } from "./useAgentSession";
 import AgentAvatar from "./AgentAvatar";
@@ -173,7 +173,7 @@ export default function AgentPanel({
 
           {/* Input */}
           <div className="flex items-center gap-2 border-t px-4 py-3">
-            <TextField ref={inputRef} value={input} onChange={setInput} onKeyDown={handleKeyDown} placeholder="输入消息..." disabled={loading} maxLength={2000} />
+            <InputControl inputRef={inputRef} spec={{ valueType: "string", editor: "input", state: loading ? "disabled" : "normal" }} value={input} onChange={(value) => setInput(String(value ?? ""))} onKeyDown={handleKeyDown} placeholder="输入消息..." maxLength={2000} />
             <CommandButton variant="primary" onClick={handleSend} disabled={loading || !input.trim()}>
               发送
             </CommandButton>

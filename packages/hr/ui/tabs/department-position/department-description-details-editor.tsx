@@ -1,6 +1,6 @@
 "use client";
 
-import { EmptyStateCard, FormField, PanelCard, TextareaField, TextField, Toolbar, useConfirmDelete } from "@workspace/core/ui";
+import { EmptyStateCard, FormField, InputControl, PanelCard, Toolbar, useFeedback } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { detailFieldRows, detailValueToText, isPrimitiveArray, parseDetailsObject, textToDetailValue } from "./description-details";
 import { StringListEditor } from "./detail-editor-primitives";
@@ -13,7 +13,7 @@ export function DepartmentDescriptionDetailsEditor({
   disabled?: boolean;
   onChange: (value: string) => void;
 }) {
-  const confirmDelete = useConfirmDelete();
+  const feedback = useFeedback();
   const details = parseDetailsObject(value);
   const dutyKey = "部门职责描述";
   const dutyRecordsForScroll = details && Array.isArray(details[dutyKey]) ? details[dutyKey] as Array<Record<string, unknown>> : [];
@@ -23,7 +23,7 @@ export function DepartmentDescriptionDetailsEditor({
   } = useScrollToAddedItem(dutyRecordsForScroll);
   if (!details) {
     return <FormField label="部门说明书 JSON 格式错误" error="请检查 JSON 内容后重新保存。" className="md:col-span-2">
-        <TextareaField value={value} disabled={disabled} rows={12} onChange={onChange} fontRole="mono" state="error" resize="vertical" />
+        <InputControl spec={{ valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" }} value={value} rows={12} onChange={(next) => onChange(String(next ?? ""))} />
       </FormField>;
   }
   const parsedDetails = details;
@@ -50,7 +50,7 @@ export function DepartmentDescriptionDetailsEditor({
       }]);
     }
     async function removeRecord(index: number) {
-      const confirmed = await confirmDelete({
+      const confirmed = await feedback.confirmDelete({
         message: `确定删除部门职责 ${index + 1} 吗？删除后需要保存才会生效。`
       });
       if (!confirmed) return;
@@ -70,9 +70,9 @@ export function DepartmentDescriptionDetailsEditor({
                   {!disabled && <Toolbar variant="inline" items={[{ kind: "icon-button", key: "delete-duty", icon: "delete", label: `删除部门职责 ${index + 1}`, onClick: () => void removeRecord(index), className: "!size-6 !rounded-full", iconClassName: "h-3 w-3" }]} />}
                 </div>
                 <div className="grid grid-cols-1 gap-2">
-                  <TextField value={String(record.title || "")} disabled={disabled} placeholder="职责标题" onChange={next => updateRecord(index, {
-                title: next
-              })} visualVariant="info" />
+                  <InputControl spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }} value={String(record.title || "")} placeholder="职责标题" onChange={next => updateRecord(index, {
+                title: String(next ?? "")
+              })} />
                   <StringListEditor label="职责条目" value={items} disabled={disabled} placeholder="新增职责条目" onChange={nextItems => updateRecord(index, {
                 items: nextItems
               })} />
@@ -99,7 +99,7 @@ export function DepartmentDescriptionDetailsEditor({
                   </div>;
           }
           return <FormField key={key} label={key} className="md:col-span-2">
-                  <TextareaField value={detailValueToText(parsedDetails[key])} disabled={disabled} rows={detailFieldRows(parsedDetails[key])} onChange={next => updateDetailValue(key, textToDetailValue(parsedDetails[key], next))} fontRole="mono" state="info" resize="vertical" />
+                  <InputControl spec={{ valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" }} value={detailValueToText(parsedDetails[key])} rows={detailFieldRows(parsedDetails[key])} onChange={next => updateDetailValue(key, textToDetailValue(parsedDetails[key], String(next ?? "")))} />
                 </FormField>;
         })}
           </div>

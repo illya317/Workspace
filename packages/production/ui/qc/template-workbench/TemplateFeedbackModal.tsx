@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useMemo, useState } from "react";
-import { CheckboxField, DataTable, DetailModal, PanelCard, type DataTableColumn } from "@workspace/core/ui";
+import { DataTable, DetailModal, InputControl, PanelCard, type DataTableColumn } from "@workspace/core/ui";
 import type { QcTemplateFeedbackItem, QcTemplateFeedbackState } from "@workspace/production/server/qc";
 import { feedbackKey, selectionTitle, type FeedbackTarget } from "./types";
 
@@ -93,12 +93,7 @@ function feedbackColumns(
       required: true,
       render: (row) => (
         <div className="flex items-center justify-center gap-2 text-slate-700">
-          <CheckboxField
-            checked={row.resolved}
-            disabled={resolvingKey === row.id}
-            ariaLabel="已解决"
-            onChange={(checked) => setResolved(row, checked)}
-          />
+          <InputControl spec={{ valueType: "boolean", editor: "checkbox", state: resolvingKey === row.id ? "disabled" : "normal" }} value={row.resolved} onChange={(checked) => setResolved(row, Boolean(checked))} />
           <span>已解决</span>
         </div>
       ),

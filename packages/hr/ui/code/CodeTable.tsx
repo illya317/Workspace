@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
-import { CommandButton, DataTable, TextField, type DataTableColumn } from "@workspace/core/ui";
+import { CommandButton, DataTable, InputControl, type DataTableColumn } from "@workspace/core/ui";
 import PersonListModal from "./components/PersonListModal";
 import PositionDeptModal from "./components/PositionDeptModal";
 import { hrCanEdit, type HRUser as User } from "@workspace/hr/types";
@@ -182,13 +182,13 @@ export default function CodeTable({
     cellClassName: "px-2 py-1.5 text-xs",
     render: row => {
       if (row.kind === "add") {
-        return <TextField value={newCode} onChange={setNewCode} onKeyDown={event => {
+        return <InputControl spec={{ valueType: "string", editor: "input" }} value={newCode} onChange={(value) => setNewCode(String(value ?? ""))} onKeyDown={event => {
           if (event.key === "Enter") handleAdd();
         }} placeholder="如001" />;
       }
       if (row.kind !== "code") return null;
       if (editRow === row.item.code) {
-        return <TextField value={editCodeValue} onChange={setEditCodeValue} />;
+        return <InputControl spec={{ valueType: "string", editor: "input" }} value={editCodeValue} onChange={(value) => setEditCodeValue(String(value ?? ""))} />;
       }
       return <span className={onSelect ? "cursor-pointer hover:text-emerald-600" : ""} onClick={() => onSelect?.(row.item.code)}>
             {editRow === row.item.code ? editCodeValue : row.item.code}
@@ -206,7 +206,7 @@ export default function CodeTable({
       if (row.kind === "summary") return <span className="font-medium text-slate-700">{row.label}</span>;
       if (row.kind === "add") {
         return <div className="flex items-center gap-1">
-              <TextField value={newName} onChange={setNewName} onKeyDown={event => {
+              <InputControl spec={{ valueType: "string", editor: "input" }} value={newName} onChange={(value) => setNewName(String(value ?? ""))} onKeyDown={event => {
             if (event.key === "Enter") handleAdd();
           }} placeholder="名称" />
               <CommandButton variant="primary" onClick={handleAdd} className="px-3 py-1 text-xs">
@@ -215,7 +215,7 @@ export default function CodeTable({
             </div>;
       }
       if (editRow === row.item.code) {
-        return <TextField value={editNameValue} onChange={setEditNameValue} />;
+        return <InputControl spec={{ valueType: "string", editor: "input" }} value={editNameValue} onChange={(value) => setEditNameValue(String(value ?? ""))} />;
       }
       return <span className="cursor-pointer hover:text-emerald-600" onClick={() => handleNameClick(row.item)}>
             {row.item.name || "-"}

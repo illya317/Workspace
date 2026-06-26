@@ -1,8 +1,7 @@
 "use client";
 
-import { CommandButton, EmptyStateCard, FormField, PanelCard, TagListInput, TextField, useConfirmDelete } from "@workspace/core/ui";
+import { CommandButton, EmptyStateCard, FormField, InputControl, PanelCard, TagListInput, useFeedback } from "@workspace/core/ui";
 import { normalizeHrMajorItems, type HRMajorItem } from "@workspace/hr/constants/field-options";
-import { OptionPicker } from "@workspace/core/ui";
 import MajorPicker from "../../components/MajorPicker";
 import { ENVIRONMENT_FACTOR_OPTIONS, WORK_AREA_OPTIONS, pickerOptions, primitiveListItems } from "./description-details";
 import { OptionTagListEditor } from "./detail-editor-primitives";
@@ -34,7 +33,7 @@ export function WorkEnvironmentEditor({
   disabled?: boolean;
   onChange: (items: WorkEnvironmentItem[]) => void;
 }) {
-  const confirmDelete = useConfirmDelete();
+  const feedback = useFeedback();
   const items = normalizeWorkEnvironments(value);
   const usedAreas = new Set(items.map(item => item.area));
   const availableAreas = WORK_AREA_OPTIONS.filter(area => !usedAreas.has(area));
@@ -52,7 +51,7 @@ export function WorkEnvironmentEditor({
     }]);
   }
   async function removeArea(index: number) {
-    const confirmed = await confirmDelete({
+    const confirmed = await feedback.confirmDelete({
       message: `确定删除工作区域「${items[index]?.area || "未设置"}」吗？删除后需要保存才会生效。`
     });
     if (!confirmed) return;
@@ -66,8 +65,8 @@ export function WorkEnvironmentEditor({
         return <PanelCard key={`${item.area}-${index}`} bodyClassName="p-3">
               <div className="mb-3 flex items-start gap-3">
                 <div className="min-w-48 flex-1">
-                  <OptionPicker value={item.area} options={pickerOptions(areaOptions)} disabled={disabled} placeholder="选择工作区域" searchPlaceholder="搜索工作区域" onChange={next => updateItem(index, {
-                area: next || ""
+                  <InputControl spec={{ valueType: "string", editor: "select", state: disabled ? "disabled" : "normal", options: { source: "static", items: pickerOptions(areaOptions), searchPlaceholder: "搜索工作区域" } }} value={item.area} placeholder="选择工作区域" onChange={next => updateItem(index, {
+                area: String(next ?? "")
               })} />
                 </div>
                 {!disabled && <CommandButton aria-label={`删除工作区域 ${item.area}`} onClick={() => void removeArea(index)} variant="danger" size="sm" className="grid size-9 place-items-center rounded-full border-0 bg-transparent p-0 text-slate-400 shadow-none hover:bg-red-50 hover:text-red-500">
@@ -81,7 +80,7 @@ export function WorkEnvironmentEditor({
       })}
         {items.length === 0 && <EmptyStateCard compact>未设置</EmptyStateCard>}
         {!disabled && <div className="max-w-sm">
-            <OptionPicker value="" options={pickerOptions(availableAreas)} disabled={availableAreas.length === 0} placeholder="新增工作区域" searchPlaceholder="搜索工作区域" onChange={addArea} />
+            <InputControl spec={{ valueType: "string", editor: "select", state: availableAreas.length === 0 ? "disabled" : "normal", options: { source: "static", items: pickerOptions(availableAreas), searchPlaceholder: "搜索工作区域" } }} value="" placeholder="新增工作区域" onChange={(next) => addArea(next == null ? null : String(next))} />
           </div>}
       </PanelCard>
     </div>;
@@ -163,7 +162,7 @@ export function ExperienceRequirementsEditor({
   disabled?: boolean;
   onChange: (items: ExperienceRequirementItem[]) => void;
 }) {
-  const confirmDelete = useConfirmDelete();
+  const feedback = useFeedback();
   const items = normalizeExperienceRequirements(value);
   function updateItem(index: number, patch: Partial<ExperienceRequirementItem>) {
     onChange(items.map((item, itemIndex) => itemIndex === index ? {
@@ -178,7 +177,7 @@ export function ExperienceRequirementsEditor({
     }]);
   }
   async function removeItem(index: number) {
-    const confirmed = await confirmDelete({
+    const confirmed = await feedback.confirmDelete({
       message: `确定删除「${items[index]?.requirement || label}」吗？删除后需要保存才会生效。`
     });
     if (!confirmed) return;
@@ -194,16 +193,16 @@ export function ExperienceRequirementsEditor({
       <PanelCard bodyClassName="space-y-2 p-3">
         {items.map((item, index) => <PanelCard key={index} bodyClassName="grid grid-cols-1 gap-2 p-3 md:grid-cols-[150px_minmax(0,1fr)_40px]">
             <FormField label="年限">
-              <div className="flex overflow-hidden rounded-md border border-sky-200 shadow-sm focus-within:border-sky-500 focus-within:ring-1 focus-within:ring-sky-500">
-                <TextField value={item.years} disabled={disabled} inputMode="numeric" placeholder="1" onChange={next => updateItem(index, {
-              years: positiveIntegerText(next)
-            })} unstyled />
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] overflow-hidden">
+                <InputControl spec={{ valueType: "number", editor: "input", state: disabled ? "disabled" : "normal" }} value={item.years} inputMode="numeric" placeholder="1" onChange={next => updateItem(index, {
+              years: positiveIntegerText(String(next ?? ""))
+            })} />
                 <span className="whitespace-nowrap border-l border-slate-200 bg-slate-50 px-2.5 py-2 text-sm text-slate-500">年以上</span>
               </div>
             </FormField>
             <FormField label="要求内容">
-              <TextField value={item.requirement} disabled={disabled} placeholder="经验要求" onChange={next => updateItem(index, {
-            requirement: next
+              <InputControl spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }} value={item.requirement} placeholder="经验要求" onChange={next => updateItem(index, {
+            requirement: String(next ?? "")
           })} />
             </FormField>
             {!disabled && <CommandButton aria-label={`删除${label} ${index + 1}`} onClick={() => void removeItem(index)} variant="danger" size="sm" className="mt-5 grid size-9 place-items-center rounded-full border-0 bg-transparent p-0 text-slate-400 shadow-none hover:bg-red-50 hover:text-red-500">

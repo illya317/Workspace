@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { CommandButton, ConfirmModal, DetailModal, Toast, Toolbar } from "@workspace/core/ui";
-import { useToast } from "@workspace/core/hooks";
+import { CommandButton, DetailModal, Toolbar, useFeedback } from "@workspace/core/ui";
 import { useDocumentDetail, updateDocument, deleteDocument } from "../hooks/useLibraryDocuments";
 import LibraryEditForm from "./LibraryEditForm";
 import type { LibraryDocumentItem } from "@workspace/library/types";
@@ -71,13 +70,8 @@ export default function LibraryDetailModal({
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [form, setForm] = useState<Partial<LibraryDocumentItem>>({});
-  const {
-    toast,
-    showToast,
-    closeToast
-  } = useToast();
+  const feedback = useFeedback();
   const canEdit = canWrite || canAdmin;
   useEffect(() => {
     if (doc) setForm({});
@@ -96,11 +90,11 @@ export default function LibraryDetailModal({
       if (form.status !== undefined) payload.status = form.status;
       const updated = await updateDocument(doc.id, payload);
       setDoc(updated);
-      showToast("保存成功", "success");
+      feedback.success("保存成功");
       setEditing(false);
       onUpdated();
     } catch (e) {
-      showToast(e instanceof Error ? e.message : "保存失败", "error");
+      feedback.error(e instanceof Error ? e.message : "保存失败");
     } finally {
       setSaving(false);
     }
@@ -111,15 +105,19 @@ export default function LibraryDetailModal({
   };
   const handleDelete = async () => {
     if (!doc) return;
+    const ok = await feedback.confirmDelete({
+      message: `确定要删除 "${doc.fileName || "此文件"}" 吗？删除后将归档，不会永久丢失。`,
+      confirmLabel: deleting ? "删除中..." : "确认删除",
+    });
+    if (!ok) return;
     setDeleting(true);
     try {
       await deleteDocument(doc.id);
-      showToast("已删除", "success");
-      setShowDeleteConfirm(false);
+      feedback.success("已删除");
       onUpdated();
       onClose();
     } catch (e) {
-      showToast(e instanceof Error ? e.message : "删除失败", "error");
+      feedback.error(e instanceof Error ? e.message : "删除失败");
     } finally {
       setDeleting(false);
     }
@@ -129,7 +127,6 @@ export default function LibraryDetailModal({
       <div className="text-sm text-gray-800">{value}</div>
     </div>;
   return <>
-      <Toast show={!!toast} message={toast?.message || ""} type={toast?.type} onClose={closeToast} />
       <DetailModal open={true} title={doc?.title || doc?.fileName || "资料详情"} onClose={onClose}>
         <div className="max-w-lg mx-auto">
           {canEdit && (
@@ -174,7 +171,7 @@ export default function LibraryDetailModal({
                       </a>
                     </div>}
                   {canDelete && <div className="pt-4">
-                      <CommandButton onClick={() => setShowDeleteConfirm(true)} variant="danger">
+                      <CommandButton onClick={() => void handleDelete()} variant="danger" disabled={deleting}>
                         删除
                       </CommandButton>
                     </div>}
@@ -182,7 +179,5 @@ export default function LibraryDetailModal({
             </div>}
         </div>
       </DetailModal>
-
-      <ConfirmModal open={showDeleteConfirm} title="确认删除" message={`确定要删除 "${doc?.fileName || "此文件"}" 吗？删除后将归档，不会永久丢失。`} onConfirm={handleDelete} onCancel={() => setShowDeleteConfirm(false)} confirmLabel={deleting ? "删除中..." : "确认删除"} />
     </>;
 }

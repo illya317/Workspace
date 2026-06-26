@@ -2,13 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  CalendarDateInput,
-  FkFieldInput,
   FormField,
-  OptionPicker,
-  RatingControl,
-  TextareaField,
-  TextField,
+  InputControl,
   type PickerOption,
 } from "@workspace/core/ui";
 import {
@@ -129,30 +124,27 @@ export function WorkTaskForm({
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <FormField label="节点内容" required>
-        <TextField
+        <InputControl
+          spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }}
           value={draft.content}
-          disabled={disabled}
           placeholder="输入目标、结果或执行任务"
-          onChange={(value) => patch({ content: value })}
+          onChange={(value) => patch({ content: String(value ?? "") })}
         />
       </FormField>
       <FormField label="节点类型">
-        <OptionPicker
+        <InputControl
+          spec={{ valueType: "string", editor: "select", options: { source: "static", items: WORK_ITEM_TYPE_OPTIONS }, state: disabled ? "disabled" : "normal" }}
           value={draft.itemType}
-          options={WORK_ITEM_TYPE_OPTIONS}
-          disabled={disabled}
-          onChange={setItemType}
+          onChange={(value) => setItemType(String(value || ""))}
         />
       </FormField>
       <FormField label="计划周期">
-        <OptionPicker
+        <InputControl
+          spec={{ valueType: "string", editor: "select", options: { source: "static", items: WORK_PERIOD_TYPE_OPTIONS, unsetLabel: "未设置" }, state: disabled ? "disabled" : "normal" }}
           value={draft.periodType}
-          options={WORK_PERIOD_TYPE_OPTIONS}
-          disabled={disabled}
           placeholder="长期"
-          unsetLabel="未设置"
           onChange={(value) => {
-            const periodType = normalizePeriodType(value);
+            const periodType = normalizePeriodType(String(value || ""));
             patch({
               periodType,
               periodStart: periodType ? draft.periodStart : null,
@@ -164,45 +156,42 @@ export function WorkTaskForm({
       {draft.periodType && (
         <>
           <FormField label="周期开始">
-            <CalendarDateInput value={draft.periodStart} disabled={disabled} popoverMode="fixed" onChange={(value) => patch({ periodStart: value })} />
+            <InputControl spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }} value={draft.periodStart} onChange={(value) => patch({ periodStart: String(value || "") })} placeholder="选择日期" />
           </FormField>
           <FormField label="周期结束">
-            <CalendarDateInput value={draft.periodEnd} disabled={disabled} popoverMode="fixed" onChange={(value) => patch({ periodEnd: value })} />
+            <InputControl spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }} value={draft.periodEnd} onChange={(value) => patch({ periodEnd: String(value || "") })} placeholder="选择日期" />
           </FormField>
         </>
       )}
       {isTask && (
         <FormField label="状态">
-          <OptionPicker value={draft.status} options={WORK_STATUS_OPTIONS} disabled={disabled} onChange={(value) => patch({ status: normalizeStatus(value) })} />
+          <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", items: WORK_STATUS_OPTIONS }, state: disabled ? "disabled" : "normal" }} value={draft.status} onChange={(value) => patch({ status: normalizeStatus(String(value || "")) })} />
         </FormField>
       )}
       {targetType !== "personal" && (
         <FormField label="负责人">
-          <FkFieldInput
-            fkKey="work.tasks.owner.employee"
-            endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
+          <InputControl
+            spec={{ valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.tasks.owner.employee", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: disabled ? "disabled" : "normal" }}
             value={draft.ownerEmployeeId ? String(draft.ownerEmployeeId) : ""}
             displayValue={draft.ownerEmployeeName}
-            disabled={disabled}
             placeholder="搜索员工"
             onChange={(value, option) => patch({
-              ownerEmployeeId: option?.id ?? (value ? draft.ownerEmployeeId : null),
-              ownerEmployeeName: option?.name ?? (value ? value : ""),
+              ownerEmployeeId: typeof option === "object" && option && "id" in option ? Number(option.id) : (value ? draft.ownerEmployeeId : null),
+              ownerEmployeeName: typeof option === "object" && option && "name" in option ? String(option.name) : (value ? String(value) : ""),
             })}
           />
         </FormField>
       )}
       <FormField label="上级节点">
-        <OptionPicker
+        <InputControl
+          spec={{ valueType: "string", editor: "select", options: { source: "static", items: parentOptions, visibleCount: 5 }, state: disabled || parentOptions.length === 0 ? "disabled" : "normal" }}
           value={draft.parentWorkItemId ? String(draft.parentWorkItemId) : ""}
-          options={parentOptions}
-          disabled={disabled || parentOptions.length === 0}
           placeholder="根节点"
-          visibleCount={5}
           onChange={(value) => {
-            const option = parentOptions.find((item) => item.value === value);
+            const next = String(value || "");
+            const option = parentOptions.find((item) => item.value === next);
             patch({
-              parentWorkItemId: value ? Number(value) : null,
+              parentWorkItemId: next ? Number(next) : null,
               parentWorkItemContent: option?.label || "",
             });
           }}
@@ -220,36 +209,34 @@ export function WorkTaskForm({
             <NumberTextField value={draft.krTargetValue} disabled={disabled} onChange={(value) => patch({ krTargetValue: value })} />
           </FormField>
           <FormField label="单位">
-            <TextField value={draft.krUnit} disabled={disabled} placeholder="万元、项、%" onChange={(value) => patch({ krUnit: value })} />
+            <InputControl spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }} value={draft.krUnit} placeholder="万元、项、%" onChange={(value) => patch({ krUnit: String(value ?? "") })} />
           </FormField>
         </>
       )}
       {isTask && (
         <>
           <FormField label="开始时间">
-            <CalendarDateInput value={draft.startDate} disabled={disabled} popoverMode="fixed" onChange={(value) => patch({ startDate: value })} />
+            <InputControl spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }} value={draft.startDate} onChange={(value) => patch({ startDate: String(value || "") })} placeholder="选择日期" />
           </FormField>
           <FormField label="截止时间">
-            <CalendarDateInput value={draft.dueDate} disabled={disabled} popoverMode="fixed" onChange={(value) => patch({ dueDate: value })} />
+            <InputControl spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }} value={draft.dueDate} onChange={(value) => patch({ dueDate: String(value || "") })} placeholder="选择日期" />
           </FormField>
         </>
       )}
       <FormField label="来源类型">
-        <OptionPicker value={draft.sourceType} options={sourceTypeOptions} disabled={disabled} onChange={setSourceType} />
+        <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", items: sourceTypeOptions }, state: disabled ? "disabled" : "normal" }} value={draft.sourceType} onChange={(value) => setSourceType(String(value || ""))} />
       </FormField>
       {isProjectSource && (
         <>
           <FormField label="关联项目">
-            <FkFieldInput
-              fkKey="work.tasks.linked.project"
-              endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
+            <InputControl
+              spec={{ valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.tasks.linked.project", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: disabled ? "disabled" : "normal" }}
               value={draft.linkedProjectId ? String(draft.linkedProjectId) : ""}
               displayValue={draft.linkedProjectName}
-              disabled={disabled}
               placeholder="搜索项目"
               onChange={(value, option) => patch({
-                linkedProjectId: option?.id ?? (value ? draft.linkedProjectId : null),
-                linkedProjectName: option?.name ?? (value ? value : ""),
+                linkedProjectId: typeof option === "object" && option && "id" in option ? Number(option.id) : (value ? draft.linkedProjectId : null),
+                linkedProjectName: typeof option === "object" && option && "name" in option ? String(option.name) : (value ? String(value) : ""),
                 sourceKind: option ? draft.sourceKind || "project" : null,
                 linkedProjectPhaseId: null,
                 linkedProjectPhaseName: "",
@@ -259,25 +246,23 @@ export function WorkTaskForm({
             />
           </FormField>
           <FormField label="项目来源层级">
-            <OptionPicker
+            <InputControl
+              spec={{ valueType: "string", editor: "select", options: { source: "static", items: WORK_PROJECT_SOURCE_KIND_OPTIONS }, state: disabled || !draft.linkedProjectId ? "disabled" : "normal" }}
               value={draft.sourceKind}
-              options={WORK_PROJECT_SOURCE_KIND_OPTIONS}
-              disabled={disabled || !draft.linkedProjectId}
-              onChange={setSourceKind}
+              onChange={(value) => setSourceKind(String(value || ""))}
             />
           </FormField>
           {draft.sourceKind === "project_phase" && (
             <FormField label="关联项目阶段">
-              <OptionPicker
+              <InputControl
+                spec={{ valueType: "string", editor: "select", options: { source: "static", items: phaseOptions, visibleCount: 5 }, state: disabled || !draft.linkedProjectId ? "disabled" : "normal" }}
                 value={draft.linkedProjectPhaseId ? String(draft.linkedProjectPhaseId) : ""}
-                options={phaseOptions}
-                disabled={disabled || !draft.linkedProjectId}
                 placeholder={draft.linkedProjectId ? "选择阶段" : "先选择项目"}
-                visibleCount={5}
                 onChange={(value) => {
-                  const option = phaseOptions.find((item) => item.value === value);
+                  const next = String(value || "");
+                  const option = phaseOptions.find((item) => item.value === next);
                   patch({
-                    linkedProjectPhaseId: value ? Number(value) : null,
+                    linkedProjectPhaseId: next ? Number(next) : null,
                     linkedProjectPhaseName: option?.label || "",
                   });
                 }}
@@ -286,16 +271,15 @@ export function WorkTaskForm({
           )}
           {draft.sourceKind === "project_task" && (
             <FormField label="关联项目任务">
-              <OptionPicker
+              <InputControl
+                spec={{ valueType: "string", editor: "select", options: { source: "static", items: taskOptions, visibleCount: 5 }, state: disabled || !draft.linkedProjectId ? "disabled" : "normal" }}
                 value={draft.linkedProjectTaskId ? String(draft.linkedProjectTaskId) : ""}
-                options={taskOptions}
-                disabled={disabled || !draft.linkedProjectId}
                 placeholder={draft.linkedProjectId ? "选择任务" : "先选择项目"}
-                visibleCount={5}
                 onChange={(value) => {
-                  const option = taskOptions.find((item) => item.value === value);
+                  const next = String(value || "");
+                  const option = taskOptions.find((item) => item.value === next);
                   patch({
-                    linkedProjectTaskId: value ? Number(value) : null,
+                    linkedProjectTaskId: next ? Number(next) : null,
                     linkedProjectTaskName: option?.label || "",
                   });
                 }}
@@ -305,13 +289,13 @@ export function WorkTaskForm({
         </>
       )}
       <FormField label="重要度">
-        <RatingControl value={draft.importance} readOnly={disabled} label="重要度" showLabel={false} onChange={(value) => patch({ importance: value })} />
+        <InputControl spec={{ valueType: "number", editor: "rating", state: disabled ? "disabled" : "normal" }} value={draft.importance} ratingLabel="重要度" showRatingLabel={false} onChange={(value) => patch({ importance: Number(value) })} />
       </FormField>
       <FormField label="紧急度">
-        <RatingControl value={draft.urgency} readOnly={disabled} label="紧急度" showLabel={false} onChange={(value) => patch({ urgency: value })} />
+        <InputControl spec={{ valueType: "number", editor: "rating", state: disabled ? "disabled" : "normal" }} value={draft.urgency} ratingLabel="紧急度" showRatingLabel={false} onChange={(value) => patch({ urgency: Number(value) })} />
       </FormField>
       <FormField label="描述" className="lg:col-span-2">
-        <TextareaField value={draft.description} disabled={disabled} rows={4} placeholder="描述目标、结果口径、交付物或拆解口径" onChange={(value) => patch({ description: value })} />
+        <InputControl spec={{ valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" }} value={draft.description} placeholder="描述目标、结果口径、交付物或拆解口径" onChange={(value) => patch({ description: String(value ?? "") })} />
       </FormField>
     </div>
   );
@@ -319,17 +303,16 @@ export function WorkTaskForm({
 
 function NumberTextField({ value, disabled, onChange }: { value: number | null; disabled: boolean; onChange: (value: number | null) => void }) {
   return (
-    <TextField
-      type="number"
-      step="any"
+    <InputControl
+      spec={{ valueType: "number", editor: "number", state: disabled ? "disabled" : "normal" }}
       value={value === null ? "" : String(value)}
-      disabled={disabled}
       onChange={(next) => {
-        if (!next.trim()) {
+        const text = String(next ?? "");
+        if (!text.trim()) {
           onChange(null);
           return;
         }
-        const number = Number(next);
+        const number = Number(text);
         onChange(Number.isFinite(number) ? number : null);
       }}
     />

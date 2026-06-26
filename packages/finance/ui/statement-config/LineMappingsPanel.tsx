@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { CommandButton, DataTable, SearchInput, SelectField, Badge, type DataTableColumn } from "@workspace/core/ui";
+import { Badge, CommandButton, DataTable, InputControl, type DataTableColumn } from "@workspace/core/ui";
 import type { AcctInfo, InheritedAcct, LineCfg, Mapping, StatementOperator } from "./types";
 import { formatStatementAmount, isDefaultMapping } from "./types";
 interface LineMappingsPanelProps {
@@ -178,12 +178,9 @@ export default function LineMappingsPanel({
           <DataTable rows={inheritedAccounts} columns={inheritedColumns} visibleColumns={inheritedColumns.map(column => column.key)} rowKey={account => account.accountCode} density="compact" tableClassName="text-base" />
         </div>}
       {isAdding ? <div className="flex flex-col gap-2">
-          <SearchInput placeholder="搜索科目编码或名称..." value={accountSearch} onChange={onAccountSearchChange} className="w-64" />
+          <InputControl spec={{ valueType: "string", editor: "input" }} placeholder="搜索科目编码或名称..." value={accountSearch} onChange={(value) => onAccountSearchChange(String(value ?? ""))} className="w-64" />
           <div className="flex items-center gap-2">
-            <SelectField value={newAccount} onChange={onNewAccountChange} placeholder={`选择科目 (${filteredAccounts.length})`} options={filteredAccounts.map(account => ({
-          value: account.code,
-          label: `${account.code} ${account.name}`
-        }))} />
+            <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: filteredAccounts.map(account => ({ value: account.code, label: `${account.code} ${account.name}` })) } }} value={newAccount} onChange={(value) => onNewAccountChange(String(value ?? ""))} placeholder={`选择科目 (${filteredAccounts.length})`} />
             <CommandButton variant="primary" onClick={() => onSaveMapping(newAccount, line.lineCode, "add")} disabled={!newAccount}>
               添加（加）
             </CommandButton>

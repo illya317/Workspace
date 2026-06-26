@@ -2,7 +2,7 @@
 
 import { useDeferredValue, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { DatabasePageFrame } from "@workspace/core/ui";
+import { DatabasePageFrame, useFeedback } from "@workspace/core/ui";
 import { type TabDef } from "@workspace/core/ui";
 import { getPageViewTabsForUser } from "@workspace/platform/view-registry";
 
@@ -12,8 +12,6 @@ import {
   employeeConfig,
   employmentConfig,
 } from "@workspace/hr/constants/tab-configs";
-import { useUnsavedChangesPrompt } from "./hooks/useUnsavedChangesPrompt";
-
 import type { SessionUser } from "@workspace/platform/types";
 import type { HRUser } from "@workspace/hr/types";
 import type { RosterGeneratedVariant } from "@workspace/hr/types";
@@ -58,7 +56,7 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
   const [focusDepartmentId, setFocusDepartmentId] = useState<number | null>(null);
   const [focusPositionId, setFocusPositionId] = useState<number | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const confirmNavigation = useUnsavedChangesPrompt(hasUnsavedChanges);
+  const feedback = useFeedback({ unsavedChanges: hasUnsavedChanges });
   const renderedView = useDeferredValue(activeView);
   const renderedChild = useDeferredValue(activeChild);
   const hrUser = toHRUser(user);
@@ -70,7 +68,7 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
 
   function canLeaveCurrentView() {
     if (!hasUnsavedChanges) return true;
-    return confirmNavigation();
+    return feedback.confirmLeave();
   }
 
   function clearFocusTargets() {

@@ -31,11 +31,16 @@ const ALLOW_PATH_PREFIXES = [
 const ALLOW_PATH_INCLUDES = [
   "/showcase/",
   "/template-workbench/",
+  "packages/production/ui/qc/qc-layout-paper/",
+  "packages/production/ui/qc/qc-layout-table/",
 ];
 
 const ALLOW_FILES = new Set([
   "packages/platform/ui/LoginClient.tsx",
   "packages/platform/ui/agent/AgentPanel.tsx",
+  "packages/production/ui/qc/QcMethodFieldTable.tsx",
+  "packages/production/ui/qc/QcPaperDateInput.tsx",
+  "packages/production/ui/qc/QcPaperInputs.tsx",
 ]);
 
 type Finding = {
@@ -135,7 +140,8 @@ export function checkInputControlAdoption() {
   }
 
   console.warn(`⚠ InputControl adoption warning-only: ${report.total} direct business input usage(s) detected.`);
-  console.warn("  Business form fields should declare InputFieldSpec and render through InputControl.");
+  console.warn("  Electronic business form fields should declare InputFieldSpec and render through InputControl.");
+  console.warn("  QC PaperInput/A4 layout inputs are an allowed separate input system.");
   console.warn(`  Full report: ${toRelative(REPORT_PATH)}`);
   console.warn("  Top components:");
   for (const [component, count] of report.byComponent.slice(0, 10)) {

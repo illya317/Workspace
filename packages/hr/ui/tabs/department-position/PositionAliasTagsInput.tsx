@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 import {
+  InputControl,
   TagListInput,
-  TextField,
 } from "@workspace/core/ui";
 import { splitAliasText } from "./utils";
 
@@ -42,9 +42,10 @@ export default function PositionAliasTagsInput({
       shellClassName="content-start"
     >
       {!disabled && (
-        <TextField
+        <InputControl
+          spec={{ valueType: "string", editor: "input" }}
           value={draft}
-          onChange={setDraft}
+          onChange={(value) => setDraft(String(value ?? ""))}
           onBlur={commitDraft}
           onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === "Tab" || event.key === "," || event.key === "，" || event.key === "、") {
@@ -56,8 +57,7 @@ export default function PositionAliasTagsInput({
             if (event.key === "Backspace" && !draft && tags.length > 0) removeTag(tags.length - 1);
           }}
           placeholder={tags.length === 0 ? "添加别名" : ""}
-          unstyled
-          visualVariant="inline"
+          density="compact"
         />
       )}
     </TagListInput>

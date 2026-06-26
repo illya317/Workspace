@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CreatePanel, FormField, PanelCard, SelectField, TextField } from "@workspace/core/ui";
+import { CreatePanel, FormField, InputControl, PanelCard } from "@workspace/core/ui";
 import { DepartmentCodeInput } from "./department-code-input";
 import { postJson } from "@workspace/platform/ui/api-client";
 import { DepartmentDescriptionsPanel } from "./department-descriptions-panel";
@@ -126,26 +126,37 @@ export function DepartmentCreatePanel({
             <DepartmentCodeInput value={code} level={level} disabled={!canEdit} onChange={setCode} />
           </FormField>
           <FormField label="部门名称" required>
-            <TextField value={name} disabled={!canEdit} onChange={updateDraftName} />
+            <InputControl spec={{ valueType: "string", editor: "input", state: !canEdit ? "disabled" : "normal" }} value={name} onChange={(value) => updateDraftName(String(value ?? ""))} />
           </FormField>
           <FormField label="部门层级">
-            <SelectField
+            <InputControl
+              spec={{
+                valueType: "number",
+                editor: "select",
+                state: !canEdit ? "disabled" : "normal",
+                options: {
+                  source: "static",
+                  mode: "dropdown",
+                  items: [
+                    { value: "1", label: "L1" },
+                    { value: "2", label: "L2" },
+                    { value: "3", label: "L3" },
+                  ],
+                },
+              }}
               value={String(level)}
-              options={[
-                { value: "1", label: "L1" },
-                { value: "2", label: "L2" },
-                { value: "3", label: "L3" },
-              ]}
-              disabled={!canEdit}
               onChange={(next) => updateLevelAndParent(Number(next) as 1 | 2 | 3, level === 1 ? null : parentId)}
             />
           </FormField>
           <FormField label="上级部门">
-            <SelectField
+            <InputControl
+              spec={{
+                valueType: "reference",
+                editor: "select",
+                state: !canEdit || level === 1 ? "disabled" : "normal",
+                options: { source: "static", mode: "dropdown", items: parentOptions },
+              }}
               value={parentId == null ? "" : String(parentId)}
-              options={parentOptions}
-              searchable
-              disabled={!canEdit || level === 1}
               placeholder="无"
               onChange={(next) => {
                 const nextParentId = next === "" ? null : Number(next);
@@ -155,10 +166,10 @@ export function DepartmentCreatePanel({
             />
           </FormField>
           <FormField label="别名">
-            <TextField value={alias} disabled={!canEdit} onChange={setAlias} />
+            <InputControl spec={{ valueType: "string", editor: "input", state: !canEdit ? "disabled" : "normal" }} value={alias} onChange={(value) => setAlias(String(value ?? ""))} />
           </FormField>
           <FormField label="部门负责人">
-            <TextField value={managerPositionName} disabled={!canEdit} onChange={updateDraftManager} />
+            <InputControl spec={{ valueType: "string", editor: "input", state: !canEdit ? "disabled" : "normal" }} value={managerPositionName} onChange={(value) => updateDraftManager(String(value ?? ""))} />
           </FormField>
         </div>
       </PanelCard>

@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CommandButton, FileField, FormField, PageContent, PanelCard, TextField } from "@workspace/core/ui";
+import { CommandButton, FormField, InputControl, PageContent, PanelCard } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import ApiAccessClient, { type ApiAccessModuleRow } from "./ApiAccessClient";
 type Message = {
@@ -194,15 +194,18 @@ export default function AccountSettingsPanel({
       <div className="mt-6 grid gap-5 lg:grid-cols-3">
         <PanelCard title="修改账号" className="h-full" bodyClassName="space-y-3 p-4">
           <FormField label="姓名">
-            <TextField value={user.employeeName || user.nickname || ""} readOnly visualVariant="muted" />
+            <InputControl
+              spec={{ valueType: "string", editor: "input", state: "readonly" }}
+              value={user.employeeName || user.nickname || ""}
+            />
           </FormField>
           <FormField label="昵称">
-            <TextField value={nickname} onChange={setNickname} onKeyDown={event => {
+            <InputControl spec={{ valueType: "string", editor: "input" }} value={nickname} onChange={(value) => setNickname(String(value ?? ""))} onKeyDown={event => {
             if (event.key === "Enter") void saveProfile();
           }} />
           </FormField>
           <FormField label="用户名">
-            <TextField value={username} onChange={setUsername} onKeyDown={event => {
+            <InputControl spec={{ valueType: "string", editor: "input" }} value={username} onChange={(value) => setUsername(String(value ?? ""))} onKeyDown={event => {
             if (event.key === "Enter") void saveProfile();
           }} />
           </FormField>
@@ -211,13 +214,13 @@ export default function AccountSettingsPanel({
 
         <PanelCard title="修改密码" className="h-full" bodyClassName="space-y-3 p-4">
           <FormField label="旧密码">
-            <TextField type="password" value={oldPwd} onChange={setOldPwd} />
+            <InputControl spec={{ valueType: "string", editor: "input" }} type="password" value={oldPwd} onChange={(value) => setOldPwd(String(value ?? ""))} />
           </FormField>
           <FormField label="新密码">
-            <TextField type="password" value={newPwd} onChange={setNewPwd} minLength={4} />
+            <InputControl spec={{ valueType: "string", editor: "input" }} type="password" value={newPwd} onChange={(value) => setNewPwd(String(value ?? ""))} minLength={4} />
           </FormField>
           <FormField label="确认新密码">
-            <TextField type="password" value={confirmPwd} onChange={setConfirmPwd} minLength={4} onKeyDown={event => {
+            <InputControl spec={{ valueType: "string", editor: "input" }} type="password" value={confirmPwd} onChange={(value) => setConfirmPwd(String(value ?? ""))} minLength={4} onKeyDown={event => {
             if (event.key === "Enter") void savePassword();
           }} />
           </FormField>
@@ -235,7 +238,14 @@ export default function AccountSettingsPanel({
               {avatarPreviewUrl || avatar ? null : user.nickname?.slice(0, 1) || "?"}
             </span>
             <div className="grid w-full grid-cols-2 gap-2">
-              <FileField accept="image/png,image/jpeg,image/webp,image/gif" inputClassName="h-10 w-full" showFileName={false} onChange={selectAvatar} />
+              <InputControl
+                spec={{ valueType: "file", editor: "upload" }}
+                value={null}
+                className="h-10 w-full"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                showFileName={false}
+                onChange={(file) => selectAvatar(file instanceof File ? file : null)}
+              />
               <CommandButton variant="primary" disabled={!avatarFile || avatarSaving} onClick={() => void saveAvatar()}>
                 {avatarSaving ? "保存中..." : "保存头像"}
               </CommandButton>

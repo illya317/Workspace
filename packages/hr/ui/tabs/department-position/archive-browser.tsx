@@ -7,7 +7,6 @@ import {
   PanelCard,
   SelectorPanel,
   TabBar,
-  Toast,
   Toolbar,
   WorkspaceSplitPage,
 } from "@workspace/core/ui";
@@ -29,12 +28,10 @@ export function ArchivedDepartmentPositionPage({
   selection,
   sideOpen,
   drawerOpen,
-  toast,
   onArchivedTabChange,
   onSideOpenChange,
   onDrawerOpenChange,
   onSelect,
-  onToastClose,
   children,
 }: {
   archivedDepartments: Department[];
@@ -43,12 +40,10 @@ export function ArchivedDepartmentPositionPage({
   selection: Selection;
   sideOpen: boolean;
   drawerOpen: boolean;
-  toast: { message: string; type: "success" | "error" } | null;
   onArchivedTabChange: (tab: ArchivedEntityTab) => void;
   onSideOpenChange: (open: boolean) => void;
   onDrawerOpenChange: (open: boolean) => void;
   onSelect: (selection: Selection) => void;
-  onToastClose: () => void;
   children: ReactNode;
 }) {
   const archivedItems: ArchivedEntityItem[] = archivedTab === "departments"
@@ -139,13 +134,6 @@ export function ArchivedDepartmentPositionPage({
       >
         {children}
       </WorkspaceSplitPage>
-
-      <Toast
-        message={toast?.message || ""}
-        type={toast?.type}
-        show={!!toast}
-        onClose={onToastClose}
-      />
     </>
   );
 }

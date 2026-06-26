@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect } from "react";
 import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
-import { EmptyStateCard, PanelCard, Toast, Toolbar, type ToolbarItem } from "@workspace/core/ui";
+import { EmptyStateCard, PanelCard, Toolbar, type ToolbarItem } from "@workspace/core/ui";
 import { useCodeTab } from "./useCodeTab";
 import CodeTable from "./CodeTable";
 
@@ -85,8 +85,6 @@ export default function CodeTab({
   const {
     stats,
     loading,
-    toast,
-    closeToast,
     newCode,
     setNewCode,
     newName,
@@ -187,13 +185,6 @@ export default function CodeTab({
           />
         )}
       </PanelCard>
-
-      <Toast
-        message={toast?.message || ""}
-        type={toast?.type}
-        show={!!toast}
-        onClose={closeToast}
-      />
 
       <AuditLogModal
         open={showHistory}

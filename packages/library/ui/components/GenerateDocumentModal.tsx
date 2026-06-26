@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useCallback } from "react";
-import { DetailModal, EmptyStateCard, FormField, SelectField, TextareaField, TextField, Toolbar } from "@workspace/core/ui";
+import { DetailModal, EmptyStateCard, FormField, InputControl, Toolbar } from "@workspace/core/ui";
 
 interface Source {
   key: string;
@@ -95,46 +95,60 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
         ) : (
           <>
             <div className="mb-3">
-              <SelectField
-                label="生成类型"
+              <FormField label="生成类型">
+                <InputControl
+                  spec={{
+                    valueType: "string",
+                    editor: "select",
+                    options: {
+                      source: "static",
+                      mode: "dropdown",
+                      items: sources.map((source) => ({ value: source.key, label: source.name })),
+                    },
+                  }}
                 value={selectedKey}
-                onChange={handleSourceChange}
-                options={sources.map((source) => ({ value: source.key, label: source.name }))}
-
-
-              />
+                  onChange={(value) => handleSourceChange(String(value ?? ""))}
+                />
+              </FormField>
             </div>
 
             <FormField label="标题" className="mb-3">
-              <TextField
+              <InputControl
+                spec={{ valueType: "string", editor: "input" }}
                 value={title}
-                onChange={setTitle}
+                onChange={(value) => setTitle(String(value ?? ""))}
                 placeholder="文档标题"
               />
             </FormField>
 
             <FormField label="简介" className="mb-3">
-              <TextareaField
+              <InputControl
+                spec={{ valueType: "string", editor: "textarea" }}
                 value={summary}
-                onChange={setSummary}
+                onChange={(value) => setSummary(String(value ?? ""))}
                 rows={3}
                 placeholder="可选"
               />
             </FormField>
 
-            <div className="mb-4">
-              <SelectField
-                label="保密等级"
+            <FormField label="保密等级" className="mb-4">
+              <InputControl
+                spec={{
+                  valueType: "number",
+                  editor: "select",
+                  options: {
+                    source: "static",
+                    mode: "dropdown",
+                    items: Object.entries(LEVEL_LABELS).map(([level, label]) => ({
+                      value: level,
+                      label: `${label} (L${level})`,
+                    })),
+                  },
+                }}
                 value={String(confidentialityLevel)}
                 onChange={(value) => setConfidentialityLevel(Number(value))}
-                options={Object.entries(LEVEL_LABELS).map(([level, label]) => ({
-                  value: level,
-                  label: `${label} (L${level})`,
-                }))}
-
-
               />
-            </div>
+            </FormField>
 
             <Toolbar
               className="justify-end border-0 p-0 shadow-none"

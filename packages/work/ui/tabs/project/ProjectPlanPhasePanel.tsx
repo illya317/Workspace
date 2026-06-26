@@ -2,16 +2,14 @@
 
 import { useState } from "react";
 import {
-  CalendarDateInput,
   CreatePanel,
   DataTable,
   EmptyStateCard,
   FormField,
+  InputControl,
   PanelCard,
   TableScrollFrame,
-  TextField,
-  useConfirm,
-  useConfirmDelete,
+  useFeedback,
   type DataTableColumn,
   type DataTableRowEditActionConfig,
 } from "@workspace/core/ui";
@@ -40,8 +38,7 @@ export default function ProjectPlanPhasePanel({
   disabled?: boolean;
   onChanged: () => Promise<void>;
 }) {
-  const confirm = useConfirm();
-  const confirmDelete = useConfirmDelete();
+  const feedback = useFeedback();
   const [creating, setCreating] = useState(false);
   const [draft, setDraft] = useState<PhaseDraft>(EMPTY_DRAFT);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -57,7 +54,7 @@ export default function ProjectPlanPhasePanel({
       setCreating(false);
       await onChanged();
     } catch (err) {
-      await confirm({ title: "新建项目阶段失败", message: err instanceof Error ? err.message : "新建项目阶段失败", confirmLabel: "关闭", confirmDanger: true, showCancel: false });
+      await feedback.confirm({ title: "新建项目阶段失败", message: err instanceof Error ? err.message : "新建项目阶段失败", confirmLabel: "关闭", confirmDanger: true, showCancel: false });
     } finally {
       setBusy(false);
     }
@@ -77,21 +74,21 @@ export default function ProjectPlanPhasePanel({
       setEditDraft(EMPTY_DRAFT);
       await onChanged();
     } catch (err) {
-      await confirm({ title: "保存项目阶段失败", message: err instanceof Error ? err.message : "保存项目阶段失败", confirmLabel: "关闭", confirmDanger: true, showCancel: false });
+      await feedback.confirm({ title: "保存项目阶段失败", message: err instanceof Error ? err.message : "保存项目阶段失败", confirmLabel: "关闭", confirmDanger: true, showCancel: false });
     } finally {
       setBusy(false);
     }
   }
 
   async function handleDelete(phaseId: number) {
-    const confirmed = await confirmDelete({ message: "删除项目阶段后，已归属到该阶段的任务会直接显示在项目下。确定删除吗？" });
+    const confirmed = await feedback.confirmDelete({ message: "删除项目阶段后，已归属到该阶段的任务会直接显示在项目下。确定删除吗？" });
     if (!confirmed) return;
     setBusy(true);
     try {
       await deleteProjectPlanPhase(projectId, phaseId);
       await onChanged();
     } catch (err) {
-      await confirm({ title: "删除项目阶段失败", message: err instanceof Error ? err.message : "删除项目阶段失败", confirmLabel: "关闭", confirmDanger: true, showCancel: false });
+      await feedback.confirm({ title: "删除项目阶段失败", message: err instanceof Error ? err.message : "删除项目阶段失败", confirmLabel: "关闭", confirmDanger: true, showCancel: false });
     } finally {
       setBusy(false);
     }
@@ -261,26 +258,26 @@ function PhaseFields({
   return (
     <>
       <FormField label="阶段">
-        <TextField value={draft.name} disabled={disabled} onChange={(value) => onChange({ ...draft, name: value })} placeholder="例如：方案确认" />
+        <InputControl spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }} value={draft.name} onChange={(value) => onChange({ ...draft, name: String(value ?? "") })} placeholder="例如：方案确认" />
       </FormField>
       <FormField label="说明">
-        <TextField value={draft.note} disabled={disabled} onChange={(value) => onChange({ ...draft, note: value })} />
+        <InputControl spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }} value={draft.note} onChange={(value) => onChange({ ...draft, note: String(value ?? "") })} />
       </FormField>
       <div className="grid grid-cols-1 gap-3 lg:col-span-2 sm:grid-cols-2">
         <FormField label="开始日期">
-          <CalendarDateInput
+          <InputControl
+            spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }}
             value={draft.startDate || null}
-            disabled={disabled}
-            onChange={(value) => onChange({ ...draft, startDate: value || "" })}
-            popoverMode="fixed"
+            onChange={(value) => onChange({ ...draft, startDate: String(value || "") })}
+            placeholder="选择日期"
           />
         </FormField>
         <FormField label="结束日期">
-          <CalendarDateInput
+          <InputControl
+            spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }}
             value={draft.endDate || null}
-            disabled={disabled}
-            onChange={(value) => onChange({ ...draft, endDate: value || "" })}
-            popoverMode="fixed"
+            onChange={(value) => onChange({ ...draft, endDate: String(value || "") })}
+            placeholder="选择日期"
           />
         </FormField>
       </div>

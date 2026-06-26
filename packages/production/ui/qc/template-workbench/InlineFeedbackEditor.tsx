@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandButton, PanelCard, TextareaField } from "@workspace/core/ui";
+import { CommandButton, InputControl, PanelCard } from "@workspace/core/ui";
 import { selectionTitle, type WorkbenchSelection } from "./types";
 import type { InlineAnchor, InlineEntry } from "./inline-feedback-utils";
 export default function InlineFeedbackEditor({
@@ -58,7 +58,7 @@ export default function InlineFeedbackEditor({
             </div>)}
         </div> : null}
       <div className="mb-1 text-xs font-semibold text-slate-500">我的反馈</div>
-      <TextareaField value={note} onChange={onNoteChange} rows={5} placeholder="描述这个标题或字段的问题。" unstyled resize="vertical" disabled={loading || saving} />
+      <InputControl spec={{ valueType: "string", editor: "textarea", state: loading || saving ? "disabled" : "normal" }} value={note} onChange={(value) => onNoteChange(String(value ?? ""))} rows={5} placeholder="描述这个标题或字段的问题。" />
       {error ? <div className="mt-2 text-xs font-medium text-red-600">{error}</div> : null}
       <div className="mt-3 flex justify-end gap-2">
         <CommandButton onClick={onClose} disabled={saving} className="px-3 py-2 text-xs">

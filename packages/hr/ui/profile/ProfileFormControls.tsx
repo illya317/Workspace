@@ -2,14 +2,9 @@
 
 import type { ReactNode } from "react";
 import {
-  CalendarDateInput,
-  FieldInputShell,
-  FkFieldInput,
-  OptionPicker,
+  InputControl,
   ReadOnlyField,
   SectionCard,
-  TextField,
-  TextareaField,
 } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import EthnicityPicker from "../components/EthnicityPicker";
@@ -91,13 +86,21 @@ export function ProfileFieldInput({
   if (field.type === "boolean") {
     const labels = field.booleanLabels ?? { true: "是", false: "否", unset: "未设置" };
     return (
-      <OptionPicker
-        disabled={disabled}
+      <InputControl
+        spec={{
+          valueType: "boolean",
+          editor: "select",
+          state: disabled ? "disabled" : "normal",
+          options: {
+            source: "static",
+            items: [
+              { label: labels.true, value: "true" },
+              { label: labels.false, value: "false" },
+            ],
+            unsetLabel: labels.unset ?? "未设置",
+          },
+        }}
         value={value === true ? "true" : value === false ? "false" : null}
-        options={[
-          { label: labels.true, value: "true" },
-          { label: labels.false, value: "false" },
-        ]}
         placeholder={labels.unset ?? "未设置"}
         onChange={(next) => {
           onChange(field.key, next === null ? null : next === "true");
@@ -121,24 +124,26 @@ export function ProfileFieldInput({
       );
     }
     return (
-      <FkFieldInput
-        fkKey={fkKeyForEntity(field.entity, field.fkKey)}
-        endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
+      <InputControl
+        spec={{
+          valueType: "reference",
+          editor: "autocomplete",
+          state: disabled || reportToDisabled ? "disabled" : "normal",
+          options: {
+            source: "remote",
+            fkKey: fkKeyForEntity(field.entity, field.fkKey),
+            endpoint: HR_REFERENCE_OPTIONS_ENDPOINT,
+            returnField:
+              field.valueFrom === "name" ? "name" : field.valueFrom === "subtitle" ? "subtitle" : "id",
+            lifecycleScope: field.activeOnly ? "active" : undefined,
+            queryParams: isEdpReportTo ? { positionId: reportToPositionId } : undefined,
+          },
+        }}
         value={value == null ? "" : String(value)}
         displayValue={display}
-        disabled={disabled || reportToDisabled}
-        lifecycleScope={field.activeOnly ? "active" : undefined}
-        queryParams={isEdpReportTo ? { positionId: reportToPositionId } : undefined}
         placeholder={reportToDisabled ? "先选择岗位" : `搜索${field.label}`}
-
-        onChange={(_label, option) => {
-          const next =
-            field.valueFrom === "name"
-              ? option?.name
-              : field.valueFrom === "subtitle"
-                ? option?.subtitle
-                : option?.id;
-          onChange(field.key, next ?? null, option);
+        onChange={(next, option) => {
+          onChange(field.key, next ?? null, option as FkFieldOption | undefined);
         }}
       />
     );
@@ -146,8 +151,8 @@ export function ProfileFieldInput({
 
   if (field.type === "textarea") {
     return (
-      <TextareaField
-        disabled={disabled}
+      <InputControl
+        spec={{ valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" }}
         value={normalizeInputValue(value)}
         onChange={(next) => onChange(field.key, next || null)}
         rows={3}
@@ -178,10 +183,14 @@ export function ProfileFieldInput({
     }
 
     return (
-      <OptionPicker
-        disabled={disabled}
+      <InputControl
+        spec={{
+          valueType: "string",
+          editor: "select",
+          state: disabled ? "disabled" : "normal",
+          options: { source: "static", items: (field.options || []).map((option) => ({ label: option, value: option })) },
+        }}
         value={normalizeInputValue(value)}
-        options={(field.options || []).map((option) => ({ label: option, value: option }))}
         onChange={(next) => onChange(field.key, next)}
       />
     );
@@ -189,8 +198,8 @@ export function ProfileFieldInput({
 
   if (field.type === "date") {
     return (
-      <CalendarDateInput
-        disabled={disabled}
+      <InputControl
+        spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }}
         value={normalizeInputValue(value)}
         onChange={(next) => onChange(field.key, next)}
       />
@@ -199,9 +208,8 @@ export function ProfileFieldInput({
 
   if (field.type === "phone") {
     return (
-      <TextField
-        disabled={disabled}
-        type="tel"
+      <InputControl
+        spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }}
         value={formatPhoneNumber(value)}
         onChange={(next) => onChange(field.key, normalizePhoneValue(next))}
         inputMode="tel"
@@ -211,28 +219,25 @@ export function ProfileFieldInput({
 
   if (field.type === "percent") {
     return (
-      <FieldInputShell className="focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
-        <TextField
-          disabled={disabled}
-          type="number"
-          min={0}
-          max={100}
-          step="0.01"
-          value={toPercentDisplay(value)}
-          onChange={(next) => onChange(field.key, fromPercentDisplay(next))}
-          unstyled
-          visualVariant="inline"
-        />
-        <span className="grid w-10 place-items-center border-l border-slate-200 bg-slate-50 text-slate-500">%</span>
-      </FieldInputShell>
+      <InputControl
+        spec={{
+          valueType: "number",
+          editor: "number",
+          format: "percent",
+          state: disabled ? "disabled" : "normal",
+          validation: { min: 0, max: 100 },
+        }}
+        value={toPercentDisplay(value)}
+        onChange={(next) => onChange(field.key, fromPercentDisplay(next == null ? "" : String(next)))}
+        step="0.01"
+      />
     );
   }
 
   if (field.type === "chineseId") {
     return (
-      <TextField
-        disabled={disabled}
-        type="text"
+      <InputControl
+        spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }}
         value={normalizeChineseIdNumber(value) ?? ""}
         onChange={(next) => onChange(field.key, normalizeChineseIdNumber(next)?.slice(0, 18) ?? null)}
         inputMode="text"
@@ -242,9 +247,12 @@ export function ProfileFieldInput({
   }
 
   return (
-    <TextField
-      disabled={disabled}
-      type={field.type === "number" ? "number" : "text"}
+    <InputControl
+      spec={{
+        valueType: field.type === "number" ? "number" : "string",
+        editor: field.type === "number" ? "number" : "input",
+        state: disabled ? "disabled" : "normal",
+      }}
       value={normalizeInputValue(value)}
       onChange={(raw) => {
         onChange(field.key, field.type === "number" ? (raw ? Number(raw) : null) : raw || null);

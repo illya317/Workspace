@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useRef, useCallback, useMemo } from "react";
-import { SearchableOptionInput } from "@workspace/core/ui";
+import { InputControl } from "@workspace/core/ui";
 
 interface AccountOption { code: string; name: string; }
 
@@ -43,10 +43,14 @@ export default function AccountCodeInput({ companyCode, year, value, onChange, p
   }, [companyCode, year]);
 
   return (
-    <SearchableOptionInput
+    <InputControl
+      spec={{
+        valueType: "string",
+        editor: "autocomplete",
+        options: { source: "static", mode: "autocomplete", items: searchableOptions, visibleCount: 5 },
+      }}
       value={value}
-      options={searchableOptions}
-      onChange={(code) => onChange(code ?? "")}
+      onChange={(code) => onChange(String(code ?? ""))}
       onQueryChange={(q) => {
         clearTimeout(timerRef.current);
         if (q.length < 2) {

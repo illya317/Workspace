@@ -1,22 +1,16 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
+import { useFeedback, type FeedbackToastState, type FeedbackToastType } from "../ui/FeedbackProvider";
 
-export interface ToastState {
-  message: string;
-  type: "success" | "error";
-}
+export type ToastState = FeedbackToastState;
 
 export function useToast() {
-  const [toast, setToast] = useState<ToastState | null>(null);
+  const feedback = useFeedback();
 
-  const showToast = useCallback((message: string, type: "success" | "error" = "success") => {
-    setToast({ message, type });
-  }, []);
+  const showToast = useCallback((message: string, type: FeedbackToastType = "success") => {
+    feedback.notify(message, type);
+  }, [feedback]);
 
-  const closeToast = useCallback(() => {
-    setToast(null);
-  }, []);
-
-  return { toast, showToast, closeToast };
+  return { toast: feedback.toast, showToast, closeToast: feedback.closeToast };
 }

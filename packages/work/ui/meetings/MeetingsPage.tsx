@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CreatePanel, DatabasePageFrame, EmptyStateCard, Toolbar, Toast } from "@workspace/core/ui";
+import { CreatePanel, DatabasePageFrame, EmptyStateCard, Toolbar, useFeedback } from "@workspace/core/ui";
 import type { ToolbarItem } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { InputBox, SelectBox } from "./MeetingControls";
 import { MeetingDetailPanel } from "./MeetingDetailPanel";
 import { MeetingList } from "./MeetingPanels";
-import type { ActionDraft, CreateMeetingDraft, MeetingDetail, MeetingSummary, MeetingType, ToastState } from "./meeting-types";
+import type { ActionDraft, CreateMeetingDraft, MeetingDetail, MeetingSummary, MeetingType } from "./meeting-types";
 import { emptyMeetingDraft, parseIdList, requestJson } from "./meeting-utils";
 
 export default function MeetingsPage({
@@ -24,7 +24,10 @@ export default function MeetingsPage({
   const [detailLoading, setDetailLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [toast, setToast] = useState<ToastState>(null);
+  const { notify } = useFeedback();
+  const setToast = useCallback((toast: { type: "success" | "error"; message: string }) => {
+    notify(toast.message, toast.type);
+  }, [notify]);
   const [createDraft, setCreateDraft] = useState<CreateMeetingDraft>(() => emptyMeetingDraft());
   const [participantDraft, setParticipantDraft] = useState({
     userId: "",
@@ -92,7 +95,7 @@ export default function MeetingsPage({
     } finally {
       setLoading(false);
     }
-  }, [typeFilter]);
+  }, [setToast, typeFilter]);
 
   const loadDetail = useCallback(async (id: number) => {
     setDetailLoading(true);
@@ -110,7 +113,7 @@ export default function MeetingsPage({
     } finally {
       setDetailLoading(false);
     }
-  }, []);
+  }, [setToast]);
 
   useEffect(() => {
     void loadMeetings();
@@ -292,7 +295,6 @@ export default function MeetingsPage({
           </div>
         </div>
       </CreatePanel>
-      <Toast type={toast?.type} message={toast?.message || ""} show={!!toast} onClose={() => setToast(null)} />
     </DatabasePageFrame>;
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FormField, PanelCard, RatingControl, SelectField, TextField, Toolbar, type ToolbarItem } from "@workspace/core/ui";
+import { FormField, InputControl, PanelCard, Toolbar, type ToolbarItem } from "@workspace/core/ui";
 import type { WorkItem } from "./types";
 
 export default function WorkForm({
@@ -32,36 +32,38 @@ export default function WorkForm({
     <PanelCard bodyClassName="p-4">
       <div className="space-y-3">
         <FormField label="类别">
-          <SelectField
-            value={category}
-            onChange={(value) => setCategory(value === "non-routine" ? "non-routine" : "routine")}
-            options={[
+          <InputControl
+            spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: [
               { value: "routine", label: "日常工作" },
               { value: "non-routine", label: "其他工作" },
-            ]}
-
+            ] } }}
+            value={category}
+            onChange={(value) => setCategory(value === "non-routine" ? "non-routine" : "routine")}
           />
         </FormField>
         <FormField label="工作内容" required>
-          <TextField
+          <InputControl
+            spec={{ valueType: "string", editor: "input" }}
             value={content}
-            onChange={setContent}
+            onChange={(value) => setContent(String(value ?? ""))}
 
             placeholder="例如：会议纪要整理"
           />
         </FormField>
         <div className="flex flex-wrap gap-4">
-          <RatingControl
+          <InputControl
+            spec={{ valueType: "number", editor: "rating" }}
             value={importance}
-            onChange={setImportance}
-            label="重要度"
+            onChange={(value) => setImportance(Number(value))}
+            ratingLabel="重要度"
           />
-          <RatingControl value={urgency} onChange={setUrgency} label="紧急度" />
+          <InputControl spec={{ valueType: "number", editor: "rating" }} value={urgency} onChange={(value) => setUrgency(Number(value))} ratingLabel="紧急度" />
         </div>
         <FormField label="参与人">
-          <TextField
+          <InputControl
+            spec={{ valueType: "string", editor: "input" }}
             value={participants}
-            onChange={setParticipants}
+            onChange={(value) => setParticipants(String(value ?? ""))}
 
             placeholder="多个名字用逗号分隔"
           />

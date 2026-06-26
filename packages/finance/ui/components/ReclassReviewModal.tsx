@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Toolbar, type ToolbarItem, DetailModal, FormField, ReadOnlyField, TextareaField, TextField } from "@workspace/core/ui";
+import { DetailModal, FormField, InputControl, ReadOnlyField, Toolbar, type ToolbarItem } from "@workspace/core/ui";
 import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
 import AccountCodeInput from "./AccountCodeInput";
 
@@ -66,16 +66,19 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
             <AccountCodeInput companyCode={companyCode} year={year} value={targetAccount} onChange={setTargetAccount} placeholder="搜索科目编码..." />
           </FormField>
           <FormField label="重分类金额" required>
-            <TextField
-              type="number"
+            <InputControl
+              spec={{
+                valueType: "number",
+                editor: "number",
+                validation: item.amount > 0 ? { max: item.amount } : undefined,
+              }}
               step="0.01"
               value={amount}
-              {...(item.amount > 0 ? { max: item.amount } : {})}
-              onChange={setAmount}
+              onChange={(value) => setAmount(String(value ?? ""))}
             />
           </FormField>
           <FormField label="审核备注">
-            <TextareaField value={note} onChange={setNote} rows={2} resize="none" />
+            <InputControl spec={{ valueType: "string", editor: "textarea" }} value={note} onChange={(value) => setNote(String(value ?? ""))} rows={2} />
           </FormField>
         </div>
 

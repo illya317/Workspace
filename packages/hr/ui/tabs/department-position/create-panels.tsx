@@ -3,10 +3,9 @@
 import type { Dispatch, SetStateAction } from "react";
 import {
   CreatePanel,
-  FkFieldInput,
   FormField,
+  InputControl,
   ReadOnlyField,
-  TextField,
 } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
@@ -53,20 +52,27 @@ export function PositionCreatePanel({
         {positionDepartmentReadOnly ? (
           <ReadOnlyField value={readOnlyDepartmentName} />
         ) : (
-          <FkFieldInput
-            fkKey="hr.department"
-            endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
+          <InputControl
+            spec={{
+              valueType: "reference",
+              editor: "autocomplete",
+              options: { source: "remote", fkKey: "hr.department", endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" },
+            }}
             value={createPositionDraft.departmentId == null ? "" : String(createPositionDraft.departmentId)}
             displayValue={departmentDisplayName}
             placeholder="搜索所属部门"
-            onChange={(_label, option?: FkFieldOption) => setCreatePositionDraft((prev) => ({ ...prev, departmentId: option?.id ?? null }))}
+            onChange={(_label, option) => {
+              const fkOption = option as FkFieldOption | undefined;
+              setCreatePositionDraft((prev) => ({ ...prev, departmentId: fkOption?.id ?? null }));
+            }}
           />
         )}
       </FormField>
       <FormField label="岗位名" required>
-        <TextField
+        <InputControl
+          spec={{ valueType: "string", editor: "input" }}
           value={createPositionDraft.name}
-          onChange={(next) => setCreatePositionDraft((prev) => ({ ...prev, name: next }))}
+          onChange={(next) => setCreatePositionDraft((prev) => ({ ...prev, name: String(next ?? "") }))}
           placeholder="输入岗位名"
         />
       </FormField>

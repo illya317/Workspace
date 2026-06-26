@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { CommandButton, DataTable, EmptyStateCard, PanelCard, Badge, TableScrollFrame, TextareaField, TextField, type DataTableColumn } from "@workspace/core/ui";
+import { Badge, CommandButton, DataTable, EmptyStateCard, InputControl, PanelCard, TableScrollFrame, type DataTableColumn } from "@workspace/core/ui";
 import type { WorkReportCollectionResponse, WorkReportCollectionSpace, WorkReportDraftResponse, WorkReportItem } from "./types";
 export function ReportDraftTable({
   draft,
@@ -28,8 +28,8 @@ export function ReportDraftTable({
     required: true,
     headerClassName: "w-[8rem]",
     cellClassName: "w-[8rem] min-w-[8rem] max-w-[8rem] whitespace-normal align-middle",
-    render: item => item.workItemId && item.source !== "stale" ? <div className="break-words text-sm font-medium text-slate-900">{item.title}</div> : <TextField value={item.title} readOnly={!canEdit} placeholder="填写事项" onChange={value => onUpdate(item.rowIndex, {
-      title: value
+    render: item => item.workItemId && item.source !== "stale" ? <div className="break-words text-sm font-medium text-slate-900">{item.title}</div> : <InputControl spec={{ valueType: "string", editor: "input", state: !canEdit ? "readonly" : "normal" }} value={item.title} placeholder="填写事项" onChange={value => onUpdate(item.rowIndex, {
+      title: String(value ?? "")
     })} />
   }, {
     key: "done",
@@ -37,18 +37,18 @@ export function ReportDraftTable({
     required: true,
     headerClassName: "w-[16rem]",
     cellClassName: "w-[16rem] min-w-[16rem] max-w-[16rem] align-top",
-    render: item => <TextareaField value={item.doneThisWeek} readOnly={!canEdit} rows={3} placeholder={item.previousPlanSnapshot ? `上周计划：${item.previousPlanSnapshot}` : "本周干了什么"} onChange={value => onUpdate(item.rowIndex, {
-      doneThisWeek: value
-    })} resize="vertical" />
+    render: item => <InputControl spec={{ valueType: "string", editor: "textarea", state: !canEdit ? "readonly" : "normal" }} value={item.doneThisWeek} rows={3} placeholder={item.previousPlanSnapshot ? `上周计划：${item.previousPlanSnapshot}` : "本周干了什么"} onChange={value => onUpdate(item.rowIndex, {
+      doneThisWeek: String(value ?? "")
+    })} />
   }, {
     key: "next",
     label: "下周计划",
     required: true,
     headerClassName: "w-[16rem]",
     cellClassName: "w-[16rem] min-w-[16rem] max-w-[16rem] align-top",
-    render: item => <TextareaField value={item.planNextWeek} readOnly={!canEdit} rows={3} placeholder="下周准备做什么" onChange={value => onUpdate(item.rowIndex, {
-      planNextWeek: value
-    })} resize="vertical" />
+    render: item => <InputControl spec={{ valueType: "string", editor: "textarea", state: !canEdit ? "readonly" : "normal" }} value={item.planNextWeek} rows={3} placeholder="下周准备做什么" onChange={value => onUpdate(item.rowIndex, {
+      planNextWeek: String(value ?? "")
+    })} />
   }, {
     key: "actions",
     label: "操作",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useToast } from "@workspace/core/hooks";
+import { useFeedback } from "@workspace/core/ui";
 import {
   createWorkItem,
   deleteWorkItem,
@@ -20,7 +20,7 @@ export function useWorks(target: WorkTarget | null) {
   const [detailId, setDetailId] = useState<number | null>(null);
   const [createDraft, setCreateDraft] = useState<WorkItemDraft>(() => createEmptyWorkDraft());
   const [editDraft, setEditDraft] = useState<WorkItemDraft | null>(null);
-  const { toast, showToast, closeToast } = useToast();
+  const { notify: showToast } = useFeedback();
 
   const loadWorks = useCallback(async () => {
     if (!target) {
@@ -131,9 +131,7 @@ export function useWorks(target: WorkTarget | null) {
     editDraft,
     setEditDraft,
     activeWork,
-    toast,
     showToast,
-    closeToast,
     loadWorks,
     startEdit,
     cancelEdit: () => {

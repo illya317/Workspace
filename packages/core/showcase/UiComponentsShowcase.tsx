@@ -76,7 +76,7 @@ export default function UiComponentsShowcase({
   const [accessLayerValue, setAccessLayerValue] = useState<string>(ALL_ACCESS_LAYER);
   const [verifiedFilter, setVerifiedFilter] = useState<VerifiedFilter>(ALL_VERIFIED);
   const [query, setQuery] = useState("");
-  const [selectedName, setSelectedName] = useState<string>(firstRoot?.name ?? "");
+  const [selectedName, setSelectedName] = useState<string | null>(firstRoot?.name ?? null);
   const [expandedNames, setExpandedNames] = useState<Set<string>>(new Set());
   const [sideOpen, setSideOpen] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -118,7 +118,7 @@ export default function UiComponentsShowcase({
   }, [accessLayerValue, query, treeRoots, usageFilesByName, usedByNamesByName, verifiedFilter]);
 
   const visibleRoots = filteredRoots;
-  const selectedComponent = componentByName.get(selectedName) ?? null;
+  const selectedComponent = selectedName ? (componentByName.get(selectedName) ?? null) : null;
   const selectedRelation = selectedComponent
     ? getCoreUiComponentRelationView(selectedComponent.name, {
       usageFiles: usageFilesByName.get(selectedComponent.name) ?? [],
@@ -129,9 +129,10 @@ export default function UiComponentsShowcase({
   }, [treeRoots, selectedName]);
 
   useEffect(() => {
+    if (!selectedName) return;
     if (selectedComponent) return;
     if (visibleRoots[0]) setSelectedName(visibleRoots[0].name);
-  }, [selectedComponent, visibleRoots]);
+  }, [selectedComponent, selectedName, visibleRoots]);
 
   useEffect(() => {
     if (!pendingScrollName) return;
@@ -149,7 +150,22 @@ export default function UiComponentsShowcase({
     });
   }
 
+  function collapseComponent(name: string) {
+    setSelectedName(null);
+    setExpandedNames((current) => {
+      if (!current.has(name)) return current;
+      const next = new Set(current);
+      next.delete(name);
+      return next;
+    });
+  }
+
   function focusComponent(name: string) {
+    if (selectedName === name) {
+      collapseComponent(name);
+      return;
+    }
+
     const component = findComponent(name);
     if (!component) return;
     setSelectedName(name);

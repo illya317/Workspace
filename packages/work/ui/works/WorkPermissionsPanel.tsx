@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CommandButton, DataTable, EmptyStateCard, FkFieldInput, FormField, OptionPicker, PanelCard, TableScrollFrame, type DataTableColumn, type DataTableRowAction } from "@workspace/core/ui";
+import { CommandButton, DataTable, EmptyStateCard, FormField, InputControl, PanelCard, TableScrollFrame, type DataTableColumn, type DataTableRowAction } from "@workspace/core/ui";
 import { listSpacePermissions, saveSpacePermissions, WORK_REFERENCE_OPTIONS_ENDPOINT } from "./api";
 import { WORK_ROLE_OPTIONS } from "./model";
 import type { WorkSpacePermissionRow, WorkSpaceRole, WorkTarget } from "./types";
@@ -60,8 +60,8 @@ export default function WorkPermissionsPanel({
     key: "role",
     label: "权限",
     defaultVisible: true,
-    render: row => row.locked ? roleLabel(row.role) : <OptionPicker value={row.role} options={[...WORK_ROLE_OPTIONS]} visibleCount={4} gridColumnCount={2} onChange={value => patchRow(row.userId, {
-      role: normalizeRole(value)
+    render: row => row.locked ? roleLabel(row.role) : <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", items: [...WORK_ROLE_OPTIONS], visibleCount: 4 } }} value={row.role} onChange={value => patchRow(row.userId, {
+      role: normalizeRole(value == null ? null : String(value))
     })} />
   }], []);
   function getPermissionRowActions(row: WorkSpacePermissionRow): DataTableRowAction[] {
@@ -129,16 +129,19 @@ export default function WorkPermissionsPanel({
   return <div className="space-y-4">
       <PanelCard bodyClassName="grid gap-3 p-4 md:grid-cols-[1fr_12rem_auto]">
         <FormField label="授权用户">
-          <FkFieldInput fkKey="work.tasks.permission.user" endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT} value={draft.userId ? String(draft.userId) : ""} displayValue={draft.userName} placeholder="搜索用户" onChange={(value, option) => setDraft(current => ({
+          <InputControl spec={{ valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.tasks.permission.user", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" } }} value={draft.userId ? String(draft.userId) : ""} displayValue={draft.userName} placeholder="搜索用户" onChange={(value, option) => {
+          const fkOption = option as { id?: number; name?: string } | undefined;
+          setDraft(current => ({
           ...current,
-          userId: option?.id ?? (value ? current.userId : null),
-          userName: option?.name ?? (value ? value : "")
-        }))} />
+          userId: fkOption?.id ?? (value ? current.userId : null),
+          userName: fkOption?.name ?? (value ? String(value) : "")
+        }));
+        }} />
         </FormField>
         <FormField label="权限">
-          <OptionPicker value={draft.role} options={[...WORK_ROLE_OPTIONS]} visibleCount={4} gridColumnCount={2} onChange={value => setDraft(current => ({
+          <InputControl spec={{ valueType: "string", editor: "select", options: { source: "static", items: [...WORK_ROLE_OPTIONS], visibleCount: 4 } }} value={draft.role} onChange={value => setDraft(current => ({
           ...current,
-          role: normalizeRole(value)
+          role: normalizeRole(value == null ? null : String(value))
         }))} />
         </FormField>
         <div className="flex items-end">

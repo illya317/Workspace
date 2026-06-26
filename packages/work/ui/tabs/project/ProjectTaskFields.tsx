@@ -2,16 +2,12 @@
 
 import type { ReactNode } from "react";
 import {
-  CalendarDateInput,
   CommandButton,
   FieldGrid,
-  FkFieldInput,
-  OptionPicker,
+  InputControl,
   PanelCard,
   ReadOnlyField,
   TagListInput,
-  TextareaField,
-  TextField,
   type FkFieldOption,
   type PickerOption,
 } from "@workspace/core/ui";
@@ -84,62 +80,54 @@ export function ProjectTaskForm({
     <FormWrapper framed={framed}>
       <FieldGrid columns={3} mode="mixed">
         <FieldGrid.Cell label="任务名称" required span="wide">
-          <TextField value={draft.name} disabled={disabled} onChange={(value) => patch({ name: value })} />
+          <InputControl spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }} value={draft.name} onChange={(value) => patch({ name: String(value ?? "") })} />
         </FieldGrid.Cell>
         <FieldGrid.Cell label="项目阶段" hint={phaseHint}>
-          <OptionPicker
+          <InputControl
+            spec={{ valueType: "string", editor: "select", options: { source: "static", items: phaseOptions, visibleCount: 6 }, state: disabled || phaseOptions.length === 0 ? "disabled" : "normal" }}
             value={draft.planPhaseId ? String(draft.planPhaseId) : null}
-            options={phaseOptions}
-            disabled={disabled || phaseOptions.length === 0}
             placeholder={phaseOptions.length > 0 ? "选择项目阶段（可选）" : "无项目阶段"}
             onChange={(value) => patch({ planPhaseId: value ? Number(value) : null })}
-            visibleCount={6}
           />
         </FieldGrid.Cell>
         <FieldGrid.Cell label="负责人">
-          <FkFieldInput
-            fkKey="work.projects.member.employee"
-            endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
+          <InputControl
+            spec={{ valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.projects.member.employee", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: disabled ? "disabled" : "normal" }}
             value={draft.ownerEmployeeNumber || ""}
             displayValue={draft.ownerEmployeeName || ""}
-            disabled={disabled}
             placeholder="搜索负责人"
-            onChange={(_label, option) => setOwner(option)}
+            onChange={(_value, option) => setOwner(option as FkFieldOption | undefined)}
           />
         </FieldGrid.Cell>
         <FieldGrid.Cell label="里程碑">
-          <OptionPicker
+          <InputControl
+            spec={{ valueType: "boolean", editor: "select", options: { source: "static", items: PROJECT_MILESTONE_PICKER_OPTIONS, visibleCount: 2 }, state: disabled ? "disabled" : "normal" }}
             value={draft.isMilestone ? "true" : "false"}
-            options={PROJECT_MILESTONE_PICKER_OPTIONS}
-            disabled={disabled}
             onChange={(value) => patch({ isMilestone: value === "true" })}
-            visibleCount={2}
           />
         </FieldGrid.Cell>
         <FieldGrid.Cell label="基线开始">
-          <CalendarDateInput value={draft.baselineStartDate} disabled={disabled} onChange={(value) => patch({ baselineStartDate: value })} popoverMode="fixed" />
+          <InputControl spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }} value={draft.baselineStartDate} onChange={(value) => patch({ baselineStartDate: String(value || "") })} placeholder="选择日期" />
         </FieldGrid.Cell>
         <FieldGrid.Cell label="基线结束">
-          <CalendarDateInput value={draft.baselineEndDate} disabled={disabled} onChange={(value) => patch({ baselineEndDate: value })} popoverMode="fixed" />
+          <InputControl spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }} value={draft.baselineEndDate} onChange={(value) => patch({ baselineEndDate: String(value || "") })} placeholder="选择日期" />
         </FieldGrid.Cell>
         <FieldGrid.Cell label="实际开始">
-          <CalendarDateInput value={draft.startDate} disabled={disabled} onChange={(value) => patch({ startDate: value })} popoverMode="fixed" />
+          <InputControl spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }} value={draft.startDate} onChange={(value) => patch({ startDate: String(value || "") })} placeholder="选择日期" />
         </FieldGrid.Cell>
         <FieldGrid.Cell label="实际结束">
-          <CalendarDateInput value={draft.endDate} disabled={disabled} onChange={(value) => patch({ endDate: value })} popoverMode="fixed" />
+          <InputControl spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }} value={draft.endDate} onChange={(value) => patch({ endDate: String(value || "") })} placeholder="选择日期" />
         </FieldGrid.Cell>
         <FieldGrid.Cell label="任务描述" span="wide">
-          <TextareaField value={draft.description} disabled={disabled} rows={2} onChange={(value) => patch({ description: value })} />
+          <InputControl spec={{ valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" }} value={draft.description} onChange={(value) => patch({ description: String(value ?? "") })} />
         </FieldGrid.Cell>
         <FieldGrid.Cell label="前置任务" span="wide">
           <div className="space-y-2">
-            <OptionPicker
+            <InputControl
+              spec={{ valueType: "string", editor: "select", options: { source: "static", items: predecessorOptions, visibleCount: 6 }, state: disabled || predecessorOptions.length === 0 ? "disabled" : "normal" }}
               value={null}
-              options={predecessorOptions}
-              disabled={disabled || predecessorOptions.length === 0}
               placeholder={predecessorOptions.length > 0 ? "添加前置任务" : "无可选前置任务"}
-              onChange={addPredecessor}
-              visibleCount={6}
+              onChange={(value) => addPredecessor(String(value || ""))}
             />
             {draft.predecessorTaskIds.length > 0 && (
               <TagListInput

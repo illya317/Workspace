@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ConfirmModal, Toast, Toolbar, type ToolbarItem } from "@workspace/core/ui";
+import { Toolbar, useFeedback, type ToolbarItem } from "@workspace/core/ui";
 import type { QcBatchSummary } from "@workspace/production/server/qc";
 import { QC_BATCH_PAGE_SIZE_OPTIONS, QC_BATCH_STATUS_OPTIONS, QcBatchCreatePanel } from "./QcBatchListControls";
 import { QcBatchTable, formatQcBatchDate, qcBatchStatusText, type QcBatchTableRow } from "./QcBatchTable";
@@ -31,9 +31,8 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
   const [createOpen, setCreateOpen] = useState(false);
-  const [pendingDelete, setPendingDelete] = useState<QcBatchSummary | null>(null);
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [isPending, startTransition] = useTransition();
+  const feedback = useFeedback();
 
   const productFilterOptions = useMemo(
     () => products.map((product) => ({ value: product.id, label: product.productName })),
@@ -82,7 +81,7 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
 
   async function createBatch() {
     if (!productKey || !batchNumber.trim()) {
-      setToast({ message: "请选择产品并填写批号", type: "error" });
+      feedback.error("请选择产品并填写批号");
       return;
     }
     startTransition(async () => {
@@ -93,7 +92,7 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
       });
       const body = await res.json();
       if (!res.ok) {
-        setToast({ message: body.error || "创建失败", type: "error" });
+        feedback.error(body.error || "创建失败");
         return;
       }
       setCreateOpen(false);
@@ -101,18 +100,21 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
     });
   }
 
-  async function deleteBatch() {
-    if (!pendingDelete) return;
-    const target = pendingDelete;
-    setPendingDelete(null);
+  async function deleteBatch(target: QcBatchSummary) {
+    const ok = await feedback.confirmDelete({
+      title: "删除批次",
+      message: `确认删除批次 ${target.batchNumber}？`,
+      confirmLabel: "删除批次",
+    });
+    if (!ok) return;
     startTransition(async () => {
       const res = await fetch(workspacePath(`/api/modules/production/qc-batches/${target.id}`), { method: "DELETE" });
       if (!res.ok) {
-        setToast({ message: "删除失败", type: "error" });
+        feedback.error("删除失败");
         return;
       }
       setRows((items) => items.filter((batch) => batch.id !== target.id));
-      setToast({ message: "已删除批次", type: "success" });
+      feedback.success("已删除批次");
     });
   }
 
@@ -197,17 +199,8 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
         total={filtered.length}
         onPageChange={setPage}
         onView={(batch) => router.push(`/production/qc-batches/${batch.id}`)}
-        onDelete={setPendingDelete}
+        onDelete={(batch) => void deleteBatch(batch)}
       />
-
-      <ConfirmModal
-        open={!!pendingDelete}
-        title="删除批次"
-        message={`确认删除批次 ${pendingDelete?.batchNumber ?? ""}？`}
-        onCancel={() => setPendingDelete(null)}
-        onConfirm={deleteBatch}
-      />
-      <Toast show={!!toast} message={toast?.message ?? ""} type={toast?.type} onClose={() => setToast(null)} />
     </section>
   );
 }

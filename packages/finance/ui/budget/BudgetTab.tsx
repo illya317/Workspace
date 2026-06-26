@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useToast } from "@workspace/core/hooks";
-import { TabBar, Toast } from "@workspace/core/ui";
+import { TabBar } from "@workspace/core/ui";
 import { useBudgetData } from "./hooks/useBudgetData";
 import { useBudgetFilters } from "./hooks/useBudgetFilters";
 import BudgetVersionSelector from "./components/BudgetVersionSelector";
@@ -15,7 +14,6 @@ type BudgetView = "dept" | "rd";
 
 export default function BudgetTab() {
   const [view, setView] = useState<BudgetView>("dept");
-  const { toast, closeToast } = useToast();
   const { data, versions, activeVersionId, setActiveVersionId, loading } = useBudgetData(2026);
   const filters = useBudgetFilters(data);
 
@@ -86,8 +84,6 @@ export default function BudgetTab() {
           />
         </>
       )}
-
-      <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </div>
   );
 }

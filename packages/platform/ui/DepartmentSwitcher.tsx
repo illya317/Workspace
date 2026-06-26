@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
 import { SessionUser } from "@workspace/platform/types";
-import { SelectField } from "@workspace/core/ui";
+import { InputControl } from "@workspace/core/ui";
 
 interface Dept {
   id: number;
@@ -76,25 +76,20 @@ export default function DepartmentSwitcher({ onChange }: { onChange?: (deptId: n
   const deptsInCompany = depts.filter((d) => d.company === selectedCompany);
   return (
     <div className="flex items-center gap-2">
-      <SelectField
+      <InputControl
+        spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: companies.map((c) => ({ value: c, label: c })) } }}
         value={selectedCompany}
-        onChange={handleCompanyChange}
+        onChange={(value) => handleCompanyChange(String(value ?? ""))}
         placeholder="选择公司"
-        options={companies.map((c) => ({ value: c, label: c }))}
-
       />
-      <SelectField
+      <InputControl
+        spec={{ valueType: "reference", editor: "select", options: { source: "static", mode: "dropdown", items: deptsInCompany.map((d) => ({ value: String(d.id), label: d.id === selectedDeptId ? `${d.name}（当前）` : d.name })) } }}
         value={selectedDeptId == null ? "" : String(selectedDeptId)}
         onChange={(val) => {
           if (!val) clearSelection();
           else handleDeptChange(parseInt(String(val)));
         }}
         placeholder="选择部门"
-        options={deptsInCompany.map((d) => ({
-          value: String(d.id),
-          label: d.id === selectedDeptId ? `${d.name}（当前）` : d.name,
-        }))}
-
       />
     </div>
   );

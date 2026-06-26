@@ -6,6 +6,8 @@ export type { CodeBlockProps } from "./CodeBlock";
 export type { ConfirmModalProps } from "./ConfirmModal";
 export { default as ConfirmProvider, useConfirm, useConfirmDelete } from "./ConfirmProvider";
 export type { ConfirmContextValue, ConfirmOptions } from "./ConfirmProvider";
+export { default as FeedbackProvider, useFeedback } from "./FeedbackProvider";
+export type { FeedbackApi, FeedbackHookOptions, FeedbackToastState, FeedbackToastType } from "./FeedbackProvider";
 export { useUnsavedChangesPrompt } from "./useUnsavedChangesPrompt";
 export { default as DetailModal } from "./DetailModal";
 export type { DetailModalProps } from "./DetailModal";

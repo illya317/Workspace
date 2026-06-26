@@ -1,6 +1,6 @@
 "use client";
 
-import { FkFieldInput, TagListInput } from "@workspace/core/ui";
+import { InputControl, TagListInput } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
 import { primitiveListItems } from "./description-details";
@@ -57,17 +57,17 @@ export function EntityTagListEditor({
         shellClassName="content-start"
       >
         {!disabled && (
-          <FkFieldInput
-            fkKey={fkKeyForEntity(entity)}
-            endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
+          <InputControl
+            spec={{
+              valueType: "reference",
+              editor: "autocomplete",
+              state: disabled ? "disabled" : "normal",
+              options: { source: "remote", fkKey: fkKeyForEntity(entity), endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" },
+            }}
             value=""
             displayValue=""
-            disabled={disabled}
             placeholder={items.length === 0 ? placeholder || `搜索${label}` : `添加${label}`}
-            widthMode="content"
-            minChars={10}
-            maxChars={24}
-            onChange={(_label, option?: FkFieldOption) => addOption(option)}
+            onChange={(_label, option) => addOption(option as FkFieldOption | undefined)}
           />
         )}
       </TagListInput>

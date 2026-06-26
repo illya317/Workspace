@@ -3,8 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo, useRef } from "react";
 import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
-import { Pagination, PanelCard, Toast, Toolbar, useConfirm } from "@workspace/core/ui";
-import { useToast } from "@workspace/core/hooks";
+import { Pagination, PanelCard, Toolbar, useFeedback } from "@workspace/core/ui";
 import GenericCreatePanel from "../components/GenericCreatePanel";
 import GenericFieldInput from "../components/GenericFieldInput";
 import { buildHRToolbarItems } from "../components/hr-toolbar-items";
@@ -44,8 +43,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
     page, pageSize, total, setPage,
   } = useGenericTab(config);
 
-  const { toast, showToast, closeToast } = useToast();
-  const confirm = useConfirm();
+  const feedback = useFeedback();
   const inputRef = useRef<HTMLInputElement>(null);
   const [downloading, setDownloading] = useState(false);
 
@@ -163,10 +161,10 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
     if (!editingCell) { setEditMode(false); return; }
     const result = await saveCell();
     if (result.ok) {
-      showToast("保存成功");
+      feedback.success("保存成功");
       return;
     }
-    await confirm({
+    await feedback.confirm({
       title: "保存失败",
       message: result.error || "保存失败",
       confirmLabel: "关闭",
@@ -177,8 +175,8 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
 
   async function handleCreate() {
     const ok = await submitCreate();
-    if (ok) showToast("新建成功");
-    else showToast("新建失败", "error");
+    if (ok) feedback.success("新建成功");
+    else feedback.error("新建失败");
   }
 
   async function handleDownload() {
@@ -217,9 +215,9 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
         )
         .join("\n");
       downloadCsv(`${config.title}_${new Date().toISOString().slice(0, 10)}.csv`, `${header}\n${body}`);
-      showToast("下载完成");
+      feedback.success("下载完成");
     } catch (error) {
-      showToast(error instanceof Error ? error.message : "下载失败", "error");
+      feedback.error(error instanceof Error ? error.message : "下载失败");
     } finally {
       setDownloading(false);
     }
@@ -342,8 +340,6 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
           compact
         />
       )}
-
-      <Toast message={toast?.message || ""} type={toast?.type as "success" | "error" | undefined} show={!!toast} onClose={closeToast} />
     </div>
   );
 }

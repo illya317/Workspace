@@ -2,10 +2,9 @@
 
 import { useState, type ReactNode } from "react";
 import {
-  FkFieldInput,
   FormField,
+  InputControl,
   PanelCard,
-  TagInlineTextField,
   TagListInput,
 } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
@@ -87,14 +86,17 @@ export function EntityValueInput({
       label={label}
       error={invalid ? "当前值不是有效引用，请重新选择。" : undefined}
     >
-      <FkFieldInput
-        fkKey={fkKeyForEntity(entity)}
-        endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
+      <InputControl
+        spec={{
+          valueType: "reference",
+          editor: "autocomplete",
+          state: disabled ? "disabled" : "normal",
+          options: { source: "remote", fkKey: fkKeyForEntity(entity), endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "name" },
+        }}
         value={current}
         displayValue={current}
-        disabled={disabled}
         placeholder={`搜索${label}`}
-        onChange={(_label, option?: FkFieldOption) => onChange(selectedEntityName(entity, option) || null)}
+        onChange={(_label, option) => onChange(selectedEntityName(entity, option as FkFieldOption | undefined) || null)}
       />
     </FormField>
   );
@@ -142,9 +144,10 @@ export function StringListEditor({
         shellClassName="content-start"
       >
         {!disabled && (
-          <TagInlineTextField
+          <InputControl
+            spec={{ valueType: "string", editor: "input" }}
             value={draft}
-            onChange={setDraft}
+            onChange={(next) => setDraft(String(next ?? ""))}
             onBlur={commitDraft}
             onKeyDown={(event) => {
               if (event.key === "Enter" || event.key === "Tab" || event.key === "," || event.key === "，" || event.key === "、") {
@@ -158,7 +161,8 @@ export function StringListEditor({
               }
             }}
             placeholder={items.length === 0 ? placeholder : ""}
-            className={`${items.length === 0 ? "min-w-32 flex-1" : "w-6 flex-none"} px-1 py-1`}
+            density="compact"
+            className={items.length === 0 ? "min-w-32 flex-1" : "w-16 flex-none"}
           />
         )}
       </TagListInput>

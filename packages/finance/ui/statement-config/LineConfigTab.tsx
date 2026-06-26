@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CommandButton, DataTable, PanelCard, type DataTableColumn, useConfirmDelete } from "@workspace/core/ui";
+import { CommandButton, DataTable, PanelCard, useFeedback, type DataTableColumn } from "@workspace/core/ui";
 import { matchSearchFields } from "@workspace/platform/search";
 import { useStatementConfig } from "./StatementConfigContext";
 import LineMappingsPanel from "./LineMappingsPanel";
@@ -25,7 +25,7 @@ export default function LineConfigTab() {
     company,
     year
   } = useStatementConfig();
-  const confirmDelete = useConfirmDelete();
+  const feedback = useFeedback();
   const [lines, setLines] = useState<LineCfg[]>([]);
   const [mappings, setMappings] = useState<Mapping[]>([]);
   const [accounts, setAccounts] = useState<AcctInfo[]>([]);
@@ -141,7 +141,7 @@ export default function LineConfigTab() {
       setError("年度无效");
       return;
     }
-    const confirmed = await confirmDelete({
+    const confirmed = await feedback.confirmDelete({
       title: "删除配置",
       message: `确定删除科目 ${accountCode} 的手工配置并恢复默认规则吗？`,
       confirmLabel: "删除配置"

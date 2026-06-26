@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { DatabasePageFrame, EmptyStateCard, Toast, Toolbar, WorkspaceSplitPage, useConfirm, useConfirmDelete } from "@workspace/core/ui";
+import { DatabasePageFrame, EmptyStateCard, Toolbar, WorkspaceSplitPage, useFeedback } from "@workspace/core/ui";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 import type { WorkUser } from "@workspace/work/types";
 import ProjectDetailEditor from "./project/ProjectDetailEditor";
@@ -44,8 +44,7 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
   const searchParams = useSearchParams();
   const requestedProjectId = Number(searchParams.get("projectId") || "");
   const model = useProjectTabModel(user, Number.isInteger(requestedProjectId) && requestedProjectId > 0 ? requestedProjectId : null);
-  const confirm = useConfirm();
-  const confirmDelete = useConfirmDelete();
+  const feedback = useFeedback();
   const editorTitle = model.creating ? "新建项目" : model.selectedProject ? "项目信息" : "项目详情";
   const startDepartmentProjectCreate = () => {
     model.setProjectListFilter("普通");
@@ -55,7 +54,7 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
   };
   const confirmDeleteProject = async () => {
     if (!model.selectedProject) return;
-    const ok = await confirmDelete({
+    const ok = await feedback.confirmDelete({
       title: "删除项目",
       message: `确定删除项目「${model.selectedProject.name}」吗？此操作不可撤销。`,
       confirmLabel: "删除项目",
@@ -63,7 +62,7 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
     if (!ok) return;
     const result = await model.deleteSelectedProject();
     if (!result?.ok) {
-      await confirm({
+      await feedback.confirm({
         title: "删除失败",
         message: result?.error || "删除项目失败",
         confirmLabel: "关闭",
@@ -189,13 +188,6 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
           onToast={model.setToast}
         />
       </WorkspaceSplitPage>
-
-      <Toast
-        type={model.toast?.type}
-        message={model.toast?.message || ""}
-        show={!!model.toast}
-        onClose={() => model.setToast(null)}
-      />
     </>
   );
 }

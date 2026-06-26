@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useTransition } from "react";
-import { TextField } from "@workspace/core/ui";
+import { InputControl } from "@workspace/core/ui";
 
 interface Props {
   batchId: number;
@@ -25,13 +25,11 @@ export default function QcBatchNumberInput({ batchId, initialValue }: Props) {
   }
 
   return (
-    <TextField
+    <InputControl
+      spec={{ valueType: "string", editor: "input", state: isPending ? "disabled" : "normal" }}
       value={value}
-      onChange={setValue}
+      onChange={(next) => setValue(String(next ?? ""))}
       onBlur={save}
-      disabled={isPending}
-      unstyled
-      visualVariant="paperUnderline"
     />
   );
 }

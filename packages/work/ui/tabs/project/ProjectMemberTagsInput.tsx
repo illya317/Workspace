@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CommandButton, FkFieldInput, TagListInput } from "@workspace/core/ui";
+import { CommandButton, InputControl, TagListInput } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import { dedupeMembers, employeeFromOption, type EmployeeTag } from "./model";
 import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
@@ -63,13 +63,16 @@ export default function ProjectMemberTagsInput({
             </CommandButton>
             {pickerOpen && (
               <div className="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-72 border border-slate-200 bg-slate-50/95 p-2 shadow-xl">
-                <FkFieldInput
-                  fkKey="work.projects.member.employee"
-                  endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
+                <InputControl
+                  spec={{
+                    valueType: "reference",
+                    editor: "autocomplete",
+                    options: { source: "remote", fkKey: "work.projects.member.employee", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" },
+                  }}
                   value=""
                   placeholder="搜索员工"
                   className="w-full"
-                  onChange={(_label, option) => add(option)}
+                  onChange={(_label, option) => add(option as FkFieldOption | undefined)}
                 />
               </div>
             )}

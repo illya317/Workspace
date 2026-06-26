@@ -2,8 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
-import { EmptyStateCard, FormField, SectionCard, SelectField, Toast } from "@workspace/core/ui";
-import { useToast } from "@workspace/core/hooks";
+import { EmptyStateCard, FormField, InputControl, SectionCard, useFeedback } from "@workspace/core/ui";
 import { DatabasePageFrame } from "@workspace/core/ui";
 import AdminUsersTab from "./tabs/AdminUsersTab";
 import ModuleManagementTab from "./tabs/ModuleManagementTab";
@@ -22,7 +21,8 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   const [capabilitiesByOwner, setCapabilitiesByOwner] = useState<Record<string, ResourceItem[]>>({});
   const [conflictStrategy, setConflictStrategy] = useState("union");
 
-  const { toast, showToast, closeToast } = useToast();
+  const feedback = useFeedback();
+  const showToast = feedback.notify;
 
   useEffect(() => {
     let cancelled = false;
@@ -108,14 +108,21 @@ export default function AdminClient({ user }: { user: SessionUser }) {
           <SectionCard title="系统配置" className="mt-8">
             <div className="flex items-center gap-4">
               <FormField label="权限冲突策略" layout="inline">
-                <SelectField
+                <InputControl
+                  spec={{
+                    valueType: "string",
+                    editor: "select",
+                    options: {
+                      source: "static",
+                      mode: "dropdown",
+                      items: [
+                        { value: "union", label: "并集（任一有权限即可）" },
+                        { value: "deny_override", label: "拒绝优先" },
+                      ],
+                    },
+                  }}
                   value={conflictStrategy}
-                  onChange={saveConflictStrategy}
-                  options={[
-                    { value: "union", label: "并集（任一有权限即可）" },
-                    { value: "deny_override", label: "拒绝优先" },
-                  ]}
-
+                  onChange={(value) => saveConflictStrategy(String(value ?? ""))}
                 />
               </FormField>
               <span className="text-xs text-gray-400">
@@ -125,8 +132,6 @@ export default function AdminClient({ user }: { user: SessionUser }) {
           </SectionCard>
         )}
       </DatabasePageFrame>
-
-      <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </>
   );
 }

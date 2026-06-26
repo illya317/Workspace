@@ -1,6 +1,6 @@
 "use client";
 
-import { SelectField } from "@workspace/core/ui";
+import { FormField, InputControl } from "@workspace/core/ui";
 
 interface CompanyPeriodPickerProps {
   company: string;
@@ -36,27 +36,30 @@ export default function CompanyPeriodPicker({
 
   return (
     <>
-      <SelectField
-        label="公司"
-        options={companies}
+      <FormField label="公司">
+        <InputControl
+          spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: companies } }}
         value={company}
-        onChange={onCompanyChange}
+          onChange={(value) => onCompanyChange(String(value ?? ""))}
         placeholder="全部公司"
       />
-      <SelectField
-        label="年度"
-        options={years}
+      </FormField>
+      <FormField label="年度">
+        <InputControl
+          spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: years } }}
         value={year}
-        onChange={onYearChange}
+          onChange={(value) => onYearChange(String(value ?? ""))}
       />
+      </FormField>
       {showMonth && (
-        <SelectField
-          label="月份"
-          options={monthOptions}
+        <FormField label="月份">
+          <InputControl
+            spec={{ valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: monthOptions } }}
           value={month}
-          onChange={onMonthChange ?? (() => {})}
+            onChange={(value) => (onMonthChange ?? (() => {}))(String(value ?? ""))}
           placeholder="全部"
         />
+        </FormField>
       )}
     </>
   );

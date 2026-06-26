@@ -1,4 +1,4 @@
-import { FormField, SelectField, TextareaField, TextField } from "@workspace/core/ui";
+import { FormField, InputControl } from "@workspace/core/ui";
 import type { LibraryDocumentItem } from "@workspace/library/types";
 
 interface Props {
@@ -40,75 +40,77 @@ export default function LibraryEditForm({ doc, form, setForm, canWrite, canAdmin
   return (
     <div className="space-y-1">
       <FormField label="文档编号（docId）" hint="改名后仍可通过此编号找到文档">
-        <TextField
+        <InputControl
+          spec={{ valueType: "string", editor: "input", state: !canWrite ? "disabled" : "normal" }}
           value={form.docId !== undefined ? (form.docId ?? "") : (doc.docId ?? "")}
-          disabled={!canWrite}
-          onChange={(value) => setForm((f) => ({ ...f, docId: value }))}
+          onChange={(value) => setForm((f) => ({ ...f, docId: String(value ?? "") }))}
           placeholder="如 DOC-2024-001"
         />
       </FormField>
       <FormField label="标题">
-        <TextField
+        <InputControl
+          spec={{ valueType: "string", editor: "input", state: !canWrite ? "disabled" : "normal" }}
           value={form.title ?? doc.title ?? ""}
-          disabled={!canWrite}
-          onChange={(value) => setForm((f) => ({ ...f, title: value }))}
+          onChange={(value) => setForm((f) => ({ ...f, title: String(value ?? "") }))}
         />
       </FormField>
       <FormField label="简介">
-        <TextareaField
+        <InputControl
+          spec={{ valueType: "string", editor: "textarea", state: !canWrite ? "disabled" : "normal" }}
           value={form.summary ?? doc.summary ?? ""}
-          disabled={!canWrite}
-          onChange={(value) => setForm((f) => ({ ...f, summary: value }))}
+          onChange={(value) => setForm((f) => ({ ...f, summary: String(value ?? "") }))}
           rows={3}
         />
       </FormField>
       <FormField label="标签（用逗号分隔）">
-        <TextField
+        <InputControl
+          spec={{ valueType: "string", editor: "input", state: !canWrite ? "disabled" : "normal" }}
           value={tagsValue.join(", ")}
-          disabled={!canWrite}
-          onChange={handleTagInput}
+          onChange={(value) => handleTagInput(String(value ?? ""))}
           placeholder="如 年度报表, 已审计, 研发"
         />
       </FormField>
       <FormField label="分类编码">
-        <TextField
+        <InputControl
+          spec={{ valueType: "string", editor: "input", state: !canWrite ? "disabled" : "normal" }}
           value={form.categoryCode ?? doc.categoryCode ?? ""}
-          disabled={!canWrite}
-          onChange={(value) => setForm((f) => ({ ...f, categoryCode: value }))}
+          onChange={(value) => setForm((f) => ({ ...f, categoryCode: String(value ?? "") }))}
         />
       </FormField>
       <FormField label="分类名称">
-        <TextField
+        <InputControl
+          spec={{ valueType: "string", editor: "input", state: !canWrite ? "disabled" : "normal" }}
           value={form.categoryName ?? doc.categoryName ?? ""}
-          disabled={!canWrite}
-          onChange={(value) => setForm((f) => ({ ...f, categoryName: value }))}
+          onChange={(value) => setForm((f) => ({ ...f, categoryName: String(value ?? "") }))}
         />
       </FormField>
-      <div className="py-2">
-        <SelectField
-          label="保密等级"
+      <FormField label="保密等级">
+        <InputControl
+          spec={{
+            valueType: "number",
+            editor: "select",
+            state: !canAdmin ? "disabled" : "normal",
+            options: { source: "static", mode: "dropdown", items: CONFIDENTIALITY_OPTIONS },
+          }}
           value={String(form.confidentialityLevel !== undefined ? form.confidentialityLevel : doc.confidentialityLevel)}
-          disabled={!canAdmin}
-          onChange={(value) => setForm((f) => ({ ...f, confidentialityLevel: parseInt(value, 10) }))}
-          options={CONFIDENTIALITY_OPTIONS}
-
-
+          onChange={(value) => setForm((f) => ({ ...f, confidentialityLevel: parseInt(String(value), 10) }))}
         />
         {!canAdmin && (
           <p className="text-xs text-gray-400 mt-1">需要管理权限才能修改保密等级</p>
         )}
-      </div>
-      <div className="py-2">
-        <SelectField
-          label="状态"
+      </FormField>
+      <FormField label="状态">
+        <InputControl
+          spec={{
+            valueType: "string",
+            editor: "select",
+            state: !canWrite ? "disabled" : "normal",
+            options: { source: "static", mode: "dropdown", items: STATUS_OPTIONS },
+          }}
           value={form.status !== undefined ? form.status : doc.status}
-          disabled={!canWrite}
-          onChange={(value) => setForm((f) => ({ ...f, status: value }))}
-          options={STATUS_OPTIONS}
-
-
+          onChange={(value) => setForm((f) => ({ ...f, status: String(value ?? "") }))}
         />
-      </div>
+      </FormField>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  OptionPicker,
+  InputControl,
   TagListInput,
 } from "@workspace/core/ui";
 import { pickerOptions, primitiveListItems } from "./description-details";
@@ -48,14 +48,16 @@ export function OptionTagListEditor({
       >
         {!disabled && (
           <div className="min-w-40 flex-1">
-            <OptionPicker
+            <InputControl
+              spec={{
+                valueType: "string",
+                editor: "select",
+                state: disabled || availableOptions.length === 0 ? "disabled" : "normal",
+                options: { source: "static", items: pickerOptions(availableOptions), visibleCount: 6, searchPlaceholder: `搜索${label}` },
+              }}
               value=""
-              options={pickerOptions(availableOptions)}
-              disabled={disabled || availableOptions.length === 0}
               placeholder={items.length === 0 ? placeholder : "继续添加"}
-              searchPlaceholder={`搜索${label}`}
-              visibleCount={6}
-              onChange={addOption}
+              onChange={(next) => addOption(next == null ? null : String(next))}
             />
           </div>
         )}

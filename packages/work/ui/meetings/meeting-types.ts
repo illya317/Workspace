@@ -1,8 +1,3 @@
-export type ToastState = {
-  type: "success" | "error";
-  message: string;
-} | null;
-
 export type MeetingType = {
   id: number;
   key: string;

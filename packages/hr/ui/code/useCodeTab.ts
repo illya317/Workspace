@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { useToast } from "@workspace/core/hooks";
+import { useFeedback } from "@workspace/core/ui";
 import { useCodeData } from "./hooks/useCodeData";
 import { useCodeTable } from "./hooks/useCodeTable";
 import { useCodeEdit } from "./hooks/useCodeEdit";
@@ -30,7 +30,7 @@ export function useCodeTab({
   selectedCompany: string;
   departmentCode?: string;
 }) {
-  const { toast, showToast, closeToast } = useToast();
+  const feedback = useFeedback();
   const { codes, setCodes, employees, stats, loading } = useCodeData({
     type,
     apiPath,
@@ -50,7 +50,7 @@ export function useCodeTab({
     departmentCode,
     codes,
     setCodes,
-    showToast,
+    showToast: feedback.notify,
   });
 
   const [detailModal, setDetailModal] = useState<{
@@ -93,8 +93,6 @@ export function useCodeTab({
 
   return {
     loading,
-    toast,
-    closeToast,
     sortField,
     sortDirection,
     toggleSort,
