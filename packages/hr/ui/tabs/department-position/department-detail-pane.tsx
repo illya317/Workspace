@@ -1,16 +1,16 @@
 "use client";
 
-import type { Dispatch, ReactNode, SetStateAction } from "react";
-import { Badge, CommandButton, FormField, MetricCard, PanelCard, TextField } from "@workspace/core/ui";
-import PositionAliasTagsInput from "./PositionAliasTagsInput";
-import { DetailSectionHeader, formInputClassName, readOnlyInputClassName } from "./detail-editors";
+import { useMemo, type Dispatch, type ReactNode, type SetStateAction } from "react";
+import { Badge, CommandButton, EntityDetailLayout, FieldGrid, MetricTile, PanelCard } from "@workspace/core/ui";
+import { DetailSectionHeader } from "./detail-editors";
+import { DepartmentCodeInput } from "./department-code-input";
+import { departmentDescendantIds } from "./utils";
 import { DepartmentDescriptionsPanel } from "./department-descriptions-panel";
 import { DirectPositionPanel } from "./navigation-panels";
 import type { Department, DepartmentDescriptionDraft, DepartmentDraft, DepartmentPositionStats, CreatePositionDraft, Position, Selection } from "./types";
 export function DepartmentDetailPane({
   selection,
   selectedDepartment,
-  selectedDepartmentParentPath,
   selectedDepartmentStats,
   departmentDraft,
   departmentDescriptionDrafts,
@@ -41,7 +41,6 @@ export function DepartmentDetailPane({
 }: {
   selection: Selection;
   selectedDepartment: Department | undefined;
-  selectedDepartmentParentPath: string;
   selectedDepartmentStats: DepartmentPositionStats | null | undefined;
   departmentDraft: DepartmentDraft | null;
   departmentDescriptionDrafts: DepartmentDescriptionDraft[];
@@ -50,7 +49,7 @@ export function DepartmentDetailPane({
   canEdit: boolean;
   canEditDepartment: boolean;
   canEditPosition: boolean;
-  createPanel: "position" | null;
+  createPanel: "department" | "position" | null;
   createPositionCode: string;
   createPositionDepartment: Department | undefined;
   createPositionDraft: CreatePositionDraft;
@@ -60,7 +59,7 @@ export function DepartmentDetailPane({
   saving: boolean;
   showArchived: boolean;
   positionEditor: ReactNode;
-  setCreatePanel: (panel: "position" | null) => void;
+  setCreatePanel: (panel: "department" | "position" | null) => void;
   setCreatePositionDraft: Dispatch<SetStateAction<CreatePositionDraft>>;
   onSelect: (selection: Selection) => void;
   onCreatePosition: () => void | Promise<void>;
@@ -74,6 +73,14 @@ export function DepartmentDetailPane({
     if (departmentDirty) await onSaveDepartmentInfo();
     if (departmentDescriptionDirty) await onSaveDepartmentDescription();
   }
+  const parentDepartmentOptions = useMemo(() => {
+    if (!selectedDepartment) return [];
+    const excludedIds = departmentDescendantIds(selectedDepartment, departmentById);
+    excludedIds.add(selectedDepartment.id);
+    return Array.from(departmentById.values())
+      .filter(d => !excludedIds.has(d.id) && d.level < 3)
+      .map(d => ({ value: String(d.id), label: `${d.name}（L${d.level}）` }));
+  }, [departmentById, selectedDepartment]);
   return <PanelCard className="min-h-[520px]" bodyClassName="p-4">
       {!selection && <p className="py-12 text-center text-sm text-slate-400">选择部门或岗位查看详情</p>}
       {selectedDepartment && <div className="space-y-4">
@@ -89,46 +96,60 @@ export function DepartmentDetailPane({
                     </CommandButton>}
                 </div>} />
             {departmentDraft && <div className="mt-4 space-y-3">
-                <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-                  <FormField label="部门编码">
-                    <TextField value={selectedDepartment.code} disabled className={readOnlyInputClassName} />
-                  </FormField>
-                  <FormField label="部门名称">
-                    <TextField value={departmentDraft.name} disabled={!canEditDepartment} onChange={next => onUpdateDepartmentDraft("name", next)} className={formInputClassName} />
-                  </FormField>
-                  <FormField label="上级路径">
-                    <TextField value={selectedDepartmentParentPath || "无"} disabled className={readOnlyInputClassName} />
-                  </FormField>
-                  <FormField label="别名">
-                    <PositionAliasTagsInput value={departmentDraft.alias} disabled={!canEditDepartment} onChange={value => onUpdateDepartmentDraft("alias", value)} />
-                  </FormField>
-                  <FormField label="部门负责人">
-                    <TextField value={departmentDraft.managerPositionName || "未设置"} disabled className={readOnlyInputClassName} />
-                  </FormField>
-                  <div className="block min-w-0">
-                    <span className="mb-0.5 block text-xs font-semibold text-slate-500">状态</span>
-                    <PanelCard bodyClassName="flex h-10 items-center justify-between gap-2 px-3">
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${showArchived ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>
-                        {showArchived ? "已归档" : "现用"}
-                      </span>
-                    </PanelCard>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-                  {[{
-              label: "直属岗位",
-              value: selectedDepartmentStats?.directPositions ?? 0
-            }, {
-              label: "总岗位",
-              value: selectedDepartmentStats?.totalPositions ?? 0
-            }, {
-              label: "直属编制",
-              value: selectedDepartmentStats?.directHeadcount ?? 0
-            }, {
-              label: "总编制",
-              value: selectedDepartmentStats?.totalHeadcount ?? 0
-            }].map(item => <MetricCard key={item.label} label={item.label} value={item.value} className="px-3 py-2" />)}
-                </div>
+                <EntityDetailLayout.Fields columns={2}>
+                  <FieldGrid.Cell label="部门编码">
+                    <DepartmentCodeInput value={departmentDraft.code} level={departmentDraft.level} disabled={!canEditDepartment} onChange={next => onUpdateDepartmentDraft("code", next)} />
+                  </FieldGrid.Cell>
+                  <EntityDetailLayout.Field
+                    label="部门名称"
+                    kind="text"
+                    value={departmentDraft.name}
+                    disabled={!canEditDepartment}
+                    onChange={next => onUpdateDepartmentDraft("name", next)}
+                  />
+                  <EntityDetailLayout.Field
+                    label="部门层级"
+                    kind="readonly"
+                    value={`L${departmentDraft.level}`}
+                  />
+                  <EntityDetailLayout.Field
+                    label="上级部门"
+                    kind="select"
+                    value={departmentDraft.parentId == null ? "" : String(departmentDraft.parentId)}
+                    options={parentDepartmentOptions}
+                    searchable
+                    disabled={!canEditDepartment}
+                    placeholder="无"
+                    onChange={next => {
+                      const nextParentId = next === "" ? null : Number(next);
+                      onUpdateDepartmentDraft("parentId", nextParentId);
+                      const parentLevel = nextParentId == null ? 0 : (departmentById.get(nextParentId)?.level ?? 0);
+                      onUpdateDepartmentDraft("level", Math.min(parentLevel + 1, 3) as 1 | 2 | 3);
+                    }}
+                  />
+                  <EntityDetailLayout.Field
+                    label="别名"
+                    kind="tags"
+                    value={departmentDraft.alias}
+                    disabled={!canEditDepartment}
+                    placeholder="添加别名"
+                    confirmRemove
+                    removeConfirmMessage={item => `确定删除别名「${item}」吗？删除后需要保存才会生效。`}
+                    removeConfirmTitle="删除别名"
+                    onChange={value => onUpdateDepartmentDraft("alias", value)}
+                  />
+                  <EntityDetailLayout.Field
+                    label="部门负责人"
+                    kind="readonly"
+                    value={departmentDraft.managerPositionName || "未设置"}
+                  />
+                </EntityDetailLayout.Fields>
+                <EntityDetailLayout.Metrics columns={4}>
+                  <MetricTile label="直属岗位" value={selectedDepartmentStats?.directPositions ?? 0} />
+                  <MetricTile label="总岗位" value={selectedDepartmentStats?.totalPositions ?? 0} />
+                  <MetricTile label="直属编制" value={selectedDepartmentStats?.directHeadcount ?? 0} />
+                  <MetricTile label="总编制" value={selectedDepartmentStats?.totalHeadcount ?? 0} />
+                </EntityDetailLayout.Metrics>
               </div>}
           </PanelCard>
           {!isOrganizationMode && <DepartmentDescriptionsPanel drafts={departmentDescriptionDrafts} dirty={departmentDescriptionDirty} canEditDepartment={canEditDepartment} onUpdateDraft={onUpdateDepartmentDescriptionDraft} />}

@@ -1,6 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { ActionButton } from "./ActionControls";
+import type { ActionGlyphKind } from "./ActionGlyphs";
 
 function joinClassNames(...classNames: Array<string | false | null | undefined>) {
   return classNames.filter(Boolean).join(" ");
@@ -13,6 +15,15 @@ export interface TabDef {
 }
 
 export type TabBarVariant = "large" | "mid" | "small" | "micro";
+
+export interface TabBarAction {
+  key: string;
+  icon: ActionGlyphKind;
+  label: string;
+  variant?: "primary" | "secondary" | "danger";
+  disabled?: boolean;
+  onClick: () => void;
+}
 
 interface VariantStyle {
   nav: string;
@@ -88,6 +99,8 @@ export interface TabBarBaseProps {
   variant?: TabBarVariant;
   accordion?: boolean;
   ariaLabel?: string;
+  leadingActions?: TabBarAction[];
+  trailingActions?: TabBarAction[];
 }
 
 export interface TabBarNonAccordionProps extends TabBarBaseProps {
@@ -115,6 +128,8 @@ export default function TabBar(props: TabBarProps) {
     variant = "mid",
     accordion = false,
     ariaLabel,
+    leadingActions,
+    trailingActions,
   } = props;
 
   if (accordion && variant !== "large" && variant !== "small") {
@@ -125,55 +140,79 @@ export default function TabBar(props: TabBarProps) {
   const activeChild = accordion ? (props as TabBarAccordionProps).activeChild : undefined;
   const onChildChange = accordion ? (props as TabBarAccordionProps).onChildChange : undefined;
 
+  const renderActions = (actions: TabBarAction[] | undefined) => {
+    if (!actions || actions.length === 0) return null;
+    return (
+      <div className="flex shrink-0 items-center gap-2">
+        {actions.map((action) => (
+          <ActionButton
+            key={action.key}
+            kind={action.icon}
+            label={action.label}
+            variant={action.variant}
+            disabled={action.disabled}
+            onClick={action.onClick}
+          />
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div
       role="tablist"
       aria-label={ariaLabel}
       className={joinClassNames(styles.nav, className)}
     >
-      {tabs.map((tab) => {
-        const selected = active === tab.key;
-        const children = tab.children ?? [];
-        const childPanelStyle = styles.childPanel;
-        return (
-          <div key={tab.key} className="flex items-center">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={selected}
-              onClick={() => onChange(tab.key)}
-              className={joinClassNames(
-                styles.button.base,
-                selected ? styles.button.active : styles.button.inactive,
+      {renderActions(leadingActions)}
+
+      <div className="flex items-center gap-2">
+        {tabs.map((tab) => {
+          const selected = active === tab.key;
+          const children = tab.children ?? [];
+          const childPanelStyle = styles.childPanel;
+          return (
+            <div key={tab.key} className="flex items-center">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                onClick={() => onChange(tab.key)}
+                className={joinClassNames(
+                  styles.button.base,
+                  selected ? styles.button.active : styles.button.inactive,
+                )}
+              >
+                {tab.label}
+              </button>
+              {accordion && selected && children.length > 0 && childPanelStyle && (
+                <div className={joinClassNames("ml-2", childPanelStyle.base)}>
+                  {children.map((child) => {
+                    const childSelected = activeChild === child.key;
+                    return (
+                      <button
+                        key={child.key}
+                        type="button"
+                        role="tab"
+                        aria-selected={childSelected}
+                        onClick={() => onChildChange?.(child.key)}
+                        className={joinClassNames(
+                          childPanelStyle.button.base,
+                          childSelected ? childPanelStyle.button.active : childPanelStyle.button.inactive,
+                        )}
+                      >
+                        {child.label}
+                      </button>
+                    );
+                  })}
+                </div>
               )}
-            >
-              {tab.label}
-            </button>
-            {accordion && selected && children.length > 0 && childPanelStyle && (
-              <div className={joinClassNames("ml-2", childPanelStyle.base)}>
-                {children.map((child) => {
-                  const childSelected = activeChild === child.key;
-                  return (
-                    <button
-                      key={child.key}
-                      type="button"
-                      role="tab"
-                      aria-selected={childSelected}
-                      onClick={() => onChildChange?.(child.key)}
-                      className={joinClassNames(
-                        childPanelStyle.button.base,
-                        childSelected ? childPanelStyle.button.active : childPanelStyle.button.inactive,
-                      )}
-                    >
-                      {child.label}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        );
-      })}
+            </div>
+          );
+        })}
+      </div>
+
+      {renderActions(trailingActions)}
     </div>
   );
 }

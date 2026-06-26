@@ -1,6 +1,6 @@
 "use client";
 
-import { AnalysisBlock, SelectField } from "@workspace/core/ui";
+import { AnalysisBlock } from "@workspace/core/ui";
 import type { DeptEntry, FilteredDept } from "./usePositionData";
 
 const LEVEL_LABEL: Record<number, string> = { 1: "L1 事业部", 2: "L2 部门", 3: "L3 子部门" };
@@ -75,16 +75,17 @@ export default function DeptBarChart({
     <AnalysisBlock
       title="各部门编制 vs 实际"
       subtitle="条形宽度跨层级统一比例"
-      toolbar={
-        <SelectField
-          value={filterL1 == null ? "" : String(filterL1)}
-          onChange={(value) => setFilterL1(value ? Number(value) : null)}
-          placeholder="全部事业部"
-          options={l1List.map((dept) => ({ value: String(dept.id), label: dept.name }))}
-          className="ml-auto w-40"
-          triggerClassName="min-h-8"
-        />
-      }
+      toolbarItems={[
+        {
+          kind: "select",
+          key: "l1",
+          value: filterL1 == null ? "" : String(filterL1),
+          onChange: (value) => setFilterL1(value ? Number(value) : null),
+          placeholder: "全部事业部",
+          options: l1List.map((dept) => ({ value: String(dept.id), label: dept.name })),
+          triggerClassName: "!min-h-8 !w-40",
+        },
+      ]}
     >
 
       <LevelSection level={1} entries={filteredDept.l1} globalMax={globalMax} />

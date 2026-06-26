@@ -6,7 +6,7 @@ import { useLibraryFilters } from "../hooks/useLibraryFilters";
 import { useLibraryDirectories } from "../hooks/useLibraryDirectories";
 import LibrarySidebar from "./LibrarySidebar";
 import LibraryTable from "./LibraryTable";
-import { EmptyStateCard, Pagination, SelectField, Toolbar, type ToolbarItem } from "@workspace/core/ui";
+import { EmptyStateCard, Pagination, Toolbar, type ToolbarItem } from "@workspace/core/ui";
 import { WorkspaceSplitPage } from "@workspace/core/ui";
 import GenerateDocumentModal from "./GenerateDocumentModal";
 
@@ -63,22 +63,21 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
         onDrawerOpenChange={setSidebarDrawerOpen}
         renderSide={(mode) => (
           <>
-            <Toolbar
-              items={[
-                { kind: "custom", key: "title", section: "view", content: <span className="text-xs font-medium text-gray-500">目录</span> },
-                ...(mode === "drawer"
-                  ? [
-                      {
-                        kind: "action-group" as const,
-                        key: "close",
-                        section: "action" as const,
-                        actions: [{ key: "close", kind: "cancel" as const, label: "关闭", onClick: () => setSidebarDrawerOpen(false) }],
-                      },
-                    ]
-                  : []),
-              ] satisfies ToolbarItem[]}
-              className="mb-3"
-            />
+            <div className="mb-3 flex min-h-9 items-center gap-3">
+              <h3 className="truncate text-sm font-semibold text-slate-900">目录</h3>
+              {mode === "drawer" && (
+                <Toolbar
+                  variant="inline"
+                  className="ml-auto"
+                  items={[{
+                    kind: "action-group",
+                    key: "close",
+                    section: "action",
+                    actions: [{ key: "close", kind: "cancel", label: "关闭", onClick: () => setSidebarDrawerOpen(false) }],
+                  }] satisfies ToolbarItem[]}
+                />
+              )}
+            </div>
             {dirError && <EmptyStateCard compact className="mb-3 border-red-100 bg-red-50 text-red-600">目录加载失败: {dirError}</EmptyStateCard>}
             <LibrarySidebar
               directories={directories}
@@ -117,27 +116,23 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
                 scope: ["标题", "文件名", "简介", "标签"] as const,
               },
               {
-                kind: "custom" as const,
-                key: "filters",
+                kind: "select" as const,
+                key: "status-filter",
                 section: "filter" as const,
-                content: (
-                  <>
-                    <SelectField
-                      value={filters.status || ""}
-                      onChange={(value) => setFilter("status", value || undefined)}
-                      options={STATUS_OPTIONS.slice(1)}
-                      placeholder={STATUS_OPTIONS[0]?.label}
-                    />
-                    <SelectField
-                      value={filters.confidentialityLevel !== undefined ? String(filters.confidentialityLevel) : ""}
-                      onChange={(value) =>
-                        setFilter("confidentialityLevel", value ? parseInt(value, 10) : undefined)
-                      }
-                      options={CONFIDENTIALITY_OPTIONS.slice(1)}
-                      placeholder={CONFIDENTIALITY_OPTIONS[0]?.label}
-                    />
-                  </>
-                ),
+                value: filters.status || "",
+                onChange: (value: string) => setFilter("status", value || undefined),
+                options: STATUS_OPTIONS.slice(1),
+                placeholder: STATUS_OPTIONS[0]?.label,
+              },
+              {
+                kind: "select" as const,
+                key: "confidentiality-filter",
+                section: "filter" as const,
+                value: filters.confidentialityLevel !== undefined ? String(filters.confidentialityLevel) : "",
+                onChange: (value: string) =>
+                  setFilter("confidentialityLevel", value ? parseInt(value, 10) : undefined),
+                options: CONFIDENTIALITY_OPTIONS.slice(1),
+                placeholder: CONFIDENTIALITY_OPTIONS[0]?.label,
               },
               {
                 kind: "icon-button" as const,

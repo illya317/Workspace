@@ -5,7 +5,7 @@ import {
   Badge,
   EmptyStateCard,
   PanelCard,
-  SelectorList,
+  SelectorPanel,
   TabBar,
   Toast,
   Toolbar,
@@ -115,7 +115,8 @@ export function ArchivedDepartmentPositionPage({
                   {archivedTab === "departments" ? "暂无归档部门" : "暂无归档岗位"}
                 </EmptyStateCard>
               ) : (
-                <SelectorList
+                <SelectorPanel
+                  framed={false}
                   items={archivedItems}
                   selectedId={activeItemId}
                   onSelect={(item) => onSelect({

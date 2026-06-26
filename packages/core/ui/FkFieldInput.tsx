@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import SearchInput from "./SearchInput";
+import { CONTROL_SIZES, type ControlSize } from "./interactionTokens";
+import FieldInputShell, { type FieldInputShellProps } from "./FieldInputShell";
+import type { FieldControlSize } from "./FormStyles";
 
 export type LifecycleScope = "active" | "all" | "archived";
 
@@ -15,6 +17,8 @@ export interface FkFieldOption {
   lifecycleStatus?: "active" | "archived" | "inactive";
 }
 
+export type FkFieldInputAppearance = "field" | "toolbar" | "inline";
+
 export interface FkFieldInputProps {
   fkKey: string;
   endpoint: string;
@@ -25,8 +29,43 @@ export interface FkFieldInputProps {
   disabled?: boolean;
   lifecycleScope?: LifecycleScope;
   queryParams?: Record<string, string | number | boolean | null | undefined>;
+  appearance?: FkFieldInputAppearance;
+  size?: FieldControlSize;
+  density?: FieldInputShellProps["density"];
   className?: string;
 }
+
+function getFkInputClassName(
+  appearance: FkFieldInputAppearance,
+  size: ControlSize,
+  extra?: string,
+): string {
+  const tokens = CONTROL_SIZES[size];
+  const sizeBase = [tokens.height, tokens.paddingX, tokens.radius].filter(Boolean).join(" ");
+  switch (appearance) {
+    case "toolbar":
+      return [
+        sizeBase,
+        "min-w-0 border border-slate-200 bg-white font-semibold text-slate-700 shadow-sm placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:bg-slate-100 disabled:text-slate-500",
+        tokens.text,
+        extra,
+      ].filter(Boolean).join(" ");
+    case "inline":
+      return [
+        "min-w-0 border-b border-transparent bg-transparent px-1 py-0 text-sm text-slate-700 placeholder:text-slate-400 hover:border-slate-300 focus:border-sky-500 focus:outline-none disabled:text-slate-400",
+        extra,
+      ].filter(Boolean).join(" ");
+    default:
+      return [
+        sizeBase,
+        "w-full min-w-0 border border-slate-200 bg-white py-0 font-sans text-sm text-slate-800 shadow-sm tabular-nums placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:bg-slate-100 disabled:text-slate-500",
+        extra,
+      ].filter(Boolean).join(" ");
+  }
+}
+
+const UNSTYLED_INPUT_CLASS_NAME =
+  "h-full w-full min-w-0 border-0 bg-transparent p-0 text-sm leading-none text-current outline-none placeholder:text-slate-400 disabled:bg-transparent disabled:text-slate-500";
 
 export default function FkFieldInput({
   fkKey,
@@ -38,8 +77,12 @@ export default function FkFieldInput({
   disabled,
   lifecycleScope = "active",
   queryParams,
+  appearance = "field",
+  size = "md",
+  density = "normal",
   className,
 }: FkFieldInputProps) {
+  const controlSize: ControlSize = size;
   const [keyword, setKeyword] = useState("");
   const [options, setOptions] = useState<FkFieldOption[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -113,24 +156,40 @@ export default function FkFieldInput({
 
   const display = searching ? keyword : selectedName;
 
+  const containerClassName = appearance === "inline" ? "relative inline-block min-w-0" : "relative w-full min-w-0";
+  const isField = appearance === "field";
+  const inputClassName = isField
+    ? [UNSTYLED_INPUT_CLASS_NAME, className].filter(Boolean).join(" ")
+    : getFkInputClassName(appearance, controlSize, className);
+  const input = (
+    <input
+      type="text"
+      value={display}
+      onChange={(event) => {
+        setSearching(true);
+        handleInputChange(event.target.value);
+      }}
+      onFocus={() => {
+        setSearching(true);
+        setKeyword("");
+        setOptions([]);
+        setShowDropdown(true);
+      }}
+      disabled={disabled}
+      placeholder={selectedName || placeholder}
+      className={inputClassName}
+    />
+  );
+
   return (
-    <div ref={containerRef} className="relative flex-1">
-      <SearchInput
-        value={display}
-        onChange={(nextValue) => {
-          setSearching(true);
-          handleInputChange(nextValue);
-        }}
-        onFocus={() => {
-          setSearching(true);
-          setKeyword("");
-          setOptions([]);
-          setShowDropdown(true);
-        }}
-        disabled={disabled}
-        placeholder={selectedName || placeholder}
-        className={className}
-      />
+    <div ref={containerRef} className={containerClassName}>
+      {isField ? (
+        <FieldInputShell disabled={disabled} size={size} density={density}>
+          {input}
+        </FieldInputShell>
+      ) : (
+        input
+      )}
       {showDropdown && searching && (
         <div className="absolute z-50 mt-1 max-h-48 min-w-[160px] w-full overflow-auto rounded border border-gray-200 bg-white shadow-lg">
           {loading ? (

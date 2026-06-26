@@ -4,7 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { CommandButton, TableScrollFrame, Toolbar } from "@workspace/core/ui";
+import { CommandButton, TableScrollFrame } from "@workspace/core/ui";
 import type { QcBatchSummary, QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcLayoutPaper from "./QcLayoutPaper";
@@ -108,19 +108,14 @@ export default function QcBatchTestRecord({
             </Link>)}
         </nav>
 
-        <Toolbar className="mb-5" items={[{
-        kind: "custom",
-        key: "title",
-        section: "view",
-        content: `${productName}${stage.label} - ${test.name}`
-      }, {
-        kind: "custom",
-        key: "status",
-        section: "action",
-        content: <span className="text-xs font-normal text-slate-500">
-                  批号 {batch.batchNumber} · {workflowMessage}
-                </span>
-      }]} />
+        <div className="mb-5 flex items-center gap-3">
+          <h2 className="truncate text-base font-semibold text-slate-900">
+            {productName}{stage.label} - {test.name}
+          </h2>
+          <span className="ml-auto shrink-0 text-xs font-normal text-slate-500">
+            批号 {batch.batchNumber} · {workflowMessage}
+          </span>
+        </div>
       </div>
       <div className="min-w-[210mm]">
         {test.layoutBlocks?.length ? <QcLayoutPaper blocks={test.layoutBlocks} test={test} values={form.values} referenceValues={referenceValues} onFieldChange={form.setValue} readOnly={readOnly} fieldScopePrefix={`${stage.key}/${test.englishName}`} /> : <div className="qc-a4-page mx-auto box-border w-[210mm] min-w-[210mm] overflow-visible bg-white px-[16mm] py-[15mm] text-slate-950 shadow-[0_0_0_1px_rgba(15,23,42,0.10),0_10px_35px_rgba(15,23,42,0.12)]" style={{

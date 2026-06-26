@@ -5,7 +5,7 @@ import LineConfigTab from "./LineConfigTab";
 import UnmappedTab from "./UnmappedTab";
 import BalanceCheckTab from "./BalanceCheckTab";
 import { StatementConfigProvider, useStatementConfig } from "./StatementConfigContext";
-import { SelectField, Toolbar, type ToolbarItem } from "@workspace/core/ui";
+import { Toolbar, type ToolbarItem } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 import { DatabasePageFrame } from "@workspace/core/ui";
@@ -18,33 +18,37 @@ function SharedFilters() {
   const companyOptions = useCompanyOptions();
   const toolbarItems: ToolbarItem[] = [
     {
-      kind: "custom",
-      key: "filters",
+      kind: "select",
+      key: "company",
       section: "filter",
+      label: "公司",
+      options: companyOptions,
+      value: company,
+      onChange: setCompany,
+      placeholder: "—",
+      className: "min-w-max",
+      triggerClassName: "min-w-44",
+    },
+    {
+      kind: "select",
+      key: "year",
+      section: "filter",
+      label: "年度",
+      options: years.map((y) => ({ value: y, label: y })),
+      value: year,
+      onChange: setYear,
+      placeholder: "—",
+      className: "min-w-max",
+      triggerClassName: "min-w-36",
+    },
+    {
+      kind: "text",
+      key: "loading-meta",
+      section: "meta",
       content: (
-        <>
-          <SelectField
-            label="公司"
-            options={companyOptions}
-            value={company}
-            onChange={setCompany}
-            placeholder="—"
-            className="min-w-max"
-            triggerClassName="min-w-44"
-          />
-          <SelectField
-            label="年度"
-            options={years.map((y) => ({ value: y, label: y }))}
-            value={year}
-            onChange={setYear}
-            placeholder="—"
-            className="min-w-max"
-            triggerClassName="min-w-36"
-          />
-          <span className="whitespace-nowrap text-sm text-slate-400">
-            {loading ? "加载可用期间…" : `全部 tab 共享，已加载 ${availablePairs.length} 个（公司、年度）组合`}
-          </span>
-        </>
+        <span className="whitespace-nowrap text-sm text-slate-400">
+          {loading ? "加载可用期间…" : `全部 tab 共享，已加载 ${availablePairs.length} 个（公司、年度）组合`}
+        </span>
       ),
     },
   ];
@@ -59,8 +63,8 @@ function TabContent() {
       tabs={tabs}
       activeTab={activeTab}
       onTabChange={setActiveTab}
-      toolbar={<SharedFilters />}
     >
+      <SharedFilters />
       <div>
         {activeTab === "lines" && <LineConfigTab />}
         {activeTab === "unmapped" && <UnmappedTab />}

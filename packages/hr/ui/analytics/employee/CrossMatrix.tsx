@@ -1,6 +1,6 @@
 "use client";
 
-import { AnalysisBlock, DataTable, SelectField, type DataTableColumn } from "@workspace/core/ui";
+import { AnalysisBlock, DataTable, type DataTableColumn } from "@workspace/core/ui";
 import type { CrossMatrixData } from "./useEmployeeData";
 import { DIM_LABELS, type DimKey } from "./constants";
 
@@ -86,30 +86,12 @@ export default function CrossMatrix({
   return (
     <AnalysisBlock
       title="交叉分析"
-      toolbar={
-        <div className="flex flex-wrap items-center gap-4">
-        <div className="flex items-center gap-2">
-          <SelectField
-            label="行："
-            value={crossRow}
-            onChange={(value) => setCrossRow(value as DimKey)}
-            options={rowOptions}
-            triggerClassName="min-h-7 w-28"
-          />
-        </div>
-        <span className="text-xs text-gray-300">&times;</span>
-        <div className="flex items-center gap-2">
-          <SelectField
-            label="列："
-            value={crossCol}
-            onChange={(value) => setCrossCol(value as DimKey)}
-            options={colOptions}
-            triggerClassName="min-h-7 w-28"
-          />
-        </div>
-        <span className="text-xs text-gray-400">共 {statsActive} 人</span>
-        </div>
-      }
+      toolbarItems={[
+        { kind: "select", key: "row", label: "行", value: crossRow, onChange: (value) => setCrossRow(value as DimKey), options: rowOptions, triggerClassName: "!min-h-7 !w-28" },
+        { kind: "text", key: "by", content: <span className="text-gray-300">&times;</span> },
+        { kind: "select", key: "column", label: "列", value: crossCol, onChange: (value) => setCrossCol(value as DimKey), options: colOptions, triggerClassName: "!min-h-7 !w-28" },
+        { kind: "text", key: "meta", content: <>共 {statsActive} 人</> },
+      ]}
     >
 
       {crossMatrix.rowKeys.length === 0 ? (

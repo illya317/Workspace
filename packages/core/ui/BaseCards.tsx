@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { joinClassNames } from "./card-utils";
+import { Toolbar, type ToolbarItem } from "./Toolbar";
 
 export interface PanelCardProps extends Pick<HTMLAttributes<HTMLElement>, "style" | "onMouseEnter" | "onMouseLeave"> {
   children: ReactNode;
@@ -112,7 +113,7 @@ export function SectionCard({
 export interface AnalysisBlockProps {
   title: ReactNode;
   subtitle?: ReactNode;
-  toolbar?: ReactNode;
+  toolbarItems?: ToolbarItem[];
   children: ReactNode;
   className?: string;
   bodyClassName?: string;
@@ -121,7 +122,7 @@ export interface AnalysisBlockProps {
 export function AnalysisBlock({
   title,
   subtitle,
-  toolbar,
+  toolbarItems,
   children,
   className = "",
   bodyClassName = "",
@@ -130,7 +131,7 @@ export function AnalysisBlock({
     <PanelCard
       title={title}
       subtitle={subtitle}
-      actions={toolbar}
+      actions={toolbarItems?.length ? <Toolbar items={toolbarItems} variant="inline" size="sm" /> : undefined}
       className={className}
       bodyClassName={joinClassNames("p-5", bodyClassName)}
     >

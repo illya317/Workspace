@@ -7,10 +7,10 @@ import {
   Toolbar,
   type ColumnDef,
   type FieldValueFilterField,
-  type ToolbarItem,
 } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "@workspace/hr/ui/fk-keys";
+import { buildHRToolbarItems } from "../components/hr-toolbar-items";
 import type {
   RosterGeneratedColumn,
   RosterGeneratedFilterField,
@@ -129,101 +129,59 @@ export default function RosterGeneratedTab({ variant, canEdit }: { variant: Rost
     URL.revokeObjectURL(url);
   }
 
+  const toolbarItems = buildHRToolbarItems({
+    search: {
+      value: keyword,
+      onChange: setKeyword,
+      placeholder: "搜索员工、公司、部门、岗位",
+      ariaLabel: "搜索员工、公司、部门、岗位",
+    },
+    filters: {
+      configs: [{ key: "status", label: "人员状态", type: "select", options: statusOptions }],
+      values: { status },
+      onChange: (key, value) => {
+        if (key === "status") setStatus(value as RosterGeneratedStatus);
+      },
+    },
+    advancedFilter: {
+      fields: filterFields,
+      fieldKey: filterField,
+      value: filterValue,
+      onFieldKeyChange: setFilterField,
+      onValueChange: setFilterValue,
+      referenceEndpoint: HR_REFERENCE_OPTIONS_ENDPOINT,
+    },
+    columnToggle: { columns: columnDefs, visible: visibleColumns, onChange: setVisibleColumns },
+    refresh: { label: "刷新生成", disabled: loading, onClick: () => void loadPreview() },
+    editGroup: {
+      editMode,
+      onStartEdit: () => setEditMode(true),
+      onSave: applyEdits,
+      onCancel: () => {
+        setGroups(preview?.groups ?? []);
+        setEditMode(false);
+      },
+      onDownload: downloadCsv,
+      canEdit,
+      saveLabel: "应用到预览",
+      editLabel: "编辑预览",
+      saving,
+    },
+    meta: preview ? <span>共 {preview.totalEmployees} 人</span> : null,
+    pageSize: {
+      value: pageSize,
+      options: [
+        { value: "50", label: "50条/页" },
+        { value: "100", label: "100条/页" },
+        { value: "200", label: "200条/页" },
+      ],
+      onChange: setPageSize,
+    },
+  });
+
   return (
     <div className="space-y-4">
-      <Toolbar
-        onSubmit={() => void loadPreview()}
-        items={[
-          {
-            kind: "search",
-            key: "search",
-            section: "filter",
-            value: keyword,
-            onChange: setKeyword,
-            placeholder: "搜索员工、公司、部门、岗位",
-            ariaLabel: "搜索员工、公司、部门、岗位",
-            className: "min-w-64",
-          },
-          {
-            kind: "option-group",
-            key: "status",
-            section: "filter",
-            value: status,
-            options: statusOptions,
-            onChange: (value) => setStatus(value as RosterGeneratedStatus),
-            ariaLabel: "花名册人员状态",
-          },
-          {
-            kind: "field-filter",
-            key: "field-filter",
-            section: "filter",
-            fields: filterFields,
-            valueOptions: {},
-            referenceEndpoint: HR_REFERENCE_OPTIONS_ENDPOINT,
-            fieldKey: filterField,
-            onFieldKeyChange: setFilterField,
-            value: filterValue,
-            onValueChange: setFilterValue,
-          },
-          {
-            kind: "column-toggle",
-            key: "columns",
-            columns: columnDefs,
-            visible: visibleColumns,
-            onChange: setVisibleColumns,
-          },
-          {
-            kind: "action-group",
-            key: "refresh",
-            section: "edit",
-            actions: [
-              {
-                key: "refresh",
-                kind: "refresh",
-                label: "刷新生成",
-                disabled: loading,
-                onClick: () => void loadPreview(),
-              },
-            ],
-          },
-          {
-            kind: "edit-group",
-            key: "edit",
-            section: "edit",
-            editMode,
-            onStartEdit: () => setEditMode(true),
-            onSave: applyEdits,
-            onCancel: () => {
-              setGroups(preview?.groups ?? []);
-              setEditMode(false);
-            },
-            onDownload: downloadCsv,
-            canEdit,
-            downloading: false,
-            saveLabel: "应用到预览",
-            editLabel: "编辑预览",
-            saving,
-          },
-          {
-            kind: "text",
-            key: "meta-count",
-            section: "meta",
-            content: preview ? <span>共 {preview.totalEmployees} 人</span> : null,
-          },
-          {
-            kind: "select",
-            key: "page-size",
-            section: "meta",
-            value: pageSize,
-            options: [
-              { value: "50", label: "50条/页" },
-              { value: "100", label: "100条/页" },
-              { value: "200", label: "200条/页" },
-            ],
-            onChange: setPageSize,
-          },
-        ] satisfies ToolbarItem[]}
-      />
+      <Toolbar items={toolbarItems} onSubmit={() => void loadPreview()} />
 
       {error && <EmptyStateCard compact className="border-red-100 text-red-600">{error}</EmptyStateCard>}
 

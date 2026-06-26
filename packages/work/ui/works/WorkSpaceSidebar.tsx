@@ -1,6 +1,6 @@
 "use client";
 
-import { EmptyStateCard, PanelCard, SelectorList } from "@workspace/core/ui";
+import { SelectorPanel } from "@workspace/core/ui";
 import { getWorkSpaceLabel } from "./model";
 import type { WorkTarget, WorkTaskSpace, WorkTargetType } from "./types";
 
@@ -23,28 +23,24 @@ export default function WorkSpaceSidebar({
   ];
 
   return (
-    <PanelCard bodyClassName="p-3">
-      <div className="mb-3 px-1 text-xs font-semibold text-slate-400">工作空间</div>
-      {loading ? (
-        <EmptyStateCard compact>加载中...</EmptyStateCard>
-      ) : (
-        <SelectorList
-          items={spaces}
-          selectedId={active ? `${active.targetType}:${active.targetId}` : null}
-          onSelect={onSelect}
-          getKey={(space) => `${space.targetType}:${space.targetId}`}
-          groupBy={(space) => groups.find((group) => group.type === space.targetType)?.title ?? ""}
-          renderItem={(space) => ({
-            title: space.name,
-            subtitle: space.subtitle || getWorkSpaceLabel(space.targetType),
-            meta: [`${space.counts.objective + space.counts.keyResult + space.counts.task}`],
-            trailing: <span className="shrink-0 rounded bg-white/80 px-1.5 py-0.5 text-xs text-slate-400">{roleLabel(space.role)}</span>,
-          })}
-          size="sm"
-          className="space-y-4"
-        />
-      )}
-    </PanelCard>
+    <SelectorPanel
+      title="工作空间"
+      bodyClassName="p-3"
+      loading={loading}
+      loadingText="加载中..."
+      items={spaces}
+      selectedId={active ? `${active.targetType}:${active.targetId}` : null}
+      onSelect={onSelect}
+      getKey={(space) => `${space.targetType}:${space.targetId}`}
+      groupBy={(space) => groups.find((group) => group.type === space.targetType)?.title ?? ""}
+      renderItem={(space) => ({
+        title: space.name,
+        subtitle: `${space.subtitle || getWorkSpaceLabel(space.targetType)} · 事项 ${space.counts.objective + space.counts.keyResult + space.counts.task}`,
+        trailing: <span className="shrink-0 rounded bg-white/80 px-1.5 py-0.5 text-xs text-slate-400">{roleLabel(space.role)}</span>,
+      })}
+      size="sm"
+      contentClassName="space-y-4"
+    />
   );
 }
 

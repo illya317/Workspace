@@ -127,8 +127,11 @@ export function departmentManagerPositionName(department: Department) {
 export function createDepartmentDraft(department: Department): DepartmentDraft {
   return {
     id: department.id,
+    code: department.code,
     name: department.name,
     alias: parseAlias(department.alias),
+    level: Math.min(Math.max(department.level, 1), 3) as 1 | 2 | 3,
+    parentId: department.parentId,
     managerPositionName: departmentManagerPositionName(department),
   };
 }
@@ -217,8 +220,11 @@ export function sanitizeDepartmentDescriptionDetails(details: string, department
 export function departmentDraftPayload(draft: DepartmentDraft) {
   return {
     id: draft.id,
+    code: draft.code.trim(),
     name: draft.name.trim(),
     alias: serializeAlias(draft.alias || ""),
+    level: draft.level,
+    parentId: draft.parentId,
     managerPositionName: draft.managerPositionName.trim(),
   };
 }

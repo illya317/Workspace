@@ -96,8 +96,11 @@ export type DepartmentDescriptionDraft = {
 
 export type DepartmentDraft = {
   id: number;
+  code: string;
   name: string;
   alias: string;
+  level: 1 | 2 | 3;
+  parentId: number | null;
   managerPositionName: string;
 };
 

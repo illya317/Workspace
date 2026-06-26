@@ -166,15 +166,37 @@ export async function createPosition(
   const command = mapValidationToServiceResult(await buildPositionCreateCommand(input));
   if (!command.ok) return command;
   try {
-    const record = await prisma.position.create({
-      data: { ...command.data, editedBy: userId },
-      select: { id: true },
+    const record = await prisma.$transaction(async (tx) => {
+      let positionDescriptionId = command.data.positionDescriptionId;
+      if (!positionDescriptionId) {
+        const department = command.data.departmentId
+          ? await tx.department.findUnique({ where: { id: command.data.departmentId }, select: { name: true } })
+          : null;
+        const description = await tx.positionDescription.create({
+          data: {
+            code: command.data.code,
+            name: command.data.name,
+            departmentName: department?.name ?? null,
+            sourceFile: "",
+            details: "{}",
+            editedBy: userId,
+            editedAt: new Date(),
+          },
+          select: { id: true },
+        });
+        positionDescriptionId = description.id;
+      }
+      const position = await tx.position.create({
+        data: { ...command.data, positionDescriptionId, editedBy: userId },
+        select: { id: true },
+      });
+      await snapshotHistory("Position", position.id, userId, tx);
+      return position;
     });
-    await snapshotHistory("Position", record.id, userId);
     return { ok: true, data: { success: true, record } };
   } catch (error: unknown) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      return { ok: false, error: "编码已存在", status: 409 };
+      return { ok: false, error: "编码或说明书编码已存在", status: 409 };
     }
     throw error;
   }

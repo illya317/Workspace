@@ -18,6 +18,7 @@ interface CreatePanelBaseProps {
   submitting?: boolean;
   submitLabel?: string;
   cancelLabel?: string;
+  scrollOnCreate?: boolean;
   className?: string;
 }
 
@@ -70,6 +71,7 @@ export interface CreatePanelDetailProps {
   submitting?: boolean;
   submitLabel?: string;
   cancelLabel?: string;
+  scrollOnCreate?: boolean;
   className?: string;
   bodyClassName?: string;
 }
@@ -91,6 +93,7 @@ export default function CreatePanel(props: CreatePanelProps) {
     submitting,
     submitLabel,
     cancelLabel,
+    scrollOnCreate,
     className,
   } = props;
 
@@ -105,6 +108,7 @@ export default function CreatePanel(props: CreatePanelProps) {
         submitting={submitting}
         submitLabel={submitLabel}
         cancelLabel={cancelLabel}
+        scrollOnCreate={scrollOnCreate}
         hideTitle={hideTitle}
         className={className}
       >
@@ -138,6 +142,7 @@ export default function CreatePanel(props: CreatePanelProps) {
         addLabel={addLabel}
         submitLabel={submitLabel}
         cancelLabel={cancelLabel}
+        scrollOnCreate={scrollOnCreate}
         createContent={createContent}
         bodyClassName={bodyClassName}
         createClassName={createClassName}
@@ -209,6 +214,7 @@ export default function CreatePanel(props: CreatePanelProps) {
       addLabel={addLabel}
       submitLabel={submitLabel}
       cancelLabel={cancelLabel}
+      scrollOnCreate={scrollOnCreate}
       createContent={createContent}
       bodyClassName={bodyClassName}
       className={className}

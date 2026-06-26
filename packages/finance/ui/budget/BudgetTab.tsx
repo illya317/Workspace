@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useToast } from "@workspace/core/hooks";
-import { TabBar, Toast, Toolbar, type ToolbarItem } from "@workspace/core/ui";
+import { TabBar, Toast } from "@workspace/core/ui";
 import { useBudgetData } from "./hooks/useBudgetData";
 import { useBudgetFilters } from "./hooks/useBudgetFilters";
 import BudgetVersionSelector from "./components/BudgetVersionSelector";
@@ -23,12 +23,9 @@ export default function BudgetTab() {
     return <p className="p-8 text-center text-gray-500">加载中...</p>;
   }
 
-  const toolbarItems: ToolbarItem[] = [
-    {
-      kind: "custom",
-      key: "view-tabs",
-      section: "view",
-      content: (
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-3">
         <TabBar
           tabs={[
             { key: "dept", label: "部门费用预算" },
@@ -38,25 +35,14 @@ export default function BudgetTab() {
           onChange={(key) => setView(key as BudgetView)}
           className="mb-0"
         />
-      ),
-    },
-    {
-      kind: "custom",
-      key: "version-selector",
-      section: "action",
-      content: (
-        <BudgetVersionSelector
-          versions={versions}
-          activeVersionId={activeVersionId}
-          onChange={setActiveVersionId}
-        />
-      ),
-    },
-  ];
-
-  return (
-    <div className="space-y-4">
-      <Toolbar items={toolbarItems} className="border-0 bg-transparent p-0 shadow-none" />
+        <div className="ml-auto">
+          <BudgetVersionSelector
+            versions={versions}
+            activeVersionId={activeVersionId}
+            onChange={setActiveVersionId}
+          />
+        </div>
+      </div>
 
       {view === "dept" && (
         <>

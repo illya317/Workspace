@@ -124,8 +124,11 @@ export function useDepartmentPositionActions({
     await withSaving(setSaving, setToast, async () => {
       await putJson("/api/modules/hr/roster/departments", {
         id: selectedDepartment.id,
+        code: departmentDraft.code.trim(),
         name: departmentName,
         alias: serializeAlias(departmentDraft.alias || ""),
+        level: departmentDraft.level,
+        parentId: departmentDraft.parentId,
         descriptions: departmentDescriptionDrafts.slice(0, 1).map((draft) => departmentDescriptionPayload({
           ...draft,
           name: departmentName,

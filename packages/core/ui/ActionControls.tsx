@@ -2,6 +2,7 @@ import type { ButtonHTMLAttributes } from "react";
 import { ActionGlyph } from "./ActionGlyphs";
 import type { ActionGlyphKind } from "./ActionGlyphs";
 import { joinClassNames } from "./card-utils";
+import { CONTROL_SIZES } from "./interactionTokens";
 import { getToolbarActionClassName, type ActionButtonSize } from "./toolbar-styles";
 
 export interface ToolbarAction {
@@ -39,9 +40,13 @@ export function ActionButton({
   size = "md",
   type = "button",
   className = "",
-  iconClassName = "h-4 w-4",
+  iconClassName,
   ...buttonProps
 }: ActionButtonProps) {
+  const tokens = CONTROL_SIZES[size];
+  const defaultIconClassName = tokens.iconSize;
+  // Icon buttons are square: use fixed width matching height
+  const iconButtonWidth = size === "sm" ? "w-8" : size === "lg" ? "w-10" : size === "xl" ? "w-11" : "w-9";
   return (
     <button
       {...buttonProps}
@@ -50,9 +55,9 @@ export function ActionButton({
       disabled={disabled}
       aria-label={buttonProps["aria-label"] ?? label}
       title={buttonProps.title ?? label}
-      className={joinClassNames(getToolbarActionClassName(variant, size), "!w-10 !px-0 text-base leading-none", className)}
+      className={joinClassNames(getToolbarActionClassName(variant, size), `${iconButtonWidth} !px-0 ${tokens.text} ${tokens.leading}`, className)}
     >
-      <ActionGlyph kind={kind} className={iconClassName} />
+      <ActionGlyph kind={kind} className={iconClassName ?? defaultIconClassName} />
     </button>
   );
 }

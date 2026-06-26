@@ -106,35 +106,26 @@ export const page_api_registry_entries = [
     composes: ["PanelCard"],
   },
   {
+    name: "SelectionGrid",
+    accessLayer: "page-api",
+    kind: "picker",
+    description: "页面内平铺选项网格",
+    example: "直属岗位导航、少量枚举切换等场景，选项数量少时直接展示，不用 dropdown picker。",
+  },
+  {
     name: "SelectField",
     accessLayer: "page-api",
     kind: "form",
     description: "下拉选择字段",
     example: "从“现用 / 已归档 / 全部”中选择筛选范围，或用多选切换表格列显隐。",
-    composes: ["SearchInput", "DropdownSurface", "CheckboxField"],
-  },
-  {
-    name: "SelectorList",
-    accessLayer: "page-api",
-    kind: "picker",
-    description: "选择列表渲染器",
-    example: "项目列表、岗位列表、权限人员网格等业务侧只传数据和选中项，不再手写 map + PanelCard。",
-    composes: ["SelectorCard", "EmptyStateCard"],
-  },
-  {
-    name: "SelectorTree",
-    accessLayer: "page-api",
-    kind: "picker",
-    description: "树形选择渲染器",
-    example: "目录树、部门树等业务侧只传树形数据和选中项。",
-    composes: ["TreeNodeCard", "TreeNodeBranch"],
+    composes: ["FieldInputShell", "SearchInput", "DropdownSurface", "CheckboxField"],
   },
   {
     name: "SelectorPanel",
     accessLayer: "page-api",
     kind: "picker",
     description: "选择器面板",
-    example: "列表页左侧选择区：可选搜索框 + SelectorList 或 SelectorTree + EmptyStateCard。",
+    example: "列表页左侧选择区：可选搜索框，mode=list/tree；业务不直接 import SelectorList/SelectorTree/SelectorCard。",
     composes: ["PanelCard", "SearchInput", "SelectorList", "SelectorTree", "EmptyStateCard"],
   },
   {
@@ -154,6 +145,14 @@ export const page_api_registry_entries = [
     foundations: ["getTagInputShellClassName", "getTagInlineInputClassName", "getTagPillClassName"],
   },
   {
+    name: "TagStringInput",
+    accessLayer: "page-api",
+    kind: "form",
+    description: "字符串标签输入",
+    example: "详情页字段把逗号或顿号分隔的别名字符串渲染为可增删标签。",
+    composes: ["TagListInput"],
+  },
+  {
     name: "StructuredTable",
     accessLayer: "page-api",
     kind: "data",
@@ -166,6 +165,7 @@ export const page_api_registry_entries = [
     kind: "navigation",
     description: "Tab 切换栏",
     example: "页面级用 variant='large' accordion 展示一级 Tab 及其子 Tab；工具栏紧凑手风琴用 variant='small' accordion；普通页内 Tab 用 variant='mid'；选择器弹层内小型分段 tabs 用 variant='micro'。",
+    composes: ["ActionButton"],
   },
   {
     name: "TableScrollFrame",
@@ -188,6 +188,7 @@ export const page_api_registry_entries = [
     kind: "form",
     description: "通用文本输入",
     example: "设置弹窗中输入用户名、密码或短文本字段。",
+    composes: ["FieldInputShell"],
     foundations: ["getFieldInputClassName"],
   },
   {
@@ -196,6 +197,7 @@ export const page_api_registry_entries = [
     kind: "form",
     description: "时间输入框",
     example: "会议开始时间拆成日期字段和 09:30 时间字段，提交时组合为 2026-06-20T09:30。",
+    composes: ["FieldInputShell"],
     foundations: ["getFieldInputClassName"],
   },
   {

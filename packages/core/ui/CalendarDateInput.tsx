@@ -3,7 +3,7 @@
 import { forwardRef, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { joinClassNames } from "./card-utils";
 import { CalendarDatePopover, parseDate, type PickerMode } from "./CalendarDatePopover";
-import { getFieldInputClassName } from "./FormStyles";
+import FieldInputShell from "./FieldInputShell";
 
 interface CalendarDateInputProps {
   value: string | null | undefined;
@@ -105,30 +105,36 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
       };
     }, [open, popoverMode, updateFixedPosition]);
 
+    const input = (
+      <input
+        ref={assignInputRef}
+        type="text"
+        readOnly
+        value={value ?? ""}
+        onFocus={openPicker}
+        onClick={openPicker}
+        onKeyDown={onKeyDown}
+        disabled={disabled}
+        aria-readonly={readOnly}
+        placeholder={inputPlaceholder}
+        title={title}
+        className={
+          unstyled
+            ? className
+            : "h-full w-full min-w-0 border-0 bg-transparent p-0 text-sm text-current outline-none placeholder:text-slate-400 caret-transparent cursor-pointer disabled:bg-transparent disabled:text-slate-500"
+        }
+      />
+    );
+
     return (
       <div ref={wrapperRef} className={wrapperClassName}>
-        <input
-          ref={assignInputRef}
-          type="text"
-          readOnly
-          value={value ?? ""}
-          onFocus={openPicker}
-          onClick={openPicker}
-          onKeyDown={onKeyDown}
-          disabled={disabled}
-          aria-readonly={readOnly}
-          placeholder={inputPlaceholder}
-          style={style}
-          title={title}
-          className={
-            unstyled
-              ? className
-              : joinClassNames(
-                  getFieldInputClassName("cursor-pointer caret-transparent text-slate-900"),
-                  className,
-                )
-          }
-        />
+        {unstyled ? (
+          input
+        ) : (
+          <FieldInputShell disabled={disabled} readOnly={readOnly} className={className} style={style}>
+            {input}
+          </FieldInputShell>
+        )}
         {open && !disabled && (
           <CalendarDatePopover
             value={value}

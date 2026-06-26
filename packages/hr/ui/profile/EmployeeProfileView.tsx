@@ -5,8 +5,7 @@ import {
   DatabasePageFrame,
   EmptyStateCard,
   TabBar,
-  Toolbar,
-  type ToolbarItem,
+  type TabBarAction,
 } from "@workspace/core/ui";
 import { employeeFields } from "@workspace/hr/constants";
 import type {
@@ -104,7 +103,7 @@ export default function EmployeeProfileView({
 
   const activeEmploymentIndex = employments.findIndex((row) => row.isActive);
   const activeEmployment = employments[activeEmploymentIndex >= 0 ? activeEmploymentIndex : 0] ?? null;
-  const sectionCardClassName = "rounded-t-none border-t-0 border-sky-200 bg-sky-100/30 shadow-none";
+  const sectionCardClassName = "border-sky-200 bg-sky-100/30 shadow-none";
   const getEmployeeFields = (keys: string[]) => keys
     .map((key) => employeeFields.find((field) => field.key === key))
     .filter(Boolean) as ProfileField[];
@@ -113,31 +112,18 @@ export default function EmployeeProfileView({
     { title: "教育与职业", fields: getEmployeeFields(["education", "title", "school", "major", "workStartDate"]) },
     { title: "联系与账号", fields: getEmployeeFields(["phone", "idNumber", "otherId", "userId"]) },
   ];
-  const profileTabs = (
-    <TabBar
-      variant="large"
-      accordion
-      tabs={[
-        { key: "basic", label: "基本信息" },
-        { key: "employment", label: "雇佣关系" },
-        { key: "edp", label: "部门岗位" },
-        { key: "history", label: "历史记录" },
-      ]}
-      active={activeSection}
-      onChange={(key) => onSectionChange(key as ProfileSection)}
-      className="border-0 bg-transparent p-0 shadow-none"
-    />
-  );
-
-  const toolbarItems: ToolbarItem[] = [
-    { kind: "custom", key: "tabs", section: "view", content: profileTabs },
+  const profileTabs = [
+    { key: "basic", label: "基本信息" },
+    { key: "employment", label: "雇佣关系" },
+    { key: "edp", label: "部门岗位" },
+    { key: "history", label: "历史记录" },
   ];
 
+  const trailingActions: TabBarAction[] = [];
+
   if (canEdit && activeSection !== "history") {
-    toolbarItems.push({
-      kind: "icon-button",
+    trailingActions.push({
       key: "save",
-      section: "action",
       icon: "save",
       label: saving === "all" ? "保存中..." : "保存",
       variant: "primary",
@@ -146,10 +132,8 @@ export default function EmployeeProfileView({
     });
   }
 
-  toolbarItems.push({
-    kind: "icon-button",
+  trailingActions.push({
     key: "back",
-    section: "action",
     icon: "cancel",
     label: "返回列表",
     variant: "secondary",
@@ -158,10 +142,16 @@ export default function EmployeeProfileView({
 
   return (
     <DatabasePageFrame>
-      <Toolbar
-        className="sticky top-[52px] z-20 mb-0 rounded-b-none border-sky-200 border-b-0 bg-sky-100/30 p-4 shadow-none"
-        items={toolbarItems}
-      />
+      <div className="sticky top-[52px] z-30 mb-3">
+        <TabBar
+          variant="large"
+          accordion
+          tabs={profileTabs}
+          active={activeSection}
+          onChange={(key) => onSectionChange(key as ProfileSection)}
+          trailingActions={trailingActions}
+        />
+      </div>
 
       {error && <EmptyStateCard compact>{error}</EmptyStateCard>}
       {message && <EmptyStateCard compact>{message}</EmptyStateCard>}

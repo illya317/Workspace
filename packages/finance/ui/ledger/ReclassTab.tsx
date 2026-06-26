@@ -84,12 +84,13 @@ export default function ReclassTab() {
   }];
   const exportCSV = useCSV(`重分类_${companyFilter}_${yearFilter}${monthFilter}.csv`, "科目编码,科目名称,方向,借方余额,贷方余额,净额,说明\n", () => entries.map(e => `"${e.accountCode}","${e.accountName}","${sideLabel(e.fromSide)}",${e.closingDebit},${e.closingCredit},${Math.abs(e.netAmount)},"${e.reason}"`).join("\n"));
   return <div className="space-y-4">
-      <FinanceFilters companyFilter={companyFilter} yearFilter={yearFilter} monthFilter={monthFilter} onCompanyChange={setCompanyFilter} onYearChange={setYearFilter} onMonthChange={setMonthFilter} showPageSize={false} extra={<>
-            <CommandButton onClick={exportCSV} disabled={entries.length === 0} title="导出CSV">
-              导出CSV
-            </CommandButton>
-            <span className="text-xs text-gray-400">{entries.length} 项</span>
-          </>} />
+      <FinanceFilters companyFilter={companyFilter} yearFilter={yearFilter} monthFilter={monthFilter} onCompanyChange={setCompanyFilter} onYearChange={setYearFilter} onMonthChange={setMonthFilter} showPageSize={false} />
+      <div className="flex flex-wrap items-center gap-3">
+        <CommandButton onClick={exportCSV} disabled={entries.length === 0} title="导出CSV">
+          导出CSV
+        </CommandButton>
+        <span className="text-xs text-gray-400">{entries.length} 项</span>
+      </div>
 
       {loading ? <p className="p-8 text-center text-gray-500">加载中...</p> : entries.length === 0 ? <EmptyStateCard>未发现需重分类的科目</EmptyStateCard> : <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
           <DataTable rows={entries} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={entry => entry.accountCode} />

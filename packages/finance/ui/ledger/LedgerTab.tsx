@@ -169,10 +169,10 @@ export default function LedgerTab() {
         onYearChange={(v) => { setYearFilter(v); setPage(1); }}
         onMonthChange={(v) => { setMonthFilter(v); setPage(1); }}
         onPageSizeChange={(v) => { setPageSize(v); setPage(1); }}
-        extra={
-          <span className="ml-auto text-xs text-gray-400">共 {total} 条</span>
-        }
       />
+      <div className="flex justify-end">
+        <span className="text-xs text-gray-400">共 {total} 条</span>
+      </div>
 
       <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
         <DataTable

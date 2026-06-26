@@ -70,6 +70,7 @@ export function SelectorList<T>({
               renderItem={renderItem}
               size={size}
               itemClassName={itemClassName}
+              className="space-y-2"
             />
           </div>
         ))}

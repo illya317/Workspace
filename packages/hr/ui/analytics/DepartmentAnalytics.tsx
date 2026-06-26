@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AnalysisBlock, DataTable, MetricCard, SearchInput, type DataTableColumn } from "@workspace/core/ui";
+import { AnalysisBlock, DataTable, MetricCard, type DataTableColumn } from "@workspace/core/ui";
 import { matchSearchFields } from "@workspace/platform/search";
 import DeptNode from "./DeptNode";
 import type { Department, EDP } from "./useAnalyticsData";
@@ -95,14 +95,9 @@ export default function DepartmentAnalytics({ departments, edps }: { departments
       {/* Search */}
       <AnalysisBlock
         title="部门架构"
-        toolbar={
-          <SearchInput
-            placeholder="搜索部门名称、编码、别名..."
-            value={search}
-            onChange={setSearch}
-            className="max-w-sm"
-          />
-        }
+        toolbarItems={[
+          { kind: "search", key: "search", value: search, onChange: setSearch, placeholder: "搜索部门名称、编码、别名...", className: "max-w-sm" },
+        ]}
         bodyClassName="p-4"
       >
 

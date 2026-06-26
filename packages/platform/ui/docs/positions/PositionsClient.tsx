@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import {
   EmptyStateCard,
   PanelCard,
-  SelectorList,
   SelectorPanel,
   WorkspaceSplitPage,
 } from "@workspace/core/ui";
@@ -140,7 +139,8 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
       actions={<span className="text-sm text-slate-500">{directPositions.length} 个</span>}
       bodyClassName="p-4"
     >
-      <SelectorList
+      <SelectorPanel
+        framed={false}
         items={directPositions}
         selectedId={null}
         onSelect={(pos) => handleSelectPosition(pos.code)}

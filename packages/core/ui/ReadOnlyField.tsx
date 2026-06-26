@@ -1,8 +1,9 @@
 "use client";
 
-import type { ButtonHTMLAttributes, ReactNode } from "react";
-import { getFieldValueClassName, getReadOnlyFieldClassName } from "./FormStyles";
-import { joinClassNames } from "./card-utils";
+import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from "react";
+import { getFieldValueClassName } from "./FormStyles";
+import FieldInputShell, { type FieldInputShellProps } from "./FieldInputShell";
+import type { FieldControlSize } from "./FormStyles";
 
 export interface ReadOnlyFieldProps {
   value?: ReactNode;
@@ -13,8 +14,14 @@ export interface ReadOnlyFieldProps {
   disabled?: boolean;
   title?: string;
   "aria-label"?: string;
+  size?: FieldControlSize;
+  density?: FieldInputShellProps["density"];
+  style?: CSSProperties;
   onClick?: ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
 }
+
+const INNER_CLASS_NAME =
+  "flex h-full w-full min-w-0 items-center border-0 bg-transparent p-0 text-left text-sm leading-none text-current outline-none";
 
 export function ReadOnlyField({
   value,
@@ -25,34 +32,43 @@ export function ReadOnlyField({
   disabled,
   title,
   "aria-label": ariaLabel,
+  size = "md",
+  density = "normal",
+  style,
   onClick,
 }: ReadOnlyFieldProps) {
-  let content = children ?? value;
-  if (content === "" || content === null || content === undefined) {
-    content = placeholder ?? <span className="text-slate-400">未设置</span>;
-  }
-  const cls = joinClassNames(
-    variant === "plain" ? getFieldValueClassName() : getReadOnlyFieldClassName(),
-    className,
-  );
-  if (onClick && variant !== "plain") {
+  const content = children ?? value;
+  const body = content === "" || content === null || content === undefined
+    ? placeholder ?? <span className="text-slate-400">未设置</span>
+    : content;
+
+  if (variant === "plain") {
     return (
-      <button
-        type="button"
-        onClick={onClick}
-        disabled={disabled}
-        title={title}
-        aria-label={ariaLabel}
-        className={cls}
-      >
-        {content}
-      </button>
+      <div title={title} aria-label={ariaLabel} className={getFieldValueClassName(className)}>
+        {body}
+      </div>
     );
   }
+
   return (
-    <div title={title} aria-label={ariaLabel} className={cls}>
-      {content}
-    </div>
+    <FieldInputShell readOnly disabled={disabled} size={size} density={density} className={className} style={style}>
+      {onClick ? (
+        <button
+          type="button"
+          onClick={onClick}
+          disabled={disabled}
+          title={title}
+          aria-label={ariaLabel}
+          className={INNER_CLASS_NAME}
+        >
+          {body}
+        </button>
+      ) : (
+        <div title={title} aria-label={ariaLabel} className={`${INNER_CLASS_NAME} truncate`}>
+          {body}
+        </div>
+      )}
+    </FieldInputShell>
   );
 }
 

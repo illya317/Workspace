@@ -12,6 +12,7 @@ export interface TagRemoveButtonProps {
   confirm?: boolean;
   confirmOptions?: Partial<ConfirmOptions>;
   confirmMessage?: ConfirmOptions["message"];
+  title?: string;
   className?: string;
 }
 
@@ -23,6 +24,7 @@ export default function TagRemoveButton({
   confirm = true,
   confirmOptions,
   confirmMessage,
+  title,
   className = "",
 }: TagRemoveButtonProps) {
   const confirmDelete = useConfirmDelete();
@@ -41,10 +43,13 @@ export default function TagRemoveButton({
     await (onConfirm ?? onClick)?.();
   }
 
+  const actionTitle = title ?? label;
+
   return (
     <button
       type="button"
-      aria-label={label}
+      aria-label={actionTitle}
+      title={actionTitle}
       disabled={disabled}
       onMouseDown={(event) => event.stopPropagation()}
       onClick={(event) => void handleClick(event)}

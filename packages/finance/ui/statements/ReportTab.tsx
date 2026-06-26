@@ -90,9 +90,10 @@ export default function ReportTab() {
     onToggle: toggleDetail
   };
   return <div className="space-y-4">
-      <FinanceFilters companyFilter={companyFilter} yearFilter={yearFilter} monthFilter={monthFilter} onCompanyChange={setCompanyFilter} onYearChange={setYearFilter} onMonthChange={setMonthFilter} showPageSize={false} extra={<>
-            <FormField label="报表" layout="inline">
-              <SelectField value={reportType} onChange={nextValue => setReportType(nextValue as "balance" | "income" | "cashflow")} options={[{
+      <FinanceFilters companyFilter={companyFilter} yearFilter={yearFilter} monthFilter={monthFilter} onCompanyChange={setCompanyFilter} onYearChange={setYearFilter} onMonthChange={setMonthFilter} showPageSize={false} />
+      <div className="flex flex-wrap items-center gap-3">
+        <FormField label="报表" layout="inline">
+          <SelectField value={reportType} onChange={nextValue => setReportType(nextValue as "balance" | "income" | "cashflow")} options={[{
           value: "balance",
           label: "资产负债表"
         }, {
@@ -102,9 +103,9 @@ export default function ReportTab() {
           value: "cashflow",
           label: "现金流量表"
         }]} triggerClassName="min-w-28 px-2 py-1 text-xs" />
-            </FormField>
-            <CommandButton variant="primary" onClick={loadReport}>生成报表</CommandButton>
-          </>} />
+        </FormField>
+        <CommandButton variant="primary" onClick={loadReport}>生成报表</CommandButton>
+      </div>
 
       {loading && <p className="p-8 text-center text-gray-500">加载中...</p>}
 

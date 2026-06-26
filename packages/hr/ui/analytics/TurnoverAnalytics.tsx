@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AnalysisBlock, DataTable, MetricCard, SearchInput, type DataTableColumn } from "@workspace/core/ui";
+import { AnalysisBlock, DataTable, MetricCard, type DataTableColumn } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { Employee, Employment } from "./useAnalyticsData";
 
@@ -156,17 +156,10 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
 
       <AnalysisBlock
         title="离职原因分布"
-        toolbar={
-          <div className="flex flex-1 items-center gap-3">
-          <SearchInput
-            placeholder="搜索原因..."
-            value={reasonSearch}
-            onChange={setReasonSearch}
-            className="max-w-xs"
-          />
-          <span className="text-xs text-gray-400">{stats.totalLeft} 人</span>
-          </div>
-        }
+        toolbarItems={[
+          { kind: "search", key: "reason-search", value: reasonSearch, onChange: setReasonSearch, placeholder: "搜索原因...", className: "max-w-xs" },
+          { kind: "text", key: "meta", content: <>{stats.totalLeft} 人</> },
+        ]}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
           {filteredReasons.map(([k, v]) => {

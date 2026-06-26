@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { CommandButton } from "./CommandButton";
 import { CreateStartButton } from "./CreateActionControls";
+import { useCreatePanelAutoScroll } from "./useCreatePanelAutoScroll";
 
 export interface DetailCreatePanelProps {
   title: string;
@@ -28,6 +29,7 @@ export interface DetailCreatePanelProps {
   submitting?: boolean;
   submitLabel?: string;
   cancelLabel?: string;
+  scrollOnCreate?: boolean;
   className?: string;
   bodyClassName?: string;
 }
@@ -56,12 +58,14 @@ export default function DetailCreatePanel({
   submitting,
   submitLabel = "创建",
   cancelLabel = "取消",
+  scrollOnCreate = true,
   className = "",
   bodyClassName = "",
 }: DetailCreatePanelProps) {
+  const createRef = useCreatePanelAutoScroll<HTMLDivElement>(scrollOnCreate && creating);
   if (creating) {
     return (
-      <div className={className}>
+      <div ref={createRef} className={className}>
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <h3 className="truncate text-sm font-semibold text-slate-900">{createTitle ?? title}</h3>
           <div className="flex shrink-0 flex-wrap items-center gap-2">

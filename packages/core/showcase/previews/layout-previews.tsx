@@ -20,7 +20,7 @@ import {
 function AnalysisBlockPreview() {
   return (
     <div className="max-w-md">
-      <AnalysisBlock title="月度 KPI" subtitle="2026 年 6 月" toolbar={<span className="text-xs text-slate-400">更多</span>}>
+      <AnalysisBlock title="月度 KPI" subtitle="2026 年 6 月" toolbarItems={[{ kind: "text", key: "more", content: "更多" }]}>
         <div className="grid grid-cols-3 gap-3"><MetricCard label="完成率" value="92%" /><MetricCard label="延期数" value="3" /><MetricCard label="预警" value="1" /></div>
       </AnalysisBlock>
     </div>
@@ -42,7 +42,7 @@ function DatabasePageFramePreview() {
   const [tab, setTab] = useState("list");
   return (
     <div className="max-h-80 overflow-hidden rounded-lg border border-slate-200">
-      <DatabasePageFrame contentClassName="py-4" tabs={[{ key: "list", label: "列表" }, { key: "settings", label: "设置" }]} activeTab={tab} onTabChange={setTab} summary={<div className="text-xs text-slate-500">当前筛选：全部 · 共 24 条</div>} toolbar={<div className="rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-500">工具栏占位：搜索 / 筛选 / 新建</div>}>
+      <DatabasePageFrame contentClassName="py-4" tabs={[{ key: "list", label: "列表" }, { key: "settings", label: "设置" }]} activeTab={tab} onTabChange={setTab} summary={<div className="text-xs text-slate-500">当前筛选：全部 · 共 24 条</div>} toolbarItems={[{ kind: "text", key: "toolbar-preview", content: "工具栏占位：搜索 / 筛选 / 新建" }]}>
         <PanelCard title="数据表格" bodyClassName="p-3"><EmptyStateCard compact>暂无数据</EmptyStateCard></PanelCard>
       </DatabasePageFrame>
     </div>
@@ -150,7 +150,7 @@ function WorkspaceSplitPagePreview() {
   );
   return (
     <div className="max-h-72 overflow-hidden rounded-lg border border-slate-200">
-      <WorkspaceSplitPage contentClassName="py-3" sideOpen={sideOpen} drawerOpen={drawerOpen} onSideOpenChange={setSideOpen} onDrawerOpenChange={setDrawerOpen} sideLabel="记录列表" renderSide={renderSide} header={<h2 className="text-base font-semibold text-slate-900">主从分栏页面</h2>} toolbar={<span className="text-xs text-slate-500">顶部工具栏占位</span>}>
+      <WorkspaceSplitPage contentClassName="py-3" sideOpen={sideOpen} drawerOpen={drawerOpen} onSideOpenChange={setSideOpen} onDrawerOpenChange={setDrawerOpen} sideLabel="记录列表" renderSide={renderSide} header={<h2 className="text-base font-semibold text-slate-900">主从分栏页面</h2>} toolbarItems={[{ kind: "text", key: "toolbar-preview", content: "顶部工具栏占位" }]}>
         <div className="rounded-md bg-slate-50 p-4 text-sm text-slate-600">右侧详情主内容区，保持编辑或只读展示。</div>
       </WorkspaceSplitPage>
     </div>

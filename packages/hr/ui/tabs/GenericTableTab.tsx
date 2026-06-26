@@ -3,11 +3,15 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo, useRef } from "react";
 import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
-import { Pagination, PanelCard, Toast, Toolbar, useConfirm, type ToolbarItem } from "@workspace/core/ui";
+import { Pagination, PanelCard, Toast, Toolbar, useConfirm } from "@workspace/core/ui";
 import { useToast } from "@workspace/core/hooks";
 import GenericCreatePanel from "../components/GenericCreatePanel";
 import GenericFieldInput from "../components/GenericFieldInput";
-import GenericFilterControls from "../components/GenericFilterControls";
+import { buildHRToolbarItems } from "../components/hr-toolbar-items";
+import {
+  buildAdvancedFilterValueOptions,
+  mapAdvancedFilterField,
+} from "../components/generic-filter-toolbar-items";
 import { useGenericTab } from "../hooks/useGenericTab";
 import EditableTable, { formatEditableTableCell } from "./EditableTable";
 import { type TabConfig, type FieldConfig, type HRUser, hrCanEdit } from "@workspace/hr/types";
@@ -96,6 +100,44 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
     })),
     [tableFields],
   );
+
+  const advancedFilters = useMemo(() => config.advancedFilters ?? [], [config.advancedFilters]);
+  const [advancedFieldKey, setAdvancedFieldKey] = useState(() =>
+    advancedFilters.find((filter) => filters[filter.queryParam])?.key ?? "",
+  );
+
+  useEffect(() => {
+    const active = advancedFilters.find((filter) => filters[filter.queryParam]);
+    if (active && active.key !== advancedFieldKey) {
+      setAdvancedFieldKey(active.key);
+    } else if (!active && advancedFieldKey) {
+      setAdvancedFieldKey("");
+    }
+  }, [filters, advancedFilters, advancedFieldKey]);
+
+  const advancedFilterFields = useMemo(
+    () => advancedFilters.map(mapAdvancedFilterField),
+    [advancedFilters],
+  );
+
+  const advancedFilterValueOptions = useMemo(
+    () => buildAdvancedFilterValueOptions(advancedFilters),
+    [advancedFilters],
+  );
+
+  function handleAdvancedFieldChange(nextKey: string) {
+    if (advancedFieldKey && advancedFieldKey !== nextKey) {
+      const previous = advancedFilters.find((filter) => filter.key === advancedFieldKey);
+      if (previous) setFilter(previous.queryParam, "");
+    }
+    setAdvancedFieldKey(nextKey);
+  }
+
+  function handleAdvancedValueChange(value: string, fieldKey?: string) {
+    const key = fieldKey ?? advancedFieldKey;
+    const target = advancedFilters.find((filter) => filter.key === key);
+    if (target) setFilter(target.queryParam, value);
+  }
 
   function handleStartEdit(item: Record<string, unknown>, field: FieldConfig) {
     if (!canEdit || !editMode || !field.editable || field.type === "fk") return;
@@ -191,66 +233,39 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
   const editingField = editingCell
     ? config.fields.find((f) => f.key === editingCell.field)
     : undefined;
-  const rawToolbarItems: Array<ToolbarItem | null> = [
-    canEdit && config.canCreate
+
+  const toolbarItems = buildHRToolbarItems({
+    create: canEdit && config.canCreate
+      ? { label: "新建", active: creating, onClick: () => setCreating(true) }
+      : undefined,
+    search: { value: keyword, onChange: setKeyword, placeholder: "搜索..." },
+    filters: config.filters && config.filters.length > 0
+      ? { configs: config.filters, values: filters, onChange: setFilter }
+      : undefined,
+    advancedFilter: advancedFilters.length > 0
       ? {
-          kind: "create",
-          key: "create",
-          section: "view",
-          label: "新建",
-          active: creating,
-          onClick: () => setCreating(true),
+          fields: advancedFilterFields,
+          valueOptions: advancedFilterValueOptions,
+          fieldKey: advancedFieldKey,
+          value: advancedFilters.find((filter) => filter.key === advancedFieldKey)
+            ? (filters[advancedFilters.find((filter) => filter.key === advancedFieldKey)!.queryParam] ?? "")
+            : "",
+          onFieldKeyChange: handleAdvancedFieldChange,
+          onValueChange: handleAdvancedValueChange,
+          referenceEndpoint: "/api/modules/hr/roster/reference-options",
         }
-      : null,
-    {
-      kind: "search",
-      key: "search",
-      section: "filter",
-      value: keyword,
-      onChange: setKeyword,
-      placeholder: "搜索...",
+      : undefined,
+    columnToggle: { columns: columnToggleColumns, visible: visibleColumns, onChange: setVisibleColumns },
+    reset: {
+      onClick: () => {
+        setKeyword("");
+        setAdvancedFieldKey("");
+        resetFilters();
+        load();
+      },
     },
-    {
-      kind: "custom",
-      key: "filters",
-      section: "filter",
-      content: (
-        <GenericFilterControls
-          filters={config.filters || []}
-          advancedFilters={config.advancedFilters ?? []}
-          filterValues={filters}
-          onFilterChange={(key, val) => setFilter(key, val)}
-        />
-      ),
-    },
-    {
-      kind: "column-toggle",
-      key: "columns",
-      columns: columnToggleColumns,
-      visible: visibleColumns,
-      onChange: setVisibleColumns,
-    },
-    {
-      kind: "action-group",
-      key: "reset",
-      actions: [
-        {
-          key: "reset",
-          kind: "refresh",
-          label: "重置",
-          onClick: () => {
-            setKeyword("");
-            resetFilters();
-            load();
-          },
-        },
-      ],
-    },
-    canEdit
+    editGroup: canEdit
       ? {
-          kind: "edit-group",
-          key: "edit",
-          section: "edit",
           editMode,
           onStartEdit: () => setEditMode(true),
           onSave: handleSave,
@@ -264,9 +279,8 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
           onDownload: handleDownload,
           downloading,
         }
-      : null,
-  ];
-  const toolbarItems = rawToolbarItems.filter((item): item is ToolbarItem => item !== null);
+      : undefined,
+  });
 
   return (
     <div className="space-y-4">

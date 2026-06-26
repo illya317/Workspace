@@ -17,7 +17,6 @@ export { default as EthnicityPicker } from "./components/EthnicityPicker";
 export { default as FKInput } from "./components/FKInput";
 export { default as GenericCreatePanel } from "./components/GenericCreatePanel";
 export { default as GenericFieldInput } from "./components/GenericFieldInput";
-export { default as GenericFilterControls } from "./components/GenericFilterControls";
 export { default as MajorPicker } from "./components/MajorPicker";
 export { default as ProfessionalTitlePicker } from "./components/ProfessionalTitlePicker";
 export { default as RankPicker } from "./components/RankPicker";

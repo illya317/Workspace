@@ -36,17 +36,22 @@
 | 列显隐 | `@workspace/core/ui` 的 `SelectField`（multiple） | 表格列配置 | 模块自写列配置弹层 |
 | 数字/金额单元格 | `@workspace/core/ui` 的 `NumberCell` / `AmountCell` | 财务、预算、成本、数量字段 | 每张表重复写格式化 |
 | Tab | `@workspace/core/ui` 的 `TabBar` | 模块内平级页签 | 页面内临时拼 tab |
+| 选择区 | `@workspace/core/ui` 的 `SelectorPanel` | 左侧列表、目录树、工作空间/项目/会议选择区 | 业务页直接拼 `PanelCard + SelectorList/SelectorTree/SelectorCard` |
 | 页面骨架 | `@workspace/core/ui` 的 `PageShell` | 登录后页面的标题栏、返回动作、页面内容容器 | Platform/App 里重复手写 sticky header、返回按钮、横向表头 |
 | 页面内容容器 | `@workspace/core/ui` 的 `PageContent`、`PanelCard`、`SectionCard` | 页面内容留白、卡片、章节、空态 | 在业务包里直接拼 `bg-white + rounded + shadow/border` 页面壳 |
 | 可折叠左右分栏 | Core UI 新增稳定入口后统一使用 | 列表 + 详情编辑、项目列表 + 当前详情、主从记录浏览 | 用遮罩式整屏 overlay 灰掉主内容，或在业务包重复写抽屉/分栏状态机 |
 
 ### Toolbar / ActionGlyph 规则
 
+专门规则见 `docs/core-toolbar.md`；本节只保留摘要。
+
 - Toolbar 的动作按钮必须来自 `ActionGlyph` 封闭集合。`ActionButton` 是纯图标按钮，只接 `kind + label`，不接 children；业务不再新增文字型 toolbar `button` item。
 - 新增动作 icon 时必须同时维护四处元数据：`ACTION_GLYPH_KINDS`、`ACTION_GLYPH_GROUPS`、`ACTION_GLYPH_TOOLBAR_GROUPS`、`ACTION_GLYPH_ORDER`。`ACTION_GLYPH_ORDER` 的字段固定为 `icon / group / subgroup / order`，order 使用大间距预留插入空间。
 - 业务侧只选择 icon，不手排顺序和分组。`action-group` 和 `edit-group` 会按 `ACTION_GLYPH_ORDER.order` 自动排序，并在 toolbar 大组变化处插入分隔。
 - 非默认动作默认从 `edit` 区开始，和编辑动作混排。`view/search/filter/meta` 只承载视图切换、搜索、筛选、字段、列显隐和计数等默认控件。
-- `ToolbarCustomItem` 只允许承载复杂 slot 或旧组合控件，不能用来绕过 `ActionGlyph` 新增动作按钮。能表达为 `search`、`select`、`option-group`、`field-filter`、`column-toggle`、`create`、`action-group`、`edit-group` 的，不要用 `custom`。
+- Toolbar 不支持 `custom` item。能表达为 `search`、`select`、`option-group`、`field-filter`、`column-toggle`、`page-size`、`text`、`create`、`action-group`、`edit-group` 的，必须使用标准 item；不够表达时扩展 Core `Toolbar` Page API。
+- Toolbar 内的 `option-group` 默认是 Toolbar 专用 micro 手风琴：默认折叠，母按钮显示字段名或当前具体值，展开后点子选项自动收起。
+- 页面/模块的平级 tab 切换必须用 `TabBar`，不要塞进 Toolbar。Toolbar 的 `option-group` 表达筛选，不表达主视图切换。
 - 列显隐统一用 `column-toggle` 内部的 `SelectField multiple summaryMode="count"`，触发器显示 `已选数/总数`，例如 `2/4`。
 
 ## 业务字段组件

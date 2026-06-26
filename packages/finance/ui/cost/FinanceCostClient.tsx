@@ -30,8 +30,8 @@ export default function FinanceCostClient({ user: _user }: { user: SessionUser }
       tabs={TABS}
       activeTab={tab}
       onTabChange={(key) => setTab(key as CostTab)}
-      toolbar={<CostFilters filters={filters} onChange={setFilters} />}
     >
+      <CostFilters filters={filters} onChange={setFilters} />
       <div>
         {tab === "overview" && <CostSummary filters={filters} />}
         {tab === "shipments" && <ShipmentTable filters={filters} />}

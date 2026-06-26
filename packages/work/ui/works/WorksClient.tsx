@@ -1,15 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { DatabasePageFrame, EmptyStateCard, PanelCard, SectionCard, Toast, Toolbar, useConfirmDelete, type ToolbarItem } from "@workspace/core/ui";
+import { DatabasePageFrame, EmptyStateCard, PanelCard, SectionCard, TabBar, Toast, Toolbar, useConfirmDelete, type ToolbarItem } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import type { SessionUser } from "@workspace/platform/types";
 import { listTaskSpaces } from "./api";
 import { createEmptyWorkDraft, getPeriodTypeLabel, getWorkSpacePath, getWorkTargetFromPath, WORK_ITEM_TYPE_OPTIONS, WORK_SOURCE_TYPE_OPTIONS } from "./model";
 import { useWorks } from "./useWorks";
-import { MobileSpaceSwitcher, SpaceHeader } from "./WorkSpaceHeaderControls";
+import { SpaceHeader } from "./WorkSpaceHeaderControls";
 import WorkPermissionsPanel from "./WorkPermissionsPanel";
-import WorkReportsPanel from "./WorkReportsPanel";
+import WorkReportsPanel, { useWorkReportsController } from "./WorkReportsPanel";
 import WorkSpaceSidebar from "./WorkSpaceSidebar";
 import WorkTaskTable from "./WorkTaskTable";
 import { WorkTaskForm } from "./WorkTaskFields";
@@ -42,6 +42,15 @@ export default function WorksClient({
   const canManage = roleAllows(currentSpace?.role, "manager");
   const worksState = useWorks(currentSpace);
   const showToast = worksState.showToast;
+  const showReportToast = useCallback(
+    (toast: { message: string; type: "success" | "error" }) => showToast(toast.message, toast.type),
+    [showToast],
+  );
+  const reportsState = useWorkReportsController({
+    target: currentSpace,
+    canEdit,
+    onToast: showReportToast,
+  });
 
   const loadSpaces = useCallback(async () => {
     setSpacesLoading(true);
@@ -102,8 +111,8 @@ export default function WorksClient({
   }
 
   const tabs = canManage
-    ? [{ value: "tasks", label: "任务列表" }, { value: "reports", label: "工作汇报" }, { value: "permissions", label: "权限设置" }]
-    : [{ value: "tasks", label: "任务列表" }, { value: "reports", label: "工作汇报" }];
+    ? [{ key: "tasks", label: "任务列表" }, { key: "reports", label: "工作汇报" }, { key: "permissions", label: "权限设置" }]
+    : [{ key: "tasks", label: "任务列表" }, { key: "reports", label: "工作汇报" }];
   const editing = worksState.editingId !== null;
 
   return (
@@ -126,41 +135,31 @@ export default function WorksClient({
           {currentSpace ? (
             <>
               <SpaceHeader space={currentSpace} />
+              <TabBar
+                ariaLabel="工作计划主标签"
+                variant="small"
+                tabs={tabs}
+                active={activeTab}
+                onChange={setActiveTab}
+              />
               <Toolbar
                 items={[
                   {
-                    kind: "icon-button",
+                    kind: "panel-toggle",
                     key: "mobile-side-toggle",
-                    section: "view",
                     icon: "panel-open",
                     label: "显示工作空间",
                     className: "!h-9 !w-10 !px-0 xl:hidden",
                     onClick: () => setDrawerOpen(true),
                   },
                   {
-                    kind: "icon-button",
+                    kind: "panel-toggle",
                     key: "desktop-side-toggle",
-                    section: "view",
                     icon: sideOpen ? "panel-open" : "panel-close",
                     label: `${sideOpen ? "隐藏" : "显示"}工作空间`,
                     variant: sideOpen ? "primary" : "secondary",
                     className: "!h-9 !w-10 !px-0 hidden xl:inline-flex",
                     onClick: () => setSideOpen(!sideOpen),
-                  },
-                  {
-                    kind: "custom",
-                    key: "mobile-space",
-                    section: "filter",
-                    content: <MobileSpaceSwitcher spaces={spaces} active={activeTarget} loading={spacesLoading} onSelect={selectSpace} />,
-                  },
-                  {
-                    kind: "option-group",
-                    key: "tab",
-                    section: "filter",
-                    value: activeTab,
-                    options: tabs,
-                    onChange: (value) => setActiveTab(value),
-                    ariaLabel: "工作计划主标签",
                   },
                   ...(activeTab === "tasks"
                     ? [
@@ -220,6 +219,7 @@ export default function WorksClient({
                         },
                       ]
                     : []),
+                  ...(activeTab === "reports" ? reportsState.toolbarItems : []),
                   ...(activeTab === "tasks" && canEdit
                     ? [
                         {
@@ -268,9 +268,7 @@ export default function WorksClient({
                 />
               ) : activeTab === "reports" ? (
                 <SectionCard title="工作汇报">
-                  <WorkReportsPanel
-                    target={currentSpace} canEdit={canEdit} onToast={(toast) => worksState.showToast(toast.message, toast.type)}
-                  />
+                  <WorkReportsPanel controller={reportsState} />
                 </SectionCard>
               ) : (
                 <SectionCard title="工作项">

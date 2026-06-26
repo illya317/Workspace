@@ -1,6 +1,8 @@
 "use client";
 
 import { forwardRef, type FocusEventHandler, type KeyboardEventHandler } from "react";
+import { CONTROL_SIZES, getControlClassName } from "./interactionTokens";
+import type { ControlSize } from "./interactionTokens";
 
 export interface SearchInputProps {
   value?: string;
@@ -10,12 +12,13 @@ export interface SearchInputProps {
   autoFocus?: boolean;
   disabled?: boolean;
   ariaLabel?: string;
+  size?: ControlSize;
   onFocus?: FocusEventHandler<HTMLInputElement>;
   onBlur?: FocusEventHandler<HTMLInputElement>;
   onKeyDown?: KeyboardEventHandler<HTMLInputElement>;
 }
 
-const SEARCH_INPUT_CLASSES = "h-9 w-36 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:bg-slate-100 disabled:text-slate-500";
+const BASE_CLASSES = "w-36 border border-slate-200 bg-white text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:bg-slate-100 disabled:text-slate-500";
 
 function getDisplayPlaceholder(placeholder: string) {
   if (placeholder.startsWith("搜索") && placeholder.length > 6) return "搜索";
@@ -30,11 +33,14 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(function Sear
   autoFocus,
   disabled,
   ariaLabel,
+  size = "md",
   onFocus,
   onBlur,
   onKeyDown,
 }, ref) {
   const displayPlaceholder = getDisplayPlaceholder(placeholder);
+  const sizeClasses = getControlClassName(size);
+  const minWidth = CONTROL_SIZES[size].minWidth;
   return (
     <input
       ref={ref}
@@ -44,7 +50,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(function Sear
       placeholder={displayPlaceholder}
       aria-label={ariaLabel}
       title={displayPlaceholder === placeholder ? undefined : placeholder}
-      className={`${SEARCH_INPUT_CLASSES} transition ${className ?? ""}`}
+      className={`${BASE_CLASSES} ${sizeClasses} ${minWidth} transition ${className ?? ""}`}
       autoFocus={autoFocus}
       disabled={disabled}
       onFocus={onFocus}

@@ -1,11 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  CalendarDateInput,
-  Toolbar,
-  type ToolbarItem,
-} from "@workspace/core/ui";
+import type { ToolbarItem } from "@workspace/core/ui";
 import {
   getWorkReportDraft,
   listWorkReportCollection,
@@ -21,15 +17,26 @@ import { ReportCollectionTable, ReportDraftTable } from "./WorkReportsTables";
 
 type ReportMode = "fill" | "collection";
 
-export default function WorkReportsPanel({
+export interface WorkReportsController {
+  toolbarItems: ToolbarItem[];
+  mode: ReportMode;
+  draft: WorkReportDraftResponse | null;
+  collection: WorkReportCollectionResponse | null;
+  loading: boolean;
+  canEditDraft: boolean;
+  updateItem: (index: number, patch: Partial<WorkReportItem>) => void;
+  removeItem: (index: number) => void;
+}
+
+export function useWorkReportsController({
   target,
   canEdit,
   onToast,
 }: {
-  target: WorkTarget;
+  target: WorkTarget | null;
   canEdit: boolean;
   onToast: (toast: { message: string; type: "success" | "error" }) => void;
-}) {
+}): WorkReportsController {
   const [mode, setMode] = useState<ReportMode>("fill");
   const [periodStart, setPeriodStart] = useState(() => getCurrentWeekStart());
   const [draft, setDraft] = useState<WorkReportDraftResponse | null>(null);
@@ -41,6 +48,7 @@ export default function WorkReportsPanel({
   const hasDraftChanges = Boolean(draft) && draftChangeKey !== draftSnapshot;
 
   const loadDraft = useCallback(async () => {
+    if (!target) return;
     setLoading(true);
     try {
       const data = await getWorkReportDraft(target, periodStart);
@@ -54,6 +62,7 @@ export default function WorkReportsPanel({
   }, [onToast, periodStart, target]);
 
   const loadCollection = useCallback(async () => {
+    if (!target) return;
     setLoading(true);
     try {
       setCollection(await listWorkReportCollection(periodStart));
@@ -62,22 +71,23 @@ export default function WorkReportsPanel({
     } finally {
       setLoading(false);
     }
-  }, [onToast, periodStart]);
+  }, [onToast, periodStart, target]);
 
   useEffect(() => {
+    if (!target) return;
     if (mode === "fill") void loadDraft();
     if (mode === "collection") void loadCollection();
-  }, [loadCollection, loadDraft, mode]);
+  }, [loadCollection, loadDraft, mode, target]);
 
   useEffect(() => {
     setMode("fill");
     setDraft(null);
     setDraftSnapshot("");
     setCollection(null);
-  }, [target.targetType, target.targetId]);
+  }, [target?.targetType, target?.targetId]);
 
-  async function handleSave() {
-    if (!draft || saving || !hasDraftChanges) return;
+  const handleSave = useCallback(async () => {
+    if (!target || !draft || saving || !hasDraftChanges) return;
     setSaving(true);
     try {
       const data = await saveWorkReport(target, periodStart, draft.items);
@@ -89,16 +99,16 @@ export default function WorkReportsPanel({
     } finally {
       setSaving(false);
     }
-  }
+  }, [draft, hasDraftChanges, onToast, periodStart, saving, target]);
 
-  function updateItem(index: number, patch: Partial<WorkReportItem>) {
+  const updateItem = useCallback((index: number, patch: Partial<WorkReportItem>) => {
     setDraft((current) => current ? {
       ...current,
       items: current.items.map((item, itemIndex) => itemIndex === index ? { ...item, ...patch } : item),
     } : current);
-  }
+  }, []);
 
-  function addAdHocItem() {
+  const addAdHocItem = useCallback(() => {
     setDraft((current) => current ? {
       ...current,
       items: [
@@ -115,87 +125,94 @@ export default function WorkReportsPanel({
         },
       ],
     } : current);
-  }
+  }, []);
 
-  function removeItem(index: number) {
+  const removeItem = useCallback((index: number) => {
     setDraft((current) => current ? {
       ...current,
       items: current.items.filter((_, itemIndex) => itemIndex !== index),
     } : current);
-  }
+  }, []);
 
-  function updatePeriodStart(value: string | null) {
+  const updatePeriodStart = useCallback((value: string | null) => {
     setDraft(null);
     setDraftSnapshot("");
     setPeriodStart(getWeekStart(value || getCurrentWeekStart()));
-  }
+  }, []);
 
+  const toolbarItems = useMemo(() => [
+    {
+      kind: "option-group",
+      key: "report-mode",
+      section: "filter",
+      value: mode,
+      options: [
+        { value: "fill", label: "填写汇报" },
+        { value: "collection", label: "汇总查看" },
+      ],
+      onChange: (value) => setMode(value as ReportMode),
+      ariaLabel: "工作汇报视图",
+    },
+    {
+      kind: "period",
+      key: "report-period",
+      mode: "date",
+      value: periodStart,
+      onChange: updatePeriodStart,
+    },
+    ...(mode === "fill" && canEdit
+      ? [
+          {
+            kind: "create" as const,
+            key: "report-create",
+            label: "新增事项",
+            disabled: loading || saving,
+            onClick: addAdHocItem,
+          },
+          {
+            kind: "action-group" as const,
+            key: "report-save",
+            section: "edit" as const,
+            actions: [
+              {
+                key: "save",
+                kind: "check" as const,
+                label: saving ? "保存中..." : "保存汇报",
+                variant: "primary" as const,
+                onClick: handleSave,
+                disabled: loading || saving || !draft || !hasDraftChanges,
+              },
+            ],
+          },
+        ]
+      : []),
+  ] satisfies ToolbarItem[], [addAdHocItem, canEdit, draft, handleSave, hasDraftChanges, loading, mode, periodStart, saving, updatePeriodStart]);
+
+  return {
+    toolbarItems,
+    mode,
+    draft,
+    collection,
+    loading,
+    canEditDraft: canEdit && Boolean(draft?.canEdit),
+    updateItem,
+    removeItem,
+  };
+}
+
+export default function WorkReportsPanel({ controller }: { controller: WorkReportsController }) {
   return (
     <div className="space-y-4">
-      <Toolbar
-        items={[
-          {
-            kind: "option-group",
-            key: "mode",
-            section: "filter",
-            value: mode,
-            options: [
-              { value: "fill", label: "填写汇报" },
-              { value: "collection", label: "汇总查看" },
-            ],
-            onChange: (value) => setMode(value as ReportMode),
-            ariaLabel: "工作汇报视图",
-          },
-          {
-            kind: "custom",
-            key: "period",
-            section: "filter",
-            content: (
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-px bg-slate-200" />
-                <CalendarDateInput value={periodStart} onChange={updatePeriodStart} />
-              </div>
-            ),
-          },
-          ...(mode === "fill" && canEdit
-            ? [
-                {
-                  kind: "create" as const,
-                  key: "create",
-                  label: "新增事项",
-                  disabled: loading || saving,
-                  onClick: addAdHocItem,
-                },
-                {
-                  kind: "action-group" as const,
-                  key: "save",
-                  section: "edit" as const,
-                  actions: [
-                    {
-                      key: "save",
-                      kind: "check" as const,
-                      label: saving ? "保存中..." : "保存汇报",
-                      variant: "primary" as const,
-                      onClick: handleSave,
-                      disabled: loading || saving || !draft || !hasDraftChanges,
-                    },
-                  ],
-                },
-              ]
-            : []),
-        ] satisfies ToolbarItem[]}
-      />
-
-      {mode === "fill" ? (
+      {controller.mode === "fill" ? (
         <ReportDraftTable
-          draft={draft}
-          loading={loading}
-          canEdit={canEdit && Boolean(draft?.canEdit)}
-          onUpdate={updateItem}
-          onRemove={removeItem}
+          draft={controller.draft}
+          loading={controller.loading}
+          canEdit={controller.canEditDraft}
+          onUpdate={controller.updateItem}
+          onRemove={controller.removeItem}
         />
       ) : (
-        <ReportCollectionTable collection={collection} loading={loading} />
+        <ReportCollectionTable collection={controller.collection} loading={controller.loading} />
       )}
     </div>
   );

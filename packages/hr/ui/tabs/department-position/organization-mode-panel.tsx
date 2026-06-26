@@ -2,22 +2,19 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { putJson } from "@workspace/platform/ui/api-client";
-import { CommandButton, DataTable, type DataTableColumn, EmptyStateCard, FkFieldInput, type FkFieldOption, PanelCard, TagListInput, Toast, WorkspaceSplitPage } from "@workspace/core/ui";
+import { Badge, CommandButton, DataTable, type DataTableColumn, EmptyStateCard, FkFieldInput, type FkFieldOption, PanelCard, SelectionGrid, Toast, WorkspaceSplitPage } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { selectedEntityName } from "./detail-editor-primitives";
 import { createDepartmentDescriptionDraft, departmentDescriptionPayload, departmentManagerPositionName, sanitizeDepartmentDescriptionDetails } from "./draft-utils";
 import type { Department, Position } from "./types";
+
 type PositionRelationRow = {
   position: Position;
-  reportTo: string;
   subordinates: Position[];
   label: string;
 };
 function normalizeName(value: unknown) {
   return String(value || "").trim();
-}
-function positionDetailsText(position: Position) {
-  return position.positionDescriptionDetails ? JSON.stringify(position.positionDescriptionDetails) : null;
 }
 function reportValue(position: Position, draftReports: Record<number, string>) {
   return Object.prototype.hasOwnProperty.call(draftReports, position.id) ? normalizeName(draftReports[position.id]) : normalizeName(position.reportTo);
@@ -63,6 +60,7 @@ export function OrganizationModePanel({
   sideOpen,
   canEdit,
   onDrawerOpenChange,
+  onOpenDepartmentDetails,
   onOpenPositionDetails,
   onSelectPosition,
   onSideOpenChange,
@@ -80,13 +78,13 @@ export function OrganizationModePanel({
   sideOpen: boolean;
   canEdit: boolean;
   onDrawerOpenChange: (open: boolean) => void;
+  onOpenDepartmentDetails?: (departmentId: number) => void;
   onOpenPositionDetails?: (positionId: number) => void;
   onSelectPosition: (position: Position) => void;
   onSideOpenChange: (open: boolean) => void;
   onUnsavedChange?: (dirty: boolean) => void;
   onReload: () => Promise<void>;
 }) {
-  const [draftReports, setDraftReports] = useState<Record<number, string>>({});
   const [managerDraft, setManagerDraft] = useState("");
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{
@@ -97,153 +95,90 @@ export function OrganizationModePanel({
   const positionsByName = useMemo(() => new Map(positions.map(position => [position.name, position])), [positions]);
   const currentManagerName = selectedDepartment ? departmentManagerPositionName(selectedDepartment) : "";
   useEffect(() => {
-    setDraftReports({});
     setManagerDraft(currentManagerName);
   }, [currentManagerName, selectedDepartment?.id]);
-  const dirtyPositions = directPositions.filter(position => reportValue(position, draftReports) !== normalizeName(position.reportTo));
   const managerDirty = selectedDepartment ? normalizeName(managerDraft) !== normalizeName(currentManagerName) : false;
-  const dirtyChangeCount = dirtyPositions.length + (managerDirty ? 1 : 0);
   useEffect(() => {
-    onUnsavedChange?.(dirtyChangeCount > 0);
-  }, [dirtyChangeCount, onUnsavedChange]);
+    onUnsavedChange?.(managerDirty);
+  }, [managerDirty, onUnsavedChange]);
   const relations = directPositions.map(position => ({
     position,
-    reportTo: reportValue(position, draftReports),
-    subordinates: directSubordinates(position, positions, draftReports),
-    label: selectedDepartment ? relationLabel(position, selectedDepartment, positionsByName, draftReports) : ""
+    subordinates: directSubordinates(position, positions, {}),
+    label: selectedDepartment ? relationLabel(position, selectedDepartment, positionsByName, {}) : ""
   }));
   const columns: DataTableColumn<PositionRelationRow>[] = [{
     key: "position",
     label: "岗位",
     required: true,
+    className: "w-1/3",
     cellClassName: "whitespace-normal align-middle",
     render: ({
-      position
-    }) => <div className="min-w-0">
-          <CommandButton
-            title={`打开 ${position.name} 的部门岗位说明`}
-            onClick={() => onOpenPositionDetails?.(position.id)}
-            size="sm"
-            className="!h-auto !justify-start !border-0 !bg-transparent !p-0 !text-left !text-sm !font-semibold !leading-5 !text-slate-900 !shadow-none hover:!bg-transparent hover:!text-sky-700 hover:!underline"
-          >
-            <span className="whitespace-normal break-words">{position.name}</span>
-          </CommandButton>
-          <div className="mt-0.5 font-mono text-xs text-slate-400">{position.code}</div>
-        </div>
-  }, {
-    key: "reportTo",
-    label: "汇报给 / 上级岗位",
-    required: true,
-    headerClassName: "w-64 min-w-64",
-    cellClassName: "w-64 min-w-64 align-middle",
-    render: ({
       position,
-      reportTo
-    }) => <div className="flex min-w-0 items-center gap-2">
-          <FkFieldInput fkKey="hr.position" endpoint={HR_REFERENCE_OPTIONS_ENDPOINT} value={reportTo} displayValue={reportTo} disabled={!canEdit || saving} placeholder="搜索上级岗位" onChange={(_label, option) => {
-        const next = selectedEntityName("position", option);
-        if (next === position.name) {
-          setToast({
-            type: "error",
-            message: "不能选择岗位自身作为上级"
-          });
-          return;
-        }
-        setDraftReports(prev => ({
-          ...prev,
-          [position.id]: next
-        }));
-      }} />
+      label
+    }) => <div className="min-w-0">
+          <div className="flex min-w-0 items-center gap-2">
+            <CommandButton
+              title={`打开 ${position.name} 的部门岗位说明`}
+              onClick={() => onOpenPositionDetails?.(position.id)}
+              size="sm"
+              truncate
+              className="min-w-0 !h-auto !justify-start !border-0 !bg-transparent !p-0 !text-left !text-sm !font-semibold !leading-5 !text-slate-900 !shadow-none hover:!bg-transparent hover:!text-sky-700 hover:!underline"
+            >
+              {position.name}
+            </CommandButton>
+            <Badge
+              label={label}
+              tone={label === "循环关系" || label === "待匹配" ? "red" : label === "跨部门上级" ? "amber" : label === "顶层岗位" ? "emerald" : "slate"}
+            />
+          </div>
+          <div className="mt-0.5 truncate font-mono text-xs text-slate-400" title={position.code}>{position.code}</div>
         </div>
   }, {
     key: "subordinates",
     label: "下属岗位",
     required: true,
-    headerClassName: "w-44 min-w-44",
-    cellClassName: "w-44 min-w-44 whitespace-normal align-top",
+    className: "w-2/3",
+    cellClassName: "whitespace-normal align-top",
     render: ({
       subordinates
-    }) => <div className="flex min-w-0 flex-col items-start gap-1.5">
-          {subordinates.length > 0 ? (
-            <TagListInput
-              items={subordinates}
-              getKey={(item) => item.id}
-              getLabel={(item) => item.name}
-              itemTitle={(item) => `跳转到 ${item.name}`}
-              itemActionLabel={(item) => `跳转到 ${item.name}`}
-              itemClassName={() => "border-slate-300 bg-white"}
-              onItemClick={(item) => onSelectPosition(item)}
-            />
-          ) : <span className="text-xs text-slate-400">-</span>}
-        </div>
-  }, {
-    key: "note",
-    label: "说明",
-    required: true,
-    cellClassName: "align-middle",
-    render: ({
-      label
-    }) => <span className={`inline-block rounded px-2 py-1 text-center text-xs font-medium ${label === "循环关系" || label === "待匹配" ? "bg-red-50 text-red-600" : label === "跨部门上级" ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-600"}`}>
-          {label}
-        </span>
+    }) => subordinates.length > 0 ? (
+      <SelectionGrid
+        mode="action"
+        layout="fixed"
+        columns={2}
+        ariaLabel="下属岗位"
+        options={subordinates.map((position) => ({
+          value: String(position.id),
+          label: position.name,
+        }))}
+        onItemClick={(option) => {
+          const position = subordinates.find((p) => String(p.id) === option.value);
+          if (position) onSelectPosition(position);
+        }}
+      />
+    ) : <span className="text-xs text-slate-400">-</span>
   }];
   async function saveChanges() {
-    if (!selectedDepartment || dirtyChangeCount === 0) return;
-    const invalid = dirtyPositions.find(position => {
-      const nextReportTo = reportValue(position, draftReports);
-      return nextReportTo && createsCycle(position, nextReportTo, positionsByName, draftReports);
-    });
-    if (invalid) {
-      setToast({
-        type: "error",
-        message: `${invalid.name} 的汇报关系会形成循环`
-      });
-      return;
-    }
+    if (!selectedDepartment || !managerDirty) return;
     setSaving(true);
     try {
-      if (managerDirty) {
-        const descriptionDraft = createDepartmentDescriptionDraft(selectedDepartment, selectedDepartment.descriptions[0]);
-        await putJson("/api/modules/hr/roster/departments", {
-          id: selectedDepartment.id,
-          descriptions: [departmentDescriptionPayload({
-            ...descriptionDraft,
-            details: sanitizeDepartmentDescriptionDetails(descriptionDraft.details, selectedDepartment.name, managerDraft)
-          })]
-        }, "保存部门负责人失败");
-      }
-      for (const position of dirtyPositions) {
-        if (!position.positionDescriptionId || !position.positionDescriptionCode || !position.positionDescriptionName) {
-          throw new Error(`${position.name} 缺少岗位说明书，无法保存汇报关系`);
-        }
-        const detailsText = positionDetailsText(position);
-        await putJson("/api/modules/hr/roster/position-descriptions", {
-          id: position.positionDescriptionId,
-          code: position.positionDescriptionCode,
-          name: position.positionDescriptionName,
-          departmentName: position.positionDescriptionDepartmentName || position.departmentName || null,
-          reportTo: reportValue(position, draftReports) || null,
-          positionPurpose: position.positionPurpose || null,
-          summary: position.summary || null,
-          headcount: position.headcountPlan,
-          version: position.positionDescriptionVersion || null,
-          effectiveDate: position.effectiveDate || null,
-          sourceFile: position.sourceFile || "",
-          ...(detailsText ? {
-            details: detailsText
-          } : {})
-        }, "保存岗位汇报关系失败");
-      }
+      const descriptionDraft = createDepartmentDescriptionDraft(selectedDepartment, selectedDepartment.descriptions[0]);
+      await putJson("/api/modules/hr/roster/departments", {
+        id: selectedDepartment.id,
+        descriptions: [departmentDescriptionPayload({
+          ...descriptionDraft,
+          details: sanitizeDepartmentDescriptionDetails(descriptionDraft.details, selectedDepartment.name, managerDraft)
+        })]
+      }, "保存部门负责人失败");
       await onReload();
-      setDraftReports({});
       setToast({
         type: "success",
-        message: "组织架构修改已保存"
+        message: "部门负责人已保存"
       });
     } catch (error) {
       setToast({
         type: "error",
-        message: error instanceof Error ? error.message : "保存岗位汇报关系失败"
+        message: error instanceof Error ? error.message : "保存部门负责人失败"
       });
     } finally {
       setSaving(false);
@@ -259,7 +194,14 @@ export function OrganizationModePanel({
               <div className="flex min-w-0 flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-4">
                 <div className="min-w-0">
                   <div className="flex min-w-0 items-baseline gap-3">
-                    <h2 className="truncate text-lg font-semibold text-slate-900">{selectedDepartment.name}</h2>
+                    <CommandButton
+                      title={`打开 ${selectedDepartment.name} 的部门说明书`}
+                      onClick={() => onOpenDepartmentDetails?.(selectedDepartment.id)}
+                      size="sm"
+                      className="!h-auto !justify-start !border-0 !bg-transparent !p-0 !text-left !text-lg !font-semibold !leading-7 !text-slate-900 !shadow-none hover:!bg-transparent hover:!text-sky-700 hover:!underline"
+                    >
+                      <span className="truncate">{selectedDepartment.name}</span>
+                    </CommandButton>
                     <span className="shrink-0 font-mono text-sm text-slate-400">{selectedDepartment.code}</span>
                   </div>
                 </div>
@@ -270,8 +212,8 @@ export function OrganizationModePanel({
                   setManagerDraft(selectedEntityName("position", option));
                 }} />
                   </div>
-                  <CommandButton variant="primary" disabled={!canEdit || saving || dirtyChangeCount === 0} onClick={() => void saveChanges()}>
-                    {saving ? "保存中..." : dirtyChangeCount > 0 ? `保存修改 (${dirtyChangeCount})` : "保存修改"}
+                  <CommandButton variant="primary" disabled={!canEdit || saving || !managerDirty} onClick={() => void saveChanges()}>
+                    {saving ? "保存中..." : "保存修改"}
                   </CommandButton>
                 </div>
               </div>

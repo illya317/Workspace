@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Toast, useConfirm, useConfirmDelete } from "@workspace/core/ui";
+import { useConfirm, useConfirmDelete } from "@workspace/core/ui";
 import { type HRUser, hrCanEdit } from "@workspace/hr/types";
 import type { DepartmentPositionMode } from "./department-position/types";
-import { DepartmentPositionActiveWorkspace } from "./department-position/active-workspace";
+import { DepartmentPositionMainContent } from "./department-position/department-position-main-content";
 import { useDepartmentPositionDerivedState } from "./department-position/derived-state";
 import { OrganizationModePanel } from "./department-position/organization-mode-panel";
 import { useDepartmentPositionActions } from "./department-position/use-department-position-actions";
@@ -15,22 +15,28 @@ import { useDepartmentPositionSideEffects } from "./department-position/use-depa
 import { useDepartmentPositionTreeRenderers } from "./department-position/use-department-position-tree-renderers";
 import { useDepartmentPositionViewRenderers } from "./department-position/use-department-position-view-renderers";
 import { usePositionDescriptionTemplates } from "./department-position/use-position-description-templates";
-import { DepartmentPositionSearch } from "./department-position/department-position-search";
+
 
 export default function DepartmentPositionTab({
   user,
   mode = "position",
   lifecycle = "active",
+  focusDepartmentId = null,
   focusPositionId = null,
+  onFocusDepartmentConsumed,
   onFocusPositionConsumed,
+  onOpenDepartmentDetails,
   onOpenPositionDetails,
   onUnsavedChange,
 }: {
   user: HRUser;
   mode?: DepartmentPositionMode;
   lifecycle?: "active" | "archived";
+  focusDepartmentId?: number | null;
   focusPositionId?: number | null;
+  onFocusDepartmentConsumed?: () => void;
   onFocusPositionConsumed?: () => void;
+  onOpenDepartmentDetails?: (departmentId: number) => void;
   onOpenPositionDetails?: (positionId: number) => void;
   onUnsavedChange?: (dirty: boolean) => void;
 }) {
@@ -103,6 +109,14 @@ export default function DepartmentPositionTab({
     showArchived,
   });
   useEffect(() => {
+    if (mode !== "position" || !focusDepartmentId) return;
+    if (!departments.some((department) => department.id === focusDepartmentId)) return;
+    setShowArchived(false);
+    setSelection({ type: "department", id: focusDepartmentId });
+    setTreeDrawerOpen(false);
+    onFocusDepartmentConsumed?.();
+  }, [departments, focusDepartmentId, mode, onFocusDepartmentConsumed, setSelection, setShowArchived, setTreeDrawerOpen]);
+  useEffect(() => {
     if (mode !== "position" || !focusPositionId) return;
     if (!positions.some((position) => position.id === focusPositionId)) return;
     setShowArchived(false);
@@ -122,7 +136,6 @@ export default function DepartmentPositionTab({
     positionsByDepartment,
     rootDepartments,
     selectedDepartment,
-    selectedDepartmentParentPath,
     selectedDepartmentStats,
     selectedPosition,
     visibleDepartmentIds,
@@ -276,7 +289,6 @@ export default function DepartmentPositionTab({
     saving,
     search,
     selectedDepartment,
-    selectedDepartmentParentPath,
     selectedDepartmentStats,
     selectedPosition,
     selectedPositionDescriptionTemplate,
@@ -335,6 +347,7 @@ export default function DepartmentPositionTab({
         renderSide={renderTreePanel}
         sideOpen={treeOpen}
         onDrawerOpenChange={setTreeDrawerOpen}
+        onOpenDepartmentDetails={onOpenDepartmentDetails}
         onOpenPositionDetails={onOpenPositionDetails}
         onSelectPosition={(position) => selectItem({ type: "position", id: position.id })}
         onSideOpenChange={setTreeOpen}
@@ -349,34 +362,27 @@ export default function DepartmentPositionTab({
   }
 
   return (
-    <>
-      <div className="mb-3">
-        <DepartmentPositionSearch
-          departments={departments}
-          departmentById={departmentById}
-          keyword={search}
-          positions={positions}
-          onKeywordChange={setSearch}
-          onSelect={selectItem}
-        />
-      </div>
-
-      <DepartmentPositionActiveWorkspace
-        sideOpen={treeOpen}
-        drawerOpen={treeDrawerOpen}
-        onSideOpenChange={setTreeOpen}
-        onDrawerOpenChange={setTreeDrawerOpen}
-        renderSide={renderTreePanel}
-      >
-        {renderDetailPane()}
-      </DepartmentPositionActiveWorkspace>
-
-      <Toast
-        message={toast?.message || ""}
-        type={toast?.type}
-        show={!!toast}
-        onClose={() => setToast(null)}
-      />
-    </>
+    <DepartmentPositionMainContent
+      treeOpen={treeOpen}
+      treeDrawerOpen={treeDrawerOpen}
+	      renderTreePanel={renderTreePanel}
+	      createPanel={createPanel}
+	      departments={departments}
+	      departmentById={departmentById}
+	      canEdit={canEdit}
+      isOrganizationMode={isOrganizationMode}
+      showArchived={showArchived}
+	      search={search}
+	      collapsedDepartments={collapsedDepartments}
+	      onSearchChange={setSearch}
+	      onCreatePanelChange={setCreatePanel}
+      onCollapseAll={setAllDepartmentsCollapsed}
+      onLoadData={loadData}
+      renderDetailPane={renderDetailPane}
+      toast={toast}
+      onToastClose={() => setToast(null)}
+      onSideOpenChange={setTreeOpen}
+      onDrawerOpenChange={setTreeDrawerOpen}
+    />
   );
 }

@@ -4,8 +4,13 @@ import type { ColumnDef } from "./DataTable";
 import type { FieldValueFilterField } from "./FieldValueFilter";
 import type { SelectFieldOption } from "./SelectField";
 import type { ToolbarOption } from "./ToolbarOptionGroup";
+import type { ControlSize } from "./interactionTokens";
 
-export type ToolbarSection = "search" | "view" | "filter" | "action" | "edit" | "meta";
+export type ToolbarSection = "primary" | "search" | "filter" | "edit" | "action" | "meta" | "view";
+
+export type ToolbarZoneKey = "lead" | "search" | "filter" | "actions" | "trailing";
+
+export type ToolbarLayoutMode = "auto" | "compact" | "split";
 
 export interface ToolbarItemBase {
   section?: ToolbarSection;
@@ -18,6 +23,18 @@ export interface ToolbarIconButtonItem extends ToolbarItemBase {
   label: string;
   variant?: "primary" | "secondary" | "danger";
   type?: "button" | "submit";
+  disabled?: boolean;
+  onClick?: () => void;
+  className?: string;
+  iconClassName?: string;
+}
+
+export interface ToolbarPanelToggleItem extends ToolbarItemBase {
+  kind: "panel-toggle";
+  key: string;
+  icon: Extract<ActionGlyphKind, "panel-open" | "panel-close">;
+  label: string;
+  variant?: "primary" | "secondary";
   disabled?: boolean;
   onClick?: () => void;
   className?: string;
@@ -41,6 +58,7 @@ export interface ToolbarSelectItem extends ToolbarItemBase {
   value: string;
   options: SelectFieldOption[];
   onChange: (value: string) => void;
+  label?: string;
   placeholder?: string;
   className?: string;
   triggerClassName?: string;
@@ -53,6 +71,8 @@ export interface ToolbarOptionGroupItem extends ToolbarItemBase {
   options: ToolbarOption[];
   onChange: (value: string) => void;
   ariaLabel?: string;
+  presentation?: "segmented" | "accordion";
+  defaultExpanded?: boolean;
 }
 
 export interface ToolbarFieldFilterItem extends ToolbarItemBase {
@@ -61,7 +81,7 @@ export interface ToolbarFieldFilterItem extends ToolbarItemBase {
   fieldKey: string;
   onFieldKeyChange: (key: string) => void;
   value: string;
-  onValueChange: (value: string) => void;
+  onValueChange: (value: string, fieldKey?: string) => void;
   fields: FieldValueFilterField[];
   valueOptions: Record<string, SelectFieldOption[]>;
   placeholder?: string;
@@ -77,14 +97,41 @@ export interface ToolbarColumnToggleItem extends ToolbarItemBase {
   onChange: (visible: string[]) => void;
 }
 
-export interface ToolbarTextItem extends ToolbarItemBase {
-  kind: "text";
+export interface ToolbarPageSizeItem extends ToolbarItemBase {
+  kind: "page-size";
   key: string;
-  content: ReactNode;
+  value: string;
+  options: SelectFieldOption[];
+  onChange: (value: string) => void;
+  label?: string;
 }
 
-export interface ToolbarCustomItem extends ToolbarItemBase {
-  kind: "custom";
+export interface ToolbarPeriodDateItem extends ToolbarItemBase {
+  kind: "period";
+  key: string;
+  mode: "date";
+  value: string | null;
+  onChange: (value: string | null) => void;
+  placeholder?: string;
+  disabled?: boolean;
+}
+
+export interface ToolbarPeriodNavItem extends ToolbarItemBase {
+  kind: "period";
+  key: string;
+  mode: "nav";
+  label: ReactNode;
+  previousLabel?: string;
+  nextLabel?: string;
+  onPrevious: () => void;
+  onNext: () => void;
+  disabled?: boolean;
+}
+
+export type ToolbarPeriodItem = ToolbarPeriodDateItem | ToolbarPeriodNavItem;
+
+export interface ToolbarTextItem extends ToolbarItemBase {
+  kind: "text";
   key: string;
   content: ReactNode;
 }
@@ -132,13 +179,15 @@ export interface ToolbarCreateItem extends ToolbarItemBase {
 
 export type ToolbarItem =
   | ToolbarIconButtonItem
+  | ToolbarPanelToggleItem
   | ToolbarSearchItem
   | ToolbarSelectItem
   | ToolbarOptionGroupItem
   | ToolbarFieldFilterItem
   | ToolbarColumnToggleItem
+  | ToolbarPageSizeItem
+  | ToolbarPeriodItem
   | ToolbarTextItem
-  | ToolbarCustomItem
   | ToolbarActionGroupItem
   | ToolbarEditGroupItem
   | ToolbarCreateItem;
@@ -148,4 +197,7 @@ export interface ToolbarProps {
   className?: string;
   onSubmit?: () => void;
   variant?: "bar" | "inline";
+  size?: ControlSize;
+  layoutMode?: ToolbarLayoutMode;
+  hideOverflowItems?: boolean;
 }

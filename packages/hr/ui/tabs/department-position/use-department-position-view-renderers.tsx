@@ -30,7 +30,7 @@ export function useDepartmentPositionViewRenderers(props: {
   canEdit: boolean;
   canEditDepartment: boolean;
   canEditPosition: boolean;
-  createPanel: "position" | null;
+  createPanel: "department" | "position" | null;
   createPositionCode: string;
   createPositionDepartment: Department | undefined;
   createPositionDraft: CreatePositionDraft;
@@ -58,7 +58,6 @@ export function useDepartmentPositionViewRenderers(props: {
   saving: boolean;
   search: string;
   selectedDepartment: Department | undefined;
-  selectedDepartmentParentPath: string;
   selectedDepartmentStats: DepartmentPositionStats | null | undefined;
   selectedPosition: Position | undefined;
   selectedPositionDescriptionTemplate: PositionDescriptionTemplate;
@@ -88,7 +87,7 @@ export function useDepartmentPositionViewRenderers(props: {
   onSavePositionDescriptionTemplate: () => void | Promise<void>;
   onSearchChange: (search: string) => void;
   onSelect: (selection: Selection) => void;
-  onSetCreatePanel: (panel: "position" | null) => void;
+  onSetCreatePanel: (panel: "department" | "position" | null) => void;
   onSetCreatePositionDraft: Dispatch<SetStateAction<CreatePositionDraft>>;
   onSideOpenChange: (open: boolean) => void;
   onTemplateDraftNameChange: (name: string) => void;
@@ -152,7 +151,6 @@ export function useDepartmentPositionViewRenderers(props: {
       <DepartmentDetailPane
         selection={props.selection}
         selectedDepartment={props.selectedDepartment}
-        selectedDepartmentParentPath={props.selectedDepartmentParentPath}
         selectedDepartmentStats={props.selectedDepartmentStats}
         departmentDraft={props.departmentDraft}
         departmentDescriptionDrafts={props.departmentDescriptionDrafts}

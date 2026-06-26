@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { DatabasePageFrame } from "@workspace/core/ui";
 import { type TabDef } from "@workspace/core/ui";
@@ -55,42 +55,66 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
   const [activeChild, setActiveChild] = useState<string | undefined>(
     rosterViews.find((view) => view.key === "employee")?.children?.[0]?.key,
   );
+  const [focusDepartmentId, setFocusDepartmentId] = useState<number | null>(null);
   const [focusPositionId, setFocusPositionId] = useState<number | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const confirmNavigation = useUnsavedChangesPrompt(hasUnsavedChanges);
+  const renderedView = useDeferredValue(activeView);
+  const renderedChild = useDeferredValue(activeChild);
   const hrUser = toHRUser(user);
-  const activeBulkTab = (activeChild ?? "employee") as HRTab;
-  const activeGeneratedVariant = (activeChild === "dueDiligence" ? "dueDiligence" : "management") as RosterGeneratedVariant;
-  const employeeStatus = activeChild === "inactive" ? "inactive" : "active";
-  const departmentLifecycle = activeChild === "archived" ? "archived" : "active";
+  const activeBulkTab = (renderedChild ?? "employee") as HRTab;
+  const activeGeneratedVariant = (renderedChild === "dueDiligence" ? "dueDiligence" : "management") as RosterGeneratedVariant;
+  const employeeStatus = renderedChild === "inactive" ? "inactive" : "active";
+  const departmentLifecycle = renderedChild === "archived" ? "archived" : "active";
   const canEditGenerated = hrUser.isAdmin || hrUser.visibleWriteResourceKeys.includes("hr.roster.generated");
 
+  function canLeaveCurrentView() {
+    if (!hasUnsavedChanges) return true;
+    return confirmNavigation();
+  }
+
+  function clearFocusTargets() {
+    setFocusDepartmentId(null);
+    setFocusPositionId(null);
+  }
+
   async function changeView(key: string) {
-    if (key !== activeView) {
-      const canLeave = await confirmNavigation();
-      if (!canLeave) return;
-      setHasUnsavedChanges(false);
-    }
+    if (key === activeView) return;
+    const canLeave = canLeaveCurrentView();
+    if (canLeave !== true && !(await canLeave)) return;
+    if (hasUnsavedChanges) setHasUnsavedChanges(false);
+    clearFocusTargets();
     const nextView = rosterViews.find((view) => view.key === key);
     setActiveView(key as HRView);
     setActiveChild(nextView?.children?.[0]?.key);
   }
 
   async function openPositionDetails(positionId: number) {
-    const canLeave = await confirmNavigation();
-    if (!canLeave) return;
-    setHasUnsavedChanges(false);
+    const canLeave = canLeaveCurrentView();
+    if (canLeave !== true && !(await canLeave)) return;
+    if (hasUnsavedChanges) setHasUnsavedChanges(false);
+    setFocusDepartmentId(null);
     setFocusPositionId(positionId);
     setActiveView("department-position");
     setActiveChild("active");
   }
 
+  async function openDepartmentDetails(departmentId: number) {
+    const canLeave = canLeaveCurrentView();
+    if (canLeave !== true && !(await canLeave)) return;
+    if (hasUnsavedChanges) setHasUnsavedChanges(false);
+    setFocusPositionId(null);
+    setFocusDepartmentId(departmentId);
+    setActiveView("department-position");
+    setActiveChild("active");
+  }
+
   async function changeChild(key: string) {
-    if (key !== activeChild) {
-      const canLeave = await confirmNavigation();
-      if (!canLeave) return;
-      setHasUnsavedChanges(false);
-    }
+    if (key === activeChild) return;
+    const canLeave = canLeaveCurrentView();
+    if (canLeave !== true && !(await canLeave)) return;
+    if (hasUnsavedChanges) setHasUnsavedChanges(false);
+    clearFocusTargets();
     setActiveChild(key);
   }
 
@@ -102,29 +126,32 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
       onTabChange={changeView}
       onChildChange={changeChild}
     >
-        {activeView === "employee" && <EmployeeDirectory user={hrUser} employmentStatus={employeeStatus} />}
+        {renderedView === "employee" && <EmployeeDirectory user={hrUser} employmentStatus={employeeStatus} />}
 
-        {activeView === "organization" && (
+        {renderedView === "organization" && (
           <DepartmentPositionTab
             user={hrUser}
             mode="organization"
             onUnsavedChange={setHasUnsavedChanges}
+            onOpenDepartmentDetails={(departmentId) => void openDepartmentDetails(departmentId)}
             onOpenPositionDetails={(positionId) => void openPositionDetails(positionId)}
           />
         )}
 
-        {activeView === "department-position" && (
+        {renderedView === "department-position" && (
           <DepartmentPositionTab
             user={hrUser}
             mode="position"
             lifecycle={departmentLifecycle}
+            focusDepartmentId={focusDepartmentId}
             focusPositionId={focusPositionId}
             onUnsavedChange={setHasUnsavedChanges}
+            onFocusDepartmentConsumed={() => setFocusDepartmentId(null)}
             onFocusPositionConsumed={() => setFocusPositionId(null)}
           />
         )}
 
-        {activeView === "bulk" && (
+        {renderedView === "bulk" && (
           <>
             <>
               {activeBulkTab === "employee" && <GenericTableTab config={employeeConfig} user={hrUser} />}
@@ -135,7 +162,7 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
           </>
         )}
 
-        {activeView === "generated" && (
+        {renderedView === "generated" && (
           <RosterGeneratedTab variant={activeGeneratedVariant} canEdit={canEditGenerated} />
         )}
     </DatabasePageFrame>

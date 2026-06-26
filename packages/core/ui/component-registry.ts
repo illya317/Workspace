@@ -60,22 +60,22 @@ export const coreUiComponentKindMeta = {
 
 export const coreUiComponentAccessLayerMeta = {
   "page-frame": {
-    label: "Page Frame",
+    label: "页面框架",
     description: "页面骨架。只管理页面结构，不包含业务事实。",
     agentSelectable: false,
   },
   "page-api": {
-    label: "Page API",
+    label: "页面 API",
     description: "业务页 / agent 可以直接使用的公开 UI 接口。",
     agentSelectable: true,
   },
   "core-internal": {
-    label: "Core Internal",
+    label: "核心内部",
     description: "只服务 Page API 的内部组合。关系图可见，但不作为 agent 可选组件。",
     agentSelectable: false,
   },
   foundation: {
-    label: "Foundation",
+    label: "基础层",
     description: "样式配方、token、glyph taxonomy、className recipe。伪注册为材料/依赖。",
     agentSelectable: false,
   },

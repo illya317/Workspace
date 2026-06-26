@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { SectionCard } from "./BaseCards";
 import { CreateConfirmActions, CreateStartButton } from "./CreateActionControls";
+import { useCreatePanelAutoScroll } from "./useCreatePanelAutoScroll";
 
 export interface BlockCreatePanelProps {
   title: string;
@@ -19,6 +20,7 @@ export interface BlockCreatePanelProps {
   onStartCreate: () => void;
   onSubmitCreate: () => void;
   onCancelCreate: () => void;
+  scrollOnCreate?: boolean;
   className?: string;
   bodyClassName?: string;
   createClassName?: string;
@@ -39,10 +41,12 @@ export default function BlockCreatePanel({
   onStartCreate,
   onSubmitCreate,
   onCancelCreate,
+  scrollOnCreate = true,
   className,
   bodyClassName,
   createClassName = "rounded-lg border border-slate-200 bg-white p-3",
 }: BlockCreatePanelProps) {
+  const createRef = useCreatePanelAutoScroll<HTMLDivElement>(scrollOnCreate && creating);
   return (
     <SectionCard
       title={(
@@ -72,7 +76,7 @@ export default function BlockCreatePanel({
       bodyClassName={bodyClassName}
     >
       <div className="space-y-4">
-        {creating && <div className={createClassName}>{createContent}</div>}
+        {creating && <div ref={createRef} className={createClassName}>{createContent}</div>}
         {children}
       </div>
     </SectionCard>

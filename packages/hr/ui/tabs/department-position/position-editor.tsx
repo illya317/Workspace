@@ -2,6 +2,7 @@
 
 import { CommandButton, FkFieldInput, FormField, PanelCard, TextField } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
+import { SegmentedCodeInput } from "@workspace/platform/ui";
 import PositionAliasTagsInput from "./PositionAliasTagsInput";
 import { type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
 import { DetailSectionHeader, formInputClassName } from "./detail-editors";
@@ -89,7 +90,6 @@ export function PositionEditor({
 }) {
   const draftDepartment = draft?.departmentId ? departmentById.get(draft.departmentId) : undefined;
   const draftCodePrefix = positionCodePrefix(draftDepartment) || (showArchived ? positionCodePrefixFromCode(position.code) : "");
-  const draftCodeSuffix = draft ? positionCodeSuffix(draft.code) : "";
   const draftDepartmentDisplay = departmentPath(draftDepartment, departmentById) || position.departmentName || "";
   return <div className="space-y-5">
       {position.departmentId ? <DirectPositionPanel departmentId={position.departmentId} positionsByDepartment={positionsByDepartment} selection={selection} onSelect={onSelect} /> : null}
@@ -104,12 +104,22 @@ export function PositionEditor({
             </div>} />
         {draft && <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <FormField label="岗位编码">
-              <div className="flex min-h-10 overflow-hidden rounded-md border border-sky-200 bg-white text-sm shadow-sm focus-within:border-sky-500 focus-within:ring-1 focus-within:ring-sky-500">
-                <span className="flex min-w-0 flex-1 items-center truncate border-r border-slate-200 bg-slate-50 px-3 font-mono text-slate-500" title={draftCodePrefix || "请先选择直属部门"}>
-                  {draftCodePrefix || "选择直属部门后生成"}
-                </span>
-                <TextField value={draftCodeSuffix} disabled={!canEditPosition || !draftCodePrefix} inputMode="numeric" maxLength={2} ariaLabel="岗位编码序号" onChange={next => onUpdateDraftCodeSuffix(next)} onBlur={event => onUpdateDraftCodeSuffix(event.target.value, true)} className="w-20 border-0 bg-white px-3 py-2 font-mono text-slate-900 outline-none placeholder:text-slate-400 disabled:bg-slate-100 disabled:text-slate-400" placeholder="01" unstyled />
-              </div>
+              <SegmentedCodeInput
+                value={draft.code}
+                disabled={!canEditPosition || !draftCodePrefix}
+                className="font-mono"
+                editableSegment={{
+                  extract: (code) => positionCodeSuffix(code),
+                  compose: (segment, code) => {
+                    const prefix = draftCodePrefix || positionCodePrefixFromCode(code);
+                    const suffix = segment.replace(/\D/g, "").slice(0, 2).padStart(2, "0");
+                    return suffix && prefix ? `${prefix}${suffix}` : code;
+                  },
+                  normalize: (segment) => segment.replace(/\D/g, "").slice(0, 2),
+                  placeholder: "01",
+                }}
+                onChange={(nextCode) => onUpdateDraftCodeSuffix(positionCodeSuffix(nextCode), true)}
+              />
             </FormField>
             <FormField label="岗位名称">
               <TextField value={draft.name} disabled={!canEditPosition} onChange={next => onUpdateDraft("name", next)} className={formInputClassName} />

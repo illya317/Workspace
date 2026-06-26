@@ -111,33 +111,31 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
         columns={viewMode === "reclass" ? undefined : voucherColumns}
         visibleColumns={viewMode === "reclass" ? undefined : visibleColumns}
         onColumnsChange={viewMode === "reclass" ? undefined : setVisibleColumns}
-        extra={
-          <>
-            {canWrite && (
-              <TabBar
-                variant="small"
-                accordion
-                tabs={[
-                  {
-                    key: "reclass",
-                    label: "重分类",
-                    children: [
-                      { key: "adjusted", label: `已调整 ${reclassCounts.adjusted}` },
-                      { key: "configured", label: `已配置 ${reclassCounts.configured}` },
-                      { key: "unconfigured", label: `未配置 ${reclassCounts.unconfigured}` },
-                      { key: "all", label: `全部 ${reclassCounts.total}` },
-                    ],
-                  },
-                ]}
-                active={viewMode === "reclass" ? "reclass" : ""}
-                activeChild={reclassStatus}
-                onChange={() => setViewMode(viewMode === "reclass" ? "vouchers" : "reclass")}
-                onChildChange={setReclassStatus}
-              />
-            )}
-          </>
-        }
       />
+      {canWrite && (
+        <div className="flex flex-wrap items-center gap-3">
+          <TabBar
+            variant="small"
+            accordion
+            tabs={[
+              {
+                key: "reclass",
+                label: "重分类",
+                children: [
+                  { key: "adjusted", label: `已调整 ${reclassCounts.adjusted}` },
+                  { key: "configured", label: `已配置 ${reclassCounts.configured}` },
+                  { key: "unconfigured", label: `未配置 ${reclassCounts.unconfigured}` },
+                  { key: "all", label: `全部 ${reclassCounts.total}` },
+                ],
+              },
+            ]}
+            active={viewMode === "reclass" ? "reclass" : ""}
+            activeChild={reclassStatus}
+            onChange={() => setViewMode(viewMode === "reclass" ? "vouchers" : "reclass")}
+            onChildChange={setReclassStatus}
+          />
+        </div>
+      )}
 
       {viewMode === "reclass" ? (
         companyFilter && yearFilter && monthFilter ? (

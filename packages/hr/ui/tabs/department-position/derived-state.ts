@@ -9,7 +9,6 @@ import type {
 } from "./types";
 import {
   archiveTimestamp,
-  departmentParentPath,
   departmentPath,
   generatePositionCode,
   plannedHeadcount,
@@ -99,7 +98,6 @@ export function useDepartmentPositionDerivedState({
   const selectedDepartmentStats = selectedDepartment
     ? departmentStats.get(selectedDepartment.id) ?? { directPositions: 0, totalPositions: 0, directHeadcount: 0, totalHeadcount: 0 }
     : null;
-  const selectedDepartmentParentPath = selectedDepartment ? departmentParentPath(selectedDepartment, departmentById) : "";
   const rootDepartments = useMemo(() => departments.filter((department) => !department.parentId).sort((a, b) => a.id - b.id), [departments]);
 
   const visibleDepartmentIds = useMemo(() => {
@@ -187,7 +185,6 @@ export function useDepartmentPositionDerivedState({
     positionsByDepartment,
     rootDepartments,
     selectedDepartment,
-    selectedDepartmentParentPath,
     selectedDepartmentStats,
     selectedPosition,
     visibleDepartmentIds,

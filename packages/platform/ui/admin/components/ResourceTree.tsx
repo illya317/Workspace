@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Badge, SelectorTree } from "@workspace/core/ui";
+import { Badge, SelectorPanel } from "@workspace/core/ui";
 
 type StatusVariant = "green" | "yellow" | "gray";
 
@@ -75,7 +75,9 @@ export default function ResourceTree({
   }
 
   return (
-    <SelectorTree
+    <SelectorPanel
+      mode="tree"
+      framed={false}
       items={resources}
       selectedId={selectedResource}
       onSelect={(resource) => onSelect(resource.key)}

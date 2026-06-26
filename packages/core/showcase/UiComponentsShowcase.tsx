@@ -170,59 +170,16 @@ export default function UiComponentsShowcase({
   }
 
   const toolbarItems = useMemo<ToolbarItem[]>(() => [
-    {
-      kind: "icon-button",
-      key: "toggle-list",
-      section: "view",
-      icon: sideOpen ? "panel-open" : "panel-close",
-      label: sideOpen ? "隐藏组件目录" : "显示组件目录",
-      variant: sideOpen ? "primary" : "secondary",
-      onClick: toggleSideFromToolbar,
-    },
-    {
-      kind: "search",
-      key: "search",
-      section: "search",
-      value: query,
-      onChange: setQuery,
-      placeholder: "搜索组件...",
-    },
-    {
-      kind: "option-group",
-      key: "access-layer",
-      section: "filter",
-      value: accessLayerValue,
-      options: ACCESS_LAYER_OPTIONS,
-      onChange: (value) => setAccessLayerValue(value as TreeAccessLayerFilter),
-      ariaLabel: "开放层",
-    },
-    {
-      kind: "option-group",
-      key: "verified",
-      section: "filter",
-      value: verifiedFilter,
-      options: [
-        { value: ALL_VERIFIED, label: "全部" },
-        { value: "verified", label: "无需改造" },
-        { value: "unverified", label: "待改造" },
-      ],
-      onChange: (value) => setVerifiedFilter(value as VerifiedFilter),
-      ariaLabel: "改造状态",
-    },
-    {
-      kind: "text",
-      key: "meta",
-      section: "meta",
-      content: <>共 {filteredRoots.length} 个组件</>,
-    },
-    {
-      kind: "column-toggle",
-      key: "columns",
-      section: "meta",
-      columns: META_COLUMNS,
-      visible: visibleMeta,
-      onChange: setVisibleMeta,
-    },
+    { kind: "create", key: "create", label: "新建组件", disabled: true, onClick: () => {} },
+    { kind: "panel-toggle", key: "toggle-list", icon: sideOpen ? "panel-open" : "panel-close", label: sideOpen ? "隐藏组件目录" : "显示组件目录", variant: sideOpen ? "primary" : "secondary", onClick: toggleSideFromToolbar },
+    { kind: "search", key: "search", value: query, onChange: setQuery, placeholder: "搜索组件..." },
+    { kind: "option-group", key: "access-layer", value: accessLayerValue, options: ACCESS_LAYER_OPTIONS, onChange: (value) => setAccessLayerValue(value as TreeAccessLayerFilter), ariaLabel: "开放层" },
+    { kind: "option-group", key: "verified", value: verifiedFilter, options: [{ value: ALL_VERIFIED, label: "全部" }, { value: "verified", label: "无需改造" }, { value: "unverified", label: "待改造" }], onChange: (value) => setVerifiedFilter(value as VerifiedFilter), ariaLabel: "改造状态" },
+    { kind: "icon-button", key: "refresh", icon: "refresh", label: "刷新", onClick: () => {} },
+    { kind: "icon-button", key: "download", icon: "download", label: "下载", disabled: true, onClick: () => {} },
+    { kind: "icon-button", key: "edit", icon: "edit", label: "编辑", disabled: true, onClick: () => {} },
+    { kind: "text", key: "meta", content: <>共 {filteredRoots.length} 个组件</> },
+    { kind: "column-toggle", key: "columns", columns: META_COLUMNS, visible: visibleMeta, onChange: setVisibleMeta },
   ], [accessLayerValue, filteredRoots.length, query, sideOpen, verifiedFilter, visibleMeta]);
 
   return (
@@ -236,7 +193,7 @@ export default function UiComponentsShowcase({
       contentClassName="max-w-7xl py-8"
       showSideControls={false}
       header={(
-        <Toolbar items={toolbarItems} />
+        <Toolbar items={toolbarItems} hideOverflowItems />
       )}
       renderSide={() => (
         <UiComponentTreePanel

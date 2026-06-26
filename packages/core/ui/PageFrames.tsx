@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ActionButton } from "./ActionControls";
 import PageContent from "./PageContent";
 import TabBar, { type TabDef } from "./TabBar";
 import SplitWorkspace, { type SplitWorkspaceMode } from "./SplitWorkspace";
@@ -45,7 +44,7 @@ export interface WorkspaceSplitPageProps {
   renderSide: (mode: SplitWorkspaceMode) => ReactNode;
   children: ReactNode;
   header?: ReactNode;
-  toolbar?: ReactNode;
+  toolbarItems?: ToolbarItem[];
   beforeSplit?: ReactNode;
   className?: string;
   contentClassName?: string;
@@ -62,7 +61,7 @@ export function WorkspaceSplitPage({
   renderSide,
   children,
   header,
-  toolbar,
+  toolbarItems: providedToolbarItems,
   beforeSplit,
   className = "",
   contentClassName = "",
@@ -72,39 +71,25 @@ export function WorkspaceSplitPage({
   const toolbarItems: ToolbarItem[] = [];
   if (showSideControls) {
     toolbarItems.push({
-      kind: "custom",
+      kind: "panel-toggle",
       key: "mobile-side-toggle",
-      section: "view",
-      content: (
-        <span className="lg:hidden">
-          <ActionButton
-            kind="panel-open"
-            label={`显示${sideLabel}`}
-            onClick={() => onDrawerOpenChange(true)}
-            className="!h-9 !w-10 !px-0"
-          />
-        </span>
-      ),
+      icon: "panel-open",
+      label: `显示${sideLabel}`,
+      onClick: () => onDrawerOpenChange(true),
+      className: "lg:!hidden",
     });
     toolbarItems.push({
-      kind: "custom",
+      kind: "panel-toggle",
       key: "desktop-side-toggle",
-      section: "view",
-      content: (
-        <span className="hidden lg:block">
-          <ActionButton
-            kind={sideOpen ? "panel-open" : "panel-close"}
-            label={`${sideOpen ? "隐藏" : "显示"}${sideLabel}`}
-            onClick={() => onSideOpenChange(!sideOpen)}
-            variant={sideOpen ? "primary" : "secondary"}
-            className="!h-9 !w-10 !px-0"
-          />
-        </span>
-      ),
+      icon: sideOpen ? "panel-open" : "panel-close",
+      label: `${sideOpen ? "隐藏" : "显示"}${sideLabel}`,
+      onClick: () => onSideOpenChange(!sideOpen),
+      variant: sideOpen ? "primary" : "secondary",
+      className: "!hidden lg:!inline-flex",
     });
   }
-  if (toolbar) {
-    toolbarItems.push({ kind: "custom", key: "toolbar", section: "edit", content: toolbar });
+  if (providedToolbarItems) {
+    toolbarItems.push(...providedToolbarItems);
   }
 
   return (
@@ -135,7 +120,7 @@ export interface DatabasePageFrameProps {
   activeChild?: string;
   onTabChange?: (tab: string) => void;
   onChildChange?: (child: string) => void;
-  toolbar?: ReactNode;
+  toolbarItems?: ToolbarItem[];
   summary?: ReactNode;
   children: ReactNode;
   className?: string;
@@ -148,7 +133,7 @@ export function DatabasePageFrame({
   activeChild,
   onTabChange,
   onChildChange,
-  toolbar,
+  toolbarItems,
   summary,
   children,
   className = "",
@@ -167,7 +152,7 @@ export function DatabasePageFrame({
           />
         )}
         {summary}
-        {toolbar}
+        {toolbarItems?.length ? <Toolbar items={toolbarItems} /> : null}
         {children}
       </div>
     </PageContent>

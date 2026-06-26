@@ -3,6 +3,7 @@ import { mapValidationToServiceResult } from "@workspace/platform/server/domain-
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
+import { deriveDepartmentCodeCascade } from "@workspace/hr/utils/department-code-cascade";
 import { getCompanyNameSync, loadCompanyMap } from "./company-directory";
 import { handleDelete, handleUpdateField } from "./hr-crud";
 import {
@@ -108,11 +109,29 @@ export async function listDepartments(input: { keyword: string; page: number; pa
 export async function createDepartment(input: DepartmentCreateInput, userId: number) {
   const command = mapValidationToServiceResult(await buildDepartmentCreateCommand(input));
   if (!command.ok) return command;
+  const { descriptions, ...departmentData } = command.data;
   try {
-    const record = await prisma.department.create({
-      data: { ...command.data, editedBy: userId },
+    const record = await prisma.$transaction(async (tx) => {
+      const department = await tx.department.create({
+        data: { ...departmentData, editedBy: userId },
+      });
+      const descriptionList = descriptions && descriptions.length > 0
+        ? descriptions.map((d) => ({ ...d, departmentId: department.id }))
+        : [{
+            departmentId: department.id,
+            code: department.code,
+            name: department.name,
+            sourceFile: "",
+            details: "{}",
+            editedBy: userId,
+            editedAt: new Date(),
+          }];
+      for (const descriptionData of descriptionList) {
+        await tx.departmentDescription.create({ data: { ...descriptionData, editedBy: userId, editedAt: new Date() } });
+      }
+      await snapshotHistory("Department", department.id, userId, tx);
+      return department;
     });
-    await snapshotHistory("Department", record.id, userId);
     return { ok: true as const, data: { success: true, record } };
   } catch (error: unknown) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003") {
@@ -130,9 +149,44 @@ export async function updateDepartment(input: DepartmentUpdateInput, userId: num
   data.editedAt = new Date();
   data.version = { increment: 1 };
 
+  let cascade: ReturnType<typeof deriveDepartmentCodeCascade> | null = null;
+  if (data.code !== undefined) {
+    const existing = await prisma.department.findUnique({
+      where: { id },
+      select: { code: true, level: true },
+    });
+    if (existing && data.code !== existing.code) {
+      const [allDepartments, allPositions] = await Promise.all([
+        prisma.department.findMany({ select: { id: true, code: true, level: true, parentId: true } }),
+        prisma.position.findMany({ select: { id: true, code: true, departmentId: true } }),
+      ]);
+      cascade = deriveDepartmentCodeCascade({
+        changedDepartment: { id, code: existing.code, level: existing.level, parentId: null },
+        newCode: String(data.code),
+        departments: allDepartments,
+        positions: allPositions,
+      });
+    }
+  }
+
   try {
     const updated = await prisma.$transaction(async (tx) => {
       const department = await tx.department.update({ where: { id }, data });
+      if (cascade) {
+        for (const { id: deptId, code } of cascade.departments) {
+          if (deptId === id) continue;
+          await tx.department.update({
+            where: { id: deptId },
+            data: { code, editedBy: userId, editedAt: new Date(), version: { increment: 1 } },
+          });
+        }
+        for (const { id: posId, code } of cascade.positions) {
+          await tx.position.update({
+            where: { id: posId },
+            data: { code, editedBy: userId, editedAt: new Date(), version: { increment: 1 } },
+          });
+        }
+      }
       if (descriptions) {
         for (const descriptionData of descriptions) {
           if (descriptionData.id) {

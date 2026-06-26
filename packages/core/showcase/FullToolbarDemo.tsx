@@ -34,7 +34,7 @@ export default function FullToolbarDemo() {
           { kind: "copy", label: "复制" },
         ],
       },
-      { kind: "icon-button", key: "full-toggle-list", section: "view", icon: "panel-open", label: "显示列表", onClick: noop },
+      { kind: "panel-toggle", key: "full-toggle-list", icon: "panel-open", label: "显示列表", onClick: noop },
       { kind: "create", key: "full-create", section: "view", onClick: noop },
       { kind: "search", key: "full-search", section: "search", value: keyword, onChange: setKeyword, placeholder: "搜索..." },
       { kind: "select", key: "full-status", section: "filter", value: status, options: [{ value: "all", label: "全部" }, { value: "active", label: "进行中" }, { value: "done", label: "已完成" }], onChange: setStatus, placeholder: "状态" },

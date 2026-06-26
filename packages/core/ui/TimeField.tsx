@@ -1,7 +1,6 @@
 "use client";
 
-import { joinClassNames } from "./card-utils";
-import { getFieldInputClassName } from "./FormStyles";
+import FieldInputShell from "./FieldInputShell";
 
 export interface TimeFieldProps {
   value?: string | null;
@@ -86,11 +85,10 @@ export default function TimeField({
   }
 
   return (
-    <div
-      className={joinClassNames(
-        getFieldInputClassName("flex items-center justify-center gap-1 px-2 tabular-nums"),
-        className,
-      )}
+    <FieldInputShell
+      disabled={disabled}
+      readOnly={readOnly}
+      className={`flex items-center justify-center gap-1 px-2 tabular-nums ${className ?? ""}`}
     >
       <TimePart
         label="小时"
@@ -109,6 +107,6 @@ export default function TimeField({
         readOnly={readOnly}
         onChange={(next) => commit("minute", next)}
       />
-    </div>
+    </FieldInputShell>
   );
 }

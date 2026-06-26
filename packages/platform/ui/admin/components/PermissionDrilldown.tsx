@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useEffect } from "react";
 import { matchEmployee } from "@workspace/platform/search";
-import { CommandButton, SectionCard, SelectorList, Toolbar, type ToolbarItem } from "@workspace/core/ui";
+import { CommandButton, SectionCard, SelectorPanel, Toolbar, type ToolbarItem } from "@workspace/core/ui";
 export interface EmployeePerm {
   employeeId: string;
   name: string;
@@ -127,10 +127,20 @@ export default function PermissionDrilldown({
           },
         ] satisfies ToolbarItem[]}
       />
-      {empLoading ? <p className="py-4 text-center text-sm text-gray-500">加载中...</p> : <SelectorList items={filtered} onSelect={onToggle} getKey={emp => emp.employeeId} renderItem={emp => ({
-      title: emp.name,
-      subtitle: emp.employeeId,
-      active: empHasAccess(emp, drillKey)
-    })} className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5" />}
+      <SelectorPanel
+        framed={false}
+        loading={empLoading}
+        loadingText="加载中..."
+        items={filtered}
+        selectedId={null}
+        onSelect={onToggle}
+        getKey={emp => emp.employeeId}
+        renderItem={emp => ({
+          title: emp.name,
+          subtitle: emp.employeeId,
+          active: empHasAccess(emp, drillKey),
+        })}
+        contentClassName="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+      />
     </SectionCard>;
 }

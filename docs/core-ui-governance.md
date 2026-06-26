@@ -18,10 +18,12 @@ Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页
 
 普通 Feature/Data/Operations agent：
 
+- Toolbar 规则另见 `docs/core-toolbar.md`；该文档是所有页面级工具栏的专门规范。
 - 只从 `@workspace/core/ui` 使用已注册的 `Page API`。
 - 只在明确确认为 `stable` 时使用 `Page Frame`；`tbc` Frame 不作为默认页面骨架。
 - 不直接 import `Core Internal`、`Foundation`、`Private Impl`。
 - 不新增业务包 `Toolbar`、`Picker`、`Select`、`Search`、`Table`、`Modal`、`DateInput`、`Pagination`、`Tab` 等重复基础 UI。
+- 业务页不得在 Core Page API 中塞 `custom` 渲染自定义控件；例如 `Toolbar` 业务调用禁止 `kind: "custom"`。`custom` 和手搓 UI 没有本质区别，会绕过 Core 的尺寸、字号、排序、对齐、预览和审计规则。
 - 发现现有 Page API 不够用时，先停下来写清缺口；由 Architecture/Core UI 任务补公开接口，再回业务页替换。
 
 Architecture/Core UI agent：
@@ -37,6 +39,7 @@ Review agent：
 - 优先检查 Core UI 新增/删除是否同步 registry、preview、关系图和文档。
 - 重点审查是否有人为了过 gate 随手新增 Core UI registry、页面/API/resource registry 或 baseline；注册项必须对应真实可复用入口，不能只为单页手搓组件背书。
 - 重点审查重复和可拆除项：只在 showcase 使用、没有业务消费、或与现有 Toolbar/Picker/Table/Modal/Page Frame 重叠的组件，应要求删除、合并或下沉到既有入口。
+- 重点审查业务是否直接 import `SelectorList`、`SelectorTree`、`SelectorCard`，或手写 `PanelCard + Selector*` 作为左侧选择区；业务应改用 `SelectorPanel`。
 - 发现 `Core Internal` / `Foundation` 业务直引时，结论必须是不通过，除非该文件是明确的 Core UI-system 任务。
 
 ## 3. Page Frame
@@ -74,9 +77,18 @@ Page API 是业务页可以直接使用的公开接口，必须满足：
 - 工具栏：`Toolbar`、`CommandButton`
 - 数据：`DataTable`、`StructuredTable`、`TableScrollFrame`
 - 表单：`FormField`、`TextField`、`SelectField`、`CalendarDateInput`、`TimeField`、`FieldGrid`
-- 选择：`OptionPicker`、`SelectorPanel`、`SelectorList`、`SelectorTree`
+- 选择：`OptionPicker`、`SelectorPanel`
 - 标签：`TagListInput`
 - 反馈：`ConfirmModal`、`ConfirmProvider`、`Toast`
+
+Page API 使用红线：
+
+- `Toolbar` 只能接收语义化 item：`create`、`search`、`field-filter`、`option-group`、`column-toggle`、`page-size`、`text`、`icon-button`、`action-group`、`edit-group` 等。
+- 业务调用 `Toolbar` 禁止使用 `kind: "custom"` 拼装搜索、筛选、统计、分页、动作或任意自定义节点。
+- 如果现有语义 item 不够表达业务需要，必须扩展 `Toolbar` 的 Page API 或写入 special-to-be-reviewed 说明等待 Core UI 评审；不得用 `custom` 临时绕过。
+- Core 内部 preview/showcase 或明确 UI-system 任务也不得恢复 `ToolbarCustomItem`；临时验证应扩展标准 item 或使用非 Toolbar 的普通预览容器。
+- Toolbar 内 `option-group` 默认是 micro accordion；普通 agent 不要把长分段筛选常驻铺开。
+- 业务侧左侧列表、目录树、选择区统一使用 `SelectorPanel`；`SelectorList`、`SelectorTree`、`SelectorCard` 是 Core 内部组合件，不作为业务 Page API。
 
 新增 Page API 时必须同步：
 
@@ -219,10 +231,16 @@ rg "getFieldInputClassName|getReadOnlyFieldClassName|getTagInputShellClassName|g
 rg --files packages | rg '/ui/.*Toolbar\.tsx$'
 ```
 
+业务 Toolbar custom 绕行：
+
+```bash
+rg 'kind:\s*"custom"' packages app --glob '!packages/core/**' -n
+```
+
 旧层级残留：
 
 ```bash
 rg "CoreUiComponentTier|coreUiComponentTierMeta|旧层级|tierValue|TIER_OPTIONS|TIER_ORDER|\\btier\\b" packages/core packages/platform scripts -n
 ```
 
-期望：前三组除明确 core-owned 文件外无业务违规；旧层级残留无结果。
+期望：前三组无业务违规；Toolbar custom 全局无结果；旧层级残留无结果。

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CommandButton, TableScrollFrame, Toolbar } from "@workspace/core/ui";
+import { CommandButton, TableScrollFrame } from "@workspace/core/ui";
 import type { QcBatchSummary, QcLayoutBlock, QcTemplateDetail, QcTemplateStage } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcLayoutPaper from "./QcLayoutPaper";
@@ -56,11 +56,9 @@ export default function QcBatchStagePrecheck({
         })}
         </nav>
 
-        <Toolbar items={[{
-        kind: "custom",
-        key: "stage-title",
-        content: `${numerals[stageIndex] ?? stageIndex + 1}、${productName}${stage.label}`
-      }]} className="mb-5" />
+        <h2 className="mb-5 text-base font-semibold text-slate-900">
+          {numerals[stageIndex] ?? stageIndex + 1}、{productName}{stage.label}
+        </h2>
       </div>
 
       {locked ? <div className="mx-auto max-w-[210mm] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">

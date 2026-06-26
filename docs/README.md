@@ -23,6 +23,7 @@
 | Level 2 任务包执行 | `docs/level2-agent-execution.md` |
 | Core UI 五层治理 | `docs/core-ui-governance.md` |
 | Core UI 和页面 primitive | `docs/reusable-components.md` |
+| Core Toolbar 规则 | `docs/core-toolbar.md` |
 | Core / Platform / Apps 迁移归属 | `docs/core-platform-apps-migration-map.md` |
 | 新模块接入 | `docs/new-module-checklist.md`, `docs/planning/new-domain-template.md` |
 | 现有模块新增能力 | `docs/existing-module-feature-checklist.md` |

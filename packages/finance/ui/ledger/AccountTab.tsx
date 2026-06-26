@@ -82,55 +82,53 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
         visibleColumns={reclassMode ? undefined : visibleColumns}
         onColumnsChange={reclassMode ? undefined : setVisibleColumns}
         showMonth={false} showLevel={false}
-        extra={
-          <>
-            {!reclassMode && (
-              <FieldValueFilter
-                fields={[
-                  { value: "level", label: "层级" },
-                  { value: "scope", label: "类型" },
-                ]}
-                valueOptions={{
-                  level: [{ value: "", label: "全部" }, { value: "1", label: "1级" }, { value: "2", label: "2级" }, { value: "3", label: "3级" }, { value: "4", label: "4级" }, { value: "5", label: "5级" }],
-                  scope: [{ value: "", label: "全部" }, { value: "mapped", label: "集团" }, { value: "unmapped", label: "独有" }, { value: "inactive", label: "未启用" }],
-                }}
-                fieldKey={extraField}
-                onFieldKeyChange={(k) => {
-                  setLevelFilter(""); setScope("");
-                  setExtraField(k as typeof extraField); setExtraValue(""); setPage(1);
-                }}
-                value={extraValue}
-                onValueChange={(v) => {
-                  if (extraField === "level") setLevelFilter(v);
-                  else setScope(v);
-                  setExtraValue(v); setPage(1);
-                }}
-              />
-            )}
-            {canWrite && (
-              <TabBar
-                variant="small"
-                accordion
-                tabs={[
-                  {
-                    key: "reclass",
-                    label: "重分类",
-                    children: [
-                      { key: "hasRule", label: `已配置 ${reclassStats.hasRule}` },
-                      { key: "noRule", label: `未配置 ${reclassStats.noRule}` },
-                      { key: "all", label: `全部 ${reclassStats.total}` },
-                    ],
-                  },
-                ]}
-                active={reclassMode ? "reclass" : ""}
-                activeChild={reclassStatus}
-                onChange={() => setReclassMode(!reclassMode)}
-                onChildChange={(key) => setReclassStatus(key as typeof reclassStatus)}
-              />
-            )}
-          </>
-        }
       />
+      <div className="flex flex-wrap items-center gap-3">
+        {!reclassMode && (
+          <FieldValueFilter
+            fields={[
+              { value: "level", label: "层级" },
+              { value: "scope", label: "类型" },
+            ]}
+            valueOptions={{
+              level: [{ value: "", label: "全部" }, { value: "1", label: "1级" }, { value: "2", label: "2级" }, { value: "3", label: "3级" }, { value: "4", label: "4级" }, { value: "5", label: "5级" }],
+              scope: [{ value: "", label: "全部" }, { value: "mapped", label: "集团" }, { value: "unmapped", label: "独有" }, { value: "inactive", label: "未启用" }],
+            }}
+            fieldKey={extraField}
+            onFieldKeyChange={(k) => {
+              setLevelFilter(""); setScope("");
+              setExtraField(k as typeof extraField); setExtraValue(""); setPage(1);
+            }}
+            value={extraValue}
+            onValueChange={(v) => {
+              if (extraField === "level") setLevelFilter(v);
+              else setScope(v);
+              setExtraValue(v); setPage(1);
+            }}
+          />
+        )}
+        {canWrite && (
+          <TabBar
+            variant="small"
+            accordion
+            tabs={[
+              {
+                key: "reclass",
+                label: "重分类",
+                children: [
+                  { key: "hasRule", label: `已配置 ${reclassStats.hasRule}` },
+                  { key: "noRule", label: `未配置 ${reclassStats.noRule}` },
+                  { key: "all", label: `全部 ${reclassStats.total}` },
+                ],
+              },
+            ]}
+            active={reclassMode ? "reclass" : ""}
+            activeChild={reclassStatus}
+            onChange={() => setReclassMode(!reclassMode)}
+            onChildChange={(key) => setReclassStatus(key as typeof reclassStatus)}
+          />
+        )}
+      </div>
 
       {reclassMode ? (
         companyFilter && yearFilter ? (

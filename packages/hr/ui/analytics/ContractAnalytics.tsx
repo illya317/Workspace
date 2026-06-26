@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AnalysisBlock, DataTable, MetricCard, SearchInput, TabBar, type DataTableColumn } from "@workspace/core/ui";
+import { AnalysisBlock, DataTable, MetricCard, type DataTableColumn } from "@workspace/core/ui";
 import type { Contract } from "./useAnalyticsData";
 import { computeStats, enrichContracts, filterContracts, statusBadge, statusLabel, type EnrichedContract } from "./contract-helpers";
 export default function ContractAnalytics({
@@ -110,16 +110,25 @@ export default function ContractAnalytics({
         </AnalysisBlock>
       </div>
 
-      <AnalysisBlock title="合同到期预警" toolbar={<div className="flex flex-1 items-center gap-3">
-          <TabBar variant="small" tabs={[
-            { key: "all", label: "全部" },
-            { key: "expiring30", label: "30天" },
-            { key: "expiring90", label: "90天" },
-            { key: "expired", label: "已到期" }
-          ]} active={filter} onChange={key => setFilter(key as typeof filter)} />
-          <SearchInput placeholder="搜索姓名、工号、公司..." value={search} onChange={setSearch} className="ml-auto max-w-xs" />
-          <span className="text-xs text-gray-400">{filtered.length} 人</span>
-          </div>}>
+      <AnalysisBlock
+        title="合同到期预警"
+        toolbarItems={[
+          {
+            kind: "option-group",
+            key: "status",
+            value: filter,
+            onChange: (key) => setFilter(key as typeof filter),
+            options: [
+              { value: "all", label: "全部" },
+              { value: "expiring30", label: "30天" },
+              { value: "expiring90", label: "90天" },
+              { value: "expired", label: "已到期" },
+            ],
+          },
+          { kind: "search", key: "search", value: search, onChange: setSearch, placeholder: "搜索姓名、工号、公司...", className: "max-w-xs" },
+          { kind: "text", key: "meta", content: <>{filtered.length} 人</> },
+        ]}
+      >
 
         <DataTable rows={filtered.slice(0, 100)} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={contract => contract.id} emptyText="暂无数据" rowClassName={contract => contract.status === "expired" ? "bg-red-50/40" : contract.status === "expiring30" ? "bg-rose-50/30" : ""} />
         {filtered.length > 100 && <p className="py-2 text-center text-xs text-gray-400">还有 {filtered.length - 100} 条，请使用搜索或筛选</p>}

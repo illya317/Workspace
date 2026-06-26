@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { SelectorList, SelectorTree } from "@workspace/core/ui";
+import { SelectorPanel } from "@workspace/core/ui";
 import { departmentManagerPositionName } from "./draft-utils";
 import type { Department, DepartmentPositionStats, Selection } from "./types";
 
@@ -68,7 +68,9 @@ export function DepartmentNode({
   }
 
   return (
-    <SelectorTree
+    <SelectorPanel
+      mode="tree"
+      framed={false}
       items={[department]}
       selectedId={selection?.type === "department" ? selection.id : null}
       onSelect={(item) => onSelect({ type: "department", id: item.id })}
@@ -122,7 +124,9 @@ export function OrganizationBranchNode({
   }
 
   return (
-    <SelectorTree
+    <SelectorPanel
+      mode="tree"
+      framed={false}
       items={[department]}
       selectedId={null}
       onSelect={(item) => {
@@ -163,7 +167,8 @@ export function OrganizationRootCard({
   const managerName = departmentManagerPositionName(department);
 
   return (
-    <SelectorList
+    <SelectorPanel
+      framed={false}
       items={[department]}
       selectedId={active ? department.id : null}
       onSelect={(item) => onSelect(item.id)}

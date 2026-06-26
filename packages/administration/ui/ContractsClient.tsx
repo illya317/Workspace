@@ -99,8 +99,9 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
     <>
       <DatabasePageFrame
         contentClassName="py-6"
-        toolbar={(
-          <ContractFilters
+        summary={<p className="text-sm text-slate-500">共 {total} 条记录</p>}
+      >
+        <ContractFilters
           q={q} onQChange={setQ}
           categoryFilter={categoryFilter} onCategoryChange={setCategoryFilter}
           statusFilter={statusFilter} onStatusChange={setStatusFilter}
@@ -116,10 +117,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
             setStatusFilter("");
             setVisibleColumns(CONTRACT_DEFAULT_VISIBLE_COLUMNS);
           }}
-          />
-        )}
-        summary={<p className="text-sm text-slate-500">共 {total} 条记录</p>}
-      >
+        />
 
         <ContractsTable
           contracts={contracts}

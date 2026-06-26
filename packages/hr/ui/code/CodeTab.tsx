@@ -127,31 +127,30 @@ export default function CodeTab({
 
   return (
     <div className="space-y-4">
-      <Toolbar
-        className="border-0 bg-transparent p-0 shadow-none"
-        items={[
-          { kind: "custom", key: "title", section: "view", content: title },
-          ...(hrCanAccess(user, "hr.roster")
-            ? [
-                {
-                  kind: "edit-group" as const,
-                  key: "edit",
-                  section: "edit" as const,
-                  editMode,
-                  onStartEdit: () => setEditMode(true),
-                  onSave: handleSave,
-                  onCancel: () => {
-                    setEditRow(null);
-                    setEditMode(false);
-                  },
-                  canEdit: hrCanEdit(user),
-                  onShowHistory: () => setShowHistory(true),
-                  saving,
-                } satisfies ToolbarItem,
-              ]
-            : []),
-        ]}
-      />
+      <div className="flex min-h-9 items-center gap-3">
+        <h2 className="truncate text-base font-semibold text-slate-900">{title}</h2>
+        {hrCanAccess(user, "hr.roster") && (
+          <Toolbar
+            variant="inline"
+            className="ml-auto"
+            items={[{
+              kind: "edit-group",
+              key: "edit",
+              section: "edit",
+              editMode,
+              onStartEdit: () => setEditMode(true),
+              onSave: handleSave,
+              onCancel: () => {
+                setEditRow(null);
+                setEditMode(false);
+              },
+              canEdit: hrCanEdit(user),
+              onShowHistory: () => setShowHistory(true),
+              saving,
+            } satisfies ToolbarItem]}
+          />
+        )}
+      </div>
 
       <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
         {loading ? (

@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandButton, EmptyStateCard, PanelCard, SelectorList } from "@workspace/core/ui";
+import { CommandButton, PanelCard, SelectorPanel } from "@workspace/core/ui";
 import type { ActionDraft, MeetingDetail, MeetingParticipant, MeetingSummary } from "./meeting-types";
 import { EmptyLine, InputBox, StatusPill } from "./MeetingControls";
 import { candidateStatusLabel, decisionKindLabel, emptyActionDraft, formatDateTime, roleLabel, voteChoiceLabel } from "./meeting-utils";
@@ -16,23 +16,27 @@ export function MeetingList({
   selectedId: number | null;
   onSelect: (id: number) => void;
 }) {
-  return <PanelCard className="min-w-0" title="会议列表" bodyClassName="max-h-[calc(100vh-14rem)] overflow-y-auto p-2">
-      {loading ? <EmptyStateCard compact>加载中...</EmptyStateCard> : meetings.length === 0 ? <EmptyStateCard compact>暂无会议</EmptyStateCard> : (
-        <SelectorList
-          items={meetings}
-          selectedId={selectedId}
-          onSelect={(meeting) => onSelect(meeting.id)}
-          getKey={(meeting) => meeting.id}
-          className="space-y-2"
-          renderItem={(meeting) => ({
-            title: meeting.title,
-            subtitle: `${meeting.typeName} · ${formatDateTime(meeting.startAt) || "未定时间"}`,
-            trailing: <StatusPill status={meeting.status} />,
-            meta: [`议题 ${meeting.counts.agendaItems}`, `表决 ${meeting.counts.proposals}`, `决议 ${meeting.counts.decisions}`],
-          })}
-        />
-      )}
-    </PanelCard>;
+  return (
+    <SelectorPanel
+      className="min-w-0"
+      title="会议列表"
+      bodyClassName="max-h-[calc(100vh-14rem)] overflow-y-auto p-2"
+      loading={loading}
+      loadingText="加载中..."
+      emptyText="暂无会议"
+      items={meetings}
+      selectedId={selectedId}
+      onSelect={(meeting) => onSelect(meeting.id)}
+      getKey={(meeting) => meeting.id}
+      contentClassName="space-y-2"
+      renderItem={(meeting) => ({
+        title: meeting.title,
+        subtitle: `${meeting.typeName} · ${formatDateTime(meeting.startAt) || "未定时间"}`,
+        trailing: <StatusPill status={meeting.status} />,
+        meta: [`议题 ${meeting.counts.agendaItems}`, `表决 ${meeting.counts.proposals}`, `决议 ${meeting.counts.decisions}`],
+      })}
+    />
+  );
 }
 
 export function MeetingHeader({

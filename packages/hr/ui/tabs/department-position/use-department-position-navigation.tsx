@@ -11,7 +11,7 @@ export function useDepartmentPositionNavigation({ mode }: { mode: DepartmentPosi
   const [selection, setSelection] = useState<Selection>(null);
   const [treeOpen, setTreeOpen] = useState(true);
   const [treeDrawerOpen, setTreeDrawerOpen] = useState(false);
-  const [createPanel, setCreatePanel] = useState<"position" | null>(null);
+  const [createPanel, setCreatePanel] = useState<"department" | "position" | null>(null);
   const [createPositionDraft, setCreatePositionDraft] = useState<CreatePositionDraft>({ departmentId: null, name: "" });
   const [collapsedDepartments, setCollapsedDepartments] = useState<Set<number>>(() => new Set());
   const [activeOrganizationRootId, setActiveOrganizationRootId] = useState<number | null>(null);

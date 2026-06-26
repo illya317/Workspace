@@ -5,7 +5,6 @@ import {
   AnalysisBlock,
   DataTable,
   MetricCard,
-  SelectField,
   type DataTableColumn,
 } from "@workspace/core/ui";
 import type { EDP, Employee, Employment } from "./useAnalyticsData";
@@ -65,17 +64,17 @@ export default function EmployeeAnalytics({ employees, employments, edps }: { em
       {/* 单维度特征分布 */}
       <AnalysisBlock
         title="特征分布"
-        toolbar={
-          <div className="flex flex-wrap items-center gap-4">
-          <SelectField
-            value={feature}
-            onChange={(value) => setFeature(value as DimKey)}
-            options={featureList.map((item) => ({ value: item, label: `${DIM_LABELS[item]}分布` }))}
-            triggerClassName="min-h-8 w-32"
-          />
-          <span className="text-xs text-gray-400">基于 {stats.active} 位在职员工</span>
-          </div>
-        }
+        toolbarItems={[
+          {
+            kind: "select",
+            key: "feature",
+            value: feature,
+            onChange: (value) => setFeature(value as DimKey),
+            options: featureList.map((item) => ({ value: item, label: `${DIM_LABELS[item]}分布` })),
+            triggerClassName: "!min-h-8 !w-32",
+          },
+          { kind: "text", key: "meta", content: <>基于 {stats.active} 位在职员工</> },
+        ]}
       >
 
         {currentDist().map(([k, v]) => (

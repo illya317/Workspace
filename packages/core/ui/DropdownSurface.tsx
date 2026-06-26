@@ -23,6 +23,7 @@ export interface DropdownItemClassNameOptions {
   active?: boolean;
   tone?: "default" | "danger";
   layout?: "block" | "flex";
+  textClassName?: string;
 }
 
 /**
@@ -32,6 +33,7 @@ export interface DropdownItemClassNameOptions {
 export function getDropdownItemClassName({
   tone = "default",
   layout = "block",
+  textClassName = "text-sm",
 }: DropdownItemClassNameOptions = {}): string {
   const layoutClass =
     layout === "flex" ? "flex w-full items-center" : "block w-full";
@@ -39,7 +41,7 @@ export function getDropdownItemClassName({
     tone === "danger"
       ? "text-red-600 hover:bg-red-50"
       : "text-gray-700 hover:bg-gray-50";
-  return `${layoutClass} px-4 py-2 text-left text-sm transition-colors ${colorClass}`;
+  return `${layoutClass} px-4 py-2 text-left ${textClassName} transition-colors ${colorClass}`;
 }
 
 /**

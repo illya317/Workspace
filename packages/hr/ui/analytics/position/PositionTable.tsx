@@ -1,6 +1,6 @@
 "use client";
 
-import { AnalysisBlock, DataTable, SearchInput, type DataTableColumn } from "@workspace/core/ui";
+import { AnalysisBlock, DataTable, type DataTableColumn } from "@workspace/core/ui";
 import type { EnrichedPosition, SortKey } from "./usePositionData";
 
 export default function PositionTable({
@@ -57,17 +57,10 @@ export default function PositionTable({
   return (
     <AnalysisBlock
       title="岗位明细"
-      toolbar={
-        <div className="flex items-center gap-3">
-        <SearchInput
-          placeholder="搜索岗位名、编码、部门..."
-          value={search}
-          onChange={setSearch}
-          className="max-w-sm"
-        />
-        <span className="text-xs text-gray-400">共 {filtered.length} 个岗位</span>
-        </div>
-      }
+      toolbarItems={[
+        { kind: "search", key: "search", value: search, onChange: setSearch, placeholder: "搜索岗位名、编码、部门...", className: "max-w-sm" },
+        { kind: "text", key: "meta", content: <>共 {filtered.length} 个岗位</> },
+      ]}
     >
 
       <DataTable

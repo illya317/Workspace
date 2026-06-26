@@ -16,6 +16,8 @@ export interface DepartmentCreateInput {
   name?: unknown;
   level?: unknown;
   parentId?: unknown;
+  alias?: unknown;
+  descriptions?: unknown;
 }
 
 export interface DepartmentUpdateInput {
@@ -77,6 +79,21 @@ async function validateNullableFk(fkKey: string, value: unknown, requiredLabel: 
   return validation.ok ? okCommand(validation.value) : failCommand(validation.error, validation.status);
 }
 
+async function hasCyclicParent(id: number, parentId: number | null): Promise<boolean> {
+  if (!parentId) return false;
+  const visited = new Set<number>();
+  let current: number | null = parentId;
+  while (current !== null) {
+    if (current === id) return true;
+    if (visited.has(current)) return false;
+    visited.add(current);
+    const parent: { parentId: number | null } | null = await prisma.department.findUnique({ where: { id: current }, select: { parentId: true } });
+    if (!parent) return false;
+    current = parent.parentId;
+  }
+  return false;
+}
+
 function normalizeDescriptionList(descriptions: unknown): DomainValidationResult<DepartmentUpdateCommand["descriptions"]> {
   if (descriptions === undefined || descriptions === null) return okCommand(null);
   if (!Array.isArray(descriptions)) return failCommand("部门说明书格式错误");
@@ -110,12 +127,15 @@ export async function buildDepartmentCreateCommand(input: DepartmentCreateInput)
   const name = String(input.name || "").trim();
   const level = Number(input.level || 1);
   const parentId = input.parentId == null || input.parentId === "" ? null : Number(input.parentId);
+  const alias = input.alias == null || input.alias === "" ? null : String(input.alias).trim();
   if (!name) return failCommand("部门名不能为空");
   if (![1, 2, 3].includes(level)) return failCommand("部门层级不合法");
   if (await prisma.department.findFirst({ where: { code }, select: { id: true } })) return failCommand("部门编码已存在", 409);
   const parentError = await validateDepartmentParent(level, code, parentId);
   if (parentError) return failCommand(parentError);
-  return okCommand({ code, name, level, parentId: level === 1 ? null : parentId });
+  const descriptions = normalizeDescriptionList(input.descriptions);
+  if (!descriptions.ok) return descriptions;
+  return okCommand({ code, name, alias, level, parentId: level === 1 ? null : parentId, descriptions: descriptions.data });
 }
 
 export async function buildDepartmentFieldUpdateCommand(field: string, value: unknown, id?: number) {
@@ -142,16 +162,45 @@ export async function buildDepartmentUpdateCommand(input: DepartmentUpdateInput)
   const id = Number(input.id);
   if (!id) return failCommand("缺少id");
 
+  const existing = await prisma.department.findUnique({
+    where: { id },
+    select: { code: true, level: true, parentId: true },
+  });
+  if (!existing) return failCommand("部门不存在", 404);
+
   const data: Prisma.DepartmentUncheckedUpdateInput = {};
   if (input.code !== undefined) data.code = input.code;
   if (input.name !== undefined) data.name = input.name;
   if (input.alias !== undefined) data.alias = input.alias || null;
   if (input.level !== undefined) data.level = input.level;
+
+  let parentId: number | null = existing.parentId;
   if (input.parentId !== undefined) {
     const parent = await validateNullableFk("hr.department", input.parentId, "上级部门");
     if (!parent.ok) return parent;
-    data.parentId = parent.data;
+    parentId = parent.data;
   }
+
+  const code = input.code !== undefined ? input.code : existing.code;
+  const level = input.level !== undefined ? Number(input.level) : existing.level;
+
+  if (![1, 2, 3].includes(level)) return failCommand("部门层级不合法");
+
+  if (input.code !== undefined && input.code !== existing.code) {
+    const duplicate = await prisma.department.findFirst({ where: { code: input.code }, select: { id: true } });
+    if (duplicate) return failCommand("部门编码已存在", 409);
+  }
+
+  if (level === 1) {
+    parentId = null;
+  }
+  data.parentId = parentId;
+
+  if (await hasCyclicParent(id, parentId)) return failCommand("不能将当前部门或其子孙部门设为上级", 409);
+
+  const parentError = await validateDepartmentParent(level, code, parentId);
+  if (parentError) return failCommand(parentError);
+
   if (input.managerUserId !== undefined) {
     const manager = await validateNullableFk("platform.user", input.managerUserId, "负责人");
     if (!manager.ok) return manager;

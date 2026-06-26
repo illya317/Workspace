@@ -2,9 +2,9 @@
 
 import { useState, type FC, type ReactNode } from "react";
 import { matchText } from "@workspace/core/search";
-import { Badge, SelectorList, SelectorPanel } from "@workspace/core/ui";
+import { Badge, SelectorPanel } from "@workspace/core/ui";
 
-function SelectorListPreview() {
+function SelectorPanelListPreview() {
   const [selected, setSelected] = useState<string | null>("list-1");
   const items: Array<{ id: string; title: string; subtitle: string; trailing?: ReactNode; archived?: boolean }> = [
     { id: "list-1", title: "项目 Alpha", subtitle: "2026-06-01 创建", trailing: <Badge label="进行中" tone="emerald" /> },
@@ -13,7 +13,8 @@ function SelectorListPreview() {
   ];
   return (
     <div className="max-w-xs">
-      <SelectorList
+      <SelectorPanel
+        framed={false}
         items={items}
         selectedId={selected}
         onSelect={(item) => setSelected(item.id)}
@@ -25,7 +26,7 @@ function SelectorListPreview() {
           archived: item.archived,
         })}
         size="sm"
-        className="space-y-2"
+        contentClassName="space-y-2"
       />
     </div>
   );
@@ -104,7 +105,7 @@ function SelectorTreePreview() {
 }
 
 export const selectorPreviewByName: Record<string, FC> = {
-  SelectorList: SelectorListPreview,
+  SelectorList: SelectorPanelListPreview,
   SelectorPanel: SelectorPanelPreview,
   SelectorTree: SelectorTreePreview,
 };

@@ -3,8 +3,8 @@
 import type { ReactNode } from "react";
 import { EmptyStateCard, PanelCard } from "./Card";
 import SearchInput from "./SearchInput";
-import SelectorList, { type SelectorListItemContext, type SelectorListProps } from "./SelectorList";
-import SelectorTree, { type SelectorTreeItemContext, type SelectorTreeProps } from "./SelectorTree";
+import SelectorList, { type SelectorListItemContext } from "./SelectorList";
+import SelectorTree, { type SelectorTreeItemContext } from "./SelectorTree";
 import type { SelectorCardProps, SelectorCardSize } from "./SelectorCard";
 import type { TreeNodeCardProps } from "./HierarchyTree";
 
@@ -30,6 +30,7 @@ export interface SelectorPanelBaseProps<T> {
   title?: ReactNode;
   subtitle?: ReactNode;
   actions?: ReactNode;
+  framed?: boolean;
   className?: string;
   bodyClassName?: string;
   contentClassName?: string;
@@ -46,6 +47,7 @@ export interface SelectorPanelTreeProps<T> extends SelectorPanelBaseProps<T> {
   expandedIds?: Iterable<string | number>;
   defaultExpandedIds?: Iterable<string | number>;
   onToggle?: (id: string | number, expanded: boolean) => void;
+  collapsible?: boolean;
   renderItem: (item: T, ctx: SelectorTreeItemContext) => Omit<TreeNodeCardProps, "active" | "onClick" | "toggle" | "children">;
 }
 
@@ -70,6 +72,7 @@ export function SelectorPanel<T>(props: SelectorPanelProps<T>): ReactNode {
     title,
     subtitle,
     actions,
+    framed = true,
     className = "",
     bodyClassName = "",
     contentClassName = "",
@@ -100,6 +103,7 @@ export function SelectorPanel<T>(props: SelectorPanelProps<T>): ReactNode {
           expandedIds={props.expandedIds}
           defaultExpandedIds={props.defaultExpandedIds}
           onToggle={props.onToggle}
+          collapsible={props.collapsible}
           emptyText={emptyText}
           className={contentClassName}
         />
@@ -121,14 +125,8 @@ export function SelectorPanel<T>(props: SelectorPanelProps<T>): ReactNode {
     );
   }
 
-  return (
-    <PanelCard
-      className={className}
-      bodyClassName={bodyClassName}
-      title={title}
-      subtitle={subtitle}
-      actions={actions}
-    >
+  const content = (
+    <>
       {hasSearch && (
         <div className="mb-3">
           <SearchInput
@@ -139,16 +137,28 @@ export function SelectorPanel<T>(props: SelectorPanelProps<T>): ReactNode {
         </div>
       )}
       {renderContent()}
+    </>
+  );
+
+  if (!framed) {
+    return (
+      <div className={className}>
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <PanelCard
+      className={className}
+      bodyClassName={bodyClassName}
+      title={title}
+      subtitle={subtitle}
+      actions={actions}
+    >
+      {content}
     </PanelCard>
   );
 }
 
 export default SelectorPanel;
-
-export { SelectorList, SelectorTree };
-export type {
-  SelectorListProps,
-  SelectorListItemContext,
-  SelectorTreeProps,
-  SelectorTreeItemContext,
-};

@@ -26,7 +26,7 @@ export type { FormShellProps } from "./FormShell";
 export { default as FileField } from "./FileField";
 export type { FileFieldProps } from "./FileField";
 export { default as FkFieldInput } from "./FkFieldInput";
-export type { FkFieldInputProps, FkFieldOption, LifecycleScope } from "./FkFieldInput";
+export type { FkFieldInputAppearance, FkFieldInputProps, FkFieldOption, LifecycleScope } from "./FkFieldInput";
 export {
   getFieldInputClassName,
   getReadOnlyFieldClassName,
@@ -39,15 +39,30 @@ export {
   getFieldGridLabelClassName,
   getFieldGridValueClassName,
   getFieldGroupTitleClassName,
+  getFieldShellClassName,
+  FIELD_CONTROL_HEIGHT,
+  FIELD_CONTROL_PADDING_X,
+  FIELD_CONTROL_TEXT,
+  FIELD_LABEL_TEXT,
+  FIELD_SHELL_CLASS,
+  FIELD_TAG_CONTAINER_CLASS,
 } from "./FormStyles";
 export { default as ReadOnlyField } from "./ReadOnlyField";
 export type { ReadOnlyFieldProps } from "./ReadOnlyField";
 export { default as FieldInputShell } from "./FieldInputShell";
 export type { FieldInputShellProps } from "./FieldInputShell";
+export { default as FieldShell } from "./FieldShell";
+export type { FieldShellProps } from "./FieldShell";
 export { default as PercentField } from "./PercentField";
 export type { PercentFieldProps } from "./PercentField";
 export { default as FieldGrid } from "./FieldGrid";
 export type { FieldGridCellProps, FieldGridNoteProps, FieldGridProps, FieldGridMode, FieldGroupTitleProps } from "./FieldGrid";
+export { default as EntityDetailLayout } from "./EntityDetailLayout";
+export type { EntityDetailLayoutProps, EntityDetailFieldsProps, EntityDetailMetricsProps, EntityDetailFieldProps } from "./EntityDetailLayout";
+export { default as FieldControl } from "./FieldControl";
+export type { FieldControlProps, FieldControlKind } from "./FieldControl";
+export { default as MetricTile } from "./MetricTile";
+export type { MetricTileProps } from "./MetricTile";
 export { default as TagInlineTextField } from "./TagInlineTextField";
 export type { TagInlineTextFieldProps } from "./TagInlineTextField";
 export { ActionGlyph } from "./ActionGlyphs";
@@ -112,16 +127,12 @@ export type { PageShellAction, PageShellProps } from "./PageShell";
 export { default as Pagination } from "./Pagination";
 export type { PaginationProps } from "./Pagination";
 
-export { SelectorList, SelectorPanel, SelectorTree } from "./SelectorPanel";
+export { default as SelectorPanel } from "./SelectorPanel";
 export type {
-  SelectorListProps,
-  SelectorListItemContext,
   SelectorPanelProps,
   SelectorPanelListProps,
   SelectorPanelTreeProps,
   SelectorPanelMode,
-  SelectorTreeProps,
-  SelectorTreeItemContext,
 } from "./SelectorPanel";
 export { default as TagListInput } from "./TagListInput";
 export type { TagListInputProps, TagListInputItemContext } from "./TagListInput";
@@ -129,6 +140,8 @@ export { default as RatingControl } from "./RatingControl";
 export type { RatingControlProps } from "./RatingControl";
 export { default as SelectField } from "./SelectField";
 export type { SelectFieldOption, SelectFieldProps } from "./SelectField";
+export { default as SelectionGrid } from "./SelectionGrid";
+export type { SelectionGridOption, SelectionGridProps } from "./SelectionGrid";
 export { default as SearchableOptionInput } from "./SearchableOptionInput";
 export type { SearchableOption, SearchableOptionInputProps } from "./SearchableOptionInput";
 export { default as SearchInput } from "./SearchInput";
@@ -151,7 +164,6 @@ export type {
   ToolbarFieldFilterItem,
   ToolbarColumnToggleItem,
   ToolbarTextItem,
-  ToolbarCustomItem,
   ToolbarActionGroupItem,
   ToolbarActionGroupAction,
   ToolbarEditGroupItem,
@@ -165,7 +177,7 @@ export type { SwitchFieldProps } from "./SwitchField";
 export { default as StructuredTable } from "./StructuredTable";
 export type { StructuredTableCell, StructuredTableProps } from "./StructuredTable";
 export { default as TabBar } from "./TabBar";
-export type { TabBarProps, TabDef } from "./TabBar";
+export type { TabBarProps, TabDef, TabBarAction } from "./TabBar";
 
 export { default as TableScrollFrame } from "./TableScrollFrame";
 export type { TableScrollFrameProps } from "./TableScrollFrame";

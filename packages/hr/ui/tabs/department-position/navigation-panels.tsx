@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dispatch, ReactNode, SetStateAction } from "react";
-import { EmptyStateCard, OptionPicker, PanelCard, Toolbar } from "@workspace/core/ui";
+import { EmptyStateCard, PanelCard, SelectionGrid, Toolbar } from "@workspace/core/ui";
 import { PositionCreatePanel } from "./create-panels";
 import type { CreatePositionDraft, Department, Position, Selection } from "./types";
 import { sectionTitle } from "./detail-editors";
@@ -23,7 +23,7 @@ export function DirectPositionPanel({
   onCreatePosition
 }: {
   canCreatePosition?: boolean;
-  createPanel?: "position" | null;
+  createPanel?: "department" | "position" | null;
   createPositionCode?: string;
   createPositionDepartment?: Department | undefined;
   createPositionDraft?: CreatePositionDraft;
@@ -32,7 +32,7 @@ export function DirectPositionPanel({
   positionsByDepartment: Map<number, Position[]>;
   saving?: boolean;
   selection: Selection;
-  setCreatePanel?: (panel: "position" | null) => void;
+  setCreatePanel?: (panel: "department" | "position" | null) => void;
   setCreatePositionDraft?: Dispatch<SetStateAction<CreatePositionDraft>>;
   onSelect: (selection: Selection) => void;
   onCreatePosition?: () => void | Promise<void>;
@@ -64,43 +64,31 @@ export function DirectPositionPanel({
       ]}
     />
   ) : null;
+  const titleExtra = (
+    <>
+      <span className="text-xs font-medium text-slate-500">{directPositions.length} 个</span>
+      {addPositionButton}
+    </>
+  );
   return <PanelCard bodyClassName="p-4">
-      {sectionTitle("直属岗位", <span className="text-xs font-medium text-slate-500">{directPositions.length} 个</span>)}
+      {sectionTitle("直属岗位", titleExtra)}
       {directPositions.length > 0 ? (
-        <div className="flex flex-wrap items-center gap-2">
-          <OptionPicker
-            value={selection?.type === "position" ? String(selection.id) : ""}
-            options={directPositions.map((position) => ({
-              value: String(position.id),
-              label: position.name,
-            }))}
-            onChange={(value) => {
-              const position = directPositions.find((p) => String(p.id) === value);
-              if (position) onSelect({ type: "position", id: position.id });
-            }}
-            renderOption={(option) => {
-              const position = directPositions.find((p) => String(p.id) === option.value)!;
-              return (
-                <span className="inline-flex max-w-full items-start gap-2">
-                  <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 font-mono text-xs text-blue-700">{shortPositionCode(position.code)}</span>
-                  <span className="max-w-80 whitespace-normal break-words text-left leading-5">{position.name}</span>
-                </span>
-              );
-            }}
-            formatValueLabel={(_, option) => option?.label ?? "选择岗位"}
-            placeholder="选择岗位"
-            visibleCount={directPositions.length}
-            gridColumns={3}
-            buttonClassName="h-10 rounded-lg border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
-            popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-72 rounded-lg border border-slate-200 bg-white p-2.5 shadow-xl"
-          />
-          {addPositionButton}
-        </div>
+        <SelectionGrid
+          value={selection?.type === "position" ? String(selection.id) : null}
+          options={directPositions.map((position) => ({
+            value: String(position.id),
+            label: position.name,
+            code: shortPositionCode(position.code),
+          }))}
+          onChange={(value) => {
+            const position = directPositions.find((p) => String(p.id) === value);
+            if (position) onSelect({ type: "position", id: position.id });
+          }}
+          columns={3}
+          ariaLabel="选择直属岗位"
+        />
       ) : (
-        <div className="flex items-center gap-3">
-          <EmptyStateCard compact className="flex-1">暂无直属岗位</EmptyStateCard>
-          {addPositionButton}
-        </div>
+        <EmptyStateCard compact>暂无直属岗位</EmptyStateCard>
       )}
       {creatingPositionHere && canRenderCreate && <PositionCreatePanel createPositionDraft={createPositionDraft} createPositionDepartment={createPositionDepartment} createPositionCode={createPositionCode || ""} departmentById={departmentById} saving={saving} positionDepartmentReadOnly className="mt-3" setCreatePositionDraft={setCreatePositionDraft} onCreatePosition={onCreatePosition} onCancel={() => setCreatePanel(null)} />}
     </PanelCard>;

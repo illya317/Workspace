@@ -9,6 +9,8 @@ export interface CommandButtonProps extends Omit<ButtonHTMLAttributes<HTMLButton
   variant?: "primary" | "secondary" | "danger";
   size?: ActionButtonSize;
   className?: string;
+  /** 子节点为字符串时自动截断并 hover 显示全文 */
+  truncate?: boolean;
 }
 
 export function CommandButton({
@@ -17,15 +19,21 @@ export function CommandButton({
   size = "md",
   className = "",
   type = "button",
+  truncate = false,
   ...buttonProps
 }: CommandButtonProps) {
+  const content = truncate && typeof children === "string" ? (
+    <span className="min-w-0 truncate" title={children}>
+      {children}
+    </span>
+  ) : children;
   return (
     <button
       {...buttonProps}
       type={type}
       className={joinClassNames(getToolbarActionClassName(variant, size), className)}
     >
-      {children}
+      {content}
     </button>
   );
 }

@@ -4,12 +4,14 @@ import { ActionButton } from "./ActionControls";
 import { ACTION_GLYPH_ORDER_BY_KIND } from "./ActionGlyphs";
 import type { ActionGlyphKind } from "./ActionGlyphs";
 import { CreateStartButton } from "./CreateActionControls";
+import { CONTROL_SIZES, TEXT_STYLES } from "./interactionTokens";
+import type { ControlSize } from "./interactionTokens";
 import FieldValueFilter from "./FieldValueFilter";
-import { joinClassNames } from "./card-utils";
 import SearchInput from "./SearchInput";
 import SelectField from "./SelectField";
+import { ToolbarPeriodControl } from "./ToolbarPeriodControl";
 import ToolbarOptionGroup from "./ToolbarOptionGroup";
-import type { ToolbarItem, ToolbarSection } from "./Toolbar.types";
+import type { ToolbarItem } from "./Toolbar.types";
 
 export function ToolbarDivider() {
   return <span aria-hidden="true" className="hidden h-6 w-px shrink-0 bg-slate-200 sm:inline-block" />;
@@ -43,14 +45,13 @@ export function getToolbarItemActionOrder(item: ToolbarItem) {
       return ACTION_GLYPH_ORDER_BY_KIND[item.icon]?.order ?? Number.MAX_SAFE_INTEGER;
     case "action-group":
       return item.actions.length > 0
-        ? Math.min(...item.actions.map((action) => ACTION_GLYPH_ORDER_BY_KIND[action.kind]?.order ?? Number.MAX_SAFE_INTEGER))
+        ? Math.min(...item.actions.map((a) => ACTION_GLYPH_ORDER_BY_KIND[a.kind]?.order ?? Number.MAX_SAFE_INTEGER))
         : Number.MAX_SAFE_INTEGER;
     case "edit-group": {
       const orders: number[] = [];
       if (item.canEdit !== false && !item.editMode) orders.push(ACTION_GLYPH_ORDER_BY_KIND.edit.order);
       if (item.canEdit !== false && item.editMode) {
-        orders.push(ACTION_GLYPH_ORDER_BY_KIND.save.order);
-        orders.push(ACTION_GLYPH_ORDER_BY_KIND.cancel.order);
+        orders.push(ACTION_GLYPH_ORDER_BY_KIND.save.order, ACTION_GLYPH_ORDER_BY_KIND.cancel.order);
       }
       if (item.canEdit !== false && item.onShowHistory) orders.push(ACTION_GLYPH_ORDER_BY_KIND.history.order);
       if (item.onDownload) orders.push(ACTION_GLYPH_ORDER_BY_KIND.download.order);
@@ -61,7 +62,7 @@ export function getToolbarItemActionOrder(item: ToolbarItem) {
   }
 }
 
-function renderOrderedActions(actions: ToolbarRenderableAction[], keyPrefix: string) {
+function renderOrderedActions(actions: ToolbarRenderableAction[], keyPrefix: string, size: ControlSize) {
   const ordered = getOrderedActions(actions);
   return ordered.map((action, index) => {
     const previous = ordered[index - 1];
@@ -76,25 +77,28 @@ function renderOrderedActions(actions: ToolbarRenderableAction[], keyPrefix: str
           variant={action.variant}
           disabled={action.disabled}
           onClick={action.onClick}
+          size={size}
         />
       </span>
     );
   });
 }
 
-export function ToolbarItemRenderer({ item }: { item: ToolbarItem }) {
+export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; size?: ControlSize }) {
   switch (item.kind) {
     case "icon-button":
+    case "panel-toggle":
       return (
         <ActionButton
           kind={item.icon}
           label={item.label}
-          type={item.type}
+          type={item.kind === "icon-button" ? item.type : undefined}
           variant={item.variant}
           disabled={item.disabled}
           onClick={item.onClick}
           className={item.className}
           iconClassName={item.iconClassName}
+          size={size}
         />
       );
     case "search": {
@@ -109,17 +113,21 @@ export function ToolbarItemRenderer({ item }: { item: ToolbarItem }) {
           onChange={item.onChange}
           placeholder={item.placeholder}
           ariaLabel={ariaLabel}
-          className={joinClassNames("!text-xs min-w-0", item.className)}
+          size={size}
+          className={item.className}
         />
       );
     }
     case "select":
       return (
         <SelectField
+          label={item.label}
           value={item.value}
           options={item.options}
           onChange={item.onChange}
           placeholder={item.placeholder}
+          size={size}
+          appearance="toolbar"
           className={item.className}
           triggerClassName={item.triggerClassName}
         />
@@ -131,6 +139,9 @@ export function ToolbarItemRenderer({ item }: { item: ToolbarItem }) {
           options={item.options}
           onChange={item.onChange}
           ariaLabel={item.ariaLabel}
+          size={size}
+          presentation={item.presentation ?? "accordion"}
+          defaultExpanded={item.defaultExpanded}
         />
       );
     case "field-filter":
@@ -145,6 +156,7 @@ export function ToolbarItemRenderer({ item }: { item: ToolbarItem }) {
           placeholder={item.placeholder}
           disabled={item.disabled}
           referenceEndpoint={item.referenceEndpoint}
+          size={size}
         />
       );
     case "column-toggle": {
@@ -168,9 +180,11 @@ export function ToolbarItemRenderer({ item }: { item: ToolbarItem }) {
           value={visible}
           onChange={onChange}
           placeholder="未选择"
+          size={size}
+          appearance="toolbar"
           dropdownHeader={(
             <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2">
-              <span className="text-xs font-semibold text-slate-700">显示字段</span>
+              <span className={`${CONTROL_SIZES[size].text} font-semibold text-slate-700`}>显示字段</span>
             </div>
           )}
           dropdownFooter={(
@@ -178,7 +192,7 @@ export function ToolbarItemRenderer({ item }: { item: ToolbarItem }) {
               <button
                 type="button"
                 onClick={() => onChange(defaultVisible)}
-                className="w-full rounded px-2 py-1 text-center text-[11px] font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                className={`w-full rounded px-2 py-1 text-center ${CONTROL_SIZES[size].text} font-semibold text-emerald-700 transition hover:bg-emerald-50`}
               >
                 恢复默认
               </button>
@@ -187,14 +201,25 @@ export function ToolbarItemRenderer({ item }: { item: ToolbarItem }) {
         />
       );
     }
+    case "page-size":
+      return (
+        <SelectField
+          label={item.label}
+          value={item.value}
+          options={item.options}
+          onChange={item.onChange}
+          size={size}
+          appearance="toolbar"
+        />
+      );
+    case "period":
+      return <ToolbarPeriodControl item={item} size={size} />;
     case "text":
       return (
-        <span className="flex items-center text-xs font-semibold text-slate-500">
+        <span className={`flex items-center ${TEXT_STYLES.labelText}`}>
           {item.content}
         </span>
       );
-    case "custom":
-      return <>{item.content}</>;
     case "create":
       return (
         <CreateStartButton
@@ -202,80 +227,25 @@ export function ToolbarItemRenderer({ item }: { item: ToolbarItem }) {
           active={item.active}
           disabled={item.disabled}
           onClick={item.onClick}
+          size={size}
         />
       );
     case "action-group":
-      return <>{renderOrderedActions(item.actions, item.key)}</>;
+      return <>{renderOrderedActions(item.actions, item.key, size)}</>;
     case "edit-group": {
-      const {
-        editMode,
-        canEdit = true,
-        editLabel = "编辑",
-        saveLabel = "保存",
-        saving = false,
-        downloading = false,
-        onStartEdit,
-        onSave,
-        onCancel,
-        onDownload,
-        onShowHistory,
-      } = item;
+      const { editMode, canEdit = true, editLabel = "编辑", saveLabel = "保存", saving = false, downloading = false, onStartEdit, onSave, onCancel, onDownload, onShowHistory } = item;
       if (!canEdit && !onDownload) return null;
       const actions: ToolbarRenderableAction[] = [];
-      if (canEdit && !editMode) {
-        actions.push({ key: `${item.key}-edit`, kind: "edit", label: editLabel, onClick: onStartEdit });
-      }
+      if (canEdit && !editMode) actions.push({ key: `${item.key}-edit`, kind: "edit", label: editLabel, onClick: onStartEdit });
       if (canEdit && editMode) {
-        actions.push({
-          key: `${item.key}-save`,
-          kind: "save",
-          label: saveLabel,
-          variant: "primary",
-          disabled: saving,
-          onClick: onSave,
-        });
+        actions.push({ key: `${item.key}-save`, kind: "save", label: saveLabel, variant: "primary", disabled: saving, onClick: onSave });
         actions.push({ key: `${item.key}-cancel`, kind: "cancel", label: "取消", onClick: onCancel });
       }
-      if (canEdit && onShowHistory) {
-        actions.push({ key: `${item.key}-history`, kind: "history", label: "最近改动", onClick: onShowHistory });
-      }
-      if (onDownload) {
-        actions.push({
-          key: `${item.key}-download`,
-          kind: "download",
-          label: "下载",
-          disabled: downloading,
-          onClick: onDownload,
-        });
-      }
-      return <>{renderOrderedActions(actions, item.key)}</>;
+      if (canEdit && onShowHistory) actions.push({ key: `${item.key}-history`, kind: "history", label: "最近改动", onClick: onShowHistory });
+      if (onDownload) actions.push({ key: `${item.key}-download`, kind: "download", label: "下载", disabled: downloading, onClick: onDownload });
+      return <>{renderOrderedActions(actions, item.key, size)}</>;
     }
     default:
       return null;
-  }
-}
-
-export function inferSection(item: ToolbarItem): ToolbarSection {
-  if (item.section) return item.section;
-  switch (item.kind) {
-    case "search":
-      return "search";
-    case "select":
-    case "option-group":
-    case "field-filter":
-      return "filter";
-    case "text":
-    case "custom":
-    case "column-toggle":
-      return "meta";
-    case "create":
-      return "view";
-    case "action-group":
-      return "edit";
-    case "edit-group":
-      return "edit";
-    case "icon-button":
-    default:
-      return "edit";
   }
 }

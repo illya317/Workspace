@@ -1,35 +1,34 @@
 "use client";
 
 import type { CSSProperties, ReactNode, RefObject } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { matchText } from "../search";
 import CheckboxField from "./CheckboxField";
 import DropdownSurface, { getDropdownItemClassName } from "./DropdownSurface";
+import FieldInputShell from "./FieldInputShell";
+import { FIELD_CONTROL_SIZE_TOKENS } from "./FormStyles";
+import { CONTROL_SIZES, type ControlSize } from "./interactionTokens";
 import SearchInput from "./SearchInput";
 
 export type SelectFieldOption = { value: string; label: string; disabled?: boolean };
 
 interface SelectFieldBaseProps {
-  /** 标签文字，不传则不显示 label */
   label?: string;
-  /** 下拉选项 */
   options?: SelectFieldOption[];
-  /** 占位选项（value=""），不传则不显示 */
   placeholder?: string;
   disabled?: boolean;
   ariaLabel?: string;
   dataFieldKey?: string;
-  /** 选项较多时显示搜索框；默认超过 6 项自动启用。搜索支持中文、拼音、首字母。 */
   searchable?: boolean;
   className?: string;
   style?: CSSProperties;
-  /** 直接应用到触发框的额外 className */
   triggerClassName?: string;
-  /** 下拉面板顶部插槽 */
   dropdownHeader?: ReactNode;
-  /** 下拉面板底部插槽 */
   dropdownFooter?: ReactNode;
   summaryMode?: "names" | "count";
+  size?: ControlSize;
+  density?: "normal" | "compact";
+  appearance?: "field" | "toolbar";
 }
 
 export interface SingleSelectFieldProps extends SelectFieldBaseProps {
@@ -72,15 +71,6 @@ function getSelectedLabel(options: SelectFieldOption[], value: string) {
   return options.find((option) => option.value === value)?.label;
 }
 
-/**
- * 通用下拉选择器。业务层禁止手写原生 <select>：
- * - 视觉和交互统一
- * - 选项多时自动支持文本/拼音/首字母搜索
- * - 只负责 label + option list，不包含业务含义
- * - 支持单选（默认）和多选（multiple=true）两种模式
- *
- * 下拉浮层行为复用内部 DropdownSurface primitive。
- */
 export default function SelectField(props: SingleSelectFieldProps): React.ReactElement;
 export default function SelectField(props: MultiSelectFieldProps): React.ReactElement;
 export default function SelectField({
@@ -100,10 +90,20 @@ export default function SelectField({
   dropdownHeader,
   dropdownFooter,
   summaryMode = "names",
+  size = "md",
+  density = "normal",
+  appearance = "field",
 }: SelectFieldProps) {
+  const shellSize = size === "sm" ? "sm" : size === "lg" || size === "xl" ? "lg" : "md";
+  const toolbarMode = appearance === "toolbar";
+  const labelTextClass = toolbarMode ? CONTROL_SIZES[size].text : FIELD_CONTROL_SIZE_TOKENS[shellSize].text;
+  const valueTextClass = toolbarMode ? CONTROL_SIZES[size].text : FIELD_CONTROL_SIZE_TOKENS[shellSize].text;
+  const valueLeadingClass = toolbarMode ? CONTROL_SIZES[size].leading : FIELD_CONTROL_SIZE_TOKENS[shellSize].leading;
+  const searchSize = toolbarMode ? size : shellSize;
   const isMulti = multiple === true;
   const [query, setQuery] = useState("");
   const searchRef = useRef<HTMLInputElement | null>(null);
+  const listboxId = useId();
   const shouldSearch = searchable ?? options.length > 6;
   const normalizedPlaceholder = placeholder?.startsWith("全部") ? "全部" : placeholder;
   const toolbarFieldLabel = label ?? (placeholder?.startsWith("全部") ? placeholder.slice(2) : undefined);
@@ -145,27 +145,28 @@ export default function SelectField({
     (onChange as (value: string[]) => void)(Array.from(current));
   }
 
-  const baseTriggerClassName = "inline-flex h-9 w-full min-w-24 items-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500";
-
   return (
-    <div style={style} className={`inline-block h-9 align-middle text-xs ${className ?? ""}`}>
-      <DropdownSurface
-        align="right"
-        className="inline-block align-middle"
-        surfaceClassName="mt-0 top-[calc(100%+0.25rem)] w-max py-1"
-        trigger={({ open, toggle }) => (
+    <DropdownSurface
+      align="right"
+      className={`inline-block align-middle ${toolbarMode ? "" : "w-full"} ${className ?? ""}`}
+      surfaceClassName={toolbarMode ? "mt-1 w-max min-w-full py-1" : "mt-1 w-full py-1"}
+      trigger={({ open, toggle }) => (
+        toolbarMode ? (
           <button
             type="button"
             disabled={disabled}
             aria-label={ariaLabel}
+            role="combobox"
             aria-haspopup="listbox"
             aria-expanded={open}
+            aria-controls={listboxId}
             data-field-key={dataFieldKey}
             onClick={toggle}
-            className={`${baseTriggerClassName} ${triggerClassName ?? ""}`}
+            style={style}
+            className={`inline-flex ${CONTROL_SIZES[size].height} min-w-24 items-center gap-2 ${CONTROL_SIZES[size].radius} border border-slate-200 bg-white ${CONTROL_SIZES[size].paddingX} ${CONTROL_SIZES[size].text} ${CONTROL_SIZES[size].leading} font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500 ${triggerClassName ?? ""}`}
           >
-            {toolbarFieldLabel && <span className="shrink-0 text-slate-400">{toolbarFieldLabel}</span>}
-            <span className="min-w-0 flex-1 truncate">{selectedLabel}</span>
+            {toolbarFieldLabel && <span className={`shrink-0 ${labelTextClass} text-slate-400`}>{toolbarFieldLabel}</span>}
+            <span className="min-w-0 flex-1 truncate text-left">{selectedLabel}</span>
             <svg
               className={`ml-auto h-4 w-4 shrink-0 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`}
               fill="none"
@@ -176,8 +177,54 @@ export default function SelectField({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </button>
-        )}
-      >
+        ) : (
+          <FieldInputShell
+            disabled={disabled}
+            size={shellSize}
+            density={density}
+            className={triggerClassName}
+            style={style}
+            suffix={(
+              <svg
+                className={`h-4 w-4 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            )}
+          >
+            {toolbarFieldLabel && <span className={`shrink-0 ${labelTextClass} text-slate-400`}>{toolbarFieldLabel}</span>}
+            <input
+              type="text"
+              readOnly
+              value={selectedLabel}
+              placeholder={placeholder}
+              aria-label={ariaLabel}
+              role="combobox"
+              aria-haspopup="listbox"
+              aria-expanded={open}
+              aria-controls={listboxId}
+              data-field-key={dataFieldKey}
+              onClick={() => {
+                if (!disabled) toggle();
+              }}
+              onKeyDown={(e) => {
+                if (disabled) return;
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  toggle();
+                }
+              }}
+              disabled={disabled}
+              className={`h-full min-w-0 flex-1 cursor-pointer caret-transparent border-0 bg-transparent p-0 ${valueTextClass} ${valueLeadingClass} text-current outline-none placeholder:text-slate-400 disabled:bg-transparent disabled:text-slate-500`}
+            />
+          </FieldInputShell>
+        )
+      )}
+    >
         {({ open, close }) => (
           <SelectFieldDropdown
             open={open}
@@ -192,17 +239,18 @@ export default function SelectField({
                 value={query}
                 onChange={setQuery}
                 placeholder="搜索..."
+                size={searchSize}
                 className="mb-1"
               />
             )}
-            <div role="listbox" className="max-h-64 overflow-auto">
+            <div id={listboxId} role="listbox" className="max-h-64 overflow-auto">
               {filteredOptions.map((option) => {
                 if (isMulti) {
                   const checked = (value as string[]).includes(option.value);
                   return (
                     <label
                       key={option.value || "__empty__"}
-                      className={`${getDropdownItemClassName({ layout: "flex" })} text-xs ${option.disabled ? "cursor-not-allowed text-slate-400" : "cursor-pointer"}`}
+                      className={`${getDropdownItemClassName({ layout: "flex", textClassName: valueTextClass })} ${option.disabled ? "cursor-not-allowed text-slate-400" : "cursor-pointer"}`}
                     >
                       <CheckboxField
                         checked={checked}
@@ -230,20 +278,19 @@ export default function SelectField({
                       close();
                       chooseSingle(option.value);
                     }}
-                    className={`${getDropdownItemClassName()} text-xs disabled:cursor-not-allowed disabled:text-slate-400`}
+                    className={`${getDropdownItemClassName({ textClassName: valueTextClass })} disabled:cursor-not-allowed disabled:text-slate-400`}
                   >
                     <span className="block whitespace-nowrap">{option.label}</span>
                   </button>
                 );
               })}
               {filteredOptions.length === 0 && (
-                <div className="px-4 py-2 text-xs text-gray-400">无匹配选项</div>
+                <div className={`px-4 py-2 ${valueTextClass} text-gray-400`}>无匹配选项</div>
               )}
             </div>
             {dropdownFooter}
           </SelectFieldDropdown>
         )}
       </DropdownSurface>
-    </div>
   );
 }

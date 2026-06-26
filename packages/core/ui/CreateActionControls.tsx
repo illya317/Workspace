@@ -1,12 +1,15 @@
 "use client";
 
 import { ActionButton } from "./ActionControls";
+import { CONTROL_SIZES } from "./interactionTokens";
+import type { ControlSize } from "./interactionTokens";
 
 export interface CreateStartButtonProps {
   label: string;
   active?: boolean;
   disabled?: boolean;
   onClick: () => void;
+  size?: ControlSize;
 }
 
 export interface CreateConfirmActionsProps {
@@ -17,9 +20,16 @@ export interface CreateConfirmActionsProps {
   submitLabel?: string;
   cancelLabel?: string;
   order?: "submit-first" | "cancel-first";
+  size?: ControlSize;
 }
 
-export function CreateStartButton({ label, active, disabled, onClick }: CreateStartButtonProps) {
+function getIconSizeClasses(size: ControlSize) {
+  const t = CONTROL_SIZES[size];
+  const width = size === "sm" ? "w-8" : size === "lg" ? "w-10" : size === "xl" ? "w-11" : "w-9";
+  return `${t.height} ${width} !px-0 ${t.text} ${t.leading}`;
+}
+
+export function CreateStartButton({ label, active, disabled, onClick, size = "md" }: CreateStartButtonProps) {
   return (
     <ActionButton
       kind="add"
@@ -27,7 +37,8 @@ export function CreateStartButton({ label, active, disabled, onClick }: CreateSt
       variant={active ? "secondary" : "primary"}
       disabled={disabled || active}
       onClick={onClick}
-      className="!h-9 !w-10 !px-0 !text-[11px] !leading-none"
+      size={size}
+      className={getIconSizeClasses(size)}
     />
   );
 }
@@ -40,7 +51,9 @@ export function CreateConfirmActions({
   submitLabel = "创建",
   cancelLabel = "取消",
   order = "submit-first",
+  size = "md",
 }: CreateConfirmActionsProps) {
+  const sizeClasses = getIconSizeClasses(size);
   const submit = (
     <ActionButton
       key="submit"
@@ -48,7 +61,8 @@ export function CreateConfirmActions({
       label={submitLabel}
       disabled={submitDisabled || submitting}
       variant="primary"
-      className="!h-9 !w-10 !px-0 !text-[11px] !leading-none"
+      size={size}
+      className={sizeClasses}
       onClick={(event) => {
         event.stopPropagation();
         if (!submitDisabled && !submitting) onSubmit();
@@ -60,7 +74,8 @@ export function CreateConfirmActions({
       key="cancel"
       kind="cancel"
       label={cancelLabel}
-      className="!h-9 !w-10 !px-0 !text-[11px] !leading-none"
+      size={size}
+      className={sizeClasses}
       onClick={(event) => {
         event.stopPropagation();
         onCancel();

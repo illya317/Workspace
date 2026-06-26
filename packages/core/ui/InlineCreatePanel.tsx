@@ -4,6 +4,7 @@ import { Children, Fragment, cloneElement, isValidElement, type ReactElement, ty
 import { CreateConfirmActions } from "./CreateActionControls";
 import FormField from "./FormField";
 import { joinClassNames } from "./card-utils";
+import { useCreatePanelAutoScroll } from "./useCreatePanelAutoScroll";
 
 export interface InlineCreatePanelProps {
   title: string;
@@ -15,6 +16,7 @@ export interface InlineCreatePanelProps {
   submitLabel?: string;
   cancelLabel?: string;
   hideTitle?: boolean;
+  scrollOnCreate?: boolean;
   className?: string;
 }
 
@@ -42,11 +44,13 @@ export default function InlineCreatePanel({
   submitLabel,
   cancelLabel,
   hideTitle = false,
+  scrollOnCreate = true,
   className = "",
 }: InlineCreatePanelProps) {
   const inlineChildren = Children.map(children, forceInlineFields);
+  const scrollRef = useCreatePanelAutoScroll<HTMLElement>(scrollOnCreate);
   return (
-    <section className={joinClassNames("relative z-10 border-y border-slate-100 bg-white px-0 py-2", className)}>
+    <section ref={scrollRef} className={joinClassNames("relative z-10 border-y border-slate-100 bg-white px-0 py-2", className)}>
       <form
         onSubmit={(event) => {
           event.preventDefault();

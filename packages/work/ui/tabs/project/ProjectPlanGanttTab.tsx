@@ -133,16 +133,12 @@ export default function ProjectPlanGanttTab({
             ariaLabel: "甘特时间缩放",
           },
           {
-            kind: "custom",
+            kind: "period",
             key: "period-nav",
-            section: "filter",
-            content: (
-              <div className="inline-flex h-10 items-center overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-                <button type="button" className="h-10 px-3 text-sm font-semibold text-slate-600 hover:bg-slate-50" onClick={() => setCurrentStart((current) => shiftPeriod(current, zoom, -1))}>‹</button>
-                <div className="min-w-28 border-x border-slate-200 px-3 text-center text-xs font-semibold text-slate-600">{periodLabel(currentStart, zoom)}</div>
-                <button type="button" className="h-10 px-3 text-sm font-semibold text-slate-600 hover:bg-slate-50" onClick={() => setCurrentStart((current) => shiftPeriod(current, zoom, 1))}>›</button>
-              </div>
-            ),
+            mode: "nav",
+            label: periodLabel(currentStart, zoom),
+            onPrevious: () => setCurrentStart((current) => shiftPeriod(current, zoom, -1)),
+            onNext: () => setCurrentStart((current) => shiftPeriod(current, zoom, 1)),
           },
           {
             kind: "action-group",

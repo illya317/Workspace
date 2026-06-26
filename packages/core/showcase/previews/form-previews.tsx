@@ -12,6 +12,7 @@ import BlockCreatePanel from "../../ui/BlockCreatePanel";
 import InlineCreatePanel from "../../ui/InlineCreatePanel";
 import { CreateConfirmActions, CreateStartButton } from "../../ui/CreateActionControls";
 import { CreatePanelPreview } from "./create-panel-preview";
+import { SelectionGridPreview } from "./selection-grid-preview";
 
 function AutoSizeTextFieldPreview() {
   const [text, setText] = useState("自适应宽度");
@@ -271,7 +272,7 @@ export const formPreviewByName: Record<string, FC> = {
   getTagInputShellClassName: getTagInputShellClassNamePreview, getTagInlineInputClassName: getTagInlineInputClassNamePreview,
   getTagPillClassName: getTagPillClassNamePreview, HiddenDataField: HiddenDataFieldPreview, InlineCreatePanel: InlineCreatePanelPreview,
   PercentField: PercentFieldPreview, RatingControl: RatingControlPreview, ReadOnlyField: ReadOnlyFieldPreview, SearchInput: SearchInputPreview,
-  SelectField: SelectFieldPreview, SwitchField: SwitchFieldPreview, TagInlineTextField: TagInlineTextFieldPreview,
+  SelectField: SelectFieldPreview, SelectionGrid: SelectionGridPreview, SwitchField: SwitchFieldPreview, TagInlineTextField: TagInlineTextFieldPreview,
   TextareaField: TextareaFieldPreview, TextField: TextFieldPreview,
   TimeField: TimeFieldPreview,
 };

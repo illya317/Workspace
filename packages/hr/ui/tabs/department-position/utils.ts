@@ -36,6 +36,18 @@ export function departmentParentPath(department: Department | undefined, departm
   return departmentPath(departmentById.get(department.parentId), departmentById);
 }
 
+export function departmentDescendantIds(department: Department, departmentById: Map<number, Department>): Set<number> {
+  const ids = new Set<number>();
+  const stack = [...(department.children ?? [])];
+  while (stack.length > 0) {
+    const child = stack.pop()!;
+    ids.add(child.id);
+    const childDept = departmentById.get(child.id);
+    if (childDept) stack.push(...(childDept.children ?? []));
+  }
+  return ids;
+}
+
 export function archiveTimestamp(value: string | null) {
   if (!value) return 0;
   const time = new Date(value).getTime();
@@ -111,6 +123,10 @@ export function normalizeDepartmentCodeInput(level: CreateDepartmentDraft["level
   return value.replace(/\D/g, "").slice(0, 2);
 }
 
+export function normalizeDepartmentFullCodeInput(value: string) {
+  return value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 6);
+}
+
 export function departmentCodePrefix(department: Department | undefined) {
   const prefix = department?.code.slice(0, 3) || "";
   return /^[A-Z]{3}$/.test(prefix) ? prefix : "";
@@ -131,7 +147,7 @@ export function suggestDepartmentCodeInput(draft: CreateDepartmentDraft, departm
   if (!prefix) return "";
   const usedCodes = new Set(departments.map((department) => department.code));
   if (draft.level === 2) {
-    for (let number = 1; number <= 99; number += 1) {
+    for (let number = 1; number <= 999; number += 1) {
       const suffix = `${number}00`;
       if (!usedCodes.has(`${prefix}${suffix}`)) return String(number);
     }

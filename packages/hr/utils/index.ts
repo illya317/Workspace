@@ -10,3 +10,4 @@ export {
   formatDepartmentPath,
 } from "./department-path";
 export type { DepartmentPathNode } from "./department-path";
+export { deriveDepartmentCodeCascade } from "./department-code-cascade";

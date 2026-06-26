@@ -11,9 +11,13 @@ export interface RemovableTagProps {
   label: string;
   onRemove?: () => void | Promise<void>;
   disabled?: boolean;
+  /** @deprecated 请使用 confirmRemove */
   confirm?: boolean;
   confirmMessage?: ConfirmOptions["message"];
   confirmOptions?: Partial<ConfirmOptions>;
+  confirmRemove?: boolean;
+  removeConfirmMessage?: ConfirmOptions["message"];
+  removeConfirmTitle?: string;
   title?: string;
   className?: string;
   textClassName?: string;
@@ -29,11 +33,21 @@ export default function RemovableTag({
   confirm = true,
   confirmMessage,
   confirmOptions,
+  confirmRemove,
+  removeConfirmMessage,
+  removeConfirmTitle,
   title,
   className = "",
   textClassName = "truncate",
   maxLength,
 }: RemovableTagProps) {
+  const effectiveConfirm = confirmRemove ?? confirm;
+  const effectiveConfirmMessage = removeConfirmMessage ?? confirmMessage;
+  const effectiveConfirmOptions: Partial<ConfirmOptions> = {
+    title: removeConfirmTitle,
+    ...confirmOptions,
+  };
+
   function stopTagEvent(event: MouseEvent<HTMLSpanElement>) {
     event.preventDefault();
     event.stopPropagation();
@@ -51,9 +65,9 @@ export default function RemovableTag({
           !disabled && (
             <TagRemoveButton
               label={label}
-              confirm={confirm}
-              confirmMessage={confirmMessage}
-              confirmOptions={confirmOptions}
+              confirm={effectiveConfirm}
+              confirmMessage={effectiveConfirmMessage}
+              confirmOptions={effectiveConfirmOptions}
               onConfirm={onRemove}
               className="pointer-events-auto ml-0.5 shrink-0 border border-sky-200 bg-sky-50 text-sky-700 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
             />

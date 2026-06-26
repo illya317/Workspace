@@ -40,6 +40,7 @@ app/*                         只做 Next route shell
 | 开工流程和任务分流 | `docs/agent-startup.md` |
 | Core/Platform 基础设施 | `docs/reusable-components.md` |
 | Core UI 五层治理 | `docs/core-ui-governance.md` |
+| Core Toolbar 规则 | `docs/core-toolbar.md` |
 | 架构边界和权限四件套 | `docs/architecture-governance.md` |
 | Work 模块长期边界/权限 | `app/(modules)/work/MODULE.md` |
 | Work 模块短期计划 | `app/(modules)/work/PLAN.md` |
@@ -57,7 +58,7 @@ app/*                         只做 Next route shell
 5. **写入三段式**：写入入口固定为 `Zod schema -> domain validator -> service/Prisma`。Zod 只校验请求形状并 strip；domain 只 pick 业务可写字段并校验 FK/状态/归属/跨字段规则；service 只接已验证 command，负责事务、版本、审计和落库。
 6. **app 不是实现层**：页面组件、hook、表格、弹窗、业务计算、Prisma 写入都不能新增在 `app/` route 文件里。
 7. **同页状态别走整页导航**：tab、筛选、选中部门/项目/记录这类同一个客户端体验内的状态切换，不要用 `router.push/replace`、`redirect` 或 `<Link>` 只为同步 URL；需要深链时用组件状态 + `window.history.pushState/replaceState`，并通过 `workspacePath` 处理 basePath、补 `popstate` 回读。`router` / `<Link>` 只留给真正跨页面或资源详情导航。
-8. **Toolbar 动作统一**：Toolbar 动作按钮只能来自 Core `ActionGlyph` / `ActionButton` / `action-group`，业务只选 icon，不手排动作顺序、分组和分隔线；详细规则见 `docs/reusable-components.md` 的 Toolbar / ActionGlyph 规则。
+8. **Toolbar 动作统一**：Toolbar 动作按钮只能来自 Core `ActionGlyph` / `ActionButton` / `action-group`，业务只选 icon，不手排动作顺序、分组和分隔线；业务 Toolbar 禁止 `kind: "custom"`，这和手搓 UI 没有本质区别，会绕过 Core 的尺寸、字号、排序、对齐、预览和审计规则；详细规则见 `docs/core-toolbar.md`、`docs/reusable-components.md` 的 Toolbar / ActionGlyph 规则和 `docs/core-ui-governance.md`。
 9. **删除也要同步**：删 L1/L2 时同步删 app route、API route、registry child/resourceKey、docs；跑 `npm run db:seed:resources` 清 stale resource。
 
 ## 检查

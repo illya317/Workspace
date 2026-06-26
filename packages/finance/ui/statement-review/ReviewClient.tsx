@@ -186,7 +186,7 @@ export default function ReviewClient() {
       : null,
     rv
       ? {
-          kind: "custom",
+          kind: "text",
           key: "status",
           section: "filter",
           content: (

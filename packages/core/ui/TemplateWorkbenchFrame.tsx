@@ -64,8 +64,6 @@ export interface TemplateWorkbenchFrameProps {
   defaultQuery?: string;
   onQueryChange?: (value: string) => void;
   searchPlaceholder?: string;
-  toolbarFilters?: ReactNode;
-  toolbarActions?: ReactNode;
   toolbarMeta?: ReactNode;
   hideToolbar?: boolean;
   emptyText?: ReactNode;
@@ -157,8 +155,6 @@ export default function TemplateWorkbenchFrame({
   defaultQuery = "",
   onQueryChange,
   searchPlaceholder = "搜索模板、阶段、项目",
-  toolbarFilters,
-  toolbarActions,
   toolbarMeta,
   hideToolbar = false,
   emptyText = "没有匹配的模板。",
@@ -212,12 +208,6 @@ export default function TemplateWorkbenchFrame({
     placeholder: searchPlaceholder,
     className: "min-w-[260px] flex-1",
   });
-  if (toolbarFilters) {
-    toolbarItems.push({ kind: "custom", key: "filters", section: "filter", content: toolbarFilters });
-  }
-  if (toolbarActions) {
-    toolbarItems.push({ kind: "custom", key: "actions", section: "action", content: toolbarActions });
-  }
   if (toolbarMeta) {
     toolbarItems.push({ kind: "text", key: "meta", section: "meta", content: toolbarMeta });
   }

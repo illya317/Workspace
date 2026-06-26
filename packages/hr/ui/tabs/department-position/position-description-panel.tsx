@@ -1,8 +1,9 @@
 "use client";
 
-import { CommandButton, FormField, PanelCard, SelectField, TextareaField, TextField } from "@workspace/core/ui";
+import { CommandButton, FkFieldInput, FormField, PanelCard, ReadOnlyField, SelectField, TextareaField, TextField } from "@workspace/core/ui";
+import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { NEW_POSITION_DESCRIPTION_TEMPLATE_OPTION, type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
-import { PositionDescriptionDetailsEditor, compactReadOnlyInputClassName, formInputClassName, sectionTitle } from "./detail-editors";
+import { PositionDescriptionDetailsEditor, formInputClassName, sectionTitle, selectedEntityName } from "./detail-editors";
 import { deriveDescriptionMeta } from "./draft-utils";
 import { PositionDescriptionTemplateEditor } from "./position-description-template-editor";
 import type { DescriptionDraft, Position } from "./types";
@@ -78,22 +79,30 @@ export function PositionDescriptionPanel({
       {templateEditorOpen && <PositionDescriptionTemplateEditor name={templateDraftName} fields={templateDraftFields} onNameChange={onTemplateDraftNameChange} onToggleField={onTogglePositionDescriptionTemplateField} onSave={onSavePositionDescriptionTemplate} onCancel={() => onTemplateEditorOpenChange(false)} />}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <FormField label="说明书名称">
-          <TextField value={position.name} disabled className={compactReadOnlyInputClassName} />
+          <ReadOnlyField value={position.name} />
         </FormField>
         <FormField label="说明书部门">
-          <TextField value={position.departmentName || ""} disabled className={compactReadOnlyInputClassName} />
+          <ReadOnlyField value={position.departmentName || "未设置"} />
         </FormField>
         <FormField label="汇报对象">
-          <TextField value={descriptionDraft.reportTo || "未设置"} disabled className={compactReadOnlyInputClassName} />
+          <FkFieldInput
+            fkKey="hr.position"
+            endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
+            value={descriptionDraft.reportTo || ""}
+            displayValue={descriptionDraft.reportTo || ""}
+            disabled={!canEditPosition}
+            placeholder="搜索汇报对象"
+            onChange={(_label, option) => onUpdateDescriptionDraft("reportTo", selectedEntityName("position", option))}
+          />
         </FormField>
         <FormField label="编制">
           <TextField value={descriptionDraft.headcount} disabled={!canEditPosition} inputMode="numeric" onChange={next => onUpdateDescriptionDraft("headcount", next.replace(/\D/g, ""))} className={formInputClassName} />
         </FormField>
         <FormField label="版本">
-          <TextField value={meta.version} disabled className={compactReadOnlyInputClassName} />
+          <ReadOnlyField value={meta.version} />
         </FormField>
         <FormField label="生效日期">
-          <TextField value={meta.effectiveDate} disabled className={compactReadOnlyInputClassName} />
+          <ReadOnlyField value={meta.effectiveDate} />
         </FormField>
         <FormField label="岗位目的" className="md:col-span-2">
           <TextareaField value={descriptionDraft.positionPurpose} disabled={!canEditPosition} rows={3} onChange={next => onUpdateDescriptionDraft("positionPurpose", next)} className="resize-y" />

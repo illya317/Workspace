@@ -17,7 +17,7 @@ export const page_frame_registry_entries = [
     kind: "layout",
     description: "数据库页骨架",
     example: "员工资料、财务科目、报表配置和注册表页面只传筛选区与 DataTable。",
-    composes: ["PageContent", "TabBar"],
+    composes: ["PageContent", "TabBar", "Toolbar"],
   },
   {
     name: "ModuleGridPage",

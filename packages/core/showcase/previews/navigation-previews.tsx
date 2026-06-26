@@ -5,6 +5,7 @@ import {
   DisclosureSectionHeader,
   Pagination,
   TabBar,
+  ToolbarOptionGroup,
 } from "@workspace/core/ui";
 
 function DisclosureSectionHeaderPreview() {
@@ -37,10 +38,44 @@ function TabBarPreview() {
   const [mid, setMid] = useState("subject");
   const [smallActive, setSmallActive] = useState("reclass");
   const [smallChild, setSmallChild] = useState("configured");
-  const [micro, setMicro] = useState("configured");
+  const [microAccordion, setMicroAccordion] = useState("all");
+  const [withActionsActive, setWithActionsActive] = useState("basic");
 
   return (
     <div className="flex flex-col gap-5">
+      <div className="min-w-0">
+        <p className="mb-2 text-xs font-medium text-slate-400">large + accordion + trailingActions</p>
+        <TabBar
+          ariaLabel="页面标签预览"
+          variant="large"
+          accordion
+          className="max-w-full"
+          active={withActionsActive}
+          onChange={setWithActionsActive}
+          tabs={[
+            { key: "basic", label: "基本信息" },
+            { key: "employment", label: "雇佣关系" },
+            { key: "edp", label: "部门岗位" },
+            { key: "history", label: "历史记录" },
+          ]}
+          trailingActions={[
+            {
+              key: "save",
+              icon: "save",
+              label: "保存",
+              variant: "primary",
+              onClick: () => {},
+            },
+            {
+              key: "back",
+              icon: "cancel",
+              label: "返回",
+              variant: "secondary",
+              onClick: () => {},
+            },
+          ]}
+        />
+      </div>
       <div className="min-w-0">
         <p className="mb-2 text-xs font-medium text-slate-400">large + accordion</p>
         <TabBar
@@ -117,16 +152,16 @@ function TabBarPreview() {
       </div>
       <div className="flex min-w-0 flex-wrap items-center gap-2">
         <div>
-          <p className="mb-2 text-xs font-medium text-slate-400">micro</p>
-          <TabBar
-            ariaLabel="小型标签预览"
-            variant="micro"
-            active={micro}
-            onChange={setMicro}
-            tabs={[
-              { key: "configured", label: <>已配置 <span className="text-slate-400">12</span></> },
-              { key: "unconfigured", label: <>未配置 <span className="text-slate-400">3</span></> },
-              { key: "all", label: <>全部 <span className="text-slate-400">15</span></> },
+          <p className="mb-2 text-xs font-medium text-slate-400">micro + accordion (toolbar)</p>
+          <ToolbarOptionGroup
+            ariaLabel="改造状态"
+            presentation="accordion"
+            value={microAccordion}
+            onChange={setMicroAccordion}
+            options={[
+              { value: "all", label: <>全部 <span className="text-slate-400">15</span></> },
+              { value: "configured", label: <>已配置 <span className="text-slate-400">12</span></> },
+              { value: "unconfigured", label: <>未配置 <span className="text-slate-400">3</span></> },
             ]}
           />
         </div>

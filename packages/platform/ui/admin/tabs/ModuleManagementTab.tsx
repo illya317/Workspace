@@ -6,7 +6,6 @@ import { workspacePath } from "@workspace/core/routing";
 import {
   EmptyStateCard,
   FormField,
-  SearchInput,
   SectionCard,
   Badge,
   SwitchField,
@@ -209,17 +208,13 @@ export default function ModuleManagementTab({ showToast }: Props) {
         <Toolbar
           items={[
             {
-              kind: "custom",
+              kind: "search",
               key: "search",
               section: "filter",
-              content: (
-                <SearchInput
-                  value={query}
-                  onChange={setQuery}
-                  placeholder="搜索模块"
-                  className="w-full"
-                />
-              ),
+              value: query,
+              onChange: setQuery,
+              placeholder: "搜索模块",
+              className: "w-full",
             },
           ]}
           className="w-full"

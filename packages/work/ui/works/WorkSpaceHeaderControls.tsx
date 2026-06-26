@@ -1,42 +1,8 @@
 "use client";
 
-import { MetricCard, PanelCard, SelectField } from "@workspace/core/ui";
+import { MetricCard, PanelCard } from "@workspace/core/ui";
 import { getWorkSpaceLabel } from "./model";
-import type { WorkTarget, WorkTaskSpace } from "./types";
-
-export function MobileSpaceSwitcher({
-  spaces,
-  active,
-  loading,
-  onSelect,
-}: {
-  spaces: WorkTaskSpace[];
-  active: WorkTarget | null;
-  loading: boolean;
-  onSelect: (space: WorkTaskSpace) => void;
-}) {
-  const value = active ? targetKey(active) : "";
-  return (
-    <div className="xl:hidden">
-      <SelectField
-        label="工作空间"
-        value={value}
-        options={spaces.map((space) => ({
-          value: targetKey(space),
-          label: `${getWorkSpaceLabel(space.targetType)} · ${space.name}`,
-        }))}
-        disabled={loading || spaces.length === 0}
-        placeholder={loading ? "加载中" : "选择空间"}
-        searchable
-        triggerClassName="min-w-[14rem] max-w-[calc(100vw-8rem)]"
-        onChange={(nextValue) => {
-          const space = spaces.find((item) => targetKey(item) === nextValue);
-          if (space) onSelect(space);
-        }}
-      />
-    </div>
-  );
-}
+import type { WorkTaskSpace } from "./types";
 
 export function SpaceHeader({ space }: { space: WorkTaskSpace }) {
   return (
@@ -56,8 +22,4 @@ export function SpaceHeader({ space }: { space: WorkTaskSpace }) {
       </div>
     </PanelCard>
   );
-}
-
-function targetKey(target: WorkTarget) {
-  return `${target.targetType}:${target.targetId}`;
 }

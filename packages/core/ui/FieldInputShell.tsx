@@ -1,50 +1,51 @@
 "use client";
 
 import type { HTMLAttributes, ReactNode } from "react";
-import { getFieldInputClassName } from "./FormStyles";
-import { joinClassNames } from "./card-utils";
+import FieldShell, { type FieldShellProps } from "./FieldShell";
+import type { FieldControlSize } from "./FormStyles";
 
 export interface FieldInputShellProps extends Omit<HTMLAttributes<HTMLDivElement>, "className" | "prefix" | "suffix"> {
   children: ReactNode;
   prefix?: ReactNode;
   suffix?: ReactNode;
   disabled?: boolean;
+  readOnly?: boolean;
+  size?: FieldControlSize;
+  density?: FieldShellProps["density"];
   className?: string;
 }
 
-function affixClassName(disabled?: boolean) {
-  return [
-    "flex shrink-0 items-center justify-center self-stretch px-3 text-sm font-semibold",
-    disabled ? "bg-slate-100 text-slate-400" : "bg-slate-50 text-slate-500",
-  ].join(" ");
-}
-
+/**
+ * 单行输入字段壳。
+ *
+ * 是 FieldShell 的默认布局（layout="default"）别名，保留 prefix/suffix 能力。
+ * 新代码可优先使用 FieldShell；此组件继续存在以保持向后兼容。
+ */
 export function FieldInputShell({
   children,
   prefix,
   suffix,
   disabled,
+  readOnly,
+  size = "md",
+  density = "normal",
   className = "",
   ...divProps
 }: FieldInputShellProps) {
   return (
-    <div
+    <FieldShell
       {...divProps}
-      aria-disabled={disabled}
-      className={joinClassNames(
-        getFieldInputClassName("flex items-center overflow-hidden px-0 py-0"),
-        disabled && "bg-slate-100",
-        className,
-      )}
+      prefix={prefix}
+      suffix={suffix}
+      disabled={disabled}
+      readOnly={readOnly}
+      size={size}
+      density={density}
+      layout="default"
+      className={className}
     >
-      {prefix && (
-        <span className={`${affixClassName(disabled)} border-r border-slate-200`}>{prefix}</span>
-      )}
       {children}
-      {suffix && (
-        <span className={`${affixClassName(disabled)} border-l border-slate-200`}>{suffix}</span>
-      )}
-    </div>
+    </FieldShell>
   );
 }
 

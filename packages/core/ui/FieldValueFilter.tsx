@@ -2,6 +2,8 @@
 
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { CONTROL_SIZES } from "./interactionTokens";
+import type { ControlSize } from "./interactionTokens";
 import SearchInput from "./SearchInput";
 import FkFieldInput, { type LifecycleScope } from "./FkFieldInput";
 import { PickerOptionButton } from "./PickerParts";
@@ -24,12 +26,13 @@ export interface FieldValueFilterProps {
   fieldKey: string;
   onFieldKeyChange: (key: string) => void;
   value: string;
-  onValueChange: (value: string) => void;
+  onValueChange: (value: string, fieldKey?: string) => void;
   placeholder?: string;
   disabled?: boolean;
   referenceEndpoint?: string;
   className?: string;
   style?: CSSProperties;
+  size?: ControlSize;
 }
 
 export default function FieldValueFilter({
@@ -44,6 +47,7 @@ export default function FieldValueFilter({
   referenceEndpoint,
   className,
   style,
+  size = "md",
 }: FieldValueFilterProps) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<"field" | "value">("field");
@@ -83,7 +87,7 @@ export default function FieldValueFilter({
   function commitValue(nextValue: string, closeAfterCommit = draftOptions.length > 0) {
     setDraftValue(nextValue);
     onFieldKeyChange(draftFieldKey);
-    onValueChange(nextValue);
+    onValueChange(nextValue, draftFieldKey);
     if (closeAfterCommit) {
       setOpen(false);
       setStep("field");
@@ -103,6 +107,7 @@ export default function FieldValueFilter({
   }
 
   const valuePlaceholder = draftField?.placeholder ?? (draftField?.label ? `搜索${draftField.label}` : "输入搜索...");
+  const sizeTokens = CONTROL_SIZES[size];
 
   return (
     <span ref={rootRef} style={style} className={`relative inline-block ${className ?? ""}`}>
@@ -112,7 +117,7 @@ export default function FieldValueFilter({
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={toggleOpen}
-        className="inline-flex h-9 min-w-24 items-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+        className={`inline-flex ${sizeTokens.height} ${sizeTokens.minWidth} items-center gap-2 ${sizeTokens.paddingX} ${sizeTokens.radius} border border-slate-200 bg-white ${sizeTokens.text} font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500`}
       >
         {selectedField ? (
           <>
@@ -137,7 +142,7 @@ export default function FieldValueFilter({
         <div className="absolute left-0 top-[calc(100%+0.25rem)] z-50 w-max min-w-full max-w-[min(28rem,calc(100vw-2rem))] rounded-lg border border-slate-200 bg-white p-2 shadow-xl">
           {step === "field" ? (
             <div className="space-y-1.5">
-              <div className="text-[11px] font-semibold text-slate-400">字段</div>
+              <div className={`${CONTROL_SIZES[size].text} font-semibold text-slate-400`}>字段</div>
               <div className="flex max-w-full flex-wrap gap-1.5">
                 {fields.map((field) => (
                   <PickerOptionButton
@@ -159,11 +164,11 @@ export default function FieldValueFilter({
                 <button
                   type="button"
                   onClick={() => setStep("field")}
-                  className="text-[11px] font-semibold text-slate-400 hover:text-slate-700"
+                  className={`${CONTROL_SIZES[size].text} font-semibold text-slate-400 hover:text-slate-700`}
                 >
                   字段
                 </button>
-                <div className="min-w-0 flex-1 text-right text-[11px] font-semibold text-slate-400">
+                <div className={`min-w-0 flex-1 text-right ${CONTROL_SIZES[size].text} font-semibold text-slate-400`}>
                   {draftField?.label ?? "值"}
                 </div>
               </div>

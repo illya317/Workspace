@@ -8,6 +8,7 @@ Review 专门负责审查 lint、架构、边界和交付风险。Review 不做 
 - `docs/architecture-governance.md`
 - `docs/level2-agent-execution.md`
 - `docs/reusable-components.md`
+- `docs/core-toolbar.md`
 - `docs/module-boundaries.md`
 
 ## 审查顺序
@@ -25,6 +26,7 @@ Review 专门负责审查 lint、架构、边界和交付风险。Review 不做 
 - Core UI 新导出是否登记在 `packages/core/ui/component-registry.ts`，并包含中文 `description`、中文 `example` 和必要 `includes`；同时检查是否只是为了绕 gate 而随手注册，未被真实复用或只服务单个页面的组件应要求收回。
 - 非 Core 包是否新增手写 JSX UI pattern，尤其是 surface、table、form/control、modal overlay、toolbar layout、action button、table scroll shell；若已有 Core/Platform 入口，结论应是不通过，而不是接受“临时写一个”。
 - 新增 UI 是否真实复用现有 Core/Platform 组件；如果只是 showcase 使用、没有业务落地，或业务页仍在手搓同类结构，Review 必须指出。
+- Toolbar 是否遵守 `docs/core-toolbar.md`：不得恢复 `toolbar?: ReactNode`、`kind: "custom"`、页面级手搓 `div.flex` toolbar、业务自排动作分组或非 Core `ActionGlyph` 图标。
 - 是否存在可拆除、可合并、可下沉的重复组件：同类 toolbar/filter/picker/table/modal/page frame 如果已有两个以上实现，优先要求合并到现有 Core/Platform 入口，或删除未使用/只 showcase 使用的壳。
 - `scripts/arch/level2-baseline.json` 是否只减少历史债；禁止为了新违规扩写 baseline。
 - API route 是否保持认证、权限、Zod 参数校验、调用 package service、返回 DTO；写入是否按 `Zod schema -> domain validator -> service/Prisma` 收口。

@@ -13,7 +13,7 @@ import {
 } from "./FormStyles";
 import { joinClassNames } from "./card-utils";
 
-export type FieldGridMode = "view" | "edit" | "mixed";
+export type FieldGridMode = "view" | "edit" | "mixed" | "detail";
 
 export interface FieldGridProps {
   children: ReactNode;
@@ -52,6 +52,7 @@ export interface FieldGridCellProps {
   required?: boolean;
   hint?: ReactNode;
   span?: "wide" | "full" | number;
+  mode?: FieldGridMode;
   className?: string;
   labelClassName?: string;
   valueClassName?: string;
@@ -63,6 +64,7 @@ export function FieldGridCell({
   required,
   hint,
   span,
+  mode = "mixed",
   className = "",
   labelClassName = "",
   valueClassName = "",
@@ -74,17 +76,17 @@ export function FieldGridCell({
       : "";
   return (
     <div className={getFieldGridCellClassName(joinClassNames(spanClass, className))}>
-      <div className={getFieldGridMainRowClassName()}>
+      <div className={getFieldGridMainRowClassName("", mode)}>
         <div className={getFieldGridLabelClassName(labelClassName)}>
           {label}
           {required && <span className="ml-0.5 text-red-500">*</span>}
         </div>
-        <div className={getFieldGridValueClassName(valueClassName)}>
+        <div className={getFieldGridValueClassName(valueClassName, mode)}>
           {children}
         </div>
       </div>
       {hint && (
-        <div className={getFieldGridHelperRowClassName()}>
+        <div className={getFieldGridHelperRowClassName("", mode)}>
           <div />
           <div className={getFieldHelperClassName()}>{hint}</div>
         </div>

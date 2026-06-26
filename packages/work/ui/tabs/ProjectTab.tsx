@@ -110,18 +110,16 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
             className="w-full justify-start"
             items={[
               {
-                kind: "icon-button",
+                kind: "panel-toggle",
                 key: "mobile-side-toggle",
-                section: "view",
                 icon: "panel-open",
                 label: "显示项目列表",
                 className: "!h-9 !w-10 !px-0 lg:hidden",
                 onClick: () => model.setProjectListDrawerOpen(true),
               },
               {
-                kind: "icon-button",
+                kind: "panel-toggle",
                 key: "desktop-side-toggle",
-                section: "view",
                 icon: model.projectListOpen ? "panel-open" : "panel-close",
                 label: `${model.projectListOpen ? "隐藏" : "显示"}项目列表`,
                 variant: model.projectListOpen ? "primary" : "secondary",

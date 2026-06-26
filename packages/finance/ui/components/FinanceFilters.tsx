@@ -1,6 +1,6 @@
 "use client";
 
-import { SelectField, Toolbar, type ColumnDef, type ToolbarItem } from "@workspace/core/ui";
+import { Toolbar, type ColumnDef, type ToolbarItem } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 
 const YEAR_OPTIONS = [2024, 2025, 2026].map((year) => ({
@@ -36,7 +36,6 @@ interface FinanceFiltersProps {
   onLevelChange?: (value: string) => void;
   onKeywordChange?: (value: string) => void;
   onPageSizeChange?: (value: number) => void;
-  extra?: React.ReactNode;
   showMonth?: boolean;
   showLevel?: boolean;
   showSearch?: boolean;
@@ -60,7 +59,6 @@ export default function FinanceFilters({
   onLevelChange,
   onKeywordChange,
   onPageSizeChange,
-  extra,
   showMonth = true,
   showLevel = false,
   showSearch = true,
@@ -87,78 +85,58 @@ export default function FinanceFilters({
 
   if (showCompanyYear && onCompanyChange) {
     items.push({
-      kind: "custom",
+      kind: "select",
       key: "company",
       section: "filter",
-      content: (
-        <SelectField
-          label="公司"
-          options={companyOptions}
-          value={companyFilter}
-          onChange={onCompanyChange}
-          placeholder="全部"
-          triggerClassName="min-w-32"
-        />
-      ),
+      label: "公司",
+      options: companyOptions,
+      value: companyFilter,
+      onChange: onCompanyChange,
+      placeholder: "全部",
+      triggerClassName: "min-w-32",
     });
   }
 
   if (showCompanyYear && onYearChange) {
     items.push({
-      kind: "custom",
+      kind: "select",
       key: "year",
       section: "filter",
-      content: (
-        <SelectField
-          label="年度"
-          options={YEAR_OPTIONS}
-          value={yearFilter}
-          onChange={onYearChange}
-          placeholder="全部"
-          triggerClassName="min-w-32"
-        />
-      ),
+      label: "年度",
+      options: YEAR_OPTIONS,
+      value: yearFilter,
+      onChange: onYearChange,
+      placeholder: "全部",
+      triggerClassName: "min-w-32",
     });
   }
 
   if (showMonth && onMonthChange) {
     items.push({
-      kind: "custom",
+      kind: "select",
       key: "month",
       section: "filter",
-      content: (
-        <SelectField
-          label="月份"
-          options={MONTH_OPTIONS}
-          value={monthFilter}
-          onChange={onMonthChange}
-          placeholder="全部"
-          triggerClassName="min-w-32"
-        />
-      ),
+      label: "月份",
+      options: MONTH_OPTIONS,
+      value: monthFilter,
+      onChange: onMonthChange,
+      placeholder: "全部",
+      triggerClassName: "min-w-32",
     });
   }
 
   if (showLevel && onLevelChange) {
     items.push({
-      kind: "custom",
+      kind: "select",
       key: "level",
       section: "filter",
-      content: (
-        <SelectField
-          label="层级"
-          options={LEVEL_OPTIONS}
-          value={levelFilter}
-          onChange={onLevelChange}
-          placeholder="全部"
-          triggerClassName="min-w-32"
-        />
-      ),
+      label: "层级",
+      options: LEVEL_OPTIONS,
+      value: levelFilter,
+      onChange: onLevelChange,
+      placeholder: "全部",
+      triggerClassName: "min-w-32",
     });
-  }
-
-  if (extra) {
-    items.push({ kind: "custom", key: "extra", section: "filter", content: extra });
   }
 
   if (columns && onColumnsChange && visibleColumns) {

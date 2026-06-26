@@ -4,7 +4,6 @@ import type { ReactNode } from "react";
 import {
   FieldGrid,
   PanelCard,
-  Toolbar,
 } from "@workspace/core/ui";
 
 export function FieldRegion({
@@ -20,27 +19,10 @@ export function FieldRegion({
 }) {
   return (
     <PanelCard className={className} bodyClassName="p-3">
-      <Toolbar
-        className="mb-3 min-h-7 border-0 p-0 shadow-none"
-        items={[
-          {
-            kind: "custom",
-            key: "title",
-            section: "view",
-            content: <FieldGrid.GroupTitle className="mb-0">{title}</FieldGrid.GroupTitle>,
-          },
-          ...(actions
-            ? [
-                {
-                  kind: "custom" as const,
-                  key: "actions",
-                  section: "action" as const,
-                  content: <div className="flex shrink-0 items-center gap-2">{actions}</div>,
-                },
-              ]
-            : []),
-        ]}
-      />
+      <div className="mb-3 flex min-h-7 items-center gap-3">
+        <FieldGrid.GroupTitle className="mb-0 min-w-0">{title}</FieldGrid.GroupTitle>
+        {actions && <div className="ml-auto flex shrink-0 items-center gap-2">{actions}</div>}
+      </div>
       {children}
     </PanelCard>
   );

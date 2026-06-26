@@ -113,7 +113,10 @@ export default function BalanceCheckTab() {
     return c;
   }, [tree]);
   return <div className="space-y-4 mt-4">
-      <FinanceFilters showCompanyYear={false} levelFilter={levelFilter} onLevelChange={setLevelFilter} showMonth={false} showLevel showSearch={false} showPageSize={false} extra={<CommandButton variant="primary" onClick={load}>刷新</CommandButton>} />
+      <FinanceFilters showCompanyYear={false} levelFilter={levelFilter} onLevelChange={setLevelFilter} showMonth={false} showLevel showSearch={false} showPageSize={false} />
+      <div className="flex flex-wrap items-center gap-3">
+        <CommandButton variant="primary" onClick={load}>刷新</CommandButton>
+      </div>
 
       {loading && <p className="p-12 text-center text-sm text-gray-400">加载中...</p>}
 

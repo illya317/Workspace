@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  SearchInput,
-  SelectField,
   Toolbar,
 } from "@workspace/core/ui";
 import type { ColumnDef, ToolbarItem } from "@workspace/core/ui";
@@ -40,32 +38,32 @@ export default function ContractFilters({
       onClick: onCreate,
     },
     {
-      kind: "custom",
-      key: "filters",
+      kind: "search",
+      key: "search",
       section: "filter",
-      content: (
-        <>
-          <SearchInput
-            value={q}
-            onChange={onQChange}
-            placeholder="搜索合同名称、签署方、内容..."
-          />
-          <SelectField
-            label="类型"
-            value={categoryFilter}
-            onChange={onCategoryChange}
-            placeholder="全部"
-            options={categories.map((value) => ({ value, label: value }))}
-          />
-          <SelectField
-            label="状态"
-            value={statusFilter}
-            onChange={onStatusChange}
-            placeholder="全部"
-            options={statuses.map((value) => ({ value, label: value }))}
-          />
-        </>
-      ),
+      value: q,
+      onChange: onQChange,
+      placeholder: "搜索合同名称、签署方、内容...",
+    },
+    {
+      kind: "select",
+      key: "category-filter",
+      section: "filter",
+      label: "类型",
+      value: categoryFilter,
+      onChange: onCategoryChange,
+      placeholder: "全部",
+      options: categories.map((value) => ({ value, label: value })),
+    },
+    {
+      kind: "select",
+      key: "status-filter",
+      section: "filter",
+      label: "状态",
+      value: statusFilter,
+      onChange: onStatusChange,
+      placeholder: "全部",
+      options: statuses.map((value) => ({ value, label: value })),
     },
     {
       kind: "action-group",

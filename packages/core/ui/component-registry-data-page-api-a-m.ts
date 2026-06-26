@@ -15,7 +15,7 @@ export const page_api_registry_entries = [
     kind: "layout",
     description: "分析内容块",
     example: "在人事分析页包裹趋势图、KPI 和预警摘要。",
-    composes: ["PanelCard"],
+    composes: ["PanelCard", "Toolbar"],
   },
   {
     name: "AutoSizeTextField",
@@ -30,6 +30,7 @@ export const page_api_registry_entries = [
     kind: "form",
     description: "日期输入框",
     example: "在人事入职日期或合同截止日期字段中选择 2026-06-20。",
+    composes: ["FieldInputShell"],
     foundations: ["getFieldInputClassName"],
   },
   {
@@ -132,12 +133,20 @@ export const page_api_registry_entries = [
     example: "筛选后无结果时显示“暂无数据，调整筛选条件”。",
   },
   {
+    name: "EntityDetailLayout",
+    accessLayer: "page-api",
+    kind: "layout",
+    description: "实体详情布局",
+    example: "部门、岗位或项目详情页用 Fields、Metrics 和 Field 统一详情区字段排版。",
+    composes: ["FieldGrid", "FieldControl"],
+  },
+  {
     name: "FkFieldInput",
     accessLayer: "page-api",
     kind: "picker",
     description: "外键搜索输入",
     example: "搜索“张”后从员工候选项中选择一个负责人。",
-    composes: ["SearchInput"],
+    composes: ["FieldInputShell", "SearchInput"],
   },
   {
     name: "FieldValueFilter",
@@ -188,6 +197,7 @@ export const page_api_registry_entries = [
     kind: "form",
     description: "只读字段展示",
     example: "员工编码、系统计算值或凭证号只读展示，默认 input-like 统一表单视觉；传 variant='plain' 可渲染纯文本值。",
+    composes: ["FieldInputShell"],
     foundations: ["getReadOnlyFieldClassName", "getFieldValueClassName"],
   },
   {
@@ -196,7 +206,24 @@ export const page_api_registry_entries = [
     kind: "form",
     description: "字段输入外壳",
     example: "百分比或带单位后缀的组合输入控件共享同一字段外壳样式，支持 prefix/suffix。",
+    composes: ["FieldShell"],
     foundations: ["getFieldInputClassName"],
+  },
+  {
+    name: "FieldShell",
+    accessLayer: "page-api",
+    kind: "form",
+    description: "统一字段壳",
+    example: "文本、只读、外键、选择和标签字段共享高度、边框、圆角、焦点环与 affix 布局。",
+    foundations: ["getFieldShellClassName"],
+  },
+  {
+    name: "FieldControl",
+    accessLayer: "page-api",
+    kind: "form",
+    description: "统一字段控件选择器",
+    example: "详情页按 kind 渲染 text、readonly、fk、tags 或 select，不在业务页手拼字段壳。",
+    composes: ["TextField", "ReadOnlyField", "FkFieldInput", "TagStringInput", "SelectField"],
   },
   {
     name: "PercentField",
@@ -243,6 +270,14 @@ export const page_api_registry_entries = [
     kind: "layout",
     description: "指标卡片",
     example: "分析页展示“本月 128”“同比 +12%”“预警 3”。",
+  },
+  {
+    name: "MetricTile",
+    accessLayer: "page-api",
+    kind: "layout",
+    description: "详情页指标块",
+    example: "部门详情页展示岗位数、编制数等紧凑指标。",
+    composes: ["MetricCard"],
   },
   {
     name: "ModuleCard",

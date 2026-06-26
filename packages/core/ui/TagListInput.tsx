@@ -22,9 +22,14 @@ export interface TagListInputProps<T> {
   onItemClick?: (item: T, index: number) => void | Promise<void>;
   disabled?: boolean;
   emptyText?: ReactNode;
+  /** @deprecated 请使用 removeConfirmMessage */
   confirmMessage?: (item: T, index: number) => ConfirmOptions["message"];
+  /** @deprecated 请使用 confirmRemove */
   confirm?: boolean;
   confirmOptions?: Partial<ConfirmOptions>;
+  confirmRemove?: boolean;
+  removeConfirmMessage?: (item: T, index: number) => string;
+  removeConfirmTitle?: string;
   renderItem?: (context: TagListInputItemContext<T>) => ReactNode;
   itemClassName?: (item: T, index: number) => string | undefined;
   itemTitle?: (item: T, index: number) => string | undefined;
@@ -47,6 +52,9 @@ export default function TagListInput<T>({
   confirmMessage,
   confirm = true,
   confirmOptions,
+  confirmRemove,
+  removeConfirmMessage,
+  removeConfirmTitle,
   renderItem,
   itemClassName,
   itemTitle,
@@ -69,10 +77,12 @@ export default function TagListInput<T>({
           items.map((item, index) => {
             const key = getKey(item, index);
             const label = getLabel(item, index);
+            if (label.trim() === "") return null;
             const title = itemTitle?.(item, index);
             const extraClassName = itemClassName?.(item, index);
             const removeLabel = `删除 ${label}`;
-            const message = confirmMessage?.(item, index);
+            const message = removeConfirmMessage?.(item, index) ?? confirmMessage?.(item, index);
+            const removeConfirm = confirmRemove ?? confirm;
 
             if (renderItem) {
               return (
@@ -115,9 +125,9 @@ export default function TagListInput<T>({
                   label={removeLabel}
                   title={title}
                   disabled={disabled}
-                  confirm={confirm}
+                  confirm={removeConfirm}
                   confirmMessage={message}
-                  confirmOptions={confirmOptions}
+                  confirmOptions={{ title: removeConfirmTitle, ...confirmOptions }}
                   maxLength={maxLength}
                   className={extraClassName}
                   onRemove={() => onRemove(item, index)}
