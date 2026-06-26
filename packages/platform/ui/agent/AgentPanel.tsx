@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { CommandButton, InputControl, PanelCard, SelectorPanel } from "@workspace/core/ui";
+import { ActionButton, CommandButton, InputControl, PanelCard, SelectorPanel } from "@workspace/core/ui";
 import type { AgentMood, AgentMessage } from "./types";
 import type { SavedConversation } from "./useAgentSession";
 import AgentAvatar from "./AgentAvatar";
@@ -17,6 +17,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onSend: (text: string) => void;
+  onStop: () => void;
   onClear: () => void;
   savedConversations?: SavedConversation[];
   onLoadConversation?: (conv: SavedConversation) => void;
@@ -42,6 +43,7 @@ export default function AgentPanel({
   isOpen,
   onClose,
   onSend,
+  onStop,
   onClear,
   savedConversations,
   onLoadConversation,
@@ -52,6 +54,7 @@ export default function AgentPanel({
   const [showHistory, setShowHistory] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const historyRef = useRef<HTMLDivElement>(null);
+  const historyDropdownRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{
     sx: number;
     sy: number;
@@ -94,7 +97,12 @@ export default function AgentPanel({
   useEffect(() => {
     if (!showHistory) return;
     function onClick(e: MouseEvent) {
-      if (historyRef.current && !historyRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        historyRef.current &&
+        !historyRef.current.contains(target) &&
+        !historyDropdownRef.current?.contains(target)
+      ) {
         setShowHistory(false);
       }
     }
@@ -144,14 +152,6 @@ export default function AgentPanel({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </CommandButton>
-              {showHistory && savedConversations && savedConversations.length > 0 && <SelectorPanel className="absolute right-0 top-8 z-50 max-h-64 w-64 overflow-y-auto" title="历史对话" items={savedConversations} selectedId={null} onSelect={c => {
-              onLoadConversation?.(c);
-              setShowHistory(false);
-            }} getKey={c => c.id} renderItem={c => ({
-              title: c.title,
-              subtitle: c.preview || c.messages.slice(-1)[0]?.content.slice(0, 40),
-              meta: [new Date(c.updatedAt).toLocaleString("zh-CN")]
-            })} size="sm" bodyClassName="p-2" contentClassName="space-y-2" />}
             </div>
             <CommandButton onClick={onClear} title="新对话" size="sm" className="p-1.5">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -174,11 +174,25 @@ export default function AgentPanel({
           {/* Input */}
           <div className="flex items-center gap-2 border-t px-4 py-3">
             <InputControl inputRef={inputRef} spec={{ valueType: "string", editor: "input", state: loading ? "disabled" : "normal" }} value={input} onChange={(value) => setInput(String(value ?? ""))} onKeyDown={handleKeyDown} placeholder="输入消息..." maxLength={2000} />
-            <CommandButton variant="primary" onClick={handleSend} disabled={loading || !input.trim()}>
-              发送
-            </CommandButton>
+            {loading ? (
+              <ActionButton kind="stop" label="停止生成" variant="primary" onClick={onStop} />
+            ) : (
+              <ActionButton kind="send" label="发送" variant="primary" onClick={handleSend} disabled={!input.trim()} />
+            )}
           </div>
         </PanelCard>
+        {showHistory && savedConversations && savedConversations.length > 0 && (
+          <div ref={historyDropdownRef}>
+            <SelectorPanel className="absolute right-4 top-16 z-[60] max-h-64 w-64 overflow-y-auto" title="历史对话" items={savedConversations} selectedId={null} onSelect={c => {
+              onLoadConversation?.(c);
+              setShowHistory(false);
+            }} getKey={c => c.id} renderItem={c => ({
+              title: c.title,
+              metaLine: c.preview || c.messages.slice(-1)[0]?.content.slice(0, 60),
+              meta: [new Date(c.updatedAt).toLocaleString("zh-CN")]
+            })} size="sm" bodyClassName="p-2" contentClassName="space-y-2" />
+          </div>
+        )}
       </div>
 
       {/* Report Drawer */}

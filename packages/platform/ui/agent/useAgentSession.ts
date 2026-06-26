@@ -166,9 +166,19 @@ export function useAgentSession() {
       upsertConversation(sessionId, errMessages);
       setMood("error");
     } finally {
-      setLoading(false);
+      if (abortRef.current === controller) {
+        abortRef.current = null;
+        setLoading(false);
+      }
     }
   }, [loading]);
+
+  const stopMessage = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setLoading(false);
+    setMood("idle");
+  }, []);
 
   // ── cleanup ──
   useEffect(() => () => { abortRef.current?.abort(); }, []);
@@ -223,6 +233,6 @@ export function useAgentSession() {
     messages, mood, loading,
     drawerMsg, setDrawerMsg,
     pendingProposal, confirmProposal, cancelProposal,
-    sendMessage, clearMessages, savedConversations, loadConversation,
+    sendMessage, stopMessage, clearMessages, savedConversations, loadConversation,
   };
 }

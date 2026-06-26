@@ -17,7 +17,7 @@ export default function AgentProvider() {
   const {
     messages, mood, loading, drawerMsg, setDrawerMsg,
     pendingProposal, confirmProposal, cancelProposal,
-    sendMessage, clearMessages, savedConversations, loadConversation,
+    sendMessage, stopMessage, clearMessages, savedConversations, loadConversation,
   } = useAgentSession();
   const [hints, setHints] = useState<string[]>([]);
   const [hintsLoaded, setHintsLoaded] = useState(false);
@@ -76,6 +76,7 @@ export default function AgentProvider() {
         isOpen={isOpen}
         onClose={close}
         onSend={sendMessage}
+        onStop={stopMessage}
         onClear={clearMessages}
         savedConversations={savedConversations}
         onLoadConversation={loadConversation}

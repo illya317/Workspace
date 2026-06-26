@@ -5,6 +5,8 @@
  */
 export const ACTION_GLYPH_KINDS = [
   "add",
+  "send",
+  "stop",
   "edit",
   "check",
   "verified",
@@ -55,6 +57,7 @@ export interface ActionGlyphGroup {
 
 export const ACTION_GLYPH_GROUPS = [
   { key: "create", label: "新建", representative: "add", kinds: ["add"] },
+  { key: "input", label: "输入控制", representative: "send", kinds: ["send", "stop"] },
   { key: "edit", label: "编辑保存", representative: "edit", kinds: ["edit", "save"] },
   { key: "confirm", label: "确认状态", representative: "check", kinds: ["check", "verified", "cancel"] },
   { key: "delete", label: "删除", representative: "delete-bin", kinds: ["delete", "delete-bin", "delete-minus"] },
@@ -79,7 +82,7 @@ export interface ActionGlyphToolbarGroup {
 }
 
 export const ACTION_GLYPH_TOOLBAR_GROUPS = [
-  { key: "primary", label: "核心操作", groupKeys: ["create", "edit", "confirm", "delete"] },
+  { key: "primary", label: "核心操作", groupKeys: ["create", "input", "edit", "confirm", "delete"] },
   { key: "browse", label: "浏览筛选", groupKeys: ["view", "filter", "refresh"] },
   { key: "extended", label: "扩展动作", groupKeys: ["transfer", "relation", "system", "output", "more"] },
 ] as const satisfies readonly ActionGlyphToolbarGroup[];
@@ -95,6 +98,8 @@ export interface ActionGlyphOrderItem {
 
 export const ACTION_GLYPH_ORDER = [
   { icon: "add", group: "primary", subgroup: "create", order: 10000 },
+  { icon: "send", group: "primary", subgroup: "input", order: 10500 },
+  { icon: "stop", group: "primary", subgroup: "input", order: 10600 },
   { icon: "edit", group: "primary", subgroup: "edit", order: 11000 },
   { icon: "save", group: "primary", subgroup: "edit", order: 11100 },
   { icon: "check", group: "primary", subgroup: "confirm", order: 12000 },
@@ -155,6 +160,21 @@ export function ActionGlyph({ kind, className = "h-5 w-5" }: ActionGlyphProps) {
   if (kind === "add") {
     return <span aria-hidden="true" className="-translate-y-px text-base leading-none">+</span>;
   }
+  if (kind === "send") {
+    return (
+      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.9} viewBox="0 0 24 24">
+        <path d="M21 3 10 14" />
+        <path d="m21 3-7 18-4-7-7-4z" />
+      </svg>
+    );
+  }
+  if (kind === "stop") {
+    return (
+      <svg aria-hidden="true" className={className} fill="currentColor" viewBox="0 0 24 24">
+        <rect x="7" y="7" width="10" height="10" rx="2" />
+      </svg>
+    );
+  }
   if (kind === "edit") {
     return (
       <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} viewBox="0 0 24 24">
@@ -203,10 +223,7 @@ export function ActionGlyph({ kind, className = "h-5 w-5" }: ActionGlyphProps) {
       </svg>
     );
   }
-  if (kind === "delete") {
-    return <span aria-hidden="true" className="-translate-y-px text-xl leading-none">×</span>;
-  }
-  if (kind === "delete-bin") {
+  if (kind === "delete" || kind === "delete-bin") {
     return (
       <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} viewBox="0 0 24 24">
         <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6M5 6l1 14h12l1-14" />
