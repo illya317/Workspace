@@ -4,7 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect } from "react";
 import FKInput from "./FKInput";
 import { AutoSizeInput } from "./AutoSizeInput";
-import { CalendarDateInput, CheckboxField, OptionPicker, SwitchField, TextareaField } from "@workspace/core/ui";
+import { CalendarDateInput, CheckboxField, InputControl, SwitchField, TextareaField } from "@workspace/core/ui";
 import EthnicityPicker from "./EthnicityPicker";
 import MajorPicker from "./MajorPicker";
 import ProfessionalTitlePicker from "./ProfessionalTitlePicker";
@@ -84,7 +84,7 @@ export default function GenericFieldInput({
       <MajorPicker
         value={value}
         onChange={onChange}
-        buttonClassName={`w-full rounded border border-emerald-400 bg-white px-2 py-1.5 text-left text-sm focus:outline-none ${className || ""}`}
+        className={className}
       />
     );
   }
@@ -103,7 +103,7 @@ export default function GenericFieldInput({
       <SchoolPicker
         value={value}
         onChange={onChange}
-        buttonClassName={`w-full rounded border border-emerald-400 bg-white px-2 py-1.5 text-left text-sm focus:outline-none ${className || ""}`}
+        className={className}
       />
     );
   }
@@ -113,7 +113,7 @@ export default function GenericFieldInput({
       <ProfessionalTitlePicker
         value={value}
         onChange={onChange}
-        buttonClassName={`w-full rounded border border-emerald-400 bg-white px-2 py-1.5 text-left text-sm focus:outline-none ${className || ""}`}
+        className={className}
       />
     );
   }
@@ -126,14 +126,21 @@ export default function GenericFieldInput({
           ? "女"
           : "男";
     return (
-      <OptionPicker
+      <InputControl
+        spec={{
+          valueType: "string",
+          editor: "select",
+          options: {
+            source: "static",
+            items: [
+              { label: "男", value: "男" },
+              { label: "女", value: "女" },
+            ],
+          },
+        }}
         value={selected}
-        options={[
-          { label: "男", value: "男" },
-          { label: "女", value: "女" },
-        ]}
         onChange={(next) => onChange(next)}
-        buttonClassName={`rounded border border-emerald-400 px-2 py-1.5 text-left text-sm focus:outline-none ${className || ""}`}
+        className={className}
       />
     );
   }
@@ -144,7 +151,7 @@ export default function GenericFieldInput({
         <EthnicityPicker
           value={value}
           onChange={onChange}
-          buttonClassName={`rounded border border-emerald-400 px-2 py-1.5 text-left text-sm focus:outline-none ${className || ""}`}
+          className={className}
         />
       );
     }
@@ -155,17 +162,21 @@ export default function GenericFieldInput({
           value={value}
           options={selectOptions.map((option) => option.value)}
           onChange={onChange}
-          buttonClassName={`rounded border border-emerald-400 px-2 py-1.5 text-left text-sm focus:outline-none ${className || ""}`}
+          className={className}
         />
       );
     }
 
     return (
-      <OptionPicker
+      <InputControl
+        spec={{
+          valueType: "string",
+          editor: selectOptions.length > 8 ? "autocomplete" : "select",
+          options: { source: "static", items: selectOptions, visibleCount: 5 },
+        }}
         value={String(value ?? "")}
-        options={selectOptions}
         onChange={(next) => onChange(next ?? "")}
-        buttonClassName={`rounded border border-emerald-400 px-2 py-1.5 text-left text-sm focus:outline-none ${className || ""}`}
+        className={className}
       />
     );
   }

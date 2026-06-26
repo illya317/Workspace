@@ -4,8 +4,8 @@ import type { CSSProperties } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CONTROL_SIZES } from "./interactionTokens";
 import type { ControlSize } from "./interactionTokens";
-import SearchInput from "./SearchInput";
-import FkFieldInput, { type LifecycleScope } from "./FkFieldInput";
+import type { LifecycleScope } from "./FkFieldInput";
+import InputControl, { type InputFieldSpec } from "./InputControl";
 import { PickerOptionButton } from "./PickerParts";
 import type { SelectFieldOption } from "./SelectField";
 
@@ -108,6 +108,27 @@ export default function FieldValueFilter({
 
   const valuePlaceholder = draftField?.placeholder ?? (draftField?.label ? `搜索${draftField.label}` : "输入搜索...");
   const sizeTokens = CONTROL_SIZES[size];
+  const valueInputSpec: InputFieldSpec = draftOptions.length > 0
+    ? {
+        valueType: "string",
+        editor: draftOptions.length > 8 ? "autocomplete" : "select",
+        options: { source: "static", items: draftOptions, visibleCount: 5 },
+      }
+    : draftField?.valueKind === "fk" && draftField.fkKey && draftReferenceEndpoint
+      ? {
+          valueType: "reference",
+          editor: "autocomplete",
+          options: {
+            source: "remote",
+            fkKey: draftField.fkKey,
+            endpoint: draftReferenceEndpoint,
+            returnField: draftField.fkReturnField,
+            lifecycleScope: draftField.lifecycleScope ?? "all",
+            visibleCount: 5,
+          },
+        }
+      : { valueType: "string", editor: "input" };
+  const closeOnValueChange = valueInputSpec.editor !== "input";
 
   return (
     <span ref={rootRef} style={style} className={`relative inline-block ${className ?? ""}`}>
@@ -172,54 +193,23 @@ export default function FieldValueFilter({
                   {draftField?.label ?? "值"}
                 </div>
               </div>
-              {draftOptions.length > 0 ? (
-                <div className="flex max-w-full flex-wrap gap-1.5">
-                  {draftOptions.map((option) => (
-                    <PickerOptionButton
-                      key={option.value}
-                      selected={option.value === draftValue}
-                      onClick={() => commitValue(option.value)}
-                      align="center"
-                      size="compact"
-                      className="min-h-8"
-                    >
-                      <span className="truncate">{option.label}</span>
-                    </PickerOptionButton>
-                  ))}
-                </div>
-              ) : draftField?.valueKind === "fk" && draftField.fkKey && draftReferenceEndpoint ? (
-                <div className="space-y-1.5">
-                  <PickerOptionButton
-                    selected={draftValue === ""}
-                    onClick={() => commitValue("", true)}
-                    align="center"
-                    size="compact"
-                    className="min-h-8"
-                  >
-                    全部
-                  </PickerOptionButton>
-                  <FkFieldInput
-                    fkKey={draftField.fkKey}
-                    endpoint={draftReferenceEndpoint}
-                    value={draftValue}
-                    displayValue={draftValue}
-                    onChange={(_label, option) => {
-                      if (!option) return;
-                      commitValue(draftField.fkReturnField === "id" ? String(option.id) : option.name, true);
-                    }}
-                    placeholder={valuePlaceholder}
-                    lifecycleScope={draftField.lifecycleScope ?? "all"}
-                    className="w-full"
-                  />
-                </div>
-              ) : (
-                <SearchInput
+              <div className="space-y-1.5">
+                <PickerOptionButton
+                  selected={draftValue === ""}
+                  onClick={() => commitValue("", true)}
+                  align="center"
+                  size="compact"
+                  className="min-h-8"
+                >
+                  全部
+                </PickerOptionButton>
+                <InputControl
+                  spec={valueInputSpec}
                   value={draftValue}
-                  onChange={(nextValue) => commitValue(nextValue, false)}
                   placeholder={valuePlaceholder}
-                  className="w-full"
+                  onChange={(nextValue) => commitValue(String(nextValue ?? ""), closeOnValueChange)}
                 />
-              )}
+              </div>
             </div>
           )}
         </div>

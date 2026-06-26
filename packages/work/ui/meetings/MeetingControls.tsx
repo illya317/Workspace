@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { CalendarDateInput, FormField, SectionCard, SelectField, TextField, TimeField } from "@workspace/core/ui";
+import { FormField, InputControl, SectionCard } from "@workspace/core/ui";
 import type { MeetingDetail } from "./meeting-types";
 import { statusLabel } from "./meeting-utils";
 
@@ -40,10 +40,18 @@ export function InputBox({
 }) {
   const dateTime = splitDateTimeValue(value);
   return <FormField label={label} className={className}>
-      {kind === "date" ? <CalendarDateInput value={value} onChange={next => onChange(next ?? "")} /> : kind === "datetime" ? <div className="grid grid-cols-[minmax(0,1fr)_7.5rem] gap-2">
-          <CalendarDateInput value={dateTime.date} onChange={date => onChange(combineDateTimeValue(date, dateTime.time))} />
-          <TimeField value={dateTime.time} onChange={time => onChange(combineDateTimeValue(dateTime.date, time))} />
-        </div> : <TextField type={kind === "number" ? "number" : "text"} value={value} onChange={onChange} />}
+      {kind === "datetime" ? <div className="grid grid-cols-[minmax(0,1fr)_7.5rem] gap-2">
+          <InputControl spec={{ valueType: "date", editor: "datePicker" }} value={dateTime.date} onChange={date => onChange(combineDateTimeValue(String(date ?? ""), dateTime.time))} placeholder="选择日期" />
+          <InputControl spec={{ valueType: "time", editor: "timePicker" }} value={dateTime.time} onChange={time => onChange(combineDateTimeValue(dateTime.date, String(time ?? "")))} />
+        </div> : <InputControl
+          spec={{
+            valueType: kind === "number" ? "number" : kind === "date" ? "date" : "string",
+            editor: kind === "number" ? "number" : kind === "date" ? "datePicker" : "input",
+          }}
+          value={value}
+          onChange={next => onChange(String(next ?? ""))}
+          placeholder={kind === "date" ? "选择日期" : `输入${label}`}
+        />}
     </FormField>;
 }
 
@@ -75,7 +83,16 @@ export function SelectBox({
   }>;
 }) {
   return <FormField label={label}>
-      <SelectField value={value} options={options} onChange={onChange} searchable={options.length > 6} />
+      <InputControl
+        spec={{
+          valueType: "string",
+          editor: options.length > 8 ? "autocomplete" : "select",
+          options: { source: "static", items: options, visibleCount: 5 },
+        }}
+        value={value}
+        onChange={next => onChange(String(next ?? ""))}
+        placeholder="未设置"
+      />
     </FormField>;
 }
 

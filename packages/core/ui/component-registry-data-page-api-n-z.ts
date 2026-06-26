@@ -89,6 +89,7 @@ export const page_api_registry_entries = [
     kind: "picker",
     description: "可搜索选项输入",
     example: "学校、供应商或本地白名单实体通过中文、拼音和别名搜索后选择。",
+    foundations: ["getFieldInputClassName"],
   },
   {
     name: "SearchInput",

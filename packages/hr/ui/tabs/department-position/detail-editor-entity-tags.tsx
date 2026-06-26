@@ -57,17 +57,18 @@ export function EntityTagListEditor({
         shellClassName="content-start"
       >
         {!disabled && (
-          <div className="min-w-40 flex-1">
-            <FkFieldInput
-              fkKey={fkKeyForEntity(entity)}
-              endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
-              value=""
-              displayValue=""
-              disabled={disabled}
-              placeholder={items.length === 0 ? placeholder || `搜索${label}` : `添加${label}`}
-              onChange={(_label, option?: FkFieldOption) => addOption(option)}
-            />
-          </div>
+          <FkFieldInput
+            fkKey={fkKeyForEntity(entity)}
+            endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
+            value=""
+            displayValue=""
+            disabled={disabled}
+            placeholder={items.length === 0 ? placeholder || `搜索${label}` : `添加${label}`}
+            widthMode="content"
+            minChars={10}
+            maxChars={24}
+            onChange={(_label, option?: FkFieldOption) => addOption(option)}
+          />
         )}
       </TagListInput>
     </div>

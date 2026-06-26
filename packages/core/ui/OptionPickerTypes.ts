@@ -19,6 +19,7 @@ export interface OptionPickerProps {
   disabled?: boolean;
   onChange: (value: string | null) => void;
   placeholder?: string;
+  unsetLabel?: string;
   description?: ReactNode;
   emptyText?: string;
   groupLabel?: string;

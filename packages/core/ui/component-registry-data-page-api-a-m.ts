@@ -154,7 +154,7 @@ export const page_api_registry_entries = [
     kind: "picker",
     description: "字段值筛选",
     example: "显示“员工：张文孝”，点击后先选字段，再用 HR reference-options 搜索选择员工。",
-    composes: ["SelectField", "SearchInput", "FkFieldInput", "PickerOptionButton"],
+    composes: ["InputControl", "SelectField", "PickerOptionButton"],
   },
   {
     name: "FileField",
@@ -223,7 +223,15 @@ export const page_api_registry_entries = [
     kind: "form",
     description: "统一字段控件选择器",
     example: "详情页按 kind 渲染 text、readonly、fk、tags 或 select，不在业务页手拼字段壳。",
-    composes: ["TextField", "ReadOnlyField", "FkFieldInput", "TagStringInput", "SelectField"],
+    composes: ["InputControl"],
+  },
+  {
+    name: "InputControl",
+    accessLayer: "page-api",
+    kind: "form",
+    description: "字段规格输入控件",
+    example: "业务声明 valueType/editor/options/format/state 后，由 Core 渲染文本、选项、FK、标签、日期或筛选输入。",
+    composes: ["CalendarDateInput", "CheckboxField", "FileField", "FkFieldInput", "OptionPicker", "PercentField", "ReadOnlyField", "SearchableOptionInput", "SwitchField", "TagStringInput", "TextField", "TextareaField", "TimeField"],
   },
   {
     name: "PercentField",

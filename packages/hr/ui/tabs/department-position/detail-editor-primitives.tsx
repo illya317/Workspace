@@ -2,55 +2,17 @@
 
 import { useState, type ReactNode } from "react";
 import {
-  FieldInputShell,
   FkFieldInput,
   FormField,
   PanelCard,
   TagInlineTextField,
   TagListInput,
-  TextField,
 } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
 import { primitiveListItems } from "./description-details";
 
 export { OptionTagListEditor } from "./option-tag-list-editor";
-
-export function PercentageField({
-  label,
-  value,
-  disabled,
-  onChange,
-}: {
-  label: string;
-  value: number | null;
-  disabled?: boolean;
-  onChange: (value: number | null) => void;
-}) {
-  return (
-    <FormField label={label}>
-      <FieldInputShell>
-        <TextField
-          type="number"
-          min={0}
-          max={100}
-          step="0.01"
-          value={value == null ? "" : String(value)}
-          disabled={disabled}
-          onChange={(next) => {
-            if (next.trim() === "") return onChange(null);
-            const number = Number(next);
-            onChange(Number.isFinite(number) ? number : value ?? null);
-          }}
-          unstyled
-          visualVariant="inline"
-        />
-        <span className="grid w-10 place-items-center border-l border-slate-200 bg-slate-50 text-slate-500">%</span>
-      </FieldInputShell>
-    </FormField>
-  );
-}
-
 
 export function sectionTitle(title: string, extra?: ReactNode) {
   return (

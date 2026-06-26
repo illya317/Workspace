@@ -39,7 +39,7 @@ export function PercentField({
           onChange(Number.isFinite(number) ? number : value ?? null);
         }}
         unstyled
-        className="min-w-0 flex-1 border-0 bg-transparent px-0 py-0 outline-none disabled:bg-transparent disabled:text-slate-500"
+        className="min-w-0 flex-1 border-0 bg-transparent px-3 py-0 outline-none disabled:bg-transparent disabled:text-slate-500"
       />
     </FieldInputShell>
   );

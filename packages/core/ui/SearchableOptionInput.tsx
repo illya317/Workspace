@@ -2,6 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { matchText } from "../search";
+import { getFieldInputClassName } from "./FormStyles";
+import {
+  AUTOCOMPLETE_EMPTY_CLASS_NAME,
+  AUTOCOMPLETE_LIST_BODY_CLASS_NAME,
+  AUTOCOMPLETE_LIST_CLASS_NAME,
+  getAutocompleteOptionClassName,
+} from "./autocomplete-list-styles";
 
 export interface SearchableOption {
   value: string;
@@ -21,6 +28,7 @@ export interface SearchableOptionInputProps {
   emptyText?: string;
   clearLabel?: string;
   maxResults?: number;
+  visibleCount?: number;
   className?: string;
   inputClassName?: string;
 }
@@ -44,7 +52,8 @@ export default function SearchableOptionInput({
   placeholder = "未设置",
   emptyText = "无匹配选项",
   clearLabel = "清空",
-  maxResults = 80,
+  maxResults,
+  visibleCount = 5,
   className,
   inputClassName,
 }: SearchableOptionInputProps) {
@@ -57,7 +66,8 @@ export default function SearchableOptionInput({
 
   const filteredOptions = useMemo(() => {
     const keyword = query.trim();
-    if (!keyword) return options.slice(0, maxResults);
+    const limit = maxResults ?? visibleCount;
+    if (!keyword) return options.slice(0, limit);
     const directHits: SearchableOption[] = [];
     const fuzzyHits: SearchableOption[] = [];
     for (const option of options) {
@@ -65,10 +75,10 @@ export default function SearchableOptionInput({
       const haystack = `${option.value} ${label} ${option.searchText ?? ""}`;
       if (matchText(label, keyword) || matchText(option.value, keyword)) directHits.push(option);
       else if (matchText(haystack, keyword)) fuzzyHits.push(option);
-      if (directHits.length + fuzzyHits.length >= maxResults) break;
+      if (directHits.length + fuzzyHits.length >= limit) break;
     }
-    return [...directHits, ...fuzzyHits].slice(0, maxResults);
-  }, [maxResults, options, query]);
+    return [...directHits, ...fuzzyHits].slice(0, limit);
+  }, [maxResults, options, query, visibleCount]);
 
   useEffect(() => {
     setQuery(current);
@@ -144,7 +154,7 @@ export default function SearchableOptionInput({
           onKeyDown={handleKeyDown}
           className={
             inputClassName ||
-            "w-full rounded-md border border-slate-300 bg-white px-3 py-2 pr-9 text-sm text-slate-800 shadow-sm outline-none placeholder:text-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100 disabled:text-slate-500"
+            getFieldInputClassName("pr-9")
           }
         />
         {query && !disabled && (
@@ -163,8 +173,8 @@ export default function SearchableOptionInput({
       </div>
 
       {open && !disabled && (
-        <div className="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full rounded-lg border border-slate-200 bg-white p-2 shadow-xl">
-          <div className="max-h-80 overflow-auto">
+        <div className={AUTOCOMPLETE_LIST_CLASS_NAME}>
+          <div className={AUTOCOMPLETE_LIST_BODY_CLASS_NAME}>
             {filteredOptions.map((option, index) => {
               const selected = option.value === current;
               const active = index === activeIndex;
@@ -174,11 +184,7 @@ export default function SearchableOptionInput({
                   type="button"
                   onMouseEnter={() => setActiveIndex(index)}
                   onClick={() => choose(option)}
-                  className={`flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-sm transition ${
-                    active
-                      ? "bg-emerald-50 text-emerald-800"
-                      : "text-slate-800 hover:bg-slate-50"
-                  }`}
+                  className={getAutocompleteOptionClassName({ active, selected })}
                 >
                   <span className="min-w-0 truncate">{optionLabel(option)}</span>
                   {option.subtitle && <span className="shrink-0 text-xs text-slate-400">{option.subtitle}</span>}
@@ -187,7 +193,7 @@ export default function SearchableOptionInput({
               );
             })}
             {(filteredOptions.length === 0 || loading) && (
-              <div className="rounded-md border border-dashed border-slate-200 px-3 py-8 text-center text-sm text-slate-400">
+              <div className={AUTOCOMPLETE_EMPTY_CLASS_NAME}>
                 {loading ? "加载中..." : emptyText}
               </div>
             )}

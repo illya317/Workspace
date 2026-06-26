@@ -5,6 +5,7 @@ import { checkCoreUiRegistry } from "./core-ui-registry";
 import { checkDeps } from "./deps";
 import { checkDomainValidation } from "./domain-validation";
 import { checkFieldLayoutDebt } from "./field-layout";
+import { checkInputControlAdoption } from "./input-control-adoption";
 import { checkLevel2Ratchet } from "./level2-enforce";
 import { checkModules } from "./modules";
 import { checkOpenApi } from "./open-api";
@@ -16,6 +17,7 @@ export async function archGate() {
   const checks: GateCheck[] = [
     ["scan", scan],
     ["field-layout-debt", checkFieldLayoutDebt],
+    ["input-control-adoption", checkInputControlAdoption],
     ["core-ui-guard", checkCoreUiGuard],
     ["deps", checkDeps],
     ["core-ui-registry", checkCoreUiRegistry],

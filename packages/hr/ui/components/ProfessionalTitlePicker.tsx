@@ -1,19 +1,18 @@
 "use client";
 
 import { useMemo } from "react";
-import { OptionPicker } from "@workspace/core/ui";
+import { InputControl } from "@workspace/core/ui";
 import {
   HR_PROFESSIONAL_TITLE_GROUPS,
   normalizeProfessionalTitle,
 } from "@workspace/hr/constants/field-options";
-import { hrGroupedPickerLabels, type HrPickerProps } from "./HrPicker";
+import type { HrPickerProps } from "@workspace/hr/types/hr-picker";
 
 export default function ProfessionalTitlePicker({
   value,
   disabled,
   onChange,
   className,
-  buttonClassName,
 }: HrPickerProps) {
   const current = normalizeProfessionalTitle(value);
   const groups = useMemo(
@@ -31,14 +30,23 @@ export default function ProfessionalTitlePicker({
   );
 
   return (
-    <OptionPicker
+    <InputControl
+      spec={{
+        valueType: "string",
+        editor: "select",
+        options: {
+          source: "grouped",
+          groups,
+          groupLabel: "职称系列",
+          optionLabel: "职称级别",
+          changeGroupLabel: "更换职称系列",
+        },
+        state: disabled ? "disabled" : "normal",
+      }}
       value={current}
-      groups={groups}
-      disabled={disabled}
-      onChange={onChange}
-      {...hrGroupedPickerLabels({ groupLabel: "职称系列", optionLabel: "职称级别", changeGroupLabel: "更换职称系列" })}
+      onChange={(next) => onChange(next === null || next === undefined || next === "" ? null : String(next))}
       className={className}
-      buttonClassName={buttonClassName}
+      placeholder="未设置"
     />
   );
 }

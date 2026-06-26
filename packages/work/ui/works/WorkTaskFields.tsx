@@ -150,6 +150,7 @@ export function WorkTaskForm({
           options={WORK_PERIOD_TYPE_OPTIONS}
           disabled={disabled}
           placeholder="长期"
+          unsetLabel="未设置"
           onChange={(value) => {
             const periodType = normalizePeriodType(value);
             patch({

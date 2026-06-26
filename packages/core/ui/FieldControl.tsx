@@ -1,12 +1,10 @@
 "use client";
 
-import type { ReactNode } from "react";
-import FkFieldInput, { type FkFieldInputProps, type FkFieldOption } from "./FkFieldInput";
-import ReadOnlyField from "./ReadOnlyField";
-import SelectField, { type SelectFieldOption } from "./SelectField";
-import TagStringInput from "./TagStringInput";
-import TextField from "./TextField";
+import InputControl, { type InputFieldSpec } from "./InputControl";
+import type { FkFieldOption, FkFieldInputProps } from "./FkFieldInput";
 import type { FieldControlSize } from "./FormStyles";
+import type { SelectFieldOption } from "./SelectField";
+import TagStringInput from "./TagStringInput";
 
 export type FieldControlKind = "text" | "readonly" | "fk" | "tags" | "select";
 
@@ -29,10 +27,6 @@ const FORBIDDEN_FIELD_CLASS_PREFIXES = new Set([
   "ring",
 ]);
 
-/**
- * 业务侧通过 className 只能调整颜色、宽度、flex 布局等不影响字段壳视觉规范的属性。
- * 高度、padding、行高、边框、圆角、阴影、焦点环必须由 FieldShell 统一控制。
- */
 function sanitizeFieldControlClassName(className?: string): string | undefined {
   if (!className) return undefined;
   const classes = className.split(/\s+/).filter(Boolean);
@@ -49,136 +43,80 @@ export interface FieldControlProps {
   onChange?: (value: string, option?: FkFieldOption) => void;
   disabled?: boolean;
   placeholder?: string;
-  /** kind="select" 时使用 */
   options?: SelectFieldOption[];
-  /** kind="select" 且需要搜索时使用 */
   searchable?: boolean;
-  /** kind="fk" 时使用 */
   fkKey?: FkFieldInputProps["fkKey"];
-  /** kind="fk" 时使用 */
   endpoint?: FkFieldInputProps["endpoint"];
-  /** kind="fk" 时展示文本 */
   displayValue?: string;
   className?: string;
-  /** kind="tags" 时删除是否需要确认 */
   confirmRemove?: boolean;
-  /** kind="tags" 时自定义删除确认文案 */
   removeConfirmMessage?: (item: string) => string;
-  /** kind="tags" 时删除确认弹窗标题 */
   removeConfirmTitle?: string;
   size?: FieldControlSize;
   density?: "normal" | "compact";
 }
 
-/**
- * 统一字段输入控件。
- *
- * 只负责按 kind 渲染正确的输入组件，并保持同一套输入框高度、边框、焦点环。
- * 不包含 label 和网格布局，需要和 FieldGrid.Cell 或 EntityDetailLayout 配合使用。
- */
-export default function FieldControl({
+function toSpec({
   kind,
-  value,
-  onChange,
   disabled,
-  placeholder,
   options,
   searchable,
   fkKey,
   endpoint,
-  displayValue,
-  className,
-  confirmRemove,
-  removeConfirmMessage,
-  removeConfirmTitle,
-  size = "md",
-  density = "normal",
-}: FieldControlProps) {
-  const stringValue = value == null ? "" : String(value);
-  const safeClassName = sanitizeFieldControlClassName(className);
-
+}: Pick<FieldControlProps, "kind" | "disabled" | "options" | "searchable" | "fkKey" | "endpoint">): InputFieldSpec {
+  const state = disabled ? "disabled" : "normal";
   switch (kind) {
     case "readonly":
-      return (
-        <ReadOnlyField
-          value={value as ReactNode}
-          disabled={disabled}
-          placeholder={placeholder}
-          className={safeClassName}
-          size={size}
-          density={density}
-        />
-      );
+      return { valueType: "string", editor: "input", state: "readonly" };
     case "fk":
-      if (!fkKey || !endpoint) {
-        return (
-          <ReadOnlyField
-            value={displayValue || stringValue}
-            disabled={disabled}
-            placeholder={placeholder}
-            className={safeClassName}
-            size={size}
-            density={density}
-          />
-        );
-      }
-      return (
-        <FkFieldInput
-          fkKey={fkKey}
-          endpoint={endpoint}
-          value={stringValue}
-          displayValue={displayValue}
-          disabled={disabled}
-          placeholder={placeholder}
-          onChange={onChange as FkFieldInputProps["onChange"]}
-          className={safeClassName}
-          size={size}
-          density={density}
-        />
-      );
+      return fkKey && endpoint
+        ? { valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey, endpoint }, state }
+        : { valueType: "string", editor: "input", state: "readonly" };
     case "tags":
-      return (
-        <TagStringInput
-          value={stringValue}
-          disabled={disabled}
-          placeholder={placeholder}
-          onChange={(next) => onChange?.(next)}
-          className={safeClassName}
-          confirmRemove={confirmRemove}
-          removeConfirmMessage={removeConfirmMessage}
-          removeConfirmTitle={removeConfirmTitle}
-          size={size}
-          density={density}
-        />
-      );
+      return { valueType: "array", editor: "tags", state };
     case "select":
-      return (
-        <SelectField
-          value={stringValue}
-          options={options ?? []}
-          disabled={disabled}
-          placeholder={placeholder}
-          searchable={searchable}
-          onChange={(next) => onChange?.(next)}
-          className={safeClassName}
-          size={size}
-          density={density}
-        />
-      );
+      return {
+        valueType: "string",
+        editor: searchable || (options?.length ?? 0) > 8 ? "autocomplete" : "select",
+        options: { source: "static", items: options ?? [] },
+        state,
+      };
     case "text":
     default:
-      return (
-        <TextField
-          value={stringValue}
-          disabled={disabled}
-          placeholder={placeholder}
-          onChange={(next) => onChange?.(next)}
-          className={safeClassName}
-          size={size}
-          density={density}
-        />
-      );
+      return { valueType: "string", editor: "input", state };
   }
+}
+
+export default function FieldControl(props: FieldControlProps) {
+  const spec = toSpec(props);
+  const value = props.kind === "fk" && props.displayValue ? props.displayValue : props.value;
+  if (props.kind === "tags") {
+    return (
+      <TagStringInput
+        value={String(props.value ?? "")}
+        disabled={props.disabled}
+        placeholder={props.placeholder}
+        onChange={(next) => props.onChange?.(next)}
+        className={sanitizeFieldControlClassName(props.className)}
+        confirmRemove={props.confirmRemove}
+        removeConfirmMessage={props.removeConfirmMessage}
+        removeConfirmTitle={props.removeConfirmTitle}
+        size={props.size}
+        density={props.density}
+      />
+    );
+  }
+  return (
+    <InputControl
+      spec={spec}
+      value={value}
+      placeholder={props.placeholder}
+      onChange={(next, option) => props.onChange?.(String(next ?? ""), option as FkFieldOption | undefined)}
+      className={sanitizeFieldControlClassName(props.className)}
+      size={props.size}
+      density={props.density}
+    />
+  );
 }
 
 export { sanitizeFieldControlClassName };

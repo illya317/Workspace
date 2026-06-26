@@ -2,6 +2,16 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
+import {
+  getAdaptiveControlWidthStyle,
+  type AdaptiveControlWidthMode,
+} from "./adaptive-control-width";
+import {
+  AUTOCOMPLETE_EMPTY_CLASS_NAME,
+  AUTOCOMPLETE_LIST_BODY_CLASS_NAME,
+  AUTOCOMPLETE_LIST_CLASS_NAME,
+  getAutocompleteOptionClassName,
+} from "./autocomplete-list-styles";
 import { CONTROL_SIZES, type ControlSize } from "./interactionTokens";
 import FieldInputShell, { type FieldInputShellProps } from "./FieldInputShell";
 import type { FieldControlSize } from "./FormStyles";
@@ -32,6 +42,10 @@ export interface FkFieldInputProps {
   appearance?: FkFieldInputAppearance;
   size?: FieldControlSize;
   density?: FieldInputShellProps["density"];
+  widthMode?: AdaptiveControlWidthMode;
+  minChars?: number;
+  maxChars?: number;
+  visibleCount?: number;
   className?: string;
 }
 
@@ -80,6 +94,10 @@ export default function FkFieldInput({
   appearance = "field",
   size = "md",
   density = "normal",
+  widthMode = appearance === "field" ? "fill" : "content",
+  minChars = 12,
+  maxChars = 32,
+  visibleCount = 5,
   className,
 }: FkFieldInputProps) {
   const controlSize: ControlSize = size;
@@ -125,7 +143,7 @@ export default function FkFieldInput({
         const response = await fetch(workspacePath(`${endpoint}?${params.toString()}`));
         if (response.ok) {
           const data = (await response.json()) as { items?: FkFieldOption[] };
-          setOptions(data.items || []);
+          setOptions((data.items || []).slice(0, visibleCount));
         } else {
           setOptions([]);
         }
@@ -133,7 +151,7 @@ export default function FkFieldInput({
         setLoading(false);
       }
     },
-    [endpoint, fkKey, lifecycleScope, queryParams],
+    [endpoint, fkKey, lifecycleScope, queryParams, visibleCount],
   );
 
   function handleInputChange(nextValue: string) {
@@ -156,7 +174,15 @@ export default function FkFieldInput({
 
   const display = searching ? keyword : selectedName;
 
-  const containerClassName = appearance === "inline" ? "relative inline-block min-w-0" : "relative w-full min-w-0";
+  const widthStyle = getAdaptiveControlWidthStyle({
+    mode: widthMode,
+    text: display || placeholder,
+    minChars,
+    maxChars,
+  });
+  const containerClassName = widthMode === "fill"
+    ? "relative w-full min-w-0"
+    : "relative inline-block max-w-full align-middle";
   const isField = appearance === "field";
   const inputClassName = isField
     ? [UNSTYLED_INPUT_CLASS_NAME, className].filter(Boolean).join(" ")
@@ -182,7 +208,7 @@ export default function FkFieldInput({
   );
 
   return (
-    <div ref={containerRef} className={containerClassName}>
+    <div ref={containerRef} className={containerClassName} style={widthStyle}>
       {isField ? (
         <FieldInputShell disabled={disabled} size={size} density={density}>
           {input}
@@ -191,24 +217,28 @@ export default function FkFieldInput({
         input
       )}
       {showDropdown && searching && (
-        <div className="absolute z-50 mt-1 max-h-48 min-w-[160px] w-full overflow-auto rounded border border-gray-200 bg-white shadow-lg">
+        <div className={AUTOCOMPLETE_LIST_CLASS_NAME}>
+          <div className={AUTOCOMPLETE_LIST_BODY_CLASS_NAME}>
           {loading ? (
-            <div className="px-3 py-2 text-xs text-gray-400">搜索中...</div>
+            <div className={AUTOCOMPLETE_EMPTY_CLASS_NAME}>搜索中...</div>
           ) : options.length === 0 ? (
-            <div className="px-3 py-2 text-xs text-gray-400">{keyword ? "无匹配结果" : "输入关键词搜索"}</div>
+            <div className={AUTOCOMPLETE_EMPTY_CLASS_NAME}>{keyword ? "无匹配结果" : "输入关键词搜索"}</div>
           ) : (
             options.map((option) => (
               <button
                 key={option.id}
                 onClick={() => handleSelect(option)}
-                className="block w-full px-3 py-2 text-left text-xs hover:bg-emerald-50"
+                className={getAutocompleteOptionClassName({
+                  selected: option.name === selectedName || String(option.id) === value,
+                })}
                 type="button"
               >
-                <span className="font-medium text-gray-700">{option.name}</span>
-                {option.subtitle ? <span className="ml-2 text-gray-400">{option.subtitle}</span> : null}
+                <span className="min-w-0 truncate">{option.name}</span>
+                {option.subtitle ? <span className="shrink-0 text-xs text-slate-400">{option.subtitle}</span> : null}
               </button>
             ))
           )}
+          </div>
         </div>
       )}
     </div>

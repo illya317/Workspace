@@ -1,10 +1,10 @@
 "use client";
 
-import { SearchableOptionInput, type SearchableOption } from "@workspace/core/ui";
+import { InputControl, type InputOption } from "@workspace/core/ui";
 import { HR_SCHOOL_OPTIONS } from "@workspace/hr/constants/school-options";
-import type { HrPickerProps } from "./HrPicker";
+import type { HrPickerProps } from "@workspace/hr/types/hr-picker";
 
-const schoolOptions: SearchableOption[] = HR_SCHOOL_OPTIONS.map((option) => ({
+const schoolOptions: InputOption[] = HR_SCHOOL_OPTIONS.map((option) => ({
   value: option.value,
   label: option.label,
   searchText: "aliases" in option && Array.isArray(option.aliases) ? option.aliases.join(" ") : "",
@@ -15,19 +15,19 @@ export default function SchoolPicker({
   disabled,
   onChange,
   className,
-  buttonClassName,
 }: HrPickerProps) {
   return (
-    <SearchableOptionInput
+    <InputControl
+      spec={{
+        valueType: "string",
+        editor: "autocomplete",
+        options: { source: "static", items: schoolOptions, visibleCount: 5 },
+        state: disabled ? "disabled" : "normal",
+      }}
       value={value}
-      options={schoolOptions}
-      disabled={disabled}
-      onChange={(next) => onChange(next)}
+      onChange={(next) => onChange(next === null || next === undefined || next === "" ? null : String(next))}
       placeholder="未设置"
-      emptyText="没有匹配学校"
-      clearLabel="清空毕业院校"
       className={className}
-      inputClassName={buttonClassName}
     />
   );
 }

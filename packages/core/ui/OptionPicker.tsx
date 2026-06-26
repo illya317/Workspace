@@ -36,6 +36,7 @@ export default function OptionPicker({
   disabled,
   onChange,
   placeholder = "未设置",
+  unsetLabel,
   description,
   emptyText = "暂无选项",
   groupLabel = "分类",
@@ -85,6 +86,7 @@ export default function OptionPicker({
   }, [normalizedOptions, visibleOptions]);
 
   const isUnset = current === "" && !hasExplicitEmptyOption;
+  const emptyValueLabel = unsetLabel ?? placeholder;
   const currentLabel = isUnset
     ? ""
     : formatValueLabel?.(current, currentMatch?.option, currentMatch?.group)
@@ -92,7 +94,7 @@ export default function OptionPicker({
       ?? currentMatch?.option.label
       ?? current;
   const gridOptions = placeholderInGrid && !hasExplicitEmptyOption
-    ? [{ label: placeholder, value: "" }, ...visibleOptions]
+    ? [{ label: emptyValueLabel, value: "" }, ...visibleOptions]
     : visibleOptions;
   const visibleGridColumnCount = gridColumnCount ?? gridColumns ?? Math.min(3, Math.max(1, gridOptions.length));
 
@@ -134,7 +136,7 @@ export default function OptionPicker({
             grouped={grouped}
             current={current}
             isUnset={isUnset}
-            placeholder={placeholder}
+            placeholder={emptyValueLabel}
             description={description}
             emptyText={emptyText}
             groupLabel={groupLabel}

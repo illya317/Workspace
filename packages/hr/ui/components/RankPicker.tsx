@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { OptionPicker } from "@workspace/core/ui";
-import { hrGroupedPickerLabels, type HrPickerProps } from "./HrPicker";
+import { InputControl } from "@workspace/core/ui";
+import type { HrPickerProps } from "@workspace/hr/types/hr-picker";
 
 interface RankPickerProps extends HrPickerProps {
   options: string[];
@@ -25,7 +25,6 @@ export default function RankPicker({
   disabled,
   onChange,
   className,
-  buttonClassName,
 }: RankPickerProps) {
   const current = normalizeValue(value);
   const groups = useMemo(() => {
@@ -46,21 +45,29 @@ export default function RankPicker({
           .sort((a, b) => Number(a) - Number(b))
           .map((level) => ({
             value: `${key}${level}`,
-            label: level,
+            label: `${key}${level}`,
           })),
       }));
   }, [options]);
 
   return (
-    <OptionPicker
+    <InputControl
+      spec={{
+        valueType: "string",
+        editor: "select",
+        options: {
+          source: "grouped",
+          groups,
+          groupLabel: "职级序列",
+          optionLabel: "等级",
+          changeGroupLabel: "更换序列",
+        },
+        state: disabled ? "disabled" : "normal",
+      }}
       value={current}
-      groups={groups}
-      disabled={disabled}
-      onChange={onChange}
-      {...hrGroupedPickerLabels({ groupLabel: "职级序列", optionLabel: "等级", changeGroupLabel: "更换序列" })}
+      onChange={(next) => onChange(next === null || next === undefined || next === "" ? null : String(next))}
       className={className}
-      buttonClassName={buttonClassName}
-      formatValueLabel={(nextValue) => nextValue}
+      placeholder="未设置"
     />
   );
 }

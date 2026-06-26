@@ -61,6 +61,20 @@ export { default as EntityDetailLayout } from "./EntityDetailLayout";
 export type { EntityDetailLayoutProps, EntityDetailFieldsProps, EntityDetailMetricsProps, EntityDetailFieldProps } from "./EntityDetailLayout";
 export { default as FieldControl } from "./FieldControl";
 export type { FieldControlProps, FieldControlKind } from "./FieldControl";
+export { default as InputControl } from "./InputControl";
+export type {
+  InputControlProps,
+  InputEditor,
+  InputFieldSpec,
+  InputFormat,
+  InputMask,
+  InputOption,
+  InputOptionGroup,
+  InputOptions,
+  InputState,
+  InputValidation,
+  InputValueType,
+} from "./InputControl";
 export { default as MetricTile } from "./MetricTile";
 export type { MetricTileProps } from "./MetricTile";
 export { default as TagInlineTextField } from "./TagInlineTextField";
