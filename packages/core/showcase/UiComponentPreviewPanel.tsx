@@ -1,13 +1,12 @@
 import { type ReactNode } from "react";
 import { ActionGlyph, PanelCard } from "@workspace/core/ui";
 import {
-  coreUiComponentAccessLayerMeta,
   coreUiComponentKindMeta,
   coreUiComponentOwnerL1Meta,
   coreUiComponentOwnerL2Meta,
-  coreUiComponentUiLevelMeta,
+  coreUiComponentPublicUseMeta,
+  coreUiComponentRoleMeta,
   coreUiFrameMaturityMeta,
-  resolveCoreUiComponentUiLevel,
   type CoreUiComponentRegistration,
 } from "@workspace/core/ui/component-registry";
 import {
@@ -65,7 +64,6 @@ export function UiComponentPreviewPanel({
 }) {
   const isFoundation = component.accessLayer === "foundation";
   const isPageFrame = component.accessLayer === "page-frame";
-  const uiLevel = resolveCoreUiComponentUiLevel(component);
 
   return (
     <PanelCard
@@ -79,9 +77,6 @@ export function UiComponentPreviewPanel({
             title={`向下组合最大嵌套 ${nestDepth} 层`}
           >
             {formatNestDepth(nestDepth)}
-          </span>
-          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
-            {coreUiComponentAccessLayerMeta[component.accessLayer].label}
           </span>
           <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
             {coreUiComponentKindMeta[component.kind].label}
@@ -99,15 +94,25 @@ export function UiComponentPreviewPanel({
               className="rounded-full bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700"
               title={coreUiComponentOwnerL2Meta[component.ownerL2].description}
             >
-              {component.ownerL2}
+              {coreUiComponentOwnerL2Meta[component.ownerL2].label}
             </span>
           )}
-          <span
-            className="rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-medium text-indigo-700"
-            title={coreUiComponentUiLevelMeta[uiLevel].description}
-          >
-            {coreUiComponentUiLevelMeta[uiLevel].label}
-          </span>
+          {component.role && (
+            <span
+              className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700"
+              title={coreUiComponentRoleMeta[component.role].description}
+            >
+              {coreUiComponentRoleMeta[component.role].label}
+            </span>
+          )}
+          {component.publicUse && (
+            <span
+              className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600"
+              title={coreUiComponentPublicUseMeta[component.publicUse].description}
+            >
+              {coreUiComponentPublicUseMeta[component.publicUse].label}
+            </span>
+          )}
           {isPageFrame && component.frameMaturity && (
             <span
               className={joinClassNames(
@@ -118,7 +123,7 @@ export function UiComponentPreviewPanel({
               )}
               title={coreUiFrameMaturityMeta[component.frameMaturity].description}
             >
-              {coreUiFrameMaturityMeta[component.frameMaturity].label}
+              {component.frameMaturity === "stable" ? "稳定" : component.frameMaturity === "tbc" ? "待定" : "内部"}
             </span>
           )}
           <span className={joinClassNames(

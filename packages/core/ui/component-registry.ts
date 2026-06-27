@@ -106,24 +106,24 @@ export const coreUiComponentAccessLayerMeta = {
 
 export const coreUiComponentOwnerL1Meta = {
   page: {
-    label: "Page",
-    description: "页面骨架和页面内 body renderer 的归属 family。",
+    label: "页面",
+    description: "页面骨架和页面内正文渲染器的归属。",
   },
   data: {
-    label: "Data",
+    label: "数据",
     description: "数据视图、表格、记录、指标、图表和数据单元格。",
   },
   form: {
-    label: "Form",
+    label: "表单",
     description: "表单正文、字段布局、创建流和表单输入适配。",
   },
   common: {
-    label: "Common",
-    description: "跨 Page/Data/Form/Feedback 复用的 chrome、action、input、selection、display、overlay 和 foundation。",
+    label: "通用",
+    description: "跨页面、数据、表单、反馈复用的控件、动作、输入、选择、展示、浮层和基础能力。",
   },
   feedback: {
-    label: "Feedback",
-    description: "反馈服务、反馈 renderer 和历史兼容反馈入口。",
+    label: "反馈",
+    description: "反馈服务、反馈渲染器和历史兼容反馈入口。",
   },
 } as const satisfies Record<
   CoreUiComponentOwnerL1,
@@ -131,53 +131,53 @@ export const coreUiComponentOwnerL1Meta = {
 >;
 
 export const coreUiComponentOwnerL2Meta = {
-  "page.surface": { label: "Page Surface", description: "PageSurface 入口和页面协议。" },
-  "page.blocks": { label: "Page Blocks", description: "PageSurface body 可组合的页面内容块。" },
-  "page.frame": { label: "Page Frame", description: "页面骨架、内容容器和 frame renderer。" },
-  "page.document": { label: "Page Document", description: "纸面/A4/报告正文 renderer。" },
-  "data.surface": { label: "Data Surface", description: "DataSurface 入口和数据正文协议。" },
-  "data.table": { label: "Data Table", description: "表格、滚动外壳和结构化表。" },
-  "data.record": { label: "Data Record", description: "记录卡、展开记录和行级阅读。" },
-  "data.metric": { label: "Data Metric", description: "指标卡、指标瓦片和数据摘要。" },
-  "data.visual": { label: "Data Visual", description: "图表/可视化数据 renderer。" },
-  "data.cell": { label: "Data Cell", description: "数据单元格和数值格式化展示。" },
-  "form.surface": { label: "Form Surface", description: "FormSurface 入口和表单正文协议。" },
-  "form.field": { label: "Form Field", description: "字段容器和字段 contract。" },
-  "form.layout": { label: "Form Layout", description: "字段网格、分组和表单布局。" },
-  "form.create": { label: "Form Create", description: "创建/内联创建/弹窗创建流程。" },
-  "form.input-adapter": { label: "Form Input Adapter", description: "把 Form spec 映射到 Common input/selection 的适配层。" },
-  "common.chrome": { label: "Common Chrome", description: "Toolbar、TabBar、Pagination 和页面 chrome renderer。" },
-  "common.action": { label: "Common Action", description: "ActionGlyph、ActionButton 和动作排序/分组 contract。" },
-  "common.input": { label: "Common Input", description: "输入字段、日期、文件、文本、开关和 tag input。" },
-  "common.selection": { label: "Common Selection", description: "选择器、FK 搜索、字段值筛选和 selector panel。" },
-  "common.display": { label: "Common Display", description: "徽标、空态、代码块和通用展示 primitive。" },
-  "common.overlay": { label: "Common Overlay", description: "下拉、浮层、详情 modal 和 overlay primitive。" },
-  "common.foundation": { label: "Common Foundation", description: "token、样式 recipe 和 foundation helper。" },
-  "feedback.service": { label: "Feedback Service", description: "useFeedback 等业务反馈入口。" },
-  "feedback.renderer": { label: "Feedback Renderer", description: "Toast、ConfirmModal 和 FeedbackProvider。" },
-  "feedback.compat": { label: "Feedback Compat", description: "历史确认/反馈兼容入口。" },
+  "page.surface": { label: "页面入口", description: "PageSurface 入口和页面协议。" },
+  "page.blocks": { label: "页面区块", description: "PageSurface body 可组合的页面内容块。" },
+  "page.frame": { label: "页面框架", description: "页面骨架、内容容器和框架渲染器。" },
+  "page.document": { label: "纸面文档", description: "纸面/A4/报告正文渲染器。" },
+  "data.surface": { label: "数据入口", description: "DataSurface 入口和数据正文协议。" },
+  "data.table": { label: "数据表格", description: "表格、滚动外壳和结构化表。" },
+  "data.record": { label: "数据记录", description: "记录卡、展开记录和行级阅读。" },
+  "data.metric": { label: "数据指标", description: "指标卡、指标瓦片和数据摘要。" },
+  "data.visual": { label: "数据可视化", description: "图表/可视化数据渲染器。" },
+  "data.cell": { label: "数据单元", description: "数据单元格和数值格式化展示。" },
+  "form.surface": { label: "表单入口", description: "FormSurface 入口和表单正文协议。" },
+  "form.field": { label: "表单字段", description: "字段容器和字段协议。" },
+  "form.layout": { label: "表单布局", description: "字段网格、分组和表单布局。" },
+  "form.create": { label: "创建流程", description: "创建/内联创建/弹窗创建流程。" },
+  "form.input-adapter": { label: "输入适配", description: "把 Form spec 映射到通用输入/选择的适配层。" },
+  "common.chrome": { label: "通用控件栏", description: "Toolbar、TabBar、Pagination 和页面控件渲染器。" },
+  "common.action": { label: "通用动作", description: "ActionGlyph、ActionButton 和动作排序/分组协议。" },
+  "common.input": { label: "通用输入", description: "输入字段、日期、文件、文本、开关和标签输入。" },
+  "common.selection": { label: "通用选择", description: "选择器、FK 搜索、字段值筛选和 selector panel。" },
+  "common.display": { label: "通用展示", description: "徽标、空态、代码块和通用展示基础件。" },
+  "common.overlay": { label: "通用浮层", description: "下拉、浮层、详情弹窗和浮层基础件。" },
+  "common.foundation": { label: "通用基础", description: "token、样式 recipe 和基础 helper。" },
+  "feedback.service": { label: "反馈服务", description: "useFeedback 等业务反馈入口。" },
+  "feedback.renderer": { label: "反馈渲染", description: "Toast、ConfirmModal 和 FeedbackProvider。" },
+  "feedback.compat": { label: "反馈兼容", description: "历史确认/反馈兼容入口。" },
 } as const satisfies Record<
   CoreUiComponentOwnerL2,
   { label: string; description: string }
 >;
 
 export const coreUiComponentRoleMeta = {
-  entry: { label: "Entry", description: "业务或主要公开入口。" },
-  contract: { label: "Contract", description: "只承载稳定类型/协议。" },
-  renderer: { label: "Renderer", description: "Core 内部或 Surface 内部 renderer。" },
-  primitive: { label: "Primitive", description: "可组合的低层 UI primitive。" },
-  foundation: { label: "Foundation", description: "样式、token、recipe 或非渲染基础材料。" },
-  private: { label: "Private", description: "公开入口的私有实现。" },
+  entry: { label: "入口", description: "业务或主要公开入口。" },
+  contract: { label: "协议", description: "只承载稳定类型/协议。" },
+  renderer: { label: "渲染器", description: "Core 内部或 Surface 内部渲染器。" },
+  primitive: { label: "基础件", description: "可组合的低层 UI 基础件。" },
+  foundation: { label: "基础层", description: "样式、token、recipe 或非渲染基础材料。" },
+  private: { label: "私有实现", description: "公开入口的私有实现。" },
 } as const satisfies Record<
   CoreUiComponentRole,
   { label: string; description: string }
 >;
 
 export const coreUiComponentPublicUseMeta = {
-  business: { label: "Business", description: "业务 runtime 可以直接使用的公开入口。" },
-  "core-only": { label: "Core-only", description: "只允许 Core 内部、Surface renderer 或治理工具使用。" },
-  "showcase-only": { label: "Showcase-only", description: "仅用于展示/预览，不作为业务 API。" },
-  compat: { label: "Compat", description: "历史兼容入口，迁移目标是替换或收口。" },
+  business: { label: "业务可用", description: "业务 runtime 可以直接使用的公开入口。" },
+  "core-only": { label: "仅 Core", description: "只允许 Core 内部、Surface 渲染器或治理工具使用。" },
+  "showcase-only": { label: "仅展示", description: "仅用于展示/预览，不作为业务 API。" },
+  compat: { label: "兼容", description: "历史兼容入口，迁移目标是替换或收口。" },
 } as const satisfies Record<
   CoreUiComponentPublicUse,
   { label: string; description: string }
@@ -185,15 +185,15 @@ export const coreUiComponentPublicUseMeta = {
 
 export const coreUiFrameMaturityMeta = {
   stable: {
-    label: "Stable",
+    label: "稳定",
     description: "可作为 agent 默认页面骨架。",
   },
   tbc: {
-    label: "TBC",
+    label: "待定",
     description: "候选骨架，需要继续验收和补 slot。",
   },
   "internal-only": {
-    label: "Internal-only",
+    label: "内部",
     description: "只服务某个公开接口，不给 agent 选择。",
   },
 } as const satisfies Record<

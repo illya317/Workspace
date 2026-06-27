@@ -50,6 +50,24 @@ Rules:
 - Page may compose Form/Data at body block boundaries, but Page L2 may not depend on Form/Data internals.
 - Form and Data should not depend on each other's L2 internals. Shared needs must move to Common.
 
+## Settings UI Presentation
+
+`/settings/ui` must present only the current ownership taxonomy:
+
+```txt
+L1 family -> L2 owner -> L3 component/role
+```
+
+The visible L1 labels are Chinese product labels for `page / data / form / common / feedback`: `页面 / 数据 / 表单 / 通用 / 反馈`.
+
+Do not expose the older `accessLayer` or `uiLevel` model as primary filters, badges, or columns in `/settings/ui`. Those fields can remain registry/gate internals, but they are no longer the mental model for browsing Core UI. Showing both `ownerL1/ownerL2` and `uiLevel/accessLayer` in the same page creates multiple competing "L1" concepts and is forbidden for the main component catalog.
+
+Use stable visual tones for the hierarchy badges:
+
+- `L1`: green, family boundary.
+- `L2`: blue, owner group.
+- `L3`: amber, concrete component/role.
+
 ## High-Coupling Signal
 
 Treat an L2 as too coupled when any of these are true:

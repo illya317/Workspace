@@ -1,14 +1,12 @@
 import {
-  coreUiComponentAccessLayerMeta,
   coreUiComponentKindMeta,
   coreUiComponentOwnerL1Meta,
   coreUiComponentOwnerL2Meta,
-  coreUiComponentUiLevelMeta,
   type CoreUiComponentAccessLayer,
-  type CoreUiComponentUiLevel,
   type CoreUiComponentKind,
   type CoreUiComponentOwnerL1,
   type CoreUiComponentOwnerL2,
+  type CoreUiComponentUiLevel,
 } from "@workspace/core/ui/component-registry";
 import { matchText } from "@workspace/core/search";
 
@@ -27,8 +25,7 @@ export type UiComponentFilterNode = {
 
 export type UiComponentFilterInput = {
   keyword: string;
-  accessLayerValue: string;
-  uiLevelValue: string;
+  ownerL1Value: string;
   verifiedFilter: "verified" | "unverified" | "all";
   usageFilesByName: ReadonlyMap<string, readonly string[]>;
   usedByNamesByName: ReadonlyMap<string, readonly string[]>;
@@ -36,11 +33,10 @@ export type UiComponentFilterInput = {
 
 function matchesBaseFilters(
   node: UiComponentFilterNode,
-  input: Pick<UiComponentFilterInput, "accessLayerValue" | "uiLevelValue" | "verifiedFilter">,
+  input: Pick<UiComponentFilterInput, "ownerL1Value" | "verifiedFilter">,
 ) {
-  const { accessLayerValue, uiLevelValue, verifiedFilter } = input;
-  if (accessLayerValue !== "all" && node.accessLayer !== accessLayerValue) return false;
-  if (uiLevelValue !== "all" && String(node.uiLevel) !== uiLevelValue) return false;
+  const { ownerL1Value, verifiedFilter } = input;
+  if (ownerL1Value !== "all" && node.component.ownerL1 !== ownerL1Value) return false;
   if (verifiedFilter === "verified" && !node.verified) return false;
   if (verifiedFilter === "unverified" && node.verified) return false;
   return true;
@@ -54,7 +50,6 @@ function matchesKeyword(
   return matchText(node.name, keyword)
     || matchText(node.component.description, keyword)
     || matchText(coreUiComponentKindMeta[node.kind].label, keyword)
-    || matchText(coreUiComponentAccessLayerMeta[node.accessLayer].label, keyword)
     || Boolean(node.component.ownerL1 && (
       matchText(node.component.ownerL1, keyword)
       || matchText(coreUiComponentOwnerL1Meta[node.component.ownerL1].label, keyword)
@@ -63,7 +58,6 @@ function matchesKeyword(
       matchText(node.component.ownerL2, keyword)
       || matchText(coreUiComponentOwnerL2Meta[node.component.ownerL2].label, keyword)
     ))
-    || matchText(coreUiComponentUiLevelMeta[node.uiLevel].label, keyword)
     || usageFiles.some((file) => matchText(file, keyword));
 }
 
