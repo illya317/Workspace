@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface, NavigationSurface } from "@workspace/core/ui";
+import { FormSurface, SelectorPanel } from "@workspace/core/ui";
 import type { ActionDraft, MeetingDetail, MeetingParticipant, MeetingSummary } from "./meeting-types";
 import { EmptyLine, InputBox, StatusPill } from "./MeetingControls";
 import { candidateStatusLabel, decisionKindLabel, emptyActionDraft, formatDateTime, roleLabel, voteChoiceLabel } from "./meeting-utils";
@@ -17,28 +17,28 @@ export function MeetingList({
   onSelect: (id: number) => void;
 }) {
   return (
-    <NavigationSurface<MeetingSummary>
-      kind="selector"
+    <div
       className="min-w-0"
-      selector={{
-        title: "会议列表",
-        bodyClassName: "max-h-[calc(100vh-14rem)] overflow-y-auto p-2",
-        loading,
-        loadingText: "加载中...",
-        emptyText: "暂无会议",
-        items: meetings,
-        selectedId,
-        onSelect: (meeting) => onSelect(meeting.id),
-        getKey: (meeting) => meeting.id,
-        contentClassName: "space-y-2",
-        renderItem: (meeting) => ({
+    >
+      <SelectorPanel<MeetingSummary>
+        title="会议列表"
+        bodyClassName="max-h-[calc(100vh-14rem)] overflow-y-auto p-2"
+        loading={loading}
+        loadingText="加载中..."
+        emptyText="暂无会议"
+        items={meetings}
+        selectedId={selectedId}
+        onSelect={(meeting) => onSelect(meeting.id)}
+        getKey={(meeting) => meeting.id}
+        contentClassName="space-y-2"
+        renderItem={(meeting) => ({
           title: meeting.title,
           subtitle: `${meeting.typeName} · ${formatDateTime(meeting.startAt) || "未定时间"}`,
           trailing: <StatusPill status={meeting.status} />,
           meta: [`议题 ${meeting.counts.agendaItems}`, `表决 ${meeting.counts.proposals}`, `决议 ${meeting.counts.decisions}`],
-        }),
-      }}
-    />
+        })}
+      />
+    </div>
   );
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { NavigationSurface } from "@workspace/core/ui";
+import { SelectorPanel } from "@workspace/core/ui";
 import type { DirectoryNode } from "@workspace/library/types";
 
 interface Props {
@@ -48,34 +48,31 @@ export default function LibrarySidebar({
 
   return (
     <div className="h-full overflow-y-auto py-2">
-      <NavigationSurface<DirectoryNode>
-        kind="selector"
-        selector={{
-          mode: "tree",
-          items: rootItems,
-          selectedId: selectedPath ?? "",
-          onSelect: (node) => onSelectPath(node.path || null),
-          getKey: (node) => node.path,
-          getChildren,
-          expandedIds: expandedPaths,
-          onToggle: (path, expanded) => {
-            const key = String(path);
-            setExpandedPaths((prev) => {
-              const next = new Set(prev);
-              if (expanded) next.add(key);
-              else next.delete(key);
-              return next;
-            });
-          },
-          renderItem: (node, ctx) => ({
-            title: node.name,
-            code: node.path === "" ? undefined : node.count,
-            level: ctx.level,
-          }),
-          framed: false,
-          loading,
-          loadingText: "加载中...",
+      <SelectorPanel<DirectoryNode>
+        mode="tree"
+        items={rootItems}
+        selectedId={selectedPath ?? ""}
+        onSelect={(node) => onSelectPath(node.path || null)}
+        getKey={(node) => node.path}
+        getChildren={getChildren}
+        expandedIds={expandedPaths}
+        onToggle={(path, expanded) => {
+          const key = String(path);
+          setExpandedPaths((prev) => {
+            const next = new Set(prev);
+            if (expanded) next.add(key);
+            else next.delete(key);
+            return next;
+          });
         }}
+        renderItem={(node, ctx) => ({
+          title: node.name,
+          code: node.path === "" ? undefined : node.count,
+          level: ctx.level,
+        })}
+        framed={false}
+        loading={loading}
+        loadingText="加载中..."
       />
     </div>
   );

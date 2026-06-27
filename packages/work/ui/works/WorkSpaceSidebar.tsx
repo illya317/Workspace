@@ -1,6 +1,6 @@
 "use client";
 
-import { NavigationSurface } from "@workspace/core/ui";
+import { SelectorPanel } from "@workspace/core/ui";
 import { getWorkSpaceLabel } from "./model";
 import type { WorkTarget, WorkTaskSpace, WorkTargetType } from "./types";
 
@@ -23,26 +23,23 @@ export default function WorkSpaceSidebar({
   ];
 
   return (
-    <NavigationSurface<WorkTaskSpace>
-      kind="selector"
-      selector={{
-        title: "工作空间",
-        bodyClassName: "p-3",
-        loading,
-        loadingText: "加载中...",
-        items: spaces,
-        selectedId: active ? `${active.targetType}:${active.targetId}` : null,
-        onSelect,
-        getKey: (space) => `${space.targetType}:${space.targetId}`,
-        groupBy: (space) => groups.find((group) => group.type === space.targetType)?.title ?? "",
-        renderItem: (space) => ({
-          title: space.name,
-          subtitle: `${space.subtitle || getWorkSpaceLabel(space.targetType)} · 事项 ${space.counts.objective + space.counts.keyResult + space.counts.task}`,
-          trailing: <span className="shrink-0 rounded bg-white/80 px-1.5 py-0.5 text-xs text-slate-400">{roleLabel(space.role)}</span>,
-        }),
-        size: "sm",
-        contentClassName: "space-y-4",
-      }}
+    <SelectorPanel<WorkTaskSpace>
+      title="工作空间"
+      bodyClassName="p-3"
+      loading={loading}
+      loadingText="加载中..."
+      items={spaces}
+      selectedId={active ? `${active.targetType}:${active.targetId}` : null}
+      onSelect={onSelect}
+      getKey={(space) => `${space.targetType}:${space.targetId}`}
+      groupBy={(space) => groups.find((group) => group.type === space.targetType)?.title ?? ""}
+      renderItem={(space) => ({
+        title: space.name,
+        subtitle: `${space.subtitle || getWorkSpaceLabel(space.targetType)} · 事项 ${space.counts.objective + space.counts.keyResult + space.counts.task}`,
+        trailing: <span className="shrink-0 rounded bg-white/80 px-1.5 py-0.5 text-xs text-slate-400">{roleLabel(space.role)}</span>,
+      })}
+      size="sm"
+      contentClassName="space-y-4"
     />
   );
 }

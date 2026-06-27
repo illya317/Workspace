@@ -2,7 +2,7 @@
 
 import WorkCard from "./WorkCard";
 import WorkForm from "./WorkForm";
-import { DataSurface, NavigationSurface } from "@workspace/core/ui";
+import { DataSurface } from "@workspace/core/ui";
 import type { WorkItem } from "./types";
 import type { WorkFormData } from "./WorkFormSection";
 
@@ -51,7 +51,7 @@ export default function WorksList({
     <>
       {/* 日常工作 */}
       <div className="mb-8">
-        <NavigationSurface kind="disclosure" title="日常工作" count={routineWorks.length} expanded={routineExpanded} onToggle={onToggleRoutine} />
+        <DisclosureHeader title="日常工作" count={routineWorks.length} expanded={routineExpanded} onToggle={onToggleRoutine} />
         {routineExpanded && (
           <div className="space-y-3">
             {routineWorks.map((work, index) =>
@@ -85,7 +85,7 @@ export default function WorksList({
 
       {/* 其他工作 */}
       <div className="mb-8">
-        <NavigationSurface kind="disclosure" title="其他工作" count={nonRoutineWorks.length} expanded={nonRoutineExpanded} onToggle={onToggleNonRoutine} />
+        <DisclosureHeader title="其他工作" count={nonRoutineWorks.length} expanded={nonRoutineExpanded} onToggle={onToggleNonRoutine} />
         {nonRoutineExpanded && (
           <div className="space-y-3">
             {nonRoutineWorks.map((work, index) =>
@@ -120,7 +120,7 @@ export default function WorksList({
       {/* 已归档 */}
       {archivedWorks.length > 0 && (
         <div>
-          <NavigationSurface kind="disclosure" title="已归档" count={archivedWorks.length} expanded={archivedExpanded} onToggle={onToggleArchived} />
+          <DisclosureHeader title="已归档" count={archivedWorks.length} expanded={archivedExpanded} onToggle={onToggleArchived} />
           {archivedExpanded && (
             <div className="space-y-3">
               {archivedWorks.map((work) =>
@@ -150,5 +150,31 @@ export default function WorksList({
         </div>
       )}
     </>
+  );
+}
+
+function DisclosureHeader({
+  title,
+  count,
+  expanded,
+  onToggle,
+}: {
+  title: string;
+  count: number;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className="mb-3 block w-full text-left text-sm font-semibold text-slate-900"
+      aria-expanded={expanded}
+      onClick={onToggle}
+    >
+      <span className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 border-b border-slate-200 pb-2">
+        <span className="min-w-0 truncate">{title} <span className="font-normal text-slate-500">({count})</span></span>
+        <span className="text-slate-500">{expanded ? "收起" : "展开"}</span>
+      </span>
+    </button>
   );
 }

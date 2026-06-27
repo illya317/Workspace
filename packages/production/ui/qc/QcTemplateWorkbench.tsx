@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { matchText } from "@workspace/core/search";
-import { DataSurface, NavigationSurface, PageSurface } from "@workspace/core/ui";
+import { DataSurface, PageSurface, SelectorPanel } from "@workspace/core/ui";
 import type {
   QcTemplateDetail,
   QcTemplateFeedbackState,
@@ -123,22 +123,19 @@ function WorkbenchSurface({
           <section className="space-y-5">
             <div className="grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
         <div className="min-w-0 max-lg:order-last">
-          <NavigationSurface
-            kind="selector"
-            selector={{
-              title: viewModel.selectorTitle,
-              bodyClassName: "p-3",
-              contentClassName: "space-y-2",
-              items: viewModel.selectorItems,
-              selectedId: selectorKey,
-              onSelect: (item) => setSelectorKey(item.key),
-              getKey: (item) => item.key,
-              renderItem: (item) => ({
-                title: item.title,
-                subtitle: item.subtitle,
-                trailing: item.trailing,
-              }),
-            }}
+          <SelectorPanel
+            title={viewModel.selectorTitle}
+            bodyClassName="p-3"
+            contentClassName="space-y-2"
+            items={viewModel.selectorItems}
+            selectedId={selectorKey}
+            onSelect={(item) => setSelectorKey(item.key)}
+            getKey={(item) => item.key}
+            renderItem={(item) => ({
+              title: item.title,
+              subtitle: item.subtitle,
+              trailing: item.trailing,
+            })}
           />
         </div>
         <div className="min-w-0 space-y-5">

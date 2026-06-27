@@ -252,6 +252,7 @@ export function findBusinessCommonRendererImports(files: SourceInfo[]) {
         if (element.isTypeOnly) continue;
         const importedName = element.propertyName?.text ?? element.name.text;
         const component = byName.get(importedName);
+        if (component?.agentExposure?.mode === "direct") continue;
         const isCommonRenderer = component?.ownerL1 === "common" && component.role !== "foundation";
         if (!isCommonRenderer && !CORE_UI_COMMON_RENDERER_IMPORT_NAMES.has(importedName)) continue;
         candidates.push({

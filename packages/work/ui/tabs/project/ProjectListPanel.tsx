@@ -1,6 +1,6 @@
 "use client";
 
-import { NavigationSurface } from "@workspace/core/ui";
+import { SelectorPanel } from "@workspace/core/ui";
 import { projectCode, type ProjectItem, type ProjectListFilter } from "./model";
 
 type ProjectListPanelMode = "desktop" | "drawer";
@@ -19,24 +19,24 @@ export default function ProjectListPanel({
   onSelect: (projectId: number) => void;
 }) {
   return (
-    <NavigationSurface<ProjectItem>
-      kind="selector"
+    <div
       className={mode === "drawer" ? "h-full overflow-hidden" : ""}
-      selector={{
-        bodyClassName: `${mode === "drawer" ? "h-full" : "max-h-[760px]"} overflow-auto p-3`,
-        contentClassName: "space-y-2",
-        items: projects,
-        selectedId: selection,
-        onSelect: (project) => onSelect(project.id),
-        getKey: (project) => project.id,
-        renderItem: (project) => ({
+    >
+      <SelectorPanel<ProjectItem>
+        bodyClassName={`${mode === "drawer" ? "h-full" : "max-h-[760px]"} overflow-auto p-3`}
+        contentClassName="space-y-2"
+        items={projects}
+        selectedId={selection}
+        onSelect={(project) => onSelect(project.id)}
+        getKey={(project) => project.id}
+        renderItem={(project) => ({
           title: <ProjectTitle name={project.name} status={project.status} />,
           subtitle: projectCode(project, null),
           archived: project.isArchived,
-        }),
-        emptyText: emptyTextForFilter(filter),
-      }}
-    />
+        })}
+        emptyText={emptyTextForFilter(filter)}
+      />
+    </div>
   );
 }
 

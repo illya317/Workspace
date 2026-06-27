@@ -117,18 +117,24 @@ const BUSINESS_PACKAGE_NAMES = new Set([
   "work",
 ]);
 const CORE_UI_BUSINESS_SURFACE_IMPORT_ALLOWLIST = new Set([
+  "CreatePanel",
   "DataSurface",
   "FormSurface",
+  "InputControl",
   "NavigationSurface",
   "PageSurface",
+  "SelectorPanel",
   "useFeedback",
 ]);
 const CORE_UI_PLATFORM_RUNTIME_IMPORT_ALLOWLIST = new Set([
+  "CreatePanel",
   "DataSurface",
   "FeedbackProvider",
   "FormSurface",
+  "InputControl",
   "NavigationSurface",
   "PageSurface",
+  "SelectorPanel",
   "useFeedback",
 ]);
 const CORE_UI_BUSINESS_TYPE_IMPORT_DENYLIST = new Set([

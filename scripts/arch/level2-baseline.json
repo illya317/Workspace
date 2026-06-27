@@ -214,14 +214,7 @@
     "page.surface -> page.blocks: 4/16",
     "page.surface -> page.frame: 3/16"
   ],
-  "businessCommonRendererImports": [
-    "packages/library/ui/components/LibrarySidebar.tsx: NavigationSurface (common.chrome) from @workspace/core/ui",
-    "packages/production/ui/qc/QcTemplateWorkbench.tsx: NavigationSurface (common.chrome) from @workspace/core/ui",
-    "packages/work/ui/meetings/MeetingPanels.tsx: NavigationSurface (common.chrome) from @workspace/core/ui",
-    "packages/work/ui/tabs/project/ProjectListPanel.tsx: NavigationSurface (common.chrome) from @workspace/core/ui",
-    "packages/work/ui/works/WorkSpaceSidebar.tsx: NavigationSurface (common.chrome) from @workspace/core/ui",
-    "packages/work/ui/works/WorksList.tsx: NavigationSurface (common.chrome) from @workspace/core/ui"
-  ],
+  "businessCommonRendererImports": [],
   "domainSharedL2LayoutShells": [],
   "surfaceOwnsPageChrome": []
 }
