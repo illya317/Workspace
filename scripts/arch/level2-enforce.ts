@@ -31,9 +31,20 @@ type Level2Baseline = {
   nativeSearchInputFiles: string[];
   handwrittenSearchMatches: string[];
   generatedFilterContractDrift: string[];
+  businessModuleViewUsages: string[];
+  businessPageLayoutPrimitiveUsages: string[];
+  businessToolbarCompositionWarnings: string[];
   businessCoreUiSurfaceBypassImports: string[];
   businessCoreUiTypeBypassImports: string[];
+  pageSurfaceLayoutProtocolWarnings: string[];
   platformCoreUiRuntimeBypassImports: string[];
+  coreUiMissingOwnership: string[];
+  coreUiInvalidOwnership: string[];
+  coreUiCommonDomainDependency: string[];
+  coreUiSiblingL2Coupling: string[];
+  businessCommonRendererImports: string[];
+  domainSharedL2LayoutShells: string[];
+  surfaceOwnsPageChrome: string[];
   repeatedServiceGroups: string[];
   routePrimitiveSchemaDuplicates: string[];
   apiRouteHelperDuplicates: string[];
@@ -94,6 +105,18 @@ function generatedFilterContractDriftKey(candidate: { file: string; expression: 
   return `${candidate.file}: ${candidate.expression} (${candidate.reason})`;
 }
 
+function businessModuleViewUsageKey(candidate: { file: string; category: string; migrationTarget: string; container: string; key: string; occurrence: number }) {
+  return `${candidate.file}: ${candidate.category}->${candidate.migrationTarget}/${candidate.container}/${candidate.key}#${candidate.occurrence}`;
+}
+
+function businessPageLayoutPrimitiveUsageKey(candidate: { file: string; primitive: string; usage: string }) {
+  return `${candidate.file}: ${candidate.primitive} ${candidate.usage}`;
+}
+
+function businessToolbarCompositionWarningKey(candidate: { file: string; kind: string; detail: string }) {
+  return `${candidate.file}: ${candidate.kind}: ${candidate.detail}`;
+}
+
 function businessCoreUiSurfaceBypassImportKey(candidate: { file: string; importedName: string; specifier: string }) {
   return `${candidate.file}: ${candidate.importedName} from ${candidate.specifier}`;
 }
@@ -104,6 +127,38 @@ function businessCoreUiTypeBypassImportKey(candidate: { file: string; importedNa
 
 function platformCoreUiRuntimeBypassImportKey(candidate: { file: string; importedName: string; specifier: string }) {
   return `${candidate.file}: ${candidate.importedName} from ${candidate.specifier}`;
+}
+
+function pageSurfaceLayoutProtocolWarningKey(candidate: { file: string; kind: string; detail: string }) {
+  return `${candidate.file}: ${candidate.kind}: ${candidate.detail}`;
+}
+
+function coreUiMissingOwnershipKey(candidate: { name: string; missing: string[] }) {
+  return `${candidate.name}: missing ${candidate.missing.join(",")}`;
+}
+
+function coreUiInvalidOwnershipKey(candidate: { name: string; reason: string }) {
+  return `${candidate.name}: ${candidate.reason}`;
+}
+
+function coreUiCommonDomainDependencyKey(candidate: { source: string; target: string; sourceOwnerL2: string; targetOwnerL2: string }) {
+  return `${candidate.source} -> ${candidate.target}: ${candidate.sourceOwnerL2} -> ${candidate.targetOwnerL2}`;
+}
+
+function coreUiSiblingL2CouplingKey(candidate: { sourceOwnerL2: string; targetOwnerL2: string; edgeCount: number; sourceDependencyCount: number }) {
+  return `${candidate.sourceOwnerL2} -> ${candidate.targetOwnerL2}: ${candidate.edgeCount}/${candidate.sourceDependencyCount}`;
+}
+
+function businessCommonRendererImportKey(candidate: { file: string; importedName: string; ownerL2: string; specifier: string }) {
+  return `${candidate.file}: ${candidate.importedName} (${candidate.ownerL2}) from ${candidate.specifier}`;
+}
+
+function domainSharedL2LayoutShellKey(candidate: { file: string; reason: string }) {
+  return `${candidate.file}: ${candidate.reason}`;
+}
+
+function surfaceOwnsPageChromeKey(candidate: { file: string; componentName: string; propName: string; detail: string }) {
+  return `${candidate.file}: ${candidate.componentName}.${candidate.propName}: ${candidate.detail}`;
 }
 
 function diff(left: string[], right: string[]) {
@@ -206,6 +261,18 @@ export function checkLevel2Ratchet() {
         report.drift.generatedFilterContractDrift.map(generatedFilterContractDriftKey),
       ],
       [
+        "businessModuleViewUsages",
+        report.drift.businessModuleViewUsages.map(businessModuleViewUsageKey),
+      ],
+      [
+        "businessPageLayoutPrimitiveUsages",
+        report.drift.businessPageLayoutPrimitiveUsages.map(businessPageLayoutPrimitiveUsageKey),
+      ],
+      [
+        "businessToolbarCompositionWarnings",
+        report.drift.businessToolbarCompositionWarnings.map(businessToolbarCompositionWarningKey),
+      ],
+      [
         "businessCoreUiSurfaceBypassImports",
         report.drift.businessCoreUiSurfaceBypassImports.map(businessCoreUiSurfaceBypassImportKey),
       ],
@@ -214,8 +281,40 @@ export function checkLevel2Ratchet() {
         report.drift.businessCoreUiTypeBypassImports.map(businessCoreUiTypeBypassImportKey),
       ],
       [
+        "pageSurfaceLayoutProtocolWarnings",
+        report.drift.pageSurfaceLayoutProtocolWarnings.map(pageSurfaceLayoutProtocolWarningKey),
+      ],
+      [
         "platformCoreUiRuntimeBypassImports",
         report.drift.platformCoreUiRuntimeBypassImports.map(platformCoreUiRuntimeBypassImportKey),
+      ],
+      [
+        "coreUiMissingOwnership",
+        report.drift.coreUiMissingOwnership.map(coreUiMissingOwnershipKey),
+      ],
+      [
+        "coreUiInvalidOwnership",
+        report.drift.coreUiInvalidOwnership.map(coreUiInvalidOwnershipKey),
+      ],
+      [
+        "coreUiCommonDomainDependency",
+        report.drift.coreUiCommonDomainDependency.map(coreUiCommonDomainDependencyKey),
+      ],
+      [
+        "coreUiSiblingL2Coupling",
+        report.drift.coreUiSiblingL2Coupling.map(coreUiSiblingL2CouplingKey),
+      ],
+      [
+        "businessCommonRendererImports",
+        report.drift.businessCommonRendererImports.map(businessCommonRendererImportKey),
+      ],
+      [
+        "domainSharedL2LayoutShells",
+        report.drift.domainSharedL2LayoutShells.map(domainSharedL2LayoutShellKey),
+      ],
+      [
+        "surfaceOwnsPageChrome",
+        report.drift.surfaceOwnsPageChrome.map(surfaceOwnsPageChromeKey),
       ],
       [
         "repeatedServiceGroups",

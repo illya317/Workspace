@@ -1,19 +1,27 @@
 import {
   coreUiComponentAccessLayerMeta,
   coreUiComponentKindMeta,
+  coreUiComponentOwnerL1Meta,
+  coreUiComponentOwnerL2Meta,
   coreUiComponentUiLevelMeta,
   type CoreUiComponentAccessLayer,
   type CoreUiComponentUiLevel,
   type CoreUiComponentKind,
+  type CoreUiComponentOwnerL1,
+  type CoreUiComponentOwnerL2,
 } from "@workspace/core/ui/component-registry";
 import { matchText } from "@workspace/core/search";
 
 export type UiComponentFilterNode = {
   name: string;
-  component: { description: string };
   kind: CoreUiComponentKind;
   accessLayer: CoreUiComponentAccessLayer;
   uiLevel: CoreUiComponentUiLevel;
+  component: {
+    description: string;
+    ownerL1?: CoreUiComponentOwnerL1;
+    ownerL2?: CoreUiComponentOwnerL2;
+  };
   verified: boolean;
 };
 
@@ -47,6 +55,14 @@ function matchesKeyword(
     || matchText(node.component.description, keyword)
     || matchText(coreUiComponentKindMeta[node.kind].label, keyword)
     || matchText(coreUiComponentAccessLayerMeta[node.accessLayer].label, keyword)
+    || Boolean(node.component.ownerL1 && (
+      matchText(node.component.ownerL1, keyword)
+      || matchText(coreUiComponentOwnerL1Meta[node.component.ownerL1].label, keyword)
+    ))
+    || Boolean(node.component.ownerL2 && (
+      matchText(node.component.ownerL2, keyword)
+      || matchText(coreUiComponentOwnerL2Meta[node.component.ownerL2].label, keyword)
+    ))
     || matchText(coreUiComponentUiLevelMeta[node.uiLevel].label, keyword)
     || usageFiles.some((file) => matchText(file, keyword));
 }

@@ -3,6 +3,8 @@ import { ActionGlyph, PanelCard } from "@workspace/core/ui";
 import {
   coreUiComponentAccessLayerMeta,
   coreUiComponentKindMeta,
+  coreUiComponentOwnerL1Meta,
+  coreUiComponentOwnerL2Meta,
   coreUiComponentUiLevelMeta,
   coreUiFrameMaturityMeta,
   resolveCoreUiComponentUiLevel,
@@ -84,6 +86,22 @@ export function UiComponentPreviewPanel({
           <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
             {coreUiComponentKindMeta[component.kind].label}
           </span>
+          {component.ownerL1 && (
+            <span
+              className="rounded-full bg-cyan-50 px-2 py-0.5 text-[11px] font-medium text-cyan-700"
+              title={coreUiComponentOwnerL1Meta[component.ownerL1].description}
+            >
+              {coreUiComponentOwnerL1Meta[component.ownerL1].label}
+            </span>
+          )}
+          {component.ownerL2 && (
+            <span
+              className="rounded-full bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700"
+              title={coreUiComponentOwnerL2Meta[component.ownerL2].description}
+            >
+              {component.ownerL2}
+            </span>
+          )}
           <span
             className="rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-medium text-indigo-700"
             title={coreUiComponentUiLevelMeta[uiLevel].description}

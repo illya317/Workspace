@@ -66,13 +66,14 @@ const UI_LEVEL_OPTIONS: Array<{ value: TreeUiLevelFilter; label: string }> = [
 const META_COLUMNS: ColumnDef[] = [
   { key: "kind", label: "分类", defaultVisible: true },
   { key: "accessLayer", label: "开放层", defaultVisible: true },
+  { key: "owner", label: "归属", defaultVisible: true },
   { key: "uiLevel", label: "展示层", defaultVisible: true },
   { key: "usedBy", label: "被引用", defaultVisible: true },
   { key: "files", label: "文件", defaultVisible: true },
   { key: "verified", label: "改造状态", defaultVisible: true },
 ];
 
-const DEFAULT_VISIBLE_META: UiComponentTreeMetaKey[] = ["kind", "accessLayer", "uiLevel", "usedBy", "files", "verified"];
+const DEFAULT_VISIBLE_META: UiComponentTreeMetaKey[] = ["kind", "accessLayer", "owner", "uiLevel", "usedBy", "files", "verified"];
 
 function findComponent(name: string) {
   return coreUiComponentRegistry.find((component) => component.name === name) as CoreUiComponentRegistration | undefined;

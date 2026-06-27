@@ -24,17 +24,21 @@ import {
   findLegacyRootWithAuthImports,
   findLegacyServiceFiles,
 } from "./level2-legacy";
+import { findBusinessModuleViewUsages, type BusinessModuleViewUsage } from "./level2-module-view";
 import { findHandwrittenSearchMatches, type HandwrittenSearchMatchCandidate } from "./level2-search";
 import { countApiContractsByOwner, findAppJsxFiles } from "./level2-report-helpers";
 import {
   findAppHookFiles,
   findAppHookImplementationFiles,
+  findBusinessPageLayoutPrimitiveUsages,
   findBusinessCoreUiSurfaceBypassImports,
   findBusinessCoreUiTypeBypassImports,
+  findBusinessToolbarCompositionWarnings,
   findDuplicateCoreUiRegistrations,
   findGeneratedFilterContractDrift,
   findHookPatternCandidates,
   findNativeSearchInputFiles,
+  findPageSurfaceLayoutProtocolWarnings,
   findPageDesignDriftFiles,
   findPlatformCoreUiRuntimeBypassImports,
   findUiPatternCandidates,
@@ -42,16 +46,32 @@ import {
   findUnregisteredCoreUiImports,
   type BusinessCoreUiSurfaceBypassImport,
   type BusinessCoreUiTypeBypassImport,
+  type BusinessPageLayoutPrimitiveUsage,
+  type BusinessToolbarCompositionWarning,
   type DuplicateCoreUiRegistration,
   type GeneratedFilterContractDrift,
   type HookPatternCandidate,
   type NativeSearchInputFile,
+  type PageSurfaceLayoutProtocolWarning,
   type PageDesignDriftFile,
   type PlatformCoreUiRuntimeBypassImport,
   type UiPatternCandidate,
   type UnregisteredCoreUiExport,
   type UnregisteredCoreUiImport,
 } from "./level2-ui";
+import {
+  findBusinessCommonRendererImports,
+  findCoreUiOwnershipWarnings,
+  findDomainSharedL2LayoutShells,
+  findSurfaceOwnsPageChrome,
+  type BusinessCommonRendererImport,
+  type CoreUiCommonDomainDependency,
+  type CoreUiInvalidOwnership,
+  type CoreUiMissingOwnership,
+  type CoreUiSiblingL2Coupling,
+  type DomainSharedL2LayoutShell,
+  type SurfaceOwnsPageChrome,
+} from "./level2-core-ui-ownership";
 import { registeredModuleDefinitions } from "../../packages/platform/module-registry";
 type ImportRecord = { kind: "static" | "dynamic"; specifier: string };
 
@@ -107,122 +127,6 @@ type ServicePatternGroup = {
   packageFiles: string[];
   sharedExports: string[];
   exactSharedExports: string[];
-};
-
-type Level2Report = {
-  level: "2";
-  mode: "structure-intelligence";
-  generatedAt: string;
-  summary: {
-    filesScanned: number;
-    moduleDefinitions: number;
-    apiContracts: number;
-    apiRouteMethods: number;
-    uncontractedApiRouteMethods: number;
-    apiRouteMethodsWithDirectPrismaSignal: number;
-    apiRouteMethodsWithoutValidationSignal: number;
-    apiRouteMethodsWithoutServiceSignal: number;
-    compatibilityProxyRouteMethods: number;
-    goneRouteMethods: number;
-    uiPatternCandidates: number;
-    uiPatternCandidatesWithoutCore: number;
-    hookPatternCandidates: number;
-    appHookFiles: number;
-    appHookImplementationFiles: number;
-    legacyServiceFiles: number;
-    repeatedServiceGroups: number;
-    routePrimitiveSchemaDuplicates: number;
-    apiRouteHelperDuplicates: number;
-    legacyAuthHubFiles: number;
-    legacyRootAccessFiles: number;
-    legacyRootUtilityFiles: number;
-    legacyRootWithAuthFiles: number;
-    legacyRootWithAuthImports: number;
-    legacyRootPrismaFiles: number;
-    legacyRootPrismaImports: number;
-    legacyRootPermissionsImplementationFiles: number;
-    legacyRootPermissionsImports: number;
-    legacyRootPeriodImplementationFiles: number;
-    legacyRootPeriodImports: number;
-    legacyRootSearchSchemaFiles: number;
-    unregisteredCoreUiImports: number;
-    unregisteredCoreUiExports: number;
-    duplicateCoreUiRegistrations: number;
-    pageDesignDriftFiles: number;
-    nativeSearchInputFiles: number;
-    handwrittenSearchMatchFiles: number;
-    generatedFilterContractDriftFiles: number;
-    businessCoreUiSurfaceBypassImports: number;
-    businessCoreUiTypeBypassImports: number;
-    platformCoreUiRuntimeBypassImports: number;
-  };
-  registries: {
-    modules: Array<{
-      packageName: string;
-      layer: string;
-      moduleKey: string | null;
-      routeCount: number;
-      apiGuardCount: number;
-    }>;
-    apiContractsByOwner: Record<string, number>;
-  };
-  patterns: {
-    uiPatternCandidates: UiPatternCandidate[];
-    hookPatternCandidates: HookPatternCandidate[];
-    apiRouteMethods: ApiRouteMethod[];
-    repeatedServiceGroups: ServicePatternGroup[];
-    routePrimitiveSchemaCandidates: RoutePrimitiveSchemaCandidate[];
-    apiRouteHelperCandidates: ApiRouteHelperCandidate[];
-    unregisteredCoreUiImports: UnregisteredCoreUiImport[];
-    unregisteredCoreUiExports: UnregisteredCoreUiExport[];
-    duplicateCoreUiRegistrations: DuplicateCoreUiRegistration[];
-    pageDesignDriftFiles: PageDesignDriftFile[];
-    nativeSearchInputFiles: NativeSearchInputFile[];
-    handwrittenSearchMatches: HandwrittenSearchMatchCandidate[];
-    generatedFilterContractDrift: GeneratedFilterContractDrift[];
-    businessCoreUiSurfaceBypassImports: BusinessCoreUiSurfaceBypassImport[];
-    businessCoreUiTypeBypassImports: BusinessCoreUiTypeBypassImport[];
-    platformCoreUiRuntimeBypassImports: PlatformCoreUiRuntimeBypassImport[];
-  };
-  drift: {
-    appJsxFiles: string[];
-    appHookFiles: string[];
-    appHookImplementationFiles: string[];
-    uncontractedApiRouteMethods: ApiRouteMethod[];
-    apiRoutesWithDirectPrismaSignal: ApiRouteMethod[];
-    apiRouteMethodsWithoutValidationSignal: ApiRouteMethod[];
-    apiRouteMethodsWithoutServiceSignal: ApiRouteMethod[];
-    compatibilityProxyRouteMethods: ApiRouteMethod[];
-    goneRouteMethods: ApiRouteMethod[];
-    legacyServiceFiles: string[];
-    legacyAuthHubFiles: string[];
-    legacyRootAccessFiles: string[];
-    legacyRootUtilityFiles: string[];
-    legacyRootWithAuthFiles: string[];
-    legacyRootWithAuthImports: string[];
-    legacyRootPrismaFiles: string[];
-    legacyRootPrismaImports: string[];
-    legacyRootPermissionsImplementationFiles: string[];
-    legacyRootPermissionsImports: string[];
-    legacyRootPeriodImplementationFiles: string[];
-    legacyRootPeriodImports: string[];
-    legacyRootSearchSchemaFiles: string[];
-    unregisteredCoreUiImports: UnregisteredCoreUiImport[];
-    unregisteredCoreUiExports: UnregisteredCoreUiExport[];
-    duplicateCoreUiRegistrations: DuplicateCoreUiRegistration[];
-    pageDesignDriftFiles: PageDesignDriftFile[];
-    nativeSearchInputFiles: NativeSearchInputFile[];
-    handwrittenSearchMatches: HandwrittenSearchMatchCandidate[];
-    generatedFilterContractDrift: GeneratedFilterContractDrift[];
-    businessCoreUiSurfaceBypassImports: BusinessCoreUiSurfaceBypassImport[];
-    businessCoreUiTypeBypassImports: BusinessCoreUiTypeBypassImport[];
-    platformCoreUiRuntimeBypassImports: PlatformCoreUiRuntimeBypassImport[];
-    repeatedServiceGroups: ServicePatternGroup[];
-    routePrimitiveSchemaDuplicates: RoutePrimitiveSchemaCandidate[];
-    apiRouteHelperDuplicates: ApiRouteHelperCandidate[];
-    domainUiCandidatesWithoutCore: UiPatternCandidate[];
-    domainHookCandidatesWithoutShared: HookPatternCandidate[];
-  };
 };
 
 const ROOT = path.resolve(__dirname, "../..");
@@ -707,14 +611,10 @@ function findRepeatedServiceGroups(files: SourceInfo[]) {
     .sort((left, right) => left.name.localeCompare(right.name));
 }
 
-export function createLevel2Report(): Level2Report {
-  const sourceFiles = SCAN_ROOTS
-    .flatMap((rootName) => walk(path.join(ROOT, rootName)))
-    .sort()
-    .map(readSourceInfo);
-  const generatedUiSourceFiles = walkGeneratedUiFiles()
-    .sort()
-    .map(readSourceInfo);
+export function createLevel2Report() {
+  const sourceFiles = SCAN_ROOTS.flatMap((rootName) => walk(path.join(ROOT, rootName))).sort().map(readSourceInfo);
+  const generatedUiSourceFiles = walkGeneratedUiFiles().sort().map(readSourceInfo);
+  const businessUiSourceFiles = [...sourceFiles, ...generatedUiSourceFiles];
 
   const uiPatternCandidates = findUiPatternCandidates(sourceFiles);
   const apiRouteMethods = findApiRouteMethods(sourceFiles);
@@ -728,9 +628,17 @@ export function createLevel2Report(): Level2Report {
   const nativeSearchInputFiles = findNativeSearchInputFiles(sourceFiles);
   const handwrittenSearchMatches = findHandwrittenSearchMatches(sourceFiles);
   const generatedFilterContractDrift = findGeneratedFilterContractDrift(generatedUiSourceFiles);
+  const businessModuleViewUsages = findBusinessModuleViewUsages(businessUiSourceFiles);
+  const businessPageLayoutPrimitiveUsages = findBusinessPageLayoutPrimitiveUsages(sourceFiles);
+  const businessToolbarCompositionWarnings = findBusinessToolbarCompositionWarnings(sourceFiles);
   const businessCoreUiSurfaceBypassImports = findBusinessCoreUiSurfaceBypassImports(sourceFiles);
   const businessCoreUiTypeBypassImports = findBusinessCoreUiTypeBypassImports(sourceFiles);
+  const pageSurfaceLayoutProtocolWarnings = findPageSurfaceLayoutProtocolWarnings(sourceFiles);
   const platformCoreUiRuntimeBypassImports = findPlatformCoreUiRuntimeBypassImports(sourceFiles);
+  const coreUiOwnershipWarnings = findCoreUiOwnershipWarnings();
+  const businessCommonRendererImports = findBusinessCommonRendererImports(sourceFiles);
+  const domainSharedL2LayoutShells = findDomainSharedL2LayoutShells(sourceFiles);
+  const surfaceOwnsPageChrome = findSurfaceOwnsPageChrome(sourceFiles);
   const repeatedServiceGroups = findRepeatedServiceGroups(sourceFiles);
   const uncontractedApiRouteMethods = apiRouteMethods.filter((route) => route.contractKey === null);
   const apiRoutesWithDirectPrismaSignal = apiRouteMethods.filter((route) => route.hasDirectPrismaSignal);
@@ -744,15 +652,10 @@ export function createLevel2Report(): Level2Report {
   const apiRouteMethodsWithoutServiceSignal = apiRouteMethods
     .filter((route) => !route.hasServiceSignal)
     .filter((route) => !route.hasCompatibilityProxySignal);
-  const routePrimitiveSchemaDuplicates = routePrimitiveSchemaCandidates
-    .filter((candidate) => !candidate.importsPlatformPrimitive);
+  const routePrimitiveSchemaDuplicates = routePrimitiveSchemaCandidates.filter((candidate) => !candidate.importsPlatformPrimitive);
   const apiRouteHelperDuplicates = apiRouteHelperCandidates;
-  const domainUiCandidatesWithoutCore = uiPatternCandidates
-    .filter((candidate) => candidate.layer === "domain")
-    .filter((candidate) => !candidate.importsCoreUi);
-  const domainHookCandidatesWithoutShared = hookPatternCandidates
-    .filter((candidate) => candidate.layer === "domain")
-    .filter((candidate) => !candidate.importsCoreHooks && !candidate.importsPlatformHooks);
+  const domainUiCandidatesWithoutCore = uiPatternCandidates.filter((candidate) => candidate.layer === "domain").filter((candidate) => !candidate.importsCoreUi);
+  const domainHookCandidatesWithoutShared = hookPatternCandidates.filter((candidate) => candidate.layer === "domain").filter((candidate) => !candidate.importsCoreHooks && !candidate.importsPlatformHooks);
   const appHookFiles = findAppHookFiles(hookPatternCandidates);
   const appHookImplementationFiles = findAppHookImplementationFiles(hookPatternCandidates);
   const legacyServiceFiles = findLegacyServiceFiles(sourceFiles);
@@ -812,9 +715,20 @@ export function createLevel2Report(): Level2Report {
       nativeSearchInputFiles: nativeSearchInputFiles.length,
       handwrittenSearchMatchFiles: new Set(handwrittenSearchMatches.map((candidate) => candidate.file)).size,
       generatedFilterContractDriftFiles: new Set(generatedFilterContractDrift.map((candidate) => candidate.file)).size,
+      businessModuleViewUsages: businessModuleViewUsages.length,
+      businessPageLayoutPrimitiveUsages: businessPageLayoutPrimitiveUsages.length,
+      businessToolbarCompositionWarnings: businessToolbarCompositionWarnings.length,
       businessCoreUiSurfaceBypassImports: businessCoreUiSurfaceBypassImports.length,
       businessCoreUiTypeBypassImports: businessCoreUiTypeBypassImports.length,
+      pageSurfaceLayoutProtocolWarnings: pageSurfaceLayoutProtocolWarnings.length,
       platformCoreUiRuntimeBypassImports: platformCoreUiRuntimeBypassImports.length,
+      coreUiMissingOwnership: coreUiOwnershipWarnings.coreUiMissingOwnership.length,
+      coreUiInvalidOwnership: coreUiOwnershipWarnings.coreUiInvalidOwnership.length,
+      coreUiCommonDomainDependency: coreUiOwnershipWarnings.coreUiCommonDomainDependency.length,
+      coreUiSiblingL2Coupling: coreUiOwnershipWarnings.coreUiSiblingL2Coupling.length,
+      businessCommonRendererImports: businessCommonRendererImports.length,
+      domainSharedL2LayoutShells: domainSharedL2LayoutShells.length,
+      surfaceOwnsPageChrome: surfaceOwnsPageChrome.length,
     },
     registries: {
       modules: registeredModuleDefinitions
@@ -842,9 +756,20 @@ export function createLevel2Report(): Level2Report {
       nativeSearchInputFiles,
       handwrittenSearchMatches,
       generatedFilterContractDrift,
+      businessModuleViewUsages,
+      businessPageLayoutPrimitiveUsages,
+      businessToolbarCompositionWarnings,
       businessCoreUiSurfaceBypassImports,
       businessCoreUiTypeBypassImports,
+      pageSurfaceLayoutProtocolWarnings,
       platformCoreUiRuntimeBypassImports,
+      coreUiMissingOwnership: coreUiOwnershipWarnings.coreUiMissingOwnership,
+      coreUiInvalidOwnership: coreUiOwnershipWarnings.coreUiInvalidOwnership,
+      coreUiCommonDomainDependency: coreUiOwnershipWarnings.coreUiCommonDomainDependency,
+      coreUiSiblingL2Coupling: coreUiOwnershipWarnings.coreUiSiblingL2Coupling,
+      businessCommonRendererImports,
+      domainSharedL2LayoutShells,
+      surfaceOwnsPageChrome,
     },
     drift: {
       appJsxFiles: findAppJsxFiles(sourceFiles),
@@ -876,9 +801,20 @@ export function createLevel2Report(): Level2Report {
       nativeSearchInputFiles,
       handwrittenSearchMatches,
       generatedFilterContractDrift,
+      businessModuleViewUsages,
+      businessPageLayoutPrimitiveUsages,
+      businessToolbarCompositionWarnings,
       businessCoreUiSurfaceBypassImports,
       businessCoreUiTypeBypassImports,
+      pageSurfaceLayoutProtocolWarnings,
       platformCoreUiRuntimeBypassImports,
+      coreUiMissingOwnership: coreUiOwnershipWarnings.coreUiMissingOwnership,
+      coreUiInvalidOwnership: coreUiOwnershipWarnings.coreUiInvalidOwnership,
+      coreUiCommonDomainDependency: coreUiOwnershipWarnings.coreUiCommonDomainDependency,
+      coreUiSiblingL2Coupling: coreUiOwnershipWarnings.coreUiSiblingL2Coupling,
+      businessCommonRendererImports,
+      domainSharedL2LayoutShells,
+      surfaceOwnsPageChrome,
       repeatedServiceGroups,
       routePrimitiveSchemaDuplicates,
       apiRouteHelperDuplicates,

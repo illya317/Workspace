@@ -17,7 +17,7 @@
     "check:quick": "npm run env:check && npm run check:changed",
     "check:arch": "npm run arch:gate",
     "check:data": "npm run db:validate && npm run schema:check && npm run db:migration:check",
-    "check:hygiene": "npm run company:check && npm run arch:level2:ratchet && npm run arch:level2",
+    "check:hygiene": "node scripts/check/run-hygiene-strict.js",
     "check:hygiene:warn": "node scripts/check/run-hygiene-warning.js",
     "check:ci": "npm run check:arch && npm run env:check && npm run db:path:check && npm run docs:check && npm run check:data && npm run db:generate && npm run lint:full && npm run typecheck:full && npm run build:next && npm run check:hygiene:warn",
     "check:full": "npm run check:ci",

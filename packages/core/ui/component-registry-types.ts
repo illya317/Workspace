@@ -21,6 +21,49 @@ export type CoreUiFrameMaturity = "stable" | "tbc" | "internal-only";
 
 export type CoreUiComponentUiLevel = 1 | 2 | 3 | 4;
 
+export type CoreUiComponentOwnerL1 = "page" | "data" | "form" | "common" | "feedback";
+
+export type CoreUiComponentOwnerL2 =
+  | "page.surface"
+  | "page.blocks"
+  | "page.frame"
+  | "page.document"
+  | "data.surface"
+  | "data.table"
+  | "data.record"
+  | "data.metric"
+  | "data.visual"
+  | "data.cell"
+  | "form.surface"
+  | "form.field"
+  | "form.layout"
+  | "form.create"
+  | "form.input-adapter"
+  | "common.chrome"
+  | "common.action"
+  | "common.input"
+  | "common.selection"
+  | "common.display"
+  | "common.overlay"
+  | "common.foundation"
+  | "feedback.service"
+  | "feedback.renderer"
+  | "feedback.compat";
+
+export type CoreUiComponentRole =
+  | "entry"
+  | "contract"
+  | "renderer"
+  | "primitive"
+  | "foundation"
+  | "private";
+
+export type CoreUiComponentPublicUse =
+  | "business"
+  | "core-only"
+  | "showcase-only"
+  | "compat";
+
 export type CoreUiComponentRegistration = {
   name: string;
   kind: CoreUiComponentKind;
@@ -48,6 +91,18 @@ export type CoreUiComponentRegistration = {
    * 未填写时按 accessLayer 派生，保留旧 registry 的渐进迁移能力。
    */
   uiLevel?: CoreUiComponentUiLevel;
+
+  /**
+   * Core UI ownership taxonomy.
+   *
+   * `uiLevel` controls visibility; `ownerL1/ownerL2` controls architectural
+   * ownership. Missing fields are allowed during the first migration phase and
+   * are reported as warning-only hygiene debt.
+   */
+  ownerL1?: CoreUiComponentOwnerL1;
+  ownerL2?: CoreUiComponentOwnerL2;
+  role?: CoreUiComponentRole;
+  publicUse?: CoreUiComponentPublicUse;
 
   /**
    * Page Frame 成熟度。只有 accessLayer === "page-frame" 才有意义。
