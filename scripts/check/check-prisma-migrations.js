@@ -63,14 +63,6 @@ if (!/provider\s*=\s*"sqlite"/.test(lockText)) {
 }
 ok("Prisma migration lock provider is sqlite");
 
-const validate = run("npx", ["prisma", "validate", "--schema=./prisma"]);
-if (validate.status !== 0) {
-  process.stdout.write(validate.stdout || "");
-  process.stderr.write(validate.stderr || "");
-  fail("prisma validate failed");
-}
-ok("prisma validate passed");
-
 const diff = run("npx", [
   "prisma",
   "migrate",
@@ -95,7 +87,7 @@ if (diff.status === 0) {
   const output = `${diff.stdout || ""}\n${diff.stderr || ""}`;
   if (/P3006/.test(output)) {
     console.warn(
-      "⚠ Prisma 历史 migrations 无法从空库完整回放；已完成强制存在性与 schema 校验，真实生产升级仍由 deploy 阶段的 prisma migrate deploy 强制执行。",
+      "⚠ Prisma 历史 migrations 无法从空库完整回放；已完成强制存在性检查，schema 合法性由 db:validate 负责，真实生产升级仍由 deploy 阶段的 prisma migrate deploy 强制执行。",
     );
   } else {
     process.stdout.write(diff.stdout || "");

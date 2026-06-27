@@ -32,6 +32,7 @@ app/*                         只做 Next route shell
 | 改架构规则、registry、gate、baseline | `docs/roles/architecture.md` |
 | 改 CI、部署、环境、脚本运行态 | `docs/roles/operations.md` |
 | 做 review | `docs/roles/review.md` |
+| 做周期性清债、baseline/lint 漏洞巡检 | `docs/roles/hygiene.md` |
 
 常用专题：
 
@@ -41,6 +42,7 @@ app/*                         只做 Next route shell
 | Core/Platform 基础设施 | `docs/reusable-components.md` |
 | Core UI 五层治理 | `docs/core-ui-governance.md` |
 | Core Toolbar 规则 | `docs/core-toolbar.md` |
+| 检查命令分层 | `docs/checks.md` |
 | 架构边界和权限四件套 | `docs/architecture-governance.md` |
 | Work 模块长期边界/权限 | `app/(modules)/work/MODULE.md` |
 | Work 模块短期计划 | `app/(modules)/work/PLAN.md` |
@@ -71,7 +73,10 @@ app/*                         只做 Next route shell
 - 多 agent 并行时，普通执行 agent 不主动跑 `lint` / `typecheck` / `arch:gate` / `build`；只有收口/集成/提交前验证的 agent 统一跑，或用户明确要求当前 agent 验证时才跑。
 - 本地重型检查已通过 `scripts/check/with-check-lock.js` 串行限流；看到 `Waiting for project check lock` 就等当前检查结束，不要另开同类 `npm run lint` / `tsc` / `build`。`arch:gate` 同一代码快照通过后会复用缓存结果，不需要手动重复排队。
 - 收口验证时按风险选择：架构、权限、registry、API、Core/Platform 基建跑 `npm run arch:gate`。
-- 收口验证时按风险选择：普通 TS/TSX 跑 `npm run lint:changed` 和 `npm run typecheck:quick`。
+- 收口验证时按风险选择：普通 TS/TSX 跑 `npm run check:changed`。
+- 收口验证时按风险选择：schema、model、migration 跑 `npm run check:data`。
 - 收口验证时按风险选择：文档改动跑 `npm run docs:check`。
+- PR/CI 收口使用 `npm run check:ci`；`npm run check:full` 只是兼容别名。CI 中 hygiene 只跑 warning，不阻断合并。
+- 公司硬编码、baseline 债务、lint/arch 规则漏洞这类细枝末节治理进 `npm run check:hygiene` 和 Hygiene Role；日常提示用 `npm run check:hygiene:warn`，不进 `arch:gate` / `lint:full` 主阻断链路。
 - 大规模 UI 迁移前后必须运行或阅读 Core UI governance 检查结果，确认 `businessCoreUiSurfaceBypassImports` 等 baseline 只减少、不扩写；长期迁移按阶段定期复查 gate/report，而不是等收口一次性处理。
 - 提交前必须看 `git status --short`，只 stage 本任务文件；不要回滚、格式化或提交别人的改动。

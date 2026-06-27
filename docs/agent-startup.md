@@ -13,7 +13,7 @@
 ## 1. 开工顺序
 
 1. 运行 `git status --short --branch`，确认当前分支和已有脏文件。
-2. 按任务选角色文档：Feature / Data / Architecture / Operations / Review。
+2. 按任务选角色文档：Feature / Data / Architecture / Operations / Review / Hygiene。
 3. 读对应模块 `ARCHITECTURE.md`，再动文件。
 4. 只改本任务文件；看到别人的脏文件，不回滚、不格式化、不提交。
 5. 收尾按风险跑检查。架构相关只认 `npm run arch:gate`。
@@ -47,9 +47,10 @@
 
 ## 5. Level 2 使用方式
 
-- `npm run arch:level2` 只用于发现结构漂移和拆任务，不是第二个 gate。
+- `npm run arch:level2` 只用于发现结构漂移和拆任务，不是 architecture gate。
 - 强制检查只有 `npm run arch:gate`。
-- baseline 只能减少，不能为新违规扩写。
+- Level 2 baseline ratchet 属于 `npm run check:hygiene`，baseline 只能减少，不能为新违规扩写。
+- 公司硬编码、baseline 债务和 lint/arch 规则漏洞巡检归 Hygiene Role，不进主 CI 阻断链路。
 - 细则见 `docs/level2-agent-execution.md`。
 
 ## 6. 交接格式
@@ -89,6 +90,6 @@
 - 多 agent 并行时，小任务默认延后 npm 验证。普通执行 agent 完成局部改动后只做 diff/相关文件自查，并在交付说明中写清“未跑 npm 检查，等待统一验证”；不要因为一个小改动就启动 `lint`、`typecheck`、`arch:gate` 或 `build`。
 - 只有这些情况主动跑 npm 检查：用户明确要求；当前 agent 是收口/集成/提交前验证角色；改动触及共享脚本、CI、package 配置、schema、权限/registry/gate 或跨模块 contract；或局部自查无法判断风险。
 - 本地重型检查走项目锁串行执行。`lint`、`typecheck`、`arch:gate`、`build` 等 npm script 已包 `scripts/check/with-check-lock.js`；如果终端提示 `Waiting for project check lock`，说明别的 agent 正在跑检查，等待即可，不要再开并行检查。`arch:gate` 会按代码快照复用已通过结果；看到 `Reusing cached arch:gate result` 表示同一快照无需重复跑。
-- 收口/集成/提交前验证时按风险选命令：文档改动跑 `npm run docs:check`；普通 TS/TSX 跑 `npm run lint:changed` + `npm run typecheck:quick`；涉及边界、权限、registry、Core/Platform 或 API contract 时加 `npm run arch:gate`；schema、部署、构建链路或共享行为改动跑完整组。
+- 收口/集成/提交前验证时按风险选命令：文档改动跑 `npm run docs:check`；普通 TS/TSX 跑 `npm run check:changed`；涉及边界、权限、registry、Core/Platform 或 API contract 时加 `npm run check:arch`；schema/model/migration 跑 `npm run check:data`；CI 收口跑 `npm run check:ci`；周期性清债跑 `npm run check:hygiene`。
 - pre-commit 的 `check:quick` 是最后防线，不要用 `--no-verify` 绕过。检查失败时先判断是否由当前任务造成；无关并行失败要在交付说明里标明，不要顺手修或提交别人的文件。
 - 本地开发只允许一个 3000 端口 dev server。需要开 dev 前先查 `lsof -nP -iTCP:3000 -sTCP:LISTEN`。

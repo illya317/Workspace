@@ -11,6 +11,7 @@
 | Operations | `docs/roles/operations.md` |
 | Data | `docs/roles/data.md` |
 | Review | `docs/roles/review.md` |
+| Hygiene | `docs/roles/hygiene.md` |
 
 角色文档只写该角色需要的上下文。不要把其他角色的执行细节复制回 `AGENTS.md`。
 
@@ -24,6 +25,7 @@
 | Core UI 五层治理 | `docs/core-ui-governance.md` |
 | Core UI 和页面 primitive | `docs/reusable-components.md` |
 | Core Toolbar 规则 | `docs/core-toolbar.md` |
+| 检查命令分层 | `docs/checks.md` |
 | Core / Platform / Apps 迁移归属 | `docs/core-platform-apps-migration-map.md` |
 | 新模块接入 | `docs/new-module-checklist.md`, `docs/planning/new-domain-template.md` |
 | 现有模块新增能力 | `docs/existing-module-feature-checklist.md` |

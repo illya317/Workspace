@@ -5,6 +5,7 @@ Feature 负责用户可见业务功能、业务 UI、业务 service 和 route sh
 ## 先读
 
 - `docs/agent-startup.md`
+- `docs/checks.md`
 - `docs/level2-agent-execution.md`
 - `docs/reusable-components.md`
 - 对应模块 `ARCHITECTURE.md`
@@ -46,6 +47,5 @@ Feature 负责用户可见业务功能、业务 UI、业务 service 和 route sh
 
 ```bash
 npm run arch:gate
-npm run lint:changed
-npm run typecheck:quick
+npm run check:changed
 ```
