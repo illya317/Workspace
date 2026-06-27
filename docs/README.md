@@ -1,6 +1,16 @@
 # Docs Index
 
-这里是 Workspace 文档目录。`AGENTS.md` 只做入口和硬红线；详细规则按角色和专题分层阅读。
+这里是 Workspace 文档目录。`AGENTS.md` 只做入口和硬红线；`docs/project-overview.md` 是 agent 项目总览；详细规则按角色和专题分层阅读。
+
+## 文档分层
+
+| 层 | 读者 | 内容 |
+|---|---|---|
+| Agent Workflow | agent / reviewer / coordinator | `AGENTS.md`、`docs/project-overview.md`、`docs/roles/*`、`docs/agent-startup.md`、`docs/SUBAGENT.md` |
+| Engineering System | 开发 agent / 工程维护者 | 架构、边界、CI/check、RBAC、DB、Core UI、schema、部署运行态 |
+| Product / Module Knowledge | 做具体业务的人 | 各模块 `ARCHITECTURE.md`、长期 `MODULE.md`、业务边界、权限口径、数据语义 |
+| User Docs / Operating Docs | 最终用户 / 业务使用者 | `/docs` 产品模块下的操作说明、制度文档、岗位说明书等 |
+| Planning / Archive | 规划和回溯 | `docs/planning/`、`docs/plans/`，默认不是现行规范 |
 
 ## 角色入口
 
@@ -20,6 +30,7 @@
 
 | 主题 | 文档 |
 |---|---|
+| Agent 项目总览 | `docs/project-overview.md` |
 | 开工分流 | `docs/agent-startup.md`, `docs/SUBAGENT.md` |
 | 架构边界和 gate | `docs/architecture-governance.md`, `docs/module-boundaries.md` |
 | Level 2 任务包执行 | `docs/level2-agent-execution.md` |

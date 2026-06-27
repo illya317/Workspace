@@ -8,7 +8,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # Agent Entry
 
-这是开工入口，不放长篇规范。先看本文件确定地图和红线，再按角色进入 `docs/roles/*.md`。文档总目录见 `docs/README.md`，开工卡片见 `docs/agent-startup.md`。
+这是开工入口，不放长篇规范。先看本文件确定地图和红线，再读项目总览 `docs/project-overview.md`，再按角色进入 `docs/roles/*.md`。文档总目录见 `docs/README.md`，开工卡片见 `docs/agent-startup.md`。
 
 ## 项目地图
 
@@ -39,6 +39,7 @@ app/*                         只做 Next route shell
 
 | 主题 | 文档 |
 |---|---|
+| 项目总览和事实来源 | `docs/project-overview.md` |
 | 开工流程和任务分流 | `docs/agent-startup.md` |
 | Core/Platform 基础设施 | `docs/reusable-components.md` |
 | Core UI 五层治理 | `docs/core-ui-governance.md` |
