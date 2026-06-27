@@ -34,8 +34,8 @@ export function PanelCard({
       {hasHeader && (
         <div className="flex items-start justify-between gap-3 border-b border-slate-200 p-4">
           <div className="min-w-0">
-            {title && <h3 className="truncate text-base font-semibold text-slate-900">{title}</h3>}
-            {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+            {title && <div className="truncate text-base font-semibold text-slate-900">{title}</div>}
+            {subtitle && <div className="mt-1 text-sm text-slate-500">{subtitle}</div>}
           </div>
           {actions && <div className="shrink-0">{actions}</div>}
         </div>
