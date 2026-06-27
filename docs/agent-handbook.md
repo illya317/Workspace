@@ -11,7 +11,7 @@
 
 ## 2. 部署与运行态同步
 
-仓库有两个主要远端：`origin` 是 GitHub，用于公开 CI；`cnb` 是 CNB，用于私有 CD/生产发布源码同步。
+仓库只维护两个远端：`origin` 是 GitHub，用于公开 CI；`cnb` 是 CNB，用于私有 CD/生产发布源码同步。历史 `codeup` 远端已废弃，不再配置或同步。
 
 - `git push origin main` 触发 GitHub Actions CI；CI 执行 `npm run ci`。
 - `git -c credential.helper= -c credential.helper='!cnb git-credential' push cnb main` 只同步 CNB 源码，不触发生产发布，也不作为常规 CI 使用。
