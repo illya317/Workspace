@@ -11,6 +11,7 @@ import { checkLevel2Ratchet } from "./level2-enforce";
 import { checkModules } from "./modules";
 import { checkOpenApi } from "./open-api";
 import { scan } from "./scan";
+import { checkSplitPriority } from "./split-priority";
 
 type GateCheck = [name: string, run: () => boolean | Promise<boolean>];
 
@@ -26,6 +27,7 @@ export async function archGate() {
     ["modules", checkModules],
     ["open-api", checkOpenApi],
     ["app-route-hierarchy", checkAppRouteHierarchy],
+    ["split-priority", checkSplitPriority],
     ["domain-validation", checkDomainValidation],
     ["level2-ratchet", checkLevel2Ratchet],
     ["auth", checkAuth],

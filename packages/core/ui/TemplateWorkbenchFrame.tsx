@@ -216,11 +216,13 @@ export default function TemplateWorkbenchFrame({
     <section className={joinClassNames("space-y-5", className)}>
       {!hideToolbar && <Toolbar items={toolbarItems} />}
       <div className="grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <PanelCard title={selectorTitle} bodyClassName="p-3">
-          <div className="space-y-2">
-            {selectorItems.map((item) => <SelectorCard key={item.key} title={item.title} subtitle={item.subtitle} meta={item.meta} trailing={item.trailing} active={selectedKey === item.key} onClick={() => updateSelector(item.key)} />)}
-          </div>
-        </PanelCard>
+        <div className="min-w-0 max-lg:order-last">
+          <PanelCard title={selectorTitle} bodyClassName="p-3">
+            <div className="space-y-2">
+              {selectorItems.map((item) => <SelectorCard key={item.key} title={item.title} subtitle={item.subtitle} meta={item.meta} trailing={item.trailing} active={selectedKey === item.key} onClick={() => updateSelector(item.key)} />)}
+            </div>
+          </PanelCard>
+        </div>
         <div className="min-w-0 space-y-5">
           {viewSections.map((section) => <TemplateSection key={section.key} section={section} onToggle={() => toggleSection(section, section.expandedView)} />)}
           {viewSections.length === 0 && <EmptyStateCard>{emptyText}</EmptyStateCard>}

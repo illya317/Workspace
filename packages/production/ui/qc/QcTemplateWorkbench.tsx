@@ -112,23 +112,25 @@ function WorkbenchSurface({ viewModel }: { viewModel: QcTemplateWorkbenchViewMod
         />
       )}
       <div className="grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <NavigationSurface
-          kind="selector"
-          selector={{
-            title: viewModel.selectorTitle,
-            bodyClassName: "p-3",
-            contentClassName: "space-y-2",
-            items: viewModel.selectorItems,
-            selectedId: selectorKey,
-            onSelect: (item) => setSelectorKey(item.key),
-            getKey: (item) => item.key,
-            renderItem: (item) => ({
-              title: item.title,
-              subtitle: item.subtitle,
-              trailing: item.trailing,
-            }),
-          }}
-        />
+        <div className="min-w-0 max-lg:order-last">
+          <NavigationSurface
+            kind="selector"
+            selector={{
+              title: viewModel.selectorTitle,
+              bodyClassName: "p-3",
+              contentClassName: "space-y-2",
+              items: viewModel.selectorItems,
+              selectedId: selectorKey,
+              onSelect: (item) => setSelectorKey(item.key),
+              getKey: (item) => item.key,
+              renderItem: (item) => ({
+                title: item.title,
+                subtitle: item.subtitle,
+                trailing: item.trailing,
+              }),
+            }}
+          />
+        </div>
         <div className="min-w-0 space-y-5">
           {sections.map((section) => (
             <DataSurface<QcTemplateWorkbenchRow>

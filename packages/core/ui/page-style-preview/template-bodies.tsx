@@ -14,6 +14,15 @@ function PreviewTextButton({ children, variant = "secondary" }: { children: Reac
   return <button type="button" className={getToolbarActionClassName(variant)}>{children}</button>;
 }
 
+function RightPrioritySplit({ className, left, right }: { className: string; left: ReactNode; right: ReactNode }) {
+  return (
+    <div className={`grid gap-3 ${className}`}>
+      {left ? <div className="min-w-0 max-lg:order-last">{left}</div> : null}
+      <div className="min-w-0">{right}</div>
+    </div>
+  );
+}
+
 export function TemplateBody({
   module,
   page,
@@ -96,8 +105,9 @@ function SplitBody({ module, page, listVisible }: { module: ModuleTemplate; page
   const listItems = page.listItems ?? previewRows.map((row) => row.name);
 
   return (
-    <div className={`grid gap-3 ${listVisible ? "lg:grid-cols-[3fr_7fr]" : "lg:grid-cols-1"}`}>
-      {listVisible && (
+    <RightPrioritySplit
+      className={listVisible ? "lg:grid-cols-[3fr_7fr]" : "lg:grid-cols-1"}
+      left={listVisible ? (
         <PanelCard title={page.group ?? "目录"} bodyClassName="space-y-2 p-3">
           {listItems.map((name, index) => (
             <button key={name} type="button" className="flex w-full items-start justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 first:border-emerald-400 first:bg-emerald-50">
@@ -109,12 +119,12 @@ function SplitBody({ module, page, listVisible }: { module: ModuleTemplate; page
             </button>
           ))}
         </PanelCard>
-      )}
-      <PanelCard title={page.title} subtitle={module.summary} bodyClassName="space-y-4 p-4">
+      ) : null}
+      right={<PanelCard title={page.title} subtitle={module.summary} bodyClassName="space-y-4 p-4">
         <FormGrid fields={page.fields ?? ["编码", "名称", "负责人", "状态", "范围", "类型", "级别", "更新时间"]} />
         {/部门|岗位|架构/.test(page.title) && <DetailStats items={["直属岗位", "总岗位", "直属编制", "总编制"]} />}
-      </PanelCard>
-    </div>
+      </PanelCard>}
+    />
   );
 }
 
@@ -150,14 +160,15 @@ function AnalysisBody({ page }: { page: PageTemplate }) {
         <MetricCard label="预警" value="3" />
         <MetricCard label="覆盖率" value="96%" />
       </div>
-      <div className="grid gap-3 lg:grid-cols-[6fr_4fr]">
-        <AnalysisBlock title={page.title} bodyClassName="h-48 bg-slate-50">
+      <RightPrioritySplit
+        className="lg:grid-cols-[6fr_4fr]"
+        left={<AnalysisBlock title={page.title} bodyClassName="h-48 bg-slate-50">
           <ChartBars />
-        </AnalysisBlock>
-        <AnalysisBlock title="分布" bodyClassName="h-48 bg-slate-50">
+        </AnalysisBlock>}
+        right={<AnalysisBlock title="分布" bodyClassName="h-48 bg-slate-50">
           <ChartBars compact />
-        </AnalysisBlock>
-      </div>
+        </AnalysisBlock>}
+      />
       <PanelCard title="明细交叉表" bodyClassName="p-0">
         <PreviewTable columns={["分类", "数量", "占比", "状态"]} />
       </PanelCard>
@@ -182,18 +193,19 @@ function ChartBars({ compact = false }: { compact?: boolean }) {
 function DocumentBody({ page, listVisible }: { page: PageTemplate; listVisible: boolean }) {
   const { documentItems } = usePageStylePreviewSamples();
   return (
-    <div className={`grid gap-3 ${listVisible ? "lg:grid-cols-[3fr_7fr]" : "lg:grid-cols-1"}`}>
-      {listVisible && (
+    <RightPrioritySplit
+      className={listVisible ? "lg:grid-cols-[3fr_7fr]" : "lg:grid-cols-1"}
+      left={listVisible ? (
         <PanelCard title="目录" bodyClassName="space-y-2 p-3">
           {documentItems.map((name) => (
             <div key={name} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-800">{name}</div>
           ))}
         </PanelCard>
-      )}
-      <PanelCard title={page.title} bodyClassName="space-y-3 p-4">
+      ) : null}
+      right={<PanelCard title={page.title} bodyClassName="space-y-3 p-4">
         <DocumentSurface />
-      </PanelCard>
-    </div>
+      </PanelCard>}
+    />
   );
 }
 
@@ -220,16 +232,17 @@ function ProductionBody({ page }: { page: PageTemplate }) {
   const templateMode = page.paperMode === "template";
 
   return (
-    <div className="grid gap-3 lg:grid-cols-[3fr_7fr]">
-      <PanelCard title="产品" bodyClassName="space-y-2 p-3">
+    <RightPrioritySplit
+      className="lg:grid-cols-[3fr_7fr]"
+      left={<PanelCard title="产品" bodyClassName="space-y-2 p-3">
         {qcPaper.products.map((item) => (
           <button key={item.name} type="button" className="flex w-full items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-left text-sm font-semibold text-slate-800 first:border-emerald-400 first:bg-emerald-50">
             <span>{item.name}</span>
             <span className="text-xs text-slate-400">{item.count} 项</span>
           </button>
         ))}
-      </PanelCard>
-      <PanelCard
+      </PanelCard>}
+      right={<PanelCard
         title={templateMode ? `布局预览：${qcPaper.title.replace(/^一、/, "")}` : page.title}
         actions={templateMode ? <PreviewTextButton>开发模式</PreviewTextButton> : <PreviewTextButton variant="primary">提交</PreviewTextButton>}
         bodyClassName="space-y-4 p-4"
@@ -242,23 +255,24 @@ function ProductionBody({ page }: { page: PageTemplate }) {
           ))}
         </div>
         <QcPaperPreview mode={templateMode ? "template" : "record"} />
-      </PanelCard>
-    </div>
+      </PanelCard>}
+    />
   );
 }
 function UploadBody({ page }: { page: PageTemplate }) {
   return (
-    <div className="grid gap-3 lg:grid-cols-[4fr_6fr]">
-      <PanelCard title={page.title} bodyClassName="space-y-3 p-4">
+    <RightPrioritySplit
+      className="lg:grid-cols-[4fr_6fr]"
+      left={<PanelCard title={page.title} bodyClassName="space-y-3 p-4">
         <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-10 text-center">
           <div className="text-sm font-semibold text-slate-800">选择文件</div>
           <div className="mt-1 text-xs text-slate-400">Excel / PDF / Word</div>
         </div>
         <FormGrid fields={page.fields ?? ["类型", "来源", "负责人", "范围"]} columns="grid-cols-2" />
-      </PanelCard>
-      <PanelCard title="导入预览" bodyClassName="p-0">
+      </PanelCard>}
+      right={<PanelCard title="导入预览" bodyClassName="p-0">
         <PreviewTable columns={["负责人", "类型", "状态", "更新时间"]} />
-      </PanelCard>
-    </div>
+      </PanelCard>}
+    />
   );
 }

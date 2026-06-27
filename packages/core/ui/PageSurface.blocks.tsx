@@ -113,8 +113,19 @@ export function renderBlocks(blocks?: PageSurfaceBlockSpec[]) {
       );
     }
     if (block.kind === "surfaceGroup") {
+      if (block.layout === "grid") {
+        return (
+          <div key={block.key} className={joinClassNames("grid gap-4 lg:grid-cols-2", block.className)}>
+            {block.blocks.map((child, index) => (
+              <div key={child.key} className={index === 0 ? "min-w-0 max-lg:order-last" : "min-w-0"}>
+                {renderBlocks([child])}
+              </div>
+            ))}
+          </div>
+        );
+      }
       return (
-        <div key={block.key} className={joinClassNames(block.layout === "grid" ? "grid gap-4 lg:grid-cols-2" : "space-y-4", block.className)}>
+        <div key={block.key} className={joinClassNames("space-y-4", block.className)}>
           {renderBlocks(block.blocks)}
         </div>
       );
