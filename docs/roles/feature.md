@@ -1,6 +1,6 @@
 # Feature Role
 
-Feature 负责用户可见业务功能、业务 UI、业务 service 和 route shell 落地。
+Feature 负责用户可见业务功能、业务 UI、业务 service 和 route shell 落地。普通业务 UI、页面体验、表单、列表、弹窗和交互流程默认归 Feature。
 
 ## 先读
 
@@ -14,6 +14,7 @@ Feature 负责用户可见业务功能、业务 UI、业务 service 和 route sh
 
 - 修改 `packages/<domain>/ui`、`packages/<domain>/server`、`app/(modules)/<domain>` 薄壳和 `app/api/modules/<domain>` 薄壳。
 - 业务页面只组合 Core / Platform primitive，不重复画页面壳、筛选、表格、弹窗、搜索和分栏。
+- 日常 UI 改造归 Feature；只有涉及 `packages/core/ui`、Surface/Form/Data/Navigation contract、跨模块组件或设计系统治理时，才升级为 UI System / Architecture 任务。
 - 业务长文件瘦身时，只拆同 package 的业务子组件、hook、mapper 和 service helper；拆出的私有函数不登记 registry，也不要从 package 根导出。
 - 清理历史 UI 债时，减少 `scripts/arch/level2-baseline.json` 中对应项，并回传 Architecture 确认。
 
@@ -42,6 +43,7 @@ Feature 负责用户可见业务功能、业务 UI、业务 service 和 route sh
 - 不改 architecture gate、CI 规则、auth/module enforcement 或无关 baseline。
 - 不直接跨业务包 import。
 - 不在 `app/` 继续写真实 UI 实现。
+- 不把单个业务页面的 UI 需求包装成 Core UI contract 变更，除非已有跨模块复用证据或 Architecture 明确要求。
 
 ## 验证
 

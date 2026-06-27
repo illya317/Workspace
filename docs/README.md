@@ -6,6 +6,7 @@
 
 | 角色 | 先读 |
 |---|---|
+| Coordinator / Integrator | `docs/roles/coordinator.md` |
 | Architecture | `docs/roles/architecture.md` |
 | Feature | `docs/roles/feature.md` |
 | Operations | `docs/roles/operations.md` |

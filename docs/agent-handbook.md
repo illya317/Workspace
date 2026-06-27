@@ -86,15 +86,19 @@ cnb build get-build-status --repo <CNB_REPO> --sn "<sn>" --verbose
 
 ### Agent 接力和文件隔离
 
-开工前先读 `docs/agent-startup.md`，再按角色进入 `docs/roles/*.md`，最后按任务类型进入专题文档。Architecture、Feature、Data、Operations、Review 不能混用职责：
+开工前先读 `docs/agent-startup.md`，再按角色进入 `docs/roles/*.md`，最后按任务类型进入专题文档。Coordinator、Architecture、Feature、Data、Operations、Review、Hygiene 不能混用职责：
 
 | 角色 | 权威说明 |
 |---|---|
+| Coordinator / Integrator | `docs/roles/coordinator.md` |
 | Architecture | `docs/roles/architecture.md` |
 | Feature | `docs/roles/feature.md` |
 | Data | `docs/roles/data.md` |
 | Operations | `docs/roles/operations.md` |
 | Review | `docs/roles/review.md` |
+| Hygiene | `docs/roles/hygiene.md` |
+
+Coordinator 负责规划、拆包、分配、跟进、集成和收口自检；最终 Review 必须保持独立，不审自己刚实现或刚集成的改动。
 
 并行时只 stage 自己的文件。`git status --short` 中出现其他 agent 的范围时，不要提交、回滚、格式化或改名。确实需要干净工作区验证时，先 stage 自己的文件，再用 `git stash push --keep-index --include-untracked` 临时隔离，验证后恢复 stash。
 

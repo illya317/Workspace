@@ -27,11 +27,12 @@ app/*                         只做 Next route shell
 
 | 你要做什么 | 先读 |
 |---|---|
+| 规划、拆任务、多 agent 协调、集成收口 | `docs/roles/coordinator.md` |
 | 改 UI、修业务 BUG、加页面/API | `docs/roles/feature.md` |
 | 改 schema、seed、导入、生成数据 | `docs/roles/data.md` |
 | 改架构规则、registry、gate、baseline | `docs/roles/architecture.md` |
 | 改 CI、部署、环境、脚本运行态 | `docs/roles/operations.md` |
-| 做 review | `docs/roles/review.md` |
+| 做独立最终 review | `docs/roles/review.md` |
 | 做周期性清债、baseline/lint 漏洞巡检 | `docs/roles/hygiene.md` |
 
 常用专题：

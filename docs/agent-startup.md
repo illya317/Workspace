@@ -13,7 +13,7 @@
 ## 1. 开工顺序
 
 1. 运行 `git status --short --branch`，确认当前分支和已有脏文件。
-2. 按任务选角色文档：Feature / Data / Architecture / Operations / Review / Hygiene。
+2. 按任务选角色文档：Coordinator / Feature / Data / Architecture / Operations / Review / Hygiene。
 3. 读对应模块 `ARCHITECTURE.md`，再动文件。
 4. 只改本任务文件；看到别人的脏文件，不回滚、不格式化、不提交。
 5. 收尾按风险跑检查。架构相关只认 `npm run arch:gate`。
@@ -22,6 +22,7 @@
 
 | 任务 | 先读 | 常改文件 | 第一判断 |
 |---|---|
+| 多 agent、跨模块、需要拆包或集成收口 | `docs/roles/coordinator.md` | 任务包、文档入口、最终 diff 范围 | 是否需要分配 Feature/Data/Architecture/Ops/Hygiene，以及最终是否需要独立 Review |
 | 改 UI | `docs/roles/feature.md`, `docs/reusable-components.md` | `packages/<domain>/ui/**`，必要时 `packages/core/ui/**` | Core/Platform 有没有现成壳、表格、筛选、搜索、日期、确认、Toast、分栏 |
 | 修 BUG | `docs/roles/feature.md`, 模块 `ARCHITECTURE.md` | 从 `app` 壳追到 package UI/service | BUG 属于 UI 展示、API contract、domain 规则、service 落库还是数据 |
 | 写 API/保存 | `docs/architecture-governance.md`, `docs/security/rbac.md` | `app/api/modules/<domain>/**`, `packages/<domain>/server/**` | 是否满足 `Zod -> domain -> service`，route 是否只做壳 |
@@ -89,6 +90,7 @@
 - 不要每个小 patch 都高频跑完整检查；部署前、一个任务收口、或多文件/大量改动时按风险跑。
 - 多 agent 并行时，小任务默认延后 npm 验证。普通执行 agent 完成局部改动后只做 diff/相关文件自查，并在交付说明中写清“未跑 npm 检查，等待统一验证”；不要因为一个小改动就启动 `lint`、`typecheck`、`arch:gate` 或 `build`。
 - 只有这些情况主动跑 npm 检查：用户明确要求；当前 agent 是收口/集成/提交前验证角色；改动触及共享脚本、CI、package 配置、schema、权限/registry/gate 或跨模块 contract；或局部自查无法判断风险。
+- Coordinator 收口自检不等于最终 Review；全部完成后需要独立 Review 审查最终 diff 和交付风险。
 - 本地重型检查走项目锁串行执行。`lint`、`typecheck`、`arch:gate`、`build` 等 npm script 已包 `scripts/check/with-check-lock.js`；如果终端提示 `Waiting for project check lock`，说明别的 agent 正在跑检查，等待即可，不要再开并行检查。`arch:gate` 会按代码快照复用已通过结果；看到 `Reusing cached arch:gate result` 表示同一快照无需重复跑。
 - 收口/集成/提交前验证时按风险选命令：文档改动跑 `npm run docs:check`；普通 TS/TSX 跑 `npm run check:changed`；涉及边界、权限、registry、Core/Platform 或 API contract 时加 `npm run check:arch`；schema/model/migration 跑 `npm run check:data`；CI 收口跑 `npm run check:ci`；周期性清债跑 `npm run check:hygiene`。
 - pre-commit 的 `check:quick` 是最后防线，不要用 `--no-verify` 绕过。检查失败时先判断是否由当前任务造成；无关并行失败要在交付说明里标明，不要顺手修或提交别人的文件。

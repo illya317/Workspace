@@ -1,6 +1,6 @@
 # Review Role
 
-Review 专门负责审查本次交付的架构、边界和风险。Review 不做 feature 实现，也不负责周期性清债。
+Review 专门负责审查本次交付的架构、边界和风险。Review 不做 feature 实现，也不负责周期性清债。Coordinator 可以做收口自检，但最终 Review 必须保持独立。
 
 ## 先读
 
@@ -18,6 +18,7 @@ Review 专门负责审查本次交付的架构、边界和风险。Review 不做
 2. 先查结构风险，再查样式和实现细节：边界污染 > 验证缺失 > 抽象缺口 > 迁移债 > 重复代码。
 3. 先看 CI/gate/lint 是否真实覆盖，再看代码是否靠人工约定绕过。
 4. Findings 优先输出可定位的文件和行号，不做泛泛建议。
+5. 如果 Review agent 参与过本次实现、合并或收口集成，不能再作为最终 Review 背书。
 
 ## 必查项
 
@@ -38,6 +39,7 @@ Review 专门负责审查本次交付的架构、边界和风险。Review 不做
 - 不实现业务功能。
 - 不自行修改 architecture gate、baseline、CI 或 registry，除非用户明确指定 Review 执行修复。
 - 不用“看起来还行”代替 gate/lint/typecheck 结果。
+- 不替代 Coordinator 做任务拆分、分配和集成收口。
 
 ## 建议验证
 
