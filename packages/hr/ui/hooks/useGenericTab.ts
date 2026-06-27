@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useDebouncedEffect } from "@workspace/core/hooks";
 import { workspacePath } from "@workspace/core/routing";
 import type { TabConfig } from "@workspace/hr/types";
 
@@ -57,7 +58,6 @@ export function useGenericTab(config: TabConfig): GenericTabState {
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
-  const keywordTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [filters, setFilters] = useState<Record<string, string>>(() => {
     const init: Record<string, string> = {};
     if (config.filters) {
@@ -79,17 +79,13 @@ export function useGenericTab(config: TabConfig): GenericTabState {
   const [pageSize] = useState(50);
   const [total, setTotal] = useState(0);
 
-  // Debounce keyword → searchKeyword（300ms），搜索时自动重置到第 1 页
-  useEffect(() => {
-    if (keywordTimerRef.current) clearTimeout(keywordTimerRef.current);
-    keywordTimerRef.current = setTimeout(() => {
-      setSearchKeyword(keyword);
-      setPageRaw(1);
-    }, 300);
-    return () => {
-      if (keywordTimerRef.current) clearTimeout(keywordTimerRef.current);
-    };
+  const syncSearchKeyword = useCallback(() => {
+    setSearchKeyword(keyword);
+    setPageRaw(1);
   }, [keyword]);
+
+  // Debounce keyword → searchKeyword（300ms），搜索时自动重置到第 1 页
+  useDebouncedEffect(syncSearchKeyword, 300);
 
   const setPage = useCallback((v: number) => {
     setPageRaw(v);
