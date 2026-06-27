@@ -25,20 +25,25 @@ import {
   findLegacyServiceFiles,
 } from "./level2-legacy";
 import { findBusinessModuleViewUsages, type BusinessModuleViewUsage } from "./level2-module-view";
+import {
+  findBusinessPageLayoutPrimitiveUsages,
+  findBusinessToolbarCompositionWarnings,
+  findPageSurfaceLayoutProtocolWarnings,
+  type BusinessPageLayoutPrimitiveUsage,
+  type BusinessToolbarCompositionWarning,
+  type PageSurfaceLayoutProtocolWarning,
+} from "./level2-page-layout";
 import { findHandwrittenSearchMatches, type HandwrittenSearchMatchCandidate } from "./level2-search";
 import { countApiContractsByOwner, findAppJsxFiles } from "./level2-report-helpers";
 import {
   findAppHookFiles,
   findAppHookImplementationFiles,
-  findBusinessPageLayoutPrimitiveUsages,
   findBusinessCoreUiSurfaceBypassImports,
   findBusinessCoreUiTypeBypassImports,
-  findBusinessToolbarCompositionWarnings,
   findDuplicateCoreUiRegistrations,
   findGeneratedFilterContractDrift,
   findHookPatternCandidates,
   findNativeSearchInputFiles,
-  findPageSurfaceLayoutProtocolWarnings,
   findPageDesignDriftFiles,
   findPlatformCoreUiRuntimeBypassImports,
   findUiPatternCandidates,
@@ -46,13 +51,10 @@ import {
   findUnregisteredCoreUiImports,
   type BusinessCoreUiSurfaceBypassImport,
   type BusinessCoreUiTypeBypassImport,
-  type BusinessPageLayoutPrimitiveUsage,
-  type BusinessToolbarCompositionWarning,
   type DuplicateCoreUiRegistration,
   type GeneratedFilterContractDrift,
   type HookPatternCandidate,
   type NativeSearchInputFile,
-  type PageSurfaceLayoutProtocolWarning,
   type PageDesignDriftFile,
   type PlatformCoreUiRuntimeBypassImport,
   type UiPatternCandidate,
