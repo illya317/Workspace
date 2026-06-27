@@ -1,7 +1,6 @@
 "use client";
 
 import type { MouseEvent } from "react";
-import { ActionGlyph } from "./ActionGlyphs";
 import { joinClassNames } from "./card-utils";
 import { useConfirmDelete, type ConfirmOptions } from "./ConfirmProvider";
 
@@ -59,7 +58,7 @@ export default function TagRemoveButton({
         className,
       )}
     >
-      <ActionGlyph kind="delete-bin" className="h-3 w-3" />
+      ×
     </button>
   );
 }

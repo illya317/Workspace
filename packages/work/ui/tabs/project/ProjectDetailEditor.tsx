@@ -73,6 +73,7 @@ export default function ProjectDetailEditor({
   onToast: (toast: { type: "success" | "error"; message: string }) => void;
 }) {
   const [activeTab, setActiveTab] = useState("overview");
+  const [addingMemberRole, setAddingMemberRole] = useState<MultiProjectRole | null>(null);
   const isChildProject = Boolean(draft?.parentProjectTaskId);
   const parentProjectLabel = draft
     ? [draft.parentProjectCode, draft.parentProjectName].filter(Boolean).join(" · ") || "未设置"
@@ -134,20 +135,36 @@ export default function ProjectDetailEditor({
           confirmMessage: (member) => `确定删除项目人员「${member.name}」吗？删除后需要保存才会生效。`,
           itemTitle: (member) => (member.confirmationStatus === "pending" ? `${member.name}：待确认` : member.name),
           itemClassName: (member) => member.confirmationStatus === "pending" ? "!border-amber-200 !bg-amber-50 !text-amber-800 shadow-amber-100" : "",
-          append: !canManageCurrent || creating ? undefined : {
-            field: {
-              key: `add-${role}`,
-              label: `添加${role}`,
-              spec: { valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.projects.member.employee", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" } },
-              value: "",
-              placeholder: "搜索员工",
-              onChange: (_value, option) => {
-                const employee = employeeFromOption(option as FkFieldOption | undefined);
-                if (!employee) return;
-                onRoleMembersChange(role, dedupeMembers([...draft.roleGroups[role], employee]));
+          append: !canManageCurrent || creating ? undefined : addingMemberRole === role
+            ? {
+                className: "min-w-40 flex-1",
+                field: {
+                  key: `add-${role}`,
+                  label: `添加${role}`,
+                  spec: { valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.projects.member.employee", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" } },
+                  value: "",
+                  autoFocus: true,
+                  placeholder: "搜索员工",
+                  onKeyDown: (event) => {
+                    if (event.key === "Escape") setAddingMemberRole(null);
+                  },
+                  onChange: (_value, option) => {
+                    const employee = employeeFromOption(option as FkFieldOption | undefined);
+                    if (!employee) return;
+                    onRoleMembersChange(role, dedupeMembers([...draft.roleGroups[role], employee]));
+                    setAddingMemberRole(null);
+                  },
+                },
+              }
+            : {
+                action: {
+                  key: `start-add-${role}`,
+                  label: "+",
+                  onClick: () => setAddingMemberRole(role),
+                  size: "sm",
+                  className: "!size-7 !rounded-full !border-slate-200 !bg-slate-50 !p-0 text-base font-semibold leading-none !text-slate-700 hover:!border-slate-300 hover:!bg-slate-100",
+                },
               },
-            },
-          },
         })),
       ],
     },
