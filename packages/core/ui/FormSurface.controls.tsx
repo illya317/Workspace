@@ -10,11 +10,11 @@ import SelectField from "./SelectField";
 import TagListInput from "./TagListInput";
 import TextareaField from "./TextareaField";
 import TextField from "./TextField";
-import CommandButton from "./CommandButton";
 import { Toolbar } from "./Toolbar";
 import { joinClassNames } from "./card-utils";
+import { renderCommands } from "./form-surface-commands";
+export { renderCommands };
 import type {
-  FormSurfaceCommandSpec,
   FormSurfaceControlSpec,
   FormSurfaceFieldSpec,
   FormSurfaceItemSpec,
@@ -26,28 +26,6 @@ import type {
 
 export function isInputField<T>(field: FormSurfaceItemSpec<T>): field is FormSurfaceFieldSpec {
   return !("kind" in field) || field.kind === "field";
-}
-
-export function renderCommands(commands?: FormSurfaceCommandSpec[]) {
-  if (!commands?.length) return null;
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      {commands.map((command) => (
-        <CommandButton
-          key={command.key}
-          type={command.type}
-          variant={command.variant}
-          disabled={command.disabled}
-          size={command.size}
-          className={command.className}
-          truncate={command.truncate}
-          onClick={command.onClick}
-        >
-          {command.label}
-        </CommandButton>
-      ))}
-    </div>
-  );
 }
 
 export function renderToolbar(toolbar?: FormSurfaceToolbarSpec) {

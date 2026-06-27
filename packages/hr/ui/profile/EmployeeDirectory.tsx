@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   DataSurface,
-  FormSurface,
   type DataSurfaceColumnSpec,
   type FieldValueFilterField,
   type SelectFieldOption,
@@ -13,7 +12,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { buildHRToolbarItems } from "../components/hr-toolbar-items";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../fk-keys";
 import { HR_EDUCATIONS } from "@workspace/hr/constants";
-import { hrCanEdit, type HRUser } from "@workspace/hr/types";
+import type { HRUser } from "@workspace/hr/types";
 
 interface DirectoryEmployee {
   id: number;
@@ -65,23 +64,18 @@ function genderLabel(value: boolean | null) {
 }
 
 export default function EmployeeDirectory({
-  user,
   employmentStatus,
 }: {
   user: HRUser;
   employmentStatus?: "active" | "inactive";
 }) {
   const router = useRouter();
-  const canEdit = hrCanEdit(user);
   const [keyword, setKeyword] = useState("");
   const [employees, setEmployees] = useState<DirectoryEmployee[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [creating, setCreating] = useState(false);
-  const [createOpen, setCreateOpen] = useState(false);
-  const [newEmployeeName, setNewEmployeeName] = useState("");
   const [filterField, setFilterField] = useState("");
   const [filterValue, setFilterValue] = useState("");
   const [visibleColumns, setVisibleColumns] = useState<string[]>(defaultVisibleColumns);
@@ -147,47 +141,7 @@ export default function EmployeeDirectory({
     };
   }, [employmentStatus, filterField, filterValue, keyword, page, pageSize]);
 
-  async function createEmployee() {
-    if (!newEmployeeName.trim()) {
-      setError("姓名必填");
-      return;
-    }
-    setCreating(true);
-    setError(null);
-    try {
-      const res = await fetch(workspacePath("/api/modules/hr/roster/employees"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: newEmployeeName.trim(),
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || `新建失败 (${res.status})`);
-      const employeeId = data.employee?.employeeId as string | undefined;
-      setNewEmployeeName("");
-      setCreateOpen(false);
-      if (employeeId) router.push(`/hr/roster/employees/${employeeId}`);
-      else {
-        setKeyword("");
-        setPage(1);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "新建失败");
-    } finally {
-      setCreating(false);
-    }
-  }
-
   const toolbarItems = buildHRToolbarItems({
-    create: canEdit
-      ? {
-          label: "新建员工资料",
-          active: createOpen,
-          disabled: creating,
-          onClick: () => setCreateOpen((open) => !open),
-        }
-      : undefined,
     search: {
       value: keyword,
       onChange: (value: string) => {
@@ -235,41 +189,6 @@ export default function EmployeeDirectory({
 
   return (
     <div className="space-y-5">
-      {canEdit && createOpen && (
-        <FormSurface
-          kind="fields"
-          fields={[{
-            key: "name",
-            label: "姓名",
-            required: true,
-            spec: { valueType: "string", editor: "input" },
-            value: newEmployeeName,
-            onChange: (value) => setNewEmployeeName(String(value ?? "")),
-            placeholder: "输入姓名",
-          }]}
-          onSubmit={() => void createEmployee()}
-          actions={[
-            {
-              key: "submit",
-              type: "submit",
-              variant: "primary",
-              disabled: creating || !newEmployeeName.trim(),
-              label: creating ? "创建中..." : "新建员工资料",
-            },
-            {
-              key: "cancel",
-              type: "button",
-              variant: "secondary",
-              label: "取消",
-              onClick: () => {
-                setCreateOpen(false);
-                setNewEmployeeName("");
-              },
-            },
-          ]}
-        />
-      )}
-
       {error && <p className="rounded-lg border border-red-100 bg-white px-4 py-3 text-sm text-red-600">{error}</p>}
 
       <DataSurface

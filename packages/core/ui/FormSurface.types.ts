@@ -12,6 +12,7 @@ import type { TextareaFieldProps } from "./TextareaField";
 import type { TextFieldProps } from "./TextField";
 import type { CommandButtonProps } from "./CommandButton";
 import type { ToolbarProps } from "./Toolbar";
+import type { ActionGlyphKind } from "./ActionGlyphs";
 
 export type FormSurfaceKind = "fields" | "filters" | "modal" | "inline" | "detail" | "login" | "control";
 export type FormSurfaceLooseItem = ReturnType<typeof JSON.parse>;
@@ -23,6 +24,8 @@ export type FormSurfaceToolbarSpec = Omit<ToolbarProps, "items"> & {
 export interface FormSurfaceCommandSpec {
   key: string;
   label: ReactNode;
+  icon?: ActionGlyphKind;
+  presentation?: "auto" | "text" | "icon";
   onClick?: () => void;
   disabled?: boolean;
   variant?: "primary" | "secondary" | "danger";

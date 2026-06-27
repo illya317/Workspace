@@ -158,7 +158,12 @@ export const ACTION_GLYPH_GROUP_BY_KIND: Record<ActionGlyphKind, ActionGlyphGrou
 
 export function ActionGlyph({ kind, className = "h-5 w-5" }: ActionGlyphProps) {
   if (kind === "add") {
-    return <span aria-hidden="true" className="-translate-y-px text-base leading-none">+</span>;
+    return (
+      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} viewBox="0 0 24 24">
+        <path d="M12 5v14" />
+        <path d="M5 12h14" />
+      </svg>
+    );
   }
   if (kind === "send") {
     return (
