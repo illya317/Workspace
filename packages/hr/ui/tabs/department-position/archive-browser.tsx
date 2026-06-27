@@ -6,6 +6,7 @@ import {
   type PageSurfaceBlockSpec,
   type PageSurfaceSideSpec,
 } from "@workspace/core/ui";
+import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 import type { ArchivedEntityTab, Department, Position, Selection } from "./types";
 import { formatArchiveTime, shortPositionCode } from "./utils";
 
@@ -27,7 +28,8 @@ export function ArchivedDepartmentPositionPage({
   onSideOpenChange,
   onDrawerOpenChange,
   onSelect,
-  children,
+  blocks,
+  surface,
 }: {
   archivedDepartments: Department[];
   archivedPositions: Position[];
@@ -39,7 +41,8 @@ export function ArchivedDepartmentPositionPage({
   onSideOpenChange: (open: boolean) => void;
   onDrawerOpenChange: (open: boolean) => void;
   onSelect: (selection: Selection) => void;
-  children: ReactNode;
+  blocks: PageSurfaceBlockSpec[];
+  surface?: RosterSurfaceNavigationProps;
 }) {
   const archivedItems: ArchivedEntityItem[] = archivedTab === "departments"
     ? archivedDepartments.map((department) => ({
@@ -72,20 +75,28 @@ export function ArchivedDepartmentPositionPage({
           }]
         : []),
       {
-        kind: "navigation",
+        kind: "form",
         key: "tabs",
         surface: {
-          kind: "tabs",
+          kind: "inline",
           className: "mt-3",
-          tabs: {
-            variant: "micro",
-            active: archivedTab,
-            onChange: (tab) => onArchivedTabChange(tab as ArchivedEntityTab),
-            tabs: [
-              { key: "departments", label: <>归档部门 <span className="ml-1 text-xs font-medium text-slate-400">{archivedDepartments.length}</span></> },
-              { key: "positions", label: <>归档岗位 <span className="ml-1 text-xs font-medium text-slate-400">{archivedPositions.length}</span></> },
-            ],
-          },
+          fields: [{
+            key: "archived-type",
+            label: "归档类型",
+            spec: {
+              valueType: "string",
+              editor: "select",
+              options: {
+                source: "static",
+                items: [
+                  { value: "departments", label: `归档部门 ${archivedDepartments.length}` },
+                  { value: "positions", label: `归档岗位 ${archivedPositions.length}` },
+                ],
+              },
+            },
+            value: archivedTab,
+            onChange: (value) => onArchivedTabChange(String(value || "departments") as ArchivedEntityTab),
+          }],
         },
       },
     ];
@@ -140,8 +151,9 @@ export function ArchivedDepartmentPositionPage({
 
   return (
     <PageSurface
-      embedded
+      embedded={!surface}
       kind="split"
+      {...surface}
       sideOpen={sideOpen}
       sideLabel="列表"
       onSideOpenChange={onSideOpenChange}
@@ -149,7 +161,7 @@ export function ArchivedDepartmentPositionPage({
       onDrawerOpenChange={onDrawerOpenChange}
       showSideControls={false}
       side={side}
-      blocks={[{ kind: "moduleView", key: "content", view: children }]}
+      blocks={blocks}
     />
   );
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { DataSurface, FormSurface, useFeedback } from "@workspace/core/ui";
-import type { SurfaceToolbarItems } from "@workspace/core/ui";
+import { DataSurface, FormSurface, PageSurface, useFeedback } from "@workspace/core/ui";
+import type { PageSurfaceBlockSpec, PageSurfaceProps, SurfaceToolbarItems } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { ProjectItem } from "./model";
 import { listProjectOptions, listProjectPlanGantt, saveProjectPlanDependencies, saveProjectPlanGantt } from "./api";
@@ -12,9 +12,11 @@ import { PROJECT_GANTT_ZOOM_OPTIONS } from "./gantt-model";
 import { periodStart as getPeriodStart, shiftPeriod } from "./gantt-time";
 import type { ProjectPlanDependency, ProjectPlanGanttData, ProjectPlanItem } from "./plan-gantt-model";
 export default function ProjectPlanGanttTab({
-  requestedProjectId
+  requestedProjectId,
+  surface,
 }: {
   requestedProjectId?: number | null;
+  surface?: ProjectPlanGanttSurfaceProps;
 }) {
   const feedback = useFeedback();
   const [projects, setProjects] = useState<ProjectItem[]>([]);
@@ -100,10 +102,9 @@ export default function ProjectPlanGanttTab({
       setSaving(false);
     }
   }
-  return <div className="space-y-4">
-      <FormSurface
-        kind="inline"
-        toolbar={{ items: [
+  const toolbarSurface = {
+    kind: "inline" as const,
+    toolbar: { items: [
           {
             kind: "search",
             key: "search",
@@ -163,12 +164,40 @@ export default function ProjectPlanGanttTab({
             section: "meta",
             content: "基线来自项目阶段",
           },
-        ] satisfies SurfaceToolbarItems }}
-      />
-
-      {error ? <DataSurface kind="records" records={[]} empty={error} className="border-red-200 text-red-600" /> : loading ? <DataSurface kind="records" records={[]} empty="加载项目甘特..." /> : !data ? <DataSurface kind="records" records={[]} empty="请选择项目" /> : <ProjectPlanGanttTimeline items={items} phases={data.phases} dependencies={dependencies} periodStart={currentStart} zoom={zoom} />}
+        ] satisfies SurfaceToolbarItems },
+  };
+  const timeline = error ? (
+    <DataSurface kind="records" records={[]} empty={error} className="border-red-200 text-red-600" />
+  ) : loading ? (
+    <DataSurface kind="records" records={[]} empty="加载项目甘特..." />
+  ) : !data ? (
+    <DataSurface kind="records" records={[]} empty="请选择项目" />
+  ) : (
+    <ProjectPlanGanttTimeline items={items} phases={data.phases} dependencies={dependencies} periodStart={currentStart} zoom={zoom} />
+  );
+  if (surface) {
+    const blocks = [
+      { kind: "form" as const, key: "project-plan-gantt-toolbar", surface: toolbarSurface },
+      {
+        kind: "form" as const,
+        key: "project-plan-gantt-timeline",
+        surface: {
+          kind: "fields" as const,
+          className: "!p-0",
+          bodyClassName: "block",
+          fields: [{ kind: "note" as const, key: "timeline", className: "p-0", content: timeline }],
+        },
+      },
+    ] satisfies PageSurfaceBlockSpec[];
+    return <PageSurface kind="list" {...surface} blocks={blocks} />;
+  }
+  return <div className="space-y-4">
+      <FormSurface {...toolbarSurface} />
+      {timeline}
     </div>;
 }
+type ProjectPlanGanttSurfaceProps = Pick<PageSurfaceProps, "tabs" | "activeTab" | "activeChild" | "onTabChange" | "onChildChange">;
+
 function itemsForSave(items: ProjectPlanItem[]) {
   return items.map(item => ({
     kind: item.kind,

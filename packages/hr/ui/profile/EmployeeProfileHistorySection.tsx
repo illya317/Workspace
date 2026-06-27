@@ -1,4 +1,9 @@
-import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import {
+  DataSurface,
+  type DataSurfaceColumnSpec,
+  type DataSurfaceProps,
+  type PageSurfaceBlockSpec,
+} from "@workspace/core/ui";
 export interface ProfileHistoryEntry {
   id: number;
   entityType: string;
@@ -14,22 +19,20 @@ export interface ProfileHistoryEntry {
     to: string;
   }>;
 }
-export function HistorySection({
-  entries,
-  loading,
-  expandedId,
-  onToggle,
-  onRefresh,
-  className
-}: {
+
+interface HistorySectionProps {
   entries: ProfileHistoryEntry[];
   loading: boolean;
   expandedId: number | null;
   onToggle: (id: number) => void;
   onRefresh: () => void;
   className?: string;
-}) {
-  const changeColumns: DataSurfaceColumnSpec<ProfileHistoryEntry["changes"][number]>[] = [{
+}
+
+type ProfileHistoryChange = ProfileHistoryEntry["changes"][number];
+
+function historyChangeColumns(): DataSurfaceColumnSpec<ProfileHistoryChange>[] {
+  return [{
     key: "field",
     label: "字段",
     required: true,
@@ -45,29 +48,71 @@ export function HistorySection({
     required: true,
     cell: change => ({ kind: "text", value: change.to, className: "text-slate-900" })
   }];
-  return <DataSurface
-    kind="records"
-    framed
-    title="历史记录"
-    subtitle="记录谁在什么时候修改了哪些字段。"
-    className={className}
-    actions={[{ key: "refresh", label: "刷新", variant: "secondary", onClick: onRefresh }]}
-    empty={loading ? "正在加载历史记录..." : "暂无变更记录"}
-    records={loading ? [] : entries.map(entry => {
+}
+
+export function historySectionSurface({
+  entries,
+  loading,
+  expandedId,
+  onToggle,
+  onRefresh,
+  className
+}: HistorySectionProps): DataSurfaceProps<ProfileHistoryChange> {
+  const changeColumns = historyChangeColumns();
+  return {
+    kind: "records",
+    framed: true,
+    title: "历史记录",
+    subtitle: "记录谁在什么时候修改了哪些字段。",
+    className,
+    actions: [{ key: "refresh", label: "刷新", variant: "secondary", onClick: onRefresh }],
+    empty: loading ? "正在加载历史记录..." : "暂无变更记录",
+    records: loading ? [] : entries.map(entry => {
       const expanded = expandedId === entry.id;
       const headerTitle = entry.action === "create" ? `${entry.editorName} 创建记录` : `${entry.editorName} 修改了 ${entry.changes.length} 项`;
       return {
         key: String(entry.id),
         expanded,
         onToggle: () => onToggle(entry.id),
-        header: <div><div className="text-sm font-semibold text-slate-900">{headerTitle}</div><div className="mt-1 text-xs text-slate-500">{new Date(entry.createdAt).toLocaleString("zh-CN", {
-          hour12: false
-        })} · {entry.entityType} #{entry.entityId} · v{entry.version}</div></div>,
-        summary: <span className="text-xs text-slate-400">{expanded ? "收起" : "展开"}</span>,
+        header: {
+          kind: "stack" as const,
+          gap: "xs" as const,
+          items: [
+            { kind: "text" as const, value: headerTitle, className: "text-sm font-semibold text-slate-900" },
+            {
+              kind: "text" as const,
+              value: `${new Date(entry.createdAt).toLocaleString("zh-CN", { hour12: false })} · ${entry.entityType} #${entry.entityId} · v${entry.version}`,
+              className: "text-xs text-slate-500",
+            },
+          ],
+        },
+        summary: { kind: "text" as const, value: expanded ? "收起" : "展开", className: "text-xs text-slate-400" },
         detail: entry.action === "create"
           ? { kind: "empty", content: "创建时的初始快照。" }
-          : <DataSurface kind="table" rows={entry.changes} columns={changeColumns} visibleColumns={["field", "from", "to"]} density="compact" rowKey={change => `${entry.id}-${change.field}`} />,
+          : undefined,
+        detailSurface: entry.action === "create"
+          ? undefined
+          : {
+              kind: "table" as const,
+              rows: entry.changes,
+              columns: changeColumns,
+              visibleColumns: ["field", "from", "to"],
+              density: "compact" as const,
+              rowKey: change => `${entry.id}-${change.field}`,
+            },
       };
-    })}
-  />;
+    }),
+  };
+}
+
+export function historySectionBlock(props: HistorySectionProps): PageSurfaceBlockSpec {
+  return {
+    kind: "data",
+    key: "history",
+    surface: historySectionSurface(props),
+  };
+}
+
+export function HistorySection(props: HistorySectionProps) {
+  return <DataSurface {...historySectionSurface(props)} />;
 }

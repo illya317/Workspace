@@ -1,9 +1,9 @@
 "use client";
 
-import { FormSurface, PageSurface, useFeedback } from "@workspace/core/ui";
+import { FormSurface, useFeedback } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { formatHistoryVersion, normalizeDateValue, versionNumber } from "./draft-utils";
-import { EntityValueInput, StringListEditor } from "./detail-editor-primitives";
+import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
 type DetailRecord = Record<string, unknown>;
 export function PositionDutyEditor({
   detailKey,
@@ -43,50 +43,63 @@ export function PositionDutyEditor({
     if (confirmed) onChange(records.filter((_, recordIndex) => recordIndex !== index));
   }
   return <div key={detailKey} className="space-y-3 md:col-span-2">
-      <div className="flex items-center gap-3">
-        <span className="text-xs font-semibold text-slate-600">{label}</span>
-        {!disabled && <FormSurface kind="inline" actions={[{ key: "add-duty", label: `新增${label}`, onClick: addDuty }]} />}
-      </div>
-      {records.map((record, index) => {
-      const items = Array.isArray(record.items) ? record.items : [];
-      return <div key={index} ref={getItemRef(index)}>
-            <PageSurface
-              embedded
-              kind="detail"
-              blocks={[{
-                kind: "panel",
-                key: `duty-${index}`,
-                bodyClassName: "p-3",
-                blocks: [{
-                  kind: "moduleView",
-                  key: "content",
-                  view: <>
-                    <div className="mb-2 flex items-center gap-3">
-                      <span className="text-xs font-medium text-slate-500">职责 {index + 1}</span>
-                      {!disabled && <FormSurface kind="inline" actions={[{ key: "delete-duty", label: "删除", variant: "danger", size: "sm", onClick: () => void removeDuty(index), className: "px-2 py-1 text-xs" }]} />}
-                    </div>
-                    <div className="grid grid-cols-1 gap-2">
-                      <FormSurface
-                        kind="control"
-                        control={{
-                          kind: "inputControl",
-                          spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" },
-                          value: String(record.title || ""),
-                          placeholder: "职责标题",
-                          onChange: next => updateDuty(index, { title: String(next ?? "") }),
-                        }}
-                      />
-                      <StringListEditor label="职责条目" value={items} disabled={disabled} placeholder="新增职责条目" onChange={nextItems => updateDuty(index, {
-                        items: nextItems
-                      })} />
-                    </div>
-                  </>,
-                }],
-              }]}
-            />
-          </div>;
-    })}
-      {records.length === 0 && <PageSurface embedded kind="detail" empty={{ content: "未设置", compact: true }} />}
+      <FormSurface<string>
+        kind="fields"
+        fields={[{
+          kind: "repeatable",
+          key: detailKey,
+          title: label,
+          addAction: disabled ? undefined : { key: "add-duty", label: `新增${label}`, onClick: addDuty },
+          empty: "未设置",
+          columns: 1,
+          items: records.map((record, index) => {
+            const items = Array.isArray(record.items) ? record.items.map((item) => String(item)) : [];
+            return {
+              key: `duty-${index}`,
+              itemRef: getItemRef(index),
+              title: `职责 ${index + 1}`,
+              actions: disabled ? undefined : [{ key: "delete-duty", label: "删除", variant: "danger", size: "sm", onClick: () => void removeDuty(index), className: "px-2 py-1 text-xs" }],
+              fields: [
+                {
+                  key: "title",
+                  label: "职责标题",
+                  spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" },
+                  value: String(record.title || ""),
+                  placeholder: "职责标题",
+                  onChange: next => updateDuty(index, { title: String(next ?? "") }),
+                },
+                {
+                  kind: "tagList",
+                  key: "items",
+                  label: "职责条目",
+                  items,
+                  getKey: (item, itemIndex) => `${item}-${itemIndex}`,
+                  getLabel: (item) => item,
+                  onRemove: (_, itemIndex) => updateDuty(index, { items: items.filter((__, currentIndex) => currentIndex !== itemIndex) }),
+                  disabled,
+                  confirmMessage: (item) => `确定删除「${item || "职责条目"}」吗？删除后需要保存才会生效。`,
+                  emptyText: disabled ? "未设置" : undefined,
+                  shellClassName: "content-start",
+                  append: disabled ? undefined : {
+                    field: {
+                      key: "appendDutyItem",
+                      label: "",
+                      spec: { valueType: "string", editor: "input" },
+                      value: "",
+                      placeholder: "新增职责条目",
+                      onChange: (next) => {
+                        const text = String(next ?? "").trim();
+                        if (!text) return;
+                        updateDuty(index, { items: [...items, text].filter((item, itemIndex, array) => array.indexOf(item) === itemIndex) });
+                      },
+                    },
+                  },
+                },
+              ],
+            };
+          }),
+        }]}
+      />
     </div>;
 }
 export function PositionChangeHistoryEditor({
@@ -126,46 +139,47 @@ export function PositionChangeHistoryEditor({
     if (confirmed) onChange(records.filter((_, recordIndex) => recordIndex !== index));
   }
   return <div key="changeHistory" className="space-y-3 md:col-span-2">
-      <div className="flex items-center gap-3">
-        <span className="text-xs font-semibold text-slate-600">变更历史</span>
-        {!disabled && <FormSurface kind="inline" actions={[{ key: "add-history", label: "新增变更历史", onClick: addRecord }]} />}
-      </div>
-      {records.map((record, index) => {
-      const rawDate = String(record.effectiveDate || "");
-      const dateInvalid = !!rawDate && !normalizeDateValue(rawDate);
-      const approverInvalid = String(record.approver || "").includes("见首页");
-      return <div key={index} ref={getItemRef(index)}>
-            <PageSurface
-              embedded
-              kind="detail"
-              blocks={[{
-                kind: "panel",
-                key: `history-${index}`,
-                bodyClassName: "grid grid-cols-1 gap-2 p-3 md:grid-cols-[88px_minmax(0,1.5fr)_minmax(180px,0.8fr)_minmax(180px,0.8fr)]",
-                blocks: [{
-                  kind: "moduleView",
-                  key: "content",
-                  view: <>
-                    <FormSurface
-                      kind="fields"
-                      className="contents"
-                      bodyClassName="contents"
-                      fields={[
-                        { key: "version", label: "版本", spec: { valueType: "string", editor: "input", state: "readonly" }, value: String(record.version || formatHistoryVersion(index)) },
-                        { key: "documentName", label: "文件名", spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }, value: String(record.documentName || ""), onChange: next => updateRecord(index, { documentName: String(next ?? "") }) },
-                        { key: "effectiveDate", label: "生效日期", error: dateInvalid ? "日期格式错误，请重新选择。" : undefined, spec: { valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }, value: rawDate, onChange: next => updateRecord(index, { effectiveDate: next || "" }) },
-                      ]}
-                    />
-                    <EntityValueInput label="批准" entity="employee" value={record.approver} disabled={disabled} invalid={approverInvalid} onChange={next => updateRecord(index, {
-                      approver: next || ""
-                    })} />
-                    {!disabled && <FormSurface kind="inline" className="md:col-span-4 md:justify-self-end" actions={[{ key: "delete-history", label: "删除", variant: "danger", size: "sm", onClick: () => void removeRecord(index), className: "px-2 py-1 text-xs" }]} />}
-                  </>,
-                }],
-              }]}
-            />
-          </div>;
-    })}
-      {records.length === 0 && <PageSurface embedded kind="detail" empty={{ content: "未设置", compact: true }} />}
+      <FormSurface
+        kind="fields"
+        fields={[{
+          kind: "repeatable",
+          key: "changeHistory",
+          title: "变更历史",
+          addAction: disabled ? undefined : { key: "add-history", label: "新增变更历史", onClick: addRecord },
+          empty: "未设置",
+          columns: 2,
+          items: records.map((record, index) => {
+            const rawDate = String(record.effectiveDate || "");
+            const dateInvalid = !!rawDate && !normalizeDateValue(rawDate);
+            const approverInvalid = String(record.approver || "").includes("见首页");
+            return {
+              key: `history-${index}`,
+              itemRef: getItemRef(index),
+              title: `变更历史 ${index + 1}`,
+              actions: disabled ? undefined : [{ key: "delete-history", label: "删除", variant: "danger", size: "sm", onClick: () => void removeRecord(index), className: "px-2 py-1 text-xs" }],
+              fields: [
+                { key: "version", label: "版本", spec: { valueType: "string", editor: "input", state: "readonly" }, value: String(record.version || formatHistoryVersion(index)) },
+                { key: "documentName", label: "文件名", spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }, value: String(record.documentName || ""), onChange: next => updateRecord(index, { documentName: String(next ?? "") }) },
+                { key: "effectiveDate", label: "生效日期", error: dateInvalid ? "日期格式错误，请重新选择。" : undefined, spec: { valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }, value: rawDate, onChange: next => updateRecord(index, { effectiveDate: next || "" }) },
+                {
+                  key: "approver",
+                  label: "批准",
+                  error: approverInvalid ? "当前值不是有效引用，请重新选择。" : undefined,
+                  spec: {
+                    valueType: "reference",
+                    editor: "autocomplete",
+                    state: disabled ? "disabled" : "normal",
+                    options: { source: "remote", fkKey: fkKeyForEntity("employee"), endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "name" },
+                  },
+                  value: String(record.approver || ""),
+                  displayValue: String(record.approver || ""),
+                  placeholder: "搜索批准",
+                  onChange: (next) => updateRecord(index, { approver: next || "" }),
+                },
+              ],
+            };
+          }),
+        }]}
+      />
     </div>;
 }

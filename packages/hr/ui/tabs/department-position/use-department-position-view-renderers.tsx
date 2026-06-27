@@ -1,15 +1,17 @@
-import type { Dispatch, ReactNode, SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
+import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 import { ArchivedDepartmentPositionPage } from "./archive-browser";
-import { DepartmentDetailPane } from "./department-detail-pane";
+import { useDepartmentDetailPaneBlock } from "./department-detail-pane";
 import type {
   PositionDescriptionTemplate,
   PositionDescriptionTemplateId,
 } from "./description-details";
 import {
-  DepartmentTreePanel,
-  OrganizationRootPanel,
+  buildDepartmentTreePanelBlock,
+  buildOrganizationRootPanelBlock,
 } from "./navigation-panels";
-import { PositionEditor } from "./position-editor";
+import { usePositionEditorBlocks } from "./position-editor";
 import type {
   ArchivedEntityTab,
   Department,
@@ -52,8 +54,8 @@ export function useDepartmentPositionViewRenderers(props: {
   positionNames: Set<string>;
   positions: Position[];
   positionsByDepartment: Map<number, Position[]>;
-  renderDepartmentNode: (department: Department, level?: number) => ReactNode;
-  renderOrganizationRoot: (department: Department) => ReactNode;
+  departmentNodeBlock: (department: Department) => PageSurfaceBlockSpec | null;
+  organizationRootBlock: (department: Department) => PageSurfaceBlockSpec | null;
   rootDepartments: Department[];
   saving: boolean;
   search: string;
@@ -99,118 +101,110 @@ export function useDepartmentPositionViewRenderers(props: {
   onUpdateDraftCodeSuffix: (value: string, pad?: boolean) => void;
   onUpdateDraftDepartment: (departmentId: number | null) => void;
 }) {
-  function renderPositionEditor() {
-    if (!props.selectedPosition) return null;
-    return (
-      <PositionEditor
-        position={props.selectedPosition}
-        draft={props.draft}
-        descriptionDraft={props.descriptionDraft}
-        departmentById={props.departmentById}
-        positionsByDepartment={props.positionsByDepartment}
-        selection={props.selection}
-        showArchived={props.showArchived}
-        canEdit={props.canEdit}
-        canEditPosition={props.canEditPosition}
-        dirty={props.dirty}
-        descriptionDirty={props.descriptionDirty}
-        saving={props.saving}
-        positionDescriptionTemplate={props.positionDescriptionTemplate}
-        positionDescriptionTemplates={props.positionDescriptionTemplates}
-        selectedPositionDescriptionTemplate={props.selectedPositionDescriptionTemplate}
-        selectedPositionDescriptionTemplateStored={props.selectedPositionDescriptionTemplateStored}
-        selectedPositionDescriptionTemplateDefault={props.selectedPositionDescriptionTemplateDefault}
-        templateEditorOpen={props.templateEditorOpen}
-        templateDraftName={props.templateDraftName}
-        templateDraftFields={props.templateDraftFields}
-        positionNames={props.positionNames}
-        positions={props.positions}
-        departmentNames={props.departmentNames}
-        onSelect={props.onSelect}
-        onUpdateDraft={props.onUpdateDraft}
-        onUpdateDraftDepartment={props.onUpdateDraftDepartment}
-        onUpdateDraftCodeSuffix={props.onUpdateDraftCodeSuffix}
-        onUpdateDescriptionDraft={props.onUpdateDescriptionDraft}
-        onPositionDescriptionTemplateChange={props.onPositionDescriptionTemplateChange}
-        onOpenPositionDescriptionTemplateEditor={props.onOpenPositionDescriptionTemplateEditor}
-        onSavePositionDescriptionTemplate={props.onSavePositionDescriptionTemplate}
-        onDeletePositionDescriptionTemplate={props.onDeletePositionDescriptionTemplate}
-        onTemplateEditorOpenChange={props.onTemplateEditorOpenChange}
-        onTemplateDraftNameChange={props.onTemplateDraftNameChange}
-        onTogglePositionDescriptionTemplateField={props.onTogglePositionDescriptionTemplateField}
-        onSavePosition={props.onSavePosition}
-        onArchivePosition={props.onArchivePosition}
-      />
-    );
+  const positionEditorBlocks = usePositionEditorBlocks({
+    position: props.selectedPosition ?? null,
+    draft: props.draft,
+    descriptionDraft: props.descriptionDraft,
+    departmentById: props.departmentById,
+    positionsByDepartment: props.positionsByDepartment,
+    selection: props.selection,
+    showArchived: props.showArchived,
+    canEdit: props.canEdit,
+    canEditPosition: props.canEditPosition,
+    dirty: props.dirty,
+    descriptionDirty: props.descriptionDirty,
+    saving: props.saving,
+    positionDescriptionTemplate: props.positionDescriptionTemplate,
+    positionDescriptionTemplates: props.positionDescriptionTemplates,
+    selectedPositionDescriptionTemplate: props.selectedPositionDescriptionTemplate,
+    selectedPositionDescriptionTemplateStored: props.selectedPositionDescriptionTemplateStored,
+    selectedPositionDescriptionTemplateDefault: props.selectedPositionDescriptionTemplateDefault,
+    templateEditorOpen: props.templateEditorOpen,
+    templateDraftName: props.templateDraftName,
+    templateDraftFields: props.templateDraftFields,
+    positionNames: props.positionNames,
+    positions: props.positions,
+    departmentNames: props.departmentNames,
+    onSelect: props.onSelect,
+    onUpdateDraft: props.onUpdateDraft,
+    onUpdateDraftDepartment: props.onUpdateDraftDepartment,
+    onUpdateDraftCodeSuffix: props.onUpdateDraftCodeSuffix,
+    onUpdateDescriptionDraft: props.onUpdateDescriptionDraft,
+    onPositionDescriptionTemplateChange: props.onPositionDescriptionTemplateChange,
+    onOpenPositionDescriptionTemplateEditor: props.onOpenPositionDescriptionTemplateEditor,
+    onSavePositionDescriptionTemplate: props.onSavePositionDescriptionTemplate,
+    onDeletePositionDescriptionTemplate: props.onDeletePositionDescriptionTemplate,
+    onTemplateEditorOpenChange: props.onTemplateEditorOpenChange,
+    onTemplateDraftNameChange: props.onTemplateDraftNameChange,
+    onTogglePositionDescriptionTemplateField: props.onTogglePositionDescriptionTemplateField,
+    onSavePosition: props.onSavePosition,
+    onArchivePosition: props.onArchivePosition,
+  });
+
+  const detailPaneBlock = useDepartmentDetailPaneBlock({
+    selection: props.selection,
+    selectedDepartment: props.selectedDepartment,
+    selectedDepartmentStats: props.selectedDepartmentStats,
+    departmentDraft: props.departmentDraft,
+    departmentDescriptionDrafts: props.departmentDescriptionDrafts,
+    positionsByDepartment: props.positionsByDepartment,
+    isOrganizationMode: props.isOrganizationMode,
+    canEdit: props.canEdit,
+    canEditDepartment: props.canEditDepartment,
+    canEditPosition: props.canEditPosition,
+    createPanel: props.createPanel,
+    createPositionCode: props.createPositionCode,
+    createPositionDepartment: props.createPositionDepartment,
+    createPositionDraft: props.createPositionDraft,
+    departmentById: props.departmentById,
+    departmentDirty: props.departmentDirty,
+    departmentDescriptionDirty: props.departmentDescriptionDirty,
+    saving: props.saving,
+    showArchived: props.showArchived,
+    positionEditorBlocks: !props.isOrganizationMode ? positionEditorBlocks : [],
+    setCreatePanel: props.onSetCreatePanel,
+    setCreatePositionDraft: props.onSetCreatePositionDraft,
+    onSelect: props.onSelect,
+    onCreatePosition: props.onCreatePosition,
+    onUpdateDepartmentDraft: props.onUpdateDepartmentDraft,
+    onUpdateDepartmentDescriptionDraft: props.onUpdateDepartmentDescriptionDraft,
+    onSaveDepartmentInfo: props.onSaveDepartmentInfo,
+    onSaveDepartmentDescription: props.onSaveDepartmentDescription,
+    onArchiveDepartment: props.onArchiveDepartment,
+  });
+  const detailBlocks = [detailPaneBlock];
+
+  function treePanelBlocks(mode: "desktop" | "drawer"): PageSurfaceBlockSpec[] {
+    return [
+      buildDepartmentTreePanelBlock({
+        mode,
+        isOrganizationMode: props.isOrganizationMode,
+        search: props.search,
+        loading: props.loading,
+        error: props.error,
+        rootDepartments: props.rootDepartments,
+        onSearchChange: props.onSearchChange,
+        onClose: () => props.onDrawerOpenChange(false),
+        onCollapseAll: props.onCollapseAll,
+        departmentNodeBlock: props.departmentNodeBlock,
+      }),
+    ];
   }
 
-  function renderDetailPane() {
-    return (
-      <DepartmentDetailPane
-        selection={props.selection}
-        selectedDepartment={props.selectedDepartment}
-        selectedDepartmentStats={props.selectedDepartmentStats}
-        departmentDraft={props.departmentDraft}
-        departmentDescriptionDrafts={props.departmentDescriptionDrafts}
-        positionsByDepartment={props.positionsByDepartment}
-        isOrganizationMode={props.isOrganizationMode}
-        canEdit={props.canEdit}
-        canEditDepartment={props.canEditDepartment}
-        canEditPosition={props.canEditPosition}
-        createPanel={props.createPanel}
-        createPositionCode={props.createPositionCode}
-        createPositionDepartment={props.createPositionDepartment}
-        createPositionDraft={props.createPositionDraft}
-        departmentById={props.departmentById}
-        departmentDirty={props.departmentDirty}
-        departmentDescriptionDirty={props.departmentDescriptionDirty}
-        saving={props.saving}
-        showArchived={props.showArchived}
-        positionEditor={!props.isOrganizationMode && props.selectedPosition ? renderPositionEditor() : null}
-        setCreatePanel={props.onSetCreatePanel}
-        setCreatePositionDraft={props.onSetCreatePositionDraft}
-        onSelect={props.onSelect}
-        onCreatePosition={props.onCreatePosition}
-        onUpdateDepartmentDraft={props.onUpdateDepartmentDraft}
-        onUpdateDepartmentDescriptionDraft={props.onUpdateDepartmentDescriptionDraft}
-        onSaveDepartmentInfo={props.onSaveDepartmentInfo}
-        onSaveDepartmentDescription={props.onSaveDepartmentDescription}
-        onArchiveDepartment={props.onArchiveDepartment}
-      />
-    );
+  function organizationRootPanelBlocks(mode: "desktop" | "drawer"): PageSurfaceBlockSpec[] {
+    return [
+      buildOrganizationRootPanelBlock({
+        mode,
+        loading: props.loading,
+        error: props.error,
+        departments: props.visibleRootDepartments,
+        onClose: () => props.onDrawerOpenChange(false),
+        organizationRootBlock: props.organizationRootBlock,
+      }),
+    ];
   }
 
-  function renderTreePanel(mode: "desktop" | "drawer") {
-    return (
-      <DepartmentTreePanel
-        mode={mode}
-        isOrganizationMode={props.isOrganizationMode}
-        search={props.search}
-        loading={props.loading}
-        error={props.error}
-        rootDepartments={props.rootDepartments}
-        onSearchChange={props.onSearchChange}
-        onClose={() => props.onDrawerOpenChange(false)}
-        onCollapseAll={props.onCollapseAll}
-        renderDepartmentNode={props.renderDepartmentNode}
-      />
-    );
-  }
-
-  function renderOrganizationRootPanel(mode: "desktop" | "drawer") {
-    return (
-      <OrganizationRootPanel
-        mode={mode}
-        loading={props.loading}
-        error={props.error}
-        departments={props.visibleRootDepartments}
-        onClose={() => props.onDrawerOpenChange(false)}
-        renderOrganizationRoot={props.renderOrganizationRoot}
-      />
-    );
-  }
-
-  function renderArchivedBrowser() {
+  function renderArchivedBrowser(surface?: RosterSurfaceNavigationProps) {
     return (
       <ArchivedDepartmentPositionPage
         archivedDepartments={props.archivedDepartments}
@@ -223,16 +217,16 @@ export function useDepartmentPositionViewRenderers(props: {
         onSideOpenChange={props.onSideOpenChange}
         onDrawerOpenChange={props.onDrawerOpenChange}
         onSelect={props.onSelect}
-      >
-        {renderDetailPane()}
-      </ArchivedDepartmentPositionPage>
+        blocks={detailBlocks}
+        surface={surface}
+      />
     );
   }
 
   return {
     renderArchivedBrowser,
-    renderDetailPane,
-    renderOrganizationRootPanel,
-    renderTreePanel,
+    detailBlocks,
+    organizationRootPanelBlocks,
+    treePanelBlocks,
   };
 }

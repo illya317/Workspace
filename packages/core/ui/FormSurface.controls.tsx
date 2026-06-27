@@ -7,7 +7,6 @@ import FileField from "./FileField";
 import HiddenDataField from "./HiddenDataField";
 import InputControl, { type InputControlProps } from "./InputControl";
 import ReadOnlyField, { type ReadOnlyFieldProps } from "./ReadOnlyField";
-import SegmentedCodeInput from "./SegmentedCodeInput";
 import SelectField from "./SelectField";
 import TagListInput from "./TagListInput";
 import TextareaField from "./TextareaField";
@@ -20,6 +19,7 @@ import type {
   FormSurfaceFieldSpec,
   FormSurfaceItemSpec,
   FormSurfaceReadOnlyFieldSpec,
+  FormSurfaceSegmentedCodeInputProps,
   FormSurfaceSegmentedCodeFieldSpec,
   FormSurfaceTagListAppendSpec,
   FormSurfaceTagListFieldSpec,
@@ -61,7 +61,7 @@ export function renderControlSpec(control: FormSurfaceControlSpec) {
   }
   if (control.kind === "segmentedCode") {
     const { kind: _kind, ...props } = control;
-    return <SegmentedCodeInput {...props} />;
+    return renderSegmentedCodeInput(props);
   }
   const { kind: _kind, ...props } = control;
   return <HiddenDataField {...props} />;
@@ -120,6 +120,28 @@ function renderReadOnly(field: FormSurfaceReadOnlyFieldSpec, density: ReadOnlyFi
   return <ReadOnlyField {...props} density={field.density ?? density} />;
 }
 
+function renderSegmentedCodeInput({
+  editableSegment,
+  disabled,
+  value,
+  onChange,
+  ...props
+}: FormSurfaceSegmentedCodeInputProps) {
+  return (
+    <InputControl
+      {...props}
+      spec={{
+        valueType: "string",
+        editor: "segmentedCode",
+        segmentedCode: editableSegment,
+        state: disabled ? "disabled" : "normal",
+      }}
+      value={value}
+      onChange={(next) => onChange(String(next ?? ""))}
+    />
+  );
+}
+
 function renderSegmentedCode(field: FormSurfaceSegmentedCodeFieldSpec) {
   const {
     kind: _kind,
@@ -132,7 +154,7 @@ function renderSegmentedCode(field: FormSurfaceSegmentedCodeFieldSpec) {
     fieldClassName: _fieldClassName,
     ...props
   } = field;
-  return <SegmentedCodeInput {...props} />;
+  return renderSegmentedCodeInput(props);
 }
 
 function renderTagAppend(append?: FormSurfaceTagListAppendSpec) {

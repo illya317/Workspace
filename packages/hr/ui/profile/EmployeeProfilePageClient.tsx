@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { createElement, useState } from "react";
 import AppShell from "@workspace/platform/ui/AppShell";
 import type { SessionUser } from "@workspace/platform/types";
 import type { HRUser } from "@workspace/hr/types";
@@ -17,14 +17,14 @@ export default function EmployeeProfilePageClient({
 }) {
   const [dirty, setDirty] = useState(false);
 
-  return (
-    <AppShell
-      title="员工资料"
-      backHref="/hr/roster"
-      user={user}
-      hasUnsavedChanges={dirty}
-    >
-      <EmployeeProfileClient employeeId={employeeId} user={hrUser} onDirtyChange={setDirty} />
-    </AppShell>
+  return createElement(
+    AppShell,
+    {
+      title: "员工资料",
+      backHref: "/hr/roster",
+      user,
+      hasUnsavedChanges: dirty,
+    },
+    <EmployeeProfileClient employeeId={employeeId} user={hrUser} onDirtyChange={setDirty} />,
   );
 }

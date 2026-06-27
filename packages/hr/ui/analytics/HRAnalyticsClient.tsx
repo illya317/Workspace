@@ -6,12 +6,12 @@ import { getPageViewTabs } from "@workspace/platform/view-registry";
 import { PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { useAnalyticsData } from "./useAnalyticsData";
 
-import EmployeeAnalytics from "./EmployeeAnalytics";
-import DepartmentAnalytics from "./DepartmentAnalytics";
-import PositionAnalytics from "./PositionAnalytics";
-import TurnoverAnalytics from "./TurnoverAnalytics";
-import ContractAnalytics from "./ContractAnalytics";
-import HeadcountTrend from "./HeadcountTrend";
+import { useEmployeeAnalyticsBlocks } from "./EmployeeAnalytics";
+import { useDepartmentAnalyticsBlocks } from "./DepartmentAnalytics";
+import { usePositionAnalyticsBlocks } from "./PositionAnalytics";
+import { useTurnoverAnalyticsBlocks } from "./TurnoverAnalytics";
+import { useContractAnalyticsBlocks } from "./ContractAnalytics";
+import { useHeadcountTrendBlocks } from "./HeadcountTrend";
 
 type AnalyticsTab = "employee" | "department" | "position" | "turnover" | "contract" | "headcount";
 
@@ -20,39 +20,42 @@ const tabs = getPageViewTabs("/hr/analytics") as { key: AnalyticsTab; label: str
 export default function HRAnalyticsClient({ user: _user }: { user: SessionUser; hideShell?: boolean }) {
   const [activeTab, setActiveTab] = useState<AnalyticsTab>("employee");
   const data = useAnalyticsData();
-  const blocks: PageSurfaceBlockSpec[] = [];
+  const employeeBlocks = useEmployeeAnalyticsBlocks({
+    employees: data.employees,
+    employments: data.employments,
+    edps: data.edps,
+  });
+  const departmentBlocks = useDepartmentAnalyticsBlocks({
+    departments: data.departments,
+    edps: data.edps,
+  });
+  const positionBlocks = usePositionAnalyticsBlocks({
+    positions: data.positions,
+    edps: data.edps,
+    departments: data.departments,
+  });
+  const turnoverBlocks = useTurnoverAnalyticsBlocks({
+    employees: data.employees,
+    employments: data.employments,
+  });
+  const contractBlocks = useContractAnalyticsBlocks({ contracts: data.contracts });
+  const headcountBlocks = useHeadcountTrendBlocks({ employments: data.employments });
 
+  const tabBlocks: Record<AnalyticsTab, PageSurfaceBlockSpec[]> = {
+    employee: employeeBlocks,
+    department: departmentBlocks,
+    position: positionBlocks,
+    turnover: turnoverBlocks,
+    contract: contractBlocks,
+    headcount: headcountBlocks,
+  };
+  let blocks: PageSurfaceBlockSpec[];
   if (data.loading) {
-    blocks.push({ kind: "empty" as const, key: "loading", content: "数据加载中..." });
+    blocks = [{ kind: "empty" as const, key: "loading", content: "数据加载中..." }];
   } else if (data.error) {
-    blocks.push({ kind: "message" as const, key: "error", tone: "danger" as const, content: data.error });
+    blocks = [{ kind: "message" as const, key: "error", tone: "danger" as const, content: data.error }];
   } else {
-    blocks.push({
-      kind: "moduleView" as const,
-      key: activeTab,
-      view: (
-        <>
-          {activeTab === "employee" && (
-            <EmployeeAnalytics employees={data.employees} employments={data.employments} edps={data.edps} />
-          )}
-          {activeTab === "department" && (
-            <DepartmentAnalytics departments={data.departments} edps={data.edps} />
-          )}
-          {activeTab === "position" && (
-            <PositionAnalytics positions={data.positions} edps={data.edps} departments={data.departments} />
-          )}
-          {activeTab === "turnover" && (
-            <TurnoverAnalytics employees={data.employees} employments={data.employments} />
-          )}
-          {activeTab === "contract" && (
-            <ContractAnalytics contracts={data.contracts} />
-          )}
-          {activeTab === "headcount" && (
-            <HeadcountTrend employments={data.employments} />
-          )}
-        </>
-      ),
-    });
+    blocks = tabBlocks[activeTab];
   }
 
   return (

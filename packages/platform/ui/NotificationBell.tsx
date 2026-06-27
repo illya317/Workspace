@@ -255,41 +255,35 @@ export default function NotificationBell({
                   surface: {
                     kind: "inline",
                     className: "border-b border-slate-100 px-4 py-2",
-                    toolbar: {
-                      variant: "inline",
-                      items: [
-                        {
-                          kind: "icon-button",
-                          key: "refresh",
-                          icon: "refresh",
-                          label: "刷新",
-                          className: "!h-7 !w-7",
-                          iconClassName: "h-4 w-4",
-                          onClick: () => void load(0),
-                        },
-                        {
-                          kind: "icon-button",
-                          key: "mark-all-read",
-                          icon: "check",
-                          label: "全部已读",
-                          className: "!h-7 !w-7",
-                          iconClassName: "h-4 w-4",
-                          disabled: markingRead || data.unreadCount === 0,
-                          onClick: () => void markAllRead(),
-                        },
-                        {
-                          kind: "icon-button",
-                          key: "clear-read",
-                          icon: "delete-bin",
-                          label: "清空已读",
-                          variant: "danger",
-                          className: "!h-7 !w-7",
-                          iconClassName: "h-4 w-4",
-                          disabled: clearing || data.total === 0,
-                          onClick: () => void clearNotifications(),
-                        },
-                      ],
-                    },
+                    actions: [
+                      {
+                        key: "refresh",
+                        icon: "refresh",
+                        label: "刷新",
+                        presentation: "icon",
+                        className: "!h-7 !w-7",
+                        onClick: () => void load(0),
+                      },
+                      {
+                        key: "mark-all-read",
+                        icon: "check",
+                        label: "全部已读",
+                        presentation: "icon",
+                        className: "!h-7 !w-7",
+                        disabled: markingRead || data.unreadCount === 0,
+                        onClick: () => void markAllRead(),
+                      },
+                      {
+                        key: "clear-read",
+                        icon: "delete-bin",
+                        label: "清空已读",
+                        presentation: "icon",
+                        variant: "danger",
+                        className: "!h-7 !w-7",
+                        disabled: clearing || data.total === 0,
+                        onClick: () => void clearNotifications(),
+                      },
+                    ],
                   },
                 },
                 {
@@ -318,21 +312,16 @@ export default function NotificationBell({
                                   </div>
                                   <FormSurface
                                     kind="inline"
-                                    toolbar={{
-                                      variant: "inline",
-                                      items: [
-                                        {
-                                          kind: "icon-button",
-                                          key: "clear-notification",
-                                          icon: "delete-bin",
-                                          label: "清除通知",
-                                          className:
-                                            "!size-6 !rounded-full !border-0 !bg-transparent !text-lg !leading-none !text-slate-300 hover:!bg-slate-100 hover:!text-slate-600 disabled:!text-slate-200",
-                                          disabled: busyId === item.id,
-                                          onClick: () => void updateNotification(item.id, "clear"),
-                                        },
-                                      ],
-                                    }}
+                                    actions={[{
+                                      key: "clear-notification",
+                                      icon: "delete-bin",
+                                      label: "清除通知",
+                                      presentation: "icon",
+                                      className:
+                                        "!size-6 !rounded-full !border-0 !bg-transparent !text-lg !leading-none !text-slate-300 hover:!bg-slate-100 hover:!text-slate-600 disabled:!text-slate-200",
+                                      disabled: busyId === item.id,
+                                      onClick: () => void updateNotification(item.id, "clear"),
+                                    }]}
                                   />
                                 </div>
                                 <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
@@ -341,33 +330,28 @@ export default function NotificationBell({
                                   </div>
                                   {pendingAcknowledgement && <FormSurface
                                       kind="inline"
-                                      toolbar={{
-                                        variant: "inline",
-                                        items: [
-                                          {
-                                            kind: "icon-button",
-                                            key: "acknowledge",
-                                            icon: "check",
-                                            label: "确认",
-                                            variant: "primary",
-                                            className: "!h-6 !w-6",
-                                            iconClassName: "h-3 w-3",
-                                            disabled: busyId === item.id,
-                                            onClick: () => void updateNotification(item.id, "acknowledge"),
-                                          },
-                                          {
-                                            kind: "icon-button",
-                                            key: "reject",
-                                            icon: "cancel",
-                                            label: "拒绝",
-                                            variant: "danger",
-                                            className: "!h-6 !w-6",
-                                            iconClassName: "h-3 w-3",
-                                            disabled: busyId === item.id,
-                                            onClick: () => void updateNotification(item.id, "reject"),
-                                          },
-                                        ],
-                                      }}
+                                      actions={[
+                                        {
+                                          key: "acknowledge",
+                                          icon: "check",
+                                          label: "确认",
+                                          presentation: "icon",
+                                          variant: "primary",
+                                          className: "!h-6 !w-6",
+                                          disabled: busyId === item.id,
+                                          onClick: () => void updateNotification(item.id, "acknowledge"),
+                                        },
+                                        {
+                                          key: "reject",
+                                          icon: "cancel",
+                                          label: "拒绝",
+                                          presentation: "icon",
+                                          variant: "danger",
+                                          className: "!h-6 !w-6",
+                                          disabled: busyId === item.id,
+                                          onClick: () => void updateNotification(item.id, "reject"),
+                                        },
+                                      ]}
                                     />}
                                 </div>
                               </div>;

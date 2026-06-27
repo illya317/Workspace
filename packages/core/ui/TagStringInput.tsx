@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { ConfirmOptions } from "./FeedbackProvider";
 import RemovableTag from "./RemovableTag";
+import TagInlineTextField from "./TagInlineTextField";
 import TagInputShell, { type TagInputShellProps } from "./TagInputShell";
 import type { FieldControlSize } from "./FormStyles";
 
@@ -18,6 +20,7 @@ export interface TagStringInputProps {
   disabled?: boolean;
   placeholder?: string;
   className?: string;
+  confirmDelete?: (options?: Partial<ConfirmOptions>) => Promise<boolean>;
   confirmRemove?: boolean;
   removeConfirmMessage?: (item: string) => string;
   removeConfirmTitle?: string;
@@ -31,6 +34,7 @@ export default function TagStringInput({
   disabled,
   placeholder = "添加别名",
   className,
+  confirmDelete,
   confirmRemove = false,
   removeConfirmMessage,
   removeConfirmTitle,
@@ -62,6 +66,7 @@ export default function TagStringInput({
           label={`删除 ${item}`}
           title={item}
           disabled={disabled}
+          confirmDelete={confirmDelete}
           confirmRemove={confirmRemove}
           removeConfirmMessage={removeConfirmMessage?.(item) ?? `确定删除「${item}」吗？`}
           removeConfirmTitle={removeConfirmTitle}
@@ -70,11 +75,10 @@ export default function TagStringInput({
           {item}
         </RemovableTag>
       ))}
-      <input
-        type="text"
+      <TagInlineTextField
         value={input}
         disabled={disabled}
-        onChange={(event) => setInput(event.target.value)}
+        onChange={setInput}
         onKeyDown={(event) => {
           if (event.key === "Enter" || event.key === "Tab" || DELIMITER_KEYS.has(event.key)) {
             if (input.trim()) {
@@ -85,7 +89,6 @@ export default function TagStringInput({
         }}
         onBlur={addTags}
         placeholder={items.length === 0 ? placeholder : ""}
-        className="min-w-0 flex-1 h-7 bg-transparent text-sm leading-none text-slate-800 outline-none placeholder:text-slate-400 disabled:bg-transparent disabled:text-slate-500"
       />
     </TagInputShell>
   );

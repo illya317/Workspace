@@ -1,11 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PageSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { Employee, Employment } from "./useAnalyticsData";
 
-export default function TurnoverAnalytics({ employees: _employees, employments }: { employees: Employee[]; employments: Employment[] }) {
+type DistributionRow = {
+  label: string;
+  count: number;
+  percent?: string;
+};
+
+export function useTurnoverAnalyticsBlocks({ employees: _employees, employments }: { employees: Employee[]; employments: Employment[] }): PageSurfaceBlockSpec[] {
   const [reasonSearch, setReasonSearch] = useState("");
 
   const stats = useMemo(() => {
@@ -97,6 +103,21 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
     if (!reasonSearch.trim()) return stats.reasons;
     return stats.reasons.filter(([r]) => matchText(r, reasonSearch));
   }, [stats.reasons, reasonSearch]);
+  const tenureRows: DistributionRow[] = stats.tenureDist.map(([label, count]) => ({ label, count }));
+  const reasonRows: DistributionRow[] = filteredReasons.map(([label, count]) => ({
+    label,
+    count,
+    percent: `${stats.totalLeft > 0 ? Math.round((count / stats.totalLeft) * 100) : 0}%`,
+  }));
+  const tenureColumns: DataSurfaceColumnSpec<DistributionRow>[] = [
+    { key: "label", label: "司龄", required: true, cellClassName: "font-medium text-slate-700", cell: (row) => row.label },
+    { key: "count", label: "人数", required: true, cellClassName: "text-right font-medium text-slate-700", cell: (row) => row.count },
+  ];
+  const reasonColumns: DataSurfaceColumnSpec<DistributionRow>[] = [
+    { key: "label", label: "原因", required: true, cellClassName: "font-medium text-slate-700", cell: (row) => row.label },
+    { key: "count", label: "人数", required: true, cellClassName: "text-right font-medium text-slate-700", cell: (row) => row.count },
+    { key: "percent", label: "占比", required: true, cellClassName: "text-right text-slate-500", cell: (row) => row.percent ?? "0%" },
+  ];
   const columns: DataSurfaceColumnSpec<Employment>[] = [
     { key: "employeeName", label: "姓名", required: true, cellClassName: "font-medium", cell: (employment) => employment.employeeName },
     { key: "currentCompany", label: "公司", required: true, cellClassName: "text-slate-500", cell: (employment) => employment.currentCompany || "—" },
@@ -106,10 +127,7 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
     { key: "leaveNote", label: "补充说明", required: true, cellClassName: "text-slate-500", cell: (employment) => employment.leaveNote || "—" },
   ];
 
-  return (
-    <PageSurface
-      kind="analysis"
-      blocks={[
+  return [
         {
           kind: "data",
           key: "stats",
@@ -134,25 +152,26 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
               key: "monthly-trend",
               title: "离职月度趋势（近12个月）",
               blocks: [{
-                kind: "moduleView",
+                kind: "data",
                 key: "monthly-chart",
-                view: (
-                  <div className="flex items-end gap-1 h-40">
-                    {stats.monthCounts.map((c, i) => {
-                      const h = Math.round((c / stats.maxMonthCount) * 100);
-                      return (
-                        <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                          <span className="text-xs text-gray-500 font-medium">{c || ""}</span>
-                          <div
-                            className="w-full bg-rose-400 rounded-t"
-                            style={{ height: `${Math.max(h, c > 0 ? 4 : 1)}%` }}
-                          />
-                          <span className="text-[9px] text-gray-400 whitespace-nowrap">{stats.monthLabels[i].slice(2)}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ),
+                surface: {
+                  kind: "visual",
+                  wrap: false,
+                  visual: {
+                    kind: "barChart",
+                    height: 160,
+                    max: stats.maxMonthCount,
+                    emptyText: "暂无数据",
+                    bars: stats.monthCounts.map((count, index) => ({
+                      key: stats.monthLabels[index],
+                      label: stats.monthLabels[index].slice(2),
+                      value: count,
+                      valueLabel: count || "",
+                      tone: "rose",
+                      minPercent: count > 0 ? 4 : 1,
+                    })),
+                  },
+                },
               }],
             },
             {
@@ -160,25 +179,17 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
               key: "tenure",
               title: "离职司龄分布",
               blocks: [{
-                kind: "moduleView",
+                kind: "data",
                 key: "tenure-chart",
-                view: (
-                  <div className="space-y-2">
-                    {stats.tenureDist.map(([k, v]) => {
-                      const max = Math.max(...stats.tenureDist.map(([, x]) => x), 1);
-                      const pct = Math.round((v / max) * 100);
-                      return (
-                        <div key={k} className="flex items-center gap-3">
-                          <span className="w-16 text-xs text-gray-600">{k}</span>
-                          <div className="flex-1 h-5 bg-gray-100 rounded overflow-hidden">
-                            <div className="h-full bg-amber-400 rounded" style={{ width: `${pct}%` }} />
-                          </div>
-                          <span className="w-10 text-right text-xs font-medium text-gray-700">{v}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ),
+                surface: {
+                  kind: "table",
+                  rows: tenureRows,
+                  columns: tenureColumns,
+                  visibleColumns: tenureColumns.map((column) => column.key),
+                  rowKey: (row) => row.label,
+                  density: "compact",
+                  emptyText: "暂无数据",
+                },
               }],
             },
           ],
@@ -194,27 +205,17 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
             ],
           },
           blocks: [{
-            kind: "moduleView",
+            kind: "data",
             key: "reason-bars",
-            view: (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
-                {filteredReasons.map(([k, v]) => {
-                  const max = Math.max(...filteredReasons.map(([, x]) => x), 1);
-                  const pct = Math.round((v / stats.totalLeft) * 100);
-                  const barPct = Math.round((v / max) * 100);
-                  return (
-                    <div key={k} className="flex items-center gap-3 py-1">
-                      <span className="w-24 shrink-0 text-xs text-gray-600 truncate" title={k}>{k}</span>
-                      <div className="flex-1 h-4 bg-gray-100 rounded overflow-hidden">
-                        <div className="h-full bg-rose-300 rounded" style={{ width: `${barPct}%` }} />
-                      </div>
-                      <span className="w-8 text-right text-xs font-medium text-gray-700">{v}</span>
-                      <span className="w-8 text-right text-xs text-gray-400">{pct}%</span>
-                    </div>
-                  );
-                })}
-              </div>
-            ),
+            surface: {
+              kind: "table",
+              rows: reasonRows,
+              columns: reasonColumns,
+              visibleColumns: reasonColumns.map((column) => column.key),
+              rowKey: (row) => row.label,
+              density: "compact",
+              emptyText: "暂无数据",
+            },
           }],
         },
         {
@@ -234,7 +235,9 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
             },
           }],
         },
-      ]}
-    />
-  );
+      ];
+}
+
+export default function TurnoverAnalytics(props: { employees: Employee[]; employments: Employment[] }) {
+  return <PageSurface kind="analysis" blocks={useTurnoverAnalyticsBlocks(props)} />;
 }

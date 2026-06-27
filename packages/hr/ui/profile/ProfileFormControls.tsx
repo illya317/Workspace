@@ -5,6 +5,7 @@ import {
   FormSurface,
   PageSurface,
   type FormSurfaceInputControlSpec,
+  type PageSurfaceBlockSpec,
 } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import EthnicityPicker from "../components/EthnicityPicker";
@@ -277,17 +278,40 @@ export function SectionShell({
   title,
   subtitle,
   status,
-  actions,
   className,
-  children,
+  blocks,
 }: {
   title: ReactNode;
   subtitle?: ReactNode;
   status?: ReactNode;
-  actions?: ReactNode;
   className?: string;
-  children: ReactNode;
+  blocks: PageSurfaceBlockSpec[];
 }) {
+  return (
+    <PageSurface
+      embedded
+      kind="detail"
+      className={className}
+      blocks={[sectionShellBlock({ title, subtitle, status, className, blocks })]}
+    />
+  );
+}
+
+export function sectionShellBlock({
+  title,
+  subtitle,
+  status,
+  className,
+  blocks,
+  key = "section",
+}: {
+  title: ReactNode;
+  subtitle?: ReactNode;
+  status?: ReactNode;
+  className?: string;
+  blocks: PageSurfaceBlockSpec[];
+  key?: string;
+}): PageSurfaceBlockSpec {
   const headerTitle = title ? (
     <div>
       <div>{title}</div>
@@ -295,30 +319,13 @@ export function SectionShell({
     </div>
   ) : status ? <div>{status}</div> : null;
 
-  return (
-    <PageSurface
-      embedded
-      kind="detail"
-      className={className}
-      blocks={[
-        {
-          kind: "section",
-          key: "section",
-          title: headerTitle,
-          subtitle,
-          blocks: [
-            ...(actions
-              ? [{
-                  kind: "moduleView" as const,
-                  key: "actions",
-                  view: <div className="flex shrink-0 flex-wrap gap-2 lg:justify-end">{actions}</div>,
-                }]
-              : []),
-            { kind: "moduleView", key: "content", view: children },
-          ],
-          bodyClassName: "p-3",
-        },
-      ]}
-    />
-  );
+  return {
+    kind: "section",
+    key,
+    title: headerTitle,
+    subtitle,
+    className,
+    blocks,
+    bodyClassName: "p-3",
+  };
 }

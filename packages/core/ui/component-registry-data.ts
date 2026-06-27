@@ -4,11 +4,14 @@ import type {
   CoreUiComponentPublicUse,
   CoreUiComponentRegistration,
   CoreUiComponentRole,
+  CoreUiComponentUiLevel,
   CoreUiCompositionGraph,
+  CoreUiAgentExposure,
 } from "./component-registry-types";
 import { core_internal_registry_entries } from "./component-registry-data-core-internal";
 import { foundation_registry_entries } from "./component-registry-data-foundation";
 import { page_api_registry_entries as pageApiAM } from "./component-registry-data-page-api-a-m";
+import { page_api_registry_entries as pageApiIM } from "./component-registry-data-page-api-i-m";
 import { page_api_registry_entries as pageApiM } from "./component-registry-data-page-api-m";
 import { page_api_registry_entries as pageApiNZ } from "./component-registry-data-page-api-n-z";
 import { page_frame_registry_entries } from "./component-registry-data-frame";
@@ -21,10 +24,15 @@ type CoreUiOwnershipFields = Required<
 >;
 
 type CoreUiOwnershipOverride = Partial<CoreUiOwnershipFields>;
+type CoreUiExposureOverride = {
+  refLevel?: CoreUiComponentUiLevel;
+  agentExposure?: CoreUiAgentExposure;
+};
 
 export const coreUiComponentRegistryRaw = [
   ...page_frame_registry_entries,
   ...pageApiAM,
+  ...pageApiIM,
   ...pageApiM,
   ...pageApiNZ,
   ...core_internal_registry_entries,
@@ -33,7 +41,7 @@ export const coreUiComponentRegistryRaw = [
 
 const OWNER_BY_NAME = {
   PageSurface: { ownerL2: "page.surface", role: "entry", publicUse: "business" },
-  DocumentSurface: { ownerL2: "page.document", role: "renderer" },
+  DocumentSurface: { ownerL2: "page.document", role: "renderer", publicUse: "business" },
   PageShell: { ownerL2: "page.frame", role: "renderer" },
   PageContent: { ownerL2: "page.frame", role: "renderer" },
   DatabasePageFrame: { ownerL2: "page.frame", role: "renderer" },
@@ -65,6 +73,7 @@ const OWNER_BY_NAME = {
   BlockCreatePanel: { ownerL2: "form.create", role: "renderer" },
   ModalCreatePanel: { ownerL2: "form.create", role: "renderer" },
   DetailCreatePanel: { ownerL2: "form.create", role: "renderer" },
+  CreatePanel: { ownerL2: "form.create", role: "renderer", publicUse: "business" },
 
   NavigationSurface: { ownerL2: "common.chrome", role: "renderer" },
   Toolbar: { ownerL2: "common.chrome", role: "renderer" },
@@ -79,7 +88,7 @@ const OWNER_BY_NAME = {
   ActionGlyph: { ownerL2: "common.action", role: "primitive" },
   ActionGlyphs: { ownerL2: "common.action", role: "primitive" },
 
-  InputControl: { ownerL2: "common.input", role: "renderer" },
+  InputControl: { ownerL2: "common.input", role: "renderer", publicUse: "business" },
   TextField: { ownerL2: "common.input", role: "primitive" },
   TextareaField: { ownerL2: "common.input", role: "primitive" },
   SelectField: { ownerL2: "common.input", role: "primitive" },
@@ -105,7 +114,7 @@ const OWNER_BY_NAME = {
   OptionPicker: { ownerL2: "common.selection", role: "renderer" },
   PickerShell: { ownerL2: "common.selection", role: "primitive" },
   PickerOptionButton: { ownerL2: "common.selection", role: "primitive" },
-  SelectorPanel: { ownerL2: "common.selection", role: "renderer" },
+  SelectorPanel: { ownerL2: "common.selection", role: "renderer", publicUse: "business" },
   SelectorList: { ownerL2: "common.selection", role: "primitive" },
   SelectorTree: { ownerL2: "common.selection", role: "primitive" },
   SelectorCard: { ownerL2: "common.selection", role: "primitive" },
@@ -122,14 +131,56 @@ const OWNER_BY_NAME = {
   DropdownMenu: { ownerL2: "common.overlay", role: "renderer" },
   DropdownSurface: { ownerL2: "common.overlay", role: "primitive" },
   ConfirmModal: { ownerL2: "feedback.renderer", role: "renderer" },
-  ConfirmProvider: { ownerL2: "feedback.compat", role: "renderer", publicUse: "compat" },
   FeedbackProvider: { ownerL2: "feedback.renderer", role: "renderer" },
   Toast: { ownerL2: "feedback.renderer", role: "renderer" },
   useFeedback: { ownerL2: "feedback.service", role: "entry", publicUse: "business" },
-  useConfirm: { ownerL2: "feedback.compat", role: "renderer", publicUse: "compat" },
-  useConfirmDelete: { ownerL2: "feedback.compat", role: "renderer", publicUse: "compat" },
-  useUnsavedChangesPrompt: { ownerL2: "feedback.compat", role: "renderer", publicUse: "compat" },
 } as const satisfies Record<string, CoreUiOwnershipOverride>;
+
+const AGENT_EXPOSURE_BY_NAME = {
+  PageSurface: { agentExposure: { mode: "direct" } }, FormSurface: { agentExposure: { mode: "via", entry: "PageSurface", path: "body.blocks[].kind=form" } }, DataSurface: { agentExposure: { mode: "via", entry: "PageSurface", path: "body.blocks[].kind=data" } }, DocumentSurface: { agentExposure: { mode: "via", entry: "PageSurface", path: "body.blocks[].kind=document" } }, useFeedback: { agentExposure: { mode: "direct" } },
+  InputControl: { agentExposure: { mode: "direct" } },
+  TextField: { agentExposure: { mode: "via", entry: "InputControl", path: "spec.editor=input" } },
+  TextareaField: { agentExposure: { mode: "via", entry: "InputControl", path: "spec.editor=textarea" } },
+  SelectField: { agentExposure: { mode: "via", entry: "InputControl", path: "spec.editor=select|multiSelect" } },
+  CalendarDateInput: { agentExposure: { mode: "via", entry: "InputControl", path: "spec.editor=datePicker" } },
+  TimeField: { agentExposure: { mode: "via", entry: "InputControl", path: "spec.editor=timePicker" } },
+  FileField: { agentExposure: { mode: "via", entry: "InputControl", path: "spec.editor=upload" } },
+  CheckboxField: { agentExposure: { mode: "via", entry: "InputControl", path: "spec.editor=checkbox" } },
+  SwitchField: { agentExposure: { mode: "via", entry: "InputControl", path: "spec.editor=switch" } },
+  PercentField: { agentExposure: { mode: "via", entry: "InputControl", path: "spec.format=percent" } },
+  RatingControl: { agentExposure: { mode: "via", entry: "InputControl", path: "spec.editor=rating" } },
+  ReadOnlyField: { agentExposure: { mode: "via", entry: "InputControl", path: "spec.state=readonly" } },
+  TagStringInput: { agentExposure: { mode: "via", entry: "InputControl", path: "spec.editor=tags" } },
+  SegmentedCodeInput: { agentExposure: { mode: "via", entry: "InputControl", path: "spec.editor=segmentedCode" } },
+  OptionPicker: { agentExposure: { mode: "via", entry: "InputControl", path: "spec.editor=select|multiSelect" } },
+  SearchableOptionInput: { agentExposure: { mode: "via", entry: "InputControl", path: "spec.editor=autocomplete" } },
+  FkFieldInput: { agentExposure: { mode: "via", entry: "InputControl", path: "spec.options.source=remote" } },
+
+  Toolbar: { agentExposure: { mode: "via", entry: "PageSurface", path: "toolbar.items" } },
+  ActionButton: { agentExposure: { mode: "via", entry: "PageSurface", path: "toolbar.items[].kind" } },
+  CommandButton: { agentExposure: { mode: "via", entry: "PageSurface", path: "toolbar.items[].kind=text" } },
+  SearchInput: { agentExposure: { mode: "via", entry: "PageSurface", path: "toolbar.items[].kind=search" } },
+  FieldValueFilter: { agentExposure: { mode: "via", entry: "PageSurface", path: "toolbar.items[].kind=field-value-filter" } },
+  TabBar: { agentExposure: { mode: "via", entry: "PageSurface", path: "navigation.kind=tabs" } },
+  Pagination: { agentExposure: { mode: "via", entry: "PageSurface", path: "footer.pagination" } },
+  NavigationSurface: { agentExposure: { mode: "via", entry: "PageSurface", path: "navigation" } },
+
+  SelectorPanel: { agentExposure: { mode: "direct" } }, SelectorList: { agentExposure: { mode: "via", entry: "SelectorPanel", path: "mode=list" } }, SelectorTree: { agentExposure: { mode: "via", entry: "SelectorPanel", path: "mode=tree" } }, SelectorCard: { agentExposure: { mode: "via", entry: "SelectorPanel", path: "mode=list|tree item renderer" } }, SelectionGrid: { agentExposure: { mode: "via", entry: "SelectorPanel", path: "mode=grid" } },
+  CreatePanel: { agentExposure: { mode: "direct" } }, InlineCreatePanel: { agentExposure: { mode: "via", entry: "CreatePanel", path: "variant=inline" } }, BlockCreatePanel: { agentExposure: { mode: "via", entry: "CreatePanel", path: "variant=block" } }, ModalCreatePanel: { agentExposure: { mode: "via", entry: "CreatePanel", path: "variant=modal" } }, DetailCreatePanel: { agentExposure: { mode: "via", entry: "CreatePanel", path: "variant=detail" } },
+} as const satisfies Record<string, CoreUiExposureOverride>;
+
+function defaultRefLevel(registration: CoreUiComponentRegistration): CoreUiComponentUiLevel {
+  if (registration.refLevel) return registration.refLevel;
+  if (registration.uiLevel) return registration.uiLevel;
+  if (registration.accessLayer === "foundation" || registration.accessLayer === "private-impl") return 4;
+  if (registration.accessLayer === "core-internal") return 3;
+  return 2;
+}
+
+function defaultAgentExposure(registration: CoreUiComponentRegistration): CoreUiAgentExposure {
+  if (registration.publicUse === "business" && defaultRefLevel(registration) <= 2) return { mode: "direct" };
+  return { mode: "internal" };
+}
 
 function ownerL1ForOwnerL2(ownerL2: CoreUiComponentOwnerL2): CoreUiComponentOwnerL1 {
   return ownerL2.slice(0, ownerL2.indexOf(".")) as CoreUiComponentOwnerL1;
@@ -180,9 +231,16 @@ function inferCoreUiOwnership(registration: CoreUiComponentRegistration): CoreUi
 function enrichCoreUiComponentRegistration(
   registration: CoreUiComponentRegistration,
 ): CoreUiComponentRegistration {
-  return {
-    ...inferCoreUiOwnership(registration),
+  const ownership = inferCoreUiOwnership(registration);
+  const withOwnership = {
+    ...ownership,
     ...registration,
+  };
+  const exposure: CoreUiExposureOverride = AGENT_EXPOSURE_BY_NAME[registration.name as keyof typeof AGENT_EXPOSURE_BY_NAME] ?? {};
+  return {
+    ...withOwnership,
+    refLevel: registration.refLevel ?? exposure.refLevel ?? defaultRefLevel(withOwnership),
+    agentExposure: registration.agentExposure ?? exposure.agentExposure ?? defaultAgentExposure(withOwnership),
   };
 }
 

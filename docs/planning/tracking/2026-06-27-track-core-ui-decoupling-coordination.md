@@ -38,7 +38,7 @@ ownerL2:
   data.surface | data.table | data.record | data.metric | data.visual | data.cell |
   form.surface | form.field | form.layout | form.create | form.input-adapter |
   common.chrome | common.action | common.input | common.selection | common.display | common.overlay | common.foundation |
-  feedback.service | feedback.renderer | feedback.compat
+  feedback.service | feedback.renderer
 role: entry | contract | renderer | primitive | private
 ```
 

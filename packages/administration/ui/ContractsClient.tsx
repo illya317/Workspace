@@ -152,21 +152,16 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
               actionsColumn: { centered: true },
             } satisfies DataSurfaceProps<Contract>) as DataSurfaceProps,
           },
-          {
-            kind: "navigation",
-            key: "pagination",
-            surface: {
-              kind: "pagination",
-              pagination: {
-                page,
-                totalPages,
-                onPageChange: setPage,
-                compact: true,
-                className: "mt-4 flex items-center justify-center gap-3",
-              },
-            },
-          },
         ]}
+        footer={{
+          pagination: {
+            page,
+            totalPages,
+            onPageChange: setPage,
+            compact: true,
+            className: "mt-4 flex items-center justify-center gap-3",
+          },
+        }}
       />
 
       <ContractModal

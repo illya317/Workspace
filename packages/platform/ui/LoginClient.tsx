@@ -60,12 +60,12 @@ export default function LoginClient() {
   }
   return <PageSurface
       kind="settings"
-      className="w-full max-w-xl"
-      contentClassName="flex min-h-screen w-full max-w-none items-center justify-center bg-gray-50 py-0"
+      header={{ hidden: true }}
+      className="flex min-h-screen w-full items-center justify-center bg-gray-50"
       blocks={[{
         kind: "panel",
         key: "login",
-        className: "w-full",
+        className: "w-full max-w-xl",
         bodyClassName: "space-y-4 p-10",
         blocks: [
           {

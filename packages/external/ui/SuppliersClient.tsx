@@ -7,6 +7,19 @@ export default function SuppliersClient() {
     <PageSurface
       kind="list"
       contentClassName="py-10"
+      toolbar={{
+        variant: "inline",
+        items: [
+          {
+            kind: "icon-button",
+            key: "add-supplier",
+            icon: "add",
+            label: "新增供应商",
+            disabled: true,
+            variant: "primary",
+          },
+        ],
+      }}
       blocks={[
         {
           kind: "section",
@@ -20,19 +33,6 @@ export default function SuppliersClient() {
                 kind: "records",
                 records: [],
                 empty: "暂无供应商数据",
-                toolbar: {
-                  variant: "inline",
-                  items: [
-                    {
-                      kind: "icon-button",
-                      key: "add-supplier",
-                      icon: "add",
-                      label: "新增供应商",
-                      disabled: true,
-                      variant: "primary",
-                    },
-                  ],
-                },
               },
             },
           ],

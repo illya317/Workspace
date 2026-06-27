@@ -4,6 +4,7 @@ import type {
   CoreUiComponentOwnerL2,
   CoreUiComponentPublicUse,
   CoreUiComponentRole,
+  CoreUiComponentRefLevel,
   CoreUiComponentUiLevel,
 } from "./component-registry-types";
 
@@ -12,10 +13,12 @@ export type {
   CoreUiComponentAccessLayer,
   CoreUiFrameMaturity,
   CoreUiComponentUiLevel,
+  CoreUiComponentRefLevel,
   CoreUiComponentOwnerL1,
   CoreUiComponentOwnerL2,
   CoreUiComponentRole,
   CoreUiComponentPublicUse,
+  CoreUiAgentExposure,
   CoreUiComponentRegistration,
   CoreUiCompositionGraph,
 } from "./component-registry-types";
@@ -155,7 +158,6 @@ export const coreUiComponentOwnerL2Meta = {
   "common.foundation": { label: "通用基础", description: "token、样式 recipe 和基础 helper。" },
   "feedback.service": { label: "反馈服务", description: "useFeedback 等业务反馈入口。" },
   "feedback.renderer": { label: "反馈渲染", description: "Toast、ConfirmModal 和 FeedbackProvider。" },
-  "feedback.compat": { label: "反馈兼容", description: "历史确认/反馈兼容入口。" },
 } as const satisfies Record<
   CoreUiComponentOwnerL2,
   { label: string; description: string }
@@ -177,7 +179,6 @@ export const coreUiComponentPublicUseMeta = {
   business: { label: "业务可用", description: "业务 runtime 可以直接使用的公开入口。" },
   "core-only": { label: "仅 Core", description: "只允许 Core 内部、Surface 渲染器或治理工具使用。" },
   "showcase-only": { label: "仅展示", description: "仅用于展示/预览，不作为业务 API。" },
-  compat: { label: "兼容", description: "历史兼容入口，迁移目标是替换或收口。" },
 } as const satisfies Record<
   CoreUiComponentPublicUse,
   { label: string; description: string }
@@ -206,22 +207,23 @@ export const CORE_UI_SHOWCASE_MAX_LEVEL = 3;
 type CoreUiComponentLevelInput = {
   accessLayer: CoreUiComponentAccessLayer;
   uiLevel?: CoreUiComponentUiLevel;
+  refLevel?: CoreUiComponentRefLevel;
 };
 
 export const coreUiComponentUiLevelMeta = {
   1: {
     label: "L1",
-    description: "公开入口：PageSurface / FormSurface / DataSurface / useFeedback。页面布局只能从 PageSurface 进入。",
+    description: "引用根层：PageSurface / FormSurface / DataSurface / useFeedback 等高层入口。",
     showcaseVisible: true,
   },
   2: {
     label: "L2",
-    description: "Surface 的 kind / variant / spec 能力层，过渡期保留旧 Page API 阅读。",
+    description: "能力承接层：L1 直接承接或引用的能力入口。",
     showcaseVisible: true,
   },
   3: {
     label: "L3",
-    description: "Core 内部可见组合层，供关系图、迁移和 review 使用。",
+    description: "内部实现层：L1/L2 背后的 renderer 或 primitive。",
     showcaseVisible: true,
   },
   4: {
@@ -237,6 +239,7 @@ export const coreUiComponentUiLevelMeta = {
 export function resolveCoreUiComponentUiLevel(
   component: CoreUiComponentLevelInput,
 ): CoreUiComponentUiLevel {
+  if (component.refLevel) return component.refLevel;
   if (component.uiLevel) return component.uiLevel;
   if (component.accessLayer === "foundation" || component.accessLayer === "private-impl") return 4;
   if (component.accessLayer === "core-internal") return 3;

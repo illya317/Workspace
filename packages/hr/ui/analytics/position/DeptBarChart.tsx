@@ -1,80 +1,65 @@
 "use client";
 
-import { PageSurface } from "@workspace/core/ui";
+import { PageSurface, type DataSurfaceVisualComparisonBarSectionSpec, type DataSurfaceVisualTone, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { DeptEntry, FilteredDept } from "./usePositionData";
 
 const LEVEL_LABEL: Record<number, string> = { 1: "L1 事业部", 2: "L2 部门", 3: "L3 子部门" };
-const LEVEL_COLOR: Record<number, string> = { 1: "text-blue-600", 2: "text-emerald-600", 3: "text-amber-600" };
+const LEVEL_TONE: Record<number, DataSurfaceVisualTone> = { 1: "blue", 2: "emerald", 3: "amber" };
 
-function DeptBarRow({ d, globalMax }: { d: DeptEntry; globalMax: number }) {
-  const hcPct = Math.round((d.headcount / globalMax) * 100);
-  const acPct = Math.round((d.actual / globalMax) * 100);
-  const barColor = d.diff > 0 ? "bg-rose-400" : d.diff < 0 ? "bg-amber-400" : "bg-emerald-400";
-  const textColor = d.diff > 0 ? "text-rose-600" : d.diff < 0 ? "text-amber-600" : "text-emerald-600";
-  return (
-    <div className="flex items-center gap-4 py-0.5">
-      <span className="w-36 shrink-0 text-sm text-gray-700 truncate" title={d.name}>{d.name}</span>
-      <div className="flex-1 flex items-center gap-4">
-        <div className="flex-1 h-6 bg-gray-100 rounded relative overflow-hidden">
-          {d.headcount > 0 && (
-            <div
-              className="absolute inset-y-0 left-0 border-r-2 border-dashed border-gray-300 bg-gray-200 rounded-l"
-              style={{ width: `${hcPct}%` }}
-            />
-          )}
-          <div
-            className={`absolute inset-y-0 left-0 ${barColor} rounded opacity-90`}
-            style={{ width: `${acPct}%` }}
-          />
-        </div>
-        <span className="w-16 text-right text-sm text-gray-500">
-          <span className="font-medium text-gray-700">{d.actual}</span>
-          {d.headcount > 0 && <span className="text-gray-400"> / {d.headcount}</span>}
-        </span>
-        <span className={`w-12 text-right text-xs font-medium ${textColor}`}>
-          {d.headcount > 0 ? (
-            d.diff > 0 ? `+${d.diff}` : d.diff === 0 ? "满" : d.diff
-          ) : "—"}
-        </span>
-      </div>
-    </div>
-  );
+function toneForDiff(diff: number): DataSurfaceVisualTone {
+  if (diff > 0) return "rose";
+  if (diff < 0) return "amber";
+  return "emerald";
 }
 
-function LevelSection({ level, entries, globalMax }: { level: number; entries: DeptEntry[]; globalMax: number }) {
-  if (entries.length === 0) return null;
-  return (
-    <div className="mb-5">
-      <h4 className={`text-sm font-semibold mb-2 ${LEVEL_COLOR[level] || "text-gray-600"}`}>
-        {LEVEL_LABEL[level] || `L${level}`}
-        <span className="ml-2 text-xs font-normal text-gray-400">{entries.length} 个部门</span>
-      </h4>
-      <div className="space-y-2">
-        {entries.map((d) => (
-          <DeptBarRow key={d.name} d={d} globalMax={globalMax} />
-        ))}
-      </div>
-    </div>
-  );
+function diffLabel(entry: DeptEntry) {
+  if (entry.headcount <= 0) return "—";
+  if (entry.diff > 0) return `+${entry.diff}`;
+  if (entry.diff === 0) return "满";
+  return String(entry.diff);
 }
 
-export default function DeptBarChart({
-  filteredDept,
-  l1List,
-  filterL1,
-  setFilterL1,
-  globalMax,
-}: {
+function toSection(level: number, entries: DeptEntry[]): DataSurfaceVisualComparisonBarSectionSpec {
+  return {
+    key: `l${level}`,
+    title: LEVEL_LABEL[level] || `L${level}`,
+    subtitle: `${entries.length} 个部门`,
+    tone: LEVEL_TONE[level] ?? "slate",
+    items: entries.map((entry) => ({
+      key: String(entry.id ?? entry.name),
+      label: entry.name,
+      actual: entry.actual,
+      reference: entry.headcount > 0 ? entry.headcount : undefined,
+      valueLabel: entry.headcount > 0 ? `${entry.actual} / ${entry.headcount}` : String(entry.actual),
+      diffLabel: diffLabel(entry),
+      tone: toneForDiff(entry.diff),
+      diffTone: toneForDiff(entry.diff),
+    })),
+  };
+}
+
+interface DeptBarChartBlockParams {
   filteredDept: FilteredDept;
   l1List: DeptEntry[];
   filterL1: number | null;
   setFilterL1: (v: number | null) => void;
   globalMax: number;
-}) {
-  return (
-    <PageSurface
-      kind="analysis"
-      blocks={[{
+}
+
+export function createDeptBarChartBlock({
+  filteredDept,
+  l1List,
+  filterL1,
+  setFilterL1,
+  globalMax,
+}: DeptBarChartBlockParams): PageSurfaceBlockSpec {
+  const sections = [
+    toSection(1, filteredDept.l1),
+    toSection(2, filteredDept.l2),
+    toSection(3, filteredDept.l3),
+  ];
+
+  return {
         kind: "analysis",
         key: "dept-bars",
         title: "各部门编制 vs 实际",
@@ -91,28 +76,28 @@ export default function DeptBarChart({
           }],
         },
         blocks: [{
-          kind: "moduleView",
+          kind: "data",
           key: "bars",
-          view: (
-            <>
-              <LevelSection level={1} entries={filteredDept.l1} globalMax={globalMax} />
-              <LevelSection level={2} entries={filteredDept.l2} globalMax={globalMax} />
-              <LevelSection level={3} entries={filteredDept.l3} globalMax={globalMax} />
-
-              {filteredDept.entries.length === 0 && (
-                <p className="text-sm text-gray-400 text-center py-8">暂无数据</p>
-              )}
-
-              <div className="mt-3 flex items-center gap-4 text-xs text-gray-400 border-t pt-3">
-                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-emerald-400 inline-block" /> 满编/平衡</span>
-                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-amber-400 inline-block" /> 缺编</span>
-                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-rose-400 inline-block" /> 超编</span>
-                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-200 inline-block border-r-2 border-dashed border-gray-300" /> 编制参考线</span>
-              </div>
-            </>
-          ),
+          surface: {
+            kind: "visual",
+            wrap: false,
+            visual: {
+              kind: "comparisonBars",
+              sections,
+              max: Math.max(globalMax, 1),
+              emptyText: "暂无数据",
+              legend: [
+                { key: "balanced", label: "满编/平衡", tone: "emerald" },
+                { key: "under", label: "缺编", tone: "amber" },
+                { key: "over", label: "超编", tone: "rose" },
+                { key: "reference", label: "编制参考线", marker: "reference" },
+              ],
+            },
+          },
         }],
-      }]}
-    />
-  );
+      };
+}
+
+export default function DeptBarChart(props: DeptBarChartBlockParams) {
+  return <PageSurface kind="analysis" blocks={[createDeptBarChartBlock(props)]} />;
 }

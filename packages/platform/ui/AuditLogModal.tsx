@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useCallback } from "react";
-import { FormSurface, NavigationSurface } from "@workspace/core/ui";
+import { FormSurface, PageSurface } from "@workspace/core/ui";
 import AuditLogEntry, { type AuditEntry } from "./AuditLogEntry";
 
 export interface AuditLogModalProps {
@@ -134,15 +134,18 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
           kind: "note" as const,
           key: "pagination",
           content: (
-            <NavigationSurface
-              kind="pagination"
-              pagination={{
-                page,
-                total,
-                totalPages,
-                onPageChange: setPage,
-                compact: true,
-                className: "border-t border-slate-200 pt-3",
+            <PageSurface
+              kind="list"
+              embedded
+              footer={{
+                pagination: {
+                  page,
+                  total,
+                  totalPages,
+                  onPageChange: setPage,
+                  compact: true,
+                  className: "border-t border-slate-200 pt-3",
+                },
               }}
             />
           ),

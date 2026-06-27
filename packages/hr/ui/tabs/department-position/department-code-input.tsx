@@ -1,9 +1,9 @@
 "use client";
 
-import { SegmentedCodeInput } from "@workspace/platform/ui";
+import { FormSurface } from "@workspace/core/ui";
 import { normalizeDepartmentCodeInput } from "./utils";
 
-function buildEditableSegment(level: 1 | 2 | 3) {
+export function departmentCodeEditableSegment(level: 1 | 2 | 3) {
   if (level === 1) {
     return {
       extract: (code: string) => code.slice(0, 3),
@@ -54,12 +54,16 @@ export function DepartmentCodeInput({
   className?: string;
 }) {
   return (
-    <SegmentedCodeInput
-      value={value}
-      disabled={disabled}
-      className={className}
-      editableSegment={buildEditableSegment(level)}
-      onChange={onChange}
+    <FormSurface
+      kind="control"
+      control={{
+        kind: "segmentedCode",
+        value,
+        disabled,
+        className,
+        editableSegment: departmentCodeEditableSegment(level),
+        onChange,
+      }}
     />
   );
 }

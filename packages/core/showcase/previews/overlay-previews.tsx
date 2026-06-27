@@ -4,11 +4,8 @@ import { useState, type FC } from "react";
 import {
   ActionButton,
   ConfirmModal,
-  ConfirmProvider,
   DetailModal,
   DropdownMenu,
-  useConfirm,
-  useConfirmDelete,
 } from "@workspace/core/ui";
 import ModalCreatePanel from "../../ui/ModalCreatePanel";
 
@@ -28,86 +25,6 @@ function ConfirmModalPreview() {
         onCancel={() => setConfirmOpen(false)}
       />
     </>
-  );
-}
-
-function ConfirmProviderPreview() {
-  return (
-    <ConfirmProvider>
-      <ConfirmProviderDemo />
-    </ConfirmProvider>
-  );
-}
-
-function ConfirmProviderDemo() {
-  const confirm = useConfirm();
-  const [result, setResult] = useState<string | null>(null);
-  return (
-    <div className="flex flex-col gap-2">
-      <ActionButton
-        kind="check"
-        label="触发命令式确认"
-        onClick={async () => {
-          const ok = await confirm({ title: "请确认", message: "是否执行该操作？", confirmLabel: "执行" });
-          setResult(ok ? "已确认" : "已取消");
-        }}
-      />
-      {result && <span className="text-xs text-slate-500">结果：{result}</span>}
-    </div>
-  );
-}
-
-function useConfirmPreview() {
-  return (
-    <ConfirmProvider>
-      <UseConfirmDemo />
-    </ConfirmProvider>
-  );
-}
-
-function UseConfirmDemo() {
-  const confirm = useConfirm();
-  const [result, setResult] = useState<string | null>(null);
-  return (
-    <div className="flex flex-col gap-2">
-      <ActionButton
-        kind="check"
-        label="触发 useConfirm"
-        variant="secondary"
-        onClick={async () => {
-          const ok = await confirm({ title: "请确认", message: "是否执行该操作？" });
-          setResult(ok ? "已确认" : "已取消");
-        }}
-      />
-      {result && <span className="text-xs text-slate-500">结果：{result}</span>}
-    </div>
-  );
-}
-
-function useConfirmDeletePreview() {
-  return (
-    <ConfirmProvider>
-      <UseConfirmDeleteDemo />
-    </ConfirmProvider>
-  );
-}
-
-function UseConfirmDeleteDemo() {
-  const confirmDelete = useConfirmDelete();
-  const [result, setResult] = useState<string | null>(null);
-  return (
-    <div className="flex flex-col gap-2">
-      <ActionButton
-        kind="delete-bin"
-        label="触发 useConfirmDelete"
-        variant="danger"
-        onClick={async () => {
-          const ok = await confirmDelete({ message: "确定要删除这条预览记录吗？" });
-          setResult(ok ? "已删除" : "已取消");
-        }}
-      />
-      {result && <span className="text-xs text-slate-500">结果：{result}</span>}
-    </div>
   );
 }
 
@@ -145,16 +62,6 @@ function DropdownMenuPreview() {
   );
 }
 
-function useUnsavedChangesPromptPreview() {
-  return (
-    <div className="text-xs text-slate-400">
-      <p className="font-medium">useUnsavedChangesPrompt</p>
-      <p>未保存离开确认 hook，统一保存按钮 dirty 状态下的离开提醒和 beforeunload 拦截。</p>
-      <p className="mt-1 text-slate-300">Hook / 工具函数，无组件级实时预览。</p>
-    </div>
-  );
-}
-
 function ModalCreatePanelPreview() {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -185,11 +92,7 @@ function ModalCreatePanelPreview() {
 
 export const overlayPreviewByName: Record<string, FC> = {
   ConfirmModal: ConfirmModalPreview,
-  ConfirmProvider: ConfirmProviderPreview,
-  useConfirm: useConfirmPreview,
-  useConfirmDelete: useConfirmDeletePreview,
   DetailModal: DetailModalPreview,
   DropdownMenu: DropdownMenuPreview,
-  useUnsavedChangesPrompt: useUnsavedChangesPromptPreview,
   ModalCreatePanel: ModalCreatePanelPreview,
 };

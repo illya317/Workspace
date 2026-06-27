@@ -1,20 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import InputControl from "./InputControl";
+import TextField, { type TextFieldProps } from "./TextField";
+import type { InputSegmentedCodeConfig } from "./InputControlTypes";
 
-export interface SegmentedCodeInputEditableSegment {
-  extract: (fullCode: string) => string;
-  compose: (segment: string, fullCode: string) => string;
-  normalize?: (segment: string) => string;
-  placeholder?: string;
-}
+export type SegmentedCodeInputEditableSegment = InputSegmentedCodeConfig;
 
 export interface SegmentedCodeInputProps {
   value: string;
   editableSegment: SegmentedCodeInputEditableSegment;
   disabled?: boolean;
   className?: string;
+  size?: TextFieldProps["size"];
+  density?: TextFieldProps["density"];
+  onBlur?: TextFieldProps["onBlur"];
+  onFocus?: TextFieldProps["onFocus"];
   onChange: (fullCode: string) => void;
 }
 
@@ -23,6 +23,10 @@ export default function SegmentedCodeInput({
   editableSegment,
   disabled,
   className,
+  size,
+  density,
+  onBlur,
+  onFocus,
   onChange,
 }: SegmentedCodeInputProps) {
   const [focused, setFocused] = useState(false);
@@ -32,28 +36,32 @@ export default function SegmentedCodeInput({
     return editableSegment.normalize ? editableSegment.normalize(next) : next;
   }
 
-  function handleFocus() {
+  const handleFocus: TextFieldProps["onFocus"] = (event) => {
     setSegment(editableSegment.extract(value));
     setFocused(true);
-  }
+    onFocus?.(event);
+  };
 
-  function handleBlur() {
+  const handleBlur: TextFieldProps["onBlur"] = (event) => {
     setFocused(false);
     const nextCode = editableSegment.compose(normalizeSegment(segment), value);
     if (nextCode !== value) onChange(nextCode);
-  }
+    onBlur?.(event);
+  };
 
   const displayValue = focused ? segment : value;
 
   return (
-    <InputControl
-      spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }}
+    <TextField
       value={displayValue}
+      disabled={disabled}
       placeholder={editableSegment.placeholder}
-      onChange={(next) => setSegment(normalizeSegment(String(next ?? "")))}
+      onChange={(next) => setSegment(normalizeSegment(next))}
       onFocus={handleFocus}
       onBlur={handleBlur}
       className={className}
+      size={size}
+      density={density}
     />
   );
 }

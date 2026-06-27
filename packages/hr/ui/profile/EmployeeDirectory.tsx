@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  DataSurface,
   type DataSurfaceColumnSpec,
   type FieldValueFilterField,
+  PageSurface,
+  type PageSurfaceBlockSpec,
   type SelectFieldOption,
 } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
@@ -13,6 +14,7 @@ import { buildHRToolbarItems } from "../components/hr-toolbar-items";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../fk-keys";
 import { HR_EDUCATIONS } from "@workspace/hr/constants";
 import type { HRUser } from "@workspace/hr/types";
+import type { RosterSurfaceNavigationProps } from "../roster-surface";
 
 interface DirectoryEmployee {
   id: number;
@@ -65,9 +67,11 @@ function genderLabel(value: boolean | null) {
 
 export default function EmployeeDirectory({
   employmentStatus,
+  surface,
 }: {
   user: HRUser;
   employmentStatus?: "active" | "inactive";
+  surface?: RosterSurfaceNavigationProps;
 }) {
   const router = useRouter();
   const [keyword, setKeyword] = useState("");
@@ -187,39 +191,52 @@ export default function EmployeeDirectory({
     },
   });
 
-  return (
-    <div className="space-y-5">
-      {error && <p className="rounded-lg border border-red-100 bg-white px-4 py-3 text-sm text-red-600">{error}</p>}
-
-      <DataSurface
-        kind="table"
-        framed
-        toolbar={{ items: toolbarItems }}
-        rows={employees}
-        columns={columns}
-        visibleColumns={visibleColumns}
-        loading={loading}
-        emptyText="暂无员工"
-        rowKey={(employee) => employee.id}
-        onRowClick={(employee) => router.push(`/hr/roster/employees/${employee.employeeId}`)}
-        rowActions={(employee) => [
+  const blocks: PageSurfaceBlockSpec[] = [
+    ...(error ? [{ kind: "message" as const, key: "error", content: error, tone: "danger" as const }] : []),
+    {
+      kind: "data",
+      key: "employees",
+      surface: {
+        kind: "table",
+        framed: true,
+        rows: employees,
+        columns,
+        visibleColumns,
+        loading,
+        emptyText: "暂无员工",
+        rowKey: (employee: DirectoryEmployee) => employee.id,
+        onRowClick: (employee: DirectoryEmployee) => router.push(`/hr/roster/employees/${employee.employeeId}`),
+        rowActions: (employee: DirectoryEmployee) => [
           {
             key: "view",
             label: "查看员工资料",
             kind: "view",
             onClick: () => router.push(`/hr/roster/employees/${employee.employeeId}`),
           },
-        ]}
-        bodyClassName="overflow-x-auto"
-        pagination={{
-          page,
-          totalPages,
-          total,
-          onPageChange: setPage,
-          className: "border-t border-slate-200 px-4 py-3",
-          compact: true,
-        }}
-      />
-    </div>
+        ],
+        bodyClassName: "overflow-x-auto",
+      },
+    },
+  ];
+
+  const footer = {
+    pagination: {
+      page,
+      totalPages,
+      total,
+      onPageChange: setPage,
+      className: "border-t border-slate-200 px-4 py-3",
+      compact: true,
+    },
+  };
+
+  return (
+    <PageSurface
+      kind="list"
+      {...(surface ?? { embedded: true })}
+      toolbar={{ items: toolbarItems }}
+      blocks={blocks}
+      footer={footer}
+    />
   );
 }

@@ -9,10 +9,10 @@ import { listTaskSpaces } from "./api";
 import { createEmptyWorkDraft, getPeriodTypeLabel, getWorkSpaceLabel, getWorkSpacePath, getWorkTargetFromPath, WORK_ITEM_TYPE_OPTIONS, WORK_SOURCE_TYPE_OPTIONS } from "./model";
 import { useWorks } from "./useWorks";
 import { nextSortOrder, normalizeInitialTarget, roleAllows, sameTarget, spaceSelectorBlock } from "./works-client-helpers";
-import WorkPermissionsPanel from "./WorkPermissionsPanel";
-import WorkReportsPanel, { useWorkReportsController } from "./WorkReportsPanel";
-import WorkTaskTable from "./WorkTaskTable";
-import { WorkTaskForm } from "./WorkTaskFields";
+import { useWorkPermissionsBlocks } from "./WorkPermissionsPanel";
+import { buildWorkReportsPanelBlocks, useWorkReportsController } from "./WorkReportsPanel";
+import { useWorkTaskTableBlock } from "./WorkTaskTable";
+import { useWorkTaskFormSurface } from "./WorkTaskFields";
 import type { WorkItem, WorkItemType, WorkSourceType, WorkTarget, WorkTaskSpace } from "./types";
 
 export default function WorksClient({
@@ -46,10 +46,29 @@ export default function WorksClient({
     (toast: { message: string; type: "success" | "error" }) => showToast(toast.message, toast.type),
     [showToast],
   );
+  const showPermissionToast = useCallback(
+    (toast: { message: string; type: "success" | "error" }) => showToast(toast.message, toast.type),
+    [showToast],
+  );
   const reportsState = useWorkReportsController({
     target: currentSpace,
     canEdit,
     onToast: showReportToast,
+  });
+  const permissionBlocks = useWorkPermissionsBlocks({
+    target: currentSpace,
+    canManage,
+    onToast: showPermissionToast,
+    enabled: activeTab === "permissions",
+  });
+  const createTaskSurface = useWorkTaskFormSurface({
+    draft: worksState.createDraft,
+    works: worksState.works,
+    disabled: worksState.saving,
+    excludedWorkId: null,
+    targetType: currentSpace?.targetType,
+    onChange: worksState.setCreateDraft,
+    enabled: Boolean(currentSpace && activeTab === "tasks" && worksState.creating),
   });
 
   const loadSpaces = useCallback(async () => {
@@ -71,6 +90,29 @@ export default function WorksClient({
       setSpacesLoading(false);
     }
   }, [initialTarget, showToast]);
+  const taskTableBlock = useWorkTaskTableBlock({
+    works: worksState.works,
+    loading: worksState.loading,
+    canEdit,
+    saving: worksState.saving,
+    detailId: worksState.detailId,
+    editingId: worksState.editingId,
+    editDraft: worksState.editDraft,
+    statusFilter,
+    periodFilter,
+    itemTypeFilter: itemTypeFilter as "all" | WorkItemType,
+    sourceFilter: sourceFilter as "all" | WorkSourceType,
+    targetType: currentSpace?.targetType,
+    onEditDraftChange: worksState.setEditDraft,
+    onDetail: (work) => {
+      if (worksState.editingId === work.id) return;
+      worksState.setDetailId(worksState.detailId === work.id ? null : work.id);
+    },
+    onEdit: worksState.startEdit,
+    onSave: () => void worksState.handleUpdate().then(loadSpaces),
+    onCancelEdit: worksState.cancelEdit,
+    onDelete: (work) => void deleteWork(work),
+  });
 
   useEffect(() => { void loadSpaces(); }, [loadSpaces]);
 
@@ -243,6 +285,13 @@ export default function WorksClient({
       sideLabel="工作空间"
       splitRatio={[2, 8]}
       showSideControls={false}
+      navigation={currentSpace ? {
+        kind: "tabs",
+        level: 2,
+        items: tabs,
+        active: activeTab,
+        onChange: setActiveTab,
+      } : undefined}
       toolbar={toolbarItems.length > 0 ? { items: toolbarItems } : undefined}
       side={{
         blocks: [spaceSelectorBlock(spaces, activeTarget, spacesLoading, selectSpace)],
@@ -266,81 +315,26 @@ export default function WorksClient({
             className: "grid-cols-4 text-center",
           }],
         },
-        {
-          kind: "navigation",
-          key: "work-tabs",
-          surface: {
-            kind: "tabs",
-            tabs: {
-              ariaLabel: "工作计划主标签",
-              variant: "small",
-              tabs,
-              active: activeTab,
-              onChange: setActiveTab,
-            },
-          },
-        },
         activeTab === "permissions" ? {
-          kind: "moduleView",
+          kind: "surfaceGroup",
           key: "permissions",
-          view: <WorkPermissionsPanel target={currentSpace} canManage={canManage} onToast={(toast) => worksState.showToast(toast.message, toast.type)} />,
+          blocks: permissionBlocks,
         } : activeTab === "reports" ? {
           kind: "section",
           key: "reports",
           title: "工作汇报",
-          blocks: [{
-            kind: "moduleView",
-            key: "reports-panel",
-            view: <WorkReportsPanel controller={reportsState} />,
-          }],
+          blocks: buildWorkReportsPanelBlocks(reportsState),
         } : {
           kind: "section",
           key: "tasks",
           title: "工作项",
           blocks: [
             ...(worksState.creating ? [{
-              kind: "moduleView" as const,
+              kind: "form" as const,
               key: "create-task",
-              view: (
-                <WorkTaskForm
-                  draft={worksState.createDraft}
-                  works={worksState.works}
-                  disabled={worksState.saving}
-                  excludedWorkId={null}
-                  targetType={currentSpace.targetType}
-                  onChange={worksState.setCreateDraft}
-                />
-              ),
+              surface: createTaskSurface,
             }] : []),
-            {
-              kind: "moduleView",
-              key: "task-table",
-              view: (
-                <WorkTaskTable
-                  works={worksState.works}
-                  loading={worksState.loading}
-                  canEdit={canEdit}
-                  saving={worksState.saving}
-                  detailId={worksState.detailId}
-                  editingId={worksState.editingId}
-                  editDraft={worksState.editDraft}
-                  statusFilter={statusFilter}
-                  periodFilter={periodFilter}
-                  itemTypeFilter={itemTypeFilter as "all" | WorkItemType}
-                  sourceFilter={sourceFilter as "all" | WorkSourceType}
-                  targetType={currentSpace.targetType}
-                  onEditDraftChange={worksState.setEditDraft}
-                  onDetail={(work) => {
-                    if (worksState.editingId === work.id) return;
-                    worksState.setDetailId(worksState.detailId === work.id ? null : work.id);
-                  }}
-                  onEdit={worksState.startEdit}
-                  onSave={() => void worksState.handleUpdate().then(loadSpaces)}
-                  onCancelEdit={worksState.cancelEdit}
-                  onDelete={(work) => void deleteWork(work)}
-                />
-              ),
-            },
+            taskTableBlock,
           ],
         },
       ] : [{

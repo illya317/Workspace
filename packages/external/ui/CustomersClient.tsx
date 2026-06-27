@@ -20,6 +20,7 @@ export default function CustomersClient() {
     <PageSurface
       kind="list"
       contentClassName="py-10"
+      toolbar={{ items: toolbarItems, className: "p-4" }}
       blocks={[
         {
           kind: "section",
@@ -33,10 +34,6 @@ export default function CustomersClient() {
                 kind: "records",
                 records: [],
                 empty: "暂无客户数据",
-                toolbar: {
-                  items: toolbarItems,
-                  className: "p-4",
-                },
               },
             },
           ],

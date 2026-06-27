@@ -98,6 +98,7 @@ export function WorkEnvironmentEditor({
                     getLabel: (factor) => factor,
                     onRemove: (_, factorIndex) => updateItem(index, { factors: item.factors.filter((__, currentIndex) => currentIndex !== factorIndex) }),
                     disabled,
+                    confirmDelete: feedback.confirmDelete,
                     removeConfirmMessage: (factor) => `确定删除「${factor || "环境因素"}」吗？删除后需要保存才会生效。`,
                     emptyText: disabled ? "未设置" : undefined,
                     shellClassName: "content-start",

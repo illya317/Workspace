@@ -15,6 +15,7 @@ import { useDepartmentPositionSideEffects } from "./department-position/use-depa
 import { useDepartmentPositionTreeRenderers } from "./department-position/use-department-position-tree-renderers";
 import { useDepartmentPositionViewRenderers } from "./department-position/use-department-position-view-renderers";
 import { usePositionDescriptionTemplates } from "./department-position/use-position-description-templates";
+import type { RosterSurfaceNavigationProps } from "../roster-surface";
 
 
 export default function DepartmentPositionTab({
@@ -23,6 +24,7 @@ export default function DepartmentPositionTab({
   lifecycle = "active",
   focusDepartmentId = null,
   focusPositionId = null,
+  surface,
   onFocusDepartmentConsumed,
   onFocusPositionConsumed,
   onOpenDepartmentDetails,
@@ -34,6 +36,7 @@ export default function DepartmentPositionTab({
   lifecycle?: "active" | "archived";
   focusDepartmentId?: number | null;
   focusPositionId?: number | null;
+  surface?: RosterSurfaceNavigationProps;
   onFocusDepartmentConsumed?: () => void;
   onFocusPositionConsumed?: () => void;
   onOpenDepartmentDetails?: (departmentId: number) => void;
@@ -171,8 +174,8 @@ export default function DepartmentPositionTab({
     });
   }, [activeOrganizationRootId, isOrganizationMode, setCollapsedDepartments]);
   const {
-    renderDepartmentNode,
-    renderOrganizationRoot,
+    departmentNodeBlock,
+    organizationRootBlock,
   } = useDepartmentPositionTreeRenderers({
     activeOrganizationRootId,
     collapsedDepartments,
@@ -253,9 +256,9 @@ export default function DepartmentPositionTab({
   });
 
   const {
+    detailBlocks,
     renderArchivedBrowser,
-    renderDetailPane,
-    renderTreePanel,
+    treePanelBlocks,
   } = useDepartmentPositionViewRenderers({
     archivedDepartments,
     archivedPositions,
@@ -285,8 +288,8 @@ export default function DepartmentPositionTab({
     positionNames,
     positions,
     positionsByDepartment,
-    renderDepartmentNode,
-    renderOrganizationRoot,
+    departmentNodeBlock,
+    organizationRootBlock,
     rootDepartments,
     saving,
     search,
@@ -344,7 +347,7 @@ export default function DepartmentPositionTab({
         selectedPositionId={selectedPosition?.id ?? null}
         positions={positions}
         positionsByDepartment={positionsByDepartment}
-        renderSide={renderTreePanel}
+        sideBlocks={treePanelBlocks}
         sideOpen={treeOpen}
         onDrawerOpenChange={setTreeDrawerOpen}
         onOpenDepartmentDetails={onOpenDepartmentDetails}
@@ -353,19 +356,20 @@ export default function DepartmentPositionTab({
         onSideOpenChange={setTreeOpen}
         onUnsavedChange={onUnsavedChange}
         onReload={loadData}
+        surface={surface}
       />
     );
   }
 
   if (showArchived) {
-    return renderArchivedBrowser();
+    return renderArchivedBrowser(surface);
   }
 
   return (
     <DepartmentPositionMainContent
       treeOpen={treeOpen}
       treeDrawerOpen={treeDrawerOpen}
-	      renderTreePanel={renderTreePanel}
+	      treePanelBlocks={treePanelBlocks}
 	      createPanel={createPanel}
 	      departments={departments}
 	      departmentById={departmentById}
@@ -378,9 +382,10 @@ export default function DepartmentPositionTab({
 	      onCreatePanelChange={setCreatePanel}
       onCollapseAll={setAllDepartmentsCollapsed}
       onLoadData={loadData}
-      renderDetailPane={renderDetailPane}
+      detailBlocks={detailBlocks}
       onSideOpenChange={setTreeOpen}
       onDrawerOpenChange={setTreeDrawerOpen}
+      surface={surface}
     />
   );
 }

@@ -24,16 +24,13 @@ export default function GmpDetailClient({
       setLoading(false);
     });
   }, [code]);
-  if (loading) {
-    return <PageSurface kind="detail" contentClassName="py-8" empty={{ content: "加载中..." }} />;
-  }
-  if (error || !pos) {
+  if (loading || error || !pos) {
     return (
       <PageSurface
         kind="detail"
         contentClassName="py-8"
-        empty={{ content: error || "未找到" }}
-        actions={[{ key: "back", label: "返回列表", onClick: () => router.push("/docs/positions") }]}
+        empty={{ content: loading ? "加载中..." : error || "未找到" }}
+        actions={loading ? undefined : [{ key: "back", label: "返回列表", onClick: () => router.push("/docs/positions") }]}
       />
     );
   }

@@ -1,6 +1,10 @@
-import type { ReactNode } from "react";
+import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { Department, DepartmentPositionStats, Selection } from "./types";
-import { DepartmentNode, OrganizationBranchNode, OrganizationRootCard } from "./tree-nodes";
+import {
+  buildDepartmentNodeBlock,
+  buildOrganizationBranchBlock,
+  buildOrganizationRootBlock,
+} from "./tree-nodes";
 
 export function useDepartmentPositionTreeRenderers({
   activeOrganizationRootId,
@@ -34,62 +38,51 @@ export function useDepartmentPositionTreeRenderers({
     });
   }
 
-  function renderDepartmentNode(department: Department, level = 0): ReactNode {
-    return (
-      <DepartmentNode
-        key={department.id}
-        department={department}
-        level={level}
-        departments={departments}
-        visibleDepartmentIds={visibleDepartmentIds}
-        selection={selection}
-        collapsedDepartments={collapsedDepartments}
-        search={search}
-        departmentStats={departmentStats}
-        onSelect={selectItem}
-        onToggle={toggleDepartmentCollapsed}
-      />
-    );
+  function departmentNodeBlock(department: Department): PageSurfaceBlockSpec | null {
+    return buildDepartmentNodeBlock({
+      department,
+      departments,
+      visibleDepartmentIds,
+      selection,
+      collapsedDepartments,
+      search,
+      departmentStats,
+      onSelect: selectItem,
+      onToggle: toggleDepartmentCollapsed,
+    });
   }
 
-  function renderOrganizationBranch(department: Department, level = 0): ReactNode {
-    return (
-      <OrganizationBranchNode
-        key={department.id}
-        department={department}
-        level={level}
-        departments={departments}
-        visibleDepartmentIds={visibleDepartmentIds}
-        collapsedDepartments={collapsedDepartments}
-        search={search}
-        onToggle={toggleDepartmentCollapsed}
-      />
-    );
+  function organizationBranchBlock(department: Department): PageSurfaceBlockSpec | null {
+    return buildOrganizationBranchBlock({
+      department,
+      departments,
+      visibleDepartmentIds,
+      collapsedDepartments,
+      search,
+      onToggle: toggleDepartmentCollapsed,
+    });
   }
 
-  function renderOrganizationRoot(department: Department): ReactNode {
+  function organizationRootBlock(department: Department): PageSurfaceBlockSpec | null {
     if (visibleDepartmentIds && !visibleDepartmentIds.has(department.id)) return null;
-    return (
-      <OrganizationRootCard
-        key={department.id}
-        department={department}
-        departments={departments}
-        active={activeOrganizationRootId === department.id}
-        onSelect={(departmentId) => {
-          setActiveOrganizationRootId(departmentId);
-          setCollapsedDepartments((prev) => {
-            const next = new Set(prev);
-            next.delete(departmentId);
-            return next;
-          });
-        }}
-      />
-    );
+    return buildOrganizationRootBlock({
+      department,
+      departments,
+      active: activeOrganizationRootId === department.id,
+      onSelect: (departmentId) => {
+        setActiveOrganizationRootId(departmentId);
+        setCollapsedDepartments((prev) => {
+          const next = new Set(prev);
+          next.delete(departmentId);
+          return next;
+        });
+      },
+    });
   }
 
   return {
-    renderDepartmentNode,
-    renderOrganizationBranch,
-    renderOrganizationRoot,
+    departmentNodeBlock,
+    organizationBranchBlock,
+    organizationRootBlock,
   };
 }

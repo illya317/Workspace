@@ -1,3 +1,4 @@
+import { createElement } from "react";
 import { authorize } from "@workspace/platform/server/auth";
 import type { SessionUser } from "@workspace/platform/types";
 import { AppShell } from "@workspace/platform/ui";
@@ -16,13 +17,13 @@ export default async function LibraryBasicInfoPage({ user }: Props) {
     authorize({ user, resourceKey: "library.basicInfo.write", action: "admin" }),
   ]);
 
-  return (
-    <AppShell title={ROOT_LABEL} backHref="/portal" user={user}>
-      <LibraryClient
-        canWrite={canWrite}
-        canDelete={canDelete}
-        canAdmin={canAdmin}
-      />
-    </AppShell>
+  return createElement(
+    AppShell,
+    { title: ROOT_LABEL, backHref: "/portal", user },
+    <LibraryClient
+      canWrite={canWrite}
+      canDelete={canDelete}
+      canAdmin={canAdmin}
+    />,
   );
 }

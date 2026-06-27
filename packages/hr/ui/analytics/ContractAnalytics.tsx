@@ -1,19 +1,29 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PageSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { Contract } from "./useAnalyticsData";
 import { computeStats, enrichContracts, filterContracts, statusBadge, statusLabel, type EnrichedContract } from "./contract-helpers";
-export default function ContractAnalytics({
+
+type DistributionRow = {
+  label: string;
+  count: number;
+};
+
+export function useContractAnalyticsBlocks({
   contracts
 }: {
   contracts: Contract[];
-}) {
+}): PageSurfaceBlockSpec[] {
   const [filter, setFilter] = useState<"all" | "expiring30" | "expiring90" | "expired">("all");
   const [search, setSearch] = useState("");
   const enriched = useMemo(() => enrichContracts(contracts), [contracts]);
   const stats = useMemo(() => computeStats(enriched), [enriched]);
   const filtered = useMemo(() => filterContracts(enriched, filter, search), [enriched, filter, search]);
+  const distributionColumns: DataSurfaceColumnSpec<DistributionRow>[] = [
+    { key: "label", label: "项目", required: true, cellClassName: "font-medium text-slate-700", cell: (row) => row.label },
+    { key: "count", label: "数量", required: true, cellClassName: "text-right font-medium text-slate-700", cell: (row) => row.count },
+  ];
   const columns = useMemo<DataSurfaceColumnSpec<EnrichedContract>[]>(() => [{
     key: "employeeId",
     label: "工号",
@@ -61,9 +71,7 @@ export default function ContractAnalytics({
     required: true,
     cell: contract => ({ kind: "badge", label: statusLabel(contract.status), className: statusBadge(contract.status) })
   }], []);
-  return <PageSurface
-    kind="analysis"
-    blocks={[
+  return [
       {
         kind: "data",
         key: "stats",
@@ -88,23 +96,17 @@ export default function ContractAnalytics({
             key: "types",
             title: "合同类型分布",
             blocks: [{
-              kind: "moduleView",
+              kind: "data",
               key: "type-bars",
-              view: (
-                <div className="space-y-2">
-                  {stats.types.map(([k, v]) => {
-                    const max = Math.max(...stats.types.map(([, x]) => x), 1);
-                    const pct = Math.round(v / max * 100);
-                    return <div key={k} className="flex items-center gap-3">
-                      <span className="w-20 text-xs text-gray-600 truncate">{k}</span>
-                      <div className="flex-1 h-5 bg-gray-100 rounded overflow-hidden">
-                        <div className="h-full bg-sky-400 rounded" style={{ width: `${pct}%` }} />
-                      </div>
-                      <span className="w-10 text-right text-xs font-medium text-gray-700">{v}</span>
-                    </div>;
-                  })}
-                </div>
-              ),
+              surface: {
+                kind: "table",
+                rows: stats.types.map(([label, count]) => ({ label, count })),
+                columns: distributionColumns,
+                visibleColumns: distributionColumns.map((column) => column.key),
+                rowKey: (row) => row.label,
+                density: "compact",
+                emptyText: "暂无数据",
+              },
             }],
           },
           {
@@ -112,23 +114,17 @@ export default function ContractAnalytics({
             key: "companies",
             title: "公司合同分布",
             blocks: [{
-              kind: "moduleView",
+              kind: "data",
               key: "company-bars",
-              view: (
-                <div className="space-y-2">
-                  {stats.companies.map(([k, v]) => {
-                    const max = Math.max(...stats.companies.map(([, x]) => x), 1);
-                    const pct = Math.round(v / max * 100);
-                    return <div key={k} className="flex items-center gap-3">
-                      <span className="w-20 text-xs text-gray-600 truncate">{k}</span>
-                      <div className="flex-1 h-5 bg-gray-100 rounded overflow-hidden">
-                        <div className="h-full bg-purple-400 rounded" style={{ width: `${pct}%` }} />
-                      </div>
-                      <span className="w-10 text-right text-xs font-medium text-gray-700">{v}</span>
-                    </div>;
-                  })}
-                </div>
-              ),
+              surface: {
+                kind: "table",
+                rows: stats.companies.map(([label, count]) => ({ label, count })),
+                columns: distributionColumns,
+                visibleColumns: distributionColumns.map((column) => column.key),
+                rowKey: (row) => row.label,
+                density: "compact",
+                emptyText: "暂无数据",
+              },
             }],
           },
         ],
@@ -177,6 +173,9 @@ export default function ContractAnalytics({
           }] : []),
         ],
       },
-    ]}
-  />;
+    ];
+}
+
+export default function ContractAnalytics(props: { contracts: Contract[] }) {
+  return <PageSurface kind="analysis" blocks={useContractAnalyticsBlocks(props)} />;
 }

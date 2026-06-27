@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { NavigationSurface } from "@workspace/core/ui";
+import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { departmentManagerPositionName } from "./draft-utils";
 import type { Department, DepartmentPositionStats, Selection } from "./types";
 
@@ -29,9 +29,8 @@ function departmentStatsMeta(stats: DepartmentPositionStats): ReactNode {
   );
 }
 
-export function DepartmentNode({
+export function buildDepartmentNodeBlock({
   department,
-  level: _level,
   departments,
   visibleDepartmentIds,
   selection,
@@ -42,7 +41,6 @@ export function DepartmentNode({
   onToggle,
 }: {
   department: Department;
-  level?: number;
   departments: Department[];
   visibleDepartmentIds: Set<number> | null;
   selection: Selection;
@@ -51,7 +49,7 @@ export function DepartmentNode({
   departmentStats: Map<number, DepartmentPositionStats>;
   onSelect: (selection: Selection) => void;
   onToggle: (departmentId: number) => void;
-}) {
+}): PageSurfaceBlockSpec | null {
   if (visibleDepartmentIds && !visibleDepartmentIds.has(department.id)) return null;
   const isCollapsed = !search.trim() && collapsedDepartments.has(department.id);
   const expandedIds = isCollapsed
@@ -67,10 +65,12 @@ export function DepartmentNode({
     return children.length > 0 ? children : undefined;
   }
 
-  return (
-    <NavigationSurface
-      kind="selector"
-      selector={{
+  return {
+    kind: "navigation",
+    key: `department-${department.id}`,
+    surface: {
+      kind: "selector",
+      selector: {
         mode: "tree",
         framed: false,
         items: [department],
@@ -89,14 +89,13 @@ export function DepartmentNode({
             meta: departmentStatsMeta(stats),
           };
         },
-      }}
-    />
-  );
+      },
+    },
+  };
 }
 
-export function OrganizationBranchNode({
+export function buildOrganizationBranchBlock({
   department,
-  level: _level,
   departments,
   visibleDepartmentIds,
   collapsedDepartments,
@@ -104,13 +103,12 @@ export function OrganizationBranchNode({
   onToggle,
 }: {
   department: Department;
-  level?: number;
   departments: Department[];
   visibleDepartmentIds: Set<number> | null;
   collapsedDepartments: Set<number>;
   search: string;
   onToggle: (departmentId: number) => void;
-}) {
+}): PageSurfaceBlockSpec | null {
   if (visibleDepartmentIds && !visibleDepartmentIds.has(department.id)) return null;
   const isCollapsed = !search.trim() && collapsedDepartments.has(department.id);
   const expandedIds = isCollapsed
@@ -126,10 +124,12 @@ export function OrganizationBranchNode({
     return children.length > 0 ? children : undefined;
   }
 
-  return (
-    <NavigationSurface
-      kind="selector"
-      selector={{
+  return {
+    kind: "navigation",
+    key: `organization-branch-${department.id}`,
+    surface: {
+      kind: "selector",
+      selector: {
         mode: "tree",
         framed: false,
         items: [department],
@@ -153,12 +153,12 @@ export function OrganizationBranchNode({
             meta: managerName ? `负责人：${managerName} · 下级 ${children.length}` : `下级 ${children.length}`,
           };
         },
-      }}
-    />
-  );
+      },
+    },
+  };
 }
 
-export function OrganizationRootCard({
+export function buildOrganizationRootBlock({
   department,
   active,
   departments,
@@ -168,14 +168,16 @@ export function OrganizationRootCard({
   active: boolean;
   departments: Department[];
   onSelect: (departmentId: number) => void;
-}) {
+}): PageSurfaceBlockSpec {
   const children = departmentChildren(departments, department);
   const managerName = departmentManagerPositionName(department);
 
-  return (
-    <NavigationSurface
-      kind="selector"
-      selector={{
+  return {
+    kind: "navigation",
+    key: `organization-root-${department.id}`,
+    surface: {
+      kind: "selector",
+      selector: {
         framed: false,
         items: [department],
         selectedId: active ? department.id : null,
@@ -191,7 +193,7 @@ export function OrganizationRootCard({
             <span key="children" className="shrink-0 whitespace-nowrap">下级 {children.length}</span>,
           ],
         }),
-      }}
-    />
-  );
+      },
+    },
+  };
 }

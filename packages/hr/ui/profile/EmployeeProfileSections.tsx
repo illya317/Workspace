@@ -1,15 +1,14 @@
 "use client";
 
-import { FormSurface } from "@workspace/core/ui";
-import { SectionShell } from "./ProfileFormControls";
+import { SectionShell, sectionShellBlock } from "./ProfileFormControls";
 import { edpFields, employmentFields } from "@workspace/hr/constants";
 import type { ContractRow, EdpRow, EmploymentRow, ProfileField } from "@workspace/hr/types";
-import type { ReferenceOption } from "@workspace/core/ui";
-import { fieldGrid, FieldRegion, isCurrentByEndDate, pickFields, type EditableRecord, type RowBase } from "./EmployeeProfileUtils";
-import { ContractSection } from "./EmployeeProfileContractSection";
-import { ProfileAction, RowActions } from "./EmployeeProfileRowActions";
+import { PageSurface, type PageSurfaceBlockSpec, type ReferenceOption } from "@workspace/core/ui";
+import { emptyFormBlock, fieldGridBlock, fieldRegionBlock, isCurrentByEndDate, pickFields, type EditableRecord, type RowBase } from "./EmployeeProfileUtils";
+import { useContractSectionBlocks } from "./EmployeeProfileContractSection";
+import { deleteActionSpec, profileActionSpec } from "./EmployeeProfileRowActions";
 import { useScrollToAddedItem } from "../hooks/useScrollToAddedItem";
-export { HistorySection, type ProfileHistoryEntry } from "./EmployeeProfileHistorySection";
+export { HistorySection, historySectionBlock, type ProfileHistoryEntry } from "./EmployeeProfileHistorySection";
 
 function InlineStatusChip({
   label,
@@ -48,32 +47,26 @@ export function RowsSection<T extends RowBase>({
   allowDelete?: boolean;
   className?: string;
 }) {
-  return <SectionShell title={null} className={className}>
-      <div className="space-y-4">
-        {rows.length === 0 ? <FormSurface kind="detail" fields={[{ kind: "note", key: "empty", content: "暂无记录" }]} /> : rows.map((row, index) => <FieldRegion key={row.id ?? `new-${index}`} title={getRowTitle(row, title)} actions={canEdit && allowDelete && onDelete ? <RowActions canEdit={canEdit} saving={saving} onDelete={() => onDelete(row, index)} /> : null}>
-              {fieldGrid(fields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
+  const blocks = rows.length === 0
+    ? [emptyFormBlock("rows-empty", "暂无记录")]
+    : rows.map((row, index) => fieldRegionBlock({
+        key: String(row.id ?? `new-${index}`),
+        title: getRowTitle(row, title),
+        actions: canEdit && allowDelete && onDelete
+          ? deleteActionSpec({ canEdit, saving, onDelete: () => onDelete(row, index) })
+          : undefined,
+        blocks: [fieldGridBlock(fields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
           const field = fields.find(item => item.key === key);
           if (field) onChange(index, field, value, option);
-        })}
-            </FieldRegion>)}
-      </div>
-    </SectionShell>;
+        }, undefined, `${row.id ?? `new-${index}`}-fields`)],
+      }));
+  return <SectionShell title={null} className={className} blocks={blocks} />;
 }
 function getRowTitle<T extends RowBase>(row: T, fallback: string) {
   const item = row as Record<string, unknown>;
   return String(item.projectName || item.positionName || item.company || item.name || (row.isNew ? `新增${fallback}` : `${fallback} #${row.id ?? ""}`)).trim();
 }
-export function EmploymentSection({
-  employment,
-  contracts,
-  canEdit,
-  saving,
-  onChange,
-  onAddContract,
-  onChangeContract,
-  onDeleteContract,
-  className
-}: {
+interface EmploymentSectionProps {
   employment: EmploymentRow | null;
   contracts: ContractRow[];
   canEdit: boolean;
@@ -83,29 +76,49 @@ export function EmploymentSection({
   onChangeContract: (index: number, field: ProfileField, value: unknown, option?: ReferenceOption) => void;
   onDeleteContract: (row: ContractRow, index: number) => Promise<void>;
   className?: string;
-}) {
-  const fields = employmentFields.filter(field => !["currentCompany", "leaveNote"].includes(field.key));
-  return <SectionShell title={null} className={className}>
-      {!employment ? <FormSurface kind="detail" fields={[{ kind: "note", key: "empty", content: "暂无雇佣主档" }]} /> : <div className="space-y-5">
-          <FieldRegion title="任职状态">
-            {fieldGrid(fields, employment as unknown as EditableRecord, !canEdit, (key, value, option) => {
-          const field = fields.find(item => item.key === key);
-          if (field) onChange(field, value, option);
-        })}
-          </FieldRegion>
-          <ContractSection rows={contracts} canEdit={canEdit} saving={saving} onAdd={onAddContract} onChange={onChangeContract} onDelete={onDeleteContract} />
-        </div>}
-    </SectionShell>;
 }
-export function EdpSection({
-  rows,
+
+export function EmploymentSection(props: EmploymentSectionProps) {
+  return <PageSurface embedded kind="detail" blocks={useEmploymentSectionBlocks(props)} />;
+}
+
+export function useEmploymentSectionBlocks({
+  employment,
+  contracts,
   canEdit,
   saving,
-  onAdd,
   onChange,
-  onDelete,
+  onAddContract,
+  onChangeContract,
+  onDeleteContract,
   className
-}: {
+}: EmploymentSectionProps): PageSurfaceBlockSpec[] {
+  const fields = employmentFields.filter(field => !["currentCompany", "leaveNote"].includes(field.key));
+  const contractBlocks = useContractSectionBlocks({
+    rows: contracts,
+    canEdit,
+    saving,
+    onAdd: onAddContract,
+    onChange: onChangeContract,
+    onDelete: onDeleteContract,
+  });
+  const blocks = !employment
+    ? [emptyFormBlock("employment-empty", "暂无雇佣主档")]
+    : [
+        fieldRegionBlock({
+          key: "employment-status",
+          title: "任职状态",
+          blocks: [fieldGridBlock(fields, employment as unknown as EditableRecord, !canEdit, (key, value, option) => {
+          const field = fields.find(item => item.key === key);
+          if (field) onChange(field, value, option);
+          }, undefined, "employment-fields")],
+        }),
+        ...contractBlocks,
+      ];
+  return [sectionShellBlock({ title: null, className, blocks })];
+}
+
+interface EdpSectionProps {
   rows: EdpRow[];
   canEdit: boolean;
   saving: string | null;
@@ -113,7 +126,21 @@ export function EdpSection({
   onChange: (index: number, field: ProfileField, value: unknown, option?: ReferenceOption) => void;
   onDelete: (row: EdpRow, index: number) => Promise<void>;
   className?: string;
-}) {
+}
+
+export function EdpSection(props: EdpSectionProps) {
+  return <PageSurface embedded kind="detail" blocks={useEdpSectionBlocks(props)} />;
+}
+
+export function useEdpSectionBlocks({
+  rows,
+  canEdit,
+  saving,
+  onAdd,
+  onChange,
+  onDelete,
+  className
+}: EdpSectionProps): PageSurfaceBlockSpec[] {
   const allFields = [...pickFields(edpFields, ["departmentId", "positionId", "isPrimary", "workPercent", "reportTo"]), ...pickFields(edpFields, ["startDate", "endDate"])];
   const {
     getItemRef,
@@ -123,27 +150,28 @@ export function EdpSection({
     requestScrollToIndex(0);
     onAdd();
   }
-  return <SectionShell title={null} className={className}>
-      <div className="space-y-4">
-        {rows.length === 0 ? <FormSurface kind="detail" fields={[{ kind: "note", key: "empty", content: "暂无岗位记录" }]} /> : rows.map((row, index) => {
+  const blocks = rows.length === 0
+    ? [emptyFormBlock("edp-empty", "暂无岗位记录")]
+    : rows.map((row, index) => {
         const current = isCurrentByEndDate(row.endDate);
-        return <div key={row.id ?? `new-edp-${index}`} ref={getItemRef(index)}>
-                <FieldRegion title={<div className="flex flex-wrap items-center gap-2">
+        return fieldRegionBlock({
+          key: String(row.id ?? `new-edp-${index}`),
+          itemRef: getItemRef(index),
+          title: <div className="flex flex-wrap items-center gap-2">
                       <span>{row.isNew ? "新增岗位记录" : row.positionName || `岗位记录 #${row.id}`}</span>
                       <InlineStatusChip label={current ? "当前岗位" : "历史岗位"} tone={current ? "green" : "gray"} />
                       {row.isPrimary && <InlineStatusChip label="主岗" tone="blue" />}
                       <span className="text-xs font-medium text-slate-500">{row.departmentName || "未设置部门"} · 占比 {row.workPercent || "未设置"}</span>
-                    </div>} actions={canEdit ? <>
-                      <ProfileAction label="新增" variant="secondary" disabled={saving !== null} onClick={addRow} />
-                      <RowActions canEdit={canEdit} saving={saving} onDelete={() => onDelete(row, index)} />
-                    </> : null}>
-                  {fieldGrid(allFields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
+                    </div>,
+          actions: canEdit ? [
+            profileActionSpec({ key: "add", label: "新增", variant: "secondary", disabled: saving !== null, onClick: addRow }),
+            ...deleteActionSpec({ canEdit, saving, onDelete: () => onDelete(row, index) }),
+          ] : undefined,
+          blocks: [fieldGridBlock(allFields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
               const field = edpFields.find(item => item.key === key);
               if (field) onChange(index, field, value, option);
-            })}
-                </FieldRegion>
-              </div>;
-      })}
-      </div>
-    </SectionShell>;
+            }, undefined, `edp-${index}-fields`)],
+        });
+      });
+  return [sectionShellBlock({ title: null, className, blocks })];
 }

@@ -3,6 +3,7 @@ import {
   coreUiComponentOwnerL1Meta,
   coreUiComponentOwnerL2Meta,
   type CoreUiComponentAccessLayer,
+  type CoreUiAgentExposure,
   type CoreUiComponentKind,
   type CoreUiComponentOwnerL1,
   type CoreUiComponentOwnerL2,
@@ -17,6 +18,7 @@ export type UiComponentFilterNode = {
   uiLevel: CoreUiComponentUiLevel;
   component: {
     description: string;
+    agentExposure?: CoreUiAgentExposure;
     ownerL1?: CoreUiComponentOwnerL1;
     ownerL2?: CoreUiComponentOwnerL2;
   };
@@ -26,6 +28,7 @@ export type UiComponentFilterNode = {
 export type UiComponentFilterInput = {
   keyword: string;
   ownerL1Value: string;
+  exposureFilter: "direct" | "via" | "internal" | "all";
   verifiedFilter: "verified" | "unverified" | "all";
   usageFilesByName: ReadonlyMap<string, readonly string[]>;
   usedByNamesByName: ReadonlyMap<string, readonly string[]>;
@@ -33,10 +36,11 @@ export type UiComponentFilterInput = {
 
 function matchesBaseFilters(
   node: UiComponentFilterNode,
-  input: Pick<UiComponentFilterInput, "ownerL1Value" | "verifiedFilter">,
+  input: Pick<UiComponentFilterInput, "ownerL1Value" | "exposureFilter" | "verifiedFilter">,
 ) {
-  const { ownerL1Value, verifiedFilter } = input;
+  const { ownerL1Value, exposureFilter, verifiedFilter } = input;
   if (ownerL1Value !== "all" && node.component.ownerL1 !== ownerL1Value) return false;
+  if (exposureFilter !== "all" && node.component.agentExposure?.mode !== exposureFilter) return false;
   if (verifiedFilter === "verified" && !node.verified) return false;
   if (verifiedFilter === "unverified" && node.verified) return false;
   return true;

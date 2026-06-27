@@ -116,27 +116,11 @@ const BUSINESS_PACKAGE_NAMES = new Set([
   "production",
   "work",
 ]);
-const CORE_UI_BUSINESS_SURFACE_IMPORT_ALLOWLIST = new Set([
-  "CreatePanel",
-  "DataSurface",
-  "FormSurface",
-  "InputControl",
-  "NavigationSurface",
-  "PageSurface",
-  "SelectorPanel",
-  "useFeedback",
-]);
-const CORE_UI_PLATFORM_RUNTIME_IMPORT_ALLOWLIST = new Set([
-  "CreatePanel",
-  "DataSurface",
-  "FeedbackProvider",
-  "FormSurface",
-  "InputControl",
-  "NavigationSurface",
-  "PageSurface",
-  "SelectorPanel",
-  "useFeedback",
-]);
+const CORE_UI_DIRECT_RUNTIME_IMPORTS = new Set(
+  coreUiComponentRegistry
+    .filter((component) => component.agentExposure?.mode === "direct")
+    .map((component) => component.name),
+);
 const CORE_UI_BUSINESS_TYPE_IMPORT_DENYLIST = new Set([
   "DataTableColumn",
   "FkFieldOption",
@@ -350,7 +334,7 @@ export function findBusinessCoreUiSurfaceBypassImports(files: SourceInfo[]) {
       for (const element of namedBindings.elements) {
         if (element.isTypeOnly) continue;
         const importedName = element.propertyName?.text ?? element.name.text;
-        if (!CORE_UI_BUSINESS_SURFACE_IMPORT_ALLOWLIST.has(importedName)) {
+        if (!CORE_UI_DIRECT_RUNTIME_IMPORTS.has(importedName)) {
           candidates.push({ file: file.relPath, importedName, specifier });
         }
       }
@@ -424,7 +408,7 @@ export function findPlatformCoreUiRuntimeBypassImports(files: SourceInfo[]) {
         if (element.isTypeOnly) continue;
         const importedName = element.propertyName?.text ?? element.name.text;
         if (
-          !CORE_UI_PLATFORM_RUNTIME_IMPORT_ALLOWLIST.has(importedName) &&
+          !CORE_UI_DIRECT_RUNTIME_IMPORTS.has(importedName) &&
           !CORE_UI_NON_COMPONENT_EXPORTS.has(importedName)
         ) {
           candidates.push({ file: file.relPath, importedName, specifier });

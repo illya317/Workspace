@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface } from "@workspace/core/ui";
+import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 const YS = ["2024", "2025", "2026"];
 const MS = Array.from({
@@ -27,8 +27,9 @@ interface Props {
   setRt: (value: string) => void;
   loading: boolean;
   onLoad: () => void;
+  extraItems?: SurfaceToolbarItems;
 }
-export default function ReviewFilters({
+export function useReviewFilterToolbarItems({
   co,
   yr,
   mo,
@@ -38,17 +39,22 @@ export default function ReviewFilters({
   setMo,
   setRt,
   loading,
-  onLoad
+  onLoad,
+  extraItems = [],
 }: Props) {
   const companyOptions = useCompanyOptions();
-  return <FormSurface
-    kind="filters"
-    fields={[
-      { key: "company", label: "公司", spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: companyOptions } }, value: co, onChange: (value) => setCo(String(value ?? "")), placeholder: "—" },
-      { key: "year", label: "年度", spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: YS.map(year => ({ value: year, label: year })) } }, value: yr, onChange: (value) => setYr(String(value ?? "")), placeholder: "—" },
-      { key: "month", label: "月份", spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: MS.map(month => ({ value: month.v, label: month.l })) } }, value: mo, onChange: (value) => setMo(String(value ?? "")), placeholder: "—" },
-      { key: "report", label: "报表", spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: RTS.map(report => ({ value: report.v, label: report.l })) } }, value: rt, onChange: (value) => setRt(String(value ?? "")), placeholder: "—" },
-    ]}
-    actions={[{ key: "load", label: "读取底稿", variant: "primary", onClick: onLoad, disabled: loading }]}
-  />;
+  const items: SurfaceToolbarItems = [
+    { kind: "select", key: "company", section: "filter", label: "公司", options: companyOptions, value: co, onChange: setCo, placeholder: "—", triggerClassName: "min-w-36" },
+    { kind: "select", key: "year", section: "filter", label: "年度", options: YS.map(year => ({ value: year, label: year })), value: yr, onChange: setYr, placeholder: "—", triggerClassName: "min-w-28" },
+    { kind: "select", key: "month", section: "filter", label: "月份", options: MS.map(month => ({ value: month.v, label: month.l })), value: mo, onChange: setMo, placeholder: "—", triggerClassName: "min-w-28" },
+    { kind: "select", key: "report", section: "filter", label: "报表", options: RTS.map(report => ({ value: report.v, label: report.l })), value: rt, onChange: setRt, placeholder: "—", triggerClassName: "min-w-36" },
+    { kind: "action-group", key: "load", section: "action", actions: [{ key: "load", label: "读取底稿", kind: "view", variant: "primary", onClick: onLoad, disabled: loading }] },
+    ...extraItems,
+  ];
+  return items;
+}
+
+export default function ReviewFilters(props: Props) {
+  useReviewFilterToolbarItems(props);
+  return null;
 }

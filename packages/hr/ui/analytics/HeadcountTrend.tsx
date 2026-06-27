@@ -1,10 +1,10 @@
 "use client";
 
-import { PageSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { Employment } from "./useAnalyticsData";
 import { type MonthlySnapshot, useHeadcountData } from "./useHeadcountData";
 
-export default function HeadcountTrend({ employments }: { employments: Employment[] }) {
+export function useHeadcountTrendBlocks({ employments }: { employments: Employment[] }): PageSurfaceBlockSpec[] {
   const stats = useHeadcountData(employments);
 
   const barMax = Math.max(stats.maxFlow, 1);
@@ -24,10 +24,7 @@ export default function HeadcountTrend({ employments }: { employments: Employmen
     { key: "active", label: "月末在职", required: true, headerClassName: "text-right", cellClassName: "text-right font-medium text-slate-800", cell: (month) => month.active },
   ];
 
-  return (
-    <PageSurface
-      kind="analysis"
-      blocks={[
+  return [
         {
           kind: "data",
           key: "stats",
@@ -47,59 +44,58 @@ export default function HeadcountTrend({ employments }: { employments: Employmen
           kind: "analysis",
           key: "trend",
           title: "人员流动趋势（近12个月）",
-          blocks: [{
-            kind: "moduleView",
-            key: "trend-chart",
-            view: (
-              <>
-                <div className="mb-6">
-                  <h4 className="text-xs text-gray-500 mb-2">月均在职人数</h4>
-                  <div className="flex items-end gap-1 h-20">
-                    {stats.months.map((m, i) => {
-                      const range = stats.activeRange.max - stats.activeRange.min || 1;
-                      const h = Math.round(((m.active - stats.activeRange.min) / range) * 70 + 30);
-                      return (
-                        <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                          <span className="text-xs text-gray-500 font-medium">{m.active}</span>
-                          <div className="w-full bg-emerald-300 rounded-t" style={{ height: `${h}%` }} />
-                          <span className="text-[9px] text-gray-400">{m.label.slice(2)}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="mb-1">
-                  <h4 className="text-xs text-gray-500 mb-2">月度入职/离职</h4>
-                  <div className="flex items-end gap-1 h-32">
-                    {stats.months.map((m, i) => (
-                      <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
-                        <div className="flex gap-0.5 items-end">
-                          <div
-                            className="w-2.5 bg-blue-400 rounded-t"
-                            style={{ height: `${Math.round((m.joins / barMax) * 100)}%` }}
-                            title={`入职 ${m.joins}`}
-                          />
-                          <div
-                            className="w-2.5 bg-rose-400 rounded-t"
-                            style={{ height: `${Math.round((m.leaves / barMax) * 100)}%` }}
-                            title={`离职 ${m.leaves}`}
-                          />
-                        </div>
-                        <span className="text-[8px] text-gray-400">{m.label.slice(2)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-6 text-xs text-gray-400 border-t pt-3 mt-2">
-                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-blue-400 inline-block" /> 入职</span>
-                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-rose-400 inline-block" /> 离职</span>
-                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-emerald-300 inline-block" /> 在职人数</span>
-                </div>
-              </>
-            ),
-          }],
+          blocks: [
+            {
+              kind: "data",
+              key: "active-chart",
+              surface: {
+                kind: "visual",
+                wrap: false,
+                visual: {
+                  kind: "barChart",
+                  title: "月均在职人数",
+                  height: 80,
+                  min: stats.activeRange.min,
+                  max: Math.max(stats.activeRange.max, 1),
+                  bars: stats.months.map((month) => ({
+                    key: month.label,
+                    label: month.label.slice(2),
+                    value: month.active,
+                    valueLabel: month.active,
+                    tone: "emerald",
+                    minPercent: month.active > 0 ? 4 : 1,
+                  })),
+                },
+              },
+            },
+            {
+              kind: "data",
+              key: "flow-chart",
+              surface: {
+                kind: "visual",
+                wrap: false,
+                visual: {
+                  kind: "groupedBarChart",
+                  title: "月度入职/离职",
+                  height: 128,
+                  max: barMax,
+                  groups: stats.months.map((month) => ({
+                    key: month.label,
+                    label: month.label.slice(2),
+                    bars: [
+                      { key: "joins", label: "入职", value: month.joins, tone: "blue", title: `入职 ${month.joins}` },
+                      { key: "leaves", label: "离职", value: month.leaves, tone: "rose", title: `离职 ${month.leaves}` },
+                    ],
+                  })),
+                  legend: [
+                    { key: "joins", label: "入职", tone: "blue" },
+                    { key: "leaves", label: "离职", tone: "rose" },
+                    { key: "active", label: "在职人数", tone: "emerald" },
+                  ],
+                },
+              },
+            },
+          ],
         },
         {
           kind: "analysis",
@@ -117,7 +113,9 @@ export default function HeadcountTrend({ employments }: { employments: Employmen
             },
           }],
         },
-      ]}
-    />
-  );
+      ];
+}
+
+export default function HeadcountTrend(props: { employments: Employment[] }) {
+  return <PageSurface kind="analysis" blocks={useHeadcountTrendBlocks(props)} />;
 }

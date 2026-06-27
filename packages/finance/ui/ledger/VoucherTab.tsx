@@ -2,8 +2,9 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo } from "react";
-import { DataSurface, NavigationSurface, useFeedback } from "@workspace/core/ui";
-import FinanceFilters from "../components/FinanceFilters";
+import { DataSurface, PageSurface, useFeedback } from "@workspace/core/ui";
+import type { PageSurfaceBlockSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { BASE_ITEM_COLUMNS, type VoucherItemRow } from "../components/VoucherItemTable";
 import { useReclassResults } from "./useReclassResults";
 import ReclassReviewView from "../components/ReclassReviewView";
@@ -12,7 +13,15 @@ import type { Voucher, VoucherResponse } from "@workspace/finance/types";
 
 // ─── Component ───────────────────────────────────────────
 
-export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
+export default function VoucherTab({
+  canWrite,
+  navigation,
+  lifecycleBlocks = [],
+}: {
+  canWrite: boolean;
+  navigation?: PageSurfaceNavigationSpec;
+  lifecycleBlocks?: PageSurfaceBlockSpec[];
+}) {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [loading, setLoading] = useState(true);
   const [companyFilter, setCompanyFilter] = useState("");
@@ -93,95 +102,113 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   }, [companyFilter, yearFilter, monthFilter, keyword, page, pageSize]);
 
   const totalPages = Math.ceil(total / pageSize);
+  const extraToolbarItems: SurfaceToolbarItems = [
+    ...(canWrite ? [{
+      kind: "action-group" as const,
+      key: "reclass-actions",
+      section: "action" as const,
+      actions: [{
+        key: "toggle-reclass",
+        kind: "reclass" as const,
+        label: "重分类",
+        variant: viewMode === "reclass" ? "primary" as const : "secondary" as const,
+        onClick: () => setViewMode(viewMode === "reclass" ? "vouchers" : "reclass"),
+      }],
+    }] : []),
+    ...(canWrite && viewMode === "reclass" ? [{
+      kind: "select" as const,
+      key: "reclass-status",
+      section: "filter" as const,
+      label: "状态",
+      value: reclassStatus,
+      onChange: setReclassStatus,
+      options: [
+        { value: "adjusted", label: `已调整 ${reclassCounts.adjusted}` },
+        { value: "configured", label: `已配置 ${reclassCounts.configured}` },
+        { value: "unconfigured", label: `未配置 ${reclassCounts.unconfigured}` },
+        { value: "all", label: `全部 ${reclassCounts.total}` },
+      ],
+      triggerClassName: "min-w-40",
+    }] : []),
+  ];
+  const toolbarItems = useFinanceFilterToolbarItems({
+    companyFilter,
+    yearFilter,
+    monthFilter,
+    keyword,
+    pageSize,
+    onCompanyChange: (v) => { setCompanyFilter(v); setPage(1); },
+    onYearChange: (v) => { setYearFilter(v); setPage(1); },
+    onMonthChange: (v) => { setMonthFilter(v); setPage(1); },
+    onKeywordChange: (v) => { setKeyword(v); setPage(1); },
+    onPageSizeChange: (v) => { setPageSize(v); setPage(1); },
+    columns: viewMode === "reclass" ? undefined : voucherColumns,
+    visibleColumns: viewMode === "reclass" ? undefined : visibleColumns,
+    onColumnsChange: viewMode === "reclass" ? undefined : setVisibleColumns,
+    extraItems: extraToolbarItems,
+  });
 
   return (
-    <div className="space-y-4">
-      <FinanceFilters
-        companyFilter={companyFilter}
-        yearFilter={yearFilter}
-        monthFilter={monthFilter}
-        keyword={keyword}
-        pageSize={pageSize}
-        onCompanyChange={(v) => { setCompanyFilter(v); setPage(1); }}
-        onYearChange={(v) => { setYearFilter(v); setPage(1); }}
-        onMonthChange={(v) => { setMonthFilter(v); setPage(1); }}
-        onKeywordChange={(v) => { setKeyword(v); setPage(1); }}
-        onPageSizeChange={(v) => { setPageSize(v); setPage(1); }}
-        columns={viewMode === "reclass" ? undefined : voucherColumns}
-        visibleColumns={viewMode === "reclass" ? undefined : visibleColumns}
-        onColumnsChange={viewMode === "reclass" ? undefined : setVisibleColumns}
-      />
-      {canWrite && (
-        <div className="flex flex-wrap items-center gap-3">
-          <NavigationSurface
-            kind="tabs"
-            tabs={{
-              variant: "small",
-              accordion: true,
-              tabs: [
+    <PageSurface
+      kind="list"
+      navigation={navigation}
+      toolbar={{ items: toolbarItems }}
+      body={{
+        blocks: viewMode === "reclass"
+          ? lifecycleBlocks
+          : [
+              ...lifecycleBlocks,
               {
-                key: "reclass",
-                label: "重分类",
-                children: [
-                  { key: "adjusted", label: `已调整 ${reclassCounts.adjusted}` },
-                  { key: "configured", label: `已配置 ${reclassCounts.configured}` },
-                  { key: "unconfigured", label: `未配置 ${reclassCounts.unconfigured}` },
-                  { key: "all", label: `全部 ${reclassCounts.total}` },
-                ],
+                kind: "data",
+                key: "vouchers",
+                surface: {
+                  kind: "table",
+                  framed: true,
+                  bodyClassName: "overflow-x-auto",
+                  rows: vouchers,
+                  columns: voucherColumns,
+                  visibleColumns,
+                  loading,
+                  emptyText: "暂无凭证",
+                  rowKey: (v: Voucher) => v.id,
+                  onRowClick: (v: Voucher) =>
+                    setExpandedVoucherId((prev) => (prev === v.id ? null : v.id)),
+                  expandedRowKey: expandedVoucherId,
+                  renderExpandedRow: (v: Voucher) => (
+                    <div className="rounded-md border border-slate-200 bg-white">
+                      <DataSurface
+                        kind="table"
+                        rows={v.items.map((it: VoucherItemRow, i: number) => ({ ...it, _idx: i, _voucherNo: v.voucherNo }))}
+                        columns={itemColumns}
+                        visibleColumns={itemColumns.map((c) => c.key)}
+                        rowKey={(r: VoucherItemRow) => `item-${r.id}`}
+                      />
+                    </div>
+                  ),
+                },
               },
-              ],
-              active: viewMode === "reclass" ? "reclass" : "",
-              activeChild: reclassStatus,
-              onChange: () => setViewMode(viewMode === "reclass" ? "vouchers" : "reclass"),
-              onChildChange: setReclassStatus,
-            }}
-          />
-        </div>
-      )}
-
-      {viewMode === "reclass" ? (
-        companyFilter && yearFilter && monthFilter ? (
-          <ReclassReviewView
-            items={allItems}
-            canWrite={canWrite}
-            statusFilter={reclassStatus}
-            onReview={handleReview}
-            companyCode={companyFilter}
-            year={yearFilter}
-          />
-        ) : (
-          <p className="py-8 text-center text-sm text-gray-400">请选择公司、年度和月份以配置重分类规则</p>
-        )
-      ) : (
-        <DataSurface
-          kind="table"
-          framed
-          bodyClassName="overflow-x-auto"
-          rows={vouchers}
-          columns={voucherColumns}
-          visibleColumns={visibleColumns}
-          loading={loading}
-          emptyText="暂无凭证"
-          rowKey={(v) => v.id}
-          onRowClick={(v) =>
-            setExpandedVoucherId((prev) => (prev === v.id ? null : v.id))
-          }
-          expandedRowKey={expandedVoucherId}
-          renderExpandedRow={(v) => (
-            <div className="rounded-md border border-slate-200 bg-white">
-              <DataSurface
-                kind="table"
-                rows={v.items.map((it, i) => ({ ...it, _idx: i, _voucherNo: v.voucherNo }))}
-                columns={itemColumns}
-                visibleColumns={itemColumns.map((c) => c.key)}
-                rowKey={(r: VoucherItemRow) => `item-${r.id}`}
-              />
-            </div>
-          )}
-        />
-      )}
-      {viewMode !== "reclass" && <NavigationSurface kind="pagination" pagination={{ page, totalPages, total, onPageChange: setPage }} />}
-      {adjustModal}
-    </div>
+            ],
+        content: (
+          <>
+            {viewMode === "reclass" ? (
+              companyFilter && yearFilter && monthFilter ? (
+                <ReclassReviewView
+                  items={allItems}
+                  canWrite={canWrite}
+                  statusFilter={reclassStatus}
+                  onReview={handleReview}
+                  companyCode={companyFilter}
+                  year={yearFilter}
+                />
+              ) : (
+                <p className="py-8 text-center text-sm text-gray-400">请选择公司、年度和月份以配置重分类规则</p>
+              )
+            ) : null}
+            {adjustModal}
+          </>
+        ),
+      }}
+      footer={viewMode === "reclass" ? undefined : { pagination: { page, totalPages, total, onPageChange: setPage } }}
+    />
   );
 }

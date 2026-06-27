@@ -1,28 +1,49 @@
 "use client";
 
 import { useMemo } from "react";
-import { DataSurface, FormSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
-import type { WorkReportCollectionResponse, WorkReportCollectionSpace, WorkReportDraftResponse, WorkReportItem } from "./types";
-export function ReportDraftTable({
-  draft,
-  loading,
-  canEdit,
-  onUpdate,
-  onRemove
-}: {
+import {
+  DataSurface,
+  FormSurface,
+  type DataSurfaceColumnSpec,
+  type PageSurfaceBlockSpec,
+} from "@workspace/core/ui";
+import type {
+  WorkReportCollectionResponse,
+  WorkReportCollectionSpace,
+  WorkReportDraftResponse,
+  WorkReportItem,
+} from "./types";
+
+type ReportDraftTableProps = {
   draft: WorkReportDraftResponse | null;
   loading: boolean;
   canEdit: boolean;
   onUpdate: (index: number, patch: Partial<WorkReportItem>) => void;
   onRemove: (index: number) => void;
-}) {
-  const rows = useMemo(() => draft?.items.map((item, index) => ({
+};
+
+type ReportCollectionTableProps = {
+  collection: WorkReportCollectionResponse | null;
+  loading: boolean;
+};
+
+type ReportDraftRow = WorkReportItem & {
+  rowIndex: number;
+};
+
+function getDraftRows(draft: WorkReportDraftResponse | null): ReportDraftRow[] {
+  return draft?.items.map((item, index) => ({
     ...item,
-    rowIndex: index
-  })) || [], [draft]);
-  const columns: DataSurfaceColumnSpec<WorkReportItem & {
-    rowIndex: number;
-  }>[] = [{
+    rowIndex: index,
+  })) || [];
+}
+
+function createDraftColumns({
+  canEdit,
+  onUpdate,
+  onRemove,
+}: Pick<ReportDraftTableProps, "canEdit" | "onUpdate" | "onRemove">): DataSurfaceColumnSpec<ReportDraftRow>[] {
+  return [{
     key: "title",
     label: "事项",
     required: true,
@@ -57,17 +78,36 @@ export function ReportDraftTable({
     cellClassName: "w-24 align-middle",
     cell: item => canEdit && item.source !== "work" ? <FormSurface kind="inline" actions={[{ key: `remove-${item.rowIndex}`, label: "移除", variant: "danger", onClick: () => onRemove(item.rowIndex) }]} /> : <span className="text-xs text-slate-400">锁定</span>
   }];
-  return <DataSurface kind="table" rows={rows} columns={columns} visibleColumns={[]} density="compact" loading={loading} emptyText="暂无可汇报事项" rowKey={(item, index) => item.id || item.workItemId || `new-${index}`} scrollClassName="overflow-y-hidden rounded-lg border border-slate-200 bg-white" />;
 }
-export function ReportCollectionTable({
-  collection,
-  loading
-}: {
-  collection: WorkReportCollectionResponse | null;
-  loading: boolean;
-}) {
-  const rows = collection?.spaces || [];
-  const columns: DataSurfaceColumnSpec<WorkReportCollectionSpace>[] = [{
+
+export function buildReportDraftTableBlock(props: ReportDraftTableProps): PageSurfaceBlockSpec {
+  const rows = getDraftRows(props.draft);
+  const columns = createDraftColumns(props);
+  return {
+    kind: "data",
+    key: "report-draft-table",
+    surface: {
+      kind: "table",
+      rows,
+      columns,
+      visibleColumns: [],
+      density: "compact",
+      loading: props.loading,
+      emptyText: "暂无可汇报事项",
+      rowKey: (item, index) => item.id || item.workItemId || `new-${index}`,
+      scrollClassName: "overflow-y-hidden rounded-lg border border-slate-200 bg-white",
+    },
+  };
+}
+
+export function ReportDraftTable(props: ReportDraftTableProps) {
+  const rows = useMemo(() => getDraftRows(props.draft), [props.draft]);
+  const columns = useMemo(() => createDraftColumns(props), [props]);
+  return <DataSurface kind="table" rows={rows} columns={columns} visibleColumns={[]} density="compact" loading={props.loading} emptyText="暂无可汇报事项" rowKey={(item, index) => item.id || item.workItemId || `new-${index}`} scrollClassName="overflow-y-hidden rounded-lg border border-slate-200 bg-white" />;
+}
+
+function createCollectionColumns(): DataSurfaceColumnSpec<WorkReportCollectionSpace>[] {
+  return [{
     key: "space",
     label: "工作空间",
     required: true,
@@ -91,9 +131,42 @@ export function ReportCollectionTable({
     cellClassName: "min-w-[34rem] whitespace-normal",
     cell: space => space.reports.length ? <ReportStack space={space} /> : <span className="text-sm text-slate-400">暂无提交</span>
   }];
+}
+
+export function buildReportCollectionTableBlock({ collection, loading }: ReportCollectionTableProps): PageSurfaceBlockSpec {
+  const rows = collection?.spaces || [];
+  if (!loading && rows.length === 0) {
+    return {
+      kind: "data",
+      key: "report-collection-empty",
+      surface: { kind: "records", records: [], empty: "暂无可汇总的工作空间" },
+    };
+  }
+  const columns = createCollectionColumns();
+  return {
+    kind: "data",
+    key: "report-collection-table",
+    surface: {
+      kind: "table",
+      rows,
+      columns,
+      visibleColumns: [],
+      density: "compact",
+      loading,
+      emptyText: "暂无汇报",
+      rowKey: space => `${space.targetType}:${space.targetId}`,
+      scrollClassName: "overflow-y-hidden rounded-lg border border-slate-200 bg-white",
+    },
+  };
+}
+
+export function ReportCollectionTable({ collection, loading }: ReportCollectionTableProps) {
+  const rows = collection?.spaces || [];
+  const columns = useMemo(() => createCollectionColumns(), []);
   if (!loading && rows.length === 0) return <DataSurface kind="records" records={[]} empty="暂无可汇总的工作空间" />;
   return <DataSurface kind="table" rows={rows} columns={columns} visibleColumns={[]} density="compact" loading={loading} emptyText="暂无汇报" rowKey={space => `${space.targetType}:${space.targetId}`} scrollClassName="overflow-y-hidden rounded-lg border border-slate-200 bg-white" />;
 }
+
 function ReportStack({
   space
 }: {
@@ -120,6 +193,7 @@ function ReportStack({
     }))}
   />;
 }
+
 function formatDateTime(value: string | null) {
   if (!value) return "未提交";
   return new Date(value).toLocaleString("zh-CN", {

@@ -1,11 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { FormSurface, PageSurface } from "@workspace/core/ui";
-import { DepartmentCodeInput } from "./department-code-input";
+import { PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { departmentCodeEditableSegment } from "./department-code-input";
 import { postJson } from "@workspace/platform/ui/api-client";
-import { DepartmentDescriptionsPanel } from "./department-descriptions-panel";
-import { DetailSectionHeader } from "./detail-editors";
+import { useDepartmentDescriptionsBlock } from "./department-descriptions-panel";
 import { sanitizeDepartmentDescriptionDetails } from "./draft-utils";
 import { serializeAlias } from "./utils";
 import type { Department, DepartmentDescriptionDraft } from "./types";
@@ -24,19 +23,21 @@ function deriveCreateCode(level: 1 | 2 | 3, parentId: number | null, departmentB
   return `${prefix}${stem}${suggestion}`;
 }
 
-export function DepartmentCreatePanel({
-  departments,
-  departmentById,
-  onCancel,
-  onCreated,
-  canEdit,
-}: {
+type DepartmentCreatePanelProps = {
   departments: Department[];
   departmentById: Map<number, Department>;
   onCancel: () => void;
   onCreated: () => void | Promise<void>;
   canEdit: boolean;
-}) {
+};
+
+export function useDepartmentCreatePanelBlock({
+  departments,
+  departmentById,
+  onCancel,
+  onCreated,
+  canEdit,
+}: DepartmentCreatePanelProps): PageSurfaceBlockSpec {
   const [submitting, setSubmitting] = useState(false);
   const [name, setName] = useState("");
   const [alias, setAlias] = useState("");
@@ -116,119 +117,102 @@ export function DepartmentCreatePanel({
   }
 
   const submitDisabled = !name.trim() || !code.trim() || submitting;
+  const descriptionsBlock = useDepartmentDescriptionsBlock({
+    drafts: [descriptionDraft],
+    dirty: false,
+    canEditDepartment: canEdit,
+    onUpdateDraft: (_index, key, value) => setDescriptionDraft((prev) => ({ ...prev, [key]: value })),
+  });
+  const departmentInfoBlock: PageSurfaceBlockSpec = {
+    kind: "panel" as const,
+    key: "department-info",
+    title: "部门信息",
+    bodyClassName: "p-4",
+    blocks: [
+      {
+        kind: "form" as const,
+        key: "fields",
+        surface: {
+          kind: "fields" as const,
+          columns: 2 as const,
+          bodyClassName: "contents",
+          fields: [
+            {
+              kind: "segmentedCode" as const,
+              key: "code",
+              label: "部门编码",
+              required: true,
+              value: code,
+              editableSegment: departmentCodeEditableSegment(level),
+              disabled: !canEdit,
+              onChange: setCode,
+            },
+            {
+              key: "name",
+              label: "部门名称",
+              required: true,
+              spec: { valueType: "string" as const, editor: "input" as const, state: !canEdit ? "disabled" as const : "normal" as const },
+              value: name,
+              onChange: (value) => updateDraftName(String(value ?? "")),
+            },
+            {
+              key: "level",
+              label: "部门层级",
+              spec: {
+                valueType: "number" as const,
+                editor: "select" as const,
+                state: !canEdit ? "disabled" as const : "normal" as const,
+                options: {
+                  source: "static" as const,
+                  mode: "dropdown" as const,
+                  items: [
+                    { value: "1", label: "L1" },
+                    { value: "2", label: "L2" },
+                    { value: "3", label: "L3" },
+                  ],
+                },
+              },
+              value: String(level),
+              onChange: (next) => updateLevelAndParent(Number(next) as 1 | 2 | 3, level === 1 ? null : parentId),
+            },
+            {
+              key: "parent",
+              label: "上级部门",
+              spec: {
+                valueType: "reference" as const,
+                editor: "select" as const,
+                state: !canEdit || level === 1 ? "disabled" as const : "normal" as const,
+                options: { source: "static" as const, mode: "dropdown" as const, items: parentOptions },
+              },
+              value: parentId == null ? "" : String(parentId),
+              placeholder: "无",
+              onChange: (next) => {
+                const nextParentId = next === "" ? null : Number(next);
+                const parentLevel = nextParentId == null ? 0 : (departmentById.get(nextParentId)?.level ?? 0);
+                updateLevelAndParent(Math.min(parentLevel + 1, 3) as 1 | 2 | 3, nextParentId);
+              },
+            },
+            {
+              key: "alias",
+              label: "别名",
+              spec: { valueType: "string" as const, editor: "input" as const, state: !canEdit ? "disabled" as const : "normal" as const },
+              value: alias,
+              onChange: (value) => setAlias(String(value ?? "")),
+            },
+            {
+              key: "manager",
+              label: "部门负责人",
+              spec: { valueType: "string" as const, editor: "input" as const, state: !canEdit ? "disabled" as const : "normal" as const },
+              value: managerPositionName,
+              onChange: (value) => updateDraftManager(String(value ?? "")),
+            },
+          ],
+        },
+      },
+    ],
+  };
 
-  const formContent = (
-    <div className="space-y-3">
-      <PageSurface
-        embedded
-        kind="detail"
-        blocks={[{
-          kind: "panel",
-          key: "department-info",
-          bodyClassName: "p-4",
-          blocks: [{
-            kind: "moduleView",
-            key: "fields",
-            view: (
-              <>
-                <DetailSectionHeader title="部门信息" />
-                <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
-                  <div>
-                    <div className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-500">
-                      <span>部门编码</span>
-                      <span className="text-red-500">*</span>
-                    </div>
-                    <DepartmentCodeInput value={code} level={level} disabled={!canEdit} onChange={setCode} />
-                  </div>
-                  <FormSurface
-                    kind="fields"
-                    columns={2}
-                    className="contents"
-                    bodyClassName="contents"
-                    fields={[
-                      {
-                        key: "name",
-                        label: "部门名称",
-                        required: true,
-                        spec: { valueType: "string", editor: "input", state: !canEdit ? "disabled" : "normal" },
-                        value: name,
-                        onChange: (value) => updateDraftName(String(value ?? "")),
-                      },
-                      {
-                        key: "level",
-                        label: "部门层级",
-                        spec: {
-                          valueType: "number",
-                          editor: "select",
-                          state: !canEdit ? "disabled" : "normal",
-                          options: {
-                            source: "static",
-                            mode: "dropdown",
-                            items: [
-                              { value: "1", label: "L1" },
-                              { value: "2", label: "L2" },
-                              { value: "3", label: "L3" },
-                            ],
-                          },
-                        },
-                        value: String(level),
-                        onChange: (next) => updateLevelAndParent(Number(next) as 1 | 2 | 3, level === 1 ? null : parentId),
-                      },
-                      {
-                        key: "parent",
-                        label: "上级部门",
-                        spec: {
-                          valueType: "reference",
-                          editor: "select",
-                          state: !canEdit || level === 1 ? "disabled" : "normal",
-                          options: { source: "static", mode: "dropdown", items: parentOptions },
-                        },
-                        value: parentId == null ? "" : String(parentId),
-                        placeholder: "无",
-                        onChange: (next) => {
-                          const nextParentId = next === "" ? null : Number(next);
-                          const parentLevel = nextParentId == null ? 0 : (departmentById.get(nextParentId)?.level ?? 0);
-                          updateLevelAndParent(Math.min(parentLevel + 1, 3) as 1 | 2 | 3, nextParentId);
-                        },
-                      },
-                      {
-                        key: "alias",
-                        label: "别名",
-                        spec: { valueType: "string", editor: "input", state: !canEdit ? "disabled" : "normal" },
-                        value: alias,
-                        onChange: (value) => setAlias(String(value ?? "")),
-                      },
-                      {
-                        key: "manager",
-                        label: "部门负责人",
-                        spec: { valueType: "string", editor: "input", state: !canEdit ? "disabled" : "normal" },
-                        value: managerPositionName,
-                        onChange: (value) => updateDraftManager(String(value ?? "")),
-                      },
-                    ]}
-                  />
-                </div>
-              </>
-            ),
-          }],
-        }]}
-      />
-      <DepartmentDescriptionsPanel
-        drafts={[descriptionDraft]}
-        dirty={false}
-        canEditDepartment={canEdit}
-        onUpdateDraft={(_index, key, value) =>
-          setDescriptionDraft((prev) => ({ ...prev, [key]: value }))
-        }
-      />
-    </div>
-  );
-
-  return (
-    <PageSurface
-      embedded
-      kind="detail"
-      blocks={[{
+  return {
         kind: "panel",
         key: "create-department",
         title: "新建部门",
@@ -236,8 +220,20 @@ export function DepartmentCreatePanel({
           { key: "submit", label: submitting ? "保存中..." : "保存", variant: "primary", disabled: submitting || submitDisabled, onClick: () => void handleSubmit() },
           { key: "cancel", label: "取消", disabled: submitting, onClick: onCancel },
         ],
-        blocks: [{ kind: "moduleView", key: "content", view: formContent }],
-      }]}
+        blocks: [
+          departmentInfoBlock,
+          descriptionsBlock,
+        ],
+      };
+}
+
+export function DepartmentCreatePanel(props: DepartmentCreatePanelProps) {
+  const block = useDepartmentCreatePanelBlock(props);
+  return (
+    <PageSurface
+      embedded
+      kind="detail"
+      blocks={[block]}
     />
   );
 }

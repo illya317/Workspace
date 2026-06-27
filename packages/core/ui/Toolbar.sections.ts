@@ -10,6 +10,7 @@ function inferSection(item: ToolbarItem): ToolbarSection {
     case "period":
       return "filter";
     case "text":
+    case "menu":
       return "meta";
     case "column-toggle":
     case "page-size":
@@ -35,6 +36,7 @@ const STRONG_SEMANTIC_SECTIONS: Partial<Record<ToolbarItem["kind"], ToolbarSecti
   "page-size": "view",
   period: "filter",
   text: "meta",
+  menu: "meta",
 };
 
 export function resolveSection(item: ToolbarItem): ToolbarSection {
@@ -62,6 +64,7 @@ export function inferZone(item: ToolbarItem): ToolbarZoneKey {
     case "edit-group":
       return "actions";
     case "text":
+    case "menu":
     case "column-toggle":
     case "page-size":
       return "trailing";

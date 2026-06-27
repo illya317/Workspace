@@ -136,11 +136,11 @@ if (stagedFiles.length > 0) {
 
   const hasAnyModelFile = stagedFiles.some((f) => f.startsWith("prisma/models/") && f.endsWith(".prisma"));
   if (hasAnyModelFile) {
-    const archExists = fs.existsSync(path.join(__dirname, "..", "..", "docs", "schema-governance.md"));
+    const archExists = fs.existsSync(path.join(__dirname, "..", "..", "docs", "engineering", "schema-governance.md"));
     if (!archExists) {
-      fail("修改 prisma model 文件时，docs/schema-governance.md 必须存在");
+      fail("修改 prisma model 文件时，docs/engineering/schema-governance.md 必须存在");
     } else {
-      ok("docs/schema-governance.md 存在");
+      ok("docs/engineering/schema-governance.md 存在");
     }
   }
 }

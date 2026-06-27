@@ -7,6 +7,19 @@ export default function InvestorsClient() {
     <PageSurface
       kind="list"
       contentClassName="py-10"
+      toolbar={{
+        items: [
+          {
+            kind: "icon-button",
+            key: "add-investor",
+            section: "action",
+            icon: "add",
+            label: "新增投资人",
+            variant: "primary",
+            disabled: true,
+          },
+        ],
+      }}
       blocks={[
         {
           kind: "section",
@@ -20,19 +33,6 @@ export default function InvestorsClient() {
                 kind: "records",
                 records: [],
                 empty: "暂无投资人数据",
-                toolbar: {
-                  items: [
-                    {
-                      kind: "icon-button",
-                      key: "add-investor",
-                      section: "action",
-                      icon: "add",
-                      label: "新增投资人",
-                      variant: "primary",
-                      disabled: true,
-                    },
-                  ],
-                },
               },
             },
           ],

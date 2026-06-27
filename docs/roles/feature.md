@@ -4,10 +4,11 @@ Feature 负责用户可见业务功能、业务 UI、业务 service 和 route sh
 
 ## 先读
 
-- `docs/agent-startup.md`
-- `docs/checks.md`
-- `docs/level2-agent-execution.md`
-- `docs/reusable-components.md`
+- `docs/engineering/agent-startup.md`
+- 涉及文档同步时读 `docs/OWNERS.md`
+- `docs/engineering/checks.md`
+- `docs/engineering/level2-agent-execution.md`
+- `docs/engineering/reusable-components.md`
 - 对应模块 `ARCHITECTURE.md`
 
 ## 职责
@@ -17,12 +18,13 @@ Feature 负责用户可见业务功能、业务 UI、业务 service 和 route sh
 - 日常 UI 改造归 Feature；只有涉及 `packages/core/ui`、Surface/Form/Data/Navigation contract、跨模块组件或设计系统治理时，才升级为 UI System / Architecture 任务。
 - 业务长文件瘦身时，只拆同 package 的业务子组件、hook、mapper 和 service helper；拆出的私有函数不登记 registry，也不要从 package 根导出。
 - 清理历史 UI 债时，减少 `scripts/arch/level2-baseline.json` 中对应项，并回传 Architecture 确认。
+- 维护对应模块 `ARCHITECTURE.md` / `MODULE.md` 和用户/产品说明；业务流程、状态机、审批流、财务/生产/HR 等不可从 UI 一眼看懂的规则变化必须同步文档。
 
 ## 快速开工
 
 | 任务 | 做法 |
 |---|---|
-| 改 UI | 先查 `docs/reusable-components.md` 和 `packages/core/ui/component-registry.ts`；页面壳、表格、筛选、搜索、日期、确认、Toast、分栏优先复用 Core/Platform |
+| 改 UI | 先查 `docs/engineering/reusable-components.md` 和 `packages/core/ui/component-registry.ts`；页面壳、表格、筛选、搜索、日期、确认、Toast、分栏优先复用 Core/Platform |
 | 修 BUG | 从用户路径开始追：page shell -> package UI -> API route -> domain validator -> service -> Prisma/schema；先定位层级再改 |
 | 写保存/删除 | route 使用具体 Zod schema 校验并 strip；domain validator pick 业务字段并校验 FK/状态/归属/引用；service 接 command 做事务、版本、审计、落库 |
 | 改权限 | 先看 `packages/platform/module-registry.ts`；确认 `app route / href / resourceKey + RBAC / API contract + guard` 四件套一致 |

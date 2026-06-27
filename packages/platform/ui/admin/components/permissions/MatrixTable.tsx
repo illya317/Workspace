@@ -1,6 +1,6 @@
 "use client";
 
-import { DataSurface, PageSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import PermissionCell from "./PermissionCell";
 import PermissionDetails from "./PermissionDetails";
 import type { PermissionsTabState } from "../../hooks/usePermissionsTab";
@@ -18,10 +18,10 @@ export default function MatrixTable({
   s
 }: MatrixTableProps) {
   if (!s.selectedResource) {
-    return <PageSurface kind="settings" embedded className="mt-4" empty={{ content: "请选择左侧资源模块" }} />;
+    return <DataSurface kind="records" className="mt-4" records={[]} empty="请选择左侧资源模块" />;
   }
   if (s.subjects.length === 0) {
-    return <PageSurface kind="settings" embedded className="mt-4" empty={{ content: "无匹配结果" }} />;
+    return <DataSurface kind="records" className="mt-4" records={[]} empty="无匹配结果" />;
   }
   const maxLevel = ROLE_HIERARCHY[s.maxRoleKey] ?? 3;
   const subjectColumnLabel = s.subjectType === "user" ? "姓名" : s.subjectType === "position" ? "岗位" : "部门";

@@ -1,11 +1,21 @@
 "use client";
 
-import { FormSurface } from "@workspace/core/ui";
+import type { Ref } from "react";
+import { PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { contractFields } from "@workspace/hr/constants";
 import type { ContractRow, ProfileField } from "@workspace/hr/types";
 import type { ReferenceOption } from "@workspace/core/ui";
-import { contractPeriodEndDate, fieldGrid, FieldRegion, isCurrentByEndDate, normalizeContractRow, pickFields, type EditableRecord } from "./EmployeeProfileUtils";
-import { ProfileAction, RowActions } from "./EmployeeProfileRowActions";
+import {
+  contractPeriodEndDate,
+  emptyFormBlock,
+  fieldGridBlock,
+  fieldRegionBlock,
+  isCurrentByEndDate,
+  normalizeContractRow,
+  pickFields,
+  type EditableRecord,
+} from "./EmployeeProfileUtils";
+import { deleteActionSpec, profileActionSpec } from "./EmployeeProfileRowActions";
 import { useScrollToAddedItem } from "../hooks/useScrollToAddedItem";
 
 function InlineContractChip({
@@ -26,21 +36,27 @@ function InlineContractChip({
   return <span className={`inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-xs font-semibold ${toneClass} ${className ?? ""}`}>{label}</span>;
 }
 
-export function ContractSection({
-  rows,
-  canEdit,
-  saving,
-  onAdd,
-  onChange,
-  onDelete
-}: {
+interface ContractSectionProps {
   rows: ContractRow[];
   canEdit: boolean;
   saving: string | null;
   onAdd: () => void;
   onChange: (index: number, field: ProfileField, value: unknown, option?: ReferenceOption) => void;
   onDelete: (row: ContractRow, index: number) => Promise<void>;
-}) {
+}
+
+export function ContractSection(props: ContractSectionProps) {
+  return <PageSurface embedded kind="detail" blocks={useContractSectionBlocks(props)} />;
+}
+
+export function useContractSectionBlocks({
+  rows,
+  canEdit,
+  saving,
+  onAdd,
+  onChange,
+  onDelete
+}: ContractSectionProps): PageSurfaceBlockSpec[] {
   const {
     getItemRef,
     requestScrollToIndex
@@ -50,15 +66,21 @@ export function ContractSection({
     requestScrollToIndex(0);
     onAdd();
   }
-  return <div className="space-y-4">
-      <div className="space-y-4">
-        {rows.length === 0 ? <FormSurface kind="detail" fields={[{ kind: "note", key: "empty", content: "暂无合同" }]} /> : rows.map((row, index) => <div key={row.id ?? `new-contract-${index}`} ref={getItemRef(index)}>
-              <ContractCard row={row} index={index} canEdit={canEdit} saving={saving} fields={cardFields} onChange={onChange} onAdd={addRow} onDelete={onDelete} />
-            </div>)}
-      </div>
-    </div>;
+  if (rows.length === 0) return [emptyFormBlock("contracts-empty", "暂无合同")];
+  return rows.map((row, index) => contractCardBlock({
+    row,
+    index,
+    canEdit,
+    saving,
+    fields: cardFields,
+    onChange,
+    onAdd: addRow,
+    onDelete,
+    itemRef: getItemRef(index),
+  }));
 }
-function ContractCard({
+
+function contractCardBlock({
   row,
   index,
   canEdit,
@@ -66,7 +88,8 @@ function ContractCard({
   fields,
   onChange,
   onAdd,
-  onDelete
+  onDelete,
+  itemRef,
 }: {
   row: ContractRow;
   index: number;
@@ -76,21 +99,26 @@ function ContractCard({
   onChange: (index: number, field: ProfileField, value: unknown, option?: ReferenceOption) => void;
   onAdd: () => void;
   onDelete: (row: ContractRow, index: number) => Promise<void>;
-}) {
+  itemRef: Ref<HTMLDivElement>;
+}): PageSurfaceBlockSpec {
   const normalizedRow = normalizeContractRow(row);
   const current = isCurrentByEndDate(normalizedRow.permanentContractDate ? normalizedRow.endDate : contractPeriodEndDate(normalizedRow));
   const title = row.company || (row.isNew ? "新增合同" : "未设置公司");
   const summary = [row.contractType, row.insuranceStatus].filter(Boolean).join(" · ");
-  return <FieldRegion title={<div className="flex flex-wrap items-center gap-3">
+  return fieldRegionBlock({
+    key: String(row.id ?? `new-contract-${index}`),
+    itemRef,
+    title: <div className="flex flex-wrap items-center gap-3">
           <span>{title}</span>
           <InlineContractChip label={current ? "生效中" : "已失效"} tone={current ? "green" : "gray"} className="px-2 py-1 text-sm" />
           {row.isPrimary && <InlineContractChip label="主合同" tone="blue" className="px-2 py-1 text-sm" />}
           {summary ? <span className="text-sm font-medium text-slate-500">{summary}</span> : null}
-        </div>} actions={canEdit ? <>
-          <ProfileAction label="新增" variant="secondary" disabled={saving !== null} onClick={onAdd} />
-          <RowActions canEdit={canEdit} saving={saving} onDelete={() => onDelete(row, index)} />
-        </> : null}>
-      {fieldGrid(fields, normalizedRow as unknown as EditableRecord, !canEdit, (key, value, option) => {
+        </div>,
+    actions: canEdit ? [
+      profileActionSpec({ key: "add", label: "新增", variant: "secondary", disabled: saving !== null, onClick: onAdd }),
+      ...deleteActionSpec({ canEdit, saving, onDelete: () => onDelete(row, index) }),
+    ] : undefined,
+    blocks: [fieldGridBlock(fields, normalizedRow as unknown as EditableRecord, !canEdit, (key, value, option) => {
       const field = contractFields.find(item => item.key === key);
       if (!field) return;
       if (field.key === "permanentContractDate" && value) {
@@ -100,6 +128,6 @@ function ContractCard({
         return;
       }
       onChange(index, field, value, option);
-    })}
-    </FieldRegion>;
+    }, undefined, `contract-${index}-fields`)],
+  });
 }

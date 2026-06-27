@@ -135,7 +135,7 @@ const UI_PRIMITIVE_RULES = [
   },
   {
     pattern: /\bwindow\.confirm\s*\(/,
-    reason: "packages must use @workspace/core/ui ConfirmProvider instead of window.confirm",
+    reason: "packages must use @workspace/core/ui useFeedback instead of window.confirm",
   },
   {
     pattern: /\b(?:window\.)?alert\s*\(/,
@@ -149,7 +149,7 @@ const UI_PRIMITIVE_RULES = [
 
 const FOUNDATION_COMPONENT_RULES = [
   { pattern: /(Select|Dropdown|Combobox)/, imports: [/^@workspace\/core\/ui(\/|$)/], reason: "select/dropdown primitives must be based on Core SelectField or a documented Core wrapper" },
-  { pattern: /(Confirm)/, imports: [/^@workspace\/core\/ui(\/|$)/], reason: "confirm UI must be based on Core ConfirmModal/ConfirmProvider" },
+  { pattern: /(Confirm)/, imports: [/^@workspace\/core\/ui(\/|$)/], reason: "confirm UI must be based on Core useFeedback or ConfirmModal" },
   { pattern: /(Date.*Input|DatePicker)/, imports: [/^@workspace\/core\/ui(\/|$)/], reason: "date inputs must be based on Core CalendarDateInput" },
   { pattern: /(Search)/, imports: [/^@workspace\/core\/ui(\/|$)/, /^@workspace\/core\/search(\/|$)/], reason: "search UI must use Core SearchInput or Core pinyin-aware search helpers" },
   { pattern: /(Table)/, imports: [/^@workspace\/core\/ui(\/|$)/], reason: "tables must be based on Core DataTable unless allowlisted as a business-specific layout" },

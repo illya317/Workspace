@@ -3,10 +3,10 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { DataSurface, FormSurface, PageSurface } from "@workspace/core/ui";
-import type { SurfaceToolbarItem, SurfaceToolbarItems } from "@workspace/core/ui";
+import { DataSurface, PageSurface } from "@workspace/core/ui";
+import type { PageSurfaceBlockSpec, SurfaceToolbarItem, SurfaceToolbarItems } from "@workspace/core/ui";
 import ReviewAlerts from "./ReviewAlerts";
-import ReviewFilters from "./ReviewFilters";
+import { useReviewFilterToolbarItems } from "./ReviewFilters";
 import ReviewTable, { type LineState } from "./ReviewTable";
 import type { RvLine } from "@workspace/finance/types";
 
@@ -243,61 +243,72 @@ export default function ReviewClient() {
       : null,
   ];
   const reviewItems: SurfaceToolbarItems = rawReviewItems.filter((item): item is SurfaceToolbarItem => item !== null);
+  const toolbarItems = useReviewFilterToolbarItems({
+    co,
+    yr,
+    mo,
+    rt,
+    setCo,
+    setYr,
+    setMo,
+    setRt,
+    loading,
+    onLoad: loadWp,
+    extraItems: wp ? reviewItems : [],
+  });
+  const reviewBlocks: PageSurfaceBlockSpec[] = rv?.status === "confirmed" && !rv.isStale
+    ? [
+        { kind: "message", key: "confirmed", tone: "success", content: "校对已确认" },
+        {
+          kind: "form",
+          key: "view-report",
+          surface: {
+            kind: "inline",
+            actions: [{
+              key: "view-report",
+              label: "前往财务报表查看最终结果",
+              variant: "primary",
+              onClick: () => router.push(`/finance/statements?companyCode=${co}&year=${yr}&month=${mo}&reportType=${rt === "incomeStatement" ? "income" : "cashflow"}`),
+            }],
+          },
+        },
+      ]
+    : [];
 
   return (
-    <div className="space-y-4">
-      <ReviewFilters co={co} yr={yr} mo={mo} rt={rt} setCo={setCo} setYr={setYr} setMo={setMo} setRt={setRt} loading={loading} onLoad={loadWp} />
+    <PageSurface
+      kind="list"
+      toolbar={{ items: toolbarItems }}
+      body={{
+        blocks: reviewBlocks.length > 0 ? reviewBlocks : undefined,
+        content: (
+          <div className="space-y-4">
+            <ReviewAlerts error={error} isStale={rv?.isStale} hasFlaggedWithoutComment={hasFlaggedWithoutComment} />
 
-      <ReviewAlerts error={error} isStale={rv?.isStale} hasFlaggedWithoutComment={hasFlaggedWithoutComment} />
+            {rv && (
+              <ReviewTable
+                rv={rv}
+                getLineState={getLineState}
+                isReadOnly={isReadOnly}
+                editingAmt={editingAmt}
+                setEditingAmt={setEditingAmt}
+                editAmt={editAmt}
+                setEditAmt={setEditAmt}
+                commitAmt={commitAmt}
+                editingCmt={editingCmt}
+                setEditingCmt={setEditingCmt}
+                editCmt={editCmt}
+                setEditCmt={setEditCmt}
+                commitCmt={commitCmt}
+                toggleStatus={toggleStatus}
+              />
+            )}
 
-      {wp && (
-        <FormSurface kind="inline" toolbar={{ items: reviewItems, variant: "inline" }} />
-      )}
-
-      {rv?.status === "confirmed" && !rv.isStale && (
-        <PageSurface
-          kind="list"
-          embedded
-          blocks={[
-            { kind: "message", key: "confirmed", tone: "success", content: "校对已确认" },
-            {
-              kind: "form",
-              key: "view-report",
-              surface: {
-                kind: "inline",
-                actions: [{
-                  key: "view-report",
-                  label: "前往财务报表查看最终结果",
-                  variant: "primary",
-                  onClick: () => router.push(`/finance/statements?companyCode=${co}&year=${yr}&month=${mo}&reportType=${rt === "incomeStatement" ? "income" : "cashflow"}`),
-                }],
-              },
-            },
-          ]}
-        />
-      )}
-
-      {rv && (
-        <ReviewTable
-          rv={rv}
-          getLineState={getLineState}
-          isReadOnly={isReadOnly}
-          editingAmt={editingAmt}
-          setEditingAmt={setEditingAmt}
-          editAmt={editAmt}
-          setEditAmt={setEditAmt}
-          commitAmt={commitAmt}
-          editingCmt={editingCmt}
-          setEditingCmt={setEditingCmt}
-          editCmt={editCmt}
-          setEditCmt={setEditCmt}
-          commitCmt={commitCmt}
-          toggleStatus={toggleStatus}
-        />
-      )}
-
-      {!wp && !loading && <DataSurface kind="records" records={[]} empty="选择筛选条件后点击「读取底稿」" />}
-      {loading && <DataSurface kind="records" records={[]} empty="加载中..." />}
-    </div>
+            {!wp && !loading && <DataSurface kind="records" records={[]} empty="选择筛选条件后点击「读取底稿」" />}
+            {loading && <DataSurface kind="records" records={[]} empty="加载中..." />}
+          </div>
+        ),
+      }}
+    />
   );
 }

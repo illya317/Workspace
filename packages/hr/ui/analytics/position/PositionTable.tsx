@@ -1,17 +1,9 @@
 "use client";
 
-import { PageSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { EnrichedPosition, SortKey } from "./usePositionData";
 
-export default function PositionTable({
-  filtered,
-  search,
-  setSearch,
-  sortKey: _sortKey,
-  sortDesc: _sortDesc,
-  handleSort,
-  sortIcon,
-}: {
+interface PositionTableBlockParams {
   filtered: EnrichedPosition[];
   search: string;
   setSearch: (v: string) => void;
@@ -19,7 +11,17 @@ export default function PositionTable({
   sortDesc: boolean;
   handleSort: (key: SortKey) => void;
   sortIcon: (key: SortKey) => string;
-}) {
+}
+
+export function createPositionTableBlock({
+  filtered,
+  search,
+  setSearch,
+  sortKey: _sortKey,
+  sortDesc: _sortDesc,
+  handleSort,
+  sortIcon,
+}: PositionTableBlockParams): PageSurfaceBlockSpec {
   const columns: DataSurfaceColumnSpec<EnrichedPosition>[] = [
     { key: "code", label: `编码 ${sortIcon("code")}`, required: true, onHeaderClick: () => handleSort("code"), cellClassName: "font-mono text-slate-500", cell: (position) => position.code },
     { key: "name", label: `岗位名 ${sortIcon("name")}`, required: true, onHeaderClick: () => handleSort("name"), cellClassName: "font-medium", cell: (position) => position.name },
@@ -58,10 +60,7 @@ export default function PositionTable({
       }),
     },
   ];
-  return (
-    <PageSurface
-      kind="analysis"
-      blocks={[{
+  return {
         kind: "analysis",
         key: "positions",
         title: "岗位明细",
@@ -87,7 +86,9 @@ export default function PositionTable({
               position.status === "缺编" ? "bg-purple-50/20" : "",
           },
         }],
-      }]}
-    />
-  );
+      };
+}
+
+export default function PositionTable(props: PositionTableBlockParams) {
+  return <PageSurface kind="analysis" blocks={[createPositionTableBlock(props)]} />;
 }

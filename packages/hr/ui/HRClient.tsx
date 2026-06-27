@@ -15,6 +15,7 @@ import {
 import type { SessionUser } from "@workspace/platform/types";
 import type { HRUser } from "@workspace/hr/types";
 import type { RosterGeneratedVariant } from "@workspace/hr/types";
+import type { RosterSurfaceNavigationProps } from "./roster-surface";
 
 const GenericTableTab = dynamic(() => import("./tabs/GenericTableTab"));
 const DepartmentPositionTab = dynamic(() => import("./tabs/DepartmentPositionTab"));
@@ -116,47 +117,57 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
     setActiveChild(key);
   }
 
-  const renderedModuleView = (
-    <>
-      {renderedView === "employee" && <EmployeeDirectory user={hrUser} employmentStatus={employeeStatus} />}
+  const surface = {
+    tabs: rosterViews,
+    activeTab: activeView,
+    activeChild,
+    onTabChange: changeView,
+    onChildChange: changeChild,
+  } satisfies RosterSurfaceNavigationProps;
 
-      {renderedView === "organization" && (
-        <DepartmentPositionTab
-          user={hrUser}
-          mode="organization"
-          onUnsavedChange={setHasUnsavedChanges}
-          onOpenDepartmentDetails={(departmentId) => void openDepartmentDetails(departmentId)}
-          onOpenPositionDetails={(positionId) => void openPositionDetails(positionId)}
-        />
-      )}
+  if (renderedView === "employee") {
+    return <EmployeeDirectory user={hrUser} employmentStatus={employeeStatus} surface={surface} />;
+  }
 
-      {renderedView === "department-position" && (
-        <DepartmentPositionTab
-          user={hrUser}
-          mode="position"
-          lifecycle={departmentLifecycle}
-          focusDepartmentId={focusDepartmentId}
-          focusPositionId={focusPositionId}
-          onUnsavedChange={setHasUnsavedChanges}
-          onFocusDepartmentConsumed={() => setFocusDepartmentId(null)}
-          onFocusPositionConsumed={() => setFocusPositionId(null)}
-        />
-      )}
+  if (renderedView === "organization") {
+    return (
+      <DepartmentPositionTab
+        user={hrUser}
+        mode="organization"
+        surface={surface}
+        onUnsavedChange={setHasUnsavedChanges}
+        onOpenDepartmentDetails={(departmentId) => void openDepartmentDetails(departmentId)}
+        onOpenPositionDetails={(positionId) => void openPositionDetails(positionId)}
+      />
+    );
+  }
 
-      {renderedView === "bulk" && (
-        <>
-          {activeBulkTab === "employee" && <GenericTableTab config={employeeConfig} user={hrUser} />}
-          {activeBulkTab === "employment" && <GenericTableTab config={employmentConfig} user={hrUser} />}
-          {activeBulkTab === "edp" && <GenericTableTab config={edpConfig} user={hrUser} />}
-          {activeBulkTab === "contract" && <GenericTableTab config={contractConfig} user={hrUser} />}
-        </>
-      )}
+  if (renderedView === "department-position") {
+    return (
+      <DepartmentPositionTab
+        user={hrUser}
+        mode="position"
+        lifecycle={departmentLifecycle}
+        surface={surface}
+        focusDepartmentId={focusDepartmentId}
+        focusPositionId={focusPositionId}
+        onUnsavedChange={setHasUnsavedChanges}
+        onFocusDepartmentConsumed={() => setFocusDepartmentId(null)}
+        onFocusPositionConsumed={() => setFocusPositionId(null)}
+      />
+    );
+  }
 
-      {renderedView === "generated" && (
-        <RosterGeneratedTab variant={activeGeneratedVariant} canEdit={canEditGenerated} />
-      )}
-    </>
-  );
+  if (renderedView === "bulk") {
+    if (activeBulkTab === "employment") return <GenericTableTab config={employmentConfig} user={hrUser} surface={surface} />;
+    if (activeBulkTab === "edp") return <GenericTableTab config={edpConfig} user={hrUser} surface={surface} />;
+    if (activeBulkTab === "contract") return <GenericTableTab config={contractConfig} user={hrUser} surface={surface} />;
+    return <GenericTableTab config={employeeConfig} user={hrUser} surface={surface} />;
+  }
+
+  if (renderedView === "generated") {
+    return <RosterGeneratedTab variant={activeGeneratedVariant} canEdit={canEditGenerated} surface={surface} />;
+  }
 
   return (
     <PageSurface
@@ -166,7 +177,7 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
       activeChild={activeChild}
       onTabChange={changeView}
       onChildChange={changeChild}
-      blocks={[{ kind: "moduleView", key: renderedView, view: renderedModuleView }]}
+      blocks={[{ kind: "message", key: "empty", content: "暂无可用视图", tone: "muted" }]}
     />
   );
 }

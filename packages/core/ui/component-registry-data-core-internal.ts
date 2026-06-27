@@ -159,7 +159,6 @@ export const core_internal_registry_entries = [
     kind: "form",
     description: "标签删除按钮",
     example: "RemovableTag 内部使用；业务统一使用 TagListInput。",
-    composes: ["useConfirmDelete"],
   },
   {
     name: "TreeNodeBranch",

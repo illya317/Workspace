@@ -5,11 +5,13 @@ import {
   PageSurface,
   type PageSurfaceBlockSpec,
   type ColumnDef,
+  type DataSurfaceStructuredCellSpec,
   type FieldValueFilterField,
 } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "@workspace/hr/ui/fk-keys";
 import { buildHRToolbarItems } from "../components/hr-toolbar-items";
+import type { RosterSurfaceNavigationProps } from "../roster-surface";
 import type {
   RosterGeneratedColumn,
   RosterGeneratedFilterField,
@@ -25,7 +27,7 @@ const statusOptions = [
   { value: "inactive", label: "离职" },
 ];
 
-export default function RosterGeneratedTab({ variant, canEdit }: { variant: RosterGeneratedVariant; canEdit: boolean }) {
+export default function RosterGeneratedTab({ variant, canEdit, surface }: { variant: RosterGeneratedVariant; canEdit: boolean; surface?: RosterSurfaceNavigationProps }) {
   const [keyword, setKeyword] = useState("");
   const [status, setStatus] = useState<RosterGeneratedStatus>("all");
   const [preview, setPreview] = useState<RosterGeneratedPreview | null>(null);
@@ -183,17 +185,21 @@ export default function RosterGeneratedTab({ variant, canEdit }: { variant: Rost
     : groups.length === 0
       ? [{ kind: "empty", key: "empty", presentation: "plain", content: "暂无花名册数据" }]
       : [{
-          kind: "moduleView",
+          kind: "data",
           key: "table",
-          view: (
-            <RosterGeneratedTable
-              columns={visibleTableColumns}
-              groups={groups}
-              editMode={editMode}
-              onEmployeeCellChange={updateEmployeeCell}
-              onRowCellChange={updateRowCell}
-            />
-          ),
+          surface: {
+            kind: "structured",
+            rows: buildRosterGeneratedRows({
+              columns: visibleTableColumns,
+              groups,
+              editMode,
+              onEmployeeCellChange: updateEmployeeCell,
+              onRowCellChange: updateRowCell,
+            }),
+            className: "min-w-full border-collapse text-sm",
+            cellClassName: "min-w-28 border-b border-r border-slate-200 px-3 py-2 align-top text-slate-700 last:border-r-0",
+            headerCellClassName: "whitespace-nowrap border-b border-r border-slate-200 bg-slate-50 px-3 py-2 text-left text-xs font-semibold text-slate-500 last:border-r-0",
+          },
         }];
 
   const blocks: PageSurfaceBlockSpec[] = [
@@ -209,15 +215,16 @@ export default function RosterGeneratedTab({ variant, canEdit }: { variant: Rost
 
   return (
     <PageSurface
-      embedded
+      embedded={!surface}
       kind="list"
+      {...surface}
       toolbar={{ items: toolbarItems, onSubmit: () => void loadPreview() }}
       blocks={blocks}
     />
   );
 }
 
-function RosterGeneratedTable({
+function buildRosterGeneratedRows({
   columns,
   groups,
   editMode,
@@ -229,66 +236,46 @@ function RosterGeneratedTable({
   editMode: boolean;
   onEmployeeCellChange: (groupIndex: number, field: string, value: string) => void;
   onRowCellChange: (groupIndex: number, rowIndex: number, field: string, value: string) => void;
-}) {
-  return (
-    <table className="min-w-full border-collapse text-sm">
-      <thead className="bg-slate-50 text-xs font-semibold text-slate-500">
-        <tr>
-          {columns.map((column) => (
-            <th key={column.key} className="whitespace-nowrap border-b border-r border-slate-200 px-3 py-2 text-left last:border-r-0">
-              {column.label}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {groups.map((group, groupIndex) => (
-          group.rows.map((row, rowIndex) => (
-            <tr key={row.key} className="odd:bg-white even:bg-slate-50/50">
-              {columns.map((column) => {
-                if (column.scope === "employee") {
-                  if (rowIndex > 0) return null;
-                  return (
-                    <td
-                      key={column.key}
-                      rowSpan={group.rows.length}
-                      className="min-w-28 border-b border-r border-slate-200 bg-white px-3 py-2 align-middle font-medium text-slate-800 last:border-r-0"
-                    >
-                      <EditableCell
-                        value={group.employeeCells[column.key] ?? ""}
-                        editMode={editMode}
-                        onChange={(value) => onEmployeeCellChange(groupIndex, column.key, value)}
-                      />
-                    </td>
-                  );
-                }
-                return (
-                  <td key={column.key} className="min-w-28 border-b border-r border-slate-200 px-3 py-2 align-top text-slate-700 last:border-r-0">
-                    <EditableCell
-                      value={row.cells[column.key] ?? ""}
-                      editMode={editMode}
-                      onChange={(value) => onRowCellChange(groupIndex, rowIndex, column.key, value)}
-                    />
-                  </td>
-                );
-              })}
-            </tr>
-          ))
-        ))}
-      </tbody>
-    </table>
-  );
+}): DataSurfaceStructuredCellSpec[][] {
+  const headerRow: DataSurfaceStructuredCellSpec[] = columns.map((column) => ({
+    header: true,
+    content: { kind: "text", value: column.label },
+  }));
+  const bodyRows = groups.flatMap((group, groupIndex) => (
+    group.rows.map((row, rowIndex) => (
+      columns.flatMap((column): DataSurfaceStructuredCellSpec[] => {
+        const isEmployeeCell = column.scope === "employee";
+        if (isEmployeeCell && rowIndex > 0) return [];
+        const value = isEmployeeCell ? group.employeeCells[column.key] ?? "" : row.cells[column.key] ?? "";
+        return [{
+          rowSpan: isEmployeeCell ? group.rows.length : undefined,
+          className: [
+            rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50/50",
+            isEmployeeCell ? "align-middle font-medium text-slate-800" : "",
+          ].filter(Boolean).join(" "),
+          content: rosterGeneratedCell(value, editMode, (next) => {
+            if (isEmployeeCell) {
+              onEmployeeCellChange(groupIndex, column.key, next);
+            } else {
+              onRowCellChange(groupIndex, rowIndex, column.key, next);
+            }
+          }),
+        }];
+      })
+    ))
+  ));
+  return [headerRow, ...bodyRows];
 }
 
-function EditableCell({ value, editMode, onChange }: { value: string; editMode: boolean; onChange: (value: string) => void }) {
-  if (!editMode) return <span>{value || "-"}</span>;
-  return (
-    <input
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-      className="h-8 w-full min-w-24 rounded-md border border-emerald-200 bg-white px-2 text-sm text-slate-800 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-    />
-  );
+function rosterGeneratedCell(value: string, editMode: boolean, onChange: (value: string) => void): DataSurfaceStructuredCellSpec["content"] {
+  if (!editMode) return value ? { kind: "text", value } : { kind: "empty" };
+  return {
+    kind: "input",
+    spec: { valueType: "string", editor: "input", state: "normal" },
+    value,
+    onChange: (next) => onChange(String(next ?? "")),
+    className: "min-w-24 border-emerald-200 bg-white focus:border-emerald-500 focus:ring-emerald-100",
+  };
 }
 
 function defaultVisibleColumns(columns: RosterGeneratedColumn[]) {

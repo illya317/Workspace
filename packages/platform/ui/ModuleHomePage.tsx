@@ -1,3 +1,4 @@
+import { createElement } from "react";
 import { redirect } from "next/navigation";
 import { requireRouteAccess } from "@workspace/platform/server/auth";
 import { MODULES } from "../module-nav";
@@ -14,9 +15,9 @@ export default async function ModuleHomePage({ moduleKey, backHref = "/portal" }
   if (!mod) redirect("/portal");
   const user = await requireRouteAccess(mod.href);
 
-  return (
-    <AppShell title={mod.label} backHref={backHref} user={user}>
-      <ModuleHome module={mod} user={user} />
-    </AppShell>
+  return createElement(
+    AppShell,
+    { title: mod.label, backHref, user },
+    <ModuleHome module={mod} user={user} />,
   );
 }

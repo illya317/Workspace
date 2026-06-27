@@ -3,6 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { DataSurface, FormSurface } from "@workspace/core/ui";
+import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import BalanceCheckTable, { flattenBalanceAccountTree, formatBalanceAmount, type BalanceCheckAccountNode } from "../components/BalanceCheckTable";
 import FinanceFilters from "../components/FinanceFilters";
 import { useStatementConfig } from "./StatementConfigContext";
@@ -92,6 +93,12 @@ export default function BalanceCheckTab() {
     walk(tree);
     setExpanded(toExpand);
   }, [tree]);
+  const extraToolbarItems: SurfaceToolbarItems = [{
+    kind: "action-group",
+    key: "balance-check-actions",
+    section: "action",
+    actions: [{ key: "refresh", kind: "refresh", label: "刷新", variant: "primary", onClick: load }],
+  }];
   const toggleNode = useCallback((code: string) => {
     setExpanded(prev => {
       const next = new Set(prev);
@@ -113,8 +120,7 @@ export default function BalanceCheckTab() {
     return c;
   }, [tree]);
   return <div className="space-y-4 mt-4">
-      <FinanceFilters showCompanyYear={false} levelFilter={levelFilter} onLevelChange={setLevelFilter} showMonth={false} showLevel showSearch={false} showPageSize={false} />
-      <FormSurface kind="inline" actions={[{ key: "refresh", label: "刷新", variant: "primary", onClick: load }]} />
+      <FinanceFilters showCompanyYear={false} levelFilter={levelFilter} onLevelChange={setLevelFilter} showMonth={false} showLevel showSearch={false} showPageSize={false} extraItems={extraToolbarItems} />
 
       {loading && <p className="p-12 text-center text-sm text-gray-400">加载中...</p>}
 

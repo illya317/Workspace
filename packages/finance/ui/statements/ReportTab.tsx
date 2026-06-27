@@ -3,12 +3,26 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { FormSurface, PageSurface } from "@workspace/core/ui";
-import FinanceFilters from "../components/FinanceFilters";
-import ReportBanner from "./ReportBanner";
-import ReportLines, { type AccountDetail, type ReportLine } from "./ReportLines";
+import { PageSurface } from "@workspace/core/ui";
+import type { PageSurfaceBlockSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import { useCompanyOptions } from "@workspace/platform/hooks";
+import { createReportBannerBlock } from "./ReportBanner";
+import { createReportLinesSurface, type AccountDetail, type ReportLine } from "./ReportLines";
 import { formatFinanceAmount } from "../formatters";
 const REPORT_TYPES = new Set(["balance", "income", "cashflow"]);
+const YEAR_OPTIONS = [2024, 2025, 2026].map((year) => ({
+  value: String(year),
+  label: String(year),
+}));
+const MONTH_OPTIONS = Array.from({ length: 12 }, (_, index) => ({
+  value: String(index + 1),
+  label: `${index + 1}月`,
+}));
+const REPORT_TYPE_OPTIONS = [
+  { value: "balance", label: "资产负债表" },
+  { value: "income", label: "利润表" },
+  { value: "cashflow", label: "现金流量表" },
+];
 interface Period {
   id: number;
   year: number;
@@ -31,6 +45,7 @@ interface ReportData {
 }
 export default function ReportTab() {
   const searchParams = useSearchParams();
+  const companyOptions = useCompanyOptions();
   const rtFromQuery = searchParams.get("reportType");
   const [companyFilter, setCompanyFilter] = useState(searchParams.get("companyCode") || "02");
   const [yearFilter, setYearFilter] = useState(searchParams.get("year") || "2025");
@@ -89,102 +104,159 @@ export default function ReportTab() {
     loadingDetail,
     onToggle: toggleDetail
   };
-  return <div className="space-y-4">
-      <FinanceFilters companyFilter={companyFilter} yearFilter={yearFilter} monthFilter={monthFilter} onCompanyChange={setCompanyFilter} onYearChange={setYearFilter} onMonthChange={setMonthFilter} showPageSize={false} />
-      <FormSurface
-        kind="filters"
-        fields={[{
-          key: "report",
-          label: "报表",
-          spec: {
-              valueType: "string",
-              editor: "select",
-              options: {
-                source: "static",
-                mode: "dropdown",
-                items: [
-                  { value: "balance", label: "资产负债表" },
-                  { value: "income", label: "利润表" },
-                  { value: "cashflow", label: "现金流量表" },
-                ],
-              },
-          },
-          value: reportType,
-          onChange: (nextValue) => setReportType(nextValue as "balance" | "income" | "cashflow"),
-        }]}
-        actions={[{ key: "load", label: "生成报表", variant: "primary", onClick: loadReport }]}
-      />
-
-      {loading && <p className="p-8 text-center text-gray-500">加载中...</p>}
-
-      {data?.type === "balance" && <PageSurface
-          kind="analysis"
-          embedded
-          blocks={[{
+  const toolbarItems: SurfaceToolbarItems = [
+    {
+      kind: "select",
+      key: "company",
+      section: "filter",
+      label: "公司",
+      options: companyOptions,
+      value: companyFilter,
+      onChange: setCompanyFilter,
+      placeholder: "全部",
+      triggerClassName: "min-w-32",
+    },
+    {
+      kind: "select",
+      key: "year",
+      section: "filter",
+      label: "年度",
+      options: YEAR_OPTIONS,
+      value: yearFilter,
+      onChange: setYearFilter,
+      placeholder: "全部",
+      triggerClassName: "min-w-32",
+    },
+    {
+      kind: "select",
+      key: "month",
+      section: "filter",
+      label: "月份",
+      options: MONTH_OPTIONS,
+      value: monthFilter,
+      onChange: setMonthFilter,
+      placeholder: "全部",
+      triggerClassName: "min-w-32",
+    },
+    {
+      kind: "select",
+      key: "report",
+      section: "filter",
+      label: "报表",
+      options: REPORT_TYPE_OPTIONS,
+      value: reportType,
+      onChange: (nextValue) => setReportType(nextValue as "balance" | "income" | "cashflow"),
+      triggerClassName: "min-w-44",
+    },
+    {
+      kind: "action-group",
+      key: "report-actions",
+      section: "action",
+      actions: [
+        { key: "load", label: "生成报表", kind: "generate", variant: "primary", onClick: loadReport },
+      ],
+    },
+  ];
+  const reportBlocks = ([
+    ...(loading ? [{
+      kind: "message" as const,
+      key: "loading",
+      tone: "muted" as const,
+      className: "p-8 text-center",
+      content: "加载中...",
+    }] : []),
+    ...(data?.type === "balance" ? [{
             kind: "panel",
             key: "balance-report",
             title: "资 产 负 债 表",
             subtitle: `${data.period.year}年${data.period.month}月`,
-            blocks: [{
-              kind: "moduleView",
-              key: "balance-lines",
-              view: <>
-                <div className="grid grid-cols-2 gap-0">
-                  <div className="border-r border-gray-200 pr-4">
-                    <ReportLines items={data.assets || []} labelHeader="资 产" amountHeader="年末余额" {...lineProps} />
-                  </div>
-                  <div className="pl-4">
-                    <div className="space-y-4">
-                      <ReportLines items={data.liabilities || []} labelHeader="负债" amountHeader="年末余额" {...lineProps} />
-                      <ReportLines items={data.equity || []} labelHeader="所有者权益" amountHeader="年末余额" {...lineProps} />
-                    </div>
-                  </div>
-                </div>
-                {data.totalLiabilitiesAndEquity !== undefined && <p className="mt-2 text-center text-xs text-gray-400">
-                    资产总计 = {formatFinanceAmount(data.assets?.find(item => item.isGrandTotal)?.amount || 0)} | 负债和权益总计 = {formatFinanceAmount(data.totalLiabilitiesAndEquity)}
-                    {Math.abs((data.assets?.find(item => item.isGrandTotal)?.amount || 0) - data.totalLiabilitiesAndEquity) > 0.01 && <span className="ml-2 text-red-500">不平衡</span>}
-                  </p>}
-              </>,
-            }],
-          }]}
-        />}
-
-      {data?.type === "income" && <PageSurface
-          kind="analysis"
-          embedded
-          blocks={[{
+            blocks: [
+              {
+                kind: "surfaceGroup",
+                key: "balance-lines",
+                layout: "grid",
+                className: "grid-cols-2 gap-0",
+                blocks: [
+                  {
+                    kind: "data",
+                    key: "assets",
+                    surface: {
+                      ...createReportLinesSurface({ items: data.assets || [], labelHeader: "资 产", amountHeader: "年末余额", ...lineProps }),
+                      className: "border-r border-gray-200 pr-4",
+                    },
+                  },
+                  {
+                    kind: "surfaceGroup",
+                    key: "liability-equity",
+                    layout: "stack",
+                    className: "pl-4",
+                    blocks: [
+                      {
+                        kind: "data",
+                        key: "liabilities",
+                        surface: createReportLinesSurface({ items: data.liabilities || [], labelHeader: "负债", amountHeader: "年末余额", ...lineProps }),
+                      },
+                      {
+                        kind: "data",
+                        key: "equity",
+                        surface: createReportLinesSurface({ items: data.equity || [], labelHeader: "所有者权益", amountHeader: "年末余额", ...lineProps }),
+                      },
+                    ],
+                  },
+                ],
+              },
+              ...(data.totalLiabilitiesAndEquity !== undefined ? [{
+                kind: "message" as const,
+                key: "balance-check",
+                tone: "muted" as const,
+                className: "border-0 bg-transparent text-center text-xs text-gray-400",
+                content: <>
+                  资产总计 = {formatFinanceAmount(data.assets?.find(item => item.isGrandTotal)?.amount || 0)} | 负债和权益总计 = {formatFinanceAmount(data.totalLiabilitiesAndEquity)}
+                  {Math.abs((data.assets?.find(item => item.isGrandTotal)?.amount || 0) - data.totalLiabilitiesAndEquity) > 0.01 && <span className="ml-2 text-red-500">不平衡</span>}
+                </>,
+              }] : []),
+            ],
+          }] : []),
+    ...(data?.type === "income" ? [{
             kind: "panel",
             key: "income-report",
             title: "利 润 表",
             subtitle: `${data.period.year}年${data.period.month}月`,
-            blocks: [{
-              kind: "moduleView",
-              key: "income-lines",
-              view: <>
-                <ReportBanner source={data.source} diagnostics={data.diagnostics} reviewHref={`/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=incomeStatement`} />
-                <ReportLines items={data.lines || []} labelHeader="项 目" amountHeader="本年金额" {...lineProps} />
-              </>,
-            }],
-          }]}
-        />}
-
-      {data?.type === "cashflow" && <PageSurface
-          kind="analysis"
-          embedded
-          blocks={[{
+            blocks: [
+              ...(() => {
+                const block = createReportBannerBlock("income-banner", { source: data.source, diagnostics: data.diagnostics, reviewHref: `/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=incomeStatement` });
+                return block ? [block] : [];
+              })(),
+              {
+                kind: "data",
+                key: "income-lines",
+                surface: createReportLinesSurface({ items: data.lines || [], labelHeader: "项 目", amountHeader: "本年金额", ...lineProps }),
+              },
+            ],
+          }] : []),
+    ...(data?.type === "cashflow" ? [{
             kind: "panel",
             key: "cashflow-report",
             title: "现 金 流 量 表",
             subtitle: `${data.period.year}年${data.period.month}月`,
-            blocks: [{
-              kind: "moduleView",
-              key: "cashflow-lines",
-              view: <>
-                <ReportBanner source={data.source} diagnostics={data.diagnostics} reviewHref={`/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=cashFlow`} />
-                <ReportLines items={data.lines || []} labelHeader="项 目" amountHeader="金额" {...lineProps} />
-              </>,
-            }],
-          }]}
-        />}
-    </div>;
+            blocks: [
+              ...(() => {
+                const block = createReportBannerBlock("cashflow-banner", { source: data.source, diagnostics: data.diagnostics, reviewHref: `/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=cashFlow` });
+                return block ? [block] : [];
+              })(),
+              {
+                kind: "data",
+                key: "cashflow-lines",
+                surface: createReportLinesSurface({ items: data.lines || [], labelHeader: "项 目", amountHeader: "金额", ...lineProps }),
+              },
+            ],
+          }] : []),
+  ]) as PageSurfaceBlockSpec[];
+  return (
+    <PageSurface
+      kind={data ? "analysis" : "list"}
+      toolbar={{ items: toolbarItems }}
+      blocks={reportBlocks.length > 0 ? reportBlocks : undefined}
+    />
+  );
 }

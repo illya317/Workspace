@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   FormSurface,
   type FormSurfaceFieldSpec,
+  type FormSurfaceProps,
   type PickerOption,
 } from "@workspace/core/ui";
 import {
@@ -37,6 +38,35 @@ export function WorkTaskForm({
   targetType?: WorkTargetType;
   onChange: (draft: WorkItemDraft) => void;
 }) {
+  const surface = useWorkTaskFormSurface({
+    draft,
+    works,
+    disabled,
+    excludedWorkId,
+    targetType,
+    onChange,
+  });
+
+  return <FormSurface {...surface} />;
+}
+
+export function useWorkTaskFormSurface({
+  draft,
+  works,
+  disabled,
+  excludedWorkId,
+  targetType,
+  onChange,
+  enabled = true,
+}: {
+  draft: WorkItemDraft;
+  works: WorkItem[];
+  disabled: boolean;
+  excludedWorkId: number | null;
+  targetType?: WorkTargetType;
+  onChange: (draft: WorkItemDraft) => void;
+  enabled?: boolean;
+}): FormSurfaceProps {
   const [taskOptions, setTaskOptions] = useState<PickerOption[]>([]);
   const [phaseOptions, setPhaseOptions] = useState<PickerOption[]>([]);
   const isTask = draft.itemType === "task";
@@ -51,6 +81,11 @@ export function WorkTaskForm({
   );
 
   useEffect(() => {
+    if (!enabled) {
+      setTaskOptions([]);
+      setPhaseOptions([]);
+      return;
+    }
     let ignore = false;
     Promise.all([
       listProjectTaskOptions(draft.linkedProjectId),
@@ -69,7 +104,7 @@ export function WorkTaskForm({
         }
       });
     return () => { ignore = true; };
-  }, [draft.linkedProjectId]);
+  }, [draft.linkedProjectId, enabled]);
 
   function patch(next: Partial<WorkItemDraft>) {
     onChange({ ...draft, ...next });
@@ -194,13 +229,11 @@ export function WorkTaskForm({
     { key: "description", label: "描述", span: "wide", spec: { valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" }, value: draft.description, placeholder: "描述目标、结果口径、交付物或拆解口径", onChange: (value) => patch({ description: String(value ?? "") }) },
   ];
 
-  return (
-    <FormSurface
-      kind="fields"
-      columns={2}
-      fields={fields}
-    />
-  );
+  return {
+    kind: "fields",
+    columns: 2,
+    fields,
+  };
 }
 
 function parentAllowed(itemType: WorkItemType, parent: WorkItem) {

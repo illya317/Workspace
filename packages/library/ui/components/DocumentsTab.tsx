@@ -279,23 +279,6 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
         emptyText: loading ? "加载中..." : "暂无资料",
       } satisfies DataSurfaceProps<LibraryDocumentItem>) as DataSurfaceProps,
     },
-    ...(totalPages > 1
-      ? [{
-          kind: "navigation" as const,
-          key: "pagination",
-          surface: {
-            kind: "pagination" as const,
-            pagination: {
-              page,
-              totalPages,
-              total,
-              onPageChange: setPage,
-              className: "mt-4 flex items-center justify-center gap-3",
-              compact: true,
-            },
-          },
-        }]
-      : []),
   ];
 
   return (
@@ -310,6 +293,16 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
         toolbar={{ items: toolbarItems }}
         side={{ blocks: sideBlocks }}
         blocks={blocks}
+        footer={totalPages > 1 ? {
+          pagination: {
+            page,
+            totalPages,
+            total,
+            onPageChange: setPage,
+            className: "flex items-center justify-center gap-3",
+            compact: true,
+          },
+        } : undefined}
       />
 
       {detailId !== null && (

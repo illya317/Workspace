@@ -5,10 +5,11 @@ import { EmptyStateCard, PanelCard } from "./Card";
 import SearchInput from "./SearchInput";
 import SelectorList, { type SelectorListItemContext } from "./SelectorList";
 import SelectorTree, { type SelectorTreeItemContext } from "./SelectorTree";
+import SelectionGrid, { type SelectionGridProps } from "./SelectionGrid";
 import type { SelectorCardProps, SelectorCardSize } from "./SelectorCard";
 import type { TreeNodeCardProps } from "./HierarchyTree";
 
-export type SelectorPanelMode = "list" | "tree";
+export type SelectorPanelMode = "list" | "tree" | "grid";
 
 export interface SelectorPanelBaseProps<T> {
   mode?: SelectorPanelMode;
@@ -51,10 +52,21 @@ export interface SelectorPanelTreeProps<T> extends SelectorPanelBaseProps<T> {
   renderItem: (item: T, ctx: SelectorTreeItemContext) => Omit<TreeNodeCardProps, "active" | "onClick" | "toggle" | "children">;
 }
 
-export type SelectorPanelProps<T> = SelectorPanelListProps<T> | SelectorPanelTreeProps<T>;
+export interface SelectorPanelGridProps<T> extends SelectorPanelBaseProps<T>, Pick<SelectionGridProps, "columns" | "layout" | "minItemWidth" | "truncate" | "disabled"> {
+  mode: "grid";
+  ariaLabel: string;
+  getLabel: (item: T, index: number) => string;
+  getCode?: (item: T, index: number) => string | undefined;
+}
+
+export type SelectorPanelProps<T> = SelectorPanelListProps<T> | SelectorPanelTreeProps<T> | SelectorPanelGridProps<T>;
 
 function isTreeProps<T>(props: SelectorPanelProps<T>): props is SelectorPanelTreeProps<T> {
   return props.mode === "tree" || "getChildren" in props;
+}
+
+function isGridProps<T>(props: SelectorPanelProps<T>): props is SelectorPanelGridProps<T> {
+  return props.mode === "grid";
 }
 
 export function SelectorPanel<T>(props: SelectorPanelProps<T>): ReactNode {
@@ -105,6 +117,32 @@ export function SelectorPanel<T>(props: SelectorPanelProps<T>): ReactNode {
           onToggle={props.onToggle}
           collapsible={props.collapsible}
           emptyText={emptyText}
+          className={contentClassName}
+        />
+      );
+    }
+
+    if (isGridProps(props)) {
+      const options = items.map((item, index) => ({
+        value: String(getKey(item)),
+        label: props.getLabel(item, index),
+        code: props.getCode?.(item, index),
+      }));
+      return (
+        <SelectionGrid
+          options={options}
+          value={selectedId === null ? null : String(selectedId)}
+          onChange={(next) => {
+            const selected = items.find((item) => String(getKey(item)) === next);
+            if (selected) onSelect(selected);
+          }}
+          columns={props.columns}
+          layout={props.layout}
+          minItemWidth={props.minItemWidth}
+          truncate={props.truncate}
+          disabled={props.disabled}
+          emptyText={emptyText}
+          ariaLabel={props.ariaLabel}
           className={contentClassName}
         />
       );

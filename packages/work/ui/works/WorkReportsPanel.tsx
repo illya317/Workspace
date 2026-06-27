@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { SurfaceToolbarItems } from "@workspace/core/ui";
+import type { PageSurfaceBlockSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import {
   getWorkReportDraft,
   listWorkReportCollection,
@@ -13,7 +13,12 @@ import type {
   WorkReportItem,
   WorkTarget,
 } from "./types";
-import { ReportCollectionTable, ReportDraftTable } from "./WorkReportsTables";
+import {
+  buildReportCollectionTableBlock,
+  buildReportDraftTableBlock,
+  ReportCollectionTable,
+  ReportDraftTable,
+} from "./WorkReportsTables";
 
 type ReportMode = "fill" | "collection";
 
@@ -216,6 +221,23 @@ export default function WorkReportsPanel({ controller }: { controller: WorkRepor
       )}
     </div>
   );
+}
+
+export function buildWorkReportsPanelBlocks(controller: WorkReportsController): PageSurfaceBlockSpec[] {
+  return [
+    controller.mode === "fill"
+      ? buildReportDraftTableBlock({
+          draft: controller.draft,
+          loading: controller.loading,
+          canEdit: controller.canEditDraft,
+          onUpdate: controller.updateItem,
+          onRemove: controller.removeItem,
+        })
+      : buildReportCollectionTableBlock({
+          collection: controller.collection,
+          loading: controller.loading,
+        }),
+  ];
 }
 
 function nextSortOrder(items: WorkReportItem[]) {

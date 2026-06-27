@@ -1,3 +1,4 @@
+import { createElement } from "react";
 import type { SessionUser } from "@workspace/platform/types";
 import { activeModuleDefinitions } from "@workspace/platform/effective-module-registry";
 import AppShell from "../AppShell";
@@ -32,10 +33,10 @@ function buildApiAccessModules(): ApiAccessModuleRow[] {
 }
 
 export function SettingsAccountPage({ user }: { user: SessionUser }) {
-  return (
-    <AppShell title="账号与接入" backHref="/settings" user={user}>
-      <SettingsClient user={user} hideShell view="account" apiAccessModules={buildApiAccessModules()} />
-    </AppShell>
+  return createElement(
+    AppShell,
+    { title: "账号与接入", backHref: "/settings", user },
+    <SettingsClient user={user} hideShell view="account" apiAccessModules={buildApiAccessModules()} />,
   );
 }
 
@@ -46,10 +47,10 @@ export function SettingsApiPage({
   user: SessionUser;
   focusRegistrationKey?: string;
 }) {
-  return (
-    <AppShell title="API 接入" backHref="/settings" user={user}>
-      <SettingsApiClient focusRegistrationKey={focusRegistrationKey} />
-    </AppShell>
+  return createElement(
+    AppShell,
+    { title: "API 接入", backHref: "/settings", user },
+    <SettingsApiClient focusRegistrationKey={focusRegistrationKey} />,
   );
 }
 
@@ -59,9 +60,9 @@ export function SettingsUiPage({ user }: { user: SessionUser }) {
     usageFiles: row.usageFiles,
   }));
 
-  return (
-    <AppShell title="UI 组件库" backHref="/settings" user={user}>
-      <UiComponentsShowcase usageRows={usageRows} />
-    </AppShell>
+  return createElement(
+    AppShell,
+    { title: "UI 组件库", backHref: "/settings", user },
+    <UiComponentsShowcase usageRows={usageRows} />,
   );
 }

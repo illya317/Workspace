@@ -1,3 +1,4 @@
+import { createElement } from "react";
 import { requireRouteAccess } from "@workspace/platform/server/auth";
 import { getResourceDef } from "@workspace/platform/resources";
 import AppShell from "@workspace/platform/ui/AppShell";
@@ -19,13 +20,9 @@ function toWorkUser(user: SessionUser): WorkUser {
 export default async function WorkProjectsPage() {
   const user = await requireRouteAccess("/work/projects");
   const title = getResourceDef("work.projects")?.name ?? "项目管理";
-  return (
-    <AppShell
-      title={title}
-      backHref="/work"
-      user={user}
-    >
-      <ProjectTab user={toWorkUser(user)} />
-    </AppShell>
+  return createElement(
+    AppShell,
+    { title, backHref: "/work", user },
+    <ProjectTab user={toWorkUser(user)} />,
   );
 }

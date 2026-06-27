@@ -18,7 +18,6 @@ const ALLOWED_UI_LEVELS = new Set([1, 2, 3, 4]);
 const CORE_UI_L1_PUBLIC_ENTRY_NAMES = new Set([
   "DataSurface",
   "FormSurface",
-  "NavigationSurface",
   "PageSurface",
   "useFeedback",
 ]);
@@ -314,7 +313,7 @@ export function validateCoreUiRegistry() {
   }
   for (const actualName of resolvedL1Names) {
     if (!CORE_UI_L1_PUBLIC_ENTRY_NAMES.has(actualName)) {
-      errors.push(`${actualName} 不能声明或解析为 uiLevel: 1；L1 仅允许 PageSurface/FormSurface/DataSurface/NavigationSurface/useFeedback`);
+      errors.push(`${actualName} 不能声明或解析为 uiLevel: 1；L1 仅允许 PageSurface/FormSurface/DataSurface/useFeedback`);
     }
   }
 
@@ -355,6 +354,34 @@ export function validateCoreUiRegistry() {
       if (!registeredCoreUiComponentNames.has(target)) {
         errors.push(`${registration.name} 引用了未注册的 core UI 入口：${target}`);
       }
+    }
+  }
+
+  // 2b. Agent 暴露路径必须指向真实入口；关键能力域只能有一个直接入口。
+  const directEntriesByOwner = new Map<string, string[]>();
+  for (const registration of byName.values()) {
+    const exposure = registration.agentExposure;
+    if (!exposure) {
+      errors.push(`${registration.name} 缺少 agentExposure`);
+      continue;
+    }
+    if (exposure.mode === "via" && !byName.has(exposure.entry)) {
+      errors.push(`${registration.name}.agentExposure 指向未注册入口 ${exposure.entry}`);
+    }
+    if (exposure.mode === "direct") {
+      const owner = registration.ownerL2 ?? "unknown";
+      directEntriesByOwner.set(owner, [...(directEntriesByOwner.get(owner) ?? []), registration.name]);
+    }
+  }
+  const canonicalDirectEntries: Record<string, string[]> = {
+    "common.input": ["InputControl"],
+    "common.selection": ["SelectorPanel"],
+  };
+  for (const [ownerL2, allowed] of Object.entries(canonicalDirectEntries)) {
+    const actual = directEntriesByOwner.get(ownerL2) ?? [];
+    const unexpected = actual.filter((name) => !allowed.includes(name));
+    if (unexpected.length > 0) {
+      errors.push(`${ownerL2} 只能通过 ${allowed.join(", ")} 作为直接入口，当前多出 ${unexpected.join(", ")}`);
     }
   }
 

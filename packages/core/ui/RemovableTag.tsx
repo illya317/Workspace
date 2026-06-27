@@ -2,7 +2,7 @@
 
 import type { MouseEvent, ReactNode } from "react";
 import { joinClassNames } from "./card-utils";
-import type { ConfirmOptions } from "./ConfirmProvider";
+import type { ConfirmOptions } from "./FeedbackProvider";
 import TagPill from "./TagPill";
 import TagRemoveButton from "./TagRemoveButton";
 
@@ -13,6 +13,7 @@ export interface RemovableTagProps {
   disabled?: boolean;
   /** @deprecated 请使用 confirmRemove */
   confirm?: boolean;
+  confirmDelete?: (options?: Partial<ConfirmOptions>) => Promise<boolean>;
   confirmMessage?: ConfirmOptions["message"];
   confirmOptions?: Partial<ConfirmOptions>;
   confirmRemove?: boolean;
@@ -31,6 +32,7 @@ export default function RemovableTag({
   onRemove,
   disabled = false,
   confirm = true,
+  confirmDelete,
   confirmMessage,
   confirmOptions,
   confirmRemove,
@@ -66,6 +68,7 @@ export default function RemovableTag({
             <TagRemoveButton
               label={label}
               confirm={effectiveConfirm}
+              confirmDelete={confirmDelete}
               confirmMessage={effectiveConfirmMessage}
               confirmOptions={effectiveConfirmOptions}
               onConfirm={onRemove}

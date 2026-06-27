@@ -1,14 +1,16 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { SessionUser } from "@workspace/platform/types";
+import { PageSurface } from "@workspace/core/ui";
 import ImportUploadForm from "./components/ImportUploadForm";
 import ImportPreview from "./components/ImportPreview";
 import ImportResult from "./components/ImportResult";
 import { Company, PreviewResult } from "./components/types";
+import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 
-export default function ImportClient({ user: _user }: { user: SessionUser }) {
+export default function ImportClient({ user }: { user: SessionUser }) {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companyCode, setCompanyCode] = useState("");
   const [importType, setImportType] = useState<"balance" | "journal" | "account">("balance");
@@ -18,6 +20,15 @@ export default function ImportClient({ user: _user }: { user: SessionUser }) {
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
+  const activeChildTabs = useMemo(() => getFinancePageViewTabs("import", user), [user]);
+  const navigation = activeChildTabs.length > 1 ? {
+    kind: "tabs" as const,
+    level: 2 as const,
+    items: activeChildTabs,
+    active: activeChildTabs[0]?.key ?? "",
+    onChange: () => {},
+  } : undefined;
+  const lifecycleBlocks = getFinanceLifecycleBlocks("import");
 
   useEffect(() => {
     fetch(workspacePath("/api/modules/hr/roster/companies"))
@@ -117,33 +128,42 @@ export default function ImportClient({ user: _user }: { user: SessionUser }) {
     importType === "journal" ? "序时账" : "科目表";
 
   return (
-    <div className="mx-auto max-w-5xl py-6">
-      <ImportUploadForm
-        companies={companies}
-        companyCode={companyCode}
-        importType={importType}
-        year={year}
-        file={file}
-        loading={loading}
-        onCompanyChange={setCompanyCode}
-        onTypeChange={handleTypeChange}
-        onYearChange={setYear}
-        onFileChange={handleFileChange}
-        onPreview={handlePreview}
-      />
+    <PageSurface
+      kind="list"
+      navigation={navigation}
+      body={{
+        blocks: lifecycleBlocks,
+        content: (
+          <div className="mx-auto max-w-5xl py-6">
+            <ImportUploadForm
+              companies={companies}
+              companyCode={companyCode}
+              importType={importType}
+              year={year}
+              file={file}
+              loading={loading}
+              onCompanyChange={setCompanyCode}
+              onTypeChange={handleTypeChange}
+              onYearChange={setYear}
+              onFileChange={handleFileChange}
+              onPreview={handlePreview}
+            />
 
-      {result && (
-        <ImportResult success={result.success} message={result.message} />
-      )}
+            {result && (
+              <ImportResult success={result.success} message={result.message} />
+            )}
 
-      {preview && (
-        <ImportPreview
-          preview={preview}
-          importing={importing}
-          typeLabel={typeLabel}
-          onConfirm={handleConfirm}
-        />
-      )}
-    </div>
+            {preview && (
+              <ImportPreview
+                preview={preview}
+                importing={importing}
+                typeLabel={typeLabel}
+                onConfirm={handleConfirm}
+              />
+            )}
+          </div>
+        ),
+      }}
+    />
   );
 }

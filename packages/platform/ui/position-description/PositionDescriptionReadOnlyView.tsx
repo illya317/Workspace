@@ -274,7 +274,6 @@ export function PositionDescriptionReadOnlyView({
   return (
     <PageSurface
       kind="detail"
-      contentClassName="py-0"
       actions={actions}
       blocks={blocks}
     />

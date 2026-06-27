@@ -26,6 +26,4 @@ export const previewCaseByName: Record<string, readonly string[]> = {
   "StructuredTable": ["TableScrollFrame"],
   "TagListInput": ["TextField"],
   "Toast": ["ActionButton"],
-  "useConfirm": ["ConfirmProvider"],
-  "useConfirmDelete": ["ConfirmProvider"],
 };

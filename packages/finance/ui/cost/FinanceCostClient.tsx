@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { PageSurface } from "@workspace/core/ui";
 import { SessionUser } from "@workspace/platform/types";
-import { getPageViewTabs } from "@workspace/platform/view-registry";
-import { NavigationSurface } from "@workspace/core/ui";
-import CostFilters from "./components/CostFilters";
+import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
+import { useCostFilterToolbarItems } from "./components/CostFilters";
 import CostSummary from "./components/CostSummary";
 import ShipmentTable from "./components/ShipmentTable";
 import CostAnalysisTable from "./components/CostAnalysisTable";
@@ -14,30 +14,48 @@ import SalesSalaryTable from "./components/SalesSalaryTable";
 import ImportHistoryTable from "./components/ImportHistoryTable";
 import type { CostFiltersState, CostTab } from "./types";
 
-const TABS = getPageViewTabs("/finance/cost") as { key: CostTab; label: string }[];
-
 export default function FinanceCostClient({ user: _user }: { user: SessionUser }) {
-  const [tab, setTab] = useState<CostTab>("overview");
+  const activeChildTabs = useMemo(() => getFinancePageViewTabs("cost", _user), [_user]);
+  const [activeChild, setActiveChild] = useState(activeChildTabs[0]?.key ?? "overview");
+  useEffect(() => {
+    setActiveChild(activeChildTabs[0]?.key ?? "overview");
+  }, [activeChildTabs]);
+  const navigation = activeChildTabs.length > 1 ? {
+    kind: "tabs" as const,
+    level: 2 as const,
+    items: activeChildTabs,
+    active: activeChild,
+    onChange: setActiveChild,
+  } : undefined;
+  const lifecycleBlocks = getFinanceLifecycleBlocks("cost");
+  const tab = (activeChild ?? "overview") as CostTab;
   const [filters, setFilters] = useState<CostFiltersState>({
     year: undefined,
     month: undefined,
     productName: "",
     customerName: "",
   });
+  const toolbarItems = useCostFilterToolbarItems({ filters, onChange: setFilters });
 
   return (
-    <div className="space-y-4">
-      <NavigationSurface kind="tabs" tabs={{ tabs: TABS, active: tab, onChange: (key) => setTab(key as CostTab) }} />
-      <CostFilters filters={filters} onChange={setFilters} />
-      <div>
-        {tab === "overview" && <CostSummary filters={filters} />}
-        {tab === "shipments" && <ShipmentTable filters={filters} />}
-        {tab === "cost-analysis" && <CostAnalysisTable filters={filters} />}
-        {tab === "cost-structure" && <CostStructureTable filters={filters} />}
-        {tab === "workshop" && <WorkshopReportTable filters={filters} />}
-        {tab === "salary" && <SalesSalaryTable filters={filters} />}
-        {tab === "imports" && <ImportHistoryTable filters={filters} />}
-      </div>
-    </div>
+    <PageSurface
+      kind="list"
+      navigation={navigation}
+      toolbar={{ items: toolbarItems }}
+      body={{
+        blocks: lifecycleBlocks,
+        content: (
+          <div>
+            {tab === "overview" && <CostSummary filters={filters} />}
+            {tab === "shipments" && <ShipmentTable filters={filters} />}
+            {tab === "cost-analysis" && <CostAnalysisTable filters={filters} />}
+            {tab === "cost-structure" && <CostStructureTable filters={filters} />}
+            {tab === "workshop" && <WorkshopReportTable filters={filters} />}
+            {tab === "salary" && <SalesSalaryTable filters={filters} />}
+            {tab === "imports" && <ImportHistoryTable filters={filters} />}
+          </div>
+        ),
+      }}
+    />
   );
 }

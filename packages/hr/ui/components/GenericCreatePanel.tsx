@@ -1,8 +1,8 @@
 "use client";
 
-import { PageSurface } from "@workspace/core/ui";
-import GenericFieldInput from "./GenericFieldInput";
-import type { TabConfig } from "@workspace/hr/types";
+import { PageSurface, type FormSurfaceFieldSpec, type ReferenceOption } from "@workspace/core/ui";
+import type { FieldConfig, TabConfig } from "@workspace/hr/types";
+import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../fk-keys";
 
 interface GenericCreatePanelProps {
   config: TabConfig;
@@ -21,6 +21,7 @@ export default function GenericCreatePanel({
 }: GenericCreatePanelProps) {
   const requiredFields = config.fields.filter((field) => field.required && !field.hidden);
   const submitDisabled = requiredFields.some((field) => !String(createForm[field.key] ?? "").trim());
+  const fields = requiredFields.map((field) => createFieldSpec(field, config, createForm[field.key], (value) => onChange(field.key, value)));
 
   return (
     <PageSurface
@@ -37,35 +38,94 @@ export default function GenericCreatePanel({
           ],
           blocks: [
             {
-              kind: "moduleView",
+              kind: "form",
               key: "fields",
-              view: (
-                <div className="flex flex-wrap items-end gap-3">
-                  {requiredFields.map((field) => (
-                    <div
-                      key={field.key}
-                      className={field.type === "textarea" ? "w-72 max-w-full" : "w-64 max-w-full"}
-                    >
-                      <div className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-500">
-                        <span>{field.label}</span>
-                        <span className="text-red-500">*</span>
-                      </div>
-                      <GenericFieldInput
-                        field={field}
-                        value={createForm[field.key]}
-                        onChange={(value) => onChange(field.key, value)}
-                        fkConfig={config.fkFields?.[field.key]}
-                        mode="create"
-                        className="border-gray-300 focus:border-emerald-400"
-                      />
-                    </div>
-                  ))}
-                </div>
-              ),
+              surface: {
+                kind: "inline",
+                fields,
+              },
             },
           ],
         },
       ]}
     />
   );
+}
+
+function createFieldSpec(
+  field: FieldConfig,
+  config: TabConfig,
+  value: unknown,
+  onChange: (value: unknown) => void,
+): FormSurfaceFieldSpec {
+  if (field.type === "fk") {
+    const fkConfig = config.fkFields?.[field.key];
+    const optionValue = value as { id?: number | string; name?: string } | null | undefined;
+    return {
+      key: field.key,
+      label: field.label,
+      required: field.required,
+      spec: {
+        valueType: "reference",
+        editor: "autocomplete",
+        state: "normal",
+        options: {
+          source: "remote",
+          fkKey: fkKeyForEntity(fkConfig?.entity ?? field.key, fkConfig?.fkKey),
+          endpoint: HR_REFERENCE_OPTIONS_ENDPOINT,
+          returnField: "id",
+        },
+      },
+      value: optionValue?.id == null ? "" : String(optionValue.id),
+      displayValue: optionValue?.name ?? "",
+      placeholder: `搜索${field.label}`,
+      onChange: (_next, option) => {
+        const fkOption = option as ReferenceOption | undefined;
+        onChange(fkOption ? { id: fkOption.id, name: fkOption.name, subtitle: fkOption.subtitle } : null);
+      },
+    };
+  }
+
+  if (field.type === "boolean") {
+    return {
+      key: field.key,
+      label: field.label,
+      required: field.required,
+      spec: { valueType: "boolean", editor: "checkbox" },
+      value: Boolean(value),
+      onChange: (next) => onChange(Boolean(next)),
+    };
+  }
+
+  if (field.type === "date") {
+    return {
+      key: field.key,
+      label: field.label,
+      required: field.required,
+      spec: { valueType: "date", editor: "datePicker" },
+      value: String(value ?? ""),
+      onChange: (next) => onChange(next ?? ""),
+    };
+  }
+
+  if (field.type === "select" && field.options?.length) {
+    return {
+      key: field.key,
+      label: field.label,
+      required: field.required,
+      spec: { valueType: "string", editor: field.options.length > 8 ? "autocomplete" : "select", options: { source: "static", items: field.options, visibleCount: 5 } },
+      value: String(value ?? ""),
+      onChange: (next) => onChange(next ?? ""),
+    };
+  }
+
+  return {
+    key: field.key,
+    label: field.label,
+    required: field.required,
+    spec: { valueType: field.type === "number" ? "number" : "string", editor: field.type === "textarea" ? "textarea" : field.type === "number" ? "number" : "input" },
+    value: String(value ?? ""),
+    onChange: (next) => onChange(String(next ?? "")),
+    rows: field.type === "textarea" ? 3 : undefined,
+  };
 }

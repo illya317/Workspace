@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { DataSurface, FormSurface, type DataSurfaceColumnSpec, type DataTableRowAction } from "@workspace/core/ui";
+import { PageSurface, type DataSurfaceColumnSpec, type DataTableRowAction, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { listSpacePermissions, saveSpacePermissions, WORK_REFERENCE_OPTIONS_ENDPOINT } from "./api";
 import { WORK_ROLE_OPTIONS } from "./model";
 import type { WorkSpacePermissionRow, WorkSpaceRole, WorkTarget } from "./types";
@@ -22,6 +22,24 @@ export default function WorkPermissionsPanel({
     message: string;
   }) => void;
 }) {
+  const blocks = useWorkPermissionsBlocks({ target, canManage, onToast, enabled: true });
+  return <PageSurface embedded kind="detail" blocks={blocks} />;
+}
+
+export function useWorkPermissionsBlocks({
+  target,
+  canManage,
+  onToast,
+  enabled,
+}: {
+  target: WorkTarget | null;
+  canManage: boolean;
+  onToast: (toast: {
+    type: "success" | "error";
+    message: string;
+  }) => void;
+  enabled: boolean;
+}): PageSurfaceBlockSpec[] {
   const [rows, setRows] = useState<WorkSpacePermissionRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -31,7 +49,7 @@ export default function WorkPermissionsPanel({
     role: "viewer"
   });
   const load = useCallback(async () => {
-    if (!target || !canManage) return;
+    if (!target || !canManage || !enabled) return;
     setLoading(true);
     try {
       setRows(await listSpacePermissions(target));
@@ -43,7 +61,7 @@ export default function WorkPermissionsPanel({
     } finally {
       setLoading(false);
     }
-  }, [canManage, onToast, target]);
+  }, [canManage, enabled, onToast, target]);
   useEffect(() => {
     void load();
   }, [load]);
@@ -52,17 +70,28 @@ export default function WorkPermissionsPanel({
     key: "user",
     label: "用户",
     required: true,
-    cell: row => <div className="flex flex-col">
-          <span className="font-medium text-slate-900">{row.userName}</span>
-          {row.locked && <span className="text-xs text-slate-400">天然最高权限</span>}
-        </div>
+    cell: row => row.locked
+      ? {
+          kind: "group",
+          direction: "column",
+          items: [
+            { kind: "text", value: row.userName, className: "font-medium text-slate-900" },
+            { kind: "text", value: "天然最高权限", className: "text-xs text-slate-400" },
+          ],
+        }
+      : { kind: "text", value: row.userName, className: "font-medium text-slate-900" }
   }, {
     key: "role",
     label: "权限",
     defaultVisible: true,
-    cell: row => row.locked ? roleLabel(row.role) : <FormSurface kind="inline" field={{ key: `role-${row.userId}`, label: "权限", spec: { valueType: "string", editor: "select", options: { source: "static", items: [...WORK_ROLE_OPTIONS], visibleCount: 4 } }, value: row.role, onChange: value => patchRow(row.userId, {
-      role: normalizeRole(value == null ? null : String(value))
-    }) }} />
+    cell: row => row.locked ? { kind: "text", value: roleLabel(row.role) } : {
+      kind: "input",
+      spec: { valueType: "string", editor: "select", options: { source: "static", items: [...WORK_ROLE_OPTIONS], visibleCount: 4 } },
+      value: row.role,
+      onChange: value => patchRow(row.userId, {
+        role: normalizeRole(value == null ? null : String(value))
+      }),
+    }
   }], []);
   function getPermissionRowActions(row: WorkSpacePermissionRow): DataTableRowAction[] {
     if (row.locked) return [];
@@ -125,13 +154,22 @@ export default function WorkPermissionsPanel({
       setSaving(false);
     }
   }
-  if (!canManage) return <DataSurface kind="records" records={[]} empty="仅空间管理员可维护权限。" />;
-  return <div className="space-y-4">
-      <FormSurface
-        kind="fields"
-        columns={3}
-        className="rounded-lg border border-slate-200 bg-white p-4"
-        fields={[{
+  if (!canManage) {
+    return [{
+      kind: "data",
+      key: "permissions-denied",
+      surface: { kind: "records", records: [], empty: "仅空间管理员可维护权限。" },
+    }];
+  }
+  return [
+    {
+      kind: "form",
+      key: "permission-draft",
+      surface: {
+        kind: "fields",
+        columns: 3,
+        className: "rounded-lg border border-slate-200 bg-white p-4",
+        fields: [{
           key: "user",
           label: "授权用户",
           spec: { valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.tasks.permission.user", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" } },
@@ -139,39 +177,52 @@ export default function WorkPermissionsPanel({
           displayValue: draft.userName,
           placeholder: "搜索用户",
           onChange: (value, option) => {
-          const fkOption = option as { id?: number; name?: string } | undefined;
-          setDraft(current => ({
-          ...current,
-          userId: fkOption?.id ?? (value ? current.userId : null),
-          userName: fkOption?.name ?? (value ? String(value) : "")
-        }));
-        },
+            const fkOption = option as { id?: number; name?: string } | undefined;
+            setDraft(current => ({
+              ...current,
+              userId: fkOption?.id ?? (value ? current.userId : null),
+              userName: fkOption?.name ?? (value ? String(value) : "")
+            }));
+          },
         }, {
           key: "role",
           label: "权限",
           spec: { valueType: "string", editor: "select", options: { source: "static", items: [...WORK_ROLE_OPTIONS], visibleCount: 4 } },
           value: draft.role,
           onChange: value => setDraft(current => ({
-          ...current,
-          role: normalizeRole(value == null ? null : String(value))
-        })),
-        }]}
-        actions={[{ key: "add", label: "添加", variant: "primary", disabled: !draft.userId || saving, onClick: addDraft }]}
-      />
-      <DataSurface
-        kind="table"
-        rows={rows}
-        columns={columns}
-        visibleColumns={["role"]}
-        rowKey={row => row.userId}
-        density="compact"
-        loading={loading}
-        emptyText="暂无额外授权"
-        rowActions={getPermissionRowActions}
-        scrollClassName="overflow-y-hidden rounded-lg border border-slate-200"
-      />
-      <FormSurface kind="inline" actions={[{ key: "save", label: "保存权限", variant: "primary", disabled: saving, onClick: () => void save() }]} className="justify-end" />
-    </div>;
+            ...current,
+            role: normalizeRole(value == null ? null : String(value))
+          })),
+        }],
+        actions: [{ key: "add", label: "添加", variant: "primary", disabled: !draft.userId || saving, onClick: addDraft }],
+      },
+    },
+    {
+      kind: "data",
+      key: "permission-table",
+      surface: {
+        kind: "table",
+        rows,
+        columns,
+        visibleColumns: ["role"],
+        rowKey: row => row.userId,
+        density: "compact",
+        loading,
+        emptyText: "暂无额外授权",
+        rowActions: getPermissionRowActions,
+        scrollClassName: "overflow-y-hidden rounded-lg border border-slate-200",
+      },
+    },
+    {
+      kind: "form",
+      key: "permission-actions",
+      surface: {
+        kind: "inline",
+        actions: [{ key: "save", label: "保存权限", variant: "primary", disabled: saving, onClick: () => void save() }],
+        className: "justify-end",
+      },
+    },
+  ];
 }
 function normalizeRole(value: string | null): WorkSpaceRole {
   if (value === "manager" || value === "delete" || value === "editor") return value;

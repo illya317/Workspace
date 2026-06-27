@@ -1,6 +1,6 @@
 "use client";
 
-import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceColumnSpec, type DataSurfaceProps } from "@workspace/core/ui";
 import type { EmployeeTag, MultiProjectRole } from "./model";
 
 export type ProjectRasciRow = {
@@ -27,6 +27,10 @@ const RASCI_COLUMNS: RasciColumn[] = [
 ];
 
 export default function ProjectRasciMatrix({ rows }: { rows: ProjectRasciRow[] }) {
+  return <DataSurface {...buildProjectRasciMatrixSurface(rows)} />;
+}
+
+export function buildProjectRasciMatrixSurface(rows: ProjectRasciRow[]): DataSurfaceProps<ProjectRasciRow> {
   const columns: DataSurfaceColumnSpec<ProjectRasciRow>[] = [
     {
       key: "name",
@@ -53,19 +57,17 @@ export default function ProjectRasciMatrix({ rows }: { rows: ProjectRasciRow[] }
     })),
   ];
 
-  return (
-    <DataSurface
-      kind="table"
-      framed
-      title="RASCI 矩阵"
-      rows={rows}
-      columns={columns}
-      rowKey={(row) => `${row.kind}:${row.id}`}
-      visibleColumns={RASCI_COLUMNS.map((column) => column.key)}
-      emptyText="暂无项目"
-      scrollClassName="overflow-hidden"
-    />
-  );
+  return {
+    kind: "table",
+    framed: true,
+    title: "RASCI 矩阵",
+    rows,
+    columns,
+    rowKey: (row) => `${row.kind}:${row.id}`,
+    visibleColumns: RASCI_COLUMNS.map((column) => column.key),
+    emptyText: "暂无项目",
+    scrollClassName: "overflow-hidden",
+  };
 }
 
 function membersForColumn(row: ProjectRasciRow, role: RasciColumn["role"]) {

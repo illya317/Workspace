@@ -5,10 +5,8 @@ import {
 import {
   coreUiComponentOwnerL1Meta,
   coreUiComponentOwnerL2Meta,
-  coreUiComponentRoleMeta,
   type CoreUiComponentOwnerL1,
   type CoreUiComponentOwnerL2,
-  type CoreUiComponentRole,
 } from "@workspace/core/ui/component-registry";
 import type { CoreUiComponentTreeNode } from "@workspace/core/ui/component-registry-view";
 import { UiComponentTreeComponentRow } from "./UiComponentTreeComponentRow";
@@ -77,12 +75,8 @@ function countL1Components(l1Group: ReturnType<typeof groupNodesByOwner>[number]
   return l1Group.ownerL2Groups.reduce((total, l2Group) => total + l2Group.nodes.length, 0);
 }
 
-function countRoles(nodes: readonly CoreUiComponentTreeNode[]) {
-  return nodes.reduce<Record<CoreUiComponentRole | "unknown", number>>((counts, node) => {
-    const role = node.component.role ?? "unknown";
-    counts[role] = (counts[role] ?? 0) + 1;
-    return counts;
-  }, {} as Record<CoreUiComponentRole | "unknown", number>);
+function directEntryNodes(nodes: readonly CoreUiComponentTreeNode[]) {
+  return nodes.filter((node) => node.component.agentExposure?.mode === "direct");
 }
 
 export function UiComponentTreePanel({
@@ -101,9 +95,10 @@ export function UiComponentTreePanel({
   onToggle: (name: string) => void;
 }) {
   const ownerGroups = groupNodesByOwner(nodes);
+  const uiLevelByName = new Map(nodes.map((node) => [node.name, node.uiLevel]));
   return (
     <PanelCard
-      title="L1/L2/L3 归属目录"
+      title="Core UI 归属目录"
       bodyClassName="max-h-[calc(100vh-12rem)] overflow-y-auto p-3"
     >
       {nodes.length === 0 ? (
@@ -116,7 +111,7 @@ export function UiComponentTreePanel({
                 <div className="min-w-0">
                   <p className="flex items-center gap-2 text-sm font-semibold text-slate-900">
                     <span className="rounded-full bg-emerald-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                      L1
+                      归属域
                     </span>
                     {coreUiComponentOwnerL1Meta[l1Group.ownerL1].label}
                   </p>
@@ -130,34 +125,42 @@ export function UiComponentTreePanel({
               </div>
               <div className="space-y-3 p-2">
                 {l1Group.ownerL2Groups.map((l2Group) => {
-                  const roleCounts = countRoles(l2Group.nodes);
+                  const directEntries = directEntryNodes(l2Group.nodes);
                   return (
                     <div key={l2Group.ownerL2} className="rounded-md border border-slate-200 bg-white">
                       <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-2.5 py-2">
                         <div className="min-w-0">
                           <p className="flex items-center gap-2 text-sm font-semibold text-slate-800">
                             <span className="rounded-full bg-sky-100 px-1.5 py-0.5 text-[10px] font-semibold text-sky-700">
-                              L2
+                              能力域
                             </span>
                             {coreUiComponentOwnerL2Meta[l2Group.ownerL2].label}
                           </p>
                           <p className="mt-0.5 truncate text-xs text-slate-400">
                             {l2Group.ownerL2}
                           </p>
+                          {directEntries.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-1.5">
+                              <span className="rounded-full bg-sky-50 px-1.5 py-0.5 text-[10px] font-semibold text-sky-700">
+                                开放入口
+                              </span>
+                              {directEntries.map((entry) => (
+                                <button
+                                  key={entry.name}
+                                  type="button"
+                                  onClick={() => onSelect(entry.name)}
+                                  className="rounded-full border border-sky-100 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-sky-800 transition hover:border-sky-300 hover:bg-sky-50"
+                                >
+                                  {entry.name}
+                                </button>
+                              ))}
+                            </div>
+                          )}
                         </div>
                         <div className="flex shrink-0 flex-wrap justify-end gap-1">
                           <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">
                             {l2Group.nodes.length}
                           </span>
-                          {ROLE_ORDER.map((role) => roleCounts[role] ? (
-                            <span
-                              key={role}
-                              className="rounded-full bg-slate-50 px-1.5 py-0.5 text-[10px] font-medium text-slate-500"
-                              title={coreUiComponentRoleMeta[role].description}
-                            >
-                              {coreUiComponentRoleMeta[role].label} {roleCounts[role]}
-                            </span>
-                          ) : null)}
                         </div>
                       </div>
                       <div className="space-y-2 p-2">
@@ -170,6 +173,7 @@ export function UiComponentTreePanel({
                           visibleMeta={visibleMeta}
                           onSelect={onSelect}
                           onToggle={onToggle}
+                          uiLevelByName={uiLevelByName}
                         />
                         ))}
                       </div>

@@ -14,7 +14,6 @@ export { default as AccountTable } from "./components/AccountTable";
 export { default as CompanyPeriodPicker } from "./components/CompanyPeriodPicker";
 export { default as FinanceBalanceReconcile } from "./components/FinanceBalanceReconcile";
 export { default as FinanceFilters } from "./components/FinanceFilters";
-export { default as FinanceShell } from "./components/FinanceShell";
 export { ACCOUNT_COLUMNS } from "./components/AccountTable";
 export { BASE_ITEM_COLUMNS } from "./components/VoucherItemTable";
 

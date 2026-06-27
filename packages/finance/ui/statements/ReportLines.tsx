@@ -1,6 +1,6 @@
 "use client";
 
-import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceColumnSpec, type DataSurfaceTableProps } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
 
 export interface ReportLine {
@@ -81,7 +81,7 @@ function DetailRows({ rows }: { rows: AccountDetail[] }) {
   );
 }
 
-export default function ReportLines({ items, labelHeader, amountHeader, expandedCodes, details, loadingDetail, onToggle }: Props) {
+export function createReportLinesSurface({ items, labelHeader, amountHeader, expandedCodes, details, loadingDetail, onToggle }: Props): DataSurfaceTableProps<ReportLine> {
   const columns: DataSurfaceColumnSpec<ReportLine>[] = [
     {
       key: "label",
@@ -108,27 +108,28 @@ export default function ReportLines({ items, labelHeader, amountHeader, expanded
     },
   ];
 
-  return (
-    <DataSurface
-      kind="table"
-      rows={items}
-      columns={columns}
-      visibleColumns={["label", "amount"]}
-      density="compact"
-      rowKey={(_, index) => index}
-      onRowClick={(item) => item.code && onToggle(item.code)}
-      rowClassName={(item) =>
-        item.isGrandTotal ? "border-t border-slate-200 font-bold" :
-        item.isTotal ? "bg-slate-50 font-medium" :
-        item.isHeader ? "font-medium text-gray-700" : "text-gray-600"
-      }
-      expandedRowKeys={items.map((item, index) => item.code && expandedCodes.has(item.code) ? index : null).filter((key): key is number => key !== null)}
-      renderExpandedRow={(item) => {
-        if (!item.code) return null;
-        const detailRows = details[item.code];
-        if (loadingDetail === item.code) return <p className="py-2 text-xs text-gray-400">加载明细...</p>;
-        return detailRows?.length ? <DetailRows rows={detailRows} /> : <p className="py-2 text-xs text-gray-400">无明细数据</p>;
-      }}
-    />
-  );
+  return {
+    kind: "table",
+    rows: items,
+    columns,
+    visibleColumns: ["label", "amount"],
+    density: "compact",
+    rowKey: (_, index) => index,
+    onRowClick: (item) => item.code && onToggle(item.code),
+    rowClassName: (item) =>
+      item.isGrandTotal ? "border-t border-slate-200 font-bold" :
+      item.isTotal ? "bg-slate-50 font-medium" :
+      item.isHeader ? "font-medium text-gray-700" : "text-gray-600",
+    expandedRowKeys: items.map((item, index) => item.code && expandedCodes.has(item.code) ? index : null).filter((key): key is number => key !== null),
+    renderExpandedRow: (item) => {
+      if (!item.code) return null;
+      const detailRows = details[item.code];
+      if (loadingDetail === item.code) return <p className="py-2 text-xs text-gray-400">加载明细...</p>;
+      return detailRows?.length ? <DetailRows rows={detailRows} /> : <p className="py-2 text-xs text-gray-400">无明细数据</p>;
+    },
+  };
+}
+
+export default function ReportLines(props: Props) {
+  return <DataSurface {...createReportLinesSurface(props)} />;
 }

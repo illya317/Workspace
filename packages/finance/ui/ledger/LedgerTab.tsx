@@ -2,8 +2,9 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useCallback } from "react";
-import { DataSurface, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
-import FinanceFilters from "../components/FinanceFilters";
+import { PageSurface, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import type { PageSurfaceBlockSpec, PageSurfaceNavigationSpec } from "@workspace/core/ui";
+import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import FinanceBalanceReconcile from "../components/FinanceBalanceReconcile";
 import { formatFinanceAmount } from "../formatters";
 
@@ -25,7 +26,13 @@ interface Balance {
   closingCredit: number;
 }
 
-export default function LedgerTab() {
+export default function LedgerTab({
+  navigation,
+  lifecycleBlocks = [],
+}: {
+  navigation?: PageSurfaceNavigationSpec;
+  lifecycleBlocks?: PageSurfaceBlockSpec[];
+}) {
   const [_periods, setPeriods] = useState<Period[]>([]);
   const [_selectedPeriodId, setSelectedPeriodId] = useState<number | null>(null);
   const [balances, setBalances] = useState<Balance[]>([]);
@@ -156,38 +163,52 @@ export default function LedgerTab() {
       cell: (balance) => formatFinanceAmount(balance.closingCredit),
     },
   ];
+  const toolbarItems = useFinanceFilterToolbarItems({
+    companyFilter,
+    yearFilter,
+    monthFilter,
+    pageSize,
+    onCompanyChange: (v) => { setCompanyFilter(v); setPage(1); },
+    onYearChange: (v) => { setYearFilter(v); setPage(1); },
+    onMonthChange: (v) => { setMonthFilter(v); setPage(1); },
+    onPageSizeChange: (v) => { setPageSize(v); setPage(1); },
+    extraItems: [{
+      kind: "text",
+      key: "ledger-total",
+      section: "meta",
+      content: <span>共 {total} 条</span>,
+    }],
+  });
 
   return (
-    <div className="space-y-4">
-      <FinanceFilters
-        companyFilter={companyFilter}
-        yearFilter={yearFilter}
-        monthFilter={monthFilter}
-        pageSize={pageSize}
-        onCompanyChange={(v) => { setCompanyFilter(v); setPage(1); }}
-        onYearChange={(v) => { setYearFilter(v); setPage(1); }}
-        onMonthChange={(v) => { setMonthFilter(v); setPage(1); }}
-        onPageSizeChange={(v) => { setPageSize(v); setPage(1); }}
-      />
-      <div className="flex justify-end">
-        <span className="text-xs text-gray-400">共 {total} 条</span>
-      </div>
-
-      <DataSurface
-        kind="table"
-        framed
-        className="overflow-hidden"
-        bodyClassName="overflow-x-auto"
-        rows={balances}
-        columns={columns}
-        visibleColumns={columns.map((column) => column.key)}
-        loading={loading}
-        emptyText="暂无余额数据，请先录入凭证并计算余额"
-        rowKey={(balance) => balance.id}
-        pagination={{ page, totalPages, total, onPageChange: setPage }}
-      />
-
-      <FinanceBalanceReconcile showToast={feedback.notify} />
-    </div>
+    <PageSurface
+      kind="list"
+      navigation={navigation}
+      toolbar={{ items: toolbarItems }}
+      body={{
+        layout: "single",
+        blocks: [
+          ...lifecycleBlocks,
+          {
+            kind: "data",
+            key: "balances",
+            surface: {
+              kind: "table",
+              framed: true,
+              className: "overflow-hidden",
+              bodyClassName: "overflow-x-auto",
+              rows: balances,
+              columns,
+              visibleColumns: columns.map((column) => column.key),
+              loading,
+              emptyText: "暂无余额数据，请先录入凭证并计算余额",
+              rowKey: (balance: Balance) => balance.id,
+            },
+          },
+        ],
+        content: <FinanceBalanceReconcile showToast={feedback.notify} />,
+      }}
+      footer={{ pagination: { page, totalPages, total, onPageChange: setPage } }}
+    />
   );
 }

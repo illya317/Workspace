@@ -1,17 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { PageSurface } from "@workspace/core/ui";
 import LineConfigTab from "./LineConfigTab";
 import UnmappedTab from "./UnmappedTab";
 import BalanceCheckTab from "./BalanceCheckTab";
 import { StatementConfigProvider, useStatementConfig } from "./StatementConfigContext";
-import { FormSurface, NavigationSurface, type SurfaceToolbarItems } from "@workspace/core/ui";
+import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
-import { getPageViewTabs } from "@workspace/platform/view-registry";
+import type { SessionUser } from "@workspace/platform/types";
+import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 
-const tabs = getPageViewTabs("/finance/statement-config");
-
-function SharedFilters() {
+function useStatementConfigToolbarItems() {
   const { company, setCompany, year, setYear, availablePairs, loading } = useStatementConfig();
   const years = [...new Set(availablePairs.map((p) => p.year))].sort((a, b) => b - a).map(String);
   const companyOptions = useCompanyOptions();
@@ -52,28 +52,48 @@ function SharedFilters() {
     },
   ];
 
-  return <FormSurface kind="filters" toolbar={{ items: toolbarItems }} />;
+  return toolbarItems;
 }
 
-function TabContent() {
-  const [activeTab, setActiveTab] = useState("lines");
+function TabContent({ user }: { user: SessionUser }) {
+  const activeChildTabs = useMemo(() => getFinancePageViewTabs("statementConfig", user), [user]);
+  const [activeChild, setActiveChild] = useState(activeChildTabs[0]?.key ?? "lines");
+  useEffect(() => {
+    setActiveChild(activeChildTabs[0]?.key ?? "lines");
+  }, [activeChildTabs]);
+  const activeTab = activeChild;
+  const navigation = activeChildTabs.length > 1 ? {
+    kind: "tabs" as const,
+    level: 2 as const,
+    items: activeChildTabs,
+    active: activeChild,
+    onChange: setActiveChild,
+  } : undefined;
+  const lifecycleBlocks = getFinanceLifecycleBlocks("statementConfig");
+  const toolbarItems = useStatementConfigToolbarItems();
   return (
-    <div className="space-y-4">
-      <NavigationSurface kind="tabs" tabs={{ tabs, active: activeTab, onChange: setActiveTab }} />
-      <SharedFilters />
-      <div>
-        {activeTab === "lines" && <LineConfigTab />}
-        {activeTab === "unmapped" && <UnmappedTab />}
-        {activeTab === "balance" && <BalanceCheckTab />}
-      </div>
-    </div>
+    <PageSurface
+      kind="list"
+      navigation={navigation}
+      toolbar={{ items: toolbarItems }}
+      body={{
+        blocks: lifecycleBlocks,
+        content: (
+          <div>
+            {activeTab === "lines" && <LineConfigTab />}
+            {activeTab === "unmapped" && <UnmappedTab />}
+            {activeTab === "balance" && <BalanceCheckTab />}
+          </div>
+        ),
+      }}
+    />
   );
 }
 
-export default function StatementConfigClient() {
+export default function StatementConfigClient({ user }: { user: SessionUser }) {
   return (
     <StatementConfigProvider>
-      <TabContent />
+      <TabContent user={user} />
     </StatementConfigProvider>
   );
 }

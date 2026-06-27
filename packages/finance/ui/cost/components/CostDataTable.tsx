@@ -1,6 +1,6 @@
 "use client";
 
-import { DataSurface, type DataSurfaceCellSpec, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, type DataSurfaceCellSpec, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { SourceTraceInfo } from "../types";
 export type CostRecord = Record<string, unknown>;
 export type CostColumn = DataSurfaceColumnSpec<CostRecord>;
@@ -58,20 +58,44 @@ export default function CostDataTable({
   onPageChange,
   rowKey = row => String(row.id)
 }: CostDataTableProps) {
-  return <div className="space-y-4">
-      {loading && <p className="text-sm text-gray-500">加载中…</p>}
-      {error && <p className="text-sm text-red-500">{error}</p>}
-
-      <DataSurface
-        kind="table"
-        framed
-        bodyClassName="overflow-x-auto"
-        rows={rows}
-        columns={columns}
-        visibleColumns={columns.map(column => column.key)}
-        rowKey={rowKey}
-        emptyText="暂无数据"
-        pagination={{ page, total: pagination.total, totalPages: pagination.totalPages, onPageChange, className: "flex items-center justify-between text-sm", compact: true }}
-      />
-    </div>;
+  return (
+    <PageSurface
+      kind="list"
+      embedded
+      body={{
+        layout: "single",
+        blocks: [
+          ...(loading ? [{
+            kind: "message" as const,
+            key: "loading",
+            content: "加载中…",
+            tone: "muted" as const,
+            className: "text-sm text-gray-500",
+          }] : []),
+          ...(error ? [{
+            kind: "message" as const,
+            key: "error",
+            content: error,
+            tone: "danger" as const,
+            className: "text-sm text-red-500",
+          }] : []),
+          {
+            kind: "data",
+            key: "cost-table",
+            surface: {
+              kind: "table",
+              framed: true,
+              bodyClassName: "overflow-x-auto",
+              rows,
+              columns,
+              visibleColumns: columns.map(column => column.key),
+              rowKey,
+              emptyText: "暂无数据",
+            },
+          },
+        ],
+      }}
+      footer={{ pagination: { page, total: pagination.total, totalPages: pagination.totalPages, onPageChange, className: "flex items-center justify-between text-sm", compact: true } }}
+    />
+  );
 }

@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useRef, useMemo } from "react";
-import { DataSurface, useFeedback } from "@workspace/core/ui";
+import { PageSurface, useFeedback } from "@workspace/core/ui";
 import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { RuleCandidate } from "@workspace/finance/types";
@@ -288,27 +288,40 @@ export default function ReclassCandidateList({
   // ── Render ───────────────────────────────────────────
   if (loading) return <p className="py-8 text-center text-sm text-gray-400">扫描中...</p>;
   if (allAccounts.length === 0) return <p className="py-8 text-center text-sm text-gray-400">该年度无科目数据</p>;
-  return <DataSurface
-      kind="table"
-      framed
-      className="overflow-hidden"
-      bodyClassName="overflow-x-auto"
-      rows={paged}
-      columns={columns}
-      visibleColumns={columns.map(column => column.key)}
-      rowKey={candidate => candidate.accountCode + "::" + candidate.abnormalSide}
-      density="compact"
-      rowActions={canWrite ? (candidate) => {
-        if (candidate.existingRuleId) {
-          return [{ key: "clear", kind: "delete", label: "清除规则", onClick: () => void clearRule(candidate) }];
-        }
-        if (candidate.suggestedTarget) {
-          return [{ key: "confirm", kind: "save", label: "确认", onClick: () => void saveRule(candidate, candidate.suggestedTarget).then(saved => {
-            if (saved) feedback.success("已确认规则");
-          }) }];
-        }
-        return [{ key: "adjust", kind: "edit", label: "调整", onClick: () => startEdit(candidate) }];
-      } : undefined}
-      pagination={{ page, totalPages, total: filtered.length, onPageChange: setPage }}
-    />;
+  return (
+    <PageSurface
+      kind="list"
+      embedded
+      body={{
+        layout: "single",
+        blocks: [{
+          kind: "data",
+          key: "reclass-candidates",
+          surface: {
+            kind: "table",
+            framed: true,
+            className: "overflow-hidden",
+            bodyClassName: "overflow-x-auto",
+            rows: paged,
+            columns,
+            visibleColumns: columns.map(column => column.key),
+            rowKey: candidate => candidate.accountCode + "::" + candidate.abnormalSide,
+            density: "compact",
+            rowActions: canWrite ? (candidate) => {
+              if (candidate.existingRuleId) {
+                return [{ key: "clear", kind: "delete", label: "清除规则", onClick: () => void clearRule(candidate) }];
+              }
+              if (candidate.suggestedTarget) {
+                return [{ key: "confirm", kind: "save", label: "确认", onClick: () => void saveRule(candidate, candidate.suggestedTarget).then(saved => {
+                  if (saved) feedback.success("已确认规则");
+                }) }];
+              }
+              return [{ key: "adjust", kind: "edit", label: "调整", onClick: () => startEdit(candidate) }];
+            } : undefined,
+          },
+        }],
+      }}
+      footer={{ pagination: { page, totalPages, total: filtered.length, onPageChange: setPage } }}
+    />
+  );
 }

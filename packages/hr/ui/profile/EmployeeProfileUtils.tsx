@@ -1,13 +1,20 @@
 "use client";
 
 import { ProfileFieldInput } from "./ProfileFormControls";
-import { FieldRegion } from "./EmployeeProfileFieldRegion";
 import type { ContractRow, EdpRow, ProfileField } from "@workspace/hr/types";
 import type { ReferenceOption } from "@workspace/core/ui";
 
 export type EditableRecord = Record<string, unknown> & { id?: number; isNew?: boolean };
 export type RowBase = { id?: number; isNew?: boolean };
-export { FieldRegion } from "./EmployeeProfileFieldRegion";
+export { FieldRegion, fieldRegionBlock } from "./EmployeeProfileFieldRegion";
+export {
+  emptyFormBlock,
+  fieldGridBlock,
+  fieldGridItems,
+  groupedFieldBlocks,
+  groupedFieldGrid,
+  profileFieldSpec,
+} from "./EmployeeProfileFieldSpecs";
 
 export function toInputDate(value: unknown) {
   if (!value) return null;
@@ -148,23 +155,6 @@ export function fieldGrid(
           </div>
         );
       })}
-    </div>
-  );
-}
-
-export function groupedFieldGrid(
-  groups: Array<{ title: string; fields: ProfileField[] }>,
-  record: EditableRecord,
-  disabled: boolean,
-  onChange: (key: string, value: unknown, option?: ReferenceOption) => void,
-) {
-  return (
-    <div className="space-y-4">
-      {groups.map((group) => (
-        <FieldRegion key={group.title} title={group.title}>
-          {fieldGrid(group.fields, record, disabled, onChange, undefined, "grid-cols-3")}
-        </FieldRegion>
-      ))}
     </div>
   );
 }

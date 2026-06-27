@@ -4,28 +4,21 @@ import { useState } from "react";
 import {
   PageSurface,
   type DataSurfaceColumnSpec,
+  type PageSurfaceBlockSpec,
 } from "@workspace/core/ui";
 import type { EDP, Employee, Employment } from "./useAnalyticsData";
 import type { DimKey } from "./employee/constants";
-import { DIM_COLORS, DIM_LABELS, featureList } from "./employee/constants";
+import { DIM_LABELS, featureList } from "./employee/constants";
 import { useEmployeeData } from "./employee/useEmployeeData";
-import CrossMatrix from "./employee/CrossMatrix";
+import { createCrossMatrixBlock } from "./employee/CrossMatrix";
 
-function DistributionBar({ label, count, total, color = "bg-emerald-500" }: { label: string; count: number; total: number; color?: string }) {
-  const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-  return (
-    <div className="flex items-center gap-3 py-1">
-      <span className="w-24 shrink-0 text-xs text-gray-600 truncate">{label}</span>
-      <div className="flex-1 h-5 bg-gray-100 rounded overflow-hidden">
-        <div className={`h-full ${color} rounded transition-all`} style={{ width: `${pct}%` }} />
-      </div>
-      <span className="w-10 text-right text-xs text-gray-700 font-medium">{count}</span>
-      <span className="w-10 text-right text-xs text-gray-400">{pct}%</span>
-    </div>
-  );
-}
+type DistributionRow = {
+  label: string;
+  count: number;
+  percent: string;
+};
 
-export default function EmployeeAnalytics({ employees, employments, edps }: { employees: Employee[]; employments: Employment[]; edps: EDP[] }) {
+export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { employees: Employee[]; employments: Employment[]; edps: EDP[] }): PageSurfaceBlockSpec[] {
   const [feature, setFeature] = useState<DimKey>("gender");
   const [crossRow, setCrossRow] = useState<DimKey>("company");
   const [crossCol, setCrossCol] = useState<DimKey>("gender");
@@ -47,11 +40,18 @@ export default function EmployeeAnalytics({ employees, employments, edps }: { em
     if (feature in stats.distributions) return (stats.distributions as Record<DimKey, [string, number][]>)[feature] || [];
     return [];
   }
+  const distributionRows: DistributionRow[] = currentDist().map(([label, count]) => ({
+    label,
+    count,
+    percent: `${stats.active > 0 ? Math.round((count / stats.active) * 100) : 0}%`,
+  }));
+  const distributionColumns: DataSurfaceColumnSpec<DistributionRow>[] = [
+    { key: "label", label: DIM_LABELS[feature], required: true, cellClassName: "font-medium text-slate-700", cell: (row) => row.label },
+    { key: "count", label: "人数", required: true, cellClassName: "text-right font-medium text-slate-700", cell: (row) => row.count },
+    { key: "percent", label: "占比", required: true, cellClassName: "text-right text-slate-500", cell: (row) => row.percent },
+  ];
 
-  return (
-    <PageSurface
-      kind="analysis"
-      blocks={[
+  return [
         {
           kind: "data",
           key: "stats",
@@ -84,28 +84,28 @@ export default function EmployeeAnalytics({ employees, employments, edps }: { em
             ],
           },
           blocks: [{
-            kind: "moduleView",
+            kind: "data",
             key: "distribution-bars",
-            view: currentDist().map(([k, v]) => (
-              <DistributionBar key={k} label={k} count={v} total={stats.active} color={DIM_COLORS[feature] || "bg-emerald-400"} />
-            )),
+            surface: {
+              kind: "table",
+              rows: distributionRows,
+              columns: distributionColumns,
+              visibleColumns: distributionColumns.map((column) => column.key),
+              rowKey: (row) => row.label,
+              density: "compact",
+              emptyText: "暂无数据",
+            },
           }],
         },
-        {
-          kind: "moduleView",
-          key: "cross-matrix",
-          view: (
-            <CrossMatrix
-              crossMatrix={crossMatrix}
-              crossRow={crossRow}
-              crossCol={crossCol}
-              statsActive={stats.active}
-              featureList={featureList}
-              setCrossRow={setCrossRow}
-              setCrossCol={setCrossCol}
-            />
-          ),
-        },
+        createCrossMatrixBlock({
+          crossMatrix,
+          crossRow,
+          crossCol,
+          statsActive: stats.active,
+          featureList,
+          setCrossRow,
+          setCrossCol,
+        }),
         {
           kind: "surfaceGroup",
           key: "recent",
@@ -147,7 +147,9 @@ export default function EmployeeAnalytics({ employees, employments, edps }: { em
             },
           ],
         },
-      ]}
-    />
-  );
+      ];
+}
+
+export default function EmployeeAnalytics(props: { employees: Employee[]; employments: Employment[]; edps: EDP[] }) {
+  return <PageSurface kind="analysis" blocks={useEmployeeAnalyticsBlocks(props)} />;
 }

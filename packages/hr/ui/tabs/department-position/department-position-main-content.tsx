@@ -1,15 +1,16 @@
 "use client";
 
-import { FormSurface } from "@workspace/core/ui";
+import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
+import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 import { DepartmentPositionActiveWorkspace } from "./active-workspace";
-import { DepartmentPositionDetailArea } from "./department-position-detail-area";
+import { useDepartmentPositionDetailBlocks } from "./department-position-detail-area";
 import { buildDepartmentPositionToolbarItems } from "./department-position-toolbar-items";
 import type { Department } from "./types";
 
 export function DepartmentPositionMainContent({
   treeOpen,
   treeDrawerOpen,
-  renderTreePanel,
+  treePanelBlocks,
   createPanel,
   departments,
   departmentById,
@@ -22,13 +23,14 @@ export function DepartmentPositionMainContent({
   onCreatePanelChange,
   onCollapseAll,
   onLoadData,
-  renderDetailPane,
+  detailBlocks,
   onSideOpenChange,
   onDrawerOpenChange,
+  surface,
 }: {
   treeOpen: boolean;
   treeDrawerOpen: boolean;
-  renderTreePanel: (mode: "desktop" | "drawer") => React.ReactNode;
+  treePanelBlocks: (mode: "desktop" | "drawer") => PageSurfaceBlockSpec[];
   createPanel: "department" | "position" | null;
   departments: Department[];
   departmentById: Map<number, Department>;
@@ -41,9 +43,10 @@ export function DepartmentPositionMainContent({
   onCreatePanelChange: (panel: "department" | "position" | null) => void;
   onCollapseAll: (collapsed: boolean) => void;
   onLoadData: () => Promise<void>;
-  renderDetailPane: () => React.ReactNode;
+  detailBlocks: PageSurfaceBlockSpec[];
   onSideOpenChange: (open: boolean) => void;
   onDrawerOpenChange: (open: boolean) => void;
+  surface?: RosterSurfaceNavigationProps;
 }) {
   const toolbarItems = buildDepartmentPositionToolbarItems({
     canEdit,
@@ -57,32 +60,29 @@ export function DepartmentPositionMainContent({
     onSearchChange,
     onCollapseAll,
   });
+  const workspaceBlocks = useDepartmentPositionDetailBlocks({
+    createPanel,
+    departments,
+    departmentById,
+    canEdit,
+    onCancel: () => onCreatePanelChange(null),
+    onCreated: async () => {
+      onCreatePanelChange(null);
+      await onLoadData();
+    },
+    detailBlocks,
+  });
 
   return (
-    <>
-      {toolbarItems.length > 0 && (
-        <FormSurface kind="inline" toolbar={{ variant: "bar", items: toolbarItems }} className="mb-3" />
-      )}
-      <DepartmentPositionActiveWorkspace
-        sideOpen={treeOpen}
-        drawerOpen={treeDrawerOpen}
-        onSideOpenChange={onSideOpenChange}
-        onDrawerOpenChange={onDrawerOpenChange}
-        renderSide={renderTreePanel}
-      >
-        <DepartmentPositionDetailArea
-          createPanel={createPanel}
-          departments={departments}
-          departmentById={departmentById}
-          canEdit={canEdit}
-          onCancel={() => onCreatePanelChange(null)}
-          onCreated={async () => {
-            onCreatePanelChange(null);
-            await onLoadData();
-          }}
-          renderDetailPane={renderDetailPane}
-        />
-      </DepartmentPositionActiveWorkspace>
-    </>
+    <DepartmentPositionActiveWorkspace
+      sideOpen={treeOpen}
+      drawerOpen={treeDrawerOpen}
+      onSideOpenChange={onSideOpenChange}
+      onDrawerOpenChange={onDrawerOpenChange}
+      sideBlocks={treePanelBlocks}
+      blocks={workspaceBlocks}
+      toolbarItems={toolbarItems}
+      surface={surface}
+    />
   );
 }

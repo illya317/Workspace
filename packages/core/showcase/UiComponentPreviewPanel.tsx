@@ -4,8 +4,6 @@ import {
   coreUiComponentKindMeta,
   coreUiComponentOwnerL1Meta,
   coreUiComponentOwnerL2Meta,
-  coreUiComponentPublicUseMeta,
-  coreUiComponentRoleMeta,
   coreUiFrameMaturityMeta,
   type CoreUiComponentRegistration,
 } from "@workspace/core/ui/component-registry";
@@ -47,6 +45,20 @@ function PreviewBlock({
       )}
     </div>
   );
+}
+
+function exposureLabel(component: CoreUiComponentRegistration) {
+  const exposure = component.agentExposure;
+  if (exposure?.mode === "direct") return "调用";
+  if (exposure?.mode === "via") return "封装";
+  return "内部";
+}
+
+function exposureTitle(component: CoreUiComponentRegistration) {
+  const exposure = component.agentExposure;
+  if (exposure?.mode === "direct") return "可直接调用";
+  if (exposure?.mode === "via") return `${exposure.entry}.${exposure.path}`;
+  return "内部实现";
 }
 
 export function UiComponentPreviewPanel({
@@ -97,22 +109,12 @@ export function UiComponentPreviewPanel({
               {coreUiComponentOwnerL2Meta[component.ownerL2].label}
             </span>
           )}
-          {component.role && (
-            <span
-              className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700"
-              title={coreUiComponentRoleMeta[component.role].description}
-            >
-              {coreUiComponentRoleMeta[component.role].label}
-            </span>
-          )}
-          {component.publicUse && (
-            <span
-              className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600"
-              title={coreUiComponentPublicUseMeta[component.publicUse].description}
-            >
-              {coreUiComponentPublicUseMeta[component.publicUse].label}
-            </span>
-          )}
+          <span
+            className="rounded-full bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700"
+            title={exposureTitle(component)}
+          >
+            {exposureLabel(component)}
+          </span>
           {isPageFrame && component.frameMaturity && (
             <span
               className={joinClassNames(

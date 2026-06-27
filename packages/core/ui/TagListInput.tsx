@@ -5,7 +5,7 @@ import RemovableTag from "./RemovableTag";
 import TagInputShell from "./TagInputShell";
 import TagPill from "./TagPill";
 import { joinClassNames } from "./card-utils";
-import type { ConfirmOptions } from "./ConfirmProvider";
+import type { ConfirmOptions } from "./FeedbackProvider";
 
 export interface TagListInputItemContext<T> {
   item: T;
@@ -24,6 +24,7 @@ export interface TagListInputProps<T> {
   emptyText?: ReactNode;
   /** @deprecated 请使用 removeConfirmMessage */
   confirmMessage?: (item: T, index: number) => ConfirmOptions["message"];
+  confirmDelete?: (options?: Partial<ConfirmOptions>) => Promise<boolean>;
   /** @deprecated 请使用 confirmRemove */
   confirm?: boolean;
   confirmOptions?: Partial<ConfirmOptions>;
@@ -50,6 +51,7 @@ export default function TagListInput<T>({
   disabled = false,
   emptyText,
   confirmMessage,
+  confirmDelete,
   confirm = true,
   confirmOptions,
   confirmRemove,
@@ -126,6 +128,7 @@ export default function TagListInput<T>({
                   title={title}
                   disabled={disabled}
                   confirm={removeConfirm}
+                  confirmDelete={confirmDelete}
                   confirmMessage={message}
                   confirmOptions={{ title: removeConfirmTitle, ...confirmOptions }}
                   maxLength={maxLength}

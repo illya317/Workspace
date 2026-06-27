@@ -2,7 +2,7 @@
 
 import type { MouseEvent } from "react";
 import { joinClassNames } from "./card-utils";
-import { useConfirmDelete, type ConfirmOptions } from "./ConfirmProvider";
+import type { ConfirmOptions } from "./FeedbackProvider";
 
 export interface TagRemoveButtonProps {
   label: string;
@@ -10,6 +10,7 @@ export interface TagRemoveButtonProps {
   onClick?: () => void | Promise<void>;
   disabled?: boolean;
   confirm?: boolean;
+  confirmDelete?: (options?: Partial<ConfirmOptions>) => Promise<boolean>;
   confirmOptions?: Partial<ConfirmOptions>;
   confirmMessage?: ConfirmOptions["message"];
   title?: string;
@@ -22,18 +23,17 @@ export default function TagRemoveButton({
   onClick,
   disabled = false,
   confirm = true,
+  confirmDelete,
   confirmOptions,
   confirmMessage,
   title,
   className = "",
 }: TagRemoveButtonProps) {
-  const confirmDelete = useConfirmDelete();
-
   async function handleClick(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
     event.stopPropagation();
     if (disabled) return;
-    if (confirm) {
+    if (confirm && confirmDelete) {
       const confirmed = await confirmDelete({
         message: confirmMessage ?? `确定${label}吗？此操作不可撤销。`,
         ...confirmOptions,

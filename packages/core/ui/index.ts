@@ -21,6 +21,7 @@ export type {
   FormSurfaceInputControlSpec,
   FormSurfaceItemSpec,
   FormSurfaceKind,
+  FormSurfaceLooseItem,
   FormSurfaceLoginProps,
   FormSurfaceNoteSpec,
   FormSurfaceProps,
@@ -73,11 +74,8 @@ export type {
 } from "./PageSurface";
 
 export type { ConfirmModalProps } from "./ConfirmModal";
-export { default as ConfirmProvider, useConfirm, useConfirmDelete } from "./ConfirmProvider";
-export type { ConfirmContextValue, ConfirmOptions } from "./ConfirmProvider";
 export { default as FeedbackProvider, useFeedback } from "./FeedbackProvider";
-export type { FeedbackApi, FeedbackHookOptions, FeedbackToastState, FeedbackToastType } from "./FeedbackProvider";
-export { useUnsavedChangesPrompt } from "./useUnsavedChangesPrompt";
+export type { ConfirmOptions, FeedbackApi, FeedbackHookOptions, FeedbackToastState, FeedbackToastType } from "./FeedbackProvider";
 export { default as DetailModal } from "./DetailModal";
 export type { DetailModalProps } from "./DetailModal";
 export { default as DisclosureRecordCard } from "./DisclosureRecordCard";
@@ -148,6 +146,7 @@ export type {
   InputOption,
   InputOptionGroup,
   InputOptions,
+  InputSegmentedCodeConfig,
   InputState,
   InputValidation,
   InputValueType,

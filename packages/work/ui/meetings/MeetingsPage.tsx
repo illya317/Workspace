@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { PageSurface, useFeedback } from "@workspace/core/ui";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
-import { MeetingDetailPanel } from "./MeetingDetailPanel";
+import { useMeetingDetailBlock } from "./MeetingDetailPanel";
 import { meetingCreateFields } from "./meeting-create-fields";
 import type { ActionDraft, CreateMeetingDraft, MeetingDetail, MeetingSummary, MeetingType } from "./meeting-types";
 import { emptyMeetingDraft, formatDateTime, parseIdList, requestJson } from "./meeting-utils";
@@ -66,6 +66,27 @@ export default function MeetingsPage({
   const [actionDrafts, setActionDrafts] = useState<Record<number, ActionDraft>>({});
 
   const filteredMeetings = useMemo(() => typeFilter === "all" ? meetings : meetings.filter(item => String(item.typeId) === typeFilter), [meetings, typeFilter]);
+  const meetingDetailBlock = useMeetingDetailBlock({
+    meeting: meeting ?? emptyMeetingDetail(),
+    saving,
+    user,
+    actionDrafts,
+    participantDraft,
+    agendaDraft,
+    minuteDraft,
+    proposalDraft,
+    decisionDraft,
+    candidateDraft,
+    onUpdate: (body, success) => void handleUpdateMeeting(body, success),
+    onMutate: mutate,
+    onActionDraftsChange: setActionDrafts,
+    onParticipantDraftChange: setParticipantDraft,
+    onAgendaDraftChange: setAgendaDraft,
+    onMinuteDraftChange: setMinuteDraft,
+    onProposalDraftChange: setProposalDraft,
+    onDecisionDraftChange: setDecisionDraft,
+    onCandidateDraftChange: setCandidateDraft,
+  });
 
   const loadMeetings = useCallback(async () => {
     setLoading(true);
@@ -240,6 +261,7 @@ export default function MeetingsPage({
   return (
     <PageSurface
       kind="list"
+      toolbar={{ items: toolbarItems }}
       blocks={[
         {
           kind: "panel",
@@ -267,14 +289,6 @@ export default function MeetingsPage({
                 ],
               },
             }] : []),
-            {
-              kind: "form",
-              key: "meeting-toolbar",
-              surface: {
-                kind: "inline",
-                toolbar: { items: toolbarItems },
-              },
-            },
             {
               kind: "surfaceGroup",
               key: "meeting-body",
@@ -308,33 +322,7 @@ export default function MeetingsPage({
                   },
                 },
                 meeting
-                  ? {
-                      kind: "moduleView",
-                      key: "meeting-detail",
-                      view: (
-                        <MeetingDetailPanel
-                          meeting={meeting}
-                          saving={saving}
-                          user={user}
-                          actionDrafts={actionDrafts}
-                          participantDraft={participantDraft}
-                          agendaDraft={agendaDraft}
-                          minuteDraft={minuteDraft}
-                          proposalDraft={proposalDraft}
-                          decisionDraft={decisionDraft}
-                          candidateDraft={candidateDraft}
-                          onUpdate={(body, success) => void handleUpdateMeeting(body, success)}
-                          onMutate={mutate}
-                          onActionDraftsChange={setActionDrafts}
-                          onParticipantDraftChange={setParticipantDraft}
-                          onAgendaDraftChange={setAgendaDraft}
-                          onMinuteDraftChange={setMinuteDraft}
-                          onProposalDraftChange={setProposalDraft}
-                          onDecisionDraftChange={setDecisionDraft}
-                          onCandidateDraftChange={setCandidateDraft}
-                        />
-                      ),
-                    }
+                  ? meetingDetailBlock
                   : {
                       kind: "message",
                       key: "meeting-empty",
@@ -348,4 +336,48 @@ export default function MeetingsPage({
       ]}
     />
   );
+}
+
+function emptyMeetingDetail(): MeetingDetail {
+  return {
+    id: 0,
+    typeId: 0,
+    typeName: "",
+    title: "",
+    description: "",
+    startAt: null,
+    endAt: null,
+    location: "",
+    visibility: "participants_only",
+    status: "",
+    ownerUserId: null,
+    ownerName: null,
+    secretaryUserId: null,
+    secretaryName: null,
+    participantCount: 0,
+    counts: {
+      agendaItems: 0,
+      minuteEntries: 0,
+      proposals: 0,
+      decisions: 0,
+      actionCandidates: 0,
+    },
+    participants: [],
+    permissions: {
+      canView: false,
+      canEdit: false,
+      canManage: false,
+      canDelete: false,
+      canVote: false,
+      canViewAll: false,
+      participantRole: null,
+    },
+    seriesId: null,
+    seriesTitle: null,
+    agendaItems: [],
+    minuteEntries: [],
+    proposals: [],
+    decisions: [],
+    actionCandidates: [],
+  };
 }

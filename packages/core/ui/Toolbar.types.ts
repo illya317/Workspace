@@ -149,6 +149,35 @@ export interface ToolbarTextItem extends ToolbarItemBase {
   content: ReactNode;
 }
 
+export interface ToolbarMenuTriggerSpec {
+  label: string;
+  avatarUrl?: string | null;
+  initials?: string;
+  ariaLabel?: string;
+  className?: string;
+}
+
+export interface ToolbarMenuActionItem {
+  key: string;
+  label: string;
+  tone?: "default" | "danger";
+  href?: string;
+  onSelect?: () => void | Promise<void>;
+  disabled?: boolean;
+  separatorBefore?: boolean;
+}
+
+export interface ToolbarMenuItem extends ToolbarItemBase {
+  kind: "menu";
+  key: string;
+  trigger: ToolbarMenuTriggerSpec;
+  items: ToolbarMenuActionItem[];
+  align?: "left" | "right";
+  disabled?: boolean;
+  className?: string;
+  menuClassName?: string;
+}
+
 export interface ToolbarActionGroupAction {
   key?: string;
   label: string;
@@ -202,6 +231,7 @@ export type ToolbarItem =
   | ToolbarPageSizeItem
   | ToolbarPeriodItem
   | ToolbarTextItem
+  | ToolbarMenuItem
   | ToolbarActionGroupItem
   | ToolbarEditGroupItem
   | ToolbarCreateItem;

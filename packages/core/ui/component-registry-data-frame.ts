@@ -3,7 +3,8 @@ import type { CoreUiComponentRegistration } from "./component-registry-types";
 export const page_frame_registry_entries = [
   {
     name: "AnalysisPageFrame",
-    accessLayer: "page-frame",
+    accessLayer: "core-internal",
+    uiLevel: 3,
     frameMaturity: "tbc",
     kind: "layout",
     description: "分析页骨架",
@@ -12,7 +13,8 @@ export const page_frame_registry_entries = [
   },
   {
     name: "DatabasePageFrame",
-    accessLayer: "page-frame",
+    accessLayer: "core-internal",
+    uiLevel: 3,
     frameMaturity: "tbc",
     kind: "layout",
     description: "数据库页骨架",
@@ -21,7 +23,8 @@ export const page_frame_registry_entries = [
   },
   {
     name: "ModuleGridPage",
-    accessLayer: "page-frame",
+    accessLayer: "core-internal",
+    uiLevel: 3,
     frameMaturity: "tbc",
     kind: "layout",
     description: "模块入口页骨架",
@@ -30,7 +33,8 @@ export const page_frame_registry_entries = [
   },
   {
     name: "TemplateWorkbenchFrame",
-    accessLayer: "page-frame",
+    accessLayer: "core-internal",
+    uiLevel: 3,
     frameMaturity: "tbc",
     kind: "layout",
     description: "模板工作台骨架",
@@ -40,7 +44,8 @@ export const page_frame_registry_entries = [
   },
   {
     name: "page-style-preview",
-    accessLayer: "page-frame",
+    accessLayer: "core-internal",
+    uiLevel: 3,
     frameMaturity: "internal-only",
     kind: "layout",
     description: "页面样式预览",
@@ -48,7 +53,8 @@ export const page_frame_registry_entries = [
   },
   {
     name: "WorkspaceSplitPage",
-    accessLayer: "page-frame",
+    accessLayer: "core-internal",
+    uiLevel: 3,
     frameMaturity: "tbc",
     kind: "layout",
     description: "主从分栏页面",

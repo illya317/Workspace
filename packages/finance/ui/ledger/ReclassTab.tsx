@@ -2,8 +2,9 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
-import { DataSurface, FormSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
-import FinanceFilters from "../components/FinanceFilters";
+import { DataSurface, PageSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import type { PageSurfaceBlockSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { useCSV } from "@workspace/core/hooks";
 import { formatFinanceAmount } from "../formatters";
 interface ReclassEntry {
@@ -16,7 +17,13 @@ interface ReclassEntry {
   netAmount: number;
   reason: string;
 }
-export default function ReclassTab() {
+export default function ReclassTab({
+  navigation,
+  lifecycleBlocks = [],
+}: {
+  navigation?: PageSurfaceNavigationSpec;
+  lifecycleBlocks?: PageSurfaceBlockSpec[];
+}) {
   const [companyFilter, setCompanyFilter] = useState("02");
   const [yearFilter, setYearFilter] = useState("2025");
   const [monthFilter, setMonthFilter] = useState("12");
@@ -83,13 +90,39 @@ export default function ReclassTab() {
     cell: entry => <span title={entry.reason}>{entry.reason}</span>
   }];
   const exportCSV = useCSV(`重分类_${companyFilter}_${yearFilter}${monthFilter}.csv`, "科目编码,科目名称,方向,借方余额,贷方余额,净额,说明\n", () => entries.map(e => `"${e.accountCode}","${e.accountName}","${sideLabel(e.fromSide)}",${e.closingDebit},${e.closingCredit},${Math.abs(e.netAmount)},"${e.reason}"`).join("\n"));
-  return <div className="space-y-4">
-      <FinanceFilters companyFilter={companyFilter} yearFilter={yearFilter} monthFilter={monthFilter} onCompanyChange={setCompanyFilter} onYearChange={setYearFilter} onMonthChange={setMonthFilter} showPageSize={false} />
-      <div className="flex flex-wrap items-center gap-3">
-        <FormSurface kind="inline" actions={[{ key: "export", label: "导出CSV", onClick: exportCSV, disabled: entries.length === 0 }]} />
-        <span className="text-xs text-gray-400">{entries.length} 项</span>
-      </div>
-
-      {loading ? <p className="p-8 text-center text-gray-500">加载中...</p> : entries.length === 0 ? <DataSurface kind="records" records={[]} empty="未发现需重分类的科目" /> : <DataSurface kind="table" framed className="overflow-hidden" bodyClassName="overflow-x-auto" rows={entries} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={entry => entry.accountCode} />}
-    </div>;
+  const extraToolbarItems: SurfaceToolbarItems = [
+    {
+      kind: "action-group",
+      key: "reclass-export",
+      section: "action",
+      actions: [{ key: "export", kind: "download", label: "导出CSV", onClick: exportCSV, disabled: entries.length === 0 }],
+    },
+    {
+      kind: "text",
+      key: "reclass-count",
+      section: "meta",
+      content: <span className="text-xs text-gray-400">{entries.length} 项</span>,
+    },
+  ];
+  const toolbarItems = useFinanceFilterToolbarItems({
+    companyFilter,
+    yearFilter,
+    monthFilter,
+    onCompanyChange: setCompanyFilter,
+    onYearChange: setYearFilter,
+    onMonthChange: setMonthFilter,
+    showPageSize: false,
+    extraItems: extraToolbarItems,
+  });
+  return (
+    <PageSurface
+      kind="list"
+      navigation={navigation}
+      toolbar={{ items: toolbarItems }}
+      body={{
+        blocks: lifecycleBlocks,
+        content: loading ? <p className="p-8 text-center text-gray-500">加载中...</p> : entries.length === 0 ? <DataSurface kind="records" records={[]} empty="未发现需重分类的科目" /> : <DataSurface kind="table" framed className="overflow-hidden" bodyClassName="overflow-x-auto" rows={entries} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={entry => entry.accountCode} />,
+      }}
+    />
+  );
 }

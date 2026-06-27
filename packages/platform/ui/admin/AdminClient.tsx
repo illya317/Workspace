@@ -68,16 +68,6 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     }
   }
 
-  if (loading) {
-    return (
-      <PageSurface
-        kind="settings"
-        contentClassName="py-8"
-        empty={{ content: "加载中..." }}
-      />
-    );
-  }
-
   const tabs = [
     ...(isSuperAdmin ? [{ key: "users" as const, label: "用户账号" }] : []),
     { key: "permissions" as const, label: "权限管理" },
@@ -155,11 +145,12 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   return (
     <PageSurface
       kind="settings"
-      tabs={tabs}
-      activeTab={activeTab}
-      onTabChange={(k) => setActiveTab(k as typeof activeTab)}
+      tabs={loading ? undefined : tabs}
+      activeTab={loading ? undefined : activeTab}
+      onTabChange={loading ? undefined : (k) => setActiveTab(k as typeof activeTab)}
       contentClassName="py-8"
-      blocks={blocks}
+      empty={loading ? { content: "加载中..." } : undefined}
+      blocks={loading ? undefined : blocks}
     />
   );
 }

@@ -4,9 +4,8 @@ import type { ChoiceGroupProps } from "./ChoiceGroup";
 import type { FieldGridCellProps, FieldGridMode } from "./FieldGrid";
 import type { FileFieldProps } from "./FileField";
 import type { HiddenDataFieldProps } from "./HiddenDataField";
-import type { InputControlProps } from "./InputControl";
+import type { InputControlProps, InputSegmentedCodeConfig } from "./InputControl";
 import type { ReadOnlyFieldProps } from "./ReadOnlyField";
-import type { SegmentedCodeInputProps } from "./SegmentedCodeInput";
 import type { SelectFieldProps } from "./SelectField";
 import type { TagListInputProps } from "./TagListInput";
 import type { TextareaFieldProps } from "./TextareaField";
@@ -41,7 +40,13 @@ export type FormSurfaceChoiceControlSpec = ChoiceGroupProps & { kind: "choice" }
 export type FormSurfaceSelectControlSpec = SelectFieldProps & { kind: "select" };
 export type FormSurfaceFileControlSpec = FileFieldProps & { kind: "file" };
 export type FormSurfaceHiddenControlSpec = HiddenDataFieldProps & { kind: "hidden" };
-export type FormSurfaceSegmentedCodeControlSpec = SegmentedCodeInputProps & { kind: "segmentedCode" };
+export type FormSurfaceSegmentedCodeInputProps = Omit<InputControlProps, "spec" | "value" | "onChange"> & {
+  value: string;
+  editableSegment: InputSegmentedCodeConfig;
+  disabled?: boolean;
+  onChange: (fullCode: string) => void;
+};
+export type FormSurfaceSegmentedCodeControlSpec = FormSurfaceSegmentedCodeInputProps & { kind: "segmentedCode" };
 
 export type FormSurfaceControlSpec =
   | FormSurfaceInputControlSpec
@@ -79,7 +84,7 @@ export interface FormSurfaceReadOnlyFieldSpec extends Omit<ReadOnlyFieldProps, "
   fieldClassName?: string;
 }
 
-export interface FormSurfaceSegmentedCodeFieldSpec extends Omit<SegmentedCodeInputProps, "value" | "onChange"> {
+export interface FormSurfaceSegmentedCodeFieldSpec extends Omit<FormSurfaceSegmentedCodeInputProps, "value" | "onChange"> {
   kind: "segmentedCode";
   key: string;
   label: ReactNode;

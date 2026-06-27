@@ -11,6 +11,7 @@ import SearchInput from "./SearchInput";
 import SearchableOptionInput from "./SearchableOptionInput";
 import SelectField from "./SelectField";
 import { ToolbarPeriodControl } from "./ToolbarPeriodControl";
+import { renderToolbarMenu, resolveToolbarOptionGroupPresentation } from "./Toolbar.menu";
 import ToolbarOptionGroup from "./ToolbarOptionGroup";
 import type { ToolbarItem } from "./Toolbar.types";
 import { joinClassNames } from "./card-utils";
@@ -167,7 +168,7 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
           onChange={item.onChange}
           ariaLabel={item.ariaLabel}
           size={size}
-          presentation={item.presentation ?? "accordion"}
+          presentation={resolveToolbarOptionGroupPresentation(item)}
           defaultExpanded={item.defaultExpanded}
         />
       );
@@ -247,6 +248,8 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
           {item.content}
         </span>
       );
+    case "menu":
+      return renderToolbarMenu(item, size);
     case "create":
       return (
         <CreateStartButton

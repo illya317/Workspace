@@ -26,6 +26,7 @@ export const ACTION_GLYPH_KINDS = [
   "link",
   "unlink",
   "settings",
+  "reclass",
   "generate",
   "print",
   "lock",
@@ -67,7 +68,7 @@ export const ACTION_GLYPH_GROUPS = [
   { key: "transfer", label: "传输归档", representative: "download", kinds: ["download", "upload", "archive", "restore"] },
   { key: "relation", label: "关联复制", representative: "link", kinds: ["link", "unlink", "copy"] },
   { key: "system", label: "系统权限", representative: "settings", kinds: ["settings", "lock", "unlock"] },
-  { key: "output", label: "生成打印", representative: "generate", kinds: ["generate", "print"] },
+  { key: "output", label: "生成打印", representative: "generate", kinds: ["generate", "print", "reclass"] },
   { key: "more", label: "更多", representative: "more", kinds: ["more"] },
 ] as const satisfies readonly ActionGlyphGroup[];
 
@@ -131,6 +132,7 @@ export const ACTION_GLYPH_ORDER = [
   { icon: "settings", group: "extended", subgroup: "system", order: 32000 },
   { icon: "lock", group: "extended", subgroup: "system", order: 32100 },
   { icon: "unlock", group: "extended", subgroup: "system", order: 32200 },
+  { icon: "reclass", group: "extended", subgroup: "output", order: 32900 },
   { icon: "generate", group: "extended", subgroup: "output", order: 33000 },
   { icon: "print", group: "extended", subgroup: "output", order: 33100 },
   { icon: "more", group: "extended", subgroup: "more", order: 34000 },
@@ -331,6 +333,16 @@ export function ActionGlyph({ kind, className = "h-5 w-5" }: ActionGlyphProps) {
         <path d="M14.5 4.5 13 8l-3.5 1.5L13 11l1.5 3.5L16 11l3.5-1.5L16 8z" />
         <path d="M6.5 13.5 5.7 15.3 4 16l1.7.7.8 1.8.8-1.8L9 16l-1.7-.7z" />
         <path d="M7.5 3.5 7 4.7 5.8 5.2 7 5.7l.5 1.2.5-1.2 1.2-.5L8 4.7z" />
+      </svg>
+    );
+  }
+  if (kind === "reclass") {
+    return (
+      <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="square" strokeLinejoin="miter" strokeWidth={1.7} viewBox="0 0 24 24">
+        <path d="M21 16.0399H17.7707C15.8164 16.0399 13.9845 14.9697 12.8611 13.1716L10.7973 9.86831C9.67384 8.07022 7.84196 7 5.88762 7L3 7" />
+        <path d="M21 7H17.7707C15.8164 7 13.9845 8.18388 12.8611 10.1729L10.7973 13.8271C9.67384 15.8161 7.84196 17 5.88762 17L3 17" />
+        <path d="M19 4L22 7L19 10" />
+        <path d="M19 13L22 16L19 19" />
       </svg>
     );
   }

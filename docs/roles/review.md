@@ -4,13 +4,14 @@ Review 专门负责审查本次交付的架构、边界和风险。Review 不做
 
 ## 先读
 
-- `docs/agent-startup.md`
-- `docs/architecture-governance.md`
-- `docs/level2-agent-execution.md`
-- `docs/reusable-components.md`
-- `docs/core-toolbar.md`
-- `docs/module-boundaries.md`
-- `docs/checks.md`
+- `docs/engineering/agent-startup.md`
+- `docs/OWNERS.md`
+- `docs/engineering/architecture-governance.md`
+- `docs/engineering/level2-agent-execution.md`
+- `docs/engineering/reusable-components.md`
+- `docs/engineering/core-toolbar.md`
+- `docs/engineering/module-boundaries.md`
+- `docs/engineering/checks.md`
 
 ## 审查顺序
 
@@ -20,6 +21,12 @@ Review 专门负责审查本次交付的架构、边界和风险。Review 不做
 4. Findings 优先输出可定位的文件和行号，不做泛泛建议。
 5. 如果 Review agent 参与过本次实现、合并或收口集成，不能再作为最终 Review 背书。
 
+## 文档维护边界
+
+- Review 维护 `docs/roles/review.md` 和未来独立 review checklist / 风险模式文档。
+- Review 不替内容 owner 补业务事实；发现 docs stale 或缺失时，按 `docs/OWNERS.md` 指派给对应 owner。
+- 只有新增可复用的风险模式、bypass 类型或审查步骤时才更新 review 文档；一次性 finding 不写进长期 docs。
+
 ## 必查项
 
 - `npm run arch:gate` 是否通过；失败时定位是 scan、deps、modules、open-api、domain-validation 还是 auth。
@@ -28,8 +35,9 @@ Review 专门负责审查本次交付的架构、边界和风险。Review 不做
 - Core UI 新导出是否登记在 `packages/core/ui/component-registry.ts`，并包含中文 `description`、中文 `example` 和必要 `includes`；同时检查是否只是为了绕 gate 而随手注册，未被真实复用或只服务单个页面的组件应要求收回。
 - 非 Core 包是否新增手写 JSX UI pattern，尤其是 surface、table、form/control、modal overlay、toolbar layout、action button、table scroll shell；若已有 Core/Platform 入口，结论应是不通过，而不是接受“临时写一个”。
 - 新增 UI 是否真实复用现有 Core/Platform 组件；如果只是 showcase 使用、没有业务落地，或业务页仍在手搓同类结构，Review 必须指出。
-- Toolbar 是否遵守 `docs/core-toolbar.md`：不得恢复 `toolbar?: ReactNode`、`kind: "custom"`、页面级手搓 `div.flex` toolbar、业务自排动作分组或非 Core `ActionGlyph` 图标。
+- Toolbar 是否遵守 `docs/engineering/core-toolbar.md`：不得恢复 `toolbar?: ReactNode`、`kind: "custom"`、页面级手搓 `div.flex` toolbar、业务自排动作分组或非 Core `ActionGlyph` 图标。
 - 是否存在可拆除、可合并、可下沉的重复组件：同类 toolbar/filter/picker/table/modal/page frame 如果已有两个以上实现，优先要求合并到现有 Core/Platform 入口，或删除未使用/只 showcase 使用的壳。
+- 按 `docs/OWNERS.md` 检查本次改动是否遗漏必须同步的文档；小改不要求为了形式扩写文档。
 - API route 是否保持认证、权限、Zod 参数校验、调用 package service、返回 DTO；写入是否按 `Zod schema -> domain validator -> service/Prisma` 收口。
 - 业务包之间是否直接 import，业务包是否通过 `@/server/*` 或相对路径绕过边界。
 - baseline、公司硬编码、lint/arch 规则漏洞等周期性清债交给 Hygiene Role；Review 只在本次 diff 直接新增或扩写 baseline 时阻断。

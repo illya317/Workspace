@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface, type SurfaceToolbarItems } from "@workspace/core/ui";
+import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import type { CostFiltersState } from "../types";
 
 interface Props {
@@ -8,7 +8,7 @@ interface Props {
   onChange: (filters: CostFiltersState) => void;
 }
 
-export default function CostFilters({ filters, onChange }: Props) {
+export function useCostFilterToolbarItems({ filters, onChange }: Props) {
   const update = (key: keyof CostFiltersState, value: string | number | undefined) => {
     onChange({ ...filters, [key]: value });
   };
@@ -59,5 +59,10 @@ export default function CostFilters({ filters, onChange }: Props) {
     },
   ];
 
-  return <FormSurface kind="filters" toolbar={{ items }} />;
+  return items;
+}
+
+export default function CostFilters(props: Props) {
+  useCostFilterToolbarItems(props);
+  return null;
 }

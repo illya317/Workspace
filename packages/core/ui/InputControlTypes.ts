@@ -4,6 +4,7 @@ import type { FieldControlSize } from "./FormStyles";
 import type { LifecycleScope } from "./FkFieldInput";
 import type { PickerGroupItem, PickerOption } from "./OptionPickerTypes";
 import type { SearchableOption, SearchableOptionInputProps } from "./SearchableOptionInput";
+import type { TagStringInputProps } from "./TagStringInput";
 import type { TextFieldProps } from "./TextField";
 
 export type InputValueType =
@@ -32,6 +33,7 @@ export type InputEditor =
   | "upload"
   | "filterPanel"
   | "maskedInput"
+  | "segmentedCode"
   | "rating";
 
 export type InputOption = PickerOption & { searchText?: string; subtitle?: string };
@@ -81,10 +83,18 @@ export type InputValidation = {
   pattern?: string;
 };
 
+export interface InputSegmentedCodeConfig {
+  extract: (fullCode: string) => string;
+  compose: (segment: string, fullCode: string) => string;
+  normalize?: (segment: string) => string;
+  placeholder?: string;
+}
+
 export type InputFieldSpec = {
   valueType: InputValueType;
   editor: InputEditor;
   options?: InputOptions;
+  segmentedCode?: InputSegmentedCodeConfig;
   format?: InputFormat;
   mask?: InputMask;
   state?: InputState | InputState[];
@@ -121,6 +131,10 @@ export type InputControlProps = {
   onQueryChange?: (query: string) => void;
   loading?: boolean;
   emptyText?: string;
+  confirmDelete?: TagStringInputProps["confirmDelete"];
+  confirmRemove?: TagStringInputProps["confirmRemove"];
+  removeConfirmMessage?: TagStringInputProps["removeConfirmMessage"];
+  removeConfirmTitle?: TagStringInputProps["removeConfirmTitle"];
   ratingLabel?: string;
   ratingMax?: number;
   showRatingLabel?: boolean;

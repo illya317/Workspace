@@ -1,12 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PageSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, type DataSurfaceColumnSpec, type DataSurfaceVisualTreeNodeSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { matchSearchFields } from "@workspace/platform/search";
-import DeptNode from "./DeptNode";
 import type { Department, EDP } from "./useAnalyticsData";
 
-export default function DepartmentAnalytics({ departments, edps }: { departments: Department[]; edps: EDP[] }) {
+export function useDepartmentAnalyticsBlocks({ departments, edps }: { departments: Department[]; edps: EDP[] }): PageSurfaceBlockSpec[] {
   const [search, setSearch] = useState("");
 
   const activeEdps = useMemo(() => edps.filter((e) => !e.endDate), [edps]);
@@ -49,6 +48,40 @@ export default function DepartmentAnalytics({ departments, edps }: { departments
     }
     return roots;
   }, [departments, search]);
+  const departmentTree = useMemo<DataSurfaceVisualTreeNodeSpec[]>(() => {
+    const departmentsByParent = new Map<number | null, Department[]>();
+    departments.forEach((department) => {
+      const siblings = departmentsByParent.get(department.parentId) ?? [];
+      siblings.push(department);
+      departmentsByParent.set(department.parentId, siblings);
+    });
+    departmentsByParent.forEach((siblings) => siblings.sort((a, b) => a.id - b.id));
+
+    const primaryCountByDepartment = new Map<number, Set<number>>();
+    activeEdps.forEach((edp) => {
+      if (!edp.isPrimary || !edp.departmentId) return;
+      const employeeIds = primaryCountByDepartment.get(edp.departmentId) ?? new Set<number>();
+      employeeIds.add(edp.employeeId);
+      primaryCountByDepartment.set(edp.departmentId, employeeIds);
+    });
+
+    const toTreeNode = (department: Department, level: number): DataSurfaceVisualTreeNodeSpec => {
+      const primaryCount = primaryCountByDepartment.get(department.id)?.size ?? 0;
+      return {
+        key: String(department.id),
+        label: department.name,
+        subtitle: department.managerName ? `负责人: ${department.managerName}` : undefined,
+        level,
+        badges: [
+          ...(department.headcount > 0 ? [{ key: "headcount", label: `编制 ${department.headcount}` }] : []),
+          ...(primaryCount > 0 ? [{ key: "primary", label: `主岗 ${primaryCount}` }] : []),
+        ],
+        children: (departmentsByParent.get(department.id) ?? []).map((child) => toTreeNode(child, level + 1)),
+      };
+    };
+
+    return rootDepts.map((department) => toTreeNode(department, 0));
+  }, [activeEdps, departments, rootDepts]);
   const columns = useMemo<DataSurfaceColumnSpec<(typeof stats.deptWithHeadcount)[number]>[]>(() => [
     { key: "name", label: "部门", required: true, cellClassName: "font-medium", cell: (department) => department.name },
     {
@@ -73,10 +106,7 @@ export default function DepartmentAnalytics({ departments, edps }: { departments
     },
   ], []);
 
-  return (
-    <PageSurface
-      kind="analysis"
-      blocks={[
+  return [
         {
           kind: "data",
           key: "stats",
@@ -102,16 +132,18 @@ export default function DepartmentAnalytics({ departments, edps }: { departments
           },
           bodyClassName: "p-4",
           blocks: [{
-            kind: "moduleView",
+            kind: "data",
             key: "tree",
-            view: (
-              <div className="max-h-[600px] overflow-y-auto pr-2">
-                {rootDepts.map((d) => (
-                  <DeptNode key={d.id} dept={d} allDepts={departments} edps={activeEdps} level={0} />
-                ))}
-                {rootDepts.length === 0 && <p className="text-center text-gray-400 py-8 text-sm">无匹配部门</p>}
-              </div>
-            ),
+            surface: {
+              kind: "visual",
+              wrap: false,
+              visual: {
+                kind: "tree",
+                nodes: departmentTree,
+                emptyText: "无匹配部门",
+                maxHeight: 600,
+              },
+            },
           }],
         },
         {
@@ -130,7 +162,9 @@ export default function DepartmentAnalytics({ departments, edps }: { departments
             },
           }],
         },
-      ]}
-    />
-  );
+      ];
+}
+
+export default function DepartmentAnalytics(props: { departments: Department[]; edps: EDP[] }) {
+  return <PageSurface kind="analysis" blocks={useDepartmentAnalyticsBlocks(props)} />;
 }

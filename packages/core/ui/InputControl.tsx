@@ -9,6 +9,7 @@ import PercentField from "./PercentField";
 import RatingControl from "./RatingControl";
 import ReadOnlyField from "./ReadOnlyField";
 import SearchableOptionInput from "./SearchableOptionInput";
+import SegmentedCodeInput from "./SegmentedCodeInput";
 import SelectField from "./SelectField";
 import SwitchField from "./SwitchField";
 import TagStringInput from "./TagStringInput";
@@ -36,6 +37,7 @@ export type {
   InputOptions,
   InputOptionsMode,
   InputPickerOptions,
+  InputSegmentedCodeConfig,
   InputState,
   InputValidation,
   InputValueType,
@@ -71,6 +73,10 @@ export default function InputControl({
   onQueryChange,
   loading,
   emptyText,
+  confirmDelete,
+  confirmRemove,
+  removeConfirmMessage,
+  removeConfirmTitle,
   ratingLabel,
   ratingMax,
   showRatingLabel,
@@ -82,6 +88,8 @@ export default function InputControl({
   const required = states.has("required") || spec.validation?.required;
   const fieldPlaceholder = placeholder ?? (typeof spec.mask === "object" ? spec.mask.placeholder : undefined);
   const stringValue = normalizeInputControlValue(value);
+  const textType = type ?? (spec.editor === "number" || spec.valueType === "number" ? "number" : "text");
+  const renderTextField = () => <TextField ref={inputRef} type={textType} value={stringValue} disabled={disabled} required={required} autoFocus={autoFocus} min={spec.validation?.min} max={spec.validation?.max} step={step} minLength={minLength} maxLength={maxLength} inputMode={inputMode} placeholder={fieldPlaceholder} onChange={(next) => onChange?.(next)} className={className} size={size} density={density} onKeyDown={onKeyDown} onBlur={onBlur} onFocus={onFocus} />;
 
   if (states.has("readonly")) {
     return (
@@ -146,7 +154,25 @@ export default function InputControl({
         />
       );
     case "tags":
-      return <TagStringInput value={stringValue} disabled={disabled} placeholder={fieldPlaceholder} onChange={(next) => onChange?.(next)} size={size} density={density} className={className} />;
+      return <TagStringInput value={stringValue} disabled={disabled} placeholder={fieldPlaceholder} onChange={(next) => onChange?.(next)} size={size} density={density} className={className} confirmDelete={confirmDelete} confirmRemove={confirmRemove} removeConfirmMessage={removeConfirmMessage} removeConfirmTitle={removeConfirmTitle} />;
+    case "segmentedCode":
+      if (!spec.segmentedCode) return renderTextField();
+      return (
+        <SegmentedCodeInput
+          value={stringValue}
+          editableSegment={{
+            ...spec.segmentedCode,
+            placeholder: fieldPlaceholder ?? spec.segmentedCode.placeholder,
+          }}
+          disabled={disabled}
+          onChange={(next) => onChange?.(next)}
+          className={className}
+          size={size}
+          density={density}
+          onBlur={onBlur}
+          onFocus={onFocus}
+        />
+      );
     case "autocomplete":
       if (spec.options?.source === "remote") {
         return (
@@ -267,29 +293,6 @@ export default function InputControl({
     case "maskedInput":
     case "input":
     default:
-      return (
-        <TextField
-          ref={inputRef}
-          type={type ?? (spec.editor === "number" || spec.valueType === "number" ? "number" : "text")}
-          value={stringValue}
-          disabled={disabled}
-          required={required}
-          autoFocus={autoFocus}
-          min={spec.validation?.min}
-          max={spec.validation?.max}
-          step={step}
-          minLength={minLength}
-          maxLength={maxLength}
-          inputMode={inputMode}
-          placeholder={fieldPlaceholder}
-          onChange={(next) => onChange?.(next)}
-          className={className}
-          size={size}
-          density={density}
-          onKeyDown={onKeyDown}
-          onBlur={onBlur}
-          onFocus={onFocus}
-        />
-      );
+      return renderTextField();
   }
 }

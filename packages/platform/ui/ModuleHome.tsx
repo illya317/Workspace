@@ -54,43 +54,35 @@ export default function ModuleHome({ module, user }: Props) {
   const router = useRouter();
   const children = getSubModules(user, module.key);
 
-  if (children.length === 0) {
-    return (
-      <PageSurface
-        kind="settings"
-        contentClassName="py-10"
-        blocks={[{
-          kind: "section",
-          key: "empty-module",
-          title: module.label,
-          blocks: [{ kind: "empty", key: "empty", content: getEmptyMessage(module.key) }],
-        }]}
-      />
-    );
-  }
-
   return (
     <PageSurface
       kind="settings"
       contentClassName="py-10"
-      blocks={[{
-        kind: "moduleGrid",
-        key: "module-grid",
-        centered: true,
-        title: module.label,
-        items: children.map((child) => {
-          const lifecycleStatus = child.lifecycleStatus || MODULE_LIFECYCLE_BY_RESOURCE[child.resourceKey];
-          return {
-            key: child.key,
-            title: child.label,
-            description: child.desc,
-            icon: subIcons[child.key],
-            color: module.color,
-            onClick: () => router.push(child.href),
-            badge: lifecycleStatus && lifecycleStatus !== "workspace-owned" ? MODULE_LIFECYCLE_LABELS[lifecycleStatus] : undefined,
-          };
-        }),
-      }]}
+      blocks={children.length === 0
+        ? [{
+            kind: "section",
+            key: "empty-module",
+            title: module.label,
+            blocks: [{ kind: "empty", key: "empty", content: getEmptyMessage(module.key) }],
+          }]
+        : [{
+            kind: "moduleGrid",
+            key: "module-grid",
+            centered: true,
+            title: module.label,
+            items: children.map((child) => {
+              const lifecycleStatus = child.lifecycleStatus || MODULE_LIFECYCLE_BY_RESOURCE[child.resourceKey];
+              return {
+                key: child.key,
+                title: child.label,
+                description: child.desc,
+                icon: subIcons[child.key],
+                color: module.color,
+                onClick: () => router.push(child.href),
+                badge: lifecycleStatus && lifecycleStatus !== "workspace-owned" ? MODULE_LIFECYCLE_LABELS[lifecycleStatus] : undefined,
+              };
+            }),
+          }]}
     />
   );
 }

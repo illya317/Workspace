@@ -8,7 +8,14 @@ const ROOT = path.resolve(__dirname, "..", "..");
 
 const REQUIRED_FILES = [
   "AGENTS.md",
-  "docs/architecture-governance.md",
+  "docs/OWNERS.md",
+  "docs/README.md",
+  "docs/engineering/project-overview.md",
+  "docs/generated/README.md",
+  "docs/planning/README.md",
+  "docs/product/README.md",
+  "docs/reference/README.md",
+  "docs/engineering/architecture-governance.md",
 ];
 
 const REQUIRED_README_SECTIONS = [
@@ -21,10 +28,16 @@ const REQUIRED_README_SECTIONS = [
 ];
 
 const REQUIRED_AGENT_SECTIONS = [
-  "## 项目地图",
-  "## 先按角色开工",
-  "## 项目硬规则",
-  "## 检查",
+  "## Start Here",
+  "## Document Map",
+  "## Hard Red Lines",
+];
+
+const REQUIRED_AGENT_PHRASES = [
+  "不要先扫全库",
+  "docs/engineering/project-overview.md",
+  "docs/roles/",
+  "docs/OWNERS.md",
 ];
 
 const API_CAPABILITY_ROOTS = new Set([
@@ -112,6 +125,9 @@ if (fs.existsSync(rel("AGENTS.md"))) {
   const agentRules = readText("AGENTS.md");
   for (const section of REQUIRED_AGENT_SECTIONS) {
     if (!agentRules.includes(section)) fail(`AGENTS.md missing section: ${section}`);
+  }
+  for (const phrase of REQUIRED_AGENT_PHRASES) {
+    if (!agentRules.includes(phrase)) fail(`AGENTS.md missing required entry: ${phrase}`);
   }
 }
 

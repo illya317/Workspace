@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface, type ColumnDef, type SurfaceToolbarItems } from "@workspace/core/ui";
+import type { ColumnDef, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 
 const YEAR_OPTIONS = [2024, 2025, 2026].map((year) => ({
@@ -44,9 +44,10 @@ interface FinanceFiltersProps {
   columns?: ColumnDef[];
   visibleColumns?: string[];
   onColumnsChange?: (visible: string[]) => void;
+  extraItems?: SurfaceToolbarItems;
 }
 
-export default function FinanceFilters({
+export function useFinanceFilterToolbarItems({
   companyFilter = "",
   yearFilter = "",
   monthFilter = "",
@@ -67,6 +68,7 @@ export default function FinanceFilters({
   columns,
   visibleColumns,
   onColumnsChange,
+  extraItems = [],
 }: FinanceFiltersProps) {
   const companyOptions = useCompanyOptions();
 
@@ -162,5 +164,10 @@ export default function FinanceFilters({
     });
   }
 
-  return <FormSurface kind="filters" toolbar={{ items }} />;
+  return [...items, ...extraItems];
+}
+
+export default function FinanceFilters(props: FinanceFiltersProps) {
+  useFinanceFilterToolbarItems(props);
+  return null;
 }

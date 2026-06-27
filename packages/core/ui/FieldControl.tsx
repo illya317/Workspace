@@ -1,10 +1,10 @@
 "use client";
 
 import InputControl, { type InputFieldSpec } from "./InputControl";
+import type { ConfirmOptions } from "./FeedbackProvider";
 import type { FkFieldOption, FkFieldInputProps } from "./FkFieldInput";
 import type { FieldControlSize } from "./FormStyles";
 import type { SelectFieldOption } from "./SelectField";
-import TagStringInput from "./TagStringInput";
 
 export type FieldControlKind = "text" | "readonly" | "fk" | "tags" | "select";
 
@@ -49,6 +49,7 @@ export interface FieldControlProps {
   endpoint?: FkFieldInputProps["endpoint"];
   displayValue?: string;
   className?: string;
+  confirmDelete?: (options?: Partial<ConfirmOptions>) => Promise<boolean>;
   confirmRemove?: boolean;
   removeConfirmMessage?: (item: string) => string;
   removeConfirmTitle?: string;
@@ -90,22 +91,6 @@ function toSpec({
 export default function FieldControl(props: FieldControlProps) {
   const spec = toSpec(props);
   const value = props.kind === "fk" && props.displayValue ? props.displayValue : props.value;
-  if (props.kind === "tags") {
-    return (
-      <TagStringInput
-        value={String(props.value ?? "")}
-        disabled={props.disabled}
-        placeholder={props.placeholder}
-        onChange={(next) => props.onChange?.(next)}
-        className={sanitizeFieldControlClassName(props.className)}
-        confirmRemove={props.confirmRemove}
-        removeConfirmMessage={props.removeConfirmMessage}
-        removeConfirmTitle={props.removeConfirmTitle}
-        size={props.size}
-        density={props.density}
-      />
-    );
-  }
   return (
     <InputControl
       spec={spec}
@@ -113,6 +98,10 @@ export default function FieldControl(props: FieldControlProps) {
       placeholder={props.placeholder}
       onChange={(next, option) => props.onChange?.(String(next ?? ""), option as FkFieldOption | undefined)}
       className={sanitizeFieldControlClassName(props.className)}
+      confirmDelete={props.confirmDelete}
+      confirmRemove={props.confirmRemove}
+      removeConfirmMessage={props.removeConfirmMessage}
+      removeConfirmTitle={props.removeConfirmTitle}
       size={props.size}
       density={props.density}
     />

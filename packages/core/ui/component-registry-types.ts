@@ -20,6 +20,7 @@ export type CoreUiComponentAccessLayer =
 export type CoreUiFrameMaturity = "stable" | "tbc" | "internal-only";
 
 export type CoreUiComponentUiLevel = 1 | 2 | 3 | 4;
+export type CoreUiComponentRefLevel = CoreUiComponentUiLevel;
 
 export type CoreUiComponentOwnerL1 = "page" | "data" | "form" | "common" | "feedback";
 
@@ -47,8 +48,7 @@ export type CoreUiComponentOwnerL2 =
   | "common.overlay"
   | "common.foundation"
   | "feedback.service"
-  | "feedback.renderer"
-  | "feedback.compat";
+  | "feedback.renderer";
 
 export type CoreUiComponentRole =
   | "entry"
@@ -61,8 +61,20 @@ export type CoreUiComponentRole =
 export type CoreUiComponentPublicUse =
   | "business"
   | "core-only"
-  | "showcase-only"
-  | "compat";
+  | "showcase-only";
+
+export type CoreUiAgentExposure =
+  | {
+      mode: "direct";
+    }
+  | {
+      mode: "via";
+      entry: string;
+      path: string;
+    }
+  | {
+      mode: "internal";
+    };
 
 export type CoreUiComponentRegistration = {
   name: string;
@@ -82,15 +94,17 @@ export type CoreUiComponentRegistration = {
   accessLayer: CoreUiComponentAccessLayer;
 
   /**
-   * UI 组件库展示层级。
-   * - L1: 业务 / agent 的公开入口。当前只允许 Surface 与 useFeedback。
-   * - L2: L1 的 kind / variant / spec 能力对应的组合件。
-   * - L3: Core 内部可见组合层，供关系图和迁移阅读。
-   * - L4: Foundation / private impl / 更深实现层，不进入组件库主展示。
+   * 引用层级 / 实现层级。
+   * - L1: 开放根组件。
+   * - L2: L1 直接承接或引用的能力入口。
+   * - L3: L1/L2 内部 renderer。
+   * - L4: Foundation / private impl / 更深实现层。
    *
    * 未填写时按 accessLayer 派生，保留旧 registry 的渐进迁移能力。
    */
   uiLevel?: CoreUiComponentUiLevel;
+  refLevel?: CoreUiComponentRefLevel;
+  agentExposure?: CoreUiAgentExposure;
 
   /**
    * Core UI ownership taxonomy.

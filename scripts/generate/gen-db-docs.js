@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const modelsDir = path.join(__dirname, "..", "..", "prisma", "models");
-const outPath = path.join(__dirname, "..", "..", "docs", "database.md");
+const outPath = path.join(__dirname, "..", "..", "docs", "engineering", "database.md");
 
 const modelFiles = fs.readdirSync(modelsDir).filter((f) => f.endsWith(".prisma"));
 

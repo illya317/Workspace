@@ -1,31 +1,12 @@
 import { ActionGlyph } from "@workspace/core/ui";
 import {
   coreUiComponentKindMeta,
-  coreUiComponentPublicUseMeta,
-  coreUiComponentRoleMeta,
   coreUiFrameMaturityMeta,
 } from "@workspace/core/ui/component-registry";
-import {
-  formatNestDepth,
-  nestDepthBadgeClasses,
-} from "@workspace/core/ui/component-nest-depth";
 import type { CoreUiComponentTreeNode } from "@workspace/core/ui/component-registry-view";
 
 function joinClassNames(...classNames: Array<string | false | null | undefined>) {
   return classNames.filter(Boolean).join(" ");
-}
-
-function VerifiedBadge({ verified }: { verified: boolean }) {
-  return (
-    <span
-      className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
-        verified ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
-      }`}
-      title={verified ? "当前不需要改" : "待进入改造队列"}
-    >
-      {verified ? "无需改造" : "待改造"}
-    </span>
-  );
 }
 
 function FrameMaturityBadge({ maturity }: { maturity?: string }) {
@@ -53,6 +34,70 @@ function buildMeta(node: CoreUiComponentTreeNode, visibleMeta: readonly string[]
   return parts.join(" · ");
 }
 
+function entryLevelBadgeClassName(level?: CoreUiComponentTreeNode["uiLevel"]) {
+  if (level === 1) return "bg-emerald-100 text-emerald-800";
+  if (level === 2) return "bg-sky-100 text-sky-700";
+  if (level === 3) return "bg-amber-100 text-amber-800";
+  return "bg-slate-100 text-slate-600";
+}
+
+function entryLevelName(level?: CoreUiComponentTreeNode["uiLevel"]) {
+  if (level === 1) return "页面";
+  if (level === 2) return "能力";
+  if (level === 3) return "实现";
+  return "无入口";
+}
+
+function entryLevelBadge(
+  node: CoreUiComponentTreeNode,
+  uiLevelByName: ReadonlyMap<string, CoreUiComponentTreeNode["uiLevel"]>,
+) {
+  const exposure = node.component.agentExposure;
+  if (exposure?.mode === "direct") {
+    return {
+      label: `${entryLevelName(node.uiLevel)}入口`,
+      detail: "可直接调用",
+      classes: entryLevelBadgeClassName(node.uiLevel),
+    };
+  }
+  if (exposure?.mode === "via") {
+    const entryLevel = uiLevelByName.get(exposure.entry);
+    return {
+      label: `封到${entryLevelName(entryLevel)}`,
+      detail: `${exposure.entry}.${exposure.path}`,
+      classes: entryLevelBadgeClassName(entryLevel),
+    };
+  }
+  return {
+    label: "无入口",
+    detail: "内部实现",
+    classes: entryLevelBadgeClassName(),
+  };
+}
+
+function exposureBadge(component: CoreUiComponentTreeNode["component"]) {
+  const exposure = component.agentExposure;
+  if (exposure?.mode === "direct") {
+    return {
+      label: "调用",
+      detail: "可直接调用",
+      classes: "bg-emerald-50 text-emerald-700",
+    };
+  }
+  if (exposure?.mode === "via") {
+    return {
+      label: "封装",
+      detail: `${exposure.entry}.${exposure.path}`,
+      classes: "bg-sky-50 text-sky-700",
+    };
+  }
+  return {
+    label: "内部",
+    detail: "内部实现",
+    classes: "bg-slate-50 text-slate-500",
+  };
+}
+
 export function UiComponentTreeComponentRow({
   node,
   selectedName,
@@ -60,6 +105,7 @@ export function UiComponentTreeComponentRow({
   visibleMeta,
   onSelect,
   onToggle,
+  uiLevelByName,
 }: {
   node: CoreUiComponentTreeNode;
   selectedName: string | null;
@@ -67,17 +113,14 @@ export function UiComponentTreeComponentRow({
   visibleMeta: readonly string[];
   onSelect: (name: string) => void;
   onToggle: (name: string) => void;
+  uiLevelByName: ReadonlyMap<string, CoreUiComponentTreeNode["uiLevel"]>;
 }) {
   const expanded = expandedNames.has(node.name);
   const canShowChildren = node.children.length > 0;
   const isFrame = node.accessLayer === "page-frame";
-  const roleLabel = node.component.role
-    ? coreUiComponentRoleMeta[node.component.role].label
-    : "Component";
-  const publicUseLabel = node.component.publicUse
-    ? coreUiComponentPublicUseMeta[node.component.publicUse].label
-    : "Unowned";
   const meta = buildMeta(node, visibleMeta);
+  const entryLevel = entryLevelBadge(node, uiLevelByName);
+  const exposure = exposureBadge(node.component);
 
   return (
     <div
@@ -110,8 +153,11 @@ export function UiComponentTreeComponentRow({
         </span>
         <span className="min-w-0 flex-1">
           <span className="flex min-w-0 items-center gap-2">
-            <span className="shrink-0 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">
-              L3
+            <span
+              className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${entryLevel.classes}`}
+              title={entryLevel.detail}
+            >
+              {entryLevel.label}
             </span>
             <span className={joinClassNames("min-w-0 flex-1 truncate text-sm font-semibold", node.accessLayer === "foundation" ? "text-slate-500" : "text-slate-900")}>
               {node.name}
@@ -120,24 +166,19 @@ export function UiComponentTreeComponentRow({
               kind="verified"
               className={`h-4 w-4 shrink-0 ${node.verified ? "text-emerald-600" : "text-amber-500"}`}
             />
-            <span
-              className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${nestDepthBadgeClasses(node.nestDepth)}`}
-              title={`向下组合最大嵌套 ${node.nestDepth} 层`}
-            >
-              {formatNestDepth(node.nestDepth)}
-            </span>
             {isFrame && <FrameMaturityBadge maturity={node.component.frameMaturity} />}
             <span
-              className="shrink-0 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600"
-              title="L3 组件/角色层"
+              className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${exposure.classes}`}
+              title={exposure.detail}
             >
-              {roleLabel}
+              {exposure.label}
             </span>
-            {visibleMeta.includes("verified") && <VerifiedBadge verified={node.verified} />}
           </span>
-          <span className="mt-0.5 block truncate text-xs text-slate-500">
-            {publicUseLabel}{meta ? ` · ${meta}` : ""}
-          </span>
+          {meta && (
+            <span className="mt-0.5 block truncate text-xs text-slate-500">
+              {meta}
+            </span>
+          )}
         </span>
       </button>
       {expanded && (

@@ -5,6 +5,7 @@ import {
   DataSurface,
   type DataSurfaceColumnSpec,
   type DataTableRowEditActionConfig,
+  type PageSurfaceBlockSpec,
 } from "@workspace/core/ui";
 import { createWorkDraft, getStatusLabel, getWorkItemTypeLabel, getWorkPeriodLabel, getWorkSourceTypeLabel } from "./model";
 import { WorkTaskDetail } from "./WorkTaskDetail";
@@ -16,26 +17,7 @@ type TreeRow = WorkItem & {
   childCount: number;
 };
 
-export default function WorkTaskTable({
-  works,
-  loading,
-  canEdit,
-  saving,
-  detailId,
-  editingId,
-  editDraft,
-  statusFilter,
-  periodFilter,
-  itemTypeFilter,
-  sourceFilter,
-  targetType,
-  onDetail,
-  onEdit,
-  onSave,
-  onCancelEdit,
-  onEditDraftChange,
-  onDelete,
-}: {
+type WorkTaskTableProps = {
   works: WorkItem[];
   loading: boolean;
   canEdit: boolean;
@@ -54,7 +36,30 @@ export default function WorkTaskTable({
   onCancelEdit: () => void;
   onEditDraftChange: (draft: WorkItemDraft) => void;
   onDelete: (work: WorkItem) => void;
-}) {
+};
+
+type WorkTaskTableBlock = Extract<PageSurfaceBlockSpec, { kind: "data" }>;
+
+export function useWorkTaskTableBlock({
+  works,
+  loading,
+  canEdit,
+  saving,
+  detailId,
+  editingId,
+  editDraft,
+  statusFilter,
+  periodFilter,
+  itemTypeFilter,
+  sourceFilter,
+  targetType,
+  onDetail,
+  onEdit,
+  onSave,
+  onCancelEdit,
+  onEditDraftChange,
+  onDelete,
+}: WorkTaskTableProps): WorkTaskTableBlock {
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
   const showOwner = targetType !== "personal";
   const tree = useMemo(
@@ -86,23 +91,29 @@ export default function WorkTaskTable({
   });
 
   if (!loading && tree.rows.length === 0) {
-    return <DataSurface kind="records" records={[]} empty="暂无工作项。可以从上方新增目标、结果或任务。" />;
+    return {
+      kind: "data",
+      key: "task-table",
+      surface: { kind: "records", records: [], empty: "暂无工作项。可以从上方新增目标、结果或任务。" },
+    };
   }
 
-  return (
-    <DataSurface
-      kind="table"
-      rows={tree.rows}
-      columns={columns}
-      visibleColumns={["owner", "kr", "period", "status", "priority", "source"].filter((key) => key !== "owner" || showOwner)}
-      density="compact"
-      loading={loading}
-      emptyText="暂无工作项"
-      rowKey={(work) => work.id}
-      rowClassName={(work) => work.itemType === "objective" ? "bg-slate-50/60" : ""}
-      onRowClick={onDetail}
-      expandedRowKey={detailId}
-      renderExpandedRow={(work) => editDraft && editingId === work.id ? (
+  return {
+    kind: "data",
+    key: "task-table",
+    surface: {
+      kind: "table",
+      rows: tree.rows,
+      columns,
+      visibleColumns: ["owner", "kr", "period", "status", "priority", "source"].filter((key) => key !== "owner" || showOwner),
+      density: "compact",
+      loading,
+      emptyText: "暂无工作项",
+      rowKey: (work) => work.id,
+      rowClassName: (work) => work.itemType === "objective" ? "bg-slate-50/60" : "",
+      onRowClick: onDetail,
+      expandedRowKey: detailId,
+      renderExpandedRow: (work) => editDraft && editingId === work.id ? (
         <WorkTaskForm
           draft={editDraft}
           works={works}
@@ -111,8 +122,8 @@ export default function WorkTaskTable({
           targetType={targetType}
           onChange={onEditDraftChange}
         />
-      ) : <WorkTaskDetail work={work} />}
-      rowEditActions={(work): DataTableRowEditActionConfig<TreeRow> => ({
+      ) : <WorkTaskDetail work={work} />,
+      rowEditActions: (work): DataTableRowEditActionConfig<TreeRow> => ({
         editing: editingId === work.id,
         canEdit,
         canSave: Boolean(editDraft?.content.trim()),
@@ -125,8 +136,8 @@ export default function WorkTaskTable({
         onEdit,
         onSave,
         onCancel: onCancelEdit,
-      })}
-      rowActions={(work) => {
+      }),
+      rowActions: (work) => {
         if (!canEdit || editingId === work.id) return [];
         return [
           {
@@ -137,10 +148,15 @@ export default function WorkTaskTable({
             disabled: saving,
           },
         ];
-      }}
-      scrollClassName="overflow-y-hidden rounded-lg border border-slate-200"
-    />
-  );
+      },
+      scrollClassName: "overflow-y-hidden rounded-lg border border-slate-200",
+    },
+  };
+}
+
+export default function WorkTaskTable(props: WorkTaskTableProps) {
+  const block = useWorkTaskTableBlock(props);
+  return <DataSurface {...block.surface} />;
 }
 
 function createColumns({

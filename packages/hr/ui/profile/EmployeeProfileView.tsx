@@ -15,15 +15,15 @@ import type {
   ProfileField,
 } from "@workspace/hr/types";
 import type { ReferenceOption } from "@workspace/core/ui";
-import { SectionShell } from "./ProfileFormControls";
+import { sectionShellBlock } from "./ProfileFormControls";
 import {
-  EdpSection,
-  EmploymentSection,
-  HistorySection,
+  historySectionBlock,
   type ProfileHistoryEntry,
+  useEdpSectionBlocks,
+  useEmploymentSectionBlocks,
 } from "./EmployeeProfileSections";
 import {
-  groupedFieldGrid,
+  groupedFieldBlocks,
   updateProfileRow,
   type EditableRecord,
 } from "./EmployeeProfileUtils";
@@ -94,11 +94,6 @@ export default function EmployeeProfileView({
   onHistoryRefresh: () => void;
   confirmDelete: (options: { message: string }) => Promise<boolean>;
 }) {
-  if (loading) return <PageSurface kind="detail" empty={{ content: "加载员工资料..." }} />;
-  if (!profile || !employeeDraft) {
-    return <PageSurface kind="detail" empty={{ content: error || "员工资料不存在", compact: true }} />;
-  }
-
   const activeEmploymentIndex = employments.findIndex((row) => row.isActive);
   const activeEmployment = employments[activeEmploymentIndex >= 0 ? activeEmploymentIndex : 0] ?? null;
   const sectionCardClassName = "border-sky-200 bg-sky-100/30 shadow-none";
@@ -136,68 +131,82 @@ export default function EmployeeProfileView({
     onClick: onBack,
   });
 
-  const moduleView = (
-    <>
-      <div>
-        {activeSection === "basic" && (
-          <SectionShell title={null} className={sectionCardClassName}>
-            {groupedFieldGrid(employeeFieldGroups, employeeDraft as unknown as EditableRecord, !canEdit, onEmployeeFieldChange)}
-          </SectionShell>
-        )}
+  const employmentSectionBlocks = useEmploymentSectionBlocks({
+    employment: activeEmployment,
+    canEdit,
+    saving,
+    onChange: (field, value, option) => setEmployments((rows) => changeEmployment(rows, activeEmploymentIndex, field, value, option)),
+    contracts,
+    className: sectionCardClassName,
+    onAddContract,
+    onChangeContract: (index, field, value, option) => setContracts((rows) => changeContract(rows, index, field, value, option)),
+    onDeleteContract: (row, index) => removeRow(row.company, "合同记录", index, setContracts, confirmDelete),
+  });
+  const edpSectionBlocks = useEdpSectionBlocks({
+    rows: edps,
+    canEdit,
+    saving,
+    onAdd: () => {
+      if (!profile) return;
+      setEdps((rows) => [newEdp(profile), ...rows]);
+    },
+    className: sectionCardClassName,
+    onChange: (index, field, value, option) => setEdps((rows) => updateProfileRow(rows, index, field, value, option) as EdpRow[]),
+    onDelete: async (row, index) => {
+      const ok = await confirmDelete({ message: `确定删除这条岗位记录${row.positionName ? `（${row.positionName}）` : ""}吗？` });
+      if (!ok) return;
+      setError(null);
+      setEdps((rows) => {
+        const nextRows = rows.filter((_, i) => i !== index);
+        if (nextRows.length > 0) return nextRows;
+        return profile ? [newEdp(profile)] : [];
+      });
+    },
+  });
+  const historySectionBlocks = [
+    historySectionBlock({
+      entries: historyEntries,
+      loading: historyLoading,
+      expandedId: expandedHistoryId,
+      onToggle: onHistoryToggle,
+      onRefresh: onHistoryRefresh,
+      className: sectionCardClassName,
+    }),
+  ];
 
-        {activeSection === "employment" && (
-          <EmploymentSection
-            employment={activeEmployment}
-            canEdit={canEdit}
-            saving={saving}
-            onChange={(field, value, option) => setEmployments((rows) => changeEmployment(rows, activeEmploymentIndex, field, value, option))}
-            contracts={contracts}
-            className={sectionCardClassName}
-            onAddContract={onAddContract}
-            onChangeContract={(index, field, value, option) => setContracts((rows) => changeContract(rows, index, field, value, option))}
-            onDeleteContract={(row, index) => removeRow(row.company, "合同记录", index, setContracts, confirmDelete)}
-          />
-        )}
+  const ready = !loading && Boolean(profile && employeeDraft);
 
-        {activeSection === "edp" && (
-          <EdpSection
-            rows={edps}
-            canEdit={canEdit}
-            saving={saving}
-            onAdd={() => setEdps((rows) => [newEdp(profile), ...rows])}
-            className={sectionCardClassName}
-            onChange={(index, field, value, option) => setEdps((rows) => updateProfileRow(rows, index, field, value, option) as EdpRow[])}
-            onDelete={async (row, index) => {
-              const ok = await confirmDelete({ message: `确定删除这条岗位记录${row.positionName ? `（${row.positionName}）` : ""}吗？` });
-              if (!ok) return;
-              setError(null);
-              setEdps((rows) => {
-                const nextRows = rows.filter((_, i) => i !== index);
-                return nextRows.length > 0 ? nextRows : [newEdp(profile)];
-              });
-            }}
-          />
-        )}
-
-        {activeSection === "history" && (
-          <HistorySection entries={historyEntries} loading={historyLoading} expandedId={expandedHistoryId} onToggle={onHistoryToggle} onRefresh={onHistoryRefresh} className={sectionCardClassName} />
-        )}
-      </div>
-    </>
-  );
+  const basicSectionBlocks = ready ? [
+    sectionShellBlock({
+      title: null,
+      className: sectionCardClassName,
+      blocks: groupedFieldBlocks(employeeFieldGroups, employeeDraft as unknown as EditableRecord, !canEdit, onEmployeeFieldChange),
+    }),
+  ] : [];
+  const activeSectionBlocks =
+    !ready
+      ? []
+      : activeSection === "basic"
+      ? basicSectionBlocks
+      : activeSection === "employment"
+        ? employmentSectionBlocks
+        : activeSection === "edp"
+          ? edpSectionBlocks
+          : historySectionBlocks;
 
   return (
     <PageSurface
       kind="detail"
-      tabs={profileTabs}
-      activeTab={activeSection}
-      onTabChange={(key) => onSectionChange(key as ProfileSection)}
-      actions={pageActions}
-      blocks={[
+      tabs={ready ? profileTabs : undefined}
+      activeTab={ready ? activeSection : undefined}
+      onTabChange={ready ? (key) => onSectionChange(key as ProfileSection) : undefined}
+      actions={ready ? pageActions : undefined}
+      empty={!ready ? { content: loading ? "加载员工资料..." : error || "员工资料不存在", compact: true } : undefined}
+      blocks={ready ? [
         ...(error ? [{ kind: "message" as const, key: "error", tone: "danger" as const, content: error }] : []),
         ...(message ? [{ kind: "message" as const, key: "message", content: message }] : []),
-        { kind: "moduleView", key: activeSection, view: moduleView },
-      ]}
+        ...activeSectionBlocks,
+      ] : undefined}
     />
   );
 }
