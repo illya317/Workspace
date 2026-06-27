@@ -141,7 +141,7 @@ baseline 是历史债锁，不是白名单。
 
 只有以下情况当前 agent 主动跑 npm 检查：任务包明确要求、用户明确要求、当前 agent 负责收口验证、改动触及共享脚本/CI/package 配置/schema/权限/registry/gate/跨模块 contract，或局部自查无法判断风险。
 
-本地重型检查由项目锁串行执行，避免多个 agent 同时跑 lint、tsc、build。看到 `Waiting for project check lock` 时等待当前检查结束；不要手动绕过锁并行启动同类命令。
+本地重型检查由项目锁串行执行，避免多个 agent 同时跑 lint、tsc、build。看到 `Waiting for project check lock` 时等待当前检查结束；不要手动绕过锁并行启动同类命令。`arch:gate` 的锁层会按代码快照缓存成功结果；代码、arch 脚本、baseline、未跟踪源码和 Core UI 授权状态未变化时，后续请求会直接复用。
 
 收口/集成/提交前验证按角色选择命令，不需要为了小文档改动跑完整 build：
 

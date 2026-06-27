@@ -69,7 +69,7 @@ app/*                         只做 Next route shell
 - 不要每个小改都高频跑完整检查；部署前、一个任务收口、或多文件/大量改动时按风险跑。
 - 小任务默认不跑 npm 检查。只改少量局部 TS/TSX、文案、样式或文档时，先靠阅读 diff、类型引用和相关文件自查收口，并在交付里说明“未跑 npm 检查，等待统一验证”。
 - 多 agent 并行时，普通执行 agent 不主动跑 `lint` / `typecheck` / `arch:gate` / `build`；只有收口/集成/提交前验证的 agent 统一跑，或用户明确要求当前 agent 验证时才跑。
-- 本地重型检查已通过 `scripts/check/with-check-lock.js` 串行限流；看到 `Waiting for project check lock` 就等当前检查结束，不要另开同类 `npm run lint` / `tsc` / `build`。
+- 本地重型检查已通过 `scripts/check/with-check-lock.js` 串行限流；看到 `Waiting for project check lock` 就等当前检查结束，不要另开同类 `npm run lint` / `tsc` / `build`。`arch:gate` 同一代码快照通过后会复用缓存结果，不需要手动重复排队。
 - 收口验证时按风险选择：架构、权限、registry、API、Core/Platform 基建跑 `npm run arch:gate`。
 - 收口验证时按风险选择：普通 TS/TSX 跑 `npm run lint:changed` 和 `npm run typecheck:quick`。
 - 收口验证时按风险选择：文档改动跑 `npm run docs:check`。
