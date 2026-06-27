@@ -3,7 +3,7 @@ import type { FileFieldProps } from "./FileField";
 import type { FieldControlSize } from "./FormStyles";
 import type { LifecycleScope } from "./FkFieldInput";
 import type { PickerGroupItem, PickerOption } from "./OptionPickerTypes";
-import type { SearchableOption } from "./SearchableOptionInput";
+import type { SearchableOption, SearchableOptionInputProps } from "./SearchableOptionInput";
 import type { TextFieldProps } from "./TextField";
 
 export type InputValueType =
@@ -117,6 +117,7 @@ export type InputControlProps = {
   showFileName?: FileFieldProps["showFileName"];
   buttonLabel?: FileFieldProps["buttonLabel"];
   onFilesChange?: FileFieldProps["onFilesChange"];
+  autocompletePresentation?: SearchableOptionInputProps["presentation"];
   onQueryChange?: (query: string) => void;
   loading?: boolean;
   emptyText?: string;

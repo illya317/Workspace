@@ -20,6 +20,7 @@ import { employeePositionFilterInclude, employeePositionMatches } from "./employ
 const EMPLOYEE_ID_PATTERN = /^\d{5}$/;
 const USERNAME_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
 const EMPLOYEE_DIRECTORY_FILTER_FIELDS = new Set(["gender", "education", "positionName", "directDepartmentName"]);
+const EMPLOYEE_DIRECTORY_POSITION_FILTER_FIELDS = new Set(["positionName", "directDepartmentName"]);
 const FAST_DIRECTORY_FILTER_FIELDS = new Set(["gender", "education"]);
 
 function randomUsername() {
@@ -220,6 +221,14 @@ export async function listEmployees(input: {
     );
   }
   if (input.keyword) employees = employees.filter((employee) => matchAnyField(employee, input.keyword, "Employee"));
+  if (input.filterField && input.filterValue && EMPLOYEE_DIRECTORY_POSITION_FILTER_FIELDS.has(input.filterField)) {
+    employees = employees.filter((employee) =>
+      employeePositionMatches(employee.positions, {
+        department: input.filterField === "directDepartmentName" ? input.filterValue : undefined,
+        position: input.filterField === "positionName" ? input.filterValue : undefined,
+      }),
+    );
+  } else
   if (input.filterField && input.filterValue && EMPLOYEE_DIRECTORY_FILTER_FIELDS.has(input.filterField)) {
     employees = employees.filter((employee) => matchText(getEmployeeDirectoryFilterValue(employee as unknown as Record<string, unknown>, input.filterField!), input.filterValue!));
   }

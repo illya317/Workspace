@@ -67,6 +67,7 @@ export default function InputControl({
   showFileName,
   buttonLabel,
   onFilesChange,
+  autocompletePresentation,
   onQueryChange,
   loading,
   emptyText,
@@ -159,6 +160,7 @@ export default function InputControl({
             lifecycleScope={spec.options.lifecycleScope}
             queryParams={spec.options.queryParams}
             visibleCount={spec.options.visibleCount ?? 5}
+            dropdownPresentation={autocompletePresentation}
             onChange={(label: string, option?: FkFieldOption) => {
               const next =
                 spec.options?.source === "remote" && option
@@ -183,6 +185,7 @@ export default function InputControl({
           disabled={disabled}
           placeholder={fieldPlaceholder}
           maxResults={spec.options?.source === "static" || spec.options?.source === "grouped" ? spec.options.visibleCount ?? 5 : 5}
+          presentation={autocompletePresentation}
           onChange={(next, option) => onChange?.(next, option)}
           onQueryChange={onQueryChange}
           loading={loading}
@@ -203,6 +206,7 @@ export default function InputControl({
               disabled={disabled}
               placeholder={fieldPlaceholder}
               maxResults={spec.options.visibleCount ?? 5}
+              presentation={autocompletePresentation}
               onChange={(next, option) => onChange?.(next, option)}
               onQueryChange={onQueryChange}
               loading={loading}

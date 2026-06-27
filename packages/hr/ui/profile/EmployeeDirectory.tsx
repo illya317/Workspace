@@ -6,10 +6,12 @@ import {
   DataSurface,
   FormSurface,
   type DataSurfaceColumnSpec,
+  type FieldValueFilterField,
   type SelectFieldOption,
 } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { buildHRToolbarItems } from "../components/hr-toolbar-items";
+import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../fk-keys";
 import { HR_EDUCATIONS } from "@workspace/hr/constants";
 import { hrCanEdit, type HRUser } from "@workspace/hr/types";
 
@@ -33,11 +35,11 @@ const pageSizeOptions = [20, 50, 100, 200].map((size) => ({
   value: String(size),
   label: `${size}条/页`,
 }));
-const directoryFilterFields = [
+const directoryFilterFields: FieldValueFilterField[] = [
   { value: "gender", label: "性别" },
   { value: "education", label: "学历" },
-  { value: "positionName", label: "岗位" },
-  { value: "directDepartmentName", label: "直属部门" },
+  { value: "positionName", label: "岗位", valueKind: "fk", fkKey: "hr.position", fkReturnField: "name", lifecycleScope: "all", placeholder: "搜索岗位" },
+  { value: "directDepartmentName", label: "直属部门", valueKind: "fk", fkKey: "hr.department", fkReturnField: "name", lifecycleScope: "all", placeholder: "搜索部门" },
 ];
 const directoryFilterValueOptions: Record<string, SelectFieldOption[]> = {
   gender: [
@@ -198,6 +200,7 @@ export default function EmployeeDirectory({
     advancedFilter: {
       fields: directoryFilterFields,
       valueOptions: directoryFilterValueOptions,
+      referenceEndpoint: HR_REFERENCE_OPTIONS_ENDPOINT,
       fieldKey: filterField,
       onFieldKeyChange: (key: string) => {
         setFilterField(key);

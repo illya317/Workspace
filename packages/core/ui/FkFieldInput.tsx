@@ -8,6 +8,7 @@ import {
 } from "./adaptive-control-width";
 import {
   AUTOCOMPLETE_EMPTY_CLASS_NAME,
+  AUTOCOMPLETE_INLINE_LIST_CLASS_NAME,
   AUTOCOMPLETE_LIST_BODY_CLASS_NAME,
   AUTOCOMPLETE_LIST_CLASS_NAME,
   getAutocompleteOptionClassName,
@@ -46,6 +47,7 @@ export interface FkFieldInputProps {
   minChars?: number;
   maxChars?: number;
   visibleCount?: number;
+  dropdownPresentation?: "popover" | "inline";
   className?: string;
 }
 
@@ -98,6 +100,7 @@ export default function FkFieldInput({
   minChars = 12,
   maxChars = 32,
   visibleCount = 5,
+  dropdownPresentation = "popover",
   className,
 }: FkFieldInputProps) {
   const controlSize: ControlSize = size;
@@ -217,7 +220,7 @@ export default function FkFieldInput({
         input
       )}
       {showDropdown && searching && (
-        <div className={AUTOCOMPLETE_LIST_CLASS_NAME}>
+        <div className={dropdownPresentation === "inline" ? AUTOCOMPLETE_INLINE_LIST_CLASS_NAME : AUTOCOMPLETE_LIST_CLASS_NAME}>
           <div className={AUTOCOMPLETE_LIST_BODY_CLASS_NAME}>
           {loading ? (
             <div className={AUTOCOMPLETE_EMPTY_CLASS_NAME}>搜索中...</div>

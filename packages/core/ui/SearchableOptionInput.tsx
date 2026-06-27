@@ -5,6 +5,7 @@ import { matchText } from "../search";
 import { getFieldInputClassName } from "./FormStyles";
 import {
   AUTOCOMPLETE_EMPTY_CLASS_NAME,
+  AUTOCOMPLETE_INLINE_LIST_CLASS_NAME,
   AUTOCOMPLETE_LIST_BODY_CLASS_NAME,
   AUTOCOMPLETE_LIST_CLASS_NAME,
   getAutocompleteOptionClassName,
@@ -20,6 +21,7 @@ export interface SearchableOption {
 export interface SearchableOptionInputProps {
   value: unknown;
   options: SearchableOption[];
+  presentation?: "popover" | "inline";
   disabled?: boolean;
   onChange: (value: string | null, option?: SearchableOption) => void;
   onQueryChange?: (query: string) => void;
@@ -45,6 +47,7 @@ function optionLabel(option: SearchableOption) {
 export default function SearchableOptionInput({
   value,
   options,
+  presentation = "popover",
   disabled,
   onChange,
   onQueryChange,
@@ -68,6 +71,7 @@ export default function SearchableOptionInput({
     [current, options],
   );
   const currentLabel = currentOption ? optionLabel(currentOption) : current;
+  const listVisible = presentation === "inline" || open;
 
   const filteredOptions = useMemo(() => {
     const keyword = query.trim();
@@ -94,7 +98,7 @@ export default function SearchableOptionInput({
   }, [query]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || presentation === "inline") return;
     function onPointerDown(event: PointerEvent) {
       if (!rootRef.current?.contains(event.target as Node)) {
         setOpen(false);
@@ -113,7 +117,7 @@ export default function SearchableOptionInput({
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [currentLabel, open]);
+  }, [currentLabel, open, presentation]);
 
   function choose(option?: SearchableOption | null) {
     onChange(option?.value ?? null, option ?? undefined);
@@ -122,7 +126,7 @@ export default function SearchableOptionInput({
   }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (!open && ["ArrowDown", "Enter"].includes(event.key)) {
+    if (!listVisible && ["ArrowDown", "Enter"].includes(event.key)) {
       setOpen(true);
       return;
     }
@@ -134,7 +138,8 @@ export default function SearchableOptionInput({
       setActiveIndex((index) => Math.max(index - 1, 0));
     } else if (event.key === "Enter") {
       event.preventDefault();
-      choose(filteredOptions[activeIndex]);
+      const activeOption = filteredOptions[activeIndex];
+      if (activeOption) choose(activeOption);
     } else if (event.key === "Tab") {
       const trimmed = query.trim();
       const exact = filteredOptions.find((option) => option.value === trimmed || optionLabel(option) === trimmed);
@@ -178,8 +183,8 @@ export default function SearchableOptionInput({
         )}
       </div>
 
-      {open && !disabled && (
-        <div className={AUTOCOMPLETE_LIST_CLASS_NAME}>
+      {listVisible && !disabled && (
+        <div className={presentation === "inline" ? AUTOCOMPLETE_INLINE_LIST_CLASS_NAME : AUTOCOMPLETE_LIST_CLASS_NAME}>
           <div className={AUTOCOMPLETE_LIST_BODY_CLASS_NAME}>
             {filteredOptions.map((option, index) => {
               const selected = option.value === current;
