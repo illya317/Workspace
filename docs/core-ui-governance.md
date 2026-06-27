@@ -34,7 +34,7 @@ Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页
 - 不新增业务包 `Toolbar`、`Picker`、`Select`、`Search`、`Table`、`Modal`、`DateInput`、`Pagination`、`Tab` 等重复基础 UI。
 - 业务页不得在 Surface spec 中塞 `custom` 渲染自定义控件；例如 toolbar/action spec 禁止 `kind: "custom"`。`custom` 和手搓 UI 没有本质区别，会绕过 Core 的尺寸、字号、排序、对齐、预览和审计规则。
 - 发现现有 Page API 不够用时，先停下来写清缺口；由 Architecture/Core UI 任务补公开接口，再回业务页替换。
-- Platform 系统壳例外独立治理：`AppShell -> PageShell`、`UserMenu -> DropdownMenu` 是 Platform-owned system shell candidates，不是业务 Page API，不进入业务 Surface allowlist。Agent 页面 UI 已停用，仅保留 API / bot 接入能力。
+- Platform runtime 使用 Core UI 时同样只能走 L1 Surface、`useFeedback` / `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent 页面 UI 已停用，仅保留 API / bot 接入能力。
 
 Architecture/Core UI agent：
 
@@ -266,8 +266,9 @@ Private Impl 修改等同于修改所属公开 UI，必须按 Core UI-system 任
 - `npm run arch:gate` 会运行 Core UI guard、registry relation validation、Level 2 ratchet 和 package boundary。
 - `Core Internal` / `Foundation` 业务直引、新增未注册 Core UI、重复 registry、非法 `uiLevel`、L4+ 主展示泄漏、页面设计漂移、重复基础 UI 都必须由 gate 或 baseline ratchet 拦住。
 - 业务 UI 和 `app/(modules)` 只能从 `@workspace/core/ui` runtime 引入 `PageSurface`、`FormSurface`、`DataSurface`、`NavigationSurface`、`useFeedback`；其他 Core UI runtime 直引由 `businessCoreUiSurfaceBypassImports` baseline 锁定，只能减少。
+- Platform UI 只能从 `@workspace/core/ui` runtime 引入 L1 Surface、`useFeedback` / `FeedbackProvider` 和纯非组件事件能力；其他 Core UI runtime 直引由 `platformCoreUiRuntimeBypassImports` baseline 锁定，baseline 必须保持为空，`PageShell` / `DropdownMenu` 不再作为系统壳例外。
 - baseline 只能减少，不能把新增违规写入 baseline。
-- 大规模 UI 迁移前后必须阅读或运行 Core UI governance checks，确认 L1/L2/L3/L4 展示层级、registry 关系和 `businessCoreUiSurfaceBypassImports` baseline 都在收敛；长期迁移按阶段定期复查，而不是等最后一次性补 gate。
+- 大规模 UI 迁移前后必须阅读或运行 Core UI governance checks，确认 L1/L2/L3/L4 展示层级、registry 关系、`businessCoreUiSurfaceBypassImports` 和 `platformCoreUiRuntimeBypassImports` baseline 都在收敛；长期迁移按阶段定期复查，而不是等最后一次性补 gate。
 
 授权方式：
 

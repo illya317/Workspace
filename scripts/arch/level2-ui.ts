@@ -57,6 +57,12 @@ export type BusinessCoreUiTypeBypassImport = {
   specifier: string;
 };
 
+export type PlatformCoreUiRuntimeBypassImport = {
+  file: string;
+  importedName: string;
+  specifier: string;
+};
+
 export type PageDesignDriftFile = {
   file: string;
   signals: string[];
@@ -117,10 +123,22 @@ const CORE_UI_BUSINESS_SURFACE_IMPORT_ALLOWLIST = new Set([
   "PageSurface",
   "useFeedback",
 ]);
+const CORE_UI_PLATFORM_RUNTIME_IMPORT_ALLOWLIST = new Set([
+  "DataSurface",
+  "FeedbackProvider",
+  "FormSurface",
+  "NavigationSurface",
+  "PageSurface",
+  "useFeedback",
+]);
 const CORE_UI_BUSINESS_TYPE_IMPORT_DENYLIST = new Set([
   "DataTableColumn",
   "FkFieldOption",
   "ToolbarItem",
+]);
+const PLATFORM_SYSTEM_SHELL_PAGE_DESIGN_FILES = new Set([
+  "packages/platform/ui/AppShell.tsx",
+  "packages/platform/ui/UserMenu.tsx",
 ]);
 
 const PAGE_DESIGN_INTRINSIC_TAGS = new Set([
@@ -253,6 +271,10 @@ function isBusinessCoreUiTypeScanFile(file: SourceInfo) {
   return /^packages\/[^/]+\/ui\//.test(file.relPath);
 }
 
+function isPlatformUiRuntimeScanFile(file: SourceInfo) {
+  return /\.(ts|tsx)$/.test(file.relPath) && file.relPath.startsWith("packages/platform/ui/");
+}
+
 export function findUnregisteredCoreUiImports(files: SourceInfo[]) {
   const candidates: UnregisteredCoreUiImport[] = [];
 
@@ -365,6 +387,49 @@ export function findBusinessCoreUiTypeBypassImports(files: SourceInfo[]) {
   return candidates.sort((left, right) => `${left.file}:${left.importedName}`.localeCompare(`${right.file}:${right.importedName}`));
 }
 
+export function findPlatformCoreUiRuntimeBypassImports(files: SourceInfo[]) {
+  const candidates: PlatformCoreUiRuntimeBypassImport[] = [];
+
+  for (const file of files) {
+    if (!isPlatformUiRuntimeScanFile(file)) continue;
+
+    for (const statement of file.sourceFile.statements) {
+      if (!ts.isImportDeclaration(statement)) continue;
+      if (!statement.moduleSpecifier || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
+      const specifier = statement.moduleSpecifier.text;
+      if (specifier !== "@workspace/core/ui") continue;
+
+      const importClause = statement.importClause;
+      if (!importClause || importClause.isTypeOnly) continue;
+
+      if (importClause.name) {
+        candidates.push({ file: file.relPath, importedName: importClause.name.text, specifier });
+      }
+
+      const namedBindings = importClause.namedBindings;
+      if (!namedBindings) continue;
+
+      if (ts.isNamespaceImport(namedBindings)) {
+        candidates.push({ file: file.relPath, importedName: namedBindings.name.text, specifier });
+        continue;
+      }
+
+      for (const element of namedBindings.elements) {
+        if (element.isTypeOnly) continue;
+        const importedName = element.propertyName?.text ?? element.name.text;
+        if (
+          !CORE_UI_PLATFORM_RUNTIME_IMPORT_ALLOWLIST.has(importedName) &&
+          !CORE_UI_NON_COMPONENT_EXPORTS.has(importedName)
+        ) {
+          candidates.push({ file: file.relPath, importedName, specifier });
+        }
+      }
+    }
+  }
+
+  return candidates.sort((left, right) => `${left.file}:${left.importedName}`.localeCompare(`${right.file}:${right.importedName}`));
+}
+
 function collectCoreUiValueExports(files: SourceInfo[]) {
   const indexFile = files.find((file) => file.relPath === "packages/core/ui/index.ts");
   if (!indexFile) return [];
@@ -468,6 +533,7 @@ export function findPageDesignDriftFiles(files: SourceInfo[]) {
     if (!file.relPath.startsWith("packages/")) continue;
     if (file.relPath.startsWith("packages/core/")) continue;
     if (!/\/ui\//.test(file.relPath)) continue;
+    if (PLATFORM_SYSTEM_SHELL_PAGE_DESIGN_FILES.has(file.relPath)) continue;
 
     const signals = new Set<string>();
     const visit = (node: ts.Node) => {

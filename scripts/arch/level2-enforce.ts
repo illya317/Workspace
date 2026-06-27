@@ -33,6 +33,7 @@ type Level2Baseline = {
   generatedFilterContractDrift: string[];
   businessCoreUiSurfaceBypassImports: string[];
   businessCoreUiTypeBypassImports: string[];
+  platformCoreUiRuntimeBypassImports: string[];
   repeatedServiceGroups: string[];
   routePrimitiveSchemaDuplicates: string[];
   apiRouteHelperDuplicates: string[];
@@ -98,6 +99,10 @@ function businessCoreUiSurfaceBypassImportKey(candidate: { file: string; importe
 }
 
 function businessCoreUiTypeBypassImportKey(candidate: { file: string; importedName: string; specifier: string }) {
+  return `${candidate.file}: ${candidate.importedName} from ${candidate.specifier}`;
+}
+
+function platformCoreUiRuntimeBypassImportKey(candidate: { file: string; importedName: string; specifier: string }) {
   return `${candidate.file}: ${candidate.importedName} from ${candidate.specifier}`;
 }
 
@@ -207,6 +212,10 @@ export function checkLevel2Ratchet() {
       [
         "businessCoreUiTypeBypassImports",
         report.drift.businessCoreUiTypeBypassImports.map(businessCoreUiTypeBypassImportKey),
+      ],
+      [
+        "platformCoreUiRuntimeBypassImports",
+        report.drift.platformCoreUiRuntimeBypassImports.map(platformCoreUiRuntimeBypassImportKey),
       ],
       [
         "repeatedServiceGroups",

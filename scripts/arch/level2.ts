@@ -24,10 +24,7 @@ import {
   findLegacyRootWithAuthImports,
   findLegacyServiceFiles,
 } from "./level2-legacy";
-import {
-  findHandwrittenSearchMatches,
-  type HandwrittenSearchMatchCandidate,
-} from "./level2-search";
+import { findHandwrittenSearchMatches, type HandwrittenSearchMatchCandidate } from "./level2-search";
 import { countApiContractsByOwner, findAppJsxFiles } from "./level2-report-helpers";
 import {
   findAppHookFiles,
@@ -39,6 +36,7 @@ import {
   findHookPatternCandidates,
   findNativeSearchInputFiles,
   findPageDesignDriftFiles,
+  findPlatformCoreUiRuntimeBypassImports,
   findUiPatternCandidates,
   findUnregisteredCoreUiExports,
   findUnregisteredCoreUiImports,
@@ -49,15 +47,13 @@ import {
   type HookPatternCandidate,
   type NativeSearchInputFile,
   type PageDesignDriftFile,
+  type PlatformCoreUiRuntimeBypassImport,
   type UiPatternCandidate,
   type UnregisteredCoreUiExport,
   type UnregisteredCoreUiImport,
 } from "./level2-ui";
 import { registeredModuleDefinitions } from "../../packages/platform/module-registry";
-type ImportRecord = {
-  kind: "static" | "dynamic";
-  specifier: string;
-};
+type ImportRecord = { kind: "static" | "dynamic"; specifier: string };
 
 type SourceInfo = {
   absPath: string;
@@ -95,11 +91,7 @@ type RoutePrimitiveSchemaCandidate = {
   importsPlatformPrimitive: boolean;
 };
 
-type ApiRouteHelperKind =
-  | "bad-request-response"
-  | "route-id-parser"
-  | "service-response"
-  | "validated-id-proxy";
+type ApiRouteHelperKind = "bad-request-response" | "route-id-parser" | "service-response" | "validated-id-proxy";
 
 type ApiRouteHelperCandidate = {
   file: string;
@@ -162,6 +154,7 @@ type Level2Report = {
     generatedFilterContractDriftFiles: number;
     businessCoreUiSurfaceBypassImports: number;
     businessCoreUiTypeBypassImports: number;
+    platformCoreUiRuntimeBypassImports: number;
   };
   registries: {
     modules: Array<{
@@ -189,6 +182,7 @@ type Level2Report = {
     generatedFilterContractDrift: GeneratedFilterContractDrift[];
     businessCoreUiSurfaceBypassImports: BusinessCoreUiSurfaceBypassImport[];
     businessCoreUiTypeBypassImports: BusinessCoreUiTypeBypassImport[];
+    platformCoreUiRuntimeBypassImports: PlatformCoreUiRuntimeBypassImport[];
   };
   drift: {
     appJsxFiles: string[];
@@ -222,6 +216,7 @@ type Level2Report = {
     generatedFilterContractDrift: GeneratedFilterContractDrift[];
     businessCoreUiSurfaceBypassImports: BusinessCoreUiSurfaceBypassImport[];
     businessCoreUiTypeBypassImports: BusinessCoreUiTypeBypassImport[];
+    platformCoreUiRuntimeBypassImports: PlatformCoreUiRuntimeBypassImport[];
     repeatedServiceGroups: ServicePatternGroup[];
     routePrimitiveSchemaDuplicates: RoutePrimitiveSchemaCandidate[];
     apiRouteHelperDuplicates: ApiRouteHelperCandidate[];
@@ -735,6 +730,7 @@ export function createLevel2Report(): Level2Report {
   const generatedFilterContractDrift = findGeneratedFilterContractDrift(generatedUiSourceFiles);
   const businessCoreUiSurfaceBypassImports = findBusinessCoreUiSurfaceBypassImports(sourceFiles);
   const businessCoreUiTypeBypassImports = findBusinessCoreUiTypeBypassImports(sourceFiles);
+  const platformCoreUiRuntimeBypassImports = findPlatformCoreUiRuntimeBypassImports(sourceFiles);
   const repeatedServiceGroups = findRepeatedServiceGroups(sourceFiles);
   const uncontractedApiRouteMethods = apiRouteMethods.filter((route) => route.contractKey === null);
   const apiRoutesWithDirectPrismaSignal = apiRouteMethods.filter((route) => route.hasDirectPrismaSignal);
@@ -818,6 +814,7 @@ export function createLevel2Report(): Level2Report {
       generatedFilterContractDriftFiles: new Set(generatedFilterContractDrift.map((candidate) => candidate.file)).size,
       businessCoreUiSurfaceBypassImports: businessCoreUiSurfaceBypassImports.length,
       businessCoreUiTypeBypassImports: businessCoreUiTypeBypassImports.length,
+      platformCoreUiRuntimeBypassImports: platformCoreUiRuntimeBypassImports.length,
     },
     registries: {
       modules: registeredModuleDefinitions
@@ -847,6 +844,7 @@ export function createLevel2Report(): Level2Report {
       generatedFilterContractDrift,
       businessCoreUiSurfaceBypassImports,
       businessCoreUiTypeBypassImports,
+      platformCoreUiRuntimeBypassImports,
     },
     drift: {
       appJsxFiles: findAppJsxFiles(sourceFiles),
@@ -880,6 +878,7 @@ export function createLevel2Report(): Level2Report {
       generatedFilterContractDrift,
       businessCoreUiSurfaceBypassImports,
       businessCoreUiTypeBypassImports,
+      platformCoreUiRuntimeBypassImports,
       repeatedServiceGroups,
       routePrimitiveSchemaDuplicates,
       apiRouteHelperDuplicates,

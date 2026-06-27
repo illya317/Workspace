@@ -27,6 +27,7 @@
   "generatedFilterContractDrift": [],
   "businessCoreUiSurfaceBypassImports": [],
   "businessCoreUiTypeBypassImports": [],
+  "platformCoreUiRuntimeBypassImports": [],
   "pageDesignDriftFiles": [],
   "repeatedServiceGroups": [],
   "routePrimitiveSchemaDuplicates": [],
