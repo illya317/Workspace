@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useRef } from "react";
 import { matchSearchFields, matchText } from "@workspace/platform/search";
-import { DataSurface, FormSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { FormSurface, PageSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { ResourceItem } from "../types";
 import { formatSummaryTooltip, ROLE_COLORS, summarizeResourcePermissions, type PermissionGrantLike } from "../lib/permission-summary";
 function copyFallback(text: string) {
@@ -232,7 +232,8 @@ export default function AdminUsersTab({
   }];
   return <div className="space-y-4">
       <FormSurface
-        kind="inline"
+        kind="fields"
+        columns={3}
         fields={[
           {
             key: "keyword",
@@ -278,7 +279,8 @@ export default function AdminUsersTab({
 
       {creating && (
         <FormSurface
-          kind="inline"
+          kind="fields"
+          columns={2}
           className="rounded-md border border-slate-200 p-3"
           fields={[
             {
@@ -317,20 +319,33 @@ export default function AdminUsersTab({
       )}
 
       {loading ? <p className="text-gray-500">加载中...</p> : (
-        <DataSurface
-          kind="table"
-          framed
-          rows={paged}
-          columns={columns}
-          visibleColumns={columns.map(column => column.key)}
-          rowKey={u => u.id}
-          emptyText="暂无用户"
-          pagination={filtered.length > pageSize ? {
-            page: page + 1,
-            totalPages,
-            total: filtered.length,
-            onPageChange: nextPage => setPage(nextPage - 1),
-            className: "flex items-center justify-center gap-3",
+        <PageSurface
+          kind="list"
+          embedded
+          body={{
+            layout: "single",
+            blocks: [{
+              kind: "data",
+              key: "admin-users",
+              surface: {
+                kind: "table",
+                framed: true,
+                rows: paged,
+                columns,
+                visibleColumns: columns.map(column => column.key),
+                rowKey: u => u.id,
+                emptyText: "暂无用户",
+              },
+            }],
+          }}
+          footer={filtered.length > pageSize ? {
+            pagination: {
+              page: page + 1,
+              totalPages,
+              total: filtered.length,
+              onPageChange: nextPage => setPage(nextPage - 1),
+              className: "flex items-center justify-center gap-3",
+            },
           } : undefined}
         />
       )}

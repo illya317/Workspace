@@ -26,12 +26,13 @@ export type {
   FormSurfaceRepeatableItemSpec,
   FormSurfaceRepeatableSpec,
   FormSurfaceSectionSpec,
+  FormSurfaceSegmentedCodeControlSpec,
+  FormSurfaceSegmentedCodeFieldSpec,
   FormSurfaceSelectControlSpec,
   FormSurfaceTagListAppendSpec,
   FormSurfaceTagListFieldSpec,
   FormSurfaceTextareaControlSpec,
   FormSurfaceTextControlSpec,
-  FormSurfaceToolbarSpec,
 } from "./FormSurface.types";
 
 export default function FormSurface<T = FormSurfaceLooseItem>(props: FormSurfaceProps<T>) {

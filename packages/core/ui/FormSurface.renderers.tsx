@@ -5,12 +5,13 @@ import FieldGrid, { type FieldGridMode } from "./FieldGrid";
 import FormField from "./FormField";
 import type { InputControlProps } from "./InputControl";
 import { joinClassNames } from "./card-utils";
-import { renderCommands, renderFieldValue, renderToolbar } from "./FormSurface.controls";
+import { renderCommands, renderFieldValue } from "./FormSurface.controls";
 import type {
   FormSurfaceFieldSpec,
   FormSurfaceFieldModeProps,
   FormSurfaceItemSpec,
   FormSurfaceReadOnlyFieldSpec,
+  FormSurfaceSegmentedCodeFieldSpec,
   FormSurfaceTagListFieldSpec,
 } from "./FormSurface.types";
 
@@ -75,7 +76,7 @@ function renderLoginItem<T>(field: FormSurfaceItemSpec<T>): ReactNode {
   const controlField = {
     ...field,
     className: joinClassNames("w-full", field.className),
-  } as FormSurfaceFieldSpec | FormSurfaceReadOnlyFieldSpec | FormSurfaceTagListFieldSpec<T>;
+  } as FormSurfaceFieldSpec | FormSurfaceReadOnlyFieldSpec | FormSurfaceSegmentedCodeFieldSpec | FormSurfaceTagListFieldSpec<T>;
   return (
     <div key={field.key} className={joinClassNames("col-span-full min-w-0", field.fieldClassName)}>
       <div className="min-w-0 [&>*]:w-full [&_input]:w-full [&_textarea]:w-full">
@@ -110,7 +111,7 @@ function renderRepeatableGridItem<T>(
       ) : (
         <div className="space-y-3">
           {field.items.map((item) => (
-            <div key={item.key} className={joinClassNames("rounded-md border border-slate-200 p-3", item.className)}>
+            <div key={item.key} ref={item.itemRef} className={joinClassNames("rounded-md border border-slate-200 p-3", item.className)}>
               {(item.title || item.subtitle || item.actions?.length) && (
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -173,7 +174,7 @@ function renderInlineRepeatable<T>(field: Extract<FormSurfaceItemSpec<T>, { kind
   return (
     <div className="space-y-2">
       {field.items.map((item) => (
-        <div key={item.key} className={joinClassNames("rounded-md border border-slate-200 p-3", item.className)}>
+        <div key={item.key} ref={item.itemRef} className={joinClassNames("rounded-md border border-slate-200 p-3", item.className)}>
           {(item.title || item.subtitle || item.actions?.length) && (
             <div className="mb-2 flex items-start justify-between gap-3">
               <div className="min-w-0">
@@ -215,7 +216,6 @@ function renderFields<T>(props: FormSurfaceFieldModeProps<T>) {
 export function renderContent<T>(props: FormSurfaceFieldModeProps<T>) {
   return (
     <div className={joinClassNames("space-y-4", props.className)}>
-      {renderToolbar(props.toolbar)}
       {renderFields(props)}
       {renderCommands(props.actions)}
     </div>

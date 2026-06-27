@@ -36,6 +36,11 @@ function PageFrameTabs({
 }
 
 export interface WorkspaceSplitPageProps {
+  tabs?: PageFrameTab[];
+  activeTab?: string;
+  activeChild?: string;
+  onTabChange?: (tab: string) => void;
+  onChildChange?: (child: string) => void;
   sideOpen: boolean;
   drawerOpen: boolean;
   onSideOpenChange: (open: boolean) => void;
@@ -46,6 +51,7 @@ export interface WorkspaceSplitPageProps {
   header?: ReactNode;
   toolbarItems?: ToolbarItem[];
   beforeSplit?: ReactNode;
+  footer?: ReactNode;
   className?: string;
   contentClassName?: string;
   showSideControls?: boolean;
@@ -53,6 +59,11 @@ export interface WorkspaceSplitPageProps {
 }
 
 export function WorkspaceSplitPage({
+  tabs,
+  activeTab,
+  activeChild,
+  onTabChange,
+  onChildChange,
   sideOpen,
   drawerOpen,
   onSideOpenChange,
@@ -63,6 +74,7 @@ export function WorkspaceSplitPage({
   header,
   toolbarItems: providedToolbarItems,
   beforeSplit,
+  footer,
   className = "",
   contentClassName = "",
   showSideControls = true,
@@ -95,6 +107,15 @@ export function WorkspaceSplitPage({
   return (
     <PageContent className={contentClassName}>
       <div className={joinClassNames("space-y-5", className)}>
+        {tabs && activeTab && onTabChange && (
+          <PageFrameTabs
+            tabs={tabs}
+            activeTab={activeTab}
+            activeChild={activeChild}
+            onTabChange={onTabChange}
+            onChildChange={onChildChange}
+          />
+        )}
         {header}
         {toolbarItems.length > 0 && (
           <Toolbar items={toolbarItems} variant="inline" className="w-full justify-start" />
@@ -109,6 +130,7 @@ export function WorkspaceSplitPage({
         >
           {children}
         </SplitWorkspace>
+        {footer}
       </div>
     </PageContent>
   );
@@ -121,7 +143,9 @@ export interface DatabasePageFrameProps {
   onTabChange?: (tab: string) => void;
   onChildChange?: (child: string) => void;
   toolbarItems?: ToolbarItem[];
+  toolbar?: ReactNode;
   summary?: ReactNode;
+  footer?: ReactNode;
   children: ReactNode;
   className?: string;
   contentClassName?: string;
@@ -134,7 +158,9 @@ export function DatabasePageFrame({
   onTabChange,
   onChildChange,
   toolbarItems,
+  toolbar,
   summary,
+  footer,
   children,
   className = "",
   contentClassName = "",
@@ -152,8 +178,9 @@ export function DatabasePageFrame({
           />
         )}
         {summary}
-        {toolbarItems?.length ? <Toolbar items={toolbarItems} /> : null}
+        {toolbar ?? (toolbarItems?.length ? <Toolbar items={toolbarItems} /> : null)}
         {children}
+        {footer}
       </div>
     </PageContent>
   );
@@ -165,7 +192,10 @@ export interface AnalysisPageFrameProps {
   activeChild?: string;
   onTabChange?: (tab: string) => void;
   onChildChange?: (child: string) => void;
+  summary?: ReactNode;
   metrics?: ReactNode;
+  toolbar?: ReactNode;
+  footer?: ReactNode;
   children: ReactNode;
   className?: string;
   contentClassName?: string;
@@ -177,7 +207,10 @@ export function AnalysisPageFrame({
   activeChild,
   onTabChange,
   onChildChange,
+  summary,
   metrics,
+  toolbar,
+  footer,
   children,
   className = "",
   contentClassName = "",
@@ -194,8 +227,11 @@ export function AnalysisPageFrame({
             onChildChange={onChildChange}
           />
         )}
+        {summary}
         {metrics}
+        {toolbar}
         {children}
+        {footer}
       </div>
     </PageContent>
   );

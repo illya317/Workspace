@@ -4,19 +4,14 @@ import type { BadgeProps } from "./Badge";
 import type { DataTableColumn, DataTableProps } from "./DataTable.types";
 import type { DisclosureRecordAction } from "./DisclosureRecordCard";
 import type { NumberCellProps } from "./NumberCell";
-import type { PaginationProps } from "./Pagination";
 import type { SelectionGridProps } from "./SelectionGrid";
 import type { StructuredTableCell, StructuredTableProps } from "./StructuredTable";
 import type { CommandButtonProps } from "./CommandButton";
 import type { InputControlProps } from "./InputControl";
-import type { ToolbarProps } from "./Toolbar";
 
-export type DataSurfaceKind = "table" | "structured" | "records" | "metrics" | "raw";
+export type DataSurfaceKind = "table" | "structured" | "records" | "metrics" | "visual" | "raw";
 export type DataSurfaceLooseRow = ReturnType<typeof JSON.parse>;
-
-export type DataSurfaceToolbarSpec = Omit<ToolbarProps, "items"> & {
-  items: ToolbarProps["items"];
-};
+export type DataSurfaceVisualTone = "blue" | "emerald" | "amber" | "rose" | "slate";
 
 export interface DataSurfaceCommandSpec {
   key: string;
@@ -33,6 +28,7 @@ export interface DataSurfaceCommandSpec {
 export type DataSurfaceDisplaySpec =
   | { kind: "text"; value: ReactNode; className?: string }
   | { kind: "empty"; content?: ReactNode; className?: string }
+  | { kind: "stack"; items: Array<ReactNode | DataSurfaceDisplaySpec>; gap?: "none" | "xs" | "sm"; className?: string }
   | ({ kind: "badge" } & BadgeProps)
   | ({ kind: "number" } & NumberCellProps)
   | ({ kind: "amount" } & AmountCellProps)
@@ -93,22 +89,121 @@ export interface DataSurfaceMetricSpec {
   className?: string;
 }
 
-export interface DataSurfaceRecordSpec {
+export interface DataSurfaceRecordSpec<TDetail = DataSurfaceLooseRow> {
   key: string;
   expanded: boolean;
   onToggle: () => void;
   header: ReactNode | DataSurfaceDisplaySpec;
   summary?: ReactNode | DataSurfaceDisplaySpec;
   detail?: ReactNode | DataSurfaceDisplaySpec;
+  detailSurface?: DataSurfaceProps<TDetail>;
   detailTitle?: ReactNode;
   detailAction?: DisclosureRecordAction;
 }
+
+export interface DataSurfaceVisualLegendSpec {
+  key: string;
+  label: string;
+  tone?: DataSurfaceVisualTone;
+  marker?: "solid" | "reference";
+}
+
+export interface DataSurfaceVisualBarSpec {
+  key: string;
+  label: string;
+  value: number;
+  valueLabel?: string | number;
+  tone?: DataSurfaceVisualTone;
+  title?: string;
+  minPercent?: number;
+}
+
+export interface DataSurfaceVisualBarChartSpec {
+  kind: "barChart";
+  title?: string;
+  bars: DataSurfaceVisualBarSpec[];
+  min?: number;
+  max?: number;
+  height?: number;
+  emptyText?: string;
+  legend?: DataSurfaceVisualLegendSpec[];
+}
+
+export interface DataSurfaceVisualGroupedBarGroupSpec {
+  key: string;
+  label: string;
+  bars: DataSurfaceVisualBarSpec[];
+}
+
+export interface DataSurfaceVisualGroupedBarChartSpec {
+  kind: "groupedBarChart";
+  title?: string;
+  groups: DataSurfaceVisualGroupedBarGroupSpec[];
+  max?: number;
+  height?: number;
+  emptyText?: string;
+  legend?: DataSurfaceVisualLegendSpec[];
+}
+
+export interface DataSurfaceVisualComparisonBarItemSpec {
+  key: string;
+  label: string;
+  actual: number;
+  reference?: number;
+  valueLabel?: string;
+  diffLabel?: string;
+  tone?: DataSurfaceVisualTone;
+  diffTone?: DataSurfaceVisualTone;
+}
+
+export interface DataSurfaceVisualComparisonBarSectionSpec {
+  key: string;
+  title: string;
+  subtitle?: string;
+  tone?: DataSurfaceVisualTone;
+  items: DataSurfaceVisualComparisonBarItemSpec[];
+}
+
+export interface DataSurfaceVisualComparisonBarsSpec {
+  kind: "comparisonBars";
+  sections: DataSurfaceVisualComparisonBarSectionSpec[];
+  max?: number;
+  emptyText?: string;
+  legend?: DataSurfaceVisualLegendSpec[];
+}
+
+export interface DataSurfaceVisualTreeBadgeSpec {
+  key: string;
+  label: string;
+  tone?: DataSurfaceVisualTone;
+}
+
+export interface DataSurfaceVisualTreeNodeSpec {
+  key: string;
+  label: string;
+  subtitle?: string;
+  level?: number;
+  badges?: DataSurfaceVisualTreeBadgeSpec[];
+  children?: DataSurfaceVisualTreeNodeSpec[];
+}
+
+export interface DataSurfaceVisualTreeSpec {
+  kind: "tree";
+  nodes: DataSurfaceVisualTreeNodeSpec[];
+  emptyText?: string;
+  maxHeight?: number;
+}
+
+export type DataSurfaceVisualSpec =
+  | DataSurfaceVisualBarChartSpec
+  | DataSurfaceVisualGroupedBarChartSpec
+  | DataSurfaceVisualComparisonBarsSpec
+  | DataSurfaceVisualTreeSpec;
 
 interface DataSurfaceBaseProps {
   kind: DataSurfaceKind;
   title?: ReactNode;
   subtitle?: ReactNode;
-  toolbar?: DataSurfaceToolbarSpec;
   actions?: DataSurfaceCommandSpec[];
   empty?: ReactNode;
   framed?: boolean;
@@ -122,7 +217,6 @@ export interface DataSurfaceTableProps<T> extends DataSurfaceBaseProps, Omit<Dat
   rows: T[];
   columns: Array<DataTableColumn<T> | DataSurfaceColumnSpec<T>>;
   rowKey: DataTableProps<T>["rowKey"];
-  pagination?: PaginationProps;
   scrollClassName?: string;
 }
 
@@ -132,14 +226,19 @@ export interface DataSurfaceStructuredProps extends DataSurfaceBaseProps, Omit<S
   structuredScroll?: boolean;
 }
 
-export interface DataSurfaceRecordsProps extends DataSurfaceBaseProps {
+export interface DataSurfaceRecordsProps<TDetail = DataSurfaceLooseRow> extends DataSurfaceBaseProps {
   kind: "records";
-  records: DataSurfaceRecordSpec[];
+  records: Array<DataSurfaceRecordSpec<TDetail>>;
 }
 
 export interface DataSurfaceMetricsProps extends DataSurfaceBaseProps {
   kind: "metrics";
   metrics: DataSurfaceMetricSpec[];
+}
+
+export interface DataSurfaceVisualProps extends DataSurfaceBaseProps {
+  kind: "visual";
+  visual: DataSurfaceVisualSpec;
 }
 
 export interface DataSurfaceRawProps extends DataSurfaceBaseProps {
@@ -151,6 +250,7 @@ export interface DataSurfaceRawProps extends DataSurfaceBaseProps {
 export type DataSurfaceProps<T = DataSurfaceLooseRow> =
   | DataSurfaceTableProps<T>
   | DataSurfaceStructuredProps
-  | DataSurfaceRecordsProps
+  | DataSurfaceRecordsProps<T>
   | DataSurfaceMetricsProps
+  | DataSurfaceVisualProps
   | DataSurfaceRawProps;

@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo, useRef } from "react";
 import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
-import { useFeedback } from "@workspace/core/ui";
+import { PageSurface, useFeedback, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import GenericCreatePanel from "../components/GenericCreatePanel";
 import GenericFieldInput from "../components/GenericFieldInput";
 import { buildHRToolbarItems } from "../components/hr-toolbar-items";
@@ -14,6 +14,7 @@ import {
 import { useGenericTab } from "../hooks/useGenericTab";
 import EditableTable, { formatEditableTableCell } from "./EditableTable";
 import { type TabConfig, type FieldConfig, type HRUser, hrCanEdit } from "@workspace/hr/types";
+import type { RosterSurfaceNavigationProps } from "../roster-surface";
 
 const EXPORT_PAGE_SIZE = 500;
 
@@ -32,7 +33,7 @@ function downloadCsv(filename: string, content: string) {
   URL.revokeObjectURL(url);
 }
 
-export default function GenericTableTab({ config, user }: { config: TabConfig; user: HRUser }) {
+export default function GenericTableTab({ config, user, surface }: { config: TabConfig; user: HRUser; surface?: RosterSurfaceNavigationProps }) {
   const canEdit = hrCanEdit(user);
   const {
     items, loading, error, keyword, searchKeyword, setKeyword, filters, setFilter, resetFilters,
@@ -280,8 +281,17 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
       : undefined,
   });
 
-  return (
-    <div className="space-y-4">
+  const pagination = total > 0 ? {
+    total,
+    page,
+    totalPages: Math.ceil(total / pageSize),
+    onPageChange: setPage,
+    className: "mt-4 flex items-center justify-between",
+    compact: true,
+  } : undefined;
+
+  const content = (
+    <>
       {creating && (
         <GenericCreatePanel
           config={config}
@@ -294,18 +304,9 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
 
       <EditableTable
         framed
-        toolbar={{ items: toolbarItems, onSubmit: load }}
         loading={loading}
         emptyText={error ? `加载失败：${error}` : "暂无数据"}
         bodyClassName="overflow-x-auto"
-        pagination={total > 0 ? {
-          total,
-          page,
-          totalPages: Math.ceil(total / pageSize),
-          onPageChange: setPage,
-          className: "mt-4 flex items-center justify-between",
-          compact: true,
-        } : undefined}
         items={items}
         fields={tableFields}
         visibleColumns={visibleColumns}
@@ -330,6 +331,25 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
       />
 
       <AuditLogModal open={showHistory} onClose={() => setShowHistory(false)} entityType={config.entityType} onRestored={load} />
-    </div>
+    </>
+  );
+
+  const blocks: PageSurfaceBlockSpec[] = [{
+    kind: "form",
+    key: "generic-table-content",
+    surface: {
+      kind: "fields",
+      fields: [{ kind: "note", key: "content", className: "p-0", content: <div className="space-y-4">{content}</div> }],
+    },
+  }];
+
+  return (
+    <PageSurface
+      {...surface}
+      kind="list"
+      toolbar={{ items: toolbarItems, onSubmit: load }}
+      blocks={blocks}
+      footer={pagination ? { pagination } : undefined}
+    />
   );
 }

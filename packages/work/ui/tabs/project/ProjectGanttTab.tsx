@@ -1,16 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { DataSurface, FormSurface } from "@workspace/core/ui";
+import { DataSurface, PageSurface } from "@workspace/core/ui";
+import type { PageSurfaceBlockSpec, PageSurfaceProps, SurfaceToolbarItems } from "@workspace/core/ui";
 import type { WorkUser } from "@workspace/work/types";
 import { listProjectGantt } from "./api";
 import ProjectGanttChart from "./ProjectGanttChart";
 import { PROJECT_GANTT_LEVEL_OPTIONS, PROJECT_GANTT_TASK_OPTIONS, PROJECT_GANTT_ZOOM_OPTIONS, buildProjectGanttRows, defaultGanttExpandedKeys, type ProjectGanttData, type ProjectGanttLevelFilter, type ProjectGanttZoom } from "./gantt-model";
 import { periodStart as getPeriodStart, shiftPeriod } from "./gantt-time";
 export default function ProjectGanttTab({
-  user
+  user,
+  surface,
 }: {
   user: WorkUser;
+  surface?: ProjectGanttSurfaceProps;
 }) {
   void user;
   const [data, setData] = useState<ProjectGanttData>({
@@ -66,8 +69,7 @@ export default function ProjectGanttTab({
     setZoom(nextZoom);
     setCurrentStart(current => getPeriodStart(current, nextZoom));
   }
-  return <div className="space-y-4">
-      <FormSurface kind="inline" toolbar={{ items: [{
+  const toolbarItems = [{
       kind: "search",
       key: "search",
       section: "filter",
@@ -113,11 +115,31 @@ export default function ProjectGanttTab({
       key: "meta",
       section: "meta",
       content: `${rows.length} 行`
-    }] }} />
+    }] satisfies SurfaceToolbarItems;
+  const chart = error ? (
+    <DataSurface kind="records" records={[]} empty={error} className="border-red-200 text-red-600" />
+  ) : loading && !hasLoaded ? (
+    <DataSurface kind="records" records={[]} empty="加载公司甘特..." />
+  ) : (
+    <ProjectGanttChart rows={rows} periodStart={currentStart} zoom={zoom} onToggle={toggleExpanded} />
+  );
+  const blocks = [
+    {
+      kind: "form" as const,
+      key: "project-gantt-chart",
+      surface: {
+        kind: "fields" as const,
+        className: "!p-0",
+        bodyClassName: "block",
+        fields: [{ kind: "note" as const, key: "chart", className: "p-0", content: chart }],
+      },
+    },
+  ] satisfies PageSurfaceBlockSpec[];
 
-      {error ? <DataSurface kind="records" records={[]} empty={error} className="border-red-200 text-red-600" /> : loading && !hasLoaded ? <DataSurface kind="records" records={[]} empty="加载公司甘特..." /> : <ProjectGanttChart rows={rows} periodStart={currentStart} zoom={zoom} onToggle={toggleExpanded} />}
-    </div>;
+  return <PageSurface kind="list" {...surface} toolbar={{ items: toolbarItems }} blocks={blocks} />;
 }
+type ProjectGanttSurfaceProps = Pick<PageSurfaceProps, "tabs" | "activeTab" | "activeChild" | "onTabChange" | "onChildChange">;
+
 function periodLabel(start: Date, zoom: ProjectGanttZoom) {
   if (zoom === "year") return `${start.getFullYear()}年`;
   if (zoom === "quarter") return `${start.getFullYear()}年 Q${Math.floor(start.getMonth() / 3) + 1}`;

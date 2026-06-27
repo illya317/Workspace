@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { putJson } from "@workspace/platform/ui/api-client";
 import {
   type DataSurfaceColumnSpec,
@@ -12,6 +12,7 @@ import {
   useFeedback,
 } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
+import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 import { selectedEntityName } from "./detail-editor-primitives";
 import { createDepartmentDescriptionDraft, departmentDescriptionPayload, departmentManagerPositionName, sanitizeDepartmentDescriptionDetails } from "./draft-utils";
 import type { Department, Position } from "./types";
@@ -64,7 +65,7 @@ export function OrganizationModePanel({
   selectedPositionId,
   positions,
   positionsByDepartment,
-  renderSide,
+  sideBlocks,
   sideOpen,
   canEdit,
   onDrawerOpenChange,
@@ -73,7 +74,8 @@ export function OrganizationModePanel({
   onSelectPosition,
   onSideOpenChange,
   onUnsavedChange,
-  onReload
+  onReload,
+  surface,
 }: {
   drawerOpen: boolean;
   error: string | null;
@@ -82,7 +84,7 @@ export function OrganizationModePanel({
   selectedPositionId: number | null;
   positions: Position[];
   positionsByDepartment: Map<number, Position[]>;
-  renderSide: (mode: "desktop" | "drawer") => ReactNode;
+  sideBlocks: (mode: "desktop" | "drawer") => PageSurfaceBlockSpec[];
   sideOpen: boolean;
   canEdit: boolean;
   onDrawerOpenChange: (open: boolean) => void;
@@ -92,6 +94,7 @@ export function OrganizationModePanel({
   onSideOpenChange: (open: boolean) => void;
   onUnsavedChange?: (dirty: boolean) => void;
   onReload: () => Promise<void>;
+  surface?: RosterSurfaceNavigationProps;
 }) {
   const [managerDraft, setManagerDraft] = useState("");
   const [saving, setSaving] = useState(false);
@@ -194,9 +197,54 @@ export function OrganizationModePanel({
     }
   }
   const side: PageSurfaceSideSpec = {
-    blocks: [{ kind: "moduleView", key: "desktop", view: renderSide("desktop") }],
-    drawerBlocks: [{ kind: "moduleView", key: "drawer", view: renderSide("drawer") }],
+    blocks: sideBlocks("desktop"),
+    drawerBlocks: sideBlocks("drawer"),
   };
+  const organizationHeaderDepartment = !loading && !error ? selectedDepartment : undefined;
+  const organizationPanelTitle = organizationHeaderDepartment ? (
+    <div
+      className="min-w-0 whitespace-normal"
+      style={{
+        display: "grid",
+        gridTemplateColumns: "minmax(0,max-content) auto minmax(0,18rem)",
+        alignItems: "center",
+        columnGap: "0.75rem",
+        rowGap: "0.5rem",
+      }}
+    >
+      <button
+        type="button"
+        onClick={() => onOpenDepartmentDetails?.(organizationHeaderDepartment.id)}
+        className="min-w-0 truncate text-left text-lg font-semibold leading-7 text-slate-900 hover:text-sky-700 hover:underline"
+      >
+        {organizationHeaderDepartment.name}
+      </button>
+      <span className="shrink-0 font-mono text-sm text-slate-400">{organizationHeaderDepartment.code}</span>
+      <span className="flex min-w-0 w-72 items-center gap-2">
+        <span className="shrink-0 text-xs font-semibold text-slate-500">负责人</span>
+        <span className="min-w-0 flex-1 text-sm font-normal">
+          <FormSurface
+            kind="control"
+            control={{
+              kind: "inputControl",
+              spec: {
+                valueType: "reference",
+                editor: "autocomplete",
+                state: !canEdit || saving ? "disabled" : "normal",
+                options: { source: "remote", fkKey: "hr.position", endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "name" },
+              },
+              value: managerDraft,
+              displayValue: managerDraft,
+              placeholder: "搜索负责人岗位",
+              onChange: (_label, option) => {
+                setManagerDraft(selectedEntityName("position", option as ReferenceOption | undefined));
+              },
+            }}
+          />
+        </span>
+      </span>
+    </div>
+  ) : undefined;
   const panelBlocks: PageSurfaceBlockSpec[] = [];
 
   if (loading) panelBlocks.push({ kind: "message", key: "loading", content: "加载中...", tone: "muted" });
@@ -205,63 +253,6 @@ export function OrganizationModePanel({
     panelBlocks.push({ kind: "empty", key: "empty", presentation: "plain", content: "请选择左侧部门查看岗位汇报关系" });
   }
   if (!loading && !error && selectedDepartment) {
-    panelBlocks.push({
-      kind: "moduleView",
-      key: "header",
-      view: (
-        <div className="flex min-w-0 flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-4">
-          <div className="min-w-0">
-            <div className="flex min-w-0 items-baseline gap-3">
-              <FormSurface
-                kind="inline"
-                actions={[{
-                  key: "open-department",
-                  label: <span className="truncate">{selectedDepartment.name}</span>,
-                  onClick: () => onOpenDepartmentDetails?.(selectedDepartment.id),
-                  size: "sm",
-                  className: "!h-auto !justify-start !border-0 !bg-transparent !p-0 !text-left !text-lg !font-semibold !leading-7 !text-slate-900 !shadow-none hover:!bg-transparent hover:!text-sky-700 hover:!underline",
-                }]}
-              />
-              <span className="shrink-0 font-mono text-sm text-slate-400">{selectedDepartment.code}</span>
-            </div>
-          </div>
-          <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
-            <div className="flex min-w-0 w-72 items-center gap-2">
-              <span className="shrink-0 text-xs font-semibold text-slate-500">负责人</span>
-              <FormSurface
-                kind="control"
-                control={{
-                  kind: "inputControl",
-                  spec: {
-                    valueType: "reference",
-                    editor: "autocomplete",
-                    state: !canEdit || saving ? "disabled" : "normal",
-                    options: { source: "remote", fkKey: "hr.position", endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "name" },
-                  },
-                  value: managerDraft,
-                  displayValue: managerDraft,
-                  placeholder: "搜索负责人岗位",
-                  onChange: (_label, option) => {
-                    setManagerDraft(selectedEntityName("position", option as ReferenceOption | undefined));
-                  },
-                }}
-              />
-            </div>
-            <FormSurface
-              kind="inline"
-              actions={[{
-                key: "save",
-                label: saving ? "保存中..." : "保存修改",
-                variant: "primary",
-                disabled: !canEdit || saving || !managerDirty,
-                onClick: () => void saveChanges(),
-              }]}
-            />
-          </div>
-        </div>
-      ),
-    });
-
     panelBlocks.push(directPositions.length === 0
       ? { kind: "empty", key: "empty-direct", presentation: "plain", content: "当前部门暂无直属岗位" }
       : {
@@ -282,18 +273,26 @@ export function OrganizationModePanel({
 
   return (
     <PageSurface
-      embedded
+      embedded={!surface}
       kind="split"
+      {...surface}
       sideOpen={sideOpen}
       sideLabel="全部部门层级"
       onSideOpenChange={onSideOpenChange}
       drawerOpen={drawerOpen}
       onDrawerOpenChange={onDrawerOpenChange}
-      contentClassName="!max-w-none !px-0 !py-0"
       side={side}
       blocks={[{
         kind: "panel",
         key: "organization-mode",
+        title: organizationPanelTitle,
+        actions: organizationHeaderDepartment ? [{
+          key: "save",
+          label: saving ? "保存中..." : "保存修改",
+          variant: "primary",
+          disabled: !canEdit || saving || !managerDirty,
+          onClick: () => void saveChanges(),
+        }] : undefined,
         className: "min-h-[520px]",
         bodyClassName: "p-4",
         blocks: panelBlocks,

@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { matchText } from "@workspace/core/search";
-import { DataSurface, FormSurface, NavigationSurface } from "@workspace/core/ui";
+import { DataSurface, NavigationSurface, PageSurface } from "@workspace/core/ui";
 import type {
   QcTemplateDetail,
   QcTemplateFeedbackState,
@@ -22,10 +22,12 @@ import {
   type FeedbackTarget,
   type WorkbenchSelection,
 } from "./template-workbench/types";
+import { productionQcPageHeader, type ProductionQcPageChromeSpec } from "./ProductionQcPageChrome";
 
 interface Props {
   templates: QcTemplateDetail[];
   feedbackStates: Record<string, QcTemplateFeedbackState>;
+  pageChrome?: ProductionQcPageChromeSpec;
 }
 
 interface SectionView extends QcTemplateWorkbenchSection {
@@ -59,7 +61,13 @@ function actionLabel(action: QcTemplateWorkbenchRowAction) {
   );
 }
 
-function WorkbenchSurface({ viewModel }: { viewModel: QcTemplateWorkbenchViewModel }) {
+function WorkbenchSurface({
+  viewModel,
+  pageChrome,
+}: {
+  viewModel: QcTemplateWorkbenchViewModel;
+  pageChrome?: ProductionQcPageChromeSpec;
+}) {
   const [selectorKey, setSelectorKey] = useState(viewModel.defaultSelectorKey ?? viewModel.selectorItems[0]?.key ?? "");
   const [query, setQuery] = useState("");
   const [expandedOverrides, setExpandedOverrides] = useState<Record<string, boolean>>({});
@@ -86,11 +94,11 @@ function WorkbenchSurface({ viewModel }: { viewModel: QcTemplateWorkbenchViewMod
   }
 
   return (
-    <section className="space-y-5">
-      {!viewModel.hideToolbar && (
-        <FormSurface
-          kind="filters"
-          toolbar={{
+    <PageSurface
+      kind="list"
+      header={pageChrome ? productionQcPageHeader(pageChrome) : undefined}
+      toolbar={!viewModel.hideToolbar
+        ? {
             items: [
               {
                 kind: "search",
@@ -108,10 +116,12 @@ function WorkbenchSurface({ viewModel }: { viewModel: QcTemplateWorkbenchViewMod
                 content: viewModel.toolbarMeta,
               }] : []),
             ],
-          }}
-        />
-      )}
-      <div className="grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
+          }
+        : undefined}
+      body={{
+        content: (
+          <section className="space-y-5">
+            <div className="grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
         <div className="min-w-0 max-lg:order-last">
           <NavigationSurface
             kind="selector"
@@ -218,12 +228,15 @@ function WorkbenchSurface({ viewModel }: { viewModel: QcTemplateWorkbenchViewMod
           })}
           {sections.length === 0 ? <DataSurface kind="records" records={[]} empty={viewModel.emptyText ?? "没有匹配的模板。"} /> : null}
         </div>
-      </div>
-    </section>
+            </div>
+          </section>
+        ),
+      }}
+    />
   );
 }
 
-export default function QcTemplateWorkbench({ templates, feedbackStates }: Props) {
+export default function QcTemplateWorkbench({ templates, feedbackStates, pageChrome }: Props) {
   const [preview, setPreview] = useState<WorkbenchSelection | null>(null);
   const [previewLoading, setPreviewLoading] = useState("");
   const [previewError, setPreviewError] = useState("");
@@ -280,7 +293,7 @@ export default function QcTemplateWorkbench({ templates, feedbackStates }: Props
 
   return (
     <section>
-      <WorkbenchSurface viewModel={viewModel} />
+      <WorkbenchSurface viewModel={viewModel} pageChrome={pageChrome} />
       <TemplatePreviewModal selection={preview} onClose={() => setPreview(null)} onSaved={markFeedbackKeysOpen} />
       <TemplateFeedbackModal target={feedback} onClose={() => setFeedback(null)} onSaved={setKnownFeedbackStates} />
     </section>

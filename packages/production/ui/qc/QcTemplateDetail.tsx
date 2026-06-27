@@ -1,5 +1,5 @@
 import type { QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
-import { DataSurface, PageSurface, type DataSurfaceCellSpec, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, type DataSurfaceCellSpec, type DataSurfaceColumnSpec, type DataSurfaceTableProps } from "@workspace/core/ui";
 
 interface Props {
   detail: QcTemplateDetail;
@@ -82,7 +82,7 @@ function TestItem({ test }: { test: QcTemplateTestItem }) {
   );
 }
 
-function StageSection({ stage }: { stage: QcTemplateStage }) {
+function createStageSurface(stage: QcTemplateStage): DataSurfaceTableProps<QcTemplateTestItem> {
   const columns: DataSurfaceColumnSpec<QcTemplateTestItem>[] = [
     {
       key: "test",
@@ -99,18 +99,16 @@ function StageSection({ stage }: { stage: QcTemplateStage }) {
     },
   ];
 
-  return (
-    <DataSurface<QcTemplateTestItem>
-      kind="table"
-      framed
-      title={stage.label}
-      subtitle={`${stage.documentCount} 份文件 · ${stage.precheckItemCount} 个确认项 · ${stage.tests.length} 个检测项`}
-      rows={stage.tests}
-      columns={columns}
-      rowKey={(test) => `${stage.key}-${test.sequence}-${test.englishName}`}
-      emptyText="暂无检测项。"
-    />
-  );
+  return {
+    kind: "table",
+    framed: true,
+    title: stage.label,
+    subtitle: `${stage.documentCount} 份文件 · ${stage.precheckItemCount} 个确认项 · ${stage.tests.length} 个检测项`,
+    rows: stage.tests,
+    columns,
+    rowKey: (test) => `${stage.key}-${test.sequence}-${test.englishName}`,
+    emptyText: "暂无检测项。",
+  };
 }
 
 export default function QcTemplateDetailPanel({ detail }: Props) {
@@ -143,9 +141,9 @@ export default function QcTemplateDetailPanel({ detail }: Props) {
         content: `${detail.fileName} · ${detail.source.configRoot}`,
       },
       ...detail.stages.map((stage) => ({
-        kind: "moduleView" as const,
+        kind: "data" as const,
         key: stage.key,
-        view: <StageSection stage={stage} />,
+        surface: createStageSurface(stage),
       })),
     ]}
   />;

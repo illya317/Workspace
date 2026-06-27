@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import type { KeyboardEvent } from "react";
 import { useEffect, useState } from "react";
-import { DataSurface, type DataSurfaceColumnSpec, type DataSurfaceToolbarSpec } from "@workspace/core/ui";
+import { PageSurface, type DataSurfaceColumnSpec, type DataSurfaceCommandSpec } from "@workspace/core/ui";
 import PersonListModal from "./components/PersonListModal";
 import PositionDeptModal from "./components/PositionDeptModal";
 import { hrCanEdit, type HRUser as User } from "@workspace/hr/types";
@@ -56,7 +56,7 @@ interface CodeTableProps {
   type: "department" | "position";
   framed?: boolean;
   title?: string;
-  toolbar?: DataSurfaceToolbarSpec;
+  actions?: DataSurfaceCommandSpec[];
   loading?: boolean;
   emptyText?: string;
   bodyClassName?: string;
@@ -109,7 +109,7 @@ export default function CodeTable({
   type,
   framed,
   title,
-  toolbar,
+  actions,
   loading,
   emptyText,
   bodyClassName
@@ -298,11 +298,37 @@ export default function CodeTable({
     }
   }];
   return <>
-      <DataSurface kind="table" framed={framed} title={title} toolbar={toolbar} loading={loading} emptyText={emptyText} bodyClassName={bodyClassName} rows={rows} columns={columns} visibleColumns={["code", "name", "count"]} density="compact" rowKey={row => row.id} tableClassName="table-fixed text-xs" rowClassName={row => {
-      if (row.kind === "group" || row.kind === "summary") return "bg-slate-50 hover:bg-slate-50";
-      if (row.kind === "add") return "bg-slate-50";
-      return selectedCode === row.item.code ? "bg-emerald-50" : "";
-    }} />
+      <PageSurface
+        kind="list"
+        embedded
+        body={{
+          layout: "single",
+          blocks: [{
+            kind: "data",
+            key: "code-table",
+            surface: {
+              kind: "table",
+              framed,
+              title,
+              actions,
+              loading,
+              emptyText,
+              bodyClassName,
+              rows,
+              columns,
+              visibleColumns: ["code", "name", "count"],
+              density: "compact",
+              rowKey: row => row.id,
+              tableClassName: "table-fixed text-xs",
+              rowClassName: row => {
+                if (row.kind === "group" || row.kind === "summary") return "bg-slate-50 hover:bg-slate-50";
+                if (row.kind === "add") return "bg-slate-50";
+                return selectedCode === row.item.code ? "bg-emerald-50" : "";
+              },
+            },
+          }],
+        }}
+      />
 
       <PersonListModal detailModal={detailModal} setDetailModal={setDetailModal} getDetailList={getDetailList} />
 

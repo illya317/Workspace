@@ -1,43 +1,49 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { PageSurface, type PageSurfaceSideSpec } from "@workspace/core/ui";
+import { PageSurface, type PageSurfaceBlockSpec, type PageSurfaceSideSpec, type PageSurfaceToolbarSpec } from "@workspace/core/ui";
+import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 
 type SplitWorkspaceMode = "desktop" | "drawer";
 
 export function DepartmentPositionActiveWorkspace({
-  children,
+  blocks,
   drawerOpen,
-  renderSide,
+  sideBlocks,
   sideOpen,
+  surface,
+  toolbarItems,
   onDrawerOpenChange,
   onSideOpenChange,
 }: {
-  children: ReactNode;
+  blocks: PageSurfaceBlockSpec[];
   drawerOpen: boolean;
-  renderSide: (mode: SplitWorkspaceMode) => ReactNode;
+  sideBlocks: (mode: SplitWorkspaceMode) => PageSurfaceBlockSpec[];
   sideOpen: boolean;
+  surface?: RosterSurfaceNavigationProps;
+  toolbarItems?: PageSurfaceToolbarSpec["items"];
   onDrawerOpenChange: (open: boolean) => void;
   onSideOpenChange: (open: boolean) => void;
 }) {
   const side: PageSurfaceSideSpec = {
-    blocks: [{ kind: "moduleView", key: "desktop", view: renderSide("desktop") }],
-    drawerBlocks: [{ kind: "moduleView", key: "drawer", view: renderSide("drawer") }],
+    blocks: sideBlocks("desktop"),
+    drawerBlocks: sideBlocks("drawer"),
   };
+
+  const toolbar = toolbarItems?.length ? { variant: "bar" as const, items: toolbarItems } : undefined;
 
   return (
     <PageSurface
-      embedded
+      {...surface}
       kind="split"
+      toolbar={toolbar}
       sideOpen={sideOpen}
       sideLabel="部门岗位"
       onSideOpenChange={onSideOpenChange}
       drawerOpen={drawerOpen}
       onDrawerOpenChange={onDrawerOpenChange}
       showSideControls={false}
-      contentClassName="!max-w-none !px-0 !py-0"
       side={side}
-      blocks={[{ kind: "moduleView", key: "content", view: children }]}
+      blocks={blocks}
     />
   );
 }

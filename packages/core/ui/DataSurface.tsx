@@ -2,7 +2,7 @@
 
 import { PanelCard } from "./Card";
 import { joinClassNames } from "./card-utils";
-import { renderCommands, renderData, renderToolbar } from "./DataSurface.renderers";
+import { renderCommands, renderData } from "./DataSurface.renderers";
 import type { DataSurfaceLooseRow, DataSurfaceProps } from "./DataSurface.types";
 
 export type {
@@ -19,7 +19,21 @@ export type {
   DataSurfaceProps,
   DataSurfaceRecordSpec,
   DataSurfaceStructuredCellSpec,
-  DataSurfaceToolbarSpec,
+  DataSurfaceTableProps,
+  DataSurfaceVisualBarChartSpec,
+  DataSurfaceVisualBarSpec,
+  DataSurfaceVisualComparisonBarItemSpec,
+  DataSurfaceVisualComparisonBarSectionSpec,
+  DataSurfaceVisualComparisonBarsSpec,
+  DataSurfaceVisualGroupedBarChartSpec,
+  DataSurfaceVisualGroupedBarGroupSpec,
+  DataSurfaceVisualLegendSpec,
+  DataSurfaceVisualProps,
+  DataSurfaceVisualSpec,
+  DataSurfaceVisualTone,
+  DataSurfaceVisualTreeBadgeSpec,
+  DataSurfaceVisualTreeNodeSpec,
+  DataSurfaceVisualTreeSpec,
 } from "./DataSurface.types";
 
 export default function DataSurface<T = DataSurfaceLooseRow>(props: DataSurfaceProps<T>) {
@@ -27,7 +41,6 @@ export default function DataSurface<T = DataSurfaceLooseRow>(props: DataSurfaceP
 
   const content = (
     <div className={joinClassNames("space-y-4", props.framed ? "" : props.className)}>
-      {renderToolbar(props.toolbar)}
       {renderCommands(props.actions)}
       {renderData(props)}
     </div>
@@ -43,8 +56,9 @@ export default function DataSurface<T = DataSurfaceLooseRow>(props: DataSurfaceP
       className={props.className}
       bodyClassName={joinClassNames("p-4", props.bodyClassName)}
     >
-      {renderToolbar(props.toolbar)}
-      {renderData(props)}
+      <div className="space-y-4">
+        {renderData(props)}
+      </div>
     </PanelCard>
   );
 }

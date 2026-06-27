@@ -4,6 +4,7 @@ import { AnalysisBlock, EmptyStateCard, MetricCard, ModuleCard, PanelCard, Secti
 import CommandButton from "./CommandButton";
 import DataSurface from "./DataSurface";
 import DetailModal from "./DetailModal";
+import DocumentSurface from "./DocumentSurface";
 import FormSurface from "./FormSurface";
 import NavigationSurface from "./NavigationSurface";
 import { Toolbar } from "./Toolbar";
@@ -12,6 +13,7 @@ import type {
   PageSurfaceBlockSpec,
   PageSurfaceCommandSpec,
   PageSurfaceEmptySpec,
+  PageSurfaceHeadingSpec,
   PageSurfaceMessageSpec,
   PageSurfaceMetricSpec,
   PageSurfaceModuleGridSpec,
@@ -28,6 +30,9 @@ export function renderCommands(commands?: PageSurfaceCommandSpec[]) {
           type={command.type}
           variant={command.variant}
           disabled={command.disabled}
+          size={command.size}
+          className={command.className}
+          truncate={command.truncate}
           onClick={command.onClick}
         >
           {command.label}
@@ -50,6 +55,15 @@ export function renderEmpty(empty?: PageSurfaceEmptySpec) {
   return <EmptyStateCard compact={empty.compact} className={empty.className}>{empty.content}</EmptyStateCard>;
 }
 
+export function renderBlockStack(
+  blocks?: PageSurfaceBlockSpec[],
+  className?: string,
+  spacingClassName = "space-y-4",
+) {
+  if (!blocks?.length) return null;
+  return <div className={joinClassNames(spacingClassName, className)}>{renderBlocks(blocks)}</div>;
+}
+
 function renderMessage(message: PageSurfaceMessageSpec) {
   const toneClass =
     message.tone === "success"
@@ -62,6 +76,24 @@ function renderMessage(message: PageSurfaceMessageSpec) {
             ? "border-slate-100 bg-slate-50 text-slate-500"
             : "border-slate-200 bg-white text-slate-600";
   return <div className={joinClassNames("rounded-md border px-3 py-2 text-sm", toneClass, message.className)}>{message.content}</div>;
+}
+
+function renderHeading(heading: PageSurfaceHeadingSpec) {
+  const titleClassName = joinClassNames(
+    heading.level === 1 ? "text-xl" : heading.level === 3 ? "text-sm" : "text-base",
+    "font-semibold text-slate-900",
+    heading.titleClassName,
+  );
+  const subtitle = heading.subtitle ? (
+    <p className={joinClassNames("mt-1 text-sm text-slate-500", heading.subtitleClassName)}>{heading.subtitle}</p>
+  ) : null;
+  if (heading.level === 1) {
+    return <div className={heading.className}><h1 className={titleClassName}>{heading.title}</h1>{subtitle}</div>;
+  }
+  if (heading.level === 3) {
+    return <div className={heading.className}><h3 className={titleClassName}>{heading.title}</h3>{subtitle}</div>;
+  }
+  return <div className={heading.className}><h2 className={titleClassName}>{heading.title}</h2>{subtitle}</div>;
 }
 
 function renderMetrics(metrics?: PageSurfaceMetricSpec[], className?: string) {
@@ -99,16 +131,18 @@ export function renderBlocks(blocks?: PageSurfaceBlockSpec[]) {
   return blocks.map((block) => {
     if (block.kind === "empty") return <div key={block.key}>{renderEmpty(block)}</div>;
     if (block.kind === "message") return <div key={block.key}>{renderMessage(block)}</div>;
+    if (block.kind === "heading") return <div key={block.key}>{renderHeading(block)}</div>;
     if (block.kind === "metrics") return <div key={block.key}>{renderMetrics(block.metrics, block.className)}</div>;
     if (block.kind === "moduleGrid") return renderModuleGrid(block);
     if (block.kind === "data") return <DataSurface key={block.key} {...block.surface} />;
+    if (block.kind === "document") return <DocumentSurface key={block.key} {...block.surface} />;
     if (block.kind === "form") return <FormSurface key={block.key} {...block.surface} />;
     if (block.kind === "navigation") return <NavigationSurface key={block.key} {...block.surface} />;
     if (block.kind === "moduleView") return <div key={block.key} className={joinClassNames("min-w-0", block.className)}>{block.view}</div>;
     if (block.kind === "modal") {
       return (
         <DetailModal key={block.key} open={block.open} title={block.title} onClose={block.onClose} maxWidth={block.maxWidth}>
-          <div className={joinClassNames("space-y-4", block.className, block.bodyClassName)}>{renderBlocks(block.blocks)}</div>
+          {renderBlockStack(block.blocks, joinClassNames(block.className, block.bodyClassName))}
         </DetailModal>
       );
     }
@@ -133,21 +167,23 @@ export function renderBlocks(blocks?: PageSurfaceBlockSpec[]) {
     if (block.kind === "analysis") {
       return (
         <AnalysisBlock key={block.key} title={block.title} subtitle={block.subtitle} toolbarItems={block.toolbar?.items} className={block.className} bodyClassName={block.bodyClassName}>
-          <div className="space-y-4">{renderCommands(block.actions)}{renderBlocks(block.blocks)}</div>
+          <div className="space-y-4">{renderCommands(block.actions)}{renderBlockStack(block.blocks)}</div>
         </AnalysisBlock>
       );
     }
     if (block.kind === "panel") {
-      return (
-        <PanelCard key={block.key} title={block.title} subtitle={block.subtitle} actions={renderCommands(block.actions)} className={block.className} bodyClassName={joinClassNames("p-4", block.bodyClassName)}>
-          {renderBlocks(block.blocks)}
+      const panel = (
+        <PanelCard title={block.title} subtitle={block.subtitle} actions={renderCommands(block.actions)} className={block.className} bodyClassName={joinClassNames("p-4", block.bodyClassName)}>
+          {renderBlockStack(block.blocks)}
         </PanelCard>
       );
+      return block.itemRef ? <div key={block.key} ref={block.itemRef}>{panel}</div> : <div key={block.key}>{panel}</div>;
     }
-    return (
-      <SectionCard key={block.key} title={block.title} subtitle={block.subtitle} actions={renderCommands(block.actions)} className={block.className} bodyClassName={block.bodyClassName}>
-        {renderBlocks(block.blocks)}
+    const section = (
+      <SectionCard title={block.title} subtitle={block.subtitle} actions={renderCommands(block.actions)} className={block.className} bodyClassName={block.bodyClassName}>
+        {renderBlockStack(block.blocks)}
       </SectionCard>
     );
+    return block.itemRef ? <div key={block.key} ref={block.itemRef}>{section}</div> : <div key={block.key}>{section}</div>;
   });
 }

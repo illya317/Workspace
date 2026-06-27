@@ -3,22 +3,9 @@ export type { CoreUiComponentKind, CoreUiComponentUiLevel, CoreUiCompositionGrap
 export { default as CodeBlock } from "./CodeBlock";
 export type { CodeBlockProps } from "./CodeBlock";
 export { default as DataSurface } from "./DataSurface";
-export type {
-  DataSurfaceCellGroupSpec,
-  DataSurfaceCellActionSpec,
-  DataSurfaceCellInputSpec,
-  DataSurfaceCellSelectionGridSpec,
-  DataSurfaceCellSpec,
-  DataSurfaceColumnSpec,
-  DataSurfaceCommandSpec,
-  DataSurfaceDisplaySpec,
-  DataSurfaceKind,
-  DataSurfaceMetricSpec,
-  DataSurfaceProps,
-  DataSurfaceRecordSpec,
-  DataSurfaceStructuredCellSpec,
-  DataSurfaceToolbarSpec,
-} from "./DataSurface";
+export type * from "./DataSurface";
+export { default as DocumentSurface } from "./DocumentSurface";
+export type { DocumentSurfaceKind, DocumentSurfacePageSpec, DocumentSurfaceProps } from "./DocumentSurface";
 export type { ReferenceOption, SurfaceToolbarItem, SurfaceToolbarItems } from "./SurfaceContractTypes";
 export { default as FormSurface } from "./FormSurface";
 export type {
@@ -41,13 +28,16 @@ export type {
   FormSurfaceRepeatableItemSpec,
   FormSurfaceRepeatableSpec,
   FormSurfaceSectionSpec,
+  FormSurfaceSegmentedCodeControlSpec,
+  FormSurfaceSegmentedCodeFieldSpec,
   FormSurfaceSelectControlSpec,
   FormSurfaceTagListAppendSpec,
   FormSurfaceTagListFieldSpec,
   FormSurfaceTextareaControlSpec,
   FormSurfaceTextControlSpec,
-  FormSurfaceToolbarSpec,
 } from "./FormSurface";
+export { default as SegmentedCodeInput } from "./SegmentedCodeInput";
+export type { SegmentedCodeInputEditableSegment, SegmentedCodeInputProps } from "./SegmentedCodeInput";
 export { default as NavigationSurface } from "./NavigationSurface";
 export type {
   NavigationSurfaceGridSelectorProps,
@@ -64,10 +54,14 @@ export type {
   PageSurfaceBlockSpec,
   PageSurfaceEmptySpec,
   PageSurfaceGroupSpec,
+  PageSurfaceFooterSpec,
+  PageSurfaceHeaderSpec,
   PageSurfaceKind,
   PageSurfaceMessageSpec,
   PageSurfaceMetricSpec,
   PageSurfaceModalSpec,
+  PageSurfaceNavigationItemSpec,
+  PageSurfaceNavigationSpec,
   PageSurfaceModuleGridItemSpec,
   PageSurfaceModuleGridSpec,
   PageSurfaceModuleViewSpec,
@@ -261,6 +255,9 @@ export type {
   ToolbarFieldFilterItem,
   ToolbarColumnToggleItem,
   ToolbarTextItem,
+  ToolbarMenuActionItem,
+  ToolbarMenuItem,
+  ToolbarMenuTriggerSpec,
   ToolbarActionGroupItem,
   ToolbarActionGroupAction,
   ToolbarEditGroupItem,

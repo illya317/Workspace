@@ -2,10 +2,8 @@
 
 import { useMemo } from "react";
 import {
-  DataSurface,
-  type DataSurfaceToolbarSpec,
   type DataSurfaceColumnSpec,
-  type PaginationProps,
+  PageSurface,
 } from "@workspace/core/ui";
 import type { TabConfig, FieldConfig } from "@workspace/hr/types";
 import { formatHrMajorItems } from "@workspace/hr/constants/field-options";
@@ -71,10 +69,8 @@ interface EditableTableProps {
   renderEditInput: (fieldKey: string) => React.ReactNode;
   onStartEdit: (item: Record<string, unknown>, field: FieldConfig) => void;
   framed?: boolean;
-  toolbar?: DataSurfaceToolbarSpec;
   loading?: boolean;
   emptyText?: string;
-  pagination?: PaginationProps;
   bodyClassName?: string;
 }
 
@@ -89,10 +85,8 @@ export default function EditableTable({
   renderEditInput,
   onStartEdit,
   framed,
-  toolbar,
   loading,
   emptyText,
-  pagination,
   bodyClassName,
 }: EditableTableProps) {
   const columns = useMemo<DataSurfaceColumnSpec<Record<string, unknown>>[]>(
@@ -126,20 +120,29 @@ export default function EditableTable({
   );
 
   return (
-    <DataSurface
-      kind="table"
-      framed={framed}
-      toolbar={toolbar}
-      rows={items}
-      columns={columns}
-      visibleColumns={visibleColumns}
-      rowKey={(item) => String(item.id)}
-      density="compact"
-      loading={loading}
-      emptyText={emptyText}
-      tableClassName="w-full text-xs"
-      bodyClassName={bodyClassName}
-      pagination={pagination}
+    <PageSurface
+      kind="list"
+      embedded
+      body={{
+        layout: "single",
+        blocks: [{
+          kind: "data",
+          key: "editable-table",
+          surface: {
+            kind: "table",
+            framed,
+            rows: items,
+            columns,
+            visibleColumns,
+            rowKey: (item) => String(item.id),
+            density: "compact",
+            loading,
+            emptyText,
+            tableClassName: "w-full text-xs",
+            bodyClassName,
+          },
+        }],
+      }}
     />
   );
 }

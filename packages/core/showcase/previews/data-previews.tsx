@@ -8,6 +8,7 @@ import {
   DataTable,
   DisclosureRecordCard,
   Badge,
+  PageSurface,
   StructuredTable,
   TableScrollFrame,
 } from "@workspace/core/ui";
@@ -45,26 +46,58 @@ function DataTablePreview() {
 
 function DataSurfacePreview() {
   return (
-    <DataSurface
-      kind="table"
-      rows={[
-        { id: 1, name: "合同 A", status: "已生效", amount: 125000 },
-        { id: 2, name: "合同 B", status: "待审核", amount: 48000 },
-      ]}
-      columns={[
-        { key: "name", label: "名称", required: true, render: (row) => row.name },
-        { key: "status", label: "状态", defaultVisible: true, render: (row) => <Badge label={row.status} tone={row.status === "已生效" ? "green" : "yellow"} /> },
-        { key: "amount", label: "金额", defaultVisible: true, render: (row) => <AmountCell value={row.amount} /> },
-      ]}
-      rowKey={(row) => row.id}
-      tableClassName="w-full"
-      toolbar={{
-        items: [
-          { kind: "search", key: "search", value: "", onChange: () => {}, placeholder: "搜索..." },
-          { kind: "text", key: "count", content: "共 2 条" },
-        ],
-      }}
-    />
+    <div className="space-y-4">
+      <PageSurface
+        kind="list"
+        embedded
+        toolbar={{
+          items: [
+            { kind: "search", key: "search", value: "", onChange: () => {}, placeholder: "搜索..." },
+            { kind: "text", key: "count", content: "共 2 条" },
+          ],
+        }}
+        body={{
+          blocks: [{
+            kind: "data",
+            key: "contracts",
+            surface: {
+              kind: "table",
+              rows: [
+                { id: 1, name: "合同 A", status: "已生效", amount: 125000 },
+                { id: 2, name: "合同 B", status: "待审核", amount: 48000 },
+              ],
+              columns: [
+                { key: "name", label: "名称", required: true, render: (row) => row.name },
+                { key: "status", label: "状态", defaultVisible: true, render: (row) => <Badge label={row.status} tone={row.status === "已生效" ? "green" : "yellow"} /> },
+                { key: "amount", label: "金额", defaultVisible: true, render: (row) => <AmountCell value={row.amount} /> },
+              ],
+              rowKey: (row) => row.id,
+              tableClassName: "w-full",
+            },
+          }],
+        }}
+      />
+      <DataSurface
+        kind="visual"
+        title="人员趋势"
+        framed
+        visual={{
+          kind: "groupedBarChart",
+          title: "近 4 月入职/离职",
+          height: 120,
+          groups: [
+            { key: "03", label: "03", bars: [{ key: "joins", label: "入职", value: 8, tone: "blue" }, { key: "leaves", label: "离职", value: 2, tone: "rose" }] },
+            { key: "04", label: "04", bars: [{ key: "joins", label: "入职", value: 5, tone: "blue" }, { key: "leaves", label: "离职", value: 3, tone: "rose" }] },
+            { key: "05", label: "05", bars: [{ key: "joins", label: "入职", value: 11, tone: "blue" }, { key: "leaves", label: "离职", value: 4, tone: "rose" }] },
+            { key: "06", label: "06", bars: [{ key: "joins", label: "入职", value: 7, tone: "blue" }, { key: "leaves", label: "离职", value: 1, tone: "rose" }] },
+          ],
+          legend: [
+            { key: "joins", label: "入职", tone: "blue" },
+            { key: "leaves", label: "离职", tone: "rose" },
+          ],
+        }}
+      />
+    </div>
   );
 }
 

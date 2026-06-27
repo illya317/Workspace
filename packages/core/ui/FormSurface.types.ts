@@ -1,4 +1,4 @@
-import type { ComponentProps, ReactNode } from "react";
+import type { ComponentProps, Ref, ReactNode } from "react";
 import type CalendarDateInput from "./CalendarDateInput";
 import type { ChoiceGroupProps } from "./ChoiceGroup";
 import type { FieldGridCellProps, FieldGridMode } from "./FieldGrid";
@@ -6,20 +6,16 @@ import type { FileFieldProps } from "./FileField";
 import type { HiddenDataFieldProps } from "./HiddenDataField";
 import type { InputControlProps } from "./InputControl";
 import type { ReadOnlyFieldProps } from "./ReadOnlyField";
+import type { SegmentedCodeInputProps } from "./SegmentedCodeInput";
 import type { SelectFieldProps } from "./SelectField";
 import type { TagListInputProps } from "./TagListInput";
 import type { TextareaFieldProps } from "./TextareaField";
 import type { TextFieldProps } from "./TextField";
 import type { CommandButtonProps } from "./CommandButton";
-import type { ToolbarProps } from "./Toolbar";
 import type { ActionGlyphKind } from "./ActionGlyphs";
 
 export type FormSurfaceKind = "fields" | "filters" | "modal" | "inline" | "detail" | "login" | "control";
 export type FormSurfaceLooseItem = ReturnType<typeof JSON.parse>;
-
-export type FormSurfaceToolbarSpec = Omit<ToolbarProps, "items"> & {
-  items: ToolbarProps["items"];
-};
 
 export interface FormSurfaceCommandSpec {
   key: string;
@@ -45,6 +41,7 @@ export type FormSurfaceChoiceControlSpec = ChoiceGroupProps & { kind: "choice" }
 export type FormSurfaceSelectControlSpec = SelectFieldProps & { kind: "select" };
 export type FormSurfaceFileControlSpec = FileFieldProps & { kind: "file" };
 export type FormSurfaceHiddenControlSpec = HiddenDataFieldProps & { kind: "hidden" };
+export type FormSurfaceSegmentedCodeControlSpec = SegmentedCodeInputProps & { kind: "segmentedCode" };
 
 export type FormSurfaceControlSpec =
   | FormSurfaceInputControlSpec
@@ -54,7 +51,8 @@ export type FormSurfaceControlSpec =
   | FormSurfaceChoiceControlSpec
   | FormSurfaceSelectControlSpec
   | FormSurfaceFileControlSpec
-  | FormSurfaceHiddenControlSpec;
+  | FormSurfaceHiddenControlSpec
+  | FormSurfaceSegmentedCodeControlSpec;
 
 export interface FormSurfaceFieldSpec extends Omit<InputControlProps, "spec" | "value" | "onChange"> {
   kind?: "field";
@@ -81,9 +79,32 @@ export interface FormSurfaceReadOnlyFieldSpec extends Omit<ReadOnlyFieldProps, "
   fieldClassName?: string;
 }
 
+export interface FormSurfaceSegmentedCodeFieldSpec extends Omit<SegmentedCodeInputProps, "value" | "onChange"> {
+  kind: "segmentedCode";
+  key: string;
+  label: ReactNode;
+  value: string;
+  onChange: (fullCode: string) => void;
+  required?: boolean;
+  hint?: ReactNode;
+  error?: ReactNode;
+  span?: FieldGridCellProps["span"];
+  fieldClassName?: string;
+}
+
 export interface FormSurfaceTagListAppendSpec {
   field?: FormSurfaceFieldSpec;
   action?: FormSurfaceCommandSpec;
+  textInput?: {
+    key: string;
+    addLabel?: string;
+    placeholder?: string;
+    splitPattern?: RegExp;
+    onAppend: (values: string[]) => void;
+    onRemoveLast?: () => void;
+    className?: string;
+    inputClassName?: string;
+  };
   className?: string;
 }
 
@@ -128,6 +149,7 @@ export interface FormSurfaceSectionSpec<T = FormSurfaceLooseItem> {
 
 export interface FormSurfaceRepeatableItemSpec<T = FormSurfaceLooseItem> {
   key: string;
+  itemRef?: Ref<HTMLDivElement>;
   title?: ReactNode;
   subtitle?: ReactNode;
   fields: FormSurfaceItemSpec<T>[];
@@ -151,6 +173,7 @@ export interface FormSurfaceRepeatableSpec<T = FormSurfaceLooseItem> {
 export type FormSurfaceItemSpec<T = FormSurfaceLooseItem> =
   | FormSurfaceFieldSpec
   | FormSurfaceReadOnlyFieldSpec
+  | FormSurfaceSegmentedCodeFieldSpec
   | FormSurfaceTagListFieldSpec<T>
   | FormSurfaceNoteSpec
   | FormSurfaceGroupTitleSpec
@@ -163,7 +186,6 @@ interface FormSurfaceBaseProps<T = FormSurfaceLooseItem> {
   field?: FormSurfaceFieldSpec;
   columns?: 1 | 2 | 3;
   mode?: FieldGridMode;
-  toolbar?: FormSurfaceToolbarSpec;
   actions?: FormSurfaceCommandSpec[];
   onSubmit?: () => void;
   className?: string;

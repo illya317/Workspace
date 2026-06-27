@@ -49,7 +49,8 @@ export function QcBatchCreatePanel({
 }: QcBatchCreatePanelProps) {
   if (!open) return null;
   return <FormSurface
-    kind="inline"
+    kind="fields"
+    columns={3}
     onSubmit={onSubmit}
     fields={[
       { kind: "groupTitle", key: "title", title: "新建批次" },

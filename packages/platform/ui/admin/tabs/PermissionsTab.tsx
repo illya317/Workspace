@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { usePermissionsTab } from "../hooks/usePermissionsTab";
-import { FormSurface, NavigationSurface, PageSurface } from "@workspace/core/ui";
+import { DataSurface, FormSurface } from "@workspace/core/ui";
 import ResourceTree from "../components/ResourceTree";
 import MatrixTable from "../components/permissions/MatrixTable";
 import type { ResourceItem, SubjectType } from "../types";
@@ -100,68 +100,93 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, showToa
           />
         </div>
 
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 grow">
           {selectedOwnerKey && ownerCapabilities.length > 0 && (
-            <NavigationSurface
-              kind="tabs"
+            <FormSurface
+              kind="fields"
               className="mb-4"
-              tabs={{
-                active: resourceMode,
-                onChange: switchMode,
-                tabs: [
-                  { key: "entry", label: "入口权限" },
-                  { key: "capability", label: "设置" },
-                ],
-              }}
-            />
-          )}
-
-          {resourceMode === "capability" && selectedOwnerKey && (
-            <PageSurface
-              kind="settings"
-              embedded
-              className="mb-4"
-              blocks={[{
-                kind: "panel",
-                key: "owner-capabilities",
-                title: `${selectedEntry?.name ?? selectedOwnerKey} 的设置能力`,
-                bodyClassName: "p-3",
-                blocks: ownerCapabilities.length > 0 ? [{
-                  kind: "navigation",
-                  key: "capability-tabs",
-                  surface: {
-                    kind: "tabs",
-                    tabs: {
-                      variant: "micro",
-                      active: resourceMode === "capability" ? s.selectedResource ?? "" : "",
-                      onChange: (key) => s.setSelectedResource(key),
-                      tabs: ownerCapabilities.map((capability) => ({
-                        key: capability.key,
-                        label: capability.name,
-                      })),
-                    },
+              fields={[{
+                key: "resource-mode",
+                label: "权限类型",
+                spec: {
+                  valueType: "string",
+                  editor: "select",
+                  options: {
+                    source: "static",
+                    mode: "dropdown",
+                    items: [
+                      { value: "entry", label: "入口权限" },
+                      { value: "capability", label: "设置" },
+                    ],
                   },
-                }] : [{ kind: "message", key: "empty-capabilities", tone: "muted", content: "暂无独立设置能力" }],
+                },
+                value: resourceMode,
+                onChange: (value) => switchMode(String(value ?? "entry")),
               }]}
             />
           )}
 
-          <NavigationSurface
-            kind="tabs"
+          {resourceMode === "capability" && selectedOwnerKey && (
+            <FormSurface
+              kind="fields"
+              className="mb-4"
+              fields={[{
+                kind: "section",
+                key: "owner-capabilities",
+                title: `${selectedEntry?.name ?? selectedOwnerKey} 的设置能力`,
+                fields: ownerCapabilities.length > 0 ? [{
+                    key: "capability",
+                    label: "设置能力",
+                    spec: {
+                      valueType: "string",
+                      editor: "select",
+                      options: {
+                        source: "static",
+                        mode: "dropdown",
+                        items: ownerCapabilities.map((capability) => ({
+                          value: capability.key,
+                          label: capability.name,
+                        })),
+                      },
+                    },
+                    value: resourceMode === "capability" ? s.selectedResource ?? "" : "",
+                    onChange: (key) => s.setSelectedResource(String(key ?? "")),
+                  }] : [{
+                    kind: "note",
+                    key: "empty-capabilities",
+                    content: "暂无独立设置能力",
+                    className: "text-sm text-slate-500",
+                  }],
+              }]}
+            />
+          )}
+
+          <FormSurface
+            kind="fields"
             className="mb-4"
-            tabs={{
-              active: s.subjectType,
+            fields={[{
+              key: "subject-type",
+              label: "授权对象",
+              spec: {
+                valueType: "string",
+                editor: "select",
+                options: {
+                  source: "static",
+                  mode: "dropdown",
+                  items: [
+                    { value: "user", label: "员工" },
+                    { value: "position", label: "岗位" },
+                    { value: "department", label: "部门" },
+                  ],
+                },
+              },
+              value: s.subjectType,
               onChange: (value) => s.setSubjectType(value as SubjectType),
-              tabs: [
-                { key: "user", label: "员工" },
-                { key: "position", label: "岗位" },
-                { key: "department", label: "部门" },
-              ],
-            }}
+            }]}
           />
 
           <FormSurface
-            kind="inline"
+            kind="fields"
             fields={[
               ...(s.subjectType !== "department"
                 ? [
@@ -211,11 +236,7 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, showToa
             ]}
           />
 
-          {s.loading ? (
-            <PageSurface kind="settings" embedded className="mt-4" empty={{ content: "加载中..." }} />
-          ) : (
-            <MatrixTable s={s} />
-          )}
+          {s.loading ? <DataSurface kind="records" className="mt-4" records={[]} empty="加载中..." /> : <MatrixTable s={s} />}
         </div>
       </div>
     </div>

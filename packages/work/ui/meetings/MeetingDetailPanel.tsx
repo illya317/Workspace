@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface } from "@workspace/core/ui";
+import { FormSurface, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import type { ActionDraft, MeetingDetail } from "./meeting-types";
 import { AgendaSelect, DecisionSelect, InlineForm, InputBox, Section, SelectBox, SimpleList } from "./MeetingControls";
@@ -15,27 +15,7 @@ type MutateMeeting = <T>(
   after?: (data: T) => void,
 ) => Promise<void>;
 
-export function MeetingDetailPanel({
-  meeting,
-  saving,
-  user,
-  actionDrafts,
-  participantDraft,
-  agendaDraft,
-  minuteDraft,
-  proposalDraft,
-  decisionDraft,
-  candidateDraft,
-  onUpdate,
-  onMutate,
-  onActionDraftsChange,
-  onParticipantDraftChange,
-  onAgendaDraftChange,
-  onMinuteDraftChange,
-  onProposalDraftChange,
-  onDecisionDraftChange,
-  onCandidateDraftChange,
-}: {
+type MeetingDetailPanelProps = {
   meeting: MeetingDetail;
   saving: boolean;
   user: SessionUser;
@@ -55,12 +35,46 @@ export function MeetingDetailPanel({
   onProposalDraftChange: (next: { agendaItemId: string; title: string; content: string; voteVisibility: string; minVotesRequired: string }) => void;
   onDecisionDraftChange: (next: { agendaItemId: string; proposalId: string; kind: string; title: string; content: string; effectiveDate: string }) => void;
   onCandidateDraftChange: (next: { agendaItemId: string; decisionId: string; title: string; description: string; targetKind: string }) => void;
-}) {
+};
+
+export function useMeetingDetailBlock({
+  meeting,
+  saving,
+  user,
+  actionDrafts,
+  participantDraft,
+  agendaDraft,
+  minuteDraft,
+  proposalDraft,
+  decisionDraft,
+  candidateDraft,
+  onUpdate,
+  onMutate,
+  onActionDraftsChange,
+  onParticipantDraftChange,
+  onAgendaDraftChange,
+  onMinuteDraftChange,
+  onProposalDraftChange,
+  onDecisionDraftChange,
+  onCandidateDraftChange,
+}: MeetingDetailPanelProps): PageSurfaceBlockSpec {
   const canEdit = meeting.permissions.canEdit;
 
-  return <div className="space-y-4">
+  return {
+    kind: "panel",
+    key: "meeting-detail",
+    bodyClassName: "p-4",
+    blocks: [{
+      kind: "form",
+      key: "meeting-detail-content",
+      surface: {
+        kind: "fields",
+        fields: [{
+          kind: "note",
+          key: "meeting-detail-composition",
+          content: <div className="space-y-4">
       <MeetingHeader meeting={meeting} saving={saving} onUpdate={onUpdate} />
-      <div className="grid gap-4 2xl:grid-cols-2">
+      <div className="grid 2xl:grid-cols-2" style={{ gap: "1rem" }}>
         <Section title="参会人">
           <ParticipantList participants={meeting.participants} />
           {canEdit && <InlineForm>
@@ -73,11 +87,11 @@ export function MeetingDetailPanel({
             role,
             canVote: role === "owner" || role === "voter",
           })} />
-              <FormSurface kind="inline" className="self-end" field={{ key: "canVote", label: "可投票", spec: { valueType: "boolean", editor: "checkbox" }, value: participantDraft.canVote, onChange: checked => onParticipantDraftChange({
+              <FormSurface kind="fields" className="self-end" field={{ key: "canVote", label: "可投票", spec: { valueType: "boolean", editor: "checkbox" }, value: participantDraft.canVote, onChange: checked => onParticipantDraftChange({
                 ...participantDraft,
                 canVote: Boolean(checked),
               }) }} />
-              <FormSurface kind="inline" className="self-end" actions={[{ key: "save-participant", label: "保存参会人", variant: "primary", size: "sm", disabled: saving || !participantDraft.userId, onClick: () => void onMutate<{
+              <FormSurface kind="fields" className="self-end" actions={[{ key: "save-participant", label: "保存参会人", variant: "primary", size: "sm", disabled: saving || !participantDraft.userId, onClick: () => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/participants`, participantDraft, "参会人已保存") }]} />
             </InlineForm>}
@@ -98,7 +112,7 @@ export function MeetingDetailPanel({
             ...agendaDraft,
             description,
           })} />
-              <FormSurface kind="inline" className="self-end" actions={[{ key: "add-agenda", label: "新增议题", variant: "primary", size: "sm", disabled: saving || !agendaDraft.title.trim(), onClick: () => void onMutate<{
+              <FormSurface kind="fields" className="self-end" actions={[{ key: "add-agenda", label: "新增议题", variant: "primary", size: "sm", disabled: saving || !agendaDraft.title.trim(), onClick: () => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/agenda`, agendaDraft, "议题已新增", () => onAgendaDraftChange({
               title: "",
@@ -122,7 +136,7 @@ export function MeetingDetailPanel({
             ...minuteDraft,
             content,
           })} className="md:col-span-2" />
-              <FormSurface kind="inline" className="self-end" actions={[{ key: "add-minute", label: "记录纪要", variant: "primary", size: "sm", disabled: saving || !minuteDraft.content.trim(), onClick: () => void onMutate<{
+              <FormSurface kind="fields" className="self-end" actions={[{ key: "add-minute", label: "记录纪要", variant: "primary", size: "sm", disabled: saving || !minuteDraft.content.trim(), onClick: () => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/minutes`, normalizeOptionalIds(minuteDraft), "纪要已记录", () => onMinuteDraftChange({
               agendaItemId: "",
@@ -180,7 +194,7 @@ export function MeetingDetailPanel({
             ...proposalDraft,
             content,
           })} className="md:col-span-2" />
-              <FormSurface kind="inline" className="self-end" actions={[{ key: "create-proposal", label: "创建表决", variant: "primary", size: "sm", disabled: saving || !proposalDraft.title.trim(), onClick: () => void onMutate<{
+              <FormSurface kind="fields" className="self-end" actions={[{ key: "create-proposal", label: "创建表决", variant: "primary", size: "sm", disabled: saving || !proposalDraft.title.trim(), onClick: () => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/votes`, {
               action: "create",
@@ -277,5 +291,14 @@ export function MeetingDetailPanel({
             </InlineForm>}
         </Section>
       </div>
-    </div>;
+    </div>,
+        }],
+      },
+    }],
+  };
+}
+
+export function MeetingDetailPanel(props: MeetingDetailPanelProps) {
+  const block = useMeetingDetailBlock(props);
+  return <PageSurface embedded kind="detail" blocks={[block]} />;
 }

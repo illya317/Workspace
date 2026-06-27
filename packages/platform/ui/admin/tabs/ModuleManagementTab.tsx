@@ -196,9 +196,6 @@ export default function ModuleManagementTab({ showToast }: Props) {
     }
   }
 
-  if (loading) return <PageSurface kind="settings" embedded contentClassName="py-0" empty={{ content: "加载模块管理..." }} />;
-  if (!data) return <PageSurface kind="settings" embedded contentClassName="py-0" empty={{ content: "暂无模块管理数据" }} />;
-
   const switchDisabled = saving || (selectedModule?.level === "L2" && selectedModule.parentEnabled === false);
   const apiText = selectedModule?.apiPrefixes.length
     ? selectedModule.apiPrefixes.join("、")
@@ -220,7 +217,7 @@ export default function ModuleManagementTab({ showToast }: Props) {
             <StatusPill status={selectedModule.status} />
           </div>
           <FormSurface
-            kind="inline"
+            kind="fields"
             fields={[
               {
                 key: "enabled",
@@ -246,7 +243,7 @@ export default function ModuleManagementTab({ showToast }: Props) {
             <DetailLine label="Resource">{selectedModule.resourceKey}</DetailLine>
             <DetailLine label="Package">{selectedModule.packageName}</DetailLine>
           </div>
-          <p className="text-sm text-slate-500">{data.rule}</p>
+          <p className="text-sm text-slate-500">{data?.rule}</p>
           {selectedModule.disabledReason && (
             <p className="text-sm text-slate-400">{selectedModule.disabledReason}</p>
           )}
@@ -259,89 +256,89 @@ export default function ModuleManagementTab({ showToast }: Props) {
     <PageSurface
       kind="settings"
       embedded
-      contentClassName="py-0"
-      blocks={[{
-        kind: "surfaceGroup",
-        key: "module-management",
-        layout: "grid",
-        className: "lg:grid-cols-[18rem_minmax(0,1fr)]",
-        blocks: [
-          {
-            kind: "surfaceGroup",
-            key: "module-tree-column",
-            blocks: [
-              {
-                kind: "form",
-                key: "search",
-                surface: {
-                  kind: "inline",
-                  className: "w-full",
-                  fields: [{
+      empty={loading || !data ? { content: loading ? "加载模块管理..." : "暂无模块管理数据" } : undefined}
+      blocks={!data ? undefined : [{
+          kind: "surfaceGroup",
+          key: "module-management",
+          layout: "grid",
+          className: "lg:grid-cols-[18rem_minmax(0,1fr)]",
+          blocks: [
+            {
+              kind: "surfaceGroup",
+              key: "module-tree-column",
+              blocks: [
+                {
+                    kind: "form",
                     key: "search",
-                    label: "搜索",
-                    spec: { valueType: "string", editor: "input" },
-                    value: query,
-                    onChange: (value) => setQuery(String(value ?? "")),
-                    placeholder: "搜索模块",
+                    surface: {
+                    kind: "fields",
                     className: "w-full",
+                    fields: [{
+                      key: "search",
+                      label: "搜索",
+                      spec: { valueType: "string", editor: "input" },
+                      value: query,
+                      onChange: (value) => setQuery(String(value ?? "")),
+                      placeholder: "搜索模块",
+                      className: "w-full",
+                    }],
+                  },
+                },
+                {
+                  kind: "section",
+                  key: "tree",
+                  title: "模块树",
+                  bodyClassName: "p-2",
+                  blocks: [{
+                    kind: "message",
+                    key: "tree-body",
+                    className: "border-0 bg-transparent p-0 text-inherit",
+                    content: (
+                      <ResourceTree
+                        resources={moduleTree}
+                        selectedResource={selectedResourceKey}
+                        onSelect={setSelectedResourceKey}
+                        forceExpanded={query.trim().length > 0}
+                      />
+                    ),
                   }],
                 },
-              },
-              {
-                kind: "section",
-                key: "tree",
-                title: "模块树",
-                bodyClassName: "p-2",
-                blocks: [{
-                  kind: "message",
-                  key: "tree-body",
-                  className: "border-0 bg-transparent p-0 text-inherit",
-                  content: (
-                    <ResourceTree
-                      resources={moduleTree}
-                      selectedResource={selectedResourceKey}
-                      onSelect={setSelectedResourceKey}
-                      forceExpanded={query.trim().length > 0}
-                    />
-                  ),
-                }],
-              },
-            ],
-          },
-          {
-            kind: "surfaceGroup",
-            key: "module-detail-column",
-            blocks: [
-              ...detailBlocks,
-              {
-                kind: "section",
-                key: "auxiliary",
-                title: "辅助资源",
-                subtitle: "不属于 L1/L2 主模块，但会跟随所属模块或独立规则治理。",
-                blocks: [{
-                  kind: "message",
-                  key: "auxiliary-list",
-                  className: "border-0 bg-transparent p-0 text-inherit",
-                  content: (
-                    <div className="space-y-2">
-                      {data.auxiliaryResources.map((resource) => (
-                        <div key={resource.key} className="grid gap-2 text-sm md:grid-cols-[1fr_auto]">
-                          <div>
-                            <div className="font-medium text-slate-800">{resource.name}</div>
-                            <div className="text-xs text-slate-400">{resource.key}</div>
-                            {resource.disabledReason && <div className="text-xs text-slate-400">{resource.disabledReason}</div>}
+              ],
+            },
+            {
+              kind: "surfaceGroup",
+              key: "module-detail-column",
+              blocks: [
+                ...detailBlocks,
+                {
+                  kind: "section",
+                  key: "auxiliary",
+                  title: "辅助资源",
+                  subtitle: "不属于 L1/L2 主模块，但会跟随所属模块或独立规则治理。",
+                  blocks: [{
+                    kind: "message",
+                    key: "auxiliary-list",
+                    className: "border-0 bg-transparent p-0 text-inherit",
+                    content: (
+                      <div className="space-y-2">
+                        {(data?.auxiliaryResources ?? []).map((resource) => (
+                          <div key={resource.key} className="grid gap-2 text-sm md:grid-cols-[1fr_auto]">
+                            <div>
+                              <div className="font-medium text-slate-800">{resource.name}</div>
+                              <div className="text-xs text-slate-400">{resource.key}</div>
+                              {resource.disabledReason && <div className="text-xs text-slate-400">{resource.disabledReason}</div>}
+                            </div>
+                            <StatusPill status={resource.status} />
                           </div>
-                          <StatusPill status={resource.status} />
-                        </div>
-                      ))}
-                    </div>
-                  ),
-                }],
-              },
-            ],
-          },
-        ],
-      }]}
+                        ))}
+                      </div>
+                    ),
+                  }],
+                },
+              ],
+            },
+          ],
+        }]}
     />
   );
 }

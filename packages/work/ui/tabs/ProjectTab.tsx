@@ -3,9 +3,10 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { PageSurface, useFeedback } from "@workspace/core/ui";
+import type { PageSurfaceProps } from "@workspace/core/ui";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 import type { WorkUser } from "@workspace/work/types";
-import ProjectDetailEditor from "./project/ProjectDetailEditor";
+import { useProjectDetailEditorBlock } from "./project/ProjectDetailEditor";
 import ProjectGanttTab from "./project/ProjectGanttTab";
 import ProjectPlanGanttTab from "./project/ProjectPlanGanttTab";
 import { PROJECT_LIST_FILTER_OPTIONS, projectCode, type ProjectItem, type ProjectListFilter } from "./project/model";
@@ -14,27 +15,18 @@ import { useProjectTabModel } from "./project/use-project-tab-model";
 export default function ProjectTab({ user }: { user: WorkUser }) {
   const tabs = useMemo(() => getPageViewTabs("/work/projects"), []);
   const [activeChild, setActiveChild] = useState("projects");
-  return (
-    <PageSurface
-      kind="list"
-      tabs={tabs}
-      activeTab="projects"
-      activeChild={activeChild}
-      onTabChange={() => setActiveChild("projects")}
-      onChildChange={setActiveChild}
-      blocks={[{
-        kind: "moduleView",
-        key: activeChild,
-        view: activeChild === "projects-gantt" ? (
-          <ProjectGanttTab user={user} />
-        ) : activeChild === "project-plan-gantt" ? (
-          <ProjectPlanGanttTab requestedProjectId={requestedProjectId()} />
-        ) : (
-          <ProjectLedgerTab user={user} />
-        ),
-      }]}
-    />
-  );
+  const surface = {
+    tabs,
+    activeTab: "projects",
+    activeChild,
+    onTabChange: () => setActiveChild("projects"),
+    onChildChange: setActiveChild,
+  } satisfies ProjectChildSurfaceProps;
+  if (activeChild === "projects-gantt") return <ProjectGanttTab user={user} surface={surface} />;
+  if (activeChild === "project-plan-gantt") {
+    return <ProjectPlanGanttTab requestedProjectId={requestedProjectId()} surface={surface} />;
+  }
+  return <ProjectLedgerTab user={user} surface={surface} />;
 }
 
 function requestedProjectId() {
@@ -43,7 +35,9 @@ function requestedProjectId() {
   return Number.isInteger(value) && value > 0 ? value : null;
 }
 
-function ProjectLedgerTab({ user }: { user: WorkUser }) {
+type ProjectChildSurfaceProps = Pick<PageSurfaceProps, "tabs" | "activeTab" | "activeChild" | "onTabChange" | "onChildChange">;
+
+function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: ProjectChildSurfaceProps }) {
   const searchParams = useSearchParams();
   const requestedProjectId = Number(searchParams.get("projectId") || "");
   const model = useProjectTabModel(user, Number.isInteger(requestedProjectId) && requestedProjectId > 0 ? requestedProjectId : null);
@@ -74,40 +68,38 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
       });
     }
   };
-
-  if (model.loading || model.error) {
-    return (
-      <PageSurface
-        kind="split"
-        sideOpen={model.projectListOpen}
-        drawerOpen={model.projectListDrawerOpen}
-        onSideOpenChange={model.setProjectListOpen}
-        onDrawerOpenChange={model.setProjectListDrawerOpen}
-        sideLabel="项目列表"
-        splitRatio={[2, 8]}
-        showSideControls={false}
-        contentClassName="!p-0 !max-w-none"
-        side={{
-          blocks: [{
-            kind: "message",
-            key: "project-list-loading",
-            content: model.loading ? "加载中..." : "暂无项目",
-            tone: "muted",
-          }],
-        }}
-        blocks={[{
-          kind: "message",
-          key: "project-loading",
-          content: model.error || "加载中...",
-          tone: model.error ? "danger" : "muted",
-        }]}
-      />
-    );
-  }
+  const projectDetailBlock = useProjectDetailEditorBlock({
+    editorTitle,
+    dirty: model.dirty,
+    draft: model.draft,
+    selectedProject: model.selectedProject,
+    canEditCurrent: model.canEditCurrent,
+    canManageCurrent: model.canManageCurrent,
+    canDeleteCurrent: model.canDeleteCurrent,
+    saving: model.saving,
+    canSave: model.canSave,
+    rasciRows: model.rasciRows,
+    creating: model.creating,
+    onCancelCreate: model.cancelCreateProject,
+    onDeleteProject: () => void confirmDeleteProject(),
+    onSave: () => void model.saveProject(),
+    onDraftChange: model.updateDraft,
+    onLeaderChange: model.setLeader,
+    onRoleMembersChange: model.setRoleMembers,
+    onCreateChildProject: model.startCreateChildProject,
+    onOpenProject: (projectId) => {
+      model.setCreating(false);
+      model.setProjectListFilter("all");
+      model.setSelection(projectId);
+    },
+    onProjectTasksChanged: (projectId) => void model.loadSelectedTasks(projectId),
+    onToast: model.setToast,
+  });
 
   return (
     <PageSurface
       kind="split"
+      {...surface}
       sideOpen={model.projectListOpen}
       drawerOpen={model.projectListDrawerOpen}
       onSideOpenChange={model.setProjectListOpen}
@@ -115,8 +107,7 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
       sideLabel="项目列表"
       splitRatio={[2, 8]}
       showSideControls={false}
-      contentClassName="!p-0 !max-w-none"
-      toolbar={{
+      toolbar={model.loading || model.error ? undefined : {
         variant: "inline",
         className: "w-full justify-start",
         items: [
@@ -158,50 +149,28 @@ function ProjectLedgerTab({ user }: { user: WorkUser }) {
             ],
       }}
       side={{
-        blocks: [projectListNavigationBlock(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
+        blocks: model.loading || model.error ? [{
+          kind: "message",
+          key: "project-list-loading",
+          content: model.loading ? "加载中..." : "暂无项目",
+          tone: "muted",
+        }] : [projectListNavigationBlock(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
           model.setCreating(false);
           model.setSelection(projectId);
           model.setProjectListDrawerOpen(false);
         })],
-        drawerBlocks: [projectListNavigationBlock(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
+        drawerBlocks: model.loading || model.error ? undefined : [projectListNavigationBlock(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
           model.setCreating(false);
           model.setSelection(projectId);
           model.setProjectListDrawerOpen(false);
         }, "drawer")],
       }}
-      blocks={[{
-        kind: "moduleView",
-        key: "project-detail",
-        view: (
-          <ProjectDetailEditor
-            editorTitle={editorTitle}
-            dirty={model.dirty}
-            draft={model.draft}
-            selectedProject={model.selectedProject}
-            canEditCurrent={model.canEditCurrent}
-            canManageCurrent={model.canManageCurrent}
-            canDeleteCurrent={model.canDeleteCurrent}
-            saving={model.saving}
-            canSave={model.canSave}
-            rasciRows={model.rasciRows}
-            creating={model.creating}
-            onCancelCreate={model.cancelCreateProject}
-            onDeleteProject={() => void confirmDeleteProject()}
-            onSave={() => void model.saveProject()}
-            onDraftChange={model.updateDraft}
-            onLeaderChange={model.setLeader}
-            onRoleMembersChange={model.setRoleMembers}
-            onCreateChildProject={model.startCreateChildProject}
-            onOpenProject={(projectId) => {
-              model.setCreating(false);
-              model.setProjectListFilter("all");
-              model.setSelection(projectId);
-            }}
-            onProjectTasksChanged={(projectId) => void model.loadSelectedTasks(projectId)}
-            onToast={model.setToast}
-          />
-        ),
-      }]}
+      blocks={model.loading || model.error ? [{
+        kind: "message",
+        key: "project-loading",
+        content: model.error || "加载中...",
+        tone: model.error ? "danger" : "muted",
+      }] : [projectDetailBlock]}
     />
   );
 }

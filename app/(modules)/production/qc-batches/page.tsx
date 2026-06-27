@@ -1,7 +1,7 @@
 import { requireRouteAccess } from "@workspace/platform/server/auth";
 import { getQcTemplateSummaries, listQcBatches } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
-import { QcBatchListClient, QcModuleShell } from "@workspace/production/ui";
+import { QcBatchListClient } from "@workspace/production/ui";
 
 export default async function QcBatchesPage() {
   const user = await requireRouteAccess("/production/qc-batches");
@@ -20,14 +20,5 @@ export default async function QcBatchesPage() {
   });
   const products = templates.map((template) => ({ id: template.id, productName: template.productName }));
 
-  return (
-    <QcModuleShell
-      user={user}
-      title="批次检验"
-      description="创建并管理药品批次检验记录，跟踪检验、复核、验收和异常状态。"
-      activeResourceKey="production.qcBatches"
-    >
-      <QcBatchListClient initialRows={initialRows} products={products} />
-    </QcModuleShell>
-  );
+  return <QcBatchListClient initialRows={initialRows} products={products} pageChrome={{ title: "批次检验", backHref: "/production", user }} />;
 }

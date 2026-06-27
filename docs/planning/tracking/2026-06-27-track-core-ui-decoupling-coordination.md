@@ -111,10 +111,10 @@ Hygiene owner:
 - Pause taxonomy, schema, registry-design, and PageSurface contract changes until Architecture lands the model.
 - Do not expand baseline for new violations.
 - Do not move components across families based on the old NavigationSurface/chrome model.
-- Collect current historical debt by category:
+- Collect current historical debt by category; page chrome debt now has a strict zero target:
   - business direct runtime imports of Core L2/L3 renderers,
   - embedded `PageSurface` owning toolbar/navigation,
-  - `DataSurface.toolbar` / `FormSurface.toolbar` usage,
+  - `DataSurface.toolbar` / `FormSurface.toolbar` / `DataSurface.pagination` usage,
   - `PageSurface.moduleView` escape hatches,
   - direct `NavigationSurface` / `Toolbar` / `TabBar` / `Pagination` usage.
 - Ratchet only when a migrated item is actually removed.

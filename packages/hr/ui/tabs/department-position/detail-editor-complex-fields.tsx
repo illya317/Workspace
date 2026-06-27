@@ -1,9 +1,8 @@
 "use client";
 
-import { FormSurface, PageSurface, useFeedback } from "@workspace/core/ui";
+import { FormSurface, useFeedback, type FormSurfaceItemSpec } from "@workspace/core/ui";
 import { HR_MAJOR_OPTIONS, normalizeHrMajorItems, type HRMajorItem } from "@workspace/hr/constants/field-options";
 import { ENVIRONMENT_FACTOR_OPTIONS, WORK_AREA_OPTIONS, pickerOptions, primitiveListItems } from "./description-details";
-import { OptionTagListEditor } from "./detail-editor-primitives";
 type WorkEnvironmentItem = {
   area: string;
   factors: string[];
@@ -56,72 +55,75 @@ export function WorkEnvironmentEditor({
     if (!confirmed) return;
     onChange(items.filter((_, itemIndex) => itemIndex !== index));
   }
+  const addAreaFields: FormSurfaceItemSpec<string>[] = !disabled ? [{
+    key: "addArea",
+    label: "新增工作区域",
+    spec: { valueType: "string", editor: "select", state: availableAreas.length === 0 ? "disabled" : "normal", options: { source: "static", items: pickerOptions(availableAreas), searchPlaceholder: "搜索工作区域" } },
+    value: "",
+    placeholder: "新增工作区域",
+    onChange: (next) => addArea(next == null ? null : String(next)),
+    fieldClassName: "max-w-sm",
+  }] : [];
   return <div className="space-y-2">
-      <span className="text-xs font-medium text-slate-500">{label}</span>
-      <PageSurface
-        embedded
-        kind="detail"
-        blocks={[{
-          kind: "panel",
-          key: "work-environments",
-          bodyClassName: "space-y-3 p-3",
-          blocks: [{
-            kind: "moduleView",
-            key: "content",
-            view: <>
-        {items.map((item, index) => {
-        const areaOptions = [item.area, ...availableAreas].filter((area, areaIndex, array) => array.indexOf(area) === areaIndex);
-        return <PageSurface
-          key={`${item.area}-${index}`}
-          embedded
-          kind="detail"
-          blocks={[{
-            kind: "panel",
-            key: `work-environment-${index}`,
-            bodyClassName: "p-3",
-            blocks: [{
-              kind: "moduleView",
-              key: "content",
-              view: <>
-                <div className="mb-3 flex items-start gap-3">
-                  <div className="min-w-48 flex-1">
-                    <FormSurface
-                      kind="control"
-                      control={{
-                        kind: "inputControl",
-                        spec: { valueType: "string", editor: "select", state: disabled ? "disabled" : "normal", options: { source: "static", items: pickerOptions(areaOptions), searchPlaceholder: "搜索工作区域" } },
-                        value: item.area,
-                        placeholder: "选择工作区域",
-                        onChange: next => updateItem(index, { area: String(next ?? "") }),
-                      }}
-                    />
-                  </div>
-                  {!disabled && <FormSurface kind="inline" actions={[{ key: "delete-area", label: "删除", variant: "danger", size: "sm", onClick: () => void removeArea(index), className: "px-2 py-1 text-xs" }]} />}
-                </div>
-                <OptionTagListEditor label="环境因素" value={item.factors} options={ENVIRONMENT_FACTOR_OPTIONS} disabled={disabled} placeholder="添加环境因素" onChange={factors => updateItem(index, {
-                  factors
-                })} />
-              </>,
-            }],
-          }]}
-        />;
-      })}
-        {items.length === 0 && <PageSurface embedded kind="detail" empty={{ content: "未设置", compact: true }} />}
-        {!disabled && <div className="max-w-sm">
-            <FormSurface
-              kind="control"
-              control={{
-                kind: "inputControl",
-                spec: { valueType: "string", editor: "select", state: availableAreas.length === 0 ? "disabled" : "normal", options: { source: "static", items: pickerOptions(availableAreas), searchPlaceholder: "搜索工作区域" } },
-                value: "",
-                placeholder: "新增工作区域",
-                onChange: (next) => addArea(next == null ? null : String(next)),
-              }}
-            />
-          </div>}
-            </>,
-          }],
-        }]}
+      <FormSurface<string>
+        kind="fields"
+        fields={[
+          {
+            kind: "repeatable",
+            key: "work-environments",
+            title: label,
+            empty: "未设置",
+            columns: 2,
+            items: items.map((item, index) => {
+              const areaOptions = [item.area, ...availableAreas].filter((area, areaIndex, array) => array.indexOf(area) === areaIndex);
+              const availableFactors = ENVIRONMENT_FACTOR_OPTIONS.filter((factor) => !item.factors.includes(factor));
+              return {
+                key: `${item.area}-${index}`,
+                actions: disabled ? undefined : [{ key: "delete-area", label: "删除", variant: "danger", size: "sm", onClick: () => void removeArea(index), className: "px-2 py-1 text-xs" }],
+                fields: [
+                  {
+                    key: "area",
+                    label: "工作区域",
+                    spec: { valueType: "string", editor: "select", state: disabled ? "disabled" : "normal", options: { source: "static", items: pickerOptions(areaOptions), searchPlaceholder: "搜索工作区域" } },
+                    value: item.area,
+                    placeholder: "选择工作区域",
+                    onChange: next => updateItem(index, { area: String(next ?? "") }),
+                  },
+                  {
+                    kind: "tagList",
+                    key: "factors",
+                    label: "环境因素",
+                    items: item.factors,
+                    getKey: (factor, factorIndex) => `${factor}-${factorIndex}`,
+                    getLabel: (factor) => factor,
+                    onRemove: (_, factorIndex) => updateItem(index, { factors: item.factors.filter((__, currentIndex) => currentIndex !== factorIndex) }),
+                    disabled,
+                    removeConfirmMessage: (factor) => `确定删除「${factor || "环境因素"}」吗？删除后需要保存才会生效。`,
+                    emptyText: disabled ? "未设置" : undefined,
+                    shellClassName: "content-start",
+                    fieldClassName: "md:col-span-2",
+                    append: disabled ? undefined : {
+                      className: "min-w-40",
+                      field: {
+                        key: "appendFactor",
+                        label: "",
+                        spec: { valueType: "string", editor: "select", state: availableFactors.length === 0 ? "disabled" : "normal", options: { source: "static", items: pickerOptions(availableFactors), visibleCount: 6, searchPlaceholder: "搜索环境因素" } },
+                        value: "",
+                        placeholder: item.factors.length === 0 ? "添加环境因素" : "继续添加",
+                        onChange: (next) => {
+                          const factor = next == null ? "" : String(next);
+                          if (!factor) return;
+                          updateItem(index, { factors: [...item.factors, factor].filter((current, currentIndex, array) => array.indexOf(current) === currentIndex) });
+                        },
+                      },
+                    },
+                  },
+                ],
+              };
+            }),
+          },
+          ...addAreaFields,
+        ]}
       />
     </div>;
 }
@@ -172,7 +174,8 @@ export function MajorRequirementsEditor({
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
       <FormSurface<HRMajorItem>
-        kind="inline"
+        kind="fields"
+        bodyClassName="gap-2"
         fields={[{
           kind: "tagList",
           key: "majorRequirements",
@@ -251,71 +254,38 @@ export function ExperienceRequirementsEditor({
     onChange(items.filter((_, itemIndex) => itemIndex !== index));
   }
   return <div className="space-y-2">
-      <div className="flex items-center gap-3">
-        <span className="text-xs font-medium text-slate-500">{label}</span>
-        {!disabled && <FormSurface kind="inline" actions={[{ key: "add-experience", label: "新增", size: "sm", onClick: addItem, className: "px-2 py-1 text-xs" }]} />}
-      </div>
-      <PageSurface
-        embedded
-        kind="detail"
-        blocks={[{
-          kind: "panel",
+      <FormSurface
+        kind="fields"
+        fields={[{
+          kind: "repeatable",
           key: "experience-requirements",
-          bodyClassName: "space-y-2 p-3",
-          blocks: [{
-            kind: "moduleView",
-            key: "content",
-            view: <>
-              {items.map((item, index) => (
-                <PageSurface
-                  key={index}
-                  embedded
-                  kind="detail"
-                  blocks={[{
-                    kind: "panel",
-                    key: `experience-${index}`,
-                    bodyClassName: "grid grid-cols-1 gap-2 p-3 md:grid-cols-[150px_minmax(0,1fr)_40px]",
-                    blocks: [{
-                      kind: "moduleView",
-                      key: "content",
-                      view: <>
-                        <FormSurface
-                          kind="fields"
-                          className="contents"
-                          bodyClassName="contents"
-                          fields={[{
-                            key: "years",
-                            label: "年限",
-                            spec: { valueType: "number", editor: "input", state: disabled ? "disabled" : "normal" },
-                            value: item.years,
-                            inputMode: "numeric",
-                            placeholder: "1",
-                            onChange: next => updateItem(index, { years: positiveIntegerText(String(next ?? "")) }),
-                          }]}
-                        />
-                        <span className="self-end whitespace-nowrap border-l border-slate-200 bg-slate-50 px-2.5 py-2 text-sm text-slate-500">年以上</span>
-                        <FormSurface
-                          kind="fields"
-                          className="contents"
-                          bodyClassName="contents"
-                          fields={[{
-                            key: "requirement",
-                            label: "要求内容",
-                            spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" },
-                            value: item.requirement,
-                            placeholder: "经验要求",
-                            onChange: next => updateItem(index, { requirement: String(next ?? "") }),
-                          }]}
-                        />
-                        {!disabled && <FormSurface kind="inline" className="mt-5" actions={[{ key: "delete-experience", label: "删除", variant: "danger", size: "sm", onClick: () => void removeItem(index), className: "px-2 py-1 text-xs" }]} />}
-                      </>,
-                    }],
-                  }]}
-                />
-              ))}
-              {items.length === 0 && <PageSurface embedded kind="detail" empty={{ content: "未设置", compact: true }} />}
-            </>,
-          }],
+          title: label,
+          addAction: disabled ? undefined : { key: "add-experience", label: "新增", size: "sm", onClick: addItem, className: "px-2 py-1 text-xs" },
+          empty: "未设置",
+          columns: 2,
+          items: items.map((item, index) => ({
+            key: `experience-${index}`,
+            actions: disabled ? undefined : [{ key: "delete-experience", label: "删除", variant: "danger", size: "sm", onClick: () => void removeItem(index), className: "px-2 py-1 text-xs" }],
+            fields: [
+              {
+                key: "years",
+                label: "年限（年以上）",
+                spec: { valueType: "number", editor: "input", state: disabled ? "disabled" : "normal" },
+                value: item.years,
+                inputMode: "numeric",
+                placeholder: "1",
+                onChange: next => updateItem(index, { years: positiveIntegerText(String(next ?? "")) }),
+              },
+              {
+                key: "requirement",
+                label: "要求内容",
+                spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" },
+                value: item.requirement,
+                placeholder: "经验要求",
+                onChange: next => updateItem(index, { requirement: String(next ?? "") }),
+              },
+            ],
+          })),
         }]}
       />
     </div>;

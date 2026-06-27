@@ -36,7 +36,8 @@ export function OptionTagListEditor({
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
       <FormSurface<string>
-        kind="inline"
+        kind="fields"
+        bodyClassName="gap-2"
         fields={[{
           kind: "tagList",
           key: "options",

@@ -9,14 +9,13 @@ import DataTable from "./DataTable";
 import type { DataTableColumn } from "./DataTable.types";
 import DisclosureRecordCard from "./DisclosureRecordCard";
 import NumberCell from "./NumberCell";
-import Pagination from "./Pagination";
 import SelectionGrid from "./SelectionGrid";
 import StructuredTable, { type StructuredTableCell } from "./StructuredTable";
 import TableScrollFrame from "./TableScrollFrame";
 import CommandButton from "./CommandButton";
 import InputControl from "./InputControl";
-import { Toolbar } from "./Toolbar";
 import { joinClassNames } from "./card-utils";
+import { renderVisual } from "./DataSurface.visual";
 import type {
   DataSurfaceCellActionSpec,
   DataSurfaceCellSpec,
@@ -26,7 +25,6 @@ import type {
   DataSurfaceProps,
   DataSurfaceStructuredCellSpec,
   DataSurfaceTableProps,
-  DataSurfaceToolbarSpec,
 } from "./DataSurface.types";
 
 function hasSpecKind(value: unknown): value is { kind: string } {
@@ -38,6 +36,7 @@ function isDisplaySpec(value: ReactNode | DataSurfaceDisplaySpec): value is Data
   return (
     value.kind === "text"
     || value.kind === "empty"
+    || value.kind === "stack"
     || value.kind === "badge"
     || value.kind === "number"
     || value.kind === "amount"
@@ -74,6 +73,10 @@ function renderDisplay(value: ReactNode | DataSurfaceDisplaySpec): ReactNode {
   if (value.kind === "raw") {
     return <CodeBlock className={value.className}>{formatRawValue(value.value)}</CodeBlock>;
   }
+  if (value.kind === "stack") {
+    const gapClass = value.gap === "none" ? "" : value.gap === "sm" ? "space-y-2" : "space-y-1";
+    return <div className={joinClassNames(gapClass, value.className)}>{value.items.map((item, index) => <div key={index}>{renderDisplay(item)}</div>)}</div>;
+  }
   return <span className={value.className}>{value.value}</span>;
 }
 
@@ -109,11 +112,6 @@ export function renderCommands(commands?: DataSurfaceCommandSpec[]) {
       ))}
     </div>
   );
-}
-
-export function renderToolbar(toolbar?: DataSurfaceToolbarSpec) {
-  if (!toolbar?.items.length) return null;
-  return <Toolbar {...toolbar} />;
 }
 
 function renderCellAction(action: DataSurfaceCellActionSpec) {
@@ -205,7 +203,6 @@ function renderTable<T>(props: DataSurfaceTableProps<T>) {
           actionsColumn={props.actionsColumn}
         />
       </TableScrollFrame>
-      {props.pagination ? <Pagination {...props.pagination} /> : null}
     </>
   );
 }
@@ -240,7 +237,7 @@ export function renderData<T>(props: DataSurfaceProps<T>) {
             detailTitle={record.detailTitle}
             detailAction={record.detailAction}
           >
-            {renderDisplay(record.detail)}
+            {record.detailSurface ? renderData(record.detailSurface) : renderDisplay(record.detail)}
           </DisclosureRecordCard>
         ))}
       </div>
@@ -250,5 +247,6 @@ export function renderData<T>(props: DataSurfaceProps<T>) {
     if (props.metrics.length === 0) return <EmptyStateCard compact>{props.empty ?? "暂无指标"}</EmptyStateCard>;
     return <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{props.metrics.map((metric) => <MetricCard key={metric.key} label={metric.label} value={renderDisplay(metric.value)} className={metric.className} />)}</div>;
   }
+  if (props.kind === "visual") return renderVisual(props.visual);
   return <CodeBlock className={props.rawClassName}>{formatRawValue(props.value)}</CodeBlock>;
 }

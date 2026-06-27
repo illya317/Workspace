@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireRouteAccess } from "@workspace/platform/server/auth";
 import { getQcBatch, getQcTemplateDetail } from "@workspace/production/server/qc";
-import { QcBatchRecordStageList, QcModuleShell } from "@workspace/production/ui";
+import { ProductionQcPageSurface, QcBatchRecordStageList } from "@workspace/production/ui";
 
 interface Props {
   params: Promise<{ batchId: string }>;
@@ -15,14 +15,8 @@ export default async function QcBatchRecordPage({ params }: Props) {
   if (!detail) notFound();
 
   return (
-    <QcModuleShell
-      user={user}
-      title={`${batch.productName}批检验记录`}
-      description="按阶段进入检验前确认和检测项目记录。"
-      activeResourceKey="production.qcBatches"
-      backHref="/production/qc-batches"
-    >
+    <ProductionQcPageSurface title={`${batch.productName}批检验记录`} backHref="/production/qc-batches" user={user}>
       <QcBatchRecordStageList batch={batch} detail={detail} />
-    </QcModuleShell>
+    </ProductionQcPageSurface>
   );
 }

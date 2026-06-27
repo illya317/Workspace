@@ -53,6 +53,6 @@ export const page_frame_registry_entries = [
     kind: "layout",
     description: "主从分栏页面",
     example: "项目、部门岗位和资料库详情页左侧选择对象，右侧编辑详情。",
-    composes: ["PageContent", "SplitWorkspace", "Toolbar", "ActionButton"],
+    composes: ["PageContent", "SplitWorkspace", "Toolbar", "ActionButton", "TabBar"],
   },
 ] as const satisfies readonly CoreUiComponentRegistration[];

@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect } from "react";
 import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
-import { type SurfaceToolbarItem } from "@workspace/core/ui";
+import { type DataSurfaceCommandSpec } from "@workspace/core/ui";
 import { useCodeTab } from "./useCodeTab";
 import CodeTable from "./CodeTable";
 
@@ -122,28 +122,43 @@ export default function CodeTab({
     selectedCompany,
     departmentCode,
   });
-  const toolbarItems = [{
-    kind: "edit-group",
-    key: "edit",
-    section: "edit",
-    editMode,
-    onStartEdit: () => setEditMode(true),
-    onSave: handleSave,
-    onCancel: () => {
-      setEditRow(null);
-      setEditMode(false);
+  const tableActions: DataSurfaceCommandSpec[] = editMode ? [
+    {
+      key: "save",
+      label: saving ? "保存中..." : "保存",
+      variant: "primary",
+      disabled: saving,
+      onClick: () => void handleSave(),
     },
-    canEdit: hrCanEdit(user),
-    onShowHistory: () => setShowHistory(true),
-    saving,
-  } satisfies SurfaceToolbarItem];
+    {
+      key: "cancel",
+      label: "取消",
+      onClick: () => {
+        setEditRow(null);
+        setEditMode(false);
+      },
+    },
+  ] : [
+    {
+      key: "edit",
+      label: "编辑",
+      disabled: !hrCanEdit(user),
+      onClick: () => setEditMode(true),
+    },
+    {
+      key: "history",
+      label: "最近改动",
+      disabled: !hrCanEdit(user),
+      onClick: () => setShowHistory(true),
+    },
+  ];
 
   return (
     <div className="space-y-4">
       <CodeTable
         framed
         title={title}
-        toolbar={hrCanAccess(user, "hr.roster") ? { variant: "inline", items: toolbarItems } : undefined}
+        actions={hrCanAccess(user, "hr.roster") ? tableActions : undefined}
         loading={loading}
         emptyText="加载中..."
         bodyClassName="overflow-x-auto"

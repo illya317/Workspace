@@ -1,10 +1,9 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { FormSurface, PageSurface, type FormSurfaceCommandSpec } from "@workspace/core/ui";
+import { PageSurface, type FormSurfaceCommandSpec } from "@workspace/core/ui";
 import type { QcBatchSummary, QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcLayoutPaper from "./QcLayoutPaper";
@@ -115,52 +114,79 @@ export default function QcBatchTestRecord({
       className: "px-8",
     });
   }
+  const recordSteps = [
+    {
+      key: "batch",
+      label: "返回批次主页",
+      href: `/production/qc-batches/${batch.id}`,
+      tone: "primary" as const,
+    },
+    {
+      key: "precheck",
+      label: "检验前确认",
+      href: `/production/qc-batches/${batch.id}/${stage.key}`,
+    },
+    ...stage.tests.map(item => ({
+      key: item.englishName,
+      label: `${item.sequence} ${item.name}`,
+      href: `/production/qc-batches/${batch.id}/${stage.key}/${item.englishName}`,
+    })),
+  ];
   return <PageSurface
     kind="detail"
     embedded
     contentClassName="pb-8"
-    blocks={[{
-      kind: "moduleView",
-      key: "test-record",
-      view: (
-        <>
-          <div className="mx-auto max-w-[210mm]">
-            <nav className="mb-5 flex flex-wrap gap-2 text-xs">
-              <Link href={`/production/qc-batches/${batch.id}`} className="rounded bg-blue-100 px-3 py-2 font-medium text-blue-800">
-                返回批次主页
-              </Link>
-              <Link href={`/production/qc-batches/${batch.id}/${stage.key}`} className="rounded bg-slate-100 px-3 py-2 text-slate-700">
-                检验前确认
-              </Link>
-              {stage.tests.map(item => <Link key={item.englishName} href={`/production/qc-batches/${batch.id}/${stage.key}/${item.englishName}`} className={`rounded px-3 py-2 ${item.englishName === test.englishName ? "bg-slate-200 font-semibold text-slate-950" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}>
-                  {item.sequence} {item.name}
-                </Link>)}
-            </nav>
-
-            <div className="mb-5 flex items-center gap-3">
-              <h2 className="truncate text-base font-semibold text-slate-900">
-                {productName}{stage.label} - {test.name}
-              </h2>
-              <span className="ml-auto shrink-0 text-xs font-normal text-slate-500">
-                批号 {batch.batchNumber} · {workflowMessage}
-              </span>
-            </div>
-          </div>
-          <div className="min-w-[210mm]">
-            {test.layoutBlocks?.length ? <QcLayoutPaper blocks={test.layoutBlocks} test={test} values={form.values} referenceValues={referenceValues} onFieldChange={form.setValue} readOnly={readOnly} fieldScopePrefix={`${stage.key}/${test.englishName}`} /> : <div className="qc-a4-page mx-auto box-border w-[210mm] min-w-[210mm] overflow-visible bg-white px-[16mm] py-[15mm] text-slate-950 shadow-[0_0_0_1px_rgba(15,23,42,0.10),0_10px_35px_rgba(15,23,42,0.12)]" style={{
-            fontFamily: "\"FangSong\", \"STFangsong\", \"FangSong_GB2312\", \"仿宋\", serif"
-          }}>
-                <QcMethodFieldTable test={test} values={form.values} onFieldChange={form.setValue} readOnly={readOnly} />
-              </div>}
-          </div>
-
-          <div className="mx-auto mt-8 flex max-w-[210mm] items-center justify-center gap-3">
-            {recordActions.length ? <FormSurface kind="inline" actions={recordActions} /> : null}
-            {saveState === "saved" && <span className="text-sm text-emerald-700">{statusText || "已保存"}</span>}
-            {saveState === "error" && <span className="text-sm text-red-700">{statusText || "操作失败"}</span>}
-          </div>
-        </>
-      ),
-    }]}
+    blocks={[
+      {
+        kind: "navigation",
+        key: "test-navigation",
+        surface: {
+          kind: "steps",
+          active: test.englishName,
+          ariaLabel: "质检阶段导航",
+          className: "mx-auto max-w-[210mm]",
+          steps: recordSteps,
+        },
+      },
+      {
+        kind: "heading",
+        key: "test-heading",
+        className: "mx-auto max-w-[210mm]",
+        title: `${productName}${stage.label} - ${test.name}`,
+        subtitle: `批号 ${batch.batchNumber} · ${workflowMessage}`,
+      },
+      {
+        kind: "document",
+        key: "test-record-paper",
+        surface: {
+          kind: "pages",
+          pages: [{
+            key: "paper",
+            size: "a4",
+            content: test.layoutBlocks?.length ? <QcLayoutPaper blocks={test.layoutBlocks} test={test} values={form.values} referenceValues={referenceValues} onFieldChange={form.setValue} readOnly={readOnly} fieldScopePrefix={`${stage.key}/${test.englishName}`} /> : <div className="qc-a4-page mx-auto box-border w-[210mm] min-w-[210mm] overflow-visible bg-white px-[16mm] py-[15mm] text-slate-950 shadow-[0_0_0_1px_rgba(15,23,42,0.10),0_10px_35px_rgba(15,23,42,0.12)]" style={{
+              fontFamily: "\"FangSong\", \"STFangsong\", \"FangSong_GB2312\", \"仿宋\", serif"
+            }}>
+                  <QcMethodFieldTable test={test} values={form.values} onFieldChange={form.setValue} readOnly={readOnly} />
+                </div>,
+          }],
+        },
+      },
+      ...(recordActions.length ? [{
+        kind: "form" as const,
+        key: "test-actions",
+        surface: {
+          kind: "inline" as const,
+          className: "mx-auto mt-8 max-w-[210mm] justify-center text-center",
+          actions: recordActions,
+        },
+      }] : []),
+      ...(saveState === "saved" || saveState === "error" ? [{
+        kind: "message" as const,
+        key: "test-save-status",
+        className: "mx-auto max-w-[210mm] text-center",
+        tone: saveState === "saved" ? "success" as const : "danger" as const,
+        content: statusText || (saveState === "saved" ? "已保存" : "操作失败"),
+      }] : []),
+    ]}
   />;
 }

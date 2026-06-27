@@ -296,7 +296,7 @@ export function findDomainSharedL2LayoutShells(files: SourceInfo[]) {
 
 export function findSurfaceOwnsPageChrome(files: SourceInfo[]) {
   const warnings: SurfaceOwnsPageChrome[] = [];
-  const surfaceTypeFiles = files.filter((file) => /^packages\/core\/ui\/(DataSurface|FormSurface|PageSurface)\.types\.ts$/.test(file.relPath));
+  const surfaceTypeFiles = files.filter((file) => /^packages\/core\/ui\/(DataSurface|FormSurface)\.types\.ts$/.test(file.relPath));
 
   for (const file of surfaceTypeFiles) {
     const checks: Array<{ componentName: string; propName: string; pattern: RegExp; detail: string }> = [
@@ -317,18 +317,6 @@ export function findSurfaceOwnsPageChrome(files: SourceInfo[]) {
         propName: "toolbar",
         pattern: /FormSurfaceToolbarSpec|toolbar\??:/,
         detail: "FormSurface still declares page toolbar ownership; page chrome belongs to PageSurface.toolbar",
-      },
-      {
-        componentName: "PageSurface",
-        propName: "navigation",
-        pattern: /navigation\??:/,
-        detail: "PageSurface owns navigation placement; verify it remains a declared page segment, not child/provider registration",
-      },
-      {
-        componentName: "PageSurface",
-        propName: "toolbar",
-        pattern: /toolbar\??:/,
-        detail: "PageSurface owns toolbar placement; child/provider reverse registration is forbidden",
       },
     ];
 

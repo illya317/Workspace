@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireRouteAccess } from "@workspace/platform/server/auth";
 import { getQcBatch, getQcTemplateDetail } from "@workspace/production/server/qc";
-import { QcBatchTestRecord, QcModuleShell } from "@workspace/production/ui";
+import { ProductionQcPageSurface, QcBatchTestRecord } from "@workspace/production/ui";
 
 interface Props {
   params: Promise<{ batchId: string; stageKey: string; testName: string }>;
@@ -17,14 +17,8 @@ export default async function QcBatchTestPage({ params }: Props) {
   if (!detail || !stage || !test) notFound();
 
   return (
-    <QcModuleShell
-      user={user}
-      title={`${batch.productName} ${test.name}`}
-      description="YAML 方法字段驱动的检验项目记录。"
-      activeResourceKey="production.qcBatches"
-      backHref={`/production/qc-batches/${batch.id}/${stage.key}`}
-    >
+    <ProductionQcPageSurface title={`${batch.productName} ${test.name}`} backHref={`/production/qc-batches/${batch.id}/${stage.key}`} user={user}>
       <QcBatchTestRecord batch={batch} productName={detail.productName} detail={detail} stage={stage} test={test} currentUserName={user.employeeName || user.nickname} />
-    </QcModuleShell>
+    </ProductionQcPageSurface>
   );
 }

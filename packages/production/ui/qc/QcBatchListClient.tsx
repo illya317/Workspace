@@ -3,14 +3,17 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { FormSurface, useFeedback } from "@workspace/core/ui";
+import { PageSurface, useFeedback } from "@workspace/core/ui";
+import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import type { QcBatchSummary } from "@workspace/production/server/qc";
 import { QC_BATCH_PAGE_SIZE_OPTIONS, QC_BATCH_STATUS_OPTIONS, QcBatchCreatePanel } from "./QcBatchListControls";
 import { QcBatchTable, formatQcBatchDate, qcBatchStatusText, type QcBatchTableRow } from "./QcBatchTable";
+import { productionQcPageHeader, type ProductionQcPageChromeSpec } from "./ProductionQcPageChrome";
 
 interface Props {
   initialRows: QcBatchTableRow[];
   products: Array<{ id: string; productName: string }>;
+  pageChrome?: ProductionQcPageChromeSpec;
 }
 
 function todayBatchNumber() {
@@ -21,7 +24,7 @@ function todayBatchNumber() {
   return `${year}${month}${day}`;
 }
 
-export default function QcBatchListClient({ initialRows, products }: Props) {
+export default function QcBatchListClient({ initialRows, products, pageChrome }: Props) {
   const router = useRouter();
   const [rows, setRows] = useState(initialRows);
   const [productKey, setProductKey] = useState(products[0]?.id ?? "");
@@ -118,81 +121,100 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
     });
   }
 
+  const toolbarItems: SurfaceToolbarItems = [
+    {
+      kind: "select",
+      key: "status",
+      section: "filter",
+      label: "状态",
+      options: QC_BATCH_STATUS_OPTIONS,
+      value: statusFilter,
+      onChange: (value) => {
+        setStatusFilter(String(value ?? "all"));
+        setPage(1);
+      },
+      triggerClassName: "min-w-32",
+    },
+    {
+      kind: "autocomplete",
+      key: "product",
+      section: "filter",
+      value: productFilter,
+      options: productFilterOptions,
+      onChange: (value) => {
+        setProductFilter(String(value ?? ""));
+        setPage(1);
+      },
+      placeholder: "全部产品",
+      inputClassName: "min-w-[12rem]",
+    },
+    {
+      kind: "select",
+      key: "page-size",
+      section: "meta",
+      value: String(pageSize),
+      options: QC_BATCH_PAGE_SIZE_OPTIONS,
+      onChange: (value) => {
+        setPageSize(Number(value));
+        setPage(1);
+      },
+      label: "分页",
+      triggerClassName: "!w-[6.5rem] !min-w-[6.5rem]",
+    },
+    {
+      kind: "create",
+      key: "create",
+      section: "action",
+      label: createOpen ? "收起新建" : "新建批次",
+      active: createOpen,
+      onClick: () => setCreateOpen((open) => !open),
+    },
+    {
+      kind: "action-group",
+      key: "batch-actions",
+      section: "action",
+      actions: [
+        { key: "refresh", label: "刷新", kind: "refresh", onClick: refreshBatches },
+        { key: "export", label: "导出", kind: "download", onClick: exportBatches },
+      ],
+    },
+  ];
+
   return (
-    <section className="space-y-4">
-      <FormSurface
-        kind="filters"
-        fields={[
-          {
-            key: "status",
-            label: "状态",
-            spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: QC_BATCH_STATUS_OPTIONS } },
-            value: statusFilter,
-            onChange: (value) => {
-              setStatusFilter(String(value ?? "all"));
-              setPage(1);
-            },
-          },
-          {
-            key: "product",
-            label: "产品",
-            spec: { valueType: "string", editor: "autocomplete", options: { source: "static", mode: "autocomplete", visibleCount: 5, items: productFilterOptions } },
-            value: productFilter,
-            onChange: (value) => {
-              setProductFilter(String(value ?? ""));
-              setPage(1);
-            },
-            placeholder: "全部",
-            className: "min-w-[7.5rem]",
-          },
-          {
-            key: "pageSize",
-            label: "分页",
-            spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: QC_BATCH_PAGE_SIZE_OPTIONS } },
-            value: String(pageSize),
-            onChange: (value) => {
-              setPageSize(Number(value));
-              setPage(1);
-            },
-            className: "w-[6.5rem]",
-          },
-        ]}
-        actions={[
-          {
-            key: "create",
-            label: createOpen ? "收起新建" : "新建批次",
-            variant: createOpen ? "secondary" : "primary",
-            onClick: () => setCreateOpen((open) => !open),
-          },
-          { key: "refresh", label: "刷新", onClick: refreshBatches },
-          { key: "export", label: "导出", onClick: exportBatches },
-        ]}
-      />
+    <PageSurface
+      kind="list"
+      header={pageChrome ? productionQcPageHeader(pageChrome) : undefined}
+      toolbar={{ items: toolbarItems }}
+      body={{
+        content: (
+          <section className="space-y-4">
+            <QcBatchCreatePanel
+              open={createOpen}
+              products={products}
+              productKey={productKey}
+              batchNumber={batchNumber}
+              submitting={isPending}
+              onProductKeyChange={setProductKey}
+              onBatchNumberChange={setBatchNumber}
+              onSubmit={() => void createBatch()}
+              onCancel={() => {
+                setCreateOpen(false);
+                setBatchNumber(todayBatchNumber());
+              }}
+            />
 
-      <QcBatchCreatePanel
-        open={createOpen}
-        products={products}
-        productKey={productKey}
-        batchNumber={batchNumber}
-        submitting={isPending}
-        onProductKeyChange={setProductKey}
-        onBatchNumberChange={setBatchNumber}
-        onSubmit={() => void createBatch()}
-        onCancel={() => {
-          setCreateOpen(false);
-          setBatchNumber(todayBatchNumber());
-        }}
-      />
-
-      <QcBatchTable
-        rows={visibleBatches}
-        page={page}
-        totalPages={totalPages}
-        total={filtered.length}
-        onPageChange={setPage}
-        onView={(batch) => router.push(`/production/qc-batches/${batch.id}`)}
-        onDelete={(batch) => void deleteBatch(batch)}
-      />
-    </section>
+            <QcBatchTable
+              rows={visibleBatches}
+              page={page}
+              totalPages={totalPages}
+              total={filtered.length}
+              onPageChange={setPage}
+              onView={(batch) => router.push(`/production/qc-batches/${batch.id}`)}
+              onDelete={(batch) => void deleteBatch(batch)}
+            />
+          </section>
+        ),
+      }}
+    />
   );
 }
