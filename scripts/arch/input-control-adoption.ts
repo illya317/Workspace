@@ -37,7 +37,6 @@ const ALLOW_PATH_INCLUDES = [
 
 const ALLOW_FILES = new Set([
   "packages/platform/ui/LoginClient.tsx",
-  "packages/platform/ui/agent/AgentPanel.tsx",
   "packages/production/ui/qc/QcMethodFieldTable.tsx",
   "packages/production/ui/qc/QcPaperDateInput.tsx",
   "packages/production/ui/qc/QcPaperInputs.tsx",

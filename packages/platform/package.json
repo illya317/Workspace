@@ -59,8 +59,6 @@
     "./server/week-info": "./server/week-info.ts",
     "./types": "./types/index.ts",
     "./ui/docs": "./ui/docs/index.ts",
-    "./ui/agent": "./ui/agent/index.ts",
-    "./ui/agent/*": "./ui/agent/*.tsx",
     "./ui/admin": "./ui/admin/index.ts",
     "./ui/admin/*": "./ui/admin/*.tsx",
     "./ui/api-client": "./ui/api-client.ts",

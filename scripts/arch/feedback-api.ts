@@ -14,10 +14,6 @@ const FORBIDDEN_NAMES = [
   "useUnsavedChangesPrompt",
   "ConfirmModal",
 ] as const;
-const CONFIRM_MODAL_ALLOWED = new Set([
-  "packages/platform/ui/agent/AgentConfirmModal.tsx",
-]);
-
 type Violation = {
   file: string;
   name: string;
@@ -67,7 +63,6 @@ function findFeedbackApiViolations() {
     const source = fs.readFileSync(absPath, "utf8");
 
     for (const name of FORBIDDEN_NAMES) {
-      if (name === "ConfirmModal" && CONFIRM_MODAL_ALLOWED.has(relPath)) continue;
       const fromCoreUi = namedImportRegex("@workspace/core/ui", name).test(source);
       const fromCoreHooks = namedImportRegex("@workspace/core/hooks", name).test(source);
       const fromDirectPath = directImportRegex(name).test(source);

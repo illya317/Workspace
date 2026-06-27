@@ -73,7 +73,7 @@ generated 类成果的筛选 contract 要随生成 DTO 一起返回，避免 UI 
 
 Platform 可以聚合模块注册和导航，但不能写 HR、Finance、Production、Work、Administration、Library 的业务字段逻辑，也不能重复实现 Core 已有的页面表头/返回栏结构。
 
-Platform 系统壳和 Agent 系统 UI 的少量 runtime Core UI 候选由 Platform 自己治理，不属于业务 Page API：`AppShell -> PageShell`、`UserMenu -> DropdownMenu`、`AgentConfirmModal -> ConfirmModal`、`AgentPanel -> PanelCard`。这些例外不得加入 `businessCoreUiSurfaceBypassImports` 的业务 allowlist。
+Platform 系统壳的少量 runtime Core UI 候选由 Platform 自己治理，不属于业务 Page API：`AppShell -> PageShell`、`UserMenu -> DropdownMenu`。Agent 页面 UI 已停用，仅保留 API / bot 接入能力；这些例外不得加入 `businessCoreUiSurfaceBypassImports` 的业务 allowlist。
 
 ## 页面模板与薄壳 ViewModel
 

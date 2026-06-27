@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import AgentProvider from "@workspace/platform/ui/agent";
 import AppVersionGuard from "@workspace/platform/ui/AppVersionGuard";
 import { FeedbackProvider } from "@workspace/core/ui";
 import { getAppVersion } from "@workspace/platform/server/app-version";
@@ -25,7 +24,6 @@ export default function RootLayout({
         <FeedbackProvider>
           <AppVersionGuard version={appVersion} />
           {children}
-          <AgentProvider />
         </FeedbackProvider>
       </body>
     </html>

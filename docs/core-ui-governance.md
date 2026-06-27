@@ -33,7 +33,7 @@ Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页
 - 不新增业务包 `Toolbar`、`Picker`、`Select`、`Search`、`Table`、`Modal`、`DateInput`、`Pagination`、`Tab` 等重复基础 UI。
 - 业务页不得在 Surface spec 中塞 `custom` 渲染自定义控件；例如 toolbar/action spec 禁止 `kind: "custom"`。`custom` 和手搓 UI 没有本质区别，会绕过 Core 的尺寸、字号、排序、对齐、预览和审计规则。
 - 发现现有 Page API 不够用时，先停下来写清缺口；由 Architecture/Core UI 任务补公开接口，再回业务页替换。
-- Platform 系统壳和 Agent 系统 UI 例外独立治理：`AppShell -> PageShell`、`UserMenu -> DropdownMenu`、`AgentConfirmModal -> ConfirmModal`、`AgentPanel -> PanelCard` 是 Platform-owned system shell/agent candidates，不是业务 Page API，不进入业务 Surface allowlist。
+- Platform 系统壳例外独立治理：`AppShell -> PageShell`、`UserMenu -> DropdownMenu` 是 Platform-owned system shell candidates，不是业务 Page API，不进入业务 Surface allowlist。Agent 页面 UI 已停用，仅保留 API / bot 接入能力。
 
 Architecture/Core UI agent：
 
