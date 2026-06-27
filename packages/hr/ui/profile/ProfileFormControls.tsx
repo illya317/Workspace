@@ -6,7 +6,7 @@ import {
   PageSurface,
   type FormSurfaceInputControlSpec,
 } from "@workspace/core/ui";
-import type { FkFieldOption } from "@workspace/core/ui";
+import type { ReferenceOption } from "@workspace/core/ui";
 import EthnicityPicker from "../components/EthnicityPicker";
 import MajorPicker from "../components/MajorPicker";
 import ProfessionalTitlePicker from "../components/ProfessionalTitlePicker";
@@ -25,7 +25,7 @@ interface FieldInputProps {
   record?: Record<string, unknown>;
   displayValue?: string | null;
   disabled?: boolean;
-  onChange: (key: string, value: unknown, option?: FkFieldOption) => void;
+  onChange: (key: string, value: unknown, option?: ReferenceOption) => void;
 }
 
 function ControlField(control: Omit<FormSurfaceInputControlSpec, "kind">) {
@@ -155,7 +155,7 @@ export function ProfileFieldInput({
         displayValue={display}
         placeholder={reportToDisabled ? "先选择岗位" : `搜索${field.label}`}
         onChange={(next, option) => {
-          onChange(field.key, next ?? null, option as FkFieldOption | undefined);
+          onChange(field.key, next ?? null, option as ReferenceOption | undefined);
         }}
       />
     );

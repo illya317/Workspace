@@ -3,7 +3,7 @@
 import { FormSurface } from "@workspace/core/ui";
 import { contractFields } from "@workspace/hr/constants";
 import type { ContractRow, ProfileField } from "@workspace/hr/types";
-import type { FkFieldOption } from "@workspace/core/ui";
+import type { ReferenceOption } from "@workspace/core/ui";
 import { contractPeriodEndDate, fieldGrid, FieldRegion, isCurrentByEndDate, normalizeContractRow, pickFields, type EditableRecord } from "./EmployeeProfileUtils";
 import { ProfileAction, RowActions } from "./EmployeeProfileRowActions";
 import { useScrollToAddedItem } from "../hooks/useScrollToAddedItem";
@@ -38,7 +38,7 @@ export function ContractSection({
   canEdit: boolean;
   saving: string | null;
   onAdd: () => void;
-  onChange: (index: number, field: ProfileField, value: unknown, option?: FkFieldOption) => void;
+  onChange: (index: number, field: ProfileField, value: unknown, option?: ReferenceOption) => void;
   onDelete: (row: ContractRow, index: number) => Promise<void>;
 }) {
   const {
@@ -73,7 +73,7 @@ function ContractCard({
   canEdit: boolean;
   saving: string | null;
   fields: ProfileField[];
-  onChange: (index: number, field: ProfileField, value: unknown, option?: FkFieldOption) => void;
+  onChange: (index: number, field: ProfileField, value: unknown, option?: ReferenceOption) => void;
   onAdd: () => void;
   onDelete: (row: ContractRow, index: number) => Promise<void>;
 }) {

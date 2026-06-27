@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface, PageSurface, type FkFieldOption } from "@workspace/core/ui";
+import { FormSurface, PageSurface, type ReferenceOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { NEW_POSITION_DESCRIPTION_TEMPLATE_OPTION, type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
 import { PositionDescriptionDetailsEditor, sectionTitle, selectedEntityName } from "./detail-editors";
@@ -58,7 +58,7 @@ export function PositionDescriptionPanel({
 }) {
   const meta = deriveDescriptionMeta(descriptionDraft.details, descriptionDraft.version, descriptionDraft.effectiveDate);
   function updateReportToFromOption(option: unknown) {
-    onUpdateDescriptionDraft("reportTo", selectedEntityName("position", option as FkFieldOption | undefined));
+    onUpdateDescriptionDraft("reportTo", selectedEntityName("position", option as ReferenceOption | undefined));
   }
 
   return <PageSurface

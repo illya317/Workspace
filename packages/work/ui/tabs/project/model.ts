@@ -1,4 +1,4 @@
-import type { FkFieldOption, PickerOption } from "@workspace/core/ui";
+import type { PickerOption, ReferenceOption } from "@workspace/core/ui";
 import { PROJECT_ROLES } from "@workspace/work/constants";
 
 export type ProjectListFilter = "all" | "普通" | "重点";
@@ -225,7 +225,7 @@ export function projectCode(project: ProjectItem | null, draft: ProjectDraft | n
   return "保存后自动生成";
 }
 
-export function employeeFromOption(option?: FkFieldOption): EmployeeTag | null {
+export function employeeFromOption(option?: ReferenceOption): EmployeeTag | null {
   if (!option) return null;
   return {
     id: option.id,

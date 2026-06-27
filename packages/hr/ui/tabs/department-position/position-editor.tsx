@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface, PageSurface, type FkFieldOption } from "@workspace/core/ui";
+import { FormSurface, PageSurface, type ReferenceOption } from "@workspace/core/ui";
 import { SegmentedCodeInput } from "@workspace/platform/ui";
 import PositionAliasTagsInput from "./PositionAliasTagsInput";
 import { type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
@@ -150,7 +150,7 @@ export function PositionEditor({
               value: draft.departmentId == null ? "" : String(draft.departmentId),
               displayValue: draftDepartmentDisplay,
               placeholder: "搜索部门",
-              onChange: (_label, option) => onUpdateDraftDepartment((option as FkFieldOption | undefined)?.id ?? null),
+              onChange: (_label, option) => onUpdateDraftDepartment((option as ReferenceOption | undefined)?.id ?? null),
             }]} />
           </div>}
             </>,

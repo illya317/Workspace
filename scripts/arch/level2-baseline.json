@@ -26,6 +26,7 @@
   "handwrittenSearchMatches": [],
   "generatedFilterContractDrift": [],
   "businessCoreUiSurfaceBypassImports": [],
+  "businessCoreUiTypeBypassImports": [],
   "pageDesignDriftFiles": [],
   "repeatedServiceGroups": [],
   "routePrimitiveSchemaDuplicates": [],

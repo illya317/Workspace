@@ -1,7 +1,7 @@
 "use client";
 
 import { FormSurface } from "@workspace/core/ui";
-import type { FkFieldOption } from "@workspace/core/ui";
+import type { ReferenceOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
 import { primitiveListItems } from "./description-details";
 import { selectedEntityName } from "./detail-editor-primitives";
@@ -25,7 +25,7 @@ export function EntityTagListEditor({
 }) {
   const items = primitiveListItems(value);
 
-  function addOption(option?: FkFieldOption) {
+  function addOption(option?: ReferenceOption) {
     const next = selectedEntityName(entity, option);
     if (!next) return;
     onChange([...items, next].filter((item, index, array) => array.indexOf(item) === index));
@@ -75,7 +75,7 @@ export function EntityTagListEditor({
                   value: "",
                   displayValue: "",
                   placeholder: items.length === 0 ? placeholder || `搜索${label}` : `添加${label}`,
-                  onChange: (_label, option) => addOption(option as FkFieldOption | undefined),
+                  onChange: (_label, option) => addOption(option as ReferenceOption | undefined),
                 },
               },
         }]}

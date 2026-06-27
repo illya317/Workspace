@@ -4,7 +4,7 @@ import { FormSurface } from "@workspace/core/ui";
 import { SectionShell } from "./ProfileFormControls";
 import { edpFields, employmentFields } from "@workspace/hr/constants";
 import type { ContractRow, EdpRow, EmploymentRow, ProfileField } from "@workspace/hr/types";
-import type { FkFieldOption } from "@workspace/core/ui";
+import type { ReferenceOption } from "@workspace/core/ui";
 import { fieldGrid, FieldRegion, isCurrentByEndDate, pickFields, type EditableRecord, type RowBase } from "./EmployeeProfileUtils";
 import { ContractSection } from "./EmployeeProfileContractSection";
 import { ProfileAction, RowActions } from "./EmployeeProfileRowActions";
@@ -43,7 +43,7 @@ export function RowsSection<T extends RowBase>({
   fields: ProfileField[];
   canEdit: boolean;
   saving: string | null;
-  onChange: (index: number, field: ProfileField, value: unknown, option?: FkFieldOption) => void;
+  onChange: (index: number, field: ProfileField, value: unknown, option?: ReferenceOption) => void;
   onDelete?: (row: T, index: number) => Promise<void>;
   allowDelete?: boolean;
   className?: string;
@@ -78,9 +78,9 @@ export function EmploymentSection({
   contracts: ContractRow[];
   canEdit: boolean;
   saving: string | null;
-  onChange: (field: ProfileField, value: unknown, option?: FkFieldOption) => void;
+  onChange: (field: ProfileField, value: unknown, option?: ReferenceOption) => void;
   onAddContract: () => void;
-  onChangeContract: (index: number, field: ProfileField, value: unknown, option?: FkFieldOption) => void;
+  onChangeContract: (index: number, field: ProfileField, value: unknown, option?: ReferenceOption) => void;
   onDeleteContract: (row: ContractRow, index: number) => Promise<void>;
   className?: string;
 }) {
@@ -110,7 +110,7 @@ export function EdpSection({
   canEdit: boolean;
   saving: string | null;
   onAdd: () => void;
-  onChange: (index: number, field: ProfileField, value: unknown, option?: FkFieldOption) => void;
+  onChange: (index: number, field: ProfileField, value: unknown, option?: ReferenceOption) => void;
   onDelete: (row: EdpRow, index: number) => Promise<void>;
   className?: string;
 }) {

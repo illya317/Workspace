@@ -6,7 +6,7 @@ import { useLibraryDocuments } from "../hooks/useLibraryDocuments";
 import { useLibraryFilters } from "../hooks/useLibraryFilters";
 import { useLibraryDirectories } from "../hooks/useLibraryDirectories";
 import { PageSurface } from "@workspace/core/ui";
-import type { DataSurfaceProps, DataTableColumn, NavigationSurfaceProps, PageSurfaceBlockSpec, ToolbarItem } from "@workspace/core/ui";
+import type { DataSurfaceColumnSpec, DataSurfaceProps, NavigationSurfaceProps, PageSurfaceBlockSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import GenerateDocumentModal from "./GenerateDocumentModal";
 import LibraryDetailModal from "./LibraryDetailModal";
 import type { DirectoryNode, LibraryDocumentItem } from "@workspace/library/types";
@@ -88,7 +88,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
     return node.children.length > 0 ? node.children : undefined;
   }
 
-  const toolbarItems: ToolbarItem[] = [
+  const toolbarItems: SurfaceToolbarItems = [
     ...(canWrite
       ? [
           {
@@ -139,12 +139,12 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
       onClick: clearFilters,
     },
   ];
-  const columns: DataTableColumn<LibraryDocumentItem>[] = [
+  const columns: DataSurfaceColumnSpec<LibraryDocumentItem>[] = [
     {
       key: "fileName",
       label: "文件名",
       required: true,
-      render: (document) => (
+      cell: (document) => (
         <div>
           <div className="max-w-xs truncate font-medium text-gray-800">{document.fileName}</div>
           {document.title && document.title !== document.fileName && (
@@ -161,7 +161,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
       label: "简介",
       defaultVisible: true,
       cellClassName: "text-gray-500",
-      render: (document) => (
+      cell: (document) => (
         <span className="block max-w-[12rem] truncate" title={document.summary || ""}>
           {document.summary || "—"}
         </span>
@@ -172,13 +172,13 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
       label: "更新时间",
       defaultVisible: true,
       cellClassName: "text-gray-500",
-      render: (document) => fmtDate(document.updatedAt),
+      cell: (document) => fmtDate(document.updatedAt),
     },
     {
       key: "tags",
       label: "标签",
       defaultVisible: true,
-      render: (document) => document.tags && document.tags.length > 0 ? (
+      cell: (document) => document.tags && document.tags.length > 0 ? (
         <div className="flex flex-wrap gap-1">
           {document.tags.map((tag) => (
             <span key={tag} className="inline-flex rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200">
@@ -192,7 +192,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
       key: "actions",
       label: "操作",
       required: true,
-      render: (document) => document.status === "active" ? (
+      cell: (document) => document.status === "active" ? (
         <a
           href={workspacePath(`/api/modules/library/basic-info/documents/${document.id}/download`)}
           className="inline-flex items-center text-emerald-600 hover:text-emerald-700"

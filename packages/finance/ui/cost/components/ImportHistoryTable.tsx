@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState } from "react";
-import { useFeedback, type DataSurfaceColumnSpec, type DataTableColumn } from "@workspace/core/ui";
+import { useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState } from "../types";
 import CostDataTable, { type CostRecord } from "./CostDataTable";
@@ -51,45 +51,45 @@ export default function ImportHistoryTable({
       setDeleting(null);
     }
   };
-  const columns: Array<DataTableColumn<CostRecord> | DataSurfaceColumnSpec<CostRecord>> = [{
+  const columns: DataSurfaceColumnSpec<CostRecord>[] = [{
     key: "id",
     label: "ID",
     required: true,
-    render: row => String(row.id)
+    cell: row => String(row.id)
   }, {
     key: "profile",
     label: "类型",
     required: true,
-    render: row => String(row.profile)
+    cell: row => String(row.profile)
   }, {
     key: "year",
     label: "年份",
     required: true,
-    render: row => row.year ? String(row.year) : "—"
+    cell: row => row.year ? String(row.year) : "—"
   }, {
     key: "sourceFile",
     label: "源文件",
     required: true,
-    render: row => String(row.sourceFile)
+    cell: row => String(row.sourceFile)
   }, {
     key: "recordCount",
     label: "记录数",
     required: true,
     className: "text-right",
     headerClassName: "text-right",
-    render: row => String(row.recordCount)
+    cell: row => String(row.recordCount)
   }, {
     key: "warningCount",
     label: "警告",
     required: true,
     className: "text-right",
     headerClassName: "text-right",
-    render: row => String(row.warningCount)
+    cell: row => String(row.warningCount)
   }, {
     key: "importedAt",
     label: "导入时间",
     required: true,
-    render: row => row.importedAt ? new Date(String(row.importedAt)).toLocaleString("zh-CN") : "—"
+    cell: row => row.importedAt ? new Date(String(row.importedAt)).toLocaleString("zh-CN") : "—"
   }, {
     key: "actions",
     label: "操作",

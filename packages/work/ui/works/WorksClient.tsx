@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PageSurface, useFeedback, type ToolbarItem } from "@workspace/core/ui";
+import { PageSurface, useFeedback } from "@workspace/core/ui";
+import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import type { SessionUser } from "@workspace/platform/types";
 import { listTaskSpaces } from "./api";
@@ -113,7 +114,7 @@ export default function WorksClient({
     ? [{ key: "tasks", label: "任务列表" }, { key: "reports", label: "工作汇报" }, { key: "permissions", label: "权限设置" }]
     : [{ key: "tasks", label: "任务列表" }, { key: "reports", label: "工作汇报" }];
   const editing = worksState.editingId !== null;
-  const toolbarItems: ToolbarItem[] = currentSpace ? [
+  const toolbarItems: SurfaceToolbarItems = currentSpace ? [
     {
       kind: "panel-toggle",
       key: "mobile-side-toggle",

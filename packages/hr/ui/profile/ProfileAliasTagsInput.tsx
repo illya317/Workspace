@@ -4,14 +4,14 @@ import { useMemo, useState } from "react";
 import {
   FormSurface,
 } from "@workspace/core/ui";
-import type { FkFieldOption } from "@workspace/core/ui";
+import type { ReferenceOption } from "@workspace/core/ui";
 import type { ProfileField } from "@workspace/hr/types";
 
 interface AliasTagsInputProps {
   field: ProfileField;
   value: unknown;
   disabled?: boolean;
-  onChange: (key: string, value: unknown, option?: FkFieldOption) => void;
+  onChange: (key: string, value: unknown, option?: ReferenceOption) => void;
 }
 
 function normalizeAliasTags(tags: unknown[]) {

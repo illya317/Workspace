@@ -1,4 +1,4 @@
-import type { ToolbarItem } from "@workspace/core/ui";
+import type { SurfaceToolbarItem, SurfaceToolbarItems } from "@workspace/core/ui";
 import type { Department } from "./types";
 
 export function buildDepartmentPositionToolbarItems({
@@ -23,12 +23,12 @@ export function buildDepartmentPositionToolbarItems({
   onCreatePanelChange: (panel: "department" | "position" | null) => void;
   onSearchChange: (value: string) => void;
   onCollapseAll: (collapsed: boolean) => void;
-}): ToolbarItem[] {
+}): SurfaceToolbarItems {
   if (isOrganizationMode || showArchived) return [];
 
   const allCollapsed = departments.length > 0 && departments.every((department) => collapsedDepartments.has(department.id));
 
-  const items: (ToolbarItem | null)[] = [
+  const items: (SurfaceToolbarItem | null)[] = [
     canEdit
       ? {
           kind: "create",
@@ -57,5 +57,5 @@ export function buildDepartmentPositionToolbarItems({
     },
   ];
 
-  return items.filter((item): item is ToolbarItem => Boolean(item));
+  return items.filter((item): item is SurfaceToolbarItem => Boolean(item));
 }

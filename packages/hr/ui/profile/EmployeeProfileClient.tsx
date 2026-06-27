@@ -34,7 +34,7 @@ import type {
   EmployeeProfileEmployee,
   EmploymentRow,
 } from "@workspace/hr/types";
-import type { FkFieldOption } from "@workspace/core/ui";
+import type { ReferenceOption } from "@workspace/core/ui";
 
 type ProfileSection = "basic" | "employment" | "edp" | "history";
 
@@ -245,7 +245,7 @@ export default function EmployeeProfileClient({
     setActiveSection(section);
   }
 
-  function updateEmployeeField(key: string, value: unknown, option?: FkFieldOption) {
+  function updateEmployeeField(key: string, value: unknown, option?: ReferenceOption) {
     setEmployeeDraft((current) => {
       if (!current) return current;
       const next = { ...current, [key]: value } as EmployeeProfileEmployee;

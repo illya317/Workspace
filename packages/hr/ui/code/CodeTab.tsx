@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect } from "react";
 import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
-import { type ToolbarItem } from "@workspace/core/ui";
+import { type SurfaceToolbarItem } from "@workspace/core/ui";
 import { useCodeTab } from "./useCodeTab";
 import CodeTable from "./CodeTable";
 
@@ -136,7 +136,7 @@ export default function CodeTab({
     canEdit: hrCanEdit(user),
     onShowHistory: () => setShowHistory(true),
     saving,
-  } satisfies ToolbarItem];
+  } satisfies SurfaceToolbarItem];
 
   return (
     <div className="space-y-4">

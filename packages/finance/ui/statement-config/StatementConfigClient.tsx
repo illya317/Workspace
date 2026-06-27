@@ -5,7 +5,7 @@ import LineConfigTab from "./LineConfigTab";
 import UnmappedTab from "./UnmappedTab";
 import BalanceCheckTab from "./BalanceCheckTab";
 import { StatementConfigProvider, useStatementConfig } from "./StatementConfigContext";
-import { FormSurface, NavigationSurface, type ToolbarItem } from "@workspace/core/ui";
+import { FormSurface, NavigationSurface, type SurfaceToolbarItems } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 
@@ -15,7 +15,7 @@ function SharedFilters() {
   const { company, setCompany, year, setYear, availablePairs, loading } = useStatementConfig();
   const years = [...new Set(availablePairs.map((p) => p.year))].sort((a, b) => b - a).map(String);
   const companyOptions = useCompanyOptions();
-  const toolbarItems: ToolbarItem[] = [
+  const toolbarItems: SurfaceToolbarItems = [
     {
       kind: "select",
       key: "company",

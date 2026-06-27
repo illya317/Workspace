@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface, type ToolbarItem } from "@workspace/core/ui";
+import { FormSurface, type SurfaceToolbarItems } from "@workspace/core/ui";
 import type { CostFiltersState } from "../types";
 
 interface Props {
@@ -16,7 +16,7 @@ export default function CostFilters({ filters, onChange }: Props) {
   const years = [2026, 2025, 2024];
   const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
-  const items: ToolbarItem[] = [
+  const items: SurfaceToolbarItems = [
     {
       kind: "select",
       key: "year",

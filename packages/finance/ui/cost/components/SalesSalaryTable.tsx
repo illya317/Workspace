@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DataSurface, type DataSurfaceColumnSpec, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState, SourceTraceInfo } from "../types";
 import CostDataTable, { CostTraceButton, formatCostNumber, type CostRecord } from "./CostDataTable";
@@ -21,12 +21,12 @@ export default function SalesSalaryTable({ filters }: Props) {
     pageSize: 50,
   });
 
-  const columns: Array<DataTableColumn<CostRecord> | DataSurfaceColumnSpec<CostRecord>> = [
-    { key: "period", label: "年月", required: true, render: (row) => `${String(row.year)}-${row.month != null ? String(row.month) : "—"}` },
-    { key: "employeeName", label: "业务员", required: true, render: (row) => String(row.employeeName ?? "厂销") },
-    { key: "baseSalary", label: "基本工资", required: true, className: "text-right", headerClassName: "text-right", render: (row) => formatCostNumber(row.baseSalary as number) },
-    { key: "bonus", label: "提成/奖金", required: true, className: "text-right", headerClassName: "text-right", render: (row) => formatCostNumber(row.bonus as number) },
-    { key: "actualSalary", label: "实发工资", required: true, className: "text-right", headerClassName: "text-right", render: (row) => formatCostNumber(row.actualSalary as number) },
+  const columns: DataSurfaceColumnSpec<CostRecord>[] = [
+    { key: "period", label: "年月", required: true, cell: (row) => `${String(row.year)}-${row.month != null ? String(row.month) : "—"}` },
+    { key: "employeeName", label: "业务员", required: true, cell: (row) => String(row.employeeName ?? "厂销") },
+    { key: "baseSalary", label: "基本工资", required: true, className: "text-right", headerClassName: "text-right", cell: (row) => formatCostNumber(row.baseSalary as number) },
+    { key: "bonus", label: "提成/奖金", required: true, className: "text-right", headerClassName: "text-right", cell: (row) => formatCostNumber(row.bonus as number) },
+    { key: "actualSalary", label: "实发工资", required: true, className: "text-right", headerClassName: "text-right", cell: (row) => formatCostNumber(row.actualSalary as number) },
     { key: "source", label: "来源", required: true, cell: (row) => CostTraceButton({ row, onTrace: (info) => setTrace({ open: true, info }) }) },
   ];
 

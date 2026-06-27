@@ -3,7 +3,7 @@
 import { ProfileFieldInput } from "./ProfileFormControls";
 import { FieldRegion } from "./EmployeeProfileFieldRegion";
 import type { ContractRow, EdpRow, ProfileField } from "@workspace/hr/types";
-import type { FkFieldOption } from "@workspace/core/ui";
+import type { ReferenceOption } from "@workspace/core/ui";
 
 export type EditableRecord = Record<string, unknown> & { id?: number; isNew?: boolean };
 export type RowBase = { id?: number; isNew?: boolean };
@@ -117,7 +117,7 @@ export function fieldGrid(
   fields: ProfileField[],
   record: EditableRecord,
   disabled: boolean,
-  onChange: (key: string, value: unknown, option?: FkFieldOption) => void,
+  onChange: (key: string, value: unknown, option?: ReferenceOption) => void,
   isFieldDisabled?: (field: ProfileField, record: EditableRecord) => boolean,
   gridClassName = "grid-cols-3",
 ) {
@@ -156,7 +156,7 @@ export function groupedFieldGrid(
   groups: Array<{ title: string; fields: ProfileField[] }>,
   record: EditableRecord,
   disabled: boolean,
-  onChange: (key: string, value: unknown, option?: FkFieldOption) => void,
+  onChange: (key: string, value: unknown, option?: ReferenceOption) => void,
 ) {
   return (
     <div className="space-y-4">
@@ -218,7 +218,7 @@ export function updateProfileRow<T extends RowBase>(
   index: number,
   field: ProfileField,
   value: unknown,
-  option?: FkFieldOption,
+  option?: ReferenceOption,
 ) {
   return rows.map((row, rowIndex) => {
     if (rowIndex !== index) return row;

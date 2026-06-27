@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useCallback } from "react";
-import { DataSurface, useFeedback, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
 import FinanceBalanceReconcile from "../components/FinanceBalanceReconcile";
 import { formatFinanceAmount } from "../formatters";
@@ -85,27 +85,27 @@ export default function LedgerTab() {
   useEffect(() => { loadBalances(); }, [loadBalances]);
 
   const CATEGORIES: Record<string, string> = { asset: "资产", liability: "负债", equity: "权益", cost: "成本", revenue: "损益" };
-  const columns: DataTableColumn<Balance>[] = [
+  const columns: DataSurfaceColumnSpec<Balance>[] = [
     {
       key: "accountCode",
       label: "科目编码",
       required: true,
       cellClassName: "font-mono text-slate-700",
-      render: (balance) => balance.account.code,
+      cell: (balance) => balance.account.code,
     },
     {
       key: "accountName",
       label: "科目名称",
       required: true,
       cellClassName: "text-slate-800",
-      render: (balance) => balance.account.name,
+      cell: (balance) => balance.account.name,
     },
     {
       key: "category",
       label: "类别",
       required: true,
       cellClassName: "text-slate-600",
-      render: (balance) => CATEGORIES[balance.account.category] ?? balance.account.category,
+      cell: (balance) => CATEGORIES[balance.account.category] ?? balance.account.category,
     },
     {
       key: "openingDebit",
@@ -113,7 +113,7 @@ export default function LedgerTab() {
       required: true,
       headerClassName: "text-right",
       cellClassName: "text-right text-slate-700",
-      render: (balance) => formatFinanceAmount(balance.openingDebit),
+      cell: (balance) => formatFinanceAmount(balance.openingDebit),
     },
     {
       key: "openingCredit",
@@ -121,7 +121,7 @@ export default function LedgerTab() {
       required: true,
       headerClassName: "text-right",
       cellClassName: "text-right text-slate-700",
-      render: (balance) => formatFinanceAmount(balance.openingCredit),
+      cell: (balance) => formatFinanceAmount(balance.openingCredit),
     },
     {
       key: "currentDebit",
@@ -129,7 +129,7 @@ export default function LedgerTab() {
       required: true,
       headerClassName: "text-right",
       cellClassName: "text-right text-slate-700",
-      render: (balance) => formatFinanceAmount(balance.currentDebit),
+      cell: (balance) => formatFinanceAmount(balance.currentDebit),
     },
     {
       key: "currentCredit",
@@ -137,7 +137,7 @@ export default function LedgerTab() {
       required: true,
       headerClassName: "text-right",
       cellClassName: "text-right text-slate-700",
-      render: (balance) => formatFinanceAmount(balance.currentCredit),
+      cell: (balance) => formatFinanceAmount(balance.currentCredit),
     },
     {
       key: "closingDebit",
@@ -145,7 +145,7 @@ export default function LedgerTab() {
       required: true,
       headerClassName: "text-right",
       cellClassName: "text-right text-slate-700",
-      render: (balance) => formatFinanceAmount(balance.closingDebit),
+      cell: (balance) => formatFinanceAmount(balance.closingDebit),
     },
     {
       key: "closingCredit",
@@ -153,7 +153,7 @@ export default function LedgerTab() {
       required: true,
       headerClassName: "text-right",
       cellClassName: "text-right text-slate-700",
-      render: (balance) => formatFinanceAmount(balance.closingCredit),
+      cell: (balance) => formatFinanceAmount(balance.closingCredit),
     },
   ];
 

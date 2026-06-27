@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { DataSurface, FormSurface, useFeedback, type ToolbarItem } from "@workspace/core/ui";
+import { DataSurface, FormSurface, useFeedback } from "@workspace/core/ui";
+import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { ProjectItem } from "./model";
 import { listProjectOptions, listProjectPlanGantt, saveProjectPlanDependencies, saveProjectPlanGantt } from "./api";
@@ -162,7 +163,7 @@ export default function ProjectPlanGanttTab({
             section: "meta",
             content: "基线来自项目阶段",
           },
-        ] satisfies ToolbarItem[] }}
+        ] satisfies SurfaceToolbarItems }}
       />
 
       {error ? <DataSurface kind="records" records={[]} empty={error} className="border-red-200 text-red-600" /> : loading ? <DataSurface kind="records" records={[]} empty="加载项目甘特..." /> : !data ? <DataSurface kind="records" records={[]} empty="请选择项目" /> : <ProjectPlanGanttTimeline items={items} phases={data.phases} dependencies={dependencies} periodStart={currentStart} zoom={zoom} />}

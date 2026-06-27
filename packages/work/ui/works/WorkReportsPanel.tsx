@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { ToolbarItem } from "@workspace/core/ui";
+import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import {
   getWorkReportDraft,
   listWorkReportCollection,
@@ -18,7 +18,7 @@ import { ReportCollectionTable, ReportDraftTable } from "./WorkReportsTables";
 type ReportMode = "fill" | "collection";
 
 export interface WorkReportsController {
-  toolbarItems: ToolbarItem[];
+  toolbarItems: SurfaceToolbarItems;
   mode: ReportMode;
   draft: WorkReportDraftResponse | null;
   collection: WorkReportCollectionResponse | null;
@@ -186,7 +186,7 @@ export function useWorkReportsController({
           },
         ]
       : []),
-  ] satisfies ToolbarItem[], [addAdHocItem, canEdit, draft, handleSave, hasDraftChanges, loading, mode, periodStart, saving, updatePeriodStart]);
+  ] satisfies SurfaceToolbarItems, [addAdHocItem, canEdit, draft, handleSave, hasDraftChanges, loading, mode, periodStart, saving, updatePeriodStart]);
 
   return {
     toolbarItems,

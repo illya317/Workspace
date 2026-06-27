@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
-import { DataSurface, FormSurface, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, FormSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
 import { useCSV } from "@workspace/core/hooks";
 import { formatFinanceAmount } from "../formatters";
@@ -35,23 +35,23 @@ export default function ReclassTab() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyFilter, yearFilter, monthFilter]);
   const sideLabel = (s: string) => s === "asset" ? "资产→负债" : "负债→资产";
-  const columns: DataTableColumn<ReclassEntry>[] = [{
+  const columns: DataSurfaceColumnSpec<ReclassEntry>[] = [{
     key: "accountCode",
     label: "科目编码",
     required: true,
     cellClassName: "font-mono text-slate-700",
-    render: entry => entry.accountCode
+    cell: entry => entry.accountCode
   }, {
     key: "accountName",
     label: "科目名称",
     required: true,
     cellClassName: "text-slate-800",
-    render: entry => entry.accountName
+    cell: entry => entry.accountName
   }, {
     key: "direction",
     label: "方向",
     required: true,
-    render: entry => <span className={`rounded px-1.5 py-0.5 text-xs ${entry.fromSide === "asset" ? "bg-orange-50 text-orange-600" : "bg-blue-50 text-blue-600"}`}>
+    cell: entry => <span className={`rounded px-1.5 py-0.5 text-xs ${entry.fromSide === "asset" ? "bg-orange-50 text-orange-600" : "bg-blue-50 text-blue-600"}`}>
           {sideLabel(entry.fromSide)}
         </span>
   }, {
@@ -60,27 +60,27 @@ export default function ReclassTab() {
     required: true,
     headerClassName: "text-right",
     cellClassName: "text-right text-slate-600",
-    render: entry => formatFinanceAmount(entry.closingDebit)
+    cell: entry => formatFinanceAmount(entry.closingDebit)
   }, {
     key: "closingCredit",
     label: "贷方余额",
     required: true,
     headerClassName: "text-right",
     cellClassName: "text-right text-slate-600",
-    render: entry => formatFinanceAmount(entry.closingCredit)
+    cell: entry => formatFinanceAmount(entry.closingCredit)
   }, {
     key: "netAmount",
     label: "净额",
     required: true,
     headerClassName: "text-right",
     cellClassName: "text-right font-medium text-slate-800",
-    render: entry => formatFinanceAmount(Math.abs(entry.netAmount))
+    cell: entry => formatFinanceAmount(Math.abs(entry.netAmount))
   }, {
     key: "reason",
     label: "说明",
     required: true,
     cellClassName: "max-w-xs truncate text-slate-500",
-    render: entry => <span title={entry.reason}>{entry.reason}</span>
+    cell: entry => <span title={entry.reason}>{entry.reason}</span>
   }];
   const exportCSV = useCSV(`重分类_${companyFilter}_${yearFilter}${monthFilter}.csv`, "科目编码,科目名称,方向,借方余额,贷方余额,净额,说明\n", () => entries.map(e => `"${e.accountCode}","${e.accountName}","${sideLabel(e.fromSide)}",${e.closingDebit},${e.closingCredit},${Math.abs(e.netAmount)},"${e.reason}"`).join("\n"));
   return <div className="space-y-4">

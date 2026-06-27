@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import {
   DataSurface,
   type DataSurfaceToolbarSpec,
-  type DataTableColumn,
+  type DataSurfaceColumnSpec,
   type PaginationProps,
 } from "@workspace/core/ui";
 import type { TabConfig, FieldConfig } from "@workspace/hr/types";
@@ -95,7 +95,7 @@ export default function EditableTable({
   pagination,
   bodyClassName,
 }: EditableTableProps) {
-  const columns = useMemo<DataTableColumn<Record<string, unknown>>[]>(
+  const columns = useMemo<DataSurfaceColumnSpec<Record<string, unknown>>[]>(
     () => fields.map((field) => {
       const editableCell = editMode && field.editable && field.type !== "fk" && canEdit;
       return {
@@ -105,7 +105,7 @@ export default function EditableTable({
         defaultVisible: field.defaultVisible,
         headerClassName: "text-left text-gray-600",
         cellClassName: `text-gray-700 ${editableCell ? "cursor-pointer hover:bg-emerald-50" : ""}`,
-        render: (item) => {
+        cell: (item) => {
           const isEditing = editingCell?.id === item.id && editingCell?.field === field.key;
           return (
             <span

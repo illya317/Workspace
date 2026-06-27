@@ -19,6 +19,7 @@ export type {
   FormSurfaceInputControlSpec,
   FormSurfaceItemSpec,
   FormSurfaceKind,
+  FormSurfaceLoginProps,
   FormSurfaceNoteSpec,
   FormSurfaceProps,
   FormSurfaceReadOnlyFieldSpec,

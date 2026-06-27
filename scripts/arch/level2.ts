@@ -33,6 +33,7 @@ import {
   findAppHookFiles,
   findAppHookImplementationFiles,
   findBusinessCoreUiSurfaceBypassImports,
+  findBusinessCoreUiTypeBypassImports,
   findDuplicateCoreUiRegistrations,
   findGeneratedFilterContractDrift,
   findHookPatternCandidates,
@@ -42,6 +43,7 @@ import {
   findUnregisteredCoreUiExports,
   findUnregisteredCoreUiImports,
   type BusinessCoreUiSurfaceBypassImport,
+  type BusinessCoreUiTypeBypassImport,
   type DuplicateCoreUiRegistration,
   type GeneratedFilterContractDrift,
   type HookPatternCandidate,
@@ -52,7 +54,6 @@ import {
   type UnregisteredCoreUiImport,
 } from "./level2-ui";
 import { registeredModuleDefinitions } from "../../packages/platform/module-registry";
-
 type ImportRecord = {
   kind: "static" | "dynamic";
   specifier: string;
@@ -160,6 +161,7 @@ type Level2Report = {
     handwrittenSearchMatchFiles: number;
     generatedFilterContractDriftFiles: number;
     businessCoreUiSurfaceBypassImports: number;
+    businessCoreUiTypeBypassImports: number;
   };
   registries: {
     modules: Array<{
@@ -186,6 +188,7 @@ type Level2Report = {
     handwrittenSearchMatches: HandwrittenSearchMatchCandidate[];
     generatedFilterContractDrift: GeneratedFilterContractDrift[];
     businessCoreUiSurfaceBypassImports: BusinessCoreUiSurfaceBypassImport[];
+    businessCoreUiTypeBypassImports: BusinessCoreUiTypeBypassImport[];
   };
   drift: {
     appJsxFiles: string[];
@@ -218,6 +221,7 @@ type Level2Report = {
     handwrittenSearchMatches: HandwrittenSearchMatchCandidate[];
     generatedFilterContractDrift: GeneratedFilterContractDrift[];
     businessCoreUiSurfaceBypassImports: BusinessCoreUiSurfaceBypassImport[];
+    businessCoreUiTypeBypassImports: BusinessCoreUiTypeBypassImport[];
     repeatedServiceGroups: ServicePatternGroup[];
     routePrimitiveSchemaDuplicates: RoutePrimitiveSchemaCandidate[];
     apiRouteHelperDuplicates: ApiRouteHelperCandidate[];
@@ -730,6 +734,7 @@ export function createLevel2Report(): Level2Report {
   const handwrittenSearchMatches = findHandwrittenSearchMatches(sourceFiles);
   const generatedFilterContractDrift = findGeneratedFilterContractDrift(generatedUiSourceFiles);
   const businessCoreUiSurfaceBypassImports = findBusinessCoreUiSurfaceBypassImports(sourceFiles);
+  const businessCoreUiTypeBypassImports = findBusinessCoreUiTypeBypassImports(sourceFiles);
   const repeatedServiceGroups = findRepeatedServiceGroups(sourceFiles);
   const uncontractedApiRouteMethods = apiRouteMethods.filter((route) => route.contractKey === null);
   const apiRoutesWithDirectPrismaSignal = apiRouteMethods.filter((route) => route.hasDirectPrismaSignal);
@@ -812,6 +817,7 @@ export function createLevel2Report(): Level2Report {
       handwrittenSearchMatchFiles: new Set(handwrittenSearchMatches.map((candidate) => candidate.file)).size,
       generatedFilterContractDriftFiles: new Set(generatedFilterContractDrift.map((candidate) => candidate.file)).size,
       businessCoreUiSurfaceBypassImports: businessCoreUiSurfaceBypassImports.length,
+      businessCoreUiTypeBypassImports: businessCoreUiTypeBypassImports.length,
     },
     registries: {
       modules: registeredModuleDefinitions
@@ -840,6 +846,7 @@ export function createLevel2Report(): Level2Report {
       handwrittenSearchMatches,
       generatedFilterContractDrift,
       businessCoreUiSurfaceBypassImports,
+      businessCoreUiTypeBypassImports,
     },
     drift: {
       appJsxFiles: findAppJsxFiles(sourceFiles),
@@ -872,6 +879,7 @@ export function createLevel2Report(): Level2Report {
       handwrittenSearchMatches,
       generatedFilterContractDrift,
       businessCoreUiSurfaceBypassImports,
+      businessCoreUiTypeBypassImports,
       repeatedServiceGroups,
       routePrimitiveSchemaDuplicates,
       apiRouteHelperDuplicates,

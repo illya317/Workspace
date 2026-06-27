@@ -1,9 +1,9 @@
 "use client";
 
-import { DataSurface, type DataSurfaceCellSpec, type DataSurfaceColumnSpec, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceCellSpec, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { SourceTraceInfo } from "../types";
 export type CostRecord = Record<string, unknown>;
-export type CostColumn = DataTableColumn<CostRecord> | DataSurfaceColumnSpec<CostRecord>;
+export type CostColumn = DataSurfaceColumnSpec<CostRecord>;
 interface CostDataTableProps {
   rows: CostRecord[];
   columns: CostColumn[];

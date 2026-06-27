@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, type DataTableColumn } from "@workspace/core/ui";
+import { PageSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { Employment } from "./useAnalyticsData";
 import { type MonthlySnapshot, useHeadcountData } from "./useHeadcountData";
 
@@ -8,20 +8,20 @@ export default function HeadcountTrend({ employments }: { employments: Employmen
   const stats = useHeadcountData(employments);
 
   const barMax = Math.max(stats.maxFlow, 1);
-  const columns: DataTableColumn<MonthlySnapshot>[] = [
-    { key: "label", label: "月份", required: true, cellClassName: "font-medium text-slate-800", render: (month) => month.label },
-    { key: "startActive", label: "月初在职", required: true, headerClassName: "text-right", cellClassName: "text-right text-slate-500", render: (month) => month.active - month.net },
-    { key: "joins", label: "入职", required: true, headerClassName: "text-right", cellClassName: "text-right font-medium text-blue-600", render: (month) => month.joins },
-    { key: "leaves", label: "离职", required: true, headerClassName: "text-right", cellClassName: "text-right font-medium text-rose-600", render: (month) => month.leaves },
+  const columns: DataSurfaceColumnSpec<MonthlySnapshot>[] = [
+    { key: "label", label: "月份", required: true, cellClassName: "font-medium text-slate-800", cell: (month) => month.label },
+    { key: "startActive", label: "月初在职", required: true, headerClassName: "text-right", cellClassName: "text-right text-slate-500", cell: (month) => month.active - month.net },
+    { key: "joins", label: "入职", required: true, headerClassName: "text-right", cellClassName: "text-right font-medium text-blue-600", cell: (month) => month.joins },
+    { key: "leaves", label: "离职", required: true, headerClassName: "text-right", cellClassName: "text-right font-medium text-rose-600", cell: (month) => month.leaves },
     {
       key: "net",
       label: "净变动",
       required: true,
       headerClassName: "text-right",
       cellClassName: "text-right font-medium",
-      render: (month) => <span className={month.net > 0 ? "text-blue-600" : month.net < 0 ? "text-rose-600" : "text-gray-600"}>{month.net > 0 ? `+${month.net}` : month.net}</span>,
+      cell: (month) => <span className={month.net > 0 ? "text-blue-600" : month.net < 0 ? "text-rose-600" : "text-gray-600"}>{month.net > 0 ? `+${month.net}` : month.net}</span>,
     },
-    { key: "active", label: "月末在职", required: true, headerClassName: "text-right", cellClassName: "text-right font-medium text-slate-800", render: (month) => month.active },
+    { key: "active", label: "月末在职", required: true, headerClassName: "text-right", cellClassName: "text-right font-medium text-slate-800", cell: (month) => month.active },
   ];
 
   return (

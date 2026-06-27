@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { DataSurface, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
 import ReclassReviewModal from "./ReclassReviewModal";
 import { formatFinanceAmount } from "../formatters";
@@ -62,14 +62,14 @@ export default function ReclassReviewView({
     setSortDir(sortKey === key ? sortDir === "asc" ? "desc" : "asc" : DEFAULT_DIR[key]);
   }
   const arrow = (label: string) => SORT_LABELS[label] === sortKey ? sortDir === "asc" ? " ↑" : " ↓" : null;
-  const columns: DataTableColumn<ReclassResultRow>[] = [{
+  const columns: DataSurfaceColumnSpec<ReclassResultRow>[] = [{
     key: "voucherNo",
     label: `凭证号${arrow("凭证号") ?? ""}`,
     required: true,
     onHeaderClick: () => handleSort("凭证号"),
     headerClassName: "hover:text-slate-700",
     cellClassName: "font-mono text-slate-500",
-    render: row => row.voucherNo
+    cell: row => row.voucherNo
   }, {
     key: "sourceAccount",
     label: `科目编码${arrow("科目编码") ?? ""}`,
@@ -77,18 +77,18 @@ export default function ReclassReviewView({
     onHeaderClick: () => handleSort("科目编码"),
     headerClassName: "hover:text-slate-700",
     cellClassName: "font-mono text-slate-600",
-    render: row => row.sourceAccount
+    cell: row => row.sourceAccount
   }, {
     key: "sourceAccountName",
     label: "科目名称",
     required: true,
-    render: row => row.sourceAccountName
+    cell: row => row.sourceAccountName
   }, {
     key: "direction",
     label: "方向",
     required: true,
     className: "text-center",
-    render: row => {
+    cell: row => {
       const kind = row.kind as string || "normal";
       const isAbnormal = kind !== "normal";
       const itemSide = row.itemDebit > 0 ? "debit" : row.itemCredit > 0 ? "credit" : null;
@@ -105,12 +105,12 @@ export default function ReclassReviewView({
     onHeaderClick: () => handleSort("金额"),
     headerClassName: "text-right hover:text-slate-700",
     className: "text-right font-mono text-slate-700",
-    render: row => `¥${formatFinanceAmount(row.itemDebit || row.itemCredit || 0)}`
+    cell: row => `¥${formatFinanceAmount(row.itemDebit || row.itemCredit || 0)}`
   }, {
     key: "target",
     label: "目标科目",
     required: true,
-    render: row => {
+    cell: row => {
       const kind = row.kind as string || "normal";
       const isNormal = kind === "normal";
       const isAdjusted = kind === "adjusted";

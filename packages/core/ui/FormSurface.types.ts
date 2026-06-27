@@ -13,7 +13,7 @@ import type { TextFieldProps } from "./TextField";
 import type { CommandButtonProps } from "./CommandButton";
 import type { ToolbarProps } from "./Toolbar";
 
-export type FormSurfaceKind = "fields" | "filters" | "modal" | "inline" | "detail" | "control";
+export type FormSurfaceKind = "fields" | "filters" | "modal" | "inline" | "detail" | "login" | "control";
 export type FormSurfaceLooseItem = ReturnType<typeof JSON.parse>;
 
 export type FormSurfaceToolbarSpec = Omit<ToolbarProps, "items"> & {
@@ -175,6 +175,10 @@ export interface FormSurfaceFieldsProps<T = FormSurfaceLooseItem> extends FormSu
   kind: "fields" | "detail";
 }
 
+export interface FormSurfaceLoginProps<T = FormSurfaceLooseItem> extends FormSurfaceBaseProps<T> {
+  kind: "login";
+}
+
 export interface FormSurfaceModalProps<T = FormSurfaceLooseItem> extends FormSurfaceBaseProps<T> {
   kind: "modal";
   open: boolean;
@@ -191,10 +195,12 @@ export interface FormSurfaceControlProps {
 export type FormSurfaceFieldModeProps<T = FormSurfaceLooseItem> =
   | FormSurfaceInlineProps<T>
   | FormSurfaceFieldsProps<T>
+  | FormSurfaceLoginProps<T>
   | FormSurfaceModalProps<T>;
 
 export type FormSurfaceProps<T = FormSurfaceLooseItem> =
   | FormSurfaceInlineProps<T>
   | FormSurfaceFieldsProps<T>
+  | FormSurfaceLoginProps<T>
   | FormSurfaceModalProps<T>
   | FormSurfaceControlProps;

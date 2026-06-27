@@ -51,6 +51,12 @@ export type BusinessCoreUiSurfaceBypassImport = {
   specifier: string;
 };
 
+export type BusinessCoreUiTypeBypassImport = {
+  file: string;
+  importedName: string;
+  specifier: string;
+};
+
 export type PageDesignDriftFile = {
   file: string;
   signals: string[];
@@ -110,6 +116,11 @@ const CORE_UI_BUSINESS_SURFACE_IMPORT_ALLOWLIST = new Set([
   "NavigationSurface",
   "PageSurface",
   "useFeedback",
+]);
+const CORE_UI_BUSINESS_TYPE_IMPORT_DENYLIST = new Set([
+  "DataTableColumn",
+  "FkFieldOption",
+  "ToolbarItem",
 ]);
 
 const PAGE_DESIGN_INTRINSIC_TAGS = new Set([
@@ -235,6 +246,13 @@ function isBusinessUiSurfaceScanFile(file: SourceInfo) {
   return Boolean(match && BUSINESS_PACKAGE_NAMES.has(match[1]));
 }
 
+function isBusinessCoreUiTypeScanFile(file: SourceInfo) {
+  if (!/\.(ts|tsx)$/.test(file.relPath)) return false;
+  if (file.relPath.startsWith("packages/core/")) return false;
+  if (file.relPath.startsWith("app/")) return true;
+  return /^packages\/[^/]+\/ui\//.test(file.relPath);
+}
+
 export function findUnregisteredCoreUiImports(files: SourceInfo[]) {
   const candidates: UnregisteredCoreUiImport[] = [];
 
@@ -305,6 +323,39 @@ export function findBusinessCoreUiSurfaceBypassImports(files: SourceInfo[]) {
         if (element.isTypeOnly) continue;
         const importedName = element.propertyName?.text ?? element.name.text;
         if (!CORE_UI_BUSINESS_SURFACE_IMPORT_ALLOWLIST.has(importedName)) {
+          candidates.push({ file: file.relPath, importedName, specifier });
+        }
+      }
+    }
+  }
+
+  return candidates.sort((left, right) => `${left.file}:${left.importedName}`.localeCompare(`${right.file}:${right.importedName}`));
+}
+
+export function findBusinessCoreUiTypeBypassImports(files: SourceInfo[]) {
+  const candidates: BusinessCoreUiTypeBypassImport[] = [];
+
+  for (const file of files) {
+    if (!isBusinessCoreUiTypeScanFile(file)) continue;
+
+    for (const statement of file.sourceFile.statements) {
+      if (!ts.isImportDeclaration(statement)) continue;
+      if (!statement.moduleSpecifier || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
+      const specifier = statement.moduleSpecifier.text;
+      if (specifier !== "@workspace/core/ui") continue;
+
+      const importClause = statement.importClause;
+      if (!importClause) continue;
+
+      const namedBindings = importClause.namedBindings;
+      if (!namedBindings || !ts.isNamedImports(namedBindings)) continue;
+
+      for (const element of namedBindings.elements) {
+        const isTypeOnly = importClause.isTypeOnly || element.isTypeOnly;
+        if (!isTypeOnly) continue;
+
+        const importedName = element.propertyName?.text ?? element.name.text;
+        if (CORE_UI_BUSINESS_TYPE_IMPORT_DENYLIST.has(importedName)) {
           candidates.push({ file: file.relPath, importedName, specifier });
         }
       }

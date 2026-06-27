@@ -1,10 +1,10 @@
 "use client";
 
 import { PageSurface } from "@workspace/core/ui";
-import type { ToolbarItem } from "@workspace/core/ui";
+import type { SurfaceToolbarItems } from "@workspace/core/ui";
 
 export default function CustomersClient() {
-  const toolbarItems: ToolbarItem[] = [
+  const toolbarItems: SurfaceToolbarItems = [
     {
       kind: "icon-button",
       key: "add-customer",

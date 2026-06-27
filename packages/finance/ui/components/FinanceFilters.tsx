@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface, type ColumnDef, type ToolbarItem } from "@workspace/core/ui";
+import { FormSurface, type ColumnDef, type SurfaceToolbarItems } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 
 const YEAR_OPTIONS = [2024, 2025, 2026].map((year) => ({
@@ -70,7 +70,7 @@ export default function FinanceFilters({
 }: FinanceFiltersProps) {
   const companyOptions = useCompanyOptions();
 
-  const items: ToolbarItem[] = [];
+  const items: SurfaceToolbarItems = [];
 
   if (showSearch && onKeywordChange) {
     items.push({

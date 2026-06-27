@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { z } from "zod";
-import { useFeedback, type FkFieldOption } from "@workspace/core/ui";
+import { useFeedback } from "@workspace/core/ui";
+import type { ReferenceOption } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { type WorkUser, workCanEdit } from "@workspace/work/types";
 import { createProject, deleteProject, listProjectTasks, syncMembers, updateProjectField } from "./api";
@@ -176,7 +177,7 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
     });
   }
 
-  function setLeader(option?: FkFieldOption) {
+  function setLeader(option?: ReferenceOption) {
     const employee = employeeFromOption(option);
     setDraft((prev) => {
       if (!prev) return prev;

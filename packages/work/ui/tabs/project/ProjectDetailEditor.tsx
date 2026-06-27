@@ -6,7 +6,7 @@ import {
   NavigationSurface,
   type FormSurfaceItemSpec,
 } from "@workspace/core/ui";
-import type { FkFieldOption } from "@workspace/core/ui";
+import type { ReferenceOption } from "@workspace/core/ui";
 import ProjectPlanManagementSection from "./ProjectPlanManagementSection";
 import ProjectRasciMatrix from "./ProjectRasciMatrix";
 import type { ProjectRasciRow } from "./ProjectRasciMatrix";
@@ -65,7 +65,7 @@ export default function ProjectDetailEditor({
   onDeleteProject: () => void;
   onSave: () => void;
   onDraftChange: <K extends keyof ProjectDraft>(key: K, value: ProjectDraft[K]) => void;
-  onLeaderChange: (option?: FkFieldOption) => void;
+  onLeaderChange: (option?: ReferenceOption) => void;
   onRoleMembersChange: (role: MultiProjectRole, members: EmployeeTag[]) => void;
   onCreateChildProject: (task: ProjectTaskItem) => void;
   onOpenProject: (projectId: number) => void;
@@ -101,7 +101,7 @@ export default function ProjectDetailEditor({
         { kind: "readonly", key: "leaderName", label: "项目负责人", value: draft.leader?.name || "未设置" },
         { key: "name", label: "项目名称", required: true, spec: { valueType: "string", editor: "input", state: !canManageCurrent ? "disabled" : "normal" }, value: draft.name, onChange: (value) => onDraftChange("name", String(value ?? "")) },
         { key: "leadingDepartment", label: "主导部门", required: draft.projectType === "department", spec: { valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.projects.leadingDepartment", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: !canManageCurrent ? "disabled" : "normal" }, value: draft.leadingDepartmentId ? String(draft.leadingDepartmentId) : "", displayValue: draft.leadingDepartmentName || "", placeholder: "搜索部门名称、编码", onChange: (_value, option) => {
-          const fk = option as FkFieldOption | undefined;
+          const fk = option as ReferenceOption | undefined;
           onDraftChange("leadingDepartmentId", fk?.id ?? null);
           onDraftChange("leadingDepartmentName", fk?.name ?? null);
           onDraftChange("leadingDepartmentCode", fk?.subtitle ?? null);
@@ -121,7 +121,7 @@ export default function ProjectDetailEditor({
       title: "项目人员",
       columns: 2,
       fields: [
-        { key: "leader", label: "项目负责人", spec: { valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.projects.member.employee", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: !canManageCurrent || creating ? "disabled" : "normal" }, value: draft.leader?.employeeNumber || "", displayValue: draft.leader?.name || "", placeholder: "搜索负责人", className: draft.leader?.confirmationStatus === "pending" ? pendingFieldClassName : undefined, onChange: (_value, option) => onLeaderChange(option as FkFieldOption | undefined) },
+        { key: "leader", label: "项目负责人", spec: { valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.projects.member.employee", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: !canManageCurrent || creating ? "disabled" : "normal" }, value: draft.leader?.employeeNumber || "", displayValue: draft.leader?.name || "", placeholder: "搜索负责人", className: draft.leader?.confirmationStatus === "pending" ? pendingFieldClassName : undefined, onChange: (_value, option) => onLeaderChange(option as ReferenceOption | undefined) },
         ...MULTI_PROJECT_ROLES.map((role): FormSurfaceItemSpec<EmployeeTag> => ({
           kind: "tagList",
           key: role,
@@ -149,7 +149,7 @@ export default function ProjectDetailEditor({
                     if (event.key === "Escape") setAddingMemberRole(null);
                   },
                   onChange: (_value, option) => {
-                    const employee = employeeFromOption(option as FkFieldOption | undefined);
+                    const employee = employeeFromOption(option as ReferenceOption | undefined);
                     if (!employee) return;
                     onRoleMembersChange(role, dedupeMembers([...draft.roleGroups[role], employee]));
                     setAddingMemberRole(null);

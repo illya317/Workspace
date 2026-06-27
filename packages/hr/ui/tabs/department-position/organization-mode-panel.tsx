@@ -8,7 +8,7 @@ import {
   PageSurface,
   type PageSurfaceBlockSpec,
   type PageSurfaceSideSpec,
-  type FkFieldOption,
+  type ReferenceOption,
   useFeedback,
 } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
@@ -242,7 +242,7 @@ export function OrganizationModePanel({
                   displayValue: managerDraft,
                   placeholder: "搜索负责人岗位",
                   onChange: (_label, option) => {
-                    setManagerDraft(selectedEntityName("position", option as FkFieldOption | undefined));
+                    setManagerDraft(selectedEntityName("position", option as ReferenceOption | undefined));
                   },
                 }}
               />

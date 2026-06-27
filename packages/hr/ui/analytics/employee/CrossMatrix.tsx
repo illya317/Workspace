@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, type DataTableColumn } from "@workspace/core/ui";
+import { PageSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { CrossMatrixData } from "./useEmployeeData";
 import { DIM_LABELS, type DimKey } from "./constants";
 
@@ -50,21 +50,21 @@ export default function CrossMatrix({
     values: crossMatrix.matrix[rowKey] || {},
     total: crossMatrix.rowTotals[rowKey] || 0,
   }));
-  const columns: DataTableColumn<CrossMatrixRow>[] = [
+  const columns: DataSurfaceColumnSpec<CrossMatrixRow>[] = [
     {
       key: "rowKey",
       label: `${DIM_LABELS[crossRow]} \\ ${DIM_LABELS[crossCol]}`,
       required: true,
       cellClassName: "font-medium text-slate-800",
-      render: (row) => row.rowKey,
+      cell: (row) => row.rowKey,
     },
-    ...crossMatrix.colKeys.map((colKey): DataTableColumn<CrossMatrixRow> => ({
+    ...crossMatrix.colKeys.map((colKey): DataSurfaceColumnSpec<CrossMatrixRow> => ({
       key: `col:${colKey}`,
       label: colKey,
       required: true,
       headerClassName: "text-center",
       cellClassName: "text-center",
-      render: (row) => {
+      cell: (row) => {
         const value = row.values[colKey] || 0;
         return (
           <span className={`block rounded px-2 py-1 ${heatColor(value, crossMax)}`}>
@@ -79,7 +79,7 @@ export default function CrossMatrix({
       required: true,
       headerClassName: "text-center",
       cellClassName: "text-center font-medium text-slate-800",
-      render: (row) => row.total,
+      cell: (row) => row.total,
     },
   ];
 

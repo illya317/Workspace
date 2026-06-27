@@ -1,6 +1,6 @@
 "use client";
 
-import { DataSurface, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { DeptBudgetItem } from "../types";
 
 const MONTH_LABELS = [
@@ -23,14 +23,14 @@ export default function DeptBudgetTable({ items, monthTotals, total }: DeptBudge
     ...items.map((item, index) => ({ ...item, kind: "item" as const, id: `${item.dept}-${item.account}-${index}` })),
     { kind: "total", id: "total", months: monthTotals, total },
   ];
-  const columns: DataTableColumn<DeptBudgetRow>[] = [
-    { key: "dept", label: "部门", required: true, render: (row) => row.kind === "total" ? "合计" : row.dept },
-    { key: "account", label: "科目", required: true, render: (row) => row.kind === "total" ? null : row.account },
+  const columns: DataSurfaceColumnSpec<DeptBudgetRow>[] = [
+    { key: "dept", label: "部门", required: true, cell: (row) => row.kind === "total" ? "合计" : row.dept },
+    { key: "account", label: "科目", required: true, cell: (row) => row.kind === "total" ? null : row.account },
     {
       key: "accountCode",
       label: "关联科目",
       required: true,
-      render: (row) => {
+      cell: (row) => {
         if (row.kind === "total") return null;
         if (!row.accountCode) return <span className="text-xs text-red-400">未关联</span>;
         return (
@@ -44,7 +44,7 @@ export default function DeptBudgetTable({ items, monthTotals, total }: DeptBudge
       key: "expenseType",
       label: "费用类型",
       required: true,
-      render: (row) => {
+      cell: (row) => {
         if (row.kind === "total") return null;
         const className = row.expenseType === "管理费用"
           ? "bg-blue-100 text-blue-700"
@@ -56,13 +56,13 @@ export default function DeptBudgetTable({ items, monthTotals, total }: DeptBudge
         return <span className={`rounded px-1.5 py-0.5 text-xs ${className}`}>{row.expenseType}</span>;
       },
     },
-    ...MONTH_LABELS.map((label, monthIndex): DataTableColumn<DeptBudgetRow> => ({
+    ...MONTH_LABELS.map((label, monthIndex): DataSurfaceColumnSpec<DeptBudgetRow> => ({
       key: `m${monthIndex}`,
       label,
       required: true,
       headerClassName: "text-right",
       className: "text-right",
-      render: (row) => {
+      cell: (row) => {
         const value = row.months[monthIndex] ?? 0;
         if (row.kind === "total") return value.toFixed(2);
         return value > 0 ? value.toFixed(2) : "";
@@ -74,7 +74,7 @@ export default function DeptBudgetTable({ items, monthTotals, total }: DeptBudge
       required: true,
       headerClassName: "text-right",
       className: "text-right font-medium",
-      render: (row) => row.total.toFixed(2),
+      cell: (row) => row.total.toFixed(2),
     },
   ];
 

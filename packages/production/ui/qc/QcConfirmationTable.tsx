@@ -1,12 +1,12 @@
 "use client";
 
 import type { QcLayoutBlock, QcLayoutCell } from "@workspace/production/server/qc";
-import type { DataTableColumn } from "@workspace/core/ui";
+import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { TableBlock } from "./QcLayoutTable";
 import type { LayoutRenderContext } from "./qc-layout-table/types";
 
 type NamedItem = { name: string };
-type ConfirmationColumn = Pick<DataTableColumn<NamedItem>, "key" | "label">;
+type ConfirmationColumn = Pick<DataSurfaceColumnSpec<NamedItem>, "key" | "label">;
 
 const confirmationColumns: ConfirmationColumn[] = [
   { key: "name", label: "" },

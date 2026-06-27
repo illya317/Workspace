@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PageSurface, useFeedback } from "@workspace/core/ui";
-import type { ToolbarItem } from "@workspace/core/ui";
+import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { MeetingDetailPanel } from "./MeetingDetailPanel";
 import { meetingCreateFields } from "./meeting-create-fields";
@@ -211,7 +211,7 @@ export default function MeetingsPage({
     }
   }
 
-  const toolbarItems: ToolbarItem[] = [{
+  const toolbarItems: SurfaceToolbarItems = [{
     kind: "option-group",
     key: "type-filter",
     section: "filter",

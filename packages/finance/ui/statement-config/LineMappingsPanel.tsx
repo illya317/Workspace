@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { DataSurface, FormSurface, type DataSurfaceColumnSpec, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, FormSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { AcctInfo, InheritedAcct, LineCfg, Mapping, StatementOperator } from "./types";
 import { formatStatementAmount, isDefaultMapping } from "./types";
 interface LineMappingsPanelProps {
@@ -42,7 +42,7 @@ export default function LineMappingsPanel({
   onNewAccountChange,
   onAccountSearchChange
 }: LineMappingsPanelProps) {
-  const mappingColumns = useMemo<Array<DataTableColumn<Mapping> | DataSurfaceColumnSpec<Mapping>>>(() => [{
+  const mappingColumns = useMemo<DataSurfaceColumnSpec<Mapping>[]>(() => [{
     key: "action",
     label: "操作",
     required: true,
@@ -71,20 +71,20 @@ export default function LineMappingsPanel({
     label: "科目编码",
     required: true,
     cellClassName: "font-mono text-gray-600",
-    render: mapping => mapping.accountCode
+    cell: mapping => mapping.accountCode
   }, {
     key: "accountName",
     label: "科目名称",
     required: true,
     cellClassName: "text-gray-700",
-    render: mapping => accountMap.get(mapping.accountCode)?.name || mapping.accountCode
+    cell: mapping => accountMap.get(mapping.accountCode)?.name || mapping.accountCode
   }, {
     key: "debit",
     label: "借方",
     required: true,
     headerClassName: "text-right",
     cellClassName: "text-right text-gray-600",
-    render: mapping => {
+    cell: mapping => {
       const account = accountMap.get(mapping.accountCode);
       return account ? formatStatementAmount(account.closingDebit) : "—";
     }
@@ -94,7 +94,7 @@ export default function LineMappingsPanel({
     required: true,
     headerClassName: "text-right",
     cellClassName: "text-right text-gray-600",
-    render: mapping => {
+    cell: mapping => {
       const account = accountMap.get(mapping.accountCode);
       return account ? formatStatementAmount(account.closingCredit) : "—";
     }
@@ -120,7 +120,7 @@ export default function LineMappingsPanel({
       };
     }
   }], [accountMap, line.lineCode, onExcludeDefault, onRestoreDefault, onToggleOperator, saving]);
-  const inheritedColumns = useMemo<Array<DataTableColumn<InheritedAcct> | DataSurfaceColumnSpec<InheritedAcct>>>(() => [{
+  const inheritedColumns = useMemo<DataSurfaceColumnSpec<InheritedAcct>[]>(() => [{
     key: "source",
     label: "来源",
     required: true,
@@ -130,27 +130,27 @@ export default function LineMappingsPanel({
     label: "科目编码",
     required: true,
     cellClassName: "font-mono text-gray-500",
-    render: account => account.accountCode
+    cell: account => account.accountCode
   }, {
     key: "accountName",
     label: "科目名称",
     required: true,
     cellClassName: "text-gray-500",
-    render: account => account.accountName
+    cell: account => account.accountName
   }, {
     key: "debit",
     label: "借方",
     required: true,
     headerClassName: "text-right",
     cellClassName: "text-right text-gray-400",
-    render: account => formatStatementAmount(account.closingDebit)
+    cell: account => formatStatementAmount(account.closingDebit)
   }, {
     key: "credit",
     label: "贷方",
     required: true,
     headerClassName: "text-right",
     cellClassName: "text-right text-gray-400",
-    render: account => formatStatementAmount(account.closingCredit)
+    cell: account => formatStatementAmount(account.closingCredit)
   }, {
     key: "action",
     label: "操作",

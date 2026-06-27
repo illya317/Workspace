@@ -1,6 +1,6 @@
 "use client";
 
-import { DataSurface, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import CompanyNameCell from "@workspace/platform/ui/CompanyNameCell";
 
 export interface Account {
@@ -28,12 +28,12 @@ const CATEGORIES: Record<string, string> = {
   other: "其他",
 };
 
-export const ACCOUNT_COLUMNS: DataTableColumn<Account>[] = [
+export const ACCOUNT_COLUMNS: DataSurfaceColumnSpec<Account>[] = [
   {
     key: "code",
     label: "编码",
     required: true,
-    render: (account) => (
+    cell: (account) => (
       <span className="font-mono text-gray-700">{account.code}</span>
     ),
   },
@@ -41,18 +41,18 @@ export const ACCOUNT_COLUMNS: DataTableColumn<Account>[] = [
     key: "name",
     label: "名称",
     required: true,
-    render: (account) => <span className="text-gray-700">{account.name}</span>,
+    cell: (account) => <span className="text-gray-700">{account.name}</span>,
   },
   {
     key: "companyCode",
     label: "公司",
-    render: (account) => <CompanyNameCell code={account.companyCode} />,
+    cell: (account) => <CompanyNameCell code={account.companyCode} />,
   },
   {
     key: "category",
     label: "类别",
     defaultVisible: true,
-    render: (account) => (
+    cell: (account) => (
       <span className="text-gray-600">
         {CATEGORIES[account.category] || account.category}
       </span>
@@ -61,14 +61,14 @@ export const ACCOUNT_COLUMNS: DataTableColumn<Account>[] = [
   {
     key: "subjectLevel",
     label: "层级",
-    render: (account) => (
+    cell: (account) => (
       <span className="text-gray-600">{account.subjectLevel ?? "-"}</span>
     ),
   },
   {
     key: "balanceDirection",
     label: "余额方向",
-    render: (account) => (
+    cell: (account) => (
       <span className="text-gray-600">
         {account.balanceDirection === "debit" ? "借" : "贷"}
       </span>
@@ -77,7 +77,7 @@ export const ACCOUNT_COLUMNS: DataTableColumn<Account>[] = [
   {
     key: "groupSubjectCode",
     label: "集团编码",
-    render: (account) => (
+    cell: (account) => (
       <span className="font-mono text-gray-500">
         {account.groupSubjectCode || "-"}
       </span>
@@ -87,14 +87,14 @@ export const ACCOUNT_COLUMNS: DataTableColumn<Account>[] = [
     key: "mnemonicCode",
     label: "助记码",
     defaultVisible: true,
-    render: (account) => (
+    cell: (account) => (
       <span className="text-gray-500">{account.mnemonicCode || "-"}</span>
     ),
   },
   {
     key: "currency",
     label: "币种",
-    render: (account) => (
+    cell: (account) => (
       <span className="text-gray-500">{account.currency || "-"}</span>
     ),
   },
@@ -102,7 +102,7 @@ export const ACCOUNT_COLUMNS: DataTableColumn<Account>[] = [
     key: "parent",
     label: "父级科目",
     defaultVisible: true,
-    render: (account) => (
+    cell: (account) => (
       <span className="text-gray-500">
         {account.parent ? `${account.parent.code} ${account.parent.name}` : "-"}
       </span>
@@ -112,7 +112,7 @@ export const ACCOUNT_COLUMNS: DataTableColumn<Account>[] = [
     key: "isActive",
     label: "状态",
     defaultVisible: true,
-    render: (account) => (
+    cell: (account) => (
       <span
         className={`text-xs ${account.isActive ? "text-emerald-600" : "text-gray-400"}`}
       >

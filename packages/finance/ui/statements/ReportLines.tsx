@@ -1,6 +1,6 @@
 "use client";
 
-import { DataSurface, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
 
 export interface ReportLine {
@@ -44,19 +44,19 @@ interface Props {
   onToggle: (code: string) => void;
 }
 
-const detailColumns: DataTableColumn<AccountDetail>[] = [
-  { key: "code", label: "科目编码", required: true, className: "font-mono text-gray-600", render: (row) => row.code },
-  { key: "name", label: "科目名称", required: true, render: (row) => row.name },
-  { key: "openingDebit", label: "期初借", required: true, className: "text-right", render: (row) => row.openingDebit > 0 ? formatFinanceAmount(row.openingDebit) : "" },
-  { key: "openingCredit", label: "期初贷", required: true, className: "text-right", render: (row) => row.openingCredit > 0 ? formatFinanceAmount(row.openingCredit) : "" },
-  { key: "currentDebit", label: "本期借", required: true, className: "text-right", render: (row) => row.currentDebit > 0 ? formatFinanceAmount(row.currentDebit) : "" },
-  { key: "currentCredit", label: "本期贷", required: true, className: "text-right", render: (row) => row.currentCredit > 0 ? formatFinanceAmount(row.currentCredit) : "" },
+const detailColumns: DataSurfaceColumnSpec<AccountDetail>[] = [
+  { key: "code", label: "科目编码", required: true, className: "font-mono text-gray-600", cell: (row) => row.code },
+  { key: "name", label: "科目名称", required: true, cell: (row) => row.name },
+  { key: "openingDebit", label: "期初借", required: true, className: "text-right", cell: (row) => row.openingDebit > 0 ? formatFinanceAmount(row.openingDebit) : "" },
+  { key: "openingCredit", label: "期初贷", required: true, className: "text-right", cell: (row) => row.openingCredit > 0 ? formatFinanceAmount(row.openingCredit) : "" },
+  { key: "currentDebit", label: "本期借", required: true, className: "text-right", cell: (row) => row.currentDebit > 0 ? formatFinanceAmount(row.currentDebit) : "" },
+  { key: "currentCredit", label: "本期贷", required: true, className: "text-right", cell: (row) => row.currentCredit > 0 ? formatFinanceAmount(row.currentCredit) : "" },
   {
     key: "closing",
     label: "期末余额",
     required: true,
     className: "text-right font-medium",
-    render: (row) => (
+    cell: (row) => (
       <span className={row.closing < 0 ? "text-red-600" : "text-gray-800"}>
         {formatFinanceAmount(Math.abs(row.closing))}{row.balanceDirection === "credit" && row.closing !== 0 ? " (贷)" : ""}
       </span>
@@ -82,12 +82,12 @@ function DetailRows({ rows }: { rows: AccountDetail[] }) {
 }
 
 export default function ReportLines({ items, labelHeader, amountHeader, expandedCodes, details, loadingDetail, onToggle }: Props) {
-  const columns: DataTableColumn<ReportLine>[] = [
+  const columns: DataSurfaceColumnSpec<ReportLine>[] = [
     {
       key: "label",
       label: labelHeader,
       required: true,
-      render: (item) => {
+      cell: (item) => {
         const hasCode = !!item.code;
         const isExpanded = hasCode && expandedCodes.has(item.code!);
         return (
@@ -104,7 +104,7 @@ export default function ReportLines({ items, labelHeader, amountHeader, expanded
       required: true,
       className: "text-right",
       headerClassName: "text-right",
-      render: (item) => renderAmount(item.amount),
+      cell: (item) => renderAmount(item.amount),
     },
   ];
 

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import {
   PageSurface,
-  type DataTableColumn,
+  type DataSurfaceColumnSpec,
 } from "@workspace/core/ui";
 import type { EDP, Employee, Employment } from "./useAnalyticsData";
 import type { DimKey } from "./employee/constants";
@@ -31,16 +31,16 @@ export default function EmployeeAnalytics({ employees, employments, edps }: { em
   const [crossCol, setCrossCol] = useState<DimKey>("gender");
 
   const { stats, crossMatrix } = useEmployeeData(employees, employments, edps, crossRow, crossCol);
-  const recentJoinColumns: DataTableColumn<Employment>[] = [
-    { key: "employeeName", label: "姓名", required: true, cellClassName: "font-medium", render: (row) => row.employeeName },
-    { key: "currentCompany", label: "公司", required: true, cellClassName: "text-slate-500", render: (row) => row.currentCompany || "—" },
-    { key: "joinDate", label: "入职日期", required: true, cellClassName: "text-slate-500", render: (row) => row.joinDate || "—" },
+  const recentJoinColumns: DataSurfaceColumnSpec<Employment>[] = [
+    { key: "employeeName", label: "姓名", required: true, cellClassName: "font-medium", cell: (row) => row.employeeName },
+    { key: "currentCompany", label: "公司", required: true, cellClassName: "text-slate-500", cell: (row) => row.currentCompany || "—" },
+    { key: "joinDate", label: "入职日期", required: true, cellClassName: "text-slate-500", cell: (row) => row.joinDate || "—" },
   ];
-  const recentLeaveColumns: DataTableColumn<Employment>[] = [
-    { key: "employeeName", label: "姓名", required: true, cellClassName: "font-medium", render: (row) => row.employeeName },
-    { key: "currentCompany", label: "公司", required: true, cellClassName: "text-slate-500", render: (row) => row.currentCompany || "—" },
-    { key: "leaveDate", label: "离职日期", required: true, cellClassName: "text-slate-500", render: (row) => row.leaveDate || "—" },
-    { key: "leaveReason", label: "原因", required: true, cellClassName: "text-slate-500", render: (row) => row.leaveReason || "—" },
+  const recentLeaveColumns: DataSurfaceColumnSpec<Employment>[] = [
+    { key: "employeeName", label: "姓名", required: true, cellClassName: "font-medium", cell: (row) => row.employeeName },
+    { key: "currentCompany", label: "公司", required: true, cellClassName: "text-slate-500", cell: (row) => row.currentCompany || "—" },
+    { key: "leaveDate", label: "离职日期", required: true, cellClassName: "text-slate-500", cell: (row) => row.leaveDate || "—" },
+    { key: "leaveReason", label: "原因", required: true, cellClassName: "text-slate-500", cell: (row) => row.leaveReason || "—" },
   ];
 
   function currentDist(): [string, number][] {

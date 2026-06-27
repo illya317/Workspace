@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   DataSurface,
   FormSurface,
-  type DataTableColumn,
+  type DataSurfaceColumnSpec,
   type SelectFieldOption,
 } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
@@ -86,24 +86,24 @@ export default function EmployeeDirectory({
 
   const [pageSize, setPageSize] = useState(50);
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [pageSize, total]);
-  const columns = useMemo<DataTableColumn<DirectoryEmployee>[]>(
+  const columns = useMemo<DataSurfaceColumnSpec<DirectoryEmployee>[]>(
     () => [
       {
         key: "employeeId",
         label: "员工编号",
         required: true,
-        render: (employee) => <span className="font-medium text-slate-900">{employee.employeeId}</span>,
+        cell: (employee) => <span className="font-medium text-slate-900">{employee.employeeId}</span>,
       },
-      { key: "name", label: "姓名", required: true, render: (employee) => employee.name },
-      { key: "gender", label: "性别", defaultVisible: true, render: (employee) => genderLabel(employee.gender) },
-      { key: "birthDate", label: "出生年月", defaultVisible: true, render: (employee) => employee.birthDate || "-" },
-      { key: "education", label: "学历", defaultVisible: true, render: (employee) => employee.education || "-" },
-      { key: "positionName", label: "岗位", defaultVisible: true, render: (employee) => employee.positionName || "-" },
+      { key: "name", label: "姓名", required: true, cell: (employee) => employee.name },
+      { key: "gender", label: "性别", defaultVisible: true, cell: (employee) => genderLabel(employee.gender) },
+      { key: "birthDate", label: "出生年月", defaultVisible: true, cell: (employee) => employee.birthDate || "-" },
+      { key: "education", label: "学历", defaultVisible: true, cell: (employee) => employee.education || "-" },
+      { key: "positionName", label: "岗位", defaultVisible: true, cell: (employee) => employee.positionName || "-" },
       {
         key: "directDepartmentName",
         label: "直属部门",
         defaultVisible: true,
-        render: (employee) => employee.directDepartmentName || "-",
+        cell: (employee) => employee.directDepartmentName || "-",
       },
 
     ],

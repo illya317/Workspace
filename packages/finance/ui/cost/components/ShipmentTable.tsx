@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DataSurface, type DataSurfaceColumnSpec, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState, SourceTraceInfo } from "../types";
 import CostDataTable, { CostTraceButton, formatCostNumber, type CostRecord } from "./CostDataTable";
@@ -21,15 +21,15 @@ export default function ShipmentTable({ filters }: Props) {
     pageSize: 50,
   });
 
-  const columns: Array<DataTableColumn<CostRecord> | DataSurfaceColumnSpec<CostRecord>> = [
-    { key: "date", label: "日期", required: true, render: (row) => String(row.date ?? "—") },
-    { key: "customerName", label: "客户", required: true, render: (row) => String(row.customerName ?? "—") },
-    { key: "employeeName", label: "业务员", required: true, render: (row) => String(row.employeeName ?? "厂家直销") },
-    { key: "productName", label: "产品", required: true, render: (row) => String(row.productName ?? "—") },
-    { key: "spec", label: "规格", required: true, render: (row) => String(row.spec ?? "—") },
-    { key: "quantity", label: "数量", required: true, className: "text-right", headerClassName: "text-right", render: (row) => formatCostNumber(row.quantity as number) },
-    { key: "amount", label: "金额", required: true, className: "text-right", headerClassName: "text-right", render: (row) => formatCostNumber(row.amount as number) },
-    { key: "receivedAmount", label: "已回款", required: true, className: "text-right", headerClassName: "text-right", render: (row) => formatCostNumber(row.receivedAmount as number) },
+  const columns: DataSurfaceColumnSpec<CostRecord>[] = [
+    { key: "date", label: "日期", required: true, cell: (row) => String(row.date ?? "—") },
+    { key: "customerName", label: "客户", required: true, cell: (row) => String(row.customerName ?? "—") },
+    { key: "employeeName", label: "业务员", required: true, cell: (row) => String(row.employeeName ?? "厂家直销") },
+    { key: "productName", label: "产品", required: true, cell: (row) => String(row.productName ?? "—") },
+    { key: "spec", label: "规格", required: true, cell: (row) => String(row.spec ?? "—") },
+    { key: "quantity", label: "数量", required: true, className: "text-right", headerClassName: "text-right", cell: (row) => formatCostNumber(row.quantity as number) },
+    { key: "amount", label: "金额", required: true, className: "text-right", headerClassName: "text-right", cell: (row) => formatCostNumber(row.amount as number) },
+    { key: "receivedAmount", label: "已回款", required: true, className: "text-right", headerClassName: "text-right", cell: (row) => formatCostNumber(row.receivedAmount as number) },
     { key: "source", label: "来源", required: true, cell: (row) => CostTraceButton({ row, onTrace: (info) => setTrace({ open: true, info }) }) },
   ];
 

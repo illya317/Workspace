@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
-import { DataSurface, PageSurface, type DataSurfaceColumnSpec, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, PageSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
 import { useStatementConfig } from "./StatementConfigContext";
 interface Node {
@@ -28,45 +28,45 @@ interface DisplayItem {
   status: Status;
   subtractSourceLine: string | null;
 }
-const columns: Array<DataTableColumn<DisplayItem> | DataSurfaceColumnSpec<DisplayItem>> = [{
+const columns: DataSurfaceColumnSpec<DisplayItem>[] = [{
   key: "accountCode",
   label: "科目编码",
   required: true,
   cellClassName: "font-mono text-slate-600",
-  render: row => row.accountCode
+  cell: row => row.accountCode
 }, {
   key: "accountName",
   label: "科目名称",
   required: true,
-  render: row => row.accountName
+  cell: row => row.accountName
 }, {
   key: "level",
   label: "层级",
   defaultVisible: true,
   headerClassName: "text-center",
   cellClassName: "text-center text-slate-500",
-  render: row => `L${row.level}`
+  cell: row => `L${row.level}`
 }, {
   key: "closingDebit",
   label: "期末借方",
   defaultVisible: true,
   headerClassName: "text-right",
   cellClassName: "text-right text-slate-600",
-  render: row => formatFinanceAmount(row.closingDebit)
+  cell: row => formatFinanceAmount(row.closingDebit)
 }, {
   key: "closingCredit",
   label: "期末贷方",
   defaultVisible: true,
   headerClassName: "text-right",
   cellClassName: "text-right text-slate-600",
-  render: row => formatFinanceAmount(row.closingCredit)
+  cell: row => formatFinanceAmount(row.closingCredit)
 }, {
   key: "net",
   label: "净值",
   defaultVisible: true,
   headerClassName: "text-right",
   cellClassName: "text-right font-medium",
-  render: row => <span className={row.net < 0 ? "text-red-600" : "text-slate-700"}>
+  cell: row => <span className={row.net < 0 ? "text-red-600" : "text-slate-700"}>
         {formatFinanceAmount(Math.abs(row.net))}
       </span>
 }, {

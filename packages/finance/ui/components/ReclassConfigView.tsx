@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useRef, useMemo } from "react";
 import { DataSurface, useFeedback } from "@workspace/core/ui";
-import type { DataTableColumn } from "@workspace/core/ui";
+import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { RuleCandidate } from "@workspace/finance/types";
 import AccountCodeInput from "./AccountCodeInput";
@@ -224,36 +224,36 @@ export default function ReclassCandidateList({
   const totalPages = Math.ceil(filtered.length / pageSize);
   const skip = (page - 1) * pageSize;
   const paged = filtered.slice(skip, skip + pageSize);
-  const columns: DataTableColumn<RuleCandidate>[] = [{
+  const columns: DataSurfaceColumnSpec<RuleCandidate>[] = [{
     key: "accountCode",
     label: "科目编码",
     required: true,
     cellClassName: "font-mono text-slate-600",
-    render: candidate => candidate.accountCode
+    cell: candidate => candidate.accountCode
   }, {
     key: "accountName",
     label: "科目名称",
     required: true,
-    render: candidate => candidate.accountName
+    cell: candidate => candidate.accountName
   }, {
     key: "side",
     label: "借贷",
     defaultVisible: true,
     headerClassName: "text-center",
     cellClassName: "text-center",
-    render: candidate => candidate.abnormalSide ? dirBadge(candidate.abnormalSide) : <span className="text-slate-400">{candidate.balanceDirection === "debit" ? "借" : candidate.balanceDirection === "credit" ? "贷" : "—"}</span>
+    cell: candidate => candidate.abnormalSide ? dirBadge(candidate.abnormalSide) : <span className="text-slate-400">{candidate.balanceDirection === "debit" ? "借" : candidate.balanceDirection === "credit" ? "贷" : "—"}</span>
   }, {
     key: "amount",
     label: "金额",
     defaultVisible: true,
     headerClassName: "text-right",
     cellClassName: "text-right font-mono text-slate-700",
-    render: candidate => `¥${formatFinanceAmount(candidate.abnormalAmount)}`
+    cell: candidate => `¥${formatFinanceAmount(candidate.abnormalAmount)}`
   }, {
     key: "target",
     label: "建议科目",
     defaultVisible: true,
-    render: candidate => {
+    cell: candidate => {
       const rowKey = candidate.accountCode + "::" + candidate.abnormalSide;
       const hasRule = !!candidate.existingRuleId;
       const displayTarget = candidate.existingTarget || candidate.suggestedTarget;

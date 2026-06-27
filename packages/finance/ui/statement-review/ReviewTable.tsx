@@ -1,6 +1,6 @@
 "use client";
 
-import { DataSurface, type DataSurfaceColumnSpec, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { RvLine } from "@workspace/finance/types";
 const FMT = (n: number) => n.toLocaleString("en-US", {
   minimumFractionDigits: 2,
@@ -55,26 +55,26 @@ export default function ReviewTable({
   commitCmt,
   toggleStatus
 }: Props) {
-  const columns: Array<DataTableColumn<RvLine> | DataSurfaceColumnSpec<RvLine>> = [{
+  const columns: DataSurfaceColumnSpec<RvLine>[] = [{
     key: "label",
     label: "项目",
     required: true,
     className: "font-medium text-slate-800",
-    render: line => line.label
+    cell: line => line.label
   }, {
     key: "systemAmount",
     label: "系统建议",
     required: true,
     className: "w-28 text-right text-slate-400",
     headerClassName: "text-right",
-    render: line => FMT(line.systemAmount)
+    cell: line => FMT(line.systemAmount)
   }, {
     key: "workpaperAmount",
     label: "底稿输入",
     required: true,
     className: "w-28 text-right text-slate-600",
     headerClassName: "text-right",
-    render: line => FMT(line.workpaperAmount)
+    cell: line => FMT(line.workpaperAmount)
   }, {
     key: "adjustedAmount",
     label: "调整金额",
@@ -121,7 +121,7 @@ export default function ReviewTable({
     required: true,
     className: "w-28 text-right font-medium text-slate-800",
     headerClassName: "text-right",
-    render: line => FMT(getLineState(line).finalAmount)
+    cell: line => FMT(getLineState(line).finalAmount)
   }, {
     key: "status",
     label: "状态",

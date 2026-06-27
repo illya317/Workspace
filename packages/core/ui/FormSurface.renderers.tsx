@@ -7,8 +7,11 @@ import type { InputControlProps } from "./InputControl";
 import { joinClassNames } from "./card-utils";
 import { renderCommands, renderFieldValue, renderToolbar } from "./FormSurface.controls";
 import type {
+  FormSurfaceFieldSpec,
   FormSurfaceFieldModeProps,
   FormSurfaceItemSpec,
+  FormSurfaceReadOnlyFieldSpec,
+  FormSurfaceTagListFieldSpec,
 } from "./FormSurface.types";
 
 function getFields<T>(props: FormSurfaceFieldModeProps<T>): FormSurfaceItemSpec<T>[] {
@@ -58,6 +61,30 @@ function renderGridItem<T>(
     >
       {renderFieldValue(field, density)}
     </FieldGrid.Cell>
+  );
+}
+
+function renderLoginItem<T>(field: FormSurfaceItemSpec<T>): ReactNode {
+  if (field.kind === "note") {
+    return <FieldGrid.Note key={field.key} className={joinClassNames("px-0 py-0", field.className)}>{field.content}</FieldGrid.Note>;
+  }
+  if (field.kind === "groupTitle") {
+    return <FieldGrid.GroupTitle key={field.key} className={joinClassNames("col-span-full", field.className)}>{field.title}</FieldGrid.GroupTitle>;
+  }
+  if (field.kind === "section" || field.kind === "repeatable") return renderGridItem(field, "mixed", "normal", 1);
+  const controlField = {
+    ...field,
+    className: joinClassNames("w-full", field.className),
+  } as FormSurfaceFieldSpec | FormSurfaceReadOnlyFieldSpec | FormSurfaceTagListFieldSpec<T>;
+  return (
+    <div key={field.key} className={joinClassNames("col-span-full min-w-0", field.fieldClassName)}>
+      <div className="min-w-0 [&>*]:w-full [&_input]:w-full [&_textarea]:w-full">
+        {renderFieldValue(controlField, "normal")}
+      </div>
+      {(field.hint || field.error) && (
+        <div className="text-xs text-slate-400">{field.hint ?? field.error}</div>
+      )}
+    </div>
   );
 }
 
@@ -168,6 +195,13 @@ function renderFields<T>(props: FormSurfaceFieldModeProps<T>) {
   if (!fields.length) return null;
   if (props.kind === "inline" || props.kind === "filters") {
     return <div className="flex flex-wrap items-center gap-3">{fields.map(renderInlineItem)}</div>;
+  }
+  if (props.kind === "login") {
+    return (
+      <FieldGrid columns={1} mode="mixed" className={joinClassNames("w-full gap-4", props.bodyClassName)}>
+        {fields.map(renderLoginItem)}
+      </FieldGrid>
+    );
   }
   const mode = props.mode ?? (props.kind === "detail" ? "detail" : "mixed");
   const density = props.kind === "detail" ? "compact" : "normal";

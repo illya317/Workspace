@@ -212,7 +212,7 @@ app/* route shell
 Core UI 五层治理：
 
 - Core UI 的当前治理层只有 `Page Frame`、`Page API`、`Core Internal`、`Foundation`、`Private Impl`，详见 `docs/core-ui-governance.md`。旧 `tier / primitive / assembly / shell` 已删除，不再作为分类、筛选、展示或 gate 依据。
-- 业务和普通 agent 的 runtime Core UI import 只能使用 L1 公开入口：`PageSurface`、`FormSurface`、`DataSurface`、`NavigationSurface`、`useFeedback`；必要兼容阅读只允许 type-only import。UI 组件库主展示只显示 L1-L3，L4+ 是 Foundation / Private Impl / 更深实现细节，不得作为主展示根节点或可见直接关系暴露。
+- 业务和普通 agent 的 runtime Core UI import 只能使用 L1 公开入口：`PageSurface`、`FormSurface`、`DataSurface`、`NavigationSurface`、`useFeedback`；type-only import 只允许 Surface contract 类型和 `ReferenceOption`、`SurfaceToolbarItem`、`SurfaceToolbarItems` 业务别名，不得直引 `DataTableColumn`、`ToolbarItem`、`FkFieldOption`。UI 组件库主展示只显示 L1-L3，L4+ 是 Foundation / Private Impl / 更深实现细节，不得作为主展示根节点或可见直接关系暴露。
 - Platform 系统壳由 Platform 独立治理：`AppShell -> PageShell`、`UserMenu -> DropdownMenu` 是 Platform-owned system shell candidates，不是业务 Page API，也不得加入业务 Surface allowlist。Agent 页面 UI 已停用，仅保留 API / bot 接入能力。
 - 改 `packages/core/ui/**`、Core UI registry 或 `/settings/ui` preview 必须是 UI-system/Architecture 任务，并通过 `CORE_UI_CHANGE=1` 或明确 change request 授权。
 
@@ -241,7 +241,7 @@ Level 2 结构智能层：
 - `npm run arch:level2` 生成确定性的结构报告，用于发现 UI pattern 重复、API route contract 覆盖缺口、API route 模板漂移、旧 service 迁移债和 app 层 JSX 存量。
 - API Contract 的单一来源是 `packages/platform/api-registry.ts`，它从 effective module registry 的 `apiGuards` 和 `apiRoutes` 派生，不允许业务包维护第二套 API 清单。
 - `apiGuards` 表示需要资源权限的 protected API；`apiRoutes` 表示显式 route contract，可标记为 `protected`、`public`、`dev` 或 `disabled`，用于登录/OAuth、开发入口、禁用兼容 API 等非资源权限入口。
-- Level 2 中已升级为强制规则的漂移项由 `scripts/arch/level2-baseline.json` 锁定，并通过唯一 `npm run arch:gate` 执行。baseline 只能减少：新增未注册 API route、API route 裸 `prisma.`、非 GET route 缺结构化 validation、API route 缺 service 调用、app-root hook 实现、未复用 Core 的业务选择器、未注册 Core UI import、业务 UI / `app/(modules)` runtime 直引非 Surface Core UI、Core UI 已导出但未登记、Core UI registry 重名或非法 `uiLevel`、非 Core 包新增手写页面壳、搜索型原生 input、旧 `server/services` 文件或重复 service group 都会失败；迁移删除后必须同步删 baseline 项。页面设计漂移会读取 TSX JSX pattern，拦截手写 surface、sticky header、layout grid、table、form/control、modal overlay、toolbar layout、action button 和 table scroll shell。
+- Level 2 中已升级为强制规则的漂移项由 `scripts/arch/level2-baseline.json` 锁定，并通过唯一 `npm run arch:gate` 执行。baseline 只能减少：新增未注册 API route、API route 裸 `prisma.`、非 GET route 缺结构化 validation、API route 缺 service 调用、app-root hook 实现、未复用 Core 的业务选择器、未注册 Core UI import、业务 UI / `app/(modules)` runtime 直引非 Surface Core UI、业务 UI / `app` type-only 直引 `DataTableColumn` / `ToolbarItem` / `FkFieldOption`、Core UI 已导出但未登记、Core UI registry 重名或非法 `uiLevel`、非 Core 包新增手写页面壳、搜索型原生 input、旧 `server/services` 文件或重复 service group 都会失败；迁移删除后必须同步删 baseline 项。页面设计漂移会读取 TSX JSX pattern，拦截手写 surface、sticky header、layout grid、table、form/control、modal overlay、toolbar layout、action button 和 table scroll shell。
 - Level 2 报告只读、不自动修复、不直接失败 CI。把某个发现升级为硬约束前，必须先进入 `scripts/arch/gate.ts` 所属的单 gate 系统，禁止在 CI 里新增旁路检查。
 - Feature/Data/Operations agent 使用 Level 2 报告拆迁移任务时，只能改对应业务文件；Architecture agent 才能修改 `scripts/arch/*`、`packages/platform/module-registry.ts`、`packages/platform/api-registry.ts` 和相关治理文档。
 - Architecture agent 做 baseline ratchet 时只能减少历史债。若迁移删除了旧 route-local service、app hook 或 direct permission 文件，必须同步删 `scripts/arch/level2-baseline.json`、`scripts/arch/level15-baseline.json` 或 `scripts/check/level1-api-baseline.json` 中对应项；禁止为新违规扩写 baseline。

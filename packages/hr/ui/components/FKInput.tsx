@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface, type FkFieldOption } from "@workspace/core/ui";
+import { FormSurface, type ReferenceOption } from "@workspace/core/ui";
 import type { FKOption } from "@workspace/hr/types";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../fk-keys";
 
@@ -38,7 +38,7 @@ export default function FKInput({
         value: value ? String(value) : "",
         displayValue,
         onChange: (_label, option) => {
-          const fkOption = option as FkFieldOption | undefined;
+          const fkOption = option as ReferenceOption | undefined;
           onChange(fkOption ? { id: fkOption.id, name: fkOption.name, subtitle: fkOption.subtitle } : null);
         },
         placeholder,

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { DataSurface, FormSurface, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, FormSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 interface Company {
   code: string;
   name: string;
@@ -169,44 +169,44 @@ function DiffTable({
 }: {
   differences: ReconcileDiff[];
 }) {
-  const columns: DataTableColumn<ReconcileDiff>[] = [{
+  const columns: DataSurfaceColumnSpec<ReconcileDiff>[] = [{
     key: "accountCode",
     label: "科目编码",
     required: true,
     cellClassName: "font-mono text-slate-700",
-    render: difference => difference.accountCode
+    cell: difference => difference.accountCode
   }, {
     key: "accountName",
     label: "科目名称",
     required: true,
-    render: difference => difference.accountName
+    cell: difference => difference.accountName
   }, {
     key: "field",
     label: "差异项",
     defaultVisible: true,
     cellClassName: "text-slate-600",
-    render: difference => difference.field
+    cell: difference => difference.field
   }, {
     key: "excelValue",
     label: "Excel",
     defaultVisible: true,
     headerClassName: "text-right",
     cellClassName: "text-right",
-    render: difference => difference.excelValue.toFixed(2)
+    cell: difference => difference.excelValue.toFixed(2)
   }, {
     key: "systemValue",
     label: "系统",
     defaultVisible: true,
     headerClassName: "text-right",
     cellClassName: "text-right",
-    render: difference => difference.systemValue.toFixed(2)
+    cell: difference => difference.systemValue.toFixed(2)
   }, {
     key: "diff",
     label: "差额",
     defaultVisible: true,
     headerClassName: "text-right",
     cellClassName: "text-right font-medium text-red-600",
-    render: difference => difference.diff.toFixed(2)
+    cell: difference => difference.diff.toFixed(2)
   }];
   return <DataSurface kind="table" framed className="overflow-hidden" bodyClassName="overflow-x-auto" rows={differences} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={difference => `${difference.accountCode}-${difference.field}`} />;
 }

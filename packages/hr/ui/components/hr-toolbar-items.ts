@@ -5,8 +5,8 @@ import {
   type ColumnDef,
   type FieldValueFilterField,
   type SelectFieldOption,
+  type SurfaceToolbarItems,
   type ToolbarActionGroupAction,
-  type ToolbarItem,
 } from "@workspace/core/ui";
 import type { FilterConfig } from "@workspace/hr/types";
 import { buildInlineFilterItems } from "./generic-filter-toolbar-items";
@@ -99,8 +99,8 @@ export function buildHRToolbarItems({
   editGroup,
   pageSize,
   meta,
-}: HRToolbarItemsOptions): ToolbarItem[] {
-  const items: ToolbarItem[] = [];
+}: HRToolbarItemsOptions): SurfaceToolbarItems {
+  const items: SurfaceToolbarItems = [];
 
   if (create) {
     items.push({

@@ -4,7 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DataSurface, FormSurface, PageSurface } from "@workspace/core/ui";
-import type { ToolbarItem } from "@workspace/core/ui";
+import type { SurfaceToolbarItem, SurfaceToolbarItems } from "@workspace/core/ui";
 import ReviewAlerts from "./ReviewAlerts";
 import ReviewFilters from "./ReviewFilters";
 import ReviewTable, { type LineState } from "./ReviewTable";
@@ -175,7 +175,7 @@ export default function ReviewClient() {
     const state = getLineState(line);
     return state.status === "flagged" && !state.comment;
   }) : false;
-  const rawReviewItems: Array<ToolbarItem | null> = [
+  const rawReviewItems: Array<SurfaceToolbarItem | null> = [
     wp
       ? {
           kind: "text",
@@ -242,7 +242,7 @@ export default function ReviewClient() {
         }
       : null,
   ];
-  const reviewItems = rawReviewItems.filter((item): item is ToolbarItem => item !== null);
+  const reviewItems: SurfaceToolbarItems = rawReviewItems.filter((item): item is SurfaceToolbarItem => item !== null);
 
   return (
     <div className="space-y-4">

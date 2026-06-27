@@ -60,12 +60,13 @@ export default function LoginClient() {
   }
   return <PageSurface
       kind="settings"
-      contentClassName="flex min-h-screen max-w-none items-center justify-center bg-gray-50 py-0"
+      className="w-full max-w-xl"
+      contentClassName="flex min-h-screen w-full max-w-none items-center justify-center bg-gray-50 py-0"
       blocks={[{
         kind: "panel",
         key: "login",
-        className: "w-full max-w-md",
-        bodyClassName: "space-y-4 p-8",
+        className: "w-full",
+        bodyClassName: "space-y-4 p-10",
         blocks: [
           {
             kind: "message",
@@ -91,13 +92,13 @@ export default function LoginClient() {
           {
             kind: "message",
             key: "login-form",
-            className: "border-0 bg-transparent p-0 text-inherit",
+            className: "w-full border-0 bg-transparent p-0 text-inherit",
             content: (
               <>
         <FormSurface
-          kind="fields"
-          className="mt-2"
-          columns={1}
+          kind="login"
+          className="mt-2 w-full"
+          bodyClassName="gap-5"
           onSubmit={handleSubmit}
           fields={[
             {

@@ -19,6 +19,7 @@ export type {
   DataSurfaceStructuredCellSpec,
   DataSurfaceToolbarSpec,
 } from "./DataSurface";
+export type { ReferenceOption, SurfaceToolbarItem, SurfaceToolbarItems } from "./SurfaceContractTypes";
 export { default as FormSurface } from "./FormSurface";
 export type {
   FormSurfaceCalendarDateControlSpec,
@@ -33,6 +34,7 @@ export type {
   FormSurfaceInputControlSpec,
   FormSurfaceItemSpec,
   FormSurfaceKind,
+  FormSurfaceLoginProps,
   FormSurfaceNoteSpec,
   FormSurfaceProps,
   FormSurfaceReadOnlyFieldSpec,

@@ -1,4 +1,4 @@
-import type { FieldValueFilterField, SelectFieldOption, ToolbarItem } from "@workspace/core/ui";
+import type { FieldValueFilterField, SelectFieldOption, SurfaceToolbarItem, SurfaceToolbarItems } from "@workspace/core/ui";
 import type { AdvancedFilterConfig, FilterConfig } from "@workspace/hr/types";
 
 export function mapAdvancedFilterField(filter: AdvancedFilterConfig): FieldValueFilterField {
@@ -38,8 +38,8 @@ export function buildInlineFilterItems(
   filterConfigs: FilterConfig[],
   filterValues: Record<string, string>,
   onChange: (key: string, value: string) => void,
-): ToolbarItem[] {
-  return filterConfigs.map((filter): ToolbarItem => {
+): SurfaceToolbarItems {
+  return filterConfigs.map((filter): SurfaceToolbarItem => {
     const value = filterValues[filter.key] ?? "";
     if (filter.type === "boolean") {
       const isActive = filter.key === "isActive";

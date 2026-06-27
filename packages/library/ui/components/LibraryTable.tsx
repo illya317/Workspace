@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
 import { DataSurface } from "@workspace/core/ui";
-import type { DataTableColumn } from "@workspace/core/ui";
+import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { LibraryDocumentItem } from "@workspace/library/types";
 import LibraryDetailModal from "./LibraryDetailModal";
 
@@ -31,12 +31,12 @@ export default function LibraryTable({
   canAdmin,
 }: Props) {
   const [detailId, setDetailId] = useState<number | null>(null);
-  const columns: DataTableColumn<LibraryDocumentItem>[] = [
+  const columns: DataSurfaceColumnSpec<LibraryDocumentItem>[] = [
     {
       key: "fileName",
       label: "文件名",
       required: true,
-      render: (d) => (
+      cell: (d) => (
         <div>
           <div className="max-w-xs truncate font-medium text-gray-800">{d.fileName}</div>
           {d.title && d.title !== d.fileName && (
@@ -53,18 +53,18 @@ export default function LibraryTable({
       label: "简介",
       defaultVisible: true,
       cellClassName: "text-gray-500",
-      render: (d) => (
+      cell: (d) => (
         <span className="block max-w-[12rem] truncate" title={d.summary || ""}>
           {d.summary || "—"}
         </span>
       ),
     },
-    { key: "updatedAt", label: "更新时间", defaultVisible: true, cellClassName: "text-gray-500", render: (d) => fmtDate(d.updatedAt) },
+    { key: "updatedAt", label: "更新时间", defaultVisible: true, cellClassName: "text-gray-500", cell: (d) => fmtDate(d.updatedAt) },
     {
       key: "tags",
       label: "标签",
       defaultVisible: true,
-      render: (d) => d.tags && d.tags.length > 0 ? (
+      cell: (d) => d.tags && d.tags.length > 0 ? (
         <div className="flex flex-wrap gap-1">
           {d.tags.map((tag) => (
             <span key={tag} className="inline-flex rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200">
@@ -78,7 +78,7 @@ export default function LibraryTable({
       key: "actions",
       label: "操作",
       required: true,
-      render: (d) => d.status === "active" ? (
+      cell: (d) => d.status === "active" ? (
         <a
           href={workspacePath(`/api/modules/library/basic-info/documents/${d.id}/download`)}
           className="inline-flex items-center text-emerald-600 hover:text-emerald-700"

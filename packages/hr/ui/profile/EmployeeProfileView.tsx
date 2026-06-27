@@ -14,7 +14,7 @@ import type {
   EmploymentRow,
   ProfileField,
 } from "@workspace/hr/types";
-import type { FkFieldOption } from "@workspace/core/ui";
+import type { ReferenceOption } from "@workspace/core/ui";
 import { SectionShell } from "./ProfileFormControls";
 import {
   EdpSection,
@@ -89,7 +89,7 @@ export default function EmployeeProfileView({
   onBack: () => void;
   onSaveAll: () => Promise<void>;
   onAddContract: () => void;
-  onEmployeeFieldChange: (key: string, value: unknown, option?: FkFieldOption) => void;
+  onEmployeeFieldChange: (key: string, value: unknown, option?: ReferenceOption) => void;
   onHistoryToggle: (id: number) => void;
   onHistoryRefresh: () => void;
   confirmDelete: (options: { message: string }) => Promise<boolean>;
@@ -202,7 +202,7 @@ export default function EmployeeProfileView({
   );
 }
 
-function changeEmployment(rows: EmploymentRow[], activeIndex: number, field: ProfileField, value: unknown, option?: FkFieldOption) {
+function changeEmployment(rows: EmploymentRow[], activeIndex: number, field: ProfileField, value: unknown, option?: ReferenceOption) {
   const index = activeIndex >= 0 ? activeIndex : 0;
   if (index < 0) return rows;
   const nextRows = updateProfileRow(rows, index, field, value, option) as EmploymentRow[];
@@ -210,7 +210,7 @@ function changeEmployment(rows: EmploymentRow[], activeIndex: number, field: Pro
   return nextRows.map((row, rowIndex) => rowIndex === index ? { ...row, leaveDate: null, leaveReason: null, leaveNote: null } : row);
 }
 
-function changeContract(rows: ContractRow[], index: number, field: ProfileField, value: unknown, option?: FkFieldOption) {
+function changeContract(rows: ContractRow[], index: number, field: ProfileField, value: unknown, option?: ReferenceOption) {
   const nextRows = updateProfileRow(rows, index, field, value, option) as ContractRow[];
   if (field.key !== "isPrimary" || value !== true) return nextRows;
   return nextRows.map((row, rowIndex) => rowIndex === index ? row : { ...row, isPrimary: false });

@@ -2,9 +2,9 @@
 
 import {
   FormSurface,
-  type FkFieldOption,
   type FormSurfaceItemSpec,
   type PickerOption,
+  type ReferenceOption,
 } from "@workspace/core/ui";
 import { PROJECT_MILESTONE_PICKER_OPTIONS, type ProjectTaskDraft, type ProjectTaskItem } from "./model";
 import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
@@ -54,7 +54,7 @@ export function ProjectTaskForm({
   function patch(next: Partial<ProjectTaskDraft>) {
     onChange({ ...draft, ...next });
   }
-  function setOwner(option?: FkFieldOption) {
+  function setOwner(option?: ReferenceOption) {
     patch({
       ownerEmployeeId: option?.id ?? null,
       ownerEmployeeNumber: option?.subtitle ?? null,
@@ -74,7 +74,7 @@ export function ProjectTaskForm({
   const fields: FormSurfaceItemSpec<number>[] = [
     { key: "name", label: "任务名称", required: true, span: "wide", spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }, value: draft.name, onChange: (value) => patch({ name: String(value ?? "") }) },
     { key: "phase", label: "项目阶段", hint: phaseHint, spec: { valueType: "string", editor: "select", options: { source: "static", items: phaseOptions, visibleCount: 6 }, state: disabled || phaseOptions.length === 0 ? "disabled" : "normal" }, value: draft.planPhaseId ? String(draft.planPhaseId) : null, placeholder: phaseOptions.length > 0 ? "选择项目阶段（可选）" : "无项目阶段", onChange: (value) => patch({ planPhaseId: value ? Number(value) : null }) },
-    { key: "owner", label: "负责人", spec: { valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.projects.member.employee", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: disabled ? "disabled" : "normal" }, value: draft.ownerEmployeeNumber || "", displayValue: draft.ownerEmployeeName || "", placeholder: "搜索负责人", onChange: (_value, option) => setOwner(option as FkFieldOption | undefined) },
+    { key: "owner", label: "负责人", spec: { valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.projects.member.employee", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: disabled ? "disabled" : "normal" }, value: draft.ownerEmployeeNumber || "", displayValue: draft.ownerEmployeeName || "", placeholder: "搜索负责人", onChange: (_value, option) => setOwner(option as ReferenceOption | undefined) },
     { key: "milestone", label: "里程碑", spec: { valueType: "boolean", editor: "select", options: { source: "static", items: PROJECT_MILESTONE_PICKER_OPTIONS, visibleCount: 2 }, state: disabled ? "disabled" : "normal" }, value: draft.isMilestone ? "true" : "false", onChange: (value) => patch({ isMilestone: value === "true" }) },
     { key: "baselineStartDate", label: "基线开始", spec: { valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }, value: draft.baselineStartDate, onChange: (value) => patch({ baselineStartDate: String(value || "") }), placeholder: "选择日期" },
     { key: "baselineEndDate", label: "基线结束", spec: { valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }, value: draft.baselineEndDate, onChange: (value) => patch({ baselineEndDate: String(value || "") }), placeholder: "选择日期" },

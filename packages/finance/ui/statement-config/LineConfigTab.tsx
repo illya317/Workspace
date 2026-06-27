@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { DataSurface, FormSurface, useFeedback, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, FormSurface, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { matchSearchFields } from "@workspace/platform/search";
 import { useStatementConfig } from "./StatementConfigContext";
 import LineMappingsPanel from "./LineMappingsPanel";
@@ -213,17 +213,17 @@ export default function LineConfigTab() {
     }
     return result;
   }, [expanded, inheritedByLine, lines, mappingsByLine]);
-  const columns = useMemo<DataTableColumn<LineTableRow>[]>(() => [{
+  const columns = useMemo<DataSurfaceColumnSpec<LineTableRow>[]>(() => [{
     key: "expand",
     label: "",
     required: true,
     headerClassName: "w-8",
-    render: row => row.kind === "line" && row.accountCount > 0 ? row.expanded ? "▼" : "▶" : ""
+    cell: row => row.kind === "line" && row.accountCount > 0 ? row.expanded ? "▼" : "▶" : ""
   }, {
     key: "line",
     label: "报表项目",
     required: true,
-    render: row => {
+    cell: row => {
       if (row.kind === "section") return <span className="font-medium text-slate-500">{SECTIONS[row.section] || row.section}</span>;
       return <span className={row.kind === "special" ? "font-medium text-slate-600" : "font-medium text-slate-700"}>{row.line.label}</span>;
     }
@@ -233,14 +233,14 @@ export default function LineConfigTab() {
     required: true,
     headerClassName: "w-24",
     cellClassName: "text-slate-400",
-    render: row => row.kind === "section" ? "" : SECTIONS[row.line.section] || row.line.section
+    cell: row => row.kind === "section" ? "" : SECTIONS[row.line.section] || row.line.section
   }, {
     key: "accounts",
     label: "科目",
     required: true,
     headerClassName: "w-20 text-center",
     cellClassName: "text-center text-slate-600",
-    render: row => row.kind === "line" ? row.accountCount || "—" : row.kind === "special" ? "—" : ""
+    cell: row => row.kind === "line" ? row.accountCount || "—" : row.kind === "special" ? "—" : ""
   }], []);
   if (loading) return <p className="py-8 text-center text-sm text-gray-400">加载中...</p>;
   if (error) {

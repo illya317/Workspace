@@ -5,7 +5,7 @@ import {
   DataSurface,
   FormSurface,
 } from "@workspace/core/ui";
-import type { FkFieldOption } from "@workspace/core/ui";
+import type { ReferenceOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
 import { primitiveListItems } from "./description-details";
 
@@ -52,7 +52,7 @@ export function DetailStatsRow({ items }: { items: Array<{ label: string; value:
   );
 }
 
-export function selectedEntityName(entity: string, option?: FkFieldOption) {
+export function selectedEntityName(entity: string, option?: ReferenceOption) {
   if (!option) return "";
   if (entity === "department") {
     return option.name.split(" / ").pop()?.trim() || option.name;
@@ -92,7 +92,7 @@ export function EntityValueInput({
         value: current,
         displayValue: current,
         placeholder: `搜索${label}`,
-        onChange: (_label, option) => onChange(selectedEntityName(entity, option as FkFieldOption | undefined) || null),
+        onChange: (_label, option) => onChange(selectedEntityName(entity, option as ReferenceOption | undefined) || null),
       }]}
     />
   );

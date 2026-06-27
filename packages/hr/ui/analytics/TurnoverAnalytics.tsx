@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PageSurface, type DataTableColumn } from "@workspace/core/ui";
+import { PageSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { Employee, Employment } from "./useAnalyticsData";
 
@@ -97,13 +97,13 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
     if (!reasonSearch.trim()) return stats.reasons;
     return stats.reasons.filter(([r]) => matchText(r, reasonSearch));
   }, [stats.reasons, reasonSearch]);
-  const columns: DataTableColumn<Employment>[] = [
-    { key: "employeeName", label: "姓名", required: true, cellClassName: "font-medium", render: (employment) => employment.employeeName },
-    { key: "currentCompany", label: "公司", required: true, cellClassName: "text-slate-500", render: (employment) => employment.currentCompany || "—" },
-    { key: "joinDate", label: "入职日期", required: true, cellClassName: "text-slate-500", render: (employment) => employment.joinDate || "—" },
-    { key: "leaveDate", label: "离职日期", required: true, cellClassName: "text-slate-500", render: (employment) => employment.leaveDate || "—" },
-    { key: "leaveReason", label: "原因", required: true, cellClassName: "text-slate-500", render: (employment) => employment.leaveReason || "—" },
-    { key: "leaveNote", label: "补充说明", required: true, cellClassName: "text-slate-500", render: (employment) => employment.leaveNote || "—" },
+  const columns: DataSurfaceColumnSpec<Employment>[] = [
+    { key: "employeeName", label: "姓名", required: true, cellClassName: "font-medium", cell: (employment) => employment.employeeName },
+    { key: "currentCompany", label: "公司", required: true, cellClassName: "text-slate-500", cell: (employment) => employment.currentCompany || "—" },
+    { key: "joinDate", label: "入职日期", required: true, cellClassName: "text-slate-500", cell: (employment) => employment.joinDate || "—" },
+    { key: "leaveDate", label: "离职日期", required: true, cellClassName: "text-slate-500", cell: (employment) => employment.leaveDate || "—" },
+    { key: "leaveReason", label: "原因", required: true, cellClassName: "text-slate-500", cell: (employment) => employment.leaveReason || "—" },
+    { key: "leaveNote", label: "补充说明", required: true, cellClassName: "text-slate-500", cell: (employment) => employment.leaveNote || "—" },
   ];
 
   return (

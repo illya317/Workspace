@@ -1,6 +1,6 @@
 "use client";
 
-import type { ColumnDef, ToolbarItem } from "@workspace/core/ui";
+import type { ColumnDef, SurfaceToolbarItems } from "@workspace/core/ui";
 
 interface ContractFiltersProps {
   q: string;
@@ -25,7 +25,7 @@ export default function getContractFilterToolbarItems({
   categories, statuses,
   columns, visibleColumns, onColumnsChange,
   onCreate, onReset,
-}: ContractFiltersProps): ToolbarItem[] {
+}: ContractFiltersProps): SurfaceToolbarItems {
   return [
     {
       kind: "create",

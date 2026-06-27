@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { DataSurface, type DataSurfaceColumnSpec, type DataTableColumn } from "@workspace/core/ui";
+import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 export interface BalanceCheckAccountNode {
   code: string;
   name: string;
@@ -71,7 +71,7 @@ export default function BalanceCheckTable({
   onToggleNode: (code: string) => void;
 }) {
   const visibleColumns = useMemo(() => ["code", "name", "closingDebit", "closingCredit", "childrenDebit", "childrenCredit", "diffDebit", "diffCredit", "status"], []);
-  const columns = useMemo<Array<DataTableColumn<BalanceCheckFlatNode> | DataSurfaceColumnSpec<BalanceCheckFlatNode>>>(() => [{
+  const columns = useMemo<DataSurfaceColumnSpec<BalanceCheckFlatNode>[]>(() => [{
     key: "code",
     label: "科目编码",
     required: true,
@@ -104,7 +104,7 @@ export default function BalanceCheckTable({
     label: "科目名称",
     required: true,
     headerClassName: "w-44",
-    render: ({
+    cell: ({
       node
     }) => <span className="text-slate-700">{node.name}</span>
   }, {
@@ -113,7 +113,7 @@ export default function BalanceCheckTable({
     required: true,
     headerClassName: "w-28 text-right",
     cellClassName: "text-right text-slate-600",
-    render: ({
+    cell: ({
       node
     }) => formatBalanceAmount(node.closingDebit)
   }, {
@@ -122,7 +122,7 @@ export default function BalanceCheckTable({
     required: true,
     headerClassName: "w-28 text-right",
     cellClassName: "text-right text-slate-600",
-    render: ({
+    cell: ({
       node
     }) => formatBalanceAmount(node.closingCredit)
   }, {
@@ -131,7 +131,7 @@ export default function BalanceCheckTable({
     required: true,
     headerClassName: "w-28 text-right",
     cellClassName: "text-right text-slate-500",
-    render: ({
+    cell: ({
       node
     }) => node.children.length === 0 ? "—" : formatBalanceAmount(node.childrenSumDebit)
   }, {
@@ -140,7 +140,7 @@ export default function BalanceCheckTable({
     required: true,
     headerClassName: "w-28 text-right",
     cellClassName: "text-right text-slate-500",
-    render: ({
+    cell: ({
       node
     }) => node.children.length === 0 ? "—" : formatBalanceAmount(node.childrenSumCredit)
   }, {
@@ -149,7 +149,7 @@ export default function BalanceCheckTable({
     required: true,
     headerClassName: "w-24 text-right",
     cellClassName: "text-right",
-    render: ({
+    cell: ({
       node
     }) => <DifferenceCell node={node} side="debit" />
   }, {
@@ -158,7 +158,7 @@ export default function BalanceCheckTable({
     required: true,
     headerClassName: "w-24 text-right",
     cellClassName: "text-right",
-    render: ({
+    cell: ({
       node
     }) => <DifferenceCell node={node} side="credit" />
   }, {
