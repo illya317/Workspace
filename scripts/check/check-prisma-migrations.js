@@ -19,6 +19,31 @@ function ok(message) {
   console.log(`✓ ${message}`);
 }
 
+function scanSqliteUnsupportedMigrationSql(migrationName, sql) {
+  const violations = [];
+  const checks = [
+    {
+      pattern: /\bALTER\s+TABLE\b[\s\S]*?\bADD\s+CONSTRAINT\b/i,
+      message: "SQLite does not support ALTER TABLE ... ADD CONSTRAINT; declare the constraint in CREATE TABLE or ADD COLUMN REFERENCES instead",
+    },
+    {
+      pattern: /\bALTER\s+TABLE\b[\s\S]*?\bDROP\s+CONSTRAINT\b/i,
+      message: "SQLite does not support ALTER TABLE ... DROP CONSTRAINT; rebuild the table in the migration instead",
+    },
+    {
+      pattern: /\bALTER\s+TABLE\b[\s\S]*?\bALTER\s+COLUMN\b/i,
+      message: "SQLite does not support ALTER TABLE ... ALTER COLUMN; rebuild the table in the migration instead",
+    },
+  ];
+
+  for (const check of checks) {
+    if (check.pattern.test(sql)) violations.push(check.message);
+  }
+
+  if (violations.length === 0) return;
+  fail(`migration contains SQLite-unsupported SQL: prisma/migrations/${migrationName}/migration.sql\n${violations.map((item) => `  - ${item}`).join("\n")}`);
+}
+
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
     cwd: repoRoot,
@@ -54,8 +79,10 @@ for (const migrationName of migrationDirs) {
   if (fs.statSync(migrationSql).size === 0) {
     fail(`migration.sql 为空: prisma/migrations/${migrationName}/migration.sql`);
   }
+  scanSqliteUnsupportedMigrationSql(migrationName, fs.readFileSync(migrationSql, "utf8"));
 }
 ok(`Found ${migrationDirs.length} Prisma migrations`);
+ok("Prisma migrations avoid SQLite-unsupported ALTER TABLE constraint syntax");
 
 const lockText = fs.readFileSync(lockPath, "utf8");
 if (!/provider\s*=\s*"sqlite"/.test(lockText)) {

@@ -37,10 +37,12 @@ export function useWorkReportsController({
   target,
   canEdit,
   onToast,
+  enabled,
 }: {
   target: WorkTarget | null;
   canEdit: boolean;
   onToast: (toast: { message: string; type: "success" | "error" }) => void;
+  enabled: boolean;
 }): WorkReportsController {
   const [mode, setMode] = useState<ReportMode>("fill");
   const [periodStart, setPeriodStart] = useState(() => getCurrentWeekStart());
@@ -53,7 +55,7 @@ export function useWorkReportsController({
   const hasDraftChanges = Boolean(draft) && draftChangeKey !== draftSnapshot;
 
   const loadDraft = useCallback(async () => {
-    if (!target) return;
+    if (!target || !enabled) return;
     setLoading(true);
     try {
       const data = await getWorkReportDraft(target, periodStart);
@@ -64,10 +66,10 @@ export function useWorkReportsController({
     } finally {
       setLoading(false);
     }
-  }, [onToast, periodStart, target]);
+  }, [enabled, onToast, periodStart, target]);
 
   const loadCollection = useCallback(async () => {
-    if (!target) return;
+    if (!target || !enabled) return;
     setLoading(true);
     try {
       setCollection(await listWorkReportCollection(periodStart));
@@ -76,13 +78,13 @@ export function useWorkReportsController({
     } finally {
       setLoading(false);
     }
-  }, [onToast, periodStart, target]);
+  }, [enabled, onToast, periodStart, target]);
 
   useEffect(() => {
-    if (!target) return;
+    if (!target || !enabled) return;
     if (mode === "fill") void loadDraft();
     if (mode === "collection") void loadCollection();
-  }, [loadCollection, loadDraft, mode, target]);
+  }, [enabled, loadCollection, loadDraft, mode, target]);
 
   useEffect(() => {
     setMode("fill");

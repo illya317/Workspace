@@ -76,6 +76,7 @@ export default function WorksClient({ initialTarget }: {
     target: currentSpace,
     canEdit,
     onToast: showReportToast,
+    enabled: activeTab === "reports",
   });
   const permissionBlocks = useWorkPermissionsBlocks({
     target: currentSpace,
