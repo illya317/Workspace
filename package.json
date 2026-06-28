@@ -44,6 +44,7 @@
     "arch:structure:hygiene": "tsx scripts/arch/structure-enforce.ts --scope=hygiene",
     "arch:surface-boundaries": "tsx scripts/arch/surface-boundaries.ts",
     "arch:surface-page-adoption": "tsx scripts/arch/surface-page-adoption.ts",
+    "arch:surface-visualization-adoption": "tsx scripts/arch/surface-visualization-adoption.ts",
     "db:check": "node scripts/check/check-db.js",
     "db:path:check": "node scripts/check/check-database-paths.js",
     "db:docs": "node scripts/generate/gen-db-docs.js",

@@ -258,6 +258,8 @@ Platform Core UI direct import 按以下 recipe 清：
 
 `arch:surface-page-adoption` 专门扫描业务 JSX 和 `createPageSurfaceProps` 中的 PageSurface 顶层兼容入口：`blocks`、`empty`、`actions`、`tabs`、`activeTab`、`activeChild`、`onTabChange`、`onChildChange`。这些不是新代码 API，只能作为迁移债出现在 warning；新增/迁移代码必须改到 `body`、`navigation`、`toolbar` 或对应 helper。
 
+`arch:surface-visualization-adoption` 专门扫描 `VisualizationSurface.kind="gantt"` 里的 `content` ReactNode。甘特、时间轴、组织图这类复杂可视化必须逐步升级成 typed spec 或专用 Surface；整块业务组件塞进 visualization content 只能作为短期迁移债。
+
 `FinanceShell`、`QcModuleShell`、`AdminToolbarProvider` 这类“同一个 L2 共有的布局壳”是历史债，禁止注册为 Core/Page API。长期方式是 route/module 层生成 `PageSurface` props，或 domain thin adapter 只返回/组合 `PageSurface` spec；页面级 header/navigation/toolbar/body/footer 必须由 `PageSurface` props 一次性声明，禁止子组件通过 provider 或 `useXxxPageToolbar` 反向注册页面 chrome。
 
 ## 6. Core Internal

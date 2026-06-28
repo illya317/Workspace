@@ -8,6 +8,7 @@ const checks = [
   ["Structure simple hygiene ratchet", "arch:structure:hygiene"],
   ["Core UI surface boundaries", "arch:surface-boundaries"],
   ["Core UI PageSurface adoption", "arch:surface-page-adoption"],
+  ["Core UI Visualization adoption", "arch:surface-visualization-adoption"],
 ];
 
 const failed = [];

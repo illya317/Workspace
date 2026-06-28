@@ -21,6 +21,7 @@
 | 周期性清债 | `npm run check:hygiene` | 强制巡检公司硬编码和简单 structure hygiene 债务。 |
 | Core UI surface 边界 | `npm run arch:surface-boundaries` | 检查 Surface declares、role 边界，以及业务侧 deprecated escape hatch 使用。 |
 | Core UI PageSurface 迁移债 | `npm run arch:surface-page-adoption` | 检查业务侧是否还在用 PageSurface 顶层兼容 props；由 `check:hygiene:warn` 提示，清零后再收紧。 |
+| Core UI 可视化迁移债 | `npm run arch:surface-visualization-adoption` | 检查复杂可视化是否还把 React 组件塞进 VisualizationSurface；由 `check:hygiene:warn` 提示。 |
 
 ## 边界
 
