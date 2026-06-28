@@ -22,8 +22,8 @@ Operations 负责 CI、部署、环境和脚本运行态。
 ## 禁止
 
 - 不改业务功能、业务 UI、领域 service 或数据 schema。
-- 不绕过 `arch:gate`。
-- 不新增与 `arch:gate` 并行的架构判断入口。
+- 不绕过 `check:blockers` / `arch:gate`。
+- 不新增与 `check:blockers` 并行的架构判断入口。
 - 不把 `check:hygiene` 放回 PR CI 主阻断链路。
 - 不在服务器上手改源码、生成物或数据库结构来替代正式提交；紧急止血后也必须补成本地 migration/脚本并重新部署。
 

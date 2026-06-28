@@ -8,12 +8,15 @@
 |---|---|---|
 | 局部 TS/TSX 改动 | `npm run check:changed` | 跑 changed lint（含净增行 gate）和 quick typecheck。 |
 | 仅检查本次净增行 | `npm run lint:net-lines` | 检查 staged diff；没有 staged diff 时检查 tracked changed + untracked。默认净增必须 `<= 0`。 |
-| 架构、权限、API、registry、Core/Platform 边界 | `npm run check:arch` | 等价于 `npm run arch:gate`。 |
+| 当前变更阻断项 | `npm run check:blockers` | 跑业务阻断和 UI 阻断；这些问题由当前改动 agent 自己修。 |
+| 业务阻断 | `npm run gate:domain` | API、route、resource、RBAC、domain validation、app route 和包边界。 |
+| UI 阻断 | `npm run gate:ui` | Core UI 唯一入口、PageSurface 协议、Toolbar/Input/Selector 等结构性 UI 边界。 |
+| 架构兼容入口 | `npm run check:arch` | 等价于 `npm run check:blockers`。`npm run arch:gate` 保留为兼容总入口。 |
 | Prisma schema、model、migration | `npm run check:data` | 跑 schema 合法性、schema governance 和 migration diff。 |
 | PR / CI 权威检查 | `npm run check:ci` | 合并前主链路；hygiene 只以 warning 方式提示。 |
 | 兼容旧入口 | `npm run check:full` | `check:ci` 的别名。 |
-| 日常 hygiene 提示 | `npm run check:hygiene:warn` | 跑全部 hygiene 细项但永远退出 0。 |
-| 周期性清债 | `npm run check:hygiene` | 强制巡检公司硬编码、Level 2 report 和 baseline 债务。 |
+| 日常 hygiene 提示 | `npm run check:hygiene:warn` | 跑简单清扫项但永远退出 0。 |
+| 周期性清债 | `npm run check:hygiene` | 强制巡检公司硬编码和简单 Level 2 hygiene 债务。 |
 
 ## 边界
 
@@ -27,17 +30,31 @@
 
 `typecheck` 负责 TypeScript 类型正确性。它回答代码在类型系统里是否成立，不回答权限语义、业务规则或生产构建是否完整。
 
-### arch:gate
+### blockers
 
-`arch:gate` 负责大方向结构和访问模型：
+`check:blockers` 是当前改动必须自己修掉的阻断项，不是给 Hygiene Role 的后续任务池。它由两类 gate 组成。
 
-- Core / Platform / domain / app shell 的依赖边界。
+### gate:domain
+
+`gate:domain` 负责业务和系统正确性：
+
 - API / route / resource / RBAC / API contract 的对应关系。
 - Open API registry、scope wrapper 和 console route 对齐。
 - 写入链路的 domain validation 收口。
-- Core UI 治理的大方向约束。
+- app route hierarchy、module gate、package boundary 和 auth chain。
+- Level 2 里已经判定为业务阻断的历史债 ratchet，例如新增未登记 API route、裸 Prisma、缺 validation/service、旧 root service/auth/prisma 入口。
 
-`arch:gate` 不应该承载公司名扫描、baseline 债务观察、一次性迁移清单或其他 hygiene 细则。
+### gate:ui
+
+`gate:ui` 负责结构性 UI 阻断，不管细碎视觉债：
+
+- Core UI 唯一入口和 registry 关系。
+- 业务不得直接使用内部 input renderer、非 direct Core UI runtime、禁止的 Core UI type。
+- PageSurface 协议、页面壳、toolbar/input/selector/tabbar 的结构边界。
+- 页面级 toolbar 与数据块 toolbar 重复、Surface 自带 page chrome、业务直引 Common renderer。
+- 业务 UI 候选组件没有复用 Core/Platform 基建、Core UI ownership/coupling 违规。
+
+这些问题不交给 hygiene 重构；谁引入或触碰相关 UI，谁修到 `gate:ui` 通过。`arch:gate` 仍保留为兼容总入口，内部等价于 `gate:domain + gate:ui`。
 
 ### db/schema
 
@@ -59,15 +76,17 @@ deploy/runtime 检查回答目标环境能不能运行，例如 workspace manife
 
 ### hygiene
 
-Hygiene 有 warning 和 strict 两种模式。日常/CI 使用 `check:hygiene:warn`，只提示不阻断；Hygiene Role 使用 `check:hygiene`，发现问题必须失败。两种模式都必须跑完全部 hygiene 子项，区别只在最终退出码。
+Hygiene 是简单清道夫，不是 UI 重构队。日常/CI 使用 `check:hygiene:warn`，只提示不阻断；Hygiene Role 使用 `check:hygiene`，发现简单清扫项必须失败。
 
-Hygiene 负责细枝末节和历史债观察：
+Hygiene 负责简单、局部、机械、可回滚的清扫：
 
 - 公司专有事实硬编码扫描。
-- `arch:level2:ratchet` baseline 收敛检查。
-- `arch:level2` 结构智能报告。
-- 业务视觉 token 硬编码候选、Core 业务事实泄漏候选、组件内本地 UI config 候选。
-- baseline JSON 是否只减少、不扩写。
+- `arch:level2:hygiene` 中的简单债务 ratchet：业务视觉 token 硬编码候选、Core 业务事实泄漏候选、组件内本地 UI config 候选。
+- stale baseline 删除和小范围 baseline 收窄。
+- 已有封装能力下的机械迁移。
+- 明显 dead code、禁用注释和小 constant/token 债。
 - lint / arch gate 是否存在规则漏洞或误放到主链路的细则。
 
-Hygiene findings 可以回传给 Architecture、Operations 或 Feature，但不要直接把细规则塞回 `arch:gate` 或 `lint:full`。
+Hygiene 不负责新公共 API、新封装入口、页面结构重排、复杂组件重构、大面积业务迁移或产品交互设计。发现这类问题时，只做归类和回交：结构性阻断进入 `gate:ui` / `gate:domain`，复杂 UI/业务迁移交给对应 Feature 或 Architecture。
+
+`arch:level2` 仍是完整结构报告，只用于拆任务和观察趋势；它不是 hygiene strict 的工作清单。

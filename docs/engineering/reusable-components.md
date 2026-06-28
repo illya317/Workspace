@@ -140,7 +140,7 @@ Finance 当前已经有第一层统一模板，但业务页面还在渐进迁移
 - `app/*` 和 `packages/*` 禁止新增搜索型原生 `<input>`；内容检索、FK、下拉内检索都通过 Surface field/filter spec 或领域薄壳表达。
 - `packages/*` 禁止 `window.confirm`。
 - `app/*` 和 `packages/*/ui` 页面反馈只能使用 `useFeedback`；禁止直接使用 `Toast`、`ConfirmProvider`、`useToast`、`useConfirm`、`useConfirmDelete`、`useUnsavedChangesPrompt`，专用 Agent 确认弹窗除外。
-- 业务 runtime 新增 Core UI 引用时只允许正式 direct 入口：`PageSurface`、`InputControl`、`SelectorPanel`、`CreatePanel`、`useFeedback`；`via/internal` 组件只保留 Core 内部、showcase、迁移阅读或 type-only 兼容用途。`npm run arch:gate` 会校验 registry `exposure` 和业务 runtime import；组件库主展示按 `category/subcategory` 分类，基础/私有实现不得作为业务 import。页面布局协议新增绕过会进入 hygiene baseline，只能减少。
+- 业务 runtime 新增 Core UI 引用时只允许正式 direct 入口：`PageSurface`、`InputControl`、`SelectorPanel`、`CreatePanel`、`useFeedback`；`via/internal` 组件只保留 Core 内部、showcase、迁移阅读或 type-only 兼容用途。`npm run gate:ui` 会校验 registry `exposure` 和业务 runtime import；组件库主展示按 `category/subcategory` 分类，基础/私有实现不得作为业务 import。页面布局协议新增绕过属于 UI 阻断，由当前改动 agent 自己修，不交给 Hygiene。
 - `InputControl` spec 禁止使用 `editor`。文本、数字、布尔、选项、FK、日期、文件、集合和评分分别通过 `control` 语义表达；搜索/下拉/分段编码等细节通过 `options.mode`、`options.source`、`format`、`mask.kind` 派生。
 - `packages/*` 禁止原生 `input[type=date]`，统一通过 `PageSurface` 日期 field spec、`InputControl` 或领域薄壳表达。
 - 选择/搜索类组件必须使用 `@workspace/core/search` 的 `matchText` 或由服务端提供同等拼音匹配。

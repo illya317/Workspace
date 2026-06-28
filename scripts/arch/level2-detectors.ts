@@ -8,8 +8,11 @@ export type Level2RatchetCheck = {
   current: string[];
 };
 
+export type Level2DetectorScope = "domain-blocker" | "ui-blocker" | "hygiene" | "all";
+
 type Level2DetectorDefinition = {
   baselineKey: string;
+  scope: Exclude<Level2DetectorScope, "all">;
   current: (report: Level2Report) => string[];
 };
 
@@ -126,58 +129,63 @@ function surfaceOwnsPageChromeKey(candidate: { file: string; componentName: stri
 }
 
 export const level2DetectorRegistry: Level2DetectorDefinition[] = [
-  { baselineKey: "uncontractedApiRouteMethods", current: (report) => report.drift.uncontractedApiRouteMethods.map(apiRouteMethodKey) },
-  { baselineKey: "apiRouteMethodsWithDirectPrismaSignal", current: (report) => report.drift.apiRoutesWithDirectPrismaSignal.map(apiRouteMethodKey) },
-  { baselineKey: "apiRouteMethodsWithoutValidationSignal", current: (report) => report.drift.apiRouteMethodsWithoutValidationSignal.map(apiRouteMethodKey) },
-  { baselineKey: "apiRouteMethodsWithoutServiceSignal", current: (report) => report.drift.apiRouteMethodsWithoutServiceSignal.map(apiRouteMethodKey) },
-  { baselineKey: "appHookFiles", current: (report) => report.drift.appHookFiles },
-  { baselineKey: "appHookImplementationFiles", current: (report) => report.drift.appHookImplementationFiles },
-  { baselineKey: "domainUiCandidatesWithoutCore", current: (report) => report.drift.domainUiCandidatesWithoutCore.map((candidate) => candidate.file) },
-  { baselineKey: "legacyServiceFiles", current: (report) => report.drift.legacyServiceFiles },
-  { baselineKey: "legacyAuthHubFiles", current: (report) => report.drift.legacyAuthHubFiles },
-  { baselineKey: "legacyRootAccessFiles", current: (report) => report.drift.legacyRootAccessFiles },
-  { baselineKey: "legacyRootUtilityFiles", current: (report) => report.drift.legacyRootUtilityFiles },
-  { baselineKey: "legacyRootWithAuthFiles", current: (report) => report.drift.legacyRootWithAuthFiles },
-  { baselineKey: "legacyRootWithAuthImports", current: (report) => report.drift.legacyRootWithAuthImports },
-  { baselineKey: "legacyRootPrismaFiles", current: (report) => report.drift.legacyRootPrismaFiles },
-  { baselineKey: "legacyRootPrismaImports", current: (report) => report.drift.legacyRootPrismaImports },
-  { baselineKey: "legacyRootPermissionsImplementationFiles", current: (report) => report.drift.legacyRootPermissionsImplementationFiles },
-  { baselineKey: "legacyRootPermissionsImports", current: (report) => report.drift.legacyRootPermissionsImports },
-  { baselineKey: "legacyRootPeriodImplementationFiles", current: (report) => report.drift.legacyRootPeriodImplementationFiles },
-  { baselineKey: "legacyRootPeriodImports", current: (report) => report.drift.legacyRootPeriodImports },
-  { baselineKey: "legacyRootSearchSchemaFiles", current: (report) => report.drift.legacyRootSearchSchemaFiles },
-  { baselineKey: "unregisteredCoreUiImports", current: (report) => report.drift.unregisteredCoreUiImports.map(unregisteredCoreUiImportKey) },
-  { baselineKey: "unregisteredCoreUiExports", current: (report) => report.drift.unregisteredCoreUiExports.map(unregisteredCoreUiExportKey) },
-  { baselineKey: "duplicateCoreUiRegistrations", current: (report) => report.drift.duplicateCoreUiRegistrations.map(duplicateCoreUiRegistrationKey) },
-  { baselineKey: "pageDesignDriftFiles", current: (report) => report.drift.pageDesignDriftFiles.map(pageDesignDriftFileKey) },
-  { baselineKey: "nativeSearchInputFiles", current: (report) => report.drift.nativeSearchInputFiles.map(nativeSearchInputFileKey) },
-  { baselineKey: "handwrittenSearchMatches", current: (report) => report.drift.handwrittenSearchMatches.map(handwrittenSearchMatchKey) },
-  { baselineKey: "generatedFilterContractDrift", current: (report) => report.drift.generatedFilterContractDrift.map(generatedFilterContractDriftKey) },
-  { baselineKey: "businessModuleViewUsages", current: (report) => report.drift.businessModuleViewUsages.map(businessModuleViewUsageKey) },
-  { baselineKey: "businessPageLayoutPrimitiveUsages", current: (report) => report.drift.businessPageLayoutPrimitiveUsages.map(businessPageLayoutPrimitiveUsageKey) },
-  { baselineKey: "businessToolbarCompositionWarnings", current: (report) => report.drift.businessToolbarCompositionWarnings.map(businessToolbarCompositionWarningKey) },
-  { baselineKey: "businessCoreUiSurfaceBypassImports", current: (report) => report.drift.businessCoreUiSurfaceBypassImports.map(businessCoreUiSurfaceBypassImportKey) },
-  { baselineKey: "uiForbiddenCoreUiTypeImports", current: (report) => report.drift.uiForbiddenCoreUiTypeImports.map(uiForbiddenCoreUiTypeImportKey) },
-  { baselineKey: "businessVisualTokenHardcoding", current: (report) => report.drift.businessVisualTokenHardcoding.map(businessVisualTokenHardcodingKey) },
-  { baselineKey: "coreBusinessFactLiterals", current: (report) => report.drift.coreBusinessFactLiterals.map(coreBusinessFactLiteralKey) },
-  { baselineKey: "componentLocalUiConfigs", current: (report) => report.drift.componentLocalUiConfigs.map(componentLocalUiConfigKey) },
-  { baselineKey: "pageSurfaceLayoutProtocolWarnings", current: (report) => report.drift.pageSurfaceLayoutProtocolWarnings.map(pageSurfaceLayoutProtocolWarningKey) },
-  { baselineKey: "platformCoreUiRuntimeBypassImports", current: (report) => report.drift.platformCoreUiRuntimeBypassImports.map(platformCoreUiRuntimeBypassImportKey) },
-  { baselineKey: "coreUiMissingOwnership", current: (report) => report.drift.coreUiMissingOwnership.map(coreUiMissingOwnershipKey) },
-  { baselineKey: "coreUiInvalidOwnership", current: (report) => report.drift.coreUiInvalidOwnership.map(coreUiInvalidOwnershipKey) },
-  { baselineKey: "coreUiCommonDomainDependency", current: (report) => report.drift.coreUiCommonDomainDependency.map(coreUiCommonDomainDependencyKey) },
-  { baselineKey: "coreUiSiblingL2Coupling", current: (report) => report.drift.coreUiSiblingL2Coupling.map(coreUiSiblingL2CouplingKey) },
-  { baselineKey: "businessCommonRendererImports", current: (report) => report.drift.businessCommonRendererImports.map(businessCommonRendererImportKey) },
-  { baselineKey: "domainSharedL2LayoutShells", current: (report) => report.drift.domainSharedL2LayoutShells.map(domainSharedL2LayoutShellKey) },
-  { baselineKey: "surfaceOwnsPageChrome", current: (report) => report.drift.surfaceOwnsPageChrome.map(surfaceOwnsPageChromeKey) },
-  { baselineKey: "repeatedServiceGroups", current: (report) => report.drift.repeatedServiceGroups.map(repeatedServiceGroupKey) },
-  { baselineKey: "routePrimitiveSchemaDuplicates", current: (report) => report.drift.routePrimitiveSchemaDuplicates.map(routePrimitiveSchemaKey) },
-  { baselineKey: "apiRouteHelperDuplicates", current: (report) => report.drift.apiRouteHelperDuplicates.map(apiRouteHelperKey) },
+  { baselineKey: "uncontractedApiRouteMethods", scope: "domain-blocker", current: (report) => report.drift.uncontractedApiRouteMethods.map(apiRouteMethodKey) },
+  { baselineKey: "apiRouteMethodsWithDirectPrismaSignal", scope: "domain-blocker", current: (report) => report.drift.apiRoutesWithDirectPrismaSignal.map(apiRouteMethodKey) },
+  { baselineKey: "apiRouteMethodsWithoutValidationSignal", scope: "domain-blocker", current: (report) => report.drift.apiRouteMethodsWithoutValidationSignal.map(apiRouteMethodKey) },
+  { baselineKey: "apiRouteMethodsWithoutServiceSignal", scope: "domain-blocker", current: (report) => report.drift.apiRouteMethodsWithoutServiceSignal.map(apiRouteMethodKey) },
+  { baselineKey: "appHookFiles", scope: "domain-blocker", current: (report) => report.drift.appHookFiles },
+  { baselineKey: "appHookImplementationFiles", scope: "domain-blocker", current: (report) => report.drift.appHookImplementationFiles },
+  { baselineKey: "domainUiCandidatesWithoutCore", scope: "ui-blocker", current: (report) => report.drift.domainUiCandidatesWithoutCore.map((candidate) => candidate.file) },
+  { baselineKey: "legacyServiceFiles", scope: "domain-blocker", current: (report) => report.drift.legacyServiceFiles },
+  { baselineKey: "legacyAuthHubFiles", scope: "domain-blocker", current: (report) => report.drift.legacyAuthHubFiles },
+  { baselineKey: "legacyRootAccessFiles", scope: "domain-blocker", current: (report) => report.drift.legacyRootAccessFiles },
+  { baselineKey: "legacyRootUtilityFiles", scope: "domain-blocker", current: (report) => report.drift.legacyRootUtilityFiles },
+  { baselineKey: "legacyRootWithAuthFiles", scope: "domain-blocker", current: (report) => report.drift.legacyRootWithAuthFiles },
+  { baselineKey: "legacyRootWithAuthImports", scope: "domain-blocker", current: (report) => report.drift.legacyRootWithAuthImports },
+  { baselineKey: "legacyRootPrismaFiles", scope: "domain-blocker", current: (report) => report.drift.legacyRootPrismaFiles },
+  { baselineKey: "legacyRootPrismaImports", scope: "domain-blocker", current: (report) => report.drift.legacyRootPrismaImports },
+  { baselineKey: "legacyRootPermissionsImplementationFiles", scope: "domain-blocker", current: (report) => report.drift.legacyRootPermissionsImplementationFiles },
+  { baselineKey: "legacyRootPermissionsImports", scope: "domain-blocker", current: (report) => report.drift.legacyRootPermissionsImports },
+  { baselineKey: "legacyRootPeriodImplementationFiles", scope: "domain-blocker", current: (report) => report.drift.legacyRootPeriodImplementationFiles },
+  { baselineKey: "legacyRootPeriodImports", scope: "domain-blocker", current: (report) => report.drift.legacyRootPeriodImports },
+  { baselineKey: "legacyRootSearchSchemaFiles", scope: "domain-blocker", current: (report) => report.drift.legacyRootSearchSchemaFiles },
+  { baselineKey: "unregisteredCoreUiImports", scope: "ui-blocker", current: (report) => report.drift.unregisteredCoreUiImports.map(unregisteredCoreUiImportKey) },
+  { baselineKey: "unregisteredCoreUiExports", scope: "ui-blocker", current: (report) => report.drift.unregisteredCoreUiExports.map(unregisteredCoreUiExportKey) },
+  { baselineKey: "duplicateCoreUiRegistrations", scope: "ui-blocker", current: (report) => report.drift.duplicateCoreUiRegistrations.map(duplicateCoreUiRegistrationKey) },
+  { baselineKey: "pageDesignDriftFiles", scope: "ui-blocker", current: (report) => report.drift.pageDesignDriftFiles.map(pageDesignDriftFileKey) },
+  { baselineKey: "nativeSearchInputFiles", scope: "ui-blocker", current: (report) => report.drift.nativeSearchInputFiles.map(nativeSearchInputFileKey) },
+  { baselineKey: "handwrittenSearchMatches", scope: "domain-blocker", current: (report) => report.drift.handwrittenSearchMatches.map(handwrittenSearchMatchKey) },
+  { baselineKey: "generatedFilterContractDrift", scope: "ui-blocker", current: (report) => report.drift.generatedFilterContractDrift.map(generatedFilterContractDriftKey) },
+  { baselineKey: "businessModuleViewUsages", scope: "ui-blocker", current: (report) => report.drift.businessModuleViewUsages.map(businessModuleViewUsageKey) },
+  { baselineKey: "businessPageLayoutPrimitiveUsages", scope: "ui-blocker", current: (report) => report.drift.businessPageLayoutPrimitiveUsages.map(businessPageLayoutPrimitiveUsageKey) },
+  { baselineKey: "businessToolbarCompositionWarnings", scope: "ui-blocker", current: (report) => report.drift.businessToolbarCompositionWarnings.map(businessToolbarCompositionWarningKey) },
+  { baselineKey: "businessCoreUiSurfaceBypassImports", scope: "ui-blocker", current: (report) => report.drift.businessCoreUiSurfaceBypassImports.map(businessCoreUiSurfaceBypassImportKey) },
+  { baselineKey: "uiForbiddenCoreUiTypeImports", scope: "ui-blocker", current: (report) => report.drift.uiForbiddenCoreUiTypeImports.map(uiForbiddenCoreUiTypeImportKey) },
+  { baselineKey: "businessVisualTokenHardcoding", scope: "hygiene", current: (report) => report.drift.businessVisualTokenHardcoding.map(businessVisualTokenHardcodingKey) },
+  { baselineKey: "coreBusinessFactLiterals", scope: "hygiene", current: (report) => report.drift.coreBusinessFactLiterals.map(coreBusinessFactLiteralKey) },
+  { baselineKey: "componentLocalUiConfigs", scope: "hygiene", current: (report) => report.drift.componentLocalUiConfigs.map(componentLocalUiConfigKey) },
+  { baselineKey: "pageSurfaceLayoutProtocolWarnings", scope: "ui-blocker", current: (report) => report.drift.pageSurfaceLayoutProtocolWarnings.map(pageSurfaceLayoutProtocolWarningKey) },
+  { baselineKey: "platformCoreUiRuntimeBypassImports", scope: "ui-blocker", current: (report) => report.drift.platformCoreUiRuntimeBypassImports.map(platformCoreUiRuntimeBypassImportKey) },
+  { baselineKey: "coreUiMissingOwnership", scope: "ui-blocker", current: (report) => report.drift.coreUiMissingOwnership.map(coreUiMissingOwnershipKey) },
+  { baselineKey: "coreUiInvalidOwnership", scope: "ui-blocker", current: (report) => report.drift.coreUiInvalidOwnership.map(coreUiInvalidOwnershipKey) },
+  { baselineKey: "coreUiCommonDomainDependency", scope: "ui-blocker", current: (report) => report.drift.coreUiCommonDomainDependency.map(coreUiCommonDomainDependencyKey) },
+  { baselineKey: "coreUiSiblingL2Coupling", scope: "ui-blocker", current: (report) => report.drift.coreUiSiblingL2Coupling.map(coreUiSiblingL2CouplingKey) },
+  { baselineKey: "businessCommonRendererImports", scope: "ui-blocker", current: (report) => report.drift.businessCommonRendererImports.map(businessCommonRendererImportKey) },
+  { baselineKey: "domainSharedL2LayoutShells", scope: "ui-blocker", current: (report) => report.drift.domainSharedL2LayoutShells.map(domainSharedL2LayoutShellKey) },
+  { baselineKey: "surfaceOwnsPageChrome", scope: "ui-blocker", current: (report) => report.drift.surfaceOwnsPageChrome.map(surfaceOwnsPageChromeKey) },
+  { baselineKey: "repeatedServiceGroups", scope: "domain-blocker", current: (report) => report.drift.repeatedServiceGroups.map(repeatedServiceGroupKey) },
+  { baselineKey: "routePrimitiveSchemaDuplicates", scope: "domain-blocker", current: (report) => report.drift.routePrimitiveSchemaDuplicates.map(routePrimitiveSchemaKey) },
+  { baselineKey: "apiRouteHelperDuplicates", scope: "domain-blocker", current: (report) => report.drift.apiRouteHelperDuplicates.map(apiRouteHelperKey) },
 ];
 
-export function collectLevel2RatchetChecks(report: Level2Report): Level2RatchetCheck[] {
-  return level2DetectorRegistry.map((detector) => ({
-    name: detector.baselineKey,
-    current: detector.current(report),
-  }));
+export function collectLevel2RatchetChecks(
+  report: Level2Report,
+  scope: Level2DetectorScope = "all",
+): Level2RatchetCheck[] {
+  return level2DetectorRegistry
+    .filter((detector) => scope === "all" || detector.scope === scope)
+    .map((detector) => ({
+      name: detector.baselineKey,
+      current: detector.current(report),
+    }));
 }

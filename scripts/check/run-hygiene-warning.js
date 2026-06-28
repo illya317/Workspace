@@ -5,8 +5,7 @@ const { spawnSync } = require("node:child_process");
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 const checks = [
   ["company hardcoding", "company:check"],
-  ["Level 2 baseline ratchet", "arch:level2:ratchet"],
-  ["Level 2 structure report", "arch:level2"],
+  ["Level 2 simple hygiene ratchet", "arch:level2:hygiene"],
 ];
 
 const failed = [];
@@ -26,7 +25,7 @@ for (const [label, script] of checks) {
 
 if (failed.length > 0) {
   console.warn(`\n⚠ Hygiene warning summary: ${failed.join(", ")}.`);
-  console.warn("  Run `npm run check:hygiene` in Hygiene Role to enforce these checks.");
+  console.warn("  Run `npm run check:hygiene` in Hygiene Role for simple cleanup.");
 } else {
   console.log("\n✓ Hygiene warning checks passed.");
 }

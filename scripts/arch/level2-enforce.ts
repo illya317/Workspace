@@ -1,7 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { collectLevel2RatchetChecks, type Level2Baseline } from "./level2-detectors";
+import {
+  collectLevel2RatchetChecks,
+  type Level2Baseline,
+  type Level2DetectorScope,
+} from "./level2-detectors";
 import { createLevel2Report } from "./level2";
 
 const ROOT = path.resolve(__dirname, "../..");
@@ -42,24 +46,40 @@ function checkRatchet(name: string, current: string[], baseline: string[]) {
   return true;
 }
 
-export function checkLevel2Ratchet() {
+function parseScope(argv: string[]): Level2DetectorScope {
+  const scopeArg = argv.find((arg) => arg.startsWith("--scope="));
+  if (!scopeArg) return "all";
+  const scope = scopeArg.slice("--scope=".length);
+  if (
+    scope === "all" ||
+    scope === "domain-blocker" ||
+    scope === "ui-blocker" ||
+    scope === "hygiene"
+  ) {
+    return scope;
+  }
+  throw new Error(`Unknown Level 2 ratchet scope: ${scope}`);
+}
+
+export function checkLevel2Ratchet(scope: Level2DetectorScope = "all") {
   try {
     const baseline = readBaseline();
     const report = createLevel2Report();
 
-    for (const { name, current } of collectLevel2RatchetChecks(report)) {
+    for (const { name, current } of collectLevel2RatchetChecks(report, scope)) {
       if (!checkRatchet(name, current, baseline[name] ?? [])) return false;
     }
 
-    console.log("✓ Level 2 baseline ratchet passed.");
+    console.log(`✓ Level 2 ${scope} baseline ratchet passed.`);
     return true;
   } catch (error) {
-    console.error("✗ Level 2 baseline ratchet failed.");
+    console.error(`✗ Level 2 ${scope} baseline ratchet failed.`);
     console.error(error instanceof Error ? `  ${error.message}` : error);
     return false;
   }
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
-  process.exit(checkLevel2Ratchet() ? 0 : 1);
+  const scope = parseScope(process.argv.slice(2));
+  process.exit(checkLevel2Ratchet(scope) ? 0 : 1);
 }

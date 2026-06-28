@@ -222,8 +222,8 @@ Core UI registry 治理：
 页面组件注册表：
 
 - `packages/core/ui/component-registry.ts` 是 Core UI primitive 和页面骨架的注册表。非 Core 包只能消费 registry 中登记的 Core UI 名字；新增 Core UI 入口必须先由 Architecture/Core 任务登记，再导出给 Feature 使用。注册项必须填写中文 `description` 和中文 `example`，并由架构检查读取注册名、分类、说明、使用案例、组合子组件和当前消费文件。
-- 该 registry 是 `scripts/arch/level2.ts` 的输入；Level 2 ratchet 由 hygiene strict 执行，日常/CI 通过 `npm run check:hygiene:warn` 提示，不塞回 `npm run arch:gate`。
-- Registry `category/subcategory` 是分类模型：一级分类固定为 `page / data / form / common / feedback`，`Common` 不新增 runtime `CommonSurface`。缺字段、非法归属、Common 反依赖 domain 二级分类、sibling subcategory 高耦合、业务直引 Common renderer、domain shared layout shell 和 Surface 自带 page chrome 先进入 Level 2 warning-only report，不阻断 `arch:gate`；债务清单稳定后只允许 ratchet 下降。
+- 该 registry 是 `scripts/arch/level2.ts` 的输入；结构性 UI ratchet 由 `gate:ui` 执行，简单清扫项才由 hygiene strict 执行。
+- Registry `category/subcategory` 是分类模型：一级分类固定为 `page / data / form / common / feedback`，`Common` 不新增 runtime `CommonSurface`。缺字段、非法归属、Common 反依赖 domain 二级分类、sibling subcategory 高耦合、业务直引 Common renderer、domain shared layout shell 和 Surface 自带 page chrome 属于结构性 UI 阻断；需要新封装入口或复杂页面重构时由 Architecture/Feature 处理，不交给 Hygiene。
 - Core UI 的 value export 必须全部出现在 `component-registry.ts`，或明确列入 `scripts/arch/level2.ts` 的非组件导出集合；注册名重复会直接进入 `duplicateCoreUiRegistrations`。这两类 baseline 为空，新增即失败。
 - 非 Core 包新增手写页面设计壳会进入 `pageDesignDriftFiles` 检测：在 `packages/*/ui` 中直接用原生 JSX 容器拼 `bg-white`、`rounded`、`shadow/border`、sticky header、页面级 grid 等页面结构时视为漂移。Platform-owned system shell 文件（当前 `AppShell` / `UserMenu`）由 Platform 单独封装，只接受窄名单例外；历史债由 `scripts/arch/level2-baseline.json` 锁定，Feature/UI 迁走后必须删对应 baseline 项。
 - `PageSurface` 的 `moduleView` 是历史过渡逃生口，不是新增业务页面 API。业务 UI / `app/(modules)` 的存量 `moduleView` 会按 `shell-host`、`content-wrapper`、`split-side`、`analysis-visual`、`report-document`、`complex-editor`、`navigation-composition` 分类进入 `businessModuleViewUsages` baseline；新增或迁移删除都必须通过同一 Level 2 ratchet。
@@ -231,7 +231,7 @@ Core UI registry 治理：
 
 Level 1/1.5 额外硬约束：
 
-- `npm run arch:gate` 是唯一架构入口，串行执行 AST 扫描、dependency-cruiser、module registry、app route hierarchy、资源注册、package boundary 和 auth/API 检查；任一阶段失败立即退出。
+- `npm run check:blockers` 是当前改动阻断入口，分为 `gate:domain` 和 `gate:ui`；`npm run arch:gate` 保留为兼容总入口，内部仍串行执行这两类 gate。
 - AST 阶段阻断 UI 库 import、app 层新增 UI、权限绕过、RBAC 表直查、业务包 server alias 绕过和跨业务包 import。
 - dependency-cruiser 阶段检查包级 DAG 和循环依赖。Core 不能 import Platform/Apps，Platform 不能 import domain package，domain package 不能互相 import，生成目录不参与依赖图。
 - module registry 阶段要求每个业务包通过 `packages/platform/module-registry.ts` 注册并导出来自 registry 的 `moduleDefinition`；未注册、重复 key、从业务包反向聚合到 Platform 都会失败。运行态 rename/disable 通过 `packages/platform/module-overrides.ts` 进入 effective registry，禁止为展示改名散改技术 key、API path 或 FK key。
@@ -240,13 +240,13 @@ Level 1/1.5 额外硬约束：
 
 Level 2 结构智能层：
 
-- Level 2 不新增平行 hard gate；`npm run arch:gate` 仍是唯一 CI 架构门禁。
+- Level 2 不再整体归入 Hygiene。它按 detector scope 分成 `domain-blocker`、`ui-blocker` 和 `hygiene`：前两者进入 blockers，后者才进入 Hygiene Role。
 - Level 2 当前由三件套组成：`scripts/arch/level2.ts` 做 AST/pattern scan，`packages/platform/module-registry.ts` 做模块注册锁，`packages/platform/api-registry.ts` 做 API Contract。`packages/core/ui/component-registry.ts` 是 AST/pattern scan 的 Core UI 白名单输入，不是独立 gate。任何新增检测或 contract 来源必须并入这三个入口或唯一 gate，不得另起旁路。
 - `npm run arch:level2` 生成确定性的结构报告，用于发现 UI pattern 重复、API route contract 覆盖缺口、API route 模板漂移、旧 service 迁移债和 app 层 JSX 存量。
 - API Contract 的单一来源是 `packages/platform/api-registry.ts`，它从 effective module registry 的 `apiGuards` 和 `apiRoutes` 派生，不允许业务包维护第二套 API 清单。
 - `apiGuards` 表示需要资源权限的 protected API；`apiRoutes` 表示显式 route contract，可标记为 `protected`、`public`、`dev` 或 `disabled`，用于登录/OAuth、开发入口、禁用兼容 API 等非资源权限入口。
-- Level 2 中已升级为强制规则的漂移项由 `scripts/arch/level2-baseline.json` 锁定，并通过 `npm run check:hygiene` 执行；`npm run check:hygiene:warn` 会跑完同一组细项但不阻断。baseline 只能减少：新增未注册 API route、API route 裸 `prisma.`、非 GET route 缺结构化 validation、API route 缺 service 调用、app-root hook 实现、未复用 Core 的业务选择器、未注册 Core UI import、业务 UI / `app/(modules)` runtime 直引非 Surface Core UI、业务 UI / `app/(modules)` 新增 `PageSurface` `moduleView` 逃生口、Platform UI runtime 直引非 direct Core UI、业务 UI / `app` type-only 直引 `DataTableColumn` / `ToolbarItem` / `FkFieldOption`、Core UI 已导出但未登记、Core UI registry 重名或归属非法、Core UI ownership/coupling debt、业务直引 Common renderer、domain shared L2 layout shell、Surface page chrome 债务、业务视觉 token 硬编码候选、Core 业务事实泄漏候选、组件内本地 UI config 候选、非 Core 包新增手写页面壳、搜索型原生 input、旧 `server/services` 文件或重复 service group 都会失败；迁移删除后必须同步删 baseline 项。页面设计漂移会读取 TSX JSX pattern，拦截手写 surface、sticky header、layout grid、table、form/control、modal overlay、toolbar layout、action button 和 table scroll shell。
-- Level 2 报告只读、不自动修复、不直接失败 CI。把某个发现升级为硬约束前，必须先进入 `scripts/arch/gate.ts` 所属的单 gate 系统，禁止在 CI 里新增旁路检查。
+- Level 2 中已升级为强制规则的漂移项由 `scripts/arch/level2-baseline.json` 锁定，并按 scope 执行：业务/API/legacy/service 类进入 `arch:level2:domain`，结构性 UI 类进入 `arch:level2:ui`，简单清扫类进入 `arch:level2:hygiene`。baseline 只能减少；迁移删除后必须同步删 baseline 项。
+- Level 2 完整报告只读、不自动修复、不直接要求 Hygiene 清完。把某个发现升级为硬约束前，必须明确放入 `domain-blocker` 或 `ui-blocker` scope；简单清扫项才能留在 `hygiene` scope。
 - Feature/Data/Operations agent 使用 Level 2 报告拆迁移任务时，只能改对应业务文件；Architecture agent 才能修改 `scripts/arch/*`、`packages/platform/module-registry.ts`、`packages/platform/api-registry.ts` 和相关治理文档。
 - Architecture agent 做 baseline ratchet 时只能减少历史债。若迁移删除了旧 route-local service、app hook 或 direct permission 文件，必须同步删 `scripts/arch/level2-baseline.json`、`scripts/arch/level15-baseline.json` 或 `scripts/check/level1-api-baseline.json` 中对应项；禁止为新违规扩写 baseline。
 - Core UI 大迁移需要定期 review gate/report：每个阶段至少阅读 Core UI registry validation、Level 2 ratchet 和 import baseline，确认 `businessCoreUiSurfaceBypassImports` 和 `businessModuleViewUsages` 只减少、不变宽，`platformCoreUiRuntimeBypassImports` 保持为空；Production QC 质检纸、批记录、打印/留档渲染不得纳入宽泛 UI codemod。
