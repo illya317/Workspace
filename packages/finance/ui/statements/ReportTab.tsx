@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { PageSurface } from "@workspace/core/ui";
+import { createGroupBlock, createMessageBlock, createPanelBlock, PageSurface } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 import { createReportBannerBlock } from "./ReportBanner";
@@ -157,15 +157,11 @@ export default function ReportTab() {
       className: "p-8 text-center",
       content: "加载中...",
     }] : []),
-    ...(data?.type === "balance" ? [{
-            kind: "panel",
-            key: "balance-report",
+    ...(data?.type === "balance" ? [createPanelBlock("balance-report", {
             title: "资 产 负 债 表",
             subtitle: `${data.period.year}年${data.period.month}月`,
             blocks: [
-              {
-                kind: "surfaceGroup",
-                key: "balance-lines",
+              createGroupBlock("balance-lines", {
                 layout: "grid",
                 className: "grid-cols-2 gap-0",
                 blocks: [
@@ -177,9 +173,7 @@ export default function ReportTab() {
                       className: "border-r border-gray-200 pr-4",
                     },
                   },
-                  {
-                    kind: "surfaceGroup",
-                    key: "liability-equity",
+                  createGroupBlock("liability-equity", {
                     layout: "stack",
                     className: "pl-4",
                     blocks: [
@@ -194,24 +188,20 @@ export default function ReportTab() {
                         surface: createReportLinesSurface({ items: data.equity || [], labelHeader: "所有者权益", amountHeader: "年末余额", ...lineProps }),
                       },
                     ],
-                  },
+                  }),
                 ],
-              },
-              ...(data.totalLiabilitiesAndEquity !== undefined ? [{
-                kind: "message" as const,
-                key: "balance-check",
+              }),
+              ...(data.totalLiabilitiesAndEquity !== undefined ? [createMessageBlock("balance-check", {
                 tone: "muted" as const,
                 className: "border-0 bg-transparent text-center text-xs text-gray-400",
                 content: <>
                   资产总计 = {formatFinanceAmount(data.assets?.find(item => item.isGrandTotal)?.amount || 0)} | 负债和权益总计 = {formatFinanceAmount(data.totalLiabilitiesAndEquity)}
                   {Math.abs((data.assets?.find(item => item.isGrandTotal)?.amount || 0) - data.totalLiabilitiesAndEquity) > 0.01 && <span className="ml-2 text-red-500">不平衡</span>}
                 </>,
-              }] : []),
+              })] : []),
             ],
-          }] : []),
-    ...(data?.type === "income" ? [{
-            kind: "panel",
-            key: "income-report",
+          })] : []),
+    ...(data?.type === "income" ? [createPanelBlock("income-report", {
             title: "利 润 表",
             subtitle: `${data.period.year}年${data.period.month}月`,
             blocks: [
@@ -225,10 +215,8 @@ export default function ReportTab() {
                 surface: createReportLinesSurface({ items: data.lines || [], labelHeader: "项 目", amountHeader: "本年金额", ...lineProps }),
               },
             ],
-          }] : []),
-    ...(data?.type === "cashflow" ? [{
-            kind: "panel",
-            key: "cashflow-report",
+          })] : []),
+    ...(data?.type === "cashflow" ? [createPanelBlock("cashflow-report", {
             title: "现 金 流 量 表",
             subtitle: `${data.period.year}年${data.period.month}月`,
             blocks: [
@@ -242,7 +230,7 @@ export default function ReportTab() {
                 surface: createReportLinesSurface({ items: data.lines || [], labelHeader: "项 目", amountHeader: "金额", ...lineProps }),
               },
             ],
-          }] : []),
+          })] : []),
   ]) as PageSurfaceBlockSpec[];
   return (
     <PageSurface

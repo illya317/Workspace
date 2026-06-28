@@ -4,6 +4,7 @@ import type {
   CoreUiComponentRegistration,
   CoreUiCompositionGraph,
   CoreUiExposure,
+  CoreUiComponentRole,
 } from "./component-registry-types";
 import { core_internal_registry_entries } from "./component-registry-data-core-internal";
 import { foundation_registry_entries } from "./component-registry-data-foundation";
@@ -27,6 +28,9 @@ type CoreUiOwnershipOverride = Partial<CoreUiOwnershipFields>;
 type CoreUiExposureOverride = {
   exposure?: CoreUiExposure;
 };
+type CoreUiRoleOverride = {
+  role?: CoreUiComponentRole;
+};
 
 export const coreUiComponentRegistryRaw = [
   ...page_frame_registry_entries,
@@ -43,18 +47,20 @@ export const coreUiComponentRegistryRaw = [
 
 const OWNERSHIP_BY_NAME = {
   PageSurface: { subcategory: "page.surface" },
-  DocumentSurface: { subcategory: "page.document" },
+  DocumentSurface: { subcategory: "document.surface" },
+  VisualizationSurface: { subcategory: "visualization.surface" },
   PageShell: { subcategory: "page.frame" },
   PageContent: { subcategory: "page.frame" },
   DatabasePageFrame: { subcategory: "page.frame" },
   AnalysisPageFrame: { subcategory: "page.frame" },
   WorkspaceSplitPage: { subcategory: "page.frame" },
   SplitWorkspace: { subcategory: "page.frame" },
-  PanelCard: { subcategory: "common.display" },
-  SectionCard: { subcategory: "page.blocks" },
-  ModuleCard: { subcategory: "page.blocks" },
-  AnalysisBlock: { subcategory: "page.blocks" },
-  EntityDetailLayout: { subcategory: "page.blocks" },
+  BlockSurface: { subcategory: "common.block" },
+  PanelCard: { subcategory: "common.block" },
+  SectionCard: { subcategory: "common.block" },
+  ModuleCard: { subcategory: "common.block" },
+  AnalysisBlock: { subcategory: "common.block" },
+  EntityDetailLayout: { subcategory: "form.layout" },
 
   DataSurface: { subcategory: "data.surface" },
   DataTable: { subcategory: "data.table" },
@@ -139,40 +145,80 @@ const OWNERSHIP_BY_NAME = {
 } as const satisfies Record<string, CoreUiOwnershipOverride>;
 
 const EXPOSURE_BY_NAME = {
-  PageSurface: { exposure: { mode: "direct" } }, FormSurface: { exposure: { mode: "via", entry: "PageSurface", path: "body.blocks[].kind=form" } }, DataSurface: { exposure: { mode: "via", entry: "PageSurface", path: "body.blocks[].kind=data" } }, DocumentSurface: { exposure: { mode: "via", entry: "PageSurface", path: "body.blocks[].kind=document" } }, useFeedback: { exposure: { mode: "direct" } },
-  InputControl: { exposure: { mode: "direct" } },
-  TextField: { exposure: { mode: "via", entry: "InputControl", path: "spec.control=text" } },
-  TextareaField: { exposure: { mode: "via", entry: "InputControl", path: "spec.control=text + spec.multiline=true" } },
-  SelectField: { exposure: { mode: "via", entry: "InputControl", path: "spec.control=choice + spec.options.mode=dropdown" } },
-  CalendarDateInput: { exposure: { mode: "via", entry: "InputControl", path: "spec.control=temporal + spec.precision=date" } },
-  TimeField: { exposure: { mode: "via", entry: "InputControl", path: "spec.control=temporal + spec.precision=time" } },
-  FileField: { exposure: { mode: "via", entry: "InputControl", path: "spec.control=file" } },
-  CheckboxField: { exposure: { mode: "via", entry: "InputControl", path: "spec.control=boolean + spec.presentation=checkbox" } },
-  SwitchField: { exposure: { mode: "via", entry: "InputControl", path: "spec.control=boolean + spec.presentation=switch" } },
-  PercentField: { exposure: { mode: "via", entry: "InputControl", path: "spec.format=percent" } },
-  RatingControl: { exposure: { mode: "via", entry: "InputControl", path: "spec.control=rating" } },
-  ReadOnlyField: { exposure: { mode: "via", entry: "InputControl", path: "spec.state=readonly" } },
-  TagStringInput: { exposure: { mode: "via", entry: "InputControl", path: "spec.control=collection + spec.itemControl=text" } },
-  SegmentedCodeInput: { exposure: { mode: "via", entry: "InputControl", path: "spec.control=text + spec.mask.kind=editableSegment" } },
-  OptionPicker: { exposure: { mode: "via", entry: "InputControl", path: "spec.control=choice + spec.options.source=static|grouped" } },
-  SearchableOptionInput: { exposure: { mode: "via", entry: "InputControl", path: "spec.control=choice + spec.options.mode=autocomplete" } },
-  FkFieldInput: { exposure: { mode: "via", entry: "InputControl", path: "spec.options.source=remote" } },
+  PageSurface: { exposure: { mode: "runtime" } }, FormSurface: { exposure: { mode: "spec", entry: "PageSurface", path: "body.blocks[].kind=form" } }, DataSurface: { exposure: { mode: "spec", entry: "PageSurface", path: "body.blocks[].kind=data" } }, DocumentSurface: { exposure: { mode: "spec", entry: "PageSurface", path: "body.blocks[].kind=document" } }, VisualizationSurface: { exposure: { mode: "spec", entry: "PageSurface", path: "body.blocks[].kind=visualization" } }, BlockSurface: { exposure: { mode: "spec", entry: "PageSurface", path: "body.blocks[].kind=block" } }, useFeedback: { exposure: { mode: "runtime" } },
+  InputControl: { exposure: { mode: "runtime" } },
+  TextField: { exposure: { mode: "spec", entry: "InputControl", path: "spec.control=text" } },
+  TextareaField: { exposure: { mode: "spec", entry: "InputControl", path: "spec.control=text + spec.multiline=true" } },
+  SelectField: { exposure: { mode: "spec", entry: "InputControl", path: "spec.control=choice + spec.options.mode=dropdown" } },
+  CalendarDateInput: { exposure: { mode: "spec", entry: "InputControl", path: "spec.control=temporal + spec.precision=date" } },
+  TimeField: { exposure: { mode: "spec", entry: "InputControl", path: "spec.control=temporal + spec.precision=time" } },
+  FileField: { exposure: { mode: "spec", entry: "InputControl", path: "spec.control=file" } },
+  CheckboxField: { exposure: { mode: "spec", entry: "InputControl", path: "spec.control=boolean + spec.presentation=checkbox" } },
+  SwitchField: { exposure: { mode: "spec", entry: "InputControl", path: "spec.control=boolean + spec.presentation=switch" } },
+  PercentField: { exposure: { mode: "spec", entry: "InputControl", path: "spec.format=percent" } },
+  RatingControl: { exposure: { mode: "spec", entry: "InputControl", path: "spec.control=rating" } },
+  ReadOnlyField: { exposure: { mode: "spec", entry: "InputControl", path: "spec.state=readonly" } },
+  TagStringInput: { exposure: { mode: "spec", entry: "InputControl", path: "spec.control=collection + spec.itemControl=text" } },
+  SegmentedCodeInput: { exposure: { mode: "spec", entry: "InputControl", path: "spec.control=text + spec.mask.kind=editableSegment" } },
+  OptionPicker: { exposure: { mode: "spec", entry: "InputControl", path: "spec.control=choice + spec.options.source=static|grouped" } },
+  SearchableOptionInput: { exposure: { mode: "spec", entry: "InputControl", path: "spec.control=choice + spec.options.mode=autocomplete" } },
+  FkFieldInput: { exposure: { mode: "spec", entry: "InputControl", path: "spec.options.source=remote" } },
 
-  Toolbar: { exposure: { mode: "via", entry: "PageSurface", path: "toolbar.items" } },
-  ActionButton: { exposure: { mode: "via", entry: "PageSurface", path: "toolbar.items[].kind" } },
-  CommandButton: { exposure: { mode: "via", entry: "PageSurface", path: "toolbar.items[].kind=text" } },
-  SearchInput: { exposure: { mode: "via", entry: "PageSurface", path: "toolbar.items[].kind=search" } },
-  FieldValueFilter: { exposure: { mode: "via", entry: "PageSurface", path: "toolbar.items[].kind=field-value-filter" } },
-  TabBar: { exposure: { mode: "via", entry: "PageSurface", path: "navigation.kind=tabs" } },
-  Pagination: { exposure: { mode: "via", entry: "PageSurface", path: "footer.pagination" } },
-  NavigationSurface: { exposure: { mode: "via", entry: "PageSurface", path: "navigation" } },
+  Toolbar: { exposure: { mode: "spec", entry: "PageSurface", path: "toolbar.items" } },
+  ActionButton: { exposure: { mode: "spec", entry: "PageSurface", path: "toolbar.items[].kind" } },
+  CommandButton: { exposure: { mode: "spec", entry: "PageSurface", path: "toolbar.items[].kind=text" } },
+  SearchInput: { exposure: { mode: "spec", entry: "PageSurface", path: "toolbar.items[].kind=search" } },
+  FieldValueFilter: { exposure: { mode: "spec", entry: "PageSurface", path: "toolbar.items[].kind=field-value-filter" } },
+  TabBar: { exposure: { mode: "spec", entry: "PageSurface", path: "navigation.kind=tabs" } },
+  Pagination: { exposure: { mode: "spec", entry: "PageSurface", path: "footer.pagination" } },
+  NavigationSurface: { exposure: { mode: "spec", entry: "PageSurface", path: "navigation" } },
 
-  SelectorPanel: { exposure: { mode: "direct" } }, SelectorList: { exposure: { mode: "via", entry: "SelectorPanel", path: "mode=list" } }, SelectorTree: { exposure: { mode: "via", entry: "SelectorPanel", path: "mode=tree" } }, SelectorCard: { exposure: { mode: "via", entry: "SelectorPanel", path: "mode=list|tree item renderer" } }, SelectionGrid: { exposure: { mode: "via", entry: "SelectorPanel", path: "mode=grid" } },
-  CreatePanel: { exposure: { mode: "direct" } }, InlineCreatePanel: { exposure: { mode: "via", entry: "CreatePanel", path: "variant=inline" } }, BlockCreatePanel: { exposure: { mode: "via", entry: "CreatePanel", path: "variant=block" } },
+  SelectorPanel: { exposure: { mode: "internal" } }, SelectorList: { exposure: { mode: "internal" } }, SelectorTree: { exposure: { mode: "internal" } }, SelectorCard: { exposure: { mode: "internal" } }, SelectionGrid: { exposure: { mode: "internal" } },
+  CreatePanel: { exposure: { mode: "internal" } }, InlineCreatePanel: { exposure: { mode: "internal" } }, BlockCreatePanel: { exposure: { mode: "internal" } },
 } as const satisfies Record<string, CoreUiExposureOverride>;
+
+const ROLE_BY_NAME = {
+  BlockSurface: { role: "surface" },
+  DataSurface: { role: "surface" },
+  DocumentSurface: { role: "surface" },
+  FeedbackProvider: { role: "service" },
+  FormSurface: { role: "surface" },
+  InputControl: { role: "surface" },
+  PageSurface: { role: "surface" },
+  VisualizationSurface: { role: "surface" },
+  ActionGlyph: { role: "helper" },
+  createActionsBlock: { role: "helper" },
+  createAnalysisBlock: { role: "helper" },
+  createBlockSurfaceBlock: { role: "helper" },
+  createCreatePanelBlock: { role: "helper" },
+  createDocumentBlock: { role: "helper" },
+  createEmptyBlock: { role: "helper" },
+  createFieldsBlock: { role: "helper" },
+  createFormBlock: { role: "helper" },
+  createGroupBlock: { role: "helper" },
+  createHeadingBlock: { role: "helper" },
+  createInlineFieldsBlock: { role: "helper" },
+  createMessageBlock: { role: "helper" },
+  createModuleGridBlock: { role: "helper" },
+  createPageDataBlock: { role: "helper" },
+  createPageModalBlock: { role: "helper" },
+  createPageSurfaceProps: { role: "helper" },
+  createPageTableBlock: { role: "helper" },
+  createPanelBlock: { role: "helper" },
+  createSectionBlock: { role: "helper" },
+  createSelectorPanelBlock: { role: "helper" },
+  createVisualizationBlock: { role: "helper" },
+  "page-style-preview": { role: "helper" },
+  useFeedback: { role: "service" },
+} as const satisfies Record<string, CoreUiRoleOverride>;
 
 function defaultExposure(): CoreUiExposure {
   return { mode: "internal" };
+}
+
+function defaultRole(registration: CoreUiComponentRegistration): CoreUiComponentRole {
+  if (registration.subcategory === "feedback.service") return "service";
+  return "internal";
 }
 
 function categoryForSubcategory(subcategory: CoreUiComponentSubcategory): CoreUiComponentCategory {
@@ -203,8 +249,10 @@ function enrichCoreUiComponentRegistration(
     ...registration,
   };
   const exposure: CoreUiExposureOverride = EXPOSURE_BY_NAME[registration.name as keyof typeof EXPOSURE_BY_NAME] ?? {};
+  const role: CoreUiRoleOverride = ROLE_BY_NAME[registration.name as keyof typeof ROLE_BY_NAME] ?? {};
   return {
     ...withOwnership,
+    role: registration.role ?? role.role ?? defaultRole(withOwnership),
     exposure: registration.exposure ?? exposure.exposure ?? defaultExposure(),
   };
 }

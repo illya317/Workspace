@@ -1,6 +1,6 @@
 "use client";
 
-import type { ColumnDef, SurfaceToolbarItems } from "@workspace/core/ui";
+import type { SurfaceColumnOptionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 
 const YEAR_OPTIONS = [2024, 2025, 2026].map((year) => ({
@@ -41,7 +41,7 @@ interface FinanceFiltersProps {
   showSearch?: boolean;
   showPageSize?: boolean;
   showCompanyYear?: boolean;
-  columns?: ColumnDef[];
+  columns?: SurfaceColumnOptionSpec[];
   visibleColumns?: string[];
   onColumnsChange?: (visible: string[]) => void;
   extraItems?: SurfaceToolbarItems;

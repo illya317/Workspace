@@ -1,6 +1,5 @@
 "use client";
 
-import { PageSurface, createPageFieldsBlock } from "@workspace/core/ui";
 import {
   type GanttMilestoneEvent,
   type GanttRow,
@@ -40,20 +39,10 @@ export default function ProjectGanttChart({
   const todayVisible = today >= periodStart && today <= periodEnd;
   const todayLeft = datePercent(today, periodStart, periodEnd);
 
+  if (rows.length === 0) return <div className="rounded-md border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-400">暂无匹配项目</div>;
+
   return (
-    <PageSurface
-      embedded
-      kind="detail"
-      blocks={[createPageFieldsBlock("company-gantt", [{
-        kind: "section",
-        key: "company-gantt",
-        title: "公司甘特",
-        bodyClassName: "min-w-0 overflow-hidden p-0",
-        fields: [{
-          kind: "note",
-          key: "gantt-body",
-          content: rows.length === 0 ? "暂无匹配项目" : (
-            <div className="min-w-0 max-w-full overflow-hidden">
+    <div className="min-w-0 max-w-full overflow-hidden">
           <div className="min-w-0 max-w-full">
             <div className={`grid ${ROW_GRID} border-b border-slate-100 bg-slate-50 text-sm font-semibold text-slate-500`}>
               <div className="px-4 py-3">项目 / 任务</div>
@@ -124,11 +113,7 @@ export default function ProjectGanttChart({
               ))}
             </div>
           </div>
-        </div>
-          ),
-        }],
-      }])]}
-    />
+    </div>
   );
 }
 

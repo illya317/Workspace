@@ -31,6 +31,10 @@ Platform 可以读取业务包的注册信息，但不能直接 import 业务页
 
 `guardedDelete` 直接调用时不声明 `deleteMode` 会默认禁删；`crud-factory` 为兼容存量字段级删除会显式沿用 hard delete 默认，新增 CRUD 配置应主动填写 `deleteMode`、`deleteReferences` 或 `onBeforeDeleteScope`。
 
+## FK Registry
+
+新增 FK 的维护顺序固定为：先在 `packages/platform/module-registry.ts` 的 `fkRegistrations` 声明 key、scope、source、target、nullable 和 permission；普通目标直接复用 `@workspace/platform/server/fk-targets` 的 target kind；需要对象可见性或额外 query params 时在对应业务包 `server/fk-registry.ts` 添加 adapter；前端只传 `fkKey + endpoint + queryParams`；展示需要时确保 `source.entity/source.field` 能表达字段归属；最后运行 `npm run arch:gate` 和 `npm run typecheck:quick`。
+
 ## History Policy Registry
 
 新增或调整可审计实体时，先维护 `packages/platform/server/history-policy-registry.ts`，再在业务写路径调用 `snapshotHistory` / `ensureEditHistoryBaseline`。每个策略项至少要声明：

@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import {
+import { createBlockSurfaceBlock,
+  createSectionBlock,
   PageSurface,
 } from "@workspace/core/ui";
 import ResourceTree, { type ResourceTreeNode } from "../components/ResourceTree";
@@ -176,15 +177,12 @@ export default function ModuleManagementTab({ showToast }: Props) {
       kind="settings"
       embedded
       empty={loading || !data ? { content: loading ? "加载模块管理..." : "暂无模块管理数据" } : undefined}
-      blocks={!data ? undefined : [{
-          kind: "section",
-          key: "module-tree",
+      blocks={!data ? undefined : [createSectionBlock("module-tree", {
           title: "模块树",
           subtitle: data.rule,
           bodyClassName: "p-2",
-          blocks: [{
+          blocks: [createBlockSurfaceBlock("tree-body", {
             kind: "message",
-            key: "tree-body",
             className: "border-0 bg-transparent p-0 text-inherit",
             content: (
                 <ResourceTree
@@ -198,9 +196,9 @@ export default function ModuleManagementTab({ showToast }: Props) {
                   }}
                   defaultExpanded
                 />
-            ),
-          }],
-        }]}
+            )
+          })],
+        })]}
     />
   );
 }

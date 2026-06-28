@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import {
+import { createAnalysisBlock,
+  createGroupBlock,
+  createPageDataBlock,
   PageSurface,
   type DataSurfaceColumnSpec,
   type PageSurfaceBlockSpec,
@@ -52,21 +54,15 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
   ];
 
   return [
-        {
-          kind: "data",
-          key: "stats",
-          surface: {
+        createPageDataBlock("stats", {
             kind: "metrics",
             metrics: [
               { key: "active", label: "在职人数", value: stats.active },
               { key: "joinedThisMonth", label: "本月入职", value: stats.joinedThisMonth },
               { key: "leftThisMonth", label: "本月离职", value: stats.leftThisMonth },
             ],
-          },
-        },
-        {
-          kind: "analysis",
-          key: "distribution",
+          }),
+        createAnalysisBlock("distribution", {
           title: "特征分布",
           toolbar: {
             items: [
@@ -93,7 +89,7 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
               emptyText: "暂无数据",
             },
           }],
-        },
+        }),
         createCrossMatrixBlock({
           crossMatrix,
           crossRow,
@@ -103,14 +99,10 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
           setCrossRow,
           setCrossCol,
         }),
-        {
-          kind: "surfaceGroup",
-          key: "recent",
+        createGroupBlock("recent", {
           layout: "grid",
           blocks: [
-            {
-              kind: "analysis",
-              key: "recent-joins",
+            createAnalysisBlock("recent-joins", {
               title: "最近入职（前10）",
               blocks: [{
                 kind: "data",
@@ -124,10 +116,8 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
                   emptyText: "暂无数据",
                 },
               }],
-            },
-            {
-              kind: "analysis",
-              key: "recent-leaves",
+            }),
+            createAnalysisBlock("recent-leaves", {
               title: "最近离职（前10）",
               blocks: [{
                 kind: "data",
@@ -141,9 +131,9 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
                   emptyText: "暂无数据",
                 },
               }],
-            },
+            }),
           ],
-        },
+        }),
       ];
 }
 

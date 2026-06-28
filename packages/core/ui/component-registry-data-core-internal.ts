@@ -6,7 +6,6 @@ export const core_internal_registry_entries = [
     category: "common",
     subcategory: "common.action",
     description: "工具栏动作按钮",
-    example: "Toolbar、DataTable 行动作和新建确认都传 kind=\"save\" / kind=\"cancel\" 这类 glyph 动作。",
     composes: ["ActionGlyph", "getToolbarActionClassName"],
   },
   {
@@ -14,7 +13,6 @@ export const core_internal_registry_entries = [
     category: "common",
     subcategory: "common.action",
     description: "工具栏刷新按钮",
-    example: "Toolbar 的刷新入口统一显示刷新图标，而不是文字按钮。",
     composes: ["ActionButton"],
   },
   {
@@ -22,7 +20,6 @@ export const core_internal_registry_entries = [
     category: "form",
     subcategory: "form.create",
     description: "块状新建面板",
-    example: "项目阶段和项目任务这类多字段新增，不常驻表单；弹窗新建也是同一个 block card 放进 modal overlay。",
     composes: ["SectionCard", "CreateStartButton", "CreateConfirmActions"],
   },
   {
@@ -30,7 +27,6 @@ export const core_internal_registry_entries = [
     category: "common",
     subcategory: "common.action",
     description: "新建确认动作",
-    example: "新建态标题旁展示取消和确认按钮，不在业务页手写 x/勾图标。",
     composes: ["ActionButton"],
   },
   {
@@ -38,7 +34,6 @@ export const core_internal_registry_entries = [
     category: "common",
     subcategory: "common.action",
     description: "新建开始按钮",
-    example: "列表、阶段或任务区进入新建态时，标题旁 + 高亮。",
     composes: ["ActionButton"],
   },
   {
@@ -46,29 +41,25 @@ export const core_internal_registry_entries = [
     category: "common",
     subcategory: "common.overlay",
     description: "下拉浮层",
-    example: "供 SelectField、DropdownMenu 等组件复用，业务不应直接使用。",
   },
   {
     name: "ToolbarOptionGroup",
     category: "common",
     subcategory: "common.chrome",
     description: "工具栏选项组",
-    example: "在筛选栏里切换“全部 / 30天 / 90天 / 已到期”或“姓名 / 全部”。",
   },
   {
     name: "InlineCreatePanel",
     category: "form",
     subcategory: "form.create",
     description: "内联新建面板",
-    example: "在列表顶部展开新建员工、批次、部门或岗位表单，填写 required 字段后确认创建。",
     composes: ["CreateConfirmActions", "FormField"],
   },
   {
     name: "ModuleCardBody",
-    category: "page",
-    subcategory: "page.blocks",
+    category: "common",
+    subcategory: "common.block",
     description: "模块卡片主体",
-    example: "ModuleCard 内部使用；业务统一使用 ModuleCard。",
     composes: ["moduleCardColorClasses"],
   },
   {
@@ -76,14 +67,12 @@ export const core_internal_registry_entries = [
     category: "common",
     subcategory: "common.selection",
     description: "选择器选项按钮",
-    example: "职级选择器里展示 M/P/T 下面的等级按钮；分组选择器顶部用占位变体展示“未设置”。",
   },
   {
     name: "PickerShell",
     category: "common",
     subcategory: "common.selection",
     description: "选择器外壳",
-    example: "组合搜索框、候选列表和无匹配提示的选择器外壳。",
     composes: ["SearchInput", "getFieldInputClassName"],
   },
   {
@@ -91,7 +80,6 @@ export const core_internal_registry_entries = [
     category: "common",
     subcategory: "common.input",
     description: "标签内核",
-    example: "作为 RemovableTag 和 TagListInput 的共同视觉内核，业务统一使用 TagListInput。",
     composes: ["getTagPillClassName"],
   },
   {
@@ -99,7 +87,6 @@ export const core_internal_registry_entries = [
     category: "common",
     subcategory: "common.input",
     description: "可删除标签",
-    example: "TagListInput 内部使用；业务统一使用 TagListInput，不要直接 import RemovableTag。",
     composes: ["TagPill", "TagRemoveButton", "getTagPillClassName"],
   },
   {
@@ -107,14 +94,12 @@ export const core_internal_registry_entries = [
     category: "common",
     subcategory: "common.selection",
     description: "选择卡片",
-    example: "SelectorPanel 内部使用；业务统一使用 SelectorPanel，不直接 import SelectorCard。",
   },
   {
     name: "SelectorList",
     category: "common",
     subcategory: "common.selection",
     description: "选择列表渲染器",
-    example: "SelectorPanel mode=list 内部使用；业务统一使用 SelectorPanel。",
     composes: ["SelectorCard", "EmptyStateCard"],
   },
   {
@@ -122,7 +107,6 @@ export const core_internal_registry_entries = [
     category: "common",
     subcategory: "common.selection",
     description: "树形选择渲染器",
-    example: "SelectorPanel mode=tree 内部使用；业务统一使用 SelectorPanel。",
     composes: ["TreeNodeCard", "TreeNodeBranch"],
   },
   {
@@ -130,7 +114,6 @@ export const core_internal_registry_entries = [
     category: "page",
     subcategory: "page.frame",
     description: "左右分栏工作区",
-    example: "左侧项目列表，右侧保持当前项目详情编辑区。",
     composes: ["Toolbar", "ActionButton"],
   },
   {
@@ -138,14 +121,12 @@ export const core_internal_registry_entries = [
     category: "common",
     subcategory: "common.input",
     description: "标签删除按钮",
-    example: "RemovableTag 内部使用；业务统一使用 TagListInput。",
   },
   {
     name: "TreeNodeBranch",
     category: "common",
     subcategory: "common.selection",
     description: "树节点分支",
-    example: "组织树中展示父部门和多个子部门节点。",
     composes: ["TreeNodeCard"],
   },
   {
@@ -153,7 +134,6 @@ export const core_internal_registry_entries = [
     category: "common",
     subcategory: "common.selection",
     description: "树节点卡片",
-    example: "组织架构中展示“生产中心 / 一级部门 / 现用”。",
     composes: ["Badge"],
   },
 ] as const satisfies readonly CoreUiComponentRegistration[];

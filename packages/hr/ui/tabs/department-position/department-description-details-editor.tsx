@@ -1,7 +1,7 @@
 "use client";
 
 import type { Ref } from "react";
-import { PageSurface, type ConfirmOptions, type FormSurfaceItemSpec, type PageSurfaceBlockSpec, useFeedback } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createPanelBlock, PageSurface, type ConfirmOptions, type FormSurfaceItemSpec, type PageSurfaceBlockSpec, useFeedback } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { detailFieldRows, detailValueToText, isPrimitiveArray, parseDetailsObject, textToDetailValue } from "./description-details";
 
@@ -128,19 +128,20 @@ export function buildDepartmentDescriptionDetailsBlocks({
       if (!confirmed) return;
       updateDetailValue(key, records.filter((_, recordIndex) => recordIndex !== index));
     }
-    return {
-      kind: "panel",
-      key: "duty-description",
+    return createPanelBlock("duty-description", {
       title: "部门职责描述",
       actions: disabled ? undefined : [{ key: "add-duty", label: "新增职责", onClick: addRecord }],
       bodyClassName: "p-3",
       blocks: records.length === 0
-        ? [{ kind: "empty", key: "empty", presentation: "plain", content: "未设置", compact: true }]
+        ? [createBlockSurfaceBlock("empty", {
+          kind: "empty",
+          presentation: "plain",
+          content: "未设置",
+          compact: true
+        })]
         : records.map((record, index) => {
         const items = Array.isArray(record.items) ? record.items : [];
-        return {
-          kind: "panel" as const,
-          key: `duty-${index}`,
+        return createPanelBlock(`duty-${index}`, {
           itemRef: getDutyItemRef?.(index),
           title: `职责 ${index + 1}`,
           actions: disabled ? undefined : [{
@@ -178,9 +179,9 @@ export function buildDepartmentDescriptionDetailsBlocks({
               ],
             },
           }],
-        };
+        });
       }),
-    };
+    });
   }
   const remainingKeys = Object.keys(parsedDetails).filter(key => !["基本信息", "部门职责概要", "部门职责描述"].includes(key));
   const blocks: PageSurfaceBlockSpec[] = [
@@ -205,9 +206,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
     dutyDescriptionBlock(),
   ];
   if (remainingKeys.length > 0) {
-    blocks.push({
-      kind: "panel",
-      key: "other-fields",
+    blocks.push(createPanelBlock("other-fields", {
       title: "其他字段",
       bodyClassName: "p-3",
       blocks: [{
@@ -239,7 +238,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
           }),
         },
       }],
-    });
+    }));
   }
   return blocks;
 }

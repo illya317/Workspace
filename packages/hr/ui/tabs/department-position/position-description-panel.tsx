@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, type FormSurfaceItemSpec, type FormSurfaceLooseItem, type PageSurfaceBlockSpec, type ReferenceOption } from "@workspace/core/ui";
+import { createPanelBlock, PageSurface, type FormSurfaceItemSpec, type FormSurfaceLooseItem, type PageSurfaceBlockSpec, type ReferenceOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { NEW_POSITION_DESCRIPTION_TEMPLATE_OPTION, type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
 import { selectedEntityName, usePositionDescriptionDetailsSurface } from "./detail-editors";
@@ -133,9 +133,7 @@ export function usePositionDescriptionPanelBlock({
     ...(detailsSurface.fields ?? []),
   ];
 
-  return {
-      kind: "panel",
-      key: "position-description",
+  return createPanelBlock("position-description", {
       title: (
         <span className="flex min-w-0 items-center gap-2">
           <span>岗位说明书</span>
@@ -203,7 +201,7 @@ export function usePositionDescriptionPanelBlock({
           },
         },
       ],
-    };
+    });
 }
 
 export function PositionDescriptionPanel(props: Omit<PositionDescriptionPanelProps, "position" | "descriptionDraft"> & {

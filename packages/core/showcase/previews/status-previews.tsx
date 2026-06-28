@@ -1,9 +1,7 @@
 "use client";
 
 import type { FC } from "react";
-import {
-  Badge,
-} from "@workspace/core/ui";
+import { Badge } from "../internal-ui";
 
 function BadgePreview() {
   return (

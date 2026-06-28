@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PageSurface, useFeedback } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { useMeetingDetailBlock } from "./MeetingDetailPanel";
@@ -323,12 +323,11 @@ export default function MeetingsPage({
           }] : []),
           meeting
             ? meetingDetailBlock
-            : {
-                kind: "message",
-                key: "meeting-empty",
-                content: detailLoading ? "加载中..." : "暂无会议",
-                tone: "muted",
-              },
+            : createBlockSurfaceBlock("meeting-empty", {
+              kind: "message",
+              content: detailLoading ? "加载中..." : "暂无会议",
+              tone: "muted"
+            }),
         ],
       }}
     />

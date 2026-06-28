@@ -1,6 +1,6 @@
 "use client";
 
-import { CreatePanel, PageSurface, type FormSurfaceFieldSpec, type ReferenceOption } from "@workspace/core/ui";
+import { PageSurface, createCreatePanelBlock, type FormSurfaceFieldSpec, type PageSurfaceBlockSpec, type ReferenceOption } from "@workspace/core/ui";
 import type { FieldConfig, TabConfig } from "@workspace/hr/types";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../fk-keys";
 
@@ -12,48 +12,49 @@ interface GenericCreatePanelProps {
   onCancel: () => void;
 }
 
-export default function GenericCreatePanel({
+export function buildGenericCreatePanelBlock({
   config,
   createForm,
   onChange,
   onSubmit,
   onCancel,
-}: GenericCreatePanelProps) {
+}: GenericCreatePanelProps): PageSurfaceBlockSpec {
   const requiredFields = config.fields.filter((field) => field.required && !field.hidden);
   const submitDisabled = requiredFields.some((field) => !String(createForm[field.key] ?? "").trim());
   const fields = requiredFields.map((field) => createFieldSpec(field, config, createForm[field.key], (value) => onChange(field.key, value)));
 
-  return (
-    <CreatePanel
-      variant="block"
-      title={`新建${config.title}`}
-      creating
-      canCreate
-      submitDisabled={submitDisabled}
-      submitLabel="保存"
-      onStartCreate={() => undefined}
-      onSubmit={onSubmit}
-      onCancel={onCancel}
-      createContent={(
-        <PageSurface
-          embedded
-          kind="detail"
-          blocks={[
-            {
-              kind: "form",
-              key: "fields",
-              surface: {
-                kind: "inline",
-                fields,
-              },
+  return createCreatePanelBlock("generic-create", {
+    title: `新建${config.title}`,
+    creating: true,
+    canCreate: true,
+    submitDisabled,
+    submitLabel: "保存",
+    onStartCreate: () => undefined,
+    onSubmit,
+    onCancel,
+    createContent: (
+      <PageSurface
+        embedded
+        kind="detail"
+        blocks={[
+          {
+            kind: "form",
+            key: "fields",
+            surface: {
+              kind: "inline",
+              fields,
             },
-          ]}
-        />
-      )}
-    >
-      {null}
-    </CreatePanel>
-  );
+          },
+        ]}
+      />
+    ),
+    children: null,
+  });
+}
+
+export default function GenericCreatePanel(props: GenericCreatePanelProps) {
+  const block = buildGenericCreatePanelBlock(props);
+  return block.kind === "block" && block.surface.kind === "content" ? block.surface.content : null;
 }
 
 function createFieldSpec(

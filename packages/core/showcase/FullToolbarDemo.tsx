@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Toolbar, type ColumnDef, type ToolbarItem } from "@workspace/core/ui";
+import type { SurfaceColumnOptionSpec, SurfaceToolbarItem } from "@workspace/core/ui";
+import { Toolbar } from "./internal-ui";
 
 const noop = () => undefined;
 
-const demoColumns: ColumnDef[] = [
+const demoColumns: SurfaceColumnOptionSpec[] = [
   { key: "name", label: "名称", required: true },
   { key: "status", label: "状态", defaultVisible: true },
   { key: "amount", label: "金额" },
@@ -20,7 +21,7 @@ export default function FullToolbarDemo() {
   const [scope, setScope] = useState("all");
   const [editMode, setEditMode] = useState(false);
 
-  const fullToolbarItems: ToolbarItem[] = useMemo(
+  const fullToolbarItems: SurfaceToolbarItem[] = useMemo(
     () => [
       {
         kind: "action-group",

@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import {
   PageSurface,
-  createPageFormBlock,
+  createFormBlock,
   type FormSurfaceFieldSpec,
   type FormSurfaceProps,
-  type PickerOption,
+  type SurfacePickerOptionSpec,
 } from "@workspace/core/ui";
 import {
   listProjectPhaseOptions,
@@ -30,7 +30,7 @@ export function WorkPlanForm({
   onChange: (draft: WorkPlanDraft) => void;
 }) {
   const surface = useWorkPlanFormSurface({ draft, disabled, onChange });
-  return <PageSurface embedded kind="detail" blocks={[createPageFormBlock("work-plan-form", surface)]} />;
+  return <PageSurface embedded kind="detail" blocks={[createFormBlock("work-plan-form", surface)]} />;
 }
 
 export function useWorkPlanFormSurface({
@@ -42,8 +42,8 @@ export function useWorkPlanFormSurface({
   disabled: boolean;
   onChange: (draft: WorkPlanDraft) => void;
 }): FormSurfaceProps {
-  const [taskOptions, setTaskOptions] = useState<PickerOption[]>([]);
-  const [phaseOptions, setPhaseOptions] = useState<PickerOption[]>([]);
+  const [taskOptions, setTaskOptions] = useState<SurfacePickerOptionSpec[]>([]);
+  const [phaseOptions, setPhaseOptions] = useState<SurfacePickerOptionSpec[]>([]);
   const isProjectSource = draft.sourceType === "project";
   const isMeetingSource = draft.sourceType === "meeting";
 

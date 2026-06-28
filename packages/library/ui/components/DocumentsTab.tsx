@@ -5,8 +5,8 @@ import { workspacePath } from "@workspace/core/routing";
 import { useLibraryDocuments } from "../hooks/useLibraryDocuments";
 import { useLibraryFilters } from "../hooks/useLibraryFilters";
 import { useLibraryDirectories } from "../hooks/useLibraryDirectories";
-import { PageSurface } from "@workspace/core/ui";
-import type { DataSurfaceColumnSpec, DataSurfaceProps, NavigationSurfaceProps, PageSurfaceBlockSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import { PageSurface, createEmptyBlock } from "@workspace/core/ui";
+import type { DataSurfaceColumnSpec, DataSurfaceProps, PageSurfaceBlockSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import GenerateDocumentModal from "./GenerateDocumentModal";
 import LibraryDetailModal from "./LibraryDetailModal";
 import type { DirectoryNode, LibraryDocumentItem } from "@workspace/library/types";
@@ -195,18 +195,16 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
   ];
   const sideBlocks: PageSurfaceBlockSpec[] = [
     ...(dirError
-      ? [{
-          kind: "empty" as const,
-          key: "dir-error",
+      ? [createEmptyBlock("dir-error", {
           compact: true,
           className: "mb-3 border-red-100 bg-red-50 text-red-600",
           content: `目录加载失败: ${dirError}`,
-        }]
+        })]
       : []),
     {
       kind: "navigation",
       key: "directories",
-      surface: ({
+      surface: {
         kind: "selector",
         selector: {
           mode: "tree",
@@ -237,18 +235,16 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
           loading: dirLoading,
           loadingText: "加载中...",
         },
-      } satisfies NavigationSurfaceProps<DirectoryNode>) as NavigationSurfaceProps,
+      },
     },
   ];
   const blocks: PageSurfaceBlockSpec[] = [
     ...(error
-      ? [{
-          kind: "empty" as const,
-          key: "error",
+      ? [createEmptyBlock("error", {
           compact: true,
           className: "mt-4 border-red-100 bg-red-50 text-red-600",
           content: error,
-        }]
+        })]
       : []),
     {
       kind: "data",

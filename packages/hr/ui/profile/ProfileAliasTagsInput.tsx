@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import {
   PageSurface,
-  createPageInlineFieldsBlock,
+  createInlineFieldsBlock,
 } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import type { ProfileField } from "@workspace/hr/types";
@@ -73,7 +73,7 @@ export function AliasTagEditor({
     <PageSurface
       embedded
       kind="detail"
-      blocks={[createPageInlineFieldsBlock<string>("aliases", [{
+      blocks={[createInlineFieldsBlock<string>("aliases", [{
         kind: "tagList",
         key: "aliases",
         label: "",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CreatePanel, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { PageSurface, createCreatePanelBlock, createPanelBlock, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { departmentCodeEditableSegment } from "./department-code-input";
 import { postJson } from "@workspace/platform/ui/api-client";
 import { useDepartmentDescriptionsBlock } from "./department-descriptions-panel";
@@ -123,9 +123,7 @@ export function useDepartmentCreatePanelBlock({
     canEditDepartment: canEdit,
     onUpdateDraft: (_index, key, value) => setDescriptionDraft((prev) => ({ ...prev, [key]: value })),
   });
-  const departmentInfoBlock: PageSurfaceBlockSpec = {
-    kind: "panel" as const,
-    key: "department-info",
+  const departmentInfoBlock: PageSurfaceBlockSpec = createPanelBlock("department-info", {
     title: "部门信息",
     bodyClassName: "p-4",
     blocks: [
@@ -213,38 +211,30 @@ export function useDepartmentCreatePanelBlock({
         },
       },
     ],
-  };
+  });
 
-  return {
-    kind: "moduleView",
-    key: "create-department",
-    view: (
-      <CreatePanel
-        variant="block"
-        title="新建部门"
-        creating
-        canCreate={canEdit}
-        submitting={submitting}
-        submitDisabled={submitDisabled}
-        submitLabel="保存"
-        onStartCreate={() => undefined}
-        onSubmit={() => void handleSubmit()}
-        onCancel={onCancel}
-        createContent={(
-          <PageSurface
-            embedded
-            kind="detail"
-            blocks={[
-              departmentInfoBlock,
-              descriptionsBlock,
-            ]}
-          />
-        )}
-      >
-        {null}
-      </CreatePanel>
+  return createCreatePanelBlock("create-department", {
+    title: "新建部门",
+    creating: true,
+    canCreate: canEdit,
+    submitting,
+    submitDisabled,
+    submitLabel: "保存",
+    onStartCreate: () => undefined,
+    onSubmit: () => void handleSubmit(),
+    onCancel,
+    createContent: (
+      <PageSurface
+        embedded
+        kind="detail"
+        blocks={[
+          departmentInfoBlock,
+          descriptionsBlock,
+        ]}
+      />
     ),
-  };
+    children: null,
+  });
 }
 
 export function DepartmentCreatePanel(props: DepartmentCreatePanelProps) {

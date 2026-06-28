@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { PageSurface } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceBlock } from "@workspace/core/ui";
 import { SessionUser } from "@workspace/platform/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 import { useCostFilterToolbarItems } from "./components/CostFilters";
@@ -43,18 +43,23 @@ export default function FinanceCostClient({ user: _user }: { user: SessionUser }
       navigation={navigation}
       toolbar={{ items: toolbarItems }}
       body={{
-        blocks: lifecycleBlocks,
-        content: (
-          <div>
-            {tab === "overview" && <CostSummary filters={filters} />}
-            {tab === "shipments" && <ShipmentTable filters={filters} />}
-            {tab === "cost-analysis" && <CostAnalysisTable filters={filters} />}
-            {tab === "cost-structure" && <CostStructureTable filters={filters} />}
-            {tab === "workshop" && <WorkshopReportTable filters={filters} />}
-            {tab === "salary" && <SalesSalaryTable filters={filters} />}
-            {tab === "imports" && <ImportHistoryTable filters={filters} />}
-          </div>
-        ),
+        blocks: [
+          ...lifecycleBlocks,
+          createBlockSurfaceBlock("finance-cost-content", {
+            kind: "content",
+            content: (
+              <div>
+                {tab === "overview" && <CostSummary filters={filters} />}
+                {tab === "shipments" && <ShipmentTable filters={filters} />}
+                {tab === "cost-analysis" && <CostAnalysisTable filters={filters} />}
+                {tab === "cost-structure" && <CostStructureTable filters={filters} />}
+                {tab === "workshop" && <WorkshopReportTable filters={filters} />}
+                {tab === "salary" && <SalesSalaryTable filters={filters} />}
+                {tab === "imports" && <ImportHistoryTable filters={filters} />}
+              </div>
+            ),
+          }),
+        ],
       }}
     />
   );

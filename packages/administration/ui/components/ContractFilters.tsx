@@ -1,6 +1,6 @@
 "use client";
 
-import type { ColumnDef, SurfaceToolbarItems } from "@workspace/core/ui";
+import type { SurfaceColumnOptionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 
 interface ContractFiltersProps {
   q: string;
@@ -11,7 +11,7 @@ interface ContractFiltersProps {
   onStatusChange: (value: string) => void;
   categories: string[];
   statuses: string[];
-  columns: ColumnDef[];
+  columns: SurfaceColumnOptionSpec[];
   visibleColumns: string[];
   onColumnsChange: (value: string[]) => void;
   onCreate: () => void;

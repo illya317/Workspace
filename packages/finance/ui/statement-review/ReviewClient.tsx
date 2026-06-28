@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { PageSurface, createPageDataBlock, createPageTableBlock } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, PageSurface, createPageDataBlock, createPageTableBlock } from "@workspace/core/ui";
 import type { DataSurfaceColumnSpec, PageSurfaceBlockSpec, SurfaceToolbarItem, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useReviewFilterToolbarItems } from "./ReviewFilters";
 import type { RvLine } from "@workspace/finance/types";
@@ -270,7 +270,11 @@ export default function ReviewClient() {
   });
   const reviewBlocks: PageSurfaceBlockSpec[] = rv?.status === "confirmed" && !rv.isStale
     ? [
-        { kind: "message", key: "confirmed", tone: "success", content: "校对已确认" },
+        createBlockSurfaceBlock("confirmed", {
+          kind: "message",
+          tone: "success",
+          content: "校对已确认"
+        }),
         {
           kind: "form",
           key: "view-report",

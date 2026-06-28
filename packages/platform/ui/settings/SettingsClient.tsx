@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useRouter } from "next/navigation";
 import { useState, useCallback } from "react";
-import { PageSurface } from "@workspace/core/ui";
+import { createModuleGridBlock, PageSurface } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import AccountSettingsPanel from "./AccountSettingsPanel";
 import type { ApiAccessModuleRow } from "./ApiAccessClient";
@@ -39,9 +39,7 @@ export default function SettingsClient({
         <PageSurface
           kind="settings"
           contentClassName="py-10"
-          blocks={[{
-            kind: "moduleGrid",
-            key: "settings-grid",
+          blocks={[createModuleGridBlock("settings-grid", {
             centered: true,
             title: "设置",
             items: [
@@ -95,7 +93,7 @@ export default function SettingsClient({
                 onClick: () => router.push("/settings/ui"),
               },
             ],
-          }]}
+          })]}
         />
       )}
 

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { PageSurface, createPageFieldsBlock, createPageInlineFieldsBlock } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceBlock, createInlineFieldsBlock } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, PageSurfaceKind } from "@workspace/core/ui";
 import type { MeetingDetail } from "./meeting-types";
 import { statusLabel } from "./meeting-utils";
@@ -27,12 +27,11 @@ export function Section({
 }) {
   return (
     <PageBlockSurface
-      block={createPageFieldsBlock("section", [{
+      block={createBlockSurfaceBlock(title, {
         kind: "section",
-        key: title,
         title,
-        fields: [{ kind: "note", key: `${title}-content`, content: <div className="space-y-3">{children}</div> }],
-      }])}
+        content: <div className="space-y-3">{children}</div>,
+      })}
     />
   );
 }
@@ -60,7 +59,7 @@ export function InputBox({
 }) {
   const dateTime = splitDateTimeValue(value);
   const block = kind === "datetime"
-    ? createPageInlineFieldsBlock(`${label}-datetime`, [
+    ? createInlineFieldsBlock(`${label}-datetime`, [
         {
           key: `${label}-date`,
           label: `${label}日期`,
@@ -77,7 +76,7 @@ export function InputBox({
           onChange: time => onChange(combineDateTimeValue(dateTime.date, String(time ?? ""))),
         },
       ], { className })
-    : createPageInlineFieldsBlock(label, [{
+    : createInlineFieldsBlock(label, [{
       key: label,
       label,
       spec: {
@@ -126,7 +125,7 @@ export function SelectBox({
 }) {
   return (
     <PageBlockSurface
-      block={createPageInlineFieldsBlock(label, [{
+      block={createInlineFieldsBlock(label, [{
         key: label,
         label,
         spec: {

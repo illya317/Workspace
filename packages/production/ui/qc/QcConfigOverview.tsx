@@ -1,6 +1,6 @@
 import type { QcConfigOverview } from "@workspace/production/server/qc";
 import Link from "next/link";
-import { PageSurface, createPageDataBlock, createPageTableBlock } from "@workspace/core/ui";
+import { PageSurface, createGroupBlock, createPageDataBlock, createPageTableBlock } from "@workspace/core/ui";
 
 interface Props {
   overview: QcConfigOverview;
@@ -75,7 +75,7 @@ function BatchesOverview({ overview }: { overview: QcConfigOverview }) {
               key: "product",
               label: "产品",
               required: true,
-              render: (product) => (
+              cell: (product) => (
                 <div>
                   <div className="text-sm font-medium text-slate-900">{product.name}</div>
                   <div className="mt-1 text-xs text-slate-500">{product.itemCount} 个检测项</div>
@@ -86,7 +86,7 @@ function BatchesOverview({ overview }: { overview: QcConfigOverview }) {
               key: "stages",
               label: "阶段",
               required: true,
-              render: (product) => (
+              cell: (product) => (
                 <div className="flex flex-wrap gap-2">
                   {product.stages.map((stage) => (
                     <span key={`${product.name}-${stage.key}`} className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-700">
@@ -120,9 +120,7 @@ function TemplatesOverview({ overview }: { overview: QcConfigOverview }) {
             { key: "layoutMappings", label: "布局映射 JSON", value: overview.layoutMapping.assignmentCount },
           ],
         }),
-        {
-          kind: "surfaceGroup",
-          key: "qc-config-template-tables",
+        createGroupBlock("qc-config-template-tables", {
           layout: "grid",
           blocks: [
             createPageTableBlock<RecordTemplateOverview>("qc-config-record-templates", {
@@ -134,7 +132,7 @@ function TemplatesOverview({ overview }: { overview: QcConfigOverview }) {
                   key: "template",
                   label: "模板",
                   required: true,
-                  render: (template) => (
+                  cell: (template) => (
                   <Link
                     key={template.id}
                     href={`/production/qc-templates/${template.id}`}
@@ -160,7 +158,7 @@ function TemplatesOverview({ overview }: { overview: QcConfigOverview }) {
                   key: "sample",
                   label: "映射",
                   required: true,
-                  render: (sample) => (
+                  cell: (sample) => (
                   <div key={sample.key} className="px-4 py-3">
                     <div className="break-all text-sm font-medium text-slate-900">{sample.key}</div>
                     <div className="mt-1 text-xs text-slate-500">
@@ -174,7 +172,7 @@ function TemplatesOverview({ overview }: { overview: QcConfigOverview }) {
               emptyText: "暂无布局映射样本。",
             }),
           ],
-        },
+        }),
       ]}
     />
   );

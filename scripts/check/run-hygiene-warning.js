@@ -6,6 +6,7 @@ const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 const checks = [
   ["company hardcoding", "company:check"],
   ["Structure simple hygiene ratchet", "arch:structure:hygiene"],
+  ["Core UI surface boundaries", "arch:surface-boundaries"],
 ];
 
 const failed = [];

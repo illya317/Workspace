@@ -3,10 +3,10 @@
 import type { ReactNode } from "react";
 import AmountCell from "./AmountCell";
 import Badge from "./Badge";
-import CodeBlock from "./CodeBlock";
 import { EmptyStateCard, MetricCard } from "./Card";
 import DataTable from "./DataTable";
 import type { DataTableColumn } from "./DataTable.types";
+import { PageSurfaceBlockStack } from "./PageSurface.blocks";
 import DisclosureRecordCard from "./DisclosureRecordCard";
 import NumberCell from "./NumberCell";
 import SelectionGrid from "./SelectionGrid";
@@ -15,7 +15,6 @@ import TableScrollFrame from "./TableScrollFrame";
 import CommandButton from "./CommandButton";
 import InputControl from "./InputControl";
 import { joinClassNames } from "./card-utils";
-import { renderVisual } from "./DataSurface.visual";
 import type {
   DataSurfaceCellActionSpec,
   DataSurfaceCellSpec,
@@ -40,17 +39,7 @@ function isDisplaySpec(value: ReactNode | DataSurfaceDisplaySpec): value is Data
     || value.kind === "badge"
     || value.kind === "number"
     || value.kind === "amount"
-    || value.kind === "raw"
   );
-}
-
-function formatRawValue(value: unknown) {
-  if (typeof value === "string") return value;
-  try {
-    return JSON.stringify(value, null, 2);
-  } catch {
-    return String(value);
-  }
 }
 
 function renderDisplay(value: ReactNode | DataSurfaceDisplaySpec): ReactNode {
@@ -69,9 +58,6 @@ function renderDisplay(value: ReactNode | DataSurfaceDisplaySpec): ReactNode {
   if (value.kind === "amount") {
     const { kind: _kind, ...props } = value;
     return <AmountCell {...props} />;
-  }
-  if (value.kind === "raw") {
-    return <CodeBlock className={value.className}>{formatRawValue(value.value)}</CodeBlock>;
   }
   if (value.kind === "stack") {
     const gapClass = value.gap === "none" ? "" : value.gap === "sm" ? "space-y-2" : "space-y-1";
@@ -168,13 +154,8 @@ function normalizeStructuredRows(rows: DataSurfaceStructuredCellSpec[][]): Struc
   return rows.map((row) => row.map((cell) => ({ ...cell, content: renderCell(cell.content) })));
 }
 
-function isSurfaceColumn<T>(column: DataTableColumn<T> | DataSurfaceColumnSpec<T>): column is DataSurfaceColumnSpec<T> {
-  return "cell" in column;
-}
-
-function normalizeColumns<T>(columns: Array<DataTableColumn<T> | DataSurfaceColumnSpec<T>>): DataTableColumn<T>[] {
+function normalizeColumns<T>(columns: Array<DataSurfaceColumnSpec<T>>): DataTableColumn<T>[] {
   return columns.map((column) => {
-    if (!isSurfaceColumn(column)) return column;
     const { cell, ...rest } = column;
     return { ...rest, render: (row: T) => renderCell(cell(row)) };
   });
@@ -198,7 +179,9 @@ function renderTable<T>(props: DataSurfaceTableProps<T>) {
           tableClassName={props.tableClassName}
           expandedRowKey={props.expandedRowKey}
           expandedRowKeys={props.expandedRowKeys}
-          renderExpandedRow={props.renderExpandedRow}
+          renderExpandedRow={props.expandedRowBlocks
+            ? (row) => <PageSurfaceBlockStack blocks={props.expandedRowBlocks?.(row) ?? []} />
+            : undefined}
           rowActions={props.rowActions}
           rowEditActions={props.rowEditActions}
           actionsColumn={props.actionsColumn}
@@ -249,6 +232,5 @@ export function renderData<T>(props: DataSurfaceProps<T>) {
     if (props.metrics.length === 0) return <EmptyStateCard compact>{props.empty ?? "暂无指标"}</EmptyStateCard>;
     return <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{props.metrics.map((metric) => <MetricCard key={metric.key} label={metric.label} value={renderDisplay(metric.value)} className={metric.className} />)}</div>;
   }
-  if (props.kind === "visual") return renderVisual(props.visual);
-  return <CodeBlock className={props.rawClassName}>{formatRawValue(props.value)}</CodeBlock>;
+  return null;
 }

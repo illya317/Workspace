@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FileField } from "@workspace/core/ui";
+import { FileField } from "../internal-ui";
 
 export function FileFieldPreview() {
   const [file, setFile] = useState<File | null>(null);

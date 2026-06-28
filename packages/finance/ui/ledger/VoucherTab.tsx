@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo } from "react";
-import { PageSurface, createPageTableBlock, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceBlock, createPageTableBlock, useFeedback } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { getBaseItemColumns, type VoucherItemRow } from "../components/VoucherItemTable";
@@ -152,7 +152,29 @@ export default function VoucherTab({
       toolbar={{ items: toolbarItems }}
       body={{
         blocks: viewMode === "reclass"
-          ? lifecycleBlocks
+          ? [
+              ...lifecycleBlocks,
+              createBlockSurfaceBlock("voucher-reclass-content", {
+                kind: "content",
+                content: (
+                  <>
+                    {companyFilter && yearFilter && monthFilter ? (
+                      <ReclassReviewView
+                        items={allItems}
+                        canWrite={canWrite}
+                        statusFilter={reclassStatus}
+                        onReview={handleReview}
+                        companyCode={companyFilter}
+                        year={yearFilter}
+                      />
+                    ) : (
+                      <p className="py-8 text-center text-sm text-gray-400">请选择公司、年度和月份以配置重分类规则</p>
+                    )}
+                    {adjustModal}
+                  </>
+                ),
+              }),
+            ]
           : [
               ...lifecycleBlocks,
               {
@@ -171,29 +193,18 @@ export default function VoucherTab({
                   onRowClick: (v: Voucher) =>
                     setExpandedVoucherId((prev) => (prev === v.id ? null : v.id)),
                   expandedRowKey: expandedVoucherId,
-                  renderExpandedRow: (v: Voucher) => <VoucherItemsPreview voucher={v} columns={itemColumns} />,
+                  expandedRowBlocks: (v: Voucher) => [{
+                    kind: "block",
+                    key: `voucher-items-${v.id}`,
+                    surface: { kind: "content", content: <VoucherItemsPreview voucher={v} columns={itemColumns} /> },
+                  }],
                 },
               },
+              createBlockSurfaceBlock("voucher-adjust-modal", {
+                kind: "content",
+                content: adjustModal,
+              }),
             ],
-        content: (
-          <>
-            {viewMode === "reclass" ? (
-              companyFilter && yearFilter && monthFilter ? (
-                <ReclassReviewView
-                  items={allItems}
-                  canWrite={canWrite}
-                  statusFilter={reclassStatus}
-                  onReview={handleReview}
-                  companyCode={companyFilter}
-                  year={yearFilter}
-                />
-              ) : (
-                <p className="py-8 text-center text-sm text-gray-400">请选择公司、年度和月份以配置重分类规则</p>
-              )
-            ) : null}
-            {adjustModal}
-          </>
-        ),
       }}
       footer={viewMode === "reclass" ? undefined : { pagination: { page, totalPages, total, onPageChange: setPage } }}
     />

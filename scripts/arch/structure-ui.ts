@@ -1,17 +1,29 @@
 import path from "node:path";
 import ts from "typescript";
 
-import {
-  coreUiComponentRegistry,
-  registeredCoreUiComponentNames,
-} from "../../packages/core/ui/component-registry";
+export {
+  findBusinessCoreUiRoleBypassImports,
+  findDuplicateCoreUiRegistrations,
+  findPlatformCoreUiRoleBypassImports,
+  findUiForbiddenCoreUiTypeImports,
+  findUnregisteredCoreUiExports,
+  findUnregisteredCoreUiImports,
+} from "./structure-ui-core-imports";
+export type {
+  BusinessCoreUiRoleBypassImport,
+  DuplicateCoreUiRegistration,
+  PlatformCoreUiRoleBypassImport,
+  UiForbiddenCoreUiTypeImport,
+  UnregisteredCoreUiExport,
+  UnregisteredCoreUiImport,
+} from "./structure-ui-core-imports";
 
 type ImportRecord = {
   kind: "static" | "dynamic";
   specifier: string;
 };
 
-type SourceInfo = {
+export type SourceInfo = {
   absPath: string;
   relPath: string;
   text: string;
@@ -39,30 +51,6 @@ export type HookPatternCandidate = {
   hasLocalImplementation: boolean;
 };
 
-export type UnregisteredCoreUiImport = {
-  file: string;
-  importedName: string;
-  specifier: string;
-};
-
-export type BusinessCoreUiSurfaceBypassImport = {
-  file: string;
-  importedName: string;
-  specifier: string;
-};
-
-export type UiForbiddenCoreUiTypeImport = {
-  file: string;
-  importedName: string;
-  specifier: string;
-};
-
-export type PlatformCoreUiRuntimeBypassImport = {
-  file: string;
-  importedName: string;
-  specifier: string;
-};
-
 export type PageDesignDriftFile = {
   file: string;
   signals: string[];
@@ -79,15 +67,6 @@ export type GeneratedFilterContractDrift = {
   reason: string;
 };
 
-export type UnregisteredCoreUiExport = {
-  exportedName: string;
-};
-
-export type DuplicateCoreUiRegistration = {
-  name: string;
-  count: number;
-};
-
 const UI_PATTERN_RULES: Array<{ name: string; regex: RegExp }> = [
   { name: "table", regex: /table/i },
   { name: "filter", regex: /filter/i },
@@ -102,41 +81,6 @@ const UI_PATTERN_RULES: Array<{ name: string; regex: RegExp }> = [
   { name: "date", regex: /date(input|picker|field)|calendar/i },
 ];
 
-const CORE_UI_NON_COMPONENT_EXPORTS = new Set<string>([
-  "ActionGlyph",
-  "FLOATING_OVERLAY_OPEN_EVENT",
-  "announceFloatingOverlayOpen",
-  "createPageActionsBlock",
-  "createPageCommand",
-  "createPageDataBlock",
-  "createPageFieldsBlock",
-  "createPageFormBlock",
-  "createPageFormModalBlock",
-  "createPageInlineFieldsBlock",
-  "createPageModalBlock",
-  "createPageSurfaceProps",
-  "createPageTableBlock",
-  "getFloatingOverlayOpenDetail",
-]);
-const BUSINESS_PACKAGE_NAMES = new Set([
-  "administration",
-  "external",
-  "finance",
-  "hr",
-  "library",
-  "production",
-  "work",
-]);
-const CORE_UI_DIRECT_RUNTIME_IMPORTS = new Set(
-  coreUiComponentRegistry
-    .filter((component) => component.exposure?.mode === "direct")
-    .map((component) => component.name),
-);
-const FORBIDDEN_CORE_UI_TYPE_IMPORTS = new Set([
-  "DataTableColumn",
-  "FkFieldOption",
-  "ToolbarItem",
-]);
 const PLATFORM_SYSTEM_SHELL_PAGE_DESIGN_FILES = new Set([
   "packages/platform/ui/AppShell.tsx",
   "packages/platform/ui/UserMenu.tsx",
@@ -248,230 +192,6 @@ export function findHookPatternCandidates(files: SourceInfo[]) {
   }
 
   return candidates.sort((left, right) => left.file.localeCompare(right.file));
-}
-
-function coreUiDeepImportName(specifier: string) {
-  const prefix = "@workspace/core/ui/";
-  if (!specifier.startsWith(prefix)) return null;
-  const name = specifier.slice(prefix.length).split("/")[0];
-  return name && name !== "component-registry" ? name : null;
-}
-
-function isBusinessUiSurfaceScanFile(file: SourceInfo) {
-  if (!/\.(ts|tsx)$/.test(file.relPath)) return false;
-  if (file.relPath.startsWith("app/(modules)/")) return true;
-
-  const match = /^packages\/([^/]+)\/ui\//.exec(file.relPath);
-  return Boolean(match && BUSINESS_PACKAGE_NAMES.has(match[1]));
-}
-
-function isBusinessCoreUiTypeScanFile(file: SourceInfo) {
-  if (!/\.(ts|tsx)$/.test(file.relPath)) return false;
-  if (file.relPath.startsWith("packages/core/")) return false;
-  if (file.relPath.startsWith("app/")) return true;
-  return /^packages\/[^/]+\/ui\//.test(file.relPath);
-}
-
-function isPlatformUiRuntimeScanFile(file: SourceInfo) {
-  return /\.(ts|tsx)$/.test(file.relPath) && file.relPath.startsWith("packages/platform/ui/");
-}
-
-export function findUnregisteredCoreUiImports(files: SourceInfo[]) {
-  const candidates: UnregisteredCoreUiImport[] = [];
-
-  for (const file of files) {
-    if (file.relPath.startsWith("packages/core/")) continue;
-
-    for (const statement of file.sourceFile.statements) {
-      if (!ts.isImportDeclaration(statement)) continue;
-      if (!statement.moduleSpecifier || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
-      const specifier = statement.moduleSpecifier.text;
-      const importClause = statement.importClause;
-      if (!importClause || importClause.isTypeOnly) continue;
-
-      if (specifier === "@workspace/core/ui") {
-        const namedBindings = importClause.namedBindings;
-        if (!namedBindings || !ts.isNamedImports(namedBindings)) continue;
-        for (const element of namedBindings.elements) {
-          if (element.isTypeOnly) continue;
-          const importedName = element.propertyName?.text ?? element.name.text;
-          if (
-            !registeredCoreUiComponentNames.has(importedName) &&
-            !CORE_UI_NON_COMPONENT_EXPORTS.has(importedName)
-          ) {
-            candidates.push({ file: file.relPath, importedName, specifier });
-          }
-        }
-        continue;
-      }
-
-      const deepImportName = coreUiDeepImportName(specifier);
-      if (deepImportName && !registeredCoreUiComponentNames.has(deepImportName)) {
-        candidates.push({ file: file.relPath, importedName: deepImportName, specifier });
-      }
-    }
-  }
-
-  return candidates.sort((left, right) => `${left.file}:${left.importedName}`.localeCompare(`${right.file}:${right.importedName}`));
-}
-
-export function findBusinessCoreUiSurfaceBypassImports(files: SourceInfo[]) {
-  const candidates: BusinessCoreUiSurfaceBypassImport[] = [];
-
-  for (const file of files) {
-    if (!isBusinessUiSurfaceScanFile(file)) continue;
-
-    for (const statement of file.sourceFile.statements) {
-      if (!ts.isImportDeclaration(statement)) continue;
-      if (!statement.moduleSpecifier || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
-      const specifier = statement.moduleSpecifier.text;
-      if (specifier !== "@workspace/core/ui") continue;
-
-      const importClause = statement.importClause;
-      if (!importClause || importClause.isTypeOnly) continue;
-
-      if (importClause.name) {
-        candidates.push({ file: file.relPath, importedName: importClause.name.text, specifier });
-      }
-
-      const namedBindings = importClause.namedBindings;
-      if (!namedBindings) continue;
-
-      if (ts.isNamespaceImport(namedBindings)) {
-        candidates.push({ file: file.relPath, importedName: namedBindings.name.text, specifier });
-        continue;
-      }
-
-      for (const element of namedBindings.elements) {
-        if (element.isTypeOnly) continue;
-        const importedName = element.propertyName?.text ?? element.name.text;
-        if (
-          !CORE_UI_DIRECT_RUNTIME_IMPORTS.has(importedName) &&
-          !CORE_UI_NON_COMPONENT_EXPORTS.has(importedName)
-        ) {
-          candidates.push({ file: file.relPath, importedName, specifier });
-        }
-      }
-    }
-  }
-
-  return candidates.sort((left, right) => `${left.file}:${left.importedName}`.localeCompare(`${right.file}:${right.importedName}`));
-}
-
-export function findUiForbiddenCoreUiTypeImports(files: SourceInfo[]) {
-  const candidates: UiForbiddenCoreUiTypeImport[] = [];
-
-  for (const file of files) {
-    if (!isBusinessCoreUiTypeScanFile(file)) continue;
-
-    for (const statement of file.sourceFile.statements) {
-      if (!ts.isImportDeclaration(statement)) continue;
-      if (!statement.moduleSpecifier || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
-      const specifier = statement.moduleSpecifier.text;
-      if (specifier !== "@workspace/core/ui") continue;
-
-      const importClause = statement.importClause;
-      if (!importClause) continue;
-
-      const namedBindings = importClause.namedBindings;
-      if (!namedBindings || !ts.isNamedImports(namedBindings)) continue;
-
-      for (const element of namedBindings.elements) {
-        const isTypeOnly = importClause.isTypeOnly || element.isTypeOnly;
-        if (!isTypeOnly) continue;
-
-        const importedName = element.propertyName?.text ?? element.name.text;
-        if (FORBIDDEN_CORE_UI_TYPE_IMPORTS.has(importedName)) {
-          candidates.push({ file: file.relPath, importedName, specifier });
-        }
-      }
-    }
-  }
-
-  return candidates.sort((left, right) => `${left.file}:${left.importedName}`.localeCompare(`${right.file}:${right.importedName}`));
-}
-
-export function findPlatformCoreUiRuntimeBypassImports(files: SourceInfo[]) {
-  const candidates: PlatformCoreUiRuntimeBypassImport[] = [];
-
-  for (const file of files) {
-    if (!isPlatformUiRuntimeScanFile(file)) continue;
-
-    for (const statement of file.sourceFile.statements) {
-      if (!ts.isImportDeclaration(statement)) continue;
-      if (!statement.moduleSpecifier || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
-      const specifier = statement.moduleSpecifier.text;
-      if (specifier !== "@workspace/core/ui") continue;
-
-      const importClause = statement.importClause;
-      if (!importClause || importClause.isTypeOnly) continue;
-
-      if (importClause.name) {
-        candidates.push({ file: file.relPath, importedName: importClause.name.text, specifier });
-      }
-
-      const namedBindings = importClause.namedBindings;
-      if (!namedBindings) continue;
-
-      if (ts.isNamespaceImport(namedBindings)) {
-        candidates.push({ file: file.relPath, importedName: namedBindings.name.text, specifier });
-        continue;
-      }
-
-      for (const element of namedBindings.elements) {
-        if (element.isTypeOnly) continue;
-        const importedName = element.propertyName?.text ?? element.name.text;
-        if (
-          !CORE_UI_DIRECT_RUNTIME_IMPORTS.has(importedName) &&
-          !CORE_UI_NON_COMPONENT_EXPORTS.has(importedName)
-        ) {
-          candidates.push({ file: file.relPath, importedName, specifier });
-        }
-      }
-    }
-  }
-
-  return candidates.sort((left, right) => `${left.file}:${left.importedName}`.localeCompare(`${right.file}:${right.importedName}`));
-}
-
-function collectCoreUiValueExports(files: SourceInfo[]) {
-  const indexFile = files.find((file) => file.relPath === "packages/core/ui/index.ts");
-  if (!indexFile) return [];
-
-  const exports = new Set<string>();
-
-  for (const statement of indexFile.sourceFile.statements) {
-    if (!ts.isExportDeclaration(statement) || statement.isTypeOnly) continue;
-    if (!statement.exportClause || !ts.isNamedExports(statement.exportClause)) continue;
-
-    for (const element of statement.exportClause.elements) {
-      if (element.isTypeOnly) continue;
-      exports.add(element.name.text);
-    }
-  }
-
-  return [...exports].sort();
-}
-
-export function findUnregisteredCoreUiExports(files: SourceInfo[]) {
-  return collectCoreUiValueExports(files)
-    .filter((exportedName) => !registeredCoreUiComponentNames.has(exportedName))
-    .filter((exportedName) => !CORE_UI_NON_COMPONENT_EXPORTS.has(exportedName))
-    .map((exportedName) => ({ exportedName }))
-    .sort((left, right) => left.exportedName.localeCompare(right.exportedName));
-}
-
-export function findDuplicateCoreUiRegistrations() {
-  const counts = new Map<string, number>();
-
-  for (const component of coreUiComponentRegistry) {
-    counts.set(component.name, (counts.get(component.name) ?? 0) + 1);
-  }
-
-  return [...counts.entries()]
-    .filter(([, count]) => count > 1)
-    .map(([name, count]) => ({ name, count }))
-    .sort((left, right) => left.name.localeCompare(right.name));
 }
 
 function classNameText(attribute: ts.JsxAttribute, sourceFile: ts.SourceFile) {

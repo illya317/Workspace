@@ -1,3 +1,4 @@
+import { createPageDataBlock } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { getWorkSpaceLabel } from "./model";
 import type { WorkTarget, WorkTaskSpace } from "./types";
@@ -53,17 +54,16 @@ export function sameTarget(a: WorkTarget | null | undefined, b: WorkTarget | nul
 }
 
 export function spaceMetricsBlock(space: WorkTaskSpace): PageSurfaceBlockSpec {
-  return {
+  return createPageDataBlock("space-metrics", {
     kind: "metrics",
-    key: "space-metrics",
     metrics: [
       { key: "objective", label: "目标", value: space.counts.objective, className: "px-3 py-2" },
       { key: "keyResult", label: "关键结果", value: space.counts.keyResult, className: "px-3 py-2" },
       { key: "task", label: "子任务", value: space.counts.task, className: "px-3 py-2" },
       { key: "archived", label: "归档", value: space.counts.archived, className: "px-3 py-2" },
     ],
-    className: "grid-cols-4 text-center",
-  };
+    className: "grid-cols-4 text-center"
+  });
 }
 
 export function normalizeInitialTarget(target?: WorkTarget) {

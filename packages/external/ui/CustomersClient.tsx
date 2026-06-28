@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface } from "@workspace/core/ui";
+import { createSectionBlock, PageSurface } from "@workspace/core/ui";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 
 export default function CustomersClient() {
@@ -22,9 +22,7 @@ export default function CustomersClient() {
       contentClassName="py-10"
       toolbar={{ items: toolbarItems }}
       blocks={[
-        {
-          kind: "section",
-          key: "customers",
+        createSectionBlock("customers", {
           title: "客户列表",
           blocks: [
             {
@@ -37,7 +35,7 @@ export default function CustomersClient() {
               },
             },
           ],
-        },
+        }),
       ]}
     />
   );

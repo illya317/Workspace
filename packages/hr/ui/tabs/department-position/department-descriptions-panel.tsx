@@ -1,7 +1,7 @@
 "use client";
 
 import type { Ref } from "react";
-import { PageSurface, type ConfirmOptions, type PageSurfaceBlockSpec, useFeedback } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createPanelBlock, PageSurface, type ConfirmOptions, type PageSurfaceBlockSpec, useFeedback } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { buildDepartmentDescriptionDetailsBlocks, departmentDescriptionDutyRecords } from "./department-description-details-editor";
 import type { DepartmentDescriptionDraft } from "./types";
@@ -65,13 +65,15 @@ function buildDepartmentDescriptionsBlock({
 }): PageSurfaceBlockSpec {
   let dutyOffset = 0;
   const blocks: PageSurfaceBlockSpec[] = drafts.length === 0
-    ? [{ kind: "empty", key: "empty", presentation: "plain", content: "暂无部门说明书" }]
+    ? [createBlockSurfaceBlock("empty", {
+      kind: "empty",
+      presentation: "plain",
+      content: "暂无部门说明书"
+    })]
     : drafts.map((draft, index) => {
         const offset = dutyOffset;
         dutyOffset += departmentDescriptionDutyRecords(draft.details).length;
-        return {
-          kind: "panel" as const,
-          key: String(draft.id || `new-${index}`),
+        return createPanelBlock(String(draft.id || `new-${index}`), {
           title: draft.name || `部门说明书 ${index + 1}`,
           bodyClassName: "p-3",
           blocks: buildDepartmentDescriptionDetailsBlocks({
@@ -82,12 +84,10 @@ function buildDepartmentDescriptionsBlock({
             getDutyItemRef: getDutyItemRef ? (itemIndex) => getDutyItemRef(offset + itemIndex) : undefined,
             requestDutyScrollToIndex: requestDutyScrollToIndex ? (itemIndex) => requestDutyScrollToIndex(offset + itemIndex) : undefined,
           }),
-        };
+        });
       });
 
-  return {
-    kind: "panel",
-    key: "department-descriptions",
+  return createPanelBlock("department-descriptions", {
     title: (
       <div className="flex flex-wrap items-center gap-2">
         <span>部门说明书</span>
@@ -96,5 +96,5 @@ function buildDepartmentDescriptionsBlock({
     ),
     bodyClassName: "p-4",
     blocks,
-  };
+  });
 }

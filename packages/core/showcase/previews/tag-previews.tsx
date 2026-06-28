@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FC } from "react";
-import { TagListInput, TextField } from "@workspace/core/ui";
+import { TagListInput, TextField } from "../internal-ui";
 
 function TagListInputPreview() {
   const [items, setItems] = useState(["重点项目", "GMP", "长期客户"]);

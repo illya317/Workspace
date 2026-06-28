@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useMemo, useState } from "react";
-import { PageSurface, createPageFieldsBlock, createPageModalBlock, createPageTableBlock } from "@workspace/core/ui";
+import { PageSurface, createFieldsBlock, createPageModalBlock, createPageTableBlock } from "@workspace/core/ui";
 import type { QcTemplateFeedbackItem, QcTemplateFeedbackState } from "@workspace/production/server/qc";
 import { feedbackKey, selectionTitle, type FeedbackTarget } from "./types";
 import { TEMPLATE_FEEDBACK_FIELDS } from "./feedback-fields";
@@ -155,7 +155,7 @@ export default function TemplateFeedbackModal({ target, onClose, onSaved }: Prop
           maxWidth: "max-w-4xl",
           className: "max-h-[calc(88vh-82px)] overflow-y-auto py-4",
           blocks: [
-            createPageFieldsBlock("template-feedback-summary", [
+            createFieldsBlock("template-feedback-summary", [
               {
                 kind: "note",
                 key: "selection",

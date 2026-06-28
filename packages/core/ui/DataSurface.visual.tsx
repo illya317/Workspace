@@ -4,17 +4,17 @@ import { useState, type ReactNode } from "react";
 import { EmptyStateCard } from "./Card";
 import { joinClassNames } from "./card-utils";
 import type {
-  DataSurfaceVisualBarChartSpec,
-  DataSurfaceVisualComparisonBarsSpec,
-  DataSurfaceVisualGroupedBarChartSpec,
-  DataSurfaceVisualLegendSpec,
-  DataSurfaceVisualSpec,
-  DataSurfaceVisualTone,
-  DataSurfaceVisualTreeNodeSpec,
-  DataSurfaceVisualTreeSpec,
-} from "./DataSurface.types";
+  VisualizationBarChartSpec,
+  VisualizationComparisonBarsSpec,
+  VisualizationGroupedBarChartSpec,
+  VisualizationLegendSpec,
+  VisualizationSpec,
+  VisualizationTone,
+  VisualizationTreeNodeSpec,
+  VisualizationTreeSpec,
+} from "./VisualizationSurface";
 
-function visualToneClass(tone: DataSurfaceVisualTone = "slate", slot: "bar" | "text" | "soft" | "border" = "bar") {
+function visualToneClass(tone: VisualizationTone = "slate", slot: "bar" | "text" | "soft" | "border" = "bar") {
   const classes = {
     blue: { bar: "bg-blue-400", text: "text-blue-600", soft: "bg-blue-50 text-blue-700", border: "border-blue-200" },
     emerald: { bar: "bg-emerald-400", text: "text-emerald-600", soft: "bg-emerald-50 text-emerald-700", border: "border-emerald-200" },
@@ -25,7 +25,7 @@ function visualToneClass(tone: DataSurfaceVisualTone = "slate", slot: "bar" | "t
   return classes[tone][slot];
 }
 
-function renderVisualLegend(legend?: DataSurfaceVisualLegendSpec[]) {
+function renderVisualLegend(legend?: VisualizationLegendSpec[]) {
   if (!Array.isArray(legend) || legend.length === 0) return null;
   return (
     <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-slate-100 pt-3 text-xs text-slate-400">
@@ -39,7 +39,7 @@ function renderVisualLegend(legend?: DataSurfaceVisualLegendSpec[]) {
   );
 }
 
-function renderBarChart(visual: DataSurfaceVisualBarChartSpec) {
+function renderBarChart(visual: VisualizationBarChartSpec) {
   if (visual.bars.length === 0) return <EmptyStateCard compact>{visual.emptyText ?? "暂无数据"}</EmptyStateCard>;
   const max = visual.max ?? Math.max(...visual.bars.map((bar) => bar.value), 1);
   const min = visual.min;
@@ -69,7 +69,7 @@ function renderBarChart(visual: DataSurfaceVisualBarChartSpec) {
   );
 }
 
-function renderGroupedBarChart(visual: DataSurfaceVisualGroupedBarChartSpec) {
+function renderGroupedBarChart(visual: VisualizationGroupedBarChartSpec) {
   if (visual.groups.length === 0) return <EmptyStateCard compact>{visual.emptyText ?? "暂无数据"}</EmptyStateCard>;
   const max = visual.max ?? Math.max(...visual.groups.flatMap((group) => group.bars.map((bar) => bar.value)), 1);
   return (
@@ -101,7 +101,7 @@ function renderGroupedBarChart(visual: DataSurfaceVisualGroupedBarChartSpec) {
   );
 }
 
-function renderComparisonBars(visual: DataSurfaceVisualComparisonBarsSpec) {
+function renderComparisonBars(visual: VisualizationComparisonBarsSpec) {
   const hasItems = visual.sections.some((section) => section.items.length > 0);
   if (!hasItems) return <EmptyStateCard compact>{visual.emptyText ?? "暂无数据"}</EmptyStateCard>;
   const max = visual.max ?? Math.max(...visual.sections.flatMap((section) => section.items.flatMap((item) => [item.actual, item.reference ?? 0])), 1);
@@ -141,7 +141,7 @@ function renderComparisonBars(visual: DataSurfaceVisualComparisonBarsSpec) {
   );
 }
 
-function VisualTree({ visual }: { visual: DataSurfaceVisualTreeSpec }) {
+function VisualTree({ visual }: { visual: VisualizationTreeSpec }) {
   const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
   if (visual.nodes.length === 0) return <EmptyStateCard compact>{visual.emptyText ?? "暂无数据"}</EmptyStateCard>;
 
@@ -154,7 +154,7 @@ function VisualTree({ visual }: { visual: DataSurfaceVisualTreeSpec }) {
     });
   }
 
-  function renderNode(node: DataSurfaceVisualTreeNodeSpec, depth: number): ReactNode {
+  function renderNode(node: VisualizationTreeNodeSpec, depth: number): ReactNode {
     const children = node.children ?? [];
     const hasChildren = children.length > 0;
     const collapsedNode = collapsed.has(node.key);
@@ -189,7 +189,7 @@ function VisualTree({ visual }: { visual: DataSurfaceVisualTreeSpec }) {
   );
 }
 
-export function renderVisual(visual: DataSurfaceVisualSpec) {
+export function renderVisual(visual: VisualizationSpec) {
   if (visual.kind === "barChart") return renderBarChart(visual);
   if (visual.kind === "groupedBarChart") return renderGroupedBarChart(visual);
   if (visual.kind === "comparisonBars") return renderComparisonBars(visual);

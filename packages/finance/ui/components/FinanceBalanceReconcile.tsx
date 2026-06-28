@@ -5,7 +5,7 @@ import { workspacePath } from "@workspace/core/routing";
 import {
   PageSurface,
   createPageDataBlock,
-  createPageInlineFieldsBlock,
+  createInlineFieldsBlock,
   createPageTableBlock,
   type DataSurfaceColumnSpec,
 } from "@workspace/core/ui";
@@ -92,7 +92,7 @@ export default function FinanceBalanceReconcile({
         kind="list"
         embedded
         blocks={[
-          createPageInlineFieldsBlock("balance-reconcile-filters", [
+          createInlineFieldsBlock("balance-reconcile-filters", [
             {
               key: "company",
               label: "公司",

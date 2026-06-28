@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PageSurface, useFeedback } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createGroupBlock, createMessageBlock, createPanelBlock, createSectionBlock, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import type { SessionUser } from "@workspace/platform/types";
@@ -27,7 +27,7 @@ import { useWorkPermissionsBlocks } from "./WorkPermissionsPanel";
 import { buildWorkReportsPanelBlocks, useWorkReportsController } from "./WorkReportsPanel";
 import { useWorkTaskTableBlock } from "./WorkTaskTable";
 import { useWorkTaskFormSurface } from "./WorkTaskFields";
-import { createWorkPlanSelectorBlock, PlanHeader } from "./WorkPlanBlocks";
+import { createWorkPlanHeaderBlock, createWorkPlanSelectorBlock } from "./WorkPlanBlocks";
 import { useWorkPlanFormSurface } from "./WorkPlanFields";
 import type { WorkItem, WorkItemType, WorkPlan, WorkPlanDraft, WorkTarget, WorkTaskSpace } from "./types";
 
@@ -421,25 +421,17 @@ export default function WorksClient({ initialTarget }: {
         drawerBlocks: [spaceSelectorBlock(spaces, activeTarget, spacesLoading, selectSpace)],
       }}
       blocks={currentSpace ? [
-        {
-          kind: "panel",
-          key: "space-header",
+        createPanelBlock("space-header", {
           title: currentSpace.name,
           subtitle: [getWorkSpaceLabel(currentSpace.targetType), currentSpace.subtitle].filter(Boolean).join(" · "),
           blocks: [spaceMetricsBlock(currentSpace)],
-        },
-        activeTab === "permissions" ? {
-          kind: "surfaceGroup",
-          key: "permissions",
+        }),
+        activeTab === "permissions" ? createGroupBlock("permissions", {
           blocks: permissionBlocks,
-        } : activeTab === "reports" ? {
-          kind: "section",
-          key: "reports",
+        }) : activeTab === "reports" ? createSectionBlock("reports", {
           title: "工作汇报",
           blocks: buildWorkReportsPanelBlocks(reportsState),
-        } : {
-          kind: "section",
-          key: "tasks",
+        }) : createSectionBlock("tasks", {
           title: "OKR 计划",
           blocks: [
             ...(planCreating || planEditing ? [{
@@ -447,9 +439,7 @@ export default function WorksClient({ initialTarget }: {
               key: "plan-form",
               surface: planFormSurface,
             }] : []),
-            {
-              kind: "surfaceGroup" as const,
-              key: "plan-workspace",
+            createGroupBlock("plan-workspace", {
               layout: "grid" as const,
               className: "xl:grid-cols-[18rem_minmax(0,1fr)]",
               blocks: [
@@ -464,15 +454,9 @@ export default function WorksClient({ initialTarget }: {
                     worksState.setCreating(false);
                   },
                 }),
-                activePlan ? {
-                  kind: "surfaceGroup" as const,
-                  key: "active-plan",
+                activePlan ? createGroupBlock("active-plan", {
                   blocks: [
-                    {
-                      kind: "moduleView" as const,
-                      key: "plan-header",
-                      view: <PlanHeader plan={activePlan} />,
-                    },
+                    createWorkPlanHeaderBlock(activePlan),
                     ...(worksState.creating ? [{
                       kind: "form" as const,
                       key: "create-task",
@@ -480,22 +464,19 @@ export default function WorksClient({ initialTarget }: {
                     }] : []),
                     taskTableBlock,
                   ],
-                } : {
-                  kind: "message" as const,
-                  key: "no-plan",
+                }) : createMessageBlock("no-plan", {
                   content: plansLoading ? "加载 OKR 计划中..." : "请先新建 OKR 计划，再添加目标、关键结果和子任务。",
                   tone: "muted" as const,
-                },
+                }),
               ],
-            },
+            }),
           ],
-        },
-      ] : [{
+        }),
+      ] : [createBlockSurfaceBlock("empty-space", {
         kind: "message",
-        key: "empty-space",
         content: spacesLoading ? "加载工作空间中..." : "当前账号暂无可进入的工作计划空间",
-        tone: "muted",
-      }]}
+        tone: "muted"
+      })]}
     />
   );
 }

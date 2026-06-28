@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createPageFieldsBlock, createPageInlineFieldsBlock, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceBlock, createFieldsBlock, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import type { ActionDraft, MeetingDetail } from "./meeting-types";
 import { AgendaSelect, DecisionSelect, InlineForm, InputBox, PageBlockSurface, Section, SelectBox, SimpleList } from "./MeetingControls";
@@ -60,19 +60,10 @@ export function useMeetingDetailBlock({
 }: MeetingDetailPanelProps): PageSurfaceBlockSpec {
   const canEdit = meeting.permissions.canEdit;
 
-  return {
+  return createBlockSurfaceBlock("meeting-detail", {
     kind: "panel",
-    key: "meeting-detail",
     bodyClassName: "p-4",
-    blocks: [{
-      kind: "form",
-      key: "meeting-detail-content",
-      surface: {
-        kind: "fields",
-        fields: [{
-          kind: "note",
-          key: "meeting-detail-composition",
-          content: <div className="space-y-4">
+    content: <div className="space-y-4">
       <MeetingHeader meeting={meeting} saving={saving} onUpdate={onUpdate} />
       <div className="grid gap-4 2xl:grid-cols-2">
         <Section title="参会人">
@@ -87,11 +78,11 @@ export function useMeetingDetailBlock({
             role,
             canVote: role === "owner" || role === "voter",
           })} />
-              <PageBlockSurface className="self-end" block={createPageFieldsBlock("can-vote", [{ key: "canVote", label: "可投票", spec: { valueType: "boolean", control: "boolean", presentation: "checkbox" }, value: participantDraft.canVote, onChange: checked => onParticipantDraftChange({
+              <PageBlockSurface className="self-end" block={createFieldsBlock("can-vote", [{ key: "canVote", label: "可投票", spec: { valueType: "boolean", control: "boolean", presentation: "checkbox" }, value: participantDraft.canVote, onChange: checked => onParticipantDraftChange({
                 ...participantDraft,
                 canVote: Boolean(checked),
               }) }], { className: "self-end" })} />
-              <PageBlockSurface className="self-end" block={createPageFieldsBlock("save-participant", [], { className: "self-end", actions: [{ key: "save-participant", label: "保存参会人", variant: "primary", size: "sm", disabled: saving || !participantDraft.userId, onClick: () => void onMutate<{
+              <PageBlockSurface className="self-end" block={createBlockSurfaceBlock("save-participant", { kind: "actions", className: "self-end", actions: [{ key: "save-participant", label: "保存参会人", variant: "primary", size: "sm", disabled: saving || !participantDraft.userId, onClick: () => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/participants`, participantDraft, "参会人已保存") }] })} />
             </InlineForm>}
@@ -112,7 +103,7 @@ export function useMeetingDetailBlock({
             ...agendaDraft,
             description,
           })} />
-              <PageBlockSurface className="self-end" block={createPageFieldsBlock("add-agenda", [], { className: "self-end", actions: [{ key: "add-agenda", label: "新增议题", variant: "primary", size: "sm", disabled: saving || !agendaDraft.title.trim(), onClick: () => void onMutate<{
+              <PageBlockSurface className="self-end" block={createBlockSurfaceBlock("add-agenda", { kind: "actions", className: "self-end", actions: [{ key: "add-agenda", label: "新增议题", variant: "primary", size: "sm", disabled: saving || !agendaDraft.title.trim(), onClick: () => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/agenda`, agendaDraft, "议题已新增", () => onAgendaDraftChange({
               title: "",
@@ -136,7 +127,7 @@ export function useMeetingDetailBlock({
             ...minuteDraft,
             content,
           })} className="md:col-span-2" />
-              <PageBlockSurface className="self-end" block={createPageFieldsBlock("add-minute", [], { className: "self-end", actions: [{ key: "add-minute", label: "记录纪要", variant: "primary", size: "sm", disabled: saving || !minuteDraft.content.trim(), onClick: () => void onMutate<{
+              <PageBlockSurface className="self-end" block={createBlockSurfaceBlock("add-minute", { kind: "actions", className: "self-end", actions: [{ key: "add-minute", label: "记录纪要", variant: "primary", size: "sm", disabled: saving || !minuteDraft.content.trim(), onClick: () => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/minutes`, normalizeOptionalIds(minuteDraft), "纪要已记录", () => onMinuteDraftChange({
               agendaItemId: "",
@@ -194,7 +185,7 @@ export function useMeetingDetailBlock({
             ...proposalDraft,
             content,
           })} className="md:col-span-2" />
-              <PageBlockSurface className="self-end" block={createPageFieldsBlock("create-proposal", [], { className: "self-end", actions: [{ key: "create-proposal", label: "创建表决", variant: "primary", size: "sm", disabled: saving || !proposalDraft.title.trim(), onClick: () => void onMutate<{
+              <PageBlockSurface className="self-end" block={createBlockSurfaceBlock("create-proposal", { kind: "actions", className: "self-end", actions: [{ key: "create-proposal", label: "创建表决", variant: "primary", size: "sm", disabled: saving || !proposalDraft.title.trim(), onClick: () => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/votes`, {
               action: "create",
@@ -232,7 +223,7 @@ export function useMeetingDetailBlock({
             ...decisionDraft,
             content,
           })} className="md:col-span-2" />
-              <PageBlockSurface className="self-end" block={createPageInlineFieldsBlock("save-decision", [], { className: "self-end", actions: [{ key: "save-decision", label: "保存决议", variant: "primary", size: "sm", disabled: saving || !decisionDraft.title.trim(), onClick: () => void onMutate<{
+              <PageBlockSurface className="self-end" block={createBlockSurfaceBlock("save-decision", { kind: "actions", className: "self-end", actions: [{ key: "save-decision", label: "保存决议", variant: "primary", size: "sm", disabled: saving || !decisionDraft.title.trim(), onClick: () => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/decisions`, normalizeOptionalIds(decisionDraft), "决议已保存", () => onDecisionDraftChange({
               agendaItemId: "",
@@ -279,7 +270,7 @@ export function useMeetingDetailBlock({
             ...candidateDraft,
             description,
           })} className="md:col-span-2" />
-              <PageBlockSurface className="self-end" block={createPageInlineFieldsBlock("add-candidate", [], { className: "self-end", actions: [{ key: "add-candidate", label: "新增候选", variant: "primary", size: "sm", disabled: saving || !candidateDraft.title.trim(), onClick: () => void onMutate<{
+              <PageBlockSurface className="self-end" block={createBlockSurfaceBlock("add-candidate", { kind: "actions", className: "self-end", actions: [{ key: "add-candidate", label: "新增候选", variant: "primary", size: "sm", disabled: saving || !candidateDraft.title.trim(), onClick: () => void onMutate<{
               meeting: MeetingDetail;
             }>(`/api/modules/work/meetings/${meeting.id}/action-candidates`, normalizeOptionalIds(candidateDraft), "行动候选已新增", () => onCandidateDraftChange({
               agendaItemId: "",
@@ -292,10 +283,7 @@ export function useMeetingDetailBlock({
         </Section>
       </div>
     </div>,
-        }],
-      },
-    }],
-  };
+  });
 }
 
 export function MeetingDetailPanel(props: MeetingDetailPanelProps) {

@@ -1,4 +1,4 @@
-import { PageSurface, createPageFieldsBlock } from "@workspace/core/ui";
+import { PageSurface, createFieldsBlock } from "@workspace/core/ui";
 import type { LibraryDocumentItem } from "@workspace/library/types";
 import {
   LIBRARY_DOCUMENT_CONFIDENTIALITY_FIELD_OPTIONS,
@@ -31,7 +31,7 @@ export default function LibraryEditForm({ doc, form, setForm, canWrite, canAdmin
       kind="list"
       embedded
       blocks={[
-        createPageFieldsBlock("library-edit", [
+        createFieldsBlock("library-edit", [
           {
             key: "docId",
             label: "文档编号（docId）",

@@ -6,7 +6,7 @@ import {
   ConfirmModal,
   DetailModal,
   DropdownMenu,
-} from "@workspace/core/ui";
+} from "../internal-ui";
 
 function ConfirmModalPreview() {
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);

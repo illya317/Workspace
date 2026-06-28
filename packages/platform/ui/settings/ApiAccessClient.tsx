@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { PageSurface, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceBlock, useFeedback } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 const API_BASE_URL = typeof window !== "undefined" ? `${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH || ""}` : "";
 export type ApiAccessModuleRow = {
@@ -97,18 +97,18 @@ export default function ApiAccessClient({
       <PageSurface
         kind="settings"
         embedded
-        blocks={[{
-          kind: "data",
-          key: "api-access",
-          surface: {
-            kind: "raw",
-            framed: true,
-            title: "API 接入",
-            value: [
-              `URL: ${API_BASE_URL}`,
-              `Key: ${apiKey ? maskApiKey(apiKey) : "（先申请）"}`,
-              `User: ${user.username || user.nickname || "（未获取）"}`,
-            ].join("\n"),
+        blocks={[createBlockSurfaceBlock("api-access", {
+          kind: "panel",
+          title: "API 接入",
+          content: (
+            <pre className="space-y-1 whitespace-pre-wrap rounded-md bg-emerald-50 p-4 font-mono text-sm text-emerald-800">
+              {[
+                `URL: ${API_BASE_URL}`,
+                `Key: ${apiKey ? maskApiKey(apiKey) : "（先申请）"}`,
+                `User: ${user.username || user.nickname || "（未获取）"}`,
+              ].join("\n")}
+            </pre>
+          ),
             actions: [
               apiKey ? {
                 key: "rotate",
@@ -128,9 +128,8 @@ export default function ApiAccessClient({
                 onClick: copyConnectionBlock,
               },
             ],
-            rawClassName: "space-y-1",
           },
-        }]}
+        )]}
       />
     </div>
   );

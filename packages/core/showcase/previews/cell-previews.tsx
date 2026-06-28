@@ -1,10 +1,7 @@
 "use client";
 
 import type { FC } from "react";
-import {
-  AmountCell,
-  NumberCell,
-} from "@workspace/core/ui";
+import { AmountCell, NumberCell } from "../internal-ui";
 
 function AmountCellPreview() {
   return (

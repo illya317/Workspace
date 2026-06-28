@@ -2,7 +2,7 @@
 
 import { useState, type FC, type ReactNode } from "react";
 import { matchText } from "@workspace/core/search";
-import { Badge, SelectorPanel } from "@workspace/core/ui";
+import { Badge, SelectorPanel } from "../internal-ui";
 
 function SelectorPanelListPreview() {
   const [selected, setSelected] = useState<string | null>("list-1");

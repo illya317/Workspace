@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useCallback } from "react";
-import { PageSurface, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceBlock, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, PageSurfaceNavigationSpec } from "@workspace/core/ui";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import FinanceBalanceReconcile from "../components/FinanceBalanceReconcile";
@@ -204,8 +204,11 @@ export default function LedgerTab({
               rowKey: (balance: Balance) => balance.id,
             },
           },
+          createBlockSurfaceBlock("balance-reconcile", {
+            kind: "content",
+            content: <FinanceBalanceReconcile showToast={feedback.notify} />,
+          }),
         ],
-        content: <FinanceBalanceReconcile showToast={feedback.notify} />,
       }}
       footer={{ pagination: { page, totalPages, total, onPageChange: setPage } }}
     />

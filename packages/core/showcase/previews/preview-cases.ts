@@ -3,6 +3,7 @@
 export const previewCaseByName: Record<string, readonly string[]> = {
   "AnalysisBlock": ["MetricCard"],
   "AnalysisPageFrame": ["AnalysisBlock", "MetricCard"],
+  "BlockSurface": ["PanelCard", "SectionCard"],
   "BlockCreatePanel": ["FormField"],
   "ConfirmModal": ["ActionButton"],
   "CreatePanel": ["FormField"],
@@ -25,4 +26,5 @@ export const previewCaseByName: Record<string, readonly string[]> = {
   "StructuredTable": ["TableScrollFrame"],
   "TagListInput": ["TextField"],
   "Toast": ["ActionButton"],
+  "VisualizationSurface": ["DataSurface"],
 };

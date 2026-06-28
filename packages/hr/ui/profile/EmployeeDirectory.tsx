@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   type DataSurfaceColumnSpec,
+  createMessageBlock,
   PageSurface,
   type PageSurfaceBlockSpec,
 } from "@workspace/core/ui";
@@ -168,7 +169,7 @@ export default function EmployeeDirectory({
   });
 
   const blocks: PageSurfaceBlockSpec[] = [
-    ...(error ? [{ kind: "message" as const, key: "error", content: error, tone: "danger" as const }] : []),
+    ...(error ? [createMessageBlock("error", { content: error, tone: "danger" as const })] : []),
     {
       kind: "data",
       key: "employees",

@@ -14,6 +14,7 @@ import {
   tagPreviewByName,
   cellPreviewByName,
   feedbackPreviewByName,
+  surfacePreviewByName,
 } from "./previews";
 
 const previewByName: Record<string, FC> = {
@@ -29,6 +30,7 @@ const previewByName: Record<string, FC> = {
   ...tagPreviewByName,
   ...cellPreviewByName,
   ...feedbackPreviewByName,
+  ...surfacePreviewByName,
 };
 
 export function ComponentPreview({ name }: { name: string }) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createPageActionsBlock } from "@workspace/core/ui";
+import { PageSurface, createActionsBlock } from "@workspace/core/ui";
 import type { PageSurfaceCommandSpec } from "@workspace/core/ui";
 
 export function profileActionSpec({
@@ -64,7 +64,7 @@ export function ProfileAction({
     <PageSurface
       embedded
       kind="detail"
-      blocks={[createPageActionsBlock(label, [profileActionSpec({
+      blocks={[createActionsBlock(label, [profileActionSpec({
         key: label,
         label,
         variant,

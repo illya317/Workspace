@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import {
   PageSurface,
-  createPageFieldsBlock,
+  createBlockSurfaceBlock,
+  createPanelBlock,
   type FormSurfaceItemSpec,
   type PageSurfaceBlockSpec,
 } from "@workspace/core/ui";
@@ -173,9 +174,8 @@ export function useProjectDetailEditorBlock({
     },
   ] : [];
 
-  const contentBlocks: PageSurfaceBlockSpec[] = !draft ? [{
+  const contentBlocks: PageSurfaceBlockSpec[] = !draft ? [createBlockSurfaceBlock("project-empty", {
     kind: "empty",
-    key: "project-empty",
     presentation: "plain",
     className: "flex min-h-64 items-center justify-center p-8 text-center",
     content: (
@@ -183,8 +183,8 @@ export function useProjectDetailEditorBlock({
         <p className="text-sm font-medium text-slate-600">暂无可编辑项目</p>
         <p className="mt-1 text-sm text-slate-400">请选择左侧项目，或新建项目后维护资料。</p>
       </div>
-    ),
-  }] : [
+    )
+  })] : [
     {
       kind: "form",
       key: "project-detail-section",
@@ -224,40 +224,32 @@ export function useProjectDetailEditorBlock({
         surface: buildProjectRasciMatrixSurface(rasciRows),
       },
     ] : []),
-    ...(activeTab === "plan" ? [{
-      kind: "form" as const,
-      key: "plan-composition",
-      surface: {
-        kind: "fields" as const,
-        fields: [{
-          kind: "note" as const,
-          key: "project-plan-content",
-          content: (
-            <div className="space-y-4">
-              <ProjectPlanManagementSection
-                projectId={draft.id}
-                canEdit={canEditCurrent}
-                disabled={saving || creating}
-                onToast={onToast}
-              />
-              <ProjectTasksSection
-                projectId={draft.id}
-                canEdit={canEditCurrent}
-                disabled={saving || creating}
-                onToast={onToast}
-                onCreateChildProject={onCreateChildProject}
-                onChanged={() => onProjectTasksChanged(draft.id)}
-              />
-            </div>
-          ),
-        }],
-      },
-    }] : []),
+    ...(activeTab === "plan" ? [
+      createBlockSurfaceBlock("plan-composition", {
+        kind: "content",
+        content: (
+          <div className="space-y-4">
+            <ProjectPlanManagementSection
+              projectId={draft.id}
+              canEdit={canEditCurrent}
+              disabled={saving || creating}
+              onToast={onToast}
+            />
+            <ProjectTasksSection
+              projectId={draft.id}
+              canEdit={canEditCurrent}
+              disabled={saving || creating}
+              onToast={onToast}
+              onCreateChildProject={onCreateChildProject}
+              onChanged={() => onProjectTasksChanged(draft.id)}
+            />
+          </div>
+        ),
+      }),
+    ] : []),
   ];
 
-  return {
-    kind: "panel",
-    key: "project-detail",
+  return createPanelBlock("project-detail", {
     title: editorTitle,
     className: "rounded-lg border border-slate-200 bg-slate-50 p-4",
     actions: [
@@ -273,7 +265,7 @@ export function useProjectDetailEditorBlock({
       ] : []),
     ],
     blocks: contentBlocks,
-  };
+  });
 }
 
 export default function ProjectDetailEditor(props: ProjectDetailEditorProps) {
@@ -282,17 +274,7 @@ export default function ProjectDetailEditor(props: ProjectDetailEditorProps) {
     <PageSurface
       embedded
       kind="detail"
-      blocks={[createPageFieldsBlock("project-detail-wrapper", [{
-        kind: "section",
-        key: block.key,
-        title: block.kind === "panel" ? block.title : undefined,
-        fields: [{ kind: "note", key: "project-content", content: block.kind === "panel" ? <ProjectDetailContentSurface blocks={block.blocks} /> : null }],
-        actions: block.kind === "panel" ? block.actions : undefined,
-      }], { className: "rounded-lg border border-slate-200 bg-slate-50 p-4" })]}
+      blocks={[block]}
     />
   );
-}
-
-function ProjectDetailContentSurface({ blocks }: { blocks: PageSurfaceBlockSpec[] }) {
-  return <PageSurface embedded kind="detail" blocks={blocks} />;
 }

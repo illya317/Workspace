@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createAnalysisBlock, createBlockSurfaceBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { CrossMatrixData } from "./useEmployeeData";
 import { DIM_LABELS, type DimKey } from "./constants";
 
@@ -118,9 +118,7 @@ export function createCrossMatrixBlock({
     },
   ];
 
-  return {
-    kind: "analysis",
-    key: "cross-matrix",
+  return createAnalysisBlock("cross-matrix", {
     title: "交叉分析",
     toolbar: {
       items: [
@@ -131,7 +129,11 @@ export function createCrossMatrixBlock({
       ],
     },
     blocks: crossMatrix.rowKeys.length === 0
-      ? [{ kind: "message", key: "empty", tone: "muted", content: "无数据" }]
+      ? [createBlockSurfaceBlock("empty", {
+        kind: "message",
+        tone: "muted",
+        content: "无数据"
+      })]
       : [{
           kind: "data",
           key: "matrix-table",
@@ -144,5 +146,5 @@ export function createCrossMatrixBlock({
             rowClassName: (row) => row.rowKey === "合计" ? "bg-slate-50 font-medium" : "",
           },
         }],
-  };
+  });
 }

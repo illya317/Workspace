@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CreatePanel, FormField, SelectField, TextField } from "@workspace/core/ui";
+import { CreatePanel, FormField, SelectField, TextField } from "../internal-ui";
 
 export function CreatePanelPreview() {
   const [variant, setVariant] = useState<"inline" | "block" | "block-modal">("inline");

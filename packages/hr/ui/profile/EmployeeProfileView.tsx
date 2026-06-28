@@ -2,6 +2,7 @@
 
 import type { Dispatch, SetStateAction } from "react";
 import {
+  createMessageBlock,
   PageSurface,
   type PageSurfaceCommandSpec,
 } from "@workspace/core/ui";
@@ -203,8 +204,8 @@ export default function EmployeeProfileView({
       actions={ready ? pageActions : undefined}
       empty={!ready ? { content: loading ? "加载员工资料..." : error || "员工资料不存在", compact: true } : undefined}
       blocks={ready ? [
-        ...(error ? [{ kind: "message" as const, key: "error", tone: "danger" as const, content: error }] : []),
-        ...(message ? [{ kind: "message" as const, key: "message", content: message }] : []),
+        ...(error ? [createMessageBlock("error", { tone: "danger" as const, content: error })] : []),
+        ...(message ? [createMessageBlock("message", { content: message })] : []),
         ...activeSectionBlocks,
       ] : undefined}
     />

@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createPageInlineFieldsBlock } from "@workspace/core/ui";
+import { PageSurface, createInlineFieldsBlock } from "@workspace/core/ui";
 interface RdBudgetFiltersProps {
   projectFilter: string;
   setProjectFilter: (v: string) => void;
@@ -27,7 +27,7 @@ export default function RdBudgetFilters({
         kind="list"
         embedded
         blocks={[
-          createPageInlineFieldsBlock("rd-budget-filters", [
+          createInlineFieldsBlock("rd-budget-filters", [
             {
               key: "project",
               label: "研发项目",

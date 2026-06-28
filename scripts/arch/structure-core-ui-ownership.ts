@@ -117,7 +117,15 @@ function registryByName() {
 function categoryFromSubcategory(subcategory: string | undefined): CoreUiComponentCategory | null {
   if (!subcategory) return null;
   const prefix = subcategory.split(".")[0];
-  if (prefix === "page" || prefix === "data" || prefix === "form" || prefix === "common" || prefix === "feedback") {
+  if (
+    prefix === "page"
+    || prefix === "data"
+    || prefix === "form"
+    || prefix === "document"
+    || prefix === "visualization"
+    || prefix === "common"
+    || prefix === "feedback"
+  ) {
     return prefix;
   }
   return null;
@@ -129,6 +137,10 @@ function relationshipTargets(component: { composes?: readonly string[] }) {
 
 const CORE_UI_ENCAPSULATION_L2_EDGES = new Set([
   "data.surface -> data.table",
+  "page.surface -> data.surface",
+  "page.surface -> document.surface",
+  "page.surface -> form.surface",
+  "page.surface -> visualization.surface",
   "feedback.service -> feedback.renderer",
   "page.surface -> page.blocks",
   "page.surface -> page.frame",
@@ -265,7 +277,8 @@ export function findBusinessCommonRendererImports(files: SourceInfo[]) {
         if (element.isTypeOnly) continue;
         const importedName = element.propertyName?.text ?? element.name.text;
         const component = byName.get(importedName);
-        if (component?.exposure?.mode === "direct") continue;
+        if (component?.role === "surface" || component?.role === "helper" || component?.role === "service") continue;
+        if (component?.exposure?.mode === "runtime") continue;
         const isCommonRenderer = component?.category === "common" && component.subcategory !== "common.foundation";
         if (!isCommonRenderer && !CORE_UI_COMMON_RENDERER_IMPORT_NAMES.has(importedName)) continue;
         candidates.push({

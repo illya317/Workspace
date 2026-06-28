@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { PageSurface, useFeedback } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { PageSurfaceProps } from "@workspace/core/ui";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 import type { WorkUser } from "@workspace/work/types";
@@ -147,12 +147,11 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
             ],
       }}
       side={{
-        blocks: model.loading || model.error ? [{
+        blocks: model.loading || model.error ? [createBlockSurfaceBlock("project-list-loading", {
           kind: "message",
-          key: "project-list-loading",
           content: model.loading ? "加载中..." : "暂无项目",
-          tone: "muted",
-        }] : [projectListNavigationBlock(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
+          tone: "muted"
+        })] : [projectListNavigationBlock(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
           model.setCreating(false);
           model.setSelection(projectId);
           model.setProjectListDrawerOpen(false);
@@ -163,12 +162,11 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
           model.setProjectListDrawerOpen(false);
         }, "drawer")],
       }}
-      blocks={model.loading || model.error ? [{
+      blocks={model.loading || model.error ? [createBlockSurfaceBlock("project-loading", {
         kind: "message",
-        key: "project-loading",
         content: model.error || "加载中...",
-        tone: model.error ? "danger" : "muted",
-      }] : [projectDetailBlock]}
+        tone: model.error ? "danger" : "muted"
+      })] : [projectDetailBlock]}
     />
   );
 }

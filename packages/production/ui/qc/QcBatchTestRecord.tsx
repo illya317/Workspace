@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { PageSurface, type FormSurfaceCommandSpec } from "@workspace/core/ui";
+import { createHeadingBlock, createMessageBlock, PageSurface, type FormSurfaceCommandSpec } from "@workspace/core/ui";
 import type { QcBatchSummary, QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcLayoutPaper from "./QcLayoutPaper";
@@ -148,13 +148,11 @@ export default function QcBatchTestRecord({
           steps: recordSteps,
         },
       },
-      {
-        kind: "heading",
-        key: "test-heading",
+      createHeadingBlock("test-heading", {
         className: "mx-auto max-w-[210mm]",
         title: `${productName}${stage.label} - ${test.name}`,
         subtitle: `批号 ${batch.batchNumber} · ${workflowMessage}`,
-      },
+      }),
       {
         kind: "document",
         key: "test-record-paper",
@@ -178,13 +176,11 @@ export default function QcBatchTestRecord({
           actions: recordActions,
         },
       }] : []),
-      ...(saveState === "saved" || saveState === "error" ? [{
-        kind: "message" as const,
-        key: "test-save-status",
+      ...(saveState === "saved" || saveState === "error" ? [createMessageBlock("test-save-status", {
         className: "mx-auto max-w-[210mm] text-center",
         tone: saveState === "saved" ? "success" as const : "danger" as const,
         content: statusText || (saveState === "saved" ? "已保存" : "操作失败"),
-      }] : []),
+      })] : []),
     ]}
   />;
 }

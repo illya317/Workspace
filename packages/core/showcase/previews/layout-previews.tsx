@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FC } from "react";
+import { createEmptyBlock, createSectionBlock, PageSurface } from "@workspace/core/ui";
 import {
   AnalysisBlock,
   AnalysisPageFrame,
@@ -11,12 +12,11 @@ import {
   ModuleGridPage,
   PageContent,
   PageShell,
-  PageSurface,
   PanelCard,
   SectionCard,
   TemplateWorkbenchFrame,
   WorkspaceSplitPage,
-} from "@workspace/core/ui";
+} from "../internal-ui";
 
 function AnalysisBlockPreview() {
   return (
@@ -114,20 +114,16 @@ function PageSurfacePreview() {
           ],
         }}
         blocks={[
-          {
-            kind: "section",
-            key: "records",
+          createSectionBlock("records", {
             title: "列表 Surface",
             subtitle: "toolbar / blocks / empty 都通过明确 spec 传入",
             blocks: [
-              {
-                kind: "empty",
-                key: "empty",
+              createEmptyBlock("empty", {
                 content: "暂无数据",
                 compact: true,
-              },
+              }),
             ],
-          },
+          }),
         ]}
       />
     </div>

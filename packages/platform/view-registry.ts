@@ -1,5 +1,5 @@
-import type { TabDef } from "@workspace/core/ui";
-import type { PageStyleRouteModule, PageViewDefinition, PageViewNode } from "@workspace/core/ui/page-style-preview/template-data";
+import type { SurfaceNavigationTabSpec } from "@workspace/core/ui";
+import type { PageStyleRouteModule, PageViewDefinition, PageViewNode } from "@workspace/core/page-style-preview";
 import { effectiveModuleDefinitions } from "./effective-module-registry";
 import { applyRouteRuntimeLabel, getRouteRuntimeMeta, type RouteRuntimeMeta } from "./route-runtime-labels";
 
@@ -343,16 +343,16 @@ export function getPageViewDefinition(route: string) {
   return pageViewDefinitions.find((definition) => definition.route === route);
 }
 
-export function getPageViewTabs(route: string): TabDef[] {
+export function getPageViewTabs(route: string): SurfaceNavigationTabSpec[] {
   return toTabDefs(getPageViewDefinition(route)?.views ?? []);
 }
 
-export function getPageViewTabsForUser(route: string, visibleResourceKeys: readonly string[]): TabDef[] {
+export function getPageViewTabsForUser(route: string, visibleResourceKeys: readonly string[]): SurfaceNavigationTabSpec[] {
   const visible = new Set(visibleResourceKeys);
   return toTabDefs(filterViewNodesByResource(getPageViewDefinition(route)?.views ?? [], visible));
 }
 
-export function toTabDefs(nodes: PageViewNode[]): TabDef[] {
+export function toTabDefs(nodes: PageViewNode[]): SurfaceNavigationTabSpec[] {
   return nodes.map((node) => ({
     key: node.key,
     label: node.label,

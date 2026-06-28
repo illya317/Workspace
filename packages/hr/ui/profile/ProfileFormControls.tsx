@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import {
   InputControl,
   PageSurface,
+  createSectionBlock,
   type InputControlProps,
   type PageSurfaceBlockSpec,
 } from "@workspace/core/ui";
@@ -319,13 +320,11 @@ export function sectionShellBlock({
     </div>
   ) : status ? <div>{status}</div> : null;
 
-  return {
-    kind: "section",
-    key,
-    title: headerTitle,
+  return createSectionBlock(key, {
+    title: headerTitle ?? "",
     subtitle,
     className,
     blocks,
     bodyClassName: "p-3",
-  };
+  });
 }

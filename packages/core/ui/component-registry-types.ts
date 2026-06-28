@@ -1,15 +1,21 @@
-export type CoreUiComponentCategory = "page" | "data" | "form" | "common" | "feedback";
+export type CoreUiComponentCategory = "page" | "data" | "form" | "document" | "visualization" | "common" | "feedback";
+
+export type CoreUiComponentRole = "surface" | "host" | "internal" | "service" | "helper";
 
 export type CoreUiComponentSubcategory =
   | "page.surface"
   | "page.blocks"
   | "page.frame"
-  | "page.document"
+  | "document.surface"
+  | "document.paper"
+  | "visualization.surface"
+  | "visualization.chart"
+  | "visualization.timeline"
+  | "visualization.gantt"
   | "data.surface"
   | "data.table"
   | "data.record"
   | "data.metric"
-  | "data.visual"
   | "data.cell"
   | "form.surface"
   | "form.field"
@@ -17,6 +23,7 @@ export type CoreUiComponentSubcategory =
   | "form.create"
   | "form.input-adapter"
   | "common.chrome"
+  | "common.block"
   | "common.action"
   | "common.input"
   | "common.selection"
@@ -28,10 +35,10 @@ export type CoreUiComponentSubcategory =
 
 export type CoreUiExposure =
   | {
-      mode: "direct";
+      mode: "runtime";
     }
   | {
-      mode: "via";
+      mode: "spec";
       entry: string;
       path: string;
     }
@@ -42,18 +49,23 @@ export type CoreUiExposure =
 export type CoreUiCapabilityDescriptor = {
   name: string;
   description: string;
+  children?: readonly CoreUiCapabilityDescriptor[];
 };
 
 export type CoreUiComponentRegistration = {
   name: string;
   description: string;
-  example: string;
   verified?: boolean;
+
+  role?: CoreUiComponentRole;
 
   exposure?: CoreUiExposure;
 
   // 业务/Agent 可声明的字段项。
   declares?: readonly CoreUiCapabilityDescriptor[];
+
+  // 非 Surface 入口提供的能力说明，不作为 UI 声明协议。
+  capabilities?: readonly CoreUiCapabilityDescriptor[];
 
   /**
    * Core UI 分类 taxonomy.

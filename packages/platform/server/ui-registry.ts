@@ -4,8 +4,8 @@ import path from "node:path";
 import {
   coreUiComponentRegistry,
   getCoreUiCompositionGraph,
-} from "@workspace/core/ui/component-registry";
-import type { CoreUiComponentRegistration } from "@workspace/core/ui/component-registry";
+  type CoreUiComponentRegistration,
+} from "@workspace/core/ui-registry";
 import type { CoreUiRegistryUsageRow } from "@workspace/platform/types";
 
 const SCAN_ROOTS = ["app", "packages"];
@@ -103,8 +103,8 @@ export function getCoreUiRegistryUsageRows(): CoreUiRegistryUsageRow[] {
         name: registration.name,
         category: registration.category,
         subcategory: registration.subcategory,
+        role: registration.role,
         description: registration.description,
-        example: registration.example,
         includedComponents: [...(graph.composes.get(registration.name) ?? [])],
         usedBy: [...(graph.usedBy.get(registration.name) ?? [])],
         usageFiles: usageByName.get(registration.name)?.sort() ?? [],

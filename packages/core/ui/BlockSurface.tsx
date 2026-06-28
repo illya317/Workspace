@@ -1,0 +1,287 @@
+"use client";
+
+import type { ReactNode, Ref } from "react";
+import { AnalysisBlock, EmptyStateCard, ModuleCard, PanelCard, SectionCard } from "./Card";
+import type { ModuleCardColor } from "./Card";
+import CommandButton from "./CommandButton";
+import type { CommandButtonProps } from "./CommandButton";
+import type { SurfaceToolbarItems } from "./SurfaceContractTypes";
+import { joinClassNames } from "./card-utils";
+
+export type BlockSurfaceKind =
+  | "content"
+  | "message"
+  | "heading"
+  | "empty"
+  | "actions"
+  | "analysis"
+  | "group"
+  | "panel"
+  | "section"
+  | "moduleGrid";
+
+export interface BlockSurfaceCommandSpec {
+  key: string;
+  label: ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  variant?: "primary" | "secondary" | "danger";
+  type?: "button" | "submit";
+  size?: CommandButtonProps["size"];
+  className?: string;
+  truncate?: boolean;
+}
+
+export interface BlockSurfaceModuleGridItemSpec {
+  key: string;
+  title: string;
+  description?: ReactNode;
+  icon?: ReactNode;
+  color?: ModuleCardColor;
+  href?: string;
+  onClick?: () => void;
+  badge?: string;
+  className?: string;
+}
+
+interface BlockSurfaceBaseProps {
+  kind: BlockSurfaceKind;
+  key?: string;
+  className?: string;
+}
+
+export interface BlockSurfaceContentProps extends BlockSurfaceBaseProps {
+  kind: "content";
+  content: ReactNode;
+}
+
+export interface BlockSurfaceMessageProps extends BlockSurfaceBaseProps {
+  kind: "message";
+  content: ReactNode;
+  tone?: "default" | "muted" | "success" | "warning" | "danger";
+}
+
+export interface BlockSurfaceHeadingProps extends BlockSurfaceBaseProps {
+  kind: "heading";
+  title: ReactNode;
+  subtitle?: ReactNode;
+  level?: 1 | 2 | 3;
+  titleClassName?: string;
+  subtitleClassName?: string;
+}
+
+export interface BlockSurfaceEmptyProps extends BlockSurfaceBaseProps {
+  kind: "empty";
+  content: ReactNode;
+  presentation?: "card" | "plain";
+  compact?: boolean;
+}
+
+export interface BlockSurfaceActionsProps extends BlockSurfaceBaseProps {
+  kind: "actions";
+  actions: BlockSurfaceCommandSpec[];
+}
+
+export interface BlockSurfaceAnalysisProps extends BlockSurfaceBaseProps {
+  kind: "analysis";
+  title: ReactNode;
+  subtitle?: ReactNode;
+  toolbarItems?: SurfaceToolbarItems;
+  actions?: BlockSurfaceCommandSpec[];
+  content?: ReactNode;
+  bodyClassName?: string;
+}
+
+export interface BlockSurfaceGroupProps extends BlockSurfaceBaseProps {
+  kind: "group";
+  blocks: BlockSurfaceProps[];
+  layout?: "stack" | "grid";
+}
+
+export interface BlockSurfacePanelProps extends BlockSurfaceBaseProps {
+  kind: "panel" | "section";
+  title?: ReactNode;
+  subtitle?: ReactNode;
+  actions?: BlockSurfaceCommandSpec[];
+  content?: ReactNode;
+  blocks?: BlockSurfaceProps[];
+  itemRef?: Ref<HTMLDivElement>;
+  bodyClassName?: string;
+}
+
+export interface BlockSurfaceModuleGridProps extends BlockSurfaceBaseProps {
+  kind: "moduleGrid";
+  title?: ReactNode;
+  summary?: ReactNode;
+  leading?: ReactNode;
+  afterGrid?: ReactNode;
+  fullScreen?: boolean;
+  centered?: boolean;
+  contentClassName?: string;
+  gridClassName?: string;
+  items: BlockSurfaceModuleGridItemSpec[];
+}
+
+export type BlockSurfaceProps =
+  | BlockSurfaceContentProps
+  | BlockSurfaceMessageProps
+  | BlockSurfaceHeadingProps
+  | BlockSurfaceEmptyProps
+  | BlockSurfaceActionsProps
+  | BlockSurfaceAnalysisProps
+  | BlockSurfaceGroupProps
+  | BlockSurfacePanelProps
+  | BlockSurfaceModuleGridProps;
+
+export function renderBlockSurfaceCommands(commands?: BlockSurfaceCommandSpec[]) {
+  if (!commands?.length) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {commands.map((command) => (
+        <CommandButton
+          key={command.key}
+          type={command.type}
+          variant={command.variant}
+          disabled={command.disabled}
+          size={command.size}
+          className={command.className}
+          truncate={command.truncate}
+          onClick={command.onClick}
+        >
+          {command.label}
+        </CommandButton>
+      ))}
+    </div>
+  );
+}
+
+function renderMessage(message: BlockSurfaceMessageProps) {
+  const toneClass =
+    message.tone === "success"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+      : message.tone === "warning"
+        ? "border-amber-200 bg-amber-50 text-amber-800"
+        : message.tone === "danger"
+          ? "border-red-200 bg-red-50 text-red-700"
+          : message.tone === "muted"
+            ? "border-slate-100 bg-slate-50 text-slate-500"
+            : "border-slate-200 bg-white text-slate-600";
+  return <div className={joinClassNames("rounded-md border px-3 py-2 text-sm", toneClass, message.className)}>{message.content}</div>;
+}
+
+function renderHeading(heading: BlockSurfaceHeadingProps) {
+  const titleClassName = joinClassNames(
+    heading.level === 1 ? "text-xl" : heading.level === 3 ? "text-sm" : "text-base",
+    "font-semibold text-slate-900",
+    heading.titleClassName,
+  );
+  const subtitle = heading.subtitle ? (
+    <p className={joinClassNames("mt-1 text-sm text-slate-500", heading.subtitleClassName)}>{heading.subtitle}</p>
+  ) : null;
+  const content = heading.level === 1
+    ? <h1 className={titleClassName}>{heading.title}</h1>
+    : heading.level === 3
+      ? <h3 className={titleClassName}>{heading.title}</h3>
+      : <h2 className={titleClassName}>{heading.title}</h2>;
+  return <div className={heading.className}>{content}{subtitle}</div>;
+}
+
+function renderEmpty(empty: BlockSurfaceEmptyProps) {
+  if (empty.presentation === "plain") {
+    return <div className={joinClassNames("text-sm text-slate-500", empty.className)}>{empty.content}</div>;
+  }
+  return <EmptyStateCard compact={empty.compact} className={empty.className}>{empty.content}</EmptyStateCard>;
+}
+
+function renderGroup(group: BlockSurfaceGroupProps) {
+  if (group.layout === "grid") {
+    return (
+      <div className={joinClassNames("grid gap-4 lg:grid-cols-2", group.className)}>
+        {group.blocks.map((block, index) => (
+          <div key={block.key ?? String(index)} className={index === 0 ? "min-w-0 max-lg:order-last" : "min-w-0"}>
+            <BlockSurface {...block} />
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return (
+    <div className={joinClassNames("space-y-4", group.className)}>
+      {group.blocks.map((block, index) => <BlockSurface key={block.key ?? String(index)} {...block} />)}
+    </div>
+  );
+}
+
+function renderAnalysis(analysis: BlockSurfaceAnalysisProps) {
+  return (
+    <AnalysisBlock
+      title={analysis.title}
+      subtitle={analysis.subtitle}
+      toolbarItems={analysis.toolbarItems}
+      className={analysis.className}
+      bodyClassName={analysis.bodyClassName}
+    >
+      <div className="space-y-4">
+        {renderBlockSurfaceCommands(analysis.actions)}
+        {analysis.content}
+      </div>
+    </AnalysisBlock>
+  );
+}
+
+function renderPanel(panel: BlockSurfacePanelProps) {
+  const body = (
+    <>
+      {panel.content}
+      {panel.blocks?.length ? (
+        <div className={panel.content ? "mt-4 space-y-4" : "space-y-4"}>
+          {panel.blocks.map((block, index) => <BlockSurface key={block.key ?? String(index)} {...block} />)}
+        </div>
+      ) : null}
+    </>
+  );
+  const card = panel.kind === "section" ? (
+    <SectionCard title={panel.title} subtitle={panel.subtitle} actions={renderBlockSurfaceCommands(panel.actions)} className={panel.className} bodyClassName={panel.bodyClassName}>
+      {body}
+    </SectionCard>
+  ) : (
+    <PanelCard title={panel.title} subtitle={panel.subtitle} actions={renderBlockSurfaceCommands(panel.actions)} className={panel.className} bodyClassName={joinClassNames("p-4", panel.bodyClassName)}>
+      {body}
+    </PanelCard>
+  );
+  return panel.itemRef ? <div ref={panel.itemRef}>{card}</div> : card;
+}
+
+function renderModuleGrid(block: BlockSurfaceModuleGridProps) {
+  const content = (
+    <div className={joinClassNames("flex w-full flex-col items-center", block.fullScreen ? "min-h-screen justify-center" : "", block.centered ? "justify-center" : "", block.className)}>
+      {(block.leading || block.title || block.summary) && (
+        <div className="mb-8 flex flex-col items-center">
+          {block.leading}
+          {block.title ? <h1 className="mt-4 text-2xl font-bold text-gray-800">{block.title}</h1> : null}
+          {block.summary ? <p className="mt-1 text-center text-sm text-gray-500">{block.summary}</p> : null}
+        </div>
+      )}
+      <div className={joinClassNames("grid w-full max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3", block.gridClassName)}>
+        {block.items.map((item) => {
+          const { key, ...props } = item;
+          return <ModuleCard key={key} {...props} />;
+        })}
+      </div>
+      {block.afterGrid ? <div className="mt-8 w-full max-w-4xl">{block.afterGrid}</div> : null}
+    </div>
+  );
+  return block.contentClassName ? <div className={block.contentClassName}>{content}</div> : content;
+}
+
+export default function BlockSurface(props: BlockSurfaceProps) {
+  if (props.kind === "content") return <div className={joinClassNames("min-w-0", props.className)}>{props.content}</div>;
+  if (props.kind === "message") return renderMessage(props);
+  if (props.kind === "heading") return renderHeading(props);
+  if (props.kind === "empty") return renderEmpty(props);
+  if (props.kind === "actions") return <div className={props.className}>{renderBlockSurfaceCommands(props.actions)}</div>;
+  if (props.kind === "analysis") return renderAnalysis(props);
+  if (props.kind === "group") return renderGroup(props);
+  if (props.kind === "moduleGrid") return renderModuleGrid(props);
+  return renderPanel(props);
+}

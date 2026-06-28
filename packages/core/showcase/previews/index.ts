@@ -10,4 +10,5 @@ export { statusPreviewByName } from "./status-previews";
 export { tagPreviewByName } from "./tag-previews";
 export { cellPreviewByName } from "./cell-previews";
 export { feedbackPreviewByName } from "./feedback-previews";
+export { surfacePreviewByName } from "./surface-previews";
 export { previewCaseByName } from "./preview-cases";

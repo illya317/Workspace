@@ -4,7 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { matchText } from "@workspace/core/search";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createSectionBlock, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 
 interface TreeNode {
@@ -128,13 +128,10 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
     },
   }];
 
-  const mainBlocks: PageSurfaceBlockSpec[] = !selectedNode ? [{
+  const mainBlocks: PageSurfaceBlockSpec[] = !selectedNode ? [createBlockSurfaceBlock("empty", {
     kind: "empty",
-    key: "empty",
-    content: "选择左侧部门查看直属岗位",
-  }] : [{
-    kind: "section",
-    key: "positions",
+    content: "选择左侧部门查看直属岗位"
+  })] : [createSectionBlock("positions", {
     title: `直属岗位 · ${selectedNode.name}`,
     subtitle: `${directPositions.length} 个`,
     className: "min-h-[520px]",
@@ -157,7 +154,7 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
         },
       },
     }],
-  }];
+  })];
 
   return (
     <PageSurface

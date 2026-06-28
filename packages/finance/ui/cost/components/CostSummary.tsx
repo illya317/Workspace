@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createPageDataBlock } from "@workspace/core/ui";
+import { PageSurface, createMessageBlock, createPanelBlock, createPageDataBlock } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { formatCompactNullableAmount } from "../../formatters";
 import { useCostSummary } from "../hooks/useFinanceCostData";
@@ -93,24 +93,18 @@ function RankCard({
     <PageSurface
       kind="analysis"
       embedded
-      blocks={[{
-        kind: "panel",
-        key: title,
+      blocks={[createPanelBlock(title, {
         title,
         blocks: items?.length
-          ? items.map((item, idx) => ({
-              kind: "message" as const,
-              key: `${idx}-${item.name}`,
+          ? items.map((item, idx) => createMessageBlock(`${idx}-${item.name}`, {
               tone: "muted" as const,
               content: `${idx + 1}. ${item.name} ${item.value.toLocaleString("zh-CN", { maximumFractionDigits: 0 })}`,
             }))
-          : [{
-              kind: "message" as const,
-              key: "empty",
+          : [createMessageBlock("empty", {
               tone: "muted" as const,
               content: "暂无数据",
-            }],
-      }]}
+            })],
+      })]}
     />
   );
 }

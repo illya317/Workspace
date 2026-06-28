@@ -6,7 +6,6 @@ export const page_api_registry_entries = [
     category: "common",
     subcategory: "common.chrome",
     description: "页面导航 renderer / 正文导航 primitive",
-    example: "页面级 tabs/cards/pagination 通过 PageSurface.navigation/footer 声明；Core 内部用 NavigationSurface 渲染 tabs、selector、disclosure、steps 等细节。",
     composes: ["TabBar", "Pagination", "SelectorPanel", "SelectionGrid", "DisclosureSectionHeader"],
   },
   {
@@ -14,7 +13,6 @@ export const page_api_registry_entries = [
     category: "common",
     subcategory: "common.chrome",
     description: "PageSurface 内部统一工具栏 renderer",
-    example: "业务页只声明 PageSurface.toolbar.items；Core 内部将搜索、筛选、字段切换、刷新、导出、新建等 item 渲染为一个 Toolbar。",
     composes: ["ActionButton", "SearchInput", "SelectField", "ToolbarOptionGroup", "FieldValueFilter", "DropdownSurface"],
   },
   {
@@ -22,8 +20,7 @@ export const page_api_registry_entries = [
     category: "feedback",
     subcategory: "feedback.service",
     description: "统一前端反馈 Hook",
-    example: "const feedback = useFeedback(); feedback.success('保存成功'); await feedback.confirmDelete({ message: '确定删除吗？' });",
-    declares: [
+    capabilities: [
       { name: "notify", description: "普通通知消息，Core 统一决定 toast 呈现。" },
       { name: "success", description: "成功反馈，不在业务里手写 Toast。" },
       { name: "error", description: "错误反馈，不在业务里手写错误弹层。" },
@@ -37,14 +34,12 @@ export const page_api_registry_entries = [
     category: "data",
     subcategory: "data.cell",
     description: "数字单元格",
-    example: "在库存或财务表格中展示 1,280 这类数量值。",
   },
   {
     name: "OptionPicker",
     category: "common",
     subcategory: "common.selection",
     description: "统一选项选择器，支持平铺枚举、常用项 + 更多搜索，以及先选分类再选值的分组模式。",
-    example: "从状态/角色这类少量枚举直接选择，或在职级、职称中先选序列再选具体值。",
     composes: ["PickerShell", "SearchInput", "PickerOptionButton"],
   },
   {
@@ -52,57 +47,87 @@ export const page_api_registry_entries = [
     category: "page",
     subcategory: "page.frame",
     description: "页面内容容器",
-    example: "PageSurface/PageFrame 内部包裹页面主体，统一最大宽度和上下留白。",
   },
   {
     name: "PageSurface",
     category: "page",
     subcategory: "page.surface",
-    description: "唯一页面布局 L1 Surface",
-    example: "业务页通过 header/navigation/toolbar/body/footer 五段协议声明页面；一个 URL 最多一个 navigation、一个 toolbar、一个 footer.pagination。",
+    description: "唯一页面薄壳 L1 Surface",
     declares: [
-      { name: "header", description: "页面标题、返回、说明和右侧动作。" },
-      { name: "navigation", description: "页面级 tabs / selector / disclosure / steps。" },
-      { name: "toolbar", description: "搜索、筛选、刷新、导出、新建等页面级工具。" },
-      { name: "body", description: "正文 blocks：data / form / metrics / records / document / raw。" },
-      { name: "footer", description: "页面级分页和底部动作。" },
+      { name: "kind", description: "页面布局语义：list / detail / split / analysis / settings。" },
+      {
+        name: "header",
+        description: "页面标题、返回、说明和右侧动作。",
+        children: [
+          { name: "title", description: "页面标题。" },
+          { name: "backHref", description: "返回链接。" },
+          { name: "actions", description: "页面右上角动作容器。" },
+        ],
+      },
+      {
+        name: "navigation",
+        description: "页面级 tabs / cards 导航。",
+        children: [
+          { name: "kind", description: "导航呈现：tabs / cards。" },
+          { name: "items", description: "一级与二级导航项。" },
+          { name: "active", description: "当前激活项。" },
+        ],
+      },
+      {
+        name: "toolbar",
+        description: "搜索、筛选、刷新、导出、新建等页面级工具。",
+        children: [
+          { name: "items", description: "工具项列表，具体渲染交给 Toolbar。" },
+          { name: "hidden", description: "隐藏页面工具栏。" },
+        ],
+      },
+      {
+        name: "body",
+        description: "正文 block wrapper：form / data / document / visualization / block。",
+        children: [
+          { name: "blocks", description: "正文区块列表，只承载 wrapper，不展开各 Surface 细节。" },
+          { name: "layout", description: "正文布局：single / split。" },
+        ],
+      },
+      {
+        name: "footer",
+        description: "页面级分页。",
+        children: [
+          { name: "pagination", description: "页面底部分页声明。" },
+        ],
+      },
     ],
-    composes: ["DatabasePageFrame", "AnalysisPageFrame", "WorkspaceSplitPage", "AnalysisBlock", "EmptyStateCard", "MetricCard", "ModuleCard", "PanelCard", "SectionCard", "DetailModal", "Toolbar", "CommandButton", "DataSurface", "FormSurface", "NavigationSurface", "Pagination"],
+    composes: ["DatabasePageFrame", "AnalysisPageFrame", "WorkspaceSplitPage", "Toolbar", "BlockSurface", "NavigationSurface", "Pagination", "ModuleCard"],
   },
   {
     name: "PageShell",
     category: "page",
     subcategory: "page.frame",
     description: "页面顶部骨架",
-    example: "历史页面顶部骨架；新页面通过 PageSurface.header 声明返回、标题和右侧动作。",
   },
   {
     name: "Pagination",
     category: "common",
     subcategory: "common.chrome",
     description: "分页控件",
-    example: "Core 内部用于 PageSurface.footer.pagination，数据库表格底部展示第 2/5 页和总计 48 条。",
   },
   {
     name: "PanelCard",
     category: "common",
-    subcategory: "common.display",
+    subcategory: "common.block",
     description: "通用面板卡片",
-    example: "表单小节、详情块或数据分析块的基础容器。",
   },
   {
     name: "RatingControl",
     category: "common",
     subcategory: "common.input",
     description: "星级评分",
-    example: "工作计划中展示或编辑重要度、紧急度评分。",
   },
   {
     name: "SearchableOptionInput",
     category: "common",
     subcategory: "common.selection",
     description: "可搜索选项输入",
-    example: "学校、供应商或本地白名单实体通过中文、拼音和别名搜索后选择。",
     composes: ["getFieldInputClassName"],
   },
   {
@@ -110,14 +135,42 @@ export const page_api_registry_entries = [
     category: "common",
     subcategory: "common.input",
     description: "搜索输入框",
-    example: "输入“张”按姓名、编码、拼音搜索或筛选记录。",
   },
   {
     name: "SectionCard",
-    category: "page",
-    subcategory: "page.blocks",
+    category: "common",
+    subcategory: "common.block",
     description: "小节卡片",
-    example: "资料详情页展示“基础信息”“权限设置”等小节。",
+    composes: ["PanelCard"],
+  },
+  {
+    name: "VisualizationSurface",
+    category: "visualization",
+    subcategory: "visualization.surface",
+    description: "L1 可视化正文 Surface",
+    declares: [
+      {
+        name: "kind",
+        description: "可视化类型：chart / gantt。",
+        children: [
+          { name: "chart", description: "轻量图表，使用 visual 声明。" },
+          { name: "gantt", description: "甘特图等复杂图形，使用专用组件正文。" },
+        ],
+      },
+      {
+        name: "visual",
+        description: "轻量图表声明。",
+        children: [
+          { name: "barChart", description: "单序列条形图。" },
+          { name: "groupedBarChart", description: "分组条形图。" },
+          { name: "comparisonBars", description: "实际值与参考值对比。" },
+          { name: "tree", description: "树形层级可视化。" },
+        ],
+      },
+      { name: "content", description: "甘特图等复杂图形正文，由专用业务组件渲染。" },
+      { name: "framed", description: "是否使用通用面板外框。" },
+      { name: "title", description: "可视化标题。" },
+    ],
     composes: ["PanelCard"],
   },
   {
@@ -125,14 +178,12 @@ export const page_api_registry_entries = [
     category: "common",
     subcategory: "common.selection",
     description: "页面内平铺选项网格",
-    example: "NavigationSurface / DataSurface 内部用于少量枚举的平铺选择；业务选择入口统一使用 SelectorPanel 或 Surface spec。",
   },
   {
     name: "SelectField",
     category: "common",
     subcategory: "common.input",
     description: "下拉选择字段",
-    example: "从“现用 / 已归档 / 全部”中选择筛选范围，或用多选切换表格列显隐。",
     composes: ["FieldInputShell", "SearchInput", "DropdownSurface", "CheckboxField"],
   },
   {
@@ -140,7 +191,6 @@ export const page_api_registry_entries = [
     category: "common",
     subcategory: "common.input",
     description: "分段编码输入控件",
-    example: "部门/岗位编码显示完整 code，聚焦时只编辑指定片段，再按 extract/compose/normalize 拼回完整编码；业务通过 InputControl control=text + mask.kind=editableSegment 或 FormSurface 字段 spec 使用。",
     composes: ["TextField"],
   },
 ] as const satisfies readonly CoreUiComponentRegistration[];

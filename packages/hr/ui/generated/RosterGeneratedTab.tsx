@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
+import { createBlockSurfaceBlock,
+  createMessageBlock,
+  createPanelBlock,
   PageSurface,
   type PageSurfaceBlockSpec,
-  type ColumnDef,
+  type SurfaceColumnOptionSpec,
   type DataSurfaceStructuredCellSpec,
-  type FieldValueFilterField,
+  type SurfaceFilterFieldSpec,
 } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "@workspace/hr/ui/fk-keys";
@@ -49,7 +51,7 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
   const currentQueryRef = useRef<RosterPreviewQuery>({});
 
   const columns = useMemo(() => preview?.columns ?? [], [preview]);
-  const columnDefs = useMemo<ColumnDef[]>(
+  const columnDefs = useMemo<SurfaceColumnOptionSpec[]>(
     () => columns.map((column) => ({
       key: column.key,
       label: column.label,
@@ -196,9 +198,17 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
   });
 
   const tableBlocks: PageSurfaceBlockSpec[] = loading
-    ? [{ kind: "message", key: "loading", content: "正在生成预览...", tone: "muted" }]
+    ? [createBlockSurfaceBlock("loading", {
+      kind: "message",
+      content: "正在生成预览...",
+      tone: "muted"
+    })]
     : groups.length === 0
-      ? [{ kind: "empty", key: "empty", presentation: "plain", content: "暂无花名册数据" }]
+      ? [createBlockSurfaceBlock("empty", {
+        kind: "empty",
+        presentation: "plain",
+        content: "暂无花名册数据"
+      })]
       : [{
           kind: "data",
           key: "table",
@@ -218,14 +228,12 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
         }];
 
   const blocks: PageSurfaceBlockSpec[] = [
-    ...(error ? [{ kind: "message" as const, key: "error", content: error, tone: "danger" as const }] : []),
-    {
-      kind: "panel",
-      key: "preview",
+    ...(error ? [createMessageBlock("error", { content: error, tone: "danger" as const })] : []),
+    createPanelBlock("preview", {
       className: "overflow-hidden",
       bodyClassName: "overflow-x-auto",
       blocks: tableBlocks,
-    },
+    }),
   ];
 
   return (
@@ -296,7 +304,7 @@ function defaultVisibleColumns(columns: RosterGeneratedColumn[]) {
   return columns.filter((column) => column.required || column.defaultVisible).map((column) => column.key);
 }
 
-function mapFilterFields(fields: RosterGeneratedFilterField[]): FieldValueFilterField[] {
+function mapFilterFields(fields: RosterGeneratedFilterField[]): SurfaceFilterFieldSpec[] {
   return fields.map((field) => ({
     value: field.key,
     label: field.label,

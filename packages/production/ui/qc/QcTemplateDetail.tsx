@@ -1,5 +1,5 @@
 import type { QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
-import { PageSurface, type DataSurfaceCellSpec, type DataSurfaceColumnSpec, type DataSurfaceTableProps } from "@workspace/core/ui";
+import { createPageDataBlock, createBlockSurfaceBlock, PageSurface, type DataSurfaceCellSpec, type DataSurfaceColumnSpec, type DataSurfaceTableProps } from "@workspace/core/ui";
 
 interface Props {
   detail: QcTemplateDetail;
@@ -120,10 +120,7 @@ export default function QcTemplateDetailPanel({ detail }: Props) {
     embedded
     className="space-y-4"
     blocks={[
-      {
-        kind: "data",
-        key: "template-metrics",
-        surface: {
+      createPageDataBlock("template-metrics", {
           kind: "metrics",
           metrics: [
             { key: "stages", label: "阶段", value: detail.stages.length },
@@ -131,15 +128,13 @@ export default function QcTemplateDetailPanel({ detail }: Props) {
             { key: "fields", label: "方法字段", value: totalFields },
             { key: "layoutAssignments", label: "布局映射", value: detail.layoutAssignmentCount },
           ],
-        },
-      },
-      {
+        }),
+      createBlockSurfaceBlock("template-source", {
         kind: "message",
-        key: "template-source",
         tone: "muted",
         className: "text-xs",
-        content: `${detail.fileName} · ${detail.source.configRoot}`,
-      },
+        content: `${detail.fileName} · ${detail.source.configRoot}`
+      }),
       ...detail.stages.map((stage) => ({
         kind: "data" as const,
         key: stage.key,

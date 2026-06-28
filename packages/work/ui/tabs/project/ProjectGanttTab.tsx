@@ -120,13 +120,13 @@ export default function ProjectGanttTab({
     createPageDataBlock("project-gantt-loading", { kind: "records", records: [], empty: "加载公司甘特..." }),
   ] : [
     {
-      kind: "form" as const,
+      kind: "visualization" as const,
       key: "project-gantt-chart",
       surface: {
-        kind: "fields" as const,
-        className: "!p-0",
-        bodyClassName: "block",
-        fields: [{ kind: "note" as const, key: "chart", className: "p-0", content: <ProjectGanttChart rows={rows} periodStart={currentStart} zoom={zoom} onToggle={toggleExpanded} /> }],
+        kind: "gantt" as const,
+        title: "公司甘特",
+        framed: true,
+        content: <ProjectGanttChart rows={rows} periodStart={currentStart} zoom={zoom} onToggle={toggleExpanded} />,
       },
     },
   ] satisfies PageSurfaceBlockSpec[];

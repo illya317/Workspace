@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createPageFieldsBlock, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createFieldsBlock, useFeedback } from "@workspace/core/ui";
 import {
   DETAIL_FIELD_ORDER,
   HIDDEN_POSITION_DETAIL_KEYS,
@@ -111,7 +111,7 @@ export function PositionDescriptionDetailsEditor(props: PositionDescriptionDetai
     <PageSurface
       embedded
       kind="detail"
-      blocks={[createPageFieldsBlock("position-description-details", fields, options)]}
+      blocks={[createFieldsBlock("position-description-details", fields, options)]}
     />
   );
 }

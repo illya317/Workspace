@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { PageSurface, createPageFormModalBlock } from "@workspace/core/ui";
+import { PageSurface, createFieldsBlock, createPageModalBlock } from "@workspace/core/ui";
 import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
 
 interface Props {
@@ -122,52 +122,54 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
       kind="list"
       embedded
       blocks={[
-        createPageFormModalBlock("reclass-review", {
+        createPageModalBlock("reclass-review", {
           open,
           title: "调整重分类",
           onClose: handleClose,
           maxWidth: "max-w-sm",
-        }, {
-          fields: [
-            { kind: "readonly", key: "voucherNo", label: "凭证号", value: item.voucherNo, fontRole: "mono" },
-            ...(item.description ? [{ kind: "readonly" as const, key: "description", label: "摘要", value: item.description }] : []),
-            {
-              key: "targetAccount",
-              label: "调整科目",
-              required: true,
-              spec: {
-                valueType: "string",
-                control: "choice",
-                options: { source: "static", mode: "autocomplete", items: searchableAccountOptions, visibleCount: 5 },
+          blocks: [
+            createFieldsBlock("reclass-review-form", [
+              { kind: "readonly", key: "voucherNo", label: "凭证号", value: item.voucherNo, fontRole: "mono" },
+              ...(item.description ? [{ kind: "readonly" as const, key: "description", label: "摘要", value: item.description }] : []),
+              {
+                key: "targetAccount",
+                label: "调整科目",
+                required: true,
+                spec: {
+                  valueType: "string",
+                  control: "choice",
+                  options: { source: "static", mode: "autocomplete", items: searchableAccountOptions, visibleCount: 5 },
+                },
+                value: targetAccount,
+                onChange: (value) => setTargetAccount(String(value ?? "")),
+                onQueryChange: debouncedAccountSearch.handleQueryChange,
+                loading: accountLoading,
+                placeholder: "搜索科目编码...",
+                emptyText: "无匹配科目",
               },
-              value: targetAccount,
-              onChange: (value) => setTargetAccount(String(value ?? "")),
-              onQueryChange: debouncedAccountSearch.handleQueryChange,
-              loading: accountLoading,
-              placeholder: "搜索科目编码...",
-              emptyText: "无匹配科目",
-            },
-            {
-              key: "amount",
-              label: "重分类金额",
-              required: true,
-              spec: { valueType: "number", control: "number", validation: item.amount > 0 ? { max: item.amount } : undefined },
-              step: "0.01",
-              value: amount,
-              onChange: (value) => setAmount(String(value ?? "")),
-            },
-            {
-              key: "note",
-              label: "审核备注",
-              spec: { valueType: "string", control: "text", multiline: true },
-              value: note,
-              onChange: (value) => setNote(String(value ?? "")),
-              rows: 2,
-            },
-          ],
-          actions: [
-            { key: "cancel", label: "取消", onClick: handleClose },
-            { key: "submit", label: saving ? "提交中..." : "确认调整", variant: "primary", disabled: saving, onClick: handleSubmit },
+              {
+                key: "amount",
+                label: "重分类金额",
+                required: true,
+                spec: { valueType: "number", control: "number", validation: item.amount > 0 ? { max: item.amount } : undefined },
+                step: "0.01",
+                value: amount,
+                onChange: (value) => setAmount(String(value ?? "")),
+              },
+              {
+                key: "note",
+                label: "审核备注",
+                spec: { valueType: "string", control: "text", multiline: true },
+                value: note,
+                onChange: (value) => setNote(String(value ?? "")),
+                rows: 2,
+              },
+            ], {
+              actions: [
+                { key: "cancel", label: "取消", onClick: handleClose },
+                { key: "submit", label: saving ? "提交中..." : "确认调整", variant: "primary", disabled: saving, onClick: handleSubmit },
+              ],
+            }),
           ],
         }),
       ]}

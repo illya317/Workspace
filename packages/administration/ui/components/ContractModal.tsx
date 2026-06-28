@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createPageFormModalBlock } from "@workspace/core/ui";
+import { PageSurface, createFieldsBlock, createPageModalBlock } from "@workspace/core/ui";
 import type { FormSurfaceFieldSpec } from "@workspace/core/ui";
 import type { Contract, ModalMode } from "@workspace/administration/types";
 import { CONTRACT_FORM_FIELD_CONFIGS } from "./contract-modal-config";
@@ -77,18 +77,20 @@ export default function ContractModal({ mode, editing, onChange, onSave, onClose
       kind="list"
       embedded
       blocks={[
-        createPageFormModalBlock("contract", {
+        createPageModalBlock("contract", {
           open: Boolean(mode),
           title: mode === "create" ? "新增合同" : "编辑合同",
           maxWidth: "max-w-2xl",
           onClose,
-        }, {
-          onSubmit: onSave,
-          columns: 2,
-          fields,
-          actions: [
-            { key: "cancel", label: "取消", onClick: onClose },
-            { key: "save", label: saving ? "保存中..." : "保存", type: "submit", variant: "primary", disabled: saving },
+          blocks: [
+            createFieldsBlock("contract-form", fields, {
+              onSubmit: onSave,
+              columns: 2,
+              actions: [
+                { key: "cancel", label: "取消", onClick: onClose },
+                { key: "save", label: saving ? "保存中..." : "保存", type: "submit", variant: "primary", disabled: saving },
+              ],
+            }),
           ],
         }),
       ]}

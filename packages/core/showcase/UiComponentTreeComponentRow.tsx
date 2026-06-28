@@ -14,22 +14,36 @@ function buildMeta(node: CoreUiComponentTreeNode, visibleMeta: readonly string[]
 
 function exposureBadge(component: CoreUiComponentTreeNode["component"]) {
   const exposure = component.exposure;
-  if (exposure?.mode === "direct") {
+  if (component.role === "surface") {
     return {
-      label: "调用",
-      detail: "可直接调用",
+      label: "声明接口",
+      detail: exposure?.mode === "spec" ? `通过 ${exposure.entry}.${exposure.path} 声明` : "Surface 声明接口",
       classes: "bg-emerald-50 text-emerald-700",
     };
   }
-  if (exposure?.mode === "via") {
+  if (component.role === "host") {
     return {
-      label: "封装",
-      detail: `${exposure.entry}.${exposure.path}`,
+      label: "宿主入口",
+      detail: "执行 Surface 声明的宿主入口",
       classes: "bg-sky-50 text-sky-700",
     };
   }
+  if (component.role === "helper") {
+    return {
+      label: "声明助手",
+      detail: "构造 Surface 声明的 helper",
+      classes: "bg-cyan-50 text-cyan-700",
+    };
+  }
+  if (component.role === "service") {
+    return {
+      label: "服务接口",
+      detail: "非视觉服务接口",
+      classes: "bg-violet-50 text-violet-700",
+    };
+  }
   return {
-    label: "内部",
+    label: "内部实现",
     detail: "内部实现",
     classes: "bg-slate-50 text-slate-500",
   };
@@ -52,7 +66,6 @@ export function UiComponentTreeComponentRow({
 }) {
   const expanded = expandedNames.has(node.name);
   const canShowChildren = node.children.length > 0;
-  const declarationFields = node.component.declares ?? [];
   const isFoundation = node.component.subcategory === "common.foundation";
   const meta = buildMeta(node, visibleMeta);
   const exposure = exposureBadge(node.component);
@@ -114,28 +127,10 @@ export function UiComponentTreeComponentRow({
           <p className="rounded-md bg-slate-50 px-3 py-2 text-xs leading-5 text-slate-500">
             {node.component.description}
           </p>
-          {declarationFields.length > 0 && (
+          {canShowChildren && (
             <div className="space-y-1">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                声明项 declares
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {declarationFields.map((field) => (
-                  <span
-                    key={field.name}
-                    title={field.description}
-                    className="rounded-full border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-600"
-                  >
-                    {field.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-          {canShowChildren && declarationFields.length === 0 && (
-            <div className="space-y-1">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                封装功能 composes
+                内部使用
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {node.children.map((child) => (

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { PageSurface, createPageFormModalBlock, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createFieldsBlock, createPageModalBlock, useFeedback } from "@workspace/core/ui";
 import type { FormSurfaceCommandSpec, FormSurfaceFieldSpec } from "@workspace/core/ui";
 import { useDocumentDetail, updateDocument, deleteDocument } from "../hooks/useLibraryDocuments";
 import type { LibraryDocumentItem } from "@workspace/library/types";
@@ -237,14 +237,16 @@ export default function LibraryDetailModal({
       kind="list"
       embedded
       blocks={[
-        createPageFormModalBlock("library-detail", {
+        createPageModalBlock("library-detail", {
           open: true,
           title: doc?.title || doc?.fileName || "资料详情",
           onClose,
           className: "max-w-lg mx-auto",
-        }, {
-          fields,
-          actions,
+          blocks: [
+            createFieldsBlock("library-detail-form", fields, {
+              actions,
+            }),
+          ],
         }),
       ]}
     />

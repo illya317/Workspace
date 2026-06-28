@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PageSurface, type DataSurfaceColumnSpec, type DataSurfaceVisualTreeNodeSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createAnalysisBlock, createPageDataBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec, type VisualizationTreeNodeSpec } from "@workspace/core/ui";
 import { matchSearchFields } from "@workspace/platform/search";
 import type { Department, EDP } from "./useAnalyticsData";
 
@@ -48,7 +48,7 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
     }
     return roots;
   }, [departments, search]);
-  const departmentTree = useMemo<DataSurfaceVisualTreeNodeSpec[]>(() => {
+  const departmentTree = useMemo<VisualizationTreeNodeSpec[]>(() => {
     const departmentsByParent = new Map<number | null, Department[]>();
     departments.forEach((department) => {
       const siblings = departmentsByParent.get(department.parentId) ?? [];
@@ -65,7 +65,7 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
       primaryCountByDepartment.set(edp.departmentId, employeeIds);
     });
 
-    const toTreeNode = (department: Department, level: number): DataSurfaceVisualTreeNodeSpec => {
+    const toTreeNode = (department: Department, level: number): VisualizationTreeNodeSpec => {
       const primaryCount = primaryCountByDepartment.get(department.id)?.size ?? 0;
       return {
         key: String(department.id),
@@ -107,10 +107,7 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
   ], []);
 
   return [
-        {
-          kind: "data",
-          key: "stats",
-          surface: {
+        createPageDataBlock("stats", {
             kind: "metrics",
             metrics: [
               { key: "departments", label: "部门总数", value: departments.length },
@@ -119,11 +116,8 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
               { key: "l3", label: "子部门(L3)", value: stats.l3 },
               { key: "primaryActive", label: "在职主岗人数", value: new Set(activeEdps.filter((e) => e.isPrimary).map((e) => e.employeeId)).size },
             ],
-          },
-        },
-        {
-          kind: "analysis",
-          key: "department-tree",
+          }),
+        createAnalysisBlock("department-tree", {
           title: "部门架构",
           toolbar: {
             items: [
@@ -132,11 +126,10 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
           },
           bodyClassName: "p-4",
           blocks: [{
-            kind: "data",
+            kind: "visualization",
             key: "tree",
             surface: {
-              kind: "visual",
-              wrap: false,
+              kind: "chart",
               visual: {
                 kind: "tree",
                 nodes: departmentTree,
@@ -145,10 +138,8 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
               },
             },
           }],
-        },
-        {
-          kind: "analysis",
-          key: "department-headcount",
+        }),
+        createAnalysisBlock("department-headcount", {
           title: "部门人数排行（主岗）",
           blocks: [{
             kind: "data",
@@ -161,7 +152,7 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
               rowKey: (department) => department.id,
             },
           }],
-        },
+        }),
       ];
 }
 

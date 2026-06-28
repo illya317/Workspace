@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { workspacePath } from "@workspace/core/routing";
-import { PageSurface } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createMessageBlock, createPanelBlock, PageSurface } from "@workspace/core/ui";
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 function getSafeNextPath() {
   const next = new URLSearchParams(window.location.search).get("next");
@@ -45,7 +45,7 @@ export default function LoginClient() {
       })
     });
     if (res.ok) {
-      window.location.href = getSafeNextPath();
+      window.location.assign(getSafeNextPath());
       return;
     }
     const data = await res.json().catch(() => ({}));
@@ -56,21 +56,18 @@ export default function LoginClient() {
     const url = new URL(`${BASE_PATH}/api/auth/wecom/start`, window.location.origin);
     const next = getSafeNextPath();
     if (next !== `${BASE_PATH}/portal`) url.searchParams.set("next", next);
-    window.location.href = url.toString();
+    window.location.assign(url.toString());
   }
   return <PageSurface
       kind="settings"
       header={{ hidden: true }}
       className="flex min-h-screen w-full items-center justify-center bg-gray-50"
-      blocks={[{
-        kind: "panel",
-        key: "login",
+      blocks={[createPanelBlock("login", {
         className: "w-full max-w-xl",
         bodyClassName: "space-y-4 p-10",
         blocks: [
-          {
+          createBlockSurfaceBlock("logo", {
             kind: "message",
-            key: "logo",
             className: "border-0 bg-transparent p-0 text-inherit",
             content: (
               <>
@@ -81,14 +78,12 @@ export default function LoginClient() {
                   {process.env.NEXT_PUBLIC_APP_NAME || "工作台"}
                 </div>
               </>
-            ),
-          },
-          ...(kickedAlert ? [{
-            kind: "message" as const,
-            key: "kicked-alert",
+            )
+          }),
+          ...(kickedAlert ? [createMessageBlock("kicked-alert", {
             tone: "warning" as const,
             content: "您已在其他设备登录，当前会话已失效。如需继续，请重新登录。",
-          }] : []),
+          })] : []),
           {
             kind: "form",
             key: "login-form",
@@ -124,9 +119,8 @@ export default function LoginClient() {
               actions: [{ key: "login", type: "submit", label: loading ? "登录中..." : "登录", variant: "primary", disabled: loading, className: "w-full justify-center" }],
             },
           },
-          {
+          createBlockSurfaceBlock("login-divider", {
             kind: "message",
-            key: "login-divider",
             className: "border-0 bg-transparent p-0 text-inherit",
             content: (
               <div className="my-5 flex items-center gap-3 text-xs text-gray-400">
@@ -134,8 +128,8 @@ export default function LoginClient() {
                 <span>或</span>
                 <span className="h-px flex-1 bg-gray-200" />
               </div>
-            ),
-          },
+            )
+          }),
           {
             kind: "form",
             key: "wecom-login",
@@ -145,6 +139,6 @@ export default function LoginClient() {
             },
           },
         ],
-      }]}
+      })]}
     />;
 }

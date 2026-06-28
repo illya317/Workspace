@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createAnalysisBlock, createPageDataBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { Employment } from "./useAnalyticsData";
 import { type MonthlySnapshot, useHeadcountData } from "./useHeadcountData";
 
@@ -25,10 +25,7 @@ export function useHeadcountTrendBlocks({ employments }: { employments: Employme
   ];
 
   return [
-        {
-          kind: "data",
-          key: "stats",
-          surface: {
+        createPageDataBlock("stats", {
             kind: "metrics",
             metrics: [
               { key: "currentActive", label: "当前在职", value: stats.currentActive },
@@ -38,19 +35,15 @@ export function useHeadcountTrendBlocks({ employments }: { employments: Employme
               { key: "yearJoins", label: "年度入职", value: stats.yearJoins },
               { key: "yearLeaves", label: "年度离职", value: stats.yearLeaves },
             ],
-          },
-        },
-        {
-          kind: "analysis",
-          key: "trend",
+          }),
+        createAnalysisBlock("trend", {
           title: "人员流动趋势（近12个月）",
           blocks: [
             {
-              kind: "data",
+              kind: "visualization",
               key: "active-chart",
               surface: {
-                kind: "visual",
-                wrap: false,
+                kind: "chart",
                 visual: {
                   kind: "barChart",
                   title: "月均在职人数",
@@ -69,11 +62,10 @@ export function useHeadcountTrendBlocks({ employments }: { employments: Employme
               },
             },
             {
-              kind: "data",
+              kind: "visualization",
               key: "flow-chart",
               surface: {
-                kind: "visual",
-                wrap: false,
+                kind: "chart",
                 visual: {
                   kind: "groupedBarChart",
                   title: "月度入职/离职",
@@ -96,10 +88,8 @@ export function useHeadcountTrendBlocks({ employments }: { employments: Employme
               },
             },
           ],
-        },
-        {
-          kind: "analysis",
-          key: "monthly-details",
+        }),
+        createAnalysisBlock("monthly-details", {
           title: "月度明细",
           blocks: [{
             kind: "data",
@@ -112,7 +102,7 @@ export function useHeadcountTrendBlocks({ employments }: { employments: Employme
               rowKey: (month) => month.label,
             },
           }],
-        },
+        }),
       ];
 }
 

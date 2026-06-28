@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import {
   PageSurface,
-  createPageFormBlock,
+  createFormBlock,
   type FormSurfaceFieldSpec,
   type FormSurfaceProps,
 } from "@workspace/core/ui";
@@ -34,7 +34,7 @@ export function WorkTaskForm({
     onChange,
   });
 
-  return <PageSurface embedded kind="detail" blocks={[createPageFormBlock("work-task-form", surface)]} />;
+  return <PageSurface embedded kind="detail" blocks={[createFormBlock("work-task-form", surface)]} />;
 }
 
 export function useWorkTaskFormSurface({

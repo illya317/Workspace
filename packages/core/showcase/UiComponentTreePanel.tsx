@@ -1,7 +1,4 @@
-import {
-  EmptyStateCard,
-  PanelCard,
-} from "@workspace/core/ui";
+import { EmptyStateCard, PanelCard } from "./internal-ui";
 import {
   coreUiComponentCategoryMeta,
   coreUiComponentSubcategoryMeta,
@@ -16,7 +13,7 @@ export type UiComponentTreeMetaKey =
   | "files"
   | "verified";
 
-const CATEGORY_ORDER = ["page", "data", "form", "common", "feedback"] as const;
+const CATEGORY_ORDER = ["page", "data", "form", "document", "visualization", "common", "feedback"] as const;
 const SUBCATEGORY_ORDER = Object.keys(coreUiComponentSubcategoryMeta);
 
 function nodeId(name: string) {

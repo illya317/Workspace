@@ -5,8 +5,10 @@ import type {
 
 export type {
   CoreUiComponentCategory,
+  CoreUiComponentRole,
   CoreUiComponentSubcategory,
   CoreUiExposure,
+  CoreUiCapabilityDescriptor,
   CoreUiComponentRegistration,
   CoreUiCompositionGraph,
 } from "./component-registry-types";
@@ -21,19 +23,27 @@ export {
 export const coreUiComponentCategoryMeta = {
   page: {
     label: "页面",
-    description: "页面骨架和页面内正文渲染器的一级分类。",
+    description: "页面薄壳、页面布局、导航、toolbar、footer 和 body block 摆放。",
   },
   data: {
     label: "数据",
-    description: "数据视图、表格、记录、指标、图表和数据单元格。",
+    description: "表格、结构化数据、记录列表、指标和数据单元格。",
   },
   form: {
     label: "表单",
     description: "表单正文、字段布局、创建流和表单输入适配。",
   },
+  document: {
+    label: "文档",
+    description: "纸面、A4、报告和 QC 纸质模板等文档型正文。",
+  },
+  visualization: {
+    label: "可视化",
+    description: "图表、甘特、时间轴、组织图和其他复杂图形正文。",
+  },
   common: {
     label: "通用",
-    description: "跨页面、数据、表单、反馈复用的控件、动作、输入、选择、展示、浮层和基础能力。",
+    description: "跨页面、数据、表单、文档、可视化复用的区块、控件、动作、输入、选择、展示、浮层和基础能力。",
   },
   feedback: {
     label: "反馈",
@@ -46,14 +56,18 @@ export const coreUiComponentCategoryMeta = {
 
 export const coreUiComponentSubcategoryMeta = {
   "page.surface": { label: "页面入口", description: "PageSurface 入口和页面协议的二级分类。" },
-  "page.blocks": { label: "页面区块", description: "PageSurface body 可组合的页面内容块。" },
+  "page.blocks": { label: "历史页面区块", description: "旧 PageSurface body 区块协议，保留兼容，新增通用区块走 common.block。" },
   "page.frame": { label: "页面框架", description: "页面骨架、内容容器和框架渲染器。" },
-  "page.document": { label: "纸面文档", description: "纸面/A4/报告正文渲染器。" },
+  "document.surface": { label: "文档入口", description: "DocumentSurface 入口和文档正文协议。" },
+  "document.paper": { label: "纸面文档", description: "纸面/A4/QC 表单和报告正文渲染器。" },
+  "visualization.surface": { label: "可视化入口", description: "VisualizationSurface 入口和复杂图形正文协议。" },
+  "visualization.chart": { label: "轻量图表", description: "条形图、对比图、树图等轻量可视化。" },
+  "visualization.timeline": { label: "时间轴", description: "时间线、阶段线和时序型视觉组件。" },
+  "visualization.gantt": { label: "甘特图", description: "甘特图、依赖线、里程碑和时间范围图。" },
   "data.surface": { label: "数据入口", description: "DataSurface 入口和数据正文协议。" },
   "data.table": { label: "数据表格", description: "表格、滚动外壳和结构化表。" },
   "data.record": { label: "数据记录", description: "记录卡、展开记录和行级阅读。" },
   "data.metric": { label: "数据指标", description: "指标卡、指标瓦片和数据摘要。" },
-  "data.visual": { label: "数据可视化", description: "图表/可视化数据渲染器。" },
   "data.cell": { label: "数据单元", description: "数据单元格和数值格式化展示。" },
   "form.surface": { label: "表单入口", description: "FormSurface 入口和表单正文协议。" },
   "form.field": { label: "表单字段", description: "字段容器和字段协议。" },
@@ -61,6 +75,7 @@ export const coreUiComponentSubcategoryMeta = {
   "form.create": { label: "创建流程", description: "创建/内联创建/弹窗创建流程。" },
   "form.input-adapter": { label: "输入适配", description: "把 Form spec 映射到通用输入/选择的适配层。" },
   "common.chrome": { label: "通用控件栏", description: "Toolbar、TabBar、Pagination 和页面控件渲染器。" },
+  "common.block": { label: "通用区块", description: "BlockSurface、Section、Panel、Message、Empty、Actions 等通用正文区块。" },
   "common.action": { label: "通用动作", description: "ActionGlyph、ActionButton 和动作排序/分组协议。" },
   "common.input": { label: "通用输入", description: "输入字段、日期、文件、文本、开关和标签输入。" },
   "common.selection": { label: "通用选择", description: "选择器、FK 搜索、字段值筛选和 selector panel。" },

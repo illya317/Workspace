@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createPageInlineFieldsBlock } from "@workspace/core/ui";
+import { PageSurface, createInlineFieldsBlock } from "@workspace/core/ui";
 
 interface CompanyPeriodPickerProps {
   company: string;
@@ -39,7 +39,7 @@ export default function CompanyPeriodPicker({
       kind="list"
       embedded
       blocks={[
-        createPageInlineFieldsBlock("company-period", [
+        createInlineFieldsBlock("company-period", [
           {
             key: "company",
             label: "公司",

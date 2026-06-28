@@ -1,8 +1,10 @@
 import {
   coreUiComponentCategoryMeta,
   coreUiComponentSubcategoryMeta,
+  type CoreUiCapabilityDescriptor,
   type CoreUiExposure,
   type CoreUiComponentCategory,
+  type CoreUiComponentRole,
   type CoreUiComponentSubcategory,
 } from "@workspace/core/ui/component-registry";
 import { matchText } from "@workspace/core/search";
@@ -12,6 +14,8 @@ export type UiComponentFilterNode = {
   component: {
     description: string;
     exposure?: CoreUiExposure;
+    role?: CoreUiComponentRole;
+    declares?: readonly CoreUiCapabilityDescriptor[];
     category?: CoreUiComponentCategory;
     subcategory?: CoreUiComponentSubcategory;
   };
@@ -21,7 +25,7 @@ export type UiComponentFilterNode = {
 export type UiComponentFilterInput = {
   keyword: string;
   categoryValue: string;
-  exposureFilter: "direct" | "via" | "internal" | "all";
+  roleFilter: CoreUiComponentRole | "all";
   verifiedFilter: "verified" | "unverified" | "all";
   usageFilesByName: ReadonlyMap<string, readonly string[]>;
   usedByNamesByName: ReadonlyMap<string, readonly string[]>;
@@ -29,11 +33,11 @@ export type UiComponentFilterInput = {
 
 function matchesBaseFilters(
   node: UiComponentFilterNode,
-  input: Pick<UiComponentFilterInput, "categoryValue" | "exposureFilter" | "verifiedFilter">,
+  input: Pick<UiComponentFilterInput, "categoryValue" | "roleFilter" | "verifiedFilter">,
 ) {
-  const { categoryValue, exposureFilter, verifiedFilter } = input;
+  const { categoryValue, roleFilter, verifiedFilter } = input;
   if (categoryValue !== "all" && node.component.category !== categoryValue) return false;
-  if (exposureFilter !== "all" && node.component.exposure?.mode !== exposureFilter) return false;
+  if (roleFilter !== "all" && node.component.role !== roleFilter) return false;
   if (verifiedFilter === "verified" && !node.verified) return false;
   if (verifiedFilter === "unverified" && node.verified) return false;
   return true;
@@ -71,15 +75,15 @@ export function filterUiComponents<T extends UiComponentFilterNode>(
     return nodes.filter((node) => matchesBaseFilters(node, input));
   }
 
-  const directMatches = nodes.filter((node) => {
+  const keywordMatches = nodes.filter((node) => {
     const usageFiles = usageFilesByName.get(node.name) ?? [];
     return matchesKeyword(node, keyword, usageFiles);
   });
-  const directMatchNames = new Set(directMatches.map((node) => node.name));
+  const keywordMatchNames = new Set(keywordMatches.map((node) => node.name));
 
   return nodes.filter((node) => {
     if (!matchesBaseFilters(node, input)) return false;
-    if (directMatchNames.has(node.name)) return true;
-    return [...directMatchNames].some((name) => usedByNamesByName.get(name)?.includes(node.name));
+    if (keywordMatchNames.has(node.name)) return true;
+    return [...keywordMatchNames].some((name) => usedByNamesByName.get(name)?.includes(node.name));
   });
 }

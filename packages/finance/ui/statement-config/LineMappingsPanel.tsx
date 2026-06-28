@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { PageSurface, createPageActionsBlock, createPageDataBlock, createPageInlineFieldsBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createActionsBlock, createPageDataBlock, createInlineFieldsBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { AcctInfo, InheritedAcct, LineCfg, Mapping, StatementOperator } from "./types";
 import { formatStatementAmount, isDefaultMapping } from "./types";
 interface LineMappingsPanelProps {
@@ -254,7 +254,7 @@ function MappingEditor({
       kind="list"
       embedded
       blocks={[
-        createPageInlineFieldsBlock("mapping-editor", [
+        createInlineFieldsBlock("mapping-editor", [
           { key: "search", label: "搜索", spec: { valueType: "string", control: "text" }, placeholder: "搜索科目编码或名称...", value: accountSearch, onChange: (value) => onAccountSearchChange(String(value ?? "")), className: "w-64" },
           { key: "account", label: "科目", spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: filteredAccounts.map(account => ({ value: account.code, label: `${account.code} ${account.name}` })) } }, value: newAccount, onChange: (value) => onNewAccountChange(String(value ?? "")), placeholder: `选择科目 (${filteredAccounts.length})` },
         ], {
@@ -276,7 +276,7 @@ function AddMappingButton({ lineCode, onStartAdding }: { lineCode: string; onSta
       kind="list"
       embedded
       blocks={[
-        createPageActionsBlock("add-mapping", [{ key: "add-account", label: "添加科目", onClick: () => onStartAdding(lineCode) }]),
+        createActionsBlock("add-mapping", [{ key: "add-account", label: "添加科目", onClick: () => onStartAdding(lineCode) }]),
       ]}
     />
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormSurfaceItemSpec, type FormSurfaceLooseItem, type ReferenceOption, type useFeedback } from "@workspace/core/ui";
+import { type FeedbackApi, type FormSurfaceItemSpec, type FormSurfaceLooseItem, type ReferenceOption } from "@workspace/core/ui";
 import { HR_MAJOR_OPTIONS, HR_OFFICE_LOCATIONS, HR_RANKS, normalizeHrMajorItems, type HRMajorItem } from "@workspace/hr/constants/field-options";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
 import { buildChangeHistoryField, buildDutyField, buildExperienceRequirementField, buildWorkEnvironmentFields } from "./position-description-repeatable-field-builders";
@@ -20,7 +20,7 @@ import {
 import { selectedEntityName } from "./detail-editor-primitives";
 
 export type DetailRecord = Record<string, unknown>;
-type DetailFeedback = ReturnType<typeof useFeedback>;
+type DetailFeedback = FeedbackApi;
 
 function uniqueStrings(items: string[]) {
   return items.map((item) => item.trim()).filter(Boolean).filter((item, index, array) => array.indexOf(item) === index);

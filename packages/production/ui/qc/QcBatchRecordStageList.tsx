@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PageSurface, createPageInlineFieldsBlock } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceBlock } from "@workspace/core/ui";
 import type { QcBatchSummary, QcTemplateDetail } from "@workspace/production/types";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcBatchNumberInput from "./QcBatchNumberInput";
@@ -20,21 +20,16 @@ export default function QcBatchRecordStageList({ batch, detail }: QcBatchRecordS
           kind="detail"
           embedded
           blocks={[
-            createPageInlineFieldsBlock("qc-batch-record-summary", [
-              {
-                kind: "note",
-                key: "batch-number",
-                className: "flex items-center gap-3",
-                content: (
-                  <>
-                    <span className="text-sm font-semibold text-slate-900">批号：</span>
-                    <QcBatchNumberInput batchId={batch.id} initialValue={batch.batchNumber} />
-                    <span className="text-xs text-slate-500">批次ID: {batch.id}</span>
-                  </>
-                ),
-              },
-            ], {
+            createBlockSurfaceBlock("qc-batch-record-summary", {
+              kind: "content",
               className: "mb-5 max-w-3xl rounded-lg border border-slate-200 bg-white px-4 py-2 shadow-sm",
+              content: (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold text-slate-900">批号：</span>
+                  <QcBatchNumberInput batchId={batch.id} initialValue={batch.batchNumber} />
+                  <span className="text-xs text-slate-500">批次ID: {batch.id}</span>
+                </div>
+              ),
             }),
           ]}
         />

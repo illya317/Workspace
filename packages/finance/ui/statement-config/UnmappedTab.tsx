@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState } from "react";
-import { PageSurface, createPageDataBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, PageSurface, createPageDataBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
 import { useStatementConfig } from "./StatementConfigContext";
 interface Node {
@@ -197,7 +197,11 @@ function UnmappedError({ message, onRetry }: { message: string; onRetry: () => v
       kind="list"
       embedded
       blocks={[
-        { kind: "message", key: "error", tone: "danger", content: message },
+        createBlockSurfaceBlock("error", {
+          kind: "message",
+          tone: "danger",
+          content: message
+        }),
         {
           kind: "form",
           key: "retry",

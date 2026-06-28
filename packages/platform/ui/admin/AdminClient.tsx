@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useMemo, useState } from "react";
-import { PageSurface, useFeedback, type PageSurfaceBlockSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createGroupBlock, PageSurface, useFeedback, type PageSurfaceBlockSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
 import AdminUsersTab from "./tabs/AdminUsersTab";
 import ModuleManagementTab from "./tabs/ModuleManagementTab";
 import PermissionsTab from "./tabs/PermissionsTab";
@@ -161,12 +161,9 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   ];
 
   const blocks: PageSurfaceBlockSpec[] = [
-    {
-      kind: "surfaceGroup",
-      key: "active-admin-tab",
-      blocks: [{
+    createGroupBlock("active-admin-tab", {
+      blocks: [createBlockSurfaceBlock(activeTab, {
         kind: "message",
-        key: activeTab,
         className: "border-0 bg-transparent p-0 text-inherit",
         content: (
           <div className="space-y-4">
@@ -187,9 +184,9 @@ export default function AdminClient({ user }: { user: SessionUser }) {
               />
             )}
           </div>
-        ),
-      }],
-    },
+        )
+      })],
+    }),
   ];
 
   return (

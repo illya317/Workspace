@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageDataBlock, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { Department, EDP, Position } from "./useAnalyticsData";
 import { usePositionData } from "./position/usePositionData";
 import { createDeptBarChartBlock } from "./position/DeptBarChart";
@@ -24,10 +24,7 @@ export function usePositionAnalyticsBlocks({ positions, edps, departments }: { p
   } = usePositionData(positions, edps, departments);
 
   return [
-    {
-      kind: "data",
-      key: "stats",
-      surface: {
+    createPageDataBlock("stats", {
         kind: "metrics",
         metrics: [
           { key: "total", label: "岗位总数", value: `${stats.total} / 编制 ${stats.hasHeadcount}` },
@@ -36,8 +33,7 @@ export function usePositionAnalyticsBlocks({ positions, edps, departments }: { p
           { key: "overStaffed", label: "超编", value: stats.overStaffed },
           { key: "underStaffed", label: "缺编", value: stats.underStaffed },
         ],
-      },
-    },
+      }),
     createDeptBarChartBlock({
       filteredDept,
       l1List,

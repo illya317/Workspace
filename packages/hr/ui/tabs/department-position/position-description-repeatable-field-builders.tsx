@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormSurfaceItemSpec, type FormSurfaceLooseItem, type useFeedback } from "@workspace/core/ui";
+import { type FeedbackApi, type FormSurfaceItemSpec, type FormSurfaceLooseItem } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
 import {
   DETAIL_FIELD_LABELS,
@@ -11,7 +11,7 @@ import {
 } from "./description-details";
 import { formatHistoryVersion, normalizeDateValue, versionNumber } from "./draft-utils";
 
-type DetailFeedback = ReturnType<typeof useFeedback>;
+type DetailFeedback = FeedbackApi;
 type DetailRecord = Record<string, unknown>;
 
 type DetailFieldContext = {

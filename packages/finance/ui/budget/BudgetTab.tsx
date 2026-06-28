@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PageSurface } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceBlock } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { useBudgetData } from "./hooks/useBudgetData";
 import { useBudgetFilters } from "./hooks/useBudgetFilters";
@@ -46,8 +46,11 @@ export default function BudgetTab({ user: _user }: { user: SessionUser }) {
         onChange: (key) => setView(key as BudgetView),
       }}
       body={{
-        blocks: lifecycleBlocks,
-        content: (
+        blocks: [
+          ...lifecycleBlocks,
+          createBlockSurfaceBlock("budget-content", {
+            kind: "content",
+            content: (
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-3">
               <div className="ml-auto">
@@ -102,7 +105,9 @@ export default function BudgetTab({ user: _user }: { user: SessionUser }) {
               </>
             )}
           </div>
-        ),
+            ),
+          }),
+        ],
       }}
     />
   );

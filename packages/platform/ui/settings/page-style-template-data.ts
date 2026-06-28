@@ -14,7 +14,7 @@ import {
   type PageStyleRouteModule,
   type PageTemplate,
   type TemplateKind,
-} from "@workspace/core/ui/page-style-preview/template-data";
+} from "@workspace/core/page-style-preview";
 import { activeModuleDefinitions } from "../../effective-module-registry";
 import { applyRouteRuntimeLabel, getRouteRuntimeMeta, type RouteRuntimeMeta } from "../../route-runtime-labels";
 

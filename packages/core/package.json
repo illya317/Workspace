@@ -10,6 +10,7 @@
     "./hooks/*": "./hooks/*.ts",
     "./period": "./period/index.ts",
     "./period/*": "./period/*.ts",
+    "./page-style-preview": "./page-style-preview.ts",
     "./routing": "./routing/index.ts",
     "./routing/*": "./routing/*.ts",
     "./search": "./search/index.ts",
@@ -18,11 +19,7 @@
     "./server/*": "./server/*.ts",
     "./showcase": "./showcase/index.ts",
     "./showcase/*": "./showcase/*.tsx",
-    "./ui/component-nest-depth": "./ui/component-nest-depth.ts",
-    "./ui/component-registry": "./ui/component-registry.ts",
-    "./ui/component-registry-view": "./ui/component-registry-view.ts",
-    "./ui/page-style-preview/template-data": "./ui/page-style-preview/template-data.ts",
-    "./ui": "./ui/index.ts",
-    "./ui/*": "./ui/*.tsx"
+    "./ui-registry": "./ui-registry.ts",
+    "./ui": "./ui/index.ts"
   }
 }

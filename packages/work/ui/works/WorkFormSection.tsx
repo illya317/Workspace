@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createPageFieldsBlock } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceBlock } from "@workspace/core/ui";
 import WorkForm from "./WorkForm";
 import type { WorkItem } from "./types";
 export interface WorkFormData {
@@ -32,9 +32,8 @@ export default function WorkFormSection({
       embedded
       kind="detail"
       className="mb-6"
-      blocks={[createPageFieldsBlock("department-work-plan", [{
+      blocks={[createBlockSurfaceBlock("department-work-plan", {
         kind: "section",
-        key: "department-work-plan",
         title: "部门 OKR 计划",
         actions: isAdmin && !showForm && !editingWork ? [{
           key: "add",
@@ -42,11 +41,12 @@ export default function WorkFormSection({
           variant: "primary",
           onClick: onAddClick,
         }] : undefined,
-        fields: [
-          ...(!isAdmin ? [{ kind: "note" as const, key: "admin-only", content: "仅部门管理员可编辑 OKR 计划", className: "mb-4 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" }] : []),
-          ...(showForm ? [{ kind: "note" as const, key: "form", content: <div className="mb-6"><WorkForm onSave={onSave} onCancel={onCancelForm} /></div> }] : []),
+        className: "mb-6",
+        blocks: [
+          ...(!isAdmin ? [{ kind: "message" as const, key: "admin-only", tone: "muted" as const, content: "仅部门管理员可编辑 OKR 计划" }] : []),
+          ...(showForm ? [{ kind: "content" as const, key: "form", content: <WorkForm onSave={onSave} onCancel={onCancelForm} /> }] : []),
         ],
-      }], { className: "mb-6" })]}
+      })]}
     />
   );
 }

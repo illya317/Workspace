@@ -8,7 +8,6 @@ import { joinClassNames } from "./card-utils";
 import { renderCommands } from "./form-surface-commands";
 export { renderCommands };
 import type {
-  FormSurfaceControlSpec,
   FormSurfaceFieldSpec,
   FormSurfaceItemSpec,
   FormSurfaceReadOnlyFieldSpec,
@@ -18,11 +17,6 @@ import type {
 
 export function isInputField<T>(field: FormSurfaceItemSpec<T>): field is FormSurfaceFieldSpec {
   return !("kind" in field) || field.kind === "field";
-}
-
-export function renderControlSpec(control: FormSurfaceControlSpec) {
-  const { kind: _kind, ...props } = control;
-  return <InputControl {...props} />;
 }
 
 export function renderControl(field: FormSurfaceFieldSpec, density: InputControlProps["density"]) {

@@ -11,14 +11,6 @@ const ROOT = path.resolve(__dirname, "../..");
 const CORE_UI_DIR = path.join(ROOT, "packages/core/ui");
 const CORE_UI_INDEX = path.join(CORE_UI_DIR, "index.ts");
 const SOURCE_EXTENSIONS = [".tsx", ".ts"];
-const CORE_UI_AGENT_DIRECT_ENTRY_NAMES = new Set([
-  "CreatePanel",
-  "InputControl",
-  "PageSurface",
-  "SelectorPanel",
-  "useFeedback",
-]);
-
 type CoreUiExportMaps = {
   sourceByName: Map<string, string>;
   defaultNameByModule: Map<string, string>;
@@ -294,48 +286,23 @@ export function validateCoreUiRegistry() {
     }
   }
 
-  // 2. Agent 暴露路径必须指向真实 direct 入口；direct 名单由架构硬锁。
-  const directEntriesByOwner = new Map<string, string[]>();
-  const directEntryNames = new Set<string>();
+  // 2. 兼容 exposure 路径必须指向可执行入口；业务准入由 role 决定。
   for (const registration of byName.values()) {
     const exposure = registration.exposure;
+    if (registration.role === "surface" && (!registration.declares || registration.declares.length === 0)) {
+      errors.push(`${registration.name} 是 Surface 声明接口，必须声明 declares`);
+    }
     if (!exposure) {
       errors.push(`${registration.name} 缺少 exposure`);
       continue;
     }
-    if (exposure.mode === "via") {
+    if (exposure.mode === "spec") {
       const entry = byName.get(exposure.entry);
       if (!entry) {
         errors.push(`${registration.name}.exposure 指向未注册入口 ${exposure.entry}`);
-      } else if (entry.exposure?.mode !== "direct") {
-        errors.push(`${registration.name}.exposure 必须指向 direct 入口，当前 ${exposure.entry} 是 ${entry.exposure?.mode ?? "unknown"}`);
+      } else if (entry.exposure?.mode !== "runtime") {
+        errors.push(`${registration.name}.exposure 必须指向可执行入口，当前 ${exposure.entry} 是 ${entry.exposure?.mode ?? "unknown"}`);
       }
-    }
-    if (exposure.mode === "direct") {
-      directEntryNames.add(registration.name);
-      const owner = registration.subcategory ?? "unknown";
-      directEntriesByOwner.set(owner, [...(directEntriesByOwner.get(owner) ?? []), registration.name]);
-    }
-  }
-  for (const expectedName of CORE_UI_AGENT_DIRECT_ENTRY_NAMES) {
-    if (!directEntryNames.has(expectedName)) {
-      errors.push(`Core UI direct 入口缺少 ${expectedName}`);
-    }
-  }
-  for (const actualName of directEntryNames) {
-    if (!CORE_UI_AGENT_DIRECT_ENTRY_NAMES.has(actualName)) {
-      errors.push(`${actualName} 不能声明为 exposure: direct；direct 仅允许 ${[...CORE_UI_AGENT_DIRECT_ENTRY_NAMES].join(", ")}`);
-    }
-  }
-  const canonicalDirectEntries: Record<string, string[]> = {
-    "common.input": ["InputControl"],
-    "common.selection": ["SelectorPanel"],
-  };
-  for (const [subcategory, allowed] of Object.entries(canonicalDirectEntries)) {
-    const actual = directEntriesByOwner.get(subcategory) ?? [];
-    const unexpected = actual.filter((name) => !allowed.includes(name));
-    if (unexpected.length > 0) {
-      errors.push(`${subcategory} 只能通过 ${allowed.join(", ")} 作为直接入口，当前多出 ${unexpected.join(", ")}`);
     }
   }
 

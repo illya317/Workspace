@@ -3,9 +3,9 @@
 import { useMemo } from "react";
 import {
   PageSurface,
-  createPageActionsBlock,
+  createActionsBlock,
   createPageDataBlock,
-  createPageInlineFieldsBlock,
+  createInlineFieldsBlock,
   type DataSurfaceColumnSpec,
   type FormSurfaceFieldSpec,
   type PageSurfaceBlockSpec,
@@ -195,7 +195,7 @@ function InlineFieldCell({
   blockKey: string;
   field: FormSurfaceFieldSpec;
 }) {
-  return <PageSurface embedded kind="detail" blocks={[createPageInlineFieldsBlock(blockKey, [field])]} />;
+  return <PageSurface embedded kind="detail" blocks={[createInlineFieldsBlock(blockKey, [field])]} />;
 }
 
 function InlineActionsCell({
@@ -205,7 +205,7 @@ function InlineActionsCell({
   blockKey: string;
   actions: PageSurfaceCommandSpec[];
 }) {
-  return <PageSurface embedded kind="detail" blocks={[createPageActionsBlock(blockKey, actions)]} />;
+  return <PageSurface embedded kind="detail" blocks={[createActionsBlock(blockKey, actions)]} />;
 }
 
 function formatDateTime(value: string | null) {

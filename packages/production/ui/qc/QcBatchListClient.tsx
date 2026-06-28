@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { PageSurface, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceBlock, useFeedback } from "@workspace/core/ui";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import type { QcBatchSummary } from "@workspace/production/server/qc";
 import { QC_BATCH_PAGE_SIZE_OPTIONS, QC_BATCH_STATUS_OPTIONS, QcBatchCreatePanel } from "./QcBatchListControls";
@@ -183,34 +183,39 @@ export default function QcBatchListClient({ initialRows, products, pageChrome }:
       header={pageChrome ? productionQcPageHeader(pageChrome) : undefined}
       toolbar={{ items: toolbarItems }}
       body={{
-        content: (
-          <section className="space-y-4">
-            <QcBatchCreatePanel
-              open={createOpen}
-              products={products}
-              productKey={productKey}
-              batchNumber={batchNumber}
-              submitting={isPending}
-              onProductKeyChange={setProductKey}
-              onBatchNumberChange={setBatchNumber}
-              onSubmit={() => void createBatch()}
-              onCancel={() => {
-                setCreateOpen(false);
-                setBatchNumber(todayBatchNumber());
-              }}
-            />
+        blocks: [
+          createBlockSurfaceBlock("qc-batch-list-content", {
+            kind: "content",
+            content: (
+              <section className="space-y-4">
+                <QcBatchCreatePanel
+                  open={createOpen}
+                  products={products}
+                  productKey={productKey}
+                  batchNumber={batchNumber}
+                  submitting={isPending}
+                  onProductKeyChange={setProductKey}
+                  onBatchNumberChange={setBatchNumber}
+                  onSubmit={() => void createBatch()}
+                  onCancel={() => {
+                    setCreateOpen(false);
+                    setBatchNumber(todayBatchNumber());
+                  }}
+                />
 
-            <QcBatchTable
-              rows={visibleBatches}
-              page={page}
-              totalPages={totalPages}
-              total={filtered.length}
-              onPageChange={setPage}
-              onView={(batch) => router.push(`/production/qc-batches/${batch.id}`)}
-              onDelete={(batch) => void deleteBatch(batch)}
-            />
-          </section>
-        ),
+                <QcBatchTable
+                  rows={visibleBatches}
+                  page={page}
+                  totalPages={totalPages}
+                  total={filtered.length}
+                  onPageChange={setPage}
+                  onView={(batch) => router.push(`/production/qc-batches/${batch.id}`)}
+                  onDelete={(batch) => void deleteBatch(batch)}
+                />
+              </section>
+            ),
+          }),
+        ],
       }}
     />
   );

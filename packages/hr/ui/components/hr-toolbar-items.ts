@@ -2,11 +2,11 @@
 
 import type { ReactNode } from "react";
 import {
-  type ColumnDef,
-  type FieldValueFilterField,
-  type SelectFieldOption,
+  type SurfaceColumnOptionSpec,
+  type SurfaceFilterFieldSpec,
+  type SurfaceSelectOptionSpec,
   type SurfaceToolbarItems,
-  type ToolbarActionGroupAction,
+  type SurfaceToolbarActionGroupActionSpec,
 } from "@workspace/core/ui";
 import type { FilterConfig } from "@workspace/hr/types";
 import { buildInlineFilterItems } from "./generic-filter-toolbar-items";
@@ -32,8 +32,8 @@ export interface HRToolbarItemsFilters {
 }
 
 export interface HRToolbarItemsAdvancedFilter {
-  fields: FieldValueFilterField[];
-  valueOptions?: Record<string, SelectFieldOption[]>;
+  fields: SurfaceFilterFieldSpec[];
+  valueOptions?: Record<string, SurfaceSelectOptionSpec[]>;
   fieldKey: string;
   value: string;
   onFieldKeyChange: (key: string) => void;
@@ -43,7 +43,7 @@ export interface HRToolbarItemsAdvancedFilter {
 }
 
 export interface HRToolbarItemsColumnToggle {
-  columns: ColumnDef[];
+  columns: SurfaceColumnOptionSpec[];
   visible: string[];
   onChange: (visible: string[]) => void;
 }
@@ -70,7 +70,7 @@ export interface HRToolbarItemsEditGroup {
 
 export interface HRToolbarItemsPageSize {
   value: string;
-  options: SelectFieldOption[];
+  options: SurfaceSelectOptionSpec[];
   onChange: (value: string) => void;
   label?: string;
 }
@@ -155,7 +155,7 @@ export function buildHRToolbarItems({
     });
   }
 
-  const actionGroupActions: ToolbarActionGroupAction[] = [];
+  const actionGroupActions: SurfaceToolbarActionGroupActionSpec[] = [];
 
   if (refresh) {
     actionGroupActions.push({

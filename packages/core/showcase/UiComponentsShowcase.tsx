@@ -1,13 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  EmptyStateCard,
-  Toolbar,
-  WorkspaceSplitPage,
-  type ColumnDef,
-  type ToolbarItem,
-} from "@workspace/core/ui";
+import type { SurfaceColumnOptionSpec, SurfaceToolbarItem } from "@workspace/core/ui";
+import { EmptyStateCard, Toolbar, WorkspaceSplitPage } from "./internal-ui";
 import {
   coreUiComponentRegistry,
   getCoreUiCompositionGraph,
@@ -19,6 +14,7 @@ import {
 } from "@workspace/core/ui/component-registry-view";
 import type {
   CoreUiComponentCategory,
+  CoreUiComponentRole,
   CoreUiComponentRegistration,
 } from "@workspace/core/ui/component-registry";
 
@@ -33,7 +29,7 @@ import { filterUiComponents } from "./filter-ui-components";
 import { useUiComponentVerified } from "./use-ui-component-verified";
 
 const ALL_CATEGORY = "all";
-const ALL_EXPOSURE = "all";
+const ALL_ROLE = "all";
 const ALL_VERIFIED = "all";
 
 type UiComponentsShowcaseProps = {
@@ -44,7 +40,7 @@ type UiComponentsShowcaseProps = {
 };
 
 type TreeCategoryFilter = CoreUiComponentCategory | typeof ALL_CATEGORY;
-type ExposureFilter = "direct" | "via" | "internal" | typeof ALL_EXPOSURE;
+type RoleFilter = CoreUiComponentRole | typeof ALL_ROLE;
 type VerifiedFilter = "verified" | "unverified" | typeof ALL_VERIFIED;
 
 const CATEGORY_OPTIONS: Array<{ value: TreeCategoryFilter; label: string }> = [
@@ -52,18 +48,22 @@ const CATEGORY_OPTIONS: Array<{ value: TreeCategoryFilter; label: string }> = [
   { value: "page", label: "页面" },
   { value: "data", label: "数据" },
   { value: "form", label: "表单" },
+  { value: "document", label: "文档" },
+  { value: "visualization", label: "可视化" },
   { value: "common", label: "通用" },
   { value: "feedback", label: "反馈" },
 ];
 
-const EXPOSURE_OPTIONS: Array<{ value: ExposureFilter; label: string }> = [
-  { value: ALL_EXPOSURE, label: "全" },
-  { value: "direct", label: "调用" },
-  { value: "via", label: "封装" },
-  { value: "internal", label: "内部" },
+const ROLE_OPTIONS: Array<{ value: RoleFilter; label: string }> = [
+  { value: ALL_ROLE, label: "全部" },
+  { value: "surface", label: "声明接口" },
+  { value: "host", label: "宿主入口" },
+  { value: "helper", label: "声明助手" },
+  { value: "service", label: "服务接口" },
+  { value: "internal", label: "内部实现" },
 ];
 
-const META_COLUMNS: ColumnDef[] = [
+const META_COLUMNS: SurfaceColumnOptionSpec[] = [
   { key: "usedBy", label: "被引用", defaultVisible: true },
   { key: "files", label: "文件", defaultVisible: true },
   { key: "verified", label: "改造状态", defaultVisible: true },
@@ -80,7 +80,7 @@ export default function UiComponentsShowcase({
 }: UiComponentsShowcaseProps) {
   const firstRoot = coreUiComponentRegistry.find(isCoreUiComponentVisibleInShowcase);
   const [categoryValue, setCategoryValue] = useState<string>(ALL_CATEGORY);
-  const [exposureFilter, setExposureFilter] = useState<ExposureFilter>(ALL_EXPOSURE);
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>(ALL_ROLE);
   const [verifiedFilter, setVerifiedFilter] = useState<VerifiedFilter>(ALL_VERIFIED);
   const [query, setQuery] = useState("");
   const [selectedName, setSelectedName] = useState<string | null>(firstRoot?.name ?? null);
@@ -118,12 +118,12 @@ export default function UiComponentsShowcase({
     return filterUiComponents(treeRoots, {
       keyword: query.trim(),
       categoryValue,
-      exposureFilter,
+      roleFilter,
       verifiedFilter,
       usageFilesByName,
       usedByNamesByName,
     });
-  }, [exposureFilter, categoryValue, query, treeRoots, usageFilesByName, usedByNamesByName, verifiedFilter]);
+  }, [roleFilter, categoryValue, query, treeRoots, usageFilesByName, usedByNamesByName, verifiedFilter]);
 
   const visibleRoots = filteredRoots;
   const selectedComponent = selectedName ? (componentByName.get(selectedName) ?? null) : null;
@@ -193,16 +193,16 @@ export default function UiComponentsShowcase({
     setSideOpen((open) => !open);
   }
 
-  const toolbarItems = useMemo<ToolbarItem[]>(() => [
+  const toolbarItems = useMemo<SurfaceToolbarItem[]>(() => [
     { kind: "create", key: "create", label: "新建组件", disabled: true, onClick: () => {} },
     { kind: "panel-toggle", key: "toggle-list", icon: sideOpen ? "panel-open" : "panel-close", label: sideOpen ? "隐藏组件目录" : "显示组件目录", variant: sideOpen ? "primary" : "secondary", onClick: toggleSideFromToolbar },
     { kind: "search", key: "search", value: query, onChange: setQuery, placeholder: "搜索组件..." },
     { kind: "option-group", key: "category", value: categoryValue, options: CATEGORY_OPTIONS, onChange: (value) => setCategoryValue(value as TreeCategoryFilter), ariaLabel: "一级分类" },
-    { kind: "option-group", key: "exposure", value: exposureFilter, options: EXPOSURE_OPTIONS, onChange: (value) => setExposureFilter(value as ExposureFilter), ariaLabel: "使用方式" },
+    { kind: "option-group", key: "role", value: roleFilter, options: ROLE_OPTIONS, onChange: (value) => setRoleFilter(value as RoleFilter), ariaLabel: "分层" },
     { kind: "option-group", key: "verified", value: verifiedFilter, options: [{ value: ALL_VERIFIED, label: "全部" }, { value: "verified", label: "无需改造" }, { value: "unverified", label: "待改造" }], onChange: (value) => setVerifiedFilter(value as VerifiedFilter), ariaLabel: "改造状态" },
     { kind: "text", key: "meta", content: <>共 {filteredRoots.length} 个组件</> },
     { kind: "column-toggle", key: "columns", columns: META_COLUMNS, visible: visibleMeta, onChange: setVisibleMeta },
-  ], [exposureFilter, filteredRoots.length, categoryValue, query, sideOpen, verifiedFilter, visibleMeta]);
+  ], [roleFilter, filteredRoots.length, categoryValue, query, sideOpen, verifiedFilter, visibleMeta]);
 
   return (
     <WorkspaceSplitPage

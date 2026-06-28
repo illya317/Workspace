@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SelectionGrid } from "@workspace/core/ui";
+import { SelectionGrid } from "../internal-ui";
 
 export function SelectionGridPreview() {
   const [value, setValue] = useState("dev");

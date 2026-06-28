@@ -2,6 +2,7 @@
 
 import type { ReactNode, Ref } from "react";
 import {
+  createPanelBlock,
   PageSurface,
   type PageSurfaceBlockSpec,
   type PageSurfaceCommandSpec,
@@ -42,13 +43,11 @@ export function fieldRegionBlock({
   itemRef?: Ref<HTMLDivElement>;
   key?: string;
 }): PageSurfaceBlockSpec {
-  return {
-    kind: "panel",
-    key,
+  return createPanelBlock(key, {
     itemRef,
     title,
     actions,
     bodyClassName: "p-3",
     blocks,
-  };
+  });
 }

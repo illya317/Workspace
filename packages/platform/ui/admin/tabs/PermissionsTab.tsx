@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createMessageBlock, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import ResourceTree from "../components/ResourceTree";
 import { createPermissionMatrixBlock } from "../components/permissions/MatrixTable";
 import type { PermissionsTabState } from "../hooks/usePermissionsTab";
@@ -79,12 +79,10 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, s }: Pr
 
   const bodyBlocks: PageSurfaceBlockSpec[] = [
     ...(s.loading
-      ? [{
-          kind: "message" as const,
-          key: "permission-matrix-loading",
+      ? [createMessageBlock("permission-matrix-loading", {
           tone: "muted" as const,
           content: "加载中...",
-        }]
+        })]
       : []),
     ...(!s.loading ? [createPermissionMatrixBlock({ s })] : []),
   ];
@@ -101,9 +99,8 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, s }: Pr
       showSideControls={false}
       splitRatio={[3, 7]}
       side={{
-        blocks: [{
+        blocks: [createBlockSurfaceBlock("resource-tree", {
           kind: "message",
-          key: "resource-tree",
           className: "border-0 bg-transparent p-0 text-inherit",
           content: (
             <div className="space-y-3">
@@ -115,8 +112,8 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, s }: Pr
                 defaultExpanded
               />
             </div>
-          ),
-        }],
+          )
+        })],
       }}
       blocks={bodyBlocks}
     />

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { workspacePath } from "@workspace/core/routing";
-import { PageSurface, type PageSurfaceHeaderSpec, type PageSurfaceKind } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceBlock, type PageSurfaceHeaderSpec, type PageSurfaceKind } from "@workspace/core/ui";
 import NotificationBell from "@workspace/platform/ui/NotificationBell";
 import UserMenu from "@workspace/platform/ui/UserMenu";
 import type { SessionUser } from "@workspace/platform/types";
@@ -56,7 +56,9 @@ export function ProductionQcPageSurface({
     <PageSurface
       kind={kind}
       header={productionQcPageHeader({ title, backHref, user })}
-      body={{ content: children }}
+      body={{
+        blocks: [createBlockSurfaceBlock("production-qc-content", { kind: "content", content: children })],
+      }}
     />
   );
 }

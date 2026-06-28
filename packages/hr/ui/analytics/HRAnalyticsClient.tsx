@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { SessionUser } from "@workspace/platform/types";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
-import { PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { PageSurface, createEmptyBlock, createMessageBlock, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { useAnalyticsData } from "./useAnalyticsData";
 
 import { useEmployeeAnalyticsBlocks } from "./EmployeeAnalytics";
@@ -51,9 +51,9 @@ export default function HRAnalyticsClient({ user: _user }: { user: SessionUser; 
   };
   let blocks: PageSurfaceBlockSpec[];
   if (data.loading) {
-    blocks = [{ kind: "empty" as const, key: "loading", content: "数据加载中..." }];
+    blocks = [createEmptyBlock("loading", { content: "数据加载中..." })];
   } else if (data.error) {
-    blocks = [{ kind: "message" as const, key: "error", tone: "danger" as const, content: data.error }];
+    blocks = [createMessageBlock("error", { tone: "danger" as const, content: data.error })];
   } else {
     blocks = tabBlocks[activeTab];
   }

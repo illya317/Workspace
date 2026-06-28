@@ -3,11 +3,12 @@
 import { useState } from "react";
 import {
   PageSurface,
+  createBlockSurfaceBlock,
   createPageDataBlock,
-  createPageFieldsBlock,
+  createFieldsBlock,
   useFeedback,
   type DataSurfaceColumnSpec,
-  type DataTableRowEditActionConfig,
+  type SurfaceDataRowEditActionSpec,
 } from "@workspace/core/ui";
 import { createProjectPlanPhase, deleteProjectPlanPhase, updateProjectPlanPhase } from "./api";
 import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
@@ -94,9 +95,8 @@ export default function ProjectPlanPhasePanel({
     <PageSurface
       embedded
       kind="detail"
-      blocks={[createPageFieldsBlock("project-phases", [{
+      blocks={[createBlockSurfaceBlock("project-phases", {
         kind: "section",
-        key: "project-phases",
         title: "项目阶段",
         actions: canEdit && !creating ? [{
           key: "create",
@@ -105,12 +105,13 @@ export default function ProjectPlanPhasePanel({
           disabled: disabled || busy,
           onClick: () => setCreating(true),
         }] : undefined,
-        fields: [
+        blocks: [
           ...(creating ? [{
             kind: "section" as const,
             key: "create-phase",
-            className: "rounded-lg border border-slate-200 bg-white p-3",
-            fields: [{ kind: "note" as const, key: "create-fields", content: <PhaseFields draft={draft} disabled={disabled || busy} onChange={setDraft} /> }],
+            className: "rounded-lg border border-slate-200 bg-white",
+            bodyClassName: "p-3",
+            content: <PhaseFields draft={draft} disabled={disabled || busy} onChange={setDraft} />,
             actions: [
               { key: "cancel", label: "取消", disabled: disabled || busy, onClick: () => {
                 setCreating(false);
@@ -120,7 +121,7 @@ export default function ProjectPlanPhasePanel({
             ],
           }] : []),
           {
-            kind: "note",
+            kind: "content" as const,
             key: "phase-rows",
             content: <PhaseRows
               phases={phases}
@@ -139,7 +140,7 @@ export default function ProjectPlanPhasePanel({
             />,
           },
         ],
-      }])]}
+      })]}
     />
   );
 }
@@ -214,8 +215,12 @@ function PhaseRows({
         rowKey: (phase) => phase.id,
         visibleColumns: ["startDate", "endDate", "note"],
         expandedRowKey: editingId,
-        renderExpandedRow: (_phase) => <PhaseFields draft={editDraft} disabled={disabled} onChange={onEditDraftChange} />,
-        rowEditActions: canEdit ? (phase): DataTableRowEditActionConfig<ProjectPlanPhaseItem> => ({
+        expandedRowBlocks: (phase) => [{
+          kind: "block",
+          key: `project-phase-detail-${phase.id}`,
+          surface: { kind: "content", content: <PhaseFields draft={editDraft} disabled={disabled} onChange={onEditDraftChange} /> },
+        }],
+        rowEditActions: canEdit ? (phase): SurfaceDataRowEditActionSpec<ProjectPlanPhaseItem> => ({
           editing: editingId === phase.id,
           canEdit,
           canSave: Boolean(editDraft.name.trim()),
@@ -259,7 +264,7 @@ function PhaseFields({
     <PageSurface
       embedded
       kind="detail"
-      blocks={[createPageFieldsBlock("phase-fields", [
+      blocks={[createFieldsBlock("phase-fields", [
         {
           key: "name",
           label: "阶段",

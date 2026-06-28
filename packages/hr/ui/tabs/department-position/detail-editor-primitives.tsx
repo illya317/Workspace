@@ -5,7 +5,7 @@ import {
   InputControl,
   PageSurface,
   createPageDataBlock,
-  createPageInlineFieldsBlock,
+  createInlineFieldsBlock,
 } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
@@ -135,7 +135,7 @@ export function StringListEditor({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[createPageInlineFieldsBlock<string>("items", [{
+        blocks={[createInlineFieldsBlock<string>("items", [{
           kind: "tagList",
           key: "items",
           label: "",

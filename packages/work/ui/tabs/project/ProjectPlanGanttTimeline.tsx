@@ -1,6 +1,5 @@
 "use client";
 import { useLayoutEffect, useRef, useState } from "react";
-import { PageSurface, createPageFieldsBlock } from "@workspace/core/ui";
 import { WorkPositionedDiv, WorkPositionedSpan } from "../../../rendering/WorkPositioned";
 import type {
   ProjectPlanDependency,
@@ -70,20 +69,10 @@ export default function ProjectPlanGanttTimeline({
     };
   }, [items, phases, dependencies, periodStart, zoom]);
 
+  if (rows.length === 0) return <div className="rounded-md border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-400">暂无计划节点</div>;
+
   return (
-    <PageSurface
-      embedded
-      kind="detail"
-      blocks={[createPageFieldsBlock("project-gantt", [{
-        kind: "section",
-        key: "project-gantt",
-        title: "项目甘特",
-        bodyClassName: "min-w-0 overflow-hidden p-0",
-        fields: [{
-          kind: "note",
-          key: "timeline-body",
-          content: rows.length === 0 ? "暂无计划节点" : (
-            <div className="min-w-0 max-w-full overflow-hidden">
+    <div className="min-w-0 max-w-full overflow-hidden">
           <div className={`grid ${ROW_GRID} border-b border-slate-100 bg-slate-50 text-sm font-semibold text-slate-500`}>
             <div className="px-4 py-3">项目 / 任务</div>
             <div className="relative min-w-0 overflow-hidden px-4 py-3">
@@ -147,10 +136,6 @@ export default function ProjectPlanGanttTimeline({
               );
             })}
           </div>
-        </div>
-          ),
-        }],
-      }])]}
-    />
+    </div>
   );
 }

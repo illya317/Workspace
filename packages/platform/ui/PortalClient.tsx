@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
-import { PageSurface } from "@workspace/core/ui";
+import { createModuleGridBlock, PageSurface } from "@workspace/core/ui";
 import type { SessionUser } from "../types";
 import { getAccessibleModules } from "../module-nav";
 
@@ -15,9 +15,7 @@ export default function PortalClient({ user }: { user: SessionUser }) {
     <PageSurface
       kind="settings"
       contentClassName="py-10"
-      blocks={[{
-        kind: "moduleGrid",
-        key: "portal-grid",
+      blocks={[createModuleGridBlock("portal-grid", {
         centered: true,
         title: process.env.NEXT_PUBLIC_APP_NAME || "工作台",
         summary: `欢迎，${user.employeeName || user.nickname}`,
@@ -38,7 +36,7 @@ export default function PortalClient({ user }: { user: SessionUser }) {
           color: entry.color,
           onClick: () => router.push(entry.href),
         })),
-      }]}
+      })]}
     />
   );
 }

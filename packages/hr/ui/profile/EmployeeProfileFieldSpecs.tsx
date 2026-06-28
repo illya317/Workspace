@@ -2,7 +2,7 @@
 
 import { FieldRegion } from "./EmployeeProfileFieldRegion";
 import type { ProfileField } from "@workspace/hr/types";
-import type { FormSurfaceItemSpec, PageSurfaceBlockSpec, ReferenceOption } from "@workspace/core/ui";
+import { createPanelBlock, type FormSurfaceItemSpec, type PageSurfaceBlockSpec, type ReferenceOption } from "@workspace/core/ui";
 import {
   HR_COMMON_ETHNICITIES,
   HR_ETHNICITIES,
@@ -334,9 +334,7 @@ export function groupedFieldBlocks(
   disabled: boolean,
   onChange: (key: string, value: unknown, option?: ReferenceOption) => void,
 ): PageSurfaceBlockSpec[] {
-  return groups.map((group) => ({
-    kind: "panel" as const,
-    key: group.title,
+  return groups.map((group) => createPanelBlock(group.title, {
     title: group.title,
     bodyClassName: "p-3",
     blocks: [fieldGridBlock(group.fields, record, disabled, onChange, undefined, `${group.title}-fields`)],

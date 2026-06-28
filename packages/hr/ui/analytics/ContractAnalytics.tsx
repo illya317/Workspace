@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createAnalysisBlock, createGroupBlock, createMessageBlock, createPageDataBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { Contract } from "./useAnalyticsData";
 import { computeStats, enrichContracts, filterContracts, statusBadge, statusLabel, type EnrichedContract } from "./contract-helpers";
 
@@ -72,10 +72,7 @@ export function useContractAnalyticsBlocks({
     cell: contract => ({ kind: "badge", label: statusLabel(contract.status), className: statusBadge(contract.status) })
   }], []);
   return [
-      {
-        kind: "data",
-        key: "stats",
-        surface: {
+      createPageDataBlock("stats", {
           kind: "metrics",
           metrics: [
             { key: "total", label: "主合同总数", value: `${stats.total} / 无固定 ${stats.permanent}` },
@@ -84,16 +81,11 @@ export function useContractAnalyticsBlocks({
             { key: "expired", label: "已到期", value: stats.expired },
             { key: "permanent", label: "无固定期限", value: stats.permanent },
           ],
-        },
-      },
-      {
-        kind: "surfaceGroup",
-        key: "distribution",
+        }),
+      createGroupBlock("distribution", {
         layout: "grid",
         blocks: [
-          {
-            kind: "analysis",
-            key: "types",
+          createAnalysisBlock("types", {
             title: "合同类型分布",
             blocks: [{
               kind: "data",
@@ -108,10 +100,8 @@ export function useContractAnalyticsBlocks({
                 emptyText: "暂无数据",
               },
             }],
-          },
-          {
-            kind: "analysis",
-            key: "companies",
+          }),
+          createAnalysisBlock("companies", {
             title: "公司合同分布",
             blocks: [{
               kind: "data",
@@ -126,12 +116,10 @@ export function useContractAnalyticsBlocks({
                 emptyText: "暂无数据",
               },
             }],
-          },
+          }),
         ],
-      },
-      {
-        kind: "analysis",
-        key: "expiry",
+      }),
+      createAnalysisBlock("expiry", {
         title: "合同到期预警",
         toolbar: {
           items: [
@@ -165,14 +153,12 @@ export function useContractAnalyticsBlocks({
               rowClassName: contract => contract.status === "expired" ? "bg-red-50/40" : contract.status === "expiring30" ? "bg-rose-50/30" : "",
             },
           },
-          ...(filtered.length > 100 ? [{
-            kind: "message" as const,
-            key: "more",
+          ...(filtered.length > 100 ? [createMessageBlock("more", {
             tone: "muted" as const,
             content: <>还有 {filtered.length - 100} 条，请使用搜索或筛选</>,
-          }] : []),
+          })] : []),
         ],
-      },
+      }),
     ];
 }
 

@@ -1,10 +1,7 @@
 "use client";
 
 import { useState, type FC } from "react";
-import {
-  ActionButton,
-  Toast,
-} from "@workspace/core/ui";
+import { ActionButton, Toast } from "../internal-ui";
 
 function ToastPreview() {
   const [show, setShow] = useState(false);

@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
-import {
+import { createBlockSurfaceBlock,
   ActionGlyph,
   announceFloatingOverlayOpen,
+  createPanelBlock,
   FLOATING_OVERLAY_OPEN_EVENT,
   getFloatingOverlayOpenDetail,
   PageSurface,
@@ -282,16 +283,13 @@ export default function NotificationBell({
           <PageSurface
             kind="settings"
             embedded
-            blocks={[{
-              kind: "panel",
-              key: "notifications",
+            blocks={[createPanelBlock("notifications", {
               title: <div className="whitespace-nowrap text-sm font-semibold text-slate-900">通知</div>,
               subtitle: <div className="whitespace-nowrap text-xs text-slate-400">{data.pendingCount} 条待确认 · {data.unreadCount} 条未读 · 共 {data.total} 条</div>,
               bodyClassName: "max-h-96 overflow-y-auto !p-0",
               blocks: [
-                {
+                createBlockSurfaceBlock("notification-actions", {
                   kind: "message",
-                  key: "notification-actions",
                   className: "rounded-none border-x-0 border-t-0 border-slate-100 bg-white px-4 py-2 text-inherit",
                   content: (
                     <div className="flex items-center justify-end gap-2">
@@ -299,11 +297,10 @@ export default function NotificationBell({
                       <NotificationIconButton kind="double-check" label="全部已读" disabled={markingRead || data.unreadCount === 0} onClick={() => void markAllRead()} />
                       <NotificationIconButton kind="delete-bin" label="清空已读" variant="danger" disabled={clearing || data.total === 0} onClick={() => void clearNotifications()} />
                     </div>
-                  ),
-                },
-                {
+                  )
+                }),
+                createBlockSurfaceBlock("notification-list", {
                   kind: "message",
-                  key: "notification-list",
                   className: "border-0 bg-transparent p-0 text-inherit",
                   content: (
                     <>
@@ -352,10 +349,10 @@ export default function NotificationBell({
                           </button>
                         </div>}
                     </>
-                  ),
-                },
+                  )
+                }),
               ],
-            }]}
+            })]}
           />
         </div>
       )}

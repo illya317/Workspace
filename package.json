@@ -42,6 +42,7 @@
     "arch:structure:domain": "tsx scripts/arch/structure-enforce.ts --scope=domain-blocker",
     "arch:structure:ui": "tsx scripts/arch/structure-enforce.ts --scope=ui-blocker",
     "arch:structure:hygiene": "tsx scripts/arch/structure-enforce.ts --scope=hygiene",
+    "arch:surface-boundaries": "tsx scripts/arch/surface-boundaries.ts",
     "db:check": "node scripts/check/check-db.js",
     "db:path:check": "node scripts/check/check-database-paths.js",
     "db:docs": "node scripts/generate/gen-db-docs.js",

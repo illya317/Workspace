@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, type Dispatch, type SetStateAction } from "react";
-import { PageSurface, type FormSurfaceItemSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageDataBlock, createBlockSurfaceBlock, createPanelBlock, PageSurface, type FormSurfaceItemSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { departmentCodeEditableSegment } from "./department-code-input";
 import { departmentDescendantIds, splitAliasText } from "./utils";
 import { useDepartmentDescriptionsBlock } from "./department-descriptions-panel";
@@ -161,13 +161,12 @@ export function useDepartmentDetailPaneBlock({
   });
   const detailBlocks: PageSurfaceBlockSpec[] = [];
   if (!selection) {
-    detailBlocks.push({
+    detailBlocks.push(createBlockSurfaceBlock("empty-selection", {
       kind: "empty",
-      key: "empty-selection",
       presentation: "plain",
       className: "py-12 text-center",
-      content: "选择部门或岗位查看详情",
-    });
+      content: "选择部门或岗位查看详情"
+    }));
   }
   if (selectedDepartment) {
     if (!isOrganizationMode) {
@@ -188,9 +187,7 @@ export function useDepartmentDetailPaneBlock({
         onCreatePosition,
       }));
     }
-    detailBlocks.push({
-      kind: "panel",
-      key: "department-info",
+    detailBlocks.push(createPanelBlock("department-info", {
       title: (
         <span className="flex min-w-0 items-center gap-2">
           <span>部门信息</span>
@@ -228,10 +225,7 @@ export function useDepartmentDetailPaneBlock({
             fields: departmentInfoFields,
           },
         },
-        {
-          kind: "data",
-          key: "metrics",
-          surface: {
+        createPageDataBlock("metrics", {
             kind: "metrics",
             framed: true,
             metrics: [
@@ -240,20 +234,17 @@ export function useDepartmentDetailPaneBlock({
               { key: "directHeadcount", label: "直属编制", value: selectedDepartmentStats?.directHeadcount ?? 0 },
               { key: "totalHeadcount", label: "总编制", value: selectedDepartmentStats?.totalHeadcount ?? 0 },
             ],
-          },
-        },
+          }),
       ] : [],
-    });
+    }));
     if (!isOrganizationMode) detailBlocks.push(departmentDescriptionsBlock);
   }
   if (!isOrganizationMode) detailBlocks.push(...positionEditorBlocks);
-  return {
-      kind: "panel",
-      key: "department-detail",
+  return createPanelBlock("department-detail", {
       className: "min-h-[520px]",
       bodyClassName: "p-4",
       blocks: detailBlocks,
-    };
+    });
 }
 
 export function DepartmentDetailPane(props: DepartmentDetailPaneProps) {

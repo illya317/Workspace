@@ -1,12 +1,12 @@
 "use client";
 
-import { PageSurface, type DataSurfaceVisualComparisonBarSectionSpec, type DataSurfaceVisualTone, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createAnalysisBlock, PageSurface, type PageSurfaceBlockSpec, type VisualizationComparisonBarSectionSpec, type VisualizationTone } from "@workspace/core/ui";
 import type { DeptEntry, FilteredDept } from "./usePositionData";
 
 const LEVEL_LABEL: Record<number, string> = { 1: "L1 事业部", 2: "L2 部门", 3: "L3 子部门" };
-const LEVEL_TONE: Record<number, DataSurfaceVisualTone> = { 1: "blue", 2: "emerald", 3: "amber" };
+const LEVEL_TONE: Record<number, VisualizationTone> = { 1: "blue", 2: "emerald", 3: "amber" };
 
-function toneForDiff(diff: number): DataSurfaceVisualTone {
+function toneForDiff(diff: number): VisualizationTone {
   if (diff > 0) return "rose";
   if (diff < 0) return "amber";
   return "emerald";
@@ -19,7 +19,7 @@ function diffLabel(entry: DeptEntry) {
   return String(entry.diff);
 }
 
-function toSection(level: number, entries: DeptEntry[]): DataSurfaceVisualComparisonBarSectionSpec {
+function toSection(level: number, entries: DeptEntry[]): VisualizationComparisonBarSectionSpec {
   return {
     key: `l${level}`,
     title: LEVEL_LABEL[level] || `L${level}`,
@@ -59,9 +59,7 @@ export function createDeptBarChartBlock({
     toSection(3, filteredDept.l3),
   ];
 
-  return {
-        kind: "analysis",
-        key: "dept-bars",
+  return createAnalysisBlock("dept-bars", {
         title: "各部门编制 vs 实际",
         subtitle: "条形宽度跨层级统一比例",
         toolbar: {
@@ -75,11 +73,10 @@ export function createDeptBarChartBlock({
           }],
         },
         blocks: [{
-          kind: "data",
+          kind: "visualization",
           key: "bars",
           surface: {
-            kind: "visual",
-            wrap: false,
+            kind: "chart",
             visual: {
               kind: "comparisonBars",
               sections,
@@ -94,7 +91,7 @@ export function createDeptBarChartBlock({
             },
           },
         }],
-      };
+      });
 }
 
 export default function DeptBarChart(props: DeptBarChartBlockParams) {

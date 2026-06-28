@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec, type PageSurfaceCommandSpec } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createMessageBlock, createSectionBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec, type PageSurfaceCommandSpec } from "@workspace/core/ui";
 
 export interface PositionDescriptionReadOnlyData {
   id?: number | string;
@@ -120,30 +120,23 @@ export function PositionDescriptionReadOnlyView({
     },
   ];
   const blocks: PageSurfaceBlockSpec[] = [
-    ...(showHeader ? [{
-      kind: "section" as const,
-      key: "header",
+    ...(showHeader ? [createSectionBlock("header", {
       title: "岗位说明书",
       className: "mb-6",
-      blocks: [{
-        kind: "message" as const,
-        key: "header-meta",
+      blocks: [createMessageBlock("header-meta", {
         className: "border-0 bg-transparent p-0 text-sm text-gray-500",
         content: (
           <>
             文件编号：{s(data.code)} &nbsp;|&nbsp; 版本：{s(data.version)} &nbsp;|&nbsp; 生效日期：{s(data.effectiveDate)}
           </>
         ),
-      }],
-    }] : []),
-    {
-      kind: "section",
-      key: "basic",
+      })],
+    })] : []),
+    createSectionBlock("basic", {
       title: "基本信息",
       className: "mb-6",
-      blocks: [{
+      blocks: [createBlockSurfaceBlock("basic-fields", {
         kind: "message",
-        key: "basic-fields",
         className: "border-0 bg-transparent p-0 text-inherit",
         content: (
           <>
@@ -165,17 +158,13 @@ export function PositionDescriptionReadOnlyView({
             )}
             <Pair label="编制人数" value={data.headcount} />
           </>
-        ),
-      }],
-    },
-    ...(data.positionPurpose || data.summary ? [{
-      kind: "section" as const,
-      key: "overview",
+        )
+      })],
+    }),
+    ...(data.positionPurpose || data.summary ? [createSectionBlock("overview", {
       title: "岗位概述",
       className: "mb-6",
-      blocks: [{
-        kind: "message" as const,
-        key: "overview-fields",
+      blocks: [createMessageBlock("overview-fields", {
         className: "border-0 bg-transparent p-0 text-inherit",
         content: (
           <>
@@ -183,16 +172,12 @@ export function PositionDescriptionReadOnlyView({
             <Pair label="职责概要" value={data.summary} />
           </>
         ),
-      }],
-    }] : []),
-    ...(Array.isArray(d.duties) && d.duties.length > 0 ? [{
-      kind: "section" as const,
-      key: "duties",
+      })],
+    })] : []),
+    ...(Array.isArray(d.duties) && d.duties.length > 0 ? [createSectionBlock("duties", {
       title: "岗位职责",
       className: "mb-6",
-      blocks: [{
-        kind: "message" as const,
-        key: "duties-content",
+      blocks: [createMessageBlock("duties-content", {
         className: "border-0 bg-transparent p-0 text-inherit",
         content: (
           <>
@@ -212,16 +197,12 @@ export function PositionDescriptionReadOnlyView({
             ))}
           </>
         ),
-      }],
-    }] : []),
-    ...(!!(d.education || formatMajorItems(d.major) || formatExperienceRequirements(d.experienceRequirements) || d.training) ? [{
-      kind: "section" as const,
-      key: "qualification",
+      })],
+    })] : []),
+    ...(!!(d.education || formatMajorItems(d.major) || formatExperienceRequirements(d.experienceRequirements) || d.training) ? [createSectionBlock("qualification", {
       title: "任职资格",
       className: "mb-6",
-      blocks: [{
-        kind: "message" as const,
-        key: "qualification-fields",
+      blocks: [createMessageBlock("qualification-fields", {
         className: "border-0 bg-transparent p-0 text-inherit",
         content: (
           <>
@@ -231,16 +212,12 @@ export function PositionDescriptionReadOnlyView({
             <Pair label="培训经历" value={d.training} />
           </>
         ),
-      }],
-    }] : []),
-    ...(!!(formatWorkEnvironments(d.workEnvironments) || d.workSchedule) ? [{
-      kind: "section" as const,
-      key: "conditions",
+      })],
+    })] : []),
+    ...(!!(formatWorkEnvironments(d.workEnvironments) || d.workSchedule) ? [createSectionBlock("conditions", {
       title: "工作条件",
       className: "mb-6",
-      blocks: [{
-        kind: "message" as const,
-        key: "conditions-fields",
+      blocks: [createMessageBlock("conditions-fields", {
         className: "border-0 bg-transparent p-0 text-inherit",
         content: (
           <>
@@ -248,11 +225,9 @@ export function PositionDescriptionReadOnlyView({
             <Pair label="工作时间" value={d.workSchedule} />
           </>
         ),
-      }],
-    }] : []),
-    ...(historyRows.length > 0 ? [{
-      kind: "section" as const,
-      key: "history",
+      })],
+    })] : []),
+    ...(historyRows.length > 0 ? [createSectionBlock("history", {
       title: "变更历史",
       bodyClassName: "overflow-x-auto p-0",
       className: "mb-6",
@@ -268,7 +243,7 @@ export function PositionDescriptionReadOnlyView({
           rowKey: (row: Record<string, unknown>) => `${String(row.version ?? "")}:${String(row.documentName ?? "")}:${String(row.effectiveDate ?? "")}`,
         },
       }],
-    }] : []),
+    })] : []),
   ];
 
   return (

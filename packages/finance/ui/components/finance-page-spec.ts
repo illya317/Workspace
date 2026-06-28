@@ -1,3 +1,4 @@
+import { createBlockSurfaceBlock } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, PageSurfaceNavigationItemSpec } from "@workspace/core/ui";
 import { MODULE_LIFECYCLE_BY_RESOURCE, MODULE_LIFECYCLE_LABELS } from "@workspace/platform/module-lifecycle";
 import type { SessionUser } from "@workspace/platform/types";
@@ -12,10 +13,9 @@ export function getFinancePageViewTabs(activeNav: string, user: SessionUser): Pa
 export function getFinanceLifecycleBlocks(activeNav: string): PageSurfaceBlockSpec[] {
   const lifecycleStatus = MODULE_LIFECYCLE_BY_RESOURCE[`finance.${activeNav}`];
   if (!lifecycleStatus || lifecycleStatus === "workspace-owned") return [];
-  return [{
+  return [createBlockSurfaceBlock("lifecycle", {
     kind: "message",
-    key: "lifecycle",
     tone: "warning",
-    content: MODULE_LIFECYCLE_LABELS[lifecycleStatus],
-  }];
+    content: MODULE_LIFECYCLE_LABELS[lifecycleStatus]
+  })];
 }

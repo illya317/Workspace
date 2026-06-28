@@ -1,4 +1,4 @@
-import { PageSurface } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createHeadingBlock, PageSurface } from "@workspace/core/ui";
 import type { QcBatchSummary, QcLayoutBlock, QcTemplateDetail, QcTemplateStage } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcLayoutPaper from "./QcLayoutPaper";
@@ -75,19 +75,16 @@ export default function QcBatchStagePrecheck({
           steps: precheckSteps,
         },
       },
-      {
-        kind: "heading",
-        key: "precheck-heading",
+      createHeadingBlock("precheck-heading", {
         className: "mx-auto max-w-[210mm]",
         title: `${numerals[stageIndex] ?? stageIndex + 1}、${productName}${stage.label}`,
-      },
-      locked ? {
+      }),
+      locked ? createBlockSurfaceBlock("precheck-locked", {
         kind: "message",
-        key: "precheck-locked",
         tone: "warning",
         className: "mx-auto max-w-[210mm]",
-        content: "前一阶段尚未全部复核完成，当前阶段暂不可操作。",
-      } : {
+        content: "前一阶段尚未全部复核完成，当前阶段暂不可操作。"
+      }) : {
         kind: "document",
         key: "precheck-paper",
         surface: {

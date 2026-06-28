@@ -1,4 +1,4 @@
-import type { PickerOption } from "@workspace/core/ui";
+import type { SurfacePickerOptionSpec } from "@workspace/core/ui";
 
 export const DETAIL_FIELD_ORDER = [
   "code_raw",
@@ -330,6 +330,6 @@ export const ENVIRONMENT_FACTOR_OPTIONS = [
   "热污染",
 ];
 
-export function pickerOptions(values: string[]): PickerOption[] {
+export function pickerOptions(values: string[]): SurfacePickerOptionSpec[] {
   return values.map((value) => ({ label: value, value }));
 }

@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createGroupBlock, createSectionBlock, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import ApiAccessClient, { type ApiAccessModuleRow } from "./ApiAccessClient";
 type Message = {
@@ -179,9 +179,8 @@ export default function AccountSettingsPanel({
     setTimeout(() => router.push("/login"), 1500);
   }
   const blocks: PageSurfaceBlockSpec[] = [
-    {
+    createBlockSurfaceBlock("profile-header", {
       kind: "message",
-      key: "profile-header",
       content: (
         <div className="flex min-w-0 items-center gap-4">
           <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-50 bg-cover bg-center text-xl font-semibold text-emerald-700" style={avatar ? {
@@ -194,17 +193,13 @@ export default function AccountSettingsPanel({
             <span className="mt-1 block text-sm font-normal text-slate-500">用户名：{user.username || "(未设置)"}</span>
           </span>
         </div>
-      ),
-    },
-    {
-      kind: "surfaceGroup",
-      key: "account-forms",
+      )
+    }),
+    createGroupBlock("account-forms", {
       layout: "grid",
       className: "lg:grid-cols-3",
       blocks: [
-        {
-          kind: "section",
-          key: "profile",
+        createSectionBlock("profile", {
           title: "修改账号",
           className: "h-full",
           blocks: [{
@@ -248,10 +243,8 @@ export default function AccountSettingsPanel({
               ],
             },
           }],
-        },
-        {
-          kind: "section",
-          key: "password",
+        }),
+        createSectionBlock("password", {
           title: "修改密码",
           className: "h-full",
           blocks: [{
@@ -299,10 +292,8 @@ export default function AccountSettingsPanel({
               actions: [{ key: "save-password", label: "保存密码", variant: "secondary", onClick: () => void savePassword() }],
             },
           }],
-        },
-        {
-          kind: "section",
-          key: "avatar",
+        }),
+        createSectionBlock("avatar", {
           title: "修改头像",
           className: "h-full",
           blocks: [{
@@ -344,14 +335,15 @@ export default function AccountSettingsPanel({
               actions: [{ key: "save-avatar", label: avatarSaving ? "保存中..." : "保存头像", variant: "primary", disabled: !avatarFile || avatarSaving, onClick: () => void saveAvatar() }],
             },
           }],
-        },
+        }),
       ],
-    },
-    {
-      kind: "surfaceGroup",
-      key: "api-access",
-      blocks: [{ kind: "message", key: "api-access-client", content: <ApiAccessClient user={user} modules={apiAccessModules} /> }],
-    },
+    }),
+    createGroupBlock("api-access", {
+      blocks: [createBlockSurfaceBlock("api-access-client", {
+        kind: "message",
+        content: <ApiAccessClient user={user} modules={apiAccessModules} />
+      })],
+    }),
   ];
   return <PageSurface kind="settings" contentClassName="max-w-4xl py-10" blocks={blocks} />;
 }

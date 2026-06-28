@@ -1,5 +1,6 @@
 import { type ReactNode } from "react";
-import { ActionGlyph, PanelCard } from "@workspace/core/ui";
+import { ActionGlyph } from "@workspace/core/ui";
+import { PanelCard } from "./internal-ui";
 import {
   type CoreUiComponentRegistration,
 } from "@workspace/core/ui/component-registry";
@@ -44,17 +45,39 @@ function PreviewBlock({
 }
 
 function exposureLabel(component: CoreUiComponentRegistration) {
-  const exposure = component.exposure;
-  if (exposure?.mode === "direct") return "调用";
-  if (exposure?.mode === "via") return "封装";
-  return "内部";
+  if (component.role === "surface") return "声明接口";
+  if (component.role === "host") return "宿主入口";
+  if (component.role === "helper") return "声明助手";
+  if (component.role === "service") return "服务接口";
+  return "内部实现";
 }
 
 function exposureTitle(component: CoreUiComponentRegistration) {
   const exposure = component.exposure;
-  if (exposure?.mode === "direct") return "可直接调用";
-  if (exposure?.mode === "via") return `${exposure.entry}.${exposure.path}`;
+  if (component.role === "surface" && exposure?.mode === "spec") {
+    return `通过 ${exposure.entry}.${exposure.path} 声明`;
+  }
+  if (component.role === "surface") {
+    return "Surface 声明接口";
+  }
+  if (component.role === "host") {
+    return "执行 Surface 声明的宿主入口";
+  }
+  if (component.role === "helper") {
+    return "构造 Surface 声明的 helper";
+  }
+  if (component.role === "service") {
+    return "非视觉服务接口";
+  }
   return "内部实现";
+}
+
+function exposureBadgeClasses(component: CoreUiComponentRegistration) {
+  if (component.role === "surface") return "bg-emerald-50 text-emerald-700";
+  if (component.role === "host") return "bg-sky-50 text-sky-700";
+  if (component.role === "helper") return "bg-cyan-50 text-cyan-700";
+  if (component.role === "service") return "bg-violet-50 text-violet-700";
+  return "bg-slate-50 text-slate-500";
 }
 
 export function UiComponentPreviewPanel({
@@ -86,7 +109,10 @@ export function UiComponentPreviewPanel({
             {formatNestDepth(nestDepth)}
           </span>
           <span
-            className="rounded-full bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700"
+            className={joinClassNames(
+              "rounded-full px-2 py-0.5 text-[11px] font-medium",
+              exposureBadgeClasses(component),
+            )}
             title={exposureTitle(component)}
           >
             {exposureLabel(component)}

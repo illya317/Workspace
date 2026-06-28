@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { PageSurface, createPageActionsBlock, createPageDataBlock } from "@workspace/core/ui";
+import { PageSurface, createMessageBlock, createActionsBlock, createPageDataBlock } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import BalanceCheckTable, { flattenBalanceAccountTree, formatBalanceAmount, type BalanceCheckAccountNode } from "../components/BalanceCheckTable";
 import FinanceFilters from "../components/FinanceFilters";
@@ -121,14 +121,12 @@ export default function BalanceCheckTab() {
   }, [tree]);
   const statusBlocks: PageSurfaceBlockSpec[] = [
     ...(!loading && error ? [
-      {
-        kind: "message" as const,
-        key: "error",
+      createMessageBlock("error", {
         tone: "danger" as const,
         className: "py-8 text-center",
         content: error,
-      },
-      createPageActionsBlock("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: load }], { className: "justify-center" }),
+      }),
+      createActionsBlock("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: load }], { className: "justify-center" }),
     ] : []),
     ...(!loading && !error && tree && flatNodes.length > 0 && summary ? [
       createPageDataBlock("balance-summary", {

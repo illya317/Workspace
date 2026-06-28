@@ -2,7 +2,7 @@
 
 `PageSurface` 的 `moduleView` 是历史逃生口，不是新增页面 API。后续迁移规则：
 
-- `replace-now`：现有正式入口或 spec 已可表达，直接迁移；业务 runtime 不再直接使用 `FormSurface` / `DataSurface` / `NavigationSurface`。
+- `replace-now`：现有正式入口或 spec 已可表达，直接迁移；业务代码不再直接使用 internal `FormSurface` / `DataSurface` / `NavigationSurface` renderer。
 - `core-gap`：现有 Surface contract 不够，先补公开契约，再替换业务侧。
 - `defer`：不是单点 UI，可在下游子视图迁完后再处理宿主。
 - `migrated`：已经迁出 `moduleView`，对应 baseline 已 ratchet。
@@ -13,7 +13,7 @@
 
 | target | scope |
 |---|---|
-| `data-visual-spec` | 已补 `DataSurface kind="visual"`：time-series bar、grouped bar、comparative/bullet bar、hierarchy tree |
+| `visualization-surface` | 已补 `VisualizationSurface kind="chart/gantt"`：轻量 bar/grouped/comparison/tree 图表和 Work 甘特图入口；旧 `DataSurface kind="visual"` 已从顶层 DataSurface 类型删除。 |
 | `data-record-detail-surface` | 已补 `DataSurface records.detailSurface` + `display.stack`：展开记录内嵌 typed data surface，不再用 ReactNode 包 `<DataSurface>` |
 | `document-block-spec` | 已补 `PageSurface` `document` block + Core `DocumentSurface` v1：治理 A4/纸面文档宿主、宽度、字体和多页容器；QC rows/cells/parts/fields/anchors 仍由 domain renderer 承担，作为后续 L3 document sub-spec 继续演进 |
 | `page-split-slot` | split side / drawer / main content 的结构化 slot，不允许变成 generic render |

@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PageSurface, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceBlock, useFeedback } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { getAccountColumns, type Account } from "../components/AccountTable";
 import ReclassConfigView from "../components/ReclassConfigView";
@@ -157,14 +157,17 @@ export default function AccountTab({
       navigation={navigation}
       toolbar={{ items: toolbarItems }}
       body={{
-        blocks: lifecycleBlocks,
-        content: reclassMode ? (
-          companyFilter && yearFilter ? (
-            <ReclassConfigView companyCode={companyFilter} year={yearFilter} keyword={keyword} statusFilter={reclassStatus} pageSize={pageSize} canWrite={canWrite} onStats={setReclassStats} />
-          ) : (
-            <p className="py-8 text-center text-sm text-gray-400">请选择公司和年份以配置重分类规则</p>
-          )
-        ) : undefined,
+        blocks: reclassMode ? [
+          ...lifecycleBlocks,
+          createBlockSurfaceBlock("account-reclass-content", {
+            kind: "content",
+            content: companyFilter && yearFilter ? (
+              <ReclassConfigView companyCode={companyFilter} year={yearFilter} keyword={keyword} statusFilter={reclassStatus} pageSize={pageSize} canWrite={canWrite} onStats={setReclassStats} />
+            ) : (
+              <p className="py-8 text-center text-sm text-gray-400">请选择公司和年份以配置重分类规则</p>
+            ),
+          }),
+        ] : lifecycleBlocks,
         ...(!reclassMode ? {
           layout: "single" as const,
           blocks: [

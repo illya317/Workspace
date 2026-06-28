@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createGroupBlock, createPanelBlock, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { buildPositionCreatePanelBlock } from "./create-panels";
 import type { CreatePositionDraft, Department, Position, Selection } from "./types";
 import { shortPositionCode } from "./utils";
@@ -122,7 +122,12 @@ export function buildDirectPositionPanelBlock({
               },
           },
         }
-      : { kind: "empty", key: "empty", presentation: "plain", compact: true, content: "暂无直属岗位" },
+      : createBlockSurfaceBlock("empty", {
+        kind: "empty",
+        presentation: "plain",
+        compact: true,
+        content: "暂无直属岗位"
+      }),
     ...(creatingPositionHere && canRenderCreate
       ? [buildPositionCreatePanelBlock({
           createPositionDraft,
@@ -139,9 +144,7 @@ export function buildDirectPositionPanelBlock({
       : []),
   ];
 
-  return {
-          kind: "panel",
-          key: "direct-positions",
+  return createPanelBlock("direct-positions", {
           title: "直属岗位",
           subtitle: `${directPositions.length} 个`,
           actions: canRenderCreate ? [{
@@ -162,7 +165,7 @@ export function buildDirectPositionPanelBlock({
           }] : undefined,
           bodyClassName: "p-4",
           blocks,
-        };
+        });
 }
 export function DepartmentTreePanel({
   mode,
@@ -184,8 +187,16 @@ export function DepartmentTreePanel({
   departmentNodeBlock: (department: Department) => PageSurfaceBlockSpec | null;
 }) {
   const blocks: PageSurfaceBlockSpec[] = [];
-  if (loading) blocks.push({ kind: "message", key: "loading", content: "加载中...", tone: "muted" });
-  if (error) blocks.push({ kind: "message", key: "error", content: error, tone: "danger" });
+  if (loading) blocks.push(createBlockSurfaceBlock("loading", {
+    kind: "message",
+    content: "加载中...",
+    tone: "muted"
+  }));
+  if (error) blocks.push(createBlockSurfaceBlock("error", {
+    kind: "message",
+    content: error,
+    tone: "danger"
+  }));
   if (!loading && !error) {
     blocks.push(...rootDepartments.map((department) => departmentNodeBlock(department)).filter(isPageSurfaceBlockSpec));
   }
@@ -195,14 +206,12 @@ export function DepartmentTreePanel({
       embedded
       kind="detail"
       blocks={[
-        {
-          kind: "panel",
-          key: "department-tree",
+        createPanelBlock("department-tree", {
           className: mode === "drawer" ? "h-full overflow-hidden" : undefined,
           bodyClassName: `${mode === "drawer" ? "h-[calc(100%-48px)]" : "max-h-[760px]"} overflow-auto p-1`,
           actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", onClick: onClose }] : undefined,
           blocks,
-        },
+        }),
       ]}
     />
   );
@@ -228,20 +237,26 @@ export function buildDepartmentTreePanelBlock({
   departmentNodeBlock: (department: Department) => PageSurfaceBlockSpec | null;
 }): PageSurfaceBlockSpec {
   const blocks: PageSurfaceBlockSpec[] = [];
-  if (loading) blocks.push({ kind: "message", key: "loading", content: "加载中...", tone: "muted" });
-  if (error) blocks.push({ kind: "message", key: "error", content: error, tone: "danger" });
+  if (loading) blocks.push(createBlockSurfaceBlock("loading", {
+    kind: "message",
+    content: "加载中...",
+    tone: "muted"
+  }));
+  if (error) blocks.push(createBlockSurfaceBlock("error", {
+    kind: "message",
+    content: error,
+    tone: "danger"
+  }));
   if (!loading && !error) {
     blocks.push(...rootDepartments.map((department) => departmentNodeBlock(department)).filter(isPageSurfaceBlockSpec));
   }
 
-  return {
-    kind: "panel",
-    key: "department-tree",
+  return createPanelBlock("department-tree", {
     className: mode === "drawer" ? "h-full overflow-hidden" : undefined,
     bodyClassName: `${mode === "drawer" ? "h-[calc(100%-48px)]" : "max-h-[760px]"} overflow-auto p-1`,
     actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", onClick: onClose }] : undefined,
     blocks,
-  };
+  });
 }
 export function OrganizationRootPanel({
   mode,
@@ -259,18 +274,28 @@ export function OrganizationRootPanel({
   organizationRootBlock: (department: Department) => PageSurfaceBlockSpec | null;
 }) {
   const blocks: PageSurfaceBlockSpec[] = [];
-  if (loading) blocks.push({ kind: "message", key: "loading", content: "加载中...", tone: "muted" });
-  if (error) blocks.push({ kind: "message", key: "error", content: error, tone: "danger" });
+  if (loading) blocks.push(createBlockSurfaceBlock("loading", {
+    kind: "message",
+    content: "加载中...",
+    tone: "muted"
+  }));
+  if (error) blocks.push(createBlockSurfaceBlock("error", {
+    kind: "message",
+    content: error,
+    tone: "danger"
+  }));
   if (!loading && !error && departments.length === 0) {
-    blocks.push({ kind: "empty", key: "empty", presentation: "plain", content: "暂无部门" });
+    blocks.push(createBlockSurfaceBlock("empty", {
+      kind: "empty",
+      presentation: "plain",
+      content: "暂无部门"
+    }));
   }
   if (!loading && !error && departments.length > 0) {
-    blocks.push({
-      kind: "surfaceGroup",
-      key: "roots",
+    blocks.push(createGroupBlock("roots", {
       blocks: departments.map((department) => organizationRootBlock(department)).filter(isPageSurfaceBlockSpec),
       className: "grid gap-2",
-    });
+    }));
   }
 
   return (
@@ -278,14 +303,12 @@ export function OrganizationRootPanel({
       embedded
       kind="detail"
       blocks={[
-        {
-          kind: "panel",
-          key: "organization-roots",
+        createPanelBlock("organization-roots", {
           className: mode === "drawer" ? "h-full overflow-hidden" : undefined,
           bodyClassName: `${mode === "drawer" ? "h-full" : "max-h-[760px]"} overflow-auto p-1`,
           actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", onClick: onClose }] : undefined,
           blocks,
-        },
+        }),
       ]}
     />
   );
@@ -307,26 +330,34 @@ export function buildOrganizationRootPanelBlock({
   organizationRootBlock: (department: Department) => PageSurfaceBlockSpec | null;
 }): PageSurfaceBlockSpec {
   const blocks: PageSurfaceBlockSpec[] = [];
-  if (loading) blocks.push({ kind: "message", key: "loading", content: "加载中...", tone: "muted" });
-  if (error) blocks.push({ kind: "message", key: "error", content: error, tone: "danger" });
+  if (loading) blocks.push(createBlockSurfaceBlock("loading", {
+    kind: "message",
+    content: "加载中...",
+    tone: "muted"
+  }));
+  if (error) blocks.push(createBlockSurfaceBlock("error", {
+    kind: "message",
+    content: error,
+    tone: "danger"
+  }));
   if (!loading && !error && departments.length === 0) {
-    blocks.push({ kind: "empty", key: "empty", presentation: "plain", content: "暂无部门" });
+    blocks.push(createBlockSurfaceBlock("empty", {
+      kind: "empty",
+      presentation: "plain",
+      content: "暂无部门"
+    }));
   }
   if (!loading && !error && departments.length > 0) {
-    blocks.push({
-      kind: "surfaceGroup",
-      key: "roots",
+    blocks.push(createGroupBlock("roots", {
       blocks: departments.map((department) => organizationRootBlock(department)).filter(isPageSurfaceBlockSpec),
       className: "grid gap-2",
-    });
+    }));
   }
 
-  return {
-    kind: "panel",
-    key: "organization-roots",
+  return createPanelBlock("organization-roots", {
     className: mode === "drawer" ? "h-full overflow-hidden" : undefined,
     bodyClassName: `${mode === "drawer" ? "h-full" : "max-h-[760px]"} overflow-auto p-1`,
     actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", onClick: onClose }] : undefined,
     blocks,
-  };
+  });
 }

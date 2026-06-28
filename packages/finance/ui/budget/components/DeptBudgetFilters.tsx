@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createPageInlineFieldsBlock } from "@workspace/core/ui";
+import { PageSurface, createInlineFieldsBlock } from "@workspace/core/ui";
 interface DeptBudgetFiltersProps {
   deptFilter: string;
   setDeptFilter: (v: string) => void;
@@ -33,7 +33,7 @@ export default function DeptBudgetFilters({
         kind="list"
         embedded
         blocks={[
-          createPageInlineFieldsBlock("dept-budget-filters", [
+          createInlineFieldsBlock("dept-budget-filters", [
             {
               key: "dept",
               label: "部门",

@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   PageSurface,
+  createBlockSurfaceBlock,
   createPageDataBlock,
-  createPageFieldsBlock,
   useFeedback,
   type DataSurfaceColumnSpec,
-  type DataTableRowEditActionConfig,
-  type PickerOption,
+  type SurfaceDataRowEditActionSpec,
+  type SurfacePickerOptionSpec,
 } from "@workspace/core/ui";
 import {
   createProjectTask,
@@ -85,7 +85,7 @@ export default function ProjectTasksSection({
     setCreateDraft(createEmptyProjectTaskDraft(nextSortOrder(tasks)));
   }, [tasks]);
 
-  const taskOptions = useMemo<PickerOption[]>(
+  const taskOptions = useMemo<SurfacePickerOptionSpec[]>(
     () => tasks.map((task) => ({ value: String(task.id), label: task.name || task.description })),
     [tasks],
   );
@@ -241,31 +241,30 @@ export default function ProjectTasksSection({
   const blocks = !projectId ? [
     createPageDataBlock("project-tasks-empty", { kind: "records", framed: true, title: "项目任务", records: [], empty: "项目保存后可维护任务计划。" }),
   ] : [
-    createPageFieldsBlock("project-tasks", [{
-        kind: "section",
-        key: "project-tasks",
-        title: "项目任务",
-        actions: canEdit && !creatingTask ? [{
-          key: "create",
-          label: "新增任务",
-          variant: "primary",
-          disabled: disabled || saving,
-          onClick: () => setCreatingTask(true),
-        }] : undefined,
-        fields: [
-          ...(creatingTask ? [{
-            kind: "section" as const,
-            key: "create-task",
-            fields: [{ kind: "note" as const, key: "create-task-form", content: <ProjectTaskForm draft={createDraft} disabled={disabled || saving} taskOptions={taskOptions} phases={phases} tasks={tasks} excludedTaskId={null} framed={false} onChange={setCreateDraft} /> }],
-            actions: [
-              { key: "cancel", label: "取消", disabled: disabled || saving, onClick: () => setCreatingTask(false) },
-              { key: "submit", label: saving ? "保存中..." : "保存任务", variant: "primary" as const, disabled: disabled || saving || !isTaskDraftSubmittable(createDraft), onClick: () => void handleCreate() },
-            ],
-          }] : []),
-          {
-            kind: "note",
-            key: "task-table",
-            content: (
+    createBlockSurfaceBlock("project-tasks", {
+      kind: "section",
+      title: "项目任务",
+      actions: canEdit && !creatingTask ? [{
+        key: "create",
+        label: "新增任务",
+        variant: "primary",
+        disabled: disabled || saving,
+        onClick: () => setCreatingTask(true),
+      }] : undefined,
+      blocks: [
+        ...(creatingTask ? [{
+          kind: "section" as const,
+          key: "create-task",
+          content: <ProjectTaskForm draft={createDraft} disabled={disabled || saving} taskOptions={taskOptions} phases={phases} tasks={tasks} excludedTaskId={null} framed={false} onChange={setCreateDraft} />,
+          actions: [
+            { key: "cancel", label: "取消", disabled: disabled || saving, onClick: () => setCreatingTask(false) },
+            { key: "submit", label: saving ? "保存中..." : "保存任务", variant: "primary" as const, disabled: disabled || saving || !isTaskDraftSubmittable(createDraft), onClick: () => void handleCreate() },
+          ],
+        }] : []),
+        {
+          kind: "content" as const,
+          key: "task-table",
+          content: (
               <ProjectTaskTableSurface
                 tasks={tasks}
                 columns={columns}
@@ -286,10 +285,10 @@ export default function ProjectTasksSection({
                 onCreateChildProject={onCreateChildProject}
                 onDelete={handleDelete}
               />
-            ),
-          },
-        ],
-      }]),
+          ),
+        },
+      ],
+    }),
   ];
 
   return (
@@ -326,7 +325,7 @@ function ProjectTaskTableSurface({
   disabled: boolean;
   saving: boolean;
   canEdit: boolean;
-  taskOptions: PickerOption[];
+  taskOptions: SurfacePickerOptionSpec[];
   phases: ProjectPlanPhaseItem[];
   onRowClick: (task: ProjectTaskItem) => void;
   onEditDraftChange: (draft: ProjectTaskDraft) => void;
@@ -347,18 +346,25 @@ function ProjectTaskTableSurface({
     onRowClick,
     visibleColumns: ["owner", "childProjectStatus", "startDate", "endDate"],
     expandedRowKey: detailTaskId,
-    renderExpandedRow: (task) => editDraft && editingTaskId === task.id ? (
-      <ProjectTaskForm
-        draft={editDraft}
-        disabled={disabled || saving}
-        taskOptions={taskOptions}
-        phases={phases}
-        tasks={tasks}
-        excludedTaskId={task.id}
-        onChange={onEditDraftChange}
-      />
-    ) : <ProjectTaskDetail task={task} />,
-    rowEditActions: (task): DataTableRowEditActionConfig<ProjectTaskItem> => ({
+    expandedRowBlocks: (task) => [{
+      kind: "block",
+      key: `project-task-detail-${task.id}`,
+      surface: {
+        kind: "content",
+        content: editDraft && editingTaskId === task.id ? (
+          <ProjectTaskForm
+            draft={editDraft}
+            disabled={disabled || saving}
+            taskOptions={taskOptions}
+            phases={phases}
+            tasks={tasks}
+            excludedTaskId={task.id}
+            onChange={onEditDraftChange}
+          />
+        ) : <ProjectTaskDetail task={task} />,
+      },
+    }],
+    rowEditActions: (task): SurfaceDataRowEditActionSpec<ProjectTaskItem> => ({
       editing: editingTaskId === task.id,
       canEdit,
       canSave: Boolean(editDraft && isTaskDraftSubmittable(editDraft)),

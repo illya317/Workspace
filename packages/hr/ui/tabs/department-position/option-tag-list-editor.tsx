@@ -2,7 +2,7 @@
 
 import {
   PageSurface,
-  createPageFieldsBlock,
+  createFieldsBlock,
 } from "@workspace/core/ui";
 import { pickerOptions, primitiveListItems } from "./description-details";
 
@@ -39,7 +39,7 @@ export function OptionTagListEditor({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[createPageFieldsBlock<string>("options", [{
+        blocks={[createFieldsBlock<string>("options", [{
           kind: "tagList",
           key: "options",
           label: "",

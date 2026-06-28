@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PageSurface, createPageActionsBlock, createPageDataBlock, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createActionsBlock, createPageDataBlock, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { matchSearchFields } from "@workspace/platform/search";
 import { useStatementConfig } from "./StatementConfigContext";
 import LineMappingsPanel from "./LineMappingsPanel";
@@ -279,7 +279,7 @@ function LineConfigError({ message, onRetry }: { message: string; onRetry: () =>
       <PageSurface
         kind="list"
         embedded
-        blocks={[createPageActionsBlock("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }], { className: "justify-center" })]}
+        blocks={[createActionsBlock("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }], { className: "justify-center" })]}
       />
     </div>
   );
@@ -346,29 +346,36 @@ function LineConfigTable({
           },
           expandedRowKeys: expanded,
           rowClassName: row => row.kind === "section" ? "bg-slate-50" : row.kind === "special" ? "bg-slate-50/50" : "",
-          renderExpandedRow: row => {
-            if (row.kind !== "line") return null;
-            return (
-              <LineMappingsPanel
-                line={row.line}
-                mappings={row.mappings}
-                inheritedAccounts={row.inheritedAccounts}
-                accountMap={accountMap}
-                saving={saving}
-                addingFor={addingFor}
-                newAccount={newAccount}
-                accountSearch={accountSearch}
-                filteredAccounts={filteredAccounts}
-                onExcludeDefault={(accountCode, lineCode) => onSaveMapping(accountCode, lineCode, "exclude")}
-                onRestoreDefault={onRestoreDefault}
-                onToggleOperator={(accountCode, lineCode, current) => onSaveMapping(accountCode, lineCode, current === "add" ? "subtract" : "add")}
-                onSaveMapping={onSaveMapping}
-                onStartAdding={onStartAdding}
-                onCancelAdding={onCancelAdding}
-                onNewAccountChange={onNewAccountChange}
-                onAccountSearchChange={onAccountSearchChange}
-              />
-            );
+          expandedRowBlocks: row => {
+            if (row.kind !== "line") return [];
+            return [{
+              kind: "block",
+              key: `line-mappings-${row.line.lineCode}`,
+              surface: {
+                kind: "content",
+                content: (
+                  <LineMappingsPanel
+                    line={row.line}
+                    mappings={row.mappings}
+                    inheritedAccounts={row.inheritedAccounts}
+                    accountMap={accountMap}
+                    saving={saving}
+                    addingFor={addingFor}
+                    newAccount={newAccount}
+                    accountSearch={accountSearch}
+                    filteredAccounts={filteredAccounts}
+                    onExcludeDefault={(accountCode, lineCode) => onSaveMapping(accountCode, lineCode, "exclude")}
+                    onRestoreDefault={onRestoreDefault}
+                    onToggleOperator={(accountCode, lineCode, current) => onSaveMapping(accountCode, lineCode, current === "add" ? "subtract" : "add")}
+                    onSaveMapping={onSaveMapping}
+                    onStartAdding={onStartAdding}
+                    onCancelAdding={onCancelAdding}
+                    onNewAccountChange={onNewAccountChange}
+                    onAccountSearchChange={onAccountSearchChange}
+                  />
+                ),
+              },
+            }];
           },
         }),
       ]}

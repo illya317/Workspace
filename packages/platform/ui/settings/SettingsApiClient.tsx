@@ -1,7 +1,7 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { PageSurface, type DataSurfaceColumnSpec, type FormSurfaceItemSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceBlock, createMessageBlock, createSectionBlock, type DataSurfaceColumnSpec, type FormSurfaceItemSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { postJson, putJson, requestJson } from "../api-client";
 type OpenApiRegistrationRow = {
@@ -283,27 +283,24 @@ export default function SettingsApiClient({
       }))
     : [{ kind: "note" as const, key: "empty-scopes", content: "暂无 Scope" }];
   const blocks: PageSurfaceBlockSpec[] = [
-    ...(message ? [{
-      kind: "message" as const,
-      key: "message",
+    ...(message ? [createMessageBlock("message", {
       tone: "default" as const,
       content: message,
-    }] : []),
-    ...(freshSecret ? [{
-      kind: "section" as const,
-      key: "fresh-secret",
+    })] : []),
+    ...(freshSecret ? [createSectionBlock("fresh-secret", {
       title: "新密钥",
       subtitle: "只在本次操作后显示。",
       actions: [{ key: "hide-secret", label: "隐藏", onClick: () => setFreshSecret(null) }],
-      blocks: [{
-        kind: "data" as const,
-        key: "secret",
-        surface: { kind: "raw" as const, value: freshSecret, rawClassName: "bg-slate-950 text-white" },
-      }],
-    }] : []),
-    {
-      kind: "section",
-      key: "registrations",
+      blocks: [createBlockSurfaceBlock("secret", {
+        kind: "content",
+        content: (
+          <pre className="whitespace-pre-wrap rounded-md bg-slate-950 p-4 font-mono text-sm text-white">
+            {freshSecret}
+          </pre>
+        ),
+      })],
+    })] : []),
+    createSectionBlock("registrations", {
       title: "开放能力",
       subtitle: "Registry 中已注册的页面、资源、Scope 和 endpoint。",
       blocks: [
@@ -318,10 +315,8 @@ export default function SettingsApiClient({
           surface: { kind: "table", rows: endpoints, columns: endpointColumns, visibleColumns: endpointColumns.map((column) => column.key), emptyText: "暂无 endpoint", rowKey: (row) => row.key, density: "compact" },
         },
       ],
-    },
-    {
-      kind: "section",
-      key: "clients",
+    }),
+    createSectionBlock("clients", {
       title: "Client",
       actions: [{ key: "refresh", label: "刷新", onClick: () => loadData(), disabled: loading }],
       blocks: [
@@ -371,25 +366,21 @@ export default function SettingsApiClient({
           },
         },
       ],
-    },
-    {
-      kind: "section",
-      key: "scopes",
+    }),
+    createSectionBlock("scopes", {
       title: "Scope 授权",
       subtitle: selectedClient ? selectedClient.name : "先选择一个 Client。",
       actions: [{ key: "save-scopes", label: "保存", onClick: saveScopes, disabled: !selectedClient || busy === `scopes-${selectedClient?.id}` }],
       blocks: [{ kind: "form", key: "scope-form", surface: { kind: "fields", fields: scopeFields, columns: 3 } }],
-    },
-    {
-      kind: "section",
-      key: "logs",
+    }),
+    createSectionBlock("logs", {
       title: "调用日志",
       blocks: [{
         kind: "data",
         key: "log-table",
         surface: { kind: "table", rows: logs, columns: logColumns, visibleColumns: logColumns.map((column) => column.key), loading, emptyText: "暂无调用日志", rowKey: (row) => row.id, density: "compact" },
       }],
-    },
+    }),
   ];
   return <PageSurface kind="settings" contentClassName="py-8" blocks={blocks} />;
 }

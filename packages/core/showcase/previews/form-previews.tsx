@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, type FC } from "react";
+import { FormSurface } from "@workspace/core/ui";
 import {
   AutoSizeTextField, CalendarDateInput, CheckboxChip, CheckboxField, ChoiceGroup,
   FieldGrid, FieldInputShell,
-  FormField, FormShell, FormSurface, HiddenDataField, PercentField, RatingControl, ReadOnlyField,
+  FormField, FormShell, HiddenDataField, PercentField, RatingControl, ReadOnlyField,
   SearchInput, SelectField, SwitchField,
   TagInlineTextField, TextField, TextareaField, TimeField,
-} from "@workspace/core/ui";
+} from "../internal-ui";
 import BlockCreatePanel from "../../ui/BlockCreatePanel";
 import InlineCreatePanel from "../../ui/InlineCreatePanel";
 import { CreateConfirmActions, CreateStartButton } from "../../ui/CreateActionControls";

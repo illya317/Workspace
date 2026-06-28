@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createPageActionsBlock, createPageDataBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createActionsBlock, createPageDataBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { PreviewAccount, PreviewBalance, PreviewResult, PreviewVoucher, PreviewVoucherItem } from "./types";
 interface ImportPreviewProps {
   preview: PreviewResult;
@@ -233,7 +233,7 @@ export default function ImportPreview({
           kind="list"
           embedded
           blocks={[
-            createPageActionsBlock("import-preview-actions", [{
+            createActionsBlock("import-preview-actions", [{
               key: "confirm",
               label: importing ? "导入中..." : "确认导入",
               variant: "primary",

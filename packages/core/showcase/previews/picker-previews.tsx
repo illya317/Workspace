@@ -5,7 +5,7 @@ import {
   FkFieldInput,
   OptionPicker,
   SearchableOptionInput,
-} from "@workspace/core/ui";
+} from "../internal-ui";
 
 
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createPageFieldsBlock, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createFieldsBlock, useFeedback } from "@workspace/core/ui";
 import { HR_MAJOR_OPTIONS, normalizeHrMajorItems, type HRMajorItem } from "@workspace/hr/constants/field-options";
 import { ENVIRONMENT_FACTOR_OPTIONS, WORK_AREA_OPTIONS, pickerOptions, primitiveListItems } from "./description-details";
 type WorkEnvironmentItem = {
@@ -68,7 +68,7 @@ export function WorkEnvironmentEditor({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[createPageFieldsBlock<string>("work-environments", [
+        blocks={[createFieldsBlock<string>("work-environments", [
           {
             kind: "repeatable",
             key: "work-environments",
@@ -178,7 +178,7 @@ export function MajorRequirementsEditor({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[createPageFieldsBlock<HRMajorItem>("major-requirements", [{
+        blocks={[createFieldsBlock<HRMajorItem>("major-requirements", [{
           kind: "tagList",
           key: "majorRequirements",
           label: "",
@@ -257,7 +257,7 @@ export function ExperienceRequirementsEditor({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[createPageFieldsBlock("experience-requirements", [{
+        blocks={[createFieldsBlock("experience-requirements", [{
           kind: "repeatable",
           key: "experience-requirements",
           title: label,

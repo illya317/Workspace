@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useCallback } from "react";
-import { PageSurface, createPageFormModalBlock } from "@workspace/core/ui";
+import { PageSurface, createFieldsBlock, createPageModalBlock } from "@workspace/core/ui";
 
 interface Source {
   key: string;
@@ -92,83 +92,85 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
       kind="list"
       embedded
       blocks={[
-        createPageFormModalBlock("generate-document", {
+        createPageModalBlock("generate-document", {
           open: true,
           title: "生成文档",
           onClose,
           maxWidth: "max-w-md",
-        }, {
-          fields: [
-            ...(statusMessage
-              ? [{
-                  key: "status",
-                  label: "状态",
-                  spec: { valueType: "string" as const, control: "text" as const, state: "readonly" as const },
-                  value: statusMessage,
-                }]
-              : []),
-            {
-              key: "source",
-              label: "生成类型",
-              spec: {
-                valueType: "string",
-                control: "choice",
-                state: hasSources ? "normal" : "disabled",
-                options: {
-                  source: "static",
-                  mode: "dropdown",
-                  items: sources.map((source) => ({ value: source.key, label: source.name })),
+          blocks: [
+            createFieldsBlock("generate-document-form", [
+              ...(statusMessage
+                ? [{
+                    key: "status",
+                    label: "状态",
+                    spec: { valueType: "string" as const, control: "text" as const, state: "readonly" as const },
+                    value: statusMessage,
+                  }]
+                : []),
+              {
+                key: "source",
+                label: "生成类型",
+                spec: {
+                  valueType: "string",
+                  control: "choice",
+                  state: hasSources ? "normal" : "disabled",
+                  options: {
+                    source: "static",
+                    mode: "dropdown",
+                    items: sources.map((source) => ({ value: source.key, label: source.name })),
+                  },
                 },
+                value: selectedKey,
+                onChange: (value) => handleSourceChange(String(value ?? "")),
               },
-              value: selectedKey,
-              onChange: (value) => handleSourceChange(String(value ?? "")),
-            },
-            {
-              key: "title",
-              label: "标题",
-              spec: { valueType: "string", control: "text", state: hasSources ? "normal" : "disabled" },
-              value: title,
-              onChange: (value) => setTitle(String(value ?? "")),
-              placeholder: "文档标题",
-            },
-            {
-              key: "summary",
-              label: "简介",
-              spec: { valueType: "string", control: "text", multiline: true, state: hasSources ? "normal" : "disabled" },
-              value: summary,
-              onChange: (value) => setSummary(String(value ?? "")),
-              rows: 3,
-              placeholder: "可选",
-            },
-            {
-              key: "confidentialityLevel",
-              label: "保密等级",
-              spec: {
-                valueType: "number",
-                control: "choice",
-                state: hasSources ? "normal" : "disabled",
-                options: {
-                  source: "static",
-                  mode: "dropdown",
-                  items: Object.entries(LEVEL_LABELS).map(([level, label]) => ({
-                    value: level,
-                    label: `${label} (L${level})`,
-                  })),
+              {
+                key: "title",
+                label: "标题",
+                spec: { valueType: "string", control: "text", state: hasSources ? "normal" : "disabled" },
+                value: title,
+                onChange: (value) => setTitle(String(value ?? "")),
+                placeholder: "文档标题",
+              },
+              {
+                key: "summary",
+                label: "简介",
+                spec: { valueType: "string", control: "text", multiline: true, state: hasSources ? "normal" : "disabled" },
+                value: summary,
+                onChange: (value) => setSummary(String(value ?? "")),
+                rows: 3,
+                placeholder: "可选",
+              },
+              {
+                key: "confidentialityLevel",
+                label: "保密等级",
+                spec: {
+                  valueType: "number",
+                  control: "choice",
+                  state: hasSources ? "normal" : "disabled",
+                  options: {
+                    source: "static",
+                    mode: "dropdown",
+                    items: Object.entries(LEVEL_LABELS).map(([level, label]) => ({
+                      value: level,
+                      label: `${label} (L${level})`,
+                    })),
+                  },
                 },
+                value: String(confidentialityLevel),
+                onChange: (value) => setConfidentialityLevel(Number(value)),
               },
-              value: String(confidentialityLevel),
-              onChange: (value) => setConfidentialityLevel(Number(value)),
-            },
-          ],
-          actions: [
-            { key: "cancel", label: "取消", onClick: onClose },
-            {
-              key: "generate",
-              label: generating ? "生成中..." : "生成",
-              variant: "primary",
-              disabled: generating || !title.trim() || !hasSources,
-              onClick: () => void handleGenerate(),
-            },
+            ], {
+              actions: [
+                { key: "cancel", label: "取消", onClick: onClose },
+                {
+                  key: "generate",
+                  label: generating ? "生成中..." : "生成",
+                  variant: "primary",
+                  disabled: generating || !title.trim() || !hasSources,
+                  onClick: () => void handleGenerate(),
+                },
+              ],
+            }),
           ],
         }),
       ]}

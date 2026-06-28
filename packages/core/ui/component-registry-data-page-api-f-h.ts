@@ -6,7 +6,6 @@ export const page_api_registry_entries = [
     category: "feedback",
     subcategory: "feedback.renderer",
     description: "统一反馈 Provider",
-    example: "根布局安装 FeedbackProvider，业务页面只通过 useFeedback 发起提示和确认。",
     composes: ["ConfirmModal", "Toast"],
   },
   {
@@ -14,7 +13,6 @@ export const page_api_registry_entries = [
     category: "data",
     subcategory: "data.table",
     description: "通用数据表格",
-    example: "渲染科目、凭证明细、合同或资料库文件列表。",
     composes: ["ActionButton", "dataTableClassNames"],
   },
   {
@@ -22,35 +20,50 @@ export const page_api_registry_entries = [
     category: "common",
     subcategory: "common.overlay",
     description: "详情弹窗",
-    example: "在资料库中打开文件详情或在审计页查看记录明细。",
   },
   {
     name: "DocumentSurface",
-    category: "page",
-    subcategory: "page.document",
+    category: "document",
+    subcategory: "document.surface",
     description: "文档纸面 Surface",
-    example: "业务页通过 PageSurface document block 承载 A4/纸面文档，不再用 moduleView 承载报告页。",
+    declares: [
+      {
+        name: "kind",
+        description: "文档正文类型。",
+        children: [
+          { name: "pages", description: "纸面页列表。" },
+        ],
+      },
+      {
+        name: "pages",
+        description: "纸面页列表，承载 A4、fluid 或 QC 纸质模板内容。",
+        children: [
+          { name: "size", description: "页面尺寸：a4 / fluid。" },
+          { name: "content", description: "页面正文内容。" },
+          { name: "minWidth", description: "页面最小宽度。" },
+        ],
+      },
+      { name: "pageClassName", description: "统一页级样式扩展。" },
+      { name: "style", description: "文档容器样式扩展。" },
+    ],
   },
   {
     name: "DisclosureRecordCard",
     category: "data",
     subcategory: "data.record",
     description: "可展开记录卡片",
-    example: "审计历史里点击一条记录展开变更详情，并显示“还原到此版本”动作。",
   },
   {
     name: "DisclosureSectionHeader",
     category: "common",
     subcategory: "common.chrome",
     description: "可折叠分组标题",
-    example: "工作计划中切换“日常工作 / 其他工作 / 已归档”分组。",
   },
   {
     name: "DropdownMenu",
     category: "common",
     subcategory: "common.overlay",
     description: "下拉菜单",
-    example: "平台用户菜单展示“设置 / 登出”，业务只提供动作列表。",
     composes: ["DropdownSurface"],
   },
   {
@@ -58,14 +71,12 @@ export const page_api_registry_entries = [
     category: "common",
     subcategory: "common.display",
     description: "空状态卡片",
-    example: "筛选后无结果时显示“暂无数据，调整筛选条件”。",
   },
   {
     name: "EntityDetailLayout",
-    category: "page",
-    subcategory: "page.blocks",
+    category: "form",
+    subcategory: "form.layout",
     description: "实体详情布局",
-    example: "部门、岗位或项目详情页用 Fields、Metrics 和 Field 统一详情区字段排版。",
     composes: ["FieldGrid", "FieldControl"],
   },
   {
@@ -73,7 +84,6 @@ export const page_api_registry_entries = [
     category: "common",
     subcategory: "common.selection",
     description: "外键搜索输入",
-    example: "搜索“张”后从员工候选项中选择一个负责人。",
     composes: ["FieldInputShell", "SearchInput"],
   },
   {
@@ -81,7 +91,6 @@ export const page_api_registry_entries = [
     category: "common",
     subcategory: "common.selection",
     description: "字段值筛选",
-    example: "显示“员工：张文孝”，点击后先选字段，再用 HR reference-options 搜索选择员工。",
     composes: ["InputControl", "SelectField", "PickerOptionButton"],
   },
   {
@@ -89,21 +98,47 @@ export const page_api_registry_entries = [
     category: "common",
     subcategory: "common.input",
     description: "文件选择字段",
-    example: "在财务导入或余额核对中选择 Excel 文件，不在业务页手写原生 file input。",
   },
   {
     name: "FormField",
     category: "form",
     subcategory: "form.field",
     description: "表单字段容器",
-    example: "合同弹窗包裹合同名称，财务筛选条用 inline 布局包裹公司、年度等字段。",
   },
   {
     name: "FormSurface",
     category: "form",
     subcategory: "form.surface",
     description: "L1 正文表单 Surface",
-    example: "业务页在 PageSurface.body.blocks 中通过 kind='fields'/'filters'/'modal'/'inline'/'detail'/'login' 和 fields spec 渲染表单、筛选或详情字段；页面级 toolbar 统一放到 PageSurface.toolbar。",
+    declares: [
+      {
+        name: "kind",
+        description: "表单语义。",
+        children: [
+          { name: "fields", description: "标准字段表单。" },
+          { name: "filters", description: "筛选表单。" },
+          { name: "inline", description: "行内字段表单。" },
+          { name: "detail", description: "详情字段布局。" },
+          { name: "login", description: "登录表单布局。" },
+        ],
+      },
+      {
+        name: "fields",
+        description: "字段、只读字段、分组、重复组和短说明。",
+        children: [
+          { name: "field", description: "普通输入字段，具体 spec 交给 InputControl。" },
+          { name: "readonly", description: "只读字段。" },
+          { name: "tagList", description: "标签列表字段。" },
+          { name: "section", description: "字段分组。" },
+          { name: "repeatable", description: "可重复字段组。" },
+          { name: "note", description: "短说明；复杂 ReactNode 应迁到 BlockSurface 或专用 Surface。" },
+        ],
+      },
+      { name: "field", description: "单字段快捷声明。" },
+      { name: "columns", description: "字段网格列数。" },
+      { name: "mode", description: "字段布局模式。" },
+      { name: "actions", description: "表单局部动作；页面级动作放 PageSurface.toolbar。" },
+    ],
     composes: ["FieldGrid", "FormField", "InputControl", "ReadOnlyField", "TagListInput", "TextField", "TextareaField", "CalendarDateInput", "ChoiceGroup", "SelectField", "FileField", "HiddenDataField", "DetailModal", "CommandButton"],
   },
   {
@@ -111,19 +146,16 @@ export const page_api_registry_entries = [
     category: "form",
     subcategory: "form.surface",
     description: "表单外壳",
-    example: "登录页、账号设置或导入配置表单只传字段和提交函数。",
   },
   {
     name: "Badge",
     category: "common",
     subcategory: "common.display",
     description: "通用徽标",
-    example: "显示状态标签“已启用”，或层级标签“L2”。",
   },
   {
     name: "HiddenDataField",
     category: "common",
     subcategory: "common.input",
     description: "隐藏数据字段",
-    example: "QC 纸面日期展示为中文年月日，同时提交 ISO 日期值。",
   }] as const satisfies readonly CoreUiComponentRegistration[];

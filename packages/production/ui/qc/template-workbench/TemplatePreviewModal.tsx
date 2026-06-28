@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PageSurface, createPageActionsBlock } from "@workspace/core/ui";
+import { PageSurface, createActionsBlock } from "@workspace/core/ui";
 import type { QcLayoutBlock, QcTemplateTestItem } from "@workspace/production/server/qc";
 import QcLayoutPaper from "../QcLayoutPaper";
 import TemplateInlineFeedback from "./TemplateInlineFeedback";
@@ -65,7 +65,7 @@ function PreviewModeToggle({
       embedded
       className="justify-self-center"
       blocks={[
-        createPageActionsBlock("template-preview-mode-toggle", [{
+        createActionsBlock("template-preview-mode-toggle", [{
           key: "toggle-advanced-mode",
           label: advancedMode ? "开发模式" : "预览模式",
           variant: advancedMode ? "danger" : "primary",

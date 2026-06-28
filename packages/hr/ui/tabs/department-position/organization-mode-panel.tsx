@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { putJson } from "@workspace/platform/ui/api-client";
-import {
+import { createBlockSurfaceBlock,
+  createPanelBlock,
   type DataSurfaceColumnSpec,
   InputControl,
   PageSurface,
@@ -236,14 +237,30 @@ export function OrganizationModePanel({
   ) : undefined;
   const panelBlocks: PageSurfaceBlockSpec[] = [];
 
-  if (loading) panelBlocks.push({ kind: "message", key: "loading", content: "加载中...", tone: "muted" });
-  if (error) panelBlocks.push({ kind: "message", key: "error", content: error, tone: "danger" });
+  if (loading) panelBlocks.push(createBlockSurfaceBlock("loading", {
+    kind: "message",
+    content: "加载中...",
+    tone: "muted"
+  }));
+  if (error) panelBlocks.push(createBlockSurfaceBlock("error", {
+    kind: "message",
+    content: error,
+    tone: "danger"
+  }));
   if (!loading && !error && !selectedDepartment) {
-    panelBlocks.push({ kind: "empty", key: "empty", presentation: "plain", content: "请选择左侧部门查看岗位汇报关系" });
+    panelBlocks.push(createBlockSurfaceBlock("empty", {
+      kind: "empty",
+      presentation: "plain",
+      content: "请选择左侧部门查看岗位汇报关系"
+    }));
   }
   if (!loading && !error && selectedDepartment) {
     panelBlocks.push(directPositions.length === 0
-      ? { kind: "empty", key: "empty-direct", presentation: "plain", content: "当前部门暂无直属岗位" }
+      ? createBlockSurfaceBlock("empty-direct", {
+        kind: "empty",
+        presentation: "plain",
+        content: "当前部门暂无直属岗位"
+      })
       : {
           kind: "data",
           key: "relations",
@@ -271,9 +288,7 @@ export function OrganizationModePanel({
       drawerOpen={drawerOpen}
       onDrawerOpenChange={onDrawerOpenChange}
       side={side}
-      blocks={[{
-        kind: "panel",
-        key: "organization-mode",
+      blocks={[createPanelBlock("organization-mode", {
         title: organizationPanelTitle,
         actions: organizationHeaderDepartment ? [{
           key: "save",
@@ -285,7 +300,7 @@ export function OrganizationModePanel({
         className: "min-h-96",
         bodyClassName: "p-4",
         blocks: panelBlocks,
-      }]}
+      })]}
     />
   );
 }

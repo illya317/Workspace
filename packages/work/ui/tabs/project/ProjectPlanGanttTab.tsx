@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { PageSurface, createPageDataBlock, createPageFormBlock, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createPageDataBlock, useFeedback } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, PageSurfaceProps, SurfaceToolbarItems } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { ProjectItem } from "./model";
@@ -108,67 +108,64 @@ export default function ProjectPlanGanttTab({
       setSaving(false);
     }
   }
-  const toolbarSurface = {
-    kind: "inline" as const,
-    toolbar: { items: [
-          {
-            kind: "search",
-            key: "search",
-            section: "filter",
-            value: keyword,
-            onChange: setKeyword,
-            placeholder: "搜索项目...",
-            ariaLabel: "搜索项目",
-          },
-          {
-            kind: "select",
-            key: "project",
-            section: "filter",
-            value: selectedProjectId ? String(selectedProjectId) : "",
-            placeholder: "选择项目",
-            options: filteredProjects.map((project) => ({ value: String(project.id), label: project.name })),
-            onChange: (value) => setSelectedProjectId(value ? Number(value) : null),
-          },
-          {
-            kind: "option-group",
-            key: "zoom",
-            section: "filter",
-            value: zoom,
-            options: PROJECT_GANTT_ZOOM_OPTIONS,
-            onChange: (value) => changeZoom(value as ProjectGanttZoom),
-            ariaLabel: "甘特时间缩放",
-          },
-          {
-            kind: "period",
-            key: "period-nav",
-            mode: "nav",
-            label: periodLabel(currentStart, zoom),
-            onPrevious: () => setCurrentStart((current) => shiftPeriod(current, zoom, -1)),
-            onNext: () => setCurrentStart((current) => shiftPeriod(current, zoom, 1)),
-          },
-          {
-            kind: "action-group",
-            key: "save",
-            section: "edit",
-            actions: [
-              {
-                key: "save",
-                kind: "save",
-                label: saving ? "保存中..." : "保存甘特",
-                disabled: !canEdit || saving || !dirty,
-                variant: "primary",
-                onClick: handleSave,
-              },
-            ],
-          },
-          {
-            kind: "text",
-            key: "meta",
-            section: "meta",
-            content: "基线来自项目阶段",
-          },
-        ] satisfies SurfaceToolbarItems },
-  };
+  const toolbarItems = [
+    {
+      kind: "search",
+      key: "search",
+      section: "filter",
+      value: keyword,
+      onChange: setKeyword,
+      placeholder: "搜索项目...",
+      ariaLabel: "搜索项目",
+    },
+    {
+      kind: "select",
+      key: "project",
+      section: "filter",
+      value: selectedProjectId ? String(selectedProjectId) : "",
+      placeholder: "选择项目",
+      options: filteredProjects.map((project) => ({ value: String(project.id), label: project.name })),
+      onChange: (value) => setSelectedProjectId(value ? Number(value) : null),
+    },
+    {
+      kind: "option-group",
+      key: "zoom",
+      section: "filter",
+      value: zoom,
+      options: PROJECT_GANTT_ZOOM_OPTIONS,
+      onChange: (value) => changeZoom(value as ProjectGanttZoom),
+      ariaLabel: "甘特时间缩放",
+    },
+    {
+      kind: "period",
+      key: "period-nav",
+      mode: "nav",
+      label: periodLabel(currentStart, zoom),
+      onPrevious: () => setCurrentStart((current) => shiftPeriod(current, zoom, -1)),
+      onNext: () => setCurrentStart((current) => shiftPeriod(current, zoom, 1)),
+    },
+    {
+      kind: "action-group",
+      key: "save",
+      section: "edit",
+      actions: [
+        {
+          key: "save",
+          kind: "save",
+          label: saving ? "保存中..." : "保存甘特",
+          disabled: !canEdit || saving || !dirty,
+          variant: "primary",
+          onClick: handleSave,
+        },
+      ],
+    },
+    {
+      kind: "text",
+      key: "meta",
+      section: "meta",
+      content: "基线来自项目阶段",
+    },
+  ] satisfies SurfaceToolbarItems;
   const timelineBlock: PageSurfaceBlockSpec = error
     ? createPageDataBlock("project-plan-gantt-error", { kind: "records", records: [], empty: error, className: "border-red-200 text-red-600" })
     : loading
@@ -176,25 +173,17 @@ export default function ProjectPlanGanttTab({
       : !data
         ? createPageDataBlock("project-plan-gantt-empty", { kind: "records", records: [], empty: "请选择项目" })
         : {
-        kind: "form" as const,
+        kind: "visualization" as const,
         key: "project-plan-gantt-timeline",
         surface: {
-          kind: "fields" as const,
-          className: "!p-0",
-          bodyClassName: "block",
-          fields: [{
-            kind: "note" as const,
-            key: "timeline",
-            className: "p-0",
-            content: <ProjectPlanGanttTimeline items={items} phases={data.phases} dependencies={dependencies} periodStart={currentStart} zoom={zoom} />,
-          }],
+          kind: "gantt" as const,
+          title: "项目甘特",
+          framed: true,
+          content: <ProjectPlanGanttTimeline items={items} phases={data.phases} dependencies={dependencies} periodStart={currentStart} zoom={zoom} />,
         },
       };
-  const blocks = [
-    createPageFormBlock("project-plan-gantt-toolbar", toolbarSurface),
-    timelineBlock,
-  ] satisfies PageSurfaceBlockSpec[];
-  return <PageSurface kind="list" {...surface} embedded={!surface} blocks={blocks} />;
+  const blocks = [timelineBlock] satisfies PageSurfaceBlockSpec[];
+  return <PageSurface kind="list" {...surface} toolbar={{ items: toolbarItems }} blocks={blocks} />;
 }
 type ProjectPlanGanttSurfaceProps = Pick<PageSurfaceProps, "tabs" | "activeTab" | "activeChild" | "onTabChange" | "onChildChange">;
 

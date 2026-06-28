@@ -1,4 +1,4 @@
-import { PageSurface } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createSectionBlock, PageSurface } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { renderAppShellPage } from "../app-shell-page";
 import PositionDetailClient from "./positions/PositionDetailClient";
@@ -20,13 +20,14 @@ export function DocsPlaceholderPage({
     children: <PageSurface
       kind="settings"
       contentClassName="py-10"
-      blocks={[{
-        kind: "section",
-        key: "placeholder",
+      blocks={[createSectionBlock("placeholder", {
         title,
         subtitle: description,
-        blocks: [{ kind: "empty", key: "empty", content: "内容建设中" }],
-      }]}
+        blocks: [createBlockSurfaceBlock("empty", {
+          kind: "empty",
+          content: "内容建设中"
+        })],
+      })]}
     />,
   });
 }

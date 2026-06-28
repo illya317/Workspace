@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, type FC } from "react";
+import { ActionGlyph } from "@workspace/core/ui";
 import {
   ActionButton,
-  ActionGlyph,
   CommandButton,
   FieldValueFilter,
   RefreshActionButton,
   ToolbarOptionGroup,
-} from "@workspace/core/ui";
+} from "../internal-ui";
 import {
   ACTION_GLYPH_GROUPS,
   ACTION_GLYPH_ORDER,

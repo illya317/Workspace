@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createAnalysisBlock, createGroupBlock, createPageDataBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { Employee, Employment } from "./useAnalyticsData";
 
@@ -128,10 +128,7 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
   ];
 
   return [
-        {
-          kind: "data",
-          key: "stats",
-          surface: {
+        createPageDataBlock("stats", {
             kind: "metrics",
             metrics: [
               { key: "totalLeft", label: "累计离职", value: stats.totalLeft },
@@ -140,23 +137,17 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
               { key: "netChange", label: "本月净变动", value: stats.netChange > 0 ? `+${stats.netChange}` : stats.netChange },
               { key: "turnoverRate", label: "累计离职率", value: `${stats.turnoverRate}%` },
             ],
-          },
-        },
-        {
-          kind: "surfaceGroup",
-          key: "charts",
+          }),
+        createGroupBlock("charts", {
           layout: "grid",
           blocks: [
-            {
-              kind: "analysis",
-              key: "monthly-trend",
+            createAnalysisBlock("monthly-trend", {
               title: "离职月度趋势（近12个月）",
               blocks: [{
-                kind: "data",
+                kind: "visualization",
                 key: "monthly-chart",
                 surface: {
-                  kind: "visual",
-                  wrap: false,
+                  kind: "chart",
                   visual: {
                     kind: "barChart",
                     height: 160,
@@ -173,10 +164,8 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
                   },
                 },
               }],
-            },
-            {
-              kind: "analysis",
-              key: "tenure",
+            }),
+            createAnalysisBlock("tenure", {
               title: "离职司龄分布",
               blocks: [{
                 kind: "data",
@@ -191,12 +180,10 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
                   emptyText: "暂无数据",
                 },
               }],
-            },
+            }),
           ],
-        },
-        {
-          kind: "analysis",
-          key: "reasons",
+        }),
+        createAnalysisBlock("reasons", {
           title: "离职原因分布",
           toolbar: {
             items: [
@@ -217,10 +204,8 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
               emptyText: "暂无数据",
             },
           }],
-        },
-        {
-          kind: "analysis",
-          key: "recent-leaves",
+        }),
+        createAnalysisBlock("recent-leaves", {
           title: "最近离职（前20）",
           blocks: [{
             kind: "data",
@@ -234,7 +219,7 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
               emptyText: "暂无数据",
             },
           }],
-        },
+        }),
       ];
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { PageSurface } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceBlock } from "@workspace/core/ui";
 import LineConfigTab from "./LineConfigTab";
 import UnmappedTab from "./UnmappedTab";
 import BalanceCheckTab from "./BalanceCheckTab";
@@ -73,14 +73,19 @@ function TabContent({ user }: { user: SessionUser }) {
       navigation={navigation}
       toolbar={{ items: toolbarItems }}
       body={{
-        blocks: lifecycleBlocks,
-        content: (
-          <div>
-            {activeTab === "lines" && <LineConfigTab />}
-            {activeTab === "unmapped" && <UnmappedTab />}
-            {activeTab === "balance" && <BalanceCheckTab />}
-          </div>
-        ),
+        blocks: [
+          ...lifecycleBlocks,
+          createBlockSurfaceBlock("statement-config-content", {
+            kind: "content",
+            content: (
+              <div>
+                {activeTab === "lines" && <LineConfigTab />}
+                {activeTab === "unmapped" && <UnmappedTab />}
+                {activeTab === "balance" && <BalanceCheckTab />}
+              </div>
+            ),
+          }),
+        ],
       }}
     />
   );

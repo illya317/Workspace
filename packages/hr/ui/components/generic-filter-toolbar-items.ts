@@ -1,8 +1,8 @@
-import type { FieldValueFilterField, SelectFieldOption, SurfaceToolbarItem, SurfaceToolbarItems } from "@workspace/core/ui";
+import type { SurfaceFilterFieldSpec, SurfaceSelectOptionSpec, SurfaceToolbarItem, SurfaceToolbarItems } from "@workspace/core/ui";
 import type { AdvancedFilterConfig, FilterConfig } from "@workspace/hr/types";
 
-export function mapAdvancedFilterField(filter: AdvancedFilterConfig): FieldValueFilterField {
-  const base: FieldValueFilterField = { value: filter.key, label: filter.label, placeholder: filter.placeholder };
+export function mapAdvancedFilterField(filter: AdvancedFilterConfig): SurfaceFilterFieldSpec {
+  const base: SurfaceFilterFieldSpec = { value: filter.key, label: filter.label, placeholder: filter.placeholder };
   if (filter.kind === "fk") {
     return {
       ...base,
@@ -18,8 +18,8 @@ export function mapAdvancedFilterField(filter: AdvancedFilterConfig): FieldValue
 
 export function buildAdvancedFilterValueOptions(
   advancedFilters: AdvancedFilterConfig[],
-): Record<string, SelectFieldOption[]> {
-  const next: Record<string, SelectFieldOption[]> = {};
+): Record<string, SurfaceSelectOptionSpec[]> {
+  const next: Record<string, SurfaceSelectOptionSpec[]> = {};
   for (const filter of advancedFilters) {
     if (filter.kind === "boolean") {
       next[filter.key] = [

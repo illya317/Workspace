@@ -34,8 +34,11 @@ Every L2 must belong to exactly one L1 family:
 ```txt
 category: page | data | form | common | feedback
 subcategory:
-  page.surface | page.blocks | page.frame | page.document |
-  data.surface | data.table | data.record | data.metric | data.visual | data.cell |
+  page.surface | page.blocks | page.frame |
+  data.surface | data.table | data.record | data.metric | data.cell |
+  document.surface | document.paper |
+  visualization.surface | visualization.chart | visualization.timeline | visualization.gantt |
+  common.block |
   form.surface | form.field | form.layout | form.create | form.input-adapter |
   common.chrome | common.action | common.input | common.selection | common.display | common.overlay | common.foundation |
   feedback.service | feedback.renderer

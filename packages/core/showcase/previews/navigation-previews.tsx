@@ -7,7 +7,7 @@ import {
   Pagination,
   TabBar,
   ToolbarOptionGroup,
-} from "@workspace/core/ui";
+} from "../internal-ui";
 
 function DisclosureSectionHeaderPreview() {
   const [disclosureExpanded, setDisclosureExpanded] = useState<boolean>(false);

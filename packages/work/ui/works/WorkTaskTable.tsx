@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   PageSurface,
   type DataSurfaceColumnSpec,
-  type DataTableRowEditActionConfig,
+  type SurfaceDataRowEditActionSpec,
   type PageSurfaceBlockSpec,
 } from "@workspace/core/ui";
 import { createWorkDraft, getStatusLabel, getWorkItemTypeLabel } from "./model";
@@ -105,16 +105,23 @@ export function useWorkTaskTableBlock({
       rowClassName: (work) => work.itemType === "objective" ? "bg-slate-50/60" : "",
       onRowClick: onDetail,
       expandedRowKey: detailId,
-      renderExpandedRow: (work) => editDraft && editingId === work.id ? (
-        <WorkTaskForm
-          draft={editDraft}
-          works={works}
-          disabled={saving}
-          excludedWorkId={work.id}
-          onChange={onEditDraftChange}
-        />
-      ) : <WorkTaskDetail work={work} />,
-      rowEditActions: (work): DataTableRowEditActionConfig<TreeRow> => ({
+      expandedRowBlocks: (work) => [{
+        kind: "block",
+        key: `work-detail-${work.id}`,
+        surface: {
+          kind: "content",
+          content: editDraft && editingId === work.id ? (
+            <WorkTaskForm
+              draft={editDraft}
+              works={works}
+              disabled={saving}
+              excludedWorkId={work.id}
+              onChange={onEditDraftChange}
+            />
+          ) : <WorkTaskDetail work={work} />,
+        },
+      }],
+      rowEditActions: (work): SurfaceDataRowEditActionSpec<TreeRow> => ({
         editing: editingId === work.id,
         canEdit,
         canSave: Boolean(editDraft?.content.trim()),

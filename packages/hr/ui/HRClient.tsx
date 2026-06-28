@@ -2,8 +2,8 @@
 
 import { useDeferredValue, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { PageSurface, useFeedback } from "@workspace/core/ui";
-import { type TabDef } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, PageSurface, useFeedback } from "@workspace/core/ui";
+import { type SurfaceNavigationTabSpec } from "@workspace/core/ui";
 import { getPageViewTabsForUser } from "@workspace/platform/view-registry";
 
 import {
@@ -32,7 +32,7 @@ type HRTab =
 
 type HRView = "employee" | "organization" | "department-position" | "bulk" | "generated";
 
-type HRViewTab = TabDef & { key: HRView };
+type HRViewTab = SurfaceNavigationTabSpec & { key: HRView };
 
 function toHRUser(user: SessionUser): HRUser {
   return {
@@ -177,7 +177,11 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
       activeChild={activeChild}
       onTabChange={changeView}
       onChildChange={changeChild}
-      blocks={[{ kind: "message", key: "empty", content: "暂无可用视图", tone: "muted" }]}
+      blocks={[createBlockSurfaceBlock("empty", {
+        kind: "message",
+        content: "暂无可用视图",
+        tone: "muted"
+      })]}
     />
   );
 }

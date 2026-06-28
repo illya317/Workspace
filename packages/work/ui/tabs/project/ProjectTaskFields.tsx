@@ -2,9 +2,9 @@
 
 import {
   PageSurface,
-  createPageFieldsBlock,
+  createFieldsBlock,
   type FormSurfaceItemSpec,
-  type PickerOption,
+  type SurfacePickerOptionSpec,
   type ReferenceOption,
 } from "@workspace/core/ui";
 import { PROJECT_MILESTONE_PICKER_OPTIONS, type ProjectTaskDraft, type ProjectTaskItem } from "./model";
@@ -26,7 +26,7 @@ export function ProjectTaskForm({
 }: {
   draft: ProjectTaskDraft;
   disabled: boolean;
-  taskOptions: PickerOption[];
+  taskOptions: SurfacePickerOptionSpec[];
   phases: ProjectPlanPhaseItem[];
   tasks: ProjectTaskItem[];
   excludedTaskId: number | null;
@@ -110,7 +110,7 @@ export function ProjectTaskForm({
     <PageSurface
       embedded
       kind="detail"
-      blocks={[createPageFieldsBlock<number>("project-task-form", fields, {
+      blocks={[createFieldsBlock<number>("project-task-form", fields, {
       columns: 3,
       className: framed ? "rounded-lg border border-slate-200 bg-white p-3 shadow-none" : undefined,
       actions: [
@@ -143,7 +143,7 @@ export function ProjectTaskDetail({ task }: { task: ProjectTaskItem }) {
     <PageSurface
       embedded
       kind="detail"
-      blocks={[createPageFieldsBlock("project-task-detail", [
+      blocks={[createFieldsBlock("project-task-detail", [
         ...detailItems.map((item): FormSurfaceItemSpec => ({
           kind: "readonly",
           key: item.label,

@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { PanelCard } from "@workspace/core/ui";
+import { PanelCard } from "./internal-ui";
 import {
+  type CoreUiCapabilityDescriptor,
   coreUiComponentSubcategoryMeta,
   type CoreUiComponentRegistration,
 } from "@workspace/core/ui/component-registry";
@@ -78,19 +79,31 @@ function DeclarativeCapabilitiesBlock({
 }: {
   relation: CoreUiComponentRelationView;
 }) {
-  const capabilities = relation.component.declares ?? [];
-  if (!capabilities.length) return <p className="text-sm text-slate-400">暂无 declares</p>;
+  const capabilities = relation.component.role === "surface"
+    ? relation.component.declares ?? []
+    : relation.component.capabilities ?? [];
+  if (!capabilities.length) return <p className="text-sm text-slate-400">暂无</p>;
 
+  return <DeclarationTree items={capabilities} />;
+}
+
+function DeclarationTree({
+  items,
+  depth = 0,
+}: {
+  items: readonly CoreUiCapabilityDescriptor[];
+  depth?: number;
+}) {
   return (
-    <div className="flex flex-wrap gap-2">
-      {capabilities.map((capability) => (
-        <span
-          key={capability.name}
-          title={capability.description}
-          className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700"
-        >
-          {capability.name}
-        </span>
+    <div className={depth === 0 ? "space-y-2" : "ml-3 mt-2 space-y-2 border-l border-slate-100 pl-3"}>
+      {items.map((item) => (
+        <div key={`${depth}-${item.name}`} className="min-w-0">
+          <div className="rounded-md border border-slate-200 bg-white px-2 py-1.5">
+            <p className="text-xs font-semibold text-slate-800">{item.name}</p>
+            <p className="mt-0.5 text-xs leading-5 text-slate-500">{item.description}</p>
+          </div>
+          {item.children?.length ? <DeclarationTree items={item.children} depth={depth + 1} /> : null}
+        </div>
       ))}
     </div>
   );
@@ -108,7 +121,7 @@ function ComposesBlock({
   onSelect: (name: string) => void;
 }) {
   if (!relation.composes.length) {
-    return <p className="text-sm text-slate-400">暂无 composes</p>;
+    return <p className="text-sm text-slate-400">暂无内部使用</p>;
   }
 
   return (
@@ -225,10 +238,10 @@ export function UiComponentRelationPanel({
 
   return (
     <PanelCard title="关系" bodyClassName="space-y-3 p-4">
-      <RelationBlock title="声明项 declares">
+      <RelationBlock title={relation.component.role === "surface" ? "声明项 declares" : "能力 capabilities"}>
         <DeclarativeCapabilitiesBlock relation={relation} />
       </RelationBlock>
-      <RelationBlock title="封装功能 composes">
+      <RelationBlock title="内部使用">
         <ComposesBlock relation={relation} expandedGroups={expandedGroups} toggleGroup={(key) => toggleSet(setExpandedGroups, key)} onSelect={onSelect} />
       </RelationBlock>
       <RelationBlock title="直接被引用">

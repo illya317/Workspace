@@ -1,17 +1,16 @@
 "use client";
 
 import { useState, type FC } from "react";
+import { PageSurface, VisualizationSurface } from "@workspace/core/ui";
 import {
   AmountCell,
+  Badge,
   CodeBlock,
-  DataSurface,
   DataTable,
   DisclosureRecordCard,
-  Badge,
-  PageSurface,
   StructuredTable,
   TableScrollFrame,
-} from "@workspace/core/ui";
+} from "../internal-ui";
 
 function CodeBlockPreview() {
   return (
@@ -82,9 +81,9 @@ function DataSurfacePreview() {
                 { id: 2, name: "合同 B", status: "待审核", amount: 48000 },
               ],
               columns: [
-                { key: "name", label: "名称", required: true, render: (row) => row.name },
-                { key: "status", label: "状态", defaultVisible: true, render: (row) => <Badge label={row.status} tone={row.status === "已生效" ? "green" : "yellow"} /> },
-                { key: "amount", label: "金额", defaultVisible: true, render: (row) => <AmountCell value={row.amount} /> },
+                { key: "name", label: "名称", required: true, cell: (row) => row.name },
+                { key: "status", label: "状态", defaultVisible: true, cell: (row) => <Badge label={row.status} tone={row.status === "已生效" ? "green" : "yellow"} /> },
+                { key: "amount", label: "金额", defaultVisible: true, cell: (row) => <AmountCell value={row.amount} /> },
               ],
               rowKey: (row) => row.id,
               tableClassName: "w-full",
@@ -92,8 +91,8 @@ function DataSurfacePreview() {
           }],
         }}
       />
-      <DataSurface
-        kind="visual"
+      <VisualizationSurface
+        kind="chart"
         title="人员趋势"
         framed
         visual={{

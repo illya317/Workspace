@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { matchText } from "@workspace/core/search";
-import { PageSurface, createPageDataBlock, createPageTableBlock } from "@workspace/core/ui";
+import { PageSurface, createGroupBlock, createPageDataBlock, createPageTableBlock } from "@workspace/core/ui";
 import type {
   QcTemplateDetail,
   QcTemplateFeedbackState,
@@ -204,9 +204,7 @@ function WorkbenchSurface({
           }
         : undefined}
       body={{
-        blocks: [{
-          kind: "surfaceGroup",
-          key: "qc-template-workbench-grid",
+        blocks: [createGroupBlock("qc-template-workbench-grid", {
           layout: "grid",
           className: "gap-5 lg:grid-cols-[280px_minmax(0,1fr)]",
           blocks: [
@@ -231,14 +229,12 @@ function WorkbenchSurface({
                 },
               },
             },
-            {
-              kind: "surfaceGroup",
-              key: "qc-template-workbench-sections",
+            createGroupBlock("qc-template-workbench-sections", {
               className: "space-y-5",
               blocks: sectionBlocks,
-            },
+            }),
           ],
-        }],
+        })],
       }}
     />
   );

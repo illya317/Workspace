@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { CreatePanel, PageSurface } from "@workspace/core/ui";
+import { PageSurface, createCreatePanelBlock } from "@workspace/core/ui";
 import type { FormSurfaceItemSpec, PageSurfaceBlockSpec, ReferenceOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import type { CreatePositionDraft, Department } from "./types";
@@ -81,42 +81,34 @@ export function buildPositionCreatePanelBlock({
           },
         ];
 
-  return {
-    kind: "moduleView",
-    key: "create-position",
-    className,
-    view: (
-      <CreatePanel
-        variant="block"
-        title="新建岗位"
-        creating
-        canCreate
-        submitting={saving}
-        submitDisabled={submitDisabled}
-        submitLabel="保存"
-        onStartCreate={() => undefined}
-        onSubmit={() => void onCreatePosition()}
-        onCancel={onCancel}
-        createContent={(
-          <PageSurface
-            embedded
-            kind="detail"
-            blocks={[{
-              kind: "form",
-              key: "fields",
-              surface: {
-                kind: "fields",
-                columns: 3,
-                fields,
-              },
-            }]}
-          />
-        )}
-      >
-        {null}
-      </CreatePanel>
+  return createCreatePanelBlock("create-position", {
+    blockClassName: className,
+    title: "新建岗位",
+    creating: true,
+    canCreate: true,
+    submitting: saving,
+    submitDisabled,
+    submitLabel: "保存",
+    onStartCreate: () => undefined,
+    onSubmit: () => void onCreatePosition(),
+    onCancel,
+    createContent: (
+      <PageSurface
+        embedded
+        kind="detail"
+        blocks={[{
+          kind: "form",
+          key: "fields",
+          surface: {
+            kind: "fields",
+            columns: 3,
+            fields,
+          },
+        }]}
+      />
     ),
-  };
+    children: null,
+  });
 }
 
 export function PositionCreatePanel(props: PositionCreatePanelProps) {

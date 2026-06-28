@@ -1,4 +1,4 @@
-import type { PickerOption, ReferenceOption } from "@workspace/core/ui";
+import type { SurfacePickerOptionSpec, ReferenceOption } from "@workspace/core/ui";
 import { PROJECT_ROLES } from "@workspace/work/constants";
 
 export type ProjectListFilter = "all" | "普通" | "重点";
@@ -173,7 +173,7 @@ const TASK_MILESTONE_OPTIONS = [
   { value: "false", label: "否" },
 ] as const;
 
-function toPickerOptions(values: readonly string[]): PickerOption[] {
+function toPickerOptions(values: readonly string[]): SurfacePickerOptionSpec[] {
   return values.map((value) => ({ value, label: value }));
 }
 

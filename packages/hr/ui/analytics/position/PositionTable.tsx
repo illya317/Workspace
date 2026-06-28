@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createAnalysisBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { EnrichedPosition, SortKey } from "./usePositionData";
 
 interface PositionTableBlockParams {
@@ -60,9 +60,7 @@ export function createPositionTableBlock({
       }),
     },
   ];
-  return {
-        kind: "analysis",
-        key: "positions",
+  return createAnalysisBlock("positions", {
         title: "岗位明细",
         toolbar: {
           items: [
@@ -86,7 +84,7 @@ export function createPositionTableBlock({
               position.status === "缺编" ? "bg-purple-50/20" : "",
           },
         }],
-      };
+      });
 }
 
 export default function PositionTable(props: PositionTableBlockParams) {

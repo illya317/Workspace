@@ -1,7 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import {
+import { createBlockSurfaceBlock,
+  createPanelBlock,
   PageSurface,
   type PageSurfaceBlockSpec,
   type PageSurfaceSideSpec,
@@ -102,14 +103,13 @@ export function ArchivedDepartmentPositionPage({
     ];
 
     blocks.push(archivedItems.length === 0
-      ? {
-          kind: "empty",
-          key: "empty",
-          presentation: "plain",
-          compact: true,
-          className: "mt-3",
-          content: archivedTab === "departments" ? "暂无归档部门" : "暂无归档岗位",
-        }
+      ? createBlockSurfaceBlock("empty", {
+        kind: "empty",
+        presentation: "plain",
+        compact: true,
+        className: "mt-3",
+        content: archivedTab === "departments" ? "暂无归档部门" : "暂无归档岗位"
+      })
       : {
           kind: "navigation",
           key: "list",
@@ -135,13 +135,11 @@ export function ArchivedDepartmentPositionPage({
           },
         });
 
-    return [{
-      kind: "panel",
-      key: `archive-side-${mode}`,
+    return [createPanelBlock(`archive-side-${mode}`, {
       className: mode === "drawer" ? "h-full overflow-hidden" : undefined,
       bodyClassName: "p-3",
       blocks,
-    }];
+    })];
   }
 
   const side: PageSurfaceSideSpec = {

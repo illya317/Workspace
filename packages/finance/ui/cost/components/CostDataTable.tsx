@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, type DataSurfaceCellSpec, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createMessageBlock, type DataSurfaceCellSpec, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { SourceTraceInfo } from "../types";
 export type CostRecord = Record<string, unknown>;
 export type CostColumn = DataSurfaceColumnSpec<CostRecord>;
@@ -65,20 +65,16 @@ export default function CostDataTable({
       body={{
         layout: "single",
         blocks: [
-          ...(loading ? [{
-            kind: "message" as const,
-            key: "loading",
+          ...(loading ? [createMessageBlock("loading", {
             content: "加载中…",
             tone: "muted" as const,
             className: "text-sm text-gray-500",
-          }] : []),
-          ...(error ? [{
-            kind: "message" as const,
-            key: "error",
+          })] : []),
+          ...(error ? [createMessageBlock("error", {
             content: error,
             tone: "danger" as const,
             className: "text-sm text-red-500",
-          }] : []),
+          })] : []),
           {
             kind: "data",
             key: "cost-table",

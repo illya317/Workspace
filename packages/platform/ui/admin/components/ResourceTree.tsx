@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { SelectorPanel } from "@workspace/core/ui";
+import { PageSurface, createSelectorPanelBlock } from "@workspace/core/ui";
 
 type StatusVariant = "green" | "yellow" | "gray";
 
@@ -115,35 +115,41 @@ export default function ResourceTree({
   }
 
   return (
-    <SelectorPanel
-      mode="tree"
-      framed={false}
-      items={resources}
-      selectedId={selectedResource}
-      onSelect={(resource) => {
-        if (resource.children?.length && !resource.selectableWithChildren) {
-          toggleNode(resource.key);
-          return;
-        }
-        onSelect(resource.key);
-      }}
-      getKey={(resource) => resource.key}
-      getChildren={getChildren}
-      expandedIds={expandedIds}
-      collapsible={collapsible && !forceExpanded}
-      onToggle={(key, expanded) => {
-        setExpandedKeys((prev) => {
-          const next = new Set(prev);
-          if (expanded) next.add(String(key));
-          else next.delete(String(key));
-          return next;
-        });
-      }}
-      renderItem={(resource, ctx) => ({
-        title: resource.name,
-        code: renderStatus(resource),
-        level: ctx.level,
-      })}
+    <PageSurface
+      embedded
+      kind="detail"
+      blocks={[
+        createSelectorPanelBlock<ResourceTreeNode>("resource-tree", {
+          mode: "tree",
+          framed: false,
+          items: resources,
+          selectedId: selectedResource,
+          onSelect: (resource) => {
+            if (resource.children?.length && !resource.selectableWithChildren) {
+              toggleNode(resource.key);
+              return;
+            }
+            onSelect(resource.key);
+          },
+          getKey: (resource) => resource.key,
+          getChildren,
+          expandedIds,
+          collapsible: collapsible && !forceExpanded,
+          onToggle: (key, expanded) => {
+            setExpandedKeys((prev) => {
+              const next = new Set(prev);
+              if (expanded) next.add(String(key));
+              else next.delete(String(key));
+              return next;
+            });
+          },
+          renderItem: (resource, ctx) => ({
+            title: resource.name,
+            code: renderStatus(resource),
+            level: ctx.level,
+          }),
+        }),
+      ]}
     />
   );
 }

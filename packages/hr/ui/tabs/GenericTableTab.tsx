@@ -3,8 +3,8 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo, useRef } from "react";
 import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
-import { PageSurface, useFeedback, type PageSurfaceBlockSpec } from "@workspace/core/ui";
-import GenericCreatePanel from "../components/GenericCreatePanel";
+import { PageSurface, createBlockSurfaceBlock, useFeedback, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { buildGenericCreatePanelBlock } from "../components/GenericCreatePanel";
 import GenericFieldInput from "../components/GenericFieldInput";
 import { buildHRToolbarItems } from "../components/hr-toolbar-items";
 import {
@@ -231,16 +231,6 @@ export default function GenericTableTab({ config, user, surface }: { config: Tab
 
   const content = (
     <>
-      {creating && (
-        <GenericCreatePanel
-          config={config}
-          createForm={createForm}
-          onChange={(key, val) => setCreateForm((prev) => ({ ...prev, [key]: val }))}
-          onSubmit={handleCreate}
-          onCancel={() => { setCreating(false); setCreateForm({}); }}
-        />
-      )}
-
       <EditableTable
         framed
         loading={loading}
@@ -273,14 +263,21 @@ export default function GenericTableTab({ config, user, surface }: { config: Tab
     </>
   );
 
-  const blocks: PageSurfaceBlockSpec[] = [{
-    kind: "form",
-    key: "generic-table-content",
-    surface: {
-      kind: "fields",
-      fields: [{ kind: "note", key: "content", className: "p-0", content: <div className="space-y-4">{content}</div> }],
-    },
-  }];
+  const blocks: PageSurfaceBlockSpec[] = [
+    ...(creating
+      ? [buildGenericCreatePanelBlock({
+          config,
+          createForm,
+          onChange: (key, val) => setCreateForm((prev) => ({ ...prev, [key]: val })),
+          onSubmit: handleCreate,
+          onCancel: () => { setCreating(false); setCreateForm({}); },
+        })]
+      : []),
+    createBlockSurfaceBlock("generic-table-content", {
+      kind: "content",
+      content: <div className="space-y-4">{content}</div>,
+    }),
+  ];
 
   return (
     <PageSurface

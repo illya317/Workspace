@@ -72,8 +72,9 @@ function businessToolbarCompositionWarningKey(candidate: { file: string; kind: s
   return `${candidate.file}: ${candidate.kind}: ${candidate.detail}`;
 }
 
-function businessCoreUiSurfaceBypassImportKey(candidate: { file: string; importedName: string; specifier: string }) {
-  return `${candidate.file}: ${candidate.importedName} from ${candidate.specifier}`;
+function businessCoreUiRoleBypassImportKey(candidate: { file: string; importedName: string; specifier: string; role?: string; reason?: string }) {
+  const detail = candidate.role || candidate.reason ? ` (${candidate.role ?? "unknown"}: ${candidate.reason ?? "role denied"})` : "";
+  return `${candidate.file}: ${candidate.importedName} from ${candidate.specifier}${detail}`;
 }
 
 function uiForbiddenCoreUiTypeImportKey(candidate: { file: string; importedName: string; specifier: string }) {
@@ -92,8 +93,9 @@ function componentLocalUiConfigKey(candidate: { file: string; name: string; kind
   return `${candidate.file}: ${candidate.name} (${candidate.kind}, ${candidate.itemCount})`;
 }
 
-function platformCoreUiRuntimeBypassImportKey(candidate: { file: string; importedName: string; specifier: string }) {
-  return `${candidate.file}: ${candidate.importedName} from ${candidate.specifier}`;
+function platformCoreUiRoleBypassImportKey(candidate: { file: string; importedName: string; specifier: string; role?: string; reason?: string }) {
+  const detail = candidate.role || candidate.reason ? ` (${candidate.role ?? "unknown"}: ${candidate.reason ?? "role denied"})` : "";
+  return `${candidate.file}: ${candidate.importedName} from ${candidate.specifier}${detail}`;
 }
 
 function pageSurfaceLayoutProtocolWarningKey(candidate: { file: string; kind: string; detail: string }) {
@@ -159,13 +161,13 @@ export const structureDetectorRegistry: StructureDetectorDefinition[] = [
   { baselineKey: "businessModuleViewUsages", scope: "ui-blocker", current: (report) => report.drift.businessModuleViewUsages.map(businessModuleViewUsageKey) },
   { baselineKey: "businessPageLayoutPrimitiveUsages", scope: "ui-blocker", current: (report) => report.drift.businessPageLayoutPrimitiveUsages.map(businessPageLayoutPrimitiveUsageKey) },
   { baselineKey: "businessToolbarCompositionWarnings", scope: "ui-blocker", current: (report) => report.drift.businessToolbarCompositionWarnings.map(businessToolbarCompositionWarningKey) },
-  { baselineKey: "businessCoreUiSurfaceBypassImports", scope: "ui-blocker", current: (report) => report.drift.businessCoreUiSurfaceBypassImports.map(businessCoreUiSurfaceBypassImportKey) },
+  { baselineKey: "businessCoreUiRoleBypassImports", scope: "ui-blocker", current: (report) => report.drift.businessCoreUiRoleBypassImports.map(businessCoreUiRoleBypassImportKey) },
   { baselineKey: "uiForbiddenCoreUiTypeImports", scope: "ui-blocker", current: (report) => report.drift.uiForbiddenCoreUiTypeImports.map(uiForbiddenCoreUiTypeImportKey) },
   { baselineKey: "businessVisualTokenHardcoding", scope: "hygiene", current: (report) => report.drift.businessVisualTokenHardcoding.map(businessVisualTokenHardcodingKey) },
   { baselineKey: "coreBusinessFactLiterals", scope: "hygiene", current: (report) => report.drift.coreBusinessFactLiterals.map(coreBusinessFactLiteralKey) },
   { baselineKey: "componentLocalUiConfigs", scope: "hygiene", current: (report) => report.drift.componentLocalUiConfigs.map(componentLocalUiConfigKey) },
   { baselineKey: "pageSurfaceLayoutProtocolWarnings", scope: "ui-blocker", current: (report) => report.drift.pageSurfaceLayoutProtocolWarnings.map(pageSurfaceLayoutProtocolWarningKey) },
-  { baselineKey: "platformCoreUiRuntimeBypassImports", scope: "ui-blocker", current: (report) => report.drift.platformCoreUiRuntimeBypassImports.map(platformCoreUiRuntimeBypassImportKey) },
+  { baselineKey: "platformCoreUiRoleBypassImports", scope: "ui-blocker", current: (report) => report.drift.platformCoreUiRoleBypassImports.map(platformCoreUiRoleBypassImportKey) },
   { baselineKey: "coreUiMissingOwnership", scope: "ui-blocker", current: (report) => report.drift.coreUiMissingOwnership.map(coreUiMissingOwnershipKey) },
   { baselineKey: "coreUiInvalidOwnership", scope: "ui-blocker", current: (report) => report.drift.coreUiInvalidOwnership.map(coreUiInvalidOwnershipKey) },
   { baselineKey: "coreUiCommonDomainDependency", scope: "ui-blocker", current: (report) => report.drift.coreUiCommonDomainDependency.map(coreUiCommonDomainDependencyKey) },
