@@ -1,10 +1,14 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import { canUseProject, createProjectMember, listProjectMembers } from "@workspace/work/server";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { canUseProject, createProjectMemberAction, listProjectMembers } from "@workspace/work/server";
 
 const memberDateSchema = z.union([z.literal(""), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]).nullable().optional();
 const employeeNumberSchema = z.union([z.string(), z.number()]).transform((value) => String(value).trim()).pipe(z.string().min(1));
+const optionalPositiveIntSchema = z.preprocess(
+  (value) => value === "" ? undefined : value,
+  z.coerce.number().int().positive().optional(),
+);
 
 const createProjectMemberSchema = z.object({
   employeeNumber: employeeNumberSchema.optional(),
@@ -18,38 +22,31 @@ const createProjectMemberSchema = z.object({
   path: ["employeeNumber"],
 });
 
-export async function GET(request: Request) {
+const listProjectMembersQuerySchema = z.object({
+  projectId: optionalPositiveIntSchema,
+  keyword: z.string().optional(),
+  page: optionalPositiveIntSchema,
+  pageSize: optionalPositiveIntSchema,
+}).passthrough();
 
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  if (!(await canUseProject(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+export const GET = createCommandRoute({
+  querySchema: listProjectMembersQuerySchema,
+  access: (userId) => canUseProject(userId),
+  buildCommand: ({ user, query }) => okCommand<Parameters<typeof listProjectMembers>[0]>({
+      userId: user.userId,
+      projectId: query.projectId ?? null,
+      keyword: query.keyword || "",
+      page: Math.max(1, query.page ?? 1),
+      pageSize: Math.min(500, Math.max(1, query.pageSize ?? 50)),
+  }),
+  action: listProjectMembers,
+});
 
-  const { searchParams } = new URL(request.url);
-  const projectId = searchParams.get("projectId");
-  const keyword = searchParams.get("keyword") || "";
-  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-  const pageSize = Math.min(500, Math.max(1, parseInt(searchParams.get("pageSize") || "50", 10)));
-  return NextResponse.json(await listProjectMembers({
-    userId: payload.userId,
-    projectId: projectId ? parseInt(projectId) : null,
-    keyword,
-    page,
-    pageSize,
-  }));
-}
-
-export async function POST(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-
-  const body = await request.clone().json().catch(() => null);
-  const parsedBody = createProjectMemberSchema.safeParse(body);
-  if (!parsedBody.success) return NextResponse.json({ error: parsedBody.error.issues[0]?.message || "参数错误" }, { status: 400 });
-
-  return createProjectMember(new Request(request.url, {
-    method: request.method,
-    headers: request.headers,
-    body: JSON.stringify(parsedBody.data),
-  }));
-}
+export const POST = createCommandRoute({
+  bodySchema: createProjectMemberSchema,
+  buildCommand: ({ user, body }) => okCommand({
+    userId: user.userId,
+    body: body as Record<string, unknown>,
+  }),
+  action: createProjectMemberAction,
+});

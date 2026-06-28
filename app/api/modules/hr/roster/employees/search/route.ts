@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireApiAccess, isSuperAdmin } from "@workspace/platform/server/auth";
 import { searchEmployeesForAccountLink } from "@workspace/hr/server";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 export async function GET(request: Request) {
   const auth = await requireApiAccess(request);
@@ -8,7 +9,7 @@ export async function GET(request: Request) {
   const payload = auth.user;
 
   if (!(await isSuperAdmin(payload.userId))) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
+    return jsonErrorResponse("无权限", 403);
   }
 
   const { searchParams } = new URL(request.url);

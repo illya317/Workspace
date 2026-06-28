@@ -8,6 +8,7 @@ import {
   recordOpenApiAccess,
   touchOpenApiClient,
 } from "./management";
+import { jsonErrorResponse } from "../api";
 
 type OpenApiClientForHandler = {
   id: number;
@@ -29,7 +30,7 @@ type OpenApiHandler = (
 ) => Promise<Response>;
 
 function jsonError(error: string, status: number) {
-  return Response.json({ error }, { status });
+  return jsonErrorResponse(error, status);
 }
 
 function readBearerSecret(request: Request) {

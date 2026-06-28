@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { routeIdParamsSchema, updateFieldBodySchema } from "@workspace/platform/server/api";
+import { jsonErrorResponse, routeIdParamsSchema, updateFieldBodySchema } from "@workspace/platform/server/api";
 import { requireAdminApiAccess, isSuperAdmin } from "@workspace/platform/server/auth";
 import {
   resetAdminUserPassword,
@@ -32,14 +32,14 @@ export async function PUT(
   const payload = auth.user;
 
   const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return NextResponse.json({ error: "用户ID无效" }, { status: 400 });
+  if (!parsedParams.success) return jsonErrorResponse("用户ID无效", 400);
 
   const targetUserId = parsedParams.data.id;
   const isSelf = payload.userId === targetUserId;
   const canAdmin = await isSuperAdmin(payload.userId);
 
   if (!isSelf && !canAdmin) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
+    return jsonErrorResponse("无权限", 403);
   }
 
   const body = await request.json().catch(() => null);
@@ -47,10 +47,10 @@ export async function PUT(
   // Single field update
   if (body && typeof body === "object" && "field" in body) {
     const parsed = fieldUpdateSchema.safeParse(body);
-    if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
+    if (!parsed.success) return jsonErrorResponse("参数无效", 400);
 
     const allowed = isSelf ? selfAllowedFields : adminAllowedFields;
-    if (!allowed.has(parsed.data.field)) return NextResponse.json({ error: "非法字段" }, { status: 400 });
+    if (!allowed.has(parsed.data.field)) return jsonErrorResponse("非法字段", 400);
 
     return NextResponse.json(
       await updateAdminUserField({
@@ -62,14 +62,14 @@ export async function PUT(
   }
 
   if (!canAdmin) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
+    return jsonErrorResponse("无权限", 403);
   }
 
   const parsed = grantUpdateSchema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
+  if (!parsed.success) return jsonErrorResponse("参数无效", 400);
 
   const result = await updateAdminUserGrant({ userId: targetUserId, ...parsed.data });
-  if (!result.success) return NextResponse.json({ error: result.error }, { status: result.status });
+  if (!result.success) return jsonErrorResponse(result.error, result.status);
   return NextResponse.json(result);
 }
 
@@ -82,11 +82,11 @@ export async function POST(
   const payload = auth.user;
 
   if (!(await isSuperAdmin(payload.userId))) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
+    return jsonErrorResponse("无权限", 403);
   }
 
   const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return NextResponse.json({ error: "用户ID无效" }, { status: 400 });
+  if (!parsedParams.success) return jsonErrorResponse("用户ID无效", 400);
 
   return NextResponse.json(await resetAdminUserPassword(parsedParams.data.id));
 }

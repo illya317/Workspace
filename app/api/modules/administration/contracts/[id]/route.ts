@@ -1,28 +1,30 @@
-import { NextResponse } from "next/server";
-import { withContractAccess } from "@workspace/platform/server/with-auth";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { failCommand, okCommand } from "@workspace/platform/server/domain-validation";
+import { checkContractAccess } from "@workspace/platform/server/auth";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { ContractUpdateSchema, deleteContract, updateContract } from "@workspace/administration/server";
 
-export const PATCH = withContractAccess(async (request, _user, ctx) => {
-  const id = Number((await ctx?.params)?.id);
-  if (!id) return NextResponse.json({ error: "无效ID" }, { status: 400 });
-
-  const parsed = ContractUpdateSchema.safeParse(await request.json());
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.issues[0]?.message || "参数错误" }, { status: 400 });
-  }
-  if (Object.keys(parsed.data).length === 0) {
-    return NextResponse.json({ error: "无更新内容" }, { status: 400 });
-  }
-
-  await updateContract(id, parsed.data);
-
-  return NextResponse.json({ success: true });
+export const PATCH = createCommandRoute({
+  access: checkContractAccess,
+  paramsSchema: routeIdParamsSchema,
+  bodySchema: ContractUpdateSchema,
+  paramsError: "无效ID",
+  buildCommand: ({ params, body }) => Object.keys(body).length === 0
+    ? failCommand("无更新内容")
+    : okCommand({ id: params.id, body }),
+  action: async (command) => {
+    await updateContract(command.id, command.body);
+    return { success: true };
+  },
 });
 
-export const DELETE = withContractAccess(async (_request, _user, ctx) => {
-  const id = Number((await ctx?.params)?.id);
-  if (!id) return NextResponse.json({ error: "无效ID" }, { status: 400 });
-
-  await deleteContract(id);
-  return NextResponse.json({ success: true });
+export const DELETE = createCommandRoute({
+  access: checkContractAccess,
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "无效ID",
+  buildCommand: ({ params }) => okCommand({ id: params.id }),
+  action: async (command) => {
+    await deleteContract(command.id);
+    return { success: true };
+  },
 });

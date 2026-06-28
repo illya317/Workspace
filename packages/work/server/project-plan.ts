@@ -6,6 +6,7 @@ import { isValidProjectPlanDateValue, normalizeProjectPlanText, validateProjectP
 import { validateProjectTaskPlanBatch } from "./domain/project-task-validation";
 import { deriveStatusFromActualDates, effectiveProjectDates } from "./project-dates";
 import { formatDate, parseDate } from "./project-normalization";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 export const PLAN_ITEM_KINDS = ["project", "task", "phase"] as const;
 export type PlanItemKind = (typeof PLAN_ITEM_KINDS)[number];
@@ -442,5 +443,5 @@ function findDependencyCycle(dependencies: Array<{ predecessorKind: string; pred
 
 
 export function projectPlanServiceResponse<T>(result: { ok: true; data: T } | { ok: false; error: string; status?: number }) {
-  return result.ok ? NextResponse.json(result.data) : NextResponse.json({ error: result.error }, { status: result.status || 400 });
+  return result.ok ? NextResponse.json(result.data) : jsonErrorResponse(result.error, result.status || 400);
 }

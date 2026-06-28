@@ -20,6 +20,7 @@ import {
   validateEdpFieldUpdateCurrentTotal,
 } from "./domain/edp-total-validation";
 import { primaryContractCompany } from "./employments";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const EDP_CONFIG = {
   entityType: "EDP",
@@ -164,23 +165,23 @@ export async function updateEdpField(request: Request, params: Promise<{ id: str
   if (disabledResponse) return disabledResponse;
 
   const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await checkHRWrite(payload.userId, "hr.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+  if (!payload) return jsonErrorResponse("未登录", 401);
+  if (!(await checkHRWrite(payload.userId, "hr.roster"))) return jsonErrorResponse("无权限", 403);
 
   const { id } = await params;
   const recordId = Number(id);
-  if (!Number.isInteger(recordId) || recordId <= 0) return NextResponse.json({ error: "记录ID无效" }, { status: 400 });
+  if (!Number.isInteger(recordId) || recordId <= 0) return jsonErrorResponse("记录ID无效", 400);
 
   const body = await request.json();
   const { field, value } = body as { field: string; value: unknown };
   const command = mapValidationToServiceResult(await buildEdpFieldUpdateCommand(field, value, recordId));
-  if (!command.ok) return NextResponse.json({ error: command.error }, { status: command.status || 400 });
-  if (!EDP_ALLOWED_FIELDS.includes(command.data.field)) return NextResponse.json({ error: "非法字段" }, { status: 400 });
+  if (!command.ok) return jsonErrorResponse(command.error, command.status || 400);
+  if (!EDP_ALLOWED_FIELDS.includes(command.data.field)) return jsonErrorResponse("非法字段", 400);
   if (edpUpdateAffectsCurrentTotal(command.data.data)) {
     const currentTotal = mapValidationToServiceResult(
       await validateEdpFieldUpdateCurrentTotal(recordId, command.data.data),
     );
-    if (!currentTotal.ok) return NextResponse.json({ error: currentTotal.error }, { status: currentTotal.status || 400 });
+    if (!currentTotal.ok) return jsonErrorResponse(currentTotal.error, currentTotal.status || 400);
   }
 
   const data: Record<string, unknown> = {

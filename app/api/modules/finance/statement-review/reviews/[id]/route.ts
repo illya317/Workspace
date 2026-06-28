@@ -6,6 +6,7 @@ import {
   reviewIdSchema,
   updateReviewSchema,
 } from "@workspace/finance/server/statements/reviews/schemas";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 function statusFrom(e: unknown): number {
   if (e instanceof Error && "statusCode" in e && typeof (e as { statusCode: unknown }).statusCode === "number") {
@@ -17,14 +18,14 @@ function statusFrom(e: unknown): number {
 export function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   return withFinanceStatementReviewWrite(async (_req, user) => {
     const parsedParams = reviewIdSchema.safeParse(await params);
-    if (!parsedParams.success) return NextResponse.json({ error: "id 必须为数字" }, { status: 400 });
+    if (!parsedParams.success) return jsonErrorResponse("id 必须为数字", 400);
 
     const body = await _req.json().catch(() => null);
     if (!body) {
-      return NextResponse.json({ error: "请求体必须为 JSON" }, { status: 400 });
+      return jsonErrorResponse("请求体必须为 JSON", 400);
     }
     const parsedBody = updateReviewSchema.safeParse(body);
-    if (!parsedBody.success) return NextResponse.json({ error: "lines 数组为必填" }, { status: 400 });
+    if (!parsedBody.success) return jsonErrorResponse("lines 数组为必填", 400);
 
     try {
       const review = await updateReviewLines(
@@ -35,7 +36,7 @@ export function PUT(req: Request, { params }: { params: Promise<{ id: string }> 
       );
       return NextResponse.json({ review });
     } catch (e: unknown) {
-      return NextResponse.json({ error: e instanceof Error ? e.message : "更新校对失败" }, { status: statusFrom(e) });
+      return jsonErrorResponse(e instanceof Error ? e.message : "更新校对失败", statusFrom(e));
     }
   })(req);
 }

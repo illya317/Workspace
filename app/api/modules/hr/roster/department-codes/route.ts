@@ -7,6 +7,7 @@ import {
   getDepartmentCodes,
   upsertDepartmentCode,
 } from "@workspace/hr/server/department-codes";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const querySchema = z.object({
   companys: z.string().optional(),
@@ -38,14 +39,14 @@ export async function GET(request: Request) {
   const auth = await requireApiAccess(request);
   if (!auth.ok) return auth.response;
   const payload = auth.user;
-  if (!(await canUseRoster(payload.userId, "access"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+  if (!(await canUseRoster(payload.userId, "access"))) return jsonErrorResponse("无权限", 403);
 
   const { searchParams } = new URL(request.url);
   const parsed = querySchema.safeParse({
     companys: searchParams.get("companys") || undefined,
     company: searchParams.get("company") || undefined,
   });
-  if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
+  if (!parsed.success) return jsonErrorResponse("参数无效", 400);
 
   return NextResponse.json(await getDepartmentCodes(parsed.data));
 }
@@ -55,13 +56,13 @@ export async function PUT(request: Request) {
   const auth = await requireApiAccess(request);
   if (!auth.ok) return auth.response;
   const payload = auth.user;
-  if (!(await canUseRoster(payload.userId, "write"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+  if (!(await canUseRoster(payload.userId, "write"))) return jsonErrorResponse("无权限", 403);
 
   const parsed = upsertDepartmentCodeSchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: "缺少参数" }, { status: 400 });
+  if (!parsed.success) return jsonErrorResponse("缺少参数", 400);
 
   const result = await upsertDepartmentCode(parsed.data, payload.userId);
-  if (!result.success) return NextResponse.json({ error: result.error }, { status: result.status });
+  if (!result.success) return jsonErrorResponse(result.error, result.status);
   return NextResponse.json(result);
 }
 
@@ -70,15 +71,15 @@ export async function DELETE(request: Request) {
   const auth = await requireApiAccess(request);
   if (!auth.ok) return auth.response;
   const payload = auth.user;
-  if (!(await canUseRoster(payload.userId, "delete"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+  if (!(await canUseRoster(payload.userId, "delete"))) return jsonErrorResponse("无权限", 403);
 
   const { searchParams } = new URL(request.url);
   const parsed = deleteDepartmentCodeSchema.safeParse({
     code: searchParams.get("code") || undefined,
   });
-  if (!parsed.success) return NextResponse.json({ error: "缺少code" }, { status: 400 });
+  if (!parsed.success) return jsonErrorResponse("缺少code", 400);
 
-  const result = await deleteDepartmentCode(parsed.data.code);
-  if (!result.success) return NextResponse.json({ error: result.error }, { status: result.status });
+  const result = await deleteDepartmentCode(parsed.data.code, payload.userId);
+  if (!result.success) return jsonErrorResponse(result.error, result.status);
   return NextResponse.json(result);
 }

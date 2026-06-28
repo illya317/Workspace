@@ -10,6 +10,7 @@ import {
 } from "./delete-guard";
 import { disabledApiResponseForRequest } from "./module-runtime";
 import { prisma } from "./prisma";
+import { jsonErrorResponse } from "./api";
 
 type PrismaModelKey = keyof typeof prisma;
 export type AccessChecker = (userId: number) => Promise<boolean>;
@@ -79,8 +80,8 @@ export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: A
       if (disabledResponse) return disabledResponse;
 
       const payload = await authenticate(request);
-      if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-      if (!(await writeCheck(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+      if (!payload) return jsonErrorResponse("未登录", 401);
+      if (!(await writeCheck(payload.userId))) return jsonErrorResponse("无权限", 403);
 
       const { id } = await params;
       const recordId = parseInt(id);
@@ -89,16 +90,16 @@ export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: A
 
       if (config.onBeforeUpdate) {
         const result = await config.onBeforeUpdate(field, value, recordId);
-        if (!result) return NextResponse.json({ error: "非法字段" }, { status: 400 });
+        if (!result) return jsonErrorResponse("非法字段", 400);
         if ("error" in result) {
-          return NextResponse.json({ error: result.error }, { status: result.status || 400 });
+          return jsonErrorResponse(result.error, result.status || 400);
         }
         field = result.field;
         value = result.value;
       }
 
       const allowed = config.allowedFields || [];
-      if (!allowed.includes(field)) return NextResponse.json({ error: "非法字段" }, { status: 400 });
+      if (!allowed.includes(field)) return jsonErrorResponse("非法字段", 400);
 
       await prisma.$transaction(async (tx) => {
         const txModel = (tx as unknown as Record<string, unknown>)[String(config.modelKey)] as {
@@ -120,12 +121,12 @@ export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: A
       if (disabledResponse) return disabledResponse;
 
       const payload = await authenticate(request);
-      if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-      if (!(await deleteCheck(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+      if (!payload) return jsonErrorResponse("未登录", 401);
+      if (!(await deleteCheck(payload.userId))) return jsonErrorResponse("无权限", 403);
 
       const { id } = await params;
       const parsedId = parsePositiveId(id);
-      if (!parsedId.ok) return NextResponse.json({ error: parsedId.error }, { status: parsedId.status || 400 });
+      if (!parsedId.ok) return jsonErrorResponse(parsedId.error, parsedId.status || 400);
 
       const result = await guardedDelete({
         entityType: config.entityType,
@@ -141,7 +142,7 @@ export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: A
         onBeforeDelete: config.onBeforeDelete,
         scopeGuard: config.onBeforeDeleteScope,
       });
-      if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status || 400 });
+      if (!result.ok) return jsonErrorResponse(result.error, result.status || 400);
 
       return NextResponse.json({ success: true });
     },
@@ -154,13 +155,13 @@ export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: A
       if (disabledResponse) return disabledResponse;
 
       const payload = await authenticate(request);
-      if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-      if (!(await writeCheck(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+      if (!payload) return jsonErrorResponse("未登录", 401);
+      if (!(await writeCheck(payload.userId))) return jsonErrorResponse("无权限", 403);
 
       const body = (await request.json()) as Record<string, unknown>;
       const data = buildData ? await buildData(body) : body;
-      if (!data) return NextResponse.json({ error: "数据校验失败" }, { status: 400 });
-      if (buildData && isCrudBuildError(data)) return NextResponse.json({ error: data.error }, { status: data.status || 400 });
+      if (!data) return jsonErrorResponse("数据校验失败", 400);
+      if (buildData && isCrudBuildError(data)) return jsonErrorResponse(data.error, data.status || 400);
 
       const model = prisma[config.modelKey] as unknown as {
         create: (args: { data: Record<string, unknown> }) => Promise<{ id: number }>;

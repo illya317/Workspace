@@ -3,6 +3,7 @@ import { z } from "zod";
 import { withAuth, type RouteContext } from "@workspace/platform/server/with-auth";
 import { getUserEmployeeSignatureName } from "@workspace/platform/server/user-identity";
 import { deleteQcBatch, getQcBatch, updateQcBatch, updateQcBatchWorkflow } from "@workspace/production/server/qc";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const paramsSchema = z.object({
   batchId: z.coerce.number().int().positive(),
@@ -24,23 +25,23 @@ async function parseBatchId(ctx?: RouteContext) {
 
 export const GET = withAuth(async (_request, _user, ctx) => {
   const batchId = await parseBatchId(ctx);
-  if (!batchId) return NextResponse.json({ error: "无效批次 ID" }, { status: 400 });
+  if (!batchId) return jsonErrorResponse("无效批次 ID", 400);
   const batch = await getQcBatch(batchId);
-  if (!batch) return NextResponse.json({ error: "批次不存在" }, { status: 404 });
+  if (!batch) return jsonErrorResponse("批次不存在", 404);
   return NextResponse.json({ data: batch });
 });
 
 export const PATCH = withAuth(async (request, user, ctx) => {
   const batchId = await parseBatchId(ctx);
-  if (!batchId) return NextResponse.json({ error: "无效批次 ID" }, { status: 400 });
+  if (!batchId) return jsonErrorResponse("无效批次 ID", 400);
   const body = await request.json().catch(() => null);
-  if (!body || typeof body !== "object") return NextResponse.json({ error: "请求体必须为 JSON" }, { status: 400 });
+  if (!body || typeof body !== "object") return jsonErrorResponse("请求体必须为 JSON", 400);
   const parsed = updateQcBatchSchema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
+  if (!parsed.success) return jsonErrorResponse("参数错误", 400);
   try {
     if (parsed.data.action) {
       if (!parsed.data.stageKey || !parsed.data.testName) {
-        return NextResponse.json({ error: "缺少检验项目信息" }, { status: 400 });
+        return jsonErrorResponse("缺少检验项目信息", 400);
       }
       const rawFields = parsed.data.fields;
       const fields = rawFields && typeof rawFields === "object" && !Array.isArray(rawFields)
@@ -54,25 +55,25 @@ export const PATCH = withAuth(async (request, user, ctx) => {
         actorName,
         fields,
       });
-      if (!batch) return NextResponse.json({ error: "批次不存在" }, { status: 404 });
+      if (!batch) return jsonErrorResponse("批次不存在", 404);
       return NextResponse.json({ data: batch });
     }
     if (parsed.data.fields) {
-      return NextResponse.json({ error: "检验数据更新必须声明动作" }, { status: 400 });
+      return jsonErrorResponse("检验数据更新必须声明动作", 400);
     }
     const batch = await updateQcBatch(batchId, parsed.data);
-    if (!batch) return NextResponse.json({ error: "批次不存在" }, { status: 404 });
+    if (!batch) return jsonErrorResponse("批次不存在", 404);
     return NextResponse.json({ data: batch });
   } catch (error) {
     const message = error instanceof Error ? error.message : "批次更新失败";
-    return NextResponse.json({ error: message }, { status: 400 });
+    return jsonErrorResponse(message, 400);
   }
 });
 
 export const DELETE = withAuth(async (_request, _user, ctx) => {
   const batchId = await parseBatchId(ctx);
-  if (!batchId) return NextResponse.json({ error: "无效批次 ID" }, { status: 400 });
+  if (!batchId) return jsonErrorResponse("无效批次 ID", 400);
   const deleted = await deleteQcBatch(batchId);
-  if (!deleted) return NextResponse.json({ error: "批次不存在" }, { status: 404 });
+  if (!deleted) return jsonErrorResponse("批次不存在", 404);
   return NextResponse.json({ ok: true });
 });

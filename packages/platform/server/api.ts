@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import { z } from "zod";
 
 export type ParsedJson<T> =
@@ -7,6 +8,22 @@ export type ParsedJson<T> =
 export type ServiceResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string; status?: number };
+
+export function serviceOk<T>(data: T): ServiceResult<T> {
+  return { ok: true, data };
+}
+
+export function serviceError(error: string, status = 400): ServiceResult<never> {
+  return { ok: false, error, status };
+}
+
+export function isServiceResult<T = unknown>(value: unknown): value is ServiceResult<T> {
+  if (!value || typeof value !== "object" || !("ok" in value)) return false;
+  const result = value as Record<string, unknown>;
+  if (result.ok === true) return "data" in result;
+  if (result.ok === false) return typeof result.error === "string";
+  return false;
+}
 
 export async function parseJson<T>(
   request: Request,
@@ -54,18 +71,20 @@ export async function parseRouteIdParams(params?: Promise<Record<string, string>
   return id === null ? null : { id: String(id) };
 }
 
-export function jsonBadRequest(error: string) {
-  return Response.json({ error }, { status: 400 });
+export function jsonBadRequest(error: unknown) {
+  return NextResponse.json({ error }, { status: 400 });
 }
 
-export function jsonErrorResponse(error: string, status = 400) {
-  return Response.json({ error }, { status });
+export function jsonErrorResponse(error: unknown, status = 400, extra?: Record<string, unknown>) {
+  return NextResponse.json({ error, ...extra }, { status });
 }
 
-export function jsonServiceResponse<T>(result: ServiceResult<T>) {
-  if (result.ok) return Response.json(result.data);
+export function serviceResponse<T>(result: ServiceResult<T>) {
+  if (result.ok) return NextResponse.json(result.data);
   return jsonErrorResponse(result.error, result.status ?? 400);
 }
+
+export const jsonServiceResponse = serviceResponse;
 
 export function jsonResultResponse<T extends object>(result: T) {
   if ("error" in result) {
@@ -121,7 +140,7 @@ export function createValidatedIdProxyHandler(targetPathPrefix: string, invalidI
   return async function handler(request: Request, { params }: IdRouteContext) {
     const parsedParams = routeIdParamsSchema.safeParse(await params);
     if (!parsedParams.success) {
-      return Response.json({ error: invalidIdError }, { status: 400 });
+      return jsonErrorResponse(invalidIdError, 400);
     }
 
     return proxy(request, { params: Promise.resolve({ id: String(parsedParams.data.id) }) });

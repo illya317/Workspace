@@ -72,6 +72,7 @@ const API_ACCESS_IMPORTS = [
   "@workspace/platform/server/auth",
   "@workspace/platform/server/api-access",
 ];
+const API_ROUTE_HELPER_IMPORT = "@workspace/platform/server/api-route";
 const WITH_AUTH_IMPORT = "@workspace/platform/server/with-auth";
 
 function escapeRegExp(value) {
@@ -112,6 +113,16 @@ function usesImportedApiGate(content) {
   return hasNamedImport(content, "requireApiAccess", API_ACCESS_IMPORTS) && /\brequireApiAccess\s*\(/.test(content);
 }
 
+function usesApiRouteHelperGate(content) {
+  return (
+    hasNamedImport(content, "createApiRouteHandler", [API_ROUTE_HELPER_IMPORT]) &&
+    /\bcreateApiRouteHandler\s*\(/.test(content)
+  ) || (
+    hasNamedImport(content, "createCommandRoute", [API_ROUTE_HELPER_IMPORT]) &&
+    /\bcreateCommandRoute\s*\(/.test(content)
+  );
+}
+
 function usesImportedAdminApiGate(content) {
   return hasNamedImport(content, "requireAdminApiAccess", API_ACCESS_IMPORTS) && /\brequireAdminApiAccess\s*\(/.test(content);
 }
@@ -136,7 +147,7 @@ for (const file of allRoutes) {
   const isExplicitNonL2 = isCoveredByExplicitNonL2Contract(routePath);
   const usesDirectAuthenticate = content.includes("authenticate(");
   const usesAuthWrapper = hasWithAuthImport(content) && (/with[A-Za-z]*(Access|Write|Delete|Auth)\s*\(/.test(content) || /withAuth\s*\(/.test(content));
-  const usesRegistryGate = usesImportedApiGate(content) || usesAuthWrapper;
+  const usesRegistryGate = usesImportedApiGate(content) || usesApiRouteHelperGate(content) || usesAuthWrapper;
   const usesAdminGate = usesImportedAdminApiGate(content);
 
   if (firstSegment === "modules") {
@@ -161,7 +172,7 @@ for (const file of allRoutes) {
       errors++;
     }
     if (!isExplicitNonL2 && !usesRegistryGate) {
-      console.error(`❌ ${rel} 缺少 registry 派生 API 门禁；请在 route 入口调用 requireApiAccess(request)，或使用 with-auth wrapper`);
+      console.error(`❌ ${rel} 缺少 registry 派生 API 门禁；请使用 createApiRouteHandler()/createCommandRoute()、requireApiAccess(request)，或已接入它的 with-auth wrapper`);
       errors++;
     }
     if (

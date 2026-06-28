@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { withFinanceLedgerDelete, withFinanceLedgerWrite } from "@workspace/platform/server/with-auth";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { checkFinanceLedgerDelete, checkFinanceLedgerWrite } from "@workspace/platform/server/auth";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
 import {
   deleteFinanceAccount,
   updateFinanceAccount,
@@ -23,31 +24,27 @@ const updateAccountSchema = z.object({
   subjectLevel: z.unknown().optional(),
 });
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  return withFinanceLedgerWrite(async (req, user) => {
-    const parsedParams = routeIdParamsSchema.safeParse(await params);
-    if (!parsedParams.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
+export const PUT = createCommandRoute({
+  access: checkFinanceLedgerWrite,
+  paramsSchema: routeIdParamsSchema,
+  bodySchema: updateAccountSchema,
+  paramsError: "参数无效",
+  bodyError: "参数无效",
+  buildCommand: ({ user, params, body }) => okCommand({
+    id: params.id,
+    body,
+    userId: user.userId,
+  }),
+  action: (command) => updateFinanceAccount(command.id, command.body, command.userId),
+});
 
-    const parsedBody = updateAccountSchema.safeParse(await req.json().catch(() => null));
-    if (!parsedBody.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
-
-    return NextResponse.json(
-      await updateFinanceAccount(parsedParams.data.id, parsedBody.data, user.userId),
-    );
-  })(request);
-}
-
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  return withFinanceLedgerDelete(async (_req, user) => {
-    const parsedParams = routeIdParamsSchema.safeParse(await params);
-    if (!parsedParams.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
-
-    return NextResponse.json(await deleteFinanceAccount(parsedParams.data.id, user.userId));
-  })(request);
-}
+export const DELETE = createCommandRoute({
+  access: checkFinanceLedgerDelete,
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "参数无效",
+  buildCommand: ({ user, params }) => okCommand({
+    id: params.id,
+    userId: user.userId,
+  }),
+  action: (command) => deleteFinanceAccount(command.id, command.userId),
+});

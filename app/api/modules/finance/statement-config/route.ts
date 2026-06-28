@@ -6,6 +6,7 @@ import {
   getStatementConfigView,
   saveStatementConfigLines,
 } from "@workspace/finance/server/statements/statement-config-view";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const statementConfigQuerySchema = z.object({
   companyCode: z.string().min(1),
@@ -37,14 +38,14 @@ export const GET = withFinanceStatementConfigAccess(async (request) => {
   const companyCode = searchParams.get("companyCode");
   const year = searchParams.get("year");
   if (!companyCode || !year)
-    return NextResponse.json({ error: "companyCode, year 为必填" }, { status: 400 });
+    return jsonErrorResponse("companyCode, year 为必填", 400);
 
   const type = searchParams.get("type") || "balance";
   const parsed = statementConfigQuerySchema.safeParse({ companyCode, year, type });
   if (!parsed.success && type !== "balance")
-    return NextResponse.json({ error: "statement-config 暂只支持 balance" }, { status: 400 });
+    return jsonErrorResponse("statement-config 暂只支持 balance", 400);
   if (!parsed.success)
-    return NextResponse.json({ error: "companyCode, year 为必填" }, { status: 400 });
+    return jsonErrorResponse("companyCode, year 为必填", 400);
 
   const view = await getStatementConfigView(parsed.data.companyCode, parsed.data.year, parsed.data.type);
   return NextResponse.json(view);
@@ -55,13 +56,13 @@ export const GET = withFinanceStatementConfigAccess(async (request) => {
 export const PUT = withFinanceStatementConfigWrite(async (request) => {
   const body = await request.json().catch(() => null);
   if (!body || !Array.isArray(body.lines))
-    return NextResponse.json({ error: "lines 数组为必填" }, { status: 400 });
+    return jsonErrorResponse("lines 数组为必填", 400);
 
   const parsed = saveStatementConfigSchema.safeParse(body);
   if (!parsed.success && (!body.companyCode || !body.year))
-    return NextResponse.json({ error: "companyCode, year 为必填" }, { status: 400 });
+    return jsonErrorResponse("companyCode, year 为必填", 400);
   if (!parsed.success)
-    return NextResponse.json({ error: "参数无效" }, { status: 400 });
+    return jsonErrorResponse("参数无效", 400);
 
   return NextResponse.json(await saveStatementConfigLines(parsed.data));
 });

@@ -1,18 +1,18 @@
-import { NextResponse } from "next/server";
-import { withFinanceCostAccess } from "@workspace/platform/server/with-auth";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { checkFinanceCostAccess } from "@workspace/platform/server/auth";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { costQuerySchema, listShipments, getShipmentSummary } from "@workspace/finance/server/cost";
 
-export async function GET(request: Request) {
-  return withFinanceCostAccess(async (req) => {
-    const { searchParams } = new URL(req.url);
-    const parsed = costQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
-    if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
-
+export const GET = createCommandRoute({
+  access: checkFinanceCostAccess,
+  querySchema: costQuerySchema,
+  queryError: "参数无效",
+  buildCommand: ({ query }) => okCommand(query),
+  action: async (command) => {
     const [list, summary] = await Promise.all([
-      listShipments(parsed.data),
-      getShipmentSummary(parsed.data),
+      listShipments(command),
+      getShipmentSummary(command),
     ]);
-
-    return NextResponse.json({ success: true, ...list, summary });
-  })(request);
-}
+    return { success: true, ...list, summary };
+  },
+});

@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@workspace/platform/server/prisma";
+import { serviceError, serviceResponse } from "@workspace/platform/server/api";
 import type { DomainServiceResult } from "@workspace/platform/server/domain-validation";
+import { prisma } from "@workspace/platform/server/prisma";
 import {
   buildVisibleMeetingWhere,
   canDeleteMeeting,
@@ -431,11 +431,4 @@ async function ensureDefaultMeetingTypes() {
   });
 }
 
-function serviceError(error: string, status = 400) {
-  return { ok: false as const, error, status };
-}
-
-export function meetingServiceResponse<T>(result: DomainServiceResult<T>) {
-  if (result.ok) return NextResponse.json(result.data);
-  return NextResponse.json({ error: result.error }, { status: result.status || 400 });
-}
+export const meetingServiceResponse: <T>(result: DomainServiceResult<T>) => Response = serviceResponse;

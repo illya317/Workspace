@@ -17,6 +17,7 @@ type RuntimeState = Required<Pick<ModuleRuntimeOverride, "enabled" | "hidden">> 
 
 const DEFAULT_DISABLED_REASON = "模块未启用";
 const TARGET_RESOURCE_KEYS: Record<string, string> = {
+  meeting: "work.meetings",
   project: "work.projects",
 };
 

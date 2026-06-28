@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { serviceResponse, type ServiceResult } from "@workspace/platform/server/api";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { canEditProject, canViewProject } from "./access";
@@ -375,7 +375,4 @@ export async function deleteProjectTask(input: { userId: number; projectId: numb
   return { ok: true as const, data: { success: true } };
 }
 
-export function projectTaskServiceResponse<T>(result: { ok: true; data: T } | { ok: false; error: string; status?: number }) {
-  if (result.ok) return NextResponse.json(result.data);
-  return NextResponse.json({ error: result.error }, { status: result.status || 400 });
-}
+export const projectTaskServiceResponse: <T>(result: ServiceResult<T>) => Response = serviceResponse;

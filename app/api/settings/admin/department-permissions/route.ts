@@ -6,6 +6,7 @@ import {
   setSubjectPermissionGrant,
 } from "@workspace/hr/server/permission-grants";
 import { requireAdminApiAccess, isSuperAdmin, canManageResourceGrant, getManageableResourceKeys } from "@workspace/platform/server/auth";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const departmentPermissionSchema = z.object({
   departmentId: z.coerce.number().int().positive(),
@@ -25,7 +26,7 @@ export async function GET(request: Request) {
   ]);
 
   if (!isSystemAdmin && manageableKeys.size === 0) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
+    return jsonErrorResponse("无权限", 403);
   }
 
   return NextResponse.json(
@@ -45,10 +46,7 @@ export async function PUT(request: Request) {
 
     const parsed = departmentPermissionSchema.safeParse(await request.json().catch(() => null));
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "参数错误: 需要 departmentId, resourceKey, roleKey, value" },
-        { status: 400 },
-      );
+      return jsonErrorResponse("参数错误: 需要 departmentId, resourceKey, roleKey, value", 400);
     }
 
     const canManage = await canManageResourceGrant(
@@ -57,7 +55,7 @@ export async function PUT(request: Request) {
       parsed.data.roleKey,
     );
     if (!canManage) {
-      return NextResponse.json({ error: "无权限管理该资源权限" }, { status: 403 });
+      return jsonErrorResponse("无权限管理该资源权限", 403);
     }
 
     return NextResponse.json(
@@ -72,9 +70,6 @@ export async function PUT(request: Request) {
     );
   } catch (error: unknown) {
     console.error("department-permissions PUT error:", error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "服务器内部错误" },
-      { status: 500 },
-    );
+    return jsonErrorResponse(error instanceof Error ? error.message : "服务器内部错误", 500);
   }
 }

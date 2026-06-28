@@ -1,23 +1,24 @@
-import { NextResponse } from "next/server";
-import { withFinanceBudgetAccess, withFinanceBudgetWrite } from "@workspace/platform/server/with-auth";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { checkFinanceBudgetAccess, checkFinanceBudgetWrite } from "@workspace/platform/server/auth";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { importBudgetWorkbook, loadBudgetOverview } from "@workspace/finance/server/budget/service";
 import {
   budgetQuerySchema,
   createBudgetImportSchema,
 } from "@workspace/finance/server/budget/schemas";
 
-export const GET = withFinanceBudgetAccess(async (request: Request) => {
-  const { searchParams } = new URL(request.url);
-  const parsed = budgetQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
-  if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
-
-  return NextResponse.json(await loadBudgetOverview(parsed.data));
+export const GET = createCommandRoute({
+  access: (userId) => checkFinanceBudgetAccess(userId),
+  querySchema: budgetQuerySchema,
+  queryError: "参数无效",
+  buildCommand: ({ query }) => okCommand(query as Parameters<typeof loadBudgetOverview>[0]),
+  action: (command) => loadBudgetOverview(command),
 });
 
-export const POST = withFinanceBudgetWrite(async (request: Request) => {
-  const body = await request.json().catch(() => null);
-  const parsed = createBudgetImportSchema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: "year 为必填" }, { status: 400 });
-
-  return NextResponse.json({ success: true, ...(await importBudgetWorkbook(parsed.data)) });
+export const POST = createCommandRoute({
+  access: (userId) => checkFinanceBudgetWrite(userId),
+  bodySchema: createBudgetImportSchema,
+  bodyError: "year 为必填",
+  buildCommand: ({ body }) => okCommand(body as Parameters<typeof importBudgetWorkbook>[0]),
+  action: async (command) => ({ success: true, ...(await importBudgetWorkbook(command)) }),
 });

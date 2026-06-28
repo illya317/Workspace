@@ -6,6 +6,7 @@ import {
   listFinanceBalances,
   recomputeFinanceBalances,
 } from "@workspace/finance/server/ledger/balance-api";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const balancesQuerySchema = z.object({
   periodId: z.coerce.number().int().positive().optional(),
@@ -33,11 +34,11 @@ export const GET = withFinanceLedgerAccess(async (request: Request) => {
     pageSize: searchParams.get("pageSize") || undefined,
     keyword: searchParams.get("keyword") || undefined,
   });
-  if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
+  if (!parsed.success) return jsonErrorResponse("参数无效", 400);
 
   const { periodId, companyCode, year, month } = parsed.data;
   if (!periodId && (!companyCode || year === undefined || month === undefined)) {
-    return NextResponse.json({ error: "periodId 或 companyCode+year+month 为必填" }, { status: 400 });
+    return jsonErrorResponse("periodId 或 companyCode+year+month 为必填", 400);
   }
 
   return NextResponse.json(await listFinanceBalances(parsed.data));
@@ -46,10 +47,10 @@ export const GET = withFinanceLedgerAccess(async (request: Request) => {
 /** POST 重新计算指定期间的余额 */
 export const POST = withFinanceLedgerWrite(async (request: Request) => {
   const parsed = recomputeBalancesSchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: "periodId 为必填且为有效数字" }, { status: 400 });
+  if (!parsed.success) return jsonErrorResponse("periodId 为必填且为有效数字", 400);
 
   const result = await recomputeFinanceBalances(parsed.data);
-  if (!result.success) return NextResponse.json({ error: result.error }, { status: result.status });
+  if (!result.success) return jsonErrorResponse(result.error, result.status ?? 400);
 
   return NextResponse.json(result);
 });

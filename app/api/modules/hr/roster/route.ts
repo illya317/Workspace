@@ -8,12 +8,13 @@ import {
   getVisibleFields,
   queryRawEmployees,
 } from "@workspace/hr/server";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 export async function GET(request: Request) {
   const auth = await requireApiAccess(request);
   if (!auth.ok) return auth.response;
   const payload = auth.user;
-  if (!(await checkHRAccess(payload.userId, "access", "hr.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+  if (!(await checkHRAccess(payload.userId, "access", "hr.roster"))) return jsonErrorResponse("无权限", 403);
 
   const { searchParams } = new URL(request.url);
   const raw = searchParams.get("raw") === "1";

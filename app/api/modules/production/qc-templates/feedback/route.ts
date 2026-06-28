@@ -10,6 +10,7 @@ import {
   saveQcTemplateFeedback,
   updateQcTemplateFeedbackResolved,
 } from "@workspace/production/server/qc";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const feedbackQuerySchema = z.object({
   key: z.string().trim().optional(),
@@ -33,7 +34,7 @@ export const GET = withAuth(async (request, user) => {
   const parsedQuery = feedbackQuerySchema.safeParse(
     Object.fromEntries(new URL(request.url).searchParams.entries()),
   );
-  if (!parsedQuery.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
+  if (!parsedQuery.success) return jsonErrorResponse("参数错误", 400);
   const key = parsedQuery.data.key;
   if (key) {
     const [data, items] = await Promise.all([
@@ -48,10 +49,10 @@ export const GET = withAuth(async (request, user) => {
 export const POST = withAuth(async (request, user) => {
   const body = await request.json().catch(() => null);
   if (!body || typeof body !== "object") {
-    return NextResponse.json({ error: "请求体必须为 JSON" }, { status: 400 });
+    return jsonErrorResponse("请求体必须为 JSON", 400);
   }
   const parsed = saveFeedbackSchema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
+  if (!parsed.success) return jsonErrorResponse("参数错误", 400);
   const data = parsed.data;
   try {
     const userName = await getUserEmployeeSignatureName(user.userId, user.nickname);
@@ -66,17 +67,17 @@ export const POST = withAuth(async (request, user) => {
     return NextResponse.json({ data: item, keys: list.keys, states: list.states });
   } catch (error) {
     const message = error instanceof Error ? error.message : "保存反馈失败";
-    return NextResponse.json({ error: message }, { status: 400 });
+    return jsonErrorResponse(message, 400);
   }
 });
 
 export const PATCH = withAuth(async (request, user) => {
   const body = await request.json().catch(() => null);
   if (!body || typeof body !== "object") {
-    return NextResponse.json({ error: "请求体必须为 JSON" }, { status: 400 });
+    return jsonErrorResponse("请求体必须为 JSON", 400);
   }
   const parsed = updateFeedbackResolvedSchema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: "缺少反馈 key" }, { status: 400 });
+  if (!parsed.success) return jsonErrorResponse("缺少反馈 key", 400);
   const data = parsed.data;
   try {
     const userName = await getUserEmployeeSignatureName(user.userId, user.nickname);
@@ -90,6 +91,6 @@ export const PATCH = withAuth(async (request, user) => {
     return NextResponse.json({ data: item, list: await listQcTemplateFeedback() });
   } catch (error) {
     const message = error instanceof Error ? error.message : "更新反馈状态失败";
-    return NextResponse.json({ error: message }, { status: 400 });
+    return jsonErrorResponse(message, 400);
   }
 });

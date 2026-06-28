@@ -29,6 +29,13 @@ export interface Violation {
   recommendation: string;
 }
 
+export interface DomainValidationWarning {
+  key: string;
+  file: string;
+  detail: string;
+  recommendation: string;
+}
+
 interface ExportedEntry {
   name: string;
   text: string;
@@ -449,6 +456,30 @@ function createViolation(kind: ViolationKind, file: string, detail: string, reco
   };
 }
 
+function createWarning(file: string, detail: string, recommendation: string): DomainValidationWarning {
+  return {
+    key: `routeCommandShellWarning: ${file}: ${detail}`,
+    file,
+    detail,
+    recommendation,
+  };
+}
+
+function commandRouteShellWarnings(source: string) {
+  if (/\bcreateCommandRoute\b/.test(source)) return [];
+  const warnings: string[] = [];
+  if (/\brequest\.json\s*\(\s*\)\.catch\s*\(/.test(source)) {
+    warnings.push("parses JSON with request.json().catch in route");
+  }
+  if (/\.safeParse\s*\(/.test(source) && /\bif\s*\(\s*![A-Za-z_$][\w$]*\.success\s*\)/.test(source)) {
+    warnings.push("handles zod safeParse failure in route");
+  }
+  if (/\bif\s*\([^)]*\b(?:parsed|parsedBody|parsedQuery)\.data\.[^)]+\)/.test(source)) {
+    warnings.push("branches on parsed request data in route");
+  }
+  return warnings;
+}
+
 export function createDomainValidationReport() {
   const violations: Violation[] = [];
   const packages = domainPackages();
@@ -554,4 +585,21 @@ export function createDomainValidationReport() {
   }
 
   return violations.sort((left, right) => left.key.localeCompare(right.key));
+}
+
+export function createDomainValidationWarnings() {
+  const warnings: DomainValidationWarning[] = [];
+  for (const file of collectTsFiles("app/api/modules")) {
+    const source = readFile(file);
+    for (const detail of commandRouteShellWarnings(source)) {
+      warnings.push(
+        createWarning(
+          file,
+          detail,
+          "Prefer createCommandRoute with schema/buildCommand/action so the route stays an API shell.",
+        ),
+      );
+    }
+  }
+  return warnings.sort((left, right) => left.key.localeCompare(right.key));
 }

@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/platform/server/auth";
 import { hrAgentProposalExecutors } from "@workspace/hr/server/agent-tools";
 import { confirmProposalAction } from "@workspace/platform/server/agent";
-import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
 
 export async function POST(
   request: Request,
@@ -17,16 +17,16 @@ export async function POST(
   if (!auth.ok) return auth.response;
 
   const user = await getSessionUserFromAuthPayload(auth.user);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user) return jsonErrorResponse("Unauthorized", 401);
 
   const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  if (!parsedParams.success) return jsonErrorResponse("Invalid id", 400);
 
   try {
     const result = await confirmProposalAction(parsedParams.data.id, user, hrAgentProposalExecutors);
     return NextResponse.json(result);
   } catch (err) {
     const message = err instanceof Error ? err.message : "执行失败";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return jsonErrorResponse(message, 500);
   }
 }

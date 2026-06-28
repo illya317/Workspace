@@ -7,6 +7,7 @@ import {
   normalizeWorkTargetType,
   type WorkReportItemInput,
 } from "@workspace/work/server";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const saveSchema = z.object({
   targetType: z.string(),
@@ -30,7 +31,7 @@ export async function GET(request: Request) {
   const targetType = normalizeWorkTargetType(searchParams.get("targetType") || "personal");
   const targetId = Number(searchParams.get("targetId") || auth.user.userId);
   if (!Number.isInteger(targetId) || targetId <= 0) {
-    return NextResponse.json({ error: "缺少工作空间" }, { status: 400 });
+    return jsonErrorResponse("缺少工作空间", 400);
   }
 
   const result = await getWorkReportDraft({
@@ -39,7 +40,7 @@ export async function GET(request: Request) {
     targetId,
     periodStart: searchParams.get("periodStart"),
   });
-  if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status });
+  if (!result.ok) return jsonErrorResponse(result.error, result.status);
   return NextResponse.json(result.data);
 }
 
@@ -49,7 +50,7 @@ export async function PUT(request: Request) {
 
   const body = await request.json().catch(() => null);
   const parsed = saveSchema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: "汇报内容格式不正确" }, { status: 400 });
+  if (!parsed.success) return jsonErrorResponse("汇报内容格式不正确", 400);
 
   const result = await saveWorkReport({
     userId: auth.user.userId,
@@ -58,6 +59,6 @@ export async function PUT(request: Request) {
     periodStart: parsed.data.periodStart,
     items: parsed.data.items as WorkReportItemInput[],
   });
-  if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status });
+  if (!result.ok) return jsonErrorResponse(result.error, result.status);
   return NextResponse.json(result.data);
 }

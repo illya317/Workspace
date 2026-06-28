@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { withFinanceLedgerWrite } from "@workspace/platform/server/with-auth";
 import { initializeFinanceDefaults } from "@workspace/finance/server/ledger/periods";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const initFinanceSchema = z.object({
   year: z.coerce.number().int().default(2025),
@@ -14,7 +15,7 @@ const initFinanceSchema = z.object({
 export const POST = withFinanceLedgerWrite(async (request: Request, user) => {
   const parsed = initFinanceSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: "companyCode 为必填" }, { status: 400 });
+    return jsonErrorResponse("companyCode 为必填", 400);
   }
 
   return NextResponse.json(await initializeFinanceDefaults(parsed.data, user.userId));

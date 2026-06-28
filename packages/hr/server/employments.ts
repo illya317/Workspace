@@ -14,6 +14,7 @@ import {
   EMPLOYMENT_ALLOWED_FIELDS,
 } from "./domain/employment-validation";
 import { employeePositionFilterInclude, employeePositionMatches } from "./employee-position-filters";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const EMPLOYMENT_CONFIG = { entityType: "Employment", modelKey: "employment" as const };
 type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: string; status?: number };
@@ -140,12 +141,12 @@ export async function updateEmploymentField(request: Request, params: Promise<{ 
   if (disabledResponse) return disabledResponse;
 
   const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await checkHRWrite(payload.userId, "hr.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+  if (!payload) return jsonErrorResponse("未登录", 401);
+  if (!(await checkHRWrite(payload.userId, "hr.roster"))) return jsonErrorResponse("无权限", 403);
 
   const { id } = await params;
   const recordId = Number(id);
-  if (!Number.isInteger(recordId) || recordId <= 0) return NextResponse.json({ error: "记录ID无效" }, { status: 400 });
+  if (!Number.isInteger(recordId) || recordId <= 0) return jsonErrorResponse("记录ID无效", 400);
 
   const body = (await request.json()) as { field: string; value: unknown };
   if (body.field !== "isActive" || !isFalseValue(body.value)) {
@@ -165,13 +166,13 @@ export async function updateEmploymentField(request: Request, params: Promise<{ 
   }
 
   const command = await buildEmploymentFieldUpdateCommand(body.field, body.value, recordId);
-  if (!command.ok) return NextResponse.json({ error: command.issue.message }, { status: command.issue.status || 400 });
+  if (!command.ok) return jsonErrorResponse(command.issue.message, command.issue.status || 400);
 
   const employment = await prisma.employment.findUnique({
     where: { id: recordId },
     select: { employeeId: true, leaveDate: true },
   });
-  if (!employment) return NextResponse.json({ error: "雇佣记录不存在" }, { status: 404 });
+  if (!employment) return jsonErrorResponse("雇佣记录不存在", 404);
 
   const endDate = employment.leaveDate || new Date().toISOString().slice(0, 10);
 
@@ -217,5 +218,5 @@ export async function updateEmploymentField(request: Request, params: Promise<{ 
 }
 
 export function rejectEmploymentDelete() {
-  return NextResponse.json({ error: "雇佣记录不允许删除" }, { status: 405 });
+  return jsonErrorResponse("雇佣记录不允许删除", 405);
 }

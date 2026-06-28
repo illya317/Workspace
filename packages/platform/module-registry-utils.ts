@@ -14,6 +14,10 @@ const API_ACTION_BY_METHOD = {
   DELETE: "delete",
 } satisfies Record<ApiGuardRegistration["method"], ApiGuardRegistration["action"]>;
 
+export function defaultApiActionForMethod(method: ApiGuardRegistration["method"]): ApiGuardRegistration["action"] {
+  return API_ACTION_BY_METHOD[method];
+}
+
 export function apiResourceGuards(
   pathPrefix: string,
   resourceKey: string,
@@ -23,7 +27,7 @@ export function apiResourceGuards(
     method,
     pathPrefix,
     resourceKey,
-    action: API_ACTION_BY_METHOD[method],
+    action: defaultApiActionForMethod(method),
   }));
 }
 
@@ -38,6 +42,7 @@ export function apiRoutes(
     pathPrefix,
     access,
     ...resource,
+    action: resource?.action ?? (resource?.resourceKey ? defaultApiActionForMethod(method) : undefined),
   }));
 }
 

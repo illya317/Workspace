@@ -1,6 +1,5 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
-import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
 import { requireApiAccess } from "@workspace/platform/server/auth";
 import { createMeeting, listMeetings, meetingServiceResponse } from "@workspace/work/server";
 
@@ -25,7 +24,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const typeIdParam = searchParams.get("typeId");
   const typeId = typeIdParam ? routeIdParamsSchema.safeParse({ id: typeIdParam }) : null;
-  if (typeIdParam && !typeId?.success) return NextResponse.json({ error: "会议类型无效" }, { status: 400 });
+  if (typeIdParam && !typeId?.success) return jsonErrorResponse("会议类型无效", 400);
 
   return meetingServiceResponse(await listMeetings({
     userId: auth.user.userId,
@@ -39,7 +38,7 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => null);
   const parsed = createMeetingSchema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message || "会议参数无效" }, { status: 400 });
+  if (!parsed.success) return jsonErrorResponse(parsed.error.issues[0]?.message || "会议参数无效", 400);
 
   return meetingServiceResponse(await createMeeting({ userId: auth.user.userId, body: parsed.data }));
 }

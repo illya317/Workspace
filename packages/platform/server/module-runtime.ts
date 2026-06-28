@@ -1,19 +1,12 @@
 import "server-only";
-import { NextResponse } from "next/server";
 import { findApiContract } from "../api-registry";
 import { getDisabledReasonForResource, isResourceEnabled } from "../effective-module-registry";
+import { jsonErrorResponse } from "./api";
 
 export const MODULE_DISABLED_CODE = "MODULE_DISABLED";
 
 export function moduleDisabledResponse(resourceKey?: string | null, reason?: string | null) {
-  return NextResponse.json(
-    {
-      error: reason || "模块未启用",
-      code: MODULE_DISABLED_CODE,
-      resourceKey: resourceKey ?? null,
-    },
-    { status: 403 },
-  );
+  return jsonErrorResponse(reason || "模块未启用", 403, { code: MODULE_DISABLED_CODE, resourceKey: resourceKey ?? null });
 }
 
 export function disabledApiResponseForRequest(request: Request) {

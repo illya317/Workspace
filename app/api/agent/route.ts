@@ -8,6 +8,7 @@ import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/plat
 import { financeAgentTools } from "@workspace/finance/server/agent-tools";
 import { hrAgentTools } from "@workspace/hr/server/agent-tools";
 import { processMessage, type HistoryMessage } from "@workspace/platform/server/agent";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const agentMessageSchema = z.object({
   message: z.string().trim().min(1).max(2000),
@@ -23,18 +24,18 @@ export async function POST(request: Request) {
 
   const user = await getSessionUserFromAuthPayload(auth.user);
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonErrorResponse("Unauthorized", 401);
   }
 
   let body: z.infer<typeof agentMessageSchema>;
   try {
     const parsedBody = agentMessageSchema.safeParse(await request.json());
     if (!parsedBody.success) {
-      return NextResponse.json({ error: "message is required" }, { status: 400 });
+      return jsonErrorResponse("message is required", 400);
     }
     body = parsedBody.data;
   } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    return jsonErrorResponse("Invalid JSON body", 400);
   }
 
   const history: HistoryMessage[] = [];

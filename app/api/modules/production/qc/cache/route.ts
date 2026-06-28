@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { buildQcTemplateCache } from "@workspace/production/server/qc";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -14,7 +15,7 @@ export async function POST(request: Request) {
     token: request.headers.get("x-qc-cache-warmup"),
   });
   if (!parsed.success || parsed.data.token !== process.env.NEXTAUTH_SECRET) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
+    return jsonErrorResponse("无权限", 403);
   }
 
   const cache = await buildQcTemplateCache();

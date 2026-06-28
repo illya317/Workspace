@@ -6,6 +6,7 @@ import { getMaxConfidentialityLevel } from "@workspace/library/server/permission
 import { getGenerator } from "@workspace/library/server/generators/registry";
 import { upsertGeneratedDocument } from "@workspace/library/server/generators/generated-document";
 import { getGeneratedSourceForRun } from "@workspace/library/server";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const paramsSchema = z.object({
   key: z.string().trim().min(1),
@@ -25,19 +26,19 @@ async function parseKey(ctx?: RouteContext) {
 export const POST = withLibraryWrite(async (request: Request, user, ctx?: RouteContext) => {
   const key = await parseKey(ctx);
   if (key === null) {
-    return NextResponse.json({ error: "Invalid key" }, { status: 400 });
+    return jsonErrorResponse("Invalid key", 400);
   }
 
   // Check generator exists
   const gen = getGenerator(key);
   if (!gen) {
-    return NextResponse.json({ error: "Generator not found" }, { status: 404 });
+    return jsonErrorResponse("Generator not found", 404);
   }
 
   // Check source is enabled
   const source = await getGeneratedSourceForRun(key);
   if (!source || !source.enabled) {
-    return NextResponse.json({ error: "Generator disabled" }, { status: 403 });
+    return jsonErrorResponse("Generator disabled", 403);
   }
 
   // Parse body
@@ -45,11 +46,11 @@ export const POST = withLibraryWrite(async (request: Request, user, ctx?: RouteC
   try {
     const parsedBody = generateRequestSchema.safeParse(await request.json());
     if (!parsedBody.success) {
-      return NextResponse.json({ error: "title is required" }, { status: 400 });
+      return jsonErrorResponse("title is required", 400);
     }
     body = parsedBody.data;
   } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    return jsonErrorResponse("Invalid JSON", 400);
   }
 
   const title = body.title;
@@ -59,10 +60,10 @@ export const POST = withLibraryWrite(async (request: Request, user, ctx?: RouteC
   const maxLevel = await getMaxConfidentialityLevel(user.userId);
   const rawLevel = body.confidentialityLevel ?? source.defaultConfidentialityLevel;
   if (!Number.isInteger(rawLevel) || rawLevel < 0 || rawLevel > 4) {
-    return NextResponse.json({ error: "confidentialityLevel must be 0..4" }, { status: 400 });
+    return jsonErrorResponse("confidentialityLevel must be 0..4", 400);
   }
   if (rawLevel > maxLevel) {
-    return NextResponse.json({ error: "confidentialityLevel exceeds your access level" }, { status: 403 });
+    return jsonErrorResponse("confidentialityLevel exceeds your access level", 403);
   }
 
   // Run generator

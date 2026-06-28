@@ -5,6 +5,7 @@ import {
   readUiComponentVerifiedNames,
   toggleUiComponentVerified,
 } from "@workspace/core/server/ui-component-verified-store";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const ADMIN_RESOURCE = "settings.admin";
 const toggleSchema = z.object({
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
   const parsed = toggleSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "参数错误" }, { status: 400 });
+    return jsonErrorResponse("参数错误", 400);
   }
 
   const verified = await toggleUiComponentVerified(parsed.data.name);

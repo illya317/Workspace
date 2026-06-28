@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
-import { authenticate } from "@workspace/platform/server/auth";
+import { serviceError } from "@workspace/platform/server/api";
+import type { DomainServiceResult } from "@workspace/platform/server/domain-validation";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { matchSearchFields } from "@workspace/platform/search";
 import { prisma } from "@workspace/platform/server/prisma";
-import { createNotification } from "@workspace/platform/server/notifications";
+import { sendNotification } from "@workspace/platform/server/notifications";
 import { buildVisibleProjectWhere, canViewProject } from "./access";
 import {
   buildProjectMemberCreateCommand,
@@ -17,7 +17,28 @@ const EMPLOYEE_PROJECT_CONFIG = {
   allowedFields: ["employeeId", "projectId", "role", "startDate", "endDate"],
 };
 
+const PROJECT_MEMBER_ACTIONS = {
+  added: {
+    key: "work.project.member.added",
+    notificationType: "work.project.member.added",
+  },
+  roleChanged: {
+    key: "work.project.member.roleChanged",
+    notificationType: "work.project.member.roleChanged",
+  },
+} as const;
+
+type ProjectMemberActionName = keyof typeof PROJECT_MEMBER_ACTIONS;
+
+export function listProjectMemberActionDefinitions() {
+  return Object.values(PROJECT_MEMBER_ACTIONS).map((action) => ({
+    key: action.key,
+    notificationType: action.notificationType,
+  }));
+}
+
 async function notifyProjectMember(input: {
+  actionName: ProjectMemberActionName;
   employeeId: number;
   projectId: number;
   role: string | null;
@@ -36,22 +57,17 @@ async function notifyProjectMember(input: {
   ]);
   if (!employee?.userId || !project) return;
 
+  const action = PROJECT_MEMBER_ACTIONS[input.actionName];
   const role = input.role || "执行负责";
-  const changed = input.changedFromRole && input.changedFromRole !== role;
   try {
-    await createNotification({
+    await sendNotification({
       recipientUserId: employee.userId,
       actorUserId: input.actorUserId,
-      type: changed ? "work.project.member.roleChanged" : "work.project.member.added",
-      title: changed ? "项目角色已调整" : "你已被加入项目",
-      body: changed
-        ? `你在项目「${project.name}」中的角色已由「${input.changedFromRole}」调整为「${role}」，请确认知悉。`
-        : `你已被加入项目「${project.name}」，角色：${role}。请确认知悉。`,
-      href: `/work/projects?projectId=${input.projectId}`,
-      isImportant: true,
+      type: action.notificationType,
       payload: {
         projectId: input.projectId,
         employeeId: input.employeeId,
+        projectName: project.name,
         role,
         changedFromRole: input.changedFromRole ?? null,
       },
@@ -130,12 +146,12 @@ export async function listProjectMembers(input: {
   return { entries: result.slice(start, start + input.pageSize), total };
 }
 
-export async function createProjectMember(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  const body = (await request.json()) as Record<string, unknown>;
-  const command = await buildProjectMemberCreateCommand(payload.userId, body);
-  if (!command.ok) return NextResponse.json({ error: command.issue.message }, { status: command.issue.status || 400 });
+export async function createProjectMemberAction(input: {
+  userId: number;
+  body: Record<string, unknown>;
+}): Promise<DomainServiceResult<{ success: true; record: unknown }>> {
+  const command = await buildProjectMemberCreateCommand(input.userId, input.body);
+  if (!command.ok) return serviceError(command.issue.message, command.issue.status || 400);
   const record = await prisma.employeeProject.create({
     data: {
       employeeId: command.data.employeeId,
@@ -148,24 +164,24 @@ export async function createProjectMember(request: Request) {
   });
   await snapshotHistory("EmployeeProject", record.id, command.data.editorUserId);
   await notifyProjectMember({
+    actionName: "added",
     employeeId: record.employeeId,
     projectId: record.projectId,
     role: record.role,
     actorUserId: command.data.editorUserId,
   });
-  return NextResponse.json({ success: true, record });
+  return { ok: true, data: { success: true, record } };
 }
 
-export async function updateProjectMemberField(request: Request, params: Promise<{ id: string }>) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  const { id } = await params;
-  const recordId = parseInt(id);
-  if (!Number.isInteger(recordId)) return NextResponse.json({ error: "ID 无效" }, { status: 400 });
-  const body = (await request.json()) as { field: string; value: unknown };
-  const command = await buildProjectMemberFieldUpdateCommand(payload.userId, recordId, body.field, body.value);
-  if (!command.ok) return NextResponse.json({ error: command.issue.message }, { status: command.issue.status || 400 });
-  if (!EMPLOYEE_PROJECT_CONFIG.allowedFields.includes(command.data.field)) return NextResponse.json({ error: "非法字段" }, { status: 400 });
+export async function updateProjectMemberFieldAction(input: {
+  userId: number;
+  recordId: number;
+  body: { field: string; value?: unknown };
+}): Promise<DomainServiceResult<{ success: true }>> {
+  if (!Number.isInteger(input.recordId)) return serviceError("ID 无效");
+  const command = await buildProjectMemberFieldUpdateCommand(input.userId, input.recordId, input.body.field, input.body.value);
+  if (!command.ok) return serviceError(command.issue.message, command.issue.status || 400);
+  if (!EMPLOYEE_PROJECT_CONFIG.allowedFields.includes(command.data.field)) return serviceError("非法字段");
 
   const previous = command.data.field === "role"
     ? await prisma.employeeProject.findUnique({
@@ -175,37 +191,37 @@ export async function updateProjectMemberField(request: Request, params: Promise
     : null;
 
   await prisma.$transaction(async (tx) => {
-    await ensureEditHistoryBaseline("EmployeeProject", command.data.recordId, payload.userId, tx);
+    await ensureEditHistoryBaseline("EmployeeProject", command.data.recordId, input.userId, tx);
     await tx.employeeProject.update({
       where: { id: command.data.recordId },
-      data: { [command.data.field]: command.data.value ?? null, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
+      data: { [command.data.field]: command.data.value ?? null, editedBy: input.userId, editedAt: new Date(), version: { increment: 1 } },
     });
-    await snapshotHistory("EmployeeProject", command.data.recordId, payload.userId, tx);
+    await snapshotHistory("EmployeeProject", command.data.recordId, input.userId, tx);
   });
   if (previous && previous.role !== command.data.value) {
     await notifyProjectMember({
+      actionName: "roleChanged",
       employeeId: previous.employeeId,
       projectId: previous.projectId,
       role: String(command.data.value || ""),
       changedFromRole: previous.role,
-      actorUserId: payload.userId,
+      actorUserId: input.userId,
     });
   }
-  return NextResponse.json({ success: true });
+  return { ok: true, data: { success: true } };
 }
 
-export async function deleteProjectMember(request: Request, params: Promise<{ id: string }>) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  const { id } = await params;
-  const recordId = parseInt(id);
-  if (!Number.isInteger(recordId)) return NextResponse.json({ error: "ID 无效" }, { status: 400 });
-  const command = await validateProjectMemberDeleteCommand(payload.userId, recordId);
-  if (!command.ok) return NextResponse.json({ error: command.issue.message }, { status: command.issue.status || 400 });
+export async function deleteProjectMemberAction(input: {
+  userId: number;
+  recordId: number;
+}): Promise<DomainServiceResult<{ success: true }>> {
+  if (!Number.isInteger(input.recordId)) return serviceError("ID 无效");
+  const command = await validateProjectMemberDeleteCommand(input.userId, input.recordId);
+  if (!command.ok) return serviceError(command.issue.message, command.issue.status || 400);
   await prisma.$transaction(async (tx) => {
-    await ensureEditHistoryBaseline("EmployeeProject", command.data.recordId, payload.userId, tx);
-    await snapshotHistory("EmployeeProject", command.data.recordId, payload.userId, tx);
+    await ensureEditHistoryBaseline("EmployeeProject", command.data.recordId, input.userId, tx);
+    await snapshotHistory("EmployeeProject", command.data.recordId, input.userId, tx);
     await tx.employeeProject.delete({ where: { id: command.data.recordId } });
   });
-  return NextResponse.json({ success: true });
+  return { ok: true, data: { success: true } };
 }

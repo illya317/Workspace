@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { previewRosterGenerated } from "@workspace/hr/server";
 import { withOpenApiScope } from "@workspace/platform/server/open-api";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const rosterQuerySchema = z.object({
   variant: z.enum(["management", "dueDiligence"]).catch("management"),
@@ -16,7 +17,7 @@ const rosterQuerySchema = z.object({
 export const GET = withOpenApiScope("hr.generated.roster.read", "read", async (request) => {
   const { searchParams } = new URL(request.url);
   const parsed = rosterQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
-  if (!parsed.success) return Response.json({ error: "参数错误" }, { status: 400 });
+  if (!parsed.success) return jsonErrorResponse("参数错误", 400);
 
   const preview = await previewRosterGenerated(parsed.data);
   return Response.json(preview);

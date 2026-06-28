@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { withFinanceCostAccess, withFinanceCostWrite } from "@workspace/platform/server/with-auth";
 import { listImports } from "@workspace/finance/server/cost";
 import { unsupportedCostImportPayloadSchema } from "@workspace/finance/server/cost/import-schemas";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 export async function GET(request: Request) {
   return withFinanceCostAccess(async (req) => {
@@ -23,12 +24,6 @@ export async function POST(request: Request) {
     // For now, return a guide message.
     const payload = await req.json().catch(() => ({}));
     unsupportedCostImportPayloadSchema.safeParse(payload ?? {});
-    return NextResponse.json(
-      {
-        success: false,
-        error: "请使用导入脚本: node scripts/import-finance-cost-json.mjs",
-      },
-      { status: 400 },
-    );
+    return jsonErrorResponse("请使用导入脚本: node scripts/import-finance-cost-json.mjs", 400);
   })(request);
 }

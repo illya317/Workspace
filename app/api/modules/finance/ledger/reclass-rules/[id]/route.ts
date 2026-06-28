@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { withFinanceLedgerWrite } from "@workspace/platform/server/with-auth";
-import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
 import { deleteReclassRule } from "@workspace/finance/server/ledger/reclass-rules";
 
 /** 规则删除：仅允许通过 write 权限操作自己的规则 */
@@ -12,11 +12,11 @@ export async function DELETE(
   return withFinanceLedgerWrite(async () => {
     const parsedParams = routeIdParamsSchema.safeParse(await params);
     if (!parsedParams.success) {
-      return NextResponse.json({ error: "无效的规则 ID" }, { status: 400 });
+      return jsonErrorResponse("无效的规则 ID", 400);
     }
 
     const result = await deleteReclassRule(parsedParams.data.id);
-    if (!result.success) return NextResponse.json({ error: result.error }, { status: result.status });
+    if (!result.success) return jsonErrorResponse(result.error, result.status ?? 400);
 
     return NextResponse.json(result);
   })(request);

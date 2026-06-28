@@ -1,8 +1,10 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import { createMeetingActionCandidate, linkMeetingActionCandidate, meetingServiceResponse } from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import {
+  buildMeetingActionCandidateCommand,
+  executeMeetingActionCandidateCommand,
+} from "@workspace/work/server";
 
 const actionCandidateSchema = z.object({
   action: z.enum(["ignore", "linkWorkPlan", "createWorkPlan", "linkWorkItem", "createWorkItem", "linkProjectTask", "createProjectTask"]).optional(),
@@ -25,27 +27,15 @@ const actionCandidateSchema = z.object({
   category: z.string().optional(),
 }).passthrough();
 
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return NextResponse.json({ error: "会议 ID 无效" }, { status: 400 });
-  const parsedBody = actionCandidateSchema.safeParse(await request.json().catch(() => null));
-  if (!parsedBody.success) return NextResponse.json({ error: "行动候选参数无效" }, { status: 400 });
-
-  if (parsedBody.data.action) {
-    if (!parsedBody.data.candidateId) return NextResponse.json({ error: "行动候选 ID 无效" }, { status: 400 });
-    return meetingServiceResponse(await linkMeetingActionCandidate({
-      userId: auth.user.userId,
-      meetingId: parsedParams.data.id,
-      candidateId: parsedBody.data.candidateId,
-      body: parsedBody.data,
-    }));
-  }
-
-  return meetingServiceResponse(await createMeetingActionCandidate({
-    userId: auth.user.userId,
-    meetingId: parsedParams.data.id,
-    body: parsedBody.data,
-  }));
-}
+export const POST = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  bodySchema: actionCandidateSchema,
+  paramsError: "会议 ID 无效",
+  bodyError: "行动候选参数无效",
+  buildCommand: ({ user, params, body }) => buildMeetingActionCandidateCommand({
+    userId: user.userId,
+    meetingId: params.id,
+    body,
+  }),
+  action: executeMeetingActionCandidateCommand,
+});

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireApiAccess } from "@workspace/platform/server/auth";
 import { getLibraryFileByRelativePath } from "@workspace/library/server";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 function fileErrorResponse(error: unknown) {
   const message = error instanceof Error ? error.message : "File not found";
@@ -9,7 +10,7 @@ function fileErrorResponse(error: unknown) {
     : message === "Forbidden" || message === "Higher confidentiality required" || message === "File not indexed - run scan first"
       ? 403
       : 400;
-  return NextResponse.json({ error: message }, { status });
+  return jsonErrorResponse(message, status);
 }
 
 export async function GET(request: Request, { params }: { params: Promise<{ path: string[] }> }) {

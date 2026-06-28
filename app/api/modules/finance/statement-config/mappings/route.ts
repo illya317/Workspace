@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { withFinanceStatementConfigAccess, withFinanceStatementConfigWrite } from "@workspace/platform/server/with-auth";
-import { jsonBadRequest } from "@workspace/platform/server/api";
+import { jsonBadRequest, jsonErrorResponse } from "@workspace/platform/server/api";
 import {
   deleteStatementMapping,
   listStatementMappings,
@@ -39,7 +39,7 @@ const isMissing = (value: unknown): boolean => value === null || value === undef
 
 function serviceErrorResponse(error: unknown) {
   if (error instanceof StatementMappingServiceError) {
-    return NextResponse.json({ error: error.message }, { status: error.status });
+    return jsonErrorResponse(error.message, error.status);
   }
   throw error;
 }

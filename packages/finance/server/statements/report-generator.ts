@@ -3,6 +3,7 @@ import { prisma } from "@workspace/platform/server/prisma";
 import { BalanceItem, ReportPeriod, ReclassEntry } from "./report-helpers";
 import { generateBalanceSheet } from "./reports/balance-sheet";
 import { generateReviewBasedReport } from "./reports/review-based";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 export interface GenerateReportParams {
   period: ReportPeriod;
@@ -28,15 +29,15 @@ export async function generateFinanceReport(input: GenerateFinanceReportInput) {
     const period = await prisma.financePeriod.findFirst({
       where: { companyCode: input.companyCode, year: input.year, month: input.month },
     });
-    if (!period) return NextResponse.json({ error: "期间不存在" }, { status: 404 });
+    if (!period) return jsonErrorResponse("期间不存在", 404);
     targetPeriodId = period.id;
   }
   if (!targetPeriodId) {
-    return NextResponse.json({ error: "periodId 或 companyCode+year+month 为必填" }, { status: 400 });
+    return jsonErrorResponse("periodId 或 companyCode+year+month 为必填", 400);
   }
 
   const period = await prisma.financePeriod.findUnique({ where: { id: targetPeriodId } });
-  if (!period) return NextResponse.json({ error: "期间不存在" }, { status: 404 });
+  if (!period) return jsonErrorResponse("期间不存在", 404);
 
   if (input.reportType === "income" || input.reportType === "cashflow") {
     return generateReport({

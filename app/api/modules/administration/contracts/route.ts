@@ -1,26 +1,36 @@
-import { NextResponse } from "next/server";
-import { withContractAccess } from "@workspace/platform/server/with-auth";
+import { z } from "zod";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { checkContractAccess } from "@workspace/platform/server/auth";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { ContractCreateSchema, createContract, listContracts } from "@workspace/administration/server";
 
-export const GET = withContractAccess(async (request) => {
-  const { searchParams } = new URL(request.url);
-  const q = searchParams.get("q")?.trim();
-  const location = searchParams.get("location")?.trim();
-  const category = searchParams.get("category")?.trim();
-  const status = searchParams.get("status")?.trim();
-  const page = parseInt(searchParams.get("page") || "1");
-  const pageSize = parseInt(searchParams.get("pageSize") || "50");
+const optionalText = z.preprocess(
+  (value) => {
+    const text = typeof value === "string" ? value.trim() : "";
+    return text || undefined;
+  },
+  z.string().optional(),
+);
 
-  const result = await listContracts({ q, location, category, status, page, pageSize });
-  return NextResponse.json(result);
+const contractsQuerySchema = z.object({
+  q: optionalText,
+  location: optionalText,
+  category: optionalText,
+  status: optionalText,
+  page: z.coerce.number().int().positive().catch(1),
+  pageSize: z.coerce.number().int().positive().catch(50),
 });
 
-export const POST = withContractAccess(async (request) => {
-  const parsed = ContractCreateSchema.safeParse(await request.json());
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.issues[0]?.message || "参数错误" }, { status: 400 });
-  }
+export const GET = createCommandRoute({
+  access: checkContractAccess,
+  querySchema: contractsQuerySchema,
+  buildCommand: ({ query }) => okCommand(query),
+  action: listContracts,
+});
 
-  const record = await createContract(parsed.data);
-  return NextResponse.json({ success: true, record });
+export const POST = createCommandRoute({
+  access: checkContractAccess,
+  bodySchema: ContractCreateSchema,
+  buildCommand: ({ body }) => okCommand(body),
+  action: async (command) => ({ success: true, record: await createContract(command) }),
 });

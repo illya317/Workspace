@@ -7,6 +7,7 @@ import {
   upsertReclassRule,
 } from "@workspace/finance/server/ledger/reclass-rules";
 import { ensureReclassRulesForYear } from "@workspace/finance/server/ledger/reclass-rules/ensure";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const scanRulesQuerySchema = z.object({
   companyCode: z.string().min(1),
@@ -31,15 +32,12 @@ export const GET = withFinanceLedgerAccess(async (request: Request) => {
   const year = searchParams.get("year");
 
   if (!companyCode || !year) {
-    return NextResponse.json(
-      { error: "companyCode 和 year 为必填" },
-      { status: 400 },
-    );
+    return jsonErrorResponse("companyCode 和 year 为必填", 400);
   }
 
   const parsed = scanRulesQuerySchema.safeParse({ companyCode, year });
   if (!parsed.success) {
-    return NextResponse.json({ error: "year 必须为数字" }, { status: 400 });
+    return jsonErrorResponse("year 必须为数字", 400);
   }
 
   // 确保该年度有规则（无则从上年继承）
@@ -55,27 +53,21 @@ export const GET = withFinanceLedgerAccess(async (request: Request) => {
 export const PUT = withFinanceLedgerWrite(async (request: Request) => {
   const body = await request.json().catch(() => null);
   if (!body || typeof body !== "object") {
-    return NextResponse.json({ error: "请求体为必填" }, { status: 400 });
+    return jsonErrorResponse("请求体为必填", 400);
   }
 
   const requiredFields = ["companyCode", "year", "sourceAccountCode", "abnormalSide", "targetAccountCode"] as const;
   if (requiredFields.some((field) => !body[field])) {
-    return NextResponse.json(
-      { error: "companyCode, year, sourceAccountCode, abnormalSide, targetAccountCode 为必填" },
-      { status: 400 },
-    );
+    return jsonErrorResponse("companyCode, year, sourceAccountCode, abnormalSide, targetAccountCode 为必填", 400);
   }
 
   const parsed = upsertRuleSchema.safeParse(body);
   if (!parsed.success && parsed.error.issues.some((issue) => issue.path[0] === "year")) {
-    return NextResponse.json({ error: "year 必须为数字" }, { status: 400 });
+    return jsonErrorResponse("year 必须为数字", 400);
   }
 
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: "abnormalSide 必须为 debit、credit 或 both" },
-      { status: 400 },
-    );
+    return jsonErrorResponse("abnormalSide 必须为 debit、credit 或 both", 400);
   }
 
   return NextResponse.json(await upsertReclassRule(parsed.data));

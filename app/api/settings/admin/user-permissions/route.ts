@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdminApiAccess, canManageResourceGrant, setGrant } from "@workspace/platform/server/auth";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const userPermissionSchema = z.object({
   userId: z.coerce.number().int().positive(),
@@ -16,16 +17,13 @@ export async function PUT(request: Request) {
 
   const parsedBody = userPermissionSchema.safeParse(await request.json());
   if (!parsedBody.success) {
-    return NextResponse.json(
-      { error: "参数错误: 需要 userId, resourceKey, roleKey, value" },
-      { status: 400 }
-    );
+    return jsonErrorResponse("参数错误: 需要 userId, resourceKey, roleKey, value", 400);
   }
 
   const { userId, resourceKey, roleKey, value } = parsedBody.data;
   const canManage = await canManageResourceGrant(payload.userId, resourceKey, roleKey);
   if (!canManage) {
-    return NextResponse.json({ error: "无权限管理该资源权限" }, { status: 403 });
+    return jsonErrorResponse("无权限管理该资源权限", 403);
   }
 
   try {
@@ -35,6 +33,6 @@ export async function PUT(request: Request) {
     return NextResponse.json({ success: true });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "操作失败";
-    return NextResponse.json({ error: msg }, { status: 400 });
+    return jsonErrorResponse(msg, 400);
   }
 }

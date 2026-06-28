@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { withFinanceLedgerAccess } from "@workspace/platform/server/with-auth";
 import { deriveRows } from "@workspace/finance/server/ledger/reclass-results/derived";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 export const GET = withFinanceLedgerAccess(async (request) => {
   const { searchParams } = new URL(request.url);
   const periodId = parseInt(searchParams.get("periodId") || "", 10);
-  if (!periodId) return NextResponse.json({ error: "periodId 为必填" }, { status: 400 });
+  if (!periodId) return jsonErrorResponse("periodId 为必填", 400);
 
   const rows = await deriveRows(periodId);
 

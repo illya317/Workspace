@@ -3,6 +3,7 @@ import { z } from "zod";
 import { previewRosterGenerated } from "@workspace/hr/server";
 import { authorize } from "@workspace/platform/server/auth";
 import { withAuth } from "@workspace/platform/server/with-auth";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const previewQuerySchema = z.object({
   variant: z.enum(["management", "dueDiligence"]).catch("management"),
@@ -17,7 +18,7 @@ const previewQuerySchema = z.object({
 export const GET = withAuth(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const parsed = previewQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
-  if (!parsed.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
+  if (!parsed.success) return jsonErrorResponse("参数错误", 400);
 
   const preview = await previewRosterGenerated(parsed.data);
   return NextResponse.json(preview);

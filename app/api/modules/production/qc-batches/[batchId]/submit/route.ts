@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth, type RouteContext } from "@workspace/platform/server/with-auth";
 import { submitQcBatch } from "@workspace/production/server/qc";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const paramsSchema = z.object({
   batchId: z.coerce.number().int().positive(),
@@ -10,9 +11,9 @@ const paramsSchema = z.object({
 export const POST = withAuth(async (_request, _user, ctx?: RouteContext) => {
   const parsed = paramsSchema.safeParse(await ctx?.params);
   if (!parsed.success) {
-    return NextResponse.json({ error: "无效批次 ID" }, { status: 400 });
+    return jsonErrorResponse("无效批次 ID", 400);
   }
   const batch = await submitQcBatch(parsed.data.batchId);
-  if (!batch) return NextResponse.json({ error: "批次不存在" }, { status: 404 });
+  if (!batch) return jsonErrorResponse("批次不存在", 404);
   return NextResponse.json({ data: batch });
 });

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireApiAccess } from "@workspace/platform/server/auth";
-import { validatePassthroughBody } from "@workspace/platform/server/api";
+import { jsonErrorResponse, validatePassthroughBody } from "@workspace/platform/server/api";
 import { canUseProject, createProject, listProjects } from "@workspace/work/server";
 
 export async function GET(request: Request) {
@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   const auth = await requireApiAccess(request);
   if (!auth.ok) return auth.response;
   const payload = auth.user;
-  if (!(await canUseProject(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+  if (!(await canUseProject(payload.userId))) return jsonErrorResponse("无权限", 403);
 
   const { searchParams } = new URL(request.url);
   const keyword = searchParams.get("keyword") || "";
@@ -23,12 +23,12 @@ export async function POST(request: Request) {
   const auth = await requireApiAccess(request);
   if (!auth.ok) return auth.response;
   const payload = auth.user;
-  if (!(await canUseProject(payload.userId, "write"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+  if (!(await canUseProject(payload.userId, "write"))) return jsonErrorResponse("无权限", 403);
 
   const validation = await validatePassthroughBody(request);
-  if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 });
+  if (!validation.ok) return jsonErrorResponse(validation.error, 400);
 
   const result = await createProject(request, payload.userId);
-  if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status || 400 });
+  if (!result.ok) return jsonErrorResponse(result.error, result.status || 400);
   return NextResponse.json(result.data);
 }

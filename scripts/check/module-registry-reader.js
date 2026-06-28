@@ -3,6 +3,7 @@ const path = require("path");
 const ts = require("typescript");
 
 const ROOT = path.resolve(__dirname, "..", "..");
+const DEFAULT_API_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE"];
 const REGISTRY_GLOBS = [
   path.join(ROOT, "packages", "platform", "module-registry.ts"),
   path.join(ROOT, "packages", "platform", "module-registry-utils.ts"),
@@ -154,10 +155,12 @@ function collectResourceDefsFromObject(sourceFile, filePath, moduleObj, output) 
 
 function collectApiContractsFromObject(sourceFile, filePath, moduleObj, output) {
   for (const guard of getArrayObjectProperty(moduleObj, "apiGuards")) {
+    const method = getStringProperty(guard, "method");
     const pathPrefix = getStringProperty(guard, "pathPrefix");
     const resourceKey = getStringProperty(guard, "resourceKey");
     if (!pathPrefix || !resourceKey) continue;
     output.push({
+      method,
       pathPrefix,
       resourceKey,
       line: getLine(sourceFile, guard.getStart(sourceFile)),
@@ -166,10 +169,12 @@ function collectApiContractsFromObject(sourceFile, filePath, moduleObj, output) 
     });
   }
   for (const route of getArrayObjectProperty(moduleObj, "apiRoutes")) {
+    const method = getStringProperty(route, "method");
     const pathPrefix = getStringProperty(route, "pathPrefix");
     const resourceKey = getStringProperty(route, "resourceKey");
     if (!pathPrefix) continue;
     output.push({
+      method,
       pathPrefix,
       resourceKey: resourceKey ?? null,
       access: getStringProperty(route, "access") ?? null,
@@ -178,6 +183,12 @@ function collectApiContractsFromObject(sourceFile, filePath, moduleObj, output) 
       source: "apiRoutes",
     });
   }
+}
+
+function parseMethodList(methodListText) {
+  if (!methodListText) return DEFAULT_API_METHODS;
+  const methods = [...methodListText.matchAll(/["'](GET|POST|PUT|PATCH|DELETE)["']/g)].map((match) => match[1]);
+  return methods.length > 0 ? methods : DEFAULT_API_METHODS;
 }
 
 function collectRoutesFromObject(sourceFile, filePath, moduleObj, output) {
@@ -278,24 +289,30 @@ function collectApiContracts(filePaths = REGISTRY_GLOBS) {
       filePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
     );
 
-    for (const match of text.matchAll(/apiResourceGuards\(\s*["']([^"']+)["']\s*,\s*["']([^"']+)["']/g)) {
-      output.push({
-        pathPrefix: match[1],
-        resourceKey: match[2],
-        line: getLine(sourceFile, match.index ?? 0),
-        filePath,
-        source: "apiResourceGuards",
-      });
+    for (const match of text.matchAll(/apiResourceGuards\(\s*["']([^"']+)["']\s*,\s*["']([^"']+)["'](?:\s*,\s*\[([\s\S]*?)\])?/g)) {
+      for (const method of parseMethodList(match[3])) {
+        output.push({
+          method,
+          pathPrefix: match[1],
+          resourceKey: match[2],
+          line: getLine(sourceFile, match.index ?? 0),
+          filePath,
+          source: "apiResourceGuards",
+        });
+      }
     }
-    for (const match of text.matchAll(/apiRoutes\(\s*["']([^"']+)["']\s*,\s*["']([^"']+)["']/g)) {
-      output.push({
-        pathPrefix: match[1],
-        resourceKey: null,
-        access: match[2],
-        line: getLine(sourceFile, match.index ?? 0),
-        filePath,
-        source: "apiRoutes",
-      });
+    for (const match of text.matchAll(/apiRoutes\(\s*["']([^"']+)["']\s*,\s*["']([^"']+)["'](?:\s*,\s*\[([\s\S]*?)\])?/g)) {
+      for (const method of parseMethodList(match[3])) {
+        output.push({
+          method,
+          pathPrefix: match[1],
+          resourceKey: null,
+          access: match[2],
+          line: getLine(sourceFile, match.index ?? 0),
+          filePath,
+          source: "apiRoutes",
+        });
+      }
     }
 
     function visit(node) {

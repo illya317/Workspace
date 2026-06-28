@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
 import { requireApiAccess } from "@workspace/platform/server/auth";
 import {
   listProjectPlanGantt,
@@ -25,7 +25,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   if (!auth.ok) return auth.response;
 
   const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return Response.json({ error: "项目 ID 无效" }, { status: 400 });
+  if (!parsedParams.success) return jsonErrorResponse("项目 ID 无效", 400);
 
   return projectPlanServiceResponse(await listProjectPlanGantt({
     userId: auth.user.userId,
@@ -38,11 +38,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   if (!auth.ok) return auth.response;
 
   const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return Response.json({ error: "项目 ID 无效" }, { status: 400 });
+  if (!parsedParams.success) return jsonErrorResponse("项目 ID 无效", 400);
 
   const body = await request.json().catch(() => null);
   const parsedBody = savePlanBodySchema.safeParse(body);
-  if (!parsedBody.success) return Response.json({ error: parsedBody.error.issues[0]?.message || "参数错误" }, { status: 400 });
+  if (!parsedBody.success) return jsonErrorResponse(parsedBody.error.issues[0]?.message || "参数错误", 400);
 
   return projectPlanServiceResponse(await saveProjectPlanGantt({
     userId: auth.user.userId,

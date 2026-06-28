@@ -4,6 +4,7 @@ import { requireAdminApiAccess, isSuperAdmin, getManageableResourceKeys, canMana
 import { isResourceEnabled } from "@workspace/platform/effective-module-registry";
 import { getPermissionGrantData } from "@workspace/hr/server/permission-subjects";
 import type { SubjectType } from "@workspace/platform/server/auth";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const subjectTypeSchema = z.enum(["user", "department", "position"]);
 
@@ -25,7 +26,7 @@ export async function GET(request: Request) {
   const manageableKeys = await getManageableResourceKeys(payload.userId);
 
   if (!isSysAdmin && manageableKeys.size === 0) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
+    return jsonErrorResponse("无权限", 403);
   }
 
   const { searchParams } = new URL(request.url);
@@ -57,18 +58,18 @@ export async function PUT(request: Request) {
 
   const parsedBody = permissionGrantSchema.safeParse(await request.json());
   if (!parsedBody.success) {
-    return NextResponse.json({ error: "参数错误: 需要 subjectType, subjectId, resourceKey, roleKey, value" }, { status: 400 });
+    return jsonErrorResponse("参数错误: 需要 subjectType, subjectId, resourceKey, roleKey, value", 400);
   }
 
   const { subjectType, subjectId, resourceKey, roleKey, value, scopeId } = parsedBody.data;
   if (!isResourceEnabled(resourceKey)) {
-    return NextResponse.json({ error: "模块未启用，不能配置该资源权限" }, { status: 403 });
+    return jsonErrorResponse("模块未启用，不能配置该资源权限", 403);
   }
 
   if (roleKey === "admin") {
     const isSysAdmin = await isSuperAdmin(payload.userId);
     if (!isSysAdmin) {
-      return NextResponse.json({ error: "仅系统管理员可管理 admin 权限" }, { status: 403 });
+      return jsonErrorResponse("仅系统管理员可管理 admin 权限", 403);
     }
   }
 
@@ -77,14 +78,14 @@ export async function PUT(request: Request) {
     resourceKey,
     roleKey
   );
-  if (!canManage) return NextResponse.json({ error: "无权限管理该资源权限" }, { status: 403 });
+  if (!canManage) return jsonErrorResponse("无权限管理该资源权限", 403);
 
   if (value) {
     const { isRoleAllowedForResource, getResourceMaxRole } = await import("@workspace/platform/server/auth");
     if (!(await isRoleAllowedForResource(resourceKey, roleKey))) {
       const max = await getResourceMaxRole(resourceKey);
       const labels: Record<string, string> = { access: "访问", write: "编辑", delete: "删除", admin: "管理" };
-      return NextResponse.json({ error: `该资源最高仅支持 ${labels[max] || max}` }, { status: 400 });
+      return jsonErrorResponse(`该资源最高仅支持 ${labels[max] || max}`, 400);
     }
   }
 
@@ -104,6 +105,6 @@ export async function PUT(request: Request) {
     return NextResponse.json({ success: true });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "操作失败";
-    return NextResponse.json({ error: msg }, { status: 400 });
+    return jsonErrorResponse(msg, 400);
   }
 }

@@ -1,11 +1,12 @@
 import "server-only";
-import { NextResponse } from "next/server";
 
+import type { NextResponse } from "next/server";
 import { findApiContract, type ApiContract } from "../api-registry";
 import { authenticate, isKicked } from "./auth/authenticate";
 import { authorize } from "./auth/authorize";
 import type { AuthPayload } from "./auth-token";
 import { disabledApiResponseForRequest } from "./module-runtime";
+import { jsonErrorResponse } from "./api";
 
 export type ApiAccessResult =
   | {
@@ -18,13 +19,13 @@ export type ApiAccessResult =
       response: Response;
     };
 
-function jsonError(error: string, status: number) {
-  return NextResponse.json({ error }, { status });
+function jsonError(error: string, status: number): NextResponse {
+  return jsonErrorResponse(error, status);
 }
 
 async function unauthenticatedResponse(request: Request) {
   if (await isKicked(request)) {
-    const response = jsonError("已在其他设备登录", 401) as NextResponse;
+    const response = jsonError("已在其他设备登录", 401);
     response.cookies.set("kicked", "1", {
       httpOnly: false,
       secure: false,

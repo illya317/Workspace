@@ -1,16 +1,16 @@
-import { NextResponse } from "next/server";
-import { withFinanceBudgetWrite } from "@workspace/platform/server/with-auth";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { checkFinanceBudgetWrite } from "@workspace/platform/server/auth";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { activateBudgetVersion } from "@workspace/finance/server/budget/budget-version";
-import { budgetVersionIdSchema } from "@workspace/finance/server/budget/schemas";
 
-export const POST = withFinanceBudgetWrite(async (request: Request) => {
-  // URL: .../versions/{id}/activate → 取倒数第二段
-  const segments = request.url.split("/");
-  const parsed = budgetVersionIdSchema.safeParse({ id: segments[segments.length - 2] });
-  if (!parsed.success) {
-    return NextResponse.json({ error: "无效ID" }, { status: 400 });
-  }
-
-  const version = await activateBudgetVersion(parsed.data.id);
-  return NextResponse.json({ success: true, version });
+export const POST = createCommandRoute({
+  access: checkFinanceBudgetWrite,
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "无效ID",
+  buildCommand: ({ params }) => okCommand({ id: params.id }),
+  action: async (command) => ({
+    success: true,
+    version: await activateBudgetVersion(command.id),
+  }),
 });

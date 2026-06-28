@@ -3,6 +3,7 @@ import path from "node:path";
 
 import {
   createDomainValidationReport,
+  createDomainValidationWarnings,
   type Violation,
   type ViolationKind,
 } from "./domain-validation-engine";
@@ -64,6 +65,18 @@ function printViolation(violation: Violation, prefix: string) {
   console.error(`    fix: ${violation.recommendation}`);
 }
 
+function printWarnings() {
+  const warnings = createDomainValidationWarnings();
+  if (warnings.length === 0) return;
+  const shown = warnings.slice(0, 10);
+  console.warn(`⚠ domain validation command-route warnings (${warnings.length}; showing ${shown.length}).`);
+  for (const warning of shown) {
+    console.warn(`  - ${warning.key}`);
+    console.warn(`    file: ${warning.file}`);
+    console.warn(`    hint: ${warning.recommendation}`);
+  }
+}
+
 function checkRatchet(kind: ViolationKind, current: Violation[], baseline: string[]) {
   const currentKeys = uniqueSorted(current.map((violation) => violation.key));
   const baselineKeys = uniqueSorted(baseline);
@@ -105,6 +118,7 @@ export function checkDomainValidation() {
     }
 
     const total = Object.values(grouped).reduce((sum, items) => sum + items.length, 0);
+    printWarnings();
     console.log(`✓ domain validation boundaries passed (${total} baseline item${total === 1 ? "" : "s"}).`);
     return true;
   } catch (error) {

@@ -7,6 +7,7 @@ import {
   resolveFkCompany,
   resolveFkDepartment,
   resolveFkEmployee,
+  resolveFkMeeting,
   resolveFkPosition,
   resolveFkPositionDescription,
   resolveFkProject,
@@ -14,6 +15,7 @@ import {
   searchFkCompanies,
   searchFkDepartments,
   searchFkEmployees,
+  searchFkMeetings,
   searchFkPositionDescriptions,
   searchFkPositions,
   searchFkProjects,
@@ -24,6 +26,7 @@ export type FkTargetKind =
   | "company"
   | "department"
   | "employee"
+  | "meeting"
   | "position"
   | "positionDescription"
   | "project"
@@ -46,6 +49,11 @@ const targetSpecs: Record<FkTargetKind, FkTargetSpec> = {
     target: { entity: "Employee", label: "员工" },
     search: ({ keyword, lifecycleScope }) => searchFkEmployees(keyword, lifecycleScope),
     resolve: resolveFkEmployee,
+  },
+  meeting: {
+    target: { entity: "Meeting", label: "会议" },
+    search: ({ keyword }) => searchFkMeetings(keyword),
+    resolve: resolveFkMeeting,
   },
   position: {
     target: { entity: "Position", label: "岗位" },
@@ -79,7 +87,11 @@ export interface FkRegistration
   defaultLifecycleScope?: LifecycleScope;
 }
 
-export function defineFkRegistration(input: FkRegistration): FkDefinition {
+export type FkRegistrationAdapter = Partial<Pick<FkDefinition, "search" | "resolve">>;
+
+export type FkRegistrationAdapters = Record<string, FkRegistrationAdapter>;
+
+export function defineFkRegistration(input: FkRegistration, adapter?: FkRegistrationAdapter): FkDefinition {
   const spec = targetSpecs[input.target];
   return {
     key: input.key,
@@ -95,15 +107,15 @@ export function defineFkRegistration(input: FkRegistration): FkDefinition {
     targetArchivePolicy: input.targetArchivePolicy,
     defaultLifecycleScope: input.defaultLifecycleScope ?? "active",
     permission: input.permission,
-    search: spec.search,
-    resolve: spec.resolve,
+    search: adapter?.search ?? spec.search,
+    resolve: adapter?.resolve ?? spec.resolve,
   };
 }
 
-export function defineFkRegistrations(inputs: FkRegistration[]): FkDefinition[] {
-  return inputs.map(defineFkRegistration);
+export function defineFkRegistrations(inputs: FkRegistration[], adapters: FkRegistrationAdapters = {}): FkDefinition[] {
+  return inputs.map((input) => defineFkRegistration(input, adapters[input.key]));
 }
 
-export function createFkRegistryFromRegistrations(inputs: FkRegistration[]) {
-  return createFkRegistry(defineFkRegistrations(inputs));
+export function createFkRegistryFromRegistrations(inputs: FkRegistration[], adapters: FkRegistrationAdapters = {}) {
+  return createFkRegistry(defineFkRegistrations(inputs, adapters));
 }

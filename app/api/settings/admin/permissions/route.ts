@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { listPermissionResources } from "@workspace/platform/server/permissions";
 import { requireAdminApiAccess, isSuperAdmin, getManageableResourceKeys } from "@workspace/platform/server/auth";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 export async function GET(request: Request) {
   const auth = await requireAdminApiAccess(request);
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
   ]);
 
   if (!isSystemAdmin && manageableKeys.size === 0) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
+    return jsonErrorResponse("无权限", 403);
   }
 
   return NextResponse.json(

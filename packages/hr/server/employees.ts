@@ -1,5 +1,4 @@
 import { randomBytes } from "crypto";
-import { NextResponse } from "next/server";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
 import type { DeleteGuardContext } from "@workspace/platform/server/delete-guard";
 import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
@@ -16,6 +15,7 @@ import {
 } from "./domain/employee-validation";
 import { primaryContractCompany } from "./employments";
 import { employeePositionFilterInclude, employeePositionMatches } from "./employee-position-filters";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const EMPLOYEE_ID_PATTERN = /^\d{5}$/;
 const USERNAME_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -181,9 +181,9 @@ export async function listEmployees(input: {
       }),
     ]);
     attachEmployeeDirectoryFields(employees);
-    const fkMap = await resolveFkValues(employees as unknown as Record<string, unknown>[]);
+    const fkMap = await resolveFkValues(employees as unknown as Record<string, unknown>[], { entityType: "Employee" });
     for (const employee of employees) {
-      (employee as Record<string, unknown>).userIdName = fkDisplay("userId", String(employee.userId ?? ""), fkMap);
+      (employee as Record<string, unknown>).userIdName = fkDisplay("userId", String(employee.userId ?? ""), fkMap, { entityType: "Employee" });
     }
     return { employees, total };
   }
@@ -237,9 +237,9 @@ export async function listEmployees(input: {
   const start = (input.page - 1) * input.pageSize;
   const paged = employees.slice(start, start + input.pageSize);
 
-  const fkMap = await resolveFkValues(paged as unknown as Record<string, unknown>[]);
+  const fkMap = await resolveFkValues(paged as unknown as Record<string, unknown>[], { entityType: "Employee" });
   for (const employee of paged) {
-    (employee as Record<string, unknown>).userIdName = fkDisplay("userId", String(employee.userId ?? ""), fkMap);
+    (employee as Record<string, unknown>).userIdName = fkDisplay("userId", String(employee.userId ?? ""), fkMap, { entityType: "Employee" });
   }
 
   return { employees: paged, total };
@@ -375,5 +375,5 @@ export async function searchEmployeesForAccountLink(q: string) {
 }
 
 export function employeeErrorResponse(error: string, status = 400) {
-  return NextResponse.json({ error }, { status });
+  return jsonErrorResponse(error, status);
 }

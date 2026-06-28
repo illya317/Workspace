@@ -40,11 +40,13 @@
 
 ## 4. API
 
-- [ ] `app/api/modules/<domain>/<l2>/route.ts` — 先调用 `requireApiAccess(request)` 或 `with-auth` wrapper，再做 Zod 参数校验、调 package service、返回 DTO。
+- [ ] `app/api/modules/<domain>/<l2>/route.ts` — 默认使用 `createApiRouteHandler()`；写入/命令型入口优先使用 `createCommandRoute()`；存量 wrapper 必须先委托 `requireApiAccess(request)`，再做 Zod 参数校验、调 package service、返回 DTO。
+- [ ] 写入 service 返回 `ServiceResult<T>`；route 通过 `createApiRouteHandler()` 或 `serviceResponse(result)` 统一输出，禁止为 service result 手写 `Response.json({ error })`。
 - [ ] 每个 L2 在 registry child 上声明 `apiPrefixes`；没有 API 时写清 `noApiReason`。宽泛 `/api/modules/<domain>` 不能作为 L2 最终契约。
 - [ ] GET → 至少 `access`；POST/PUT → `write`；DELETE → `delete`
 - [ ] route 入口不得裸用 `authenticate()`、不得手写 resource key 作为主门禁；resource/action 必须由 registry API contract 派生。
 - [ ] 写入请求固定走 `Zod schema -> domain validator -> service/Prisma`：route schema 只校验请求形状并 strip，domain validator pick 可写字段并检查 FK/状态/归属/跨字段规则，service 负责事务、版本、审计和落库。
+- [ ] 有副作用的写操作命名 action；通知只能调用 `sendNotification(type + payload)`，正文和链接由 notification registry 渲染。
 - [ ] API route 不超过 120 行，超了拆 service
 - [ ] 复杂查询、导入、计算必须在 service 层
 

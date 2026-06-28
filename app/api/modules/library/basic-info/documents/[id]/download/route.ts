@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { withLibraryAccess } from "@workspace/platform/server/with-auth";
 import type { RouteContext } from "@workspace/platform/server/with-auth";
 import { getLibraryFileByDocumentId } from "@workspace/library/server";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 function fileErrorResponse(error: unknown) {
   const message = error instanceof Error ? error.message : "File not found";
@@ -10,13 +11,13 @@ function fileErrorResponse(error: unknown) {
     : message === "Forbidden" || message === "Higher confidentiality required"
       ? 403
       : 400;
-  return NextResponse.json({ error: message }, { status });
+  return jsonErrorResponse(message, status);
 }
 
 export const GET = withLibraryAccess(async (_req, user, ctx?: RouteContext) => {
   const { id } = await ctx!.params;
   const docId = parseInt(id, 10);
-  if (isNaN(docId)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  if (isNaN(docId)) return jsonErrorResponse("Invalid id", 400);
 
   try {
     const file = await getLibraryFileByDocumentId(docId, user.userId);

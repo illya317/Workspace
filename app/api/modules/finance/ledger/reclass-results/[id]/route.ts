@@ -10,6 +10,7 @@ import {
   reclassResultIdSchema,
   reviewReclassPayloadSchema,
 } from "@workspace/finance/server/ledger/reclass-results/schemas";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 export async function PATCH(
   request: Request,
@@ -18,20 +19,20 @@ export async function PATCH(
   return withFinanceLedgerWrite(async (req, user) => {
     const parsedParams = reclassResultIdSchema.safeParse(await params);
     if (!parsedParams.success) {
-      return NextResponse.json({ error: "无效的 ID" }, { status: 400 });
+      return jsonErrorResponse("无效的 ID", 400);
     }
     const resultId = parsedParams.data.id;
 
     const body = await req.json().catch(() => null);
     if (!body || typeof body !== "object") {
-      return NextResponse.json({ error: "请求体格式错误" }, { status: 400 });
+      return jsonErrorResponse("请求体格式错误", 400);
     }
 
     // id=0 → 手动创建 ReclassResult + 沉淀例外规则 + 全公司同步
     if (resultId === 0) {
       const parsedBody = manualReclassResultSchema.safeParse(body);
       if (!parsedBody.success) {
-        return NextResponse.json({ error: "缺少 periodId / voucherItemId / targetAccount" }, { status: 400 });
+        return jsonErrorResponse("缺少 periodId / voucherItemId / targetAccount", 400);
       }
       try {
         const item = await createManualReclassResult({
@@ -44,28 +45,22 @@ export async function PATCH(
         });
         return NextResponse.json({ item });
       } catch (err) {
-        if (err instanceof ReviewError) return NextResponse.json({ error: err.message, code: err.code }, { status: 400 });
+        if (err instanceof ReviewError) return jsonErrorResponse(err.message, 400, { code: err.code });
         throw err;
       }
     }
 
     if (!resultId) {
-      return NextResponse.json({ error: "无效的 ID" }, { status: 400 });
+      return jsonErrorResponse("无效的 ID", 400);
     }
 
     const parsedBody = reviewReclassPayloadSchema.safeParse(body);
     if (!parsedBody.success) {
       const action = "action" in body ? body.action : undefined;
       if (action === "adjust") {
-        return NextResponse.json(
-          { error: "调整操作需提供有效的 targetAccount 和 amount > 0" },
-          { status: 400 },
-        );
+        return jsonErrorResponse("调整操作需提供有效的 targetAccount 和 amount > 0", 400);
       }
-      return NextResponse.json(
-        { error: "action 必须为 approve / reject / adjust / revert / mark_pending" },
-        { status: 400 },
-      );
+      return jsonErrorResponse("action 必须为 approve / reject / adjust / revert / mark_pending", 400);
     }
 
     try {
@@ -89,10 +84,7 @@ export async function PATCH(
           INVALID_ACTION: 400,
           AMOUNT_EXCEEDED: 400,
         };
-        return NextResponse.json(
-          { error: err.message, code: err.code },
-          { status: statusMap[err.code] || 400 },
-        );
+        return jsonErrorResponse(err.message, statusMap[err.code] || 400, { code: err.code });
       }
       throw err;
     }

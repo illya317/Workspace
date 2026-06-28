@@ -1,64 +1,87 @@
-import { prisma } from "./prisma";
+import type { FkDefinition } from "./fk-registry";
+import { WORKSPACE_FK_REGISTRY } from "./fk-registrations";
 
-const FK_CONFIG: Record<string, { model: string; field: string }> = {
-  departmentId: { model: "department", field: "name" },
-  positionId: { model: "position", field: "name" },
-  employeeId: { model: "employee", field: "name" },
-  projectId: { model: "project", field: "name" },
-  managerUserId: { model: "user", field: "name" },
-  userId: { model: "user", field: "name" },
-  parentId: { model: "department", field: "name" },
-  childId: { model: "company", field: "name" },
-  positionDescriptionId: { model: "positionDescription", field: "name" },
-};
+export interface ResolveFkOptions {
+  entityType?: string;
+}
+
+function displayKey(entity: string, field: string, value: number) {
+  return `${entity}:${field}:${value}`;
+}
+
+function fallbackDisplayKey(field: string, value: number) {
+  return `field:${field}:${value}`;
+}
+
+function definitionsForField(field: string, entityType?: string): FkDefinition[] {
+  const definitions = WORKSPACE_FK_REGISTRY.keys()
+    .map((key) => WORKSPACE_FK_REGISTRY.require(key))
+    .filter((definition) => definition.source.field === field);
+  if (!entityType) return definitions;
+  return definitions.filter((definition) => definition.source.entity === entityType || definition.source.entity === "Any");
+}
+
+function hasSingleTarget(definitions: FkDefinition[]) {
+  return new Set(definitions.map((definition) => definition.target.entity)).size === 1;
+}
+
+function displayCandidates(field: string, value: number, entityType?: string) {
+  const candidates = entityType
+    ? [displayKey(entityType, field, value), displayKey("Any", field, value)]
+    : [fallbackDisplayKey(field, value)];
+  return candidates;
+}
 
 /** Resolve FK ids found in data rows into display names. */
-export async function resolveFkValues(rows: Record<string, unknown>[]): Promise<Record<string, string>> {
+export async function resolveFkValues(
+  rows: Record<string, unknown>[],
+  options: ResolveFkOptions = {},
+): Promise<Record<string, string>> {
   const map: Record<string, string> = {};
+  const fields = new Set(rows.flatMap((row) => Object.keys(row)));
 
   await Promise.all(
-    Object.entries(FK_CONFIG).map(async ([key, cfg]) => {
-      const ids = Array.from(
-        new Set(
-          rows
-            .map((row) => row[key])
-            .filter((value): value is number | string => value != null && typeof value !== "object")
-            .map(Number),
-        ),
-      ).filter((id) => !Number.isNaN(id));
-      if (ids.length === 0) return;
+    [...fields].flatMap((field) =>
+      definitionsForField(field, options.entityType).map(async (definition, _index, definitions) => {
+        const ids = Array.from(
+          new Set(
+            rows
+              .map((row) => row[field])
+              .filter((value): value is number | string => value != null && typeof value !== "object")
+              .map(Number),
+          ),
+        ).filter((id) => Number.isInteger(id) && id > 0);
+        if (ids.length === 0) return;
 
-      try {
-        const model = (
-          prisma as unknown as Record<
-            string,
-            {
-              findMany: (args: {
-                where: { id: { in: number[] } };
-                select: Record<string, boolean>;
-              }) => Promise<Array<Record<string, unknown>>>;
+        await Promise.all(ids.map(async (id) => {
+          try {
+            const target = await definition.resolve(id);
+            if (target) {
+              map[displayKey(definition.source.entity, field, id)] = target.label;
+              if (hasSingleTarget(definitions)) map[fallbackDisplayKey(field, id)] = target.label;
             }
-          >
-        )[cfg.model];
-        const records = await model.findMany({
-          where: { id: { in: ids } },
-          select: { id: true, [cfg.field]: true },
-        });
-        for (const record of records) map[`${cfg.model}:${record.id}`] = String(record[cfg.field] ?? record.id);
-      } catch {
-        // FK display is best-effort; callers still show the raw value.
-      }
-    }),
+          } catch {
+            // FK display is best-effort; callers still show the raw value.
+          }
+        }));
+      }),
+    ),
   );
 
   return map;
 }
 
 /** Convert one FK field value into its resolved display name when available. */
-export function fkDisplay(field: string, value: string, fkMap: Record<string, string>): string {
-  const cfg = FK_CONFIG[field];
-  if (cfg && /^\d+$/.test(value)) {
-    const resolved = fkMap[`${cfg.model}:${value}`];
+export function fkDisplay(
+  field: string,
+  value: string,
+  fkMap: Record<string, string>,
+  options: ResolveFkOptions = {},
+): string {
+  if (!/^\d+$/.test(value)) return value;
+  const id = Number(value);
+  for (const key of displayCandidates(field, id, options.entityType)) {
+    const resolved = fkMap[key];
     if (resolved) return resolved;
   }
   return value;

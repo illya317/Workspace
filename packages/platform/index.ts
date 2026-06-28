@@ -78,11 +78,20 @@ export type {
   ParsePositiveIdResult,
 } from "./server/delete-guard";
 export {
+  createCommandRoute,
+  createApiRouteHandler,
+} from "./server/api-route";
+export {
+  domainIssueToResponse,
   failCommand,
+  isDomainServiceResult,
   mapValidationToServiceResult,
   okCommand,
+  toServiceErrorResponse,
 } from "./server/domain-validation";
 export type {
+  DomainAction,
+  DomainCommandBuilder,
   DomainServiceResult,
   DomainValidationIssue,
   DomainValidationResult,

@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@workspace/platform/server/with-auth";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { checkFinanceLedgerAccess, checkFinanceLedgerWrite } from "@workspace/platform/server/auth";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
 import {
   createFinanceAccount,
   listFinanceAccounts,
-  type FinanceAccountScope,
 } from "@workspace/finance/server/ledger/accounts";
 
 const listAccountsQuerySchema = z.object({
@@ -33,27 +33,18 @@ const createAccountSchema = z.object({
   sortOrder: z.unknown().optional(),
 });
 
-export const GET = withFinanceLedgerAccess(async (request) => {
-  const { searchParams } = new URL(request.url);
-  const parsed = listAccountsQuerySchema.safeParse({
-    companyCode: searchParams.get("companyCode") || undefined,
-    subjectLevel: searchParams.get("subjectLevel") || undefined,
-    scope: (searchParams.get("scope") || "mapped") as FinanceAccountScope,
-    year: searchParams.get("year") || undefined,
-    keyword: searchParams.get("keyword") || undefined,
-    page: searchParams.get("page") || undefined,
-    pageSize: searchParams.get("pageSize") || undefined,
-  });
-  if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
-
-  return NextResponse.json(await listFinanceAccounts(parsed.data));
+export const GET = createCommandRoute({
+  access: checkFinanceLedgerAccess,
+  querySchema: listAccountsQuerySchema,
+  queryError: "参数无效",
+  buildCommand: ({ query }) => okCommand(query),
+  action: listFinanceAccounts,
 });
 
-export const POST = withFinanceLedgerWrite(async (request, user) => {
-  const parsed = createAccountSchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) {
-    return NextResponse.json({ error: "科目编码、名称、类别为必填" }, { status: 400 });
-  }
-
-  return NextResponse.json(await createFinanceAccount(parsed.data, user.userId));
+export const POST = createCommandRoute({
+  access: checkFinanceLedgerWrite,
+  bodySchema: createAccountSchema,
+  bodyError: "科目编码、名称、类别为必填",
+  buildCommand: ({ user, body }) => okCommand({ body, userId: user.userId }),
+  action: (command) => createFinanceAccount(command.body, command.userId),
 });

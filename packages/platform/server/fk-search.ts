@@ -162,6 +162,23 @@ export async function searchFkPositionDescriptions(keyword: string) {
     .slice(0, MAX_RESULTS);
 }
 
+export async function searchFkMeetings(keyword: string) {
+  const rows = await prisma.meeting.findMany({
+    select: { id: true, title: true, startAt: true },
+    orderBy: [{ startAt: "desc" }, { id: "desc" }],
+    take: resultLimit(keyword),
+  });
+  return rows
+    .map((row) => ({
+      id: row.id,
+      name: row.title,
+      subtitle: row.startAt ? row.startAt.toISOString().slice(0, 10) : undefined,
+      lifecycleStatus: "active" as const,
+    }))
+    .filter((row) => matchesFkKeyword([row.name, row.subtitle], keyword))
+    .slice(0, MAX_RESULTS);
+}
+
 export async function searchFkProjects(keyword: string, lifecycleScope: LifecycleScope) {
   const rows = await prisma.project.findMany({
     where: archivedBooleanFilter(lifecycleScope),
@@ -221,6 +238,11 @@ export async function resolveFkUser(id: number) {
 export async function resolveFkPositionDescription(id: number) {
   const row = await prisma.positionDescription.findUnique({ where: { id }, select: { id: true, name: true } });
   return row ? { id: row.id, label: row.name, lifecycleStatus: "active" as const } : null;
+}
+
+export async function resolveFkMeeting(id: number) {
+  const row = await prisma.meeting.findUnique({ where: { id }, select: { id: true, title: true } });
+  return row ? { id: row.id, label: row.title, lifecycleStatus: "active" as const } : null;
 }
 
 export async function resolveFkProject(id: number) {

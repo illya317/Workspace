@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireApiAccess } from "@workspace/platform/server/auth";
 import { changeUserPassword } from "@workspace/platform/server/account";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const changePasswordSchema = z.object({
   oldPassword: z.string().min(1),
@@ -16,10 +17,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const parsed = changePasswordSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues[0]?.message || "旧密码和新密码不能为空" },
-      { status: 400 },
-    );
+    return jsonErrorResponse(parsed.error.issues[0]?.message || "旧密码和新密码不能为空", 400);
   }
 
   const result = await changeUserPassword(
@@ -28,7 +26,7 @@ export async function POST(request: Request) {
     parsed.data.newPassword,
   );
   if (!result.success) {
-    return NextResponse.json({ error: result.error }, { status: result.status });
+    return jsonErrorResponse(result.error, result.status);
   }
 
   return NextResponse.json({ success: true });

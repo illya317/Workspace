@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { withHRAccess, withHRWrite } from "@workspace/platform/server/with-auth";
 import { createEmployeeWithAccount, listEmployees } from "@workspace/hr/server";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const employeesQuerySchema = z.object({
   keyword: z.string().catch(""),
@@ -23,7 +24,7 @@ const createEmployeeSchema = z.object({
 export const GET = withHRAccess(async (request: Request, _user) => {
   const { searchParams } = new URL(request.url);
   const parsedQuery = employeesQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
-  if (!parsedQuery.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
+  if (!parsedQuery.success) return jsonErrorResponse("参数错误", 400);
   const { company, department, employmentStatus, isActive = null, keyword, filterField, filterValue, page, pageSize, position } = parsedQuery.data;
   return NextResponse.json(await listEmployees({ company, department, employmentStatus, isActive, keyword, filterField, filterValue, page, pageSize, position }));
 });
@@ -32,11 +33,11 @@ export const POST = withHRWrite(async (request: Request, user) => {
   const body = await request.json().catch(() => null);
   const parsedBody = createEmployeeSchema.safeParse(body);
   if (!parsedBody.success) {
-    return NextResponse.json({ error: parsedBody.error.issues[0]?.message || "参数错误" }, { status: 400 });
+    return jsonErrorResponse(parsedBody.error.issues[0]?.message || "参数错误", 400);
   }
   const result = await createEmployeeWithAccount(parsedBody.data.name, user.userId);
   if (!result.ok) {
-    return NextResponse.json({ error: result.error }, { status: result.status });
+    return jsonErrorResponse(result.error, result.status);
   }
 
   return NextResponse.json({ success: true, employee: result.employee, user: result.user });

@@ -19,6 +19,7 @@
 | 兼容旧入口 | `npm run check:full` | `check:ci` 的别名。 |
 | 日常 hygiene 提示 | `npm run check:hygiene:warn` | 跑简单清扫项但永远退出 0。 |
 | 周期性清债 | `npm run check:hygiene` | 强制巡检公司硬编码和简单 structure hygiene 债务。 |
+| Core UI surface 边界 | `npm run arch:surface-boundaries` | 检查 Surface declares、role 边界，以及业务侧 deprecated escape hatch 使用。 |
 
 ## 边界
 
@@ -48,6 +49,8 @@
 - Open API registry、scope wrapper 和 console route 对齐。
 - 写入链路的 domain validation 收口。
 - app route hierarchy、module gate、package boundary 和 auth chain。
+- 模块 API route 必须命中模块台账派生 contract，并使用 `createApiRouteHandler` / `requireApiAccess` / 已接入 `requireApiAccess` 的 `with-auth` wrapper。
+- 业务通知必须走 notification registry 的 `sendNotification(type + payload)`，不得在业务侧直接拼 `createNotification`。
 - Structure scan 里已经判定为业务阻断的历史债 ratchet，例如新增未登记 API route、裸 Prisma、缺 validation/service、旧 root service/auth/prisma 入口。
 
 ### gate:ui
@@ -55,7 +58,7 @@
 `gate:ui` 负责结构性 UI 阻断，不管细碎视觉债：
 
 - Core UI 唯一入口和 registry 关系。
-- 业务不得直接使用内部 input renderer、非 direct Core UI runtime、禁止的 Core UI type。
+- 业务不得直接使用 `role=internal` / 未白名单 `role=host` 的 Core UI renderer，也不得 import 禁止的 Core UI type。
 - PageSurface 协议、页面壳、toolbar/input/selector/tabbar 的结构边界。
 - 页面级 toolbar 与数据块 toolbar 重复、Surface 自带 page chrome、业务直引 Common renderer。
 - 业务 UI 候选组件没有复用 Core/Platform 基建、Core UI ownership/coupling 违规。
@@ -88,6 +91,7 @@ Hygiene 负责简单、局部、机械、可回滚的清扫：
 
 - 公司专有事实硬编码扫描。
 - `arch:structure:hygiene` 中的简单债务 ratchet：业务视觉 token 硬编码候选、Core 业务事实泄漏候选、组件内本地 UI config 候选。
+- `arch:surface-boundaries` 中的 Core UI surface 边界提示：非 Surface 挂 declares、Surface 声明过厚、业务新增 `moduleView/raw/visual` 逃生口。
 - stale baseline 删除和小范围 baseline 收窄。
 - 已有封装能力下的机械迁移。
 - 明显 dead code、禁用注释和小 constant/token 债。

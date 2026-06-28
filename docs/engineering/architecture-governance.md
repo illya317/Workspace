@@ -84,6 +84,18 @@ DB 不等于 Excel，也不等于 normalized JSON。
 
 ## 5. API 规则
 
+模块内 API 的治理链路固定为：
+
+```txt
+module-registry 模块台账
+  -> api-registry API contract
+  -> createApiRouteHandler / createCommandRoute / with-auth / requireApiAccess
+  -> domain service / action
+  -> history / notification registry
+```
+
+`registeredModuleDefinitions` 是模块台账事实源：L1/L2 必须声明页面、资源、API 前缀或无 API 原因。`api-registry` 从台账派生 `method + pathPrefix + access + resourceKey + action + ownerModuleKey`，默认动作是 `GET=access`、`POST/PUT/PATCH=write`、`DELETE=delete`。route 不再维护第二套资源/动作表。
+
 API route 只做：
 
 1. 认证。
@@ -109,7 +121,9 @@ Zod schema -> domain validator -> service/Prisma
 
 新增多入口写入能力时，页面、导入、agent tool 或内部 API 只能新增 input adapter，把输入适配成 domain command；同一个业务字段或业务动作必须收口到同一套 domain validator。`npm run arch:gate` 会通过通用 domain validation ratchet 检查业务 API route、route-local helper、写 service 和 exported 写入口函数：新增写 service 必须消费本包 `packages/<domain>/server/domain/*-validation.ts`，route 不得直接或通过 package root 间接 import domain validator，service 不得重新散落 FK、日期、枚举、百分比、归档/删除引用保护等底层业务规则。即使一个文件已经 import domain validator，新增 exported `create/update/save/archive/delete/upsert/import` 写入口也必须在入口体内调用 domain validator 或走带校验 hook 的 CRUD helper；其中 `handleDelete` 只有在入口或引用的 config 里显式提供 `onBeforeDelete`，或入口直接调用已登记的 guarded/domain 删除验证入口时，才视为已验证。仅供内部复用的写 helper 不应 export。HR roster 当前 baseline 为 0；其他模块存量债由 `scripts/arch/domain-validation-baseline.json` 锁定，只能减少，不能新增。
 
-Level 1 起，业务资源权限入口统一为 `packages/platform/server/auth/authorize.ts` 的 `authorize()`。`withAuth`、`withFinance*`、`checkHRAccess`、`requireResourceAccess` 等平台 wrapper 必须委托 `authorize()`，新增 API route 不得直接调用 `checkPermission()` 或在 route 内重写角色判断。唯一例外是内置 root admin gate：`auth/admin.ts` 必须委托 `isRootAdminUser()`，且不得把 `system` 注册或判断为 RBAC resource。
+Level 1 起，业务资源权限入口统一为 `packages/platform/server/auth/authorize.ts` 的 `authorize()`。`requireApiAccess(request)` 是内部业务 API 的统一入口；`createApiRouteHandler()` 是新 route 的默认协议适配器，`createCommandRoute()` 是带 `buildCommand -> action` 的写入/命令型适配器。旧 `withAuth` / `withFinance*` 等 wrapper 必须先委托 `requireApiAccess()`，再做历史兼容的模块级细分检查。新增 API route 不得直接调用 `checkPermission()` 或在 route 内重写角色判断。唯一例外是内置 root admin gate：`auth/admin.ts` 必须委托 `isRootAdminUser()`，且不得把 `system` 注册或判断为 RBAC resource。
+
+有副作用的业务写操作优先显式命名 action，例如 `work.project.member.added`。业务侧只能调用 `sendNotification(type + payload)`，通知标题、正文、链接和默认重要性由 `packages/platform/server/notifications.ts` 的 notification registry 渲染；除 registry 内部外不得直接调用 `createNotification()`。
 
 外部开放 API 使用独立边界：`/api/open/v1/**` 必须通过 `packages/platform/open-api-registry.ts` 注册，并使用 `withOpenApiScope(scopeKey, action, handler)` 校验 `Authorization: Bearer <OpenApiClient secret>`。开放 API 的资源写入 `OpenApiResource/OpenApiScope/OpenApiClientScopeGrant`，不写入内部 RBAC `Resource`，也不得调用 `authorize()`、`withAuth()` 或读取 `visibleResourceKeys`。`runtimeParentResourceKey` 只用于模块启停归属，不表达授权继承。
 
@@ -117,8 +131,9 @@ Level 1 起，业务资源权限入口统一为 `packages/platform/server/auth/a
 
 - `packages/platform/server/auth/authorize.ts` 存在并导出 `authorize()`。
 - 核心业务 auth helper 委托 `authorize()`；root admin helper 委托 `isRootAdminUser()`。
-- 新增业务 API route 必须命中 registry API contract，并调用 `requireApiAccess(request)` 或 `with-auth` wrapper；明确的 public/dev/internal/disabled handler 必须在 API contract 中声明。
+- 新增业务 API route 必须命中 registry API contract，并使用 `createApiRouteHandler()`、`createCommandRoute()`、`requireApiAccess(request)` 或已接入它的 `with-auth` wrapper；明确的 public/dev/internal/disabled handler 必须在 API contract 中声明。
 - 新增 API route 不得新增裸 `checkPermission()` 或裸 `prisma.`。当前历史债由 `scripts/check/level1-api-baseline.json` 锁定，只能减少，不能新增。
+- 业务不得绕过 notification registry 直接调用 `createNotification()`。
 
 `npm run arch:gate` 的 AST 阶段不是 advisory：命中即 `exit 1`。它会阻断 `checkPermission`、`hasAccess`、`canAccess`、`roleCheck`、`rbacCheck` 等替代权限入口，阻断 `if (user.role)` 一类角色分支，阻断 `authorize()`/RBAC service 外新增 RBAC 表直查，并阻断业务包通过 `@/server/*` 或相对路径绕过边界。已有历史债只允许出现在 `scripts/arch/level15-baseline.json`，迁移删除文件时必须同时删 baseline 项；新增违规不能把 baseline 当白名单扩写。
 
@@ -214,16 +229,16 @@ app/* route shell
 
 Core UI registry 治理：
 
-- Core UI registry 只保留三组核心口径：`category/subcategory` 是一级/二级分类，`exposure` 是业务/agent 调用方式，`declares` / `composes` 是声明项和封装关系。旧分层字段已删除，不再作为分类、筛选、展示或 gate 依据。
-- 业务和普通 agent 的 runtime Core UI import 只能使用 `exposure: direct` 的正式入口：`PageSurface`、`InputControl`、`SelectorPanel`、`CreatePanel`、`useFeedback`。`FormSurface`、`DataSurface`、`DocumentSurface`、`NavigationSurface`、`Toolbar`、`TabBar`、`Pagination` 等必须通过这些入口的 spec 使用。Core 可导出非组件 contract helper，例如 `createPageTableBlock`、`createPageFieldsBlock`、`createPageModalBlock`、`createPageActionsBlock`、`createPageSurfaceProps`；helper 只生成 spec，不算新增 direct component entry。type-only import 只允许 Surface contract 类型和 `ReferenceOption`、`SurfaceToolbarItem`、`SurfaceToolbarItems` 业务别名，不得直引 `DataTableColumn`、`ToolbarItem`、`FkFieldOption`。组件库主展示按 `category/subcategory` 分类，调用方式按 `exposure` 展示，基础/私有实现只作为关系数据出现，不作为业务可调用入口。
-- Platform runtime 使用 Core UI 时只能走正式 direct 入口、根级 `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent 页面 UI 已停用，仅保留 API / bot 接入能力。
+- Core UI registry 保留三组核心口径：`category/subcategory` 是一级/二级分类，`role` 是 `surface/host/internal/service/helper` 分层，`declares` / `composes` 是声明项和内部使用关系。`exposure` 只保留为过渡期技术路径，不作为主分层。
+- 业务和普通 agent 默认只能使用 `role=surface` 声明接口、`role=helper` 声明助手和允许的 `role=service` 服务接口。`role=host` 当前为空备用，新增必须白名单；`role=internal` 只作为 Core 内部实现。组件库主展示按 `category/subcategory` 分类，并可按 `role` 筛选；基础/私有实现只作为关系数据出现，不作为业务可调用入口。
+- Platform runtime 使用 Core UI 时只能走 `surface/helper/service` 分层入口、根级 `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent 页面 UI 已停用，仅保留 API / bot 接入能力。
 - 改 `packages/core/ui/**`、Core UI registry 或 `/settings/ui` preview 必须是 UI-system/Architecture 任务，并通过 `CORE_UI_CHANGE=1` 或明确 change request 授权。
 
 页面组件注册表：
 
-- `packages/core/ui/component-registry.ts` 是 Core UI primitive 和页面骨架的注册表。非 Core 包只能消费 registry 中登记的 Core UI 名字；新增 Core UI 入口必须先由 Architecture/Core 任务登记，再导出给 Feature 使用。注册项必须填写中文 `description` 和中文 `example`，并由架构检查读取注册名、分类、说明、使用案例、组合子组件和当前消费文件。
+- `packages/core/ui/component-registry.ts` 是 Core UI primitive 和页面骨架的注册表。非 Core 包只能消费 registry 中登记的 Core UI 名字；新增 Core UI 入口必须先由 Architecture/Core 任务登记，再导出给 Feature 使用。注册项必须填写中文 `description`、`category/subcategory` 和 `role`，`role=surface` 还必须补清晰的 `declares`；架构检查读取注册名、分类、分层、说明、声明项、内部使用关系和当前消费文件。
 - 该 registry 是 structure scan 的输入；结构性 UI ratchet 由 `gate:ui` 执行，简单清扫项才由 hygiene strict 执行。
-- Registry `category/subcategory` 是分类模型：一级分类固定为 `page / data / form / common / feedback`，`Common` 不新增 runtime `CommonSurface`。缺字段、非法归属、Common 反依赖 domain 二级分类、sibling subcategory 高耦合、业务直引 Common renderer、domain shared layout shell 和 Surface 自带 page chrome 属于结构性 UI 阻断；需要新封装入口或复杂页面重构时由 Architecture/Feature 处理，不交给 Hygiene。
+- Registry `category/subcategory` 是分类模型：一级分类固定为 `page / data / form / document / visualization / common / feedback`，`common` 暂时作为基础和区块兜底。缺字段、非法归属、common 反依赖 domain 二级分类、sibling subcategory 高耦合、业务直引 common renderer、domain shared layout shell 和 Surface 自带 page chrome 属于结构性 UI 阻断；需要新 Surface/helper/service 或复杂页面重构时由 Architecture/Feature 处理，不交给 Hygiene。
 - Core UI 的 value export 必须全部出现在 `component-registry.ts`，或明确列入 structure scan 的非组件导出集合；注册名重复会直接进入 `duplicateCoreUiRegistrations`。这两类 baseline 为空，新增即失败。
 - 非 Core 包新增手写页面设计壳会进入 `pageDesignDriftFiles` 检测：在 `packages/*/ui` 中直接用原生 JSX 容器拼 `bg-white`、`rounded`、`shadow/border`、sticky header、页面级 grid 等页面结构时视为漂移。Platform-owned system shell 文件（当前 `AppShell` / `UserMenu`）由 Platform 单独封装，只接受窄名单例外；历史债由 `scripts/arch/structure-baseline.json` 锁定，Feature/UI 迁走后必须删对应 baseline 项。
 - `PageSurface` 的 `moduleView` 是历史过渡逃生口，不是新增业务页面 API。业务 UI / `app/(modules)` 的存量 `moduleView` 会按 `shell-host`、`content-wrapper`、`split-side`、`analysis-visual`、`report-document`、`complex-editor`、`navigation-composition` 分类进入 `businessModuleViewUsages` baseline；新增或迁移删除都必须通过同一 Structure ratchet。
@@ -245,11 +260,12 @@ Structure Scan 结构智能层：
 - `npm run arch:structure` 生成确定性的结构报告，用于发现 UI pattern 重复、API route contract 覆盖缺口、API route 模板漂移、旧 service 迁移债和 app 层 JSX 存量。
 - API Contract 的单一来源是 `packages/platform/api-registry.ts`，它从 effective module registry 的 `apiGuards` 和 `apiRoutes` 派生，不允许业务包维护第二套 API 清单。
 - `apiGuards` 表示需要资源权限的 protected API；`apiRoutes` 表示显式 route contract，可标记为 `protected`、`public`、`dev` 或 `disabled`，用于登录/OAuth、开发入口、禁用兼容 API 等非资源权限入口。
+- `scripts/check/check-resource-registry.js` 会反查真实 `app/api/modules/**/route.ts` 导出方法是否命中 contract，`scripts/check/check-api-routes.js` 会检查 route 目录、L2 API base 和统一 gate，`scripts/check/check-notification-registry.js` 会阻断业务直接拼通知。
 - Structure scan 中已升级为强制规则的漂移项由 `scripts/arch/structure-baseline.json` 锁定，并按 scope 执行：业务/API/legacy/service 类进入 `arch:structure:domain`，结构性 UI 类进入 `arch:structure:ui`，简单清扫类进入 `arch:structure:hygiene`。baseline 只能减少；迁移删除后必须同步删 baseline 项。
 - Structure 完整报告只读、不自动修复、不直接要求 Hygiene 清完。把某个发现升级为硬约束前，必须明确放入 `domain-blocker` 或 `ui-blocker` scope；简单清扫项才能留在 `hygiene` scope。
 - Feature/Data/Operations agent 使用 Structure 报告拆迁移任务时，只能改对应业务文件；Architecture agent 才能修改 `scripts/arch/*`、`packages/platform/module-registry.ts`、`packages/platform/api-registry.ts` 和相关治理文档。
 - Architecture agent 做 baseline ratchet 时只能减少历史债。若迁移删除了旧 route-local service、app hook 或 direct permission 文件，必须同步删 `scripts/arch/structure-baseline.json`、`scripts/arch/level15-baseline.json` 或 `scripts/check/level1-api-baseline.json` 中对应项；禁止为新违规扩写 baseline。
-- Core UI 大迁移需要定期 review gate/report：每个阶段至少阅读 Core UI registry validation、structure ratchet 和 import baseline，确认 `businessCoreUiSurfaceBypassImports` 和 `businessModuleViewUsages` 只减少、不变宽，`platformCoreUiRuntimeBypassImports` 保持为空；Production QC 质检纸、批记录、打印/留档渲染不得纳入宽泛 UI codemod。
+- Core UI 大迁移需要定期 review gate/report：每个阶段至少阅读 Core UI registry validation、structure ratchet 和 import baseline，确认 `businessCoreUiRoleBypassImports` 和 `businessModuleViewUsages` 只减少、不变宽，`platformCoreUiRoleBypassImports` 保持为空；Production QC 质检纸、批记录、打印/留档渲染不得纳入宽泛 UI codemod。
 
 Structure 任务拆解规则：
 

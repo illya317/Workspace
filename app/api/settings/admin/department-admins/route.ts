@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
 import {
   addDepartmentAdmin,
   listDepartmentAdmins,
@@ -28,10 +28,10 @@ export async function PUT(request: Request) {
   if (!auth.ok) return auth.response;
 
   const parsed = departmentAdminBodySchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: "缺少参数" }, { status: 400 });
+  if (!parsed.success) return jsonErrorResponse("缺少参数", 400);
 
   const result = await addDepartmentAdmin(parsed.data);
-  if (!result.success) return NextResponse.json({ error: result.error }, { status: result.status });
+  if (!result.success) return jsonErrorResponse(result.error, result.status);
   return NextResponse.json(result);
 }
 
@@ -42,7 +42,7 @@ export async function DELETE(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const parsed = routeIdParamsSchema.safeParse(Object.fromEntries(searchParams));
-  if (!parsed.success) return NextResponse.json({ error: "缺少id" }, { status: 400 });
+  if (!parsed.success) return jsonErrorResponse("缺少id", 400);
 
   return NextResponse.json(await removeDepartmentAdmin(parsed.data.id));
 }

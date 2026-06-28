@@ -113,7 +113,7 @@
 | `/api/modules/work/projects*` | POST/PUT | `work.projects.write` + module enabled + 项目对象级写入校验 |
 | `/api/modules/work/projects*` | DELETE | `work.projects.delete` + module enabled + 项目对象级删除校验 |
 | `/api/modules/work/projects/members*` | GET/POST/PUT/DELETE | `work.projects` 对应动作 + module enabled + 项目对象级管理校验 |
-| `/api/modules/work/projects/reference-options` | GET | `work.projects.access` + module enabled；项目 FK 候选由 Work service 按对象可见性过滤 |
+| `/api/modules/work/projects/reference-options` | GET | FK registration permission + module enabled；项目/会议候选由 Work FK registry adapter 按对象可见性过滤 |
 | `/api/settings/api/open/*` | GET | `settings.api.access` |
 | `/api/settings/api/open/*` | POST/PUT | `settings.api.access` + `settings.api.manage.write` |
 

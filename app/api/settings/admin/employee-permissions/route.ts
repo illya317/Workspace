@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdminApiAccess, isSuperAdmin, getManageableResourceKeys } from "@workspace/platform/server/auth";
 import { getEmployeesWithPermissions, syncUserGrants } from "@workspace/hr/server/employee-permissions";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const grantSchema = z.object({
   resourceKey: z.string().trim().min(1),
@@ -24,7 +25,7 @@ export async function GET(request: Request) {
   const manageableKeys = await getManageableResourceKeys(payload.userId);
 
   if (!isSysAdmin && manageableKeys.size === 0) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
+    return jsonErrorResponse("无权限", 403);
   }
 
   const employees = await getEmployeesWithPermissions();
@@ -53,15 +54,12 @@ export async function PUT(request: Request) {
   const payload = auth.user;
 
   if (!(await isSuperAdmin(payload.userId))) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
+    return jsonErrorResponse("无权限", 403);
   }
 
   const parsedBody = syncUserGrantsSchema.safeParse(await request.json());
   if (!parsedBody.success) {
-    return NextResponse.json(
-      { error: "参数错误: 需要 employeeId, name, grants" },
-      { status: 400 }
-    );
+    return jsonErrorResponse("参数错误: 需要 employeeId, name, grants", 400);
   }
 
   const result = await syncUserGrants(
@@ -71,10 +69,7 @@ export async function PUT(request: Request) {
   );
 
   if (!result.success) {
-    return NextResponse.json(
-      { error: result.error },
-      { status: result.status || 400 }
-    );
+    return jsonErrorResponse(result.error, result.status || 400);
   }
 
   return NextResponse.json({ success: true });

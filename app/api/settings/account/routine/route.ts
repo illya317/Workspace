@@ -5,6 +5,7 @@ import {
   getUserRoutineItems,
   updateUserRoutineItems,
 } from "@workspace/platform/server/user-preferences";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const routineItemSchema = z.object({
   plan: z.string(),
@@ -32,7 +33,7 @@ export async function PUT(request: Request) {
   const body = await request.json().catch(() => null);
   const parsed = updateRoutineSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "参数错误" }, { status: 400 });
+    return jsonErrorResponse("参数错误", 400);
   }
 
   await updateUserRoutineItems(payload.userId, parsed.data.routineItems);

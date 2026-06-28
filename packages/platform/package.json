@@ -21,6 +21,7 @@
     "./server/account": "./server/account.ts",
     "./server/account-avatar-library": "./server/account-avatar-library.ts",
     "./server/api": "./server/api.ts",
+    "./server/api-route": "./server/api-route.ts",
     "./server/agent": "./server/agent/index.ts",
     "./server/agent/*": "./server/agent/*.ts",
     "./server/agent/model/*": "./server/agent/model/*.ts",

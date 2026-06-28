@@ -28,6 +28,7 @@ const API_ACCESS_IMPORTS = [
   "@workspace/platform/server/auth",
   "@workspace/platform/server/api-access",
 ];
+const API_ROUTE_HELPER_IMPORT = "@workspace/platform/server/api-route";
 const WITH_AUTH_IMPORT = "@workspace/platform/server/with-auth";
 
 function escapeRegExp(value) {
@@ -56,6 +57,16 @@ function hasApiAccessGate(code) {
   return ["requireApiAccess", "requireAdminApiAccess"].some((name) =>
     hasNamedImport(code, name, API_ACCESS_IMPORTS) &&
     new RegExp(`\\b${name}\\s*\\(`).test(code),
+  );
+}
+
+function hasApiRouteHelperGate(code) {
+  return (
+    hasNamedImport(code, "createApiRouteHandler", [API_ROUTE_HELPER_IMPORT]) &&
+    /\bcreateApiRouteHandler\s*\(/.test(code)
+  ) || (
+    hasNamedImport(code, "createCommandRoute", [API_ROUTE_HELPER_IMPORT]) &&
+    /\bcreateCommandRoute\s*\(/.test(code)
   );
 }
 
@@ -123,7 +134,8 @@ for (const file of walk(API_ROOT)) {
   if (isRoute && exportsHandler && !PUBLIC_API_ROUTES.has(rel)) {
     const hasAuthGate = /\bauthorize\s*\(/.test(code) ||
       /\bwith(?:Auth|[A-Z][A-Za-z]*(?:Access|Write|Delete|Manage))\s*\(/.test(code) ||
-      hasApiAccessGate(code);
+      hasApiAccessGate(code) ||
+      hasApiRouteHelperGate(code);
     const usesLegacyGate = /\bauthenticate\s*\(/.test(code) ||
       /\bgetCurrentUser\s*\(/.test(code) ||
       /\brequireCurrentUser\s*\(/.test(code);

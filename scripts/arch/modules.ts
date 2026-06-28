@@ -7,6 +7,7 @@ export function checkModules() {
     ["Module navigation gates", "node", ["scripts/check/check-module-nav-gates.js"]],
     ["Module navigation gate fixtures", "node", ["scripts/check/check-module-nav-gates.js", "--fixtures"]],
     ["Resource registry", "node", ["scripts/check/check-resource-registry.js"]],
+    ["FK registry", "node", ["scripts/check/check-fk-registry.js"]],
     ["Module page gates", "node", ["scripts/check/check-module-page-gates.js"]],
     ["Package boundaries", "node", ["scripts/check/check-package-boundaries.js"]],
     ["API route governance", "node", ["scripts/check/check-api-routes.js"]],

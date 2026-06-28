@@ -6,6 +6,7 @@ import {
   readPositionDescriptionTemplates,
   writePositionDescriptionTemplates,
 } from "@workspace/hr/server";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const updateTemplatesSchema = z.object({
   templates: z.unknown().optional(),
@@ -16,7 +17,7 @@ export async function GET(request: Request) {
   if (!auth.ok) return auth.response;
   const payload = auth.user;
   if (!(await checkHRAccess(payload.userId, "access", "hr.roster"))) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
+    return jsonErrorResponse("无权限", 403);
   }
 
   const templates = await readPositionDescriptionTemplates();
@@ -28,12 +29,12 @@ export async function PUT(request: Request) {
   if (!auth.ok) return auth.response;
   const payload = auth.user;
   if (!(await checkHRWrite(payload.userId, "hr.roster"))) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
+    return jsonErrorResponse("无权限", 403);
   }
 
   const body = await request.json().catch(() => ({}));
   const parsedBody = updateTemplatesSchema.safeParse(body);
-  if (!parsedBody.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
+  if (!parsedBody.success) return jsonErrorResponse("参数错误", 400);
   const templates = normalizePositionDescriptionTemplates(parsedBody.data.templates);
   await writePositionDescriptionTemplates(templates);
   return NextResponse.json({ success: true, templates });

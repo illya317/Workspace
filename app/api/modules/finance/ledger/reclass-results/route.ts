@@ -6,16 +6,17 @@ import {
   listReclassResultsSchema,
 } from "@workspace/finance/server/ledger/reclass-results/schemas";
 import { buildReclassResults } from "@workspace/finance/server/ledger/reclassify";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 export const GET = withFinanceLedgerAccess(async (request) => {
   const { searchParams } = new URL(request.url);
   const raw = Object.fromEntries(searchParams.entries());
   if (!raw.periodId) {
-    return NextResponse.json({ error: "periodId 为必填参数" }, { status: 400 });
+    return jsonErrorResponse("periodId 为必填参数", 400);
   }
   const parsed = listReclassResultsSchema.safeParse(raw);
   if (!parsed.success) {
-    return NextResponse.json({ error: "periodId 为必填参数" }, { status: 400 });
+    return jsonErrorResponse("periodId 为必填参数", 400);
   }
 
   const result = await listReclassResults({
@@ -34,11 +35,11 @@ export const GET = withFinanceLedgerAccess(async (request) => {
 export const POST = withFinanceLedgerWrite(async (request) => {
   const body = await request.json().catch(() => null);
   if (!body || typeof body !== "object") {
-    return NextResponse.json({ error: "请求体为必填" }, { status: 400 });
+    return jsonErrorResponse("请求体为必填", 400);
   }
   const parsed = buildReclassResultsSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "periodId 为必填且为数字" }, { status: 400 });
+    return jsonErrorResponse("periodId 为必填且为数字", 400);
   }
 
   const dryRun = parsed.data.dryRun !== false; // default true for safety

@@ -5,6 +5,7 @@ import {
   projectPlanServiceResponse,
   updateProjectPlanPhase,
 } from "@workspace/work/server";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const planPhaseParamsSchema = z.object({
   id: z.coerce.number().int().positive(),
@@ -24,11 +25,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   if (!auth.ok) return auth.response;
 
   const parsedParams = planPhaseParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return Response.json({ error: "项目阶段 ID 无效" }, { status: 400 });
+  if (!parsedParams.success) return jsonErrorResponse("项目阶段 ID 无效", 400);
 
   const body = await request.json().catch(() => null);
   const parsedBody = planPhaseUpdateBodySchema.safeParse(body);
-  if (!parsedBody.success) return Response.json({ error: parsedBody.error.issues[0]?.message || "参数错误" }, { status: 400 });
+  if (!parsedBody.success) return jsonErrorResponse(parsedBody.error.issues[0]?.message || "参数错误", 400);
 
   return projectPlanServiceResponse(await updateProjectPlanPhase({
     userId: auth.user.userId,
@@ -43,7 +44,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   if (!auth.ok) return auth.response;
 
   const parsedParams = planPhaseParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return Response.json({ error: "项目阶段 ID 无效" }, { status: 400 });
+  if (!parsedParams.success) return jsonErrorResponse("项目阶段 ID 无效", 400);
 
   return projectPlanServiceResponse(await deleteProjectPlanPhase({
     userId: auth.user.userId,

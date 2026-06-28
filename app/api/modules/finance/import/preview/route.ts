@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { withFinanceImportAccess } from "@workspace/platform/server/with-auth";
 import { parseBalanceSheet, parseJournal, parseAccountTable } from "@workspace/finance/server/import/import";
 import { importPreviewFormSchema } from "@workspace/finance/server/import/schemas";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 export const POST = withFinanceImportAccess(async (request: Request) => {
   try {
@@ -12,13 +13,13 @@ export const POST = withFinanceImportAccess(async (request: Request) => {
     const yearParam = formData.get("year") as string | null;
 
     if (!file) {
-      return NextResponse.json({ error: "请上传文件" }, { status: 400 });
+      return jsonErrorResponse("请上传文件", 400);
     }
     if (!type || (type !== "balance" && type !== "journal" && type !== "account")) {
-      return NextResponse.json({ error: "请指定导入类型：balance、journal 或 account" }, { status: 400 });
+      return jsonErrorResponse("请指定导入类型：balance、journal 或 account", 400);
     }
     if (!companyCode) {
-      return NextResponse.json({ error: "请选择公司" }, { status: 400 });
+      return jsonErrorResponse("请选择公司", 400);
     }
     const parsed = importPreviewFormSchema.safeParse({
       file,
@@ -27,7 +28,7 @@ export const POST = withFinanceImportAccess(async (request: Request) => {
       year: yearParam || undefined,
     });
     if (!parsed.success) {
-      return NextResponse.json({ error: "参数无效" }, { status: 400 });
+      return jsonErrorResponse("参数无效", 400);
     }
 
     const buffer = Buffer.from(await parsed.data.file.arrayBuffer());
@@ -56,6 +57,6 @@ export const POST = withFinanceImportAccess(async (request: Request) => {
     return NextResponse.json({ success: true, preview: result });
   } catch (err) {
     const message = err instanceof Error ? err.message : "解析失败";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return jsonErrorResponse(message, 500);
   }
 });

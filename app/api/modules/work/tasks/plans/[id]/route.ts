@@ -1,13 +1,11 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
-import { requireApiAccess } from "@workspace/platform/server/auth";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
 import {
-  archiveWorkPlan,
-  canDeleteWorkTask,
-  canEditWorkTask,
-  getWorkPlanAccessMetadata,
-  updateWorkPlan,
+  buildArchiveWorkPlanCommand,
+  buildUpdateWorkPlanCommand,
+  executeArchiveWorkPlanCommand,
+  executeUpdateWorkPlanCommand,
 } from "@workspace/work/server";
 
 const updateWorkPlanSchema = z.object({
@@ -29,37 +27,25 @@ const updateWorkPlanSchema = z.object({
   sortOrder: z.coerce.number().optional(),
 }).passthrough();
 
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return NextResponse.json({ error: "工作计划 ID 无效" }, { status: 400 });
-  const planId = parsedParams.data.id;
-  const existing = await getWorkPlanAccessMetadata(planId);
-  if (!existing) return NextResponse.json({ error: "工作计划不存在" }, { status: 404 });
-  const allowed = await canEditWorkTask(payload.userId, existing.targetType, existing.targetId);
-  if (!allowed) return NextResponse.json({ error: "无权限编辑工作计划" }, { status: 403 });
+export const PUT = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  bodySchema: updateWorkPlanSchema,
+  paramsError: "工作计划 ID 无效",
+  bodyError: "工作计划参数无效",
+  buildCommand: ({ user, params, body }) => buildUpdateWorkPlanCommand({
+    userId: user.userId,
+    planId: params.id,
+    body,
+  }),
+  action: executeUpdateWorkPlanCommand,
+});
 
-  const parsedBody = updateWorkPlanSchema.safeParse(await request.json());
-  if (!parsedBody.success) return NextResponse.json({ error: "工作计划参数无效" }, { status: 400 });
-  const plan = await updateWorkPlan(planId, parsedBody.data);
-  if (!plan.ok) return NextResponse.json({ error: plan.error }, { status: plan.status || 400 });
-  return NextResponse.json({ plan: plan.data });
-}
-
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return NextResponse.json({ error: "工作计划 ID 无效" }, { status: 400 });
-  const planId = parsedParams.data.id;
-  const existing = await getWorkPlanAccessMetadata(planId);
-  if (!existing) return NextResponse.json({ error: "工作计划不存在" }, { status: 404 });
-  const allowed = await canDeleteWorkTask(payload.userId, existing.targetType, existing.targetId);
-  if (!allowed) return NextResponse.json({ error: "无权限删除工作计划" }, { status: 403 });
-  const result = await archiveWorkPlan(planId);
-  if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status || 400 });
-  return NextResponse.json({ success: true });
-}
+export const DELETE = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "工作计划 ID 无效",
+  buildCommand: ({ user, params }) => buildArchiveWorkPlanCommand({
+    userId: user.userId,
+    planId: params.id,
+  }),
+  action: executeArchiveWorkPlanCommand,
+});

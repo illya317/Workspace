@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@workspace/platform/server/with-auth";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { checkFinanceLedgerAccess, checkFinanceLedgerWrite } from "@workspace/platform/server/auth";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
 import {
   createFinancePeriod,
   listFinancePeriods,
@@ -19,24 +20,18 @@ const createPeriodSchema = z.object({
   companyCode: z.string().optional(),
 });
 
-export const GET = withFinanceLedgerAccess(async (request: Request) => {
-  const { searchParams } = new URL(request.url);
-  const parsed = periodsQuerySchema.safeParse({
-    year: searchParams.get("year") || undefined,
-  });
-  if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
-
-  return NextResponse.json(await listFinancePeriods(parsed.data));
+export const GET = createCommandRoute({
+  access: checkFinanceLedgerAccess,
+  querySchema: periodsQuerySchema,
+  queryError: "参数无效",
+  buildCommand: ({ query }) => okCommand(query),
+  action: listFinancePeriods,
 });
 
-export const POST = withFinanceLedgerWrite(async (request: Request, _user) => {
-  const parsed = createPeriodSchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) {
-    return NextResponse.json({ error: "年份和月份为必填" }, { status: 400 });
-  }
-
-  const result = await createFinancePeriod(parsed.data);
-  if (!result.success) return NextResponse.json({ error: result.error }, { status: result.status });
-
-  return NextResponse.json(result);
+export const POST = createCommandRoute({
+  access: checkFinanceLedgerWrite,
+  bodySchema: createPeriodSchema,
+  bodyError: "年份和月份为必填",
+  buildCommand: ({ body }) => okCommand(body),
+  action: createFinancePeriod,
 });

@@ -6,6 +6,7 @@ import {
   generateReviewSchema,
   reviewQuerySchema,
 } from "@workspace/finance/server/statements/reviews/schemas";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 function extractStatus(e: unknown): number {
   if (e instanceof Error && "statusCode" in e && typeof (e as { statusCode: unknown }).statusCode === "number") {
@@ -21,10 +22,7 @@ export const GET = withFinanceStatementReviewAccess(async (req) => {
   const parsed = reviewQuerySchema.safeParse(raw);
   if (!parsed.success) {
     const hasWorkpaper = Boolean(raw.workpaperId);
-    return NextResponse.json(
-      { error: hasWorkpaper ? "workpaperId 必须为数字" : "workpaperId 或 (companyCode, year, month, reportType) 为必填" },
-      { status: 400 },
-    );
+    return jsonErrorResponse(hasWorkpaper ? "workpaperId 必须为数字" : "workpaperId 或 (companyCode, year, month, reportType) 为必填", 400);
   }
   if ("workpaperId" in parsed.data) {
     const r = await getReview({ workpaperId: parsed.data.workpaperId });
@@ -38,16 +36,16 @@ export const GET = withFinanceStatementReviewAccess(async (req) => {
 export const POST = withFinanceStatementReviewWrite(async (req, user) => {
   const body = await req.json().catch(() => null);
   if (!body) {
-    return NextResponse.json({ error: "请求体必须为 JSON" }, { status: 400 });
+    return jsonErrorResponse("请求体必须为 JSON", 400);
   }
   const parsed = generateReviewSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "workpaperId 为必填" }, { status: 400 });
+    return jsonErrorResponse("workpaperId 为必填", 400);
   }
   try {
     const { review, created } = await generateReview(parsed.data.workpaperId, user.userId);
     return NextResponse.json({ review }, { status: created ? 201 : 200 });
   } catch (e: unknown) {
-    return NextResponse.json({ error: e instanceof Error ? e.message : "生成校对失败" }, { status: extractStatus(e) });
+    return jsonErrorResponse(e instanceof Error ? e.message : "生成校对失败", extractStatus(e));
   }
 });

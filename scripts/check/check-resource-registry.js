@@ -1,16 +1,21 @@
 #!/usr/bin/env node
 
+const fs = require("fs");
 const path = require("path");
 const {
   collectApiContracts,
   collectModuleDefs,
   collectResourceDefs,
+  collectRoutes,
   REGISTRY_GLOBS,
   ROOT,
 } = require("./module-registry-reader");
 
 const VALID_MAX_ROLES = new Set(["access", "write", "delete", "admin"]);
 const VALID_KINDS = new Set(["capability"]);
+const API_METHODS = new Set(["GET", "POST", "PUT", "PATCH", "DELETE"]);
+const APP_ROOT = path.join(ROOT, "app");
+const API_MODULES_ROOT = path.join(APP_ROOT, "api", "modules");
 const REQUIRED_STANDARD_SETTINGS_L2 = new Set(["settings.account", "settings.admin", "settings.api"]);
 function kebabCase(value) {
   return value.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
@@ -47,12 +52,60 @@ function displayPath(filePath) {
   return path.relative(ROOT, filePath).replace(/\\/g, "/");
 }
 
+function walkRouteFiles(dir, files = []) {
+  if (!fs.existsSync(dir)) return files;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name.startsWith(".")) continue;
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) walkRouteFiles(full, files);
+    else if (entry.name === "route.ts") files.push(full);
+  }
+  return files;
+}
+
+function stripComments(text) {
+  return text
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/(^|[^:])\/\/.*$/gm, "$1");
+}
+
+function lineForIndex(text, index) {
+  return text.slice(0, index).split(/\r?\n/).length;
+}
+
+function routeFileToApiPath(filePath) {
+  const rel = path.relative(APP_ROOT, filePath).replace(/\\/g, "/");
+  return `/${rel.replace(/\/route\.ts$/, "")}`;
+}
+
+function collectApiModuleRouteHandlers() {
+  const handlers = [];
+  for (const filePath of walkRouteFiles(API_MODULES_ROOT)) {
+    const text = stripComments(fs.readFileSync(filePath, "utf8"));
+    for (const match of text.matchAll(/\bexport\s+(?:const|async\s+function)\s+(GET|POST|PUT|PATCH|DELETE)\b/g)) {
+      handlers.push({
+        method: match[1],
+        apiPath: routeFileToApiPath(filePath),
+        filePath,
+        line: lineForIndex(text, match.index ?? 0),
+      });
+    }
+  }
+  return handlers;
+}
+
+function pathMatchesPrefix(apiPath, pathPrefix) {
+  return apiPath === pathPrefix || apiPath.startsWith(`${pathPrefix}/`);
+}
+
 function runCheck() {
   const modules = collectModuleDefs();
   const explicitResources = collectResourceDefs();
   const derivedResources = deriveResources(modules);
   const resources = [...derivedResources, ...explicitResources];
   const apiContracts = collectApiContracts();
+  const registeredRoutes = new Set(collectRoutes().map((route) => route.route));
+  const apiRouteHandlers = collectApiModuleRouteHandlers();
   const violations = [];
   const byKey = new Map();
   const moduleDefKeys = new Set(modules.filter((moduleDef) => !moduleDef.parentKey).map((moduleDef) => moduleDef.key));
@@ -64,7 +117,12 @@ function runCheck() {
       .map((moduleDef) => moduleDef.resourceKey),
   );
   const derivedResourceKeys = new Set(derivedResources.map((resource) => resource.key));
-  const apiByPrefix = new Map(apiContracts.map((contract) => [contract.pathPrefix, contract]));
+  const apiByPrefix = new Map();
+  for (const contract of apiContracts) {
+    if (!apiByPrefix.has(contract.pathPrefix) || contract.resourceKey) {
+      apiByPrefix.set(contract.pathPrefix, contract);
+    }
+  }
 
   for (const resourceKey of REQUIRED_STANDARD_SETTINGS_L2) {
     const moduleDef = modules.find((item) => item.resourceKey === resourceKey);
@@ -181,6 +239,21 @@ function runCheck() {
   }
 
   for (const moduleDef of modules) {
+    if (moduleDef.presentation !== "headless") {
+      if (!moduleDef.href) {
+        violations.push({
+          filePath: moduleDef.filePath,
+          line: moduleDef.line,
+          message: `页面模块 "${moduleDef.key}" 必须声明 href`,
+        });
+      } else if (!registeredRoutes.has(moduleDef.href)) {
+        violations.push({
+          filePath: moduleDef.filePath,
+          line: moduleDef.line,
+          message: `页面模块 "${moduleDef.key}" 的 href 未在 routes 台账中声明: ${moduleDef.href}`,
+        });
+      }
+    }
     if (moduleDef.resourceKey && !byKey.has(moduleDef.resourceKey)) {
       violations.push({
         filePath: moduleDef.filePath,
@@ -270,6 +343,20 @@ function runCheck() {
           message: `L2 "${moduleDef.key}" 的 API prefix ${prefix} 未绑定 resourceKey`,
         });
       }
+    }
+  }
+
+  for (const route of apiRouteHandlers) {
+    if (!API_METHODS.has(route.method)) continue;
+    const matchingContract = apiContracts.find((contract) =>
+      contract.method === route.method && pathMatchesPrefix(route.apiPath, contract.pathPrefix),
+    );
+    if (!matchingContract) {
+      violations.push({
+        filePath: route.filePath,
+        line: route.line,
+        message: `API route 缺少匹配 contract: ${route.method} ${route.apiPath}`,
+      });
     }
   }
 

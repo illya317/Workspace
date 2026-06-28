@@ -27,6 +27,15 @@ export interface ReferenceBlock {
   detail?: string;
 }
 
+export type FkSearchParams = Record<string, string>;
+
+export interface FkSearchInput {
+  keyword: string;
+  lifecycleScope: LifecycleScope;
+  userId?: number;
+  params?: FkSearchParams;
+}
+
 export interface FkDefinition {
   key: string;
   scope: string;
@@ -47,7 +56,7 @@ export interface FkDefinition {
     resourceKey: string;
     action: "access" | "write" | "delete" | "admin";
   };
-  search: (input: { keyword: string; lifecycleScope: LifecycleScope }) => Promise<FkOption[]>;
+  search: (input: FkSearchInput) => Promise<FkOption[]>;
   resolve: (id: number) => Promise<FkTargetRecord | null>;
 }
 
@@ -109,11 +118,16 @@ export function createFkRegistry(definitions: FkDefinition[]): FkRegistry {
 
 export async function searchFkOptions(
   registry: FkRegistry,
-  input: { fkKey: string; keyword: string; lifecycleScope?: LifecycleScope },
+  input: { fkKey: string; keyword: string; lifecycleScope?: LifecycleScope; userId?: number; params?: FkSearchParams },
 ) {
   const definition = registry.require(input.fkKey);
   const lifecycleScope = input.lifecycleScope ?? definition.defaultLifecycleScope ?? "active";
-  return definition.search({ keyword: input.keyword, lifecycleScope });
+  return definition.search({
+    keyword: input.keyword,
+    lifecycleScope,
+    userId: input.userId,
+    params: input.params,
+  });
 }
 
 export async function validateFkValue(

@@ -38,24 +38,24 @@ import { countApiContractsByOwner, findAppJsxFiles } from "./structure-report-he
 import {
   findAppHookFiles,
   findAppHookImplementationFiles,
-  findBusinessCoreUiSurfaceBypassImports,
+  findBusinessCoreUiRoleBypassImports,
   findDuplicateCoreUiRegistrations,
   findGeneratedFilterContractDrift,
   findHookPatternCandidates,
   findNativeSearchInputFiles,
   findPageDesignDriftFiles,
-  findPlatformCoreUiRuntimeBypassImports,
+  findPlatformCoreUiRoleBypassImports,
   findUiForbiddenCoreUiTypeImports,
   findUiPatternCandidates,
   findUnregisteredCoreUiExports,
   findUnregisteredCoreUiImports,
-  type BusinessCoreUiSurfaceBypassImport,
+  type BusinessCoreUiRoleBypassImport,
   type DuplicateCoreUiRegistration,
   type GeneratedFilterContractDrift,
   type HookPatternCandidate,
   type NativeSearchInputFile,
   type PageDesignDriftFile,
-  type PlatformCoreUiRuntimeBypassImport,
+  type PlatformCoreUiRoleBypassImport,
   type UiForbiddenCoreUiTypeImport,
   type UiPatternCandidate,
   type UnregisteredCoreUiExport,
@@ -153,7 +153,7 @@ const SKIPPED_DIRS = new Set([
   "out",
   "tmp",
 ]);
-const API_VALIDATION_SIGNAL_REGEX = /\b(safeParse|parse)\s*\(|\bz\s*\.|\bparseJson\s*\(|\bvalidate(CompatibilityProxy|Passthrough)Body\s*\(|\bcreateValidatedIdProxyHandler\s*\(|\bparseRouteId(Params)?\s*\(/;
+const API_VALIDATION_SIGNAL_REGEX = /\b(safeParse|parse)\s*\(|\bz\s*\.|\bparseJson\s*\(|\bvalidate(CompatibilityProxy|Passthrough)Body\s*\(|\bcreateValidatedIdProxyHandler\s*\(|\bparseRouteId(Params)?\s*\(|\bcreate(ApiRouteHandler|CommandRoute)\s*\(/;
 const ROUTE_PRIMITIVE_IMPORTS: Record<RoutePrimitiveSchemaKind, string> = {
   "route-id-params": "routeIdParamsSchema",
   "update-field-body": "updateFieldBodySchema",
@@ -641,13 +641,13 @@ export function createStructureReport() {
   const businessModuleViewUsages = findBusinessModuleViewUsages(businessUiSourceFiles);
   const businessPageLayoutPrimitiveUsages = findBusinessPageLayoutPrimitiveUsages(sourceFiles);
   const businessToolbarCompositionWarnings = findBusinessToolbarCompositionWarnings(sourceFiles);
-  const businessCoreUiSurfaceBypassImports = findBusinessCoreUiSurfaceBypassImports(sourceFiles);
+  const businessCoreUiRoleBypassImports = findBusinessCoreUiRoleBypassImports(sourceFiles);
   const uiForbiddenCoreUiTypeImports = findUiForbiddenCoreUiTypeImports(sourceFiles);
   const businessVisualTokenHardcoding = findBusinessVisualTokenHardcoding(sourceFiles);
   const coreBusinessFactLiterals = findCoreBusinessFactLiterals(sourceFiles);
   const componentLocalUiConfigs = findComponentLocalUiConfigs(sourceFiles);
   const pageSurfaceLayoutProtocolWarnings = findPageSurfaceLayoutProtocolWarnings(sourceFiles);
-  const platformCoreUiRuntimeBypassImports = findPlatformCoreUiRuntimeBypassImports(sourceFiles);
+  const platformCoreUiRoleBypassImports = findPlatformCoreUiRoleBypassImports(sourceFiles);
   const coreUiOwnershipWarnings = findCoreUiOwnershipWarnings();
   const businessCommonRendererImports = findBusinessCommonRendererImports(sourceFiles);
   const domainSharedLayoutShells = findDomainSharedLayoutShells(sourceFiles);
@@ -731,13 +731,13 @@ export function createStructureReport() {
       businessModuleViewUsages: businessModuleViewUsages.length,
       businessPageLayoutPrimitiveUsages: businessPageLayoutPrimitiveUsages.length,
       businessToolbarCompositionWarnings: businessToolbarCompositionWarnings.length,
-      businessCoreUiSurfaceBypassImports: businessCoreUiSurfaceBypassImports.length,
+      businessCoreUiRoleBypassImports: businessCoreUiRoleBypassImports.length,
       uiForbiddenCoreUiTypeImports: uiForbiddenCoreUiTypeImports.length,
       businessVisualTokenHardcoding: businessVisualTokenHardcoding.length,
       coreBusinessFactLiterals: coreBusinessFactLiterals.length,
       componentLocalUiConfigs: componentLocalUiConfigs.length,
       pageSurfaceLayoutProtocolWarnings: pageSurfaceLayoutProtocolWarnings.length,
-      platformCoreUiRuntimeBypassImports: platformCoreUiRuntimeBypassImports.length,
+      platformCoreUiRoleBypassImports: platformCoreUiRoleBypassImports.length,
       coreUiMissingOwnership: coreUiOwnershipWarnings.coreUiMissingOwnership.length,
       coreUiInvalidOwnership: coreUiOwnershipWarnings.coreUiInvalidOwnership.length,
       coreUiCommonDomainDependency: coreUiOwnershipWarnings.coreUiCommonDomainDependency.length,
@@ -775,13 +775,13 @@ export function createStructureReport() {
       businessModuleViewUsages,
       businessPageLayoutPrimitiveUsages,
       businessToolbarCompositionWarnings,
-      businessCoreUiSurfaceBypassImports,
+      businessCoreUiRoleBypassImports,
       uiForbiddenCoreUiTypeImports,
       businessVisualTokenHardcoding,
       coreBusinessFactLiterals,
       componentLocalUiConfigs,
       pageSurfaceLayoutProtocolWarnings,
-      platformCoreUiRuntimeBypassImports,
+      platformCoreUiRoleBypassImports,
       coreUiMissingOwnership: coreUiOwnershipWarnings.coreUiMissingOwnership,
       coreUiInvalidOwnership: coreUiOwnershipWarnings.coreUiInvalidOwnership,
       coreUiCommonDomainDependency: coreUiOwnershipWarnings.coreUiCommonDomainDependency,
@@ -823,13 +823,13 @@ export function createStructureReport() {
       businessModuleViewUsages,
       businessPageLayoutPrimitiveUsages,
       businessToolbarCompositionWarnings,
-      businessCoreUiSurfaceBypassImports,
+      businessCoreUiRoleBypassImports,
       uiForbiddenCoreUiTypeImports,
       businessVisualTokenHardcoding,
       coreBusinessFactLiterals,
       componentLocalUiConfigs,
       pageSurfaceLayoutProtocolWarnings,
-      platformCoreUiRuntimeBypassImports,
+      platformCoreUiRoleBypassImports,
       coreUiMissingOwnership: coreUiOwnershipWarnings.coreUiMissingOwnership,
       coreUiInvalidOwnership: coreUiOwnershipWarnings.coreUiInvalidOwnership,
       coreUiCommonDomainDependency: coreUiOwnershipWarnings.coreUiCommonDomainDependency,

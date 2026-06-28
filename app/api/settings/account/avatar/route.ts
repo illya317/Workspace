@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireApiAccess } from "@workspace/platform/server/auth";
 import { changeUserAvatar } from "@workspace/platform/server/account";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const avatarSchema = z.object({
   avatar: z.string().trim().max(2048).refine(
@@ -21,15 +22,12 @@ export async function POST(request: Request) {
     : body;
   const parsed = avatarSchema.safeParse(normalized);
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues[0]?.message || "头像地址不正确" },
-      { status: 400 },
-    );
+    return jsonErrorResponse(parsed.error.issues[0]?.message || "头像地址不正确", 400);
   }
 
   const result = await changeUserAvatar(user.userId, parsed.data.avatar);
   if (!result.success) {
-    return NextResponse.json({ error: result.error }, { status: result.status });
+    return jsonErrorResponse(result.error, result.status);
   }
 
   return NextResponse.json({ success: true });

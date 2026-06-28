@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { withFinanceLedgerWrite } from "@workspace/platform/server/with-auth";
 import { reconcileBalanceSheet } from "@workspace/finance/server/ledger/balance-reconcile";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const reconcileFormSchema = z.object({
   file: z.instanceof(File),
@@ -15,10 +16,10 @@ export const POST = withFinanceLedgerWrite(async (request: Request) => {
     const file = formData.get("file") as File | null;
     const companyCode = formData.get("companyCode") as string | null;
 
-    if (!file) return NextResponse.json({ error: "请上传余额表文件" }, { status: 400 });
-    if (!companyCode) return NextResponse.json({ error: "请选择公司" }, { status: 400 });
+    if (!file) return jsonErrorResponse("请上传余额表文件", 400);
+    if (!companyCode) return jsonErrorResponse("请选择公司", 400);
     const parsed = reconcileFormSchema.safeParse({ file, companyCode });
-    if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
+    if (!parsed.success) return jsonErrorResponse("参数无效", 400);
 
     const buffer = Buffer.from(await parsed.data.file.arrayBuffer());
     const fileExt = parsed.data.file.name.slice(parsed.data.file.name.lastIndexOf(".")).toLowerCase();
@@ -26,6 +27,6 @@ export const POST = withFinanceLedgerWrite(async (request: Request) => {
     return NextResponse.json({ success: true, result });
   } catch (err) {
     const message = err instanceof Error ? err.message : "核对失败";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return jsonErrorResponse(message, 500);
   }
 });

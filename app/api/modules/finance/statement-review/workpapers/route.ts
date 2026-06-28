@@ -8,20 +8,21 @@ import {
   saveWorkpaperSchema,
   workpaperQuerySchema,
 } from "@workspace/finance/server/statements/workpapers/schemas";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 /** GET ?companyCode=&year=&month=&reportType=incomeStatement|cashFlow */
 export const GET = withFinanceStatementReviewAccess(async (req) => {
   const { searchParams } = new URL(req.url);
   const raw = Object.fromEntries(searchParams.entries());
   if (!raw.companyCode || !raw.year || !raw.month || !raw.reportType) {
-    return NextResponse.json({ error: "companyCode, year, month, reportType 为必填" }, { status: 400 });
+    return jsonErrorResponse("companyCode, year, month, reportType 为必填", 400);
   }
   const parsed = workpaperQuerySchema.safeParse(raw);
   if (!parsed.success) {
     if (raw.reportType !== "incomeStatement" && raw.reportType !== "cashFlow") {
-      return NextResponse.json({ error: "reportType 仅支持 incomeStatement / cashFlow" }, { status: 400 });
+      return jsonErrorResponse("reportType 仅支持 incomeStatement / cashFlow", 400);
     }
-    return NextResponse.json({ error: "year, month 无效" }, { status: 400 });
+    return jsonErrorResponse("year, month 无效", 400);
   }
   const result = await getOrCreateDraft(parsed.data);
   return NextResponse.json(result);
@@ -29,22 +30,19 @@ export const GET = withFinanceStatementReviewAccess(async (req) => {
 
 function formatSaveError(issues: { path: PropertyKey[] }[]) {
   if (issues.some((issue) => issue.path[0] === "lines" && issue.path.length > 1)) {
-    return NextResponse.json(
-      { error: "每行需包含 lineCode 与有效的 manualAmount / importedAmount（禁止 NaN / Infinity）" },
-      { status: 400 },
-    );
+    return jsonErrorResponse("每行需包含 lineCode 与有效的 manualAmount / importedAmount（禁止 NaN / Infinity）", 400);
   }
   if (issues.some((issue) => issue.path[0] === "reportType")) {
-    return NextResponse.json({ error: "reportType 仅支持 incomeStatement / cashFlow" }, { status: 400 });
+    return jsonErrorResponse("reportType 仅支持 incomeStatement / cashFlow", 400);
   }
-  return NextResponse.json({ error: "companyCode, year, month, reportType, lines 为必填" }, { status: 400 });
+  return jsonErrorResponse("companyCode, year, month, reportType, lines 为必填", 400);
 }
 
 /** PUT { companyCode, year, month, reportType, note?, lines[] } — 全量保存 */
 export const PUT = withFinanceStatementReviewWrite(async (req, user) => {
   const body = await req.json().catch(() => null);
   if (!body) {
-    return NextResponse.json({ error: "请求体必须为 JSON" }, { status: 400 });
+    return jsonErrorResponse("请求体必须为 JSON", 400);
   }
   const parsed = saveWorkpaperSchema.safeParse(body);
   if (!parsed.success) {
@@ -55,6 +53,6 @@ export const PUT = withFinanceStatementReviewWrite(async (req, user) => {
     return NextResponse.json(result);
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "保存失败";
-    return NextResponse.json({ error: msg }, { status: 400 });
+    return jsonErrorResponse(msg, 400);
   }
 });

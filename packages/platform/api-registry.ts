@@ -6,6 +6,7 @@ import type {
 } from "@workspace/core";
 
 import { effectiveModuleDefinitions, isApiGuardEnabled } from "./effective-module-registry";
+import { defaultApiActionForMethod } from "./module-registry-utils";
 
 export type ApiMethod = ApiGuardRegistration["method"];
 export type ApiAction = ApiGuardRegistration["action"];
@@ -92,17 +93,18 @@ function buildApiContracts(
         throw new Error(`Invalid API contract method: ${route.method}`);
       }
 
-      if ((route.resourceKey && !route.action) || (!route.resourceKey && route.action)) {
-        throw new Error(`API route contract must set resourceKey and action together: ${route.method} ${route.pathPrefix}`);
+      if (!route.resourceKey && route.action) {
+        throw new Error(`API route contract cannot set action without resourceKey: ${route.method} ${route.pathPrefix}`);
       }
+      const action = route.action ?? (route.resourceKey ? defaultApiActionForMethod(route.method) : null);
 
       contracts.push({
-        key: createApiContractKey(definition, route),
+        key: createApiContractKey(definition, { ...route, action: action ?? undefined }),
         method: route.method,
         pathPrefix: normalizePathPrefix(route.pathPrefix),
         access: route.access,
         resourceKey: route.resourceKey ?? null,
-        action: route.action ?? null,
+        action,
         ownerPackage: definition.packageName,
         ownerLayer: definition.layer,
         ownerModuleKey: definition.moduleDef?.key ?? null,

@@ -2,6 +2,37 @@ import { prisma } from "./prisma";
 
 export type NotificationAction = "read" | "acknowledge" | "reject" | "clear";
 
+type ProjectMemberNotificationPayload = {
+  projectId: number;
+  employeeId: number;
+  projectName: string;
+  role: string;
+  changedFromRole?: string | null;
+};
+
+type NotificationPayloadByType = {
+  "work.project.member.added": ProjectMemberNotificationPayload;
+  "work.project.member.roleChanged": ProjectMemberNotificationPayload;
+};
+
+export type RegisteredNotificationType = keyof NotificationPayloadByType;
+
+type NotificationRenderResult = {
+  title: string;
+  body: string;
+  href?: string | null;
+  payload?: unknown;
+};
+
+type NotificationDefinition<TPayload> = {
+  type: RegisteredNotificationType;
+  description: string;
+  isImportant?: boolean;
+  isStrongReminder?: boolean;
+  requiresAcknowledgement?: boolean;
+  render: (payload: TPayload) => NotificationRenderResult;
+};
+
 export interface CreateNotificationInput {
   recipientUserId: number;
   actorUserId?: number | null;
@@ -13,6 +44,73 @@ export interface CreateNotificationInput {
   isImportant?: boolean;
   isStrongReminder?: boolean;
   requiresAcknowledgement?: boolean;
+}
+
+export type SendNotificationInput<TType extends RegisteredNotificationType = RegisteredNotificationType> = {
+  recipientUserId: number;
+  actorUserId?: number | null;
+  type: TType;
+  payload: NotificationPayloadByType[TType];
+  isImportant?: boolean;
+  isStrongReminder?: boolean;
+  requiresAcknowledgement?: boolean;
+};
+
+const notificationRegistry = {
+  "work.project.member.added": defineNotification<ProjectMemberNotificationPayload>({
+    type: "work.project.member.added",
+    description: "员工被加入项目时提醒本人确认",
+    isImportant: true,
+    render: (payload) => ({
+      title: "你已被加入项目",
+      body: `你已被加入项目「${payload.projectName}」，角色：${payload.role}。请确认知悉。`,
+      href: `/work/projects?projectId=${payload.projectId}`,
+      payload,
+    }),
+  }),
+  "work.project.member.roleChanged": defineNotification<ProjectMemberNotificationPayload>({
+    type: "work.project.member.roleChanged",
+    description: "员工项目角色调整时提醒本人确认",
+    isImportant: true,
+    render: (payload) => ({
+      title: "项目角色已调整",
+      body: `你在项目「${payload.projectName}」中的角色已由「${payload.changedFromRole || "未设置"}」调整为「${payload.role}」，请确认知悉。`,
+      href: `/work/projects?projectId=${payload.projectId}`,
+      payload,
+    }),
+  }),
+} satisfies { [TType in RegisteredNotificationType]: NotificationDefinition<NotificationPayloadByType[TType]> };
+
+function defineNotification<TPayload>(definition: NotificationDefinition<TPayload>) {
+  return definition;
+}
+
+export function listRegisteredNotificationTypes() {
+  return Object.values(notificationRegistry).map((definition) => ({
+    type: definition.type,
+    description: definition.description,
+    isImportant: definition.isImportant ?? false,
+    isStrongReminder: definition.isStrongReminder ?? false,
+    requiresAcknowledgement: definition.requiresAcknowledgement ?? definition.isImportant ?? false,
+  }));
+}
+
+export async function sendNotification<TType extends RegisteredNotificationType>(input: SendNotificationInput<TType>) {
+  const definition = notificationRegistry[input.type] as NotificationDefinition<NotificationPayloadByType[TType]> | undefined;
+  if (!definition) throw new Error(`Notification type is not registered: ${input.type}`);
+  const rendered = definition.render(input.payload);
+  return createNotification({
+    recipientUserId: input.recipientUserId,
+    actorUserId: input.actorUserId,
+    type: input.type,
+    title: rendered.title,
+    body: rendered.body,
+    href: rendered.href,
+    payload: rendered.payload ?? input.payload,
+    isImportant: input.isImportant ?? definition.isImportant,
+    isStrongReminder: input.isStrongReminder ?? definition.isStrongReminder,
+    requiresAcknowledgement: input.requiresAcknowledgement ?? definition.requiresAcknowledgement,
+  });
 }
 
 export async function createNotification(input: CreateNotificationInput) {

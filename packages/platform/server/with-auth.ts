@@ -38,6 +38,7 @@ import {
   checkWorkWrite,
 } from "./auth/domain";
 import type { AuthPayload } from "./auth-token";
+import { jsonErrorResponse } from "./api";
 
 export type { AuthPayload };
 
@@ -60,7 +61,7 @@ export function withAuth(
     if (!auth.ok) return auth.response;
     const payload = auth.user;
     if (checkAccess && !(await checkAccess(payload.userId))) {
-      return Response.json({ error: "无权限" }, { status: 403 });
+      return jsonErrorResponse("无权限", 403);
     }
     return handler(req, payload, ctx);
   };

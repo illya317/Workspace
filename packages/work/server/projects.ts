@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { authenticate } from "@workspace/platform/server/auth";
-import { parseJson } from "@workspace/platform/server/api";
+import { jsonErrorResponse, parseJson } from "@workspace/platform/server/api";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
 import { ProjectCreateSchema } from "./schemas";
@@ -225,17 +225,17 @@ export async function createProject(request: Request, userId: number) {
 export async function updateProjectField(request: Request, params: Promise<{ id: string }>) {
   const body = (await request.clone().json()) as { field: string; value: unknown };
   const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  if (!payload) return jsonErrorResponse("未登录", 401);
   const { id } = await params;
   const projectId = parseInt(id);
-  if (!Number.isInteger(projectId)) return NextResponse.json({ error: "ID 无效" }, { status: 400 });
+  if (!Number.isInteger(projectId)) return jsonErrorResponse("ID 无效", 400);
   const command = await buildProjectFieldUpdateCommand({
     userId: payload.userId,
     projectId,
     field: body.field,
     value: body.value,
   });
-  if (!command.ok) return NextResponse.json({ error: command.issue.message }, { status: command.issue.status || 400 });
+  if (!command.ok) return jsonErrorResponse(command.issue.message, command.issue.status || 400);
   await prisma.$transaction(async (tx) => {
     await ensureEditHistoryBaseline("Project", projectId, payload.userId, tx);
     await tx.project.update({
@@ -254,12 +254,12 @@ export async function updateProjectField(request: Request, params: Promise<{ id:
 
 export async function deleteProject(request: Request, params: Promise<{ id: string }>) {
   const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  if (!payload) return jsonErrorResponse("未登录", 401);
   const { id } = await params;
   const projectId = parseInt(id);
-  if (!Number.isInteger(projectId)) return NextResponse.json({ error: "ID 无效" }, { status: 400 });
+  if (!Number.isInteger(projectId)) return jsonErrorResponse("ID 无效", 400);
   const command = await validateProjectDeleteCommand(payload.userId, projectId);
-  if (!command.ok) return NextResponse.json({ error: command.issue.message }, { status: command.issue.status || 400 });
+  if (!command.ok) return jsonErrorResponse(command.issue.message, command.issue.status || 400);
   await prisma.$transaction(async (tx) => {
     await ensureEditHistoryBaseline("Project", command.data.projectId, payload.userId, tx);
     await snapshotHistory("Project", command.data.projectId, payload.userId, tx);

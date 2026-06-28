@@ -1,0 +1,189 @@
+import "server-only";
+import { z } from "zod";
+import { isServiceResult, jsonBadRequest, jsonResultResponse, serviceResponse } from "./api";
+import { requireApiAccess, type ApiAccessResult } from "./auth";
+import {
+  domainIssueToResponse,
+  isDomainServiceResult,
+  toServiceErrorResponse,
+  type DomainValidationResult,
+} from "./domain-validation";
+
+type SuccessfulApiAccess = Extract<ApiAccessResult, { ok: true }>;
+
+type InferSchema<TSchema extends z.ZodTypeAny | undefined> = TSchema extends z.ZodTypeAny
+  ? z.infer<TSchema>
+  : undefined;
+
+type ApiRouteContext<TParams, TQuery, TBody> = {
+  request: Request;
+  user: SuccessfulApiAccess["user"];
+  contract: SuccessfulApiAccess["contract"];
+  params: TParams;
+  query: TQuery;
+  body: TBody;
+  searchParams: URLSearchParams;
+};
+
+type ApiRouteHandlerOptions<
+  TParamsSchema extends z.ZodTypeAny | undefined,
+  TQuerySchema extends z.ZodTypeAny | undefined,
+  TBodySchema extends z.ZodTypeAny | undefined,
+> = {
+  paramsSchema?: TParamsSchema;
+  querySchema?: TQuerySchema;
+  bodySchema?: TBodySchema;
+  paramsError?: string;
+  queryError?: string;
+  bodyError?: string;
+  handler: (
+    context: ApiRouteContext<
+      InferSchema<TParamsSchema>,
+      InferSchema<TQuerySchema>,
+      InferSchema<TBodySchema>
+    >,
+  ) => Promise<Response | unknown> | Response | unknown;
+};
+
+type ApiRouteRuntimeContext = {
+  params?: Promise<Record<string, string>>;
+};
+
+type CommandRouteResult<T> = Response | T | undefined;
+type CommandRouteAction<TCommand, TResult, TContext> = (
+  command: TCommand,
+  context: TContext,
+) => CommandRouteResult<TResult> | Promise<CommandRouteResult<TResult>>;
+
+type ApiCommandRouteOptions<
+  TParamsSchema extends z.ZodTypeAny | undefined,
+  TQuerySchema extends z.ZodTypeAny | undefined,
+  TBodySchema extends z.ZodTypeAny | undefined,
+  TCommand,
+  TResult,
+> = Omit<ApiRouteHandlerOptions<TParamsSchema, TQuerySchema, TBodySchema>, "handler"> & {
+  access?: (userId: number) => Promise<boolean> | boolean;
+  accessError?: string;
+  buildCommand: (
+    context: ApiRouteContext<
+      InferSchema<TParamsSchema>,
+      InferSchema<TQuerySchema>,
+      InferSchema<TBodySchema>
+    >,
+  ) => DomainValidationResult<TCommand> | Promise<DomainValidationResult<TCommand>>;
+  action: CommandRouteAction<
+    TCommand,
+    TResult,
+    ApiRouteContext<
+      InferSchema<TParamsSchema>,
+      InferSchema<TQuerySchema>,
+      InferSchema<TBodySchema>
+    >
+  >;
+};
+
+function firstZodIssue(error: z.ZodError, fallback: string) {
+  return error.issues[0]?.message || fallback;
+}
+
+function commandActionResponse<TResult>(result: CommandRouteResult<TResult>) {
+  if (result instanceof Response) return result;
+  if (result === undefined) return new Response(null, { status: 204 });
+  if (isDomainServiceResult(result)) {
+    if (result.ok === true) return Response.json(result.data);
+    return toServiceErrorResponse(result);
+  }
+  if (result && typeof result === "object" && "error" in result) return jsonResultResponse(result);
+  return Response.json(result);
+}
+
+export function createApiRouteHandler<
+  TParamsSchema extends z.ZodTypeAny | undefined = undefined,
+  TQuerySchema extends z.ZodTypeAny | undefined = undefined,
+  TBodySchema extends z.ZodTypeAny | undefined = undefined,
+>(options: ApiRouteHandlerOptions<TParamsSchema, TQuerySchema, TBodySchema>) {
+  return async function apiRouteHandler(
+    request: Request,
+    runtimeContext: ApiRouteRuntimeContext = {},
+  ) {
+    const auth = await requireApiAccess(request);
+    if (auth.ok === false) return auth.response;
+
+    let params: unknown;
+    if (options.paramsSchema) {
+      const parsedParams = options.paramsSchema.safeParse(runtimeContext.params ? await runtimeContext.params : {});
+      if (!parsedParams.success) {
+        return jsonBadRequest(options.paramsError || firstZodIssue(parsedParams.error, "参数错误"));
+      }
+      params = parsedParams.data;
+    }
+
+    const { searchParams } = new URL(request.url);
+    let query: unknown;
+    if (options.querySchema) {
+      const parsedQuery = options.querySchema.safeParse(Object.fromEntries(searchParams.entries()));
+      if (!parsedQuery.success) {
+        return jsonBadRequest(options.queryError || firstZodIssue(parsedQuery.error, "查询参数错误"));
+      }
+      query = parsedQuery.data;
+    }
+
+    let body: unknown;
+    if (options.bodySchema) {
+      let rawBody: unknown;
+      try {
+        rawBody = await request.json();
+      } catch {
+        return jsonBadRequest(options.bodyError || "请求体必须是合法 JSON");
+      }
+      const parsedBody = options.bodySchema.safeParse(rawBody);
+      if (!parsedBody.success) {
+        return jsonBadRequest(options.bodyError || firstZodIssue(parsedBody.error, "参数错误"));
+      }
+      body = parsedBody.data;
+    }
+
+    const result = await options.handler({
+      request,
+      user: auth.user,
+      contract: auth.contract,
+      params: params as InferSchema<TParamsSchema>,
+      query: query as InferSchema<TQuerySchema>,
+      body: body as InferSchema<TBodySchema>,
+      searchParams,
+    });
+    if (result instanceof Response) return result;
+    if (isServiceResult(result)) return serviceResponse(result);
+    if (result === undefined) return new Response(null, { status: 204 });
+    return Response.json(result);
+  };
+}
+
+export function createCommandRoute<
+  TParamsSchema extends z.ZodTypeAny | undefined = undefined,
+  TQuerySchema extends z.ZodTypeAny | undefined = undefined,
+  TBodySchema extends z.ZodTypeAny | undefined = undefined,
+  TCommand = unknown,
+  TResult = unknown,
+>(options: ApiCommandRouteOptions<TParamsSchema, TQuerySchema, TBodySchema, TCommand, TResult>) {
+  const {
+    access,
+    accessError,
+    action,
+    buildCommand,
+    ...routeOptions
+  } = options;
+  return createApiRouteHandler({
+    ...routeOptions,
+    handler: async (context) => {
+      if (access && !(await access(context.user.userId))) {
+        return serviceResponse({ ok: false, error: accessError || "无权限", status: 403 });
+      }
+
+      const command = await buildCommand(context);
+      if (command.ok === false) return domainIssueToResponse(command.issue);
+
+      return commandActionResponse(await action(command.data, context));
+    },
+  });
+}

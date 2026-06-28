@@ -8,6 +8,7 @@ import {
   getWorkItems,
   parseParticipants,
 } from "@workspace/work/server";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 const createWorkItemSchema = z.object({
   planId: z.coerce.number().optional(),
@@ -66,12 +67,12 @@ export async function GET(request: Request) {
   } else if (targetIdParam != null) {
     const targetId = parseInt(targetIdParam);
     const allowed = await canAccessTarget(payload.userId, targetType, targetId);
-    if (!allowed) return NextResponse.json({ error: "无权限访问该目标" }, { status: 403 });
+    if (!allowed) return jsonErrorResponse("无权限访问该目标", 403);
     finalTargetId = targetId;
   }
 
   const allowed = await canAccessTarget(payload.userId, targetType, finalTargetId);
-  if (!allowed) return NextResponse.json({ error: "无权限访问该目标" }, { status: 403 });
+  if (!allowed) return jsonErrorResponse("无权限访问该目标", 403);
 
   const works = await getWorkItems({
     planId,
@@ -93,7 +94,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const parsedBody = createWorkItemSchema.safeParse(body);
   if (!parsedBody.success) {
-    return NextResponse.json({ error: "节点内容不能为空" }, { status: 400 });
+    return jsonErrorResponse("节点内容不能为空", 400);
   }
   const { targetType, targetId, deptId, participants, ...workInput } = parsedBody.data;
 
@@ -103,7 +104,7 @@ export async function POST(request: Request) {
     : targetId ?? (finalTargetType === "department" ? deptId : null) ?? payload.departmentId;
 
   const allowed = await canEditWorkTask(payload.userId, finalTargetType, finalTargetId);
-  if (!allowed) return NextResponse.json({ error: "无权限编辑工作计划" }, { status: 403 });
+  if (!allowed) return jsonErrorResponse("无权限编辑工作计划", 403);
 
   const work = await createWorkItem({
     targetType: finalTargetType === "user" ? "personal" : finalTargetType,
@@ -111,6 +112,6 @@ export async function POST(request: Request) {
     ...workInput,
     participants: parseParticipants(participants),
   });
-  if (!work.ok) return NextResponse.json({ error: work.error }, { status: work.status || 400 });
+  if (!work.ok) return jsonErrorResponse(work.error, work.status || 400);
   return NextResponse.json({ work: work.data });
 }

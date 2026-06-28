@@ -73,46 +73,48 @@ export default async function DomainPage() {
 ### route.ts
 
 ```ts
-import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiAccess } from "@workspace/platform/server/auth";
+import { createApiRouteHandler } from "@workspace/platform/server/api-route";
 import * as service from "@workspace/<domain>/server";
 
 const querySchema = z.object({
   keyword: z.string().optional(),
-});
+}).passthrough();
 
 const createSchema = z.object({
   name: z.string().trim().min(1),
 }).strip();
 
-export async function GET(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
+export const GET = createApiRouteHandler({
+  querySchema,
+  queryError: "参数无效",
+  handler: async ({ query }) => {
+    const data = await service.listItems(query);
+    return { items: data };
+  },
+});
 
-  const { searchParams } = new URL(request.url);
-  const parsed = querySchema.safeParse({
-    keyword: searchParams.get("keyword") || undefined,
-  });
-  if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
+export const POST = createApiRouteHandler({
+  bodySchema: createSchema,
+  bodyError: "参数无效",
+  handler: async ({ user, body }) => service.createItem(body, user.userId),
+});
+```
 
-  const data = await service.listItems(parsed.data);
-  return NextResponse.json({ items: data });
-}
+业务 service 的写入入口返回 `ServiceResult<T>`：
 
-export async function POST(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
+```ts
+import { serviceError, serviceOk, type ServiceResult } from "@workspace/platform/server/api";
 
-  const body = await request.json().catch(() => null);
-  const parsed = createSchema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
-
-  const result = await service.createItem(parsed.data, auth.user.userId);
-  if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status || 400 });
-  return NextResponse.json(result.data);
+export async function createItem(input: CreateInput, userId: number): Promise<ServiceResult<{ item: ItemDto }>> {
+  const command = validateCreateItem(input, userId);
+  if (!command.ok) return serviceError(command.issue.message, command.issue.status);
+  const item = await prisma.item.create({ data: command.data });
+  return serviceOk({ item });
 }
 ```
+
+`createApiRouteHandler()` 会把 service result 统一转换成 HTTP JSON：成功返回 `result.data`，失败返回 `{ error }` 和 `status ?? 400`。不要在 route 里重复写 `Response.json({ error })` 来处理 service result。
 
 写入路径固定为 `Zod schema -> domain validator -> service/Prisma`：route schema 只验证请求形状并 strip，domain 层只 pick 业务字段和业务规则，service 负责事务和落库。
 
