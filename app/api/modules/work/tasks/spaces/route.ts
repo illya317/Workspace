@@ -1,11 +1,8 @@
-import { NextResponse } from "next/server";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import { listWorkTaskSpaces } from "@workspace/work/server";
+import { executeWorkTaskSpacesRouteCommand } from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
-export async function GET(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-
-  const result = await listWorkTaskSpaces(auth.user.userId);
-  return NextResponse.json(result);
-}
+export const GET = createCommandRoute({
+  buildCommand: ({ user }) => okCommand({ userId: user.userId }),
+  action: executeWorkTaskSpacesRouteCommand,
+});

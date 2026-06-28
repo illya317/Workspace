@@ -8,7 +8,7 @@ import {
 } from "@workspace/finance/server/budget/schemas";
 
 export const GET = createCommandRoute({
-  access: (userId) => checkFinanceBudgetAccess(userId),
+  access: (userId: number) => checkFinanceBudgetAccess(userId),
   querySchema: budgetQuerySchema,
   queryError: "参数无效",
   buildCommand: ({ query }) => okCommand(query as Parameters<typeof loadBudgetOverview>[0]),
@@ -16,7 +16,7 @@ export const GET = createCommandRoute({
 });
 
 export const POST = createCommandRoute({
-  access: (userId) => checkFinanceBudgetWrite(userId),
+  access: (userId: number) => checkFinanceBudgetWrite(userId),
   bodySchema: createBudgetImportSchema,
   bodyError: "year 为必填",
   buildCommand: ({ body }) => okCommand(body as Parameters<typeof importBudgetWorkbook>[0]),

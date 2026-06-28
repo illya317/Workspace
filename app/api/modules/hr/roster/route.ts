@@ -1,47 +1,26 @@
-import { NextResponse } from "next/server";
-import { requireApiAccess, checkHRAccess, isSuperAdmin } from "@workspace/platform/server/auth";
-import {
-  ROSTER_FIELDS,
-  buildRosterExcel,
-  buildRosterRows,
-  getRosterFilterOptions,
-  getVisibleFields,
-  queryRawEmployees,
-} from "@workspace/hr/server";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { z } from "zod";
 
-export async function GET(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  if (!(await checkHRAccess(payload.userId, "access", "hr.roster"))) return jsonErrorResponse("无权限", 403);
+import { executeRosterCommand } from "@workspace/hr/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkHRAccess } from "@workspace/platform/server/auth";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
-  const { searchParams } = new URL(request.url);
-  const raw = searchParams.get("raw") === "1";
-  const dept = searchParams.get("dept") || "";
-  const keyword = searchParams.get("keyword") || "";
-  const exportExcel = searchParams.get("export") === "1";
-  const isAdmin = await isSuperAdmin(payload.userId);
+const rosterQuerySchema = z.object({
+  raw: z.string().optional(),
+  dept: z.string().catch(""),
+  keyword: z.string().catch(""),
+  export: z.string().optional(),
+});
 
-  if (raw) {
-    const employees = await queryRawEmployees(keyword);
-    return NextResponse.json({ employees });
-  }
-
-  const rows = await buildRosterRows(dept, keyword);
-  const visibleFields = await getVisibleFields(payload.userId, isAdmin);
-
-  if (exportExcel) {
-    const buf = buildRosterExcel(rows, visibleFields);
-    return new NextResponse(buf as unknown as BodyInit, {
-      headers: {
-        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "Content-Disposition": `attachment; filename="roster_${new Date().toISOString().slice(0, 10)}.xlsx"`,
-      },
-    });
-  }
-
-  const { allCompanies, allDepts } = await getRosterFilterOptions();
-
-  return NextResponse.json({ employees: rows, fields: ROSTER_FIELDS, visibleFields, allCompanies, allDepts });
-}
+export const GET = createCommandRoute({
+  access: (userId: number) => checkHRAccess(userId, "access", "hr.roster"),
+  querySchema: rosterQuerySchema,
+  buildCommand: ({ query, user }) => okCommand({
+    raw: query.raw === "1",
+    dept: query.dept,
+    keyword: query.keyword,
+    exportExcel: query.export === "1",
+    userId: user.userId,
+  }),
+  action: executeRosterCommand,
+});

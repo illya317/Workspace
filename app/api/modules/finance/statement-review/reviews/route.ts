@@ -1,51 +1,28 @@
-/** P3 Batch 3: review GET (read) + POST (generate from workpaper). */
-import { NextResponse } from "next/server";
-import { withFinanceStatementReviewAccess, withFinanceStatementReviewWrite } from "@workspace/platform/server/with-auth";
-import { generateReview, getReview } from "@workspace/finance/server/statements/reviews/service";
+import {
+  buildGenerateReviewCommand,
+  executeGenerateReviewCommand,
+  executeGetReviewCommand,
+} from "@workspace/finance/server/route-commands";
 import {
   generateReviewSchema,
   reviewQuerySchema,
 } from "@workspace/finance/server/statements/reviews/schemas";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { checkFinanceStatementReviewAccess, checkFinanceStatementReviewWrite } from "@workspace/platform/server/auth";
 
-function extractStatus(e: unknown): number {
-  if (e instanceof Error && "statusCode" in e && typeof (e as { statusCode: unknown }).statusCode === "number") {
-    return (e as { statusCode: number }).statusCode;
-  }
-  return 400;
-}
-
-/** GET ?workpaperId= or ?companyCode=&year=&month=&reportType= */
-export const GET = withFinanceStatementReviewAccess(async (req) => {
-  const { searchParams } = new URL(req.url);
-  const raw = Object.fromEntries(searchParams.entries());
-  const parsed = reviewQuerySchema.safeParse(raw);
-  if (!parsed.success) {
-    const hasWorkpaper = Boolean(raw.workpaperId);
-    return jsonErrorResponse(hasWorkpaper ? "workpaperId 必须为数字" : "workpaperId 或 (companyCode, year, month, reportType) 为必填", 400);
-  }
-  if ("workpaperId" in parsed.data) {
-    const r = await getReview({ workpaperId: parsed.data.workpaperId });
-    return NextResponse.json({ review: r });
-  }
-  const r = await getReview(parsed.data);
-  return NextResponse.json({ review: r });
+export const GET = createCommandRoute({
+  access: checkFinanceStatementReviewAccess,
+  querySchema: reviewQuerySchema,
+  queryError: "workpaperId 或 (companyCode, year, month, reportType) 为必填",
+  buildCommand: ({ query }) => okCommand(query),
+  action: executeGetReviewCommand,
 });
 
-/** POST { workpaperId } — generate review from workpaper. 201=created, 200=existing draft. */
-export const POST = withFinanceStatementReviewWrite(async (req, user) => {
-  const body = await req.json().catch(() => null);
-  if (!body) {
-    return jsonErrorResponse("请求体必须为 JSON", 400);
-  }
-  const parsed = generateReviewSchema.safeParse(body);
-  if (!parsed.success) {
-    return jsonErrorResponse("workpaperId 为必填", 400);
-  }
-  try {
-    const { review, created } = await generateReview(parsed.data.workpaperId, user.userId);
-    return NextResponse.json({ review }, { status: created ? 201 : 200 });
-  } catch (e: unknown) {
-    return jsonErrorResponse(e instanceof Error ? e.message : "生成校对失败", extractStatus(e));
-  }
+export const POST = createCommandRoute({
+  access: checkFinanceStatementReviewWrite,
+  bodySchema: generateReviewSchema,
+  bodyError: "workpaperId 为必填",
+  buildCommand: ({ body, user }) => buildGenerateReviewCommand(body.workpaperId, user.userId),
+  action: executeGenerateReviewCommand,
 });

@@ -1,26 +1,21 @@
 import { z } from "zod";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import {
-  activateProjectPlanBaseline,
-  projectPlanServiceResponse,
-} from "@workspace/work/server";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+
+import { activateProjectPlanBaseline } from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
 const baselineParamsSchema = z.object({
   id: z.coerce.number().int().positive(),
   baselineId: z.coerce.number().int().positive(),
 });
 
-export async function POST(request: Request, { params }: { params: Promise<{ id: string; baselineId: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-
-  const parsedParams = baselineParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("基准 ID 无效", 400);
-
-  return projectPlanServiceResponse(await activateProjectPlanBaseline({
-    userId: auth.user.userId,
-    projectId: parsedParams.data.id,
-    baselineId: parsedParams.data.baselineId,
-  }));
-}
+export const POST = createCommandRoute({
+  paramsSchema: baselineParamsSchema,
+  paramsError: "基准 ID 无效",
+  buildCommand: ({ params, user }) => okCommand({
+    userId: user.userId,
+    projectId: params.id,
+    baselineId: params.baselineId,
+  }),
+  action: activateProjectPlanBaseline,
+});

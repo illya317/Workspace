@@ -1,4 +1,5 @@
 import { Prisma } from "@workspace/platform/server/prisma";
+import { serviceOk } from "@workspace/platform/server/api";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
 import type { DeleteGuardContext } from "@workspace/platform/server/delete-guard";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
@@ -91,7 +92,7 @@ export async function upsertCompany(body: Record<string, unknown>, userId: numbe
     await prisma.company.create({ data: { code, name, ...dataFields } });
   }
   invalidateCompanyCache();
-  return { ok: true as const, data: { success: true } };
+  return serviceOk({ success: true });
 }
 
 export async function updateCompanyField(request: Request, params: Promise<{ id: string }>) {

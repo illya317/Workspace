@@ -1,12 +1,9 @@
 import { z } from "zod";
-import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import {
-  createProjectTask,
-  listProjectTasks,
-  projectTaskServiceResponse,
-} from "@workspace/work/server";
 
+import { createProjectTask, listProjectTasks } from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 
 const projectTaskBodySchema = z.object({
   name: z.string().min(1).optional(),
@@ -28,33 +25,24 @@ const projectTaskBodySchema = z.object({
   sortOrder: z.coerce.number().int().optional(),
 }).passthrough();
 
-export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
+export const GET = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "项目 ID 无效",
+  buildCommand: ({ params, user }) => okCommand({
+    userId: user.userId,
+    projectId: params.id,
+  }),
+  action: listProjectTasks,
+});
 
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("项目 ID 无效", 400);
-
-  return projectTaskServiceResponse(await listProjectTasks({
-    userId: auth.user.userId,
-    projectId: parsedParams.data.id,
-  }));
-}
-
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("项目 ID 无效", 400);
-
-  const body = await request.json().catch(() => null);
-  const parsedBody = projectTaskBodySchema.safeParse(body);
-  if (!parsedBody.success) return jsonErrorResponse(parsedBody.error.issues[0]?.message || "参数错误", 400);
-
-  return projectTaskServiceResponse(await createProjectTask({
-    userId: auth.user.userId,
-    projectId: parsedParams.data.id,
-    body: parsedBody.data,
-  }));
-}
+export const POST = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "项目 ID 无效",
+  bodySchema: projectTaskBodySchema,
+  buildCommand: ({ params, body, user }) => okCommand({
+    userId: user.userId,
+    projectId: params.id,
+    body,
+  }),
+  action: createProjectTask,
+});

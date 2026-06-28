@@ -7,5 +7,6 @@ export * from "./file-access";
 export * from "./generated-sources";
 export * from "./metadata";
 export * from "./permissions";
+export * from "./route-commands";
 export * from "./scan";
 export * from "./versions";

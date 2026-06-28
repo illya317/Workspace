@@ -1,9 +1,8 @@
+import { serviceOk, type ServiceResult } from "@workspace/platform/server/api";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { buildEmployeeProfileContractsCommand } from "./domain/contract-validation";
-
-type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: string; status?: number };
 
 export async function updateEmployeeProfileContracts(
   employeeId: number,
@@ -29,5 +28,5 @@ export async function updateEmployeeProfileContracts(
     }
   });
 
-  return { ok: true, data: { success: true } };
+  return serviceOk({ success: true });
 }

@@ -1,4 +1,4 @@
-import { serviceError } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import type { DomainServiceResult } from "@workspace/platform/server/domain-validation";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { matchSearchFields } from "@workspace/platform/search";
@@ -170,7 +170,7 @@ export async function createProjectMemberAction(input: {
     role: record.role,
     actorUserId: command.data.editorUserId,
   });
-  return { ok: true, data: { success: true, record } };
+  return serviceOk({ success: true, record });
 }
 
 export async function updateProjectMemberFieldAction(input: {
@@ -208,7 +208,7 @@ export async function updateProjectMemberFieldAction(input: {
       actorUserId: input.userId,
     });
   }
-  return { ok: true, data: { success: true } };
+  return serviceOk({ success: true });
 }
 
 export async function deleteProjectMemberAction(input: {
@@ -223,5 +223,5 @@ export async function deleteProjectMemberAction(input: {
     await snapshotHistory("EmployeeProject", command.data.recordId, input.userId, tx);
     await tx.employeeProject.delete({ where: { id: command.data.recordId } });
   });
-  return { ok: true, data: { success: true } };
+  return serviceOk({ success: true });
 }

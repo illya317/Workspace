@@ -14,7 +14,7 @@ import {
   EMPLOYMENT_ALLOWED_FIELDS,
 } from "./domain/employment-validation";
 import { employeePositionFilterInclude, employeePositionMatches } from "./employee-position-filters";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { jsonErrorResponse, serviceOk } from "@workspace/platform/server/api";
 
 const EMPLOYMENT_CONFIG = { entityType: "Employment", modelKey: "employment" as const };
 type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: string; status?: number };
@@ -133,7 +133,7 @@ export async function createEmploymentRecord(
     select: { id: true },
   });
   await snapshotHistory("Employment", record.id, userId);
-  return { ok: true, data: { success: true, record } };
+  return serviceOk({ success: true, record });
 }
 
 export async function updateEmploymentField(request: Request, params: Promise<{ id: string }>) {

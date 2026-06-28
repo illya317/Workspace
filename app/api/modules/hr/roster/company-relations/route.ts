@@ -1,8 +1,13 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiAccess, checkHRAccess } from "@workspace/platform/server/auth";
-import { createCompanyRelation, listCompanyRelations } from "@workspace/hr/server";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+
+import {
+  buildHrRouteCommand,
+  createCompanyRelation,
+  listCompanyRelations,
+  replayJsonRequest,
+} from "@workspace/hr/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkHRAccess } from "@workspace/platform/server/auth";
 
 const companyRelationsQuerySchema = z.object({
   keyword: z.string().catch(""),
@@ -15,25 +20,17 @@ const createCompanyRelationSchema = z.object({
   childId: z.unknown(),
 }).passthrough();
 
-export async function GET(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  if (!(await checkHRAccess(payload.userId, "access", "hr.roster"))) return jsonErrorResponse("无权限", 403);
+export const GET = createCommandRoute({
+  access: (userId: number) => checkHRAccess(userId, "access", "hr.roster"),
+  querySchema: companyRelationsQuerySchema,
+  queryError: "参数错误",
+  buildCommand: ({ query }) => buildHrRouteCommand(query),
+  action: listCompanyRelations,
+});
 
-  const { searchParams } = new URL(request.url);
-  const parsedQuery = companyRelationsQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
-  if (!parsedQuery.success) return jsonErrorResponse("参数错误", 400);
-  const { keyword, page, pageSize } = parsedQuery.data;
-  return NextResponse.json(await listCompanyRelations({ keyword, page, pageSize }));
-}
-
-export async function POST(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-
-  const body = await request.clone().json().catch(() => null);
-  const parsedBody = createCompanyRelationSchema.safeParse(body);
-  if (!parsedBody.success) return jsonErrorResponse("缺少 parentId/childId", 400);
-  return createCompanyRelation(request);
-}
+export const POST = createCommandRoute({
+  bodySchema: createCompanyRelationSchema,
+  bodyError: "缺少 parentId/childId",
+  buildCommand: ({ request, body }) => buildHrRouteCommand({ request, body }),
+  action: ({ request, body }) => createCompanyRelation(replayJsonRequest(request, body)),
+});

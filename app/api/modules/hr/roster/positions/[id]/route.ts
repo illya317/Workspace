@@ -1,24 +1,19 @@
-import { jsonErrorResponse, routeIdParamsSchema, updateFieldBodySchema } from "@workspace/platform/server/api";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import { deletePositionByParams, updatePositionField } from "@workspace/hr/server";
+import { deletePositionByParams, updatePositionField, buildHrRouteCommand, idParams, replayJsonRequest } from "@workspace/hr/server";
+import { routeIdParamsSchema, updateFieldBodySchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
 
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
+export const PUT = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "ID 无效",
+  bodySchema: updateFieldBodySchema,
+  bodyError: "参数错误",
+  buildCommand: ({ request, params, body }) => buildHrRouteCommand({ request, id: params.id, body }),
+  action: ({ request, id, body }) => updatePositionField(replayJsonRequest(request, body), idParams(id)),
+});
 
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("ID 无效", 400);
-  const body = await request.clone().json().catch(() => null);
-  const parsedBody = updateFieldBodySchema.safeParse(body);
-  if (!parsedBody.success) return jsonErrorResponse("参数错误", 400);
-  return updatePositionField(request, Promise.resolve({ id: String(parsedParams.data.id) }));
-}
-
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("ID 无效", 400);
-  return deletePositionByParams(request, Promise.resolve({ id: String(parsedParams.data.id) }));
-}
+export const DELETE = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "ID 无效",
+  buildCommand: ({ request, params }) => buildHrRouteCommand({ request, id: params.id }),
+  action: ({ request, id }) => deletePositionByParams(request, idParams(id)),
+});

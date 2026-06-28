@@ -1,27 +1,19 @@
-import { jsonErrorResponse, routeIdParamsSchema, updateFieldBodySchema } from "@workspace/platform/server/api";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
-import { deleteEdp, updateEdpField } from "@workspace/hr/server";
+import { deleteEdp, updateEdpField, buildHrRouteCommand, idParams, replayJsonRequest } from "@workspace/hr/server";
+import { routeIdParamsSchema, updateFieldBodySchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
 
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const disabledResponse = disabledApiResponseForRequest(request);
-  if (disabledResponse) return disabledResponse;
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("记录ID无效", 400);
-  const body = await request.clone().json().catch(() => null);
-  const parsedBody = updateFieldBodySchema.safeParse(body);
-  if (!parsedBody.success) return jsonErrorResponse("参数错误", 400);
-  return updateEdpField(request, Promise.resolve({ id: String(parsedParams.data.id) }));
-}
+export const PUT = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "记录ID无效",
+  bodySchema: updateFieldBodySchema,
+  bodyError: "参数错误",
+  buildCommand: ({ request, params, body }) => buildHrRouteCommand({ request, id: params.id, body }),
+  action: ({ request, id, body }) => updateEdpField(replayJsonRequest(request, body), idParams(id)),
+});
 
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const disabledResponse = disabledApiResponseForRequest(request);
-  if (disabledResponse) return disabledResponse;
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("记录ID无效", 400);
-  return deleteEdp(request, Promise.resolve({ id: String(parsedParams.data.id) }));
-}
+export const DELETE = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "记录ID无效",
+  buildCommand: ({ request, params }) => buildHrRouteCommand({ request, id: params.id }),
+  action: ({ request, id }) => deleteEdp(request, idParams(id)),
+});

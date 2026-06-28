@@ -1,13 +1,23 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiAccess } from "@workspace/platform/server/auth";
+
 import {
-  getWorkReportDraft,
-  saveWorkReport,
-  normalizeWorkTargetType,
-  type WorkReportItemInput,
+  buildSaveWorkReportRouteCommand,
+  buildWorkReportRouteCommand,
+  executeGetWorkReportRouteCommand,
+  executeSaveWorkReportRouteCommand,
 } from "@workspace/work/server";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+
+const optionalPositiveInt = z.preprocess(
+  (value) => (value === null || value === undefined || value === "" ? undefined : Number(value)),
+  z.number().int().positive().optional(),
+);
+
+const reportQuerySchema = z.object({
+  targetType: z.string().optional(),
+  targetId: optionalPositiveInt,
+  periodStart: z.string().nullable().optional(),
+});
 
 const saveSchema = z.object({
   targetType: z.string(),
@@ -23,42 +33,21 @@ const saveSchema = z.object({
   })).default([]),
 });
 
-export async function GET(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
+export const GET = createCommandRoute({
+  querySchema: reportQuerySchema,
+  buildCommand: ({ query, user }) => buildWorkReportRouteCommand({
+    userId: user.userId,
+    query,
+  }),
+  action: executeGetWorkReportRouteCommand,
+});
 
-  const { searchParams } = new URL(request.url);
-  const targetType = normalizeWorkTargetType(searchParams.get("targetType") || "personal");
-  const targetId = Number(searchParams.get("targetId") || auth.user.userId);
-  if (!Number.isInteger(targetId) || targetId <= 0) {
-    return jsonErrorResponse("缺少工作空间", 400);
-  }
-
-  const result = await getWorkReportDraft({
-    userId: auth.user.userId,
-    targetType,
-    targetId,
-    periodStart: searchParams.get("periodStart"),
-  });
-  if (!result.ok) return jsonErrorResponse(result.error, result.status);
-  return NextResponse.json(result.data);
-}
-
-export async function PUT(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-
-  const body = await request.json().catch(() => null);
-  const parsed = saveSchema.safeParse(body);
-  if (!parsed.success) return jsonErrorResponse("汇报内容格式不正确", 400);
-
-  const result = await saveWorkReport({
-    userId: auth.user.userId,
-    targetType: normalizeWorkTargetType(parsed.data.targetType),
-    targetId: parsed.data.targetId,
-    periodStart: parsed.data.periodStart,
-    items: parsed.data.items as WorkReportItemInput[],
-  });
-  if (!result.ok) return jsonErrorResponse(result.error, result.status);
-  return NextResponse.json(result.data);
-}
+export const PUT = createCommandRoute({
+  bodySchema: saveSchema,
+  bodyError: "汇报内容格式不正确",
+  buildCommand: ({ body, user }) => buildSaveWorkReportRouteCommand({
+    userId: user.userId,
+    body,
+  }),
+  action: executeSaveWorkReportRouteCommand,
+});

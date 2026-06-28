@@ -1,3 +1,4 @@
+import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { prisma } from "@workspace/platform/server/prisma";
 import {
   canManageWorkTaskSpace,
@@ -244,7 +245,7 @@ async function getSpaceCountsMap(seeds: SpaceSeed[]) {
 
 export async function listWorkSpacePermissions(input: { userId: number; targetType: WorkSpaceTargetType; targetId: number }) {
   const canManage = await canManageWorkTaskSpace(input.userId, input.targetType, input.targetId);
-  if (!canManage) return { ok: false as const, error: "无权限管理该工作空间", status: 403 };
+  if (!canManage) return serviceError("无权限管理该工作空间", 403);
   const [explicit, naturalManagers] = await Promise.all([
     prisma.workScopePermission.findMany({
       where: { targetType: input.targetType, targetId: input.targetId, kind: "task" },
@@ -253,9 +254,7 @@ export async function listWorkSpacePermissions(input: { userId: number; targetTy
     }),
     listNaturalManagers(input.targetType, input.targetId),
   ]);
-  return {
-    ok: true as const,
-    data: {
+  return serviceOk({
       permissions: [
         ...naturalManagers.map((item) => ({ ...item, role: "manager" as const, kind: "task", source: "natural" as const, locked: true })),
         ...explicit.map((item) => ({
@@ -267,8 +266,7 @@ export async function listWorkSpacePermissions(input: { userId: number; targetTy
           locked: false,
         })),
       ],
-    },
-  };
+  });
 }
 
 export async function updateWorkSpacePermissions(input: {
@@ -278,7 +276,7 @@ export async function updateWorkSpacePermissions(input: {
   permissions: WorkScopePermissionInput[];
 }) {
   if (!(await canManageWorkTaskSpace(input.actorUserId, input.targetType, input.targetId))) {
-    return { ok: false as const, error: "无权限管理该工作空间", status: 403 };
+    return serviceError("无权限管理该工作空间", 403);
   }
   const rows = input.permissions
     .map((item) => ({
@@ -289,7 +287,7 @@ export async function updateWorkSpacePermissions(input: {
     .filter((item) => Number.isInteger(item.userId) && item.userId > 0 && canPersistWorkSpaceRole(item.role));
   const users = rows.length ? await prisma.user.findMany({ where: { id: { in: rows.map((item) => item.userId) } }, select: { id: true } }) : [];
   const userIds = new Set(users.map((user) => user.id));
-  if (rows.some((row) => !userIds.has(row.userId))) return { ok: false as const, error: "授权用户不存在", status: 400 };
+  if (rows.some((row) => !userIds.has(row.userId))) return serviceError("授权用户不存在", 400);
 
   await prisma.$transaction(async (tx) => {
     await tx.workScopePermission.deleteMany({ where: { targetType: input.targetType, targetId: input.targetId, kind: "task" } });
@@ -305,7 +303,7 @@ export async function updateWorkSpacePermissions(input: {
       });
     }
   });
-  return { ok: true as const, data: { success: true } };
+  return serviceOk({ success: true });
 }
 
 async function listNaturalManagers(targetType: WorkSpaceTargetType, targetId: number) {

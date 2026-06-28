@@ -1,39 +1,51 @@
-import { NextResponse } from "next/server";
+import { z } from "zod";
 
-import { withHRAccess, withHRDelete, withHRWrite } from "@workspace/platform/server/with-auth";
-import { jsonErrorResponse, serviceResponse, routeIdParamsSchema, validateCompatibilityProxyBody } from "@workspace/platform/server/api";
-import { createDepartment, deleteDepartmentByParams, listDepartments, updateDepartment } from "@workspace/hr/server";
+import { buildHrRouteCommand, createDepartment, deleteDepartmentByParams, idParams, listDepartments, updateDepartment } from "@workspace/hr/server";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkHRAccess, checkHRDelete, checkHRWrite } from "@workspace/platform/server/auth";
 
-export const GET = withHRAccess(async (request: Request) => {
-  const { searchParams } = new URL(request.url);
-  const keyword = searchParams.get("keyword") || "";
-  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-  const pageSize = Math.min(500, Math.max(1, parseInt(searchParams.get("pageSize") || "50", 10)));
-  const archived = searchParams.get("archived") === "1" || searchParams.get("archived") === "true";
-  const summary = searchParams.get("summary") === "1" || searchParams.get("summary") === "true";
-  return NextResponse.json(await listDepartments({ keyword, page, pageSize, archived, summary }));
+const departmentsQuerySchema = z.object({
+  keyword: z.string().catch(""),
+  page: z.coerce.number().int().min(1).catch(1),
+  pageSize: z.coerce.number().int().min(1).max(500).catch(50),
+  archived: z.enum(["1", "true"]).optional().catch(undefined),
+  summary: z.enum(["1", "true"]).optional().catch(undefined),
+}).passthrough();
+
+const departmentBodySchema = z.object({}).passthrough();
+
+export const GET = createCommandRoute({
+  access: (userId: number) => checkHRAccess(userId, "access", "hr.roster"),
+  querySchema: departmentsQuerySchema,
+  buildCommand: ({ query }) => buildHrRouteCommand({
+    keyword: query.keyword,
+    page: query.page,
+    pageSize: query.pageSize,
+    archived: Boolean(query.archived),
+    summary: Boolean(query.summary),
+  }),
+  action: listDepartments,
 });
 
-export const POST = withHRWrite(async (request: Request, user) => {
-  const validation = await validateCompatibilityProxyBody(request);
-  if (!validation.ok) return jsonErrorResponse(validation.error, 400);
-
-  const body = await request.json();
-  return serviceResponse(await createDepartment(body, user.userId));
+export const POST = createCommandRoute({
+  access: (userId: number) => checkHRWrite(userId, "hr.roster"),
+  bodySchema: departmentBodySchema,
+  buildCommand: ({ body, user }) => buildHrRouteCommand({ body, userId: user.userId }),
+  action: ({ body, userId }) => createDepartment(body, userId),
 });
 
-export const PUT = withHRWrite(async (request: Request, user) => {
-  const validation = await validateCompatibilityProxyBody(request);
-  if (!validation.ok) return jsonErrorResponse(validation.error, 400);
-
-  const body = await request.json();
-  return serviceResponse(await updateDepartment(body, user.userId));
+export const PUT = createCommandRoute({
+  access: (userId: number) => checkHRWrite(userId, "hr.roster"),
+  bodySchema: departmentBodySchema,
+  buildCommand: ({ body, user }) => buildHrRouteCommand({ body, userId: user.userId }),
+  action: ({ body, userId }) => updateDepartment(body, userId),
 });
 
-export const DELETE = withHRDelete(async (request: Request) => {
-  const { searchParams } = new URL(request.url);
-  const parsedQuery = routeIdParamsSchema.safeParse(Object.fromEntries(searchParams.entries()));
-  if (!parsedQuery.success) return jsonErrorResponse("缺少id", 400);
-
-  return deleteDepartmentByParams(request, Promise.resolve({ id: String(parsedQuery.data.id) }));
+export const DELETE = createCommandRoute({
+  access: (userId: number) => checkHRDelete(userId, "hr.roster"),
+  querySchema: routeIdParamsSchema,
+  queryError: "缺少id",
+  buildCommand: ({ request, query }) => buildHrRouteCommand({ request, id: query.id }),
+  action: ({ request, id }) => deleteDepartmentByParams(request, idParams(id)),
 });

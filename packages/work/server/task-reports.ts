@@ -1,3 +1,4 @@
+import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import {
   canAccessTarget,
@@ -37,22 +38,19 @@ export async function getWorkReportDraft(input: {
   periodStart?: string | null;
 }) {
   if (!(await canAccessTarget(input.userId, input.targetType, input.targetId))) {
-    return { ok: false as const, error: "无权限访问该工作空间", status: 403 };
+    return serviceError("无权限访问该工作空间", 403);
   }
   const period = normalizeWeeklyPeriod(input.periodStart);
   const report = await findUserReport(input.userId, input.targetType, input.targetId, period.startDate);
   const previous = await findUserReport(input.userId, input.targetType, input.targetId, addDays(period.startDate, -7));
   const workItems = await listReportWorkItems(input.targetType, input.targetId);
   const canEdit = await canEditWorkTask(input.userId, input.targetType, input.targetId);
-  return {
-    ok: true as const,
-    data: {
+  return serviceOk({
       period: period.dto,
       canEdit,
       report: report ? toReportDto(report) : null,
       items: mergeReportItems(workItems, report, previous),
-    },
-  };
+  });
 }
 
 export async function saveWorkReport(input: {
@@ -63,9 +61,9 @@ export async function saveWorkReport(input: {
   items: WorkReportItemInput[];
 }) {
   const command = validateWorkReportCommand("saveWorkReport");
-  if (!command.ok) return { ok: false as const, error: command.issue.message, status: command.issue.status };
+  if (!command.ok) return serviceError(command.issue.message, command.issue.status);
   if (!(await canEditWorkTask(input.userId, input.targetType, input.targetId))) {
-    return { ok: false as const, error: "无权限填写工作汇报", status: 403 };
+    return serviceError("无权限填写工作汇报", 403);
   }
   const period = normalizeWeeklyPeriod(input.periodStart);
   const workItems = await listReportWorkItems(input.targetType, input.targetId);
@@ -78,7 +76,7 @@ export async function saveWorkReport(input: {
 
   for (const row of rows) {
     if (row.workItemId && !workItemIds.has(row.workItemId)) {
-      return { ok: false as const, error: "汇报事项不属于当前工作空间", status: 400 };
+      return serviceError("汇报事项不属于当前工作空间", 400);
     }
   }
 
@@ -124,7 +122,7 @@ export async function saveWorkReport(input: {
     return tx.workReport.findUniqueOrThrow({ where: { id: saved.id }, include: reportInclude });
   });
 
-  return { ok: true as const, data: { report: toReportDto(report), items: mergeReportItems(workItems, report, previous), period: period.dto } };
+  return serviceOk({ report: toReportDto(report), items: mergeReportItems(workItems, report, previous), period: period.dto });
 }
 
 export async function listWorkReportCollection(input: {
@@ -155,7 +153,7 @@ export async function listWorkReportCollection(input: {
       reports: reports.map(toReportDto),
     };
   }));
-  return { ok: true as const, data: { period: period.dto, spaces: rows } };
+  return serviceOk({ period: period.dto, spaces: rows });
 }
 
 function normalizeReportItemInput(

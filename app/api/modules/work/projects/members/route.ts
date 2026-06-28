@@ -31,7 +31,7 @@ const listProjectMembersQuerySchema = z.object({
 
 export const GET = createCommandRoute({
   querySchema: listProjectMembersQuerySchema,
-  access: (userId) => canUseProject(userId),
+  access: (userId: number) => canUseProject(userId),
   buildCommand: ({ user, query }) => okCommand<Parameters<typeof listProjectMembers>[0]>({
       userId: user.userId,
       projectId: query.projectId ?? null,

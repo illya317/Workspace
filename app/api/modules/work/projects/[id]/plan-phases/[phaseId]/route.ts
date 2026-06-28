@@ -1,11 +1,8 @@
 import { z } from "zod";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import {
-  deleteProjectPlanPhase,
-  projectPlanServiceResponse,
-  updateProjectPlanPhase,
-} from "@workspace/work/server";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+
+import { deleteProjectPlanPhase, updateProjectPlanPhase } from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
 const planPhaseParamsSchema = z.object({
   id: z.coerce.number().int().positive(),
@@ -20,35 +17,26 @@ const planPhaseUpdateBodySchema = z.object({
   note: z.string().nullable().optional(),
 }).passthrough();
 
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string; phaseId: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
+export const PUT = createCommandRoute({
+  paramsSchema: planPhaseParamsSchema,
+  paramsError: "项目阶段 ID 无效",
+  bodySchema: planPhaseUpdateBodySchema,
+  buildCommand: ({ params, body, user }) => okCommand({
+    userId: user.userId,
+    projectId: params.id,
+    phaseId: params.phaseId,
+    body,
+  }),
+  action: updateProjectPlanPhase,
+});
 
-  const parsedParams = planPhaseParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("项目阶段 ID 无效", 400);
-
-  const body = await request.json().catch(() => null);
-  const parsedBody = planPhaseUpdateBodySchema.safeParse(body);
-  if (!parsedBody.success) return jsonErrorResponse(parsedBody.error.issues[0]?.message || "参数错误", 400);
-
-  return projectPlanServiceResponse(await updateProjectPlanPhase({
-    userId: auth.user.userId,
-    projectId: parsedParams.data.id,
-    phaseId: parsedParams.data.phaseId,
-    body: parsedBody.data,
-  }));
-}
-
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string; phaseId: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-
-  const parsedParams = planPhaseParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("项目阶段 ID 无效", 400);
-
-  return projectPlanServiceResponse(await deleteProjectPlanPhase({
-    userId: auth.user.userId,
-    projectId: parsedParams.data.id,
-    phaseId: parsedParams.data.phaseId,
-  }));
-}
+export const DELETE = createCommandRoute({
+  paramsSchema: planPhaseParamsSchema,
+  paramsError: "项目阶段 ID 无效",
+  buildCommand: ({ params, user }) => okCommand({
+    userId: user.userId,
+    projectId: params.id,
+    phaseId: params.phaseId,
+  }),
+  action: deleteProjectPlanPhase,
+});

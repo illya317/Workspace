@@ -1,4 +1,5 @@
 import { Prisma } from "@workspace/platform/server/prisma";
+import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
@@ -132,10 +133,10 @@ export async function createDepartment(input: DepartmentCreateInput, userId: num
       await snapshotHistory("Department", department.id, userId, tx);
       return department;
     });
-    return { ok: true as const, data: { success: true, record } };
+    return serviceOk({ success: true, record });
   } catch (error: unknown) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003") {
-      return { ok: false as const, error: "上级部门不存在" };
+      return serviceError("上级部门不存在");
     }
     throw error;
   }
@@ -204,13 +205,13 @@ export async function updateDepartment(input: DepartmentUpdateInput, userId: num
       await snapshotHistory("Department", id, userId, tx);
       return department;
     });
-    return { ok: true as const, data: { success: true, department: updated } };
+    return serviceOk({ success: true, department: updated });
   } catch (error: unknown) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      return { ok: false as const, error: "编码已存在", status: 409 };
+      return serviceError("编码已存在", 409);
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
-      return { ok: false as const, error: "部门不存在", status: 404 };
+      return serviceError("部门不存在", 404);
     }
     throw error;
   }

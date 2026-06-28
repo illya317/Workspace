@@ -1,7 +1,9 @@
 import { z } from "zod";
-import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import { deleteMeeting, getMeetingDetail, meetingServiceResponse, updateMeeting } from "@workspace/work/server";
+
+import { deleteMeeting, getMeetingDetail, updateMeeting } from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 
 const updateMeetingSchema = z.object({
   title: z.string().min(1).optional(),
@@ -15,38 +17,34 @@ const updateMeetingSchema = z.object({
   secretaryUserId: z.coerce.number().int().positive().nullable().optional(),
 }).passthrough();
 
-type MeetingRouteContext = { params: Promise<{ id: string }> };
+export const GET = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "会议 ID 无效",
+  buildCommand: ({ params, user }) => okCommand({
+    userId: user.userId,
+    meetingId: params.id,
+  }),
+  action: getMeetingDetail,
+});
 
-export async function GET(request: Request, { params }: MeetingRouteContext) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("会议 ID 无效", 400);
+export const PUT = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "会议 ID 无效",
+  bodySchema: updateMeetingSchema,
+  buildCommand: ({ params, body, user }) => okCommand({
+    userId: user.userId,
+    meetingId: params.id,
+    body,
+  }),
+  action: updateMeeting,
+});
 
-  return meetingServiceResponse(await getMeetingDetail({ userId: auth.user.userId, meetingId: parsedParams.data.id }));
-}
-
-export async function PUT(request: Request, { params }: MeetingRouteContext) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("会议 ID 无效", 400);
-  const body = await request.json().catch(() => null);
-  const parsedBody = updateMeetingSchema.safeParse(body);
-  if (!parsedBody.success) return jsonErrorResponse(parsedBody.error.issues[0]?.message || "会议参数无效", 400);
-
-  return meetingServiceResponse(await updateMeeting({
-    userId: auth.user.userId,
-    meetingId: parsedParams.data.id,
-    body: parsedBody.data,
-  }));
-}
-
-export async function DELETE(request: Request, { params }: MeetingRouteContext) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("会议 ID 无效", 400);
-
-  return meetingServiceResponse(await deleteMeeting({ userId: auth.user.userId, meetingId: parsedParams.data.id }));
-}
+export const DELETE = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "会议 ID 无效",
+  buildCommand: ({ params, user }) => okCommand({
+    userId: user.userId,
+    meetingId: params.id,
+  }),
+  action: deleteMeeting,
+});

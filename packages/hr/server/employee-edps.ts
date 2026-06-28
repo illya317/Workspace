@@ -1,3 +1,4 @@
+import { serviceOk } from "@workspace/platform/server/api";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { mapValidationToServiceResult, type DomainServiceResult } from "@workspace/platform/server/domain-validation";
 import { prisma } from "@workspace/platform/server/prisma";
@@ -41,5 +42,5 @@ export async function updateEmployeeProfileEdps(
     }
   });
 
-  return { ok: true, data: { success: true, ids: changedIds, deletedIds } };
+  return serviceOk({ success: true, ids: changedIds, deletedIds });
 }

@@ -1,8 +1,10 @@
-import { NextResponse } from "next/server";
-import { withLibraryAccess } from "@workspace/platform/server/with-auth";
-import { listEnabledGeneratedSources } from "@workspace/library/server";
+import { executeLibraryGeneratedSourcesCommand } from "@workspace/library/server/route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkLibraryAccess } from "@workspace/platform/server/auth";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
-export const GET = withLibraryAccess(async () => {
-  const sources = await listEnabledGeneratedSources();
-  return NextResponse.json(sources);
+export const GET = createCommandRoute({
+  access: checkLibraryAccess,
+  buildCommand: () => okCommand({}),
+  action: executeLibraryGeneratedSourcesCommand,
 });

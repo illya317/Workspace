@@ -465,9 +465,53 @@ function createWarning(file: string, detail: string, recommendation: string): Do
   };
 }
 
-function commandRouteShellWarnings(source: string) {
-  if (/\bcreateCommandRoute\b/.test(source)) return [];
+function blockContainsBusinessBranch(node: ts.Node) {
+  let found = false;
+  const visit = (child: ts.Node) => {
+    if (ts.isIfStatement(child) || ts.isConditionalExpression(child) || ts.isSwitchStatement(child)) {
+      found = true;
+      return;
+    }
+    ts.forEachChild(child, visit);
+  };
+  visit(node);
+  return found;
+}
+
+function createCommandRouteInlineBranchWarnings(source: string) {
+  const sourceFile = parseTs("route.ts", source);
   const warnings: string[] = [];
+  const visit = (node: ts.Node) => {
+    if (
+      ts.isCallExpression(node)
+      && ts.isIdentifier(node.expression)
+      && node.expression.text === "createCommandRoute"
+      && node.arguments.length > 0
+      && ts.isObjectLiteralExpression(node.arguments[0])
+    ) {
+      for (const property of node.arguments[0].properties) {
+        if (!ts.isPropertyAssignment(property)) continue;
+        if (!ts.isIdentifier(property.name)) continue;
+        if (property.name.text !== "action" && property.name.text !== "buildCommand") continue;
+        const initializer = property.initializer;
+        if (!ts.isArrowFunction(initializer) && !ts.isFunctionExpression(initializer)) continue;
+        if (blockContainsBusinessBranch(initializer.body)) {
+          warnings.push(`branches inside route ${property.name.text}`);
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return uniqueSorted(warnings);
+}
+
+function commandRouteShellWarnings(file: string, source: string) {
+  if (!file.endsWith("/route.ts")) return [];
+  const warnings: string[] = [];
+  if (!/\bcreateCommandRoute\b|\bcreateInternalApiRoute\b/.test(source)) {
+    warnings.push("business API route does not use createCommandRoute/createInternalApiRoute");
+  }
   if (/\brequest\.json\s*\(\s*\)\.catch\s*\(/.test(source)) {
     warnings.push("parses JSON with request.json().catch in route");
   }
@@ -477,7 +521,8 @@ function commandRouteShellWarnings(source: string) {
   if (/\bif\s*\([^)]*\b(?:parsed|parsedBody|parsedQuery)\.data\.[^)]+\)/.test(source)) {
     warnings.push("branches on parsed request data in route");
   }
-  return warnings;
+  warnings.push(...createCommandRouteInlineBranchWarnings(source));
+  return uniqueSorted(warnings);
 }
 
 export function createDomainValidationReport() {
@@ -591,7 +636,7 @@ export function createDomainValidationWarnings() {
   const warnings: DomainValidationWarning[] = [];
   for (const file of collectTsFiles("app/api/modules")) {
     const source = readFile(file);
-    for (const detail of commandRouteShellWarnings(source)) {
+    for (const detail of commandRouteShellWarnings(file, source)) {
       warnings.push(
         createWarning(
           file,

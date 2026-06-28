@@ -1,4 +1,4 @@
-import { serviceError, serviceResponse } from "@workspace/platform/server/api";
+import { serviceError, serviceOk, serviceResponse } from "@workspace/platform/server/api";
 import type { DomainServiceResult } from "@workspace/platform/server/domain-validation";
 import { prisma } from "@workspace/platform/server/prisma";
 import {
@@ -60,7 +60,7 @@ export async function listMeetings(input: { userId: number; typeId?: number | nu
     orderBy: [{ startAt: "desc" }, { id: "desc" }],
     take: 200,
   });
-  return { ok: true as const, data: { types: await listMeetingTypes(), meetings: meetings.map(toMeetingSummaryDto) } };
+  return serviceOk({ types: await listMeetingTypes(), meetings: meetings.map(toMeetingSummaryDto) });
 }
 
 export async function getMeetingDetail(input: { userId: number; meetingId: number }) {
@@ -71,7 +71,7 @@ export async function getMeetingDetail(input: { userId: number; meetingId: numbe
   if (!meeting) return serviceError("会议不存在", 404);
   const permissions = await getMeetingPermissions(input.userId, meeting);
   if (!permissions.canView) return serviceError("无权限", 403);
-  return { ok: true as const, data: { meeting: toMeetingDetailDto(meeting, input.userId, permissions) } };
+  return serviceOk({ meeting: toMeetingDetailDto(meeting, input.userId, permissions) });
 }
 
 export async function createMeeting(input: { userId: number; body: Record<string, unknown> }) {
@@ -133,7 +133,7 @@ export async function deleteMeeting(input: { userId: number; meetingId: number }
   if (!command.ok) return serviceError(command.issue.message, command.issue.status);
   if (!(await canDeleteMeeting(input.userId, command.data.meetingId))) return serviceError("无权限", 403);
   await prisma.meeting.delete({ where: { id: command.data.meetingId } });
-  return { ok: true as const, data: { success: true } };
+  return serviceOk({ success: true });
 }
 
 export async function upsertMeetingParticipant(input: { userId: number; meetingId: number; body: Record<string, unknown> }) {

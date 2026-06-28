@@ -1,9 +1,13 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@workspace/platform/server/with-auth";
-import { jsonBadRequest, jsonResultResponse } from "@workspace/platform/server/api";
-import { createVoucher, listVouchers } from "@workspace/finance/server/ledger/voucher-service";
+import {
+  buildCreateVoucherCommand,
+  executeCreateVoucherCommand,
+  executeListVouchersCommand,
+} from "@workspace/finance/server/route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { checkFinanceLedgerAccess, checkFinanceLedgerWrite } from "@workspace/platform/server/auth";
 
 const optionalPositiveInt = z.preprocess(
   (value) => (value === null || value === undefined || value === "" ? undefined : Number(value)),
@@ -36,32 +40,27 @@ const voucherItemSchema = z.object({
   description: z.unknown().optional(),
 });
 
-const createVoucherSchema = z
-  .object({
-    voucherNo: z.string().min(1),
-    date: z.string().min(1),
-    companyCode: z.string().min(1),
-    description: z.string().optional(),
-    status: z.string().optional(),
-    items: z.array(voucherItemSchema).min(1),
-  })
-  .passthrough();
+const createVoucherSchema = z.object({
+  voucherNo: z.string().min(1),
+  date: z.string().min(1),
+  companyCode: z.string().min(1),
+  description: z.string().optional(),
+  status: z.string().optional(),
+  items: z.array(voucherItemSchema).min(1),
+}).passthrough();
 
-export const GET = withFinanceLedgerAccess(async (request: Request) => {
-  const { searchParams } = new URL(request.url);
-  const parsed = listVouchersSchema.safeParse(Object.fromEntries(searchParams.entries()));
-  if (!parsed.success) return jsonBadRequest("参数无效");
-
-  return NextResponse.json(await listVouchers(parsed.data));
+export const GET = createCommandRoute({
+  access: checkFinanceLedgerAccess,
+  querySchema: listVouchersSchema,
+  queryError: "参数无效",
+  buildCommand: ({ query }) => okCommand(query),
+  action: executeListVouchersCommand,
 });
 
-export const POST = withFinanceLedgerWrite(async (request: Request, user) => {
-  const body = await request.json().catch(() => null);
-  if (!body || typeof body !== "object") return jsonBadRequest("请求体为必填");
-
-  const parsed = createVoucherSchema.safeParse(body);
-  if (!parsed.success) return jsonBadRequest("凭证号、日期、公司编码、分录为必填");
-
-  const result = await createVoucher(parsed.data, user.userId);
-  return jsonResultResponse(result);
+export const POST = createCommandRoute({
+  access: checkFinanceLedgerWrite,
+  bodySchema: createVoucherSchema,
+  bodyError: "凭证号、日期、公司编码、分录为必填",
+  buildCommand: ({ body, user }) => buildCreateVoucherCommand(body, user.userId),
+  action: executeCreateVoucherCommand,
 });

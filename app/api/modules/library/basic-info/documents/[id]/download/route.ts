@@ -1,34 +1,18 @@
-import { NextResponse } from "next/server";
-import { withLibraryAccess } from "@workspace/platform/server/with-auth";
-import type { RouteContext } from "@workspace/platform/server/with-auth";
-import { getLibraryFileByDocumentId } from "@workspace/library/server";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { z } from "zod";
 
-function fileErrorResponse(error: unknown) {
-  const message = error instanceof Error ? error.message : "File not found";
-  const status = message === "Not found" || message === "File missing" || message === "File not found"
-    ? 404
-    : message === "Forbidden" || message === "Higher confidentiality required"
-      ? 403
-      : 400;
-  return jsonErrorResponse(message, status);
-}
+import { executeDownloadLibraryDocumentCommand } from "@workspace/library/server/route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkLibraryAccess } from "@workspace/platform/server/auth";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
-export const GET = withLibraryAccess(async (_req, user, ctx?: RouteContext) => {
-  const { id } = await ctx!.params;
-  const docId = parseInt(id, 10);
-  if (isNaN(docId)) return jsonErrorResponse("Invalid id", 400);
+const documentParamsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
 
-  try {
-    const file = await getLibraryFileByDocumentId(docId, user.userId);
-    return new NextResponse(new Uint8Array(file.buffer), {
-      headers: {
-        "Content-Type": file.contentType,
-        "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,
-        "Content-Length": String(file.size),
-      },
-    });
-  } catch (error) {
-    return fileErrorResponse(error);
-  }
+export const GET = createCommandRoute({
+  access: checkLibraryAccess,
+  paramsSchema: documentParamsSchema,
+  paramsError: "Invalid id",
+  buildCommand: ({ params, user }) => okCommand({ id: params.id, userId: user.userId }),
+  action: executeDownloadLibraryDocumentCommand,
 });

@@ -1,12 +1,9 @@
 import { z } from "zod";
-import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import {
-  listProjectPlanGantt,
-  projectPlanServiceResponse,
-  saveProjectPlanGantt,
-} from "@workspace/work/server";
 
+import { listProjectPlanGantt, saveProjectPlanGantt } from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 
 const planItemBodySchema = z.object({
   kind: z.enum(["project", "task"]),
@@ -20,33 +17,24 @@ const savePlanBodySchema = z.object({
   items: z.array(planItemBodySchema).optional(),
 }).passthrough();
 
-export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
+export const GET = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "项目 ID 无效",
+  buildCommand: ({ params, user }) => okCommand({
+    userId: user.userId,
+    projectId: params.id,
+  }),
+  action: listProjectPlanGantt,
+});
 
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("项目 ID 无效", 400);
-
-  return projectPlanServiceResponse(await listProjectPlanGantt({
-    userId: auth.user.userId,
-    projectId: parsedParams.data.id,
-  }));
-}
-
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("项目 ID 无效", 400);
-
-  const body = await request.json().catch(() => null);
-  const parsedBody = savePlanBodySchema.safeParse(body);
-  if (!parsedBody.success) return jsonErrorResponse(parsedBody.error.issues[0]?.message || "参数错误", 400);
-
-  return projectPlanServiceResponse(await saveProjectPlanGantt({
-    userId: auth.user.userId,
-    projectId: parsedParams.data.id,
-    body: parsedBody.data,
-  }));
-}
+export const PUT = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "项目 ID 无效",
+  bodySchema: savePlanBodySchema,
+  buildCommand: ({ params, body, user }) => okCommand({
+    userId: user.userId,
+    projectId: params.id,
+    body,
+  }),
+  action: saveProjectPlanGantt,
+});

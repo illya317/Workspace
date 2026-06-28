@@ -1,14 +1,33 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiAccess } from "@workspace/platform/server/auth";
+
 import {
-  canAccessTarget,
-  canEditWorkTask,
-  createWorkItem,
-  getWorkItems,
-  parseParticipants,
+  buildCreateWorkItemRouteCommand,
+  buildListWorkItemsRouteCommand,
+  executeCreateWorkItemRouteCommand,
+  executeListWorkItemsRouteCommand,
 } from "@workspace/work/server";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+
+const optionalNumber = z.preprocess(
+  (value) => (value === null || value === undefined || value === "" ? undefined : Number(value)),
+  z.number().optional(),
+);
+
+const optionalBoolean = z.preprocess(
+  (value) => value === true || value === "true",
+  z.boolean().optional(),
+);
+
+const workItemsQuerySchema = z.object({
+  category: z.string().optional(),
+  planId: optionalNumber.nullable().optional(),
+  periodType: z.string().nullable().optional(),
+  periodStart: z.string().nullable().optional(),
+  includeArchived: optionalBoolean,
+  targetType: z.string().optional(),
+  targetId: optionalNumber,
+  deptId: optionalNumber,
+});
 
 const createWorkItemSchema = z.object({
   planId: z.coerce.number().optional(),
@@ -45,73 +64,21 @@ const createWorkItemSchema = z.object({
   deptId: z.coerce.number().optional(),
 }).passthrough();
 
-export async function GET(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
+export const GET = createCommandRoute({
+  querySchema: workItemsQuerySchema,
+  buildCommand: ({ query, user }) => buildListWorkItemsRouteCommand({
+    user,
+    query,
+  }),
+  action: executeListWorkItemsRouteCommand,
+});
 
-  const { searchParams } = new URL(request.url);
-  const category = searchParams.get("category") || undefined;
-  const planId = searchParams.get("planId") ? Number(searchParams.get("planId")) : null;
-  const periodType = searchParams.has("periodType") ? searchParams.get("periodType") : undefined;
-  const periodStart = searchParams.get("periodStart");
-  const includeArchived = searchParams.get("includeArchived") === "true";
-  const targetType = searchParams.get("targetType") || "department";
-  // deptId is legacy compat; only used for department targets
-  const targetIdParam = searchParams.get("targetId")
-    || (targetType === "department" ? searchParams.get("deptId") : null);
-
-  let finalTargetId = payload.departmentId;
-  if (targetType === "personal" || targetType === "user") {
-    finalTargetId = targetIdParam ? parseInt(targetIdParam) : payload.userId;
-  } else if (targetIdParam != null) {
-    const targetId = parseInt(targetIdParam);
-    const allowed = await canAccessTarget(payload.userId, targetType, targetId);
-    if (!allowed) return jsonErrorResponse("无权限访问该目标", 403);
-    finalTargetId = targetId;
-  }
-
-  const allowed = await canAccessTarget(payload.userId, targetType, finalTargetId);
-  if (!allowed) return jsonErrorResponse("无权限访问该目标", 403);
-
-  const works = await getWorkItems({
-    planId,
-    targetType: targetType === "user" ? "personal" : targetType,
-    targetId: finalTargetId,
-    category,
-    periodType,
-    periodStart,
-    includeArchived,
-  });
-  return NextResponse.json({ works });
-}
-
-export async function POST(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-
-  const body = await request.json().catch(() => null);
-  const parsedBody = createWorkItemSchema.safeParse(body);
-  if (!parsedBody.success) {
-    return jsonErrorResponse("节点内容不能为空", 400);
-  }
-  const { targetType, targetId, deptId, participants, ...workInput } = parsedBody.data;
-
-  const finalTargetType = targetType || "department";
-  const finalTargetId = finalTargetType === "personal" || finalTargetType === "user"
-    ? targetId ?? payload.userId
-    : targetId ?? (finalTargetType === "department" ? deptId : null) ?? payload.departmentId;
-
-  const allowed = await canEditWorkTask(payload.userId, finalTargetType, finalTargetId);
-  if (!allowed) return jsonErrorResponse("无权限编辑工作计划", 403);
-
-  const work = await createWorkItem({
-    targetType: finalTargetType === "user" ? "personal" : finalTargetType,
-    targetId: finalTargetId,
-    ...workInput,
-    participants: parseParticipants(participants),
-  });
-  if (!work.ok) return jsonErrorResponse(work.error, work.status || 400);
-  return NextResponse.json({ work: work.data });
-}
+export const POST = createCommandRoute({
+  bodySchema: createWorkItemSchema,
+  bodyError: "节点内容不能为空",
+  buildCommand: ({ body, user }) => buildCreateWorkItemRouteCommand({
+    user,
+    body,
+  }),
+  action: executeCreateWorkItemRouteCommand,
+});

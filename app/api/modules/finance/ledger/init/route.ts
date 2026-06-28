@@ -1,9 +1,11 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { withFinanceLedgerWrite } from "@workspace/platform/server/with-auth";
-import { initializeFinanceDefaults } from "@workspace/finance/server/ledger/periods";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+import {
+  buildInitializeFinanceDefaultsCommand,
+  executeInitializeFinanceDefaultsCommand,
+} from "@workspace/finance/server/route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkFinanceLedgerWrite } from "@workspace/platform/server/auth";
 
 const initFinanceSchema = z.object({
   year: z.coerce.number().int().default(2025),
@@ -11,12 +13,10 @@ const initFinanceSchema = z.object({
   companyCode: z.string().trim().min(1),
 });
 
-/** 初始化财务基础数据：默认期间 + 标准科目 */
-export const POST = withFinanceLedgerWrite(async (request: Request, user) => {
-  const parsed = initFinanceSchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) {
-    return jsonErrorResponse("companyCode 为必填", 400);
-  }
-
-  return NextResponse.json(await initializeFinanceDefaults(parsed.data, user.userId));
+export const POST = createCommandRoute({
+  access: checkFinanceLedgerWrite,
+  bodySchema: initFinanceSchema,
+  bodyError: "companyCode 为必填",
+  buildCommand: ({ body, user }) => buildInitializeFinanceDefaultsCommand(body, user.userId),
+  action: executeInitializeFinanceDefaultsCommand,
 });

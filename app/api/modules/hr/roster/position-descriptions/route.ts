@@ -1,13 +1,18 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
-import { jsonErrorResponse, serviceResponse } from "@workspace/platform/server/api";
-import { requireApiAccess, checkHRAccess, checkHRWrite } from "@workspace/platform/server/auth";
+
 import {
-  getPositionDescriptionByCode,
-  getPositionDescriptionTree,
-  listPositionDescriptions,
+  buildHrRouteCommand,
+  executePositionDescriptionQuery,
   updatePositionDescription,
 } from "@workspace/hr/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkHRAccess, checkHRWrite } from "@workspace/platform/server/auth";
+
+const positionDescriptionQuerySchema = z.object({
+  code: z.string().optional(),
+  tree: z.string().optional(),
+  search: z.string().optional(),
+});
 
 const updatePositionDescriptionSchema = z.object({
   id: z.unknown().optional(),
@@ -17,27 +22,17 @@ const updatePositionDescriptionSchema = z.object({
   details: z.unknown().optional(),
 }).passthrough();
 
-export async function GET(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  if (!(await checkHRAccess(payload.userId, "access", "hr.roster"))) return jsonErrorResponse("无权限", 403);
+export const GET = createCommandRoute({
+  access: (userId: number) => checkHRAccess(userId, "access", "hr.roster"),
+  querySchema: positionDescriptionQuerySchema,
+  buildCommand: ({ query }) => buildHrRouteCommand(query),
+  action: executePositionDescriptionQuery,
+});
 
-  const { searchParams } = new URL(request.url);
-  const code = searchParams.get("code");
-  if (searchParams.get("tree") === "1") return NextResponse.json(await getPositionDescriptionTree());
-  if (code) return serviceResponse(await getPositionDescriptionByCode(code));
-  return NextResponse.json(await listPositionDescriptions(searchParams.get("search") || ""));
-}
-
-export async function PUT(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  if (!(await checkHRWrite(payload.userId, "hr.roster"))) return jsonErrorResponse("无权限", 403);
-
-  const body = await request.json().catch(() => null);
-  const parsedBody = updatePositionDescriptionSchema.safeParse(body);
-  if (!parsedBody.success) return jsonErrorResponse("参数错误", 400);
-  return serviceResponse(await updatePositionDescription(parsedBody.data, payload.userId));
-}
+export const PUT = createCommandRoute({
+  access: (userId: number) => checkHRWrite(userId, "hr.roster"),
+  bodySchema: updatePositionDescriptionSchema,
+  bodyError: "参数错误",
+  buildCommand: ({ body, user }) => buildHrRouteCommand({ body, userId: user.userId }),
+  action: ({ body, userId }) => updatePositionDescription(body, userId),
+});

@@ -1,24 +1,37 @@
-import { jsonErrorResponse, parseRouteIdParams, validatePassthroughBody } from "@workspace/platform/server/api";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import { deleteProject, updateProjectField } from "@workspace/work/server";
+import { z } from "zod";
 
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
+import {
+  buildProjectIdRouteCommand,
+  executeDeleteProjectRouteCommand,
+  executeUpdateProjectRouteCommand,
+} from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
 
-  const validation = await validatePassthroughBody(request);
-  if (!validation.ok) return jsonErrorResponse(validation.error, 400);
+const projectParamsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
 
-  const parsedParams = await parseRouteIdParams(params);
-  if (!parsedParams) return jsonErrorResponse("ID 无效", 400);
-  return updateProjectField(request, Promise.resolve(parsedParams));
-}
+const projectBodySchema = z.object({}).passthrough();
 
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
+export const PUT = createCommandRoute({
+  paramsSchema: projectParamsSchema,
+  paramsError: "ID 无效",
+  bodySchema: projectBodySchema,
+  bodyError: "请求体必须是合法 JSON",
+  buildCommand: ({ params, body, request }) => buildProjectIdRouteCommand({
+    id: params.id,
+    request,
+    body,
+  }),
+  action: executeUpdateProjectRouteCommand,
+});
 
-  const parsedParams = await parseRouteIdParams(params);
-  if (!parsedParams) return jsonErrorResponse("ID 无效", 400);
-  return deleteProject(request, Promise.resolve(parsedParams));
-}
+export const DELETE = createCommandRoute({
+  paramsSchema: projectParamsSchema,
+  paramsError: "ID 无效",
+  buildCommand: ({ params, request }) => buildProjectIdRouteCommand({
+    id: params.id,
+    request,
+  }),
+  action: executeDeleteProjectRouteCommand,
+});

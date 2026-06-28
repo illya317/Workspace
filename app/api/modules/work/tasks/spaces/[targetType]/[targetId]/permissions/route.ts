@@ -1,12 +1,12 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiAccess } from "@workspace/platform/server/auth";
+
 import {
-  listWorkSpacePermissions,
-  normalizeWorkTargetType,
-  updateWorkSpacePermissions,
+  buildUpdateWorkSpacePermissionsRouteCommand,
+  buildWorkSpacePermissionsRouteCommand,
+  executeListWorkSpacePermissionsRouteCommand,
+  executeUpdateWorkSpacePermissionsRouteCommand,
 } from "@workspace/work/server";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
 
 const paramsSchema = z.object({
   targetType: z.string().min(1),
@@ -21,44 +21,25 @@ const permissionSchema = z.object({
   })),
 });
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ targetType: string; targetId: string }> },
-) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
+export const GET = createCommandRoute({
+  paramsSchema,
+  paramsError: "工作空间参数无效",
+  buildCommand: ({ params, user }) => buildWorkSpacePermissionsRouteCommand({
+    userId: user.userId,
+    params,
+  }),
+  action: executeListWorkSpacePermissionsRouteCommand,
+});
 
-  const parsed = paramsSchema.safeParse(await params);
-  if (!parsed.success) return jsonErrorResponse("工作空间参数无效", 400);
-
-  const result = await listWorkSpacePermissions({
-    userId: auth.user.userId,
-    targetType: normalizeWorkTargetType(parsed.data.targetType),
-    targetId: parsed.data.targetId,
-  });
-  if (!result.ok) return jsonErrorResponse(result.error, result.status || 400);
-  return NextResponse.json(result.data);
-}
-
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ targetType: string; targetId: string }> },
-) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-
-  const parsed = paramsSchema.safeParse(await params);
-  if (!parsed.success) return jsonErrorResponse("工作空间参数无效", 400);
-
-  const body = permissionSchema.safeParse(await request.json().catch(() => null));
-  if (!body.success) return jsonErrorResponse("权限参数无效", 400);
-
-  const result = await updateWorkSpacePermissions({
-    actorUserId: auth.user.userId,
-    targetType: normalizeWorkTargetType(parsed.data.targetType),
-    targetId: parsed.data.targetId,
-    permissions: body.data.permissions,
-  });
-  if (!result.ok) return jsonErrorResponse(result.error, result.status || 400);
-  return NextResponse.json(result.data);
-}
+export const PUT = createCommandRoute({
+  paramsSchema,
+  paramsError: "工作空间参数无效",
+  bodySchema: permissionSchema,
+  bodyError: "权限参数无效",
+  buildCommand: ({ params, body, user }) => buildUpdateWorkSpacePermissionsRouteCommand({
+    userId: user.userId,
+    params,
+    body,
+  }),
+  action: executeUpdateWorkSpacePermissionsRouteCommand,
+});

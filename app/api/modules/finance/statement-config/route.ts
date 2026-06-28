@@ -1,12 +1,13 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { withFinanceStatementConfigAccess, withFinanceStatementConfigWrite } from "@workspace/platform/server/with-auth";
 import {
-  getStatementConfigView,
-  saveStatementConfigLines,
-} from "@workspace/finance/server/statements/statement-config-view";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+  buildSaveStatementConfigCommand,
+  buildStatementConfigViewCommand,
+  executeSaveStatementConfigCommand,
+  executeStatementConfigViewCommand,
+} from "@workspace/finance/server/route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkFinanceStatementConfigAccess, checkFinanceStatementConfigWrite } from "@workspace/platform/server/auth";
 
 const statementConfigQuerySchema = z.object({
   companyCode: z.string().min(1),
@@ -31,38 +32,18 @@ const saveStatementConfigSchema = z.object({
   lines: z.array(statementConfigLineSchema),
 });
 
-// GET: 报表配置视图（lineConfigs + accountTree + mappingPreview）
-// 权限：finance.statementConfig access
-export const GET = withFinanceStatementConfigAccess(async (request) => {
-  const { searchParams } = new URL(request.url);
-  const companyCode = searchParams.get("companyCode");
-  const year = searchParams.get("year");
-  if (!companyCode || !year)
-    return jsonErrorResponse("companyCode, year 为必填", 400);
-
-  const type = searchParams.get("type") || "balance";
-  const parsed = statementConfigQuerySchema.safeParse({ companyCode, year, type });
-  if (!parsed.success && type !== "balance")
-    return jsonErrorResponse("statement-config 暂只支持 balance", 400);
-  if (!parsed.success)
-    return jsonErrorResponse("companyCode, year 为必填", 400);
-
-  const view = await getStatementConfigView(parsed.data.companyCode, parsed.data.year, parsed.data.type);
-  return NextResponse.json(view);
+export const GET = createCommandRoute({
+  access: checkFinanceStatementConfigAccess,
+  querySchema: statementConfigQuerySchema,
+  queryError: "companyCode, year 为必填",
+  buildCommand: ({ query }) => buildStatementConfigViewCommand(query),
+  action: executeStatementConfigViewCommand,
 });
 
-// PUT: 批量保存配置行
-// 权限：finance.statementConfig write
-export const PUT = withFinanceStatementConfigWrite(async (request) => {
-  const body = await request.json().catch(() => null);
-  if (!body || !Array.isArray(body.lines))
-    return jsonErrorResponse("lines 数组为必填", 400);
-
-  const parsed = saveStatementConfigSchema.safeParse(body);
-  if (!parsed.success && (!body.companyCode || !body.year))
-    return jsonErrorResponse("companyCode, year 为必填", 400);
-  if (!parsed.success)
-    return jsonErrorResponse("参数无效", 400);
-
-  return NextResponse.json(await saveStatementConfigLines(parsed.data));
+export const PUT = createCommandRoute({
+  access: checkFinanceStatementConfigWrite,
+  bodySchema: saveStatementConfigSchema,
+  bodyError: "参数无效",
+  buildCommand: ({ body }) => buildSaveStatementConfigCommand(body),
+  action: executeSaveStatementConfigCommand,
 });

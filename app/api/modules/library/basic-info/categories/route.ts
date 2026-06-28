@@ -1,14 +1,10 @@
-import { NextResponse } from "next/server";
-import { withLibraryAccess } from "@workspace/platform/server/with-auth";
-import { listCategories } from "@workspace/library/server/metadata";
-import { buildConfidentialityFilter } from "@workspace/library/server/permissions";
+import { executeLibraryCategoriesCommand } from "@workspace/library/server/route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkLibraryAccess } from "@workspace/platform/server/auth";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
-export const GET = withLibraryAccess(async (_request: Request, user) => {
-  const confFilter = await buildConfidentialityFilter(user.userId);
-  const categories = await listCategories(
-    typeof confFilter.confidentialityLevel === "object"
-      ? confFilter.confidentialityLevel
-      : undefined,
-  );
-  return NextResponse.json(categories);
+export const GET = createCommandRoute({
+  access: checkLibraryAccess,
+  buildCommand: ({ user }) => okCommand({ userId: user.userId }),
+  action: executeLibraryCategoriesCommand,
 });

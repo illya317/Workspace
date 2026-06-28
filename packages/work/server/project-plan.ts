@@ -6,7 +6,7 @@ import { isValidProjectPlanDateValue, normalizeProjectPlanText, validateProjectP
 import { validateProjectTaskPlanBatch } from "./domain/project-task-validation";
 import { deriveStatusFromActualDates, effectiveProjectDates } from "./project-dates";
 import { formatDate, parseDate } from "./project-normalization";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { jsonErrorResponse, serviceError, serviceOk } from "@workspace/platform/server/api";
 
 export const PLAN_ITEM_KINDS = ["project", "task", "phase"] as const;
 export type PlanItemKind = (typeof PLAN_ITEM_KINDS)[number];
@@ -60,8 +60,6 @@ function isInvalidDate(value: Date | null | number): value is number { return ty
 
 function planKey(kind: string, id: number) { return `${kind}:${id}`; }
 
-function serviceError(error: string, status = 400) { return { ok: false as const, error, status }; }
-
 export async function listProjectPlanGantt(input: { userId: number; projectId: number }) {
   const permissions = await getProjectPermissionsById(input.userId, input.projectId);
   if (!permissions?.canView) return serviceError("无权限", 403);
@@ -101,9 +99,7 @@ export async function listProjectPlanGantt(input: { userId: number; projectId: n
   const activeBaseline = project.planBaselines[0] || null;
   const phaseBaseline = derivePhaseBaseline(project.planPhases);
   const projectDates = effectiveProjectDates(project);
-  return {
-    ok: true as const,
-    data: {
+  return serviceOk({
       projectId: input.projectId,
       permissions,
       phases: project.planPhases.map((phase) => ({
@@ -177,8 +173,7 @@ export async function listProjectPlanGantt(input: { userId: number; projectId: n
           endDate: formatDate(item.endDate),
         })),
       } : null,
-    },
-  };
+  });
 }
 
 export async function saveProjectPlanGantt(input: { userId: number; projectId: number; body: { items?: PlanDateInput[] } }) {
@@ -226,7 +221,7 @@ export async function saveProjectPlanGantt(input: { userId: number; projectId: n
       }
     }
   });
-  return { ok: true as const, data: { success: true } };
+  return serviceOk({ success: true });
 }
 
 export async function syncProjectPlanDependencies(input: { userId: number; projectId: number; body: { dependencies?: DependencyInput[] } }) {
@@ -258,7 +253,7 @@ export async function syncProjectPlanDependencies(input: { userId: number; proje
       });
     }
   });
-  return { ok: true as const, data: { success: true } };
+  return serviceOk({ success: true });
 }
 
 export async function listProjectPlanPhases(input: { userId: number; projectId: number }) {
@@ -267,7 +262,7 @@ export async function listProjectPlanPhases(input: { userId: number; projectId: 
     where: { projectId: input.projectId },
     orderBy: [{ sequenceNo: "asc" }, { id: "asc" }],
   });
-  return { ok: true as const, data: { phases: phases.map(mapPlanPhase) } };
+  return serviceOk({ phases: phases.map(mapPlanPhase) });
 }
 
 export async function createProjectPlanPhase(input: { userId: number; projectId: number; body: PlanPhaseInput }) {
@@ -283,7 +278,7 @@ export async function createProjectPlanPhase(input: { userId: number; projectId:
   const phase = await prisma.projectPlanPhase.create({
     data: { projectId: input.projectId, ...createData, name: createData.name, sequenceNo: createData.sequenceNo, createdBy: input.userId, editedBy: input.userId },
   });
-  return { ok: true as const, data: { phase: mapPlanPhase(phase) } };
+  return serviceOk({ phase: mapPlanPhase(phase) });
 }
 
 export async function updateProjectPlanPhase(input: { userId: number; projectId: number; phaseId: number; body: PlanPhaseInput }) {
@@ -300,7 +295,7 @@ export async function updateProjectPlanPhase(input: { userId: number; projectId:
     where: { id: input.phaseId },
     data: { ...normalized.data, editedBy: input.userId, editedAt: new Date(), version: { increment: 1 } },
   });
-  return { ok: true as const, data: { phase: mapPlanPhase(phase) } };
+  return serviceOk({ phase: mapPlanPhase(phase) });
 }
 
 function derivePhaseBaseline(phases: Array<{ startDate: Date | null; endDate: Date | null }>) {
@@ -316,7 +311,7 @@ export async function deleteProjectPlanPhase(input: { userId: number; projectId:
   const existing = await prisma.projectPlanPhase.findUnique({ where: { id: input.phaseId }, select: { projectId: true } });
   if (!existing || existing.projectId !== input.projectId) return serviceError("项目阶段不存在", 404);
   await prisma.projectPlanPhase.delete({ where: { id: input.phaseId } });
-  return { ok: true as const, data: { success: true } };
+  return serviceOk({ success: true });
 }
 
 function mapPlanPhase(phase: { id: number; projectId: number; sequenceNo: number; name: string; startDate: Date | null; endDate: Date | null; note: string | null }) {

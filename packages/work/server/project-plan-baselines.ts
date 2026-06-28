@@ -1,3 +1,4 @@
+import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { prisma } from "@workspace/platform/server/prisma";
 import { canEditProject, canViewProject } from "./access";
 import { normalizeProjectPlanText, validateProjectPlanCommand } from "./domain/project-plan-validation";
@@ -8,10 +9,6 @@ type BaselineInput = {
   note?: unknown;
 };
 
-function serviceError(error: string, status = 400) {
-  return { ok: false as const, error, status };
-}
-
 export async function listProjectPlanBaselines(input: { userId: number; projectId: number }) {
   if (!(await canViewProject(input.userId, input.projectId))) return serviceError("无权限", 403);
   const baselines = await prisma.projectPlanBaseline.findMany({
@@ -19,10 +16,7 @@ export async function listProjectPlanBaselines(input: { userId: number; projectI
     orderBy: [{ isActive: "desc" }, { id: "desc" }],
     select: { id: true, name: true, note: true, isActive: true, createdAt: true },
   });
-  return {
-    ok: true as const,
-    data: { baselines: baselines.map((baseline) => ({ ...baseline, createdAt: baseline.createdAt.toISOString() })) },
-  };
+  return serviceOk({ baselines: baselines.map((baseline) => ({ ...baseline, createdAt: baseline.createdAt.toISOString() })) });
 }
 
 export async function createProjectPlanBaseline(input: { userId: number; projectId: number; body: BaselineInput }) {
@@ -44,10 +38,7 @@ export async function createProjectPlanBaseline(input: { userId: number; project
       },
     });
   });
-  return {
-    ok: true as const,
-    data: { baseline: { id: baseline.id, name: baseline.name, note: baseline.note, isActive: baseline.isActive } },
-  };
+  return serviceOk({ baseline: { id: baseline.id, name: baseline.name, note: baseline.note, isActive: baseline.isActive } });
 }
 
 export async function activateProjectPlanBaseline(input: { userId: number; projectId: number; baselineId: number }) {
@@ -60,7 +51,7 @@ export async function activateProjectPlanBaseline(input: { userId: number; proje
     await tx.projectPlanBaseline.updateMany({ where: { projectId: input.projectId }, data: { isActive: false } });
     await tx.projectPlanBaseline.update({ where: { id: input.baselineId }, data: { isActive: true, editedBy: input.userId, editedAt: new Date(), version: { increment: 1 } } });
   });
-  return { ok: true as const, data: { success: true } };
+  return serviceOk({ success: true });
 }
 
 async function buildBaselineSnapshot(projectId: number) {

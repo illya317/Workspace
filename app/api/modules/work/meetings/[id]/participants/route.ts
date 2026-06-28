@@ -1,7 +1,9 @@
 import { z } from "zod";
-import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import { meetingServiceResponse, upsertMeetingParticipant } from "@workspace/work/server";
+
+import { upsertMeetingParticipant } from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 
 const participantSchema = z.object({
   userId: z.coerce.number().int().positive(),
@@ -10,17 +12,15 @@ const participantSchema = z.object({
   attendanceStatus: z.string().optional(),
 }).passthrough();
 
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("会议 ID 无效", 400);
-  const parsedBody = participantSchema.safeParse(await request.json().catch(() => null));
-  if (!parsedBody.success) return jsonErrorResponse("参会人参数无效", 400);
-
-  return meetingServiceResponse(await upsertMeetingParticipant({
-    userId: auth.user.userId,
-    meetingId: parsedParams.data.id,
-    body: parsedBody.data,
-  }));
-}
+export const POST = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "会议 ID 无效",
+  bodySchema: participantSchema,
+  bodyError: "参会人参数无效",
+  buildCommand: ({ params, body, user }) => okCommand({
+    userId: user.userId,
+    meetingId: params.id,
+    body,
+  }),
+  action: upsertMeetingParticipant,
+});

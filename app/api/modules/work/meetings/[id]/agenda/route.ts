@@ -1,7 +1,9 @@
 import { z } from "zod";
-import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import { createMeetingAgendaItem, meetingServiceResponse } from "@workspace/work/server";
+
+import { createMeetingAgendaItem } from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 
 const agendaSchema = z.object({
   title: z.string().min(1),
@@ -10,17 +12,14 @@ const agendaSchema = z.object({
   sortOrder: z.coerce.number().optional(),
 }).passthrough();
 
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("会议 ID 无效", 400);
-  const parsedBody = agendaSchema.safeParse(await request.json().catch(() => null));
-  if (!parsedBody.success) return jsonErrorResponse(parsedBody.error.issues[0]?.message || "议题参数无效", 400);
-
-  return meetingServiceResponse(await createMeetingAgendaItem({
-    userId: auth.user.userId,
-    meetingId: parsedParams.data.id,
-    body: parsedBody.data,
-  }));
-}
+export const POST = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "会议 ID 无效",
+  bodySchema: agendaSchema,
+  buildCommand: ({ params, body, user }) => okCommand({
+    userId: user.userId,
+    meetingId: params.id,
+    body,
+  }),
+  action: createMeetingAgendaItem,
+});

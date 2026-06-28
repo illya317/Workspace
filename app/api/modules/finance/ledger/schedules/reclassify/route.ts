@@ -1,18 +1,18 @@
-import { NextResponse } from "next/server";
-import { withAuth } from "@workspace/platform/server/with-auth";
-import { computeReclassification } from "@workspace/finance/server/schedules/reclassify";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { z } from "zod";
 
-export const GET = withAuth(async (request: Request) => {
-  const { searchParams } = new URL(request.url);
-  const companyCode = searchParams.get("companyCode");
-  const year = searchParams.get("year");
-  const month = searchParams.get("month");
+import { executeScheduledReclassificationCommand } from "@workspace/finance/server/route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
-  if (!companyCode || !year || !month) {
-    return jsonErrorResponse("缺少参数", 400);
-  }
+const scheduledReclassQuerySchema = z.object({
+  companyCode: z.string().min(1),
+  year: z.coerce.number().int(),
+  month: z.coerce.number().int().min(1).max(12),
+});
 
-  const result = await computeReclassification(companyCode, parseInt(year), parseInt(month));
-  return NextResponse.json(result);
+export const GET = createCommandRoute({
+  querySchema: scheduledReclassQuerySchema,
+  queryError: "缺少参数",
+  buildCommand: ({ query }) => okCommand(query),
+  action: executeScheduledReclassificationCommand,
 });

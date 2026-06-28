@@ -1,15 +1,18 @@
-import { NextResponse } from "next/server";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import { listWorkReportCollection } from "@workspace/work/server";
+import { z } from "zod";
 
-export async function GET(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
+import { executeWorkReportCollectionRouteCommand } from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
-  const { searchParams } = new URL(request.url);
-  const result = await listWorkReportCollection({
-    userId: auth.user.userId,
-    periodStart: searchParams.get("periodStart"),
-  });
-  return NextResponse.json(result.data);
-}
+const reportCollectionQuerySchema = z.object({
+  periodStart: z.string().nullable().optional(),
+});
+
+export const GET = createCommandRoute({
+  querySchema: reportCollectionQuerySchema,
+  buildCommand: ({ query, user }) => okCommand({
+    userId: user.userId,
+    periodStart: query.periodStart ?? null,
+  }),
+  action: executeWorkReportCollectionRouteCommand,
+});

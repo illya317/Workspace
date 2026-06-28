@@ -1,13 +1,13 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@workspace/platform/server/with-auth";
 import {
-  scanCandidates,
-  upsertReclassRule,
-} from "@workspace/finance/server/ledger/reclass-rules";
-import { ensureReclassRulesForYear } from "@workspace/finance/server/ledger/reclass-rules/ensure";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+  buildScanReclassRulesCommand,
+  buildUpsertReclassRuleRouteCommand,
+  executeScanReclassRulesCommand,
+  executeUpsertReclassRuleRouteCommand,
+} from "@workspace/finance/server/route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkFinanceLedgerAccess, checkFinanceLedgerWrite } from "@workspace/platform/server/auth";
 
 const scanRulesQuerySchema = z.object({
   companyCode: z.string().min(1),
@@ -24,51 +24,18 @@ const upsertRuleSchema = z.object({
   note: z.string().nullable().optional(),
 });
 
-// ─── GET: 扫描候选 ────────────────────────────────────────
-
-export const GET = withFinanceLedgerAccess(async (request: Request) => {
-  const { searchParams } = new URL(request.url);
-  const companyCode = searchParams.get("companyCode");
-  const year = searchParams.get("year");
-
-  if (!companyCode || !year) {
-    return jsonErrorResponse("companyCode 和 year 为必填", 400);
-  }
-
-  const parsed = scanRulesQuerySchema.safeParse({ companyCode, year });
-  if (!parsed.success) {
-    return jsonErrorResponse("year 必须为数字", 400);
-  }
-
-  // 确保该年度有规则（无则从上年继承）
-  await ensureReclassRulesForYear(parsed.data.companyCode, parsed.data.year);
-
-  const result = await scanCandidates(parsed.data);
-
-  return NextResponse.json(result);
+export const GET = createCommandRoute({
+  access: checkFinanceLedgerAccess,
+  querySchema: scanRulesQuerySchema,
+  queryError: "companyCode 和 year 为必填",
+  buildCommand: ({ query }) => buildScanReclassRulesCommand(query),
+  action: executeScanReclassRulesCommand,
 });
 
-// ─── PUT: 创建或更新规则 ──────────────────────────────────
-
-export const PUT = withFinanceLedgerWrite(async (request: Request) => {
-  const body = await request.json().catch(() => null);
-  if (!body || typeof body !== "object") {
-    return jsonErrorResponse("请求体为必填", 400);
-  }
-
-  const requiredFields = ["companyCode", "year", "sourceAccountCode", "abnormalSide", "targetAccountCode"] as const;
-  if (requiredFields.some((field) => !body[field])) {
-    return jsonErrorResponse("companyCode, year, sourceAccountCode, abnormalSide, targetAccountCode 为必填", 400);
-  }
-
-  const parsed = upsertRuleSchema.safeParse(body);
-  if (!parsed.success && parsed.error.issues.some((issue) => issue.path[0] === "year")) {
-    return jsonErrorResponse("year 必须为数字", 400);
-  }
-
-  if (!parsed.success) {
-    return jsonErrorResponse("abnormalSide 必须为 debit、credit 或 both", 400);
-  }
-
-  return NextResponse.json(await upsertReclassRule(parsed.data));
+export const PUT = createCommandRoute({
+  access: checkFinanceLedgerWrite,
+  bodySchema: upsertRuleSchema,
+  bodyError: "companyCode, year, sourceAccountCode, abnormalSide, targetAccountCode 为必填",
+  buildCommand: ({ body }) => buildUpsertReclassRuleRouteCommand(body),
+  action: executeUpsertReclassRuleRouteCommand,
 });

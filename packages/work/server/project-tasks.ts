@@ -1,4 +1,4 @@
-import { serviceResponse, type ServiceResult } from "@workspace/platform/server/api";
+import { serviceError, serviceOk, serviceResponse, type ServiceResult } from "@workspace/platform/server/api";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { canEditProject, canViewProject } from "./access";
@@ -111,22 +111,22 @@ async function listProjectTaskRows(projectId: number) {
 
 export async function listProjectTasks(input: { userId: number; projectId: number }) {
   if (!(await canViewProject(input.userId, input.projectId))) {
-    return { ok: false as const, error: "无权限", status: 403 };
+    return serviceError("无权限", 403);
   }
-  return { ok: true as const, data: { tasks: await listProjectTaskRows(input.projectId) } };
+  return serviceOk({ tasks: await listProjectTaskRows(input.projectId) });
 }
 
 export async function createProjectTask(input: { userId: number; projectId: number; body: ProjectTaskInput }) {
   if (!(await canEditProject(input.userId, input.projectId))) {
-    return { ok: false as const, error: "无权限", status: 403 };
+    return serviceError("无权限", 403);
   }
   const normalized = normalizeProjectTaskInput(input.body, "create");
-  if ("error" in normalized) return { ok: false as const, error: normalized.error ?? "参数错误" };
+  if ("error" in normalized) return serviceError(normalized.error ?? "参数错误");
 
   const ownerError = await validateOwner(normalized.data.ownerEmployeeId);
-  if (ownerError) return { ok: false as const, error: ownerError };
+  if (ownerError) return serviceError(ownerError);
   const assigneeError = await validateAssignees(normalized.data.assignees);
-  if (assigneeError) return { ok: false as const, error: assigneeError };
+  if (assigneeError) return serviceError(assigneeError);
   const planError = await validateTaskPlanConstraints({
     projectId: input.projectId,
     taskId: 0,
@@ -137,9 +137,9 @@ export async function createProjectTask(input: { userId: number; projectId: numb
     startDate: normalized.data.startDate ?? null,
     endDate: normalized.data.endDate ?? null,
   });
-  if (planError) return { ok: false as const, error: planError };
+  if (planError) return serviceError(planError);
   const meetingSourceError = await validateProjectTaskMeetingSource(normalized.data);
-  if (meetingSourceError) return { ok: false as const, error: meetingSourceError };
+  if (meetingSourceError) return serviceError(meetingSourceError);
 
   const sortOrder = normalized.data.sortOrder ?? await nextSortOrder(input.projectId);
   const task = await prisma.$transaction(async (tx) => {
@@ -167,7 +167,7 @@ export async function createProjectTask(input: { userId: number; projectId: numb
     return created;
   });
   await snapshotHistory("ProjectTask", task.id, input.userId);
-  return { ok: true as const, data: { task } };
+  return serviceOk({ task });
 }
 
 export async function updateProjectTask(input: { userId: number; projectId: number; taskId: number; body: ProjectTaskInput }) {
@@ -184,19 +184,19 @@ export async function updateProjectTask(input: { userId: number; projectId: numb
     },
   });
   if (!existing || existing.projectId !== input.projectId) {
-    return { ok: false as const, error: "任务不存在", status: 404 };
+    return serviceError("任务不存在", 404);
   }
   if (!(await canEditProject(input.userId, input.projectId))) {
-    return { ok: false as const, error: "无权限", status: 403 };
+    return serviceError("无权限", 403);
   }
   const normalized = normalizeProjectTaskInput(input.body, "update");
-  if ("error" in normalized) return { ok: false as const, error: normalized.error ?? "参数错误" };
+  if ("error" in normalized) return serviceError(normalized.error ?? "参数错误");
 
   const ownerError = await validateOwner(normalized.data.ownerEmployeeId);
-  if (ownerError) return { ok: false as const, error: ownerError };
+  if (ownerError) return serviceError(ownerError);
   const effectivePlanPhaseId = normalized.data.planPhaseId === undefined ? existing.planPhaseId : normalized.data.planPhaseId;
   const assigneeError = await validateAssignees(normalized.data.assignees);
-  if (assigneeError) return { ok: false as const, error: assigneeError };
+  if (assigneeError) return serviceError(assigneeError);
 
   const effectiveBaselineStartDate = normalized.data.baselineStartDate === undefined ? existing.baselineStartDate : normalized.data.baselineStartDate;
   const effectiveBaselineEndDate = normalized.data.baselineEndDate === undefined ? existing.baselineEndDate : normalized.data.baselineEndDate;
@@ -215,9 +215,9 @@ export async function updateProjectTask(input: { userId: number; projectId: numb
     startDate: effectiveStartDate,
     endDate: effectiveEndDate,
   });
-  if (planError) return { ok: false as const, error: planError };
+  if (planError) return serviceError(planError);
   const meetingSourceError = await validateProjectTaskMeetingSource(normalized.data);
-  if (meetingSourceError) return { ok: false as const, error: meetingSourceError };
+  if (meetingSourceError) return serviceError(meetingSourceError);
 
   const task = await prisma.$transaction(async (tx) => {
     await ensureEditHistoryBaseline("ProjectTask", input.taskId, input.userId, tx);
@@ -239,7 +239,7 @@ export async function updateProjectTask(input: { userId: number; projectId: numb
     await snapshotHistory("ProjectTask", input.taskId, input.userId, tx);
     return updated;
   });
-  return { ok: true as const, data: { task } };
+  return serviceOk({ task });
 }
 
 function taskUpdateData(data: NormalizedProjectTaskInput) {
@@ -344,19 +344,19 @@ async function syncTaskAssignments(
 
 export async function deleteProjectTask(input: { userId: number; projectId: number; taskId: number }) {
   const command = validateProjectTaskCommand("deleteProjectTask");
-  if (!command.ok) return { ok: false as const, error: command.issue.message, status: command.issue.status };
+  if (!command.ok) return serviceError(command.issue.message, command.issue.status);
   const existing = await prisma.projectTask.findUnique({
     where: { id: input.taskId },
     select: { id: true, projectId: true, childProject: { select: { id: true } } },
   });
   if (!existing || existing.projectId !== input.projectId) {
-    return { ok: false as const, error: "任务不存在", status: 404 };
+    return serviceError("任务不存在", 404);
   }
   if (!(await canEditProject(input.userId, input.projectId))) {
-    return { ok: false as const, error: "无权限", status: 403 };
+    return serviceError("无权限", 403);
   }
   if (existing.childProject) {
-    return { ok: false as const, error: "请先处理相关子项目" };
+    return serviceError("请先处理相关子项目");
   }
   await prisma.$transaction(async (tx) => {
     await ensureEditHistoryBaseline("ProjectTask", input.taskId, input.userId, tx);
@@ -372,7 +372,7 @@ export async function deleteProjectTask(input: { userId: number; projectId: numb
     });
     await tx.projectTask.delete({ where: { id: input.taskId } });
   });
-  return { ok: true as const, data: { success: true } };
+  return serviceOk({ success: true });
 }
 
 export const projectTaskServiceResponse: <T>(result: ServiceResult<T>) => Response = serviceResponse;

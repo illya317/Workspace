@@ -1,15 +1,13 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
+
 import {
-  canEditWorkTask,
-  canDeleteWorkTask,
-  deleteWorkItem,
-  getWorkItemAccessMetadata,
-  parseParticipants,
-  updateWorkItem,
+  buildDeleteWorkItemRouteCommand,
+  buildUpdateWorkItemRouteCommand,
+  executeDeleteWorkItemRouteCommand,
+  executeUpdateWorkItemRouteCommand,
 } from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 
 const updateWorkItemSchema = z.object({
   planId: z.coerce.number().nullable().optional(),
@@ -44,57 +42,25 @@ const updateWorkItemSchema = z.object({
   isArchived: z.boolean().optional(),
 });
 
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export const PUT = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "节点 ID 无效",
+  bodySchema: updateWorkItemSchema,
+  bodyError: "节点参数无效",
+  buildCommand: ({ params, body, user }) => buildUpdateWorkItemRouteCommand({
+    userId: user.userId,
+    workId: params.id,
+    body,
+  }),
+  action: executeUpdateWorkItemRouteCommand,
+});
 
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) {
-    return jsonErrorResponse("节点 ID 无效", 400);
-  }
-
-  const workId = parsedParams.data.id;
-  const existing = await getWorkItemAccessMetadata(workId);
-  if (!existing) return jsonErrorResponse("节点不存在", 404);
-
-  const allowed = await canEditWorkTask(payload.userId, existing.targetType, existing.targetId ?? 0);
-  if (!allowed) return jsonErrorResponse("无权限编辑工作计划", 403);
-
-  const parsedBody = updateWorkItemSchema.safeParse(await request.json());
-  if (!parsedBody.success) {
-    return jsonErrorResponse("节点参数无效", 400);
-  }
-
-  const { participants, ...data } = parsedBody.data;
-  const work = await updateWorkItem(workId, {
-    ...data,
-    ...(participants !== undefined && { participants: parseParticipants(participants) }),
-  });
-  if (!work.ok) return jsonErrorResponse(work.error, work.status || 400);
-  return NextResponse.json({ work: work.data });
-}
-
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
-
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) {
-    return jsonErrorResponse("节点 ID 无效", 400);
-  }
-
-  const workId = parsedParams.data.id;
-  const existing = await getWorkItemAccessMetadata(workId);
-  if (!existing) return jsonErrorResponse("节点不存在", 404);
-
-  const allowed = await canDeleteWorkTask(payload.userId, existing.targetType, existing.targetId ?? 0);
-  if (!allowed) return jsonErrorResponse("无权限删除工作计划", 403);
-
-  const result = await deleteWorkItem(workId);
-  if (!result.ok) return jsonErrorResponse(result.error, result.status || 400);
-  return NextResponse.json({ success: true });
-}
+export const DELETE = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "节点 ID 无效",
+  buildCommand: ({ params, user }) => buildDeleteWorkItemRouteCommand({
+    userId: user.userId,
+    workId: params.id,
+  }),
+  action: executeDeleteWorkItemRouteCommand,
+});

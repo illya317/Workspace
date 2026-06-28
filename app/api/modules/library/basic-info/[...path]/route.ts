@@ -1,35 +1,15 @@
-import { NextResponse } from "next/server";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import { getLibraryFileByRelativePath } from "@workspace/library/server";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { z } from "zod";
 
-function fileErrorResponse(error: unknown) {
-  const message = error instanceof Error ? error.message : "File not found";
-  const status = message === "File missing" || message === "File not found"
-    ? 404
-    : message === "Forbidden" || message === "Higher confidentiality required" || message === "File not indexed - run scan first"
-      ? 403
-      : 400;
-  return jsonErrorResponse(message, status);
-}
+import { executeLibraryPathFileCommand } from "@workspace/library/server/route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
-export async function GET(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
+const libraryPathParamsSchema = z.object({
+  path: z.array(z.string()).min(1),
+});
 
-  const { path: segments } = await params;
-
-  const relativePath = segments.join("/");
-  try {
-    const file = await getLibraryFileByRelativePath(relativePath, auth.user.userId);
-    return new NextResponse(new Uint8Array(file.buffer), {
-      headers: {
-        "Content-Type": file.contentType,
-        "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,
-        "Content-Length": String(file.size),
-      },
-    });
-  } catch (error) {
-    return fileErrorResponse(error);
-  }
-}
+export const GET = createCommandRoute({
+  paramsSchema: libraryPathParamsSchema,
+  buildCommand: ({ params, user }) => okCommand({ path: params.path, userId: user.userId }),
+  action: executeLibraryPathFileCommand,
+});

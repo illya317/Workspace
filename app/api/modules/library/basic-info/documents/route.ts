@@ -1,25 +1,25 @@
-import { NextResponse } from "next/server";
-import { withLibraryAccess } from "@workspace/platform/server/with-auth";
-import { listDocuments } from "@workspace/library/server/metadata";
-import { buildConfidentialityFilter } from "@workspace/library/server/permissions";
+import { z } from "zod";
 
-export const GET = withLibraryAccess(async (request: Request, user) => {
-  const { searchParams } = new URL(request.url);
-  const filters = {
-    categoryCode: searchParams.get("categoryCode") || undefined,
-    directoryPath: searchParams.get("directoryPath") || undefined,
-    status: searchParams.get("status") || undefined,
-    origin: searchParams.get("origin") || undefined,
-    confidentialityLevel: searchParams.get("confidentialityLevel")
-      ? parseInt(searchParams.get("confidentialityLevel")!, 10)
-      : undefined,
-    keyword: searchParams.get("keyword") || undefined,
-    docId: searchParams.get("docId") || undefined,
-    page: parseInt(searchParams.get("page") || "1", 10),
-    pageSize: parseInt(searchParams.get("pageSize") || "50", 10),
-  };
+import { executeListLibraryDocumentsCommand } from "@workspace/library/server/route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkLibraryAccess } from "@workspace/platform/server/auth";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
-  const confFilter = await buildConfidentialityFilter(user.userId);
-  const result = await listDocuments({ ...filters, ...confFilter });
-  return NextResponse.json(result);
+const documentsQuerySchema = z.object({
+  categoryCode: z.string().optional(),
+  directoryPath: z.string().optional(),
+  status: z.string().optional(),
+  origin: z.string().optional(),
+  confidentialityLevel: z.coerce.number().int().optional(),
+  keyword: z.string().optional(),
+  docId: z.string().optional(),
+  page: z.coerce.number().int().min(1).catch(1),
+  pageSize: z.coerce.number().int().min(1).max(500).catch(50),
+});
+
+export const GET = createCommandRoute({
+  access: checkLibraryAccess,
+  querySchema: documentsQuerySchema,
+  buildCommand: ({ query, user }) => okCommand({ ...query, userId: user.userId }),
+  action: executeListLibraryDocumentsCommand,
 });

@@ -1,6 +1,6 @@
 import "server-only";
 import { z } from "zod";
-import { isServiceResult, jsonBadRequest, jsonResultResponse, serviceResponse } from "./api";
+import { isServiceResult, jsonBadRequest, serviceResponse } from "./api";
 import { requireApiAccess, type ApiAccessResult } from "./auth";
 import {
   domainIssueToResponse,
@@ -33,6 +33,7 @@ type ApiRouteHandlerOptions<
   paramsSchema?: TParamsSchema;
   querySchema?: TQuerySchema;
   bodySchema?: TBodySchema;
+  bodyParser?: "json" | "formData";
   optionalJsonBody?: boolean;
   paramsError?: string;
   queryError?: string;
@@ -126,6 +127,11 @@ function firstZodIssue(error: z.ZodError, fallback: string) {
   return error.issues[0]?.message || fallback;
 }
 
+async function parseRouteBody(request: Request, parser: "json" | "formData") {
+  if (parser === "formData") return Object.fromEntries((await request.formData()).entries());
+  return request.json();
+}
+
 function commandActionResponse<TResult>(result: CommandRouteResult<TResult>) {
   if (result instanceof Response) return result;
   if (result === undefined) return new Response(null, { status: 204 });
@@ -133,8 +139,14 @@ function commandActionResponse<TResult>(result: CommandRouteResult<TResult>) {
     if (result.ok === true) return Response.json(result.data);
     return toServiceErrorResponse(result);
   }
-  if (result && typeof result === "object" && "error" in result) return jsonResultResponse(result);
+  if (isLegacySuccessErrorResult(result)) return serviceResponse({ ok: false, error: result.error, status: result.status });
   return Response.json(result);
+}
+
+function isLegacySuccessErrorResult(value: unknown): value is { success: false; error: string; status?: number } {
+  if (!value || typeof value !== "object") return false;
+  const result = value as Record<string, unknown>;
+  return result.success === false && typeof result.error === "string";
 }
 
 export function createApiRouteHandler<
@@ -172,7 +184,7 @@ export function createApiRouteHandler<
     if (options.bodySchema && (!options.optionalJsonBody || request.headers.get("content-type")?.includes("application/json"))) {
       let rawBody: unknown;
       try {
-        rawBody = await request.json();
+        rawBody = await parseRouteBody(request, options.bodyParser || "json");
       } catch {
         return jsonBadRequest(options.bodyError || "请求体必须是合法 JSON");
       }
@@ -231,7 +243,7 @@ export function createInternalApiRoute<
     if (options.bodySchema && (!options.optionalJsonBody || request.headers.get("content-type")?.includes("application/json"))) {
       let rawBody: unknown;
       try {
-        rawBody = await request.json();
+        rawBody = await parseRouteBody(request, options.bodyParser || "json");
       } catch {
         return jsonBadRequest(options.bodyError || "请求体必须是合法 JSON");
       }

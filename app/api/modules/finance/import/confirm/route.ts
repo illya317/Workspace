@@ -1,19 +1,15 @@
-import { NextResponse } from "next/server";
-import { withFinanceImportWrite } from "@workspace/platform/server/with-auth";
-import { confirmFinanceImport } from "@workspace/finance/server/import/import-confirm";
 import { importConfirmBodySchema } from "@workspace/finance/server/import/schemas";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+import {
+  buildFinanceImportConfirmCommand,
+  executeFinanceImportConfirmCommand,
+} from "@workspace/finance/server/route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkFinanceImportWrite } from "@workspace/platform/server/auth";
 
-export const POST = withFinanceImportWrite(async (request: Request, user) => {
-  try {
-    const body = await request.json().catch(() => null);
-    const parsed = importConfirmBodySchema.safeParse(body);
-    if (!parsed.success) return jsonErrorResponse("preview 为必填", 400);
-
-    const result = await confirmFinanceImport(parsed.data.preview, user.userId);
-    return NextResponse.json({ success: true, ...result });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "导入失败";
-    return jsonErrorResponse(message, 500);
-  }
+export const POST = createCommandRoute({
+  access: checkFinanceImportWrite,
+  bodySchema: importConfirmBodySchema,
+  bodyError: "preview 为必填",
+  buildCommand: ({ body, user }) => buildFinanceImportConfirmCommand(body.preview, user.userId),
+  action: executeFinanceImportConfirmCommand,
 });

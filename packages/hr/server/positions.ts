@@ -1,4 +1,5 @@
 import { Prisma } from "@workspace/platform/server/prisma";
+import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { handleDelete, handleUpdateField } from "./hr-crud";
 import { mapValidationToServiceResult, type DomainServiceResult } from "@workspace/platform/server/domain-validation";
 import { snapshotHistory } from "@workspace/platform/server/history";
@@ -193,10 +194,10 @@ export async function createPosition(
       await snapshotHistory("Position", position.id, userId, tx);
       return position;
     });
-    return { ok: true, data: { success: true, record } };
+    return serviceOk({ success: true, record });
   } catch (error: unknown) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      return { ok: false, error: "编码或说明书编码已存在", status: 409 };
+      return serviceError("编码或说明书编码已存在", 409);
     }
     throw error;
   }
@@ -228,13 +229,13 @@ export async function updatePosition(
       await snapshotHistory("Position", id, userId, tx);
       return position;
     });
-    return { ok: true, data: { success: true, position: updated } };
+    return serviceOk({ success: true, position: updated });
   } catch (error: unknown) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      return { ok: false, error: "编码已存在", status: 409 };
+      return serviceError("编码已存在", 409);
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
-      return { ok: false, error: "岗位不存在", status: 404 };
+      return serviceError("岗位不存在", 404);
     }
     throw error;
   }

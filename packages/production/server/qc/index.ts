@@ -13,6 +13,7 @@ export {
   updateQcBatch,
   updateQcBatchWorkflow,
 } from "./batches";
+export * from "./route-commands";
 export {
   getQcTemplateFeedback,
   listQcTemplateFeedbackByContext,

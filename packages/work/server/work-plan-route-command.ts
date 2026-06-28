@@ -1,7 +1,11 @@
 import {
+  serviceError,
+  serviceOk,
+  type ServiceResult,
+} from "@workspace/platform/server/api";
+import {
   failCommand,
   okCommand,
-  type DomainServiceResult,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
 import {
@@ -94,9 +98,9 @@ export function buildListWorkPlansCommand(input: {
 
 export async function executeListWorkPlansCommand(
   command: WorkPlanListRouteCommand,
-): Promise<DomainServiceResult<{ plans: unknown[] }>> {
+): Promise<ServiceResult<{ plans: unknown[] }>> {
   if (!(await canAccessTarget(command.userId, command.targetType, command.targetId))) {
-    return { ok: false, error: "无权限访问该目标", status: 403 };
+    return serviceError("无权限访问该目标", 403);
   }
   const plans = await listWorkPlans({
     targetType: command.targetType,
@@ -104,7 +108,7 @@ export async function executeListWorkPlansCommand(
     kind: command.kind,
     includeArchived: command.includeArchived,
   });
-  return { ok: true, data: { plans } };
+  return serviceOk({ plans });
 }
 
 export function buildCreateWorkPlanCommand(input: {
@@ -123,17 +127,17 @@ export function buildCreateWorkPlanCommand(input: {
 
 export async function executeCreateWorkPlanCommand(
   command: WorkPlanCreateRouteCommand,
-): Promise<DomainServiceResult<{ plan: unknown }>> {
+): Promise<ServiceResult<{ plan: unknown }>> {
   if (!(await canEditWorkTask(command.userId, command.targetType, command.targetId))) {
-    return { ok: false, error: "无权限编辑工作计划", status: 403 };
+    return serviceError("无权限编辑工作计划", 403);
   }
   const plan = await createWorkPlan({
     targetType: command.targetType,
     targetId: command.targetId,
     ...command.body,
   });
-  if (plan.ok === false) return plan;
-  return { ok: true, data: { plan: plan.data } };
+  if (plan.ok === false) return serviceError(plan.error, plan.status || 400);
+  return serviceOk({ plan: plan.data });
 }
 
 export function buildUpdateWorkPlanCommand(input: {
@@ -146,15 +150,15 @@ export function buildUpdateWorkPlanCommand(input: {
 
 export async function executeUpdateWorkPlanCommand(
   command: WorkPlanUpdateRouteCommand,
-): Promise<DomainServiceResult<{ plan: unknown }>> {
+): Promise<ServiceResult<{ plan: unknown }>> {
   const existing = await getWorkPlanAccessMetadata(command.planId);
-  if (!existing) return { ok: false, error: "工作计划不存在", status: 404 };
+  if (!existing) return serviceError("工作计划不存在", 404);
   if (!(await canEditWorkTask(command.userId, existing.targetType, existing.targetId))) {
-    return { ok: false, error: "无权限编辑工作计划", status: 403 };
+    return serviceError("无权限编辑工作计划", 403);
   }
   const plan = await updateWorkPlan(command.planId, command.body);
-  if (plan.ok === false) return plan;
-  return { ok: true, data: { plan: plan.data } };
+  if (plan.ok === false) return serviceError(plan.error, plan.status || 400);
+  return serviceOk({ plan: plan.data });
 }
 
 export function buildArchiveWorkPlanCommand(input: {
@@ -166,11 +170,13 @@ export function buildArchiveWorkPlanCommand(input: {
 
 export async function executeArchiveWorkPlanCommand(
   command: WorkPlanArchiveRouteCommand,
-): Promise<DomainServiceResult<{ success: true }>> {
+): Promise<ServiceResult<{ success: true }>> {
   const existing = await getWorkPlanAccessMetadata(command.planId);
-  if (!existing) return { ok: false, error: "工作计划不存在", status: 404 };
+  if (!existing) return serviceError("工作计划不存在", 404);
   if (!(await canDeleteWorkTask(command.userId, existing.targetType, existing.targetId))) {
-    return { ok: false, error: "无权限删除工作计划", status: 403 };
+    return serviceError("无权限删除工作计划", 403);
   }
-  return archiveWorkPlan(command.planId);
+  const result = await archiveWorkPlan(command.planId);
+  if (!result.ok) return serviceError(result.error, result.status || 400);
+  return serviceOk(result.data);
 }

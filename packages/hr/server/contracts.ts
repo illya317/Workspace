@@ -1,5 +1,6 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { Prisma } from "@workspace/platform/server/prisma";
+import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import {
@@ -191,10 +192,10 @@ export async function updateContractField(
   userId: number,
 ) {
   const command = mapValidationToServiceResult(await buildContractFieldUpdateCommand(field, value));
-  if (!command.ok) return { ok: false as const, error: command.error, status: command.status };
+  if (!command.ok) return command;
 
   const loaded = await loadSyntheticContract(contractId);
-  if (!loaded.ok) return loaded;
+  if (!loaded.ok) return serviceError(loaded.error, loaded.status);
 
   let contracts = loaded.contracts;
   contracts[loaded.index][command.data.field] = command.data.value ?? null;
@@ -212,15 +213,15 @@ export async function updateContractField(
   });
   await snapshotHistory("Employment", loaded.employmentId, userId);
 
-  return { ok: true as const, data: { success: true } };
+  return serviceOk({ success: true });
 }
 
 export async function deleteContract(contractId: number, userId: number) {
   const command = mapValidationToServiceResult(buildContractDeleteCommand(contractId));
-  if (!command.ok) return { ok: false as const, error: command.error, status: command.status };
+  if (!command.ok) return command;
 
   const loaded = await loadSyntheticContract(command.data.contractId);
-  if (!loaded.ok) return loaded;
+  if (!loaded.ok) return serviceError(loaded.error, loaded.status);
 
   loaded.contracts.splice(loaded.index, 1);
   await ensureEditHistoryBaseline("Employment", loaded.employmentId, userId);
@@ -230,5 +231,5 @@ export async function deleteContract(contractId: number, userId: number) {
   });
   await snapshotHistory("Employment", loaded.employmentId, userId);
 
-  return { ok: true as const, data: { success: true } };
+  return serviceOk({ success: true });
 }

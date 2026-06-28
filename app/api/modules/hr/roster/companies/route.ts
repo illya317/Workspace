@@ -1,8 +1,17 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiAccess, checkHRAccess, checkHRWrite, checkHRDelete } from "@workspace/platform/server/auth";
-import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
-import { createCompany, deleteCompanyByParams, listCompanies, upsertCompany } from "@workspace/hr/server";
+
+import {
+  buildHrRouteCommand,
+  createCompany,
+  deleteCompanyByParams,
+  idParams,
+  listCompanies,
+  replayJsonRequest,
+  upsertCompany,
+} from "@workspace/hr/server";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkHRAccess, checkHRDelete, checkHRWrite } from "@workspace/platform/server/auth";
 
 const companiesQuerySchema = z.object({
   keyword: z.string().catch(""),
@@ -22,59 +31,38 @@ const upsertCompanySchema = z.object({
   name: z.string().min(1),
 }).passthrough();
 
-export async function GET(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  if (!(await checkHRAccess(payload.userId, "access", "hr.roster"))) {
-    return jsonErrorResponse("无权限", 403);
-  }
+export const GET = createCommandRoute({
+  access: (userId: number) => checkHRAccess(userId, "access", "hr.roster"),
+  querySchema: companiesQuerySchema,
+  queryError: "参数错误",
+  buildCommand: ({ query }) => buildHrRouteCommand({
+    keyword: query.keyword,
+    activeOnly: query.active === "1",
+    page: query.page,
+    pageSize: query.pageSize,
+  }),
+  action: listCompanies,
+});
 
-  const { searchParams } = new URL(request.url);
-  const parsedQuery = companiesQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
-  if (!parsedQuery.success) return jsonErrorResponse("参数错误", 400);
-  const keyword = parsedQuery.data.keyword;
-  const activeOnly = parsedQuery.data.active === "1";
-  const { page, pageSize } = parsedQuery.data;
-  return NextResponse.json(await listCompanies({ keyword, activeOnly, page, pageSize }));
-}
+export const POST = createCommandRoute({
+  bodySchema: createCompanySchema,
+  bodyError: "缺少 code/name",
+  buildCommand: ({ request, body }) => buildHrRouteCommand({ request, body }),
+  action: ({ request, body }) => createCompany(replayJsonRequest(request, body)),
+});
 
-export async function POST(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
+export const PUT = createCommandRoute({
+  access: (userId: number) => checkHRWrite(userId, "hr.roster"),
+  bodySchema: upsertCompanySchema,
+  bodyError: "缺少 code/name",
+  buildCommand: ({ body, user }) => buildHrRouteCommand({ body, userId: user.userId }),
+  action: ({ body, userId }) => upsertCompany(body, userId),
+});
 
-  const body = await request.clone().json().catch(() => null);
-  const parsedBody = createCompanySchema.safeParse(body);
-  if (!parsedBody.success) return jsonErrorResponse("缺少 code/name", 400);
-  return createCompany(request);
-}
-
-export async function PUT(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  if (!(await checkHRWrite(payload.userId, "hr.roster"))) {
-    return jsonErrorResponse("无权限", 403);
-  }
-
-  const body = await request.json().catch(() => null);
-  const parsedBody = upsertCompanySchema.safeParse(body);
-  if (!parsedBody.success) return jsonErrorResponse("缺少 code/name", 400);
-  const result = await upsertCompany(parsedBody.data, payload.userId);
-  if (!result.ok) return jsonErrorResponse(result.error, 400);
-  return NextResponse.json(result.data);
-}
-
-export async function DELETE(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  if (!(await checkHRDelete(payload.userId, "hr.roster"))) {
-    return jsonErrorResponse("无权限", 403);
-  }
-
-  const { searchParams } = new URL(request.url);
-  const parsedQuery = routeIdParamsSchema.safeParse(Object.fromEntries(searchParams.entries()));
-  if (!parsedQuery.success) return jsonErrorResponse("缺少id", 400);
-  return deleteCompanyByParams(request, Promise.resolve({ id: String(parsedQuery.data.id) }));
-}
+export const DELETE = createCommandRoute({
+  access: (userId: number) => checkHRDelete(userId, "hr.roster"),
+  querySchema: routeIdParamsSchema,
+  queryError: "缺少id",
+  buildCommand: ({ request, query }) => buildHrRouteCommand({ request, id: query.id }),
+  action: ({ request, id }) => deleteCompanyByParams(request, idParams(id)),
+});

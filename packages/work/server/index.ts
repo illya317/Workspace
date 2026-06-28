@@ -10,6 +10,8 @@ export * from "./work-plans";
 export * from "./project-reference-options";
 export * from "./meeting-access";
 export * from "./meeting-action-candidate-command";
+export * from "./meeting-vote-route-command";
 export * from "./meetings";
+export * from "./work-task-route-command";
 export * from "./work-plan-route-command";
 export * from "./works";

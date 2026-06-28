@@ -1,21 +1,18 @@
-import { jsonErrorResponse, serviceResponse, routeIdParamsSchema, rowsRequestBodySchema } from "@workspace/platform/server/api";
-import { requireApiAccess, checkHRWrite } from "@workspace/platform/server/auth";
-import { updateEmployeeProfileEdps } from "@workspace/hr/server";
+import { updateEmployeeProfileEdps, buildHrRouteCommand } from "@workspace/hr/server";
+import { routeIdParamsSchema, rowsRequestBodySchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkHRWrite } from "@workspace/platform/server/auth";
 
-interface Props {
-  params: Promise<{ id: string }>;
-}
-
-export async function PUT(request: Request, { params }: Props) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  if (!(await checkHRWrite(payload.userId, "hr.roster"))) return jsonErrorResponse("无权限", 403);
-
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("员工ID无效", 400);
-  const body = await request.json().catch(() => null);
-  const parsedBody = rowsRequestBodySchema.safeParse(body);
-  if (!parsedBody.success) return jsonErrorResponse("参数错误", 400);
-  return serviceResponse(await updateEmployeeProfileEdps(parsedParams.data.id, parsedBody.data.rows, payload.userId));
-}
+export const PUT = createCommandRoute({
+  access: (userId: number) => checkHRWrite(userId, "hr.roster"),
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "员工ID无效",
+  bodySchema: rowsRequestBodySchema,
+  bodyError: "参数错误",
+  buildCommand: ({ params, body, user }) => buildHrRouteCommand({
+    employeeId: params.id,
+    rows: body.rows,
+    userId: user.userId,
+  }),
+  action: ({ employeeId, rows, userId }) => updateEmployeeProfileEdps(employeeId, rows, userId),
+});

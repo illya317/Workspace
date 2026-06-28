@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
+
 import { previewRosterGenerated } from "@workspace/hr/server";
 import { authorize } from "@workspace/platform/server/auth";
-import { withAuth } from "@workspace/platform/server/with-auth";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
 const previewQuerySchema = z.object({
   variant: z.enum(["management", "dueDiligence"]).catch("management"),
@@ -15,11 +15,10 @@ const previewQuerySchema = z.object({
   pageSize: z.coerce.number().int().min(1).max(200).catch(50),
 });
 
-export const GET = withAuth(async (request: Request) => {
-  const { searchParams } = new URL(request.url);
-  const parsed = previewQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
-  if (!parsed.success) return jsonErrorResponse("参数错误", 400);
-
-  const preview = await previewRosterGenerated(parsed.data);
-  return NextResponse.json(preview);
-}, (userId) => authorize({ user: userId, resourceKey: "hr.roster.generated", action: "access" }));
+export const GET = createCommandRoute({
+  access: (userId: number) => authorize({ user: userId, resourceKey: "hr.roster.generated", action: "access" }),
+  querySchema: previewQuerySchema,
+  queryError: "参数错误",
+  buildCommand: ({ query }) => okCommand(query),
+  action: previewRosterGenerated,
+});

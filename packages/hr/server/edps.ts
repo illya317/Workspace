@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRWrite } from "@workspace/platform/server/auth";
+import { serviceOk } from "@workspace/platform/server/api";
 import { mapValidationToServiceResult, type DomainServiceResult } from "@workspace/platform/server/domain-validation";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
@@ -140,7 +141,7 @@ export async function createEdp(
   const command = mapValidationToServiceResult(await buildEdpCreateCommand(input));
   if (!command.ok) return command;
   const currentTotal = mapValidationToServiceResult(await validateEdpCreateCurrentTotal(command.data));
-  if (!currentTotal.ok) return { ok: false, error: currentTotal.error, status: currentTotal.status };
+  if (!currentTotal.ok) return currentTotal;
 
   const record = await prisma.eDP.create({
     data: {
@@ -157,7 +158,7 @@ export async function createEdp(
     select: { id: true },
   });
   await snapshotHistory("EDP", record.id, userId);
-  return { ok: true, data: { success: true, record } };
+  return serviceOk({ success: true, record });
 }
 
 export async function updateEdpField(request: Request, params: Promise<{ id: string }>) {

@@ -25,4 +25,5 @@ export * from "./permission-subjects";
 export * from "./permission-grants";
 export * from "./roster";
 export * from "./roster-generated";
+export * from "./route-commands";
 export * from "./schemas";

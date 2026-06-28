@@ -1,16 +1,14 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
-import { withAuth } from "@workspace/platform/server/with-auth";
-import { getUserEmployeeSignatureName } from "@workspace/platform/server/user-identity";
+
 import {
-  getQcTemplateFeedback,
-  listQcTemplateFeedbackByContext,
-  listQcTemplateFeedback,
-  saveQcTemplateInlineFeedback,
-  saveQcTemplateFeedback,
-  updateQcTemplateFeedbackResolved,
+  buildQcTemplateFeedbackListCommand,
+  buildQcTemplateFeedbackResolveCommand,
+  buildQcTemplateFeedbackSaveCommand,
+  executeQcTemplateFeedbackListCommand,
+  executeQcTemplateFeedbackResolveCommand,
+  executeQcTemplateFeedbackSaveCommand,
 } from "@workspace/production/server/qc";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
 
 const feedbackQuerySchema = z.object({
   key: z.string().trim().optional(),
@@ -30,67 +28,34 @@ const updateFeedbackResolvedSchema = z.object({
   targetId: z.coerce.string().optional(),
 }).passthrough();
 
-export const GET = withAuth(async (request, user) => {
-  const parsedQuery = feedbackQuerySchema.safeParse(
-    Object.fromEntries(new URL(request.url).searchParams.entries()),
-  );
-  if (!parsedQuery.success) return jsonErrorResponse("参数错误", 400);
-  const key = parsedQuery.data.key;
-  if (key) {
-    const [data, items] = await Promise.all([
-      getQcTemplateFeedback(key, user.userId),
-      listQcTemplateFeedbackByContext(key),
-    ]);
-    return NextResponse.json({ data, items });
-  }
-  return NextResponse.json({ data: await listQcTemplateFeedback() });
+export const GET = createCommandRoute({
+  querySchema: feedbackQuerySchema,
+  queryError: "参数错误",
+  buildCommand: ({ query, user }) => buildQcTemplateFeedbackListCommand({
+    key: query.key,
+    userId: user.userId,
+  }),
+  action: executeQcTemplateFeedbackListCommand,
 });
 
-export const POST = withAuth(async (request, user) => {
-  const body = await request.json().catch(() => null);
-  if (!body || typeof body !== "object") {
-    return jsonErrorResponse("请求体必须为 JSON", 400);
-  }
-  const parsed = saveFeedbackSchema.safeParse(body);
-  if (!parsed.success) return jsonErrorResponse("参数错误", 400);
-  const data = parsed.data;
-  try {
-    const userName = await getUserEmployeeSignatureName(user.userId, user.nickname);
-    const author = {
-      userId: user.userId,
-      userName,
-    };
-    const item = data.inlineEntry
-      ? await saveQcTemplateInlineFeedback(data.context, data.inlineEntry, author)
-      : await saveQcTemplateFeedback(data.context, data.sections ?? data.note, author);
-    const list = await listQcTemplateFeedback();
-    return NextResponse.json({ data: item, keys: list.keys, states: list.states });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "保存反馈失败";
-    return jsonErrorResponse(message, 400);
-  }
+export const POST = createCommandRoute({
+  bodySchema: saveFeedbackSchema,
+  bodyError: "参数错误",
+  buildCommand: ({ body, user }) => buildQcTemplateFeedbackSaveCommand({
+    userId: user.userId,
+    userName: user.nickname,
+    body,
+  }),
+  action: executeQcTemplateFeedbackSaveCommand,
 });
 
-export const PATCH = withAuth(async (request, user) => {
-  const body = await request.json().catch(() => null);
-  if (!body || typeof body !== "object") {
-    return jsonErrorResponse("请求体必须为 JSON", 400);
-  }
-  const parsed = updateFeedbackResolvedSchema.safeParse(body);
-  if (!parsed.success) return jsonErrorResponse("缺少反馈 key", 400);
-  const data = parsed.data;
-  try {
-    const userName = await getUserEmployeeSignatureName(user.userId, user.nickname);
-    const item = await updateQcTemplateFeedbackResolved(data.key, data.resolved === true, {
-      userId: user.userId,
-      userName,
-    }, {
-      type: data.targetType === "section" || data.targetType === "inline" ? data.targetType : undefined,
-      id: String(data.targetId ?? "").trim() || undefined,
-    });
-    return NextResponse.json({ data: item, list: await listQcTemplateFeedback() });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "更新反馈状态失败";
-    return jsonErrorResponse(message, 400);
-  }
+export const PATCH = createCommandRoute({
+  bodySchema: updateFeedbackResolvedSchema,
+  bodyError: "缺少反馈 key",
+  buildCommand: ({ body, user }) => buildQcTemplateFeedbackResolveCommand({
+    userId: user.userId,
+    userName: user.nickname,
+    body,
+  }),
+  action: executeQcTemplateFeedbackResolveCommand,
 });

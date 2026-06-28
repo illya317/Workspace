@@ -9,6 +9,7 @@ import {
   buildContractDeleteCommand,
   buildContractUpdateCommand,
 } from "./domain/administration-contract-validation";
+import { failCommand, okCommand } from "@workspace/platform/server/domain-validation";
 
 export const ContractCreateSchema = z.object({
   name: z.string().min(1, "合同名称必填"),
@@ -32,6 +33,11 @@ export const ContractUpdateSchema = ContractCreateSchema.partial();
 
 export type ContractCreateInput = z.infer<typeof ContractCreateSchema>;
 export type ContractUpdateInput = z.infer<typeof ContractUpdateSchema>;
+
+export function buildContractUpdateRouteCommand(input: { id: number; body: ContractUpdateInput }) {
+  if (Object.keys(input.body).length === 0) return failCommand("无更新内容");
+  return okCommand(input);
+}
 
 export interface ContractListFilters {
   q?: string;

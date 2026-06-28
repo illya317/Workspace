@@ -1,17 +1,19 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
-import { withLibraryWrite } from "@workspace/platform/server/with-auth";
-import { scanLibrary } from "@workspace/library/server/scan";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+
+import {
+  executeScanLibraryCommand,
+} from "@workspace/library/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkLibraryWrite } from "@workspace/platform/server/auth";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
 const scanRequestSchema = z.object({}).passthrough();
 
-export const POST = withLibraryWrite(async (request: Request) => {
-  if (request.headers.get("content-type")?.includes("application/json")) {
-    const parsedBody = scanRequestSchema.safeParse(await request.json());
-    if (!parsedBody.success) return jsonErrorResponse("Invalid request body", 400);
-  }
-
-  const result = await scanLibrary();
-  return NextResponse.json(result);
+export const POST = createCommandRoute({
+  access: checkLibraryWrite,
+  bodySchema: scanRequestSchema,
+  optionalJsonBody: true,
+  bodyError: "Invalid request body",
+  buildCommand: () => okCommand({}),
+  action: executeScanLibraryCommand,
 });

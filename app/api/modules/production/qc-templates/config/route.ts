@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
-import { withAuth } from "@workspace/platform/server/with-auth";
-import { getQcConfigOverview } from "@workspace/production/server/qc";
+import { executeQcConfigOverviewCommand } from "@workspace/production/server/qc";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
-export const GET = withAuth(async () => {
-  const overview = await getQcConfigOverview();
-  return NextResponse.json({ data: overview });
+export const GET = createCommandRoute({
+  buildCommand: () => okCommand({}),
+  action: executeQcConfigOverviewCommand,
 });

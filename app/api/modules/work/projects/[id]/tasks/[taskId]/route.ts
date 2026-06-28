@@ -1,11 +1,8 @@
 import { z } from "zod";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import {
-  deleteProjectTask,
-  projectTaskServiceResponse,
-  updateProjectTask,
-} from "@workspace/work/server";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+
+import { deleteProjectTask, updateProjectTask } from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
 const projectTaskParamsSchema = z.object({
   id: z.coerce.number().int().positive(),
@@ -32,35 +29,26 @@ const projectTaskUpdateBodySchema = z.object({
   sortOrder: z.coerce.number().int().optional(),
 }).passthrough();
 
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string; taskId: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
+export const PUT = createCommandRoute({
+  paramsSchema: projectTaskParamsSchema,
+  paramsError: "任务 ID 无效",
+  bodySchema: projectTaskUpdateBodySchema,
+  buildCommand: ({ params, body, user }) => okCommand({
+    userId: user.userId,
+    projectId: params.id,
+    taskId: params.taskId,
+    body,
+  }),
+  action: updateProjectTask,
+});
 
-  const parsedParams = projectTaskParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("任务 ID 无效", 400);
-
-  const body = await request.json().catch(() => null);
-  const parsedBody = projectTaskUpdateBodySchema.safeParse(body);
-  if (!parsedBody.success) return jsonErrorResponse(parsedBody.error.issues[0]?.message || "参数错误", 400);
-
-  return projectTaskServiceResponse(await updateProjectTask({
-    userId: auth.user.userId,
-    projectId: parsedParams.data.id,
-    taskId: parsedParams.data.taskId,
-    body: parsedBody.data,
-  }));
-}
-
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string; taskId: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-
-  const parsedParams = projectTaskParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("任务 ID 无效", 400);
-
-  return projectTaskServiceResponse(await deleteProjectTask({
-    userId: auth.user.userId,
-    projectId: parsedParams.data.id,
-    taskId: parsedParams.data.taskId,
-  }));
-}
+export const DELETE = createCommandRoute({
+  paramsSchema: projectTaskParamsSchema,
+  paramsError: "任务 ID 无效",
+  buildCommand: ({ params, user }) => okCommand({
+    userId: user.userId,
+    projectId: params.id,
+    taskId: params.taskId,
+  }),
+  action: deleteProjectTask,
+});

@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
-import { checkHRAccess, checkHRWrite, requireApiAccess } from "@workspace/platform/server/auth";
-import { jsonErrorResponse, serviceResponse } from "@workspace/platform/server/api";
-import { createEdp, EDPCreateSchema, listEdps } from "@workspace/hr/server";
+
+import { buildHrRouteCommand, createEdp, EDPCreateSchema, listEdps } from "@workspace/hr/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkHRAccess, checkHRWrite } from "@workspace/platform/server/auth";
 
 const edpsQuerySchema = z.object({
   keyword: z.string().catch(""),
@@ -14,32 +14,17 @@ const edpsQuerySchema = z.object({
   pageSize: z.coerce.number().int().min(1).max(500).catch(50),
 }).passthrough();
 
-export async function GET(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  if (!(await checkHRAccess(payload.userId, "access", "hr.roster"))) {
-    return jsonErrorResponse("无权限", 403);
-  }
+export const GET = createCommandRoute({
+  access: (userId: number) => checkHRAccess(userId, "access", "hr.roster"),
+  querySchema: edpsQuerySchema,
+  queryError: "参数错误",
+  buildCommand: ({ query }) => buildHrRouteCommand(query),
+  action: listEdps,
+});
 
-  const { searchParams } = new URL(request.url);
-  const parsedQuery = edpsQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
-  if (!parsedQuery.success) return jsonErrorResponse("参数错误", 400);
-  const { company, department, isActive = null, keyword, page, pageSize, position } = parsedQuery.data;
-  return NextResponse.json(await listEdps({ company, department, isActive, keyword, page, pageSize, position }));
-}
-
-export async function POST(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  if (!(await checkHRWrite(payload.userId, "hr.roster"))) return jsonErrorResponse("无权限", 403);
-
-  const body = await request.clone().json().catch(() => null);
-  const parsedBody = EDPCreateSchema.safeParse(body);
-  if (!parsedBody.success) {
-    return jsonErrorResponse(parsedBody.error.issues[0]?.message || "参数错误", 400);
-  }
-
-  return serviceResponse(await createEdp(parsedBody.data, payload.userId));
-}
+export const POST = createCommandRoute({
+  access: (userId: number) => checkHRWrite(userId, "hr.roster"),
+  bodySchema: EDPCreateSchema,
+  buildCommand: ({ body, user }) => buildHrRouteCommand({ body, userId: user.userId }),
+  action: ({ body, userId }) => createEdp(body, userId),
+});

@@ -1,11 +1,18 @@
-import { NextResponse } from "next/server";
-import { withFinanceAnalysisAccess } from "@workspace/platform/server/with-auth";
-import { getBudgetAnalysis } from "@workspace/finance/server/analysis/budget-analysis";
+import { z } from "zod";
 
-export const GET = withFinanceAnalysisAccess(async (request: Request) => {
-  const { searchParams } = new URL(request.url);
-  const year = parseInt(searchParams.get("year") || "2026");
-  const companyCode = searchParams.get("companyCode") || undefined;
-  const result = await getBudgetAnalysis(year, companyCode);
-  return NextResponse.json(result);
+import { executeBudgetAnalysisCommand } from "@workspace/finance/server/route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkFinanceAnalysisAccess } from "@workspace/platform/server/auth";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+
+const budgetAnalysisQuerySchema = z.object({
+  year: z.coerce.number().int().catch(2026),
+  companyCode: z.string().optional(),
+});
+
+export const GET = createCommandRoute({
+  access: checkFinanceAnalysisAccess,
+  querySchema: budgetAnalysisQuerySchema,
+  buildCommand: ({ query }) => okCommand(query),
+  action: executeBudgetAnalysisCommand,
 });

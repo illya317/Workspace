@@ -1,11 +1,14 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { withFinanceLedgerDelete, withFinanceLedgerWrite } from "@workspace/platform/server/with-auth";
-import { jsonBadRequest, jsonResultResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
-import { deleteVoucher, updateVoucher } from "@workspace/finance/server/ledger/voucher-service";
-
-type VoucherRouteContext = { params: Promise<{ id: string }> };
+import {
+  buildUpdateVoucherCommand,
+  executeDeleteVoucherCommand,
+  executeUpdateVoucherCommand,
+} from "@workspace/finance/server/route-commands";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { checkFinanceLedgerDelete, checkFinanceLedgerWrite } from "@workspace/platform/server/auth";
 
 const itemSchema = z.object({
   accountId: z.unknown(),
@@ -14,36 +17,27 @@ const itemSchema = z.object({
   description: z.unknown().optional(),
 });
 
-const updateVoucherSchema = z
-  .object({
-    date: z.string().optional(),
-    description: z.string().optional(),
-    status: z.string().optional(),
-    items: z.array(itemSchema).optional(),
-  })
-  .passthrough();
+const updateVoucherSchema = z.object({
+  date: z.string().optional(),
+  description: z.string().optional(),
+  status: z.string().optional(),
+  items: z.array(itemSchema).optional(),
+}).passthrough();
 
-export async function PUT(request: Request, { params }: VoucherRouteContext) {
-  return withFinanceLedgerWrite(async (req, user) => {
-    const parsedParams = routeIdParamsSchema.safeParse(await params);
-    if (!parsedParams.success) return jsonBadRequest("id 必须为正整数");
+export const PUT = createCommandRoute({
+  access: checkFinanceLedgerWrite,
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "id 必须为正整数",
+  bodySchema: updateVoucherSchema,
+  bodyError: "参数无效",
+  buildCommand: ({ params, body, user }) => buildUpdateVoucherCommand(params.id, body, user.userId),
+  action: executeUpdateVoucherCommand,
+});
 
-    const body = await req.json().catch(() => null);
-    if (!body || typeof body !== "object") return jsonBadRequest("请求体为必填");
-
-    const parsedBody = updateVoucherSchema.safeParse(body);
-    if (!parsedBody.success) return jsonBadRequest("参数无效");
-
-    const result = await updateVoucher(parsedParams.data.id, parsedBody.data, user.userId);
-    return jsonResultResponse(result);
-  })(request);
-}
-
-export async function DELETE(request: Request, { params }: VoucherRouteContext) {
-  return withFinanceLedgerDelete(async () => {
-    const parsedParams = routeIdParamsSchema.safeParse(await params);
-    if (!parsedParams.success) return jsonBadRequest("id 必须为正整数");
-
-    return NextResponse.json(await deleteVoucher(parsedParams.data.id));
-  })(request);
-}
+export const DELETE = createCommandRoute({
+  access: checkFinanceLedgerDelete,
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "id 必须为正整数",
+  buildCommand: ({ params }) => okCommand({ id: params.id }),
+  action: executeDeleteVoucherCommand,
+});

@@ -1,4 +1,11 @@
-import { isServiceResult, jsonErrorResponse, serviceResponse, type ServiceResult } from "./api";
+import {
+  isPlatformServiceResult,
+  jsonErrorResponse,
+  serviceError,
+  serviceOk,
+  serviceResponse,
+  type ServiceResult,
+} from "./api";
 
 export interface DomainValidationIssue {
   message: string;
@@ -30,12 +37,8 @@ export function failCommand(message: string, status = 400, field?: string): Doma
 }
 
 export function mapValidationToServiceResult<T>(result: DomainValidationResult<T>): DomainServiceResult<T> {
-  if (result.ok === true) return { ok: true, data: result.data };
-  return {
-    ok: false,
-    error: result.issue.message,
-    status: result.issue.status,
-  };
+  if (result.ok === true) return serviceOk(result.data);
+  return serviceError(result.issue.message, result.issue.status);
 }
 
 export function domainIssueToResponse(issue: DomainValidationIssue) {
@@ -47,5 +50,5 @@ export function toServiceErrorResponse(result: { error: string; status?: number 
 }
 
 export function isDomainServiceResult<T = unknown>(result: unknown): result is DomainServiceResult<T> {
-  return isServiceResult(result);
+  return isPlatformServiceResult(result);
 }

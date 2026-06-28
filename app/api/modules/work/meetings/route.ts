@@ -1,7 +1,17 @@
 import { z } from "zod";
-import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import { createMeeting, listMeetings, meetingServiceResponse } from "@workspace/work/server";
+
+import { createMeeting, listMeetings } from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+
+const optionalPositiveId = z.preprocess(
+  (value) => (value === null || value === undefined || value === "" ? undefined : Number(value)),
+  z.number().int().positive().optional(),
+);
+
+const meetingQuerySchema = z.object({
+  typeId: optionalPositiveId,
+});
 
 const createMeetingSchema = z.object({
   typeId: z.coerce.number().int().positive(),
@@ -17,28 +27,21 @@ const createMeetingSchema = z.object({
   participantUserIds: z.array(z.coerce.number().int().positive()).optional(),
 }).passthrough();
 
-export async function GET(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
+export const GET = createCommandRoute({
+  querySchema: meetingQuerySchema,
+  queryError: "会议类型无效",
+  buildCommand: ({ query, user }) => okCommand({
+    userId: user.userId,
+    typeId: query.typeId ?? null,
+  }),
+  action: listMeetings,
+});
 
-  const { searchParams } = new URL(request.url);
-  const typeIdParam = searchParams.get("typeId");
-  const typeId = typeIdParam ? routeIdParamsSchema.safeParse({ id: typeIdParam }) : null;
-  if (typeIdParam && !typeId?.success) return jsonErrorResponse("会议类型无效", 400);
-
-  return meetingServiceResponse(await listMeetings({
-    userId: auth.user.userId,
-    typeId: typeId?.success ? typeId.data.id : null,
-  }));
-}
-
-export async function POST(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-
-  const body = await request.json().catch(() => null);
-  const parsed = createMeetingSchema.safeParse(body);
-  if (!parsed.success) return jsonErrorResponse(parsed.error.issues[0]?.message || "会议参数无效", 400);
-
-  return meetingServiceResponse(await createMeeting({ userId: auth.user.userId, body: parsed.data }));
-}
+export const POST = createCommandRoute({
+  bodySchema: createMeetingSchema,
+  buildCommand: ({ body, user }) => okCommand({
+    userId: user.userId,
+    body,
+  }),
+  action: createMeeting,
+});

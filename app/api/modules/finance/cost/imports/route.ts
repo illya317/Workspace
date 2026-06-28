@@ -1,29 +1,27 @@
-import { NextResponse } from "next/server";
-import { withFinanceCostAccess, withFinanceCostWrite } from "@workspace/platform/server/with-auth";
-import { listImports } from "@workspace/finance/server/cost";
-import { unsupportedCostImportPayloadSchema } from "@workspace/finance/server/cost/import-schemas";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { z } from "zod";
 
-export async function GET(request: Request) {
-  return withFinanceCostAccess(async (req) => {
-    const { searchParams } = new URL(req.url);
-    const params = {
-      page: searchParams.has("page") ? parseInt(searchParams.get("page")!) : undefined,
-      pageSize: searchParams.has("pageSize") ? parseInt(searchParams.get("pageSize")!) : undefined,
-    };
+import {
+  executeListCostImportsCommand,
+  executeUnsupportedCostImportCommand,
+} from "@workspace/finance/server/route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkFinanceCostAccess, checkFinanceCostWrite } from "@workspace/platform/server/auth";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
-    const result = await listImports(params);
-    return NextResponse.json({ success: true, ...result });
-  })(request);
-}
+const costImportsQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).optional(),
+  pageSize: z.coerce.number().int().min(1).optional(),
+});
 
-export async function POST(request: Request) {
-  return withFinanceCostWrite(async (req) => {
-    // The actual import is handled by the standalone script.
-    // This endpoint can trigger a background import or accept a manual payload.
-    // For now, return a guide message.
-    const payload = await req.json().catch(() => ({}));
-    unsupportedCostImportPayloadSchema.safeParse(payload ?? {});
-    return jsonErrorResponse("请使用导入脚本: node scripts/import-finance-cost-json.mjs", 400);
-  })(request);
-}
+export const GET = createCommandRoute({
+  access: checkFinanceCostAccess,
+  querySchema: costImportsQuerySchema,
+  buildCommand: ({ query }) => okCommand(query),
+  action: executeListCostImportsCommand,
+});
+
+export const POST = createCommandRoute({
+  access: checkFinanceCostWrite,
+  buildCommand: () => okCommand({}),
+  action: executeUnsupportedCostImportCommand,
+});

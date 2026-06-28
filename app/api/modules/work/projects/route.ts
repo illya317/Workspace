@@ -1,34 +1,43 @@
-import { NextResponse } from "next/server";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import { jsonErrorResponse, validatePassthroughBody } from "@workspace/platform/server/api";
-import { canUseProject, createProject, listProjects } from "@workspace/work/server";
+import { z } from "zod";
 
-export async function GET(request: Request) {
+import {
+  buildCreateProjectRouteCommand,
+  buildListProjectsRouteCommand,
+  executeCreateProjectRouteCommand,
+  executeListProjectsRouteCommand,
+} from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
 
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  if (!(await canUseProject(payload.userId))) return jsonErrorResponse("无权限", 403);
+const projectsQuerySchema = z.object({
+  keyword: z.string().catch(""),
+  page: z.coerce.number().int().min(1).catch(1),
+  pageSize: z.coerce.number().int().min(1).max(500).catch(50),
+  archived: z.enum(["1", "true"]).optional().catch(undefined),
+});
 
-  const { searchParams } = new URL(request.url);
-  const keyword = searchParams.get("keyword") || "";
-  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-  const pageSize = Math.min(500, Math.max(1, parseInt(searchParams.get("pageSize") || "50", 10)));
-  const archived = searchParams.get("archived") === "1" || searchParams.get("archived") === "true";
-  return NextResponse.json(await listProjects({ userId: payload.userId, keyword, page, pageSize, archived }));
-}
+const projectBodySchema = z.object({}).passthrough();
 
-export async function POST(request: Request) {
+export const GET = createCommandRoute({
+  querySchema: projectsQuerySchema,
+  buildCommand: ({ query, user }) => buildListProjectsRouteCommand({
+    userId: user.userId,
+    query: {
+      keyword: query.keyword,
+      page: query.page,
+      pageSize: query.pageSize,
+      archived: query.archived === "1" || query.archived === "true",
+    },
+  }),
+  action: executeListProjectsRouteCommand,
+});
 
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  if (!(await canUseProject(payload.userId, "write"))) return jsonErrorResponse("无权限", 403);
-
-  const validation = await validatePassthroughBody(request);
-  if (!validation.ok) return jsonErrorResponse(validation.error, 400);
-
-  const result = await createProject(request, payload.userId);
-  if (!result.ok) return jsonErrorResponse(result.error, result.status || 400);
-  return NextResponse.json(result.data);
-}
+export const POST = createCommandRoute({
+  bodySchema: projectBodySchema,
+  bodyError: "请求体必须是合法 JSON",
+  buildCommand: ({ body, request, user }) => buildCreateProjectRouteCommand({
+    request,
+    userId: user.userId,
+    body,
+  }),
+  action: executeCreateProjectRouteCommand,
+});

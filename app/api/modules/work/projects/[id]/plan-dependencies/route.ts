@@ -1,11 +1,9 @@
 import { z } from "zod";
-import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import {
-  projectPlanServiceResponse,
-  syncProjectPlanDependencies,
-} from "@workspace/work/server";
 
+import { syncProjectPlanDependencies } from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 
 const dependencySchema = z.object({
   predecessorKind: z.enum(["project", "task"]),
@@ -19,20 +17,14 @@ const dependenciesBodySchema = z.object({
   dependencies: z.array(dependencySchema).optional(),
 }).passthrough();
 
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-
-  const parsedParams = routeIdParamsSchema.safeParse(await params);
-  if (!parsedParams.success) return jsonErrorResponse("项目 ID 无效", 400);
-
-  const body = await request.json().catch(() => null);
-  const parsedBody = dependenciesBodySchema.safeParse(body);
-  if (!parsedBody.success) return jsonErrorResponse(parsedBody.error.issues[0]?.message || "参数错误", 400);
-
-  return projectPlanServiceResponse(await syncProjectPlanDependencies({
-    userId: auth.user.userId,
-    projectId: parsedParams.data.id,
-    body: parsedBody.data,
-  }));
-}
+export const PUT = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "项目 ID 无效",
+  bodySchema: dependenciesBodySchema,
+  buildCommand: ({ params, body, user }) => okCommand({
+    userId: user.userId,
+    projectId: params.id,
+    body,
+  }),
+  action: syncProjectPlanDependencies,
+});

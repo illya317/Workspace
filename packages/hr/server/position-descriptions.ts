@@ -1,4 +1,5 @@
 import { Prisma } from "@workspace/platform/server/prisma";
+import { serviceError, serviceOk, type ServiceResult } from "@workspace/platform/server/api";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
@@ -8,8 +9,6 @@ import {
   buildPositionDescriptionUpdateCommand,
   type PositionDescriptionUpdateInput,
 } from "./domain/position-description-validation";
-
-type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: string; status?: number };
 
 function parseDetails(details: string | null) {
   if (!details) return null;
@@ -77,7 +76,7 @@ export async function getPositionDescriptionTree() {
 
 export async function getPositionDescriptionByCode(code: string) {
   const description = await prisma.positionDescription.findUnique({ where: { code } });
-  if (!description) return { ok: false as const, error: "未找到", status: 404 };
+  if (!description) return serviceError("未找到", 404);
   return {
     ok: true as const,
     data: {
@@ -143,13 +142,13 @@ export async function updatePositionDescription(
       await snapshotHistory("PositionDescription", command.data.id, userId, tx);
       return positionDescription;
     });
-    return { ok: true, data: { success: true, positionDescription: updated } };
+    return serviceOk({ success: true, positionDescription: updated });
   } catch (error: unknown) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      return { ok: false, error: "说明书编码已存在", status: 409 };
+      return serviceError("说明书编码已存在", 409);
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
-      return { ok: false, error: "岗位说明书不存在", status: 404 };
+      return serviceError("岗位说明书不存在", 404);
     }
     throw error;
   }

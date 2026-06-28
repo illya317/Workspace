@@ -40,8 +40,8 @@
 
 ## 4. API
 
-- [ ] `app/api/modules/<domain>/<l2>/route.ts` — 默认使用 `createApiRouteHandler()`；写入/命令型入口优先使用 `createCommandRoute()`；显式 `internal` 维护入口使用 `createInternalApiRoute()`；存量 wrapper 必须先委托 `requireApiAccess(request)`，再做 Zod 参数校验、调 package service、返回 DTO。
-- [ ] 写入 service 返回 `ServiceResult<T>`；route 通过 `createApiRouteHandler()` 或 `serviceResponse(result)` 统一输出，禁止为 service result 手写 `Response.json({ error })`。
+- [ ] `app/api/modules/<domain>/<l2>/route.ts` — 新增或迁移的业务模块 API 默认使用 `createCommandRoute()`；route 只配置 schema/access/buildCommand/action，不写业务 if/dispatch/parsed body 分支；显式 `internal` 维护入口使用 `createInternalApiRoute()`；存量 wrapper 只作历史兼容，不再作为新接口模板。
+- [ ] `createCommandRoute.action` 返回普通 DTO、`Response`，或由 `serviceOk/serviceError` 生成的 branded `ServiceResult<T>`；错误协议由 platform 统一输出，禁止在 route 手写 `Response.json({ error })`。
 - [ ] 每个 L2 在 registry child 上声明 `apiPrefixes`；没有 API 时写清 `noApiReason`。宽泛 `/api/modules/<domain>` 不能作为 L2 最终契约。
 - [ ] GET → 至少 `access`；POST/PUT → `write`；DELETE → `delete`
 - [ ] route 入口不得裸用 `authenticate()`、不得手写 resource key 作为主门禁；resource/action 必须由 registry API contract 派生。

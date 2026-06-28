@@ -1,67 +1,79 @@
-import { NextResponse } from "next/server";
-import { checkHRAccess, checkHRWrite, checkHRDelete, requireApiAccess } from "@workspace/platform/server/auth";
-import { jsonErrorResponse, serviceResponse, routeIdParamsSchema, validateCompatibilityProxyBody } from "@workspace/platform/server/api";
-import { createPosition, deletePositionByParams, getPositionList, PositionCreateSchema, updatePosition } from "@workspace/hr/server";
+import { z } from "zod";
 
-export async function GET(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  if (!(await checkHRAccess(payload.userId, "access", "hr.roster"))) return jsonErrorResponse("无权限", 403);
+import {
+  buildHrRouteCommand,
+  createPosition,
+  deletePositionByParams,
+  getPositionList,
+  idParams,
+  PositionCreateSchema,
+  updatePosition,
+} from "@workspace/hr/server";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkHRAccess, checkHRDelete, checkHRWrite } from "@workspace/platform/server/auth";
 
-  const { searchParams } = new URL(request.url);
-  const keyword = searchParams.get("keyword") || "";
-  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-  const pageSize = Math.min(500, Math.max(1, parseInt(searchParams.get("pageSize") || "50", 10)));
-  const archived = searchParams.get("archived") === "1" || searchParams.get("archived") === "true";
-  const summary = searchParams.get("summary") === "1" || searchParams.get("summary") === "true";
+const positionsQuerySchema = z.object({
+  keyword: z.string().catch(""),
+  page: z.coerce.number().int().min(1).catch(1),
+  pageSize: z.coerce.number().int().min(1).max(500).catch(50),
+  archived: z.enum(["1", "true"]).optional().catch(undefined),
+  summary: z.enum(["1", "true"]).optional().catch(undefined),
+}).passthrough();
 
-  const result = await getPositionList(keyword, page, pageSize, archived, summary);
-  return NextResponse.json(result);
-}
+const updatePositionBodySchema = z.object({
+  id: z.coerce.number().int().positive(),
+  code: z.string().optional(),
+  name: z.string().optional(),
+  alias: z.string().nullable().optional(),
+  departmentId: z.union([z.number(), z.string()]).optional().nullable(),
+  positionDescriptionId: z.union([z.number(), z.string()]).optional().nullable(),
+  isArchived: z.boolean().optional(),
+}).passthrough();
 
-export async function POST(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  if (!(await checkHRWrite(payload.userId, "hr.roster"))) return jsonErrorResponse("无权限", 403);
+export const GET = createCommandRoute({
+  access: (userId: number) => checkHRAccess(userId, "access", "hr.roster"),
+  querySchema: positionsQuerySchema,
+  buildCommand: ({ query }) => buildHrRouteCommand({
+    keyword: query.keyword,
+    page: query.page,
+    pageSize: query.pageSize,
+    archived: Boolean(query.archived),
+    summary: Boolean(query.summary),
+  }),
+  action: ({ keyword, page, pageSize, archived, summary }) => getPositionList(keyword, page, pageSize, archived, summary),
+});
 
-  const validation = await validateCompatibilityProxyBody(request);
-  if (!validation.ok) return jsonErrorResponse(validation.error, 400);
+export const POST = createCommandRoute({
+  access: (userId: number) => checkHRWrite(userId, "hr.roster"),
+  bodySchema: PositionCreateSchema,
+  buildCommand: ({ body, user }) => buildHrRouteCommand({ body, userId: user.userId }),
+  action: ({ body, userId }) => createPosition(body, userId),
+});
 
-  const body = await request.json();
-  const parsedBody = PositionCreateSchema.safeParse(body);
-  if (!parsedBody.success) {
-    return jsonErrorResponse(parsedBody.error.issues[0]?.message || "参数错误", 400);
-  }
-  return serviceResponse(await createPosition(parsedBody.data, payload.userId));
-}
+export const PUT = createCommandRoute({
+  access: (userId: number) => checkHRWrite(userId, "hr.roster"),
+  bodySchema: updatePositionBodySchema,
+  bodyError: "缺少id",
+  buildCommand: ({ body, user }) => buildHrRouteCommand({
+    id: body.id,
+    body: {
+      code: body.code,
+      name: body.name,
+      alias: body.alias,
+      departmentId: body.departmentId,
+      positionDescriptionId: body.positionDescriptionId,
+      isArchived: body.isArchived,
+    },
+    userId: user.userId,
+  }),
+  action: ({ id, body, userId }) => updatePosition(id, body, userId),
+});
 
-export async function PUT(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  if (!(await checkHRWrite(payload.userId, "hr.roster"))) return jsonErrorResponse("无权限", 403);
-
-  const validation = await validateCompatibilityProxyBody(request);
-  if (!validation.ok) return jsonErrorResponse(validation.error, 400);
-
-  const body = await request.json();
-  const { id, code, name, alias, departmentId, positionDescriptionId, isArchived } = body;
-  if (!id) return jsonErrorResponse("缺少id", 400);
-
-  return serviceResponse(await updatePosition(id, { code, name, alias, departmentId, positionDescriptionId, isArchived }, payload.userId));
-}
-
-export async function DELETE(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  const payload = auth.user;
-  if (!(await checkHRDelete(payload.userId, "hr.roster"))) return jsonErrorResponse("无权限", 403);
-
-  const { searchParams } = new URL(request.url);
-  const parsedQuery = routeIdParamsSchema.safeParse(Object.fromEntries(searchParams.entries()));
-  if (!parsedQuery.success) return jsonErrorResponse("缺少id", 400);
-
-  return deletePositionByParams(request, Promise.resolve({ id: String(parsedQuery.data.id) }));
-}
+export const DELETE = createCommandRoute({
+  access: (userId: number) => checkHRDelete(userId, "hr.roster"),
+  querySchema: routeIdParamsSchema,
+  queryError: "缺少id",
+  buildCommand: ({ request, query }) => buildHrRouteCommand({ request, id: query.id }),
+  action: ({ request, id }) => deletePositionByParams(request, idParams(id)),
+});

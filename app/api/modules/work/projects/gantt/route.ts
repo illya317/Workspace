@@ -1,19 +1,20 @@
-import { NextResponse } from "next/server";
-import { requireApiAccess } from "@workspace/platform/server/auth";
-import { canUseProject, listProjectGantt } from "@workspace/work/server";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { z } from "zod";
 
-export async function GET(request: Request) {
-  const auth = await requireApiAccess(request);
-  if (!auth.ok) return auth.response;
-  if (!(await canUseProject(auth.user.userId))) {
-    return jsonErrorResponse("无权限", 403);
-  }
+import {
+  buildProjectGanttRouteCommand,
+  executeProjectGanttRouteCommand,
+} from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
 
-  const { searchParams } = new URL(request.url);
-  const includeTasks = searchParams.get("includeTasks") === "1" || searchParams.get("includeTasks") === "true";
-  return NextResponse.json(await listProjectGantt({
-    userId: auth.user.userId,
-    includeTasks,
-  }));
-}
+const projectGanttQuerySchema = z.object({
+  includeTasks: z.enum(["1", "true"]).optional().catch(undefined),
+});
+
+export const GET = createCommandRoute({
+  querySchema: projectGanttQuerySchema,
+  buildCommand: ({ query, user }) => buildProjectGanttRouteCommand({
+    userId: user.userId,
+    includeTasks: query.includeTasks === "1" || query.includeTasks === "true",
+  }),
+  action: executeProjectGanttRouteCommand,
+});

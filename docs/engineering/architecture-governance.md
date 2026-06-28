@@ -96,13 +96,16 @@ module-registry 模块台账
 
 `registeredModuleDefinitions` 是模块台账事实源：L1/L2 必须声明页面、资源、API 前缀或无 API 原因。`api-registry` 从台账派生 `method + pathPrefix + access + resourceKey + action + ownerModuleKey`，默认动作是 `GET=access`、`POST/PUT/PATCH=write`、`DELETE=delete`。route 不再维护第二套资源/动作表。
 
-API route 只做：
+API route 是 API shell，只做：
 
 1. 认证。
 2. 权限。
 3. Zod 参数校验。
-4. 调用 service。
-5. 返回 DTO。
+4. 构造 domain command。
+5. 调用业务 action/service。
+6. 返回 DTO。
+
+新增或迁移的业务模块 API 必须优先使用 `createCommandRoute()`。route 文件只配置 `paramsSchema`、`querySchema`、`bodySchema`、`access`、`buildCommand` 和 `action`；不得在 route 里基于 parsed body/query 写业务 `if` 分派、业务必填组合判断、记录存在性判断或 service 错误映射。需要分派时，在对应业务包 `packages/<domain>/server/*route-command*.ts` 新增 command/action adapter；platform 只承接登录、权限、请求解析、command/result 映射和统一错误响应协议，不承载 HR/Finance/Work 等业务规则。
 
 写入入口必须按三段式收口：
 
@@ -121,7 +124,7 @@ Zod schema -> domain validator -> service/Prisma
 
 新增多入口写入能力时，页面、导入、agent tool 或内部 API 只能新增 input adapter，把输入适配成 domain command；同一个业务字段或业务动作必须收口到同一套 domain validator。`npm run arch:gate` 会通过通用 domain validation ratchet 检查业务 API route、route-local helper、写 service 和 exported 写入口函数：新增写 service 必须消费本包 `packages/<domain>/server/domain/*-validation.ts`，route 不得直接或通过 package root 间接 import domain validator，service 不得重新散落 FK、日期、枚举、百分比、归档/删除引用保护等底层业务规则。即使一个文件已经 import domain validator，新增 exported `create/update/save/archive/delete/upsert/import` 写入口也必须在入口体内调用 domain validator 或走带校验 hook 的 CRUD helper；其中 `handleDelete` 只有在入口或引用的 config 里显式提供 `onBeforeDelete`，或入口直接调用已登记的 guarded/domain 删除验证入口时，才视为已验证。仅供内部复用的写 helper 不应 export。HR roster 当前 baseline 为 0；其他模块存量债由 `scripts/arch/domain-validation-baseline.json` 锁定，只能减少，不能新增。
 
-Level 1 起，业务资源权限入口统一为 `packages/platform/server/auth/authorize.ts` 的 `authorize()`。`requireApiAccess(request)` 是内部业务 API 的统一入口；`createApiRouteHandler()` 是新 route 的默认协议适配器，`createCommandRoute()` 是带 `buildCommand -> action` 的写入/命令型适配器。显式 `access=internal` 的维护型 API 不走登录/RBAC，但必须在 API contract 中声明，并使用 `createInternalApiRoute()` 集中声明 internal 授权。旧 `withAuth` / `withFinance*` 等 wrapper 必须先委托 `requireApiAccess()`，再做历史兼容的模块级细分检查。新增 API route 不得直接调用 `checkPermission()` 或在 route 内重写角色判断。唯一例外是内置 root admin gate：`auth/admin.ts` 必须委托 `isRootAdminUser()`，且不得把 `system` 注册或判断为 RBAC resource。
+Level 1 起，业务资源权限入口统一为 `packages/platform/server/auth/authorize.ts` 的 `authorize()`。`requireApiAccess(request)` 是内部业务 API 的统一入口；新增或迁移的 `app/api/modules/**/route.ts` 默认使用 `createCommandRoute()`，route 只声明 schema/access/buildCommand/action，业务分支、dispatch、service-result 映射和 parsed body/query 判断必须进入对应业务包的 command/action 适配层。`createApiRouteHandler()` 仅用于非 command 的平台兼容适配，不作为新增业务模块 API 的默认入口。显式 `access=internal` 的维护型 API 不走登录/RBAC，但必须在 API contract 中声明，并使用 `createInternalApiRoute()` 集中声明 internal 授权。旧 `withAuth` / `withFinance*` 等 wrapper 仅作为存量兼容，必须先委托 `requireApiAccess()`，再做历史兼容的模块级细分检查；新接口不得继续新增 wrapper route。新增 API route 不得直接调用 `checkPermission()` 或在 route 内重写角色判断。唯一例外是内置 root admin gate：`auth/admin.ts` 必须委托 `isRootAdminUser()`，且不得把 `system` 注册或判断为 RBAC resource。
 
 有副作用的业务写操作优先显式命名 action，例如 `work.project.member.added`。业务侧只能调用 `sendNotification(type + payload)`，通知标题、正文、链接和默认重要性由 `packages/platform/server/notifications.ts` 的 notification registry 渲染；除 registry 内部外不得直接调用 `createNotification()`，也不得直接写 `prisma.notification.create/createMany/upsert`。
 
@@ -131,7 +134,7 @@ Level 1 起，业务资源权限入口统一为 `packages/platform/server/auth/a
 
 - `packages/platform/server/auth/authorize.ts` 存在并导出 `authorize()`。
 - 核心业务 auth helper 委托 `authorize()`；root admin helper 委托 `isRootAdminUser()`。
-- 新增业务 API route 必须命中 registry API contract，并使用 `createApiRouteHandler()`、`createCommandRoute()`、`requireApiAccess(request)` 或已接入它的 `with-auth` wrapper；明确的 public/dev/internal/disabled handler 必须在 API contract 中声明，`internal` handler 还必须使用 `createInternalApiRoute()`。
+- 新增或迁移的业务 API route 必须命中 registry API contract，并使用 `createCommandRoute()`；route 只做登录、权限、Zod 解析、构造 command、调用业务 action 和返回结果。明确的 public/dev/internal/disabled handler 必须在 API contract 中声明，`internal` handler 还必须使用 `createInternalApiRoute()`。
 - 新增 API route 不得新增裸 `checkPermission()` 或裸 `prisma.`。当前历史债由 `scripts/check/level1-api-baseline.json` 锁定，只能减少，不能新增。
 - 业务不得绕过 notification registry 直接调用 `createNotification()` 或 `prisma.notification.create/createMany/upsert`。
 

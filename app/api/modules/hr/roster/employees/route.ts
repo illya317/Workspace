@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
-import { withHRAccess, withHRWrite } from "@workspace/platform/server/with-auth";
-import { createEmployeeWithAccount, listEmployees } from "@workspace/hr/server";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
+
+import { buildHrRouteCommand, executeCreateEmployeeWithAccountCommand, listEmployees } from "@workspace/hr/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkHRAccess, checkHRWrite } from "@workspace/platform/server/auth";
 
 const employeesQuerySchema = z.object({
   keyword: z.string().catch(""),
@@ -21,24 +21,17 @@ const createEmployeeSchema = z.object({
   name: z.string().min(1, "姓名必填"),
 }).passthrough();
 
-export const GET = withHRAccess(async (request: Request, _user) => {
-  const { searchParams } = new URL(request.url);
-  const parsedQuery = employeesQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
-  if (!parsedQuery.success) return jsonErrorResponse("参数错误", 400);
-  const { company, department, employmentStatus, isActive = null, keyword, filterField, filterValue, page, pageSize, position } = parsedQuery.data;
-  return NextResponse.json(await listEmployees({ company, department, employmentStatus, isActive, keyword, filterField, filterValue, page, pageSize, position }));
+export const GET = createCommandRoute({
+  access: (userId: number) => checkHRAccess(userId, "access", "hr.roster"),
+  querySchema: employeesQuerySchema,
+  queryError: "参数错误",
+  buildCommand: ({ query }) => buildHrRouteCommand(query),
+  action: listEmployees,
 });
 
-export const POST = withHRWrite(async (request: Request, user) => {
-  const body = await request.json().catch(() => null);
-  const parsedBody = createEmployeeSchema.safeParse(body);
-  if (!parsedBody.success) {
-    return jsonErrorResponse(parsedBody.error.issues[0]?.message || "参数错误", 400);
-  }
-  const result = await createEmployeeWithAccount(parsedBody.data.name, user.userId);
-  if (!result.ok) {
-    return jsonErrorResponse(result.error, result.status);
-  }
-
-  return NextResponse.json({ success: true, employee: result.employee, user: result.user });
+export const POST = createCommandRoute({
+  access: (userId: number) => checkHRWrite(userId, "hr.roster"),
+  bodySchema: createEmployeeSchema,
+  buildCommand: ({ body, user }) => buildHrRouteCommand({ name: body.name, userId: user.userId }),
+  action: executeCreateEmployeeWithAccountCommand,
 });
