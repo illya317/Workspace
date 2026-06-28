@@ -5,8 +5,14 @@ import { apiResourceGuards, apiRoutes, systemApiRoutes, validateModuleRegistry }
 const WORK_FK_REGISTRATIONS = [
   { key: "work.projects.leadingDepartment", scope: "work", source: { entity: "Project", field: "leadingDepartmentId" }, target: "department", targetLabel: "主导部门", nullable: false, permission: { resourceKey: "work.projects", action: "access" } },
   { key: "work.projects.parent", scope: "work", source: { entity: "Project", field: "parentProjectId" }, target: "project", targetLabel: "上级项目", nullable: true, permission: { resourceKey: "work.projects", action: "access" } },
+  { key: "work.projects.parentTask", scope: "work", source: { entity: "Project", field: "parentProjectTaskId" }, target: "projectTask", targetLabel: "上级任务", nullable: true, permission: { resourceKey: "work.projects", action: "access" } },
   { key: "work.projects.member.employee", scope: "work", source: { entity: "EmployeeProject", field: "employeeId" }, target: "employee", nullable: false, permission: { resourceKey: "work.projects", action: "access" } },
   { key: "work.projects.member.project", scope: "work", source: { entity: "EmployeeProject", field: "projectId" }, target: "project", nullable: false, permission: { resourceKey: "work.projects", action: "access" } },
+  { key: "work.projectTasks.project", scope: "work", source: { entity: "ProjectTask", field: "projectId" }, target: "project", nullable: false, permission: { resourceKey: "work.projects", action: "access" } },
+  { key: "work.projectTasks.owner.employee", scope: "work", source: { entity: "ProjectTask", field: "ownerEmployeeId" }, target: "employee", targetLabel: "负责人", nullable: true, permission: { resourceKey: "work.projects", action: "access" } },
+  { key: "work.projectTasks.planPhase", scope: "work", source: { entity: "ProjectTask", field: "planPhaseId" }, target: "projectPlanPhase", targetLabel: "项目阶段", nullable: true, permission: { resourceKey: "work.projects", action: "access" } },
+  { key: "work.projectTasks.source.decision", scope: "work", source: { entity: "ProjectTask", field: "sourceMeetingDecisionId" }, target: "meetingDecision", targetLabel: "来源会议决议", nullable: true, permission: { resourceKey: "work.projects", action: "access" } },
+  { key: "work.projectTasks.source.actionCandidate", scope: "work", source: { entity: "ProjectTask", field: "sourceMeetingActionCandidateId" }, target: "meetingActionCandidate", targetLabel: "来源会议行动候选", nullable: true, permission: { resourceKey: "work.projects", action: "access" } },
   { key: "work.tasks.owner.employee", scope: "work", source: { entity: "WorkItem", field: "ownerEmployeeId" }, target: "employee", targetLabel: "负责人", nullable: true, permission: { resourceKey: "work.tasks", action: "access" } },
   { key: "work.tasks.permission.user", scope: "work", source: { entity: "WorkScopePermission", field: "userId" }, target: "user", targetLabel: "授权用户", nullable: false, permission: { resourceKey: "work.tasks", action: "access" } },
   { key: "work.tasks.linked.project", scope: "work", source: { entity: "WorkItem", field: "linkedProjectId" }, target: "project", targetLabel: "关联项目", nullable: true, permission: { resourceKey: "work.tasks", action: "access" } },
@@ -16,14 +22,22 @@ const WORK_FK_REGISTRATIONS = [
 
 const HR_FK_REGISTRATIONS = [
   { key: "hr.department", scope: "hr", source: { entity: "Any", field: "departmentId" }, target: "department", nullable: true, permission: { resourceKey: "hr.roster", action: "access" } },
+  { key: "hr.department.parent", scope: "hr", source: { entity: "Department", field: "parentId" }, target: "department", targetLabel: "上级部门", nullable: true, permission: { resourceKey: "hr.roster", action: "access" } },
+  { key: "hr.department.manager.user", scope: "hr", source: { entity: "Department", field: "managerUserId" }, target: "user", targetLabel: "部门负责人账号", nullable: true, permission: { resourceKey: "hr.roster", action: "access" } },
   { key: "hr.position", scope: "hr", source: { entity: "Any", field: "positionId" }, target: "position", nullable: true, permission: { resourceKey: "hr.roster", action: "access" } },
   { key: "hr.employee", scope: "hr", source: { entity: "Any", field: "employeeId" }, target: "employee", nullable: true, permission: { resourceKey: "hr.roster", action: "access" } },
   { key: "hr.company", scope: "hr", source: { entity: "Contract", field: "company" }, target: "company", nullable: true, permission: { resourceKey: "hr.roster", action: "access" } },
+  { key: "hr.companyRelation.parent", scope: "hr", source: { entity: "CompanyRelation", field: "parentId" }, target: "company", targetLabel: "上级公司", nullable: false, permission: { resourceKey: "hr.roster", action: "access" } },
+  { key: "hr.companyRelation.child", scope: "hr", source: { entity: "CompanyRelation", field: "childId" }, target: "company", targetLabel: "下级公司", nullable: false, permission: { resourceKey: "hr.roster", action: "access" } },
   { key: "platform.user", scope: "hr", source: { entity: "Any", field: "userId" }, target: "user", nullable: true, permission: { resourceKey: "hr.roster", action: "access" } },
   { key: "hr.positionDescription", scope: "hr", source: { entity: "Position", field: "positionDescriptionId" }, target: "positionDescription", nullable: true, permission: { resourceKey: "hr.roster", action: "access" } },
   { key: "hr.edp.position", scope: "hr", source: { entity: "EDP", field: "positionId" }, target: "position", nullable: false, permission: { resourceKey: "hr.roster", action: "access" } },
-  { key: "hr.edp.reportTo", scope: "hr", source: { entity: "EDP", field: "reportTo" }, target: "employee", targetLabel: "直接上级", nullable: true, permission: { resourceKey: "hr.roster", action: "access" } },
+  { key: "hr.edp.reportTo", scope: "hr", source: { entity: "EDP", field: "reportTo", valueKind: "semantic" }, target: "employee", targetLabel: "直接上级", nullable: true, permission: { resourceKey: "hr.roster", action: "access" } },
   { key: "hr.position.department", scope: "hr", source: { entity: "Position", field: "departmentId" }, target: "department", targetLabel: "所属部门", nullable: false, permission: { resourceKey: "hr.roster", action: "access" } },
+] satisfies FkRegistration[];
+
+const FINANCE_FK_REGISTRATIONS = [
+  { key: "finance.accounts.parent", scope: "finance", source: { entity: "FinanceAccount", field: "parentId" }, target: "financeAccount", targetLabel: "上级科目", nullable: true, permission: { resourceKey: "finance.ledger", action: "access" } },
 ] satisfies FkRegistration[];
 
 // 模块台账：声明模块是谁、挂在哪个页面、归属哪个资源，以及暴露哪些 API contract。
@@ -180,6 +194,7 @@ export const registeredModuleDefinitions = [
       "/finance/treasury",
       "/finance/import",
     ],
+    fkRegistrations: FINANCE_FK_REGISTRATIONS,
     apiGuards: [
       ...apiResourceGuards("/api/modules/finance/ledger", "finance.ledger"),
       ...apiResourceGuards("/api/modules/finance/statement-config", "finance.statementConfig"),

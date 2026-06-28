@@ -7,18 +7,28 @@ import {
   resolveFkCompany,
   resolveFkDepartment,
   resolveFkEmployee,
+  resolveFkFinanceAccount,
   resolveFkMeeting,
+  resolveFkMeetingActionCandidate,
+  resolveFkMeetingDecision,
   resolveFkPosition,
   resolveFkPositionDescription,
   resolveFkProject,
+  resolveFkProjectPlanPhase,
+  resolveFkProjectTask,
   resolveFkUser,
   searchFkCompanies,
   searchFkDepartments,
   searchFkEmployees,
+  searchFkFinanceAccounts,
   searchFkMeetings,
+  searchFkMeetingActionCandidates,
+  searchFkMeetingDecisions,
   searchFkPositionDescriptions,
   searchFkPositions,
+  searchFkProjectPlanPhases,
   searchFkProjects,
+  searchFkProjectTasks,
   searchFkUsers,
 } from "./fk-search";
 
@@ -26,10 +36,15 @@ export type FkTargetKind =
   | "company"
   | "department"
   | "employee"
+  | "financeAccount"
   | "meeting"
+  | "meetingActionCandidate"
+  | "meetingDecision"
   | "position"
   | "positionDescription"
   | "project"
+  | "projectPlanPhase"
+  | "projectTask"
   | "user";
 
 type FkTargetSpec = Pick<FkDefinition, "target" | "search" | "resolve">;
@@ -50,10 +65,25 @@ const targetSpecs: Record<FkTargetKind, FkTargetSpec> = {
     search: ({ keyword, lifecycleScope }) => searchFkEmployees(keyword, lifecycleScope),
     resolve: resolveFkEmployee,
   },
+  financeAccount: {
+    target: { entity: "FinanceAccount", label: "财务科目" },
+    search: ({ keyword }) => searchFkFinanceAccounts(keyword),
+    resolve: resolveFkFinanceAccount,
+  },
   meeting: {
     target: { entity: "Meeting", label: "会议" },
     search: ({ keyword }) => searchFkMeetings(keyword),
     resolve: resolveFkMeeting,
+  },
+  meetingActionCandidate: {
+    target: { entity: "MeetingActionCandidate", label: "会议行动候选" },
+    search: ({ keyword }) => searchFkMeetingActionCandidates(keyword),
+    resolve: resolveFkMeetingActionCandidate,
+  },
+  meetingDecision: {
+    target: { entity: "MeetingDecision", label: "会议决议" },
+    search: ({ keyword }) => searchFkMeetingDecisions(keyword),
+    resolve: resolveFkMeetingDecision,
   },
   position: {
     target: { entity: "Position", label: "岗位" },
@@ -69,6 +99,16 @@ const targetSpecs: Record<FkTargetKind, FkTargetSpec> = {
     target: { entity: "Project", label: "项目" },
     search: ({ keyword, lifecycleScope }) => searchFkProjects(keyword, lifecycleScope),
     resolve: resolveFkProject,
+  },
+  projectPlanPhase: {
+    target: { entity: "ProjectPlanPhase", label: "项目阶段" },
+    search: ({ keyword }) => searchFkProjectPlanPhases(keyword),
+    resolve: resolveFkProjectPlanPhase,
+  },
+  projectTask: {
+    target: { entity: "ProjectTask", label: "项目任务" },
+    search: ({ keyword }) => searchFkProjectTasks(keyword),
+    resolve: resolveFkProjectTask,
   },
   user: {
     target: { entity: "User", label: "账号" },

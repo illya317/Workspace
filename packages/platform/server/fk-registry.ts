@@ -42,6 +42,7 @@ export interface FkDefinition {
   source: {
     entity: string;
     field: string;
+    valueKind?: "id" | "semantic";
   };
   target: {
     entity: string;

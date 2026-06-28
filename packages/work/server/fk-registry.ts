@@ -38,6 +38,37 @@ const WORK_FK_ADAPTERS: FkRegistrationAdapters = {
       lifecycleScope,
     }),
   },
+  "work.projectTasks.project": {
+    search: ({ keyword, lifecycleScope, userId }) => listVisibleProjectReferenceOptions({
+      userId: requireFkUserId(userId),
+      keyword,
+      lifecycleScope,
+    }),
+  },
+  "work.projects.parentTask": {
+    search: ({ keyword, userId }) => listVisibleProjectTaskReferenceOptions({
+      userId: requireFkUserId(userId),
+      keyword,
+    }),
+  },
+  "work.projectTasks.planPhase": {
+    search: ({ keyword, userId }) => listVisibleProjectPlanPhaseReferenceOptions({
+      userId: requireFkUserId(userId),
+      keyword,
+    }),
+  },
+  "work.projectTasks.source.decision": {
+    search: ({ keyword, userId }) => listVisibleMeetingDecisionReferenceOptions({
+      userId: requireFkUserId(userId),
+      keyword,
+    }),
+  },
+  "work.projectTasks.source.actionCandidate": {
+    search: ({ keyword, userId }) => listVisibleMeetingActionCandidateReferenceOptions({
+      userId: requireFkUserId(userId),
+      keyword,
+    }),
+  },
   "work.tasks.source.meeting": {
     search: ({ keyword, userId }) => listVisibleMeetingReferenceOptions({
       userId: requireFkUserId(userId),
@@ -74,6 +105,52 @@ async function listVisibleMeetingReferenceOptions(input: {
     .slice(0, 20);
 }
 
+async function listVisibleMeetingDecisionReferenceOptions(input: {
+  userId: number;
+  keyword: string;
+}) {
+  const visibleWhere = await buildVisibleMeetingWhere(input.userId);
+  const rows = await prisma.meetingDecision.findMany({
+    where: { meeting: visibleWhere },
+    select: { id: true, title: true, kind: true, meeting: { select: { title: true } } },
+    orderBy: [{ decidedAt: "desc" }, { id: "desc" }],
+    take: input.keyword.trim() ? 80 : 20,
+  });
+
+  return rows
+    .map((row) => ({
+      id: row.id,
+      name: row.title,
+      subtitle: [row.kind, row.meeting.title].filter(Boolean).join(" · "),
+      lifecycleStatus: "active" as const,
+    }))
+    .filter((row) => matchesFkKeyword([row.name, row.subtitle], input.keyword))
+    .slice(0, 20);
+}
+
+async function listVisibleMeetingActionCandidateReferenceOptions(input: {
+  userId: number;
+  keyword: string;
+}) {
+  const visibleWhere = await buildVisibleMeetingWhere(input.userId);
+  const rows = await prisma.meetingActionCandidate.findMany({
+    where: { meeting: visibleWhere },
+    select: { id: true, title: true, status: true, meeting: { select: { title: true } } },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take: input.keyword.trim() ? 80 : 20,
+  });
+
+  return rows
+    .map((row) => ({
+      id: row.id,
+      name: row.title,
+      subtitle: [row.status, row.meeting.title].filter(Boolean).join(" · "),
+      lifecycleStatus: "active" as const,
+    }))
+    .filter((row) => matchesFkKeyword([row.name, row.subtitle], input.keyword))
+    .slice(0, 20);
+}
+
 export async function listVisibleProjectReferenceOptions(input: {
   userId: number;
   keyword: string;
@@ -94,6 +171,52 @@ export async function listVisibleProjectReferenceOptions(input: {
       name: row.name,
       subtitle: row.code ?? undefined,
       lifecycleStatus: row.isArchived ? "archived" as const : "active" as const,
+    }))
+    .filter((row) => matchesFkKeyword([row.name, row.subtitle], input.keyword))
+    .slice(0, 20);
+}
+
+async function listVisibleProjectPlanPhaseReferenceOptions(input: {
+  userId: number;
+  keyword: string;
+}) {
+  const visibleWhere = await buildVisibleProjectWhere(input.userId);
+  const rows = await prisma.projectPlanPhase.findMany({
+    where: { project: visibleWhere },
+    select: { id: true, name: true, sequenceNo: true, project: { select: { code: true, name: true } } },
+    orderBy: [{ projectId: "asc" }, { sequenceNo: "asc" }, { id: "asc" }],
+    take: input.keyword.trim() ? 80 : 20,
+  });
+
+  return rows
+    .map((row) => ({
+      id: row.id,
+      name: row.name,
+      subtitle: [row.project.code, row.project.name, `#${row.sequenceNo}`].filter(Boolean).join(" · "),
+      lifecycleStatus: "active" as const,
+    }))
+    .filter((row) => matchesFkKeyword([row.name, row.subtitle], input.keyword))
+    .slice(0, 20);
+}
+
+async function listVisibleProjectTaskReferenceOptions(input: {
+  userId: number;
+  keyword: string;
+}) {
+  const visibleWhere = await buildVisibleProjectWhere(input.userId);
+  const rows = await prisma.projectTask.findMany({
+    where: { project: visibleWhere },
+    select: { id: true, name: true, project: { select: { code: true, name: true } } },
+    orderBy: [{ projectId: "asc" }, { sortOrder: "asc" }, { id: "asc" }],
+    take: input.keyword.trim() ? 80 : 20,
+  });
+
+  return rows
+    .map((row) => ({
+      id: row.id,
+      name: row.name,
+      subtitle: [row.project.code, row.project.name].filter(Boolean).join(" · "),
+      lifecycleStatus: "active" as const,
     }))
     .filter((row) => matchesFkKeyword([row.name, row.subtitle], input.keyword))
     .slice(0, 20);

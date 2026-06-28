@@ -142,7 +142,7 @@ export async function getAuditLogEntries(
       return {};
     }
   });
-  const fkMap = await resolveFkValues(allSnapshots);
+  const fkMap = await resolveFkValues(allSnapshots, { entityType });
 
   const entries: AuditLogEntry[] = pageVersions
     .sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())
@@ -163,8 +163,8 @@ export async function getAuditLogEntries(
               const toRaw = current != null ? (typeof current === "object" ? JSON.stringify(current) : String(current)) : "";
               changes.push({
                 field: key,
-                from: fromRaw ? fkDisplay(key, fromRaw, fkMap) : "(空)",
-                to: toRaw ? fkDisplay(key, toRaw, fkMap) : "(空)",
+                from: fromRaw ? fkDisplay(key, fromRaw, fkMap, { entityType: version.entityType }) : "(空)",
+                to: toRaw ? fkDisplay(key, toRaw, fkMap, { entityType: version.entityType }) : "(空)",
               });
             }
           }

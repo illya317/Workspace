@@ -11,6 +11,32 @@ const LEGACY_FK_KEYS = new Set(["employee"]);
 const REQUIRED_PROPERTIES = ["key", "scope", "source", "target", "nullable", "permission"];
 const SOURCE_PROPERTIES = ["entity", "field"];
 const PERMISSION_PROPERTIES = ["resourceKey", "action"];
+const HISTORY_FK_FIELDS = [
+  ["Employee", "userId"],
+  ["Employment", "employeeId"],
+  ["CompanyRelation", "parentId"],
+  ["CompanyRelation", "childId"],
+  ["Department", "parentId"],
+  ["Department", "managerUserId"],
+  ["Position", "departmentId"],
+  ["Position", "positionDescriptionId"],
+  ["EDP", "employeeId"],
+  ["EDP", "departmentId"],
+  ["EDP", "positionId"],
+  ["EmployeeProject", "employeeId"],
+  ["EmployeeProject", "projectId"],
+  ["Project", "leadingDepartmentId"],
+  ["Project", "parentProjectTaskId"],
+  ["ProjectTask", "projectId"],
+  ["ProjectTask", "ownerEmployeeId"],
+  ["ProjectTask", "planPhaseId"],
+  ["ProjectTask", "sourceMeetingDecisionId"],
+  ["ProjectTask", "sourceMeetingActionCandidateId"],
+  ["FinanceAccount", "parentId"],
+];
+const HISTORY_FK_IGNORES = new Map([
+  ["EDP:reportTo", "business semantic string; accepts employee name or employee code, not Employee.id"],
+]);
 
 let failed = false;
 
@@ -82,7 +108,15 @@ function collectRegistrations() {
         const registration = unwrap(element);
         if (!ts.isObjectLiteralExpression(registration)) continue;
         const key = stringProperty(registration, "key");
-        registrations.push({ key, node: registration, line: lineOf(sourceFile, registration) });
+        const source = objectLiteralProperty(registration, "source");
+        registrations.push({
+          key,
+          sourceEntity: source ? stringProperty(source, "entity") : null,
+          sourceField: source ? stringProperty(source, "field") : null,
+          sourceValueKind: source ? stringProperty(source, "valueKind") : null,
+          node: registration,
+          line: lineOf(sourceFile, registration),
+        });
       }
     }
     ts.forEachChild(node, visit);
@@ -108,6 +142,10 @@ function validateRegistrations(registrations) {
     for (const property of SOURCE_PROPERTIES) {
       if (!source || !stringProperty(source, property)) fail(`FK registration ${label} missing source.${property}`);
     }
+    const sourceValueKind = source ? stringProperty(source, "valueKind") : null;
+    if (sourceValueKind && sourceValueKind !== "id" && sourceValueKind !== "semantic") {
+      fail(`FK registration ${label} has invalid source.valueKind: ${sourceValueKind}`);
+    }
 
     const permission = objectLiteralProperty(registration.node, "permission");
     for (const property of PERMISSION_PROPERTIES) {
@@ -115,6 +153,26 @@ function validateRegistrations(registrations) {
     }
   }
   return keys;
+}
+
+function sourceMatches(registration, entity, field) {
+  return registration.sourceField === field && (registration.sourceEntity === entity || registration.sourceEntity === "Any");
+}
+
+function validateHistoryFkCoverage(registrations) {
+  for (const [entity, field] of HISTORY_FK_FIELDS) {
+    const match = registrations.find((registration) => sourceMatches(registration, entity, field) && (registration.sourceValueKind ?? "id") === "id");
+    if (!match) {
+      fail(`tracked history FK field ${entity}.${field} must have an id-backed FK registration or explicit ignore`);
+    }
+  }
+
+  for (const [key, reason] of HISTORY_FK_IGNORES) {
+    const [entity, field] = key.split(":");
+    const match = registrations.find((registration) => sourceMatches(registration, entity, field));
+    if (!match) fail(`history FK ignore ${entity}.${field} (${reason}) must still have a registry entry if used by reference options`);
+    else if (match.sourceValueKind !== "semantic") fail(`history FK ignore ${entity}.${field} must be registered as source.valueKind = "semantic"`);
+  }
 }
 
 function walk(dir, files = []) {
@@ -175,6 +233,7 @@ function validateResolveFk() {
 
 const registrations = collectRegistrations();
 const keys = validateRegistrations(registrations);
+validateHistoryFkCoverage(registrations);
 validateFkKeyUsages(keys);
 validateReferenceOptionRoutes();
 validateResolveFk();

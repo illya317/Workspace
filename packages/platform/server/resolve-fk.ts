@@ -16,7 +16,7 @@ function fallbackDisplayKey(field: string, value: number) {
 function definitionsForField(field: string, entityType?: string): FkDefinition[] {
   const definitions = WORKSPACE_FK_REGISTRY.keys()
     .map((key) => WORKSPACE_FK_REGISTRY.require(key))
-    .filter((definition) => definition.source.field === field);
+    .filter((definition) => definition.source.field === field && (definition.source.valueKind ?? "id") === "id");
   if (!entityType) return definitions;
   return definitions.filter((definition) => definition.source.entity === entityType || definition.source.entity === "Any");
 }
