@@ -1,2 +1,2 @@
-export { administrationPackage, moduleDefinition } from "./module";
+export { moduleDefinition } from "./module";
 export type * from "./types";

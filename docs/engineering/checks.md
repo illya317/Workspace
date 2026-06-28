@@ -8,7 +8,6 @@
 |---|---|---|
 | 局部 TS/TSX 改动 | `npm run check:changed` | 跑 changed lint 和 quick typecheck；日常开发不检查净增行。 |
 | 清债/重构改动 | `npm run check:refactor` | 跑拆分质量、changed lint 和 quick typecheck。 |
-| 兼容旧清债入口 | `npm run check:cleanup` | `check:refactor` 的别名。 |
 | 仅检查本次总行数预算 | `npm run complexity:line-budget` | 检查 staged diff；没有 staged diff 时检查 tracked changed + untracked。默认净增必须 `<= 0`。 |
 | 仅检查拆分质量 | `npm run complexity:split-quality` | 防止为过 `max-lines` 把大文件随便搬家。 |
 | 当前变更阻断项 | `npm run check:blockers` | 跑业务阻断和 UI 阻断；这些问题由当前改动 agent 自己修。 |
@@ -96,4 +95,4 @@ Hygiene 负责简单、局部、机械、可回滚的清扫：
 
 Hygiene 不负责新公共 API、新封装入口、页面结构重排、复杂组件重构、大面积业务迁移或产品交互设计。发现这类问题时，只做归类和回交：结构性阻断进入 `gate:ui` / `gate:domain`，复杂 UI/业务迁移交给对应 Feature 或 Architecture。
 
-`arch:structure` 是完整结构报告，只用于拆任务和观察趋势；它不是 hygiene strict 的工作清单。`arch:level2` 保留为兼容别名。
+`arch:structure` 是完整结构报告，只用于拆任务和观察趋势；它不是 hygiene strict 的工作清单。

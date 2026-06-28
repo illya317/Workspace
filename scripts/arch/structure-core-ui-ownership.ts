@@ -31,7 +31,7 @@ export type CoreUiCommonDomainDependency = {
   targetSubcategory: string;
 };
 
-export type CoreUiSiblingL2Coupling = {
+export type CoreUiSiblingSubcategoryCoupling = {
   sourceSubcategory: string;
   targetSubcategory: string;
   edgeCount: number;
@@ -44,7 +44,7 @@ export type CoreUiOwnershipWarnings = {
   coreUiMissingOwnership: CoreUiMissingOwnership[];
   coreUiInvalidOwnership: CoreUiInvalidOwnership[];
   coreUiCommonDomainDependency: CoreUiCommonDomainDependency[];
-  coreUiSiblingL2Coupling: CoreUiSiblingL2Coupling[];
+  coreUiSiblingSubcategoryCoupling: CoreUiSiblingSubcategoryCoupling[];
 };
 
 export type BusinessCommonRendererImport = {
@@ -54,7 +54,7 @@ export type BusinessCommonRendererImport = {
   specifier: string;
 };
 
-export type DomainSharedL2LayoutShell = {
+export type DomainSharedLayoutShell = {
   file: string;
   packageName: string;
   reason: string;
@@ -146,7 +146,7 @@ export function coreUiOwnershipWarningKey(candidate:
   | CoreUiMissingOwnership
   | CoreUiInvalidOwnership
   | CoreUiCommonDomainDependency
-  | CoreUiSiblingL2Coupling
+  | CoreUiSiblingSubcategoryCoupling
 ) {
   if ("missing" in candidate) return `${candidate.name}: missing ${candidate.missing.join(",")}`;
   if ("reason" in candidate) return `${candidate.name}: ${candidate.reason}`;
@@ -217,7 +217,7 @@ export function findCoreUiOwnershipWarnings(): CoreUiOwnershipWarnings {
     }
   }
 
-  const coreUiSiblingL2Coupling = [...edgeCounts.values()]
+  const coreUiSiblingSubcategoryCoupling = [...edgeCounts.values()]
     .map((edge) => {
       const sourceDependencyCount = dependencyCounts.get(edge.sourceSubcategory) ?? 0;
       return {
@@ -238,7 +238,7 @@ export function findCoreUiOwnershipWarnings(): CoreUiOwnershipWarnings {
     coreUiMissingOwnership: coreUiMissingOwnership.sort((left, right) => left.name.localeCompare(right.name)),
     coreUiInvalidOwnership: coreUiInvalidOwnership.sort((left, right) => left.name.localeCompare(right.name)),
     coreUiCommonDomainDependency: coreUiCommonDomainDependency.sort((left, right) => coreUiOwnershipWarningKey(left).localeCompare(coreUiOwnershipWarningKey(right))),
-    coreUiSiblingL2Coupling: coreUiSiblingL2Coupling.sort((left, right) => coreUiOwnershipWarningKey(left).localeCompare(coreUiOwnershipWarningKey(right))),
+    coreUiSiblingSubcategoryCoupling: coreUiSiblingSubcategoryCoupling.sort((left, right) => coreUiOwnershipWarningKey(left).localeCompare(coreUiOwnershipWarningKey(right))),
   };
 }
 
@@ -281,8 +281,8 @@ export function findBusinessCommonRendererImports(files: SourceInfo[]) {
   return candidates.sort((left, right) => `${left.file}:${left.importedName}`.localeCompare(`${right.file}:${right.importedName}`));
 }
 
-export function findDomainSharedL2LayoutShells(files: SourceInfo[]) {
-  const candidates: DomainSharedL2LayoutShell[] = [];
+export function findDomainSharedLayoutShells(files: SourceInfo[]) {
+  const candidates: DomainSharedLayoutShell[] = [];
 
   for (const file of files) {
     if (!/^packages\/[^/]+\/ui\//.test(file.relPath)) continue;
@@ -301,7 +301,7 @@ export function findDomainSharedL2LayoutShells(files: SourceInfo[]) {
       packageName,
       reason: isSharedPageChrome
         ? "domain shared page chrome hook must become route/module PageSurface props or a thin spec adapter, not Core/Page API registry"
-        : "domain shared L2 layout shell must stay as route/module adapter debt, not Core/Page API registry",
+        : "domain shared layout shell must stay as route/module adapter debt, not Core/Page API registry",
     });
   }
 

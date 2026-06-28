@@ -1,19 +1,19 @@
-import type { createLevel2Report } from "./level2";
+import type { createStructureReport } from "./structure";
 
-export type Level2Report = ReturnType<typeof createLevel2Report>;
-export type Level2Baseline = Record<string, string[]>;
+export type StructureReport = ReturnType<typeof createStructureReport>;
+export type StructureBaseline = Record<string, string[]>;
 
-export type Level2RatchetCheck = {
+export type StructureRatchetCheck = {
   name: string;
   current: string[];
 };
 
-export type Level2DetectorScope = "domain-blocker" | "ui-blocker" | "hygiene" | "all";
+export type StructureDetectorScope = "domain-blocker" | "ui-blocker" | "hygiene" | "all";
 
-type Level2DetectorDefinition = {
+type StructureDetectorDefinition = {
   baselineKey: string;
-  scope: Exclude<Level2DetectorScope, "all">;
-  current: (report: Level2Report) => string[];
+  scope: Exclude<StructureDetectorScope, "all">;
+  current: (report: StructureReport) => string[];
 };
 
 function repeatedServiceGroupKey(group: { name: string; files: string[] }) {
@@ -112,7 +112,7 @@ function coreUiCommonDomainDependencyKey(candidate: { source: string; target: st
   return `${candidate.source} -> ${candidate.target}: ${candidate.sourceSubcategory} -> ${candidate.targetSubcategory}`;
 }
 
-function coreUiSiblingL2CouplingKey(candidate: { sourceSubcategory: string; targetSubcategory: string; edgeCount: number; sourceDependencyCount: number }) {
+function coreUiSiblingSubcategoryCouplingKey(candidate: { sourceSubcategory: string; targetSubcategory: string; edgeCount: number; sourceDependencyCount: number }) {
   return `${candidate.sourceSubcategory} -> ${candidate.targetSubcategory}: ${candidate.edgeCount}/${candidate.sourceDependencyCount}`;
 }
 
@@ -120,7 +120,7 @@ function businessCommonRendererImportKey(candidate: { file: string; importedName
   return `${candidate.file}: ${candidate.importedName} (${candidate.subcategory}) from ${candidate.specifier}`;
 }
 
-function domainSharedL2LayoutShellKey(candidate: { file: string; reason: string }) {
+function domainSharedLayoutShellKey(candidate: { file: string; reason: string }) {
   return `${candidate.file}: ${candidate.reason}`;
 }
 
@@ -128,7 +128,7 @@ function surfaceOwnsPageChromeKey(candidate: { file: string; componentName: stri
   return `${candidate.file}: ${candidate.componentName}.${candidate.propName}: ${candidate.detail}`;
 }
 
-export const level2DetectorRegistry: Level2DetectorDefinition[] = [
+export const structureDetectorRegistry: StructureDetectorDefinition[] = [
   { baselineKey: "uncontractedApiRouteMethods", scope: "domain-blocker", current: (report) => report.drift.uncontractedApiRouteMethods.map(apiRouteMethodKey) },
   { baselineKey: "apiRouteMethodsWithDirectPrismaSignal", scope: "domain-blocker", current: (report) => report.drift.apiRoutesWithDirectPrismaSignal.map(apiRouteMethodKey) },
   { baselineKey: "apiRouteMethodsWithoutValidationSignal", scope: "domain-blocker", current: (report) => report.drift.apiRouteMethodsWithoutValidationSignal.map(apiRouteMethodKey) },
@@ -169,20 +169,20 @@ export const level2DetectorRegistry: Level2DetectorDefinition[] = [
   { baselineKey: "coreUiMissingOwnership", scope: "ui-blocker", current: (report) => report.drift.coreUiMissingOwnership.map(coreUiMissingOwnershipKey) },
   { baselineKey: "coreUiInvalidOwnership", scope: "ui-blocker", current: (report) => report.drift.coreUiInvalidOwnership.map(coreUiInvalidOwnershipKey) },
   { baselineKey: "coreUiCommonDomainDependency", scope: "ui-blocker", current: (report) => report.drift.coreUiCommonDomainDependency.map(coreUiCommonDomainDependencyKey) },
-  { baselineKey: "coreUiSiblingL2Coupling", scope: "ui-blocker", current: (report) => report.drift.coreUiSiblingL2Coupling.map(coreUiSiblingL2CouplingKey) },
+  { baselineKey: "coreUiSiblingSubcategoryCoupling", scope: "ui-blocker", current: (report) => report.drift.coreUiSiblingSubcategoryCoupling.map(coreUiSiblingSubcategoryCouplingKey) },
   { baselineKey: "businessCommonRendererImports", scope: "ui-blocker", current: (report) => report.drift.businessCommonRendererImports.map(businessCommonRendererImportKey) },
-  { baselineKey: "domainSharedL2LayoutShells", scope: "ui-blocker", current: (report) => report.drift.domainSharedL2LayoutShells.map(domainSharedL2LayoutShellKey) },
+  { baselineKey: "domainSharedLayoutShells", scope: "ui-blocker", current: (report) => report.drift.domainSharedLayoutShells.map(domainSharedLayoutShellKey) },
   { baselineKey: "surfaceOwnsPageChrome", scope: "ui-blocker", current: (report) => report.drift.surfaceOwnsPageChrome.map(surfaceOwnsPageChromeKey) },
   { baselineKey: "repeatedServiceGroups", scope: "domain-blocker", current: (report) => report.drift.repeatedServiceGroups.map(repeatedServiceGroupKey) },
   { baselineKey: "routePrimitiveSchemaDuplicates", scope: "domain-blocker", current: (report) => report.drift.routePrimitiveSchemaDuplicates.map(routePrimitiveSchemaKey) },
   { baselineKey: "apiRouteHelperDuplicates", scope: "domain-blocker", current: (report) => report.drift.apiRouteHelperDuplicates.map(apiRouteHelperKey) },
 ];
 
-export function collectLevel2RatchetChecks(
-  report: Level2Report,
-  scope: Level2DetectorScope = "all",
-): Level2RatchetCheck[] {
-  return level2DetectorRegistry
+export function collectStructureRatchetChecks(
+  report: StructureReport,
+  scope: StructureDetectorScope = "all",
+): StructureRatchetCheck[] {
+  return structureDetectorRegistry
     .filter((detector) => scope === "all" || detector.scope === scope)
     .map((detector) => ({
       name: detector.baselineKey,

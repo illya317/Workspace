@@ -2,17 +2,17 @@ import fs from "node:fs";
 import path from "node:path";
 
 import {
-  collectLevel2RatchetChecks,
-  type Level2Baseline,
-  type Level2DetectorScope,
-} from "./level2-detectors";
-import { createLevel2Report } from "./level2";
+  collectStructureRatchetChecks,
+  type StructureBaseline,
+  type StructureDetectorScope,
+} from "./structure-detectors";
+import { createStructureReport } from "./structure";
 
 const ROOT = path.resolve(__dirname, "../..");
-const BASELINE_PATH = path.join(ROOT, "scripts/arch/level2-baseline.json");
+const BASELINE_PATH = path.join(ROOT, "scripts/arch/structure-baseline.json");
 
-function readBaseline(): Level2Baseline {
-  return JSON.parse(fs.readFileSync(BASELINE_PATH, "utf8")) as Level2Baseline;
+function readBaseline(): StructureBaseline {
+  return JSON.parse(fs.readFileSync(BASELINE_PATH, "utf8")) as StructureBaseline;
 }
 
 function uniqueSorted(items: string[]) {
@@ -38,7 +38,7 @@ function checkRatchet(name: string, current: string[], baseline: string[]) {
 
   if (stale.length > 0) {
     console.error(`✗ Structure baseline ratchet failed: stale ${name} baseline item(s).`);
-    console.error("  Remove migrated items from scripts/arch/level2-baseline.json.");
+    console.error("  Remove migrated items from scripts/arch/structure-baseline.json.");
     for (const item of stale) console.error(`  - ${item}`);
     return false;
   }
@@ -46,7 +46,7 @@ function checkRatchet(name: string, current: string[], baseline: string[]) {
   return true;
 }
 
-function parseScope(argv: string[]): Level2DetectorScope {
+function parseScope(argv: string[]): StructureDetectorScope {
   const scopeArg = argv.find((arg) => arg.startsWith("--scope="));
   if (!scopeArg) return "all";
   const scope = scopeArg.slice("--scope=".length);
@@ -61,12 +61,12 @@ function parseScope(argv: string[]): Level2DetectorScope {
   throw new Error(`Unknown structure ratchet scope: ${scope}`);
 }
 
-export function checkLevel2Ratchet(scope: Level2DetectorScope = "all") {
+export function checkStructureRatchet(scope: StructureDetectorScope = "all") {
   try {
     const baseline = readBaseline();
-    const report = createLevel2Report();
+    const report = createStructureReport();
 
-    for (const { name, current } of collectLevel2RatchetChecks(report, scope)) {
+    for (const { name, current } of collectStructureRatchetChecks(report, scope)) {
       if (!checkRatchet(name, current, baseline[name] ?? [])) return false;
     }
 
@@ -81,5 +81,5 @@ export function checkLevel2Ratchet(scope: Level2DetectorScope = "all") {
 
 if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
   const scope = parseScope(process.argv.slice(2));
-  process.exit(checkLevel2Ratchet(scope) ? 0 : 1);
+  process.exit(checkStructureRatchet(scope) ? 0 : 1);
 }

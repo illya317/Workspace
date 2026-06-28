@@ -53,7 +53,7 @@
 - 强制检查只有 `npm run arch:gate`。
 - Structure baseline ratchet 已拆成 domain/ui/hygiene scope；baseline 只能减少，不能为新违规扩写。
 - 公司硬编码、baseline 债务和 lint/arch 规则漏洞巡检归 Hygiene Role，不进主 CI 阻断链路。
-- 细则见 `docs/engineering/level2-agent-execution.md`。
+- 细则见 `docs/engineering/structure-agent-execution.md`。
 
 ## 6. 交接格式
 

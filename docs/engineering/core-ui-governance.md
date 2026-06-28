@@ -233,7 +233,7 @@ Surface 使用红线：
 
 新增 direct 入口必须由 `exposure` 硬锁为 `PageSurface`、`InputControl`、`SelectorPanel`、`CreatePanel`、`useFeedback`；`via` 必须指向这些 direct 入口。基础/私有实现只保留在 registry 关系数据中，不得作为 UI 组件库主展示根节点或业务可调用入口。
 
-新增或迁移 registry entry 时必须填写 `category`、`subcategory`；业务/agent 可调用性只由 `exposure` 表达。`arch:structure` 会报告 `coreUiMissingOwnership`、`coreUiInvalidOwnership`、`coreUiCommonDomainDependency`、`coreUiSiblingL2Coupling`、`businessCommonRendererImports`、`domainSharedL2LayoutShells`、`surfaceOwnsPageChrome`，以及业务视觉 token 硬编码、Core 业务事实泄漏、组件内本地 UI config 候选。结构性 UI 项进入 `gate:ui`，简单清扫项进入 `check:hygiene`；不能为了消警把 domain shared shell 注册成 Core/Page API。
+新增或迁移 registry entry 时必须填写 `category`、`subcategory`；业务/agent 可调用性只由 `exposure` 表达。`arch:structure` 会报告 `coreUiMissingOwnership`、`coreUiInvalidOwnership`、`coreUiCommonDomainDependency`、`coreUiSiblingSubcategoryCoupling`、`businessCommonRendererImports`、`domainSharedLayoutShells`、`surfaceOwnsPageChrome`，以及业务视觉 token 硬编码、Core 业务事实泄漏、组件内本地 UI config 候选。结构性 UI 项进入 `gate:ui`，简单清扫项进入 `check:hygiene`；不能为了消警把 domain shared shell 注册成 Core/Page API。
 
 `FinanceShell`、`QcModuleShell`、`AdminToolbarProvider` 这类“同一个 L2 共有的布局壳”是历史债，禁止注册为 Core/Page API。长期方式是 route/module 层生成 `PageSurface` props，或 domain thin adapter 只返回/组合 `PageSurface` spec；页面级 header/navigation/toolbar/body/footer 必须由 `PageSurface` props 一次性声明，禁止子组件通过 provider 或 `useXxxPageToolbar` 反向注册页面 chrome。
 

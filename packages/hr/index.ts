@@ -1,2 +1,2 @@
-export { hrPackage, moduleDefinition } from "./module";
+export { moduleDefinition } from "./module";
 export type * from "./types";

@@ -1,13 +1,13 @@
-export type Level2ApiContractOwnerSummary = {
+export type StructureApiContractOwnerSummary = {
   ownerPackage: string;
 };
 
-export type Level2SourceFileSummary = {
+export type StructureSourceFileSummary = {
   relPath: string;
   hasJsx: boolean;
 };
 
-export function countApiContractsByOwner(contracts: readonly Level2ApiContractOwnerSummary[]) {
+export function countApiContractsByOwner(contracts: readonly StructureApiContractOwnerSummary[]) {
   const result: Record<string, number> = {};
   for (const contract of contracts) {
     result[contract.ownerPackage] = (result[contract.ownerPackage] ?? 0) + 1;
@@ -15,7 +15,7 @@ export function countApiContractsByOwner(contracts: readonly Level2ApiContractOw
   return Object.fromEntries(Object.entries(result).sort(([left], [right]) => left.localeCompare(right)));
 }
 
-export function findAppJsxFiles(files: readonly Level2SourceFileSummary[]) {
+export function findAppJsxFiles(files: readonly StructureSourceFileSummary[]) {
   return files
     .filter((file) => file.relPath.startsWith("app/"))
     .filter((file) => !file.relPath.startsWith("app/api/"))

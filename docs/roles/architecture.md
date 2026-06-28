@@ -9,7 +9,7 @@ Architecture 只负责系统规则和结构治理，不实现业务功能。
 - `docs/engineering/project-overview.md`
 - `docs/engineering/architecture-governance.md`
 - `docs/engineering/checks.md`
-- `docs/engineering/level2-agent-execution.md`
+- `docs/engineering/structure-agent-execution.md`
 - `docs/engineering/module-boundaries.md`
 
 ## 职责

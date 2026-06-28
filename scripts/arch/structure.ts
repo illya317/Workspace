@@ -23,8 +23,8 @@ import {
   findLegacyRootWithAuthFiles,
   findLegacyRootWithAuthImports,
   findLegacyServiceFiles,
-} from "./level2-legacy";
-import { findBusinessModuleViewUsages, type BusinessModuleViewUsage } from "./level2-module-view";
+} from "./structure-legacy";
+import { findBusinessModuleViewUsages, type BusinessModuleViewUsage } from "./structure-module-view";
 import {
   findBusinessPageLayoutPrimitiveUsages,
   findBusinessToolbarCompositionWarnings,
@@ -32,9 +32,9 @@ import {
   type BusinessPageLayoutPrimitiveUsage,
   type BusinessToolbarCompositionWarning,
   type PageSurfaceLayoutProtocolWarning,
-} from "./level2-page-layout";
-import { findHandwrittenSearchMatches, type HandwrittenSearchMatchCandidate } from "./level2-search";
-import { countApiContractsByOwner, findAppJsxFiles } from "./level2-report-helpers";
+} from "./structure-page-layout";
+import { findHandwrittenSearchMatches, type HandwrittenSearchMatchCandidate } from "./structure-search";
+import { countApiContractsByOwner, findAppJsxFiles } from "./structure-report-helpers";
 import {
   findAppHookFiles,
   findAppHookImplementationFiles,
@@ -60,7 +60,7 @@ import {
   type UiPatternCandidate,
   type UnregisteredCoreUiExport,
   type UnregisteredCoreUiImport,
-} from "./level2-ui";
+} from "./structure-ui";
 import {
   findBusinessVisualTokenHardcoding,
   findComponentLocalUiConfigs,
@@ -68,20 +68,20 @@ import {
   type BusinessVisualTokenHardcoding,
   type ComponentLocalUiConfig,
   type CoreBusinessFactLiteral,
-} from "./level2-hardcoding";
+} from "./structure-hardcoding";
 import {
   findBusinessCommonRendererImports,
   findCoreUiOwnershipWarnings,
-  findDomainSharedL2LayoutShells,
+  findDomainSharedLayoutShells,
   findSurfaceOwnsPageChrome,
   type BusinessCommonRendererImport,
   type CoreUiCommonDomainDependency,
   type CoreUiInvalidOwnership,
   type CoreUiMissingOwnership,
-  type CoreUiSiblingL2Coupling,
-  type DomainSharedL2LayoutShell,
+  type CoreUiSiblingSubcategoryCoupling,
+  type DomainSharedLayoutShell,
   type SurfaceOwnsPageChrome,
-} from "./level2-core-ui-ownership";
+} from "./structure-core-ui-ownership";
 import { registeredModuleDefinitions } from "../../packages/platform/module-registry";
 type ImportRecord = { kind: "static" | "dynamic"; specifier: string };
 
@@ -621,7 +621,7 @@ function findRepeatedServiceGroups(files: SourceInfo[]) {
     .sort((left, right) => left.name.localeCompare(right.name));
 }
 
-export function createLevel2Report() {
+export function createStructureReport() {
   const sourceFiles = SCAN_ROOTS.flatMap((rootName) => walk(path.join(ROOT, rootName))).sort().map(readSourceInfo);
   const generatedUiSourceFiles = walkGeneratedUiFiles().sort().map(readSourceInfo);
   const businessUiSourceFiles = [...sourceFiles, ...generatedUiSourceFiles];
@@ -650,7 +650,7 @@ export function createLevel2Report() {
   const platformCoreUiRuntimeBypassImports = findPlatformCoreUiRuntimeBypassImports(sourceFiles);
   const coreUiOwnershipWarnings = findCoreUiOwnershipWarnings();
   const businessCommonRendererImports = findBusinessCommonRendererImports(sourceFiles);
-  const domainSharedL2LayoutShells = findDomainSharedL2LayoutShells(sourceFiles);
+  const domainSharedLayoutShells = findDomainSharedLayoutShells(sourceFiles);
   const surfaceOwnsPageChrome = findSurfaceOwnsPageChrome(sourceFiles);
   const repeatedServiceGroups = findRepeatedServiceGroups(sourceFiles);
   const uncontractedApiRouteMethods = apiRouteMethods.filter((route) => route.contractKey === null);
@@ -686,7 +686,7 @@ export function createLevel2Report() {
   const legacyRootSearchSchemaFiles = findLegacyRootSearchSchemaFiles(sourceFiles);
 
   return {
-    level: "2",
+    kind: "structure",
     mode: "structure-intelligence",
     generatedAt: new Date(0).toISOString(),
     summary: {
@@ -741,9 +741,9 @@ export function createLevel2Report() {
       coreUiMissingOwnership: coreUiOwnershipWarnings.coreUiMissingOwnership.length,
       coreUiInvalidOwnership: coreUiOwnershipWarnings.coreUiInvalidOwnership.length,
       coreUiCommonDomainDependency: coreUiOwnershipWarnings.coreUiCommonDomainDependency.length,
-      coreUiSiblingL2Coupling: coreUiOwnershipWarnings.coreUiSiblingL2Coupling.length,
+      coreUiSiblingSubcategoryCoupling: coreUiOwnershipWarnings.coreUiSiblingSubcategoryCoupling.length,
       businessCommonRendererImports: businessCommonRendererImports.length,
-      domainSharedL2LayoutShells: domainSharedL2LayoutShells.length,
+      domainSharedLayoutShells: domainSharedLayoutShells.length,
       surfaceOwnsPageChrome: surfaceOwnsPageChrome.length,
     },
     registries: {
@@ -785,9 +785,9 @@ export function createLevel2Report() {
       coreUiMissingOwnership: coreUiOwnershipWarnings.coreUiMissingOwnership,
       coreUiInvalidOwnership: coreUiOwnershipWarnings.coreUiInvalidOwnership,
       coreUiCommonDomainDependency: coreUiOwnershipWarnings.coreUiCommonDomainDependency,
-      coreUiSiblingL2Coupling: coreUiOwnershipWarnings.coreUiSiblingL2Coupling,
+      coreUiSiblingSubcategoryCoupling: coreUiOwnershipWarnings.coreUiSiblingSubcategoryCoupling,
       businessCommonRendererImports,
-      domainSharedL2LayoutShells,
+      domainSharedLayoutShells,
       surfaceOwnsPageChrome,
     },
     drift: {
@@ -833,9 +833,9 @@ export function createLevel2Report() {
       coreUiMissingOwnership: coreUiOwnershipWarnings.coreUiMissingOwnership,
       coreUiInvalidOwnership: coreUiOwnershipWarnings.coreUiInvalidOwnership,
       coreUiCommonDomainDependency: coreUiOwnershipWarnings.coreUiCommonDomainDependency,
-      coreUiSiblingL2Coupling: coreUiOwnershipWarnings.coreUiSiblingL2Coupling,
+      coreUiSiblingSubcategoryCoupling: coreUiOwnershipWarnings.coreUiSiblingSubcategoryCoupling,
       businessCommonRendererImports,
-      domainSharedL2LayoutShells,
+      domainSharedLayoutShells,
       surfaceOwnsPageChrome,
       repeatedServiceGroups,
       routePrimitiveSchemaDuplicates,
@@ -848,7 +848,7 @@ export function createLevel2Report() {
 
 if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
   try {
-    console.log(JSON.stringify(createLevel2Report(), null, 2));
+    console.log(JSON.stringify(createStructureReport(), null, 2));
   } catch (error) {
     console.error("Structure scan report failed.");
     console.error(error instanceof Error ? error.message : error);

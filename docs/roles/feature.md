@@ -7,7 +7,7 @@ Feature 负责用户可见业务功能、业务 UI、业务 service 和 route sh
 - `docs/engineering/agent-startup.md`
 - 涉及文档同步时读 `docs/OWNERS.md`
 - `docs/engineering/checks.md`
-- `docs/engineering/level2-agent-execution.md`
+- `docs/engineering/structure-agent-execution.md`
 - `docs/engineering/reusable-components.md`
 - 对应模块 `ARCHITECTURE.md`
 
@@ -17,7 +17,7 @@ Feature 负责用户可见业务功能、业务 UI、业务 service 和 route sh
 - 业务页面只组合 Core / Platform primitive，不重复画页面壳、筛选、表格、弹窗、搜索和分栏。
 - 日常 UI 改造归 Feature；只有涉及 `packages/core/ui`、Surface/Form/Data/Navigation contract、跨模块组件或设计系统治理时，才升级为 UI System / Architecture 任务。
 - 业务长文件瘦身时，只拆同 package 的业务子组件、hook、mapper 和 service helper；拆出的私有函数不登记 registry，也不要从 package 根导出。
-- 清理历史 UI 债时，减少 `scripts/arch/level2-baseline.json` 中对应项，并回传 Architecture 确认。
+- 清理历史 UI 债时，减少 `scripts/arch/structure-baseline.json` 中对应项，并回传 Architecture 确认。
 - 维护对应模块 `ARCHITECTURE.md` / `MODULE.md` 和用户/产品说明；业务流程、状态机、审批流、财务/生产/HR 等不可从 UI 一眼看懂的规则变化必须同步文档。
 
 ## 快速开工

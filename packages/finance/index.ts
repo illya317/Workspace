@@ -1,1 +1,1 @@
-export { financePackage, moduleDefinition } from "./module";
+export { moduleDefinition } from "./module";

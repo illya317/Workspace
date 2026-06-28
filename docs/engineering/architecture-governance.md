@@ -225,7 +225,7 @@ Core UI registry 治理：
 - 该 registry 是 structure scan 的输入；结构性 UI ratchet 由 `gate:ui` 执行，简单清扫项才由 hygiene strict 执行。
 - Registry `category/subcategory` 是分类模型：一级分类固定为 `page / data / form / common / feedback`，`Common` 不新增 runtime `CommonSurface`。缺字段、非法归属、Common 反依赖 domain 二级分类、sibling subcategory 高耦合、业务直引 Common renderer、domain shared layout shell 和 Surface 自带 page chrome 属于结构性 UI 阻断；需要新封装入口或复杂页面重构时由 Architecture/Feature 处理，不交给 Hygiene。
 - Core UI 的 value export 必须全部出现在 `component-registry.ts`，或明确列入 structure scan 的非组件导出集合；注册名重复会直接进入 `duplicateCoreUiRegistrations`。这两类 baseline 为空，新增即失败。
-- 非 Core 包新增手写页面设计壳会进入 `pageDesignDriftFiles` 检测：在 `packages/*/ui` 中直接用原生 JSX 容器拼 `bg-white`、`rounded`、`shadow/border`、sticky header、页面级 grid 等页面结构时视为漂移。Platform-owned system shell 文件（当前 `AppShell` / `UserMenu`）由 Platform 单独封装，只接受窄名单例外；历史债由 `scripts/arch/level2-baseline.json` 锁定，Feature/UI 迁走后必须删对应 baseline 项。
+- 非 Core 包新增手写页面设计壳会进入 `pageDesignDriftFiles` 检测：在 `packages/*/ui` 中直接用原生 JSX 容器拼 `bg-white`、`rounded`、`shadow/border`、sticky header、页面级 grid 等页面结构时视为漂移。Platform-owned system shell 文件（当前 `AppShell` / `UserMenu`）由 Platform 单独封装，只接受窄名单例外；历史债由 `scripts/arch/structure-baseline.json` 锁定，Feature/UI 迁走后必须删对应 baseline 项。
 - `PageSurface` 的 `moduleView` 是历史过渡逃生口，不是新增业务页面 API。业务 UI / `app/(modules)` 的存量 `moduleView` 会按 `shell-host`、`content-wrapper`、`split-side`、`analysis-visual`、`report-document`、`complex-editor`、`navigation-composition` 分类进入 `businessModuleViewUsages` baseline；新增或迁移删除都必须通过同一 Structure ratchet。
 - 允许业务内容区域保留必要局部样式，例如文档/PDF 预览内容、打印模板、业务图表内部标记、表单字段间距；但页面骨架、卡片、筛选、表格、分栏、入口卡片必须优先使用已注册 Core primitive。
 
@@ -242,13 +242,13 @@ Structure Scan 结构智能层：
 
 - Structure scan 不再整体归入 Hygiene。它按 detector scope 分成 `domain-blocker`、`ui-blocker` 和 `hygiene`：前两者进入 blockers，后者才进入 Hygiene Role。
 - Structure scan 当前由三件套组成：AST/pattern scan、`packages/platform/module-registry.ts` 模块注册锁、`packages/platform/api-registry.ts` API Contract。`packages/core/ui/component-registry.ts` 是 AST/pattern scan 的 Core UI 白名单输入，不是独立 gate。任何新增检测或 contract 来源必须并入这三个入口或唯一 gate，不得另起旁路。
-- `npm run arch:structure` 生成确定性的结构报告，用于发现 UI pattern 重复、API route contract 覆盖缺口、API route 模板漂移、旧 service 迁移债和 app 层 JSX 存量。`arch:level2` 保留为兼容别名。
+- `npm run arch:structure` 生成确定性的结构报告，用于发现 UI pattern 重复、API route contract 覆盖缺口、API route 模板漂移、旧 service 迁移债和 app 层 JSX 存量。
 - API Contract 的单一来源是 `packages/platform/api-registry.ts`，它从 effective module registry 的 `apiGuards` 和 `apiRoutes` 派生，不允许业务包维护第二套 API 清单。
 - `apiGuards` 表示需要资源权限的 protected API；`apiRoutes` 表示显式 route contract，可标记为 `protected`、`public`、`dev` 或 `disabled`，用于登录/OAuth、开发入口、禁用兼容 API 等非资源权限入口。
-- Structure scan 中已升级为强制规则的漂移项由 `scripts/arch/level2-baseline.json` 锁定，并按 scope 执行：业务/API/legacy/service 类进入 `arch:structure:domain`，结构性 UI 类进入 `arch:structure:ui`，简单清扫类进入 `arch:structure:hygiene`。baseline 只能减少；迁移删除后必须同步删 baseline 项。
+- Structure scan 中已升级为强制规则的漂移项由 `scripts/arch/structure-baseline.json` 锁定，并按 scope 执行：业务/API/legacy/service 类进入 `arch:structure:domain`，结构性 UI 类进入 `arch:structure:ui`，简单清扫类进入 `arch:structure:hygiene`。baseline 只能减少；迁移删除后必须同步删 baseline 项。
 - Structure 完整报告只读、不自动修复、不直接要求 Hygiene 清完。把某个发现升级为硬约束前，必须明确放入 `domain-blocker` 或 `ui-blocker` scope；简单清扫项才能留在 `hygiene` scope。
 - Feature/Data/Operations agent 使用 Structure 报告拆迁移任务时，只能改对应业务文件；Architecture agent 才能修改 `scripts/arch/*`、`packages/platform/module-registry.ts`、`packages/platform/api-registry.ts` 和相关治理文档。
-- Architecture agent 做 baseline ratchet 时只能减少历史债。若迁移删除了旧 route-local service、app hook 或 direct permission 文件，必须同步删 `scripts/arch/level2-baseline.json`、`scripts/arch/level15-baseline.json` 或 `scripts/check/level1-api-baseline.json` 中对应项；禁止为新违规扩写 baseline。
+- Architecture agent 做 baseline ratchet 时只能减少历史债。若迁移删除了旧 route-local service、app hook 或 direct permission 文件，必须同步删 `scripts/arch/structure-baseline.json`、`scripts/arch/level15-baseline.json` 或 `scripts/check/level1-api-baseline.json` 中对应项；禁止为新违规扩写 baseline。
 - Core UI 大迁移需要定期 review gate/report：每个阶段至少阅读 Core UI registry validation、structure ratchet 和 import baseline，确认 `businessCoreUiSurfaceBypassImports` 和 `businessModuleViewUsages` 只减少、不变宽，`platformCoreUiRuntimeBypassImports` 保持为空；Production QC 质检纸、批记录、打印/留档渲染不得纳入宽泛 UI codemod。
 
 Structure 任务拆解规则：
@@ -272,7 +272,7 @@ Structure 任务拆解规则：
 风险: medium
 ```
 
-Feature/Data/Operations agent 的执行细则、baseline 权限和验证矩阵见 `docs/engineering/level2-agent-execution.md`。这份文档是任务包落地说明，不改变 `arch:gate` 的单一权威地位。
+Feature/Data/Operations agent 的执行细则、baseline 权限和验证矩阵见 `docs/engineering/structure-agent-execution.md`。这份文档是任务包落地说明，不改变 `arch:gate` 的单一权威地位。
 
 `app/` 层规则：
 
