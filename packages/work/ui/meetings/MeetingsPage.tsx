@@ -18,11 +18,13 @@ export default function MeetingsPage({
   const [meetings, setMeetings] = useState<MeetingSummary[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [meeting, setMeeting] = useState<MeetingDetail | null>(null);
-  const [typeFilter, setTypeFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [sideOpen, setSideOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const { notify } = useFeedback();
   const setToast = useCallback((toast: { type: "success" | "error"; message: string }) => {
     notify(toast.message, toast.type);
@@ -65,7 +67,7 @@ export default function MeetingsPage({
   });
   const [actionDrafts, setActionDrafts] = useState<Record<number, ActionDraft>>({});
 
-  const filteredMeetings = useMemo(() => typeFilter === "all" ? meetings : meetings.filter(item => String(item.typeId) === typeFilter), [meetings, typeFilter]);
+  const filteredMeetings = useMemo(() => typeFilter ? meetings.filter(item => String(item.typeId) === typeFilter) : [], [meetings, typeFilter]);
   const meetingDetailBlock = useMeetingDetailBlock({
     meeting: meeting ?? emptyMeetingDetail(),
     saving,
@@ -91,16 +93,20 @@ export default function MeetingsPage({
   const loadMeetings = useCallback(async () => {
     setLoading(true);
     try {
-      const query = typeFilter === "all" ? "" : `?typeId=${typeFilter}`;
+      const query = typeFilter ? `?typeId=${typeFilter}` : "";
       const data = await requestJson<{
         types: MeetingType[];
         meetings: MeetingSummary[];
       }>(`/api/modules/work/meetings${query}`);
-      setTypes(data.types || []);
+      const nextTypes = data.types || [];
+      setTypes(nextTypes);
       setMeetings(data.meetings || []);
+      setTypeFilter(current => current && nextTypes.some(type => String(type.id) === current)
+        ? current
+        : String(nextTypes[0]?.id || ""));
       setCreateDraft(current => current.typeId ? current : {
         ...current,
-        typeId: String(data.types?.[0]?.id || ""),
+        typeId: String(nextTypes[0]?.id || ""),
       });
       setSelectedId(current => {
         if (current && data.meetings.some(item => item.id === current)) return current;
@@ -237,14 +243,12 @@ export default function MeetingsPage({
     key: "type-filter",
     section: "filter",
     ariaLabel: "会议类型",
+    presentation: "segmented",
     value: typeFilter,
-    options: [{
-      value: "all",
-      label: "全部会议",
-    }, ...types.map(type => ({
+    options: types.map(type => ({
       value: String(type.id),
       label: type.name,
-    }))],
+    })),
     onChange: setTypeFilter,
   }, {
     kind: "action-group",
@@ -260,80 +264,73 @@ export default function MeetingsPage({
 
   return (
     <PageSurface
-      kind="list"
+      kind="split"
+      sideOpen={sideOpen}
+      drawerOpen={drawerOpen}
+      onSideOpenChange={setSideOpen}
+      onDrawerOpenChange={setDrawerOpen}
+      sideLabel="会议列表"
+      splitRatio={[2, 8]}
       toolbar={{ items: toolbarItems }}
-      blocks={[
-        {
-          kind: "panel",
-          key: "meetings",
-          title: "会议",
-          bodyClassName: "p-4",
-          actions: [{
-            key: "create",
-            label: creating ? "收起新建" : "新建会议",
-            variant: creating ? "secondary" : "primary",
-            disabled: saving,
-            onClick: () => setCreating((current) => !current),
-          }],
-          blocks: [
-            ...(creating ? [{
-              kind: "form" as const,
-              key: "create-meeting",
-              surface: {
-                kind: "fields" as const,
-                columns: 3 as const,
-                fields: meetingCreateFields(createDraft, types, setCreateDraft),
-                actions: [
-                  { key: "cancel", label: "取消", disabled: saving, onClick: () => setCreating(false) },
-                  { key: "save", label: saving ? "保存中..." : "保存会议", variant: "primary" as const, disabled: saving || !createDraft.title.trim() || !createDraft.typeId, onClick: () => void handleCreateMeeting() },
-                ],
-              },
-            }] : []),
-            {
-              kind: "surfaceGroup",
-              key: "meeting-body",
-              layout: "grid",
-              className: "xl:grid-cols-[20rem_minmax(0,1fr)]",
-              blocks: [
-                {
-                  kind: "navigation",
-                  key: "meeting-list",
-                  surface: {
-                    kind: "selector",
-                    className: "min-w-0",
-                    selector: {
-                      title: "会议列表",
-                      bodyClassName: "max-h-[calc(100vh-14rem)] overflow-y-auto p-2",
-                      loading,
-                      loadingText: "加载中...",
-                      emptyText: "暂无会议",
-                      items: filteredMeetings,
-                      selectedId,
-                      onSelect: (item: MeetingSummary) => setSelectedId(item.id),
-                      getKey: (item: MeetingSummary) => item.id,
-                      contentClassName: "space-y-2",
-                      renderItem: (item: MeetingSummary) => ({
-                        title: item.title,
-                        subtitle: `${item.typeName} · ${formatDateTime(item.startAt) || "未定时间"}`,
-                        trailing: <span className="shrink-0 rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{item.status}</span>,
-                        meta: [`议题 ${item.counts.agendaItems}`, `表决 ${item.counts.proposals}`, `决议 ${item.counts.decisions}`],
-                      }),
-                    },
-                  },
-                },
-                meeting
-                  ? meetingDetailBlock
-                  : {
-                      kind: "message",
-                      key: "meeting-empty",
-                      content: detailLoading ? "加载中..." : "暂无会议",
-                      tone: "muted",
-                    },
+      actions={[{
+        key: "create",
+        label: creating ? "收起新建" : "新建会议",
+        variant: creating ? "secondary" : "primary",
+        disabled: saving,
+        onClick: () => setCreating((current) => !current),
+      }]}
+      side={{
+        blocks: [{
+          kind: "navigation",
+          key: "meeting-list",
+          surface: {
+            kind: "selector",
+            selector: {
+              title: "会议列表",
+              bodyClassName: "max-h-[calc(100vh-14rem)] overflow-y-auto p-2",
+              loading,
+              loadingText: "加载中...",
+              emptyText: "暂无会议",
+              items: filteredMeetings,
+              selectedId,
+              onSelect: (item: MeetingSummary) => setSelectedId(item.id),
+              getKey: (item: MeetingSummary) => item.id,
+              contentClassName: "space-y-2",
+              renderItem: (item: MeetingSummary) => ({
+                title: item.title,
+                subtitle: `${item.typeName} · ${formatDateTime(item.startAt) || "未定时间"}`,
+                trailing: <span className="shrink-0 rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{item.status}</span>,
+                meta: [`议题 ${item.counts.agendaItems}`, `表决 ${item.counts.proposals}`, `决议 ${item.counts.decisions}`],
+              }),
+            },
+          },
+        }],
+      }}
+      body={{
+        blocks: [
+          ...(creating ? [{
+            kind: "form" as const,
+            key: "create-meeting",
+            surface: {
+              kind: "fields" as const,
+              columns: 3 as const,
+              fields: meetingCreateFields(createDraft, types, setCreateDraft),
+              actions: [
+                { key: "cancel", label: "取消", disabled: saving, onClick: () => setCreating(false) },
+                { key: "save", label: saving ? "保存中..." : "保存会议", variant: "primary" as const, disabled: saving || !createDraft.title.trim() || !createDraft.typeId, onClick: () => void handleCreateMeeting() },
               ],
             },
-          ],
-        },
-      ]}
+          }] : []),
+          meeting
+            ? meetingDetailBlock
+            : {
+                kind: "message",
+                key: "meeting-empty",
+                content: detailLoading ? "加载中..." : "暂无会议",
+                tone: "muted",
+              },
+        ],
+      }}
     />
   );
 }

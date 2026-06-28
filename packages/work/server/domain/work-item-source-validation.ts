@@ -1,9 +1,10 @@
 import { failCommand, okCommand } from "@workspace/platform/server/domain-validation";
 
 export function normalizeSourceType(value: unknown) {
-  if (value === null || value === undefined || value === "") return okCommand("manual");
+  if (value === null || value === undefined || value === "") return okCommand("other");
   const sourceType = String(value || "").trim();
-  if (sourceType === "manual" || sourceType === "routine" || sourceType === "project" || sourceType === "meeting" || sourceType === "import") return okCommand(sourceType);
+  if (sourceType === "manual" || sourceType === "import") return okCommand("other");
+  if (sourceType === "routine" || sourceType === "project" || sourceType === "meeting" || sourceType === "other") return okCommand(sourceType);
   return failCommand("来源类型无效");
 }
 

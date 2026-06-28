@@ -22,8 +22,6 @@ import {
 } from "./model";
 import type { WorkItem, WorkItemDraft, WorkItemType, WorkPeriodType, WorkSourceKind, WorkSourceType, WorkTargetType } from "./types";
 
-const FORM_SOURCE_TYPE_OPTIONS = WORK_SOURCE_TYPE_OPTIONS.filter((option) => option.value !== "meeting");
-
 export function WorkTaskForm({
   draft,
   works,
@@ -73,7 +71,7 @@ export function useWorkTaskFormSurface({
   const isTask = draft.itemType === "task";
   const isKr = draft.itemType === "key_result";
   const isProjectSource = draft.sourceType === "project";
-  const sourceTypeOptions = draft.sourceType === "meeting" ? WORK_SOURCE_TYPE_OPTIONS : FORM_SOURCE_TYPE_OPTIONS;
+  const isMeetingSource = draft.sourceType === "meeting";
   const parentOptions = useMemo(
     () => works
       .filter((work) => work.id !== excludedWorkId && parentAllowed(draft.itemType, work))
@@ -134,6 +132,12 @@ export function useWorkTaskFormSurface({
     patch(sourceType === "project" ? {
       sourceType,
       sourceKind: draft.sourceKind || "project",
+      sourceMeetingId: null,
+      sourceMeetingTitle: "",
+      sourceMeetingDecisionId: null,
+      sourceMeetingDecisionTitle: "",
+      sourceMeetingActionCandidateId: null,
+      sourceMeetingActionCandidateTitle: "",
     } : {
       sourceType,
       sourceKind: null,
@@ -143,6 +147,14 @@ export function useWorkTaskFormSurface({
       linkedProjectPhaseName: "",
       linkedProjectTaskId: null,
       linkedProjectTaskName: "",
+      ...(sourceType === "meeting" ? {} : {
+        sourceMeetingId: null,
+        sourceMeetingTitle: "",
+        sourceMeetingDecisionId: null,
+        sourceMeetingDecisionTitle: "",
+        sourceMeetingActionCandidateId: null,
+        sourceMeetingActionCandidateTitle: "",
+      }),
     });
   }
 
@@ -202,7 +214,7 @@ export function useWorkTaskFormSurface({
       { key: "startDate", label: "开始时间", spec: { valueType: "date", control: "temporal", precision: "date", state: disabled ? "disabled" : "normal" }, value: draft.startDate, onChange: (value: unknown) => patch({ startDate: String(value || "") }), placeholder: "选择日期" },
       { key: "dueDate", label: "截止时间", spec: { valueType: "date", control: "temporal", precision: "date", state: disabled ? "disabled" : "normal" }, value: draft.dueDate, onChange: (value: unknown) => patch({ dueDate: String(value || "") }), placeholder: "选择日期" },
     ] satisfies FormSurfaceFieldSpec[] : []),
-    { key: "sourceType", label: "来源类型", spec: { valueType: "string", control: "choice", options: { source: "static", items: sourceTypeOptions }, state: disabled ? "disabled" : "normal" }, value: draft.sourceType, onChange: (value) => setSourceType(String(value || "")) },
+    { key: "sourceType", label: "来源类型", spec: { valueType: "string", control: "choice", options: { source: "static", items: WORK_SOURCE_TYPE_OPTIONS }, state: disabled ? "disabled" : "normal" }, value: draft.sourceType, onChange: (value) => setSourceType(String(value || "")) },
     ...(isProjectSource ? [
       { key: "linkedProject", label: "关联项目", spec: { valueType: "reference", control: "reference", options: { source: "remote", fkKey: "work.tasks.linked.project", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: disabled ? "disabled" : "normal" }, value: draft.linkedProjectId ? String(draft.linkedProjectId) : "", displayValue: draft.linkedProjectName, placeholder: "搜索项目", onChange: (value: unknown, option: unknown) => patch({
         linkedProjectId: typeof option === "object" && option && "id" in option ? Number(option.id) : (value ? draft.linkedProjectId : null),
@@ -224,6 +236,16 @@ export function useWorkTaskFormSurface({
         const option = taskOptions.find((item) => item.value === next);
         patch({ linkedProjectTaskId: next ? Number(next) : null, linkedProjectTaskName: option?.label || "" });
       } }] satisfies FormSurfaceFieldSpec[] : []),
+    ] satisfies FormSurfaceFieldSpec[] : []),
+    ...(isMeetingSource ? [
+      { key: "sourceMeeting", label: "来源会议", spec: { valueType: "reference", control: "reference", options: { source: "remote", fkKey: "work.tasks.source.meeting", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: disabled ? "disabled" : "normal" }, value: draft.sourceMeetingId ? String(draft.sourceMeetingId) : "", displayValue: draft.sourceMeetingTitle, placeholder: "搜索会议", onChange: (value: unknown, option: unknown) => patch({
+        sourceMeetingId: typeof option === "object" && option && "id" in option ? Number(option.id) : (value ? draft.sourceMeetingId : null),
+        sourceMeetingTitle: typeof option === "object" && option && "name" in option ? String(option.name) : (value ? String(value) : ""),
+        sourceMeetingDecisionId: null,
+        sourceMeetingDecisionTitle: "",
+        sourceMeetingActionCandidateId: null,
+        sourceMeetingActionCandidateTitle: "",
+      }) },
     ] satisfies FormSurfaceFieldSpec[] : []),
     { key: "importance", label: "重要度", spec: { valueType: "number", control: "rating", state: disabled ? "disabled" : "normal" }, value: draft.importance, ratingLabel: "重要度", showRatingLabel: false, onChange: (value) => patch({ importance: Number(value) }) },
     { key: "urgency", label: "紧急度", spec: { valueType: "number", control: "rating", state: disabled ? "disabled" : "normal" }, value: draft.urgency, ratingLabel: "紧急度", showRatingLabel: false, onChange: (value) => patch({ urgency: Number(value) }) },
@@ -249,8 +271,8 @@ function normalizeItemType(value: string | null): WorkItemType {
 }
 
 function normalizeSourceType(value: string | null): WorkSourceType {
-  if (value === "routine" || value === "project" || value === "meeting" || value === "import") return value;
-  return "manual";
+  if (value === "routine" || value === "project" || value === "meeting") return value;
+  return "other";
 }
 
 function normalizeSourceKind(value: string | null): WorkSourceKind {

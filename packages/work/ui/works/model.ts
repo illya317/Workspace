@@ -19,11 +19,10 @@ export const WORK_ITEM_TYPE_OPTIONS: Array<{ value: WorkItemType; label: string 
 ];
 
 export const WORK_SOURCE_TYPE_OPTIONS: Array<{ value: WorkSourceType; label: string }> = [
-  { value: "manual", label: "手工" },
-  { value: "routine", label: "例行" },
+  { value: "routine", label: "日常" },
   { value: "project", label: "项目" },
   { value: "meeting", label: "会议" },
-  { value: "import", label: "导入" },
+  { value: "other", label: "其他" },
 ];
 
 export const WORK_PROJECT_SOURCE_KIND_OPTIONS: Array<{ value: WorkSourceKind; label: string }> = [
@@ -85,7 +84,7 @@ export function getWorkItemTypeLabel(itemType: string | null | undefined) {
 }
 
 export function getWorkSourceTypeLabel(sourceType: string | null | undefined) {
-  return WORK_SOURCE_TYPE_OPTIONS.find((option) => option.value === sourceType)?.label || "手工";
+  return WORK_SOURCE_TYPE_OPTIONS.find((option) => option.value === sourceType)?.label || "其他";
 }
 
 export function getPeriodTypeLabel(periodType: string | null | undefined) {
@@ -119,7 +118,7 @@ export function createEmptyWorkDraft(sortOrder = 0): WorkItemDraft {
     periodType: null,
     periodStart: null,
     periodEnd: null,
-    sourceType: "manual",
+    sourceType: "other",
     sourceKind: null,
     sourceMeetingId: null,
     sourceMeetingTitle: "",

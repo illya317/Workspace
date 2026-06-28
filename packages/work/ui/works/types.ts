@@ -11,7 +11,7 @@ export type WorkItemCategory = "routine" | "non-routine";
 export type WorkItemType = "objective" | "key_result" | "task";
 export type WorkItemStatus = "doing" | "done" | "archived";
 export type WorkPeriodType = "daily" | "weekly" | "monthly" | "quarterly" | "yearly";
-export type WorkSourceType = "manual" | "routine" | "project" | "meeting" | "import";
+export type WorkSourceType = "routine" | "project" | "meeting" | "other";
 export type WorkSourceKind = "project" | "project_phase" | "project_task";
 export type WorkSpaceRole = "viewer" | "editor" | "delete" | "manager";
 

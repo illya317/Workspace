@@ -82,7 +82,7 @@ function toWorkItemDto(row: Prisma.WorkItemGetPayload<{ include: typeof workItem
     periodType: row.periodType,
     periodStart: formatDate(row.periodStart),
     periodEnd: formatDate(row.periodEnd),
-    sourceType: row.sourceType,
+    sourceType: normalizeWorkSourceType(row.sourceType),
     sourceKind: row.sourceKind,
     sourceMeetingId: row.sourceMeetingId,
     sourceMeetingTitle: row.sourceMeeting?.title ?? null,
@@ -118,6 +118,11 @@ function toWorkItemDto(row: Prisma.WorkItemGetPayload<{ include: typeof workItem
 function normalizeWorkStatus(status: string | null) {
   if (status === "done" || status === "archived") return status;
   return "doing";
+}
+
+function normalizeWorkSourceType(sourceType: string | null) {
+  if (sourceType === "routine" || sourceType === "project" || sourceType === "meeting") return sourceType;
+  return "other";
 }
 
 export async function createWorkItem(opts: {

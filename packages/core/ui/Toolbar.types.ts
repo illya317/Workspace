@@ -76,6 +76,7 @@ export interface ToolbarOptionGroupItem extends ToolbarItemBase {
   onChange: (value: string) => void;
   label?: ReactNode;
   ariaLabel?: string;
+  presentation?: "segmented" | "accordion";
 }
 
 export interface ToolbarFieldFilterItem extends ToolbarItemBase {

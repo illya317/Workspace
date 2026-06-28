@@ -170,7 +170,7 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
             onChange={item.onChange}
             ariaLabel={item.ariaLabel ?? (typeof item.label === "string" ? item.label : undefined)}
             size={size}
-            presentation={resolveToolbarOptionGroupPresentation(item)}
+            presentation={item.presentation ?? resolveToolbarOptionGroupPresentation(item)}
           />
         </div>
       );

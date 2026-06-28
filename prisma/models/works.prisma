@@ -20,7 +20,7 @@ model WorkItem {
   periodType          String?
   periodStart         DateTime?
   periodEnd           DateTime?
-  sourceType          String            @default("manual")
+  sourceType          String            @default("other")
   sourceKind          String?
   sourceMeetingId     Int?
   sourceMeetingDecisionId Int?

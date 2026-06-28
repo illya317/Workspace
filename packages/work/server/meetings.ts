@@ -35,16 +35,19 @@ import {
 } from "./meeting-dto";
 
 const DEFAULT_MEETING_TYPES = [
-  { key: "company", name: "公司级会议", description: "公司年会、全员会、战略宣贯会", sortOrder: 10 },
-  { key: "business_cycle", name: "周期经营会议", description: "周会、月度会、季度经营会", sortOrder: 20 },
-  { key: "project", name: "项目管理会议", description: "立项会、评审会、里程碑会、复盘会", sortOrder: 30 },
-  { key: "management", name: "管理层会议", description: "管理人员会议、核心人员会议、组织和预算会议", sortOrder: 40 },
-  { key: "special", name: "专项会议", description: "风险、客户、跨部门协调、制度评审等专项会议", sortOrder: 50 },
-];
+  { key: "business_cycle", name: "周期经营会议", description: "周会、月度会、季度经营会", sortOrder: 10 },
+  { key: "management", name: "管理层会议", description: "管理人员会议、核心人员会议、组织和预算会议", sortOrder: 20 },
+  { key: "special", name: "专项会议", description: "风险、客户、跨部门协调、制度评审等专项会议", sortOrder: 30 },
+] as const;
+
+const DEFAULT_MEETING_TYPE_KEYS = DEFAULT_MEETING_TYPES.map(type => type.key);
 
 export async function listMeetingTypes() {
   await ensureDefaultMeetingTypes();
-  return prisma.meetingType.findMany({ orderBy: [{ sortOrder: "asc" }, { id: "asc" }] });
+  return prisma.meetingType.findMany({
+    where: { key: { in: DEFAULT_MEETING_TYPE_KEYS } },
+    orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+  });
 }
 
 export async function listMeetings(input: { userId: number; typeId?: number | null }) {
@@ -52,7 +55,7 @@ export async function listMeetings(input: { userId: number; typeId?: number | nu
   await ensureDefaultMeetingTypes();
   const visibleWhere = await buildVisibleMeetingWhere(input.userId);
   const meetings = await prisma.meeting.findMany({
-    where: { AND: [visibleWhere, input.typeId ? { typeId: input.typeId } : {}] },
+    where: { AND: [visibleWhere, { type: { key: { in: DEFAULT_MEETING_TYPE_KEYS } } }, input.typeId ? { typeId: input.typeId } : {}] },
     include: meetingSummaryInclude,
     orderBy: [{ startAt: "desc" }, { id: "desc" }],
     take: 200,
@@ -76,7 +79,9 @@ export async function createMeeting(input: { userId: number; body: Record<string
   await ensureDefaultMeetingTypes();
   const command = validateMeetingCreate(input.body);
   if (!command.ok) return serviceError(command.issue.message, command.issue.status);
-  const type = await prisma.meetingType.findUnique({ where: { id: command.data.typeId } });
+  const type = await prisma.meetingType.findFirst({
+    where: { id: command.data.typeId, key: { in: DEFAULT_MEETING_TYPE_KEYS } },
+  });
   if (!type) return serviceError("会议类型不存在", 404);
   if (command.data.seriesId) {
     const series = await prisma.meetingSeries.findUnique({ where: { id: command.data.seriesId }, select: { typeId: true } });
@@ -411,11 +416,20 @@ async function ensureDecisionBelongsToMeeting(meetingId: number, decisionId: num
 }
 
 async function ensureDefaultMeetingTypes() {
-  const count = await prisma.meetingType.count();
-  if (count > 0) return;
   for (const type of DEFAULT_MEETING_TYPES) {
-    await prisma.meetingType.create({ data: { ...type, defaultVisibility: "participants_only" } });
+    await prisma.meetingType.upsert({
+      where: { key: type.key },
+      update: { ...type, defaultVisibility: "participants_only" },
+      create: { ...type, defaultVisibility: "participants_only" },
+    });
   }
+  await prisma.meetingType.deleteMany({
+    where: {
+      key: { notIn: DEFAULT_MEETING_TYPE_KEYS },
+      meetings: { none: {} },
+      series: { none: {} },
+    },
+  });
 }
 
 function serviceError(error: string, status = 400) {

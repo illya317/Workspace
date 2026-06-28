@@ -54,6 +54,21 @@ function getSelectedLabel(options: SelectFieldOption[], value: string) {
   return options.find((option) => option.value === value)?.label;
 }
 
+function getOptionKey(option: SelectFieldOption, index: number) {
+  return `${option.value}:${option.label}:${index}`;
+}
+
+function getFieldValuePaddingClassName(size: "sm" | "md" | "lg", density: "normal" | "compact") {
+  if (density === "compact") {
+    if (size === "sm") return "px-2";
+    if (size === "lg") return "px-3";
+    return "px-2.5";
+  }
+  if (size === "sm") return "px-2.5";
+  if (size === "lg") return "px-4";
+  return "px-3";
+}
+
 export default function SelectField(props: SingleSelectFieldProps): React.ReactElement;
 export default function SelectField(props: MultiSelectFieldProps): React.ReactElement;
 export default function SelectField({
@@ -111,6 +126,9 @@ export default function SelectField({
     triggerClassName,
   );
   const fieldTriggerClassName = joinClassNames(paperTriggerClassName, triggerClassName);
+  const fieldValuePaddingClassName = visualVariant === "paperUnderline"
+    ? "px-1"
+    : getFieldValuePaddingClassName(shellSize, resolvedDensity);
   const [query, setQuery] = useState("");
   const searchRef = useRef<HTMLInputElement | null>(null);
   const listboxId = useId();
@@ -119,6 +137,7 @@ export default function SelectField({
   const toolbarFieldLabel = label ?? (placeholder?.startsWith("全部") ? placeholder.slice(2) : undefined);
   const valueOptions = useMemo<SelectFieldOption[]>(() => {
     if (isMulti || !normalizedPlaceholder) return options;
+    if (options.some((option) => option.value === "")) return options;
     const placeholderOption: SelectFieldOption = { value: "", label: normalizedPlaceholder };
     // 固定语义："请选择" 置顶，"全部" 置底
     if (normalizedPlaceholder === "全部") return [...options, placeholderOption];
@@ -190,31 +209,33 @@ export default function SelectField({
               <SelectFieldChevron open={open} />
             )}
           >
-            {toolbarFieldLabel && <span className={`shrink-0 ${labelTextClass} text-slate-400`}>{toolbarFieldLabel}</span>}
-            <input
-              type="text"
-              readOnly
-              value={selectedLabel}
-              placeholder={placeholder}
-              aria-label={ariaLabel}
-              role="combobox"
-              aria-haspopup="listbox"
-              aria-expanded={open}
-              aria-controls={listboxId}
-              data-field-key={dataFieldKey}
-              onClick={() => {
-                if (!disabled) toggle();
-              }}
-              onKeyDown={(e) => {
-                if (disabled) return;
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  toggle();
-                }
-              }}
-              disabled={disabled}
-              className={`h-full min-w-0 flex-1 cursor-pointer caret-transparent border-0 bg-transparent p-0 ${valueTextClass} ${valueLeadingClass} ${alignClass} text-current outline-none placeholder:text-slate-400 disabled:bg-transparent disabled:text-slate-500`}
-            />
+            <div className={`flex h-full min-w-0 flex-1 items-center gap-2 ${fieldValuePaddingClassName}`}>
+              {toolbarFieldLabel && <span className={`shrink-0 ${labelTextClass} text-slate-400`}>{toolbarFieldLabel}</span>}
+              <input
+                type="text"
+                readOnly
+                value={selectedLabel}
+                placeholder={placeholder}
+                aria-label={ariaLabel}
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded={open}
+                aria-controls={listboxId}
+                data-field-key={dataFieldKey}
+                onClick={() => {
+                  if (!disabled) toggle();
+                }}
+                onKeyDown={(e) => {
+                  if (disabled) return;
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    toggle();
+                  }
+                }}
+                disabled={disabled}
+                className={`h-full min-w-0 flex-1 cursor-pointer caret-transparent border-0 bg-transparent p-0 ${valueTextClass} ${valueLeadingClass} ${alignClass} text-current outline-none placeholder:text-slate-400 disabled:bg-transparent disabled:text-slate-500`}
+              />
+            </div>
           </FieldInputShell>
         )
       )}
@@ -238,12 +259,12 @@ export default function SelectField({
               />
             )}
             <div id={listboxId} role="listbox" className="max-h-64 overflow-auto">
-              {filteredOptions.map((option) => {
+              {filteredOptions.map((option, index) => {
                 if (isMulti) {
                   const checked = (value as string[]).includes(option.value);
                   return (
                     <label
-                      key={option.value || "__empty__"}
+                      key={getOptionKey(option, index)}
                       className={`${getDropdownItemClassName({ layout: "flex", textClassName: valueTextClass })} ${option.disabled ? "cursor-not-allowed text-slate-400" : "cursor-pointer"}`}
                     >
                       <CheckboxField
@@ -262,7 +283,7 @@ export default function SelectField({
                 const active = option.value === value;
                 return (
                   <button
-                    key={option.value || "__empty__"}
+                    key={getOptionKey(option, index)}
                     type="button"
                     role="option"
                     aria-selected={active}
