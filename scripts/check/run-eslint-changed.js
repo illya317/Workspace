@@ -31,6 +31,16 @@ function changedFiles() {
 
 const files = changedFiles().filter((file) => ESLINT_EXTENSIONS.test(file));
 
+const responseFormat = spawnSync(
+  "node",
+  ["scripts/check/check-api-response-format.js"],
+  { stdio: "inherit" },
+);
+
+if (responseFormat.status !== 0) {
+  process.exit(responseFormat.status ?? 1);
+}
+
 if (files.length === 0) {
   process.stdout.write("No changed JS/TS files to lint.\n");
   process.exit(0);
