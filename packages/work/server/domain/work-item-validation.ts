@@ -8,6 +8,7 @@ import {
 } from "./work-item-source-validation";
 
 export interface WorkItemCreateCommand {
+  planId: number;
   targetType: string;
   targetId: number;
   category: string;
@@ -43,6 +44,7 @@ export interface WorkItemCreateCommand {
 export interface WorkItemUpdateCommand {
   workId: number;
   data: {
+    planId?: number | null;
     category?: string;
     itemType?: string;
     content?: string;
@@ -195,6 +197,7 @@ function stripNonKrFields<T extends {
 }
 
 export function buildWorkItemCreateCommand(input: {
+  planId?: number | null;
   targetType: string;
   targetId: number;
   category?: string;
@@ -226,11 +229,13 @@ export function buildWorkItemCreateCommand(input: {
   participants?: string[];
   sortOrder?: number;
 }): DomainValidationResult<WorkItemCreateCommand> {
+  const planId = normalizePositiveId(input.planId, "工作计划");
+  if (!planId.ok) return planId;
   const category = normalizeCategory(input.category || "non-routine");
   if (!category.ok) return category;
   const itemType = normalizeItemType(input.itemType);
   if (!itemType.ok) return itemType;
-  const content = normalizeRequiredString(input.content, "工作内容");
+  const content = normalizeRequiredString(input.content, "节点内容");
   if (!content.ok) return content;
   const targetId = normalizePositiveId(input.targetId, "目标");
   if (!targetId.ok) return targetId;
@@ -300,6 +305,7 @@ export function buildWorkItemCreateCommand(input: {
   if (itemType.data !== "key_result") stripNonKrFields(krData);
 
   return okCommand({
+    planId: planId.data,
     targetType: input.targetType || "department",
     targetId: targetId.data,
     category: category.data,
@@ -328,13 +334,18 @@ export function buildWorkItemUpdateCommand(
   input: WorkItemUpdateCommand["data"],
   current: { category: string; itemType: string; sourceType: string },
 ): DomainValidationResult<WorkItemUpdateCommand> {
-  const id = normalizePositiveId(workId, "工作项 ID");
+  const id = normalizePositiveId(workId, "节点 ID");
   if (!id.ok) return id;
   const data = { ...input };
   if (data.category !== undefined) {
     const category = normalizeCategory(data.category);
     if (!category.ok) return category;
     data.category = category.data;
+  }
+  if (data.planId !== undefined) {
+    const planId = normalizePositiveId(data.planId, "工作计划");
+    if (!planId.ok) return planId;
+    data.planId = planId.data;
   }
   if (data.itemType !== undefined) {
     const itemType = normalizeItemType(data.itemType);
@@ -343,7 +354,7 @@ export function buildWorkItemUpdateCommand(
   }
   const effectiveItemType = data.itemType ?? current.itemType;
   if (data.content !== undefined) {
-    const content = normalizeRequiredString(data.content, "工作内容");
+    const content = normalizeRequiredString(data.content, "节点内容");
     if (!content.ok) return content;
     data.content = content.data;
   }
@@ -425,7 +436,7 @@ export function buildWorkItemUpdateCommand(
 }
 
 export function validateWorkItemDeleteCommand(workId: number): DomainValidationResult<WorkItemDeleteCommand> {
-  const id = normalizePositiveId(workId, "工作项 ID");
+  const id = normalizePositiveId(workId, "节点 ID");
   if (!id.ok) return id;
   return okCommand({ workId: id.data });
 }

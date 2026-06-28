@@ -49,9 +49,9 @@ export default function WorksList({
 }: WorksListProps) {
   return (
     <>
-      {/* 日常工作 */}
+      {/* 日常节点 */}
       <div className="mb-8">
-        <DisclosureHeader title="日常工作" count={routineWorks.length} expanded={routineExpanded} onToggle={onToggleRoutine} />
+        <DisclosureHeader title="日常节点" count={routineWorks.length} expanded={routineExpanded} onToggle={onToggleRoutine} />
         {routineExpanded && (
           <div className="space-y-3">
             {routineWorks.map((work, index) =>
@@ -77,15 +77,15 @@ export default function WorksList({
               )
             )}
             {routineWorks.length === 0 && (
-              <EmptyWorksSurface blockKey="routine-works-empty" empty="暂无日常工作项" />
+              <EmptyWorksSurface blockKey="routine-works-empty" empty="暂无日常节点" />
             )}
           </div>
         )}
       </div>
 
-      {/* 其他工作 */}
+      {/* 其他节点 */}
       <div className="mb-8">
-        <DisclosureHeader title="其他工作" count={nonRoutineWorks.length} expanded={nonRoutineExpanded} onToggle={onToggleNonRoutine} />
+        <DisclosureHeader title="其他节点" count={nonRoutineWorks.length} expanded={nonRoutineExpanded} onToggle={onToggleNonRoutine} />
         {nonRoutineExpanded && (
           <div className="space-y-3">
             {nonRoutineWorks.map((work, index) =>
@@ -111,7 +111,7 @@ export default function WorksList({
               )
             )}
             {nonRoutineWorks.length === 0 && (
-              <EmptyWorksSurface blockKey="non-routine-works-empty" empty="暂无其他工作项" />
+              <EmptyWorksSurface blockKey="non-routine-works-empty" empty="暂无其他节点" />
             )}
           </div>
         )}

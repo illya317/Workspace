@@ -136,6 +136,7 @@ export const ModelName = {
   ProjectPlanBaselineItem: 'ProjectPlanBaselineItem',
   ProjectTask: 'ProjectTask',
   ProjectTaskAssignment: 'ProjectTaskAssignment',
+  WorkPlan: 'WorkPlan',
   WorkItem: 'WorkItem',
   WorkParticipant: 'WorkParticipant',
   DepartmentWorkAssignee: 'DepartmentWorkAssignee',
@@ -1569,6 +1570,7 @@ export const MeetingActionCandidateScalarFieldEnum = {
   targetKind: 'targetKind',
   status: 'status',
   linkedWorkItemId: 'linkedWorkItemId',
+  linkedWorkPlanId: 'linkedWorkPlanId',
   linkedProjectTaskId: 'linkedProjectTaskId',
   createdBy: 'createdBy',
   createdAt: 'createdAt',
@@ -1745,8 +1747,37 @@ export const ProjectTaskAssignmentScalarFieldEnum = {
 export type ProjectTaskAssignmentScalarFieldEnum = (typeof ProjectTaskAssignmentScalarFieldEnum)[keyof typeof ProjectTaskAssignmentScalarFieldEnum]
 
 
+export const WorkPlanScalarFieldEnum = {
+  id: 'id',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  kind: 'kind',
+  title: 'title',
+  description: 'description',
+  status: 'status',
+  ownerEmployeeId: 'ownerEmployeeId',
+  periodType: 'periodType',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  sourceType: 'sourceType',
+  sourceKind: 'sourceKind',
+  sourceMeetingId: 'sourceMeetingId',
+  sourceMeetingDecisionId: 'sourceMeetingDecisionId',
+  sourceMeetingActionCandidateId: 'sourceMeetingActionCandidateId',
+  linkedProjectId: 'linkedProjectId',
+  linkedProjectPhaseId: 'linkedProjectPhaseId',
+  linkedProjectTaskId: 'linkedProjectTaskId',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WorkPlanScalarFieldEnum = (typeof WorkPlanScalarFieldEnum)[keyof typeof WorkPlanScalarFieldEnum]
+
+
 export const WorkItemScalarFieldEnum = {
   id: 'id',
+  planId: 'planId',
   targetType: 'targetType',
   targetId: 'targetId',
   category: 'category',

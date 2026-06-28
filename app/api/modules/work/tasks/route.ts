@@ -10,6 +10,7 @@ import {
 } from "@workspace/work/server";
 
 const createWorkItemSchema = z.object({
+  planId: z.coerce.number().optional(),
   category: z.string().min(1).optional(),
   itemType: z.string().optional(),
   content: z.string().min(1),
@@ -50,6 +51,7 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const category = searchParams.get("category") || undefined;
+  const planId = searchParams.get("planId") ? Number(searchParams.get("planId")) : null;
   const periodType = searchParams.has("periodType") ? searchParams.get("periodType") : undefined;
   const periodStart = searchParams.get("periodStart");
   const includeArchived = searchParams.get("includeArchived") === "true";
@@ -72,6 +74,7 @@ export async function GET(request: Request) {
   if (!allowed) return NextResponse.json({ error: "无权限访问该目标" }, { status: 403 });
 
   const works = await getWorkItems({
+    planId,
     targetType: targetType === "user" ? "personal" : targetType,
     targetId: finalTargetId,
     category,
@@ -90,7 +93,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const parsedBody = createWorkItemSchema.safeParse(body);
   if (!parsedBody.success) {
-    return NextResponse.json({ error: "工作内容不能为空" }, { status: 400 });
+    return NextResponse.json({ error: "节点内容不能为空" }, { status: 400 });
   }
   const { targetType, targetId, deptId, participants, ...workInput } = parsedBody.data;
 

@@ -187,12 +187,12 @@ export function CandidateList({
               <span className={`rounded px-2 py-0.5 text-xs font-medium ${candidate.status === "linked" ? "bg-emerald-50 text-emerald-700" : candidate.status === "ignored" ? "bg-slate-100 text-slate-500" : "bg-amber-50 text-amber-700"}`}>{candidateStatusLabel(candidate.status)}</span>
             </div>
             {candidate.status === "linked" && <div className="mt-2 text-xs text-emerald-700">
-                {candidate.linkedWorkItemTitle ? `工作项：${candidate.linkedWorkItemTitle}` : candidate.linkedProjectTaskTitle ? `项目任务：${candidate.linkedProjectTaskTitle}` : "已链接"}
+                {candidate.linkedWorkPlanTitle ? `OKR 计划：${candidate.linkedWorkPlanTitle}` : candidate.linkedProjectTaskTitle ? `项目任务：${candidate.linkedProjectTaskTitle}` : candidate.linkedWorkItemTitle ? `工作项：${candidate.linkedWorkItemTitle}` : "已链接"}
               </div>}
             {meeting.permissions.canEdit && candidate.status === "candidate" && <div className="mt-3 grid gap-2 md:grid-cols-4">
-                <InputBox label="工作项 ID" value={draft.workItemId} onChange={workItemId => onDraftChange(candidate.id, {
+                <InputBox label="OKR 计划 ID" value={draft.workPlanId} onChange={workPlanId => onDraftChange(candidate.id, {
             ...draft,
-            workItemId,
+            workPlanId,
           })} />
                 <InputBox label="项目任务 ID" value={draft.projectTaskId} onChange={projectTaskId => onDraftChange(candidate.id, {
             ...draft,
@@ -207,8 +207,8 @@ export function CandidateList({
             targetId,
           })} />
                 <PageBlockSurface className="md:col-span-4" block={createPageFieldsBlock("candidate-actions", [], { className: "md:col-span-4", actions: [
-                  { key: "linkWorkItem", label: "链接工作项", variant: "secondary", size: "sm", disabled: saving || !draft.workItemId, onClick: () => onAction(candidate.id, "linkWorkItem", draft) },
-                  { key: "createWorkItem", label: "创建工作项", variant: "secondary", size: "sm", disabled: saving, onClick: () => onAction(candidate.id, "createWorkItem", draft) },
+                  { key: "linkWorkPlan", label: "链接 OKR 计划", variant: "secondary", size: "sm", disabled: saving || !draft.workPlanId, onClick: () => onAction(candidate.id, "linkWorkPlan", draft) },
+                  { key: "createWorkPlan", label: "创建 OKR 计划", variant: "secondary", size: "sm", disabled: saving, onClick: () => onAction(candidate.id, "createWorkPlan", draft) },
                   { key: "linkProjectTask", label: "链接项目任务", variant: "secondary", size: "sm", disabled: saving || !draft.projectTaskId, onClick: () => onAction(candidate.id, "linkProjectTask", draft) },
                   { key: "createProjectTask", label: "创建项目任务", variant: "secondary", size: "sm", disabled: saving || !draft.projectId, onClick: () => onAction(candidate.id, "createProjectTask", draft) },
                   { key: "ignore", label: "忽略", variant: "danger", size: "sm", disabled: saving, onClick: () => onAction(candidate.id, "ignore", draft) },

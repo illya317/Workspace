@@ -469,6 +469,7 @@ export const ModelName = {
   ProjectPlanBaselineItem: 'ProjectPlanBaselineItem',
   ProjectTask: 'ProjectTask',
   ProjectTaskAssignment: 'ProjectTaskAssignment',
+  WorkPlan: 'WorkPlan',
   WorkItem: 'WorkItem',
   WorkParticipant: 'WorkParticipant',
   DepartmentWorkAssignee: 'DepartmentWorkAssignee',
@@ -491,7 +492,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "notification" | "contract" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementReview" | "financeStatementReviewLine" | "departmentDescription" | "positionDescription" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryDocument" | "libraryDocumentVersion" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "project" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "projectTask" | "projectTaskAssignment" | "workItem" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee" | "workScopePermission" | "workReport" | "workReportItem"
+    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "notification" | "contract" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementReview" | "financeStatementReviewLine" | "departmentDescription" | "positionDescription" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryDocument" | "libraryDocumentVersion" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "project" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "projectTask" | "projectTaskAssignment" | "workPlan" | "workItem" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee" | "workScopePermission" | "workReport" | "workReportItem"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -6785,6 +6786,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    WorkPlan: {
+      payload: Prisma.$WorkPlanPayload<ExtArgs>
+      fields: Prisma.WorkPlanFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WorkPlanFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WorkPlanFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanPayload>
+        }
+        findFirst: {
+          args: Prisma.WorkPlanFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WorkPlanFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanPayload>
+        }
+        findMany: {
+          args: Prisma.WorkPlanFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanPayload>[]
+        }
+        create: {
+          args: Prisma.WorkPlanCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanPayload>
+        }
+        createMany: {
+          args: Prisma.WorkPlanCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.WorkPlanCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanPayload>[]
+        }
+        delete: {
+          args: Prisma.WorkPlanDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanPayload>
+        }
+        update: {
+          args: Prisma.WorkPlanUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanPayload>
+        }
+        deleteMany: {
+          args: Prisma.WorkPlanDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WorkPlanUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.WorkPlanUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanPayload>[]
+        }
+        upsert: {
+          args: Prisma.WorkPlanUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanPayload>
+        }
+        aggregate: {
+          args: Prisma.WorkPlanAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWorkPlan>
+        }
+        groupBy: {
+          args: Prisma.WorkPlanGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WorkPlanGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WorkPlanCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WorkPlanCountAggregateOutputType> | number
+        }
+      }
+    }
     WorkItem: {
       payload: Prisma.$WorkItemPayload<ExtArgs>
       fields: Prisma.WorkItemFieldRefs
@@ -8750,6 +8825,7 @@ export const MeetingActionCandidateScalarFieldEnum = {
   targetKind: 'targetKind',
   status: 'status',
   linkedWorkItemId: 'linkedWorkItemId',
+  linkedWorkPlanId: 'linkedWorkPlanId',
   linkedProjectTaskId: 'linkedProjectTaskId',
   createdBy: 'createdBy',
   createdAt: 'createdAt',
@@ -8926,8 +9002,37 @@ export const ProjectTaskAssignmentScalarFieldEnum = {
 export type ProjectTaskAssignmentScalarFieldEnum = (typeof ProjectTaskAssignmentScalarFieldEnum)[keyof typeof ProjectTaskAssignmentScalarFieldEnum]
 
 
+export const WorkPlanScalarFieldEnum = {
+  id: 'id',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  kind: 'kind',
+  title: 'title',
+  description: 'description',
+  status: 'status',
+  ownerEmployeeId: 'ownerEmployeeId',
+  periodType: 'periodType',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  sourceType: 'sourceType',
+  sourceKind: 'sourceKind',
+  sourceMeetingId: 'sourceMeetingId',
+  sourceMeetingDecisionId: 'sourceMeetingDecisionId',
+  sourceMeetingActionCandidateId: 'sourceMeetingActionCandidateId',
+  linkedProjectId: 'linkedProjectId',
+  linkedProjectPhaseId: 'linkedProjectPhaseId',
+  linkedProjectTaskId: 'linkedProjectTaskId',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WorkPlanScalarFieldEnum = (typeof WorkPlanScalarFieldEnum)[keyof typeof WorkPlanScalarFieldEnum]
+
+
 export const WorkItemScalarFieldEnum = {
   id: 'id',
+  planId: 'planId',
   targetType: 'targetType',
   targetId: 'targetId',
   category: 'category',
@@ -9291,6 +9396,7 @@ export type GlobalOmitConfig = {
   projectPlanBaselineItem?: Prisma.ProjectPlanBaselineItemOmit
   projectTask?: Prisma.ProjectTaskOmit
   projectTaskAssignment?: Prisma.ProjectTaskAssignmentOmit
+  workPlan?: Prisma.WorkPlanOmit
   workItem?: Prisma.WorkItemOmit
   workParticipant?: Prisma.WorkParticipantOmit
   departmentWorkAssignee?: Prisma.DepartmentWorkAssigneeOmit

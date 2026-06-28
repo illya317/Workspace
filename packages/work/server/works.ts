@@ -16,6 +16,7 @@ export function parseParticipants(input?: string): string[] {
 }
 
 export async function getWorkItems(opts: {
+  planId?: number | null;
   targetType: string;
   targetId: number;
   category?: string;
@@ -23,10 +24,11 @@ export async function getWorkItems(opts: {
   periodStart?: string | null;
   includeArchived?: boolean;
 }) {
-  const where: { targetType: string; targetId: number; category?: string; periodType?: string | null; periodStart?: Date; isArchived?: boolean } = {
+  const where: { planId?: number; targetType: string; targetId: number; category?: string; periodType?: string | null; periodStart?: Date; isArchived?: boolean } = {
     targetType: opts.targetType,
     targetId: opts.targetId,
   };
+  if (opts.planId) where.planId = opts.planId;
   if (opts.category) where.category = opts.category;
   if (opts.periodType !== undefined) where.periodType = opts.periodType || null;
   if (opts.periodStart) where.periodStart = new Date(opts.periodStart);
@@ -61,6 +63,7 @@ function toWorkItemDto(row: Prisma.WorkItemGetPayload<{ include: typeof workItem
   const status = row.itemType === "task" ? (row.isArchived ? "archived" : normalizeWorkStatus(row.status)) : null;
   return {
     id: row.id,
+    planId: row.planId,
     targetType: row.targetType,
     targetId: row.targetId,
     category: row.category,
@@ -126,6 +129,7 @@ function normalizeWorkSourceType(sourceType: string | null) {
 }
 
 export async function createWorkItem(opts: {
+  planId?: number | null;
   targetType: string;
   targetId: number;
   category?: string;
@@ -162,6 +166,7 @@ export async function createWorkItem(opts: {
   const relationError = await validateWorkItemRelations(command.data);
   if (relationError) return { ok: false, error: relationError, status: 400 };
   const data: Prisma.WorkItemUncheckedCreateInput = {
+    planId: command.data.planId,
     targetType: command.data.targetType,
     targetId: command.data.targetId,
     category: command.data.category,
@@ -212,6 +217,7 @@ export async function getWorkItemAccessMetadata(workId: number) {
     select: {
       targetType: true,
       targetId: true,
+      planId: true,
     },
   });
 }
@@ -220,6 +226,7 @@ export async function updateWorkItem(
   workId: number,
   opts: {
     category?: string;
+    planId?: number | null;
     itemType?: string;
     content?: string;
     description?: string;
@@ -255,6 +262,7 @@ export async function updateWorkItem(
     select: {
       targetType: true,
       targetId: true,
+      planId: true,
       category: true,
       itemType: true,
       sourceType: true,
@@ -291,6 +299,7 @@ export async function updateWorkItem(
   const statusPatch = buildStatusPatch(command.data.data.status, command.data.data.isArchived);
   const data: Prisma.WorkItemUncheckedUpdateInput = {
     ...(command.data.data.category !== undefined && { category: command.data.data.category }),
+    ...(command.data.data.planId !== undefined && { planId: command.data.data.planId }),
     ...(command.data.data.itemType !== undefined && { itemType: command.data.data.itemType }),
     ...(command.data.data.content !== undefined && { content: command.data.data.content }),
     ...(command.data.data.description !== undefined && { description: command.data.data.description }),
@@ -355,6 +364,7 @@ function sourcePatchTouched(patch: {
 }
 function effectiveRelationInput(
   existing: {
+    planId: number | null;
     itemType: string;
     sourceType: string;
     sourceKind: string | null;
@@ -367,6 +377,7 @@ function effectiveRelationInput(
     parentWorkItemId: number | null;
   },
   patch: {
+    planId?: number | null;
     itemType?: string;
     sourceType?: string;
     sourceKind?: string | null;
@@ -396,6 +407,7 @@ function effectiveRelationInput(
           ? "project"
           : null;
   return {
+    planId: patch.planId === undefined ? existing.planId : patch.planId,
     itemType: patch.itemType === undefined ? existing.itemType : patch.itemType,
     sourceType,
     sourceKind: patch.sourceKind === undefined ? inferredSourceKind : patch.sourceKind,

@@ -1,6 +1,53 @@
-/// 工作清单条目
+/// 工作计划总包（OKR/项目任务级计划）
+model WorkPlan {
+  id                  Int               @id @default(autoincrement())
+  targetType          String            @default("personal")
+  targetId            Int
+  kind                String            @default("okr")
+  title               String
+  description         String            @default("")
+  status              String            @default("active")
+  ownerEmployeeId     Int?
+  periodType          String?
+  periodStart         DateTime?
+  periodEnd           DateTime?
+  sourceType          String            @default("other")
+  sourceKind          String?
+  sourceMeetingId     Int?
+  sourceMeetingDecisionId Int?
+  sourceMeetingActionCandidateId Int?
+  linkedProjectId     Int?
+  linkedProjectPhaseId Int?
+  linkedProjectTaskId Int?
+  sortOrder           Int               @default(0)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @default(now()) @updatedAt
+  owner               Employee?         @relation("WorkPlanOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull)
+  linkedProject       Project?          @relation("WorkPlanLinkedProject", fields: [linkedProjectId], references: [id], onDelete: SetNull)
+  linkedProjectPhase  ProjectPlanPhase? @relation("WorkPlanLinkedProjectPhase", fields: [linkedProjectPhaseId], references: [id], onDelete: SetNull)
+  linkedProjectTask   ProjectTask?      @relation("WorkPlanLinkedProjectTask", fields: [linkedProjectTaskId], references: [id], onDelete: SetNull)
+  sourceMeeting       Meeting?          @relation("WorkPlanSourceMeeting", fields: [sourceMeetingId], references: [id], onDelete: SetNull)
+  sourceMeetingDecision MeetingDecision? @relation("WorkPlanSourceMeetingDecision", fields: [sourceMeetingDecisionId], references: [id], onDelete: SetNull)
+  sourceMeetingActionCandidate MeetingActionCandidate? @relation("WorkPlanSourceMeetingActionCandidate", fields: [sourceMeetingActionCandidateId], references: [id], onDelete: SetNull)
+  items               WorkItem[]
+  meetingActionCandidates MeetingActionCandidate[] @relation("MeetingActionCandidateWorkPlan")
+
+  @@index([targetType, targetId, kind, status])
+  @@index([targetType, targetId, periodType, periodStart])
+  @@index([sourceType, linkedProjectId, linkedProjectTaskId])
+  @@index([ownerEmployeeId])
+  @@index([linkedProjectId])
+  @@index([linkedProjectPhaseId])
+  @@index([linkedProjectTaskId])
+  @@index([sourceMeetingId])
+  @@index([sourceMeetingDecisionId])
+  @@index([sourceMeetingActionCandidateId])
+}
+
+/// 工作计划内节点
 model WorkItem {
   id                  Int               @id @default(autoincrement())
+  planId              Int?
   targetType          String            @default("personal")
   targetId            Int?
   category            String
@@ -33,6 +80,7 @@ model WorkItem {
   isPrivate           Boolean           @default(false)
   sortOrder           Int               @default(0)
   createdAt           DateTime          @default(now())
+  plan                WorkPlan?         @relation(fields: [planId], references: [id], onDelete: Cascade)
   participants        WorkParticipant[]
   owner               Employee?         @relation("WorkItemOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull)
   linkedProject       Project?          @relation("WorkItemLinkedProject", fields: [linkedProjectId], references: [id], onDelete: SetNull)
@@ -46,6 +94,8 @@ model WorkItem {
   meetingActionCandidates MeetingActionCandidate[] @relation("MeetingActionCandidateWorkItem")
   reportItems         WorkReportItem[]
 
+  @@index([planId, parentWorkItemId, itemType])
+  @@index([planId, itemType, isArchived])
   @@index([targetType, targetId, category])
   @@index([targetType, targetId, periodType, periodStart])
   @@index([targetType, targetId, parentWorkItemId, itemType])

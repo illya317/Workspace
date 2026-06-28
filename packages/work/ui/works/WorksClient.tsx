@@ -5,19 +5,33 @@ import { PageSurface, useFeedback } from "@workspace/core/ui";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import type { SessionUser } from "@workspace/platform/types";
-import { listTaskSpaces } from "./api";
-import { createEmptyWorkDraft, getPeriodTypeLabel, getWorkSpaceLabel, getWorkSpacePath, getWorkTargetFromPath, WORK_ITEM_TYPE_OPTIONS, WORK_SOURCE_TYPE_OPTIONS } from "./model";
+import {
+  archiveWorkPlan,
+  createWorkPlan,
+  listTaskSpaces,
+  listWorkPlans,
+  updateWorkPlan,
+} from "./api";
+import {
+  createEmptyWorkDraft,
+  createEmptyWorkPlanDraft,
+  createWorkPlanDraft,
+  getWorkSpaceLabel,
+  getWorkSpacePath,
+  getWorkTargetFromPath,
+  WORK_ITEM_TYPE_OPTIONS,
+} from "./model";
 import { useWorks } from "./useWorks";
-import { nextSortOrder, normalizeInitialTarget, roleAllows, sameTarget, spaceSelectorBlock } from "./works-client-helpers";
+import { nextSortOrder, normalizeInitialTarget, roleAllows, sameTarget, spaceMetricsBlock, spaceSelectorBlock } from "./works-client-helpers";
 import { useWorkPermissionsBlocks } from "./WorkPermissionsPanel";
 import { buildWorkReportsPanelBlocks, useWorkReportsController } from "./WorkReportsPanel";
 import { useWorkTaskTableBlock } from "./WorkTaskTable";
 import { useWorkTaskFormSurface } from "./WorkTaskFields";
-import type { WorkItem, WorkItemType, WorkSourceType, WorkTarget, WorkTaskSpace } from "./types";
+import { createWorkPlanSelectorBlock, PlanHeader } from "./WorkPlanBlocks";
+import { useWorkPlanFormSurface } from "./WorkPlanFields";
+import type { WorkItem, WorkItemType, WorkPlan, WorkPlanDraft, WorkTarget, WorkTaskSpace } from "./types";
 
-export default function WorksClient({
-  initialTarget,
-}: {
+export default function WorksClient({ initialTarget }: {
   user: SessionUser;
   hideShell?: boolean;
   initialTarget?: WorkTarget;
@@ -27,10 +41,14 @@ export default function WorksClient({
   const [spacesLoading, setSpacesLoading] = useState(true);
   const [activeTarget, setActiveTarget] = useState<WorkTarget | null>(null);
   const [activeTab, setActiveTab] = useState("tasks");
+  const [plans, setPlans] = useState<WorkPlan[]>([]);
+  const [plansLoading, setPlansLoading] = useState(false);
+  const [activePlanId, setActivePlanId] = useState<number | null>(null);
+  const [planCreating, setPlanCreating] = useState(false);
+  const [planEditing, setPlanEditing] = useState(false);
+  const [planDraft, setPlanDraft] = useState<WorkPlanDraft>(() => createEmptyWorkPlanDraft());
   const [statusFilter, setStatusFilter] = useState<"active" | "done" | "archived">("active");
-  const [periodFilter, setPeriodFilter] = useState("all");
   const [itemTypeFilter, setItemTypeFilter] = useState("all");
-  const [sourceFilter, setSourceFilter] = useState("all");
   const [sideOpen, setSideOpen] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -38,10 +56,14 @@ export default function WorksClient({
     () => spaces.find((space) => sameTarget(space, activeTarget)) || null,
     [activeTarget, spaces],
   );
+  const activePlan = useMemo(
+    () => plans.find((plan) => plan.id === activePlanId) || null,
+    [activePlanId, plans],
+  );
   const canEdit = roleAllows(currentSpace?.role, "editor");
   const canManage = roleAllows(currentSpace?.role, "manager");
-  const worksState = useWorks(currentSpace);
-  const showToast = worksState.showToast;
+  const worksState = useWorks(currentSpace, activePlanId);
+  const showToast = useCallback((message: string, type: "success" | "error") => feedback.notify(message, type), [feedback]);
   const showReportToast = useCallback(
     (toast: { message: string; type: "success" | "error" }) => showToast(toast.message, toast.type),
     [showToast],
@@ -66,9 +88,12 @@ export default function WorksClient({
     works: worksState.works,
     disabled: worksState.saving,
     excludedWorkId: null,
-    targetType: currentSpace?.targetType,
     onChange: worksState.setCreateDraft,
-    enabled: Boolean(currentSpace && activeTab === "tasks" && worksState.creating),
+  });
+  const planFormSurface = useWorkPlanFormSurface({
+    draft: planDraft,
+    disabled: worksState.saving,
+    onChange: setPlanDraft,
   });
 
   const loadSpaces = useCallback(async () => {
@@ -90,6 +115,25 @@ export default function WorksClient({
       setSpacesLoading(false);
     }
   }, [initialTarget, showToast]);
+
+  const loadPlans = useCallback(async () => {
+    if (!currentSpace) {
+      setPlans([]);
+      setActivePlanId(null);
+      return;
+    }
+    setPlansLoading(true);
+    try {
+      const nextPlans = await listWorkPlans(currentSpace);
+      setPlans(nextPlans);
+      setActivePlanId((current) => current && nextPlans.some((plan) => plan.id === current) ? current : nextPlans[0]?.id ?? null);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "加载 OKR 计划失败", "error");
+    } finally {
+      setPlansLoading(false);
+    }
+  }, [currentSpace, showToast]);
+
   const taskTableBlock = useWorkTaskTableBlock({
     works: worksState.works,
     loading: worksState.loading,
@@ -99,22 +143,20 @@ export default function WorksClient({
     editingId: worksState.editingId,
     editDraft: worksState.editDraft,
     statusFilter,
-    periodFilter,
     itemTypeFilter: itemTypeFilter as "all" | WorkItemType,
-    sourceFilter: sourceFilter as "all" | WorkSourceType,
-    targetType: currentSpace?.targetType,
     onEditDraftChange: worksState.setEditDraft,
     onDetail: (work) => {
       if (worksState.editingId === work.id) return;
       worksState.setDetailId(worksState.detailId === work.id ? null : work.id);
     },
     onEdit: worksState.startEdit,
-    onSave: () => void worksState.handleUpdate().then(loadSpaces),
+    onSave: () => void worksState.handleUpdate().then(() => Promise.all([loadSpaces(), loadPlans()])),
     onCancelEdit: worksState.cancelEdit,
     onDelete: (work) => void deleteWork(work),
   });
 
   useEffect(() => { void loadSpaces(); }, [loadSpaces]);
+  useEffect(() => { void loadPlans(); }, [loadPlans]);
 
   useEffect(() => {
     if (spaces.length === 0) return;
@@ -134,27 +176,71 @@ export default function WorksClient({
     setActiveTarget({ targetType: space.targetType, targetId: space.targetId });
     setActiveTab("tasks");
     setStatusFilter("active");
-    setPeriodFilter("all");
     setItemTypeFilter("all");
-    setSourceFilter("all");
+    setPlanCreating(false);
+    setPlanEditing(false);
     setDrawerOpen(false);
     window.history.pushState(null, "", workspacePath(getWorkSpacePath(space.targetType, space.targetId)));
   }
 
+  async function handleCreatePlan() {
+    if (!currentSpace || !planDraft.title.trim()) return;
+    try {
+      const data = await createWorkPlan(currentSpace, planDraft);
+      setPlanCreating(false);
+      setPlanDraft(createEmptyWorkPlanDraft());
+      await loadPlans();
+      setActivePlanId(data.plan.id);
+      showToast("OKR 计划已新建", "success");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "新建 OKR 计划失败", "error");
+    }
+  }
+
+  async function handleUpdatePlan() {
+    if (!activePlan || !planDraft.title.trim()) return;
+    try {
+      const data = await updateWorkPlan(activePlan.id, planDraft);
+      setPlanEditing(false);
+      await loadPlans();
+      setActivePlanId(data.plan.id);
+      showToast("OKR 计划已保存", "success");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "保存 OKR 计划失败", "error");
+    }
+  }
+
+  async function handleArchivePlan() {
+    if (!activePlan) return;
+    const ok = await feedback.confirmDelete({
+      title: "归档 OKR 计划",
+      message: `确定归档「${activePlan.title}」吗？计划内节点会保留但默认不再显示。`,
+      confirmLabel: "归档计划",
+    });
+    if (!ok) return;
+    try {
+      await archiveWorkPlan(activePlan.id);
+      await loadPlans();
+      showToast("OKR 计划已归档", "success");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "归档 OKR 计划失败", "error");
+    }
+  }
+
   async function deleteWork(work: WorkItem) {
     const ok = await feedback.confirmDelete({
-      title: "删除工作项",
+      title: "删除节点",
       message: `确定删除「${work.content}」吗？`,
-      confirmLabel: "删除工作项",
+      confirmLabel: "删除节点",
     });
     if (!ok) return;
     await worksState.handleDelete(work);
-    await loadSpaces();
+    await Promise.all([loadSpaces(), loadPlans()]);
   }
 
   const tabs = canManage
-    ? [{ key: "tasks", label: "任务列表" }, { key: "reports", label: "工作汇报" }, { key: "permissions", label: "权限设置" }]
-    : [{ key: "tasks", label: "任务列表" }, { key: "reports", label: "工作汇报" }];
+    ? [{ key: "tasks", label: "OKR 计划" }, { key: "reports", label: "工作汇报" }, { key: "permissions", label: "权限设置" }]
+    : [{ key: "tasks", label: "OKR 计划" }, { key: "reports", label: "工作汇报" }];
   const editing = worksState.editingId !== null;
   const toolbarItems: SurfaceToolbarItems = currentSpace ? [
     {
@@ -187,24 +273,7 @@ export default function WorksClient({
               { value: "archived", label: "已归档" },
             ],
             onChange: (value: string) => setStatusFilter(value as typeof statusFilter),
-            ariaLabel: "任务状态",
-          },
-          {
-            kind: "option-group" as const,
-            key: "period",
-            section: "filter" as const,
-            value: periodFilter,
-            options: [
-              { value: "all", label: "全部周期" },
-              { value: "long-term", label: "长期" },
-              { value: "daily", label: getPeriodTypeLabel("daily") },
-              { value: "weekly", label: getPeriodTypeLabel("weekly") },
-              { value: "monthly", label: getPeriodTypeLabel("monthly") },
-              { value: "quarterly", label: getPeriodTypeLabel("quarterly") },
-              { value: "yearly", label: getPeriodTypeLabel("yearly") },
-            ],
-            onChange: setPeriodFilter,
-            ariaLabel: "计划周期",
+            ariaLabel: "子任务状态",
           },
           {
             kind: "option-group" as const,
@@ -212,23 +281,11 @@ export default function WorksClient({
             section: "filter" as const,
             value: itemTypeFilter,
             options: [
-              { value: "all", label: "全部类型" },
+              { value: "all", label: "全部节点" },
               ...WORK_ITEM_TYPE_OPTIONS,
             ],
             onChange: setItemTypeFilter,
             ariaLabel: "节点类型",
-          },
-          {
-            kind: "option-group" as const,
-            key: "source",
-            section: "filter" as const,
-            value: sourceFilter,
-            options: [
-              { value: "all", label: "全部来源" },
-              ...WORK_SOURCE_TYPE_OPTIONS,
-            ],
-            onChange: setSourceFilter,
-            ariaLabel: "来源类型",
           },
         ]
       : []),
@@ -237,38 +294,103 @@ export default function WorksClient({
       ? [
           {
             kind: "create" as const,
-            key: "create",
-            label: "新增工作项",
-            active: worksState.creating,
-            disabled: worksState.saving || editing,
+            key: "create-plan",
+            label: "新增 OKR 计划",
+            active: planCreating,
+            disabled: worksState.saving || planEditing,
             onClick: () => {
-              worksState.setCreating(true);
-              worksState.setCreateDraft(createEmptyWorkDraft(nextSortOrder(worksState.works)));
+              setPlanCreating(true);
+              setPlanEditing(false);
+              setPlanDraft(createEmptyWorkPlanDraft(nextSortOrder(plans)));
             },
           },
-          ...(worksState.creating
+          ...(activePlan ? [{
+            kind: "action-group" as const,
+            key: "plan-actions",
+            section: "edit" as const,
+            actions: [
+              {
+                key: "edit-plan",
+                kind: "edit" as const,
+                label: "编辑计划",
+                disabled: planCreating,
+                onClick: () => {
+                  setPlanEditing(true);
+                  setPlanCreating(false);
+                  setPlanDraft(createWorkPlanDraft(activePlan));
+                },
+              },
+              {
+                key: "archive-plan",
+                kind: "archive" as const,
+                label: "归档计划",
+                disabled: planCreating || planEditing,
+                onClick: () => void handleArchivePlan(),
+              },
+            ],
+          }] : []),
+          ...(planCreating || planEditing
+            ? [{
+                kind: "action-group" as const,
+                key: "plan-save-actions",
+                section: "edit" as const,
+                actions: [
+                  {
+                    key: "cancel-plan",
+                    kind: "cancel" as const,
+                    label: "取消计划编辑",
+                    onClick: () => {
+                      setPlanCreating(false);
+                      setPlanEditing(false);
+                    },
+                  },
+                  {
+                    key: "save-plan",
+                    kind: "check" as const,
+                    label: planCreating ? "保存 OKR 计划" : "保存计划修改",
+                    variant: "primary" as const,
+                    disabled: !planDraft.title.trim(),
+                    onClick: () => void (planCreating ? handleCreatePlan() : handleUpdatePlan()),
+                  },
+                ],
+              }]
+            : []),
+          ...(activePlan && !planCreating && !planEditing
             ? [
                 {
-                  kind: "action-group" as const,
-                  key: "create-actions",
-                  section: "edit" as const,
-                  actions: [
-                    {
-                      key: "cancel",
-                      kind: "cancel" as const,
-                      label: "取消新增",
-                      onClick: () => worksState.setCreating(false),
-                    },
-                    {
-                      key: "save",
-                      kind: "check" as const,
-                      label: "保存工作项",
-                      variant: "primary" as const,
-                      disabled: worksState.saving || !worksState.createDraft.content.trim(),
-                      onClick: () => void worksState.handleCreate().then(loadSpaces),
-                    },
-                  ],
+                  kind: "create" as const,
+                  key: "create-node",
+                  label: "新增节点",
+                  active: worksState.creating,
+                  disabled: worksState.saving || editing,
+                  onClick: () => {
+                    worksState.setCreating(true);
+                    worksState.setCreateDraft(createEmptyWorkDraft(nextSortOrder(worksState.works), activePlan.id));
+                  },
                 },
+                ...(worksState.creating
+                  ? [{
+                      kind: "action-group" as const,
+                      key: "create-actions",
+                      section: "edit" as const,
+                      actions: [
+                        {
+                          key: "cancel",
+                          kind: "cancel" as const,
+                          label: "取消新增",
+                          onClick: () => worksState.setCreating(false),
+                        },
+                        {
+                          key: "save",
+                          kind: "check" as const,
+                          label: "保存节点",
+                          variant: "primary" as const,
+                          disabled: worksState.saving || !worksState.createDraft.content.trim(),
+                          onClick: () => void worksState.handleCreate().then(() => Promise.all([loadSpaces(), loadPlans()])),
+                        },
+                      ],
+                    }]
+                  : []),
               ]
             : []),
         ]
@@ -303,17 +425,7 @@ export default function WorksClient({
           key: "space-header",
           title: currentSpace.name,
           subtitle: [getWorkSpaceLabel(currentSpace.targetType), currentSpace.subtitle].filter(Boolean).join(" · "),
-          blocks: [{
-            kind: "metrics",
-            key: "space-metrics",
-            metrics: [
-              { key: "objective", label: "目标", value: currentSpace.counts.objective, className: "px-3 py-2" },
-              { key: "keyResult", label: "结果", value: currentSpace.counts.keyResult, className: "px-3 py-2" },
-              { key: "task", label: "任务", value: currentSpace.counts.task, className: "px-3 py-2" },
-              { key: "archived", label: "归档", value: currentSpace.counts.archived, className: "px-3 py-2" },
-            ],
-            className: "grid-cols-4 text-center",
-          }],
+          blocks: [spaceMetricsBlock(currentSpace)],
         },
         activeTab === "permissions" ? {
           kind: "surfaceGroup",
@@ -327,14 +439,54 @@ export default function WorksClient({
         } : {
           kind: "section",
           key: "tasks",
-          title: "工作项",
+          title: "OKR 计划",
           blocks: [
-            ...(worksState.creating ? [{
+            ...(planCreating || planEditing ? [{
               kind: "form" as const,
-              key: "create-task",
-              surface: createTaskSurface,
+              key: "plan-form",
+              surface: planFormSurface,
             }] : []),
-            taskTableBlock,
+            {
+              kind: "surfaceGroup" as const,
+              key: "plan-workspace",
+              layout: "grid" as const,
+              className: "xl:grid-cols-[18rem_minmax(0,1fr)]",
+              blocks: [
+                createWorkPlanSelectorBlock({
+                  plans,
+                  activePlanId,
+                  plansLoading,
+                  onSelect: (plan) => {
+                    setActivePlanId(plan.id);
+                    setPlanCreating(false);
+                    setPlanEditing(false);
+                    worksState.setCreating(false);
+                  },
+                }),
+                activePlan ? {
+                  kind: "surfaceGroup" as const,
+                  key: "active-plan",
+                  blocks: [
+                    {
+                      kind: "moduleView" as const,
+                      key: "plan-header",
+                      view: <PlanHeader plan={activePlan} />,
+                    },
+                    ...(worksState.creating ? [{
+                      kind: "form" as const,
+                      key: "create-task",
+                      surface: createTaskSurface,
+                    }] : []),
+                    taskTableBlock,
+                  ],
+                } : {
+                  kind: "message" as const,
+                  key: "no-plan",
+                  content: plansLoading ? "加载 OKR 计划中..." : "请先新建 OKR 计划，再添加目标、关键结果和子任务。",
+                  tone: "muted" as const,
+                },
+              ],
+            },
           ],
         },
       ] : [{

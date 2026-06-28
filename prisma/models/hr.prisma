@@ -29,6 +29,7 @@ model Employee {
   projectTasks           ProjectTask[]           @relation("ProjectTaskOwner")
   projectTaskAssignments ProjectTaskAssignment[]
   ownedWorkItems         WorkItem[]              @relation("WorkItemOwner")
+  ownedWorkPlans         WorkPlan[]              @relation("WorkPlanOwner")
   employments            Employment[]
   financeSalesSalaries   FinanceSalesSalary[]
   financeShipments       FinanceShipment[]

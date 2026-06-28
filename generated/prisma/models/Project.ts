@@ -445,6 +445,7 @@ export type ProjectWhereInput = {
   planBaselines?: Prisma.ProjectPlanBaselineListRelationFilter
   workAssignees?: Prisma.ProjectWorkAssigneeListRelationFilter
   linkedWorkItems?: Prisma.WorkItemListRelationFilter
+  linkedWorkPlans?: Prisma.WorkPlanListRelationFilter
 }
 
 export type ProjectOrderByWithRelationInput = {
@@ -486,6 +487,7 @@ export type ProjectOrderByWithRelationInput = {
   planBaselines?: Prisma.ProjectPlanBaselineOrderByRelationAggregateInput
   workAssignees?: Prisma.ProjectWorkAssigneeOrderByRelationAggregateInput
   linkedWorkItems?: Prisma.WorkItemOrderByRelationAggregateInput
+  linkedWorkPlans?: Prisma.WorkPlanOrderByRelationAggregateInput
 }
 
 export type ProjectWhereUniqueInput = Prisma.AtLeast<{
@@ -530,6 +532,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   planBaselines?: Prisma.ProjectPlanBaselineListRelationFilter
   workAssignees?: Prisma.ProjectWorkAssigneeListRelationFilter
   linkedWorkItems?: Prisma.WorkItemListRelationFilter
+  linkedWorkPlans?: Prisma.WorkPlanListRelationFilter
 }, "id" | "code" | "parentProjectTaskId">
 
 export type ProjectOrderByWithAggregationInput = {
@@ -640,6 +643,7 @@ export type ProjectCreateInput = {
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectUncheckedCreateInput = {
@@ -679,6 +683,7 @@ export type ProjectUncheckedCreateInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectUpdateInput = {
@@ -717,6 +722,7 @@ export type ProjectUpdateInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateInput = {
@@ -756,6 +762,7 @@ export type ProjectUncheckedUpdateInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectCreateManyInput = {
@@ -1133,6 +1140,22 @@ export type ProjectUncheckedUpdateOneWithoutParentProjectTaskNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutParentProjectTaskInput, Prisma.ProjectUpdateWithoutParentProjectTaskInput>, Prisma.ProjectUncheckedUpdateWithoutParentProjectTaskInput>
 }
 
+export type ProjectCreateNestedOneWithoutLinkedWorkPlansInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutLinkedWorkPlansInput, Prisma.ProjectUncheckedCreateWithoutLinkedWorkPlansInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLinkedWorkPlansInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneWithoutLinkedWorkPlansNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutLinkedWorkPlansInput, Prisma.ProjectUncheckedCreateWithoutLinkedWorkPlansInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLinkedWorkPlansInput
+  upsert?: Prisma.ProjectUpsertWithoutLinkedWorkPlansInput
+  disconnect?: Prisma.ProjectWhereInput | boolean
+  delete?: Prisma.ProjectWhereInput | boolean
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutLinkedWorkPlansInput, Prisma.ProjectUpdateWithoutLinkedWorkPlansInput>, Prisma.ProjectUncheckedUpdateWithoutLinkedWorkPlansInput>
+}
+
 export type ProjectCreateNestedOneWithoutLinkedWorkItemsInput = {
   create?: Prisma.XOR<Prisma.ProjectCreateWithoutLinkedWorkItemsInput, Prisma.ProjectUncheckedCreateWithoutLinkedWorkItemsInput>
   connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLinkedWorkItemsInput
@@ -1198,6 +1221,7 @@ export type ProjectCreateWithoutLeadingDepartmentInput = {
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutLeadingDepartmentInput = {
@@ -1236,6 +1260,7 @@ export type ProjectUncheckedCreateWithoutLeadingDepartmentInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutLeadingDepartmentInput = {
@@ -1333,6 +1358,7 @@ export type ProjectCreateWithoutEmployeesInput = {
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutEmployeesInput = {
@@ -1371,6 +1397,7 @@ export type ProjectUncheckedCreateWithoutEmployeesInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutEmployeesInput = {
@@ -1424,6 +1451,7 @@ export type ProjectUpdateWithoutEmployeesInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutEmployeesInput = {
@@ -1462,6 +1490,7 @@ export type ProjectUncheckedUpdateWithoutEmployeesInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectCreateWithoutPlanPhasesInput = {
@@ -1499,6 +1528,7 @@ export type ProjectCreateWithoutPlanPhasesInput = {
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutPlanPhasesInput = {
@@ -1537,6 +1567,7 @@ export type ProjectUncheckedCreateWithoutPlanPhasesInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutPlanPhasesInput = {
@@ -1590,6 +1621,7 @@ export type ProjectUpdateWithoutPlanPhasesInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutPlanPhasesInput = {
@@ -1628,6 +1660,7 @@ export type ProjectUncheckedUpdateWithoutPlanPhasesInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectCreateWithoutPlanDependenciesInput = {
@@ -1665,6 +1698,7 @@ export type ProjectCreateWithoutPlanDependenciesInput = {
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutPlanDependenciesInput = {
@@ -1703,6 +1737,7 @@ export type ProjectUncheckedCreateWithoutPlanDependenciesInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutPlanDependenciesInput = {
@@ -1756,6 +1791,7 @@ export type ProjectUpdateWithoutPlanDependenciesInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutPlanDependenciesInput = {
@@ -1794,6 +1830,7 @@ export type ProjectUncheckedUpdateWithoutPlanDependenciesInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectCreateWithoutPlanBaselinesInput = {
@@ -1831,6 +1868,7 @@ export type ProjectCreateWithoutPlanBaselinesInput = {
   planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutPlanBaselinesInput = {
@@ -1869,6 +1907,7 @@ export type ProjectUncheckedCreateWithoutPlanBaselinesInput = {
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutPlanBaselinesInput = {
@@ -1922,6 +1961,7 @@ export type ProjectUpdateWithoutPlanBaselinesInput = {
   planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutPlanBaselinesInput = {
@@ -1960,6 +2000,7 @@ export type ProjectUncheckedUpdateWithoutPlanBaselinesInput = {
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectCreateWithoutTasksInput = {
@@ -1997,6 +2038,7 @@ export type ProjectCreateWithoutTasksInput = {
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutTasksInput = {
@@ -2035,6 +2077,7 @@ export type ProjectUncheckedCreateWithoutTasksInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutTasksInput = {
@@ -2077,6 +2120,7 @@ export type ProjectCreateWithoutParentProjectTaskInput = {
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutParentProjectTaskInput = {
@@ -2115,6 +2159,7 @@ export type ProjectUncheckedCreateWithoutParentProjectTaskInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutParentProjectTaskInput = {
@@ -2168,6 +2213,7 @@ export type ProjectUpdateWithoutTasksInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutTasksInput = {
@@ -2206,6 +2252,7 @@ export type ProjectUncheckedUpdateWithoutTasksInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectUpsertWithoutParentProjectTaskInput = {
@@ -2254,6 +2301,7 @@ export type ProjectUpdateWithoutParentProjectTaskInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutParentProjectTaskInput = {
@@ -2277,6 +2325,177 @@ export type ProjectUncheckedUpdateWithoutParentProjectTaskInput = {
   completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employees?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.ProjectTaskUncheckedUpdateManyWithoutProjectNestedInput
+  planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
+  planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
+  planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
+}
+
+export type ProjectCreateWithoutLinkedWorkPlansInput = {
+  code?: string | null
+  name: string
+  description?: string | null
+  projectType?: string
+  projectLevel?: string
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  completionPercent?: number | null
+  closureType?: string | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  leadingDepartment?: Prisma.DepartmentCreateNestedOneWithoutLeadingProjectsInput
+  parentProjectTask?: Prisma.ProjectTaskCreateNestedOneWithoutChildProjectInput
+  employees?: Prisma.EmployeeProjectCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.ProjectTaskCreateNestedManyWithoutProjectInput
+  planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
+  planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
+  planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
+  workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
+  linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutLinkedWorkPlansInput = {
+  id?: number
+  code?: string | null
+  name: string
+  description?: string | null
+  projectType?: string
+  projectLevel?: string
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
+  baselineStartDate?: Date | string | null
+  baselineEndDate?: Date | string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  completionPercent?: number | null
+  closureType?: string | null
+  leadingDepartmentId?: number | null
+  parentProjectTaskId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  createdBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employees?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.ProjectTaskUncheckedCreateNestedManyWithoutProjectInput
+  planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
+  planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
+  planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
+  linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutLinkedWorkPlansInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutLinkedWorkPlansInput, Prisma.ProjectUncheckedCreateWithoutLinkedWorkPlansInput>
+}
+
+export type ProjectUpsertWithoutLinkedWorkPlansInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutLinkedWorkPlansInput, Prisma.ProjectUncheckedUpdateWithoutLinkedWorkPlansInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutLinkedWorkPlansInput, Prisma.ProjectUncheckedCreateWithoutLinkedWorkPlansInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutLinkedWorkPlansInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutLinkedWorkPlansInput, Prisma.ProjectUncheckedUpdateWithoutLinkedWorkPlansInput>
+}
+
+export type ProjectUpdateWithoutLinkedWorkPlansInput = {
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectType?: Prisma.StringFieldUpdateOperationsInput | string
+  projectLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  leadingDepartment?: Prisma.DepartmentUpdateOneWithoutLeadingProjectsNestedInput
+  parentProjectTask?: Prisma.ProjectTaskUpdateOneWithoutChildProjectNestedInput
+  employees?: Prisma.EmployeeProjectUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.ProjectTaskUpdateManyWithoutProjectNestedInput
+  planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
+  planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
+  planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
+  workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
+  linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutLinkedWorkPlansInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectType?: Prisma.StringFieldUpdateOperationsInput | string
+  projectLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baselineStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  baselineEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentProjectTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2329,6 +2548,7 @@ export type ProjectCreateWithoutLinkedWorkItemsInput = {
   planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutLinkedWorkItemsInput = {
@@ -2367,6 +2587,7 @@ export type ProjectUncheckedCreateWithoutLinkedWorkItemsInput = {
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutLinkedWorkItemsInput = {
@@ -2420,6 +2641,7 @@ export type ProjectUpdateWithoutLinkedWorkItemsInput = {
   planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutLinkedWorkItemsInput = {
@@ -2458,6 +2680,7 @@ export type ProjectUncheckedUpdateWithoutLinkedWorkItemsInput = {
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectCreateWithoutWorkAssigneesInput = {
@@ -2495,6 +2718,7 @@ export type ProjectCreateWithoutWorkAssigneesInput = {
   planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutWorkAssigneesInput = {
@@ -2533,6 +2757,7 @@ export type ProjectUncheckedCreateWithoutWorkAssigneesInput = {
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
   linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutWorkAssigneesInput = {
@@ -2586,6 +2811,7 @@ export type ProjectUpdateWithoutWorkAssigneesInput = {
   planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutWorkAssigneesInput = {
@@ -2624,6 +2850,7 @@ export type ProjectUncheckedUpdateWithoutWorkAssigneesInput = {
   planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectCreateManyLeadingDepartmentInput = {
@@ -2692,6 +2919,7 @@ export type ProjectUpdateWithoutLeadingDepartmentInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutLeadingDepartmentInput = {
@@ -2730,6 +2958,7 @@ export type ProjectUncheckedUpdateWithoutLeadingDepartmentInput = {
   planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
   workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
+  linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutLeadingDepartmentInput = {
@@ -2776,6 +3005,7 @@ export type ProjectCountOutputType = {
   planBaselines: number
   workAssignees: number
   linkedWorkItems: number
+  linkedWorkPlans: number
 }
 
 export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2786,6 +3016,7 @@ export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   planBaselines?: boolean | ProjectCountOutputTypeCountPlanBaselinesArgs
   workAssignees?: boolean | ProjectCountOutputTypeCountWorkAssigneesArgs
   linkedWorkItems?: boolean | ProjectCountOutputTypeCountLinkedWorkItemsArgs
+  linkedWorkPlans?: boolean | ProjectCountOutputTypeCountLinkedWorkPlansArgs
 }
 
 /**
@@ -2847,6 +3078,13 @@ export type ProjectCountOutputTypeCountLinkedWorkItemsArgs<ExtArgs extends runti
   where?: Prisma.WorkItemWhereInput
 }
 
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountLinkedWorkPlansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkPlanWhereInput
+}
+
 
 export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2887,6 +3125,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   planBaselines?: boolean | Prisma.Project$planBaselinesArgs<ExtArgs>
   workAssignees?: boolean | Prisma.Project$workAssigneesArgs<ExtArgs>
   linkedWorkItems?: boolean | Prisma.Project$linkedWorkItemsArgs<ExtArgs>
+  linkedWorkPlans?: boolean | Prisma.Project$linkedWorkPlansArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
@@ -3001,6 +3240,7 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   planBaselines?: boolean | Prisma.Project$planBaselinesArgs<ExtArgs>
   workAssignees?: boolean | Prisma.Project$workAssigneesArgs<ExtArgs>
   linkedWorkItems?: boolean | Prisma.Project$linkedWorkItemsArgs<ExtArgs>
+  linkedWorkPlans?: boolean | Prisma.Project$linkedWorkPlansArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3024,6 +3264,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     planBaselines: Prisma.$ProjectPlanBaselinePayload<ExtArgs>[]
     workAssignees: Prisma.$ProjectWorkAssigneePayload<ExtArgs>[]
     linkedWorkItems: Prisma.$WorkItemPayload<ExtArgs>[]
+    linkedWorkPlans: Prisma.$WorkPlanPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -3458,6 +3699,7 @@ export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.
   planBaselines<T extends Prisma.Project$planBaselinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$planBaselinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPlanBaselinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   workAssignees<T extends Prisma.Project$workAssigneesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$workAssigneesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectWorkAssigneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   linkedWorkItems<T extends Prisma.Project$linkedWorkItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$linkedWorkItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  linkedWorkPlans<T extends Prisma.Project$linkedWorkPlansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$linkedWorkPlansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkPlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4118,6 +4360,30 @@ export type Project$linkedWorkItemsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.WorkItemScalarFieldEnum | Prisma.WorkItemScalarFieldEnum[]
+}
+
+/**
+ * Project.linkedWorkPlans
+ */
+export type Project$linkedWorkPlansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkPlan
+   */
+  select?: Prisma.WorkPlanSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkPlan
+   */
+  omit?: Prisma.WorkPlanOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkPlanInclude<ExtArgs> | null
+  where?: Prisma.WorkPlanWhereInput
+  orderBy?: Prisma.WorkPlanOrderByWithRelationInput | Prisma.WorkPlanOrderByWithRelationInput[]
+  cursor?: Prisma.WorkPlanWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkPlanScalarFieldEnum | Prisma.WorkPlanScalarFieldEnum[]
 }
 
 /**

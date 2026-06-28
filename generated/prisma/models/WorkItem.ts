@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model WorkItem
- * 工作清单条目
+ * 工作计划内节点
  */
 export type WorkItemModel = runtime.Types.Result.DefaultSelection<Prisma.$WorkItemPayload>
 
@@ -28,6 +28,7 @@ export type AggregateWorkItem = {
 
 export type WorkItemAvgAggregateOutputType = {
   id: number | null
+  planId: number | null
   targetId: number | null
   importance: number | null
   urgency: number | null
@@ -47,6 +48,7 @@ export type WorkItemAvgAggregateOutputType = {
 
 export type WorkItemSumAggregateOutputType = {
   id: number | null
+  planId: number | null
   targetId: number | null
   importance: number | null
   urgency: number | null
@@ -66,6 +68,7 @@ export type WorkItemSumAggregateOutputType = {
 
 export type WorkItemMinAggregateOutputType = {
   id: number | null
+  planId: number | null
   targetType: string | null
   targetId: number | null
   category: string | null
@@ -102,6 +105,7 @@ export type WorkItemMinAggregateOutputType = {
 
 export type WorkItemMaxAggregateOutputType = {
   id: number | null
+  planId: number | null
   targetType: string | null
   targetId: number | null
   category: string | null
@@ -138,6 +142,7 @@ export type WorkItemMaxAggregateOutputType = {
 
 export type WorkItemCountAggregateOutputType = {
   id: number
+  planId: number
   targetType: number
   targetId: number
   category: number
@@ -176,6 +181,7 @@ export type WorkItemCountAggregateOutputType = {
 
 export type WorkItemAvgAggregateInputType = {
   id?: true
+  planId?: true
   targetId?: true
   importance?: true
   urgency?: true
@@ -195,6 +201,7 @@ export type WorkItemAvgAggregateInputType = {
 
 export type WorkItemSumAggregateInputType = {
   id?: true
+  planId?: true
   targetId?: true
   importance?: true
   urgency?: true
@@ -214,6 +221,7 @@ export type WorkItemSumAggregateInputType = {
 
 export type WorkItemMinAggregateInputType = {
   id?: true
+  planId?: true
   targetType?: true
   targetId?: true
   category?: true
@@ -250,6 +258,7 @@ export type WorkItemMinAggregateInputType = {
 
 export type WorkItemMaxAggregateInputType = {
   id?: true
+  planId?: true
   targetType?: true
   targetId?: true
   category?: true
@@ -286,6 +295,7 @@ export type WorkItemMaxAggregateInputType = {
 
 export type WorkItemCountAggregateInputType = {
   id?: true
+  planId?: true
   targetType?: true
   targetId?: true
   category?: true
@@ -409,6 +419,7 @@ export type WorkItemGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 
 export type WorkItemGroupByOutputType = {
   id: number
+  planId: number | null
   targetType: string
   targetId: number | null
   category: string
@@ -468,6 +479,7 @@ export type WorkItemWhereInput = {
   OR?: Prisma.WorkItemWhereInput[]
   NOT?: Prisma.WorkItemWhereInput | Prisma.WorkItemWhereInput[]
   id?: Prisma.IntFilter<"WorkItem"> | number
+  planId?: Prisma.IntNullableFilter<"WorkItem"> | number | null
   targetType?: Prisma.StringFilter<"WorkItem"> | string
   targetId?: Prisma.IntNullableFilter<"WorkItem"> | number | null
   category?: Prisma.StringFilter<"WorkItem"> | string
@@ -500,6 +512,7 @@ export type WorkItemWhereInput = {
   isPrivate?: Prisma.BoolFilter<"WorkItem"> | boolean
   sortOrder?: Prisma.IntFilter<"WorkItem"> | number
   createdAt?: Prisma.DateTimeFilter<"WorkItem"> | Date | string
+  plan?: Prisma.XOR<Prisma.WorkPlanNullableScalarRelationFilter, Prisma.WorkPlanWhereInput> | null
   participants?: Prisma.WorkParticipantListRelationFilter
   owner?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
   linkedProject?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
@@ -516,6 +529,7 @@ export type WorkItemWhereInput = {
 
 export type WorkItemOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  planId?: Prisma.SortOrderInput | Prisma.SortOrder
   targetType?: Prisma.SortOrder
   targetId?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrder
@@ -548,6 +562,7 @@ export type WorkItemOrderByWithRelationInput = {
   isPrivate?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  plan?: Prisma.WorkPlanOrderByWithRelationInput
   participants?: Prisma.WorkParticipantOrderByRelationAggregateInput
   owner?: Prisma.EmployeeOrderByWithRelationInput
   linkedProject?: Prisma.ProjectOrderByWithRelationInput
@@ -567,6 +582,7 @@ export type WorkItemWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.WorkItemWhereInput | Prisma.WorkItemWhereInput[]
   OR?: Prisma.WorkItemWhereInput[]
   NOT?: Prisma.WorkItemWhereInput | Prisma.WorkItemWhereInput[]
+  planId?: Prisma.IntNullableFilter<"WorkItem"> | number | null
   targetType?: Prisma.StringFilter<"WorkItem"> | string
   targetId?: Prisma.IntNullableFilter<"WorkItem"> | number | null
   category?: Prisma.StringFilter<"WorkItem"> | string
@@ -599,6 +615,7 @@ export type WorkItemWhereUniqueInput = Prisma.AtLeast<{
   isPrivate?: Prisma.BoolFilter<"WorkItem"> | boolean
   sortOrder?: Prisma.IntFilter<"WorkItem"> | number
   createdAt?: Prisma.DateTimeFilter<"WorkItem"> | Date | string
+  plan?: Prisma.XOR<Prisma.WorkPlanNullableScalarRelationFilter, Prisma.WorkPlanWhereInput> | null
   participants?: Prisma.WorkParticipantListRelationFilter
   owner?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
   linkedProject?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
@@ -615,6 +632,7 @@ export type WorkItemWhereUniqueInput = Prisma.AtLeast<{
 
 export type WorkItemOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  planId?: Prisma.SortOrderInput | Prisma.SortOrder
   targetType?: Prisma.SortOrder
   targetId?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrder
@@ -659,6 +677,7 @@ export type WorkItemScalarWhereWithAggregatesInput = {
   OR?: Prisma.WorkItemScalarWhereWithAggregatesInput[]
   NOT?: Prisma.WorkItemScalarWhereWithAggregatesInput | Prisma.WorkItemScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"WorkItem"> | number
+  planId?: Prisma.IntNullableWithAggregatesFilter<"WorkItem"> | number | null
   targetType?: Prisma.StringWithAggregatesFilter<"WorkItem"> | string
   targetId?: Prisma.IntNullableWithAggregatesFilter<"WorkItem"> | number | null
   category?: Prisma.StringWithAggregatesFilter<"WorkItem"> | string
@@ -718,6 +737,7 @@ export type WorkItemCreateInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
   linkedProject?: Prisma.ProjectCreateNestedOneWithoutLinkedWorkItemsInput
@@ -734,6 +754,7 @@ export type WorkItemCreateInput = {
 
 export type WorkItemUncheckedCreateInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -797,6 +818,7 @@ export type WorkItemUpdateInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
   linkedProject?: Prisma.ProjectUpdateOneWithoutLinkedWorkItemsNestedInput
@@ -813,6 +835,7 @@ export type WorkItemUpdateInput = {
 
 export type WorkItemUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -853,6 +876,7 @@ export type WorkItemUncheckedUpdateInput = {
 
 export type WorkItemCreateManyInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -916,6 +940,7 @@ export type WorkItemUpdateManyMutationInput = {
 
 export type WorkItemUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -967,6 +992,7 @@ export type WorkItemNullableScalarRelationFilter = {
 
 export type WorkItemCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  planId?: Prisma.SortOrder
   targetType?: Prisma.SortOrder
   targetId?: Prisma.SortOrder
   category?: Prisma.SortOrder
@@ -1003,6 +1029,7 @@ export type WorkItemCountOrderByAggregateInput = {
 
 export type WorkItemAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  planId?: Prisma.SortOrder
   targetId?: Prisma.SortOrder
   importance?: Prisma.SortOrder
   urgency?: Prisma.SortOrder
@@ -1022,6 +1049,7 @@ export type WorkItemAvgOrderByAggregateInput = {
 
 export type WorkItemMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  planId?: Prisma.SortOrder
   targetType?: Prisma.SortOrder
   targetId?: Prisma.SortOrder
   category?: Prisma.SortOrder
@@ -1058,6 +1086,7 @@ export type WorkItemMaxOrderByAggregateInput = {
 
 export type WorkItemMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  planId?: Prisma.SortOrder
   targetType?: Prisma.SortOrder
   targetId?: Prisma.SortOrder
   category?: Prisma.SortOrder
@@ -1094,6 +1123,7 @@ export type WorkItemMinOrderByAggregateInput = {
 
 export type WorkItemSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  planId?: Prisma.SortOrder
   targetId?: Prisma.SortOrder
   importance?: Prisma.SortOrder
   urgency?: Prisma.SortOrder
@@ -1426,6 +1456,48 @@ export type WorkItemUncheckedUpdateManyWithoutLinkedProjectTaskNestedInput = {
   deleteMany?: Prisma.WorkItemScalarWhereInput | Prisma.WorkItemScalarWhereInput[]
 }
 
+export type WorkItemCreateNestedManyWithoutPlanInput = {
+  create?: Prisma.XOR<Prisma.WorkItemCreateWithoutPlanInput, Prisma.WorkItemUncheckedCreateWithoutPlanInput> | Prisma.WorkItemCreateWithoutPlanInput[] | Prisma.WorkItemUncheckedCreateWithoutPlanInput[]
+  connectOrCreate?: Prisma.WorkItemCreateOrConnectWithoutPlanInput | Prisma.WorkItemCreateOrConnectWithoutPlanInput[]
+  createMany?: Prisma.WorkItemCreateManyPlanInputEnvelope
+  connect?: Prisma.WorkItemWhereUniqueInput | Prisma.WorkItemWhereUniqueInput[]
+}
+
+export type WorkItemUncheckedCreateNestedManyWithoutPlanInput = {
+  create?: Prisma.XOR<Prisma.WorkItemCreateWithoutPlanInput, Prisma.WorkItemUncheckedCreateWithoutPlanInput> | Prisma.WorkItemCreateWithoutPlanInput[] | Prisma.WorkItemUncheckedCreateWithoutPlanInput[]
+  connectOrCreate?: Prisma.WorkItemCreateOrConnectWithoutPlanInput | Prisma.WorkItemCreateOrConnectWithoutPlanInput[]
+  createMany?: Prisma.WorkItemCreateManyPlanInputEnvelope
+  connect?: Prisma.WorkItemWhereUniqueInput | Prisma.WorkItemWhereUniqueInput[]
+}
+
+export type WorkItemUpdateManyWithoutPlanNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkItemCreateWithoutPlanInput, Prisma.WorkItemUncheckedCreateWithoutPlanInput> | Prisma.WorkItemCreateWithoutPlanInput[] | Prisma.WorkItemUncheckedCreateWithoutPlanInput[]
+  connectOrCreate?: Prisma.WorkItemCreateOrConnectWithoutPlanInput | Prisma.WorkItemCreateOrConnectWithoutPlanInput[]
+  upsert?: Prisma.WorkItemUpsertWithWhereUniqueWithoutPlanInput | Prisma.WorkItemUpsertWithWhereUniqueWithoutPlanInput[]
+  createMany?: Prisma.WorkItemCreateManyPlanInputEnvelope
+  set?: Prisma.WorkItemWhereUniqueInput | Prisma.WorkItemWhereUniqueInput[]
+  disconnect?: Prisma.WorkItemWhereUniqueInput | Prisma.WorkItemWhereUniqueInput[]
+  delete?: Prisma.WorkItemWhereUniqueInput | Prisma.WorkItemWhereUniqueInput[]
+  connect?: Prisma.WorkItemWhereUniqueInput | Prisma.WorkItemWhereUniqueInput[]
+  update?: Prisma.WorkItemUpdateWithWhereUniqueWithoutPlanInput | Prisma.WorkItemUpdateWithWhereUniqueWithoutPlanInput[]
+  updateMany?: Prisma.WorkItemUpdateManyWithWhereWithoutPlanInput | Prisma.WorkItemUpdateManyWithWhereWithoutPlanInput[]
+  deleteMany?: Prisma.WorkItemScalarWhereInput | Prisma.WorkItemScalarWhereInput[]
+}
+
+export type WorkItemUncheckedUpdateManyWithoutPlanNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkItemCreateWithoutPlanInput, Prisma.WorkItemUncheckedCreateWithoutPlanInput> | Prisma.WorkItemCreateWithoutPlanInput[] | Prisma.WorkItemUncheckedCreateWithoutPlanInput[]
+  connectOrCreate?: Prisma.WorkItemCreateOrConnectWithoutPlanInput | Prisma.WorkItemCreateOrConnectWithoutPlanInput[]
+  upsert?: Prisma.WorkItemUpsertWithWhereUniqueWithoutPlanInput | Prisma.WorkItemUpsertWithWhereUniqueWithoutPlanInput[]
+  createMany?: Prisma.WorkItemCreateManyPlanInputEnvelope
+  set?: Prisma.WorkItemWhereUniqueInput | Prisma.WorkItemWhereUniqueInput[]
+  disconnect?: Prisma.WorkItemWhereUniqueInput | Prisma.WorkItemWhereUniqueInput[]
+  delete?: Prisma.WorkItemWhereUniqueInput | Prisma.WorkItemWhereUniqueInput[]
+  connect?: Prisma.WorkItemWhereUniqueInput | Prisma.WorkItemWhereUniqueInput[]
+  update?: Prisma.WorkItemUpdateWithWhereUniqueWithoutPlanInput | Prisma.WorkItemUpdateWithWhereUniqueWithoutPlanInput[]
+  updateMany?: Prisma.WorkItemUpdateManyWithWhereWithoutPlanInput | Prisma.WorkItemUpdateManyWithWhereWithoutPlanInput[]
+  deleteMany?: Prisma.WorkItemScalarWhereInput | Prisma.WorkItemScalarWhereInput[]
+}
+
 export type WorkItemCreateNestedOneWithoutChildWorkItemsInput = {
   create?: Prisma.XOR<Prisma.WorkItemCreateWithoutChildWorkItemsInput, Prisma.WorkItemUncheckedCreateWithoutChildWorkItemsInput>
   connectOrCreate?: Prisma.WorkItemCreateOrConnectWithoutChildWorkItemsInput
@@ -1539,6 +1611,7 @@ export type WorkItemCreateWithoutOwnerInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   linkedProject?: Prisma.ProjectCreateNestedOneWithoutLinkedWorkItemsInput
   linkedProjectPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutLinkedWorkItemsInput
@@ -1554,6 +1627,7 @@ export type WorkItemCreateWithoutOwnerInput = {
 
 export type WorkItemUncheckedCreateWithoutOwnerInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -1621,6 +1695,7 @@ export type WorkItemScalarWhereInput = {
   OR?: Prisma.WorkItemScalarWhereInput[]
   NOT?: Prisma.WorkItemScalarWhereInput | Prisma.WorkItemScalarWhereInput[]
   id?: Prisma.IntFilter<"WorkItem"> | number
+  planId?: Prisma.IntNullableFilter<"WorkItem"> | number | null
   targetType?: Prisma.StringFilter<"WorkItem"> | string
   targetId?: Prisma.IntNullableFilter<"WorkItem"> | number | null
   category?: Prisma.StringFilter<"WorkItem"> | string
@@ -1680,6 +1755,7 @@ export type WorkItemCreateWithoutSourceMeetingInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
   linkedProject?: Prisma.ProjectCreateNestedOneWithoutLinkedWorkItemsInput
@@ -1695,6 +1771,7 @@ export type WorkItemCreateWithoutSourceMeetingInput = {
 
 export type WorkItemUncheckedCreateWithoutSourceMeetingInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -1782,6 +1859,7 @@ export type WorkItemCreateWithoutSourceMeetingDecisionInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
   linkedProject?: Prisma.ProjectCreateNestedOneWithoutLinkedWorkItemsInput
@@ -1797,6 +1875,7 @@ export type WorkItemCreateWithoutSourceMeetingDecisionInput = {
 
 export type WorkItemUncheckedCreateWithoutSourceMeetingDecisionInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -1884,6 +1963,7 @@ export type WorkItemCreateWithoutMeetingActionCandidatesInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
   linkedProject?: Prisma.ProjectCreateNestedOneWithoutLinkedWorkItemsInput
@@ -1899,6 +1979,7 @@ export type WorkItemCreateWithoutMeetingActionCandidatesInput = {
 
 export type WorkItemUncheckedCreateWithoutMeetingActionCandidatesInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -1966,6 +2047,7 @@ export type WorkItemCreateWithoutSourceMeetingActionCandidateInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
   linkedProject?: Prisma.ProjectCreateNestedOneWithoutLinkedWorkItemsInput
@@ -1981,6 +2063,7 @@ export type WorkItemCreateWithoutSourceMeetingActionCandidateInput = {
 
 export type WorkItemUncheckedCreateWithoutSourceMeetingActionCandidateInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -2063,6 +2146,7 @@ export type WorkItemUpdateWithoutMeetingActionCandidatesInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
   linkedProject?: Prisma.ProjectUpdateOneWithoutLinkedWorkItemsNestedInput
@@ -2078,6 +2162,7 @@ export type WorkItemUpdateWithoutMeetingActionCandidatesInput = {
 
 export type WorkItemUncheckedUpdateWithoutMeetingActionCandidatesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2156,6 +2241,7 @@ export type WorkItemCreateWithoutLinkedProjectInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
   linkedProjectPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutLinkedWorkItemsInput
@@ -2171,6 +2257,7 @@ export type WorkItemCreateWithoutLinkedProjectInput = {
 
 export type WorkItemUncheckedCreateWithoutLinkedProjectInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -2258,6 +2345,7 @@ export type WorkItemCreateWithoutLinkedProjectPhaseInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
   linkedProject?: Prisma.ProjectCreateNestedOneWithoutLinkedWorkItemsInput
@@ -2273,6 +2361,7 @@ export type WorkItemCreateWithoutLinkedProjectPhaseInput = {
 
 export type WorkItemUncheckedCreateWithoutLinkedProjectPhaseInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -2360,6 +2449,7 @@ export type WorkItemCreateWithoutLinkedProjectTaskInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
   linkedProject?: Prisma.ProjectCreateNestedOneWithoutLinkedWorkItemsInput
@@ -2375,6 +2465,7 @@ export type WorkItemCreateWithoutLinkedProjectTaskInput = {
 
 export type WorkItemUncheckedCreateWithoutLinkedProjectTaskInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -2437,7 +2528,7 @@ export type WorkItemUpdateManyWithWhereWithoutLinkedProjectTaskInput = {
   data: Prisma.XOR<Prisma.WorkItemUpdateManyMutationInput, Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectTaskInput>
 }
 
-export type WorkItemCreateWithoutChildWorkItemsInput = {
+export type WorkItemCreateWithoutPlanInput = {
   targetType?: string
   targetId?: number | null
   category: string
@@ -2471,12 +2562,118 @@ export type WorkItemCreateWithoutChildWorkItemsInput = {
   sourceMeetingDecision?: Prisma.MeetingDecisionCreateNestedOneWithoutSourceWorkItemsInput
   sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateCreateNestedOneWithoutSourceWorkItemsInput
   parentWorkItem?: Prisma.WorkItemCreateNestedOneWithoutChildWorkItemsInput
+  childWorkItems?: Prisma.WorkItemCreateNestedManyWithoutParentWorkItemInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkItemInput
+  reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkItemInput
+}
+
+export type WorkItemUncheckedCreateWithoutPlanInput = {
+  id?: number
+  targetType?: string
+  targetId?: number | null
+  category: string
+  itemType?: string
+  content: string
+  description?: string
+  importance?: number
+  urgency?: number
+  status?: string | null
+  krStartValue?: number | null
+  krTargetValue?: number | null
+  krCurrentValue?: number | null
+  krUnit?: string | null
+  ownerEmployeeId?: number | null
+  startDate?: Date | string | null
+  dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
+  sourceType?: string
+  sourceKind?: string | null
+  sourceMeetingId?: number | null
+  sourceMeetingDecisionId?: number | null
+  sourceMeetingActionCandidateId?: number | null
+  linkedProjectId?: number | null
+  linkedProjectPhaseId?: number | null
+  linkedProjectTaskId?: number | null
+  parentWorkItemId?: number | null
+  isArchived?: boolean
+  isPrivate?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
+  childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkItemInput
+  reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkItemInput
+}
+
+export type WorkItemCreateOrConnectWithoutPlanInput = {
+  where: Prisma.WorkItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkItemCreateWithoutPlanInput, Prisma.WorkItemUncheckedCreateWithoutPlanInput>
+}
+
+export type WorkItemCreateManyPlanInputEnvelope = {
+  data: Prisma.WorkItemCreateManyPlanInput | Prisma.WorkItemCreateManyPlanInput[]
+}
+
+export type WorkItemUpsertWithWhereUniqueWithoutPlanInput = {
+  where: Prisma.WorkItemWhereUniqueInput
+  update: Prisma.XOR<Prisma.WorkItemUpdateWithoutPlanInput, Prisma.WorkItemUncheckedUpdateWithoutPlanInput>
+  create: Prisma.XOR<Prisma.WorkItemCreateWithoutPlanInput, Prisma.WorkItemUncheckedCreateWithoutPlanInput>
+}
+
+export type WorkItemUpdateWithWhereUniqueWithoutPlanInput = {
+  where: Prisma.WorkItemWhereUniqueInput
+  data: Prisma.XOR<Prisma.WorkItemUpdateWithoutPlanInput, Prisma.WorkItemUncheckedUpdateWithoutPlanInput>
+}
+
+export type WorkItemUpdateManyWithWhereWithoutPlanInput = {
+  where: Prisma.WorkItemScalarWhereInput
+  data: Prisma.XOR<Prisma.WorkItemUpdateManyMutationInput, Prisma.WorkItemUncheckedUpdateManyWithoutPlanInput>
+}
+
+export type WorkItemCreateWithoutChildWorkItemsInput = {
+  targetType?: string
+  targetId?: number | null
+  category: string
+  itemType?: string
+  content: string
+  description?: string
+  importance?: number
+  urgency?: number
+  status?: string | null
+  krStartValue?: number | null
+  krTargetValue?: number | null
+  krCurrentValue?: number | null
+  krUnit?: string | null
+  startDate?: Date | string | null
+  dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
+  sourceType?: string
+  sourceKind?: string | null
+  isArchived?: boolean
+  isPrivate?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
+  participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
+  owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
+  linkedProject?: Prisma.ProjectCreateNestedOneWithoutLinkedWorkItemsInput
+  linkedProjectPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutLinkedWorkItemsInput
+  linkedProjectTask?: Prisma.ProjectTaskCreateNestedOneWithoutLinkedWorkItemsInput
+  sourceMeeting?: Prisma.MeetingCreateNestedOneWithoutSourceWorkItemsInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionCreateNestedOneWithoutSourceWorkItemsInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateCreateNestedOneWithoutSourceWorkItemsInput
+  parentWorkItem?: Prisma.WorkItemCreateNestedOneWithoutChildWorkItemsInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkItemInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkItemInput
 }
 
 export type WorkItemUncheckedCreateWithoutChildWorkItemsInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -2544,6 +2741,7 @@ export type WorkItemCreateWithoutParentWorkItemInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
   linkedProject?: Prisma.ProjectCreateNestedOneWithoutLinkedWorkItemsInput
@@ -2559,6 +2757,7 @@ export type WorkItemCreateWithoutParentWorkItemInput = {
 
 export type WorkItemUncheckedCreateWithoutParentWorkItemInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -2641,6 +2840,7 @@ export type WorkItemUpdateWithoutChildWorkItemsInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
   linkedProject?: Prisma.ProjectUpdateOneWithoutLinkedWorkItemsNestedInput
@@ -2656,6 +2856,7 @@ export type WorkItemUpdateWithoutChildWorkItemsInput = {
 
 export type WorkItemUncheckedUpdateWithoutChildWorkItemsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2734,6 +2935,7 @@ export type WorkItemCreateWithoutParticipantsInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
   linkedProject?: Prisma.ProjectCreateNestedOneWithoutLinkedWorkItemsInput
   linkedProjectPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutLinkedWorkItemsInput
@@ -2749,6 +2951,7 @@ export type WorkItemCreateWithoutParticipantsInput = {
 
 export type WorkItemUncheckedCreateWithoutParticipantsInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -2827,6 +3030,7 @@ export type WorkItemUpdateWithoutParticipantsInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
   linkedProject?: Prisma.ProjectUpdateOneWithoutLinkedWorkItemsNestedInput
   linkedProjectPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutLinkedWorkItemsNestedInput
@@ -2842,6 +3046,7 @@ export type WorkItemUpdateWithoutParticipantsInput = {
 
 export type WorkItemUncheckedUpdateWithoutParticipantsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2904,6 +3109,7 @@ export type WorkItemCreateWithoutReportItemsInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
   linkedProject?: Prisma.ProjectCreateNestedOneWithoutLinkedWorkItemsInput
@@ -2919,6 +3125,7 @@ export type WorkItemCreateWithoutReportItemsInput = {
 
 export type WorkItemUncheckedCreateWithoutReportItemsInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -2997,6 +3204,7 @@ export type WorkItemUpdateWithoutReportItemsInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
   linkedProject?: Prisma.ProjectUpdateOneWithoutLinkedWorkItemsNestedInput
@@ -3012,6 +3220,7 @@ export type WorkItemUpdateWithoutReportItemsInput = {
 
 export type WorkItemUncheckedUpdateWithoutReportItemsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3051,6 +3260,7 @@ export type WorkItemUncheckedUpdateWithoutReportItemsInput = {
 
 export type WorkItemCreateManyOwnerInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -3109,6 +3319,7 @@ export type WorkItemUpdateWithoutOwnerInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   linkedProject?: Prisma.ProjectUpdateOneWithoutLinkedWorkItemsNestedInput
   linkedProjectPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutLinkedWorkItemsNestedInput
@@ -3124,6 +3335,7 @@ export type WorkItemUpdateWithoutOwnerInput = {
 
 export type WorkItemUncheckedUpdateWithoutOwnerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3163,6 +3375,7 @@ export type WorkItemUncheckedUpdateWithoutOwnerInput = {
 
 export type WorkItemUncheckedUpdateManyWithoutOwnerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3198,6 +3411,7 @@ export type WorkItemUncheckedUpdateManyWithoutOwnerInput = {
 
 export type WorkItemCreateManySourceMeetingInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -3256,6 +3470,7 @@ export type WorkItemUpdateWithoutSourceMeetingInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
   linkedProject?: Prisma.ProjectUpdateOneWithoutLinkedWorkItemsNestedInput
@@ -3271,6 +3486,7 @@ export type WorkItemUpdateWithoutSourceMeetingInput = {
 
 export type WorkItemUncheckedUpdateWithoutSourceMeetingInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3310,6 +3526,7 @@ export type WorkItemUncheckedUpdateWithoutSourceMeetingInput = {
 
 export type WorkItemUncheckedUpdateManyWithoutSourceMeetingInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3345,6 +3562,7 @@ export type WorkItemUncheckedUpdateManyWithoutSourceMeetingInput = {
 
 export type WorkItemCreateManySourceMeetingDecisionInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -3403,6 +3621,7 @@ export type WorkItemUpdateWithoutSourceMeetingDecisionInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
   linkedProject?: Prisma.ProjectUpdateOneWithoutLinkedWorkItemsNestedInput
@@ -3418,6 +3637,7 @@ export type WorkItemUpdateWithoutSourceMeetingDecisionInput = {
 
 export type WorkItemUncheckedUpdateWithoutSourceMeetingDecisionInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3457,6 +3677,7 @@ export type WorkItemUncheckedUpdateWithoutSourceMeetingDecisionInput = {
 
 export type WorkItemUncheckedUpdateManyWithoutSourceMeetingDecisionInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3492,6 +3713,7 @@ export type WorkItemUncheckedUpdateManyWithoutSourceMeetingDecisionInput = {
 
 export type WorkItemCreateManySourceMeetingActionCandidateInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -3550,6 +3772,7 @@ export type WorkItemUpdateWithoutSourceMeetingActionCandidateInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
   linkedProject?: Prisma.ProjectUpdateOneWithoutLinkedWorkItemsNestedInput
@@ -3565,6 +3788,7 @@ export type WorkItemUpdateWithoutSourceMeetingActionCandidateInput = {
 
 export type WorkItemUncheckedUpdateWithoutSourceMeetingActionCandidateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3604,6 +3828,7 @@ export type WorkItemUncheckedUpdateWithoutSourceMeetingActionCandidateInput = {
 
 export type WorkItemUncheckedUpdateManyWithoutSourceMeetingActionCandidateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3639,6 +3864,7 @@ export type WorkItemUncheckedUpdateManyWithoutSourceMeetingActionCandidateInput 
 
 export type WorkItemCreateManyLinkedProjectInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -3697,6 +3923,7 @@ export type WorkItemUpdateWithoutLinkedProjectInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
   linkedProjectPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutLinkedWorkItemsNestedInput
@@ -3712,6 +3939,7 @@ export type WorkItemUpdateWithoutLinkedProjectInput = {
 
 export type WorkItemUncheckedUpdateWithoutLinkedProjectInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3751,6 +3979,7 @@ export type WorkItemUncheckedUpdateWithoutLinkedProjectInput = {
 
 export type WorkItemUncheckedUpdateManyWithoutLinkedProjectInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3786,6 +4015,7 @@ export type WorkItemUncheckedUpdateManyWithoutLinkedProjectInput = {
 
 export type WorkItemCreateManyLinkedProjectPhaseInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -3844,6 +4074,7 @@ export type WorkItemUpdateWithoutLinkedProjectPhaseInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
   linkedProject?: Prisma.ProjectUpdateOneWithoutLinkedWorkItemsNestedInput
@@ -3859,6 +4090,7 @@ export type WorkItemUpdateWithoutLinkedProjectPhaseInput = {
 
 export type WorkItemUncheckedUpdateWithoutLinkedProjectPhaseInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3898,6 +4130,7 @@ export type WorkItemUncheckedUpdateWithoutLinkedProjectPhaseInput = {
 
 export type WorkItemUncheckedUpdateManyWithoutLinkedProjectPhaseInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3933,6 +4166,7 @@ export type WorkItemUncheckedUpdateManyWithoutLinkedProjectPhaseInput = {
 
 export type WorkItemCreateManyLinkedProjectTaskInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -3991,6 +4225,7 @@ export type WorkItemUpdateWithoutLinkedProjectTaskInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
   linkedProject?: Prisma.ProjectUpdateOneWithoutLinkedWorkItemsNestedInput
@@ -4006,6 +4241,7 @@ export type WorkItemUpdateWithoutLinkedProjectTaskInput = {
 
 export type WorkItemUncheckedUpdateWithoutLinkedProjectTaskInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4045,6 +4281,7 @@ export type WorkItemUncheckedUpdateWithoutLinkedProjectTaskInput = {
 
 export type WorkItemUncheckedUpdateManyWithoutLinkedProjectTaskInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4078,8 +4315,160 @@ export type WorkItemUncheckedUpdateManyWithoutLinkedProjectTaskInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type WorkItemCreateManyPlanInput = {
+  id?: number
+  targetType?: string
+  targetId?: number | null
+  category: string
+  itemType?: string
+  content: string
+  description?: string
+  importance?: number
+  urgency?: number
+  status?: string | null
+  krStartValue?: number | null
+  krTargetValue?: number | null
+  krCurrentValue?: number | null
+  krUnit?: string | null
+  ownerEmployeeId?: number | null
+  startDate?: Date | string | null
+  dueDate?: Date | string | null
+  periodType?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
+  sourceType?: string
+  sourceKind?: string | null
+  sourceMeetingId?: number | null
+  sourceMeetingDecisionId?: number | null
+  sourceMeetingActionCandidateId?: number | null
+  linkedProjectId?: number | null
+  linkedProjectPhaseId?: number | null
+  linkedProjectTaskId?: number | null
+  parentWorkItemId?: number | null
+  isArchived?: boolean
+  isPrivate?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+}
+
+export type WorkItemUpdateWithoutPlanInput = {
+  targetType?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  itemType?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  importance?: Prisma.IntFieldUpdateOperationsInput | number
+  urgency?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  krStartValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  krTargetValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  krCurrentValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  krUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
+  owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
+  linkedProject?: Prisma.ProjectUpdateOneWithoutLinkedWorkItemsNestedInput
+  linkedProjectPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutLinkedWorkItemsNestedInput
+  linkedProjectTask?: Prisma.ProjectTaskUpdateOneWithoutLinkedWorkItemsNestedInput
+  sourceMeeting?: Prisma.MeetingUpdateOneWithoutSourceWorkItemsNestedInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionUpdateOneWithoutSourceWorkItemsNestedInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateUpdateOneWithoutSourceWorkItemsNestedInput
+  parentWorkItem?: Prisma.WorkItemUpdateOneWithoutChildWorkItemsNestedInput
+  childWorkItems?: Prisma.WorkItemUpdateManyWithoutParentWorkItemNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkItemNestedInput
+  reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkItemNestedInput
+}
+
+export type WorkItemUncheckedUpdateWithoutPlanInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  targetType?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  itemType?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  importance?: Prisma.IntFieldUpdateOperationsInput | number
+  urgency?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  krStartValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  krTargetValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  krCurrentValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  krUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMeetingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingDecisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingActionCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  linkedProjectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  linkedProjectPhaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  linkedProjectTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentWorkItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
+  childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkItemNestedInput
+  reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkItemNestedInput
+}
+
+export type WorkItemUncheckedUpdateManyWithoutPlanInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  targetType?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  itemType?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  importance?: Prisma.IntFieldUpdateOperationsInput | number
+  urgency?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  krStartValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  krTargetValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  krCurrentValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  krUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMeetingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingDecisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingActionCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  linkedProjectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  linkedProjectPhaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  linkedProjectTaskId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentWorkItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type WorkItemCreateManyParentWorkItemInput = {
   id?: number
+  planId?: number | null
   targetType?: string
   targetId?: number | null
   category: string
@@ -4138,6 +4527,7 @@ export type WorkItemUpdateWithoutParentWorkItemInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
   linkedProject?: Prisma.ProjectUpdateOneWithoutLinkedWorkItemsNestedInput
@@ -4153,6 +4543,7 @@ export type WorkItemUpdateWithoutParentWorkItemInput = {
 
 export type WorkItemUncheckedUpdateWithoutParentWorkItemInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4192,6 +4583,7 @@ export type WorkItemUncheckedUpdateWithoutParentWorkItemInput = {
 
 export type WorkItemUncheckedUpdateManyWithoutParentWorkItemInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4285,6 +4677,7 @@ export type WorkItemCountOutputTypeCountReportItemsArgs<ExtArgs extends runtime.
 
 export type WorkItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  planId?: boolean
   targetType?: boolean
   targetId?: boolean
   category?: boolean
@@ -4317,6 +4710,7 @@ export type WorkItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   isPrivate?: boolean
   sortOrder?: boolean
   createdAt?: boolean
+  plan?: boolean | Prisma.WorkItem$planArgs<ExtArgs>
   participants?: boolean | Prisma.WorkItem$participantsArgs<ExtArgs>
   owner?: boolean | Prisma.WorkItem$ownerArgs<ExtArgs>
   linkedProject?: boolean | Prisma.WorkItem$linkedProjectArgs<ExtArgs>
@@ -4334,6 +4728,7 @@ export type WorkItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
 
 export type WorkItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  planId?: boolean
   targetType?: boolean
   targetId?: boolean
   category?: boolean
@@ -4366,6 +4761,7 @@ export type WorkItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   isPrivate?: boolean
   sortOrder?: boolean
   createdAt?: boolean
+  plan?: boolean | Prisma.WorkItem$planArgs<ExtArgs>
   owner?: boolean | Prisma.WorkItem$ownerArgs<ExtArgs>
   linkedProject?: boolean | Prisma.WorkItem$linkedProjectArgs<ExtArgs>
   linkedProjectPhase?: boolean | Prisma.WorkItem$linkedProjectPhaseArgs<ExtArgs>
@@ -4378,6 +4774,7 @@ export type WorkItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
 
 export type WorkItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  planId?: boolean
   targetType?: boolean
   targetId?: boolean
   category?: boolean
@@ -4410,6 +4807,7 @@ export type WorkItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   isPrivate?: boolean
   sortOrder?: boolean
   createdAt?: boolean
+  plan?: boolean | Prisma.WorkItem$planArgs<ExtArgs>
   owner?: boolean | Prisma.WorkItem$ownerArgs<ExtArgs>
   linkedProject?: boolean | Prisma.WorkItem$linkedProjectArgs<ExtArgs>
   linkedProjectPhase?: boolean | Prisma.WorkItem$linkedProjectPhaseArgs<ExtArgs>
@@ -4422,6 +4820,7 @@ export type WorkItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 
 export type WorkItemSelectScalar = {
   id?: boolean
+  planId?: boolean
   targetType?: boolean
   targetId?: boolean
   category?: boolean
@@ -4456,8 +4855,9 @@ export type WorkItemSelectScalar = {
   createdAt?: boolean
 }
 
-export type WorkItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "targetType" | "targetId" | "category" | "itemType" | "content" | "description" | "importance" | "urgency" | "status" | "krStartValue" | "krTargetValue" | "krCurrentValue" | "krUnit" | "ownerEmployeeId" | "startDate" | "dueDate" | "periodType" | "periodStart" | "periodEnd" | "sourceType" | "sourceKind" | "sourceMeetingId" | "sourceMeetingDecisionId" | "sourceMeetingActionCandidateId" | "linkedProjectId" | "linkedProjectPhaseId" | "linkedProjectTaskId" | "parentWorkItemId" | "isArchived" | "isPrivate" | "sortOrder" | "createdAt", ExtArgs["result"]["workItem"]>
+export type WorkItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "planId" | "targetType" | "targetId" | "category" | "itemType" | "content" | "description" | "importance" | "urgency" | "status" | "krStartValue" | "krTargetValue" | "krCurrentValue" | "krUnit" | "ownerEmployeeId" | "startDate" | "dueDate" | "periodType" | "periodStart" | "periodEnd" | "sourceType" | "sourceKind" | "sourceMeetingId" | "sourceMeetingDecisionId" | "sourceMeetingActionCandidateId" | "linkedProjectId" | "linkedProjectPhaseId" | "linkedProjectTaskId" | "parentWorkItemId" | "isArchived" | "isPrivate" | "sortOrder" | "createdAt", ExtArgs["result"]["workItem"]>
 export type WorkItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  plan?: boolean | Prisma.WorkItem$planArgs<ExtArgs>
   participants?: boolean | Prisma.WorkItem$participantsArgs<ExtArgs>
   owner?: boolean | Prisma.WorkItem$ownerArgs<ExtArgs>
   linkedProject?: boolean | Prisma.WorkItem$linkedProjectArgs<ExtArgs>
@@ -4473,6 +4873,7 @@ export type WorkItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   _count?: boolean | Prisma.WorkItemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type WorkItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  plan?: boolean | Prisma.WorkItem$planArgs<ExtArgs>
   owner?: boolean | Prisma.WorkItem$ownerArgs<ExtArgs>
   linkedProject?: boolean | Prisma.WorkItem$linkedProjectArgs<ExtArgs>
   linkedProjectPhase?: boolean | Prisma.WorkItem$linkedProjectPhaseArgs<ExtArgs>
@@ -4483,6 +4884,7 @@ export type WorkItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   parentWorkItem?: boolean | Prisma.WorkItem$parentWorkItemArgs<ExtArgs>
 }
 export type WorkItemIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  plan?: boolean | Prisma.WorkItem$planArgs<ExtArgs>
   owner?: boolean | Prisma.WorkItem$ownerArgs<ExtArgs>
   linkedProject?: boolean | Prisma.WorkItem$linkedProjectArgs<ExtArgs>
   linkedProjectPhase?: boolean | Prisma.WorkItem$linkedProjectPhaseArgs<ExtArgs>
@@ -4496,6 +4898,7 @@ export type WorkItemIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type $WorkItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "WorkItem"
   objects: {
+    plan: Prisma.$WorkPlanPayload<ExtArgs> | null
     participants: Prisma.$WorkParticipantPayload<ExtArgs>[]
     owner: Prisma.$EmployeePayload<ExtArgs> | null
     linkedProject: Prisma.$ProjectPayload<ExtArgs> | null
@@ -4511,6 +4914,7 @@ export type $WorkItemPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
+    planId: number | null
     targetType: string
     targetId: number | null
     category: string
@@ -4937,6 +5341,7 @@ readonly fields: WorkItemFieldRefs;
  */
 export interface Prisma__WorkItemClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  plan<T extends Prisma.WorkItem$planArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkItem$planArgs<ExtArgs>>): Prisma.Prisma__WorkPlanClient<runtime.Types.Result.GetResult<Prisma.$WorkPlanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   participants<T extends Prisma.WorkItem$participantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkItem$participantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkParticipantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   owner<T extends Prisma.WorkItem$ownerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkItem$ownerArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   linkedProject<T extends Prisma.WorkItem$linkedProjectArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkItem$linkedProjectArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -4979,6 +5384,7 @@ export interface Prisma__WorkItemClient<T, Null = never, ExtArgs extends runtime
  */
 export interface WorkItemFieldRefs {
   readonly id: Prisma.FieldRef<"WorkItem", 'Int'>
+  readonly planId: Prisma.FieldRef<"WorkItem", 'Int'>
   readonly targetType: Prisma.FieldRef<"WorkItem", 'String'>
   readonly targetId: Prisma.FieldRef<"WorkItem", 'Int'>
   readonly category: Prisma.FieldRef<"WorkItem", 'String'>
@@ -5407,6 +5813,25 @@ export type WorkItemDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Limit how many WorkItems to delete.
    */
   limit?: number
+}
+
+/**
+ * WorkItem.plan
+ */
+export type WorkItem$planArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkPlan
+   */
+  select?: Prisma.WorkPlanSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkPlan
+   */
+  omit?: Prisma.WorkPlanOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkPlanInclude<ExtArgs> | null
+  where?: Prisma.WorkPlanWhereInput
 }
 
 /**

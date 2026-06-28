@@ -485,8 +485,13 @@ export type ProjectTask = Prisma.ProjectTaskModel
  */
 export type ProjectTaskAssignment = Prisma.ProjectTaskAssignmentModel
 /**
+ * Model WorkPlan
+ * 工作计划总包（OKR/项目任务级计划）
+ */
+export type WorkPlan = Prisma.WorkPlanModel
+/**
  * Model WorkItem
- * 工作清单条目
+ * 工作计划内节点
  */
 export type WorkItem = Prisma.WorkItemModel
 /**

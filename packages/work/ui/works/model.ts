@@ -1,5 +1,5 @@
 import { workspaceBasePath } from "@workspace/core/routing";
-import type { WorkItem, WorkItemDraft, WorkItemStatus, WorkItemType, WorkPeriodType, WorkSourceKind, WorkSourceType, WorkTaskSpace, WorkTargetType } from "./types";
+import type { WorkItem, WorkItemDraft, WorkItemStatus, WorkItemType, WorkPeriodType, WorkPlan, WorkPlanDraft, WorkSourceKind, WorkSourceType, WorkTaskSpace, WorkTargetType } from "./types";
 
 export const WORK_CATEGORY_OPTIONS = [
   { value: "routine", label: "日常工作" },
@@ -14,8 +14,8 @@ export const WORK_STATUS_OPTIONS: Array<{ value: WorkItemStatus; label: string }
 
 export const WORK_ITEM_TYPE_OPTIONS: Array<{ value: WorkItemType; label: string }> = [
   { value: "objective", label: "目标" },
-  { value: "key_result", label: "结果" },
-  { value: "task", label: "任务" },
+  { value: "key_result", label: "关键结果" },
+  { value: "task", label: "子任务" },
 ];
 
 export const WORK_SOURCE_TYPE_OPTIONS: Array<{ value: WorkSourceType; label: string }> = [
@@ -91,15 +91,96 @@ export function getPeriodTypeLabel(periodType: string | null | undefined) {
   return WORK_PERIOD_TYPE_OPTIONS.find((option) => option.value === periodType)?.label || "不限定";
 }
 
-export function getWorkPeriodLabel(work: Pick<WorkItem, "periodType" | "periodStart" | "periodEnd">) {
+export function getWorkPeriodLabel(work: Pick<WorkItem | WorkPlan, "periodType" | "periodStart" | "periodEnd">) {
   if (!work.periodType) return "长期";
   const typeLabel = getPeriodTypeLabel(work.periodType);
   if (work.periodStart && work.periodEnd) return `${typeLabel} · ${work.periodStart} - ${work.periodEnd}`;
   return typeLabel;
 }
 
-export function createEmptyWorkDraft(sortOrder = 0): WorkItemDraft {
+export function createEmptyWorkPlanDraft(sortOrder = 0): WorkPlanDraft {
   return {
+    title: "",
+    description: "",
+    status: "active",
+    ownerEmployeeId: null,
+    ownerEmployeeName: "",
+    periodType: null,
+    periodStart: null,
+    periodEnd: null,
+    sourceType: "other",
+    sourceKind: null,
+    sourceMeetingId: null,
+    sourceMeetingTitle: "",
+    sourceMeetingDecisionId: null,
+    sourceMeetingDecisionTitle: "",
+    sourceMeetingActionCandidateId: null,
+    sourceMeetingActionCandidateTitle: "",
+    linkedProjectId: null,
+    linkedProjectName: "",
+    linkedProjectPhaseId: null,
+    linkedProjectPhaseName: "",
+    linkedProjectTaskId: null,
+    linkedProjectTaskName: "",
+    sortOrder,
+  };
+}
+
+export function createWorkPlanDraft(plan: WorkPlan): WorkPlanDraft {
+  return {
+    title: plan.title,
+    description: plan.description || "",
+    status: plan.status,
+    ownerEmployeeId: plan.ownerEmployeeId,
+    ownerEmployeeName: plan.ownerEmployeeName || "",
+    periodType: plan.periodType,
+    periodStart: plan.periodStart,
+    periodEnd: plan.periodEnd,
+    sourceType: plan.sourceType,
+    sourceKind: plan.sourceKind,
+    sourceMeetingId: plan.sourceMeetingId,
+    sourceMeetingTitle: plan.sourceMeetingTitle || "",
+    sourceMeetingDecisionId: plan.sourceMeetingDecisionId,
+    sourceMeetingDecisionTitle: plan.sourceMeetingDecisionTitle || "",
+    sourceMeetingActionCandidateId: plan.sourceMeetingActionCandidateId,
+    sourceMeetingActionCandidateTitle: plan.sourceMeetingActionCandidateTitle || "",
+    linkedProjectId: plan.linkedProjectId,
+    linkedProjectName: plan.linkedProjectName || "",
+    linkedProjectPhaseId: plan.linkedProjectPhaseId,
+    linkedProjectPhaseName: plan.linkedProjectPhaseName || "",
+    linkedProjectTaskId: plan.linkedProjectTaskId,
+    linkedProjectTaskName: plan.linkedProjectTaskName || "",
+    sortOrder: plan.sortOrder,
+  };
+}
+
+export function workPlanDraftPayload(draft: WorkPlanDraft) {
+  const isProjectSource = draft.sourceType === "project";
+  const isMeetingSource = draft.sourceType === "meeting";
+  return {
+    kind: "okr",
+    title: draft.title,
+    description: draft.description,
+    status: draft.status,
+    ownerEmployeeId: draft.ownerEmployeeId,
+    periodType: draft.periodType,
+    periodStart: draft.periodType ? draft.periodStart : null,
+    periodEnd: draft.periodType ? draft.periodEnd : null,
+    sourceType: draft.sourceType,
+    sourceKind: isProjectSource ? inferProjectSourceKind(draft) : null,
+    sourceMeetingId: isMeetingSource ? draft.sourceMeetingId : null,
+    sourceMeetingDecisionId: isMeetingSource ? draft.sourceMeetingDecisionId : null,
+    sourceMeetingActionCandidateId: isMeetingSource ? draft.sourceMeetingActionCandidateId : null,
+    linkedProjectId: isProjectSource ? draft.linkedProjectId : null,
+    linkedProjectPhaseId: isProjectSource && draft.sourceKind === "project_phase" ? draft.linkedProjectPhaseId : null,
+    linkedProjectTaskId: isProjectSource && draft.sourceKind === "project_task" ? draft.linkedProjectTaskId : null,
+    sortOrder: draft.sortOrder,
+  };
+}
+
+export function createEmptyWorkDraft(sortOrder = 0, planId: number | null = null): WorkItemDraft {
+  return {
+    planId,
     category: "non-routine",
     itemType: "task",
     content: "",
@@ -141,6 +222,7 @@ export function createEmptyWorkDraft(sortOrder = 0): WorkItemDraft {
 
 export function createWorkDraft(work: WorkItem): WorkItemDraft {
   return {
+    planId: work.planId,
     category: work.category,
     itemType: work.itemType,
     content: work.content,
@@ -187,6 +269,7 @@ export function workDraftPayload(draft: WorkItemDraft) {
   const isMeetingSource = draft.sourceType === "meeting";
   return {
     category: draft.category,
+    planId: draft.planId,
     itemType: draft.itemType,
     content: draft.content,
     description: draft.description,
@@ -218,7 +301,7 @@ export function workDraftPayload(draft: WorkItemDraft) {
   };
 }
 
-function inferProjectSourceKind(draft: WorkItemDraft): WorkSourceKind | null {
+function inferProjectSourceKind(draft: Pick<WorkItemDraft | WorkPlanDraft, "sourceKind" | "linkedProjectTaskId" | "linkedProjectPhaseId" | "linkedProjectId">): WorkSourceKind | null {
   if (draft.sourceKind) return draft.sourceKind;
   if (draft.linkedProjectTaskId) return "project_task";
   if (draft.linkedProjectPhaseId) return "project_phase";

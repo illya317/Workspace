@@ -7,10 +7,10 @@ import {
   type DataTableRowEditActionConfig,
   type PageSurfaceBlockSpec,
 } from "@workspace/core/ui";
-import { createWorkDraft, getStatusLabel, getWorkItemTypeLabel, getWorkPeriodLabel, getWorkSourceTypeLabel } from "./model";
+import { createWorkDraft, getStatusLabel, getWorkItemTypeLabel } from "./model";
 import { WorkTaskDetail } from "./WorkTaskDetail";
 import { WorkTaskForm } from "./WorkTaskFields";
-import type { WorkItem, WorkItemDraft, WorkItemType, WorkSourceType } from "./types";
+import type { WorkItem, WorkItemDraft, WorkItemType } from "./types";
 
 type TreeRow = WorkItem & {
   depth: number;
@@ -26,10 +26,7 @@ type WorkTaskTableProps = {
   editingId: number | null;
   editDraft: WorkItemDraft | null;
   statusFilter: "active" | "done" | "archived";
-  periodFilter: string;
   itemTypeFilter: "all" | WorkItemType;
-  sourceFilter: "all" | WorkSourceType;
-  targetType?: WorkItem["targetType"];
   onDetail: (work: WorkItem) => void;
   onEdit: (work: WorkItem) => void;
   onSave: () => void;
@@ -49,10 +46,7 @@ export function useWorkTaskTableBlock({
   editingId,
   editDraft,
   statusFilter,
-  periodFilter,
   itemTypeFilter,
-  sourceFilter,
-  targetType,
   onDetail,
   onEdit,
   onSave,
@@ -61,10 +55,9 @@ export function useWorkTaskTableBlock({
   onDelete,
 }: WorkTaskTableProps): WorkTaskTableBlock {
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
-  const showOwner = targetType !== "personal";
   const tree = useMemo(
-    () => buildTreeRows(works, { statusFilter, periodFilter, itemTypeFilter, sourceFilter, expandedIds }),
-    [expandedIds, itemTypeFilter, periodFilter, sourceFilter, statusFilter, works],
+    () => buildTreeRows(works, { statusFilter, itemTypeFilter, expandedIds }),
+    [expandedIds, itemTypeFilter, statusFilter, works],
   );
 
   useEffect(() => {
@@ -78,7 +71,6 @@ export function useWorkTaskTableBlock({
   }, [works]);
 
   const columns = createColumns({
-    showOwner,
     expandedIds,
     onToggleExpand: (work) => {
       setExpandedIds((current) => {
@@ -94,7 +86,7 @@ export function useWorkTaskTableBlock({
     return {
       kind: "data",
       key: "task-table",
-      surface: { kind: "records", records: [], empty: "暂无工作项。可以从上方新增目标、结果或任务。" },
+      surface: { kind: "records", records: [], empty: "暂无节点。可以从上方新增目标、关键结果或子任务。" },
     };
   }
 
@@ -105,10 +97,10 @@ export function useWorkTaskTableBlock({
       kind: "table",
       rows: tree.rows,
       columns,
-      visibleColumns: ["owner", "kr", "period", "status", "priority", "source"].filter((key) => key !== "owner" || showOwner),
+      visibleColumns: ["kr", "status", "priority"],
       density: "compact",
       loading,
-      emptyText: "暂无工作项",
+      emptyText: "暂无节点",
       rowKey: (work) => work.id,
       rowClassName: (work) => work.itemType === "objective" ? "bg-slate-50/60" : "",
       onRowClick: onDetail,
@@ -119,7 +111,6 @@ export function useWorkTaskTableBlock({
           works={works}
           disabled={saving}
           excludedWorkId={work.id}
-          targetType={targetType}
           onChange={onEditDraftChange}
         />
       ) : <WorkTaskDetail work={work} />,
@@ -130,8 +121,8 @@ export function useWorkTaskTableBlock({
         initial: createWorkDraft(work),
         current: editDraft,
         saving,
-        editLabel: "编辑工作项",
-        saveLabel: "保存工作项",
+        editLabel: "编辑节点",
+        saveLabel: "保存节点",
         cancelLabel: "取消编辑",
         onEdit,
         onSave,
@@ -143,7 +134,7 @@ export function useWorkTaskTableBlock({
           {
             key: "delete",
             kind: "delete",
-            label: "删除工作项",
+            label: "删除节点",
             onClick: () => onDelete(work),
             disabled: saving,
           },
@@ -160,18 +151,16 @@ export default function WorkTaskTable(props: WorkTaskTableProps) {
 }
 
 function createColumns({
-  showOwner,
   expandedIds,
   onToggleExpand,
 }: {
-  showOwner: boolean;
   expandedIds: Set<number>;
   onToggleExpand: (work: TreeRow) => void;
 }): DataSurfaceColumnSpec<TreeRow>[] {
   return [
     {
       key: "content",
-      label: "工作大纲",
+      label: "OKR 大纲",
       required: true,
       headerClassName: "min-w-80",
       cellClassName: "min-w-80 max-w-lg",
@@ -201,16 +190,8 @@ function createColumns({
       ),
     },
     {
-      key: "owner",
-      label: "负责人",
-      defaultVisible: showOwner,
-      headerClassName: "w-28",
-      cellClassName: "w-28",
-      cell: (work) => work.ownerEmployeeName || "未设置",
-    },
-    {
       key: "kr",
-      label: "结果",
+      label: "关键结果",
       defaultVisible: true,
       headerClassName: "w-44",
       cellClassName: "w-44",
@@ -219,16 +200,8 @@ function createColumns({
         : <span className="text-sm text-slate-300">-</span>,
     },
     {
-      key: "period",
-      label: "周期",
-      defaultVisible: true,
-      headerClassName: "w-44",
-      cellClassName: "w-44",
-      cell: (work) => <span className="text-sm text-slate-600">{getWorkPeriodLabel(work)}</span>,
-    },
-    {
       key: "status",
-      label: "状态",
+      label: "子任务状态",
       defaultVisible: true,
       headerClassName: "w-24",
       cellClassName: "w-24",
@@ -251,15 +224,6 @@ function createColumns({
         </div>
       ) : <span className="text-sm text-slate-300">-</span>,
     },
-    {
-      key: "source",
-      label: "来源",
-      defaultVisible: true,
-      headerClassName: "min-w-48",
-      cellClassName: "min-w-48 max-w-72",
-      cell: (work) => <SourceCell work={work} />,
-    },
-
   ];
 }
 
@@ -275,9 +239,7 @@ function buildTreeRows(
   works: WorkItem[],
   filters: {
     statusFilter: "active" | "done" | "archived";
-    periodFilter: string;
     itemTypeFilter: "all" | WorkItemType;
-    sourceFilter: "all" | WorkSourceType;
     expandedIds: Set<number>;
   },
 ) {
@@ -319,39 +281,21 @@ function matchesFilters(
   work: WorkItem,
   filters: {
     statusFilter: "active" | "done" | "archived";
-    periodFilter: string;
     itemTypeFilter: "all" | WorkItemType;
-    sourceFilter: "all" | WorkSourceType;
   },
 ) {
   return matchesStatusFilter(work, filters.statusFilter)
-    && matchesPeriodFilter(work, filters.periodFilter)
-    && (filters.itemTypeFilter === "all" || work.itemType === filters.itemTypeFilter)
-    && (filters.sourceFilter === "all" || work.sourceType === filters.sourceFilter);
+    && (filters.itemTypeFilter === "all" || work.itemType === filters.itemTypeFilter);
 }
 
 function TypeBadge({ itemType }: { itemType: WorkItemType }) {
-  const label = itemType === "objective" ? "目标" : itemType === "key_result" ? "结果" : "任务";
+  const label = itemType === "objective" ? "目标" : itemType === "key_result" ? "关键结果" : "子任务";
   const className = itemType === "objective"
     ? "border-emerald-200 bg-emerald-50 text-emerald-700"
     : itemType === "key_result"
       ? "border-sky-200 bg-sky-50 text-sky-700"
       : "border-slate-200 bg-slate-50 text-slate-600";
   return <span className={`shrink-0 rounded border px-1.5 py-0.5 text-xs font-semibold ${className}`} title={getWorkItemTypeLabel(itemType)}>{label}</span>;
-}
-
-function SourceCell({ work }: { work: WorkItem }) {
-  const detail = work.sourceType === "project"
-    ? [work.linkedProjectName, work.linkedProjectPhaseName, work.linkedProjectTaskName].filter(Boolean).join(" / ")
-    : work.sourceType === "meeting"
-      ? [work.sourceMeetingTitle, work.sourceMeetingDecisionTitle, work.sourceMeetingActionCandidateTitle].filter(Boolean).join(" / ")
-      : "";
-  return (
-    <div className="min-w-0">
-      <div className="text-sm text-slate-700">{getWorkSourceTypeLabel(work.sourceType)}</div>
-      {detail && <div className="truncate text-xs text-slate-400" title={detail}>{detail}</div>}
-    </div>
-  );
 }
 
 function sortWorks(a: WorkItem, b: WorkItem) {
@@ -363,12 +307,6 @@ function matchesStatusFilter(work: WorkItem, filter: "active" | "done" | "archiv
   if (filter === "archived") return archived;
   if (filter === "done") return !archived && work.itemType === "task" && work.status === "done";
   return !archived && (work.itemType !== "task" || work.status !== "done");
-}
-
-function matchesPeriodFilter(work: WorkItem, filter: string) {
-  if (filter === "all") return true;
-  if (filter === "long-term") return !work.periodType;
-  return work.periodType === filter;
 }
 
 function statusClassName(status: string) {

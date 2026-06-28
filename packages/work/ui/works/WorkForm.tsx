@@ -37,20 +37,20 @@ export default function WorkForm({
           key: "category",
           label: "类别",
           spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: [
-            { value: "routine", label: "日常工作" },
-            { value: "non-routine", label: "其他工作" },
+            { value: "routine", label: "日常节点" },
+            { value: "non-routine", label: "其他节点" },
           ] } },
           value: category,
           onChange: (value) => setCategory(value === "non-routine" ? "non-routine" : "routine"),
         },
         {
           key: "content",
-          label: "工作内容",
+          label: "节点内容",
           required: true,
           spec: { valueType: "string", control: "text" },
           value: content,
           onChange: (value) => setContent(String(value ?? "")),
-          placeholder: "例如：会议纪要整理",
+          placeholder: "输入目标、关键结果或子任务",
         },
         {
           key: "importance",
@@ -84,7 +84,7 @@ export default function WorkForm({
         { key: "cancel", label: "取消", onClick: onCancel },
         {
           key: "save",
-          label: initial ? "保存" : "添加",
+          label: initial ? "保存" : "添加节点",
           disabled: !content.trim(),
           variant: "primary",
           onClick: () =>

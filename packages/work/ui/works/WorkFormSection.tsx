@@ -35,15 +35,15 @@ export default function WorkFormSection({
       blocks={[createPageFieldsBlock("department-work-plan", [{
         kind: "section",
         key: "department-work-plan",
-        title: "部门工作计划",
+        title: "部门 OKR 计划",
         actions: isAdmin && !showForm && !editingWork ? [{
           key: "add",
-          label: "添加工作项",
+          label: "添加节点",
           variant: "primary",
           onClick: onAddClick,
         }] : undefined,
         fields: [
-          ...(!isAdmin ? [{ kind: "note" as const, key: "admin-only", content: "仅部门管理员可编辑工作计划", className: "mb-4 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" }] : []),
+          ...(!isAdmin ? [{ kind: "note" as const, key: "admin-only", content: "仅部门管理员可编辑 OKR 计划", className: "mb-4 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" }] : []),
           ...(showForm ? [{ kind: "note" as const, key: "form", content: <div className="mb-6"><WorkForm onSave={onSave} onCancel={onCancelForm} /></div> }] : []),
         ],
       }], { className: "mb-6" })]}

@@ -262,8 +262,8 @@ export function useMeetingDetailBlock({
             decisionId,
           })} />
               <SelectBox label="目标" value={candidateDraft.targetKind} options={[{
-            value: "work_item",
-            label: "工作计划",
+            value: "work_plan",
+            label: "OKR 计划",
           }, {
             value: "project_task",
             label: "项目任务",
@@ -286,7 +286,7 @@ export function useMeetingDetailBlock({
               decisionId: "",
               title: "",
               description: "",
-              targetKind: "work_item",
+              targetKind: "work_plan",
             })) }] })} />
             </InlineForm>}
         </Section>

@@ -33,6 +33,7 @@ export function emptyMeetingDraft(typeId = ""): CreateMeetingDraft {
 
 export function emptyActionDraft(): ActionDraft {
   return {
+    workPlanId: "",
     workItemId: "",
     projectTaskId: "",
     projectId: "",
@@ -60,6 +61,7 @@ export function actionPayload(candidateId: number, action: string, draft: Action
   return {
     action,
     candidateId,
+    workPlanId: draft.workPlanId ? Number(draft.workPlanId) : undefined,
     workItemId: draft.workItemId ? Number(draft.workItemId) : undefined,
     projectTaskId: draft.projectTaskId ? Number(draft.projectTaskId) : undefined,
     projectId: draft.projectId ? Number(draft.projectId) : undefined,

@@ -63,7 +63,7 @@ export default function MeetingsPage({
     decisionId: "",
     title: "",
     description: "",
-    targetKind: "work_item",
+    targetKind: "work_plan",
   });
   const [actionDrafts, setActionDrafts] = useState<Record<number, ActionDraft>>({});
 

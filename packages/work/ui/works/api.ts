@@ -2,6 +2,8 @@ import { workspacePath } from "@workspace/core/routing";
 import type {
   WorkItem,
   WorkItemDraft,
+  WorkPlan,
+  WorkPlanDraft,
   WorkReportCollectionResponse,
   WorkReportDraftResponse,
   WorkReportItem,
@@ -9,7 +11,7 @@ import type {
   WorkTaskSpace,
   WorkTarget,
 } from "./types";
-import { workDraftPayload } from "./model";
+import { workDraftPayload, workPlanDraftPayload } from "./model";
 
 export const WORK_REFERENCE_OPTIONS_ENDPOINT = "/api/modules/work/projects/reference-options";
 
@@ -25,12 +27,47 @@ export async function listTaskSpaces() {
   return data.spaces || [];
 }
 
-export async function listWorkItems(target: WorkTarget) {
+export async function listWorkPlans(target: WorkTarget) {
   const params = new URLSearchParams({
     targetType: target.targetType,
     targetId: String(target.targetId),
     includeArchived: "true",
   });
+  const response = await fetch(workspacePath(`/api/modules/work/tasks/plans?${params.toString()}`));
+  const data = await readJson<{ plans?: WorkPlan[] }>(response, "加载 OKR 计划失败");
+  return data.plans || [];
+}
+
+export async function createWorkPlan(target: WorkTarget, draft: WorkPlanDraft) {
+  const response = await fetch(workspacePath("/api/modules/work/tasks/plans"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...workPlanDraftPayload(draft), ...target }),
+  });
+  return readJson<{ plan: WorkPlan }>(response, "新建 OKR 计划失败");
+}
+
+export async function updateWorkPlan(id: number, draft: WorkPlanDraft) {
+  const response = await fetch(workspacePath(`/api/modules/work/tasks/plans/${id}`), {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(workPlanDraftPayload(draft)),
+  });
+  return readJson<{ plan: WorkPlan }>(response, "保存 OKR 计划失败");
+}
+
+export async function archiveWorkPlan(id: number) {
+  const response = await fetch(workspacePath(`/api/modules/work/tasks/plans/${id}`), { method: "DELETE" });
+  return readJson<{ success: true }>(response, "归档 OKR 计划失败");
+}
+
+export async function listWorkItems(target: WorkTarget, planId: number | null) {
+  const params = new URLSearchParams({
+    targetType: target.targetType,
+    targetId: String(target.targetId),
+    includeArchived: "true",
+  });
+  if (planId) params.set("planId", String(planId));
   const response = await fetch(workspacePath(`/api/modules/work/tasks?${params.toString()}`));
   const data = await readJson<{ works?: WorkItem[] }>(response, "加载工作计划失败");
   return data.works || [];

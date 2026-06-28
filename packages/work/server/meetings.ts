@@ -11,7 +11,7 @@ import {
 } from "./meeting-access";
 import { canEditWorkTask, canViewProject } from "./access";
 import { createProjectTask, updateProjectTask } from "./project-tasks";
-import { createWorkItem, getWorkItemAccessMetadata, updateWorkItem } from "./works";
+import { createWorkPlan, getWorkPlanAccessMetadata, updateWorkPlan } from "./work-plans";
 import {
   validateMeetingActionCandidate,
   validateMeetingActionCandidateLink,
@@ -282,23 +282,24 @@ export async function linkMeetingActionCandidate(input: {
     await prisma.meetingActionCandidate.update({ where: { id: candidate.id }, data: { status: "ignored" } });
     return getMeetingDetail({ userId: input.userId, meetingId: input.meetingId });
   }
-  if (action === "linkWorkItem") return linkCandidateToWorkItem(input, candidate);
-  if (action === "createWorkItem") return createWorkItemFromCandidate(input, candidate);
+  if (action === "linkWorkPlan") return linkCandidateToWorkPlan(input, candidate);
+  if (action === "createWorkPlan" || action === "createWorkItem") return createWorkPlanFromCandidate(input, candidate);
+  if (action === "linkWorkItem") return serviceError("会议行动候选请链接 OKR 计划，不再直接链接子任务", 400);
   if (action === "linkProjectTask") return linkCandidateToProjectTask(input, candidate);
   if (action === "createProjectTask") return createProjectTaskFromCandidate(input, candidate);
   return serviceError("行动候选动作无效", 400);
 }
 
-async function linkCandidateToWorkItem(
+async function linkCandidateToWorkPlan(
   input: { userId: number; meetingId: number; candidateId: number; body: Record<string, unknown> },
   candidate: { id: number; meetingId: number; decisionId: number | null },
 ) {
-  const workItemId = Number(input.body.workItemId);
-  if (!Number.isInteger(workItemId) || workItemId <= 0) return serviceError("工作项无效", 400);
-  const metadata = await getWorkItemAccessMetadata(workItemId);
-  if (!metadata?.targetId) return serviceError("工作项不存在", 404);
+  const workPlanId = Number(input.body.workPlanId);
+  if (!Number.isInteger(workPlanId) || workPlanId <= 0) return serviceError("OKR 计划无效", 400);
+  const metadata = await getWorkPlanAccessMetadata(workPlanId);
+  if (!metadata?.targetId) return serviceError("OKR 计划不存在", 404);
   if (!(await canEditWorkTask(input.userId, metadata.targetType, metadata.targetId))) return serviceError("无权限编辑工作计划", 403);
-  const result = await updateWorkItem(workItemId, {
+  const result = await updateWorkPlan(workPlanId, {
     sourceType: "meeting",
     sourceMeetingId: input.meetingId,
     sourceMeetingDecisionId: candidate.decisionId,
@@ -307,12 +308,12 @@ async function linkCandidateToWorkItem(
   if (!result.ok) return serviceError(result.error, result.status || 400);
   await prisma.meetingActionCandidate.update({
     where: { id: candidate.id },
-    data: { status: "linked", targetKind: "work_item", linkedWorkItemId: workItemId },
+    data: { status: "linked", targetKind: "work_plan", linkedWorkPlanId: workPlanId },
   });
   return getMeetingDetail({ userId: input.userId, meetingId: input.meetingId });
 }
 
-async function createWorkItemFromCandidate(
+async function createWorkPlanFromCandidate(
   input: { userId: number; meetingId: number; candidateId: number; body: Record<string, unknown> },
   candidate: { id: number; meetingId: number; decisionId: number | null; title: string; description: string },
 ) {
@@ -320,25 +321,23 @@ async function createWorkItemFromCandidate(
   const targetId = Number(input.body.targetId || input.userId);
   if (!Number.isInteger(targetId) || targetId <= 0) return serviceError("工作计划目标无效", 400);
   if (!(await canEditWorkTask(input.userId, targetType, targetId))) return serviceError("无权限编辑工作计划", 403);
-  const result = await createWorkItem({
+  const result = await createWorkPlan({
     targetType,
     targetId,
-    category: String(input.body.category || "non-routine"),
-    itemType: "task",
-    content: String(input.body.content || candidate.title),
+    kind: "okr",
+    title: String(input.body.title || input.body.content || candidate.title),
     description: String(input.body.description || candidate.description || ""),
     ownerEmployeeId: input.body.ownerEmployeeId ? Number(input.body.ownerEmployeeId) : null,
-    dueDate: input.body.dueDate ? String(input.body.dueDate) : null,
     sourceType: "meeting",
     sourceMeetingId: input.meetingId,
     sourceMeetingDecisionId: candidate.decisionId,
     sourceMeetingActionCandidateId: candidate.id,
   });
   if (!result.ok) return serviceError(result.error, result.status || 400);
-  const workItem = result.data as { id?: number };
+  const workPlan = result.data as { id?: number };
   await prisma.meetingActionCandidate.update({
     where: { id: candidate.id },
-    data: { status: "linked", targetKind: "work_item", linkedWorkItemId: workItem.id ?? null },
+    data: { status: "linked", targetKind: "work_plan", linkedWorkPlanId: workPlan.id ?? null },
   });
   return getMeetingDetail({ userId: input.userId, meetingId: input.meetingId });
 }

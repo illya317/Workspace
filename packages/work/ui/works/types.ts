@@ -32,8 +32,70 @@ export interface WorkTaskSpace extends WorkTarget {
   };
 }
 
+export interface WorkPlan extends WorkTarget {
+  id: number;
+  kind: "okr";
+  title: string;
+  description: string;
+  status: "active" | "closed" | "archived";
+  ownerEmployeeId: number | null;
+  ownerEmployeeNumber: string | null;
+  ownerEmployeeName: string | null;
+  periodType: WorkPeriodType | null;
+  periodStart: string | null;
+  periodEnd: string | null;
+  sourceType: WorkSourceType;
+  sourceKind: WorkSourceKind | null;
+  sourceMeetingId: number | null;
+  sourceMeetingTitle: string | null;
+  sourceMeetingStartAt: string | null;
+  sourceMeetingDecisionId: number | null;
+  sourceMeetingDecisionTitle: string | null;
+  sourceMeetingDecisionKind: string | null;
+  sourceMeetingActionCandidateId: number | null;
+  sourceMeetingActionCandidateTitle: string | null;
+  linkedProjectId: number | null;
+  linkedProjectName: string | null;
+  linkedProjectCode: string | null;
+  linkedProjectPhaseId: number | null;
+  linkedProjectPhaseName: string | null;
+  linkedProjectTaskId: number | null;
+  linkedProjectTaskName: string | null;
+  itemCount: number;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WorkPlanDraft {
+  title: string;
+  description: string;
+  status: WorkPlan["status"];
+  ownerEmployeeId: number | null;
+  ownerEmployeeName: string;
+  periodType: WorkPeriodType | null;
+  periodStart: string | null;
+  periodEnd: string | null;
+  sourceType: WorkSourceType;
+  sourceKind: WorkSourceKind | null;
+  sourceMeetingId: number | null;
+  sourceMeetingTitle: string;
+  sourceMeetingDecisionId: number | null;
+  sourceMeetingDecisionTitle: string;
+  sourceMeetingActionCandidateId: number | null;
+  sourceMeetingActionCandidateTitle: string;
+  linkedProjectId: number | null;
+  linkedProjectName: string;
+  linkedProjectPhaseId: number | null;
+  linkedProjectPhaseName: string;
+  linkedProjectTaskId: number | null;
+  linkedProjectTaskName: string;
+  sortOrder: number;
+}
+
 export interface WorkItem {
   id: number;
+  planId: number | null;
   targetType: WorkTargetType;
   targetId: number;
   category: WorkItemCategory;
@@ -82,6 +144,7 @@ export interface WorkItem {
 }
 
 export interface WorkItemDraft {
+  planId: number | null;
   category: WorkItemCategory;
   itemType: WorkItemType;
   content: string;

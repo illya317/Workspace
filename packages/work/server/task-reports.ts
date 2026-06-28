@@ -198,7 +198,7 @@ async function findUserReport(
 
 async function listReportWorkItems(targetType: WorkSpaceTargetType, targetId: number) {
   return prisma.workItem.findMany({
-    where: { targetType, targetId, itemType: "task", isArchived: false },
+    where: { targetType, targetId, planId: { not: null }, itemType: "task", isArchived: false },
     select: { id: true, content: true, sortOrder: true },
     orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
   });

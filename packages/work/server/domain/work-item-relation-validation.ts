@@ -1,6 +1,7 @@
 import { prisma } from "@workspace/platform/server/prisma";
 
 export interface WorkItemRelationInput {
+  planId?: number | null;
   targetType: string;
   targetId: number;
   currentWorkId?: number;
@@ -18,6 +19,10 @@ export interface WorkItemRelationInput {
 }
 
 export async function validateWorkItemRelations(input: WorkItemRelationInput) {
+  if (!input.planId) return "必须选择 OKR 计划";
+  const plan = await prisma.workPlan.findUnique({ where: { id: input.planId }, select: { targetType: true, targetId: true } });
+  if (!plan) return "OKR 计划不存在";
+  if (plan.targetType !== input.targetType || plan.targetId !== input.targetId) return "OKR 计划不属于当前空间";
   if (input.ownerEmployeeId) {
     const owner = await prisma.employee.findUnique({ where: { id: input.ownerEmployeeId }, select: { id: true } });
     if (!owner) return "负责人不存在";
@@ -61,8 +66,14 @@ async function validateParentRelation(input: WorkItemRelationInput) {
   });
   if (!parent) return "上级工作项不存在";
   if (parent.targetType !== input.targetType || parent.targetId !== input.targetId) return "上级工作项不属于当前空间";
+  const parentPlan = await prisma.workItem.findUnique({
+    where: { id: input.parentWorkItemId },
+    select: { planId: true },
+  });
+  if (parentPlan?.planId !== input.planId) return "上级工作项不属于当前 OKR 计划";
   if (input.itemType === "key_result" && parent.itemType !== "objective") return "KR 必须挂在 O/目标下";
   if (input.itemType === "objective" && parent.itemType !== "objective") return "O/目标只能作为根节点或挂在上级 O/目标下";
+  if (input.itemType === "task" && parent.itemType === "task") return "子任务只能挂在目标或关键结果下";
   let cursor = parent.parentWorkItemId;
   while (cursor) {
     if (input.currentWorkId && cursor === input.currentWorkId) return "上级工作项不能选择自己的子节点";

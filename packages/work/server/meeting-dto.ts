@@ -45,6 +45,7 @@ export const meetingDetailInclude = {
     orderBy: { id: "asc" },
     include: {
       linkedWorkItem: { select: { id: true, content: true, status: true } },
+      linkedWorkPlan: { select: { id: true, title: true, status: true } },
       linkedProjectTask: { select: { id: true, name: true, projectId: true, project: { select: { id: true, name: true, code: true } } } },
     },
   },
@@ -149,6 +150,8 @@ export function toMeetingDetailDto(row: MeetingDetailRow, userId: number, permis
       status: candidate.status,
       linkedWorkItemId: candidate.linkedWorkItemId,
       linkedWorkItemTitle: candidate.linkedWorkItem?.content ?? null,
+      linkedWorkPlanId: candidate.linkedWorkPlanId,
+      linkedWorkPlanTitle: candidate.linkedWorkPlan?.title ?? null,
       linkedProjectTaskId: candidate.linkedProjectTaskId,
       linkedProjectTaskTitle: candidate.linkedProjectTask?.name ?? null,
       linkedProjectId: candidate.linkedProjectTask?.projectId ?? null,

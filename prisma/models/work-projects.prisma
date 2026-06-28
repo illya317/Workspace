@@ -38,6 +38,7 @@ model Project {
   planBaselines       ProjectPlanBaseline[]  @relation("ProjectPlanBaselines")
   workAssignees       ProjectWorkAssignee[]
   linkedWorkItems     WorkItem[]             @relation("WorkItemLinkedProject")
+  linkedWorkPlans     WorkPlan[]             @relation("WorkPlanLinkedProject")
 
   @@index([leadingDepartmentId])
   @@index([projectType])
@@ -81,6 +82,7 @@ model ProjectPlanPhase {
   project       Project       @relation("ProjectPlanPhases", fields: [projectId], references: [id], onDelete: Cascade)
   tasks         ProjectTask[] @relation("ProjectTaskPlanPhase")
   linkedWorkItems WorkItem[]  @relation("WorkItemLinkedProjectPhase")
+  linkedWorkPlans WorkPlan[]  @relation("WorkPlanLinkedProjectPhase")
 
   @@unique([projectId, sequenceNo])
   @@index([projectId, sequenceNo])
@@ -178,6 +180,7 @@ model ProjectTask {
   childProject      Project?      @relation("ProjectTaskChildProject")
   assignees         ProjectTaskAssignment[]
   linkedWorkItems   WorkItem[]    @relation("WorkItemLinkedProjectTask")
+  linkedWorkPlans   WorkPlan[]    @relation("WorkPlanLinkedProjectTask")
   meetingActionCandidates MeetingActionCandidate[] @relation("MeetingActionCandidateProjectTask")
 
   @@index([projectId, sortOrder])

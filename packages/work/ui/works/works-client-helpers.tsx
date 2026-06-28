@@ -1,6 +1,6 @@
 import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { getWorkSpaceLabel } from "./model";
-import type { WorkItem, WorkTarget, WorkTaskSpace } from "./types";
+import type { WorkTarget, WorkTaskSpace } from "./types";
 
 export function spaceSelectorBlock(
   spaces: WorkTaskSpace[],
@@ -52,14 +52,28 @@ export function sameTarget(a: WorkTarget | null | undefined, b: WorkTarget | nul
   return Boolean(a && b && a.targetType === b.targetType && a.targetId === b.targetId);
 }
 
+export function spaceMetricsBlock(space: WorkTaskSpace): PageSurfaceBlockSpec {
+  return {
+    kind: "metrics",
+    key: "space-metrics",
+    metrics: [
+      { key: "objective", label: "目标", value: space.counts.objective, className: "px-3 py-2" },
+      { key: "keyResult", label: "关键结果", value: space.counts.keyResult, className: "px-3 py-2" },
+      { key: "task", label: "子任务", value: space.counts.task, className: "px-3 py-2" },
+      { key: "archived", label: "归档", value: space.counts.archived, className: "px-3 py-2" },
+    ],
+    className: "grid-cols-4 text-center",
+  };
+}
+
 export function normalizeInitialTarget(target?: WorkTarget) {
   if (!target || !Number.isFinite(target.targetId) || target.targetId <= 0) return null;
   return target;
 }
 
-export function nextSortOrder(works: WorkItem[]) {
-  if (works.length === 0) return 10;
-  return Math.max(...works.map((work) => work.sortOrder || 0)) + 10;
+export function nextSortOrder(items: Array<{ sortOrder: number }>) {
+  if (items.length === 0) return 10;
+  return Math.max(...items.map((item) => item.sortOrder || 0)) + 10;
 }
 
 function roleLabel(role: string) {

@@ -7,7 +7,7 @@ export const MEETING_VOTE_VISIBILITIES = ["named", "anonymous"] as const;
 export const MEETING_VOTE_CHOICES = ["yes", "no", "abstain"] as const;
 export const MEETING_PROPOSAL_STATUSES = ["open", "passed", "rejected", "closed"] as const;
 export const MEETING_DECISION_KINDS = ["decision", "resolution", "guidance"] as const;
-export const MEETING_ACTION_TARGET_KINDS = ["work_item", "project_task"] as const;
+export const MEETING_ACTION_TARGET_KINDS = ["work_plan", "work_item", "project_task"] as const;
 export const MEETING_ACTION_STATUSES = ["candidate", "linked", "ignored"] as const;
 
 export type MeetingVisibility = (typeof MEETING_VISIBILITIES)[number];
@@ -105,7 +105,7 @@ export interface MeetingProposalCloseCommand {
 
 export interface MeetingActionCandidateLinkCommand {
   candidateId: number;
-  action: "ignore" | "linkWorkItem" | "createWorkItem" | "linkProjectTask" | "createProjectTask";
+  action: "ignore" | "linkWorkPlan" | "createWorkPlan" | "linkWorkItem" | "createWorkItem" | "linkProjectTask" | "createProjectTask";
 }
 
 function requiredText(value: unknown, label: string) {
@@ -314,7 +314,7 @@ export function validateMeetingProposalClose(input: Record<string, unknown>): Do
 export function validateMeetingActionCandidateLink(input: Record<string, unknown>): DomainValidationResult<MeetingActionCandidateLinkCommand> {
   const candidateId = requiredPositiveId(input.candidateId, "行动候选");
   if (!candidateId.ok) return candidateId;
-  const action = enumValue(input.action, ["ignore", "linkWorkItem", "createWorkItem", "linkProjectTask", "createProjectTask"] as const, "ignore", "行动候选动作");
+  const action = enumValue(input.action, ["ignore", "linkWorkPlan", "createWorkPlan", "linkWorkItem", "createWorkItem", "linkProjectTask", "createProjectTask"] as const, "ignore", "行动候选动作");
   if (!action.ok) return action;
   return okCommand({ candidateId: candidateId.data, action: action.data });
 }
@@ -347,7 +347,7 @@ export function validateMeetingActionCandidate(input: Record<string, unknown>): 
   if (!decisionId.ok) return decisionId;
   const title = requiredText(input.title, "行动候选");
   if (!title.ok) return title;
-  const targetKind = enumValue(input.targetKind, MEETING_ACTION_TARGET_KINDS, "work_item", "候选目标");
+  const targetKind = enumValue(input.targetKind, MEETING_ACTION_TARGET_KINDS, "work_plan", "候选目标");
   if (!targetKind.ok) return targetKind;
   return okCommand({
     agendaItemId: agendaItemId.data,

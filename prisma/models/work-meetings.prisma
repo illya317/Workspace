@@ -57,6 +57,7 @@ model Meeting {
   decisions        MeetingDecision[]
   actionCandidates MeetingActionCandidate[]
   sourceWorkItems  WorkItem[]                @relation("WorkItemSourceMeeting")
+  sourceWorkPlans  WorkPlan[]                @relation("WorkPlanSourceMeeting")
 
   @@index([typeId, startAt])
   @@index([seriesId, startAt])
@@ -179,6 +180,7 @@ model MeetingDecision {
   proposal                   MeetingProposal?          @relation(fields: [proposalId], references: [id], onDelete: SetNull)
   actionCandidates           MeetingActionCandidate[]
   sourceWorkItems            WorkItem[]                @relation("WorkItemSourceMeetingDecision")
+  sourceWorkPlans            WorkPlan[]                @relation("WorkPlanSourceMeetingDecision")
   sourceProjectTasks         ProjectTask[]             @relation("ProjectTaskSourceMeetingDecision")
 
   @@index([meetingId, kind])
@@ -196,6 +198,7 @@ model MeetingActionCandidate {
   targetKind            String             @default("work_item")
   status                String             @default("candidate")
   linkedWorkItemId      Int?
+  linkedWorkPlanId      Int?
   linkedProjectTaskId   Int?
   createdBy             Int?
   createdAt             DateTime           @default(now())
@@ -204,12 +207,15 @@ model MeetingActionCandidate {
   agendaItem            MeetingAgendaItem? @relation(fields: [agendaItemId], references: [id], onDelete: SetNull)
   decision              MeetingDecision?   @relation(fields: [decisionId], references: [id], onDelete: SetNull)
   linkedWorkItem        WorkItem?          @relation("MeetingActionCandidateWorkItem", fields: [linkedWorkItemId], references: [id], onDelete: SetNull)
+  linkedWorkPlan        WorkPlan?          @relation("MeetingActionCandidateWorkPlan", fields: [linkedWorkPlanId], references: [id], onDelete: SetNull)
   linkedProjectTask     ProjectTask?       @relation("MeetingActionCandidateProjectTask", fields: [linkedProjectTaskId], references: [id], onDelete: SetNull)
   sourceWorkItems       WorkItem[]         @relation("WorkItemSourceMeetingActionCandidate")
+  sourceWorkPlans       WorkPlan[]         @relation("WorkPlanSourceMeetingActionCandidate")
   sourceProjectTasks    ProjectTask[]      @relation("ProjectTaskSourceMeetingActionCandidate")
 
   @@index([meetingId, status])
   @@index([decisionId])
   @@index([linkedWorkItemId])
+  @@index([linkedWorkPlanId])
   @@index([linkedProjectTaskId])
 }

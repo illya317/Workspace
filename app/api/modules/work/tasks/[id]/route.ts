@@ -12,6 +12,7 @@ import {
 } from "@workspace/work/server";
 
 const updateWorkItemSchema = z.object({
+  planId: z.coerce.number().nullable().optional(),
   category: z.string().optional(),
   itemType: z.string().optional(),
   content: z.string().optional(),
@@ -51,19 +52,19 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
   const parsedParams = routeIdParamsSchema.safeParse(await params);
   if (!parsedParams.success) {
-    return NextResponse.json({ error: "工作项 ID 无效" }, { status: 400 });
+    return NextResponse.json({ error: "节点 ID 无效" }, { status: 400 });
   }
 
   const workId = parsedParams.data.id;
   const existing = await getWorkItemAccessMetadata(workId);
-  if (!existing) return NextResponse.json({ error: "工作项不存在" }, { status: 404 });
+  if (!existing) return NextResponse.json({ error: "节点不存在" }, { status: 404 });
 
   const allowed = await canEditWorkTask(payload.userId, existing.targetType, existing.targetId ?? 0);
   if (!allowed) return NextResponse.json({ error: "无权限编辑工作计划" }, { status: 403 });
 
   const parsedBody = updateWorkItemSchema.safeParse(await request.json());
   if (!parsedBody.success) {
-    return NextResponse.json({ error: "工作项参数无效" }, { status: 400 });
+    return NextResponse.json({ error: "节点参数无效" }, { status: 400 });
   }
 
   const { participants, ...data } = parsedBody.data;
@@ -83,12 +84,12 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
   const parsedParams = routeIdParamsSchema.safeParse(await params);
   if (!parsedParams.success) {
-    return NextResponse.json({ error: "工作项 ID 无效" }, { status: 400 });
+    return NextResponse.json({ error: "节点 ID 无效" }, { status: 400 });
   }
 
   const workId = parsedParams.data.id;
   const existing = await getWorkItemAccessMetadata(workId);
-  if (!existing) return NextResponse.json({ error: "工作项不存在" }, { status: 404 });
+  if (!existing) return NextResponse.json({ error: "节点不存在" }, { status: 404 });
 
   const allowed = await canDeleteWorkTask(payload.userId, existing.targetType, existing.targetId ?? 0);
   if (!allowed) return NextResponse.json({ error: "无权限删除工作计划" }, { status: 403 });

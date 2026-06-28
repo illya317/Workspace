@@ -11,7 +11,7 @@ import {
 import { createEmptyWorkDraft, createWorkDraft } from "./model";
 import type { WorkItem, WorkItemDraft, WorkTarget } from "./types";
 
-export function useWorks(target: WorkTarget | null) {
+export function useWorks(target: WorkTarget | null, planId: number | null) {
   const [works, setWorks] = useState<WorkItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -23,19 +23,19 @@ export function useWorks(target: WorkTarget | null) {
   const { notify: showToast } = useFeedback();
 
   const loadWorks = useCallback(async () => {
-    if (!target) {
+    if (!target || !planId) {
       setWorks([]);
       return;
     }
     setLoading(true);
     try {
-      setWorks(await listWorkItems(target));
+      setWorks(await listWorkItems(target, planId));
     } catch (err) {
       showToast(err instanceof Error ? err.message : "加载工作计划失败", "error");
     } finally {
       setLoading(false);
     }
-  }, [showToast, target]);
+  }, [planId, showToast, target]);
 
   useEffect(() => { void loadWorks(); }, [loadWorks]);
 
@@ -44,11 +44,11 @@ export function useWorks(target: WorkTarget | null) {
     setEditingId(null);
     setDetailId(null);
     setEditDraft(null);
-  }, [target?.targetType, target?.targetId]);
+  }, [planId, target?.targetType, target?.targetId]);
 
   useEffect(() => {
-    setCreateDraft(createEmptyWorkDraft(nextSortOrder(works)));
-  }, [works]);
+    setCreateDraft(createEmptyWorkDraft(nextSortOrder(works), planId));
+  }, [planId, works]);
 
   const activeWork = useMemo(
     () => works.find((work) => work.id === detailId) || works.find((work) => work.id === editingId) || null,
@@ -63,19 +63,19 @@ export function useWorks(target: WorkTarget | null) {
   }
 
   async function handleCreate() {
-    if (!target || saving) return;
+    if (!target || !planId || saving) return;
     if (!createDraft.content.trim()) {
-      showToast("工作内容不能为空", "error");
+      showToast("节点内容不能为空", "error");
       return;
     }
     setSaving(true);
     try {
-      await createWorkItem(target, { ...createDraft, sortOrder: createDraft.sortOrder || nextSortOrder(works) });
+      await createWorkItem(target, { ...createDraft, planId, sortOrder: createDraft.sortOrder || nextSortOrder(works) });
       setCreating(false);
       await loadWorks();
-      showToast("工作项已新建", "success");
+      showToast("节点已新建", "success");
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "新建工作项失败", "error");
+      showToast(err instanceof Error ? err.message : "新建节点失败", "error");
     } finally {
       setSaving(false);
     }
@@ -84,7 +84,7 @@ export function useWorks(target: WorkTarget | null) {
   async function handleUpdate() {
     if (!editingId || !editDraft || saving) return;
     if (!editDraft.content.trim()) {
-      showToast("工作内容不能为空", "error");
+      showToast("节点内容不能为空", "error");
       return;
     }
     setSaving(true);
@@ -93,9 +93,9 @@ export function useWorks(target: WorkTarget | null) {
       setEditingId(null);
       setEditDraft(null);
       await loadWorks();
-      showToast("工作项已保存", "success");
+      showToast("节点已保存", "success");
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "保存工作项失败", "error");
+      showToast(err instanceof Error ? err.message : "保存节点失败", "error");
     } finally {
       setSaving(false);
     }
@@ -109,9 +109,9 @@ export function useWorks(target: WorkTarget | null) {
       if (detailId === work.id) setDetailId(null);
       if (editingId === work.id) setEditingId(null);
       await loadWorks();
-      showToast("工作项已删除", "success");
+      showToast("节点已删除", "success");
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "删除工作项失败", "error");
+      showToast(err instanceof Error ? err.message : "删除节点失败", "error");
     } finally {
       setSaving(false);
     }

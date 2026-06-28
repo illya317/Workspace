@@ -124,6 +124,8 @@ export type MeetingDetail = MeetingSummary & {
     status: string;
     linkedWorkItemId: number | null;
     linkedWorkItemTitle: string | null;
+    linkedWorkPlanId: number | null;
+    linkedWorkPlanTitle: string | null;
     linkedProjectTaskId: number | null;
     linkedProjectTaskTitle: string | null;
     linkedProjectId: number | null;
@@ -143,6 +145,7 @@ export type CreateMeetingDraft = {
 };
 
 export type ActionDraft = {
+  workPlanId: string;
   workItemId: string;
   projectTaskId: string;
   projectId: string;

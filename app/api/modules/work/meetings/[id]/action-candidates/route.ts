@@ -5,13 +5,14 @@ import { requireApiAccess } from "@workspace/platform/server/auth";
 import { createMeetingActionCandidate, linkMeetingActionCandidate, meetingServiceResponse } from "@workspace/work/server";
 
 const actionCandidateSchema = z.object({
-  action: z.enum(["ignore", "linkWorkItem", "createWorkItem", "linkProjectTask", "createProjectTask"]).optional(),
+  action: z.enum(["ignore", "linkWorkPlan", "createWorkPlan", "linkWorkItem", "createWorkItem", "linkProjectTask", "createProjectTask"]).optional(),
   candidateId: z.coerce.number().int().positive().optional(),
   agendaItemId: z.coerce.number().int().positive().nullable().optional(),
   decisionId: z.coerce.number().int().positive().nullable().optional(),
   title: z.string().optional(),
   description: z.string().optional(),
   targetKind: z.string().optional(),
+  workPlanId: z.coerce.number().int().positive().optional(),
   workItemId: z.coerce.number().int().positive().optional(),
   projectTaskId: z.coerce.number().int().positive().optional(),
   projectId: z.coerce.number().int().positive().optional(),
