@@ -1,19 +1,19 @@
-# Level 2 Agent Execution Guide
+# Structure Agent Execution Guide
 
 这份文档给 Feature / Data / Operations agent 开工用。Architecture agent 负责发现结构漂移、维护 gate/registry/API contract/baseline，并把问题拆成可执行任务包；其他 agent 按任务包执行，不重新定义规则。
 
-## 1. Level 2 三件套
+## 1. Structure 三件套
 
-Level 2 当前只落地三类结构智能，不引入第二套架构系统：
+Structure scan 当前只落地三类结构智能，不引入第二套架构系统：
 
 | 能力 | 权威入口 | 用途 | 谁可以改 |
 |---|---|---|---|
-| AST / pattern scan | `scripts/arch/level2.ts` | 发现重复 UI pattern、API route 模板漂移、旧 service 债、app hook/UI 存量 | Architecture |
+| AST / pattern scan | `npm run arch:structure` | 发现重复 UI pattern、API route 模板漂移、旧 service 债、app hook/UI 存量 | Architecture |
 | Registry | `packages/platform/module-registry.ts` | 模块、资源、路由和 API guard 的注册锁 | Architecture |
 | API Contract | `packages/platform/api-registry.ts` | 从 module registry 派生 API contract，识别未注册 route | Architecture |
 | Core UI registry | `packages/core/ui/component-registry.ts` | 给 AST/pattern scan 提供可消费的 Core UI primitive/page shell 白名单 | Architecture/Core |
 
-强制执行仍只通过 `npm run arch:gate`。`npm run arch:level2` 是报告和拆任务输入，不是独立 CI gate。
+强制执行仍只通过 `npm run arch:gate`。`npm run arch:structure` 是报告和拆任务输入，不是独立 CI gate；`arch:level2` 只是兼容别名。
 
 ## 2. 角色启动规则
 
@@ -60,7 +60,7 @@ Feature/Data/Operations agent 收到后按以下规则执行：
 
 ## 4. 标准迁移顺序
 
-Level 2 任务必须按依赖执行，常见顺序如下：
+Structure 任务必须按依赖执行，常见顺序如下：
 
 | 场景 | 正确顺序 |
 |---|---|
@@ -69,7 +69,7 @@ Level 2 任务必须按依赖执行，常见顺序如下：
 | 搜索框收口 | 先确认 `SearchInput` / `FkFieldInput` / `SelectField` / `OptionPicker` 是否覆盖场景 -> 删除 app/业务包一次性搜索控件 -> 业务侧只传 value/options/fkKey -> 确认 `nativeSearchInputFiles` 仍为 0 |
 | 页面设计壳收口 | 先确认 `packages/core/ui/component-registry.ts` 是否已有 PageShell/PageContent/PanelCard/SectionCard/SplitWorkspace/DataTable/Toolbar 等入口 -> 缺失则 Architecture/Core 先登记并导出 -> Feature 改业务页消费 Core -> 删除业务包内手写 `bg-white + rounded + shadow/border` 页面壳 -> ratchet `pageDesignDriftFiles` baseline |
 | Core UI 新入口 | 先实现 Core primitive/page shell -> 写入 `packages/core/ui/component-registry.ts` 并补中文 `description`、中文 `example` 和 `composes` 组合信息 -> 从 `packages/core/ui/index.ts` 导出 -> 如需可视化示例则在 `UiComponentsShowcase`（`/settings/ui`）增加 case -> 跑 `arch:gate` 确认 `unregisteredCoreUiExports` 和 `duplicateCoreUiRegistrations` 仍为 0 |
-| module/API contract 漂移 | 先更新 module registry 或 API contract -> route/service 对齐 -> 跑 `arch:level2` 确认无新增漂移 -> 跑 `arch:gate` |
+| module/API contract 漂移 | 先更新 module registry 或 API contract -> route/service 对齐 -> 跑 `arch:structure` 确认无新增漂移 -> 跑 `arch:gate` |
 | 旧实现迁移 | 先在 package 建真实实现 -> 更新 import -> 删除无引用旧文件 -> ratchet baseline |
 
 优先级固定为：
@@ -126,7 +126,7 @@ baseline 是历史债锁，不是白名单。
 
 `nativeSearchInputFiles` 是搜索型原生 input 的硬约束，baseline 必须保持空数组。Feature/UI 发现旧的一次性搜索控件时应删除并改用 Core `SearchInput` / `FkFieldInput` / `SelectField` / `OptionPicker`，不要维护旧控件，也不要为新文件扩写 baseline。
 
-`unregisteredCoreUiExports` 和 `duplicateCoreUiRegistrations` 的 baseline 必须保持空数组。新增 Core UI 组件时，不能只从 `packages/core/ui/index.ts` 导出；必须同步登记到 `packages/core/ui/component-registry.ts`，并填写中文 `description` 与中文 `example`。`example` 会自动显示在 Core UI 注册表页面；没有 `example` 会被 TypeScript 的 registry 类型拦住。如果导出的是 hook、className helper、registry set 等非组件能力，只能由 Architecture 在 `scripts/arch/level2.ts` 的非组件导出集合中显式说明。
+`unregisteredCoreUiExports` 和 `duplicateCoreUiRegistrations` 的 baseline 必须保持空数组。新增 Core UI 组件时，不能只从 `packages/core/ui/index.ts` 导出；必须同步登记到 `packages/core/ui/component-registry.ts`，并填写中文 `description` 与中文 `example`。`example` 会自动显示在 Core UI 注册表页面；没有 `example` 会被 TypeScript 的 registry 类型拦住。如果导出的是 hook、className helper、registry set 等非组件能力，只能由 Architecture 在 structure scan 的非组件导出集合中显式说明。
 
 ## 7. 当前并行避让
 

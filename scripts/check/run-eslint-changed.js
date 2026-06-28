@@ -5,16 +5,6 @@ const { spawnSync } = require("node:child_process");
 const ESLINT_EXTENSIONS = /\.(cjs|cts|js|jsx|mjs|mts|ts|tsx)$/i;
 const ESLINT_CACHE_ARGS = ["--cache", "--cache-location", ".cache/eslint/.eslintcache"];
 
-const lineGrowthResult = spawnSync(
-  process.execPath,
-  ["scripts/check/check-net-line-growth.js"],
-  { stdio: "inherit" },
-);
-
-if (lineGrowthResult.status !== 0) {
-  process.exit(lineGrowthResult.status ?? 1);
-}
-
 function runGit(args) {
   const result = spawnSync("git", args, { encoding: "utf8" });
   if (result.status !== 0) {

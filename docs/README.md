@@ -44,7 +44,7 @@
 | Agent 项目总览和新鲜度 | `docs/engineering/project-overview.md` | Coordinator / Architecture |
 | 开工分流和交接 | `docs/engineering/agent-startup.md`, `docs/engineering/subagent.md`, `docs/engineering/agent-handbook.md` | Coordinator |
 | 架构边界和 gate | `docs/engineering/architecture-governance.md`, `docs/engineering/module-boundaries.md` | Architecture |
-| Level 2 任务包执行 | `docs/engineering/level2-agent-execution.md` | Architecture |
+| Structure 任务包执行 | `docs/engineering/level2-agent-execution.md` | Architecture |
 | Core UI 五层治理 | `docs/engineering/core-ui-governance.md` | Architecture / UI-system |
 | Core UI 和页面 primitive | `docs/engineering/reusable-components.md` | Architecture / UI-system |
 | Core Toolbar 规则 | `docs/engineering/core-toolbar.md` | Architecture / UI-system |

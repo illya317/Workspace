@@ -262,7 +262,7 @@ API 权限规则：
 - 搜索优先用 `@workspace/core/search` 的通用匹配；业务语义搜索留在对应业务包。
 - 当前用户类型从 `@workspace/platform/types` 导入 `SessionUser`，禁止页面内重复定义 `interface User`。
 - 业务页面 facade 负责组合，不承载大段业务逻辑；超过 150 行应拆 components/hooks。
-- 组件或 hook 以 220 行为新代码目标，service 以 260 行为新代码目标；package lint 硬上限是 TSX 500 行、TS 550 行。拆分必须降低理解成本，不能只是为过行数红线搬家。`lint:changed` 会检查 changed + untracked 的真实净增行，默认不得净增加；如果确需例外，用 `NET_LINE_GROWTH_LIMIT=<allowed-net-lines>` 显式说明。
+- 组件或 hook 以 220 行为新代码目标，service 以 260 行为新代码目标；package lint 硬上限是 TSX 500 行、TS 550 行。拆分必须降低理解成本，不能只是为过行数红线搬家。`lint:changed` 不检查净增行；清债/重构跑 `check:refactor`，手动总行数预算跑 `complexity:line-budget`。
 - 新业务模块必须有 `types.ts`、必要 hooks/components，以及 `ARCHITECTURE.md`。
 - 禁止在页面里直接堆 fetch、权限判断、复杂映射和计算；这些应分别下沉到 hook、API/service、权限 helper。
 

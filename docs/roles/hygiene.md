@@ -16,9 +16,9 @@ Hygiene 是简单清道夫：负责周期性巡检细碎治理、简单历史债
 - 定期运行或阅读 `npm run check:hygiene` 的结果；这是 strict 模式，发现问题必须失败。
 - 日常/CI 的 `npm run check:hygiene:warn` 只用于提示，不作为清债完成依据。
 - 检查 `scripts/arch/*baseline*.json` 是否只减少简单历史债，禁止为了新违规扩写 baseline。
-- 运行或阅读 `arch:level2:hygiene` 的简单清扫 ratchet。
+- 运行或阅读 `arch:structure:hygiene` 的简单清扫 ratchet。
 - 观察业务视觉 token 硬编码、Core 业务事实泄漏、组件内本地 UI config 是否只减不增；这些是 hygiene 候选项。
-- 阅读 `arch:level2` 完整报告时只做分类和回交，不把复杂项直接认领为 hygiene 清债。
+- 阅读 `arch:structure` 完整报告时只做分类和回交，不把复杂项直接认领为 hygiene 清债。
 - 检查 `company:check`、ESLint 和 `arch:gate` 是否有规则漏洞、误报或过细规则混入主链路。
 - 维护 planning 生命周期、命名、done/stale 归档和 reference 90 天未引用检查。
 - 发现 stale 文档时分派给内容 owner；Hygiene 只负责新鲜度和归档状态，不替 owner 改写业务事实。

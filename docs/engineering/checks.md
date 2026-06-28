@@ -6,8 +6,11 @@
 
 | 场景 | 命令 | 说明 |
 |---|---|---|
-| 局部 TS/TSX 改动 | `npm run check:changed` | 跑 changed lint（含净增行 gate）和 quick typecheck。 |
-| 仅检查本次净增行 | `npm run lint:net-lines` | 检查 staged diff；没有 staged diff 时检查 tracked changed + untracked。默认净增必须 `<= 0`。 |
+| 局部 TS/TSX 改动 | `npm run check:changed` | 跑 changed lint 和 quick typecheck；日常开发不检查净增行。 |
+| 清债/重构改动 | `npm run check:refactor` | 跑拆分质量、changed lint 和 quick typecheck。 |
+| 兼容旧清债入口 | `npm run check:cleanup` | `check:refactor` 的别名。 |
+| 仅检查本次总行数预算 | `npm run complexity:line-budget` | 检查 staged diff；没有 staged diff 时检查 tracked changed + untracked。默认净增必须 `<= 0`。 |
+| 仅检查拆分质量 | `npm run complexity:split-quality` | 防止为过 `max-lines` 把大文件随便搬家。 |
 | 当前变更阻断项 | `npm run check:blockers` | 跑业务阻断和 UI 阻断；这些问题由当前改动 agent 自己修。 |
 | 业务阻断 | `npm run gate:domain` | API、route、resource、RBAC、domain validation、app route 和包边界。 |
 | UI 阻断 | `npm run gate:ui` | Core UI 唯一入口、PageSurface 协议、Toolbar/Input/Selector 等结构性 UI 边界。 |
@@ -16,7 +19,7 @@
 | PR / CI 权威检查 | `npm run check:ci` | 合并前主链路；hygiene 只以 warning 方式提示。 |
 | 兼容旧入口 | `npm run check:full` | `check:ci` 的别名。 |
 | 日常 hygiene 提示 | `npm run check:hygiene:warn` | 跑简单清扫项但永远退出 0。 |
-| 周期性清债 | `npm run check:hygiene` | 强制巡检公司硬编码和简单 Level 2 hygiene 债务。 |
+| 周期性清债 | `npm run check:hygiene` | 强制巡检公司硬编码和简单 structure hygiene 债务。 |
 
 ## 边界
 
@@ -24,7 +27,11 @@
 
 `lint` 负责代码质量和局部静态规则，例如 ESLint warnings=0、基础 restricted imports、行数、明显不安全语法。它不承载架构模型，也不承载公司名、baseline 巡检这类细碎治理。
 
-`lint:changed` 会先跑净增行检查，再跑 ESLint。净增行公式是 `tracked additions - tracked deletions + untracked source lines`；有 staged diff 时只看 staged 内容，没有 staged diff 时看工作区 changed + untracked。默认 `NET_LINE_GROWTH_LIMIT=0`，即本次变更不得净增加；确有一次性迁移需要例外时，必须显式设置 `NET_LINE_GROWTH_LIMIT=<allowed-net-lines>` 并在交付说明中说明原因。这个 gate 是为了防止“为了过单文件行数，把 400 行拆成 200+300 行”的假降复杂度。
+`lint:changed` 只跑 changed ESLint，不检查净增行。净增行属于复杂度 ratchet，由 `complexity:line-budget` 显式触发。
+
+`complexity:line-budget` 的公式是 `tracked additions - tracked deletions + untracked source lines`；有 staged diff 时只看 staged 内容，没有 staged diff 时看工作区 changed + untracked。默认 `NET_LINE_GROWTH_LIMIT=0`，用于手动检查本次总行数预算。
+
+`complexity:split-quality` 是达到行数上限后的拆分质量 gate。普通新增功能不触发它；当 diff 呈现“主体文件减少 + parts/helper/config 增长”的拆分形态时，必须满足：单主体拆分的主体减少行数覆盖拆分文件增长；通用 helper 必须在当前 diff 中被至少两个主体引用，且这些消费者的总减少行数覆盖 helper 增长。未来复用不抵扣。
 
 ### typecheck
 
@@ -42,7 +49,7 @@
 - Open API registry、scope wrapper 和 console route 对齐。
 - 写入链路的 domain validation 收口。
 - app route hierarchy、module gate、package boundary 和 auth chain。
-- Level 2 里已经判定为业务阻断的历史债 ratchet，例如新增未登记 API route、裸 Prisma、缺 validation/service、旧 root service/auth/prisma 入口。
+- Structure scan 里已经判定为业务阻断的历史债 ratchet，例如新增未登记 API route、裸 Prisma、缺 validation/service、旧 root service/auth/prisma 入口。
 
 ### gate:ui
 
@@ -81,7 +88,7 @@ Hygiene 是简单清道夫，不是 UI 重构队。日常/CI 使用 `check:hygie
 Hygiene 负责简单、局部、机械、可回滚的清扫：
 
 - 公司专有事实硬编码扫描。
-- `arch:level2:hygiene` 中的简单债务 ratchet：业务视觉 token 硬编码候选、Core 业务事实泄漏候选、组件内本地 UI config 候选。
+- `arch:structure:hygiene` 中的简单债务 ratchet：业务视觉 token 硬编码候选、Core 业务事实泄漏候选、组件内本地 UI config 候选。
 - stale baseline 删除和小范围 baseline 收窄。
 - 已有封装能力下的机械迁移。
 - 明显 dead code、禁用注释和小 constant/token 债。
@@ -89,4 +96,4 @@ Hygiene 负责简单、局部、机械、可回滚的清扫：
 
 Hygiene 不负责新公共 API、新封装入口、页面结构重排、复杂组件重构、大面积业务迁移或产品交互设计。发现这类问题时，只做归类和回交：结构性阻断进入 `gate:ui` / `gate:domain`，复杂 UI/业务迁移交给对应 Feature 或 Architecture。
 
-`arch:level2` 仍是完整结构报告，只用于拆任务和观察趋势；它不是 hygiene strict 的工作清单。
+`arch:structure` 是完整结构报告，只用于拆任务和观察趋势；它不是 hygiene strict 的工作清单。`arch:level2` 保留为兼容别名。

@@ -850,7 +850,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
   try {
     console.log(JSON.stringify(createLevel2Report(), null, 2));
   } catch (error) {
-    console.error("Level 2 structure intelligence report failed.");
+    console.error("Structure scan report failed.");
     console.error(error instanceof Error ? error.message : error);
     process.exit(1);
   }

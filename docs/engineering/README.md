@@ -9,7 +9,7 @@
 | 项目总览和新鲜度 | `project-overview.md` | Coordinator / Architecture |
 | 开工和交接 | `agent-startup.md`, `subagent.md`, `agent-handbook.md` | Coordinator |
 | 架构和包边界 | `architecture-governance.md`, `module-boundaries.md` | Architecture |
-| Level 2 迁移执行 | `level2-agent-execution.md` | Architecture |
+| Structure 迁移执行 | `level2-agent-execution.md` | Architecture |
 | Core UI / Toolbar / reusable components | `core-ui-governance.md`, `core-toolbar.md`, `reusable-components.md` | Architecture / UI-system |
 | 新模块和现有模块能力 | `new-module-checklist.md`, `new-domain-template.md`, `existing-module-feature-checklist.md` | Architecture / Feature |
 | Schema 和 DB | `schema-governance.md`, `database.md` | Data |

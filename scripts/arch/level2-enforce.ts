@@ -31,13 +31,13 @@ function checkRatchet(name: string, current: string[], baseline: string[]) {
   const stale = diff(normalizedBaseline, normalizedCurrent);
 
   if (additions.length > 0) {
-    console.error(`✗ Level 2 baseline ratchet failed: new ${name} item(s) detected.`);
+    console.error(`✗ Structure baseline ratchet failed: new ${name} item(s) detected.`);
     for (const item of additions) console.error(`  + ${item}`);
     return false;
   }
 
   if (stale.length > 0) {
-    console.error(`✗ Level 2 baseline ratchet failed: stale ${name} baseline item(s).`);
+    console.error(`✗ Structure baseline ratchet failed: stale ${name} baseline item(s).`);
     console.error("  Remove migrated items from scripts/arch/level2-baseline.json.");
     for (const item of stale) console.error(`  - ${item}`);
     return false;
@@ -58,7 +58,7 @@ function parseScope(argv: string[]): Level2DetectorScope {
   ) {
     return scope;
   }
-  throw new Error(`Unknown Level 2 ratchet scope: ${scope}`);
+  throw new Error(`Unknown structure ratchet scope: ${scope}`);
 }
 
 export function checkLevel2Ratchet(scope: Level2DetectorScope = "all") {
@@ -70,10 +70,10 @@ export function checkLevel2Ratchet(scope: Level2DetectorScope = "all") {
       if (!checkRatchet(name, current, baseline[name] ?? [])) return false;
     }
 
-    console.log(`✓ Level 2 ${scope} baseline ratchet passed.`);
+    console.log(`✓ Structure ${scope} baseline ratchet passed.`);
     return true;
   } catch (error) {
-    console.error(`✗ Level 2 ${scope} baseline ratchet failed.`);
+    console.error(`✗ Structure ${scope} baseline ratchet failed.`);
     console.error(error instanceof Error ? `  ${error.message}` : error);
     return false;
   }

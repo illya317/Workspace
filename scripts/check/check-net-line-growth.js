@@ -155,14 +155,15 @@ if (stats.length === 0) {
 
 if (net > limit) {
   process.stderr.write(
-    `Net line growth check failed: net ${formatSigned(net)} lines (+${added}/-${deleted}), limit ${formatSigned(limit)}.\n`,
+    `Line budget check failed: net ${formatSigned(net)} lines (+${added}/-${deleted}), limit ${formatSigned(limit)}.\n`,
   );
-  process.stderr.write("Reduce net growth, delete obsolete code, or split only when the total changed + untracked lines do not grow.\n");
+  process.stderr.write("This is a complexity ratchet for cleanup/over-limit work, not the daily changed lint.\n");
+  process.stderr.write("Reduce net growth, delete obsolete code, or run split-quality when the work is specifically a file split.\n");
   process.stderr.write("For an intentional exception, rerun with NET_LINE_GROWTH_LIMIT=<allowed-net-lines>.\n");
   printTopContributors(stats);
   process.exit(1);
 }
 
 process.stdout.write(
-  `Net line growth check passed: net ${formatSigned(net)} lines (+${added}/-${deleted}), limit ${formatSigned(limit)}.\n`,
+  `Line budget check passed: net ${formatSigned(net)} lines (+${added}/-${deleted}), limit ${formatSigned(limit)}.\n`,
 );

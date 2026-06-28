@@ -47,11 +47,11 @@
 - Work Feature 线程正在处理 `/work/projects` 左右分栏体验。若需要通用分栏，只补 Core UI 稳定入口，Work 只接业务数据。
 - Production/QC Data 线程可能修改 `.workspace/config/scripts/generate-product-stage-tests.mjs` 和生成的 pharma-qc JSON/cache。其他 agent 不要提交这些文件。
 
-## 5. Level 2 使用方式
+## 5. Structure Scan 使用方式
 
-- `npm run arch:level2` 只用于发现结构漂移和拆任务，不是 architecture gate。
+- `npm run arch:structure` 只用于发现结构漂移和拆任务，不是 architecture gate。
 - 强制检查只有 `npm run arch:gate`。
-- Level 2 baseline ratchet 属于 `npm run check:hygiene`，baseline 只能减少，不能为新违规扩写。
+- Structure baseline ratchet 已拆成 domain/ui/hygiene scope；baseline 只能减少，不能为新违规扩写。
 - 公司硬编码、baseline 债务和 lint/arch 规则漏洞巡检归 Hygiene Role，不进主 CI 阻断链路。
 - 细则见 `docs/engineering/level2-agent-execution.md`。
 
@@ -93,6 +93,6 @@
 - 只有这些情况主动跑 npm 检查：用户明确要求；当前 agent 是收口/集成/提交前验证角色；改动触及共享脚本、CI、package 配置、schema、权限/registry/gate 或跨模块 contract；或局部自查无法判断风险。
 - Coordinator 收口自检不等于最终 Review；全部完成后需要独立 Review 审查最终 diff 和交付风险。
 - 本地重型检查走项目锁串行执行。`lint`、`typecheck`、`arch:gate`、`build` 等 npm script 已包 `scripts/check/with-check-lock.js`；如果终端提示 `Waiting for project check lock`，说明别的 agent 正在跑检查，等待即可，不要再开并行检查。`arch:gate` 会按代码快照复用已通过结果；看到 `Reusing cached arch:gate result` 表示同一快照无需重复跑。
-- 收口/集成/提交前验证时按风险选命令：文档改动跑 `npm run docs:check`；普通 TS/TSX 跑 `npm run check:changed`；涉及边界、权限、registry、Core/Platform 或 API contract 时加 `npm run check:blockers`；只碰业务访问模型跑 `npm run gate:domain`；只碰结构性 UI 边界跑 `npm run gate:ui`；schema/model/migration 跑 `npm run check:data`；CI 收口跑 `npm run check:ci`；周期性简单清债跑 `npm run check:hygiene`。`check:changed` 内的 `lint:changed` 会先检查 changed + untracked 的真实净增行，默认不得净增加。
+- 收口/集成/提交前验证时按风险选命令：文档改动跑 `npm run docs:check`；普通 TS/TSX 跑 `npm run check:changed`；涉及边界、权限、registry、Core/Platform 或 API contract 时加 `npm run check:blockers`；只碰业务访问模型跑 `npm run gate:domain`；只碰结构性 UI 边界跑 `npm run gate:ui`；清债/重构专项跑 `npm run check:refactor`；schema/model/migration 跑 `npm run check:data`；CI 收口跑 `npm run check:ci`；周期性简单清债跑 `npm run check:hygiene`。净增行预算只在 `complexity:line-budget` 中显式执行，日常 `check:changed` 不跑。
 - pre-commit 的 `check:quick` 是最后防线，不要用 `--no-verify` 绕过。检查失败时先判断是否由当前任务造成；无关并行失败要在交付说明里标明，不要顺手修或提交别人的文件。
 - 本地开发只允许一个 3000 端口 dev server。需要开 dev 前先查 `lsof -nP -iTCP:3000 -sTCP:LISTEN`。

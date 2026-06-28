@@ -63,7 +63,7 @@
 
 ```bash
 npx tsc --noEmit          # 类型检查
-npm run lint:changed      # Lint（含文件行数红线和 changed + untracked 净增行 gate）
+npm run lint:changed      # Lint（含文件行数红线；不含净增行 gate）
 npm run build             # 构建
 npm run arch:gate         # 唯一架构门禁：AST/DAG/module/auth/package 边界
 ```

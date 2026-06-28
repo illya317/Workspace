@@ -54,4 +54,4 @@ npm run arch:gate
 npm run check:changed
 ```
 
-`check:changed` 包含 changed + untracked 净增行 gate；默认不得净增加。若本任务确实需要净新增代码，交付说明中写清原因和使用的 `NET_LINE_GROWTH_LIMIT`。
+`check:changed` 不包含净增行 gate。清债、重构或达到复杂度上限后的专项任务跑 `npm run check:refactor`；需要查看总行数预算时再跑 `npm run complexity:line-budget` 并说明使用的 `NET_LINE_GROWTH_LIMIT`。

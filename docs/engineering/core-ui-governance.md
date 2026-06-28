@@ -233,7 +233,7 @@ Surface 使用红线：
 
 新增 direct 入口必须由 `exposure` 硬锁为 `PageSurface`、`InputControl`、`SelectorPanel`、`CreatePanel`、`useFeedback`；`via` 必须指向这些 direct 入口。基础/私有实现只保留在 registry 关系数据中，不得作为 UI 组件库主展示根节点或业务可调用入口。
 
-新增或迁移 registry entry 时必须填写 `category`、`subcategory`；业务/agent 可调用性只由 `exposure` 表达。`arch:level2` 会报告 `coreUiMissingOwnership`、`coreUiInvalidOwnership`、`coreUiCommonDomainDependency`、`coreUiSiblingL2Coupling`、`businessCommonRendererImports`、`domainSharedL2LayoutShells`、`surfaceOwnsPageChrome`，以及业务视觉 token 硬编码、Core 业务事实泄漏、组件内本地 UI config 候选。结构性 UI 项进入 `gate:ui`，简单清扫项进入 `check:hygiene`；不能为了消警把 domain shared shell 注册成 Core/Page API。
+新增或迁移 registry entry 时必须填写 `category`、`subcategory`；业务/agent 可调用性只由 `exposure` 表达。`arch:structure` 会报告 `coreUiMissingOwnership`、`coreUiInvalidOwnership`、`coreUiCommonDomainDependency`、`coreUiSiblingL2Coupling`、`businessCommonRendererImports`、`domainSharedL2LayoutShells`、`surfaceOwnsPageChrome`，以及业务视觉 token 硬编码、Core 业务事实泄漏、组件内本地 UI config 候选。结构性 UI 项进入 `gate:ui`，简单清扫项进入 `check:hygiene`；不能为了消警把 domain shared shell 注册成 Core/Page API。
 
 `FinanceShell`、`QcModuleShell`、`AdminToolbarProvider` 这类“同一个 L2 共有的布局壳”是历史债，禁止注册为 Core/Page API。长期方式是 route/module 层生成 `PageSurface` props，或 domain thin adapter 只返回/组合 `PageSurface` spec；页面级 header/navigation/toolbar/body/footer 必须由 `PageSurface` props 一次性声明，禁止子组件通过 provider 或 `useXxxPageToolbar` 反向注册页面 chrome。
 
@@ -317,7 +317,7 @@ Private Impl 修改等同于修改所属公开 UI，必须按 Core UI-system 任
 
 收口/CI：
 
-- `npm run arch:gate` 会运行 Core UI guard、registry relation validation、Level 2 ratchet 和 package boundary。
+- `npm run arch:gate` 会运行 Core UI guard、registry relation validation、structure ratchet 和 package boundary。
 - 非 direct Core UI 业务直引、新增未注册 Core UI、重复 registry、归属非法、基础/私有实现主展示泄漏、页面设计漂移、重复基础 UI 都必须由 gate 或 baseline ratchet 拦住。
 - 业务 UI 和 `app/(modules)` 只能从 `@workspace/core/ui` runtime 引入正式 direct 入口：`PageSurface`、`InputControl`、`SelectorPanel`、`CreatePanel`、`useFeedback`；`FormSurface`、`DataSurface`、`DocumentSurface`、`NavigationSurface`、`Toolbar`、`TabBar`、`Pagination` 等只能通过 direct 入口 spec 使用。新增直连由 `gate:ui` 阻断，存量迁移需要对应 Feature/Architecture 负责，不交给 Hygiene 重构。
 - 业务 UI 和 `app/(modules)` 新增 `PageSurface` `moduleView` block 会进入 `businessModuleViewUsages` ratchet；该 baseline 当前为 0，新增即失败，必须迁移到 typed block / Surface spec。

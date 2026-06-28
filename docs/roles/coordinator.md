@@ -69,4 +69,4 @@ npm run check:hygiene
 ```
 
 只有收口、集成、提交前验证或用户明确要求时，Coordinator 才统一跑重型检查。
-`check:changed` 内含净增行 gate；多 agent 并行时如果该 gate 因其他未提交 untracked 文件失败，收口者需要区分当前任务净增和旁路工作区净增。
+`check:changed` 不含净增行 gate。清债/重构收口需要额外跑 `check:refactor`；多 agent 并行时如果 line budget 因其他未提交 untracked 文件失败，收口者需要区分当前任务净增和旁路工作区净增。
