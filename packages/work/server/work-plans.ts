@@ -1,5 +1,6 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import type { DomainServiceResult } from "@workspace/platform/server/domain-validation";
+import { validateWorkPlanCommand } from "./domain/work-plan-validation";
 import {
   inferSourceKind,
   normalizeSourceKind,
@@ -202,6 +203,8 @@ export async function createWorkPlan(opts: {
   linkedProjectTaskId?: number | null;
   sortOrder?: number;
 }): Promise<DomainServiceResult<unknown>> {
+  const guard = validateWorkPlanCommand("createWorkPlan");
+  if (!guard.ok) return { ok: false, error: guard.issue.message, status: guard.issue.status };
   const command = normalizeWorkPlanInput(opts, true);
   if (!command.ok) return { ok: false, error: command.error, status: 400 };
   const relationError = await validateWorkPlanRelations(command.data);
@@ -214,6 +217,8 @@ export async function createWorkPlan(opts: {
 }
 
 export async function updateWorkPlan(planId: number, opts: Partial<Parameters<typeof createWorkPlan>[0]>): Promise<DomainServiceResult<unknown>> {
+  const guard = validateWorkPlanCommand("updateWorkPlan");
+  if (!guard.ok) return { ok: false, error: guard.issue.message, status: guard.issue.status };
   const id = normalizePositiveId(planId);
   if (!id) return { ok: false, error: "工作计划 ID 无效", status: 400 };
   const existing = await prisma.workPlan.findUnique({
@@ -254,6 +259,8 @@ export async function updateWorkPlan(planId: number, opts: Partial<Parameters<ty
 }
 
 export async function archiveWorkPlan(planId: number): Promise<DomainServiceResult<{ success: true }>> {
+  const guard = validateWorkPlanCommand("archiveWorkPlan");
+  if (!guard.ok) return { ok: false, error: guard.issue.message, status: guard.issue.status };
   const id = normalizePositiveId(planId);
   if (!id) return { ok: false, error: "工作计划 ID 无效", status: 400 };
   await prisma.workPlan.update({ where: { id }, data: { status: "archived" } });
