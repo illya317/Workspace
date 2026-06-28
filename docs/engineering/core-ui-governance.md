@@ -28,7 +28,7 @@ Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页
 - 不直接 import `Core Internal`、`Foundation`、`Private Impl`。
 - 不新增业务包 `Toolbar`、`Picker`、`Select`、`Search`、`Table`、`Modal`、`DateInput`、`Pagination`、`Tab` 等重复基础 UI。
 - 业务页不得在 Surface spec 中塞 `custom` 渲染自定义控件；例如 toolbar/action spec 禁止 `kind: "custom"`。`custom` 和手搓 UI 没有本质区别，会绕过 Core 的尺寸、字号、排序、对齐、预览和审计规则。
-- `PageSurface` 的 `moduleView` 是历史过渡逃生口，不是新增页面 API。存量已按 `shell-host`、`content-wrapper`、`split-side`、`analysis-visual`、`report-document`、`complex-editor`、`navigation-composition` 分类迁出，`businessModuleViewUsages` baseline 当前为 0；逐项 disposition 以 `docs/engineering/core-ui-module-view-migration.md` 为准。`arch:surface-boundaries` 会阻止 Core UI 以外源码重新新增 `moduleView`、`DataSurface.raw`、`DataSurface.visual`。
+- `PageSurface` 的 `moduleView` 是历史过渡逃生口，不是新增页面 API。存量已按 `shell-host`、`content-wrapper`、`split-side`、`analysis-visual`、`report-document`、`complex-editor`、`navigation-composition` 分类迁出，`businessModuleViewUsages` baseline 当前为 0；逐项 disposition 以 `docs/engineering/core-ui-module-view-migration.md` 为准。`arch:surface-boundaries` 会阻止 Core UI 以外源码重新新增 `moduleView`、`DataSurface.raw`、旧 `DataSurface kind="visual"`。
 - 纸面/A4/报告类内容使用 `PageSurface` 的 `document` block，由 Core `DocumentSurface` 管理文档宿主、宽度、字体和多页容器；图表、甘特、时间轴、组织图等复杂图形使用 `visualization` block；通用 section/panel/message/empty/actions 使用 `block` block。业务不得再用 `moduleView` 或 `FormSurface.note` 承载复杂正文。
 - 发现现有 Page API 不够用时，先停下来写清缺口；由 Architecture/Core UI 任务补公开接口，再回业务页替换。
 - Platform runtime 使用 Core UI 时同样只能走 `surface/helper/service` 分层入口、根级 `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent 页面 UI 已停用，仅保留 API / bot 接入能力。

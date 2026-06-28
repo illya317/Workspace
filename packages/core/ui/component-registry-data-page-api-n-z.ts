@@ -173,7 +173,15 @@ export const page_api_registry_entries = [
       { name: "framed", description: "是否使用通用面板外框。" },
       { name: "title", description: "可视化标题。" },
     ],
-    composes: ["PanelCard", "VisualizationGantt"],
+    composes: ["PanelCard", "VisualizationSurfaceChart", "VisualizationGantt"],
+  },
+  {
+    name: "VisualizationSurfaceChart",
+    category: "visualization",
+    subcategory: "visualization.surface",
+    role: "internal",
+    description: "VisualizationSurface 轻量图表 renderer。",
+    composes: [],
   },
   {
     name: "VisualizationGantt",

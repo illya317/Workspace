@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { PanelCard } from "./Card";
 import { joinClassNames } from "./card-utils";
-import { renderVisual } from "./DataSurface.visual";
+import { renderVisual } from "./VisualizationSurfaceChart";
 import VisualizationGantt from "./VisualizationGantt";
 import type { VisualizationGanttSpec } from "./VisualizationGanttTypes";
 

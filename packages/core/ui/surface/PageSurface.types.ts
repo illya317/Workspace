@@ -118,24 +118,8 @@ interface PageSurfaceBaseProps {
   kind: PageSurfaceKind;
   header?: PageSurfaceHeaderSpec;
   navigation?: PageSurfaceNavigationSpec;
-  /** @deprecated Use navigation={kind:"tabs", ...}. Kept for compatibility only. */
-  tabs?: PageSurfaceNavigationItemSpec[];
-  /** @deprecated Use navigation.active. Kept for compatibility only. */
-  activeTab?: string;
-  /** @deprecated Use navigation.activeChild. Kept for compatibility only. */
-  activeChild?: string;
-  /** @deprecated Use navigation.onChange. Kept for compatibility only. */
-  onTabChange?: (tab: string) => void;
-  /** @deprecated Use navigation.onChildChange. Kept for compatibility only. */
-  onChildChange?: (child: string) => void;
   toolbar?: PageSurfaceToolbarSpec;
   footer?: PageSurfaceFooterSpec;
-  /** @deprecated Use body.commands or toolbar items. Kept for compatibility only. */
-  actions?: PageSurfaceCommandSpec[];
-  /** @deprecated Use body.empty. Kept for compatibility only. */
-  empty?: PageSurfaceEmptySpec;
-  /** @deprecated Use body.blocks. Kept for compatibility only. */
-  blocks?: PageSurfaceBlockSpec[];
   body?: PageSurfaceBodySpec;
   embedded?: boolean;
   className?: string;

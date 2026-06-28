@@ -18,6 +18,7 @@ import type {
   PageSurfaceBlockSpec,
   PageSurfaceBodySpec,
   PageSurfaceCommandSpec,
+  PageSurfaceEmptySpec,
   PageSurfaceHeaderSpec,
   PageSurfaceKind,
   PageSurfaceModalSpec,
@@ -59,7 +60,7 @@ export interface PageSurfaceShellPropsOptions {
   navigation?: PageSurfaceProps["navigation"];
   footer?: PageSurfaceProps["footer"];
   actions?: PageSurfaceCommandSpec[];
-  empty?: PageSurfaceProps["empty"];
+  empty?: PageSurfaceEmptySpec;
   embedded?: boolean;
   className?: string;
   contentClassName?: string;

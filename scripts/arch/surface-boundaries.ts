@@ -160,7 +160,7 @@ const DEPRECATED_SURFACE_USAGE_PATTERNS: Array<{
     migrationTarget: "Use BlockSurface.content for arbitrary React content, or define a narrower Surface spec.",
   },
   {
-    label: "DataSurface.visual",
+    label: "DataSurface kind=visual",
     pattern: /\bkind\s*(?::|=)\s*["']visual["']/,
     migrationTarget: "Use VisualizationSurface via createVisualizationBlock.",
   },
@@ -437,6 +437,27 @@ export function findSurfacePublicContractWarnings() {
       pattern: rule.label,
       reason: rule.reason,
     });
+  }
+
+  const pageSurfaceTypesFile = "packages/core/ui/surface/PageSurface.types.ts";
+  if (existsSync(pageSurfaceTypesFile)) {
+    const sourceFile = createSourceFile(pageSurfaceTypesFile);
+    const legacyBaseProps = new Set(["tabs", "activeTab", "activeChild", "onTabChange", "onChildChange", "actions", "empty", "blocks"]);
+    for (const statement of sourceFile.statements) {
+      if (!ts.isInterfaceDeclaration(statement) || statement.name.text !== "PageSurfaceBaseProps") continue;
+      const hasLegacyBaseProp = statement.members.some((member) => (
+        ts.isPropertySignature(member) &&
+        member.name &&
+        ts.isIdentifier(member.name) &&
+        legacyBaseProps.has(member.name.text)
+      ));
+      if (!hasLegacyBaseProp) continue;
+      warnings.push({
+        file: pageSurfaceTypesFile,
+        pattern: "page-compat-props",
+        reason: "PageSurface public contract only exposes body/navigation for content and page navigation.",
+      });
+    }
   }
 
   return warnings.sort((left, right) => `${left.file}:${left.pattern}`.localeCompare(`${right.file}:${right.pattern}`));

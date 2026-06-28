@@ -61,15 +61,13 @@ const CORE_UI_NON_COMPONENT_EXPORTS = new Set<string>([
   "createMessageBlock",
   "createModuleGridBlock",
   "createPageActionsBlock",
+  "createPageBody",
   "createPageCommand",
   "createPageDataBlock",
-  "createPageFieldsBlock",
-  "createPageFormBlock",
-  "createPageFormModalBlock",
-  "createPageInlineFieldsBlock",
   "createPageModalBlock",
   "createPageSurfaceProps",
   "createPageTableBlock",
+  "createPageTabsNavigation",
   "createPanelBlock",
   "createSectionBlock",
   "createSelectorPanelBlock",
@@ -77,7 +75,14 @@ const CORE_UI_NON_COMPONENT_EXPORTS = new Set<string>([
   "getFloatingOverlayOpenDetail",
   "useFeedback",
 ]);
-const CORE_UI_BUSINESS_IMPORT_ROLES = new Set(["surface", "helper", "service"]);
+const CORE_UI_ALLOWED_RUNTIME_IMPORTS = new Set([
+  "ActionGlyph",
+  "BlockSurface",
+  "FeedbackProvider",
+  "InputControl",
+  "PageSurface",
+  "useFeedback",
+]);
 const CORE_UI_ALLOWED_HOST_IMPORTS = new Set<string>();
 const FORBIDDEN_CORE_UI_TYPE_IMPORTS = new Set([
   "DataTableColumn",
@@ -126,9 +131,10 @@ const coreUiRegistrationByName = new Map(coreUiComponentRegistry.map((component)
 
 function isAllowedCoreUiBusinessImport(importedName: string) {
   if (CORE_UI_NON_COMPONENT_EXPORTS.has(importedName)) return true;
+  if (CORE_UI_ALLOWED_RUNTIME_IMPORTS.has(importedName)) return true;
   const component = coreUiRegistrationByName.get(importedName);
   if (!component) return false;
-  if (component.role && CORE_UI_BUSINESS_IMPORT_ROLES.has(component.role)) return true;
+  if (component.role === "helper" || component.role === "service") return true;
   if (component.role === "host" && CORE_UI_ALLOWED_HOST_IMPORTS.has(component.name)) return true;
   return false;
 }
@@ -149,7 +155,7 @@ function describeCoreUiBusinessImportViolation(importedName: string) {
   }
   return {
     role: component.role ?? "unknown",
-    reason: "business import must use role=surface/helper/service",
+    reason: "business value import must use a Core UI helper/service or explicit runtime allowlist; secondary Surfaces are spec/type-only",
   };
 }
 

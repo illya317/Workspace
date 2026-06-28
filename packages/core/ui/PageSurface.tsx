@@ -134,17 +134,8 @@ function renderPageWithHeader(props: PageSurfaceProps, frame: ReactNode) {
   );
 }
 
-function renderTabs(tabs?: PageSurfaceNavigationItemSpec[]) {
-  return tabs?.map(toTabDef);
-}
-
 function resolvePageBody(props: PageSurfaceProps): PageSurfaceBodySpec {
-  return {
-    ...props.body,
-    blocks: props.body?.blocks ?? props.blocks,
-    empty: props.body?.empty ?? props.empty,
-    commands: props.body?.commands ?? props.actions,
-  };
+  return props.body ?? {};
 }
 
 function renderSurfaceBody(props: PageSurfaceProps, options: { includePageChrome?: boolean } = {}) {
@@ -247,14 +238,15 @@ function renderEmbeddedSplitSurface(props: PageSurfaceSplitProps, body: ReactNod
 export default function PageSurface(props: PageSurfaceProps) {
   if (props.kind === "split") {
     const body = renderSurfaceBody(props, { includePageChrome: false });
+    const tabsNavigation = props.navigation?.kind === "tabs" && !props.navigation.hidden ? props.navigation : undefined;
     if (props.embedded) return renderEmbeddedSplitSurface(props, body);
     return renderPageWithHeader(props, (
       <WorkspaceSplitPage
-        tabs={props.navigation?.kind === "tabs" && !props.navigation.hidden ? props.navigation.items.map(toTabDef) : renderTabs(props.tabs)}
-        activeTab={props.navigation?.kind === "tabs" && !props.navigation.hidden ? props.navigation.active : props.activeTab}
-        activeChild={props.navigation?.kind === "tabs" && !props.navigation.hidden ? props.navigation.activeChild : props.activeChild}
-        onTabChange={props.navigation?.kind === "tabs" && !props.navigation.hidden ? props.navigation.onChange : props.onTabChange}
-        onChildChange={props.navigation?.kind === "tabs" && !props.navigation.hidden ? props.navigation.onChildChange : props.onChildChange}
+        tabs={tabsNavigation?.items.map(toTabDef)}
+        activeTab={tabsNavigation?.active}
+        activeChild={tabsNavigation?.activeChild}
+        onTabChange={tabsNavigation?.onChange}
+        onChildChange={tabsNavigation?.onChildChange}
         sideOpen={props.sideOpen}
         drawerOpen={props.drawerOpen}
         onSideOpenChange={props.onSideOpenChange}
@@ -275,14 +267,15 @@ export default function PageSurface(props: PageSurfaceProps) {
 
   const body = renderSurfaceBody(props, { includePageChrome: Boolean(props.embedded) });
   if (props.embedded) return renderEmbeddedSurfaceBody(props, body);
+  const tabsNavigation = props.navigation?.kind === "tabs" && !props.navigation.hidden ? props.navigation : undefined;
   if (props.kind === "analysis") {
     return renderPageWithHeader(props, (
       <AnalysisPageFrame
-        tabs={props.navigation?.kind === "tabs" && !props.navigation.hidden ? props.navigation.items.map(toTabDef) : renderTabs(props.tabs)}
-        activeTab={props.navigation?.kind === "tabs" && !props.navigation.hidden ? props.navigation.active : props.activeTab}
-        activeChild={props.navigation?.kind === "tabs" && !props.navigation.hidden ? props.navigation.activeChild : props.activeChild}
-        onTabChange={props.navigation?.kind === "tabs" && !props.navigation.hidden ? props.navigation.onChange : props.onTabChange}
-        onChildChange={props.navigation?.kind === "tabs" && !props.navigation.hidden ? props.navigation.onChildChange : props.onChildChange}
+        tabs={tabsNavigation?.items.map(toTabDef)}
+        activeTab={tabsNavigation?.active}
+        activeChild={tabsNavigation?.activeChild}
+        onTabChange={tabsNavigation?.onChange}
+        onChildChange={tabsNavigation?.onChildChange}
         summary={props.navigation?.kind === "cards" ? renderNavigation(props.navigation) : undefined}
         toolbar={renderPageToolbar(props)}
         footer={renderFooter(props.footer)}
@@ -295,11 +288,11 @@ export default function PageSurface(props: PageSurfaceProps) {
   }
   return renderPageWithHeader(props, (
     <DatabasePageFrame
-      tabs={props.navigation?.kind === "tabs" && !props.navigation.hidden ? props.navigation.items.map(toTabDef) : renderTabs(props.tabs)}
-      activeTab={props.navigation?.kind === "tabs" && !props.navigation.hidden ? props.navigation.active : props.activeTab}
-      activeChild={props.navigation?.kind === "tabs" && !props.navigation.hidden ? props.navigation.activeChild : props.activeChild}
-      onTabChange={props.navigation?.kind === "tabs" && !props.navigation.hidden ? props.navigation.onChange : props.onTabChange}
-      onChildChange={props.navigation?.kind === "tabs" && !props.navigation.hidden ? props.navigation.onChildChange : props.onChildChange}
+      tabs={tabsNavigation?.items.map(toTabDef)}
+      activeTab={tabsNavigation?.active}
+      activeChild={tabsNavigation?.activeChild}
+      onTabChange={tabsNavigation?.onChange}
+      onChildChange={tabsNavigation?.onChildChange}
       summary={props.navigation?.kind === "cards" ? renderNavigation(props.navigation) : undefined}
       toolbar={renderPageToolbar(props)}
       footer={renderFooter(props.footer)}

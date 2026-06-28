@@ -26,5 +26,5 @@ export const previewCaseByName: Record<string, readonly string[]> = {
   "StructuredTable": ["TableScrollFrame"],
   "TagListInput": ["TextField"],
   "Toast": ["ActionButton"],
-  "VisualizationSurface": ["DataSurface"],
+  "VisualizationSurface": ["VisualizationSurfaceChart"],
 };

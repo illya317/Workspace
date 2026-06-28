@@ -19,7 +19,7 @@
 3. 非 common 的 Surface 不应直接 compose 其他 Surface；共享能力应下沉到 `common` 或 helper。
 4. `InputControl` 归 `common.input` 且作为 `role=surface` 的通用声明接口保留。
 5. `host` 暂时为空；不要为了迁移便利新增 host。
-6. 业务代码不得新增 `PageSurface.moduleView`、`DataSurface.raw`、`DataSurface.visual` 这类兼容逃生口；`arch:surface-boundaries` 会扫描 Core UI 以外源码并报错。
+6. 业务代码不得新增 `PageSurface.moduleView`、`DataSurface.raw`、旧 `DataSurface kind="visual"` 这类兼容逃生口；`arch:surface-boundaries` 会扫描 Core UI 以外源码并报错。
 
 ## Current Status
 
