@@ -1,8 +1,3 @@
-ALTER TABLE "MeetingActionCandidate" ADD COLUMN "linkedWorkPlanId" INTEGER;
+ALTER TABLE "MeetingActionCandidate" ADD COLUMN "linkedWorkPlanId" INTEGER REFERENCES "WorkPlan"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 CREATE INDEX "MeetingActionCandidate_linkedWorkPlanId_idx" ON "MeetingActionCandidate"("linkedWorkPlanId");
-
-ALTER TABLE "MeetingActionCandidate"
-  ADD CONSTRAINT "MeetingActionCandidate_linkedWorkPlanId_fkey"
-  FOREIGN KEY ("linkedWorkPlanId") REFERENCES "WorkPlan"("id")
-  ON DELETE SET NULL ON UPDATE CASCADE;
