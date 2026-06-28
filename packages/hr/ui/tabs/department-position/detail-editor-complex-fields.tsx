@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface, useFeedback, type FormSurfaceItemSpec } from "@workspace/core/ui";
+import { PageSurface, createPageFieldsBlock, useFeedback } from "@workspace/core/ui";
 import { HR_MAJOR_OPTIONS, normalizeHrMajorItems, type HRMajorItem } from "@workspace/hr/constants/field-options";
 import { ENVIRONMENT_FACTOR_OPTIONS, WORK_AREA_OPTIONS, pickerOptions, primitiveListItems } from "./description-details";
 type WorkEnvironmentItem = {
@@ -55,19 +55,20 @@ export function WorkEnvironmentEditor({
     if (!confirmed) return;
     onChange(items.filter((_, itemIndex) => itemIndex !== index));
   }
-  const addAreaFields: FormSurfaceItemSpec<string>[] = !disabled ? [{
+  const addAreaFields = !disabled ? [{
     key: "addArea",
     label: "新增工作区域",
-    spec: { valueType: "string", editor: "select", state: availableAreas.length === 0 ? "disabled" : "normal", options: { source: "static", items: pickerOptions(availableAreas), searchPlaceholder: "搜索工作区域" } },
+    spec: { valueType: "string" as const, control: "choice" as const, state: availableAreas.length === 0 ? "disabled" as const : "normal" as const, options: { source: "static" as const, items: pickerOptions(availableAreas), searchPlaceholder: "搜索工作区域" } },
     value: "",
     placeholder: "新增工作区域",
-    onChange: (next) => addArea(next == null ? null : String(next)),
+    onChange: (next: unknown) => addArea(next == null ? null : String(next)),
     fieldClassName: "max-w-sm",
   }] : [];
   return <div className="space-y-2">
-      <FormSurface<string>
-        kind="fields"
-        fields={[
+      <PageSurface
+        embedded
+        kind="detail"
+        blocks={[createPageFieldsBlock<string>("work-environments", [
           {
             kind: "repeatable",
             key: "work-environments",
@@ -84,7 +85,7 @@ export function WorkEnvironmentEditor({
                   {
                     key: "area",
                     label: "工作区域",
-                    spec: { valueType: "string", editor: "select", state: disabled ? "disabled" : "normal", options: { source: "static", items: pickerOptions(areaOptions), searchPlaceholder: "搜索工作区域" } },
+                    spec: { valueType: "string", control: "choice", state: disabled ? "disabled" : "normal", options: { source: "static", items: pickerOptions(areaOptions), searchPlaceholder: "搜索工作区域" } },
                     value: item.area,
                     placeholder: "选择工作区域",
                     onChange: next => updateItem(index, { area: String(next ?? "") }),
@@ -108,7 +109,7 @@ export function WorkEnvironmentEditor({
                       field: {
                         key: "appendFactor",
                         label: "",
-                        spec: { valueType: "string", editor: "select", state: availableFactors.length === 0 ? "disabled" : "normal", options: { source: "static", items: pickerOptions(availableFactors), visibleCount: 6, searchPlaceholder: "搜索环境因素" } },
+                        spec: { valueType: "string", control: "choice", state: availableFactors.length === 0 ? "disabled" : "normal", options: { source: "static", items: pickerOptions(availableFactors), visibleCount: 6, searchPlaceholder: "搜索环境因素" } },
                         value: "",
                         placeholder: item.factors.length === 0 ? "添加环境因素" : "继续添加",
                         onChange: (next) => {
@@ -124,7 +125,7 @@ export function WorkEnvironmentEditor({
             }),
           },
           ...addAreaFields,
-        ]}
+        ])]}
       />
     </div>;
 }
@@ -174,10 +175,10 @@ export function MajorRequirementsEditor({
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <FormSurface<HRMajorItem>
-        kind="fields"
-        bodyClassName="gap-2"
-        fields={[{
+      <PageSurface
+        embedded
+        kind="detail"
+        blocks={[createPageFieldsBlock<HRMajorItem>("major-requirements", [{
           kind: "tagList",
           key: "majorRequirements",
           label: "",
@@ -190,34 +191,32 @@ export function MajorRequirementsEditor({
           itemTitle: (item) => (item.category ? `${item.category} / ${item.specialty}` : item.specialty),
           emptyText: disabled ? "未设置" : undefined,
           shellClassName: "content-start",
-          append: disabled
-            ? undefined
-            : {
-                className: "min-w-40 flex-1",
-                field: {
-                  key: "majorAppend",
-                  label: "",
-                  spec: {
-                    valueType: "string",
-                    editor: "autocomplete",
-                    state: disabled ? "disabled" : "normal",
-                    options: {
-                      source: "static",
-                      items: HR_MAJOR_OPTIONS.map((option) => ({
-                        value: option.specialty,
-                        label: option.specialty,
-                        subtitle: option.category,
-                        searchText: option.category,
-                      })),
-                      visibleCount: 5,
-                    },
-                  },
-                  value: "",
-                  placeholder: "未设置",
-                  onChange: (next) => addItem(next == null ? null : String(next)),
+          append: disabled ? undefined : {
+            className: "min-w-40 flex-1",
+            field: {
+              key: "majorAppend",
+              label: "",
+              spec: {
+                valueType: "string",
+                control: "choice",
+                state: disabled ? "disabled" : "normal",
+                options: {
+                  source: "static",
+                  items: HR_MAJOR_OPTIONS.map((option) => ({
+                    value: option.specialty,
+                    label: option.specialty,
+                    subtitle: option.category,
+                    searchText: option.category,
+                  })),
+                  visibleCount: 5,
                 },
               },
-        }]}
+              value: "",
+              placeholder: "未设置",
+              onChange: (next) => addItem(next == null ? null : String(next)),
+            },
+          },
+        }])]}
       />
     </div>
   );
@@ -255,9 +254,10 @@ export function ExperienceRequirementsEditor({
     onChange(items.filter((_, itemIndex) => itemIndex !== index));
   }
   return <div className="space-y-2">
-      <FormSurface
-        kind="fields"
-        fields={[{
+      <PageSurface
+        embedded
+        kind="detail"
+        blocks={[createPageFieldsBlock("experience-requirements", [{
           kind: "repeatable",
           key: "experience-requirements",
           title: label,
@@ -271,7 +271,7 @@ export function ExperienceRequirementsEditor({
               {
                 key: "years",
                 label: "年限（年以上）",
-                spec: { valueType: "number", editor: "input", state: disabled ? "disabled" : "normal" },
+                spec: { valueType: "number", control: "text", state: disabled ? "disabled" : "normal" },
                 value: item.years,
                 inputMode: "numeric",
                 placeholder: "1",
@@ -280,14 +280,14 @@ export function ExperienceRequirementsEditor({
               {
                 key: "requirement",
                 label: "要求内容",
-                spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" },
+                spec: { valueType: "string", control: "text", state: disabled ? "disabled" : "normal" },
                 value: item.requirement,
                 placeholder: "经验要求",
                 onChange: next => updateItem(index, { requirement: String(next ?? "") }),
               },
             ],
           })),
-        }]}
+        }])]}
       />
     </div>;
 }

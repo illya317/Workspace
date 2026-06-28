@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface } from "@workspace/core/ui";
+import { PageSurface, createPageFieldsBlock } from "@workspace/core/ui";
 import WorkForm from "./WorkForm";
 import type { WorkItem } from "./types";
 export interface WorkFormData {
@@ -28,10 +28,11 @@ export default function WorkFormSection({
   onSave
 }: WorkFormSectionProps) {
   return (
-    <FormSurface
-      kind="fields"
+    <PageSurface
+      embedded
+      kind="detail"
       className="mb-6"
-      fields={[{
+      blocks={[createPageFieldsBlock("department-work-plan", [{
         kind: "section",
         key: "department-work-plan",
         title: "部门工作计划",
@@ -45,7 +46,7 @@ export default function WorkFormSection({
           ...(!isAdmin ? [{ kind: "note" as const, key: "admin-only", content: "仅部门管理员可编辑工作计划", className: "mb-4 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" }] : []),
           ...(showForm ? [{ kind: "note" as const, key: "form", content: <div className="mb-6"><WorkForm onSave={onSave} onCancel={onCancelForm} /></div> }] : []),
         ],
-      }]}
+      }], { className: "mb-6" })]}
     />
   );
 }

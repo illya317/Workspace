@@ -26,7 +26,6 @@ export function useCostFilterToolbarItems({ filters, onChange }: Props) {
       onChange: (nextValue) => update("year", nextValue ? parseInt(nextValue) : undefined),
       placeholder: "全部",
       options: years.map((y) => ({ value: String(y), label: String(y) })),
-      triggerClassName: "min-w-28",
     },
     {
       kind: "select",
@@ -37,7 +36,6 @@ export function useCostFilterToolbarItems({ filters, onChange }: Props) {
       onChange: (nextValue) => update("month", nextValue ? parseInt(nextValue) : undefined),
       placeholder: "全部",
       options: months.map((m) => ({ value: String(m), label: `${m}月` })),
-      triggerClassName: "min-w-28",
     },
     {
       kind: "search",
@@ -46,7 +44,6 @@ export function useCostFilterToolbarItems({ filters, onChange }: Props) {
       value: filters.productName,
       onChange: (value) => update("productName", value),
       placeholder: "产品名称",
-      className: "min-w-0 sm:w-60",
     },
     {
       kind: "search",
@@ -55,7 +52,6 @@ export function useCostFilterToolbarItems({ filters, onChange }: Props) {
       value: filters.customerName,
       onChange: (value) => update("customerName", value),
       placeholder: "客户名称",
-      className: "min-w-0 sm:w-60",
     },
   ];
 

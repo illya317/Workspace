@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect } from "react";
 import FKInput from "./FKInput";
-import { FormSurface, type FormSurfaceInputControlSpec } from "@workspace/core/ui";
+import { InputControl, type InputControlProps } from "@workspace/core/ui";
 import EthnicityPicker from "./EthnicityPicker";
 import MajorPicker from "./MajorPicker";
 import ProfessionalTitlePicker from "./ProfessionalTitlePicker";
@@ -24,8 +24,8 @@ interface GenericFieldInputProps {
   className?: string;
 }
 
-function ControlField(control: Omit<FormSurfaceInputControlSpec, "kind">) {
-  return <FormSurface kind="control" control={{ kind: "inputControl", ...control }} />;
+function ControlField(control: InputControlProps) {
+  return <InputControl {...control} />;
 }
 
 export default function GenericFieldInput({
@@ -132,7 +132,7 @@ export default function GenericFieldInput({
       <ControlField
         spec={{
           valueType: "string",
-          editor: "select",
+          control: "choice",
           options: {
             source: "static",
             items: [
@@ -174,8 +174,8 @@ export default function GenericFieldInput({
       <ControlField
         spec={{
           valueType: "string",
-          editor: selectOptions.length > 8 ? "autocomplete" : "select",
-          options: { source: "static", items: selectOptions, visibleCount: 5 },
+          control: "choice",
+          options: { source: "static", mode: selectOptions.length > 8 ? "autocomplete" : "dropdown", items: selectOptions, visibleCount: 5 },
         }}
         value={String(value ?? "")}
         onChange={(next) => onChange(next ?? "")}
@@ -187,7 +187,7 @@ export default function GenericFieldInput({
   if (field.type === "boolean") {
     return (
       <ControlField
-        spec={{ valueType: "boolean", editor: mode === "edit" ? "switch" : "checkbox" }}
+      spec={{ valueType: "boolean", control: "boolean", presentation: mode === "edit" ? "switch" : "checkbox" }}
         value={!!value}
         onChange={onChange}
       />
@@ -197,7 +197,7 @@ export default function GenericFieldInput({
   if (field.type === "textarea") {
     return (
       <ControlField
-        spec={{ valueType: "string", editor: "textarea" }}
+        spec={{ valueType: "string", control: "text", multiline: true }}
         value={(value as string) ?? ""}
         onChange={onChange}
         className={className}
@@ -211,7 +211,7 @@ export default function GenericFieldInput({
   if (field.type === "date") {
     return (
       <ControlField
-        spec={{ valueType: "date", editor: "datePicker" }}
+        spec={{ valueType: "date", control: "temporal", precision: "date" }}
         value={String(value ?? "")}
         onChange={(next) => onChange(next ?? "")}
         onKeyDown={onKeyDown}
@@ -225,7 +225,7 @@ export default function GenericFieldInput({
       return (
         <ControlField
           inputRef={inputRef}
-          spec={{ valueType: "string", editor: "input" }}
+          spec={{ valueType: "string", control: "text" }}
           type="tel"
           value={formatPhoneNumber(value)}
           onChange={(next) => onChange(normalizePhoneValue(String(next ?? "")))}
@@ -238,7 +238,7 @@ export default function GenericFieldInput({
       return (
         <ControlField
           inputRef={inputRef}
-          spec={{ valueType: "string", editor: "input" }}
+          spec={{ valueType: "string", control: "text" }}
           type="text"
           value={normalizeChineseIdNumber(value) ?? ""}
           onChange={(next) => onChange(normalizeChineseIdNumber(String(next ?? ""))?.slice(0, 18) ?? null)}
@@ -250,7 +250,7 @@ export default function GenericFieldInput({
     return (
       <ControlField
         inputRef={inputRef}
-        spec={{ valueType: field.type === "number" ? "number" : "string", editor: field.type === "number" ? "number" : "input" }}
+        spec={{ valueType: field.type === "number" ? "number" : "string", control: field.type === "number" ? "number" : "text" }}
         type={inputType}
         value={String(value ?? "")}
         onChange={(next) => onChange(String(next ?? ""))}
@@ -261,7 +261,7 @@ export default function GenericFieldInput({
 
   return (
     <ControlField
-      spec={{ valueType: field.type === "number" ? "number" : "string", editor: field.type === "number" ? "number" : "input" }}
+      spec={{ valueType: field.type === "number" ? "number" : "string", control: field.type === "number" ? "number" : "text" }}
       type={inputType}
       value={field.type === "phone" ? formatPhoneNumber(value) : field.type === "chineseId" ? normalizeChineseIdNumber(value) ?? "" : (value as string) ?? ""}
       onChange={(next) => {

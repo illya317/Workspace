@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  DataSurface,
+  PageSurface,
   type DataSurfaceColumnSpec,
   type DataTableRowEditActionConfig,
   type PageSurfaceBlockSpec,
@@ -156,7 +156,7 @@ export function useWorkTaskTableBlock({
 
 export default function WorkTaskTable(props: WorkTaskTableProps) {
   const block = useWorkTaskTableBlock(props);
-  return <DataSurface {...block.surface} />;
+  return <PageSurface embedded kind="list" blocks={[block]} />;
 }
 
 function createColumns({

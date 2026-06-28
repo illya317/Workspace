@@ -61,6 +61,10 @@ function hasRouteGate(filePath, expectedHref, expectedKey) {
   if (!fs.existsSync(filePath)) return false;
   const text = readText(filePath);
   if (new RegExp(`ModuleHomePage\\s+moduleKey=["']${expectedKey.replace(/\./g, "\\.")}["']`).test(text)) return true;
+  const protectedModulePageRegex = new RegExp(
+    `createProtectedModulePage\\s*\\([\\s\\S]*?route\\s*:\\s*["']${expectedHref.replace(/\//g, "\\/")}["']`,
+  );
+  if (protectedModulePageRegex.test(text)) return true;
   const regex = new RegExp(
     `requireRouteAccess\\s*\\(\\s*["']${expectedHref.replace(/\//g, "\\/")}["']\\s*\\)`,
   );
@@ -114,7 +118,7 @@ if (violations.length > 0) {
   console.error("✗ Module page gate check failed.");
   for (const v of violations) {
     console.error(
-      `  ${v.pagePath} — missing requireRouteAccess("${v.expectedHref}") in page.tsx or upstream layout.tsx (declared at ${v.sourcePath}:${v.sourceLine} for ${v.key})`,
+      `  ${v.pagePath} — missing requireRouteAccess("${v.expectedHref}") or createProtectedModulePage({ route: "${v.expectedHref}" }) in page.tsx or upstream layout.tsx (declared at ${v.sourcePath}:${v.sourceLine} for ${v.key})`,
     );
   }
   process.exit(1);

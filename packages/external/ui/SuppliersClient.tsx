@@ -8,7 +8,6 @@ export default function SuppliersClient() {
       kind="list"
       contentClassName="py-10"
       toolbar={{
-        variant: "inline",
         items: [
           {
             kind: "icon-button",

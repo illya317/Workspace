@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 export interface BalanceCheckAccountNode {
   code: string;
   name: string;
@@ -174,9 +174,24 @@ export default function BalanceCheckTable({
       return node.isBalanced ? { kind: "badge", label: "平衡", tone: "green" } : { kind: "badge", label: "不一致", tone: "red" };
     }
   }], [expanded, maxLevel, onToggleNode]);
-  return <DataSurface kind="table" framed className="overflow-hidden" bodyClassName="overflow-x-auto" rows={rows} columns={columns} visibleColumns={visibleColumns} rowKey={({
-      node
-    }) => node.code} density="compact" tableClassName="text-base" rowClassName={({
-      node
-    }) => !node.isBalanced && node.children.length > 0 ? "bg-red-50/60" : ""} />
+  return (
+    <PageSurface
+      kind="list"
+      embedded
+      blocks={[
+        createPageTableBlock("balance-check", {
+          framed: true,
+          className: "overflow-hidden",
+          bodyClassName: "overflow-x-auto",
+          rows,
+          columns,
+          visibleColumns,
+          rowKey: ({ node }) => node.code,
+          density: "compact",
+          tableClassName: "text-base",
+          rowClassName: ({ node }) => !node.isBalanced && node.children.length > 0 ? "bg-red-50/60" : "",
+        }),
+      ]}
+    />
+  );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface } from "@workspace/core/ui";
+import { PageSurface, createPageFormModalBlock } from "@workspace/core/ui";
 
 interface PositionDeptModalProps {
   positionDeptModal: {
@@ -22,34 +22,38 @@ export default function PositionDeptModal({
   setPositionDeptModal,
 }: PositionDeptModalProps) {
   return (
-    <FormSurface
-      kind="modal"
-      open={!!positionDeptModal?.open}
-      title={`${positionDeptModal?.name || ""} — 所属部门`}
-      onClose={() => setPositionDeptModal(null)}
-      maxWidth="max-w-md"
-      fields={
-        positionDeptModal?.departments.length
-          ? [{
-              kind: "repeatable",
-              key: "departments",
-              items: positionDeptModal.departments.map((dept) => ({
-                key: dept,
-                fields: [{
-                  kind: "readonly",
-                  key: "department",
-                  label: "部门",
-                  value: dept,
-                }],
-              })),
-              columns: 1,
-            }]
-          : [{
-              kind: "note",
-              key: "empty",
-              content: "暂无关联部门",
-            }]
-      }
+    <PageSurface
+      embedded
+      kind="detail"
+      blocks={[
+        createPageFormModalBlock("position-departments", {
+          open: !!positionDeptModal?.open,
+          title: `${positionDeptModal?.name || ""} — 所属部门`,
+          onClose: () => setPositionDeptModal(null),
+          maxWidth: "max-w-md",
+        }, {
+          fields: positionDeptModal?.departments.length
+            ? [{
+                kind: "repeatable",
+                key: "departments",
+                items: positionDeptModal.departments.map((dept) => ({
+                  key: dept,
+                  fields: [{
+                    kind: "readonly",
+                    key: "department",
+                    label: "部门",
+                    value: dept,
+                  }],
+                })),
+                columns: 1,
+              }]
+            : [{
+                kind: "note",
+                key: "empty",
+                content: "暂无关联部门",
+              }],
+        }),
+      ]}
     />
   );
 }

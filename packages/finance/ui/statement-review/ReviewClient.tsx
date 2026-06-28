@@ -3,19 +3,31 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { DataSurface, PageSurface } from "@workspace/core/ui";
-import type { PageSurfaceBlockSpec, SurfaceToolbarItem, SurfaceToolbarItems } from "@workspace/core/ui";
-import ReviewAlerts from "./ReviewAlerts";
+import { PageSurface, createPageDataBlock, createPageTableBlock } from "@workspace/core/ui";
+import type { DataSurfaceColumnSpec, PageSurfaceBlockSpec, SurfaceToolbarItem, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useReviewFilterToolbarItems } from "./ReviewFilters";
-import ReviewTable, { type LineState } from "./ReviewTable";
 import type { RvLine } from "@workspace/finance/types";
 
 interface WpLine { id: number; lineCode: string; manualAmount: number; importedAmount: number; }
 interface Workpaper { id: number; lines: WpLine[]; }
 interface Review { id: number; status: string; isStale: boolean; lines: RvLine[]; }
+interface LineState { adjustedAmount: number | null; status: string; comment: string | null; finalAmount: number; }
 type Edits = Map<string, { adjustedAmount: number | null; status: string; comment: string | null }>;
 
 const RT_SET = new Set(["incomeStatement", "cashFlow"]);
+const REVIEW_STATUS_LABELS: Record<string, string> = {
+  pending: "待确认",
+  confirmed: "已确认",
+  adjusted: "已调整",
+  flagged: "已标记",
+};
+
+function formatAmount(n: number) {
+  return n.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
 
 export default function ReviewClient() {
   const router = useRouter();
@@ -274,40 +286,170 @@ export default function ReviewClient() {
         },
       ]
     : [];
+  const alertBlocks: PageSurfaceBlockSpec[] = [
+    ...(error ? [createPageDataBlock("review-error", { kind: "records", records: [], empty: error })] : []),
+    ...(rv?.isStale ? [createPageDataBlock("review-stale", { kind: "records", records: [], empty: "底稿已更新，当前校对为旧快照；请点击「重新生成校对」更新校对。" })] : []),
+    ...(hasFlaggedWithoutComment ? [createPageDataBlock("review-flagged-without-comment", { kind: "records", records: [], empty: "存在已标记(flagged)但未填写备注的行，请点击备注列填写标记原因。" })] : []),
+  ];
+  const reviewColumns: DataSurfaceColumnSpec<RvLine>[] = [{
+    key: "label",
+    label: "项目",
+    required: true,
+    className: "font-medium text-slate-800",
+    cell: (line) => line.label,
+  }, {
+    key: "systemAmount",
+    label: "系统建议",
+    required: true,
+    className: "w-28 text-right text-slate-400",
+    headerClassName: "text-right",
+    cell: (line) => formatAmount(line.systemAmount),
+  }, {
+    key: "workpaperAmount",
+    label: "底稿输入",
+    required: true,
+    className: "w-28 text-right text-slate-600",
+    headerClassName: "text-right",
+    cell: (line) => formatAmount(line.workpaperAmount),
+  }, {
+    key: "adjustedAmount",
+    label: "调整金额",
+    required: true,
+    className: "w-28 text-right",
+    headerClassName: "text-right",
+    cell: (line) => {
+      const state = getLineState(line);
+      const isEditing = editingAmt === line.lineCode;
+      if (isEditing) {
+        return {
+          kind: "input",
+          spec: { valueType: "number", control: "text" },
+          autoFocus: true,
+          value: editAmt,
+          onChange: (value) => setEditAmt(String(value ?? "")),
+          onBlur: () => commitAmt(line),
+          onKeyDown: (event) => {
+            if (event.key === "Enter") commitAmt(line);
+            if (event.key === "Escape") setEditingAmt(null);
+          },
+        };
+      }
+      return {
+        kind: "action",
+        action: {
+          key: `edit-amount-${line.lineCode}`,
+          label: state.adjustedAmount != null ? formatAmount(state.adjustedAmount) : "—",
+          size: "sm",
+          className: `${state.adjustedAmount != null ? "text-blue-600" : "text-gray-400"} border-0 bg-transparent px-1 py-0.5 shadow-none hover:bg-gray-100 disabled:bg-transparent`,
+          disabled: isReadOnly,
+          onClick: () => {
+            if (!isReadOnly) {
+              setEditingAmt(line.lineCode);
+              setEditAmt(state.adjustedAmount != null ? String(state.adjustedAmount) : "");
+            }
+          },
+        },
+      };
+    },
+  }, {
+    key: "finalAmount",
+    label: "最终金额",
+    required: true,
+    className: "w-28 text-right font-medium text-slate-800",
+    headerClassName: "text-right",
+    cell: (line) => formatAmount(getLineState(line).finalAmount),
+  }, {
+    key: "status",
+    label: "状态",
+    required: true,
+    className: "w-20 text-center",
+    headerClassName: "text-center",
+    cell: (line) => {
+      const status = getLineState(line).status;
+      return {
+        kind: "action",
+        action: {
+          key: `status-${line.lineCode}`,
+          label: REVIEW_STATUS_LABELS[status] || status,
+          size: "sm",
+          disabled: isReadOnly,
+          className: `px-1.5 py-0.5 text-xs ${status === "confirmed" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : status === "adjusted" ? "border-blue-200 bg-blue-50 text-blue-700" : status === "flagged" ? "border-red-200 bg-red-100 text-red-700" : "border-gray-200 bg-gray-100 text-gray-500"}`,
+          onClick: () => toggleStatus(line),
+        },
+      };
+    },
+  }, {
+    key: "comment",
+    label: "备注",
+    required: true,
+    className: "w-40",
+    cell: (line) => {
+      const state = getLineState(line);
+      const isEditing = editingCmt === line.lineCode;
+      if (isEditing) {
+        return {
+          kind: "input",
+          spec: { valueType: "string", control: "text" },
+          autoFocus: true,
+          value: editCmt,
+          onChange: (value) => setEditCmt(String(value ?? "")),
+          onBlur: () => commitCmt(line),
+          onKeyDown: (event) => {
+            if (event.key === "Enter") commitCmt(line);
+            if (event.key === "Escape") setEditingCmt(null);
+          },
+        };
+      }
+      return {
+        kind: "action",
+        action: {
+          key: `comment-${line.lineCode}`,
+          label: state.comment || (state.status === "flagged" ? "请填写标记原因…" : "—"),
+          size: "sm",
+          disabled: isReadOnly,
+          className: `w-full justify-start border-0 bg-transparent px-1 py-0.5 text-left shadow-none hover:bg-gray-100 disabled:bg-transparent ${state.comment ? "text-gray-600" : state.status === "flagged" ? "text-red-400 italic" : "text-gray-300"}`,
+          onClick: () => {
+            if (!isReadOnly) {
+              setEditingCmt(line.lineCode);
+              setEditCmt(state.comment || "");
+            }
+          },
+        },
+      };
+    },
+  }];
+  const bodyBlocks: PageSurfaceBlockSpec[] = [
+    ...reviewBlocks,
+    ...alertBlocks,
+    ...(rv
+      ? [
+          createPageTableBlock<RvLine>("review-lines", {
+            framed: true,
+            className: "overflow-hidden",
+            bodyClassName: "overflow-x-auto",
+            rows: rv.lines,
+            columns: reviewColumns,
+            visibleColumns: reviewColumns.map((column) => column.key),
+            rowKey: (line) => line.lineCode,
+            rowClassName: (line) => {
+              const status = getLineState(line).status;
+              if (status === "flagged") return "bg-red-50/50";
+              if (status === "pending") return "bg-amber-50/30";
+              return "";
+            },
+          }),
+        ]
+      : []),
+    ...(!wp && !loading ? [createPageDataBlock("review-empty", { kind: "records", records: [], empty: "选择筛选条件后点击「读取底稿」" })] : []),
+    ...(loading ? [createPageDataBlock("review-loading", { kind: "records", records: [], empty: "加载中..." })] : []),
+  ];
 
   return (
     <PageSurface
       kind="list"
       toolbar={{ items: toolbarItems }}
       body={{
-        blocks: reviewBlocks.length > 0 ? reviewBlocks : undefined,
-        content: (
-          <div className="space-y-4">
-            <ReviewAlerts error={error} isStale={rv?.isStale} hasFlaggedWithoutComment={hasFlaggedWithoutComment} />
-
-            {rv && (
-              <ReviewTable
-                rv={rv}
-                getLineState={getLineState}
-                isReadOnly={isReadOnly}
-                editingAmt={editingAmt}
-                setEditingAmt={setEditingAmt}
-                editAmt={editAmt}
-                setEditAmt={setEditAmt}
-                commitAmt={commitAmt}
-                editingCmt={editingCmt}
-                setEditingCmt={setEditingCmt}
-                editCmt={editCmt}
-                setEditCmt={setEditCmt}
-                commitCmt={commitCmt}
-                toggleStatus={toggleStatus}
-              />
-            )}
-
-            {!wp && !loading && <DataSurface kind="records" records={[]} empty="选择筛选条件后点击「读取底稿」" />}
-            {loading && <DataSurface kind="records" records={[]} empty="加载中..." />}
-          </div>
-        ),
+        blocks: bodyBlocks,
       }}
     />
   );

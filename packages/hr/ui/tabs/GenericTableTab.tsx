@@ -12,26 +12,11 @@ import {
   mapAdvancedFilterField,
 } from "../components/generic-filter-toolbar-items";
 import { useGenericTab } from "../hooks/useGenericTab";
-import EditableTable, { formatEditableTableCell } from "./EditableTable";
+import EditableTable from "./EditableTable";
+import { columnToggleOptions, defaultVisibleColumnKeys, fieldsWithCompanyOptions } from "./generic-table-columns";
+import { downloadGenericTableCsv } from "./generic-table-export";
 import { type TabConfig, type FieldConfig, type HRUser, hrCanEdit } from "@workspace/hr/types";
 import type { RosterSurfaceNavigationProps } from "../roster-surface";
-
-const EXPORT_PAGE_SIZE = 500;
-
-function escapeCsvCell(value: unknown) {
-  const text = value === null || value === undefined ? "" : String(value);
-  return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
-}
-
-function downloadCsv(filename: string, content: string) {
-  const blob = new Blob([`\uFEFF${content}`], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
-}
 
 export default function GenericTableTab({ config, user, surface }: { config: TabConfig; user: HRUser; surface?: RosterSurfaceNavigationProps }) {
   const canEdit = hrCanEdit(user);
@@ -71,18 +56,12 @@ export default function GenericTableTab({ config, user, surface }: { config: Tab
     }
   }, [editingCell, config.fkFields]);
 
-  const tableFields = useMemo(() => config.fields.map((f) =>
-    f.optionsSource === "companies" ? { ...f, options: companyOptions } : f
-  ), [companyOptions, config.fields]);
+  const tableFields = useMemo(
+    () => fieldsWithCompanyOptions(config.fields, companyOptions),
+    [companyOptions, config.fields],
+  );
 
-  const defaultVisibleColumns = useMemo(() => {
-    const defaults = tableFields
-      .filter((field) => field.required || field.defaultVisible)
-      .map((field) => field.key);
-    return defaults.length > 0
-      ? defaults
-      : tableFields.filter((field) => !field.hidden).map((field) => field.key);
-  }, [tableFields]);
+  const defaultVisibleColumns = useMemo(() => defaultVisibleColumnKeys(tableFields), [tableFields]);
 
   const [visibleColumns, setVisibleColumns] = useState<string[]>(defaultVisibleColumns);
 
@@ -90,15 +69,7 @@ export default function GenericTableTab({ config, user, surface }: { config: Tab
     setVisibleColumns(defaultVisibleColumns);
   }, [defaultVisibleColumns]);
 
-  const columnToggleColumns = useMemo(() =>
-    tableFields.map((field) => ({
-      key: field.key,
-      label: field.label,
-      required: field.required,
-      defaultVisible: field.defaultVisible,
-    })),
-    [tableFields],
-  );
+  const columnToggleColumns = useMemo(() => columnToggleOptions(tableFields), [tableFields]);
 
   const advancedFilters = useMemo(() => config.advancedFilters ?? [], [config.advancedFilters]);
   const [advancedFieldKey, setAdvancedFieldKey] = useState(() =>
@@ -183,39 +154,7 @@ export default function GenericTableTab({ config, user, surface }: { config: Tab
   async function handleDownload() {
     setDownloading(true);
     try {
-      const rows: Record<string, unknown>[] = [];
-      let nextPage = 1;
-      let totalRows = 0;
-      do {
-        const params = new URLSearchParams({
-          page: String(nextPage),
-          pageSize: String(EXPORT_PAGE_SIZE),
-        });
-        if (searchKeyword) params.set("keyword", searchKeyword);
-        for (const [key, value] of Object.entries(filters)) {
-          if (value !== "" && value !== undefined && value !== null) params.set(key, value);
-        }
-        const response = await fetch(`${workspacePath(config.apiPath)}?${params.toString()}`);
-        if (!response.ok) throw new Error("下载失败");
-        const data = await response.json();
-        const pageRows = config.listGetter ? config.listGetter(data) : data.items || data;
-        if (!Array.isArray(pageRows)) throw new Error("下载数据格式错误");
-        rows.push(...(pageRows as Record<string, unknown>[]));
-        totalRows = typeof data.total === "number" ? data.total : rows.length;
-        if (pageRows.length === 0) break;
-        nextPage += 1;
-      } while (rows.length < totalRows);
-
-      const exportFields = tableFields.filter((field) => !field.createOnly);
-      const header = exportFields.map((field) => escapeCsvCell(field.label)).join(",");
-      const body = rows
-        .map((row) =>
-          exportFields
-            .map((field) => escapeCsvCell(formatEditableTableCell(row, field, config).replace(/^-$/, "")))
-            .join(","),
-        )
-        .join("\n");
-      downloadCsv(`${config.title}_${new Date().toISOString().slice(0, 10)}.csv`, `${header}\n${body}`);
+      await downloadGenericTableCsv({ config, fields: tableFields, keyword: searchKeyword, filters });
       feedback.success("下载完成");
     } catch (error) {
       feedback.error(error instanceof Error ? error.message : "下载失败");

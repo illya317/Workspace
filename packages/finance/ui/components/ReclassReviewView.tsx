@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
 import ReclassReviewModal from "./ReclassReviewModal";
 import { formatFinanceAmount } from "../formatters";
@@ -123,22 +123,27 @@ export default function ReclassReviewView({
     }
   }];
   return <div>
-      <DataSurface
-        kind="table"
-        framed
-        className="overflow-hidden"
-        bodyClassName="overflow-x-auto"
-        rows={filtered}
-        columns={columns}
-        visibleColumns={columns.map(column => column.key)}
-        emptyText="无重分类条目"
-        rowKey={row => `${row.voucherItemId}-${row.voucherNo}`}
-        rowActions={canWrite ? (row) => {
-          const kind = row.kind as string || "normal";
-          const isNormal = kind === "normal";
-          const hasTarget = !!(row.suggestedTarget || row.targetAccount);
-          return [{ key: "adjust", kind: "edit", label: isNormal && !hasTarget ? "设置" : isNormal ? "使用建议" : "修改", onClick: () => setAdjustItem(row) }];
-        } : undefined}
+      <PageSurface
+        kind="list"
+        embedded
+        blocks={[
+          createPageTableBlock("reclass-review", {
+            framed: true,
+            className: "overflow-hidden",
+            bodyClassName: "overflow-x-auto",
+            rows: filtered,
+            columns,
+            visibleColumns: columns.map(column => column.key),
+            emptyText: "无重分类条目",
+            rowKey: row => `${row.voucherItemId}-${row.voucherNo}`,
+            rowActions: canWrite ? (row) => {
+              const kind = row.kind as string || "normal";
+              const isNormal = kind === "normal";
+              const hasTarget = !!(row.suggestedTarget || row.targetAccount);
+              return [{ key: "adjust", kind: "edit", label: isNormal && !hasTarget ? "设置" : isNormal ? "使用建议" : "修改", onClick: () => setAdjustItem(row) }];
+            } : undefined,
+          }),
+        ]}
       />
       <ReclassReviewModal item={adjustItem} open={!!adjustItem} companyCode={companyCode} year={year} onClose={() => setAdjustItem(null)} onSubmit={async (id, targetAccount, amount, note) => {
       const extra = id === 0 && adjustItem ? {

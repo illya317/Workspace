@@ -21,8 +21,8 @@ export type UploadAvatarResult =
 
 function getWorkspaceConfigDir() {
   const configured = process.env.WORKSPACE_CONFIG_DIR?.trim();
-  if (configured) return configured;
-  return path.resolve(process.cwd(), "..", ".workspace");
+  if (configured && path.isAbsolute(configured)) return configured;
+  throw new Error("WORKSPACE_CONFIG_DIR must be an absolute path for account avatar storage");
 }
 
 function getAvatarDir() {

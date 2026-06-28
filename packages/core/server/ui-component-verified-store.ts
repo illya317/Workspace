@@ -5,7 +5,7 @@ import { mkdir, readFile, writeFile } from "fs/promises";
 function workspaceDir() {
   const configured = process.env.WORKSPACE_CONFIG_DIR?.trim();
   if (configured && path.isAbsolute(configured)) return configured;
-  return path.resolve(process.cwd(), "..", ".workspace");
+  throw new Error("WORKSPACE_CONFIG_DIR must be an absolute path for UI component verification storage");
 }
 
 export function uiComponentVerifiedPath() {

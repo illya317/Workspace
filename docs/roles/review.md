@@ -62,3 +62,5 @@ npm run check:changed
 npm run lint:changed
 npm run arch:gate
 ```
+
+`lint:changed` 会先检查本次 changed + untracked 的真实净增行，再跑 ESLint。review 时看到净增行失败，应先判断新增量是否来自当前改动、是否只是为绕过单文件行数而拆浅文件。

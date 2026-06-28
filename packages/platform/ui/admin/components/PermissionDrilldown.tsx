@@ -112,7 +112,7 @@ export default function PermissionDrilldown({
                 {
                   key: "company",
                   label: "公司",
-                  spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: allCompanies.map((c) => ({ value: c, label: c })) } },
+                  spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: allCompanies.map((c) => ({ value: c, label: c })) } },
                   value: fCompany,
                   onChange: (nextValue) => {
                     setFCompany(String(nextValue ?? ""));
@@ -123,7 +123,7 @@ export default function PermissionDrilldown({
                 {
                   key: "dept",
                   label: "部门",
-                  spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: allDepts.map((d) => ({ value: d, label: d })) } },
+                  spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: allDepts.map((d) => ({ value: d, label: d })) } },
                   value: fDept,
                   onChange: (nextValue) => setFDept(String(nextValue ?? "")),
                   className: "min-w-40",
@@ -131,7 +131,7 @@ export default function PermissionDrilldown({
                 {
                   key: "keyword",
                   label: "搜索",
-                  spec: { valueType: "string", editor: "input" },
+                  spec: { valueType: "string", control: "text" },
                   value: fKeyword,
                   onChange: (nextValue) => setFKeyword(String(nextValue ?? "")),
                   placeholder: "搜索姓名/工号...",

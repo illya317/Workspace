@@ -10,9 +10,9 @@ import {
   primitiveListItems,
 } from "./description-details";
 import { formatHistoryVersion, normalizeDateValue, versionNumber } from "./draft-utils";
-import type { DetailRecord } from "./position-description-details-fields";
 
 type DetailFeedback = ReturnType<typeof useFeedback>;
+type DetailRecord = Record<string, unknown>;
 
 type DetailFieldContext = {
   disabled?: boolean;
@@ -101,7 +101,7 @@ export function buildDutyField(
           {
             key: "title",
             label: "职责标题",
-            spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" },
+            spec: { valueType: "string", control: "text", state: disabled ? "disabled" : "normal" },
             value: String(record.title || ""),
             placeholder: "职责标题",
             onChange: next => updateDuty(index, { title: String(next ?? "") }),
@@ -172,16 +172,16 @@ export function buildChangeHistoryField(
           className: "px-2 py-1 text-xs",
         }],
         fields: [
-          { key: "version", label: "版本", spec: { valueType: "string", editor: "input", state: "readonly" as const }, value: String(record.version || formatHistoryVersion(index)) },
-          { key: "documentName", label: "文件名", spec: { valueType: "string", editor: "input", state: disabled ? "disabled" as const : "normal" as const }, value: String(record.documentName || ""), onChange: next => updateRecord(index, { documentName: String(next ?? "") }) },
-          { key: "effectiveDate", label: "生效日期", error: rawDate && !normalizeDateValue(rawDate) ? "日期格式错误，请重新选择。" : undefined, spec: { valueType: "date", editor: "datePicker", state: disabled ? "disabled" as const : "normal" as const }, value: rawDate, onChange: next => updateRecord(index, { effectiveDate: next || "" }) },
+          { key: "version", label: "版本", spec: { valueType: "string", control: "text", state: "readonly" as const }, value: String(record.version || formatHistoryVersion(index)) },
+          { key: "documentName", label: "文件名", spec: { valueType: "string", control: "text", state: disabled ? "disabled" as const : "normal" as const }, value: String(record.documentName || ""), onChange: next => updateRecord(index, { documentName: String(next ?? "") }) },
+          { key: "effectiveDate", label: "生效日期", error: rawDate && !normalizeDateValue(rawDate) ? "日期格式错误，请重新选择。" : undefined, spec: { valueType: "date", control: "temporal", precision: "date", state: disabled ? "disabled" as const : "normal" as const }, value: rawDate, onChange: next => updateRecord(index, { effectiveDate: next || "" }) },
           {
             key: "approver",
             label: "批准",
             error: approver.includes("见首页") ? "当前值不是有效引用，请重新选择。" : undefined,
             spec: {
               valueType: "reference",
-              editor: "autocomplete",
+              control: "reference",
               state: disabled ? "disabled" as const : "normal" as const,
               options: { source: "remote", fkKey: fkKeyForEntity("employee"), endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "name" },
             },
@@ -233,7 +233,7 @@ export function buildWorkEnvironmentFields(
             {
               key: "area",
               label: "工作区域",
-              spec: { valueType: "string", editor: "select", state: disabled ? "disabled" as const : "normal" as const, options: { source: "static", items: pickerOptions(areaOptions), searchPlaceholder: "搜索工作区域" } },
+              spec: { valueType: "string", control: "choice", state: disabled ? "disabled" as const : "normal" as const, options: { source: "static", items: pickerOptions(areaOptions), searchPlaceholder: "搜索工作区域" } },
               value: item.area,
               placeholder: "选择工作区域",
               onChange: next => updateItem(index, { area: String(next ?? "") }),
@@ -256,7 +256,7 @@ export function buildWorkEnvironmentFields(
                 field: {
                   key: "appendFactor",
                   label: "",
-                  spec: { valueType: "string", editor: "select", state: availableFactors.length === 0 ? "disabled" as const : "normal" as const, options: { source: "static", items: pickerOptions(availableFactors), visibleCount: 6, searchPlaceholder: "搜索环境因素" } },
+                  spec: { valueType: "string", control: "choice", state: availableFactors.length === 0 ? "disabled" as const : "normal" as const, options: { source: "static", items: pickerOptions(availableFactors), visibleCount: 6, searchPlaceholder: "搜索环境因素" } },
                   value: "",
                   placeholder: item.factors.length === 0 ? "添加环境因素" : "继续添加",
                   onChange: (next) => {
@@ -273,7 +273,7 @@ export function buildWorkEnvironmentFields(
     ...(!disabled ? [{
       key: `${key}-addArea`,
       label: "新增工作区域",
-      spec: { valueType: "string", editor: "select", state: availableAreas.length === 0 ? "disabled" as const : "normal" as const, options: { source: "static", items: pickerOptions(availableAreas), searchPlaceholder: "搜索工作区域" } },
+      spec: { valueType: "string", control: "choice", state: availableAreas.length === 0 ? "disabled" as const : "normal" as const, options: { source: "static", items: pickerOptions(availableAreas), searchPlaceholder: "搜索工作区域" } },
       value: "",
       placeholder: "新增工作区域",
       onChange: (next: unknown) => {
@@ -314,8 +314,8 @@ export function buildExperienceRequirementField(
         className: "px-2 py-1 text-xs",
       }],
       fields: [
-        { key: "years", label: "年限（年以上）", spec: { valueType: "number", editor: "input", state: disabled ? "disabled" as const : "normal" as const }, value: item.years, inputMode: "numeric" as const, placeholder: "1", onChange: next => updateItem(index, { years: positiveIntegerText(String(next ?? "")) }) },
-        { key: "requirement", label: "要求内容", spec: { valueType: "string", editor: "input", state: disabled ? "disabled" as const : "normal" as const }, value: item.requirement, placeholder: "经验要求", onChange: next => updateItem(index, { requirement: String(next ?? "") }) },
+        { key: "years", label: "年限（年以上）", spec: { valueType: "number", control: "text", state: disabled ? "disabled" as const : "normal" as const }, value: item.years, inputMode: "numeric" as const, placeholder: "1", onChange: next => updateItem(index, { years: positiveIntegerText(String(next ?? "")) }) },
+        { key: "requirement", label: "要求内容", spec: { valueType: "string", control: "text", state: disabled ? "disabled" as const : "normal" as const }, value: item.requirement, placeholder: "经验要求", onChange: next => updateItem(index, { requirement: String(next ?? "") }) },
       ],
     })),
   };

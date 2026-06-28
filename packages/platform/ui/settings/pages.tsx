@@ -1,7 +1,6 @@
-import { createElement } from "react";
 import type { SessionUser } from "@workspace/platform/types";
 import { activeModuleDefinitions } from "@workspace/platform/effective-module-registry";
-import AppShell from "../AppShell";
+import { renderAppShellPage } from "../app-shell-page";
 import SettingsClient from "./SettingsClient";
 import SettingsApiClient from "./SettingsApiClient";
 import UiComponentsShowcase from "@workspace/core/showcase/UiComponentsShowcase";
@@ -33,11 +32,12 @@ function buildApiAccessModules(): ApiAccessModuleRow[] {
 }
 
 export function SettingsAccountPage({ user }: { user: SessionUser }) {
-  return createElement(
-    AppShell,
-    { title: "账号与接入", backHref: "/settings", user },
-    <SettingsClient user={user} hideShell view="account" apiAccessModules={buildApiAccessModules()} />,
-  );
+  return renderAppShellPage({
+    title: "账号与接入",
+    backHref: "/settings",
+    user,
+    children: <SettingsClient user={user} hideShell view="account" apiAccessModules={buildApiAccessModules()} />,
+  });
 }
 
 export function SettingsApiPage({
@@ -47,11 +47,12 @@ export function SettingsApiPage({
   user: SessionUser;
   focusRegistrationKey?: string;
 }) {
-  return createElement(
-    AppShell,
-    { title: "API 接入", backHref: "/settings", user },
-    <SettingsApiClient focusRegistrationKey={focusRegistrationKey} />,
-  );
+  return renderAppShellPage({
+    title: "API 接入",
+    backHref: "/settings",
+    user,
+    children: <SettingsApiClient focusRegistrationKey={focusRegistrationKey} />,
+  });
 }
 
 export function SettingsUiPage({ user }: { user: SessionUser }) {
@@ -60,9 +61,10 @@ export function SettingsUiPage({ user }: { user: SessionUser }) {
     usageFiles: row.usageFiles,
   }));
 
-  return createElement(
-    AppShell,
-    { title: "UI 组件库", backHref: "/settings", user },
-    <UiComponentsShowcase usageRows={usageRows} />,
-  );
+  return renderAppShellPage({
+    title: "UI 组件库",
+    backHref: "/settings",
+    user,
+    children: <UiComponentsShowcase usageRows={usageRows} />,
+  });
 }

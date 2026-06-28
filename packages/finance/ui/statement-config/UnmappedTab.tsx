@@ -1,8 +1,8 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { useEffect, useState } from "react";
-import { DataSurface, PageSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { useCallback, useEffect, useState } from "react";
+import { PageSurface, createPageDataBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
 import { useStatementConfig } from "./StatementConfigContext";
 interface Node {
@@ -88,7 +88,7 @@ export default function UnmappedTab() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [, setLineLabelMap] = useState<Map<string, string>>(new Map());
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     const res = await fetch(workspacePath(`/api/modules/finance/statement-config?companyCode=${company}&year=${year}`));
@@ -154,42 +154,78 @@ export default function UnmappedTab() {
     if (data.mappingPreview) walk(data.mappingPreview);
     setItems(result.sort((a, b) => a.accountCode.localeCompare(b.accountCode)));
     setLoading(false);
-  }
+  }, [company, year]);
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [company, year]);
-  if (loading) return <DataSurface kind="records" records={[]} empty="加载中..." />;
+  }, [load]);
+  if (loading) return <UnmappedRecords message="加载中..." />;
   if (error) {
-    return <PageSurface
-        kind="list"
-        embedded
-        blocks={[
-          { kind: "message", key: "error", tone: "danger", content: error },
-          {
-            kind: "form",
-            key: "retry",
-            surface: {
-              kind: "inline",
-              actions: [{ key: "retry", label: "重试", variant: "danger", onClick: load }],
-            },
-          },
-        ]}
-      />;
+    return <UnmappedError message={error} onRetry={load} />;
   }
   const subtractOnly = items.filter(a => a.status === "subtractOnly");
   const unmappedOnly = items.filter(a => a.status === "unmapped");
   const excluded = items.filter(a => a.status === "excluded");
   return <div className="space-y-4">
-      {items.length === 0 ? <DataSurface kind="records" records={[]} empty="全部科目已正常归属，当前没有余额非零但未被 add 消费的科目。" /> : <>
+      {items.length === 0 ? <UnmappedRecords message="全部科目已正常归属，当前没有余额非零但未被 add 消费的科目。" /> : <>
           <div className="flex gap-4 text-sm text-gray-500">
             <span>未映射: <b className="text-red-500">{unmappedOnly.length}</b></span>
             {subtractOnly.length > 0 && <span>仅减项: <b className="text-amber-600">{subtractOnly.length}</b></span>}
             {excluded.length > 0 && <span>已排除: <b className="text-gray-600">{excluded.length}</b></span>}
             <span className="text-gray-400">（余额非零但未被 add 消费）</span>
           </div>
-          <DataSurface kind="table" framed rows={items} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={row => row.accountCode} tableClassName="text-base" rowClassName={row => row.status === "unmapped" ? "bg-red-50/60" : row.status === "excluded" ? "text-slate-500" : "bg-amber-50/50"} />
+          <UnmappedTable items={items} />
         </>}
     </div>;
+}
+
+function UnmappedRecords({ message }: { message: string }) {
+  return (
+    <PageSurface
+      kind="list"
+      embedded
+      blocks={[createPageDataBlock("unmapped-records", { kind: "records", records: [], empty: message })]}
+    />
+  );
+}
+
+function UnmappedError({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <PageSurface
+      kind="list"
+      embedded
+      blocks={[
+        { kind: "message", key: "error", tone: "danger", content: message },
+        {
+          kind: "form",
+          key: "retry",
+          surface: {
+            kind: "inline",
+            actions: [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }],
+          },
+        },
+      ]}
+    />
+  );
+}
+
+function UnmappedTable({ items }: { items: DisplayItem[] }) {
+  return (
+    <PageSurface
+      kind="list"
+      embedded
+      blocks={[
+        createPageDataBlock("unmapped-table", {
+          kind: "table",
+          framed: true,
+          rows: items,
+          columns,
+          visibleColumns: columns.map(column => column.key),
+          rowKey: row => row.accountCode,
+          tableClassName: "text-base",
+          rowClassName: row => row.status === "unmapped" ? "bg-red-50/60" : row.status === "excluded" ? "text-slate-500" : "bg-amber-50/50",
+        }),
+      ]}
+    />
+  );
 }

@@ -25,8 +25,6 @@ function useStatementConfigToolbarItems() {
       value: company,
       onChange: setCompany,
       placeholder: "—",
-      className: "min-w-max",
-      triggerClassName: "min-w-44",
     },
     {
       kind: "select",
@@ -37,8 +35,6 @@ function useStatementConfigToolbarItems() {
       value: year,
       onChange: setYear,
       placeholder: "—",
-      className: "min-w-max",
-      triggerClassName: "min-w-36",
     },
     {
       kind: "text",

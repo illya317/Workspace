@@ -6,7 +6,8 @@
 
 | 场景 | 命令 | 说明 |
 |---|---|---|
-| 局部 TS/TSX 改动 | `npm run check:changed` | 跑 changed lint 和 quick typecheck。 |
+| 局部 TS/TSX 改动 | `npm run check:changed` | 跑 changed lint（含净增行 gate）和 quick typecheck。 |
+| 仅检查本次净增行 | `npm run lint:net-lines` | 检查 staged diff；没有 staged diff 时检查 tracked changed + untracked。默认净增必须 `<= 0`。 |
 | 架构、权限、API、registry、Core/Platform 边界 | `npm run check:arch` | 等价于 `npm run arch:gate`。 |
 | Prisma schema、model、migration | `npm run check:data` | 跑 schema 合法性、schema governance 和 migration diff。 |
 | PR / CI 权威检查 | `npm run check:ci` | 合并前主链路；hygiene 只以 warning 方式提示。 |
@@ -19,6 +20,8 @@
 ### lint
 
 `lint` 负责代码质量和局部静态规则，例如 ESLint warnings=0、基础 restricted imports、行数、明显不安全语法。它不承载架构模型，也不承载公司名、baseline 巡检这类细碎治理。
+
+`lint:changed` 会先跑净增行检查，再跑 ESLint。净增行公式是 `tracked additions - tracked deletions + untracked source lines`；有 staged diff 时只看 staged 内容，没有 staged diff 时看工作区 changed + untracked。默认 `NET_LINE_GROWTH_LIMIT=0`，即本次变更不得净增加；确有一次性迁移需要例外时，必须显式设置 `NET_LINE_GROWTH_LIMIT=<allowed-net-lines>` 并在交付说明中说明原因。这个 gate 是为了防止“为了过单文件行数，把 400 行拆成 200+300 行”的假降复杂度。
 
 ### typecheck
 
@@ -63,6 +66,7 @@ Hygiene 负责细枝末节和历史债观察：
 - 公司专有事实硬编码扫描。
 - `arch:level2:ratchet` baseline 收敛检查。
 - `arch:level2` 结构智能报告。
+- 业务视觉 token 硬编码候选、Core 业务事实泄漏候选、组件内本地 UI config 候选。
 - baseline JSON 是否只减少、不扩写。
 - lint / arch gate 是否存在规则漏洞或误放到主链路的细则。
 

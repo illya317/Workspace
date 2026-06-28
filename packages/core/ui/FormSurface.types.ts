@@ -1,15 +1,8 @@
-import type { ComponentProps, Ref, ReactNode } from "react";
-import type CalendarDateInput from "./CalendarDateInput";
-import type { ChoiceGroupProps } from "./ChoiceGroup";
+import type { Ref, ReactNode } from "react";
 import type { FieldGridCellProps, FieldGridMode } from "./FieldGrid";
-import type { FileFieldProps } from "./FileField";
-import type { HiddenDataFieldProps } from "./HiddenDataField";
-import type { InputControlProps, InputSegmentedCodeConfig } from "./InputControl";
+import type { InputControlProps } from "./InputControl";
 import type { ReadOnlyFieldProps } from "./ReadOnlyField";
-import type { SelectFieldProps } from "./SelectField";
 import type { TagListInputProps } from "./TagListInput";
-import type { TextareaFieldProps } from "./TextareaField";
-import type { TextFieldProps } from "./TextField";
 import type { CommandButtonProps } from "./CommandButton";
 import type { ActionGlyphKind } from "./ActionGlyphs";
 
@@ -30,34 +23,9 @@ export interface FormSurfaceCommandSpec {
   truncate?: boolean;
 }
 
-type CalendarDateInputProps = ComponentProps<typeof CalendarDateInput>;
-
 export type FormSurfaceInputControlSpec = InputControlProps & { kind: "inputControl" };
-export type FormSurfaceTextControlSpec = TextFieldProps & { kind: "text" };
-export type FormSurfaceTextareaControlSpec = TextareaFieldProps & { kind: "textarea" };
-export type FormSurfaceCalendarDateControlSpec = CalendarDateInputProps & { kind: "calendarDate" };
-export type FormSurfaceChoiceControlSpec = ChoiceGroupProps & { kind: "choice" };
-export type FormSurfaceSelectControlSpec = SelectFieldProps & { kind: "select" };
-export type FormSurfaceFileControlSpec = FileFieldProps & { kind: "file" };
-export type FormSurfaceHiddenControlSpec = HiddenDataFieldProps & { kind: "hidden" };
-export type FormSurfaceSegmentedCodeInputProps = Omit<InputControlProps, "spec" | "value" | "onChange"> & {
-  value: string;
-  editableSegment: InputSegmentedCodeConfig;
-  disabled?: boolean;
-  onChange: (fullCode: string) => void;
-};
-export type FormSurfaceSegmentedCodeControlSpec = FormSurfaceSegmentedCodeInputProps & { kind: "segmentedCode" };
 
-export type FormSurfaceControlSpec =
-  | FormSurfaceInputControlSpec
-  | FormSurfaceTextControlSpec
-  | FormSurfaceTextareaControlSpec
-  | FormSurfaceCalendarDateControlSpec
-  | FormSurfaceChoiceControlSpec
-  | FormSurfaceSelectControlSpec
-  | FormSurfaceFileControlSpec
-  | FormSurfaceHiddenControlSpec
-  | FormSurfaceSegmentedCodeControlSpec;
+export type FormSurfaceControlSpec = FormSurfaceInputControlSpec;
 
 export interface FormSurfaceFieldSpec extends Omit<InputControlProps, "spec" | "value" | "onChange"> {
   kind?: "field";
@@ -77,19 +45,6 @@ export interface FormSurfaceReadOnlyFieldSpec extends Omit<ReadOnlyFieldProps, "
   kind: "readonly";
   key: string;
   label: ReactNode;
-  required?: boolean;
-  hint?: ReactNode;
-  error?: ReactNode;
-  span?: FieldGridCellProps["span"];
-  fieldClassName?: string;
-}
-
-export interface FormSurfaceSegmentedCodeFieldSpec extends Omit<FormSurfaceSegmentedCodeInputProps, "value" | "onChange"> {
-  kind: "segmentedCode";
-  key: string;
-  label: ReactNode;
-  value: string;
-  onChange: (fullCode: string) => void;
   required?: boolean;
   hint?: ReactNode;
   error?: ReactNode;
@@ -178,7 +133,6 @@ export interface FormSurfaceRepeatableSpec<T = FormSurfaceLooseItem> {
 export type FormSurfaceItemSpec<T = FormSurfaceLooseItem> =
   | FormSurfaceFieldSpec
   | FormSurfaceReadOnlyFieldSpec
-  | FormSurfaceSegmentedCodeFieldSpec
   | FormSurfaceTagListFieldSpec<T>
   | FormSurfaceNoteSpec
   | FormSurfaceGroupTitleSpec

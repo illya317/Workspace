@@ -1,6 +1,6 @@
 "use client";
 
-import { DataSurface, FormSurface, PageSurface, type DataSurfaceStructuredCellSpec } from "@workspace/core/ui";
+import { InputControl, PageSurface, createPageDataBlock, type DataSurfaceStructuredCellSpec } from "@workspace/core/ui";
 import type { QcTemplateMethodField, QcTemplateTestItem } from "@workspace/production/server/qc";
 import { QcPaperChoiceInput } from "./QcPaperInputs";
 import { useQcFormulaEngine, type QcFieldValues } from "./useQcFormulaEngine";
@@ -43,20 +43,24 @@ function FieldInput({
   if (field.type === "select") {
     return (
       <div className="flex min-h-9 items-center justify-center gap-2">
-        <FormSurface
-          kind="control"
-          control={{
-            kind: "select",
-            ariaLabel: field.name || field.fieldKey || "选择项",
-            dataFieldKey: field.fieldKey,
-            value,
-            onChange,
-            disabled: readOnly || calculated || field.attr === "prefilled",
-            placeholder: " ",
-            options: (field.options ?? []).map((option) => ({ value: option, label: option })),
-            visualVariant: "paperUnderline",
-            textAlign: "center",
+        <InputControl
+          spec={{
+            valueType: "string",
+            control: "choice",
+            state: readOnly || calculated || field.attr === "prefilled" ? "disabled" : "normal",
+            options: {
+              source: "static",
+              mode: "dropdown",
+              items: (field.options ?? []).map((option) => ({ value: option, label: option })),
+            },
           }}
+          ariaLabel={field.name || field.fieldKey || "选择项"}
+          dataFieldKey={field.fieldKey}
+          value={value}
+          onChange={(next) => onChange(String(next ?? ""))}
+          placeholder=" "
+          visualVariant="paperUnderline"
+          textAlign="center"
         />
         {field.unit && <span className="text-xs text-slate-700">{field.unit}</span>}
       </div>
@@ -64,18 +68,16 @@ function FieldInput({
   }
   return (
     <div className="flex min-h-9 items-center justify-center gap-2">
-      <FormSurface
-        kind="control"
-        control={{
-          kind: "text",
-          dataFieldKey: field.fieldKey,
-          value,
-          onChange,
-          readOnly: readOnly || calculated || field.attr === "prefilled",
-          inputMode: field.type === "number" ? "decimal" : "text",
-          unstyled: true,
-          className: `h-8 min-w-24 border-0 border-b border-slate-950 bg-transparent px-2 text-center text-sm outline-none ${calculated ? "text-slate-950" : ""}`,
-        }}
+      <InputControl
+        spec={{ valueType: field.type === "number" ? "number" : "string", control: "text" }}
+        dataFieldKey={field.fieldKey}
+        value={value}
+        onChange={(next) => onChange(String(next ?? ""))}
+        readOnly={readOnly || calculated || field.attr === "prefilled"}
+        inputMode={field.type === "number" ? "decimal" : "text"}
+        unstyled
+        textAlign="center"
+        className={`h-8 min-w-24 border-0 border-b border-slate-950 bg-transparent px-2 text-center text-sm outline-none ${calculated ? "text-slate-950" : ""}`}
       />
       {field.unit && <span className="text-xs text-slate-700">{field.unit}</span>}
     </div>
@@ -118,13 +120,19 @@ export default function QcMethodFieldTable({ test, compact, values: controlledVa
           }),
         ];
         return (
-          <DataSurface
+          <PageSurface
             key={group.name}
-            kind="structured"
-            wrap={false}
-            structuredScroll={false}
-            rows={rows}
-            className="w-full border-collapse text-sm text-slate-950"
+            kind="detail"
+            embedded
+            blocks={[
+              createPageDataBlock(`qc-method-field-${group.name}`, {
+                kind: "structured",
+                wrap: false,
+                structuredScroll: false,
+                rows,
+                className: "w-full border-collapse text-sm text-slate-950",
+              }),
+            ]}
           />
         );
       })}

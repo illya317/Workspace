@@ -103,8 +103,19 @@ const UI_PATTERN_RULES: Array<{ name: string; regex: RegExp }> = [
 ];
 
 const CORE_UI_NON_COMPONENT_EXPORTS = new Set<string>([
+  "ActionGlyph",
   "FLOATING_OVERLAY_OPEN_EVENT",
   "announceFloatingOverlayOpen",
+  "createPageActionsBlock",
+  "createPageCommand",
+  "createPageDataBlock",
+  "createPageFieldsBlock",
+  "createPageFormBlock",
+  "createPageFormModalBlock",
+  "createPageInlineFieldsBlock",
+  "createPageModalBlock",
+  "createPageSurfaceProps",
+  "createPageTableBlock",
   "getFloatingOverlayOpenDetail",
 ]);
 const BUSINESS_PACKAGE_NAMES = new Set([
@@ -118,7 +129,7 @@ const BUSINESS_PACKAGE_NAMES = new Set([
 ]);
 const CORE_UI_DIRECT_RUNTIME_IMPORTS = new Set(
   coreUiComponentRegistry
-    .filter((component) => component.agentExposure?.mode === "direct")
+    .filter((component) => component.exposure?.mode === "direct")
     .map((component) => component.name),
 );
 const FORBIDDEN_CORE_UI_TYPE_IMPORTS = new Set([
@@ -334,7 +345,10 @@ export function findBusinessCoreUiSurfaceBypassImports(files: SourceInfo[]) {
       for (const element of namedBindings.elements) {
         if (element.isTypeOnly) continue;
         const importedName = element.propertyName?.text ?? element.name.text;
-        if (!CORE_UI_DIRECT_RUNTIME_IMPORTS.has(importedName)) {
+        if (
+          !CORE_UI_DIRECT_RUNTIME_IMPORTS.has(importedName) &&
+          !CORE_UI_NON_COMPONENT_EXPORTS.has(importedName)
+        ) {
           candidates.push({ file: file.relPath, importedName, specifier });
         }
       }

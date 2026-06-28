@@ -2,8 +2,8 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { DataSurface, FormSurface } from "@workspace/core/ui";
-import type { SurfaceToolbarItems } from "@workspace/core/ui";
+import { PageSurface, createPageActionsBlock, createPageDataBlock } from "@workspace/core/ui";
+import type { PageSurfaceBlockSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import BalanceCheckTable, { flattenBalanceAccountTree, formatBalanceAmount, type BalanceCheckAccountNode } from "../components/BalanceCheckTable";
 import FinanceFilters from "../components/FinanceFilters";
 import { useStatementConfig } from "./StatementConfigContext";
@@ -119,31 +119,42 @@ export default function BalanceCheckTab() {
     walk(tree);
     return c;
   }, [tree]);
+  const statusBlocks: PageSurfaceBlockSpec[] = [
+    ...(!loading && error ? [
+      {
+        kind: "message" as const,
+        key: "error",
+        tone: "danger" as const,
+        className: "py-8 text-center",
+        content: error,
+      },
+      createPageActionsBlock("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: load }], { className: "justify-center" }),
+    ] : []),
+    ...(!loading && !error && tree && flatNodes.length > 0 && summary ? [
+      createPageDataBlock("balance-summary", {
+        kind: "metrics",
+        framed: true,
+        title: "余额校验汇总",
+        metrics: [
+          { key: "leaf-debit", label: "叶子借", value: formatBalanceAmount(summary.leafDebit) },
+          { key: "leaf-credit", label: "叶子贷", value: formatBalanceAmount(summary.leafCredit) },
+          { key: "leaf-balanced", label: "叶子平衡", value: summary.leafBalanced ? "平衡" : `不平衡 ${formatBalanceAmount(Math.abs(summary.leafDebit - summary.leafCredit))}` },
+          ...(inconsistentCount > 0 ? [{ key: "inconsistent", label: "父子不一致", value: `${inconsistentCount} 项` }] : []),
+        ],
+      }),
+    ] : []),
+  ];
+
   return <div className="space-y-4 mt-4">
       <FinanceFilters showCompanyYear={false} levelFilter={levelFilter} onLevelChange={setLevelFilter} showMonth={false} showLevel showSearch={false} showPageSize={false} extraItems={extraToolbarItems} />
 
       {loading && <p className="p-12 text-center text-sm text-gray-400">加载中...</p>}
 
-      {!loading && error && <div className="space-y-3 py-8 text-center">
-          <p className="text-sm text-red-600">{error}</p>
-          <FormSurface kind="inline" actions={[{ key: "retry", label: "重试", variant: "danger", onClick: load }]} />
-        </div>}
+      {statusBlocks.length > 0 && <PageSurface kind="list" embedded blocks={statusBlocks} />}
 
       {!loading && !error && tree && flatNodes.length === 0 && <p className="p-12 text-center text-sm text-gray-400">暂无科目余额数据</p>}
 
       {!loading && !error && tree && flatNodes.length > 0 && <>
-          {summary && <DataSurface
-              kind="metrics"
-              framed
-              title="余额校验汇总"
-              metrics={[
-                { key: "leaf-debit", label: "叶子借", value: formatBalanceAmount(summary.leafDebit) },
-                { key: "leaf-credit", label: "叶子贷", value: formatBalanceAmount(summary.leafCredit) },
-                { key: "leaf-balanced", label: "叶子平衡", value: summary.leafBalanced ? "平衡" : `不平衡 ${formatBalanceAmount(Math.abs(summary.leafDebit - summary.leafCredit))}` },
-                ...(inconsistentCount > 0 ? [{ key: "inconsistent", label: "父子不一致", value: `${inconsistentCount} 项` }] : []),
-              ]}
-            />}
-
           <BalanceCheckTable rows={flatNodes} expanded={expanded} maxLevel={maxLevel} onToggleNode={toggleNode} />
         </>}
     </div>;

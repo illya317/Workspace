@@ -115,7 +115,7 @@ function FormSurfacePreview() {
             key: "name",
             label: "名称",
             required: true,
-            spec: { valueType: "string", editor: "input", validation: { required: true } },
+            spec: { valueType: "string", control: "text", validation: { required: true } },
             value: name,
             onChange: (value) => setName(String(value)),
           },
@@ -124,7 +124,7 @@ function FormSurfacePreview() {
             label: "状态",
             spec: {
               valueType: "string",
-              editor: "select",
+              control: "choice",
               options: {
                 source: "static",
                 items: [

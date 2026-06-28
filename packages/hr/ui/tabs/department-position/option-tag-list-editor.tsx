@@ -1,7 +1,8 @@
 "use client";
 
 import {
-  FormSurface,
+  PageSurface,
+  createPageFieldsBlock,
 } from "@workspace/core/ui";
 import { pickerOptions, primitiveListItems } from "./description-details";
 
@@ -35,10 +36,10 @@ export function OptionTagListEditor({
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <FormSurface<string>
-        kind="fields"
-        bodyClassName="gap-2"
-        fields={[{
+      <PageSurface
+        embedded
+        kind="detail"
+        blocks={[createPageFieldsBlock<string>("options", [{
           kind: "tagList",
           key: "options",
           label: "",
@@ -51,25 +52,23 @@ export function OptionTagListEditor({
           emptyText: disabled ? "未设置" : undefined,
           shellClassName: "content-start",
           fieldClassName: "w-full",
-          append: disabled
-            ? undefined
-            : {
-                className: "min-w-40",
-                field: {
-                  key: "append",
-                  label: "",
-                  spec: {
-                    valueType: "string",
-                    editor: "select",
-                    state: disabled || availableOptions.length === 0 ? "disabled" : "normal",
-                    options: { source: "static", items: pickerOptions(availableOptions), visibleCount: 6, searchPlaceholder: `搜索${label}` },
-                  },
-                  value: "",
-                  placeholder: items.length === 0 ? placeholder : "继续添加",
-                  onChange: (next) => addOption(next == null ? null : String(next)),
-                },
+          append: disabled ? undefined : {
+            className: "min-w-40",
+            field: {
+              key: "append",
+              label: "",
+              spec: {
+                valueType: "string",
+                control: "choice",
+                state: disabled || availableOptions.length === 0 ? "disabled" : "normal",
+                options: { source: "static", items: pickerOptions(availableOptions), visibleCount: 6, searchPlaceholder: `搜索${label}` },
               },
-        }]}
+              value: "",
+              placeholder: items.length === 0 ? placeholder : "继续添加",
+              onChange: (next) => addOption(next == null ? null : String(next)),
+            },
+          },
+        }])]}
       />
     </div>
   );

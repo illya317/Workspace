@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { FormSurface, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createPageFormModalBlock, useFeedback } from "@workspace/core/ui";
 import type { FormSurfaceCommandSpec, FormSurfaceFieldSpec } from "@workspace/core/ui";
 import { useDocumentDetail, updateDocument, deleteDocument } from "../hooks/useLibraryDocuments";
 import type { LibraryDocumentItem } from "@workspace/library/types";
@@ -74,8 +74,7 @@ export default function LibraryDetailModal({
   const feedback = useFeedback();
   const canEdit = canWrite || canAdmin;
   useEffect(() => {
-    if (doc) setForm({});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setForm({});
   }, [documentId]);
   const handleSave = async () => {
     if (!doc) return;
@@ -123,7 +122,7 @@ export default function LibraryDetailModal({
     }
   };
 
-  const readonlySpec = { valueType: "string" as const, editor: "input" as const, state: "readonly" as const };
+  const readonlySpec = { valueType: "string" as const, control: "text" as const, state: "readonly" as const };
   const editableState = !canWrite ? "disabled" as const : "normal" as const;
   const fields: FormSurfaceFieldSpec[] = !doc
     ? [{
@@ -138,7 +137,7 @@ export default function LibraryDetailModal({
             key: "docId",
             label: "文档编号（docId）",
             hint: "改名后仍可通过此编号找到文档",
-            spec: { valueType: "string", editor: "input", state: editableState },
+            spec: { valueType: "string", control: "text", state: editableState },
             value: form.docId !== undefined ? (form.docId ?? "") : (doc.docId ?? ""),
             onChange: (value) => setForm((current) => ({ ...current, docId: String(value ?? "") })),
             placeholder: "如 DOC-2024-001",
@@ -146,14 +145,14 @@ export default function LibraryDetailModal({
           {
             key: "title",
             label: "标题",
-            spec: { valueType: "string", editor: "input", state: editableState },
+            spec: { valueType: "string", control: "text", state: editableState },
             value: form.title ?? doc.title ?? "",
             onChange: (value) => setForm((current) => ({ ...current, title: String(value ?? "") })),
           },
           {
             key: "summary",
             label: "简介",
-            spec: { valueType: "string", editor: "textarea", state: editableState },
+            spec: { valueType: "string", control: "text", multiline: true, state: editableState },
             value: form.summary ?? doc.summary ?? "",
             onChange: (value) => setForm((current) => ({ ...current, summary: String(value ?? "") })),
             rows: 3,
@@ -161,7 +160,7 @@ export default function LibraryDetailModal({
           {
             key: "tags",
             label: "标签（用逗号分隔）",
-            spec: { valueType: "string", editor: "input", state: editableState },
+            spec: { valueType: "string", control: "text", state: editableState },
             value: (form.tags !== undefined ? form.tags : (doc.tags ?? [])).join(", "),
             onChange: (value) => {
               const tags = String(value ?? "")
@@ -175,14 +174,14 @@ export default function LibraryDetailModal({
           {
             key: "categoryCode",
             label: "分类编码",
-            spec: { valueType: "string", editor: "input", state: editableState },
+            spec: { valueType: "string", control: "text", state: editableState },
             value: form.categoryCode ?? doc.categoryCode ?? "",
             onChange: (value) => setForm((current) => ({ ...current, categoryCode: String(value ?? "") })),
           },
           {
             key: "categoryName",
             label: "分类名称",
-            spec: { valueType: "string", editor: "input", state: editableState },
+            spec: { valueType: "string", control: "text", state: editableState },
             value: form.categoryName ?? doc.categoryName ?? "",
             onChange: (value) => setForm((current) => ({ ...current, categoryName: String(value ?? "") })),
           },
@@ -192,7 +191,7 @@ export default function LibraryDetailModal({
             hint: !canAdmin ? "需要管理权限才能修改保密等级" : undefined,
             spec: {
               valueType: "number",
-              editor: "select",
+              control: "choice",
               state: !canAdmin ? "disabled" : "normal",
               options: {
                 source: "static",
@@ -208,7 +207,7 @@ export default function LibraryDetailModal({
             label: "状态",
             spec: {
               valueType: "string",
-              editor: "select",
+              control: "choice",
               state: editableState,
               options: { source: "static", mode: "dropdown", items: STATUS_OPTIONS },
             },
@@ -220,7 +219,7 @@ export default function LibraryDetailModal({
           { key: "docId", label: "文档编号", spec: readonlySpec, value: doc.docId || "—" },
           { key: "fileName", label: "文件名", spec: readonlySpec, value: doc.fileName },
           { key: "title", label: "标题", spec: readonlySpec, value: doc.title || "—" },
-          { key: "summary", label: "简介", spec: { ...readonlySpec, editor: "textarea" }, value: doc.summary || "—", rows: 3 },
+          { key: "summary", label: "简介", spec: { ...readonlySpec, control: "text", multiline: true }, value: doc.summary || "—", rows: 3 },
           { key: "tags", label: "标签", spec: readonlySpec, value: doc.tags?.length ? doc.tags.join(", ") : "—" },
           { key: "category", label: "分类", spec: readonlySpec, value: `${doc.categoryCode || "—"} ${doc.categoryName || ""}` },
           { key: "directory", label: "目录", spec: readonlySpec, value: doc.directoryPath || "—" },
@@ -258,14 +257,20 @@ export default function LibraryDetailModal({
   }
 
   return (
-    <FormSurface
-      kind="modal"
-      open
-      title={doc?.title || doc?.fileName || "资料详情"}
-      onClose={onClose}
-      className="max-w-lg mx-auto"
-      fields={fields}
-      actions={actions}
+    <PageSurface
+      kind="list"
+      embedded
+      blocks={[
+        createPageFormModalBlock("library-detail", {
+          open: true,
+          title: doc?.title || doc?.fileName || "资料详情",
+          onClose,
+          className: "max-w-lg mx-auto",
+        }, {
+          fields,
+          actions,
+        }),
+      ]}
     />
   );
 }

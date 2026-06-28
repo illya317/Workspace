@@ -51,7 +51,7 @@
 ## 5. 业务服务
 
 - [ ] `packages/<domain>/server/` — 查询、导入、计算、聚合、业务规则
-- [ ] 单个 service 文件不超过 260 行
+- [ ] 单个 service 文件以 260 行为新代码目标；package TS lint 硬上限 550 行
 - [ ] 禁止在 API route 里写复杂计算
 
 ## 6. 架构文档
@@ -63,7 +63,7 @@
 
 ```bash
 npx tsc --noEmit          # 类型检查
-npm run lint -- --max-warnings=0  # Lint（含文件行数红线）
+npm run lint:changed      # Lint（含文件行数红线和 changed + untracked 净增行 gate）
 npm run build             # 构建
 npm run arch:gate         # 唯一架构门禁：AST/DAG/module/auth/package 边界
 ```
@@ -73,9 +73,9 @@ npm run arch:gate         # 唯一架构门禁：AST/DAG/module/auth/package 边
 | 类型 | 上限 |
 |------|------|
 | 页面 facade | 150 行 |
-| UI 组件/hook | 新代码目标 220 行；迁移期 package TSX lint fallback 400 行 |
+| UI 组件/hook | 新代码目标 220 行；package TSX lint 硬上限 500 行 |
 | API route | 120 行 |
-| Server service | 新代码目标 260 行；迁移期 package TS lint fallback 450 行 |
-| Core package | 300 行 |
+| Server service | 新代码目标 260 行；package TS lint 硬上限 550 行 |
+| Core package | 新代码目标 300 行；Core lint 硬上限 450 行；registry data 500 行 |
 | Lint warning | 0 |
 | TypeScript error | 0 |

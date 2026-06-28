@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createPageDataBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState, SourceTraceInfo } from "../types";
 import CostDataTable, { CostTraceButton, formatCostNumber, type CostRecord } from "./CostDataTable";
@@ -36,12 +36,21 @@ export default function ShipmentTable({ filters }: Props) {
   return (
     <div className="space-y-4">
       {summary && (
-        <DataSurface kind="metrics" metrics={[
-          { key: "amount", label: "发货金额", value: formatCostNumber(summary.totalAmount as number) },
-          { key: "received", label: "已回款", value: formatCostNumber(summary.totalReceived as number) },
-          { key: "unreceived", label: "未回款", value: formatCostNumber(summary.totalUnreceived as number) },
-          { key: "rate", label: "回款率", value: `${(((summary.collectionRate as number) ?? 0) * 100).toFixed(1)}%` },
-        ]} />
+        <PageSurface
+          kind="analysis"
+          embedded
+          blocks={[
+            createPageDataBlock("shipment-summary", {
+              kind: "metrics",
+              metrics: [
+                { key: "amount", label: "发货金额", value: formatCostNumber(summary.totalAmount as number) },
+                { key: "received", label: "已回款", value: formatCostNumber(summary.totalReceived as number) },
+                { key: "unreceived", label: "未回款", value: formatCostNumber(summary.totalUnreceived as number) },
+                { key: "rate", label: "回款率", value: `${(((summary.collectionRate as number) ?? 0) * 100).toFixed(1)}%` },
+              ],
+            }),
+          ]}
+        />
       )}
 
       <CostDataTable

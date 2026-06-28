@@ -1,7 +1,5 @@
-import { createElement } from "react";
-import { requireRouteAccess } from "@workspace/platform/server/auth";
 import { getResourceDef } from "@workspace/platform/resources";
-import AppShell from "@workspace/platform/ui/AppShell";
+import { createProtectedModulePage } from "@workspace/platform/ui/protected-page";
 import { ProjectTab } from "@workspace/work/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import type { WorkUser } from "@workspace/work/types";
@@ -17,12 +15,9 @@ function toWorkUser(user: SessionUser): WorkUser {
   };
 }
 
-export default async function WorkProjectsPage() {
-  const user = await requireRouteAccess("/work/projects");
-  const title = getResourceDef("work.projects")?.name ?? "项目管理";
-  return createElement(
-    AppShell,
-    { title, backHref: "/work", user },
-    <ProjectTab user={toWorkUser(user)} />,
-  );
-}
+export default createProtectedModulePage({
+  route: "/work/projects",
+  title: () => getResourceDef("work.projects")?.name ?? "项目管理",
+  backHref: "/work",
+  render: ({ user }) => <ProjectTab user={toWorkUser(user)} />,
+});

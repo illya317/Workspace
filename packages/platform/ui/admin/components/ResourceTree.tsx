@@ -8,11 +8,14 @@ type StatusVariant = "green" | "yellow" | "gray";
 export interface ResourceTreeNode {
   key: string;
   name: string;
+  selectableWithChildren?: boolean;
   hidden?: boolean;
   enabled?: boolean;
   disabledReason?: string | null;
   statusLabel?: string;
   statusVariant?: StatusVariant;
+  statusInteractive?: boolean;
+  statusDisabled?: boolean;
   children?: ResourceTreeNode[];
 }
 
@@ -23,14 +26,37 @@ interface ResourceTreeProps {
   collapsible?: boolean;
   defaultExpanded?: boolean;
   forceExpanded?: boolean;
+  onStatusClick?: (resource: ResourceTreeNode) => void;
 }
 const STATUS_TONE_CLASS: Record<StatusVariant, string> = {
   green: "bg-emerald-50 text-emerald-600",
   yellow: "bg-yellow-50 text-yellow-700",
   gray: "bg-gray-100 text-gray-600",
 };
-function StatusBadge({ label, tone }: { label: string; tone: StatusVariant }) {
-  return <span className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium ${STATUS_TONE_CLASS[tone]}`}>{label}</span>;
+function StatusBadge({
+  label,
+  tone,
+  disabled = false,
+  onClick,
+}: {
+  label: string;
+  tone: StatusVariant;
+  disabled?: boolean;
+  onClick?: () => void;
+}) {
+  const className = `inline-block rounded px-1.5 py-0.5 text-xs font-medium ${STATUS_TONE_CLASS[tone]} ${onClick && !disabled ? "cursor-pointer hover:ring-1 hover:ring-current/20" : ""} ${disabled ? "cursor-not-allowed opacity-50" : ""}`;
+  if (!onClick) return <span className={className}>{label}</span>;
+  return (
+    <span
+      className={className}
+      onClick={(event) => {
+        event.stopPropagation();
+        if (!disabled) onClick();
+      }}
+    >
+      {label}
+    </span>
+  );
 }
 
 export default function ResourceTree({
@@ -40,9 +66,10 @@ export default function ResourceTree({
   collapsible = true,
   defaultExpanded = false,
   forceExpanded = false,
+  onStatusClick,
 }: ResourceTreeProps) {
   const initialExpanded = useMemo(() => {
-    if (forceExpanded) {
+    if (forceExpanded || defaultExpanded) {
       const set = new Set<string>();
       function visit(nodes: ResourceTreeNode[]) {
         for (const node of nodes) {
@@ -55,21 +82,31 @@ export default function ResourceTree({
       visit(resources);
       return set;
     }
-    if (defaultExpanded) {
-      return new Set(resources.map((resource) => resource.key));
-    }
     return new Set<string>();
   }, [resources, forceExpanded, defaultExpanded]);
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(initialExpanded);
 
   const expandedIds = forceExpanded ? undefined : expandedKeys;
 
+  function toggleNode(key: string) {
+    if (forceExpanded) return;
+    setExpandedKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+
   function renderStatus(resource: ResourceTreeNode) {
+    const clickStatus = resource.statusInteractive && onStatusClick
+      ? () => onStatusClick(resource)
+      : undefined;
     if (resource.statusLabel) {
-      return <StatusBadge label={resource.statusLabel} tone={resource.statusVariant ?? "gray"} />;
+      return <StatusBadge label={resource.statusLabel} tone={resource.statusVariant ?? "gray"} disabled={resource.statusDisabled} onClick={clickStatus} />;
     }
-    if (resource.hidden) return <StatusBadge label="隐藏" tone="yellow" />;
-    if (resource.enabled === false) return <StatusBadge label="停用" tone="gray" />;
+    if (resource.hidden) return <StatusBadge label="隐藏" tone="yellow" disabled={resource.statusDisabled} onClick={clickStatus} />;
+    if (resource.enabled === false) return <StatusBadge label="停用" tone="gray" disabled={resource.statusDisabled} onClick={clickStatus} />;
     return null;
   }
 
@@ -83,7 +120,13 @@ export default function ResourceTree({
       framed={false}
       items={resources}
       selectedId={selectedResource}
-      onSelect={(resource) => onSelect(resource.key)}
+      onSelect={(resource) => {
+        if (resource.children?.length && !resource.selectableWithChildren) {
+          toggleNode(resource.key);
+          return;
+        }
+        onSelect(resource.key);
+      }}
       getKey={(resource) => resource.key}
       getChildren={getChildren}
       expandedIds={expandedIds}

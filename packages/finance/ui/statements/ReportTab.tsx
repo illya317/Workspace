@@ -114,7 +114,6 @@ export default function ReportTab() {
       value: companyFilter,
       onChange: setCompanyFilter,
       placeholder: "全部",
-      triggerClassName: "min-w-32",
     },
     {
       kind: "select",
@@ -125,7 +124,6 @@ export default function ReportTab() {
       value: yearFilter,
       onChange: setYearFilter,
       placeholder: "全部",
-      triggerClassName: "min-w-32",
     },
     {
       kind: "select",
@@ -136,7 +134,6 @@ export default function ReportTab() {
       value: monthFilter,
       onChange: setMonthFilter,
       placeholder: "全部",
-      triggerClassName: "min-w-32",
     },
     {
       kind: "select",
@@ -146,7 +143,6 @@ export default function ReportTab() {
       options: REPORT_TYPE_OPTIONS,
       value: reportType,
       onChange: (nextValue) => setReportType(nextValue as "balance" | "income" | "cashflow"),
-      triggerClassName: "min-w-44",
     },
     {
       kind: "action-group",

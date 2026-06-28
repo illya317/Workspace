@@ -127,7 +127,7 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
           title: "部门架构",
           toolbar: {
             items: [
-              { kind: "search", key: "search", value: search, onChange: setSearch, placeholder: "搜索部门名称、编码、别名...", className: "max-w-sm" },
+              { kind: "search", key: "search", value: search, onChange: setSearch, placeholder: "搜索部门名称、编码、别名..." },
             ],
           },
           bodyClassName: "p-4",

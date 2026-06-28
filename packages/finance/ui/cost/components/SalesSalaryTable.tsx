@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createPageDataBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState, SourceTraceInfo } from "../types";
 import CostDataTable, { CostTraceButton, formatCostNumber, type CostRecord } from "./CostDataTable";
@@ -33,11 +33,20 @@ export default function SalesSalaryTable({ filters }: Props) {
   return (
     <div className="space-y-4">
       {summary && (
-        <DataSurface kind="metrics" metrics={[
-          { key: "base", label: "基本工资合计", value: formatCostNumber(summary.totalBaseSalary as number) },
-          { key: "bonus", label: "提成合计", value: formatCostNumber(summary.totalBonus as number) },
-          { key: "actual", label: "实发工资合计", value: formatCostNumber(summary.totalActualSalary as number) },
-        ]} />
+        <PageSurface
+          kind="analysis"
+          embedded
+          blocks={[
+            createPageDataBlock("sales-salary-summary", {
+              kind: "metrics",
+              metrics: [
+                { key: "base", label: "基本工资合计", value: formatCostNumber(summary.totalBaseSalary as number) },
+                { key: "bonus", label: "提成合计", value: formatCostNumber(summary.totalBonus as number) },
+                { key: "actual", label: "实发工资合计", value: formatCostNumber(summary.totalActualSalary as number) },
+              ],
+            }),
+          ]}
+        />
       )}
       <CostDataTable
         rows={data}

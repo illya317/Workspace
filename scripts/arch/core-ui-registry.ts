@@ -1,9 +1,6 @@
 import {
-  CORE_UI_SHOWCASE_MAX_LEVEL,
   coreUiComponentRegistry,
-  isCoreUiComponentVisibleInShowcase,
   registeredCoreUiComponentNames,
-  resolveCoreUiComponentUiLevel,
 } from "../../packages/core/ui/component-registry";
 import type { CoreUiComponentRegistration } from "../../packages/core/ui/component-registry";
 import { existsSync, readFileSync } from "node:fs";
@@ -14,11 +11,11 @@ const ROOT = path.resolve(__dirname, "../..");
 const CORE_UI_DIR = path.join(ROOT, "packages/core/ui");
 const CORE_UI_INDEX = path.join(CORE_UI_DIR, "index.ts");
 const SOURCE_EXTENSIONS = [".tsx", ".ts"];
-const ALLOWED_UI_LEVELS = new Set([1, 2, 3, 4]);
-const CORE_UI_L1_PUBLIC_ENTRY_NAMES = new Set([
-  "DataSurface",
-  "FormSurface",
+const CORE_UI_AGENT_DIRECT_ENTRY_NAMES = new Set([
+  "CreatePanel",
+  "InputControl",
   "PageSurface",
+  "SelectorPanel",
   "useFeedback",
 ]);
 
@@ -285,70 +282,10 @@ export function validateCoreUiRegistry() {
     byName.set(registration.name, registration);
   }
 
-  // 1. uiLevel 是展示治理硬约束：L1 名单精确匹配；L4+ 不能进入组件库主展示。
-  const resolvedL1Names = new Set<string>();
-  for (const registration of byName.values()) {
-    const explicitUiLevel = (registration as { uiLevel?: unknown }).uiLevel;
-    if (explicitUiLevel !== undefined && !ALLOWED_UI_LEVELS.has(explicitUiLevel as number)) {
-      errors.push(`${registration.name}.uiLevel 必须是 1/2/3/4，当前为 ${String(explicitUiLevel)}`);
-      continue;
-    }
-
-    const resolvedUiLevel = resolveCoreUiComponentUiLevel(registration);
-    if (!ALLOWED_UI_LEVELS.has(resolvedUiLevel)) {
-      errors.push(`${registration.name} 解析后的 uiLevel 必须是 1/2/3/4，当前为 ${String(resolvedUiLevel)}`);
-    }
-
-    if (resolvedUiLevel === 1) resolvedL1Names.add(registration.name);
-
-    const shouldBeHiddenFromShowcase = resolvedUiLevel > CORE_UI_SHOWCASE_MAX_LEVEL;
-    if (shouldBeHiddenFromShowcase && isCoreUiComponentVisibleInShowcase(registration)) {
-      errors.push(`${registration.name} 是 L${resolvedUiLevel}，必须从 UI 组件库主展示隐藏`);
-    }
-  }
-  for (const expectedName of CORE_UI_L1_PUBLIC_ENTRY_NAMES) {
-    if (!resolvedL1Names.has(expectedName)) {
-      errors.push(`Core UI L1 缺少公开入口 ${expectedName}`);
-    }
-  }
-  for (const actualName of resolvedL1Names) {
-    if (!CORE_UI_L1_PUBLIC_ENTRY_NAMES.has(actualName)) {
-      errors.push(`${actualName} 不能声明或解析为 uiLevel: 1；L1 仅允许 PageSurface/FormSurface/DataSurface/useFeedback`);
-    }
-  }
-
-  const visibleShowcaseRoots = [...byName.values()]
-    .filter(isCoreUiComponentVisibleInShowcase)
-    .map((registration) => registration.name)
-    .sort();
-  for (const rootName of visibleShowcaseRoots) {
-    const root = byName.get(rootName);
-    if (!root) continue;
-    const rootLevel = resolveCoreUiComponentUiLevel(root);
-    if (rootLevel > CORE_UI_SHOWCASE_MAX_LEVEL) {
-      errors.push(`${root.name} 是 L${rootLevel}，不能作为 UI 组件库主展示根节点`);
-    }
-    const directTargets = [
-      ...(root.composes ?? []),
-      ...(root.foundations ?? []),
-      ...(root.includes ?? []),
-    ];
-    for (const targetName of directTargets) {
-      const target = byName.get(targetName);
-      if (!target || !isCoreUiComponentVisibleInShowcase(target)) continue;
-      const targetLevel = resolveCoreUiComponentUiLevel(target);
-      if (targetLevel > CORE_UI_SHOWCASE_MAX_LEVEL) {
-        errors.push(`${root.name} 的组件库主展示直接关系暴露了 L${targetLevel} 入口 ${target.name}`);
-      }
-    }
-  }
-
-  // 2. 引用的名字必须存在
+  // 1. 引用的名字必须存在
   for (const registration of byName.values()) {
     const allTargets = [
       ...(registration.composes ?? []),
-      ...(registration.foundations ?? []),
-      ...(registration.includes ?? []),
     ];
     for (const target of allTargets) {
       if (!registeredCoreUiComponentNames.has(target)) {
@@ -357,45 +294,62 @@ export function validateCoreUiRegistry() {
     }
   }
 
-  // 2b. Agent 暴露路径必须指向真实入口；关键能力域只能有一个直接入口。
+  // 2. Agent 暴露路径必须指向真实 direct 入口；direct 名单由架构硬锁。
   const directEntriesByOwner = new Map<string, string[]>();
+  const directEntryNames = new Set<string>();
   for (const registration of byName.values()) {
-    const exposure = registration.agentExposure;
+    const exposure = registration.exposure;
     if (!exposure) {
-      errors.push(`${registration.name} 缺少 agentExposure`);
+      errors.push(`${registration.name} 缺少 exposure`);
       continue;
     }
-    if (exposure.mode === "via" && !byName.has(exposure.entry)) {
-      errors.push(`${registration.name}.agentExposure 指向未注册入口 ${exposure.entry}`);
+    if (exposure.mode === "via") {
+      const entry = byName.get(exposure.entry);
+      if (!entry) {
+        errors.push(`${registration.name}.exposure 指向未注册入口 ${exposure.entry}`);
+      } else if (entry.exposure?.mode !== "direct") {
+        errors.push(`${registration.name}.exposure 必须指向 direct 入口，当前 ${exposure.entry} 是 ${entry.exposure?.mode ?? "unknown"}`);
+      }
     }
     if (exposure.mode === "direct") {
-      const owner = registration.ownerL2 ?? "unknown";
+      directEntryNames.add(registration.name);
+      const owner = registration.subcategory ?? "unknown";
       directEntriesByOwner.set(owner, [...(directEntriesByOwner.get(owner) ?? []), registration.name]);
+    }
+  }
+  for (const expectedName of CORE_UI_AGENT_DIRECT_ENTRY_NAMES) {
+    if (!directEntryNames.has(expectedName)) {
+      errors.push(`Core UI direct 入口缺少 ${expectedName}`);
+    }
+  }
+  for (const actualName of directEntryNames) {
+    if (!CORE_UI_AGENT_DIRECT_ENTRY_NAMES.has(actualName)) {
+      errors.push(`${actualName} 不能声明为 exposure: direct；direct 仅允许 ${[...CORE_UI_AGENT_DIRECT_ENTRY_NAMES].join(", ")}`);
     }
   }
   const canonicalDirectEntries: Record<string, string[]> = {
     "common.input": ["InputControl"],
     "common.selection": ["SelectorPanel"],
   };
-  for (const [ownerL2, allowed] of Object.entries(canonicalDirectEntries)) {
-    const actual = directEntriesByOwner.get(ownerL2) ?? [];
+  for (const [subcategory, allowed] of Object.entries(canonicalDirectEntries)) {
+    const actual = directEntriesByOwner.get(subcategory) ?? [];
     const unexpected = actual.filter((name) => !allowed.includes(name));
     if (unexpected.length > 0) {
-      errors.push(`${ownerL2} 只能通过 ${allowed.join(", ")} 作为直接入口，当前多出 ${unexpected.join(", ")}`);
+      errors.push(`${subcategory} 只能通过 ${allowed.join(", ")} 作为直接入口，当前多出 ${unexpected.join(", ")}`);
     }
   }
 
-  // 3. composes/includes 不能成环
+  // 3. composes 不能成环
   function visit(name: string, path: string[], seen: Set<string>) {
     if (seen.has(name)) {
       const cycleStart = path.indexOf(name);
       const cycle = path.slice(cycleStart).concat(name);
-      errors.push(`composes/includes 出现循环：${cycle.join(" -> ")}`);
+      errors.push(`composes 出现循环：${cycle.join(" -> ")}`);
       return;
     }
     const registration = byName.get(name);
     if (!registration) return;
-    const targets = [...(registration.composes ?? []), ...(registration.includes ?? [])];
+    const targets = registration.composes ?? [];
     for (const target of targets) {
       visit(target, [...path, name], new Set(seen).add(name));
     }
@@ -404,34 +358,7 @@ export function validateCoreUiRegistry() {
     visit(registration.name, [], new Set());
   }
 
-  // 4. Foundation entry 不能声明 composes/includes，且 foundations 目标也必须是 Foundation。
-  for (const registration of byName.values()) {
-    if (registration.accessLayer === "foundation") {
-      if ((registration.composes && registration.composes.length > 0) || (registration.includes && registration.includes.length > 0)) {
-        errors.push(`${registration.name} 是 foundation，不能声明 composes/includes`);
-      }
-      for (const target of registration.foundations ?? []) {
-        const targetReg = byName.get(target);
-        if (targetReg && targetReg.accessLayer !== "foundation") {
-          errors.push(`${registration.name}.foundations 指向了非 foundation 入口 ${target}（${targetReg.accessLayer}）`);
-        }
-      }
-    }
-  }
-
-  // 5. 非 Foundation 不能通过 composes/includes 依赖 Foundation，应该使用 foundations 字段。
-  for (const registration of byName.values()) {
-    if (registration.accessLayer === "foundation") continue;
-    const targets = [...(registration.composes ?? []), ...(registration.includes ?? [])];
-    for (const target of targets) {
-      const targetReg = byName.get(target);
-      if (targetReg && targetReg.accessLayer === "foundation") {
-        errors.push(`${registration.name}（${registration.accessLayer}）通过 composes/includes 依赖了 foundation ${target}，应改为 foundations 字段`);
-      }
-    }
-  }
-
-  // 6. 同一来源的目标不能重复；同一目标不能同时出现在 composes/includes 和 foundations 中
+  // 4. 同一来源的目标不能重复。
   for (const registration of byName.values()) {
     const targets = new Set<string>();
     const check = (target: string, field: string) => {
@@ -441,11 +368,9 @@ export function validateCoreUiRegistry() {
       targets.add(target);
     };
     for (const target of registration.composes ?? []) check(target, "composes");
-    for (const target of registration.includes ?? []) check(target, "includes");
-    for (const target of registration.foundations ?? []) check(target, "foundations");
   }
 
-  // 7. 实现代码里的 core UI 依赖必须写入 registry 关系。
+  // 5. 实现代码里的 core UI 依赖必须写入 registry 关系。
   //    按导出入口归因；同文件私有 helper 会递归追踪，同文件已注册入口只记直接依赖，避免把间接依赖摊平。
   const namesBySource = new Map<string, string[]>();
   for (const registration of byName.values()) {
@@ -462,17 +387,13 @@ export function validateCoreUiRegistry() {
       if (!registration) continue;
       const declaredTargets = new Set([
         ...(registration.composes ?? []),
-        ...(registration.foundations ?? []),
-        ...(registration.includes ?? []),
       ]);
       const actualTargets = findRegisteredCoreUiDependenciesForEntry(sourceName, sourcePath, analysis, exportMaps)
         .filter((target) => target !== sourceName);
 
       for (const target of actualTargets) {
         if (declaredTargets.has(target)) continue;
-        const targetReg = byName.get(target);
-        const field = targetReg?.accessLayer === "foundation" ? "foundations" : "composes";
-        errors.push(`${sourceName} 在 ${path.relative(ROOT, sourcePath)} 中使用了 ${target}，但 registry 未声明 ${field}: ["${target}"]`);
+        errors.push(`${sourceName} 在 ${path.relative(ROOT, sourcePath)} 中使用了 ${target}，但 registry 未声明 composes: ["${target}"]`);
       }
     }
   }

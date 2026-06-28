@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FormSurface } from "@workspace/core/ui";
+import { PageSurface, createPageFieldsBlock } from "@workspace/core/ui";
 import type { WorkItem } from "./types";
 
 export default function WorkForm({
@@ -29,15 +29,14 @@ export default function WorkForm({
   );
 
   return (
-    <FormSurface
-      kind="fields"
-      columns={2}
-      className="rounded-lg border border-slate-200 bg-white p-4"
-      fields={[
+    <PageSurface
+      embedded
+      kind="detail"
+      blocks={[createPageFieldsBlock("work-form", [
         {
           key: "category",
           label: "类别",
-          spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: [
+          spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: [
             { value: "routine", label: "日常工作" },
             { value: "non-routine", label: "其他工作" },
           ] } },
@@ -48,7 +47,7 @@ export default function WorkForm({
           key: "content",
           label: "工作内容",
           required: true,
-          spec: { valueType: "string", editor: "input" },
+          spec: { valueType: "string", control: "text" },
           value: content,
           onChange: (value) => setContent(String(value ?? "")),
           placeholder: "例如：会议纪要整理",
@@ -56,7 +55,7 @@ export default function WorkForm({
         {
           key: "importance",
           label: "重要度",
-          spec: { valueType: "number", editor: "rating" },
+          spec: { valueType: "number", control: "rating" },
           value: importance,
           onChange: (value) => setImportance(Number(value)),
           ratingLabel: "重要度",
@@ -64,7 +63,7 @@ export default function WorkForm({
         {
           key: "urgency",
           label: "紧急度",
-          spec: { valueType: "number", editor: "rating" },
+          spec: { valueType: "number", control: "rating" },
           value: urgency,
           onChange: (value) => setUrgency(Number(value)),
           ratingLabel: "紧急度",
@@ -73,13 +72,15 @@ export default function WorkForm({
           key: "participants",
           label: "参与人",
           span: "wide",
-          spec: { valueType: "string", editor: "input" },
+          spec: { valueType: "string", control: "text" },
           value: participants,
           onChange: (value) => setParticipants(String(value ?? "")),
           placeholder: "多个名字用逗号分隔",
         },
-      ]}
-      actions={[
+      ], {
+      columns: 2,
+      className: "rounded-lg border border-slate-200 bg-white p-4",
+      actions: [
         { key: "cancel", label: "取消", onClick: onCancel },
         {
           key: "save",
@@ -96,7 +97,8 @@ export default function WorkForm({
               sortOrder: initial?.sortOrder ?? 0,
             }),
         },
-      ]}
+      ],
+    })]}
     />
   );
 }

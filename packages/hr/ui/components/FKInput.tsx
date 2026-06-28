@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface, type ReferenceOption } from "@workspace/core/ui";
+import { InputControl, type ReferenceOption } from "@workspace/core/ui";
 import type { FKOption } from "@workspace/hr/types";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../fk-keys";
 
@@ -25,24 +25,20 @@ export default function FKInput({
 }: FKInputProps) {
   const resolvedFkKey = fkKeyForEntity(entity, fkKey);
   return (
-    <FormSurface
-      kind="control"
-      control={{
-        kind: "inputControl",
-        spec: {
-          valueType: "reference",
-          editor: "autocomplete",
-          state: disabled ? "disabled" : "normal",
-          options: { source: "remote", fkKey: resolvedFkKey, endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" },
-        },
-        value: value ? String(value) : "",
-        displayValue,
-        onChange: (_label, option) => {
-          const fkOption = option as ReferenceOption | undefined;
-          onChange(fkOption ? { id: fkOption.id, name: fkOption.name, subtitle: fkOption.subtitle } : null);
-        },
-        placeholder,
+    <InputControl
+      spec={{
+        valueType: "reference",
+        control: "reference",
+        state: disabled ? "disabled" : "normal",
+        options: { source: "remote", fkKey: resolvedFkKey, endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" },
       }}
+      value={value ? String(value) : ""}
+      displayValue={displayValue}
+      onChange={(_label, option) => {
+        const fkOption = option as ReferenceOption | undefined;
+        onChange(fkOption ? { id: fkOption.id, name: fkOption.name, subtitle: fkOption.subtitle } : null);
+      }}
+      placeholder={placeholder}
     />
   );
 }

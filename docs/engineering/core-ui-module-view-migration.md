@@ -2,7 +2,7 @@
 
 `PageSurface` 的 `moduleView` 是历史逃生口，不是新增页面 API。后续迁移规则：
 
-- `replace-now`：现有 `PageSurface` / `FormSurface` / `DataSurface` / `NavigationSurface` 可以表达，直接迁移。
+- `replace-now`：现有正式入口或 spec 已可表达，直接迁移；业务 runtime 不再直接使用 `FormSurface` / `DataSurface` / `NavigationSurface`。
 - `core-gap`：现有 Surface contract 不够，先补公开契约，再替换业务侧。
 - `defer`：不是单点 UI，可在下游子视图迁完后再处理宿主。
 - `migrated`：已经迁出 `moduleView`，对应 baseline 已 ratchet。
@@ -22,7 +22,7 @@
 | `tabbed-block-host` | tabs/activeChild + typed `PageSurfaceBlockSpec[]` 或 embedded `PageSurfaceProps` 内容宿主，不接受 ReactNode/render callback |
 | `page-module-host-spec` | 暂不补泛化宿主；剩余 shell-host 必须先拆成 toolbar menu、tabbed block host、document/navigation 等具体契约 |
 | `surface-composition-spec` | 多 Surface 组合、嵌套 section、表格展开行、树表、复杂编辑器、交互卡片列表 |
-| `form-segmented-code-control` | 已补 `FormSurface kind="segmentedCode"` 字段：部门/岗位 code 的 segment extract/compose/normalize 可声明表达 |
+| `form-segmented-code-control` | 已迁到普通 Form field：部门/岗位 code 通过 `InputControl control=text` + `mask.kind=editableSegment` 声明 segment extract/compose/normalize |
 | `navigation-surface-spec` | 已补 `NavigationSurface kind="steps"` href/disabled link steps；树形部门/组织导航继续走 selector/tree specs |
 
 ## Register

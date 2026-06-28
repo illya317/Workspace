@@ -95,14 +95,17 @@ export function createProxyHandler(targetPathPrefix: string) {
     headers.delete("host");
     headers.delete("content-length");
 
-    const res = await fetch(url, {
+    const requestInit: RequestInit & { duplex?: "half" } = {
       method: request.method,
       headers,
-      body: request.body,
-      // @ts-expect-error duplex is needed for Node.js stream forwarding
-      duplex: "half",
       redirect: "manual",
-    });
+    };
+    if (!["GET", "HEAD"].includes(request.method.toUpperCase())) {
+      requestInit.body = request.body;
+      requestInit.duplex = "half";
+    }
+
+    const res = await fetch(url, requestInit);
 
     return new Response(res.body, {
       status: res.status,

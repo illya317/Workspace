@@ -1,16 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import CalendarDateInput from "./CalendarDateInput";
-import ChoiceGroup from "./ChoiceGroup";
-import FileField from "./FileField";
-import HiddenDataField from "./HiddenDataField";
 import InputControl, { type InputControlProps } from "./InputControl";
 import ReadOnlyField, { type ReadOnlyFieldProps } from "./ReadOnlyField";
-import SelectField from "./SelectField";
 import TagListInput from "./TagListInput";
-import TextareaField from "./TextareaField";
-import TextField from "./TextField";
 import { joinClassNames } from "./card-utils";
 import { renderCommands } from "./form-surface-commands";
 export { renderCommands };
@@ -19,8 +12,6 @@ import type {
   FormSurfaceFieldSpec,
   FormSurfaceItemSpec,
   FormSurfaceReadOnlyFieldSpec,
-  FormSurfaceSegmentedCodeInputProps,
-  FormSurfaceSegmentedCodeFieldSpec,
   FormSurfaceTagListAppendSpec,
   FormSurfaceTagListFieldSpec,
 } from "./FormSurface.types";
@@ -30,41 +21,8 @@ export function isInputField<T>(field: FormSurfaceItemSpec<T>): field is FormSur
 }
 
 export function renderControlSpec(control: FormSurfaceControlSpec) {
-  if (control.kind === "inputControl") {
-    const { kind: _kind, ...props } = control;
-    return <InputControl {...props} />;
-  }
-  if (control.kind === "text") {
-    const { kind: _kind, ...props } = control;
-    return <TextField {...props} />;
-  }
-  if (control.kind === "textarea") {
-    const { kind: _kind, ...props } = control;
-    return <TextareaField {...props} />;
-  }
-  if (control.kind === "calendarDate") {
-    const { kind: _kind, ...props } = control;
-    return <CalendarDateInput {...props} />;
-  }
-  if (control.kind === "choice") {
-    const { kind: _kind, ...props } = control;
-    return <ChoiceGroup {...props} />;
-  }
-  if (control.kind === "select") {
-    const { kind: _kind, ...props } = control;
-    if (props.multiple === true) return <SelectField {...props} />;
-    return <SelectField {...props} />;
-  }
-  if (control.kind === "file") {
-    const { kind: _kind, ...props } = control;
-    return <FileField {...props} />;
-  }
-  if (control.kind === "segmentedCode") {
-    const { kind: _kind, ...props } = control;
-    return renderSegmentedCodeInput(props);
-  }
   const { kind: _kind, ...props } = control;
-  return <HiddenDataField {...props} />;
+  return <InputControl {...props} />;
 }
 
 export function renderControl(field: FormSurfaceFieldSpec, density: InputControlProps["density"]) {
@@ -90,7 +48,6 @@ export function renderControl(field: FormSurfaceFieldSpec, density: InputControl
       autoFocus={field.autoFocus}
       inputRef={field.inputRef}
       accept={field.accept}
-      multiple={field.multiple}
       resetOnChange={field.resetOnChange}
       showFileName={field.showFileName}
       buttonLabel={field.buttonLabel}
@@ -118,43 +75,6 @@ function renderReadOnly(field: FormSurfaceReadOnlyFieldSpec, density: ReadOnlyFi
     ...props
   } = field;
   return <ReadOnlyField {...props} density={field.density ?? density} />;
-}
-
-function renderSegmentedCodeInput({
-  editableSegment,
-  disabled,
-  value,
-  onChange,
-  ...props
-}: FormSurfaceSegmentedCodeInputProps) {
-  return (
-    <InputControl
-      {...props}
-      spec={{
-        valueType: "string",
-        editor: "segmentedCode",
-        segmentedCode: editableSegment,
-        state: disabled ? "disabled" : "normal",
-      }}
-      value={value}
-      onChange={(next) => onChange(String(next ?? ""))}
-    />
-  );
-}
-
-function renderSegmentedCode(field: FormSurfaceSegmentedCodeFieldSpec) {
-  const {
-    kind: _kind,
-    key: _key,
-    label: _label,
-    required: _required,
-    hint: _hint,
-    error: _error,
-    span: _span,
-    fieldClassName: _fieldClassName,
-    ...props
-  } = field;
-  return renderSegmentedCodeInput(props);
 }
 
 function renderTagAppend(append?: FormSurfaceTagListAppendSpec) {
@@ -210,7 +130,7 @@ function TagAppendTextInput({
   return renderControl({
     key: fieldKey,
     label: "",
-    spec: { valueType: "string", editor: "input" },
+    spec: { valueType: "string", control: "text" },
     value: draft,
     autoFocus: true,
     placeholder,
@@ -251,11 +171,10 @@ function renderTagList<T>(field: FormSurfaceTagListFieldSpec<T>) {
 }
 
 export function renderFieldValue<T>(
-  field: FormSurfaceFieldSpec | FormSurfaceReadOnlyFieldSpec | FormSurfaceSegmentedCodeFieldSpec | FormSurfaceTagListFieldSpec<T>,
+  field: FormSurfaceFieldSpec | FormSurfaceReadOnlyFieldSpec | FormSurfaceTagListFieldSpec<T>,
   density: InputControlProps["density"],
 ) {
   if (isInputField(field)) return renderControl(field, density);
   if (field.kind === "readonly") return renderReadOnly(field, density);
-  if (field.kind === "segmentedCode") return renderSegmentedCode(field);
   return renderTagList(field);
 }

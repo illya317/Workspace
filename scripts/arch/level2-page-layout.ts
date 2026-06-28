@@ -57,6 +57,7 @@ const PAGE_LAYOUT_PRIMITIVE_DENYLIST = new Set([
 
 const PLATFORM_SYSTEM_SHELL_PAGE_DESIGN_FILES = new Set([
   "packages/platform/ui/AppShell.tsx",
+  "packages/platform/ui/app-shell-page.tsx",
   "packages/platform/ui/UserMenu.tsx",
 ]);
 

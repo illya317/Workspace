@@ -1,6 +1,6 @@
 import type { QcConfigOverview } from "@workspace/production/server/qc";
 import Link from "next/link";
-import { DataSurface } from "@workspace/core/ui";
+import { PageSurface, createPageDataBlock, createPageTableBlock } from "@workspace/core/ui";
 
 interface Props {
   overview: QcConfigOverview;
@@ -53,123 +53,130 @@ function SourceStatus({ overview }: { overview: QcConfigOverview }) {
 function BatchesOverview({ overview }: { overview: QcConfigOverview }) {
   const products = overview.products.slice(0, 8);
   return (
-    <div className="space-y-4">
-      <DataSurface<ProductOverview>
-        kind="metrics"
-        metrics={[
-          { key: "products", label: "产品配置", value: overview.products.length },
-          { key: "stages", label: "阶段配置", value: overview.products.reduce((sum, product) => sum + product.stageCount, 0) },
-          { key: "items", label: "检测项映射", value: overview.products.reduce((sum, product) => sum + product.itemCount, 0) },
-          { key: "templates", label: "记录模板", value: overview.recordTemplates.length },
-        ]}
-      />
-
-      <DataSurface
-        kind="table"
-        framed
-        title="产品与检验阶段"
-        rows={products}
-        columns={[
-          {
-            key: "product",
-            label: "产品",
-            required: true,
-            render: (product) => (
-              <div>
-                <div className="text-sm font-medium text-slate-900">{product.name}</div>
-                <div className="mt-1 text-xs text-slate-500">{product.itemCount} 个检测项</div>
-              </div>
-            ),
-          },
-          {
-            key: "stages",
-            label: "阶段",
-            required: true,
-            render: (product) => (
-              <div className="flex flex-wrap gap-2">
-                {product.stages.map((stage) => (
-                  <span key={`${product.name}-${stage.key}`} className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-700">
-                    {stage.label} · {stage.itemCount}
-                  </span>
-                ))}
-              </div>
-            ),
-          },
-        ]}
-        rowKey={(product) => product.name}
-        emptyText="暂无可读取的产品配置。"
-      />
-    </div>
+    <PageSurface
+      kind="detail"
+      embedded
+      blocks={[
+        createPageDataBlock<ProductOverview>("qc-config-batch-metrics", {
+          kind: "metrics",
+          metrics: [
+            { key: "products", label: "产品配置", value: overview.products.length },
+            { key: "stages", label: "阶段配置", value: overview.products.reduce((sum, product) => sum + product.stageCount, 0) },
+            { key: "items", label: "检测项映射", value: overview.products.reduce((sum, product) => sum + product.itemCount, 0) },
+            { key: "templates", label: "记录模板", value: overview.recordTemplates.length },
+          ],
+        }),
+        createPageTableBlock<ProductOverview>("qc-config-batch-products", {
+          framed: true,
+          title: "产品与检验阶段",
+          rows: products,
+          columns: [
+            {
+              key: "product",
+              label: "产品",
+              required: true,
+              render: (product) => (
+                <div>
+                  <div className="text-sm font-medium text-slate-900">{product.name}</div>
+                  <div className="mt-1 text-xs text-slate-500">{product.itemCount} 个检测项</div>
+                </div>
+              ),
+            },
+            {
+              key: "stages",
+              label: "阶段",
+              required: true,
+              render: (product) => (
+                <div className="flex flex-wrap gap-2">
+                  {product.stages.map((stage) => (
+                    <span key={`${product.name}-${stage.key}`} className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-700">
+                      {stage.label} · {stage.itemCount}
+                    </span>
+                  ))}
+                </div>
+              ),
+            },
+          ],
+          rowKey: (product) => product.name,
+          emptyText: "暂无可读取的产品配置。",
+        }),
+      ]}
+    />
   );
 }
 
 function TemplatesOverview({ overview }: { overview: QcConfigOverview }) {
   return (
-    <div className="space-y-4">
-      <DataSurface
-        kind="metrics"
-        metrics={[
-          { key: "recordTemplates", label: "记录模板 YAML", value: overview.recordTemplates.length },
-          { key: "methods", label: "方法 YAML", value: overview.methods.length },
-          { key: "methodFields", label: "方法字段", value: overview.methods.reduce((sum, method) => sum + method.fieldCount, 0) },
-          { key: "layoutMappings", label: "布局映射 JSON", value: overview.layoutMapping.assignmentCount },
-        ]}
-      />
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <DataSurface<RecordTemplateOverview>
-          kind="table"
-          framed
-          title="记录模板"
-          rows={overview.recordTemplates.slice(0, 8)}
-          columns={[
-            {
-              key: "template",
-              label: "模板",
-              required: true,
-              render: (template) => (
-              <Link
-                key={template.id}
-                href={`/production/qc-templates/${template.id}`}
-                className="block px-4 py-3 transition hover:bg-slate-50"
-              >
-                <div className="text-sm font-medium text-slate-900">{template.productName}</div>
-                <div className="mt-1 text-xs text-slate-500">
-                  {template.stageCount} 个阶段 · {template.itemCount} 个检测项 · {template.fileName}
-                </div>
-              </Link>
-              ),
-            },
-          ]}
-          rowKey={(template) => template.id}
-          emptyText="暂无记录模板。"
-        />
-
-        <DataSurface<LayoutMappingSample>
-          kind="table"
-          framed
-          title="布局映射样本"
-          rows={overview.layoutMapping.samples}
-          columns={[
-            {
-              key: "sample",
-              label: "映射",
-              required: true,
-              render: (sample) => (
-              <div key={sample.key} className="px-4 py-3">
-                <div className="break-all text-sm font-medium text-slate-900">{sample.key}</div>
-                <div className="mt-1 text-xs text-slate-500">
-                  {sample.templateId} · {sample.status}{sample.sourceRef ? ` · ${sample.sourceRef}` : ""}
-                </div>
-              </div>
-              ),
-            },
-          ]}
-          rowKey={(sample) => sample.key}
-          emptyText="暂无布局映射样本。"
-        />
-      </div>
-    </div>
+    <PageSurface
+      kind="detail"
+      embedded
+      blocks={[
+        createPageDataBlock("qc-config-template-metrics", {
+          kind: "metrics",
+          metrics: [
+            { key: "recordTemplates", label: "记录模板 YAML", value: overview.recordTemplates.length },
+            { key: "methods", label: "方法 YAML", value: overview.methods.length },
+            { key: "methodFields", label: "方法字段", value: overview.methods.reduce((sum, method) => sum + method.fieldCount, 0) },
+            { key: "layoutMappings", label: "布局映射 JSON", value: overview.layoutMapping.assignmentCount },
+          ],
+        }),
+        {
+          kind: "surfaceGroup",
+          key: "qc-config-template-tables",
+          layout: "grid",
+          blocks: [
+            createPageTableBlock<RecordTemplateOverview>("qc-config-record-templates", {
+              framed: true,
+              title: "记录模板",
+              rows: overview.recordTemplates.slice(0, 8),
+              columns: [
+                {
+                  key: "template",
+                  label: "模板",
+                  required: true,
+                  render: (template) => (
+                  <Link
+                    key={template.id}
+                    href={`/production/qc-templates/${template.id}`}
+                    className="block px-4 py-3 transition hover:bg-slate-50"
+                  >
+                    <div className="text-sm font-medium text-slate-900">{template.productName}</div>
+                    <div className="mt-1 text-xs text-slate-500">
+                      {template.stageCount} 个阶段 · {template.itemCount} 个检测项 · {template.fileName}
+                    </div>
+                  </Link>
+                  ),
+                },
+              ],
+              rowKey: (template) => template.id,
+              emptyText: "暂无记录模板。",
+            }),
+            createPageTableBlock<LayoutMappingSample>("qc-config-layout-mapping-samples", {
+              framed: true,
+              title: "布局映射样本",
+              rows: overview.layoutMapping.samples,
+              columns: [
+                {
+                  key: "sample",
+                  label: "映射",
+                  required: true,
+                  render: (sample) => (
+                  <div key={sample.key} className="px-4 py-3">
+                    <div className="break-all text-sm font-medium text-slate-900">{sample.key}</div>
+                    <div className="mt-1 text-xs text-slate-500">
+                      {sample.templateId} · {sample.status}{sample.sourceRef ? ` · ${sample.sourceRef}` : ""}
+                    </div>
+                  </div>
+                  ),
+                },
+              ],
+              rowKey: (sample) => sample.key,
+              emptyText: "暂无布局映射样本。",
+            }),
+          ],
+        },
+      ]}
+    />
   );
 }
 

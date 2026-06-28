@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { DataSurface, PageSurface } from "@workspace/core/ui";
+import { PageSurface, createPageDataBlock } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, PageSurfaceProps, SurfaceToolbarItems } from "@workspace/core/ui";
 import type { WorkUser } from "@workspace/work/types";
 import { listProjectGantt } from "./api";
@@ -77,7 +77,6 @@ export default function ProjectGanttTab({
       onChange: setKeyword,
       placeholder: "搜索项目、部门、任务...",
       ariaLabel: "搜索公司甘特",
-      className: "w-52",
     }, {
       kind: "option-group",
       key: "include-tasks",
@@ -94,7 +93,6 @@ export default function ProjectGanttTab({
       value: level,
       options: [...PROJECT_GANTT_LEVEL_OPTIONS],
       onChange: value => setLevel(value as ProjectGanttLevelFilter),
-      triggerClassName: "min-w-28",
     }, {
       kind: "option-group",
       key: "zoom",
@@ -116,14 +114,11 @@ export default function ProjectGanttTab({
       section: "meta",
       content: `${rows.length} 行`
     }] satisfies SurfaceToolbarItems;
-  const chart = error ? (
-    <DataSurface kind="records" records={[]} empty={error} className="border-red-200 text-red-600" />
-  ) : loading && !hasLoaded ? (
-    <DataSurface kind="records" records={[]} empty="加载公司甘特..." />
-  ) : (
-    <ProjectGanttChart rows={rows} periodStart={currentStart} zoom={zoom} onToggle={toggleExpanded} />
-  );
-  const blocks = [
+  const blocks = error ? [
+    createPageDataBlock("project-gantt-error", { kind: "records", records: [], empty: error, className: "border-red-200 text-red-600" }),
+  ] : loading && !hasLoaded ? [
+    createPageDataBlock("project-gantt-loading", { kind: "records", records: [], empty: "加载公司甘特..." }),
+  ] : [
     {
       kind: "form" as const,
       key: "project-gantt-chart",
@@ -131,7 +126,7 @@ export default function ProjectGanttTab({
         kind: "fields" as const,
         className: "!p-0",
         bodyClassName: "block",
-        fields: [{ kind: "note" as const, key: "chart", className: "p-0", content: chart }],
+        fields: [{ kind: "note" as const, key: "chart", className: "p-0", content: <ProjectGanttChart rows={rows} periodStart={currentStart} zoom={zoom} onToggle={toggleExpanded} /> }],
       },
     },
   ] satisfies PageSurfaceBlockSpec[];

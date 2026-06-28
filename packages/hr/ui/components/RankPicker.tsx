@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { FormSurface } from "@workspace/core/ui";
+import { InputControl } from "@workspace/core/ui";
 import type { HrPickerProps } from "@workspace/hr/types/hr-picker";
 
 interface RankPickerProps extends HrPickerProps {
@@ -51,27 +51,23 @@ export default function RankPicker({
   }, [options]);
 
   return (
-    <FormSurface
-      kind="control"
-      control={{
-        kind: "inputControl",
-        spec: {
-          valueType: "string",
-          editor: "select",
-          options: {
-            source: "grouped",
-            groups,
-            groupLabel: "职级序列",
-            optionLabel: "等级",
-            changeGroupLabel: "更换序列",
-          },
-          state: disabled ? "disabled" : "normal",
+    <InputControl
+      spec={{
+        valueType: "string",
+        control: "choice",
+        options: {
+          source: "grouped",
+          groups,
+          groupLabel: "职级序列",
+          optionLabel: "等级",
+          changeGroupLabel: "更换序列",
         },
-        value: current,
-        onChange: (next) => onChange(next === null || next === undefined || next === "" ? null : String(next)),
-        className,
-        placeholder: "未设置",
+        state: disabled ? "disabled" : "normal",
       }}
+      value={current}
+      onChange={(next) => onChange(next === null || next === undefined || next === "" ? null : String(next))}
+      className={className}
+      placeholder="未设置"
     />
   );
 }

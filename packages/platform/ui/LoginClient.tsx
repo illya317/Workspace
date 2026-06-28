@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { workspacePath } from "@workspace/core/routing";
-import { FormSurface, PageSurface } from "@workspace/core/ui";
+import { PageSurface } from "@workspace/core/ui";
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 function getSafeNextPath() {
   const next = new URLSearchParams(window.location.search).get("next");
@@ -90,53 +90,59 @@ export default function LoginClient() {
             content: "您已在其他设备登录，当前会话已失效。如需继续，请重新登录。",
           }] : []),
           {
-            kind: "message",
+            kind: "form",
             key: "login-form",
-            className: "w-full border-0 bg-transparent p-0 text-inherit",
+            surface: {
+              kind: "login",
+              className: "mt-2 w-full",
+              bodyClassName: "gap-5",
+              onSubmit: handleSubmit,
+              fields: [
+                {
+                  key: "username",
+                  label: "账号",
+                  spec: { valueType: "string", control: "text", state: "required", validation: { required: true } },
+                  value: username,
+                  onChange: (value) => setUsername(String(value ?? "")),
+                  placeholder: "请输入账号",
+                },
+                {
+                  key: "password",
+                  label: "密码",
+                  spec: { valueType: "string", control: "text", state: "required", validation: { required: true } },
+                  type: "password",
+                  value: password,
+                  onChange: (value) => setPassword(String(value ?? "")),
+                  placeholder: "请输入密码",
+                },
+                ...(error ? [{
+                  kind: "note" as const,
+                  key: "error",
+                  content: <div className="rounded-md border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-600">{error}</div>,
+                }] : []),
+              ],
+              actions: [{ key: "login", type: "submit", label: loading ? "登录中..." : "登录", variant: "primary", disabled: loading, className: "w-full justify-center" }],
+            },
+          },
+          {
+            kind: "message",
+            key: "login-divider",
+            className: "border-0 bg-transparent p-0 text-inherit",
             content: (
-              <>
-        <FormSurface
-          kind="login"
-          className="mt-2 w-full"
-          bodyClassName="gap-5"
-          onSubmit={handleSubmit}
-          fields={[
-            {
-              key: "username",
-              label: "账号",
-              spec: { valueType: "string", editor: "input", state: "required", validation: { required: true } },
-              value: username,
-              onChange: (value) => setUsername(String(value ?? "")),
-              placeholder: "请输入账号",
-            },
-            {
-              key: "password",
-              label: "密码",
-              spec: { valueType: "string", editor: "input", state: "required", validation: { required: true } },
-              type: "password",
-              value: password,
-              onChange: (value) => setPassword(String(value ?? "")),
-              placeholder: "请输入密码",
-            },
-            ...(error ? [{
-              kind: "note" as const,
-              key: "error",
-              content: <div className="rounded-md border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-600">{error}</div>,
-            }] : []),
-          ]}
-          actions={[{ key: "login", type: "submit", label: loading ? "登录中..." : "登录", variant: "primary", disabled: loading, className: "w-full justify-center" }]}
-        />
-        <div className="my-5 flex items-center gap-3 text-xs text-gray-400">
-          <span className="h-px flex-1 bg-gray-200" />
-          <span>或</span>
-          <span className="h-px flex-1 bg-gray-200" />
-        </div>
-        <FormSurface
-          kind="inline"
-          actions={[{ key: "wecom", label: "企业微信登录", onClick: handleWecomLogin, className: "w-full justify-center border-emerald-200 text-emerald-700 hover:bg-emerald-50" }]}
-        />
-              </>
+              <div className="my-5 flex items-center gap-3 text-xs text-gray-400">
+                <span className="h-px flex-1 bg-gray-200" />
+                <span>或</span>
+                <span className="h-px flex-1 bg-gray-200" />
+              </div>
             ),
+          },
+          {
+            kind: "form",
+            key: "wecom-login",
+            surface: {
+              kind: "inline",
+              actions: [{ key: "wecom", label: "企业微信登录", onClick: handleWecomLogin, className: "w-full justify-center border-emerald-200 text-emerald-700 hover:bg-emerald-50" }],
+            },
           },
         ],
       }]}

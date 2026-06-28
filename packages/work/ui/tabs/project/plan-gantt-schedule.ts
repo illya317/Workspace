@@ -93,3 +93,37 @@ export function cascadePlanDates(
 export function hasIncompleteDate(item: { startDate: string | null; endDate: string | null }) {
   return Boolean(item.startDate) !== Boolean(item.endDate);
 }
+
+export function planGanttItemsForSave(items: ProjectPlanItem[]) {
+  return items.map((item) => ({
+    kind: item.kind,
+    id: item.id,
+    startDate: item.startDate || null,
+    endDate: item.endDate || null,
+    phaseId: item.kind === "project" ? null : item.phaseId ?? null,
+  }));
+}
+
+export function planDependenciesForSave(dependencies: ProjectPlanDependency[]) {
+  return dependencies
+    .map((dependency) => ({
+      predecessorKind: dependency.predecessorKind,
+      predecessorId: dependency.predecessorId,
+      successorKind: dependency.successorKind,
+      successorId: dependency.successorId,
+      lagDays: dependency.lagDays ?? 1,
+    }))
+    .sort((left, right) =>
+      `${left.successorKind}:${left.successorId}`.localeCompare(`${right.successorKind}:${right.successorId}`),
+    );
+}
+
+export function hasPlanGanttChanges(input: {
+  items: ProjectPlanItem[];
+  dependencies: ProjectPlanDependency[];
+  savedItems: ProjectPlanItem[];
+  savedDependencies: ProjectPlanDependency[];
+}) {
+  return JSON.stringify(planGanttItemsForSave(input.items)) !== JSON.stringify(planGanttItemsForSave(input.savedItems))
+    || JSON.stringify(planDependenciesForSave(input.dependencies)) !== JSON.stringify(planDependenciesForSave(input.savedDependencies));
+}

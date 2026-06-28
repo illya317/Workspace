@@ -1,7 +1,6 @@
-import { createElement } from "react";
 import { PageSurface } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
-import AppShell from "../AppShell";
+import { renderAppShellPage } from "../app-shell-page";
 
 type Props = {
   reason: string;
@@ -10,10 +9,11 @@ type Props = {
 };
 
 export function ModuleDisabledPageView({ reason, resourceKey, user }: Props) {
-  return createElement(
-    AppShell,
-    { title: "模块未启用", backHref: "/portal", user },
-    <PageSurface
+  return renderAppShellPage({
+    title: "模块未启用",
+    backHref: "/portal",
+    user,
+    children: <PageSurface
       kind="settings"
       contentClassName="py-10"
       blocks={[{
@@ -24,5 +24,5 @@ export function ModuleDisabledPageView({ reason, resourceKey, user }: Props) {
         blocks: [{ kind: "empty", key: "reason", content: reason }],
       }]}
     />,
-  );
+  });
 }

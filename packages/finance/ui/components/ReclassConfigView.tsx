@@ -1,7 +1,7 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import { PageSurface, useFeedback } from "@workspace/core/ui";
 import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
@@ -39,7 +39,7 @@ export default function ReclassCandidateList({
 }: Props) {
   const [_scanned, setScanned] = useState<RuleCandidate[]>([]);
   const [allAccounts, setAllAccounts] = useState<RuleCandidate[]>([]);
-  const feedback = useFeedback();
+  const { confirmDelete, error, success } = useFeedback();
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [editCode, setEditCode] = useState<string | null>(null);
@@ -61,12 +61,12 @@ export default function ReclassCandidateList({
 
   // ── Fetch ───────────────────────────────────────────
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const [scanRes, accRes] = await Promise.all([fetch(workspacePath(`/api/modules/finance/ledger/reclass-rules?companyCode=${companyCode}&year=${year}`)), fetch(workspacePath(`/api/modules/finance/ledger/accounts?companyCode=${companyCode}&year=${year}&scope=all&pageSize=2000`))]);
       if (!scanRes.ok) {
-        feedback.error("加载失败");
+        error("加载失败");
         return;
       }
       const scanData = await scanRes.json();
@@ -104,15 +104,14 @@ export default function ReclassCandidateList({
         hasRule: all.length - noRuleCount
       });
     } catch {
-      feedback.error("网络错误");
+      error("网络错误");
     }
     setLoading(false);
-  }
+  }, [companyCode, error, onStats, year]);
   useEffect(() => {
     load();
     setPage(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyCode, year]);
+  }, [load]);
 
   // ── Actions ──────────────────────────────────────────
 
@@ -141,7 +140,7 @@ export default function ReclassCandidateList({
   }, [allAccounts, onStats]);
   async function saveRule(c: RuleCandidate, target: string) {
     if (!target.trim()) {
-      feedback.error("请选择目标科目");
+      error("请选择目标科目");
       return false;
     }
     const body = JSON.stringify({
@@ -159,7 +158,7 @@ export default function ReclassCandidateList({
       body
     });
     if (!res.ok) {
-      feedback.error("保存失败");
+      error("保存失败");
       return false;
     }
     const data = await res.json();
@@ -168,7 +167,7 @@ export default function ReclassCandidateList({
   }
   async function clearRule(c: RuleCandidate) {
     if (!c.existingRuleId) return;
-    const ok = await feedback.confirmDelete({
+    const ok = await confirmDelete({
       title: "清除规则",
       message: `确定清除科目 ${c.accountCode} 的重分类规则吗？`,
       confirmLabel: "清除"
@@ -177,11 +176,11 @@ export default function ReclassCandidateList({
     if (!(await fetch(workspacePath(`/api/modules/finance/ledger/reclass-rules/${c.existingRuleId}`), {
       method: "DELETE"
     })).ok) {
-      feedback.error("清除失败");
+      error("清除失败");
       return;
     }
     updateCandidate(c.accountCode, null, null, null, null);
-    feedback.success("已清除规则");
+    success("已清除规则");
   }
   function startEdit(c: RuleCandidate) {
     setEditCode(c.accountCode + "::" + c.abnormalSide);
@@ -192,7 +191,7 @@ export default function ReclassCandidateList({
     setEditCode(null);
     setEditValue("");
     if (val && val !== (c.existingTarget || "")) {
-      if (await saveRule(c, val)) feedback.success("已更新规则");
+      if (await saveRule(c, val)) success("已更新规则");
     }
   }
 
@@ -313,7 +312,7 @@ export default function ReclassCandidateList({
               }
               if (candidate.suggestedTarget) {
                 return [{ key: "confirm", kind: "save", label: "确认", onClick: () => void saveRule(candidate, candidate.suggestedTarget).then(saved => {
-                  if (saved) feedback.success("已确认规则");
+                  if (saved) success("已确认规则");
                 }) }];
               }
               return [{ key: "adjust", kind: "edit", label: "调整", onClick: () => startEdit(candidate) }];

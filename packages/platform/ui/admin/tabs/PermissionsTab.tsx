@@ -1,20 +1,23 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { usePermissionsTab } from "../hooks/usePermissionsTab";
-import { DataSurface, FormSurface } from "@workspace/core/ui";
+import { useEffect, useMemo, useState } from "react";
+import { PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import ResourceTree from "../components/ResourceTree";
-import MatrixTable from "../components/permissions/MatrixTable";
-import type { ResourceItem, SubjectType } from "../types";
+import { createPermissionMatrixBlock } from "../components/permissions/MatrixTable";
+import type { PermissionsTabState } from "../hooks/usePermissionsTab";
+import type { ResourceItem } from "../types";
+import type { ResourceTreeNode } from "../components/ResourceTree";
 
 interface Props {
   resources: ResourceItem[];
   capabilitiesByOwner: Record<string, ResourceItem[]>;
-  showToast: (msg: string, type?: "success" | "error") => void;
+  s: PermissionsTabState;
 }
 
-function flattenResources(items: ResourceItem[]): ResourceItem[] {
-  const output: ResourceItem[] = [];
+type PermissionTreeNode = ResourceTreeNode & ResourceItem;
+
+function flattenResources(items: PermissionTreeNode[]): PermissionTreeNode[] {
+  const output: PermissionTreeNode[] = [];
   for (const item of items) {
     output.push(item);
     if (item.children?.length) output.push(...flattenResources(item.children));
@@ -22,223 +25,100 @@ function flattenResources(items: ResourceItem[]): ResourceItem[] {
   return output;
 }
 
-export default function PermissionsTab({ resources, capabilitiesByOwner, showToast }: Props) {
+function firstSelectableResource(item: PermissionTreeNode): PermissionTreeNode {
+  if (!item.children?.length || item.selectableWithChildren) return item;
+  return firstSelectableResource(item.children[0]);
+}
+
+export default function PermissionsTab({ resources, capabilitiesByOwner, s }: Props) {
+  const { selectedResource, setSelectedResource } = s;
   const capabilities = useMemo(
     () => Object.values(capabilitiesByOwner).flat(),
     [capabilitiesByOwner],
-  );
-  const resourceLookup = useMemo(
-    () => [...resources, ...capabilities],
-    [resources, capabilities],
   );
   const capabilityOwnerByKey = useMemo(
     () => new Map(capabilities.map((capability) => [capability.key, capability.ownerKey ?? ""])),
     [capabilities],
   );
-  const [resourceMode, setResourceMode] = useState<"entry" | "capability">("entry");
-  const s = usePermissionsTab(resources, resourceLookup, showToast);
+  const resourceTree = useMemo<PermissionTreeNode[]>(() => {
+    function attachCapabilities(resource: ResourceItem): PermissionTreeNode {
+      const capabilityChildren = (capabilitiesByOwner[resource.key] ?? []).map((capability) => ({
+        ...capability,
+        name: capability.name,
+        children: [],
+      } satisfies PermissionTreeNode));
+      const children = [
+        ...(resource.children ?? []).map(attachCapabilities),
+        ...capabilityChildren,
+      ];
+      return {
+        ...resource,
+        selectableWithChildren: capabilityChildren.length > 0,
+        children,
+      };
+    }
+    return resources.map(attachCapabilities);
+  }, [capabilitiesByOwner, resources]);
+  const flattenedResources = useMemo(() => flattenResources(resourceTree), [resourceTree]);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const selectedOwnerKey = s.selectedResource
-    ? capabilityOwnerByKey.get(s.selectedResource) || s.selectedResource
-    : null;
-  const ownerCapabilities = selectedOwnerKey ? capabilitiesByOwner[selectedOwnerKey] ?? [] : [];
-  const selectedCapability = s.selectedResource ? capabilityOwnerByKey.has(s.selectedResource) : false;
-  const selectedEntry = s.selectedResource && !selectedCapability
-    ? flattenResources(resources).find((resource) => resource.key === s.selectedResource)
+  const selectedCapability = selectedResource ? capabilityOwnerByKey.has(selectedResource) : false;
+  const selectedEntry = selectedResource && !selectedCapability
+    ? flattenedResources.find((resource) => resource.key === selectedResource)
     : null;
 
   function selectResource(key: string) {
-    setResourceMode("entry");
-    s.setSelectedResource(key);
+    const resource = flattenedResources.find((item) => item.key === key);
+    setSelectedResource(resource ? firstSelectableResource(resource).key : key);
   }
 
-  function switchMode(value: string) {
-    const nextMode = value as "entry" | "capability";
-    setResourceMode(nextMode);
-    if (nextMode === "entry" && selectedCapability && selectedOwnerKey) {
-      s.setSelectedResource(selectedOwnerKey);
-    }
-    if (nextMode === "capability" && !selectedCapability && ownerCapabilities[0]) {
-      s.setSelectedResource(ownerCapabilities[0].key);
-    }
-  }
+  useEffect(() => {
+    if (!selectedEntry?.children?.length) return;
+    setSelectedResource(firstSelectableResource(selectedEntry).key);
+  }, [selectedEntry, setSelectedResource]);
+
+  const bodyBlocks: PageSurfaceBlockSpec[] = [
+    ...(s.loading
+      ? [{
+          kind: "message" as const,
+          key: "permission-matrix-loading",
+          tone: "muted" as const,
+          content: "加载中...",
+        }]
+      : []),
+    ...(!s.loading ? [createPermissionMatrixBlock({ s })] : []),
+  ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 lg:flex-row">
-        <div className="w-full shrink-0 lg:w-72">
-          <div className="mb-2 text-sm font-semibold text-gray-700">资源模块</div>
-          {s.selectedResource && s.isSystemAdmin && (
-            <FormSurface
-              kind="inline"
-              className="mb-2 text-xs text-gray-500"
-              fields={[{
-                key: "max-role",
-                label: "最高业务权限",
-                spec: {
-                  valueType: "string",
-                  editor: "select",
-                  options: {
-                    source: "static",
-                    mode: "dropdown",
-                    items: [
-                      { value: "access", label: "访问" },
-                      { value: "write", label: "编辑" },
-                      { value: "delete", label: "删除" },
-                    ],
-                  },
-                },
-                value: s.maxRoleKey === "admin" ? "delete" : s.maxRoleKey,
-                onChange: (value) => s.updateMaxRole(String(value ?? "")),
-              }]}
-            />
-          )}
-          <ResourceTree
-            resources={resources}
-            selectedResource={s.selectedResource}
-            onSelect={selectResource}
-          />
-        </div>
-
-        <div className="min-w-0 grow">
-          {selectedOwnerKey && ownerCapabilities.length > 0 && (
-            <FormSurface
-              kind="fields"
-              className="mb-4"
-              fields={[{
-                key: "resource-mode",
-                label: "权限类型",
-                spec: {
-                  valueType: "string",
-                  editor: "select",
-                  options: {
-                    source: "static",
-                    mode: "dropdown",
-                    items: [
-                      { value: "entry", label: "入口权限" },
-                      { value: "capability", label: "设置" },
-                    ],
-                  },
-                },
-                value: resourceMode,
-                onChange: (value) => switchMode(String(value ?? "entry")),
-              }]}
-            />
-          )}
-
-          {resourceMode === "capability" && selectedOwnerKey && (
-            <FormSurface
-              kind="fields"
-              className="mb-4"
-              fields={[{
-                kind: "section",
-                key: "owner-capabilities",
-                title: `${selectedEntry?.name ?? selectedOwnerKey} 的设置能力`,
-                fields: ownerCapabilities.length > 0 ? [{
-                    key: "capability",
-                    label: "设置能力",
-                    spec: {
-                      valueType: "string",
-                      editor: "select",
-                      options: {
-                        source: "static",
-                        mode: "dropdown",
-                        items: ownerCapabilities.map((capability) => ({
-                          value: capability.key,
-                          label: capability.name,
-                        })),
-                      },
-                    },
-                    value: resourceMode === "capability" ? s.selectedResource ?? "" : "",
-                    onChange: (key) => s.setSelectedResource(String(key ?? "")),
-                  }] : [{
-                    kind: "note",
-                    key: "empty-capabilities",
-                    content: "暂无独立设置能力",
-                    className: "text-sm text-slate-500",
-                  }],
-              }]}
-            />
-          )}
-
-          <FormSurface
-            kind="fields"
-            className="mb-4"
-            fields={[{
-              key: "subject-type",
-              label: "授权对象",
-              spec: {
-                valueType: "string",
-                editor: "select",
-                options: {
-                  source: "static",
-                  mode: "dropdown",
-                  items: [
-                    { value: "user", label: "员工" },
-                    { value: "position", label: "岗位" },
-                    { value: "department", label: "部门" },
-                  ],
-                },
-              },
-              value: s.subjectType,
-              onChange: (value) => s.setSubjectType(value as SubjectType),
-            }]}
-          />
-
-          <FormSurface
-            kind="fields"
-            fields={[
-              ...(s.subjectType !== "department"
-                ? [
-                    {
-                      key: "l1-dept",
-                      label: "一级部门",
-                      spec: { valueType: "string" as const, editor: "select" as const, options: { source: "static" as const, mode: "dropdown" as const, items: s.l1Options.flatMap((d) => d ? [{ value: d, label: d === "全部" ? "一级部门" : d }] : []) } },
-                      value: s.l1Dept,
-                      onChange: (value: unknown) => s.setL1Dept(String(value ?? "")),
-                      className: "min-w-40",
-                    },
-                    ...(s.l2Options.length > 1
-                      ? [{
-                          key: "l2-dept",
-                          label: "二级部门",
-                          spec: { valueType: "string" as const, editor: "select" as const, options: { source: "static" as const, mode: "dropdown" as const, items: s.l2Options.flatMap((d) => d ? [{ value: d, label: d === "全部" ? "二级部门" : d }] : []) } },
-                          value: s.l2Dept,
-                          onChange: (value: unknown) => s.setL2Dept(String(value ?? "")),
-                          className: "min-w-40",
-                        }]
-                      : []),
-                    ...(s.l3Options.length > 1
-                      ? [{
-                          key: "l3-dept",
-                          label: "三级部门",
-                          spec: { valueType: "string" as const, editor: "select" as const, options: { source: "static" as const, mode: "dropdown" as const, items: s.l3Options.flatMap((d) => d ? [{ value: d, label: d === "全部" ? "三级部门" : d }] : []) } },
-                          value: s.l3Dept,
-                          onChange: (value: unknown) => s.setL3Dept(String(value ?? "")),
-                          className: "min-w-40",
-                        }]
-                      : []),
-                  ]
-                : []),
-              {
-                key: "name",
-                label: "搜索",
-                spec: { valueType: "string", editor: "input" },
-                placeholder: s.subjectType === "user"
-                  ? "搜索姓名…"
-                  : s.subjectType === "position"
-                    ? "搜索岗位…"
-                    : "搜索部门…",
-                value: s.nameSearch,
-                onChange: (value: unknown) => s.setNameSearch(String(value ?? "")),
-                className: "min-w-0 sm:w-[22rem]",
-              },
-            ]}
-          />
-
-          {s.loading ? <DataSurface kind="records" className="mt-4" records={[]} empty="加载中..." /> : <MatrixTable s={s} />}
-        </div>
-      </div>
-    </div>
+    <PageSurface
+      kind="split"
+      embedded
+      sideOpen
+      drawerOpen={drawerOpen}
+      onSideOpenChange={() => undefined}
+      onDrawerOpenChange={setDrawerOpen}
+      sideLabel="资源模块"
+      showSideControls={false}
+      splitRatio={[3, 7]}
+      side={{
+        blocks: [{
+          kind: "message",
+          key: "resource-tree",
+          className: "border-0 bg-transparent p-0 text-inherit",
+          content: (
+            <div className="space-y-3">
+              <div className="text-sm font-semibold text-gray-700">资源模块</div>
+              <ResourceTree
+                resources={resourceTree}
+                selectedResource={selectedResource}
+                onSelect={selectResource}
+                defaultExpanded
+              />
+            </div>
+          ),
+        }],
+      }}
+      blocks={bodyBlocks}
+    />
   );
 }

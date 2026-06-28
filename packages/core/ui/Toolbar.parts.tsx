@@ -14,7 +14,6 @@ import { ToolbarPeriodControl } from "./ToolbarPeriodControl";
 import { renderToolbarMenu, resolveToolbarOptionGroupPresentation } from "./Toolbar.menu";
 import ToolbarOptionGroup from "./ToolbarOptionGroup";
 import type { ToolbarItem } from "./Toolbar.types";
-import { joinClassNames } from "./card-utils";
 
 export function ToolbarDivider() {
   return <span aria-hidden="true" className="hidden h-6 w-px shrink-0 bg-slate-200 sm:inline-block" />;
@@ -87,33 +86,29 @@ function renderOrderedActions(actions: ToolbarRenderableAction[], keyPrefix: str
   });
 }
 
-function getToolbarAutocompleteInputClassName(size: ControlSize, className?: string) {
-  return joinClassNames(
-    "border border-slate-200 bg-white font-semibold text-slate-700 shadow-sm placeholder:text-slate-400 transition focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:bg-slate-100 disabled:text-slate-500",
-    CONTROL_SIZES[size].height,
-    CONTROL_SIZES[size].radius,
-    CONTROL_SIZES[size].paddingX,
-    CONTROL_SIZES[size].text,
-    CONTROL_SIZES[size].leading,
-    CONTROL_SIZES[size].minWidth,
-    className,
-  );
-}
-
 export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; size?: ControlSize }) {
   switch (item.kind) {
     case "icon-button":
+      return (
+        <ActionButton
+          kind={item.icon}
+          label={item.label}
+          type={item.type}
+          variant={item.variant}
+          disabled={item.disabled}
+          onClick={item.onClick}
+          size={size}
+        />
+      );
     case "panel-toggle":
       return (
         <ActionButton
           kind={item.icon}
           label={item.label}
-          type={item.kind === "icon-button" ? item.type : undefined}
           variant={item.variant}
           disabled={item.disabled}
           onClick={item.onClick}
-          className={item.className}
-          iconClassName={item.iconClassName}
+          className={item.visibility === "mobile" ? "lg:!hidden" : item.visibility === "desktop" ? "!hidden lg:!inline-flex" : undefined}
           size={size}
         />
       );
@@ -130,7 +125,7 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
           placeholder={item.placeholder}
           ariaLabel={ariaLabel}
           size={size}
-          className={item.className}
+          className="w-full min-w-[18rem] sm:w-80"
         />
       );
     }
@@ -144,33 +139,40 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
           placeholder={item.placeholder}
           size={size}
           appearance="toolbar"
-          className={item.className}
-          triggerClassName={item.triggerClassName}
         />
       );
     case "autocomplete":
       return (
         <SearchableOptionInput
           value={item.value}
-          options={item.options}
+          options={item.options ?? []}
           onChange={(next) => item.onChange(next ?? "")}
           placeholder={item.placeholder}
           maxResults={item.visibleCount ?? 5}
-          className={item.className}
-          inputClassName={getToolbarAutocompleteInputClassName(size, item.inputClassName)}
+          inputClassName={[
+            "border border-slate-200 bg-white font-semibold text-slate-700 shadow-sm placeholder:text-slate-400 transition focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:bg-slate-100 disabled:text-slate-500",
+            CONTROL_SIZES[size].height,
+            CONTROL_SIZES[size].radius,
+            CONTROL_SIZES[size].paddingX,
+            CONTROL_SIZES[size].text,
+            CONTROL_SIZES[size].leading,
+            CONTROL_SIZES[size].minWidth,
+          ].join(" ")}
         />
       );
     case "option-group":
       return (
-        <ToolbarOptionGroup
-          value={item.value}
-          options={item.options}
-          onChange={item.onChange}
-          ariaLabel={item.ariaLabel}
-          size={size}
-          presentation={resolveToolbarOptionGroupPresentation(item)}
-          defaultExpanded={item.defaultExpanded}
-        />
+        <div className="inline-flex items-center gap-2">
+          {item.label && <span className={TEXT_STYLES.labelText}>{item.label}</span>}
+          <ToolbarOptionGroup
+            value={item.value}
+            options={item.options}
+            onChange={item.onChange}
+            ariaLabel={item.ariaLabel ?? (typeof item.label === "string" ? item.label : undefined)}
+            size={size}
+            presentation={resolveToolbarOptionGroupPresentation(item)}
+          />
+        </div>
       );
     case "field-filter":
       return (

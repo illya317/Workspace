@@ -1,9 +1,9 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { matchSearchFields, matchText } from "@workspace/platform/search";
-import { FormSurface, PageSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createPageFieldsBlock, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
 import type { ResourceItem } from "../types";
 import { formatSummaryTooltip, ROLE_COLORS, summarizeResourcePermissions, type PermissionGrantLike } from "../lib/permission-summary";
 function copyFallback(text: string) {
@@ -32,6 +32,8 @@ interface UserItem {
 interface Props {
   showToast: (msg: string, type?: "success" | "error") => void;
   resources: ResourceItem[];
+  onToolbarItemsChange: (items: SurfaceToolbarItem[]) => void;
+  onFooterChange: (footer: PageSurfaceFooterSpec | undefined) => void;
 }
 const ROLE_VARIANTS: Record<string, "gray" | "green" | "blue" | "red" | "yellow"> = {
   purple: "blue",
@@ -55,7 +57,9 @@ function PermissionBadge({ label, tone }: { label: string; tone: "gray" | "green
 }
 export default function AdminUsersTab({
   showToast,
-  resources
+  resources,
+  onToolbarItemsChange,
+  onFooterChange
 }: Props) {
   const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,7 +70,6 @@ export default function AdminUsersTab({
   const [creating, setCreating] = useState(false);
   const [newNickname, setNewNickname] = useState("");
   const [newUsername, setNewUsername] = useState("");
-  const nameRef = useRef<HTMLInputElement>(null);
   async function load() {
     setLoading(true);
     try {
@@ -161,14 +164,6 @@ export default function AdminUsersTab({
   }) : users;
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const paged = filtered.slice(page * pageSize, (page + 1) * pageSize);
-  function onKeywordChange(k: string) {
-    setKeyword(k);
-    setPage(0);
-  }
-  function onPageSizeChange(size: number) {
-    setPageSize(size);
-    setPage(0);
-  }
   const columns: DataSurfaceColumnSpec<UserItem>[] = [{
     key: "name",
     label: "姓名",
@@ -230,64 +225,90 @@ export default function AdminUsersTab({
       },
     })
   }];
-  return <div className="space-y-4">
-      <FormSurface
-        kind="fields"
-        columns={3}
-        fields={[
-          {
-            key: "keyword",
-            label: "搜索",
-            spec: { valueType: "string", editor: "input" },
-            value: keyword,
-            onChange: (value) => onKeywordChange(String(value ?? "")),
-            placeholder: searchMode === "name" ? "搜索姓名..." : "搜索全部...",
-            className: "w-64",
-          },
-          {
-            kind: "note" as const,
-            key: "count",
-            content: `${filtered.length} 个用户${keyword ? ` (共${users.length})` : ""}`,
-            className: "text-sm text-gray-400",
-          },
-          {
-            key: "page-size",
-            label: "分页",
-            spec: { valueType: "number", editor: "select", options: { source: "static", mode: "dropdown", items: [20, 50, 100].map(n => ({ value: String(n), label: `${n}条/页` })) } },
-            value: String(pageSize),
-            onChange: (nextValue) => onPageSizeChange(Number(nextValue)),
-          },
-        ]}
-        actions={[
-          {
-            key: "search-mode",
-            label: searchMode === "name" ? "姓名" : "全部",
-            variant: searchMode === "name" ? "secondary" : "primary",
-            onClick: () => setSearchMode(m => m === "name" ? "all" : "name"),
-          },
-          {
-            key: "create",
-            label: "新建",
-            variant: "primary",
-            onClick: () => {
-              setCreating(true);
-              setTimeout(() => nameRef.current?.focus(), 50);
-            },
-          },
-        ]}
-      />
+  const toolbarItems = useMemo<SurfaceToolbarItem[]>(() => [
+      {
+        kind: "search",
+        key: "keyword",
+        section: "search",
+        value: keyword,
+        onChange: (value) => {
+          setKeyword(String(value ?? ""));
+          setPage(0);
+        },
+        placeholder: searchMode === "name" ? "搜索姓名..." : "搜索全部...",
+        ariaLabel: "搜索用户",
+        className: "min-w-0 sm:w-[22rem]",
+      },
+      {
+        kind: "text",
+        key: "count",
+        section: "meta",
+        content: `${filtered.length} 个用户${keyword ? ` (共${users.length})` : ""}`,
+      },
+      {
+        kind: "page-size",
+        key: "page-size",
+        section: "filter",
+        label: "分页",
+        value: String(pageSize),
+        options: [20, 50, 100].map(n => ({ value: String(n), label: `${n}条/页` })),
+        onChange: (nextValue) => {
+          setPageSize(Number(nextValue));
+          setPage(0);
+        },
+      },
+      {
+        kind: "option-group",
+        key: "search-mode",
+        section: "filter",
+        value: searchMode,
+        options: [
+          { value: "name", label: "姓名" },
+          { value: "all", label: "全部" },
+        ],
+        onChange: (value) => setSearchMode(value as typeof searchMode),
+        ariaLabel: "搜索范围",
+      },
+      {
+        kind: "create",
+        key: "create",
+        section: "action",
+        label: "新建",
+        active: creating,
+        onClick: () => {
+          setCreating(true);
+        },
+      },
+    ], [creating, filtered.length, keyword, pageSize, searchMode, users.length]);
 
-      {creating && (
-        <FormSurface
-          kind="fields"
-          columns={2}
-          className="rounded-md border border-slate-200 p-3"
-          fields={[
+  const footer = useMemo<PageSurfaceFooterSpec | undefined>(() => filtered.length > pageSize ? {
+    pagination: {
+      page: page + 1,
+      totalPages,
+      total: filtered.length,
+      onPageChange: nextPage => setPage(nextPage - 1),
+      className: "flex items-center justify-center gap-3",
+    },
+  } : undefined, [filtered.length, page, pageSize, totalPages]);
+
+  useEffect(() => {
+    onToolbarItemsChange(toolbarItems);
+    return () => onToolbarItemsChange([]);
+  }, [onToolbarItemsChange, toolbarItems]);
+
+  useEffect(() => {
+    onFooterChange(footer);
+    return () => onFooterChange(undefined);
+  }, [footer, onFooterChange]);
+
+  const blocks: PageSurfaceBlockSpec[] = [
+    ...(creating
+      ? [createPageFieldsBlock("create-user", [
             {
               key: "nickname",
               label: "昵称",
-              inputRef: nameRef,
-              spec: { valueType: "string", editor: "input" },
+              autoFocus: true,
+              spec: { valueType: "string", control: "text" },
               value: newNickname,
               onChange: (value) => setNewNickname(String(value ?? "")),
               placeholder: "昵称 *",
@@ -296,14 +317,16 @@ export default function AdminUsersTab({
             {
               key: "username",
               label: "用户名",
-              spec: { valueType: "string", editor: "input" },
+              spec: { valueType: "string", control: "text" },
               value: newUsername,
               onChange: (value) => setNewUsername(String(value ?? "")),
               placeholder: "用户名（可选）",
               onKeyDown: e => e.key === "Enter" && handleCreate(),
             },
-          ]}
-          actions={[
+          ], {
+            columns: 2,
+            className: "rounded-md border border-slate-200 p-3",
+            actions: [
             { key: "save", label: "保存", variant: "primary", onClick: handleCreate },
             {
               key: "cancel",
@@ -314,40 +337,34 @@ export default function AdminUsersTab({
                 setNewUsername("");
               },
             },
-          ]}
-        />
-      )}
+            ],
+          })]
+      : []),
+    loading ? {
+      kind: "message",
+      key: "loading",
+      tone: "muted",
+      content: "加载中...",
+    } : {
+      kind: "data",
+      key: "admin-users",
+      surface: {
+        kind: "table",
+        framed: true,
+        rows: paged,
+        columns,
+        visibleColumns: columns.map(column => column.key),
+        rowKey: u => u.id,
+        emptyText: "暂无用户",
+      },
+    },
+  ];
 
-      {loading ? <p className="text-gray-500">加载中...</p> : (
-        <PageSurface
-          kind="list"
-          embedded
-          body={{
-            layout: "single",
-            blocks: [{
-              kind: "data",
-              key: "admin-users",
-              surface: {
-                kind: "table",
-                framed: true,
-                rows: paged,
-                columns,
-                visibleColumns: columns.map(column => column.key),
-                rowKey: u => u.id,
-                emptyText: "暂无用户",
-              },
-            }],
-          }}
-          footer={filtered.length > pageSize ? {
-            pagination: {
-              page: page + 1,
-              totalPages,
-              total: filtered.length,
-              onPageChange: nextPage => setPage(nextPage - 1),
-              className: "flex items-center justify-center gap-3",
-            },
-          } : undefined}
-        />
-      )}
-    </div>;
+  return (
+    <PageSurface
+      kind="list"
+      embedded
+      blocks={blocks}
+    />
+  );
 }

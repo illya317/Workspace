@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { DataSurface } from "@workspace/core/ui";
+import { PageSurface, createPageTableBlock } from "@workspace/core/ui";
 import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { LibraryDocumentItem } from "@workspace/library/types";
 import LibraryDetailModal from "./LibraryDetailModal";
@@ -102,17 +102,22 @@ export default function LibraryTable({
 
   return (
     <>
-      <DataSurface<LibraryDocumentItem>
-        kind="table"
-        framed
-        bodyClassName="overflow-hidden"
-        rows={documents}
-        columns={columns}
-        visibleColumns={columns.map((column) => column.key)}
-        rowKey={(document) => document.id}
-        onRowClick={(document) => setDetailId(document.id)}
-        loading={loading}
-        emptyText={loading ? "加载中..." : "暂无资料"}
+      <PageSurface
+        kind="list"
+        embedded
+        blocks={[
+          createPageTableBlock<LibraryDocumentItem>("library-documents", {
+            framed: true,
+            bodyClassName: "overflow-hidden",
+            rows: documents,
+            columns,
+            visibleColumns: columns.map((column) => column.key),
+            rowKey: (document) => document.id,
+            onRowClick: (document) => setDetailId(document.id),
+            loading,
+            emptyText: loading ? "加载中..." : "暂无资料",
+          }),
+        ]}
       />
       {detailId !== null && (
         <LibraryDetailModal

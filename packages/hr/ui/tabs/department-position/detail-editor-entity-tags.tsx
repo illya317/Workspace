@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface } from "@workspace/core/ui";
+import { PageSurface, createPageFieldsBlock } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
 import { primitiveListItems } from "./description-details";
@@ -38,10 +38,10 @@ export function EntityTagListEditor({
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <FormSurface<string>
-        kind="fields"
-        bodyClassName="gap-2"
-        fields={[{
+      <PageSurface
+        embedded
+        kind="detail"
+        blocks={[createPageFieldsBlock<string>("entity-tags", [{
           kind: "tagList",
           key: "entityTags",
           label: "",
@@ -61,25 +61,23 @@ export function EntityTagListEditor({
           emptyText: disabled ? "未设置" : undefined,
           shellClassName: "content-start",
           fieldClassName: "w-full",
-          append: disabled
-            ? undefined
-            : {
-                field: {
-                  key: "append",
-                  label: "",
-                  spec: {
-                    valueType: "reference",
-                    editor: "autocomplete",
-                    state: disabled ? "disabled" : "normal",
-                    options: { source: "remote", fkKey: fkKeyForEntity(entity), endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" },
-                  },
-                  value: "",
-                  displayValue: "",
-                  placeholder: items.length === 0 ? placeholder || `搜索${label}` : `添加${label}`,
-                  onChange: (_label, option) => addOption(option as ReferenceOption | undefined),
-                },
+          append: disabled ? undefined : {
+            field: {
+              key: "append",
+              label: "",
+              spec: {
+                valueType: "reference",
+                control: "reference",
+                state: disabled ? "disabled" : "normal",
+                options: { source: "remote", fkKey: fkKeyForEntity(entity), endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" },
               },
-        }]}
+              value: "",
+              displayValue: "",
+              placeholder: items.length === 0 ? placeholder || `搜索${label}` : `添加${label}`,
+              onChange: (_label, option) => addOption(option as ReferenceOption | undefined),
+            },
+          },
+        }])]}
       />
     </div>
   );
@@ -95,10 +93,10 @@ export function SubordinateTagsEditor({
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <FormSurface<string>
-        kind="fields"
-        bodyClassName="gap-2"
-        fields={[{
+      <PageSurface
+        embedded
+        kind="detail"
+        blocks={[createPageFieldsBlock<string>("subordinates", [{
           kind: "tagList",
           key: "subordinates",
           label: "",
@@ -110,7 +108,7 @@ export function SubordinateTagsEditor({
           itemClassName: () => "max-w-full border-slate-300 bg-white text-xs text-slate-800",
           shellClassName: "content-start",
           fieldClassName: "w-full",
-        }]}
+        }])]}
       />
     </div>
   );

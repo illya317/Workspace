@@ -85,7 +85,7 @@ export function ArchivedDepartmentPositionPage({
             label: "归档类型",
             spec: {
               valueType: "string",
-              editor: "select",
+              control: "choice",
               options: {
                 source: "static",
                 items: [

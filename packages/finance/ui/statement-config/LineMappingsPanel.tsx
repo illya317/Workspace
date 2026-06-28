@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { DataSurface, FormSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createPageActionsBlock, createPageDataBlock, createPageInlineFieldsBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { AcctInfo, InheritedAcct, LineCfg, Mapping, StatementOperator } from "./types";
 import { formatStatementAmount, isDefaultMapping } from "./types";
 interface LineMappingsPanelProps {
@@ -169,24 +169,115 @@ export default function LineMappingsPanel({
   }], [line.lineCode, onSaveMapping, saving]);
   const isAdding = addingFor === line.lineCode;
   return <div className="space-y-3">
-      {mappings.length > 0 && <DataSurface kind="table" rows={mappings} columns={mappingColumns} visibleColumns={mappingColumns.map(column => column.key)} rowKey={mapping => mapping.accountCode} density="compact" tableClassName="text-base" rowClassName={mapping => mapping.operator === "exclude" ? "bg-slate-100/50" : ""} />}
+      {mappings.length > 0 && <MappingTable mappings={mappings} columns={mappingColumns} />}
       {inheritedAccounts.length > 0 && <div className="space-y-1">
           <p className="text-base text-gray-400">继承科目（来自 prefix/父级）</p>
-          <DataSurface kind="table" rows={inheritedAccounts} columns={inheritedColumns} visibleColumns={inheritedColumns.map(column => column.key)} rowKey={account => account.accountCode} density="compact" tableClassName="text-base" />
+          <InheritedTable accounts={inheritedAccounts} columns={inheritedColumns} />
         </div>}
       {isAdding ? <div className="flex flex-col gap-2">
-          <FormSurface
-            kind="filters"
-            fields={[
-              { key: "search", label: "搜索", spec: { valueType: "string", editor: "input" }, placeholder: "搜索科目编码或名称...", value: accountSearch, onChange: (value) => onAccountSearchChange(String(value ?? "")), className: "w-64" },
-              { key: "account", label: "科目", spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: filteredAccounts.map(account => ({ value: account.code, label: `${account.code} ${account.name}` })) } }, value: newAccount, onChange: (value) => onNewAccountChange(String(value ?? "")), placeholder: `选择科目 (${filteredAccounts.length})` },
-            ]}
-            actions={[
-              { key: "add", label: "添加（加）", variant: "primary", onClick: () => onSaveMapping(newAccount, line.lineCode, "add"), disabled: !newAccount },
-              { key: "subtract", label: "添加（减）", variant: "danger", onClick: () => onSaveMapping(newAccount, line.lineCode, "subtract"), disabled: !newAccount },
-              { key: "cancel", label: "取消", onClick: onCancelAdding },
-            ]}
+          <MappingEditor
+            accountSearch={accountSearch}
+            filteredAccounts={filteredAccounts}
+            lineCode={line.lineCode}
+            newAccount={newAccount}
+            onAccountSearchChange={onAccountSearchChange}
+            onCancelAdding={onCancelAdding}
+            onNewAccountChange={onNewAccountChange}
+            onSaveMapping={onSaveMapping}
           />
-        </div> : <FormSurface kind="inline" actions={[{ key: "add-account", label: "添加科目", onClick: () => onStartAdding(line.lineCode) }]} />}
+        </div> : <AddMappingButton lineCode={line.lineCode} onStartAdding={onStartAdding} />}
     </div>;
+}
+
+function MappingTable({ mappings, columns }: { mappings: Mapping[]; columns: DataSurfaceColumnSpec<Mapping>[] }) {
+  return (
+    <PageSurface
+      kind="list"
+      embedded
+      blocks={[
+        createPageDataBlock("line-mappings", {
+          kind: "table",
+          rows: mappings,
+          columns,
+          visibleColumns: columns.map(column => column.key),
+          rowKey: mapping => mapping.accountCode,
+          density: "compact",
+          tableClassName: "text-base",
+          rowClassName: mapping => mapping.operator === "exclude" ? "bg-slate-100/50" : "",
+        }),
+      ]}
+    />
+  );
+}
+
+function InheritedTable({ accounts, columns }: { accounts: InheritedAcct[]; columns: DataSurfaceColumnSpec<InheritedAcct>[] }) {
+  return (
+    <PageSurface
+      kind="list"
+      embedded
+      blocks={[
+        createPageDataBlock("inherited-accounts", {
+          kind: "table",
+          rows: accounts,
+          columns,
+          visibleColumns: columns.map(column => column.key),
+          rowKey: account => account.accountCode,
+          density: "compact",
+          tableClassName: "text-base",
+        }),
+      ]}
+    />
+  );
+}
+
+function MappingEditor({
+  accountSearch,
+  filteredAccounts,
+  lineCode,
+  newAccount,
+  onAccountSearchChange,
+  onCancelAdding,
+  onNewAccountChange,
+  onSaveMapping,
+}: {
+  accountSearch: string;
+  filteredAccounts: AcctInfo[];
+  lineCode: string;
+  newAccount: string;
+  onAccountSearchChange: (value: string) => void;
+  onCancelAdding: () => void;
+  onNewAccountChange: (value: string) => void;
+  onSaveMapping: (accountCode: string, lineCode: string, operator: StatementOperator) => void;
+}) {
+  return (
+    <PageSurface
+      kind="list"
+      embedded
+      blocks={[
+        createPageInlineFieldsBlock("mapping-editor", [
+          { key: "search", label: "搜索", spec: { valueType: "string", control: "text" }, placeholder: "搜索科目编码或名称...", value: accountSearch, onChange: (value) => onAccountSearchChange(String(value ?? "")), className: "w-64" },
+          { key: "account", label: "科目", spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: filteredAccounts.map(account => ({ value: account.code, label: `${account.code} ${account.name}` })) } }, value: newAccount, onChange: (value) => onNewAccountChange(String(value ?? "")), placeholder: `选择科目 (${filteredAccounts.length})` },
+        ], {
+          kind: "filters",
+          actions: [
+            { key: "add", label: "添加（加）", variant: "primary", onClick: () => onSaveMapping(newAccount, lineCode, "add"), disabled: !newAccount },
+            { key: "subtract", label: "添加（减）", variant: "danger", onClick: () => onSaveMapping(newAccount, lineCode, "subtract"), disabled: !newAccount },
+            { key: "cancel", label: "取消", onClick: onCancelAdding },
+          ],
+        }),
+      ]}
+    />
+  );
+}
+
+function AddMappingButton({ lineCode, onStartAdding }: { lineCode: string; onStartAdding: (lineCode: string) => void }) {
+  return (
+    <PageSurface
+      kind="list"
+      embedded
+      blocks={[
+        createPageActionsBlock("add-mapping", [{ key: "add-account", label: "添加科目", onClick: () => onStartAdding(lineCode) }]),
+      ]}
+    />
+  );
 }

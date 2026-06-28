@@ -1,6 +1,6 @@
 "use client";
 
-import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { RvLine } from "@workspace/finance/types";
 const FMT = (n: number) => n.toLocaleString("en-US", {
   minimumFractionDigits: 2,
@@ -87,7 +87,7 @@ export default function ReviewTable({
       if (isEditing) {
         return {
           kind: "input",
-          spec: { valueType: "number", editor: "input" },
+          spec: { valueType: "number", control: "text" },
           autoFocus: true,
           value: editAmt,
           onChange: (value) => setEditAmt(String(value ?? "")),
@@ -153,7 +153,7 @@ export default function ReviewTable({
       if (isEditing) {
         return {
           kind: "input",
-          spec: { valueType: "string", editor: "input" },
+          spec: { valueType: "string", control: "text" },
           autoFocus: true,
           value: editCmt,
           onChange: (value) => setEditCmt(String(value ?? "")),
@@ -182,10 +182,25 @@ export default function ReviewTable({
       };
     }
   }];
-  return <DataSurface kind="table" framed className="overflow-hidden" bodyClassName="overflow-x-auto" rows={rv.lines} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={line => line.lineCode} rowClassName={line => {
-      const status = getLineState(line).status;
-      if (status === "flagged") return "bg-red-50/50";
-      if (status === "pending") return "bg-amber-50/30";
-      return "";
-    }} />
+  return <PageSurface
+    kind="list"
+    embedded
+    blocks={[
+      createPageTableBlock("review-lines", {
+        framed: true,
+        className: "overflow-hidden",
+        bodyClassName: "overflow-x-auto",
+        rows: rv.lines,
+        columns,
+        visibleColumns: columns.map(column => column.key),
+        rowKey: line => line.lineCode,
+        rowClassName: line => {
+          const status = getLineState(line).status;
+          if (status === "flagged") return "bg-red-50/50";
+          if (status === "pending") return "bg-amber-50/30";
+          return "";
+        },
+      }),
+    ]}
+  />
 }

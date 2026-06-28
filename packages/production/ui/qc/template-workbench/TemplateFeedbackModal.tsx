@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useMemo, useState } from "react";
-import { DataSurface, FormSurface } from "@workspace/core/ui";
+import { PageSurface, createPageFieldsBlock, createPageModalBlock, createPageTableBlock } from "@workspace/core/ui";
 import type { QcTemplateFeedbackItem, QcTemplateFeedbackState } from "@workspace/production/server/qc";
 import { feedbackKey, selectionTitle, type FeedbackTarget } from "./types";
 
@@ -93,7 +93,7 @@ function feedbackColumns(
       required: true,
       cell: (row: FeedbackRow) => ({
         kind: "input" as const,
-        spec: { valueType: "boolean" as const, editor: "checkbox" as const, state: resolvingKey === row.id ? "disabled" as const : "normal" as const },
+        spec: { valueType: "boolean" as const, control: "boolean" as const, presentation: "checkbox" as const, state: resolvingKey === row.id ? "disabled" as const : "normal" as const },
         value: row.resolved,
         onChange: (checked: unknown) => setResolved(row, Boolean(checked)),
       }),
@@ -151,43 +151,43 @@ export default function TemplateFeedbackModal({ target, onClose, onSaved }: Prop
   }
 
   return (
-    <FormSurface
-      kind="modal"
-      open
-      title="反馈"
-      onClose={onClose}
-      maxWidth="max-w-4xl"
-      className="max-h-[calc(88vh-82px)] overflow-y-auto py-4"
-      fields={[
-        {
-          kind: "note",
-          key: "selection",
-          className: "rounded-md border border-slate-100 bg-slate-50 px-3 py-3 text-sm text-slate-700",
-          content: selectionTitle(target),
-        },
-        {
-          kind: "note",
-          key: "feedback-table",
-          content: (
-            <DataSurface<FeedbackRow>
-              kind="table"
-              framed
-              title="全部反馈"
-              subtitle={loading ? "读取中" : `${rows.length} 条`}
-              rows={rows}
-              columns={feedbackColumns(resolvingKey, (row, resolved) => { void setResolved(row, resolved); })}
-              visibleColumns={["user", "content", "resolved"]}
-              rowKey={(row) => row.id}
-              emptyText="暂无反馈。"
-            />
-          ),
-        },
-        ...(error ? [{
-          kind: "note" as const,
-          key: "error",
-          className: "text-sm font-medium text-red-600",
-          content: error,
-        }] : []),
+    <PageSurface
+      kind="detail"
+      embedded
+      blocks={[
+        createPageModalBlock("template-feedback-modal", {
+          open: true,
+          title: "反馈",
+          onClose,
+          maxWidth: "max-w-4xl",
+          className: "max-h-[calc(88vh-82px)] overflow-y-auto py-4",
+          blocks: [
+            createPageFieldsBlock("template-feedback-summary", [
+              {
+                kind: "note",
+                key: "selection",
+                className: "rounded-md border border-slate-100 bg-slate-50 px-3 py-3 text-sm text-slate-700",
+                content: selectionTitle(target),
+              },
+              ...(error ? [{
+                kind: "note" as const,
+                key: "error",
+                className: "text-sm font-medium text-red-600",
+                content: error,
+              }] : []),
+            ]),
+            createPageTableBlock<FeedbackRow>("template-feedback-table", {
+              framed: true,
+              title: "全部反馈",
+              subtitle: loading ? "读取中" : `${rows.length} 条`,
+              rows,
+              columns: feedbackColumns(resolvingKey, (row, resolved) => { void setResolved(row, resolved); }),
+              visibleColumns: ["user", "content", "resolved"],
+              rowKey: (row) => row.id,
+              emptyText: "暂无反馈。",
+            }),
+          ],
+        }),
       ]}
     />
   );

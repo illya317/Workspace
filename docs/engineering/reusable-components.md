@@ -12,8 +12,8 @@
 - 服务端列表、候选项和高级筛选里的 `keyword` / 模糊文本匹配必须复用 `@workspace/platform/search` 的 `matchAnyField`、`matchSearchFields` 或 `matchText`，保持中文、拼音全拼和首字母规则一致；不要在业务 service 或 UI 里手写 `toLowerCase().includes()` / `.includes(query)` 作为用户搜索，新增会被 `npm run arch:gate` 的 `handwrittenSearchMatches` ratchet 拦住。
 - generated / snapshot / export 类页面的二段式筛选字段必须由后端 DTO 明确返回，例如 `preview.filterFields`，UI 只能把后端 contract 映射给 Core `FieldValueFilter`。禁止在 `packages/*/ui/generated` 里本地声明 `FieldValueFilter` 字段；新增会被 `npm run arch:gate` 的 `generatedFilterContractDrift` ratchet 拦住。
 - 搜索型原生 input 的历史债为 0：除 `packages/core/ui/SearchInput.tsx` 内部实现外，`app/` 和 `packages/` 不得出现 `type="search"` 或 `placeholder/aria-label` 带搜索语义的原生 `<input>`。新增会被 `npm run arch:gate` 的 `nativeSearchInputFiles` ratchet 拦住。
-- Core UI 可用入口以 `packages/core/ui/component-registry.ts` 为准。业务 runtime 的页面布局入口只有 `PageSurface`，正文入口是 `FormSurface` / `DataSurface`，反馈入口是 `useFeedback`；`NavigationSurface`、`Toolbar`、`TabBar`、`Pagination` 只作为 Core 内部 renderer 或正文 primitive。业务包、Platform 页面和 app 壳不得引用未注册 Core UI 名字，也不得在 `packages/*/ui` 新增手写页面卡片/筛选/分栏/表格壳；新增同类结构会被 hygiene / Level 2 ratchet 抓住。
-- `PageSurface` 的 `moduleView` 只承认历史债，不作为新增页面接口。存量已迁出，`businessModuleViewUsages` baseline 为 0；需要承载新内容时先补 `PageSurface` / `DataSurface` / `FormSurface` spec，或记录 Core 缺口后由 Architecture/Core UI 任务扩展。
+- Core UI 可用入口以 `packages/core/ui/component-registry.ts` 的 `exposure` 为准。业务 runtime 的正式 direct 入口只有 `PageSurface`、`InputControl`、`SelectorPanel`、`CreatePanel`、`useFeedback`；`FormSurface` / `DataSurface` / `DocumentSurface`、`NavigationSurface`、`Toolbar`、`TabBar`、`Pagination` 只通过这些入口的 spec 使用。业务包、Platform 页面和 app 壳不得引用未注册 Core UI 名字，也不得在 `packages/*/ui` 新增手写页面卡片/筛选/分栏/表格壳；新增同类结构会被 hygiene / Level 2 ratchet 抓住。
+- `PageSurface` 的 `moduleView` 只承认历史债，不作为新增页面接口。存量已迁出，`businessModuleViewUsages` baseline 为 0；需要承载新内容时先补 `PageSurface` 的 form/data/document/navigation/toolbar spec 或 direct 入口能力，或记录 Core 缺口后由 Architecture/Core UI 任务扩展。
 - 页面模板采用 `A Core 源头层 -> B 薄壳 ViewModel -> C 渲染`：A 是 Core 中的一组可组合模板部件，可以拆成 A1/A2/A3/A4，分别承载类型、布局、默认动作、弹窗和状态机；B 只把业务事实映射成 Core 的 ViewModel 类型，传入真实回调和状态；C 只负责 `<CoreTemplate {...viewModel} />` 渲染。
 - URL 只是同页状态的外显时，不能触发 Next 整页导航或 RSC remount。tab、筛选、选中部门/项目/记录、同一工作台内切空间等交互应由客户端状态驱动；需要同步地址栏时用 `window.history.pushState/replaceState`，URL 必须经 `workspacePath` 处理 basePath，并加 `popstate` 让浏览器前进/后退回写状态。`router.push/replace`、`redirect`、`<Link>` 只用于真正进入另一个页面、详情资源或模块。
 
@@ -22,14 +22,14 @@
 | 能力 | 统一入口 | 适用场景 | 禁止做法 |
 |---|---|---|---|
 | 页面 Surface | `@workspace/core/ui` 的 `PageSurface` | header、navigation、toolbar、body、footer 五段页面协议；列表、详情、分栏、分析、设置页都从这里进入 | 业务页直接拼 PageFrame/PanelCard/SectionCard/Toolbar/TabBar/Pagination 形成新页面壳，或新增 `moduleView` 逃生口 |
-| 表单 Surface | `@workspace/core/ui` 的 `FormSurface` | fields、filters、modal、inline、detail、login 表单正文，由 fields spec 驱动 | 业务页重复手写字段网格、筛选条和弹窗表单结构，或把页面级 toolbar 放进 FormSurface |
-| 数据 Surface | `@workspace/core/ui` 的 `DataSurface` | table、structured、records、metrics、visual、raw 数据正文，由 row/column/display/visual spec 驱动 | 业务页直接拼表格外壳、记录卡、指标卡、分析图表和 raw 展示组合，或把页面级 toolbar/pagination 放进 DataSurface |
+| 表单正文 | `PageSurface.body.blocks[].kind=form` 或局部 `InputControl` | fields、filters、modal、inline、detail、login 表单正文，由 fields spec / InputControl spec 驱动 | 业务页 runtime 直接 import `FormSurface`、重复手写字段网格、筛选条和弹窗表单结构，或把页面级 toolbar 放进 FormSurface |
+| 数据正文 | `PageSurface.body.blocks[].kind=data` | table、structured、records、metrics、visual、raw 数据正文，由 row/column/display/visual spec 驱动 | 业务页 runtime 直接 import `DataSurface`、直接拼表格外壳、记录卡、指标卡、分析图表和 raw 展示组合，或把页面级 toolbar/pagination 放进 DataSurface |
 | 导航细节 | `PageSurface.navigation` / `PageSurface.body` 的 navigation spec | 页面声明式导航段、正文 selector/disclosure/steps；L1/L2 模块入口由 route/module 层或模块入口卡片承载，`TabBar` 只从当前页面内部视图层开始；分页只在 `PageSurface.footer.pagination` | 业务页新增二级导航组件、直接 import `NavigationSurface` 拼 tab/pagination，把同级 L2 模块塞进 `TabBar`，或临时拼流程链接 |
 | 页面反馈 | `@workspace/core/ui` 的 `useFeedback` | 保存成功、失败、校验提示、删除/覆盖确认、未保存离开提示 | 页面直接用 `Toast`、`ConfirmModal`、`useToast`、`useConfirm`、`useConfirmDelete`、`useUnsavedChangesPrompt` |
-| 字段/选择/日期能力 | `FormSurface` 的 field/filter spec | 状态、阶段、固定枚举、FK、日期、tag、只读字段等 | 业务 runtime 直接 import `SelectField`、`OptionPicker`、`PickerShell`、`SearchInput`、`FkFieldInput`、`CalendarDateInput` |
-| 工具栏/动作能力 | `PageSurface.toolbar` / 正文 Surface action spec | 页面级搜索、筛选、列显隐、批量动作、保存/取消/删除/刷新等统一成一个 Toolbar | 业务 runtime 直接 import `Toolbar`、`ActionButton`、`ActionGlyph`，自排按钮顺序，或一页出现多个 toolbar |
-| 表格/记录/指标能力 | `DataSurface` 的 data spec | 标准列表、批量表格、记录卡、指标卡、visual chart、raw block | 业务 runtime 直接 import `DataTable`、`StructuredTable`、`MetricCard`、`NumberCell`、`AmountCell` 或手搓图表 DOM |
-| 导航/选择区能力 | `PageSurface.navigation` / body navigation spec | Tab、左侧 selector、折叠、步骤、禁用步骤链接 | 业务 runtime 直接 import `TabBar`、`Pagination`、`SelectorPanel`、`PanelCard + SelectorList/SelectorTree/SelectorCard`，或手搓流程 nav |
+| 字段/选择/日期能力 | `InputControl` 或 `PageSurface` form block 的 field/filter spec | 状态、阶段、固定枚举、FK、日期、tag、只读字段等 | 业务 runtime 直接 import `SelectField`、`OptionPicker`、`PickerShell`、`SearchInput`、`FkFieldInput`、`CalendarDateInput` |
+| 工具栏/动作能力 | `PageSurface.toolbar` / 正文 Surface action spec | 页面级搜索、筛选、列显隐、批量动作、保存/取消/删除/刷新等统一成一个 Toolbar | 业务 runtime 直接 import `Toolbar` / `ActionButton`、自绘 SVG、自排按钮顺序，或一页出现多个 toolbar |
+| 表格/记录/指标能力 | `PageSurface` data block 的 data spec | 标准列表、批量表格、记录卡、指标卡、visual chart、raw block | 业务 runtime 直接 import `DataSurface`、`DataTable`、`StructuredTable`、`MetricCard`、`NumberCell`、`AmountCell` 或手搓图表 DOM |
+| 导航/选择区能力 | `PageSurface.navigation` / `SelectorPanel` | Tab、左侧 selector、折叠、步骤、禁用步骤链接 | 业务 runtime 直接 import `NavigationSurface`、`TabBar`、`Pagination`、`PanelCard + SelectorList/SelectorTree/SelectorCard`，或手搓流程 nav |
 | 页面内容/分栏能力 | `PageSurface` 的 page/split/content spec | 页面内容留白、卡片、章节、空态、左右分栏 | 业务 runtime 直接 import `PageShell`、`PageContent`、`PanelCard`、`SectionCard`、`WorkspaceSplitPage` |
 | 纸面/报告能力 | `PageSurface` 的 `document` block / Core `DocumentSurface` | A4 文档、检验记录纸面、报告预览、多页纸面容器 | 用 `moduleView` 或普通卡片承载纸面文档、重复手写纸面宿主宽度和字体 |
 
@@ -38,6 +38,7 @@
 专门规则见 `docs/engineering/core-toolbar.md`；本节只保留摘要。
 
 - Toolbar 的动作按钮必须来自 `ActionGlyph` 封闭集合。`ActionButton` 是纯图标按钮，只接 `kind + label`，不接 children；业务不再新增文字型 toolbar `button` item。
+- 非 Toolbar 的 icon-only cell/action 也必须复用 `ActionGlyph`，新增 SVG 先注册到 `ACTION_GLYPH_KINDS` 等元数据，不在业务/平台文件里手写 `<svg>`。
 - 新增动作 icon 时必须同时维护四处元数据：`ACTION_GLYPH_KINDS`、`ACTION_GLYPH_GROUPS`、`ACTION_GLYPH_TOOLBAR_GROUPS`、`ACTION_GLYPH_ORDER`。`ACTION_GLYPH_ORDER` 的字段固定为 `icon / group / subgroup / order`，order 使用大间距预留插入空间。
 - 业务侧只通过 Surface toolbar/action spec 选择动作语义和 icon，不 runtime import `Toolbar` / `ActionButton`，也不手排顺序和分组。`action-group` 和 `edit-group` 会按 `ACTION_GLYPH_ORDER.order` 自动排序，并在 toolbar 大组变化处插入分隔。
 - 非默认动作默认从 `edit` 区开始，和编辑动作混排。`view/search/filter/meta` 只承载视图切换、搜索、筛选、字段、列显隐和计数等默认控件。
@@ -53,7 +54,7 @@
 | 字段类型 | 归属建议 | 规则 |
 |---|---|---|
 | FK 搜索 | Core 抽象 + App 传入数据源；当前 HR 样板在 `@workspace/hr/ui` | 必须使用统一输入框和候选浮层；候选搜索支持拼音；选中后字段展示只显示业务展示名 |
-| 两段式筛选值 | `FormSurface` / `PageSurface` filter spec，内部映射 Core 筛选与字段能力 | 第一段选择查询字段；第二段按查询 contract 选择值。应用后工具栏只显示 `字段：值`。普通模糊搜索输出 `queryParam + value`，FK 搜索输出明确实体引用，布尔/固定枚举走标准下拉 | 从表字段自动推导筛选参数、为本地枚举值再写一次性搜索框，或把普通字段值做成字段选择同款下拉 |
+| 两段式筛选值 | `PageSurface` filter spec 或 `InputControl`，内部映射 Core 筛选与字段能力 | 第一段选择查询字段；第二段按查询 contract 选择值。应用后工具栏只显示 `字段：值`。普通模糊搜索输出 `queryParam + value`，FK 搜索输出明确实体引用，布尔/固定枚举走标准下拉 | 从表字段自动推导筛选参数、为本地枚举值再写一次性搜索框，或把普通字段值做成字段选择同款下拉 |
 | tag 输入 | Core 抽象 + App 传入选项和校验 | 别名、参与人、下属岗位等都用 tag 形态；删除用统一 `x`，需要确认的删除走 Confirm |
 | 分级选择 | App 负责业务层级，字段外观仍用 Core | 专业、职称、部门编码等可以先选大类再选细类，但字段展示只显示最终值 |
 | 只读字段 | Core 字段样式 | 只读必须真正 `readOnly/disabled`，不能只是灰色；不要出现可编辑但看起来只读的字段 |
@@ -119,8 +120,8 @@ Finance 当前已经有第一层统一模板，但业务页面还在渐进迁移
 
 - 财务模块页面统一使用一个 Finance 页面模板：标题区、公司/期间筛选区、工具栏、内容区、空态、错误态。
 - `FinanceShell`、`CompanyPeriodPicker`、`FinanceFilters`、`Pagination`、重分类配置/审核组件已进入 `@workspace/finance/ui`，后续只允许扩展这个入口，不要恢复 `app/finance/components`。
-- 财务表格默认通过 `DataSurface` table/metric spec 复用 Core 数据能力；列显隐通过 Surface column spec 实现。
-- 公司、年度、月份、报表类型、层级等固定筛选默认通过 `FormSurface` / `PageSurface` filter spec 表达；需要财务语义时由 `@workspace/finance/ui` 包一层，不要在每个页面手写。
+- 财务表格默认通过 `PageSurface` data block 的 table/metric spec 复用 Core 数据能力；列显隐通过 Surface column spec 实现。
+- 公司、年度、月份、报表类型、层级等固定筛选默认通过 `PageSurface` filter spec 或 `InputControl` 表达；需要财务语义时由 `@workspace/finance/ui` 包一层，不要在每个页面手写。
 - 预算、成本、总账、报表配置、报表校对之间如果 UI 结构一致，应抽成 Finance 模板，而不是在每个页面重新写筛选栏、分页、表格工具栏。
 
 ## Agent 开发流程
@@ -135,12 +136,13 @@ Finance 当前已经有第一层统一模板，但业务页面还在渐进迁移
 
 这些规则已经由 `npm run arch:gate` 中的 AST 和 package boundary 检查执行，新增包内代码必须通过：
 
-- `packages/*` 禁止出现原生 `<select>`；业务用 `FormSurface` field/filter spec 或基于 Surface 的 App 字段薄壳。
+- `packages/*` 禁止出现原生 `<select>`；业务用 `PageSurface` form/filter spec、`InputControl` 或基于 Surface 的 App 字段薄壳。
 - `app/*` 和 `packages/*` 禁止新增搜索型原生 `<input>`；内容检索、FK、下拉内检索都通过 Surface field/filter spec 或领域薄壳表达。
 - `packages/*` 禁止 `window.confirm`。
 - `app/*` 和 `packages/*/ui` 页面反馈只能使用 `useFeedback`；禁止直接使用 `Toast`、`ConfirmProvider`、`useToast`、`useConfirm`、`useConfirmDelete`、`useUnsavedChangesPrompt`，专用 Agent 确认弹窗除外。
-- 业务 runtime 新增 Core UI 引用时只允许公开入口：`PageSurface`、`FormSurface`、`DataSurface`、`useFeedback`；L2/L3 组件只保留 Core 内部、showcase、迁移阅读或 type-only 兼容用途。`npm run arch:gate` 会校验 registry `uiLevel` 和业务 runtime import，L4+ 不得进入组件库主展示或业务 import。页面布局协议新增绕过会进入 `pageSurfaceLayoutProtocolWarnings` hygiene baseline，只能减少。
-- `packages/*` 禁止原生 `input[type=date]`，统一通过 `FormSurface` 日期 field spec 或领域薄壳表达。
+- 业务 runtime 新增 Core UI 引用时只允许正式 direct 入口：`PageSurface`、`InputControl`、`SelectorPanel`、`CreatePanel`、`useFeedback`；`via/internal` 组件只保留 Core 内部、showcase、迁移阅读或 type-only 兼容用途。`npm run arch:gate` 会校验 registry `exposure` 和业务 runtime import；组件库主展示按 `category/subcategory` 分类，基础/私有实现不得作为业务 import。页面布局协议新增绕过会进入 hygiene baseline，只能减少。
+- `InputControl` spec 禁止使用 `editor`。文本、数字、布尔、选项、FK、日期、文件、集合和评分分别通过 `control` 语义表达；搜索/下拉/分段编码等细节通过 `options.mode`、`options.source`、`format`、`mask.kind` 派生。
+- `packages/*` 禁止原生 `input[type=date]`，统一通过 `PageSurface` 日期 field spec、`InputControl` 或领域薄壳表达。
 - 选择/搜索类组件必须使用 `@workspace/core/search` 的 `matchText` 或由服务端提供同等拼音匹配。
 - Core 禁止依赖 Platform、业务包、Prisma、权限和业务事实。
 - 业务包之间禁止直接互相 import。

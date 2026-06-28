@@ -108,15 +108,13 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
       splitRatio={[2, 8]}
       showSideControls={false}
       toolbar={model.loading || model.error ? undefined : {
-        variant: "inline",
-        className: "w-full justify-start",
         items: [
               {
                 kind: "panel-toggle",
                 key: "mobile-side-toggle",
                 icon: "panel-open",
                 label: "显示项目列表",
-                className: "!h-9 !w-10 !px-0 lg:hidden",
+                visibility: "mobile",
                 onClick: () => model.setProjectListDrawerOpen(true),
               },
               {
@@ -125,7 +123,7 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
                 icon: model.projectListOpen ? "panel-open" : "panel-close",
                 label: `${model.projectListOpen ? "隐藏" : "显示"}项目列表`,
                 variant: model.projectListOpen ? "primary" : "secondary",
-                className: "!h-9 !w-10 !px-0 hidden lg:inline-flex",
+                visibility: "desktop",
                 onClick: () => model.setProjectListOpen(!model.projectListOpen),
               },
               {

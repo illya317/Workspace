@@ -67,7 +67,7 @@ function createFieldSpec(
       required: field.required,
       spec: {
         valueType: "reference",
-        editor: "autocomplete",
+        control: "reference",
         state: "normal",
         options: {
           source: "remote",
@@ -91,7 +91,7 @@ function createFieldSpec(
       key: field.key,
       label: field.label,
       required: field.required,
-      spec: { valueType: "boolean", editor: "checkbox" },
+      spec: { valueType: "boolean", control: "boolean", presentation: "checkbox" },
       value: Boolean(value),
       onChange: (next) => onChange(Boolean(next)),
     };
@@ -102,7 +102,7 @@ function createFieldSpec(
       key: field.key,
       label: field.label,
       required: field.required,
-      spec: { valueType: "date", editor: "datePicker" },
+      spec: { valueType: "date", control: "temporal", precision: "date" },
       value: String(value ?? ""),
       onChange: (next) => onChange(next ?? ""),
     };
@@ -113,7 +113,7 @@ function createFieldSpec(
       key: field.key,
       label: field.label,
       required: field.required,
-      spec: { valueType: "string", editor: field.options.length > 8 ? "autocomplete" : "select", options: { source: "static", items: field.options, visibleCount: 5 } },
+      spec: { valueType: "string", control: "choice", options: { source: "static", mode: field.options.length > 8 ? "autocomplete" : "dropdown", items: field.options, visibleCount: 5 } },
       value: String(value ?? ""),
       onChange: (next) => onChange(next ?? ""),
     };
@@ -123,7 +123,7 @@ function createFieldSpec(
     key: field.key,
     label: field.label,
     required: field.required,
-    spec: { valueType: field.type === "number" ? "number" : "string", editor: field.type === "textarea" ? "textarea" : field.type === "number" ? "number" : "input" },
+    spec: { valueType: field.type === "number" ? "number" : "string", control: field.type === "number" ? "number" : "text", multiline: field.type === "textarea" ? true : undefined },
     value: String(value ?? ""),
     onChange: (next) => onChange(String(next ?? "")),
     rows: field.type === "textarea" ? 3 : undefined,

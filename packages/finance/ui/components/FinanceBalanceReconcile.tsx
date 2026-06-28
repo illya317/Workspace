@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { DataSurface, FormSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import {
+  PageSurface,
+  createPageDataBlock,
+  createPageInlineFieldsBlock,
+  createPageTableBlock,
+  type DataSurfaceColumnSpec,
+} from "@workspace/core/ui";
 interface Company {
   code: string;
   name: string;
@@ -82,25 +88,30 @@ export default function FinanceBalanceReconcile({
           年度余额表用于校验差异。
         </p>
       </div>
-      <FormSurface
-        kind="filters"
-        fields={[
-          {
-            key: "company",
-            label: "公司",
-            spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: companies.map(company => ({ value: company.code, label: company.name })) } },
-            value: companyCode,
-            onChange: (value) => setCompanyCode(String(value ?? "")),
-          },
-          {
-            key: "file",
-            label: "余额表Excel",
-            spec: { valueType: "file", editor: "upload" },
-            accept: ".xls,.xlsx",
-            onChange: (fileValue) => setFile(fileValue instanceof File ? fileValue : null),
-          },
+      <PageSurface
+        kind="list"
+        embedded
+        blocks={[
+          createPageInlineFieldsBlock("balance-reconcile-filters", [
+            {
+              key: "company",
+              label: "公司",
+              spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: companies.map(company => ({ value: company.code, label: company.name })) } },
+              value: companyCode,
+              onChange: (value) => setCompanyCode(String(value ?? "")),
+            },
+            {
+              key: "file",
+              label: "余额表Excel",
+              spec: { valueType: "file", control: "file" },
+              accept: ".xls,.xlsx",
+              onChange: (fileValue) => setFile(fileValue instanceof File ? fileValue : null),
+            },
+          ], {
+            kind: "filters",
+            actions: [{ key: "reconcile", label: loading ? "核对中..." : "开始核对", variant: "primary", onClick: handleReconcile, disabled: loading }],
+          }),
         ]}
-        actions={[{ key: "reconcile", label: loading ? "核对中..." : "开始核对", variant: "primary", onClick: handleReconcile, disabled: loading }]}
       />
 
       {result && <div className="mt-4 space-y-3">
@@ -140,10 +151,15 @@ export default function FinanceBalanceReconcile({
           {result.missingInSystem.length > 0 && <MissingList title={`Excel中有但系统中缺失的科目（${result.missingInSystem.length}个）`} items={result.missingInSystem} tone="yellow" />}
           {result.missingInExcel.length > 0 && <MissingList title={`系统中有但Excel中缺失的科目（${result.missingInExcel.length}个）`} items={result.missingInExcel} tone="blue" />}
           {result.differences.length > 0 && <DiffTable differences={result.differences} />}
-          {result.differences.length === 0 && result.missingInSystem.length === 0 && result.missingInExcel.length === 0 && <DataSurface kind="records" records={[]} empty="核对通过，所有科目余额完全一致" />}
+          {result.differences.length === 0 && result.missingInSystem.length === 0 && result.missingInExcel.length === 0 && <BalanceReconcileSuccess />}
         </div>}
     </section>;
 }
+
+function BalanceReconcileSuccess() {
+  return <PageSurface kind="list" embedded blocks={[createPageDataBlock("balance-reconcile-empty", { kind: "records", records: [], empty: "核对通过，所有科目余额完全一致" })]} />;
+}
+
 function MissingList({
   title,
   items,
@@ -208,5 +224,19 @@ function DiffTable({
     cellClassName: "text-right font-medium text-red-600",
     cell: difference => difference.diff.toFixed(2)
   }];
-  return <DataSurface kind="table" framed className="overflow-hidden" bodyClassName="overflow-x-auto" rows={differences} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={difference => `${difference.accountCode}-${difference.field}`} />;
+  return <PageSurface
+    kind="list"
+    embedded
+    blocks={[
+      createPageTableBlock("balance-reconcile-differences", {
+        framed: true,
+        className: "overflow-hidden",
+        bodyClassName: "overflow-x-auto",
+        rows: differences,
+        columns,
+        visibleColumns: columns.map(column => column.key),
+        rowKey: difference => `${difference.accountCode}-${difference.field}`,
+      }),
+    ]}
+  />;
 }

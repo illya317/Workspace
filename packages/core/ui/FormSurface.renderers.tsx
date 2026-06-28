@@ -11,7 +11,6 @@ import type {
   FormSurfaceFieldModeProps,
   FormSurfaceItemSpec,
   FormSurfaceReadOnlyFieldSpec,
-  FormSurfaceSegmentedCodeFieldSpec,
   FormSurfaceTagListFieldSpec,
 } from "./FormSurface.types";
 
@@ -76,7 +75,7 @@ function renderLoginItem<T>(field: FormSurfaceItemSpec<T>): ReactNode {
   const controlField = {
     ...field,
     className: joinClassNames("w-full", field.className),
-  } as FormSurfaceFieldSpec | FormSurfaceReadOnlyFieldSpec | FormSurfaceSegmentedCodeFieldSpec | FormSurfaceTagListFieldSpec<T>;
+  } as FormSurfaceFieldSpec | FormSurfaceReadOnlyFieldSpec | FormSurfaceTagListFieldSpec<T>;
   return (
     <div key={field.key} className={joinClassNames("col-span-full min-w-0", field.fieldClassName)}>
       <div className="min-w-0 [&>*]:w-full [&_input]:w-full [&_textarea]:w-full">

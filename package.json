@@ -10,6 +10,7 @@
     "start": "next start",
     "lint": "node scripts/check/with-check-lock.js -- eslint --cache --cache-location .cache/eslint/.eslintcache",
     "lint:changed": "node scripts/check/with-check-lock.js -- node scripts/check/run-eslint-changed.js",
+    "lint:net-lines": "node scripts/check/with-check-lock.js -- node scripts/check/check-net-line-growth.js",
     "lint:full": "npm run lint -- --max-warnings=0",
     "typecheck:quick": "node scripts/check/with-check-lock.js -- npx tsc --noEmit --incremental --pretty false",
     "typecheck:full": "node scripts/check/with-check-lock.js -- npx tsc --noEmit",

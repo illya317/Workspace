@@ -2,10 +2,7 @@ import { getCoreUiCompositionGraph } from "./component-registry";
 
 function getDependencyNames(componentName: string) {
   const graph = getCoreUiCompositionGraph();
-  return [
-    ...(graph.composes.get(componentName) ?? []),
-    ...(graph.foundations.get(componentName) ?? []),
-  ];
+  return graph.composes.get(componentName) ?? [];
 }
 
 export function computeComponentNestDepth(

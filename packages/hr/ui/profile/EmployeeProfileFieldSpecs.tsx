@@ -12,8 +12,9 @@ import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../fk-keys";
 import { solarToLunarBirthday } from "./lunar-birthday";
 import { formatPhoneNumber, normalizeChineseIdNumber, normalizePhoneValue } from "@workspace/hr/utils/identity";
 import { fromPercentDisplay, normalizeInputValue, toPercentDisplay } from "./profile-input-utils";
-import type { EditableRecord } from "./EmployeeProfileUtils";
 import { majorOptions, normalizeProfessionalTitle, normalizeRank, professionalTitleGroups, rankGroups, readAliasTags, schoolOptions, serializeAliasTags } from "./EmployeeProfileFieldOptions";
+
+type EditableRecord = Record<string, unknown> & { id?: number; isNew?: boolean };
 
 export function profileFieldSpec(
   field: ProfileField,
@@ -69,7 +70,7 @@ export function profileFieldSpec(
       ...base,
       spec: {
         valueType: "string",
-        editor: "autocomplete",
+        control: "choice",
         options: { source: "static", items: majorOptions(), visibleCount: 5 },
         state: fieldDisabled ? "disabled" : "normal",
       },
@@ -84,7 +85,7 @@ export function profileFieldSpec(
       ...base,
       spec: {
         valueType: "string",
-        editor: "autocomplete",
+        control: "choice",
         options: { source: "static", items: schoolOptions(), visibleCount: 5 },
         state: fieldDisabled ? "disabled" : "normal",
       },
@@ -99,7 +100,7 @@ export function profileFieldSpec(
       ...base,
       spec: {
         valueType: "string",
-        editor: "select",
+        control: "choice",
         options: {
           source: "grouped",
           groups: professionalTitleGroups(),
@@ -121,7 +122,7 @@ export function profileFieldSpec(
       ...base,
       spec: {
         valueType: "boolean",
-        editor: "select",
+        control: "choice",
         state: fieldDisabled ? "disabled" : "normal",
         options: {
           source: "static",
@@ -154,7 +155,7 @@ export function profileFieldSpec(
       ...base,
       spec: {
         valueType: "reference",
-        editor: "autocomplete",
+        control: "reference",
         state: reportToDisabled ? "disabled" : "normal",
         options: {
           source: "remote",
@@ -175,7 +176,7 @@ export function profileFieldSpec(
   if (field.type === "textarea") {
     return {
       ...base,
-      spec: { valueType: "string", editor: "textarea", state: fieldDisabled ? "disabled" : "normal" },
+      spec: { valueType: "string", control: "text", multiline: true, state: fieldDisabled ? "disabled" : "normal" },
       value: normalizeInputValue(record[field.key]),
       rows: 3,
       onChange: (next) => onChange(field.key, next || null),
@@ -188,7 +189,7 @@ export function profileFieldSpec(
         ...base,
         spec: {
           valueType: "string",
-          editor: "select",
+          control: "choice",
           options: { source: "grouped", groups: rankGroups(field.options || []), groupLabel: "职级序列", optionLabel: "等级", changeGroupLabel: "更换序列" },
           state: fieldDisabled ? "disabled" : "normal",
         },
@@ -201,7 +202,7 @@ export function profileFieldSpec(
       ...base,
       spec: {
         valueType: "string",
-        editor: "select",
+        control: "choice",
         state: fieldDisabled ? "disabled" : "normal",
         options: {
           source: "static",
@@ -219,7 +220,7 @@ export function profileFieldSpec(
   if (field.type === "date") {
     return {
       ...base,
-      spec: { valueType: "date", editor: "datePicker", state: fieldDisabled ? "disabled" : "normal" },
+      spec: { valueType: "date", control: "temporal", precision: "date", state: fieldDisabled ? "disabled" : "normal" },
       value: normalizeInputValue(record[field.key]),
       onChange: (next) => onChange(field.key, next),
     };
@@ -228,7 +229,7 @@ export function profileFieldSpec(
   if (field.type === "phone") {
     return {
       ...base,
-      spec: { valueType: "string", editor: "input", state: fieldDisabled ? "disabled" : "normal" },
+      spec: { valueType: "string", control: "text", state: fieldDisabled ? "disabled" : "normal" },
       value: formatPhoneNumber(record[field.key]),
       inputMode: "tel",
       onChange: (next) => onChange(field.key, normalizePhoneValue(next)),
@@ -238,7 +239,7 @@ export function profileFieldSpec(
   if (field.type === "percent") {
     return {
       ...base,
-      spec: { valueType: "number", editor: "number", format: "percent", state: fieldDisabled ? "disabled" : "normal", validation: { min: 0, max: 100 } },
+      spec: { valueType: "number", control: "number", format: "percent", state: fieldDisabled ? "disabled" : "normal", validation: { min: 0, max: 100 } },
       value: toPercentDisplay(record[field.key]),
       step: "0.01",
       onChange: (next) => onChange(field.key, fromPercentDisplay(next == null ? "" : String(next))),
@@ -248,7 +249,7 @@ export function profileFieldSpec(
   if (field.type === "chineseId") {
     return {
       ...base,
-      spec: { valueType: "string", editor: "input", state: fieldDisabled ? "disabled" : "normal" },
+      spec: { valueType: "string", control: "text", state: fieldDisabled ? "disabled" : "normal" },
       value: normalizeChineseIdNumber(record[field.key]) ?? "",
       inputMode: "text",
       maxLength: 18,
@@ -260,7 +261,7 @@ export function profileFieldSpec(
     ...base,
     spec: {
       valueType: field.type === "number" ? "number" : "string",
-      editor: field.type === "number" ? "number" : "input",
+      control: field.type === "number" ? "number" : "text",
       state: fieldDisabled ? "disabled" : "normal",
     },
     value: normalizeInputValue(record[field.key]),

@@ -7,7 +7,7 @@
 ```
 packages/<domain>/
   module.ts             # moduleDef / routes / resourceDefs
-  ui/                   # 主要页面和业务组件（≤220 行）
+  ui/                   # 主要页面和业务组件（新代码目标 ≤220 行）
   server/               # 查询、变更、导入、汇总、业务规则
   types/                # 模块共享类型
   constants/            # 模块常量和选项
@@ -50,11 +50,11 @@ prisma/models/<domain>.prisma  # 领域模型（按 schema 治理规则）
 | 类型 | 上限 | 超限处理 |
 |---|---|---|
 | 页面 facade | 150 行 | 拆 components/hooks |
-| UI 组件 | 新代码目标 220 行；迁移期 package TSX lint fallback 400 行 | 拆子组件 |
-| UI hook | 新代码目标 220 行；迁移期 package TSX lint fallback 400 行 | 拆辅助 hook |
+| UI 组件 | 新代码目标 220 行；package TSX lint 硬上限 500 行 | 拆子组件，但拆分必须缩小 interface 或提升 locality |
+| UI hook | 新代码目标 220 行；package TSX lint 硬上限 500 行 | 拆辅助 hook，但避免纯搬家式 helper |
 | API route | 120 行 | 下沉到 service |
-| service | 新代码目标 260 行；迁移期 package TS lint fallback 450 行 | 拆 queries/mutations/summary |
-| Core package | 300 行 | Core UI/类型/配置都按 Core fallback |
+| service | 新代码目标 260 行；package TS lint 硬上限 550 行 | 拆 queries/mutations/summary |
+| Core package | 新代码目标 300 行；Core lint 硬上限 450 行；registry data 500 行 | Core UI/类型/配置按真实 seam 拆 |
 
 ## 最小可运行示例
 

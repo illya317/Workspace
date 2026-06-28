@@ -1,37 +1,12 @@
 import {
-  coreUiComponentKindMeta,
   coreUiComponentRegistry,
   getCoreUiCompositionGraph,
   isCoreUiComponentVisibleInShowcase,
-  resolveCoreUiComponentUiLevel,
 } from "./component-registry";
 import type {
-  CoreUiComponentAccessLayer,
-  CoreUiComponentUiLevel,
-  CoreUiComponentKind,
   CoreUiComponentRegistration,
+  CoreUiComponentSubcategory,
 } from "./component-registry-types";
-
-export const coreUiComponentAccessLayerOrder = [
-  "page-frame",
-  "page-api",
-  "core-internal",
-  "foundation",
-] as const satisfies readonly CoreUiComponentAccessLayer[];
-
-export const coreUiComponentKindOrder = Object.keys(coreUiComponentKindMeta) as CoreUiComponentKind[];
-
-function compareByAccessLayerOrder(
-  a: CoreUiComponentAccessLayer,
-  b: CoreUiComponentAccessLayer,
-  order: readonly CoreUiComponentAccessLayer[] = coreUiComponentAccessLayerOrder,
-) {
-  return order.indexOf(a) - order.indexOf(b);
-}
-
-function compareByKindOrder(a: CoreUiComponentKind, b: CoreUiComponentKind) {
-  return coreUiComponentKindOrder.indexOf(a) - coreUiComponentKindOrder.indexOf(b);
-}
 
 function compareComponentsByName(
   a: CoreUiComponentRegistration,
@@ -43,9 +18,6 @@ function compareComponentsByName(
 export type CoreUiComponentTreeNode = {
   component: CoreUiComponentRegistration;
   name: string;
-  accessLayer: CoreUiComponentAccessLayer;
-  uiLevel: CoreUiComponentUiLevel;
-  kind: CoreUiComponentKind;
   depth: number;
   nestDepth: number;
   path: string[];
@@ -84,20 +56,19 @@ export function resolveComponents(
     .sort(compareComponentsByName);
 }
 
-export function groupComponentsByAccessLayerKind(
+export function groupComponentsBySubcategory(
   components: readonly CoreUiComponentRegistration[],
 ) {
   const groups = new Map<string, {
-    accessLayer: CoreUiComponentAccessLayer;
-    kind: CoreUiComponentKind;
+    subcategory: CoreUiComponentSubcategory;
     components: CoreUiComponentRegistration[];
   }>();
 
   for (const component of components) {
-    const key = `${component.accessLayer}:${component.kind}`;
+    const subcategory = component.subcategory ?? "common.foundation";
+    const key = subcategory;
     const group = groups.get(key) ?? {
-      accessLayer: component.accessLayer,
-      kind: component.kind,
+      subcategory,
       components: [],
     };
     group.components.push(component);
@@ -110,10 +81,7 @@ export function groupComponentsByAccessLayerKind(
       components: group.components.sort(compareComponentsByName),
     }))
     .sort((a, b) => {
-      const layerOrder = compareByAccessLayerOrder(a.accessLayer, b.accessLayer);
-      if (layerOrder !== 0) return layerOrder;
-      const kindOrder = compareByKindOrder(a.kind, b.kind);
-      return kindOrder !== 0 ? kindOrder : 0;
+      return a.subcategory.localeCompare(b.subcategory);
     });
 }
 
@@ -140,10 +108,7 @@ export function groupUsageFiles(files: readonly string[]) {
 
 export function getDependencyNames(componentName: string) {
   const graph = getCoreUiCompositionGraph();
-  return [
-    ...(graph.composes.get(componentName) ?? []),
-    ...(graph.foundations.get(componentName) ?? []),
-  ];
+  return graph.composes.get(componentName) ?? [];
 }
 
 export function buildComponentTreeLeaf({
@@ -166,9 +131,6 @@ export function buildComponentTreeLeaf({
   return {
     component,
     name: component.name,
-    accessLayer: component.accessLayer,
-    uiLevel: resolveCoreUiComponentUiLevel(component),
-    kind: component.kind,
     depth,
     nestDepth: nestDepthByName.get(component.name) ?? 1,
     path,
@@ -231,9 +193,6 @@ export function buildComponentTreeNode({
   return {
     component,
     name: component.name,
-    accessLayer: component.accessLayer,
-    uiLevel: resolveCoreUiComponentUiLevel(component),
-    kind: component.kind,
     depth,
     nestDepth: nestDepthByName.get(component.name) ?? 1,
     path: nextPath,

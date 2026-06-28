@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { DataSurface, useFeedback } from "@workspace/core/ui";
+import { PageSurface, useFeedback } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 const API_BASE_URL = typeof window !== "undefined" ? `${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH || ""}` : "";
 export type ApiAccessModuleRow = {
@@ -94,35 +94,43 @@ export default function ApiAccessClient({
   if (!canUsePersonalApi) return null;
   return (
     <div className="py-6">
-      <DataSurface
-        kind="raw"
-        framed
-        title="API 接入"
-        value={[
-          `URL: ${API_BASE_URL}`,
-          `Key: ${apiKey ? maskApiKey(apiKey) : "（先申请）"}`,
-          `User: ${user.username || user.nickname || "（未获取）"}`,
-        ].join("\n")}
-        actions={[
-          apiKey ? {
-            key: "rotate",
-            label: loading ? "申请中..." : "重新申请",
-            onClick: () => void confirmRotateApiKey(),
-            disabled: loading,
-          } : {
-            key: "create",
-            label: loading ? "申请中..." : "申请 Key",
-            onClick: rotateApiKey,
-            disabled: loading,
+      <PageSurface
+        kind="settings"
+        embedded
+        blocks={[{
+          kind: "data",
+          key: "api-access",
+          surface: {
+            kind: "raw",
+            framed: true,
+            title: "API 接入",
+            value: [
+              `URL: ${API_BASE_URL}`,
+              `Key: ${apiKey ? maskApiKey(apiKey) : "（先申请）"}`,
+              `User: ${user.username || user.nickname || "（未获取）"}`,
+            ].join("\n"),
+            actions: [
+              apiKey ? {
+                key: "rotate",
+                label: loading ? "申请中..." : "重新申请",
+                onClick: () => void confirmRotateApiKey(),
+                disabled: loading,
+              } : {
+                key: "create",
+                label: loading ? "申请中..." : "申请 Key",
+                onClick: rotateApiKey,
+                disabled: loading,
+              },
+              {
+                key: "copy",
+                label: copied ? "已复制" : "复制接入信息",
+                variant: "primary",
+                onClick: copyConnectionBlock,
+              },
+            ],
+            rawClassName: "space-y-1",
           },
-          {
-            key: "copy",
-            label: copied ? "已复制" : "复制接入信息",
-            variant: "primary",
-            onClick: copyConnectionBlock,
-          },
-        ]}
-        rawClassName="space-y-1"
+        }]}
       />
     </div>
   );

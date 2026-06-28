@@ -72,6 +72,7 @@ Toolbar 动作按钮只能来自 Core `ActionGlyph` 封闭集合。
 
 - `icon-button.icon` 和 `action-group.actions[].kind` 必须是 `ActionGlyphKind`。
 - 业务只选 icon 和 callback，不手排顺序。
+- 非 Toolbar 的 icon-only cell/action 也必须复用 `ActionGlyph`；新增图标先进入封闭集合，不在业务/平台文件里手写 `<svg>`。
 - `action-group` / `edit-group` 会按 `ACTION_GLYPH_ORDER` 自动排序，并在大组变化处插入分隔。
 - 新增 icon 必须同步：
   - `ACTION_GLYPH_KINDS`

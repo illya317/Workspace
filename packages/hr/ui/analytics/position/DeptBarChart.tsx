@@ -72,7 +72,6 @@ export function createDeptBarChartBlock({
             onChange: (value) => setFilterL1(value ? Number(value) : null),
             placeholder: "全部事业部",
             options: l1List.map((dept) => ({ value: String(dept.id), label: dept.name })),
-            triggerClassName: "!min-h-8 !w-40",
           }],
         },
         blocks: [{

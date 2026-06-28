@@ -5,14 +5,13 @@ import {
 } from "./component-registry";
 import { buildComponentNestDepthMap } from "./component-nest-depth";
 import type {
-  CoreUiComponentAccessLayer,
-  CoreUiComponentKind,
   CoreUiComponentRegistration,
+  CoreUiComponentSubcategory,
 } from "./component-registry-types";
 import {
   buildComponentMap,
   buildComponentTreeNode,
-  groupComponentsByAccessLayerKind,
+  groupComponentsBySubcategory,
   groupUsageFiles,
   resolveComponents,
   type CoreUiComponentTreeNode,
@@ -23,10 +22,8 @@ export type { CoreUiComponentTreeNode } from "./component-registry-view-utils";
 export type CoreUiComponentRelationView = {
   component: CoreUiComponentRegistration;
   composes: CoreUiComponentRegistration[];
-  foundations: CoreUiComponentRegistration[];
   usedByGrouped: Array<{
-    accessLayer: CoreUiComponentAccessLayer;
-    kind: CoreUiComponentKind;
+    subcategory: CoreUiComponentSubcategory;
     components: CoreUiComponentRegistration[];
   }>;
   usageFilesGrouped: Array<{
@@ -79,16 +76,13 @@ export function getCoreUiComponentRelationView(
 
   const composes = resolveComponents(graph.composes.get(componentName) ?? [], componentByName)
     .filter(isCoreUiComponentVisibleInShowcase);
-  const foundations = resolveComponents(graph.foundations.get(componentName) ?? [], componentByName)
-    .filter(isCoreUiComponentVisibleInShowcase);
   const usedBy = resolveComponents(graph.usedBy.get(componentName) ?? [], componentByName)
     .filter(isCoreUiComponentVisibleInShowcase);
 
   return {
     component,
     composes,
-    foundations,
-    usedByGrouped: groupComponentsByAccessLayerKind(usedBy),
+    usedByGrouped: groupComponentsBySubcategory(usedBy),
     usageFilesGrouped: groupUsageFiles(usageFiles),
   };
 }

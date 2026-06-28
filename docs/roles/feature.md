@@ -53,3 +53,5 @@ Feature 负责用户可见业务功能、业务 UI、业务 service 和 route sh
 npm run arch:gate
 npm run check:changed
 ```
+
+`check:changed` 包含 changed + untracked 净增行 gate；默认不得净增加。若本任务确实需要净新增代码，交付说明中写清原因和使用的 `NET_LINE_GROWTH_LIMIT`。

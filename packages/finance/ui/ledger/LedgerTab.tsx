@@ -53,14 +53,13 @@ export default function LedgerTab({
       const list = d.periods || [];
       setPeriods(list);
       // 默认选中第一个期间
-      if (list.length && !companyFilter && !yearFilter && !monthFilter) {
+      if (list.length) {
         const first = list[0];
-        if (first.companyCode) setCompanyFilter(first.companyCode);
-        setYearFilter(String(first.year));
-        setMonthFilter(String(first.month));
+        if (first.companyCode) setCompanyFilter((current) => current || first.companyCode);
+        setYearFilter((current) => current || String(first.year));
+        setMonthFilter((current) => current || String(first.month));
       }
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadBalances = useCallback(async () => {

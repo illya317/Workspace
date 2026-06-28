@@ -95,7 +95,6 @@ export function useFinanceFilterToolbarItems({
       value: companyFilter,
       onChange: onCompanyChange,
       placeholder: "全部",
-      triggerClassName: "min-w-32",
     });
   }
 
@@ -109,7 +108,6 @@ export function useFinanceFilterToolbarItems({
       value: yearFilter,
       onChange: onYearChange,
       placeholder: "全部",
-      triggerClassName: "min-w-32",
     });
   }
 
@@ -123,7 +121,6 @@ export function useFinanceFilterToolbarItems({
       value: monthFilter,
       onChange: onMonthChange,
       placeholder: "全部",
-      triggerClassName: "min-w-32",
     });
   }
 
@@ -137,7 +134,6 @@ export function useFinanceFilterToolbarItems({
       value: levelFilter,
       onChange: onLevelChange,
       placeholder: "全部",
-      triggerClassName: "min-w-32",
     });
   }
 
@@ -160,7 +156,6 @@ export function useFinanceFilterToolbarItems({
       value: String(pageSize),
       options: PAGE_SIZE_OPTIONS,
       onChange: (value) => onPageSizeChange(Number(value)),
-      triggerClassName: "!w-[6.5rem] !min-w-[6.5rem]",
     });
   }
 

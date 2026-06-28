@@ -138,20 +138,23 @@ export function useDepartmentCreatePanelBlock({
           bodyClassName: "contents",
           fields: [
             {
-              kind: "segmentedCode" as const,
               key: "code",
               label: "部门编码",
               required: true,
+              spec: {
+                valueType: "string" as const,
+                control: "text" as const,
+                mask: { kind: "editableSegment" as const, ...departmentCodeEditableSegment(level) },
+                state: !canEdit ? "disabled" as const : "normal" as const,
+              },
               value: code,
-              editableSegment: departmentCodeEditableSegment(level),
-              disabled: !canEdit,
-              onChange: setCode,
+              onChange: (next) => setCode(String(next ?? "")),
             },
             {
               key: "name",
               label: "部门名称",
               required: true,
-              spec: { valueType: "string" as const, editor: "input" as const, state: !canEdit ? "disabled" as const : "normal" as const },
+              spec: { valueType: "string" as const, control: "text" as const, state: !canEdit ? "disabled" as const : "normal" as const },
               value: name,
               onChange: (value) => updateDraftName(String(value ?? "")),
             },
@@ -160,7 +163,7 @@ export function useDepartmentCreatePanelBlock({
               label: "部门层级",
               spec: {
                 valueType: "number" as const,
-                editor: "select" as const,
+                control: "choice" as const,
                 state: !canEdit ? "disabled" as const : "normal" as const,
                 options: {
                   source: "static" as const,
@@ -180,7 +183,7 @@ export function useDepartmentCreatePanelBlock({
               label: "上级部门",
               spec: {
                 valueType: "reference" as const,
-                editor: "select" as const,
+                control: "choice" as const,
                 state: !canEdit || level === 1 ? "disabled" as const : "normal" as const,
                 options: { source: "static" as const, mode: "dropdown" as const, items: parentOptions },
               },
@@ -195,14 +198,14 @@ export function useDepartmentCreatePanelBlock({
             {
               key: "alias",
               label: "别名",
-              spec: { valueType: "string" as const, editor: "input" as const, state: !canEdit ? "disabled" as const : "normal" as const },
+              spec: { valueType: "string" as const, control: "text" as const, state: !canEdit ? "disabled" as const : "normal" as const },
               value: alias,
               onChange: (value) => setAlias(String(value ?? "")),
             },
             {
               key: "manager",
               label: "部门负责人",
-              spec: { valueType: "string" as const, editor: "input" as const, state: !canEdit ? "disabled" as const : "normal" as const },
+              spec: { valueType: "string" as const, control: "text" as const, state: !canEdit ? "disabled" as const : "normal" as const },
               value: managerPositionName,
               onChange: (value) => updateDraftManager(String(value ?? "")),
             },

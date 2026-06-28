@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createPageFieldsBlock, useFeedback } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { formatHistoryVersion, normalizeDateValue, versionNumber } from "./draft-utils";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
@@ -43,9 +43,10 @@ export function PositionDutyEditor({
     if (confirmed) onChange(records.filter((_, recordIndex) => recordIndex !== index));
   }
   return <div key={detailKey} className="space-y-3 md:col-span-2">
-      <FormSurface<string>
-        kind="fields"
-        fields={[{
+      <PageSurface
+        embedded
+        kind="detail"
+        blocks={[createPageFieldsBlock<string>(detailKey, [{
           kind: "repeatable",
           key: detailKey,
           title: label,
@@ -63,7 +64,7 @@ export function PositionDutyEditor({
                 {
                   key: "title",
                   label: "职责标题",
-                  spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" },
+                  spec: { valueType: "string", control: "text", state: disabled ? "disabled" : "normal" },
                   value: String(record.title || ""),
                   placeholder: "职责标题",
                   onChange: next => updateDuty(index, { title: String(next ?? "") }),
@@ -84,7 +85,7 @@ export function PositionDutyEditor({
                     field: {
                       key: "appendDutyItem",
                       label: "",
-                      spec: { valueType: "string", editor: "input" },
+                      spec: { valueType: "string", control: "text" },
                       value: "",
                       placeholder: "新增职责条目",
                       onChange: (next) => {
@@ -98,7 +99,7 @@ export function PositionDutyEditor({
               ],
             };
           }),
-        }]}
+        }])]}
       />
     </div>;
 }
@@ -139,9 +140,10 @@ export function PositionChangeHistoryEditor({
     if (confirmed) onChange(records.filter((_, recordIndex) => recordIndex !== index));
   }
   return <div key="changeHistory" className="space-y-3 md:col-span-2">
-      <FormSurface
-        kind="fields"
-        fields={[{
+      <PageSurface
+        embedded
+        kind="detail"
+        blocks={[createPageFieldsBlock("change-history", [{
           kind: "repeatable",
           key: "changeHistory",
           title: "变更历史",
@@ -158,16 +160,16 @@ export function PositionChangeHistoryEditor({
               title: `变更历史 ${index + 1}`,
               actions: disabled ? undefined : [{ key: "delete-history", label: "删除", variant: "danger", size: "sm", onClick: () => void removeRecord(index), className: "px-2 py-1 text-xs" }],
               fields: [
-                { key: "version", label: "版本", spec: { valueType: "string", editor: "input", state: "readonly" }, value: String(record.version || formatHistoryVersion(index)) },
-                { key: "documentName", label: "文件名", spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }, value: String(record.documentName || ""), onChange: next => updateRecord(index, { documentName: String(next ?? "") }) },
-                { key: "effectiveDate", label: "生效日期", error: dateInvalid ? "日期格式错误，请重新选择。" : undefined, spec: { valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }, value: rawDate, onChange: next => updateRecord(index, { effectiveDate: next || "" }) },
+                { key: "version", label: "版本", spec: { valueType: "string", control: "text", state: "readonly" }, value: String(record.version || formatHistoryVersion(index)) },
+                { key: "documentName", label: "文件名", spec: { valueType: "string", control: "text", state: disabled ? "disabled" : "normal" }, value: String(record.documentName || ""), onChange: next => updateRecord(index, { documentName: String(next ?? "") }) },
+                { key: "effectiveDate", label: "生效日期", error: dateInvalid ? "日期格式错误，请重新选择。" : undefined, spec: { valueType: "date", control: "temporal", precision: "date", state: disabled ? "disabled" : "normal" }, value: rawDate, onChange: next => updateRecord(index, { effectiveDate: next || "" }) },
                 {
                   key: "approver",
                   label: "批准",
                   error: approverInvalid ? "当前值不是有效引用，请重新选择。" : undefined,
                   spec: {
                     valueType: "reference",
-                    editor: "autocomplete",
+                    control: "reference",
                     state: disabled ? "disabled" : "normal",
                     options: { source: "remote", fkKey: fkKeyForEntity("employee"), endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "name" },
                   },
@@ -179,7 +181,7 @@ export function PositionChangeHistoryEditor({
               ],
             };
           }),
-        }]}
+        }])]}
       />
     </div>;
 }

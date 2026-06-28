@@ -124,9 +124,9 @@ export function createCrossMatrixBlock({
     title: "交叉分析",
     toolbar: {
       items: [
-        { kind: "select", key: "row", label: "行", value: crossRow, onChange: (value) => setCrossRow(value as DimKey), options: rowOptions, triggerClassName: "!min-h-7 !w-28" },
+        { kind: "select", key: "row", label: "行", value: crossRow, onChange: (value) => setCrossRow(value as DimKey), options: rowOptions },
         { kind: "text", key: "by", content: <span className="text-gray-300">&times;</span> },
-        { kind: "select", key: "column", label: "列", value: crossCol, onChange: (value) => setCrossCol(value as DimKey), options: colOptions, triggerClassName: "!min-h-7 !w-28" },
+        { kind: "select", key: "column", label: "列", value: crossCol, onChange: (value) => setCrossCol(value as DimKey), options: colOptions },
         { kind: "text", key: "meta", content: <>共 {statsActive} 人</> },
       ],
     },

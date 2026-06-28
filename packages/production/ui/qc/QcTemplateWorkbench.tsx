@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { matchText } from "@workspace/core/search";
-import { DataSurface, PageSurface, SelectorPanel } from "@workspace/core/ui";
+import { PageSurface, createPageDataBlock, createPageTableBlock } from "@workspace/core/ui";
 import type {
   QcTemplateDetail,
   QcTemplateFeedbackState,
@@ -93,6 +93,92 @@ function WorkbenchSurface({
     }
   }
 
+  const sectionBlocks = sections.length === 0
+    ? [
+        createPageDataBlock("qc-template-workbench-empty", {
+          kind: "records",
+          records: [],
+          empty: viewModel.emptyText ?? "没有匹配的模板。",
+        }),
+      ]
+    : sections.map((section) => {
+        const title = (
+          <span className="flex min-w-0 items-center gap-3">
+            <span className="truncate">{section.title}</span>
+            {section.status ? (
+              <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${section.status.tone === "red" ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-800"}`}>
+                {section.status.label}
+              </span>
+            ) : null}
+          </span>
+        );
+        const actions = section.collapsible || section.onToggle ? [{
+          key: "toggle",
+          label: toggleText(section),
+          variant: "secondary" as const,
+          size: "sm" as const,
+          className: "px-3 py-1.5 text-sm",
+          onClick: () => toggleSection(section),
+        }] : undefined;
+
+        if (!section.expandedView) {
+          return createPageDataBlock(`qc-template-workbench-${section.key}-collapsed`, {
+            kind: "records",
+            framed: true,
+            title,
+            subtitle: section.subtitle,
+            actions,
+            records: [],
+            empty: "已收起。",
+          });
+        }
+
+        return createPageTableBlock<QcTemplateWorkbenchRow>(`qc-template-workbench-${section.key}`, {
+          framed: true,
+          title,
+          subtitle: section.subtitle,
+          actions,
+          rows: section.rows,
+          columns: [
+            {
+              key: "title",
+              label: "项目",
+              required: true,
+              cell: (row) => (
+                <div className={`flex min-w-0 items-start gap-3 ${row.inset ? "pl-5" : ""}`}>
+                  <span className="min-w-9 rounded-full bg-blue-50 px-3 py-1 text-center text-xs font-semibold text-blue-700">{row.badge}</span>
+                  <span className="min-w-0">
+                    <span className="block truncate font-semibold text-slate-900">{row.title}</span>
+                    {row.description ? <span className="mt-1 block truncate text-xs text-slate-500">{row.description}</span> : null}
+                  </span>
+                </div>
+              ),
+            },
+            {
+              key: "actions",
+              label: "操作",
+              required: true,
+              cell: (row) => ({
+                kind: "actions",
+                align: "right",
+                actions: (row.actions ?? []).map((action, index) => ({
+                  key: `${row.key}:action:${index}`,
+                  label: actionLabel(action),
+                  variant: action.variant,
+                  disabled: action.disabled || action.loading,
+                  size: "sm",
+                  className: "h-9 px-3 text-xs",
+                  onClick: action.onClick,
+                })),
+              }),
+            },
+          ],
+          visibleColumns: ["title", "actions"],
+          rowKey: (row) => row.key,
+          emptyText: "暂无项目。",
+        });
+      });
+
   return (
     <PageSurface
       kind="list"
@@ -107,7 +193,6 @@ function WorkbenchSurface({
                 value: query,
                 onChange: setQuery,
                 placeholder: viewModel.searchPlaceholder ?? "搜索模板、阶段、项目",
-                className: "min-w-[260px] flex-1",
               },
               ...(viewModel.toolbarMeta ? [{
                 kind: "text" as const,
@@ -119,115 +204,41 @@ function WorkbenchSurface({
           }
         : undefined}
       body={{
-        content: (
-          <section className="space-y-5">
-            <div className="grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <div className="min-w-0 max-lg:order-last">
-          <SelectorPanel
-            title={viewModel.selectorTitle}
-            bodyClassName="p-3"
-            contentClassName="space-y-2"
-            items={viewModel.selectorItems}
-            selectedId={selectorKey}
-            onSelect={(item) => setSelectorKey(item.key)}
-            getKey={(item) => item.key}
-            renderItem={(item) => ({
-              title: item.title,
-              subtitle: item.subtitle,
-              trailing: item.trailing,
-            })}
-          />
-        </div>
-        <div className="min-w-0 space-y-5">
-          {sections.map((section) => {
-            const title = (
-              <span className="flex min-w-0 items-center gap-3">
-                <span className="truncate">{section.title}</span>
-                {section.status ? (
-                  <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${section.status.tone === "red" ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-800"}`}>
-                    {section.status.label}
-                  </span>
-                ) : null}
-              </span>
-            );
-            const actions = section.collapsible || section.onToggle ? [{
-              key: "toggle",
-              label: toggleText(section),
-              variant: "secondary" as const,
-              size: "sm" as const,
-              className: "px-3 py-1.5 text-sm",
-              onClick: () => toggleSection(section),
-            }] : undefined;
-
-            if (!section.expandedView) {
-              return (
-                <DataSurface
-                  key={section.key}
-                  kind="records"
-                  framed
-                  title={title}
-                  subtitle={section.subtitle}
-                  actions={actions}
-                  records={[]}
-                  empty="已收起。"
-                />
-              );
-            }
-
-            return (
-              <DataSurface<QcTemplateWorkbenchRow>
-                key={section.key}
-                kind="table"
-                framed
-                title={title}
-                subtitle={section.subtitle}
-                actions={actions}
-                rows={section.rows}
-                columns={[
-                  {
-                    key: "title",
-                    label: "项目",
-                    required: true,
-                    cell: (row) => (
-                      <div className={`flex min-w-0 items-start gap-3 ${row.inset ? "pl-5" : ""}`}>
-                        <span className="min-w-9 rounded-full bg-blue-50 px-3 py-1 text-center text-xs font-semibold text-blue-700">{row.badge}</span>
-                        <span className="min-w-0">
-                          <span className="block truncate font-semibold text-slate-900">{row.title}</span>
-                          {row.description ? <span className="mt-1 block truncate text-xs text-slate-500">{row.description}</span> : null}
-                        </span>
-                      </div>
-                    ),
-                  },
-                  {
-                    key: "actions",
-                    label: "操作",
-                    required: true,
-                    cell: (row) => ({
-                      kind: "actions",
-                      align: "right",
-                      actions: (row.actions ?? []).map((action, index) => ({
-                        key: `${row.key}:action:${index}`,
-                        label: actionLabel(action),
-                        variant: action.variant,
-                        disabled: action.disabled || action.loading,
-                        size: "sm",
-                        className: "h-9 px-3 text-xs",
-                        onClick: action.onClick,
-                      })),
-                    }),
-                  },
-                ]}
-                visibleColumns={["title", "actions"]}
-                rowKey={(row) => row.key}
-                emptyText="暂无项目。"
-              />
-            );
-          })}
-          {sections.length === 0 ? <DataSurface kind="records" records={[]} empty={viewModel.emptyText ?? "没有匹配的模板。"} /> : null}
-        </div>
-            </div>
-          </section>
-        ),
+        blocks: [{
+          kind: "surfaceGroup",
+          key: "qc-template-workbench-grid",
+          layout: "grid",
+          className: "gap-5 lg:grid-cols-[280px_minmax(0,1fr)]",
+          blocks: [
+            {
+              kind: "navigation",
+              key: "qc-template-workbench-selector",
+              surface: {
+                kind: "selector",
+                selector: {
+                  title: viewModel.selectorTitle,
+                  bodyClassName: "p-3",
+                  contentClassName: "space-y-2",
+                  items: viewModel.selectorItems,
+                  selectedId: selectorKey,
+                  onSelect: (item) => setSelectorKey(item.key),
+                  getKey: (item) => item.key,
+                  renderItem: (item) => ({
+                    title: item.title,
+                    subtitle: item.subtitle,
+                    trailing: item.trailing,
+                  }),
+                },
+              },
+            },
+            {
+              kind: "surfaceGroup",
+              key: "qc-template-workbench-sections",
+              className: "space-y-5",
+              blocks: sectionBlocks,
+            },
+          ],
+        }],
       }}
     />
   );

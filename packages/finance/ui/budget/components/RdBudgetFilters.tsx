@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface } from "@workspace/core/ui";
+import { PageSurface, createPageInlineFieldsBlock } from "@workspace/core/ui";
 interface RdBudgetFiltersProps {
   projectFilter: string;
   setProjectFilter: (v: string) => void;
@@ -23,34 +23,39 @@ export default function RdBudgetFilters({
 }: RdBudgetFiltersProps) {
   const hasFilters = Boolean(projectFilter || categoryFilter);
   return <>
-      <FormSurface
-        kind="filters"
-        fields={[
-          {
-            key: "project",
-            label: "研发项目",
-            spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: projectOptions.map(p => ({ value: p, label: p })) } },
-            value: projectFilter,
-            onChange: (value) => setProjectFilter(String(value ?? "")),
-            placeholder: "全部项目",
-          },
-          {
-            key: "category",
-            label: "产品类别",
-            spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: categoryOptions.map(c => ({ value: c, label: c })) } },
-            value: categoryFilter,
-            onChange: (value) => setCategoryFilter(String(value ?? "")),
-            placeholder: "全部类别",
-          },
+      <PageSurface
+        kind="list"
+        embedded
+        blocks={[
+          createPageInlineFieldsBlock("rd-budget-filters", [
+            {
+              key: "project",
+              label: "研发项目",
+              spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: projectOptions.map(p => ({ value: p, label: p })) } },
+              value: projectFilter,
+              onChange: (value) => setProjectFilter(String(value ?? "")),
+              placeholder: "全部项目",
+            },
+            {
+              key: "category",
+              label: "产品类别",
+              spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: categoryOptions.map(c => ({ value: c, label: c })) } },
+              value: categoryFilter,
+              onChange: (value) => setCategoryFilter(String(value ?? "")),
+              placeholder: "全部类别",
+            },
+          ], {
+            kind: "filters",
+            actions: hasFilters ? [{
+              key: "reset",
+              label: "重置筛选",
+              onClick: () => {
+                setProjectFilter("");
+                setCategoryFilter("");
+              },
+            }] : undefined,
+          }),
         ]}
-        actions={hasFilters ? [{
-          key: "reset",
-          label: "重置筛选",
-          onClick: () => {
-            setProjectFilter("");
-            setCategoryFilter("");
-          },
-        }] : undefined}
       />
         <span className="ml-auto text-xs text-gray-400">
           共 {count} 条，合计 {total.toFixed(2)} 万元

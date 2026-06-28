@@ -1,51 +1,56 @@
 "use client";
 
-import { FormSurface } from "@workspace/core/ui";
+import { ActionGlyph } from "@workspace/core/ui";
+import { sourceLabel } from "../../lib";
+import PermissionCellButton from "./PermissionCellButton";
+
+type PermissionSource = "direct" | "position" | "department" | "ancestor" | "implied" | "implicit" | "child" | null;
+
 interface PermissionCellProps {
   state: {
     has: boolean;
-    source: string | null;
+    source: PermissionSource | string;
   };
   disabled: boolean;
   onClick: () => void;
 }
+
+function sourceKind(source: PermissionSource | string) {
+  if (source === "position" || source === "department") return "organization";
+  if (source === "direct") return "direct";
+  return "derived";
+}
+
 export default function PermissionCell({
   state,
   disabled,
-  onClick
+  onClick,
 }: PermissionCellProps) {
   if (disabled) {
-    return <span className="text-gray-300">—</span>;
+    return <ActionGlyph kind="delete-minus" className="mx-auto h-4 w-4 text-gray-300" />;
   }
-  if (state.has) {
-    const isChild = state.source === "child";
-    const isInherited = !isChild && state.source !== "direct";
-    if (isChild || isInherited) {
-      const label = isChild ? "子资源" : "继承";
-      return (
-        <FormSurface
-          kind="inline"
-          actions={[{
-            key: "inherited",
-            label: <><span className="opacity-60">✓</span><span>{label}</span></>,
-            onClick,
-            size: "sm",
-            className: `py-1 text-xs ${isChild ? "!px-2" : "!px-4"}`,
-          }]}
-        />
-      );
-    }
+
+  if (!state.has) {
     return (
-      <FormSurface
-        kind="inline"
-        actions={[{ key: "direct", label: "✓", variant: "primary", onClick, size: "sm", className: "px-2 py-1 text-xs" }]}
-      />
+      <PermissionCellButton tone="empty" icon="add" label="授权" onClick={onClick} />
     );
   }
+
+  const kind = sourceKind(state.source);
+  if (kind === "direct") {
+    return (
+      <PermissionCellButton tone="direct" icon="check" label="直接授权，点击取消" title="直接授权" onClick={onClick} />
+    );
+  }
+
+  const isOrganization = kind === "organization";
   return (
-    <FormSurface
-      kind="inline"
-      actions={[{ key: "grant", label: "+", onClick, size: "sm", className: "px-2 py-1 text-xs" }]}
+    <PermissionCellButton
+      tone={isOrganization ? "organization" : "derived"}
+      icon={isOrganization ? "permission-organization" : "permission-derived"}
+      label={`${sourceLabel(state.source || "")}，点击直接授权`}
+      title={sourceLabel(state.source || "")}
+      onClick={onClick}
     />
   );
 }

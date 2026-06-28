@@ -1,12 +1,12 @@
 "use client";
 
-import { FormSurface, type FormSurfaceFieldSpec } from "@workspace/core/ui";
+import { PageSurface, createPageFieldsBlock, type FormSurfaceFieldSpec } from "@workspace/core/ui";
 import { getStatusLabel, getWorkItemTypeLabel, getWorkPeriodLabel, getWorkSourceTypeLabel } from "./model";
 import type { WorkItem } from "./types";
 
 export function WorkTaskDetail({ work }: { work: WorkItem }) {
   const status = work.itemType === "task" ? (work.isArchived ? "archived" : work.status) : null;
-  const readonlySpec = { valueType: "string" as const, editor: "textarea" as const, state: "readonly" as const };
+  const readonlySpec = { valueType: "string" as const, control: "text" as const, multiline: true, state: "readonly" as const };
   const fields: FormSurfaceFieldSpec[] = [
     { key: "content", label: "节点内容", span: "wide", spec: readonlySpec, value: work.content },
     ...(work.description ? [{ key: "description", label: "描述", span: "wide" as const, spec: readonlySpec, value: work.description }] satisfies FormSurfaceFieldSpec[] : []),
@@ -30,7 +30,7 @@ export function WorkTaskDetail({ work }: { work: WorkItem }) {
     ] satisfies FormSurfaceFieldSpec[] : []),
   ];
   return (
-    <FormSurface kind="detail" columns={2} fields={fields} className="p-4" />
+    <PageSurface embedded kind="detail" blocks={[createPageFieldsBlock("work-task-detail", fields, { kind: "detail", columns: 2, className: "p-4" })]} />
   );
 }
 

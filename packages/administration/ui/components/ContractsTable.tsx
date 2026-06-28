@@ -1,15 +1,7 @@
 "use client";
 
-import { DataSurface } from "@workspace/core/ui";
 import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { Contract } from "@workspace/administration/types";
-
-interface ContractsTableProps {
-  contracts: Contract[];
-  visibleColumns: string[];
-  onEdit: (contract: Contract) => void;
-  onDelete: (id: number) => void;
-}
 
 export const CONTRACT_DEFAULT_VISIBLE_COLUMNS = ["name", "partyA", "partyB", "category", "signDate"];
 
@@ -58,27 +50,4 @@ export function getContractTableColumns(): DataSurfaceColumnSpec<Contract>[] {
     { key: "handler", label: "经办人", cell: (c) => c.handler || "-" },
     { key: "location", label: "位置", cell: (c) => c.location || "-" },
   ];
-}
-
-export default function ContractsTable({ contracts, visibleColumns, onEdit, onDelete }: ContractsTableProps) {
-  const columns = getContractTableColumns();
-
-  return (
-    <DataSurface<Contract>
-      kind="table"
-      framed
-      className="overflow-hidden"
-      bodyClassName="overflow-x-auto"
-      rows={contracts}
-      columns={columns}
-      visibleColumns={visibleColumns}
-      rowKey={(contract) => contract.id}
-      emptyText="暂无数据"
-        rowActions={(c) => [
-          { key: "edit", label: "编辑", kind: "edit", onClick: () => onEdit(c) },
-          { key: "delete", label: "删除", kind: "delete", onClick: () => onDelete(c.id) },
-      ]}
-      actionsColumn={{ centered: true }}
-    />
-  );
 }

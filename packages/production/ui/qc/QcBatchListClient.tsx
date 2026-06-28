@@ -133,7 +133,6 @@ export default function QcBatchListClient({ initialRows, products, pageChrome }:
         setStatusFilter(String(value ?? "all"));
         setPage(1);
       },
-      triggerClassName: "min-w-32",
     },
     {
       kind: "autocomplete",
@@ -146,7 +145,6 @@ export default function QcBatchListClient({ initialRows, products, pageChrome }:
         setPage(1);
       },
       placeholder: "全部产品",
-      inputClassName: "min-w-[12rem]",
     },
     {
       kind: "select",
@@ -159,7 +157,6 @@ export default function QcBatchListClient({ initialRows, products, pageChrome }:
         setPage(1);
       },
       label: "分页",
-      triggerClassName: "!w-[6.5rem] !min-w-[6.5rem]",
     },
     {
       kind: "create",

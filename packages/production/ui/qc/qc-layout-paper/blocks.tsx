@@ -1,7 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { FormSurface } from "@workspace/core/ui";
+import Image from "next/image";
+import { InputControl } from "@workspace/core/ui";
 import type { QcLayoutCell, QcLayoutPart } from "@workspace/production/server/qc";
 import QcConfirmationTable from "../QcConfirmationTable";
 import { Part, TableBlock } from "../QcLayoutTable";
@@ -170,22 +171,22 @@ function AttachmentUploadBlock({ block, context }: { block: NumberedBlock; conte
 
   return (
     <PostSection block={block} title="原始数据">
-      <FormSurface
-        kind="control"
-        control={{
-          kind: "file",
-          accept: "image/*",
-          multiple: true,
-          disabled: !canEdit,
-          variant: "inline",
-          showFileName: false,
-          buttonLabel: text,
-          resetOnChange: true,
-          onChange: () => undefined,
-          onFilesChange: (files) => void upload(files),
+      <InputControl
+        spec={{
+          valueType: "file",
+          control: "file",
+          state: canEdit ? "normal" : "disabled",
         }}
+        accept="image/*"
+        multiple
+        fileVariant="inline"
+        showFileName={false}
+        buttonLabel={text}
+        resetOnChange
+        onChange={() => undefined}
+        onFilesChange={(files) => void upload(files)}
       />
-      <FormSurface kind="control" control={{ kind: "hidden", fieldKey: key, value: context.values[key] }} />
+      <InputControl spec={{ valueType: "string", control: "text", state: "hidden" }} dataFieldKey={key} value={context.values[key] ?? ""} />
     </PostSection>
   );
 }
@@ -200,8 +201,7 @@ export function RenderAttachmentPages({ blocks, context }: { blocks: NumberedBlo
       <div className="space-y-4">
         {attachments.map((attachment) => (
           <figure key={attachment.id} className="flex min-h-48 w-full break-inside-avoid items-center justify-center border border-slate-950 p-2">
-            {/* eslint-disable-next-line @next/next/no-img-element -- User-uploaded data URLs are not served through Next image optimization. */}
-            <img src={attachment.dataUrl} alt={attachment.name} className="mx-auto max-h-[220mm] max-w-full object-contain" />
+            <Image src={attachment.dataUrl} alt={attachment.name} width={1600} height={2200} unoptimized className="mx-auto h-auto max-h-[220mm] w-auto max-w-full object-contain" />
           </figure>
         ))}
       </div>

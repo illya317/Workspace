@@ -177,13 +177,13 @@ export default function FieldValueFilter({
   const valueInputSpec: InputFieldSpec = selectableDraftOptions.length > 0
     ? {
         valueType: "string",
-        editor: "autocomplete",
+        control: "choice",
         options: { source: "static", items: selectableDraftOptions, visibleCount: 6 },
       }
     : draftField?.valueKind === "fk" && draftField.fkKey && draftReferenceEndpoint
       ? {
           valueType: "reference",
-          editor: "autocomplete",
+          control: "reference",
           options: {
             source: "remote",
             fkKey: draftField.fkKey,
@@ -193,8 +193,8 @@ export default function FieldValueFilter({
             visibleCount: 5,
           },
         }
-      : { valueType: "string", editor: "input" };
-  const closeOnValueChange = valueInputSpec.editor !== "input";
+      : { valueType: "string", control: "text" };
+  const closeOnValueChange = valueInputSpec.control !== "text";
   const panelContent = open && !disabled && typeof document !== "undefined"
     ? createPortal(
         <div
@@ -248,7 +248,7 @@ export default function FieldValueFilter({
                   spec={valueInputSpec}
                   value={draftValue}
                   placeholder={valuePlaceholder}
-                  autocompletePresentation={valueInputSpec.editor === "autocomplete" ? "inline" : undefined}
+                  autocompletePresentation={valueInputSpec.control === "reference" ? "inline" : undefined}
                   onChange={(nextValue) => commitValue(String(nextValue ?? ""), closeOnValueChange)}
                 />
               </div>

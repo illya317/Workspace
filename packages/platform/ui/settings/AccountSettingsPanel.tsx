@@ -217,13 +217,13 @@ export default function AccountSettingsPanel({
                 {
                   key: "employee-name",
                   label: "姓名",
-                  spec: { valueType: "string", editor: "input", state: "readonly" },
+                  spec: { valueType: "string", control: "text", state: "readonly" },
                   value: user.employeeName || user.nickname || "",
                 },
                 {
                   key: "nickname",
                   label: "昵称",
-                  spec: { valueType: "string", editor: "input" },
+                  spec: { valueType: "string", control: "text" },
                   value: nickname,
                   onChange: (value) => setNickname(String(value ?? "")),
                   onKeyDown: (event) => {
@@ -233,7 +233,7 @@ export default function AccountSettingsPanel({
                 {
                   key: "username",
                   label: "用户名",
-                  spec: { valueType: "string", editor: "input" },
+                  spec: { valueType: "string", control: "text" },
                   value: username,
                   onChange: (value) => setUsername(String(value ?? "")),
                   onKeyDown: (event) => {
@@ -264,7 +264,7 @@ export default function AccountSettingsPanel({
                 {
                   key: "old-password",
                   label: "旧密码",
-                  spec: { valueType: "string", editor: "input" },
+                  spec: { valueType: "string", control: "text" },
                   type: "password",
                   value: oldPwd,
                   onChange: (value) => setOldPwd(String(value ?? "")),
@@ -272,7 +272,7 @@ export default function AccountSettingsPanel({
                 {
                   key: "new-password",
                   label: "新密码",
-                  spec: { valueType: "string", editor: "input" },
+                  spec: { valueType: "string", control: "text" },
                   type: "password",
                   value: newPwd,
                   onChange: (value) => setNewPwd(String(value ?? "")),
@@ -281,7 +281,7 @@ export default function AccountSettingsPanel({
                 {
                   key: "confirm-password",
                   label: "确认新密码",
-                  spec: { valueType: "string", editor: "input" },
+                  spec: { valueType: "string", control: "text" },
                   type: "password",
                   value: confirmPwd,
                   onChange: (value) => setConfirmPwd(String(value ?? "")),
@@ -328,7 +328,7 @@ export default function AccountSettingsPanel({
                 {
                   key: "avatar-file",
                   label: "头像文件",
-                  spec: { valueType: "file", editor: "upload" },
+                  spec: { valueType: "file", control: "file" },
                   value: null,
                   className: "h-10 w-full",
                   accept: "image/png,image/jpeg,image/webp,image/gif",

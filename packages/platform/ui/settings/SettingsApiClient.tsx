@@ -273,7 +273,7 @@ export default function SettingsApiClient({
         label: scope.key,
         spec: {
           valueType: "boolean",
-          editor: "checkbox",
+          control: "boolean", presentation: "checkbox",
           state: !selectedClient ? "disabled" : "normal",
         },
         value: draftScopeKeys.includes(scope.key),
@@ -335,7 +335,7 @@ export default function SettingsApiClient({
                 key: "name",
                 label: "名称",
                 required: true,
-                spec: { valueType: "string", editor: "input" },
+                spec: { valueType: "string", control: "text" },
                 value: newClientName,
                 onChange: (value) => setNewClientName(String(value ?? "")),
                 placeholder: "Client 名称",
@@ -344,7 +344,7 @@ export default function SettingsApiClient({
               {
                 key: "description",
                 label: "说明",
-                spec: { valueType: "string", editor: "input" },
+                spec: { valueType: "string", control: "text" },
                 value: newClientDescription,
                 onChange: (value) => setNewClientDescription(String(value ?? "")),
                 placeholder: "用途说明",

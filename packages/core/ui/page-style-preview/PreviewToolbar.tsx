@@ -130,7 +130,6 @@ export default function PreviewToolbar({
       value: "50",
       options: pageSizeOptions,
       onChange: () => {},
-      triggerClassName: "!w-[5.75rem] !min-w-[5.75rem]",
     });
   }
 

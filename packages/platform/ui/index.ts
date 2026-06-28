@@ -9,6 +9,7 @@ export { default as LoginClient } from "./LoginClient";
 export { default as ModuleHome } from "./ModuleHome";
 export { default as NavLink } from "./NavLink";
 export { default as PortalClient } from "./PortalClient";
+export { renderPortalPage } from "./portal-page";
 export { default as SegmentedCodeInput } from "./SegmentedCodeInput";
 export type { SegmentedCodeInputProps, SegmentedCodeInputEditableSegment } from "./SegmentedCodeInput";
 export { default as UserMenu } from "./UserMenu";

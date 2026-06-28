@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { matchText } from "@workspace/core/search";
-import { DataSurface } from "@workspace/core/ui";
+import { PageSurface, createPageTableBlock } from "@workspace/core/ui";
 import type { QcTemplateDetail, QcTemplateFeedbackState, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 import {
   feedbackContext,
@@ -170,70 +170,75 @@ export default function StageRows({
   ];
 
   return (
-    <DataSurface<TemplateDisplayRow>
-      kind="table"
-      framed
-      title={
-        <span className="flex min-w-0 items-center gap-3">
-          <span className="truncate">{numerals[index] ?? index + 1}、{template.productName}{stage.label}</span>
-          <StageFeedbackBadge summary={summary} />
-        </span>
-      }
-      actions={[{
-        key: "toggle",
-        label: `${expanded ? "收起" : "展开"} · ${stage.tests.length} 个实验项目`,
-        variant: "secondary",
-        size: "sm",
-        className: "px-3 py-1.5 text-sm",
-        onClick: onToggle,
-      }]}
-      rows={expanded ? rows : []}
-      columns={[
-        {
-          key: "title",
-          label: "项目",
-          required: true,
-          cell: (row) => (
-            <div className={`flex min-w-0 items-start gap-3 ${row.inset ? "pl-5" : ""}`}>
-              <span className="min-w-9 rounded-full bg-blue-50 px-3 py-1 text-center text-xs font-semibold text-blue-700">{row.badge}</span>
-              <span className="min-w-0">
-                <span className="block truncate font-semibold text-slate-900">{row.title}</span>
-                <span className="mt-1 block truncate text-xs text-slate-500">{row.description}</span>
-              </span>
-            </div>
+    <PageSurface
+      kind="detail"
+      embedded
+      blocks={[
+        createPageTableBlock<TemplateDisplayRow>("qc-template-stage-rows", {
+          framed: true,
+          title: (
+            <span className="flex min-w-0 items-center gap-3">
+              <span className="truncate">{numerals[index] ?? index + 1}、{template.productName}{stage.label}</span>
+              <StageFeedbackBadge summary={summary} />
+            </span>
           ),
-        },
-        {
-          key: "actions",
-          label: "操作",
-          required: true,
-          cell: (row) => ({
-            kind: "actions",
-            align: "right",
-            actions: [
-              {
-                key: "feedback",
-                label: feedbackLabel(row.feedbackState, "反馈"),
-                variant: feedbackVariant(row.feedbackState),
-                size: "sm",
-                className: "h-9 px-3 text-xs",
-                onClick: row.onFeedback,
-              },
-              {
-                key: "preview",
-                label: row.previewLoading ? "加载中" : "预览",
-                disabled: row.previewLoading,
-                size: "sm",
-                className: "h-9 px-3 text-xs",
-                onClick: row.onPreview,
-              },
-            ],
-          }),
-        },
+          actions: [{
+            key: "toggle",
+            label: `${expanded ? "收起" : "展开"} · ${stage.tests.length} 个实验项目`,
+            variant: "secondary",
+            size: "sm",
+            className: "px-3 py-1.5 text-sm",
+            onClick: onToggle,
+          }],
+          rows: expanded ? rows : [],
+          columns: [
+            {
+              key: "title",
+              label: "项目",
+              required: true,
+              cell: (row) => (
+                <div className={`flex min-w-0 items-start gap-3 ${row.inset ? "pl-5" : ""}`}>
+                  <span className="min-w-9 rounded-full bg-blue-50 px-3 py-1 text-center text-xs font-semibold text-blue-700">{row.badge}</span>
+                  <span className="min-w-0">
+                    <span className="block truncate font-semibold text-slate-900">{row.title}</span>
+                    <span className="mt-1 block truncate text-xs text-slate-500">{row.description}</span>
+                  </span>
+                </div>
+              ),
+            },
+            {
+              key: "actions",
+              label: "操作",
+              required: true,
+              cell: (row) => ({
+                kind: "actions",
+                align: "right",
+                actions: [
+                  {
+                    key: "feedback",
+                    label: feedbackLabel(row.feedbackState, "反馈"),
+                    variant: feedbackVariant(row.feedbackState),
+                    size: "sm",
+                    className: "h-9 px-3 text-xs",
+                    onClick: row.onFeedback,
+                  },
+                  {
+                    key: "preview",
+                    label: row.previewLoading ? "加载中" : "预览",
+                    disabled: row.previewLoading,
+                    size: "sm",
+                    className: "h-9 px-3 text-xs",
+                    onClick: row.onPreview,
+                  },
+                ],
+              }),
+            },
+          ],
+          visibleColumns: ["title", "actions"],
+          rowKey: (row) => row.key,
+          emptyText: expanded ? "暂无项目。" : "已收起。",
+        }),
       ]}
-      visibleColumns={["title", "actions"]}
-      rowKey={(row) => row.key}
-      emptyText={expanded ? "暂无项目。" : "已收起。"}
     />
   );
 }

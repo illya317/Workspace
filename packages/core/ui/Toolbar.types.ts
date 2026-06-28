@@ -4,7 +4,6 @@ import type { ColumnDef } from "./DataTable";
 import type { FieldValueFilterField } from "./FieldValueFilter";
 import type { SelectFieldOption } from "./SelectField";
 import type { ToolbarOption } from "./ToolbarOptionGroup";
-import type { ControlSize } from "./interactionTokens";
 
 export type ToolbarSection = "primary" | "search" | "filter" | "edit" | "action" | "meta" | "view";
 
@@ -25,8 +24,6 @@ export interface ToolbarIconButtonItem extends ToolbarItemBase {
   type?: "button" | "submit";
   disabled?: boolean;
   onClick?: () => void;
-  className?: string;
-  iconClassName?: string;
 }
 
 export interface ToolbarPanelToggleItem extends ToolbarItemBase {
@@ -36,9 +33,8 @@ export interface ToolbarPanelToggleItem extends ToolbarItemBase {
   label: string;
   variant?: "primary" | "secondary";
   disabled?: boolean;
+  visibility?: "always" | "mobile" | "desktop";
   onClick?: () => void;
-  className?: string;
-  iconClassName?: string;
 }
 
 export interface ToolbarSearchItem extends ToolbarItemBase {
@@ -49,7 +45,6 @@ export interface ToolbarSearchItem extends ToolbarItemBase {
   placeholder?: string;
   ariaLabel?: string;
   scope?: "full" | readonly string[];
-  className?: string;
 }
 
 export interface ToolbarSelectItem extends ToolbarItemBase {
@@ -60,8 +55,6 @@ export interface ToolbarSelectItem extends ToolbarItemBase {
   onChange: (value: string) => void;
   label?: string;
   placeholder?: string;
-  className?: string;
-  triggerClassName?: string;
 }
 
 export interface ToolbarAutocompleteItem extends ToolbarItemBase {
@@ -73,8 +66,6 @@ export interface ToolbarAutocompleteItem extends ToolbarItemBase {
   placeholder?: string;
   ariaLabel?: string;
   visibleCount?: number;
-  className?: string;
-  inputClassName?: string;
 }
 
 export interface ToolbarOptionGroupItem extends ToolbarItemBase {
@@ -83,9 +74,8 @@ export interface ToolbarOptionGroupItem extends ToolbarItemBase {
   value: string;
   options: ToolbarOption[];
   onChange: (value: string) => void;
+  label?: ReactNode;
   ariaLabel?: string;
-  presentation?: "segmented" | "accordion";
-  defaultExpanded?: boolean;
 }
 
 export interface ToolbarFieldFilterItem extends ToolbarItemBase {
@@ -154,7 +144,6 @@ export interface ToolbarMenuTriggerSpec {
   avatarUrl?: string | null;
   initials?: string;
   ariaLabel?: string;
-  className?: string;
 }
 
 export interface ToolbarMenuActionItem {
@@ -174,8 +163,6 @@ export interface ToolbarMenuItem extends ToolbarItemBase {
   items: ToolbarMenuActionItem[];
   align?: "left" | "right";
   disabled?: boolean;
-  className?: string;
-  menuClassName?: string;
 }
 
 export interface ToolbarActionGroupAction {
@@ -238,10 +225,5 @@ export type ToolbarItem =
 
 export interface ToolbarProps {
   items: ToolbarItem[];
-  className?: string;
   onSubmit?: () => void;
-  variant?: "bar" | "inline";
-  size?: ControlSize;
-  layoutMode?: ToolbarLayoutMode;
-  hideOverflowItems?: boolean;
 }

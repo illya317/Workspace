@@ -2,46 +2,102 @@
 
 import CalendarDateInput from "./CalendarDateInput";
 import CheckboxField from "./CheckboxField";
+import ChoiceGroup from "./ChoiceGroup";
 import FileField from "./FileField";
-import FkFieldInput, { type FkFieldOption } from "./FkFieldInput";
-import OptionPicker from "./OptionPicker";
 import PercentField from "./PercentField";
 import RatingControl from "./RatingControl";
 import ReadOnlyField from "./ReadOnlyField";
-import SearchableOptionInput from "./SearchableOptionInput";
 import SegmentedCodeInput from "./SegmentedCodeInput";
-import SelectField from "./SelectField";
 import SwitchField from "./SwitchField";
 import TagStringInput from "./TagStringInput";
 import TextareaField from "./TextareaField";
 import TextField from "./TextField";
 import TimeField from "./TimeField";
+import InputControlChoiceRenderer, { isInputControlChoiceRenderer, type InputControlChoiceRendererKind } from "./input-control-choice-renderers";
 import {
   formatInputControlValue,
   inputControlOptionCount,
   inputControlOptionItems,
   inputControlStateSet,
+  inputMaskEditableSegment,
+  inputMaskPlaceholder,
   normalizeInputControlValue,
-  toInputControlSearchableOption,
   type InputControlProps,
+  type InputFieldSpec,
 } from "./InputControlTypes";
 
 export type {
+  InputBooleanPresentation,
+  InputCollectionItemControl,
+  InputControlDimension,
+  InputControlKind,
   InputControlProps,
-  InputEditor,
+  InputDependencies,
+  InputDependencyDimension,
   InputFieldSpec,
   InputFormat,
   InputMask,
   InputOption,
+  InputOptionDimension,
   InputOptionGroup,
   InputOptions,
   InputOptionsMode,
   InputPickerOptions,
-  InputSegmentedCodeConfig,
+  InputPresentationDimension,
   InputState,
+  InputStateDimension,
+  InputTemporalPrecision,
+  InputUsage,
+  InputUsageDimension,
   InputValidation,
+  InputValidationDimension,
+  InputValueDimension,
   InputValueType,
 } from "./InputControlTypes";
+
+type ResolvedInputRenderer =
+  | "text"
+  | "textarea"
+  | "segmentedText"
+  | "number"
+  | "percent"
+  | "date"
+  | "time"
+  | "checkbox"
+  | "switch"
+  | "choiceGroup"
+  | "file"
+  | "rating"
+  | "tags"
+  | InputControlChoiceRendererKind;
+
+function resolveInputRenderer(spec: InputFieldSpec): ResolvedInputRenderer {
+  if (spec.format === "percent") return "percent";
+  if (inputMaskEditableSegment(spec.mask)) return "segmentedText";
+
+  if (spec.control === "number") return "number";
+  if (spec.control === "temporal") return spec.precision === "time" || spec.valueType === "time" ? "time" : "date";
+  if (spec.control === "boolean") {
+    if (spec.presentation === "switch") return "switch";
+    if (spec.presentation === "choice") return "choiceGroup";
+    return "checkbox";
+  }
+  if (spec.control === "file") return "file";
+  if (spec.control === "collection") return "tags";
+  if (spec.control === "rating") return "rating";
+  if (spec.control === "reference" || spec.options?.source === "remote") return "remoteReference";
+  if (spec.control === "choice") {
+    if (spec.presentation === "choice") return "choiceGroup";
+    if (spec.options?.source === "static" || spec.options?.source === "grouped") {
+      const mode = spec.options.mode ?? "auto";
+      if (mode === "autocomplete" || (mode === "auto" && inputControlOptionCount(spec.options) > 8)) return "autocompleteChoice";
+      if (mode === "dropdown") return "selectChoice";
+    }
+    return "pickerChoice";
+  }
+  if (spec.multiline) return "textarea";
+  return "text";
+}
 
 export default function InputControl({
   spec,
@@ -63,8 +119,27 @@ export default function InputControl({
   onFocus,
   autoFocus,
   inputRef,
+  readOnly,
+  ariaLabel,
+  dataFieldKey,
+  style,
+  title,
+  unstyled,
+  wrapperClassName,
+  textAlign,
+  fontRole,
+  visualVariant,
+  visualState,
+  resize,
+  choiceType,
+  choiceName,
+  choiceOptionClassName,
+  choiceMarkerClassName,
   accept,
   multiple,
+  fileVariant,
+  fileInputClassName,
+  fileControlsClassName,
   resetOnChange,
   showFileName,
   buttonLabel,
@@ -82,14 +157,53 @@ export default function InputControl({
   showRatingLabel,
 }: InputControlProps) {
   const states = inputControlStateSet(spec.state);
-  if (states.has("hidden")) return null;
+  if (states.has("hidden")) {
+    return <input type="hidden" data-field-key={dataFieldKey} value={normalizeInputControlValue(value)} readOnly />;
+  }
 
   const disabled = states.has("disabled");
   const required = states.has("required") || spec.validation?.required;
-  const fieldPlaceholder = placeholder ?? (typeof spec.mask === "object" ? spec.mask.placeholder : undefined);
+  const fieldPlaceholder = placeholder ?? inputMaskPlaceholder(spec.mask);
   const stringValue = normalizeInputControlValue(value);
-  const textType = type ?? (spec.editor === "number" || spec.valueType === "number" ? "number" : "text");
-  const renderTextField = () => <TextField ref={inputRef} type={textType} value={stringValue} disabled={disabled} required={required} autoFocus={autoFocus} min={spec.validation?.min} max={spec.validation?.max} step={step} minLength={minLength} maxLength={maxLength} inputMode={inputMode} placeholder={fieldPlaceholder} onChange={(next) => onChange?.(next)} className={className} size={size} density={density} onKeyDown={onKeyDown} onBlur={onBlur} onFocus={onFocus} />;
+  const textType = type ?? (spec.control === "number" || spec.valueType === "number" ? "number" : "text");
+  const textVisualState = visualState === "info" ? "default" : visualState;
+  const fieldVisualState = visualState;
+  const renderer = resolveInputRenderer(spec);
+
+  const renderTextField = () => (
+    <TextField
+      ref={inputRef}
+      type={textType}
+      value={stringValue}
+      disabled={disabled}
+      readOnly={readOnly}
+      required={required}
+      autoFocus={autoFocus}
+      min={spec.validation?.min}
+      max={spec.validation?.max}
+      step={step}
+      minLength={minLength}
+      maxLength={maxLength}
+      inputMode={inputMode}
+      ariaLabel={ariaLabel}
+      dataFieldKey={dataFieldKey}
+      style={style}
+      title={title}
+      unstyled={unstyled}
+      textAlign={textAlign}
+      fontRole={fontRole}
+      visualVariant={visualVariant}
+      state={textVisualState}
+      placeholder={fieldPlaceholder}
+      onChange={(next) => onChange?.(next)}
+      className={className}
+      size={size}
+      density={density}
+      onKeyDown={onKeyDown}
+      onBlur={onBlur}
+      onFocus={onFocus}
+    />
+  );
 
   if (states.has("readonly")) {
     return (
@@ -103,7 +217,7 @@ export default function InputControl({
     );
   }
 
-  if (spec.format === "percent") {
+  if (renderer === "percent") {
     return (
       <PercentField
         value={value === null || value === undefined || value === "" ? null : Number(value)}
@@ -116,183 +230,176 @@ export default function InputControl({
     );
   }
 
-  switch (spec.editor) {
-    case "textarea":
-      return <TextareaField value={stringValue} disabled={disabled} placeholder={fieldPlaceholder} rows={rows} onChange={(next) => onChange?.(next)} />;
-    case "datePicker":
-      return <CalendarDateInput value={stringValue} disabled={disabled} placeholder={fieldPlaceholder} onChange={(next) => onChange?.(next)} />;
-    case "timePicker":
-      return <TimeField value={stringValue} disabled={disabled} onChange={(next) => onChange?.(next)} />;
-    case "switch":
-      return <SwitchField checked={Boolean(value)} disabled={disabled} onChange={(next) => onChange?.(next)} />;
-    case "checkbox":
-      return <CheckboxField checked={Boolean(value)} disabled={disabled} onChange={(next) => onChange?.(next)} />;
-    case "upload":
-      return (
-        <FileField
-          disabled={disabled}
-          accept={accept}
-          multiple={multiple}
-          resetOnChange={resetOnChange}
-          showFileName={showFileName}
-          buttonLabel={buttonLabel}
-          onChange={(file) => onChange?.(file)}
-          onFilesChange={onFilesChange}
-          className={className}
-        />
-      );
-    case "rating":
-      return (
-        <RatingControl
-          value={value === null || value === undefined || value === "" ? 0 : Number(value)}
-          label={ratingLabel ?? fieldPlaceholder ?? "评分"}
-          max={ratingMax}
-          readOnly={disabled || states.has("readonly")}
-          showLabel={showRatingLabel}
-          onChange={(next) => onChange?.(next)}
-          className={className}
-        />
-      );
-    case "tags":
-      return <TagStringInput value={stringValue} disabled={disabled} placeholder={fieldPlaceholder} onChange={(next) => onChange?.(next)} size={size} density={density} className={className} confirmDelete={confirmDelete} confirmRemove={confirmRemove} removeConfirmMessage={removeConfirmMessage} removeConfirmTitle={removeConfirmTitle} />;
-    case "segmentedCode":
-      if (!spec.segmentedCode) return renderTextField();
-      return (
-        <SegmentedCodeInput
-          value={stringValue}
-          editableSegment={{
-            ...spec.segmentedCode,
-            placeholder: fieldPlaceholder ?? spec.segmentedCode.placeholder,
-          }}
-          disabled={disabled}
-          onChange={(next) => onChange?.(next)}
-          className={className}
-          size={size}
-          density={density}
-          onBlur={onBlur}
-          onFocus={onFocus}
-        />
-      );
-    case "autocomplete":
-      if (spec.options?.source === "remote") {
-        return (
-          <FkFieldInput
-            fkKey={spec.options.fkKey}
-            endpoint={spec.options.endpoint}
-            value={stringValue}
-            displayValue={displayValue ?? stringValue}
-            disabled={disabled}
-            placeholder={fieldPlaceholder}
-            lifecycleScope={spec.options.lifecycleScope}
-            queryParams={spec.options.queryParams}
-            visibleCount={spec.options.visibleCount ?? 5}
-            dropdownPresentation={autocompletePresentation}
-            onChange={(label: string, option?: FkFieldOption) => {
-              const next =
-                spec.options?.source === "remote" && option
-                  ? spec.options.returnField === "id"
-                    ? String(option.id)
-                    : spec.options.returnField === "subtitle"
-                      ? option.subtitle
-                      : label
-                  : label;
-              onChange?.(next, option);
-            }}
-            className={className}
-            size={size}
-            density={density}
-          />
-        );
-      }
-      return (
-        <SearchableOptionInput
-          value={stringValue}
-          options={inputControlOptionItems(spec.options).map(toInputControlSearchableOption)}
-          disabled={disabled}
-          placeholder={fieldPlaceholder}
-          maxResults={spec.options?.source === "static" || spec.options?.source === "grouped" ? spec.options.visibleCount ?? 5 : 5}
-          presentation={autocompletePresentation}
-          onChange={(next, option) => onChange?.(next, option)}
-          onQueryChange={onQueryChange}
-          loading={loading}
-          emptyText={emptyText}
-          className={className}
-        />
-      );
-    case "select":
-    case "multiSelect":
-      if (spec.options?.source === "static" || spec.options?.source === "grouped") {
-        const mode = spec.options.mode ?? "auto";
-        const shouldAutocomplete = mode === "autocomplete" || (mode === "auto" && inputControlOptionCount(spec.options) > 8);
-        if (shouldAutocomplete) {
-          return (
-            <SearchableOptionInput
-              value={stringValue}
-              options={inputControlOptionItems(spec.options).map(toInputControlSearchableOption)}
-              disabled={disabled}
-              placeholder={fieldPlaceholder}
-              maxResults={spec.options.visibleCount ?? 5}
-              presentation={autocompletePresentation}
-              onChange={(next, option) => onChange?.(next, option)}
-              onQueryChange={onQueryChange}
-              loading={loading}
-              emptyText={emptyText}
-              className={className}
-            />
-          );
-        }
-        if (mode === "dropdown") {
-          return (
-            <SelectField
-              value={stringValue}
-              options={inputControlOptionItems(spec.options)}
-              disabled={disabled}
-              placeholder={fieldPlaceholder}
-              searchable={inputControlOptionCount(spec.options) > 8}
-              onChange={(next) => onChange?.(next)}
-              className={className}
-              size={size}
-              density={density}
-            />
-          );
-        }
-      }
-      if (spec.options?.source === "grouped") {
-        return (
-          <OptionPicker
-            value={stringValue}
-            groups={spec.options.groups}
-            disabled={disabled}
-            placeholder={fieldPlaceholder}
-            unsetLabel={spec.options.unsetLabel}
-            groupLabel={spec.options.groupLabel}
-            optionLabel={spec.options.optionLabel}
-            changeGroupLabel={spec.options.changeGroupLabel}
-            searchPlaceholder={spec.options.searchPlaceholder}
-            visibleCount={spec.options.visibleCount ?? 8}
-            onChange={(next) => onChange?.(next)}
-            className={className}
-          />
-        );
-      }
-      return (
-        <OptionPicker
-          value={stringValue}
-          options={inputControlOptionItems(spec.options)}
-          disabled={disabled}
-          placeholder={fieldPlaceholder}
-          unsetLabel={spec.options?.source === "static" ? spec.options.unsetLabel : undefined}
-          commonValues={spec.options?.source === "static" ? spec.options.commonValues : undefined}
-          searchPlaceholder={spec.options?.source === "static" ? spec.options.searchPlaceholder : undefined}
-          visibleCount={spec.options?.source === "static" ? spec.options.visibleCount ?? 8 : 8}
-          onChange={(next) => onChange?.(next)}
-          className={className}
-        />
-      );
-    case "number":
-    case "maskedInput":
-    case "input":
-    default:
-      return renderTextField();
+  if (renderer === "textarea") {
+    return (
+      <TextareaField
+        value={stringValue}
+        disabled={disabled}
+        readOnly={readOnly}
+        ariaLabel={ariaLabel}
+        dataFieldKey={dataFieldKey}
+        style={style}
+        title={title}
+        unstyled={unstyled}
+        fontRole={fontRole}
+        state={fieldVisualState}
+        resize={resize}
+        placeholder={fieldPlaceholder}
+        rows={rows}
+        onChange={(next) => onChange?.(next)}
+        onKeyDown={onKeyDown as never}
+        className={className}
+      />
+    );
   }
+
+  if (renderer === "segmentedText") {
+    const editableSegment = inputMaskEditableSegment(spec.mask);
+    if (!editableSegment) return renderTextField();
+    return (
+      <SegmentedCodeInput
+        value={stringValue}
+        editableSegment={{
+          kind: "editableSegment",
+          extract: editableSegment.extract,
+          compose: editableSegment.compose,
+          normalize: editableSegment.normalize,
+          placeholder: fieldPlaceholder ?? editableSegment.placeholder,
+        }}
+        disabled={disabled}
+        onChange={(next) => onChange?.(next)}
+        className={className}
+        size={size}
+        density={density}
+        onBlur={onBlur}
+        onFocus={onFocus}
+      />
+    );
+  }
+
+  if (renderer === "date") {
+    return (
+      <CalendarDateInput
+        value={stringValue}
+        disabled={disabled}
+        readOnly={readOnly}
+        wrapperClassName={wrapperClassName}
+        style={style}
+        title={title}
+        unstyled={unstyled}
+        state={fieldVisualState}
+        className={className}
+        placeholder={fieldPlaceholder}
+        onChange={(next) => onChange?.(next)}
+      />
+    );
+  }
+
+  if (renderer === "time") {
+    return <TimeField value={stringValue} disabled={disabled} onChange={(next) => onChange?.(next)} />;
+  }
+
+  if (renderer === "switch") {
+    return <SwitchField checked={Boolean(value)} disabled={disabled} onChange={(next) => onChange?.(next)} />;
+  }
+
+  if (renderer === "checkbox") {
+    return <CheckboxField checked={Boolean(value)} disabled={disabled} onChange={(next) => onChange?.(next)} />;
+  }
+
+  if (renderer === "choiceGroup") {
+    return (
+      <ChoiceGroup
+        options={inputControlOptionItems(spec.options).map((option) => String(option.value))}
+        type={choiceType ?? (spec.multiple ? "checkbox" : "radio")}
+        name={choiceName}
+        value={stringValue}
+        disabled={disabled}
+        dataFieldKey={dataFieldKey}
+        onChange={(next) => onChange?.(next)}
+        className={className}
+        optionClassName={choiceOptionClassName}
+        markerClassName={choiceMarkerClassName}
+      />
+    );
+  }
+
+  if (renderer === "file") {
+    return (
+      <FileField
+        disabled={disabled}
+        accept={accept}
+        multiple={multiple ?? spec.multiple}
+        variant={fileVariant}
+        inputClassName={fileInputClassName}
+        controlsClassName={fileControlsClassName}
+        resetOnChange={resetOnChange}
+        showFileName={showFileName}
+        buttonLabel={buttonLabel}
+        onChange={(file) => onChange?.(file)}
+        onFilesChange={onFilesChange}
+        className={className}
+      />
+    );
+  }
+
+  if (renderer === "rating") {
+    return (
+      <RatingControl
+        value={value === null || value === undefined || value === "" ? 0 : Number(value)}
+        label={ratingLabel ?? fieldPlaceholder ?? "评分"}
+        max={ratingMax}
+        readOnly={disabled || states.has("readonly")}
+        showLabel={showRatingLabel}
+        onChange={(next) => onChange?.(next)}
+        className={className}
+      />
+    );
+  }
+
+  if (renderer === "tags") {
+    return (
+      <TagStringInput
+        value={stringValue}
+        disabled={disabled}
+        placeholder={fieldPlaceholder}
+        onChange={(next) => onChange?.(next)}
+        size={size}
+        density={density}
+        className={className}
+        confirmDelete={confirmDelete}
+        confirmRemove={confirmRemove}
+        removeConfirmMessage={removeConfirmMessage}
+        removeConfirmTitle={removeConfirmTitle}
+      />
+    );
+  }
+
+  if (isInputControlChoiceRenderer(renderer)) {
+    return (
+      <InputControlChoiceRenderer
+        renderer={renderer}
+        spec={spec}
+        value={value}
+        displayValue={displayValue}
+        stringValue={stringValue}
+        disabled={disabled}
+        placeholder={fieldPlaceholder}
+        autocompletePresentation={autocompletePresentation}
+        onChange={onChange}
+        onQueryChange={onQueryChange}
+        loading={loading}
+        emptyText={emptyText}
+        className={className}
+        size={size}
+        density={density}
+        style={style}
+        visualVariant={visualVariant}
+        textAlign={textAlign}
+        fallback={renderTextField}
+      />
+    );
+  }
+
+  return renderTextField();
 }

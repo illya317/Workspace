@@ -3,8 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { PanelCard } from "@workspace/core/ui";
 import {
-  coreUiComponentAccessLayerMeta,
-  coreUiComponentKindMeta,
+  coreUiComponentSubcategoryMeta,
   type CoreUiComponentRegistration,
 } from "@workspace/core/ui/component-registry";
 import type { CoreUiComponentRelationView } from "@workspace/core/ui/component-registry-view";
@@ -74,7 +73,30 @@ function RelationBlock({ title, children }: { title: string; children: ReactNode
   );
 }
 
-function DirectDependencyBlock({
+function DeclarativeCapabilitiesBlock({
+  relation,
+}: {
+  relation: CoreUiComponentRelationView;
+}) {
+  const capabilities = relation.component.declares ?? [];
+  if (!capabilities.length) return <p className="text-sm text-slate-400">暂无 declares</p>;
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {capabilities.map((capability) => (
+        <span
+          key={capability.name}
+          title={capability.description}
+          className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700"
+        >
+          {capability.name}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function ComposesBlock({
   relation,
   expandedGroups,
   toggleGroup,
@@ -85,33 +107,17 @@ function DirectDependencyBlock({
   toggleGroup: (key: string) => void;
   onSelect: (name: string) => void;
 }) {
-  const rows = [
-    { key: "composes", label: "组合", items: relation.composes },
-    { key: "foundations", label: "基础", items: relation.foundations },
-  ];
-
-  if (!relation.composes.length && !relation.foundations.length) {
-    return <p className="text-sm text-slate-400">暂无直接依赖</p>;
+  if (!relation.composes.length) {
+    return <p className="text-sm text-slate-400">暂无 composes</p>;
   }
 
   return (
-    <div className="space-y-3">
-      {rows.map((row) => {
-        if (!row.items.length) return null;
-        const groupKey = `dependency:${row.key}`;
-        return (
-          <div key={row.key}>
-            <p className="mb-1 text-xs font-medium text-slate-400">{row.label}</p>
-            <LimitedList
-              items={row.items}
-              expanded={expandedGroups.has(groupKey)}
-              onToggle={() => toggleGroup(groupKey)}
-              renderItem={(component) => <RelationItemButton component={component} onSelect={onSelect} />}
-            />
-          </div>
-        );
-      })}
-    </div>
+    <LimitedList
+      items={relation.composes}
+      expanded={expandedGroups.has("capabilities:composes")}
+      onToggle={() => toggleGroup("capabilities:composes")}
+      renderItem={(component) => <RelationItemButton component={component} onSelect={onSelect} />}
+    />
   );
 }
 
@@ -131,11 +137,11 @@ function UsedByBlock({
   return (
     <div className="space-y-3">
       {relation.usedByGrouped.map((group) => {
-        const groupKey = `usedBy:${group.accessLayer}:${group.kind}`;
+        const groupKey = `usedBy:${group.subcategory}`;
         return (
           <div key={groupKey}>
             <p className="mb-1 text-xs font-medium text-slate-400">
-              {coreUiComponentAccessLayerMeta[group.accessLayer].label} / {coreUiComponentKindMeta[group.kind].label}
+              {coreUiComponentSubcategoryMeta[group.subcategory].label}
             </p>
             <LimitedList
               items={group.components}
@@ -219,8 +225,11 @@ export function UiComponentRelationPanel({
 
   return (
     <PanelCard title="关系" bodyClassName="space-y-3 p-4">
-      <RelationBlock title="直接依赖">
-        <DirectDependencyBlock relation={relation} expandedGroups={expandedGroups} toggleGroup={(key) => toggleSet(setExpandedGroups, key)} onSelect={onSelect} />
+      <RelationBlock title="声明项 declares">
+        <DeclarativeCapabilitiesBlock relation={relation} />
+      </RelationBlock>
+      <RelationBlock title="封装功能 composes">
+        <ComposesBlock relation={relation} expandedGroups={expandedGroups} toggleGroup={(key) => toggleSet(setExpandedGroups, key)} onSelect={onSelect} />
       </RelationBlock>
       <RelationBlock title="直接被引用">
         <UsedByBlock relation={relation} expandedGroups={expandedGroups} toggleGroup={(key) => toggleSet(setExpandedGroups, key)} onSelect={onSelect} />

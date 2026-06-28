@@ -63,5 +63,5 @@ export default function FullToolbarDemo() {
     [demoVisibleColumns, demoFieldKey, demoFieldValue, keyword, status, scope, editMode],
   );
 
-  return <Toolbar items={fullToolbarItems} className="mb-5" />;
+  return <Toolbar items={fullToolbarItems} />;
 }

@@ -53,7 +53,6 @@ export function buildDepartmentPositionToolbarItems({
       onChange: onSearchChange,
       placeholder: "搜索部门/岗位",
       scope: ["部门", "岗位"],
-      className: "w-full min-w-[18rem] sm:w-80",
     },
   ];
 

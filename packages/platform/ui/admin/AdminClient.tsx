@@ -1,13 +1,14 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { useEffect, useState } from "react";
-import { PageSurface, useFeedback, type FormSurfaceItemSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { useEffect, useMemo, useState } from "react";
+import { PageSurface, useFeedback, type PageSurfaceBlockSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
 import AdminUsersTab from "./tabs/AdminUsersTab";
 import ModuleManagementTab from "./tabs/ModuleManagementTab";
 import PermissionsTab from "./tabs/PermissionsTab";
+import { usePermissionsTab } from "./hooks/usePermissionsTab";
 
-import type { ResourceItem } from "./types";
+import type { ResourceItem, SubjectType } from "./types";
 import type { SessionUser } from "@workspace/platform/types";
 
 export default function AdminClient({ user }: { user: SessionUser }) {
@@ -19,9 +20,20 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   const [fullResourceTree, setFullResourceTree] = useState<ResourceItem[]>([]);
   const [capabilitiesByOwner, setCapabilitiesByOwner] = useState<Record<string, ResourceItem[]>>({});
   const [conflictStrategy, setConflictStrategy] = useState("union");
+  const [childToolbarItems, setChildToolbarItems] = useState<SurfaceToolbarItem[]>([]);
+  const [childFooter, setChildFooter] = useState<PageSurfaceFooterSpec | undefined>();
 
   const feedback = useFeedback();
   const showToast = feedback.notify;
+  const capabilities = useMemo(
+    () => Object.values(capabilitiesByOwner).flat(),
+    [capabilitiesByOwner],
+  );
+  const resourceLookup = useMemo(
+    () => [...resources, ...capabilities],
+    [resources, capabilities],
+  );
+  const permissionState = usePermissionsTab(resources, resourceLookup, showToast);
 
   useEffect(() => {
     let cancelled = false;
@@ -68,53 +80,85 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     }
   }
 
-  const tabs = [
-    ...(isSuperAdmin ? [{ key: "users" as const, label: "用户账号" }] : []),
-    { key: "permissions" as const, label: "权限管理" },
-    ...(isSuperAdmin ? [{ key: "modules" as const, label: "模块管理" }] : []),
-  ];
+  useEffect(() => {
+    setChildToolbarItems([]);
+    setChildFooter(undefined);
+  }, [activeTab]);
 
-  const conflictStrategyFields = [
+  const subjectSearchPlaceholder =
+    permissionState.subjectType === "user"
+      ? "搜索姓名..."
+      : permissionState.subjectType === "position"
+        ? "搜索岗位..."
+        : "搜索部门...";
+
+  const permissionToolbarItems: SurfaceToolbarItem[] = [
+    ...(permissionState.subjectType !== "department"
+      ? [{
+          kind: "autocomplete" as const,
+          key: "department-filter",
+          section: "filter" as const,
+          value: permissionState.selectedDepartmentFilter ?? "",
+          options: permissionState.departmentFilterOptions ?? [],
+          onChange: (value: string) => permissionState.setDepartmentFilter(String(value ?? "")),
+          placeholder: "搜索部门",
+          ariaLabel: "搜索部门",
+          visibleCount: 8,
+        }]
+      : []),
     {
-      key: "strategy",
-      label: "权限冲突策略",
-      spec: {
-        valueType: "string" as const,
-        editor: "select" as const,
-        options: {
-          source: "static" as const,
-          mode: "dropdown" as const,
-          items: [
-            { value: "union", label: "并集（任一有权限即可）" },
+      kind: "search",
+      key: "subject-search",
+      section: "search",
+      value: permissionState.nameSearch,
+      onChange: (value) => permissionState.setNameSearch(String(value ?? "")),
+      placeholder: subjectSearchPlaceholder,
+      ariaLabel: "搜索授权对象",
+    },
+    ...(permissionState.selectedResource && permissionState.isSystemAdmin
+      ? [{
+          kind: "option-group" as const,
+          key: "max-role",
+          section: "filter" as const,
+          label: "最高业务权限",
+          value: permissionState.maxRoleKey === "admin" ? "delete" : permissionState.maxRoleKey,
+          options: [
+            { value: "access", label: "访问" },
+            { value: "write", label: "编辑" },
+            { value: "delete", label: "删除" },
+          ],
+          onChange: permissionState.updateMaxRole,
+          ariaLabel: "最高业务权限",
+        }]
+      : []),
+    ...(isSuperAdmin
+      ? [{
+          kind: "option-group" as const,
+          key: "conflict-strategy",
+          section: "filter" as const,
+          label: "权限冲突策略",
+          value: conflictStrategy,
+          options: [
+            { value: "union", label: "并集" },
             { value: "deny_override", label: "拒绝优先" },
           ],
-        },
-      },
-      value: conflictStrategy,
-      onChange: (value: unknown) => saveConflictStrategy(String(value ?? "")),
-    },
-    {
-      kind: "note" as const,
-      key: "strategy-note",
-      content: conflictStrategy === "union" ? "用户、岗位、部门任一授权即通过" : "任一来源拒绝则拒绝",
-      className: "text-xs text-gray-400",
-    },
-  ] satisfies FormSurfaceItemSpec[];
+          onChange: saveConflictStrategy,
+          ariaLabel: "权限冲突策略",
+        }]
+      : []),
+  ];
 
-  const systemConfigBlock = {
-    kind: "section" as const,
-    key: "system-config",
-    title: "系统配置",
-    className: "mt-8",
-    blocks: [{
-      kind: "form" as const,
-      key: "conflict-strategy",
-      surface: {
-        kind: "inline" as const,
-        fields: conflictStrategyFields,
-      },
-    }],
-  } satisfies PageSurfaceBlockSpec;
+  const subjectTabs = [
+    { key: "user", label: "员工" },
+    { key: "position", label: "岗位" },
+    { key: "department", label: "部门" },
+  ];
+
+  const tabs = [
+    ...(isSuperAdmin ? [{ key: "users" as const, label: "用户账号" }] : []),
+    { key: "permissions" as const, label: "权限管理", children: subjectTabs },
+    ...(isSuperAdmin ? [{ key: "modules" as const, label: "模块管理" }] : []),
+  ];
 
   const blocks: PageSurfaceBlockSpec[] = [
     {
@@ -126,20 +170,26 @@ export default function AdminClient({ user }: { user: SessionUser }) {
         className: "border-0 bg-transparent p-0 text-inherit",
         content: (
           <div className="space-y-4">
-            {activeTab === "users" && <AdminUsersTab showToast={showToast} resources={fullResourceTree} />}
+            {activeTab === "users" && (
+              <AdminUsersTab
+                showToast={showToast}
+                resources={fullResourceTree}
+                onToolbarItemsChange={setChildToolbarItems}
+                onFooterChange={setChildFooter}
+              />
+            )}
             {activeTab === "modules" && <ModuleManagementTab showToast={showToast} />}
             {activeTab === "permissions" && (
               <PermissionsTab
                 resources={resources}
                 capabilitiesByOwner={capabilitiesByOwner}
-                showToast={showToast}
+                s={permissionState}
               />
             )}
           </div>
         ),
       }],
     },
-    ...(isSuperAdmin ? [systemConfigBlock] : []),
   ];
 
   return (
@@ -147,7 +197,17 @@ export default function AdminClient({ user }: { user: SessionUser }) {
       kind="settings"
       tabs={loading ? undefined : tabs}
       activeTab={loading ? undefined : activeTab}
+      activeChild={activeTab === "permissions" ? permissionState.subjectType : undefined}
       onTabChange={loading ? undefined : (k) => setActiveTab(k as typeof activeTab)}
+      onChildChange={activeTab === "permissions" ? (key) => permissionState.setSubjectType(key as SubjectType) : undefined}
+      toolbar={loading
+        ? undefined
+        : activeTab === "permissions"
+          ? { items: permissionToolbarItems }
+          : childToolbarItems.length > 0
+            ? { items: childToolbarItems }
+            : undefined}
+      footer={loading ? undefined : activeTab === "users" ? childFooter : undefined}
       contentClassName="py-8"
       empty={loading ? { content: "加载中..." } : undefined}
       blocks={loading ? undefined : blocks}

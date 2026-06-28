@@ -1,7 +1,6 @@
-import { createElement } from "react";
 import { PageSurface } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
-import AppShell from "../AppShell";
+import { renderAppShellPage } from "../app-shell-page";
 import PositionDetailClient from "./positions/PositionDetailClient";
 import PositionsClient from "./positions/PositionsClient";
 
@@ -14,10 +13,11 @@ export function DocsPlaceholderPage({
   title: string;
   description: string;
 }) {
-  return createElement(
-    AppShell,
-    { title, backHref: "/docs", user },
-    <PageSurface
+  return renderAppShellPage({
+    title,
+    backHref: "/docs",
+    user,
+    children: <PageSurface
       kind="settings"
       contentClassName="py-10"
       blocks={[{
@@ -28,21 +28,23 @@ export function DocsPlaceholderPage({
         blocks: [{ kind: "empty", key: "empty", content: "内容建设中" }],
       }]}
     />,
-  );
+  });
 }
 
 export function DocsPositionsPage({ user }: { user: SessionUser }) {
-  return createElement(
-    AppShell,
-    { title: "岗位说明书", backHref: "/docs", user },
-    <PositionsClient hideShell />,
-  );
+  return renderAppShellPage({
+    title: "岗位说明书",
+    backHref: "/docs",
+    user,
+    children: <PositionsClient hideShell />,
+  });
 }
 
 export function DocsPositionDetailPage({ code, user }: { code: string; user: SessionUser }) {
-  return createElement(
-    AppShell,
-    { title: "岗位说明书", backHref: "/docs/positions", user },
-    <PositionDetailClient code={code} />,
-  );
+  return renderAppShellPage({
+    title: "岗位说明书",
+    backHref: "/docs/positions",
+    user,
+    children: <PositionDetailClient code={code} />,
+  });
 }

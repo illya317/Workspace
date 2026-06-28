@@ -18,7 +18,7 @@ import {
   getCoreUiComponentRelationView,
 } from "@workspace/core/ui/component-registry-view";
 import type {
-  CoreUiComponentOwnerL1,
+  CoreUiComponentCategory,
   CoreUiComponentRegistration,
 } from "@workspace/core/ui/component-registry";
 
@@ -32,7 +32,7 @@ import {
 import { filterUiComponents } from "./filter-ui-components";
 import { useUiComponentVerified } from "./use-ui-component-verified";
 
-const ALL_OWNER_L1 = "all";
+const ALL_CATEGORY = "all";
 const ALL_EXPOSURE = "all";
 const ALL_VERIFIED = "all";
 
@@ -43,12 +43,12 @@ type UiComponentsShowcaseProps = {
   }>;
 };
 
-type TreeOwnerL1Filter = CoreUiComponentOwnerL1 | typeof ALL_OWNER_L1;
+type TreeCategoryFilter = CoreUiComponentCategory | typeof ALL_CATEGORY;
 type ExposureFilter = "direct" | "via" | "internal" | typeof ALL_EXPOSURE;
 type VerifiedFilter = "verified" | "unverified" | typeof ALL_VERIFIED;
 
-const OWNER_L1_OPTIONS: Array<{ value: TreeOwnerL1Filter; label: string }> = [
-  { value: ALL_OWNER_L1, label: "全部" },
+const CATEGORY_OPTIONS: Array<{ value: TreeCategoryFilter; label: string }> = [
+  { value: ALL_CATEGORY, label: "全部" },
   { value: "page", label: "页面" },
   { value: "data", label: "数据" },
   { value: "form", label: "表单" },
@@ -64,13 +64,12 @@ const EXPOSURE_OPTIONS: Array<{ value: ExposureFilter; label: string }> = [
 ];
 
 const META_COLUMNS: ColumnDef[] = [
-  { key: "kind", label: "分类", defaultVisible: true },
   { key: "usedBy", label: "被引用", defaultVisible: true },
   { key: "files", label: "文件", defaultVisible: true },
   { key: "verified", label: "改造状态", defaultVisible: true },
 ];
 
-const DEFAULT_VISIBLE_META: UiComponentTreeMetaKey[] = ["kind", "usedBy", "files", "verified"];
+const DEFAULT_VISIBLE_META: UiComponentTreeMetaKey[] = ["usedBy", "files", "verified"];
 
 function findComponent(name: string) {
   return coreUiComponentRegistry.find((component) => component.name === name) as CoreUiComponentRegistration | undefined;
@@ -80,7 +79,7 @@ export default function UiComponentsShowcase({
   usageRows = [],
 }: UiComponentsShowcaseProps) {
   const firstRoot = coreUiComponentRegistry.find(isCoreUiComponentVisibleInShowcase);
-  const [ownerL1Value, setOwnerL1Value] = useState<string>(ALL_OWNER_L1);
+  const [categoryValue, setCategoryValue] = useState<string>(ALL_CATEGORY);
   const [exposureFilter, setExposureFilter] = useState<ExposureFilter>(ALL_EXPOSURE);
   const [verifiedFilter, setVerifiedFilter] = useState<VerifiedFilter>(ALL_VERIFIED);
   const [query, setQuery] = useState("");
@@ -118,13 +117,13 @@ export default function UiComponentsShowcase({
   const filteredRoots = useMemo(() => {
     return filterUiComponents(treeRoots, {
       keyword: query.trim(),
-      ownerL1Value,
+      categoryValue,
       exposureFilter,
       verifiedFilter,
       usageFilesByName,
       usedByNamesByName,
     });
-  }, [exposureFilter, ownerL1Value, query, treeRoots, usageFilesByName, usedByNamesByName, verifiedFilter]);
+  }, [exposureFilter, categoryValue, query, treeRoots, usageFilesByName, usedByNamesByName, verifiedFilter]);
 
   const visibleRoots = filteredRoots;
   const selectedComponent = selectedName ? (componentByName.get(selectedName) ?? null) : null;
@@ -198,12 +197,12 @@ export default function UiComponentsShowcase({
     { kind: "create", key: "create", label: "新建组件", disabled: true, onClick: () => {} },
     { kind: "panel-toggle", key: "toggle-list", icon: sideOpen ? "panel-open" : "panel-close", label: sideOpen ? "隐藏组件目录" : "显示组件目录", variant: sideOpen ? "primary" : "secondary", onClick: toggleSideFromToolbar },
     { kind: "search", key: "search", value: query, onChange: setQuery, placeholder: "搜索组件..." },
-    { kind: "option-group", key: "owner-l1", value: ownerL1Value, options: OWNER_L1_OPTIONS, onChange: (value) => setOwnerL1Value(value as TreeOwnerL1Filter), ariaLabel: "归属域", presentation: "segmented" },
-    { kind: "option-group", key: "exposure", value: exposureFilter, options: EXPOSURE_OPTIONS, onChange: (value) => setExposureFilter(value as ExposureFilter), ariaLabel: "使用方式", presentation: "segmented" },
+    { kind: "option-group", key: "category", value: categoryValue, options: CATEGORY_OPTIONS, onChange: (value) => setCategoryValue(value as TreeCategoryFilter), ariaLabel: "一级分类" },
+    { kind: "option-group", key: "exposure", value: exposureFilter, options: EXPOSURE_OPTIONS, onChange: (value) => setExposureFilter(value as ExposureFilter), ariaLabel: "使用方式" },
     { kind: "option-group", key: "verified", value: verifiedFilter, options: [{ value: ALL_VERIFIED, label: "全部" }, { value: "verified", label: "无需改造" }, { value: "unverified", label: "待改造" }], onChange: (value) => setVerifiedFilter(value as VerifiedFilter), ariaLabel: "改造状态" },
     { kind: "text", key: "meta", content: <>共 {filteredRoots.length} 个组件</> },
     { kind: "column-toggle", key: "columns", columns: META_COLUMNS, visible: visibleMeta, onChange: setVisibleMeta },
-  ], [exposureFilter, filteredRoots.length, ownerL1Value, query, sideOpen, verifiedFilter, visibleMeta]);
+  ], [exposureFilter, filteredRoots.length, categoryValue, query, sideOpen, verifiedFilter, visibleMeta]);
 
   return (
     <WorkspaceSplitPage
@@ -216,7 +215,7 @@ export default function UiComponentsShowcase({
       contentClassName="max-w-7xl py-8"
       showSideControls={false}
       header={(
-        <Toolbar items={toolbarItems} hideOverflowItems />
+        <Toolbar items={toolbarItems} />
       )}
       renderSide={() => (
         <UiComponentTreePanel

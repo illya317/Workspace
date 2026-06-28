@@ -89,18 +89,21 @@ export function useDepartmentDetailPaneBlock({
   }, [departmentById, selectedDepartment]);
   const departmentInfoFields: FormSurfaceItemSpec<string>[] = departmentDraft ? [
     {
-      kind: "segmentedCode",
       key: "code",
       label: "部门编码",
+      spec: {
+        valueType: "string",
+        control: "text",
+        mask: { kind: "editableSegment", ...departmentCodeEditableSegment(departmentDraft.level) },
+        state: !canEditDepartment ? "disabled" : "normal",
+      },
       value: departmentDraft.code,
-      editableSegment: departmentCodeEditableSegment(departmentDraft.level),
-      disabled: !canEditDepartment,
-      onChange: (next) => onUpdateDepartmentDraft("code", next),
+      onChange: (next) => onUpdateDepartmentDraft("code", String(next ?? "")),
     },
     {
       key: "name",
       label: "部门名称",
-      spec: { valueType: "string", editor: "input", state: !canEditDepartment ? "disabled" : "normal" },
+      spec: { valueType: "string", control: "text", state: !canEditDepartment ? "disabled" : "normal" },
       value: departmentDraft.name,
       onChange: next => onUpdateDepartmentDraft("name", String(next ?? "")),
     },
@@ -110,7 +113,7 @@ export function useDepartmentDetailPaneBlock({
       label: "上级部门",
       spec: {
         valueType: "reference",
-        editor: "select",
+        control: "choice",
         state: !canEditDepartment ? "disabled" : "normal",
         options: { source: "static", mode: "dropdown", items: parentDepartmentOptions },
       },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   PageSurface,
   type PageSurfaceBlockSpec,
@@ -27,6 +27,12 @@ const statusOptions = [
   { value: "inactive", label: "离职" },
 ];
 
+type RosterPreviewQuery = {
+  keyword?: string;
+  filterField?: string;
+  filterValue?: string;
+};
+
 export default function RosterGeneratedTab({ variant, canEdit, surface }: { variant: RosterGeneratedVariant; canEdit: boolean; surface?: RosterSurfaceNavigationProps }) {
   const [keyword, setKeyword] = useState("");
   const [status, setStatus] = useState<RosterGeneratedStatus>("all");
@@ -40,6 +46,7 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [pageSize, setPageSize] = useState("50");
+  const currentQueryRef = useRef<RosterPreviewQuery>({});
 
   const columns = useMemo(() => preview?.columns ?? [], [preview]);
   const columnDefs = useMemo<ColumnDef[]>(
@@ -58,12 +65,7 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
   );
   const filterFields = useMemo(() => mapFilterFields(preview?.filterFields ?? []), [preview?.filterFields]);
 
-  useEffect(() => {
-    void loadPreview();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variant, status, pageSize]);
-
-  async function loadPreview() {
+  const loadPreview = useCallback(async (query: RosterPreviewQuery = {}) => {
     setLoading(true);
     setError(null);
     setEditMode(false);
@@ -73,10 +75,11 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
         status,
         pageSize,
       });
-      if (keyword.trim()) params.set("keyword", keyword.trim());
-      if (filterField && filterValue) {
-        params.set("filterField", filterField);
-        params.set("filterValue", filterValue);
+      const { keyword: currentKeyword = "", filterField: currentFilterField = "", filterValue: currentFilterValue = "" } = query;
+      if (currentKeyword.trim()) params.set("keyword", currentKeyword.trim());
+      if (currentFilterField && currentFilterValue) {
+        params.set("filterField", currentFilterField);
+        params.set("filterValue", currentFilterValue);
       }
       const response = await fetch(workspacePath(`/api/modules/hr/roster/generated/preview?${params.toString()}`));
       const data = await response.json().catch(() => null) as RosterGeneratedPreview | { error?: string } | null;
@@ -90,6 +93,18 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
     } finally {
       setLoading(false);
     }
+  }, [pageSize, status, variant]);
+
+  useEffect(() => {
+    currentQueryRef.current = { keyword, filterField, filterValue };
+  }, [filterField, filterValue, keyword]);
+
+  useEffect(() => {
+    void loadPreview(currentQueryRef.current);
+  }, [loadPreview]);
+
+  function refreshPreview() {
+    void loadPreview({ keyword, filterField, filterValue });
   }
 
   async function applyEdits() {
@@ -153,7 +168,7 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
       referenceEndpoint: HR_REFERENCE_OPTIONS_ENDPOINT,
     },
     columnToggle: { columns: columnDefs, visible: visibleColumns, onChange: setVisibleColumns },
-    refresh: { label: "刷新生成", disabled: loading, onClick: () => void loadPreview() },
+    refresh: { label: "刷新生成", disabled: loading, onClick: refreshPreview },
     editGroup: {
       editMode,
       onStartEdit: () => setEditMode(true),
@@ -218,7 +233,7 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
       embedded={!surface}
       kind="list"
       {...surface}
-      toolbar={{ items: toolbarItems, onSubmit: () => void loadPreview() }}
+      toolbar={{ items: toolbarItems, onSubmit: refreshPreview }}
       blocks={blocks}
     />
   );
@@ -271,7 +286,7 @@ function rosterGeneratedCell(value: string, editMode: boolean, onChange: (value:
   if (!editMode) return value ? { kind: "text", value } : { kind: "empty" };
   return {
     kind: "input",
-    spec: { valueType: "string", editor: "input", state: "normal" },
+    spec: { valueType: "string", control: "text", state: "normal" },
     value,
     onChange: (next) => onChange(String(next ?? "")),
     className: "min-w-24 border-emerald-200 bg-white focus:border-emerald-500 focus:ring-emerald-100",

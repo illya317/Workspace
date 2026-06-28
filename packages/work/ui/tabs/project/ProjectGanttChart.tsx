@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface } from "@workspace/core/ui";
+import { PageSurface, createPageFieldsBlock } from "@workspace/core/ui";
 import {
   type GanttMilestoneEvent,
   type GanttRow,
@@ -40,9 +40,10 @@ export default function ProjectGanttChart({
   const todayLeft = datePercent(today, periodStart, periodEnd);
 
   return (
-    <FormSurface
-      kind="fields"
-      fields={[{
+    <PageSurface
+      embedded
+      kind="detail"
+      blocks={[createPageFieldsBlock("company-gantt", [{
         kind: "section",
         key: "company-gantt",
         title: "公司甘特",
@@ -131,7 +132,7 @@ export default function ProjectGanttChart({
         </div>
           ),
         }],
-      }]}
+      }])]}
     />
   );
 }

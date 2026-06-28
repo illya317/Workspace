@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface } from "@workspace/core/ui";
+import { PageSurface, createPageInlineFieldsBlock } from "@workspace/core/ui";
 
 interface CompanyPeriodPickerProps {
   company: string;
@@ -35,32 +35,35 @@ export default function CompanyPeriodPicker({
     }));
 
   return (
-    <FormSurface
-      kind="filters"
-      fields={[
-        {
-          key: "company",
-          label: "公司",
-          spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: companies } },
-          value: company,
-          onChange: (value) => onCompanyChange(String(value ?? "")),
-          placeholder: "全部公司",
-        },
-        {
-          key: "year",
-          label: "年度",
-          spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: years } },
-          value: year,
-          onChange: (value) => onYearChange(String(value ?? "")),
-        },
-        ...(showMonth ? [{
-          key: "month",
-          label: "月份",
-          spec: { valueType: "string" as const, editor: "select" as const, options: { source: "static" as const, mode: "dropdown" as const, items: monthOptions } },
-          value: month,
-          onChange: (value: unknown) => (onMonthChange ?? (() => {}))(String(value ?? "")),
-          placeholder: "全部",
-        }] : []),
+    <PageSurface
+      kind="list"
+      embedded
+      blocks={[
+        createPageInlineFieldsBlock("company-period", [
+          {
+            key: "company",
+            label: "公司",
+            spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: companies } },
+            value: company,
+            onChange: (value) => onCompanyChange(String(value ?? "")),
+            placeholder: "全部公司",
+          },
+          {
+            key: "year",
+            label: "年度",
+            spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: years } },
+            value: year,
+            onChange: (value) => onYearChange(String(value ?? "")),
+          },
+          ...(showMonth ? [{
+            key: "month",
+            label: "月份",
+            spec: { valueType: "string" as const, control: "choice" as const, options: { source: "static" as const, mode: "dropdown" as const, items: monthOptions } },
+            value: month,
+            onChange: (value: unknown) => (onMonthChange ?? (() => {}))(String(value ?? "")),
+            placeholder: "全部",
+          }] : []),
+        ], { kind: "filters" }),
       ]}
     />
   );

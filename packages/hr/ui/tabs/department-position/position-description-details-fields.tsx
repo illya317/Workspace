@@ -161,7 +161,7 @@ export function buildPositionDescriptionDetailFields({
           label: "",
           spec: {
             valueType: "reference",
-            editor: "autocomplete",
+            control: "reference",
             state: disabled ? "disabled" : "normal",
             options: { source: "remote", fkKey: fkKeyForEntity(entity), endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" },
           },
@@ -185,7 +185,7 @@ export function buildPositionDescriptionDetailFields({
       error: current.includes("见首页") ? "当前值不是有效引用，请重新选择。" : undefined,
       spec: {
         valueType: "reference",
-        editor: "autocomplete",
+        control: "reference",
         state: disabled ? "disabled" : "normal",
         options: { source: "remote", fkKey: fkKeyForEntity(entity), endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "name" },
       },
@@ -208,7 +208,7 @@ export function buildPositionDescriptionDetailFields({
         label: DETAIL_FIELD_LABELS[key] || key,
         spec: {
           valueType: "string",
-          editor: "select",
+          control: "choice",
           state: disabled ? "disabled" : "normal",
           options: { source: "grouped", groups: rankGroups(), groupLabel: "职级序列", optionLabel: "等级", changeGroupLabel: "更换序列" },
         },
@@ -223,7 +223,7 @@ export function buildPositionDescriptionDetailFields({
           label: DETAIL_FIELD_LABELS[key] || key,
           spec: {
             valueType: "string",
-            editor: "select",
+            control: "choice",
             state: disabled ? "disabled" : "normal",
             options: { source: "static", items: pickerOptions(EDUCATION_REQUIREMENT_OPTIONS) },
           },
@@ -254,7 +254,7 @@ export function buildPositionDescriptionDetailFields({
             label: "",
             spec: {
               valueType: "string",
-              editor: "autocomplete",
+              control: "choice",
               state: disabled ? "disabled" : "normal",
               options: {
                 source: "static",
@@ -289,7 +289,7 @@ export function buildPositionDescriptionDetailFields({
           label: DETAIL_FIELD_LABELS[key] || key,
           spec: {
             valueType: "string",
-            editor: "select",
+            control: "choice",
             state: disabled ? "disabled" : "normal",
             options: { source: "static", items: pickerOptions(options) },
           },
@@ -319,7 +319,7 @@ export function buildPositionDescriptionDetailFields({
           key,
           label: DETAIL_FIELD_LABELS[key] || key,
           span: rows > 1 ? "wide" : undefined,
-          spec: { valueType: "string", editor: rows === 1 ? "input" : "textarea", state: disabled ? "disabled" : "normal" },
+          spec: { valueType: "string", control: "text", multiline: rows > 1 ? true : undefined, state: disabled ? "disabled" : "normal" },
           value: detailValueToText(fieldValue),
           rows: rows === 1 ? undefined : rows,
           onChange: (next) => updateDetailField(key, String(next ?? "")),

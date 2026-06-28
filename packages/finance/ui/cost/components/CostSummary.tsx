@@ -1,6 +1,7 @@
 "use client";
 
-import { DataSurface, PageSurface } from "@workspace/core/ui";
+import { PageSurface, createPageDataBlock } from "@workspace/core/ui";
+import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { formatCompactNullableAmount } from "../../formatters";
 import { useCostSummary } from "../hooks/useFinanceCostData";
 import type { CostFiltersState } from "../types";
@@ -45,32 +46,37 @@ export default function CostSummary({ filters }: Props) {
   const pct = (n: number | null | undefined) =>
     n == null ? "—" : `${(n * 100).toFixed(1)}%`;
 
+  const blocks: PageSurfaceBlockSpec[] = [
+    ...(loading ? [createPageDataBlock("loading", { kind: "records", records: [], empty: "加载中..." })] : []),
+    ...(error ? [createPageDataBlock("error", { kind: "records", records: [], empty: error })] : []),
+    ...(summary ? [
+      createPageDataBlock("summary-metrics", {
+        kind: "metrics",
+        metrics: [
+          { key: "shipment", label: "发货金额", value: formatCompactNullableAmount(summary.shipments?.totalAmount) },
+          { key: "received", label: "已回款", value: formatCompactNullableAmount(summary.shipments?.totalReceived) },
+          { key: "unreceived", label: "未回款", value: formatCompactNullableAmount(summary.shipments?.totalUnreceived) },
+          { key: "collection-rate", label: "回款率", value: pct(summary.shipments?.collectionRate) },
+          { key: "cost", label: "成本总额", value: formatCompactNullableAmount(summary.costStructure?.totalAmount) },
+          { key: "unit-cost", label: "单位成本", value: formatCompactNullableAmount(summary.costStructure?.unitCost) },
+          { key: "gross-profit", label: "毛利", value: formatCompactNullableAmount(summary.grossProfit) },
+          { key: "gross-margin", label: "毛利率", value: pct(summary.grossMargin) },
+          { key: "salary", label: "销售工资总额", value: formatCompactNullableAmount(summary.salaries?.totalActualSalary) },
+          { key: "workshop", label: "车间工分总额", value: formatCompactNullableAmount(summary.workshop?.totalWorkPoints) },
+        ],
+      }),
+    ] : []),
+  ];
+
   return (
     <div className="space-y-4">
-      {loading && <DataSurface kind="records" records={[]} empty="加载中..." />}
-      {error && <DataSurface kind="records" records={[]} empty={error} />}
-
+      <PageSurface kind="analysis" embedded blocks={blocks} />
       {summary && (
-        <>
-          <DataSurface kind="metrics" metrics={[
-            { key: "shipment", label: "发货金额", value: formatCompactNullableAmount(summary.shipments?.totalAmount) },
-            { key: "received", label: "已回款", value: formatCompactNullableAmount(summary.shipments?.totalReceived) },
-            { key: "unreceived", label: "未回款", value: formatCompactNullableAmount(summary.shipments?.totalUnreceived) },
-            { key: "collection-rate", label: "回款率", value: pct(summary.shipments?.collectionRate) },
-            { key: "cost", label: "成本总额", value: formatCompactNullableAmount(summary.costStructure?.totalAmount) },
-            { key: "unit-cost", label: "单位成本", value: formatCompactNullableAmount(summary.costStructure?.unitCost) },
-            { key: "gross-profit", label: "毛利", value: formatCompactNullableAmount(summary.grossProfit) },
-            { key: "gross-margin", label: "毛利率", value: pct(summary.grossMargin) },
-            { key: "salary", label: "销售工资总额", value: formatCompactNullableAmount(summary.salaries?.totalActualSalary) },
-            { key: "workshop", label: "车间工分总额", value: formatCompactNullableAmount(summary.workshop?.totalWorkPoints) },
-          ]} />
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <RankCard title="客户发货排行" items={summary.shipments?.topCustomers} />
-            <RankCard title="业务员发货排行" items={summary.shipments?.topSalespeople} />
-            <RankCard title="产品发货排行" items={summary.shipments?.topProducts} />
-          </div>
-        </>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <RankCard title="客户发货排行" items={summary.shipments?.topCustomers} />
+          <RankCard title="业务员发货排行" items={summary.shipments?.topSalespeople} />
+          <RankCard title="产品发货排行" items={summary.shipments?.topProducts} />
+        </div>
       )}
     </div>
   );
@@ -81,7 +87,7 @@ function RankCard({
   items,
 }: {
   title: string;
-  items?: { name: string; value: number }[];
+  items?: SummaryRankItem[];
 }) {
   return (
     <PageSurface

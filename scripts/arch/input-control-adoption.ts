@@ -4,24 +4,24 @@ import ts from "typescript";
 
 const ROOT = path.resolve(__dirname, "../..");
 const REPORT_PATH = path.join(ROOT, ".cache/arch/input-control-adoption.json");
-const WARNING_ONLY = true;
+const WARNING_ONLY = false;
 const SOURCE_EXTENSIONS = /\.(ts|tsx)$/;
 const SKIP_DIRS = new Set([".git", ".next", ".turbo", "coverage", "dist", "generated", "node_modules", "tmp"]);
 
 const DIRECT_INPUT_COMPONENTS = new Map<string, string>([
-  ["CalendarDateInput", "InputControl spec editor=datePicker"],
-  ["CheckboxField", "InputControl spec editor=checkbox"],
-  ["FileField", "InputControl spec editor=upload"],
-  ["FkFieldInput", "InputControl spec editor=autocomplete options.source=remote"],
-  ["OptionPicker", "InputControl spec editor=select/autocomplete options.source=static/grouped"],
+  ["CalendarDateInput", "InputControl spec control=temporal precision=date"],
+  ["CheckboxField", "InputControl spec control=boolean presentation=checkbox"],
+  ["FileField", "InputControl spec control=file"],
+  ["FkFieldInput", "InputControl spec control=reference options.source=remote"],
+  ["OptionPicker", "InputControl spec control=choice options.source=static/grouped"],
   ["PercentField", "InputControl spec format=percent"],
-  ["SearchableOptionInput", "InputControl spec editor=autocomplete options.source=static/grouped"],
-  ["SelectField", "InputControl spec editor=select, except Toolbar/filter dropdown"],
-  ["SwitchField", "InputControl spec editor=switch"],
-  ["TagStringInput", "InputControl spec editor=tags"],
-  ["TextField", "InputControl spec editor=input/number"],
-  ["TextareaField", "InputControl spec editor=textarea"],
-  ["TimeField", "InputControl spec editor=timePicker"],
+  ["SearchableOptionInput", "InputControl spec control=choice options.mode=autocomplete"],
+  ["SelectField", "InputControl spec control=choice options.mode=dropdown, except Toolbar/filter dropdown"],
+  ["SwitchField", "InputControl spec control=boolean presentation=switch"],
+  ["TagStringInput", "InputControl spec control=collection itemControl=text"],
+  ["TextField", "InputControl spec control=text/number"],
+  ["TextareaField", "InputControl spec control=text multiline=true"],
+  ["TimeField", "InputControl spec control=temporal precision=time"],
 ]);
 
 const ALLOW_PATH_PREFIXES = [
@@ -48,6 +48,23 @@ type Finding = {
   component: string;
   suggestion: string;
 };
+
+function propertyNameText(name: ts.PropertyName, sourceFile: ts.SourceFile) {
+  if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) return name.text;
+  return name.getText(sourceFile);
+}
+
+function objectLiteralHasProperty(objectLiteral: ts.ObjectLiteralExpression, propertyName: string, sourceFile: ts.SourceFile) {
+  return objectLiteral.properties.some((property) => (
+    ts.isPropertyAssignment(property)
+    && propertyNameText(property.name, sourceFile) === propertyName
+  ));
+}
+
+function scanLegacyEditorSpec(node: ts.ObjectLiteralExpression, sourceFile: ts.SourceFile) {
+  if (!objectLiteralHasProperty(node, "valueType", sourceFile)) return false;
+  return objectLiteralHasProperty(node, "editor", sourceFile);
+}
 
 function toRelative(filePath: string) {
   return path.relative(ROOT, filePath).replace(/\\/g, "/");
@@ -103,6 +120,15 @@ function scanSourceFile(filePath: string): Finding[] {
         });
       }
     }
+    if (ts.isObjectLiteralExpression(node) && scanLegacyEditorSpec(node, sourceFile)) {
+      const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+      findings.push({
+        file: toRelative(filePath),
+        line: line + 1,
+        component: "InputFieldSpec.editor",
+        suggestion: "Declare spec.control/options/format/mask instead of renderer-oriented spec.editor",
+      });
+    }
     ts.forEachChild(node, visit);
   };
 
@@ -134,12 +160,12 @@ export function checkInputControlAdoption() {
   fs.renameSync(`${REPORT_PATH}.tmp`, REPORT_PATH);
 
   if (report.total === 0) {
-    console.log("✓ InputControl adoption: no direct business input usage detected.");
+    console.log("✓ InputControl adoption: no direct business input usage or legacy spec.editor detected.");
     return true;
   }
 
-  console.warn(`⚠ InputControl adoption warning-only: ${report.total} direct business input usage(s) detected.`);
-  console.warn("  Electronic business form fields should declare InputFieldSpec and render through InputControl.");
+  console.warn(`✗ InputControl adoption: ${report.total} violation(s) detected.`);
+  console.warn("  Business form fields must declare semantic InputFieldSpec control/options/format/mask and render through InputControl.");
   console.warn("  QC PaperInput/A4 layout inputs are an allowed separate input system.");
   console.warn(`  Full report: ${toRelative(REPORT_PATH)}`);
   console.warn("  Top components:");

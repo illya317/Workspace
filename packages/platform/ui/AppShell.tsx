@@ -5,7 +5,7 @@ import Image from "next/image";
 import { workspacePath } from "@workspace/core/routing";
 import UserMenu from "./UserMenu";
 import NotificationBell from "./NotificationBell";
-import { FormSurface, useFeedback } from "@workspace/core/ui";
+import { useFeedback } from "@workspace/core/ui";
 import type { SessionUser } from "../types";
 import type { ReactNode } from "react";
 interface NavLinkDef {
@@ -41,25 +41,19 @@ export default function AppShell({
     <div className="min-h-screen bg-gray-50">
       <nav className="sticky top-0 z-30 bg-white shadow-sm">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2">
-          <FormSurface
-            kind="inline"
-            actions={[
-              {
-                key: "portal",
-                label: (
-                  <Image
-                    src={workspacePath("/company/logo.png")}
-                    alt="Logo"
-                    width={28}
-                    height={28}
-                    className="h-7 w-auto object-contain"
-                  />
-                ),
-                onClick: () => void navigate("/portal"),
-                className: "flex-shrink-0 border-0 bg-transparent p-0 shadow-none hover:bg-transparent",
-              },
-            ]}
-          />
+          <button
+            type="button"
+            onClick={() => void navigate("/portal")}
+            className="flex-shrink-0 border-0 bg-transparent p-0 shadow-none hover:bg-transparent"
+          >
+            <Image
+              src={workspacePath("/company/logo.png")}
+              alt="Logo"
+              width={28}
+              height={28}
+              className="h-7 w-auto object-contain"
+            />
+          </button>
           <span className="text-gray-300">|</span>
           <span className="text-sm font-medium text-gray-700">{title}</span>
           <div className="flex-1" />

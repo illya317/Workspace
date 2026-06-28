@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { DataSurface } from "@workspace/core/ui";
+import { PageSurface, createPageDataBlock } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 import AccountTab from "./AccountTab";
@@ -32,9 +32,17 @@ export default function LedgerClient({ canWrite, user }: { canWrite: boolean; us
       {activeTab === "vouchers" && <VoucherTab canWrite={canWrite} {...pageChrome} />}
       {activeTab === "ledger" && <LedgerTab {...pageChrome} />}
       {activeTab === "reclass" && <ReclassTab {...pageChrome} />}
-      {activeTab === "depreciation" && (
-        <DataSurface kind="records" records={[]} empty="资产折旧表开发中" />
-      )}
+      {activeTab === "depreciation" && <DepreciationPlaceholder />}
     </>
+  );
+}
+
+function DepreciationPlaceholder() {
+  return (
+    <PageSurface
+      kind="list"
+      embedded
+      blocks={[createPageDataBlock("depreciation-placeholder", { kind: "records", records: [], empty: "资产折旧表开发中" })]}
+    />
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FormSurface, PageSurface } from "@workspace/core/ui";
+import { PageSurface, createPageActionsBlock } from "@workspace/core/ui";
 import type { QcLayoutBlock, QcTemplateTestItem } from "@workspace/production/server/qc";
 import QcLayoutPaper from "../QcLayoutPaper";
 import TemplateInlineFeedback from "./TemplateInlineFeedback";
@@ -52,6 +52,29 @@ function ExperimentPreview({
         </div>)}
     </div>;
 }
+function PreviewModeToggle({
+  advancedMode,
+  onToggle,
+}: {
+  advancedMode: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <PageSurface
+      kind="detail"
+      embedded
+      className="justify-self-center"
+      blocks={[
+        createPageActionsBlock("template-preview-mode-toggle", [{
+          key: "toggle-advanced-mode",
+          label: advancedMode ? "开发模式" : "预览模式",
+          variant: advancedMode ? "danger" : "primary",
+          onClick: onToggle,
+        }]),
+      ]}
+    />
+  );
+}
 export default function TemplatePreviewModal({
   selection,
   onClose,
@@ -88,16 +111,7 @@ export default function TemplatePreviewModal({
               <>
                 <div className="mb-6 grid grid-cols-[1fr_auto] items-start gap-4 text-sm font-semibold text-slate-950">
                   <span />
-                  <FormSurface
-                    kind="inline"
-                    className="justify-self-center"
-                    actions={[{
-                      key: "toggle-advanced-mode",
-                      label: advancedMode ? "开发模式" : "预览模式",
-                      variant: advancedMode ? "danger" : "primary",
-                      onClick: () => setAdvancedMode(current => !current),
-                    }]}
-                  />
+                  <PreviewModeToggle advancedMode={advancedMode} onToggle={() => setAdvancedMode(current => !current)} />
                 </div>
                 {selection.kind === "precheck" && <TemplateInlineFeedback selection={selection} onSaved={onSaved}>
                     <h3 className="mb-5 text-center text-lg font-semibold text-slate-950">

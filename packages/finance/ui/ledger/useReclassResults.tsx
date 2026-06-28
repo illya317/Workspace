@@ -12,11 +12,20 @@ export function useReclassResults(companyCode: string, year: string, month: stri
   const [allItems, setAllItems] = useState<ReclassResultRow[]>([]);
   const [adjustItem, setAdjustItem] = useState<ReclassResultRow | null>(null);
 
-  async function lookupPeriodId(): Promise<number | null> {
+  const lookupPeriodId = useCallback(async (): Promise<number | null> => {
     const pRes = await fetch(workspacePath(`/api/modules/finance/ledger/reclass-results/lookup-period?companyCode=${companyCode}&year=${year}&month=${month}`));
     const { periodId } = await pRes.json();
     return periodId || null;
-  }
+  }, [companyCode, month, year]);
+
+  const loadAllItemsForPeriod = useCallback(async (periodId: number) => {
+    try {
+      const res = await fetch(workspacePath(`/api/modules/finance/ledger/reclass-results/all-items?periodId=${periodId}`));
+      if (!res.ok) return;
+      const data = await res.json();
+      setAllItems(data.items || []);
+    } catch { /* ignore */ }
+  }, []);
 
   const loadReclassResults = useCallback(async () => {
     if (!companyCode || !year || !month) { setReclassMap(new Map()); setAllItems([]); return; }
@@ -38,23 +47,13 @@ export function useReclassResults(companyCode: string, year: string, month: stri
       // Also load all voucher items for "全部" tab
       await loadAllItemsForPeriod(periodId);
     } catch { /* ignore */ }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyCode, year, month]);
-
-  async function loadAllItemsForPeriod(periodId: number) {
-    try {
-      const res = await fetch(workspacePath(`/api/modules/finance/ledger/reclass-results/all-items?periodId=${periodId}`));
-      if (!res.ok) return;
-      const data = await res.json();
-      setAllItems(data.items || []);
-    } catch { /* ignore */ }
-  }
+  }, [companyCode, loadAllItemsForPeriod, lookupPeriodId, month, year]);
 
   useEffect(() => { loadReclassResults(); }, [loadReclassResults]);
 
   // ── Review ──────────────────────────────────────────
 
-  async function handleReview(resultId: number, action: "approve" | "revert" | "adjust" | "mark_pending", body?: Record<string, unknown>, extra?: { periodId?: number; voucherItemId?: number; sourceAccount?: string }) {
+  const handleReview = useCallback(async (resultId: number, action: "approve" | "revert" | "adjust" | "mark_pending", body?: Record<string, unknown>, extra?: { periodId?: number; voucherItemId?: number; sourceAccount?: string }) => {
     const payload: Record<string, unknown> = { action, ...body };
     if (resultId === 0 && extra) {
       payload.periodId = extra.periodId;
@@ -82,11 +81,11 @@ export function useReclassResults(companyCode: string, year: string, month: stri
       const err = await res.json().catch(() => ({}));
       showToast(err.error || "操作失败", "error");
     }
-  }
+  }, [loadAllItemsForPeriod, lookupPeriodId, showToast]);
 
   // ── Batch 6: Generate ───────────────────────────────
 
-  async function handleGenerate(silent = false) {
+  const handleGenerate = useCallback(async (silent = false) => {
     try {
       // 确保该年度有规则（无则从上年继承）
       await fetch(workspacePath(`/api/modules/finance/ledger/reclass-rules?companyCode=${companyCode}&year=${year}`), { method: "GET" });
@@ -105,7 +104,7 @@ export function useReclassResults(companyCode: string, year: string, month: stri
         if (!silent) showToast(err.error || "生成失败", "error");
       }
     } catch { if (!silent) showToast("网络错误", "error"); }
-  }
+  }, [companyCode, loadReclassResults, lookupPeriodId, showToast, year]);
 
   const adjustModal = adjustItem ? (
     <ReclassReviewModal

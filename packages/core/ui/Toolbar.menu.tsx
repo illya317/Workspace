@@ -12,10 +12,9 @@ function getShortTextLength(label: ToolbarOptionGroupItem["options"][number]["la
 }
 
 export function resolveToolbarOptionGroupPresentation(item: ToolbarOptionGroupItem) {
-  if (item.presentation) return item.presentation;
   if (item.options.length < 2 || item.options.length > 3) return "accordion";
 
-  let totalLength = item.ariaLabel?.length ?? 0;
+  let totalLength = typeof item.label === "string" ? item.label.length : item.ariaLabel?.length ?? 0;
   for (const option of item.options) {
     const length = getShortTextLength(option.label);
     if (length === null || length > 6) return "accordion";
@@ -43,7 +42,6 @@ function renderToolbarMenuTrigger(
       className={joinClassNames(
         "inline-flex items-center gap-2 rounded-md px-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
         CONTROL_SIZES[size].height,
-        trigger.className,
       )}
     >
       {trigger.avatarUrl ? (
@@ -72,8 +70,7 @@ export function renderToolbarMenu(item: ToolbarMenuItem, size: ControlSize) {
   return (
     <DropdownSurface
       align={item.align ?? "right"}
-      className={item.className}
-      surfaceClassName={joinClassNames("w-36 py-1", item.menuClassName)}
+      surfaceClassName="w-36 py-1"
       trigger={({ open, toggle }) => renderToolbarMenuTrigger(item, open, toggle, size)}
     >
       {({ close }) => (

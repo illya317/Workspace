@@ -162,7 +162,7 @@ export default function WorksClient({
       key: "mobile-side-toggle",
       icon: "panel-open",
       label: "显示工作空间",
-      className: "!h-9 !w-10 !px-0 xl:hidden",
+      visibility: "mobile",
       onClick: () => setDrawerOpen(true),
     },
     {
@@ -171,7 +171,7 @@ export default function WorksClient({
       icon: sideOpen ? "panel-open" : "panel-close",
       label: `${sideOpen ? "隐藏" : "显示"}工作空间`,
       variant: sideOpen ? "primary" : "secondary",
-      className: "!h-9 !w-10 !px-0 hidden xl:inline-flex",
+      visibility: "desktop",
       onClick: () => setSideOpen(!sideOpen),
     },
     ...(activeTab === "tasks"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createPageDataBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState, SourceTraceInfo } from "../types";
 import CostDataTable, { CostTraceButton, formatCostNumber, type CostRecord } from "./CostDataTable";
@@ -34,11 +34,20 @@ export default function CostStructureTable({ filters }: Props) {
   return (
     <div className="space-y-4">
       {summary && (
-        <DataSurface kind="metrics" metrics={[
-          { key: "amount", label: "成本总额", value: formatCostNumber(summary.totalAmount as number) },
-          { key: "quantity", label: "总数量", value: formatCostNumber(summary.totalQuantity as number) },
-          { key: "unit", label: "单位成本", value: formatCostNumber(summary.unitCost as number) },
-        ]} />
+        <PageSurface
+          kind="analysis"
+          embedded
+          blocks={[
+            createPageDataBlock("cost-structure-summary", {
+              kind: "metrics",
+              metrics: [
+                { key: "amount", label: "成本总额", value: formatCostNumber(summary.totalAmount as number) },
+                { key: "quantity", label: "总数量", value: formatCostNumber(summary.totalQuantity as number) },
+                { key: "unit", label: "单位成本", value: formatCostNumber(summary.unitCost as number) },
+              ],
+            }),
+          ]}
+        />
       )}
       <CostDataTable
         rows={data}

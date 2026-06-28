@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo } from "react";
-import { DataSurface, PageSurface, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createPageTableBlock, useFeedback } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { BASE_ITEM_COLUMNS, type VoucherItemRow } from "../components/VoucherItemTable";
@@ -31,9 +31,9 @@ export default function VoucherTab({
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
-  const feedback = useFeedback();
+  const { error, notify } = useFeedback();
   const { allItems, handleReview, handleGenerate, adjustModal } =
-    useReclassResults(companyFilter, yearFilter, monthFilter, feedback.notify);
+    useReclassResults(companyFilter, yearFilter, monthFilter, notify);
   const [viewMode, setViewMode] = useState<"vouchers" | "reclass">("vouchers");
   const [keyword, setKeyword] = useState("");
   const [reclassStatus, setReclassStatus] = useState("adjusted");
@@ -45,8 +45,7 @@ export default function VoucherTab({
   // 选好公司+年+月后台静默生成重分类结果
   useEffect(() => {
     if (companyFilter && yearFilter && monthFilter) handleGenerate(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyFilter, yearFilter, monthFilter]);
+  }, [companyFilter, handleGenerate, monthFilter, yearFilter]);
 
   const reclassCounts = useMemo(() => {
     const unconfigured = allItems.filter((r) => r.kind === "normal").length;
@@ -82,12 +81,12 @@ export default function VoucherTab({
           }
         } else {
           const err = await res.json().catch(() => ({ error: "加载失败" }));
-          if (!cancelled) feedback.error(err.error || "加载失败");
+          if (!cancelled) error(err.error || "加载失败");
         }
       } catch (e: unknown) {
         const err = e as Error;
         if (err.name === "AbortError") return;
-        if (!cancelled) feedback.error("网络错误");
+        if (!cancelled) error("网络错误");
       }
       if (!cancelled) setLoading(false);
     }
@@ -98,8 +97,7 @@ export default function VoucherTab({
       cancelled = true;
       ctrl.abort();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyFilter, yearFilter, monthFilter, keyword, page, pageSize]);
+  }, [companyFilter, error, keyword, monthFilter, page, pageSize, yearFilter]);
 
   const totalPages = Math.ceil(total / pageSize);
   const extraToolbarItems: SurfaceToolbarItems = [
@@ -128,7 +126,6 @@ export default function VoucherTab({
         { value: "unconfigured", label: `未配置 ${reclassCounts.unconfigured}` },
         { value: "all", label: `全部 ${reclassCounts.total}` },
       ],
-      triggerClassName: "min-w-40",
     }] : []),
   ];
   const toolbarItems = useFinanceFilterToolbarItems({
@@ -174,17 +171,7 @@ export default function VoucherTab({
                   onRowClick: (v: Voucher) =>
                     setExpandedVoucherId((prev) => (prev === v.id ? null : v.id)),
                   expandedRowKey: expandedVoucherId,
-                  renderExpandedRow: (v: Voucher) => (
-                    <div className="rounded-md border border-slate-200 bg-white">
-                      <DataSurface
-                        kind="table"
-                        rows={v.items.map((it: VoucherItemRow, i: number) => ({ ...it, _idx: i, _voucherNo: v.voucherNo }))}
-                        columns={itemColumns}
-                        visibleColumns={itemColumns.map((c) => c.key)}
-                        rowKey={(r: VoucherItemRow) => `item-${r.id}`}
-                      />
-                    </div>
-                  ),
+                  renderExpandedRow: (v: Voucher) => <VoucherItemsPreview voucher={v} columns={itemColumns} />,
                 },
               },
             ],
@@ -210,5 +197,30 @@ export default function VoucherTab({
       }}
       footer={viewMode === "reclass" ? undefined : { pagination: { page, totalPages, total, onPageChange: setPage } }}
     />
+  );
+}
+
+function VoucherItemsPreview({
+  voucher,
+  columns,
+}: {
+  voucher: Voucher;
+  columns: typeof BASE_ITEM_COLUMNS;
+}) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-white">
+      <PageSurface
+        kind="list"
+        embedded
+        blocks={[
+          createPageTableBlock("voucher-items", {
+            rows: voucher.items.map((item: VoucherItemRow, index: number) => ({ ...item, _idx: index, _voucherNo: voucher.voucherNo })),
+            columns,
+            visibleColumns: columns.map((column) => column.key),
+            rowKey: (row: VoucherItemRow) => `item-${row.id}`,
+          }),
+        ]}
+      />
+    </div>
   );
 }

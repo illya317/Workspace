@@ -200,7 +200,7 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
           title: "离职原因分布",
           toolbar: {
             items: [
-              { kind: "search", key: "reason-search", value: reasonSearch, onChange: setReasonSearch, placeholder: "搜索原因...", className: "max-w-xs" },
+              { kind: "search", key: "reason-search", value: reasonSearch, onChange: setReasonSearch, placeholder: "搜索原因..." },
               { kind: "text", key: "meta", content: <>{stats.totalLeft} 人</> },
             ],
           },

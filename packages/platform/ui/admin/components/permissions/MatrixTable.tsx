@@ -1,6 +1,6 @@
 "use client";
 
-import { DataSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { ActionGlyph, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import PermissionCell from "./PermissionCell";
 import PermissionDetails from "./PermissionDetails";
 import type { PermissionsTabState } from "../../hooks/usePermissionsTab";
@@ -14,14 +14,15 @@ const ROLE_HIERARCHY: Record<string, number> = {
   delete: 2,
   admin: 3
 };
-export default function MatrixTable({
+
+export function createPermissionMatrixBlock({
   s
-}: MatrixTableProps) {
+}: MatrixTableProps): PageSurfaceBlockSpec {
   if (!s.selectedResource) {
-    return <DataSurface kind="records" className="mt-4" records={[]} empty="请选择左侧资源模块" />;
+    return { kind: "data", key: "empty-resource", surface: { kind: "records", records: [], empty: "请选择左侧资源模块" } };
   }
   if (s.subjects.length === 0) {
-    return <DataSurface kind="records" className="mt-4" records={[]} empty="无匹配结果" />;
+    return { kind: "data", key: "empty-subjects", surface: { kind: "records", records: [], empty: "无匹配结果" } };
   }
   const maxLevel = ROLE_HIERARCHY[s.maxRoleKey] ?? 3;
   const subjectColumnLabel = s.subjectType === "user" ? "姓名" : s.subjectType === "position" ? "岗位" : "部门";
@@ -70,28 +71,33 @@ export default function MatrixTable({
     label: "",
     required: true,
     cellClassName: "text-right",
-    cell: subject => ({
-      kind: "action",
-      action: {
-        key: `details-${subject.id}`,
-        label: s.expandedRows.has(subject.id) ? "收起" : "详情",
-        onClick: () => s.toggleRowExpand(subject.id),
-        size: "sm",
-        className: "px-2 py-1 text-xs",
-      },
-    })
+    cell: subject => {
+      const label = s.expandedRows.has(subject.id) ? "收起详情" : "查看详情";
+      return (
+        <button
+          type="button"
+          onClick={() => s.toggleRowExpand(subject.id)}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
+          aria-label={label}
+          title={label}
+        >
+          <ActionGlyph kind="view" className="h-4 w-4" />
+        </button>
+      );
+    }
   }];
-  return (
-    <DataSurface
-      kind="table"
-      framed
-      className="mt-4"
-      rows={s.subjects}
-      columns={columns}
-      visibleColumns={columns.map(column => column.key)}
-      rowKey={subject => subject.id}
-      expandedRowKeys={s.expandedRows}
-      renderExpandedRow={subject => <PermissionDetails subject={subject} s={s} />}
-    />
-  );
+  return {
+    kind: "data",
+    key: "permission-matrix",
+    surface: {
+      kind: "table",
+      framed: true,
+      rows: s.subjects,
+      columns,
+      visibleColumns: columns.map(column => column.key),
+      rowKey: subject => subject.id,
+      expandedRowKeys: s.expandedRows,
+      renderExpandedRow: subject => <PermissionDetails subject={subject} s={s} />,
+    },
+  };
 }

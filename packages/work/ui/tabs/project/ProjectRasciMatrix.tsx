@@ -1,6 +1,6 @@
 "use client";
 
-import { DataSurface, type DataSurfaceColumnSpec, type DataSurfaceProps } from "@workspace/core/ui";
+import { PageSurface, createPageDataBlock, type DataSurfaceColumnSpec, type DataSurfaceProps } from "@workspace/core/ui";
 import type { EmployeeTag, MultiProjectRole } from "./model";
 
 export type ProjectRasciRow = {
@@ -27,7 +27,7 @@ const RASCI_COLUMNS: RasciColumn[] = [
 ];
 
 export default function ProjectRasciMatrix({ rows }: { rows: ProjectRasciRow[] }) {
-  return <DataSurface {...buildProjectRasciMatrixSurface(rows)} />;
+  return <PageSurface embedded kind="list" blocks={[createPageDataBlock("rasci", buildProjectRasciMatrixSurface(rows))]} />;
 }
 
 export function buildProjectRasciMatrixSurface(rows: ProjectRasciRow[]): DataSurfaceProps<ProjectRasciRow> {

@@ -43,10 +43,6 @@ export async function resolvePharmaOpsRoot() {
     path.resolve(cwd, "..", ".."),
   ];
   const localSnapshots = localRoots.map((root) => ({ root, configRoot: path.join(root, "config", "pharma-qc") }));
-  const externalRoots = [
-    path.resolve(cwd, "..", ".workspace"),
-    path.resolve(cwd, "..", "..", ".workspace"),
-  ].filter(Boolean) as string[];
   const candidates = [
     ...(process.env.WORKSPACE_QC_CONFIG_ROOT
       ? [{ root: path.dirname(process.env.WORKSPACE_QC_CONFIG_ROOT), configRoot: process.env.WORKSPACE_QC_CONFIG_ROOT }]
@@ -55,7 +51,6 @@ export async function resolvePharmaOpsRoot() {
       ? [{ root: workspaceConfigDir, configRoot: workspaceConfigRoot }]
       : []),
     ...localSnapshots,
-    ...externalRoots.map((root) => ({ root, configRoot: path.join(root, "config", "pharma-qc") })),
   ].filter((candidate, index, all) => all.findIndex((item) => item.configRoot === candidate.configRoot) === index);
 
   for (const { root, configRoot } of candidates) {

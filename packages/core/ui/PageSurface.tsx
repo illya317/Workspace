@@ -19,27 +19,7 @@ import type {
   PageSurfaceSplitProps,
 } from "./PageSurface.types";
 
-export type {
-  PageSurfaceAnalysisSpec,
-  PageSurfaceBlockSpec,
-  PageSurfaceCommandSpec,
-  PageSurfaceEmptySpec,
-  PageSurfaceGroupSpec,
-  PageSurfaceHeadingSpec,
-  PageSurfaceKind,
-  PageSurfaceMessageSpec,
-  PageSurfaceMetricSpec,
-  PageSurfaceModalSpec,
-  PageSurfaceNavigationItemSpec,
-  PageSurfaceNavigationSpec,
-  PageSurfaceModuleGridItemSpec,
-  PageSurfaceModuleGridSpec,
-  PageSurfaceModuleViewSpec,
-  PageSurfacePanelSpec,
-  PageSurfaceProps,
-  PageSurfaceSectionSpec,
-  PageSurfaceSideSpec, PageSurfaceFooterSpec, PageSurfaceHeaderSpec, PageSurfaceToolbarSpec,
-} from "./PageSurface.types";
+export type * from "./PageSurface.types";
 
 function toTabDef(item: PageSurfaceNavigationItemSpec): TabDef {
   return {
@@ -185,7 +165,7 @@ function renderSplitSideControls(props: PageSurfaceSplitProps) {
       icon: "panel-open",
       label: `显示${props.sideLabel}`,
       onClick: () => props.onDrawerOpenChange(true),
-      className: "lg:!hidden",
+      visibility: "mobile",
     },
     {
       kind: "panel-toggle",
@@ -194,10 +174,10 @@ function renderSplitSideControls(props: PageSurfaceSplitProps) {
       label: `${props.sideOpen ? "隐藏" : "显示"}${props.sideLabel}`,
       onClick: () => props.onSideOpenChange(!props.sideOpen),
       variant: props.sideOpen ? "primary" : "secondary",
-      className: "!hidden lg:!inline-flex",
+      visibility: "desktop",
     },
   ];
-  return <Toolbar items={items} variant="inline" className="w-full justify-start" />;
+  return <Toolbar items={items} />;
 }
 
 function renderEmbeddedSurfaceBody(props: PageSurfaceProps, body: ReactNode) {

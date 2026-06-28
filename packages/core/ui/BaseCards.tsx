@@ -131,7 +131,7 @@ export function AnalysisBlock({
     <PanelCard
       title={title}
       subtitle={subtitle}
-      actions={toolbarItems?.length ? <Toolbar items={toolbarItems} variant="inline" size="sm" /> : undefined}
+      actions={toolbarItems?.length ? <Toolbar items={toolbarItems} /> : undefined}
       className={className}
       bodyClassName={joinClassNames("p-5", bodyClassName)}
     >

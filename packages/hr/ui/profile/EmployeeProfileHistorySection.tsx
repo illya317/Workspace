@@ -1,5 +1,6 @@
 import {
-  DataSurface,
+  PageSurface,
+  createPageDataBlock,
   type DataSurfaceColumnSpec,
   type DataSurfaceProps,
   type PageSurfaceBlockSpec,
@@ -106,13 +107,9 @@ export function historySectionSurface({
 }
 
 export function historySectionBlock(props: HistorySectionProps): PageSurfaceBlockSpec {
-  return {
-    kind: "data",
-    key: "history",
-    surface: historySectionSurface(props),
-  };
+  return createPageDataBlock("history", historySectionSurface(props));
 }
 
 export function HistorySection(props: HistorySectionProps) {
-  return <DataSurface {...historySectionSurface(props)} />;
+  return <PageSurface embedded kind="detail" blocks={[historySectionBlock(props)]} />;
 }

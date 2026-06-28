@@ -78,7 +78,6 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
                 value: feature,
                 onChange: (value) => setFeature(value as DimKey),
                 options: featureList.map((item) => ({ value: item, label: `${DIM_LABELS[item]}分布` })),
-                triggerClassName: "!min-h-8 !w-32",
               },
               { kind: "text", key: "meta", content: <>基于 {stats.active} 位在职员工</> },
             ],

@@ -34,7 +34,7 @@ export function buildPositionDescriptionTemplateEditorBlock({
           fields: [{
             key: "name",
             label: "模板名称",
-            spec: { valueType: "string", editor: "input" },
+            spec: { valueType: "string", control: "text" },
             value: name,
             onChange: (value) => onNameChange(String(value ?? "")),
           }],
@@ -62,7 +62,7 @@ export function buildPositionDescriptionTemplateEditorBlock({
               fields: group.fields.map((field) => ({
                 key: field,
                 label: DETAIL_FIELD_LABELS[field] || field,
-                spec: { valueType: "boolean", editor: "checkbox" },
+                spec: { valueType: "boolean", control: "boolean", presentation: "checkbox" },
                 value: fields.includes(field),
                 onChange: () => onToggleField(field),
               })),

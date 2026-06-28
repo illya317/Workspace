@@ -206,7 +206,6 @@ export default function TemplateWorkbenchFrame({
     value: searchValue,
     onChange: updateQuery,
     placeholder: searchPlaceholder,
-    className: "min-w-[260px] flex-1",
   });
   if (toolbarMeta) {
     toolbarItems.push({ kind: "text", key: "meta", section: "meta", content: toolbarMeta });

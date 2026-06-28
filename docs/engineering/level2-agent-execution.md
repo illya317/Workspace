@@ -68,7 +68,7 @@ Level 2 任务必须按依赖执行，常见顺序如下：
 | UI pattern 收口 | 先确认 Core/Platform 是否已有入口 -> 缺通用入口则由 Core 补齐 -> domain 组件改为薄业务包装 -> 删除 app/一次性组件 -> ratchet baseline |
 | 搜索框收口 | 先确认 `SearchInput` / `FkFieldInput` / `SelectField` / `OptionPicker` 是否覆盖场景 -> 删除 app/业务包一次性搜索控件 -> 业务侧只传 value/options/fkKey -> 确认 `nativeSearchInputFiles` 仍为 0 |
 | 页面设计壳收口 | 先确认 `packages/core/ui/component-registry.ts` 是否已有 PageShell/PageContent/PanelCard/SectionCard/SplitWorkspace/DataTable/Toolbar 等入口 -> 缺失则 Architecture/Core 先登记并导出 -> Feature 改业务页消费 Core -> 删除业务包内手写 `bg-white + rounded + shadow/border` 页面壳 -> ratchet `pageDesignDriftFiles` baseline |
-| Core UI 新入口 | 先实现 Core primitive/page shell -> 写入 `packages/core/ui/component-registry.ts` 并补中文 `description`、中文 `example` 和 `includes` 组合信息 -> 从 `packages/core/ui/index.ts` 导出 -> 如需可视化示例则在 `UiComponentsShowcase`（`/settings/ui`）增加 case -> 跑 `arch:gate` 确认 `unregisteredCoreUiExports` 和 `duplicateCoreUiRegistrations` 仍为 0 |
+| Core UI 新入口 | 先实现 Core primitive/page shell -> 写入 `packages/core/ui/component-registry.ts` 并补中文 `description`、中文 `example` 和 `composes` 组合信息 -> 从 `packages/core/ui/index.ts` 导出 -> 如需可视化示例则在 `UiComponentsShowcase`（`/settings/ui`）增加 case -> 跑 `arch:gate` 确认 `unregisteredCoreUiExports` 和 `duplicateCoreUiRegistrations` 仍为 0 |
 | module/API contract 漂移 | 先更新 module registry 或 API contract -> route/service 对齐 -> 跑 `arch:level2` 确认无新增漂移 -> 跑 `arch:gate` |
 | 旧实现迁移 | 先在 package 建真实实现 -> 更新 import -> 删除无引用旧文件 -> ratchet baseline |
 
@@ -94,7 +94,7 @@ boundary corruption > validation weakness > abstraction gap > migration debt > d
 
 通常不需要。只有下面三类需要进入 registry 或 gate 相关清单：
 
-1. **新增 Core UI 公共入口**：从 `packages/core/ui/index.ts` 导出的组件、页面骨架、primitive，必须登记到 `packages/core/ui/component-registry.ts`，填写中文 `description`、中文 `example`，必要时补 `includes` 和 `UiComponentsShowcase`（`/settings/ui`）示例。
+1. **新增 Core UI 公共入口**：从 `packages/core/ui/index.ts` 导出的组件、页面骨架、primitive，必须登记到 `packages/core/ui/component-registry.ts`，填写中文 `description`、中文 `example`，必要时补 `composes` 和 `UiComponentsShowcase`（`/settings/ui`）示例。
 2. **新增模块/API 权威入口**：模块定义、API contract、权限资源等必须通过 Platform registry 或 API registry 暴露。
 3. **新增 gate 例外或非组件导出**：只能由 Architecture 在对应脚本中显式说明，不能由 Feature/Data/Ops 私自补 allowlist。
 

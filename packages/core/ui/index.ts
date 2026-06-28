@@ -1,5 +1,5 @@
 export { default as ConfirmModal } from "./ConfirmModal";
-export type { CoreUiComponentKind, CoreUiComponentUiLevel, CoreUiCompositionGraph, CoreUiComponentRegistration } from "./component-registry";
+export type { CoreUiCompositionGraph, CoreUiComponentRegistration } from "./component-registry";
 export { default as CodeBlock } from "./CodeBlock";
 export type { CodeBlockProps } from "./CodeBlock";
 export { default as DataSurface } from "./DataSurface";
@@ -9,15 +9,11 @@ export type { DocumentSurfaceKind, DocumentSurfacePageSpec, DocumentSurfaceProps
 export type { ReferenceOption, SurfaceToolbarItem, SurfaceToolbarItems } from "./SurfaceContractTypes";
 export { default as FormSurface } from "./FormSurface";
 export type {
-  FormSurfaceCalendarDateControlSpec,
-  FormSurfaceChoiceControlSpec,
   FormSurfaceCommandSpec,
   FormSurfaceControlProps,
   FormSurfaceControlSpec,
   FormSurfaceFieldSpec,
-  FormSurfaceFileControlSpec,
   FormSurfaceGroupTitleSpec,
-  FormSurfaceHiddenControlSpec,
   FormSurfaceInputControlSpec,
   FormSurfaceItemSpec,
   FormSurfaceKind,
@@ -29,13 +25,8 @@ export type {
   FormSurfaceRepeatableItemSpec,
   FormSurfaceRepeatableSpec,
   FormSurfaceSectionSpec,
-  FormSurfaceSegmentedCodeControlSpec,
-  FormSurfaceSegmentedCodeFieldSpec,
-  FormSurfaceSelectControlSpec,
   FormSurfaceTagListAppendSpec,
   FormSurfaceTagListFieldSpec,
-  FormSurfaceTextareaControlSpec,
-  FormSurfaceTextControlSpec,
 } from "./FormSurface";
 export { default as SegmentedCodeInput } from "./SegmentedCodeInput";
 export type { SegmentedCodeInputEditableSegment, SegmentedCodeInputProps } from "./SegmentedCodeInput";
@@ -49,29 +40,23 @@ export type {
   NavigationSurfaceStepSpec,
 } from "./NavigationSurface";
 export { default as PageSurface } from "./PageSurface";
+export type * from "./PageSurface";
+export {
+  createPageActionsBlock,
+  createPageCommand,
+  createPageDataBlock,
+  createPageFieldsBlock,
+  createPageFormBlock,
+  createPageFormModalBlock,
+  createPageInlineFieldsBlock,
+  createPageModalBlock,
+  createPageSurfaceProps,
+  createPageTableBlock,
+} from "./page-surface-builders";
 export type {
-  PageSurfaceAnalysisSpec,
-  PageSurfaceCommandSpec,
-  PageSurfaceBlockSpec,
-  PageSurfaceEmptySpec,
-  PageSurfaceGroupSpec,
-  PageSurfaceFooterSpec,
-  PageSurfaceHeaderSpec,
-  PageSurfaceKind,
-  PageSurfaceMessageSpec,
-  PageSurfaceMetricSpec,
-  PageSurfaceModalSpec,
-  PageSurfaceNavigationItemSpec,
-  PageSurfaceNavigationSpec,
-  PageSurfaceModuleGridItemSpec,
-  PageSurfaceModuleGridSpec,
-  PageSurfaceModuleViewSpec,
-  PageSurfacePanelSpec,
-  PageSurfaceProps,
-  PageSurfaceSectionSpec,
-  PageSurfaceSideSpec,
-  PageSurfaceToolbarSpec,
-} from "./PageSurface";
+  PageSurfaceBodyBlockSpec,
+  PageSurfaceShellPropsOptions,
+} from "./page-surface-builders";
 
 export type { ConfirmModalProps } from "./ConfirmModal";
 export { default as FeedbackProvider, useFeedback } from "./FeedbackProvider";
@@ -139,16 +124,28 @@ export type { FieldControlProps, FieldControlKind } from "./FieldControl";
 export { default as InputControl } from "./InputControl";
 export type {
   InputControlProps,
-  InputEditor,
+  InputBooleanPresentation,
+  InputCollectionItemControl,
+  InputControlDimension,
+  InputControlKind,
+  InputDependencies,
+  InputDependencyDimension,
   InputFieldSpec,
   InputFormat,
   InputMask,
   InputOption,
+  InputOptionDimension,
   InputOptionGroup,
   InputOptions,
-  InputSegmentedCodeConfig,
+  InputPresentationDimension,
   InputState,
+  InputStateDimension,
+  InputTemporalPrecision,
+  InputUsage,
+  InputUsageDimension,
   InputValidation,
+  InputValidationDimension,
+  InputValueDimension,
   InputValueType,
 } from "./InputControl";
 export { default as MetricTile } from "./MetricTile";

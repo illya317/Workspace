@@ -93,7 +93,7 @@ export function usePositionDescriptionPanelBlock({
       label: "汇报对象",
       spec: {
         valueType: "reference",
-        editor: "autocomplete",
+        control: "reference",
         state: !canEditPosition ? "disabled" : "normal",
         options: { source: "remote", fkKey: "hr.position", endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "name" },
       },
@@ -105,7 +105,7 @@ export function usePositionDescriptionPanelBlock({
     {
       key: "headcount",
       label: "编制",
-      spec: { valueType: "number", editor: "input", state: !canEditPosition ? "disabled" : "normal" },
+      spec: { valueType: "number", control: "text", state: !canEditPosition ? "disabled" : "normal" },
       value: draft.headcount,
       inputMode: "numeric",
       onChange: value => onUpdateDescriptionDraft("headcount", String(value ?? "").replace(/\D/g, "")),
@@ -116,7 +116,7 @@ export function usePositionDescriptionPanelBlock({
       key: "purpose",
       label: "岗位目的",
       span: "wide",
-      spec: { valueType: "string", editor: "textarea", state: !canEditPosition ? "disabled" : "normal" },
+      spec: { valueType: "string", control: "text", multiline: true, state: !canEditPosition ? "disabled" : "normal" },
       value: draft.positionPurpose,
       rows: 3,
       onChange: value => onUpdateDescriptionDraft("positionPurpose", String(value ?? "")),
@@ -125,7 +125,7 @@ export function usePositionDescriptionPanelBlock({
       key: "summary",
       label: "摘要",
       span: "wide",
-      spec: { valueType: "string", editor: "textarea", state: !canEditPosition ? "disabled" : "normal" },
+      spec: { valueType: "string", control: "text", multiline: true, state: !canEditPosition ? "disabled" : "normal" },
       value: draft.summary,
       rows: 3,
       onChange: value => onUpdateDescriptionDraft("summary", String(value ?? "")),
@@ -167,7 +167,7 @@ export function usePositionDescriptionPanelBlock({
               fieldClassName: "min-w-44",
               spec: {
                 valueType: "string",
-                editor: "select",
+                control: "choice",
                 options: {
                   source: "static",
                   mode: "dropdown",

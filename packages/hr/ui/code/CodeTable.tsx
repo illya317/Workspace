@@ -197,7 +197,7 @@ export default function CodeTable({
       if (row.kind === "add") {
         return {
           kind: "input",
-          spec: { valueType: "string", editor: "input" },
+          spec: { valueType: "string", control: "text" },
           value: newCode,
           onChange: (value) => setNewCode(String(value ?? "")),
           onKeyDown: (event: KeyboardEvent) => {
@@ -210,7 +210,7 @@ export default function CodeTable({
       if (editRow === row.item.code) {
         return {
           kind: "input",
-          spec: { valueType: "string", editor: "input" },
+          spec: { valueType: "string", control: "text" },
           value: editCodeValue,
           onChange: (value) => setEditCodeValue(String(value ?? "")),
         };
@@ -232,7 +232,7 @@ export default function CodeTable({
       if (row.kind === "add") {
         return {
           kind: "input",
-          spec: { valueType: "string", editor: "input" },
+          spec: { valueType: "string", control: "text" },
           value: newName,
           onChange: (value) => setNewName(String(value ?? "")),
           onKeyDown: (event: KeyboardEvent) => {
@@ -244,7 +244,7 @@ export default function CodeTable({
       if (editRow === row.item.code) {
         return {
           kind: "input",
-          spec: { valueType: "string", editor: "input" },
+          spec: { valueType: "string", control: "text" },
           value: editNameValue,
           onChange: (value) => setEditNameValue(String(value ?? "")),
         };

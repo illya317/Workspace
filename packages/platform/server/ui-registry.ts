@@ -2,7 +2,6 @@ import "server-only";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import {
-  coreUiComponentKindMeta,
   coreUiComponentRegistry,
   getCoreUiCompositionGraph,
 } from "@workspace/core/ui/component-registry";
@@ -102,18 +101,16 @@ export function getCoreUiRegistryUsageRows(): CoreUiRegistryUsageRow[] {
       const registration = component as CoreUiComponentRegistration;
       return {
         name: registration.name,
-        kind: registration.kind,
-        kindLabel: coreUiComponentKindMeta[registration.kind].label,
-        kindDescription: coreUiComponentKindMeta[registration.kind].description,
+        category: registration.category,
+        subcategory: registration.subcategory,
         description: registration.description,
         example: registration.example,
         includedComponents: [...(graph.composes.get(registration.name) ?? [])],
-        foundationComponents: [...(graph.foundations.get(registration.name) ?? [])],
         usedBy: [...(graph.usedBy.get(registration.name) ?? [])],
         usageFiles: usageByName.get(registration.name)?.sort() ?? [],
       };
     })
-    .sort((a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name));
+    .sort((a, b) => (a.subcategory ?? "").localeCompare(b.subcategory ?? "") || a.name.localeCompare(b.name));
 
   return cachedRows;
 }

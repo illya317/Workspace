@@ -62,6 +62,14 @@ import {
   type UnregisteredCoreUiImport,
 } from "./level2-ui";
 import {
+  findBusinessVisualTokenHardcoding,
+  findComponentLocalUiConfigs,
+  findCoreBusinessFactLiterals,
+  type BusinessVisualTokenHardcoding,
+  type ComponentLocalUiConfig,
+  type CoreBusinessFactLiteral,
+} from "./level2-hardcoding";
+import {
   findBusinessCommonRendererImports,
   findCoreUiOwnershipWarnings,
   findDomainSharedL2LayoutShells,
@@ -635,6 +643,9 @@ export function createLevel2Report() {
   const businessToolbarCompositionWarnings = findBusinessToolbarCompositionWarnings(sourceFiles);
   const businessCoreUiSurfaceBypassImports = findBusinessCoreUiSurfaceBypassImports(sourceFiles);
   const uiForbiddenCoreUiTypeImports = findUiForbiddenCoreUiTypeImports(sourceFiles);
+  const businessVisualTokenHardcoding = findBusinessVisualTokenHardcoding(sourceFiles);
+  const coreBusinessFactLiterals = findCoreBusinessFactLiterals(sourceFiles);
+  const componentLocalUiConfigs = findComponentLocalUiConfigs(sourceFiles);
   const pageSurfaceLayoutProtocolWarnings = findPageSurfaceLayoutProtocolWarnings(sourceFiles);
   const platformCoreUiRuntimeBypassImports = findPlatformCoreUiRuntimeBypassImports(sourceFiles);
   const coreUiOwnershipWarnings = findCoreUiOwnershipWarnings();
@@ -722,6 +733,9 @@ export function createLevel2Report() {
       businessToolbarCompositionWarnings: businessToolbarCompositionWarnings.length,
       businessCoreUiSurfaceBypassImports: businessCoreUiSurfaceBypassImports.length,
       uiForbiddenCoreUiTypeImports: uiForbiddenCoreUiTypeImports.length,
+      businessVisualTokenHardcoding: businessVisualTokenHardcoding.length,
+      coreBusinessFactLiterals: coreBusinessFactLiterals.length,
+      componentLocalUiConfigs: componentLocalUiConfigs.length,
       pageSurfaceLayoutProtocolWarnings: pageSurfaceLayoutProtocolWarnings.length,
       platformCoreUiRuntimeBypassImports: platformCoreUiRuntimeBypassImports.length,
       coreUiMissingOwnership: coreUiOwnershipWarnings.coreUiMissingOwnership.length,
@@ -763,6 +777,9 @@ export function createLevel2Report() {
       businessToolbarCompositionWarnings,
       businessCoreUiSurfaceBypassImports,
       uiForbiddenCoreUiTypeImports,
+      businessVisualTokenHardcoding,
+      coreBusinessFactLiterals,
+      componentLocalUiConfigs,
       pageSurfaceLayoutProtocolWarnings,
       platformCoreUiRuntimeBypassImports,
       coreUiMissingOwnership: coreUiOwnershipWarnings.coreUiMissingOwnership,
@@ -808,6 +825,9 @@ export function createLevel2Report() {
       businessToolbarCompositionWarnings,
       businessCoreUiSurfaceBypassImports,
       uiForbiddenCoreUiTypeImports,
+      businessVisualTokenHardcoding,
+      coreBusinessFactLiterals,
+      componentLocalUiConfigs,
       pageSurfaceLayoutProtocolWarnings,
       platformCoreUiRuntimeBypassImports,
       coreUiMissingOwnership: coreUiOwnershipWarnings.coreUiMissingOwnership,

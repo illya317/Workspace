@@ -1,8 +1,8 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { useEffect, useState } from "react";
-import { DataSurface, PageSurface, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { useCallback, useEffect, useState } from "react";
+import { PageSurface, createPageDataBlock, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { useCSV } from "@workspace/core/hooks";
@@ -29,18 +29,17 @@ export default function ReclassTab({
   const [monthFilter, setMonthFilter] = useState("12");
   const [entries, setEntries] = useState<ReclassEntry[]>([]);
   const [loading, setLoading] = useState(false);
-  async function load() {
+  const load = useCallback(async () => {
     if (!companyFilter || !yearFilter || !monthFilter) return;
     setLoading(true);
     const res = await fetch(workspacePath(`/api/modules/finance/ledger/schedules/reclassify?companyCode=${companyFilter}&year=${yearFilter}&month=${monthFilter}`));
     if (res.ok) setEntries((await res.json()).entries || []);
     setLoading(false);
-  }
+  }, [companyFilter, monthFilter, yearFilter]);
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyFilter, yearFilter, monthFilter]);
+  }, [load]);
   const sideLabel = (s: string) => s === "asset" ? "资产→负债" : "负债→资产";
   const columns: DataSurfaceColumnSpec<ReclassEntry>[] = [{
     key: "accountCode",
@@ -120,8 +119,22 @@ export default function ReclassTab({
       navigation={navigation}
       toolbar={{ items: toolbarItems }}
       body={{
-        blocks: lifecycleBlocks,
-        content: loading ? <p className="p-8 text-center text-gray-500">加载中...</p> : entries.length === 0 ? <DataSurface kind="records" records={[]} empty="未发现需重分类的科目" /> : <DataSurface kind="table" framed className="overflow-hidden" bodyClassName="overflow-x-auto" rows={entries} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={entry => entry.accountCode} />,
+        blocks: [
+          ...lifecycleBlocks,
+          ...(loading
+            ? [createPageDataBlock("reclass-loading", { kind: "records", records: [], empty: "加载中..." })]
+            : entries.length === 0
+              ? [createPageDataBlock("reclass-empty", { kind: "records", records: [], empty: "未发现需重分类的科目" })]
+              : [createPageTableBlock("reclass-entries", {
+                framed: true,
+                className: "overflow-hidden",
+                bodyClassName: "overflow-x-auto",
+                rows: entries,
+                columns,
+                visibleColumns: columns.map(column => column.key),
+                rowKey: entry => entry.accountCode,
+              })]),
+        ],
       }}
     />
   );

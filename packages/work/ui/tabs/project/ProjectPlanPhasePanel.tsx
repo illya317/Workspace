@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import {
-  DataSurface,
-  FormSurface,
+  PageSurface,
+  createPageDataBlock,
+  createPageFieldsBlock,
   useFeedback,
   type DataSurfaceColumnSpec,
   type DataTableRowEditActionConfig,
@@ -90,9 +91,10 @@ export default function ProjectPlanPhasePanel({
   }
 
   return (
-    <FormSurface
-      kind="fields"
-      fields={[{
+    <PageSurface
+      embedded
+      kind="detail"
+      blocks={[createPageFieldsBlock("project-phases", [{
         kind: "section",
         key: "project-phases",
         title: "项目阶段",
@@ -137,7 +139,7 @@ export default function ProjectPlanPhasePanel({
             />,
           },
         ],
-      }]}
+      }])]}
     />
   );
 }
@@ -201,46 +203,46 @@ function PhaseRows({
     },
   ];
 
-  if (phases.length === 0) {
-    return <DataSurface kind="records" records={[]} empty="暂无项目阶段" />;
-  }
-  return (
-    <DataSurface
-      kind="table"
-      rows={phases}
-      columns={columns}
-      density="compact"
-      emptyText="暂无项目阶段"
-      rowKey={(phase) => phase.id}
-      visibleColumns={["startDate", "endDate", "note"]}
-      expandedRowKey={editingId}
-      renderExpandedRow={(_phase) => <PhaseFields draft={editDraft} disabled={disabled} onChange={onEditDraftChange} />}
-      rowEditActions={canEdit ? (phase): DataTableRowEditActionConfig<ProjectPlanPhaseItem> => ({
-        editing: editingId === phase.id,
-        canEdit,
-        canSave: Boolean(editDraft.name.trim()),
-        initial: phaseDraftFromItem(phase),
-        current: editDraft,
-        disabled,
-        editLabel: "编辑阶段",
-        saveLabel: "保存阶段",
-        cancelLabel: "取消编辑",
-        onEdit: onStartEdit,
-        onSave: () => onSubmitEdit(phase.id),
-        onCancel: onCancelEdit,
-      }) : undefined}
-      rowActions={canEdit ? (phase) => {
-        if (editingId === phase.id) return [];
-        return [{
-          key: "delete",
-          kind: "delete" as const,
-          label: "删除阶段",
-          onClick: () => onDelete(phase.id),
+  const block = phases.length === 0
+    ? createPageDataBlock("project-phases-empty", { kind: "records", records: [], empty: "暂无项目阶段" })
+    : createPageDataBlock("project-phases-table", {
+        kind: "table",
+        rows: phases,
+        columns,
+        density: "compact",
+        emptyText: "暂无项目阶段",
+        rowKey: (phase) => phase.id,
+        visibleColumns: ["startDate", "endDate", "note"],
+        expandedRowKey: editingId,
+        renderExpandedRow: (_phase) => <PhaseFields draft={editDraft} disabled={disabled} onChange={onEditDraftChange} />,
+        rowEditActions: canEdit ? (phase): DataTableRowEditActionConfig<ProjectPlanPhaseItem> => ({
+          editing: editingId === phase.id,
+          canEdit,
+          canSave: Boolean(editDraft.name.trim()),
+          initial: phaseDraftFromItem(phase),
+          current: editDraft,
           disabled,
-        }];
-      } : undefined}
-      scrollClassName="overflow-y-hidden"
-    />
+          editLabel: "编辑阶段",
+          saveLabel: "保存阶段",
+          cancelLabel: "取消编辑",
+          onEdit: onStartEdit,
+          onSave: () => onSubmitEdit(phase.id),
+          onCancel: onCancelEdit,
+        }) : undefined,
+        rowActions: canEdit ? (phase) => {
+          if (editingId === phase.id) return [];
+          return [{
+            key: "delete",
+            kind: "delete" as const,
+            label: "删除阶段",
+            onClick: () => onDelete(phase.id),
+            disabled,
+          }];
+        } : undefined,
+        scrollClassName: "overflow-y-hidden",
+      });
+  return (
+    <PageSurface embedded kind="list" blocks={[block]} />
   );
 }
 
@@ -254,14 +256,14 @@ function PhaseFields({
   onChange: (draft: PhaseDraft) => void;
 }) {
   return (
-    <FormSurface
-      kind="fields"
-      columns={2}
-      fields={[
+    <PageSurface
+      embedded
+      kind="detail"
+      blocks={[createPageFieldsBlock("phase-fields", [
         {
           key: "name",
           label: "阶段",
-          spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" },
+          spec: { valueType: "string", control: "text", state: disabled ? "disabled" : "normal" },
           value: draft.name,
           onChange: (value) => onChange({ ...draft, name: String(value ?? "") }),
           placeholder: "例如：方案确认",
@@ -269,14 +271,14 @@ function PhaseFields({
         {
           key: "note",
           label: "说明",
-          spec: { valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" },
+          spec: { valueType: "string", control: "text", state: disabled ? "disabled" : "normal" },
           value: draft.note,
           onChange: (value) => onChange({ ...draft, note: String(value ?? "") }),
         },
         {
           key: "startDate",
           label: "开始日期",
-          spec: { valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" },
+          spec: { valueType: "date", control: "temporal", precision: "date", state: disabled ? "disabled" : "normal" },
           value: draft.startDate || null,
           onChange: (value) => onChange({ ...draft, startDate: String(value || "") }),
           placeholder: "选择日期",
@@ -284,12 +286,12 @@ function PhaseFields({
         {
           key: "endDate",
           label: "结束日期",
-          spec: { valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" },
+          spec: { valueType: "date", control: "temporal", precision: "date", state: disabled ? "disabled" : "normal" },
           value: draft.endDate || null,
           onChange: (value) => onChange({ ...draft, endDate: String(value || "") }),
           placeholder: "选择日期",
         },
-      ]}
+      ], { columns: 2 })]}
     />
   );
 }

@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
-  FormSurface,
+  PageSurface,
+  createPageInlineFieldsBlock,
 } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import type { ProfileField } from "@workspace/hr/types";
@@ -54,19 +55,14 @@ export function AliasTagEditor({
   disabled?: boolean;
   onChange: (value: string | null) => void;
 }) {
-  const [draft, setDraft] = useState("");
-  const [editing, setEditing] = useState(false);
   const tags = useMemo(() => readAliasTags(value), [value]);
 
-  function commitDraft() {
-    const nextTags = splitDraftTags(draft);
+  function appendTags(values: string[]) {
+    const nextTags = normalizeAliasTags(values);
     if (nextTags.length === 0) {
-      setEditing(false);
       return;
     }
     onChange(serializeAliasTags([...tags, ...nextTags]));
-    setDraft("");
-    setEditing(false);
   }
 
   function removeTag(index: number) {
@@ -74,61 +70,32 @@ export function AliasTagEditor({
   }
 
   return (
-    <FormSurface<string>
-      kind="inline"
-      fields={[
-        {
-          kind: "tagList",
-          key: "aliases",
-          label: "",
-          items: tags,
-          getKey: (tag, index) => `${tag}-${index}`,
-          getLabel: (tag) => tag,
-          onRemove: (_, index) => removeTag(index),
-          disabled,
-          emptyText: disabled ? "未设置" : undefined,
-          shellClassName: "content-start",
-          fieldClassName: "w-full",
-          append: disabled
-            ? undefined
-            : editing
-              ? {
-                  field: {
-                    key: "aliasDraft",
-                    label: "",
-                    spec: { valueType: "string", editor: "input" },
-                    value: draft,
-                    autoFocus: true,
-                    onChange: (next) => setDraft(String(next ?? "")),
-                    onBlur: commitDraft,
-                    onKeyDown: (event) => {
-                      if (event.key === "Enter" || event.key === "Tab" || event.key === "," || event.key === "，" || event.key === "、") {
-                        if (draft.trim()) {
-                          event.preventDefault();
-                          commitDraft();
-                        }
-                      }
-                      if (event.key === "Escape") {
-                        setDraft("");
-                        setEditing(false);
-                      }
-                      if (event.key === "Backspace" && !draft && tags.length > 0) removeTag(tags.length - 1);
-                    },
-                    placeholder: tags.length === 0 ? "添加别名" : "",
-                    density: "compact",
-                  },
-                }
-              : {
-                  action: {
-                    key: "addAlias",
-                    label: "+",
-                    onClick: () => setEditing(true),
-                    size: "sm",
-                    className: "!size-7 !rounded-full !border-slate-200 !bg-slate-50 !p-0 text-base font-semibold leading-none !text-slate-700 hover:!border-slate-300 hover:!bg-slate-100",
-                  },
-                },
+    <PageSurface
+      embedded
+      kind="detail"
+      blocks={[createPageInlineFieldsBlock<string>("aliases", [{
+        kind: "tagList",
+        key: "aliases",
+        label: "",
+        items: tags,
+        getKey: (tag, index) => `${tag}-${index}`,
+        getLabel: (tag) => tag,
+        onRemove: (_, index) => removeTag(index),
+        disabled,
+        emptyText: disabled ? "未设置" : undefined,
+        shellClassName: "content-start",
+        fieldClassName: "w-full",
+        append: disabled ? undefined : {
+          textInput: {
+            key: "aliasDraft",
+            placeholder: tags.length === 0 ? "添加别名" : "",
+            onAppend: appendTags,
+            onRemoveLast: () => {
+              if (tags.length > 0) removeTag(tags.length - 1);
+            },
+          },
         },
-      ]}
+      }])]}
     />
   );
 }

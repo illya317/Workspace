@@ -20,7 +20,7 @@ export default function CustomersClient() {
     <PageSurface
       kind="list"
       contentClassName="py-10"
-      toolbar={{ items: toolbarItems, className: "p-4" }}
+      toolbar={{ items: toolbarItems }}
       blocks={[
         {
           kind: "section",

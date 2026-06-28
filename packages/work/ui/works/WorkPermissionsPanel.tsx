@@ -86,7 +86,7 @@ export function useWorkPermissionsBlocks({
     defaultVisible: true,
     cell: row => row.locked ? { kind: "text", value: roleLabel(row.role) } : {
       kind: "input",
-      spec: { valueType: "string", editor: "select", options: { source: "static", items: [...WORK_ROLE_OPTIONS], visibleCount: 4 } },
+      spec: { valueType: "string", control: "choice", options: { source: "static", items: [...WORK_ROLE_OPTIONS], visibleCount: 4 } },
       value: row.role,
       onChange: value => patchRow(row.userId, {
         role: normalizeRole(value == null ? null : String(value))
@@ -172,7 +172,7 @@ export function useWorkPermissionsBlocks({
         fields: [{
           key: "user",
           label: "授权用户",
-          spec: { valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey: "work.tasks.permission.user", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" } },
+          spec: { valueType: "reference", control: "reference", options: { source: "remote", fkKey: "work.tasks.permission.user", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" } },
           value: draft.userId ? String(draft.userId) : "",
           displayValue: draft.userName,
           placeholder: "搜索用户",
@@ -187,7 +187,7 @@ export function useWorkPermissionsBlocks({
         }, {
           key: "role",
           label: "权限",
-          spec: { valueType: "string", editor: "select", options: { source: "static", items: [...WORK_ROLE_OPTIONS], visibleCount: 4 } },
+          spec: { valueType: "string", control: "choice", options: { source: "static", items: [...WORK_ROLE_OPTIONS], visibleCount: 4 } },
           value: draft.role,
           onChange: value => setDraft(current => ({
             ...current,

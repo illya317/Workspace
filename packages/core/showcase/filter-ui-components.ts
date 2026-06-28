@@ -1,33 +1,26 @@
 import {
-  coreUiComponentKindMeta,
-  coreUiComponentOwnerL1Meta,
-  coreUiComponentOwnerL2Meta,
-  type CoreUiComponentAccessLayer,
-  type CoreUiAgentExposure,
-  type CoreUiComponentKind,
-  type CoreUiComponentOwnerL1,
-  type CoreUiComponentOwnerL2,
-  type CoreUiComponentUiLevel,
+  coreUiComponentCategoryMeta,
+  coreUiComponentSubcategoryMeta,
+  type CoreUiExposure,
+  type CoreUiComponentCategory,
+  type CoreUiComponentSubcategory,
 } from "@workspace/core/ui/component-registry";
 import { matchText } from "@workspace/core/search";
 
 export type UiComponentFilterNode = {
   name: string;
-  kind: CoreUiComponentKind;
-  accessLayer: CoreUiComponentAccessLayer;
-  uiLevel: CoreUiComponentUiLevel;
   component: {
     description: string;
-    agentExposure?: CoreUiAgentExposure;
-    ownerL1?: CoreUiComponentOwnerL1;
-    ownerL2?: CoreUiComponentOwnerL2;
+    exposure?: CoreUiExposure;
+    category?: CoreUiComponentCategory;
+    subcategory?: CoreUiComponentSubcategory;
   };
   verified: boolean;
 };
 
 export type UiComponentFilterInput = {
   keyword: string;
-  ownerL1Value: string;
+  categoryValue: string;
   exposureFilter: "direct" | "via" | "internal" | "all";
   verifiedFilter: "verified" | "unverified" | "all";
   usageFilesByName: ReadonlyMap<string, readonly string[]>;
@@ -36,11 +29,11 @@ export type UiComponentFilterInput = {
 
 function matchesBaseFilters(
   node: UiComponentFilterNode,
-  input: Pick<UiComponentFilterInput, "ownerL1Value" | "exposureFilter" | "verifiedFilter">,
+  input: Pick<UiComponentFilterInput, "categoryValue" | "exposureFilter" | "verifiedFilter">,
 ) {
-  const { ownerL1Value, exposureFilter, verifiedFilter } = input;
-  if (ownerL1Value !== "all" && node.component.ownerL1 !== ownerL1Value) return false;
-  if (exposureFilter !== "all" && node.component.agentExposure?.mode !== exposureFilter) return false;
+  const { categoryValue, exposureFilter, verifiedFilter } = input;
+  if (categoryValue !== "all" && node.component.category !== categoryValue) return false;
+  if (exposureFilter !== "all" && node.component.exposure?.mode !== exposureFilter) return false;
   if (verifiedFilter === "verified" && !node.verified) return false;
   if (verifiedFilter === "unverified" && node.verified) return false;
   return true;
@@ -53,14 +46,13 @@ function matchesKeyword(
 ) {
   return matchText(node.name, keyword)
     || matchText(node.component.description, keyword)
-    || matchText(coreUiComponentKindMeta[node.kind].label, keyword)
-    || Boolean(node.component.ownerL1 && (
-      matchText(node.component.ownerL1, keyword)
-      || matchText(coreUiComponentOwnerL1Meta[node.component.ownerL1].label, keyword)
+    || Boolean(node.component.category && (
+      matchText(node.component.category, keyword)
+      || matchText(coreUiComponentCategoryMeta[node.component.category].label, keyword)
     ))
-    || Boolean(node.component.ownerL2 && (
-      matchText(node.component.ownerL2, keyword)
-      || matchText(coreUiComponentOwnerL2Meta[node.component.ownerL2].label, keyword)
+    || Boolean(node.component.subcategory && (
+      matchText(node.component.subcategory, keyword)
+      || matchText(coreUiComponentSubcategoryMeta[node.component.subcategory].label, keyword)
     ))
     || usageFiles.some((file) => matchText(file, keyword));
 }

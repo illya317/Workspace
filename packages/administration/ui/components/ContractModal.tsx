@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface } from "@workspace/core/ui";
+import { PageSurface, createPageFormModalBlock } from "@workspace/core/ui";
 import type { FormSurfaceFieldSpec } from "@workspace/core/ui";
 import type { Contract, ModalMode } from "@workspace/administration/types";
 
@@ -44,7 +44,7 @@ export default function ContractModal({ mode, editing, onChange, onSave, onClose
       required: f.required,
       spec: {
         valueType: f.type === "number" ? "number" : "string",
-        editor: f.type === "number" ? "number" : "input",
+        control: f.type === "number" ? "number" : "text",
         validation: f.required ? { required: true } : undefined,
       },
       value: editing[f.key] === null || editing[f.key] === undefined ? "" : String(editing[f.key]),
@@ -61,14 +61,14 @@ export default function ContractModal({ mode, editing, onChange, onSave, onClose
     {
       key: "signDate",
       label: "签订日期",
-      spec: { valueType: "date", editor: "datePicker" },
+      spec: { valueType: "date", control: "temporal", precision: "date" },
       value: editing.signDate,
       onChange: (value: unknown) => onChange("signDate", value ? String(value) : null),
     },
     {
       key: "endDate",
       label: "结束日期",
-      spec: { valueType: "date", editor: "datePicker" },
+      spec: { valueType: "date", control: "temporal", precision: "date" },
       value: editing.endDate,
       onChange: (value: unknown) => onChange("endDate", value ? String(value) : null),
     },
@@ -76,7 +76,7 @@ export default function ContractModal({ mode, editing, onChange, onSave, onClose
       key: "content",
       label: "合同内容",
       span: 2,
-      spec: { valueType: "string", editor: "textarea" },
+      spec: { valueType: "string", control: "text", multiline: true },
       value: editing.content ?? "",
       onChange: (value: unknown) => onChange("content", String(value ?? "")),
       rows: 2,
@@ -85,7 +85,7 @@ export default function ContractModal({ mode, editing, onChange, onSave, onClose
       key: "remark",
       label: "备注",
       span: 2,
-      spec: { valueType: "string", editor: "textarea" },
+      spec: { valueType: "string", control: "text", multiline: true },
       value: editing.remark ?? "",
       onChange: (value: unknown) => onChange("remark", String(value ?? "")),
       rows: 2,
@@ -93,18 +93,24 @@ export default function ContractModal({ mode, editing, onChange, onSave, onClose
   ];
 
   return (
-    <FormSurface
-      kind="modal"
-      open={Boolean(mode)}
-      title={mode === "create" ? "新增合同" : "编辑合同"}
-      maxWidth="max-w-2xl"
-      onClose={onClose}
-      onSubmit={onSave}
-      columns={2}
-      fields={fields}
-      actions={[
-        { key: "cancel", label: "取消", onClick: onClose },
-        { key: "save", label: saving ? "保存中..." : "保存", type: "submit", variant: "primary", disabled: saving },
+    <PageSurface
+      kind="list"
+      embedded
+      blocks={[
+        createPageFormModalBlock("contract", {
+          open: Boolean(mode),
+          title: mode === "create" ? "新增合同" : "编辑合同",
+          maxWidth: "max-w-2xl",
+          onClose,
+        }, {
+          onSubmit: onSave,
+          columns: 2,
+          fields,
+          actions: [
+            { key: "cancel", label: "取消", onClick: onClose },
+            { key: "save", label: saving ? "保存中..." : "保存", type: "submit", variant: "primary", disabled: saving },
+          ],
+        }),
       ]}
     />
   );

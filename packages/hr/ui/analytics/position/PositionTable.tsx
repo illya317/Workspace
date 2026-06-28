@@ -66,7 +66,7 @@ export function createPositionTableBlock({
         title: "岗位明细",
         toolbar: {
           items: [
-            { kind: "search", key: "search", value: search, onChange: setSearch, placeholder: "搜索岗位名、编码、部门...", className: "max-w-sm" },
+            { kind: "search", key: "search", value: search, onChange: setSearch, placeholder: "搜索岗位名、编码、部门..." },
             { kind: "text", key: "meta", content: <>共 {filtered.length} 个岗位</> },
           ],
         },

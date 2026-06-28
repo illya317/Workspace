@@ -1,10 +1,6 @@
 import { type ReactNode } from "react";
 import { ActionGlyph, PanelCard } from "@workspace/core/ui";
 import {
-  coreUiComponentKindMeta,
-  coreUiComponentOwnerL1Meta,
-  coreUiComponentOwnerL2Meta,
-  coreUiFrameMaturityMeta,
   type CoreUiComponentRegistration,
 } from "@workspace/core/ui/component-registry";
 import {
@@ -48,14 +44,14 @@ function PreviewBlock({
 }
 
 function exposureLabel(component: CoreUiComponentRegistration) {
-  const exposure = component.agentExposure;
+  const exposure = component.exposure;
   if (exposure?.mode === "direct") return "调用";
   if (exposure?.mode === "via") return "封装";
   return "内部";
 }
 
 function exposureTitle(component: CoreUiComponentRegistration) {
-  const exposure = component.agentExposure;
+  const exposure = component.exposure;
   if (exposure?.mode === "direct") return "可直接调用";
   if (exposure?.mode === "via") return `${exposure.entry}.${exposure.path}`;
   return "内部实现";
@@ -74,8 +70,7 @@ export function UiComponentPreviewPanel({
   canWrite: boolean;
   onToggleVerified: () => void;
 }) {
-  const isFoundation = component.accessLayer === "foundation";
-  const isPageFrame = component.accessLayer === "page-frame";
+  const isFoundation = component.subcategory === "common.foundation";
 
   return (
     <PanelCard
@@ -90,44 +85,12 @@ export function UiComponentPreviewPanel({
           >
             {formatNestDepth(nestDepth)}
           </span>
-          <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-            {coreUiComponentKindMeta[component.kind].label}
-          </span>
-          {component.ownerL1 && (
-            <span
-              className="rounded-full bg-cyan-50 px-2 py-0.5 text-[11px] font-medium text-cyan-700"
-              title={coreUiComponentOwnerL1Meta[component.ownerL1].description}
-            >
-              {coreUiComponentOwnerL1Meta[component.ownerL1].label}
-            </span>
-          )}
-          {component.ownerL2 && (
-            <span
-              className="rounded-full bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700"
-              title={coreUiComponentOwnerL2Meta[component.ownerL2].description}
-            >
-              {coreUiComponentOwnerL2Meta[component.ownerL2].label}
-            </span>
-          )}
           <span
             className="rounded-full bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700"
             title={exposureTitle(component)}
           >
             {exposureLabel(component)}
           </span>
-          {isPageFrame && component.frameMaturity && (
-            <span
-              className={joinClassNames(
-                "rounded-full px-2 py-0.5 text-[11px] font-medium",
-                component.frameMaturity === "stable" && "bg-emerald-100 text-emerald-700",
-                component.frameMaturity === "tbc" && "bg-orange-100 text-orange-700",
-                component.frameMaturity === "internal-only" && "bg-slate-200 text-slate-700",
-              )}
-              title={coreUiFrameMaturityMeta[component.frameMaturity].description}
-            >
-              {component.frameMaturity === "stable" ? "稳定" : component.frameMaturity === "tbc" ? "待定" : "内部"}
-            </span>
-          )}
           <span className={joinClassNames(
             "rounded-full px-2 py-0.5 text-[11px] font-medium",
             verified ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700",

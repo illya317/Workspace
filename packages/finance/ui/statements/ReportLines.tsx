@@ -1,6 +1,6 @@
 "use client";
 
-import { DataSurface, type DataSurfaceColumnSpec, type DataSurfaceTableProps } from "@workspace/core/ui";
+import { PageSurface, createPageDataBlock, type DataSurfaceColumnSpec, type DataSurfaceTableProps } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
 
 export interface ReportLine {
@@ -68,13 +68,19 @@ function DetailRows({ rows }: { rows: AccountDetail[] }) {
   const total = rows.reduce((sum, detail) => sum + detail.closing, 0);
   return (
     <div className="space-y-2">
-      <DataSurface
-        kind="table"
-        rows={rows}
-        columns={detailColumns}
-        visibleColumns={detailColumns.map((column) => column.key)}
-        density="compact"
-        rowKey={(row) => row.code}
+      <PageSurface
+        kind="list"
+        embedded
+        blocks={[
+          createPageDataBlock("report-line-details", {
+            kind: "table",
+            rows,
+            columns: detailColumns,
+            visibleColumns: detailColumns.map((column) => column.key),
+            density: "compact",
+            rowKey: (row) => row.code,
+          }),
+        ]}
       />
       <p className="text-right text-xs font-medium text-gray-800">合计：{formatFinanceAmount(Math.abs(total))}</p>
     </div>
@@ -131,5 +137,11 @@ export function createReportLinesSurface({ items, labelHeader, amountHeader, exp
 }
 
 export default function ReportLines(props: Props) {
-  return <DataSurface {...createReportLinesSurface(props)} />;
+  return (
+    <PageSurface
+      kind="list"
+      embedded
+      blocks={[createPageDataBlock("report-lines", createReportLinesSurface(props))]}
+    />
+  );
 }

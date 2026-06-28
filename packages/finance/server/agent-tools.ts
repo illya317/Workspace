@@ -6,12 +6,16 @@ import type { AgentTool } from "@workspace/platform/server/agent";
 import type { SessionUser } from "@workspace/platform/types";
 
 import {
+  type DeptBudgetItem,
+  type RdBudgetItem,
   loadDeptBudgetFromDb,
   loadRdBudgetFromDb,
   readDeptBudget,
   readRdBudget,
 } from "./budget/budget-data";
 import { getActiveVersion } from "./budget/budget-version";
+
+type BudgetToolItem = DeptBudgetItem | RdBudgetItem;
 
 export const queryBudgetTool: AgentTool = {
   key: "finance.queryBudget",
@@ -32,7 +36,7 @@ export const queryBudgetTool: AgentTool = {
     const active = await getActiveVersion(year);
     const label = type === "rd" ? "研发预算" : "部门预算";
 
-    let raw;
+    let raw: BudgetToolItem[];
     if (active) {
       // 优先用 DB 中已导入/激活的版本数据
       raw = type === "rd"
@@ -43,12 +47,13 @@ export const queryBudgetTool: AgentTool = {
       raw = type === "rd" ? readRdBudget() : readDeptBudget();
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const items = raw.slice(0, 20).map((r: any) => {
+    const items = raw.slice(0, 20).map((r) => {
       if (type === "rd") {
-        return { project: r.project, category: r.category, total: r.total, months: r.months };
+        const item = r as RdBudgetItem;
+        return { project: item.project, category: item.category, total: item.total, months: item.months };
       }
-      return { dept: r.dept, account: r.account, total: r.total, months: r.months, expenseType: r.expenseType };
+      const item = r as DeptBudgetItem;
+      return { dept: item.dept, account: item.account, total: item.total, months: item.months, expenseType: item.expenseType };
     });
 
     return {

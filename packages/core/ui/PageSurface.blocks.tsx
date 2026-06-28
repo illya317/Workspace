@@ -133,6 +133,7 @@ export function renderBlocks(blocks?: PageSurfaceBlockSpec[]) {
     if (block.kind === "message") return <div key={block.key}>{renderMessage(block)}</div>;
     if (block.kind === "heading") return <div key={block.key}>{renderHeading(block)}</div>;
     if (block.kind === "metrics") return <div key={block.key}>{renderMetrics(block.metrics, block.className)}</div>;
+    if (block.kind === "actions") return <div key={block.key} className={block.className}>{renderCommands(block.actions)}</div>;
     if (block.kind === "moduleGrid") return renderModuleGrid(block);
     if (block.kind === "data") return <DataSurface key={block.key} {...block.surface} />;
     if (block.kind === "document") return <DocumentSurface key={block.key} {...block.surface} />;

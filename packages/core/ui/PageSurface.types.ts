@@ -86,6 +86,13 @@ export interface PageSurfaceMetricSpec {
   className?: string;
 }
 
+export interface PageSurfaceActionBlockSpec {
+  kind: "actions";
+  key: string;
+  actions: PageSurfaceCommandSpec[];
+  className?: string;
+}
+
 export interface PageSurfaceHeadingSpec {
   key: string;
   title: ReactNode;
@@ -170,6 +177,7 @@ export type PageSurfaceBlockSpec =
   | ({ kind: "message" } & PageSurfaceMessageSpec)
   | ({ kind: "heading" } & PageSurfaceHeadingSpec)
   | { kind: "metrics"; key: string; metrics: PageSurfaceMetricSpec[]; className?: string }
+  | PageSurfaceActionBlockSpec
   | ({ kind: "moduleGrid" } & PageSurfaceModuleGridSpec)
   | { kind: "data"; key: string; surface: DataSurfaceProps }
   | { kind: "document"; key: string; surface: DocumentSurfaceProps }

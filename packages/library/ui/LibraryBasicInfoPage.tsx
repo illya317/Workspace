@@ -1,7 +1,6 @@
-import { createElement } from "react";
 import { authorize } from "@workspace/platform/server/auth";
 import type { SessionUser } from "@workspace/platform/types";
-import { AppShell } from "@workspace/platform/ui";
+import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
 import LibraryClient from "./LibraryClient";
 
 const ROOT_LABEL = process.env.LIBRARY_LABEL || "资料库";
@@ -17,13 +16,14 @@ export default async function LibraryBasicInfoPage({ user }: Props) {
     authorize({ user, resourceKey: "library.basicInfo.write", action: "admin" }),
   ]);
 
-  return createElement(
-    AppShell,
-    { title: ROOT_LABEL, backHref: "/portal", user },
-    <LibraryClient
+  return renderAppShellPage({
+    title: ROOT_LABEL,
+    backHref: "/portal",
+    user,
+    children: <LibraryClient
       canWrite={canWrite}
       canDelete={canDelete}
       canAdmin={canAdmin}
     />,
-  );
+  });
 }

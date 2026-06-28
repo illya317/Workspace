@@ -136,16 +136,19 @@ Level 1 起，业务资源权限入口统一为 `packages/platform/server/auth/a
 
 ## 6. 文件大小红线
 
-| 类型 | 硬上限 | 处理方式 |
+| 类型 | 目标线 / 硬上限 | 处理方式 |
 |---|---:|---|
 | 页面 facade | 150 行 | 拆 components/hooks |
-| React 组件 | 220 行 | 拆子组件 |
-| hook | 220 行 | 拆 data/edit/filter/table |
+| React 组件 | 新代码目标 220 行；package TSX lint 硬上限 500 行 | 拆子组件，但拆分必须缩小 interface 或提升 locality |
+| hook | 新代码目标 220 行；package TSX lint 硬上限 500 行 | 拆 data/edit/filter/table，但避免纯搬家式 helper |
 | API route | 120 行 | 逻辑移到 service |
-| service | 260 行 | 按 queries/summary/import 拆 |
-| Prisma 单领域文件 | 350 行 | 按领域继续拆 |
+| service | 新代码目标 260 行；package TS lint 硬上限 550 行 | 按 queries/summary/import 拆 |
+| Core package | 新代码目标 300 行；Core lint 硬上限 450 行；registry data 500 行 | Core 内部按真实 seam 拆，不为行数新增 shallow module |
+| Prisma 单领域文件 | 260 行非空内容 | 按领域继续拆 |
 
-文件大小红线由 ESLint `max-lines` 强制执行，不设历史白名单。任何超限文件都必须先拆分到红线内，任务才允许继续交付或提交。
+ESLint `max-lines` 只表达硬上限，不代表复杂度已经降低；Prisma model 文件由 `schema:check` 检查非空行数。超过目标线时优先收敛职责、缩小 interface、提高 locality；只有拆分能降低理解成本时才拆。任何超过硬上限的文件都必须先降到红线内，任务才允许继续交付或提交。
+
+`lint:changed` 还包含净增行 gate：`tracked additions - tracked deletions + untracked source lines` 默认必须 `<= 0`。这条规则关注本次变更的真实总量，避免把一个大文件拆成多个浅文件后总行数反而增长。确需净新增代码时，用 `NET_LINE_GROWTH_LIMIT=<allowed-net-lines>` 显式声明例外，并说明新增能力为什么不能通过删除旧实现或更深 module 收敛抵消。
 
 ## 7. API 一级目录规则
 
@@ -209,19 +212,18 @@ app/* route shell
 
 这些规则由 `npm run arch:gate` 中的 module registry、app route hierarchy、resource registry 和 package boundary 检查执行。package boundary 还会扫描非 Core 包内疑似重复基础组件文件名（例如 `*Select*`、`*Dropdown*`、`*Confirm*`、`*Date*Input`、`*Search*`、`*Table*`、`*Filter*`、`*Shell*`、`*Toolbar*`、`*Modal*`、`*Pagination*`、`*Tab*`）。这些组件必须 import Core/Platform 对应基建，或在 `scripts/check/check-package-boundaries.js` 的 allowlist 中写明业务特殊性和迁移计划。
 
-Core UI 五层治理：
+Core UI registry 治理：
 
-- Core UI 的当前治理层只有 `Page Frame`、`Page API`、`Core Internal`、`Foundation`、`Private Impl`，详见 `docs/engineering/core-ui-governance.md`。旧 `tier / primitive / assembly / shell` 已删除，不再作为分类、筛选、展示或 gate 依据。
-- 业务和普通 agent 的 runtime Core UI import 只能使用 L1 公开入口：`PageSurface`、`FormSurface`、`DataSurface`、`useFeedback`；`NavigationSurface`、`Toolbar`、`TabBar`、`Pagination`、`InputControl`、`Badge`、`SelectorPanel` 等归 `common.*`，只能由 Core/Surface 内部 renderer 使用。type-only import 只允许 Surface contract 类型和 `ReferenceOption`、`SurfaceToolbarItem`、`SurfaceToolbarItems` 业务别名，不得直引 `DataTableColumn`、`ToolbarItem`、`FkFieldOption`。UI 组件库主展示按 `uiLevel` 显示 L1-L3，架构归属按 `ownerL1/ownerL2` 展示；L4+ 是 Foundation / Private Impl / 更深实现细节，不得作为主展示根节点或可见直接关系暴露。
-- Platform runtime 使用 Core UI 时只能走 L1 Surface、`useFeedback` / `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent 页面 UI 已停用，仅保留 API / bot 接入能力。
+- Core UI registry 只保留三组核心口径：`category/subcategory` 是一级/二级分类，`exposure` 是业务/agent 调用方式，`declares` / `composes` 是声明项和封装关系。旧分层字段已删除，不再作为分类、筛选、展示或 gate 依据。
+- 业务和普通 agent 的 runtime Core UI import 只能使用 `exposure: direct` 的正式入口：`PageSurface`、`InputControl`、`SelectorPanel`、`CreatePanel`、`useFeedback`。`FormSurface`、`DataSurface`、`DocumentSurface`、`NavigationSurface`、`Toolbar`、`TabBar`、`Pagination` 等必须通过这些入口的 spec 使用。Core 可导出非组件 contract helper，例如 `createPageTableBlock`、`createPageFieldsBlock`、`createPageModalBlock`、`createPageActionsBlock`、`createPageSurfaceProps`；helper 只生成 spec，不算新增 direct component entry。type-only import 只允许 Surface contract 类型和 `ReferenceOption`、`SurfaceToolbarItem`、`SurfaceToolbarItems` 业务别名，不得直引 `DataTableColumn`、`ToolbarItem`、`FkFieldOption`。组件库主展示按 `category/subcategory` 分类，调用方式按 `exposure` 展示，基础/私有实现只作为关系数据出现，不作为业务可调用入口。
+- Platform runtime 使用 Core UI 时只能走正式 direct 入口、根级 `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent 页面 UI 已停用，仅保留 API / bot 接入能力。
 - 改 `packages/core/ui/**`、Core UI registry 或 `/settings/ui` preview 必须是 UI-system/Architecture 任务，并通过 `CORE_UI_CHANGE=1` 或明确 change request 授权。
 
 页面组件注册表：
 
 - `packages/core/ui/component-registry.ts` 是 Core UI primitive 和页面骨架的注册表。非 Core 包只能消费 registry 中登记的 Core UI 名字；新增 Core UI 入口必须先由 Architecture/Core 任务登记，再导出给 Feature 使用。注册项必须填写中文 `description` 和中文 `example`，并由架构检查读取注册名、分类、说明、使用案例、组合子组件和当前消费文件。
 - 该 registry 是 `scripts/arch/level2.ts` 的输入；Level 2 ratchet 由 hygiene strict 执行，日常/CI 通过 `npm run check:hygiene:warn` 提示，不塞回 `npm run arch:gate`。
-- Registry `uiLevel` 由 `scripts/arch/core-ui-registry.ts` 在 `npm run arch:gate` 内硬校验：L1 名单必须精确等于四个 Surface 加 `useFeedback`，显式 `uiLevel` 只能是 1/2/3/4，L4+ 必须被组件库主展示隐藏。
-- Registry `ownerL1/ownerL2/role/publicUse` 是新的归属模型：L1 family 固定为 `page / data / form / common / feedback`，`Common` 不新增 runtime `CommonSurface`。缺字段、非法归属、Common 反依赖 domain L2、sibling L2 高耦合、业务直引 Common renderer、domain shared L2 layout shell 和 Surface 自带 page chrome 先进入 Level 2 warning-only report，不阻断 `arch:gate`；债务清单稳定后只允许 ratchet 下降。
+- Registry `category/subcategory` 是分类模型：一级分类固定为 `page / data / form / common / feedback`，`Common` 不新增 runtime `CommonSurface`。缺字段、非法归属、Common 反依赖 domain 二级分类、sibling subcategory 高耦合、业务直引 Common renderer、domain shared layout shell 和 Surface 自带 page chrome 先进入 Level 2 warning-only report，不阻断 `arch:gate`；债务清单稳定后只允许 ratchet 下降。
 - Core UI 的 value export 必须全部出现在 `component-registry.ts`，或明确列入 `scripts/arch/level2.ts` 的非组件导出集合；注册名重复会直接进入 `duplicateCoreUiRegistrations`。这两类 baseline 为空，新增即失败。
 - 非 Core 包新增手写页面设计壳会进入 `pageDesignDriftFiles` 检测：在 `packages/*/ui` 中直接用原生 JSX 容器拼 `bg-white`、`rounded`、`shadow/border`、sticky header、页面级 grid 等页面结构时视为漂移。Platform-owned system shell 文件（当前 `AppShell` / `UserMenu`）由 Platform 单独封装，只接受窄名单例外；历史债由 `scripts/arch/level2-baseline.json` 锁定，Feature/UI 迁走后必须删对应 baseline 项。
 - `PageSurface` 的 `moduleView` 是历史过渡逃生口，不是新增业务页面 API。业务 UI / `app/(modules)` 的存量 `moduleView` 会按 `shell-host`、`content-wrapper`、`split-side`、`analysis-visual`、`report-document`、`complex-editor`、`navigation-composition` 分类进入 `businessModuleViewUsages` baseline；新增或迁移删除都必须通过同一 Level 2 ratchet。
@@ -243,7 +245,7 @@ Level 2 结构智能层：
 - `npm run arch:level2` 生成确定性的结构报告，用于发现 UI pattern 重复、API route contract 覆盖缺口、API route 模板漂移、旧 service 迁移债和 app 层 JSX 存量。
 - API Contract 的单一来源是 `packages/platform/api-registry.ts`，它从 effective module registry 的 `apiGuards` 和 `apiRoutes` 派生，不允许业务包维护第二套 API 清单。
 - `apiGuards` 表示需要资源权限的 protected API；`apiRoutes` 表示显式 route contract，可标记为 `protected`、`public`、`dev` 或 `disabled`，用于登录/OAuth、开发入口、禁用兼容 API 等非资源权限入口。
-- Level 2 中已升级为强制规则的漂移项由 `scripts/arch/level2-baseline.json` 锁定，并通过 `npm run check:hygiene` 执行；`npm run check:hygiene:warn` 会跑完同一组细项但不阻断。baseline 只能减少：新增未注册 API route、API route 裸 `prisma.`、非 GET route 缺结构化 validation、API route 缺 service 调用、app-root hook 实现、未复用 Core 的业务选择器、未注册 Core UI import、业务 UI / `app/(modules)` runtime 直引非 Surface Core UI、业务 UI / `app/(modules)` 新增 `PageSurface` `moduleView` 逃生口、Platform UI runtime 直引 Core L2/L3、业务 UI / `app` type-only 直引 `DataTableColumn` / `ToolbarItem` / `FkFieldOption`、Core UI 已导出但未登记、Core UI registry 重名或非法 `uiLevel`、Core UI ownership/coupling debt、业务直引 Common renderer、domain shared L2 layout shell、Surface page chrome 债务、非 Core 包新增手写页面壳、搜索型原生 input、旧 `server/services` 文件或重复 service group 都会失败；迁移删除后必须同步删 baseline 项。页面设计漂移会读取 TSX JSX pattern，拦截手写 surface、sticky header、layout grid、table、form/control、modal overlay、toolbar layout、action button 和 table scroll shell。
+- Level 2 中已升级为强制规则的漂移项由 `scripts/arch/level2-baseline.json` 锁定，并通过 `npm run check:hygiene` 执行；`npm run check:hygiene:warn` 会跑完同一组细项但不阻断。baseline 只能减少：新增未注册 API route、API route 裸 `prisma.`、非 GET route 缺结构化 validation、API route 缺 service 调用、app-root hook 实现、未复用 Core 的业务选择器、未注册 Core UI import、业务 UI / `app/(modules)` runtime 直引非 Surface Core UI、业务 UI / `app/(modules)` 新增 `PageSurface` `moduleView` 逃生口、Platform UI runtime 直引非 direct Core UI、业务 UI / `app` type-only 直引 `DataTableColumn` / `ToolbarItem` / `FkFieldOption`、Core UI 已导出但未登记、Core UI registry 重名或归属非法、Core UI ownership/coupling debt、业务直引 Common renderer、domain shared L2 layout shell、Surface page chrome 债务、业务视觉 token 硬编码候选、Core 业务事实泄漏候选、组件内本地 UI config 候选、非 Core 包新增手写页面壳、搜索型原生 input、旧 `server/services` 文件或重复 service group 都会失败；迁移删除后必须同步删 baseline 项。页面设计漂移会读取 TSX JSX pattern，拦截手写 surface、sticky header、layout grid、table、form/control、modal overlay、toolbar layout、action button 和 table scroll shell。
 - Level 2 报告只读、不自动修复、不直接失败 CI。把某个发现升级为硬约束前，必须先进入 `scripts/arch/gate.ts` 所属的单 gate 系统，禁止在 CI 里新增旁路检查。
 - Feature/Data/Operations agent 使用 Level 2 报告拆迁移任务时，只能改对应业务文件；Architecture agent 才能修改 `scripts/arch/*`、`packages/platform/module-registry.ts`、`packages/platform/api-registry.ts` 和相关治理文档。
 - Architecture agent 做 baseline ratchet 时只能减少历史债。若迁移删除了旧 route-local service、app hook 或 direct permission 文件，必须同步删 `scripts/arch/level2-baseline.json`、`scripts/arch/level15-baseline.json` 或 `scripts/check/level1-api-baseline.json` 中对应项；禁止为新违规扩写 baseline。

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface } from "@workspace/core/ui";
+import { PageSurface, createPageActionsBlock } from "@workspace/core/ui";
 import type { PageSurfaceCommandSpec } from "@workspace/core/ui";
 
 export function profileActionSpec({
@@ -61,18 +61,16 @@ export function ProfileAction({
   onClick: () => void | Promise<void>;
 }) {
   return (
-    <FormSurface
-      kind="inline"
-      actions={[{
+    <PageSurface
+      embedded
+      kind="detail"
+      blocks={[createPageActionsBlock(label, [profileActionSpec({
         key: label,
         label,
         variant,
         disabled,
-        type: "button",
-        size: "sm",
-        className: "px-3 py-1.5 text-xs",
-        onClick: () => void onClick(),
-      }]}
+        onClick,
+      })])]}
     />
   );
 }

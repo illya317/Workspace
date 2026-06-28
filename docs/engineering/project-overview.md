@@ -158,6 +158,7 @@ Company-specific facts such as company names, codes, management systems, query g
 | Situation | Command |
 |---|---|
 | Small TS/TSX change | `npm run check:changed` |
+| Net line growth only | `npm run lint:net-lines` |
 | Architecture, permission, registry, API contract, Core/Platform boundary | `npm run check:arch` |
 | Prisma model, schema, migration | `npm run check:data` |
 | Public docs architecture check | `npm run docs:check` |

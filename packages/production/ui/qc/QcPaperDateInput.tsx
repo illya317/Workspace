@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FormSurface } from "@workspace/core/ui";
+import { InputControl } from "@workspace/core/ui";
 import type { QcLayoutPart } from "@workspace/production/server/qc";
 
 function todayValue() {
@@ -53,20 +53,17 @@ function DatePartInput({
 }) {
   const widthClass = width === "4ch" ? "w-[4ch]" : "w-[2ch]";
   return (
-    <FormSurface
-      kind="control"
-      control={{
-        kind: "text",
-        ariaLabel: label,
-        inputMode: "numeric",
-        maxLength,
-        value,
-        onChange: (nextValue) => onChange(nextValue.replace(/\D/g, "").slice(0, maxLength)),
-        onBlur,
-        readOnly,
-        className: `border-0 bg-transparent p-0 text-center tabular-nums outline-none ${widthClass}`,
-        unstyled: true,
-      }}
+    <InputControl
+      spec={{ valueType: "string", control: "text" }}
+      ariaLabel={label}
+      inputMode="numeric"
+      maxLength={maxLength}
+      value={value}
+      onChange={(nextValue) => onChange(String(nextValue ?? "").replace(/\D/g, "").slice(0, maxLength))}
+      onBlur={onBlur}
+      readOnly={readOnly}
+      className={`border-0 bg-transparent p-0 text-center tabular-nums outline-none ${widthClass}`}
+      unstyled
     />
   );
 }
@@ -113,7 +110,7 @@ export function QcPaperDateInput({
       <span>月</span>
       <DatePartInput label="日" maxLength={2} value={date.day} width="2ch" onChange={(day) => setDate((current) => ({ ...current, day }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
       <span>日</span>
-      <FormSurface kind="control" control={{ kind: "hidden", fieldKey: key, value: dateValue }} />
+      <InputControl spec={{ valueType: "string", control: "text", state: "hidden" }} dataFieldKey={key} value={dateValue} />
       {part.withTime && (
         <DatePartInput
           label="时"

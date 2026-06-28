@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface, useFeedback, type FormSurfaceItemSpec, type FormSurfaceLooseItem, type FormSurfaceProps } from "@workspace/core/ui";
+import { PageSurface, createPageFieldsBlock, useFeedback } from "@workspace/core/ui";
 import {
   DETAIL_FIELD_ORDER,
   HIDDEN_POSITION_DETAIL_KEYS,
@@ -26,12 +26,6 @@ type PositionDescriptionDetailsSurfaceProps = {
   template: PositionDescriptionTemplate;
 };
 
-type PositionDescriptionDetailsSurface = FormSurfaceProps<FormSurfaceLooseItem> & {
-  kind: "fields";
-  fields: FormSurfaceItemSpec<FormSurfaceLooseItem>[];
-};
-
-
 export function usePositionDescriptionDetailsSurface({
   value,
   disabled,
@@ -41,7 +35,7 @@ export function usePositionDescriptionDetailsSurface({
   positions,
   departmentNames,
   template,
-}: PositionDescriptionDetailsSurfaceProps): PositionDescriptionDetailsSurface {
+}: PositionDescriptionDetailsSurfaceProps) {
   const feedback = useFeedback();
   const details = parseDetailsObject(value);
   if (!details) {
@@ -52,7 +46,7 @@ export function usePositionDescriptionDetailsSurface({
         label: "明细 JSON 格式错误",
         error: "请检查 JSON 内容后重新保存。",
         fieldClassName: "md:col-span-2",
-        spec: { valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" },
+        spec: { valueType: "string" as const, control: "text" as const, multiline: true, state: disabled ? "disabled" as const : "normal" as const },
         value,
         rows: 14,
         onChange: (next: unknown) => onChange(String(next ?? "")),
@@ -105,12 +99,19 @@ export function usePositionDescriptionDetailsSurface({
 
   return {
     kind: "fields",
-    columns: 2,
+    columns: 2 as const,
     fields,
   };
 }
 
 export function PositionDescriptionDetailsEditor(props: PositionDescriptionDetailsSurfaceProps) {
   const surface = usePositionDescriptionDetailsSurface(props);
-  return <FormSurface<FormSurfaceLooseItem> {...surface} />;
+  const { fields, kind: _kind, ...options } = surface;
+  return (
+    <PageSurface
+      embedded
+      kind="detail"
+      blocks={[createPageFieldsBlock("position-description-details", fields, options)]}
+    />
+  );
 }

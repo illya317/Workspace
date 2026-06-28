@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useCallback } from "react";
-import { FormSurface, PageSurface } from "@workspace/core/ui";
+import { PageSurface, createPageInlineFieldsBlock } from "@workspace/core/ui";
 import AuditLogEntry, { type AuditEntry } from "./AuditLogEntry";
 
 export interface AuditLogModalProps {
@@ -83,26 +83,41 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
   const totalPages = Math.ceil(total / pageSize);
 
   return (
-    <FormSurface
-      kind="modal"
-      open={open}
-      title={`编辑历史 · ${entityType}${selectedDate ? ` (${selectedDate})` : ""}`}
-      onClose={onClose}
-      maxWidth="max-w-5xl"
-      fields={[
-        ...(dates.length > 0 ? [{
-          key: "date",
-          label: "日期",
-          spec: { valueType: "date" as const, editor: "select" as const, options: { source: "static" as const, mode: "dropdown" as const, items: dates.map((date) => ({ value: date, label: date })) } },
-          value: selectedDate,
-          onChange: (nextDate: unknown) => {
-            setSelectedDate(String(nextDate ?? ""));
-            setPage(1);
-          },
-          placeholder: "全部日期",
-        }] : []),
+    <PageSurface
+      kind="list"
+      embedded
+      blocks={[{
+        kind: "modal",
+        key: "audit-log",
+        open,
+        title: `编辑历史 · ${entityType}${selectedDate ? ` (${selectedDate})` : ""}`,
+        onClose,
+        maxWidth: "max-w-5xl",
+        blocks: [
+        ...(dates.length > 0 ? [
+          createPageInlineFieldsBlock("audit-date", [{
+            key: "date",
+            label: "日期",
+            value: selectedDate,
+            placeholder: "全部日期",
+            spec: {
+              valueType: "string",
+              control: "choice",
+              options: {
+                source: "static",
+                mode: "dropdown",
+                unsetLabel: "全部日期",
+                items: dates.map((date) => ({ label: date, value: date })),
+              },
+            },
+            onChange: (nextDate) => {
+              setSelectedDate(String(nextDate ?? ""));
+              setPage(1);
+            },
+          }], { kind: "filters" as const }),
+        ] : []),
         {
-          kind: "note" as const,
+          kind: "message" as const,
           key: "entries",
           content: (
             <div className="max-h-[58vh] overflow-auto">
@@ -131,26 +146,22 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
           ),
         },
         {
-          kind: "note" as const,
+          kind: "navigation" as const,
           key: "pagination",
-          content: (
-            <PageSurface
-              kind="list"
-              embedded
-              footer={{
-                pagination: {
-                  page,
-                  total,
-                  totalPages,
-                  onPageChange: setPage,
-                  compact: true,
-                  className: "border-t border-slate-200 pt-3",
-                },
-              }}
-            />
-          ),
+          surface: {
+            kind: "pagination",
+            pagination: {
+              page,
+              total,
+              totalPages,
+              onPageChange: setPage,
+              compact: true,
+              className: "border-t border-slate-200 pt-3",
+            },
+          },
         },
-      ]}
+        ],
+      }]}
     />
   );
 }

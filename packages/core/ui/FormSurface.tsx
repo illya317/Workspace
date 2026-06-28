@@ -7,15 +7,11 @@ import { renderContent } from "./FormSurface.renderers";
 import type { FormSurfaceLooseItem, FormSurfaceProps } from "./FormSurface.types";
 
 export type {
-  FormSurfaceCalendarDateControlSpec,
-  FormSurfaceChoiceControlSpec,
   FormSurfaceCommandSpec,
   FormSurfaceControlProps,
   FormSurfaceControlSpec,
   FormSurfaceFieldSpec,
-  FormSurfaceFileControlSpec,
   FormSurfaceGroupTitleSpec,
-  FormSurfaceHiddenControlSpec,
   FormSurfaceInputControlSpec,
   FormSurfaceItemSpec,
   FormSurfaceKind,
@@ -27,13 +23,8 @@ export type {
   FormSurfaceRepeatableItemSpec,
   FormSurfaceRepeatableSpec,
   FormSurfaceSectionSpec,
-  FormSurfaceSegmentedCodeControlSpec,
-  FormSurfaceSegmentedCodeFieldSpec,
-  FormSurfaceSelectControlSpec,
   FormSurfaceTagListAppendSpec,
   FormSurfaceTagListFieldSpec,
-  FormSurfaceTextareaControlSpec,
-  FormSurfaceTextControlSpec,
 } from "./FormSurface.types";
 
 export default function FormSurface<T = FormSurfaceLooseItem>(props: FormSurfaceProps<T>) {

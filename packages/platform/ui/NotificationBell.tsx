@@ -4,11 +4,12 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
 import {
+  ActionGlyph,
   announceFloatingOverlayOpen,
   FLOATING_OVERLAY_OPEN_EVENT,
-  FormSurface,
   getFloatingOverlayOpenDetail,
   PageSurface,
+  type ActionGlyphKind,
 } from "@workspace/core/ui";
 type NotificationItem = {
   id: number;
@@ -50,6 +51,45 @@ function formatNotificationTime(value: string) {
   if (date.getFullYear() === now.getFullYear()) return `${date.getMonth() + 1}-${date.getDate()} ${clock}`;
   return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${clock}`;
 }
+
+function NotificationIconButton({
+  kind,
+  label,
+  onClick,
+  disabled,
+  variant = "secondary",
+  className = "",
+}: {
+  kind: ActionGlyphKind;
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  variant?: "secondary" | "primary" | "danger" | "dangerSolid";
+  className?: string;
+}) {
+  const iconClassName = kind === "double-check" ? "h-5 w-5" : "h-4 w-4";
+  const variantClassName =
+    variant === "primary"
+      ? "bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-emerald-200"
+      : variant === "dangerSolid"
+        ? "bg-red-500 text-white hover:bg-red-600 disabled:bg-red-200"
+      : variant === "danger"
+        ? "border border-red-100 bg-red-50 text-red-600 hover:bg-red-100 disabled:bg-red-50 disabled:text-red-200"
+        : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 disabled:text-slate-300";
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      disabled={disabled}
+      onClick={onClick}
+      className={`inline-flex h-7 w-7 items-center justify-center rounded-md shadow-sm transition disabled:cursor-not-allowed ${variantClassName} ${className}`}
+    >
+      <ActionGlyph kind={kind} className={iconClassName} />
+    </button>
+  );
+}
+
 function mergeNotificationItems(current: NotificationItem[], next: NotificationItem[]) {
   const seen = new Set<number>();
   const merged: NotificationItem[] = [];
@@ -250,41 +290,16 @@ export default function NotificationBell({
               bodyClassName: "max-h-96 overflow-y-auto !p-0",
               blocks: [
                 {
-                  kind: "form",
+                  kind: "message",
                   key: "notification-actions",
-                  surface: {
-                    kind: "inline",
-                    className: "border-b border-slate-100 px-4 py-2",
-                    actions: [
-                      {
-                        key: "refresh",
-                        icon: "refresh",
-                        label: "刷新",
-                        presentation: "icon",
-                        className: "!h-7 !w-7",
-                        onClick: () => void load(0),
-                      },
-                      {
-                        key: "mark-all-read",
-                        icon: "check",
-                        label: "全部已读",
-                        presentation: "icon",
-                        className: "!h-7 !w-7",
-                        disabled: markingRead || data.unreadCount === 0,
-                        onClick: () => void markAllRead(),
-                      },
-                      {
-                        key: "clear-read",
-                        icon: "delete-bin",
-                        label: "清空已读",
-                        presentation: "icon",
-                        variant: "danger",
-                        className: "!h-7 !w-7",
-                        disabled: clearing || data.total === 0,
-                        onClick: () => void clearNotifications(),
-                      },
-                    ],
-                  },
+                  className: "rounded-none border-x-0 border-t-0 border-slate-100 bg-white px-4 py-2 text-inherit",
+                  content: (
+                    <div className="flex items-center justify-end gap-2">
+                      <NotificationIconButton kind="refresh" label="刷新" onClick={() => void load(0)} />
+                      <NotificationIconButton kind="double-check" label="全部已读" disabled={markingRead || data.unreadCount === 0} onClick={() => void markAllRead()} />
+                      <NotificationIconButton kind="delete-bin" label="清空已读" variant="danger" disabled={clearing || data.total === 0} onClick={() => void clearNotifications()} />
+                    </div>
+                  ),
                 },
                 {
                   kind: "message",
@@ -310,49 +325,24 @@ export default function NotificationBell({
                                     </div>
                                     <div className="mt-1 text-xs leading-5 text-slate-600">{item.body}</div>
                                   </div>
-                                  <FormSurface
-                                    kind="inline"
-                                    actions={[{
-                                      key: "clear-notification",
-                                      icon: "delete-bin",
-                                      label: "清除通知",
-                                      presentation: "icon",
-                                      className:
-                                        "!size-6 !rounded-full !border-0 !bg-transparent !text-lg !leading-none !text-slate-300 hover:!bg-slate-100 hover:!text-slate-600 disabled:!text-slate-200",
-                                      disabled: busyId === item.id,
-                                      onClick: () => void updateNotification(item.id, "clear"),
-                                    }]}
+                                  <NotificationIconButton
+                                    kind="delete-bin"
+                                    label="清除通知"
+                                    disabled={busyId === item.id}
+                                    className="!h-6 !w-6 !rounded-full !border-0 !bg-transparent !shadow-none !text-slate-300 hover:!bg-slate-100 hover:!text-slate-600 disabled:!text-slate-200"
+                                    onClick={() => void updateNotification(item.id, "clear")}
                                   />
                                 </div>
                                 <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
                                   <div className="min-w-0 truncate text-left text-[11px] text-slate-400">
                                     {item.actor ? `${item.actor.name} · ` : ""}{formatNotificationTime(item.createdAt)}
                                   </div>
-                                  {pendingAcknowledgement && <FormSurface
-                                      kind="inline"
-                                      actions={[
-                                        {
-                                          key: "acknowledge",
-                                          icon: "check",
-                                          label: "确认",
-                                          presentation: "icon",
-                                          variant: "primary",
-                                          className: "!h-6 !w-6",
-                                          disabled: busyId === item.id,
-                                          onClick: () => void updateNotification(item.id, "acknowledge"),
-                                        },
-                                        {
-                                          key: "reject",
-                                          icon: "cancel",
-                                          label: "拒绝",
-                                          presentation: "icon",
-                                          variant: "danger",
-                                          className: "!h-6 !w-6",
-                                          disabled: busyId === item.id,
-                                          onClick: () => void updateNotification(item.id, "reject"),
-                                        },
-                                      ]}
-                                    />}
+                                  {pendingAcknowledgement && (
+                                    <div className="flex items-center gap-1.5">
+                                      <NotificationIconButton kind="check" label="确认" variant="primary" disabled={busyId === item.id} className="!h-6 !w-6" onClick={() => void updateNotification(item.id, "acknowledge")} />
+                                      <NotificationIconButton kind="x" label="拒绝" variant="dangerSolid" disabled={busyId === item.id} className="!h-6 !w-6" onClick={() => void updateNotification(item.id, "reject")} />
+                                    </div>
+                                  )}
                                 </div>
                               </div>;
                       })}

@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import {
-  DataSurface,
-  FormSurface,
+  InputControl,
+  PageSurface,
+  createPageDataBlock,
+  createPageInlineFieldsBlock,
 } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
@@ -42,12 +44,16 @@ export function DetailSectionHeader({
 
 export function DetailStatsRow({ items }: { items: Array<{ label: string; value: ReactNode }> }) {
   return (
-    <DataSurface
-      kind="metrics"
-      framed
-      className="md:col-span-2"
-      bodyClassName="px-3 py-2"
-      metrics={items.map((item) => ({ key: item.label, label: item.label, value: item.value }))}
+    <PageSurface
+      embedded
+      kind="detail"
+      blocks={[createPageDataBlock("detail-stats", {
+        kind: "metrics",
+        framed: true,
+        className: "md:col-span-2",
+        bodyClassName: "px-3 py-2",
+        metrics: items.map((item) => ({ key: item.label, label: item.label, value: item.value })),
+      })]}
     />
   );
 }
@@ -77,24 +83,22 @@ export function EntityValueInput({
 }) {
   const current = String(value || "");
   return (
-    <FormSurface
-      kind="fields"
-      fields={[{
-        key: label,
-        label,
-        error: invalid ? "当前值不是有效引用，请重新选择。" : undefined,
-        spec: {
+    <div className="space-y-1.5">
+      <span className="text-xs font-medium text-slate-500">{label}</span>
+      <InputControl
+        spec={{
           valueType: "reference",
-          editor: "autocomplete",
+          control: "reference",
           state: disabled ? "disabled" : "normal",
           options: { source: "remote", fkKey: fkKeyForEntity(entity), endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "name" },
-        },
-        value: current,
-        displayValue: current,
-        placeholder: `搜索${label}`,
-        onChange: (_label, option) => onChange(selectedEntityName(entity, option as ReferenceOption | undefined) || null),
-      }]}
-    />
+        }}
+        value={current}
+        displayValue={current}
+        placeholder={`搜索${label}`}
+        onChange={(_label, option) => onChange(selectedEntityName(entity, option as ReferenceOption | undefined) || null)}
+      />
+      {invalid ? <span className="text-xs text-red-600">当前值不是有效引用，请重新选择。</span> : null}
+    </div>
   );
 }
 
@@ -111,19 +115,14 @@ export function StringListEditor({
   onChange: (items: string[]) => void;
   placeholder?: string;
 }) {
-  const [draft, setDraft] = useState("");
-  const [editing, setEditing] = useState(false);
   const items = primitiveListItems(value);
 
-  function commitDraft() {
-    const nextItems = primitiveListItems(draft);
+  function appendItems(values: string[]) {
+    const nextItems = values.flatMap(primitiveListItems);
     if (nextItems.length === 0) {
-      setEditing(false);
       return;
     }
     onChange([...items, ...nextItems].filter((item, index, array) => array.indexOf(item) === index));
-    setDraft("");
-    setEditing(false);
   }
 
   function removeItem(index: number) {
@@ -133,9 +132,10 @@ export function StringListEditor({
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <FormSurface<string>
-        kind="inline"
-        fields={[{
+      <PageSurface
+        embedded
+        kind="detail"
+        blocks={[createPageInlineFieldsBlock<string>("items", [{
           kind: "tagList",
           key: "items",
           label: "",
@@ -148,48 +148,18 @@ export function StringListEditor({
           emptyText: disabled ? "未设置" : undefined,
           itemClassName: () => "h-auto min-h-6 items-start rounded-xl py-1 leading-snug",
           shellClassName: "content-start",
-          append: disabled
-            ? undefined
-            : editing
-              ? {
-                  field: {
-                    key: "draft",
-                    label: "",
-                    spec: { valueType: "string", editor: "input" },
-                    value: draft,
-                    autoFocus: true,
-                    placeholder: items.length === 0 ? placeholder : "",
-                    density: "compact",
-                    className: items.length === 0 ? "min-w-32 flex-1" : "w-16 flex-none",
-                    onChange: (next) => setDraft(String(next ?? "")),
-                    onBlur: commitDraft,
-                    onKeyDown: (event) => {
-                      if (event.key === "Enter" || event.key === "Tab" || event.key === "," || event.key === "，" || event.key === "、") {
-                        if (draft.trim()) {
-                          event.preventDefault();
-                          commitDraft();
-                        }
-                      }
-                      if (event.key === "Escape") {
-                        setDraft("");
-                        setEditing(false);
-                      }
-                      if (event.key === "Backspace" && !draft && items.length > 0) {
-                        removeItem(items.length - 1);
-                      }
-                    },
-                  },
-                }
-              : {
-                  action: {
-                    key: "add",
-                    label: "+",
-                    onClick: () => setEditing(true),
-                    size: "sm",
-                    className: "!size-7 !rounded-full !border-slate-200 !bg-slate-50 !p-0 text-base font-semibold leading-none !text-slate-700 hover:!border-slate-300 hover:!bg-slate-100",
-                  },
-                },
-        }]}
+          append: disabled ? undefined : {
+            textInput: {
+              key: "draft",
+              placeholder: items.length === 0 ? placeholder : "",
+              inputClassName: items.length === 0 ? "min-w-32 flex-1" : "w-16 flex-none",
+              onAppend: appendItems,
+              onRemoveLast: () => {
+                if (items.length > 0) removeItem(items.length - 1);
+              },
+            },
+          },
+        }])]}
       />
     </div>
   );

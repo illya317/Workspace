@@ -4,7 +4,7 @@ import ts from "typescript";
 import {
   coreUiComponentRegistry,
   coreUiComponentRegistryRaw,
-  type CoreUiComponentOwnerL1,
+  type CoreUiComponentCategory,
 } from "../../packages/core/ui/component-registry";
 
 type SourceInfo = {
@@ -27,13 +27,13 @@ export type CoreUiInvalidOwnership = {
 export type CoreUiCommonDomainDependency = {
   source: string;
   target: string;
-  sourceOwnerL2: string;
-  targetOwnerL2: string;
+  sourceSubcategory: string;
+  targetSubcategory: string;
 };
 
 export type CoreUiSiblingL2Coupling = {
-  sourceOwnerL2: string;
-  targetOwnerL2: string;
+  sourceSubcategory: string;
+  targetSubcategory: string;
   edgeCount: number;
   sourceDependencyCount: number;
   ratio: number;
@@ -50,7 +50,7 @@ export type CoreUiOwnershipWarnings = {
 export type BusinessCommonRendererImport = {
   file: string;
   importedName: string;
-  ownerL2: string;
+  subcategory: string;
   specifier: string;
 };
 
@@ -114,20 +114,32 @@ function registryByName() {
   return new Map(coreUiComponentRegistry.map((component) => [component.name, component]));
 }
 
-function ownerL1FromOwnerL2(ownerL2: string | undefined): CoreUiComponentOwnerL1 | null {
-  if (!ownerL2) return null;
-  const prefix = ownerL2.split(".")[0];
+function categoryFromSubcategory(subcategory: string | undefined): CoreUiComponentCategory | null {
+  if (!subcategory) return null;
+  const prefix = subcategory.split(".")[0];
   if (prefix === "page" || prefix === "data" || prefix === "form" || prefix === "common" || prefix === "feedback") {
     return prefix;
   }
   return null;
 }
 
-function relationshipTargets(component: { composes?: readonly string[]; includes?: readonly string[]; foundations?: readonly string[] }) {
-  return [
-    ...(component.composes ?? component.includes ?? []),
-    ...(component.foundations ?? []),
-  ];
+function relationshipTargets(component: { composes?: readonly string[] }) {
+  return component.composes ?? [];
+}
+
+const CORE_UI_ENCAPSULATION_L2_EDGES = new Set([
+  "data.surface -> data.table",
+  "feedback.service -> feedback.renderer",
+  "page.surface -> page.blocks",
+  "page.surface -> page.frame",
+]);
+
+function isCoreUiEncapsulationEdge(
+  source: { subcategory?: string },
+  target: { subcategory?: string },
+) {
+  if (!source.subcategory || !target.subcategory) return false;
+  return CORE_UI_ENCAPSULATION_L2_EDGES.has(`${source.subcategory} -> ${target.subcategory}`);
 }
 
 export function coreUiOwnershipWarningKey(candidate:
@@ -138,8 +150,8 @@ export function coreUiOwnershipWarningKey(candidate:
 ) {
   if ("missing" in candidate) return `${candidate.name}: missing ${candidate.missing.join(",")}`;
   if ("reason" in candidate) return `${candidate.name}: ${candidate.reason}`;
-  if ("source" in candidate) return `${candidate.source} -> ${candidate.target}: ${candidate.sourceOwnerL2} -> ${candidate.targetOwnerL2}`;
-  return `${candidate.sourceOwnerL2} -> ${candidate.targetOwnerL2}: ${candidate.edgeCount}/${candidate.sourceDependencyCount}`;
+  if ("source" in candidate) return `${candidate.source} -> ${candidate.target}: ${candidate.sourceSubcategory} -> ${candidate.targetSubcategory}`;
+  return `${candidate.sourceSubcategory} -> ${candidate.targetSubcategory}: ${candidate.edgeCount}/${candidate.sourceDependencyCount}`;
 }
 
 export function findCoreUiOwnershipWarnings(): CoreUiOwnershipWarnings {
@@ -148,52 +160,53 @@ export function findCoreUiOwnershipWarnings(): CoreUiOwnershipWarnings {
   const coreUiInvalidOwnership: CoreUiInvalidOwnership[] = [];
   const coreUiCommonDomainDependency: CoreUiCommonDomainDependency[] = [];
   const edgeCounts = new Map<string, {
-    sourceOwnerL2: string;
-    targetOwnerL2: string;
+    sourceSubcategory: string;
+    targetSubcategory: string;
     edgeCount: number;
     targets: Set<string>;
   }>();
   const dependencyCounts = new Map<string, number>();
 
   for (const raw of coreUiComponentRegistryRaw) {
-    const missing = ["ownerL1", "ownerL2", "role", "publicUse"]
+    const missing = ["category", "subcategory"]
       .filter((fieldName) => raw[fieldName as keyof typeof raw] === undefined);
     if (missing.length > 0) coreUiMissingOwnership.push({ name: raw.name, missing });
   }
 
   for (const component of coreUiComponentRegistry) {
-    const ownerL1 = component.ownerL1;
-    const ownerL2 = component.ownerL2;
-    const expectedOwnerL1 = ownerL1FromOwnerL2(ownerL2);
-    if (!ownerL1 || !ownerL2 || !component.role || !component.publicUse) {
+    const category = component.category;
+    const subcategory = component.subcategory;
+    const expectedCategory = categoryFromSubcategory(subcategory);
+    if (!category || !subcategory) {
       coreUiInvalidOwnership.push({ name: component.name, reason: "enriched registry entry still has missing ownership fields" });
       continue;
     }
-    if (expectedOwnerL1 !== ownerL1) {
-      coreUiInvalidOwnership.push({ name: component.name, reason: `ownerL2 ${ownerL2} does not belong to ownerL1 ${ownerL1}` });
+    if (expectedCategory !== category) {
+      coreUiInvalidOwnership.push({ name: component.name, reason: `subcategory ${subcategory} does not belong to category ${category}` });
     }
-    if (component.uiLevel === 1 && component.role !== "entry") {
-      coreUiInvalidOwnership.push({ name: component.name, reason: "uiLevel 1 must use role=entry" });
-    }
-
     const targets = relationshipTargets(component);
-    dependencyCounts.set(ownerL2, (dependencyCounts.get(ownerL2) ?? 0) + targets.length);
+    dependencyCounts.set(subcategory, (dependencyCounts.get(subcategory) ?? 0) + targets.length);
     for (const targetName of targets) {
       const target = byName.get(targetName);
-      if (!target?.ownerL1 || !target.ownerL2) continue;
-      if (ownerL1 === "common" && target.ownerL1 !== "common") {
+      if (!target?.category || !target.subcategory) continue;
+      if (category === "common" && target.category !== "common") {
         coreUiCommonDomainDependency.push({
           source: component.name,
           target: target.name,
-          sourceOwnerL2: ownerL2,
-          targetOwnerL2: target.ownerL2,
+          sourceSubcategory: subcategory,
+          targetSubcategory: target.subcategory,
         });
       }
-      if (ownerL2 !== target.ownerL2 && ownerL1 !== "common" && target.ownerL1 !== "common") {
-        const key = `${ownerL2} -> ${target.ownerL2}`;
+      if (
+        subcategory !== target.subcategory &&
+        category !== "common" &&
+        target.category !== "common" &&
+        !isCoreUiEncapsulationEdge(component, target)
+      ) {
+        const key = `${subcategory} -> ${target.subcategory}`;
         const edge = edgeCounts.get(key) ?? {
-          sourceOwnerL2: ownerL2,
-          targetOwnerL2: target.ownerL2,
+          sourceSubcategory: subcategory,
+          targetSubcategory: target.subcategory,
           edgeCount: 0,
           targets: new Set<string>(),
         };
@@ -206,10 +219,10 @@ export function findCoreUiOwnershipWarnings(): CoreUiOwnershipWarnings {
 
   const coreUiSiblingL2Coupling = [...edgeCounts.values()]
     .map((edge) => {
-      const sourceDependencyCount = dependencyCounts.get(edge.sourceOwnerL2) ?? 0;
+      const sourceDependencyCount = dependencyCounts.get(edge.sourceSubcategory) ?? 0;
       return {
-        sourceOwnerL2: edge.sourceOwnerL2,
-        targetOwnerL2: edge.targetOwnerL2,
+        sourceSubcategory: edge.sourceSubcategory,
+        targetSubcategory: edge.targetSubcategory,
         edgeCount: edge.edgeCount,
         sourceDependencyCount,
         ratio: sourceDependencyCount === 0 ? 0 : edge.edgeCount / sourceDependencyCount,
@@ -217,7 +230,7 @@ export function findCoreUiOwnershipWarnings(): CoreUiOwnershipWarnings {
       };
     })
     .filter((edge) => {
-      const reverse = edgeCounts.get(`${edge.targetOwnerL2} -> ${edge.sourceOwnerL2}`);
+      const reverse = edgeCounts.get(`${edge.targetSubcategory} -> ${edge.sourceSubcategory}`);
       return edge.edgeCount >= 3 || edge.ratio > 0.25 || Boolean(reverse);
     });
 
@@ -252,13 +265,13 @@ export function findBusinessCommonRendererImports(files: SourceInfo[]) {
         if (element.isTypeOnly) continue;
         const importedName = element.propertyName?.text ?? element.name.text;
         const component = byName.get(importedName);
-        if (component?.agentExposure?.mode === "direct") continue;
-        const isCommonRenderer = component?.ownerL1 === "common" && component.role !== "foundation";
+        if (component?.exposure?.mode === "direct") continue;
+        const isCommonRenderer = component?.category === "common" && component.subcategory !== "common.foundation";
         if (!isCommonRenderer && !CORE_UI_COMMON_RENDERER_IMPORT_NAMES.has(importedName)) continue;
         candidates.push({
           file: file.relPath,
           importedName,
-          ownerL2: component?.ownerL2 ?? "common.unknown",
+          subcategory: component?.subcategory ?? "common.unknown",
           specifier,
         });
       }

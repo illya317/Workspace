@@ -2,10 +2,14 @@
 
 import { useMemo } from "react";
 import {
-  DataSurface,
-  FormSurface,
+  PageSurface,
+  createPageActionsBlock,
+  createPageDataBlock,
+  createPageInlineFieldsBlock,
   type DataSurfaceColumnSpec,
+  type FormSurfaceFieldSpec,
   type PageSurfaceBlockSpec,
+  type PageSurfaceCommandSpec,
 } from "@workspace/core/ui";
 import type {
   WorkReportCollectionResponse,
@@ -49,7 +53,7 @@ function createDraftColumns({
     required: true,
     headerClassName: "w-[8rem]",
     cellClassName: "w-[8rem] min-w-[8rem] max-w-[8rem] whitespace-normal align-middle",
-    cell: item => item.workItemId && item.source !== "stale" ? <div className="break-words text-sm font-medium text-slate-900">{item.title}</div> : <FormSurface kind="inline" field={{ key: `title-${item.rowIndex}`, label: "事项", spec: { valueType: "string", editor: "input", state: !canEdit ? "readonly" : "normal" }, value: item.title, placeholder: "填写事项", onChange: value => onUpdate(item.rowIndex, {
+    cell: item => item.workItemId && item.source !== "stale" ? <div className="break-words text-sm font-medium text-slate-900">{item.title}</div> : <InlineFieldCell blockKey={`title-${item.rowIndex}`} field={{ key: `title-${item.rowIndex}`, label: "事项", spec: { valueType: "string", control: "text", state: !canEdit ? "readonly" : "normal" }, value: item.title, placeholder: "填写事项", onChange: value => onUpdate(item.rowIndex, {
       title: String(value ?? "")
     }) }} />
   }, {
@@ -58,7 +62,7 @@ function createDraftColumns({
     required: true,
     headerClassName: "w-[16rem]",
     cellClassName: "w-[16rem] min-w-[16rem] max-w-[16rem] align-top",
-    cell: item => <FormSurface kind="inline" field={{ key: `done-${item.rowIndex}`, label: "本周完成", spec: { valueType: "string", editor: "textarea", state: !canEdit ? "readonly" : "normal" }, value: item.doneThisWeek, rows: 3, placeholder: item.previousPlanSnapshot ? `上周计划：${item.previousPlanSnapshot}` : "本周干了什么", onChange: value => onUpdate(item.rowIndex, {
+    cell: item => <InlineFieldCell blockKey={`done-${item.rowIndex}`} field={{ key: `done-${item.rowIndex}`, label: "本周完成", spec: { valueType: "string", control: "text", multiline: true, state: !canEdit ? "readonly" : "normal" }, value: item.doneThisWeek, rows: 3, placeholder: item.previousPlanSnapshot ? `上周计划：${item.previousPlanSnapshot}` : "本周干了什么", onChange: value => onUpdate(item.rowIndex, {
       doneThisWeek: String(value ?? "")
     }) }} />
   }, {
@@ -67,7 +71,7 @@ function createDraftColumns({
     required: true,
     headerClassName: "w-[16rem]",
     cellClassName: "w-[16rem] min-w-[16rem] max-w-[16rem] align-top",
-    cell: item => <FormSurface kind="inline" field={{ key: `next-${item.rowIndex}`, label: "下周计划", spec: { valueType: "string", editor: "textarea", state: !canEdit ? "readonly" : "normal" }, value: item.planNextWeek, rows: 3, placeholder: "下周准备做什么", onChange: value => onUpdate(item.rowIndex, {
+    cell: item => <InlineFieldCell blockKey={`next-${item.rowIndex}`} field={{ key: `next-${item.rowIndex}`, label: "下周计划", spec: { valueType: "string", control: "text", multiline: true, state: !canEdit ? "readonly" : "normal" }, value: item.planNextWeek, rows: 3, placeholder: "下周准备做什么", onChange: value => onUpdate(item.rowIndex, {
       planNextWeek: String(value ?? "")
     }) }} />
   }, {
@@ -76,17 +80,14 @@ function createDraftColumns({
     required: true,
     headerClassName: "w-24",
     cellClassName: "w-24 align-middle",
-    cell: item => canEdit && item.source !== "work" ? <FormSurface kind="inline" actions={[{ key: `remove-${item.rowIndex}`, label: "移除", variant: "danger", onClick: () => onRemove(item.rowIndex) }]} /> : <span className="text-xs text-slate-400">锁定</span>
+    cell: item => canEdit && item.source !== "work" ? <InlineActionsCell blockKey={`remove-${item.rowIndex}`} actions={[{ key: `remove-${item.rowIndex}`, label: "移除", variant: "danger", onClick: () => onRemove(item.rowIndex) }]} /> : <span className="text-xs text-slate-400">锁定</span>
   }];
 }
 
 export function buildReportDraftTableBlock(props: ReportDraftTableProps): PageSurfaceBlockSpec {
   const rows = getDraftRows(props.draft);
   const columns = createDraftColumns(props);
-  return {
-    kind: "data",
-    key: "report-draft-table",
-    surface: {
+  return createPageDataBlock("report-draft-table", {
       kind: "table",
       rows,
       columns,
@@ -96,14 +97,13 @@ export function buildReportDraftTableBlock(props: ReportDraftTableProps): PageSu
       emptyText: "暂无可汇报事项",
       rowKey: (item, index) => item.id || item.workItemId || `new-${index}`,
       scrollClassName: "overflow-y-hidden rounded-lg border border-slate-200 bg-white",
-    },
-  };
+    });
 }
 
 export function ReportDraftTable(props: ReportDraftTableProps) {
   const rows = useMemo(() => getDraftRows(props.draft), [props.draft]);
   const columns = useMemo(() => createDraftColumns(props), [props]);
-  return <DataSurface kind="table" rows={rows} columns={columns} visibleColumns={[]} density="compact" loading={props.loading} emptyText="暂无可汇报事项" rowKey={(item, index) => item.id || item.workItemId || `new-${index}`} scrollClassName="overflow-y-hidden rounded-lg border border-slate-200 bg-white" />;
+  return <PageSurface embedded kind="list" blocks={[createPageDataBlock("report-draft-table", { kind: "table", rows, columns, visibleColumns: [], density: "compact", loading: props.loading, emptyText: "暂无可汇报事项", rowKey: (item, index) => item.id || item.workItemId || `new-${index}`, scrollClassName: "overflow-y-hidden rounded-lg border border-slate-200 bg-white" })]} />;
 }
 
 function createCollectionColumns(): DataSurfaceColumnSpec<WorkReportCollectionSpace>[] {
@@ -136,17 +136,10 @@ function createCollectionColumns(): DataSurfaceColumnSpec<WorkReportCollectionSp
 export function buildReportCollectionTableBlock({ collection, loading }: ReportCollectionTableProps): PageSurfaceBlockSpec {
   const rows = collection?.spaces || [];
   if (!loading && rows.length === 0) {
-    return {
-      kind: "data",
-      key: "report-collection-empty",
-      surface: { kind: "records", records: [], empty: "暂无可汇总的工作空间" },
-    };
+    return createPageDataBlock("report-collection-empty", { kind: "records", records: [], empty: "暂无可汇总的工作空间" });
   }
   const columns = createCollectionColumns();
-  return {
-    kind: "data",
-    key: "report-collection-table",
-    surface: {
+  return createPageDataBlock("report-collection-table", {
       kind: "table",
       rows,
       columns,
@@ -156,15 +149,16 @@ export function buildReportCollectionTableBlock({ collection, loading }: ReportC
       emptyText: "暂无汇报",
       rowKey: space => `${space.targetType}:${space.targetId}`,
       scrollClassName: "overflow-y-hidden rounded-lg border border-slate-200 bg-white",
-    },
-  };
+    });
 }
 
 export function ReportCollectionTable({ collection, loading }: ReportCollectionTableProps) {
   const rows = collection?.spaces || [];
   const columns = useMemo(() => createCollectionColumns(), []);
-  if (!loading && rows.length === 0) return <DataSurface kind="records" records={[]} empty="暂无可汇总的工作空间" />;
-  return <DataSurface kind="table" rows={rows} columns={columns} visibleColumns={[]} density="compact" loading={loading} emptyText="暂无汇报" rowKey={space => `${space.targetType}:${space.targetId}`} scrollClassName="overflow-y-hidden rounded-lg border border-slate-200 bg-white" />;
+  const block = !loading && rows.length === 0
+    ? createPageDataBlock("report-collection-empty", { kind: "records", records: [], empty: "暂无可汇总的工作空间" })
+    : createPageDataBlock("report-collection-table", { kind: "table", rows, columns, visibleColumns: [], density: "compact", loading, emptyText: "暂无汇报", rowKey: space => `${space.targetType}:${space.targetId}`, scrollClassName: "overflow-y-hidden rounded-lg border border-slate-200 bg-white" });
+  return <PageSurface embedded kind="list" blocks={[block]} />;
 }
 
 function ReportStack({
@@ -172,9 +166,9 @@ function ReportStack({
 }: {
   space: WorkReportCollectionSpace;
 }) {
-  return <DataSurface
-    kind="records"
-    records={space.reports.map(report => ({
+  return <PageSurface embedded kind="list" blocks={[createPageDataBlock("report-stack", {
+    kind: "records",
+    records: space.reports.map(report => ({
       key: String(report.id),
       expanded: true,
       onToggle: () => {},
@@ -190,8 +184,28 @@ function ReportStack({
                 <div><span className="text-slate-400">下周：</span>{item.planNextWeek || "无"}</div>
               </div>)}
           </div>,
-    }))}
-  />;
+    })),
+  })]} />;
+}
+
+function InlineFieldCell({
+  blockKey,
+  field,
+}: {
+  blockKey: string;
+  field: FormSurfaceFieldSpec;
+}) {
+  return <PageSurface embedded kind="detail" blocks={[createPageInlineFieldsBlock(blockKey, [field])]} />;
+}
+
+function InlineActionsCell({
+  blockKey,
+  actions,
+}: {
+  blockKey: string;
+  actions: PageSurfaceCommandSpec[];
+}) {
+  return <PageSurface embedded kind="detail" blocks={[createPageActionsBlock(blockKey, actions)]} />;
 }
 
 function formatDateTime(value: string | null) {

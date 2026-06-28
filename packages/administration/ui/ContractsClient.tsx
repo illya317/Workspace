@@ -2,8 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState } from "react";
-import { PageSurface, useFeedback } from "@workspace/core/ui";
-import type { DataSurfaceProps } from "@workspace/core/ui";
+import { PageSurface, createPageTableBlock, useFeedback } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { useContracts } from "./hooks/useContracts";
 import getContractFilterToolbarItems from "./components/ContractFilters";
@@ -132,26 +131,21 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
           ],
         }}
         blocks={[
-          {
-            kind: "data",
-            key: "contracts",
-            surface: ({
-              kind: "table",
-              framed: true,
-              className: "overflow-hidden",
-              bodyClassName: "overflow-x-auto",
-              rows: contracts,
-              columns: toolbarColumns,
-              visibleColumns,
-              rowKey: (contract) => contract.id,
-              emptyText: "暂无数据",
-              rowActions: (contract) => [
-                { key: "edit", label: "编辑", kind: "edit", onClick: () => openEdit(contract) },
-                { key: "delete", label: "删除", kind: "delete", onClick: () => void deleteContract(contract.id) },
-              ],
-              actionsColumn: { centered: true },
-            } satisfies DataSurfaceProps<Contract>) as DataSurfaceProps,
-          },
+          createPageTableBlock<Contract>("contracts", {
+            framed: true,
+            className: "overflow-hidden",
+            bodyClassName: "overflow-x-auto",
+            rows: contracts,
+            columns: toolbarColumns,
+            visibleColumns,
+            rowKey: (contract) => contract.id,
+            emptyText: "暂无数据",
+            rowActions: (contract) => [
+              { key: "edit", label: "编辑", kind: "edit", onClick: () => openEdit(contract) },
+              { key: "delete", label: "删除", kind: "delete", onClick: () => void deleteContract(contract.id) },
+            ],
+            actionsColumn: { centered: true },
+          }),
         ]}
         footer={{
           pagination: {

@@ -147,7 +147,7 @@ export function useContractAnalyticsBlocks({
                 { value: "expired", label: "已到期" },
               ],
             },
-            { kind: "search", key: "search", value: search, onChange: setSearch, placeholder: "搜索姓名、工号、公司...", className: "max-w-xs" },
+            { kind: "search", key: "search", value: search, onChange: setSearch, placeholder: "搜索姓名、工号、公司..." },
             { kind: "text", key: "meta", content: <>{filtered.length} 人</> },
           ],
         },

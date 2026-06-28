@@ -2,9 +2,9 @@
 
 import type { ReactNode } from "react";
 import {
-  FormSurface,
+  InputControl,
   PageSurface,
-  type FormSurfaceInputControlSpec,
+  type InputControlProps,
   type PageSurfaceBlockSpec,
 } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
@@ -29,8 +29,8 @@ interface FieldInputProps {
   onChange: (key: string, value: unknown, option?: ReferenceOption) => void;
 }
 
-function ControlField(control: Omit<FormSurfaceInputControlSpec, "kind">) {
-  return <FormSurface kind="control" control={{ kind: "inputControl", ...control }} />;
+function ControlField(control: InputControlProps) {
+  return <InputControl {...control} />;
 }
 
 export function ProfileFieldInput({
@@ -44,7 +44,7 @@ export function ProfileFieldInput({
   if (field.type === "lunarBirthday") {
     return (
       <ControlField
-        spec={{ valueType: "string", editor: "input", state: "readonly" }}
+        spec={{ valueType: "string", control: "text", state: "readonly" }}
         value={solarToLunarBirthday(value) || ""}
         placeholder="未设置"
       />
@@ -98,7 +98,7 @@ export function ProfileFieldInput({
       <ControlField
         spec={{
           valueType: "boolean",
-          editor: "select",
+          control: "choice",
           state: disabled ? "disabled" : "normal",
           options: {
             source: "static",
@@ -130,7 +130,7 @@ export function ProfileFieldInput({
     if (disabled) {
       return (
         <ControlField
-          spec={{ valueType: "string", editor: "input", state: "readonly" }}
+          spec={{ valueType: "string", control: "text", state: "readonly" }}
           value={display || normalizeInputValue(value) || ""}
           placeholder="未设置"
         />
@@ -140,7 +140,7 @@ export function ProfileFieldInput({
       <ControlField
         spec={{
           valueType: "reference",
-          editor: "autocomplete",
+          control: "choice",
           state: disabled || reportToDisabled ? "disabled" : "normal",
           options: {
             source: "remote",
@@ -165,7 +165,7 @@ export function ProfileFieldInput({
   if (field.type === "textarea") {
     return (
       <ControlField
-        spec={{ valueType: "string", editor: "textarea", state: disabled ? "disabled" : "normal" }}
+        spec={{ valueType: "string", control: "text", multiline: true, state: disabled ? "disabled" : "normal" }}
         value={normalizeInputValue(value)}
         onChange={(next) => onChange(field.key, next || null)}
         rows={3}
@@ -199,7 +199,7 @@ export function ProfileFieldInput({
       <ControlField
         spec={{
           valueType: "string",
-          editor: "select",
+          control: "choice",
           state: disabled ? "disabled" : "normal",
           options: { source: "static", items: (field.options || []).map((option) => ({ label: option, value: option })) },
         }}
@@ -212,7 +212,7 @@ export function ProfileFieldInput({
   if (field.type === "date") {
     return (
       <ControlField
-        spec={{ valueType: "date", editor: "datePicker", state: disabled ? "disabled" : "normal" }}
+        spec={{ valueType: "date", control: "temporal", precision: "date", state: disabled ? "disabled" : "normal" }}
         value={normalizeInputValue(value)}
         onChange={(next) => onChange(field.key, next)}
       />
@@ -222,7 +222,7 @@ export function ProfileFieldInput({
   if (field.type === "phone") {
     return (
       <ControlField
-        spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }}
+        spec={{ valueType: "string", control: "text", state: disabled ? "disabled" : "normal" }}
         value={formatPhoneNumber(value)}
         onChange={(next) => onChange(field.key, normalizePhoneValue(next))}
         inputMode="tel"
@@ -235,7 +235,7 @@ export function ProfileFieldInput({
       <ControlField
         spec={{
           valueType: "number",
-          editor: "number",
+          control: "number",
           format: "percent",
           state: disabled ? "disabled" : "normal",
           validation: { min: 0, max: 100 },
@@ -250,7 +250,7 @@ export function ProfileFieldInput({
   if (field.type === "chineseId") {
     return (
       <ControlField
-        spec={{ valueType: "string", editor: "input", state: disabled ? "disabled" : "normal" }}
+        spec={{ valueType: "string", control: "text", state: disabled ? "disabled" : "normal" }}
         value={normalizeChineseIdNumber(value) ?? ""}
         onChange={(next) => onChange(field.key, normalizeChineseIdNumber(next)?.slice(0, 18) ?? null)}
         inputMode="text"
@@ -263,7 +263,7 @@ export function ProfileFieldInput({
     <ControlField
       spec={{
         valueType: field.type === "number" ? "number" : "string",
-        editor: field.type === "number" ? "number" : "input",
+        control: field.type === "number" ? "number" : "text",
         state: disabled ? "disabled" : "normal",
       }}
       value={normalizeInputValue(value)}

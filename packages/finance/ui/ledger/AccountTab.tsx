@@ -1,7 +1,7 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PageSurface, useFeedback } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { ACCOUNT_COLUMNS, type Account } from "../components/AccountTable";
@@ -38,9 +38,9 @@ export default function AccountTab({
   const [visibleColumns, setVisibleColumns] = useState<string[]>(
     () => ACCOUNT_COLUMNS.filter((c) => c.required || c.defaultVisible).map((c) => c.key)
   );
-  const feedback = useFeedback();
+  const { error } = useFeedback();
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams();
     if (companyFilter) params.set("companyCode", companyFilter);
@@ -60,15 +60,14 @@ export default function AccountTab({
         setTotalPages(data.totalPages || 1);
       }
     } catch {
-      feedback.error("网络错误");
+      error("网络错误");
     }
     setLoading(false);
-  }
+  }, [companyFilter, error, keyword, levelFilter, page, pageSize, scope, yearFilter]);
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyFilter, levelFilter, yearFilter, scope, keyword, page, pageSize]);
+  }, [load]);
 
   const _levels = [...new Set(accounts.map((a) => a.subjectLevel).filter(Boolean))].sort((a, b) => (a || 0) - (b || 0));
   void _levels;
@@ -88,7 +87,6 @@ export default function AccountTab({
           setPage(1);
         },
         options: [{ value: "level", label: "层级" }, { value: "scope", label: "类型" }],
-        triggerClassName: "min-w-28",
       },
       {
         kind: "select" as const,
@@ -105,7 +103,6 @@ export default function AccountTab({
         options: extraField === "level"
           ? [{ value: "", label: "全部" }, { value: "1", label: "1级" }, { value: "2", label: "2级" }, { value: "3", label: "3级" }, { value: "4", label: "4级" }, { value: "5", label: "5级" }]
           : [{ value: "", label: "全部" }, { value: "mapped", label: "集团" }, { value: "unmapped", label: "独有" }, { value: "inactive", label: "未启用" }],
-        triggerClassName: "min-w-28",
       },
     ] : []),
     ...(canWrite ? [{
@@ -132,7 +129,6 @@ export default function AccountTab({
         { value: "noRule", label: `未配置 ${reclassStats.noRule}` },
         { value: "all", label: `全部 ${reclassStats.total}` },
       ],
-      triggerClassName: "min-w-36",
     }] : []),
   ];
   const toolbarItems = useFinanceFilterToolbarItems({

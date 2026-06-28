@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useTransition } from "react";
-import { FormSurface } from "@workspace/core/ui";
+import { InputControl } from "@workspace/core/ui";
 
 interface Props {
   batchId: number;
@@ -25,15 +25,11 @@ export default function QcBatchNumberInput({ batchId, initialValue }: Props) {
   }
 
   return (
-    <FormSurface
-      kind="control"
-      control={{
-        kind: "inputControl",
-        spec: { valueType: "string", editor: "input", state: isPending ? "disabled" : "normal" },
-        value,
-        onChange: (next) => setValue(String(next ?? "")),
-        onBlur: save,
-      }}
+    <InputControl
+      spec={{ valueType: "string", control: "text", state: isPending ? "disabled" : "normal" }}
+      value={value}
+      onChange={(next) => setValue(String(next ?? ""))}
+      onBlur={save}
     />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface } from "@workspace/core/ui";
+import { PageSurface, createPageInlineFieldsBlock } from "@workspace/core/ui";
 
 interface Version {
   id: number;
@@ -28,28 +28,31 @@ export default function BudgetVersionSelector({ versions, activeVersionId, onCha
   }
 
   return (
-    <FormSurface
-      kind="inline"
-      field={{
-        key: "version",
-        label: "预算版本",
-        spec: {
-          valueType: "number",
-          editor: "select",
-          options: {
-            source: "static",
-            mode: "dropdown",
-            items: versions.map((v) => ({
-              value: String(v.id),
-              label: `${v.name} (${statusLabel(v.status)})`,
-            })),
+    <PageSurface
+      kind="list"
+      embedded
+      blocks={[
+        createPageInlineFieldsBlock("budget-version", [{
+          key: "version",
+          label: "预算版本",
+          spec: {
+            valueType: "number",
+            control: "choice",
+            options: {
+              source: "static",
+              mode: "dropdown",
+              items: versions.map((v) => ({
+                value: String(v.id),
+                label: `${v.name} (${statusLabel(v.status)})`,
+              })),
+            },
           },
-        },
-        value: activeVersionId == null ? "" : String(activeVersionId),
-        onChange: (nextValue) => {
-          if (nextValue) onChange(parseInt(String(nextValue), 10));
-        },
-      }}
+          value: activeVersionId == null ? "" : String(activeVersionId),
+          onChange: (nextValue) => {
+            if (nextValue) onChange(parseInt(String(nextValue), 10));
+          },
+        }]),
+      ]}
     />
   );
 }

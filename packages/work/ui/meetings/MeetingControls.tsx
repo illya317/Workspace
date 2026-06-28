@@ -1,9 +1,22 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { FormSurface } from "@workspace/core/ui";
+import { PageSurface, createPageFieldsBlock, createPageInlineFieldsBlock } from "@workspace/core/ui";
+import type { PageSurfaceBlockSpec, PageSurfaceKind } from "@workspace/core/ui";
 import type { MeetingDetail } from "./meeting-types";
 import { statusLabel } from "./meeting-utils";
+
+export function PageBlockSurface({
+  block,
+  className,
+  kind = "detail",
+}: {
+  block: PageSurfaceBlockSpec;
+  className?: string;
+  kind?: Exclude<PageSurfaceKind, "split">;
+}) {
+  return <PageSurface embedded kind={kind} className={className} blocks={[block]} />;
+}
 
 export function Section({
   title,
@@ -13,14 +26,13 @@ export function Section({
   children: ReactNode;
 }) {
   return (
-    <FormSurface
-      kind="fields"
-      fields={[{
+    <PageBlockSurface
+      block={createPageFieldsBlock("section", [{
         kind: "section",
         key: title,
         title,
         fields: [{ kind: "note", key: `${title}-content`, content: <div className="space-y-3">{children}</div> }],
-      }]}
+      }])}
     />
   );
 }
@@ -47,46 +59,40 @@ export function InputBox({
   className?: string;
 }) {
   const dateTime = splitDateTimeValue(value);
-  if (kind === "datetime") {
-    return (
-      <FormSurface
-        kind="inline"
-        className={className}
-        fields={[
-          {
-            key: `${label}-date`,
-            label: `${label}日期`,
-            spec: { valueType: "date", editor: "datePicker" },
-            value: dateTime.date,
-            onChange: date => onChange(combineDateTimeValue(String(date ?? ""), dateTime.time)),
-            placeholder: "选择日期",
-          },
-          {
-            key: `${label}-time`,
-            label: `${label}时间`,
-            spec: { valueType: "time", editor: "timePicker" },
-            value: dateTime.time,
-            onChange: time => onChange(combineDateTimeValue(dateTime.date, String(time ?? ""))),
-          },
-        ]}
-      />
-    );
-  }
-  return (
-    <FormSurface
-      kind="inline"
-      className={className}
-      field={{
-        key: label,
-        label,
-        spec: {
-          valueType: kind === "number" ? "number" : kind === "date" ? "date" : "string",
-          editor: kind === "number" ? "number" : kind === "date" ? "datePicker" : "input",
+  const block = kind === "datetime"
+    ? createPageInlineFieldsBlock(`${label}-datetime`, [
+        {
+          key: `${label}-date`,
+          label: `${label}日期`,
+          spec: { valueType: "date", control: "temporal", precision: "date" },
+          value: dateTime.date,
+          onChange: date => onChange(combineDateTimeValue(String(date ?? ""), dateTime.time)),
+          placeholder: "选择日期",
         },
-        value,
-        onChange: next => onChange(String(next ?? "")),
-        placeholder: kind === "date" ? "选择日期" : `输入${label}`,
-      }}
+        {
+          key: `${label}-time`,
+          label: `${label}时间`,
+          spec: { valueType: "time", control: "temporal", precision: "time" },
+          value: dateTime.time,
+          onChange: time => onChange(combineDateTimeValue(dateTime.date, String(time ?? ""))),
+        },
+      ], { className })
+    : createPageInlineFieldsBlock(label, [{
+      key: label,
+      label,
+      spec: {
+        valueType: kind === "number" ? "number" : kind === "date" ? "date" : "string",
+        control: kind === "number" ? "number" : kind === "date" ? "temporal" : "text",
+        precision: kind === "date" ? "date" : undefined,
+      },
+      value,
+      onChange: next => onChange(String(next ?? "")),
+      placeholder: kind === "date" ? "选择日期" : `输入${label}`,
+    }], { className });
+  return (
+    <PageBlockSurface
+      className={className}
+      block={block}
     />
   );
 }
@@ -119,20 +125,19 @@ export function SelectBox({
   }>;
 }) {
   return (
-    <FormSurface
-      kind="inline"
-      field={{
+    <PageBlockSurface
+      block={createPageInlineFieldsBlock(label, [{
         key: label,
         label,
         spec: {
           valueType: "string",
-          editor: options.length > 8 ? "autocomplete" : "select",
-          options: { source: "static", items: options, visibleCount: 5 },
+          control: "choice",
+          options: { source: "static", mode: options.length > 8 ? "autocomplete" : "dropdown", items: options, visibleCount: 5 },
         },
         value,
         onChange: next => onChange(String(next ?? "")),
         placeholder: "未设置",
-      }}
+      }])}
     />
   );
 }

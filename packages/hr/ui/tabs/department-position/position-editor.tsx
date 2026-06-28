@@ -117,28 +117,32 @@ export function usePositionEditorBlocks({
   const draftDepartmentDisplay = departmentPath(draftDepartment, departmentById) || position.departmentName || "";
   const positionInfoFields: FormSurfaceItemSpec<string>[] = draft ? [
     {
-      kind: "segmentedCode",
       key: "code",
       label: "岗位编码",
-      value: draft.code,
-      disabled: !canEditPosition || !draftCodePrefix,
-      className: "font-mono",
-      editableSegment: {
-        extract: (code) => positionCodeSuffix(code),
-        compose: (segment, code) => {
-          const prefix = draftCodePrefix || positionCodePrefixFromCode(code);
-          const suffix = segment.replace(/\D/g, "").slice(0, 2).padStart(2, "0");
-          return suffix && prefix ? `${prefix}${suffix}` : code;
+      spec: {
+        valueType: "string",
+        control: "text",
+        mask: {
+          kind: "editableSegment",
+          extract: (code: string) => positionCodeSuffix(code),
+          compose: (segment: string, code: string) => {
+            const prefix = draftCodePrefix || positionCodePrefixFromCode(code);
+            const suffix = segment.replace(/\D/g, "").slice(0, 2).padStart(2, "0");
+            return suffix && prefix ? `${prefix}${suffix}` : code;
+          },
+          normalize: (segment: string) => segment.replace(/\D/g, "").slice(0, 2),
+          placeholder: "01",
         },
-        normalize: (segment) => segment.replace(/\D/g, "").slice(0, 2),
-        placeholder: "01",
+        state: !canEditPosition || !draftCodePrefix ? "disabled" : "normal",
       },
-      onChange: (nextCode) => onUpdateDraftCodeSuffix(positionCodeSuffix(nextCode), true),
+      value: draft.code,
+      className: "font-mono",
+      onChange: (nextCode) => onUpdateDraftCodeSuffix(positionCodeSuffix(String(nextCode ?? "")), true),
     },
     {
       key: "name",
       label: "岗位名称",
-      spec: { valueType: "string", editor: "input", state: !canEditPosition ? "disabled" : "normal" },
+      spec: { valueType: "string", control: "text", state: !canEditPosition ? "disabled" : "normal" },
       value: draft.name,
       onChange: (next) => onUpdateDraft("name", String(next ?? "")),
     },
@@ -172,7 +176,7 @@ export function usePositionEditorBlocks({
       label: "直属部门",
       spec: {
         valueType: "reference",
-        editor: "autocomplete",
+        control: "reference",
         state: !canEditPosition ? "disabled" : "normal",
         options: { source: "remote", fkKey: "hr.department", endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" },
       },

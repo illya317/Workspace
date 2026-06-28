@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { putJson } from "@workspace/platform/ui/api-client";
 import {
   type DataSurfaceColumnSpec,
-  FormSurface,
+  InputControl,
   PageSurface,
   type PageSurfaceBlockSpec,
   type PageSurfaceSideSpec,
@@ -223,22 +223,18 @@ export function OrganizationModePanel({
       <span className="flex min-w-0 w-72 items-center gap-2">
         <span className="shrink-0 text-xs font-semibold text-slate-500">负责人</span>
         <span className="min-w-0 flex-1 text-sm font-normal">
-          <FormSurface
-            kind="control"
-            control={{
-              kind: "inputControl",
-              spec: {
-                valueType: "reference",
-                editor: "autocomplete",
-                state: !canEdit || saving ? "disabled" : "normal",
-                options: { source: "remote", fkKey: "hr.position", endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "name" },
-              },
-              value: managerDraft,
-              displayValue: managerDraft,
-              placeholder: "搜索负责人岗位",
-              onChange: (_label, option) => {
-                setManagerDraft(selectedEntityName("position", option as ReferenceOption | undefined));
-              },
+          <InputControl
+            spec={{
+              valueType: "reference",
+              control: "reference",
+              state: !canEdit || saving ? "disabled" : "normal",
+              options: { source: "remote", fkKey: "hr.position", endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "name" },
+            }}
+            value={managerDraft}
+            displayValue={managerDraft}
+            placeholder="搜索负责人岗位"
+            onChange={(_label, option) => {
+              setManagerDraft(selectedEntityName("position", option as ReferenceOption | undefined));
             }}
           />
         </span>

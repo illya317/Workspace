@@ -1,7 +1,7 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -36,6 +36,7 @@ export function StatementConfigProvider({ children }: { children: ReactNode }) {
   const [year, setYearState] = useState("2025");
   const [pairs, setPairs] = useState<CompanyYearOption[]>([]);
   const [loading, setLoading] = useState(true);
+  const initializedDefault = useRef(false);
 
   // Fetch periods to derive available companies + (company, year) pairs
   useEffect(() => {
@@ -69,13 +70,12 @@ export function StatementConfigProvider({ children }: { children: ReactNode }) {
   // The pick: latest (companyCode, year) overall. Avoids the legacy hardcoded
   // 02/2025 default that ignored periods entirely.
   useEffect(() => {
-    if (loading || pairs.length === 0) return;
+    if (initializedDefault.current || loading || pairs.length === 0) return;
+    initializedDefault.current = true;
     const latest = pairs[0]; // already sorted year desc
     setCompanyState(latest.companyCode);
     setYearState(String(latest.year));
-    // We only want this to run once after initial load
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
+  }, [loading, pairs]);
 
   const companies = useMemo(
     () => [...new Set(pairs.map((p) => p.companyCode))].sort(),

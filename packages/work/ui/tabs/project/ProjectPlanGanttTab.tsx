@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { DataSurface, FormSurface, PageSurface, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createPageDataBlock, createPageFormBlock, useFeedback } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, PageSurfaceProps, SurfaceToolbarItems } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { ProjectItem } from "./model";
@@ -10,6 +10,7 @@ import ProjectPlanGanttTimeline from "./ProjectPlanGanttTimeline";
 import type { ProjectGanttZoom } from "./gantt-model";
 import { PROJECT_GANTT_ZOOM_OPTIONS } from "./gantt-model";
 import { periodStart as getPeriodStart, shiftPeriod } from "./gantt-time";
+import { hasPlanGanttChanges, planDependenciesForSave, planGanttItemsForSave } from "./plan-gantt-schedule";
 import type { ProjectPlanDependency, ProjectPlanGanttData, ProjectPlanItem } from "./plan-gantt-model";
 export default function ProjectPlanGanttTab({
   requestedProjectId,
@@ -70,7 +71,12 @@ export default function ProjectPlanGanttTab({
     if (!key) return projects;
     return projects.filter(project => matchText([project.name, project.code, project.leadingDepartmentName].filter(Boolean).join(" "), key));
   }, [projects, keyword]);
-  const dirty = data ? JSON.stringify(itemsForSave(items)) !== JSON.stringify(itemsForSave(data.items)) || JSON.stringify(dependenciesForSave(dependencies)) !== JSON.stringify(dependenciesForSave(data.dependencies)) : false;
+  const dirty = data ? hasPlanGanttChanges({
+    items,
+    dependencies,
+    savedItems: data.items,
+    savedDependencies: data.dependencies,
+  }) : false;
   const canEdit = Boolean(data?.permissions.canEdit);
   function changeZoom(nextZoom: ProjectGanttZoom) {
     setZoom(nextZoom);
@@ -87,8 +93,8 @@ export default function ProjectPlanGanttTab({
     if (!selectedProjectId || !data) return;
     setSaving(true);
     try {
-      await saveProjectPlanGantt(selectedProjectId, itemsForSave(items));
-      await saveProjectPlanDependencies(selectedProjectId, dependenciesForSave(dependencies));
+      await saveProjectPlanGantt(selectedProjectId, planGanttItemsForSave(items));
+      await saveProjectPlanDependencies(selectedProjectId, planDependenciesForSave(dependencies));
       await reloadPlan(selectedProjectId);
     } catch (err) {
       await feedback.confirm({
@@ -113,7 +119,6 @@ export default function ProjectPlanGanttTab({
             onChange: setKeyword,
             placeholder: "搜索项目...",
             ariaLabel: "搜索项目",
-            className: "w-52",
           },
           {
             kind: "select",
@@ -123,8 +128,6 @@ export default function ProjectPlanGanttTab({
             placeholder: "选择项目",
             options: filteredProjects.map((project) => ({ value: String(project.id), label: project.name })),
             onChange: (value) => setSelectedProjectId(value ? Number(value) : null),
-            className: "min-w-52",
-            triggerClassName: "min-w-52",
           },
           {
             kind: "option-group",
@@ -166,56 +169,35 @@ export default function ProjectPlanGanttTab({
           },
         ] satisfies SurfaceToolbarItems },
   };
-  const timeline = error ? (
-    <DataSurface kind="records" records={[]} empty={error} className="border-red-200 text-red-600" />
-  ) : loading ? (
-    <DataSurface kind="records" records={[]} empty="加载项目甘特..." />
-  ) : !data ? (
-    <DataSurface kind="records" records={[]} empty="请选择项目" />
-  ) : (
-    <ProjectPlanGanttTimeline items={items} phases={data.phases} dependencies={dependencies} periodStart={currentStart} zoom={zoom} />
-  );
-  if (surface) {
-    const blocks = [
-      { kind: "form" as const, key: "project-plan-gantt-toolbar", surface: toolbarSurface },
-      {
+  const timelineBlock: PageSurfaceBlockSpec = error
+    ? createPageDataBlock("project-plan-gantt-error", { kind: "records", records: [], empty: error, className: "border-red-200 text-red-600" })
+    : loading
+      ? createPageDataBlock("project-plan-gantt-loading", { kind: "records", records: [], empty: "加载项目甘特..." })
+      : !data
+        ? createPageDataBlock("project-plan-gantt-empty", { kind: "records", records: [], empty: "请选择项目" })
+        : {
         kind: "form" as const,
         key: "project-plan-gantt-timeline",
         surface: {
           kind: "fields" as const,
           className: "!p-0",
           bodyClassName: "block",
-          fields: [{ kind: "note" as const, key: "timeline", className: "p-0", content: timeline }],
+          fields: [{
+            kind: "note" as const,
+            key: "timeline",
+            className: "p-0",
+            content: <ProjectPlanGanttTimeline items={items} phases={data.phases} dependencies={dependencies} periodStart={currentStart} zoom={zoom} />,
+          }],
         },
-      },
-    ] satisfies PageSurfaceBlockSpec[];
-    return <PageSurface kind="list" {...surface} blocks={blocks} />;
-  }
-  return <div className="space-y-4">
-      <FormSurface {...toolbarSurface} />
-      {timeline}
-    </div>;
+      };
+  const blocks = [
+    createPageFormBlock("project-plan-gantt-toolbar", toolbarSurface),
+    timelineBlock,
+  ] satisfies PageSurfaceBlockSpec[];
+  return <PageSurface kind="list" {...surface} embedded={!surface} blocks={blocks} />;
 }
 type ProjectPlanGanttSurfaceProps = Pick<PageSurfaceProps, "tabs" | "activeTab" | "activeChild" | "onTabChange" | "onChildChange">;
 
-function itemsForSave(items: ProjectPlanItem[]) {
-  return items.map(item => ({
-    kind: item.kind,
-    id: item.id,
-    startDate: item.startDate || null,
-    endDate: item.endDate || null,
-    phaseId: item.kind === "project" ? null : item.phaseId ?? null
-  }));
-}
-function dependenciesForSave(dependencies: ProjectPlanDependency[]) {
-  return dependencies.map(dependency => ({
-    predecessorKind: dependency.predecessorKind,
-    predecessorId: dependency.predecessorId,
-    successorKind: dependency.successorKind,
-    successorId: dependency.successorId,
-    lagDays: dependency.lagDays ?? 1
-  })).sort((left, right) => `${left.successorKind}:${left.successorId}`.localeCompare(`${right.successorKind}:${right.successorId}`));
-}
 function periodLabel(start: Date, zoom: ProjectGanttZoom) {
   if (zoom === "year") return `${start.getFullYear()}年`;
   if (zoom === "quarter") return `${start.getFullYear()}年 Q${Math.floor(start.getMonth() / 3) + 1}`;

@@ -1,6 +1,6 @@
 "use client";
 
-import { DataSurface } from "@workspace/core/ui";
+import { PageSurface } from "@workspace/core/ui";
 import { label, formatVal } from "../audit";
 
 export interface AuditChange {
@@ -70,37 +70,45 @@ export default function AuditLogEntry({
   );
 
   return (
-    <DataSurface
-      kind="records"
-      records={[{
-        key: String(entry.id),
-        expanded,
-        onToggle,
-        header,
-        summary,
-        detailTitle: "变更详情",
-        detailAction: {
-          label: "还原到此版本",
-          loadingLabel: "还原中...",
-          loading: restoring,
-          onClick: onRestore,
-        },
-        detail: (
-          <div className="space-y-1.5">
-            {entry.changes.map((change) => (
-              <div key={change.field} className="flex items-center gap-2 text-xs">
-                <span className="w-24 shrink-0 text-gray-500">{label(change.field)}</span>
-                {change.from !== undefined ? (
-                  <>
-                    <span className="rounded bg-red-50 px-1.5 py-0.5 font-mono text-red-500 line-through">{formatVal(change.from)}</span>
-                    <span className="text-gray-300">→</span>
-                  </>
-                ) : <span className="text-xs italic text-gray-300">(无)</span>}
-                <span className="rounded bg-emerald-50 px-1.5 py-0.5 font-mono text-emerald-600">{formatVal(change.to)}</span>
+    <PageSurface
+      kind="list"
+      embedded
+      blocks={[{
+        kind: "data",
+        key: `audit-entry-${entry.id}`,
+        surface: {
+          kind: "records",
+          records: [{
+            key: String(entry.id),
+            expanded,
+            onToggle,
+            header,
+            summary,
+            detailTitle: "变更详情",
+            detailAction: {
+              label: "还原到此版本",
+              loadingLabel: "还原中...",
+              loading: restoring,
+              onClick: onRestore,
+            },
+            detail: (
+              <div className="space-y-1.5">
+                {entry.changes.map((change) => (
+                  <div key={change.field} className="flex items-center gap-2 text-xs">
+                    <span className="w-24 shrink-0 text-gray-500">{label(change.field)}</span>
+                    {change.from !== undefined ? (
+                      <>
+                        <span className="rounded bg-red-50 px-1.5 py-0.5 font-mono text-red-500 line-through">{formatVal(change.from)}</span>
+                        <span className="text-gray-300">→</span>
+                      </>
+                    ) : <span className="text-xs italic text-gray-300">(无)</span>}
+                    <span className="rounded bg-emerald-50 px-1.5 py-0.5 font-mono text-emerald-600">{formatVal(change.to)}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        ),
+            ),
+          }],
+        },
       }]}
     />
   );

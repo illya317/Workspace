@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface } from "@workspace/core/ui";
+import { PageSurface, createPageInlineFieldsBlock } from "@workspace/core/ui";
 interface DeptBudgetFiltersProps {
   deptFilter: string;
   setDeptFilter: (v: string) => void;
@@ -29,43 +29,48 @@ export default function DeptBudgetFilters({
 }: DeptBudgetFiltersProps) {
   const hasFilters = Boolean(deptFilter || typeFilter || accountFilter);
   return <>
-      <FormSurface
-        kind="filters"
-        fields={[
-          {
-            key: "dept",
-            label: "部门",
-            spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: deptOptions.map(d => ({ value: d, label: d })) } },
-            value: deptFilter,
-            onChange: (value) => setDeptFilter(String(value ?? "")),
-            placeholder: "全部部门",
-          },
-          {
-            key: "type",
-            label: "费用类型",
-            spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: typeOptions.map(t => ({ value: t, label: t })) } },
-            value: typeFilter,
-            onChange: (value) => setTypeFilter(String(value ?? "")),
-            placeholder: "全部类型",
-          },
-          {
-            key: "account",
-            label: "科目",
-            spec: { valueType: "string", editor: "select", options: { source: "static", mode: "dropdown", items: accountOptions.map(a => ({ value: a, label: a })) } },
-            value: accountFilter,
-            onChange: (value) => setAccountFilter(String(value ?? "")),
-            placeholder: "全部科目",
-          },
+      <PageSurface
+        kind="list"
+        embedded
+        blocks={[
+          createPageInlineFieldsBlock("dept-budget-filters", [
+            {
+              key: "dept",
+              label: "部门",
+              spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: deptOptions.map(d => ({ value: d, label: d })) } },
+              value: deptFilter,
+              onChange: (value) => setDeptFilter(String(value ?? "")),
+              placeholder: "全部部门",
+            },
+            {
+              key: "type",
+              label: "费用类型",
+              spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: typeOptions.map(t => ({ value: t, label: t })) } },
+              value: typeFilter,
+              onChange: (value) => setTypeFilter(String(value ?? "")),
+              placeholder: "全部类型",
+            },
+            {
+              key: "account",
+              label: "科目",
+              spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: accountOptions.map(a => ({ value: a, label: a })) } },
+              value: accountFilter,
+              onChange: (value) => setAccountFilter(String(value ?? "")),
+              placeholder: "全部科目",
+            },
+          ], {
+            kind: "filters",
+            actions: hasFilters ? [{
+              key: "reset",
+              label: "重置筛选",
+              onClick: () => {
+                setDeptFilter("");
+                setTypeFilter("");
+                setAccountFilter("");
+              },
+            }] : undefined,
+          }),
         ]}
-        actions={hasFilters ? [{
-          key: "reset",
-          label: "重置筛选",
-          onClick: () => {
-            setDeptFilter("");
-            setTypeFilter("");
-            setAccountFilter("");
-          },
-        }] : undefined}
       />
         <span className="ml-auto text-xs text-gray-400">
           共 {count} 条，合计 {total.toFixed(2)} 万元

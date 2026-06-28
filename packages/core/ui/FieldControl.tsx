@@ -68,23 +68,23 @@ function toSpec({
   const state = disabled ? "disabled" : "normal";
   switch (kind) {
     case "readonly":
-      return { valueType: "string", editor: "input", state: "readonly" };
+      return { valueType: "string", control: "text", state: "readonly" };
     case "fk":
       return fkKey && endpoint
-        ? { valueType: "reference", editor: "autocomplete", options: { source: "remote", fkKey, endpoint }, state }
-        : { valueType: "string", editor: "input", state: "readonly" };
+        ? { valueType: "reference", control: "reference", options: { source: "remote", fkKey, endpoint }, state }
+        : { valueType: "string", control: "text", state: "readonly" };
     case "tags":
-      return { valueType: "array", editor: "tags", state };
+      return { valueType: "array", control: "collection", itemControl: "text", state };
     case "select":
       return {
         valueType: "string",
-        editor: searchable || (options?.length ?? 0) > 8 ? "autocomplete" : "select",
-        options: { source: "static", items: options ?? [] },
+        control: "choice",
+        options: { source: "static", mode: searchable || (options?.length ?? 0) > 8 ? "autocomplete" : "dropdown", items: options ?? [] },
         state,
       };
     case "text":
     default:
-      return { valueType: "string", editor: "input", state };
+      return { valueType: "string", control: "text", state };
   }
 }
 

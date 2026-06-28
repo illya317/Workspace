@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import TextField, { type TextFieldProps } from "./TextField";
-import type { InputSegmentedCodeConfig } from "./InputControlTypes";
+import type { InputMask } from "./InputControlTypes";
 
-export type SegmentedCodeInputEditableSegment = InputSegmentedCodeConfig;
+export type SegmentedCodeInputEditableSegment = Extract<InputMask, { kind: "editableSegment" }>;
 
 export interface SegmentedCodeInputProps {
   value: string;

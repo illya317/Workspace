@@ -5,6 +5,16 @@ import { matchEmployee, matchText } from "@workspace/platform/search";
 import type { Subject, PermissionState, SubjectType } from "../types";
 import { ROLE_PRIORITY } from "../lib";
 
+const DEPARTMENT_FILTER_SEPARATOR = "\u001F";
+
+function departmentFilterValue(path: string[]) {
+  return path.join(DEPARTMENT_FILTER_SEPARATOR);
+}
+
+function parseDepartmentFilter(value: string) {
+  return value ? value.split(DEPARTMENT_FILTER_SEPARATOR) : [];
+}
+
 export function usePermissionFilters(
   rawSubjects: Subject[],
   subjectType: SubjectType,
@@ -62,6 +72,36 @@ export function usePermissionFilters(
     );
     return ["全部", ...Array.from(set)];
   }, [rawSubjects, l1Dept, l2Dept]);
+
+  const departmentFilterOptions = useMemo(() => {
+    const options = new Map<string, { value: string; label: string; searchText: string }>();
+    for (const subject of rawSubjects) {
+      const path = (subject.extra?.deptPath ?? []).filter(Boolean) as string[];
+      for (let depth = 1; depth <= path.length; depth += 1) {
+        const prefix = path.slice(0, depth);
+        const value = departmentFilterValue(prefix);
+        if (options.has(value)) continue;
+        options.set(value, {
+          value,
+          label: prefix.join(" / "),
+          searchText: prefix.join(" "),
+        });
+      }
+    }
+    return Array.from(options.values());
+  }, [rawSubjects]);
+
+  const selectedDepartmentFilter = useMemo(() => {
+    const path = [l1Dept, l2Dept, l3Dept].filter((value) => value !== "全部");
+    return departmentFilterValue(path);
+  }, [l1Dept, l2Dept, l3Dept]);
+
+  function setDepartmentFilter(value: string) {
+    const [nextL1, nextL2, nextL3] = parseDepartmentFilter(value);
+    setL1Dept(nextL1 ?? "全部");
+    setL2Dept(nextL2 ?? "全部");
+    setL3Dept(nextL3 ?? "全部");
+  }
 
   const subjects = useMemo(() => {
     let result = [...rawSubjects];
@@ -136,6 +176,9 @@ export function usePermissionFilters(
     l1Options,
     l2Options,
     l3Options,
+    departmentFilterOptions,
+    selectedDepartmentFilter,
+    setDepartmentFilter,
     subjects,
   };
 }

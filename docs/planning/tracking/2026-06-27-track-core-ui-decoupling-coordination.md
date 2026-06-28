@@ -32,8 +32,8 @@ The important correction is that Common is not one bucket. It must be split befo
 Every L2 must belong to exactly one L1 family:
 
 ```txt
-ownerL1: page | data | form | common | feedback
-ownerL2:
+category: page | data | form | common | feedback
+subcategory:
   page.surface | page.blocks | page.frame | page.document |
   data.surface | data.table | data.record | data.metric | data.visual | data.cell |
   form.surface | form.field | form.layout | form.create | form.input-adapter |
@@ -60,7 +60,7 @@ L1 family -> L2 owner -> L3 component/role
 
 The visible L1 labels are Chinese product labels for `page / data / form / common / feedback`: `页面 / 数据 / 表单 / 通用 / 反馈`.
 
-Do not expose the older `accessLayer` or `uiLevel` model as primary filters, badges, or columns in `/settings/ui`. Those fields can remain registry/gate internals, but they are no longer the mental model for browsing Core UI. Showing both `ownerL1/ownerL2` and `uiLevel/accessLayer` in the same page creates multiple competing "L1" concepts and is forbidden for the main component catalog.
+Do not expose the older `accessLayer` or `uiLevel` model as primary filters, badges, or columns in `/settings/ui`. Those fields can remain registry/gate internals, but they are no longer the mental model for browsing Core UI. Showing both `category/subcategory` and `uiLevel/accessLayer` in the same page creates multiple competing "L1" concepts and is forbidden for the main component catalog.
 
 Use stable visual tones for the hierarchy badges:
 
@@ -140,7 +140,7 @@ Allowed work for now:
 ## Next Architecture Steps
 
 1. Add ownership fields to `CoreUiComponentRegistration`.
-2. Add validation: unique `ownerL1/ownerL2`, no Common-to-domain dependency, no sibling L2 circular dependency.
+2. Add validation: unique `category/subcategory`, no Common-to-domain dependency, no sibling L2 circular dependency.
 3. Reclassify current registry entries into Page/Data/Form/Common/Feedback.
 4. Split public export policy into business public entry, contract types, and Core internal renderers.
 5. Convert gate from old "L1/L2/L3 by accessLayer" wording to owner-aware checks.

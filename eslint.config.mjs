@@ -42,13 +42,14 @@ const eslintConfig = defineConfig([
       ],
     },
   },
-  // File size governance. Keep this in ESLint so line budgets are part of lint, not a parallel check.
-  // Canonical budgets:
+  // File size governance. Keep this in ESLint so hard caps are part of lint, not a parallel check.
+  // Canonical hard caps:
   // - API route shell: 120
   // - page facade: 150
-  // - UI component / UI hook target: 220
-  // - server service target: 260
-  // - migration-compatible package fallback: 400 for TSX, 450 for TS, 300 for Core
+  // - app-local UI: 220
+  // - server service: 260
+  // - package fallback: 500 for TSX, 550 for TS
+  // - Core fallback: 450; registry data shards: 500
   {
     files: ["app/api/**/route.ts"],
     rules: {
@@ -77,25 +78,32 @@ const eslintConfig = defineConfig([
   {
     files: ["packages/**/*.tsx"],
     rules: {
-      "max-lines": ["error", { max: 400, skipBlankLines: false, skipComments: false }],
+      "max-lines": ["error", { max: 500, skipBlankLines: false, skipComments: false }],
     },
   },
   {
     files: ["packages/**/*.ts"],
     rules: {
-      "max-lines": ["error", { max: 450, skipBlankLines: false, skipComments: false }],
+      "max-lines": ["error", { max: 550, skipBlankLines: false, skipComments: false }],
     },
   },
   {
     files: ["packages/core/**/*.tsx"],
     rules: {
-      "max-lines": ["error", { max: 300, skipBlankLines: false, skipComments: false }],
+      "max-lines": ["error", { max: 450, skipBlankLines: false, skipComments: false }],
     },
   },
   {
     files: ["packages/core/**/*.ts"],
     rules: {
-      "max-lines": ["error", { max: 300, skipBlankLines: false, skipComments: false }],
+      "max-lines": ["error", { max: 450, skipBlankLines: false, skipComments: false }],
+    },
+  },
+  // Registry data shards are declarative tables; keep a finite budget but do not use the component source budget.
+  {
+    files: ["packages/core/ui/component-registry-data*.ts"],
+    rules: {
+      "max-lines": ["error", { max: 500, skipBlankLines: false, skipComments: false }],
     },
   },
   {

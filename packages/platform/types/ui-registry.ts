@@ -1,14 +1,10 @@
-import type { CoreUiComponentKind } from "@workspace/core/ui/component-registry";
-
 export interface CoreUiRegistryUsageRow {
   name: string;
-  kind: CoreUiComponentKind;
-  kindLabel: string;
-  kindDescription: string;
+  category?: string;
+  subcategory?: string;
   description: string;
   example: string;
   includedComponents: string[];
-  foundationComponents: string[];
   usedBy: string[];
   usageFiles: string[];
 }

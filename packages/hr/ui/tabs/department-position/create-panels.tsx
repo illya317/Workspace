@@ -71,7 +71,7 @@ export function buildPositionCreatePanelBlock({
                 required: true,
                 spec: {
                   valueType: "reference",
-                  editor: "autocomplete",
+                  control: "reference",
                   options: { source: "remote", fkKey: "hr.department", endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" },
                 },
                 value: createPositionDraft.departmentId == null ? "" : String(createPositionDraft.departmentId),
@@ -86,7 +86,7 @@ export function buildPositionCreatePanelBlock({
             key: "name",
             label: "岗位名",
             required: true,
-            spec: { valueType: "string", editor: "input" },
+            spec: { valueType: "string", control: "text" },
             value: createPositionDraft.name,
             onChange: (next) => setCreatePositionDraft((prev) => ({ ...prev, name: String(next ?? "") })),
             placeholder: "输入岗位名",

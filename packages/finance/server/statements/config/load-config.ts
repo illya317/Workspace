@@ -4,7 +4,22 @@
  */
 import { prisma } from "@workspace/platform/server/prisma";
 import { BALANCE_SHEET_LINES } from "../config/balance-sheet-lines";
-import type { BalanceSheetLineConfig } from "../config/balance-sheet-lines";
+import type { BalanceSheetLineConfig, BalanceSheetSection, LineSide } from "../config/balance-sheet-lines";
+
+type BalanceSheetLineConfigRow = {
+  lineCode: string;
+  label: string;
+  displayCode: string;
+  section: string;
+  side: string;
+  isHeader: boolean;
+  isTotal: boolean;
+  isGrandTotal: boolean;
+  reclassSource: boolean;
+  reclassTarget: boolean;
+  prefixesJson: string;
+  subtractPrefixesJson: string;
+};
 
 export async function loadBalanceSheetConfig(
   companyCode: string,
@@ -70,14 +85,13 @@ export async function loadBalanceSheetConfig(
   return seeded.map(toLineConfig);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function toLineConfig(db: any): BalanceSheetLineConfig {
+function toLineConfig(db: BalanceSheetLineConfigRow): BalanceSheetLineConfig {
   return {
     lineCode: db.lineCode,
     label: db.label,
     displayCode: db.displayCode || "",
-    section: db.section,
-    side: db.side,
+    section: db.section as BalanceSheetSection,
+    side: db.side as LineSide,
     isHeader: db.isHeader,
     isTotal: db.isTotal,
     isGrandTotal: db.isGrandTotal,

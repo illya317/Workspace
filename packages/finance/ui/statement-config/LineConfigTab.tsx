@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { DataSurface, FormSurface, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createPageActionsBlock, createPageDataBlock, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { matchSearchFields } from "@workspace/platform/search";
 import { useStatementConfig } from "./StatementConfigContext";
 import LineMappingsPanel from "./LineMappingsPanel";
@@ -244,26 +244,134 @@ export default function LineConfigTab() {
   }], []);
   if (loading) return <p className="py-8 text-center text-sm text-gray-400">加载中...</p>;
   if (error) {
-    return <div className="space-y-3 py-8 text-center">
-        <p className="text-sm text-red-600">{error}</p>
-        <FormSurface kind="inline" actions={[{ key: "retry", label: "重试", variant: "danger", onClick: load }]} />
-      </div>;
+    return <LineConfigError message={error} onRetry={load} />;
   }
   return <div className="space-y-4">
-      <DataSurface kind="table" framed className="overflow-hidden" bodyClassName="overflow-x-auto" rows={rows} columns={columns} visibleColumns={columns.map(column => column.key)} rowKey={row => row.id} density="compact" tableClassName="text-base" onRowClick={row => {
-        if (row.kind !== "line") return;
-        setExpanded(previous => {
-          const next = new Set(previous);
-          if (next.has(row.line.lineCode)) next.delete(row.line.lineCode);else next.add(row.line.lineCode);
-          return next;
-        });
-      }} expandedRowKeys={expanded} rowClassName={row => row.kind === "section" ? "bg-slate-50" : row.kind === "special" ? "bg-slate-50/50" : ""} renderExpandedRow={row => {
-        if (row.kind !== "line") return null;
-        return <LineMappingsPanel line={row.line} mappings={row.mappings} inheritedAccounts={row.inheritedAccounts} accountMap={accountMap} saving={saving} addingFor={addingFor} newAccount={newAccount} accountSearch={accountSearch} filteredAccounts={filteredAccounts} onExcludeDefault={(accountCode, lineCode) => saveMapping(accountCode, lineCode, "exclude")} onRestoreDefault={restoreDefault} onToggleOperator={(accountCode, lineCode, current) => saveMapping(accountCode, lineCode, current === "add" ? "subtract" : "add")} onSaveMapping={saveMapping} onStartAdding={setAddingFor} onCancelAdding={() => {
+      <LineConfigTable
+        accountMap={accountMap}
+        accountSearch={accountSearch}
+        addingFor={addingFor}
+        columns={columns}
+        expanded={expanded}
+        filteredAccounts={filteredAccounts}
+        newAccount={newAccount}
+        onAccountSearchChange={setAccountSearch}
+        onCancelAdding={() => {
           setAddingFor(null);
           setNewAccount("");
           setAccountSearch("");
-        }} onNewAccountChange={setNewAccount} onAccountSearchChange={setAccountSearch} />;
-      }} />
+        }}
+        onExpandedChange={setExpanded}
+        onNewAccountChange={setNewAccount}
+        onRestoreDefault={restoreDefault}
+        onSaveMapping={saveMapping}
+        onStartAdding={setAddingFor}
+        rows={rows}
+        saving={saving}
+      />
     </div>;
+}
+
+function LineConfigError({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="space-y-3 py-8 text-center">
+      <p className="text-sm text-red-600">{message}</p>
+      <PageSurface
+        kind="list"
+        embedded
+        blocks={[createPageActionsBlock("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }], { className: "justify-center" })]}
+      />
+    </div>
+  );
+}
+
+function LineConfigTable({
+  accountMap,
+  accountSearch,
+  addingFor,
+  columns,
+  expanded,
+  filteredAccounts,
+  newAccount,
+  onAccountSearchChange,
+  onCancelAdding,
+  onExpandedChange,
+  onNewAccountChange,
+  onRestoreDefault,
+  onSaveMapping,
+  onStartAdding,
+  rows,
+  saving,
+}: {
+  accountMap: Map<string, AcctInfo>;
+  accountSearch: string;
+  addingFor: string | null;
+  columns: DataSurfaceColumnSpec<LineTableRow>[];
+  expanded: Set<string>;
+  filteredAccounts: AcctInfo[];
+  newAccount: string;
+  onAccountSearchChange: (value: string) => void;
+  onCancelAdding: () => void;
+  onExpandedChange: (updater: (previous: Set<string>) => Set<string>) => void;
+  onNewAccountChange: (value: string) => void;
+  onRestoreDefault: (accountCode: string) => void;
+  onSaveMapping: (accountCode: string, lineCode: string, operator: StatementOperator) => void;
+  onStartAdding: (lineCode: string) => void;
+  rows: LineTableRow[];
+  saving: Set<string>;
+}) {
+  return (
+    <PageSurface
+      kind="list"
+      embedded
+      blocks={[
+        createPageDataBlock("line-config", {
+          kind: "table",
+          framed: true,
+          className: "overflow-hidden",
+          bodyClassName: "overflow-x-auto",
+          rows,
+          columns,
+          visibleColumns: columns.map(column => column.key),
+          rowKey: row => row.id,
+          density: "compact",
+          tableClassName: "text-base",
+          onRowClick: row => {
+            if (row.kind !== "line") return;
+            onExpandedChange(previous => {
+              const next = new Set(previous);
+              if (next.has(row.line.lineCode)) next.delete(row.line.lineCode);else next.add(row.line.lineCode);
+              return next;
+            });
+          },
+          expandedRowKeys: expanded,
+          rowClassName: row => row.kind === "section" ? "bg-slate-50" : row.kind === "special" ? "bg-slate-50/50" : "",
+          renderExpandedRow: row => {
+            if (row.kind !== "line") return null;
+            return (
+              <LineMappingsPanel
+                line={row.line}
+                mappings={row.mappings}
+                inheritedAccounts={row.inheritedAccounts}
+                accountMap={accountMap}
+                saving={saving}
+                addingFor={addingFor}
+                newAccount={newAccount}
+                accountSearch={accountSearch}
+                filteredAccounts={filteredAccounts}
+                onExcludeDefault={(accountCode, lineCode) => onSaveMapping(accountCode, lineCode, "exclude")}
+                onRestoreDefault={onRestoreDefault}
+                onToggleOperator={(accountCode, lineCode, current) => onSaveMapping(accountCode, lineCode, current === "add" ? "subtract" : "add")}
+                onSaveMapping={onSaveMapping}
+                onStartAdding={onStartAdding}
+                onCancelAdding={onCancelAdding}
+                onNewAccountChange={onNewAccountChange}
+                onAccountSearchChange={onAccountSearchChange}
+              />
+            );
+          },
+        }),
+      ]}
+    />
+  );
 }

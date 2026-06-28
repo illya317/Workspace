@@ -2,7 +2,7 @@
 
 import WorkCard from "./WorkCard";
 import WorkForm from "./WorkForm";
-import { DataSurface } from "@workspace/core/ui";
+import { PageSurface, createPageDataBlock } from "@workspace/core/ui";
 import type { WorkItem } from "./types";
 import type { WorkFormData } from "./WorkFormSection";
 
@@ -77,7 +77,7 @@ export default function WorksList({
               )
             )}
             {routineWorks.length === 0 && (
-              <DataSurface kind="records" records={[]} empty="暂无日常工作项" />
+              <EmptyWorksSurface blockKey="routine-works-empty" empty="暂无日常工作项" />
             )}
           </div>
         )}
@@ -111,7 +111,7 @@ export default function WorksList({
               )
             )}
             {nonRoutineWorks.length === 0 && (
-              <DataSurface kind="records" records={[]} empty="暂无其他工作项" />
+              <EmptyWorksSurface blockKey="non-routine-works-empty" empty="暂无其他工作项" />
             )}
           </div>
         )}
@@ -151,6 +151,10 @@ export default function WorksList({
       )}
     </>
   );
+}
+
+function EmptyWorksSurface({ blockKey, empty }: { blockKey: string; empty: string }) {
+  return <PageSurface embedded kind="list" blocks={[createPageDataBlock(blockKey, { kind: "records", records: [], empty })]} />;
 }
 
 function DisclosureHeader({

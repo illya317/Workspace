@@ -88,7 +88,7 @@ export function WorkspaceSplitPage({
       icon: "panel-open",
       label: `显示${sideLabel}`,
       onClick: () => onDrawerOpenChange(true),
-      className: "lg:!hidden",
+      visibility: "mobile",
     });
     toolbarItems.push({
       kind: "panel-toggle",
@@ -97,7 +97,7 @@ export function WorkspaceSplitPage({
       label: `${sideOpen ? "隐藏" : "显示"}${sideLabel}`,
       onClick: () => onSideOpenChange(!sideOpen),
       variant: sideOpen ? "primary" : "secondary",
-      className: "!hidden lg:!inline-flex",
+      visibility: "desktop",
     });
   }
   if (providedToolbarItems) {
@@ -117,9 +117,7 @@ export function WorkspaceSplitPage({
           />
         )}
         {header}
-        {toolbarItems.length > 0 && (
-          <Toolbar items={toolbarItems} variant="inline" className="w-full justify-start" />
-        )}
+        {toolbarItems.length > 0 && <Toolbar items={toolbarItems} />}
         {beforeSplit}
         <SplitWorkspace
           sideOpen={sideOpen}

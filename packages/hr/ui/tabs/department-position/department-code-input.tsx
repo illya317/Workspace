@@ -1,6 +1,6 @@
 "use client";
 
-import { FormSurface } from "@workspace/core/ui";
+import { InputControl } from "@workspace/core/ui";
 import { normalizeDepartmentCodeInput } from "./utils";
 
 export function departmentCodeEditableSegment(level: 1 | 2 | 3) {
@@ -54,16 +54,16 @@ export function DepartmentCodeInput({
   className?: string;
 }) {
   return (
-    <FormSurface
-      kind="control"
-      control={{
-        kind: "segmentedCode",
-        value,
-        disabled,
-        className,
-        editableSegment: departmentCodeEditableSegment(level),
-        onChange,
+    <InputControl
+      spec={{
+        valueType: "string",
+        control: "text",
+        mask: { kind: "editableSegment", ...departmentCodeEditableSegment(level) },
+        state: disabled ? "disabled" : "normal",
       }}
+      value={value}
+      className={className}
+      onChange={(next) => onChange(String(next ?? ""))}
     />
   );
 }
