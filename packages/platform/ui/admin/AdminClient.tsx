@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useMemo, useState } from "react";
-import { createBlockSurfaceBlock, createGroupBlock, PageSurface, useFeedback, type PageSurfaceBlockSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createGroupBlock, createPageBody, createPageTabsNavigation, PageSurface, useFeedback, type PageSurfaceBlockSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
 import AdminUsersTab from "./tabs/AdminUsersTab";
 import ModuleManagementTab from "./tabs/ModuleManagementTab";
 import PermissionsTab from "./tabs/PermissionsTab";
@@ -192,11 +192,13 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   return (
     <PageSurface
       kind="settings"
-      tabs={loading ? undefined : tabs}
-      activeTab={loading ? undefined : activeTab}
-      activeChild={activeTab === "permissions" ? permissionState.subjectType : undefined}
-      onTabChange={loading ? undefined : (k) => setActiveTab(k as typeof activeTab)}
-      onChildChange={activeTab === "permissions" ? (key) => permissionState.setSubjectType(key as SubjectType) : undefined}
+	      navigation={loading ? undefined : createPageTabsNavigation({
+	        items: tabs,
+	        active: activeTab,
+	        activeChild: activeTab === "permissions" ? permissionState.subjectType : undefined,
+	        onChange: (k: string) => setActiveTab(k as typeof activeTab),
+	        onChildChange: activeTab === "permissions" ? (key: string) => permissionState.setSubjectType(key as SubjectType) : undefined,
+	      })}
       toolbar={loading
         ? undefined
         : activeTab === "permissions"
@@ -206,8 +208,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
             : undefined}
       footer={loading ? undefined : activeTab === "users" ? childFooter : undefined}
       contentClassName="py-8"
-      empty={loading ? { content: "加载中..." } : undefined}
-      blocks={loading ? undefined : blocks}
-    />
+	      body={loading ? { empty: { content: "加载中..." } } : createPageBody(blocks)}
+	    />
   );
 }

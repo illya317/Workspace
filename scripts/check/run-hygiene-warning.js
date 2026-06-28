@@ -7,6 +7,7 @@ const checks = [
   ["company hardcoding", "company:check"],
   ["Structure simple hygiene ratchet", "arch:structure:hygiene"],
   ["Core UI surface boundaries", "arch:surface-boundaries"],
+  ["Core UI PageSurface adoption", "arch:surface-page-adoption"],
 ];
 
 const failed = [];

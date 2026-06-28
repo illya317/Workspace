@@ -2,6 +2,8 @@
 
 import type { Dispatch, SetStateAction } from "react";
 import {
+  createPageBody,
+  createPageTabsNavigation,
   createMessageBlock,
   PageSurface,
   type PageSurfaceCommandSpec,
@@ -198,16 +200,22 @@ export default function EmployeeProfileView({
   return (
     <PageSurface
       kind="detail"
-      tabs={ready ? profileTabs : undefined}
-      activeTab={ready ? activeSection : undefined}
-      onTabChange={ready ? (key) => onSectionChange(key as ProfileSection) : undefined}
-      actions={ready ? pageActions : undefined}
-      empty={!ready ? { content: loading ? "加载员工资料..." : error || "员工资料不存在", compact: true } : undefined}
-      blocks={ready ? [
-        ...(error ? [createMessageBlock("error", { tone: "danger" as const, content: error })] : []),
-        ...(message ? [createMessageBlock("message", { content: message })] : []),
-        ...activeSectionBlocks,
-      ] : undefined}
+      navigation={ready ? createPageTabsNavigation({
+        items: profileTabs,
+        active: activeSection,
+        onChange: (key) => onSectionChange(key as ProfileSection),
+      }) : undefined}
+      body={createPageBody(
+        ready ? [
+          ...(error ? [createMessageBlock("error", { tone: "danger" as const, content: error })] : []),
+          ...(message ? [createMessageBlock("message", { content: message })] : []),
+          ...activeSectionBlocks,
+        ] : [],
+        {
+          commands: ready ? pageActions : undefined,
+          empty: !ready ? { content: loading ? "加载员工资料..." : error || "员工资料不存在", compact: true } : undefined,
+        },
+      )}
     />
   );
 }

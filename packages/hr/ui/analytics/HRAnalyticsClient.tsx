@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { SessionUser } from "@workspace/platform/types";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
-import { PageSurface, createEmptyBlock, createMessageBlock, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { PageSurface, createEmptyBlock, createMessageBlock, createPageBody, createPageTabsNavigation, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { useAnalyticsData } from "./useAnalyticsData";
 
 import { useEmployeeAnalyticsBlocks } from "./EmployeeAnalytics";
@@ -60,12 +60,14 @@ export default function HRAnalyticsClient({ user: _user }: { user: SessionUser; 
 
   return (
     <PageSurface
-      kind="analysis"
-      tabs={tabs}
-      activeTab={activeTab}
-      onTabChange={(k) => setActiveTab(k as AnalyticsTab)}
-      contentClassName="max-w-5xl"
-      blocks={blocks}
-    />
+	      kind="analysis"
+	      navigation={createPageTabsNavigation({
+	        items: tabs,
+	        active: activeTab,
+	        onChange: (k: string) => setActiveTab(k as AnalyticsTab),
+	      })}
+	      contentClassName="max-w-5xl"
+	      body={createPageBody(blocks)}
+	    />
   );
 }

@@ -12,6 +12,7 @@ import { joinClassNames } from "./card-utils";
 import { renderBlocks, renderBlockStack, renderCommands, renderEmpty, renderToolbar } from "./PageSurface.blocks";
 import type {
   PageSurfaceHeaderSpec,
+  PageSurfaceBodySpec,
   PageSurfaceNavigationItemSpec,
   PageSurfaceNavigationSpec,
   PageSurfaceProps,
@@ -20,7 +21,9 @@ import type {
 } from "./PageSurface.types";
 
 export type {
+  PageSurfaceActionSize,
   PageSurfaceBlockSpec,
+  PageSurfaceBodySpec,
   PageSurfaceCommandSpec,
   PageSurfaceEmptySpec,
   PageSurfaceFooterSpec,
@@ -135,24 +138,37 @@ function renderTabs(tabs?: PageSurfaceNavigationItemSpec[]) {
   return tabs?.map(toTabDef);
 }
 
+function resolvePageBody(props: PageSurfaceProps): PageSurfaceBodySpec {
+  return {
+    ...props.body,
+    blocks: props.body?.blocks ?? props.blocks,
+    empty: props.body?.empty ?? props.empty,
+    commands: props.body?.commands ?? props.actions,
+  };
+}
+
 function renderSurfaceBody(props: PageSurfaceProps, options: { includePageChrome?: boolean } = {}) {
   const includePageChrome = options.includePageChrome ?? true;
-  const bodyBlocks = props.body?.blocks ?? props.blocks;
+  const bodySpec = resolvePageBody(props);
+  const bodyBlocks = bodySpec.blocks;
   const hasBody = Boolean(bodyBlocks?.length);
-  const blocks = hasBody ? renderBlockStack(bodyBlocks, undefined, "space-y-5") : null;
+  const blockLayoutClassName = bodySpec.layout === "split"
+    ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]"
+    : "space-y-5";
+  const blocks = hasBody ? renderBlockStack(bodyBlocks, undefined, blockLayoutClassName) : null;
   return (
     <div className="space-y-4">
-      {includePageChrome ? renderCommands(props.actions) : null}
+      {includePageChrome ? renderCommands(bodySpec.commands) : null}
       {includePageChrome && !props.toolbar?.hidden ? renderToolbar(props.toolbar) : null}
       {blocks}
-      {!hasBody ? renderEmpty(props.empty) : null}
+      {!hasBody ? renderEmpty(bodySpec.empty) : null}
       {includePageChrome ? renderFooter(props.footer) : null}
     </div>
   );
 }
 
 function renderPageToolbar(props: PageSurfaceProps) {
-  const commands = renderCommands(props.actions);
+  const commands = renderCommands(resolvePageBody(props).commands);
   const toolbar = props.toolbar?.hidden ? null : renderToolbar(props.toolbar);
   if (!commands && !toolbar) return null;
   if (!commands) return toolbar;
@@ -161,7 +177,7 @@ function renderPageToolbar(props: PageSurfaceProps) {
 }
 
 function renderSplitBeforeSplit(props: PageSurfaceSplitProps) {
-  const actions = renderCommands(props.actions);
+  const actions = renderCommands(resolvePageBody(props).commands);
   const toolbar = props.toolbar?.hidden ? null : renderToolbar(props.toolbar);
   if (!actions && !toolbar) return undefined;
   return <div className="space-y-3">{actions}{toolbar}</div>;

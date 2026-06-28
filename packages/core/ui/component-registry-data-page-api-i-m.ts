@@ -170,6 +170,13 @@ export const page_api_registry_entries = [
     composes: ["BlockSurface", "createBlockSurfaceBlock"],
   },
   {
+    name: "createPageBody",
+    category: "page",
+    subcategory: "page.surface",
+    description: "页面正文声明助手",
+    composes: ["PageSurface"],
+  },
+  {
     name: "createPageDataBlock",
     category: "data",
     subcategory: "data.surface",
@@ -188,6 +195,13 @@ export const page_api_registry_entries = [
     category: "page",
     subcategory: "page.surface",
     description: "页面薄壳 props 声明助手",
+    composes: ["PageSurface"],
+  },
+  {
+    name: "createPageTabsNavigation",
+    category: "page",
+    subcategory: "page.surface",
+    description: "页面 tabs 导航声明助手",
     composes: ["PageSurface"],
   },
   {

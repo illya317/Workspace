@@ -83,10 +83,12 @@ export const page_api_registry_entries = [
       },
       {
         name: "body",
-        description: "正文 block wrapper：form / data / document / visualization / block。",
+        description: "正文 block wrapper 与正文级空态/动作。",
         children: [
           { name: "blocks", description: "正文区块列表，只承载 wrapper，不展开各 Surface 细节。" },
-          { name: "layout", description: "正文布局：single / split。" },
+          { name: "layout", description: "正文 block 排布：single / split。" },
+          { name: "empty", description: "正文为空时的空态。" },
+          { name: "commands", description: "正文上方的简短命令；复杂工具归 toolbar。" },
         ],
       },
       {

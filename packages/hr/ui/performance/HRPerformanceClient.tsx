@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { SessionUser } from "@workspace/platform/types";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
-import { PageSurface } from "@workspace/core/ui";
+import { PageSurface, createPageTabsNavigation } from "@workspace/core/ui";
 
 type PerfTab = "attendance" | "works" | "performance";
 
@@ -19,12 +19,14 @@ export default function HRPerformanceClient({ user: _user }: { user: SessionUser
 
   return (
     <PageSurface
-      kind="list"
-      tabs={tabs}
-      activeTab={activeTab}
-      onTabChange={(k) => setActiveTab(k as PerfTab)}
-      contentClassName="max-w-5xl"
-      empty={{ content: contentByTab[activeTab] }}
-    />
+	      kind="list"
+	      navigation={createPageTabsNavigation({
+	        items: tabs,
+	        active: activeTab,
+	        onChange: (k: string) => setActiveTab(k as PerfTab),
+	      })}
+	      contentClassName="max-w-5xl"
+	      body={{ empty: { content: contentByTab[activeTab] } }}
+	    />
   );
 }

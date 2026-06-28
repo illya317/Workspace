@@ -2,7 +2,7 @@
 
 import { useDeferredValue, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { createBlockSurfaceBlock, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createPageBody, createPageTabsNavigation, PageSurface, useFeedback } from "@workspace/core/ui";
 import { type SurfaceNavigationTabSpec } from "@workspace/core/ui";
 import { getPageViewTabsForUser } from "@workspace/platform/view-registry";
 
@@ -118,11 +118,13 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
   }
 
   const surface = {
-    tabs: rosterViews,
-    activeTab: activeView,
-    activeChild,
-    onTabChange: changeView,
-    onChildChange: changeChild,
+    navigation: createPageTabsNavigation({
+      items: rosterViews,
+      active: activeView,
+      activeChild,
+      onChange: changeView,
+      onChildChange: changeChild,
+    }),
   } satisfies RosterSurfaceNavigationProps;
 
   if (renderedView === "employee") {
@@ -172,16 +174,12 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
   return (
     <PageSurface
       kind="list"
-      tabs={rosterViews}
-      activeTab={activeView}
-      activeChild={activeChild}
-      onTabChange={changeView}
-      onChildChange={changeChild}
-      blocks={[createBlockSurfaceBlock("empty", {
+      navigation={surface.navigation}
+      body={createPageBody([createBlockSurfaceBlock("empty", {
         kind: "message",
         content: "暂无可用视图",
         tone: "muted"
-      })]}
+      })])}
     />
   );
 }

@@ -16,10 +16,12 @@ import type { DocumentSurfaceProps } from "../DocumentSurface";
 import type { FormSurfaceFieldModeProps, FormSurfaceLooseItem, FormSurfaceProps } from "../surface/FormSurface.types";
 import type {
   PageSurfaceBlockSpec,
+  PageSurfaceBodySpec,
   PageSurfaceCommandSpec,
   PageSurfaceHeaderSpec,
   PageSurfaceKind,
   PageSurfaceModalSpec,
+  PageSurfaceNavigationSpec,
   PageSurfaceProps,
   PageSurfaceToolbarSpec,
 } from "../surface/PageSurface.types";
@@ -50,15 +52,39 @@ export interface PageSurfaceShellPropsOptions {
   backHref?: string;
   backLabel?: PageSurfaceHeaderSpec["backLabel"];
   header?: PageSurfaceHeaderSpec;
+  /** @deprecated Use body.blocks. */
   blocks?: PageSurfaceBlockSpec[];
-  body?: PageSurfaceProps["body"];
+  body?: PageSurfaceBodySpec;
   toolbar?: PageSurfaceProps["toolbar"];
   navigation?: PageSurfaceProps["navigation"];
   footer?: PageSurfaceProps["footer"];
   actions?: PageSurfaceCommandSpec[];
+  empty?: PageSurfaceProps["empty"];
   embedded?: boolean;
   className?: string;
   contentClassName?: string;
+}
+
+export function createPageBody(
+  blocks: PageSurfaceBlockSpec[],
+  options: Omit<PageSurfaceBodySpec, "blocks"> = {},
+): PageSurfaceBodySpec {
+  return { ...options, blocks };
+}
+
+export function createPageTabsNavigation({
+  level = 1,
+  className,
+  ...navigation
+}: Omit<PageSurfaceNavigationSpec, "kind" | "level"> & {
+  level?: PageSurfaceNavigationSpec["level"];
+}): PageSurfaceNavigationSpec {
+  return {
+    kind: "tabs",
+    level,
+    className,
+    ...navigation,
+  };
 }
 
 export function createPageCommand(command: PageSurfaceCommandSpec): PageSurfaceCommandSpec {
@@ -241,12 +267,15 @@ export function createPageSurfaceProps(options: PageSurfaceShellPropsOptions): P
     header,
     blocks,
     body,
+    actions,
+    empty,
     ...rest
   } = options;
+  const resolvedBody = body ?? (blocks || actions || empty ? { blocks, commands: actions, empty } : undefined);
   return {
     kind,
     header: header ?? (title || backHref ? { title, backHref, backLabel } : undefined),
-    body: body ?? (blocks ? { blocks } : undefined),
+    body: resolvedBody,
     ...rest,
   } as PageSurfaceProps;
 }

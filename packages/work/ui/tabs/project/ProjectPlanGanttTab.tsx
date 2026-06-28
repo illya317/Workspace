@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { PageSurface, createPageDataBlock, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createPageBody, createPageDataBlock, useFeedback } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, PageSurfaceProps, SurfaceToolbarItems } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { ProjectItem } from "./model";
@@ -183,9 +183,9 @@ export default function ProjectPlanGanttTab({
         },
       };
   const blocks = [timelineBlock] satisfies PageSurfaceBlockSpec[];
-  return <PageSurface kind="list" {...surface} toolbar={{ items: toolbarItems }} blocks={blocks} />;
-}
-type ProjectPlanGanttSurfaceProps = Pick<PageSurfaceProps, "tabs" | "activeTab" | "activeChild" | "onTabChange" | "onChildChange">;
+	  return <PageSurface kind="list" {...surface} toolbar={{ items: toolbarItems }} body={createPageBody(blocks)} />;
+	}
+type ProjectPlanGanttSurfaceProps = Pick<PageSurfaceProps, "navigation">;
 
 function periodLabel(start: Date, zoom: ProjectGanttZoom) {
   if (zoom === "year") return `${start.getFullYear()}年`;

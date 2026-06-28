@@ -91,7 +91,9 @@ export type {
 } from "./FormSurface";
 export { default as PageSurface } from "./PageSurface";
 export type {
+  PageSurfaceActionSize,
   PageSurfaceBlockSpec,
+  PageSurfaceBodySpec,
   PageSurfaceCommandSpec,
   PageSurfaceEmptySpec,
   PageSurfaceFooterSpec,
@@ -114,6 +116,7 @@ export {
   createHeadingBlock,
   createMessageBlock,
   createModuleGridBlock,
+  createPageBody,
   createPageActionsBlock,
   createPageCommand,
   createPageDataBlock,
@@ -126,6 +129,7 @@ export {
   createPanelBlock,
   createPageSurfaceProps,
   createPageTableBlock,
+  createPageTabsNavigation,
   createSectionBlock,
   createVisualizationBlock,
 } from "./helpers/page-surface-builders";

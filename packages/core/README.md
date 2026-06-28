@@ -57,6 +57,8 @@ Surface block helper 是非组件 contract helper，用于把业务表单/数据
 - `createDocumentBlock`：替代业务用普通容器承载纸面/A4/QC 文档。
 - `createVisualizationBlock`：替代业务把图表、甘特、时间轴塞进 `DataSurface.visual` 或 `FormSurface.note`。
 - `createBlockSurfaceBlock`：替代业务用旧 page block 或 `moduleView` 承载 section、panel、message、empty、actions。
+- `createPageBody`：生成 `PageSurface.body`；新增页面不要再使用顶层 `blocks`、`empty`、`actions`。
+- `createPageTabsNavigation`：生成 `PageSurface.navigation kind="tabs"`；新增页面不要再使用顶层 `tabs` / `activeTab` 兼容 props。
 - `createPageModalBlock`：替代业务直接 render Form modal 或专用 modal wrapper。
 - `createActionsBlock` / `createPageCommand`：替代用 `FormSurface kind="inline"` 只渲染动作按钮。`createPageActionsBlock` 仅作为兼容 alias 保留。
 - `createPageSurfaceProps`：给 route/module thin adapter 从 AppShell 迁到 `PageSurface` 五段协议。

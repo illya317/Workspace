@@ -22,6 +22,7 @@ Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页
 - Toolbar 规则另见 `docs/engineering/core-toolbar.md`；该文档是所有页面级工具栏的专门规范。
 - 业务只使用 `role=surface` 的声明接口、`role=helper` 的声明助手和允许的 `role=service` 服务接口。`role=host` 预留给少数宿主入口，默认空且必须白名单；`role=internal` 只给 Core 内部实现。
 - `FormSurface`、`DataSurface`、`DocumentSurface`、`VisualizationSurface`、`BlockSurface` 只能通过 `PageSurface.body.blocks[]` 使用；页面级导航、toolbar、分页必须通过 `PageSurface.navigation`、`PageSurface.toolbar`、`PageSurface.footer` 表达。
+- 新增页面代码必须使用 `PageSurface.body` 和 `PageSurface.navigation`。顶层 `blocks`、`empty`、`actions`、`tabs`、`activeTab`、`activeChild`、`onTabChange`、`onChildChange` 仅为存量兼容入口，不作为新代码 API。
 - `@workspace/core/ui` 的 type-only import 只允许 Surface contract 类型、helper 类型和业务别名：`DataSurface*`、`FormSurface*`、`NavigationSurface*`、`PageSurface*`、`ReferenceOption`、`SurfaceToolbarItem`、`SurfaceToolbarItems`。业务不得再 type-only 直引底层 `DataTableColumn`、`ToolbarItem`、`FkFieldOption`；分别使用 Surface contract、`SurfaceToolbarItem(s)`、`ReferenceOption`。
 - 不直接 import `role=internal` 或未白名单的 `role=host` entry 作为业务组件；过渡期只允许 Surface contract / helper / business alias type-only 引用。
 - 不直接 import `Core Internal`、`Foundation`、`Private Impl`。
@@ -178,6 +179,8 @@ Core UI 文件按层放置：
 - `createDocumentBlock(key, surface)`：生成 `DocumentSurface` block。迁移纸面、A4、报告、QC 预览。
 - `createVisualizationBlock(key, surface)`：生成 `VisualizationSurface` block。迁移图表、甘特、时间轴、组织图。
 - `createBlockSurfaceBlock(key, surface)`：生成 `BlockSurface` block。迁移 section、panel、message、empty、actions、module grid 等通用区块。
+- `createPageBody(blocks, options)`：生成 `PageSurface.body`，正文空态写入 `options.empty`，正文短命令写入 `options.commands`。新增代码不得再写顶层 `blocks` / `empty` / `actions`。
+- `createPageTabsNavigation(options)`：生成 `PageSurface.navigation kind="tabs"`。新增代码不得再写顶层 `tabs` / `activeTab` / `activeChild` / `onTabChange` / `onChildChange`。
 - `createPageTableBlock(key, table)`：生成 `PageSurface` 的 `data.table` block。迁移业务 `<DataSurface kind="table" ... />` 时优先使用。
 - `createPageDataBlock(key, surface)`：生成任意 `DataSurfaceProps` block。用于 `structured`、`records`、`metrics` 等数据协议；图形用 `createVisualizationBlock`，任意 React 内容用 `createBlockSurfaceBlock`。
 - `createPageModalBlock(key, modal)`：生成 `PageSurface` modal block，modal 内容继续用 typed blocks。
@@ -252,6 +255,8 @@ Platform Core UI direct import 按以下 recipe 清：
 新增 `role=surface` 必须有明确 `category/subcategory` 和 `declares`；若声明项过多或高度耦合，应拆新的 Surface。基础/私有实现只保留为 `role=internal`，不得作为业务 import。
 
 新增或迁移 registry entry 时必须填写 `category`、`subcategory` 和 `role`。`arch:surface-boundaries` 会 warning：非 common Surface 不应直接组合其他 Surface，且 `declares` 不应挂在非 Surface entry 上。结构性 UI 项进入 `gate:ui`，简单清扫项进入 `check:hygiene`；不能为了消警把 domain shared shell 注册成 Core/Page API。
+
+`arch:surface-page-adoption` 专门扫描业务 JSX 和 `createPageSurfaceProps` 中的 PageSurface 顶层兼容入口：`blocks`、`empty`、`actions`、`tabs`、`activeTab`、`activeChild`、`onTabChange`、`onChildChange`。这些不是新代码 API，只能作为迁移债出现在 warning；新增/迁移代码必须改到 `body`、`navigation`、`toolbar` 或对应 helper。
 
 `FinanceShell`、`QcModuleShell`、`AdminToolbarProvider` 这类“同一个 L2 共有的布局壳”是历史债，禁止注册为 Core/Page API。长期方式是 route/module 层生成 `PageSurface` props，或 domain thin adapter 只返回/组合 `PageSurface` spec；页面级 header/navigation/toolbar/body/footer 必须由 `PageSurface` props 一次性声明，禁止子组件通过 provider 或 `useXxxPageToolbar` 反向注册页面 chrome。
 

@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import type { BlockSurfaceProps } from "../BlockSurface";
-import type { CommandButtonProps } from "../CommandButton";
 import type { DataSurfaceProps } from "./DataSurface.types";
 import type { DocumentSurfaceProps } from "../DocumentSurface";
 import type { FormSurfaceProps } from "./FormSurface.types";
@@ -9,6 +8,7 @@ import type { VisualizationSurfaceProps } from "../VisualizationSurface";
 import type { SurfaceToolbarItems } from "./SurfaceContractTypes";
 
 export type PageSurfaceKind = "list" | "detail" | "split" | "analysis" | "settings";
+export type PageSurfaceActionSize = "sm" | "md" | "lg";
 
 export type PageSurfaceToolbarSpec = {
   items: SurfaceToolbarItems;
@@ -69,7 +69,7 @@ export interface PageSurfaceCommandSpec {
   disabled?: boolean;
   variant?: "primary" | "secondary" | "danger";
   type?: "button" | "submit";
-  size?: CommandButtonProps["size"];
+  size?: PageSurfaceActionSize;
   className?: string;
   truncate?: boolean;
 }
@@ -107,24 +107,36 @@ export interface PageSurfaceSideSpec {
   className?: string;
 }
 
+export interface PageSurfaceBodySpec {
+  layout?: "single" | "split";
+  blocks?: PageSurfaceBlockSpec[];
+  empty?: PageSurfaceEmptySpec;
+  commands?: PageSurfaceCommandSpec[];
+}
+
 interface PageSurfaceBaseProps {
   kind: PageSurfaceKind;
   header?: PageSurfaceHeaderSpec;
   navigation?: PageSurfaceNavigationSpec;
+  /** @deprecated Use navigation={kind:"tabs", ...}. Kept for compatibility only. */
   tabs?: PageSurfaceNavigationItemSpec[];
+  /** @deprecated Use navigation.active. Kept for compatibility only. */
   activeTab?: string;
+  /** @deprecated Use navigation.activeChild. Kept for compatibility only. */
   activeChild?: string;
+  /** @deprecated Use navigation.onChange. Kept for compatibility only. */
   onTabChange?: (tab: string) => void;
+  /** @deprecated Use navigation.onChildChange. Kept for compatibility only. */
   onChildChange?: (child: string) => void;
   toolbar?: PageSurfaceToolbarSpec;
   footer?: PageSurfaceFooterSpec;
+  /** @deprecated Use body.commands or toolbar items. Kept for compatibility only. */
   actions?: PageSurfaceCommandSpec[];
+  /** @deprecated Use body.empty. Kept for compatibility only. */
   empty?: PageSurfaceEmptySpec;
+  /** @deprecated Use body.blocks. Kept for compatibility only. */
   blocks?: PageSurfaceBlockSpec[];
-  body?: {
-    layout?: "single" | "split";
-    blocks?: PageSurfaceBlockSpec[];
-  };
+  body?: PageSurfaceBodySpec;
   embedded?: boolean;
   className?: string;
   contentClassName?: string;

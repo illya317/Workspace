@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { createBlockSurfaceBlock, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createPageBody, createPageTabsNavigation, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { PageSurfaceProps } from "@workspace/core/ui";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 import type { WorkUser } from "@workspace/work/types";
@@ -16,11 +16,13 @@ export default function ProjectTab({ user }: { user: WorkUser }) {
   const tabs = useMemo(() => getPageViewTabs("/work/projects"), []);
   const [activeChild, setActiveChild] = useState("projects");
   const surface = {
-    tabs,
-    activeTab: "projects",
-    activeChild,
-    onTabChange: () => setActiveChild("projects"),
-    onChildChange: setActiveChild,
+    navigation: createPageTabsNavigation({
+      items: tabs,
+      active: "projects",
+      activeChild,
+      onChange: () => setActiveChild("projects"),
+      onChildChange: setActiveChild,
+    }),
   } satisfies ProjectChildSurfaceProps;
   if (activeChild === "projects-gantt") return <ProjectGanttTab user={user} surface={surface} />;
   if (activeChild === "project-plan-gantt") {
@@ -35,7 +37,7 @@ function requestedProjectId() {
   return Number.isInteger(value) && value > 0 ? value : null;
 }
 
-type ProjectChildSurfaceProps = Pick<PageSurfaceProps, "tabs" | "activeTab" | "activeChild" | "onTabChange" | "onChildChange">;
+type ProjectChildSurfaceProps = Pick<PageSurfaceProps, "navigation">;
 
 function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: ProjectChildSurfaceProps }) {
   const searchParams = useSearchParams();
@@ -162,12 +164,12 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
           model.setProjectListDrawerOpen(false);
         }, "drawer")],
       }}
-      blocks={model.loading || model.error ? [createBlockSurfaceBlock("project-loading", {
-        kind: "message",
-        content: model.error || "加载中...",
-        tone: model.error ? "danger" : "muted"
-      })] : [projectDetailBlock]}
-    />
+	      body={createPageBody(model.loading || model.error ? [createBlockSurfaceBlock("project-loading", {
+	        kind: "message",
+	        content: model.error || "加载中...",
+	        tone: model.error ? "danger" : "muted"
+	      })] : [projectDetailBlock])}
+	    />
   );
 }
 

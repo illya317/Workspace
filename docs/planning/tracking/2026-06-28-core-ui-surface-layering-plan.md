@@ -32,6 +32,7 @@
 - 外部 `DataSurface.raw` 使用已迁到 `BlockSurface`；`DataSurface` 顶层 kind 只剩 `table/structured/records/metrics`。
 - QC 批号输入已从复杂 `FormSurface.note` 迁到 `BlockSurface.content`；`note` 继续只承担说明/提示。
 - `PageSurfaceBlockSpec` 已收窄为 `data/document/form/visualization/block/navigation/modal` wrapper；旧 `message/empty/panel/section/actions/metrics/moduleGrid/surfaceGroup/analysis` 不再是 PageSurface public block kind。
+- `PageSurface.body` / `PageSurface.navigation` 已作为新代码入口，顶层 `blocks/empty/actions/tabs/activeTab/activeChild/onTabChange/onChildChange` 仅保留兼容迁移。
 - 关键声明与 helper 已移动到 `packages/core/ui/surface/`、`packages/core/ui/helpers/`、`packages/core/ui/services/`；`host` 目录保持空。
 
 `structure` import gate 当前按 role 判定：
@@ -89,6 +90,7 @@
 阶段性：
 
 - `npm run arch:surface-boundaries`
+- `npm run arch:surface-page-adoption`
 - `npm run check:hygiene:warn`
 - `CORE_UI_CHANGE=1 npm run gate:ui`
 - `npm run typecheck:quick`
@@ -97,7 +99,8 @@
 最终：
 
 - `npm run arch:surface-boundaries` 无 warning。
-- `npm run check:hygiene:warn` 无 Core UI surface boundary warning。
+- `npm run arch:surface-page-adoption` 无 PageSurface 顶层兼容入口 warning。
+- `npm run check:hygiene:warn` 无 Core UI surface boundary / PageSurface adoption warning。
 - `CORE_UI_CHANGE=1 npm run gate:ui` 通过。
 - `npm run lint:changed` 与 `npm run typecheck:quick` 通过。
 
