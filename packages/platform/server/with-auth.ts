@@ -42,7 +42,7 @@ import { jsonErrorResponse } from "./api";
 
 export type { AuthPayload };
 
-export type RouteContext = { params: Promise<Record<string, string>> };
+export type RouteContext = { params: Promise<Record<string, string | string[]>> };
 
 export type AuthHandler = (
   req: Request,

@@ -27,7 +27,7 @@ export function withOpenApiConsoleManage(handler: AuthHandler) {
   );
 }
 
-export async function readRouteId(params: Promise<Record<string, string>> | undefined, key = "id") {
+export async function readRouteId(params: Promise<Record<string, string | string[]>> | undefined, key = "id") {
   const resolved = await params;
   const id = Number(resolved?.[key]);
   return Number.isInteger(id) && id > 0 ? id : null;

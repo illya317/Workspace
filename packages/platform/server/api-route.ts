@@ -48,7 +48,7 @@ type ApiRouteHandlerOptions<
 };
 
 type ApiRouteRuntimeContext = {
-  params?: Promise<Record<string, string>>;
+  params?: Promise<Record<string, string | string[]>>;
 };
 
 type InternalApiRouteContext<TParams, TQuery, TBody> = {
