@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, type Dispatch, type SetStateAction } from "react";
-import { createPageDataBlock, createBlockSurfaceBlock, createPanelBlock, PageSurface, type FormSurfaceItemSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, createPageDataBlock, createBlockSurfaceBlock, createPanelBlock, PageSurface, type FormSurfaceItemSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { departmentCodeEditableSegment } from "./department-code-input";
 import { departmentDescendantIds, splitAliasText } from "./utils";
 import { useDepartmentDescriptionsBlock } from "./department-descriptions-panel";
@@ -249,5 +249,5 @@ export function useDepartmentDetailPaneBlock({
 
 export function DepartmentDetailPane(props: DepartmentDetailPaneProps) {
   const block = useDepartmentDetailPaneBlock(props);
-  return <PageSurface embedded kind="detail" blocks={[block]} />;
+  return <PageSurface embedded kind="detail" body={createPageBody([block])} />;
 }

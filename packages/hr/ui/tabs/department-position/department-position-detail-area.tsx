@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { useDepartmentCreatePanelBlock } from "./department-create-panel";
 import type { Department } from "./types";
 
@@ -41,5 +41,5 @@ export function DepartmentPositionDetailArea(props: {
   detailBlocks: PageSurfaceBlockSpec[];
 }) {
   const blocks = useDepartmentPositionDetailBlocks(props);
-  return <PageSurface embedded kind="detail" blocks={blocks} />;
+  return <PageSurface embedded kind="detail" body={createPageBody(blocks)} />;
 }

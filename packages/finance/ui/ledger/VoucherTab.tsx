@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo } from "react";
-import { PageSurface, createBlockSurfaceBlock, createPageTableBlock, useFeedback } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createBlockSurfaceBlock, createPageTableBlock, useFeedback } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { getBaseItemColumns, type VoucherItemRow } from "../components/VoucherItemTable";
@@ -223,14 +223,14 @@ function VoucherItemsPreview({
       <PageSurface
         kind="list"
         embedded
-        blocks={[
+        body={createPageBody([
           createPageTableBlock("voucher-items", {
             rows: voucher.items.map((item: VoucherItemRow, index: number) => ({ ...item, _idx: index, _voucherNo: voucher.voucherNo })),
             columns,
             visibleColumns: columns.map((column) => column.key),
             rowKey: (row: VoucherItemRow) => `item-${row.id}`,
           }),
-        ]}
+        ])}
       />
     </div>
   );

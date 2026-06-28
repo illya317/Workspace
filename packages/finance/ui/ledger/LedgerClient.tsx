@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { PageSurface, createPageDataBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPageDataBlock } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 import AccountTab from "./AccountTab";
@@ -42,7 +42,7 @@ function DepreciationPlaceholder() {
     <PageSurface
       kind="list"
       embedded
-      blocks={[createPageDataBlock("depreciation-placeholder", { kind: "records", records: [], empty: "资产折旧表开发中" })]}
+      body={createPageBody([createPageDataBlock("depreciation-placeholder", { kind: "records", records: [], empty: "资产折旧表开发中" })])}
     />
   );
 }

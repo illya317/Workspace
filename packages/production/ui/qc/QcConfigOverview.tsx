@@ -1,6 +1,6 @@
 import type { QcConfigOverview } from "@workspace/production/server/qc";
 import Link from "next/link";
-import { PageSurface, createGroupBlock, createPageDataBlock, createPageTableBlock } from "@workspace/core/ui";
+import { createGroupBlock, createPageBody, createPageDataBlock, createPageTableBlock, PageSurface } from "@workspace/core/ui";
 
 interface Props {
   overview: QcConfigOverview;
@@ -56,7 +56,7 @@ function BatchesOverview({ overview }: { overview: QcConfigOverview }) {
     <PageSurface
       kind="detail"
       embedded
-      blocks={[
+      body={createPageBody([
         createPageDataBlock<ProductOverview>("qc-config-batch-metrics", {
           kind: "metrics",
           metrics: [
@@ -100,7 +100,7 @@ function BatchesOverview({ overview }: { overview: QcConfigOverview }) {
           rowKey: (product) => product.name,
           emptyText: "暂无可读取的产品配置。",
         }),
-      ]}
+      ])}
     />
   );
 }
@@ -110,7 +110,7 @@ function TemplatesOverview({ overview }: { overview: QcConfigOverview }) {
     <PageSurface
       kind="detail"
       embedded
-      blocks={[
+      body={createPageBody([
         createPageDataBlock("qc-config-template-metrics", {
           kind: "metrics",
           metrics: [
@@ -173,7 +173,7 @@ function TemplatesOverview({ overview }: { overview: QcConfigOverview }) {
             }),
           ],
         }),
-      ]}
+      ])}
     />
   );
 }

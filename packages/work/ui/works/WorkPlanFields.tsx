@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  PageSurface,
-  createFormBlock,
-  type FormSurfaceFieldSpec,
-  type FormSurfaceProps,
-  type SurfacePickerOptionSpec,
-} from "@workspace/core/ui";
+import { createFormBlock, createPageBody, type FormSurfaceFieldSpec, type FormSurfaceProps, PageSurface, type SurfacePickerOptionSpec } from "@workspace/core/ui";
 import {
   listProjectPhaseOptions,
   listProjectTaskOptions,
@@ -30,7 +24,7 @@ export function WorkPlanForm({
   onChange: (draft: WorkPlanDraft) => void;
 }) {
   const surface = useWorkPlanFormSurface({ draft, disabled, onChange });
-  return <PageSurface embedded kind="detail" blocks={[createFormBlock("work-plan-form", surface)]} />;
+  return <PageSurface embedded kind="detail" body={createPageBody([createFormBlock("work-plan-form", surface)])} />;
 }
 
 export function useWorkPlanFormSurface({

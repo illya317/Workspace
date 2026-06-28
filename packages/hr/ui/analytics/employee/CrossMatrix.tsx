@@ -1,6 +1,6 @@
 "use client";
 
-import { createAnalysisBlock, createBlockSurfaceBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisBlock, createBlockSurfaceBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { CrossMatrixData } from "./useEmployeeData";
 import { DIM_LABELS, type DimKey } from "./constants";
 
@@ -51,7 +51,7 @@ export default function CrossMatrix({
   return (
     <PageSurface
       kind="analysis"
-      blocks={[block]}
+      body={createPageBody([block])}
     />
   );
 }

@@ -272,13 +272,6 @@ export default function MeetingsPage({
       sideLabel="会议列表"
       splitRatio={[2, 8]}
       toolbar={{ items: toolbarItems }}
-      actions={[{
-        key: "create",
-        label: creating ? "收起新建" : "新建会议",
-        variant: creating ? "secondary" : "primary",
-        disabled: saving,
-        onClick: () => setCreating((current) => !current),
-      }]}
       side={{
         blocks: [{
           kind: "navigation",
@@ -306,7 +299,13 @@ export default function MeetingsPage({
           },
         }],
       }}
-      body={{
+      body={{ commands: [{
+        key: "create",
+        label: creating ? "收起新建" : "新建会议",
+        variant: creating ? "secondary" : "primary",
+        disabled: saving,
+        onClick: () => setCreating((current) => !current),
+      }],
         blocks: [
           ...(creating ? [{
             kind: "form" as const,

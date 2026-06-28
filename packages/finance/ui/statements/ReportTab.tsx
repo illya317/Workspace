@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { createGroupBlock, createMessageBlock, createPanelBlock, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createGroupBlock, createMessageBlock, createPanelBlock, PageSurface } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 import { createReportBannerBlock } from "./ReportBanner";
@@ -236,7 +236,7 @@ export default function ReportTab() {
     <PageSurface
       kind={data ? "analysis" : "list"}
       toolbar={{ items: toolbarItems }}
-      blocks={reportBlocks.length > 0 ? reportBlocks : undefined}
+      body={reportBlocks.length > 0 ? createPageBody(reportBlocks) : undefined}
     />
   );
 }

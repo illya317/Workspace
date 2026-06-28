@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo, useRef } from "react";
 import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
-import { PageSurface, createBlockSurfaceBlock, useFeedback, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createBlockSurfaceBlock, useFeedback, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { buildGenericCreatePanelBlock } from "../components/GenericCreatePanel";
 import GenericFieldInput from "../components/GenericFieldInput";
 import { buildHRToolbarItems } from "../components/hr-toolbar-items";
@@ -284,7 +284,7 @@ export default function GenericTableTab({ config, user, surface }: { config: Tab
       {...surface}
       kind="list"
       toolbar={{ items: toolbarItems, onSubmit: load }}
-      blocks={blocks}
+      body={createPageBody(blocks)}
       footer={pagination ? { pagination } : undefined}
     />
   );

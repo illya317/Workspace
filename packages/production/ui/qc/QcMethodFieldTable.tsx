@@ -1,6 +1,6 @@
 "use client";
 
-import { InputControl, PageSurface, createPageDataBlock, type DataSurfaceStructuredCellSpec } from "@workspace/core/ui";
+import { createPageBody, createPageDataBlock, type DataSurfaceStructuredCellSpec, InputControl, PageSurface } from "@workspace/core/ui";
 import type { QcTemplateMethodField, QcTemplateTestItem } from "@workspace/production/server/qc";
 import { QcPaperChoiceInput } from "./QcPaperInputs";
 import { useQcFormulaEngine, type QcFieldValues } from "./useQcFormulaEngine";
@@ -90,7 +90,7 @@ export default function QcMethodFieldTable({ test, compact, values: controlledVa
   const setValue = onFieldChange || form.setValue;
 
   if (test.methodGroups.length === 0) {
-    return <PageSurface kind="detail" embedded empty={{ content: "该方法暂未配置字段。", compact: true, className: "border-slate-950 text-slate-500" }} />;
+    return <PageSurface kind="detail" embedded body={createPageBody([], { empty: { content: "该方法暂未配置字段。", compact: true, className: "border-slate-950 text-slate-500" } })} />;
   }
 
   return (
@@ -124,7 +124,7 @@ export default function QcMethodFieldTable({ test, compact, values: controlledVa
             key={group.name}
             kind="detail"
             embedded
-            blocks={[
+            body={createPageBody([
               createPageDataBlock(`qc-method-field-${group.name}`, {
                 kind: "structured",
                 wrap: false,
@@ -132,7 +132,7 @@ export default function QcMethodFieldTable({ test, compact, values: controlledVa
                 rows,
                 className: "w-full border-collapse text-sm text-slate-950",
               }),
-            ]}
+            ])}
           />
         );
       })}

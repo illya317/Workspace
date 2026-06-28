@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createBlockSurfaceBlock } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createPageBody, PageSurface } from "@workspace/core/ui";
 import WorkForm from "./WorkForm";
 import type { WorkItem } from "./types";
 export interface WorkFormData {
@@ -32,7 +32,7 @@ export default function WorkFormSection({
       embedded
       kind="detail"
       className="mb-6"
-      blocks={[createBlockSurfaceBlock("department-work-plan", {
+      body={createPageBody([createBlockSurfaceBlock("department-work-plan", {
         kind: "section",
         title: "部门 OKR 计划",
         actions: isAdmin && !showForm && !editingWork ? [{
@@ -46,7 +46,7 @@ export default function WorkFormSection({
           ...(!isAdmin ? [{ kind: "message" as const, key: "admin-only", tone: "muted" as const, content: "仅部门管理员可编辑 OKR 计划" }] : []),
           ...(showForm ? [{ kind: "content" as const, key: "form", content: <WorkForm onSave={onSave} onCancel={onCancelForm} /> }] : []),
         ],
-      })]}
+      })])}
     />
   );
 }

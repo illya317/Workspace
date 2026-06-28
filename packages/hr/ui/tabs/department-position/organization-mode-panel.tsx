@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { putJson } from "@workspace/platform/ui/api-client";
-import { createBlockSurfaceBlock,
+import {
+  createPageBody, createBlockSurfaceBlock,
   createPanelBlock,
   type DataSurfaceColumnSpec,
   InputControl,
@@ -288,7 +289,7 @@ export function OrganizationModePanel({
       drawerOpen={drawerOpen}
       onDrawerOpenChange={onDrawerOpenChange}
       side={side}
-      blocks={[createPanelBlock("organization-mode", {
+      body={createPageBody([createPanelBlock("organization-mode", {
         title: organizationPanelTitle,
         actions: organizationHeaderDepartment ? [{
           key: "save",
@@ -300,7 +301,7 @@ export function OrganizationModePanel({
         className: "min-h-96",
         bodyClassName: "p-4",
         blocks: panelBlocks,
-      })]}
+      })])}
     />
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { PageSurface, createBlockSurfaceBlock, createMessageBlock, createSectionBlock, type DataSurfaceColumnSpec, type FormSurfaceItemSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createMessageBlock, createPageBody, createSectionBlock, type DataSurfaceColumnSpec, type FormSurfaceItemSpec, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { postJson, putJson, requestJson } from "../api-client";
 type OpenApiRegistrationRow = {
@@ -382,5 +382,5 @@ export default function SettingsApiClient({
       }],
     }),
   ];
-  return <PageSurface kind="settings" contentClassName="py-8" blocks={blocks} />;
+  return <PageSurface kind="settings" contentClassName="py-8" body={createPageBody(blocks)} />;
 }

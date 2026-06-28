@@ -1,5 +1,5 @@
 import type { QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
-import { createPageDataBlock, createBlockSurfaceBlock, PageSurface, type DataSurfaceCellSpec, type DataSurfaceColumnSpec, type DataSurfaceTableProps } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createPageBody, createPageDataBlock, type DataSurfaceCellSpec, type DataSurfaceColumnSpec, type DataSurfaceTableProps, PageSurface } from "@workspace/core/ui";
 
 interface Props {
   detail: QcTemplateDetail;
@@ -119,7 +119,7 @@ export default function QcTemplateDetailPanel({ detail }: Props) {
     kind="detail"
     embedded
     className="space-y-4"
-    blocks={[
+    body={createPageBody([
       createPageDataBlock("template-metrics", {
           kind: "metrics",
           metrics: [
@@ -140,6 +140,6 @@ export default function QcTemplateDetailPanel({ detail }: Props) {
         key: stage.key,
         surface: createStageSurface(stage),
       })),
-    ]}
+    ])}
   />;
 }

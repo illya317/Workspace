@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PageSurface, createFieldsBlock } from "@workspace/core/ui";
+import { createFieldsBlock, createPageBody, PageSurface } from "@workspace/core/ui";
 import type { WorkItem } from "./types";
 
 export default function WorkForm({
@@ -32,7 +32,7 @@ export default function WorkForm({
     <PageSurface
       embedded
       kind="detail"
-      blocks={[createFieldsBlock("work-form", [
+      body={createPageBody([createFieldsBlock("work-form", [
         {
           key: "category",
           label: "类别",
@@ -98,7 +98,7 @@ export default function WorkForm({
             }),
         },
       ],
-    })]}
+    })])}
     />
   );
 }

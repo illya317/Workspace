@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createBlockSurfaceBlock, createGroupBlock, createMessageBlock, createPanelBlock, createSectionBlock, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createGroupBlock, createMessageBlock, createPageBody, createPanelBlock, createSectionBlock, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import type { SessionUser } from "@workspace/platform/types";
@@ -420,7 +420,7 @@ export default function WorksClient({ initialTarget }: {
         blocks: [spaceSelectorBlock(spaces, activeTarget, spacesLoading, selectSpace)],
         drawerBlocks: [spaceSelectorBlock(spaces, activeTarget, spacesLoading, selectSpace)],
       }}
-      blocks={currentSpace ? [
+      body={createPageBody(currentSpace ? [
         createPanelBlock("space-header", {
           title: currentSpace.name,
           subtitle: [getWorkSpaceLabel(currentSpace.targetType), currentSpace.subtitle].filter(Boolean).join(" · "),
@@ -476,7 +476,7 @@ export default function WorksClient({ initialTarget }: {
         kind: "message",
         content: spacesLoading ? "加载工作空间中..." : "当前账号暂无可进入的工作计划空间",
         tone: "muted"
-      })]}
+      })])}
     />
   );
 }

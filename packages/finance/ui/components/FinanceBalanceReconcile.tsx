@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
 import {
+  createPageBody,
   PageSurface,
   createPageDataBlock,
   createInlineFieldsBlock,
@@ -91,7 +92,7 @@ export default function FinanceBalanceReconcile({
       <PageSurface
         kind="list"
         embedded
-        blocks={[
+        body={createPageBody([
           createInlineFieldsBlock("balance-reconcile-filters", [
             {
               key: "company",
@@ -111,7 +112,7 @@ export default function FinanceBalanceReconcile({
             kind: "filters",
             actions: [{ key: "reconcile", label: loading ? "核对中..." : "开始核对", variant: "primary", onClick: handleReconcile, disabled: loading }],
           }),
-        ]}
+        ])}
       />
 
       {result && <div className="mt-4 space-y-3">
@@ -157,7 +158,7 @@ export default function FinanceBalanceReconcile({
 }
 
 function BalanceReconcileSuccess() {
-  return <PageSurface kind="list" embedded blocks={[createPageDataBlock("balance-reconcile-empty", { kind: "records", records: [], empty: "核对通过，所有科目余额完全一致" })]} />;
+  return <PageSurface kind="list" embedded body={createPageBody([createPageDataBlock("balance-reconcile-empty", { kind: "records", records: [], empty: "核对通过，所有科目余额完全一致" })])} />;
 }
 
 function MissingList({
@@ -227,7 +228,7 @@ function DiffTable({
   return <PageSurface
     kind="list"
     embedded
-    blocks={[
+    body={createPageBody([
       createPageTableBlock("balance-reconcile-differences", {
         framed: true,
         className: "overflow-hidden",
@@ -237,6 +238,6 @@ function DiffTable({
         visibleColumns: columns.map(column => column.key),
         rowKey: difference => `${difference.accountCode}-${difference.field}`,
       }),
-    ]}
+    ])}
   />;
 }

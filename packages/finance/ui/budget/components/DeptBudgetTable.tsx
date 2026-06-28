@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { DeptBudgetItem } from "../types";
 
 const MONTH_LABELS = [
@@ -82,7 +82,7 @@ export default function DeptBudgetTable({ items, monthTotals, total }: DeptBudge
     <PageSurface
       kind="list"
       embedded
-      blocks={[
+      body={createPageBody([
         createPageTableBlock("dept-budget", {
           framed: true,
           className: "overflow-hidden",
@@ -94,7 +94,7 @@ export default function DeptBudgetTable({ items, monthTotals, total }: DeptBudge
           rowKey: (row) => row.id,
           rowClassName: (row) => row.kind === "total" ? "bg-slate-50 font-medium" : "",
         }),
-      ]}
+      ])}
     />
   );
 }

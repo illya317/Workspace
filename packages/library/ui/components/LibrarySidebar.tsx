@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PageSurface, createSelectorPanelBlock } from "@workspace/core/ui";
+import { createPageBody, createSelectorPanelBlock, PageSurface } from "@workspace/core/ui";
 import type { DirectoryNode } from "@workspace/library/types";
 
 interface Props {
@@ -51,7 +51,7 @@ export default function LibrarySidebar({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[
+        body={createPageBody([
           createSelectorPanelBlock<DirectoryNode>("library-directories", {
             mode: "tree",
             items: rootItems,
@@ -78,7 +78,7 @@ export default function LibrarySidebar({
             loading,
             loadingText: "加载中...",
           }),
-        ]}
+        ])}
       />
     </div>
   );

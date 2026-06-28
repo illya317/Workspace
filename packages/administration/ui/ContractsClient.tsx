@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState } from "react";
-import { PageSurface, createPageTableBlock, useFeedback } from "@workspace/core/ui";
+import { createPageBody, createPageTableBlock, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { useContracts } from "./hooks/useContracts";
 import getContractFilterToolbarItems from "./components/ContractFilters";
@@ -130,7 +130,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
             },
           ],
         }}
-        blocks={[
+        body={createPageBody([
           createPageTableBlock<Contract>("contracts", {
             framed: true,
             className: "overflow-hidden",
@@ -146,7 +146,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
             ],
             actionsColumn: { centered: true },
           }),
-        ]}
+        ])}
         footer={{
           pagination: {
             page,

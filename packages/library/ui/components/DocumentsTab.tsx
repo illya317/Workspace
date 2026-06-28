@@ -5,7 +5,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { useLibraryDocuments } from "../hooks/useLibraryDocuments";
 import { useLibraryFilters } from "../hooks/useLibraryFilters";
 import { useLibraryDirectories } from "../hooks/useLibraryDirectories";
-import { PageSurface, createEmptyBlock } from "@workspace/core/ui";
+import { createEmptyBlock, createPageBody, PageSurface } from "@workspace/core/ui";
 import type { DataSurfaceColumnSpec, DataSurfaceProps, PageSurfaceBlockSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import GenerateDocumentModal from "./GenerateDocumentModal";
 import LibraryDetailModal from "./LibraryDetailModal";
@@ -275,7 +275,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
         onDrawerOpenChange={setSidebarDrawerOpen}
         toolbar={{ items: toolbarItems }}
         side={{ blocks: sideBlocks }}
-        blocks={blocks}
+        body={createPageBody(blocks)}
         footer={totalPages > 1 ? {
           pagination: {
             page,

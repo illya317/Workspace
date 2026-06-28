@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FC } from "react";
-import { createEmptyBlock, createSectionBlock, PageSurface } from "@workspace/core/ui";
+import { createEmptyBlock, createPageBody, createSectionBlock, PageSurface } from "@workspace/core/ui";
 import {
   AnalysisBlock,
   AnalysisPageFrame,
@@ -113,7 +113,7 @@ function PageSurfacePreview() {
             { kind: "text", key: "count", content: "共 12 条" },
           ],
         }}
-        blocks={[
+        body={createPageBody([
           createSectionBlock("records", {
             title: "列表 Surface",
             subtitle: "toolbar / blocks / empty 都通过明确 spec 传入",
@@ -124,7 +124,7 @@ function PageSurfacePreview() {
               }),
             ],
           }),
-        ]}
+        ])}
       />
     </div>
   );

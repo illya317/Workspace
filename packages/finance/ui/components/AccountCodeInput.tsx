@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { PageSurface, createInlineFieldsBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createInlineFieldsBlock } from "@workspace/core/ui";
 
 interface AccountOption { code: string; name: string; }
 
@@ -80,7 +80,7 @@ export default function AccountCodeInput({ companyCode, year, value, onChange, p
     <PageSurface
       kind="list"
       embedded
-      blocks={[
+      body={createPageBody([
         createInlineFieldsBlock("account-code", [{
           key: "accountCode",
           label: "",
@@ -97,7 +97,7 @@ export default function AccountCodeInput({ companyCode, year, value, onChange, p
           emptyText: "无匹配科目",
           className: className || "w-32",
         }]),
-      ]}
+      ])}
     />
   );
 }

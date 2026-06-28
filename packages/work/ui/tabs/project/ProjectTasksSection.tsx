@@ -1,15 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  PageSurface,
-  createBlockSurfaceBlock,
-  createPageDataBlock,
-  useFeedback,
-  type DataSurfaceColumnSpec,
-  type SurfaceDataRowEditActionSpec,
-  type SurfacePickerOptionSpec,
-} from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createPageBody, createPageDataBlock, type DataSurfaceColumnSpec, PageSurface, type SurfaceDataRowEditActionSpec, type SurfacePickerOptionSpec, useFeedback } from "@workspace/core/ui";
 import {
   createProjectTask,
   deleteProjectTask,
@@ -292,7 +284,7 @@ export default function ProjectTasksSection({
   ];
 
   return (
-    <PageSurface embedded kind={projectId ? "detail" : "list"} blocks={blocks} />
+    <PageSurface embedded kind={projectId ? "detail" : "list"} body={createPageBody(blocks)} />
   );
 }
 
@@ -335,7 +327,7 @@ function ProjectTaskTableSurface({
   onCreateChildProject?: (task: ProjectTaskItem) => void;
   onDelete: (task: ProjectTaskItem) => void;
 }) {
-  return <PageSurface embedded kind="list" blocks={[createPageDataBlock("project-task-table", {
+  return <PageSurface embedded kind="list" body={createPageBody([createPageDataBlock("project-task-table", {
     kind: "table",
     rows: tasks,
     columns,
@@ -399,7 +391,7 @@ function ProjectTaskTableSurface({
       ];
     },
     scrollClassName: "overflow-y-hidden",
-  })]} />;
+  })])} />;
 }
 
 function statusClassName(status: string | null) {

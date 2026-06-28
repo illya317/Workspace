@@ -1,6 +1,6 @@
 "use client";
 
-import { createBlockSurfaceBlock, createMessageBlock, createSectionBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec, type PageSurfaceCommandSpec } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createMessageBlock, createPageBody, createSectionBlock, type DataSurfaceColumnSpec, PageSurface, type PageSurfaceBlockSpec, type PageSurfaceCommandSpec } from "@workspace/core/ui";
 
 export interface PositionDescriptionReadOnlyData {
   id?: number | string;
@@ -249,8 +249,7 @@ export function PositionDescriptionReadOnlyView({
   return (
     <PageSurface
       kind="detail"
-      actions={actions}
-      blocks={blocks}
+      body={createPageBody(blocks, { commands: actions })}
     />
   );
 }

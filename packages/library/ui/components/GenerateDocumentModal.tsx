@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useCallback } from "react";
-import { PageSurface, createFieldsBlock, createPageModalBlock } from "@workspace/core/ui";
+import { createFieldsBlock, createPageBody, createPageModalBlock, PageSurface } from "@workspace/core/ui";
 
 interface Source {
   key: string;
@@ -91,7 +91,7 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
     <PageSurface
       kind="list"
       embedded
-      blocks={[
+      body={createPageBody([
         createPageModalBlock("generate-document", {
           open: true,
           title: "生成文档",
@@ -173,7 +173,7 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
             }),
           ],
         }),
-      ]}
+      ])}
     />
   );
 }

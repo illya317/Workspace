@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState } from "react";
-import { createBlockSurfaceBlock, PageSurface, createPageDataBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, createBlockSurfaceBlock, PageSurface, createPageDataBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
 import { useStatementConfig } from "./StatementConfigContext";
 interface Node {
@@ -186,7 +186,7 @@ function UnmappedRecords({ message }: { message: string }) {
     <PageSurface
       kind="list"
       embedded
-      blocks={[createPageDataBlock("unmapped-records", { kind: "records", records: [], empty: message })]}
+      body={createPageBody([createPageDataBlock("unmapped-records", { kind: "records", records: [], empty: message })])}
     />
   );
 }
@@ -196,7 +196,7 @@ function UnmappedError({ message, onRetry }: { message: string; onRetry: () => v
     <PageSurface
       kind="list"
       embedded
-      blocks={[
+      body={createPageBody([
         createBlockSurfaceBlock("error", {
           kind: "message",
           tone: "danger",
@@ -210,7 +210,7 @@ function UnmappedError({ message, onRetry }: { message: string; onRetry: () => v
             actions: [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }],
           },
         },
-      ]}
+      ])}
     />
   );
 }
@@ -222,7 +222,7 @@ function UnmappedTable({ items }: { items: DisplayItem[] }) {
     <PageSurface
       kind="list"
       embedded
-      blocks={[
+      body={createPageBody([
         createPageDataBlock("unmapped-table", {
           kind: "table",
           framed: true,
@@ -233,7 +233,7 @@ function UnmappedTable({ items }: { items: DisplayItem[] }) {
           tableClassName: "text-base",
           rowClassName: row => row.status === "unmapped" ? "bg-red-50/60" : row.status === "excluded" ? "text-slate-500" : "bg-amber-50/50",
         }),
-      ]}
+      ])}
     />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createInlineFieldsBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createInlineFieldsBlock } from "@workspace/core/ui";
 interface DeptBudgetFiltersProps {
   deptFilter: string;
   setDeptFilter: (v: string) => void;
@@ -32,7 +32,7 @@ export default function DeptBudgetFilters({
       <PageSurface
         kind="list"
         embedded
-        blocks={[
+        body={createPageBody([
           createInlineFieldsBlock("dept-budget-filters", [
             {
               key: "dept",
@@ -70,7 +70,7 @@ export default function DeptBudgetFilters({
               },
             }] : undefined,
           }),
-        ]}
+        ])}
       />
         <span className="ml-auto text-xs text-gray-400">
           共 {count} 条，合计 {total.toFixed(2)} 万元

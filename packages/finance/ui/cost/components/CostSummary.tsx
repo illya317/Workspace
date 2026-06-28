@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createMessageBlock, createPanelBlock, createPageDataBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createMessageBlock, createPanelBlock, createPageDataBlock } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { formatCompactNullableAmount } from "../../formatters";
 import { useCostSummary } from "../hooks/useFinanceCostData";
@@ -70,7 +70,7 @@ export default function CostSummary({ filters }: Props) {
 
   return (
     <div className="space-y-4">
-      <PageSurface kind="analysis" embedded blocks={blocks} />
+      <PageSurface kind="analysis" embedded body={createPageBody(blocks)} />
       {summary && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <RankCard title="客户发货排行" items={summary.shipments?.topCustomers} />
@@ -93,7 +93,7 @@ function RankCard({
     <PageSurface
       kind="analysis"
       embedded
-      blocks={[createPanelBlock(title, {
+      body={createPageBody([createPanelBlock(title, {
         title,
         blocks: items?.length
           ? items.map((item, idx) => createMessageBlock(`${idx}-${item.name}`, {
@@ -104,7 +104,7 @@ function RankCard({
               tone: "muted" as const,
               content: "暂无数据",
             })],
-      })]}
+      })])}
     />
   );
 }

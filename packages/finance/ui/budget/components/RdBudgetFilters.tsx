@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createInlineFieldsBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createInlineFieldsBlock } from "@workspace/core/ui";
 interface RdBudgetFiltersProps {
   projectFilter: string;
   setProjectFilter: (v: string) => void;
@@ -26,7 +26,7 @@ export default function RdBudgetFilters({
       <PageSurface
         kind="list"
         embedded
-        blocks={[
+        body={createPageBody([
           createInlineFieldsBlock("rd-budget-filters", [
             {
               key: "project",
@@ -55,7 +55,7 @@ export default function RdBudgetFilters({
               },
             }] : undefined,
           }),
-        ]}
+        ])}
       />
         <span className="ml-auto text-xs text-gray-400">
           共 {count} 条，合计 {total.toFixed(2)} 万元

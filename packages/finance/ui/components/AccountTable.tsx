@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import CompanyNameCell from "@workspace/platform/ui/CompanyNameCell";
 
 export interface Account {
@@ -141,7 +141,7 @@ export default function AccountTable({
     <PageSurface
       kind="list"
       embedded
-      blocks={[
+      body={createPageBody([
         createPageTableBlock("accounts", {
           rows: accounts,
           columns,
@@ -150,7 +150,7 @@ export default function AccountTable({
           emptyText: "暂无科目数据",
           rowKey: (account) => account.id,
         }),
-      ]}
+      ])}
     />
   );
 }

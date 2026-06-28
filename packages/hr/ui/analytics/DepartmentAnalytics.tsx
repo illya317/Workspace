@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createAnalysisBlock, createPageDataBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec, type VisualizationTreeNodeSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisBlock, createPageDataBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec, type VisualizationTreeNodeSpec } from "@workspace/core/ui";
 import { matchSearchFields } from "@workspace/platform/search";
 import type { Department, EDP } from "./useAnalyticsData";
 
@@ -157,5 +157,5 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
 }
 
 export default function DepartmentAnalytics(props: { departments: Department[]; edps: EDP[] }) {
-  return <PageSurface kind="analysis" blocks={useDepartmentAnalyticsBlocks(props)} />;
+  return <PageSurface kind="analysis" body={createPageBody(useDepartmentAnalyticsBlocks(props))} />;
 }

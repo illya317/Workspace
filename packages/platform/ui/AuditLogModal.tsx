@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useCallback } from "react";
-import { PageSurface, createInlineFieldsBlock, createMessageBlock } from "@workspace/core/ui";
+import { createInlineFieldsBlock, createMessageBlock, createPageBody, PageSurface } from "@workspace/core/ui";
 import AuditLogEntry, { type AuditEntry } from "./AuditLogEntry";
 
 export interface AuditLogModalProps {
@@ -86,7 +86,7 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
     <PageSurface
       kind="list"
       embedded
-      blocks={[{
+      body={createPageBody([{
         kind: "modal",
         key: "audit-log",
         open,
@@ -159,7 +159,7 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
           },
         },
         ],
-      }]}
+      }])}
     />
   );
 }

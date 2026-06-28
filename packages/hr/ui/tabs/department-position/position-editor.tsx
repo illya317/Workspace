@@ -1,6 +1,6 @@
 "use client";
 
-import { createPanelBlock, PageSurface, type FormSurfaceItemSpec, type PageSurfaceBlockSpec, type ReferenceOption } from "@workspace/core/ui";
+import { createPageBody, createPanelBlock, PageSurface, type FormSurfaceItemSpec, type PageSurfaceBlockSpec, type ReferenceOption } from "@workspace/core/ui";
 import { type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
 import { buildDirectPositionPanelBlock } from "./navigation-panels";
 import { usePositionDescriptionPanelBlock } from "./position-description-panel";
@@ -216,5 +216,5 @@ export function usePositionEditorBlocks({
 
 export function PositionEditor(props: Omit<PositionEditorProps, "position"> & { position: Position }) {
   const blocks = usePositionEditorBlocks(props);
-  return <PageSurface embedded kind="detail" blocks={blocks} />;
+  return <PageSurface embedded kind="detail" body={createPageBody(blocks)} />;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import type { Ref } from "react";
-import { createBlockSurfaceBlock, createPanelBlock, PageSurface, type ConfirmOptions, type FormSurfaceItemSpec, type PageSurfaceBlockSpec, useFeedback } from "@workspace/core/ui";
+import { createPageBody, createBlockSurfaceBlock, createPanelBlock, PageSurface, type ConfirmOptions, type FormSurfaceItemSpec, type PageSurfaceBlockSpec, useFeedback } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { detailFieldRows, detailValueToText, isPrimitiveArray, parseDetailsObject, textToDetailValue } from "./description-details";
 
@@ -266,5 +266,5 @@ export function DepartmentDescriptionDetailsEditor({
     getDutyItemRef: getItemRef,
     requestDutyScrollToIndex: requestScrollToIndex,
   });
-  return <PageSurface embedded kind="detail" blocks={blocks} />;
+  return <PageSurface embedded kind="detail" body={createPageBody(blocks)} />;
 }

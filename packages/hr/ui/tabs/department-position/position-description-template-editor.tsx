@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createCreatePanelBlock, createGroupBlock, createPanelBlock, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createCreatePanelBlock, createGroupBlock, createPanelBlock, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { DETAIL_FIELD_LABELS, POSITION_DESCRIPTION_TEMPLATE_FIELD_GROUPS } from "./description-details";
 
 type PositionDescriptionTemplateEditorProps = {
@@ -33,7 +33,7 @@ export function buildPositionDescriptionTemplateEditorBlock({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[
+        body={createPageBody([
           {
             kind: "form",
             key: "template-name",
@@ -70,7 +70,7 @@ export function buildPositionDescriptionTemplateEditorBlock({
               }],
             })),
           }),
-        ]}
+        ])}
       />
     ),
     children: null,
@@ -88,6 +88,6 @@ export function PositionDescriptionTemplateEditor({
   return <PageSurface
     embedded
     kind="detail"
-    blocks={[buildPositionDescriptionTemplateEditorBlock({ name, fields, onNameChange, onToggleField, onSave, onCancel })]}
+    body={createPageBody([buildPositionDescriptionTemplateEditorBlock({ name, fields, onNameChange, onToggleField, onSave, onCancel })])}
   />;
 }

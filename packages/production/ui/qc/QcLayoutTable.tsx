@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { PageSurface, createPageDataBlock, type DataSurfaceStructuredCellSpec } from "@workspace/core/ui";
+import { createPageBody, createPageDataBlock, type DataSurfaceStructuredCellSpec, PageSurface } from "@workspace/core/ui";
 import type { QcLayoutBlock } from "@workspace/production/server/qc";
 import { CellContent } from "./qc-layout-table/cell-content";
 import { Part } from "./qc-layout-table/parts";
@@ -67,7 +67,7 @@ export function TableBlock({
     <PageSurface
       kind="detail"
       embedded
-      blocks={[
+      body={createPageBody([
         createPageDataBlock("qc-layout-table", {
           kind: "structured",
           wrap: false,
@@ -77,7 +77,7 @@ export function TableBlock({
           rowHeights: block.rowHeights,
           className: `min-w-full text-left text-sm ${marginClass} w-full table-fixed border-collapse ${TABLE_BODY_TEXT_CLASS} ${className}`,
         }),
-      ]}
+      ])}
     />
   );
 }

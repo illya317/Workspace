@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { createBlockSurfaceBlock, createGroupBlock, createPanelBlock, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, createBlockSurfaceBlock, createGroupBlock, createPanelBlock, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { buildPositionCreatePanelBlock } from "./create-panels";
 import type { CreatePositionDraft, Department, Position, Selection } from "./types";
 import { shortPositionCode } from "./utils";
@@ -45,7 +45,7 @@ export function DirectPositionPanel({
     <PageSurface
       embedded
       kind="detail"
-      blocks={[buildDirectPositionPanelBlock({
+      body={createPageBody([buildDirectPositionPanelBlock({
         canCreatePosition,
         createPanel,
         createPositionCode,
@@ -60,7 +60,7 @@ export function DirectPositionPanel({
         setCreatePositionDraft,
         onSelect,
         onCreatePosition,
-      })]}
+      })])}
     />
   );
 }
@@ -205,14 +205,14 @@ export function DepartmentTreePanel({
     <PageSurface
       embedded
       kind="detail"
-      blocks={[
+      body={createPageBody([
         createPanelBlock("department-tree", {
           className: mode === "drawer" ? "h-full overflow-hidden" : undefined,
           bodyClassName: `${mode === "drawer" ? "h-[calc(100%-48px)]" : "max-h-[760px]"} overflow-auto p-1`,
           actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", onClick: onClose }] : undefined,
           blocks,
         }),
-      ]}
+      ])}
     />
   );
 }
@@ -302,14 +302,14 @@ export function OrganizationRootPanel({
     <PageSurface
       embedded
       kind="detail"
-      blocks={[
+      body={createPageBody([
         createPanelBlock("organization-roots", {
           className: mode === "drawer" ? "h-full overflow-hidden" : undefined,
           bodyClassName: `${mode === "drawer" ? "h-full" : "max-h-[760px]"} overflow-auto p-1`,
           actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", onClick: onClose }] : undefined,
           blocks,
         }),
-      ]}
+      ])}
     />
   );
 }

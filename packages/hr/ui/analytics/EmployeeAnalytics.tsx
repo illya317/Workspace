@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { createAnalysisBlock,
+import {
+  createPageBody, createAnalysisBlock,
   createGroupBlock,
   createPageDataBlock,
   PageSurface,
@@ -138,5 +139,5 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
 }
 
 export default function EmployeeAnalytics(props: { employees: Employee[]; employments: Employment[]; edps: EDP[] }) {
-  return <PageSurface kind="analysis" blocks={useEmployeeAnalyticsBlocks(props)} />;
+  return <PageSurface kind="analysis" body={createPageBody(useEmployeeAnalyticsBlocks(props))} />;
 }

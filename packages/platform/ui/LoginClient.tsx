@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { workspacePath } from "@workspace/core/routing";
-import { createBlockSurfaceBlock, createMessageBlock, createPanelBlock, PageSurface } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createMessageBlock, createPageBody, createPanelBlock, PageSurface } from "@workspace/core/ui";
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 function getSafeNextPath() {
   const next = new URLSearchParams(window.location.search).get("next");
@@ -62,7 +62,7 @@ export default function LoginClient() {
       kind="settings"
       header={{ hidden: true }}
       className="flex min-h-screen w-full items-center justify-center bg-gray-50"
-      blocks={[createPanelBlock("login", {
+      body={createPageBody([createPanelBlock("login", {
         className: "w-full max-w-xl",
         bodyClassName: "space-y-4 p-10",
         blocks: [
@@ -139,6 +139,6 @@ export default function LoginClient() {
             },
           },
         ],
-      })]}
+      })])}
     />;
 }

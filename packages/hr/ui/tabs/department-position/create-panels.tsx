@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { PageSurface, createCreatePanelBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createCreatePanelBlock } from "@workspace/core/ui";
 import type { FormSurfaceItemSpec, PageSurfaceBlockSpec, ReferenceOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import type { CreatePositionDraft, Department } from "./types";
@@ -96,7 +96,7 @@ export function buildPositionCreatePanelBlock({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[{
+        body={createPageBody([{
           kind: "form",
           key: "fields",
           surface: {
@@ -104,7 +104,7 @@ export function buildPositionCreatePanelBlock({
             columns: 3,
             fields,
           },
-        }]}
+        }])}
       />
     ),
     children: null,
@@ -116,7 +116,7 @@ export function PositionCreatePanel(props: PositionCreatePanelProps) {
     <PageSurface
       embedded
       kind="detail"
-      blocks={[buildPositionCreatePanelBlock(props)]}
+      body={createPageBody([buildPositionCreatePanelBlock(props)])}
     />
   );
 }

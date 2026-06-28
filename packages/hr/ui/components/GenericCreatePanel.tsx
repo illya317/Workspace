@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createCreatePanelBlock, type FormSurfaceFieldSpec, type PageSurfaceBlockSpec, type ReferenceOption } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createCreatePanelBlock, type FormSurfaceFieldSpec, type PageSurfaceBlockSpec, type ReferenceOption } from "@workspace/core/ui";
 import type { FieldConfig, TabConfig } from "@workspace/hr/types";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../fk-keys";
 
@@ -36,7 +36,7 @@ export function buildGenericCreatePanelBlock({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[
+        body={createPageBody([
           {
             kind: "form",
             key: "fields",
@@ -45,7 +45,7 @@ export function buildGenericCreatePanelBlock({
               fields,
             },
           },
-        ]}
+        ])}
       />
     ),
     children: null,

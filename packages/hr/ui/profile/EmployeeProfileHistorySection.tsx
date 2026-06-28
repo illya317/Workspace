@@ -1,4 +1,5 @@
 import {
+  createPageBody,
   PageSurface,
   createPageDataBlock,
   type DataSurfaceColumnSpec,
@@ -111,5 +112,5 @@ export function historySectionBlock(props: HistorySectionProps): PageSurfaceBloc
 }
 
 export function HistorySection(props: HistorySectionProps) {
-  return <PageSurface embedded kind="detail" blocks={[historySectionBlock(props)]} />;
+  return <PageSurface embedded kind="detail" body={createPageBody([historySectionBlock(props)])} />;
 }

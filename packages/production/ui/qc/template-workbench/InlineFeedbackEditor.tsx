@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createFieldsBlock } from "@workspace/core/ui";
+import { createFieldsBlock, createPageBody, PageSurface } from "@workspace/core/ui";
 import { FixedPositionBox } from "../../../rendering/FixedPositionBox";
 import { selectionTitle, type WorkbenchSelection } from "./types";
 import type { InlineAnchor, InlineEntry } from "./inline-feedback-utils";
@@ -39,7 +39,7 @@ export default function InlineFeedbackEditor({
       <PageSurface
         kind="detail"
         embedded
-        blocks={[
+        body={createPageBody([
           createFieldsBlock("inline-feedback-editor", [
             {
               kind: "note",
@@ -112,7 +112,7 @@ export default function InlineFeedbackEditor({
               },
             ],
           }),
-        ]}
+        ])}
       />
     </FixedPositionBox>
   );

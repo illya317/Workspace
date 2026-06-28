@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  PageSurface,
-  createFieldsBlock,
-  type FormSurfaceItemSpec,
-  type SurfacePickerOptionSpec,
-  type ReferenceOption,
-} from "@workspace/core/ui";
+import { createFieldsBlock, createPageBody, type FormSurfaceItemSpec, PageSurface, type ReferenceOption, type SurfacePickerOptionSpec } from "@workspace/core/ui";
 import { PROJECT_MILESTONE_PICKER_OPTIONS, type ProjectTaskDraft, type ProjectTaskItem } from "./model";
 import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
 import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
@@ -110,14 +104,14 @@ export function ProjectTaskForm({
     <PageSurface
       embedded
       kind="detail"
-      blocks={[createFieldsBlock<number>("project-task-form", fields, {
+      body={createPageBody([createFieldsBlock<number>("project-task-form", fields, {
       columns: 3,
       className: framed ? "rounded-lg border border-slate-200 bg-white p-3 shadow-none" : undefined,
       actions: [
         ...(onCancel ? [{ key: "cancel", label: "取消", disabled, onClick: onCancel }] : []),
         ...(submitLabel && onSubmit ? [{ key: "submit", label: submitLabel, variant: "primary" as const, disabled, onClick: onSubmit }] : []),
       ],
-    })]}
+    })])}
     />
   );
 }
@@ -143,7 +137,7 @@ export function ProjectTaskDetail({ task }: { task: ProjectTaskItem }) {
     <PageSurface
       embedded
       kind="detail"
-      blocks={[createFieldsBlock("project-task-detail", [
+      body={createPageBody([createFieldsBlock("project-task-detail", [
         ...detailItems.map((item): FormSurfaceItemSpec => ({
           kind: "readonly",
           key: item.label,
@@ -157,7 +151,7 @@ export function ProjectTaskDetail({ task }: { task: ProjectTaskItem }) {
           span: "wide",
           value: task.description || "未填写",
         },
-      ], { kind: "detail", columns: 3, className: "rounded-lg border border-slate-200 bg-white p-3 shadow-none" })]}
+      ], { kind: "detail", columns: 3, className: "rounded-lg border border-slate-200 bg-white p-3 shadow-none" })])}
     />
   );
 }

@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import {
+  createPageBody,
   InputControl,
   PageSurface,
   createSectionBlock,
@@ -293,7 +294,7 @@ export function SectionShell({
       embedded
       kind="detail"
       className={className}
-      blocks={[sectionShellBlock({ title, subtitle, status, className, blocks })]}
+      body={createPageBody([sectionShellBlock({ title, subtitle, status, className, blocks })])}
     />
   );
 }

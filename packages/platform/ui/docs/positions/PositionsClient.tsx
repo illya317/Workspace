@@ -4,7 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { matchText } from "@workspace/core/search";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createBlockSurfaceBlock, createSectionBlock, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createPageBody, createSectionBlock, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 
 interface TreeNode {
@@ -165,7 +165,7 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
       onDrawerOpenChange={setDrawerOpen}
       sideLabel="部门目录"
       side={{ blocks: sideBlocks }}
-      blocks={mainBlocks}
+      body={createPageBody(mainBlocks)}
     />
   );
 }

@@ -1,12 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  PageSurface,
-  type DataSurfaceColumnSpec,
-  type SurfaceDataRowEditActionSpec,
-  type PageSurfaceBlockSpec,
-} from "@workspace/core/ui";
+import { createPageBody, type DataSurfaceColumnSpec, PageSurface, type PageSurfaceBlockSpec, type SurfaceDataRowEditActionSpec } from "@workspace/core/ui";
 import { createWorkDraft, getStatusLabel, getWorkItemTypeLabel } from "./model";
 import { WorkTaskDetail } from "./WorkTaskDetail";
 import { WorkTaskForm } from "./WorkTaskFields";
@@ -154,7 +149,7 @@ export function useWorkTaskTableBlock({
 
 export default function WorkTaskTable(props: WorkTaskTableProps) {
   const block = useWorkTaskTableBlock(props);
-  return <PageSurface embedded kind="list" blocks={[block]} />;
+  return <PageSurface embedded kind="list" body={createPageBody([block])} />;
 }
 
 function createColumns({

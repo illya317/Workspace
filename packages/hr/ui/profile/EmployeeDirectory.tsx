@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  createPageBody,
   type DataSurfaceColumnSpec,
   createMessageBlock,
   PageSurface,
@@ -212,7 +213,7 @@ export default function EmployeeDirectory({
       kind="list"
       {...(surface ?? { embedded: true })}
       toolbar={{ items: toolbarItems }}
-      blocks={blocks}
+      body={createPageBody(blocks)}
       footer={footer}
     />
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PageSurface, createPageDataBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPageDataBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState, SourceTraceInfo } from "../types";
 import CostDataTable, { CostTraceButton, formatCostNumber, type CostRecord } from "./CostDataTable";
@@ -36,7 +36,7 @@ export default function SalesSalaryTable({ filters }: Props) {
         <PageSurface
           kind="analysis"
           embedded
-          blocks={[
+          body={createPageBody([
             createPageDataBlock("sales-salary-summary", {
               kind: "metrics",
               metrics: [
@@ -45,7 +45,7 @@ export default function SalesSalaryTable({ filters }: Props) {
                 { key: "actual", label: "实发工资合计", value: formatCostNumber(summary.totalActualSalary as number) },
               ],
             }),
-          ]}
+          ])}
         />
       )}
       <CostDataTable

@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createFieldsBlock, type FormSurfaceFieldSpec } from "@workspace/core/ui";
+import { createFieldsBlock, createPageBody, type FormSurfaceFieldSpec, PageSurface } from "@workspace/core/ui";
 import { getStatusLabel, getWorkItemTypeLabel } from "./model";
 import type { WorkItem } from "./types";
 
@@ -17,7 +17,7 @@ export function WorkTaskDetail({ work }: { work: WorkItem }) {
     { key: "parent", label: "上级节点", spec: readonlySpec, value: work.parentWorkItemContent || "根节点" },
   ];
   return (
-    <PageSurface embedded kind="detail" blocks={[createFieldsBlock("work-task-detail", fields, { kind: "detail", columns: 2, className: "p-4" })]} />
+    <PageSurface embedded kind="detail" body={createPageBody([createFieldsBlock("work-task-detail", fields, { kind: "detail", columns: 2, className: "p-4" })])} />
   );
 }
 

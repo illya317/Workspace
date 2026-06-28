@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createFieldsBlock, useFeedback } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createFieldsBlock, useFeedback } from "@workspace/core/ui";
 import { HR_MAJOR_OPTIONS, normalizeHrMajorItems, type HRMajorItem } from "@workspace/hr/constants/field-options";
 import { ENVIRONMENT_FACTOR_OPTIONS, WORK_AREA_OPTIONS, pickerOptions, primitiveListItems } from "./description-details";
 type WorkEnvironmentItem = {
@@ -68,7 +68,7 @@ export function WorkEnvironmentEditor({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[createFieldsBlock<string>("work-environments", [
+        body={createPageBody([createFieldsBlock<string>("work-environments", [
           {
             kind: "repeatable",
             key: "work-environments",
@@ -125,7 +125,7 @@ export function WorkEnvironmentEditor({
             }),
           },
           ...addAreaFields,
-        ])]}
+        ])])}
       />
     </div>;
 }
@@ -178,7 +178,7 @@ export function MajorRequirementsEditor({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[createFieldsBlock<HRMajorItem>("major-requirements", [{
+        body={createPageBody([createFieldsBlock<HRMajorItem>("major-requirements", [{
           kind: "tagList",
           key: "majorRequirements",
           label: "",
@@ -216,7 +216,7 @@ export function MajorRequirementsEditor({
               onChange: (next) => addItem(next == null ? null : String(next)),
             },
           },
-        }])]}
+        }])])}
       />
     </div>
   );
@@ -257,7 +257,7 @@ export function ExperienceRequirementsEditor({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[createFieldsBlock("experience-requirements", [{
+        body={createPageBody([createFieldsBlock("experience-requirements", [{
           kind: "repeatable",
           key: "experience-requirements",
           title: label,
@@ -287,7 +287,7 @@ export function ExperienceRequirementsEditor({
               },
             ],
           })),
-        }])]}
+        }])])}
       />
     </div>;
 }

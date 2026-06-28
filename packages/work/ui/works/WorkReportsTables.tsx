@@ -1,16 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import {
-  PageSurface,
-  createActionsBlock,
-  createPageDataBlock,
-  createInlineFieldsBlock,
-  type DataSurfaceColumnSpec,
-  type FormSurfaceFieldSpec,
-  type PageSurfaceBlockSpec,
-  type PageSurfaceCommandSpec,
-} from "@workspace/core/ui";
+import { createActionsBlock, createInlineFieldsBlock, createPageBody, createPageDataBlock, type DataSurfaceColumnSpec, type FormSurfaceFieldSpec, PageSurface, type PageSurfaceBlockSpec, type PageSurfaceCommandSpec } from "@workspace/core/ui";
 import type {
   WorkReportCollectionResponse,
   WorkReportCollectionSpace,
@@ -103,7 +94,7 @@ export function buildReportDraftTableBlock(props: ReportDraftTableProps): PageSu
 export function ReportDraftTable(props: ReportDraftTableProps) {
   const rows = useMemo(() => getDraftRows(props.draft), [props.draft]);
   const columns = useMemo(() => createDraftColumns(props), [props]);
-  return <PageSurface embedded kind="list" blocks={[createPageDataBlock("report-draft-table", { kind: "table", rows, columns, visibleColumns: [], density: "compact", loading: props.loading, emptyText: "暂无可汇报事项", rowKey: (item, index) => item.id || item.workItemId || `new-${index}`, scrollClassName: "overflow-y-hidden rounded-lg border border-slate-200 bg-white" })]} />;
+  return <PageSurface embedded kind="list" body={createPageBody([createPageDataBlock("report-draft-table", { kind: "table", rows, columns, visibleColumns: [], density: "compact", loading: props.loading, emptyText: "暂无可汇报事项", rowKey: (item, index) => item.id || item.workItemId || `new-${index}`, scrollClassName: "overflow-y-hidden rounded-lg border border-slate-200 bg-white" })])} />;
 }
 
 function createCollectionColumns(): DataSurfaceColumnSpec<WorkReportCollectionSpace>[] {
@@ -158,7 +149,7 @@ export function ReportCollectionTable({ collection, loading }: ReportCollectionT
   const block = !loading && rows.length === 0
     ? createPageDataBlock("report-collection-empty", { kind: "records", records: [], empty: "暂无可汇总的工作空间" })
     : createPageDataBlock("report-collection-table", { kind: "table", rows, columns, visibleColumns: [], density: "compact", loading, emptyText: "暂无汇报", rowKey: space => `${space.targetType}:${space.targetId}`, scrollClassName: "overflow-y-hidden rounded-lg border border-slate-200 bg-white" });
-  return <PageSurface embedded kind="list" blocks={[block]} />;
+  return <PageSurface embedded kind="list" body={createPageBody([block])} />;
 }
 
 function ReportStack({
@@ -166,7 +157,7 @@ function ReportStack({
 }: {
   space: WorkReportCollectionSpace;
 }) {
-  return <PageSurface embedded kind="list" blocks={[createPageDataBlock("report-stack", {
+  return <PageSurface embedded kind="list" body={createPageBody([createPageDataBlock("report-stack", {
     kind: "records",
     records: space.reports.map(report => ({
       key: String(report.id),
@@ -185,7 +176,7 @@ function ReportStack({
               </div>)}
           </div>,
     })),
-  })]} />;
+  })])} />;
 }
 
 function InlineFieldCell({
@@ -195,7 +186,7 @@ function InlineFieldCell({
   blockKey: string;
   field: FormSurfaceFieldSpec;
 }) {
-  return <PageSurface embedded kind="detail" blocks={[createInlineFieldsBlock(blockKey, [field])]} />;
+  return <PageSurface embedded kind="detail" body={createPageBody([createInlineFieldsBlock(blockKey, [field])])} />;
 }
 
 function InlineActionsCell({
@@ -205,7 +196,7 @@ function InlineActionsCell({
   blockKey: string;
   actions: PageSurfaceCommandSpec[];
 }) {
-  return <PageSurface embedded kind="detail" blocks={[createActionsBlock(blockKey, actions)]} />;
+  return <PageSurface embedded kind="detail" body={createPageBody([createActionsBlock(blockKey, actions)])} />;
 }
 
 function formatDateTime(value: string | null) {

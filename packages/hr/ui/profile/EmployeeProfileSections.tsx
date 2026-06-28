@@ -3,7 +3,7 @@
 import { SectionShell, sectionShellBlock } from "./ProfileFormControls";
 import { edpFields, employmentFields } from "@workspace/hr/constants";
 import type { ContractRow, EdpRow, EmploymentRow, ProfileField } from "@workspace/hr/types";
-import { PageSurface, type PageSurfaceBlockSpec, type ReferenceOption } from "@workspace/core/ui";
+import { createPageBody, PageSurface, type PageSurfaceBlockSpec, type ReferenceOption } from "@workspace/core/ui";
 import { emptyFormBlock, fieldGridBlock, fieldRegionBlock, isCurrentByEndDate, pickFields, type EditableRecord, type RowBase } from "./EmployeeProfileUtils";
 import { useContractSectionBlocks } from "./EmployeeProfileContractSection";
 import { deleteActionSpec, profileActionSpec } from "./EmployeeProfileRowActions";
@@ -79,7 +79,7 @@ interface EmploymentSectionProps {
 }
 
 export function EmploymentSection(props: EmploymentSectionProps) {
-  return <PageSurface embedded kind="detail" blocks={useEmploymentSectionBlocks(props)} />;
+  return <PageSurface embedded kind="detail" body={createPageBody(useEmploymentSectionBlocks(props))} />;
 }
 
 export function useEmploymentSectionBlocks({
@@ -129,7 +129,7 @@ interface EdpSectionProps {
 }
 
 export function EdpSection(props: EdpSectionProps) {
-  return <PageSurface embedded kind="detail" blocks={useEdpSectionBlocks(props)} />;
+  return <PageSurface embedded kind="detail" body={createPageBody(useEdpSectionBlocks(props))} />;
 }
 
 export function useEdpSectionBlocks({

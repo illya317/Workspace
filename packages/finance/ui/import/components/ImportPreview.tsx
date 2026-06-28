@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createActionsBlock, createPageDataBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createActionsBlock, createPageDataBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { PreviewAccount, PreviewBalance, PreviewResult, PreviewVoucher, PreviewVoucherItem } from "./types";
 interface ImportPreviewProps {
   preview: PreviewResult;
@@ -164,7 +164,7 @@ function PreviewDataTable<T>({
       <PageSurface
         kind="list"
         embedded
-        blocks={[
+        body={createPageBody([
           createPageDataBlock("preview-data", {
             kind: "table",
             rows,
@@ -175,7 +175,7 @@ function PreviewDataTable<T>({
             emptyText: "暂无数据",
             scrollClassName: "max-h-64",
           }),
-        ]}
+        ])}
       />
     </div>;
 }
@@ -193,7 +193,7 @@ function VoucherPreview({
     <PageSurface
       kind="list"
       embedded
-      blocks={[
+      body={createPageBody([
         createPageDataBlock("voucher-preview", {
           framed: true,
           title: voucher.voucherNo,
@@ -207,7 +207,7 @@ function VoucherPreview({
           density: "compact",
           emptyText: "暂无分录",
         }),
-      ]}
+      ])}
     />
   );
 }
@@ -232,7 +232,7 @@ export default function ImportPreview({
         <PageSurface
           kind="list"
           embedded
-          blocks={[
+          body={createPageBody([
             createActionsBlock("import-preview-actions", [{
               key: "confirm",
               label: importing ? "导入中..." : "确认导入",
@@ -240,7 +240,7 @@ export default function ImportPreview({
               onClick: onConfirm,
               disabled: importing,
             }]),
-          ]}
+          ])}
         />
       )}
       <div>

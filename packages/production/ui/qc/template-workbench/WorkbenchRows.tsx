@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { matchText } from "@workspace/core/search";
-import { PageSurface, createPageTableBlock } from "@workspace/core/ui";
+import { createPageBody, createPageTableBlock, PageSurface } from "@workspace/core/ui";
 import type { QcTemplateDetail, QcTemplateFeedbackState, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 import {
   feedbackContext,
@@ -173,7 +173,7 @@ export default function StageRows({
     <PageSurface
       kind="detail"
       embedded
-      blocks={[
+      body={createPageBody([
         createPageTableBlock<TemplateDisplayRow>("qc-template-stage-rows", {
           framed: true,
           title: (
@@ -238,7 +238,7 @@ export default function StageRows({
           rowKey: (row) => row.key,
           emptyText: expanded ? "暂无项目。" : "已收起。",
         }),
-      ]}
+      ])}
     />
   );
 }

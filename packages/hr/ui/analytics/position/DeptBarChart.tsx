@@ -1,6 +1,6 @@
 "use client";
 
-import { createAnalysisBlock, PageSurface, type PageSurfaceBlockSpec, type VisualizationComparisonBarSectionSpec, type VisualizationTone } from "@workspace/core/ui";
+import { createPageBody, createAnalysisBlock, PageSurface, type PageSurfaceBlockSpec, type VisualizationComparisonBarSectionSpec, type VisualizationTone } from "@workspace/core/ui";
 import type { DeptEntry, FilteredDept } from "./usePositionData";
 
 const LEVEL_LABEL: Record<number, string> = { 1: "L1 事业部", 2: "L2 部门", 3: "L3 子部门" };
@@ -95,5 +95,5 @@ export function createDeptBarChartBlock({
 }
 
 export default function DeptBarChart(props: DeptBarChartBlockParams) {
-  return <PageSurface kind="analysis" blocks={[createDeptBarChartBlock(props)]} />;
+  return <PageSurface kind="analysis" body={createPageBody([createDeptBarChartBlock(props)])} />;
 }

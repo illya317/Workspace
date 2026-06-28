@@ -1,6 +1,6 @@
 "use client";
 
-import { createPanelBlock, PageSurface, type FormSurfaceItemSpec, type FormSurfaceLooseItem, type PageSurfaceBlockSpec, type ReferenceOption } from "@workspace/core/ui";
+import { createPageBody, createPanelBlock, PageSurface, type FormSurfaceItemSpec, type FormSurfaceLooseItem, type PageSurfaceBlockSpec, type ReferenceOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { NEW_POSITION_DESCRIPTION_TEMPLATE_OPTION, type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
 import { selectedEntityName, usePositionDescriptionDetailsSurface } from "./detail-editors";
@@ -209,5 +209,5 @@ export function PositionDescriptionPanel(props: Omit<PositionDescriptionPanelPro
   descriptionDraft: DescriptionDraft;
 }) {
   const block = usePositionDescriptionPanelBlock(props);
-  return <PageSurface embedded kind="detail" blocks={block ? [block] : []} />;
+  return <PageSurface embedded kind="detail" body={createPageBody(block ? [block] : [])} />;
 }

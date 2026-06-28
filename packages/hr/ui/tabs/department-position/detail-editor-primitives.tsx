@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import {
+  createPageBody,
   InputControl,
   PageSurface,
   createPageDataBlock,
@@ -47,13 +48,13 @@ export function DetailStatsRow({ items }: { items: Array<{ label: string; value:
     <PageSurface
       embedded
       kind="detail"
-      blocks={[createPageDataBlock("detail-stats", {
+      body={createPageBody([createPageDataBlock("detail-stats", {
         kind: "metrics",
         framed: true,
         className: "md:col-span-2",
         bodyClassName: "px-3 py-2",
         metrics: items.map((item) => ({ key: item.label, label: item.label, value: item.value })),
-      })]}
+      })])}
     />
   );
 }
@@ -135,7 +136,7 @@ export function StringListEditor({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[createInlineFieldsBlock<string>("items", [{
+        body={createPageBody([createInlineFieldsBlock<string>("items", [{
           kind: "tagList",
           key: "items",
           label: "",
@@ -159,7 +160,7 @@ export function StringListEditor({
               },
             },
           },
-        }])]}
+        }])])}
       />
     </div>
   );

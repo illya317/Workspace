@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createFieldsBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createFieldsBlock } from "@workspace/core/ui";
 import type { Company } from "./types";
 interface ImportUploadFormProps {
   companies: Company[];
@@ -35,7 +35,7 @@ export default function ImportUploadForm({
       <PageSurface
         kind="list"
         embedded
-        blocks={[
+        body={createPageBody([
           createFieldsBlock("import-upload", [
             {
               key: "company",
@@ -109,7 +109,7 @@ export default function ImportUploadForm({
               disabled: !file || !companyCode || loading,
             }],
           }),
-        ]}
+        ])}
       />
 
       {importType === "balance" && <p className="mb-4 text-sm text-blue-700">

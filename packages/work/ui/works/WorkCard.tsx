@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createPageDataBlock, type DataSurfaceCommandSpec } from "@workspace/core/ui";
+import { createPageBody, createPageDataBlock, type DataSurfaceCommandSpec, PageSurface } from "@workspace/core/ui";
 import type { WorkItem } from "./types";
 export default function WorkCard({
   work,
@@ -39,7 +39,7 @@ export default function WorkCard({
     <PageSurface
       embedded
       kind="list"
-      blocks={[createPageDataBlock("work-card", {
+      body={createPageBody([createPageDataBlock("work-card", {
       kind: "metrics",
       framed: true,
       title: work.content,
@@ -50,7 +50,7 @@ export default function WorkCard({
         { key: "created", label: "创建于", value: new Date(work.createdAt).toLocaleDateString("zh-CN") },
       ],
       actions,
-    })]}
+    })])}
     />
   );
 }

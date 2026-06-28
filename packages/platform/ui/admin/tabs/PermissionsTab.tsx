@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createBlockSurfaceBlock, createMessageBlock, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createMessageBlock, createPageBody, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import ResourceTree from "../components/ResourceTree";
 import { createPermissionMatrixBlock } from "../components/permissions/MatrixTable";
 import type { PermissionsTabState } from "../hooks/usePermissionsTab";
@@ -115,7 +115,7 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, s }: Pr
           )
         })],
       }}
-      blocks={bodyBlocks}
+      body={createPageBody(bodyBlocks)}
     />
   );
 }

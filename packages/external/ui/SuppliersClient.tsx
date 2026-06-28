@@ -1,6 +1,6 @@
 "use client";
 
-import { createSectionBlock, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createSectionBlock, PageSurface } from "@workspace/core/ui";
 
 export default function SuppliersClient() {
   return (
@@ -19,7 +19,7 @@ export default function SuppliersClient() {
           },
         ],
       }}
-      blocks={[
+      body={createPageBody([
         createSectionBlock("suppliers", {
           title: "供应商列表",
           blocks: [
@@ -34,7 +34,7 @@ export default function SuppliersClient() {
             },
           ],
         }),
-      ]}
+      ])}
     />
   );
 }

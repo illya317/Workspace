@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PageSurface, createBlockSurfaceBlock } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createPageBody, PageSurface } from "@workspace/core/ui";
 import type { QcBatchSummary, QcTemplateDetail } from "@workspace/production/types";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcBatchNumberInput from "./QcBatchNumberInput";
@@ -19,7 +19,7 @@ export default function QcBatchRecordStageList({ batch, detail }: QcBatchRecordS
         <PageSurface
           kind="detail"
           embedded
-          blocks={[
+          body={createPageBody([
             createBlockSurfaceBlock("qc-batch-record-summary", {
               kind: "content",
               className: "mb-5 max-w-3xl rounded-lg border border-slate-200 bg-white px-4 py-2 shadow-sm",
@@ -31,7 +31,7 @@ export default function QcBatchRecordStageList({ batch, detail }: QcBatchRecordS
                 </div>
               ),
             }),
-          ]}
+          ])}
         />
 
         <div className="border-2 border-slate-950 bg-white text-slate-950 shadow-sm">

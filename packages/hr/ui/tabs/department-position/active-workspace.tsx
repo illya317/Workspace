@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, type PageSurfaceBlockSpec, type PageSurfaceSideSpec, type PageSurfaceToolbarSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, type PageSurfaceBlockSpec, type PageSurfaceSideSpec, type PageSurfaceToolbarSpec } from "@workspace/core/ui";
 import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 
 type SplitWorkspaceMode = "desktop" | "drawer";
@@ -43,7 +43,7 @@ export function DepartmentPositionActiveWorkspace({
       onDrawerOpenChange={onDrawerOpenChange}
       showSideControls={false}
       side={side}
-      blocks={blocks}
+      body={createPageBody(blocks)}
     />
   );
 }

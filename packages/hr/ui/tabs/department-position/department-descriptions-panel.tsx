@@ -1,7 +1,7 @@
 "use client";
 
 import type { Ref } from "react";
-import { createBlockSurfaceBlock, createPanelBlock, PageSurface, type ConfirmOptions, type PageSurfaceBlockSpec, useFeedback } from "@workspace/core/ui";
+import { createPageBody, createBlockSurfaceBlock, createPanelBlock, PageSurface, type ConfirmOptions, type PageSurfaceBlockSpec, useFeedback } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { buildDepartmentDescriptionDetailsBlocks, departmentDescriptionDutyRecords } from "./department-description-details-editor";
 import type { DepartmentDescriptionDraft } from "./types";
@@ -29,7 +29,7 @@ export function DepartmentDescriptionsPanel({
     <PageSurface
       embedded
       kind="detail"
-      blocks={[block]}
+      body={createPageBody([block])}
     />
   );
 }

@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { PageSurface, createFieldsBlock, createPageModalBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createFieldsBlock, createPageModalBlock } from "@workspace/core/ui";
 import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
 
 interface Props {
@@ -121,7 +121,7 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
     <PageSurface
       kind="list"
       embedded
-      blocks={[
+      body={createPageBody([
         createPageModalBlock("reclass-review", {
           open,
           title: "调整重分类",
@@ -172,7 +172,7 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
             }),
           ],
         }),
-      ]}
+      ])}
     />
   );
 }

@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useRouter } from "next/navigation";
-import { createBlockSurfaceBlock, createModuleGridBlock, createSectionBlock, PageSurface } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createModuleGridBlock, createPageBody, createSectionBlock, PageSurface } from "@workspace/core/ui";
 import type { SessionUser } from "../types";
 import {
   MODULE_LIFECYCLE_BY_RESOURCE,
@@ -58,7 +58,7 @@ export default function ModuleHome({ module, user }: Props) {
     <PageSurface
       kind="settings"
       contentClassName="py-10"
-      blocks={children.length === 0
+      body={createPageBody(children.length === 0
         ? [createSectionBlock("empty-module", {
             title: module.label,
             blocks: [createBlockSurfaceBlock("empty", {
@@ -81,7 +81,7 @@ export default function ModuleHome({ module, user }: Props) {
                 badge: lifecycleStatus && lifecycleStatus !== "workspace-owned" ? MODULE_LIFECYCLE_LABELS[lifecycleStatus] : undefined,
               };
             }),
-          })]}
+          })])}
     />
   );
 }

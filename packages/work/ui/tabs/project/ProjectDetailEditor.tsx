@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  PageSurface,
-  createBlockSurfaceBlock,
-  createPanelBlock,
-  type FormSurfaceItemSpec,
-  type PageSurfaceBlockSpec,
-} from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createPageBody, createPanelBlock, type FormSurfaceItemSpec, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import ProjectPlanManagementSection from "./ProjectPlanManagementSection";
 import { buildProjectRasciMatrixSurface } from "./ProjectRasciMatrix";
@@ -274,7 +268,7 @@ export default function ProjectDetailEditor(props: ProjectDetailEditorProps) {
     <PageSurface
       embedded
       kind="detail"
-      blocks={[block]}
+      body={createPageBody([block])}
     />
   );
 }

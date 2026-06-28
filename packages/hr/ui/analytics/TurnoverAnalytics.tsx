@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createAnalysisBlock, createGroupBlock, createPageDataBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisBlock, createGroupBlock, createPageDataBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { Employee, Employment } from "./useAnalyticsData";
 
@@ -224,5 +224,5 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
 }
 
 export default function TurnoverAnalytics(props: { employees: Employee[]; employments: Employment[] }) {
-  return <PageSurface kind="analysis" blocks={useTurnoverAnalyticsBlocks(props)} />;
+  return <PageSurface kind="analysis" body={createPageBody(useTurnoverAnalyticsBlocks(props))} />;
 }

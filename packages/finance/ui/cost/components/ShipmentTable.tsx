@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PageSurface, createPageDataBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPageDataBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState, SourceTraceInfo } from "../types";
 import CostDataTable, { CostTraceButton, formatCostNumber, type CostRecord } from "./CostDataTable";
@@ -39,7 +39,7 @@ export default function ShipmentTable({ filters }: Props) {
         <PageSurface
           kind="analysis"
           embedded
-          blocks={[
+          body={createPageBody([
             createPageDataBlock("shipment-summary", {
               kind: "metrics",
               metrics: [
@@ -49,7 +49,7 @@ export default function ShipmentTable({ filters }: Props) {
                 { key: "rate", label: "回款率", value: `${(((summary.collectionRate as number) ?? 0) * 100).toFixed(1)}%` },
               ],
             }),
-          ]}
+          ])}
         />
       )}
 

@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PageSurface } from "@workspace/core/ui";
+import { createPageBody, PageSurface } from "@workspace/core/ui";
 import { PositionDescriptionReadOnlyView, type PositionDescriptionReadOnlyData } from "@workspace/platform/ui/position-description/PositionDescriptionReadOnlyView";
 export default function GmpDetailClient({
   code
@@ -29,8 +29,7 @@ export default function GmpDetailClient({
       <PageSurface
         kind="detail"
         contentClassName="py-8"
-        empty={{ content: loading ? "加载中..." : error || "未找到" }}
-        actions={loading ? undefined : [{ key: "back", label: "返回列表", onClick: () => router.push("/docs/positions") }]}
+        body={createPageBody([], { empty: { content: loading ? "加载中..." : error || "未找到" }, commands: loading ? undefined : [{ key: "back", label: "返回列表", onClick: () => router.push("/docs/positions") }] })}
       />
     );
   }

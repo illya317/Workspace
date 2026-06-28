@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createFieldsBlock, createPageModalBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createFieldsBlock, createPageModalBlock } from "@workspace/core/ui";
 import type { SourceTraceInfo } from "../types";
 interface Props {
   open: boolean;
@@ -17,7 +17,7 @@ export default function SourceTraceModal({
     <PageSurface
       kind="list"
       embedded
-      blocks={[
+      body={createPageBody([
         createPageModalBlock("source-trace", {
           open,
           title: "数据来源",
@@ -34,7 +34,7 @@ export default function SourceTraceModal({
             }),
           ],
         }),
-      ]}
+      ])}
     />
   );
 }

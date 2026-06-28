@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { createBlockSurfaceBlock,
+import {
+  createPageBody, createBlockSurfaceBlock,
   createMessageBlock,
   createPanelBlock,
   PageSurface,
@@ -242,7 +243,7 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
       kind="list"
       {...surface}
       toolbar={{ items: toolbarItems, onSubmit: refreshPreview }}
-      blocks={blocks}
+      body={createPageBody(blocks)}
     />
   );
 }

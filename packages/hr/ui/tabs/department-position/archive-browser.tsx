@@ -1,7 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { createBlockSurfaceBlock,
+import {
+  createPageBody, createBlockSurfaceBlock,
   createPanelBlock,
   PageSurface,
   type PageSurfaceBlockSpec,
@@ -159,7 +160,7 @@ export function ArchivedDepartmentPositionPage({
       onDrawerOpenChange={onDrawerOpenChange}
       showSideControls={false}
       side={side}
-      blocks={blocks}
+      body={createPageBody(blocks)}
     />
   );
 }

@@ -3,15 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
-import { createBlockSurfaceBlock,
-  ActionGlyph,
-  announceFloatingOverlayOpen,
-  createPanelBlock,
-  FLOATING_OVERLAY_OPEN_EVENT,
-  getFloatingOverlayOpenDetail,
-  PageSurface,
-  type ActionGlyphKind,
-} from "@workspace/core/ui";
+import { ActionGlyph, type ActionGlyphKind, announceFloatingOverlayOpen, createBlockSurfaceBlock, createPageBody, createPanelBlock, FLOATING_OVERLAY_OPEN_EVENT, getFloatingOverlayOpenDetail, PageSurface } from "@workspace/core/ui";
 type NotificationItem = {
   id: number;
   title: string;
@@ -283,7 +275,7 @@ export default function NotificationBell({
           <PageSurface
             kind="settings"
             embedded
-            blocks={[createPanelBlock("notifications", {
+            body={createPageBody([createPanelBlock("notifications", {
               title: <div className="whitespace-nowrap text-sm font-semibold text-slate-900">通知</div>,
               subtitle: <div className="whitespace-nowrap text-xs text-slate-400">{data.pendingCount} 条待确认 · {data.unreadCount} 条未读 · 共 {data.total} 条</div>,
               bodyClassName: "max-h-96 overflow-y-auto !p-0",
@@ -352,7 +344,7 @@ export default function NotificationBell({
                   )
                 }),
               ],
-            })]}
+            })])}
           />
         </div>
       )}

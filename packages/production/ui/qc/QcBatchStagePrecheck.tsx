@@ -1,4 +1,4 @@
-import { createBlockSurfaceBlock, createHeadingBlock, PageSurface } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createHeadingBlock, createPageBody, PageSurface } from "@workspace/core/ui";
 import type { QcBatchSummary, QcLayoutBlock, QcTemplateDetail, QcTemplateStage } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcLayoutPaper from "./QcLayoutPaper";
@@ -63,7 +63,7 @@ export default function QcBatchStagePrecheck({
     kind="detail"
     embedded
     contentClassName="pb-8"
-    blocks={[
+    body={createPageBody([
       {
         kind: "navigation",
         key: "precheck-navigation",
@@ -107,6 +107,6 @@ export default function QcBatchStagePrecheck({
           ],
         },
       },
-    ]}
+    ])}
   />;
 }

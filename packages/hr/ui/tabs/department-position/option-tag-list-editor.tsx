@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  createPageBody,
   PageSurface,
   createFieldsBlock,
 } from "@workspace/core/ui";
@@ -39,7 +40,7 @@ export function OptionTagListEditor({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[createFieldsBlock<string>("options", [{
+        body={createPageBody([createFieldsBlock<string>("options", [{
           kind: "tagList",
           key: "options",
           label: "",
@@ -68,7 +69,7 @@ export function OptionTagListEditor({
               onChange: (next) => addOption(next == null ? null : String(next)),
             },
           },
-        }])]}
+        }])])}
       />
     </div>
   );

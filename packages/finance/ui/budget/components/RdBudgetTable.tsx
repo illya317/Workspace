@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { RdBudgetItem } from "../types";
 
 const MONTH_LABELS = [
@@ -66,7 +66,7 @@ export default function RdBudgetTable({ items, monthTotals, total }: RdBudgetTab
     <PageSurface
       kind="list"
       embedded
-      blocks={[
+      body={createPageBody([
         createPageTableBlock("rd-budget", {
           framed: true,
           className: "overflow-hidden",
@@ -78,7 +78,7 @@ export default function RdBudgetTable({ items, monthTotals, total }: RdBudgetTab
           rowKey: (row) => row.id,
           rowClassName: (row) => row.kind === "total" ? "bg-slate-50 font-medium" : "",
         }),
-      ]}
+      ])}
     />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createPageDataBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPageDataBlock } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
 
 interface Props {
@@ -17,5 +17,5 @@ export default function ReviewAlerts({ error, isStale, hasFlaggedWithoutComment 
   ];
 
   if (blocks.length === 0) return null;
-  return <PageSurface kind="list" embedded blocks={blocks} />;
+  return <PageSurface kind="list" embedded body={createPageBody(blocks)} />;
 }

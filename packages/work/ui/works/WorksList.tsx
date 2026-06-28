@@ -2,7 +2,7 @@
 
 import WorkCard from "./WorkCard";
 import WorkForm from "./WorkForm";
-import { PageSurface, createPageDataBlock } from "@workspace/core/ui";
+import { createPageBody, createPageDataBlock, PageSurface } from "@workspace/core/ui";
 import type { WorkItem } from "./types";
 import type { WorkFormData } from "./WorkFormSection";
 
@@ -154,7 +154,7 @@ export default function WorksList({
 }
 
 function EmptyWorksSurface({ blockKey, empty }: { blockKey: string; empty: string }) {
-  return <PageSurface embedded kind="list" blocks={[createPageDataBlock(blockKey, { kind: "records", records: [], empty })]} />;
+  return <PageSurface embedded kind="list" body={createPageBody([createPageDataBlock(blockKey, { kind: "records", records: [], empty })])} />;
 }
 
 function DisclosureHeader({

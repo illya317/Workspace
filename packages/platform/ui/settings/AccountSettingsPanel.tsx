@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { createBlockSurfaceBlock, createGroupBlock, createSectionBlock, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createGroupBlock, createPageBody, createSectionBlock, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import ApiAccessClient, { type ApiAccessModuleRow } from "./ApiAccessClient";
 type Message = {
@@ -345,5 +345,5 @@ export default function AccountSettingsPanel({
       })],
     }),
   ];
-  return <PageSurface kind="settings" contentClassName="max-w-4xl py-10" blocks={blocks} />;
+  return <PageSurface kind="settings" contentClassName="max-w-4xl py-10" body={createPageBody(blocks)} />;
 }

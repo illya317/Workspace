@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PageSurface, createActionsBlock, createPageDataBlock, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createActionsBlock, createPageDataBlock, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { matchSearchFields } from "@workspace/platform/search";
 import { useStatementConfig } from "./StatementConfigContext";
 import LineMappingsPanel from "./LineMappingsPanel";
@@ -279,7 +279,7 @@ function LineConfigError({ message, onRetry }: { message: string; onRetry: () =>
       <PageSurface
         kind="list"
         embedded
-        blocks={[createActionsBlock("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }], { className: "justify-center" })]}
+        body={createPageBody([createActionsBlock("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }], { className: "justify-center" })])}
       />
     </div>
   );
@@ -324,7 +324,7 @@ function LineConfigTable({
     <PageSurface
       kind="list"
       embedded
-      blocks={[
+      body={createPageBody([
         createPageDataBlock("line-config", {
           kind: "table",
           framed: true,
@@ -378,7 +378,7 @@ function LineConfigTable({
             }];
           },
         }),
-      ]}
+      ])}
     />
   );
 }

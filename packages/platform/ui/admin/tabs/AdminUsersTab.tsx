@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo } from "react";
 import { matchSearchFields, matchText } from "@workspace/platform/search";
-import { createBlockSurfaceBlock, PageSurface, createFieldsBlock, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createFieldsBlock, createPageBody, type DataSurfaceColumnSpec, PageSurface, type PageSurfaceBlockSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
 import type { ResourceItem } from "../types";
 import { formatSummaryTooltip, ROLE_COLORS, summarizeResourcePermissions, type PermissionGrantLike } from "../lib/permission-summary";
 function copyFallback(text: string) {
@@ -363,7 +363,7 @@ export default function AdminUsersTab({
     <PageSurface
       kind="list"
       embedded
-      blocks={blocks}
+      body={createPageBody(blocks)}
     />
   );
 }

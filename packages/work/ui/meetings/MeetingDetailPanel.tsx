@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createBlockSurfaceBlock, createFieldsBlock, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createFieldsBlock, createPageBody, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import type { ActionDraft, MeetingDetail } from "./meeting-types";
 import { AgendaSelect, DecisionSelect, InlineForm, InputBox, PageBlockSurface, Section, SelectBox, SimpleList } from "./MeetingControls";
@@ -288,5 +288,5 @@ export function useMeetingDetailBlock({
 
 export function MeetingDetailPanel(props: MeetingDetailPanelProps) {
   const block = useMeetingDetailBlock(props);
-  return <PageSurface embedded kind="detail" blocks={[block]} />;
+  return <PageSurface embedded kind="detail" body={createPageBody([block])} />;
 }

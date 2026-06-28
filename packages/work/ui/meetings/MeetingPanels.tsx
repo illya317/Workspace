@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createBlockSurfaceBlock, createSelectorPanelBlock } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createPageBody, createSelectorPanelBlock, PageSurface } from "@workspace/core/ui";
 import type { ActionDraft, MeetingDetail, MeetingParticipant, MeetingSummary } from "./meeting-types";
 import { EmptyLine, InputBox, PageBlockSurface, StatusPill } from "./MeetingControls";
 import { candidateStatusLabel, decisionKindLabel, emptyActionDraft, formatDateTime, roleLabel, voteChoiceLabel } from "./meeting-utils";
@@ -23,7 +23,7 @@ export function MeetingList({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[
+        body={createPageBody([
           createSelectorPanelBlock<MeetingSummary>("meeting-list", {
             title: "会议列表",
             bodyClassName: "max-h-[calc(100vh-14rem)] overflow-y-auto p-2",
@@ -42,7 +42,7 @@ export function MeetingList({
               meta: [`议题 ${meeting.counts.agendaItems}`, `表决 ${meeting.counts.proposals}`, `决议 ${meeting.counts.decisions}`],
             }),
           }),
-        ]}
+        ])}
       />
     </div>
   );
@@ -60,7 +60,7 @@ export function MeetingHeader({
   return <PageSurface
     embedded
     kind="detail"
-    blocks={[createBlockSurfaceBlock("meeting-header", {
+    body={createPageBody([createBlockSurfaceBlock("meeting-header", {
       kind: "content",
       className: "rounded-lg border border-slate-200 bg-white p-4",
       content: <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
@@ -86,7 +86,7 @@ export function MeetingHeader({
           { key: "public", label: "公开", variant: "secondary", size: "sm", disabled: saving || meeting.visibility === "public", onClick: () => onUpdate({ visibility: "public" }, "可见性已更新") },
         ] })} />}
       </div>
-    })]}
+    })])}
   />;
 }
 

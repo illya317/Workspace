@@ -1,15 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  PageSurface,
-  createBlockSurfaceBlock,
-  createPageDataBlock,
-  createFieldsBlock,
-  useFeedback,
-  type DataSurfaceColumnSpec,
-  type SurfaceDataRowEditActionSpec,
-} from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createFieldsBlock, createPageBody, createPageDataBlock, type DataSurfaceColumnSpec, PageSurface, type SurfaceDataRowEditActionSpec, useFeedback } from "@workspace/core/ui";
 import { createProjectPlanPhase, deleteProjectPlanPhase, updateProjectPlanPhase } from "./api";
 import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
 
@@ -95,7 +87,7 @@ export default function ProjectPlanPhasePanel({
     <PageSurface
       embedded
       kind="detail"
-      blocks={[createBlockSurfaceBlock("project-phases", {
+      body={createPageBody([createBlockSurfaceBlock("project-phases", {
         kind: "section",
         title: "项目阶段",
         actions: canEdit && !creating ? [{
@@ -140,7 +132,7 @@ export default function ProjectPlanPhasePanel({
             />,
           },
         ],
-      })]}
+      })])}
     />
   );
 }
@@ -247,7 +239,7 @@ function PhaseRows({
         scrollClassName: "overflow-y-hidden",
       });
   return (
-    <PageSurface embedded kind="list" blocks={[block]} />
+    <PageSurface embedded kind="list" body={createPageBody([block])} />
   );
 }
 
@@ -264,7 +256,7 @@ function PhaseFields({
     <PageSurface
       embedded
       kind="detail"
-      blocks={[createFieldsBlock("phase-fields", [
+      body={createPageBody([createFieldsBlock("phase-fields", [
         {
           key: "name",
           label: "阶段",
@@ -296,7 +288,7 @@ function PhaseFields({
           onChange: (value) => onChange({ ...draft, endDate: String(value || "") }),
           placeholder: "选择日期",
         },
-      ], { columns: 2 })]}
+      ], { columns: 2 })])}
     />
   );
 }

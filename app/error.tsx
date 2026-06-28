@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { createBlockSurfaceBlock, createPanelBlock, PageSurface } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createPageBody, createPanelBlock, PageSurface } from "@workspace/core/ui";
 
 export default function ErrorBoundary({
   error,
@@ -23,7 +23,7 @@ export default function ErrorBoundary({
       kind="detail"
       contentClassName="flex min-h-screen items-center justify-center bg-gray-50"
       className="w-full max-w-md"
-      blocks={[
+      body={createPageBody([
         createPanelBlock("error", {
           title: "出错了",
           bodyClassName: "p-8 pt-4 text-center",
@@ -35,7 +35,7 @@ export default function ErrorBoundary({
             }),
           ],
         }),
-      ]}
+      ])}
     />
   );
 }

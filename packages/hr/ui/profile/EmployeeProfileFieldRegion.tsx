@@ -2,6 +2,7 @@
 
 import type { ReactNode, Ref } from "react";
 import {
+  createPageBody,
   createPanelBlock,
   PageSurface,
   type PageSurfaceBlockSpec,
@@ -25,7 +26,7 @@ export function FieldRegion({
       embedded
       kind="detail"
       className={className}
-      blocks={[block]}
+      body={createPageBody([block])}
     />
   );
 }

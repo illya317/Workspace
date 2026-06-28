@@ -1,6 +1,6 @@
 "use client";
 
-import { createAnalysisBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { EnrichedPosition, SortKey } from "./usePositionData";
 
 interface PositionTableBlockParams {
@@ -88,5 +88,5 @@ export function createPositionTableBlock({
 }
 
 export default function PositionTable(props: PositionTableBlockParams) {
-  return <PageSurface kind="analysis" blocks={[createPositionTableBlock(props)]} />;
+  return <PageSurface kind="analysis" body={createPageBody([createPositionTableBlock(props)])} />;
 }

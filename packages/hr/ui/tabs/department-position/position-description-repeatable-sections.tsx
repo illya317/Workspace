@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createFieldsBlock, useFeedback } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createFieldsBlock, useFeedback } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { formatHistoryVersion, normalizeDateValue, versionNumber } from "./draft-utils";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
@@ -46,7 +46,7 @@ export function PositionDutyEditor({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[createFieldsBlock<string>(detailKey, [{
+        body={createPageBody([createFieldsBlock<string>(detailKey, [{
           kind: "repeatable",
           key: detailKey,
           title: label,
@@ -99,7 +99,7 @@ export function PositionDutyEditor({
               ],
             };
           }),
-        }])]}
+        }])])}
       />
     </div>;
 }
@@ -143,7 +143,7 @@ export function PositionChangeHistoryEditor({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[createFieldsBlock("change-history", [{
+        body={createPageBody([createFieldsBlock("change-history", [{
           kind: "repeatable",
           key: "changeHistory",
           title: "变更历史",
@@ -181,7 +181,7 @@ export function PositionChangeHistoryEditor({
               ],
             };
           }),
-        }])]}
+        }])])}
       />
     </div>;
 }

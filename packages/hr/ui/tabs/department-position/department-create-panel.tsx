@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PageSurface, createCreatePanelBlock, createPanelBlock, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createCreatePanelBlock, createPanelBlock, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { departmentCodeEditableSegment } from "./department-code-input";
 import { postJson } from "@workspace/platform/ui/api-client";
 import { useDepartmentDescriptionsBlock } from "./department-descriptions-panel";
@@ -227,10 +227,10 @@ export function useDepartmentCreatePanelBlock({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[
+        body={createPageBody([
           departmentInfoBlock,
           descriptionsBlock,
-        ]}
+        ])}
       />
     ),
     children: null,
@@ -243,7 +243,7 @@ export function DepartmentCreatePanel(props: DepartmentCreatePanelProps) {
     <PageSurface
       embedded
       kind="detail"
-      blocks={[block]}
+      body={createPageBody([block])}
     />
   );
 }

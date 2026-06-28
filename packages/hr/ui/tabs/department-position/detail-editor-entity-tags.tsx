@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createFieldsBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createFieldsBlock } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
 import { primitiveListItems } from "./description-details";
@@ -41,7 +41,7 @@ export function EntityTagListEditor({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[createFieldsBlock<string>("entity-tags", [{
+        body={createPageBody([createFieldsBlock<string>("entity-tags", [{
           kind: "tagList",
           key: "entityTags",
           label: "",
@@ -77,7 +77,7 @@ export function EntityTagListEditor({
               onChange: (_label, option) => addOption(option as ReferenceOption | undefined),
             },
           },
-        }])]}
+        }])])}
       />
     </div>
   );
@@ -96,7 +96,7 @@ export function SubordinateTagsEditor({
       <PageSurface
         embedded
         kind="detail"
-        blocks={[createFieldsBlock<string>("subordinates", [{
+        body={createPageBody([createFieldsBlock<string>("subordinates", [{
           kind: "tagList",
           key: "subordinates",
           label: "",
@@ -108,7 +108,7 @@ export function SubordinateTagsEditor({
           itemClassName: () => "max-w-full border-slate-300 bg-white text-xs text-slate-800",
           shellClassName: "content-start",
           fieldClassName: "w-full",
-        }])]}
+        }])])}
       />
     </div>
   );

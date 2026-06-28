@@ -2,10 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { createBlockSurfaceBlock,
-  createSectionBlock,
-  PageSurface,
-} from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createPageBody, createSectionBlock, PageSurface } from "@workspace/core/ui";
 import ResourceTree, { type ResourceTreeNode } from "../components/ResourceTree";
 
 type ModuleStatus = "enabled" | "hidden" | "disabled";
@@ -176,8 +173,7 @@ export default function ModuleManagementTab({ showToast }: Props) {
     <PageSurface
       kind="settings"
       embedded
-      empty={loading || !data ? { content: loading ? "加载模块管理..." : "暂无模块管理数据" } : undefined}
-      blocks={!data ? undefined : [createSectionBlock("module-tree", {
+      body={createPageBody(!data ? [] : [createSectionBlock("module-tree", {
           title: "模块树",
           subtitle: data.rule,
           bodyClassName: "p-2",
@@ -198,7 +194,7 @@ export default function ModuleManagementTab({ showToast }: Props) {
                 />
             )
           })],
-        })]}
+        })], { empty: loading || !data ? { content: loading ? "加载模块管理..." : "暂无模块管理数据" } : undefined })}
     />
   );
 }

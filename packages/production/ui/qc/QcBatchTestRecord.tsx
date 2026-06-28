@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createHeadingBlock, createMessageBlock, PageSurface, type FormSurfaceCommandSpec } from "@workspace/core/ui";
+import { createHeadingBlock, createMessageBlock, createPageBody, type FormSurfaceCommandSpec, PageSurface } from "@workspace/core/ui";
 import type { QcBatchSummary, QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcLayoutPaper from "./QcLayoutPaper";
@@ -136,7 +136,7 @@ export default function QcBatchTestRecord({
     kind="detail"
     embedded
     contentClassName="pb-8"
-    blocks={[
+    body={createPageBody([
       {
         kind: "navigation",
         key: "test-navigation",
@@ -181,6 +181,6 @@ export default function QcBatchTestRecord({
         tone: saveState === "saved" ? "success" as const : "danger" as const,
         content: statusText || (saveState === "saved" ? "已保存" : "操作失败"),
       })] : []),
-    ]}
+    ])}
   />;
 }

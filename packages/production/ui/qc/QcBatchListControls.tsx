@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createFieldsBlock } from "@workspace/core/ui";
+import { createFieldsBlock, createPageBody, PageSurface } from "@workspace/core/ui";
 export { QC_BATCH_PAGE_SIZE_OPTIONS, QC_BATCH_STATUS_OPTIONS } from "./qc-batch-options";
 
 interface QcProductOption {
@@ -34,7 +34,7 @@ export function QcBatchCreatePanel({
   return <PageSurface
     kind="detail"
     embedded
-    blocks={[
+    body={createPageBody([
       createFieldsBlock("qc-batch-create", [
         { kind: "groupTitle", key: "title", title: "新建批次" },
         {
@@ -79,6 +79,6 @@ export function QcBatchCreatePanel({
           { key: "cancel", label: "取消", onClick: onCancel },
         ],
       }),
-    ]}
+    ])}
   />;
 }

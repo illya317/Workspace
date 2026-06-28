@@ -1,4 +1,4 @@
-import { PageSurface, createFieldsBlock } from "@workspace/core/ui";
+import { createFieldsBlock, createPageBody, PageSurface } from "@workspace/core/ui";
 import type { LibraryDocumentItem } from "@workspace/library/types";
 import {
   LIBRARY_DOCUMENT_CONFIDENTIALITY_FIELD_OPTIONS,
@@ -30,7 +30,7 @@ export default function LibraryEditForm({ doc, form, setForm, canWrite, canAdmin
     <PageSurface
       kind="list"
       embedded
-      blocks={[
+      body={createPageBody([
         createFieldsBlock("library-edit", [
           {
             key: "docId",
@@ -104,7 +104,7 @@ export default function LibraryEditForm({ doc, form, setForm, canWrite, canAdmin
             onChange: (value) => setForm((f) => ({ ...f, status: String(value ?? "") })),
           },
         ], { className: "space-y-1" }),
-      ]}
+      ])}
     />
   );
 }

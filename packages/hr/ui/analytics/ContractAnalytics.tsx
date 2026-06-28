@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createAnalysisBlock, createGroupBlock, createMessageBlock, createPageDataBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisBlock, createGroupBlock, createMessageBlock, createPageDataBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { Contract } from "./useAnalyticsData";
 import { computeStats, enrichContracts, filterContracts, statusBadge, statusLabel, type EnrichedContract } from "./contract-helpers";
 
@@ -163,5 +163,5 @@ export function useContractAnalyticsBlocks({
 }
 
 export default function ContractAnalytics(props: { contracts: Contract[] }) {
-  return <PageSurface kind="analysis" blocks={useContractAnalyticsBlocks(props)} />;
+  return <PageSurface kind="analysis" body={createPageBody(useContractAnalyticsBlocks(props))} />;
 }

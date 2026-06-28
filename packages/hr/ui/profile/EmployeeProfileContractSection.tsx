@@ -1,7 +1,7 @@
 "use client";
 
 import type { Ref } from "react";
-import { PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { contractFields } from "@workspace/hr/constants";
 import type { ContractRow, ProfileField } from "@workspace/hr/types";
 import type { ReferenceOption } from "@workspace/core/ui";
@@ -46,7 +46,7 @@ interface ContractSectionProps {
 }
 
 export function ContractSection(props: ContractSectionProps) {
-  return <PageSurface embedded kind="detail" blocks={useContractSectionBlocks(props)} />;
+  return <PageSurface embedded kind="detail" body={createPageBody(useContractSectionBlocks(props))} />;
 }
 
 export function useContractSectionBlocks({

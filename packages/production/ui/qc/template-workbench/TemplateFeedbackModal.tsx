@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useMemo, useState } from "react";
-import { PageSurface, createFieldsBlock, createPageModalBlock, createPageTableBlock } from "@workspace/core/ui";
+import { createFieldsBlock, createPageBody, createPageModalBlock, createPageTableBlock, PageSurface } from "@workspace/core/ui";
 import type { QcTemplateFeedbackItem, QcTemplateFeedbackState } from "@workspace/production/server/qc";
 import { feedbackKey, selectionTitle, type FeedbackTarget } from "./types";
 import { TEMPLATE_FEEDBACK_FIELDS } from "./feedback-fields";
@@ -147,7 +147,7 @@ export default function TemplateFeedbackModal({ target, onClose, onSaved }: Prop
     <PageSurface
       kind="detail"
       embedded
-      blocks={[
+      body={createPageBody([
         createPageModalBlock("template-feedback-modal", {
           open: true,
           title: "反馈",
@@ -181,7 +181,7 @@ export default function TemplateFeedbackModal({ target, onClose, onSaved }: Prop
             }),
           ],
         }),
-      ]}
+      ])}
     />
   );
 }

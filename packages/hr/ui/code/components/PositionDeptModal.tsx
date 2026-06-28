@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createFieldsBlock, createPageModalBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createFieldsBlock, createPageModalBlock } from "@workspace/core/ui";
 
 interface PositionDeptModalProps {
   positionDeptModal: {
@@ -25,7 +25,7 @@ export default function PositionDeptModal({
     <PageSurface
       embedded
       kind="detail"
-      blocks={[
+      body={createPageBody([
         createPageModalBlock("position-departments", {
           open: !!positionDeptModal?.open,
           title: `${positionDeptModal?.name || ""} — 所属部门`,
@@ -54,7 +54,7 @@ export default function PositionDeptModal({
                 }]),
           ],
         }),
-      ]}
+      ])}
     />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { createSectionBlock, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createSectionBlock, PageSurface } from "@workspace/core/ui";
 
 export default function InvestorsClient() {
   return (
@@ -20,7 +20,7 @@ export default function InvestorsClient() {
           },
         ],
       }}
-      blocks={[
+      body={createPageBody([
         createSectionBlock("investors", {
           title: "投资人列表",
           blocks: [
@@ -35,7 +35,7 @@ export default function InvestorsClient() {
             },
           ],
         }),
-      ]}
+      ])}
     />
   );
 }

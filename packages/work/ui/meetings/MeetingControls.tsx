@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { PageSurface, createBlockSurfaceBlock, createInlineFieldsBlock } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createInlineFieldsBlock, createPageBody, PageSurface } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, PageSurfaceKind } from "@workspace/core/ui";
 import type { MeetingDetail } from "./meeting-types";
 import { statusLabel } from "./meeting-utils";
@@ -15,7 +15,7 @@ export function PageBlockSurface({
   className?: string;
   kind?: Exclude<PageSurfaceKind, "split">;
 }) {
-  return <PageSurface embedded kind={kind} className={className} blocks={[block]} />;
+  return <PageSurface embedded kind={kind} className={className} body={createPageBody([block])} />;
 }
 
 export function Section({

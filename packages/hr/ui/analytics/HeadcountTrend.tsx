@@ -1,6 +1,6 @@
 "use client";
 
-import { createAnalysisBlock, createPageDataBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisBlock, createPageDataBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { Employment } from "./useAnalyticsData";
 import { type MonthlySnapshot, useHeadcountData } from "./useHeadcountData";
 
@@ -107,5 +107,5 @@ export function useHeadcountTrendBlocks({ employments }: { employments: Employme
 }
 
 export default function HeadcountTrend(props: { employments: Employment[] }) {
-  return <PageSurface kind="analysis" blocks={useHeadcountTrendBlocks(props)} />;
+  return <PageSurface kind="analysis" body={createPageBody(useHeadcountTrendBlocks(props))} />;
 }

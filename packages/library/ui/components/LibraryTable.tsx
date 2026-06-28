@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { PageSurface, createPageTableBlock } from "@workspace/core/ui";
+import { createPageBody, createPageTableBlock, PageSurface } from "@workspace/core/ui";
 import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { LibraryDocumentItem } from "@workspace/library/types";
 import LibraryDetailModal from "./LibraryDetailModal";
@@ -105,7 +105,7 @@ export default function LibraryTable({
       <PageSurface
         kind="list"
         embedded
-        blocks={[
+        body={createPageBody([
           createPageTableBlock<LibraryDocumentItem>("library-documents", {
             framed: true,
             bodyClassName: "overflow-hidden",
@@ -117,7 +117,7 @@ export default function LibraryTable({
             loading,
             emptyText: loading ? "加载中..." : "暂无资料",
           }),
-        ]}
+        ])}
       />
       {detailId !== null && (
         <LibraryDetailModal

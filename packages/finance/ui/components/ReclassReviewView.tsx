@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { PageSurface, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
 import ReclassReviewModal from "./ReclassReviewModal";
 import { formatFinanceAmount } from "../formatters";
@@ -126,7 +126,7 @@ export default function ReclassReviewView({
       <PageSurface
         kind="list"
         embedded
-        blocks={[
+        body={createPageBody([
           createPageTableBlock("reclass-review", {
             framed: true,
             className: "overflow-hidden",
@@ -143,7 +143,7 @@ export default function ReclassReviewView({
               return [{ key: "adjust", kind: "edit", label: isNormal && !hasTarget ? "设置" : isNormal ? "使用建议" : "修改", onClick: () => setAdjustItem(row) }];
             } : undefined,
           }),
-        ]}
+        ])}
       />
       <ReclassReviewModal item={adjustItem} open={!!adjustItem} companyCode={companyCode} year={year} onClose={() => setAdjustItem(null)} onSubmit={async (id, targetAccount, amount, note) => {
       const extra = id === 0 && adjustItem ? {

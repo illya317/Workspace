@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageDataBlock, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, createPageDataBlock, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { Department, EDP, Position } from "./useAnalyticsData";
 import { usePositionData } from "./position/usePositionData";
 import { createDeptBarChartBlock } from "./position/DeptBarChart";
@@ -54,5 +54,5 @@ export function usePositionAnalyticsBlocks({ positions, edps, departments }: { p
 }
 
 export default function PositionAnalytics(props: { positions: Position[]; edps: EDP[]; departments: Department[] }) {
-  return <PageSurface kind="analysis" blocks={usePositionAnalyticsBlocks(props)} />;
+  return <PageSurface kind="analysis" body={createPageBody(usePositionAnalyticsBlocks(props))} />;
 }
