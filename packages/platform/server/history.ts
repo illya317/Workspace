@@ -1,51 +1,18 @@
 import { prisma } from "./prisma";
 import type { Prisma } from "./prisma";
-
-// Models with audit fields that can be snapshotted into EditHistory.
-// Keep this list aligned with actual snapshotHistory callers.
-const AUDITED_MODELS = [
-  "Employee",
-  "Employment",
-  "Company",
-  "CompanyRelation",
-  "Department",
-  "Position",
-  "EDP",
-  "Project",
-  "EmployeeProject",
-  "ProjectTask",
-  "ProjectStage",
-  "PositionDescription",
-] as const;
-
-type EntityType = (typeof AUDITED_MODELS)[number];
-
-function assertEntityType(type: string): asserts type is EntityType {
-  if (!(AUDITED_MODELS as readonly string[]).includes(type)) {
-    throw new Error(
-      `[snapshotHistory] 未注册的 entityType: "${type}"。请在 @workspace/platform/server/history 的 AUDITED_MODELS 数组中添加。`,
-    );
-  }
-}
-
-/** Prisma model name to client delegate key, e.g. Employee -> employee, EDP -> eDP. */
-function clientKey(entityType: EntityType): string {
-  return entityType.charAt(0).toLowerCase() + entityType.slice(1);
-}
-
-type HistoryClient = Pick<typeof prisma, "editHistory"> & Record<string, unknown>;
+import {
+  assertTrackedHistoryPolicy,
+  getHistoryModelDelegate,
+  type HistoryClient,
+  type HistoryPolicy,
+} from "./history-policy-registry";
 
 async function readRecord(
-  entityType: EntityType,
+  policy: HistoryPolicy,
   entityId: number,
   client: HistoryClient | Prisma.TransactionClient,
 ) {
-  return (
-    client as unknown as Record<
-      string,
-      { findUnique: (args: { where: { id: number } }) => Promise<Record<string, unknown> | null> }
-    >
-  )[clientKey(entityType)].findUnique({
+  return getHistoryModelDelegate(client as HistoryClient, policy).findUnique({
     where: { id: entityId },
   });
 }
@@ -61,7 +28,8 @@ export async function ensureEditHistoryBaseline(
   userId: number,
   client: HistoryClient | Prisma.TransactionClient = prisma,
 ) {
-  assertEntityType(entityType);
+  const policy = assertTrackedHistoryPolicy(entityType, "ensureEditHistoryBaseline");
+  if (policy.baseline === "never") return;
 
   const entityIdStr = String(entityId);
   const existing = await client.editHistory.findFirst({
@@ -74,7 +42,7 @@ export async function ensureEditHistoryBaseline(
   });
   if (existing) return;
 
-  const record = await readRecord(entityType, entityId, client);
+  const record = await readRecord(policy, entityId, client);
   if (!record) return;
 
   await client.editHistory.create({
@@ -98,9 +66,9 @@ export async function snapshotHistory(
   userId: number,
   client: HistoryClient | Prisma.TransactionClient = prisma,
 ) {
-  assertEntityType(entityType);
+  const policy = assertTrackedHistoryPolicy(entityType, "snapshotHistory");
 
-  const record = await readRecord(entityType, entityId, client);
+  const record = await readRecord(policy, entityId, client);
   if (!record) return;
 
   const entityIdStr = String(entityId);

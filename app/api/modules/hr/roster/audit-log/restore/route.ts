@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireApiAccess, checkHRWrite } from "@workspace/platform/server/auth";
 import { restoreAuditLogSnapshot } from "@workspace/platform/server/audit-log";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { HR_AUDIT_ENTITY_TYPES } from "@workspace/hr/server/audit-entities";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,7 +22,9 @@ export async function POST(request: Request) {
   const parsed = restoreBodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return jsonErrorResponse("缺少 historyId", 400);
 
-  const result = await restoreAuditLogSnapshot(parsed.data.historyId);
+  const result = await restoreAuditLogSnapshot(parsed.data.historyId, payload.userId, {
+    allowedEntityTypes: HR_AUDIT_ENTITY_TYPES,
+  });
   if (!result.success) return jsonErrorResponse(result.error, result.status);
   return NextResponse.json(result);
 }

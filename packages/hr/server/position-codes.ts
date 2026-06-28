@@ -1,4 +1,5 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { getCodePoolCode } from "./company-directory";
 
 async function buildFullCode(code: string, company: string): Promise<string> {
@@ -72,43 +73,15 @@ export async function upsertPositionCode(
       if (existing) throw new Error("编号已存在");
       const oldPosition = await tx.position.findFirst({ where: { code: originalCode } });
       if (oldPosition) {
-        const maxVersion = await tx.editHistory.findFirst({
-          where: { entityType: "Position", entityId: originalCode },
-          orderBy: { version: "desc" },
-          select: { version: true },
+        await ensureEditHistoryBaseline("Position", oldPosition.id, userId, tx);
+        await tx.position.update({
+          where: { id: oldPosition.id },
+          data: { code: finalCode, name, editedBy: userId, editedAt: new Date(), version: { increment: 1 } },
         });
-        await tx.editHistory.create({
-          data: {
-            entityType: "Position",
-            entityId: originalCode,
-            version: (maxVersion?.version || 0) + 1,
-            dataJson: JSON.stringify(oldPosition),
-            editedBy: userId,
-          },
-        });
+        await snapshotHistory("Position", oldPosition.id, userId, tx);
       }
-      await tx.position.update({
-        where: { code: originalCode } as unknown as Prisma.PositionWhereUniqueInput,
-        data: { code: finalCode, name, editedBy: userId, editedAt: new Date(), version: { increment: 1 } },
-      });
     } else {
       const oldPosition = await tx.position.findFirst({ where: { code: finalCode } });
-      if (oldPosition) {
-        const maxVersion = await tx.editHistory.findFirst({
-          where: { entityType: "Position", entityId: finalCode },
-          orderBy: { version: "desc" },
-          select: { version: true },
-        });
-        await tx.editHistory.create({
-          data: {
-            entityType: "Position",
-            entityId: finalCode,
-            version: (maxVersion?.version || 0) + 1,
-            dataJson: JSON.stringify(oldPosition),
-            editedBy: userId,
-          },
-        });
-      }
       const data: Prisma.PositionUpdateInput = { name, editedBy: userId, editedAt: new Date(), version: { increment: 1 } };
       const create: Prisma.PositionCreateInput = { code: finalCode, name };
       if (departmentCode) {
@@ -118,23 +91,33 @@ export async function upsertPositionCode(
           create.department = { connect: { id: department.id } };
         }
       }
-      await tx.position.upsert({
-        where: { code: finalCode } as unknown as Prisma.PositionWhereUniqueInput,
-        update: data,
-        create,
-      });
+      if (oldPosition) {
+        await ensureEditHistoryBaseline("Position", oldPosition.id, userId, tx);
+        await tx.position.update({
+          where: { id: oldPosition.id },
+          data,
+        });
+        await snapshotHistory("Position", oldPosition.id, userId, tx);
+      } else {
+        const position = await tx.position.create({ data: { ...create, editedBy: userId } });
+        await snapshotHistory("Position", position.id, userId, tx);
+      }
     }
     return { success: true };
   });
 }
 
-export async function deletePositionCode(code: string) {
-  const position = await prisma.position.findFirst({ where: { code } });
-  if (!position) throw new Error("岗位不存在");
-  const epCount = await prisma.eDP.count({ where: { positionId: position.id } });
-  if (epCount > 0) {
-    throw new Error(`该岗位下有 ${epCount} 名员工，无法删除`);
-  }
-  await prisma.position.delete({ where: { id: position.id } });
-  return { success: true };
+export async function deletePositionCode(code: string, userId: number) {
+  return prisma.$transaction(async (tx) => {
+    const position = await tx.position.findFirst({ where: { code } });
+    if (!position) throw new Error("岗位不存在");
+    const epCount = await tx.eDP.count({ where: { positionId: position.id } });
+    if (epCount > 0) {
+      throw new Error(`该岗位下有 ${epCount} 名员工，无法删除`);
+    }
+    await ensureEditHistoryBaseline("Position", position.id, userId, tx);
+    await snapshotHistory("Position", position.id, userId, tx);
+    await tx.position.delete({ where: { id: position.id } });
+    return { success: true };
+  });
 }

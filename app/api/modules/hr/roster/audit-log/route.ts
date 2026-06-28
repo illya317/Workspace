@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireApiAccess, checkHRAccess } from "@workspace/platform/server/auth";
 import { getAuditLogDates, getAuditLogEntries } from "@workspace/platform/server/audit-log";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { isHrAuditEntityType } from "@workspace/hr/server/audit-entities";
 
 const auditLogQuerySchema = z.object({
   entityType: z.string().min(1),
@@ -22,6 +23,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const parsed = auditLogQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
   if (!parsed.success) return jsonErrorResponse("缺少 entityType", 400);
+  if (!isHrAuditEntityType(parsed.data.entityType)) return jsonErrorResponse("无权限", 403);
 
   if (parsed.data.dates === "1") {
     const dates = await getAuditLogDates(parsed.data.entityType);

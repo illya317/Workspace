@@ -1,4 +1,5 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 
 import { getCodePoolCode } from "./company-directory";
 
@@ -20,26 +21,6 @@ async function buildFullCode(code: string, company: string): Promise<string> {
     return normalized + code.padStart(3, "0");
   }
   return code;
-}
-
-async function snapshotDepartment(code: string, editorId: number, tx: Prisma.TransactionClient = prisma) {
-  const department = await tx.department.findFirst({ where: { code } });
-  if (!department) return;
-
-  const maxVersion = await tx.editHistory.findFirst({
-    where: { entityType: "Department", entityId: code },
-    orderBy: { version: "desc" },
-    select: { version: true },
-  });
-  await tx.editHistory.create({
-    data: {
-      entityType: "Department",
-      entityId: code,
-      version: (maxVersion?.version || 0) + 1,
-      dataJson: JSON.stringify(department),
-      editedBy: editorId,
-    },
-  });
 }
 
 export async function getDepartmentCodes(input: GetDepartmentCodesInput) {
@@ -71,7 +52,7 @@ export async function upsertDepartmentCode(input: UpsertDepartmentCodeInput, use
 
       const oldDepartment = await tx.department.findFirst({ where: { code: input.originalCode } });
       if (oldDepartment) {
-        await snapshotDepartment(input.originalCode, userId, tx);
+        await ensureEditHistoryBaseline("Department", oldDepartment.id, userId, tx);
         await tx.department.update({
           where: { id: oldDepartment.id },
           data: {
@@ -82,11 +63,12 @@ export async function upsertDepartmentCode(input: UpsertDepartmentCodeInput, use
             version: { increment: 1 },
           },
         });
+        await snapshotHistory("Department", oldDepartment.id, userId, tx);
       }
     } else {
       const oldDepartment = await tx.department.findFirst({ where: { code: finalCode } });
       if (oldDepartment) {
-        await snapshotDepartment(finalCode, userId, tx);
+        await ensureEditHistoryBaseline("Department", oldDepartment.id, userId, tx);
         await tx.department.update({
           where: { id: oldDepartment.id },
           data: {
@@ -96,8 +78,12 @@ export async function upsertDepartmentCode(input: UpsertDepartmentCodeInput, use
             version: { increment: 1 },
           },
         });
+        await snapshotHistory("Department", oldDepartment.id, userId, tx);
       } else {
-        await tx.department.create({ data: { code: finalCode, name: input.name, level: 1 } });
+        const department = await tx.department.create({
+          data: { code: finalCode, name: input.name, level: 1, editedBy: userId },
+        });
+        await snapshotHistory("Department", department.id, userId, tx);
       }
     }
 
@@ -105,17 +91,21 @@ export async function upsertDepartmentCode(input: UpsertDepartmentCodeInput, use
   });
 }
 
-export async function deleteDepartmentCode(code: string) {
-  const department = await prisma.department.findFirst({ where: { code } });
-  if (!department) {
-    return { success: false as const, status: 404, error: "部门不存在" };
-  }
+export async function deleteDepartmentCode(code: string, userId: number) {
+  return prisma.$transaction(async (tx) => {
+    const department = await tx.department.findFirst({ where: { code } });
+    if (!department) {
+      return { success: false as const, status: 404, error: "部门不存在" };
+    }
 
-  const epCount = await prisma.eDP.count({ where: { departmentId: department.id } });
-  if (epCount > 0) {
-    return { success: false as const, status: 400, error: `该部门下有 ${epCount} 名员工，无法删除` };
-  }
+    const epCount = await tx.eDP.count({ where: { departmentId: department.id } });
+    if (epCount > 0) {
+      return { success: false as const, status: 400, error: `该部门下有 ${epCount} 名员工，无法删除` };
+    }
 
-  await prisma.department.delete({ where: { id: department.id } });
-  return { success: true as const };
+    await ensureEditHistoryBaseline("Department", department.id, userId, tx);
+    await snapshotHistory("Department", department.id, userId, tx);
+    await tx.department.delete({ where: { id: department.id } });
+    return { success: true as const };
+  });
 }

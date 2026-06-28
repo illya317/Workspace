@@ -5,6 +5,7 @@ import { label, formatVal } from "../audit";
 
 export interface AuditChange {
   field: string;
+  label?: string;
   from?: string;
   to: string;
 }
@@ -17,6 +18,7 @@ export interface AuditEntry {
   createdAt: string;
   tag: string | null;
   action?: "create" | "update";
+  canRestore?: boolean;
   changes: AuditChange[];
 }
 
@@ -35,6 +37,10 @@ export default function AuditLogEntry({
   onToggle,
   onRestore,
 }: AuditLogEntryProps) {
+  function changeLabel(change: AuditChange) {
+    return change.label || label(change.field);
+  }
+
   const header = (
     <div className="flex items-center gap-4">
       <span className="inline-flex items-center gap-1">
@@ -59,7 +65,7 @@ export default function AuditLogEntry({
     <div className="flex flex-wrap gap-1">
       {entry.changes.slice(0, 4).map((change) => (
         <span key={change.field} className="inline-block rounded bg-amber-50 px-1.5 py-0.5 text-xs text-amber-700">
-          {label(change.field)}: <span className="font-medium">{formatVal(change.to)}</span>
+          {changeLabel(change)}: <span className="font-medium">{formatVal(change.to)}</span>
         </span>
       ))}
       {entry.changes.length > 4 && <span className="text-xs text-gray-400">+{entry.changes.length - 4}</span>}
@@ -85,17 +91,19 @@ export default function AuditLogEntry({
             header,
             summary,
             detailTitle: "变更详情",
-            detailAction: {
-              label: "还原到此版本",
-              loadingLabel: "还原中...",
-              loading: restoring,
-              onClick: onRestore,
-            },
+            detailAction: entry.canRestore
+              ? {
+                  label: "还原到此版本",
+                  loadingLabel: "还原中...",
+                  loading: restoring,
+                  onClick: onRestore,
+                }
+              : undefined,
             detail: (
               <div className="space-y-1.5">
                 {entry.changes.map((change) => (
                   <div key={change.field} className="flex items-center gap-2 text-xs">
-                    <span className="w-24 shrink-0 text-gray-500">{label(change.field)}</span>
+                    <span className="w-24 shrink-0 text-gray-500">{changeLabel(change)}</span>
                     {change.from !== undefined ? (
                       <>
                         <span className="rounded bg-red-50 px-1.5 py-0.5 font-mono text-red-500 line-through">{formatVal(change.from)}</span>

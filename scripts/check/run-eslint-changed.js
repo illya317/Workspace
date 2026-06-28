@@ -41,6 +41,16 @@ if (responseFormat.status !== 0) {
   process.exit(responseFormat.status ?? 1);
 }
 
+const historyPolicy = spawnSync(
+  "npx",
+  ["tsx", "scripts/check/check-history-policy-registry.ts"],
+  { stdio: "inherit" },
+);
+
+if (historyPolicy.status !== 0) {
+  process.exit(historyPolicy.status ?? 1);
+}
+
 if (files.length === 0) {
   process.stdout.write("No changed JS/TS files to lint.\n");
   process.exit(0);

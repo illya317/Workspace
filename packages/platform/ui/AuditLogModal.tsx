@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useCallback } from "react";
-import { PageSurface, createPageInlineFieldsBlock } from "@workspace/core/ui";
+import { PageSurface, createInlineFieldsBlock, createMessageBlock } from "@workspace/core/ui";
 import AuditLogEntry, { type AuditEntry } from "./AuditLogEntry";
 
 export interface AuditLogModalProps {
@@ -95,7 +95,7 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
         maxWidth: "max-w-5xl",
         blocks: [
         ...(dates.length > 0 ? [
-          createPageInlineFieldsBlock("audit-date", [{
+          createInlineFieldsBlock("audit-date", [{
             key: "date",
             label: "日期",
             value: selectedDate,
@@ -116,9 +116,7 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
             },
           }], { kind: "filters" as const }),
         ] : []),
-        {
-          kind: "message" as const,
-          key: "entries",
+        createMessageBlock("entries", {
           content: (
             <div className="max-h-[58vh] overflow-auto">
               {loading ? (
@@ -144,7 +142,7 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
               )}
             </div>
           ),
-        },
+        }),
         {
           kind: "navigation" as const,
           key: "pagination",

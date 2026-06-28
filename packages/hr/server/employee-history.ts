@@ -1,26 +1,7 @@
-import { formatVal, label } from "@workspace/platform/audit";
+import { formatVal } from "@workspace/platform/audit";
+import { summarizeHistoryChanges } from "@workspace/platform/server/history-policy-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { employeeWhereFromKey } from "./employee-profile";
-
-const AUDIT_FIELDS = new Set(["editedBy", "editedAt", "version", "editor", "createdAt", "updatedAt", "id"]);
-const CONTRACT_FIELDS = [
-  "company",
-  "isPrimary",
-  "insuranceStatus",
-  "legalRelation",
-  "contractType",
-  "employmentForm",
-  "firstContractStartDate",
-  "firstContractEndDate",
-  "secondContractStartDate",
-  "secondContractEndDate",
-  "thirdContractStartDate",
-  "thirdContractEndDate",
-  "permanentContractDate",
-  "confidentialityDate",
-  "nonCompeteDate",
-  "endDate",
-];
 
 function parseJson(value: string) {
   try {
@@ -32,55 +13,6 @@ function parseJson(value: string) {
 
 function userEmployeeName(user: { nickname: string; employees?: Array<{ name: string }> } | null | undefined) {
   return user?.employees?.[0]?.name ?? user?.nickname ?? null;
-}
-
-function parseContracts(value: unknown) {
-  if (!value || typeof value !== "string") return [];
-  try {
-    const parsed = JSON.parse(value) as unknown;
-    if (Array.isArray(parsed)) return parsed as Record<string, unknown>[];
-    if (parsed && typeof parsed === "object") return [parsed as Record<string, unknown>];
-  } catch {}
-  return [];
-}
-
-function diffSnapshot(prev: Record<string, unknown> | null, curr: Record<string, unknown>) {
-  const changes: Array<{ field: string; label: string; from: string; to: string }> = [];
-  const keys = new Set([...Object.keys(curr), ...(prev ? Object.keys(prev) : [])]);
-  for (const key of keys) {
-    if (AUDIT_FIELDS.has(key)) continue;
-    if (key === "contracts") {
-      const prevContracts = parseContracts(prev?.contracts);
-      const currContracts = parseContracts(curr.contracts);
-      const count = Math.max(prevContracts.length, currContracts.length);
-      for (let index = 0; index < count; index += 1) {
-        const prevContract = prevContracts[index] || {};
-        const currContract = currContracts[index] || {};
-        for (const field of CONTRACT_FIELDS) {
-          const oldValue = prevContract[field];
-          const newValue = currContract[field];
-          if (JSON.stringify(oldValue ?? null) === JSON.stringify(newValue ?? null)) continue;
-          changes.push({
-            field: `contracts.${index}.${field}`,
-            label: `合同${index + 1} · ${label(field)}`,
-            from: formatVal(String(oldValue ?? "(空)")),
-            to: formatVal(String(newValue ?? "(空)")),
-          });
-        }
-      }
-      continue;
-    }
-    const oldValue = prev?.[key];
-    const newValue = curr[key];
-    if (JSON.stringify(oldValue ?? null) === JSON.stringify(newValue ?? null)) continue;
-    changes.push({
-      field: key,
-      label: label(key),
-      from: formatVal(String(oldValue ?? "(空)")),
-      to: formatVal(String(newValue ?? "(空)")),
-    });
-  }
-  return changes;
 }
 
 export async function getEmployeeProfileHistoryByKey(key: string) {
@@ -134,6 +66,13 @@ export async function getEmployeeProfileHistoryByKey(key: string) {
       const index = group.findIndex((item) => item.id === row.id);
       const prev = index > 0 ? parseJson(group[index - 1].dataJson) : null;
       const curr = parseJson(row.dataJson);
+      const changes = summarizeHistoryChanges(row.entityType, prev, curr)
+        .map((change) => ({
+          field: change.field,
+          label: change.label ?? change.field,
+          from: formatVal(change.from ?? "(空)"),
+          to: formatVal(change.to),
+        }));
       return {
         id: row.id,
         entityType: row.entityType,
@@ -142,7 +81,7 @@ export async function getEmployeeProfileHistoryByKey(key: string) {
         editorName: userEmployeeName(row.editor) || `用户#${row.editedBy}`,
         createdAt: row.createdAt,
         action: prev ? "update" as const : "create" as const,
-        changes: diffSnapshot(prev, curr),
+        changes,
       };
     })
     .filter((entry) => entry.action === "create" || entry.changes.length > 0)

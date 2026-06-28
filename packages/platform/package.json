@@ -39,6 +39,7 @@
     "./server/fk-search": "./server/fk-search.ts",
     "./server/fk-targets": "./server/fk-targets.ts",
     "./server/history": "./server/history.ts",
+    "./server/history-policy-registry": "./server/history-policy-registry.ts",
     "./server/module-runtime": "./server/module-runtime.ts",
     "./server/module-management": "./server/module-management.ts",
     "./server/notifications": "./server/notifications.ts",

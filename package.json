@@ -10,6 +10,7 @@
     "start": "next start",
     "lint": "node scripts/check/with-check-lock.js -- eslint --cache --cache-location .cache/eslint/.eslintcache",
     "lint:api-response-format": "node scripts/check/with-check-lock.js -- node scripts/check/check-api-response-format.js",
+    "lint:history-policy": "node scripts/check/with-check-lock.js -- npx tsx scripts/check/check-history-policy-registry.ts",
     "lint:changed": "node scripts/check/with-check-lock.js -- node scripts/check/run-eslint-changed.js",
     "complexity:line-budget": "node scripts/check/with-check-lock.js -- node scripts/check/check-net-line-growth.js",
     "complexity:split-quality": "node scripts/check/with-check-lock.js -- node scripts/check/check-split-quality.js",
