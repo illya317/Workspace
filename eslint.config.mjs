@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Claude worktrees (copies of codebase for agent isolation)
     ".claude/**",
+    // Local check snapshots and caches are generated artifacts, not source.
+    ".cache/**",
     // Temporary research/scrape artifacts are not product or tooling source.
     "tmp/**",
   ]),

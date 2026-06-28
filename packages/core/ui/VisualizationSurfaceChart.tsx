@@ -12,7 +12,7 @@ import type {
   VisualizationTone,
   VisualizationTreeNodeSpec,
   VisualizationTreeSpec,
-} from "./VisualizationSurface";
+} from "./surface/VisualizationSurfaceTypes";
 
 function visualToneClass(tone: VisualizationTone = "slate", slot: "bar" | "text" | "soft" | "border" = "bar") {
   const classes = {

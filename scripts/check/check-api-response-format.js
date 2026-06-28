@@ -8,16 +8,29 @@ const WORKSPACE_ROOT = path.resolve(__dirname, "../..");
 const API_ROOT = path.join(WORKSPACE_ROOT, "app/api");
 const PACKAGE_ROOT = path.join(WORKSPACE_ROOT, "packages");
 const CHECK_ROOTS = [API_ROOT, PACKAGE_ROOT];
+const CHECK_EXTENSIONS = new Set([".cjs", ".cts", ".js", ".jsx", ".mjs", ".mts", ".ts", ".tsx"]);
 const SKIP_FILES = new Set([
   "packages/platform/server/api.ts",
 ]);
+
+function isCheckableFile(fullPath) {
+  return CHECK_EXTENSIONS.has(path.extname(fullPath));
+}
+
+function scriptKindForFile(fullPath) {
+  const ext = path.extname(fullPath);
+  if (ext === ".tsx") return ts.ScriptKind.TSX;
+  if (ext === ".jsx") return ts.ScriptKind.JSX;
+  if (ext === ".js" || ext === ".mjs" || ext === ".cjs") return ts.ScriptKind.JS;
+  return ts.ScriptKind.TS;
+}
 
 function walk(dir, results = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       walk(fullPath, results);
-    } else if (entry.isFile() && fullPath.endsWith(".ts")) {
+    } else if (entry.isFile() && isCheckableFile(fullPath)) {
       results.push(fullPath);
     }
   }
@@ -54,7 +67,7 @@ for (const file of CHECK_ROOTS.flatMap((root) => walk(root))) {
   const relativeFile = path.relative(WORKSPACE_ROOT, file).replace(/\\/g, "/");
   if (SKIP_FILES.has(relativeFile)) continue;
   const text = fs.readFileSync(file, "utf8");
-  const sourceFile = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const sourceFile = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, scriptKindForFile(file));
 
   function visit(node) {
     if (isDirectJsonErrorResponse(node, sourceFile)) {

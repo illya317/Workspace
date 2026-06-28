@@ -338,24 +338,17 @@ function ProjectTaskTableSurface({
     onRowClick,
     visibleColumns: ["owner", "childProjectStatus", "startDate", "endDate"],
     expandedRowKey: detailTaskId,
-    expandedRowBlocks: (task) => [{
-      kind: "block",
-      key: `project-task-detail-${task.id}`,
-      surface: {
-        kind: "content",
-        content: editDraft && editingTaskId === task.id ? (
-          <ProjectTaskForm
-            draft={editDraft}
-            disabled={disabled || saving}
-            taskOptions={taskOptions}
-            phases={phases}
-            tasks={tasks}
-            excludedTaskId={task.id}
-            onChange={onEditDraftChange}
-          />
-        ) : <ProjectTaskDetail task={task} />,
-      },
-    }],
+    expandedRowContent: (task) => editDraft && editingTaskId === task.id ? (
+      <ProjectTaskForm
+        draft={editDraft}
+        disabled={disabled || saving}
+        taskOptions={taskOptions}
+        phases={phases}
+        tasks={tasks}
+        excludedTaskId={task.id}
+        onChange={onEditDraftChange}
+      />
+    ) : <ProjectTaskDetail task={task} />,
     rowEditActions: (task): SurfaceDataRowEditActionSpec<ProjectTaskItem> => ({
       editing: editingTaskId === task.id,
       canEdit,

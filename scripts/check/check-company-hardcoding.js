@@ -52,6 +52,7 @@ const WHITELIST_DIRS = [
   "docs",
   "generated",
   "node_modules",
+  ".cache",
   ".next",
   ".git",
   "data",

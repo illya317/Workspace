@@ -346,37 +346,27 @@ function LineConfigTable({
           },
           expandedRowKeys: expanded,
           rowClassName: row => row.kind === "section" ? "bg-slate-50" : row.kind === "special" ? "bg-slate-50/50" : "",
-          expandedRowBlocks: row => {
-            if (row.kind !== "line") return [];
-            return [{
-              kind: "block",
-              key: `line-mappings-${row.line.lineCode}`,
-              surface: {
-                kind: "content",
-                content: (
-                  <LineMappingsPanel
-                    line={row.line}
-                    mappings={row.mappings}
-                    inheritedAccounts={row.inheritedAccounts}
-                    accountMap={accountMap}
-                    saving={saving}
-                    addingFor={addingFor}
-                    newAccount={newAccount}
-                    accountSearch={accountSearch}
-                    filteredAccounts={filteredAccounts}
-                    onExcludeDefault={(accountCode, lineCode) => onSaveMapping(accountCode, lineCode, "exclude")}
-                    onRestoreDefault={onRestoreDefault}
-                    onToggleOperator={(accountCode, lineCode, current) => onSaveMapping(accountCode, lineCode, current === "add" ? "subtract" : "add")}
-                    onSaveMapping={onSaveMapping}
-                    onStartAdding={onStartAdding}
-                    onCancelAdding={onCancelAdding}
-                    onNewAccountChange={onNewAccountChange}
-                    onAccountSearchChange={onAccountSearchChange}
-                  />
-                ),
-              },
-            }];
-          },
+          expandedRowContent: row => row.kind === "line" ? (
+            <LineMappingsPanel
+              line={row.line}
+              mappings={row.mappings}
+              inheritedAccounts={row.inheritedAccounts}
+              accountMap={accountMap}
+              saving={saving}
+              addingFor={addingFor}
+              newAccount={newAccount}
+              accountSearch={accountSearch}
+              filteredAccounts={filteredAccounts}
+              onExcludeDefault={(accountCode, lineCode) => onSaveMapping(accountCode, lineCode, "exclude")}
+              onRestoreDefault={onRestoreDefault}
+              onToggleOperator={(accountCode, lineCode, current) => onSaveMapping(accountCode, lineCode, current === "add" ? "subtract" : "add")}
+              onSaveMapping={onSaveMapping}
+              onStartAdding={onStartAdding}
+              onCancelAdding={onCancelAdding}
+              onNewAccountChange={onNewAccountChange}
+              onAccountSearchChange={onAccountSearchChange}
+            />
+          ) : null,
         }),
       ])}
     />

@@ -100,22 +100,15 @@ export function useWorkTaskTableBlock({
       rowClassName: (work) => work.itemType === "objective" ? "bg-slate-50/60" : "",
       onRowClick: onDetail,
       expandedRowKey: detailId,
-      expandedRowBlocks: (work) => [{
-        kind: "block",
-        key: `work-detail-${work.id}`,
-        surface: {
-          kind: "content",
-          content: editDraft && editingId === work.id ? (
-            <WorkTaskForm
-              draft={editDraft}
-              works={works}
-              disabled={saving}
-              excludedWorkId={work.id}
-              onChange={onEditDraftChange}
-            />
-          ) : <WorkTaskDetail work={work} />,
-        },
-      }],
+      expandedRowContent: (work) => editDraft && editingId === work.id ? (
+        <WorkTaskForm
+          draft={editDraft}
+          works={works}
+          disabled={saving}
+          excludedWorkId={work.id}
+          onChange={onEditDraftChange}
+        />
+      ) : <WorkTaskDetail work={work} />,
       rowEditActions: (work): SurfaceDataRowEditActionSpec<TreeRow> => ({
         editing: editingId === work.id,
         canEdit,

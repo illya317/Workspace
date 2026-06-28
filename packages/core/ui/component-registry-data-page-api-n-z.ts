@@ -173,7 +173,7 @@ export const page_api_registry_entries = [
       { name: "framed", description: "是否使用通用面板外框。" },
       { name: "title", description: "可视化标题。" },
     ],
-    composes: ["PanelCard", "VisualizationSurfaceChart", "VisualizationGantt"],
+    composes: ["PanelCard", "VisualizationSurfaceChart", "VisualizationGantt", "VisualizationSurfaceTypes"],
   },
   {
     name: "VisualizationSurfaceChart",
@@ -181,6 +181,14 @@ export const page_api_registry_entries = [
     subcategory: "visualization.surface",
     role: "internal",
     description: "VisualizationSurface 轻量图表 renderer。",
+    composes: [],
+  },
+  {
+    name: "VisualizationSurfaceTypes",
+    category: "visualization",
+    subcategory: "visualization.surface",
+    role: "internal",
+    description: "VisualizationSurface 轻量图与甘特图 public spec types。",
     composes: [],
   },
   {

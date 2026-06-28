@@ -1,6 +1,5 @@
 import type { CSSProperties, FocusEventHandler, KeyboardEventHandler, MouseEventHandler, ReactNode } from "react";
 import type { InputFieldSpec } from "../InputControl";
-import type { PageSurfaceBlockSpec } from "./PageSurface.types";
 import type { SurfaceDataRowActionSpec, SurfaceDataRowEditActionSpec } from "./SurfaceContractTypes";
 
 export type DataSurfaceKind = "table" | "structured" | "records" | "metrics";
@@ -216,7 +215,7 @@ export interface DataSurfaceTableProps<T> extends DataSurfaceBaseProps {
   tableClassName?: string;
   expandedRowKey?: string | number | null;
   expandedRowKeys?: Array<string | number> | Set<string | number> | null;
-  expandedRowBlocks?: (row: T) => PageSurfaceBlockSpec[];
+  expandedRowContent?: (row: T) => ReactNode;
   rowActions?: (row: T) => DataSurfaceRowActionSpec[];
   rowEditActions?: (row: T) => DataSurfaceRowEditActionSpec<T>;
   actionsColumn?: DataSurfaceActionsColumnSpec;

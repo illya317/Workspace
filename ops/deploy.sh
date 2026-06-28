@@ -154,6 +154,7 @@ copy_prisma_deploy_files() {
   test -f prisma.config.ts
   test -f prisma/schema.prisma
   test -f prisma/migrations/migration_lock.toml
+  test -f scripts/check/check-prisma-deploy-status.js
 
   rm -rf .next/standalone/prisma .next/standalone/prisma.config.ts
   mkdir -p .next/standalone/prisma
@@ -161,6 +162,8 @@ copy_prisma_deploy_files() {
   cp -R prisma/models .next/standalone/prisma/models
   cp -R prisma/migrations .next/standalone/prisma/migrations
   cp prisma.config.ts .next/standalone/prisma.config.ts
+  mkdir -p .next/standalone/scripts/check
+  cp scripts/check/check-prisma-deploy-status.js .next/standalone/scripts/check/check-prisma-deploy-status.js
 
   rm -rf .next/standalone/node_modules/prisma .next/standalone/node_modules/@prisma
   mkdir -p .next/standalone/node_modules
@@ -204,6 +207,7 @@ NODE
   test -f .next/standalone/prisma/schema.prisma
   test -f .next/standalone/prisma/migrations/migration_lock.toml
   test -f .next/standalone/prisma.config.ts
+  test -f .next/standalone/scripts/check/check-prisma-deploy-status.js
   test -f .next/standalone/node_modules/prisma/build/index.js
   test -f .next/standalone/node_modules/effect/package.json
 }
@@ -221,14 +225,8 @@ run_local_checks() {
   npm ci --no-audit --fund=false --loglevel=error
 
   echo "==> 运行静态检查..."
-  npm run arch:gate
-  npm run api:check
+  npm run deploy:preflight:ci
   npm run docs:check
-  npm run db:validate
-  npm run schema:check
-  npm run company:check
-  npm run lint -- --max-warnings=0
-  npx tsc --noEmit
 }
 
 ensure_build_deps() {
@@ -475,6 +473,7 @@ deploy_remote_artifact() {
     grep -q '^DATABASE_URL=' \"\$release_dir/.env\"
     test -f \"\$release_dir/prisma/schema.prisma\"
     test -f \"\$release_dir/prisma/migrations/migration_lock.toml\"
+    test -f \"\$release_dir/scripts/check/check-prisma-deploy-status.js\"
     test -f \"\$release_dir/node_modules/prisma/build/index.js\"
     test -f \"\$release_dir/resource-defs.json\"
     test -f \"\$release_dir/seed-resources-runtime.js\"
@@ -484,8 +483,11 @@ deploy_remote_artifact() {
     . \"\$release_dir/.env\"
     set +a
     export NODE_ENV=production
+    echo '==> 检查 Prisma migration 状态...'
+    node \"\$release_dir/scripts/check/check-prisma-deploy-status.js\" --migrations-dir \"\$release_dir/prisma/migrations\" --allow-pending
     echo '==> 执行 Prisma 数据库迁移...'
     node \"\$release_dir/node_modules/prisma/build/index.js\" migrate deploy --schema=\"\$release_dir/prisma\"
+    node \"\$release_dir/scripts/check/check-prisma-deploy-status.js\" --migrations-dir \"\$release_dir/prisma/migrations\"
     echo '==> 同步 RBAC resource registry...'
     node \"\$release_dir/seed-resources-runtime.js\" \"\$release_dir/resource-defs.json\"
 

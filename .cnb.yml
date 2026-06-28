@@ -23,11 +23,7 @@ cnb-release:
               echo "==> 跳过部署前校验（RUN_LOCAL_CHECKS=0）"
               exit 0
             fi
-            npm run db:validate
-            npm run api:check
-            npm run schema:check
-            npm run company:check
-            npx tsc --noEmit
+            npm run deploy:preflight:ci
         - name: deploy-to-server
           script: |
             bash ./ops/deploy.sh

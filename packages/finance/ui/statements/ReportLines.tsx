@@ -131,13 +131,12 @@ export function createReportLinesSurface({ items, labelHeader, amountHeader, exp
       item.isTotal ? "bg-slate-50 font-medium" :
       item.isHeader ? "font-medium text-gray-700" : "text-gray-600",
     expandedRowKeys: items.map((item, index) => item.code && expandedCodes.has(item.code) ? index : null).filter((key): key is number => key !== null),
-    expandedRowBlocks: (item) => {
+    expandedRowContent: (item) => {
       if (!item.code) return [];
       const detailRows = details[item.code];
-      const content = loadingDetail === item.code
+      return loadingDetail === item.code
         ? <p className="py-2 text-xs text-gray-400">加载明细...</p>
         : detailRows?.length ? <DetailRows rows={detailRows} /> : <p className="py-2 text-xs text-gray-400">无明细数据</p>;
-      return [{ kind: "block", key: `details-${item.code}`, surface: { kind: "content", content } }];
     },
   };
 }

@@ -6,7 +6,6 @@ import Badge from "./Badge";
 import { EmptyStateCard, MetricCard } from "./Card";
 import DataTable from "./DataTable";
 import type { DataTableColumn } from "./DataTable.types";
-import { PageSurfaceBlockStack } from "./PageSurface.blocks";
 import DisclosureRecordCard from "./DisclosureRecordCard";
 import NumberCell from "./NumberCell";
 import SelectionGrid from "./SelectionGrid";
@@ -179,8 +178,8 @@ function renderTable<T>(props: DataSurfaceTableProps<T>) {
           tableClassName={props.tableClassName}
           expandedRowKey={props.expandedRowKey}
           expandedRowKeys={props.expandedRowKeys}
-          renderExpandedRow={props.expandedRowBlocks
-            ? (row) => <PageSurfaceBlockStack blocks={props.expandedRowBlocks?.(row) ?? []} />
+          renderExpandedRow={props.expandedRowContent
+            ? (row) => props.expandedRowContent?.(row)
             : undefined}
           rowActions={props.rowActions}
           rowEditActions={props.rowEditActions}

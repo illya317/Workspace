@@ -207,11 +207,7 @@ function PhaseRows({
         rowKey: (phase) => phase.id,
         visibleColumns: ["startDate", "endDate", "note"],
         expandedRowKey: editingId,
-        expandedRowBlocks: (phase) => [{
-          kind: "block",
-          key: `project-phase-detail-${phase.id}`,
-          surface: { kind: "content", content: <PhaseFields draft={editDraft} disabled={disabled} onChange={onEditDraftChange} /> },
-        }],
+        expandedRowContent: () => <PhaseFields draft={editDraft} disabled={disabled} onChange={onEditDraftChange} />,
         rowEditActions: canEdit ? (phase): SurfaceDataRowEditActionSpec<ProjectPlanPhaseItem> => ({
           editing: editingId === phase.id,
           canEdit,

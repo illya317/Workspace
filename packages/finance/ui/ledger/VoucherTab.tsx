@@ -193,11 +193,7 @@ export default function VoucherTab({
                   onRowClick: (v: Voucher) =>
                     setExpandedVoucherId((prev) => (prev === v.id ? null : v.id)),
                   expandedRowKey: expandedVoucherId,
-                  expandedRowBlocks: (v: Voucher) => [{
-                    kind: "block",
-                    key: `voucher-items-${v.id}`,
-                    surface: { kind: "content", content: <VoucherItemsPreview voucher={v} columns={itemColumns} /> },
-                  }],
+                  expandedRowContent: (v: Voucher) => <VoucherItemsPreview voucher={v} columns={itemColumns} />,
                 },
               },
               createBlockSurfaceBlock("voucher-adjust-modal", {

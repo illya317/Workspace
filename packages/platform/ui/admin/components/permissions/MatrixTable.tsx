@@ -97,11 +97,7 @@ export function createPermissionMatrixBlock({
       visibleColumns: columns.map(column => column.key),
       rowKey: subject => subject.id,
       expandedRowKeys: s.expandedRows,
-      expandedRowBlocks: subject => [{
-        kind: "block",
-        key: `permission-details-${subject.id}`,
-        surface: { kind: "content", content: <PermissionDetails subject={subject} s={s} /> },
-      }],
+      expandedRowContent: subject => <PermissionDetails subject={subject} s={s} />,
     },
   };
 }
