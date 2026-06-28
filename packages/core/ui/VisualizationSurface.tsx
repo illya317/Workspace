@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import { PanelCard } from "./Card";
 import { joinClassNames } from "./card-utils";
 import { renderVisual } from "./DataSurface.visual";
+import VisualizationGantt from "./VisualizationGantt";
+import type { VisualizationGanttSpec } from "./VisualizationGanttTypes";
 
 export type VisualizationSurfaceKind = "chart" | "gantt";
 export type VisualizationTone = "blue" | "emerald" | "amber" | "rose" | "slate";
@@ -123,7 +125,7 @@ export interface VisualizationSurfaceChartProps extends VisualizationSurfaceBase
 
 export interface VisualizationSurfaceGanttProps extends VisualizationSurfaceBaseProps {
   kind: "gantt";
-  content: ReactNode;
+  gantt: VisualizationGanttSpec;
   empty?: ReactNode;
 }
 
@@ -133,7 +135,7 @@ export type VisualizationSurfaceProps =
 
 function renderVisualization(props: VisualizationSurfaceProps) {
   if (props.kind === "chart") return renderVisual(props.visual);
-  return props.content ?? props.empty ?? null;
+  return props.gantt.rows.length > 0 ? <VisualizationGantt spec={props.gantt} /> : props.empty ?? <VisualizationGantt spec={props.gantt} />;
 }
 
 export default function VisualizationSurface(props: VisualizationSurfaceProps) {

@@ -59,6 +59,16 @@ export type {
   VisualizationTreeSpec,
 } from "./VisualizationSurface";
 export type {
+  VisualizationGanttBarTone,
+  VisualizationGanttDependencySpec,
+  VisualizationGanttMilestoneSpec,
+  VisualizationGanttRowKind,
+  VisualizationGanttRowSpec,
+  VisualizationGanttSegmentSpec,
+  VisualizationGanttSpec,
+  VisualizationGanttZoom,
+} from "./VisualizationGanttTypes";
+export type {
   ReferenceOption,
   SurfaceColumnOptionSpec,
   SurfaceDataRowEditActionSpec,

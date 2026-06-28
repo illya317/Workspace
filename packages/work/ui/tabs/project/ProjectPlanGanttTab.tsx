@@ -2,16 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { PageSurface, createPageBody, createPageDataBlock, useFeedback } from "@workspace/core/ui";
-import type { PageSurfaceBlockSpec, PageSurfaceProps, SurfaceToolbarItems } from "@workspace/core/ui";
+import type { PageSurfaceBlockSpec, PageSurfaceProps, SurfaceToolbarItems, VisualizationGanttDependencySpec, VisualizationGanttRowSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { ProjectItem } from "./model";
 import { listProjectOptions, listProjectPlanGantt, saveProjectPlanDependencies, saveProjectPlanGantt } from "./api";
-import ProjectPlanGanttTimeline from "./ProjectPlanGanttTimeline";
 import type { ProjectGanttZoom } from "./gantt-model";
 import { PROJECT_GANTT_ZOOM_OPTIONS } from "./gantt-model";
 import { periodStart as getPeriodStart, shiftPeriod } from "./gantt-time";
-import { hasPlanGanttChanges, planDependenciesForSave, planGanttItemsForSave } from "./plan-gantt-schedule";
+import { hasPlanGanttChanges, itemKey, planDependenciesForSave, planGanttItemsForSave } from "./plan-gantt-schedule";
 import type { ProjectPlanDependency, ProjectPlanGanttData, ProjectPlanItem } from "./plan-gantt-model";
+import { buildTimelineRows } from "./plan-gantt-timeline-model";
 export default function ProjectPlanGanttTab({
   requestedProjectId,
   surface,
@@ -179,7 +179,15 @@ export default function ProjectPlanGanttTab({
           kind: "gantt" as const,
           title: "项目甘特",
           framed: true,
-          content: <ProjectPlanGanttTimeline items={items} phases={data.phases} dependencies={dependencies} periodStart={currentStart} zoom={zoom} />,
+          gantt: {
+            kind: "gantt",
+            rows: buildTimelineRows(items, data.phases).map(toVisualizationGanttRow),
+            dependencies: dependencies.map(toVisualizationGanttDependency),
+            periodStart: currentStart,
+            zoom,
+            leftHeader: "项目 / 任务",
+            emptyText: "暂无计划节点",
+          },
         },
       };
   const blocks = [timelineBlock] satisfies PageSurfaceBlockSpec[];
@@ -191,4 +199,27 @@ function periodLabel(start: Date, zoom: ProjectGanttZoom) {
   if (zoom === "year") return `${start.getFullYear()}年`;
   if (zoom === "quarter") return `${start.getFullYear()}年 Q${Math.floor(start.getMonth() / 3) + 1}`;
   return `${start.getFullYear()}年 ${start.getMonth() + 1}月`;
+}
+
+function toVisualizationGanttRow(row: ReturnType<typeof buildTimelineRows>[number]): VisualizationGanttRowSpec {
+  return {
+    key: row.key,
+    label: row.name,
+    kind: row.kind,
+    depth: row.depth,
+    ownerNames: row.ownerNames,
+    startDate: row.startDate,
+    endDate: row.endDate,
+    baselineStartDate: row.baselineStartDate,
+    baselineEndDate: row.baselineEndDate,
+    isMilestone: row.isMilestone,
+  };
+}
+
+function toVisualizationGanttDependency(dependency: ProjectPlanDependency): VisualizationGanttDependencySpec {
+  return {
+    key: `${dependency.predecessorKind}:${dependency.predecessorId}-${dependency.successorKind}:${dependency.successorId}`,
+    fromKey: itemKey({ kind: dependency.predecessorKind, id: dependency.predecessorId }),
+    toKey: itemKey({ kind: dependency.successorKind, id: dependency.successorId }),
+  };
 }

@@ -156,7 +156,7 @@ export const page_api_registry_entries = [
         description: "可视化类型：chart / gantt。",
         children: [
           { name: "chart", description: "轻量图表，使用 visual 声明。" },
-          { name: "gantt", description: "甘特图等复杂图形，使用专用组件正文。" },
+          { name: "gantt", description: "甘特图，使用 gantt typed spec 声明。" },
         ],
       },
       {
@@ -169,11 +169,27 @@ export const page_api_registry_entries = [
           { name: "tree", description: "树形层级可视化。" },
         ],
       },
-      { name: "content", description: "甘特图等复杂图形正文，由专用业务组件渲染。" },
+      { name: "gantt", description: "甘特图 typed spec：rows / periodStart / zoom / dependencies / onToggle。" },
       { name: "framed", description: "是否使用通用面板外框。" },
       { name: "title", description: "可视化标题。" },
     ],
-    composes: ["PanelCard"],
+    composes: ["PanelCard", "VisualizationGantt"],
+  },
+  {
+    name: "VisualizationGantt",
+    category: "visualization",
+    subcategory: "visualization.surface",
+    role: "internal",
+    description: "VisualizationSurface 甘特图 typed spec renderer。",
+    composes: ["VisualizationGanttUtils"],
+  },
+  {
+    name: "VisualizationGanttUtils",
+    category: "visualization",
+    subcategory: "visualization.surface",
+    role: "internal",
+    description: "VisualizationSurface 甘特图时间刻度与定位算法。",
+    composes: [],
   },
   {
     name: "SelectionGrid",

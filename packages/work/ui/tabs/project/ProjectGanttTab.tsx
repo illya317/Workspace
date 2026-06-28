@@ -2,11 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PageSurface, createPageBody, createPageDataBlock } from "@workspace/core/ui";
-import type { PageSurfaceBlockSpec, PageSurfaceProps, SurfaceToolbarItems } from "@workspace/core/ui";
+import type { PageSurfaceBlockSpec, PageSurfaceProps, SurfaceToolbarItems, VisualizationGanttRowSpec } from "@workspace/core/ui";
 import type { WorkUser } from "@workspace/work/types";
 import { listProjectGantt } from "./api";
-import ProjectGanttChart from "./ProjectGanttChart";
-import { PROJECT_GANTT_LEVEL_OPTIONS, PROJECT_GANTT_TASK_OPTIONS, PROJECT_GANTT_ZOOM_OPTIONS, buildProjectGanttRows, defaultGanttExpandedKeys, type ProjectGanttData, type ProjectGanttLevelFilter, type ProjectGanttZoom } from "./gantt-model";
+import { PROJECT_GANTT_LEVEL_OPTIONS, PROJECT_GANTT_TASK_OPTIONS, PROJECT_GANTT_ZOOM_OPTIONS, buildProjectGanttRows, defaultGanttExpandedKeys, type GanttRow, type ProjectGanttData, type ProjectGanttLevelFilter, type ProjectGanttZoom } from "./gantt-model";
 import { periodStart as getPeriodStart, shiftPeriod } from "./gantt-time";
 export default function ProjectGanttTab({
   user,
@@ -126,7 +125,15 @@ export default function ProjectGanttTab({
         kind: "gantt" as const,
         title: "公司甘特",
         framed: true,
-        content: <ProjectGanttChart rows={rows} periodStart={currentStart} zoom={zoom} onToggle={toggleExpanded} />,
+        gantt: {
+          kind: "gantt",
+          rows: rows.map(toVisualizationGanttRow),
+          periodStart: currentStart,
+          zoom,
+          leftHeader: "项目 / 任务",
+          emptyText: "暂无匹配项目",
+          onToggle: toggleExpanded,
+        },
       },
     },
   ] satisfies PageSurfaceBlockSpec[];
@@ -139,4 +146,39 @@ function periodLabel(start: Date, zoom: ProjectGanttZoom) {
   if (zoom === "year") return `${start.getFullYear()}年`;
   if (zoom === "quarter") return `${start.getFullYear()}年 Q${Math.floor(start.getMonth() / 3) + 1}`;
   return `${start.getFullYear()}年 ${start.getMonth() + 1}月`;
+}
+
+function toVisualizationGanttRow(row: GanttRow): VisualizationGanttRowSpec {
+  return {
+    key: row.key,
+    label: row.name,
+    kind: row.kind,
+    depth: row.depth,
+    hasChildren: row.hasChildren,
+    expanded: row.expanded,
+    ownerNames: row.ownerNames,
+    startDate: row.startDate,
+    endDate: row.endDate,
+    aggregateStartDate: row.aggregateStart,
+    aggregateEndDate: row.aggregateEnd,
+    baselineStartDate: row.baselineStartDate,
+    baselineEndDate: row.baselineEndDate,
+    isMilestone: row.isMilestone,
+    milestones: row.milestoneEvents.map((event) => ({ key: event.key, label: event.name, date: event.date })),
+    segments: row.kind === "project"
+      ? row.stages.map((stage) => ({
+        key: `stage:${stage.id}`,
+        label: [stage.stage, stage.note].filter(Boolean).join(" · "),
+        startDate: stage.startDate,
+        endDate: stage.endDate,
+        tone: stageTone(stage.stage),
+      }))
+      : undefined,
+  };
+}
+
+function stageTone(stage: string) {
+  if (stage === "规划中") return "emerald";
+  if (stage === "暂停" || stage === "已终止") return "delayed";
+  return "onTrack";
 }

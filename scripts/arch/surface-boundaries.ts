@@ -191,7 +191,7 @@ const SURFACE_DECLARE_RULES: Record<string, {
     deprecatedPaths: ["body.content"],
   },
   VisualizationSurface: {
-    topLevel: ["kind", "visual", "content", "framed", "title", "subtitle"],
+    topLevel: ["kind", "visual", "gantt", "framed", "title", "subtitle"],
   },
 };
 
