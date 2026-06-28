@@ -204,6 +204,7 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
           key: "table",
           surface: {
             kind: "structured",
+            presentation: { density: "compact", grid: "cells", header: "tinted", stripe: "subtle", cellWrap: "nowrap" },
             rows: buildRosterGeneratedRows({
               columns: visibleTableColumns,
               groups,
@@ -211,9 +212,8 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
               onEmployeeCellChange: updateEmployeeCell,
               onRowCellChange: updateRowCell,
             }),
-            className: "min-w-full border-collapse text-sm",
-            cellClassName: "min-w-28 border-b border-r border-slate-200 px-3 py-2 align-top text-slate-700 last:border-r-0",
-            headerCellClassName: "whitespace-nowrap border-b border-r border-slate-200 bg-slate-50 px-3 py-2 text-left text-xs font-semibold text-slate-500 last:border-r-0",
+            cellClassName: "min-w-28 align-top",
+            headerCellClassName: "min-w-28 text-left",
           },
         }];
 
@@ -265,7 +265,6 @@ function buildRosterGeneratedRows({
         return [{
           rowSpan: isEmployeeCell ? group.rows.length : undefined,
           className: [
-            rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50/50",
             isEmployeeCell ? "align-middle font-medium text-slate-800" : "",
           ].filter(Boolean).join(" "),
           content: rosterGeneratedCell(value, editMode, (next) => {

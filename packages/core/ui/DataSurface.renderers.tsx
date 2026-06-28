@@ -189,6 +189,7 @@ function renderTable<T>(props: DataSurfaceTableProps<T>) {
           columns={normalizeColumns(props.columns)}
           rowKey={props.rowKey}
           visibleColumns={props.visibleColumns}
+          presentation={props.presentation}
           density={props.density}
           loading={props.loading}
           emptyText={props.emptyText}
@@ -219,6 +220,7 @@ export function renderData<T>(props: DataSurfaceProps<T>) {
         cellClassName={props.cellClassName}
         headerCellClassName={props.headerCellClassName}
         bodyClassName={props.bodyClassName}
+        presentation={props.presentation}
       />
     );
     return props.structuredScroll === false ? table : <TableScrollFrame>{table}</TableScrollFrame>;

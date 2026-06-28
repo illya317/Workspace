@@ -134,7 +134,7 @@ export default function EditableTable({
             columns,
             visibleColumns,
             rowKey: (item) => String(item.id),
-            density: "compact",
+            presentation: { density: "compact" },
             loading,
             emptyText,
             tableClassName: "w-full text-xs",

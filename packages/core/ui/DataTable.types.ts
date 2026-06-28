@@ -52,11 +52,21 @@ export interface DataTableActionsColumnConfig {
   centered?: boolean;
 }
 
+export interface DataTablePresentation {
+  density?: "normal" | "compact";
+  grid?: "rows" | "cells" | "none";
+  header?: "tinted" | "plain" | "strong";
+  rowHover?: "none" | "neutral" | "interactive";
+  stripe?: "none" | "subtle";
+  cellWrap?: "nowrap" | "wrap";
+}
+
 export interface DataTableProps<T> {
   rows: T[];
   columns: DataTableColumn<T>[];
   /** 可见列 key 列表。未提供时自动使用 required / defaultVisible 列。 */
   visibleColumns?: string[];
+  presentation?: DataTablePresentation;
   density?: "normal" | "compact";
   loading?: boolean;
   emptyText?: string;

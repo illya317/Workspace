@@ -6,12 +6,14 @@ import type { ActionGlyphKind } from "./ActionGlyphs";
 import { createDataTableEditActions } from "./DataTableActions";
 import type { DataTableActionKind, DataTableColumn, DataTableProps, DataTableRowAction } from "./DataTable.types";
 import { FieldContextProvider } from "./field-context";
+import { resolveTablePresentation } from "./table-presentation";
 
 export type {
   ColumnDef,
   DataTableActionKind,
   DataTableActionsColumnConfig,
   DataTableColumn,
+  DataTablePresentation,
   DataTableProps,
   DataTableRowAction,
   DataTableRowEditActionConfig,
@@ -30,15 +32,15 @@ function getDefaultVisibleColumns<T>(
 }
 
 export const dataTableClassNames = {
-  table: "min-w-full text-left text-sm",
-  head: "border-b border-slate-200 bg-slate-50 text-slate-500",
-  body: "divide-y divide-slate-100 text-slate-800",
-  row: "transition hover:bg-slate-50/60",
-  clickableRow: "cursor-pointer transition hover:bg-emerald-50/60",
-  headerCell: "whitespace-nowrap px-4 py-3 font-medium",
-  compactHeaderCell: "whitespace-nowrap px-4 py-2.5 font-medium",
-  cell: "whitespace-nowrap px-4 py-3",
-  compactCell: "whitespace-nowrap px-4 py-2.5",
+  table: resolveTablePresentation().table,
+  head: resolveTablePresentation().head,
+  body: resolveTablePresentation().body,
+  row: resolveTablePresentation(undefined, "normal", { rowHover: "neutral" }).row,
+  clickableRow: resolveTablePresentation(undefined, "normal", { rowHover: "interactive" }).row,
+  headerCell: resolveTablePresentation().headerCell,
+  compactHeaderCell: resolveTablePresentation({ density: "compact" }).headerCell,
+  cell: resolveTablePresentation().cell,
+  compactCell: resolveTablePresentation({ density: "compact" }).cell,
 };
 
 const ACTION_KIND_MAP: Record<DataTableActionKind, ActionGlyphKind> = {
@@ -106,6 +108,7 @@ export default function DataTable<T>({
   rows,
   columns,
   visibleColumns,
+  presentation,
   density = "normal",
   loading,
   emptyText,
@@ -156,28 +159,33 @@ export default function DataTable<T>({
     return <p className="p-8 text-center text-gray-500">加载中...</p>;
   }
 
-  const headerPadding = density === "compact" ? "px-4 py-2.5" : "px-4 py-3";
-  const cellPadding = density === "compact" ? "px-4 py-2.5" : "px-4 py-3";
-  const fieldContext = density === "compact"
+  const tablePresentation = resolveTablePresentation(
+    {
+      ...presentation,
+      rowHover: presentation?.rowHover ?? (onRowClick ? "interactive" : "neutral"),
+    },
+    density,
+  );
+  const fieldContext = tablePresentation.density === "compact"
     ? { size: "sm" as const, density: "compact" as const }
     : { size: "md" as const, density: "normal" as const };
 
   return (
-    <table className={`${dataTableClassNames.table} ${tableClassName ?? ""}`}>
-      <thead className={dataTableClassNames.head}>
+    <table className={`${tablePresentation.table} ${tableClassName ?? ""}`}>
+      <thead className={tablePresentation.head}>
         <tr>
           {visible.map((col) => (
             <th
               key={col.key}
               onClick={col.onHeaderClick}
-              className={`whitespace-nowrap ${headerPadding} font-medium ${col.onHeaderClick ? "cursor-pointer select-none" : ""} ${col.headerClassName ?? ""}`}
+              className={`${tablePresentation.headerCell} ${col.onHeaderClick ? "cursor-pointer select-none" : ""} ${col.headerClassName ?? ""}`}
             >
               {col.label}
             </th>
           ))}
         </tr>
       </thead>
-      <tbody className={dataTableClassNames.body}>
+      <tbody className={tablePresentation.body}>
         {rows.map((row, index) => {
           const key = rowKey(row, index);
           const isExpanded =
@@ -188,13 +196,13 @@ export default function DataTable<T>({
           return (
             <Fragment key={key}>
               <tr
-                className={`${onRowClick ? dataTableClassNames.clickableRow : dataTableClassNames.row} ${rowClassName?.(row) ?? ""}`}
+                className={`${tablePresentation.getRowClassName(index)} ${rowClassName?.(row) ?? ""}`}
                 onClick={() => onRowClick?.(row)}
               >
                 {visible.map((col) => (
                   <td
                     key={col.key}
-                    className={`whitespace-nowrap ${cellPadding} ${col.className ?? ""} ${col.cellClassName ?? ""}`}
+                    className={`${tablePresentation.cell} ${col.className ?? ""} ${col.cellClassName ?? ""}`}
                   >
                     <FieldContextProvider value={fieldContext}>
                       {col.render(row)}
@@ -203,8 +211,8 @@ export default function DataTable<T>({
                 ))}
               </tr>
               {isExpanded && renderExpandedRow && (
-                <tr className="bg-slate-50">
-                  <td colSpan={visible.length} className="px-4 py-3">
+                <tr className={tablePresentation.expandedRow}>
+                  <td colSpan={visible.length} className={tablePresentation.cell}>
                     {renderExpandedRow(row)}
                   </td>
                 </tr>
@@ -216,7 +224,7 @@ export default function DataTable<T>({
           <tr>
             <td
               colSpan={visible.length || 1}
-              className="px-4 py-12 text-center text-slate-400"
+              className={tablePresentation.emptyCell}
             >
               {emptyText ?? "暂无数据"}
             </td>

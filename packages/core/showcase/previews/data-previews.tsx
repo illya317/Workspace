@@ -23,24 +23,39 @@ function CodeBlockPreview() {
 
 function DataTablePreview() {
   return (
-    <DataTable
-      rows={[
-        { id: 1, name: "合同 A", status: "已生效", amount: 125000 },
-        { id: 2, name: "合同 B", status: "待审核", amount: 48000 },
-        { id: 3, name: "合同 C", status: "已归档", amount: 0 },
-      ]}
-      columns={[
-        { key: "name", label: "名称", required: true, render: (row) => row.name },
-        { key: "status", label: "状态", defaultVisible: true, render: (row) => <Badge label={row.status} tone={row.status === "已生效" ? "green" : row.status === "待审核" ? "yellow" : "gray"} /> },
-        { key: "amount", label: "金额", defaultVisible: true, render: (row) => <AmountCell value={row.amount} /> },
-      ]}
-      rowActions={() => [
-        { key: "view", kind: "view", label: "查看", onClick: () => {} },
-        { key: "edit", kind: "edit", label: "编辑", onClick: () => {} },
-      ]}
-      rowKey={(row) => row.id}
-      tableClassName="w-full"
-    />
+    <div className="space-y-4">
+      <DataTable
+        rows={[
+          { id: 1, name: "合同 A", status: "已生效", amount: 125000 },
+          { id: 2, name: "合同 B", status: "待审核", amount: 48000 },
+          { id: 3, name: "合同 C", status: "已归档", amount: 0 },
+        ]}
+        columns={[
+          { key: "name", label: "名称", required: true, render: (row) => row.name },
+          { key: "status", label: "状态", defaultVisible: true, render: (row) => <Badge label={row.status} tone={row.status === "已生效" ? "green" : row.status === "待审核" ? "yellow" : "gray"} /> },
+          { key: "amount", label: "金额", defaultVisible: true, render: (row) => <AmountCell value={row.amount} /> },
+        ]}
+        rowActions={() => [
+          { key: "view", kind: "view", label: "查看", onClick: () => {} },
+          { key: "edit", kind: "edit", label: "编辑", onClick: () => {} },
+        ]}
+        rowKey={(row) => row.id}
+        tableClassName="w-full"
+      />
+      <DataTable
+        presentation={{ density: "compact", grid: "rows", header: "plain", rowHover: "neutral" }}
+        rows={[
+          { id: 1, item: "字段 A", value: "已配置" },
+          { id: 2, item: "字段 B", value: "待维护" },
+        ]}
+        columns={[
+          { key: "item", label: "项目", required: true, render: (row) => row.item },
+          { key: "value", label: "值", required: true, render: (row) => row.value },
+        ]}
+        rowKey={(row) => row.id}
+        tableClassName="w-full"
+      />
+    </div>
   );
 }
 
@@ -124,36 +139,48 @@ function DisclosureRecordCardPreview() {
 
 function StructuredTablePreview() {
   return (
-    <TableScrollFrame className="rounded-lg border border-slate-200">
-      <StructuredTable
-        className="w-full text-sm"
-        cellClassName="border border-slate-200 px-3 py-2 text-slate-700"
-        headerCellClassName="border border-slate-200 bg-slate-50 px-3 py-2 font-semibold text-slate-800"
-        colWidths={[120, 120, 160, 120]}
-        rows={[
-          [
-            { content: "项目", header: true, rowSpan: 2 },
-            { content: "阶段", header: true, rowSpan: 2 },
-            { content: "2026 H1", header: true, colSpan: 2 },
-          ],
-          [
-            { content: "预算", header: true },
-            { content: "实际", header: true },
-          ],
-          [
-            { content: "生产中心", rowSpan: 2 },
-            { content: "Q1" },
-            { content: "¥120,000" },
-            { content: "¥98,000" },
-          ],
-          [
-            { content: "Q2" },
-            { content: "¥150,000" },
-            { content: "¥142,000" },
-          ],
-        ]}
-      />
-    </TableScrollFrame>
+    <div className="space-y-4">
+      <TableScrollFrame className="rounded-lg border border-slate-200">
+        <StructuredTable
+          presentation={{ density: "compact", grid: "cells", header: "tinted", stripe: "subtle" }}
+          className="w-full"
+          colWidths={[120, 120, 160, 120]}
+          rows={[
+            [
+              { content: "项目", header: true, rowSpan: 2 },
+              { content: "阶段", header: true, rowSpan: 2 },
+              { content: "2026 H1", header: true, colSpan: 2 },
+            ],
+            [
+              { content: "预算", header: true },
+              { content: "实际", header: true },
+            ],
+            [
+              { content: "生产中心", rowSpan: 2 },
+              { content: "Q1" },
+              { content: "¥120,000" },
+              { content: "¥98,000" },
+            ],
+            [
+              { content: "Q2" },
+              { content: "¥150,000" },
+              { content: "¥142,000" },
+            ],
+          ]}
+        />
+      </TableScrollFrame>
+      <TableScrollFrame className="rounded-lg border border-slate-200">
+        <StructuredTable
+          presentation={{ density: "compact", grid: "none", header: "plain" }}
+          className="w-full"
+          rows={[
+            [{ content: "项目", header: true }, { content: "状态", header: true }],
+            [{ content: "资料归档" }, { content: "完成" }],
+            [{ content: "合同检查" }, { content: "进行中" }],
+          ]}
+        />
+      </TableScrollFrame>
+    </div>
   );
 }
 

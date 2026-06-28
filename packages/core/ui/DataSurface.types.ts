@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { AmountCellProps } from "./AmountCell";
 import type { BadgeProps } from "./Badge";
-import type { DataTableColumn, DataTableProps } from "./DataTable.types";
+import type { DataTableColumn, DataTablePresentation, DataTableProps } from "./DataTable.types";
 import type { DisclosureRecordAction } from "./DisclosureRecordCard";
 import type { NumberCellProps } from "./NumberCell";
 import type { SelectionGridProps } from "./SelectionGrid";
@@ -208,11 +208,12 @@ interface DataSurfaceBaseProps {
   empty?: ReactNode;
   framed?: boolean;
   wrap?: boolean;
+  presentation?: DataTablePresentation;
   className?: string;
   bodyClassName?: string;
 }
 
-export interface DataSurfaceTableProps<T> extends DataSurfaceBaseProps, Omit<DataTableProps<T>, "rows" | "columns" | "rowKey"> {
+export interface DataSurfaceTableProps<T> extends DataSurfaceBaseProps, Omit<DataTableProps<T>, "rows" | "columns" | "rowKey" | "presentation"> {
   kind: "table";
   rows: T[];
   columns: Array<DataTableColumn<T> | DataSurfaceColumnSpec<T>>;
@@ -220,7 +221,7 @@ export interface DataSurfaceTableProps<T> extends DataSurfaceBaseProps, Omit<Dat
   scrollClassName?: string;
 }
 
-export interface DataSurfaceStructuredProps extends DataSurfaceBaseProps, Omit<StructuredTableProps, "rows"> {
+export interface DataSurfaceStructuredProps extends DataSurfaceBaseProps, Omit<StructuredTableProps, "rows" | "presentation"> {
   kind: "structured";
   rows: DataSurfaceStructuredCellSpec[][];
   structuredScroll?: boolean;

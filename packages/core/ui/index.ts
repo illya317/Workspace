@@ -76,7 +76,7 @@ export {
 } from "./overlay-events";
 export type { FloatingOverlayOpenDetail } from "./overlay-events";
 export { default as DataTable, dataTableClassNames } from "./DataTable";
-export type { ColumnDef, DataTableActionKind, DataTableActionsColumnConfig, DataTableColumn, DataTableProps, DataTableRowAction, DataTableRowEditActionConfig } from "./DataTable.types";
+export type { ColumnDef, DataTableActionKind, DataTableActionsColumnConfig, DataTableColumn, DataTablePresentation, DataTableProps, DataTableRowAction, DataTableRowEditActionConfig } from "./DataTable.types";
 export { default as FieldValueFilter } from "./FieldValueFilter";
 export type { FieldValueFilterField, FieldValueFilterProps, FieldValueFilterValueKind } from "./FieldValueFilter";
 export { default as FormField } from "./FormField";
