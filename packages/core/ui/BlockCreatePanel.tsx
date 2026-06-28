@@ -5,6 +5,8 @@ import { SectionCard } from "./BaseCards";
 import { CreateConfirmActions, CreateStartButton } from "./CreateActionControls";
 import { useCreatePanelAutoScroll } from "./useCreatePanelAutoScroll";
 
+export type BlockCreatePanelPresentation = "block" | "modal";
+
 export interface BlockCreatePanelProps {
   title: string;
   children: ReactNode;
@@ -17,6 +19,8 @@ export interface BlockCreatePanelProps {
   addLabel?: string;
   submitLabel?: string;
   cancelLabel?: string;
+  presentation?: BlockCreatePanelPresentation;
+  modalMaxWidth?: string;
   onStartCreate: () => void;
   onSubmitCreate: () => void;
   onCancelCreate: () => void;
@@ -38,6 +42,8 @@ export default function BlockCreatePanel({
   addLabel = "新增",
   submitLabel = "创建",
   cancelLabel = "取消",
+  presentation = "block",
+  modalMaxWidth,
   onStartCreate,
   onSubmitCreate,
   onCancelCreate,
@@ -47,12 +53,12 @@ export default function BlockCreatePanel({
   createClassName = "rounded-lg border border-slate-200 bg-white p-3",
 }: BlockCreatePanelProps) {
   const createRef = useCreatePanelAutoScroll<HTMLDivElement>(scrollOnCreate && creating);
-  return (
+  const renderCreateCard = (createMode: boolean) => (
     <SectionCard
       title={(
         <span className="inline-flex min-w-0 items-center gap-2 align-middle">
           <span className="truncate">{title}</span>
-          {canCreate && (
+          {canCreate && !createMode && (
             <CreateStartButton
               label={addLabel}
               active={creating}
@@ -60,7 +66,7 @@ export default function BlockCreatePanel({
               onClick={onStartCreate}
             />
           )}
-          {canCreate && creating && (
+          {canCreate && createMode && (
             <CreateConfirmActions
               onCancel={onCancelCreate}
               onSubmit={onSubmitCreate}
@@ -76,9 +82,24 @@ export default function BlockCreatePanel({
       bodyClassName={bodyClassName}
     >
       <div className="space-y-4">
-        {creating && <div ref={createRef} className={createClassName}>{createContent}</div>}
+        {createMode && <div ref={createRef} className={createClassName}>{createContent}</div>}
         {children}
       </div>
     </SectionCard>
   );
+
+  if (presentation === "modal" && creating) {
+    return (
+      <>
+        {renderCreateCard(false)}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className={`max-h-[80vh] w-full ${modalMaxWidth ?? "max-w-2xl"} overflow-auto`}>
+            {renderCreateCard(true)}
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  return renderCreateCard(creating);
 }

@@ -73,8 +73,6 @@ const OWNERSHIP_BY_NAME = {
   FieldControl: { subcategory: "form.input-adapter" },
   InlineCreatePanel: { subcategory: "form.create" },
   BlockCreatePanel: { subcategory: "form.create" },
-  ModalCreatePanel: { subcategory: "form.create" },
-  DetailCreatePanel: { subcategory: "form.create" },
   CreatePanel: { subcategory: "form.create" },
 
   NavigationSurface: { subcategory: "common.chrome" },
@@ -170,7 +168,7 @@ const EXPOSURE_BY_NAME = {
   NavigationSurface: { exposure: { mode: "via", entry: "PageSurface", path: "navigation" } },
 
   SelectorPanel: { exposure: { mode: "direct" } }, SelectorList: { exposure: { mode: "via", entry: "SelectorPanel", path: "mode=list" } }, SelectorTree: { exposure: { mode: "via", entry: "SelectorPanel", path: "mode=tree" } }, SelectorCard: { exposure: { mode: "via", entry: "SelectorPanel", path: "mode=list|tree item renderer" } }, SelectionGrid: { exposure: { mode: "via", entry: "SelectorPanel", path: "mode=grid" } },
-  CreatePanel: { exposure: { mode: "direct" } }, InlineCreatePanel: { exposure: { mode: "via", entry: "CreatePanel", path: "variant=inline" } }, BlockCreatePanel: { exposure: { mode: "via", entry: "CreatePanel", path: "variant=block" } }, ModalCreatePanel: { exposure: { mode: "via", entry: "CreatePanel", path: "variant=modal" } }, DetailCreatePanel: { exposure: { mode: "via", entry: "CreatePanel", path: "variant=detail" } },
+  CreatePanel: { exposure: { mode: "direct" } }, InlineCreatePanel: { exposure: { mode: "via", entry: "CreatePanel", path: "variant=inline" } }, BlockCreatePanel: { exposure: { mode: "via", entry: "CreatePanel", path: "variant=block" } },
 } as const satisfies Record<string, CoreUiExposureOverride>;
 
 function defaultExposure(): CoreUiExposure {

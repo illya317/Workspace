@@ -48,10 +48,21 @@ export function useDepartmentPositionDrafts({
       : []);
   }, [selectedDepartment]);
 
-  const positionDirty = Boolean(draft && selectedPosition && normalizeDraftForCompare(draft) !== normalizePositionForCompare(selectedPosition));
-  const descriptionDirty = Boolean(descriptionDraft && selectedPosition && normalizeDescriptionForCompare(descriptionDraft) !== normalizePositionDescriptionForCompare(selectedPosition));
-  const departmentDirty = Boolean(departmentDraft && selectedDepartment && JSON.stringify(departmentDraftPayload(departmentDraft)) !== JSON.stringify(departmentDraftPayload(createDepartmentDraft(selectedDepartment))));
-  const departmentDescriptionDirty = Boolean(selectedDepartment && normalizeDepartmentDescriptionsForCompare(departmentDescriptionDrafts) !== normalizeDepartmentDescriptionSourceForCompare(selectedDepartment));
+  const draftMatchesSelection = selectedPosition ? draft?.id === selectedPosition.id : draft === null;
+  const departmentDraftMatchesSelection = selectedDepartment ? departmentDraft?.id === selectedDepartment.id : departmentDraft === null;
+  const effectiveDraft = draftMatchesSelection ? draft : selectedPosition ? createDraft(selectedPosition) : null;
+  const effectiveDescriptionDraft = draftMatchesSelection ? descriptionDraft : selectedPosition ? createDescriptionDraft(selectedPosition) : null;
+  const effectiveDepartmentDraft = departmentDraftMatchesSelection ? departmentDraft : selectedDepartment ? createDepartmentDraft(selectedDepartment) : null;
+  const effectiveDepartmentDescriptionDrafts = departmentDraftMatchesSelection
+    ? departmentDescriptionDrafts
+    : selectedDepartment
+      ? [createDepartmentDescriptionDraft(selectedDepartment, selectedDepartment.descriptions[0])]
+      : [];
+
+  const positionDirty = Boolean(effectiveDraft && selectedPosition && normalizeDraftForCompare(effectiveDraft) !== normalizePositionForCompare(selectedPosition));
+  const descriptionDirty = Boolean(effectiveDescriptionDraft && selectedPosition && normalizeDescriptionForCompare(effectiveDescriptionDraft) !== normalizePositionDescriptionForCompare(selectedPosition));
+  const departmentDirty = Boolean(effectiveDepartmentDraft && selectedDepartment && JSON.stringify(departmentDraftPayload(effectiveDepartmentDraft)) !== JSON.stringify(departmentDraftPayload(createDepartmentDraft(selectedDepartment))));
+  const departmentDescriptionDirty = Boolean(selectedDepartment && normalizeDepartmentDescriptionsForCompare(effectiveDepartmentDescriptionDrafts) !== normalizeDepartmentDescriptionSourceForCompare(selectedDepartment));
   const dirty = positionDirty || descriptionDirty;
 
   function updateDraft<K extends keyof PositionDraft>(key: K, value: PositionDraft[K]) {
@@ -94,13 +105,13 @@ export function useDepartmentPositionDrafts({
 
   return {
     departmentDescriptionDirty,
-    departmentDescriptionDrafts,
+    departmentDescriptionDrafts: effectiveDepartmentDescriptionDrafts,
     departmentDirty,
-    departmentDraft,
+    departmentDraft: effectiveDepartmentDraft,
     descriptionDirty,
-    descriptionDraft,
+    descriptionDraft: effectiveDescriptionDraft,
     dirty,
-    draft,
+    draft: effectiveDraft,
     positionDirty,
     updateDepartmentDescriptionDraft,
     updateDepartmentDraft,

@@ -1,8 +1,8 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { PageSurface } from "@workspace/core/ui";
-import type { PageSurfaceBlockSpec, ReferenceOption } from "@workspace/core/ui";
+import { CreatePanel, PageSurface } from "@workspace/core/ui";
+import type { FormSurfaceItemSpec, PageSurfaceBlockSpec, ReferenceOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import type { CreatePositionDraft, Department } from "./types";
 import { departmentPath } from "./utils";
@@ -35,28 +35,8 @@ export function buildPositionCreatePanelBlock({
   const departmentDisplayName = departmentPath(createPositionDepartment, departmentById);
   const readOnlyDepartmentName = createPositionDepartment?.name || departmentDisplayName;
 
-  return {
-    kind: "panel",
-    key: "create-position",
-    title: "新建岗位",
-    className,
-    actions: [
-      {
-        key: "submit",
-        label: saving ? "保存中..." : "保存",
-        variant: "primary",
-        disabled: !createPositionDraft.departmentId || !createPositionDraft.name.trim() || !createPositionCode || saving,
-        onClick: () => void onCreatePosition(),
-      },
-      { key: "cancel", label: "取消", disabled: saving, onClick: onCancel },
-    ],
-    blocks: [{
-      kind: "form",
-      key: "fields",
-      surface: {
-        kind: "fields",
-        columns: 3,
-        fields: [
+  const submitDisabled = !createPositionDraft.departmentId || !createPositionDraft.name.trim() || !createPositionCode || saving;
+  const fields: FormSurfaceItemSpec[] = [
           positionDepartmentReadOnly
             ? {
                 kind: "readonly",
@@ -99,9 +79,43 @@ export function buildPositionCreatePanelBlock({
             value: createPositionCode,
             fontRole: "mono",
           },
-        ],
-      },
-    }],
+        ];
+
+  return {
+    kind: "moduleView",
+    key: "create-position",
+    className,
+    view: (
+      <CreatePanel
+        variant="block"
+        title="新建岗位"
+        creating
+        canCreate
+        submitting={saving}
+        submitDisabled={submitDisabled}
+        submitLabel="保存"
+        onStartCreate={() => undefined}
+        onSubmit={() => void onCreatePosition()}
+        onCancel={onCancel}
+        createContent={(
+          <PageSurface
+            embedded
+            kind="detail"
+            blocks={[{
+              kind: "form",
+              key: "fields",
+              surface: {
+                kind: "fields",
+                columns: 3,
+                fields,
+              },
+            }]}
+          />
+        )}
+      >
+        {null}
+      </CreatePanel>
+    ),
   };
 }
 

@@ -2,11 +2,9 @@
 
 import type { ReactNode } from "react";
 import BlockCreatePanel from "./BlockCreatePanel";
-import DetailCreatePanel from "./DetailCreatePanel";
 import InlineCreatePanel from "./InlineCreatePanel";
-import ModalCreatePanel from "./ModalCreatePanel";
 
-export type CreatePanelVariant = "inline" | "block" | "modal" | "detail";
+export type CreatePanelVariant = "inline" | "block";
 
 interface CreatePanelBaseProps {
   variant: CreatePanelVariant;
@@ -35,52 +33,15 @@ export interface CreatePanelBlockProps extends CreatePanelBaseProps {
   createContent: ReactNode;
   disabled?: boolean;
   addLabel?: string;
+  presentation?: "block" | "modal";
+  modalMaxWidth?: string;
   bodyClassName?: string;
   createClassName?: string;
 }
 
-export interface CreatePanelModalProps extends CreatePanelBaseProps {
-  variant: "modal";
-  open: boolean;
-  maxWidth?: string;
-  bodyClassName?: string;
-}
-
-export interface CreatePanelDetailProps {
-  variant: "detail";
-  title: string;
-  createTitle?: string;
-  children: ReactNode;
-  createContent: ReactNode;
-  creating: boolean;
-  onStartCreate?: () => void;
-  onSubmit: () => void;
-  onCancel: () => void;
-  canCreate?: boolean;
-  addLabel?: string;
-  dirty?: boolean;
-  dirtyHint?: string;
-  onSave?: () => void;
-  canSave?: boolean;
-  saveLabel?: string;
-  onDelete?: () => void;
-  canDelete?: boolean;
-  deleteLabel?: string;
-  viewActions?: ReactNode;
-  submitDisabled?: boolean;
-  submitting?: boolean;
-  submitLabel?: string;
-  cancelLabel?: string;
-  scrollOnCreate?: boolean;
-  className?: string;
-  bodyClassName?: string;
-}
-
 export type CreatePanelProps =
   | CreatePanelInlineProps
-  | CreatePanelBlockProps
-  | CreatePanelModalProps
-  | CreatePanelDetailProps;
+  | CreatePanelBlockProps;
 
 export default function CreatePanel(props: CreatePanelProps) {
   const {
@@ -125,6 +86,8 @@ export default function CreatePanel(props: CreatePanelProps) {
       createContent,
       disabled,
       addLabel,
+      presentation,
+      modalMaxWidth,
       bodyClassName,
       createClassName,
     } = props as CreatePanelBlockProps;
@@ -134,6 +97,8 @@ export default function CreatePanel(props: CreatePanelProps) {
         creating={creating}
         canCreate={canCreate}
         disabled={disabled}
+        presentation={presentation}
+        modalMaxWidth={modalMaxWidth}
         onStartCreate={onStartCreate}
         onSubmitCreate={onSubmit}
         onCancelCreate={onCancel}
@@ -152,74 +117,4 @@ export default function CreatePanel(props: CreatePanelProps) {
       </BlockCreatePanel>
     );
   }
-
-  if (variant === "modal") {
-    const { open, maxWidth, bodyClassName } = props as CreatePanelModalProps;
-    return (
-      <ModalCreatePanel
-        open={open}
-        title={title}
-        onSubmit={onSubmit}
-        onCancel={onCancel}
-        submitDisabled={submitDisabled}
-        submitting={submitting}
-        submitLabel={submitLabel}
-        cancelLabel={cancelLabel}
-        maxWidth={maxWidth}
-        bodyClassName={bodyClassName}
-      >
-        {children}
-      </ModalCreatePanel>
-    );
-  }
-
-  const {
-    createTitle,
-    createContent,
-    creating,
-    onStartCreate,
-    canCreate,
-    addLabel,
-    dirty,
-    dirtyHint,
-    onSave,
-    canSave,
-    saveLabel,
-    onDelete,
-    canDelete,
-    deleteLabel,
-    viewActions,
-    bodyClassName,
-  } = props as CreatePanelDetailProps;
-  return (
-    <DetailCreatePanel
-      title={title}
-      createTitle={createTitle}
-      creating={creating}
-      canCreate={canCreate}
-      onStartCreate={onStartCreate}
-      onSubmitCreate={onSubmit}
-      onCancelCreate={onCancel}
-      dirty={dirty}
-      dirtyHint={dirtyHint}
-      onSave={onSave}
-      canSave={canSave}
-      saveLabel={saveLabel}
-      onDelete={onDelete}
-      canDelete={canDelete}
-      deleteLabel={deleteLabel}
-      viewActions={viewActions}
-      submitDisabled={submitDisabled}
-      submitting={submitting}
-      addLabel={addLabel}
-      submitLabel={submitLabel}
-      cancelLabel={cancelLabel}
-      scrollOnCreate={scrollOnCreate}
-      createContent={createContent}
-      bodyClassName={bodyClassName}
-      className={className}
-    >
-      {children}
-    </DetailCreatePanel>
-  );
 }

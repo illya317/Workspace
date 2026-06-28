@@ -137,6 +137,8 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
           options={item.options}
           onChange={item.onChange}
           placeholder={item.placeholder}
+          searchable={item.searchable}
+          visibleCount={item.visibleCount}
           size={size}
           appearance="toolbar"
         />

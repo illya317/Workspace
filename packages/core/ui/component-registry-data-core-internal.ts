@@ -22,7 +22,7 @@ export const core_internal_registry_entries = [
     category: "form",
     subcategory: "form.create",
     description: "块状新建面板",
-    example: "项目阶段和项目任务这类多字段新增，不常驻表单，点击标题旁 + 后展开维护。",
+    example: "项目阶段和项目任务这类多字段新增，不常驻表单；弹窗新建也是同一个 block card 放进 modal overlay。",
     composes: ["SectionCard", "CreateStartButton", "CreateConfirmActions"],
   },
   {
@@ -62,22 +62,6 @@ export const core_internal_registry_entries = [
     description: "内联新建面板",
     example: "在列表顶部展开新建员工、批次、部门或岗位表单，填写 required 字段后确认创建。",
     composes: ["CreateConfirmActions", "FormField"],
-  },
-  {
-    name: "ModalCreatePanel",
-    category: "form",
-    subcategory: "form.create",
-    description: "弹窗新建面板",
-    example: "合同列表点击新建后弹出完整表单，底部使用统一取消和保存动作。",
-    composes: ["DetailModal", "ActionButton", "getToolbarActionClassName"],
-  },
-  {
-    name: "DetailCreatePanel",
-    category: "form",
-    subcategory: "form.create",
-    description: "详情 pane 新建面板",
-    example: "右侧详情区进入 create mode，左侧列表/工作区不变，由 core 统一生成标题和取消/创建动作。",
-    composes: ["CommandButton", "CreateStartButton", "getToolbarActionClassName"],
   },
   {
     name: "ModuleCardBody",

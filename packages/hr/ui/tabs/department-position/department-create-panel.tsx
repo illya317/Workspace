@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { CreatePanel, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import { departmentCodeEditableSegment } from "./department-code-input";
 import { postJson } from "@workspace/platform/ui/api-client";
 import { useDepartmentDescriptionsBlock } from "./department-descriptions-panel";
@@ -216,18 +216,35 @@ export function useDepartmentCreatePanelBlock({
   };
 
   return {
-        kind: "panel",
-        key: "create-department",
-        title: "新建部门",
-        actions: [
-          { key: "submit", label: submitting ? "保存中..." : "保存", variant: "primary", disabled: submitting || submitDisabled, onClick: () => void handleSubmit() },
-          { key: "cancel", label: "取消", disabled: submitting, onClick: onCancel },
-        ],
-        blocks: [
-          departmentInfoBlock,
-          descriptionsBlock,
-        ],
-      };
+    kind: "moduleView",
+    key: "create-department",
+    view: (
+      <CreatePanel
+        variant="block"
+        title="新建部门"
+        creating
+        canCreate={canEdit}
+        submitting={submitting}
+        submitDisabled={submitDisabled}
+        submitLabel="保存"
+        onStartCreate={() => undefined}
+        onSubmit={() => void handleSubmit()}
+        onCancel={onCancel}
+        createContent={(
+          <PageSurface
+            embedded
+            kind="detail"
+            blocks={[
+              departmentInfoBlock,
+              descriptionsBlock,
+            ]}
+          />
+        )}
+      >
+        {null}
+      </CreatePanel>
+    ),
+  };
 }
 
 export function DepartmentCreatePanel(props: DepartmentCreatePanelProps) {

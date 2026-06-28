@@ -29,6 +29,7 @@ interface SelectFieldBaseProps {
   dropdownHeader?: ReactNode;
   dropdownFooter?: ReactNode;
   summaryMode?: "names" | "count";
+  visibleCount?: number;
   size?: ControlSize;
   density?: "normal" | "compact";
   appearance?: "field" | "toolbar";
@@ -69,6 +70,9 @@ function getFieldValuePaddingClassName(size: "sm" | "md" | "lg", density: "norma
   return "px-3";
 }
 
+const OPTION_ROW_HEIGHT_REM = 2.5;
+const OPTION_ROW_CLASS_NAME = "h-10";
+
 export default function SelectField(props: SingleSelectFieldProps): React.ReactElement;
 export default function SelectField(props: MultiSelectFieldProps): React.ReactElement;
 export default function SelectField({
@@ -88,6 +92,7 @@ export default function SelectField({
   dropdownHeader,
   dropdownFooter,
   summaryMode = "names",
+  visibleCount = 5,
   size,
   density,
   appearance = "field",
@@ -132,7 +137,8 @@ export default function SelectField({
   const [query, setQuery] = useState("");
   const searchRef = useRef<HTMLInputElement | null>(null);
   const listboxId = useId();
-  const shouldSearch = searchable ?? options.length > 6;
+  const shouldSearch = searchable === true;
+  const listMaxHeight = `${Math.max(1, visibleCount) * OPTION_ROW_HEIGHT_REM}rem`;
   const normalizedPlaceholder = placeholder?.startsWith("全部") ? "全部" : placeholder;
   const toolbarFieldLabel = label ?? (placeholder?.startsWith("全部") ? placeholder.slice(2) : undefined);
   const valueOptions = useMemo<SelectFieldOption[]>(() => {
@@ -258,14 +264,14 @@ export default function SelectField({
                 className="mb-1"
               />
             )}
-            <div id={listboxId} role="listbox" className="max-h-64 overflow-auto">
+            <div id={listboxId} role="listbox" className="overflow-auto" style={{ maxHeight: listMaxHeight }}>
               {filteredOptions.map((option, index) => {
                 if (isMulti) {
                   const checked = (value as string[]).includes(option.value);
                   return (
                     <label
                       key={getOptionKey(option, index)}
-                      className={`${getDropdownItemClassName({ layout: "flex", textClassName: valueTextClass })} ${option.disabled ? "cursor-not-allowed text-slate-400" : "cursor-pointer"}`}
+                      className={`${getDropdownItemClassName({ layout: "flex", textClassName: valueTextClass })} ${OPTION_ROW_CLASS_NAME} ${option.disabled ? "cursor-not-allowed text-slate-400" : "cursor-pointer"}`}
                     >
                       <CheckboxField
                         checked={checked}
@@ -293,7 +299,7 @@ export default function SelectField({
                       close();
                       chooseSingle(option.value);
                     }}
-                    className={`${getDropdownItemClassName({ textClassName: valueTextClass })} disabled:cursor-not-allowed disabled:text-slate-400`}
+                    className={`${getDropdownItemClassName({ textClassName: valueTextClass })} ${OPTION_ROW_CLASS_NAME} disabled:cursor-not-allowed disabled:text-slate-400`}
                   >
                     <span className="block whitespace-nowrap">{option.label}</span>
                   </button>

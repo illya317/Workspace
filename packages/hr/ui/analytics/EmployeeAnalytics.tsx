@@ -58,9 +58,7 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
           surface: {
             kind: "metrics",
             metrics: [
-              { key: "total", label: "员工总数", value: stats.total },
               { key: "active", label: "在职人数", value: stats.active },
-              { key: "inactive", label: "离职人数", value: stats.inactive },
               { key: "joinedThisMonth", label: "本月入职", value: stats.joinedThisMonth },
               { key: "leftThisMonth", label: "本月离职", value: stats.leftThisMonth },
             ],

@@ -15,7 +15,6 @@ export const previewCaseByName: Record<string, readonly string[]> = {
   "FormField": ["SelectField", "TextField"],
   "FormShell": ["FormField"],
   "InlineCreatePanel": ["FormField"],
-  "ModalCreatePanel": ["ActionButton"],
   "ModuleGridPage": ["ModuleCard"],
   "NavigationSurface": ["TabBar"],
   "PageShell": ["PageContent"],

@@ -55,6 +55,8 @@ export interface ToolbarSelectItem extends ToolbarItemBase {
   onChange: (value: string) => void;
   label?: string;
   placeholder?: string;
+  searchable?: boolean;
+  visibleCount?: number;
 }
 
 export interface ToolbarAutocompleteItem extends ToolbarItemBase {

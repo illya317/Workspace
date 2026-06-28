@@ -7,7 +7,6 @@ import {
   DetailModal,
   DropdownMenu,
 } from "@workspace/core/ui";
-import ModalCreatePanel from "../../ui/ModalCreatePanel";
 
 function ConfirmModalPreview() {
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
@@ -62,37 +61,8 @@ function DropdownMenuPreview() {
   );
 }
 
-function ModalCreatePanelPreview() {
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  return (
-    <>
-      <ActionButton kind="add" label="打开弹窗新建面板" onClick={() => setOpen(true)} />
-      <ModalCreatePanel
-        open={open}
-        title="新建合同"
-        onSubmit={() => setOpen(false)}
-        onCancel={() => setOpen(false)}
-        submitDisabled={!name}
-      >
-        <div className="space-y-4 md:col-span-2">
-          <label className="block text-xs font-semibold text-slate-500">合同名称</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="请输入合同名称"
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500"
-          />
-        </div>
-      </ModalCreatePanel>
-    </>
-  );
-}
-
 export const overlayPreviewByName: Record<string, FC> = {
   ConfirmModal: ConfirmModalPreview,
   DetailModal: DetailModalPreview,
   DropdownMenu: DropdownMenuPreview,
-  ModalCreatePanel: ModalCreatePanelPreview,
 };

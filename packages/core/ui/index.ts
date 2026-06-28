@@ -155,7 +155,7 @@ export type { TagInlineTextFieldProps } from "./TagInlineTextField";
 export { ActionGlyph } from "./ActionGlyphs";
 export type { ActionGlyphGroup, ActionGlyphGroupKey, ActionGlyphKind, ActionGlyphOrderItem, ActionGlyphProps, ActionGlyphToolbarGroup, ActionGlyphToolbarGroupKey } from "./ActionGlyphs";
 export { default as CreatePanel } from "./CreatePanel";
-export type { CreatePanelProps, CreatePanelVariant, CreatePanelInlineProps, CreatePanelBlockProps, CreatePanelModalProps } from "./CreatePanel";
+export type { CreatePanelProps, CreatePanelVariant, CreatePanelInlineProps, CreatePanelBlockProps } from "./CreatePanel";
 export { default as Toast } from "./Toast";
 export type { ToastProps } from "./Toast";
 export { default as CalendarDateInput } from "./CalendarDateInput";

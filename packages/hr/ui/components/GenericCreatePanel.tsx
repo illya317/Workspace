@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, type FormSurfaceFieldSpec, type ReferenceOption } from "@workspace/core/ui";
+import { CreatePanel, PageSurface, type FormSurfaceFieldSpec, type ReferenceOption } from "@workspace/core/ui";
 import type { FieldConfig, TabConfig } from "@workspace/hr/types";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../fk-keys";
 
@@ -24,19 +24,21 @@ export default function GenericCreatePanel({
   const fields = requiredFields.map((field) => createFieldSpec(field, config, createForm[field.key], (value) => onChange(field.key, value)));
 
   return (
-    <PageSurface
-      embedded
-      kind="detail"
-      blocks={[
-        {
-          kind: "panel",
-          key: "create",
-          title: `新建${config.title}`,
-          actions: [
-            { key: "submit", label: "保存", variant: "primary", disabled: submitDisabled, onClick: onSubmit },
-            { key: "cancel", label: "取消", onClick: onCancel },
-          ],
-          blocks: [
+    <CreatePanel
+      variant="block"
+      title={`新建${config.title}`}
+      creating
+      canCreate
+      submitDisabled={submitDisabled}
+      submitLabel="保存"
+      onStartCreate={() => undefined}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+      createContent={(
+        <PageSurface
+          embedded
+          kind="detail"
+          blocks={[
             {
               kind: "form",
               key: "fields",
@@ -45,10 +47,12 @@ export default function GenericCreatePanel({
                 fields,
               },
             },
-          ],
-        },
-      ]}
-    />
+          ]}
+        />
+      )}
+    >
+      {null}
+    </CreatePanel>
   );
 }
 
