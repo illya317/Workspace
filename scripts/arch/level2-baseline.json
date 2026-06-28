@@ -168,7 +168,7 @@
     "packages/work/ui/works/WorkTaskTable.tsx: DataSurface from @workspace/core/ui",
     "packages/work/ui/works/WorksList.tsx: DataSurface from @workspace/core/ui"
   ],
-  "businessCoreUiTypeBypassImports": [],
+  "uiForbiddenCoreUiTypeImports": [],
   "pageSurfaceLayoutProtocolWarnings": [],
   "platformCoreUiRuntimeBypassImports": [
     "packages/platform/ui/AppShell.tsx: FormSurface from @workspace/core/ui",

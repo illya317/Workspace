@@ -35,7 +35,7 @@ type Level2Baseline = {
   businessPageLayoutPrimitiveUsages: string[];
   businessToolbarCompositionWarnings: string[];
   businessCoreUiSurfaceBypassImports: string[];
-  businessCoreUiTypeBypassImports: string[];
+  uiForbiddenCoreUiTypeImports: string[];
   pageSurfaceLayoutProtocolWarnings: string[];
   platformCoreUiRuntimeBypassImports: string[];
   coreUiMissingOwnership: string[];
@@ -121,7 +121,7 @@ function businessCoreUiSurfaceBypassImportKey(candidate: { file: string; importe
   return `${candidate.file}: ${candidate.importedName} from ${candidate.specifier}`;
 }
 
-function businessCoreUiTypeBypassImportKey(candidate: { file: string; importedName: string; specifier: string }) {
+function uiForbiddenCoreUiTypeImportKey(candidate: { file: string; importedName: string; specifier: string }) {
   return `${candidate.file}: ${candidate.importedName} from ${candidate.specifier}`;
 }
 
@@ -277,8 +277,8 @@ export function checkLevel2Ratchet() {
         report.drift.businessCoreUiSurfaceBypassImports.map(businessCoreUiSurfaceBypassImportKey),
       ],
       [
-        "businessCoreUiTypeBypassImports",
-        report.drift.businessCoreUiTypeBypassImports.map(businessCoreUiTypeBypassImportKey),
+        "uiForbiddenCoreUiTypeImports",
+        report.drift.uiForbiddenCoreUiTypeImports.map(uiForbiddenCoreUiTypeImportKey),
       ],
       [
         "pageSurfaceLayoutProtocolWarnings",

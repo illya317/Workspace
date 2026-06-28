@@ -51,7 +51,7 @@ export type BusinessCoreUiSurfaceBypassImport = {
   specifier: string;
 };
 
-export type BusinessCoreUiTypeBypassImport = {
+export type UiForbiddenCoreUiTypeImport = {
   file: string;
   importedName: string;
   specifier: string;
@@ -121,7 +121,7 @@ const CORE_UI_DIRECT_RUNTIME_IMPORTS = new Set(
     .filter((component) => component.agentExposure?.mode === "direct")
     .map((component) => component.name),
 );
-const CORE_UI_BUSINESS_TYPE_IMPORT_DENYLIST = new Set([
+const FORBIDDEN_CORE_UI_TYPE_IMPORTS = new Set([
   "DataTableColumn",
   "FkFieldOption",
   "ToolbarItem",
@@ -344,8 +344,8 @@ export function findBusinessCoreUiSurfaceBypassImports(files: SourceInfo[]) {
   return candidates.sort((left, right) => `${left.file}:${left.importedName}`.localeCompare(`${right.file}:${right.importedName}`));
 }
 
-export function findBusinessCoreUiTypeBypassImports(files: SourceInfo[]) {
-  const candidates: BusinessCoreUiTypeBypassImport[] = [];
+export function findUiForbiddenCoreUiTypeImports(files: SourceInfo[]) {
+  const candidates: UiForbiddenCoreUiTypeImport[] = [];
 
   for (const file of files) {
     if (!isBusinessCoreUiTypeScanFile(file)) continue;
@@ -367,7 +367,7 @@ export function findBusinessCoreUiTypeBypassImports(files: SourceInfo[]) {
         if (!isTypeOnly) continue;
 
         const importedName = element.propertyName?.text ?? element.name.text;
-        if (CORE_UI_BUSINESS_TYPE_IMPORT_DENYLIST.has(importedName)) {
+        if (FORBIDDEN_CORE_UI_TYPE_IMPORTS.has(importedName)) {
           candidates.push({ file: file.relPath, importedName, specifier });
         }
       }

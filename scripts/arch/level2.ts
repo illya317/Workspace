@@ -39,24 +39,24 @@ import {
   findAppHookFiles,
   findAppHookImplementationFiles,
   findBusinessCoreUiSurfaceBypassImports,
-  findBusinessCoreUiTypeBypassImports,
   findDuplicateCoreUiRegistrations,
   findGeneratedFilterContractDrift,
   findHookPatternCandidates,
   findNativeSearchInputFiles,
   findPageDesignDriftFiles,
   findPlatformCoreUiRuntimeBypassImports,
+  findUiForbiddenCoreUiTypeImports,
   findUiPatternCandidates,
   findUnregisteredCoreUiExports,
   findUnregisteredCoreUiImports,
   type BusinessCoreUiSurfaceBypassImport,
-  type BusinessCoreUiTypeBypassImport,
   type DuplicateCoreUiRegistration,
   type GeneratedFilterContractDrift,
   type HookPatternCandidate,
   type NativeSearchInputFile,
   type PageDesignDriftFile,
   type PlatformCoreUiRuntimeBypassImport,
+  type UiForbiddenCoreUiTypeImport,
   type UiPatternCandidate,
   type UnregisteredCoreUiExport,
   type UnregisteredCoreUiImport,
@@ -634,7 +634,7 @@ export function createLevel2Report() {
   const businessPageLayoutPrimitiveUsages = findBusinessPageLayoutPrimitiveUsages(sourceFiles);
   const businessToolbarCompositionWarnings = findBusinessToolbarCompositionWarnings(sourceFiles);
   const businessCoreUiSurfaceBypassImports = findBusinessCoreUiSurfaceBypassImports(sourceFiles);
-  const businessCoreUiTypeBypassImports = findBusinessCoreUiTypeBypassImports(sourceFiles);
+  const uiForbiddenCoreUiTypeImports = findUiForbiddenCoreUiTypeImports(sourceFiles);
   const pageSurfaceLayoutProtocolWarnings = findPageSurfaceLayoutProtocolWarnings(sourceFiles);
   const platformCoreUiRuntimeBypassImports = findPlatformCoreUiRuntimeBypassImports(sourceFiles);
   const coreUiOwnershipWarnings = findCoreUiOwnershipWarnings();
@@ -721,7 +721,7 @@ export function createLevel2Report() {
       businessPageLayoutPrimitiveUsages: businessPageLayoutPrimitiveUsages.length,
       businessToolbarCompositionWarnings: businessToolbarCompositionWarnings.length,
       businessCoreUiSurfaceBypassImports: businessCoreUiSurfaceBypassImports.length,
-      businessCoreUiTypeBypassImports: businessCoreUiTypeBypassImports.length,
+      uiForbiddenCoreUiTypeImports: uiForbiddenCoreUiTypeImports.length,
       pageSurfaceLayoutProtocolWarnings: pageSurfaceLayoutProtocolWarnings.length,
       platformCoreUiRuntimeBypassImports: platformCoreUiRuntimeBypassImports.length,
       coreUiMissingOwnership: coreUiOwnershipWarnings.coreUiMissingOwnership.length,
@@ -762,7 +762,7 @@ export function createLevel2Report() {
       businessPageLayoutPrimitiveUsages,
       businessToolbarCompositionWarnings,
       businessCoreUiSurfaceBypassImports,
-      businessCoreUiTypeBypassImports,
+      uiForbiddenCoreUiTypeImports,
       pageSurfaceLayoutProtocolWarnings,
       platformCoreUiRuntimeBypassImports,
       coreUiMissingOwnership: coreUiOwnershipWarnings.coreUiMissingOwnership,
@@ -807,7 +807,7 @@ export function createLevel2Report() {
       businessPageLayoutPrimitiveUsages,
       businessToolbarCompositionWarnings,
       businessCoreUiSurfaceBypassImports,
-      businessCoreUiTypeBypassImports,
+      uiForbiddenCoreUiTypeImports,
       pageSurfaceLayoutProtocolWarnings,
       platformCoreUiRuntimeBypassImports,
       coreUiMissingOwnership: coreUiOwnershipWarnings.coreUiMissingOwnership,
