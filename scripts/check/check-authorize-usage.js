@@ -67,6 +67,9 @@ function hasApiRouteHelperGate(code) {
   ) || (
     hasNamedImport(code, "createCommandRoute", [API_ROUTE_HELPER_IMPORT]) &&
     /\bcreateCommandRoute\s*\(/.test(code)
+  ) || (
+    hasNamedImport(code, "createInternalApiRoute", [API_ROUTE_HELPER_IMPORT]) &&
+    /\bcreateInternalApiRoute\s*\(/.test(code)
   );
 }
 

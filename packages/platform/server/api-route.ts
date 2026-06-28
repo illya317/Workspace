@@ -33,6 +33,7 @@ type ApiRouteHandlerOptions<
   paramsSchema?: TParamsSchema;
   querySchema?: TQuerySchema;
   bodySchema?: TBodySchema;
+  optionalJsonBody?: boolean;
   paramsError?: string;
   queryError?: string;
   bodyError?: string;
@@ -49,11 +50,44 @@ type ApiRouteRuntimeContext = {
   params?: Promise<Record<string, string>>;
 };
 
+type InternalApiRouteContext<TParams, TQuery, TBody> = {
+  request: Request;
+  params: TParams;
+  query: TQuery;
+  body: TBody;
+  searchParams: URLSearchParams;
+};
+
+type InternalApiRouteHandlerOptions<
+  TParamsSchema extends z.ZodTypeAny | undefined,
+  TQuerySchema extends z.ZodTypeAny | undefined,
+  TBodySchema extends z.ZodTypeAny | undefined,
+> = Omit<ApiRouteHandlerOptions<TParamsSchema, TQuerySchema, TBodySchema>, "handler"> & {
+  authorize: (
+    context: InternalApiRouteContext<
+      InferSchema<TParamsSchema>,
+      InferSchema<TQuerySchema>,
+      InferSchema<TBodySchema>
+    >,
+  ) => Promise<boolean> | boolean;
+  authorizeError?: string;
+  handler: (
+    context: InternalApiRouteContext<
+      InferSchema<TParamsSchema>,
+      InferSchema<TQuerySchema>,
+      InferSchema<TBodySchema>
+    >,
+  ) => Promise<Response | unknown> | Response | unknown;
+};
+
 type CommandRouteResult<T> = Response | T | undefined;
 type CommandRouteAction<TCommand, TResult, TContext> = (
   command: TCommand,
   context: TContext,
 ) => CommandRouteResult<TResult> | Promise<CommandRouteResult<TResult>>;
+type CommandRouteAccess<TContext> =
+  | ((userId: number) => Promise<boolean> | boolean)
+  | ((userId: number, context: TContext) => Promise<boolean> | boolean);
 
 type ApiCommandRouteOptions<
   TParamsSchema extends z.ZodTypeAny | undefined,
@@ -62,7 +96,13 @@ type ApiCommandRouteOptions<
   TCommand,
   TResult,
 > = Omit<ApiRouteHandlerOptions<TParamsSchema, TQuerySchema, TBodySchema>, "handler"> & {
-  access?: (userId: number) => Promise<boolean> | boolean;
+  access?: CommandRouteAccess<
+    ApiRouteContext<
+      InferSchema<TParamsSchema>,
+      InferSchema<TQuerySchema>,
+      InferSchema<TBodySchema>
+    >
+  >;
   accessError?: string;
   buildCommand: (
     context: ApiRouteContext<
@@ -129,7 +169,7 @@ export function createApiRouteHandler<
     }
 
     let body: unknown;
-    if (options.bodySchema) {
+    if (options.bodySchema && (!options.optionalJsonBody || request.headers.get("content-type")?.includes("application/json"))) {
       let rawBody: unknown;
       try {
         rawBody = await request.json();
@@ -159,6 +199,69 @@ export function createApiRouteHandler<
   };
 }
 
+export function createInternalApiRoute<
+  TParamsSchema extends z.ZodTypeAny | undefined = undefined,
+  TQuerySchema extends z.ZodTypeAny | undefined = undefined,
+  TBodySchema extends z.ZodTypeAny | undefined = undefined,
+>(options: InternalApiRouteHandlerOptions<TParamsSchema, TQuerySchema, TBodySchema>) {
+  return async function internalApiRouteHandler(
+    request: Request,
+    runtimeContext: ApiRouteRuntimeContext = {},
+  ) {
+    let params: unknown;
+    if (options.paramsSchema) {
+      const parsedParams = options.paramsSchema.safeParse(runtimeContext.params ? await runtimeContext.params : {});
+      if (!parsedParams.success) {
+        return jsonBadRequest(options.paramsError || firstZodIssue(parsedParams.error, "参数错误"));
+      }
+      params = parsedParams.data;
+    }
+
+    const { searchParams } = new URL(request.url);
+    let query: unknown;
+    if (options.querySchema) {
+      const parsedQuery = options.querySchema.safeParse(Object.fromEntries(searchParams.entries()));
+      if (!parsedQuery.success) {
+        return jsonBadRequest(options.queryError || firstZodIssue(parsedQuery.error, "查询参数错误"));
+      }
+      query = parsedQuery.data;
+    }
+
+    let body: unknown;
+    if (options.bodySchema && (!options.optionalJsonBody || request.headers.get("content-type")?.includes("application/json"))) {
+      let rawBody: unknown;
+      try {
+        rawBody = await request.json();
+      } catch {
+        return jsonBadRequest(options.bodyError || "请求体必须是合法 JSON");
+      }
+      const parsedBody = options.bodySchema.safeParse(rawBody);
+      if (!parsedBody.success) {
+        return jsonBadRequest(options.bodyError || firstZodIssue(parsedBody.error, "参数错误"));
+      }
+      body = parsedBody.data;
+    }
+
+    const context = {
+      request,
+      params: params as InferSchema<TParamsSchema>,
+      query: query as InferSchema<TQuerySchema>,
+      body: body as InferSchema<TBodySchema>,
+      searchParams,
+    };
+
+    if (!(await options.authorize(context))) {
+      return serviceResponse({ ok: false, error: options.authorizeError || "无权限", status: 403 });
+    }
+
+    const result = await options.handler(context);
+    if (result instanceof Response) return result;
+    if (isServiceResult(result)) return serviceResponse(result);
+    if (result === undefined) return new Response(null, { status: 204 });
+    return Response.json(result);
+  };
+}
+
 export function createCommandRoute<
   TParamsSchema extends z.ZodTypeAny | undefined = undefined,
   TQuerySchema extends z.ZodTypeAny | undefined = undefined,
@@ -176,7 +279,7 @@ export function createCommandRoute<
   return createApiRouteHandler({
     ...routeOptions,
     handler: async (context) => {
-      if (access && !(await access(context.user.userId))) {
+      if (access && !(await (access as (userId: number, routeContext: unknown) => Promise<boolean> | boolean)(context.user.userId, context))) {
         return serviceResponse({ ok: false, error: accessError || "无权限", status: 403 });
       }
 

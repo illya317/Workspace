@@ -1,23 +1,26 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { withFinanceLedgerAccess } from "@workspace/platform/server/with-auth";
-import { lookupFinancePeriodId } from "@workspace/finance/server/ledger/periods";
+import {
+  buildLookupFinancePeriodCommand,
+  executeLookupFinancePeriodCommand,
+} from "@workspace/finance/server/route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { checkFinanceLedgerAccess } from "@workspace/platform/server/auth";
+
+const optionalNumber = z.preprocess(
+  (value) => (value === null || value === undefined || value === "" ? undefined : Number(value)),
+  z.number().int().optional(),
+);
 
 const lookupPeriodQuerySchema = z.object({
-  companyCode: z.string().min(1),
-  year: z.coerce.number().int(),
-  month: z.coerce.number().int(),
+  companyCode: z.string().min(1).optional(),
+  year: optionalNumber,
+  month: optionalNumber,
 });
 
-export const GET = withFinanceLedgerAccess(async (request) => {
-  const { searchParams } = new URL(request.url);
-  const parsed = lookupPeriodQuerySchema.safeParse({
-    companyCode: searchParams.get("companyCode") || undefined,
-    year: searchParams.get("year") || undefined,
-    month: searchParams.get("month") || undefined,
-  });
-  if (!parsed.success) return NextResponse.json({ periodId: null });
-
-  return NextResponse.json(await lookupFinancePeriodId(parsed.data));
+export const GET = createCommandRoute({
+  access: checkFinanceLedgerAccess,
+  querySchema: lookupPeriodQuerySchema,
+  buildCommand: ({ query }) => buildLookupFinancePeriodCommand(query),
+  action: executeLookupFinancePeriodCommand,
 });

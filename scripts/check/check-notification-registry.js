@@ -44,6 +44,10 @@ for (const file of files) {
     errors.push(`${relativePath}:${lineForIndex(text, match.index ?? 0)} must use sendNotification(type + payload) instead of createNotification()`);
   }
 
+  for (const match of text.matchAll(/\.notification\.(?:create|createMany|upsert)\s*\(/g)) {
+    errors.push(`${relativePath}:${lineForIndex(text, match.index ?? 0)} must use sendNotification(type + payload); direct notification writes are only allowed in ${NOTIFICATION_REGISTRY_FILE}`);
+  }
+
   if (/import\s*\{[^}]*\bcreateNotification\b[^}]*\}\s*from\s*["']@workspace\/platform\/server\/notifications["']/.test(text)) {
     errors.push(`${relativePath}: direct createNotification import is not allowed outside ${NOTIFICATION_REGISTRY_FILE}`);
   }

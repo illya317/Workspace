@@ -153,7 +153,7 @@ const SKIPPED_DIRS = new Set([
   "out",
   "tmp",
 ]);
-const API_VALIDATION_SIGNAL_REGEX = /\b(safeParse|parse)\s*\(|\bz\s*\.|\bparseJson\s*\(|\bvalidate(CompatibilityProxy|Passthrough)Body\s*\(|\bcreateValidatedIdProxyHandler\s*\(|\bparseRouteId(Params)?\s*\(|\bcreate(ApiRouteHandler|CommandRoute)\s*\(/;
+const API_VALIDATION_SIGNAL_REGEX = /\b(safeParse|parse)\s*\(|\bz\s*\.|\bparseJson\s*\(|\bvalidate(CompatibilityProxy|Passthrough)Body\s*\(|\bcreateValidatedIdProxyHandler\s*\(|\bparseRouteId(Params)?\s*\(|\bcreate(ApiRouteHandler|CommandRoute|InternalApiRoute)\s*\(/;
 const ROUTE_PRIMITIVE_IMPORTS: Record<RoutePrimitiveSchemaKind, string> = {
   "route-id-params": "routeIdParamsSchema",
   "update-field-body": "updateFieldBodySchema",

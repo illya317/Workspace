@@ -121,9 +121,9 @@ Zod schema -> domain validator -> service/Prisma
 
 新增多入口写入能力时，页面、导入、agent tool 或内部 API 只能新增 input adapter，把输入适配成 domain command；同一个业务字段或业务动作必须收口到同一套 domain validator。`npm run arch:gate` 会通过通用 domain validation ratchet 检查业务 API route、route-local helper、写 service 和 exported 写入口函数：新增写 service 必须消费本包 `packages/<domain>/server/domain/*-validation.ts`，route 不得直接或通过 package root 间接 import domain validator，service 不得重新散落 FK、日期、枚举、百分比、归档/删除引用保护等底层业务规则。即使一个文件已经 import domain validator，新增 exported `create/update/save/archive/delete/upsert/import` 写入口也必须在入口体内调用 domain validator 或走带校验 hook 的 CRUD helper；其中 `handleDelete` 只有在入口或引用的 config 里显式提供 `onBeforeDelete`，或入口直接调用已登记的 guarded/domain 删除验证入口时，才视为已验证。仅供内部复用的写 helper 不应 export。HR roster 当前 baseline 为 0；其他模块存量债由 `scripts/arch/domain-validation-baseline.json` 锁定，只能减少，不能新增。
 
-Level 1 起，业务资源权限入口统一为 `packages/platform/server/auth/authorize.ts` 的 `authorize()`。`requireApiAccess(request)` 是内部业务 API 的统一入口；`createApiRouteHandler()` 是新 route 的默认协议适配器，`createCommandRoute()` 是带 `buildCommand -> action` 的写入/命令型适配器。旧 `withAuth` / `withFinance*` 等 wrapper 必须先委托 `requireApiAccess()`，再做历史兼容的模块级细分检查。新增 API route 不得直接调用 `checkPermission()` 或在 route 内重写角色判断。唯一例外是内置 root admin gate：`auth/admin.ts` 必须委托 `isRootAdminUser()`，且不得把 `system` 注册或判断为 RBAC resource。
+Level 1 起，业务资源权限入口统一为 `packages/platform/server/auth/authorize.ts` 的 `authorize()`。`requireApiAccess(request)` 是内部业务 API 的统一入口；`createApiRouteHandler()` 是新 route 的默认协议适配器，`createCommandRoute()` 是带 `buildCommand -> action` 的写入/命令型适配器。显式 `access=internal` 的维护型 API 不走登录/RBAC，但必须在 API contract 中声明，并使用 `createInternalApiRoute()` 集中声明 internal 授权。旧 `withAuth` / `withFinance*` 等 wrapper 必须先委托 `requireApiAccess()`，再做历史兼容的模块级细分检查。新增 API route 不得直接调用 `checkPermission()` 或在 route 内重写角色判断。唯一例外是内置 root admin gate：`auth/admin.ts` 必须委托 `isRootAdminUser()`，且不得把 `system` 注册或判断为 RBAC resource。
 
-有副作用的业务写操作优先显式命名 action，例如 `work.project.member.added`。业务侧只能调用 `sendNotification(type + payload)`，通知标题、正文、链接和默认重要性由 `packages/platform/server/notifications.ts` 的 notification registry 渲染；除 registry 内部外不得直接调用 `createNotification()`。
+有副作用的业务写操作优先显式命名 action，例如 `work.project.member.added`。业务侧只能调用 `sendNotification(type + payload)`，通知标题、正文、链接和默认重要性由 `packages/platform/server/notifications.ts` 的 notification registry 渲染；除 registry 内部外不得直接调用 `createNotification()`，也不得直接写 `prisma.notification.create/createMany/upsert`。
 
 外部开放 API 使用独立边界：`/api/open/v1/**` 必须通过 `packages/platform/open-api-registry.ts` 注册，并使用 `withOpenApiScope(scopeKey, action, handler)` 校验 `Authorization: Bearer <OpenApiClient secret>`。开放 API 的资源写入 `OpenApiResource/OpenApiScope/OpenApiClientScopeGrant`，不写入内部 RBAC `Resource`，也不得调用 `authorize()`、`withAuth()` 或读取 `visibleResourceKeys`。`runtimeParentResourceKey` 只用于模块启停归属，不表达授权继承。
 
@@ -131,9 +131,9 @@ Level 1 起，业务资源权限入口统一为 `packages/platform/server/auth/a
 
 - `packages/platform/server/auth/authorize.ts` 存在并导出 `authorize()`。
 - 核心业务 auth helper 委托 `authorize()`；root admin helper 委托 `isRootAdminUser()`。
-- 新增业务 API route 必须命中 registry API contract，并使用 `createApiRouteHandler()`、`createCommandRoute()`、`requireApiAccess(request)` 或已接入它的 `with-auth` wrapper；明确的 public/dev/internal/disabled handler 必须在 API contract 中声明。
+- 新增业务 API route 必须命中 registry API contract，并使用 `createApiRouteHandler()`、`createCommandRoute()`、`requireApiAccess(request)` 或已接入它的 `with-auth` wrapper；明确的 public/dev/internal/disabled handler 必须在 API contract 中声明，`internal` handler 还必须使用 `createInternalApiRoute()`。
 - 新增 API route 不得新增裸 `checkPermission()` 或裸 `prisma.`。当前历史债由 `scripts/check/level1-api-baseline.json` 锁定，只能减少，不能新增。
-- 业务不得绕过 notification registry 直接调用 `createNotification()`。
+- 业务不得绕过 notification registry 直接调用 `createNotification()` 或 `prisma.notification.create/createMany/upsert`。
 
 `npm run arch:gate` 的 AST 阶段不是 advisory：命中即 `exit 1`。它会阻断 `checkPermission`、`hasAccess`、`canAccess`、`roleCheck`、`rbacCheck` 等替代权限入口，阻断 `if (user.role)` 一类角色分支，阻断 `authorize()`/RBAC service 外新增 RBAC 表直查，并阻断业务包通过 `@/server/*` 或相对路径绕过边界。已有历史债只允许出现在 `scripts/arch/level15-baseline.json`，迁移删除文件时必须同时删 baseline 项；新增违规不能把 baseline 当白名单扩写。
 

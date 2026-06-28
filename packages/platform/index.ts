@@ -80,6 +80,7 @@ export type {
 export {
   createCommandRoute,
   createApiRouteHandler,
+  createInternalApiRoute,
 } from "./server/api-route";
 export {
   domainIssueToResponse,

@@ -59,6 +59,9 @@ const REGISTERED_L1_ONLY_API_BASES = new Set(
 const EXPLICIT_NON_L2_API_CONTRACTS = collectApiContracts()
   .filter((contract) => contract.source === "apiRoutes" && ["disabled", "internal"].includes(contract.access))
   .map((contract) => contract.pathPrefix);
+const EXPLICIT_INTERNAL_API_CONTRACTS = collectApiContracts()
+  .filter((contract) => contract.source === "apiRoutes" && contract.access === "internal")
+  .map((contract) => contract.pathPrefix);
 const PUBLIC_OR_DEV_API_ROUTES = new Set([
   "auth/dev-login/route.ts",
   "auth/dev-login-bypass/route.ts",
@@ -85,6 +88,10 @@ function routePathFromRel(rel) {
 
 function isCoveredByExplicitNonL2Contract(pathname) {
   return EXPLICIT_NON_L2_API_CONTRACTS.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
+function isCoveredByExplicitInternalContract(pathname) {
+  return EXPLICIT_INTERNAL_API_CONTRACTS.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 }
 
 function isCoveredByL1OnlyContract(pathname) {
@@ -123,6 +130,13 @@ function usesApiRouteHelperGate(content) {
   );
 }
 
+function usesInternalApiRouteHelper(content) {
+  return (
+    hasNamedImport(content, "createInternalApiRoute", [API_ROUTE_HELPER_IMPORT]) &&
+    /\bcreateInternalApiRoute\s*\(/.test(content)
+  );
+}
+
 function usesImportedAdminApiGate(content) {
   return hasNamedImport(content, "requireAdminApiAccess", API_ACCESS_IMPORTS) && /\brequireAdminApiAccess\s*\(/.test(content);
 }
@@ -145,6 +159,7 @@ for (const file of allRoutes) {
 
   const routePath = routePathFromRel(rel);
   const isExplicitNonL2 = isCoveredByExplicitNonL2Contract(routePath);
+  const isExplicitInternal = isCoveredByExplicitInternalContract(routePath);
   const usesDirectAuthenticate = content.includes("authenticate(");
   const usesAuthWrapper = hasWithAuthImport(content) && (/with[A-Za-z]*(Access|Write|Delete|Auth)\s*\(/.test(content) || /withAuth\s*\(/.test(content));
   const usesRegistryGate = usesImportedApiGate(content) || usesApiRouteHelperGate(content) || usesAuthWrapper;
@@ -169,6 +184,10 @@ for (const file of allRoutes) {
 
     if (usesDirectAuthenticate) {
       console.error(`❌ ${rel} 业务 API 禁止裸用 authenticate()；入口必须走 requireApiAccess(request) 或已接入它的 with-auth wrapper`);
+      errors++;
+    }
+    if (isExplicitInternal && !usesInternalApiRouteHelper(content)) {
+      console.error(`❌ ${rel} 是 explicit internal API contract，必须使用 createInternalApiRoute() 统一声明 internal 授权入口`);
       errors++;
     }
     if (!isExplicitNonL2 && !usesRegistryGate) {
