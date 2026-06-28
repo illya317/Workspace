@@ -10,23 +10,10 @@ import type { DataSurfaceColumnSpec, DataSurfaceProps, NavigationSurfaceProps, P
 import GenerateDocumentModal from "./GenerateDocumentModal";
 import LibraryDetailModal from "./LibraryDetailModal";
 import type { DirectoryNode, LibraryDocumentItem } from "@workspace/library/types";
-
-const STATUS_OPTIONS = [
-  { value: "", label: "全部状态" },
-  { value: "active", label: "正常" },
-  { value: "missing", label: "缺失" },
-  { value: "archived", label: "归档" },
-  { value: "draft", label: "草稿" },
-];
-
-const CONFIDENTIALITY_OPTIONS = [
-  { value: "", label: "全部保密等级" },
-  { value: "0", label: "公开" },
-  { value: "1", label: "内部" },
-  { value: "2", label: "普通" },
-  { value: "3", label: "机密" },
-  { value: "4", label: "绝密" },
-];
+import {
+  LIBRARY_DOCUMENT_CONFIDENTIALITY_FILTER_OPTIONS,
+  LIBRARY_DOCUMENT_STATUS_FILTER_OPTIONS,
+} from "./library-document-options";
 
 interface Props {
   canWrite?: boolean;
@@ -117,8 +104,8 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
       section: "filter",
       value: filters.status || "",
       onChange: (value: string) => setFilter("status", value || undefined),
-      options: STATUS_OPTIONS.slice(1),
-      placeholder: STATUS_OPTIONS[0]?.label,
+      options: LIBRARY_DOCUMENT_STATUS_FILTER_OPTIONS.slice(1),
+      placeholder: LIBRARY_DOCUMENT_STATUS_FILTER_OPTIONS[0]?.label,
     },
     {
       kind: "select",
@@ -127,8 +114,8 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
       value: filters.confidentialityLevel !== undefined ? String(filters.confidentialityLevel) : "",
       onChange: (value: string) =>
         setFilter("confidentialityLevel", value ? parseInt(value, 10) : undefined),
-      options: CONFIDENTIALITY_OPTIONS.slice(1),
-      placeholder: CONFIDENTIALITY_OPTIONS[0]?.label,
+      options: LIBRARY_DOCUMENT_CONFIDENTIALITY_FILTER_OPTIONS.slice(1),
+      placeholder: LIBRARY_DOCUMENT_CONFIDENTIALITY_FILTER_OPTIONS[0]?.label,
     },
     {
       kind: "icon-button",
@@ -162,7 +149,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
       defaultVisible: true,
       cellClassName: "text-gray-500",
       cell: (document) => (
-        <span className="block max-w-[12rem] truncate" title={document.summary || ""}>
+        <span className="block max-w-48 truncate" title={document.summary || ""}>
           {document.summary || "—"}
         </span>
       ),

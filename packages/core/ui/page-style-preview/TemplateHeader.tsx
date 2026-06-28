@@ -15,7 +15,7 @@ const kindLabels: Record<PageTemplate["kind"], string> = {
 };
 
 function getKindLabel(page: PageTemplate) {
-  if (page.kind === "production" && page.paperMode === "template") return "模板工作台";
+  if (page.kind === "production" && page.paperMode === "template") return "版式工作台";
   return kindLabels[page.kind];
 }
 

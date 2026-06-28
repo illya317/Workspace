@@ -4,17 +4,20 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   type DataSurfaceColumnSpec,
-  type FieldValueFilterField,
   PageSurface,
   type PageSurfaceBlockSpec,
-  type SelectFieldOption,
 } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { buildHRToolbarItems } from "../components/hr-toolbar-items";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../fk-keys";
-import { HR_EDUCATIONS } from "@workspace/hr/constants";
 import type { HRUser } from "@workspace/hr/types";
 import type { RosterSurfaceNavigationProps } from "../roster-surface";
+import {
+  EMPLOYEE_DIRECTORY_DEFAULT_VISIBLE_COLUMNS,
+  EMPLOYEE_DIRECTORY_FILTER_FIELDS,
+  EMPLOYEE_DIRECTORY_FILTER_VALUE_OPTIONS,
+  EMPLOYEE_DIRECTORY_PAGE_SIZE_OPTIONS,
+} from "./employee-directory-config";
 
 interface DirectoryEmployee {
   id: number;
@@ -31,33 +34,6 @@ interface EmployeeListResponse {
   employees: DirectoryEmployee[];
   total: number;
 }
-
-const pageSizeOptions = [20, 50, 100, 200].map((size) => ({
-  value: String(size),
-  label: `${size}条/页`,
-}));
-const directoryFilterFields: FieldValueFilterField[] = [
-  { value: "gender", label: "性别" },
-  { value: "education", label: "学历" },
-  { value: "positionName", label: "岗位", valueKind: "fk", fkKey: "hr.position", fkReturnField: "name", lifecycleScope: "all", placeholder: "搜索岗位" },
-  { value: "directDepartmentName", label: "直属部门", valueKind: "fk", fkKey: "hr.department", fkReturnField: "name", lifecycleScope: "all", placeholder: "搜索部门" },
-];
-const directoryFilterValueOptions: Record<string, SelectFieldOption[]> = {
-  gender: [
-    { value: "男", label: "男" },
-    { value: "女", label: "女" },
-  ],
-  education: HR_EDUCATIONS.map((item) => ({ value: item, label: item })),
-};
-const defaultVisibleColumns = [
-  "employeeId",
-  "name",
-  "gender",
-  "birthDate",
-  "education",
-  "positionName",
-  "directDepartmentName",
-];
 
 function genderLabel(value: boolean | null) {
   if (value === true) return "男";
@@ -82,7 +58,7 @@ export default function EmployeeDirectory({
   const [error, setError] = useState<string | null>(null);
   const [filterField, setFilterField] = useState("");
   const [filterValue, setFilterValue] = useState("");
-  const [visibleColumns, setVisibleColumns] = useState<string[]>(defaultVisibleColumns);
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(EMPLOYEE_DIRECTORY_DEFAULT_VISIBLE_COLUMNS);
 
   const [pageSize, setPageSize] = useState(50);
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [pageSize, total]);
@@ -156,8 +132,8 @@ export default function EmployeeDirectory({
       ariaLabel: "搜索员工编号、姓名、拼音",
     },
     advancedFilter: {
-      fields: directoryFilterFields,
-      valueOptions: directoryFilterValueOptions,
+      fields: EMPLOYEE_DIRECTORY_FILTER_FIELDS,
+      valueOptions: EMPLOYEE_DIRECTORY_FILTER_VALUE_OPTIONS,
       referenceEndpoint: HR_REFERENCE_OPTIONS_ENDPOINT,
       fieldKey: filterField,
       onFieldKeyChange: (key: string) => {
@@ -175,7 +151,7 @@ export default function EmployeeDirectory({
         setKeyword("");
         setFilterField("");
         setFilterValue("");
-        setVisibleColumns(defaultVisibleColumns);
+        setVisibleColumns(EMPLOYEE_DIRECTORY_DEFAULT_VISIBLE_COLUMNS);
         setPage(1);
       },
     },
@@ -183,7 +159,7 @@ export default function EmployeeDirectory({
     meta: <span>共 {total} 人</span>,
     pageSize: {
       value: String(pageSize),
-      options: pageSizeOptions,
+      options: EMPLOYEE_DIRECTORY_PAGE_SIZE_OPTIONS,
       onChange: (value: string) => {
         setPageSize(Number(value));
         setPage(1);

@@ -2,6 +2,7 @@
 
 import { PageSurface, createPageDataBlock, type DataSurfaceColumnSpec, type DataSurfaceProps } from "@workspace/core/ui";
 import type { EmployeeTag, MultiProjectRole } from "./model";
+import { PROJECT_RASCI_COLUMN_DEFS, type RasciColumn } from "./project-rasci-config";
 
 export type ProjectRasciRow = {
   kind: "project" | "task";
@@ -11,20 +12,6 @@ export type ProjectRasciRow = {
   leader: EmployeeTag | null;
   roleGroups: Record<MultiProjectRole, EmployeeTag[]>;
 };
-
-type RasciColumn = {
-  key: "A" | "R" | "S" | "C" | "I";
-  label: string;
-  role: "负责人" | MultiProjectRole;
-};
-
-const RASCI_COLUMNS: RasciColumn[] = [
-  { key: "A", label: "负责", role: "负责人" },
-  { key: "R", label: "执行", role: "执行负责" },
-  { key: "S", label: "协作", role: "支持协作" },
-  { key: "C", label: "咨询", role: "咨询参与" },
-  { key: "I", label: "知会", role: "知会" },
-];
 
 export default function ProjectRasciMatrix({ rows }: { rows: ProjectRasciRow[] }) {
   return <PageSurface embedded kind="list" blocks={[createPageDataBlock("rasci", buildProjectRasciMatrixSurface(rows))]} />;
@@ -43,7 +30,7 @@ export function buildProjectRasciMatrixSurface(rows: ProjectRasciRow[]): DataSur
         </div>
       ),
     },
-    ...RASCI_COLUMNS.map((column): DataSurfaceColumnSpec<ProjectRasciRow> => ({
+    ...PROJECT_RASCI_COLUMN_DEFS.map((column): DataSurfaceColumnSpec<ProjectRasciRow> => ({
       key: column.key,
       label: (
         <div className="text-center">
@@ -64,7 +51,7 @@ export function buildProjectRasciMatrixSurface(rows: ProjectRasciRow[]): DataSur
     rows,
     columns,
     rowKey: (row) => `${row.kind}:${row.id}`,
-    visibleColumns: RASCI_COLUMNS.map((column) => column.key),
+    visibleColumns: PROJECT_RASCI_COLUMN_DEFS.map((column) => column.key),
     emptyText: "暂无项目",
     scrollClassName: "overflow-hidden",
   };

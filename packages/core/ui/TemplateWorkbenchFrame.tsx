@@ -154,10 +154,10 @@ export default function TemplateWorkbenchFrame({
   query,
   defaultQuery = "",
   onQueryChange,
-  searchPlaceholder = "搜索模板、阶段、项目",
+  searchPlaceholder = "搜索条目、步骤、节点",
   toolbarMeta,
   hideToolbar = false,
-  emptyText = "没有匹配的模板。",
+  emptyText = "没有匹配的条目。",
   className = "",
 }: TemplateWorkbenchFrameProps) {
   const [innerSelectorKey, setInnerSelectorKey] = useState(defaultSelectorKey ?? selectorItems[0]?.key ?? "");

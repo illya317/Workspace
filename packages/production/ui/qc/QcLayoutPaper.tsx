@@ -100,8 +100,7 @@ export default function QcLayoutPaper({ blocks, compact: _compact, test, values:
 
   return (
     <div
-      className="qc-a4-page mx-auto box-border w-[210mm] min-w-[210mm] overflow-visible bg-white px-[16mm] py-[15mm] text-slate-950 shadow-[0_0_0_1px_rgba(15,23,42,0.10),0_10px_35px_rgba(15,23,42,0.12)] tabular-nums"
-      style={{ fontFamily: "\"FangSong\", \"STFangsong\", \"FangSong_GB2312\", \"仿宋\", serif" }}
+      className="qc-a4-page qc-paper-font qc-paper-page mx-auto box-border overflow-visible bg-white text-slate-950 tabular-nums"
     >
       {numbered.blocks.map((block, index) => <RenderBlock key={`${block.label || block.type}-${index}`} block={block} context={context} />)}
       <RenderAttachmentPages blocks={numbered.blocks} context={context} />

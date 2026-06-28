@@ -3,7 +3,7 @@
 import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { Contract } from "@workspace/administration/types";
 
-export const CONTRACT_DEFAULT_VISIBLE_COLUMNS = ["name", "partyA", "partyB", "category", "signDate"];
+export { CONTRACT_DEFAULT_VISIBLE_COLUMNS } from "./contract-table-config";
 
 function StatusBadge({ status }: { status?: string | null }) {
   const toneClass =

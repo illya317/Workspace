@@ -44,28 +44,32 @@ interface Props {
   onToggle: (code: string) => void;
 }
 
-const detailColumns: DataSurfaceColumnSpec<AccountDetail>[] = [
-  { key: "code", label: "科目编码", required: true, className: "font-mono text-gray-600", cell: (row) => row.code },
-  { key: "name", label: "科目名称", required: true, cell: (row) => row.name },
-  { key: "openingDebit", label: "期初借", required: true, className: "text-right", cell: (row) => row.openingDebit > 0 ? formatFinanceAmount(row.openingDebit) : "" },
-  { key: "openingCredit", label: "期初贷", required: true, className: "text-right", cell: (row) => row.openingCredit > 0 ? formatFinanceAmount(row.openingCredit) : "" },
-  { key: "currentDebit", label: "本期借", required: true, className: "text-right", cell: (row) => row.currentDebit > 0 ? formatFinanceAmount(row.currentDebit) : "" },
-  { key: "currentCredit", label: "本期贷", required: true, className: "text-right", cell: (row) => row.currentCredit > 0 ? formatFinanceAmount(row.currentCredit) : "" },
-  {
-    key: "closing",
-    label: "期末余额",
-    required: true,
-    className: "text-right font-medium",
-    cell: (row) => (
-      <span className={row.closing < 0 ? "text-red-600" : "text-gray-800"}>
-        {formatFinanceAmount(Math.abs(row.closing))}{row.balanceDirection === "credit" && row.closing !== 0 ? " (贷)" : ""}
-      </span>
-    ),
-  },
-];
+function createDetailColumns(): DataSurfaceColumnSpec<AccountDetail>[] {
+  return [
+    { key: "code", label: "科目编码", required: true, className: "font-mono text-gray-600", cell: (row) => row.code },
+    { key: "name", label: "科目名称", required: true, cell: (row) => row.name },
+    { key: "openingDebit", label: "期初借", required: true, className: "text-right", cell: (row) => row.openingDebit > 0 ? formatFinanceAmount(row.openingDebit) : "" },
+    { key: "openingCredit", label: "期初贷", required: true, className: "text-right", cell: (row) => row.openingCredit > 0 ? formatFinanceAmount(row.openingCredit) : "" },
+    { key: "currentDebit", label: "本期借", required: true, className: "text-right", cell: (row) => row.currentDebit > 0 ? formatFinanceAmount(row.currentDebit) : "" },
+    { key: "currentCredit", label: "本期贷", required: true, className: "text-right", cell: (row) => row.currentCredit > 0 ? formatFinanceAmount(row.currentCredit) : "" },
+    {
+      key: "closing",
+      label: "期末余额",
+      required: true,
+      className: "text-right font-medium",
+      cell: (row) => (
+        <span className={row.closing < 0 ? "text-red-600" : "text-gray-800"}>
+          {formatFinanceAmount(Math.abs(row.closing))}{row.balanceDirection === "credit" && row.closing !== 0 ? " (贷)" : ""}
+        </span>
+      ),
+    },
+  ];
+}
 
 function DetailRows({ rows }: { rows: AccountDetail[] }) {
   const total = rows.reduce((sum, detail) => sum + detail.closing, 0);
+  const detailColumns = createDetailColumns();
+
   return (
     <div className="space-y-2">
       <PageSurface

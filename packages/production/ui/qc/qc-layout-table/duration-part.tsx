@@ -58,8 +58,7 @@ export function DurationPart({
     <span
       data-field-key={key}
       title={error}
-      className={`mx-1 inline-block min-w-[3em] text-right tabular-nums align-baseline ${error ? "text-red-700" : ""} ${value ? "" : "text-slate-400"}`}
-      style={{ width: part.width || "4em" }}
+      className={`mx-1 inline-block min-w-12 text-right tabular-nums align-baseline ${error ? "text-red-700" : ""} ${value ? "" : "text-slate-400"}`}
     >
       {value || part.placeholder || qcRangeLabel(part)}
     </span>

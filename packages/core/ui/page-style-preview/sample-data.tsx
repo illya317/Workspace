@@ -35,7 +35,7 @@ function resolveColumnValue(label: string, row: PreviewRow, index: number) {
   if (explicit) return explicit(row);
   if (label.includes("状态")) return <Badge label={row.status} tone={row.status === "归档" ? "gray" : "green"} />;
   if (label.includes("日期") || label.includes("时间") || label.includes("到期")) return row.updated;
-  if (label.includes("金额") || label.includes("预算") || label.includes("余额") || label.includes("差额")) return "12,800";
+  if (label.includes("金额") || label.includes("额度") || label.includes("余额") || label.includes("差额")) return "12,800";
   if (label.includes("编码") || label.includes("编号") || label.includes("批号")) return row.code;
   if (label.includes("人") || label.includes("方")) return row.owner;
   if (index === 0) return <strong>{row.name}</strong>;

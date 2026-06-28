@@ -6,6 +6,11 @@ import { PageSurface, createPageFormModalBlock, useFeedback } from "@workspace/c
 import type { FormSurfaceCommandSpec, FormSurfaceFieldSpec } from "@workspace/core/ui";
 import { useDocumentDetail, updateDocument, deleteDocument } from "../hooks/useLibraryDocuments";
 import type { LibraryDocumentItem } from "@workspace/library/types";
+import {
+  LIBRARY_DOCUMENT_CONFIDENTIALITY_FIELD_OPTIONS,
+  LIBRARY_DOCUMENT_CONFIDENTIALITY_OPTIONS,
+  LIBRARY_DOCUMENT_STATUS_OPTIONS,
+} from "./library-document-options";
 interface Props {
   documentId: number;
   onClose: () => void;
@@ -14,35 +19,6 @@ interface Props {
   canDelete?: boolean;
   canAdmin?: boolean;
 }
-const STATUS_OPTIONS = [{
-  value: "active",
-  label: "正常"
-}, {
-  value: "missing",
-  label: "缺失"
-}, {
-  value: "archived",
-  label: "归档"
-}, {
-  value: "draft",
-  label: "草稿"
-}];
-const CONFIDENTIALITY_OPTIONS = [{
-  value: 0,
-  label: "公开"
-}, {
-  value: 1,
-  label: "内部"
-}, {
-  value: 2,
-  label: "普通"
-}, {
-  value: 3,
-  label: "机密"
-}, {
-  value: 4,
-  label: "绝密"
-}];
 function fmtSize(b: number | null) {
   if (!b) return "—";
   if (b < 1024) return `${b} B`;
@@ -196,7 +172,7 @@ export default function LibraryDetailModal({
               options: {
                 source: "static",
                 mode: "dropdown",
-                items: CONFIDENTIALITY_OPTIONS.map((option) => ({ value: String(option.value), label: option.label })),
+                items: LIBRARY_DOCUMENT_CONFIDENTIALITY_FIELD_OPTIONS,
               },
             },
             value: String(form.confidentialityLevel !== undefined ? form.confidentialityLevel : doc.confidentialityLevel),
@@ -209,7 +185,7 @@ export default function LibraryDetailModal({
               valueType: "string",
               control: "choice",
               state: editableState,
-              options: { source: "static", mode: "dropdown", items: STATUS_OPTIONS },
+              options: { source: "static", mode: "dropdown", items: LIBRARY_DOCUMENT_STATUS_OPTIONS },
             },
             value: form.status !== undefined ? form.status : doc.status,
             onChange: (value) => setForm((current) => ({ ...current, status: String(value ?? "") })),
@@ -228,9 +204,9 @@ export default function LibraryDetailModal({
             key: "confidentialityLevel",
             label: "保密等级",
             spec: readonlySpec,
-            value: CONFIDENTIALITY_OPTIONS.find((option) => option.value === doc.confidentialityLevel)?.label || `L${doc.confidentialityLevel}`,
+            value: LIBRARY_DOCUMENT_CONFIDENTIALITY_OPTIONS.find((option) => option.value === doc.confidentialityLevel)?.label || `L${doc.confidentialityLevel}`,
           },
-          { key: "status", label: "状态", spec: readonlySpec, value: STATUS_OPTIONS.find((option) => option.value === doc.status)?.label || doc.status },
+          { key: "status", label: "状态", spec: readonlySpec, value: LIBRARY_DOCUMENT_STATUS_OPTIONS.find((option) => option.value === doc.status)?.label || doc.status },
           { key: "origin", label: "来源", spec: readonlySpec, value: doc.origin },
           { key: "version", label: "版本", spec: readonlySpec, value: `v${doc.version}` },
           { key: "updatedAt", label: "更新时间", spec: readonlySpec, value: fmtDate(doc.updatedAt) },

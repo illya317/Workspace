@@ -3,27 +3,7 @@
 import { PageSurface, createPageFormModalBlock } from "@workspace/core/ui";
 import type { FormSurfaceFieldSpec } from "@workspace/core/ui";
 import type { Contract, ModalMode } from "@workspace/administration/types";
-
-interface ContractFormFieldConfig {
-  label: string;
-  key: keyof Contract;
-  required?: boolean;
-  type?: "number";
-}
-
-const FORM_FIELDS: ContractFormFieldConfig[] = [
-  { label: "合同编号", key: "contractNo" as keyof Contract },
-  { label: "合同名称", key: "name" as keyof Contract, required: true },
-  { label: "签署方", key: "partyA" as keyof Contract },
-  { label: "签署对方", key: "partyB" as keyof Contract },
-  { label: "股东方", key: "shareholder" as keyof Contract },
-  { label: "合同类型", key: "category" as keyof Contract },
-  { label: "经办人", key: "handler" as keyof Contract },
-  { label: "状态", key: "status" as keyof Contract },
-  { label: "合同金额", key: "amount" as keyof Contract, type: "number" },
-  { label: "已执行金额", key: "executedAmount" as keyof Contract, type: "number" },
-  { label: "文件位置", key: "location" as keyof Contract },
-];
+import { CONTRACT_FORM_FIELD_CONFIGS } from "./contract-modal-config";
 
 interface ContractModalProps {
   mode: ModalMode;
@@ -38,7 +18,7 @@ export default function ContractModal({ mode, editing, onChange, onSave, onClose
   if (!mode) return null;
 
   const fields: FormSurfaceFieldSpec[] = [
-    ...FORM_FIELDS.map<FormSurfaceFieldSpec>((f) => ({
+    ...CONTRACT_FORM_FIELD_CONFIGS.map<FormSurfaceFieldSpec>((f) => ({
       key: String(f.key),
       label: f.label,
       required: f.required,

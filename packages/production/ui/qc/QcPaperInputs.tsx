@@ -1,24 +1,9 @@
 "use client";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import { InputControl } from "@workspace/core/ui";
 import type { QcLayoutPart } from "@workspace/production/server/qc";
 
 const PAPER_INPUT_TEXT_CLASS = "text-[15px]";
-
-function visualLength(value: string) {
-  return Array.from(value).reduce((total, char) => total + (char.charCodeAt(0) > 255 ? 2 : 1), 0);
-}
-
-function fitContentWidth(value?: string, fallback = "1.5rem"): CSSProperties {
-  const displayValue = String(value || "");
-  if (!displayValue) return { width: fallback, minWidth: fallback };
-  const contentCh = Math.min(48, Math.max(3, visualLength(displayValue) + 2));
-  return { width: `calc(${contentCh}ch + 0.75rem)`, minWidth: fallback, maxWidth: "100%" };
-}
-
-function underlineBaseWidth(part: QcLayoutPart) {
-  return part.width || "3rem";
-}
 
 function inputAlignClass() {
   return "text-center tabular-nums";
@@ -26,19 +11,6 @@ function inputAlignClass() {
 
 function inputPaddingClass() {
   return "px-1";
-}
-
-function inputWidth(part: QcLayoutPart, inTable?: boolean, value?: string): CSSProperties {
-  const current = String(value || "");
-  if (part.underline === true) return fitContentWidth(current, underlineBaseWidth(part));
-  return fitContentWidth(value);
-}
-
-function selectWidth(part: QcLayoutPart, _options: string[], value?: string, inTable?: boolean): CSSProperties {
-  const current = value || part.defaultValue || "";
-  if (part.underline === true) return { ...fitContentWidth(current, underlineBaseWidth(part)), backgroundImage: "none" };
-  const fallback = inTable ? "2.5rem" : "3rem";
-  return { ...fitContentWidth(current, fallback), backgroundImage: "none" };
 }
 
 export function qcRangeLabel(part: QcLayoutPart) {
@@ -105,8 +77,7 @@ export function QcPaperLineInput({
         title={error}
         unstyled
         resize="vertical"
-        className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block min-w-[8em] border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass()} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
-        style={inputWidth(part, inTable, currentValue)}
+        className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block min-w-32 max-w-full border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass()} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
       />
     );
   }
@@ -121,8 +92,7 @@ export function QcPaperLineInput({
         title={error}
         unstyled
         wrapperClassName="relative inline-block align-middle"
-        className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-[4.5em] border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass()} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
-        style={inputWidth(part, inTable, currentValue)}
+        className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-20 border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass()} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
       />
     );
   }
@@ -140,8 +110,7 @@ export function QcPaperLineInput({
       title={error}
       unstyled
       textAlign="center"
-      className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-[4.5em] border-0 bg-transparent ${inputPaddingClass()} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
-      style={inputWidth(part, inTable, currentValue)}
+      className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-20 border-0 bg-transparent ${inputPaddingClass()} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
     />
   );
 }
@@ -192,7 +161,6 @@ export function QcPaperSelectInput({
     <span
       ref={rootRef}
       className={`${inTable ? "mx-0" : "mx-1"} relative inline-flex h-7 items-center justify-center align-middle ${selectRootBorderClass(part, inTable)} ${error ? "text-red-700" : ""}`}
-      style={selectWidth(part, options, value ?? part.defaultValue, inTable)}
     >
       <button
         type="button"

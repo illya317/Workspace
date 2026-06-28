@@ -1,11 +1,12 @@
 import type { MutableRefObject } from "react";
+import { WorkPositionedSpan } from "../../../rendering/WorkPositioned";
 import { datePercent } from "./gantt-time";
 import type { DependencyLine, TimelineRow } from "./plan-gantt-timeline-model";
 import { parsePlanDate } from "./plan-gantt-schedule";
 
-const ACTUAL_ON_TRACK_CLASS = "bg-[#00b8a6] shadow-[0_2px_5px_rgba(0,150,136,0.22)]";
-const ACTUAL_DELAYED_CLASS = "bg-[#e56b6f] shadow-[0_2px_5px_rgba(210,72,80,0.22)]";
-const BASELINE_BAR_CLASS = "bg-slate-400/75 ring-1 ring-slate-500/15 shadow-[0_1px_3px_rgba(71,85,105,0.18)]";
+const ACTUAL_ON_TRACK_CLASS = "work-gantt-actual-on-track";
+const ACTUAL_DELAYED_CLASS = "work-gantt-actual-delayed";
+const BASELINE_BAR_CLASS = "work-gantt-baseline-bar bg-slate-400/75 ring-1 ring-slate-500/15";
 
 export function DependencyLines({ lines, hoveredTaskKey }: { lines: DependencyLine[]; hoveredTaskKey: string | null }) {
   if (!lines.length) return null;
@@ -16,8 +17,8 @@ function DependencyLine({ line, active }: { line: DependencyLine; active: boolea
   const color = active ? "rgba(245,158,11,0.9)" : "rgba(100,116,139,0.62)";
   const lineSize = active ? 2 : 1.5;
   const dash = (direction: "right" | "bottom") => `repeating-linear-gradient(to ${direction}, ${color} 0 8px, transparent 8px 18px)`;
-  const h = (left: number, right: number, top: number) => <span className="absolute" style={{ left: Math.min(left, right), top, width: Math.abs(right - left), height: lineSize, backgroundImage: dash("right") }} />;
-  const v = <span className="absolute" style={{ left: line.midX, top: Math.min(line.y1, line.y2), width: lineSize, height: Math.abs(line.y2 - line.y1), backgroundImage: dash("bottom") }} />;
+  const h = (left: number, right: number, top: number) => <WorkPositionedSpan className="absolute" leftPx={Math.min(left, right)} topPx={top} widthPx={Math.abs(right - left)} heightPx={lineSize} backgroundImage={dash("right")} />;
+  const v = <WorkPositionedSpan className="absolute" leftPx={line.midX} topPx={Math.min(line.y1, line.y2)} widthPx={lineSize} heightPx={Math.abs(line.y2 - line.y1)} backgroundImage={dash("bottom")} />;
   return (
     <>
       {h(line.x1, line.midX, line.y1)}
@@ -29,7 +30,7 @@ function DependencyLine({ line, active }: { line: DependencyLine; active: boolea
 
 export function RowName({ row, highlighted }: { row: TimelineRow; highlighted: boolean }) {
   return (
-    <div className="flex min-w-0 items-center gap-2" style={{ paddingLeft: `${row.depth * 18}px` }}>
+    <div className={`flex min-w-0 items-center gap-2 ${depthIndentClassName(row.depth)}`}>
       <span className="grid size-5 shrink-0 place-items-center rounded border border-slate-200 bg-white text-xs font-semibold text-slate-500">
         {row.kind === "task" ? "·" : "⌄"}
       </span>
@@ -63,10 +64,11 @@ export function BaselineBar({
   const placement = barPlacement(start, end, periodStart, periodEnd);
   if (!placement) return null;
   return (
-    <span
+    <WorkPositionedSpan
       className={`absolute top-[15px] z-0 min-w-3 rounded-md ${actualBarHeightClassName(row)} ${BASELINE_BAR_CLASS}`}
       title={`基线：${row.name}`}
-      style={placement}
+      leftPercent={placement.left}
+      widthPercent={placement.width}
     />
   );
 }
@@ -94,11 +96,12 @@ export function CurrentBar({
   const colorClass = actualBarClassName(row);
   return (
     <>
-      <span
+      <WorkPositionedSpan
         ref={(node) => { if (node) barRefs.current.set(row.key, node); else barRefs.current.delete(row.key); }}
         className={`absolute top-[15px] z-10 rounded-md transition ${row.kind === "task" ? "cursor-pointer" : ""} ${highlighted ? "ring-2 ring-amber-300/80 brightness-105" : ""} ${actualBarHeightClassName(row)} ${colorClass}`}
         title={`${row.name} ${row.startDate || ""} - ${row.endDate || ""}`}
-        style={placement}
+        leftPercent={placement.left}
+        widthPercent={placement.width}
         onMouseEnter={() => { if (row.kind === "task") onTaskHover(row.key); }}
         onMouseLeave={() => { if (row.kind === "task") onTaskHover(null); }}
       />
@@ -132,10 +135,11 @@ function PhaseActualBar({ row, periodStart, periodEnd }: { row: TimelineRow; per
   if (!placement) return null;
   return (
     <>
-      <span
+      <WorkPositionedSpan
         className={`absolute top-[15px] z-10 rounded-md ${actualBarHeightClassName(row)} ${actualBarClassName(row)}`}
         title={`阶段实际：${row.name} ${row.startDate || ""} - ${row.endDate || ""}`}
-        style={placement}
+        leftPercent={placement.left}
+        widthPercent={placement.width}
       />
     </>
   );
@@ -176,6 +180,14 @@ export function actualCenterTopClassName(row: TimelineRow) {
   return row.kind === "task" ? "top-[21px]" : "top-[19px]";
 }
 
+function depthIndentClassName(depth: number) {
+  if (depth <= 0) return "ps-0";
+  if (depth === 1) return "ps-5";
+  if (depth === 2) return "ps-10";
+  if (depth === 3) return "ps-16";
+  return "ps-20";
+}
+
 function actualBarHeightClassName(row: TimelineRow) {
   return row.kind === "task" ? "h-3" : "h-2";
 }
@@ -212,10 +224,10 @@ function MilestoneMark({
   const left = datePercent(value, periodStart, periodEnd);
   if (left <= 0 || left >= 100) return null;
   return (
-    <span
-      className={`absolute ${topClassName} z-20 size-3 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-[3px] border border-amber-500 bg-amber-300 shadow-sm`}
+    <WorkPositionedSpan
+      className={`work-gantt-milestone absolute ${topClassName} z-20 size-3 -translate-x-1/2 -translate-y-1/2 rotate-45 border border-amber-500 bg-amber-300 shadow-sm`}
       title={label}
-      style={{ left: `${left}%` }}
+      leftPercent={left}
     />
   );
 }
@@ -231,5 +243,5 @@ function barPlacement(start: Date, end: Date, periodStart: Date, periodEnd: Date
   const visibleStart = Math.max(0, Math.min(left, right));
   const visibleEnd = Math.min(100, Math.max(left, right));
   if (visibleEnd <= 0 || visibleStart >= 100) return null;
-  return { left: `${visibleStart}%`, width: `${Math.max(1.2, visibleEnd - visibleStart)}%` };
+  return { left: visibleStart, width: Math.max(1.2, visibleEnd - visibleStart) };
 }

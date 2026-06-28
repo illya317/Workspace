@@ -174,9 +174,9 @@ function createColumns({
       label: "工作大纲",
       required: true,
       headerClassName: "min-w-80",
-      cellClassName: "min-w-80 max-w-[32rem]",
+      cellClassName: "min-w-80 max-w-lg",
       cell: (work) => (
-        <div className="flex min-w-0 items-center gap-2" style={{ paddingLeft: work.depth * 18 }}>
+        <div className={`flex min-w-0 items-center gap-2 ${depthIndentClassName(work.depth)}`}>
           {work.childCount > 0 ? (
             <button
               type="button"
@@ -261,6 +261,14 @@ function createColumns({
     },
 
   ];
+}
+
+function depthIndentClassName(depth: number) {
+  if (depth <= 0) return "ps-0";
+  if (depth === 1) return "ps-5";
+  if (depth === 2) return "ps-10";
+  if (depth === 3) return "ps-16";
+  return "ps-20";
 }
 
 function buildTreeRows(

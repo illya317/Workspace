@@ -9,6 +9,7 @@ import { useCompanyOptions } from "@workspace/platform/hooks";
 import { createReportBannerBlock } from "./ReportBanner";
 import { createReportLinesSurface, type AccountDetail, type ReportLine } from "./ReportLines";
 import { formatFinanceAmount } from "../formatters";
+import { REPORT_TYPE_OPTIONS } from "./report-options";
 const REPORT_TYPES = new Set(["balance", "income", "cashflow"]);
 const YEAR_OPTIONS = [2024, 2025, 2026].map((year) => ({
   value: String(year),
@@ -18,11 +19,6 @@ const MONTH_OPTIONS = Array.from({ length: 12 }, (_, index) => ({
   value: String(index + 1),
   label: `${index + 1}月`,
 }));
-const REPORT_TYPE_OPTIONS = [
-  { value: "balance", label: "资产负债表" },
-  { value: "income", label: "利润表" },
-  { value: "cashflow", label: "现金流量表" },
-];
 interface Period {
   id: number;
   year: number;

@@ -1,6 +1,7 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
+import { FixedPositionBox } from "../../../rendering/FixedPositionBox";
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from "react";
 import InlineFeedbackEditor from "./InlineFeedbackEditor";
 import InlineFeedbackMarkerButton from "./InlineFeedbackMarkerButton";
@@ -187,9 +188,9 @@ export default function TemplateInlineFeedback({ selection, children, onSaved }:
       {children}
       {savedMarkers.map((marker) => <Marker key={`saved-${anchorId(marker)}`} anchor={marker} tone="saved" onClick={() => openEditor(marker)} />)}
       {anchor && !editorOpen && (!isSavedAnchor(anchor) || !isSavedMarkerVisible(anchor)) ? (
-        <div className="fixed z-40 p-2" style={markerStyle(anchor.rect)} onMouseEnter={() => { clearHideTimer(); setPopoverHovered(true); }} onMouseLeave={() => { setPopoverHovered(false); queueHide(); }}>
+        <FixedPositionBox className="fixed z-40 p-2" {...markerStyle(anchor.rect)} onMouseEnter={() => { clearHideTimer(); setPopoverHovered(true); }} onMouseLeave={() => { setPopoverHovered(false); queueHide(); }}>
           <InlineFeedbackMarkerButton tone={isSavedAnchor(anchor) ? "saved" : "hover"} onClick={() => openEditor(anchor)} />
-        </div>
+        </FixedPositionBox>
       ) : null}
       {anchor && editorOpen ? (
         <InlineFeedbackEditor
@@ -200,7 +201,7 @@ export default function TemplateInlineFeedback({ selection, children, onSaved }:
           loading={loading}
           saving={saving}
           error={error}
-          style={editorStyle(anchor.rect)}
+          position={editorStyle(anchor.rect)}
           onNoteChange={setNote}
           onSave={saveInlineFeedback}
           onClose={() => { setEditorOpen(false); queueHide(); }}
@@ -212,7 +213,7 @@ export default function TemplateInlineFeedback({ selection, children, onSaved }:
 }
 
 function Marker({ anchor, tone, onClick }: { anchor: InlineAnchor; tone: "saved" | "hover"; onClick: () => void }) {
-  return <div className="fixed z-30 p-2" style={markerStyle(anchor.rect)}><InlineFeedbackMarkerButton tone={tone} onClick={onClick} /></div>;
+  return <FixedPositionBox className="fixed z-30 p-2" {...markerStyle(anchor.rect)}><InlineFeedbackMarkerButton tone={tone} onClick={onClick} /></FixedPositionBox>;
 }
 
 function anchorToTarget(anchor: InlineAnchor) {

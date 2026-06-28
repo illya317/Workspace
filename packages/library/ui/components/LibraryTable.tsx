@@ -54,7 +54,7 @@ export default function LibraryTable({
       defaultVisible: true,
       cellClassName: "text-gray-500",
       cell: (d) => (
-        <span className="block max-w-[12rem] truncate" title={d.summary || ""}>
+        <span className="block max-w-48 truncate" title={d.summary || ""}>
           {d.summary || "—"}
         </span>
       ),

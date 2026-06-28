@@ -203,14 +203,7 @@ export function OrganizationModePanel({
   const organizationHeaderDepartment = !loading && !error ? selectedDepartment : undefined;
   const organizationPanelTitle = organizationHeaderDepartment ? (
     <div
-      className="min-w-0 whitespace-normal"
-      style={{
-        display: "grid",
-        gridTemplateColumns: "minmax(0,max-content) auto minmax(0,18rem)",
-        alignItems: "center",
-        columnGap: "0.75rem",
-        rowGap: "0.5rem",
-      }}
+      className="organization-title-layout min-w-0 whitespace-normal"
     >
       <button
         type="button"
@@ -289,7 +282,7 @@ export function OrganizationModePanel({
           disabled: !canEdit || saving || !managerDirty,
           onClick: () => void saveChanges(),
         }] : undefined,
-        className: "min-h-[520px]",
+        className: "min-h-96",
         bodyClassName: "p-4",
         blocks: panelBlocks,
       }]}

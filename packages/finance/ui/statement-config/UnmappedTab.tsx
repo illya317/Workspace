@@ -28,57 +28,59 @@ interface DisplayItem {
   status: Status;
   subtractSourceLine: string | null;
 }
-const columns: DataSurfaceColumnSpec<DisplayItem>[] = [{
-  key: "accountCode",
-  label: "科目编码",
-  required: true,
-  cellClassName: "font-mono text-slate-600",
-  cell: row => row.accountCode
-}, {
-  key: "accountName",
-  label: "科目名称",
-  required: true,
-  cell: row => row.accountName
-}, {
-  key: "level",
-  label: "层级",
-  defaultVisible: true,
-  headerClassName: "text-center",
-  cellClassName: "text-center text-slate-500",
-  cell: row => `L${row.level}`
-}, {
-  key: "closingDebit",
-  label: "期末借方",
-  defaultVisible: true,
-  headerClassName: "text-right",
-  cellClassName: "text-right text-slate-600",
-  cell: row => formatFinanceAmount(row.closingDebit)
-}, {
-  key: "closingCredit",
-  label: "期末贷方",
-  defaultVisible: true,
-  headerClassName: "text-right",
-  cellClassName: "text-right text-slate-600",
-  cell: row => formatFinanceAmount(row.closingCredit)
-}, {
-  key: "net",
-  label: "净值",
-  defaultVisible: true,
-  headerClassName: "text-right",
-  cellClassName: "text-right font-medium",
-  cell: row => <span className={row.net < 0 ? "text-red-600" : "text-slate-700"}>
-        {formatFinanceAmount(Math.abs(row.net))}
-      </span>
-}, {
-  key: "status",
-  label: "状态",
-  defaultVisible: true,
-  cell: row => {
-    if (row.status === "excluded") return { kind: "badge", label: "已排除", tone: "gray" };
-    if (row.status === "subtractOnly") return { kind: "badge", label: `仅减项 → ${row.subtractSourceLine ?? "?"}`, tone: "yellow" };
-    return { kind: "badge", label: "未映射", tone: "red" };
-  }
-}];
+function createUnmappedColumns(): DataSurfaceColumnSpec<DisplayItem>[] {
+  return [{
+    key: "accountCode",
+    label: "科目编码",
+    required: true,
+    cellClassName: "font-mono text-slate-600",
+    cell: row => row.accountCode
+  }, {
+    key: "accountName",
+    label: "科目名称",
+    required: true,
+    cell: row => row.accountName
+  }, {
+    key: "level",
+    label: "层级",
+    defaultVisible: true,
+    headerClassName: "text-center",
+    cellClassName: "text-center text-slate-500",
+    cell: row => `L${row.level}`
+  }, {
+    key: "closingDebit",
+    label: "期末借方",
+    defaultVisible: true,
+    headerClassName: "text-right",
+    cellClassName: "text-right text-slate-600",
+    cell: row => formatFinanceAmount(row.closingDebit)
+  }, {
+    key: "closingCredit",
+    label: "期末贷方",
+    defaultVisible: true,
+    headerClassName: "text-right",
+    cellClassName: "text-right text-slate-600",
+    cell: row => formatFinanceAmount(row.closingCredit)
+  }, {
+    key: "net",
+    label: "净值",
+    defaultVisible: true,
+    headerClassName: "text-right",
+    cellClassName: "text-right font-medium",
+    cell: row => <span className={row.net < 0 ? "text-red-600" : "text-slate-700"}>
+          {formatFinanceAmount(Math.abs(row.net))}
+        </span>
+  }, {
+    key: "status",
+    label: "状态",
+    defaultVisible: true,
+    cell: row => {
+      if (row.status === "excluded") return { kind: "badge", label: "已排除", tone: "gray" };
+      if (row.status === "subtractOnly") return { kind: "badge", label: `仅减项 → ${row.subtractSourceLine ?? "?"}`, tone: "yellow" };
+      return { kind: "badge", label: "未映射", tone: "red" };
+    }
+  }];
+}
 export default function UnmappedTab() {
   const {
     company,
@@ -210,6 +212,8 @@ function UnmappedError({ message, onRetry }: { message: string; onRetry: () => v
 }
 
 function UnmappedTable({ items }: { items: DisplayItem[] }) {
+  const columns = createUnmappedColumns();
+
   return (
     <PageSurface
       kind="list"

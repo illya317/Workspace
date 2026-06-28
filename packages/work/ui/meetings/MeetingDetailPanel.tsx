@@ -74,7 +74,7 @@ export function useMeetingDetailBlock({
           key: "meeting-detail-composition",
           content: <div className="space-y-4">
       <MeetingHeader meeting={meeting} saving={saving} onUpdate={onUpdate} />
-      <div className="grid 2xl:grid-cols-2" style={{ gap: "1rem" }}>
+      <div className="grid gap-4 2xl:grid-cols-2">
         <Section title="参会人">
           <ParticipantList participants={meeting.participants} />
           {canEdit && <InlineForm>

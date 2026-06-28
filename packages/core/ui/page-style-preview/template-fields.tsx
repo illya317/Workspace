@@ -14,10 +14,10 @@ function fieldValue(field: string, index: number, values: Record<string, string>
   if (values[field]) return values[field];
   if (field.includes("编号") || field.includes("编码")) return "A001";
   if (field.includes("姓名")) return "示例姓名";
-  if (field.includes("部门")) return "示例组织";
-  if (field.includes("岗位") || field.includes("职称")) return "示例岗位";
+  if (field.includes("组织")) return "示例组织";
+  if (field.includes("角色") || field.includes("头衔")) return "示例角色";
   if (field.includes("日期") || field.includes("时间") || field.includes("出生年月")) return "2026-06-18";
-  if (field.includes("金额") || field.includes("预算") || field.includes("占比")) return "99.98";
+  if (field.includes("金额") || field.includes("额度") || field.includes("占比")) return "99.98";
   if (field.includes("电话")) return "137 0000 0000";
   if (field.includes("状态")) return "现用";
   if (field.includes("范围") || field.includes("保密")) return "内部";
@@ -35,7 +35,7 @@ function isOptionField(field: string) {
 }
 
 function isReferenceField(field: string) {
-  return /部门|岗位|负责人|上级|计划|客户|供应商|投资人/.test(field);
+  return /组织|角色|负责人|上级|计划|对象|来源方/.test(field);
 }
 
 function isDateField(field: string) {

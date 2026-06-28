@@ -102,7 +102,7 @@ export default function ProjectTasksSection({
             <span className="max-w-full truncate text-xs text-slate-400" title={`前置：${task.predecessorTaskNames.join("、")}`}>前置：{task.predecessorTaskNames.join("、")}</span>
           )}
           <div className="flex min-w-0 items-center gap-2">
-            <span className="min-w-0 max-w-[16rem] truncate text-sm font-medium text-slate-900" title={task.name}>{task.name}</span>
+            <span className="min-w-0 max-w-64 truncate text-sm font-medium text-slate-900" title={task.name}>{task.name}</span>
             {task.isMilestone && <span className="shrink-0 rounded bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">里程碑</span>}
           </div>
           {task.description && <span className="max-w-full truncate text-xs text-slate-400" title={task.description}>{task.description}</span>}

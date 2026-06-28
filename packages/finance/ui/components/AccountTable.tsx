@@ -28,99 +28,101 @@ const CATEGORIES: Record<string, string> = {
   other: "其他",
 };
 
-export const ACCOUNT_COLUMNS: DataSurfaceColumnSpec<Account>[] = [
-  {
-    key: "code",
-    label: "编码",
-    required: true,
-    cell: (account) => (
-      <span className="font-mono text-gray-700">{account.code}</span>
-    ),
-  },
-  {
-    key: "name",
-    label: "名称",
-    required: true,
-    cell: (account) => <span className="text-gray-700">{account.name}</span>,
-  },
-  {
-    key: "companyCode",
-    label: "公司",
-    cell: (account) => <CompanyNameCell code={account.companyCode} />,
-  },
-  {
-    key: "category",
-    label: "类别",
-    defaultVisible: true,
-    cell: (account) => (
-      <span className="text-gray-600">
-        {CATEGORIES[account.category] || account.category}
-      </span>
-    ),
-  },
-  {
-    key: "subjectLevel",
-    label: "层级",
-    cell: (account) => (
-      <span className="text-gray-600">{account.subjectLevel ?? "-"}</span>
-    ),
-  },
-  {
-    key: "balanceDirection",
-    label: "余额方向",
-    cell: (account) => (
-      <span className="text-gray-600">
-        {account.balanceDirection === "debit" ? "借" : "贷"}
-      </span>
-    ),
-  },
-  {
-    key: "groupSubjectCode",
-    label: "集团编码",
-    cell: (account) => (
-      <span className="font-mono text-gray-500">
-        {account.groupSubjectCode || "-"}
-      </span>
-    ),
-  },
-  {
-    key: "mnemonicCode",
-    label: "助记码",
-    defaultVisible: true,
-    cell: (account) => (
-      <span className="text-gray-500">{account.mnemonicCode || "-"}</span>
-    ),
-  },
-  {
-    key: "currency",
-    label: "币种",
-    cell: (account) => (
-      <span className="text-gray-500">{account.currency || "-"}</span>
-    ),
-  },
-  {
-    key: "parent",
-    label: "父级科目",
-    defaultVisible: true,
-    cell: (account) => (
-      <span className="text-gray-500">
-        {account.parent ? `${account.parent.code} ${account.parent.name}` : "-"}
-      </span>
-    ),
-  },
-  {
-    key: "isActive",
-    label: "状态",
-    defaultVisible: true,
-    cell: (account) => (
-      <span
-        className={`text-xs ${account.isActive ? "text-emerald-600" : "text-gray-400"}`}
-      >
-        {account.isActive ? "启用" : "停用"}
-      </span>
-    ),
-  },
-];
+export function getAccountColumns(): DataSurfaceColumnSpec<Account>[] {
+  return [
+    {
+      key: "code",
+      label: "编码",
+      required: true,
+      cell: (account) => (
+        <span className="font-mono text-gray-700">{account.code}</span>
+      ),
+    },
+    {
+      key: "name",
+      label: "名称",
+      required: true,
+      cell: (account) => <span className="text-gray-700">{account.name}</span>,
+    },
+    {
+      key: "companyCode",
+      label: "公司",
+      cell: (account) => <CompanyNameCell code={account.companyCode} />,
+    },
+    {
+      key: "category",
+      label: "类别",
+      defaultVisible: true,
+      cell: (account) => (
+        <span className="text-gray-600">
+          {CATEGORIES[account.category] || account.category}
+        </span>
+      ),
+    },
+    {
+      key: "subjectLevel",
+      label: "层级",
+      cell: (account) => (
+        <span className="text-gray-600">{account.subjectLevel ?? "-"}</span>
+      ),
+    },
+    {
+      key: "balanceDirection",
+      label: "余额方向",
+      cell: (account) => (
+        <span className="text-gray-600">
+          {account.balanceDirection === "debit" ? "借" : "贷"}
+        </span>
+      ),
+    },
+    {
+      key: "groupSubjectCode",
+      label: "集团编码",
+      cell: (account) => (
+        <span className="font-mono text-gray-500">
+          {account.groupSubjectCode || "-"}
+        </span>
+      ),
+    },
+    {
+      key: "mnemonicCode",
+      label: "助记码",
+      defaultVisible: true,
+      cell: (account) => (
+        <span className="text-gray-500">{account.mnemonicCode || "-"}</span>
+      ),
+    },
+    {
+      key: "currency",
+      label: "币种",
+      cell: (account) => (
+        <span className="text-gray-500">{account.currency || "-"}</span>
+      ),
+    },
+    {
+      key: "parent",
+      label: "父级科目",
+      defaultVisible: true,
+      cell: (account) => (
+        <span className="text-gray-500">
+          {account.parent ? `${account.parent.code} ${account.parent.name}` : "-"}
+        </span>
+      ),
+    },
+    {
+      key: "isActive",
+      label: "状态",
+      defaultVisible: true,
+      cell: (account) => (
+        <span
+          className={`text-xs ${account.isActive ? "text-emerald-600" : "text-gray-400"}`}
+        >
+          {account.isActive ? "启用" : "停用"}
+        </span>
+      ),
+    },
+  ];
+}
 
 interface AccountTableProps {
   accounts: Account[];
@@ -133,6 +135,8 @@ export default function AccountTable({
   loading,
   visibleColumns,
 }: AccountTableProps) {
+  const columns = getAccountColumns();
+
   return (
     <PageSurface
       kind="list"
@@ -140,7 +144,7 @@ export default function AccountTable({
       blocks={[
         createPageTableBlock("accounts", {
           rows: accounts,
-          columns: ACCOUNT_COLUMNS,
+          columns,
           visibleColumns,
           loading,
           emptyText: "暂无科目数据",

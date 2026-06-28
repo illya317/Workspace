@@ -15,7 +15,7 @@ export default function QcBatchRecordStageList({ batch, detail }: QcBatchRecordS
   const workflow = buildQcBatchWorkflow(detail, batch);
   return (
     <section>
-      <div className="mx-auto max-w-[min(230mm,calc(100vw-2rem))]" style={{ fontFamily: "\"FangSong\", \"STFangsong\", \"FangSong_GB2312\", \"仿宋\", serif" }}>
+      <div className="qc-paper-font qc-paper-stage-shell mx-auto">
         <PageSurface
           kind="detail"
           embedded

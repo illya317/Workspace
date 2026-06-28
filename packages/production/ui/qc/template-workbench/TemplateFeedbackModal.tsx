@@ -5,16 +5,9 @@ import { useEffect, useMemo, useState } from "react";
 import { PageSurface, createPageFieldsBlock, createPageModalBlock, createPageTableBlock } from "@workspace/core/ui";
 import type { QcTemplateFeedbackItem, QcTemplateFeedbackState } from "@workspace/production/server/qc";
 import { feedbackKey, selectionTitle, type FeedbackTarget } from "./types";
+import { TEMPLATE_FEEDBACK_FIELDS } from "./feedback-fields";
 
-const FEEDBACK_FIELDS = [
-  { key: "descriptionText", label: "描述文字" },
-  { key: "tableLayout", label: "表格布局" },
-  { key: "formulaCalculation", label: "公式计算" },
-  { key: "autoFilledText", label: "文字自动填写" },
-  { key: "other", label: "其他" },
-] as const;
-
-type FeedbackFieldKey = typeof FEEDBACK_FIELDS[number]["key"];
+type FeedbackFieldKey = typeof TEMPLATE_FEEDBACK_FIELDS[number]["key"];
 
 interface Props {
   target: FeedbackTarget | null;
@@ -29,7 +22,7 @@ interface FeedbackResponse {
   error?: string;
 }
 
-const SECTION_LABELS: Array<[FeedbackFieldKey, string]> = FEEDBACK_FIELDS.map((field) => [field.key, field.label]);
+const SECTION_LABELS: Array<[FeedbackFieldKey, string]> = TEMPLATE_FEEDBACK_FIELDS.map((field) => [field.key, field.label]);
 
 interface FeedbackRow {
   id: string;

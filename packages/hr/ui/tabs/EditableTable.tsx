@@ -104,7 +104,6 @@ export default function EditableTable({
           return (
             <span
               className="block min-w-max"
-              style={{ width: field.width }}
               onClick={(event) => {
                 event.stopPropagation();
                 if (editableCell) onStartEdit(item, field);

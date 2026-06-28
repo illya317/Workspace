@@ -8,12 +8,13 @@ import {
   type ProjectGanttZoom,
 } from "./gantt-model";
 import { buildGanttTicks, datePercent, parseGanttDate, rangeEnd } from "./gantt-time";
+import { WorkPositionedDiv, WorkPositionedSpan } from "../../../rendering/WorkPositioned";
 
 const LEFT_COLUMN_WIDTH = 360;
 const ROW_GRID = "grid-cols-[360px_minmax(0,1fr)]";
-const ACTUAL_ON_TRACK_CLASS = "bg-[#00b8a6] shadow-[0_2px_5px_rgba(0,150,136,0.22)]";
-const ACTUAL_DELAYED_CLASS = "bg-[#e56b6f] shadow-[0_2px_5px_rgba(210,72,80,0.22)]";
-const BASELINE_BAR_CLASS = "bg-slate-400/75 ring-1 ring-slate-500/15 shadow-[0_1px_3px_rgba(71,85,105,0.18)]";
+const ACTUAL_ON_TRACK_CLASS = "work-gantt-actual-on-track";
+const ACTUAL_DELAYED_CLASS = "work-gantt-actual-delayed";
+const BASELINE_BAR_CLASS = "work-gantt-baseline-bar bg-slate-400/75 ring-1 ring-slate-500/15";
 const STAGE_BAR_CLASS: Record<string, string> = {
   "规划中": "bg-emerald-300",
   "进行中": ACTUAL_ON_TRACK_CLASS,
@@ -59,13 +60,13 @@ export default function ProjectGanttChart({
               <div className="relative min-w-0 overflow-hidden px-4 py-3">
                 <div className="relative h-6">
                   {ticks.map((tick) => (
-                    <span
+                    <WorkPositionedSpan
                       key={tick.key}
                       className="absolute top-0 -translate-x-px whitespace-nowrap border-l border-slate-200 pl-2"
-                      style={{ left: `${datePercent(tick.date, periodStart, periodEnd)}%` }}
+                      leftPercent={datePercent(tick.date, periodStart, periodEnd)}
                     >
                       {tick.label}
-                    </span>
+                    </WorkPositionedSpan>
                   ))}
                 </div>
               </div>
@@ -73,24 +74,18 @@ export default function ProjectGanttChart({
 
             <div className="relative">
               {todayVisible && (
-                <div className="pointer-events-none absolute inset-y-0 right-0 z-10 px-4" style={{ left: LEFT_COLUMN_WIDTH }}>
-                  <span
-                    className="absolute bottom-0 top-0 w-0.5"
-                    style={{
-                      left: `${todayLeft}%`,
-                      backgroundImage: "repeating-linear-gradient(to bottom, rgba(100,116,139,0.62) 0 10px, transparent 10px 22px)",
-                    }}
-                  />
-                </div>
+                <WorkPositionedDiv className="pointer-events-none absolute inset-y-0 right-0 z-10 px-4" leftPx={LEFT_COLUMN_WIDTH}>
+                  <WorkPositionedSpan className="work-gantt-today-line absolute bottom-0 top-0 w-0.5" leftPercent={todayLeft} />
+                </WorkPositionedDiv>
               )}
 
               {rows.map((row) => (
                 <div
                   key={row.key}
-                  className={`relative grid ${ROW_GRID} min-h-[48px] border-b border-slate-100 last:border-b-0 hover:bg-slate-50/70`}
+                  className={`relative grid ${ROW_GRID} min-h-12 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/70`}
                 >
                   <div className="min-w-0 px-4 py-2">
-                    <div className="flex min-w-0 items-center gap-2" style={{ paddingLeft: `${row.depth * 18}px` }}>
+                    <div className={`flex min-w-0 items-center gap-2 ${depthIndentClassName(row.depth)}`}>
                       <button
                         type="button"
                         disabled={!row.hasChildren}
@@ -110,10 +105,10 @@ export default function ProjectGanttChart({
                   <div className="relative min-w-0 overflow-hidden px-4 py-2">
                     <div className="absolute inset-y-0 left-4 right-4">
                       {ticks.map((tick) => (
-                        <span
+                        <WorkPositionedSpan
                           key={`${row.key}-${tick.key}`}
                           className="absolute top-0 h-full border-l border-slate-100"
-                          style={{ left: `${datePercent(tick.date, periodStart, periodEnd)}%` }}
+                          leftPercent={datePercent(tick.date, periodStart, periodEnd)}
                         />
                       ))}
                     </div>
@@ -147,10 +142,11 @@ function BaselineMark({ row, periodStart, periodEnd }: { row: GanttRow; periodSt
   const visibleEnd = Math.min(100, Math.max(left, right));
   if (visibleEnd <= 0 || visibleStart >= 100) return null;
   return (
-    <span
+    <WorkPositionedSpan
       className={`absolute top-[15px] z-0 min-w-3 rounded-md ${barHeightClassName(row)} ${BASELINE_BAR_CLASS}`}
       title={`基准 ${formatDate(start)} - ${formatDate(end)}`}
-      style={{ left: `${visibleStart}%`, width: `${Math.max(1.2, visibleEnd - visibleStart)}%` }}
+      leftPercent={visibleStart}
+      widthPercent={Math.max(1.2, visibleEnd - visibleStart)}
     />
   );
 }
@@ -189,10 +185,11 @@ function TimelineMark({ row, periodStart, periodEnd }: { row: GanttRow; periodSt
     return (
       <>
         <span className={`absolute left-0 right-0 ${actualCenterTopClassName(row)} h-px bg-slate-200/50`} />
-        <div
+        <WorkPositionedDiv
           className={`absolute top-[15px] z-10 min-w-4 rounded-md ${barHeightClassName(row)} ${colorClass}`}
           title={`${formatDate(start)} - ${formatDate(end)}`}
-          style={{ left: `${visibleStart}%`, width: `${Math.max(1.5, visibleEnd - visibleStart)}%` }}
+          leftPercent={visibleStart}
+          widthPercent={Math.max(1.5, visibleEnd - visibleStart)}
         />
       </>
     );
@@ -204,14 +201,14 @@ function TimelineMark({ row, periodStart, periodEnd }: { row: GanttRow; periodSt
   if (left <= 0 || left >= 100) return <TimelineHint>不在当前视窗</TimelineHint>;
   return (
     <>
-      <span
+      <WorkPositionedSpan
         className={`absolute ${actualCenterTopClassName(row)} z-20 size-3 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-sm shadow-sm ${colorClass}`}
         title={formatDate(single)}
-        style={{ left: `${left}%` }}
+        leftPercent={left}
       />
-      <span className="absolute top-[11px] ml-3 whitespace-nowrap text-xs font-medium text-slate-400" style={{ left: `${left}%` }}>
+      <WorkPositionedSpan className="absolute top-[11px] ml-3 whitespace-nowrap text-xs font-medium text-slate-400" leftPercent={left}>
         {end ? "截止" : "开始"}
-      </span>
+      </WorkPositionedSpan>
     </>
   );
 }
@@ -245,6 +242,14 @@ function actualCenterTopClassName(row: GanttRow) {
 function ownerBadgeText(names: string[]) {
   if (names.length <= 2) return names.join("、");
   return `${names.slice(0, 2).join("、")} 等${names.length}人`;
+}
+
+function depthIndentClassName(depth: number) {
+  if (depth <= 0) return "ps-0";
+  if (depth === 1) return "ps-5";
+  if (depth === 2) return "ps-10";
+  if (depth === 3) return "ps-16";
+  return "ps-20";
 }
 
 function StageTimeline({
@@ -284,10 +289,11 @@ function StageSegment({ stage, periodStart, periodEnd }: { stage: ProjectGanttSt
   const visibleEnd = Math.min(100, Math.max(left, right));
   if (visibleEnd <= 0 || visibleStart >= 100) return null;
   return (
-    <span
+    <WorkPositionedSpan
       className={`absolute top-[15px] z-10 h-2 min-w-3 rounded-md ${colorClass}`}
       title={stageTitle(stage)}
-      style={{ left: `${visibleStart}%`, width: `${Math.max(1.2, visibleEnd - visibleStart)}%` }}
+      leftPercent={visibleStart}
+      widthPercent={Math.max(1.2, visibleEnd - visibleStart)}
     />
   );
 }
@@ -311,11 +317,11 @@ function MilestoneMarks({
         const left = datePercent(date, periodStart, periodEnd);
         if (left <= 0 || left >= 100) return null;
         return (
-          <span
+          <WorkPositionedSpan
             key={event.key}
-            className={`absolute ${actualCenterTopClassName(row)} z-20 size-3 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-[3px] border border-amber-500 bg-amber-300 shadow-sm`}
+            className={`work-gantt-milestone absolute ${actualCenterTopClassName(row)} z-20 size-3 -translate-x-1/2 -translate-y-1/2 rotate-45 border border-amber-500 bg-amber-300 shadow-sm`}
             title={event.name}
-            style={{ left: `${left}%` }}
+            leftPercent={left}
           />
         );
       })}

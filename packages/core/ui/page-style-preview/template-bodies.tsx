@@ -122,7 +122,7 @@ function SplitBody({ module, page, listVisible }: { module: ModuleTemplate; page
       ) : null}
       right={<PanelCard title={page.title} subtitle={module.summary} bodyClassName="space-y-4 p-4">
         <FormGrid fields={page.fields ?? ["编码", "名称", "负责人", "状态", "范围", "类型", "级别", "更新时间"]} />
-        {/部门|岗位|架构/.test(page.title) && <DetailStats items={["直属岗位", "总岗位", "直属编制", "总编制"]} />}
+        {/分组|层级|结构/.test(page.title) && <DetailStats items={["直属节点", "总节点", "直属容量", "总容量"]} />}
       </PanelCard>}
     />
   );

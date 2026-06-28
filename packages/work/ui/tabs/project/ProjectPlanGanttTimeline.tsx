@@ -1,6 +1,7 @@
 "use client";
 import { useLayoutEffect, useRef, useState } from "react";
 import { PageSurface, createPageFieldsBlock } from "@workspace/core/ui";
+import { WorkPositionedDiv, WorkPositionedSpan } from "../../../rendering/WorkPositioned";
 import type {
   ProjectPlanDependency,
   ProjectPlanItem,
@@ -88,44 +89,38 @@ export default function ProjectPlanGanttTimeline({
             <div className="relative min-w-0 overflow-hidden px-4 py-3">
               <div className="relative h-6">
                 {ticks.map((tick) => (
-                  <span
+                  <WorkPositionedSpan
                     key={tick.key}
                     className="absolute top-0 -translate-x-px whitespace-nowrap border-l border-slate-200 pl-2"
-                    style={{ left: `${datePercent(tick.date, periodStart, periodEnd)}%` }}
+                    leftPercent={datePercent(tick.date, periodStart, periodEnd)}
                   >
                     {tick.label}
-                  </span>
+                  </WorkPositionedSpan>
                 ))}
               </div>
             </div>
           </div>
           <div ref={timelineBodyRef} className="relative">
             {todayVisible && (
-              <div className="pointer-events-none absolute inset-y-0 right-0 z-10 px-4" style={{ left: LEFT_COLUMN_WIDTH }}>
-                <span
-                  className="absolute bottom-0 top-0 w-0.5"
-                  style={{
-                    left: `${todayLeft}%`,
-                    backgroundImage: "repeating-linear-gradient(to bottom, rgba(100,116,139,0.6) 0 10px, transparent 10px 22px)",
-                  }}
-                />
-              </div>
+              <WorkPositionedDiv className="pointer-events-none absolute inset-y-0 right-0 z-10 px-4" leftPx={LEFT_COLUMN_WIDTH}>
+                <WorkPositionedSpan className="work-gantt-today-line absolute bottom-0 top-0 w-0.5" leftPercent={todayLeft} />
+              </WorkPositionedDiv>
             )}
             <DependencyLines lines={dependencyLines} hoveredTaskKey={hoveredTaskKey} />
             {rows.map((row) => {
               const isRelated = row.key === hoveredTaskKey || relatedTaskKeys.has(row.key);
               return (
-              <div key={row.key} className={`grid ${ROW_GRID} ${row.kind === "phase" ? "min-h-[42px]" : "min-h-[48px]"} border-b border-slate-100 last:border-b-0 ${isRelated ? "bg-amber-50/40" : "hover:bg-slate-50/70"}`}>
+              <div key={row.key} className={`grid ${ROW_GRID} ${row.kind === "phase" ? "min-h-10" : "min-h-12"} border-b border-slate-100 last:border-b-0 ${isRelated ? "bg-amber-50/40" : "hover:bg-slate-50/70"}`}>
                 <div className="min-w-0 px-4 py-2">
                   <RowName row={row} highlighted={isRelated} />
                 </div>
                 <div className="relative min-w-0 overflow-hidden px-4 py-2">
                   <div className="absolute inset-y-0 left-4 right-4">
                     {ticks.map((tick) => (
-                      <span
+                      <WorkPositionedSpan
                         key={`${row.key}-${tick.key}`}
                         className="absolute top-0 h-full border-l border-slate-100"
-                        style={{ left: `${datePercent(tick.date, periodStart, periodEnd)}%` }}
+                        leftPercent={datePercent(tick.date, periodStart, periodEnd)}
                       />
                     ))}
                   </div>

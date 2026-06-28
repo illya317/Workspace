@@ -5,7 +5,7 @@ import { useEffect, useState, useMemo } from "react";
 import { PageSurface, createPageTableBlock, useFeedback } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
-import { BASE_ITEM_COLUMNS, type VoucherItemRow } from "../components/VoucherItemTable";
+import { getBaseItemColumns, type VoucherItemRow } from "../components/VoucherItemTable";
 import { useReclassResults } from "./useReclassResults";
 import ReclassReviewView from "../components/ReclassReviewView";
 import { getVoucherColumns } from "./VoucherColumns";
@@ -54,7 +54,7 @@ export default function VoucherTab({
     return { total: allItems.length, unconfigured, configured, adjusted };
   }, [allItems]);
 
-  const itemColumns = useMemo(() => [...BASE_ITEM_COLUMNS], []);
+  const itemColumns = useMemo(() => getBaseItemColumns(), []);
 
   useEffect(() => {
     const ctrl = new AbortController();
@@ -205,7 +205,7 @@ function VoucherItemsPreview({
   columns,
 }: {
   voucher: Voucher;
-  columns: typeof BASE_ITEM_COLUMNS;
+  columns: ReturnType<typeof getBaseItemColumns>;
 }) {
   return (
     <div className="rounded-md border border-slate-200 bg-white">

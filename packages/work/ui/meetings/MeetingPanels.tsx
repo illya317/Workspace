@@ -189,7 +189,7 @@ export function CandidateList({
             {candidate.status === "linked" && <div className="mt-2 text-xs text-emerald-700">
                 {candidate.linkedWorkItemTitle ? `工作项：${candidate.linkedWorkItemTitle}` : candidate.linkedProjectTaskTitle ? `项目任务：${candidate.linkedProjectTaskTitle}` : "已链接"}
               </div>}
-            {meeting.permissions.canEdit && candidate.status === "candidate" && <div className="mt-3 grid md:grid-cols-4" style={{ gap: "0.5rem" }}>
+            {meeting.permissions.canEdit && candidate.status === "candidate" && <div className="mt-3 grid gap-2 md:grid-cols-4">
                 <InputBox label="工作项 ID" value={draft.workItemId} onChange={workItemId => onDraftChange(candidate.id, {
             ...draft,
             workItemId,

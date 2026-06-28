@@ -1,6 +1,7 @@
 "use client";
 
 import { PageSurface, createPageFieldsBlock } from "@workspace/core/ui";
+import { FixedPositionBox } from "../../../rendering/FixedPositionBox";
 import { selectionTitle, type WorkbenchSelection } from "./types";
 import type { InlineAnchor, InlineEntry } from "./inline-feedback-utils";
 export default function InlineFeedbackEditor({
@@ -11,7 +12,7 @@ export default function InlineFeedbackEditor({
   loading,
   saving,
   error,
-  style,
+  position,
   onNoteChange,
   onSave,
   onClose,
@@ -24,7 +25,7 @@ export default function InlineFeedbackEditor({
   loading: boolean;
   saving: boolean;
   error: string;
-  style: {
+  position: {
     top: number;
     left: number;
   };
@@ -34,7 +35,7 @@ export default function InlineFeedbackEditor({
   onHoverChange: (hovered: boolean) => void;
 }) {
   return (
-    <div className="fixed z-50 w-80" style={style} onMouseEnter={() => onHoverChange(true)} onMouseLeave={() => onHoverChange(false)}>
+    <FixedPositionBox className="fixed z-50 w-80" top={position.top} left={position.left} onMouseEnter={() => onHoverChange(true)} onMouseLeave={() => onHoverChange(false)}>
       <PageSurface
         kind="detail"
         embedded
@@ -113,6 +114,6 @@ export default function InlineFeedbackEditor({
           }),
         ]}
       />
-    </div>
+    </FixedPositionBox>
   );
 }

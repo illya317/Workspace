@@ -1,10 +1,10 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { PageSurface, useFeedback } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
-import { ACCOUNT_COLUMNS, type Account } from "../components/AccountTable";
+import { getAccountColumns, type Account } from "../components/AccountTable";
 import ReclassConfigView from "../components/ReclassConfigView";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 
@@ -35,8 +35,9 @@ export default function AccountTab({
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const accountColumns = useMemo(() => getAccountColumns(), []);
   const [visibleColumns, setVisibleColumns] = useState<string[]>(
-    () => ACCOUNT_COLUMNS.filter((c) => c.required || c.defaultVisible).map((c) => c.key)
+    () => accountColumns.filter((c) => c.required || c.defaultVisible).map((c) => c.key)
   );
   const { error } = useFeedback();
 
@@ -142,7 +143,7 @@ export default function AccountTab({
     onLevelChange: (v) => { setLevelFilter(v); setPage(1); },
     onKeywordChange: (v) => { setKeyword(v); setPage(1); },
     onPageSizeChange: (v) => { setPageSize(v); setPage(1); },
-    columns: reclassMode ? undefined : ACCOUNT_COLUMNS,
+    columns: reclassMode ? undefined : accountColumns,
     visibleColumns: reclassMode ? undefined : visibleColumns,
     onColumnsChange: reclassMode ? undefined : setVisibleColumns,
     showMonth: false,
@@ -177,7 +178,7 @@ export default function AccountTab({
                 className: "overflow-hidden",
                 bodyClassName: "overflow-x-auto",
                 rows: accounts,
-                columns: ACCOUNT_COLUMNS,
+                columns: accountColumns,
                 visibleColumns,
                 loading,
                 emptyText: "暂无科目数据",

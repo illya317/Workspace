@@ -1,5 +1,9 @@
 import { PageSurface, createPageFieldsBlock } from "@workspace/core/ui";
 import type { LibraryDocumentItem } from "@workspace/library/types";
+import {
+  LIBRARY_DOCUMENT_CONFIDENTIALITY_FIELD_OPTIONS,
+  LIBRARY_DOCUMENT_STATUS_OPTIONS,
+} from "./library-document-options";
 
 interface Props {
   doc: LibraryDocumentItem;
@@ -8,21 +12,6 @@ interface Props {
   canWrite?: boolean;
   canAdmin?: boolean;
 }
-
-const STATUS_OPTIONS = [
-  { value: "active", label: "正常" },
-  { value: "missing", label: "缺失" },
-  { value: "archived", label: "归档" },
-  { value: "draft", label: "草稿" },
-];
-
-const CONFIDENTIALITY_OPTIONS = [
-  { value: "0", label: "公开" },
-  { value: "1", label: "内部" },
-  { value: "2", label: "普通" },
-  { value: "3", label: "机密" },
-  { value: "4", label: "绝密" },
-];
 
 export default function LibraryEditForm({ doc, form, setForm, canWrite, canAdmin }: Props) {
   const tagsValue = form.tags !== undefined
@@ -97,7 +86,7 @@ export default function LibraryEditForm({ doc, form, setForm, canWrite, canAdmin
               valueType: "number",
               control: "choice",
               state: !canAdmin ? "disabled" : "normal",
-              options: { source: "static", mode: "dropdown", items: CONFIDENTIALITY_OPTIONS },
+              options: { source: "static", mode: "dropdown", items: LIBRARY_DOCUMENT_CONFIDENTIALITY_FIELD_OPTIONS },
             },
             value: String(form.confidentialityLevel !== undefined ? form.confidentialityLevel : doc.confidentialityLevel),
             onChange: (value) => setForm((f) => ({ ...f, confidentialityLevel: parseInt(String(value), 10) })),
@@ -109,7 +98,7 @@ export default function LibraryEditForm({ doc, form, setForm, canWrite, canAdmin
               valueType: "string",
               control: "choice",
               state: !canWrite ? "disabled" : "normal",
-              options: { source: "static", mode: "dropdown", items: STATUS_OPTIONS },
+              options: { source: "static", mode: "dropdown", items: LIBRARY_DOCUMENT_STATUS_OPTIONS },
             },
             value: form.status !== undefined ? form.status : doc.status,
             onChange: (value) => setForm((f) => ({ ...f, status: String(value ?? "") })),

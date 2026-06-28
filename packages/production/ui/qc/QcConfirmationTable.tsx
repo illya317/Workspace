@@ -6,14 +6,16 @@ import { TableBlock } from "./QcLayoutTable";
 import type { LayoutRenderContext } from "./qc-layout-table/types";
 
 type NamedItem = { name: string };
-type ConfirmationColumn = Pick<DataSurfaceColumnSpec<NamedItem>, "key" | "label">;
+type ConfirmationCellHeader = Pick<DataSurfaceColumnSpec<NamedItem>, "key" | "label">;
 
-const confirmationColumns: ConfirmationColumn[] = [
-  { key: "name", label: "" },
-  { key: "batchNo", label: "批号" },
-  { key: "validUntil", label: "有效期至" },
-  { key: "confirmed", label: "是否确认" },
-];
+function getConfirmationCellHeaders(): ConfirmationCellHeader[] {
+  return [
+    { key: "name", label: "" },
+    { key: "batchNo", label: "批号" },
+    { key: "validUntil", label: "有效期至" },
+    { key: "confirmed", label: "是否确认" },
+  ];
+}
 
 interface Props {
   block: QcLayoutBlock & { displaySection?: string };
@@ -35,9 +37,10 @@ const cell = (rawText: string, parts: QcLayoutCell["parts"] = []): QcLayoutCell 
 export default function QcConfirmationTable({ block, context, fallback, items, prefix, nameHeader }: Props) {
   const records = items.length ? items : [{ name: fallback }];
   const title = `${block.displaySection ? `${block.displaySection} ` : ""}${block.title || fallback}`;
+  const confirmationHeaders = getConfirmationCellHeaders();
   return <TableBlock block={{ ...block, rows: [
     [{ ...cell(title), colspan: 4, bold: true, align: "left" }],
-    confirmationColumns.map((column, index) => cell(index === 0 ? nameHeader : String(column.label))),
+    confirmationHeaders.map((column, index) => cell(index === 0 ? nameHeader : String(column.label))),
     ...records.map((item, index) => [
       cell(item.name),
       cell("", [{ type: "line", fieldKey: `${prefix}/batch_no_${index + 1}`, width: "9rem" }]),

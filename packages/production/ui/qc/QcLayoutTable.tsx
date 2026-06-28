@@ -9,7 +9,6 @@ import type { LayoutRenderContext } from "./qc-layout-table/types";
 
 const TABLE_BODY_TEXT_CLASS = "text-[15px] leading-8 text-slate-950 tabular-nums";
 const SIGNATURE_COL_WIDTHS = ["12%", "10%", "8%", "20%", "12%", "10%", "8%", "20%"];
-const SIGNATURE_GRID_COLUMNS = "0.95fr 1.25fr 0.7fr 1.65fr 0.95fr 1.25fr 0.7fr 1.65fr";
 
 export { Part };
 export type { LayoutRenderContext };
@@ -19,8 +18,7 @@ function SignatureFooterBlock({ block, context, className = "" }: { block: QcLay
   if (!row.length) return null;
   return (
     <div
-      className={`${TABLE_BODY_TEXT_CLASS} mb-4 grid w-full border-l border-t border-slate-950 ${className}`}
-      style={{ gridTemplateColumns: SIGNATURE_GRID_COLUMNS }}
+      className={`${TABLE_BODY_TEXT_CLASS} qc-signature-grid mb-4 grid w-full border-l border-t border-slate-950 ${className}`}
     >
       {row.map((cell, index) => (
         <div

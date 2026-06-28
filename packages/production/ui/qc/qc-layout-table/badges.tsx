@@ -35,7 +35,7 @@ export function AdvancedFieldBadge({
       <span
         title={title}
         onClick={clickable ? () => onToggle(active ? null : fieldKey || null) : undefined}
-        className={`inline-flex min-h-7 min-w-[3rem] items-center justify-center rounded-md border px-2 py-0.5 text-[12px] font-semibold leading-5 transition-colors ${
+        className={`inline-flex min-h-7 min-w-12 items-center justify-center rounded-md border px-2 py-0.5 text-xs font-semibold leading-5 transition-colors ${
           active
             ? kind === "formulaOutput" || kind === "reference" || kind === "param"
               ? "border-red-400 bg-red-100 text-red-800 shadow-sm"
@@ -48,7 +48,7 @@ export function AdvancedFieldBadge({
         {label}
       </span>
       {active && formulaText ? (
-        <span className="pointer-events-none absolute left-1/2 top-full z-30 mt-2 inline-block w-max max-w-[min(24rem,60vw)] -translate-x-1/2 whitespace-normal rounded-md border border-slate-200/80 bg-white/80 px-3 py-2 text-left text-[12px] font-normal leading-5 text-slate-700 shadow-lg backdrop-blur-sm [overflow-wrap:anywhere]">
+        <span className="pointer-events-none absolute left-1/2 top-full z-30 mt-2 inline-block w-max max-w-sm -translate-x-1/2 whitespace-normal rounded-md border border-slate-200/80 bg-white/80 px-3 py-2 text-left text-xs font-normal leading-5 text-slate-700 shadow-lg backdrop-blur-sm [overflow-wrap:anywhere]">
           {formulaText}
         </span>
       ) : null}
