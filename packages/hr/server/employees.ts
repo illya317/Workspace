@@ -23,6 +23,78 @@ const EMPLOYEE_DIRECTORY_FILTER_FIELDS = new Set(["gender", "education", "positi
 const EMPLOYEE_DIRECTORY_POSITION_FILTER_FIELDS = new Set(["positionName", "directDepartmentName"]);
 const FAST_DIRECTORY_FILTER_FIELDS = new Set(["gender", "education"]);
 
+interface EmployeeListDiagnostics {
+  requestId: string;
+  startedAt: number;
+  startMemory: NodeJS.MemoryUsage;
+  base: Record<string, unknown>;
+}
+
+function diagnosticsEnabled() {
+  return process.env.NODE_ENV === "production" || process.env.HR_EMPLOYEE_LIST_DIAGNOSTICS === "1";
+}
+
+function toMiB(value: number) {
+  return Math.round(value / 1024 / 1024);
+}
+
+function createEmployeeListDiagnostics(input: {
+  employmentStatus?: "active" | "inactive";
+  isActive?: string | null;
+  company?: string;
+  department?: string;
+  position?: string;
+  keyword: string;
+  filterField?: string;
+  filterValue?: string;
+  page: number;
+  pageSize: number;
+}, branch: "fast" | "slow"): EmployeeListDiagnostics | null {
+  if (!diagnosticsEnabled()) return null;
+  return {
+    requestId: randomBytes(4).toString("hex"),
+    startedAt: Date.now(),
+    startMemory: process.memoryUsage(),
+    base: {
+      branch,
+      page: input.page,
+      pageSize: input.pageSize,
+      employmentStatus: input.employmentStatus ?? null,
+      isActive: input.isActive ?? null,
+      hasKeyword: Boolean(input.keyword),
+      keywordLength: input.keyword.length,
+      hasCompany: Boolean(input.company),
+      hasDepartment: Boolean(input.department),
+      hasPosition: Boolean(input.position),
+      filterField: input.filterField || null,
+      hasFilterValue: Boolean(input.filterValue),
+    },
+  };
+}
+
+function logEmployeeListDiagnostics(
+  diagnostics: EmployeeListDiagnostics | null,
+  step: string,
+  extra: Record<string, unknown> = {},
+) {
+  if (!diagnostics) return;
+  const memory = process.memoryUsage();
+  console.info("[hr.employees.list]", JSON.stringify({
+    requestId: diagnostics.requestId,
+    step,
+    elapsedMs: Date.now() - diagnostics.startedAt,
+    rssMiB: toMiB(memory.rss),
+    heapUsedMiB: toMiB(memory.heapUsed),
+    heapTotalMiB: toMiB(memory.heapTotal),
+    externalMiB: toMiB(memory.external),
+    arrayBuffersMiB: toMiB(memory.arrayBuffers),
+    rssDeltaMiB: toMiB(memory.rss - diagnostics.startMemory.rss),
+    heapUsedDeltaMiB: toMiB(memory.heapUsed - diagnostics.startMemory.heapUsed),
+    ...diagnostics.base,
+    ...extra,
+  }));
+}
+
 function randomUsername() {
   const bytes = randomBytes(8);
   return Array.from(bytes, (byte) => USERNAME_CHARS[byte % USERNAME_CHARS.length]).join("");
@@ -154,6 +226,8 @@ export async function listEmployees(input: {
     && !input.department
     && !input.position
     && (!input.filterField || FAST_DIRECTORY_FILTER_FIELDS.has(input.filterField));
+  const diagnostics = createEmployeeListDiagnostics(input, canUseFastDirectoryQuery ? "fast" : "slow");
+  logEmployeeListDiagnostics(diagnostics, "start");
 
   if (canUseFastDirectoryQuery) {
     const where = buildFastDirectoryWhere({
@@ -180,11 +254,15 @@ export async function listEmployees(input: {
         take: input.pageSize,
       }),
     ]);
+    logEmployeeListDiagnostics(diagnostics, "fast:query", { total, rows: employees.length });
     attachEmployeeDirectoryFields(employees);
+    logEmployeeListDiagnostics(diagnostics, "fast:attach-directory-fields", { rows: employees.length });
     const fkMap = await resolveFkValues(employees as unknown as Record<string, unknown>[], { entityType: "Employee" });
+    logEmployeeListDiagnostics(diagnostics, "fast:resolve-fk", { rows: employees.length, fkFields: Object.keys(fkMap).length });
     for (const employee of employees) {
       (employee as Record<string, unknown>).userIdName = fkDisplay("userId", String(employee.userId ?? ""), fkMap, { entityType: "Employee" });
     }
+    logEmployeeListDiagnostics(diagnostics, "fast:return", { total, rows: employees.length });
     return { employees, total };
   }
 
@@ -201,12 +279,15 @@ export async function listEmployees(input: {
     },
     orderBy: { id: "asc" },
   });
+  logEmployeeListDiagnostics(diagnostics, "slow:query-all", { rows: employees.length });
   attachEmployeeDirectoryFields(employees);
+  logEmployeeListDiagnostics(diagnostics, "slow:attach-directory-fields", { rows: employees.length });
   if (isActive !== null) {
     employees = employees.filter((employee) => {
       const hasActiveEmployment = employee.employments.some((employment) => employment.isActive);
       return isActive ? hasActiveEmployment : !hasActiveEmployment;
     });
+    logEmployeeListDiagnostics(diagnostics, "slow:filter-active", { rows: employees.length });
   }
   if (input.company) {
     employees = employees.filter((employee) =>
@@ -214,13 +295,18 @@ export async function listEmployees(input: {
         .filter((employment) => isActive === null || employment.isActive === isActive)
         .some((employment) => primaryContractCompany(employment.contracts, employment.currentCompany) === input.company),
     );
+    logEmployeeListDiagnostics(diagnostics, "slow:filter-company", { rows: employees.length });
   }
   if (input.department || input.position) {
     employees = employees.filter((employee) =>
       employeePositionMatches(employee.positions, { department: input.department, position: input.position }),
     );
+    logEmployeeListDiagnostics(diagnostics, "slow:filter-position", { rows: employees.length });
   }
-  if (input.keyword) employees = employees.filter((employee) => matchAnyField(employee, input.keyword, "Employee"));
+  if (input.keyword) {
+    employees = employees.filter((employee) => matchAnyField(employee, input.keyword, "Employee"));
+    logEmployeeListDiagnostics(diagnostics, "slow:filter-keyword", { rows: employees.length });
+  }
   if (input.filterField && input.filterValue && EMPLOYEE_DIRECTORY_POSITION_FILTER_FIELDS.has(input.filterField)) {
     employees = employees.filter((employee) =>
       employeePositionMatches(employee.positions, {
@@ -228,20 +314,25 @@ export async function listEmployees(input: {
         position: input.filterField === "positionName" ? input.filterValue : undefined,
       }),
     );
+    logEmployeeListDiagnostics(diagnostics, "slow:filter-directory-position", { rows: employees.length });
   } else
   if (input.filterField && input.filterValue && EMPLOYEE_DIRECTORY_FILTER_FIELDS.has(input.filterField)) {
     employees = employees.filter((employee) => matchText(getEmployeeDirectoryFilterValue(employee as unknown as Record<string, unknown>, input.filterField!), input.filterValue!));
+    logEmployeeListDiagnostics(diagnostics, "slow:filter-directory-field", { rows: employees.length });
   }
 
   const total = employees.length;
   const start = (input.page - 1) * input.pageSize;
   const paged = employees.slice(start, start + input.pageSize);
+  logEmployeeListDiagnostics(diagnostics, "slow:paginate", { total, rows: paged.length });
 
   const fkMap = await resolveFkValues(paged as unknown as Record<string, unknown>[], { entityType: "Employee" });
+  logEmployeeListDiagnostics(diagnostics, "slow:resolve-fk", { total, rows: paged.length, fkFields: Object.keys(fkMap).length });
   for (const employee of paged) {
     (employee as Record<string, unknown>).userIdName = fkDisplay("userId", String(employee.userId ?? ""), fkMap, { entityType: "Employee" });
   }
 
+  logEmployeeListDiagnostics(diagnostics, "slow:return", { total, rows: paged.length });
   return { employees: paged, total };
 }
 

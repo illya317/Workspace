@@ -9,6 +9,10 @@ const devLoginQuerySchema = z.object({
 });
 
 export async function GET(request: Request) {
+  if (process.env.NODE_ENV === "production") {
+    return new Response(null, { status: 404 });
+  }
+
   const { searchParams } = new URL(request.url);
   const parsed = devLoginQuerySchema.safeParse(Object.fromEntries(searchParams));
   if (!parsed.success) return jsonErrorResponse("参数无效", 400);

@@ -67,13 +67,11 @@ function createPrismaClient(): PrismaClient {
 
   const client = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: currentDbPath }) });
 
-  if (process.env.NODE_ENV !== "production") {
-    if (cachedPrisma && cachedPrisma !== client) {
-      void cachedPrisma.$disconnect().catch(() => undefined);
-    }
-    globalForPrisma.prisma = client;
-    globalForPrisma.prismaDbPath = currentDbPath;
+  if (cachedPrisma && cachedPrisma !== client && process.env.NODE_ENV !== "production") {
+    void cachedPrisma.$disconnect().catch(() => undefined);
   }
+  globalForPrisma.prisma = client;
+  globalForPrisma.prismaDbPath = currentDbPath;
 
   return client;
 }
