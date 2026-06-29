@@ -76,8 +76,11 @@ function renderTagAppend(append?: FormSurfaceTagListAppendSpec) {
         return <TagAppendTextInput key={key} fieldKey={key} {...props} />;
       })()
     : null;
+  const appendClassName = append.field
+    ? "flex min-w-48 flex-1 basis-48 items-center gap-2"
+    : "flex min-w-0 flex-1 items-center gap-2";
   return (
-    <div className="flex min-w-0 flex-1 items-center gap-2">
+    <div className={appendClassName}>
       {append.field ? renderControl(append.field, "compact") : null}
       {append.action ? renderCommands([append.action]) : null}
       {textInput}
