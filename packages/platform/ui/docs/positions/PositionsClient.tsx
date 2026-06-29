@@ -1,7 +1,6 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { matchText } from "@workspace/core/search";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createEmptySection, createPageBody, createSectionSection, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
@@ -22,24 +21,6 @@ function parsePositionEntry(entry: string) {
   return { code: code ?? entry, name: name ?? entry };
 }
 
-function filterTree(nodes: TreeNode[], search: string): TreeNode[] {
-  const term = search.trim();
-  if (!term) return nodes;
-  return nodes
-    .map((node): TreeNode | null => {
-      const nodeMatches = matchText(node.name, term) || matchText(node.code, term);
-      const filteredChildren = filterTree(node.children ?? [], term);
-      if (nodeMatches || filteredChildren.length > 0) {
-        return {
-          ...node,
-          children: filteredChildren.length > 0 ? filteredChildren : node.children,
-        };
-      }
-      return null;
-    })
-    .filter((node): node is TreeNode => node !== null);
-}
-
 export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?: boolean }) {
   const router = useRouter();
   const [_user, setUser] = useState<SessionUser | null>(null);
@@ -48,10 +29,6 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const [sideOpen, setSideOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [search, setSearch] = useState(() => {
-    if (typeof window !== "undefined") return new URLSearchParams(window.location.search).get("search") || "";
-    return "";
-  });
 
   useEffect(() => {
     fetch(workspacePath("/api/auth/me"))
@@ -85,8 +62,6 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
       .catch(() => setLoading(false));
   }, [router]);
 
-  const visibleTree = useMemo(() => filterTree(tree, search), [tree, search]);
-
   const selectedNode = useMemo(
     () => tree.find((n) => n.code === selectedCode) ?? null,
     [tree, selectedCode],
@@ -112,13 +87,13 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
     sections: [{
       key: "position-list",
       body: {
-        kind: "navigation",
-        navigation: {
+        kind: "selector",
+        selector: {
           kind: "list",
-          framed: false,
+          title: "直属岗位",
           items: directPositions,
-          activeId: null,
-          onNavigate: (pos) => handleSelectPosition(pos.code),
+          selectedId: null,
+          onSelect: (pos) => handleSelectPosition(pos.code),
           getKey: (pos) => pos.code,
           renderItem: (pos) => ({
             title: pos.name,
@@ -140,7 +115,7 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
           selector: {
             kind: "tree",
             title: "部门目录",
-            items: visibleTree,
+            items: tree,
             selectedId: selectedCode,
             onSelect: (node: TreeNode) => setSelectedCode(node.code),
             getKey: (node: TreeNode) => node.code,
@@ -150,7 +125,6 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
               code: node.code,
               level: ctx.level,
             }),
-            filter: { kind: "search", value: search, onChange: setSearch, placeholder: "搜索部门..." },
             loading,
           },
         },

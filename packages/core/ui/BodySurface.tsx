@@ -13,10 +13,12 @@ import type { ActionGlyphKind } from "./internal/action/ActionGlyphs";
 import DetailModal from "./internal/common/DetailModal";
 import type { ModuleCardColor } from "./internal/common/Card";
 import { renderBodyEmpty, renderBodyMessage, renderBodyStatus, renderModuleGrid, renderSectionBadges } from "./internal/body/BodySurfaceBlocks";
+import { sectionCardClassName, sectionStackPosition, type BodySectionStackPosition } from "./internal/body/BodySurfaceSectionStack.styles";
 import SplitWorkspace, { type SplitWorkspaceMode } from "./internal/common/SplitWorkspace";
 import TabBar from "./internal/common/TabBar";
 import { joinClassNames } from "./internal/common/card-utils";
 import { renderCommands } from "./internal/page/PageSurface.commands";
+import { PAGE_SURFACE_BODY_SECTION_STACK_CLASS, PAGE_SURFACE_TABBED_BODY_STACK_CLASS, PAGE_SURFACE_TABBED_BODY_TAB_CLASS } from "./internal/page/PageSurface.spacing";
 import { Toolbar, type ToolbarItem } from "./Toolbar";
 import type { SurfaceToolbarItems } from "./SurfaceContractTypes";
 
@@ -81,7 +83,6 @@ export interface BodySurfaceListSpec {
   footerAction?: BodySurfaceCommandSpec;
   density?: "normal" | "compact";
 }
-
 export interface BodySurfaceModuleGridItemSpec {
   key: string;
   title: string;
@@ -92,7 +93,6 @@ export interface BodySurfaceModuleGridItemSpec {
   onClick?: () => void;
   badge?: string;
 }
-
 export interface BodySurfaceModuleGridSpec {
   title?: ReactNode;
   summary?: ReactNode;
@@ -102,7 +102,6 @@ export interface BodySurfaceModuleGridSpec {
   centered?: boolean;
   items: BodySurfaceModuleGridItemSpec[];
 }
-
 export interface BodySurfaceModalSpec {
   key: string;
   open: boolean;
@@ -111,13 +110,11 @@ export interface BodySurfaceModalSpec {
   size?: "sm" | "md" | "lg" | "xl";
   sections: BodySurfaceSectionSpec[];
 }
-
 export interface BodySurfaceBadgeSpec {
   key: string;
   label: ReactNode;
   tone?: "default" | "muted" | "info" | "success" | "warning" | "danger";
 }
-
 export interface BodySurfaceSectionHeaderSpec {
   title?: ReactNode;
   subtitle?: ReactNode;
@@ -125,7 +122,6 @@ export interface BodySurfaceSectionHeaderSpec {
   toolbarItems?: SurfaceToolbarItems;
   actions?: BodySurfaceCommandSpec[];
 }
-
 interface BodySurfaceSectionCommonProps {
   kind: "section";
   title?: ReactNode;
@@ -138,14 +134,12 @@ interface BodySurfaceSectionCommonProps {
   moduleGrid?: BodySurfaceModuleGridSpec;
   modals?: BodySurfaceModalSpec[];
 }
-
 export type BodySurfaceComposedSectionProps = BodySurfaceSectionCommonProps & {
   layout?: "stack" | "grid";
   gridColumns?: BodySurfaceSectionGridColumns;
   sections?: BodySurfaceSectionSpec[];
   sectioning?: BodySurfaceSectioningSpec;
 };
-
 export type BodySurfaceSplitSectionProps = BodySurfaceSectionCommonProps & {
   layout: "split";
   left: BodySurfaceProps;
@@ -160,9 +154,7 @@ export type BodySurfaceSplitSectionProps = BodySurfaceSectionCommonProps & {
   showSideControls?: boolean;
   splitRatio?: readonly [number, number];
 };
-
 export type BodySurfaceSectionProps = BodySurfaceComposedSectionProps | BodySurfaceSplitSectionProps;
-
 export type BodySurfaceSectioningSpec =
   | { kind: "none" }
   | { kind: "tabs"; active: string; onChange?: (key: string) => void };
@@ -176,7 +168,6 @@ export interface BodySurfaceSectionSpec {
   itemRef?: Ref<HTMLDivElement>;
   body: BodySurfaceProps;
 }
-
 export type BodySurfaceDataProps<T = DataSurfaceLooseRow> = { kind: "data"; data: DataSurfaceProps<T> };
 export type BodySurfaceDocumentProps = { kind: "document"; document: DocumentSurfaceProps };
 export type BodySurfaceFormProps<T = FormSurfaceLooseItem> = { kind: "form"; form: FormSurfaceProps<T> };
@@ -312,35 +303,44 @@ function renderBodyModals(modals?: BodySurfaceModalSpec[]) {
   ));
 }
 
-function renderBodySection(section: BodySurfaceSectionSpec, stretch = false) {
+function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, stackPosition?: BodySectionStackPosition) {
   const stretchClassName = stretch ? "h-full" : "";
   const chrome = sectionChrome(section);
-  const sectionClassName = joinClassNames(chrome === "card" ? "space-y-4 rounded-md border border-slate-200 bg-white p-4 shadow-sm" : "space-y-4", stretchClassName);
+  const sectionClassName = joinClassNames(chrome === "card" ? sectionCardClassName(stackPosition) : "space-y-4", stretchClassName);
   const content = <section className={sectionClassName}>{renderSectionHeader(section, chrome)}<BodySurface {...section.body} /></section>;
   if (section.itemRef) return <div key={section.key} ref={section.itemRef} className={stretchClassName}>{content}</div>;
   return <div key={section.key} className={stretchClassName}>{content}</div>;
 }
 
-function BodySurfaceSectionStack({ sections, sectioning, layout = "stack", gridColumns = 2 }: {
-  sections?: BodySurfaceSectionSpec[];
-  sectioning?: BodySurfaceSectioningSpec;
-  layout?: "stack" | "grid";
-  gridColumns?: BodySurfaceSectionGridColumns;
-}) {
+function stackPositionForSection(sections: BodySurfaceSectionSpec[], index: number, leadingCardSegment = false): BodySectionStackPosition | undefined {
+  if (sectionChrome(sections[index]) !== "card") return undefined;
+  const previousIsCard = (index === 0 && leadingCardSegment) || (index > 0 && sectionChrome(sections[index - 1]) === "card");
+  const nextIsCard = index < sections.length - 1 && sectionChrome(sections[index + 1]) === "card";
+  return sectionStackPosition(previousIsCard, nextIsCard);
+}
+
+function canInlineTabbedBody(section: BodySurfaceSectionSpec) {
+  const body = section.body;
+  return sectionChrome(section) === "plain" && !section.header && body.kind === "section" && body.layout !== "split" && !body.commands && !body.title && !body.description && !body.message && !body.status && !body.empty && !body.list && !body.moduleGrid && !body.modals?.length;
+}
+function BodySurfaceSectionStack({ sections, sectioning, layout = "stack", gridColumns = 2, leadingCardSegment = false }: { sections?: BodySurfaceSectionSpec[]; sectioning?: BodySurfaceSectioningSpec; layout?: "stack" | "grid"; gridColumns?: BodySurfaceSectionGridColumns; leadingCardSegment?: boolean }) {
   if (!sections?.length) return null;
   if (sectioning?.kind === "tabs") {
     const active = activeBodySection(sections, sectioning.active);
+    const activeBody = active && canInlineTabbedBody(active) && active.body.kind === "section" && active.body.layout !== "split" ? active.body : null;
     return (
-      <div className="space-y-5">
+      <div className={PAGE_SURFACE_TABBED_BODY_STACK_CLASS}>
         <TabBar
           kind="page"
           variant="large"
-          className="mb-0"
+          className={PAGE_SURFACE_TABBED_BODY_TAB_CLASS}
           tabs={sections.map((section) => ({ key: section.key, label: section.label ?? section.key }))}
           active={active?.key ?? sectioning.active}
           onChange={(key) => sectioning.onChange?.(key)}
         />
-        {active ? renderBodySection(active) : null}
+        {activeBody ? (
+          <BodySurfaceSectionStack sections={activeBody.sections} sectioning={activeBody.sectioning} layout={activeBody.layout} gridColumns={activeBody.gridColumns} leadingCardSegment />
+        ) : active ? renderBodySection(active, false, "last") : null}
       </div>
     );
   }
@@ -348,7 +348,11 @@ function BodySurfaceSectionStack({ sections, sectioning, layout = "stack", gridC
     const gridClassName = gridColumns === 3 ? "lg:grid-cols-3" : "lg:grid-cols-2";
     return <div className={`grid items-stretch gap-4 ${gridClassName}`}>{sections.map((section) => renderBodySection(section, true))}</div>;
   }
-  return <div className="space-y-5">{sections.map((section) => renderBodySection(section))}</div>;
+  return (
+    <div className={PAGE_SURFACE_BODY_SECTION_STACK_CLASS}>
+      {sections.map((section, index) => renderBodySection(section, false, stackPositionForSection(sections, index, leadingCardSegment)))}
+    </div>
+  );
 }
 
 function renderBodyTitle(props: BodySurfaceSectionProps) {

@@ -6,6 +6,7 @@ import TabBar, { type TabDef } from "../common/TabBar";
 import SplitWorkspace, { type SplitWorkspaceMode } from "../common/SplitWorkspace";
 import { Toolbar, type ToolbarItem } from "../../Toolbar";
 import { joinClassNames } from "../common/card-utils";
+import { PAGE_SURFACE_STACK_CLASS } from "./PageSurface.spacing";
 
 type PageFrameTab = TabDef;
 
@@ -106,7 +107,7 @@ export function WorkspaceSplitPage({
 
   return (
     <PageContent className={contentClassName}>
-      <div className={joinClassNames("space-y-5", className)}>
+      <div className={joinClassNames(PAGE_SURFACE_STACK_CLASS, className)}>
         {tabs && activeTab && onTabChange && (
           <PageFrameTabs
             tabs={tabs}
@@ -167,7 +168,7 @@ export function DatabasePageFrame({
 }: DatabasePageFrameProps) {
   return (
     <PageContent className={contentClassName}>
-      <div className={joinClassNames("space-y-5", className)}>
+      <div className={joinClassNames(PAGE_SURFACE_STACK_CLASS, className)}>
         {navigation ?? (tabs && activeTab && onTabChange ? (
           <PageFrameTabs
             tabs={tabs}

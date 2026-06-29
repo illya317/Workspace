@@ -118,21 +118,17 @@ export function buildDirectPositionPanelBlock({
       ? {
           key: "positions",
           body: {
-            kind: "navigation",
-            navigation: {
-              kind: "grid",
-              value: selection?.type === "position" ? String(selection.id) : null,
-              options: directPositions.map((position) => ({
-                value: String(position.id),
-                label: position.name,
+            kind: "selector",
+            selector: {
+              kind: "list",
+              items: directPositions,
+              selectedId: selection?.type === "position" ? selection.id : null,
+              onSelect: (position) => onSelect({ type: "position", id: position.id }),
+              getKey: (position) => position.id,
+              renderItem: (position) => ({
+                title: position.name,
                 code: shortPositionCode(position.code),
-              })),
-              onChange: (value: string | null) => {
-                const position = directPositions.find((p) => String(p.id) === value);
-                if (position) onSelect({ type: "position", id: position.id });
-              },
-              columns: 3,
-              ariaLabel: "选择直属岗位",
+              }),
             },
           },
         }

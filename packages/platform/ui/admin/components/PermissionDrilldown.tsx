@@ -139,15 +139,14 @@ export default function PermissionDrilldown({
           {
             key: "employees",
             body: {
-              kind: "navigation",
-              navigation: {
+              kind: "selector",
+              selector: {
                 kind: "list",
-                framed: false,
                 loading: empLoading,
                 loadingText: "加载中...",
                 items: filtered,
-                activeId: null,
-                onNavigate: onToggle,
+                selectedId: null,
+                onSelect: onToggle,
                 getKey: (emp) => emp.employeeId,
                 renderItem: (emp) => ({
                   title: emp.name,

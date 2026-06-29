@@ -8,6 +8,7 @@ import NavigationSurface from "./NavigationSurface";
 import Pagination from "./internal/common/Pagination";
 import { EmptyStateCard, ModuleCard } from "./internal/common/Card";
 import { Toolbar } from "./Toolbar";
+import { PAGE_SURFACE_STACK_CLASS } from "./internal/page/PageSurface.spacing";
 import type {
   PageSurfaceDirectoryProps,
   PageSurfaceNavigationSpec,
@@ -57,7 +58,7 @@ function renderPageToolbar(props: PageSurfaceProps) {
 
 function renderEmbeddedSurfaceBody(props: PageSurfaceProps) {
   return (
-    <div className="space-y-5">
+    <div className={PAGE_SURFACE_STACK_CLASS}>
       {renderNavigation(props.navigation)}
       {renderPageToolbar(props)}
       {props.body ? <BodySurface {...props.body} /> : null}
@@ -199,7 +200,7 @@ function renderDirectorySurface(props: PageSurfaceDirectoryProps) {
   const content = renderDirectoryBody(props.body);
   return (
     <main className="mx-auto max-w-7xl px-4 py-10">
-      <div className="space-y-5">{content}</div>
+      <div className={PAGE_SURFACE_STACK_CLASS}>{content}</div>
     </main>
   );
 }

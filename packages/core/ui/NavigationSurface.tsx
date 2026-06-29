@@ -4,11 +4,8 @@ import type { ReactNode } from "react";
 import Pagination, { type PaginationProps } from "./internal/common/Pagination";
 import TabBar, { type TabBarProps, type TabBarVariant, type TabDef } from "./internal/common/TabBar";
 import { joinClassNames } from "./internal/common/card-utils";
-import SelectorPanel from "./internal/selection/SelectorPanel";
-import type { SelectorCardProps, SelectorCardSize } from "./internal/selection/SelectorCard";
-import SelectionGrid, { type SelectionGridProps } from "./internal/selection/SelectionGrid";
 
-export type NavigationSurfaceKind = "tabs" | "steps" | "pagination" | "list" | "grid";
+export type NavigationSurfaceKind = "tabs" | "steps" | "pagination";
 export type NavigationSurfaceLooseItem = ReturnType<typeof JSON.parse>;
 type NavigationTabsVariant = Extract<TabBarVariant, "large" | "small">;
 
@@ -66,32 +63,10 @@ export interface NavigationSurfacePaginationProps {
   pagination: NavigationSurfacePaginationSpec;
 }
 
-export interface NavigationSurfaceListProps<T = NavigationSurfaceLooseItem> {
-  kind: "list";
-  title?: ReactNode;
-  loading?: boolean;
-  loadingText?: ReactNode;
-  emptyText?: ReactNode;
-  items: T[];
-  activeId: string | number | null;
-  onNavigate: (item: T) => void;
-  getKey: (item: T) => string | number;
-  renderItem: (item: T, ctx: { active: boolean }) => Omit<SelectorCardProps, "onClick">;
-  groupBy?: (item: T) => string | null | undefined;
-  size?: SelectorCardSize;
-  framed?: boolean;
-}
-
-export interface NavigationSurfaceGridProps extends Omit<SelectionGridProps, "className"> {
-  kind: "grid";
-}
-
-export type NavigationSurfaceProps<T = NavigationSurfaceLooseItem> =
+export type NavigationSurfaceProps =
   | NavigationSurfaceTabsProps
   | NavigationSurfaceStepsProps
-  | NavigationSurfacePaginationProps
-  | NavigationSurfaceListProps<T>
-  | NavigationSurfaceGridProps;
+  | NavigationSurfacePaginationProps;
 
 function toTabDef(item: NavigationSurfaceItemSpec | NavigationSurfaceStepSpec): TabDef {
   const children = "children" in item ? item.children : "steps" in item ? item.steps : undefined;
@@ -180,30 +155,8 @@ function renderSteps(props: NavigationSurfaceStepsProps) {
   return <TabBar tabs={tabs} active={props.active} onChange={props.onChange ?? (() => {})} variant={props.variant ?? "small"} ariaLabel={props.ariaLabel} />;
 }
 
-function renderList<T>(props: NavigationSurfaceListProps<T>) {
-  return (
-    <SelectorPanel
-      mode="list"
-      title={props.title}
-      framed={props.framed}
-      loading={props.loading}
-      loadingText={props.loadingText}
-      emptyText={props.emptyText}
-      items={props.items}
-      selectedId={props.activeId}
-      onSelect={props.onNavigate}
-      getKey={props.getKey}
-      groupBy={props.groupBy}
-      size={props.size}
-      renderItem={props.renderItem}
-    />
-  );
-}
-
-export default function NavigationSurface<T = NavigationSurfaceLooseItem>(props: NavigationSurfaceProps<T>) {
+export default function NavigationSurface(props: NavigationSurfaceProps) {
   if (props.kind === "tabs") return renderTabs(props);
   if (props.kind === "steps") return renderSteps(props);
-  if (props.kind === "pagination") return <Pagination {...props.pagination} />;
-  if (props.kind === "grid") return <SelectionGrid {...props} />;
-  return renderList<T>(props);
+  return <Pagination {...props.pagination} />;
 }

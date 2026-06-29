@@ -66,7 +66,6 @@ export type {
   SelectorSurfaceBaseSpec,
   SelectorSurfaceCardSpec,
   SelectorSurfaceCommandSpec,
-  SelectorSurfaceFilterSpec,
   SelectorSurfaceListSpec,
   SelectorSurfaceLooseItem,
   SelectorSurfaceProps,
@@ -148,10 +147,8 @@ export { default as LoginSurface } from "./LoginSurface";
 export type { LoginSurfaceProps } from "./LoginSurface";
 export { default as NavigationSurface } from "./NavigationSurface";
 export type {
-  NavigationSurfaceGridProps,
   NavigationSurfaceItemSpec,
   NavigationSurfaceKind,
-  NavigationSurfaceListProps,
   NavigationSurfaceLooseItem,
   NavigationSurfacePaginationProps,
   NavigationSurfacePaginationSpec,

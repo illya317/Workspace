@@ -4,8 +4,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import type { ActionGlyphKind } from "./internal/action/ActionGlyphs";
 import Badge from "./internal/common/Badge";
 import { EmptyStateCard, PanelCard } from "./internal/common/Card";
-import SearchInput from "./internal/input/SearchInput";
-import SelectorPanel from "./internal/selection/SelectorPanel";
+import SelectorCard from "./internal/selection/SelectorCard";
 import { renderCommands } from "./internal/page/PageSurface.commands";
 
 export type SelectorSurfaceLooseItem = ReturnType<typeof JSON.parse>;
@@ -21,13 +20,6 @@ export interface SelectorSurfaceCommandSpec {
   type?: "button" | "submit";
   size?: SelectorSurfaceActionSize;
   truncate?: boolean;
-}
-
-export interface SelectorSurfaceFilterSpec {
-  kind: "search";
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
 }
 
 export interface SelectorSurfaceCardSpec {
@@ -67,7 +59,6 @@ export interface SelectorSurfaceBaseSpec<T> {
     expanded?: boolean;
     hasChildren?: boolean;
   }) => SelectorSurfaceCardSpec;
-  filter?: SelectorSurfaceFilterSpec;
   loading?: boolean;
   loadingText?: ReactNode;
   emptyText?: ReactNode;
@@ -163,9 +154,9 @@ function treeMeta(card: SelectorSurfaceCardSpec) {
 function renderTreeMeta(meta: ReactNode[] | ReactNode) {
   if (Array.isArray(meta)) {
     return (
-      <span className="mt-1 flex min-w-0 flex-wrap gap-1.5">
+      <span className="mt-1.5 flex min-w-0 flex-wrap gap-1.5">
         {meta.map((item, index) => (
-          <span key={index} className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-500">
+          <span key={index} className="rounded-md bg-slate-100/80 px-1.5 py-0.5 text-xs font-medium text-slate-500">
             {item}
           </span>
         ))}
@@ -173,6 +164,67 @@ function renderTreeMeta(meta: ReactNode[] | ReactNode) {
     );
   }
   return <span className="mt-1 block truncate text-xs text-slate-500">{meta}</span>;
+}
+
+function ListSelector<T>({ selector, actions }: {
+  selector: SelectorSurfaceListSpec<T>;
+  actions: ReactNode;
+}) {
+  function renderItems(items: T[]) {
+    return items.map((item) => {
+      const key = selector.getKey(item);
+      const active = selector.selectedId === key;
+      const card = listCard(selector.renderItem(item, { active, level: 1 }));
+      return (
+        <SelectorCard
+          key={key}
+          {...card}
+          active={card.active ?? active}
+          onClick={() => selector.onSelect(item)}
+          size={selector.size ?? card.size}
+        />
+      );
+    });
+  }
+
+  function renderContent() {
+    if (selector.loading) return <EmptyStateCard compact>{selector.loadingText ?? "加载中..."}</EmptyStateCard>;
+    if (selector.items.length === 0) return <EmptyStateCard compact>{selector.emptyText ?? "暂无数据"}</EmptyStateCard>;
+
+    if (!selector.groupBy) return <div className="space-y-2">{renderItems(selector.items)}</div>;
+
+    const groups = new Map<string, T[]>();
+    const order: string[] = [];
+    for (const item of selector.items) {
+      const group = selector.groupBy(item) ?? "";
+      if (!groups.has(group)) {
+        groups.set(group, []);
+        order.push(group);
+      }
+      groups.get(group)!.push(item);
+    }
+
+    return (
+      <div className="space-y-3">
+        {order.map((group) => (
+          <div key={group} className="space-y-2">
+            {group ? <div className="px-1 text-xs font-semibold leading-5 text-slate-500">{group}</div> : null}
+            <div className="space-y-2">{renderItems(groups.get(group)!)}</div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <PanelCard
+      title={selector.title}
+      actions={actions}
+      bodyClassName="max-h-[760px] overflow-auto p-3"
+    >
+      {renderContent()}
+    </PanelCard>
+  );
 }
 
 function TreeSelector<T>({ selector, actions }: {
@@ -213,49 +265,49 @@ function TreeSelector<T>({ selector, actions }: {
       const active = selector.selectedId === id;
       const card = selector.renderItem(item, { active, level, expanded, hasChildren });
       const meta = treeMeta(card);
-      const cardClassName = active
-        ? "border-slate-200 bg-emerald-50"
-        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50";
+      const rowClassName = active
+        ? "bg-emerald-50 shadow-[inset_3px_0_0_rgb(16_185_129)]"
+        : "bg-white hover:bg-slate-50";
       const row = (
-        <div key="row" className="space-y-1">
-          <div
-            className={`grid min-w-0 grid-cols-[2rem_minmax(0,1fr)] items-stretch overflow-hidden rounded-md border transition focus-within:ring-2 focus-within:ring-emerald-200 ${cardClassName}`}
+        <div
+          key="row"
+          className={`grid min-w-0 grid-cols-[2.25rem_minmax(0,1fr)] items-center transition focus-within:ring-2 focus-within:ring-emerald-200 ${rowClassName}`}
+        >
+          <span className="grid min-h-14 place-items-center">
+            {hasChildren && collapsible ? (
+              <button
+                type="button"
+                className="grid size-6 place-items-center rounded-md text-sm font-semibold text-slate-500 transition hover:bg-white hover:text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
+                aria-label={expanded ? "收起" : "展开"}
+                onClick={() => toggle(id)}
+              >
+                <span className="font-mono leading-none">{expanded ? "-" : "+"}</span>
+              </button>
+            ) : null}
+          </span>
+          <button
+            type="button"
+            onClick={() => selector.onSelect(item)}
+            className="min-w-0 py-2.5 pl-1 pr-3 text-left focus-visible:outline-none"
           >
-            <span className="grid place-items-center">
-              {hasChildren && collapsible ? (
-                <button
-                  type="button"
-                  className="grid size-7 place-items-center rounded text-sm font-semibold text-slate-500 transition hover:bg-white hover:text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
-                  aria-label={expanded ? "收起" : "展开"}
-                  onClick={() => toggle(id)}
-                >
-                  <span className="font-mono leading-none">{expanded ? "-" : "+"}</span>
-                </button>
-              ) : null}
-            </span>
-            <button
-              type="button"
-              onClick={() => selector.onSelect(item)}
-              className="min-w-0 px-2.5 py-2 text-left focus-visible:outline-none"
-            >
-              <span className="flex min-w-0 items-center gap-2">
-                <Badge level={card.level ?? level} className="shrink-0 px-2 py-0.5 font-semibold" />
-                <span className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900">{card.title}</span>
-                {card.code ? <span className="shrink-0 font-mono text-xs text-slate-400">{card.code}</span> : null}
-                {card.trailing ? <span className="shrink-0 text-xs text-slate-500">{card.trailing}</span> : null}
-                {card.status ? <span className="shrink-0">{renderStatus(card.status)}</span> : null}
+            <span className="flex min-w-0 items-start gap-2.5">
+              <Badge level={card.level ?? level} className="mt-0.5 shrink-0 px-2 py-0.5 font-semibold" />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-semibold text-slate-900">{card.title}</span>
+                {meta ? renderTreeMeta(meta) : null}
               </span>
-              {meta ? renderTreeMeta(meta) : null}
-            </button>
-          </div>
+              {card.code ? <span className="ml-auto shrink-0 pt-0.5 font-mono text-xs text-slate-400">{card.code}</span> : null}
+              {card.trailing ? <span className="shrink-0 pt-0.5 text-xs text-slate-500">{card.trailing}</span> : null}
+              {card.status ? <span className="shrink-0 pt-0.5">{renderStatus(card.status)}</span> : null}
+            </span>
+          </button>
         </div>
       );
-      if (!hasChildren) return <div key={id}>{row}</div>;
       return (
-        <div key={id} className="space-y-1.5 py-1">
+        <div key={id} className="border-t border-slate-100 first:border-t-0">
           {row}
-          {expanded ? (
-            <div className="ml-4 space-y-1.5 border-l border-slate-200 pl-4">
+          {hasChildren && expanded ? (
+            <div className="border-t border-slate-100 bg-slate-50/60">
               {renderRows(children!, level + 1)}
             </div>
           ) : null}
@@ -266,21 +318,12 @@ function TreeSelector<T>({ selector, actions }: {
 
   const content = (
     <>
-      {selector.filter?.kind === "search" ? (
-        <div className="mb-3">
-          <SearchInput
-            value={selector.filter.value}
-            onChange={selector.filter.onChange}
-            placeholder={selector.filter.placeholder}
-          />
-        </div>
-      ) : null}
       {selector.loading ? (
         <EmptyStateCard compact>{selector.loadingText ?? "加载中..."}</EmptyStateCard>
       ) : selector.items.length === 0 ? (
         <EmptyStateCard compact>{selector.emptyText ?? "暂无数据"}</EmptyStateCard>
       ) : (
-        <div className="space-y-1.5">{renderRows(selector.items, 1)}</div>
+        <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">{renderRows(selector.items, 1)}</div>
       )}
     </>
   );
@@ -302,28 +345,5 @@ export default function SelectorSurface<T>(selector: SelectorSurfaceProps<T>) {
     return <TreeSelector selector={selector} actions={actions} />;
   }
 
-  return (
-    <SelectorPanel
-      mode="list"
-      framed
-      title={selector.title}
-      actions={actions}
-      items={selector.items}
-      selectedId={selector.selectedId}
-      onSelect={selector.onSelect}
-      getKey={selector.getKey}
-      groupBy={selector.groupBy}
-      size={selector.size}
-      filter={selector.filter}
-      loading={selector.loading}
-      loadingText={selector.loadingText}
-      emptyText={selector.emptyText}
-      bodyClassName="max-h-[760px] overflow-auto p-3"
-      contentClassName="space-y-2"
-      renderItem={(item, ctx) => listCard(selector.renderItem(item, {
-        active: ctx.active,
-        level: 1,
-      }))}
-    />
-  );
+  return <ListSelector selector={selector} actions={actions} />;
 }

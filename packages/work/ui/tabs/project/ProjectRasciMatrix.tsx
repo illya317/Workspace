@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createPageDataSection, type DataSurfaceColumnSpec, type DataSurfaceProps, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createPageDataSection, type BodySurfaceSectionSpec, type DataSurfaceColumnSpec, type DataSurfaceProps, PageSurface } from "@workspace/core/ui";
 import type { EmployeeTag, MultiProjectRole } from "./model";
 import { PROJECT_RASCI_COLUMN_DEFS, type RasciColumn } from "./project-rasci-config";
 
@@ -14,7 +14,14 @@ export type ProjectRasciRow = {
 };
 
 export default function ProjectRasciMatrix({ rows }: { rows: ProjectRasciRow[] }) {
-  return <PageSurface kind="standard" embedded body={createPageBody([createPageDataSection("rasci", buildProjectRasciMatrixSurface(rows))])} />;
+  return <PageSurface kind="standard" embedded body={createPageBody([createProjectRasciMatrixSection(rows)])} />;
+}
+
+export function createProjectRasciMatrixSection(rows: ProjectRasciRow[]): BodySurfaceSectionSpec {
+  return {
+    ...createPageDataSection("rasci", buildProjectRasciMatrixSurface(rows)),
+    header: { title: "职责表" },
+  };
 }
 
 export function buildProjectRasciMatrixSurface(rows: ProjectRasciRow[]): DataSurfaceProps<ProjectRasciRow> {
@@ -26,9 +33,13 @@ export function buildProjectRasciMatrixSurface(rows: ProjectRasciRow[]): DataSur
       width: "sm",
       wrap: "nowrap",
       cell: (row) => (
-        <div className="min-w-[5em] max-w-28">
-          <div className="truncate text-sm font-semibold text-slate-900" title={row.name}>{row.name}</div>
-          {row.subtitle && <div className="mt-1 text-xs font-medium text-emerald-600">{row.subtitle}</div>}
+        <div className="flex min-w-[8em] max-w-44 items-center gap-2">
+          <span className="truncate text-sm font-medium text-slate-900" title={row.name}>{row.name}</span>
+          {row.subtitle ? (
+            <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+              {row.subtitle}
+            </span>
+          ) : null}
         </div>
       ),
     },

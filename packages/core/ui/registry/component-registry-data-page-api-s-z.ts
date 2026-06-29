@@ -33,7 +33,6 @@ export const page_api_registry_entries = [
               { name: "defaultExpandedLevel", description: "非受控初始展开层级。" },
               { name: "onToggle", description: "展开/收起回调。" },
               { name: "renderItem", description: "声明节点卡片的层级、标题、编码、指标和状态。" },
-              { name: "filter", description: "可选搜索过滤器。" },
             ],
           },
         ],
@@ -42,7 +41,7 @@ export const page_api_registry_entries = [
       { name: "loading", description: "选择区加载态。" },
       { name: "emptyText", description: "选择区空态文案。" },
     ],
-    composes: ["SelectorPanel", "PanelCard", "SearchInput", "Badge", "EmptyStateCard"],
+    composes: ["SelectorPanel", "PanelCard", "Badge", "EmptyStateCard"],
   },
   {
     name: "SelectorPanel",

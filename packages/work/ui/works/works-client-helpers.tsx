@@ -19,16 +19,16 @@ export function spaceSelectorBlock(
   return {
     key: "work-space-selector",
     body: {
-      kind: "navigation",
-      navigation: {
+      kind: "selector",
+      selector: {
         kind: "list" as const,
         title: "工作空间",
 
         loading,
         loadingText: "加载中...",
         items: spaces,
-        activeId: active ? `${active.targetType}:${active.targetId}` : null,
-        onNavigate: onSelect,
+        selectedId: active ? `${active.targetType}:${active.targetId}` : null,
+        onSelect,
         getKey: (space: WorkTaskSpace) => `${space.targetType}:${space.targetId}`,
         groupBy: (space: WorkTaskSpace) => groups.find((group) => group.type === space.targetType)?.title ?? "",
         renderItem: (space: WorkTaskSpace) => ({

@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createEmptySection, createFormSection, createPageBody, createPageDataSection, createTabbedPageBody, type BodySurfaceProps, type FormSurfaceItemSpec, PageSurface } from "@workspace/core/ui";
+import { createEmptySection, createFormSection, createPageBody, createTabbedPageBody, type BodySurfaceProps, type FormSurfaceCommandSpec, type FormSurfaceItemSpec, PageSurface } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import { useProjectPlanManagementSection } from "./ProjectPlanManagementSection";
-import { buildProjectRasciMatrixSurface } from "./ProjectRasciMatrix";
+import { createProjectRasciMatrixSection } from "./ProjectRasciMatrix";
 import type { ProjectRasciRow } from "./ProjectRasciMatrix";
 import { useProjectTasksSection } from "./ProjectTasksSection";
 import {
@@ -98,11 +98,24 @@ export function useProjectDetailEditorBlock({
     onCreateChildProject: startCreateChildProject,
     onChanged: () => onProjectTasksChanged(draft?.id ?? null),
   });
+  const actions: FormSurfaceCommandSpec[] = [
+    ...(creating ? [
+      { key: "cancel", label: "取消", icon: "cancel" as const, disabled: saving, onClick: onCancelCreate },
+      { key: "create", label: saving ? "创建中..." : "创建项目", icon: "add" as const, variant: "primary" as const, disabled: !canSave || saving, onClick: onSave },
+    ] : []),
+    ...(selectedProject ? [
+      { key: "save", label: "保存项目", icon: "save" as const, variant: "primary" as const, disabled: !canSave || saving, onClick: onSave },
+    ] : []),
+    ...(selectedProject && canDeleteCurrent ? [
+      { key: "delete", label: "删除项目", icon: "delete-bin" as const, variant: "danger" as const, disabled: saving, onClick: onDeleteProject },
+    ] : []),
+  ];
   const overviewFields: FormSurfaceItemSpec[] = draft ? [
     {
       kind: "section",
       key: "basic",
       title: "基础信息",
+      actions: actions.length ? actions : undefined,
       layout: { columns: 3 },
       items: [
         ...(isChildProject ? [
@@ -192,31 +205,17 @@ export function useProjectDetailEditorBlock({
     )
   })]);
 
-  const actions = [
-    ...(creating ? [
-      { key: "cancel", label: "取消", icon: "cancel" as const, disabled: saving, onClick: onCancelCreate },
-      { key: "create", label: saving ? "创建中..." : "创建项目", icon: "create" as const, variant: "primary" as const, disabled: !canSave || saving, onClick: onSave },
-    ] : []),
-    ...(selectedProject ? [
-      { key: "save", label: "保存项目", icon: "save" as const, variant: "primary" as const, disabled: !canSave || saving, onClick: onSave },
-    ] : []),
-    ...(selectedProject && canDeleteCurrent ? [
-      { key: "delete", label: "删除项目", icon: "delete-bin" as const, variant: "danger" as const, disabled: saving, onClick: onDeleteProject },
-    ] : []),
-  ];
-
   return createTabbedPageBody(
     [
       {
         key: "overview",
         label: editorTitle,
         framed: false,
-        header: actions.length ? { actions } : undefined,
         body: {
           kind: "section",
           sections: createPageBody([
             createFormSection("overview-fields", { kind: "fields", content: { items: overviewFields } }),
-            createPageDataSection("rasci", buildProjectRasciMatrixSurface(rasciRows)),
+            createProjectRasciMatrixSection(rasciRows),
           ]).sections,
         },
       },
