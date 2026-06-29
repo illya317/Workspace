@@ -11,7 +11,7 @@ type DistributionRow = {
   percent?: string;
 };
 
-export function useTurnoverAnalyticsBlocks({ employees: _employees, employments }: { employees: Employee[]; employments: Employment[] }): BodySurfaceSectionSpec[] {
+export function useTurnoverAnalyticsSections({ employees: _employees, employments }: { employees: Employee[]; employments: Employment[] }): BodySurfaceSectionSpec[] {
   const [reasonSearch, setReasonSearch] = useState("");
 
   const stats = useMemo(() => {
@@ -223,5 +223,5 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
 }
 
 export default function TurnoverAnalytics(props: { employees: Employee[]; employments: Employment[] }) {
-  return <PageSurface kind="standard" body={createPageBody(useTurnoverAnalyticsBlocks(props))} />;
+  return <PageSurface kind="standard" body={createPageBody(useTurnoverAnalyticsSections(props))} />;
 }

@@ -1,17 +1,17 @@
 "use client";
 
 import { createPageBody, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
-import { useDepartmentCreatePanelBlock } from "./department-create-panel";
+import { useDepartmentCreatePanelSection } from "./department-create-panel";
 import type { Department } from "./types";
 
-export function useDepartmentPositionDetailBlocks({
+export function useDepartmentPositionDetailSections({
   createPanel,
   departments,
   departmentById,
   canEdit,
   onCancel,
   onCreated,
-  detailBlocks,
+  detailSections,
 }: {
   createPanel: "department" | "position" | null;
   departments: Department[];
@@ -19,16 +19,16 @@ export function useDepartmentPositionDetailBlocks({
   canEdit: boolean;
   onCancel: () => void;
   onCreated: () => void | Promise<void>;
-  detailBlocks: BodySurfaceSectionSpec[];
+  detailSections: BodySurfaceSectionSpec[];
 }): BodySurfaceSectionSpec[] {
-  const createDepartmentBlock = useDepartmentCreatePanelBlock({
+  const createDepartmentSection = useDepartmentCreatePanelSection({
     departments,
     departmentById,
     canEdit,
     onCancel,
     onCreated,
   });
-  return createPanel === "department" ? [createDepartmentBlock] : detailBlocks;
+  return createPanel === "department" ? [createDepartmentSection] : detailSections;
 }
 
 export function DepartmentPositionDetailArea(props: {
@@ -38,8 +38,8 @@ export function DepartmentPositionDetailArea(props: {
   canEdit: boolean;
   onCancel: () => void;
   onCreated: () => void | Promise<void>;
-  detailBlocks: BodySurfaceSectionSpec[];
+  detailSections: BodySurfaceSectionSpec[];
 }) {
-  const sections = useDepartmentPositionDetailBlocks(props);
+  const sections = useDepartmentPositionDetailSections(props);
   return <PageSurface kind="standard" embedded body={createPageBody(sections)} />;
 }

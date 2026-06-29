@@ -1,14 +1,14 @@
 "use client";
 
-import { SectionShell, sectionShellBlock } from "./ProfileFormControls";
+import { SectionShell, createSectionShellSection } from "./ProfileFormControls";
 import { edpFields, employmentFields } from "@workspace/hr/constants";
 import type { ContractRow, EdpRow, EmploymentRow, ProfileField } from "@workspace/hr/types";
 import { createPageBody, PageSurface, type BodySurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
-import { emptyFormBlock, fieldGridBlock, fieldRegionBlock, isCurrentByEndDate, pickFields, type EditableRecord, type RowBase } from "./EmployeeProfileUtils";
-import { useContractSectionBlocks } from "./EmployeeProfileContractSection";
+import { createEmptyFormSection, createFieldGridSection, createFieldRegionSection, isCurrentByEndDate, pickFields, type EditableRecord, type RowBase } from "./EmployeeProfileUtils";
+import { useContractSections } from "./EmployeeProfileContractSection";
 import { deleteActionSpec, profileActionSpec } from "./EmployeeProfileRowActions";
 import { useScrollToAddedItem } from "../hooks/useScrollToAddedItem";
-export { HistorySection, historySectionBlock, type ProfileHistoryEntry } from "./EmployeeProfileHistorySection";
+export { HistorySection, createHistorySection, type ProfileHistoryEntry } from "./EmployeeProfileHistorySection";
 
 function InlineStatusChip({
   label,
@@ -48,14 +48,14 @@ export function RowsSection<T extends RowBase>({
   className?: string;
 }) {
   const sections = rows.length === 0
-    ? [emptyFormBlock("rows-empty", "暂无记录")]
-    : rows.map((row, index) => fieldRegionBlock({
+    ? [createEmptyFormSection("rows-empty", "暂无记录")]
+    : rows.map((row, index) => createFieldRegionSection({
         key: String(row.id ?? `new-${index}`),
         title: getRowTitle(row, title),
         actions: canEdit && allowDelete && onDelete
           ? deleteActionSpec({ canEdit, saving, onDelete: () => onDelete(row, index) })
           : undefined,
-        sections: [fieldGridBlock(fields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
+        sections: [createFieldGridSection(fields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
           const field = fields.find(item => item.key === key);
           if (field) onChange(index, field, value, option);
         }, undefined, `${row.id ?? `new-${index}`}-fields`)],
@@ -79,10 +79,10 @@ interface EmploymentSectionProps {
 }
 
 export function EmploymentSection(props: EmploymentSectionProps) {
-  return <PageSurface kind="standard" embedded body={createPageBody(useEmploymentSectionBlocks(props))} />;
+  return <PageSurface kind="standard" embedded body={createPageBody(useEmploymentSections(props))} />;
 }
 
-export function useEmploymentSectionBlocks({
+export function useEmploymentSections({
   employment,
   contracts,
   canEdit,
@@ -94,7 +94,7 @@ export function useEmploymentSectionBlocks({
   className
 }: EmploymentSectionProps): BodySurfaceSectionSpec[] {
   const fields = employmentFields.filter(field => !["currentCompany", "leaveNote"].includes(field.key));
-  const contractBlocks = useContractSectionBlocks({
+  const contractSections = useContractSections({
     rows: contracts,
     canEdit,
     saving,
@@ -103,19 +103,19 @@ export function useEmploymentSectionBlocks({
     onDelete: onDeleteContract,
   });
   const sections = !employment
-    ? [emptyFormBlock("employment-empty", "暂无雇佣主档")]
+    ? [createEmptyFormSection("employment-empty", "暂无雇佣主档")]
     : [
-        fieldRegionBlock({
+        createFieldRegionSection({
           key: "employment-status",
           title: "任职状态",
-          sections: [fieldGridBlock(fields, employment as unknown as EditableRecord, !canEdit, (key, value, option) => {
+          sections: [createFieldGridSection(fields, employment as unknown as EditableRecord, !canEdit, (key, value, option) => {
           const field = fields.find(item => item.key === key);
           if (field) onChange(field, value, option);
           }, undefined, "employment-fields")],
         }),
-        ...contractBlocks,
+        ...contractSections,
       ];
-  return [sectionShellBlock({ title: null, className, sections })];
+  return [createSectionShellSection({ title: null, className, sections })];
 }
 
 interface EdpSectionProps {
@@ -129,10 +129,10 @@ interface EdpSectionProps {
 }
 
 export function EdpSection(props: EdpSectionProps) {
-  return <PageSurface kind="standard" embedded body={createPageBody(useEdpSectionBlocks(props))} />;
+  return <PageSurface kind="standard" embedded body={createPageBody(useEdpSections(props))} />;
 }
 
-export function useEdpSectionBlocks({
+export function useEdpSections({
   rows,
   canEdit,
   saving,
@@ -151,10 +151,10 @@ export function useEdpSectionBlocks({
     onAdd();
   }
   const sections = rows.length === 0
-    ? [emptyFormBlock("edp-empty", "暂无岗位记录")]
+    ? [createEmptyFormSection("edp-empty", "暂无岗位记录")]
     : rows.map((row, index) => {
         const current = isCurrentByEndDate(row.endDate);
-        return fieldRegionBlock({
+        return createFieldRegionSection({
           key: String(row.id ?? `new-edp-${index}`),
           itemRef: getItemRef(index),
           title: <div className="flex flex-wrap items-center gap-2">
@@ -167,11 +167,11 @@ export function useEdpSectionBlocks({
             profileActionSpec({ key: "add", label: "新增", variant: "secondary", disabled: saving !== null, onClick: addRow }),
             ...deleteActionSpec({ canEdit, saving, onDelete: () => onDelete(row, index) }),
           ] : undefined,
-          sections: [fieldGridBlock(allFields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
+          sections: [createFieldGridSection(allFields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
               const field = edpFields.find(item => item.key === key);
               if (field) onChange(index, field, value, option);
             }, undefined, `edp-${index}-fields`)],
         });
       });
-  return [sectionShellBlock({ title: null, className, sections })];
+  return [createSectionShellSection({ title: null, className, sections })];
 }

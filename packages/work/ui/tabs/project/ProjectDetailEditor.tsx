@@ -46,7 +46,7 @@ type ProjectDetailEditorProps = {
   onToast: (toast: { type: "success" | "error"; message: string }) => void;
 };
 
-export function useProjectDetailEditorBlock({
+export function useProjectDetailEditorSection({
   editorTitle,
   draft,
   selectedProject,
@@ -234,7 +234,7 @@ export function useProjectDetailEditorBlock({
 }
 
 export default function ProjectDetailEditor(props: ProjectDetailEditorProps) {
-  const body = useProjectDetailEditorBlock(props);
+  const body = useProjectDetailEditorSection(props);
   return (
     <PageSurface kind="standard"
       embedded

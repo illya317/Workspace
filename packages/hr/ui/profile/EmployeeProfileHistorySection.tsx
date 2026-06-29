@@ -118,10 +118,10 @@ export function historySectionSurface({
   };
 }
 
-export function historySectionBlock(props: HistorySectionProps): BodySurfaceSectionSpec {
+export function createHistorySection(props: HistorySectionProps): BodySurfaceSectionSpec {
   return createRecordSection("history", historySectionSurface(props));
 }
 
 export function HistorySection(props: HistorySectionProps) {
-  return <PageSurface kind="standard" embedded body={createPageBody([historySectionBlock(props)])} />;
+  return <PageSurface kind="standard" embedded body={createPageBody([createHistorySection(props)])} />;
 }

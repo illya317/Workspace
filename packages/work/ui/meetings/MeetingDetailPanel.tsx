@@ -327,7 +327,7 @@ function createCandidatesSection(props: MeetingDetailPanelProps): BodySurfaceSec
   });
 }
 
-export function useMeetingDetailBlock(props: MeetingDetailPanelProps): BodySurfaceSectionSpec {
+export function useMeetingDetailSection(props: MeetingDetailPanelProps): BodySurfaceSectionSpec {
   return createSectionsSection("meeting-detail", {
     sections: [
       createMeetingHeaderSection(props.meeting, props.saving, props.onUpdate),
@@ -347,6 +347,6 @@ export function useMeetingDetailBlock(props: MeetingDetailPanelProps): BodySurfa
 }
 
 export function MeetingDetailPanel(props: MeetingDetailPanelProps) {
-  const block = useMeetingDetailBlock(props);
-  return <PageSurface kind="standard" embedded body={createPageBody([block])} />;
+  const section = useMeetingDetailSection(props);
+  return <PageSurface kind="standard" embedded body={createPageBody([section])} />;
 }

@@ -6,7 +6,7 @@ import { createBodySplitSection, createMessageSection, createPageBody, createPag
 import type { PageSurfaceProps, SelectorSurfaceProps } from "@workspace/core/ui";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 import type { WorkUser } from "@workspace/work/types";
-import { useProjectDetailEditorBlock } from "./project/ProjectDetailEditor";
+import { useProjectDetailEditorSection } from "./project/ProjectDetailEditor";
 import ProjectGanttTab from "./project/ProjectGanttTab";
 import ProjectPlanGanttTab from "./project/ProjectPlanGanttTab";
 import { PROJECT_LIST_FILTER_OPTIONS, projectCode, type ProjectItem, type ProjectListFilter } from "./project/model";
@@ -67,7 +67,7 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
       });
     }
   };
-  const projectDetailBlock = useProjectDetailEditorBlock({
+  const projectDetailSection = useProjectDetailEditorSection({
     editorTitle,
     dirty: model.dirty,
     draft: model.draft,
@@ -151,7 +151,7 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
         right: model.loading || model.error ? createPageBody([createMessageSection("project-loading", {
           content: model.error || "加载中...",
           tone: model.error ? "danger" : "muted"
-        })]) : projectDetailBlock,
+        })]) : projectDetailSection,
         side: {
           label: "项目列表",
           open: model.projectListOpen,

@@ -106,7 +106,7 @@ function createDraftColumns({
   }];
 }
 
-export function buildReportDraftTableBlock(props: ReportDraftTableProps): BodySurfaceSectionSpec {
+export function createReportDraftTableSection(props: ReportDraftTableProps): BodySurfaceSectionSpec {
   const rows = getDraftRows(props.draft);
   const columns = createDraftColumns(props);
   return createPageDataSection("report-draft-table", {
@@ -164,7 +164,7 @@ function createCollectionColumns(): DataSurfaceColumnSpec<WorkReportCollectionSp
   }];
 }
 
-export function buildReportCollectionTableBlock({ collection, loading }: ReportCollectionTableProps): BodySurfaceSectionSpec {
+export function createReportCollectionTableSection({ collection, loading }: ReportCollectionTableProps): BodySurfaceSectionSpec {
   const rows = collection?.spaces || [];
   if (!loading && rows.length === 0) {
     return createStatusSection("report-collection-empty", { kind: "empty", content: "暂无可汇总的工作空间" });
@@ -187,11 +187,11 @@ export function buildReportCollectionTableBlock({ collection, loading }: ReportC
 export function ReportCollectionTable({ collection, loading }: ReportCollectionTableProps) {
   const rows = collection?.spaces || [];
   const columns = useMemo(() => createCollectionColumns(), []);
-  const block = !loading && rows.length === 0
+  const section = !loading && rows.length === 0
     ? createStatusSection("report-collection-empty", { kind: "empty", content: "暂无可汇总的工作空间" })
     : createPageDataSection("report-collection-table", { kind: "table", rows, columns, visibleColumns: [],     presentation: { density: "compact" },
  loading, emptyText: "暂无汇报", rowKey: space => `${space.targetType}:${space.targetId}`, scroll: { x: false, y: "hidden" }, });
-  return <PageSurface kind="standard" embedded body={createPageBody([block])} />;
+  return <PageSurface kind="standard" embedded body={createPageBody([section])} />;
 }
 
 function ReportStack({

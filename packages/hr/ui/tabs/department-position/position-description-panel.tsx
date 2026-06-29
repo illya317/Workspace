@@ -5,7 +5,7 @@ import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { NEW_POSITION_DESCRIPTION_TEMPLATE_OPTION, type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
 import { selectedEntityName, usePositionDescriptionDetailsSurface } from "./detail-editors";
 import { deriveDescriptionMeta } from "./draft-utils";
-import { buildPositionDescriptionTemplateEditorBlock } from "./position-description-template-editor";
+import { createPositionDescriptionTemplateEditorSection } from "./position-description-template-editor";
 import type { DescriptionDraft, Position } from "./types";
 type PositionDescriptionPanelProps = {
   position: Position | null;
@@ -43,7 +43,7 @@ const EMPTY_DESCRIPTION_DRAFT = {
   effectiveDate: "",
 } as DescriptionDraft;
 
-export function usePositionDescriptionPanelBlock({
+export function usePositionDescriptionPanelSection({
   position,
   descriptionDraft,
   canEditPosition,
@@ -182,7 +182,7 @@ export function usePositionDescriptionPanelBlock({
             }] },
           } },
         },
-        ...(templateEditorOpen ? [buildPositionDescriptionTemplateEditorBlock({
+        ...(templateEditorOpen ? [createPositionDescriptionTemplateEditorSection({
           name: templateDraftName,
           fields: templateDraftFields,
           onNameChange: onTemplateDraftNameChange,
@@ -205,6 +205,6 @@ export function PositionDescriptionPanel(props: Omit<PositionDescriptionPanelPro
   position: Position;
   descriptionDraft: DescriptionDraft;
 }) {
-  const block = usePositionDescriptionPanelBlock(props);
-  return <PageSurface kind="standard" embedded body={createPageBody(block ? [block] : [])} />;
+  const section = usePositionDescriptionPanelSection(props);
+  return <PageSurface kind="standard" embedded body={createPageBody(section ? [section] : [])} />;
 }

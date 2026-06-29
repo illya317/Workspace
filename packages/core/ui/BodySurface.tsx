@@ -22,8 +22,6 @@ import { PAGE_SURFACE_BODY_SECTION_STACK_CLASS, PAGE_SURFACE_TABBED_BODY_STACK_C
 import { Toolbar, type ToolbarItem } from "./Toolbar";
 import type { SurfaceToolbarItems } from "./SurfaceContractTypes";
 
-export { renderBodyEmpty } from "./internal/body/BodySurfaceBlocks";
-
 export type BodySurfaceKind = "data" | "document" | "form" | "navigation" | "selector" | "section" | "visualization";
 
 export type BodySurfaceActionSize = "sm" | "md" | "lg";

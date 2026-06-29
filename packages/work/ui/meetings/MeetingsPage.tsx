@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFormSection, createMessageSection, createPageBody, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
-import { useMeetingDetailBlock } from "./MeetingDetailPanel";
+import { useMeetingDetailSection } from "./MeetingDetailPanel";
 import { meetingCreateFields } from "./meeting-create-fields";
 import type { ActionDraft, CreateMeetingDraft, MeetingDetail, MeetingSummary, MeetingType } from "./meeting-types";
 import { emptyMeetingDraft, formatDateTime, parseIdList, requestJson } from "./meeting-utils";
@@ -68,7 +68,7 @@ export default function MeetingsPage({
   const [actionDrafts, setActionDrafts] = useState<Record<number, ActionDraft>>({});
 
   const filteredMeetings = useMemo(() => typeFilter ? meetings.filter(item => String(item.typeId) === typeFilter) : [], [meetings, typeFilter]);
-  const meetingDetailBlock = useMeetingDetailBlock({
+  const meetingDetailSection = useMeetingDetailSection({
     meeting: meeting ?? emptyMeetingDetail(),
     saving,
     user,
@@ -301,7 +301,7 @@ export default function MeetingsPage({
               ],
             })] : []),
           meeting
-            ? meetingDetailBlock
+            ? meetingDetailSection
             : createMessageSection("meeting-empty", {
                 content: detailLoading ? "加载中..." : "暂无会议",
                 tone: "muted"

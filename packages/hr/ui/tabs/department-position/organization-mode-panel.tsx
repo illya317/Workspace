@@ -16,7 +16,7 @@ import {
 } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import type { RosterSurfaceNavigationProps } from "../../roster-surface";
-import { useDepartmentCreatePanelBlock } from "./department-create-panel";
+import { useDepartmentCreatePanelSection } from "./department-create-panel";
 import { selectedEntityName } from "./detail-editor-primitives";
 import { createDepartmentDescriptionDraft, departmentDescriptionPayload, departmentManagerPositionName, sanitizeDepartmentDescriptionDetails } from "./draft-utils";
 import type { Department, Position } from "./types";
@@ -111,7 +111,7 @@ export function OrganizationModePanel({
   const [managerDraft, setManagerDraft] = useState("");
   const [saving, setSaving] = useState(false);
   const feedback = useFeedback();
-  const createDepartmentBlock = useDepartmentCreatePanelBlock({
+  const createDepartmentSection = useDepartmentCreatePanelSection({
     departments,
     departmentById,
     canEdit,
@@ -252,24 +252,24 @@ export function OrganizationModePanel({
       </span>
     </div>
   ) : undefined;
-  const panelBlocks: BodySurfaceSectionSpec[] = [];
+  const panelSections: BodySurfaceSectionSpec[] = [];
 
-  if (loading) panelBlocks.push(createMessageSection("loading", {
+  if (loading) panelSections.push(createMessageSection("loading", {
     content: "加载中...",
     tone: "muted"
   }));
-  if (error) panelBlocks.push(createMessageSection("error", {
+  if (error) panelSections.push(createMessageSection("error", {
     content: error,
     tone: "danger"
   }));
   if (!loading && !error && !selectedDepartment) {
-    panelBlocks.push(createEmptySection("empty", {
+    panelSections.push(createEmptySection("empty", {
       presentation: "plain",
       content: "请选择左侧部门查看岗位汇报关系"
     }));
   }
   if (!loading && !error && selectedDepartment) {
-    panelBlocks.push(directPositions.length === 0
+    panelSections.push(directPositions.length === 0
       ? createEmptySection("empty-direct", {
         presentation: "plain",
         content: "当前部门暂无直属岗位"
@@ -296,7 +296,7 @@ export function OrganizationModePanel({
     onClick: () => onCreatePanelChange(createPanel === "department" ? null : "department"),
   }] : [];
   const rightSections = createPanel === "department"
-    ? [createDepartmentBlock]
+    ? [createDepartmentSection]
     : [createPanelSection("organization-mode", {
         title: organizationPanelTitle,
         actions: organizationHeaderDepartment ? [{
@@ -307,7 +307,7 @@ export function OrganizationModePanel({
           disabled: !canEdit || saving || !managerDirty,
           onClick: () => void saveChanges(),
         }] : undefined,
-        sections: panelBlocks,
+        sections: panelSections,
       })];
 
   return (

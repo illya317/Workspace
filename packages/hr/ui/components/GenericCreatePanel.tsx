@@ -12,7 +12,7 @@ interface GenericCreatePanelProps {
   onCancel: () => void;
 }
 
-export function buildGenericCreatePanelBlock({
+export function createGenericCreatePanelSection({
   config,
   createForm,
   onChange,
@@ -37,8 +37,8 @@ export function buildGenericCreatePanelBlock({
 }
 
 export default function GenericCreatePanel(props: GenericCreatePanelProps) {
-  const block = buildGenericCreatePanelBlock(props);
-  return <PageSurface kind="standard" embedded body={createPageBody([block])} />;
+  const section = createGenericCreatePanelSection(props);
+  return <PageSurface kind="standard" embedded body={createPageBody([section])} />;
 }
 
 function createFieldSpec(

@@ -6,12 +6,12 @@ import { getPageViewTabs } from "@workspace/platform/view-registry";
 import { PageSurface, createEmptySection, createMessageSection, createPageBody, createPageTabsNavigation, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { useAnalyticsData } from "./useAnalyticsData";
 
-import { useEmployeeAnalyticsBlocks } from "./EmployeeAnalytics";
-import { useDepartmentAnalyticsBlocks } from "./DepartmentAnalytics";
-import { usePositionAnalyticsBlocks } from "./PositionAnalytics";
-import { useTurnoverAnalyticsBlocks } from "./TurnoverAnalytics";
-import { useContractAnalyticsBlocks } from "./ContractAnalytics";
-import { useHeadcountTrendBlocks } from "./HeadcountTrend";
+import { useEmployeeAnalyticsSections } from "./EmployeeAnalytics";
+import { useDepartmentAnalyticsSections } from "./DepartmentAnalytics";
+import { usePositionAnalyticsSections } from "./PositionAnalytics";
+import { useTurnoverAnalyticsSections } from "./TurnoverAnalytics";
+import { useContractAnalyticsSections } from "./ContractAnalytics";
+import { useHeadcountTrendSections } from "./HeadcountTrend";
 
 type AnalyticsTab = "employee" | "department" | "position" | "turnover" | "contract" | "headcount";
 
@@ -20,34 +20,34 @@ const tabs = getPageViewTabs("/hr/analytics") as { key: AnalyticsTab; label: str
 export default function HRAnalyticsClient({ user: _user }: { user: SessionUser; hideShell?: boolean }) {
   const [activeTab, setActiveTab] = useState<AnalyticsTab>("employee");
   const data = useAnalyticsData();
-  const employeeBlocks = useEmployeeAnalyticsBlocks({
+  const employeeSections = useEmployeeAnalyticsSections({
     employees: data.employees,
     employments: data.employments,
     edps: data.edps,
   });
-  const departmentBlocks = useDepartmentAnalyticsBlocks({
+  const departmentSections = useDepartmentAnalyticsSections({
     departments: data.departments,
     edps: data.edps,
   });
-  const positionBlocks = usePositionAnalyticsBlocks({
+  const positionSections = usePositionAnalyticsSections({
     positions: data.positions,
     edps: data.edps,
     departments: data.departments,
   });
-  const turnoverBlocks = useTurnoverAnalyticsBlocks({
+  const turnoverSections = useTurnoverAnalyticsSections({
     employees: data.employees,
     employments: data.employments,
   });
-  const contractBlocks = useContractAnalyticsBlocks({ contracts: data.contracts });
-  const headcountBlocks = useHeadcountTrendBlocks({ employments: data.employments });
+  const contractSections = useContractAnalyticsSections({ contracts: data.contracts });
+  const headcountSections = useHeadcountTrendSections({ employments: data.employments });
 
-  const tabBlocks: Record<AnalyticsTab, BodySurfaceSectionSpec[]> = {
-    employee: employeeBlocks,
-    department: departmentBlocks,
-    position: positionBlocks,
-    turnover: turnoverBlocks,
-    contract: contractBlocks,
-    headcount: headcountBlocks,
+  const tabSections: Record<AnalyticsTab, BodySurfaceSectionSpec[]> = {
+    employee: employeeSections,
+    department: departmentSections,
+    position: positionSections,
+    turnover: turnoverSections,
+    contract: contractSections,
+    headcount: headcountSections,
   };
   let sections: BodySurfaceSectionSpec[];
   if (data.loading) {
@@ -55,7 +55,7 @@ export default function HRAnalyticsClient({ user: _user }: { user: SessionUser; 
   } else if (data.error) {
     sections = [createMessageSection("error", { tone: "danger" as const, content: data.error })];
   } else {
-    sections = tabBlocks[activeTab];
+    sections = tabSections[activeTab];
   }
 
   return (

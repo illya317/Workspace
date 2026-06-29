@@ -24,7 +24,7 @@ type PositionCreatePanelProps = {
   onCancel: () => void;
 };
 
-export function buildPositionCreatePanelBlock({
+export function createPositionCreatePanelSection({
   createPositionDraft,
   createPositionDescriptionDraft,
   createPositionDescriptionDetailsSurface,
@@ -174,7 +174,7 @@ export function PositionCreatePanel(props: PositionCreatePanelProps) {
   return (
     <PageSurface kind="standard"
       embedded
-      body={createPageBody([buildPositionCreatePanelBlock(props)])}
+      body={createPageBody([createPositionCreatePanelSection(props)])}
     />
   );
 }

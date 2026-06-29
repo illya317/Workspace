@@ -3,7 +3,7 @@
 import type { BodySurfaceSectionSpec, SelectorSurfaceProps } from "@workspace/core/ui";
 import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 import { DepartmentPositionActiveWorkspace } from "./active-workspace";
-import { useDepartmentPositionDetailBlocks } from "./department-position-detail-area";
+import { useDepartmentPositionDetailSections } from "./department-position-detail-area";
 import { buildDepartmentPositionToolbarItems } from "./department-position-toolbar-items";
 import type { Department } from "./types";
 
@@ -24,7 +24,7 @@ export function DepartmentPositionMainContent({
   onCreatePanelChange,
   onCollapseAll,
   onLoadData,
-  detailBlocks,
+  detailSections,
   onSideOpenChange,
   onDrawerOpenChange,
   surface,
@@ -45,7 +45,7 @@ export function DepartmentPositionMainContent({
   onCreatePanelChange: (panel: "department" | "position" | null) => void;
   onCollapseAll: (collapsed: boolean) => void;
   onLoadData: () => Promise<void>;
-  detailBlocks: BodySurfaceSectionSpec[];
+  detailSections: BodySurfaceSectionSpec[];
   onSideOpenChange: (open: boolean) => void;
   onDrawerOpenChange: (open: boolean) => void;
   surface?: RosterSurfaceNavigationProps;
@@ -59,7 +59,7 @@ export function DepartmentPositionMainContent({
     onSearchChange,
     onCollapseAll,
   });
-  const workspaceBlocks = useDepartmentPositionDetailBlocks({
+  const workspaceBlocks = useDepartmentPositionDetailSections({
     createPanel,
     departments,
     departmentById,
@@ -69,7 +69,7 @@ export function DepartmentPositionMainContent({
       onCreatePanelChange(null);
       await onLoadData();
     },
-    detailBlocks,
+    detailSections,
   });
 
   return (

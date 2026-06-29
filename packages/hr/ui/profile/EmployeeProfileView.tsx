@@ -18,15 +18,15 @@ import type {
   ProfileField,
 } from "@workspace/hr/types";
 import type { ReferenceOption } from "@workspace/core/ui";
-import { sectionShellBlock } from "./ProfileFormControls";
+import { createSectionShellSection } from "./ProfileFormControls";
 import {
-  historySectionBlock,
+  createHistorySection,
   type ProfileHistoryEntry,
-  useEdpSectionBlocks,
-  useEmploymentSectionBlocks,
+  useEdpSections,
+  useEmploymentSections,
 } from "./EmployeeProfileSections";
 import {
-  groupedFieldBlocks,
+  createGroupedFieldSections,
   updateProfileRow,
   type EditableRecord,
 } from "./EmployeeProfileUtils";
@@ -134,7 +134,7 @@ export default function EmployeeProfileView({
     onClick: onBack,
   });
 
-  const employmentSectionBlocks = useEmploymentSectionBlocks({
+  const employmentSections = useEmploymentSections({
     employment: activeEmployment,
     canEdit,
     saving,
@@ -145,7 +145,7 @@ export default function EmployeeProfileView({
     onChangeContract: (index, field, value, option) => setContracts((rows) => changeContract(rows, index, field, value, option)),
     onDeleteContract: (row, index) => removeRow(row.company, "合同记录", index, setContracts, confirmDelete),
   });
-  const edpSectionBlocks = useEdpSectionBlocks({
+  const edpSections = useEdpSections({
     rows: edps,
     canEdit,
     saving,
@@ -166,8 +166,8 @@ export default function EmployeeProfileView({
       });
     },
   });
-  const historySectionBlocks = [
-    historySectionBlock({
+  const createHistorySections = [
+    createHistorySection({
       entries: historyEntries,
       loading: historyLoading,
       expandedId: expandedHistoryId,
@@ -179,23 +179,23 @@ export default function EmployeeProfileView({
 
   const ready = !loading && Boolean(profile && employeeDraft);
 
-  const basicSectionBlocks = ready ? [
-    sectionShellBlock({
+  const basicSections = ready ? [
+    createSectionShellSection({
       title: null,
       className: sectionCardClassName,
-      sections: groupedFieldBlocks(employeeFieldGroups, employeeDraft as unknown as EditableRecord, !canEdit, onEmployeeFieldChange),
+      sections: createGroupedFieldSections(employeeFieldGroups, employeeDraft as unknown as EditableRecord, !canEdit, onEmployeeFieldChange),
     }),
   ] : [];
-  const activeSectionBlocks =
+  const activeSections =
     !ready
       ? []
       : activeSection === "basic"
-      ? basicSectionBlocks
+      ? basicSections
       : activeSection === "employment"
-        ? employmentSectionBlocks
+        ? employmentSections
         : activeSection === "edp"
-          ? edpSectionBlocks
-          : historySectionBlocks;
+          ? edpSections
+          : createHistorySections;
 
   return (
     <PageSurface kind="standard"
@@ -208,7 +208,7 @@ export default function EmployeeProfileView({
         ready ? [
           ...(error ? [createMessageSection("error", { tone: "danger" as const, content: error })] : []),
           ...(message ? [createMessageSection("message", { content: message })] : []),
-          ...activeSectionBlocks,
+          ...activeSections,
         ] : [],
         {
           commands: ready ? pageActions : undefined,

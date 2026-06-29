@@ -1,6 +1,5 @@
 "use client";
 
-import { FieldRegion } from "./EmployeeProfileFieldRegion";
 import type { ProfileField } from "@workspace/hr/types";
 import { createPanelSection, type FormSurfaceItemSpec, type BodySurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
 import {
@@ -279,7 +278,7 @@ export function fieldGridItems(
   return fields.map((field) => profileFieldSpec(field, record, disabled, onChange, isFieldDisabled));
 }
 
-export function fieldGridBlock(
+export function createFieldGridSection(
   fields: ProfileField[],
   record: EditableRecord,
   disabled: boolean,
@@ -299,7 +298,7 @@ export function fieldGridBlock(
   };
 }
 
-export function emptyFormBlock(key: string, content: string): BodySurfaceSectionSpec {
+export function createEmptyFormSection(key: string, content: string): BodySurfaceSectionSpec {
   return {
     key,
     body: { kind: "form", form: {
@@ -309,26 +308,7 @@ export function emptyFormBlock(key: string, content: string): BodySurfaceSection
   };
 }
 
-export function groupedFieldGrid(
-  groups: Array<{ title: string; fields: ProfileField[] }>,
-  record: EditableRecord,
-  disabled: boolean,
-  onChange: (key: string, value: unknown, option?: ReferenceOption) => void,
-) {
-  return (
-    <div className="space-y-4">
-      {groups.map((group) => (
-        <FieldRegion
-          key={group.title}
-          title={group.title}
-          sections={[fieldGridBlock(group.fields, record, disabled, onChange, undefined, `${group.title}-fields`)]}
-        />
-      ))}
-    </div>
-  );
-}
-
-export function groupedFieldBlocks(
+export function createGroupedFieldSections(
   groups: Array<{ title: string; fields: ProfileField[] }>,
   record: EditableRecord,
   disabled: boolean,
@@ -337,6 +317,6 @@ export function groupedFieldBlocks(
   return groups.map((group) => createPanelSection(group.title, {
     title: group.title,
 
-    sections: [fieldGridBlock(group.fields, record, disabled, onChange, undefined, `${group.title}-fields`)],
+    sections: [createFieldGridSection(group.fields, record, disabled, onChange, undefined, `${group.title}-fields`)],
   }));
 }

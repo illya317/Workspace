@@ -6,13 +6,12 @@ import type { ReferenceOption } from "@workspace/core/ui";
 
 export type EditableRecord = Record<string, unknown> & { id?: number; isNew?: boolean };
 export type RowBase = { id?: number; isNew?: boolean };
-export { FieldRegion, fieldRegionBlock } from "./EmployeeProfileFieldRegion";
+export { createFieldRegionSection } from "./EmployeeProfileFieldRegion";
 export {
-  emptyFormBlock,
-  fieldGridBlock,
+  createEmptyFormSection,
+  createFieldGridSection,
   fieldGridItems,
-  groupedFieldBlocks,
-  groupedFieldGrid,
+  createGroupedFieldSections,
   profileFieldSpec,
 } from "./EmployeeProfileFieldSpecs";
 

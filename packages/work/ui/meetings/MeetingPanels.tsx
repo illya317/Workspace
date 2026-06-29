@@ -2,7 +2,7 @@
 
 import { createActionsSection, createFieldsSection, createPageBody, createSelectorPanelSection, PageSurface, type BodySurfaceBadgeSpec } from "@workspace/core/ui";
 import type { ActionDraft, MeetingDetail, MeetingParticipant, MeetingSummary } from "./meeting-types";
-import { EmptyLine, InputBox, PageBodySectionSurface, StatusPill } from "./MeetingControls";
+import { EmptyLine, InputBox, PageSurfaceSection, StatusPill } from "./MeetingControls";
 import { candidateStatusLabel, decisionKindLabel, emptyActionDraft, formatDateTime, roleLabel, voteChoiceLabel } from "./meeting-utils";
 
 export function MeetingList({
@@ -128,7 +128,7 @@ export function ProposalList({
           {proposal.votes.length > 0 && <div className="mt-2 grid gap-1 text-xs text-slate-500">
               {proposal.votes.map(vote => <span key={vote.id}>{vote.voterName || `用户 ${vote.voterUserId}`}：{voteChoiceLabel(vote.choice)}</span>)}
             </div>}
-          <PageBodySectionSurface className="mt-3" block={createActionsSection("proposal-actions", [
+          <PageSurfaceSection className="mt-3" section={createActionsSection("proposal-actions", [
             ...(meeting.permissions.canVote && proposal.status === "open" ? [
               { key: "yes", label: "赞成", variant: proposal.myVote?.choice === "yes" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onVote(proposal.id, "yes") },
               { key: "no", label: "反对", variant: proposal.myVote?.choice === "no" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onVote(proposal.id, "no") },
@@ -204,7 +204,7 @@ export function CandidateList({
             ...draft,
             targetId,
           })} />
-                <PageBodySectionSurface className="md:col-span-4" block={createActionsSection("candidate-actions", [
+                <PageSurfaceSection className="md:col-span-4" section={createActionsSection("candidate-actions", [
                   { key: "linkWorkPlan", label: "链接 OKR 计划", variant: "secondary", size: "sm", disabled: saving || !draft.workPlanId, onClick: () => onAction(candidate.id, "linkWorkPlan", draft) },
                   { key: "createWorkPlan", label: "创建 OKR 计划", variant: "secondary", size: "sm", disabled: saving, onClick: () => onAction(candidate.id, "createWorkPlan", draft) },
                   { key: "linkProjectTask", label: "链接项目任务", variant: "secondary", size: "sm", disabled: saving || !draft.projectTaskId, onClick: () => onAction(candidate.id, "linkProjectTask", draft) },

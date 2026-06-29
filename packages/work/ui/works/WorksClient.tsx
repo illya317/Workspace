@@ -22,12 +22,12 @@ import {
   WORK_ITEM_TYPE_OPTIONS,
 } from "./model";
 import { useWorks } from "./useWorks";
-import { nextSortOrder, normalizeInitialTarget, roleAllows, sameTarget, spaceMetricsBlock } from "./works-client-helpers";
-import { useWorkPermissionsBlocks } from "./WorkPermissionsPanel";
-import { buildWorkReportsPanelBlocks, useWorkReportsController } from "./WorkReportsPanel";
-import { useWorkTaskTableBlock } from "./WorkTaskTable";
+import { createSpaceMetricsSection, nextSortOrder, normalizeInitialTarget, roleAllows, sameTarget } from "./works-client-helpers";
+import { useWorkPermissionsSections } from "./WorkPermissionsPanel";
+import { createWorkReportsPanelSections, useWorkReportsController } from "./WorkReportsPanel";
+import { useWorkTaskTableSection } from "./WorkTaskTable";
 import { useWorkTaskFormSurface } from "./WorkTaskFields";
-import { createWorkPlanHeaderSection, createWorkPlanSelector } from "./WorkPlanBlocks";
+import { createWorkPlanHeaderSection, createWorkPlanSelector } from "./WorkPlanSections";
 import { useWorkPlanFormSurface } from "./WorkPlanFields";
 import type { WorkItem, WorkItemType, WorkPlan, WorkPlanDraft, WorkTarget, WorkTaskSpace } from "./types";
 
@@ -86,7 +86,7 @@ export default function WorksClient({ initialTarget }: {
     onToast: showReportToast,
     enabled: activeTab === "reports",
   });
-  const permissionBlocks = useWorkPermissionsBlocks({
+  const permissionSections = useWorkPermissionsSections({
     target: currentSpace,
     canManage,
     onToast: showPermissionToast,
@@ -149,7 +149,7 @@ export default function WorksClient({ initialTarget }: {
     }
   }, [activeTarget, showToast, spaces]);
 
-  const taskTableBlock = useWorkTaskTableBlock({
+  const taskTableSection = useWorkTaskTableSection({
     works: worksState.works,
     loading: worksState.loading,
     canEdit,
@@ -454,13 +454,13 @@ export default function WorksClient({ initialTarget }: {
           createPanelSection("space-header", {
             title: currentSpace.name,
             subtitle: [getWorkSpaceLabel(currentSpace.targetType), currentSpace.subtitle].filter(Boolean).join(" · "),
-            sections: [spaceMetricsBlock(currentSpace)],
+            sections: [createSpaceMetricsSection(currentSpace)],
           }),
           activeTab === "permissions" ? createSectionsSection("permissions", {
-            sections: permissionBlocks,
+            sections: permissionSections,
           }) : activeTab === "reports" ? createSectionSection("reports", {
             title: "工作汇报",
-            sections: buildWorkReportsPanelBlocks(reportsState),
+            sections: createWorkReportsPanelSections(reportsState),
           }) : createSectionSection("tasks", {
             title: "OKR 计划",
             sections: [
@@ -468,7 +468,7 @@ export default function WorksClient({ initialTarget }: {
               ...(planCreating ? [] : activePlan ? [
                 createWorkPlanHeaderSection(activePlan),
                 ...(worksState.creating ? [createFormSection("create-task", createTaskSurface)] : []),
-                taskTableBlock,
+                taskTableSection,
               ] : [createMessageSection("no-plan", {
                 content: plansLoading ? "加载 OKR 计划中..." : "请先新建 OKR 计划，再添加目标、关键结果和子任务。",
                 tone: "muted" as const,

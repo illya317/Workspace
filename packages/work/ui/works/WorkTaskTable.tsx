@@ -30,9 +30,9 @@ type WorkTaskTableProps = {
   onDelete: (work: WorkItem) => void;
 };
 
-type WorkTaskTableBlock = BodySurfaceSectionSpec;
+type WorkTaskTableSection = BodySurfaceSectionSpec;
 
-export function useWorkTaskTableBlock({
+export function useWorkTaskTableSection({
   works,
   loading,
   canEdit,
@@ -48,7 +48,7 @@ export function useWorkTaskTableBlock({
   onCancelEdit,
   onEditDraftChange,
   onDelete,
-}: WorkTaskTableProps): WorkTaskTableBlock {
+}: WorkTaskTableProps): WorkTaskTableSection {
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
   const tree = useMemo(
     () => buildTreeRows(works, { statusFilter, itemTypeFilter, expandedIds }),
@@ -137,8 +137,8 @@ export function useWorkTaskTableBlock({
 }
 
 export default function WorkTaskTable(props: WorkTaskTableProps) {
-  const block = useWorkTaskTableBlock(props);
-  return <PageSurface kind="standard" embedded body={createPageBody([block])} />;
+  const section = useWorkTaskTableSection(props);
+  return <PageSurface kind="standard" embedded body={createPageBody([section])} />;
 }
 
 function createColumns({

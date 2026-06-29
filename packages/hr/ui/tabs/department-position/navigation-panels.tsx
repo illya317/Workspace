@@ -2,12 +2,12 @@
 
 import type { Dispatch, SetStateAction } from "react";
 import { createPageBody, createEmptySection, createMessageSection, createSectionsSection, createPanelSection, PageSurface, type BodySurfaceSectionSpec, type FormSurfaceProps } from "@workspace/core/ui";
-import { buildPositionCreatePanelBlock } from "./create-panels";
+import { createPositionCreatePanelSection } from "./create-panels";
 import type { CreatePositionDraft, Department, DescriptionDraft, Position, Selection } from "./types";
 import { shortPositionCode } from "./utils";
 
-function isBodySurfaceSectionSpec(block: BodySurfaceSectionSpec | null): block is BodySurfaceSectionSpec {
-  return block !== null;
+function isBodySurfaceSectionSpec(section: BodySurfaceSectionSpec | null): section is BodySurfaceSectionSpec {
+  return section !== null;
 }
 
 export function DirectPositionPanel({
@@ -50,7 +50,7 @@ export function DirectPositionPanel({
   return (
     <PageSurface kind="standard"
       embedded
-      body={createPageBody([buildDirectPositionPanelBlock({
+      body={createPageBody([createDirectPositionPanelSection({
         canCreatePosition,
         createPanel,
         createPositionCode,
@@ -73,7 +73,7 @@ export function DirectPositionPanel({
   );
 }
 
-export function buildDirectPositionPanelBlock({
+export function createDirectPositionPanelSection({
   canCreatePosition = false,
   createPanel = null,
   createPositionCode,
@@ -138,7 +138,7 @@ export function buildDirectPositionPanelBlock({
         content: "暂无直属岗位"
       }),
     ...(creatingPositionHere && canRenderCreate
-      ? [buildPositionCreatePanelBlock({
+      ? [createPositionCreatePanelSection({
           createPositionDraft,
           createPositionDescriptionDraft,
           createPositionDescriptionDetailsSurface,
@@ -185,7 +185,7 @@ export function DepartmentTreePanel({
   error,
   rootDepartments,
   onClose,
-  departmentNodeBlock
+  createDepartmentNodeSection
 }: {
   mode: "desktop" | "drawer";
   isOrganizationMode: boolean;
@@ -196,7 +196,7 @@ export function DepartmentTreePanel({
   onSearchChange: (value: string) => void;
   onClose?: () => void;
   onCollapseAll: (collapsed: boolean) => void;
-  departmentNodeBlock: (department: Department) => BodySurfaceSectionSpec | null;
+  createDepartmentNodeSection: (department: Department) => BodySurfaceSectionSpec | null;
 }) {
   const sections: BodySurfaceSectionSpec[] = [];
   if (loading) sections.push(createMessageSection("loading", {
@@ -208,7 +208,7 @@ export function DepartmentTreePanel({
     tone: "danger"
   }));
   if (!loading && !error) {
-    sections.push(...rootDepartments.map((department) => departmentNodeBlock(department)).filter(isBodySurfaceSectionSpec));
+    sections.push(...rootDepartments.map((department) => createDepartmentNodeSection(department)).filter(isBodySurfaceSectionSpec));
   }
 
   return (
@@ -226,13 +226,13 @@ export function DepartmentTreePanel({
   );
 }
 
-export function buildDepartmentTreePanelBlock({
+export function createDepartmentTreePanelSection({
   mode,
   loading,
   error,
   rootDepartments,
   onClose,
-  departmentNodeBlock
+  createDepartmentNodeSection
 }: {
   mode: "desktop" | "drawer";
   isOrganizationMode: boolean;
@@ -243,7 +243,7 @@ export function buildDepartmentTreePanelBlock({
   onSearchChange: (value: string) => void;
   onClose?: () => void;
   onCollapseAll: (collapsed: boolean) => void;
-  departmentNodeBlock: (department: Department) => BodySurfaceSectionSpec | null;
+  createDepartmentNodeSection: (department: Department) => BodySurfaceSectionSpec | null;
 }): BodySurfaceSectionSpec {
   const sections: BodySurfaceSectionSpec[] = [];
   if (loading) sections.push(createMessageSection("loading", {
@@ -255,7 +255,7 @@ export function buildDepartmentTreePanelBlock({
     tone: "danger"
   }));
   if (!loading && !error) {
-    sections.push(...rootDepartments.map((department) => departmentNodeBlock(department)).filter(isBodySurfaceSectionSpec));
+    sections.push(...rootDepartments.map((department) => createDepartmentNodeSection(department)).filter(isBodySurfaceSectionSpec));
   }
 
   return createPanelSection("department-tree", {
@@ -271,14 +271,14 @@ export function OrganizationRootPanel({
   error,
   departments,
   onClose,
-  organizationRootBlock
+  createOrganizationRootSection
 }: {
   mode: "desktop" | "drawer";
   loading: boolean;
   error: string | null;
   departments: Department[];
   onClose?: () => void;
-  organizationRootBlock: (department: Department) => BodySurfaceSectionSpec | null;
+  createOrganizationRootSection: (department: Department) => BodySurfaceSectionSpec | null;
 }) {
   const sections: BodySurfaceSectionSpec[] = [];
   if (loading) sections.push(createMessageSection("loading", {
@@ -297,7 +297,7 @@ export function OrganizationRootPanel({
   }
   if (!loading && !error && departments.length > 0) {
     sections.push(createSectionsSection("roots", {
-      sections: departments.map((department) => organizationRootBlock(department)).filter(isBodySurfaceSectionSpec),
+      sections: departments.map((department) => createOrganizationRootSection(department)).filter(isBodySurfaceSectionSpec),
 
     }));
   }
@@ -317,20 +317,20 @@ export function OrganizationRootPanel({
   );
 }
 
-export function buildOrganizationRootPanelBlock({
+export function createOrganizationRootPanelSection({
   mode,
   loading,
   error,
   departments,
   onClose,
-  organizationRootBlock
+  createOrganizationRootSection
 }: {
   mode: "desktop" | "drawer";
   loading: boolean;
   error: string | null;
   departments: Department[];
   onClose?: () => void;
-  organizationRootBlock: (department: Department) => BodySurfaceSectionSpec | null;
+  createOrganizationRootSection: (department: Department) => BodySurfaceSectionSpec | null;
 }): BodySurfaceSectionSpec {
   const sections: BodySurfaceSectionSpec[] = [];
   if (loading) sections.push(createMessageSection("loading", {
@@ -349,7 +349,7 @@ export function buildOrganizationRootPanelBlock({
   }
   if (!loading && !error && departments.length > 0) {
     sections.push(createSectionsSection("roots", {
-      sections: departments.map((department) => organizationRootBlock(department)).filter(isBodySurfaceSectionSpec),
+      sections: departments.map((department) => createOrganizationRootSection(department)).filter(isBodySurfaceSectionSpec),
 
     }));
   }

@@ -21,7 +21,7 @@ type DistributionRow = {
   percent: string;
 };
 
-export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { employees: Employee[]; employments: Employment[]; edps: EDP[] }): BodySurfaceSectionSpec[] {
+export function useEmployeeAnalyticsSections({ employees, employments, edps }: { employees: Employee[]; employments: Employment[]; edps: EDP[] }): BodySurfaceSectionSpec[] {
   const [feature, setFeature] = useState<DimKey>("gender");
   const [crossRow, setCrossRow] = useState<DimKey>("company");
   const [crossCol, setCrossCol] = useState<DimKey>("gender");
@@ -136,5 +136,5 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
 }
 
 export default function EmployeeAnalytics(props: { employees: Employee[]; employments: Employment[]; edps: EDP[] }) {
-  return <PageSurface kind="standard" body={createPageBody(useEmployeeAnalyticsBlocks(props))} />;
+  return <PageSurface kind="standard" body={createPageBody(useEmployeeAnalyticsSections(props))} />;
 }

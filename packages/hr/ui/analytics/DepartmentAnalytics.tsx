@@ -5,7 +5,7 @@ import { createPageBody, createAnalysisSection, createMetricsSection, PageSurfac
 import { matchSearchFields } from "@workspace/platform/search";
 import type { Department, EDP } from "./useAnalyticsData";
 
-export function useDepartmentAnalyticsBlocks({ departments, edps }: { departments: Department[]; edps: EDP[] }): BodySurfaceSectionSpec[] {
+export function useDepartmentAnalyticsSections({ departments, edps }: { departments: Department[]; edps: EDP[] }): BodySurfaceSectionSpec[] {
   const [search, setSearch] = useState("");
 
   const activeEdps = useMemo(() => edps.filter((e) => !e.endDate), [edps]);
@@ -156,5 +156,5 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
 }
 
 export default function DepartmentAnalytics(props: { departments: Department[]; edps: EDP[] }) {
-  return <PageSurface kind="standard" body={createPageBody(useDepartmentAnalyticsBlocks(props))} />;
+  return <PageSurface kind="standard" body={createPageBody(useDepartmentAnalyticsSections(props))} />;
 }

@@ -2,7 +2,8 @@
 
 import type { ReactNode } from "react";
 import { workspaceBasePath } from "@workspace/core/routing";
-import BodySurface, { renderBodyEmpty, type BodySurfaceEmptySpec, type BodySurfaceProps, type BodySurfaceSectionSpec } from "./BodySurface";
+import BodySurface, { type BodySurfaceEmptySpec, type BodySurfaceProps, type BodySurfaceSectionSpec } from "./BodySurface";
+import { renderBodyEmpty } from "./internal/body/BodySurfaceBlocks";
 import { DatabasePageFrame } from "./internal/page/PageFrames";
 import NavigationSurface from "./NavigationSurface";
 import Pagination from "./internal/common/Pagination";

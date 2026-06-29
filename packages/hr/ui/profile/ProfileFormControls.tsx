@@ -291,12 +291,12 @@ export function SectionShell({
   return (
     <PageSurface kind="standard"
       embedded
-      body={createPageBody([sectionShellBlock({ title, subtitle, status, sections })])}
+      body={createPageBody([createSectionShellSection({ title, subtitle, status, sections })])}
     />
   );
 }
 
-export function sectionShellBlock({
+export function createSectionShellSection({
   title,
   subtitle,
   status,

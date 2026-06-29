@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { createPageBody, PageSurface, createPanelSection, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { departmentCodeEditableSegment } from "./department-code-input";
 import { postJson } from "@workspace/platform/ui/api-client";
-import { useDepartmentDescriptionsBlock } from "./department-descriptions-panel";
+import { useDepartmentDescriptionsSection } from "./department-descriptions-panel";
 import { sanitizeDepartmentDescriptionDetails } from "./draft-utils";
 import { serializeAlias } from "./utils";
 import type { Department, DepartmentDescriptionDraft } from "./types";
@@ -31,7 +31,7 @@ type DepartmentCreatePanelProps = {
   canEdit: boolean;
 };
 
-export function useDepartmentCreatePanelBlock({
+export function useDepartmentCreatePanelSection({
   departments,
   departmentById,
   onCancel,
@@ -117,13 +117,13 @@ export function useDepartmentCreatePanelBlock({
   }
 
   const submitDisabled = !name.trim() || !code.trim() || submitting;
-  const descriptionsBlock = useDepartmentDescriptionsBlock({
+  const descriptionsSection = useDepartmentDescriptionsSection({
     drafts: [descriptionDraft],
     dirty: false,
     canEditDepartment: canEdit,
     onUpdateDraft: (_index, key, value) => setDescriptionDraft((prev) => ({ ...prev, [key]: value })),
   });
-  const departmentInfoBlock: BodySurfaceSectionSpec = createPanelSection("department-info", {
+  const departmentInfoSection: BodySurfaceSectionSpec = createPanelSection("department-info", {
     title: "部门信息",
 
     sections: [
@@ -220,18 +220,18 @@ export function useDepartmentCreatePanelBlock({
       { key: "submit", label: submitting ? "保存中..." : "保存", icon: "save", variant: "primary", disabled: !canEdit || submitting || submitDisabled, onClick: () => void handleSubmit() },
     ],
     sections: [
-      departmentInfoBlock,
-      descriptionsBlock,
+      departmentInfoSection,
+      descriptionsSection,
     ],
   });
 }
 
 export function DepartmentCreatePanel(props: DepartmentCreatePanelProps) {
-  const block = useDepartmentCreatePanelBlock(props);
+  const section = useDepartmentCreatePanelSection(props);
   return (
     <PageSurface kind="standard"
       embedded
-      body={createPageBody([block])}
+      body={createPageBody([section])}
     />
   );
 }

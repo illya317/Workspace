@@ -4,8 +4,8 @@ import { useMemo, type Dispatch, type SetStateAction } from "react";
 import { createPageBody, createMetricsSection, createEmptySection, createPanelSection, PageSurface, type FormSurfaceItemSpec, type BodySurfaceSectionSpec, type FormSurfaceProps } from "@workspace/core/ui";
 import { departmentCodeEditableSegment } from "./department-code-input";
 import { departmentDescendantIds, splitAliasText } from "./utils";
-import { useDepartmentDescriptionsBlock } from "./department-descriptions-panel";
-import { buildDirectPositionPanelBlock } from "./navigation-panels";
+import { useDepartmentDescriptionsSection } from "./department-descriptions-panel";
+import { createDirectPositionPanelSection } from "./navigation-panels";
 import type { Department, DepartmentDescriptionDraft, DepartmentDraft, DepartmentPositionStats, CreatePositionDraft, DescriptionDraft, Position, Selection } from "./types";
 
 function DepartmentLevelChip({ level }: { level: number }) {
@@ -34,7 +34,7 @@ type DepartmentDetailPaneProps = {
   departmentDescriptionDirty: boolean;
   saving: boolean;
   showArchived: boolean;
-  positionEditorBlocks: BodySurfaceSectionSpec[];
+  positionEditorSections: BodySurfaceSectionSpec[];
   setCreatePanel: (panel: "department" | "position" | null) => void;
   setCreatePositionDescriptionDraft: Dispatch<SetStateAction<DescriptionDraft>>;
   setCreatePositionDraft: Dispatch<SetStateAction<CreatePositionDraft>>;
@@ -47,7 +47,7 @@ type DepartmentDetailPaneProps = {
   onArchiveDepartment: (departmentId: number, archived: boolean) => void | Promise<void>;
 };
 
-export function useDepartmentDetailPaneBlock({
+export function useDepartmentDetailPaneSection({
   selection,
   selectedDepartment,
   selectedDepartmentStats,
@@ -69,7 +69,7 @@ export function useDepartmentDetailPaneBlock({
   departmentDescriptionDirty,
   saving,
   showArchived,
-  positionEditorBlocks,
+  positionEditorSections,
   setCreatePanel,
   setCreatePositionDescriptionDraft,
   setCreatePositionDraft,
@@ -159,15 +159,15 @@ export function useDepartmentDetailPaneBlock({
     },
     { kind: "readonly", key: "manager", label: "部门负责人", value: departmentDraft.managerPositionName || "未设置" },
   ] : [];
-  const departmentDescriptionsBlock = useDepartmentDescriptionsBlock({
+  const departmentDescriptionsSection = useDepartmentDescriptionsSection({
     drafts: departmentDescriptionDrafts,
     dirty: departmentDescriptionDirty,
     canEditDepartment,
     onUpdateDraft: onUpdateDepartmentDescriptionDraft,
   });
-  const detailBlocks: BodySurfaceSectionSpec[] = [];
+  const detailSections: BodySurfaceSectionSpec[] = [];
   if (!selection) {
-    detailBlocks.push(createEmptySection("empty-selection", {
+    detailSections.push(createEmptySection("empty-selection", {
       presentation: "plain",
 
       content: "选择部门或岗位查看详情"
@@ -175,7 +175,7 @@ export function useDepartmentDetailPaneBlock({
   }
   if (selectedDepartment) {
     if (!isOrganizationMode) {
-      detailBlocks.push(buildDirectPositionPanelBlock({
+      detailSections.push(createDirectPositionPanelSection({
         canCreatePosition: canEditPosition,
         createPanel,
         createPositionCode,
@@ -195,7 +195,7 @@ export function useDepartmentDetailPaneBlock({
         onCreatePosition,
       }));
     }
-    detailBlocks.push(createPanelSection("department-info", {
+    detailSections.push(createPanelSection("department-info", {
       title: (
         <span className="flex min-w-0 items-center gap-2">
           <span>部门信息</span>
@@ -243,17 +243,17 @@ export function useDepartmentDetailPaneBlock({
           }),
       ] : [],
     }));
-    if (!isOrganizationMode) detailBlocks.push(departmentDescriptionsBlock);
+    if (!isOrganizationMode) detailSections.push(departmentDescriptionsSection);
   }
-  if (!isOrganizationMode) detailBlocks.push(...positionEditorBlocks);
+  if (!isOrganizationMode) detailSections.push(...positionEditorSections);
   return createPanelSection("department-detail", {
 
 
-      sections: detailBlocks,
+      sections: detailSections,
     });
 }
 
 export function DepartmentDetailPane(props: DepartmentDetailPaneProps) {
-  const block = useDepartmentDetailPaneBlock(props);
-  return <PageSurface kind="standard" embedded body={createPageBody([block])} />;
+  const section = useDepartmentDetailPaneSection(props);
+  return <PageSurface kind="standard" embedded body={createPageBody([section])} />;
 }

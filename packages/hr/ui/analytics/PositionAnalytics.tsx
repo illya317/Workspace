@@ -6,7 +6,7 @@ import { usePositionData } from "./position/usePositionData";
 import { createDeptBarChartSection } from "./position/DeptBarChart";
 import { createPositionTableSection } from "./position/PositionTable";
 
-export function usePositionAnalyticsBlocks({ positions, edps, departments }: { positions: Position[]; edps: EDP[]; departments: Department[] }): BodySurfaceSectionSpec[] {
+export function usePositionAnalyticsSections({ positions, edps, departments }: { positions: Position[]; edps: EDP[]; departments: Department[] }): BodySurfaceSectionSpec[] {
   const {
     stats,
     filteredDept,
@@ -53,5 +53,5 @@ export function usePositionAnalyticsBlocks({ positions, edps, departments }: { p
 }
 
 export default function PositionAnalytics(props: { positions: Position[]; edps: EDP[]; departments: Department[] }) {
-  return <PageSurface kind="standard" body={createPageBody(usePositionAnalyticsBlocks(props))} />;
+  return <PageSurface kind="standard" body={createPageBody(usePositionAnalyticsSections(props))} />;
 }

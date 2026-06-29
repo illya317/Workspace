@@ -12,7 +12,7 @@ type PositionDescriptionTemplateEditorProps = {
   onCancel: () => void;
 };
 
-export function buildPositionDescriptionTemplateEditorBlock({
+export function createPositionDescriptionTemplateEditorSection({
   name,
   fields,
   onNameChange,
@@ -76,6 +76,6 @@ export function PositionDescriptionTemplateEditor({
 }: PositionDescriptionTemplateEditorProps) {
   return <PageSurface kind="standard"
     embedded
-    body={createPageBody([buildPositionDescriptionTemplateEditorBlock({ name, fields, onNameChange, onToggleField, onSave, onCancel })])}
+    body={createPageBody([createPositionDescriptionTemplateEditorSection({ name, fields, onNameChange, onToggleField, onSave, onCancel })])}
   />;
 }

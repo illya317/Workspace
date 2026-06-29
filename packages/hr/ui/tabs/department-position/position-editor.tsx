@@ -2,8 +2,8 @@
 
 import { createPageBody, createPanelSection, PageSurface, type FormSurfaceItemSpec, type BodySurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
 import { type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
-import { buildDirectPositionPanelBlock } from "./navigation-panels";
-import { usePositionDescriptionPanelBlock } from "./position-description-panel";
+import { createDirectPositionPanelSection } from "./navigation-panels";
+import { usePositionDescriptionPanelSection } from "./position-description-panel";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import type { Department, DescriptionDraft, Position, PositionDraft, Selection } from "./types";
 import { departmentPath, positionCodePrefix, positionCodePrefixFromCode, positionCodeSuffix, splitAliasText } from "./utils";
@@ -47,7 +47,7 @@ type PositionEditorProps = {
   onArchivePosition: (positionId: number, archived: boolean) => void | Promise<void>;
 };
 
-export function usePositionEditorBlocks({
+export function usePositionEditorSections({
   position,
   draft,
   descriptionDraft,
@@ -86,7 +86,7 @@ export function usePositionEditorBlocks({
   onSavePosition,
   onArchivePosition
 }: PositionEditorProps): BodySurfaceSectionSpec[] {
-  const descriptionBlock = usePositionDescriptionPanelBlock({
+  const descriptionBlock = usePositionDescriptionPanelSection({
     position: position ?? null,
     descriptionDraft,
     canEditPosition,
@@ -186,7 +186,7 @@ export function usePositionEditorBlocks({
     },
   ] : [];
   return [
-      ...(position.departmentId ? [buildDirectPositionPanelBlock({ departmentId: position.departmentId, positionsByDepartment, selection, onSelect })] : []),
+      ...(position.departmentId ? [createDirectPositionPanelSection({ departmentId: position.departmentId, positionsByDepartment, selection, onSelect })] : []),
       createPanelSection("position-info", {
           title: (
             <span className="flex min-w-0 items-center gap-2">
@@ -212,6 +212,6 @@ export function usePositionEditorBlocks({
 }
 
 export function PositionEditor(props: Omit<PositionEditorProps, "position"> & { position: Position }) {
-  const sections = usePositionEditorBlocks(props);
+  const sections = usePositionEditorSections(props);
   return <PageSurface kind="standard" embedded body={createPageBody(sections)} />;
 }

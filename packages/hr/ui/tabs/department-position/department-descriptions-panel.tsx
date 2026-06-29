@@ -3,7 +3,7 @@
 import type { Ref } from "react";
 import { createPageBody, createEmptySection, createPanelSection, PageSurface, type ConfirmOptions, type BodySurfaceSectionSpec, useFeedback } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
-import { buildDepartmentDescriptionDetailsBlocks, departmentDescriptionDutyRecords } from "./department-description-details-editor";
+import { createDepartmentDescriptionDetailsSections, departmentDescriptionDutyRecords } from "./department-description-details-editor";
 import type { DepartmentDescriptionDraft } from "./types";
 
 interface DepartmentDescriptionsBlockOptions {
@@ -24,20 +24,20 @@ export function DepartmentDescriptionsPanel({
   canEditDepartment: boolean;
   onUpdateDraft: <K extends keyof DepartmentDescriptionDraft>(index: number, key: K, value: DepartmentDescriptionDraft[K]) => void;
 }) {
-  const block = useDepartmentDescriptionsBlock({ drafts, dirty, canEditDepartment, onUpdateDraft });
+  const section = useDepartmentDescriptionsSection({ drafts, dirty, canEditDepartment, onUpdateDraft });
   return (
     <PageSurface kind="standard"
       embedded
-      body={createPageBody([block])}
+      body={createPageBody([section])}
     />
   );
 }
 
-export function useDepartmentDescriptionsBlock(options: DepartmentDescriptionsBlockOptions): BodySurfaceSectionSpec {
+export function useDepartmentDescriptionsSection(options: DepartmentDescriptionsBlockOptions): BodySurfaceSectionSpec {
   const feedback = useFeedback();
   const dutyRecords = options.drafts.flatMap((draft) => departmentDescriptionDutyRecords(draft.details));
   const { getItemRef, requestScrollToIndex } = useScrollToAddedItem(dutyRecords);
-  return buildDepartmentDescriptionsBlock({
+  return createDepartmentDescriptionsSection({
     ...options,
     confirmDelete: feedback.confirmDelete,
     getDutyItemRef: getItemRef,
@@ -45,7 +45,7 @@ export function useDepartmentDescriptionsBlock(options: DepartmentDescriptionsBl
   });
 }
 
-function buildDepartmentDescriptionsBlock({
+function createDepartmentDescriptionsSection({
   drafts,
   dirty,
   canEditDepartment,
@@ -74,7 +74,7 @@ function buildDepartmentDescriptionsBlock({
         return createPanelSection(String(draft.id || `new-${index}`), {
           title: draft.name || `部门说明书 ${index + 1}`,
 
-          sections: buildDepartmentDescriptionDetailsBlocks({
+          sections: createDepartmentDescriptionDetailsSections({
             value: draft.details,
             disabled: !canEditDepartment,
             onChange: (value) => onUpdateDraft(index, "details", value),

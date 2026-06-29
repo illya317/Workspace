@@ -6,13 +6,13 @@ import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { MeetingDetail } from "./meeting-types";
 import { statusLabel } from "./meeting-utils";
 
-export function PageBodySectionSurface({
-  block,
+export function PageSurfaceSection({
+  section,
 }: {
-  block: BodySurfaceSectionSpec;
+  section: BodySurfaceSectionSpec;
   className?: string;
 }) {
-  return <PageSurface kind="standard" embedded body={createPageBody([block])} />;
+  return <PageSurface kind="standard" embedded body={createPageBody([section])} />;
 }
 
 export function InlineForm({
@@ -36,7 +36,7 @@ export function InputBox({
   className?: string;
 }) {
   const dateTime = splitDateTimeValue(value);
-  const block = kind === "datetime"
+  const section = kind === "datetime"
     ? createInlineFieldsSection(`${label}-datetime`, [
         {
           key: `${label}-date`,
@@ -67,8 +67,8 @@ export function InputBox({
       placeholder: kind === "date" ? "选择日期" : `输入${label}`,
     }]);
   return (
-    <PageBodySectionSurface
-      block={block}
+    <PageSurfaceSection
+      section={section}
     />
   );
 }
@@ -101,8 +101,8 @@ export function SelectBox({
   }>;
 }) {
   return (
-    <PageBodySectionSurface
-      block={createInlineFieldsSection(label, [{
+    <PageSurfaceSection
+      section={createInlineFieldsSection(label, [{
         key: label,
         label,
         spec: {

@@ -29,7 +29,7 @@ function departmentStatsMeta(stats: DepartmentPositionStats): ReactNode {
   );
 }
 
-export function buildDepartmentNodeBlock({
+export function createDepartmentNodeSection({
   department,
   departments,
   visibleDepartmentIds,
@@ -92,7 +92,7 @@ export function buildDepartmentNodeBlock({
   };
 }
 
-export function buildOrganizationBranchBlock({
+export function createOrganizationBranchSection({
   department,
   departments,
   visibleDepartmentIds,
@@ -154,7 +154,7 @@ export function buildOrganizationBranchBlock({
   };
 }
 
-export function buildOrganizationRootBlock({
+export function createOrganizationRootSection({
   department,
   active,
   departments,

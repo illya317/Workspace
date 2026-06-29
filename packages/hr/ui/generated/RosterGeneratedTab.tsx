@@ -197,7 +197,7 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
     },
   });
 
-  const tableBlocks: BodySurfaceSectionSpec[] = loading
+  const tableSections: BodySurfaceSectionSpec[] = loading
     ? [createMessageSection("loading", {
       content: "正在生成预览...",
       tone: "muted"
@@ -229,7 +229,7 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
     createPanelSection("preview", {
 
 
-      sections: tableBlocks,
+      sections: tableSections,
     }),
   ];
 

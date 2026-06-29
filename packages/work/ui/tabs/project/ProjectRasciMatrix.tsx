@@ -19,12 +19,12 @@ export default function ProjectRasciMatrix({ rows }: { rows: ProjectRasciRow[] }
 
 export function createProjectRasciMatrixSection(rows: ProjectRasciRow[]): BodySurfaceSectionSpec {
   return {
-    ...createPageDataSection("rasci", buildProjectRasciMatrixSurface(rows)),
+    ...createPageDataSection("rasci", createProjectRasciMatrixSurface(rows)),
     header: { title: "职责表" },
   };
 }
 
-export function buildProjectRasciMatrixSurface(rows: ProjectRasciRow[]): DataSurfaceProps<ProjectRasciRow> {
+export function createProjectRasciMatrixSurface(rows: ProjectRasciRow[]): DataSurfaceProps<ProjectRasciRow> {
   const columns: DataSurfaceColumnSpec<ProjectRasciRow>[] = [
     {
       key: "name",

@@ -14,8 +14,8 @@ import type {
   WorkTarget,
 } from "./types";
 import {
-  buildReportCollectionTableBlock,
-  buildReportDraftTableBlock,
+  createReportCollectionTableSection,
+  createReportDraftTableSection,
   ReportCollectionTable,
   ReportDraftTable,
 } from "./WorkReportsTables";
@@ -225,17 +225,17 @@ export default function WorkReportsPanel({ controller }: { controller: WorkRepor
   );
 }
 
-export function buildWorkReportsPanelBlocks(controller: WorkReportsController): BodySurfaceSectionSpec[] {
+export function createWorkReportsPanelSections(controller: WorkReportsController): BodySurfaceSectionSpec[] {
   return [
     controller.mode === "fill"
-      ? buildReportDraftTableBlock({
+      ? createReportDraftTableSection({
           draft: controller.draft,
           loading: controller.loading,
           canEdit: controller.canEditDraft,
           onUpdate: controller.updateItem,
           onRemove: controller.removeItem,
         })
-      : buildReportCollectionTableBlock({
+      : createReportCollectionTableSection({
           collection: controller.collection,
           loading: controller.loading,
         }),

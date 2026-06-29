@@ -275,7 +275,7 @@ export default function DepartmentPositionTab({
   });
 
   const {
-    detailBlocks,
+    detailSections,
     renderArchivedBrowser,
     treeSelector,
     treeDrawerSelector,
@@ -414,7 +414,7 @@ export default function DepartmentPositionTab({
 	      onCreatePanelChange={setCreatePanel}
       onCollapseAll={setAllDepartmentsCollapsed}
       onLoadData={loadData}
-      detailBlocks={detailBlocks}
+      detailSections={detailSections}
       onSideOpenChange={setTreeOpen}
       onDrawerOpenChange={setTreeDrawerOpen}
       surface={surface}

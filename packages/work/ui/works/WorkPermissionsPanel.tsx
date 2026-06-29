@@ -22,11 +22,11 @@ export default function WorkPermissionsPanel({
     message: string;
   }) => void;
 }) {
-  const sections = useWorkPermissionsBlocks({ target, canManage, onToast, enabled: true });
+  const sections = useWorkPermissionsSections({ target, canManage, onToast, enabled: true });
   return <PageSurface kind="standard" embedded body={createPageBody(sections)} />;
 }
 
-export function useWorkPermissionsBlocks({
+export function useWorkPermissionsSections({
   target,
   canManage,
   onToast,

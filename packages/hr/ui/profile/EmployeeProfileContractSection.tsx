@@ -7,9 +7,9 @@ import type { ContractRow, ProfileField } from "@workspace/hr/types";
 import type { ReferenceOption } from "@workspace/core/ui";
 import {
   contractPeriodEndDate,
-  emptyFormBlock,
-  fieldGridBlock,
-  fieldRegionBlock,
+  createEmptyFormSection,
+  createFieldGridSection,
+  createFieldRegionSection,
   isCurrentByEndDate,
   normalizeContractRow,
   pickFields,
@@ -46,10 +46,10 @@ interface ContractSectionProps {
 }
 
 export function ContractSection(props: ContractSectionProps) {
-  return <PageSurface kind="standard" embedded body={createPageBody(useContractSectionBlocks(props))} />;
+  return <PageSurface kind="standard" embedded body={createPageBody(useContractSections(props))} />;
 }
 
-export function useContractSectionBlocks({
+export function useContractSections({
   rows,
   canEdit,
   saving,
@@ -66,8 +66,8 @@ export function useContractSectionBlocks({
     requestScrollToIndex(0);
     onAdd();
   }
-  if (rows.length === 0) return [emptyFormBlock("contracts-empty", "暂无合同")];
-  return rows.map((row, index) => contractCardBlock({
+  if (rows.length === 0) return [createEmptyFormSection("contracts-empty", "暂无合同")];
+  return rows.map((row, index) => createContractCardSection({
     row,
     index,
     canEdit,
@@ -80,7 +80,7 @@ export function useContractSectionBlocks({
   }));
 }
 
-function contractCardBlock({
+function createContractCardSection({
   row,
   index,
   canEdit,
@@ -105,7 +105,7 @@ function contractCardBlock({
   const current = isCurrentByEndDate(normalizedRow.permanentContractDate ? normalizedRow.endDate : contractPeriodEndDate(normalizedRow));
   const title = row.company || (row.isNew ? "新增合同" : "未设置公司");
   const summary = [row.contractType, row.insuranceStatus].filter(Boolean).join(" · ");
-  return fieldRegionBlock({
+  return createFieldRegionSection({
     key: String(row.id ?? `new-contract-${index}`),
     itemRef,
     title: <div className="flex flex-wrap items-center gap-3">
@@ -118,7 +118,7 @@ function contractCardBlock({
       profileActionSpec({ key: "add", label: "新增", variant: "secondary", disabled: saving !== null, onClick: onAdd }),
       ...deleteActionSpec({ canEdit, saving, onDelete: () => onDelete(row, index) }),
     ] : undefined,
-    sections: [fieldGridBlock(fields, normalizedRow as unknown as EditableRecord, !canEdit, (key, value, option) => {
+    sections: [createFieldGridSection(fields, normalizedRow as unknown as EditableRecord, !canEdit, (key, value, option) => {
       const field = contractFields.find(item => item.key === key);
       if (!field) return;
       if (field.key === "permanentContractDate" && value) {

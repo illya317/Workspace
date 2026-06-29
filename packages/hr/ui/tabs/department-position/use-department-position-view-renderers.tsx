@@ -2,12 +2,12 @@ import type { Dispatch, SetStateAction } from "react";
 import type { FormSurfaceProps, SelectorSurfaceProps } from "@workspace/core/ui";
 import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 import { ArchivedDepartmentPositionPage } from "./archive-browser";
-import { useDepartmentDetailPaneBlock } from "./department-detail-pane";
+import { useDepartmentDetailPaneSection } from "./department-detail-pane";
 import type {
   PositionDescriptionTemplate,
   PositionDescriptionTemplateId,
 } from "./description-details";
-import { usePositionEditorBlocks } from "./position-editor";
+import { usePositionEditorSections } from "./position-editor";
 import type {
   ArchivedEntityTab,
   Department,
@@ -100,7 +100,7 @@ export function useDepartmentPositionViewRenderers(props: {
   onUpdateDraftCodeSuffix: (value: string, pad?: boolean) => void;
   onUpdateDraftDepartment: (departmentId: number | null) => void;
 }) {
-  const positionEditorBlocks = usePositionEditorBlocks({
+  const positionEditorSections = usePositionEditorSections({
     position: props.selectedPosition ?? null,
     draft: props.draft,
     descriptionDraft: props.descriptionDraft,
@@ -140,7 +140,7 @@ export function useDepartmentPositionViewRenderers(props: {
     onArchivePosition: props.onArchivePosition,
   });
 
-  const detailPaneBlock = useDepartmentDetailPaneBlock({
+  const detailPaneBlock = useDepartmentDetailPaneSection({
     selection: props.selection,
     selectedDepartment: props.selectedDepartment,
     selectedDepartmentStats: props.selectedDepartmentStats,
@@ -162,7 +162,7 @@ export function useDepartmentPositionViewRenderers(props: {
     departmentDescriptionDirty: props.departmentDescriptionDirty,
     saving: props.saving,
     showArchived: props.showArchived,
-    positionEditorBlocks: !props.isOrganizationMode ? positionEditorBlocks : [],
+    positionEditorSections: !props.isOrganizationMode ? positionEditorSections : [],
     setCreatePanel: props.onSetCreatePanel,
     setCreatePositionDescriptionDraft: props.onSetCreatePositionDescriptionDraft,
     setCreatePositionDraft: props.onSetCreatePositionDraft,
@@ -174,7 +174,7 @@ export function useDepartmentPositionViewRenderers(props: {
     onSaveDepartmentDescription: props.onSaveDepartmentDescription,
     onArchiveDepartment: props.onArchiveDepartment,
   });
-  const detailBlocks = [detailPaneBlock];
+  const detailSections = [detailPaneBlock];
 
   const treeSelector = props.departmentTreeSelector({
     loading: props.loading,
@@ -199,7 +199,7 @@ export function useDepartmentPositionViewRenderers(props: {
         onSideOpenChange={props.onSideOpenChange}
         onDrawerOpenChange={props.onDrawerOpenChange}
         onSelect={props.onSelect}
-        sections={detailBlocks}
+        sections={detailSections}
         surface={surface}
       />
     );
@@ -207,7 +207,7 @@ export function useDepartmentPositionViewRenderers(props: {
 
   return {
     renderArchivedBrowser,
-    detailBlocks,
+    detailSections,
     treeSelector,
     treeDrawerSelector,
   };

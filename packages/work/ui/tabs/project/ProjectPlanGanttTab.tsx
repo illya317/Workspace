@@ -166,7 +166,7 @@ export default function ProjectPlanGanttTab({
       content: "基线来自项目阶段",
     },
   ] satisfies SurfaceToolbarItems;
-  const timelineBlock: BodySurfaceSectionSpec = error
+  const timelineSection: BodySurfaceSectionSpec = error
     ? createStatusSection("project-plan-gantt-error", { kind: "error", content: error })
     : loading
       ? createStatusSection("project-plan-gantt-loading", { kind: "loading", content: "加载项目甘特..." })
@@ -192,7 +192,7 @@ export default function ProjectPlanGanttTab({
           },
         } },
       };
-  const sections = [timelineBlock] satisfies BodySurfaceSectionSpec[];
+  const sections = [timelineSection] satisfies BodySurfaceSectionSpec[];
 	  return <PageSurface kind="standard" {...surface} toolbar={{ items: toolbarItems }} body={createPageBody(sections)} />;
 	}
 type ProjectPlanGanttSurfaceProps = Pick<PageSurfaceProps, "navigation">;

@@ -60,7 +60,7 @@ export function departmentDescriptionDutyRecords(value: string) {
   return details && Array.isArray(details[dutyKey]) ? details[dutyKey] as Array<Record<string, unknown>> : [];
 }
 
-export function buildDepartmentDescriptionDetailsBlocks({
+export function createDepartmentDescriptionDetailsSections({
   value,
   disabled,
   onChange,
@@ -102,7 +102,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
       [key]: nextValue
     }, null, 2));
   }
-  function dutyDescriptionBlock(): BodySurfaceSectionSpec {
+  function createDutyDescriptionSection(): BodySurfaceSectionSpec {
     const key = dutyKey;
     const records = Array.isArray(parsedDetails[key]) ? parsedDetails[key] as Array<Record<string, unknown>> : [];
     function updateRecord(index: number, patch: Record<string, unknown>) {
@@ -205,7 +205,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
         },
       } },
     },
-    dutyDescriptionBlock(),
+    createDutyDescriptionSection(),
   ];
   if (remainingKeys.length > 0) {
     sections.push(createPanelSection("other-fields", {
@@ -263,7 +263,7 @@ export function DepartmentDescriptionDetailsEditor({
     getItemRef,
     requestScrollToIndex
   } = useScrollToAddedItem(dutyRecordsForScroll);
-  const sections = buildDepartmentDescriptionDetailsBlocks({
+  const sections = createDepartmentDescriptionDetailsSections({
     value,
     disabled,
     onChange,

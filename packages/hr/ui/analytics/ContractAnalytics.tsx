@@ -10,7 +10,7 @@ type DistributionRow = {
   count: number;
 };
 
-export function useContractAnalyticsBlocks({
+export function useContractAnalyticsSections({
   contracts
 }: {
   contracts: Contract[];
@@ -161,5 +161,5 @@ export function useContractAnalyticsBlocks({
 }
 
 export default function ContractAnalytics(props: { contracts: Contract[] }) {
-  return <PageSurface kind="standard" body={createPageBody(useContractAnalyticsBlocks(props))} />;
+  return <PageSurface kind="standard" body={createPageBody(useContractAnalyticsSections(props))} />;
 }

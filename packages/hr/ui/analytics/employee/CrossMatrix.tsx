@@ -38,7 +38,7 @@ export default function CrossMatrix({
   setCrossRow: (v: DimKey) => void;
   setCrossCol: (v: DimKey) => void;
 }) {
-  const block = createCrossMatrixSection({
+  const section = createCrossMatrixSection({
     crossMatrix,
     crossRow,
     crossCol,
@@ -50,7 +50,7 @@ export default function CrossMatrix({
 
   return (
     <PageSurface kind="standard"
-      body={createPageBody([block])}
+      body={createPageBody([section])}
     />
   );
 }

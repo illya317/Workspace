@@ -4,7 +4,7 @@ import { createPageBody, createAnalysisSection, createMetricsSection, PageSurfac
 import type { Employment } from "./useAnalyticsData";
 import { type MonthlySnapshot, useHeadcountData } from "./useHeadcountData";
 
-export function useHeadcountTrendBlocks({ employments }: { employments: Employment[] }): BodySurfaceSectionSpec[] {
+export function useHeadcountTrendSections({ employments }: { employments: Employment[] }): BodySurfaceSectionSpec[] {
   const stats = useHeadcountData(employments);
 
   const barMax = Math.max(stats.maxFlow, 1);
@@ -107,5 +107,5 @@ export function useHeadcountTrendBlocks({ employments }: { employments: Employme
 }
 
 export default function HeadcountTrend(props: { employments: Employment[] }) {
-  return <PageSurface kind="standard" body={createPageBody(useHeadcountTrendBlocks(props))} />;
+  return <PageSurface kind="standard" body={createPageBody(useHeadcountTrendSections(props))} />;
 }
