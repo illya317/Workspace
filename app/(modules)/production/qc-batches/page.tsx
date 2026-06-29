@@ -1,4 +1,5 @@
 import { requireRouteAccess } from "@workspace/platform/server/auth";
+import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
 import { getQcTemplateSummaries, listQcBatches } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import { QcBatchListClient } from "@workspace/production/ui";
@@ -20,5 +21,10 @@ export default async function QcBatchesPage() {
   });
   const products = templates.map((template) => ({ id: template.id, productName: template.productName }));
 
-  return <QcBatchListClient initialRows={initialRows} products={products} pageChrome={{ title: "批次检验", backHref: "/production", user }} />;
+  return renderAppShellPage({
+    title: "批次检验",
+    backHref: "/production",
+    user,
+    children: <QcBatchListClient initialRows={initialRows} products={products} />,
+  });
 }

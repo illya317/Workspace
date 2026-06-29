@@ -8,12 +8,10 @@ import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import type { QcBatchSummary } from "@workspace/production/server/qc";
 import { QC_BATCH_PAGE_SIZE_OPTIONS, QC_BATCH_STATUS_OPTIONS, createQcBatchCreateSection } from "./QcBatchListControls";
 import { createQcBatchTableSection, formatQcBatchDate, qcBatchStatusText, type QcBatchTableRow } from "./QcBatchTable";
-import { productionQcPageKind, type ProductionQcPageChromeSpec } from "./ProductionQcPageChrome";
 
 interface Props {
   initialRows: QcBatchTableRow[];
   products: Array<{ id: string; productName: string }>;
-  pageChrome?: ProductionQcPageChromeSpec;
 }
 
 function todayBatchNumber() {
@@ -24,7 +22,7 @@ function todayBatchNumber() {
   return `${year}${month}${day}`;
 }
 
-export default function QcBatchListClient({ initialRows, products, pageChrome }: Props) {
+export default function QcBatchListClient({ initialRows, products }: Props) {
   const router = useRouter();
   const [rows, setRows] = useState(initialRows);
   const [productKey, setProductKey] = useState(products[0]?.id ?? "");
@@ -192,7 +190,7 @@ export default function QcBatchListClient({ initialRows, products, pageChrome }:
   });
 
   return (
-    <PageSurface kind={pageChrome ? productionQcPageKind(pageChrome) : "standard"}
+    <PageSurface kind="standard"
       toolbar={{ items: toolbarItems }}
       body={createPageBody([
         ...(createSection ? [createSection] : []),

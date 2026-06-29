@@ -1,4 +1,5 @@
 import { requireRouteAccess } from "@workspace/platform/server/auth";
+import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
 import { getQcTemplateSummaries, listQcTemplateFeedback } from "@workspace/production/server/qc";
 import { QcTemplateWorkbench } from "@workspace/production/ui";
 
@@ -12,5 +13,10 @@ export default async function QcTemplatesPage() {
     listQcTemplateFeedback(),
   ]);
 
-  return <QcTemplateWorkbench templates={templates} feedbackStates={feedback.states} pageChrome={{ title: "检验模板", backHref: "/production", user }} />;
+  return renderAppShellPage({
+    title: "检验模板",
+    backHref: "/production",
+    user,
+    children: <QcTemplateWorkbench templates={templates} feedbackStates={feedback.states} />,
+  });
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { InputSurface } from "@workspace/core/ui";
 import type { QcLayoutPart } from "@workspace/production/server/qc";
 
 function todayValue() {
@@ -49,16 +48,17 @@ function DatePartInput({
   onBlur: () => void;
   readOnly?: boolean;
 }) {
+  const widthClass = maxLength === 4 ? "w-[4ch]" : "w-[2ch]";
   return (
-    <InputSurface
-      spec={{ valueType: "string", control: "text" }}
-      ariaLabel={label}
+    <input
+      aria-label={label}
       inputMode="numeric"
       maxLength={maxLength}
       value={value}
-      onChange={(nextValue) => onChange(String(nextValue ?? "").replace(/\D/g, "").slice(0, maxLength))}
+      onChange={(event) => onChange(event.target.value.replace(/\D/g, "").slice(0, maxLength))}
       onBlur={onBlur}
       readOnly={readOnly}
+      className={`border-0 bg-transparent p-0 text-center tabular-nums outline-none ${widthClass}`}
     />
   );
 }
@@ -105,7 +105,7 @@ export function QcPaperDateInput({
       <span>月</span>
       <DatePartInput label="日" maxLength={2} value={date.day} onChange={(day) => setDate((current) => ({ ...current, day }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
       <span>日</span>
-      <InputSurface spec={{ valueType: "string", control: "text", state: "hidden" }} dataFieldKey={key} value={dateValue} />
+      <input type="hidden" data-field-key={key} value={dateValue} readOnly />
       {part.withTime && (
         <DatePartInput
           label="时"

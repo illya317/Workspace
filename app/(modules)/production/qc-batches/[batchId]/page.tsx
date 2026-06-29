@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireRouteAccess } from "@workspace/platform/server/auth";
+import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
 import { getQcBatch, getQcTemplateDetail } from "@workspace/production/server/qc";
 import { QcBatchRecordStageList } from "@workspace/production/ui";
 
@@ -8,11 +9,16 @@ interface Props {
 }
 
 export default async function QcBatchRecordPage({ params }: Props) {
-  const [{ batchId }] = await Promise.all([params, requireRouteAccess("/production/qc-batches")]);
+  const [{ batchId }, user] = await Promise.all([params, requireRouteAccess("/production/qc-batches")]);
   const batch = await getQcBatch(Number(batchId));
   if (!batch) notFound();
   const detail = await getQcTemplateDetail(batch.productKey).catch(() => null);
   if (!detail) notFound();
 
-  return <QcBatchRecordStageList batch={batch} detail={detail} />;
+  return renderAppShellPage({
+    title: "批次检验记录",
+    backHref: "/production/qc-batches",
+    user,
+    children: <QcBatchRecordStageList batch={batch} detail={detail} />,
+  });
 }

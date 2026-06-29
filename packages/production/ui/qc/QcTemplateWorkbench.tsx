@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { matchText } from "@workspace/core/search";
-import { PageSurface, createSectionsSection, createPageBody, createStatusSection, createPageTableSection } from "@workspace/core/ui";
+import { PageSurface, createBodySplitSection, createSectionsSection, createPageBody, createStatusSection, createPageTableSection } from "@workspace/core/ui";
 import type {
   QcTemplateDetail,
   QcTemplateFeedbackState,
@@ -22,12 +22,10 @@ import {
   type FeedbackTarget,
   type WorkbenchSelection,
 } from "./template-workbench/types";
-import { productionQcPageKind, type ProductionQcPageChromeSpec } from "./ProductionQcPageChrome";
 
 interface Props {
   templates: QcTemplateDetail[];
   feedbackStates: Record<string, QcTemplateFeedbackState>;
-  pageChrome?: ProductionQcPageChromeSpec;
 }
 
 interface SectionView extends QcTemplateWorkbenchSection {
@@ -52,6 +50,21 @@ function toggleText(section: SectionView) {
   return section.expandedView ? "收起" : "展开";
 }
 
+function sectionHeader(section: SectionView, actions?: Array<{ key: string; label: ReactNode; variant: "secondary"; size: "sm"; onClick: () => void }>) {
+  return {
+    title: section.title,
+    subtitle: section.subtitle,
+    badges: section.status
+      ? [{
+          key: "status",
+          label: section.status.label,
+          tone: section.status.tone === "red" ? "danger" as const : "success" as const,
+        }]
+      : undefined,
+    actions,
+  };
+}
+
 function actionLabel(action: QcTemplateWorkbenchRowAction) {
   return (
     <>
@@ -63,13 +76,13 @@ function actionLabel(action: QcTemplateWorkbenchRowAction) {
 
 function WorkbenchSurface({
   viewModel,
-  pageChrome,
 }: {
   viewModel: QcTemplateWorkbenchViewModel;
-  pageChrome?: ProductionQcPageChromeSpec;
 }) {
   const [selectorKey, setSelectorKey] = useState(viewModel.defaultSelectorKey ?? viewModel.selectorItems[0]?.key ?? "");
   const [query, setQuery] = useState("");
+  const [sideOpen, setSideOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [expandedOverrides, setExpandedOverrides] = useState<Record<string, boolean>>({});
   const keyword = query.trim();
 
@@ -110,13 +123,12 @@ function WorkbenchSurface({
         if (!section.expandedView) {
           return {
             key: `qc-template-workbench-${section.key}-collapsed`,
-            header: actions ? { actions } : undefined,
-            body: { kind: "section" as const, status: { kind: "empty" as const, content: "已收起。" } },
+            header: sectionHeader(section, actions),
+            body: { kind: "section" as const },
           };
         }
 
-        return createPageTableSection<QcTemplateWorkbenchRow>(`qc-template-workbench-${section.key}`, {
-          actions,
+        const tableSection = createPageTableSection<QcTemplateWorkbenchRow>(`qc-template-workbench-${section.key}`, {
           rows: section.rows,
           columns: [
             {
@@ -156,10 +168,14 @@ function WorkbenchSurface({
           rowKey: (row) => row.key,
           emptyText: "暂无项目。",
         });
+        return {
+          ...tableSection,
+          header: sectionHeader(section, actions),
+        };
       });
 
   return (
-    <PageSurface kind={pageChrome ? productionQcPageKind(pageChrome) : "standard"}
+    <PageSurface kind="standard"
       toolbar={!viewModel.hideToolbar
         ? {
             items: [
@@ -180,44 +196,62 @@ function WorkbenchSurface({
             ],
           }
         : undefined}
-      body={createPageBody([createSectionsSection("qc-template-workbench-grid", {
-          layout: "grid",
-
-          sections: [
-            {
-              key: "qc-template-workbench-selector",
-              body: {
-                kind: "navigation",
-                navigation: {
-                  kind: "selector",
-                  selector: {
-                    title: viewModel.selectorTitle,
-
-
-                    items: viewModel.selectorItems,
-                    selectedId: selectorKey,
-                    onSelect: (item) => setSelectorKey(item.key),
-                    getKey: (item) => item.key,
-                    renderItem: (item) => ({
-                      title: item.title,
-                      subtitle: item.subtitle,
-                      trailing: item.trailing,
-                    }),
-                  },
-                },
-              },
+      body={createBodySplitSection({
+        left: {
+          kind: "selector",
+          selector: {
+            kind: "list",
+            title: viewModel.selectorTitle,
+            items: viewModel.selectorItems,
+            selectedId: selectorKey,
+            onSelect: (item) => {
+              setSelectorKey(item.key);
+              setDrawerOpen(false);
             },
-            createSectionsSection("qc-template-workbench-sections", {
-
-              sections: sectionBlocks,
+            getKey: (item) => item.key,
+            renderItem: (item) => ({
+              title: item.title,
+              subtitle: item.subtitle,
+              trailing: item.trailing,
             }),
-          ],
-        })])}
+          },
+        },
+        drawerLeft: {
+          kind: "selector",
+          selector: {
+            kind: "list",
+            title: viewModel.selectorTitle,
+            items: viewModel.selectorItems,
+            selectedId: selectorKey,
+            onSelect: (item) => {
+              setSelectorKey(item.key);
+              setDrawerOpen(false);
+            },
+            getKey: (item) => item.key,
+            renderItem: (item) => ({
+              title: item.title,
+              subtitle: item.subtitle,
+              trailing: item.trailing,
+            }),
+          },
+        },
+        right: createPageBody([createSectionsSection("qc-template-workbench-sections", {
+          sections: sectionBlocks,
+        })]),
+        side: {
+          label: "产品",
+          open: sideOpen,
+          drawerOpen,
+          onOpenChange: setSideOpen,
+          onDrawerOpenChange: setDrawerOpen,
+        },
+        layout: { ratio: [3, 7] },
+      })}
     />
   );
 }
 
-export default function QcTemplateWorkbench({ templates, feedbackStates, pageChrome }: Props) {
+export default function QcTemplateWorkbench({ templates, feedbackStates }: Props) {
   const [preview, setPreview] = useState<WorkbenchSelection | null>(null);
   const [previewLoading, setPreviewLoading] = useState("");
   const [previewError, setPreviewError] = useState("");
@@ -274,7 +308,7 @@ export default function QcTemplateWorkbench({ templates, feedbackStates, pageChr
 
   return (
     <section>
-      <WorkbenchSurface viewModel={viewModel} pageChrome={pageChrome} />
+      <WorkbenchSurface viewModel={viewModel} />
       <TemplatePreviewModal selection={preview} onClose={() => setPreview(null)} onSaved={markFeedbackKeysOpen} />
       <TemplateFeedbackModal target={feedback} onClose={() => setFeedback(null)} onSaved={setKnownFeedbackStates} />
     </section>

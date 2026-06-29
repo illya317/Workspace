@@ -1,9 +1,52 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { InputSurface } from "@workspace/core/ui";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { QcLayoutPart } from "@workspace/production/server/qc";
 
 const PAPER_INPUT_TEXT_CLASS = "text-[15px]";
+
+function visualLength(value: string) {
+  return Array.from(value).reduce((total, char) => total + (char.charCodeAt(0) > 255 ? 2 : 1), 0);
+}
+
+function fitContentWidth(value?: string, fallback = "1.5rem"): CSSProperties {
+  const displayValue = String(value || "");
+  if (!displayValue) return { width: fallback, minWidth: fallback };
+  const contentCh = Math.min(48, Math.max(3, visualLength(displayValue) + 2));
+  return { width: `calc(${contentCh}ch + 0.75rem)`, minWidth: fallback, maxWidth: "100%" };
+}
+
+function underlineBaseWidth(part: QcLayoutPart) {
+  return part.width || "3rem";
+}
+
+function looksNumericValue(value?: string) {
+  const text = String(value || "").trim();
+  if (!text) return false;
+  return /^[-+]?[\d.,]+$/.test(text);
+}
+
+function inputAlignClass(part: QcLayoutPart, value?: string) {
+  if (part.underline === true && looksNumericValue(value)) return "text-right tabular-nums";
+  return "text-center tabular-nums";
+}
+
+function inputPaddingClass(part: QcLayoutPart, value?: string) {
+  if (part.underline === true && looksNumericValue(value)) return "pl-0.5 pr-0";
+  return "px-1";
+}
+
+function inputWidth(part: QcLayoutPart, value?: string): CSSProperties {
+  const current = String(value || "");
+  if (part.underline === true) return fitContentWidth(current, underlineBaseWidth(part));
+  return fitContentWidth(value);
+}
+
+function selectWidth(part: QcLayoutPart, value?: string, inTable?: boolean): CSSProperties {
+  const current = value || part.defaultValue || "";
+  if (part.underline === true) return { ...fitContentWidth(current, underlineBaseWidth(part)), backgroundImage: "none" };
+  const fallback = inTable ? "2.5rem" : "3rem";
+  return { ...fitContentWidth(current, fallback), backgroundImage: "none" };
+}
 
 export function qcRangeLabel(part: QcLayoutPart) {
   const range = part.recommendedRange;
@@ -27,9 +70,19 @@ export function qcRangeError(part: QcLayoutPart, value?: string) {
   return undefined;
 }
 
+function underlineClass(part: QcLayoutPart, inTable?: boolean) {
+  if (inTable) return "border-b-0";
+  return part.underline === true ? "border-b border-slate-950" : "border-b-0";
+}
+
 function selectRootBorderClass(part: QcLayoutPart, inTable?: boolean) {
   if (inTable || part.underline !== true) return "!border-0";
   return "border-b border-slate-950";
+}
+
+function textInputType(part: QcLayoutPart) {
+  if (part.inputType === "date") return "date";
+  return "text";
 }
 
 export function QcPaperLineInput({
@@ -37,6 +90,7 @@ export function QcPaperLineInput({
   readOnly,
   value,
   onChange,
+  inTable,
 }: {
   part: QcLayoutPart;
   readOnly?: boolean;
@@ -46,48 +100,38 @@ export function QcPaperLineInput({
 }) {
   const currentValue = value ?? part.defaultValue ?? "";
   const error = qcRangeError(part, currentValue);
+  const baseClass = inTable ? "mx-0" : "mx-1";
+  const readonlyClass = readOnly || part.readonlyDisplay ? "cursor-default text-slate-900" : "";
   const isReadOnly = readOnly || part.readonlyDisplay || !onChange;
   if (part.multiline || part.inputType === "textarea") {
     return (
-      <InputSurface
-        spec={{ valueType: "string", control: "text", multiline: true }}
-        ariaLabel={part.fieldKey || part.field || part.name || "填写项"}
-        dataFieldKey={part.fieldKey || part.field || part.name}
+      <textarea
+        aria-label={part.fieldKey || part.field || part.name || "填写项"}
+        data-field-key={part.fieldKey || part.field || part.name}
         value={currentValue}
-        onChange={(next) => onChange?.(String(next ?? ""))}
+        onChange={(event) => onChange?.(event.target.value)}
         placeholder={part.placeholder}
         readOnly={isReadOnly}
         rows={part.rows || 2}
         title={error}
-        resize="vertical"
-      />
-    );
-  }
-  if (part.inputType === "date") {
-    return (
-      <InputSurface
-        spec={{ valueType: "date", control: "temporal", precision: "date" }}
-        value={currentValue}
-        onChange={(next) => onChange?.(String(next ?? ""))}
-        placeholder={part.placeholder}
-        readOnly={isReadOnly}
-        title={error}
+        className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block min-w-[8em] resize-y border-0 bg-transparent ${inputPaddingClass(part, currentValue)} ${inputAlignClass(part, currentValue)} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
+        style={inputWidth(part, currentValue)}
       />
     );
   }
   return (
-    <InputSurface
-      spec={{ valueType: part.inputType === "number" ? "number" : "string", control: "text" }}
-      ariaLabel={part.fieldKey || part.field || part.name || "填写项"}
-      dataFieldKey={part.fieldKey || part.field || part.name}
+    <input
+      aria-label={part.fieldKey || part.field || part.name || "填写项"}
+      data-field-key={part.fieldKey || part.field || part.name}
       value={currentValue}
-      onChange={(next) => onChange?.(String(next ?? ""))}
+      onChange={(event) => onChange?.(event.target.value)}
       placeholder={part.placeholder}
       readOnly={isReadOnly}
       inputMode={part.inputType === "number" ? "decimal" : undefined}
-      type="text"
+      type={textInputType(part)}
       title={error}
-      textAlign="center"
+      className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-[4.5em] border-0 bg-transparent ${inputPaddingClass(part, currentValue)} ${inputAlignClass(part, currentValue)} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
+      style={inputWidth(part, currentValue)}
     />
   );
 }
@@ -138,6 +182,7 @@ export function QcPaperSelectInput({
     <span
       ref={rootRef}
       className={`${inTable ? "mx-0" : "mx-1"} relative inline-flex h-7 items-center justify-center align-middle ${selectRootBorderClass(part, inTable)} ${error ? "text-red-700" : ""}`}
+      style={selectWidth(part, value ?? part.defaultValue, inTable)}
     >
       <button
         type="button"
@@ -186,22 +231,36 @@ export function QcPaperChoiceInput({
   value?: string;
   onChange?: (value: string) => void;
 }) {
+  const name = type === "radio" ? fieldKey : undefined;
   return (
-    <InputSurface
-      spec={{
-        valueType: "string",
-        control: "choice", presentation: "choice",
-        state: disabled ? "disabled" : "normal",
-        options: {
-          source: "static",
-          items: options.map((option) => ({ value: option, label: option })),
-        },
-      }}
-      value={value}
-      dataFieldKey={fieldKey}
-      choiceType={type}
-      choiceName={type === "radio" ? fieldKey : undefined}
-      onChange={(next) => onChange?.(String(next ?? ""))}
-    />
+    <span className="inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1 align-middle">
+      {options.map((option) => {
+        const checked = type === "checkbox" ? String(value || "").split(",").includes(option) : value === option;
+        return (
+          <label key={option} className={`inline-flex items-center gap-1 whitespace-nowrap ${disabled ? "cursor-default" : "cursor-pointer"}`}>
+            <input
+              type={type}
+              name={name}
+              value={option}
+              checked={checked}
+              disabled={disabled}
+              data-field-key={fieldKey}
+              onChange={(event) => {
+                if (type === "radio") {
+                  onChange?.(event.target.value);
+                  return;
+                }
+                const current = new Set(String(value || "").split(",").filter(Boolean));
+                if (event.target.checked) current.add(option);
+                else current.delete(option);
+                onChange?.([...current].join(","));
+              }}
+              className="h-3.5 w-3.5 accent-slate-950"
+            />
+            <span>{option}</span>
+          </label>
+        );
+      })}
+    </span>
   );
 }
