@@ -37,14 +37,14 @@ export default function PositionDeptModal({
                   key: "departments",
                   items: positionDeptModal.departments.map((dept) => ({
                     key: dept,
-                    fields: [{
+                    items: [{
                       kind: "readonly",
                       key: "department",
                       label: "部门",
                       value: dept,
                     }],
                   })),
-                  columns: 1,
+                  layout: { columns: 1 },
                 }]
               : [{
                   kind: "note",

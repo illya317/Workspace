@@ -47,7 +47,7 @@ Toolbar 只能用标准 item 表达常见能力：
 | 编辑/保存/取消/下载/历史 | `edit-group` |
 | 日期/期间 | `period` |
 
-如果这些 item 不够表达需求，正确做法是扩展 Core `Toolbar` Page API，并同步 registry、preview 和文档；不要绕回 JSX。
+如果这些 item 不够表达需求，正确做法是扩展 Core `Toolbar` Page API，并同步 registry 和文档；不要绕回 JSX。
 
 ## 3. 分区顺序
 
@@ -71,6 +71,7 @@ primary -> search -> filter -> edit/action -> meta/view
 Toolbar 动作按钮只能来自 Core `ActionGlyph` 封闭集合。
 
 - `icon-button.icon` 和 `action-group.actions[].kind` 必须是 `ActionGlyphKind`。
+- 常见动作语义使用 `ACTION_GLYPH_ACTIONS` 映射到默认图标、文案、variant 和 section；新增 icon 后若要作为业务动作使用，必须同步补动作语义，而不是只补 SVG。
 - 业务只选 icon 和 callback，不手排顺序。
 - 非 Toolbar 的 icon-only cell/action 也必须复用 `ActionGlyph`；新增图标先进入封闭集合，不在业务/平台文件里手写 `<svg>`。
 - `action-group` / `edit-group` 会按 `ACTION_GLYPH_ORDER` 自动排序，并在大组变化处插入分隔。
@@ -140,7 +141,7 @@ Review agent 必查：
 - 是否在 Page Frame / AnalysisBlock 里恢复 `toolbar?: ReactNode`。
 - 是否把 `option-group` 手写成常驻长条，导致 toolbar 横向过长。
 - 是否把页面内部 tab 切换塞进 Toolbar；当前页面内部主视图切换必须用 `TabBar`，但 L1/L2 模块列表不能用 `TabBar` 承载。
-- 是否新增 Core Toolbar item 后同步 registry、showcase preview 和本文档。
+- 是否新增 Core Toolbar item 后同步 registry 和本文档。
 
 ## 9. 审计命令
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createPageBody, createAnalysisSection, createPageDataSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec, type VisualizationTreeNodeSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createMetricsSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec, type VisualizationTreeNodeSpec } from "@workspace/core/ui";
 import { matchSearchFields } from "@workspace/platform/search";
 import type { Department, EDP } from "./useAnalyticsData";
 
@@ -107,8 +107,7 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
   ], []);
 
   return [
-        createPageDataSection("stats", {
-            kind: "metrics",
+        createMetricsSection("stats", {
             metrics: [
               { key: "departments", label: "部门总数", value: departments.length },
               { key: "l1", label: "事业部(L1)", value: stats.l1 },
@@ -126,31 +125,31 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
           },
 
           sections: [{
-            kind: "visualization",
             key: "tree",
-            surface: {
+            body: { kind: "visualization", visualization: {
               kind: "chart",
-              visual: {
-                kind: "tree",
-                nodes: departmentTree,
-                emptyText: "无匹配部门",
-                maxHeight: 600,
+              chart: {
+                visual: {
+                  kind: "tree",
+                  nodes: departmentTree,
+                  emptyText: "无匹配部门",
+                  maxHeight: 600,
+                },
               },
-            },
+            } },
           }],
         }),
         createAnalysisSection("department-headcount", {
           title: "部门人数排行（主岗）",
           sections: [{
-            kind: "data",
             key: "department-headcount-table",
-            surface: {
+            body: { kind: "data", data: {
               kind: "table",
               rows: stats.deptWithHeadcount.slice(0, 30),
               columns,
               visibleColumns: columns.map((column) => column.key),
               rowKey: (department) => department.id,
-            },
+            } },
           }],
         }),
       ];

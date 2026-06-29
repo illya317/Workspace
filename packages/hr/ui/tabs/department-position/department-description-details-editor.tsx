@@ -79,11 +79,10 @@ export function buildDepartmentDescriptionDetailsBlocks({
   const dutyKey = "部门职责描述";
   if (!details) {
     return [{
-      kind: "form",
       key: "invalid-json",
-      surface: {
+      body: { kind: "form", form: {
         kind: "fields",
-        fields: [{
+        content: { items: [{
           key: "invalid-json",
           label: "部门说明书 JSON 格式错误",
           error: "请检查 JSON 内容后重新保存。",
@@ -91,9 +90,9 @@ export function buildDepartmentDescriptionDetailsBlocks({
           spec: { valueType: "string", control: "text", multiline: true, state: disabled ? "disabled" : "normal" },
           value,
           rows: 12,
-          onChange: (next) => onChange(String(next ?? "")),
-        }],
-      },
+          onChange: (next: unknown) => onChange(String(next ?? "")),
+        }] },
+      } },
     }];
   }
   const parsedDetails = details;
@@ -152,19 +151,19 @@ export function buildDepartmentDescriptionDetailsBlocks({
           }],
 
           sections: [{
-            kind: "form" as const,
             key: "fields",
-            surface: {
+            body: { kind: "form", form: {
               kind: "fields" as const,
-              columns: 1 as const,
-              fields: [
+              content: {
+                layout: { columns: 1 },
+                items: [
                 {
                   key: "title",
                   label: "职责标题",
                   spec: { valueType: "string" as const, control: "text" as const, state: disabled ? "disabled" as const : "normal" as const },
                   value: String(record.title || ""),
                   placeholder: "职责标题",
-                  onChange: (next) => updateRecord(index, { title: String(next ?? "") }),
+                  onChange: (next: unknown) => updateRecord(index, { title: String(next ?? "") }),
                 },
                 stringListField({
                   key: "items",
@@ -174,8 +173,9 @@ export function buildDepartmentDescriptionDetailsBlocks({
                   placeholder: "新增职责条目",
                   onChange: (nextItems) => updateRecord(index, { items: nextItems }),
                 }),
-              ],
-            },
+                ],
+              },
+            } },
           }],
         });
       }),
@@ -184,22 +184,23 @@ export function buildDepartmentDescriptionDetailsBlocks({
   const remainingKeys = Object.keys(parsedDetails).filter(key => !["基本信息", "部门职责概要", "部门职责描述"].includes(key));
   const sections: PageSurfaceSectionSpec[] = [
     {
-      kind: "form",
       key: "summary",
-      surface: {
+      body: { kind: "form", form: {
         kind: "fields",
-        columns: 1,
-        fields: [
+        content: {
+          layout: { columns: 1 },
+          items: [
           stringListField({
             key: "summary",
             label: "部门职责概要",
             value: parsedDetails["部门职责概要"],
             disabled,
             placeholder: "新增概要",
-            onChange: (items) => updateDetailValue("部门职责概要", items),
+            onChange: (items: string[]) => updateDetailValue("部门职责概要", items),
           }),
-        ],
-      },
+          ],
+        },
+      } },
     },
     dutyDescriptionBlock(),
   ];
@@ -208,12 +209,12 @@ export function buildDepartmentDescriptionDetailsBlocks({
       title: "其他字段",
 
       sections: [{
-        kind: "form",
         key: "fields",
-        surface: {
+        body: { kind: "form", form: {
           kind: "fields",
-          columns: 2,
-          fields: remainingKeys.map((key): FormSurfaceItemSpec<string> => {
+          content: {
+            layout: { columns: 2 },
+            items: remainingKeys.map((key): FormSurfaceItemSpec<string> => {
             if (isPrimitiveArray(parsedDetails[key])) {
               return stringListField({
                 key,
@@ -233,8 +234,9 @@ export function buildDepartmentDescriptionDetailsBlocks({
               rows: detailFieldRows(parsedDetails[key]),
               onChange: (next) => updateDetailValue(key, textToDetailValue(parsedDetails[key], String(next ?? ""))),
             };
-          }),
-        },
+            }),
+          },
+        } },
       }],
     }));
   }

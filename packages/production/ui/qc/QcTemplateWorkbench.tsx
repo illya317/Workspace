@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { matchText } from "@workspace/core/search";
-import { PageSurface, createSectionsSection, createPageBody, createPageDataSection, createPageTableSection } from "@workspace/core/ui";
+import { PageSurface, createSectionsSection, createPageBody, createRecordSection, createPageTableSection } from "@workspace/core/ui";
 import type {
   QcTemplateDetail,
   QcTemplateFeedbackState,
@@ -95,23 +95,12 @@ function WorkbenchSurface({
 
   const sectionBlocks = sections.length === 0
     ? [
-        createPageDataSection("qc-template-workbench-empty", {
-          kind: "records",
+        createRecordSection("qc-template-workbench-empty", {
           records: [],
           empty: viewModel.emptyText ?? "没有匹配的模板。",
         }),
       ]
     : sections.map((section) => {
-        const title = (
-          <span className="flex min-w-0 items-center gap-3">
-            <span className="truncate">{section.title}</span>
-            {section.status ? (
-              <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${section.status.tone === "red" ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-800"}`}>
-                {section.status.label}
-              </span>
-            ) : null}
-          </span>
-        );
         const actions = section.collapsible || section.onToggle ? [{
           key: "toggle",
           label: toggleText(section),
@@ -122,11 +111,7 @@ function WorkbenchSurface({
         }] : undefined;
 
         if (!section.expandedView) {
-          return createPageDataSection(`qc-template-workbench-${section.key}-collapsed`, {
-            kind: "records",
-            framed: true,
-            title,
-            subtitle: section.subtitle,
+          return createRecordSection(`qc-template-workbench-${section.key}-collapsed`, {
             actions,
             records: [],
             empty: "已收起。",
@@ -134,9 +119,6 @@ function WorkbenchSurface({
         }
 
         return createPageTableSection<QcTemplateWorkbenchRow>(`qc-template-workbench-${section.key}`, {
-          framed: true,
-          title,
-          subtitle: section.subtitle,
           actions,
           rows: section.rows,
           columns: [
@@ -206,23 +188,25 @@ function WorkbenchSurface({
 
           sections: [
             {
-              kind: "navigation",
               key: "qc-template-workbench-selector",
-              surface: {
-                kind: "selector",
-                selector: {
-                  title: viewModel.selectorTitle,
+              body: {
+                kind: "navigation",
+                navigation: {
+                  kind: "selector",
+                  selector: {
+                    title: viewModel.selectorTitle,
 
 
-                  items: viewModel.selectorItems,
-                  selectedId: selectorKey,
-                  onSelect: (item) => setSelectorKey(item.key),
-                  getKey: (item) => item.key,
-                  renderItem: (item) => ({
-                    title: item.title,
-                    subtitle: item.subtitle,
-                    trailing: item.trailing,
-                  }),
+                    items: viewModel.selectorItems,
+                    selectedId: selectorKey,
+                    onSelect: (item) => setSelectorKey(item.key),
+                    getKey: (item) => item.key,
+                    renderItem: (item) => ({
+                      title: item.title,
+                      subtitle: item.subtitle,
+                      trailing: item.trailing,
+                    }),
+                  },
                 },
               },
             },

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { createPageBody, createPageDataSection, PageSurface } from "@workspace/core/ui";
+import { createPageBody, PageSurface } from "@workspace/core/ui";
 import { listProjectPlanGantt } from "./api";
 import ProjectPlanPhasePanel from "./ProjectPlanPhasePanel";
 import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
@@ -40,7 +40,15 @@ export default function ProjectPlanManagementSection({
 
   if (!projectId) {
     return (
-      <PageSurface kind="standard" embedded body={createPageBody([createPageDataSection("project-phases-empty", { kind: "records", framed: true, title: "项目阶段", records: [], empty: "项目保存后可维护项目阶段。" })])} />
+      <PageSurface
+        kind="standard"
+        embedded
+        body={createPageBody([{
+          key: "project-phases-empty",
+          header: { title: "项目阶段" },
+          body: { kind: "record", record: { records: [], empty: "项目保存后可维护项目阶段。" } },
+        }])}
+      />
     );
   }
 

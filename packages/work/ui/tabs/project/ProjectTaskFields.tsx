@@ -103,9 +103,9 @@ export function ProjectTaskForm({
     <PageSurface kind="standard"
       embedded
       body={createPageBody([createFieldsSection<number>("project-task-form", fields, {
-      columns: 3,
+      layout: { columns: 3 },
 
-      actions: [
+      commands: [
         ...(onCancel ? [{ key: "cancel", label: "取消", disabled, onClick: onCancel }] : []),
         ...(submitLabel && onSubmit ? [{ key: "submit", label: submitLabel, variant: "primary" as const, disabled, onClick: onSubmit }] : []),
       ],
@@ -148,7 +148,7 @@ export function ProjectTaskDetail({ task }: { task: ProjectTaskItem }) {
           span: "wide",
           value: task.description || "未填写",
         },
-      ], { kind: "detail", columns: 3,  })])}
+      ], { kind: "detail", layout: { columns: 3 } })])}
     />
   );
 }

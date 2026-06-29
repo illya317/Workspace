@@ -2,10 +2,10 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useMemo, useState } from "react";
-import { createBlockSurfaceSection, createSectionsSection, createPageBody, createPageTabsNavigation, PageSurface, useFeedback, type PageSurfaceSectionSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createPageBody, createPageTabsNavigation, PageSurface, useFeedback, type PageSurfaceSectionSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
 import AdminUsersTab from "./tabs/AdminUsersTab";
 import ModuleManagementTab from "./tabs/ModuleManagementTab";
-import PermissionsTab from "./tabs/PermissionsTab";
+import { usePermissionsTabBody } from "./tabs/PermissionsTab";
 import { usePermissionsTab } from "./hooks/usePermissionsTab";
 
 import type { ResourceItem, SubjectType } from "./types";
@@ -160,34 +160,33 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     ...(isSuperAdmin ? [{ key: "modules" as const, label: "模块管理" }] : []),
   ];
 
-  const sections: PageSurfaceSectionSpec[] = [
-    createSectionsSection("active-admin-tab", {
-      sections: [createBlockSurfaceSection(activeTab, {
-        kind: "message",
+  const permissionsBody = usePermissionsTabBody({
+    resources,
+    capabilitiesByOwner,
+    s: permissionState,
+  });
 
-        content: (
-          <div className="space-y-4">
-            {activeTab === "users" && (
-              <AdminUsersTab
-                showToast={showToast}
-                resources={fullResourceTree}
-                onToolbarItemsChange={setChildToolbarItems}
-                onFooterChange={setChildFooter}
-              />
-            )}
-            {activeTab === "modules" && <ModuleManagementTab showToast={showToast} />}
-            {activeTab === "permissions" && (
-              <PermissionsTab
-                resources={resources}
-                capabilitiesByOwner={capabilitiesByOwner}
-                s={permissionState}
-              />
-            )}
-          </div>
-        )
-      })],
+  const activeAdminContent = (
+    <>
+      {activeTab === "users" && (
+        <AdminUsersTab
+          showToast={showToast}
+          resources={fullResourceTree}
+          onToolbarItemsChange={setChildToolbarItems}
+          onFooterChange={setChildFooter}
+        />
+      )}
+      {activeTab === "modules" && <ModuleManagementTab showToast={showToast} />}
+    </>
+  );
+
+  const sections: PageSurfaceSectionSpec[] = [{
+    ...createBlockSurfaceSection(activeTab, {
+      kind: "content",
+      content: activeAdminContent,
     }),
-  ];
+    framed: false,
+  }];
 
   return (
     <PageSurface kind="standard"
@@ -206,7 +205,11 @@ export default function AdminClient({ user }: { user: SessionUser }) {
             ? { items: childToolbarItems }
             : undefined}
       footer={loading ? undefined : activeTab === "users" ? childFooter : undefined}
-		      body={loading ? { kind: "complete", empty: { content: "加载中..." } } : createPageBody(sections)}
+		      body={loading
+            ? { kind: "complete", empty: { content: "加载中..." } }
+            : activeTab === "permissions"
+              ? permissionsBody
+              : createPageBody(sections)}
 	    />
   );
 }

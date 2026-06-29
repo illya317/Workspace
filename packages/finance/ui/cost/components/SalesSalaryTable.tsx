@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createPageBody, PageSurface, createPageDataSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createMetricsSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState, SourceTraceInfo } from "../types";
 import CostDataTable, { CostTraceButton, formatCostNumber, type CostRecord } from "./CostDataTable";
@@ -36,8 +36,7 @@ export default function SalesSalaryTable({ filters }: Props) {
         <PageSurface kind="standard"
           embedded
           body={createPageBody([
-            createPageDataSection("sales-salary-summary", {
-              kind: "metrics",
+            createMetricsSection("sales-salary-summary", {
               metrics: [
                 { key: "base", label: "基本工资合计", value: formatCostNumber(summary.totalBaseSalary as number) },
                 { key: "bonus", label: "提成合计", value: formatCostNumber(summary.totalBonus as number) },

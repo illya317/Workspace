@@ -4,7 +4,7 @@ import { useState } from "react";
 import {
   createPageBody, createAnalysisSection,
   createSectionsSection,
-  createPageDataSection,
+  createMetricsSection,
   PageSurface,
   type DataSurfaceColumnSpec,
   type PageSurfaceSectionSpec,
@@ -55,8 +55,7 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
   ];
 
   return [
-        createPageDataSection("stats", {
-            kind: "metrics",
+        createMetricsSection("stats", {
             metrics: [
               { key: "active", label: "在职人数", value: stats.active },
               { key: "joinedThisMonth", label: "本月入职", value: stats.joinedThisMonth },
@@ -78,9 +77,8 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
             ],
           },
           sections: [{
-            kind: "data",
             key: "distribution-bars",
-            surface: {
+            body: { kind: "data", data: {
               kind: "table",
               rows: distributionRows,
               columns: distributionColumns,
@@ -89,7 +87,7 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
                             presentation: { density: "compact" },
 
               emptyText: "暂无数据",
-            },
+            } },
           }],
         }),
         createCrossMatrixSection({
@@ -107,31 +105,29 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
             createAnalysisSection("recent-joins", {
               title: "最近入职（前10）",
               sections: [{
-                kind: "data",
                 key: "recent-joins-table",
-                surface: {
+                body: { kind: "data", data: {
                   kind: "table",
                   rows: stats.recentJoins,
                   columns: recentJoinColumns,
                   visibleColumns: recentJoinColumns.map((column) => column.key),
                   rowKey: (row) => row.id,
                   emptyText: "暂无数据",
-                },
+                } },
               }],
             }),
             createAnalysisSection("recent-leaves", {
               title: "最近离职（前10）",
               sections: [{
-                kind: "data",
                 key: "recent-leaves-table",
-                surface: {
+                body: { kind: "data", data: {
                   kind: "table",
                   rows: stats.recentLeaves,
                   columns: recentLeaveColumns,
                   visibleColumns: recentLeaveColumns.map((column) => column.key),
                   rowKey: (row) => row.id,
                   emptyText: "暂无数据",
-                },
+                } },
               }],
             }),
           ],

@@ -85,8 +85,7 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
   return (
     <PageSurface kind="standard"
       embedded
-      body={createPageBody([{
-        kind: "modal",
+      body={createPageBody([], { modals: [{
         key: "audit-log",
         open,
         title: `编辑历史 · ${entityType}${selectedDate ? ` (${selectedDate})` : ""}`,
@@ -143,21 +142,23 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
           ),
         }),
         {
-          kind: "navigation" as const,
           key: "pagination",
-          surface: {
-            kind: "pagination",
-            pagination: {
-              page,
-              total,
-              totalPages,
-              onPageChange: setPage,
-              compact: true,
+          body: {
+            kind: "navigation",
+            navigation: {
+              kind: "pagination",
+              pagination: {
+                page,
+                total,
+                totalPages,
+                onPageChange: setPage,
+                compact: true,
+              },
             },
           },
         },
         ],
-      }])}
+      }] })}
     />
   );
 }

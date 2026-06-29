@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createPageDataSection, type DataSurfaceCommandSpec, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createMetricsSection, type DataSurfaceCommandSpec, PageSurface } from "@workspace/core/ui";
 import type { WorkItem } from "./types";
 export default function WorkCard({
   work,
@@ -38,10 +38,7 @@ export default function WorkCard({
   return (
     <PageSurface kind="standard"
       embedded
-      body={createPageBody([createPageDataSection("work-card", {
-      kind: "metrics",
-      framed: true,
-      title: work.content,
+      body={createPageBody([createMetricsSection("work-card", {
       metrics: [
         { key: "importance", label: "重要度", value: work.importance },
         { key: "urgency", label: "紧急度", value: work.urgency },

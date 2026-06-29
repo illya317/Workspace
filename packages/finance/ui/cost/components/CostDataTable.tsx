@@ -73,18 +73,16 @@ export default function CostDataTable({
 
           })] : []),
           {
-            kind: "data",
             key: "cost-table",
-            surface: {
+            body: { kind: "data", data: {
               kind: "table",
-              framed: true,
 
               rows,
               columns,
               visibleColumns: columns.map(column => column.key),
               rowKey,
               emptyText: "暂无数据",
-            },
+            } },
           },
         ], { layout: "single" })}
       footer={{ pagination: { page, total: pagination.total, totalPages: pagination.totalPages, onPageChange,  compact: true } }}

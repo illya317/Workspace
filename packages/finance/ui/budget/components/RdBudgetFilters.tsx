@@ -45,7 +45,7 @@ export default function RdBudgetFilters({
             },
           ], {
             kind: "filters",
-            actions: hasFilters ? [{
+            commands: hasFilters ? [{
               key: "reset",
               label: "重置筛选",
               onClick: () => {

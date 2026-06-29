@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createBlockSurfaceSection, createSectionsSection, createMessageSection, createPageBody, createPageTabsNavigation, createPanelSection, createSectionSection, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createFormSection, createSectionsSection, createMessageSection, createPageBody, createPageTabsNavigation, createPanelSection, createSectionSection, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import type { SessionUser } from "@workspace/platform/types";
@@ -27,7 +27,7 @@ import { useWorkPermissionsBlocks } from "./WorkPermissionsPanel";
 import { buildWorkReportsPanelBlocks, useWorkReportsController } from "./WorkReportsPanel";
 import { useWorkTaskTableBlock } from "./WorkTaskTable";
 import { useWorkTaskFormSurface } from "./WorkTaskFields";
-import { createWorkPlanHeaderSection, createWorkPlanSelectorSection } from "./WorkPlanBlocks";
+import { createWorkPlanHeaderSection, createWorkPlanSelector } from "./WorkPlanBlocks";
 import { useWorkPlanFormSurface } from "./WorkPlanFields";
 import type { WorkItem, WorkItemType, WorkPlan, WorkPlanDraft, WorkTarget, WorkTaskSpace } from "./types";
 
@@ -429,7 +429,7 @@ export default function WorksClient({ initialTarget }: {
         ]
       : []),
   ] : [];
-  const planSelectorBlock = createWorkPlanSelectorSection({
+  const planSelector = createWorkPlanSelector({
     plans,
     activePlanId,
     plansLoading: spacesLoading || plansLoading,
@@ -447,10 +447,8 @@ export default function WorksClient({ initialTarget }: {
       toolbar={toolbarItems.length > 0 ? { items: toolbarItems } : undefined}
       body={{
         kind: "split",
-        left: {
-          sections: createPageBody([planSelectorBlock]).sections,
-          drawerSections: createPageBody([planSelectorBlock]).sections,
-        },
+        selector: planSelector,
+        drawerSelector: planSelector,
         right: createPageBody(currentSpace ? [
           createPanelSection("space-header", {
             title: currentSpace.name,
@@ -465,18 +463,10 @@ export default function WorksClient({ initialTarget }: {
           }) : createSectionSection("tasks", {
             title: "OKR 计划",
             sections: [
-              ...(planCreating || planEditing ? [{
-                kind: "form" as const,
-                key: "plan-form",
-                surface: planFormSurface,
-              }] : []),
+              ...(planCreating || planEditing ? [createFormSection("plan-form", planFormSurface)] : []),
               ...(planCreating ? [] : activePlan ? [
                 createWorkPlanHeaderSection(activePlan),
-                ...(worksState.creating ? [{
-                  kind: "form" as const,
-                  key: "create-task",
-                  surface: createTaskSurface,
-                }] : []),
+                ...(worksState.creating ? [createFormSection("create-task", createTaskSurface)] : []),
                 taskTableBlock,
               ] : [createMessageSection("no-plan", {
                 content: plansLoading ? "加载 OKR 计划中..." : "请先新建 OKR 计划，再添加目标、关键结果和子任务。",

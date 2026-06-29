@@ -128,13 +128,12 @@ export function useDepartmentCreatePanelBlock({
 
     sections: [
       {
-        kind: "form" as const,
         key: "fields",
-        surface: {
+        body: { kind: "form", form: {
           kind: "fields" as const,
-          columns: 2 as const,
-
-          fields: [
+          content: {
+            layout: { columns: 2 },
+            items: [
             {
               key: "code",
               label: "部门编码",
@@ -207,8 +206,9 @@ export function useDepartmentCreatePanelBlock({
               value: managerPositionName,
               onChange: (value) => updateDraftManager(String(value ?? "")),
             },
-          ],
-        },
+            ],
+          },
+        } },
       },
     ],
   });

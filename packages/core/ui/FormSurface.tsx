@@ -6,10 +6,16 @@ import type { FormSurfaceLooseItem, FormSurfaceProps } from "./FormSurface.types
 
 export type {
   FormSurfaceCommandSpec,
+  FormSurfaceContentSpec,
+  FormSurfaceDetailProps,
   FormSurfaceFieldSpec,
+  FormSurfaceFieldsProps,
+  FormSurfaceFiltersProps,
   FormSurfaceGroupTitleSpec,
   FormSurfaceItemSpec,
   FormSurfaceKind,
+  FormSurfaceLayoutFlow,
+  FormSurfaceLayoutSpec,
   FormSurfaceLooseItem,
   FormSurfaceLoginProps,
   FormSurfaceNoteSpec,
@@ -18,6 +24,7 @@ export type {
   FormSurfaceRepeatableItemSpec,
   FormSurfaceRepeatableSpec,
   FormSurfaceSectionSpec,
+  FormSurfaceSubmitSpec,
   FormSurfaceTagListAppendSpec,
   FormSurfaceTagListFieldSpec,
 } from "./FormSurface.types";
@@ -26,8 +33,8 @@ export default function FormSurface<T = FormSurfaceLooseItem>(props: FormSurface
   const content = renderContent(props);
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    props.onSubmit?.();
+    props.submit?.onSubmit();
   };
-  const body = props.onSubmit ? <form onSubmit={handleSubmit}>{content}</form> : content;
+  const body = props.submit ? <form onSubmit={handleSubmit}>{content}</form> : content;
   return body;
 }

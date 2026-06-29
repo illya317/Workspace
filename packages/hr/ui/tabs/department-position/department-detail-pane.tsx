@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, type Dispatch, type SetStateAction } from "react";
-import { createPageBody, createPageDataSection, createBlockSurfaceSection, createPanelSection, PageSurface, type FormSurfaceItemSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, createMetricsSection, createBlockSurfaceSection, createPanelSection, PageSurface, type FormSurfaceItemSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import { departmentCodeEditableSegment } from "./department-code-input";
 import { departmentDescendantIds, splitAliasText } from "./utils";
 import { useDepartmentDescriptionsBlock } from "./department-descriptions-panel";
@@ -217,17 +217,13 @@ export function useDepartmentDetailPaneBlock({
 
       sections: departmentDraft ? [
         {
-          kind: "form",
           key: "fields",
-          surface: {
+          body: { kind: "form", form: {
             kind: "fields",
-            columns: 2,
-            fields: departmentInfoFields,
-          },
+            content: { items: departmentInfoFields, layout: { columns: 2 } },
+          } },
         },
-        createPageDataSection("metrics", {
-            kind: "metrics",
-            framed: true,
+        createMetricsSection("metrics", {
             metrics: [
               { key: "directPositions", label: "直属岗位", value: selectedDepartmentStats?.directPositions ?? 0 },
               { key: "totalPositions", label: "总岗位", value: selectedDepartmentStats?.totalPositions ?? 0 },

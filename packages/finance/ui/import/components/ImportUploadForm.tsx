@@ -99,8 +99,8 @@ export default function ImportUploadForm({
               span: 3,
             },
           ], {
-            columns: 3,
-            actions: [{
+            layout: { columns: 3 },
+            commands: [{
               key: "preview",
               label: loading ? "解析中..." : "预览数据",
               variant: "primary",

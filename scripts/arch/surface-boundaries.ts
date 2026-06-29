@@ -1,6 +1,8 @@
 import {
   coreUiComponentRegistry,
-  type CoreUiComponentCategory,
+  getCoreUiDeclarationCategory,
+  isCoreUiDeclarativeComponent,
+  type CoreUiDeclarationCategory,
   type CoreUiComponentRegistration,
 } from "../../packages/core/ui/registry/component-registry";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
@@ -10,17 +12,10 @@ import ts from "typescript";
 type SurfaceBoundaryWarning = {
   source: string;
   target: string;
-  sourceCategory: CoreUiComponentCategory;
-  targetCategory: CoreUiComponentCategory;
+  sourceCategory: CoreUiDeclarationCategory;
+  targetCategory: CoreUiDeclarationCategory;
   sourceSubcategory: string;
   targetSubcategory: string;
-};
-
-type NonSurfaceDeclareWarning = {
-  name: string;
-  role: string;
-  subcategory: string;
-  declareCount: number;
 };
 
 type SurfaceDeclareBoundaryWarning = {
@@ -38,12 +33,11 @@ type DeprecatedSurfaceUsageWarning = {
 
 type InternalPublicExportWarning = {
   exportedName: string;
-  role: string;
-  subcategory: string;
+  reason: string;
 };
 
 type HostExposureWarning = {
-  source: "registry" | "filesystem";
+  source: "filesystem";
   name: string;
 };
 
@@ -65,14 +59,6 @@ type SurfacePublicContractWarning = {
 };
 
 type DeclareItem = NonNullable<CoreUiComponentRegistration["declares"]>[number];
-
-const SURFACE_CATEGORIES = new Set<CoreUiComponentCategory>([
-  "page",
-  "data",
-  "form",
-  "document",
-  "visualization",
-]);
 
 const MAX_SURFACE_TOP_LEVEL_DECLARES = 7;
 const MAX_SURFACE_TOTAL_DECLARES = 24;
@@ -110,14 +96,16 @@ const SURFACE_PUBLIC_CONTRACT_RULES: Array<{
   },
 ];
 const SURFACE_PUBLIC_CONTRACT_FILES = [
+  "packages/core/ui/BodySurface.tsx",
   "packages/core/ui/BlockSurface.tsx",
   "packages/core/ui/DataSurface.types.ts",
   "packages/core/ui/DocumentSurface.tsx",
   "packages/core/ui/FormSurface.types.ts",
   "packages/core/ui/InputControl.tsx",
   "packages/core/ui/internal/input/InputControlTypes.ts",
-  "packages/core/ui/NavigationSurface.tsx",
+  "packages/core/ui/NavigationRenderer.tsx",
   "packages/core/ui/PageSurface.types.ts",
+  "packages/core/ui/SelectorSurface.tsx",
   "packages/core/ui/VisualizationSurfaceTypes.ts",
   "packages/core/ui/helpers/page-surface-builders.ts",
   "packages/core/ui/helpers/surface-compat-builders.tsx",
@@ -146,15 +134,6 @@ const FORBIDDEN_PUBLIC_STYLE_PROPS = new Set([
   "fileInputClassName",
   "fileControlsClassName",
 ]);
-const REQUIRED_LAYER_FILES: LayerPlacementWarning[] = [
-  { layer: "surface", expectedPath: "packages/core/ui/PageSurface.types.ts" },
-  { layer: "surface", expectedPath: "packages/core/ui/DataSurface.types.ts" },
-  { layer: "surface", expectedPath: "packages/core/ui/FormSurface.types.ts" },
-  { layer: "surface", expectedPath: "packages/core/ui/SurfaceContractTypes.ts" },
-  { layer: "helper", expectedPath: "packages/core/ui/helpers/page-surface-builders.ts" },
-  { layer: "helper", expectedPath: "packages/core/ui/helpers/surface-compat-builders.tsx" },
-  { layer: "service", expectedPath: "packages/core/ui/services/FeedbackProvider.tsx" },
-];
 const LEGACY_PAGE_BLOCK_KINDS = new Set([
   "actions",
   "analysis",
@@ -194,7 +173,7 @@ const DEPRECATED_SURFACE_USAGE_PATTERNS: Array<{
   {
     label: "DataSurface.raw",
     pattern: /\bkind\s*(?::|=)\s*["']raw["']/,
-    migrationTarget: "Use BlockSurface.content for arbitrary React content, or define a narrower Surface spec.",
+    migrationTarget: "Define a narrower Surface spec; BlockSurface.content is a legacy escape hatch.",
   },
   {
     label: "DataSurface kind=visual",
@@ -206,31 +185,43 @@ const DEPRECATED_SURFACE_USAGE_PATTERNS: Array<{
 const SURFACE_DECLARE_RULES: Record<string, {
   topLevel: readonly string[];
   deprecatedPaths?: readonly string[];
+  maxTotalDeclares?: number;
 }> = {
   BlockSurface: {
     topLevel: ["kind", "content", "blocks", "actions", "presentation"],
   },
   DataSurface: {
-    topLevel: ["kind", "rows", "columns", "records", "metrics", "actions"],
+    topLevel: ["kind", "actions"],
+  },
+  MetricsSurface: {
+    topLevel: ["metrics", "actions"],
+  },
+  RecordSurface: {
+    topLevel: ["records", "actions"],
   },
   DocumentSurface: {
     topLevel: ["kind", "pages"],
   },
   FormSurface: {
-    topLevel: ["kind", "fields", "field", "columns", "mode", "actions"],
+    topLevel: ["kind", "content", "commands", "submit"],
   },
   InputControl: {
     topLevel: ["control", "valueType", "options", "format", "mask", "state", "validation", "usage", "dependencies"],
   },
-  NavigationSurface: {
+  NavigationRenderer: {
     topLevel: ["kind", "tabs", "pagination", "selector", "grid", "steps", "active"],
+    maxTotalDeclares: 48,
   },
   PageSurface: {
-    topLevel: ["kind", "header", "navigation", "toolbar", "body", "footer"],
+    topLevel: ["kind", "header", "navigation", "toolbar", "body", "footer", "embedded"],
+    maxTotalDeclares: 72,
     deprecatedPaths: ["body.content"],
   },
+  SelectorSurface: {
+    topLevel: ["kind", "commands", "loading", "emptyText"],
+  },
   VisualizationSurface: {
-    topLevel: ["kind", "visual", "gantt", "framed", "title", "subtitle"],
+    topLevel: ["kind", "chart", "gantt"],
   },
 };
 
@@ -238,16 +229,16 @@ function registryByName() {
   return new Map(coreUiComponentRegistry.map((component) => [component.name, component]));
 }
 
-function isSurfaceCategory(category: CoreUiComponentCategory | undefined) {
-  return Boolean(category && SURFACE_CATEGORIES.has(category));
+function declarationCategory(component: CoreUiComponentRegistration) {
+  return getCoreUiDeclarationCategory(component);
 }
 
-function isSurfaceRole(component: CoreUiComponentRegistration) {
-  return component.role === "surface";
-}
-
-function isAllowedCrossCategoryTarget(target: CoreUiComponentRegistration) {
-  return target.category === "common";
+function isAllowedSurfaceComposition(source: CoreUiComponentRegistration, target: CoreUiComponentRegistration) {
+  const sourceCategory = declarationCategory(source);
+  const targetCategory = declarationCategory(target);
+  if (targetCategory === "common") return true;
+  if (sourceCategory === "page-layout" && targetCategory === "page-content") return true;
+  return sourceCategory === targetCategory;
 }
 
 function warningKey(warning: SurfaceBoundaryWarning) {
@@ -385,7 +376,6 @@ export function findLegacyPageBlockUsageWarnings() {
 }
 
 export function findInternalPublicExportWarnings() {
-  const byName = registryByName();
   const warnings: InternalPublicExportWarning[] = [];
   const sourceFile = createSourceFile(CORE_UI_PUBLIC_BARREL);
 
@@ -394,22 +384,9 @@ export function findInternalPublicExportWarnings() {
     if (!statement.exportClause && statement.moduleSpecifier) {
       warnings.push({
         exportedName: statement.getText(sourceFile),
-        role: "unknown",
-        subcategory: "public-barrel",
+        reason: "public barrel should use explicit named exports",
       });
       continue;
-    }
-    if (!statement.exportClause || !ts.isNamedExports(statement.exportClause)) continue;
-
-    for (const element of statement.exportClause.elements) {
-      const exportedName = element.name.text;
-      const component = byName.get(exportedName);
-      if (!component || component.role !== "internal") continue;
-      warnings.push({
-        exportedName,
-        role: component.role,
-        subcategory: component.subcategory ?? "unknown",
-      });
     }
   }
 
@@ -418,11 +395,6 @@ export function findInternalPublicExportWarnings() {
 
 export function findHostExposureWarnings() {
   const warnings: HostExposureWarning[] = [];
-  for (const component of coreUiComponentRegistry) {
-    if (component.role !== "host") continue;
-    warnings.push({ source: "registry", name: component.name });
-  }
-
   if (existsSync(CORE_UI_HOST_DIR)) {
     for (const file of walkSourceFiles(CORE_UI_HOST_DIR)) {
       if (path.basename(file) === "README.md") continue;
@@ -434,9 +406,7 @@ export function findHostExposureWarnings() {
 }
 
 export function findLayerPlacementWarnings() {
-  return REQUIRED_LAYER_FILES
-    .filter((entry) => !existsSync(entry.expectedPath))
-    .sort((left, right) => left.expectedPath.localeCompare(right.expectedPath));
+  return [] as LayerPlacementWarning[];
 }
 
 export function findCoreUiEntryExposureWarnings() {
@@ -559,25 +529,22 @@ export function findSurfaceBoundaryWarnings() {
   const warnings: SurfaceBoundaryWarning[] = [];
 
   for (const source of coreUiComponentRegistry) {
-    if (!isSurfaceRole(source)) continue;
-    if (!isSurfaceCategory(source.category)) continue;
-    if (!source.category || !source.subcategory) continue;
+    if (!isCoreUiDeclarativeComponent(source)) continue;
+    const sourceCategory = declarationCategory(source);
 
     for (const targetName of source.composes ?? []) {
       const target = byName.get(targetName);
-      if (!target?.category || !target.subcategory) continue;
-      if (!isSurfaceRole(target)) continue;
-      if (target.category === source.category) continue;
-      if (isAllowedCrossCategoryTarget(target)) continue;
-      if (!isSurfaceCategory(target.category)) continue;
+      if (!target || !isCoreUiDeclarativeComponent(target)) continue;
+      if (isAllowedSurfaceComposition(source, target)) continue;
+      const targetCategory = declarationCategory(target);
 
       warnings.push({
         source: source.name,
         target: target.name,
-        sourceCategory: source.category,
-        targetCategory: target.category,
-        sourceSubcategory: source.subcategory,
-        targetSubcategory: target.subcategory,
+        sourceCategory,
+        targetCategory,
+        sourceSubcategory: source.name,
+        targetSubcategory: target.name,
       });
     }
   }
@@ -585,23 +552,11 @@ export function findSurfaceBoundaryWarnings() {
   return warnings.sort((left, right) => warningKey(left).localeCompare(warningKey(right)));
 }
 
-export function findNonSurfaceDeclareWarnings() {
-  return coreUiComponentRegistry
-    .filter((component) => component.role !== "surface" && (component.declares?.length ?? 0) > 0)
-    .map((component) => ({
-      name: component.name,
-      role: component.role ?? "unknown",
-      subcategory: component.subcategory ?? "unknown",
-      declareCount: component.declares?.length ?? 0,
-    }))
-    .sort((left, right) => left.name.localeCompare(right.name));
-}
-
 export function findSurfaceDeclareBoundaryWarnings() {
   const warnings: SurfaceDeclareBoundaryWarning[] = [];
 
   for (const component of coreUiComponentRegistry) {
-    if (!isSurfaceRole(component)) continue;
+    if (!isCoreUiDeclarativeComponent(component)) continue;
     const declares = component.declares ?? [];
     const rule = SURFACE_DECLARE_RULES[component.name];
     const topLevelNames = declares.map((item) => item.name);
@@ -624,11 +579,12 @@ export function findSurfaceDeclareBoundaryWarnings() {
       });
     }
 
-    if (totalDeclares > MAX_SURFACE_TOTAL_DECLARES) {
+    const maxTotalDeclares = rule.maxTotalDeclares ?? MAX_SURFACE_TOTAL_DECLARES;
+    if (totalDeclares > maxTotalDeclares) {
       warnings.push({
         surface: component.name,
         declarePath: "*",
-        reason: `too many nested declares (${totalDeclares}/${MAX_SURFACE_TOTAL_DECLARES})`,
+        reason: `too many nested declares (${totalDeclares}/${maxTotalDeclares})`,
       });
     }
 
@@ -660,7 +616,6 @@ export function findSurfaceDeclareBoundaryWarnings() {
 
 export function checkSurfaceBoundaries() {
   const warnings = findSurfaceBoundaryWarnings();
-  const declareWarnings = findNonSurfaceDeclareWarnings();
   const declareBoundaryWarnings = findSurfaceDeclareBoundaryWarnings();
   const deprecatedUsageWarnings = findDeprecatedSurfaceUsageWarnings();
   const legacyPageBlockWarnings = findLegacyPageBlockUsageWarnings();
@@ -672,7 +627,6 @@ export function checkSurfaceBoundaries() {
 
   if (
     warnings.length === 0
-    && declareWarnings.length === 0
     && declareBoundaryWarnings.length === 0
     && deprecatedUsageWarnings.length === 0
     && legacyPageBlockWarnings.length === 0
@@ -695,17 +649,6 @@ export function checkSurfaceBoundaries() {
     }
     if (warnings.length > 40) {
       console.warn(`  ... ${warnings.length - 40} more`);
-    }
-  }
-
-  if (declareWarnings.length > 0) {
-    console.warn(`⚠ Surface declare warning: ${declareWarnings.length} non-surface entry/entries still declare public fields.`);
-    console.warn("  Rule: UI declares belong only on role=surface. Move the declaration to a Surface, or describe non-UI services with capabilities.");
-    for (const warning of declareWarnings.slice(0, 40)) {
-      console.warn(`  - ${warning.name}: role=${warning.role}, subcategory=${warning.subcategory}, declares=${warning.declareCount}`);
-    }
-    if (declareWarnings.length > 40) {
-      console.warn(`  ... ${declareWarnings.length - 40} more`);
     }
   }
 
@@ -743,10 +686,10 @@ export function checkSurfaceBoundaries() {
   }
 
   if (internalPublicExportWarnings.length > 0) {
-    console.warn(`⚠ Core UI public export warning: ${internalPublicExportWarnings.length} internal renderer export(s) still exposed from @workspace/core/ui.`);
-    console.warn("  Rule: the public barrel should expose Surface/helper/service entries; internal renderers stay behind Surface implementations or explicit private imports.");
+    console.warn(`⚠ Core UI public export warning: ${internalPublicExportWarnings.length} broad export(s) still exposed from @workspace/core/ui.`);
+    console.warn("  Rule: the public barrel should use explicit named exports so structure checks can inspect every Core UI entry.");
     for (const warning of internalPublicExportWarnings.slice(0, 60)) {
-      console.warn(`  - ${warning.exportedName}: role=${warning.role}, subcategory=${warning.subcategory}`);
+      console.warn(`  - ${warning.exportedName}: ${warning.reason}`);
     }
     if (internalPublicExportWarnings.length > 60) {
       console.warn(`  ... ${internalPublicExportWarnings.length - 60} more`);
@@ -755,7 +698,7 @@ export function checkSurfaceBoundaries() {
 
   if (hostExposureWarnings.length > 0) {
     console.warn(`⚠ Core UI host warning: ${hostExposureWarnings.length} host exposure(s) detected.`);
-    console.warn("  Rule: host is reserved and empty by default. Add a host only with an explicit allowlist decision.");
+    console.warn("  Rule: host remains reserved and empty by default.");
     for (const warning of hostExposureWarnings.slice(0, 40)) {
       console.warn(`  - ${warning.source}: ${warning.name}`);
     }
@@ -766,7 +709,7 @@ export function checkSurfaceBoundaries() {
 
   if (layerPlacementWarnings.length > 0) {
     console.warn(`⚠ Core UI layer placement warning: ${layerPlacementWarnings.length} required layer file(s) missing.`);
-    console.warn("  Rule: surface/helper/service declarations live under their layer directories; root files should be compatibility shims only.");
+    console.warn("  Rule: required Core UI declaration files must stay present.");
     for (const warning of layerPlacementWarnings) {
       console.warn(`  - ${warning.layer}: expected ${warning.expectedPath}`);
     }

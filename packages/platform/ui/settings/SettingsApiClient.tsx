@@ -1,7 +1,7 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { createBlockSurfaceSection, createMessageSection, createPageBody, createSectionSection, type DataSurfaceColumnSpec, type FormSurfaceItemSpec, PageSurface, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createFieldsSection, createMessageSection, createPageBody, createPageDataSection, createSectionSection, type DataSurfaceColumnSpec, type FormSurfaceItemSpec, PageSurface, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { postJson, putJson, requestJson } from "../api-client";
 type OpenApiRegistrationRow = {
@@ -305,16 +305,14 @@ export default function SettingsApiClient({
       subtitle: "Registry 中已注册的页面、资源、Scope 和 endpoint。",
       sections: [
         {
-          kind: "data",
           key: "registration-table",
-          surface: { kind: "table", rows: registrations, columns: registrationColumns, visibleColumns: registrationColumns.map((column) => column.key), loading, emptyText: "暂无开放能力", rowKey: (row) => row.key,           presentation: { density: "compact" },
- },
+          body: { kind: "data", data: { kind: "table", rows: registrations, columns: registrationColumns, visibleColumns: registrationColumns.map((column) => column.key), loading, emptyText: "暂无开放能力", rowKey: (row) => row.key,           presentation: { density: "compact" },
+ } },
         },
         {
-          kind: "data",
           key: "endpoint-table",
-          surface: { kind: "table", rows: endpoints, columns: endpointColumns, visibleColumns: endpointColumns.map((column) => column.key), emptyText: "暂无 endpoint", rowKey: (row) => row.key,           presentation: { density: "compact" },
- },
+          body: { kind: "data", data: { kind: "table", rows: endpoints, columns: endpointColumns, visibleColumns: endpointColumns.map((column) => column.key), emptyText: "暂无 endpoint", rowKey: (row) => row.key,           presentation: { density: "compact" },
+ } },
         },
       ],
     }),
@@ -323,11 +321,10 @@ export default function SettingsApiClient({
       actions: [{ key: "refresh", label: "刷新", onClick: () => loadData(), disabled: loading }],
       sections: [
         {
-          kind: "form",
           key: "client-form",
-          surface: {
-            kind: "inline",
-            fields: [
+          body: { kind: "form", form: {
+            kind: "filters",
+            content: { items: [
               {
                 key: "name",
                 label: "名称",
@@ -347,14 +344,13 @@ export default function SettingsApiClient({
                 placeholder: "用途说明",
                 maxLength: 240,
               },
-            ],
-            actions: [{ key: "create", label: "创建", variant: "primary", onClick: createClient, disabled: busy === "create" || !newClientName.trim() }],
-          },
+            ] },
+            commands: [{ key: "create", label: "创建", variant: "primary", onClick: createClient, disabled: busy === "create" || !newClientName.trim() }],
+          } },
         },
         {
-          kind: "data",
           key: "client-table",
-          surface: {
+          body: { kind: "data", data: {
             kind: "table",
             rows: data?.clients ?? [],
             columns: clientColumns,
@@ -366,7 +362,7 @@ export default function SettingsApiClient({
 
             onRowClick: (row) => setSelectedClientId(row.id),
             rowState: (row) => row.id === selectedClientId ? "selected" : "normal",
-          },
+          } },
         },
       ],
     }),
@@ -374,16 +370,22 @@ export default function SettingsApiClient({
       title: "Scope 授权",
       subtitle: selectedClient ? selectedClient.name : "先选择一个 Client。",
       actions: [{ key: "save-scopes", label: "保存", onClick: saveScopes, disabled: !selectedClient || busy === `scopes-${selectedClient?.id}` }],
-      sections: [{ kind: "form", key: "scope-form", surface: { kind: "fields", fields: scopeFields, columns: 3 } }],
+      sections: [createFieldsSection("scope-form", scopeFields, { layout: { columns: 3 } })],
     }),
     createSectionSection("logs", {
       title: "调用日志",
-      sections: [{
-        kind: "data",
-        key: "log-table",
-        surface: { kind: "table", rows: logs, columns: logColumns, visibleColumns: logColumns.map((column) => column.key), loading, emptyText: "暂无调用日志", rowKey: (row) => row.id,         presentation: { density: "compact" },
- },
-      }],
+      sections: [
+        createPageDataSection("log-table", {
+          kind: "table",
+          rows: logs,
+          columns: logColumns,
+          visibleColumns: logColumns.map((column) => column.key),
+          loading,
+          emptyText: "暂无调用日志",
+          rowKey: (row) => row.id,
+          presentation: { density: "compact" },
+        }),
+      ],
     }),
   ];
   return <PageSurface kind="standard" body={createPageBody(sections)} />;

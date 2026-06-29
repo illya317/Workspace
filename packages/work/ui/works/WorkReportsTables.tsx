@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { createActionsSection, createInlineFieldsSection, createPageBody, createPageDataSection, type DataSurfaceColumnSpec, type FormSurfaceFieldSpec, PageSurface, type PageSurfaceSectionSpec, type PageSurfaceCommandSpec } from "@workspace/core/ui";
+import { createActionsSection, createInlineFieldsSection, createPageBody, createPageDataSection, createRecordSection, type DataSurfaceColumnSpec, type FormSurfaceFieldSpec, PageSurface, type PageSurfaceSectionSpec, type PageSurfaceCommandSpec } from "@workspace/core/ui";
 import type {
   WorkReportCollectionResponse,
   WorkReportCollectionSpace,
@@ -129,7 +129,7 @@ function createCollectionColumns(): DataSurfaceColumnSpec<WorkReportCollectionSp
 export function buildReportCollectionTableBlock({ collection, loading }: ReportCollectionTableProps): PageSurfaceSectionSpec {
   const rows = collection?.spaces || [];
   if (!loading && rows.length === 0) {
-    return createPageDataSection("report-collection-empty", { kind: "records", records: [], empty: "暂无可汇总的工作空间" });
+    return createRecordSection("report-collection-empty", { records: [], empty: "暂无可汇总的工作空间" });
   }
   const columns = createCollectionColumns();
   return createPageDataSection("report-collection-table", {
@@ -150,7 +150,7 @@ export function ReportCollectionTable({ collection, loading }: ReportCollectionT
   const rows = collection?.spaces || [];
   const columns = useMemo(() => createCollectionColumns(), []);
   const block = !loading && rows.length === 0
-    ? createPageDataSection("report-collection-empty", { kind: "records", records: [], empty: "暂无可汇总的工作空间" })
+    ? createRecordSection("report-collection-empty", { records: [], empty: "暂无可汇总的工作空间" })
     : createPageDataSection("report-collection-table", { kind: "table", rows, columns, visibleColumns: [],     presentation: { density: "compact" },
  loading, emptyText: "暂无汇报", rowKey: space => `${space.targetType}:${space.targetId}`, scroll: { y: "hidden" }, });
   return <PageSurface kind="standard" embedded body={createPageBody([block])} />;
@@ -161,8 +161,7 @@ function ReportStack({
 }: {
   space: WorkReportCollectionSpace;
 }) {
-  return <PageSurface kind="standard" embedded body={createPageBody([createPageDataSection("report-stack", {
-    kind: "records",
+  return <PageSurface kind="standard" embedded body={createPageBody([createRecordSection("report-stack", {
     records: space.reports.map(report => ({
       key: String(report.id),
       expanded: true,

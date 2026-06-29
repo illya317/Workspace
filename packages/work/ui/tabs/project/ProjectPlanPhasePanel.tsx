@@ -92,7 +92,6 @@ export default function ProjectPlanPhasePanel({
           {
             key: "project-phases",
             label: "项目阶段",
-            kind: "sections",
             header: {
               title: "项目阶段",
               actions: canEdit && !creating ? [{
@@ -104,52 +103,56 @@ export default function ProjectPlanPhasePanel({
                 onClick: () => setCreating(true),
               }] : undefined,
             },
-            sections: createPageBody([
-              ...(creating ? [createFormSection("create-phase", {
-                kind: "fields",
-                columns: 2,
-                fields: phaseFields(draft, disabled || busy, setDraft),
-                actions: [
-                  {
-                    key: "cancel",
-                    label: "取消",
-                    icon: "cancel",
-                    disabled: disabled || busy,
-                    onClick: () => {
-                      setCreating(false);
-                      setDraft(EMPTY_DRAFT);
+            body: {
+              kind: "section",
+              sections: createPageBody([
+                ...(creating ? [createFormSection("create-phase", {
+                  kind: "fields",
+                  content: {
+                    items: phaseFields(draft, disabled || busy, setDraft),
+                    layout: { columns: 2 },
+                  },
+                  commands: [
+                    {
+                      key: "cancel",
+                      label: "取消",
+                      icon: "cancel",
+                      disabled: disabled || busy,
+                      onClick: () => {
+                        setCreating(false);
+                        setDraft(EMPTY_DRAFT);
+                      },
                     },
-                  },
-                  {
-                    key: "submit",
-                    label: busy ? "保存中..." : "保存项目阶段",
-                    icon: "save",
-                    variant: "primary",
-                    disabled: disabled || busy || !draft.name.trim(),
-                    onClick: () => void submitCreate(),
-                  },
-                ],
-              })] : []),
-              {
-                kind: "data",
-                key: "phase-rows",
-                surface: buildPhaseRowsSurface({
-                phases,
-                canEdit,
-                disabled: disabled || busy,
-                editingId,
-                editDraft,
-                onEditDraftChange: setEditDraft,
-                onStartEdit: startEdit,
-                onCancelEdit: () => {
-                  setEditingId(null);
-                  setEditDraft(EMPTY_DRAFT);
+                    {
+                      key: "submit",
+                      label: busy ? "保存中..." : "保存项目阶段",
+                      icon: "save",
+                      variant: "primary",
+                      disabled: disabled || busy || !draft.name.trim(),
+                      onClick: () => void submitCreate(),
+                    },
+                  ],
+                })] : []),
+                {
+                  key: "phase-rows",
+                  body: { kind: "data", data: buildPhaseRowsSurface({
+                    phases,
+                    canEdit,
+                    disabled: disabled || busy,
+                    editingId,
+                    editDraft,
+                    onEditDraftChange: setEditDraft,
+                    onStartEdit: startEdit,
+                    onCancelEdit: () => {
+                      setEditingId(null);
+                      setEditDraft(EMPTY_DRAFT);
+                    },
+                    onSubmitEdit: submitEdit,
+                    onDelete: handleDelete,
+                  }) },
                 },
-                onSubmitEdit: submitEdit,
-                onDelete: handleDelete,
-              }),
-              },
-            ]).sections,
+              ]).sections,
+            },
           },
         ],
       }}
@@ -216,54 +219,54 @@ function buildPhaseRowsSurface({
     },
   ];
 
-  return phases.length === 0
-    ? { kind: "records", records: [], empty: "暂无项目阶段" }
-    : {
-        kind: "table",
-        rows: phases,
-        columns,
-        presentation: { density: "compact" },
+  return {
+    kind: "table",
+    rows: phases,
+    columns,
+    presentation: { density: "compact" },
 
-        emptyText: "暂无项目阶段",
-        rowKey: (phase) => phase.id,
-        visibleColumns: ["startDate", "endDate", "note"],
-        expandedRowKey: editingId,
-        expandedRowContent: () => (
-          <PageSurface kind="standard"
-            embedded
-            body={createPageBody([createFormSection("phase-edit-fields", {
-              kind: "fields",
-              columns: 2,
-              fields: phaseFields(editDraft, disabled, onEditDraftChange),
-            })])}
-          />
-        ),
-        rowEditActions: canEdit ? (phase): SurfaceDataRowEditActionSpec<ProjectPlanPhaseItem> => ({
-          editing: editingId === phase.id,
-          canEdit,
-          canSave: Boolean(editDraft.name.trim()),
-          initial: phaseDraftFromItem(phase),
-          current: editDraft,
-          disabled,
-          editLabel: "编辑阶段",
-          saveLabel: "保存阶段",
-          cancelLabel: "取消编辑",
-          onEdit: onStartEdit,
-          onSave: () => onSubmitEdit(phase.id),
-          onCancel: onCancelEdit,
-        }) : undefined,
-        rowActions: canEdit ? (phase) => {
-          if (editingId === phase.id) return [];
-          return [{
-            key: "delete",
-            kind: "delete" as const,
-            label: "删除阶段",
-            onClick: () => onDelete(phase.id),
-            disabled,
-          }];
-        } : undefined,
-        scroll: { y: "hidden" },
-      };
+    emptyText: "暂无项目阶段",
+    rowKey: (phase) => phase.id,
+    visibleColumns: ["startDate", "endDate", "note"],
+    expandedRowKey: editingId,
+    expandedRowContent: () => (
+      <PageSurface kind="standard"
+        embedded
+        body={createPageBody([createFormSection("phase-edit-fields", {
+          kind: "fields",
+          content: {
+            items: phaseFields(editDraft, disabled, onEditDraftChange),
+            layout: { columns: 2 },
+          },
+        })])}
+      />
+    ),
+    rowEditActions: canEdit ? (phase): SurfaceDataRowEditActionSpec<ProjectPlanPhaseItem> => ({
+      editing: editingId === phase.id,
+      canEdit,
+      canSave: Boolean(editDraft.name.trim()),
+      initial: phaseDraftFromItem(phase),
+      current: editDraft,
+      disabled,
+      editLabel: "编辑阶段",
+      saveLabel: "保存阶段",
+      cancelLabel: "取消编辑",
+      onEdit: onStartEdit,
+      onSave: () => onSubmitEdit(phase.id),
+      onCancel: onCancelEdit,
+    }) : undefined,
+    rowActions: canEdit ? (phase) => {
+      if (editingId === phase.id) return [];
+      return [{
+        key: "delete",
+        kind: "delete" as const,
+        label: "删除阶段",
+        onClick: () => onDelete(phase.id),
+        disabled,
+      }];
+    } : undefined,
+    scroll: { y: "hidden" },
+  };
 }
 
 function phaseFields(

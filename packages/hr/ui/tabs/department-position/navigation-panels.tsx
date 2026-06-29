@@ -99,28 +99,30 @@ export function buildDirectPositionPanelBlock({
   const canRenderCreate = canCreatePosition && createPositionDraft && departmentById && setCreatePanel && setCreatePositionDraft && onCreatePosition;
   const creatingPositionHere = createPanel === "position" && createPositionDraft?.departmentId === departmentId;
   const sections: PageSurfaceSectionSpec[] = [
-    directPositions.length > 0
-      ? {
-          kind: "navigation",
-          key: "positions",
-          surface: {
-            kind: "selector",
-            grid: {
-                value: selection?.type === "position" ? String(selection.id) : null,
-                options: directPositions.map((position) => ({
-                  value: String(position.id),
-                  label: position.name,
-                  code: shortPositionCode(position.code),
-                })),
-                onChange: (value) => {
-                  const position = directPositions.find((p) => String(p.id) === value);
-                  if (position) onSelect({ type: "position", id: position.id });
-                },
-                columns: 3,
-                ariaLabel: "选择直属岗位",
-              },
-          },
-        }
+	    directPositions.length > 0
+	      ? {
+	          key: "positions",
+	          body: {
+	            kind: "navigation",
+	            navigation: {
+	              kind: "selector",
+	              grid: {
+	                value: selection?.type === "position" ? String(selection.id) : null,
+	                options: directPositions.map((position) => ({
+	                  value: String(position.id),
+	                  label: position.name,
+	                  code: shortPositionCode(position.code),
+	                })),
+	                onChange: (value: string | null) => {
+	                  const position = directPositions.find((p) => String(p.id) === value);
+	                  if (position) onSelect({ type: "position", id: position.id });
+	                },
+	                columns: 3,
+	                ariaLabel: "选择直属岗位",
+	              },
+	            },
+	          },
+	        }
       : createBlockSurfaceSection("empty", {
         kind: "empty",
         presentation: "plain",

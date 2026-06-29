@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createPageBody, PageSurface, createPageDataSection, createPageTabsNavigation } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createRecordSection, createPageTabsNavigation } from "@workspace/core/ui";
 import type { PageSurfaceSectionSpec, PageSurfaceNavigationSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
@@ -48,7 +48,7 @@ function DepreciationPlaceholder({
       navigation={navigation}
       body={createPageBody([
         ...lifecycleBlocks,
-        createPageDataSection("depreciation-placeholder", { kind: "records", records: [], empty: "资产折旧表开发中" }),
+        createRecordSection("depreciation-placeholder", { records: [], empty: "资产折旧表开发中" }),
       ])}
     />
   );

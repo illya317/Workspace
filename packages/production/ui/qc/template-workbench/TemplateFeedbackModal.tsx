@@ -96,7 +96,7 @@ function feedbackColumns(
 
 export default function TemplateFeedbackModal({ target, onClose, onSaved }: Props) {
   const [items, setItems] = useState<QcTemplateFeedbackItem[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [resolvingKey, setResolvingKey] = useState("");
   const [error, setError] = useState("");
   const key = useMemo(() => target ? feedbackKey(target.context) : "", [target]);
@@ -169,9 +169,6 @@ export default function TemplateFeedbackModal({ target, onClose, onSaved }: Prop
               }] : []),
             ]),
             createPageTableSection<FeedbackRow>("template-feedback-table", {
-              framed: true,
-              title: "全部反馈",
-              subtitle: loading ? "读取中" : `${rows.length} 条`,
               rows,
               columns: feedbackColumns(resolvingKey, (row, resolved) => { void setResolved(row, resolved); }),
               visibleColumns: ["user", "content", "resolved"],

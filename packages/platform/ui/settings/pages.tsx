@@ -4,7 +4,6 @@ import { renderAppShellPage } from "../app-shell-page";
 import SettingsClient from "./SettingsClient";
 import SettingsApiClient from "./SettingsApiClient";
 import UiComponentsShowcase from "@workspace/core/showcase/UiComponentsShowcase";
-import { getCoreUiRegistryUsageRows } from "@workspace/platform/server/ui-registry";
 import { type ApiAccessModuleRow } from "./ApiAccessClient";
 import ModuleHomePage from "../ModuleHomePage";
 
@@ -61,15 +60,10 @@ export function SettingsApiPage({
 }
 
 export function SettingsUiPage({ user }: { user: SessionUser }) {
-  const usageRows = getCoreUiRegistryUsageRows().map((row) => ({
-    name: row.name,
-    usageFiles: row.usageFiles,
-  }));
-
   return renderAppShellPage({
     title: "UI 组件库",
     backHref: "/settings",
     user,
-    children: <UiComponentsShowcase usageRows={usageRows} />,
+    children: <UiComponentsShowcase />,
   });
 }

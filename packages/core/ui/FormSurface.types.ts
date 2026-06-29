@@ -6,8 +6,20 @@ import type { TagListInputProps } from "./internal/input/TagListInput";
 import type { CommandButtonProps } from "./internal/common/CommandButton";
 import type { ActionGlyphKind } from "./internal/action/ActionGlyphs";
 
-export type FormSurfaceKind = "fields" | "filters" | "inline" | "detail" | "login";
+export type FormSurfaceKind = "fields" | "filters" | "detail" | "login";
 export type FormSurfaceLooseItem = ReturnType<typeof JSON.parse>;
+export type FormSurfaceLayoutFlow = "grid" | "inline" | "single";
+
+export interface FormSurfaceLayoutSpec {
+  flow?: FormSurfaceLayoutFlow;
+  columns?: 1 | 2 | 3;
+  mode?: FieldGridMode;
+  density?: InputControlProps["density"];
+}
+
+export interface FormSurfaceSubmitSpec {
+  onSubmit: () => void;
+}
 
 export interface FormSurfaceCommandSpec {
   key: string;
@@ -103,9 +115,8 @@ export interface FormSurfaceSectionSpec<T = FormSurfaceLooseItem> {
   key: string;
   title?: ReactNode;
   subtitle?: ReactNode;
-  fields: FormSurfaceItemSpec<T>[];
-  columns?: 1 | 2 | 3;
-  mode?: FieldGridMode;
+  items: FormSurfaceItemSpec<T>[];
+  layout?: FormSurfaceLayoutSpec;
   actions?: FormSurfaceCommandSpec[];
   framed?: boolean;
 }
@@ -115,7 +126,7 @@ export interface FormSurfaceRepeatableItemSpec<T = FormSurfaceLooseItem> {
   itemRef?: Ref<HTMLDivElement>;
   title?: ReactNode;
   subtitle?: ReactNode;
-  fields: FormSurfaceItemSpec<T>[];
+  items: FormSurfaceItemSpec<T>[];
   actions?: FormSurfaceCommandSpec[];
 }
 
@@ -125,8 +136,7 @@ export interface FormSurfaceRepeatableSpec<T = FormSurfaceLooseItem> {
   title?: ReactNode;
   subtitle?: ReactNode;
   items: FormSurfaceRepeatableItemSpec<T>[];
-  columns?: 1 | 2 | 3;
-  mode?: FieldGridMode;
+  layout?: FormSurfaceLayoutSpec;
   addAction?: FormSurfaceCommandSpec;
   empty?: ReactNode;
 }
@@ -140,34 +150,41 @@ export type FormSurfaceItemSpec<T = FormSurfaceLooseItem> =
   | FormSurfaceSectionSpec<T>
   | FormSurfaceRepeatableSpec<T>;
 
-interface FormSurfaceBaseProps<T = FormSurfaceLooseItem> {
-  kind: FormSurfaceKind;
-  fields?: FormSurfaceItemSpec<T>[];
-  field?: FormSurfaceFieldSpec;
-  columns?: 1 | 2 | 3;
-  mode?: FieldGridMode;
-  actions?: FormSurfaceCommandSpec[];
-  onSubmit?: () => void;
+export interface FormSurfaceContentSpec<T = FormSurfaceLooseItem> {
+  items: FormSurfaceItemSpec<T>[];
+  layout?: FormSurfaceLayoutSpec;
 }
 
-export interface FormSurfaceInlineProps<T = FormSurfaceLooseItem> extends FormSurfaceBaseProps<T> {
-  kind: "inline" | "filters";
+export interface FormSurfaceFieldsProps<T = FormSurfaceLooseItem> {
+  kind: "fields";
+  content: FormSurfaceContentSpec<T>;
+  commands?: FormSurfaceCommandSpec[];
+  submit?: FormSurfaceSubmitSpec;
 }
 
-export interface FormSurfaceFieldsProps<T = FormSurfaceLooseItem> extends FormSurfaceBaseProps<T> {
-  kind: "fields" | "detail";
+export interface FormSurfaceFiltersProps<T = FormSurfaceLooseItem> {
+  kind: "filters";
+  content: FormSurfaceContentSpec<T>;
+  commands?: FormSurfaceCommandSpec[];
+  submit?: FormSurfaceSubmitSpec;
 }
 
-export interface FormSurfaceLoginProps<T = FormSurfaceLooseItem> extends FormSurfaceBaseProps<T> {
+export interface FormSurfaceDetailProps<T = FormSurfaceLooseItem> {
+  kind: "detail";
+  content: FormSurfaceContentSpec<T>;
+  commands?: FormSurfaceCommandSpec[];
+  submit?: FormSurfaceSubmitSpec;
+}
+
+export interface FormSurfaceLoginProps<T = FormSurfaceLooseItem> {
   kind: "login";
+  content: FormSurfaceContentSpec<T>;
+  commands?: FormSurfaceCommandSpec[];
+  submit?: FormSurfaceSubmitSpec;
 }
-
-export type FormSurfaceFieldModeProps<T = FormSurfaceLooseItem> =
-  | FormSurfaceInlineProps<T>
-  | FormSurfaceFieldsProps<T>
-  | FormSurfaceLoginProps<T>;
 
 export type FormSurfaceProps<T = FormSurfaceLooseItem> =
-  | FormSurfaceInlineProps<T>
+  | FormSurfaceDetailProps<T>
+  | FormSurfaceFiltersProps<T>
   | FormSurfaceFieldsProps<T>
   | FormSurfaceLoginProps<T>;

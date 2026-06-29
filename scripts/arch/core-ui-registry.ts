@@ -295,27 +295,7 @@ export function validateCoreUiRegistry() {
     }
   }
 
-  // 2. 兼容 exposure 路径必须指向可执行入口；业务准入由 role 决定。
-  for (const registration of byName.values()) {
-    const exposure = registration.exposure;
-    if (registration.role === "surface" && (!registration.declares || registration.declares.length === 0)) {
-      errors.push(`${registration.name} 是 Surface 声明接口，必须声明 declares`);
-    }
-    if (!exposure) {
-      errors.push(`${registration.name} 缺少 exposure`);
-      continue;
-    }
-    if (exposure.mode === "spec") {
-      const entry = byName.get(exposure.entry);
-      if (!entry) {
-        errors.push(`${registration.name}.exposure 指向未注册入口 ${exposure.entry}`);
-      } else if (entry.exposure?.mode !== "runtime") {
-        errors.push(`${registration.name}.exposure 必须指向可执行入口，当前 ${exposure.entry} 是 ${entry.exposure?.mode ?? "unknown"}`);
-      }
-    }
-  }
-
-  // 3. composes 不能成环
+  // 2. composes 不能成环
   function visit(name: string, path: string[], seen: Set<string>) {
     if (seen.has(name)) {
       const cycleStart = path.indexOf(name);

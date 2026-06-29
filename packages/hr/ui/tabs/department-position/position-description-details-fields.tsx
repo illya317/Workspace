@@ -333,8 +333,8 @@ export function buildPositionDescriptionDetailFields({
       kind: "section",
       key: title,
       title,
-      columns: 2,
-      fields: visibleKeys.flatMap((key) => renderPrimitiveFields(key)),
+      layout: { columns: 2 },
+      items: visibleKeys.flatMap((key) => renderPrimitiveFields(key)),
     };
   }
 

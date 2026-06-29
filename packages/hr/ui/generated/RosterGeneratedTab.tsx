@@ -211,9 +211,8 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
         content: "暂无花名册数据"
       })]
       : [{
-          kind: "data",
           key: "table",
-          surface: {
+          body: { kind: "data", data: {
             kind: "structured",
             presentation: { density: "compact",
  grid: "cells", header: "tinted", stripe: "subtle", cellWrap: "nowrap" },
@@ -225,7 +224,7 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
               onRowCellChange: updateRowCell,
             }),
             colWidths: visibleTableColumns.map(() => 112),
-          },
+          } },
         }];
 
   const sections: PageSurfaceSectionSpec[] = [

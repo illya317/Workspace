@@ -50,7 +50,7 @@ Not every function deserves documentation. Document or link the authority for th
 - Registry, router, gate, auth, RBAC, permission resolver, and API access wrappers.
 - Service write entry, domain validator, importer/exporter, background job, and irreversible data mutation pipeline.
 - Schema generation, seed, migration, generated-docs scripts, and data-source loaders.
-- Core UI contract, surface/block spec, module shell, layout host, toolbar/action contract, and preview registry.
+- Core UI contract, surface/block spec, module shell, layout host, toolbar/action contract, and declaration registry.
 - Module state machine, finance classification, production QC, HR roster, approval flow, and other business-rule roots.
 - Any file whose side effects, authorization ceiling, data mutation, generated output, or runtime dependency cannot be understood from its type/name alone.
 

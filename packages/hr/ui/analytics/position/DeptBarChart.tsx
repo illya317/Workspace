@@ -73,23 +73,24 @@ export function createDeptBarChartSection({
           }],
         },
         sections: [{
-          kind: "visualization",
           key: "bars",
-          surface: {
+          body: { kind: "visualization", visualization: {
             kind: "chart",
-            visual: {
-              kind: "comparisonBars",
-              sections,
-              max: Math.max(globalMax, 1),
-              emptyText: "暂无数据",
-              legend: [
-                { key: "balanced", label: "满编/平衡", tone: "emerald" },
-                { key: "under", label: "缺编", tone: "amber" },
-                { key: "over", label: "超编", tone: "rose" },
-                { key: "reference", label: "编制参考线", marker: "reference" },
-              ],
+            chart: {
+              visual: {
+                kind: "comparisonBars",
+                sections,
+                max: Math.max(globalMax, 1),
+                emptyText: "暂无数据",
+                legend: [
+                  { key: "balanced", label: "满编/平衡", tone: "emerald" },
+                  { key: "under", label: "缺编", tone: "amber" },
+                  { key: "over", label: "超编", tone: "rose" },
+                  { key: "reference", label: "编制参考线", marker: "reference" },
+                ],
+              },
             },
-          },
+          } },
         }],
       });
 }

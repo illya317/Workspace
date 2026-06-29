@@ -83,9 +83,9 @@ export default function ContractModal({ mode, editing, onChange, onSave, onClose
           onClose,
           sections: [
             createFieldsSection("contract-form", fields, {
-              onSubmit: onSave,
-              columns: 2,
-              actions: [
+              submit: { onSubmit: onSave },
+              layout: { columns: 2 },
+              commands: [
                 { key: "cancel", label: "取消", onClick: onClose },
                 { key: "save", label: saving ? "保存中..." : "保存", type: "submit", variant: "primary", disabled: saving },
               ],

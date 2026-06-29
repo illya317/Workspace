@@ -1,6 +1,6 @@
 "use client";
 
-import type { PageSurfaceSectionSpec } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec, SelectorSurfaceProps } from "@workspace/core/ui";
 import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 import { DepartmentPositionActiveWorkspace } from "./active-workspace";
 import { useDepartmentPositionDetailBlocks } from "./department-position-detail-area";
@@ -10,7 +10,8 @@ import type { Department } from "./types";
 export function DepartmentPositionMainContent({
   treeOpen,
   treeDrawerOpen,
-  treePanelBlocks,
+  treeSelector,
+  treeDrawerSelector,
   createPanel,
   departments,
   departmentById,
@@ -30,7 +31,8 @@ export function DepartmentPositionMainContent({
 }: {
   treeOpen: boolean;
   treeDrawerOpen: boolean;
-  treePanelBlocks: (mode: "desktop" | "drawer") => PageSurfaceSectionSpec[];
+  treeSelector: SelectorSurfaceProps;
+  treeDrawerSelector: SelectorSurfaceProps;
   createPanel: "department" | "position" | null;
   departments: Department[];
   departmentById: Map<number, Department>;
@@ -79,7 +81,8 @@ export function DepartmentPositionMainContent({
       drawerOpen={treeDrawerOpen}
       onSideOpenChange={onSideOpenChange}
       onDrawerOpenChange={onDrawerOpenChange}
-      sideBlocks={treePanelBlocks}
+      selector={treeSelector}
+      drawerSelector={treeDrawerSelector}
       sections={workspaceBlocks}
       toolbarItems={toolbarItems}
       surface={surface}

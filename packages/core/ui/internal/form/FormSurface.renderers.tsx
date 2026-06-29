@@ -1,21 +1,32 @@
 "use client";
 
 import type { ReactNode } from "react";
-import FieldGrid, { type FieldGridMode } from "../input/FieldGrid";
+import FieldGrid from "../input/FieldGrid";
 import FormField from "./FormField";
-import type { InputControlProps } from "../../InputControl";
 import { renderCommands, renderFieldValue } from "./FormSurface.controls";
-import type { FormSurfaceFieldModeProps, FormSurfaceItemSpec } from "../../FormSurface.types";
+import type {
+  FormSurfaceItemSpec,
+  FormSurfaceKind,
+  FormSurfaceLayoutSpec,
+  FormSurfaceProps,
+} from "../../FormSurface.types";
 
-function getFields<T>(props: FormSurfaceFieldModeProps<T>): FormSurfaceItemSpec<T>[] {
-  return props.field ? [props.field, ...(props.fields ?? [])] : props.fields ?? [];
+type ResolvedFormLayout = Required<FormSurfaceLayoutSpec>;
+
+function defaultLayout(kind: FormSurfaceKind): ResolvedFormLayout {
+  if (kind === "filters") return { flow: "inline", columns: 3, mode: "mixed", density: "compact" };
+  if (kind === "detail") return { flow: "grid", columns: 3, mode: "detail", density: "compact" };
+  if (kind === "login") return { flow: "single", columns: 1, mode: "mixed", density: "normal" };
+  return { flow: "grid", columns: 3, mode: "mixed", density: "normal" };
+}
+
+function resolveLayout(kind: FormSurfaceKind, layout?: FormSurfaceLayoutSpec): ResolvedFormLayout {
+  return { ...defaultLayout(kind), ...layout };
 }
 
 function renderGridItem<T>(
   field: FormSurfaceItemSpec<T>,
-  mode: FieldGridMode,
-  density: InputControlProps["density"],
-  columns: 1 | 2 | 3,
+  layout: ResolvedFormLayout,
 ): ReactNode {
   if (field.kind === "note") {
     return <FieldGrid.Note key={field.key}>{field.content}</FieldGrid.Note>;
@@ -24,6 +35,7 @@ function renderGridItem<T>(
     return <FieldGrid.GroupTitle key={field.key} className="col-span-full">{field.title}</FieldGrid.GroupTitle>;
   }
   if (field.kind === "section") {
+    const sectionLayout = resolveLayout("fields", { ...layout, ...field.layout });
     return (
       <section key={field.key} className={field.framed === false ? "col-span-full space-y-3" : "col-span-full space-y-4 rounded-md border border-slate-200 bg-white p-4 shadow-sm"}>
         {(field.title || field.subtitle || field.actions?.length) && (
@@ -35,13 +47,13 @@ function renderGridItem<T>(
             {renderCommands(field.actions)}
           </div>
         )}
-        <FieldGrid columns={field.columns ?? columns} mode={field.mode ?? mode}>
-          {field.fields.map((item) => renderGridItem(item, field.mode ?? mode, density, field.columns ?? columns))}
+        <FieldGrid columns={sectionLayout.columns} mode={sectionLayout.mode}>
+          {field.items.map((item) => renderGridItem(item, sectionLayout))}
         </FieldGrid>
       </section>
     );
   }
-  if (field.kind === "repeatable") return renderRepeatableGridItem(field, mode, density, columns);
+  if (field.kind === "repeatable") return renderRepeatableGridItem(field, layout);
   return (
     <FieldGrid.Cell
       key={field.key}
@@ -49,9 +61,9 @@ function renderGridItem<T>(
       required={field.required}
       hint={field.hint ?? field.error}
       span={field.span}
-      mode={mode}
+      mode={layout.mode}
     >
-      {renderFieldValue(field, density)}
+      {renderFieldValue(field, layout.density)}
     </FieldGrid.Cell>
   );
 }
@@ -63,7 +75,7 @@ function renderLoginItem<T>(field: FormSurfaceItemSpec<T>): ReactNode {
   if (field.kind === "groupTitle") {
     return <FieldGrid.GroupTitle key={field.key} className="col-span-full">{field.title}</FieldGrid.GroupTitle>;
   }
-  if (field.kind === "section" || field.kind === "repeatable") return renderGridItem(field, "mixed", "normal", 1);
+  if (field.kind === "section" || field.kind === "repeatable") return renderGridItem(field, defaultLayout("login"));
   return (
     <div key={field.key} className="col-span-full min-w-0">
       <div className="min-w-0 [&>*]:w-full [&_input]:w-full [&_textarea]:w-full">
@@ -78,10 +90,9 @@ function renderLoginItem<T>(field: FormSurfaceItemSpec<T>): ReactNode {
 
 function renderRepeatableGridItem<T>(
   field: Extract<FormSurfaceItemSpec<T>, { kind: "repeatable" }>,
-  mode: FieldGridMode,
-  density: InputControlProps["density"],
-  columns: 1 | 2 | 3,
+  layout: ResolvedFormLayout,
 ) {
+  const repeatableLayout = resolveLayout("fields", { ...layout, ...field.layout });
   return (
     <div key={field.key} className="col-span-full space-y-3">
       {(field.title || field.subtitle || field.addAction) && (
@@ -108,8 +119,8 @@ function renderRepeatableGridItem<T>(
                   {renderCommands(item.actions)}
                 </div>
               )}
-              <FieldGrid columns={field.columns ?? columns} mode={field.mode ?? mode}>
-                {item.fields.map((nested) => renderGridItem(nested, field.mode ?? mode, density, field.columns ?? columns))}
+              <FieldGrid columns={repeatableLayout.columns} mode={repeatableLayout.mode}>
+                {item.items.map((nested) => renderGridItem(nested, repeatableLayout))}
               </FieldGrid>
             </div>
           ))}
@@ -119,12 +130,11 @@ function renderRepeatableGridItem<T>(
   );
 }
 
-function renderInlineItem<T>(field: FormSurfaceItemSpec<T>) {
+function renderInlineItem<T>(field: FormSurfaceItemSpec<T>, layout: ResolvedFormLayout) {
   if (field.kind === "note") return <div key={field.key} className="text-sm text-slate-500">{field.content}</div>;
   if (field.kind === "groupTitle") return <div key={field.key} className="text-sm font-semibold text-slate-900">{field.title}</div>;
   if (field.kind === "section" || field.kind === "repeatable") {
-    const mode = field.mode ?? "mixed";
-    const columns = field.columns ?? 3;
+    const nestedLayout = resolveLayout("filters", { ...layout, ...field.layout });
     const headerActions = field.kind === "section"
       ? renderCommands(field.actions)
       : field.addAction ? renderCommands([field.addAction]) : null;
@@ -140,21 +150,24 @@ function renderInlineItem<T>(field: FormSurfaceItemSpec<T>) {
           </div>
         )}
         {field.kind === "section" ? (
-          <FieldGrid columns={columns} mode={mode}>
-            {field.fields.map((item) => renderGridItem(item, mode, "compact", columns))}
+          <FieldGrid columns={nestedLayout.columns} mode={nestedLayout.mode}>
+            {field.items.map((item) => renderGridItem(item, nestedLayout))}
           </FieldGrid>
-        ) : renderInlineRepeatable(field, mode, columns)}
+        ) : renderInlineRepeatable(field, nestedLayout)}
       </div>
     );
   }
   return (
     <FormField key={field.key} label={field.label} required={field.required} hint={field.hint} error={field.error} layout="inline">
-      {renderFieldValue(field, "compact")}
+      {renderFieldValue(field, layout.density)}
     </FormField>
   );
 }
 
-function renderInlineRepeatable<T>(field: Extract<FormSurfaceItemSpec<T>, { kind: "repeatable" }>, mode: FieldGridMode, columns: 1 | 2 | 3) {
+function renderInlineRepeatable<T>(
+  field: Extract<FormSurfaceItemSpec<T>, { kind: "repeatable" }>,
+  layout: ResolvedFormLayout,
+) {
   if (field.items.length === 0) {
     return <div className="rounded-md border border-dashed border-slate-200 px-3 py-3 text-center text-sm text-slate-400">{field.empty ?? "暂无数据"}</div>;
   }
@@ -171,40 +184,39 @@ function renderInlineRepeatable<T>(field: Extract<FormSurfaceItemSpec<T>, { kind
               {renderCommands(item.actions)}
             </div>
           )}
-          <FieldGrid columns={columns} mode={mode}>{item.fields.map((nested) => renderGridItem(nested, mode, "compact", columns))}</FieldGrid>
+          <FieldGrid columns={layout.columns} mode={layout.mode}>{item.items.map((nested) => renderGridItem(nested, layout))}</FieldGrid>
         </div>
       ))}
     </div>
   );
 }
 
-function renderFields<T>(props: FormSurfaceFieldModeProps<T>) {
-  const fields = getFields(props);
-  if (!fields.length) return null;
-  if (props.kind === "inline" || props.kind === "filters") {
-    return <div className="flex flex-wrap items-center gap-3">{fields.map(renderInlineItem)}</div>;
+function renderItems<T>(props: FormSurfaceProps<T>) {
+  const items = props.content.items;
+  if (!items.length) return null;
+  const layout = resolveLayout(props.kind, props.content.layout);
+  if (layout.flow === "inline") {
+    return <div className="flex flex-wrap items-center gap-3">{items.map((item) => renderInlineItem(item, layout))}</div>;
   }
   if (props.kind === "login") {
     return (
       <FieldGrid columns={1} mode="mixed" className="w-full gap-4">
-        {fields.map(renderLoginItem)}
+        {items.map(renderLoginItem)}
       </FieldGrid>
     );
   }
-  const mode = props.mode ?? (props.kind === "detail" ? "detail" : "mixed");
-  const density = props.kind === "detail" ? "compact" : "normal";
   return (
-    <FieldGrid columns={props.columns} mode={mode}>
-      {fields.map((field) => renderGridItem(field, mode, density, props.columns ?? 3))}
+    <FieldGrid columns={layout.columns} mode={layout.mode}>
+      {items.map((field) => renderGridItem(field, layout))}
     </FieldGrid>
   );
 }
 
-export function renderContent<T>(props: FormSurfaceFieldModeProps<T>) {
+export function renderContent<T>(props: FormSurfaceProps<T>) {
   return (
     <div className="space-y-4">
-      {renderFields(props)}
-      {renderCommands(props.actions)}
+      {renderItems(props)}
+      {renderCommands(props.commands)}
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useEffect } from "react";
-import { PageSurface, createPageBody, createPageDataSection, createPageTabsNavigation } from "@workspace/core/ui";
+import { PageSurface, createPageBody, createRecordSection, createMetricsSection, createPageTabsNavigation } from "@workspace/core/ui";
 import type { PageSurfaceSectionSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
@@ -29,8 +29,7 @@ export default function FinanceAnalysisClient({ user: _user }: Props) {
   const lifecycleBlocks = getFinanceLifecycleBlocks("analysis");
   const analysisBlocks: PageSurfaceSectionSpec[] = [
     ...lifecycleBlocks,
-    createPageDataSection("analysis-metrics", {
-      kind: "metrics",
+    createMetricsSection("analysis-metrics", {
       metrics: [
         { key: "revenue", label: "营业收入", value: "-" },
         { key: "gross-margin", label: "毛利率", value: "-" },
@@ -38,25 +37,18 @@ export default function FinanceAnalysisClient({ user: _user }: Props) {
       ],
     }),
     budget?.hasBudget
-      ? createPageDataSection("budget-overview", {
-          kind: "metrics",
-          framed: true,
-          title: "预算概览",
+      ? createMetricsSection("budget-overview", {
           metrics: [
             { key: "version", label: "生效版本", value: budget.version?.name ?? "—" },
             { key: "dept-total", label: "部门预算总额", value: (budget.deptTotal ?? 0).toLocaleString("zh-CN", { maximumFractionDigits: 2 }) },
             { key: "rd-total", label: "研发预算总额", value: (budget.rdTotal ?? 0).toLocaleString("zh-CN", { maximumFractionDigits: 2 }) },
           ],
         })
-      : createPageDataSection("budget-overview", {
-          kind: "records",
-          framed: true,
-          title: "预算概览",
+      : createRecordSection("budget-overview", {
           records: [],
           empty: "暂无生效预算版本",
         }),
-    createPageDataSection("analysis-placeholder", {
-      kind: "records",
+    createRecordSection("analysis-placeholder", {
       records: [],
       empty: "财务分析看板开发中",
     }),

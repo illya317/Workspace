@@ -7,7 +7,6 @@ import type { QcTemplateDetail, QcTemplateFeedbackState, QcTemplateStage, QcTemp
 import {
   feedbackContext,
   feedbackKey,
-  numerals,
   type FeedbackTarget,
   type PreviewKind,
   type WorkbenchSelection,
@@ -57,45 +56,6 @@ function feedbackLabel(state: QcTemplateFeedbackState | undefined, label: ReactN
   );
 }
 
-function stageFeedbackSummary(
-  templateDetail: QcTemplateDetail,
-  stageDetail: QcTemplateStage,
-  stageIndexValue: number,
-  feedbackStates: Record<string, QcTemplateFeedbackState>,
-) {
-  const selection = (previewKind: PreviewKind, testItem?: QcTemplateTestItem): WorkbenchSelection => ({
-    template: templateDetail,
-    stage: stageDetail,
-    stageIndex: stageIndexValue,
-    kind: previewKind,
-    test: testItem,
-  });
-  const states = [
-    feedbackStates[feedbackKey(feedbackContext(selection("precheck")))],
-    feedbackStates[feedbackKey(feedbackContext(selection("experiment")))],
-    ...stageDetail.tests.map((test) => feedbackStates[feedbackKey(feedbackContext(selection("test", test)))]),
-  ].filter(Boolean);
-  const open = states.filter((state) => state === "open").length;
-  const resolved = states.filter((state) => state === "resolved").length;
-  if (open > 0) return { state: "open" as const, label: `${open} 项待处理` };
-  if (resolved > 0) return { state: "resolved" as const, label: `${resolved} 项已解决` };
-  return null;
-}
-
-function StageFeedbackBadge({ summary }: { summary: ReturnType<typeof stageFeedbackSummary> }) {
-  if (!summary) return null;
-  const className = summary.state === "open"
-    ? "border-red-300 bg-red-50 text-red-700"
-    : "border-emerald-300 bg-emerald-50 text-emerald-800";
-  const dotClass = summary.state === "open" ? "bg-red-600" : "bg-emerald-700";
-  return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${className}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${dotClass}`} />
-      {summary.label}
-    </span>
-  );
-}
-
 export default function StageRows({
   template,
   stage,
@@ -110,8 +70,6 @@ export default function StageRows({
 }: StageRowsProps) {
   const tests = keyword ? stage.tests.filter((test) => testMatches(test, keyword)) : stage.tests;
   if (keyword && tests.length === 0 && !matchText(stage.label, keyword)) return null;
-  const summary = stageFeedbackSummary(template, stage, index, feedbackStates);
-
   function select(previewKind: PreviewKind, testItem?: QcTemplateTestItem): WorkbenchSelection {
     return {
       template,
@@ -174,13 +132,6 @@ export default function StageRows({
       embedded
       body={createPageBody([
         createPageTableSection<TemplateDisplayRow>("qc-template-stage-rows", {
-          framed: true,
-          title: (
-            <span className="flex min-w-0 items-center gap-3">
-              <span className="truncate">{numerals[index] ?? index + 1}、{template.productName}{stage.label}</span>
-              <StageFeedbackBadge summary={summary} />
-            </span>
-          ),
           actions: [{
             key: "toggle",
             label: `${expanded ? "收起" : "展开"} · ${stage.tests.length} 个实验项目`,

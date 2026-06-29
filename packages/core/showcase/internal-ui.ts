@@ -50,4 +50,4 @@ export { default as TimeField } from "../ui/internal/input/TimeField";
 export { default as Toast } from "../ui/internal/common/Toast";
 export { Toolbar } from "../ui/Toolbar";
 export { default as ToolbarOptionGroup } from "../ui/internal/toolbar/ToolbarOptionGroup";
-export { default as NavigationSurface } from "../ui/NavigationSurface";
+export { default as NavigationRenderer } from "../ui/NavigationRenderer";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createPageBody, type DataSurfaceColumnSpec, PageSurface, type PageSurfaceSectionSpec, type SurfaceDataRowEditActionSpec } from "@workspace/core/ui";
+import { createPageBody, createRecordSection, type DataSurfaceColumnSpec, PageSurface, type PageSurfaceSectionSpec, type SurfaceDataRowEditActionSpec } from "@workspace/core/ui";
 import { createWorkDraft, getStatusLabel, getWorkItemTypeLabel } from "./model";
 import { WorkTaskDetail } from "./WorkTaskDetail";
 import { WorkTaskForm } from "./WorkTaskFields";
@@ -30,7 +30,7 @@ type WorkTaskTableProps = {
   onDelete: (work: WorkItem) => void;
 };
 
-type WorkTaskTableBlock = Extract<PageSurfaceSectionSpec, { kind: "data" }>;
+type WorkTaskTableBlock = PageSurfaceSectionSpec;
 
 export function useWorkTaskTableBlock({
   works,
@@ -78,17 +78,12 @@ export function useWorkTaskTableBlock({
   });
 
   if (!loading && tree.rows.length === 0) {
-    return {
-      kind: "data",
-      key: "task-table",
-      surface: { kind: "records", records: [], empty: "暂无节点。可以从上方新增目标、关键结果或子任务。" },
-    };
+    return createRecordSection("task-table", { records: [], empty: "暂无节点。可以从上方新增目标、关键结果或子任务。" });
   }
 
   return {
-    kind: "data",
     key: "task-table",
-    surface: {
+    body: { kind: "data", data: {
       kind: "table",
       rows: tree.rows,
       columns,
@@ -137,7 +132,7 @@ export function useWorkTaskTableBlock({
         ];
       },
       scroll: { y: "hidden" },
-    },
+    } },
   };
 }
 

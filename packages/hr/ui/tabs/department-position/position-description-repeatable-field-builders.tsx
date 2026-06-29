@@ -80,7 +80,7 @@ export function buildDutyField(
       onClick: () => updateDetailValue(detailKey, [...records, { title: "", items: [] }]),
     },
     empty: "未设置",
-    columns: 1,
+    layout: { columns: 1 },
     items: records.map((record, index) => {
       const items = Array.isArray(record.items) ? record.items.map((item) => String(item)) : [];
       return {
@@ -97,7 +97,7 @@ export function buildDutyField(
           },
 
         }],
-        fields: [
+        items: [
           {
             key: "title",
             label: "职责标题",
@@ -153,7 +153,7 @@ export function buildChangeHistoryField(
       },
     },
     empty: "未设置",
-    columns: 2,
+    layout: { columns: 2 },
     items: records.map((record, index) => {
       const rawDate = String(record.effectiveDate || "");
       const approver = String(record.approver || "");
@@ -171,7 +171,7 @@ export function buildChangeHistoryField(
           },
 
         }],
-        fields: [
+        items: [
           { key: "version", label: "版本", spec: { valueType: "string", control: "text", state: "readonly" as const }, value: String(record.version || formatHistoryVersion(index)) },
           { key: "documentName", label: "文件名", spec: { valueType: "string", control: "text", state: disabled ? "disabled" as const : "normal" as const }, value: String(record.documentName || ""), onChange: next => updateRecord(index, { documentName: String(next ?? "") }) },
           { key: "effectiveDate", label: "生效日期", error: rawDate && !normalizeDateValue(rawDate) ? "日期格式错误，请重新选择。" : undefined, spec: { valueType: "date", control: "temporal", precision: "date", state: disabled ? "disabled" as const : "normal" as const }, value: rawDate, onChange: next => updateRecord(index, { effectiveDate: next || "" }) },
@@ -212,7 +212,7 @@ export function buildWorkEnvironmentFields(
       key,
       title: label,
       empty: "未设置",
-      columns: 2,
+      layout: { columns: 2 },
       items: items.map((item, index) => {
         const areaOptions = [item.area, ...availableAreas].filter((area, areaIndex, array) => array.indexOf(area) === areaIndex);
         const availableFactors = ENVIRONMENT_FACTOR_OPTIONS.filter((factor) => !item.factors.includes(factor));
@@ -229,7 +229,7 @@ export function buildWorkEnvironmentFields(
             },
 
           }],
-          fields: [
+          items: [
             {
               key: "area",
               label: "工作区域",
@@ -299,7 +299,7 @@ export function buildExperienceRequirementField(
     title: label,
     addAction: disabled ? undefined : { key: "add-experience", label: "新增", size: "sm", onClick: () => updateDetailValue(key, [...items, { years: "1", requirement: "" }]),  },
     empty: "未设置",
-    columns: 2,
+    layout: { columns: 2 },
     items: items.map((item, index) => ({
       key: `experience-${index}`,
       actions: disabled ? undefined : [{
@@ -313,7 +313,7 @@ export function buildExperienceRequirementField(
         },
 
       }],
-      fields: [
+      items: [
         { key: "years", label: "年限（年以上）", spec: { valueType: "number", control: "text", state: disabled ? "disabled" as const : "normal" as const }, value: item.years, inputMode: "numeric" as const, placeholder: "1", onChange: next => updateItem(index, { years: positiveIntegerText(String(next ?? "")) }) },
         { key: "requirement", label: "要求内容", spec: { valueType: "string", control: "text", state: disabled ? "disabled" as const : "normal" as const }, value: item.requirement, placeholder: "经验要求", onChange: next => updateItem(index, { requirement: String(next ?? "") }) },
       ],

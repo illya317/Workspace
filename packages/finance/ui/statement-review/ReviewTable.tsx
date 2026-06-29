@@ -186,7 +186,6 @@ export default function ReviewTable({
     embedded
     body={createPageBody([
       createPageTableSection("review-lines", {
-        framed: true,
 
 
         rows: rv.lines,

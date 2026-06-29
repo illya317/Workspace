@@ -93,7 +93,7 @@ export default function InlineFeedbackEditor({
             }] : []),
           ], {
 
-            actions: [
+            commands: [
               {
                 key: "cancel",
                 label: "取消",

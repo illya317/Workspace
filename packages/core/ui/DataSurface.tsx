@@ -1,6 +1,5 @@
 "use client";
 
-import { PanelCard } from "./internal/common/Card";
 import { renderCommands, renderData } from "./internal/data/DataSurface.renderers";
 import type { DataSurfaceLooseRow, DataSurfaceProps } from "./DataSurface.types";
 
@@ -19,14 +18,11 @@ export type {
   DataSurfaceFrame,
   DataSurfaceKind,
   DataSurfaceLooseRow,
-  DataSurfaceMetricSpec,
   DataSurfaceRowState,
   DataSurfaceScrollSpec,
-  DataSurfaceRecordActionSpec,
   DataSurfaceActionsColumnSpec,
   DataSurfacePresentationSpec,
   DataSurfaceProps,
-  DataSurfaceRecordSpec,
   DataSurfaceRowActionSpec,
   DataSurfaceRowEditActionSpec,
   DataSurfaceStructuredCellSpec,
@@ -47,18 +43,5 @@ export default function DataSurface<T = DataSurfaceLooseRow>(props: DataSurfaceP
     </div>
   );
 
-  if (!props.framed) return content;
-
-  return (
-    <PanelCard
-      title={props.title}
-      subtitle={props.subtitle}
-      actions={renderCommands(props.actions)}
-      bodyClassName="p-4"
-    >
-      <div className="space-y-4">
-        {renderData(props)}
-      </div>
-    </PanelCard>
-  );
+  return content;
 }

@@ -194,10 +194,6 @@ function VoucherPreview({
       embedded
       body={createPageBody([
         createPageDataSection("voucher-preview", {
-          framed: true,
-          title: voucher.voucherNo,
-          subtitle: `${voucher.date}｜借 ${voucher.totalDebit.toFixed(2)} / 贷 ${voucher.totalCredit.toFixed(2)}`,
-
           kind: "table",
           rows,
           columns: voucherColumns,

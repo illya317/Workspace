@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createMessageSection, createPanelSection, createPageDataSection } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createMessageSection, createPanelSection, createRecordSection, createMetricsSection } from "@workspace/core/ui";
 import type { PageSurfaceSectionSpec } from "@workspace/core/ui";
 import { formatCompactNullableAmount } from "../../formatters";
 import { useCostSummary } from "../hooks/useFinanceCostData";
@@ -47,11 +47,10 @@ export default function CostSummary({ filters }: Props) {
     n == null ? "—" : `${(n * 100).toFixed(1)}%`;
 
   const sections: PageSurfaceSectionSpec[] = [
-    ...(loading ? [createPageDataSection("loading", { kind: "records", records: [], empty: "加载中..." })] : []),
-    ...(error ? [createPageDataSection("error", { kind: "records", records: [], empty: error })] : []),
+    ...(loading ? [createRecordSection("loading", { records: [], empty: "加载中..." })] : []),
+    ...(error ? [createRecordSection("error", { records: [], empty: error })] : []),
     ...(summary ? [
-      createPageDataSection("summary-metrics", {
-        kind: "metrics",
+      createMetricsSection("summary-metrics", {
         metrics: [
           { key: "shipment", label: "发货金额", value: formatCompactNullableAmount(summary.shipments?.totalAmount) },
           { key: "received", label: "已回款", value: formatCompactNullableAmount(summary.shipments?.totalReceived) },

@@ -50,8 +50,6 @@ export function buildProjectRasciMatrixSurface(rows: ProjectRasciRow[]): DataSur
 
   return {
     kind: "table",
-    framed: true,
-    title: "RASCI 矩阵",
     rows,
     columns,
     rowKey: (row) => `${row.kind}:${row.id}`,

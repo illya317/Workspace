@@ -67,7 +67,6 @@ export default function RdBudgetTable({ items, monthTotals, total }: RdBudgetTab
       embedded
       body={createPageBody([
         createPageTableSection("rd-budget", {
-          framed: true,
 
 
           rows,

@@ -164,7 +164,7 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
                 rows: 2,
               },
             ], {
-              actions: [
+              commands: [
                 { key: "cancel", label: "取消", onClick: handleClose },
                 { key: "submit", label: saving ? "提交中..." : "确认调整", variant: "primary", disabled: saving, onClick: handleSubmit },
               ],

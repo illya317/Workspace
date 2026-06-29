@@ -84,7 +84,6 @@ const CORE_UI_ALLOWED_RUNTIME_IMPORTS = new Set([
   "PageSurface",
   "useFeedback",
 ]);
-const CORE_UI_ALLOWED_HOST_IMPORTS = new Set<string>();
 const FORBIDDEN_CORE_UI_TYPE_IMPORTS = new Set([
   "DataTableColumn",
   "FkFieldOption",
@@ -134,10 +133,7 @@ function isAllowedCoreUiBusinessImport(importedName: string) {
   if (CORE_UI_NON_COMPONENT_EXPORTS.has(importedName)) return true;
   if (CORE_UI_ALLOWED_RUNTIME_IMPORTS.has(importedName)) return true;
   const component = coreUiRegistrationByName.get(importedName);
-  if (!component) return false;
-  if (component.role === "helper" || component.role === "service") return true;
-  if (component.role === "host" && CORE_UI_ALLOWED_HOST_IMPORTS.has(component.name)) return true;
-  return false;
+  return Boolean(component && CORE_UI_ALLOWED_RUNTIME_IMPORTS.has(component.name));
 }
 
 function describeCoreUiBusinessImportViolation(importedName: string) {
@@ -145,18 +141,12 @@ function describeCoreUiBusinessImportViolation(importedName: string) {
   if (!component) {
     return {
       role: "unregistered",
-      reason: "not registered as a Core UI surface/helper/service",
-    };
-  }
-  if (component.role === "host") {
-    return {
-      role: component.role,
-      reason: "host import requires explicit allowlist",
+      reason: "not registered as a Core UI public entry",
     };
   }
   return {
-    role: component.role ?? "unknown",
-    reason: "business value import must use a Core UI helper/service or explicit runtime allowlist; secondary Surfaces are spec/type-only",
+    role: (component.declares?.length ?? 0) > 0 ? "secondary-declaration" : "registered-implementation",
+    reason: "business value import must use an explicit Core UI runtime entry or helper; secondary declarations are expressed through specs",
   };
 }
 
@@ -174,7 +164,7 @@ function collectCoreUiRoleBypassExports(file: SourceInfo) {
         importedName: deepImportName,
         specifier,
         role: "deep-import",
-        reason: "business/platform UI must import Core UI through @workspace/core/ui public surface/helper/service declarations",
+        reason: "business/platform UI must import Core UI through @workspace/core/ui public declarations",
       });
       continue;
     }
@@ -187,7 +177,7 @@ function collectCoreUiRoleBypassExports(file: SourceInfo) {
         importedName: "*",
         specifier,
         role: "namespace/default",
-        reason: "export * cannot be checked against Core UI role",
+        reason: "export * cannot be checked against Core UI public declarations",
       });
       continue;
     }
@@ -226,7 +216,7 @@ function collectCoreUiRoleBypassTypeImports(file: SourceInfo, publicTypeExports:
         importedName,
         specifier: "@workspace/core/ui",
         role: "type",
-        reason: "type import must be an explicit public Core UI surface/helper/service contract export",
+        reason: "type import must be an explicit public Core UI contract export",
       });
     }
   }
@@ -357,7 +347,7 @@ export function findBusinessCoreUiRoleBypassImports(files: SourceInfo[]) {
           importedName: deepImportName,
           specifier,
           role: "deep-import",
-          reason: "business UI must import Core UI through @workspace/core/ui public surface/helper/service declarations",
+          reason: "business UI must import Core UI through @workspace/core/ui public declarations",
         });
         continue;
       }
@@ -371,7 +361,7 @@ export function findBusinessCoreUiRoleBypassImports(files: SourceInfo[]) {
           importedName: importClause.name.text,
           specifier,
           role: "namespace/default",
-          reason: "namespace/default import cannot be checked against Core UI role",
+          reason: "namespace/default import cannot be checked against Core UI public declarations",
         });
       }
 
@@ -384,7 +374,7 @@ export function findBusinessCoreUiRoleBypassImports(files: SourceInfo[]) {
           importedName: namedBindings.name.text,
           specifier,
           role: "namespace/default",
-          reason: "namespace/default import cannot be checked against Core UI role",
+          reason: "namespace/default import cannot be checked against Core UI public declarations",
         });
         continue;
       }
@@ -464,7 +454,7 @@ export function findPlatformCoreUiRoleBypassImports(files: SourceInfo[]) {
           importedName: deepImportName,
           specifier,
           role: "deep-import",
-          reason: "platform UI runtime must import Core UI through @workspace/core/ui public surface/helper/service declarations",
+          reason: "platform UI runtime must import Core UI through @workspace/core/ui public declarations",
         });
         continue;
       }
@@ -478,7 +468,7 @@ export function findPlatformCoreUiRoleBypassImports(files: SourceInfo[]) {
           importedName: importClause.name.text,
           specifier,
           role: "namespace/default",
-          reason: "namespace/default import cannot be checked against Core UI role",
+          reason: "namespace/default import cannot be checked against Core UI public declarations",
         });
       }
 
@@ -491,7 +481,7 @@ export function findPlatformCoreUiRoleBypassImports(files: SourceInfo[]) {
           importedName: namedBindings.name.text,
           specifier,
           role: "namespace/default",
-          reason: "namespace/default import cannot be checked against Core UI role",
+          reason: "namespace/default import cannot be checked against Core UI public declarations",
         });
         continue;
       }

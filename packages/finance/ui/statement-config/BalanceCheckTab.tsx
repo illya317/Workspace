@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { createPageBody, PageSurface, createMessageSection, createActionsSection, createPageDataSection } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createMessageSection, createActionsSection, createMetricsSection } from "@workspace/core/ui";
 import type { PageSurfaceSectionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import BalanceCheckTable, { flattenBalanceAccountTree, formatBalanceAmount, type BalanceCheckAccountNode } from "../components/BalanceCheckTable";
 import FinanceFilters from "../components/FinanceFilters";
@@ -129,10 +129,7 @@ export default function BalanceCheckTab() {
       createActionsSection("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: load }], {  }),
     ] : []),
     ...(!loading && !error && tree && flatNodes.length > 0 && summary ? [
-      createPageDataSection("balance-summary", {
-        kind: "metrics",
-        framed: true,
-        title: "余额校验汇总",
+      createMetricsSection("balance-summary", {
         metrics: [
           { key: "leaf-debit", label: "叶子借", value: formatBalanceAmount(summary.leafDebit) },
           { key: "leaf-credit", label: "叶子贷", value: formatBalanceAmount(summary.leafCredit) },

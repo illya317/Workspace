@@ -166,26 +166,23 @@ export default function ReportTab() {
 
                 sections: [
                   {
-                    kind: "data",
                     key: "assets",
-                    surface: {
+                    body: { kind: "data", data: {
                       ...createReportLinesSurface({ items: data.assets || [], labelHeader: "资 产", amountHeader: "年末余额", ...lineProps }),
                       frame: "bordered",
-                    },
+                    } },
                   },
                   createSectionsSection("liability-equity", {
                     layout: "stack",
 
                     sections: [
                       {
-                        kind: "data",
                         key: "liabilities",
-                        surface: createReportLinesSurface({ items: data.liabilities || [], labelHeader: "负债", amountHeader: "年末余额", ...lineProps }),
+                        body: { kind: "data", data: createReportLinesSurface({ items: data.liabilities || [], labelHeader: "负债", amountHeader: "年末余额", ...lineProps }) },
                       },
                       {
-                        kind: "data",
                         key: "equity",
-                        surface: createReportLinesSurface({ items: data.equity || [], labelHeader: "所有者权益", amountHeader: "年末余额", ...lineProps }),
+                        body: { kind: "data", data: createReportLinesSurface({ items: data.equity || [], labelHeader: "所有者权益", amountHeader: "年末余额", ...lineProps }) },
                       },
                     ],
                   }),
@@ -210,9 +207,8 @@ export default function ReportTab() {
                 return block ? [block] : [];
               })(),
               {
-                kind: "data",
                 key: "income-lines",
-                surface: createReportLinesSurface({ items: data.lines || [], labelHeader: "项 目", amountHeader: "本年金额", ...lineProps }),
+                body: { kind: "data", data: createReportLinesSurface({ items: data.lines || [], labelHeader: "项 目", amountHeader: "本年金额", ...lineProps }) },
               },
             ],
           })] : []),
@@ -225,9 +221,8 @@ export default function ReportTab() {
                 return block ? [block] : [];
               })(),
               {
-                kind: "data",
                 key: "cashflow-lines",
-                surface: createReportLinesSurface({ items: data.lines || [], labelHeader: "项 目", amountHeader: "金额", ...lineProps }),
+                body: { kind: "data", data: createReportLinesSurface({ items: data.lines || [], labelHeader: "项 目", amountHeader: "金额", ...lineProps }) },
               },
             ],
           })] : []),

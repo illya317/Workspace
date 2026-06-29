@@ -5,7 +5,7 @@ import {
   createPageBody,
   InputControl,
   PageSurface,
-  createPageDataSection,
+  createMetricsSection,
   createInlineFieldsSection,
 } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
@@ -47,9 +47,7 @@ export function DetailStatsRow({ items }: { items: Array<{ label: string; value:
   return (
     <PageSurface kind="standard"
       embedded
-      body={createPageBody([createPageDataSection("detail-stats", {
-        kind: "metrics",
-        framed: true,
+      body={createPageBody([createMetricsSection("detail-stats", {
 
 
         metrics: items.map((item) => ({ key: item.label, label: item.label, value: item.value })),

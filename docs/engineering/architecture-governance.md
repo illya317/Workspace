@@ -232,16 +232,16 @@ app/* route shell
 
 Core UI registry 治理：
 
-- Core UI registry 保留三组核心口径：`category/subcategory` 是一级/二级分类，`role` 是 `surface/host/internal/service/helper` 分层，`declares` / `composes` 是声明项和内部使用关系。`exposure` 只保留为过渡期技术路径，不作为主分层。
-- 业务和普通 agent 默认只能使用 `role=surface` 声明接口、`role=helper` 声明助手和允许的 `role=service` 服务接口。`role=host` 当前为空备用，新增必须白名单；`role=internal` 只作为 Core 内部实现。组件库主展示按 `category/subcategory` 分类，并可按 `role` 筛选；基础/私有实现只作为关系数据出现，不作为业务可调用入口。
-- Platform runtime 使用 Core UI 时只能走 `surface/helper/service` 分层入口、根级 `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent 页面 UI 已停用，仅保留 API / bot 接入能力。
-- 改 `packages/core/ui/**`、Core UI registry 或 `/settings/ui` preview 必须是 UI-system/Architecture 任务，并通过 `CORE_UI_CHANGE=1` 或明确 change request 授权。
+- Core UI registry 保留三组核心口径：`declares` 是 agent 可声明能力，`contract` 是生成契约详情，`composes` 是内部组合关系。旧 `category/subcategory`、`role`、`exposure`、`verified` 不再作为 registry 字段。
+- 业务和普通 agent 默认只能使用公共 runtime 入口、helper 或 Surface spec；正文二级 Surface 通过 `PageSurface.body.sections[]` 声明，不作为业务直引 renderer。`/settings/ui` 只自动展示有 `declares` 的封装组件，分类派生为 `页面布局 / 页面内容 / 通用`。
+- Platform runtime 使用 Core UI 时只能走公共 runtime 入口、根级 `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent 页面 UI 已停用，仅保留 API / bot 接入能力。
+- 改 `packages/core/ui/**`、Core UI registry 或 `/settings/ui` 声明能力页必须是 UI-system/Architecture 任务，并通过 `CORE_UI_CHANGE=1` 或明确 change request 授权。
 
 页面组件注册表：
 
-- `packages/core/ui/registry/component-registry.ts` 是 Core UI primitive 和页面骨架的注册表。非 Core 包只能消费 registry 中登记的 Core UI 名字；新增 Core UI 入口必须先由 Architecture/Core 任务登记，再导出给 Feature 使用。注册项必须填写中文 `description`、`category/subcategory` 和 `role`，`role=surface` 还必须补清晰的 `declares`；架构检查读取注册名、分类、分层、说明、声明项、内部使用关系和当前消费文件。
+- `packages/core/ui/registry/component-registry.ts` 是 Core UI primitive 和页面骨架的注册表。非 Core 包只能消费 registry 中登记的 Core UI 名字；新增 Core UI 入口必须先由 Architecture/Core 任务登记，再导出给 Feature 使用。注册项必须填写中文 `description`，公共声明入口补清晰 `declares`，内部组合关系写入 `composes`。
 - 该 registry 是 structure scan 的输入；结构性 UI ratchet 由 `gate:ui` 执行，简单清扫项才由 hygiene strict 执行。
-- Registry `category/subcategory` 是分类模型：一级分类固定为 `page / data / form / document / visualization / common / feedback`，`common` 暂时作为基础和区块兜底。缺字段、非法归属、common 反依赖 domain 二级分类、sibling subcategory 高耦合、业务直引 common renderer、domain shared layout shell 和 Surface 自带 page chrome 属于结构性 UI 阻断；需要新 Surface/helper/service 或复杂页面重构时由 Architecture/Feature 处理，不交给 Hygiene。
+- Registry 不再维护一级/二级分类模型；声明组件库分类由声明视图派生。业务直引非公共 runtime renderer、domain shared layout shell 和 Surface 自带 page chrome 属于结构性 UI 阻断；需要新声明入口或复杂页面重构时由 Architecture/Feature 处理，不交给 Hygiene。
 - Core UI 的 value export 必须全部出现在 `component-registry.ts`，或明确列入 structure scan 的非组件导出集合；注册名重复会直接进入 `duplicateCoreUiRegistrations`。这两类 baseline 为空，新增即失败。
 - 非 Core 包新增手写页面设计壳会进入 `pageDesignDriftFiles` 检测：在 `packages/*/ui` 中直接用原生 JSX 容器拼 `bg-white`、`rounded`、`shadow/border`、sticky header、页面级 grid 等页面结构时视为漂移。Platform-owned system shell 文件（当前 `AppShell` / `LoginClient` / `UserMenu`）由 Platform 单独封装，只接受窄名单例外；历史债由 `scripts/arch/structure-baseline.json` 锁定，Feature/UI 迁走后必须删对应 baseline 项。
 - `PageSurface` 的 `moduleView` 是历史过渡逃生口，不是新增业务页面 API。业务 UI / `app/(modules)` 的存量 `moduleView` 会按 `shell-host`、`content-wrapper`、`split-side`、`analysis-visual`、`report-document`、`complex-editor`、`navigation-composition` 分类进入 `businessModuleViewUsages` baseline；新增或迁移删除都必须通过同一 Structure ratchet。
@@ -268,7 +268,7 @@ Structure Scan 结构智能层：
 - Structure 完整报告只读、不自动修复、不直接要求 Hygiene 清完。把某个发现升级为硬约束前，必须明确放入 `domain-blocker` 或 `ui-blocker` scope；简单清扫项才能留在 `hygiene` scope。
 - Feature/Data/Operations agent 使用 Structure 报告拆迁移任务时，只能改对应业务文件；Architecture agent 才能修改 `scripts/arch/*`、`packages/platform/module-registry.ts`、`packages/platform/api-registry.ts` 和相关治理文档。
 - Architecture agent 做 baseline ratchet 时只能减少历史债。若迁移删除了旧 route-local service、app hook 或 direct permission 文件，必须同步删 `scripts/arch/structure-baseline.json`、`scripts/arch/level15-baseline.json` 或 `scripts/check/level1-api-baseline.json` 中对应项；禁止为新违规扩写 baseline。
-- Core UI 大迁移需要定期 review gate/report：每个阶段至少阅读 Core UI registry validation、structure ratchet 和 import baseline，确认 `businessCoreUiRoleBypassImports` 和 `businessModuleViewUsages` 只减少、不变宽，`platformCoreUiRoleBypassImports` 保持为空；Production QC 质检纸、批记录、打印/留档渲染不得纳入宽泛 UI codemod。
+- Core UI 大迁移需要定期 review gate/report：每个阶段至少阅读 Core UI registry validation、structure ratchet 和 import baseline，确认 Core UI import bypass 和 `businessModuleViewUsages` 只减少、不变宽，`platformCoreUiRoleBypassImports` 保持为空；Production QC 质检纸、批记录、打印/留档渲染不得纳入宽泛 UI codemod。
 
 Structure 任务拆解规则：
 

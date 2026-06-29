@@ -172,11 +172,9 @@ export default function EmployeeDirectory({
   const sections: PageSurfaceSectionSpec[] = [
     ...(error ? [createMessageSection("error", { content: error, tone: "danger" as const })] : []),
     {
-      kind: "data",
       key: "employees",
-      surface: {
+      body: { kind: "data", data: {
         kind: "table",
-        framed: true,
         rows: employees,
         columns,
         visibleColumns,
@@ -193,7 +191,7 @@ export default function EmployeeDirectory({
           },
         ],
 
-      },
+      } },
     },
   ];
 

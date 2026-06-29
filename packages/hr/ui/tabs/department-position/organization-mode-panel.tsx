@@ -10,6 +10,7 @@ import {
   PageSurface,
   type PageSurfaceSectionSpec,
   type ReferenceOption,
+  type SelectorSurfaceProps,
   useFeedback,
 } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
@@ -66,7 +67,7 @@ export function OrganizationModePanel({
   selectedPositionId,
   positions,
   positionsByDepartment,
-  sideBlocks,
+  selector,
   sideOpen,
   canEdit,
   onDrawerOpenChange,
@@ -85,7 +86,7 @@ export function OrganizationModePanel({
   selectedPositionId: number | null;
   positions: Position[];
   positionsByDepartment: Map<number, Position[]>;
-  sideBlocks: (mode: "desktop" | "drawer") => PageSurfaceSectionSpec[];
+  selector: SelectorSurfaceProps<Department>;
   sideOpen: boolean;
   canEdit: boolean;
   onDrawerOpenChange: (open: boolean) => void;
@@ -258,9 +259,8 @@ export function OrganizationModePanel({
         content: "当前部门暂无直属岗位"
       })
       : {
-          kind: "data",
           key: "relations",
-          surface: {
+          body: { kind: "data", data: {
             kind: "table",
             rows: relations,
             columns,
@@ -270,7 +270,7 @@ export function OrganizationModePanel({
 
             rowState: row => row.position.id === selectedPositionId ? "selected" : "normal",
             frame: "bordered",
-          },
+          } },
         });
   }
 
@@ -280,10 +280,7 @@ export function OrganizationModePanel({
       {...surface}
       body={{
         kind: "split",
-        left: {
-          sections: createPageBody(sideBlocks("desktop")).sections,
-          drawerSections: createPageBody(sideBlocks("drawer")).sections,
-        },
+        selector,
         right: createPageBody([createPanelSection("organization-mode", {
           title: organizationPanelTitle,
           actions: organizationHeaderDepartment ? [{

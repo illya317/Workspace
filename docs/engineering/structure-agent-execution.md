@@ -68,7 +68,7 @@ Structure 任务必须按依赖执行，常见顺序如下：
 | UI pattern 收口 | 先确认 Core/Platform 是否已有入口 -> 缺通用入口则由 Core 补齐 -> domain 组件改为薄业务包装 -> 删除 app/一次性组件 -> ratchet baseline |
 | 搜索框收口 | 先确认 `SearchInput` / `FkFieldInput` / `SelectField` / `OptionPicker` 是否覆盖场景 -> 删除 app/业务包一次性搜索控件 -> 业务侧只传 value/options/fkKey -> 确认 `nativeSearchInputFiles` 仍为 0 |
 | 页面设计壳收口 | 先确认 `packages/core/ui/registry/component-registry.ts` 是否已有 PageShell/PageContent/PanelCard/SectionCard/SplitWorkspace/DataTable/Toolbar 等入口 -> 缺失则 Architecture/Core 先登记并导出 -> Feature 改业务页消费 Core -> 删除业务包内手写 `bg-white + rounded + shadow/border` 页面壳 -> ratchet `pageDesignDriftFiles` baseline |
-| Core UI 新入口 | 先实现 Core primitive/page shell -> 写入 `packages/core/ui/registry/component-registry.ts` 并补中文 `description`、`category/subcategory`、`role`、必要的 `declares/composes` -> 从 `packages/core/ui/index.ts` 导出 -> 如需可视化示例则在 `UiComponentsShowcase`（`/settings/ui`）增加 case -> 跑 `arch:gate` 确认 `unregisteredCoreUiExports` 和 `duplicateCoreUiRegistrations` 仍为 0 |
+| Core UI 新入口 | 先实现 Core primitive/page shell -> 写入 `packages/core/ui/registry/component-registry.ts` 并补中文 `description`、必要的 `declares/composes` -> 从 `packages/core/ui/index.ts` 导出 -> 跑 `arch:gate` 确认 `unregisteredCoreUiExports` 和 `duplicateCoreUiRegistrations` 仍为 0 |
 | module/API contract 漂移 | 先更新 module registry 或 API contract -> route/service 对齐 -> 跑 `arch:structure` 确认无新增漂移 -> 跑 `arch:gate` |
 | 旧实现迁移 | 先在 package 建真实实现 -> 更新 import -> 删除无引用旧文件 -> ratchet baseline |
 
@@ -84,7 +84,7 @@ boundary corruption > validation weakness > abstraction gap > migration debt > d
 
 | 目标文件 | 负责人 | 拆分位置 | 允许动作 |
 |---|---|---|---|
-| `packages/core/ui/*` | Architecture/Core | `packages/core/ui/<component>/` 或同层私有 helper | 拆 UI primitive、样式 helper、preview、类型；必要时更新 Core UI registry |
+| `packages/core/ui/*` | Architecture/Core | `packages/core/ui/<component>/` 或同层私有 helper | 拆 UI primitive、样式 helper、类型；必要时更新 Core UI registry |
 | `scripts/arch/*` | Architecture | `scripts/arch/<topic>.ts` | 拆 detector、baseline reader、formatter；保持 `arch:gate` 单入口 |
 | `packages/<domain>/ui/*` | Feature | 同 package 子目录 | 拆业务区块、业务 hook、领域 mapper；只能消费 Core/Platform 已注册入口 |
 | `packages/<domain>/server/*` | Feature/Data | 同 package server 子目录 | 拆 service、schema、DTO、repository adapter；不跨业务包 import |
@@ -94,7 +94,7 @@ boundary corruption > validation weakness > abstraction gap > migration debt > d
 
 通常不需要。只有下面三类需要进入 registry 或 gate 相关清单：
 
-1. **新增 Core UI 公共入口**：从 `packages/core/ui/index.ts` 导出的组件、页面骨架、primitive，必须登记到 `packages/core/ui/registry/component-registry.ts`，填写中文 `description`、`category/subcategory`、`role`，必要时补 `declares/composes` 和 `UiComponentsShowcase`（`/settings/ui`）示例。
+1. **新增 Core UI 公共入口**：从 `packages/core/ui/index.ts` 导出的组件、页面骨架、primitive，必须登记到 `packages/core/ui/registry/component-registry.ts`，填写中文 `description`，公共声明入口补 `declares`，内部组合关系补 `composes`。`/settings/ui` 会自动收录有 `declares` 的封装组件。
 2. **新增模块/API 权威入口**：模块定义、API contract、权限资源等必须通过 Platform registry 或 API registry 暴露。
 3. **新增 gate 例外或非组件导出**：只能由 Architecture 在对应脚本中显式说明，不能由 Feature/Data/Ops 私自补 allowlist。
 
@@ -126,7 +126,7 @@ baseline 是历史债锁，不是白名单。
 
 `nativeSearchInputFiles` 是搜索型原生 input 的硬约束，baseline 必须保持空数组。Feature/UI 发现旧的一次性搜索控件时应删除并改用 Core `SearchInput` / `FkFieldInput` / `SelectField` / `OptionPicker`，不要维护旧控件，也不要为新文件扩写 baseline。
 
-`unregisteredCoreUiExports` 和 `duplicateCoreUiRegistrations` 的 baseline 必须保持空数组。新增 Core UI 组件时，不能只从 `packages/core/ui/index.ts` 导出；必须同步登记到 `packages/core/ui/registry/component-registry.ts`，并填写中文 `description`、`category/subcategory` 和 `role`。`role=surface` 还必须补清晰的 `declares`；内部组合关系写入 `composes`。如果导出的是 hook、className helper、registry set 等非组件能力，只能由 Architecture 在 structure scan 的非组件导出集合中显式说明。
+`unregisteredCoreUiExports` 和 `duplicateCoreUiRegistrations` 的 baseline 必须保持空数组。新增 Core UI 组件时，不能只从 `packages/core/ui/index.ts` 导出；必须同步登记到 `packages/core/ui/registry/component-registry.ts`，并填写中文 `description`。公共声明入口补清晰的 `declares`；内部组合关系写入 `composes`。如果导出的是 hook、className helper、registry set 等非组件能力，只能由 Architecture 在 structure scan 的非组件导出集合中显式说明。
 
 ## 7. 当前并行避让
 

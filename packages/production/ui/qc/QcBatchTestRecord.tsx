@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createHeadingSection, createMessageSection, createPageBody, type FormSurfaceCommandSpec, PageSurface } from "@workspace/core/ui";
+import { createFormSection, createHeadingSection, createMessageSection, createPageBody, type FormSurfaceCommandSpec, PageSurface } from "@workspace/core/ui";
 import type { QcBatchSummary, QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcLayoutPaper from "./QcLayoutPaper";
@@ -136,14 +136,16 @@ export default function QcBatchTestRecord({
     embedded
     body={createPageBody([
       {
-        kind: "navigation",
         key: "test-navigation",
-        surface: {
-          kind: "steps",
-          active: test.englishName,
-          ariaLabel: "质检阶段导航",
+        body: {
+          kind: "navigation",
+          navigation: {
+            kind: "steps",
+            active: test.englishName,
+            ariaLabel: "质检阶段导航",
 
-          steps: recordSteps,
+            steps: recordSteps,
+          },
         },
       },
       createHeadingSection("test-heading", {
@@ -152,27 +154,25 @@ export default function QcBatchTestRecord({
         subtitle: `批号 ${batch.batchNumber} · ${workflowMessage}`,
       }),
       {
-        kind: "document",
         key: "test-record-paper",
-        surface: {
+        body: { kind: "document", document: {
           kind: "pages",
-          pages: [{
-            key: "paper",
-            size: "a4",
-            content: test.layoutBlocks?.length ? <QcLayoutPaper blocks={test.layoutBlocks} test={test} values={form.values} referenceValues={referenceValues} onFieldChange={form.setValue} readOnly={readOnly} fieldScopePrefix={`${stage.key}/${test.englishName}`} /> : <div className="qc-a4-page qc-paper-font qc-paper-page mx-auto box-border overflow-visible bg-white text-slate-950">
-                  <QcMethodFieldTable test={test} values={form.values} onFieldChange={form.setValue} readOnly={readOnly} />
-                </div>,
-          }],
-        },
+          pages: {
+            items: [{
+              key: "paper",
+              size: "a4",
+              content: test.layoutBlocks?.length ? <QcLayoutPaper blocks={test.layoutBlocks} test={test} values={form.values} referenceValues={referenceValues} onFieldChange={form.setValue} readOnly={readOnly} fieldScopePrefix={`${stage.key}/${test.englishName}`} /> : <div className="qc-a4-page qc-paper-font qc-paper-page mx-auto box-border overflow-visible bg-white text-slate-950">
+                    <QcMethodFieldTable test={test} values={form.values} onFieldChange={form.setValue} readOnly={readOnly} />
+                  </div>,
+            }],
+          },
+        } },
       },
-      ...(recordActions.length ? [{
-        kind: "form" as const,
-        key: "test-actions",
-        surface: {
-          kind: "inline" as const,
-          actions: recordActions,
-        },
-      }] : []),
+      ...(recordActions.length ? [createFormSection("test-actions", {
+          kind: "filters" as const,
+          content: { items: [] },
+          commands: recordActions,
+        })] : []),
       ...(saveState === "saved" || saveState === "error" ? [createMessageSection("test-save-status", {
 
         tone: saveState === "saved" ? "success" as const : "danger" as const,

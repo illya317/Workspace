@@ -1,10 +1,6 @@
 import type { ReactNode } from "react";
-import type { BlockSurfaceProps } from "./BlockSurface";
-import type { DataSurfaceProps } from "./DataSurface.types";
-import type { DocumentSurfaceProps } from "./DocumentSurface";
-import type { FormSurfaceProps } from "./FormSurface.types";
-import type { NavigationSurfaceProps } from "./NavigationSurface";
-import type { VisualizationSurfaceProps } from "./VisualizationSurface";
+import type { BodySurfaceProps } from "./BodySurface";
+import type { SelectorSurfaceProps } from "./SelectorSurface";
 import type { SurfaceToolbarItems } from "./SurfaceContractTypes";
 import type { ActionGlyphKind } from "./internal/action/ActionGlyphs";
 
@@ -96,20 +92,11 @@ export interface PageSurfaceSectionBaseSpec {
   framed?: boolean;
 }
 
-export type PageSurfaceSectionSpec =
-  | (PageSurfaceSectionBaseSpec & { kind: "data"; surface: DataSurfaceProps })
-  | (PageSurfaceSectionBaseSpec & { kind: "document"; surface: DocumentSurfaceProps })
-  | (PageSurfaceSectionBaseSpec & { kind: "form"; surface: FormSurfaceProps })
-  | (PageSurfaceSectionBaseSpec & { kind: "visualization"; surface: VisualizationSurfaceProps })
-  | (PageSurfaceSectionBaseSpec & { kind: "block"; surface: BlockSurfaceProps })
-  | (PageSurfaceSectionBaseSpec & { kind: "navigation"; surface: NavigationSurfaceProps })
-  | (PageSurfaceSectionBaseSpec & ({ kind: "modal" } & PageSurfaceModalSpec))
-  | (PageSurfaceSectionBaseSpec & {
-      kind: "sections";
-      layout?: "stack" | "grid";
-      sectioning?: PageSurfaceSectioningSpec;
-      sections: PageSurfaceSectionSpec[];
-    });
+export type PageSurfaceBodySectionSpec = PageSurfaceSectionBaseSpec & {
+  body: BodySurfaceProps;
+};
+
+export type PageSurfaceSectionSpec = PageSurfaceBodySectionSpec;
 
 export type PageSurfaceSectioningSpec =
   | { kind: "none" }
@@ -122,20 +109,15 @@ export interface PageSurfaceCompleteBodySpec {
   layout?: "single" | "split";
   sectioning?: PageSurfaceSectioningSpec;
   sections?: PageSurfaceSectionSpec[];
+  modals?: PageSurfaceModalSpec[];
   empty?: PageSurfaceEmptySpec;
   commands?: PageSurfaceCommandSpec[];
 }
 
-export interface PageSurfaceSplitPaneSpec {
-  title?: ReactNode;
-  width?: "sm" | "md" | "lg";
-  sections?: PageSurfaceSectionSpec[];
-  drawerSections?: PageSurfaceSectionSpec[];
-}
-
 export interface PageSurfaceSplitBodySpec {
   kind: "split";
-  left: PageSurfaceSplitPaneSpec;
+  selector: SelectorSurfaceProps;
+  drawerSelector?: SelectorSurfaceProps;
   right: PageSurfaceCompleteBodySpec;
   sideOpen: boolean;
   drawerOpen: boolean;

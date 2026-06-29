@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createAnalysisSection, createPageDataSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createMetricsSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import type { Employment } from "./useAnalyticsData";
 import { type MonthlySnapshot, useHeadcountData } from "./useHeadcountData";
 
@@ -25,8 +25,7 @@ export function useHeadcountTrendBlocks({ employments }: { employments: Employme
   ];
 
   return [
-        createPageDataSection("stats", {
-            kind: "metrics",
+        createMetricsSection("stats", {
             metrics: [
               { key: "currentActive", label: "当前在职", value: stats.currentActive },
               { key: "thisMonthJoins", label: "本月入职", value: stats.thisMonthJoins },
@@ -40,67 +39,68 @@ export function useHeadcountTrendBlocks({ employments }: { employments: Employme
           title: "人员流动趋势（近12个月）",
           sections: [
             {
-              kind: "visualization",
               key: "active-chart",
-              surface: {
+              body: { kind: "visualization", visualization: {
                 kind: "chart",
-                visual: {
-                  kind: "barChart",
-                  title: "月均在职人数",
-                  height: 80,
-                  min: stats.activeRange.min,
-                  max: Math.max(stats.activeRange.max, 1),
-                  bars: stats.months.map((month) => ({
-                    key: month.label,
-                    label: month.label.slice(2),
-                    value: month.active,
-                    valueLabel: month.active,
-                    tone: "emerald",
-                    minPercent: month.active > 0 ? 4 : 1,
-                  })),
+                chart: {
+                  visual: {
+                    kind: "barChart",
+                    title: "月均在职人数",
+                    height: 80,
+                    min: stats.activeRange.min,
+                    max: Math.max(stats.activeRange.max, 1),
+                    bars: stats.months.map((month) => ({
+                      key: month.label,
+                      label: month.label.slice(2),
+                      value: month.active,
+                      valueLabel: month.active,
+                      tone: "emerald",
+                      minPercent: month.active > 0 ? 4 : 1,
+                    })),
+                  },
                 },
-              },
+              } },
             },
             {
-              kind: "visualization",
               key: "flow-chart",
-              surface: {
+              body: { kind: "visualization", visualization: {
                 kind: "chart",
-                visual: {
-                  kind: "groupedBarChart",
-                  title: "月度入职/离职",
-                  height: 128,
-                  max: barMax,
-                  groups: stats.months.map((month) => ({
-                    key: month.label,
-                    label: month.label.slice(2),
-                    bars: [
-                      { key: "joins", label: "入职", value: month.joins, tone: "blue", title: `入职 ${month.joins}` },
-                      { key: "leaves", label: "离职", value: month.leaves, tone: "rose", title: `离职 ${month.leaves}` },
+                chart: {
+                  visual: {
+                    kind: "groupedBarChart",
+                    title: "月度入职/离职",
+                    height: 128,
+                    max: barMax,
+                    groups: stats.months.map((month) => ({
+                      key: month.label,
+                      label: month.label.slice(2),
+                      bars: [
+                        { key: "joins", label: "入职", value: month.joins, tone: "blue", title: `入职 ${month.joins}` },
+                        { key: "leaves", label: "离职", value: month.leaves, tone: "rose", title: `离职 ${month.leaves}` },
+                      ],
+                    })),
+                    legend: [
+                      { key: "joins", label: "入职", tone: "blue" },
+                      { key: "leaves", label: "离职", tone: "rose" },
+                      { key: "active", label: "在职人数", tone: "emerald" },
                     ],
-                  })),
-                  legend: [
-                    { key: "joins", label: "入职", tone: "blue" },
-                    { key: "leaves", label: "离职", tone: "rose" },
-                    { key: "active", label: "在职人数", tone: "emerald" },
-                  ],
+                  },
                 },
-              },
+              } },
             },
           ],
         }),
         createAnalysisSection("monthly-details", {
           title: "月度明细",
           sections: [{
-            kind: "data",
             key: "monthly-table",
-            surface: {
+            body: { kind: "data", data: {
               kind: "table",
               rows: [...stats.months].reverse(),
               columns,
               visibleColumns: columns.map((column) => column.key),
               rowKey: (month) => month.label,
-            },
+            } },
           }],
         }),
       ];

@@ -103,22 +103,30 @@ export type VisualizationSpec =
   | VisualizationComparisonBarsSpec
   | VisualizationTreeSpec;
 
-export interface VisualizationSurfaceBaseProps {
-  kind: VisualizationSurfaceKind;
+export interface VisualizationSurfaceFrameSpec {
   title?: ReactNode;
   subtitle?: ReactNode;
-  framed?: boolean;
 }
 
-export interface VisualizationSurfaceChartProps extends VisualizationSurfaceBaseProps {
-  kind: "chart";
+export interface VisualizationSurfaceChartSpec {
   visual: VisualizationSpec;
+  frame?: VisualizationSurfaceFrameSpec;
 }
 
-export interface VisualizationSurfaceGanttProps extends VisualizationSurfaceBaseProps {
-  kind: "gantt";
-  gantt: VisualizationGanttSpec;
+export interface VisualizationSurfaceGanttSpec {
+  timeline: VisualizationGanttSpec;
   empty?: ReactNode;
+  frame?: VisualizationSurfaceFrameSpec;
+}
+
+export interface VisualizationSurfaceChartProps {
+  kind: "chart";
+  chart: VisualizationSurfaceChartSpec;
+}
+
+export interface VisualizationSurfaceGanttProps {
+  kind: "gantt";
+  gantt: VisualizationSurfaceGanttSpec;
 }
 
 export type VisualizationSurfaceProps =

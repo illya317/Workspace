@@ -193,51 +193,6 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
       ) : null,
     },
   ];
-  const sideBlocks: PageSurfaceSectionSpec[] = [
-    ...(dirError
-      ? [createEmptySection("dir-error", {
-          compact: true,
-
-          content: `目录加载失败: ${dirError}`,
-        })]
-      : []),
-    {
-      kind: "navigation",
-      key: "directories",
-      surface: {
-        kind: "selector",
-        selector: {
-          mode: "tree",
-          items: rootDirectories,
-          selectedId: filters.directoryPath || "",
-          onSelect: (node) => {
-            handleSelectDirectory(node.path || null);
-            setSidebarDrawerOpen(false);
-          },
-          getKey: (node) => node.path,
-          getChildren,
-          expandedIds: expandedPaths,
-          onToggle: (path, expanded) => {
-            const key = String(path);
-            setExpandedPaths((prev) => {
-              const next = new Set(prev);
-              if (expanded) next.add(key);
-              else next.delete(key);
-              return next;
-            });
-          },
-          renderItem: (node, ctx) => ({
-            title: node.name,
-            code: node.path === "" ? undefined : node.count,
-            level: ctx.level,
-          }),
-          framed: false,
-          loading: dirLoading,
-          loadingText: "加载中...",
-        },
-      },
-    },
-  ];
   const sections: PageSurfaceSectionSpec[] = [
     ...(error
       ? [createEmptySection("error", {
@@ -247,11 +202,9 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
         })]
       : []),
     {
-      kind: "data",
       key: "documents",
-      surface: ({
+      body: { kind: "data", data: ({
         kind: "table",
-        framed: true,
 
         rows: documents,
         columns,
@@ -260,7 +213,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
         onRowClick: (document) => setDetailId(document.id),
         loading,
         emptyText: loading ? "加载中..." : "暂无资料",
-      } satisfies DataSurfaceProps<LibraryDocumentItem>) as DataSurfaceProps,
+      } satisfies DataSurfaceProps<LibraryDocumentItem>) as DataSurfaceProps },
     },
   ];
 
@@ -270,7 +223,35 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
         toolbar={{ items: toolbarItems }}
         body={{
           kind: "split",
-          left: { sections: createPageBody(sideBlocks).sections },
+          selector: {
+            kind: "tree",
+            items: dirError ? [] : rootDirectories,
+            selectedId: filters.directoryPath || "",
+            onSelect: (node: DirectoryNode) => {
+              handleSelectDirectory(node.path || null);
+              setSidebarDrawerOpen(false);
+            },
+            getKey: (node: DirectoryNode) => node.path,
+            getChildren,
+            expandedIds: expandedPaths,
+            onToggle: (path, expanded) => {
+              const key = String(path);
+              setExpandedPaths((prev) => {
+                const next = new Set(prev);
+                if (expanded) next.add(key);
+                else next.delete(key);
+                return next;
+              });
+            },
+            renderItem: (node: DirectoryNode, ctx) => ({
+              title: node.name,
+              code: node.path === "" ? undefined : node.count,
+              level: ctx.level,
+            }),
+            loading: dirLoading,
+            loadingText: "加载中...",
+            emptyText: dirError ? `目录加载失败: ${dirError}` : "暂无目录",
+          },
           right: createPageBody(sections),
           sideOpen: sidebarOpen,
           drawerOpen: sidebarDrawerOpen,

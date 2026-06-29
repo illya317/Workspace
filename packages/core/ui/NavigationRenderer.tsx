@@ -8,13 +8,13 @@ import SelectorPanel, { type SelectorPanelProps } from "./internal/selection/Sel
 import TabBar, { type TabBarProps, type TabBarVariant, type TabDef } from "./internal/common/TabBar";
 import { joinClassNames } from "./internal/common/card-utils";
 
-export type NavigationSurfaceKind = "tabs" | "pagination" | "selector" | "disclosure" | "steps";
-export type NavigationSurfaceLooseItem = ReturnType<typeof JSON.parse>;
+export type NavigationRendererKind = "tabs" | "pagination" | "selector" | "disclosure" | "steps";
+export type NavigationRendererLooseItem = ReturnType<typeof JSON.parse>;
 type NavigationPublicSpec<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
-export type NavigationSurfaceTabsSpec = NavigationPublicSpec<TabBarProps, "className">;
-export type NavigationSurfaceSelectorSpec<T> = NavigationPublicSpec<SelectorPanelProps<T>, "className" | "bodyClassName" | "contentClassName">;
+export type NavigationRendererTabsSpec = NavigationPublicSpec<TabBarProps, "className">;
+export type NavigationRendererSelectorSpec<T> = NavigationPublicSpec<SelectorPanelProps<T>, "className" | "bodyClassName" | "contentClassName">;
 
-export interface NavigationSurfacePaginationSpec {
+export interface NavigationRendererPaginationSpec {
   page: PaginationProps["page"];
   totalPages: PaginationProps["totalPages"];
   total?: PaginationProps["total"];
@@ -22,7 +22,7 @@ export interface NavigationSurfacePaginationSpec {
   compact?: PaginationProps["compact"];
 }
 
-export interface NavigationSurfaceGridSpec {
+export interface NavigationRendererGridSpec {
   options: SelectionGridProps["options"];
   value?: SelectionGridProps["value"];
   onChange?: SelectionGridProps["onChange"];
@@ -37,37 +37,37 @@ export interface NavigationSurfaceGridSpec {
   ariaLabel: SelectionGridProps["ariaLabel"];
 }
 
-export interface NavigationSurfaceStepSpec {
+export interface NavigationRendererStepSpec {
   key: string;
   label: ReactNode;
   href?: string;
   disabled?: boolean;
   tone?: "primary" | "neutral" | "muted";
-  steps?: NavigationSurfaceStepSpec[];
+  steps?: NavigationRendererStepSpec[];
 }
 
-export interface NavigationSurfaceTabsProps {
+export interface NavigationRendererTabsProps {
   kind: "tabs";
   label?: ReactNode;
-  tabs: NavigationSurfaceTabsSpec;
+  tabs: NavigationRendererTabsSpec;
 }
 
-export interface NavigationSurfacePaginationProps {
+export interface NavigationRendererPaginationProps {
   kind: "pagination";
-  pagination: NavigationSurfacePaginationSpec;
+  pagination: NavigationRendererPaginationSpec;
 }
 
-export interface NavigationSurfaceGridSelectorProps {
+export interface NavigationRendererGridSelectorProps {
   kind: "selector";
-  grid: NavigationSurfaceGridSpec;
+  grid: NavigationRendererGridSpec;
 }
 
-export interface NavigationSurfaceSelectorProps<T> {
+export interface NavigationRendererSelectorProps<T> {
   kind: "selector";
-  selector: NavigationSurfaceSelectorSpec<T>;
+  selector: NavigationRendererSelectorSpec<T>;
 }
 
-export interface NavigationSurfaceDisclosureProps {
+export interface NavigationRendererDisclosureProps {
   kind: "disclosure";
   title: string;
   count?: number;
@@ -75,9 +75,9 @@ export interface NavigationSurfaceDisclosureProps {
   onToggle: () => void;
 }
 
-export interface NavigationSurfaceStepsProps {
+export interface NavigationRendererStepsProps {
   kind: "steps";
-  steps: NavigationSurfaceStepSpec[];
+  steps: NavigationRendererStepSpec[];
   active: string;
   activeChild?: string;
   onChange?: (key: string) => void;
@@ -86,15 +86,15 @@ export interface NavigationSurfaceStepsProps {
   ariaLabel?: string;
 }
 
-export type NavigationSurfaceProps<T = NavigationSurfaceLooseItem> =
-  | NavigationSurfaceTabsProps
-  | NavigationSurfacePaginationProps
-  | NavigationSurfaceSelectorProps<T>
-  | NavigationSurfaceGridSelectorProps
-  | NavigationSurfaceDisclosureProps
-  | NavigationSurfaceStepsProps;
+export type NavigationRendererProps<T = NavigationRendererLooseItem> =
+  | NavigationRendererTabsProps
+  | NavigationRendererPaginationProps
+  | NavigationRendererSelectorProps<T>
+  | NavigationRendererGridSelectorProps
+  | NavigationRendererDisclosureProps
+  | NavigationRendererStepsProps;
 
-function toTabDef(step: NavigationSurfaceStepSpec): TabDef {
+function toTabDef(step: NavigationRendererStepSpec): TabDef {
   return {
     key: step.key,
     label: step.label,
@@ -102,7 +102,7 @@ function toTabDef(step: NavigationSurfaceStepSpec): TabDef {
   };
 }
 
-function stepClassName(step: NavigationSurfaceStepSpec, active: boolean) {
+function stepClassName(step: NavigationRendererStepSpec, active: boolean) {
   if (step.disabled) return "cursor-not-allowed bg-slate-50 text-slate-400";
   if (active) return "bg-slate-200 font-semibold text-slate-900";
   if (step.tone === "primary") return "bg-blue-100 font-medium text-blue-800 hover:bg-blue-200";
@@ -110,7 +110,7 @@ function stepClassName(step: NavigationSurfaceStepSpec, active: boolean) {
   return "bg-slate-100 text-slate-700 hover:bg-slate-200";
 }
 
-function renderStepLinks(props: NavigationSurfaceStepsProps) {
+function renderStepLinks(props: NavigationRendererStepsProps) {
   return (
     <nav aria-label={props.ariaLabel} className="flex flex-wrap gap-2 text-xs">
       {props.steps.map((step) => {
@@ -143,57 +143,57 @@ function renderStepLinks(props: NavigationSurfaceStepsProps) {
   );
 }
 
-export default function NavigationSurface<T = NavigationSurfaceLooseItem>(props: NavigationSurfaceProps<T>) {
-  if (props.kind === "tabs") {
-    return (
-      <div className={props.label ? "flex flex-wrap items-center gap-3" : undefined}>
-        {props.label ? (
-          <span className="shrink-0 text-sm font-semibold text-slate-500">
-            {props.label}
-          </span>
-        ) : null}
-        <TabBar {...props.tabs} />
-      </div>
-    );
-  }
+function renderTabsNavigation(props: NavigationRendererTabsProps) {
+  return (
+    <div className={props.label ? "flex flex-wrap items-center gap-3" : undefined}>
+      {props.label ? (
+        <span className="shrink-0 text-sm font-semibold text-slate-500">
+          {props.label}
+        </span>
+      ) : null}
+      <TabBar {...props.tabs} />
+    </div>
+  );
+}
 
-  if (props.kind === "pagination") {
-    return (
-      <div>
-        <Pagination {...props.pagination} />
-      </div>
-    );
-  }
+function renderPaginationNavigation(props: NavigationRendererPaginationProps) {
+  return (
+    <div>
+      <Pagination {...props.pagination} />
+    </div>
+  );
+}
 
-  if (props.kind === "selector") {
-    if ("grid" in props) {
-      return (
-        <div>
-          <SelectionGrid {...props.grid} />
-        </div>
-      );
-    }
-
+function renderSelectorNavigation<T>(props: NavigationRendererSelectorProps<T> | NavigationRendererGridSelectorProps) {
+  if ("grid" in props) {
     return (
       <div>
-        <SelectorPanel<T> {...props.selector} />
+        <SelectionGrid {...props.grid} />
       </div>
     );
   }
 
-  if (props.kind === "disclosure") {
-    return (
-      <div>
-        <DisclosureSectionHeader
-          title={props.title}
-          count={props.count}
-          expanded={props.expanded}
-          onToggle={props.onToggle}
-        />
-      </div>
-    );
-  }
+  return (
+    <div>
+      <SelectorPanel<T> {...props.selector} />
+    </div>
+  );
+}
 
+function renderDisclosureNavigation(props: NavigationRendererDisclosureProps) {
+  return (
+    <div>
+      <DisclosureSectionHeader
+        title={props.title}
+        count={props.count}
+        expanded={props.expanded}
+        onToggle={props.onToggle}
+      />
+    </div>
+  );
+}
+
+function renderStepsNavigation(props: NavigationRendererStepsProps) {
   const tabs = props.steps.map(toTabDef);
   const hasChildren = props.steps.some((step) => step.steps?.length);
   const hasLinkStep = props.steps.some((step) => step.href || step.disabled || step.tone);
@@ -224,4 +224,12 @@ export default function NavigationSurface<T = NavigationSurfaceLooseItem>(props:
       ariaLabel={props.ariaLabel}
     />
   );
+}
+
+export default function NavigationRenderer<T = NavigationRendererLooseItem>(props: NavigationRendererProps<T>) {
+  if (props.kind === "tabs") return renderTabsNavigation(props);
+  if (props.kind === "pagination") return renderPaginationNavigation(props);
+  if (props.kind === "selector") return renderSelectorNavigation<T>(props);
+  if (props.kind === "disclosure") return renderDisclosureNavigation(props);
+  return renderStepsNavigation(props);
 }

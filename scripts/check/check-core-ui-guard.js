@@ -78,10 +78,6 @@ function isCoreUiFile(file) {
   return file.startsWith("packages/core/ui/") && isSourceFile(file);
 }
 
-function isProtectedPreview(file) {
-  return file.startsWith("packages/core/showcase/previews/") && isSourceFile(file);
-}
-
 function isRegistryFile(file) {
   return REGISTRY_GLOB.test(file);
 }
@@ -126,7 +122,6 @@ function registryChanged(entries) {
 
 function findUnsyncedCoreUiAdditions(entries, registeredNames) {
   const registryUpdated = registryChanged(entries);
-  const previewUpdated = entries.some(({ file }) => isProtectedPreview(file));
   const additions = entries
     .filter(({ status, file }) => status.startsWith("A") && isCoreUiFile(file))
     .map(({ file }) => path.basename(file).replace(/\.(tsx|ts)$/, ""))
@@ -137,19 +132,18 @@ function findUnsyncedCoreUiAdditions(entries, registeredNames) {
     });
 
   if (additions.length === 0) return [];
-  if (registryUpdated && previewUpdated) return [];
+  if (registryUpdated) return [];
   return additions;
 }
 
 function findUnsyncedCoreUiDeletions(entries) {
   const registryUpdated = registryChanged(entries);
-  const previewUpdated = entries.some(({ file }) => isProtectedPreview(file));
   const deletions = entries
     .filter(({ status, file }) => status.startsWith("D") && isCoreUiFile(file))
     .map(({ file }) => file);
 
   if (deletions.length === 0) return [];
-  if (registryUpdated && previewUpdated) return [];
+  if (registryUpdated) return [];
   return deletions;
 }
 
@@ -162,7 +156,6 @@ function main() {
   for (const { file } of entries) {
     const reason = protectedCoreUiReason(file, registeredNames);
     if (reason) protectedChanges.push({ file, reason });
-    if (isProtectedPreview(file)) protectedChanges.push({ file, reason: "core UI preview changed" });
   }
 
   const duplicateToolbarShells = findDuplicateToolbarShells(entries);
@@ -202,15 +195,15 @@ function main() {
 
   if (unsyncedAdditions.length > 0) {
     failed = true;
-    console.error("\n✗ Core UI guard: new core UI source appears unsynced with registry/preview.");
-    console.error("  Add registry and preview updates, or name it as a private implementation.");
+    console.error("\n✗ Core UI guard: new core UI source appears unsynced with registry.");
+    console.error("  Add registry updates, or name it as a private implementation.");
     for (const name of unsyncedAdditions) console.error(`  - ${name}`);
   }
 
   if (unsyncedDeletions.length > 0) {
     failed = true;
-    console.error("\n✗ Core UI guard: deleted core UI source appears unsynced with registry/preview.");
-    console.error("  Remove registry/preview/export references in the same UI-system change.");
+    console.error("\n✗ Core UI guard: deleted core UI source appears unsynced with registry.");
+    console.error("  Remove registry/export references in the same UI-system change.");
     for (const file of unsyncedDeletions) console.error(`  - ${file}`);
   }
 

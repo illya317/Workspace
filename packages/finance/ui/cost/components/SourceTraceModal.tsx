@@ -29,7 +29,7 @@ export default function SourceTraceModal({
               { key: "sourceRow", label: "行号", spec: { valueType: "string", control: "text", state: "readonly" }, value: info.sourceRow ?? "—" },
             ], {
               kind: "detail",
-              actions: [{ key: "close", label: "关闭", variant: "primary", onClick: onClose }],
+              commands: [{ key: "close", label: "关闭", variant: "primary", onClick: onClose }],
             }),
           ],
         }),

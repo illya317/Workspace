@@ -19,13 +19,17 @@ const OUTPUT_PATH = path.join(ROOT, "packages/core/ui/registry/generated-surface
 const MAX_DEPTH = 12;
 
 const TARGETS: ContractTarget[] = [
+  { componentName: "BodySurface", sourcePath: "packages/core/ui/BodySurface.tsx", typeName: "BodySurfaceProps" },
   { componentName: "BlockSurface", sourcePath: "packages/core/ui/BlockSurface.tsx", typeName: "BlockSurfaceProps" },
   { componentName: "DataSurface", sourcePath: "packages/core/ui/DataSurface.types.ts", typeName: "DataSurfaceProps" },
   { componentName: "DocumentSurface", sourcePath: "packages/core/ui/DocumentSurface.tsx", typeName: "DocumentSurfaceProps" },
   { componentName: "FormSurface", sourcePath: "packages/core/ui/FormSurface.types.ts", typeName: "FormSurfaceProps" },
   { componentName: "InputControl", sourcePath: "packages/core/ui/internal/input/InputControlTypes.ts", typeName: "InputControlProps" },
-  { componentName: "NavigationSurface", sourcePath: "packages/core/ui/NavigationSurface.tsx", typeName: "NavigationSurfaceProps" },
+  { componentName: "MetricsSurface", sourcePath: "packages/core/ui/MetricsSurface.tsx", typeName: "MetricsSurfaceProps" },
+  { componentName: "NavigationRenderer", sourcePath: "packages/core/ui/NavigationRenderer.tsx", typeName: "NavigationRendererProps" },
   { componentName: "PageSurface", sourcePath: "packages/core/ui/PageSurface.types.ts", typeName: "PageSurfaceProps" },
+  { componentName: "RecordSurface", sourcePath: "packages/core/ui/RecordSurface.tsx", typeName: "RecordSurfaceProps" },
+  { componentName: "SelectorSurface", sourcePath: "packages/core/ui/SelectorSurface.tsx", typeName: "SelectorSurfaceProps" },
   { componentName: "VisualizationSurface", sourcePath: "packages/core/ui/VisualizationSurfaceTypes.ts", typeName: "VisualizationSurfaceProps" },
 ];
 
@@ -259,10 +263,10 @@ function propertyGroupByName(type: ts.Type) {
 }
 
 function discriminatedKindBranches(type: ts.Type, checker: ts.TypeChecker): KindBranch[] | null {
-  if (!type.isUnion()) return null;
+  const sourceTypes = type.isUnion() ? type.types : [type];
   const branches: KindBranch[] = [];
 
-  for (const branch of type.types) {
+  for (const branch of sourceTypes) {
     const kindSymbol = branch.getProperty("kind");
     if (!kindSymbol) return null;
     const declaration = kindSymbol.valueDeclaration ?? kindSymbol.declarations?.[0];
@@ -492,7 +496,7 @@ function contractFor(target: ContractTarget, program: ts.Program, checker: ts.Ty
     ? checker.getTypeFromTypeNode(declaration.type)
     : checker.getTypeAtLocation(declaration.name);
   const kindUnionContract = contractForKindUnion(type, checker, declaration, {
-    hoistCommonProperties: target.typeName !== "PageSurfaceProps",
+    hoistCommonProperties: false,
     branchChildren: target.typeName === "PageSurfaceProps" ? "standard-only" : "all",
     branchOrder: target.typeName === "PageSurfaceProps" ? ["login", "directory", "standard"] : undefined,
     expandBranchProperties: true,

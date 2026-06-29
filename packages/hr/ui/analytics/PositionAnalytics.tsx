@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createPageDataSection, PageSurface, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, createMetricsSection, PageSurface, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import type { Department, EDP, Position } from "./useAnalyticsData";
 import { usePositionData } from "./position/usePositionData";
 import { createDeptBarChartSection } from "./position/DeptBarChart";
@@ -24,8 +24,7 @@ export function usePositionAnalyticsBlocks({ positions, edps, departments }: { p
   } = usePositionData(positions, edps, departments);
 
   return [
-    createPageDataSection("stats", {
-        kind: "metrics",
+    createMetricsSection("stats", {
         metrics: [
           { key: "total", label: "岗位总数", value: `${stats.total} / 编制 ${stats.hasHeadcount}` },
           { key: "occupied", label: "有任职", value: `${stats.occupied} (${stats.total > 0 ? Math.round((stats.occupied / stats.total) * 100) : 0}%)` },

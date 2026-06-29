@@ -69,9 +69,8 @@ export function createPositionTableSection({
           ],
         },
         sections: [{
-          kind: "data",
           key: "positions-table",
-          surface: {
+          body: { kind: "data", data: {
             kind: "table",
             rows: filtered,
             columns,
@@ -82,7 +81,7 @@ export function createPositionTableSection({
               position.status === "空岗" ? "warning" :
               position.status === "超编" ? "danger" :
               position.status === "缺编" ? "info" : "normal",
-          },
+          } },
         }],
       });
 }

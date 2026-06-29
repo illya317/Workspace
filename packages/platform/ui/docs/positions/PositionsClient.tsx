@@ -103,31 +103,6 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
     router.push(`/docs/positions/${code}`);
   }
 
-  const sideBlocks: PageSurfaceSectionSpec[] = [{
-    kind: "navigation",
-    key: "departments",
-    surface: {
-      kind: "selector",
-      selector: {
-        mode: "tree",
-        title: "部门目录",
-        items: visibleTree,
-        selectedId: selectedCode,
-        onSelect: (node) => setSelectedCode(node.code),
-        getKey: (node) => node.code,
-        getChildren: (node) => node.children,
-        renderItem: (node, ctx) => ({
-          title: node.name,
-          code: node.code,
-          level: ctx.level,
-        }),
-        filter: { kind: "search", value: search, onChange: setSearch, placeholder: "搜索部门..." },
-        loading,
-
-      },
-    },
-  }];
-
   const mainBlocks: PageSurfaceSectionSpec[] = !selectedNode ? [createBlockSurfaceSection("empty", {
     kind: "empty",
     content: "选择左侧部门查看直属岗位"
@@ -136,21 +111,23 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
     subtitle: `${directPositions.length} 个`,
 
     sections: [{
-      kind: "navigation",
       key: "position-list",
-      surface: {
-        kind: "selector",
-        selector: {
-          framed: false,
-          items: directPositions,
-          selectedId: null,
-          onSelect: (pos) => handleSelectPosition(pos.code),
-          getKey: (pos) => pos.code,
-          renderItem: (pos) => ({
-            title: pos.name,
-            subtitle: pos.code,
-          }),
-          emptyText: "该部门暂无直属岗位",
+      body: {
+        kind: "navigation",
+        navigation: {
+          kind: "selector",
+          selector: {
+            framed: false,
+            items: directPositions,
+            selectedId: null,
+            onSelect: (pos) => handleSelectPosition(pos.code),
+            getKey: (pos) => pos.code,
+            renderItem: (pos) => ({
+              title: pos.name,
+              subtitle: pos.code,
+            }),
+            emptyText: "该部门暂无直属岗位",
+          },
         },
       },
     }],
@@ -160,7 +137,22 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
     <PageSurface kind="standard"
       body={{
         kind: "split",
-        left: { sections: createPageBody(sideBlocks).sections },
+        selector: {
+          kind: "tree",
+          title: "部门目录",
+          items: visibleTree,
+          selectedId: selectedCode,
+          onSelect: (node: TreeNode) => setSelectedCode(node.code),
+          getKey: (node: TreeNode) => node.code,
+          getChildren: (node: TreeNode) => node.children,
+          renderItem: (node: TreeNode, ctx) => ({
+            title: node.name,
+            code: node.code,
+            level: ctx.level,
+          }),
+          filter: { kind: "search", value: search, onChange: setSearch, placeholder: "搜索部门..." },
+          loading,
+        },
         right: createPageBody(mainBlocks),
         sideOpen,
         drawerOpen,

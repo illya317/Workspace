@@ -11,10 +11,16 @@ export interface DocumentSurfacePageSpec {
   size?: "a4" | "fluid" | "wide";
 }
 
-export interface DocumentSurfaceProps {
-  kind: DocumentSurfaceKind;
-  pages: DocumentSurfacePageSpec[];
+export interface DocumentSurfacePagesSpec {
+  items: DocumentSurfacePageSpec[];
 }
+
+export interface DocumentSurfacePagesProps {
+  kind: "pages";
+  pages: DocumentSurfacePagesSpec;
+}
+
+export type DocumentSurfaceProps = DocumentSurfacePagesProps;
 
 function pageClassName(page: DocumentSurfacePageSpec) {
   return joinClassNames(
@@ -24,7 +30,8 @@ function pageClassName(page: DocumentSurfacePageSpec) {
   );
 }
 
-export default function DocumentSurface({ pages }: DocumentSurfaceProps) {
+export default function DocumentSurface(props: DocumentSurfaceProps) {
+  const pages = props.pages.items;
   if (!pages.length) return null;
   return (
     <div className="min-w-0 space-y-6">

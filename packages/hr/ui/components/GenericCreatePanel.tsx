@@ -37,12 +37,11 @@ export function buildGenericCreatePanelBlock({
         embedded
         body={createPageBody([
           {
-            kind: "form",
             key: "fields",
-            surface: {
-              kind: "inline",
-              fields,
-            },
+            body: { kind: "form", form: {
+              kind: "filters",
+              content: { items: fields },
+            } },
           },
         ])}
       />
@@ -53,7 +52,7 @@ export function buildGenericCreatePanelBlock({
 
 export default function GenericCreatePanel(props: GenericCreatePanelProps) {
   const block = buildGenericCreatePanelBlock(props);
-  return block.kind === "block" && block.surface.kind === "content" ? block.surface.content : null;
+  return block.body.kind === "section" && block.body.surface?.kind === "content" ? block.body.surface.content : null;
 }
 
 function createFieldSpec(

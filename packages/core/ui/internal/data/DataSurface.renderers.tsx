@@ -3,10 +3,8 @@
 import type { ReactNode } from "react";
 import AmountCell from "./AmountCell";
 import Badge from "../common/Badge";
-import { EmptyStateCard, MetricCard } from "../common/Card";
 import DataTable from "./DataTable";
 import type { DataTableColumn } from "./DataTable.types";
-import DisclosureRecordCard from "../common/DisclosureRecordCard";
 import NumberCell from "./NumberCell";
 import SelectionGrid from "../selection/SelectionGrid";
 import StructuredTable, { type StructuredTableCell } from "./StructuredTable";
@@ -42,7 +40,7 @@ function isDisplaySpec(value: ReactNode | DataSurfaceDisplaySpec): value is Data
   );
 }
 
-function renderDisplay(value: ReactNode | DataSurfaceDisplaySpec): ReactNode {
+export function renderDisplay(value: ReactNode | DataSurfaceDisplaySpec): ReactNode {
   if (!isDisplaySpec(value)) return value;
   if (value.kind === "empty") {
     return <span className="text-slate-400">{value.content ?? "—"}</span>;
@@ -201,30 +199,6 @@ export function renderData<T>(props: DataSurfaceProps<T>) {
       />
     );
     return props.structuredScroll === false ? table : <TableScrollFrame frame={props.frame} scroll={props.scroll}>{table}</TableScrollFrame>;
-  }
-  if (props.kind === "records") {
-    if (props.records.length === 0) return <EmptyStateCard compact>{props.empty ?? "暂无数据"}</EmptyStateCard>;
-    return (
-      <div className="space-y-3">
-        {props.records.map((record) => (
-          <DisclosureRecordCard
-            key={record.key}
-            expanded={record.expanded}
-            onToggle={record.onToggle}
-            header={renderDisplay(record.header)}
-            summary={renderDisplay(record.summary)}
-            detailTitle={record.detailTitle}
-            detailAction={record.detailAction}
-          >
-            {record.detailSurface ? renderData(record.detailSurface) : renderDisplay(record.detail)}
-          </DisclosureRecordCard>
-        ))}
-      </div>
-    );
-  }
-  if (props.kind === "metrics") {
-    if (props.metrics.length === 0) return <EmptyStateCard compact>{props.empty ?? "暂无指标"}</EmptyStateCard>;
-    return <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{props.metrics.map((metric) => <MetricCard key={metric.key} label={metric.label} value={renderDisplay(metric.value)} />)}</div>;
   }
   return null;
 }

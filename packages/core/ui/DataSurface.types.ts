@@ -1,8 +1,8 @@
-import type { FocusEventHandler, KeyboardEventHandler, MouseEventHandler, ReactNode } from "react";
+import type { FocusEventHandler, KeyboardEventHandler, ReactNode } from "react";
 import type { InputFieldSpec } from "./InputControl";
 import type { SurfaceDataRowActionSpec, SurfaceDataRowEditActionSpec } from "./SurfaceContractTypes";
 
-export type DataSurfaceKind = "table" | "structured" | "records" | "metrics";
+export type DataSurfaceKind = "table" | "structured";
 export type DataSurfaceLooseRow = ReturnType<typeof JSON.parse>;
 export type DataSurfaceActionSize = "sm" | "md" | "lg";
 export type DataSurfaceBadgeTone = "gray" | "green" | "blue" | "red" | "yellow" | "orange" | "emerald" | "sky" | "slate" | "amber";
@@ -160,38 +160,10 @@ export interface DataSurfaceColumnSpec<T> {
   cell: (row: T) => ReactNode | DataSurfaceCellSpec;
 }
 
-export interface DataSurfaceMetricSpec {
-  key: string;
-  label: ReactNode;
-  value: ReactNode | DataSurfaceDisplaySpec;
-}
-
-export interface DataSurfaceRecordActionSpec {
-  label: string;
-  loadingLabel?: string;
-  loading?: boolean;
-  onClick: MouseEventHandler<HTMLButtonElement>;
-}
-
-export interface DataSurfaceRecordSpec<TDetail = DataSurfaceLooseRow> {
-  key: string;
-  expanded: boolean;
-  onToggle: () => void;
-  header: ReactNode | DataSurfaceDisplaySpec;
-  summary?: ReactNode | DataSurfaceDisplaySpec;
-  detail?: ReactNode | DataSurfaceDisplaySpec;
-  detailSurface?: DataSurfaceProps<TDetail>;
-  detailTitle?: ReactNode;
-  detailAction?: DataSurfaceRecordActionSpec;
-}
-
 interface DataSurfaceBaseProps {
   kind: DataSurfaceKind;
-  title?: ReactNode;
-  subtitle?: ReactNode;
   actions?: DataSurfaceCommandSpec[];
   empty?: ReactNode;
-  framed?: boolean;
   wrap?: boolean;
   presentation?: DataSurfacePresentationSpec;
 }
@@ -241,18 +213,6 @@ export interface DataSurfaceStructuredProps extends DataSurfaceBaseProps {
   scroll?: DataSurfaceScrollSpec;
 }
 
-export interface DataSurfaceRecordsProps<TDetail = DataSurfaceLooseRow> extends DataSurfaceBaseProps {
-  kind: "records";
-  records: Array<DataSurfaceRecordSpec<TDetail>>;
-}
-
-export interface DataSurfaceMetricsProps extends DataSurfaceBaseProps {
-  kind: "metrics";
-  metrics: DataSurfaceMetricSpec[];
-}
-
 export type DataSurfaceProps<T = DataSurfaceLooseRow> =
   | DataSurfaceTableProps<T>
-  | DataSurfaceStructuredProps
-  | DataSurfaceRecordsProps<T>
-  | DataSurfaceMetricsProps;
+  | DataSurfaceStructuredProps;

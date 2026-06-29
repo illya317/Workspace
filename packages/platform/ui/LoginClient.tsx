@@ -135,9 +135,8 @@ export default function LoginClient() {
       body={createPageBody([
         createBlockSurfaceSection("login-content", { kind: "content", content: loginContent }),
         {
-          kind: "form",
           key: "login-contract",
-          surface: { kind: "login", fields: [], onSubmit: handleSubmit },
+          body: { kind: "form", form: { kind: "login", content: { items: [] }, submit: { onSubmit: handleSubmit } } },
         },
       ])}
     />

@@ -258,7 +258,7 @@ function MappingEditor({
           { key: "account", label: "科目", spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: filteredAccounts.map(account => ({ value: account.code, label: `${account.code} ${account.name}` })) } }, value: newAccount, onChange: (value) => onNewAccountChange(String(value ?? "")), placeholder: `选择科目 (${filteredAccounts.length})` },
         ], {
           kind: "filters",
-          actions: [
+          commands: [
             { key: "add", label: "添加（加）", variant: "primary", onClick: () => onSaveMapping(newAccount, lineCode, "add"), disabled: !newAccount },
             { key: "subtract", label: "添加（减）", variant: "danger", onClick: () => onSaveMapping(newAccount, lineCode, "subtract"), disabled: !newAccount },
             { key: "cancel", label: "取消", onClick: onCancelAdding },

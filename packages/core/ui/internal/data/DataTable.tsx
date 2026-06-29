@@ -2,9 +2,9 @@
 
 import { Fragment } from "react";
 import { ActionButton } from "../action/ActionControls";
-import type { ActionGlyphKind } from "../action/ActionGlyphs";
+import { ACTION_GLYPH_ACTION_BY_KEY } from "../action/ActionGlyphs";
 import { createDataTableEditActions } from "./DataTableActions";
-import type { DataTableActionKind, DataTableColumn, DataTableProps, DataTableRowAction } from "./DataTable.types";
+import type { DataTableColumn, DataTableProps, DataTableRowAction } from "./DataTable.types";
 import { FieldContextProvider } from "../input/field-context";
 import { resolveTableColumnClass, resolveTablePresentation, resolveTableRowStateClass } from "./table-presentation";
 
@@ -43,39 +43,27 @@ export const dataTableClassNames = {
   compactCell: resolveTablePresentation({ density: "compact" }).cell,
 };
 
-const ACTION_KIND_MAP: Record<DataTableActionKind, ActionGlyphKind> = {
-  view: "view",
-  add: "add",
-  edit: "edit",
-  save: "check",
-  cancel: "cancel",
-  delete: "delete-bin",
-};
-
-function actionVariant(kind: DataTableActionKind) {
-  if (kind === "delete") return "danger";
-  if (kind === "add" || kind === "save") return "primary";
-  return "secondary";
-}
-
 function DataTableActionsCell({ actions }: { actions: DataTableRowAction[] }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {actions.map((action) => (
-        <span
-          key={action.key}
-          className="inline-flex"
-          onClick={(event) => event.stopPropagation()}
-        >
-          <ActionButton
-            kind={ACTION_KIND_MAP[action.kind]}
-            label={action.label}
-            variant={actionVariant(action.kind)}
-            disabled={action.disabled}
-            onClick={action.onClick}
-          />
-        </span>
-      ))}
+      {actions.map((action) => {
+        const actionDefinition = ACTION_GLYPH_ACTION_BY_KEY[action.kind];
+        return (
+          <span
+            key={action.key}
+            className="inline-flex"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <ActionButton
+              kind={actionDefinition.icon}
+              label={action.label}
+              variant={actionDefinition.variant}
+              disabled={action.disabled}
+              onClick={action.onClick}
+            />
+          </span>
+        );
+      })}
     </div>
   );
 }

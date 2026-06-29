@@ -65,9 +65,9 @@ export function QcBatchCreatePanel({
           className: "w-36",
         },
       ], {
-        columns: 3,
-        onSubmit,
-        actions: [
+        layout: { columns: 3 },
+        submit: { onSubmit },
+        commands: [
           {
             key: "submit",
             label: submitting ? "创建中..." : "创建",

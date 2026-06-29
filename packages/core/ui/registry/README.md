@@ -1,12 +1,14 @@
 # Core UI Registry
 
-Registry describes Core UI entries, ownership, relationships, and showcase metadata.
+Registry describes Core UI entries, declaration fields, and composition relationships.
 
 Rules:
 
-- Registry records architectural metadata only.
+- Registry records public Core UI entries and their declarative capability.
 - Registry does not define business behavior.
-- Registry should classify entries by role: surface, helper, service, host, or internal.
-- Registry changes must stay in sync with docs, showcase, and architecture gates.
+- `/settings/ui` automatically shows entries with `declares`.
+- `contract` is generated documentation detail and does not opt an entry into the UI library.
+- `capabilities` describes non-declarative services and does not opt an entry into the UI library.
+- Registry changes must stay in sync with docs and architecture gates.
 
-Current status: directory scaffold only. Existing registry files stay in `packages/core/ui` until the staged move.
+Current categories for the UI library are derived in code: page layout, page content, and common.

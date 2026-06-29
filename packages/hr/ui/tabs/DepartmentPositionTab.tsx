@@ -174,8 +174,8 @@ export default function DepartmentPositionTab({
     });
   }, [activeOrganizationRootId, isOrganizationMode, setCollapsedDepartments]);
   const {
-    departmentNodeBlock,
-    organizationRootBlock,
+    departmentTreeSelector,
+    organizationRootSelector,
   } = useDepartmentPositionTreeRenderers({
     activeOrganizationRootId,
     collapsedDepartments,
@@ -183,6 +183,7 @@ export default function DepartmentPositionTab({
     departments,
     search,
     selection,
+    onSearchChange: setSearch,
     setActiveOrganizationRootId,
     setCollapsedDepartments,
     selectItem,
@@ -258,7 +259,8 @@ export default function DepartmentPositionTab({
   const {
     detailBlocks,
     renderArchivedBrowser,
-    treePanelBlocks,
+    treeSelector,
+    treeDrawerSelector,
   } = useDepartmentPositionViewRenderers({
     archivedDepartments,
     archivedPositions,
@@ -288,8 +290,8 @@ export default function DepartmentPositionTab({
     positionNames,
     positions,
     positionsByDepartment,
-    departmentNodeBlock,
-    organizationRootBlock,
+    departmentTreeSelector,
+    organizationRootSelector,
     rootDepartments,
     saving,
     search,
@@ -347,7 +349,11 @@ export default function DepartmentPositionTab({
         selectedPositionId={selectedPosition?.id ?? null}
         positions={positions}
         positionsByDepartment={positionsByDepartment}
-        sideBlocks={treePanelBlocks}
+        selector={organizationRootSelector({
+          loading,
+          error,
+          onClose: () => setTreeDrawerOpen(false),
+        })}
         sideOpen={treeOpen}
         onDrawerOpenChange={setTreeDrawerOpen}
         onOpenDepartmentDetails={onOpenDepartmentDetails}
@@ -369,7 +375,8 @@ export default function DepartmentPositionTab({
     <DepartmentPositionMainContent
       treeOpen={treeOpen}
       treeDrawerOpen={treeDrawerOpen}
-	      treePanelBlocks={treePanelBlocks}
+	      treeSelector={treeSelector}
+	      treeDrawerSelector={treeDrawerSelector}
 	      createPanel={createPanel}
 	      departments={departments}
 	      departmentById={departmentById}

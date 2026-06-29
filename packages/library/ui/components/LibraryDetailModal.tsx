@@ -243,7 +243,7 @@ export default function LibraryDetailModal({
 
           sections: [
             createFieldsSection("library-detail-form", fields, {
-              actions,
+              commands: actions,
             }),
           ],
         }),

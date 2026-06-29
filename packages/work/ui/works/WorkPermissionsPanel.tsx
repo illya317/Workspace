@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createPageBody, type DataSurfaceColumnSpec, PageSurface, type PageSurfaceSectionSpec, type SurfaceDataRowActionSpec } from "@workspace/core/ui";
+import { createPageBody, createRecordSection, type DataSurfaceColumnSpec, PageSurface, type PageSurfaceSectionSpec, type SurfaceDataRowActionSpec } from "@workspace/core/ui";
 import { listSpacePermissions, saveSpacePermissions, WORK_REFERENCE_OPTIONS_ENDPOINT } from "./api";
 import { WORK_ROLE_OPTIONS } from "./model";
 import type { WorkSpacePermissionRow, WorkSpaceRole, WorkTarget } from "./types";
@@ -155,21 +155,16 @@ export function useWorkPermissionsBlocks({
     }
   }
   if (!canManage) {
-    return [{
-      kind: "data",
-      key: "permissions-denied",
-      surface: { kind: "records", records: [], empty: "仅空间管理员可维护权限。" },
-    }];
+    return [createRecordSection("permissions-denied", { records: [], empty: "仅空间管理员可维护权限。" })];
   }
   return [
     {
-      kind: "form",
       key: "permission-draft",
-      surface: {
+      body: { kind: "form", form: {
         kind: "fields",
-        columns: 3,
-
-        fields: [{
+        content: {
+          layout: { columns: 3 },
+          items: [{
           key: "user",
           label: "授权用户",
           spec: { valueType: "reference", control: "reference", options: { source: "remote", fkKey: "work.tasks.permission.user", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" } },
@@ -193,14 +188,14 @@ export function useWorkPermissionsBlocks({
             ...current,
             role: normalizeRole(value == null ? null : String(value))
           })),
-        }],
-        actions: [{ key: "add", label: "添加", variant: "primary", disabled: !draft.userId || saving, onClick: addDraft }],
-      },
+          }],
+        },
+        commands: [{ key: "add", label: "添加", variant: "primary", disabled: !draft.userId || saving, onClick: addDraft }],
+      } },
     },
     {
-      kind: "data",
       key: "permission-table",
-      surface: {
+      body: { kind: "data", data: {
         kind: "table",
         rows,
         columns,
@@ -212,16 +207,16 @@ export function useWorkPermissionsBlocks({
         emptyText: "暂无额外授权",
         rowActions: getPermissionRowActions,
         scroll: { y: "hidden" },
-      },
+      } },
     },
     {
-      kind: "form",
       key: "permission-actions",
-      surface: {
-        kind: "inline",
-        actions: [{ key: "save", label: "保存权限", variant: "primary", disabled: saving, onClick: () => void save() }],
+      body: { kind: "form", form: {
+        kind: "filters",
+        content: { items: [] },
+        commands: [{ key: "save", label: "保存权限", variant: "primary", disabled: saving, onClick: () => void save() }],
 
-      },
+      } },
     },
   ];
 }

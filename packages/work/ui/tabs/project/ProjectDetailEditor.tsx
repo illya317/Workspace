@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createBlockSurfaceSection, createFormSection, createPageBody, type FormSurfaceItemSpec, PageSurface, type PageSurfaceCompleteBodySpec } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createFormSection, createPageBody, createPageDataSection, createTabbedPageBody, type FormSurfaceItemSpec, PageSurface, type PageSurfaceCompleteBodySpec } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import ProjectPlanManagementSection from "./ProjectPlanManagementSection";
 import { buildProjectRasciMatrixSurface } from "./ProjectRasciMatrix";
@@ -89,39 +89,39 @@ export function useProjectDetailEditorBlock({
       kind: "section",
       key: "basic",
       title: "基础信息",
-      columns: 3,
-      fields: [
+      layout: { columns: 3 },
+      items: [
         ...(isChildProject ? [
           { kind: "readonly" as const, key: "parentProject", label: "上级项目", value: parentProjectLabel, disabled: !draft.parentProjectId, onClick: () => draft.parentProjectId && onOpenProject(draft.parentProjectId), textAlign: "left" as const },
           { kind: "readonly" as const, key: "parentTask", label: "上级任务", value: draft.parentProjectTaskName || "未设置", disabled: !draft.parentProjectId, onClick: () => openParentProjectPlan(draft.parentProjectId), textAlign: "left" as const },
           { kind: "readonly" as const, key: "parentStatus", label: "上级任务状态", value: draft.parentProjectTaskStatus || "未开始" },
         ] : []),
         { kind: "readonly", key: "code", label: "项目编码", value: projectCode(selectedProject, draft),  },
-        { key: "projectType", label: "项目类型", spec: { valueType: "string", control: "choice", options: { source: "static", items: PROJECT_TYPE_PICKER_OPTIONS }, state: !canManageCurrent || !creating ? "disabled" : "normal" }, value: draft.projectType, onChange: (value) => onDraftChange("projectType", (String(value || "") || "department") as ProjectDraft["projectType"]) },
+        { key: "projectType", label: "项目类型", spec: { valueType: "string", control: "choice", options: { source: "static", items: PROJECT_TYPE_PICKER_OPTIONS }, state: !canManageCurrent || !creating ? "disabled" : "normal" }, value: draft.projectType, onChange: (value: unknown) => onDraftChange("projectType", (String(value || "") || "department") as ProjectDraft["projectType"]) },
         { kind: "readonly", key: "leaderName", label: "项目负责人", value: draft.leader?.name || "未设置" },
-        { key: "name", label: "项目名称", required: true, spec: { valueType: "string", control: "text", state: !canManageCurrent ? "disabled" : "normal" }, value: draft.name, onChange: (value) => onDraftChange("name", String(value ?? "")) },
-        { key: "leadingDepartment", label: "主导部门", required: draft.projectType === "department", spec: { valueType: "reference", control: "reference", options: { source: "remote", fkKey: "work.projects.leadingDepartment", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: !canManageCurrent ? "disabled" : "normal" }, value: draft.leadingDepartmentId ? String(draft.leadingDepartmentId) : "", displayValue: draft.leadingDepartmentName || "", placeholder: "搜索部门名称、编码", onChange: (_value, option) => {
+        { key: "name", label: "项目名称", required: true, spec: { valueType: "string", control: "text", state: !canManageCurrent ? "disabled" : "normal" }, value: draft.name, onChange: (value: unknown) => onDraftChange("name", String(value ?? "")) },
+        { key: "leadingDepartment", label: "主导部门", required: draft.projectType === "department", spec: { valueType: "reference", control: "reference", options: { source: "remote", fkKey: "work.projects.leadingDepartment", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: !canManageCurrent ? "disabled" : "normal" }, value: draft.leadingDepartmentId ? String(draft.leadingDepartmentId) : "", displayValue: draft.leadingDepartmentName || "", placeholder: "搜索部门名称、编码", onChange: (_value: unknown, option: unknown) => {
           const fk = option as ReferenceOption | undefined;
           onDraftChange("leadingDepartmentId", fk?.id ?? null);
           onDraftChange("leadingDepartmentName", fk?.name ?? null);
           onDraftChange("leadingDepartmentCode", fk?.subtitle ?? null);
         } },
-        { key: "projectLevel", label: "项目级别", spec: { valueType: "string", control: "choice", options: { source: "static", items: PROJECT_LEVEL_PICKER_OPTIONS }, state: !canEditCurrent ? "disabled" : "normal" }, value: draft.projectLevel || "普通", onChange: (value) => onDraftChange("projectLevel", String(value || "") || "普通") },
-        { key: "baselineStartDate", label: "计划开始", hint: isChildProject ? "来自上级任务" : undefined, spec: { valueType: "date", control: "temporal", precision: "date", state: !canEditCurrent || isChildProject ? "disabled" : "normal" }, value: draft.baselineStartDate, onChange: (value) => onDraftChange("baselineStartDate", String(value || "")), placeholder: "选择日期" },
-        { key: "baselineEndDate", label: "计划结束", hint: isChildProject ? "来自上级任务" : undefined, spec: { valueType: "date", control: "temporal", precision: "date", state: !canEditCurrent || isChildProject ? "disabled" : "normal" }, value: draft.baselineEndDate, onChange: (value) => onDraftChange("baselineEndDate", String(value || "")), placeholder: "选择日期" },
-        { key: "startDate", label: "实际开始", hint: isChildProject ? "来自上级任务" : undefined, spec: { valueType: "date", control: "temporal", precision: "date", state: !canEditCurrent || isChildProject ? "disabled" : "normal" }, value: draft.startDate, onChange: (value) => onDraftChange("startDate", String(value || "")), placeholder: "选择日期" },
-        { key: "endDate", label: "实际结束", hint: isChildProject ? "来自上级任务" : undefined, spec: { valueType: "date", control: "temporal", precision: "date", state: !canEditCurrent || isChildProject ? "disabled" : "normal" }, value: draft.endDate, onChange: (value) => onDraftChange("endDate", String(value || "")), placeholder: "选择日期" },
-        { key: "completionPercent", label: "完成度", spec: { valueType: "number", control: "number", format: "percent", state: !canEditCurrent ? "disabled" : "normal" }, value: draft.completionPercent, onChange: (value) => onDraftChange("completionPercent", value === null || value === "" || value === undefined ? null : Number(value)) },
-        { key: "description", label: "项目描述", span: "wide", spec: { valueType: "string", control: "text", multiline: true, state: !canEditCurrent ? "disabled" : "normal" }, value: draft.description || "", onChange: (value) => onDraftChange("description", String(value || "") || null) },
+        { key: "projectLevel", label: "项目级别", spec: { valueType: "string", control: "choice", options: { source: "static", items: PROJECT_LEVEL_PICKER_OPTIONS }, state: !canEditCurrent ? "disabled" : "normal" }, value: draft.projectLevel || "普通", onChange: (value: unknown) => onDraftChange("projectLevel", String(value || "") || "普通") },
+        { key: "baselineStartDate", label: "计划开始", hint: isChildProject ? "来自上级任务" : undefined, spec: { valueType: "date", control: "temporal", precision: "date", state: !canEditCurrent || isChildProject ? "disabled" : "normal" }, value: draft.baselineStartDate, onChange: (value: unknown) => onDraftChange("baselineStartDate", String(value || "")), placeholder: "选择日期" },
+        { key: "baselineEndDate", label: "计划结束", hint: isChildProject ? "来自上级任务" : undefined, spec: { valueType: "date", control: "temporal", precision: "date", state: !canEditCurrent || isChildProject ? "disabled" : "normal" }, value: draft.baselineEndDate, onChange: (value: unknown) => onDraftChange("baselineEndDate", String(value || "")), placeholder: "选择日期" },
+        { key: "startDate", label: "实际开始", hint: isChildProject ? "来自上级任务" : undefined, spec: { valueType: "date", control: "temporal", precision: "date", state: !canEditCurrent || isChildProject ? "disabled" : "normal" }, value: draft.startDate, onChange: (value: unknown) => onDraftChange("startDate", String(value || "")), placeholder: "选择日期" },
+        { key: "endDate", label: "实际结束", hint: isChildProject ? "来自上级任务" : undefined, spec: { valueType: "date", control: "temporal", precision: "date", state: !canEditCurrent || isChildProject ? "disabled" : "normal" }, value: draft.endDate, onChange: (value: unknown) => onDraftChange("endDate", String(value || "")), placeholder: "选择日期" },
+        { key: "completionPercent", label: "完成度", spec: { valueType: "number", control: "number", format: "percent", state: !canEditCurrent ? "disabled" : "normal" }, value: draft.completionPercent, onChange: (value: unknown) => onDraftChange("completionPercent", value === null || value === "" || value === undefined ? null : Number(value)) },
+        { key: "description", label: "项目描述", span: "wide", spec: { valueType: "string", control: "text", multiline: true, state: !canEditCurrent ? "disabled" : "normal" }, value: draft.description || "", onChange: (value: unknown) => onDraftChange("description", String(value || "") || null) },
       ],
     },
     {
       kind: "section",
       key: "members",
       title: "项目人员",
-      columns: 2,
-      fields: [
-        { key: "leader", label: "项目负责人", spec: { valueType: "reference", control: "reference", options: { source: "remote", fkKey: "work.projects.member.employee", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: !canManageCurrent || creating ? "disabled" : "normal" }, value: draft.leader?.employeeNumber || "", displayValue: draft.leader?.name || "", placeholder: "搜索负责人",  onChange: (_value, option) => onLeaderChange(option as ReferenceOption | undefined) },
+      layout: { columns: 2 },
+      items: [
+        { key: "leader", label: "项目负责人", spec: { valueType: "reference", control: "reference", options: { source: "remote", fkKey: "work.projects.member.employee", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: !canManageCurrent || creating ? "disabled" : "normal" }, value: draft.leader?.employeeNumber || "", displayValue: draft.leader?.name || "", placeholder: "搜索负责人",  onChange: (_value: unknown, option: unknown) => onLeaderChange(option as ReferenceOption | undefined) },
         ...MULTI_PROJECT_ROLES.map((role): FormSurfaceItemSpec => ({
           kind: "tagList",
           key: role,
@@ -192,50 +192,53 @@ export function useProjectDetailEditorBlock({
     ] : []),
   ];
 
-  return {
-    kind: "complete",
-    sectioning: { kind: "tabs", active: activeTab, onChange: setActiveTab },
-    sections: [
+  return createTabbedPageBody(
+    [
       {
         key: "overview",
         label: editorTitle,
-        kind: "sections",
         header: actions.length ? { actions } : undefined,
-        sections: createPageBody([
-          createFormSection("overview-fields", { kind: "fields", fields: overviewFields }),
-          { kind: "data", key: "rasci", surface: buildProjectRasciMatrixSurface(rasciRows) },
-        ]).sections,
+        body: {
+          kind: "section",
+          sections: createPageBody([
+            createFormSection("overview-fields", { kind: "fields", content: { items: overviewFields } }),
+            createPageDataSection("rasci", buildProjectRasciMatrixSurface(rasciRows)),
+          ]).sections,
+        },
       },
       {
         key: "plan",
         label: "项目计划",
-        kind: "sections",
-        sections: createPageBody([
-          createBlockSurfaceSection("plan-composition", {
-            kind: "content",
-            content: (
-              <div className="space-y-4">
-                <ProjectPlanManagementSection
-                  projectId={draft.id}
-                  canEdit={canEditCurrent}
-                  disabled={saving || creating}
-                  onToast={onToast}
-                />
-                <ProjectTasksSection
-                  projectId={draft.id}
-                  canEdit={canEditCurrent}
-                  disabled={saving || creating}
-                  onToast={onToast}
-                  onCreateChildProject={startCreateChildProject}
-                  onChanged={() => onProjectTasksChanged(draft.id)}
-                />
-              </div>
-            ),
-          }),
-        ]).sections,
+        body: {
+          kind: "section",
+          sections: createPageBody([
+            createBlockSurfaceSection("plan-composition", {
+              kind: "content",
+              content: (
+                <div className="space-y-4">
+                  <ProjectPlanManagementSection
+                    projectId={draft.id}
+                    canEdit={canEditCurrent}
+                    disabled={saving || creating}
+                    onToast={onToast}
+                  />
+                  <ProjectTasksSection
+                    projectId={draft.id}
+                    canEdit={canEditCurrent}
+                    disabled={saving || creating}
+                    onToast={onToast}
+                    onCreateChildProject={startCreateChildProject}
+                    onChanged={() => onProjectTasksChanged(draft.id)}
+                  />
+                </div>
+              ),
+            }),
+          ]).sections,
+        },
       },
     ],
-  };
+    { active: activeTab, onChange: setActiveTab },
+  );
 }
 
 export default function ProjectDetailEditor(props: ProjectDetailEditorProps) {

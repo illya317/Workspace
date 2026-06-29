@@ -160,8 +160,7 @@ export function useWorkPlanFormSurface({
 
   return {
     kind: "fields",
-    columns: 2,
-    fields,
+    content: { items: fields, layout: { columns: 2 } },
   };
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { ActionButton } from "../action/ActionControls";
-import { ACTION_GLYPH_ORDER_BY_KIND } from "../action/ActionGlyphs";
+import { ACTION_GLYPH_ACTION_BY_KEY, ACTION_GLYPH_ORDER_BY_KIND } from "../action/ActionGlyphs";
 import type { ActionGlyphKind } from "../action/ActionGlyphs";
 import { CreateStartButton } from "../action/CreateActionControls";
 import { CONTROL_SIZES, TEXT_STYLES } from "../common/interactionTokens";
@@ -270,13 +270,13 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
       const { editMode, canEdit = true, editLabel = "编辑", saveLabel = "保存", saving = false, downloading = false, onStartEdit, onSave, onCancel, onDownload, onShowHistory } = item;
       if (!canEdit && !onDownload) return null;
       const actions: ToolbarRenderableAction[] = [];
-      if (canEdit && !editMode) actions.push({ key: `${item.key}-edit`, kind: "edit", label: editLabel, onClick: onStartEdit });
+      if (canEdit && !editMode) actions.push({ key: `${item.key}-edit`, kind: ACTION_GLYPH_ACTION_BY_KEY.edit.icon, label: editLabel, onClick: onStartEdit });
       if (canEdit && editMode) {
-        actions.push({ key: `${item.key}-save`, kind: "save", label: saveLabel, variant: "primary", disabled: saving, onClick: onSave });
-        actions.push({ key: `${item.key}-cancel`, kind: "cancel", label: "取消", onClick: onCancel });
+        actions.push({ key: `${item.key}-save`, kind: ACTION_GLYPH_ACTION_BY_KEY.save.icon, label: saveLabel, variant: ACTION_GLYPH_ACTION_BY_KEY.save.variant, disabled: saving, onClick: onSave });
+        actions.push({ key: `${item.key}-cancel`, kind: ACTION_GLYPH_ACTION_BY_KEY.cancel.icon, label: ACTION_GLYPH_ACTION_BY_KEY.cancel.label, variant: ACTION_GLYPH_ACTION_BY_KEY.cancel.variant, onClick: onCancel });
       }
-      if (canEdit && onShowHistory) actions.push({ key: `${item.key}-history`, kind: "history", label: "最近改动", onClick: onShowHistory });
-      if (onDownload) actions.push({ key: `${item.key}-download`, kind: "download", label: "下载", disabled: downloading, onClick: onDownload });
+      if (canEdit && onShowHistory) actions.push({ key: `${item.key}-history`, kind: ACTION_GLYPH_ACTION_BY_KEY.history.icon, label: "最近改动", variant: ACTION_GLYPH_ACTION_BY_KEY.history.variant, onClick: onShowHistory });
+      if (onDownload) actions.push({ key: `${item.key}-download`, kind: ACTION_GLYPH_ACTION_BY_KEY.download.icon, label: ACTION_GLYPH_ACTION_BY_KEY.download.label, variant: ACTION_GLYPH_ACTION_BY_KEY.download.variant, disabled: downloading, onClick: onDownload });
       return <>{renderOrderedActions(actions, item.key, size)}</>;
     }
     default:

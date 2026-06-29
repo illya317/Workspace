@@ -95,13 +95,11 @@ export function buildPositionCreatePanelBlock({
       <PageSurface kind="standard"
         embedded
         body={createPageBody([{
-          kind: "form",
           key: "fields",
-          surface: {
+          body: { kind: "form", form: {
             kind: "fields",
-            columns: 3,
-            fields,
-          },
+            content: { items: fields, layout: { columns: 3 } },
+          } },
         }])}
       />
     ),

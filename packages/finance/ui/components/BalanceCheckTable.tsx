@@ -179,7 +179,6 @@ export default function BalanceCheckTable({
       embedded
       body={createPageBody([
         createPageTableSection("balance-check", {
-          framed: true,
 
 
           rows,

@@ -176,11 +176,9 @@ export default function VoucherTab({
           : [
               ...lifecycleBlocks,
               {
-                kind: "data",
                 key: "vouchers",
-                surface: {
+                body: { kind: "data", data: {
                   kind: "table",
-                  framed: true,
 
                   rows: vouchers,
                   columns: voucherColumns,
@@ -192,7 +190,7 @@ export default function VoucherTab({
                     setExpandedVoucherId((prev) => (prev === v.id ? null : v.id)),
                   expandedRowKey: expandedVoucherId,
                   expandedRowContent: (v: Voucher) => <VoucherItemsPreview voucher={v} columns={itemColumns} />,
-                },
+                } },
               },
               createBlockSurfaceSection("voucher-adjust-modal", {
                 kind: "content",

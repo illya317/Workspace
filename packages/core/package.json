@@ -15,8 +15,6 @@
     "./routing/*": "./routing/*.ts",
     "./search": "./search/index.ts",
     "./search/*": "./search/*.ts",
-    "./server": "./server/index.ts",
-    "./server/*": "./server/*.ts",
     "./showcase": "./showcase/index.ts",
     "./showcase/*": "./showcase/*.tsx",
     "./ui-registry": "./ui-registry.ts",

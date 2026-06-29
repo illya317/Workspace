@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type KeyboardEvent } from "react";
 import { createBlockSurfaceSection, createSectionsSection, createPageBody, createSectionSection, PageSurface, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import ApiAccessClient, { type ApiAccessModuleRow } from "./ApiAccessClient";
@@ -203,12 +203,12 @@ export default function AccountSettingsPanel({
           title: "修改账号",
 
           sections: [{
-            kind: "form",
             key: "profile-form",
-            surface: {
+            body: { kind: "form", form: {
               kind: "fields",
-              columns: 1,
-              fields: [
+              content: {
+                layout: { columns: 1 },
+                items: [
                 {
                   key: "employee-name",
                   label: "姓名",
@@ -220,8 +220,8 @@ export default function AccountSettingsPanel({
                   label: "昵称",
                   spec: { valueType: "string", control: "text" },
                   value: nickname,
-                  onChange: (value) => setNickname(String(value ?? "")),
-                  onKeyDown: (event) => {
+                  onChange: (value: unknown) => setNickname(String(value ?? "")),
+                  onKeyDown: (event: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
                     if (event.key === "Enter") void saveProfile();
                   },
                 },
@@ -230,8 +230,8 @@ export default function AccountSettingsPanel({
                   label: "用户名",
                   spec: { valueType: "string", control: "text" },
                   value: username,
-                  onChange: (value) => setUsername(String(value ?? "")),
-                  onKeyDown: (event) => {
+                  onChange: (value: unknown) => setUsername(String(value ?? "")),
+                  onKeyDown: (event: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
                     if (event.key === "Enter") void saveProfile();
                   },
                 },
@@ -240,27 +240,28 @@ export default function AccountSettingsPanel({
                   key: "username-message",
                   content: <FormMessage message={usernameMessage} />,
                 }] : []),
-              ],
-            },
+                ],
+              },
+            } },
           }],
         }),
         createSectionSection("password", {
           title: "修改密码",
 
           sections: [{
-            kind: "form",
             key: "password-form",
-            surface: {
+            body: { kind: "form", form: {
               kind: "fields",
-              columns: 1,
-              fields: [
+              content: {
+                layout: { columns: 1 },
+                items: [
                 {
                   key: "old-password",
                   label: "旧密码",
                   spec: { valueType: "string", control: "text" },
                   type: "password",
                   value: oldPwd,
-                  onChange: (value) => setOldPwd(String(value ?? "")),
+                  onChange: (value: unknown) => setOldPwd(String(value ?? "")),
                 },
                 {
                   key: "new-password",
@@ -268,7 +269,7 @@ export default function AccountSettingsPanel({
                   spec: { valueType: "string", control: "text" },
                   type: "password",
                   value: newPwd,
-                  onChange: (value) => setNewPwd(String(value ?? "")),
+                  onChange: (value: unknown) => setNewPwd(String(value ?? "")),
                   minLength: 4,
                 },
                 {
@@ -277,9 +278,9 @@ export default function AccountSettingsPanel({
                   spec: { valueType: "string", control: "text" },
                   type: "password",
                   value: confirmPwd,
-                  onChange: (value) => setConfirmPwd(String(value ?? "")),
+                  onChange: (value: unknown) => setConfirmPwd(String(value ?? "")),
                   minLength: 4,
-                  onKeyDown: (event) => {
+                  onKeyDown: (event: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
                     if (event.key === "Enter") void savePassword();
                   },
                 },
@@ -288,21 +289,22 @@ export default function AccountSettingsPanel({
                   key: "password-message",
                   content: <FormMessage message={passwordMessage} />,
                 }] : []),
-              ],
-              actions: [{ key: "save-password", label: "保存密码", variant: "secondary", onClick: () => void savePassword() }],
-            },
+                ],
+              },
+              commands: [{ key: "save-password", label: "保存密码", variant: "secondary", onClick: () => void savePassword() }],
+            } },
           }],
         }),
         createSectionSection("avatar", {
           title: "修改头像",
 
           sections: [{
-            kind: "form",
             key: "avatar-form",
-            surface: {
+            body: { kind: "form", form: {
               kind: "fields",
-              columns: 1,
-              fields: [
+              content: {
+                layout: { columns: 1 },
+                items: [
                 {
                   kind: "note" as const,
                   key: "avatar-preview",
@@ -324,16 +326,17 @@ export default function AccountSettingsPanel({
 
                   accept: "image/png,image/jpeg,image/webp,image/gif",
                   showFileName: false,
-                  onChange: (file) => selectAvatar(file instanceof File ? file : null),
+                  onChange: (file: unknown) => selectAvatar(file instanceof File ? file : null),
                 },
                 ...(avatarMessage ? [{
                   kind: "note" as const,
                   key: "avatar-message",
                   content: <FormMessage message={avatarMessage} />,
                 }] : []),
-              ],
-              actions: [{ key: "save-avatar", label: avatarSaving ? "保存中..." : "保存头像", variant: "primary", disabled: !avatarFile || avatarSaving, onClick: () => void saveAvatar() }],
-            },
+                ],
+              },
+              commands: [{ key: "save-avatar", label: avatarSaving ? "保存中..." : "保存头像", variant: "primary", disabled: !avatarFile || avatarSaving, onClick: () => void saveAvatar() }],
+            } },
           }],
         }),
       ],

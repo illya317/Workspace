@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PageSurface, createBlockSurfaceSection, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceSection, createPageDataSection, useFeedback } from "@workspace/core/ui";
 import type { PageSurfaceSectionSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { getAccountColumns, type Account } from "../components/AccountTable";
 import ReclassConfigView from "../components/ReclassConfigView";
@@ -157,6 +157,7 @@ export default function AccountTab({
       toolbar={{ items: toolbarItems }}
       body={{
         kind: "complete",
+        layout: reclassMode ? undefined : "single",
         sections: reclassMode ? [
           ...lifecycleBlocks,
           createBlockSurfaceSection("account-reclass-content", {
@@ -167,29 +168,18 @@ export default function AccountTab({
               <p className="py-8 text-center text-sm text-gray-400">请选择公司和年份以配置重分类规则</p>
             ),
           }),
-        ] : lifecycleBlocks,
-        ...(!reclassMode ? {
-          layout: "single" as const,
-          sections: [
-            ...lifecycleBlocks,
-            {
-              kind: "data" as const,
-              key: "accounts",
-              surface: {
-                kind: "table" as const,
-                framed: true,
-
-
-                rows: accounts,
-                columns: accountColumns,
-                visibleColumns,
-                loading,
-                emptyText: "暂无科目数据",
-                rowKey: (account: Account) => account.id,
-              },
-            },
-          ],
-        } : {}),
+        ] : [
+          ...lifecycleBlocks,
+          createPageDataSection("accounts", {
+            kind: "table",
+            rows: accounts,
+            columns: accountColumns,
+            visibleColumns,
+            loading,
+            emptyText: "暂无科目数据",
+            rowKey: (account: Account) => account.id,
+          }),
+        ],
       }}
       footer={!reclassMode ? { pagination: { page, totalPages, total, onPageChange: setPage } } : undefined}
     />

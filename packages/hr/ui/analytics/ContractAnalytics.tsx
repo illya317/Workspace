@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createPageBody, createAnalysisSection, createSectionsSection, createMessageSection, createPageDataSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createSectionsSection, createMessageSection, createMetricsSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import type { Contract } from "./useAnalyticsData";
 import { computeStats, enrichContracts, filterContracts, statusLabel, type EnrichedContract } from "./contract-helpers";
 
@@ -72,8 +72,7 @@ export function useContractAnalyticsBlocks({
     cell: contract => ({ kind: "badge", label: statusLabel(contract.status),  })
   }], []);
   return [
-      createPageDataSection("stats", {
-          kind: "metrics",
+      createMetricsSection("stats", {
           metrics: [
             { key: "total", label: "主合同总数", value: `${stats.total} / 无固定 ${stats.permanent}` },
             { key: "expiring30", label: "30天内到期", value: stats.expiring30 },
@@ -88,9 +87,8 @@ export function useContractAnalyticsBlocks({
           createAnalysisSection("types", {
             title: "合同类型分布",
             sections: [{
-              kind: "data",
               key: "type-bars",
-              surface: {
+              body: { kind: "data", data: {
                 kind: "table",
                 rows: stats.types.map(([label, count]) => ({ label, count })),
                 columns: distributionColumns,
@@ -99,15 +97,14 @@ export function useContractAnalyticsBlocks({
                                 presentation: { density: "compact" },
 
                 emptyText: "暂无数据",
-              },
+              } },
             }],
           }),
           createAnalysisSection("companies", {
             title: "公司合同分布",
             sections: [{
-              kind: "data",
               key: "company-bars",
-              surface: {
+              body: { kind: "data", data: {
                 kind: "table",
                 rows: stats.companies.map(([label, count]) => ({ label, count })),
                 columns: distributionColumns,
@@ -116,7 +113,7 @@ export function useContractAnalyticsBlocks({
                                 presentation: { density: "compact" },
 
                 emptyText: "暂无数据",
-              },
+              } },
             }],
           }),
         ],
@@ -143,9 +140,8 @@ export function useContractAnalyticsBlocks({
         },
         sections: [
           {
-            kind: "data",
             key: "expiry-table",
-            surface: {
+            body: { kind: "data", data: {
               kind: "table",
               rows: filtered.slice(0, 100),
               columns,
@@ -153,7 +149,7 @@ export function useContractAnalyticsBlocks({
               rowKey: contract => contract.id,
               emptyText: "暂无数据",
               rowState: contract => contract.status === "expired" ? "danger" : contract.status === "expiring30" ? "danger" : "normal",
-            },
+            } },
           },
           ...(filtered.length > 100 ? [createMessageSection("more", {
             tone: "muted" as const,

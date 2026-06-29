@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createRecordSection, PageSurface } from "@workspace/core/ui";
 import { label, formatVal } from "../audit";
 
 export interface AuditChange {
@@ -78,11 +78,8 @@ export default function AuditLogEntry({
   return (
     <PageSurface kind="standard"
       embedded
-      body={createPageBody([{
-        kind: "data",
-        key: `audit-entry-${entry.id}`,
-        surface: {
-          kind: "records",
+      body={createPageBody([
+        createRecordSection(`audit-entry-${entry.id}`, {
           records: [{
             key: String(entry.id),
             expanded,
@@ -115,8 +112,8 @@ export default function AuditLogEntry({
               </div>
             ),
           }],
-        },
-      }])}
+        }),
+      ])}
     />
   );
 }

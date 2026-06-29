@@ -127,7 +127,6 @@ export default function ReclassReviewView({
         embedded
         body={createPageBody([
           createPageTableSection("reclass-review", {
-            framed: true,
 
 
             rows: filtered,

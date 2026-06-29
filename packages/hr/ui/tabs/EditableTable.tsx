@@ -85,7 +85,6 @@ export default function EditableTable({
   canEdit,
   renderEditInput,
   onStartEdit,
-  framed,
   loading,
   emptyText,
 }: EditableTableProps) {
@@ -122,11 +121,9 @@ export default function EditableTable({
     <PageSurface kind="standard"
       embedded
       body={createPageBody([{
-          kind: "data",
           key: "editable-table",
-          surface: {
+          body: { kind: "data", data: {
             kind: "table",
-            framed,
             rows: items,
             columns,
             visibleColumns,
@@ -135,7 +132,7 @@ export default function EditableTable({
  },
             loading,
             emptyText,
-          },
+          } },
         }], { layout: "single" })}
     />
   );

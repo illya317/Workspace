@@ -141,7 +141,7 @@ function classifyBusinessModuleViewUsage(file: SourceInfo, key: string, viewSign
   }
   if (relPath.includes("/analytics/") || /bars|chart|matrix|trend|distribution|reasons/i.test(key)) return "analysis-visual";
 
-  if (relPath.includes("navigation-panels") || viewSignal === "NavigationSurface" || /navigation|selector|positions|departments/i.test(key)) {
+  if (relPath.includes("navigation-panels") || viewSignal === "NavigationRenderer" || /navigation|selector|positions|departments/i.test(key)) {
     return "navigation-composition";
   }
 

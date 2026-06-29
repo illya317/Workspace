@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionGlyph, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { ActionGlyph, createRecordSection, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import PermissionCell from "./PermissionCell";
 import PermissionDetails from "./PermissionDetails";
 import type { PermissionsTabState } from "../../hooks/usePermissionsTab";
@@ -19,10 +19,10 @@ export function createPermissionMatrixSection({
   s
 }: MatrixTableProps): PageSurfaceSectionSpec {
   if (!s.selectedResource) {
-    return { kind: "data", key: "empty-resource", surface: { kind: "records", records: [], empty: "请选择左侧资源模块" } };
+    return createRecordSection("empty-resource", { records: [], empty: "请选择左侧资源模块" });
   }
   if (s.subjects.length === 0) {
-    return { kind: "data", key: "empty-subjects", surface: { kind: "records", records: [], empty: "无匹配结果" } };
+    return createRecordSection("empty-subjects", { records: [], empty: "无匹配结果" });
   }
   const maxLevel = ROLE_HIERARCHY[s.maxRoleKey] ?? 3;
   const subjectColumnLabel = s.subjectType === "user" ? "姓名" : s.subjectType === "position" ? "岗位" : "部门";
@@ -87,17 +87,15 @@ export function createPermissionMatrixSection({
     }
   }];
   return {
-    kind: "data",
     key: "permission-matrix",
-    surface: {
+    body: { kind: "data", data: {
       kind: "table",
-      framed: true,
       rows: s.subjects,
       columns,
       visibleColumns: columns.map(column => column.key),
       rowKey: subject => subject.id,
       expandedRowKeys: s.expandedRows,
       expandedRowContent: subject => <PermissionDetails subject={subject} s={s} />,
-    },
+    } },
   };
 }

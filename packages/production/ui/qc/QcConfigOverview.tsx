@@ -1,6 +1,6 @@
 import type { QcConfigOverview } from "@workspace/production/server/qc";
 import Link from "next/link";
-import { createSectionsSection, createPageBody, createPageDataSection, createPageTableSection, PageSurface } from "@workspace/core/ui";
+import { createSectionsSection, createPageBody, createMetricsSection, createPageTableSection, PageSurface } from "@workspace/core/ui";
 
 interface Props {
   overview: QcConfigOverview;
@@ -56,8 +56,7 @@ function BatchesOverview({ overview }: { overview: QcConfigOverview }) {
     <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageDataSection<ProductOverview>("qc-config-batch-metrics", {
-          kind: "metrics",
+        createMetricsSection("qc-config-batch-metrics", {
           metrics: [
             { key: "products", label: "产品配置", value: overview.products.length },
             { key: "stages", label: "阶段配置", value: overview.products.reduce((sum, product) => sum + product.stageCount, 0) },
@@ -66,8 +65,6 @@ function BatchesOverview({ overview }: { overview: QcConfigOverview }) {
           ],
         }),
         createPageTableSection<ProductOverview>("qc-config-batch-products", {
-          framed: true,
-          title: "产品与检验阶段",
           rows: products,
           columns: [
             {
@@ -109,8 +106,7 @@ function TemplatesOverview({ overview }: { overview: QcConfigOverview }) {
     <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageDataSection("qc-config-template-metrics", {
-          kind: "metrics",
+        createMetricsSection("qc-config-template-metrics", {
           metrics: [
             { key: "recordTemplates", label: "记录模板 YAML", value: overview.recordTemplates.length },
             { key: "methods", label: "方法 YAML", value: overview.methods.length },
@@ -122,8 +118,6 @@ function TemplatesOverview({ overview }: { overview: QcConfigOverview }) {
           layout: "grid",
           sections: [
             createPageTableSection<RecordTemplateOverview>("qc-config-record-templates", {
-              framed: true,
-              title: "记录模板",
               rows: overview.recordTemplates.slice(0, 8),
               columns: [
                 {
@@ -148,8 +142,6 @@ function TemplatesOverview({ overview }: { overview: QcConfigOverview }) {
               emptyText: "暂无记录模板。",
             }),
             createPageTableSection<LayoutMappingSample>("qc-config-layout-mapping-samples", {
-              framed: true,
-              title: "布局映射样本",
               rows: overview.layoutMapping.samples,
               columns: [
                 {

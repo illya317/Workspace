@@ -134,16 +134,15 @@ export function createCrossMatrixSection({
         content: "无数据"
       })]
       : [{
-          kind: "data",
           key: "matrix-table",
-          surface: {
+          body: { kind: "data", data: {
             kind: "table",
             rows: [...rows, { rowKey: "合计", values: crossMatrix.colTotals, total: statsActive }],
             columns,
             visibleColumns: columns.map((column) => column.key),
             rowKey: (row) => row.rowKey,
             rowState: (row) => row.rowKey === "合计" ? "total" : "normal",
-          },
+          } },
         }],
   });
 }

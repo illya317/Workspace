@@ -87,29 +87,28 @@ export default function TemplatePreviewModal({
   const precheckBlocks = fullSectionBlocks(fullBlocks, "1");
   return <PageSurface kind="standard"
     embedded
-    body={createPageBody([{
-      kind: "modal",
+    body={createPageBody([], { modals: [{
       key: "template-preview-modal",
       open: true,
       title: `布局预览：${selectionTitle(selection)}`,
       onClose,
       size: "lg",
       sections: [{
-        kind: "document",
         key: "template-preview-body",
-        surface: {
+        body: { kind: "document", document: {
           kind: "pages",
-          pages: [{
-            key: "preview",
-            size: "fluid",
+          pages: {
+            items: [{
+              key: "preview",
+              size: "fluid",
 
 
-            content: (
-              <>
-                <div className="mb-6 grid grid-cols-[1fr_auto] items-start gap-4 text-sm font-semibold text-slate-950">
-                  <span />
-                  <PreviewModeToggle advancedMode={advancedMode} onToggle={() => setAdvancedMode(current => !current)} />
-                </div>
+              content: (
+                <>
+                  <div className="mb-6 grid grid-cols-[1fr_auto] items-start gap-4 text-sm font-semibold text-slate-950">
+                    <span />
+                    <PreviewModeToggle advancedMode={advancedMode} onToggle={() => setAdvancedMode(current => !current)} />
+                  </div>
                 {selection.kind === "precheck" && <TemplateInlineFeedback selection={selection} onSaved={onSaved}>
                     <h3 className="mb-5 text-center text-lg font-semibold text-slate-950">
                       {numerals[selection.stageIndex] ?? selection.stageIndex + 1}、{selection.template.productName}{selection.stage.label}
@@ -125,8 +124,9 @@ export default function TemplatePreviewModal({
               </>
             ),
           }],
-        },
+          },
+        } },
       }],
-    }])}
+    }] })}
   />;
 }

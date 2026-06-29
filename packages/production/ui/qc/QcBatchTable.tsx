@@ -38,12 +38,9 @@ export function QcBatchTable({
     <PageSurface kind="standard"
       embedded
       body={createPageBody([{
-          kind: "data",
           key: "qc-batches",
-          surface: {
+          body: { kind: "data", data: {
             kind: "table",
-            framed: true,
-            title: "批次记录",
             rows,
             columns: [
               { key: "id", label: "ID", required: true, cell: (batch) => ({ kind: "text", value: batch.id,  }) },
@@ -61,7 +58,7 @@ export function QcBatchTable({
             rowKey: (batch) => batch.id,
             emptyText: "暂无批次记录。",
             scroll: { x: true },
-          },
+          } },
         }], { layout: "single" })}
       footer={{ pagination: { page, totalPages, total, onPageChange,  compact: true } }}
     />

@@ -12,7 +12,7 @@
 - 服务端列表、候选项和高级筛选里的 `keyword` / 模糊文本匹配必须复用 `@workspace/platform/search` 的 `matchAnyField`、`matchSearchFields` 或 `matchText`，保持中文、拼音全拼和首字母规则一致；不要在业务 service 或 UI 里手写 `toLowerCase().includes()` / `.includes(query)` 作为用户搜索，新增会被 `npm run arch:gate` 的 `handwrittenSearchMatches` ratchet 拦住。
 - generated / snapshot / export 类页面的二段式筛选字段必须由后端 DTO 明确返回，例如 `preview.filterFields`，UI 只能把后端 contract 映射给 Core `FieldValueFilter`。禁止在 `packages/*/ui/generated` 里本地声明 `FieldValueFilter` 字段；新增会被 `npm run arch:gate` 的 `generatedFilterContractDrift` ratchet 拦住。
 - 搜索型原生 input 的历史债为 0：除 `packages/core/ui/SearchInput.tsx` 内部实现外，`app/` 和 `packages/` 不得出现 `type="search"` 或 `placeholder/aria-label` 带搜索语义的原生 `<input>`。新增会被 `npm run arch:gate` 的 `nativeSearchInputFiles` ratchet 拦住。
-- Core UI 可用入口以 `role` 分层为准：业务默认只用 `role=surface` 声明接口、`role=helper` 声明助手和允许的 `role=service` 服务接口。`role=host` 当前为空备用，新增必须白名单；`role=internal` 不作为业务入口。业务包、Platform 页面和 app 壳不得引用未注册 Core UI 名字，也不得在 `packages/*/ui` 新增手写页面卡片/筛选/分栏/表格壳；新增同类结构会被 `gate:ui` / structure ratchet 抓住。
+- Core UI 可用入口以公共 runtime 入口、helper 和 Surface spec 为准。业务包、Platform 页面和 app 壳不得 value import 非公共 runtime renderer，也不得引用未注册 Core UI 名字或在 `packages/*/ui` 新增手写页面卡片/筛选/分栏/表格壳；新增同类结构会被 `gate:ui` / structure ratchet 抓住。
 - `PageSurface` 的 `moduleView` 只承认历史债，不作为新增页面接口。存量已迁出，`businessModuleViewUsages` baseline 为 0；需要承载新内容时先补 `PageSurface` 的 form/data/document/visualization/block/navigation/toolbar spec 或记录 Core 缺口后由 Architecture/Core UI 任务扩展。
 - 页面模板采用 `A Core 源头层 -> B 薄壳 ViewModel -> C 渲染`：A 是 Core 中的一组可组合模板部件，可以拆成 A1/A2/A3/A4，分别承载类型、布局、默认动作、弹窗和状态机；B 只把业务事实映射成 Core 的 ViewModel 类型，传入真实回调和状态；C 只负责 `<CoreTemplate {...viewModel} />` 渲染。
 - URL 只是同页状态的外显时，不能触发 Next 整页导航或 RSC remount。tab、筛选、选中部门/项目/记录、同一工作台内切空间等交互应由客户端状态驱动；需要同步地址栏时用 `window.history.pushState/replaceState`，URL 必须经 `workspacePath` 处理 basePath，并加 `popstate` 让浏览器前进/后退回写状态。`router.push/replace`、`redirect`、`<Link>` 只用于真正进入另一个页面、详情资源或模块。
@@ -22,16 +22,16 @@
 | 能力 | 统一入口 | 适用场景 | 禁止做法 |
 |---|---|---|---|
 | 页面 Surface | `@workspace/core/ui` 的 `PageSurface` | header、navigation、toolbar、body、footer 五段页面协议；列表、详情、分栏、分析、设置页都从这里进入 | 业务页直接拼 PageFrame/PanelCard/SectionCard/Toolbar/TabBar/Pagination 形成新页面壳，或新增 `moduleView` 逃生口 |
-| 表单正文 | `PageSurface.body.blocks[].kind=form` 或局部 `InputControl` | fields、filters、modal、inline、detail、login 表单正文，由 fields spec / InputControl spec 驱动 | 业务页直接 import internal form renderer、重复手写字段网格、筛选条和弹窗表单结构，或把页面级 toolbar 放进 FormSurface |
-| 数据正文 | `PageSurface.body.blocks[].kind=data` | table、structured、records、metrics 数据正文，由 row/column/display spec 驱动 | 业务页直接 import internal data renderer、直接拼表格外壳、记录卡、指标卡和 raw 展示组合，或把页面级 toolbar/pagination 放进 DataSurface |
-| 可视化正文 | `PageSurface.body.blocks[].kind=visualization` | chart、gantt、timeline、tree 等可视化和复杂图形正文 | 把图表塞进 `DataSurface.kind="visual"`，或用 `FormSurface.note` / `moduleView` 承载甘特图 |
-| 通用区块 | `PageSurface.body.blocks[].kind=block` | section、panel、group、message、empty、actions、module grid 等通用正文容器 | 用旧 page block 展开业务协议，或用 `moduleView` 包普通容器 |
-| 导航细节 | `PageSurface.navigation` / `PageSurface.body` 的 navigation spec | 页面声明式导航段、正文 selector/disclosure/steps；L1/L2 模块入口由 route/module 层或模块入口卡片承载，`TabBar` 只从当前页面内部视图层开始；分页只在 `PageSurface.footer.pagination` | 业务页新增二级导航组件、直接 import `NavigationSurface` 拼 tab/pagination，把同级 L2 模块塞进 `TabBar`，或临时拼流程链接 |
+| 表单正文 | `PageSurface.body.sections[].body.kind=form` 或局部 `InputControl` | fields、filters、modal、inline、detail、login 表单正文，由 fields spec / InputControl spec 驱动 | 业务页直接 import internal form renderer、重复手写字段网格、筛选条和弹窗表单结构，或把页面级 toolbar 放进 FormSurface |
+| 数据正文 | `PageSurface.body.sections[].body.kind=data` | table、structured、records、metrics 数据正文，由 row/column/display spec 驱动 | 业务页直接 import internal data renderer、直接拼表格外壳、记录卡、指标卡和 raw 展示组合，或把页面级 toolbar/pagination 放进 DataSurface |
+| 可视化正文 | `PageSurface.body.sections[].body.kind=visualization` | chart、gantt、timeline、tree 等可视化和复杂图形正文 | 把图表塞进 `DataSurface.kind="visual"`，或用 `FormSurface.note` / `moduleView` 承载甘特图 |
+| 通用区块 | `PageSurface.body.sections[].body.kind=section` | section、panel、group、message、empty、actions、module grid 等通用正文容器 | 用旧 page block 展开业务协议，或用 `moduleView` 包普通容器 |
+| 导航细节 | `PageSurface.navigation` / `SelectorSurface` | 页面声明式导航段、左侧 selector/disclosure/steps；L1/L2 模块入口由 route/module 层或模块入口卡片承载，`TabBar` 只从当前页面内部视图层开始；分页只在 `PageSurface.footer.pagination` | 业务页新增二级导航组件、直接 import `NavigationRenderer` 拼 tab/pagination，把同级 L2 模块塞进 `TabBar`，或临时拼流程链接 |
 | 页面反馈 | `@workspace/core/ui` 的 `useFeedback` | 保存成功、失败、校验提示、删除/覆盖确认、未保存离开提示 | 页面直接用 `Toast`、`ConfirmModal`、`useToast`、`useConfirm`、`useConfirmDelete`、`useUnsavedChangesPrompt` |
 | 字段/选择/日期能力 | `InputControl` 或 `PageSurface` form block 的 field/filter spec | 状态、阶段、固定枚举、FK、日期、tag、只读字段等 | 业务直接 import `SelectField`、`OptionPicker`、`PickerShell`、`SearchInput`、`FkFieldInput`、`CalendarDateInput` 等 internal renderer |
 | 工具栏/动作能力 | `PageSurface.toolbar` / 正文 Surface action spec | 页面级搜索、筛选、列显隐、批量动作、保存/取消/删除/刷新等统一成一个 Toolbar | 业务直接 import `Toolbar` / `ActionButton`、自绘 SVG、自排按钮顺序，或一页出现多个 toolbar |
 | 表格/记录/指标能力 | `PageSurface` data block 的 data spec | 标准列表、批量表格、记录卡、指标卡 | 业务直接 import `DataSurface`、`DataTable`、`StructuredTable`、`MetricCard`、`NumberCell`、`AmountCell` 或手搓表格 DOM |
-| 导航/选择区能力 | `PageSurface.navigation` / selection 声明接口 | Tab、左侧 selector、折叠、步骤、禁用步骤链接 | 业务直接 import `NavigationSurface`、`SelectorPanel`、`TabBar`、`Pagination`、`PanelCard + SelectorList/SelectorTree/SelectorCard`，或手搓流程 nav |
+| 导航/选择区能力 | `PageSurface.navigation` / `SelectorSurface` | Tab、左侧 selector、折叠、步骤、禁用步骤链接 | 业务直接 import `NavigationRenderer`、`SelectorPanel`、`TabBar`、`Pagination`、`PanelCard + SelectorList/SelectorTree/SelectorCard`，或手搓流程 nav |
 | 页面内容/分栏能力 | `PageSurface` 的 page/split/content spec | 页面内容留白、卡片、章节、空态、左右分栏 | 业务直接 import `PageShell`、`PageContent`、`PanelCard`、`SectionCard`、`WorkspaceSplitPage` |
 | 纸面/报告能力 | `PageSurface` 的 `document` block / Core `DocumentSurface` | A4 文档、检验记录纸面、报告预览、多页纸面容器 | 用 `moduleView` 或普通卡片承载纸面文档、重复手写纸面宿主宽度和字体 |
 
@@ -142,7 +142,7 @@ Finance 当前已经有第一层统一模板，但业务页面还在渐进迁移
 - `app/*` 和 `packages/*` 禁止新增搜索型原生 `<input>`；内容检索、FK、下拉内检索都通过 Surface field/filter spec 或领域薄壳表达。
 - `packages/*` 禁止 `window.confirm`。
 - `app/*` 和 `packages/*/ui` 页面反馈只能使用 `useFeedback`；禁止直接使用 `Toast`、`ConfirmProvider`、`useToast`、`useConfirm`、`useConfirmDelete`、`useUnsavedChangesPrompt`，专用 Agent 确认弹窗除外。
-- 业务新增 Core UI 用法必须落到 `role=surface` 声明接口、`role=helper` 声明助手或允许的 `role=service` 服务接口；内部 renderer 只保留 Core 内部、showcase、迁移阅读或 type-only 兼容用途。`npm run gate:ui` 会校验 registry 和业务 import role；组件库主展示按 `category/subcategory` 分类，并可按 `role` 筛选，`role=internal` 不得作为业务 import。页面布局协议新增绕过属于 UI 阻断，由当前改动 agent 自己修，不交给 Hygiene。
+- 业务新增 Core UI 用法必须落到公共 runtime 入口、helper 或 Surface spec；内部 renderer 只保留 Core 内部、迁移阅读或 type-only 兼容用途。`npm run gate:ui` 会校验 registry 和业务 import 边界；组件库主展示只自动收录有 `declares` 的封装组件，并按 `页面布局 / 页面内容 / 通用` 分类。页面布局协议新增绕过属于 UI 阻断，由当前改动 agent 自己修，不交给 Hygiene。
 - `InputControl` spec 禁止使用 `editor`。文本、数字、布尔、选项、FK、日期、文件、集合和评分分别通过 `control` 语义表达；搜索/下拉/分段编码等细节通过 `options.mode`、`options.source`、`format`、`mask.kind` 派生。
 - `packages/*` 禁止原生 `input[type=date]`，统一通过 `PageSurface` 日期 field spec、`InputControl` 或领域薄壳表达。
 - 选择/搜索类组件必须使用 `@workspace/core/search` 的 `matchText` 或由服务端提供同等拼音匹配。

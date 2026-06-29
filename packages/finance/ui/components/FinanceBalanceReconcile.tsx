@@ -5,7 +5,7 @@ import { workspacePath } from "@workspace/core/routing";
 import {
   createPageBody,
   PageSurface,
-  createPageDataSection,
+  createRecordSection,
   createInlineFieldsSection,
   createPageTableSection,
   type DataSurfaceColumnSpec,
@@ -109,7 +109,7 @@ export default function FinanceBalanceReconcile({
             },
           ], {
             kind: "filters",
-            actions: [{ key: "reconcile", label: loading ? "核对中..." : "开始核对", variant: "primary", onClick: handleReconcile, disabled: loading }],
+            commands: [{ key: "reconcile", label: loading ? "核对中..." : "开始核对", variant: "primary", onClick: handleReconcile, disabled: loading }],
           }),
         ])}
       />
@@ -157,7 +157,7 @@ export default function FinanceBalanceReconcile({
 }
 
 function BalanceReconcileSuccess() {
-  return <PageSurface kind="standard" embedded body={createPageBody([createPageDataSection("balance-reconcile-empty", { kind: "records", records: [], empty: "核对通过，所有科目余额完全一致" })])} />;
+  return <PageSurface kind="standard" embedded body={createPageBody([createRecordSection("balance-reconcile-empty", { records: [], empty: "核对通过，所有科目余额完全一致" })])} />;
 }
 
 function MissingList({
@@ -228,7 +228,6 @@ function DiffTable({
     embedded
     body={createPageBody([
       createPageTableSection("balance-reconcile-differences", {
-        framed: true,
 
 
         rows: differences,

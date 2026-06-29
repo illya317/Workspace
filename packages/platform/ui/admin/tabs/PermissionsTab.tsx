@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createBlockSurfaceSection, createMessageSection, createPageBody, PageSurface, type PageSurfaceSectionSpec } from "@workspace/core/ui";
-import ResourceTree from "../components/ResourceTree";
+import { createMessageSection, createPageBody, PageSurface, type PageSurfaceSectionSpec, type PageSurfaceSplitBodySpec } from "@workspace/core/ui";
 import { createPermissionMatrixSection } from "../components/permissions/MatrixTable";
 import type { PermissionsTabState } from "../hooks/usePermissionsTab";
 import type { ResourceItem } from "../types";
@@ -30,7 +29,7 @@ function firstSelectableResource(item: PermissionTreeNode): PermissionTreeNode {
   return firstSelectableResource(item.children[0]);
 }
 
-export default function PermissionsTab({ resources, capabilitiesByOwner, s }: Props) {
+export function usePermissionsTabBody({ resources, capabilitiesByOwner, s }: Props): PageSurfaceSplitBodySpec {
   const { selectedResource, setSelectedResource } = s;
   const capabilities = useMemo(
     () => Object.values(capabilitiesByOwner).flat(),
@@ -87,37 +86,40 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, s }: Pr
     ...(!s.loading ? [createPermissionMatrixSection({ s })] : []),
   ];
 
-  return (
-    <PageSurface kind="standard"
-      embedded
-      body={{
-        kind: "split",
-        left: {
-          sections: createPageBody([createBlockSurfaceSection("resource-tree", {
-            kind: "message",
+  return {
+    kind: "split",
+    selector: {
+      kind: "tree",
+      title: "资源模块",
+      items: resourceTree,
+      selectedId: selectedResource,
+      onSelect: (resource: PermissionTreeNode) => selectResource(resource.key),
+      getKey: (resource: PermissionTreeNode) => resource.key,
+      getChildren: (resource: PermissionTreeNode) => resource.children,
+      defaultExpandedLevel: 99,
+      renderItem: (resource: PermissionTreeNode, ctx) => ({
+        title: resource.name,
+        code: resource.hidden ? "隐藏" : resource.enabled === false ? "停用" : undefined,
+        level: ctx.level,
+      }),
+    },
+    right: createPageBody(bodyBlocks),
+    sideOpen: true,
+    drawerOpen,
+    onSideOpenChange: () => undefined,
+    onDrawerOpenChange: setDrawerOpen,
+    sideLabel: "资源模块",
+    showSideControls: false,
+    splitRatio: [3, 7],
+  };
+}
 
-            content: (
-              <div className="space-y-3">
-                <div className="text-sm font-semibold text-gray-700">资源模块</div>
-                <ResourceTree
-                  resources={resourceTree}
-                  selectedResource={selectedResource}
-                  onSelect={selectResource}
-                  defaultExpanded
-                />
-              </div>
-            )
-          })]).sections,
-        },
-        right: createPageBody(bodyBlocks),
-        sideOpen: true,
-        drawerOpen,
-        onSideOpenChange: () => undefined,
-        onDrawerOpenChange: setDrawerOpen,
-        sideLabel: "资源模块",
-        showSideControls: false,
-        splitRatio: [3, 7],
-      }}
+export default function PermissionsTab(props: Props) {
+  return (
+    <PageSurface
+      kind="standard"
+      embedded
+      body={usePermissionsTabBody(props)}
     />
   );
 }

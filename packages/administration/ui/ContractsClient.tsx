@@ -130,7 +130,6 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
         }}
         body={createPageBody([
           createPageTableSection<Contract>("contracts", {
-            framed: true,
 
 
             rows: contracts,

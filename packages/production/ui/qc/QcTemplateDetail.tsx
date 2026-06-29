@@ -1,5 +1,5 @@
 import type { QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
-import { createBlockSurfaceSection, createPageBody, createPageDataSection, type DataSurfaceCellSpec, type DataSurfaceColumnSpec, type DataSurfaceTableProps, PageSurface } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createPageBody, createMetricsSection, createPageDataSection, type DataSurfaceCellSpec, type DataSurfaceColumnSpec, type DataSurfaceTableProps, PageSurface } from "@workspace/core/ui";
 
 interface Props {
   detail: QcTemplateDetail;
@@ -101,9 +101,6 @@ function createStageSurface(stage: QcTemplateStage): DataSurfaceTableProps<QcTem
 
   return {
     kind: "table",
-    framed: true,
-    title: stage.label,
-    subtitle: `${stage.documentCount} 份文件 · ${stage.precheckItemCount} 个确认项 · ${stage.tests.length} 个检测项`,
     rows: stage.tests,
     columns,
     rowKey: (test) => `${stage.key}-${test.sequence}-${test.englishName}`,
@@ -118,8 +115,7 @@ export default function QcTemplateDetailPanel({ detail }: Props) {
   return <PageSurface kind="standard"
     embedded
     body={createPageBody([
-      createPageDataSection("template-metrics", {
-          kind: "metrics",
+      createMetricsSection("template-metrics", {
           metrics: [
             { key: "stages", label: "阶段", value: detail.stages.length },
             { key: "tests", label: "检测项", value: totalTests },
@@ -133,11 +129,7 @@ export default function QcTemplateDetailPanel({ detail }: Props) {
 
         content: `${detail.fileName} · ${detail.source.configRoot}`
       }),
-      ...detail.stages.map((stage) => ({
-        kind: "data" as const,
-        key: stage.key,
-        surface: createStageSurface(stage),
-      })),
+      ...detail.stages.map((stage) => createPageDataSection(stage.key, createStageSurface(stage))),
     ])}
   />;
 }

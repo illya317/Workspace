@@ -232,16 +232,15 @@ export function PositionDescriptionReadOnlyView({
 
 
       sections: [{
-        kind: "data" as const,
         key: "history-table",
-        surface: {
+        body: { kind: "data", data: {
           kind: "table" as const,
           rows: historyRows,
           columns: historyColumns,
           visibleColumns: [],
 
           rowKey: (row: Record<string, unknown>) => `${String(row.version ?? "")}:${String(row.documentName ?? "")}:${String(row.effectiveDate ?? "")}`,
-        },
+        } },
       }],
     })] : []),
   ];

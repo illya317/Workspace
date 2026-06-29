@@ -1,7 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
-import type { PageSurfaceSectionSpec } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec, SelectorSurfaceProps } from "@workspace/core/ui";
 import { getWorkPeriodLabel, getWorkSourceTypeLabel, getWorkSpaceLabel } from "./model";
 import type { WorkPlan, WorkTaskSpace, WorkTarget } from "./types";
 
@@ -31,7 +30,7 @@ function spaceSubtitleForPlan(plan: WorkPlan, spacesByKey?: ReadonlyMap<string, 
   return space?.subtitle || getWorkSpaceLabel(plan.targetType);
 }
 
-export function createWorkPlanSelectorSection({
+export function createWorkPlanSelector({
   plans,
   activePlanId,
   plansLoading,
@@ -43,35 +42,30 @@ export function createWorkPlanSelectorSection({
   plansLoading: boolean;
   spacesByKey?: ReadonlyMap<string, WorkTaskSpace>;
   onSelect: (plan: WorkPlan) => void;
-}): PageSurfaceSectionSpec {
+}): SelectorSurfaceProps<WorkPlan> {
   return {
-    kind: "navigation" as const,
-    key: "plan-list",
-    surface: {
-      kind: "selector" as const,
-      selector: {
-        title: "OKR 计划",
-        loading: plansLoading,
-        loadingText: "加载中...",
-        emptyText: "暂无 OKR 计划",
-        items: plans,
-        selectedId: activePlanId,
-        onSelect,
-        getKey: (plan: WorkPlan) => plan.id,
-        renderItem: (plan: WorkPlan) => ({
-          title: plan.title,
-          subtitle: `${getWorkPeriodLabel(plan)} · ${spaceSubtitleForPlan(plan, spacesByKey)}`,
-          trailing: <span className="shrink-0 rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{plan.itemCount}</span>,
-          meta: [
-            <span key="kind" className="text-emerald-700">OKR</span>,
-            spaceLabelForPlan(plan, spacesByKey),
-            plan.ownerEmployeeName || "未设置负责人",
-            plan.linkedProjectTaskName || plan.linkedProjectName || getWorkSourceTypeLabel(plan.sourceType),
-          ].filter(Boolean) as ReactNode[],
-          archived: plan.status === "archived",
-        }),
-      },
-    },
+    kind: "list",
+    title: "OKR 计划",
+    loading: plansLoading,
+    loadingText: "加载中...",
+    emptyText: "暂无 OKR 计划",
+    items: plans,
+    selectedId: activePlanId,
+    onSelect,
+    getKey: (plan: WorkPlan) => plan.id,
+    renderItem: (plan: WorkPlan) => ({
+      title: plan.title,
+      code: planStatusLabel(plan.status),
+      subtitle: `${getWorkPeriodLabel(plan)} · ${spaceSubtitleForPlan(plan, spacesByKey)}`,
+      trailing: plan.itemCount,
+      meta: [
+        "OKR",
+        spaceLabelForPlan(plan, spacesByKey),
+        plan.ownerEmployeeName || "未设置负责人",
+        plan.linkedProjectTaskName || plan.linkedProjectName || getWorkSourceTypeLabel(plan.sourceType),
+      ].filter(Boolean),
+      archived: plan.status === "archived",
+    }),
   };
 }
 
@@ -82,25 +76,27 @@ export function createWorkPlanHeaderSection(plan: WorkPlan): PageSurfaceSectionS
       ? [plan.sourceMeetingTitle, plan.sourceMeetingDecisionTitle, plan.sourceMeetingActionCandidateTitle].filter(Boolean).join(" / ")
       : getWorkSourceTypeLabel(plan.sourceType);
   return {
-    kind: "block" as const,
     key: "plan-header",
-    surface: {
-      kind: "panel" as const,
-      title: plan.title,
-      content: (
-        <div className="space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">OKR 计划</span>
-            <span className={`rounded px-2 py-1 text-xs font-medium ${planStatusClassName(plan.status)}`}>{planStatusLabel(plan.status)}</span>
+    body: {
+      kind: "section",
+      surface: {
+        kind: "panel" as const,
+        title: plan.title,
+        content: (
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">OKR 计划</span>
+              <span className={`rounded px-2 py-1 text-xs font-medium ${planStatusClassName(plan.status)}`}>{planStatusLabel(plan.status)}</span>
+            </div>
+            <div className="flex flex-wrap gap-3 text-sm text-slate-500">
+              <span>{getWorkPeriodLabel(plan)}</span>
+              <span>负责人：{plan.ownerEmployeeName || "未设置"}</span>
+              <span>来源：{source || "未设置"}</span>
+            </div>
+            {plan.description ? <p className="whitespace-pre-wrap text-sm text-slate-600">{plan.description}</p> : null}
           </div>
-          <div className="flex flex-wrap gap-3 text-sm text-slate-500">
-            <span>{getWorkPeriodLabel(plan)}</span>
-            <span>负责人：{plan.ownerEmployeeName || "未设置"}</span>
-            <span>来源：{source || "未设置"}</span>
-          </div>
-          {plan.description ? <p className="whitespace-pre-wrap text-sm text-slate-600">{plan.description}</p> : null}
-        </div>
-      ),
+        ),
+      },
     },
   };
 }

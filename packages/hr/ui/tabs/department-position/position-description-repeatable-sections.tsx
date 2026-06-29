@@ -51,7 +51,7 @@ export function PositionDutyEditor({
           title: label,
           addAction: disabled ? undefined : { key: "add-duty", label: `新增${label}`, onClick: addDuty },
           empty: "未设置",
-          columns: 1,
+          layout: { columns: 1 },
           items: records.map((record, index) => {
             const items = Array.isArray(record.items) ? record.items.map((item) => String(item)) : [];
             return {
@@ -59,7 +59,7 @@ export function PositionDutyEditor({
               itemRef: getItemRef(index),
               title: `职责 ${index + 1}`,
               actions: disabled ? undefined : [{ key: "delete-duty", label: "删除", variant: "danger", size: "sm", onClick: () => void removeDuty(index), className: "px-2 py-1 text-xs" }],
-              fields: [
+              items: [
                 {
                   key: "title",
                   label: "职责标题",
@@ -147,7 +147,7 @@ export function PositionChangeHistoryEditor({
           title: "变更历史",
           addAction: disabled ? undefined : { key: "add-history", label: "新增变更历史", onClick: addRecord },
           empty: "未设置",
-          columns: 2,
+          layout: { columns: 2 },
           items: records.map((record, index) => {
             const rawDate = String(record.effectiveDate || "");
             const dateInvalid = !!rawDate && !normalizeDateValue(rawDate);
@@ -157,7 +157,7 @@ export function PositionChangeHistoryEditor({
               itemRef: getItemRef(index),
               title: `变更历史 ${index + 1}`,
               actions: disabled ? undefined : [{ key: "delete-history", label: "删除", variant: "danger", size: "sm", onClick: () => void removeRecord(index), className: "px-2 py-1 text-xs" }],
-              fields: [
+              items: [
                 { key: "version", label: "版本", spec: { valueType: "string", control: "text", state: "readonly" }, value: String(record.version || formatHistoryVersion(index)) },
                 { key: "documentName", label: "文件名", spec: { valueType: "string", control: "text", state: disabled ? "disabled" : "normal" }, value: String(record.documentName || ""), onChange: next => updateRecord(index, { documentName: String(next ?? "") }) },
                 { key: "effectiveDate", label: "生效日期", error: dateInvalid ? "日期格式错误，请重新选择。" : undefined, spec: { valueType: "date", control: "temporal", precision: "date", state: disabled ? "disabled" : "normal" }, value: rawDate, onChange: next => updateRecord(index, { effectiveDate: next || "" }) },

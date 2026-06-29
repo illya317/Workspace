@@ -1,23 +1,16 @@
 "use client";
 
 import { EmptyStateCard } from "../common/Card";
-import { ActionButton } from "../action/ActionControls";
-import type { ActionGlyphKind } from "../action/ActionGlyphs";
-import BlockSurface from "../../BlockSurface";
-import CommandButton from "../common/CommandButton";
-import DataSurface from "../../DataSurface";
+import BodySurface from "../../BodySurface";
 import DetailModal from "../common/DetailModal";
-import DocumentSurface from "../../DocumentSurface";
-import FormSurface from "../../FormSurface";
-import NavigationSurface from "../../NavigationSurface";
 import TabBar from "../common/TabBar";
 import { Toolbar } from "../../Toolbar";
-import VisualizationSurface from "../../VisualizationSurface";
 import { joinClassNames } from "../common/card-utils";
+import { renderCommands } from "./PageSurface.commands";
 import type {
   PageSurfaceBadgeSpec,
-  PageSurfaceCommandSpec,
   PageSurfaceEmptySpec,
+  PageSurfaceModalSpec,
   PageSurfaceSectioningSpec,
   PageSurfaceSectionSpec,
   PageSurfaceToolbarSpec,
@@ -29,52 +22,6 @@ const MODAL_MAX_WIDTH_BY_SIZE = {
   lg: "max-w-4xl",
   xl: "max-w-6xl",
 } as const;
-
-function resolveCommandIcon(icon: PageSurfaceCommandSpec["icon"]): ActionGlyphKind | undefined {
-  if (!icon) return undefined;
-  if (icon === "back") return "list";
-  if (icon === "create") return "add";
-  if (icon === "open") return "view";
-  return icon;
-}
-
-export function renderCommands(commands?: PageSurfaceCommandSpec[]) {
-  if (!commands?.length) return null;
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      {commands.map((command) => {
-        const icon = resolveCommandIcon(command.icon);
-        if (icon) {
-          return (
-            <ActionButton
-              key={command.key}
-              kind={icon}
-              label={String(command.label)}
-              type={command.type}
-              variant={command.variant}
-              disabled={command.disabled}
-              size={command.size}
-              onClick={command.onClick}
-            />
-          );
-        }
-        return (
-          <CommandButton
-            key={command.key}
-            type={command.type}
-            variant={command.variant}
-            disabled={command.disabled}
-            size={command.size}
-            truncate={command.truncate}
-            onClick={command.onClick}
-          >
-            {command.label}
-          </CommandButton>
-        );
-      })}
-    </div>
-  );
-}
 
 export function renderToolbar(toolbar?: PageSurfaceToolbarSpec) {
   if (!toolbar?.items.length) return null;
@@ -133,21 +80,25 @@ function activeBodySection(sections: PageSurfaceSectionSpec[], active: string) {
 }
 
 function renderSectionContent(section: PageSurfaceSectionSpec) {
-  if (section.kind === "data") return <DataSurface {...section.surface} />;
-  if (section.kind === "document") return <DocumentSurface {...section.surface} />;
-  if (section.kind === "form") return <FormSurface {...section.surface} />;
-  if (section.kind === "visualization") return <VisualizationSurface {...section.surface} />;
-  if (section.kind === "block") return <BlockSurface {...section.surface} />;
-  if (section.kind === "navigation") return <NavigationSurface {...section.surface} />;
-  if (section.kind === "sections") return renderSectionStack(section.sections, section.sectioning, undefined, section.layout);
-  if (section.kind === "modal") {
-      return (
-        <DetailModal open={section.open} title={section.title} onClose={section.onClose} maxWidth={section.size ? MODAL_MAX_WIDTH_BY_SIZE[section.size] : undefined}>
-          {renderSectionStack(section.sections)}
-        </DetailModal>
-      );
+  if (section.body.kind === "section" && section.body.sections) {
+    return renderSectionStack(section.body.sections, section.body.sectioning, undefined, section.body.layout);
   }
-  return null;
+  return <BodySurface {...section.body} />;
+}
+
+export function renderPageModals(modals?: PageSurfaceModalSpec[]) {
+  if (!modals?.length) return null;
+  return modals.map((modal) => (
+    <DetailModal
+      key={modal.key}
+      open={modal.open}
+      title={modal.title}
+      onClose={modal.onClose}
+      maxWidth={modal.size ? MODAL_MAX_WIDTH_BY_SIZE[modal.size] : undefined}
+    >
+      {renderSectionStack(modal.sections)}
+    </DetailModal>
+  ));
 }
 
 function renderPageSection(section: PageSurfaceSectionSpec) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { PageSurface, createPageBody, createPageDataSection } from "@workspace/core/ui";
+import { PageSurface, createPageBody, createRecordSection } from "@workspace/core/ui";
 import type { PageSurfaceSectionSpec, PageSurfaceProps, SurfaceToolbarItems, VisualizationGanttRowSpec } from "@workspace/core/ui";
 import type { WorkUser } from "@workspace/work/types";
 import { listProjectGantt } from "./api";
@@ -114,27 +114,29 @@ export default function ProjectGanttTab({
       content: `${rows.length} 行`
     }] satisfies SurfaceToolbarItems;
   const sections = error ? [
-    createPageDataSection("project-gantt-error", { kind: "records", records: [], empty: error,  }),
+    createRecordSection("project-gantt-error", { records: [], empty: error,  }),
   ] : loading && !hasLoaded ? [
-    createPageDataSection("project-gantt-loading", { kind: "records", records: [], empty: "加载公司甘特..." }),
+    createRecordSection("project-gantt-loading", { records: [], empty: "加载公司甘特..." }),
   ] : [
     {
-      kind: "visualization" as const,
       key: "project-gantt-chart",
-      surface: {
+      body: { kind: "visualization", visualization: {
         kind: "gantt" as const,
-        title: "公司甘特",
-        framed: true,
         gantt: {
-          kind: "gantt",
-          rows: rows.map(toVisualizationGanttRow),
-          periodStart: currentStart,
-          zoom,
-          leftHeader: "项目 / 任务",
-          emptyText: "暂无匹配项目",
-          onToggle: toggleExpanded,
+          frame: {
+            title: "公司甘特",
+          },
+          timeline: {
+            kind: "gantt",
+            rows: rows.map(toVisualizationGanttRow),
+            periodStart: currentStart,
+            zoom,
+            leftHeader: "项目 / 任务",
+            emptyText: "暂无匹配项目",
+            onToggle: toggleExpanded,
+          },
         },
-      },
+      } },
     },
   ] satisfies PageSurfaceSectionSpec[];
 

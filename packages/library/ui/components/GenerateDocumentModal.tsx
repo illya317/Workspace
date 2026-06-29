@@ -159,7 +159,7 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
                 onChange: (value) => setConfidentialityLevel(Number(value)),
               },
             ], {
-              actions: [
+              commands: [
                 { key: "cancel", label: "取消", onClick: onClose },
                 {
                   key: "generate",

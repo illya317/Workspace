@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createPageBody, PageSurface, createPageDataSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createMetricsSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState, SourceTraceInfo } from "../types";
 import CostDataTable, { CostTraceButton, formatCostNumber, type CostRecord } from "./CostDataTable";
@@ -39,8 +39,7 @@ export default function ShipmentTable({ filters }: Props) {
         <PageSurface kind="standard"
           embedded
           body={createPageBody([
-            createPageDataSection("shipment-summary", {
-              kind: "metrics",
+            createMetricsSection("shipment-summary", {
               metrics: [
                 { key: "amount", label: "发货金额", value: formatCostNumber(summary.totalAmount as number) },
                 { key: "received", label: "已回款", value: formatCostNumber(summary.totalReceived as number) },

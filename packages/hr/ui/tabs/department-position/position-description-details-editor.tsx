@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createFieldsSection, useFeedback } from "@workspace/core/ui";
+import { createFormSection, createPageBody, PageSurface, type FormSurfaceProps, useFeedback } from "@workspace/core/ui";
 import {
   DETAIL_FIELD_ORDER,
   HIDDEN_POSITION_DETAIL_KEYS,
@@ -35,22 +35,22 @@ export function usePositionDescriptionDetailsSurface({
   positions,
   departmentNames,
   template,
-}: PositionDescriptionDetailsSurfaceProps) {
+}: PositionDescriptionDetailsSurfaceProps): FormSurfaceProps {
   const feedback = useFeedback();
   const details = parseDetailsObject(value);
   if (!details) {
     return {
       kind: "fields",
-      fields: [{
+      content: { items: [{
         key: "invalid-json",
         label: "明细 JSON 格式错误",
         error: "请检查 JSON 内容后重新保存。",
-        fieldClassName: "md:col-span-2",
+        span: "wide",
         spec: { valueType: "string" as const, control: "text" as const, multiline: true, state: disabled ? "disabled" as const : "normal" as const },
         value,
         rows: 14,
         onChange: (next: unknown) => onChange(String(next ?? "")),
-      }],
+      }] },
     };
   }
 
@@ -99,18 +99,16 @@ export function usePositionDescriptionDetailsSurface({
 
   return {
     kind: "fields",
-    columns: 2 as const,
-    fields,
+    content: { items: fields, layout: { columns: 2 } },
   };
 }
 
 export function PositionDescriptionDetailsEditor(props: PositionDescriptionDetailsSurfaceProps) {
   const surface = usePositionDescriptionDetailsSurface(props);
-  const { fields, kind: _kind, ...options } = surface;
   return (
     <PageSurface kind="standard"
       embedded
-      body={createPageBody([createFieldsSection("position-description-details", fields, options)])}
+      body={createPageBody([createFormSection("position-description-details", surface)])}
     />
   );
 }

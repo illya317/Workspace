@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { createBlockSurfaceSection, createPageBody, createPageTabsNavigation, PageSurface, useFeedback } from "@workspace/core/ui";
-import type { PageSurfaceProps } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createPageBody, createPageTabsNavigation, createSplitPageBody, PageSurface, useFeedback } from "@workspace/core/ui";
+import type { PageSurfaceProps, SelectorSurfaceProps } from "@workspace/core/ui";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 import type { WorkUser } from "@workspace/work/types";
 import { useProjectDetailEditorBlock } from "./project/ProjectDetailEditor";
@@ -140,90 +140,60 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
                 : []),
             ],
       }}
-      body={{
-        kind: "split",
-        left: {
-          sections: createPageBody(model.loading || model.error ? [createBlockSurfaceSection("project-list-loading", {
-            kind: "message",
-            content: model.loading ? "加载中..." : "暂无项目",
-            tone: "muted"
-          })] : [projectListNavigationBlock(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
-            model.setCreating(false);
-            model.setSelection(projectId);
-            model.setProjectListDrawerOpen(false);
-          })]).sections,
-          drawerSections: model.loading || model.error ? undefined : createPageBody([projectListNavigationBlock(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
-            model.setCreating(false);
-            model.setSelection(projectId);
-            model.setProjectListDrawerOpen(false);
-          }, "drawer")]).sections,
-        },
+      body={createSplitPageBody({
+        selector: projectListSelector(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
+          model.setCreating(false);
+          model.setSelection(projectId);
+          model.setProjectListDrawerOpen(false);
+        }, model.loading, model.error),
+        drawerSelector: projectListSelector(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
+          model.setCreating(false);
+          model.setSelection(projectId);
+          model.setProjectListDrawerOpen(false);
+        }, model.loading, model.error),
         right: model.loading || model.error ? createPageBody([createBlockSurfaceSection("project-loading", {
           kind: "message",
           content: model.error || "加载中...",
           tone: model.error ? "danger" : "muted"
         })]) : projectDetailBlock,
-        sideOpen: model.projectListOpen,
-        drawerOpen: model.projectListDrawerOpen,
-        onSideOpenChange: model.setProjectListOpen,
-        onDrawerOpenChange: model.setProjectListDrawerOpen,
-        sideLabel: "项目列表",
-        splitRatio: [2, 8],
-        showSideControls: false,
-      }}
+        side: {
+          label: "项目列表",
+          open: model.projectListOpen,
+          drawerOpen: model.projectListDrawerOpen,
+          onOpenChange: model.setProjectListOpen,
+          onDrawerOpenChange: model.setProjectListDrawerOpen,
+          showControls: false,
+        },
+        layout: { ratio: [2, 8] },
+      })}
 			    />
   );
 }
 
-function projectListNavigationBlock(
+function projectListSelector(
   projects: ProjectItem[],
   filter: ProjectListFilter,
   selection: number | null,
   onSelect: (projectId: number) => void,
-  mode: "desktop" | "drawer" = "desktop",
-) {
+  loading: boolean,
+  error: string | null,
+): SelectorSurfaceProps<ProjectItem> {
   return {
-    kind: "navigation" as const,
-    key: `project-list-${mode}`,
-    surface: {
-      kind: "selector" as const,
-      className: mode === "drawer" ? "h-full overflow-hidden" : "",
-      selector: {
-        bodyClassName: `${mode === "drawer" ? "h-full" : "max-h-[760px]"} overflow-auto p-3`,
-        contentClassName: "space-y-2",
-        items: projects,
-        selectedId: selection,
-        onSelect: (project: ProjectItem) => onSelect(project.id),
-        getKey: (project: ProjectItem) => project.id,
-        renderItem: (project: ProjectItem) => ({
-          title: <ProjectTitle name={project.name} status={project.status} />,
-          subtitle: projectCode(project, null),
-          archived: project.isArchived,
-        }),
-        emptyText: emptyTextForFilter(filter),
-      },
-    },
+    kind: "list",
+    loading,
+    loadingText: "加载中...",
+    items: error ? [] : projects,
+    selectedId: selection,
+    onSelect: (project: ProjectItem) => onSelect(project.id),
+    getKey: (project: ProjectItem) => project.id,
+    renderItem: (project: ProjectItem) => ({
+      title: project.name,
+      code: project.status ?? undefined,
+      subtitle: projectCode(project, null),
+      archived: project.isArchived,
+    }),
+    emptyText: error || emptyTextForFilter(filter),
   };
-}
-
-function ProjectTitle({ name, status }: { name: string; status: string | null }) {
-  return (
-    <span className="flex min-w-0 items-center gap-1.5">
-      <span className="truncate">{name}</span>
-      {status && (
-        <span className={`shrink-0 rounded px-1.5 py-0.5 text-xs font-medium ${projectStatusClassName(status)}`}>
-          {status}
-        </span>
-      )}
-    </span>
-  );
-}
-
-function projectStatusClassName(status: string) {
-  if (status === "进行中") return "bg-emerald-50 text-emerald-700";
-  if (status === "已完成") return "bg-slate-100 text-slate-500";
-  if (status === "已终止") return "bg-rose-50 text-rose-600";
-  return "bg-sky-50 text-sky-700";
 }
 
 function emptyTextForFilter(filter: ProjectListFilter) {

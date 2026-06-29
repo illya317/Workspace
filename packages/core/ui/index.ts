@@ -1,4 +1,18 @@
 export type { CoreUiCompositionGraph, CoreUiComponentRegistration } from "./registry/component-registry";
+export { default as BodySurface } from "./BodySurface";
+export type {
+  BodySurfaceDataProps,
+  BodySurfaceDocumentProps,
+  BodySurfaceFormProps,
+  BodySurfaceKind,
+  BodySurfaceMetricsProps,
+  BodySurfaceNavigationProps,
+  BodySurfaceProps,
+  BodySurfaceRecordProps,
+  BodySurfaceSelectorProps,
+  BodySurfaceSectionProps,
+  BodySurfaceVisualizationProps,
+} from "./BodySurface";
 export { default as BlockSurface } from "./BlockSurface";
 export type {
   BlockSurfaceActionsProps,
@@ -26,18 +40,39 @@ export type {
   DataSurfaceDisplaySpec,
   DataSurfaceKind,
   DataSurfaceLooseRow,
-  DataSurfaceMetricSpec,
   DataSurfaceActionsColumnSpec,
   DataSurfacePresentationSpec,
   DataSurfaceProps,
-  DataSurfaceRecordSpec,
   DataSurfaceRowActionSpec,
   DataSurfaceRowEditActionSpec,
   DataSurfaceStructuredCellSpec,
   DataSurfaceTableProps,
 } from "./DataSurface";
 export { default as DocumentSurface } from "./DocumentSurface";
-export type { DocumentSurfaceKind, DocumentSurfacePageSpec, DocumentSurfaceProps } from "./DocumentSurface";
+export type {
+  DocumentSurfaceKind,
+  DocumentSurfacePageSpec,
+  DocumentSurfacePagesProps,
+  DocumentSurfacePagesSpec,
+  DocumentSurfaceProps,
+} from "./DocumentSurface";
+export { default as MetricsSurface } from "./MetricsSurface";
+export type { MetricsSurfaceMetricSpec, MetricsSurfaceProps } from "./MetricsSurface";
+export { default as RecordSurface } from "./RecordSurface";
+export type { RecordSurfaceActionSpec, RecordSurfaceProps, RecordSurfaceRecordSpec } from "./RecordSurface";
+export { default as SelectorSurface } from "./SelectorSurface";
+export type {
+  SelectorSurfaceActionSize,
+  SelectorSurfaceBaseSpec,
+  SelectorSurfaceCardSpec,
+  SelectorSurfaceCommandSpec,
+  SelectorSurfaceFilterSpec,
+  SelectorSurfaceListSpec,
+  SelectorSurfaceLooseItem,
+  SelectorSurfaceProps,
+  SelectorSurfaceStatusSpec,
+  SelectorSurfaceTreeSpec,
+} from "./SelectorSurface";
 export { default as VisualizationSurface } from "./VisualizationSurface";
 export type {
   VisualizationBarChartSpec,
@@ -45,6 +80,9 @@ export type {
   VisualizationComparisonBarItemSpec,
   VisualizationComparisonBarSectionSpec,
   VisualizationComparisonBarsSpec,
+  VisualizationSurfaceChartSpec,
+  VisualizationSurfaceFrameSpec,
+  VisualizationSurfaceGanttSpec,
   VisualizationGroupedBarChartSpec,
   VisualizationGroupedBarGroupSpec,
   VisualizationLegendSpec,
@@ -84,10 +122,16 @@ export type {
 export { default as FormSurface } from "./FormSurface";
 export type {
   FormSurfaceCommandSpec,
+  FormSurfaceContentSpec,
+  FormSurfaceDetailProps,
   FormSurfaceFieldSpec,
+  FormSurfaceFieldsProps,
+  FormSurfaceFiltersProps,
   FormSurfaceGroupTitleSpec,
   FormSurfaceItemSpec,
   FormSurfaceKind,
+  FormSurfaceLayoutFlow,
+  FormSurfaceLayoutSpec,
   FormSurfaceLooseItem,
   FormSurfaceLoginProps,
   FormSurfaceNoteSpec,
@@ -96,6 +140,7 @@ export type {
   FormSurfaceRepeatableItemSpec,
   FormSurfaceRepeatableSpec,
   FormSurfaceSectionSpec,
+  FormSurfaceSubmitSpec,
   FormSurfaceTagListAppendSpec,
   FormSurfaceTagListFieldSpec,
 } from "./FormSurface";
@@ -104,6 +149,7 @@ export type {
   PageSurfaceActionSize,
   PageSurfaceBadgeSpec,
   PageSurfaceBodyKind,
+  PageSurfaceBodySectionSpec,
   PageSurfaceBodySpec,
   PageSurfaceCommandSpec,
   PageSurfaceCompleteBodySpec,
@@ -118,7 +164,6 @@ export type {
   PageSurfaceSectioningSpec,
   PageSurfaceSectionSpec,
   PageSurfaceSplitBodySpec,
-  PageSurfaceSplitPaneSpec,
   PageSurfaceStandardProps,
   PageSurfaceDirectoryProps,
   PageSurfaceLoginProps,
@@ -131,6 +176,7 @@ export {
   createSectionsSection,
   createHeadingSection,
   createMessageSection,
+  createMetricsSection,
   createModuleGridSection,
   createPageBody,
   createPageActionsSection,
@@ -143,9 +189,12 @@ export {
   createInlineFieldsSection,
   createPageModalSection,
   createPanelSection,
+  createRecordSection,
+  createSplitPageBody,
   createPageSurfaceProps,
   createPageTableSection,
   createPageTabsNavigation,
+  createTabbedPageBody,
   createTabsNavigationSection,
   createSectionSection,
   createVisualizationSection,
@@ -159,8 +208,10 @@ export type {
   SelectorPanelSectionHelperOptions,
 } from "./helpers/surface-compat-builders";
 export type {
-  PageSurfaceBodySectionSpec,
+  PageSurfaceNonModalSectionSpec,
   PageSurfaceShellPropsOptions,
+  SplitPageBodyOptions,
+  TabbedPageBodyOptions,
 } from "./helpers/page-surface-builders";
 
 export { default as FeedbackProvider, useFeedback } from "./services/FeedbackProvider";
@@ -199,5 +250,18 @@ export type {
   InputValueType,
 } from "./InputControl";
 export { ActionGlyph } from "./internal/action/ActionGlyphs";
-export type { ActionGlyphGroup, ActionGlyphGroupKey, ActionGlyphKind, ActionGlyphOrderItem, ActionGlyphProps, ActionGlyphToolbarGroup, ActionGlyphToolbarGroupKey } from "./internal/action/ActionGlyphs";
+export type {
+  ActionGlyphActionDefinition,
+  ActionGlyphActionKey,
+  ActionGlyphActionSection,
+  ActionGlyphActionVariant,
+  ActionGlyphGroup,
+  ActionGlyphGroupKey,
+  ActionGlyphIconAlias,
+  ActionGlyphKind,
+  ActionGlyphOrderItem,
+  ActionGlyphProps,
+  ActionGlyphToolbarGroup,
+  ActionGlyphToolbarGroupKey,
+} from "./internal/action/ActionGlyphs";
 export type { PageStylePreviewSamples, PreviewOption, PreviewRow, QcPaperPreviewSample } from "./page-style-preview/sample-context";

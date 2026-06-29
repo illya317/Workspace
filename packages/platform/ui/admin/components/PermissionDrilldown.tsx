@@ -101,11 +101,10 @@ export default function PermissionDrilldown({
 
         sections: [
           {
-            kind: "form",
             key: "filters",
-            surface: {
-              kind: "inline",
-              fields: [
+            body: { kind: "form", form: {
+              kind: "filters",
+              content: { items: [
                 {
                   key: "company",
                   label: "公司",
@@ -134,28 +133,30 @@ export default function PermissionDrilldown({
                   placeholder: "搜索姓名/工号...",
 
                 },
-              ],
-            },
+              ] },
+            } },
           },
           {
-            kind: "navigation",
             key: "employees",
-            surface: {
-              kind: "selector",
-              selector: {
-                framed: false,
-                loading: empLoading,
-                loadingText: "加载中...",
-                items: filtered,
-                selectedId: null,
-                onSelect: onToggle,
-                getKey: emp => emp.employeeId,
-                renderItem: emp => ({
-                  title: emp.name,
-                  subtitle: emp.employeeId,
-                  active: empHasAccess(emp, drillKey),
-                }),
+            body: {
+              kind: "navigation",
+              navigation: {
+                kind: "selector",
+                selector: {
+                  framed: false,
+                  loading: empLoading,
+                  loadingText: "加载中...",
+                  items: filtered,
+                  selectedId: null,
+                  onSelect: onToggle,
+                  getKey: (emp) => emp.employeeId,
+                  renderItem: (emp) => ({
+                    title: emp.name,
+                    subtitle: emp.employeeId,
+                    active: empHasAccess(emp, drillKey),
+                  }),
 
+                },
               },
             },
           },

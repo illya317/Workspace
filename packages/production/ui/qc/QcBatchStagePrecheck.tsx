@@ -63,14 +63,16 @@ export default function QcBatchStagePrecheck({
     embedded
     body={createPageBody([
       {
-        kind: "navigation",
         key: "precheck-navigation",
-        surface: {
-          kind: "steps",
-          active: "precheck",
-          ariaLabel: "质检阶段导航",
+        body: {
+          kind: "navigation",
+          navigation: {
+            kind: "steps",
+            active: "precheck",
+            ariaLabel: "质检阶段导航",
 
-          steps: precheckSteps,
+            steps: precheckSteps,
+          },
         },
       },
       createHeadingSection("precheck-heading", {
@@ -83,27 +85,28 @@ export default function QcBatchStagePrecheck({
 
         content: "前一阶段尚未全部复核完成，当前阶段暂不可操作。"
       }) : {
-        kind: "document",
         key: "precheck-paper",
-        surface: {
+        body: { kind: "document", document: {
           kind: "pages",
-          pages: [{
-            key: "paper",
-            size: "a4",
-            content: <QcLayoutPaper blocks={blocks} referenceValues={referenceValues} />,
-          }],
-        },
+          pages: {
+            items: [{
+              key: "paper",
+              size: "a4",
+              content: <QcLayoutPaper blocks={blocks} referenceValues={referenceValues} />,
+            }],
+          },
+        } },
       },
       {
-        kind: "form",
         key: "precheck-actions",
-        surface: {
-          kind: "inline",
+        body: { kind: "form", form: {
+          kind: "filters",
 
-          actions: [
+          content: { items: [] },
+          commands: [
             { key: "save", label: "保存", variant: "primary", disabled: locked,  },
           ],
-        },
+        } },
       },
     ])}
   />;

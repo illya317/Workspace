@@ -2,10 +2,23 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { createBlockSurfaceSection, createPageBody, createSectionSection, PageSurface } from "@workspace/core/ui";
-import ResourceTree, { type ResourceTreeNode } from "../components/ResourceTree";
+import { createPageBody, PageSurface } from "@workspace/core/ui";
 
 type ModuleStatus = "enabled" | "hidden" | "disabled";
+type StatusTone = "success" | "warning" | "muted";
+
+interface ModuleTreeNode {
+  key: string;
+  name: string;
+  hidden?: boolean;
+  enabled?: boolean;
+  disabledReason?: string | null;
+  statusLabel?: string;
+  statusTone?: StatusTone;
+  statusInteractive?: boolean;
+  statusDisabled?: boolean;
+  children?: ModuleTreeNode[];
+}
 
 interface ModuleNode {
   key: string;
@@ -57,10 +70,10 @@ const STATUS_LABEL: Record<ModuleStatus, string> = {
   disabled: "已关闭",
 };
 
-const STATUS_VARIANT: Record<ModuleStatus, "green" | "yellow" | "gray"> = {
-  enabled: "green",
-  hidden: "yellow",
-  disabled: "gray",
+const STATUS_TONE: Record<ModuleStatus, StatusTone> = {
+  enabled: "success",
+  hidden: "warning",
+  disabled: "muted",
 };
 
 function flattenModules(modules: ModuleNode[]) {
@@ -115,15 +128,15 @@ export default function ModuleManagementTab({ showToast }: Props) {
       list.push(resource);
       auxiliaryByOwner.set(ownerKey, list);
     }
-    function toTreeNode(module: ModuleNode): ResourceTreeNode {
-      const auxiliaryChildren = (auxiliaryByOwner.get(module.resourceKey) ?? []).map((resource): ResourceTreeNode => ({
+    function toTreeNode(module: ModuleNode): ModuleTreeNode {
+      const auxiliaryChildren = (auxiliaryByOwner.get(module.resourceKey) ?? []).map((resource): ModuleTreeNode => ({
         key: resource.key,
         name: resource.name,
         hidden: resource.hidden,
         enabled: resource.enabled,
         disabledReason: resource.disabledReason,
         statusLabel: STATUS_LABEL[resource.status],
-        statusVariant: STATUS_VARIANT[resource.status],
+        statusTone: STATUS_TONE[resource.status],
         children: [],
       }));
       const children = [
@@ -133,12 +146,11 @@ export default function ModuleManagementTab({ showToast }: Props) {
       return {
         key: module.resourceKey,
         name: module.label,
-        selectableWithChildren: true,
         hidden: module.hidden,
         enabled: module.enabled,
         disabledReason: module.disabledReason,
         statusLabel: STATUS_LABEL[module.status],
-        statusVariant: STATUS_VARIANT[module.status],
+        statusTone: STATUS_TONE[module.status],
         statusInteractive: true,
         statusDisabled: saving || (module.level === "L2" && module.parentEnabled === false),
         children,
@@ -172,28 +184,39 @@ export default function ModuleManagementTab({ showToast }: Props) {
   return (
     <PageSurface kind="standard"
       embedded
-      body={createPageBody(!data ? [] : [createSectionSection("module-tree", {
+      body={createPageBody(!data ? [] : [{
+        key: "module-tree",
+        header: {
           title: "模块树",
           subtitle: data.rule,
-
-          sections: [createBlockSurfaceSection("tree-body", {
-            kind: "message",
-
-            content: (
-                <ResourceTree
-                  resources={moduleTree}
-                  selectedResource={selectedResourceKey}
-                  onSelect={setSelectedResourceKey}
-                  onStatusClick={(resource) => {
-                    const moduleNode = findModule(data.modules, resource.key);
-                    if (!moduleNode || saving || (moduleNode.level === "L2" && moduleNode.parentEnabled === false)) return;
-                    void updateModuleEnabled(moduleNode, !moduleNode.enabled);
-                  }}
-                  defaultExpanded
-                />
-            )
-          })],
-        })], { empty: loading || !data ? { content: loading ? "加载模块管理..." : "暂无模块管理数据" } : undefined })}
+        },
+        body: {
+          kind: "selector",
+          selector: {
+            kind: "tree",
+            items: moduleTree,
+            selectedId: selectedResourceKey,
+            onSelect: (resource: ModuleTreeNode) => setSelectedResourceKey(resource.key),
+            getKey: (resource: ModuleTreeNode) => resource.key,
+            getChildren: (resource: ModuleTreeNode) => resource.children,
+            defaultExpandedLevel: 99,
+            renderItem: (resource: ModuleTreeNode, ctx) => ({
+              title: resource.name,
+              level: ctx.level,
+              status: resource.statusLabel ? {
+                label: resource.statusLabel,
+                tone: resource.statusTone,
+                disabled: resource.statusDisabled,
+                onClick: resource.statusInteractive ? () => {
+                  const moduleNode = findModule(data.modules, resource.key);
+                  if (!moduleNode || saving || (moduleNode.level === "L2" && moduleNode.parentEnabled === false)) return;
+                  void updateModuleEnabled(moduleNode, !moduleNode.enabled);
+                } : undefined,
+              } : undefined,
+            }),
+          },
+        },
+      }], { empty: loading || !data ? { content: loading ? "加载模块管理..." : "暂无模块管理数据" } : undefined })}
     />
   );
 }

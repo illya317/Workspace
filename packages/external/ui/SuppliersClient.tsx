@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createSectionSection, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createRecordSection, createSectionSection, PageSurface } from "@workspace/core/ui";
 
 export default function SuppliersClient() {
   return (
@@ -21,15 +21,7 @@ export default function SuppliersClient() {
         createSectionSection("suppliers", {
           title: "供应商列表",
           sections: [
-            {
-              kind: "data",
-              key: "empty",
-              surface: {
-                kind: "records",
-                records: [],
-                empty: "暂无供应商数据",
-              },
-            },
+            createRecordSection("empty", { records: [], empty: "暂无供应商数据" }),
           ],
         }),
       ])}

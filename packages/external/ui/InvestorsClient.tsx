@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createSectionSection, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createRecordSection, createSectionSection, PageSurface } from "@workspace/core/ui";
 
 export default function InvestorsClient() {
   return (
@@ -22,15 +22,7 @@ export default function InvestorsClient() {
         createSectionSection("investors", {
           title: "投资人列表",
           sections: [
-            {
-              kind: "data",
-              key: "empty",
-              surface: {
-                kind: "records",
-                records: [],
-                empty: "暂无投资人数据",
-              },
-            },
+            createRecordSection("empty", { records: [], empty: "暂无投资人数据" }),
           ],
         }),
       ])}

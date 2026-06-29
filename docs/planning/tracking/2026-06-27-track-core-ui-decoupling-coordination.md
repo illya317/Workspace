@@ -5,7 +5,7 @@ Owner split: Architecture owns the model and gate; Hygiene owns historical debt 
 
 ## Current Decision
 
-Do not continue the old "NavigationSurface + miscellaneous L2" direction. The current target model is:
+Do not continue the old "NavigationRenderer + miscellaneous L2" direction. The current target model is:
 
 1. Page: page skeleton and placement only.
 2. Data: business data presentation contracts.
@@ -79,7 +79,7 @@ Treat an L2 as too coupled when any of these are true:
 - A type appears in two or more L1 surface prop contracts. Move it to a Common contract.
 - Two L2 groups depend on each other both ways. Extract a Common L2 or Common contract.
 - One L2 imports three or more concrete renderers from a sibling L2, or more than roughly 25 percent of its dependency set is from that sibling.
-- A business package directly imports Common renderers such as `Toolbar`, `TabBar`, `InputControl`, `Badge`, `SelectorPanel`, `NavigationSurface`, or `Pagination`. That is historical debt unless it is showcase/core-internal code.
+- A business package directly imports Common renderers such as `Toolbar`, `TabBar`, `InputControl`, `Badge`, `SelectorPanel`, `NavigationRenderer`, or `Pagination`. That is historical debt unless it is showcase/core-internal code.
 
 ## Page Rule Clarification
 
@@ -113,13 +113,13 @@ Hygiene owner:
 
 - Pause taxonomy, schema, registry-design, and PageSurface contract changes until Architecture lands the model.
 - Do not expand baseline for new violations.
-- Do not move components across families based on the old NavigationSurface/chrome model.
+- Do not move components across families based on the old NavigationRenderer/chrome model.
 - Collect current historical debt by category; page chrome debt now has a strict zero target:
   - business direct runtime imports of Core L2/L3 renderers,
   - embedded `PageSurface` owning toolbar/navigation,
   - `DataSurface.toolbar` / `FormSurface.toolbar` / `DataSurface.pagination` usage,
   - `PageSurface.moduleView` escape hatches,
-  - direct `NavigationSurface` / `Toolbar` / `TabBar` / `Pagination` usage.
+  - direct `NavigationRenderer` / `Toolbar` / `TabBar` / `Pagination` usage.
 - Ratchet only when a migrated item is actually removed.
 - If cleanup requires changing registry schema, gate logic, or Surface contracts, stop and hand back to Architecture.
 
@@ -127,7 +127,7 @@ Hygiene owner:
 
 Please temporarily stop work on:
 
-- renaming `NavigationSurface` into a new surface-like thing,
+- renaming the navigation renderer into a new surface-like thing,
 - changing L1/L2 meaning in registry,
 - modifying `PageSurface` / `FormSurface` / `DataSurface` / `Toolbar` contracts for taxonomy reasons,
 - adding new registry entries merely to satisfy gate,

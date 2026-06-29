@@ -130,7 +130,7 @@ export function usePositionDescriptionPanelBlock({
       rows: 3,
       onChange: value => onUpdateDescriptionDraft("summary", String(value ?? "")),
     },
-    ...(detailsSurface.fields ?? []),
+    ...detailsSurface.content.items,
   ];
 
   return createPanelSection("position-description", {
@@ -155,11 +155,10 @@ export function usePositionDescriptionPanelBlock({
 
       sections: [
         {
-          kind: "form",
           key: "template",
-          surface: {
-            kind: "inline",
-            fields: [{
+          body: { kind: "form", form: {
+            kind: "filters",
+            content: { items: [{
               key: "template",
               label: "模板",
 
@@ -179,9 +178,9 @@ export function usePositionDescriptionPanelBlock({
                 },
               },
               value: positionDescriptionTemplate,
-              onChange: (value) => onPositionDescriptionTemplateChange(String(value ?? "")),
-            }],
-          },
+              onChange: (value: unknown) => onPositionDescriptionTemplateChange(String(value ?? "")),
+            }] },
+          } },
         },
         ...(templateEditorOpen ? [buildPositionDescriptionTemplateEditorBlock({
           name: templateDraftName,
@@ -192,13 +191,11 @@ export function usePositionDescriptionPanelBlock({
           onCancel: () => onTemplateEditorOpenChange(false),
         })] : []),
         {
-          kind: "form",
           key: "description-fields",
-          surface: {
+          body: { kind: "form", form: {
             kind: "fields",
-            columns: 2,
-            fields: descriptionFields,
-          },
+            content: { items: descriptionFields, layout: { columns: 2 } },
+          } },
         },
       ],
     });

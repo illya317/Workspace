@@ -83,7 +83,6 @@ export default function DeptBudgetTable({ items, monthTotals, total }: DeptBudge
       embedded
       body={createPageBody([
         createPageTableSection("dept-budget", {
-          framed: true,
 
 
           rows,

@@ -77,9 +77,9 @@ export default function WorkForm({
           placeholder: "多个名字用逗号分隔",
         },
       ], {
-      columns: 2,
+      layout: { columns: 2 },
 
-      actions: [
+      commands: [
         { key: "cancel", label: "取消", onClick: onCancel },
         {
           key: "save",

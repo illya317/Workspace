@@ -34,18 +34,17 @@ export function buildPositionDescriptionTemplateEditorBlock({
         embedded
         body={createPageBody([
           {
-            kind: "form",
             key: "template-name",
-            surface: {
-              kind: "inline",
-              fields: [{
+            body: { kind: "form", form: {
+              kind: "filters",
+              content: { items: [{
                 key: "name",
                 label: "名称",
                 spec: { valueType: "string", control: "text" },
                 value: name,
-                onChange: (value) => onNameChange(String(value ?? "")),
-              }],
-            },
+                onChange: (value: unknown) => onNameChange(String(value ?? "")),
+              }] },
+            } },
           },
           createSectionsSection("field-groups", {
             layout: "grid",
@@ -54,18 +53,17 @@ export function buildPositionDescriptionTemplateEditorBlock({
               title: group.label,
 
               sections: [{
-                kind: "form",
                 key: `${group.label}-fields`,
-                surface: {
-                  kind: "inline",
-                  fields: group.fields.map((field) => ({
+                body: { kind: "form", form: {
+                  kind: "filters",
+                  content: { items: group.fields.map((field) => ({
                     key: field,
                     label: DETAIL_FIELD_LABELS[field] || field,
                     spec: { valueType: "boolean", control: "boolean", presentation: "checkbox" },
                     value: fields.includes(field),
                     onChange: () => onToggleField(field),
-                  })),
-                },
+                  })) },
+                } },
               }],
             })),
           }),

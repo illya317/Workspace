@@ -3,13 +3,15 @@
 import type { ReactNode } from "react";
 import { workspaceBasePath } from "@workspace/core/routing";
 import { DatabasePageFrame, WorkspaceSplitPage } from "./internal/page/PageFrames";
-import NavigationSurface from "./NavigationSurface";
+import NavigationRenderer from "./NavigationRenderer";
 import Pagination from "./internal/common/Pagination";
 import SplitWorkspace, { type SplitWorkspaceMode } from "./internal/common/SplitWorkspace";
+import SelectorSurface from "./SelectorSurface";
 import type { TabDef } from "./internal/common/TabBar";
 import { Toolbar, type ToolbarItem } from "./Toolbar";
 import { EmptyStateCard, ModuleCard } from "./internal/common/Card";
-import { renderCommands, renderEmpty, renderSectionStack, renderToolbar } from "./internal/page/PageSurface.sections";
+import { renderCommands } from "./internal/page/PageSurface.commands";
+import { renderEmpty, renderPageModals, renderSectionStack, renderToolbar } from "./internal/page/PageSurface.sections";
 import type {
   PageSurfaceCompleteBodySpec,
   PageSurfaceDirectoryProps,
@@ -37,11 +39,11 @@ export type {
   PageSurfaceNavigationSpec,
   PageSurfaceProps,
   PageSurfaceBadgeSpec,
+  PageSurfaceBodySectionSpec,
   PageSurfaceSectionHeaderSpec,
   PageSurfaceSectioningSpec,
   PageSurfaceSectionSpec,
   PageSurfaceSplitBodySpec,
-  PageSurfaceSplitPaneSpec,
   PageSurfaceStandardProps,
   PageSurfaceToolbarSpec,
 } from "./PageSurface.types";
@@ -59,7 +61,7 @@ function renderNavigation(navigation?: PageSurfaceNavigationSpec) {
   const tabs = navigation.items.map(toTabDef);
   const hasChildren = navigation.items.some((item) => item.children?.length);
   return (
-    <NavigationSurface
+    <NavigationRenderer
       kind="tabs"
       tabs={hasChildren
         ? {
@@ -124,6 +126,7 @@ function renderCompleteBody(props: PageSurfaceProps, bodySpec: PageSurfaceComple
       {renderBodyTitle(bodySpec)}
       {bodySections}
       {!hasBody ? renderEmpty(bodySpec.empty) : null}
+      {renderPageModals(bodySpec.modals)}
       {includePageChrome ? renderFooter(props.footer) : null}
     </div>
   );
@@ -145,14 +148,9 @@ function renderSplitBeforeSplit(props: PageSurfaceProps, split: PageSurfaceSplit
   return <div className="space-y-3">{actions}{toolbar}</div>;
 }
 
-function paneBlocks(pane: PageSurfaceSplitBodySpec["left"], mode: SplitWorkspaceMode) {
-  const sections = mode === "drawer" ? pane.drawerSections ?? pane.sections : pane.sections;
-  return (
-    <div className="space-y-4">
-      {pane.title ? <h2 className="text-base font-semibold text-slate-900">{pane.title}</h2> : null}
-      {renderSectionStack(sections)}
-    </div>
-  );
+function paneBlocks(split: PageSurfaceSplitBodySpec, mode: SplitWorkspaceMode) {
+  const selector = mode === "drawer" ? split.drawerSelector ?? split.selector : split.selector;
+  return <SelectorSurface {...selector} />;
 }
 
 function renderSplitSideControls(split: PageSurfaceSplitBodySpec) {
@@ -199,7 +197,7 @@ function renderEmbeddedSplitSurface(props: PageSurfaceProps, split: PageSurfaceS
         sideOpen={split.sideOpen}
         drawerOpen={split.drawerOpen}
         onDrawerOpenChange={split.onDrawerOpenChange}
-        renderSide={(mode) => paneBlocks(split.left, mode)}
+        renderSide={(mode) => paneBlocks(split, mode)}
         splitRatio={split.splitRatio}
       >
         {body}
@@ -229,22 +227,25 @@ function hasSectionKind(
   if (!sections?.length) return false;
   return sections.some((section) => {
     if (predicate(section)) return true;
-    if (section.kind === "sections") return hasSectionKind(section.sections, predicate);
+    if (section.body.kind === "section" && section.body.sections) return hasSectionKind(section.body.sections, predicate);
     return false;
   });
 }
 
 function hasLoginForm(body?: PageSurfaceProps["body"]) {
   const bodySpec = completeBody(body);
-  return hasSectionKind(bodySpec.sections, (section) => section.kind === "form" && section.surface.kind === "login");
+  return hasSectionKind(
+    bodySpec.sections,
+    (section) => section.body.kind === "form" && section.body.form.kind === "login",
+  );
 }
 
 function findLoginContent(sections?: PageSurfaceSectionSpec[]): ReactNode | undefined {
   if (!sections?.length) return undefined;
   for (const section of sections) {
-    if (section.kind === "block" && section.surface.kind === "content") return section.surface.content;
-    if (section.kind === "sections") {
-      const content = findLoginContent(section.sections);
+    if (section.body.kind === "section" && section.body.surface?.kind === "content") return section.body.surface.content;
+    if (section.body.kind === "section" && section.body.sections) {
+      const content = findLoginContent(section.body.sections);
       if (content !== undefined) return content;
     }
   }
@@ -256,7 +257,7 @@ function hasDirectoryContent(body?: PageSurfaceProps["body"]) {
   if (bodySpec.empty) return true;
   return hasSectionKind(
     bodySpec.sections,
-    (section) => section.kind === "block" && (section.surface.kind === "moduleGrid" || section.surface.kind === "empty"),
+    (section) => section.body.kind === "section" && (section.body.surface?.kind === "moduleGrid" || section.body.surface?.kind === "empty"),
   );
 }
 
@@ -296,10 +297,10 @@ function renderDirectoryEmpty(empty?: PageSurfaceEmptySpec, key?: string) {
 }
 
 function renderDirectorySection(section: PageSurfaceSectionSpec): ReactNode {
-  if (section.kind === "block") {
-    if (section.surface.kind === "empty") return renderDirectoryEmpty(section.surface, section.key);
-    if (section.surface.kind !== "moduleGrid") return null;
-    const grid = section.surface;
+  if (section.body.kind === "section" && section.body.surface) {
+    if (section.body.surface.kind === "empty") return renderDirectoryEmpty(section.body.surface, section.key);
+    if (section.body.surface.kind !== "moduleGrid") return null;
+    const grid = section.body.surface;
     return (
       <div key={section.key} className="flex w-full flex-col items-center justify-center">
         {(grid.leading || grid.title || grid.summary) && (
@@ -319,13 +320,13 @@ function renderDirectorySection(section: PageSurfaceSectionSpec): ReactNode {
       </div>
     );
   }
-  if (section.kind === "sections") {
+  if (section.body.kind === "section" && section.body.sections) {
     return (
       <div key={section.key} className="space-y-5">
         {section.header?.title ? <h1 className="text-center text-2xl font-bold text-gray-800">{section.header.title}</h1> : null}
         {section.header?.subtitle ? <p className="text-center text-sm text-gray-500">{section.header.subtitle}</p> : null}
-        <div className={section.layout === "grid" ? "grid gap-4 lg:grid-cols-2" : "space-y-5"}>
-          {section.sections.map(renderDirectorySection)}
+        <div className={section.body.layout === "grid" ? "grid gap-4 lg:grid-cols-2" : "space-y-5"}>
+          {section.body.sections.map(renderDirectorySection)}
         </div>
       </div>
     );
@@ -376,7 +377,7 @@ export default function PageSurface(props: PageSurfaceProps) {
         onSideOpenChange={split.onSideOpenChange}
         onDrawerOpenChange={split.onDrawerOpenChange}
         sideLabel={split.sideLabel}
-        renderSide={(mode) => paneBlocks(split.left, mode)}
+        renderSide={(mode) => paneBlocks(split, mode)}
         showSideControls={split.showSideControls}
         splitRatio={split.splitRatio}
         beforeSplit={renderSplitBeforeSplit(props, split)}

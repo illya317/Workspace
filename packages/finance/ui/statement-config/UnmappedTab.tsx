@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState } from "react";
-import { createPageBody, createBlockSurfaceSection, PageSurface, createPageDataSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, createBlockSurfaceSection, PageSurface, createPageDataSection, createRecordSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
 import { useStatementConfig } from "./StatementConfigContext";
 interface Node {
@@ -185,7 +185,7 @@ function UnmappedRecords({ message }: { message: string }) {
   return (
     <PageSurface kind="standard"
       embedded
-      body={createPageBody([createPageDataSection("unmapped-records", { kind: "records", records: [], empty: message })])}
+      body={createPageBody([createRecordSection("unmapped-records", { records: [], empty: message })])}
     />
   );
 }
@@ -201,12 +201,12 @@ function UnmappedError({ message, onRetry }: { message: string; onRetry: () => v
           content: message
         }),
         {
-          kind: "form",
           key: "retry",
-          surface: {
-            kind: "inline",
-            actions: [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }],
-          },
+          body: { kind: "form", form: {
+            kind: "filters",
+            content: { items: [] },
+            commands: [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }],
+          } },
         },
       ])}
     />
@@ -222,7 +222,6 @@ function UnmappedTable({ items }: { items: DisplayItem[] }) {
       body={createPageBody([
         createPageDataSection("unmapped-table", {
           kind: "table",
-          framed: true,
           rows: items,
           columns,
           visibleColumns: columns.map(column => column.key),

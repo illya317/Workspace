@@ -46,6 +46,7 @@ export const ACTION_GLYPH_KINDS = [
 ] as const;
 
 export type ActionGlyphKind = (typeof ACTION_GLYPH_KINDS)[number];
+export type ActionGlyphIconAlias = "back" | "create" | "open";
 
 export interface ActionGlyphProps {
   kind: ActionGlyphKind;
@@ -164,5 +165,151 @@ export const ACTION_GLYPH_GROUP_BY_KIND: Record<ActionGlyphKind, ActionGlyphGrou
   },
   {} as Record<ActionGlyphKind, ActionGlyphGroupDefinition>,
 );
+
+export type ActionGlyphActionVariant = "primary" | "secondary" | "danger";
+export type ActionGlyphActionSection = "primary" | "search" | "filter" | "edit" | "action" | "meta" | "view";
+
+export interface ActionGlyphActionDefinition {
+  key: string;
+  label: string;
+  icon: ActionGlyphKind;
+  variant: ActionGlyphActionVariant;
+  section: ActionGlyphActionSection;
+}
+
+export const ACTION_GLYPH_ACTIONS = [
+  { key: "create", label: "新建", icon: "add", variant: "primary", section: "primary" },
+  { key: "add", label: "添加", icon: "add", variant: "primary", section: "primary" },
+  { key: "send", label: "发送", icon: "send", variant: "primary", section: "primary" },
+  { key: "stop", label: "停止", icon: "stop", variant: "danger", section: "action" },
+  { key: "edit", label: "编辑", icon: "edit", variant: "secondary", section: "edit" },
+  { key: "save", label: "保存", icon: "save", variant: "primary", section: "edit" },
+  { key: "confirm", label: "确认", icon: "check", variant: "primary", section: "primary" },
+  { key: "cancel", label: "取消", icon: "cancel", variant: "secondary", section: "edit" },
+  { key: "close", label: "关闭", icon: "cancel", variant: "secondary", section: "edit" },
+  { key: "delete", label: "删除", icon: "delete-bin", variant: "danger", section: "edit" },
+  { key: "remove", label: "移除", icon: "delete-minus", variant: "danger", section: "edit" },
+  { key: "view", label: "查看", icon: "view", variant: "secondary", section: "view" },
+  { key: "open", label: "打开", icon: "view", variant: "secondary", section: "view" },
+  { key: "back", label: "返回", icon: "list", variant: "secondary", section: "view" },
+  { key: "list", label: "列表", icon: "list", variant: "secondary", section: "view" },
+  { key: "search", label: "搜索", icon: "search", variant: "secondary", section: "search" },
+  { key: "filter", label: "筛选", icon: "filter", variant: "secondary", section: "filter" },
+  { key: "sort", label: "排序", icon: "sort", variant: "secondary", section: "filter" },
+  { key: "refresh", label: "刷新", icon: "refresh", variant: "secondary", section: "view" },
+  { key: "retry", label: "重试", icon: "refresh", variant: "secondary", section: "view" },
+  { key: "reset", label: "重置", icon: "reset", variant: "secondary", section: "filter" },
+  { key: "restore", label: "恢复", icon: "restore", variant: "secondary", section: "action" },
+  { key: "history", label: "历史", icon: "history", variant: "secondary", section: "view" },
+  { key: "download", label: "下载", icon: "download", variant: "secondary", section: "action" },
+  { key: "export", label: "导出", icon: "download", variant: "secondary", section: "action" },
+  { key: "upload", label: "上传", icon: "upload", variant: "secondary", section: "action" },
+  { key: "import", label: "导入", icon: "upload", variant: "secondary", section: "action" },
+  { key: "archive", label: "归档", icon: "archive", variant: "secondary", section: "action" },
+  { key: "link", label: "关联", icon: "link", variant: "secondary", section: "action" },
+  { key: "unlink", label: "取消关联", icon: "unlink", variant: "secondary", section: "action" },
+  { key: "copy", label: "复制", icon: "copy", variant: "secondary", section: "action" },
+  { key: "settings", label: "设置", icon: "settings", variant: "secondary", section: "action" },
+  { key: "lock", label: "锁定", icon: "lock", variant: "secondary", section: "action" },
+  { key: "unlock", label: "解锁", icon: "unlock", variant: "secondary", section: "action" },
+  { key: "reclass", label: "重分类", icon: "reclass", variant: "secondary", section: "action" },
+  { key: "generate", label: "生成", icon: "generate", variant: "primary", section: "action" },
+  { key: "print", label: "打印", icon: "print", variant: "secondary", section: "action" },
+  { key: "more", label: "更多", icon: "more", variant: "secondary", section: "action" },
+  { key: "panel-open", label: "显示面板", icon: "panel-open", variant: "secondary", section: "view" },
+  { key: "panel-close", label: "隐藏面板", icon: "panel-close", variant: "primary", section: "view" },
+] as const satisfies readonly ActionGlyphActionDefinition[];
+
+export type ActionGlyphActionKey = (typeof ACTION_GLYPH_ACTIONS)[number]["key"];
+type ActionGlyphActionDefinitionEntry = (typeof ACTION_GLYPH_ACTIONS)[number];
+
+export const ACTION_GLYPH_ACTION_BY_KEY: Record<ActionGlyphActionKey, ActionGlyphActionDefinitionEntry> = ACTION_GLYPH_ACTIONS.reduce(
+  (acc, action) => {
+    acc[action.key] = action;
+    return acc;
+  },
+  {} as Record<ActionGlyphActionKey, ActionGlyphActionDefinitionEntry>,
+);
+
+const ACTION_GLYPH_ALIAS_TO_ACTION_KEY = {
+  new: "create",
+  submit: "confirm",
+  apply: "confirm",
+  ok: "confirm",
+  clear: "delete",
+  destroy: "delete",
+  show: "view",
+  hide: "open",
+  retry: "retry",
+} as const satisfies Record<string, ActionGlyphActionKey>;
+
+const ACTION_GLYPH_LABEL_MATCHERS: Array<{ value: string; action: ActionGlyphActionKey }> = [
+  { value: "取消关联", action: "unlink" },
+  { value: "新建", action: "create" },
+  { value: "创建", action: "create" },
+  { value: "添加", action: "add" },
+  { value: "保存", action: "save" },
+  { value: "删除", action: "delete" },
+  { value: "移除", action: "remove" },
+  { value: "取消", action: "cancel" },
+  { value: "关闭", action: "close" },
+  { value: "确认", action: "confirm" },
+  { value: "应用", action: "confirm" },
+  { value: "查看", action: "view" },
+  { value: "打开", action: "open" },
+  { value: "返回", action: "back" },
+  { value: "搜索", action: "search" },
+  { value: "筛选", action: "filter" },
+  { value: "刷新", action: "refresh" },
+  { value: "重试", action: "retry" },
+  { value: "重置", action: "reset" },
+  { value: "恢复", action: "restore" },
+  { value: "历史", action: "history" },
+  { value: "下载", action: "download" },
+  { value: "导出", action: "export" },
+  { value: "上传", action: "upload" },
+  { value: "导入", action: "import" },
+  { value: "归档", action: "archive" },
+  { value: "关联", action: "link" },
+  { value: "复制", action: "copy" },
+  { value: "设置", action: "settings" },
+  { value: "锁定", action: "lock" },
+  { value: "解锁", action: "unlock" },
+  { value: "重分类", action: "reclass" },
+  { value: "生成", action: "generate" },
+  { value: "打印", action: "print" },
+];
+
+function normalizeActionKey(value: string) {
+  return value.trim().toLowerCase().replaceAll("_", "-");
+}
+
+export function resolveActionGlyphIcon(icon?: ActionGlyphKind | ActionGlyphIconAlias): ActionGlyphKind | undefined {
+  if (!icon) return undefined;
+  if (icon === "back") return ACTION_GLYPH_ACTION_BY_KEY.back.icon;
+  if (icon === "create") return ACTION_GLYPH_ACTION_BY_KEY.create.icon;
+  if (icon === "open") return ACTION_GLYPH_ACTION_BY_KEY.open.icon;
+  return icon;
+}
+
+export function resolveActionGlyphAction(input: {
+  key?: string;
+  label?: string;
+  type?: "button" | "submit";
+}): ActionGlyphActionDefinitionEntry | undefined {
+  if (input.key) {
+    const normalizedKey = normalizeActionKey(input.key);
+    const exact = ACTION_GLYPH_ACTION_BY_KEY[normalizedKey as ActionGlyphActionKey];
+    if (exact) return exact;
+    const aliased = ACTION_GLYPH_ALIAS_TO_ACTION_KEY[normalizedKey as keyof typeof ACTION_GLYPH_ALIAS_TO_ACTION_KEY];
+    if (aliased) return ACTION_GLYPH_ACTION_BY_KEY[aliased];
+  }
+  if (input.type === "submit") return ACTION_GLYPH_ACTION_BY_KEY.confirm;
+  if (input.label) {
+    const match = ACTION_GLYPH_LABEL_MATCHERS.find((item) => input.label?.includes(item.value));
+    if (match) return ACTION_GLYPH_ACTION_BY_KEY[match.action];
+  }
+  return undefined;
+}
 
 export { ActionGlyph } from "./ActionGlyphParts";

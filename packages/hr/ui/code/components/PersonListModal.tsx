@@ -39,13 +39,13 @@ export default function PersonListModal({
               key: "people",
               items: list.map((employee) => ({
                 key: String(employee.id),
-                fields: [
+                items: [
                   { kind: "readonly", key: "name", label: "姓名", value: employee.name },
                   { kind: "readonly", key: "dept1", label: "部门", value: employee.dept1 || "-" },
                   { kind: "readonly", key: "position", label: "岗位", value: employee.position || "-" },
                 ],
               })),
-              columns: 3,
+              layout: { columns: 3 },
             }]),
           ],
         }),

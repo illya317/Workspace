@@ -30,6 +30,7 @@ export type PageSurfaceLayoutProtocolWarning = {
   kind:
     | "navigation-tabs"
     | "navigation-pagination"
+    | "block-content-escape"
     | "form-surface-toolbar"
     | "data-surface-toolbar"
     | "data-surface-pagination"
@@ -290,6 +291,10 @@ function objectStringProperty(objectLiteral: ts.ObjectLiteralExpression, name: s
   return initializer ? stringLiteralValue(initializer) : null;
 }
 
+function objectLine(sourceFile: ts.SourceFile, node: ts.Node) {
+  return sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
+}
+
 function addLayoutWarning(
   warnings: PageSurfaceLayoutProtocolWarning[],
   file: string,
@@ -358,10 +363,10 @@ export function findPageSurfaceLayoutProtocolWarnings(files: SourceInfo[]) {
           }
         }
 
-        if (tagName === "NavigationSurface") {
+        if (tagName === "NavigationRenderer") {
           const kind = jsxAttributeValueText(node.attributes, file.sourceFile, "kind");
-          if (kind === "tabs") addLayoutWarning(warnings, file.relPath, "navigation-tabs", "NavigationSurface kind=tabs direct layout entry");
-          if (kind === "pagination") addLayoutWarning(warnings, file.relPath, "navigation-pagination", "NavigationSurface kind=pagination direct layout entry");
+          if (kind === "tabs") addLayoutWarning(warnings, file.relPath, "navigation-tabs", "NavigationRenderer kind=tabs direct layout entry");
+          if (kind === "pagination") addLayoutWarning(warnings, file.relPath, "navigation-pagination", "NavigationRenderer kind=pagination direct layout entry");
         }
 
         if (tagName === "FormSurface" && jsxHasAttribute(node.attributes, "toolbar")) {
@@ -384,6 +389,14 @@ export function findPageSurfaceLayoutProtocolWarnings(files: SourceInfo[]) {
 
       if (ts.isObjectLiteralExpression(node)) {
         const kind = objectStringProperty(node, "kind");
+        if (kind === "content" && objectProperty(node, "content")) {
+          addLayoutWarning(
+            warnings,
+            file.relPath,
+            "block-content-escape",
+            `BlockSurface kind=content at line ${objectLine(file.sourceFile, node)}`,
+          );
+        }
         const surface = objectProperty(node, "surface");
         if (kind === "navigation" && surface && ts.isObjectLiteralExpression(surface)) {
           const surfaceKind = objectStringProperty(surface, "kind");

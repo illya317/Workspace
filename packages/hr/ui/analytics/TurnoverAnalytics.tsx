@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createPageBody, createAnalysisSection, createSectionsSection, createPageDataSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createSectionsSection, createMetricsSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { Employee, Employment } from "./useAnalyticsData";
 
@@ -128,8 +128,7 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
   ];
 
   return [
-        createPageDataSection("stats", {
-            kind: "metrics",
+        createMetricsSection("stats", {
             metrics: [
               { key: "totalLeft", label: "累计离职", value: stats.totalLeft },
               { key: "leftThisMonth", label: "本月离职", value: stats.leftThisMonth },
@@ -144,33 +143,33 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
             createAnalysisSection("monthly-trend", {
               title: "离职月度趋势（近12个月）",
               sections: [{
-                kind: "visualization",
                 key: "monthly-chart",
-                surface: {
+                body: { kind: "visualization", visualization: {
                   kind: "chart",
-                  visual: {
-                    kind: "barChart",
-                    height: 160,
-                    max: stats.maxMonthCount,
-                    emptyText: "暂无数据",
-                    bars: stats.monthCounts.map((count, index) => ({
-                      key: stats.monthLabels[index],
-                      label: stats.monthLabels[index].slice(2),
-                      value: count,
-                      valueLabel: count || "",
-                      tone: "rose",
-                      minPercent: count > 0 ? 4 : 1,
-                    })),
+                  chart: {
+                    visual: {
+                      kind: "barChart",
+                      height: 160,
+                      max: stats.maxMonthCount,
+                      emptyText: "暂无数据",
+                      bars: stats.monthCounts.map((count, index) => ({
+                        key: stats.monthLabels[index],
+                        label: stats.monthLabels[index].slice(2),
+                        value: count,
+                        valueLabel: count || "",
+                        tone: "rose",
+                        minPercent: count > 0 ? 4 : 1,
+                      })),
+                    },
                   },
-                },
+                } },
               }],
             }),
             createAnalysisSection("tenure", {
               title: "离职司龄分布",
               sections: [{
-                kind: "data",
                 key: "tenure-chart",
-                surface: {
+                body: { kind: "data", data: {
                   kind: "table",
                   rows: tenureRows,
                   columns: tenureColumns,
@@ -179,7 +178,7 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
                                     presentation: { density: "compact" },
 
                   emptyText: "暂无数据",
-                },
+                } },
               }],
             }),
           ],
@@ -193,9 +192,8 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
             ],
           },
           sections: [{
-            kind: "data",
             key: "reason-bars",
-            surface: {
+            body: { kind: "data", data: {
               kind: "table",
               rows: reasonRows,
               columns: reasonColumns,
@@ -204,22 +202,21 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
                             presentation: { density: "compact" },
 
               emptyText: "暂无数据",
-            },
+            } },
           }],
         }),
         createAnalysisSection("recent-leaves", {
           title: "最近离职（前20）",
           sections: [{
-            kind: "data",
             key: "recent-leaves-table",
-            surface: {
+            body: { kind: "data", data: {
               kind: "table",
               rows: stats.recentLeaves,
               columns,
               visibleColumns: columns.map((column) => column.key),
               rowKey: (employment) => employment.id,
               emptyText: "暂无数据",
-            },
+            } },
           }],
         }),
       ];

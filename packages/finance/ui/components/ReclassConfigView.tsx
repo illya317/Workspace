@@ -291,11 +291,9 @@ export default function ReclassCandidateList({
     <PageSurface kind="standard"
       embedded
       body={createPageBody([{
-          kind: "data",
           key: "reclass-candidates",
-          surface: {
+          body: { kind: "data", data: {
             kind: "table",
-            framed: true,
 
 
             rows: paged,
@@ -315,7 +313,7 @@ export default function ReclassCandidateList({
               }
               return [{ key: "adjust", kind: "edit", label: "调整", onClick: () => startEdit(candidate) }];
             } : undefined,
-          },
+          } },
         }], { layout: "single" })}
       footer={{ pagination: { page, totalPages, total: filtered.length, onPageChange: setPage } }}
     />

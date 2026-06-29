@@ -186,11 +186,9 @@ export default function LedgerTab({
       body={createPageBody([
           ...lifecycleBlocks,
           {
-            kind: "data",
             key: "balances",
-            surface: {
+            body: { kind: "data", data: {
               kind: "table",
-              framed: true,
 
 
               rows: balances,
@@ -199,7 +197,7 @@ export default function LedgerTab({
               loading,
               emptyText: "暂无余额数据，请先录入凭证并计算余额",
               rowKey: (balance: Balance) => balance.id,
-            },
+            } },
           },
           createBlockSurfaceSection("balance-reconcile", {
             kind: "content",

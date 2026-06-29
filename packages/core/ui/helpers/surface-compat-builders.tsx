@@ -4,20 +4,20 @@ import CreatePanel, { type CreatePanelBlockProps } from "../internal/create/Crea
 import SelectorPanel, { type SelectorPanelProps } from "../internal/selection/SelectorPanel";
 import type { PageSurfaceSectionSpec } from "../PageSurface.types";
 
-type BlockSurfaceSectionSpec = Extract<PageSurfaceSectionSpec, { kind: "block" }>;
-
 export type CreatePanelSectionHelperProps = Omit<CreatePanelBlockProps, "variant">;
 
 export function createCreatePanelSection(
   key: string,
   props: CreatePanelSectionHelperProps,
-): BlockSurfaceSectionSpec {
+): PageSurfaceSectionSpec {
   return {
-    kind: "block",
     key,
-    surface: {
-      kind: "content",
-      content: <CreatePanel variant="block" {...props} />,
+    body: {
+      kind: "section",
+      surface: {
+        kind: "content",
+        content: <CreatePanel variant="block" {...props} />,
+      },
     },
   };
 }
@@ -28,13 +28,15 @@ export function createSelectorPanelSection<T>(
   key: string,
   props: SelectorPanelProps<T>,
   _options: SelectorPanelSectionHelperOptions = {},
-): BlockSurfaceSectionSpec {
+): PageSurfaceSectionSpec {
   return {
-    kind: "block",
     key,
-    surface: {
-      kind: "content",
-      content: <SelectorPanel<T> {...props} />,
+    body: {
+      kind: "section",
+      surface: {
+        kind: "content",
+        content: <SelectorPanel<T> {...props} />,
+      },
     },
   };
 }

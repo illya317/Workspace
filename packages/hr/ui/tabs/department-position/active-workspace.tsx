@@ -1,14 +1,13 @@
 "use client";
 
-import { createPageBody, PageSurface, type PageSurfaceSectionSpec, type PageSurfaceToolbarSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, type PageSurfaceSectionSpec, type PageSurfaceToolbarSpec, type SelectorSurfaceProps } from "@workspace/core/ui";
 import type { RosterSurfaceNavigationProps } from "../../roster-surface";
-
-type SplitWorkspaceMode = "desktop" | "drawer";
 
 export function DepartmentPositionActiveWorkspace({
   sections,
   drawerOpen,
-  sideBlocks,
+  selector,
+  drawerSelector,
   sideOpen,
   surface,
   toolbarItems,
@@ -17,7 +16,8 @@ export function DepartmentPositionActiveWorkspace({
 }: {
   sections: PageSurfaceSectionSpec[];
   drawerOpen: boolean;
-  sideBlocks: (mode: SplitWorkspaceMode) => PageSurfaceSectionSpec[];
+  selector: SelectorSurfaceProps;
+  drawerSelector: SelectorSurfaceProps;
   sideOpen: boolean;
   surface?: RosterSurfaceNavigationProps;
   toolbarItems?: PageSurfaceToolbarSpec["items"];
@@ -32,10 +32,8 @@ export function DepartmentPositionActiveWorkspace({
       toolbar={toolbar}
       body={{
         kind: "split",
-        left: {
-          sections: createPageBody(sideBlocks("desktop")).sections,
-          drawerSections: createPageBody(sideBlocks("drawer")).sections,
-        },
+        selector,
+        drawerSelector,
         right: createPageBody(sections),
         sideOpen,
         sideLabel: "部门岗位",

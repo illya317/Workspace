@@ -1,95 +1,110 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import type { SurfaceColumnOptionSpec, SurfaceToolbarItem } from "@workspace/core/ui";
-import { EmptyStateCard, Toolbar, WorkspaceSplitPage } from "./internal-ui";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { SurfaceToolbarItem } from "@workspace/core/ui";
+import { EmptyStateCard, PanelCard, Toolbar, WorkspaceSplitPage } from "./internal-ui";
 import {
+  coreUiDeclarationCategoryMeta,
   coreUiComponentRegistry,
-  getCoreUiCompositionGraph,
-  isCoreUiComponentVisibleInShowcase,
+  type CoreUiCapabilityDescriptor,
+  type CoreUiDeclarationCategory,
+  type CoreUiComponentRegistration,
 } from "../ui/registry/component-registry";
+import { buildCoreUiComponentTree } from "../ui/registry/component-registry-view";
+import { UiComponentTreePanel } from "./UiComponentTreePanel";
 import {
-  buildCoreUiComponentTree,
-  getCoreUiComponentRelationView,
-} from "../ui/registry/component-registry-view";
-import type {
-  CoreUiComponentCategory,
-  CoreUiComponentRole,
-  CoreUiComponentRegistration,
-} from "../ui/registry/component-registry";
-
-import { UiComponentPreviewPanel } from "./UiComponentPreviewPanel";
-import { UiComponentRelationPanel } from "./UiComponentRelations";
-import {
-  getUiComponentTreeRootId,
-  UiComponentTreePanel,
-  type UiComponentTreeMetaKey,
-} from "./UiComponentTreePanel";
-import { filterUiComponents } from "./filter-ui-components";
-import { useUiComponentVerified } from "./use-ui-component-verified";
+  filterUiComponents,
+  type UiComponentCategoryFilter,
+} from "./filter-ui-components";
 
 const ALL_CATEGORY = "all";
-const ALL_ROLE = "all";
-const ALL_VERIFIED = "all";
 
-type UiComponentsShowcaseProps = {
-  usageRows?: Array<{
-    name: string;
-    usageFiles: string[];
-  }>;
-};
-
-type TreeCategoryFilter = CoreUiComponentCategory | typeof ALL_CATEGORY;
-type RoleFilter = CoreUiComponentRole | typeof ALL_ROLE;
-type VerifiedFilter = "verified" | "unverified" | typeof ALL_VERIFIED;
-
-const CATEGORY_OPTIONS: Array<{ value: TreeCategoryFilter; label: string }> = [
+const CATEGORY_OPTIONS: Array<{ value: UiComponentCategoryFilter; label: string }> = [
   { value: ALL_CATEGORY, label: "全部" },
-  { value: "page", label: "页面" },
-  { value: "data", label: "数据" },
-  { value: "form", label: "表单" },
-  { value: "document", label: "文档" },
-  { value: "visualization", label: "可视化" },
-  { value: "common", label: "通用" },
-  { value: "feedback", label: "反馈" },
+  { value: "page-layout", label: coreUiDeclarationCategoryMeta["page-layout"].label },
+  { value: "page-content", label: coreUiDeclarationCategoryMeta["page-content"].label },
+  { value: "common", label: coreUiDeclarationCategoryMeta.common.label },
 ];
 
-const ROLE_OPTIONS: Array<{ value: RoleFilter; label: string }> = [
-  { value: ALL_ROLE, label: "全部" },
-  { value: "surface", label: "声明接口" },
-  { value: "host", label: "宿主入口" },
-  { value: "helper", label: "声明助手" },
-  { value: "service", label: "服务接口" },
-  { value: "internal", label: "内部实现" },
-];
-
-const META_COLUMNS: SurfaceColumnOptionSpec[] = [
-  { key: "usedBy", label: "被引用", defaultVisible: true },
-  { key: "files", label: "文件", defaultVisible: true },
-  { key: "verified", label: "改造状态", defaultVisible: true },
-];
-
-const DEFAULT_VISIBLE_META: UiComponentTreeMetaKey[] = ["usedBy", "files", "verified"];
-
-function findComponent(name: string) {
-  return coreUiComponentRegistry.find((component) => component.name === name) as CoreUiComponentRegistration | undefined;
+function DeclarationList({
+  items,
+  depth = 0,
+}: {
+  items: readonly CoreUiCapabilityDescriptor[];
+  depth?: number;
+}) {
+  return (
+    <div className={depth === 0 ? "space-y-2" : "mt-2 space-y-2 border-l border-slate-200 pl-3"}>
+      {items.map((item) => (
+        <div key={`${depth}-${item.name}`} className="rounded-md border border-slate-200 bg-white px-3 py-2">
+          <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+            <span className="font-mono text-xs font-semibold text-emerald-700">
+              {item.name}
+            </span>
+            <span className="text-xs leading-5 text-slate-600">
+              {item.description}
+            </span>
+          </div>
+          {item.children && item.children.length > 0 ? (
+            <DeclarationList items={item.children} depth={depth + 1} />
+          ) : null}
+        </div>
+      ))}
+    </div>
+  );
 }
 
-export default function UiComponentsShowcase({
-  usageRows = [],
-}: UiComponentsShowcaseProps) {
-  const firstRoot = coreUiComponentRegistry.find(isCoreUiComponentVisibleInShowcase);
-  const [categoryValue, setCategoryValue] = useState<string>(ALL_CATEGORY);
-  const [roleFilter, setRoleFilter] = useState<RoleFilter>(ALL_ROLE);
-  const [verifiedFilter, setVerifiedFilter] = useState<VerifiedFilter>(ALL_VERIFIED);
+function DeclarationDetail({
+  component,
+  category,
+}: {
+  component: CoreUiComponentRegistration;
+  category: CoreUiDeclarationCategory;
+}) {
+  const declares = component.declares ?? [];
+  const categoryMeta = coreUiDeclarationCategoryMeta[category];
+
+  return (
+    <PanelCard title={component.name} bodyClassName="p-5">
+      <div className="space-y-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-sm leading-6 text-slate-600">
+              {component.description}
+            </p>
+          </div>
+          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+            {categoryMeta.label}
+          </span>
+        </div>
+
+        <section className="space-y-3">
+          <div>
+            <h3 className="text-sm font-semibold text-slate-950">
+              declares
+            </h3>
+            <p className="mt-1 text-xs leading-5 text-slate-500">
+              仅展示 agent 可声明字段；contract、capabilities 和内部实现不进入此页。
+            </p>
+          </div>
+          {declares.length > 0 ? (
+            <DeclarationList items={declares} />
+          ) : (
+            <EmptyStateCard compact>这个组件没有声明字段</EmptyStateCard>
+          )}
+        </section>
+      </div>
+    </PanelCard>
+  );
+}
+
+export default function UiComponentsShowcase() {
+  const [categoryValue, setCategoryValue] = useState<UiComponentCategoryFilter>(ALL_CATEGORY);
   const [query, setQuery] = useState("");
-  const [selectedName, setSelectedName] = useState<string | null>(firstRoot?.name ?? null);
-  const [expandedNames, setExpandedNames] = useState<Set<string>>(new Set());
   const [sideOpen, setSideOpen] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [visibleMeta, setVisibleMeta] = useState<string[]>(DEFAULT_VISIBLE_META);
-  const [pendingScrollName, setPendingScrollName] = useState<string | null>(null);
-  const { verifiedNames, toggleVerified, canWrite } = useUiComponentVerified();
+  const treeRoots = useMemo(() => buildCoreUiComponentTree(), []);
+  const [selectedName, setSelectedName] = useState<string | null>(treeRoots[0]?.name ?? null);
 
   const componentByName = useMemo(() => {
     return new Map<string, CoreUiComponentRegistration>(
@@ -97,112 +112,38 @@ export default function UiComponentsShowcase({
     );
   }, []);
 
-  const usageFilesByName = useMemo(() => {
-    return new Map<string, readonly string[]>(
-      usageRows.map((row) => [row.name, row.usageFiles]),
-    );
-  }, [usageRows]);
-
-  const usedByNamesByName = useMemo(() => {
-    const graph = getCoreUiCompositionGraph();
-    return new Map<string, readonly string[]>(
-      [...graph.usedBy.entries()].map(([name, usedBy]) => [name, usedBy]),
-    );
-  }, []);
-
-  const treeRoots = useMemo(() => {
-    return buildCoreUiComponentTree({ verifiedNames, usageFilesByName });
-  }, [usageFilesByName, verifiedNames]);
-
   const filteredRoots = useMemo(() => {
     return filterUiComponents(treeRoots, {
-      keyword: query.trim(),
+      keyword: query,
       categoryValue,
-      roleFilter,
-      verifiedFilter,
-      usageFilesByName,
-      usedByNamesByName,
     });
-  }, [roleFilter, categoryValue, query, treeRoots, usageFilesByName, usedByNamesByName, verifiedFilter]);
+  }, [categoryValue, query, treeRoots]);
 
-  const visibleRoots = filteredRoots;
-  const selectedComponent = selectedName ? (componentByName.get(selectedName) ?? null) : null;
-  const selectedRelation = selectedComponent
-    ? getCoreUiComponentRelationView(selectedComponent.name, {
-      usageFiles: usageFilesByName.get(selectedComponent.name) ?? [],
-    })
-    : null;
-  const selectedNestDepth = useMemo(() => {
-    return treeRoots.find((node) => node.name === selectedName)?.nestDepth ?? 1;
-  }, [treeRoots, selectedName]);
+  const selectedNode = filteredRoots.find((node) => node.name === selectedName) ?? filteredRoots[0] ?? null;
+  const selectedComponent = selectedNode ? (componentByName.get(selectedNode.name) ?? null) : null;
 
   useEffect(() => {
-    if (!selectedName) return;
-    if (selectedComponent) return;
-    if (visibleRoots[0]) setSelectedName(visibleRoots[0].name);
-  }, [selectedComponent, selectedName, visibleRoots]);
-
-  useEffect(() => {
-    if (!pendingScrollName) return;
-    const target = document.getElementById(getUiComponentTreeRootId(pendingScrollName));
-    target?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-    setPendingScrollName(null);
-  }, [pendingScrollName, visibleRoots]);
-
-  function toggleExpanded(name: string) {
-    setExpandedNames((current) => {
-      const next = new Set(current);
-      if (next.has(name)) next.delete(name);
-      else next.add(name);
-      return next;
-    });
-  }
-
-  function collapseComponent(name: string) {
-    setSelectedName(null);
-    setExpandedNames((current) => {
-      if (!current.has(name)) return current;
-      const next = new Set(current);
-      next.delete(name);
-      return next;
-    });
-  }
-
-  function focusComponent(name: string) {
-    if (selectedName === name) {
-      collapseComponent(name);
+    if (!selectedNode) {
+      setSelectedName(null);
       return;
     }
+    if (selectedName !== selectedNode.name) setSelectedName(selectedNode.name);
+  }, [selectedName, selectedNode]);
 
-    const component = findComponent(name);
-    if (!component) return;
-    setSelectedName(name);
-    if (!isCoreUiComponentVisibleInShowcase(component)) return;
-
-    setExpandedNames((current) => new Set([...current, name]));
-    setSideOpen(true);
-    setDrawerOpen(false);
-    setPendingScrollName(name);
-  }
-
-  function toggleSideFromToolbar() {
+  const toggleSideFromToolbar = useCallback(() => {
     if (typeof window !== "undefined" && window.innerWidth < 1024) {
       setDrawerOpen(true);
       return;
     }
     setSideOpen((open) => !open);
-  }
+  }, []);
 
   const toolbarItems = useMemo<SurfaceToolbarItem[]>(() => [
-    { kind: "create", key: "create", label: "新建组件", disabled: true, onClick: () => {} },
-    { kind: "panel-toggle", key: "toggle-list", icon: sideOpen ? "panel-open" : "panel-close", label: sideOpen ? "隐藏组件目录" : "显示组件目录", variant: sideOpen ? "primary" : "secondary", onClick: toggleSideFromToolbar },
-    { kind: "search", key: "search", value: query, onChange: setQuery, placeholder: "搜索组件..." },
-    { kind: "option-group", key: "category", value: categoryValue, options: CATEGORY_OPTIONS, onChange: (value) => setCategoryValue(value as TreeCategoryFilter), ariaLabel: "一级分类" },
-    { kind: "option-group", key: "role", value: roleFilter, options: ROLE_OPTIONS, onChange: (value) => setRoleFilter(value as RoleFilter), ariaLabel: "分层" },
-    { kind: "option-group", key: "verified", value: verifiedFilter, options: [{ value: ALL_VERIFIED, label: "全部" }, { value: "verified", label: "无需改造" }, { value: "unverified", label: "待改造" }], onChange: (value) => setVerifiedFilter(value as VerifiedFilter), ariaLabel: "改造状态" },
-    { kind: "text", key: "meta", content: <>共 {filteredRoots.length} 个组件</> },
-    { kind: "column-toggle", key: "columns", columns: META_COLUMNS, visible: visibleMeta, onChange: setVisibleMeta },
-  ], [roleFilter, filteredRoots.length, categoryValue, query, sideOpen, verifiedFilter, visibleMeta]);
+    { kind: "panel-toggle", key: "toggle-list", icon: sideOpen ? "panel-open" : "panel-close", label: sideOpen ? "隐藏声明目录" : "显示声明目录", variant: sideOpen ? "primary" : "secondary", onClick: toggleSideFromToolbar },
+    { kind: "search", key: "search", value: query, onChange: setQuery, placeholder: "搜索声明能力..." },
+    { kind: "option-group", key: "category", value: categoryValue, options: CATEGORY_OPTIONS, onChange: (value) => setCategoryValue(value as UiComponentCategoryFilter), ariaLabel: "分类" },
+    { kind: "text", key: "meta", content: <>共 {filteredRoots.length} 个声明组件</> },
+  ], [categoryValue, filteredRoots.length, query, sideOpen, toggleSideFromToolbar]);
 
   return (
     <WorkspaceSplitPage
@@ -210,40 +151,23 @@ export default function UiComponentsShowcase({
       drawerOpen={drawerOpen}
       onSideOpenChange={setSideOpen}
       onDrawerOpenChange={setDrawerOpen}
-      sideLabel="组件目录"
+      sideLabel="声明目录"
       splitRatio={[3, 7]}
       contentClassName="max-w-7xl py-8"
       showSideControls={false}
-      header={(
-        <Toolbar items={toolbarItems} />
-      )}
+      header={<Toolbar items={toolbarItems} />}
       renderSide={() => (
         <UiComponentTreePanel
-          nodes={visibleRoots}
-          selectedName={selectedName}
-          expandedNames={expandedNames}
-          visibleMeta={visibleMeta}
-          onSelect={focusComponent}
-          onToggle={toggleExpanded}
+          nodes={filteredRoots}
+          selectedName={selectedNode?.name ?? null}
+          onSelect={setSelectedName}
         />
       )}
     >
-      {selectedComponent && selectedRelation ? (
-        <div className="space-y-4">
-          <UiComponentPreviewPanel
-            component={selectedComponent}
-            nestDepth={selectedNestDepth}
-            verified={verifiedNames.has(selectedComponent.name)}
-            canWrite={canWrite}
-            onToggleVerified={() => toggleVerified(selectedComponent.name)}
-          />
-          <UiComponentRelationPanel
-            relation={selectedRelation}
-            onSelect={focusComponent}
-          />
-        </div>
+      {selectedComponent && selectedNode ? (
+        <DeclarationDetail component={selectedComponent} category={selectedNode.category} />
       ) : (
-        <EmptyStateCard>请选择一个组件</EmptyStateCard>
+        <EmptyStateCard>请选择一个声明组件</EmptyStateCard>
       )}
     </WorkspaceSplitPage>
   );

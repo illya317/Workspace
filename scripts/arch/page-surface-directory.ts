@@ -33,7 +33,7 @@ export function checkPageSurfaceDirectoryRenderer() {
       failures.push("Directory renderer must preserve the historical py-10 module directory spacing.");
     }
     if (
-      !directorySectionRenderer.includes('section.surface.kind !== "moduleGrid"')
+      !directorySectionRenderer.includes('section.body.surface.kind !== "moduleGrid"')
       || !directorySectionRenderer.includes("justify-center")
       || !directorySectionRenderer.includes("<ModuleCard")
     ) {

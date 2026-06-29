@@ -1,10 +1,11 @@
 import {
   createPageBody,
-  PageSurface,
   createPageDataSection,
+  PageSurface,
+  createRecordSection,
   type DataSurfaceColumnSpec,
-  type DataSurfaceProps,
   type PageSurfaceSectionSpec,
+  type RecordSurfaceProps,
 } from "@workspace/core/ui";
 export interface ProfileHistoryEntry {
   id: number;
@@ -58,13 +59,9 @@ export function historySectionSurface({
   expandedId,
   onToggle,
   onRefresh,
-}: HistorySectionProps): DataSurfaceProps<ProfileHistoryChange> {
+}: HistorySectionProps): RecordSurfaceProps {
   const changeColumns = historyChangeColumns();
   return {
-    kind: "records",
-    framed: true,
-    title: "历史记录",
-    subtitle: "记录谁在什么时候修改了哪些字段。",
     actions: [{ key: "refresh", label: "刷新", variant: "secondary", onClick: onRefresh }],
     empty: loading ? "正在加载历史记录..." : "暂无变更记录",
     records: loading ? [] : entries.map(entry => {
@@ -89,24 +86,29 @@ export function historySectionSurface({
         summary: { kind: "text" as const, value: expanded ? "收起" : "展开", tone: "muted", },
         detail: entry.action === "create"
           ? { kind: "empty", content: "创建时的初始快照。" }
-          : undefined,
-        detailSurface: entry.action === "create"
-          ? undefined
-          : {
-              kind: "table" as const,
-              rows: entry.changes,
-              columns: changeColumns,
-              visibleColumns: ["field", "from", "to"],
-              density: "compact" as const,
-              rowKey: change => `${entry.id}-${change.field}`,
-            },
+          : (
+            <PageSurface
+              kind="standard"
+              embedded
+              body={createPageBody([
+                createPageDataSection(`history-${entry.id}-changes`, {
+                  kind: "table",
+                  rows: entry.changes,
+                  columns: changeColumns,
+                  visibleColumns: ["field", "from", "to"],
+                  presentation: { density: "compact" },
+                  rowKey: (change) => `${entry.id}-${change.field}`,
+                }),
+              ])}
+            />
+          ),
       };
     }),
   };
 }
 
 export function historySectionBlock(props: HistorySectionProps): PageSurfaceSectionSpec {
-  return createPageDataSection("history", historySectionSurface(props));
+  return createRecordSection("history", historySectionSurface(props));
 }
 
 export function HistorySection(props: HistorySectionProps) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createPageBody, PageSurface, createPageDataSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createMetricsSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState, SourceTraceInfo } from "../types";
 import CostDataTable, { CostTraceButton, formatCostNumber, type CostRecord } from "./CostDataTable";
@@ -38,8 +38,7 @@ export default function WorkshopReportTable({ filters }: Props) {
         <PageSurface kind="standard"
           embedded
           body={createPageBody([
-            createPageDataSection("workshop-summary", {
-              kind: "metrics",
+            createMetricsSection("workshop-summary", {
               metrics: [
                 { key: "work-points", label: "总工分", value: formatCostNumber(summary.totalWorkPoints as number) },
                 { key: "quantity", label: "总数量", value: formatCostNumber(summary.totalQuantity as number) },

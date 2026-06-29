@@ -324,9 +324,9 @@ export default function AdminUsersTab({
               onKeyDown: e => e.key === "Enter" && handleCreate(),
             },
           ], {
-            columns: 2,
+            layout: { columns: 2 },
 
-            actions: [
+            commands: [
             { key: "save", label: "保存", variant: "primary", onClick: handleCreate },
             {
               key: "cancel",
@@ -345,17 +345,15 @@ export default function AdminUsersTab({
       tone: "muted",
       content: "加载中..."
     }) : {
-      kind: "data",
       key: "admin-users",
-      surface: {
+      body: { kind: "data", data: {
         kind: "table",
-        framed: true,
         rows: paged,
         columns,
         visibleColumns: columns.map(column => column.key),
         rowKey: u => u.id,
         emptyText: "暂无用户",
-      },
+      } },
     },
   ];
 

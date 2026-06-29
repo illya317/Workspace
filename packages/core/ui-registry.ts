@@ -1,25 +1,20 @@
 export {
-  coreUiComponentCategoryMeta,
+  coreUiDeclarationCategoryMeta,
   coreUiComponentRegistry,
-  coreUiComponentSubcategoryMeta,
+  getCoreUiDeclarationCategory,
   getCoreUiCompositionGraph,
-  isCoreUiComponentVisibleInShowcase,
+  isCoreUiDeclarativeComponent,
   registeredCoreUiComponentNames,
 } from "./ui/registry/component-registry";
 export type {
-  CoreUiComponentCategory,
   CoreUiCapabilityDescriptor,
   CoreUiComponentRegistration,
-  CoreUiComponentRole,
-  CoreUiComponentSubcategory,
-  CoreUiExposure,
+  CoreUiDeclarationCategory,
 } from "./ui/registry/component-registry";
 export {
   buildCoreUiComponentTree,
-  getCoreUiComponentRelationView,
 } from "./ui/registry/component-registry-view";
 export type {
-  CoreUiComponentRelationView,
   CoreUiComponentTreeNode,
 } from "./ui/registry/component-registry-view";
 export { computeComponentNestDepth } from "./ui/registry/component-nest-depth";

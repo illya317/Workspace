@@ -325,7 +325,6 @@ function LineConfigTable({
       body={createPageBody([
         createPageDataSection("line-config", {
           kind: "table",
-          framed: true,
 
 
           rows,

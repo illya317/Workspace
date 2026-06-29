@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { PageSurfaceSectionSpec } from "@workspace/core/ui";
+import type { SelectorSurfaceProps } from "@workspace/core/ui";
 import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 import { ArchivedDepartmentPositionPage } from "./archive-browser";
 import { useDepartmentDetailPaneBlock } from "./department-detail-pane";
@@ -7,10 +7,6 @@ import type {
   PositionDescriptionTemplate,
   PositionDescriptionTemplateId,
 } from "./description-details";
-import {
-  buildDepartmentTreePanelBlock,
-  buildOrganizationRootPanelBlock,
-} from "./navigation-panels";
 import { usePositionEditorBlocks } from "./position-editor";
 import type {
   ArchivedEntityTab,
@@ -54,8 +50,8 @@ export function useDepartmentPositionViewRenderers(props: {
   positionNames: Set<string>;
   positions: Position[];
   positionsByDepartment: Map<number, Position[]>;
-  departmentNodeBlock: (department: Department) => PageSurfaceSectionSpec | null;
-  organizationRootBlock: (department: Department) => PageSurfaceSectionSpec | null;
+  departmentTreeSelector: (options: { loading: boolean; error: string | null; onClose?: () => void }) => SelectorSurfaceProps<Department>;
+  organizationRootSelector: (options: { loading: boolean; error: string | null; onClose?: () => void }) => SelectorSurfaceProps<Department>;
   rootDepartments: Department[];
   saving: boolean;
   search: string;
@@ -174,35 +170,15 @@ export function useDepartmentPositionViewRenderers(props: {
   });
   const detailBlocks = [detailPaneBlock];
 
-  function treePanelBlocks(mode: "desktop" | "drawer"): PageSurfaceSectionSpec[] {
-    return [
-      buildDepartmentTreePanelBlock({
-        mode,
-        isOrganizationMode: props.isOrganizationMode,
-        search: props.search,
-        loading: props.loading,
-        error: props.error,
-        rootDepartments: props.rootDepartments,
-        onSearchChange: props.onSearchChange,
-        onClose: () => props.onDrawerOpenChange(false),
-        onCollapseAll: props.onCollapseAll,
-        departmentNodeBlock: props.departmentNodeBlock,
-      }),
-    ];
-  }
-
-  function organizationRootPanelBlocks(mode: "desktop" | "drawer"): PageSurfaceSectionSpec[] {
-    return [
-      buildOrganizationRootPanelBlock({
-        mode,
-        loading: props.loading,
-        error: props.error,
-        departments: props.visibleRootDepartments,
-        onClose: () => props.onDrawerOpenChange(false),
-        organizationRootBlock: props.organizationRootBlock,
-      }),
-    ];
-  }
+  const treeSelector = props.departmentTreeSelector({
+    loading: props.loading,
+    error: props.error,
+  });
+  const treeDrawerSelector = props.departmentTreeSelector({
+    loading: props.loading,
+    error: props.error,
+    onClose: () => props.onDrawerOpenChange(false),
+  });
 
   function renderArchivedBrowser(surface?: RosterSurfaceNavigationProps) {
     return (
@@ -226,7 +202,7 @@ export function useDepartmentPositionViewRenderers(props: {
   return {
     renderArchivedBrowser,
     detailBlocks,
-    organizationRootPanelBlocks,
-    treePanelBlocks,
+    treeSelector,
+    treeDrawerSelector,
   };
 }

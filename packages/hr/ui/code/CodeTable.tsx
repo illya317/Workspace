@@ -107,8 +107,6 @@ export default function CodeTable({
   loadPositionDepts,
   user,
   type,
-  framed,
-  title,
   actions,
   loading,
   emptyText
@@ -300,12 +298,9 @@ export default function CodeTable({
       <PageSurface kind="standard"
         embedded
         body={createPageBody([{
-            kind: "data",
             key: "code-table",
-            surface: {
+            body: { kind: "data", data: {
               kind: "table",
-              framed,
-              title,
               actions,
               loading,
               emptyText,
@@ -321,7 +316,7 @@ export default function CodeTable({
                 if (row.kind === "add") return "muted";
                 return selectedCode === row.item.code ? "selected" : "normal";
               },
-            },
+            } },
           }], { layout: "single" })}
       />
 

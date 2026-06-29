@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { PageSurface, createPageBody, createPageDataSection, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createPageBody, createRecordSection, useFeedback } from "@workspace/core/ui";
 import type { PageSurfaceSectionSpec, PageSurfaceProps, SurfaceToolbarItems, VisualizationGanttDependencySpec, VisualizationGanttRowSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { ProjectItem } from "./model";
@@ -167,28 +167,30 @@ export default function ProjectPlanGanttTab({
     },
   ] satisfies SurfaceToolbarItems;
   const timelineBlock: PageSurfaceSectionSpec = error
-    ? createPageDataSection("project-plan-gantt-error", { kind: "records", records: [], empty: error,  })
+    ? createRecordSection("project-plan-gantt-error", { records: [], empty: error,  })
     : loading
-      ? createPageDataSection("project-plan-gantt-loading", { kind: "records", records: [], empty: "加载项目甘特..." })
+      ? createRecordSection("project-plan-gantt-loading", { records: [], empty: "加载项目甘特..." })
       : !data
-        ? createPageDataSection("project-plan-gantt-empty", { kind: "records", records: [], empty: "请选择项目" })
+        ? createRecordSection("project-plan-gantt-empty", { records: [], empty: "请选择项目" })
         : {
-        kind: "visualization" as const,
         key: "project-plan-gantt-timeline",
-        surface: {
+        body: { kind: "visualization", visualization: {
           kind: "gantt" as const,
-          title: "项目甘特",
-          framed: true,
           gantt: {
-            kind: "gantt",
-            rows: buildTimelineRows(items, data.phases).map(toVisualizationGanttRow),
-            dependencies: dependencies.map(toVisualizationGanttDependency),
-            periodStart: currentStart,
-            zoom,
-            leftHeader: "项目 / 任务",
-            emptyText: "暂无计划节点",
+            frame: {
+              title: "项目甘特",
+            },
+            timeline: {
+              kind: "gantt",
+              rows: buildTimelineRows(items, data.phases).map(toVisualizationGanttRow),
+              dependencies: dependencies.map(toVisualizationGanttDependency),
+              periodStart: currentStart,
+              zoom,
+              leftHeader: "项目 / 任务",
+              emptyText: "暂无计划节点",
+            },
           },
-        },
+        } },
       };
   const sections = [timelineBlock] satisfies PageSurfaceSectionSpec[];
 	  return <PageSurface kind="standard" {...surface} toolbar={{ items: toolbarItems }} body={createPageBody(sections)} />;

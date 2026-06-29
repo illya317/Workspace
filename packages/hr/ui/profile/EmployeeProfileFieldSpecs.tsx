@@ -288,24 +288,24 @@ export function fieldGridBlock(
   key = "fields",
 ): PageSurfaceSectionSpec {
   return {
-    kind: "form",
     key,
-    surface: {
+    body: { kind: "form", form: {
       kind: "fields",
-      columns: 3,
-      fields: fieldGridItems(fields, record, disabled, onChange, isFieldDisabled),
-    },
+      content: {
+        items: fieldGridItems(fields, record, disabled, onChange, isFieldDisabled),
+        layout: { columns: 3 },
+      },
+    } },
   };
 }
 
 export function emptyFormBlock(key: string, content: string): PageSurfaceSectionSpec {
   return {
-    kind: "form",
     key,
-    surface: {
+    body: { kind: "form", form: {
       kind: "detail",
-      fields: [{ kind: "note", key: "empty", content }],
-    },
+      content: { items: [{ kind: "note", key: "empty", content }] },
+    } },
   };
 }
 

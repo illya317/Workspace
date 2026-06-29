@@ -106,7 +106,6 @@ export default function LibraryTable({
         embedded
         body={createPageBody([
           createPageTableSection<LibraryDocumentItem>("library-documents", {
-            framed: true,
 
             rows: documents,
             columns,

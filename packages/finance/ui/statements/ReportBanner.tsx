@@ -41,6 +41,6 @@ export function createReportBannerSection(key: string, props: ReportBannerProps)
 
 export default function ReportBanner(props: ReportBannerProps) {
   const block = createReportBannerSection("report-banner", props);
-  if (!block || block.kind !== "block" || block.surface.kind !== "message") return null;
-  return <div>{block.surface.content}</div>;
+  if (!block || block.body.kind !== "section" || block.body.surface?.kind !== "message") return null;
+  return <div>{block.body.surface.content}</div>;
 }

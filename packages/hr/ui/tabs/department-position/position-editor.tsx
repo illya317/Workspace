@@ -200,13 +200,11 @@ export function usePositionEditorBlocks({
           ],
 
           sections: draft ? [{
-            kind: "form",
             key: "fields",
-            surface: {
+            body: { kind: "form", form: {
               kind: "fields",
-              columns: 2,
-              fields: positionInfoFields,
-            },
+              content: { items: positionInfoFields, layout: { columns: 2 } },
+            } },
           }] : [],
         }),
       ...(descriptionBlock ? [descriptionBlock] : []),

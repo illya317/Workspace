@@ -73,33 +73,33 @@ export function WorkEnvironmentEditor({
             key: "work-environments",
             title: label,
             empty: "未设置",
-            columns: 2,
+            layout: { columns: 2 },
             items: items.map((item, index) => {
               const areaOptions = [item.area, ...availableAreas].filter((area, areaIndex, array) => array.indexOf(area) === areaIndex);
               const availableFactors = ENVIRONMENT_FACTOR_OPTIONS.filter((factor) => !item.factors.includes(factor));
               return {
                 key: `${item.area}-${index}`,
                 actions: disabled ? undefined : [{ key: "delete-area", label: "删除", variant: "danger", size: "sm", onClick: () => void removeArea(index),  }],
-                fields: [
+                items: [
                   {
                     key: "area",
                     label: "工作区域",
                     spec: { valueType: "string", control: "choice", state: disabled ? "disabled" : "normal", options: { source: "static", items: pickerOptions(areaOptions), searchPlaceholder: "搜索工作区域" } },
                     value: item.area,
                     placeholder: "选择工作区域",
-                    onChange: next => updateItem(index, { area: String(next ?? "") }),
+                    onChange: (next: unknown) => updateItem(index, { area: String(next ?? "") }),
                   },
                   {
                     kind: "tagList",
                     key: "factors",
                     label: "环境因素",
                     items: item.factors,
-                    getKey: (factor, factorIndex) => `${factor}-${factorIndex}`,
-                    getLabel: (factor) => factor,
-                    onRemove: (_, factorIndex) => updateItem(index, { factors: item.factors.filter((__, currentIndex) => currentIndex !== factorIndex) }),
+                    getKey: (factor: string, factorIndex: number) => `${factor}-${factorIndex}`,
+                    getLabel: (factor: string) => factor,
+                    onRemove: (_: string, factorIndex: number) => updateItem(index, { factors: item.factors.filter((__, currentIndex) => currentIndex !== factorIndex) }),
                     disabled,
                     confirmDelete: feedback.confirmDelete,
-                    removeConfirmMessage: (factor) => `确定删除「${factor || "环境因素"}」吗？删除后需要保存才会生效。`,
+                    removeConfirmMessage: (factor: string) => `确定删除「${factor || "环境因素"}」吗？删除后需要保存才会生效。`,
                     emptyText: disabled ? "未设置" : undefined,
                     shellClassName: "content-start",
 
@@ -111,7 +111,7 @@ export function WorkEnvironmentEditor({
                         spec: { valueType: "string", control: "choice", state: availableFactors.length === 0 ? "disabled" : "normal", options: { source: "static", items: pickerOptions(availableFactors), visibleCount: 6, searchPlaceholder: "搜索环境因素" } },
                         value: "",
                         placeholder: item.factors.length === 0 ? "添加环境因素" : "继续添加",
-                        onChange: (next) => {
+                        onChange: (next: unknown) => {
                           const factor = next == null ? "" : String(next);
                           if (!factor) return;
                           updateItem(index, { factors: [...item.factors, factor].filter((current, currentIndex, array) => array.indexOf(current) === currentIndex) });
@@ -259,11 +259,11 @@ export function ExperienceRequirementsEditor({
           title: label,
           addAction: disabled ? undefined : { key: "add-experience", label: "新增", size: "sm", onClick: addItem,  },
           empty: "未设置",
-          columns: 2,
+          layout: { columns: 2 },
           items: items.map((item, index) => ({
             key: `experience-${index}`,
             actions: disabled ? undefined : [{ key: "delete-experience", label: "删除", variant: "danger", size: "sm", onClick: () => void removeItem(index),  }],
-            fields: [
+            items: [
               {
                 key: "years",
                 label: "年限（年以上）",
@@ -271,7 +271,7 @@ export function ExperienceRequirementsEditor({
                 value: item.years,
                 inputMode: "numeric",
                 placeholder: "1",
-                onChange: next => updateItem(index, { years: positiveIntegerText(String(next ?? "")) }),
+                onChange: (next: unknown) => updateItem(index, { years: positiveIntegerText(String(next ?? "")) }),
               },
               {
                 key: "requirement",
@@ -279,7 +279,7 @@ export function ExperienceRequirementsEditor({
                 spec: { valueType: "string", control: "text", state: disabled ? "disabled" : "normal" },
                 value: item.requirement,
                 placeholder: "经验要求",
-                onChange: next => updateItem(index, { requirement: String(next ?? "") }),
+                onChange: (next: unknown) => updateItem(index, { requirement: String(next ?? "") }),
               },
             ],
           })),
