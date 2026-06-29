@@ -1,4 +1,4 @@
-import type { TabDef } from "../TabBar";
+import type { TabDef } from "../internal/common/TabBar";
 
 export type TemplateKind = "table" | "split" | "form" | "analysis" | "document" | "production" | "upload";
 export type EmbeddedKind = "form" | "document" | "production";

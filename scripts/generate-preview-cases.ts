@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as ts from "typescript";
-import { registeredCoreUiComponentNames } from "../packages/core/ui/component-registry";
+import { registeredCoreUiComponentNames } from "../packages/core/ui/registry/component-registry";
 
 const previewDir = path.resolve(__dirname, "../packages/core/showcase/previews");
 const files = fs

@@ -1,12 +1,12 @@
 "use client";
 
 import type { ReactNode, Ref } from "react";
-import { AnalysisBlock, EmptyStateCard, ModuleCard, PanelCard, SectionCard } from "./Card";
-import type { ModuleCardColor } from "./Card";
-import CommandButton from "./CommandButton";
-import type { CommandButtonProps } from "./CommandButton";
+import { AnalysisBlock, EmptyStateCard, ModuleCard, PanelCard, SectionCard } from "./internal/common/Card";
+import type { ModuleCardColor } from "./internal/common/Card";
+import CommandButton from "./internal/common/CommandButton";
+import type { CommandButtonProps } from "./internal/common/CommandButton";
 import type { SurfaceToolbarItems } from "./SurfaceContractTypes";
-import { joinClassNames } from "./card-utils";
+import { joinClassNames } from "./internal/common/card-utils";
 
 export type BlockSurfaceKind =
   | "content"

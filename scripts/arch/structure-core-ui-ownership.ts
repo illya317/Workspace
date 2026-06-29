@@ -5,7 +5,7 @@ import {
   coreUiComponentRegistry,
   coreUiComponentRegistryRaw,
   type CoreUiComponentCategory,
-} from "../../packages/core/ui/component-registry";
+} from "../../packages/core/ui/registry/component-registry";
 
 type SourceInfo = {
   relPath: string;

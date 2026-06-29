@@ -1,15 +1,15 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { AnalysisPageFrame, DatabasePageFrame, WorkspaceSplitPage } from "./PageFrames";
-import { ModuleCard } from "./Card";
+import { AnalysisPageFrame, DatabasePageFrame, WorkspaceSplitPage } from "./internal/page/PageFrames";
+import { ModuleCard } from "./internal/common/Card";
 import NavigationSurface from "./NavigationSurface";
-import Pagination from "./Pagination";
-import SplitWorkspace, { type SplitWorkspaceMode } from "./SplitWorkspace";
-import type { TabDef } from "./TabBar";
+import Pagination from "./internal/common/Pagination";
+import SplitWorkspace, { type SplitWorkspaceMode } from "./internal/common/SplitWorkspace";
+import type { TabDef } from "./internal/common/TabBar";
 import { Toolbar, type ToolbarItem } from "./Toolbar";
-import { joinClassNames } from "./card-utils";
-import { renderBlocks, renderBlockStack, renderCommands, renderEmpty, renderToolbar } from "./PageSurface.blocks";
+import { joinClassNames } from "./internal/common/card-utils";
+import { renderBlocks, renderBlockStack, renderCommands, renderEmpty, renderToolbar } from "./internal/page/PageSurface.blocks";
 import type {
   PageSurfaceHeaderSpec,
   PageSurfaceBodySpec,

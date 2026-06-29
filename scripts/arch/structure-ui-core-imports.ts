@@ -3,7 +3,7 @@ import ts from "typescript";
 import {
   coreUiComponentRegistry,
   registeredCoreUiComponentNames,
-} from "../../packages/core/ui/component-registry";
+} from "../../packages/core/ui/registry/component-registry";
 import type { SourceInfo } from "./structure-ui";
 
 export type UnregisteredCoreUiImport = {

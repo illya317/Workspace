@@ -2,7 +2,7 @@ import {
   coreUiComponentRegistry,
   type CoreUiComponentCategory,
   type CoreUiComponentRegistration,
-} from "../../packages/core/ui/component-registry";
+} from "../../packages/core/ui/registry/component-registry";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import ts from "typescript";
@@ -91,29 +91,29 @@ const SURFACE_PUBLIC_CONTRACT_RULES: Array<{
   reason: string;
 }> = [
   {
-    file: "packages/core/ui/surface/DataSurface.types.ts",
+    file: "packages/core/ui/DataSurface.types.ts",
     pattern: /\b(DataTableProps|DataTableColumn|renderExpandedRow|SelectionGridProps|StructuredTableProps|InputControlProps|DisclosureRecordAction)\b/,
     label: "renderer-props",
     reason: "DataSurface public contract must not expose renderer/internal component props.",
   },
   {
-    file: "packages/core/ui/surface/DataSurface.types.ts",
+    file: "packages/core/ui/DataSurface.types.ts",
     pattern: /\bDataSurfaceVisual[A-Za-z0-9_]*\b/,
     label: "visualization-protocol",
     reason: "Visualization declarations belong to VisualizationSurface, not DataSurface.",
   },
   {
-    file: "packages/core/ui/surface/DataSurface.types.ts",
+    file: "packages/core/ui/DataSurface.types.ts",
     pattern: /\bkind\s*:\s*["']raw["']/,
     label: "raw-cell",
     reason: "Raw display escape hatches belong to BlockSurface or a narrower explicit Surface spec.",
   },
 ];
 const REQUIRED_LAYER_FILES: LayerPlacementWarning[] = [
-  { layer: "surface", expectedPath: "packages/core/ui/surface/PageSurface.types.ts" },
-  { layer: "surface", expectedPath: "packages/core/ui/surface/DataSurface.types.ts" },
-  { layer: "surface", expectedPath: "packages/core/ui/surface/FormSurface.types.ts" },
-  { layer: "surface", expectedPath: "packages/core/ui/surface/SurfaceContractTypes.ts" },
+  { layer: "surface", expectedPath: "packages/core/ui/PageSurface.types.ts" },
+  { layer: "surface", expectedPath: "packages/core/ui/DataSurface.types.ts" },
+  { layer: "surface", expectedPath: "packages/core/ui/FormSurface.types.ts" },
+  { layer: "surface", expectedPath: "packages/core/ui/SurfaceContractTypes.ts" },
   { layer: "helper", expectedPath: "packages/core/ui/helpers/page-surface-builders.ts" },
   { layer: "helper", expectedPath: "packages/core/ui/helpers/surface-compat-builders.tsx" },
   { layer: "service", expectedPath: "packages/core/ui/services/FeedbackProvider.tsx" },
@@ -439,7 +439,7 @@ export function findSurfacePublicContractWarnings() {
     });
   }
 
-  const pageSurfaceTypesFile = "packages/core/ui/surface/PageSurface.types.ts";
+  const pageSurfaceTypesFile = "packages/core/ui/PageSurface.types.ts";
   if (existsSync(pageSurfaceTypesFile)) {
     const sourceFile = createSourceFile(pageSurfaceTypesFile);
     const legacyBaseProps = new Set(["tabs", "activeTab", "activeChild", "onTabChange", "onChildChange", "actions", "empty", "blocks"]);

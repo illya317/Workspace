@@ -1,8 +1,8 @@
 import {
   coreUiComponentRegistry,
   registeredCoreUiComponentNames,
-} from "../../packages/core/ui/component-registry";
-import type { CoreUiComponentRegistration } from "../../packages/core/ui/component-registry";
+} from "../../packages/core/ui/registry/component-registry";
+import type { CoreUiComponentRegistration } from "../../packages/core/ui/registry/component-registry";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import ts from "typescript";
@@ -26,6 +26,15 @@ type SourceAnalysis = {
 
 function normalizeSourcePath(modulePath: string) {
   const absoluteBase = path.resolve(CORE_UI_DIR, modulePath);
+  for (const extension of SOURCE_EXTENSIONS) {
+    const candidate = `${absoluteBase}${extension}`;
+    if (existsSync(candidate)) return candidate;
+  }
+  return absoluteBase;
+}
+
+function normalizeSourcePathFrom(importerPath: string, modulePath: string) {
+  const absoluteBase = path.resolve(path.dirname(importerPath), modulePath);
   for (const extension of SOURCE_EXTENSIONS) {
     const candidate = `${absoluteBase}${extension}`;
     if (existsSync(candidate)) return candidate;
@@ -74,7 +83,7 @@ function findNamedExportSource(exportedName: string, sourcePath: string, seen = 
     if (!ts.isExportDeclaration(statement) || !statement.moduleSpecifier || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
     const modulePath = statement.moduleSpecifier.text;
     if (!modulePath.startsWith("./")) continue;
-    const nextSourcePath = normalizeSourcePath(modulePath);
+    const nextSourcePath = normalizeSourcePathFrom(sourcePath, modulePath);
     const exportClause = statement.exportClause;
 
     if (exportClause && ts.isNamedExports(exportClause)) {

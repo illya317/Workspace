@@ -9,9 +9,9 @@ import {
   SearchInput, SelectField, SwitchField,
   TagInlineTextField, TextField, TextareaField, TimeField,
 } from "../internal-ui";
-import BlockCreatePanel from "../../ui/BlockCreatePanel";
-import InlineCreatePanel from "../../ui/InlineCreatePanel";
-import { CreateConfirmActions, CreateStartButton } from "../../ui/CreateActionControls";
+import BlockCreatePanel from "../../ui/internal/create/BlockCreatePanel";
+import InlineCreatePanel from "../../ui/internal/create/InlineCreatePanel";
+import { CreateConfirmActions, CreateStartButton } from "../../ui/internal/action/CreateActionControls";
 import { CreatePanelPreview } from "./create-panel-preview";
 import { FileFieldPreview } from "./form-file-preview";
 import { foundationFormPreviewByName } from "./form-foundation-previews";

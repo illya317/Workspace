@@ -13,7 +13,7 @@ import {
   ACTION_GLYPH_GROUPS,
   ACTION_GLYPH_ORDER,
   ACTION_GLYPH_TOOLBAR_GROUPS,
-} from "../../ui/ActionGlyphs";
+} from "../../ui/internal/action/ActionGlyphs";
 import ToolbarPreview from "./ToolbarPreview";
 
 function ActionButtonPreview() {

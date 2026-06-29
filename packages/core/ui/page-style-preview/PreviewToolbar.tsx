@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Toolbar, type ToolbarItem } from "../Toolbar";
-import type { ToolbarActionGroupAction } from "../Toolbar.types";
+import type { ToolbarActionGroupAction } from "../internal/toolbar/Toolbar.types";
 
 const fieldOptions = [
   { value: "status", label: "状态" },

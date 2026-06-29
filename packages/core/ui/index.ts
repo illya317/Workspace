@@ -1,4 +1,4 @@
-export type { CoreUiCompositionGraph, CoreUiComponentRegistration } from "./component-registry";
+export type { CoreUiCompositionGraph, CoreUiComponentRegistration } from "./registry/component-registry";
 export { default as BlockSurface } from "./BlockSurface";
 export type {
   BlockSurfaceActionsProps,
@@ -67,7 +67,7 @@ export type {
   VisualizationGanttSegmentSpec,
   VisualizationGanttSpec,
   VisualizationGanttZoom,
-} from "./VisualizationGanttTypes";
+} from "./internal/visualization/VisualizationGanttTypes";
 export type {
   ReferenceOption,
   SurfaceColumnOptionSpec,
@@ -80,7 +80,7 @@ export type {
   SurfaceToolbarActionGroupActionSpec,
   SurfaceToolbarItem,
   SurfaceToolbarItems,
-} from "./surface/SurfaceContractTypes";
+} from "./SurfaceContractTypes";
 export { default as FormSurface } from "./FormSurface";
 export type {
   FormSurfaceCommandSpec,
@@ -162,8 +162,8 @@ export {
   announceFloatingOverlayOpen,
   FLOATING_OVERLAY_OPEN_EVENT,
   getFloatingOverlayOpenDetail,
-} from "./overlay-events";
-export type { FloatingOverlayOpenDetail } from "./overlay-events";
+} from "./internal/common/overlay-events";
+export type { FloatingOverlayOpenDetail } from "./internal/common/overlay-events";
 export { default as InputControl } from "./InputControl";
 export type {
   InputControlProps,
@@ -191,6 +191,6 @@ export type {
   InputValueDimension,
   InputValueType,
 } from "./InputControl";
-export { ActionGlyph } from "./ActionGlyphs";
-export type { ActionGlyphGroup, ActionGlyphGroupKey, ActionGlyphKind, ActionGlyphOrderItem, ActionGlyphProps, ActionGlyphToolbarGroup, ActionGlyphToolbarGroupKey } from "./ActionGlyphs";
+export { ActionGlyph } from "./internal/action/ActionGlyphs";
+export type { ActionGlyphGroup, ActionGlyphGroupKey, ActionGlyphKind, ActionGlyphOrderItem, ActionGlyphProps, ActionGlyphToolbarGroup, ActionGlyphToolbarGroupKey } from "./internal/action/ActionGlyphs";
 export type { PageStylePreviewSamples, PreviewOption, PreviewRow, QcPaperPreviewSample } from "./page-style-preview/sample-context";

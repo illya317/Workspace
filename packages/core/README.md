@@ -40,7 +40,7 @@ Core UI 组件库主展示按 registry `category/subcategory` 分类，目前一
 
 文件层级也按这个边界组织：
 
-- `packages/core/ui/surface/`：Surface 声明类型。
+- `packages/core/ui/`：Surface 声明类型。
 - `packages/core/ui/helpers/`：声明构造 helper。
 - `packages/core/ui/services/`：非视觉服务入口。
 - `packages/core/ui/host/`：预留宿主入口，当前为空。

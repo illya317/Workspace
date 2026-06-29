@@ -1,5 +1,5 @@
 import { createElement, type Ref } from "react";
-import type { DataSurfaceProps, DataSurfaceTableProps } from "../surface/DataSurface.types";
+import type { DataSurfaceProps, DataSurfaceTableProps } from "../DataSurface.types";
 import type {
   BlockSurfaceActionsProps,
   BlockSurfaceAnalysisProps,
@@ -13,7 +13,7 @@ import type {
   BlockSurfaceProps,
 } from "../BlockSurface";
 import type { DocumentSurfaceProps } from "../DocumentSurface";
-import type { FormSurfaceFieldModeProps, FormSurfaceLooseItem, FormSurfaceProps } from "../surface/FormSurface.types";
+import type { FormSurfaceFieldModeProps, FormSurfaceLooseItem, FormSurfaceProps } from "../FormSurface.types";
 import type {
   PageSurfaceBlockSpec,
   PageSurfaceBodySpec,
@@ -25,8 +25,8 @@ import type {
   PageSurfaceNavigationSpec,
   PageSurfaceProps,
   PageSurfaceToolbarSpec,
-} from "../surface/PageSurface.types";
-import { PageSurfaceBlockGroupStack, PageSurfaceBlockStack } from "../PageSurface.blocks";
+} from "../PageSurface.types";
+import { PageSurfaceBlockGroupStack, PageSurfaceBlockStack } from "../internal/page/PageSurface.blocks";
 import type { VisualizationSurfaceProps } from "../VisualizationSurface";
 
 export type PageSurfaceBodyBlockSpec = Exclude<PageSurfaceBlockSpec, { kind: "modal" }>;

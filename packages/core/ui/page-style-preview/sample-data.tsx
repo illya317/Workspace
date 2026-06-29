@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import DataTable, { type DataTableColumn } from "../DataTable";
-import Badge from "../Badge";
+import DataTable, { type DataTableColumn } from "../internal/data/DataTable";
+import Badge from "../internal/common/Badge";
 import { type PreviewRow, usePageStylePreviewSamples } from "./sample-context";
 
 function getPreviewColumns(): DataTableColumn<PreviewRow>[] {

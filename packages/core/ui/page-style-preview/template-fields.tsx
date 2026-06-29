@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import CalendarDateInput from "../CalendarDateInput";
-import FormField from "../FormField";
-import { getTagInputShellClassName } from "../FormStyles";
-import OptionPicker from "../OptionPicker";
-import RemovableTag from "../RemovableTag";
-import SearchableOptionInput from "../SearchableOptionInput";
-import TextField from "../TextField";
+import CalendarDateInput from "../internal/input/CalendarDateInput";
+import FormField from "../internal/form/FormField";
+import { getTagInputShellClassName } from "../internal/form/FormStyles";
+import OptionPicker from "../internal/selection/OptionPicker";
+import RemovableTag from "../internal/input/RemovableTag";
+import SearchableOptionInput from "../internal/input/SearchableOptionInput";
+import TextField from "../internal/input/TextField";
 import { usePageStylePreviewSamples } from "./sample-context";
 
 function fieldValue(field: string, index: number, values: Record<string, string>) {

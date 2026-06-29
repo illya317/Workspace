@@ -1,9 +1,9 @@
 "use client";
 
 import type { BlockSurfaceProps } from "../BlockSurface";
-import CreatePanel, { type CreatePanelBlockProps } from "../CreatePanel";
-import SelectorPanel, { type SelectorPanelProps } from "../SelectorPanel";
-import type { PageSurfaceBlockSpec } from "../surface/PageSurface.types";
+import CreatePanel, { type CreatePanelBlockProps } from "../internal/create/CreatePanel";
+import SelectorPanel, { type SelectorPanelProps } from "../internal/selection/SelectorPanel";
+import type { PageSurfaceBlockSpec } from "../PageSurface.types";
 
 type BlockSurfaceBlockSpec = Extract<PageSurfaceBlockSpec, { kind: "block" }>;
 

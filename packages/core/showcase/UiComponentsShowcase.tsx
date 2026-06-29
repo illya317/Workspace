@@ -7,16 +7,16 @@ import {
   coreUiComponentRegistry,
   getCoreUiCompositionGraph,
   isCoreUiComponentVisibleInShowcase,
-} from "../ui/component-registry";
+} from "../ui/registry/component-registry";
 import {
   buildCoreUiComponentTree,
   getCoreUiComponentRelationView,
-} from "../ui/component-registry-view";
+} from "../ui/registry/component-registry-view";
 import type {
   CoreUiComponentCategory,
   CoreUiComponentRole,
   CoreUiComponentRegistration,
-} from "../ui/component-registry";
+} from "../ui/registry/component-registry";
 
 import { UiComponentPreviewPanel } from "./UiComponentPreviewPanel";
 import { UiComponentRelationPanel } from "./UiComponentRelations";

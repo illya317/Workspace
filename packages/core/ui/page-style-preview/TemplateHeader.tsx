@@ -1,7 +1,7 @@
 "use client";
 
-import { PanelCard } from "../BaseCards";
-import Badge from "../Badge";
+import { PanelCard } from "../internal/common/BaseCards";
+import Badge from "../internal/common/Badge";
 import type { PageTemplate } from "./template-data";
 
 const kindLabels: Record<PageTemplate["kind"], string> = {

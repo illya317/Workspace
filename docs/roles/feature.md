@@ -24,7 +24,7 @@ Feature 负责用户可见业务功能、业务 UI、业务 service 和 route sh
 
 | 任务 | 做法 |
 |---|---|
-| 改 UI | 先查 `docs/engineering/reusable-components.md` 和 `packages/core/ui/component-registry.ts`；页面壳、表格、筛选、搜索、日期、确认、Toast、分栏优先复用 Core/Platform |
+| 改 UI | 先查 `docs/engineering/reusable-components.md` 和 `packages/core/ui/registry/component-registry.ts`；页面壳、表格、筛选、搜索、日期、确认、Toast、分栏优先复用 Core/Platform |
 | 修 BUG | 从用户路径开始追：page shell -> package UI -> API route -> domain validator -> service -> Prisma/schema；先定位层级再改 |
 | 写保存/删除 | route 使用具体 Zod schema 校验并 strip；domain validator pick 业务字段并校验 FK/状态/归属/引用；service 接 command 做事务、版本、审计、落库 |
 | 改权限 | 先看 `packages/platform/module-registry.ts`；确认 `app route / href / resourceKey + RBAC / API contract + guard` 四件套一致 |

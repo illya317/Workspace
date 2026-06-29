@@ -1,19 +1,19 @@
 "use client";
 
-import CalendarDateInput from "./CalendarDateInput";
-import CheckboxField from "./CheckboxField";
-import ChoiceGroup from "./ChoiceGroup";
-import FileField from "./FileField";
-import PercentField from "./PercentField";
-import RatingControl from "./RatingControl";
-import ReadOnlyField from "./ReadOnlyField";
-import SegmentedCodeInput from "./SegmentedCodeInput";
-import SwitchField from "./SwitchField";
-import TagStringInput from "./TagStringInput";
-import TextareaField from "./TextareaField";
-import TextField from "./TextField";
-import TimeField from "./TimeField";
-import InputControlChoiceRenderer, { isInputControlChoiceRenderer, type InputControlChoiceRendererKind } from "./input-control-choice-renderers";
+import CalendarDateInput from "./internal/input/CalendarDateInput";
+import CheckboxField from "./internal/input/CheckboxField";
+import ChoiceGroup from "./internal/input/ChoiceGroup";
+import FileField from "./internal/input/FileField";
+import PercentField from "./internal/input/PercentField";
+import RatingControl from "./internal/input/RatingControl";
+import ReadOnlyField from "./internal/input/ReadOnlyField";
+import SegmentedCodeInput from "./internal/input/SegmentedCodeInput";
+import SwitchField from "./internal/input/SwitchField";
+import TagStringInput from "./internal/input/TagStringInput";
+import TextareaField from "./internal/input/TextareaField";
+import TextField from "./internal/input/TextField";
+import TimeField from "./internal/input/TimeField";
+import InputControlChoiceRenderer, { isInputControlChoiceRenderer, type InputControlChoiceRendererKind } from "./internal/input/input-control-choice-renderers";
 import {
   formatInputControlValue,
   inputControlOptionCount,
@@ -24,7 +24,7 @@ import {
   normalizeInputControlValue,
   type InputControlProps,
   type InputFieldSpec,
-} from "./InputControlTypes";
+} from "./internal/input/InputControlTypes";
 
 export type {
   InputBooleanPresentation,
@@ -53,7 +53,7 @@ export type {
   InputValidationDimension,
   InputValueDimension,
   InputValueType,
-} from "./InputControlTypes";
+} from "./internal/input/InputControlTypes";
 
 type ResolvedInputRenderer =
   | "text"

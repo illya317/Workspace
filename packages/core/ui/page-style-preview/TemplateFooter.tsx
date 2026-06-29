@@ -1,6 +1,6 @@
 "use client";
 
-import Pagination from "../Pagination";
+import Pagination from "../internal/common/Pagination";
 import type { PageTemplate } from "./template-data";
 
 function footerLabels(page: PageTemplate) {

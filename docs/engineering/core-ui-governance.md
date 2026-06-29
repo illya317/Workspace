@@ -159,15 +159,15 @@ Core UI 的分类是 7 个一级分类，不等于 role 分层：
 
 `Surface` 命名表示声明层，不表示 React renderer。当前 `PageSurface` 仍承担 renderer 入口是历史债；业务默认只 import Surface 声明、helper 声明构造器和必要 service。`host` 目录当前为空，`internal` 不开放。
 
-Core UI 文件按层放置：
+Core UI 文件按层放置。`packages/core/ui/` 根目录保留最常用的 Surface/runtime API 入口，例如 `PageSurface.tsx`、`DataSurface.tsx`、`FormSurface.tsx`、`BlockSurface.tsx`、`InputControl.tsx` 和 `index.ts`；这些入口本身就是业务阅读和迁移时最稳定的门面，不强行为了分类再套一层目录。
 
-- `packages/core/ui/surface/`：Surface 声明类型，例如 `PageSurface.types.ts`、`DataSurface.types.ts`、`FormSurface.types.ts`、`SurfaceContractTypes.ts`。
+- `packages/core/ui/`：Surface 声明类型，例如 `PageSurface.types.ts`、`DataSurface.types.ts`、`FormSurface.types.ts`、`SurfaceContractTypes.ts`。
 - `packages/core/ui/helpers/`：声明构造 helper，例如 `page-surface-builders.ts`、`surface-compat-builders.tsx`。
 - `packages/core/ui/services/`：非视觉服务入口，例如 `FeedbackProvider.tsx` / `useFeedback`。
 - `packages/core/ui/host/`：预留宿主入口，当前只允许 README。
-- `packages/core/ui/internal/`：内部 renderer/primitive 迁移目标；业务不得直接 import。
+- `packages/core/ui/internal/`：内部 renderer/primitive 迁移目标；按对象继续细分，例如 `internal/action/`、`internal/common/`、`internal/create/`、`internal/data/`、`internal/form/`、`internal/input/`、`internal/page/`、`internal/selection/`、`internal/toolbar/`、`internal/visualization/`；业务不得直接 import。
 
-根目录同名文件只作为兼容 re-export shim，新增代码应放入对应层目录。
+根目录不再接收新的私有拆分文件；公开入口自己的 parts/types/renderers/styles 等实现细节应迁入 `internal/<object>/`，由根目录公开入口继续 re-export 或内部引用。
 
 `InputControl` 是字段语义入口，不是 renderer 选择器。业务只声明 `valueType`、`control`、`options`、`format`、`mask`、`state`、`validation`、`usage` 和 `dependencies`；Core 内部 resolver 决定实际使用 `TextField`、`SelectField`、`CalendarDateInput`、`FkFieldInput`、`SegmentedCodeInput` 等实现。新增字段不得写 `spec.editor`，分段编码统一写成 `control: "text"` + `mask.kind: "editableSegment"`，FK 搜索统一写成 `control: "reference"` + `options.source: "remote"`。
 
@@ -248,7 +248,7 @@ Platform Core UI direct import 按以下 recipe 清：
 
 1. `packages/core/ui/<Name>.tsx`
 2. `packages/core/ui/index.ts`
-3. `packages/core/ui/component-registry-data-*.ts`
+3. `packages/core/ui/registry/component-registry-data-*.ts`
 4. `packages/core/showcase/previews/*`
 5. 必要时更新 `docs/engineering/core-ui-governance.md` 或 `docs/engineering/reusable-components.md`
 
@@ -324,9 +324,9 @@ Private Impl 是公开 UI 自己拆出来的内部文件。它不注册为独立
 - `OptionPickerContent.tsx`
 - `OptionPickerParts.tsx`
 - `OptionPickerTypes.ts`
-- `Toolbar.parts.tsx`
-- `Toolbar.types.ts`
-- `DataTable.types.ts`
+- `internal/toolbar/Toolbar.parts.tsx`
+- `internal/toolbar/Toolbar.types.ts`
+- `internal/data/DataTable.types.ts`
 
 Private Impl 修改等同于修改所属公开 UI，必须按 Core UI-system 任务处理。
 

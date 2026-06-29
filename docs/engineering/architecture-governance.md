@@ -239,7 +239,7 @@ Core UI registry 治理：
 
 页面组件注册表：
 
-- `packages/core/ui/component-registry.ts` 是 Core UI primitive 和页面骨架的注册表。非 Core 包只能消费 registry 中登记的 Core UI 名字；新增 Core UI 入口必须先由 Architecture/Core 任务登记，再导出给 Feature 使用。注册项必须填写中文 `description`、`category/subcategory` 和 `role`，`role=surface` 还必须补清晰的 `declares`；架构检查读取注册名、分类、分层、说明、声明项、内部使用关系和当前消费文件。
+- `packages/core/ui/registry/component-registry.ts` 是 Core UI primitive 和页面骨架的注册表。非 Core 包只能消费 registry 中登记的 Core UI 名字；新增 Core UI 入口必须先由 Architecture/Core 任务登记，再导出给 Feature 使用。注册项必须填写中文 `description`、`category/subcategory` 和 `role`，`role=surface` 还必须补清晰的 `declares`；架构检查读取注册名、分类、分层、说明、声明项、内部使用关系和当前消费文件。
 - 该 registry 是 structure scan 的输入；结构性 UI ratchet 由 `gate:ui` 执行，简单清扫项才由 hygiene strict 执行。
 - Registry `category/subcategory` 是分类模型：一级分类固定为 `page / data / form / document / visualization / common / feedback`，`common` 暂时作为基础和区块兜底。缺字段、非法归属、common 反依赖 domain 二级分类、sibling subcategory 高耦合、业务直引 common renderer、domain shared layout shell 和 Surface 自带 page chrome 属于结构性 UI 阻断；需要新 Surface/helper/service 或复杂页面重构时由 Architecture/Feature 处理，不交给 Hygiene。
 - Core UI 的 value export 必须全部出现在 `component-registry.ts`，或明确列入 structure scan 的非组件导出集合；注册名重复会直接进入 `duplicateCoreUiRegistrations`。这两类 baseline 为空，新增即失败。
@@ -259,7 +259,7 @@ Level 1/1.5 额外硬约束：
 Structure Scan 结构智能层：
 
 - Structure scan 不再整体归入 Hygiene。它按 detector scope 分成 `domain-blocker`、`ui-blocker` 和 `hygiene`：前两者进入 blockers，后者才进入 Hygiene Role。
-- Structure scan 当前由三件套组成：AST/pattern scan、`packages/platform/module-registry.ts` 模块注册锁、`packages/platform/api-registry.ts` API Contract。`packages/core/ui/component-registry.ts` 是 AST/pattern scan 的 Core UI 白名单输入，不是独立 gate。任何新增检测或 contract 来源必须并入这三个入口或唯一 gate，不得另起旁路。
+- Structure scan 当前由三件套组成：AST/pattern scan、`packages/platform/module-registry.ts` 模块注册锁、`packages/platform/api-registry.ts` API Contract。`packages/core/ui/registry/component-registry.ts` 是 AST/pattern scan 的 Core UI 白名单输入，不是独立 gate。任何新增检测或 contract 来源必须并入这三个入口或唯一 gate，不得另起旁路。
 - `npm run arch:structure` 生成确定性的结构报告，用于发现 UI pattern 重复、API route contract 覆盖缺口、API route 模板漂移、旧 service 迁移债和 app 层 JSX 存量。
 - API Contract 的单一来源是 `packages/platform/api-registry.ts`，它从 effective module registry 的 `apiGuards` 和 `apiRoutes` 派生，不允许业务包维护第二套 API 清单。
 - `apiGuards` 表示需要资源权限的 protected API；`apiRoutes` 表示显式 route contract，可标记为 `protected`、`public`、`dev` 或 `disabled`，用于登录/OAuth、开发入口、禁用兼容 API 等非资源权限入口。

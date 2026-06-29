@@ -1,15 +1,15 @@
 "use client";
 
 import { useMemo, useRef } from "react";
-import { joinClassNames } from "./card-utils";
-import { TOOLBAR_GAP } from "./interactionTokens";
-import type { ToolbarProps } from "./Toolbar.types";
+import { joinClassNames } from "./internal/common/card-utils";
+import { TOOLBAR_GAP } from "./internal/common/interactionTokens";
+import type { ToolbarProps } from "./internal/toolbar/Toolbar.types";
 import {
   groupToolbarItems,
   renderToolbarContent,
   renderCompactToolbarMeasurement,
-} from "./Toolbar.layout";
-import { useAutoToolbarLayout } from "./Toolbar.visibility";
+} from "./internal/toolbar/Toolbar.layout";
+import { useAutoToolbarLayout } from "./internal/toolbar/Toolbar.visibility";
 
 export type {
   ToolbarSection,
@@ -34,9 +34,9 @@ export type {
   ToolbarActionGroupAction,
   ToolbarEditGroupItem,
   ToolbarCreateItem,
-} from "./Toolbar.types";
+} from "./internal/toolbar/Toolbar.types";
 
-export { SECTION_ORDER } from "./Toolbar.layout";
+export { SECTION_ORDER } from "./internal/toolbar/Toolbar.layout";
 
 export function Toolbar({
   items,

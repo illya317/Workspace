@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties, ReactNode } from "react";
-import { joinClassNames } from "./card-utils";
+import { joinClassNames } from "./internal/common/card-utils";
 
 export type DocumentSurfaceKind = "pages";
 

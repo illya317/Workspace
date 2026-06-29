@@ -1,8 +1,8 @@
 "use client";
 
-import { PanelCard } from "./Card";
-import { joinClassNames } from "./card-utils";
-import { renderCommands, renderData } from "./DataSurface.renderers";
+import { PanelCard } from "./internal/common/Card";
+import { joinClassNames } from "./internal/common/card-utils";
+import { renderCommands, renderData } from "./internal/data/DataSurface.renderers";
 import type { DataSurfaceLooseRow, DataSurfaceProps } from "./DataSurface.types";
 
 export type {

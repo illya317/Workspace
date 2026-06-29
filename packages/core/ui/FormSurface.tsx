@@ -1,7 +1,7 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { renderContent } from "./FormSurface.renderers";
+import { renderContent } from "./internal/form/FormSurface.renderers";
 import type { FormSurfaceLooseItem, FormSurfaceProps } from "./FormSurface.types";
 
 export type {

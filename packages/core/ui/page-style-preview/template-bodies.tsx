@@ -1,9 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { AnalysisBlock, MetricCard, PanelCard } from "../BaseCards";
-import Badge from "../Badge";
-import { getToolbarActionClassName } from "../toolbar-styles";
+import { AnalysisBlock, MetricCard, PanelCard } from "../internal/common/BaseCards";
+import Badge from "../internal/common/Badge";
+import { getToolbarActionClassName } from "../internal/toolbar/toolbar-styles";
 import QcPaperPreview from "./QcPaperPreview";
 import { PreviewTable } from "./sample-data";
 import { usePageStylePreviewSamples } from "./sample-context";

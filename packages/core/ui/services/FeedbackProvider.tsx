@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import ConfirmModal from "../ConfirmModal";
-import Toast from "../Toast";
+import ConfirmModal from "../internal/common/ConfirmModal";
+import Toast from "../internal/common/Toast";
 
 export type FeedbackToastType = "success" | "error";
 

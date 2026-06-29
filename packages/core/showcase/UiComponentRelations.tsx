@@ -6,8 +6,8 @@ import {
   type CoreUiCapabilityDescriptor,
   coreUiComponentSubcategoryMeta,
   type CoreUiComponentRegistration,
-} from "../ui/component-registry";
-import type { CoreUiComponentRelationView } from "../ui/component-registry-view";
+} from "../ui/registry/component-registry";
+import type { CoreUiComponentRelationView } from "../ui/registry/component-registry-view";
 
 const RELATION_LIMIT = 6;
 
@@ -80,7 +80,7 @@ function DeclarativeCapabilitiesBlock({
   relation: CoreUiComponentRelationView;
 }) {
   const capabilities = relation.component.role === "surface"
-    ? relation.component.declares ?? []
+    ? relation.component.contract ?? relation.component.declares ?? []
     : relation.component.capabilities ?? [];
   if (!capabilities.length) return <p className="text-sm text-slate-400">暂无</p>;
 
@@ -238,7 +238,7 @@ export function UiComponentRelationPanel({
 
   return (
     <PanelCard title="关系" bodyClassName="space-y-3 p-4">
-      <RelationBlock title={relation.component.role === "surface" ? "声明项 declares" : "能力 capabilities"}>
+      <RelationBlock title={relation.component.role === "surface" ? "完整契约 contract" : "能力 capabilities"}>
         <DeclarativeCapabilitiesBlock relation={relation} />
       </RelationBlock>
       <RelationBlock title="内部使用">

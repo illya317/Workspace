@@ -1,12 +1,12 @@
 "use client";
 
 import type { ReactNode } from "react";
-import DisclosureSectionHeader from "./DisclosureSectionHeader";
-import Pagination, { type PaginationProps } from "./Pagination";
-import SelectionGrid, { type SelectionGridProps } from "./SelectionGrid";
-import SelectorPanel, { type SelectorPanelProps } from "./SelectorPanel";
-import TabBar, { type TabBarProps, type TabBarVariant, type TabDef } from "./TabBar";
-import { joinClassNames } from "./card-utils";
+import DisclosureSectionHeader from "./internal/common/DisclosureSectionHeader";
+import Pagination, { type PaginationProps } from "./internal/common/Pagination";
+import SelectionGrid, { type SelectionGridProps } from "./internal/selection/SelectionGrid";
+import SelectorPanel, { type SelectorPanelProps } from "./internal/selection/SelectorPanel";
+import TabBar, { type TabBarProps, type TabBarVariant, type TabDef } from "./internal/common/TabBar";
+import { joinClassNames } from "./internal/common/card-utils";
 
 export type NavigationSurfaceKind = "tabs" | "pagination" | "selector" | "disclosure" | "steps";
 export type NavigationSurfaceLooseItem = ReturnType<typeof JSON.parse>;

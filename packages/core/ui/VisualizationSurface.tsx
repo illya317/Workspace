@@ -1,10 +1,10 @@
 "use client";
 
-import { PanelCard } from "./Card";
-import { joinClassNames } from "./card-utils";
-import { renderVisual } from "./VisualizationSurfaceChart";
-import VisualizationGantt from "./VisualizationGantt";
-import type { VisualizationSurfaceProps } from "./surface/VisualizationSurfaceTypes";
+import { PanelCard } from "./internal/common/Card";
+import { joinClassNames } from "./internal/common/card-utils";
+import { renderVisual } from "./internal/visualization/VisualizationSurfaceChart";
+import VisualizationGantt from "./internal/visualization/VisualizationGantt";
+import type { VisualizationSurfaceProps } from "./VisualizationSurfaceTypes";
 
 export type {
   VisualizationBarChartSpec,
@@ -24,7 +24,7 @@ export type {
   VisualizationTreeBadgeSpec,
   VisualizationTreeNodeSpec,
   VisualizationTreeSpec,
-} from "./surface/VisualizationSurfaceTypes";
+} from "./VisualizationSurfaceTypes";
 
 function renderVisualization(props: VisualizationSurfaceProps) {
   if (props.kind === "chart") return renderVisual(props.visual);

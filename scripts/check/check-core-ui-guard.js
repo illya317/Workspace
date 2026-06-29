@@ -5,8 +5,8 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const ROOT = path.resolve(__dirname, "../..");
-const REGISTRY_DIR = "packages/core/ui";
-const REGISTRY_GLOB = /^packages\/core\/ui\/component-registry/;
+const REGISTRY_DIR = "packages/core/ui/registry";
+const REGISTRY_GLOB = /^packages\/core\/ui\/registry\/component-registry/;
 const DESKTOP_REQUEST_PATH = "/Users/koito/Desktop/UI/core-ui-change-request.md";
 const REPO_REQUEST_PATH = "core-ui-change-request.md";
 

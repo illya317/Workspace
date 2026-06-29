@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import TabBar from "../TabBar";
+import TabBar from "../internal/common/TabBar";
 import PreviewToolbar from "./PreviewToolbar";
 import { getPreviewPages, type ModuleTemplate, type PageTemplate, type PageViewDefinition } from "./template-data";
 import TemplateFooter from "./TemplateFooter";
