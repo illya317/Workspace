@@ -80,6 +80,10 @@ export function useProjectDetailEditorBlock({
   }, [activeTab]);
 
   const openParentProjectPlan = (projectId: number | null) => { if (projectId) { setActiveTab("plan"); onOpenProject(projectId); } };
+  const startCreateChildProject = (task: ProjectTaskItem) => {
+    setActiveTab("overview");
+    onCreateChildProject(task);
+  };
   const overviewFields: FormSurfaceItemSpec<EmployeeTag>[] = draft ? [
     {
       kind: "section",
@@ -216,7 +220,7 @@ export function useProjectDetailEditorBlock({
               canEdit={canEditCurrent}
               disabled={saving || creating}
               onToast={onToast}
-              onCreateChildProject={onCreateChildProject}
+              onCreateChildProject={startCreateChildProject}
               onChanged={() => onProjectTasksChanged(draft.id)}
             />
           </div>

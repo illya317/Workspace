@@ -23,6 +23,8 @@ export function buildProjectRasciMatrixSurface(rows: ProjectRasciRow[]): DataSur
       key: "name",
       label: "项目名称",
       required: true,
+      width: "md",
+      wrap: "truncate",
       cell: (row) => (
         <div className="min-w-0">
           <div className="truncate text-sm font-semibold text-slate-900" title={row.name}>{row.name}</div>
@@ -39,7 +41,9 @@ export function buildProjectRasciMatrixSurface(rows: ProjectRasciRow[]): DataSur
         </div>
       ),
       defaultVisible: true,
-      width: "wide",
+      align: "center",
+      width: "xs",
+      wrap: "wrap",
       cell: (row) => <NameChips members={membersForColumn(row, column.role)} />,
     })),
   ];
@@ -53,7 +57,7 @@ export function buildProjectRasciMatrixSurface(rows: ProjectRasciRow[]): DataSur
     rowKey: (row) => `${row.kind}:${row.id}`,
     visibleColumns: PROJECT_RASCI_COLUMN_DEFS.map((column) => column.key),
     emptyText: "暂无项目",
-    scroll: { x: true },
+    scroll: { x: false },
   };
 }
 
@@ -65,7 +69,7 @@ function membersForColumn(row: ProjectRasciRow, role: RasciColumn["role"]) {
 function NameChips({ members }: { members: EmployeeTag[] }) {
   if (members.length === 0) return <span className="block pt-2 text-center text-xs text-slate-300">-</span>;
   return (
-    <div className="flex flex-wrap justify-center gap-1.5">
+    <div className="flex min-w-0 flex-wrap justify-center gap-1.5">
       {members.map((member) => (
         <span
           key={member.id}

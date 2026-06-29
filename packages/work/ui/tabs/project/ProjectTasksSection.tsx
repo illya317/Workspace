@@ -117,12 +117,24 @@ export default function ProjectTasksSection({
     },
     {
       key: "childProjectStatus",
-      label: "派生状态",
+      label: "派生子项目",
       defaultVisible: true,
       cell: (task) => (
-        <span className={`inline-flex rounded px-2 py-0.5 text-xs font-medium ${statusClassName(task.childProjectStatus)}`}>
-          {task.childProjectStatus || "未派生"}
-        </span>
+        task.childProjectId ? (
+          <span className={`inline-flex rounded px-2 py-0.5 text-xs font-medium ${statusClassName(task.childProjectStatus)}`}>
+            {task.childProjectStatus || "已派生"}
+          </span>
+        ) : {
+          kind: "action" as const,
+          action: {
+            key: "create-child-project",
+            label: "+",
+            size: "sm",
+            variant: "primary" as const,
+            disabled: saving || disabled || !canEdit || !onCreateChildProject,
+            onClick: () => onCreateChildProject?.(task),
+          },
+        }
       ),
     },
     {
@@ -274,7 +286,6 @@ export default function ProjectTasksSection({
                 onStartEdit={handleStartEdit}
                 onSave={handleUpdate}
                 onCancelEdit={handleCancelEdit}
-                onCreateChildProject={onCreateChildProject}
                 onDelete={handleDelete}
               />
           ),
@@ -305,7 +316,6 @@ function ProjectTaskTableSurface({
   onStartEdit,
   onSave,
   onCancelEdit,
-  onCreateChildProject,
   onDelete,
 }: {
   tasks: ProjectTaskItem[];
@@ -324,7 +334,6 @@ function ProjectTaskTableSurface({
   onStartEdit: (task: ProjectTaskItem) => void;
   onSave: () => void;
   onCancelEdit: () => void;
-  onCreateChildProject?: (task: ProjectTaskItem) => void;
   onDelete: (task: ProjectTaskItem) => void;
 }) {
   return <PageSurface embedded kind="list" body={createPageBody([createPageDataBlock("project-task-table", {
@@ -368,13 +377,6 @@ function ProjectTaskTableSurface({
     rowActions: (task) => {
       if (!canEdit || editingTaskId === task.id) return [];
       return [
-        {
-          key: "create-child-project",
-          kind: "add" as const,
-          label: task.childProjectId ? "已有子项目" : "创建子项目",
-          onClick: () => onCreateChildProject?.(task),
-          disabled: saving || disabled || Boolean(task.childProjectId) || !onCreateChildProject,
-        },
         {
           key: "delete",
           kind: "delete" as const,
