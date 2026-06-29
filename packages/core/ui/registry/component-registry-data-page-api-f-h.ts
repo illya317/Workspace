@@ -32,7 +32,7 @@ export const page_api_registry_entries = [
         name: "pages",
         description: "pages 专属 payload。",
         children: [
-          { name: "items", description: "纸面页列表，承载 A4、fluid 或 QC 纸质模板内容。" },
+          { name: "items", description: "纸面页列表，承载 A4、fluid 或宽幅纸面内容。" },
           { name: "item.size", description: "页面尺寸：a4 / fluid / wide。" },
           { name: "item.content", description: "页面正文内容。" },
         ],

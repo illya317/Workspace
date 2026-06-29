@@ -18,7 +18,7 @@ export const page_frame_registry_entries = [
   },
   {
     name: "TemplateWorkbenchFrame",
-    description: "模板工作台骨架",
+    description: "可配置工作台骨架",
     composes: [
       "Toolbar",
       "SearchInput",

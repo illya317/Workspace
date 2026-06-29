@@ -31,7 +31,7 @@ export const page_api_registry_entries = [
       { name: "valueType", description: "字段数据形状：string / number / boolean / date / time / datetime / file / reference / array。" },
       { name: "options", description: "选项来源：none / static / grouped / remote；remote 用于 FK/reference。" },
       { name: "format", description: "展示和输入格式：percent / currency / date / time / datetime。" },
-      { name: "mask", description: "输入约束和模板；分段编码使用 mask.kind=editableSegment。" },
+      { name: "mask", description: "输入约束和格式；可编辑片段使用 mask.kind=editableSegment。" },
     ],
     composes: ["CalendarDateInput", "CheckboxField", "ChoiceGroup", "FileField", "FkFieldInput", "OptionPicker", "PercentField", "RatingControl", "ReadOnlyField", "SearchableOptionInput", "SegmentedCodeInput", "SelectField", "SwitchField", "TagStringInput", "TextField", "TextareaField", "TimeField"],
   },
