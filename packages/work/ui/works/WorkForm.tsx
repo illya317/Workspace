@@ -79,7 +79,7 @@ export default function WorkForm({
         },
       ], {
       columns: 2,
-      className: "rounded-lg border border-slate-200 bg-white p-4",
+
       actions: [
         { key: "cancel", label: "取消", onClick: onCancel },
         {

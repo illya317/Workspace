@@ -23,18 +23,18 @@ export function createPositionTableBlock({
   sortIcon,
 }: PositionTableBlockParams): PageSurfaceBlockSpec {
   const columns: DataSurfaceColumnSpec<EnrichedPosition>[] = [
-    { key: "code", label: `编码 ${sortIcon("code")}`, required: true, onHeaderClick: () => handleSort("code"), cellClassName: "font-mono text-slate-500", cell: (position) => position.code },
-    { key: "name", label: `岗位名 ${sortIcon("name")}`, required: true, onHeaderClick: () => handleSort("name"), cellClassName: "font-medium", cell: (position) => position.name },
-    { key: "dept", label: `部门 ${sortIcon("dept")}`, required: true, onHeaderClick: () => handleSort("dept"), cellClassName: "text-slate-500", cell: (position) => position.departmentName || "—" },
-    { key: "headcount", label: `编制 ${sortIcon("headcount")}`, required: true, onHeaderClick: () => handleSort("headcount"), headerClassName: "text-right", cellClassName: "text-right text-slate-500", cell: (position) => position.headcount || "—" },
-    { key: "actual", label: `实际 ${sortIcon("actual")}`, required: true, onHeaderClick: () => handleSort("actual"), headerClassName: "text-right", cellClassName: "text-right font-medium", cell: (position) => position.actual || "—" },
+    { key: "code", label: `编码 ${sortIcon("code")}`, required: true, onHeaderClick: () => handleSort("code"), font: "mono", tone: "muted", cell: (position) => position.code },
+    { key: "name", label: `岗位名 ${sortIcon("name")}`, required: true, onHeaderClick: () => handleSort("name"), emphasis: "medium", cell: (position) => position.name },
+    { key: "dept", label: `部门 ${sortIcon("dept")}`, required: true, onHeaderClick: () => handleSort("dept"), tone: "muted", cell: (position) => position.departmentName || "—" },
+    { key: "headcount", label: `编制 ${sortIcon("headcount")}`, required: true, onHeaderClick: () => handleSort("headcount"), align: "right",  tone: "muted", cell: (position) => position.headcount || "—" },
+    { key: "actual", label: `实际 ${sortIcon("actual")}`, required: true, onHeaderClick: () => handleSort("actual"), align: "right",  emphasis: "medium", cell: (position) => position.actual || "—" },
     {
       key: "diff",
       label: `差异 ${sortIcon("diff")}`,
       required: true,
       onHeaderClick: () => handleSort("diff"),
-      headerClassName: "text-right",
-      cellClassName: "text-right",
+      align: "right",
+
       cell: (position) => position.headcount > 0 ? (
         <span className={`font-medium ${position.diff > 0 ? "text-rose-600" : position.diff < 0 ? "text-amber-600" : "text-emerald-600"}`}>
           {position.diff > 0 ? `+${position.diff}` : position.diff}
@@ -78,10 +78,10 @@ export function createPositionTableBlock({
             visibleColumns: columns.map((column) => column.key),
             rowKey: (position) => position.id,
             emptyText: "暂无匹配数据",
-            rowClassName: (position) =>
-              position.status === "空岗" ? "bg-amber-50/30" :
-              position.status === "超编" ? "bg-rose-50/30" :
-              position.status === "缺编" ? "bg-purple-50/20" : "",
+            rowState: (position) =>
+              position.status === "空岗" ? "warning" :
+              position.status === "超编" ? "danger" :
+              position.status === "缺编" ? "info" : "normal",
           },
         }],
       });

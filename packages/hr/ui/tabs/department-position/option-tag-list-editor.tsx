@@ -52,9 +52,8 @@ export function OptionTagListEditor({
           confirmMessage: (item) => `确定删除「${item || label}」吗？删除后需要保存才会生效。`,
           emptyText: disabled ? "未设置" : undefined,
           shellClassName: "content-start",
-          fieldClassName: "w-full",
+
           append: disabled ? undefined : {
-            className: "min-w-40",
             field: {
               key: "append",
               label: "",

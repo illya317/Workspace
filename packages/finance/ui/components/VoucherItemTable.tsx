@@ -28,40 +28,40 @@ export function getBaseItemColumns(): DataSurfaceColumnSpec<VoucherItemRow>[] {
       key: "accountCode",
       label: "科目编码",
       required: true,
-      cellClassName: "font-mono text-gray-600",
+      font: "mono",
       cell: (row) => row.account?.code || "-",
     },
     {
       key: "accountName",
       label: "科目名称",
       required: true,
-      className: "text-gray-700",
+
       cell: (row) => row.account?.name || "-",
     },
     {
       key: "description",
       label: "摘要",
-      className: "text-gray-600",
+
       cell: (row) => row.description || "-",
     },
     {
       key: "debit",
       label: "借方",
-      className: "text-right text-gray-700",
-      headerClassName: "text-right",
+      align: "right",
+
       cell: (row) => (row.debit > 0 ? formatFinanceAmount(row.debit) : ""),
     },
     {
       key: "credit",
       label: "贷方",
-      className: "text-right text-gray-700",
-      headerClassName: "text-right",
+      align: "right",
+
       cell: (row) => (row.credit > 0 ? formatFinanceAmount(row.credit) : ""),
     },
     {
       key: "relatedEntity",
       label: "关联实体",
-      className: "text-gray-500",
+      tone: "muted",
       defaultVisible: false,
       cell: (row) => row.relatedEntity || "-",
     },

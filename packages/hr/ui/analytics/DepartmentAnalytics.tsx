@@ -83,16 +83,16 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
     return rootDepts.map((department) => toTreeNode(department, 0));
   }, [activeEdps, departments, rootDepts]);
   const columns = useMemo<DataSurfaceColumnSpec<(typeof stats.deptWithHeadcount)[number]>[]>(() => [
-    { key: "name", label: "部门", required: true, cellClassName: "font-medium", cell: (department) => department.name },
+    { key: "name", label: "部门", required: true, emphasis: "medium", cell: (department) => department.name },
     {
       key: "level",
       label: "层级",
       required: true,
       cell: (department) => ({ kind: "badge", level: department.level }),
     },
-    { key: "company", label: "公司", required: true, cellClassName: "text-slate-500", cell: (department) => department.company },
-    { key: "actual", label: "实际人数", required: true, headerClassName: "text-right", cellClassName: "text-right font-medium", cell: (department) => department.actual },
-    { key: "headcount", label: "编制", required: true, headerClassName: "text-right", cellClassName: "text-right text-slate-500", cell: (department) => department.headcount || "—" },
+    { key: "company", label: "公司", required: true, tone: "muted", cell: (department) => department.company },
+    { key: "actual", label: "实际人数", required: true, align: "right",  emphasis: "medium", cell: (department) => department.actual },
+    { key: "headcount", label: "编制", required: true, align: "right",  tone: "muted", cell: (department) => department.headcount || "—" },
     {
       key: "diff",
       label: "差异",
@@ -124,7 +124,7 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
               { kind: "search", key: "search", value: search, onChange: setSearch, placeholder: "搜索部门名称、编码、别名..." },
             ],
           },
-          bodyClassName: "p-4",
+
           blocks: [{
             kind: "visualization",
             key: "tree",

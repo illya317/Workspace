@@ -19,11 +19,27 @@ export interface FormSurfaceCommandSpec {
   variant?: "primary" | "secondary" | "danger";
   type?: "button" | "submit";
   size?: CommandButtonProps["size"];
-  className?: string;
   truncate?: boolean;
 }
 
-export interface FormSurfaceFieldSpec extends Omit<InputControlProps, "spec" | "value" | "onChange"> {
+type FormSurfaceInputProps = Omit<
+  InputControlProps,
+  | "spec"
+  | "value"
+  | "onChange"
+  | "className"
+  | "style"
+  | "unstyled"
+  | "wrapperClassName"
+  | "fontRole"
+  | "visualVariant"
+  | "choiceOptionClassName"
+  | "choiceMarkerClassName"
+  | "fileInputClassName"
+  | "fileControlsClassName"
+>;
+
+export interface FormSurfaceFieldSpec extends FormSurfaceInputProps {
   kind?: "field";
   key: string;
   label: ReactNode;
@@ -34,7 +50,6 @@ export interface FormSurfaceFieldSpec extends Omit<InputControlProps, "spec" | "
   hint?: ReactNode;
   error?: ReactNode;
   span?: FieldGridCellProps["span"];
-  fieldClassName?: string;
 }
 
 export interface FormSurfaceReadOnlyFieldSpec extends Omit<ReadOnlyFieldProps, "children"> {
@@ -45,7 +60,6 @@ export interface FormSurfaceReadOnlyFieldSpec extends Omit<ReadOnlyFieldProps, "
   hint?: ReactNode;
   error?: ReactNode;
   span?: FieldGridCellProps["span"];
-  fieldClassName?: string;
 }
 
 export interface FormSurfaceTagListAppendSpec {
@@ -58,10 +72,7 @@ export interface FormSurfaceTagListAppendSpec {
     splitPattern?: RegExp;
     onAppend: (values: string[]) => void;
     onRemoveLast?: () => void;
-    className?: string;
-    inputClassName?: string;
   };
-  className?: string;
 }
 
 export interface FormSurfaceTagListFieldSpec<T = FormSurfaceLooseItem> extends Omit<TagListInputProps<T>, "children" | "append" | "renderItem"> {
@@ -72,7 +83,6 @@ export interface FormSurfaceTagListFieldSpec<T = FormSurfaceLooseItem> extends O
   hint?: ReactNode;
   error?: ReactNode;
   span?: FieldGridCellProps["span"];
-  fieldClassName?: string;
   append?: FormSurfaceTagListAppendSpec;
 }
 
@@ -80,14 +90,12 @@ export interface FormSurfaceNoteSpec {
   kind: "note";
   key: string;
   content: ReactNode;
-  className?: string;
 }
 
 export interface FormSurfaceGroupTitleSpec {
   kind: "groupTitle";
   key: string;
   title: ReactNode;
-  className?: string;
 }
 
 export interface FormSurfaceSectionSpec<T = FormSurfaceLooseItem> {
@@ -99,8 +107,6 @@ export interface FormSurfaceSectionSpec<T = FormSurfaceLooseItem> {
   columns?: 1 | 2 | 3;
   mode?: FieldGridMode;
   actions?: FormSurfaceCommandSpec[];
-  className?: string;
-  bodyClassName?: string;
 }
 
 export interface FormSurfaceRepeatableItemSpec<T = FormSurfaceLooseItem> {
@@ -110,7 +116,6 @@ export interface FormSurfaceRepeatableItemSpec<T = FormSurfaceLooseItem> {
   subtitle?: ReactNode;
   fields: FormSurfaceItemSpec<T>[];
   actions?: FormSurfaceCommandSpec[];
-  className?: string;
 }
 
 export interface FormSurfaceRepeatableSpec<T = FormSurfaceLooseItem> {
@@ -123,7 +128,6 @@ export interface FormSurfaceRepeatableSpec<T = FormSurfaceLooseItem> {
   mode?: FieldGridMode;
   addAction?: FormSurfaceCommandSpec;
   empty?: ReactNode;
-  className?: string;
 }
 
 export type FormSurfaceItemSpec<T = FormSurfaceLooseItem> =
@@ -143,8 +147,6 @@ interface FormSurfaceBaseProps<T = FormSurfaceLooseItem> {
   mode?: FieldGridMode;
   actions?: FormSurfaceCommandSpec[];
   onSubmit?: () => void;
-  className?: string;
-  bodyClassName?: string;
 }
 
 export interface FormSurfaceInlineProps<T = FormSurfaceLooseItem> extends FormSurfaceBaseProps<T> {

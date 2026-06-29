@@ -39,7 +39,6 @@ function DataTablePreview() {
           { key: "edit", kind: "edit", label: "编辑", onClick: () => {} },
         ]}
         rowKey={(row) => row.id}
-        tableClassName="w-full"
       />
       <DataTable
         presentation={{ density: "compact", grid: "rows", header: "plain", rowHover: "neutral" }}
@@ -52,7 +51,6 @@ function DataTablePreview() {
           { key: "value", label: "值", required: true, render: (row) => row.value },
         ]}
         rowKey={(row) => row.id}
-        tableClassName="w-full"
       />
     </div>
   );
@@ -86,7 +84,7 @@ function DataSurfacePreview() {
                 { key: "amount", label: "金额", defaultVisible: true, cell: (row) => <AmountCell value={row.amount} /> },
               ],
               rowKey: (row) => row.id,
-              tableClassName: "w-full",
+
             },
           }],
         }}
@@ -139,10 +137,9 @@ function DisclosureRecordCardPreview() {
 function StructuredTablePreview() {
   return (
     <div className="space-y-4">
-      <TableScrollFrame className="rounded-lg border border-slate-200">
+      <TableScrollFrame>
         <StructuredTable
           presentation={{ density: "compact", grid: "cells", header: "tinted", stripe: "subtle" }}
-          className="w-full"
           colWidths={[120, 120, 160, 120]}
           rows={[
             [
@@ -168,10 +165,9 @@ function StructuredTablePreview() {
           ]}
         />
       </TableScrollFrame>
-      <TableScrollFrame className="rounded-lg border border-slate-200">
+      <TableScrollFrame>
         <StructuredTable
           presentation={{ density: "compact", grid: "none", header: "plain" }}
-          className="w-full"
           rows={[
             [{ content: "项目", header: true }, { content: "状态", header: true }],
             [{ content: "资料归档" }, { content: "完成" }],
@@ -187,7 +183,7 @@ function TableScrollFramePreview() {
   return (
     <div className="space-y-2">
       <p className="text-xs text-slate-400">宽表格横向滚动外壳</p>
-      <TableScrollFrame className="rounded-lg border border-slate-200">
+      <TableScrollFrame>
         <table className="w-[40rem] text-sm">
           <thead className="bg-slate-50">
             <tr>

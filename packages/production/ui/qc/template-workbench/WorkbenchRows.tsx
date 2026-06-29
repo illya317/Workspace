@@ -187,7 +187,7 @@ export default function StageRows({
             label: `${expanded ? "收起" : "展开"} · ${stage.tests.length} 个实验项目`,
             variant: "secondary",
             size: "sm",
-            className: "px-3 py-1.5 text-sm",
+
             onClick: onToggle,
           }],
           rows: expanded ? rows : [],
@@ -219,7 +219,7 @@ export default function StageRows({
                     label: feedbackLabel(row.feedbackState, "反馈"),
                     variant: feedbackVariant(row.feedbackState),
                     size: "sm",
-                    className: "h-9 px-3 text-xs",
+
                     onClick: row.onFeedback,
                   },
                   {
@@ -227,7 +227,7 @@ export default function StageRows({
                     label: row.previewLoading ? "加载中" : "预览",
                     disabled: row.previewLoading,
                     size: "sm",
-                    className: "h-9 px-3 text-xs",
+
                     onClick: row.onPreview,
                   },
                 ],

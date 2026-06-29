@@ -41,7 +41,6 @@ export function renderCommands(commands?: FormSurfaceCommandSpec[]) {
               variant={command.variant}
               disabled={command.disabled}
               size={command.size}
-              className={command.className}
               onClick={command.onClick}
             />
           );
@@ -53,7 +52,6 @@ export function renderCommands(commands?: FormSurfaceCommandSpec[]) {
             variant={command.variant}
             disabled={command.disabled}
             size={command.size}
-            className={command.className}
             truncate={command.truncate}
             onClick={command.onClick}
           >

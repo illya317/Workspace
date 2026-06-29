@@ -1,4 +1,4 @@
-import { createElement, type Ref } from "react";
+import { createElement, type ReactNode, type Ref } from "react";
 import type { DataSurfaceProps, DataSurfaceTableProps } from "../DataSurface.types";
 import type {
   BlockSurfaceActionsProps,
@@ -26,6 +26,7 @@ import type {
   PageSurfaceProps,
   PageSurfaceToolbarSpec,
 } from "../PageSurface.types";
+import type { NavigationSurfaceTabsSpec } from "../NavigationSurface";
 import { PageSurfaceBlockGroupStack, PageSurfaceBlockStack } from "../internal/page/PageSurface.blocks";
 import type { VisualizationSurfaceProps } from "../VisualizationSurface";
 
@@ -62,8 +63,6 @@ export interface PageSurfaceShellPropsOptions {
   actions?: PageSurfaceCommandSpec[];
   empty?: PageSurfaceEmptySpec;
   embedded?: boolean;
-  className?: string;
-  contentClassName?: string;
 }
 
 export function createPageBody(
@@ -75,7 +74,6 @@ export function createPageBody(
 
 export function createPageTabsNavigation({
   level = 1,
-  className,
   ...navigation
 }: Omit<PageSurfaceNavigationSpec, "kind" | "level"> & {
   level?: PageSurfaceNavigationSpec["level"];
@@ -83,8 +81,23 @@ export function createPageTabsNavigation({
   return {
     kind: "tabs",
     level,
-    className,
     ...navigation,
+  };
+}
+
+export function createTabsNavigationBlock(
+  key: string,
+  tabs: NavigationSurfaceTabsSpec,
+  options: { label?: ReactNode } = {},
+): Extract<PageSurfaceBlockSpec, { kind: "navigation" }> {
+  return {
+    kind: "navigation",
+    key,
+    surface: {
+      kind: "tabs",
+      label: options.label,
+      tabs,
+    },
   };
 }
 
@@ -193,10 +206,9 @@ export function createGroupBlock(
   key: string,
   group: Omit<BlockSurfaceGroupProps, "kind" | "key" | "blocks"> & { blocks: PageSurfaceBlockSpec[] },
 ): Extract<PageSurfaceBlockSpec, { kind: "block" }> {
-  const { blocks, layout, className } = group;
+  const { blocks, layout } = group;
   return createBlockSurfaceBlock(key, {
     kind: "content",
-    className,
     content: createElement(PageSurfaceBlockGroupStack, {
       blocks,
       layout,

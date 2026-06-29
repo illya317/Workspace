@@ -28,7 +28,6 @@ export interface BlockSurfaceCommandSpec {
   variant?: "primary" | "secondary" | "danger";
   type?: "button" | "submit";
   size?: CommandButtonProps["size"];
-  className?: string;
   truncate?: boolean;
 }
 
@@ -41,13 +40,11 @@ export interface BlockSurfaceModuleGridItemSpec {
   href?: string;
   onClick?: () => void;
   badge?: string;
-  className?: string;
 }
 
 interface BlockSurfaceBaseProps {
   kind: BlockSurfaceKind;
   key?: string;
-  className?: string;
 }
 
 export interface BlockSurfaceContentProps extends BlockSurfaceBaseProps {
@@ -66,8 +63,6 @@ export interface BlockSurfaceHeadingProps extends BlockSurfaceBaseProps {
   title: ReactNode;
   subtitle?: ReactNode;
   level?: 1 | 2 | 3;
-  titleClassName?: string;
-  subtitleClassName?: string;
 }
 
 export interface BlockSurfaceEmptyProps extends BlockSurfaceBaseProps {
@@ -89,7 +84,6 @@ export interface BlockSurfaceAnalysisProps extends BlockSurfaceBaseProps {
   toolbarItems?: SurfaceToolbarItems;
   actions?: BlockSurfaceCommandSpec[];
   content?: ReactNode;
-  bodyClassName?: string;
 }
 
 export interface BlockSurfaceGroupProps extends BlockSurfaceBaseProps {
@@ -106,7 +100,6 @@ export interface BlockSurfacePanelProps extends BlockSurfaceBaseProps {
   content?: ReactNode;
   blocks?: BlockSurfaceProps[];
   itemRef?: Ref<HTMLDivElement>;
-  bodyClassName?: string;
 }
 
 export interface BlockSurfaceModuleGridProps extends BlockSurfaceBaseProps {
@@ -117,8 +110,6 @@ export interface BlockSurfaceModuleGridProps extends BlockSurfaceBaseProps {
   afterGrid?: ReactNode;
   fullScreen?: boolean;
   centered?: boolean;
-  contentClassName?: string;
-  gridClassName?: string;
   items: BlockSurfaceModuleGridItemSpec[];
 }
 
@@ -144,7 +135,6 @@ export function renderBlockSurfaceCommands(commands?: BlockSurfaceCommandSpec[])
           variant={command.variant}
           disabled={command.disabled}
           size={command.size}
-          className={command.className}
           truncate={command.truncate}
           onClick={command.onClick}
         >
@@ -166,37 +156,36 @@ function renderMessage(message: BlockSurfaceMessageProps) {
           : message.tone === "muted"
             ? "border-slate-100 bg-slate-50 text-slate-500"
             : "border-slate-200 bg-white text-slate-600";
-  return <div className={joinClassNames("rounded-md border px-3 py-2 text-sm", toneClass, message.className)}>{message.content}</div>;
+  return <div className={joinClassNames("rounded-md border px-3 py-2 text-sm", toneClass)}>{message.content}</div>;
 }
 
 function renderHeading(heading: BlockSurfaceHeadingProps) {
   const titleClassName = joinClassNames(
     heading.level === 1 ? "text-xl" : heading.level === 3 ? "text-sm" : "text-base",
     "font-semibold text-slate-900",
-    heading.titleClassName,
   );
   const subtitle = heading.subtitle ? (
-    <p className={joinClassNames("mt-1 text-sm text-slate-500", heading.subtitleClassName)}>{heading.subtitle}</p>
+    <p className="mt-1 text-sm text-slate-500">{heading.subtitle}</p>
   ) : null;
   const content = heading.level === 1
     ? <h1 className={titleClassName}>{heading.title}</h1>
     : heading.level === 3
       ? <h3 className={titleClassName}>{heading.title}</h3>
       : <h2 className={titleClassName}>{heading.title}</h2>;
-  return <div className={heading.className}>{content}{subtitle}</div>;
+  return <div>{content}{subtitle}</div>;
 }
 
 function renderEmpty(empty: BlockSurfaceEmptyProps) {
   if (empty.presentation === "plain") {
-    return <div className={joinClassNames("text-sm text-slate-500", empty.className)}>{empty.content}</div>;
+    return <div className="text-sm text-slate-500">{empty.content}</div>;
   }
-  return <EmptyStateCard compact={empty.compact} className={empty.className}>{empty.content}</EmptyStateCard>;
+  return <EmptyStateCard compact={empty.compact}>{empty.content}</EmptyStateCard>;
 }
 
 function renderGroup(group: BlockSurfaceGroupProps) {
   if (group.layout === "grid") {
     return (
-      <div className={joinClassNames("grid gap-4 lg:grid-cols-2", group.className)}>
+      <div className="grid gap-4 lg:grid-cols-2">
         {group.blocks.map((block, index) => (
           <div key={block.key ?? String(index)} className={index === 0 ? "min-w-0 max-lg:order-last" : "min-w-0"}>
             <BlockSurface {...block} />
@@ -206,7 +195,7 @@ function renderGroup(group: BlockSurfaceGroupProps) {
     );
   }
   return (
-    <div className={joinClassNames("space-y-4", group.className)}>
+    <div className="space-y-4">
       {group.blocks.map((block, index) => <BlockSurface key={block.key ?? String(index)} {...block} />)}
     </div>
   );
@@ -218,8 +207,6 @@ function renderAnalysis(analysis: BlockSurfaceAnalysisProps) {
       title={analysis.title}
       subtitle={analysis.subtitle}
       toolbarItems={analysis.toolbarItems}
-      className={analysis.className}
-      bodyClassName={analysis.bodyClassName}
     >
       <div className="space-y-4">
         {renderBlockSurfaceCommands(analysis.actions)}
@@ -241,11 +228,11 @@ function renderPanel(panel: BlockSurfacePanelProps) {
     </>
   );
   const card = panel.kind === "section" ? (
-    <SectionCard title={panel.title} subtitle={panel.subtitle} actions={renderBlockSurfaceCommands(panel.actions)} className={panel.className} bodyClassName={panel.bodyClassName}>
+    <SectionCard title={panel.title} subtitle={panel.subtitle} actions={renderBlockSurfaceCommands(panel.actions)}>
       {body}
     </SectionCard>
   ) : (
-    <PanelCard title={panel.title} subtitle={panel.subtitle} actions={renderBlockSurfaceCommands(panel.actions)} className={panel.className} bodyClassName={joinClassNames("p-4", panel.bodyClassName)}>
+    <PanelCard title={panel.title} subtitle={panel.subtitle} actions={renderBlockSurfaceCommands(panel.actions)} bodyClassName="p-4">
       {body}
     </PanelCard>
   );
@@ -254,7 +241,7 @@ function renderPanel(panel: BlockSurfacePanelProps) {
 
 function renderModuleGrid(block: BlockSurfaceModuleGridProps) {
   const content = (
-    <div className={joinClassNames("flex w-full flex-col items-center", block.fullScreen ? "min-h-screen justify-center" : "", block.centered ? "justify-center" : "", block.className)}>
+    <div className={joinClassNames("flex w-full flex-col items-center", block.fullScreen ? "min-h-screen justify-center" : "", block.centered ? "justify-center" : "")}>
       {(block.leading || block.title || block.summary) && (
         <div className="mb-8 flex flex-col items-center">
           {block.leading}
@@ -262,7 +249,7 @@ function renderModuleGrid(block: BlockSurfaceModuleGridProps) {
           {block.summary ? <p className="mt-1 text-center text-sm text-gray-500">{block.summary}</p> : null}
         </div>
       )}
-      <div className={joinClassNames("grid w-full max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3", block.gridClassName)}>
+      <div className="grid w-full max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {block.items.map((item) => {
           const { key, ...props } = item;
           return <ModuleCard key={key} {...props} />;
@@ -271,15 +258,15 @@ function renderModuleGrid(block: BlockSurfaceModuleGridProps) {
       {block.afterGrid ? <div className="mt-8 w-full max-w-4xl">{block.afterGrid}</div> : null}
     </div>
   );
-  return block.contentClassName ? <div className={block.contentClassName}>{content}</div> : content;
+  return content;
 }
 
 export default function BlockSurface(props: BlockSurfaceProps) {
-  if (props.kind === "content") return <div className={joinClassNames("min-w-0", props.className)}>{props.content}</div>;
+  if (props.kind === "content") return <div className="min-w-0">{props.content}</div>;
   if (props.kind === "message") return renderMessage(props);
   if (props.kind === "heading") return renderHeading(props);
   if (props.kind === "empty") return renderEmpty(props);
-  if (props.kind === "actions") return <div className={props.className}>{renderBlockSurfaceCommands(props.actions)}</div>;
+  if (props.kind === "actions") return <div>{renderBlockSurfaceCommands(props.actions)}</div>;
   if (props.kind === "analysis") return renderAnalysis(props);
   if (props.kind === "group") return renderGroup(props);
   if (props.kind === "moduleGrid") return renderModuleGrid(props);

@@ -10,7 +10,7 @@ function fieldCount(test: QcTemplateTestItem) {
 }
 
 function statusCell(value?: string): DataSurfaceCellSpec {
-  if (!value) return { kind: "empty", content: "未映射", className: "text-xs" };
+  if (!value) return { kind: "empty", content: "未映射",  };
   return { kind: "badge", label: value, tone: value === "pilot" ? "sky" : "slate" };
 }
 
@@ -94,7 +94,7 @@ function createStageSurface(stage: QcTemplateStage): DataSurfaceTableProps<QcTem
       key: "layoutStatus",
       label: "布局",
       required: true,
-      cellClassName: "align-top whitespace-nowrap",
+      wrap: "nowrap",
       cell: (test) => statusCell(test.layout?.status),
     },
   ];
@@ -118,7 +118,6 @@ export default function QcTemplateDetailPanel({ detail }: Props) {
   return <PageSurface
     kind="detail"
     embedded
-    className="space-y-4"
     body={createPageBody([
       createPageDataBlock("template-metrics", {
           kind: "metrics",
@@ -132,7 +131,7 @@ export default function QcTemplateDetailPanel({ detail }: Props) {
       createBlockSurfaceBlock("template-source", {
         kind: "message",
         tone: "muted",
-        className: "text-xs",
+
         content: `${detail.fileName} · ${detail.source.configRoot}`
       }),
       ...detail.stages.map((stage) => ({

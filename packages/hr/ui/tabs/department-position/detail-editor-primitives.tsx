@@ -51,8 +51,8 @@ export function DetailStatsRow({ items }: { items: Array<{ label: string; value:
       body={createPageBody([createPageDataBlock("detail-stats", {
         kind: "metrics",
         framed: true,
-        className: "md:col-span-2",
-        bodyClassName: "px-3 py-2",
+
+
         metrics: items.map((item) => ({ key: item.label, label: item.label, value: item.value })),
       })])}
     />
@@ -153,7 +153,6 @@ export function StringListEditor({
             textInput: {
               key: "draft",
               placeholder: items.length === 0 ? placeholder : "",
-              inputClassName: items.length === 0 ? "min-w-32 flex-1" : "w-16 flex-none",
               onAppend: appendItems,
               onRemoveLast: () => {
                 if (items.length > 0) removeItem(items.length - 1);

@@ -6,7 +6,6 @@ export default function InvestorsClient() {
   return (
     <PageSurface
       kind="list"
-      contentClassName="py-10"
       toolbar={{
         items: [
           {

@@ -92,7 +92,7 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
         open,
         title: `编辑历史 · ${entityType}${selectedDate ? ` (${selectedDate})` : ""}`,
         onClose,
-        maxWidth: "max-w-5xl",
+        size: "lg",
         blocks: [
         ...(dates.length > 0 ? [
           createInlineFieldsBlock("audit-date", [{
@@ -154,7 +154,6 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
               totalPages,
               onPageChange: setPage,
               compact: true,
-              className: "border-t border-slate-200 pt-3",
             },
           },
         },

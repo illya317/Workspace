@@ -62,7 +62,7 @@ export function WorkEnvironmentEditor({
     value: "",
     placeholder: "新增工作区域",
     onChange: (next: unknown) => addArea(next == null ? null : String(next)),
-    fieldClassName: "max-w-sm",
+
   }] : [];
   return <div className="space-y-2">
       <PageSurface
@@ -80,7 +80,7 @@ export function WorkEnvironmentEditor({
               const availableFactors = ENVIRONMENT_FACTOR_OPTIONS.filter((factor) => !item.factors.includes(factor));
               return {
                 key: `${item.area}-${index}`,
-                actions: disabled ? undefined : [{ key: "delete-area", label: "删除", variant: "danger", size: "sm", onClick: () => void removeArea(index), className: "px-2 py-1 text-xs" }],
+                actions: disabled ? undefined : [{ key: "delete-area", label: "删除", variant: "danger", size: "sm", onClick: () => void removeArea(index),  }],
                 fields: [
                   {
                     key: "area",
@@ -103,9 +103,9 @@ export function WorkEnvironmentEditor({
                     removeConfirmMessage: (factor) => `确定删除「${factor || "环境因素"}」吗？删除后需要保存才会生效。`,
                     emptyText: disabled ? "未设置" : undefined,
                     shellClassName: "content-start",
-                    fieldClassName: "md:col-span-2",
+
                     append: disabled ? undefined : {
-                      className: "min-w-40",
+                      width: "md",
                       field: {
                         key: "appendFactor",
                         label: "",
@@ -192,7 +192,6 @@ export function MajorRequirementsEditor({
           emptyText: disabled ? "未设置" : undefined,
           shellClassName: "content-start",
           append: disabled ? undefined : {
-            className: "min-w-40 flex-1",
             field: {
               key: "majorAppend",
               label: "",
@@ -261,12 +260,12 @@ export function ExperienceRequirementsEditor({
           kind: "repeatable",
           key: "experience-requirements",
           title: label,
-          addAction: disabled ? undefined : { key: "add-experience", label: "新增", size: "sm", onClick: addItem, className: "px-2 py-1 text-xs" },
+          addAction: disabled ? undefined : { key: "add-experience", label: "新增", size: "sm", onClick: addItem,  },
           empty: "未设置",
           columns: 2,
           items: items.map((item, index) => ({
             key: `experience-${index}`,
-            actions: disabled ? undefined : [{ key: "delete-experience", label: "删除", variant: "danger", size: "sm", onClick: () => void removeItem(index), className: "px-2 py-1 text-xs" }],
+            actions: disabled ? undefined : [{ key: "delete-experience", label: "删除", variant: "danger", size: "sm", onClick: () => void removeItem(index),  }],
             fields: [
               {
                 key: "years",

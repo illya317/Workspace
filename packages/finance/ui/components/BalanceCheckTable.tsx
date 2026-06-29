@@ -75,25 +75,25 @@ export default function BalanceCheckTable({
     key: "code",
     label: "科目编码",
     required: true,
-    headerClassName: "w-28",
+    width: "sm",
     cell: ({
       node
     }) => ({
       kind: "actions",
-      className: "gap-1",
+
       actions: [
         ...(hasVisibleChildren(node, maxLevel) ? [{
           key: `toggle-${node.code}`,
           label: expanded.has(node.code) ? "▼" : "▶",
           size: "sm" as const,
-          className: "w-4 border-0 bg-transparent px-0 py-0 text-base leading-none text-slate-300 shadow-none hover:bg-transparent hover:text-slate-600",
+
           onClick: () => onToggleNode(node.code),
         }] : []),
         {
           key: `code-${node.code}`,
           label: node.code,
           size: "sm" as const,
-          className: "border-0 bg-transparent px-0 py-0 font-mono text-slate-700 shadow-none hover:bg-transparent",
+          font: "mono",
           disabled: true,
         },
       ],
@@ -103,7 +103,7 @@ export default function BalanceCheckTable({
     key: "name",
     label: "科目名称",
     required: true,
-    headerClassName: "w-44",
+    width: "md",
     cell: ({
       node
     }) => <span className="text-slate-700">{node.name}</span>
@@ -111,8 +111,8 @@ export default function BalanceCheckTable({
     key: "closingDebit",
     label: "期末借方",
     required: true,
-    headerClassName: "w-28 text-right",
-    cellClassName: "text-right text-slate-600",
+    align: "right", width: "sm",
+
     cell: ({
       node
     }) => formatBalanceAmount(node.closingDebit)
@@ -120,8 +120,8 @@ export default function BalanceCheckTable({
     key: "closingCredit",
     label: "期末贷方",
     required: true,
-    headerClassName: "w-28 text-right",
-    cellClassName: "text-right text-slate-600",
+    align: "right", width: "sm",
+
     cell: ({
       node
     }) => formatBalanceAmount(node.closingCredit)
@@ -129,8 +129,8 @@ export default function BalanceCheckTable({
     key: "childrenDebit",
     label: "子级借方",
     required: true,
-    headerClassName: "w-28 text-right",
-    cellClassName: "text-right text-slate-500",
+    align: "right", width: "sm",
+     tone: "muted",
     cell: ({
       node
     }) => node.children.length === 0 ? "—" : formatBalanceAmount(node.childrenSumDebit)
@@ -138,8 +138,8 @@ export default function BalanceCheckTable({
     key: "childrenCredit",
     label: "子级贷方",
     required: true,
-    headerClassName: "w-28 text-right",
-    cellClassName: "text-right text-slate-500",
+    align: "right", width: "sm",
+     tone: "muted",
     cell: ({
       node
     }) => node.children.length === 0 ? "—" : formatBalanceAmount(node.childrenSumCredit)
@@ -147,8 +147,8 @@ export default function BalanceCheckTable({
     key: "diffDebit",
     label: "借方差",
     required: true,
-    headerClassName: "w-24 text-right",
-    cellClassName: "text-right",
+    align: "right", width: "xs",
+
     cell: ({
       node
     }) => <DifferenceCell node={node} side="debit" />
@@ -156,8 +156,8 @@ export default function BalanceCheckTable({
     key: "diffCredit",
     label: "贷方差",
     required: true,
-    headerClassName: "w-24 text-right",
-    cellClassName: "text-right",
+    align: "right", width: "xs",
+
     cell: ({
       node
     }) => <DifferenceCell node={node} side="credit" />
@@ -165,8 +165,8 @@ export default function BalanceCheckTable({
     key: "status",
     label: "状态",
     required: true,
-    headerClassName: "w-20 text-center",
-    cellClassName: "text-center",
+    align: "center", width: "xs",
+
     cell: ({
       node
     }) => {
@@ -181,15 +181,16 @@ export default function BalanceCheckTable({
       body={createPageBody([
         createPageTableBlock("balance-check", {
           framed: true,
-          className: "overflow-hidden",
-          bodyClassName: "overflow-x-auto",
+
+
           rows,
           columns,
           visibleColumns,
           rowKey: ({ node }) => node.code,
-          density: "compact",
-          tableClassName: "text-base",
-          rowClassName: ({ node }) => !node.isBalanced && node.children.length > 0 ? "bg-red-50/60" : "",
+                    presentation: { density: "compact" },
+
+
+          rowState: ({ node }) => !node.isBalanced && node.children.length > 0 ? "danger" : "normal",
         }),
       ])}
     />

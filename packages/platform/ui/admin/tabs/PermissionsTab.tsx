@@ -101,7 +101,7 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, s }: Pr
       side={{
         blocks: [createBlockSurfaceBlock("resource-tree", {
           kind: "message",
-          className: "border-0 bg-transparent p-0 text-inherit",
+
           content: (
             <div className="space-y-3">
               <div className="text-sm font-semibold text-gray-700">资源模块</div>

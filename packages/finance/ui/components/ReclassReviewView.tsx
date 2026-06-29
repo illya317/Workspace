@@ -67,16 +67,16 @@ export default function ReclassReviewView({
     label: `凭证号${arrow("凭证号") ?? ""}`,
     required: true,
     onHeaderClick: () => handleSort("凭证号"),
-    headerClassName: "hover:text-slate-700",
-    cellClassName: "font-mono text-slate-500",
+
+    font: "mono", tone: "muted",
     cell: row => row.voucherNo
   }, {
     key: "sourceAccount",
     label: `科目编码${arrow("科目编码") ?? ""}`,
     required: true,
     onHeaderClick: () => handleSort("科目编码"),
-    headerClassName: "hover:text-slate-700",
-    cellClassName: "font-mono text-slate-600",
+
+    font: "mono",
     cell: row => row.sourceAccount
   }, {
     key: "sourceAccountName",
@@ -87,7 +87,7 @@ export default function ReclassReviewView({
     key: "direction",
     label: "方向",
     required: true,
-    className: "text-center",
+    align: "center",
     cell: row => {
       const kind = row.kind as string || "normal";
       const isAbnormal = kind !== "normal";
@@ -103,8 +103,8 @@ export default function ReclassReviewView({
     label: `金额${arrow("金额") ?? ""}`,
     required: true,
     onHeaderClick: () => handleSort("金额"),
-    headerClassName: "text-right hover:text-slate-700",
-    className: "text-right font-mono text-slate-700",
+    align: "right",
+     font: "mono",
     cell: row => `¥${formatFinanceAmount(row.itemDebit || row.itemCredit || 0)}`
   }, {
     key: "target",
@@ -129,8 +129,8 @@ export default function ReclassReviewView({
         body={createPageBody([
           createPageTableBlock("reclass-review", {
             framed: true,
-            className: "overflow-hidden",
-            bodyClassName: "overflow-x-auto",
+
+
             rows: filtered,
             columns,
             visibleColumns: columns.map(column => column.key),

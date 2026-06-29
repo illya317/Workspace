@@ -38,9 +38,8 @@ export default function SettingsClient({
       {view === "home" && (
         <PageSurface
           kind="settings"
-          contentClassName="py-10"
           body={createPageBody([createModuleGridBlock("settings-grid", {
-            centered: true,
+
             title: "设置",
             items: [
               {

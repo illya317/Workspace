@@ -183,7 +183,7 @@ export default function VoucherTab({
                 surface: {
                   kind: "table",
                   framed: true,
-                  bodyClassName: "overflow-x-auto",
+
                   rows: vouchers,
                   columns: voucherColumns,
                   visibleColumns,

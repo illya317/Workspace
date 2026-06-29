@@ -280,7 +280,6 @@ export default function MeetingsPage({
             kind: "selector",
             selector: {
               title: "会议列表",
-              bodyClassName: "max-h-[calc(100vh-14rem)] overflow-y-auto p-2",
               loading,
               loadingText: "加载中...",
               emptyText: "暂无会议",
@@ -288,7 +287,6 @@ export default function MeetingsPage({
               selectedId,
               onSelect: (item: MeetingSummary) => setSelectedId(item.id),
               getKey: (item: MeetingSummary) => item.id,
-              contentClassName: "space-y-2",
               renderItem: (item: MeetingSummary) => ({
                 title: item.title,
                 subtitle: `${item.typeName} · ${formatDateTime(item.startAt) || "未定时间"}`,

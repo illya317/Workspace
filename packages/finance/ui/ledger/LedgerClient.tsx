@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createPageBody, PageSurface, createPageDataBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPageDataBlock, createPageTabsNavigation } from "@workspace/core/ui";
+import type { PageSurfaceBlockSpec, PageSurfaceNavigationSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 import AccountTab from "./AccountTab";
@@ -16,13 +17,12 @@ export default function LedgerClient({ canWrite, user }: { canWrite: boolean; us
     setActiveChild(activeChildTabs[0]?.key ?? "accounts");
   }, [activeChildTabs]);
   const activeTab = activeChild;
-  const navigation = activeChildTabs.length > 1 ? {
-    kind: "tabs" as const,
-    level: 2 as const,
+  const navigation = activeChildTabs.length > 1 ? createPageTabsNavigation({
+    level: 2,
     items: activeChildTabs,
     active: activeChild,
     onChange: setActiveChild,
-  } : undefined;
+  }) : undefined;
   const lifecycleBlocks = getFinanceLifecycleBlocks("ledger");
   const pageChrome = { navigation, lifecycleBlocks };
 
@@ -32,17 +32,26 @@ export default function LedgerClient({ canWrite, user }: { canWrite: boolean; us
       {activeTab === "vouchers" && <VoucherTab canWrite={canWrite} {...pageChrome} />}
       {activeTab === "ledger" && <LedgerTab {...pageChrome} />}
       {activeTab === "reclass" && <ReclassTab {...pageChrome} />}
-      {activeTab === "depreciation" && <DepreciationPlaceholder />}
+      {activeTab === "depreciation" && <DepreciationPlaceholder {...pageChrome} />}
     </>
   );
 }
 
-function DepreciationPlaceholder() {
+function DepreciationPlaceholder({
+  navigation,
+  lifecycleBlocks = [],
+}: {
+  navigation?: PageSurfaceNavigationSpec;
+  lifecycleBlocks?: PageSurfaceBlockSpec[];
+}) {
   return (
     <PageSurface
       kind="list"
-      embedded
-      body={createPageBody([createPageDataBlock("depreciation-placeholder", { kind: "records", records: [], empty: "资产折旧表开发中" })])}
+      navigation={navigation}
+      body={createPageBody([
+        ...lifecycleBlocks,
+        createPageDataBlock("depreciation-placeholder", { kind: "records", records: [], empty: "资产折旧表开发中" }),
+      ])}
     />
   );
 }

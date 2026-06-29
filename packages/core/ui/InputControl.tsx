@@ -105,7 +105,6 @@ export default function InputControl({
   displayValue,
   onChange,
   placeholder,
-  className,
   size = "md",
   density = "normal",
   rows,
@@ -122,24 +121,15 @@ export default function InputControl({
   readOnly,
   ariaLabel,
   dataFieldKey,
-  style,
   title,
-  unstyled,
-  wrapperClassName,
   textAlign,
-  fontRole,
-  visualVariant,
   visualState,
   resize,
   choiceType,
   choiceName,
-  choiceOptionClassName,
-  choiceMarkerClassName,
   accept,
   multiple,
   fileVariant,
-  fileInputClassName,
-  fileControlsClassName,
   resetOnChange,
   showFileName,
   buttonLabel,
@@ -187,16 +177,11 @@ export default function InputControl({
       inputMode={inputMode}
       ariaLabel={ariaLabel}
       dataFieldKey={dataFieldKey}
-      style={style}
       title={title}
-      unstyled={unstyled}
       textAlign={textAlign}
-      fontRole={fontRole}
-      visualVariant={visualVariant}
       state={textVisualState}
       placeholder={fieldPlaceholder}
       onChange={(next) => onChange?.(next)}
-      className={className}
       size={size}
       density={density}
       onKeyDown={onKeyDown}
@@ -210,7 +195,6 @@ export default function InputControl({
       <ReadOnlyField
         value={formatInputControlValue(value, spec)}
         placeholder={fieldPlaceholder}
-        className={className}
         size={size}
         density={density}
       />
@@ -238,17 +222,13 @@ export default function InputControl({
         readOnly={readOnly}
         ariaLabel={ariaLabel}
         dataFieldKey={dataFieldKey}
-        style={style}
         title={title}
-        unstyled={unstyled}
-        fontRole={fontRole}
         state={fieldVisualState}
         resize={resize}
         placeholder={fieldPlaceholder}
         rows={rows}
         onChange={(next) => onChange?.(next)}
         onKeyDown={onKeyDown as never}
-        className={className}
       />
     );
   }
@@ -268,7 +248,6 @@ export default function InputControl({
         }}
         disabled={disabled}
         onChange={(next) => onChange?.(next)}
-        className={className}
         size={size}
         density={density}
         onBlur={onBlur}
@@ -283,12 +262,8 @@ export default function InputControl({
         value={stringValue}
         disabled={disabled}
         readOnly={readOnly}
-        wrapperClassName={wrapperClassName}
-        style={style}
         title={title}
-        unstyled={unstyled}
         state={fieldVisualState}
-        className={className}
         placeholder={fieldPlaceholder}
         onChange={(next) => onChange?.(next)}
       />
@@ -317,9 +292,6 @@ export default function InputControl({
         disabled={disabled}
         dataFieldKey={dataFieldKey}
         onChange={(next) => onChange?.(next)}
-        className={className}
-        optionClassName={choiceOptionClassName}
-        markerClassName={choiceMarkerClassName}
       />
     );
   }
@@ -331,14 +303,11 @@ export default function InputControl({
         accept={accept}
         multiple={multiple ?? spec.multiple}
         variant={fileVariant}
-        inputClassName={fileInputClassName}
-        controlsClassName={fileControlsClassName}
         resetOnChange={resetOnChange}
         showFileName={showFileName}
         buttonLabel={buttonLabel}
         onChange={(file) => onChange?.(file)}
         onFilesChange={onFilesChange}
-        className={className}
       />
     );
   }
@@ -352,7 +321,6 @@ export default function InputControl({
         readOnly={disabled || states.has("readonly")}
         showLabel={showRatingLabel}
         onChange={(next) => onChange?.(next)}
-        className={className}
       />
     );
   }
@@ -366,7 +334,6 @@ export default function InputControl({
         onChange={(next) => onChange?.(next)}
         size={size}
         density={density}
-        className={className}
         confirmDelete={confirmDelete}
         confirmRemove={confirmRemove}
         removeConfirmMessage={removeConfirmMessage}
@@ -390,11 +357,8 @@ export default function InputControl({
         onQueryChange={onQueryChange}
         loading={loading}
         emptyText={emptyText}
-        className={className}
         size={size}
         density={density}
-        style={style}
-        visualVariant={visualVariant}
         textAlign={textAlign}
         fallback={renderTextField}
       />

@@ -19,7 +19,6 @@ export function DocsPlaceholderPage({
     user,
     children: <PageSurface
       kind="settings"
-      contentClassName="py-10"
       body={createPageBody([createSectionBlock("placeholder", {
         title,
         subtitle: description,

@@ -123,10 +123,10 @@ export default function BalanceCheckTab() {
     ...(!loading && error ? [
       createMessageBlock("error", {
         tone: "danger" as const,
-        className: "py-8 text-center",
+
         content: error,
       }),
-      createActionsBlock("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: load }], { className: "justify-center" }),
+      createActionsBlock("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: load }], {  }),
     ] : []),
     ...(!loading && !error && tree && flatNodes.length > 0 && summary ? [
       createPageDataBlock("balance-summary", {

@@ -227,7 +227,7 @@ export default function ReclassCandidateList({
     key: "accountCode",
     label: "科目编码",
     required: true,
-    cellClassName: "font-mono text-slate-600",
+    font: "mono",
     cell: candidate => candidate.accountCode
   }, {
     key: "accountName",
@@ -238,15 +238,15 @@ export default function ReclassCandidateList({
     key: "side",
     label: "借贷",
     defaultVisible: true,
-    headerClassName: "text-center",
-    cellClassName: "text-center",
+    align: "center",
+
     cell: candidate => candidate.abnormalSide ? dirBadge(candidate.abnormalSide) : <span className="text-slate-400">{candidate.balanceDirection === "debit" ? "借" : candidate.balanceDirection === "credit" ? "贷" : "—"}</span>
   }, {
     key: "amount",
     label: "金额",
     defaultVisible: true,
-    headerClassName: "text-right",
-    cellClassName: "text-right font-mono text-slate-700",
+    align: "right",
+     font: "mono",
     cell: candidate => `¥${formatFinanceAmount(candidate.abnormalAmount)}`
   }, {
     key: "target",
@@ -299,13 +299,14 @@ export default function ReclassCandidateList({
           surface: {
             kind: "table",
             framed: true,
-            className: "overflow-hidden",
-            bodyClassName: "overflow-x-auto",
+
+
             rows: paged,
             columns,
             visibleColumns: columns.map(column => column.key),
             rowKey: candidate => candidate.accountCode + "::" + candidate.abnormalSide,
-            density: "compact",
+                        presentation: { density: "compact" },
+
             rowActions: canWrite ? (candidate) => {
               if (candidate.existingRuleId) {
                 return [{ key: "clear", kind: "delete", label: "清除规则", onClick: () => void clearRule(candidate) }];

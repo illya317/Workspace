@@ -15,7 +15,6 @@ export function ModuleDisabledPageView({ reason, resourceKey, user }: Props) {
     user,
     children: <PageSurface
       kind="settings"
-      contentClassName="py-10"
       body={createPageBody([createSectionBlock("disabled", {
         title: "模块未启用",
         subtitle: resourceKey ? `资源：${resourceKey}` : undefined,

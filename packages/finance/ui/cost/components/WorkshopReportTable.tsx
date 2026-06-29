@@ -27,8 +27,8 @@ export default function WorkshopReportTable({ filters }: Props) {
     { key: "batchNo", label: "批号", required: true, cell: (row) => String(row.batchNo ?? "—") },
     { key: "employeeName", label: "人员", required: true, cell: (row) => String(row.employeeName ?? "—") },
     { key: "positionName", label: "工种", required: true, cell: (row) => String(row.positionName ?? "—") },
-    { key: "workPoint", label: "工分", required: true, className: "text-right", headerClassName: "text-right", cell: (row) => formatCostNumber(row.workPoint as number) },
-    { key: "quantity", label: "数量", required: true, className: "text-right", headerClassName: "text-right", cell: (row) => formatCostNumber(row.quantity as number) },
+    { key: "workPoint", label: "工分", required: true, align: "right",  cell: (row) => formatCostNumber(row.workPoint as number) },
+    { key: "quantity", label: "数量", required: true, align: "right",  cell: (row) => formatCostNumber(row.quantity as number) },
     { key: "source", label: "来源", required: true, cell: (row) => CostTraceButton({ row, onTrace: (info) => setTrace({ open: true, info }) }) },
   ];
 

@@ -154,7 +154,7 @@ export default function ReportTab() {
       kind: "message" as const,
       key: "loading",
       tone: "muted" as const,
-      className: "p-8 text-center",
+      align: "center",
       content: "加载中...",
     }] : []),
     ...(data?.type === "balance" ? [createPanelBlock("balance-report", {
@@ -163,19 +163,19 @@ export default function ReportTab() {
             blocks: [
               createGroupBlock("balance-lines", {
                 layout: "grid",
-                className: "grid-cols-2 gap-0",
+
                 blocks: [
                   {
                     kind: "data",
                     key: "assets",
                     surface: {
                       ...createReportLinesSurface({ items: data.assets || [], labelHeader: "资 产", amountHeader: "年末余额", ...lineProps }),
-                      className: "border-r border-gray-200 pr-4",
+                      frame: "bordered",
                     },
                   },
                   createGroupBlock("liability-equity", {
                     layout: "stack",
-                    className: "pl-4",
+
                     blocks: [
                       {
                         kind: "data",
@@ -193,7 +193,7 @@ export default function ReportTab() {
               }),
               ...(data.totalLiabilitiesAndEquity !== undefined ? [createMessageBlock("balance-check", {
                 tone: "muted" as const,
-                className: "border-0 bg-transparent text-center text-xs text-gray-400",
+
                 content: <>
                   资产总计 = {formatFinanceAmount(data.assets?.find(item => item.isGrandTotal)?.amount || 0)} | 负债和权益总计 = {formatFinanceAmount(data.totalLiabilitiesAndEquity)}
                   {Math.abs((data.assets?.find(item => item.isGrandTotal)?.amount || 0) - data.totalLiabilitiesAndEquity) > 0.01 && <span className="ml-2 text-red-500">不平衡</span>}

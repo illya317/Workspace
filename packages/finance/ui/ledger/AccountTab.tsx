@@ -178,8 +178,8 @@ export default function AccountTab({
               surface: {
                 kind: "table" as const,
                 framed: true,
-                className: "overflow-hidden",
-                bodyClassName: "overflow-x-auto",
+
+
                 rows: accounts,
                 columns: accountColumns,
                 visibleColumns,

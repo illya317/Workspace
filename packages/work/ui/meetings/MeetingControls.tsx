@@ -15,7 +15,7 @@ export function PageBlockSurface({
   className?: string;
   kind?: Exclude<PageSurfaceKind, "split">;
 }) {
-  return <PageSurface embedded kind={kind} className={className} body={createPageBody([block])} />;
+  return <PageSurface embedded kind={kind} body={createPageBody([block])} />;
 }
 
 export function Section({
@@ -75,7 +75,7 @@ export function InputBox({
           value: dateTime.time,
           onChange: time => onChange(combineDateTimeValue(dateTime.date, String(time ?? ""))),
         },
-      ], { className })
+      ])
     : createInlineFieldsBlock(label, [{
       key: label,
       label,
@@ -87,10 +87,9 @@ export function InputBox({
       value,
       onChange: next => onChange(String(next ?? "")),
       placeholder: kind === "date" ? "选择日期" : `输入${label}`,
-    }], { className });
+    }]);
   return (
     <PageBlockSurface
-      className={className}
       block={block}
     />
   );

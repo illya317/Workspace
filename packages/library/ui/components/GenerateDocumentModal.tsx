@@ -96,7 +96,7 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
           open: true,
           title: "生成文档",
           onClose,
-          maxWidth: "max-w-md",
+          size: "md",
           blocks: [
             createFieldsBlock("generate-document-form", [
               ...(statusMessage

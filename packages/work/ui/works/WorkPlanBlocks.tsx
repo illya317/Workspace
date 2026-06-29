@@ -22,7 +22,6 @@ export function createWorkPlanSelectorBlock({
       kind: "selector" as const,
       selector: {
         title: "OKR 计划",
-        bodyClassName: "max-h-[calc(100vh-18rem)] overflow-y-auto p-2",
         loading: plansLoading,
         loadingText: "加载中...",
         emptyText: "暂无 OKR 计划",
@@ -30,7 +29,6 @@ export function createWorkPlanSelectorBlock({
         selectedId: activePlanId,
         onSelect,
         getKey: (plan: WorkPlan) => plan.id,
-        contentClassName: "space-y-2",
         renderItem: (plan: WorkPlan) => ({
           title: plan.title,
           subtitle: getWorkPeriodLabel(plan),

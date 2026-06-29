@@ -1,4 +1,15 @@
 import type { ReactNode } from "react";
+import type {
+  DataSurfaceAlign,
+  DataSurfaceEmphasis,
+  DataSurfaceFont,
+  DataSurfaceFrame,
+  DataSurfaceRowState,
+  DataSurfaceScrollSpec,
+  DataSurfaceTone,
+  DataSurfaceWidth,
+  DataSurfaceWrap,
+} from "../../DataSurface.types";
 
 export interface ColumnDef {
   key: string;
@@ -13,12 +24,13 @@ export interface ColumnDef {
  * 同一份 columns 数组可同时传给列显隐控件和 <DataTable>。
  */
 export interface DataTableColumn<T> extends ColumnDef {
-  /** 应用到该列每个 td 的额外 className。 */
-  className?: string;
-  /** 应用到该列 th 的额外 className。 */
-  headerClassName?: string;
-  /** 应用到该列每个 td 的额外 className（与 className 合并）。 */
-  cellClassName?: string;
+  align?: DataSurfaceAlign;
+  width?: DataSurfaceWidth;
+  wrap?: DataSurfaceWrap;
+  tone?: DataSurfaceTone;
+  emphasis?: DataSurfaceEmphasis;
+  font?: DataSurfaceFont;
+  numeric?: boolean;
   /** 表头点击回调，用于排序等表格级交互。 */
   onHeaderClick?: () => void;
   /** 单元格渲染函数。如需行内编辑，在此实现并处理好事件冒泡。 */
@@ -46,10 +58,7 @@ export interface DataTableRowEditActionConfig<T> {
 export interface DataTableActionsColumnConfig {
   key?: string;
   label?: ReactNode;
-  headerClassName?: string;
-  cellClassName?: string;
-  /** 操作按钮在单元格内水平居中。 */
-  centered?: boolean;
+  align?: DataSurfaceAlign;
 }
 
 export interface DataTablePresentation {
@@ -67,14 +76,14 @@ export interface DataTableProps<T> {
   /** 可见列 key 列表。未提供时自动使用 required / defaultVisible 列。 */
   visibleColumns?: string[];
   presentation?: DataTablePresentation;
-  density?: "normal" | "compact";
   loading?: boolean;
   emptyText?: string;
   rowKey: (row: T, index: number) => string | number;
   /** 行点击回调。如需阻止冒泡，在 render 的交互元素上 e.stopPropagation()。 */
   onRowClick?: (row: T) => void;
-  rowClassName?: (row: T) => string;
-  tableClassName?: string;
+  rowState?: (row: T) => DataSurfaceRowState;
+  frame?: DataSurfaceFrame;
+  scroll?: DataSurfaceScrollSpec;
   /** 展开行的 key，与 rowKey 返回值比较。匹配时在该行下方渲染 expandedRow。 */
   expandedRowKey?: string | number | null;
   /** 多个展开行的 key。适用于权限矩阵这类可同时展开多行详情的表格。 */

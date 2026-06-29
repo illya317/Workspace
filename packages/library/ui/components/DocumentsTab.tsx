@@ -147,7 +147,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
       key: "summary",
       label: "简介",
       defaultVisible: true,
-      cellClassName: "text-gray-500",
+      tone: "muted",
       cell: (document) => (
         <span className="block max-w-48 truncate" title={document.summary || ""}>
           {document.summary || "—"}
@@ -158,7 +158,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
       key: "updatedAt",
       label: "更新时间",
       defaultVisible: true,
-      cellClassName: "text-gray-500",
+      tone: "muted",
       cell: (document) => fmtDate(document.updatedAt),
     },
     {
@@ -197,7 +197,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
     ...(dirError
       ? [createEmptyBlock("dir-error", {
           compact: true,
-          className: "mb-3 border-red-100 bg-red-50 text-red-600",
+
           content: `目录加载失败: ${dirError}`,
         })]
       : []),
@@ -242,7 +242,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
     ...(error
       ? [createEmptyBlock("error", {
           compact: true,
-          className: "mt-4 border-red-100 bg-red-50 text-red-600",
+
           content: error,
         })]
       : []),
@@ -252,7 +252,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
       surface: ({
         kind: "table",
         framed: true,
-        bodyClassName: "overflow-hidden",
+
         rows: documents,
         columns,
         visibleColumns: columns.map((column) => column.key),
@@ -282,7 +282,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
             totalPages,
             total,
             onPageChange: setPage,
-            className: "flex items-center justify-center gap-3",
+
             compact: true,
           },
         } : undefined}

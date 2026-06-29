@@ -106,7 +106,7 @@ export function ProjectTaskForm({
       kind="detail"
       body={createPageBody([createFieldsBlock<number>("project-task-form", fields, {
       columns: 3,
-      className: framed ? "rounded-lg border border-slate-200 bg-white p-3 shadow-none" : undefined,
+
       actions: [
         ...(onCancel ? [{ key: "cancel", label: "取消", disabled, onClick: onCancel }] : []),
         ...(submitLabel && onSubmit ? [{ key: "submit", label: submitLabel, variant: "primary" as const, disabled, onClick: onSubmit }] : []),
@@ -151,7 +151,7 @@ export function ProjectTaskDetail({ task }: { task: ProjectTaskItem }) {
           span: "wide",
           value: task.description || "未填写",
         },
-      ], { kind: "detail", columns: 3, className: "rounded-lg border border-slate-200 bg-white p-3 shadow-none" })])}
+      ], { kind: "detail", columns: 3,  })])}
     />
   );
 }

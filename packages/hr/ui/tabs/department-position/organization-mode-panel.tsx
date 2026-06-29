@@ -120,15 +120,15 @@ export function OrganizationModePanel({
     key: "position",
     label: "岗位",
     required: true,
-    className: "w-1/3",
-    cellClassName: "whitespace-normal align-middle",
+
+    wrap: "wrap",
     cell: ({
       position,
       label
     }) => ({
       kind: "group",
       direction: "column",
-      className: "gap-0.5",
+
       items: [
         {
           kind: "group",
@@ -141,7 +141,7 @@ export function OrganizationModePanel({
                 onClick: () => onOpenPositionDetails?.(position.id),
                 size: "sm",
                 truncate: true,
-                className: "min-w-0 !h-auto !justify-start !border-0 !bg-transparent !p-0 !text-left !text-sm !font-semibold !leading-5 !text-slate-900 !shadow-none hover:!bg-transparent hover:!text-sky-700 hover:!underline",
+                emphasis: "strong", tone: "info", width: "wide",
               },
             },
             {
@@ -151,15 +151,15 @@ export function OrganizationModePanel({
             },
           ],
         },
-        { kind: "text", value: position.code, className: "truncate font-mono text-xs text-slate-400" },
+        { kind: "text", value: position.code, font: "mono", tone: "muted", wrap: "truncate", },
       ],
     })
   }, {
     key: "subordinates",
     label: "下属岗位",
     required: true,
-    className: "w-2/3",
-    cellClassName: "whitespace-normal align-top",
+
+    wrap: "wrap",
     cell: ({
       subordinates
     }) => subordinates.length > 0 ? ({
@@ -176,7 +176,7 @@ export function OrganizationModePanel({
         const position = subordinates.find((p) => String(p.id) === option.value);
         if (position) onSelectPosition(position);
       },
-    }) : { kind: "empty", content: "-", className: "text-xs text-slate-400" }
+    }) : { kind: "empty", content: "-", tone: "muted", }
   }];
   async function saveChanges() {
     if (!selectedDepartment || !managerDirty) return;
@@ -271,9 +271,10 @@ export function OrganizationModePanel({
             columns,
             visibleColumns: columns.map(column => column.key),
             rowKey: row => row.position.id,
-            density: "compact",
-            rowClassName: row => row.position.id === selectedPositionId ? "bg-sky-50 ring-1 ring-inset ring-sky-200" : "",
-            className: "rounded-md border border-slate-200 bg-white",
+                        presentation: { density: "compact" },
+
+            rowState: row => row.position.id === selectedPositionId ? "selected" : "normal",
+            frame: "bordered",
           },
         });
   }
@@ -298,8 +299,8 @@ export function OrganizationModePanel({
           disabled: !canEdit || saving || !managerDirty,
           onClick: () => void saveChanges(),
         }] : undefined,
-        className: "min-h-96",
-        bodyClassName: "p-4",
+
+
         blocks: panelBlocks,
       })])}
     />

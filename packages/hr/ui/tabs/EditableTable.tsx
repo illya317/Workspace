@@ -87,7 +87,6 @@ export default function EditableTable({
   framed,
   loading,
   emptyText,
-  bodyClassName,
 }: EditableTableProps) {
   const columns = useMemo<DataSurfaceColumnSpec<Record<string, unknown>>[]>(
     () => fields.map((field) => {
@@ -97,8 +96,8 @@ export default function EditableTable({
         label: field.label,
         required: field.required,
         defaultVisible: field.defaultVisible,
-        headerClassName: "text-left text-gray-600",
-        cellClassName: `text-gray-700 ${editableCell ? "cursor-pointer hover:bg-emerald-50" : ""}`,
+
+
         cell: (item) => {
           const isEditing = editingCell?.id === item.id && editingCell?.field === field.key;
           return (
@@ -134,11 +133,10 @@ export default function EditableTable({
             columns,
             visibleColumns,
             rowKey: (item) => String(item.id),
-            presentation: { density: "compact" },
+            presentation: { density: "compact",
+ },
             loading,
             emptyText,
-            tableClassName: "w-full text-xs",
-            bodyClassName,
           },
         }],
       }}

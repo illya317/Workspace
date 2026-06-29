@@ -123,7 +123,7 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
         }),
         filter: { kind: "search", value: search, onChange: setSearch, placeholder: "搜索部门..." },
         loading,
-        bodyClassName: "p-3",
+
       },
     },
   }];
@@ -134,7 +134,7 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
   })] : [createSectionBlock("positions", {
     title: `直属岗位 · ${selectedNode.name}`,
     subtitle: `${directPositions.length} 个`,
-    className: "min-h-[520px]",
+
     blocks: [{
       kind: "navigation",
       key: "position-list",

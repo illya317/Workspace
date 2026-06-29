@@ -118,7 +118,6 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
     <>
       <PageSurface
         kind="list"
-        contentClassName="py-6"
         toolbar={{
           items: [
             ...toolbarItems,
@@ -133,8 +132,8 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
         body={createPageBody([
           createPageTableBlock<Contract>("contracts", {
             framed: true,
-            className: "overflow-hidden",
-            bodyClassName: "overflow-x-auto",
+
+
             rows: contracts,
             columns: toolbarColumns,
             visibleColumns,
@@ -144,7 +143,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
               { key: "edit", label: "编辑", kind: "edit", onClick: () => openEdit(contract) },
               { key: "delete", label: "删除", kind: "delete", onClick: () => void deleteContract(contract.id) },
             ],
-            actionsColumn: { centered: true },
+            actionsColumn: { align: "center", },
           }),
         ])}
         footer={{
@@ -153,7 +152,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
             totalPages,
             onPageChange: setPage,
             compact: true,
-            className: "mt-4 flex items-center justify-center gap-3",
+
           },
         }}
       />

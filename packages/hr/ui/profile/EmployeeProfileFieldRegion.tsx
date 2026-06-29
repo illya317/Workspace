@@ -25,7 +25,6 @@ export function FieldRegion({
     <PageSurface
       embedded
       kind="detail"
-      className={className}
       body={createPageBody([block])}
     />
   );
@@ -48,7 +47,7 @@ export function fieldRegionBlock({
     itemRef,
     title,
     actions,
-    bodyClassName: "p-3",
+
     blocks,
   });
 }

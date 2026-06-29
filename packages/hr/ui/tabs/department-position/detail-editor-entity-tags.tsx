@@ -60,7 +60,7 @@ export function EntityTagListEditor({
             }`,
           emptyText: disabled ? "未设置" : undefined,
           shellClassName: "content-start",
-          fieldClassName: "w-full",
+
           append: disabled ? undefined : {
             field: {
               key: "append",
@@ -107,7 +107,7 @@ export function SubordinateTagsEditor({
           emptyText: "未设置",
           itemClassName: () => "max-w-full border-slate-300 bg-white text-xs text-slate-800",
           shellClassName: "content-start",
-          fieldClassName: "w-full",
+
         }])])}
       />
     </div>

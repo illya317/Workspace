@@ -23,7 +23,6 @@ export interface PageSurfaceHeaderSpec {
   backLabel?: ReactNode;
   leading?: ReactNode;
   actions?: ReactNode;
-  className?: string;
 }
 
 export interface PageSurfaceNavigationItemSpec {
@@ -44,13 +43,11 @@ export interface PageSurfaceNavigationSpec {
   onChange: (key: string) => void;
   onChildChange?: (key: string) => void;
   hidden?: boolean;
-  className?: string;
 }
 
 export interface PageSurfaceFooterSpec {
   hidden?: boolean;
   pagination?: PageSurfacePaginationSpec;
-  className?: string;
 }
 
 export interface PageSurfacePaginationSpec {
@@ -58,7 +55,6 @@ export interface PageSurfacePaginationSpec {
   totalPages: number;
   total?: number;
   onPageChange: (page: number) => void;
-  className?: string;
   compact?: boolean;
 }
 
@@ -70,7 +66,6 @@ export interface PageSurfaceCommandSpec {
   variant?: "primary" | "secondary" | "danger";
   type?: "button" | "submit";
   size?: PageSurfaceActionSize;
-  className?: string;
   truncate?: boolean;
 }
 
@@ -78,7 +73,6 @@ export interface PageSurfaceEmptySpec {
   presentation?: "card" | "plain";
   content: ReactNode;
   compact?: boolean;
-  className?: string;
 }
 
 export interface PageSurfaceModalSpec {
@@ -86,10 +80,8 @@ export interface PageSurfaceModalSpec {
   open: boolean;
   title: string;
   onClose: () => void;
-  maxWidth?: string;
+  size?: "sm" | "md" | "lg" | "xl";
   blocks: PageSurfaceBlockSpec[];
-  className?: string;
-  bodyClassName?: string;
 }
 
 export type PageSurfaceBlockSpec =
@@ -104,7 +96,6 @@ export type PageSurfaceBlockSpec =
 export interface PageSurfaceSideSpec {
   blocks: PageSurfaceBlockSpec[];
   drawerBlocks?: PageSurfaceBlockSpec[];
-  className?: string;
 }
 
 export interface PageSurfaceBodySpec {
@@ -122,8 +113,6 @@ interface PageSurfaceBaseProps {
   footer?: PageSurfaceFooterSpec;
   body?: PageSurfaceBodySpec;
   embedded?: boolean;
-  className?: string;
-  contentClassName?: string;
 }
 
 export interface PageSurfaceStandardProps extends PageSurfaceBaseProps {

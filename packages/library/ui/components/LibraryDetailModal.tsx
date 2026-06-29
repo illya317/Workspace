@@ -241,7 +241,7 @@ export default function LibraryDetailModal({
           open: true,
           title: doc?.title || doc?.fileName || "资料详情",
           onClose,
-          className: "max-w-lg mx-auto",
+
           blocks: [
             createFieldsBlock("library-detail-form", fields, {
               actions,

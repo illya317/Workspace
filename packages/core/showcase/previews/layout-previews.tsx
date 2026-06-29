@@ -106,7 +106,6 @@ function PageSurfacePreview() {
     <div className="max-h-80 overflow-hidden rounded-lg border border-slate-200">
       <PageSurface
         kind="list"
-        contentClassName="py-4"
         toolbar={{
           items: [
             { kind: "search", key: "search", value: "", onChange: () => {}, placeholder: "搜索..." },

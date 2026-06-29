@@ -21,7 +21,7 @@ export function buildPositionDescriptionTemplateEditorBlock({
   onCancel,
 }: PositionDescriptionTemplateEditorProps): PageSurfaceBlockSpec {
   return createCreatePanelBlock("template-editor", {
-    blockClassName: "mb-4",
+
     title: "模板名称",
     creating: true,
     canCreate: true,
@@ -50,10 +50,10 @@ export function buildPositionDescriptionTemplateEditorBlock({
           },
           createGroupBlock("field-groups", {
             layout: "grid",
-            className: "md:grid-cols-2",
+
             blocks: POSITION_DESCRIPTION_TEMPLATE_FIELD_GROUPS.map((group) => createPanelBlock(group.label, {
               title: group.label,
-              bodyClassName: "p-3",
+
               blocks: [{
                 kind: "form",
                 key: `${group.label}-fields`,

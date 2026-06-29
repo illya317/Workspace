@@ -101,7 +101,7 @@ export default function QcBatchTestRecord({
       onClick: save,
       disabled: isPending,
       variant: "primary",
-      className: "px-8",
+
     });
   }
   if (testStatus?.canApproveReview) {
@@ -111,7 +111,7 @@ export default function QcBatchTestRecord({
       onClick: approveReview,
       disabled: isPending,
       variant: "primary",
-      className: "px-8",
+
     });
   }
   const recordSteps = [
@@ -135,7 +135,6 @@ export default function QcBatchTestRecord({
   return <PageSurface
     kind="detail"
     embedded
-    contentClassName="pb-8"
     body={createPageBody([
       {
         kind: "navigation",
@@ -144,12 +143,12 @@ export default function QcBatchTestRecord({
           kind: "steps",
           active: test.englishName,
           ariaLabel: "质检阶段导航",
-          className: "mx-auto max-w-[210mm]",
+
           steps: recordSteps,
         },
       },
       createHeadingBlock("test-heading", {
-        className: "mx-auto max-w-[210mm]",
+
         title: `${productName}${stage.label} - ${test.name}`,
         subtitle: `批号 ${batch.batchNumber} · ${workflowMessage}`,
       }),
@@ -172,12 +171,11 @@ export default function QcBatchTestRecord({
         key: "test-actions",
         surface: {
           kind: "inline" as const,
-          className: "mx-auto mt-8 max-w-[210mm] justify-center text-center",
           actions: recordActions,
         },
       }] : []),
       ...(saveState === "saved" || saveState === "error" ? [createMessageBlock("test-save-status", {
-        className: "mx-auto max-w-[210mm] text-center",
+
         tone: saveState === "saved" ? "success" as const : "danger" as const,
         content: statusText || (saveState === "saved" ? "已保存" : "操作失败"),
       })] : []),

@@ -57,7 +57,6 @@ export default function ModuleHome({ module, user }: Props) {
   return (
     <PageSurface
       kind="settings"
-      contentClassName="py-10"
       body={createPageBody(children.length === 0
         ? [createSectionBlock("empty-module", {
             title: module.label,
@@ -67,7 +66,7 @@ export default function ModuleHome({ module, user }: Props) {
             })],
           })]
         : [createModuleGridBlock("module-grid", {
-            centered: true,
+
             title: module.label,
             items: children.map((child) => {
               const lifecycleStatus = child.lifecycleStatus || MODULE_LIFECYCLE_BY_RESOURCE[child.resourceKey];

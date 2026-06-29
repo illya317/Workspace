@@ -19,7 +19,7 @@ export function createReportBannerBlock(key: string, props: ReportBannerProps): 
   if (source === "review") {
     return createMessageBlock(key, {
       tone: "success",
-      className: "text-xs",
+
       content: "校对已确认，当前报表来自已确认校对结果。",
     });
   }
@@ -27,7 +27,7 @@ export function createReportBannerBlock(key: string, props: ReportBannerProps): 
     const diag = diagnostics.find((item) => item.type in DIAG_MESSAGES) || diagnostics[0];
     return createMessageBlock(key, {
       tone: "warning",
-      className: "text-xs",
+
       content: <>
         <p className="mb-1.5">{DIAG_MESSAGES[diag.type] || diag.message}</p>
         <Link href={reviewHref} className="inline-flex items-center gap-1 text-amber-700 underline hover:text-amber-900">
@@ -42,5 +42,5 @@ export function createReportBannerBlock(key: string, props: ReportBannerProps): 
 export default function ReportBanner(props: ReportBannerProps) {
   const block = createReportBannerBlock("report-banner", props);
   if (!block || block.kind !== "block" || block.surface.kind !== "message") return null;
-  return <div className={block.surface.className}>{block.surface.content}</div>;
+  return <div>{block.surface.content}</div>;
 }

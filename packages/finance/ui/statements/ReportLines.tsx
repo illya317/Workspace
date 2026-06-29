@@ -46,17 +46,17 @@ interface Props {
 
 function createDetailColumns(): DataSurfaceColumnSpec<AccountDetail>[] {
   return [
-    { key: "code", label: "科目编码", required: true, className: "font-mono text-gray-600", cell: (row) => row.code },
+    { key: "code", label: "科目编码", required: true, font: "mono", cell: (row) => row.code },
     { key: "name", label: "科目名称", required: true, cell: (row) => row.name },
-    { key: "openingDebit", label: "期初借", required: true, className: "text-right", cell: (row) => row.openingDebit > 0 ? formatFinanceAmount(row.openingDebit) : "" },
-    { key: "openingCredit", label: "期初贷", required: true, className: "text-right", cell: (row) => row.openingCredit > 0 ? formatFinanceAmount(row.openingCredit) : "" },
-    { key: "currentDebit", label: "本期借", required: true, className: "text-right", cell: (row) => row.currentDebit > 0 ? formatFinanceAmount(row.currentDebit) : "" },
-    { key: "currentCredit", label: "本期贷", required: true, className: "text-right", cell: (row) => row.currentCredit > 0 ? formatFinanceAmount(row.currentCredit) : "" },
+    { key: "openingDebit", label: "期初借", required: true, align: "right", cell: (row) => row.openingDebit > 0 ? formatFinanceAmount(row.openingDebit) : "" },
+    { key: "openingCredit", label: "期初贷", required: true, align: "right", cell: (row) => row.openingCredit > 0 ? formatFinanceAmount(row.openingCredit) : "" },
+    { key: "currentDebit", label: "本期借", required: true, align: "right", cell: (row) => row.currentDebit > 0 ? formatFinanceAmount(row.currentDebit) : "" },
+    { key: "currentCredit", label: "本期贷", required: true, align: "right", cell: (row) => row.currentCredit > 0 ? formatFinanceAmount(row.currentCredit) : "" },
     {
       key: "closing",
       label: "期末余额",
       required: true,
-      className: "text-right font-medium",
+      align: "right", emphasis: "medium",
       cell: (row) => (
         <span className={row.closing < 0 ? "text-red-600" : "text-gray-800"}>
           {formatFinanceAmount(Math.abs(row.closing))}{row.balanceDirection === "credit" && row.closing !== 0 ? " (贷)" : ""}
@@ -81,7 +81,8 @@ function DetailRows({ rows }: { rows: AccountDetail[] }) {
             rows,
             columns: detailColumns,
             visibleColumns: detailColumns.map((column) => column.key),
-            density: "compact",
+                        presentation: { density: "compact" },
+
             rowKey: (row) => row.code,
           }),
         ])}
@@ -112,8 +113,8 @@ export function createReportLinesSurface({ items, labelHeader, amountHeader, exp
       key: "amount",
       label: amountHeader,
       required: true,
-      className: "text-right",
-      headerClassName: "text-right",
+      align: "right",
+
       cell: (item) => renderAmount(item.amount),
     },
   ];
@@ -123,13 +124,14 @@ export function createReportLinesSurface({ items, labelHeader, amountHeader, exp
     rows: items,
     columns,
     visibleColumns: ["label", "amount"],
-    density: "compact",
+        presentation: { density: "compact" },
+
     rowKey: (_, index) => index,
     onRowClick: (item) => item.code && onToggle(item.code),
-    rowClassName: (item) =>
-      item.isGrandTotal ? "border-t border-slate-200 font-bold" :
-      item.isTotal ? "bg-slate-50 font-medium" :
-      item.isHeader ? "font-medium text-gray-700" : "text-gray-600",
+    rowState: (item) =>
+      item.isGrandTotal ? "total" :
+      item.isTotal ? "total" :
+      item.isHeader ? "section" : "normal",
     expandedRowKeys: items.map((item, index) => item.code && expandedCodes.has(item.code) ? index : null).filter((key): key is number => key !== null),
     expandedRowContent: (item) => {
       if (!item.code) return [];

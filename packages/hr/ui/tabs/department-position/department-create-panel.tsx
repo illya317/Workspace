@@ -125,7 +125,7 @@ export function useDepartmentCreatePanelBlock({
   });
   const departmentInfoBlock: PageSurfaceBlockSpec = createPanelBlock("department-info", {
     title: "部门信息",
-    bodyClassName: "p-4",
+
     blocks: [
       {
         kind: "form" as const,
@@ -133,7 +133,7 @@ export function useDepartmentCreatePanelBlock({
         surface: {
           kind: "fields" as const,
           columns: 2 as const,
-          bodyClassName: "contents",
+
           fields: [
             {
               key: "code",

@@ -14,9 +14,8 @@ export default function PortalClient({ user }: { user: SessionUser }) {
   return (
     <PageSurface
       kind="settings"
-      contentClassName="py-10"
       body={createPageBody([createModuleGridBlock("portal-grid", {
-        centered: true,
+
         title: process.env.NEXT_PUBLIC_APP_NAME || "工作台",
         summary: `欢迎，${user.employeeName || user.nickname}`,
         leading: (

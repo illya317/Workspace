@@ -75,11 +75,11 @@ export function useWorkPermissionsBlocks({
           kind: "group",
           direction: "column",
           items: [
-            { kind: "text", value: row.userName, className: "font-medium text-slate-900" },
-            { kind: "text", value: "天然最高权限", className: "text-xs text-slate-400" },
+            { kind: "text", value: row.userName, emphasis: "medium", },
+            { kind: "text", value: "天然最高权限", tone: "muted", },
           ],
         }
-      : { kind: "text", value: row.userName, className: "font-medium text-slate-900" }
+      : { kind: "text", value: row.userName, emphasis: "medium", }
   }, {
     key: "role",
     label: "权限",
@@ -168,7 +168,7 @@ export function useWorkPermissionsBlocks({
       surface: {
         kind: "fields",
         columns: 3,
-        className: "rounded-lg border border-slate-200 bg-white p-4",
+
         fields: [{
           key: "user",
           label: "授权用户",
@@ -206,11 +206,12 @@ export function useWorkPermissionsBlocks({
         columns,
         visibleColumns: ["role"],
         rowKey: row => row.userId,
-        density: "compact",
+                presentation: { density: "compact" },
+
         loading,
         emptyText: "暂无额外授权",
         rowActions: getPermissionRowActions,
-        scrollClassName: "overflow-y-hidden rounded-lg border border-slate-200",
+        scroll: { y: "hidden" },
       },
     },
     {
@@ -219,7 +220,7 @@ export function useWorkPermissionsBlocks({
       surface: {
         kind: "inline",
         actions: [{ key: "save", label: "保存权限", variant: "primary", disabled: saving, onClick: () => void save() }],
-        className: "justify-end",
+
       },
     },
   ];

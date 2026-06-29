@@ -206,6 +206,7 @@ const ROLE_BY_NAME = {
   createPageSurfaceProps: { role: "helper" },
   createPageTableBlock: { role: "helper" },
   createPageTabsNavigation: { role: "helper" },
+  createTabsNavigationBlock: { role: "helper" },
   createPanelBlock: { role: "helper" },
   createSectionBlock: { role: "helper" },
   createSelectorPanelBlock: { role: "helper" },

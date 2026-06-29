@@ -39,7 +39,7 @@ export function buildProjectRasciMatrixSurface(rows: ProjectRasciRow[]): DataSur
         </div>
       ),
       defaultVisible: true,
-      cellClassName: "min-w-0",
+      width: "wide",
       cell: (row) => <NameChips members={membersForColumn(row, column.role)} />,
     })),
   ];
@@ -53,7 +53,7 @@ export function buildProjectRasciMatrixSurface(rows: ProjectRasciRow[]): DataSur
     rowKey: (row) => `${row.kind}:${row.id}`,
     visibleColumns: PROJECT_RASCI_COLUMN_DEFS.map((column) => column.key),
     emptyText: "暂无项目",
-    scrollClassName: "overflow-hidden",
+    scroll: { x: true },
   };
 }
 

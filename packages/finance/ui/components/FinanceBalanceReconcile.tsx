@@ -190,7 +190,7 @@ function DiffTable({
     key: "accountCode",
     label: "科目编码",
     required: true,
-    cellClassName: "font-mono text-slate-700",
+    font: "mono",
     cell: difference => difference.accountCode
   }, {
     key: "accountName",
@@ -201,28 +201,28 @@ function DiffTable({
     key: "field",
     label: "差异项",
     defaultVisible: true,
-    cellClassName: "text-slate-600",
+
     cell: difference => difference.field
   }, {
     key: "excelValue",
     label: "Excel",
     defaultVisible: true,
-    headerClassName: "text-right",
-    cellClassName: "text-right",
+    align: "right",
+
     cell: difference => difference.excelValue.toFixed(2)
   }, {
     key: "systemValue",
     label: "系统",
     defaultVisible: true,
-    headerClassName: "text-right",
-    cellClassName: "text-right",
+    align: "right",
+
     cell: difference => difference.systemValue.toFixed(2)
   }, {
     key: "diff",
     label: "差额",
     defaultVisible: true,
-    headerClassName: "text-right",
-    cellClassName: "text-right font-medium text-red-600",
+    align: "right",
+     emphasis: "medium", tone: "danger",
     cell: difference => difference.diff.toFixed(2)
   }];
   return <PageSurface
@@ -231,8 +231,8 @@ function DiffTable({
     body={createPageBody([
       createPageTableBlock("balance-reconcile-differences", {
         framed: true,
-        className: "overflow-hidden",
-        bodyClassName: "overflow-x-auto",
+
+
         rows: differences,
         columns,
         visibleColumns: columns.map(column => column.key),

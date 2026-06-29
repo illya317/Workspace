@@ -101,8 +101,8 @@ export default function ProjectPlanPhasePanel({
           ...(creating ? [{
             kind: "section" as const,
             key: "create-phase",
-            className: "rounded-lg border border-slate-200 bg-white",
-            bodyClassName: "p-3",
+
+
             content: <PhaseFields draft={draft} disabled={disabled || busy} onChange={setDraft} />,
             actions: [
               { key: "cancel", label: "取消", disabled: disabled || busy, onClick: () => {
@@ -165,14 +165,14 @@ function PhaseRows({
       key: "sequenceNo",
       label: "序号",
       required: true,
-      cellClassName: "w-20 text-slate-400",
+      tone: "muted", width: "xs",
       cell: (phase) => <span className="font-semibold">{phase.sequenceNo}</span>,
     },
     {
       key: "name",
       label: "阶段",
       required: true,
-      cellClassName: "min-w-40",
+      width: "md",
       cell: (phase) => <span className="break-words text-sm font-medium text-slate-900">{phase.name}</span>,
     },
     {
@@ -191,7 +191,7 @@ function PhaseRows({
       key: "note",
       label: "说明",
       defaultVisible: true,
-      cellClassName: "min-w-64 max-w-xl whitespace-normal text-slate-500",
+      tone: "muted", wrap: "wrap", width: "lg",
       cell: (phase) => phase.note || "",
     },
   ];
@@ -202,7 +202,8 @@ function PhaseRows({
         kind: "table",
         rows: phases,
         columns,
-        density: "compact",
+                presentation: { density: "compact" },
+
         emptyText: "暂无项目阶段",
         rowKey: (phase) => phase.id,
         visibleColumns: ["startDate", "endDate", "note"],
@@ -232,7 +233,7 @@ function PhaseRows({
             disabled,
           }];
         } : undefined,
-        scrollClassName: "overflow-y-hidden",
+        scroll: { y: "hidden" },
       });
   return (
     <PageSurface embedded kind="list" body={createPageBody([block])} />

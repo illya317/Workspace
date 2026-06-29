@@ -110,21 +110,21 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
     percent: `${stats.totalLeft > 0 ? Math.round((count / stats.totalLeft) * 100) : 0}%`,
   }));
   const tenureColumns: DataSurfaceColumnSpec<DistributionRow>[] = [
-    { key: "label", label: "司龄", required: true, cellClassName: "font-medium text-slate-700", cell: (row) => row.label },
-    { key: "count", label: "人数", required: true, cellClassName: "text-right font-medium text-slate-700", cell: (row) => row.count },
+    { key: "label", label: "司龄", required: true, emphasis: "medium", cell: (row) => row.label },
+    { key: "count", label: "人数", required: true, align: "right", emphasis: "medium", cell: (row) => row.count },
   ];
   const reasonColumns: DataSurfaceColumnSpec<DistributionRow>[] = [
-    { key: "label", label: "原因", required: true, cellClassName: "font-medium text-slate-700", cell: (row) => row.label },
-    { key: "count", label: "人数", required: true, cellClassName: "text-right font-medium text-slate-700", cell: (row) => row.count },
-    { key: "percent", label: "占比", required: true, cellClassName: "text-right text-slate-500", cell: (row) => row.percent ?? "0%" },
+    { key: "label", label: "原因", required: true, emphasis: "medium", cell: (row) => row.label },
+    { key: "count", label: "人数", required: true, align: "right", emphasis: "medium", cell: (row) => row.count },
+    { key: "percent", label: "占比", required: true, align: "right", tone: "muted", cell: (row) => row.percent ?? "0%" },
   ];
   const columns: DataSurfaceColumnSpec<Employment>[] = [
-    { key: "employeeName", label: "姓名", required: true, cellClassName: "font-medium", cell: (employment) => employment.employeeName },
-    { key: "currentCompany", label: "公司", required: true, cellClassName: "text-slate-500", cell: (employment) => employment.currentCompany || "—" },
-    { key: "joinDate", label: "入职日期", required: true, cellClassName: "text-slate-500", cell: (employment) => employment.joinDate || "—" },
-    { key: "leaveDate", label: "离职日期", required: true, cellClassName: "text-slate-500", cell: (employment) => employment.leaveDate || "—" },
-    { key: "leaveReason", label: "原因", required: true, cellClassName: "text-slate-500", cell: (employment) => employment.leaveReason || "—" },
-    { key: "leaveNote", label: "补充说明", required: true, cellClassName: "text-slate-500", cell: (employment) => employment.leaveNote || "—" },
+    { key: "employeeName", label: "姓名", required: true, emphasis: "medium", cell: (employment) => employment.employeeName },
+    { key: "currentCompany", label: "公司", required: true, tone: "muted", cell: (employment) => employment.currentCompany || "—" },
+    { key: "joinDate", label: "入职日期", required: true, tone: "muted", cell: (employment) => employment.joinDate || "—" },
+    { key: "leaveDate", label: "离职日期", required: true, tone: "muted", cell: (employment) => employment.leaveDate || "—" },
+    { key: "leaveReason", label: "原因", required: true, tone: "muted", cell: (employment) => employment.leaveReason || "—" },
+    { key: "leaveNote", label: "补充说明", required: true, tone: "muted", cell: (employment) => employment.leaveNote || "—" },
   ];
 
   return [
@@ -176,7 +176,8 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
                   columns: tenureColumns,
                   visibleColumns: tenureColumns.map((column) => column.key),
                   rowKey: (row) => row.label,
-                  density: "compact",
+                                    presentation: { density: "compact" },
+
                   emptyText: "暂无数据",
                 },
               }],
@@ -200,7 +201,8 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
               columns: reasonColumns,
               visibleColumns: reasonColumns.map((column) => column.key),
               rowKey: (row) => row.label,
-              density: "compact",
+                            presentation: { density: "compact" },
+
               emptyText: "暂无数据",
             },
           }],

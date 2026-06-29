@@ -15,6 +15,7 @@ export interface TabDef {
 }
 
 export type TabBarVariant = "large" | "mid" | "small" | "micro";
+export type TabBarKind = "page" | "table";
 
 export interface TabBarAction {
   key: string;
@@ -93,8 +94,15 @@ export const TAB_VARIANT_STYLES: Record<TabBarVariant, VariantStyle> = {
   },
 };
 
+function variantForKind(kind?: TabBarKind): TabBarVariant | undefined {
+  if (kind === "page") return "large";
+  if (kind === "table") return "small";
+  return undefined;
+}
+
 export interface TabBarBaseProps {
   tabs: TabDef[];
+  kind?: TabBarKind;
   className?: string;
   variant?: TabBarVariant;
   accordion?: boolean;
@@ -124,14 +132,16 @@ export default function TabBar(props: TabBarProps) {
     tabs,
     active,
     onChange,
+    kind,
     className = "",
-    variant = "mid",
+    variant: providedVariant,
     accordion = false,
     ariaLabel,
     leadingActions,
     trailingActions,
   } = props;
 
+  const variant = providedVariant ?? variantForKind(kind) ?? "mid";
   if (accordion && variant !== "large" && variant !== "small") {
     throw new Error(`TabBar accordion is only supported for variant='large' or variant='small', received variant='${variant}'.`);
   }

@@ -99,7 +99,7 @@ export default function PermissionDrilldown({
       body={createPageBody([createPanelBlock("permission-drilldown", {
         title: `人员 · ${drillKey}`,
         actions: [{ key: "close", label: "关闭", onClick: onClose }],
-        bodyClassName: "space-y-3",
+
         blocks: [
           {
             kind: "form",
@@ -116,7 +116,7 @@ export default function PermissionDrilldown({
                     setFCompany(String(nextValue ?? ""));
                     setFDept("全部");
                   },
-                  className: "min-w-40",
+
                 },
                 {
                   key: "dept",
@@ -124,7 +124,7 @@ export default function PermissionDrilldown({
                   spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: allDepts.map((d) => ({ value: d, label: d })) } },
                   value: fDept,
                   onChange: (nextValue) => setFDept(String(nextValue ?? "")),
-                  className: "min-w-40",
+
                 },
                 {
                   key: "keyword",
@@ -133,7 +133,7 @@ export default function PermissionDrilldown({
                   value: fKeyword,
                   onChange: (nextValue) => setFKeyword(String(nextValue ?? "")),
                   placeholder: "搜索姓名/工号...",
-                  className: "min-w-0 sm:w-[22rem]",
+
                 },
               ],
             },
@@ -156,7 +156,7 @@ export default function PermissionDrilldown({
                   subtitle: emp.employeeId,
                   active: empHasAccess(emp, drillKey),
                 }),
-                contentClassName: "grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5",
+
               },
             },
           },

@@ -183,7 +183,6 @@ export function buildOrganizationRootBlock({
         selectedId: active ? department.id : null,
         onSelect: (item) => onSelect(item.id),
         getKey: (item) => item.id,
-        className: "mb-2",
         renderItem: (item) => ({
           title: item.name,
           code: item.code,

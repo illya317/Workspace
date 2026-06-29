@@ -278,11 +278,11 @@ export default function NotificationBell({
             body={createPageBody([createPanelBlock("notifications", {
               title: <div className="whitespace-nowrap text-sm font-semibold text-slate-900">通知</div>,
               subtitle: <div className="whitespace-nowrap text-xs text-slate-400">{data.pendingCount} 条待确认 · {data.unreadCount} 条未读 · 共 {data.total} 条</div>,
-              bodyClassName: "max-h-96 overflow-y-auto !p-0",
+
               blocks: [
                 createBlockSurfaceBlock("notification-actions", {
                   kind: "message",
-                  className: "rounded-none border-x-0 border-t-0 border-slate-100 bg-white px-4 py-2 text-inherit",
+
                   content: (
                     <div className="flex items-center justify-end gap-2">
                       <NotificationIconButton kind="refresh" label="刷新" onClick={() => void load(0)} />
@@ -293,7 +293,7 @@ export default function NotificationBell({
                 }),
                 createBlockSurfaceBlock("notification-list", {
                   kind: "message",
-                  className: "border-0 bg-transparent p-0 text-inherit",
+
                   content: (
                     <>
                       {data.items.length === 0 ? <p className="px-4 py-8 text-center text-sm text-slate-400">暂无通知</p> : data.items.map(item => {

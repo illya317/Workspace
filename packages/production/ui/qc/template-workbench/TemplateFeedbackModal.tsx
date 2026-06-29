@@ -152,20 +152,20 @@ export default function TemplateFeedbackModal({ target, onClose, onSaved }: Prop
           open: true,
           title: "反馈",
           onClose,
-          maxWidth: "max-w-4xl",
-          className: "max-h-[calc(88vh-82px)] overflow-y-auto py-4",
+          size: "lg",
+
           blocks: [
             createFieldsBlock("template-feedback-summary", [
               {
                 kind: "note",
                 key: "selection",
-                className: "rounded-md border border-slate-100 bg-slate-50 px-3 py-3 text-sm text-slate-700",
+
                 content: selectionTitle(target),
               },
               ...(error ? [{
                 kind: "note" as const,
                 key: "error",
-                className: "text-sm font-medium text-red-600",
+
                 content: error,
               }] : []),
             ]),

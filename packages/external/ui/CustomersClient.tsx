@@ -19,7 +19,6 @@ export default function CustomersClient() {
   return (
     <PageSurface
       kind="list"
-      contentClassName="py-10"
       toolbar={{ items: toolbarItems }}
       body={createPageBody([
         createSectionBlock("customers", {

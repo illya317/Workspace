@@ -27,7 +27,6 @@ export default function SchoolPicker({
       value={value}
       onChange={(next) => onChange(next === null || next === undefined || next === "" ? null : String(next))}
       placeholder="未设置"
-      className={className}
     />
   );
 }

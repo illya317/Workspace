@@ -6,7 +6,7 @@ import type { ActionGlyphKind } from "../action/ActionGlyphs";
 import { createDataTableEditActions } from "./DataTableActions";
 import type { DataTableActionKind, DataTableColumn, DataTableProps, DataTableRowAction } from "./DataTable.types";
 import { FieldContextProvider } from "../input/field-context";
-import { resolveTablePresentation } from "./table-presentation";
+import { resolveTableColumnClass, resolveTablePresentation, resolveTableRowStateClass } from "./table-presentation";
 
 export type {
   ColumnDef,
@@ -109,13 +109,11 @@ export default function DataTable<T>({
   columns,
   visibleColumns,
   presentation,
-  density = "normal",
   loading,
   emptyText,
   rowKey,
   onRowClick,
-  rowClassName,
-  tableClassName,
+  rowState,
   expandedRowKey,
   expandedRowKeys,
   renderExpandedRow,
@@ -133,13 +131,12 @@ export default function DataTable<T>({
           key: actionsKey,
           label: actionsColumn?.label ?? "操作",
           required: true,
-          headerClassName: actionsColumn?.headerClassName,
-          cellClassName: actionsColumn?.cellClassName,
+          align: actionsColumn?.align ?? "center",
           render: (row: T) => {
             const actions = getRowActions(row, rowActions, rowEditActions);
             if (actions.length === 0) return null;
             const cell = <DataTableActionsCell actions={actions} />;
-            return actionsColumn?.centered ? (
+            return actionsColumn?.align === "center" || !actionsColumn?.align ? (
               <div className="flex justify-center">{cell}</div>
             ) : (
               cell
@@ -164,21 +161,21 @@ export default function DataTable<T>({
       ...presentation,
       rowHover: presentation?.rowHover ?? (onRowClick ? "interactive" : "neutral"),
     },
-    density,
+    presentation?.density,
   );
   const fieldContext = tablePresentation.density === "compact"
     ? { size: "sm" as const, density: "compact" as const }
     : { size: "md" as const, density: "normal" as const };
 
   return (
-    <table className={`${tablePresentation.table} ${tableClassName ?? ""}`}>
+    <table className={tablePresentation.table}>
       <thead className={tablePresentation.head}>
         <tr>
           {visible.map((col) => (
             <th
               key={col.key}
               onClick={col.onHeaderClick}
-              className={`${tablePresentation.headerCell} ${col.onHeaderClick ? "cursor-pointer select-none" : ""} ${col.headerClassName ?? ""}`}
+              className={`${tablePresentation.headerCell} ${resolveTableColumnClass(col)} ${col.onHeaderClick ? "cursor-pointer select-none" : ""}`}
             >
               {col.label}
             </th>
@@ -196,13 +193,13 @@ export default function DataTable<T>({
           return (
             <Fragment key={key}>
               <tr
-                className={`${tablePresentation.getRowClassName(index)} ${rowClassName?.(row) ?? ""}`}
+                className={`${tablePresentation.getRowClassName(index)} ${resolveTableRowStateClass(rowState?.(row))}`}
                 onClick={() => onRowClick?.(row)}
               >
                 {visible.map((col) => (
                   <td
                     key={col.key}
-                    className={`${tablePresentation.cell} ${col.className ?? ""} ${col.cellClassName ?? ""}`}
+                    className={`${tablePresentation.cell} ${resolveTableColumnClass(col)}`}
                   >
                     <FieldContextProvider value={fieldContext}>
                       {col.render(row)}

@@ -51,16 +51,16 @@ export function getVoucherColumns(
       key: "totalDebit",
       label: "借方",
       required: true,
-      className: "text-right text-gray-700",
-      headerClassName: "text-right",
+      align: "right",
+
       cell: (v) => formatFinanceAmount(v.items.reduce((s, it) => s + it.debit, 0)),
     },
     {
       key: "totalCredit",
       label: "贷方",
       required: true,
-      className: "text-right text-gray-700",
-      headerClassName: "text-right",
+      align: "right",
+
       cell: (v) => formatFinanceAmount(v.items.reduce((s, it) => s + it.credit, 0)),
     },
     {

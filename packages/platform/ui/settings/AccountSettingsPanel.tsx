@@ -197,11 +197,11 @@ export default function AccountSettingsPanel({
     }),
     createGroupBlock("account-forms", {
       layout: "grid",
-      className: "lg:grid-cols-3",
+
       blocks: [
         createSectionBlock("profile", {
           title: "修改账号",
-          className: "h-full",
+
           blocks: [{
             kind: "form",
             key: "profile-form",
@@ -246,7 +246,7 @@ export default function AccountSettingsPanel({
         }),
         createSectionBlock("password", {
           title: "修改密码",
-          className: "h-full",
+
           blocks: [{
             kind: "form",
             key: "password-form",
@@ -295,7 +295,7 @@ export default function AccountSettingsPanel({
         }),
         createSectionBlock("avatar", {
           title: "修改头像",
-          className: "h-full",
+
           blocks: [{
             kind: "form",
             key: "avatar-form",
@@ -321,7 +321,7 @@ export default function AccountSettingsPanel({
                   label: "头像文件",
                   spec: { valueType: "file", control: "file" },
                   value: null,
-                  className: "h-10 w-full",
+
                   accept: "image/png,image/jpeg,image/webp,image/gif",
                   showFileName: false,
                   onChange: (file) => selectAvatar(file instanceof File ? file : null),
@@ -345,5 +345,5 @@ export default function AccountSettingsPanel({
       })],
     }),
   ];
-  return <PageSurface kind="settings" contentClassName="max-w-4xl py-10" body={createPageBody(blocks)} />;
+  return <PageSurface kind="settings" body={createPageBody(blocks)} />;
 }

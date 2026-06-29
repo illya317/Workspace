@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { PageSurface, createBlockSurfaceBlock } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceBlock, createPageTabsNavigation } from "@workspace/core/ui";
 import { SessionUser } from "@workspace/platform/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 import { useCostFilterToolbarItems } from "./components/CostFilters";
@@ -20,13 +20,12 @@ export default function FinanceCostClient({ user: _user }: { user: SessionUser }
   useEffect(() => {
     setActiveChild(activeChildTabs[0]?.key ?? "overview");
   }, [activeChildTabs]);
-  const navigation = activeChildTabs.length > 1 ? {
-    kind: "tabs" as const,
-    level: 2 as const,
+  const navigation = activeChildTabs.length > 1 ? createPageTabsNavigation({
+    level: 2,
     items: activeChildTabs,
     active: activeChild,
     onChange: setActiveChild,
-  } : undefined;
+  }) : undefined;
   const lifecycleBlocks = getFinanceLifecycleBlocks("cost");
   const tab = (activeChild ?? "overview") as CostTab;
   const [filters, setFilters] = useState<CostFiltersState>({

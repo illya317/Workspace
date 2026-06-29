@@ -58,8 +58,8 @@ export function TableBlock({
       header: cell.header,
       colSpan: cell.colspan,
       rowSpan: cell.rowspan,
-      className: `border border-slate-950 align-middle ${isSignatureRow ? "px-1 py-1 leading-7" : "px-2 py-1.5"} ${cell.bold || cell.header ? "font-semibold" : "font-normal"} ${cell.isEmpty ? "text-transparent" : ""} ${cell.className || ""}`,
-      style: { textAlign, width: cell.width || (isSignatureRow ? SIGNATURE_COL_WIDTHS[cellIndex] : undefined) },
+
+
     };
   }));
 
@@ -75,7 +75,7 @@ export function TableBlock({
           rows,
           colWidths: block.columnWidths,
           rowHeights: block.rowHeights,
-          className: `min-w-full text-left text-sm ${marginClass} w-full table-fixed border-collapse ${TABLE_BODY_TEXT_CLASS} ${className}`,
+
         }),
       ])}
     />

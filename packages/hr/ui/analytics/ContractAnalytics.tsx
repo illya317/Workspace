@@ -21,38 +21,38 @@ export function useContractAnalyticsBlocks({
   const stats = useMemo(() => computeStats(enriched), [enriched]);
   const filtered = useMemo(() => filterContracts(enriched, filter, search), [enriched, filter, search]);
   const distributionColumns: DataSurfaceColumnSpec<DistributionRow>[] = [
-    { key: "label", label: "项目", required: true, cellClassName: "font-medium text-slate-700", cell: (row) => row.label },
-    { key: "count", label: "数量", required: true, cellClassName: "text-right font-medium text-slate-700", cell: (row) => row.count },
+    { key: "label", label: "项目", required: true, emphasis: "medium", cell: (row) => row.label },
+    { key: "count", label: "数量", required: true, align: "right", emphasis: "medium", cell: (row) => row.count },
   ];
   const columns = useMemo<DataSurfaceColumnSpec<EnrichedContract>[]>(() => [{
     key: "employeeId",
     label: "工号",
     required: true,
-    cellClassName: "font-mono text-slate-500",
+    font: "mono", tone: "muted",
     cell: contract => contract.employeeId
   }, {
     key: "employeeName",
     label: "姓名",
     required: true,
-    cellClassName: "font-medium",
+    emphasis: "medium",
     cell: contract => contract.employeeName
   }, {
     key: "company",
     label: "公司",
     required: true,
-    cellClassName: "text-slate-500",
+    tone: "muted",
     cell: contract => contract.company || "—"
   }, {
     key: "contractType",
     label: "合同类型",
     required: true,
-    cellClassName: "text-slate-500",
+    tone: "muted",
     cell: contract => contract.contractType || "—"
   }, {
     key: "nearestEnd",
     label: "最近到期日",
     required: true,
-    cellClassName: "text-slate-700",
+
     cell: contract => contract.nearestEnd || "—"
   }, {
     key: "daysLeft",
@@ -69,7 +69,7 @@ export function useContractAnalyticsBlocks({
     key: "status",
     label: "状态",
     required: true,
-    cell: contract => ({ kind: "badge", label: statusLabel(contract.status), className: statusBadge(contract.status) })
+    cell: contract => ({ kind: "badge", label: statusLabel(contract.status),  })
   }], []);
   return [
       createPageDataBlock("stats", {
@@ -96,7 +96,8 @@ export function useContractAnalyticsBlocks({
                 columns: distributionColumns,
                 visibleColumns: distributionColumns.map((column) => column.key),
                 rowKey: (row) => row.label,
-                density: "compact",
+                                presentation: { density: "compact" },
+
                 emptyText: "暂无数据",
               },
             }],
@@ -112,7 +113,8 @@ export function useContractAnalyticsBlocks({
                 columns: distributionColumns,
                 visibleColumns: distributionColumns.map((column) => column.key),
                 rowKey: (row) => row.label,
-                density: "compact",
+                                presentation: { density: "compact" },
+
                 emptyText: "暂无数据",
               },
             }],
@@ -150,7 +152,7 @@ export function useContractAnalyticsBlocks({
               visibleColumns: columns.map(column => column.key),
               rowKey: contract => contract.id,
               emptyText: "暂无数据",
-              rowClassName: contract => contract.status === "expired" ? "bg-red-50/40" : contract.status === "expiring30" ? "bg-rose-50/30" : "",
+              rowState: contract => contract.status === "expired" ? "danger" : contract.status === "expiring30" ? "danger" : "normal",
             },
           },
           ...(filtered.length > 100 ? [createMessageBlock("more", {

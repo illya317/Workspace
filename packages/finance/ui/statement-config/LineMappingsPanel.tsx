@@ -70,20 +70,20 @@ export default function LineMappingsPanel({
     key: "accountCode",
     label: "科目编码",
     required: true,
-    cellClassName: "font-mono text-gray-600",
+    font: "mono",
     cell: mapping => mapping.accountCode
   }, {
     key: "accountName",
     label: "科目名称",
     required: true,
-    cellClassName: "text-gray-700",
+
     cell: mapping => accountMap.get(mapping.accountCode)?.name || mapping.accountCode
   }, {
     key: "debit",
     label: "借方",
     required: true,
-    headerClassName: "text-right",
-    cellClassName: "text-right text-gray-600",
+    align: "right",
+
     cell: mapping => {
       const account = accountMap.get(mapping.accountCode);
       return account ? formatStatementAmount(account.closingDebit) : "—";
@@ -92,8 +92,8 @@ export default function LineMappingsPanel({
     key: "credit",
     label: "贷方",
     required: true,
-    headerClassName: "text-right",
-    cellClassName: "text-right text-gray-600",
+    align: "right",
+
     cell: mapping => {
       const account = accountMap.get(mapping.accountCode);
       return account ? formatStatementAmount(account.closingCredit) : "—";
@@ -102,7 +102,7 @@ export default function LineMappingsPanel({
     key: "status",
     label: "状态",
     required: true,
-    cellClassName: "text-center",
+    align: "center",
     cell: mapping => {
       const isSaving = saving.has(mapping.accountCode);
       if (mapping.operator === "exclude") return { kind: "badge", label: "已排除", tone: "gray" };
@@ -129,33 +129,33 @@ export default function LineMappingsPanel({
     key: "accountCode",
     label: "科目编码",
     required: true,
-    cellClassName: "font-mono text-gray-500",
+    font: "mono", tone: "muted",
     cell: account => account.accountCode
   }, {
     key: "accountName",
     label: "科目名称",
     required: true,
-    cellClassName: "text-gray-500",
+    tone: "muted",
     cell: account => account.accountName
   }, {
     key: "debit",
     label: "借方",
     required: true,
-    headerClassName: "text-right",
-    cellClassName: "text-right text-gray-400",
+    align: "right",
+     tone: "muted",
     cell: account => formatStatementAmount(account.closingDebit)
   }, {
     key: "credit",
     label: "贷方",
     required: true,
-    headerClassName: "text-right",
-    cellClassName: "text-right text-gray-400",
+    align: "right",
+     tone: "muted",
     cell: account => formatStatementAmount(account.closingCredit)
   }, {
     key: "action",
     label: "操作",
     required: true,
-    cellClassName: "text-center",
+    align: "center",
     cell: account => ({
       kind: "action",
       action: {
@@ -201,9 +201,10 @@ function MappingTable({ mappings, columns }: { mappings: Mapping[]; columns: Dat
           columns,
           visibleColumns: columns.map(column => column.key),
           rowKey: mapping => mapping.accountCode,
-          density: "compact",
-          tableClassName: "text-base",
-          rowClassName: mapping => mapping.operator === "exclude" ? "bg-slate-100/50" : "",
+                    presentation: { density: "compact" },
+
+
+          rowState: mapping => mapping.operator === "exclude" ? "muted" : "normal",
         }),
       ])}
     />
@@ -222,8 +223,9 @@ function InheritedTable({ accounts, columns }: { accounts: InheritedAcct[]; colu
           columns,
           visibleColumns: columns.map(column => column.key),
           rowKey: account => account.accountCode,
-          density: "compact",
-          tableClassName: "text-base",
+                    presentation: { density: "compact" },
+
+
         }),
       ])}
     />
@@ -255,7 +257,7 @@ function MappingEditor({
       embedded
       body={createPageBody([
         createInlineFieldsBlock("mapping-editor", [
-          { key: "search", label: "搜索", spec: { valueType: "string", control: "text" }, placeholder: "搜索科目编码或名称...", value: accountSearch, onChange: (value) => onAccountSearchChange(String(value ?? "")), className: "w-64" },
+          { key: "search", label: "搜索", spec: { valueType: "string", control: "text" }, placeholder: "搜索科目编码或名称...", value: accountSearch, onChange: (value) => onAccountSearchChange(String(value ?? "")),  },
           { key: "account", label: "科目", spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: filteredAccounts.map(account => ({ value: account.code, label: `${account.code} ${account.name}` })) } }, value: newAccount, onChange: (value) => onNewAccountChange(String(value ?? "")), placeholder: `选择科目 (${filteredAccounts.length})` },
         ], {
           kind: "filters",

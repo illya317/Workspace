@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { SessionUser } from "@workspace/platform/types";
-import { PageSurface, createBlockSurfaceBlock } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceBlock, createPageTabsNavigation } from "@workspace/core/ui";
 import ImportUploadForm from "./components/ImportUploadForm";
 import ImportPreview from "./components/ImportPreview";
 import ImportResult from "./components/ImportResult";
@@ -21,13 +21,12 @@ export default function ImportClient({ user }: { user: SessionUser }) {
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
   const activeChildTabs = useMemo(() => getFinancePageViewTabs("import", user), [user]);
-  const navigation = activeChildTabs.length > 1 ? {
-    kind: "tabs" as const,
-    level: 2 as const,
+  const navigation = activeChildTabs.length > 1 ? createPageTabsNavigation({
+    level: 2,
     items: activeChildTabs,
     active: activeChildTabs[0]?.key ?? "",
     onChange: () => {},
-  } : undefined;
+  }) : undefined;
   const lifecycleBlocks = getFinanceLifecycleBlocks("import");
 
   useEffect(() => {

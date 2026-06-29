@@ -23,7 +23,7 @@ export function profileActionSpec({
     disabled,
     type: "button",
     size: "sm",
-    className: "px-3 py-1.5 text-xs",
+
     onClick: () => void onClick(),
   };
 }

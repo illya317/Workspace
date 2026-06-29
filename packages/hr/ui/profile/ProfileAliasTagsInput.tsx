@@ -85,7 +85,7 @@ export function AliasTagEditor({
         disabled,
         emptyText: disabled ? "未设置" : undefined,
         shellClassName: "content-start",
-        fieldClassName: "w-full",
+
         append: disabled ? undefined : {
           textInput: {
             key: "aliasDraft",

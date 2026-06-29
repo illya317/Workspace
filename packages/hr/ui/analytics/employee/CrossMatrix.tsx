@@ -90,15 +90,15 @@ export function createCrossMatrixBlock({
       key: "rowKey",
       label: `${DIM_LABELS[crossRow]} \\ ${DIM_LABELS[crossCol]}`,
       required: true,
-      cellClassName: "font-medium text-slate-800",
+      emphasis: "medium",
       cell: (row) => row.rowKey,
     },
     ...crossMatrix.colKeys.map((colKey): DataSurfaceColumnSpec<CrossMatrixRow> => ({
       key: `col:${colKey}`,
       label: colKey,
       required: true,
-      headerClassName: "text-center",
-      cellClassName: "text-center",
+      align: "center",
+
       cell: (row) => {
         const value = row.values[colKey] || 0;
         return (
@@ -112,8 +112,8 @@ export function createCrossMatrixBlock({
       key: "total",
       label: "合计",
       required: true,
-      headerClassName: "text-center",
-      cellClassName: "text-center font-medium text-slate-800",
+      align: "center",
+       emphasis: "medium",
       cell: (row) => row.total,
     },
   ];
@@ -143,7 +143,7 @@ export function createCrossMatrixBlock({
             columns,
             visibleColumns: columns.map((column) => column.key),
             rowKey: (row) => row.rowKey,
-            rowClassName: (row) => row.rowKey === "合计" ? "bg-slate-50 font-medium" : "",
+            rowState: (row) => row.rowKey === "合计" ? "total" : "normal",
           },
         }],
   });

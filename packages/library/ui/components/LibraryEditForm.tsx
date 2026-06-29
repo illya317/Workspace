@@ -103,7 +103,7 @@ export default function LibraryEditForm({ doc, form, setForm, canWrite, canAdmin
             value: form.status !== undefined ? form.status : doc.status,
             onChange: (value) => setForm((f) => ({ ...f, status: String(value ?? "") })),
           },
-        ], { className: "space-y-1" }),
+        ], {  }),
       ])}
     />
   );

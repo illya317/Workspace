@@ -43,8 +43,8 @@ export function createPermissionMatrixBlock({
     key: role.key,
     label: role.name,
     required: true,
-    headerClassName: "text-center",
-    cellClassName: "text-center",
+    align: "center",
+
     cell: subject => {
       const hasNoUser = s.subjectType === "user" && !subject.extra?.hasUser;
       const state = s.getPermissionState(subject, role.key);
@@ -61,8 +61,8 @@ export function createPermissionMatrixBlock({
     key: "maxRole",
     label: "最高业务权限",
     required: true,
-    headerClassName: "text-center",
-    cellClassName: "text-center",
+    align: "center",
+
     cell: () => <span className="text-xs text-slate-400">
           {s.maxRoleKey === "access" ? "访问" : s.maxRoleKey === "write" ? "编辑" : s.maxRoleKey === "delete" ? "删除" : "管理"}
         </span>
@@ -70,7 +70,7 @@ export function createPermissionMatrixBlock({
     key: "actions",
     label: "",
     required: true,
-    cellClassName: "text-right",
+    align: "right",
     cell: subject => {
       const label = s.expandedRows.has(subject.id) ? "收起详情" : "查看详情";
       return (

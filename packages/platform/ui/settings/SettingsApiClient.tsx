@@ -203,7 +203,7 @@ export default function SettingsApiClient({
   const endpointColumns: DataSurfaceColumnSpec<OpenApiEndpointRow>[] = [{
     key: "method",
     label: "Method",
-    cell: row => ({ kind: "badge", label: row.method, tone: "sky", className: "font-mono font-semibold" })
+    cell: row => ({ kind: "badge", label: row.method, tone: "sky", font: "mono", emphasis: "strong", })
   }, {
     key: "path",
     label: "Path",
@@ -257,7 +257,7 @@ export default function SettingsApiClient({
   }, {
     key: "status",
     label: "状态",
-    cell: row => ({ kind: "text", value: row.status, className: row.status < 400 ? "text-emerald-700" : "text-red-600" })
+    cell: row => ({ kind: "text", value: row.status,  })
   }, {
     key: "duration",
     label: "耗时",
@@ -307,12 +307,14 @@ export default function SettingsApiClient({
         {
           kind: "data",
           key: "registration-table",
-          surface: { kind: "table", rows: registrations, columns: registrationColumns, visibleColumns: registrationColumns.map((column) => column.key), loading, emptyText: "暂无开放能力", rowKey: (row) => row.key, density: "compact" },
+          surface: { kind: "table", rows: registrations, columns: registrationColumns, visibleColumns: registrationColumns.map((column) => column.key), loading, emptyText: "暂无开放能力", rowKey: (row) => row.key,           presentation: { density: "compact" },
+ },
         },
         {
           kind: "data",
           key: "endpoint-table",
-          surface: { kind: "table", rows: endpoints, columns: endpointColumns, visibleColumns: endpointColumns.map((column) => column.key), emptyText: "暂无 endpoint", rowKey: (row) => row.key, density: "compact" },
+          surface: { kind: "table", rows: endpoints, columns: endpointColumns, visibleColumns: endpointColumns.map((column) => column.key), emptyText: "暂无 endpoint", rowKey: (row) => row.key,           presentation: { density: "compact" },
+ },
         },
       ],
     }),
@@ -360,9 +362,10 @@ export default function SettingsApiClient({
             loading,
             emptyText: "暂无 Client",
             rowKey: (row) => row.id,
-            density: "compact",
+                        presentation: { density: "compact" },
+
             onRowClick: (row) => setSelectedClientId(row.id),
-            rowClassName: (row) => row.id === selectedClientId ? "bg-emerald-50/70" : "",
+            rowState: (row) => row.id === selectedClientId ? "selected" : "normal",
           },
         },
       ],
@@ -378,9 +381,10 @@ export default function SettingsApiClient({
       blocks: [{
         kind: "data",
         key: "log-table",
-        surface: { kind: "table", rows: logs, columns: logColumns, visibleColumns: logColumns.map((column) => column.key), loading, emptyText: "暂无调用日志", rowKey: (row) => row.id, density: "compact" },
+        surface: { kind: "table", rows: logs, columns: logColumns, visibleColumns: logColumns.map((column) => column.key), loading, emptyText: "暂无调用日志", rowKey: (row) => row.id,         presentation: { density: "compact" },
+ },
       }],
     }),
   ];
-  return <PageSurface kind="settings" contentClassName="py-8" body={createPageBody(blocks)} />;
+  return <PageSurface kind="settings" body={createPageBody(blocks)} />;
 }

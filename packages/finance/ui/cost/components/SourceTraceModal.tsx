@@ -22,7 +22,7 @@ export default function SourceTraceModal({
           open,
           title: "数据来源",
           onClose,
-          maxWidth: "max-w-lg",
+          size: "lg",
           blocks: [
             createFieldsBlock("source-trace-form", [
               { key: "sourceFile", label: "源文件", spec: { valueType: "string", control: "text", state: "readonly" }, value: info.sourceFile },

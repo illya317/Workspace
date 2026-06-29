@@ -59,7 +59,6 @@ function FieldInput({
           value={value}
           onChange={(next) => onChange(String(next ?? ""))}
           placeholder=" "
-          visualVariant="paperUnderline"
           textAlign="center"
         />
         {field.unit && <span className="text-xs text-slate-700">{field.unit}</span>}
@@ -75,9 +74,7 @@ function FieldInput({
         onChange={(next) => onChange(String(next ?? ""))}
         readOnly={readOnly || calculated || field.attr === "prefilled"}
         inputMode={field.type === "number" ? "decimal" : "text"}
-        unstyled
         textAlign="center"
-        className={`h-8 min-w-24 border-0 border-b border-slate-950 bg-transparent px-2 text-center text-sm outline-none ${calculated ? "text-slate-950" : ""}`}
       />
       {field.unit && <span className="text-xs text-slate-700">{field.unit}</span>}
     </div>
@@ -90,19 +87,19 @@ export default function QcMethodFieldTable({ test, compact, values: controlledVa
   const setValue = onFieldChange || form.setValue;
 
   if (test.methodGroups.length === 0) {
-    return <PageSurface kind="detail" embedded body={createPageBody([], { empty: { content: "该方法暂未配置字段。", compact: true, className: "border-slate-950 text-slate-500" } })} />;
+    return <PageSurface kind="detail" embedded body={createPageBody([], { empty: { content: "该方法暂未配置字段。", compact: true,  } })} />;
   }
 
   return (
     <div className="space-y-4">
       {test.methodGroups.map((group) => {
         const rows: DataSurfaceStructuredCellSpec[][] = [
-          [{ content: group.name, colSpan: compact ? 3 : 4, className: "border border-slate-950 px-3 py-2 font-semibold" }],
+          [{ content: group.name, colSpan: compact ? 3 : 4, emphasis: "strong", }],
           ...group.fields.map((field): DataSurfaceStructuredCellSpec[] => {
             const calculated = field.attr === "calculated" || !!field.formula;
             const helpText = field.formula ? `公式：${field.formula}` : field.rule ? `规则：${field.rule}` : field.attr === "prefilled" ? "预填" : " ";
             return [
-              { content: field.name, className: "w-[28%] border border-slate-950 px-3 py-2" },
+              { content: field.name,  },
               {
                 content: (
                   <FieldInput
@@ -112,10 +109,10 @@ export default function QcMethodFieldTable({ test, compact, values: controlledVa
                     onChange={(value) => setValue(field.fieldKey, value)}
                   />
                 ),
-                className: "w-[28%] border border-slate-950 px-3 py-2",
+
               },
-              ...(!compact ? [{ content: calculated ? "自动计算" : "填写", className: "w-[16%] border border-slate-950 px-3 py-2 text-center" }] : []),
-              { content: helpText, className: "border border-slate-950 px-3 py-2 text-xs text-slate-600" },
+              ...(!compact ? [{ content: calculated ? "自动计算" : "填写", align: "center" as const }] : []),
+              { content: helpText,  },
             ];
           }),
         ];
@@ -130,7 +127,7 @@ export default function QcMethodFieldTable({ test, compact, values: controlledVa
                 wrap: false,
                 structuredScroll: false,
                 rows,
-                className: "w-full border-collapse text-sm text-slate-950",
+
               }),
             ])}
           />

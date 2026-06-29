@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode, Ref } from "react";
+import type { ReactNode, Ref } from "react";
 import type { ChoiceGroupProps } from "./ChoiceGroup";
 import type { FileFieldProps } from "./FileField";
 import type { FieldControlSize } from "../form/FormStyles";
@@ -6,7 +6,7 @@ import type { LifecycleScope } from "./FkFieldInput";
 import type { PickerGroupItem, PickerOption } from "../selection/OptionPickerTypes";
 import type { SearchableOption, SearchableOptionInputProps } from "./SearchableOptionInput";
 import type { TagStringInputProps } from "./TagStringInput";
-import type { FieldFontRole, FieldTextAlign, FieldVisualState, FieldVisualVariant } from "./TextField";
+import type { FieldTextAlign, FieldVisualState } from "./TextField";
 import type { TextareaFieldProps } from "./TextareaField";
 import type { TextFieldProps } from "./TextField";
 
@@ -151,7 +151,6 @@ export type InputControlProps = {
   displayValue?: string;
   onChange?: (value: unknown, option?: unknown) => void;
   placeholder?: string;
-  className?: string;
   size?: FieldControlSize;
   density?: "normal" | "compact";
   rows?: number;
@@ -168,24 +167,15 @@ export type InputControlProps = {
   readOnly?: boolean;
   ariaLabel?: string;
   dataFieldKey?: string;
-  style?: CSSProperties;
   title?: string;
-  unstyled?: boolean;
-  wrapperClassName?: string;
   textAlign?: FieldTextAlign;
-  fontRole?: FieldFontRole;
-  visualVariant?: FieldVisualVariant;
   visualState?: FieldVisualState | "info";
   resize?: TextareaFieldProps["resize"];
   choiceType?: ChoiceGroupProps["type"];
   choiceName?: ChoiceGroupProps["name"];
-  choiceOptionClassName?: ChoiceGroupProps["optionClassName"];
-  choiceMarkerClassName?: ChoiceGroupProps["markerClassName"];
   accept?: FileFieldProps["accept"];
   multiple?: FileFieldProps["multiple"];
   fileVariant?: FileFieldProps["variant"];
-  fileInputClassName?: FileFieldProps["inputClassName"];
-  fileControlsClassName?: FileFieldProps["controlsClassName"];
   resetOnChange?: FileFieldProps["resetOnChange"];
   showFileName?: FileFieldProps["showFileName"];
   buttonLabel?: FileFieldProps["buttonLabel"];

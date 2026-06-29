@@ -8,7 +8,6 @@ import Pagination from "./internal/common/Pagination";
 import SplitWorkspace, { type SplitWorkspaceMode } from "./internal/common/SplitWorkspace";
 import type { TabDef } from "./internal/common/TabBar";
 import { Toolbar, type ToolbarItem } from "./Toolbar";
-import { joinClassNames } from "./internal/common/card-utils";
 import { renderBlocks, renderBlockStack, renderCommands, renderEmpty, renderToolbar } from "./internal/page/PageSurface.blocks";
 import type {
   PageSurfaceHeaderSpec,
@@ -55,7 +54,6 @@ function renderNavigation(navigation?: PageSurfaceNavigationSpec) {
     return (
       <NavigationSurface
         kind="tabs"
-        className={navigation.className}
         tabs={hasChildren
           ? {
               tabs,
@@ -77,7 +75,7 @@ function renderNavigation(navigation?: PageSurfaceNavigationSpec) {
   }
 
   return (
-    <div className={joinClassNames("grid gap-3 sm:grid-cols-2 lg:grid-cols-3", navigation.className)}>
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {navigation.items.map((item) => (
         <ModuleCard
           key={item.key}
@@ -95,7 +93,7 @@ function renderNavigation(navigation?: PageSurfaceNavigationSpec) {
 function renderFooter(footer?: PageSurfaceProps["footer"]) {
   if (!footer || footer.hidden) return null;
   if (footer.pagination) {
-    return <div className={footer.className}><Pagination {...footer.pagination} /></div>;
+    return <div><Pagination {...footer.pagination} /></div>;
   }
   return null;
 }
@@ -103,7 +101,7 @@ function renderFooter(footer?: PageSurfaceProps["footer"]) {
 function renderHeader(header?: PageSurfaceHeaderSpec) {
   if (!header || header.hidden) return null;
   return (
-    <nav className={joinClassNames("sticky top-0 z-30 bg-white shadow-sm", header.className)}>
+    <nav className="sticky top-0 z-30 bg-white shadow-sm">
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2">
         {header.leading}
         {header.leading ? <span className="text-gray-300">|</span> : null}
@@ -176,7 +174,7 @@ function renderSplitBeforeSplit(props: PageSurfaceSplitProps) {
 
 function renderSideBlocks(side: PageSurfaceSideSpec, mode: SplitWorkspaceMode) {
   const blocks = mode === "drawer" ? side.drawerBlocks ?? side.blocks : side.blocks;
-  return <div className={joinClassNames("space-y-4", side.className)}>{renderBlocks(blocks)}</div>;
+  return <div className="space-y-4">{renderBlocks(blocks)}</div>;
 }
 
 function renderSplitSideControls(props: PageSurfaceSplitProps) {
@@ -205,18 +203,17 @@ function renderSplitSideControls(props: PageSurfaceSplitProps) {
 
 function renderEmbeddedSurfaceBody(props: PageSurfaceProps, body: ReactNode) {
   const content = (
-    <div className={joinClassNames("space-y-5", props.className)}>
+    <div className="space-y-5">
       {renderNavigation(props.navigation)}
       {body}
     </div>
   );
-  if (props.contentClassName) return <div className={props.contentClassName}>{content}</div>;
   return content;
 }
 
 function renderEmbeddedSplitSurface(props: PageSurfaceSplitProps, body: ReactNode) {
   const content = (
-    <div className={joinClassNames("space-y-5", props.className)}>
+    <div className="space-y-5">
       {renderNavigation(props.navigation)}
       {renderSplitSideControls(props)}
       {renderSplitBeforeSplit(props)}
@@ -232,7 +229,7 @@ function renderEmbeddedSplitSurface(props: PageSurfaceSplitProps, body: ReactNod
       {renderFooter(props.footer)}
     </div>
   );
-  return props.contentClassName ? <div className={props.contentClassName}>{content}</div> : content;
+  return content;
 }
 
 export default function PageSurface(props: PageSurfaceProps) {
@@ -257,8 +254,6 @@ export default function PageSurface(props: PageSurfaceProps) {
         splitRatio={props.splitRatio}
         beforeSplit={renderSplitBeforeSplit(props)}
         footer={renderFooter(props.footer)}
-        className={props.className}
-        contentClassName={props.contentClassName}
       >
         {body}
       </WorkspaceSplitPage>
@@ -279,8 +274,6 @@ export default function PageSurface(props: PageSurfaceProps) {
         summary={props.navigation?.kind === "cards" ? renderNavigation(props.navigation) : undefined}
         toolbar={renderPageToolbar(props)}
         footer={renderFooter(props.footer)}
-        className={props.className}
-        contentClassName={props.contentClassName}
       >
         {body}
       </AnalysisPageFrame>
@@ -296,8 +289,6 @@ export default function PageSurface(props: PageSurfaceProps) {
       summary={props.navigation?.kind === "cards" ? renderNavigation(props.navigation) : undefined}
       toolbar={renderPageToolbar(props)}
       footer={renderFooter(props.footer)}
-      className={props.className}
-      contentClassName={props.contentClassName}
     >
       {body}
     </DatabasePageFrame>

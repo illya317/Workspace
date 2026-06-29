@@ -191,8 +191,8 @@ export default function CodeTable({
     label: `编号${sortField === "code" ? sortDirection === "asc" ? " ↑" : " ↓" : ""}`,
     required: true,
     onHeaderClick: () => toggleSort("code"),
-    headerClassName: "w-24 hover:bg-slate-100",
-    cellClassName: "px-2 py-1.5 text-xs",
+    width: "xs",
+
     cell: row => {
       if (row.kind === "add") {
         return {
@@ -224,8 +224,8 @@ export default function CodeTable({
     label: `名称${sortField === "name" ? sortDirection === "asc" ? " ↑" : " ↓" : ""}`,
     required: true,
     onHeaderClick: () => toggleSort("name"),
-    headerClassName: "hover:bg-slate-100",
-    cellClassName: "px-2 py-1.5 text-xs",
+
+
     cell: row => {
       if (row.kind === "group") return <span className="font-medium text-slate-600">{row.label}</span>;
       if (row.kind === "summary") return <span className="font-medium text-slate-700">{row.label}</span>;
@@ -258,15 +258,15 @@ export default function CodeTable({
     label: `人数${sortField === "count" ? sortDirection === "asc" ? " ↑" : " ↓" : ""}`,
     required: true,
     onHeaderClick: () => toggleSort("count"),
-    headerClassName: "w-16 text-right hover:bg-slate-100",
-    cellClassName: "px-2 py-1.5 text-right text-xs",
+    align: "right",
+
     cell: row => {
       if (row.kind === "summary") {
         return {
           kind: "badge",
           label: row.total,
           tone: "emerald",
-          className: row.grand ? "font-bold" : "font-medium",
+
         };
       }
       if (row.kind === "add") {
@@ -277,7 +277,7 @@ export default function CodeTable({
             label: "添加",
             variant: "primary",
             size: "sm",
-            className: "px-3 py-1 text-xs",
+
             onClick: handleAdd,
           },
         };
@@ -291,7 +291,7 @@ export default function CodeTable({
           label: count,
           variant: "secondary",
           size: "sm",
-          className: "rounded-full px-2 py-0.5 text-xs",
+
           onClick: () => openDetail(row.item),
         },
       };
@@ -313,17 +313,17 @@ export default function CodeTable({
               actions,
               loading,
               emptyText,
-              bodyClassName,
               rows,
               columns,
               visibleColumns: ["code", "name", "count"],
-              density: "compact",
+                            presentation: { density: "compact" },
+
               rowKey: row => row.id,
-              tableClassName: "table-fixed text-xs",
-              rowClassName: row => {
-                if (row.kind === "group" || row.kind === "summary") return "bg-slate-50 hover:bg-slate-50";
-                if (row.kind === "add") return "bg-slate-50";
-                return selectedCode === row.item.code ? "bg-emerald-50" : "";
+
+              rowState: row => {
+                if (row.kind === "group" || row.kind === "summary") return "muted";
+                if (row.kind === "add") return "muted";
+                return selectedCode === row.item.code ? "selected" : "normal";
               },
             },
           }],

@@ -192,7 +192,7 @@ export default function EmployeeDirectory({
             onClick: () => router.push(`/hr/roster/employees/${employee.employeeId}`),
           },
         ],
-        bodyClassName: "overflow-x-auto",
+
       },
     },
   ];
@@ -203,7 +203,7 @@ export default function EmployeeDirectory({
       totalPages,
       total,
       onPageChange: setPage,
-      className: "border-t border-slate-200 px-4 py-3",
+      frame: "bordered",
       compact: true,
     },
   };

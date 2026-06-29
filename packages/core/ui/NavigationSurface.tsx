@@ -10,6 +10,32 @@ import { joinClassNames } from "./internal/common/card-utils";
 
 export type NavigationSurfaceKind = "tabs" | "pagination" | "selector" | "disclosure" | "steps";
 export type NavigationSurfaceLooseItem = ReturnType<typeof JSON.parse>;
+type NavigationPublicSpec<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
+export type NavigationSurfaceTabsSpec = NavigationPublicSpec<TabBarProps, "className">;
+export type NavigationSurfaceSelectorSpec<T> = NavigationPublicSpec<SelectorPanelProps<T>, "className" | "bodyClassName" | "contentClassName">;
+
+export interface NavigationSurfacePaginationSpec {
+  page: PaginationProps["page"];
+  totalPages: PaginationProps["totalPages"];
+  total?: PaginationProps["total"];
+  onPageChange: PaginationProps["onPageChange"];
+  compact?: PaginationProps["compact"];
+}
+
+export interface NavigationSurfaceGridSpec {
+  options: SelectionGridProps["options"];
+  value?: SelectionGridProps["value"];
+  onChange?: SelectionGridProps["onChange"];
+  mode?: SelectionGridProps["mode"];
+  onItemClick?: SelectionGridProps["onItemClick"];
+  columns?: SelectionGridProps["columns"];
+  layout?: SelectionGridProps["layout"];
+  minItemWidth?: SelectionGridProps["minItemWidth"];
+  truncate?: SelectionGridProps["truncate"];
+  disabled?: SelectionGridProps["disabled"];
+  emptyText?: SelectionGridProps["emptyText"];
+  ariaLabel: SelectionGridProps["ariaLabel"];
+}
 
 export interface NavigationSurfaceStepSpec {
   key: string;
@@ -17,35 +43,29 @@ export interface NavigationSurfaceStepSpec {
   href?: string;
   disabled?: boolean;
   tone?: "primary" | "neutral" | "muted";
-  className?: string;
   steps?: NavigationSurfaceStepSpec[];
 }
 
 export interface NavigationSurfaceTabsProps {
   kind: "tabs";
-  tabs: TabBarProps;
-  className?: string;
+  label?: ReactNode;
+  tabs: NavigationSurfaceTabsSpec;
 }
 
 export interface NavigationSurfacePaginationProps {
   kind: "pagination";
-  pagination: PaginationProps;
-  className?: string;
+  pagination: NavigationSurfacePaginationSpec;
+}
+
+export interface NavigationSurfaceGridSelectorProps {
+  kind: "selector";
+  grid: NavigationSurfaceGridSpec;
 }
 
 export interface NavigationSurfaceSelectorProps<T> {
   kind: "selector";
   selector: NavigationSurfaceSelectorSpec<T>;
-  className?: string;
 }
-
-export interface NavigationSurfaceGridSelectorProps {
-  kind: "selector";
-  grid: SelectionGridProps;
-  className?: string;
-}
-
-export type NavigationSurfaceSelectorSpec<T> = SelectorPanelProps<T>;
 
 export interface NavigationSurfaceDisclosureProps {
   kind: "disclosure";
@@ -53,7 +73,6 @@ export interface NavigationSurfaceDisclosureProps {
   count?: number;
   expanded: boolean;
   onToggle: () => void;
-  className?: string;
 }
 
 export interface NavigationSurfaceStepsProps {
@@ -65,7 +84,6 @@ export interface NavigationSurfaceStepsProps {
   onChildChange?: (key: string) => void;
   variant?: Extract<TabBarVariant, "large" | "small">;
   ariaLabel?: string;
-  className?: string;
 }
 
 export type NavigationSurfaceProps<T = NavigationSurfaceLooseItem> =
@@ -94,13 +112,12 @@ function stepClassName(step: NavigationSurfaceStepSpec, active: boolean) {
 
 function renderStepLinks(props: NavigationSurfaceStepsProps) {
   return (
-    <nav aria-label={props.ariaLabel} className={joinClassNames("flex flex-wrap gap-2 text-xs", props.className)}>
+    <nav aria-label={props.ariaLabel} className="flex flex-wrap gap-2 text-xs">
       {props.steps.map((step) => {
         const isActive = step.key === props.active;
         const className = joinClassNames(
           "inline-flex min-h-9 items-center rounded px-3 py-2 transition",
           stepClassName(step, isActive),
-          step.className,
         );
         if (step.href && !step.disabled) {
           return (
@@ -129,7 +146,12 @@ function renderStepLinks(props: NavigationSurfaceStepsProps) {
 export default function NavigationSurface<T = NavigationSurfaceLooseItem>(props: NavigationSurfaceProps<T>) {
   if (props.kind === "tabs") {
     return (
-      <div className={props.className}>
+      <div className={props.label ? "flex flex-wrap items-center gap-3" : undefined}>
+        {props.label ? (
+          <span className="shrink-0 text-sm font-semibold text-slate-500">
+            {props.label}
+          </span>
+        ) : null}
         <TabBar {...props.tabs} />
       </div>
     );
@@ -137,7 +159,7 @@ export default function NavigationSurface<T = NavigationSurfaceLooseItem>(props:
 
   if (props.kind === "pagination") {
     return (
-      <div className={props.className}>
+      <div>
         <Pagination {...props.pagination} />
       </div>
     );
@@ -146,14 +168,14 @@ export default function NavigationSurface<T = NavigationSurfaceLooseItem>(props:
   if (props.kind === "selector") {
     if ("grid" in props) {
       return (
-        <div className={props.className}>
+        <div>
           <SelectionGrid {...props.grid} />
         </div>
       );
     }
 
     return (
-      <div className={props.className}>
+      <div>
         <SelectorPanel<T> {...props.selector} />
       </div>
     );
@@ -161,7 +183,7 @@ export default function NavigationSurface<T = NavigationSurfaceLooseItem>(props:
 
   if (props.kind === "disclosure") {
     return (
-      <div className={props.className}>
+      <div>
         <DisclosureSectionHeader
           title={props.title}
           count={props.count}
@@ -174,7 +196,7 @@ export default function NavigationSurface<T = NavigationSurfaceLooseItem>(props:
 
   const tabs = props.steps.map(toTabDef);
   const hasChildren = props.steps.some((step) => step.steps?.length);
-  const hasLinkStep = props.steps.some((step) => step.href || step.disabled || step.tone || step.className);
+  const hasLinkStep = props.steps.some((step) => step.href || step.disabled || step.tone);
 
   if (hasChildren) {
     return (
@@ -187,7 +209,6 @@ export default function NavigationSurface<T = NavigationSurfaceLooseItem>(props:
         accordion
         variant={props.variant ?? "small"}
         ariaLabel={props.ariaLabel}
-        className={props.className}
       />
     );
   }
@@ -201,7 +222,6 @@ export default function NavigationSurface<T = NavigationSurfaceLooseItem>(props:
       onChange={props.onChange ?? (() => {})}
       variant={props.variant ?? "small"}
       ariaLabel={props.ariaLabel}
-      className={props.className}
     />
   );
 }

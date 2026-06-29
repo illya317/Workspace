@@ -97,7 +97,6 @@ export default function FieldControl(props: FieldControlProps) {
       value={value}
       placeholder={props.placeholder}
       onChange={(next, option) => props.onChange?.(String(next ?? ""), option as FkFieldOption | undefined)}
-      className={sanitizeFieldControlClassName(props.className)}
       confirmDelete={props.confirmDelete}
       confirmRemove={props.confirmRemove}
       removeConfirmMessage={props.removeConfirmMessage}

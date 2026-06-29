@@ -95,7 +95,7 @@ export function buildDutyField(
             const confirmed = await feedback.confirmDelete({ message: `确定删除「${label} ${index + 1}」吗？删除后需要保存才会生效。` });
             if (confirmed) updateDetailValue(detailKey, records.filter((_, recordIndex) => recordIndex !== index));
           },
-          className: "px-2 py-1 text-xs",
+
         }],
         fields: [
           {
@@ -169,7 +169,7 @@ export function buildChangeHistoryField(
             const confirmed = await feedback.confirmDelete({ message: `确定删除变更历史 ${index + 1} 吗？删除后需要保存才会生效。` });
             if (confirmed) updateDetailValue("changeHistory", records.filter((_, recordIndex) => recordIndex !== index));
           },
-          className: "px-2 py-1 text-xs",
+
         }],
         fields: [
           { key: "version", label: "版本", spec: { valueType: "string", control: "text", state: "readonly" as const }, value: String(record.version || formatHistoryVersion(index)) },
@@ -227,7 +227,7 @@ export function buildWorkEnvironmentFields(
               const confirmed = await feedback.confirmDelete({ message: `确定删除工作区域「${item.area || "未设置"}」吗？删除后需要保存才会生效。` });
               if (confirmed) updateDetailValue(key, items.filter((_, itemIndex) => itemIndex !== index));
             },
-            className: "px-2 py-1 text-xs",
+
           }],
           fields: [
             {
@@ -251,7 +251,7 @@ export function buildWorkEnvironmentFields(
               removeConfirmMessage: (factor: string) => `确定删除「${factor || "环境因素"}」吗？删除后需要保存才会生效。`,
               emptyText: disabled ? "未设置" : undefined,
               shellClassName: "content-start",
-              fieldClassName: "md:col-span-2",
+
               append: disabled ? undefined : {
                 field: {
                   key: "appendFactor",
@@ -280,7 +280,7 @@ export function buildWorkEnvironmentFields(
         const area = next == null ? "" : String(next);
         if (area) updateDetailValue(key, [...items, { area, factors: [] }]);
       },
-      fieldClassName: "max-w-sm md:col-span-2",
+
     } satisfies FormSurfaceItemSpec<FormSurfaceLooseItem>] : []),
   ];
 }
@@ -297,7 +297,7 @@ export function buildExperienceRequirementField(
     kind: "repeatable",
     key,
     title: label,
-    addAction: disabled ? undefined : { key: "add-experience", label: "新增", size: "sm", onClick: () => updateDetailValue(key, [...items, { years: "1", requirement: "" }]), className: "px-2 py-1 text-xs" },
+    addAction: disabled ? undefined : { key: "add-experience", label: "新增", size: "sm", onClick: () => updateDetailValue(key, [...items, { years: "1", requirement: "" }]),  },
     empty: "未设置",
     columns: 2,
     items: items.map((item, index) => ({
@@ -311,7 +311,7 @@ export function buildExperienceRequirementField(
           const confirmed = await feedback.confirmDelete({ message: `确定删除「${item.requirement || DETAIL_FIELD_LABELS[key] || key}」吗？删除后需要保存才会生效。` });
           if (confirmed) updateDetailValue(key, items.filter((_, itemIndex) => itemIndex !== index));
         },
-        className: "px-2 py-1 text-xs",
+
       }],
       fields: [
         { key: "years", label: "年限（年以上）", spec: { valueType: "number", control: "text", state: disabled ? "disabled" as const : "normal" as const }, value: item.years, inputMode: "numeric" as const, placeholder: "1", onChange: next => updateItem(index, { years: positiveIntegerText(String(next ?? "")) }) },

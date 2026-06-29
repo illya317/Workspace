@@ -45,7 +45,6 @@ export default function ProfessionalTitlePicker({
       }}
       value={current}
       onChange={(next) => onChange(next === null || next === undefined || next === "" ? null : String(next))}
-      className={className}
       placeholder="未设置"
     />
   );

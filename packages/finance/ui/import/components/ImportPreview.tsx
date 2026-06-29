@@ -22,7 +22,7 @@ function createAccountColumns(): DataSurfaceColumnSpec<AccountRow>[] {
     key: "code",
     label: "编码",
     required: true,
-    className: "font-mono",
+    font: "mono",
     cell: row => row.code
   }, {
     key: "name",
@@ -33,19 +33,19 @@ function createAccountColumns(): DataSurfaceColumnSpec<AccountRow>[] {
     key: "parentCode",
     label: "父级",
     required: true,
-    className: "text-slate-500",
+    tone: "muted",
     cell: row => row.parentCode || "—"
   }, {
     key: "category",
     label: "类别",
     required: true,
-    className: "text-slate-500",
+    tone: "muted",
     cell: row => row.category
   }, {
     key: "balanceDirection",
     label: "余额方向",
     required: true,
-    className: "text-slate-500",
+    tone: "muted",
     cell: row => row.balanceDirection
   }];
 }
@@ -60,43 +60,43 @@ function createBalanceColumns(): DataSurfaceColumnSpec<BalanceRow>[] {
     key: "openingDebit",
     label: "期初借",
     required: true,
-    className: "text-right text-slate-600",
-    headerClassName: "text-right",
+    align: "right",
+
     cell: row => row.openingDebit.toFixed(2)
   }, {
     key: "openingCredit",
     label: "期初贷",
     required: true,
-    className: "text-right text-slate-600",
-    headerClassName: "text-right",
+    align: "right",
+
     cell: row => row.openingCredit.toFixed(2)
   }, {
     key: "currentDebit",
     label: "本期借",
     required: true,
-    className: "text-right text-slate-600",
-    headerClassName: "text-right",
+    align: "right",
+
     cell: row => row.currentDebit.toFixed(2)
   }, {
     key: "currentCredit",
     label: "本期贷",
     required: true,
-    className: "text-right text-slate-600",
-    headerClassName: "text-right",
+    align: "right",
+
     cell: row => row.currentCredit.toFixed(2)
   }, {
     key: "closingDebit",
     label: "期末借",
     required: true,
-    className: "text-right text-slate-600",
-    headerClassName: "text-right",
+    align: "right",
+
     cell: row => row.closingDebit.toFixed(2)
   }, {
     key: "closingCredit",
     label: "期末贷",
     required: true,
-    className: "text-right text-slate-600",
-    headerClassName: "text-right",
+    align: "right",
+
     cell: row => row.closingCredit.toFixed(2)
   }];
 }
@@ -106,27 +106,27 @@ function createVoucherColumns(): DataSurfaceColumnSpec<VoucherItemRow>[] {
     key: "account",
     label: "科目",
     required: true,
-    className: "text-slate-600",
+
     cell: row => `${row.accountCode} ${row.accountName}`
   }, {
     key: "description",
     label: "摘要",
     required: true,
-    className: "text-slate-500",
+    tone: "muted",
     cell: row => row.description
   }, {
     key: "debit",
     label: "借方",
     required: true,
-    className: "text-right text-slate-600",
-    headerClassName: "text-right",
+    align: "right",
+
     cell: row => row.debit > 0 ? row.debit.toFixed(2) : ""
   }, {
     key: "credit",
     label: "贷方",
     required: true,
-    className: "text-right text-slate-600",
-    headerClassName: "text-right",
+    align: "right",
+
     cell: row => row.credit > 0 ? row.credit.toFixed(2) : ""
   }];
 }
@@ -171,9 +171,10 @@ function PreviewDataTable<T>({
             columns,
             visibleColumns: columns.map(column => column.key),
             rowKey,
-            density: "compact",
+                        presentation: { density: "compact" },
+
             emptyText: "暂无数据",
-            scrollClassName: "max-h-64",
+            scroll: { maxHeight: "sm" },
           }),
         ])}
       />
@@ -198,13 +199,14 @@ function VoucherPreview({
           framed: true,
           title: voucher.voucherNo,
           subtitle: `${voucher.date}｜借 ${voucher.totalDebit.toFixed(2)} / 贷 ${voucher.totalCredit.toFixed(2)}`,
-          bodyClassName: "p-0",
+
           kind: "table",
           rows,
           columns: voucherColumns,
           visibleColumns: voucherColumns.map(column => column.key),
           rowKey: row => row.id,
-          density: "compact",
+                    presentation: { density: "compact" },
+
           emptyText: "暂无分录",
         }),
       ])}

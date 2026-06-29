@@ -71,7 +71,7 @@ export function ArchivedDepartmentPositionPage({
             key: "close",
             surface: {
               kind: "inline" as const,
-              className: "justify-end",
+
               actions: [{ key: "close", label: "关闭", onClick: () => onDrawerOpenChange(false) }],
             },
           }]
@@ -81,7 +81,7 @@ export function ArchivedDepartmentPositionPage({
         key: "tabs",
         surface: {
           kind: "inline",
-          className: "mt-3",
+
           fields: [{
             key: "archived-type",
             label: "归档类型",
@@ -108,7 +108,7 @@ export function ArchivedDepartmentPositionPage({
         kind: "empty",
         presentation: "plain",
         compact: true,
-        className: "mt-3",
+
         content: archivedTab === "departments" ? "暂无归档部门" : "暂无归档岗位"
       })
       : {
@@ -116,7 +116,7 @@ export function ArchivedDepartmentPositionPage({
           key: "list",
           surface: {
             kind: "selector",
-            className: "mt-3 max-h-[620px] space-y-2 overflow-auto",
+
             selector: {
               framed: false,
               items: archivedItems,
@@ -137,8 +137,8 @@ export function ArchivedDepartmentPositionPage({
         });
 
     return [createPanelBlock(`archive-side-${mode}`, {
-      className: mode === "drawer" ? "h-full overflow-hidden" : undefined,
-      bodyClassName: "p-3",
+
+
       blocks,
     })];
   }

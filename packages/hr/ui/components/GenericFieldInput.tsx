@@ -143,7 +143,6 @@ export default function GenericFieldInput({
         }}
         value={selected}
         onChange={(next) => onChange(next)}
-        className={className}
       />
     );
   }
@@ -179,7 +178,6 @@ export default function GenericFieldInput({
         }}
         value={String(value ?? "")}
         onChange={(next) => onChange(next ?? "")}
-        className={className}
       />
     );
   }
@@ -200,7 +198,6 @@ export default function GenericFieldInput({
         spec={{ valueType: "string", control: "text", multiline: true }}
         value={(value as string) ?? ""}
         onChange={onChange}
-        className={className}
         rows={3}
       />
     );
@@ -215,7 +212,6 @@ export default function GenericFieldInput({
         value={String(value ?? "")}
         onChange={(next) => onChange(next ?? "")}
         onKeyDown={onKeyDown}
-        className={`rounded border border-emerald-400 px-2 py-1.5 text-sm focus:outline-none ${className || ""}`}
       />
     );
   }
@@ -270,7 +266,6 @@ export default function GenericFieldInput({
         else if (field.type === "chineseId") onChange(normalizeChineseIdNumber(text)?.slice(0, 18) ?? null);
         else onChange(text);
       }}
-      className={className}
     />
   );
 }

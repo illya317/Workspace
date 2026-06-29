@@ -36,15 +36,15 @@ export function getContractTableColumns(): DataSurfaceColumnSpec<Contract>[] {
     {
       key: "amount",
       label: "金额",
-      headerClassName: "text-right",
-      cellClassName: "text-right",
+      align: "right",
+
       cell: (c) => c.amount != null ? c.amount.toLocaleString() : "-",
     },
     {
       key: "executedAmount",
       label: "已执行金额",
-      headerClassName: "text-right",
-      cellClassName: "text-right",
+      align: "right",
+
       cell: (c) => c.executedAmount != null ? c.executedAmount.toLocaleString() : "-",
     },
     { key: "handler", label: "经办人", cell: (c) => c.handler || "-" },

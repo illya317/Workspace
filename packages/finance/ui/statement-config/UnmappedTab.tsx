@@ -33,7 +33,7 @@ function createUnmappedColumns(): DataSurfaceColumnSpec<DisplayItem>[] {
     key: "accountCode",
     label: "科目编码",
     required: true,
-    cellClassName: "font-mono text-slate-600",
+    font: "mono",
     cell: row => row.accountCode
   }, {
     key: "accountName",
@@ -44,29 +44,29 @@ function createUnmappedColumns(): DataSurfaceColumnSpec<DisplayItem>[] {
     key: "level",
     label: "层级",
     defaultVisible: true,
-    headerClassName: "text-center",
-    cellClassName: "text-center text-slate-500",
+    align: "center",
+     tone: "muted",
     cell: row => `L${row.level}`
   }, {
     key: "closingDebit",
     label: "期末借方",
     defaultVisible: true,
-    headerClassName: "text-right",
-    cellClassName: "text-right text-slate-600",
+    align: "right",
+
     cell: row => formatFinanceAmount(row.closingDebit)
   }, {
     key: "closingCredit",
     label: "期末贷方",
     defaultVisible: true,
-    headerClassName: "text-right",
-    cellClassName: "text-right text-slate-600",
+    align: "right",
+
     cell: row => formatFinanceAmount(row.closingCredit)
   }, {
     key: "net",
     label: "净值",
     defaultVisible: true,
-    headerClassName: "text-right",
-    cellClassName: "text-right font-medium",
+    align: "right",
+     emphasis: "medium",
     cell: row => <span className={row.net < 0 ? "text-red-600" : "text-slate-700"}>
           {formatFinanceAmount(Math.abs(row.net))}
         </span>
@@ -230,8 +230,8 @@ function UnmappedTable({ items }: { items: DisplayItem[] }) {
           columns,
           visibleColumns: columns.map(column => column.key),
           rowKey: row => row.accountCode,
-          tableClassName: "text-base",
-          rowClassName: row => row.status === "unmapped" ? "bg-red-50/60" : row.status === "excluded" ? "text-slate-500" : "bg-amber-50/50",
+
+          rowState: row => row.status === "unmapped" ? "danger" : row.status === "excluded" ? "muted" : "warning",
         }),
       ])}
     />

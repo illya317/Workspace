@@ -117,7 +117,7 @@ function WorkbenchSurface({
           label: toggleText(section),
           variant: "secondary" as const,
           size: "sm" as const,
-          className: "px-3 py-1.5 text-sm",
+
           onClick: () => toggleSection(section),
         }] : undefined;
 
@@ -167,7 +167,7 @@ function WorkbenchSurface({
                   variant: action.variant,
                   disabled: action.disabled || action.loading,
                   size: "sm",
-                  className: "h-9 px-3 text-xs",
+
                   onClick: action.onClick,
                 })),
               }),
@@ -206,7 +206,7 @@ function WorkbenchSurface({
       body={{
         blocks: [createGroupBlock("qc-template-workbench-grid", {
           layout: "grid",
-          className: "gap-5 lg:grid-cols-[280px_minmax(0,1fr)]",
+
           blocks: [
             {
               kind: "navigation",
@@ -215,8 +215,8 @@ function WorkbenchSurface({
                 kind: "selector",
                 selector: {
                   title: viewModel.selectorTitle,
-                  bodyClassName: "p-3",
-                  contentClassName: "space-y-2",
+
+
                   items: viewModel.selectorItems,
                   selectedId: selectorKey,
                   onSelect: (item) => setSelectorKey(item.key),
@@ -230,7 +230,7 @@ function WorkbenchSurface({
               },
             },
             createGroupBlock("qc-template-workbench-sections", {
-              className: "space-y-5",
+
               blocks: sectionBlocks,
             }),
           ],

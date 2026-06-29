@@ -62,7 +62,6 @@ export function DepartmentCodeInput({
         state: disabled ? "disabled" : "normal",
       }}
       value={value}
-      className={className}
       onChange={(next) => onChange(String(next ?? ""))}
     />
   );

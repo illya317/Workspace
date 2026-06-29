@@ -68,6 +68,7 @@ const CORE_UI_NON_COMPONENT_EXPORTS = new Set<string>([
   "createPageSurfaceProps",
   "createPageTableBlock",
   "createPageTabsNavigation",
+  "createTabsNavigationBlock",
   "createPanelBlock",
   "createSectionBlock",
   "createSelectorPanelBlock",

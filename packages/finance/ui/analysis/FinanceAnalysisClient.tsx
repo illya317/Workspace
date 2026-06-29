@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useEffect } from "react";
-import { PageSurface, createPageDataBlock } from "@workspace/core/ui";
+import { PageSurface, createPageDataBlock, createPageTabsNavigation } from "@workspace/core/ui";
 import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
@@ -21,13 +21,12 @@ interface Props {
 export default function FinanceAnalysisClient({ user: _user }: Props) {
   const [budget, setBudget] = useState<BudgetOverview | null>(null);
   const activeChildTabs = useMemo(() => getFinancePageViewTabs("analysis", _user), [_user]);
-  const navigation = activeChildTabs.length > 1 ? {
-    kind: "tabs" as const,
-    level: 2 as const,
+  const navigation = activeChildTabs.length > 1 ? createPageTabsNavigation({
+    level: 2,
     items: activeChildTabs,
     active: activeChildTabs[0]?.key ?? "",
     onChange: () => {},
-  } : undefined;
+  }) : undefined;
   const lifecycleBlocks = getFinanceLifecycleBlocks("analysis");
   const analysisBlocks: PageSurfaceBlockSpec[] = [
     ...lifecycleBlocks,

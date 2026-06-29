@@ -25,7 +25,6 @@ export default function EthnicityPicker({
       }}
       value={value}
       onChange={(next) => onChange(next === null || next === undefined || next === "" ? null : String(next))}
-      className={className}
       placeholder="未设置"
     />
   );

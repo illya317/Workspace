@@ -75,7 +75,7 @@ function buildDepartmentDescriptionsBlock({
         dutyOffset += departmentDescriptionDutyRecords(draft.details).length;
         return createPanelBlock(String(draft.id || `new-${index}`), {
           title: draft.name || `部门说明书 ${index + 1}`,
-          bodyClassName: "p-3",
+
           blocks: buildDepartmentDescriptionDetailsBlocks({
             value: draft.details,
             disabled: !canEditDepartment,
@@ -94,7 +94,7 @@ function buildDepartmentDescriptionsBlock({
         {dirty && <span className="text-xs text-amber-600">有未保存修改</span>}
       </div>
     ),
-    bodyClassName: "p-4",
+
     blocks,
   });
 }

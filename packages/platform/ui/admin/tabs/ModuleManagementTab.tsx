@@ -176,10 +176,10 @@ export default function ModuleManagementTab({ showToast }: Props) {
       body={createPageBody(!data ? [] : [createSectionBlock("module-tree", {
           title: "模块树",
           subtitle: data.rule,
-          bodyClassName: "p-2",
+
           blocks: [createBlockSurfaceBlock("tree-body", {
             kind: "message",
-            className: "border-0 bg-transparent p-0 text-inherit",
+
             content: (
                 <ResourceTree
                   resources={moduleTree}

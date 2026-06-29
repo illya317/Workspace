@@ -62,7 +62,6 @@ export default function QcBatchStagePrecheck({
   return <PageSurface
     kind="detail"
     embedded
-    contentClassName="pb-8"
     body={createPageBody([
       {
         kind: "navigation",
@@ -71,18 +70,18 @@ export default function QcBatchStagePrecheck({
           kind: "steps",
           active: "precheck",
           ariaLabel: "质检阶段导航",
-          className: "mx-auto max-w-[210mm]",
+
           steps: precheckSteps,
         },
       },
       createHeadingBlock("precheck-heading", {
-        className: "mx-auto max-w-[210mm]",
+
         title: `${numerals[stageIndex] ?? stageIndex + 1}、${productName}${stage.label}`,
       }),
       locked ? createBlockSurfaceBlock("precheck-locked", {
         kind: "message",
         tone: "warning",
-        className: "mx-auto max-w-[210mm]",
+
         content: "前一阶段尚未全部复核完成，当前阶段暂不可操作。"
       }) : {
         kind: "document",
@@ -101,9 +100,9 @@ export default function QcBatchStagePrecheck({
         key: "precheck-actions",
         surface: {
           kind: "inline",
-          className: "mx-auto mt-8 max-w-[210mm] justify-center text-center",
+
           actions: [
-            { key: "save", label: "保存", variant: "primary", disabled: locked, className: "px-8" },
+            { key: "save", label: "保存", variant: "primary", disabled: locked,  },
           ],
         },
       },

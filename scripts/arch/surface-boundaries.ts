@@ -109,6 +109,43 @@ const SURFACE_PUBLIC_CONTRACT_RULES: Array<{
     reason: "Raw display escape hatches belong to BlockSurface or a narrower explicit Surface spec.",
   },
 ];
+const SURFACE_PUBLIC_CONTRACT_FILES = [
+  "packages/core/ui/BlockSurface.tsx",
+  "packages/core/ui/DataSurface.types.ts",
+  "packages/core/ui/DocumentSurface.tsx",
+  "packages/core/ui/FormSurface.types.ts",
+  "packages/core/ui/InputControl.tsx",
+  "packages/core/ui/internal/input/InputControlTypes.ts",
+  "packages/core/ui/NavigationSurface.tsx",
+  "packages/core/ui/PageSurface.types.ts",
+  "packages/core/ui/VisualizationSurfaceTypes.ts",
+  "packages/core/ui/helpers/page-surface-builders.ts",
+  "packages/core/ui/helpers/surface-compat-builders.tsx",
+] as const;
+const FORBIDDEN_PUBLIC_STYLE_PROPS = new Set([
+  "className",
+  "bodyClassName",
+  "headerClassName",
+  "cellClassName",
+  "tableClassName",
+  "rowClassName",
+  "scrollClassName",
+  "fieldClassName",
+  "titleClassName",
+  "subtitleClassName",
+  "contentClassName",
+  "gridClassName",
+  "pageClassName",
+  "style",
+  "unstyled",
+  "wrapperClassName",
+  "fontRole",
+  "visualVariant",
+  "choiceOptionClassName",
+  "choiceMarkerClassName",
+  "fileInputClassName",
+  "fileControlsClassName",
+]);
 const REQUIRED_LAYER_FILES: LayerPlacementWarning[] = [
   { layer: "surface", expectedPath: "packages/core/ui/PageSurface.types.ts" },
   { layer: "surface", expectedPath: "packages/core/ui/DataSurface.types.ts" },
@@ -177,14 +214,16 @@ const SURFACE_DECLARE_RULES: Record<string, {
     topLevel: ["kind", "rows", "columns", "records", "metrics", "actions"],
   },
   DocumentSurface: {
-    // Document owns paper/print layout; page-level style overrides are allowed here by design.
-    topLevel: ["kind", "pages", "pageClassName", "style", "className"],
+    topLevel: ["kind", "pages"],
   },
   FormSurface: {
     topLevel: ["kind", "fields", "field", "columns", "mode", "actions"],
   },
   InputControl: {
     topLevel: ["control", "valueType", "options", "format", "mask", "state", "validation", "usage", "dependencies"],
+  },
+  NavigationSurface: {
+    topLevel: ["kind", "tabs", "pagination", "selector", "grid", "steps", "active"],
   },
   PageSurface: {
     topLevel: ["kind", "header", "navigation", "toolbar", "body", "footer"],
@@ -253,6 +292,16 @@ function createSourceFile(file: string) {
 
 function nodeLine(sourceFile: ts.SourceFile, node: ts.Node) {
   return sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
+}
+
+function memberNameText(name: ts.PropertyName | ts.BindingName | undefined) {
+  if (!name) return null;
+  if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) return name.text;
+  return null;
+}
+
+function isForbiddenPublicStyleProp(name: string) {
+  return FORBIDDEN_PUBLIC_STYLE_PROPS.has(name) || /ClassName$/.test(name);
 }
 
 function objectStringProperty(object: ts.ObjectLiteralExpression, name: string) {
@@ -437,6 +486,25 @@ export function findSurfacePublicContractWarnings() {
       pattern: rule.label,
       reason: rule.reason,
     });
+  }
+
+  for (const file of SURFACE_PUBLIC_CONTRACT_FILES) {
+    if (!existsSync(file)) continue;
+    const sourceFile = createSourceFile(file);
+    function scan(node: ts.Node) {
+      if (ts.isPropertySignature(node)) {
+        const propertyName = memberNameText(node.name);
+        if (propertyName && isForbiddenPublicStyleProp(propertyName)) {
+          warnings.push({
+            file,
+            pattern: `public-style-prop:${propertyName}`,
+            reason: "Public Surface/Input declarations must use typed semantic variance instead of className/style escape hatches.",
+          });
+        }
+      }
+      ts.forEachChild(node, scan);
+    }
+    scan(sourceFile);
   }
 
   const pageSurfaceTypesFile = "packages/core/ui/PageSurface.types.ts";
@@ -643,7 +711,7 @@ export function checkSurfaceBoundaries() {
 
   if (declareBoundaryWarnings.length > 0) {
     console.warn(`⚠ Surface declare boundary warning: ${declareBoundaryWarnings.length} declare boundary issue(s) detected.`);
-    console.warn("  Rule: Page owns page-wide layout/chrome; Form/Data/Visualization/Document own only their domain declarations. Document may own paper style overrides.");
+    console.warn("  Rule: Page owns page-wide layout/chrome; Form/Data/Visualization/Document own only typed domain declarations.");
     for (const warning of declareBoundaryWarnings.slice(0, 40)) {
       console.warn(`  - ${warning.surface}.${warning.declarePath}: ${warning.reason}`);
     }

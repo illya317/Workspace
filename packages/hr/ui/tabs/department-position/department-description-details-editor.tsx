@@ -40,7 +40,6 @@ function stringListField({
     emptyText: disabled ? "未设置" : undefined,
     itemClassName: () => "h-auto min-h-6 items-start rounded-xl py-1 leading-snug",
     shellClassName: "content-start",
-    fieldClassName,
     append: disabled
       ? undefined
       : {
@@ -89,7 +88,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
           key: "invalid-json",
           label: "部门说明书 JSON 格式错误",
           error: "请检查 JSON 内容后重新保存。",
-          fieldClassName: "md:col-span-2",
+
           spec: { valueType: "string", control: "text", multiline: true, state: disabled ? "disabled" : "normal" },
           value,
           rows: 12,
@@ -131,7 +130,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
     return createPanelBlock("duty-description", {
       title: "部门职责描述",
       actions: disabled ? undefined : [{ key: "add-duty", label: "新增职责", onClick: addRecord }],
-      bodyClassName: "p-3",
+
       blocks: records.length === 0
         ? [createBlockSurfaceBlock("empty", {
           kind: "empty",
@@ -149,10 +148,10 @@ export function buildDepartmentDescriptionDetailsBlocks({
             label: "删除",
             variant: "danger" as const,
             size: "sm" as const,
-            className: "px-2 py-1 text-xs",
+
             onClick: () => void removeRecord(index),
           }],
-          bodyClassName: "p-3",
+
           blocks: [{
             kind: "form" as const,
             key: "fields",
@@ -208,7 +207,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
   if (remainingKeys.length > 0) {
     blocks.push(createPanelBlock("other-fields", {
       title: "其他字段",
-      bodyClassName: "p-3",
+
       blocks: [{
         kind: "form",
         key: "fields",
@@ -222,14 +221,14 @@ export function buildDepartmentDescriptionDetailsBlocks({
                 label: key,
                 value: parsedDetails[key],
                 disabled,
-                fieldClassName: "md:col-span-2",
+
                 onChange: (items) => updateDetailValue(key, items),
               });
             }
             return {
               key,
               label: key,
-              fieldClassName: "md:col-span-2",
+
               spec: { valueType: "string", control: "text", multiline: true, state: disabled ? "disabled" : "normal" },
               value: detailValueToText(parsedDetails[key]),
               rows: detailFieldRows(parsedDetails[key]),

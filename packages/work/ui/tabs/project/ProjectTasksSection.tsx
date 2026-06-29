@@ -87,7 +87,7 @@ export default function ProjectTasksSection({
       key: "description",
       label: "任务名称",
       required: true,
-      cellClassName: "min-w-64 max-w-xl",
+      width: "lg",
       cell: (task) => (
         <div className="flex min-w-0 flex-col gap-1.5">
           {task.predecessorTaskNames.length > 0 && (
@@ -331,7 +331,8 @@ function ProjectTaskTableSurface({
     kind: "table",
     rows: tasks,
     columns,
-    density: "compact",
+        presentation: { density: "compact" },
+
     loading,
     emptyText: "暂无项目任务",
     rowKey: (task) => task.id,
@@ -383,7 +384,7 @@ function ProjectTaskTableSurface({
         },
       ];
     },
-    scrollClassName: "overflow-y-hidden",
+    scroll: { y: "hidden" },
   })])} />;
 }
 

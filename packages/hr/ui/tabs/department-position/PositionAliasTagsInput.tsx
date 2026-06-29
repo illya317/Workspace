@@ -47,7 +47,7 @@ export default function PositionAliasTagsInput({
         confirmMessage: (tag) => `确定删除别名「${tag}」吗？删除后需要保存才会生效。`,
         emptyText: disabled ? "未设置" : undefined,
         shellClassName: "content-start",
-        fieldClassName: "w-full",
+
         append: disabled ? undefined : {
           textInput: {
             key: "positionAliasDraft",

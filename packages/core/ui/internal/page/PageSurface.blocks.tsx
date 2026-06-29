@@ -18,6 +18,13 @@ import type {
   PageSurfaceToolbarSpec,
 } from "../../PageSurface.types";
 
+const MODAL_MAX_WIDTH_BY_SIZE = {
+  sm: "max-w-md",
+  md: "max-w-2xl",
+  lg: "max-w-4xl",
+  xl: "max-w-6xl",
+} as const;
+
 export function renderCommands(commands?: PageSurfaceCommandSpec[]) {
   if (!commands?.length) return null;
   return (
@@ -29,7 +36,6 @@ export function renderCommands(commands?: PageSurfaceCommandSpec[]) {
           variant={command.variant}
           disabled={command.disabled}
           size={command.size}
-          className={command.className}
           truncate={command.truncate}
           onClick={command.onClick}
         >
@@ -48,9 +54,9 @@ export function renderToolbar(toolbar?: PageSurfaceToolbarSpec) {
 export function renderEmpty(empty?: PageSurfaceEmptySpec) {
   if (!empty) return null;
   if (empty.presentation === "plain") {
-    return <div className={joinClassNames("text-sm text-slate-500", empty.className)}>{empty.content}</div>;
+    return <div className="text-sm text-slate-500">{empty.content}</div>;
   }
-  return <EmptyStateCard compact={empty.compact} className={empty.className}>{empty.content}</EmptyStateCard>;
+  return <EmptyStateCard compact={empty.compact}>{empty.content}</EmptyStateCard>;
 }
 
 export function renderBlockStack(
@@ -109,8 +115,8 @@ export function renderBlocks(blocks?: PageSurfaceBlockSpec[]) {
     if (block.kind === "navigation") return <NavigationSurface key={block.key} {...block.surface} />;
     if (block.kind === "modal") {
       return (
-        <DetailModal key={block.key} open={block.open} title={block.title} onClose={block.onClose} maxWidth={block.maxWidth}>
-          {renderBlockStack(block.blocks, joinClassNames(block.className, block.bodyClassName))}
+        <DetailModal key={block.key} open={block.open} title={block.title} onClose={block.onClose} maxWidth={block.size ? MODAL_MAX_WIDTH_BY_SIZE[block.size] : undefined}>
+          {renderBlockStack(block.blocks)}
         </DetailModal>
       );
     }

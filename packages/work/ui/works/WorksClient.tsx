@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createBlockSurfaceBlock, createGroupBlock, createMessageBlock, createPageBody, createPanelBlock, createSectionBlock, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createGroupBlock, createMessageBlock, createPageBody, createPageTabsNavigation, createPanelBlock, createSectionBlock, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import type { SessionUser } from "@workspace/platform/types";
@@ -408,13 +408,12 @@ export default function WorksClient({ initialTarget }: {
       sideLabel="工作空间"
       splitRatio={[2, 8]}
       showSideControls={false}
-      navigation={currentSpace ? {
-        kind: "tabs",
+      navigation={currentSpace ? createPageTabsNavigation({
         level: 2,
         items: tabs,
         active: activeTab,
         onChange: setActiveTab,
-      } : undefined}
+      }) : undefined}
       toolbar={toolbarItems.length > 0 ? { items: toolbarItems } : undefined}
       side={{
         blocks: [spaceSelectorBlock(spaces, activeTarget, spacesLoading, selectSpace)],
@@ -441,7 +440,6 @@ export default function WorksClient({ initialTarget }: {
             }] : []),
             createGroupBlock("plan-workspace", {
               layout: "grid" as const,
-              className: "xl:grid-cols-[18rem_minmax(0,1fr)]",
               blocks: [
                 createWorkPlanSelectorBlock({
                   plans,

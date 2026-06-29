@@ -93,11 +93,12 @@ export function useWorkTaskTableBlock({
       rows: tree.rows,
       columns,
       visibleColumns: ["kr", "status", "priority"],
-      density: "compact",
+            presentation: { density: "compact" },
+
       loading,
       emptyText: "暂无节点",
       rowKey: (work) => work.id,
-      rowClassName: (work) => work.itemType === "objective" ? "bg-slate-50/60" : "",
+      rowState: (work) => work.itemType === "objective" ? "muted" : "normal",
       onRowClick: onDetail,
       expandedRowKey: detailId,
       expandedRowContent: (work) => editDraft && editingId === work.id ? (
@@ -135,7 +136,7 @@ export function useWorkTaskTableBlock({
           },
         ];
       },
-      scrollClassName: "overflow-y-hidden rounded-lg border border-slate-200",
+      scroll: { y: "hidden" },
     },
   };
 }
@@ -157,8 +158,8 @@ function createColumns({
       key: "content",
       label: "OKR 大纲",
       required: true,
-      headerClassName: "min-w-80",
-      cellClassName: "min-w-80 max-w-lg",
+      width: "wide",
+
       cell: (work) => (
         <div className={`flex min-w-0 items-center gap-2 ${depthIndentClassName(work.depth)}`}>
           {work.childCount > 0 ? (
@@ -188,8 +189,8 @@ function createColumns({
       key: "kr",
       label: "关键结果",
       defaultVisible: true,
-      headerClassName: "w-44",
-      cellClassName: "w-44",
+      width: "md",
+
       cell: (work) => work.itemType === "key_result"
         ? <span className="text-sm text-slate-700">{krRange(work)}</span>
         : <span className="text-sm text-slate-300">-</span>,
@@ -198,8 +199,8 @@ function createColumns({
       key: "status",
       label: "子任务状态",
       defaultVisible: true,
-      headerClassName: "w-24",
-      cellClassName: "w-24",
+      width: "xs",
+
       cell: (work) => {
         const status = work.itemType === "task" ? (work.isArchived ? "archived" : work.status) : null;
         if (!status) return <span className="text-sm text-slate-300">-</span>;
@@ -210,8 +211,8 @@ function createColumns({
       key: "priority",
       label: "优先级",
       defaultVisible: true,
-      headerClassName: "w-36",
-      cellClassName: "w-36",
+      width: "md",
+
       cell: (work) => work.itemType === "task" ? (
         <div className="flex flex-wrap items-center gap-1.5 text-xs font-medium text-slate-500">
           <span className="rounded bg-amber-50 px-1.5 py-0.5 text-amber-700">重要 {work.importance}</span>

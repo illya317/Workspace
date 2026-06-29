@@ -42,8 +42,8 @@ function createDraftColumns({
     key: "title",
     label: "事项",
     required: true,
-    headerClassName: "w-[8rem]",
-    cellClassName: "w-[8rem] min-w-[8rem] max-w-[8rem] whitespace-normal align-middle",
+
+    wrap: "wrap", width: "wide",
     cell: item => item.workItemId && item.source !== "stale" ? <div className="break-words text-sm font-medium text-slate-900">{item.title}</div> : <InlineFieldCell blockKey={`title-${item.rowIndex}`} field={{ key: `title-${item.rowIndex}`, label: "事项", spec: { valueType: "string", control: "text", state: !canEdit ? "readonly" : "normal" }, value: item.title, placeholder: "填写事项", onChange: value => onUpdate(item.rowIndex, {
       title: String(value ?? "")
     }) }} />
@@ -51,8 +51,8 @@ function createDraftColumns({
     key: "done",
     label: "本周完成",
     required: true,
-    headerClassName: "w-[16rem]",
-    cellClassName: "w-[16rem] min-w-[16rem] max-w-[16rem] align-top",
+
+    width: "wide",
     cell: item => <InlineFieldCell blockKey={`done-${item.rowIndex}`} field={{ key: `done-${item.rowIndex}`, label: "本周完成", spec: { valueType: "string", control: "text", multiline: true, state: !canEdit ? "readonly" : "normal" }, value: item.doneThisWeek, rows: 3, placeholder: item.previousPlanSnapshot ? `上周计划：${item.previousPlanSnapshot}` : "本周干了什么", onChange: value => onUpdate(item.rowIndex, {
       doneThisWeek: String(value ?? "")
     }) }} />
@@ -60,8 +60,8 @@ function createDraftColumns({
     key: "next",
     label: "下周计划",
     required: true,
-    headerClassName: "w-[16rem]",
-    cellClassName: "w-[16rem] min-w-[16rem] max-w-[16rem] align-top",
+
+    width: "wide",
     cell: item => <InlineFieldCell blockKey={`next-${item.rowIndex}`} field={{ key: `next-${item.rowIndex}`, label: "下周计划", spec: { valueType: "string", control: "text", multiline: true, state: !canEdit ? "readonly" : "normal" }, value: item.planNextWeek, rows: 3, placeholder: "下周准备做什么", onChange: value => onUpdate(item.rowIndex, {
       planNextWeek: String(value ?? "")
     }) }} />
@@ -69,8 +69,8 @@ function createDraftColumns({
     key: "actions",
     label: "操作",
     required: true,
-    headerClassName: "w-24",
-    cellClassName: "w-24 align-middle",
+    width: "xs",
+
     cell: item => canEdit && item.source !== "work" ? <InlineActionsCell blockKey={`remove-${item.rowIndex}`} actions={[{ key: `remove-${item.rowIndex}`, label: "移除", variant: "danger", onClick: () => onRemove(item.rowIndex) }]} /> : <span className="text-xs text-slate-400">锁定</span>
   }];
 }
@@ -83,18 +83,20 @@ export function buildReportDraftTableBlock(props: ReportDraftTableProps): PageSu
       rows,
       columns,
       visibleColumns: [],
-      density: "compact",
+            presentation: { density: "compact" },
+
       loading: props.loading,
       emptyText: "暂无可汇报事项",
       rowKey: (item, index) => item.id || item.workItemId || `new-${index}`,
-      scrollClassName: "overflow-y-hidden rounded-lg border border-slate-200 bg-white",
+      scroll: { y: "hidden" },
     });
 }
 
 export function ReportDraftTable(props: ReportDraftTableProps) {
   const rows = useMemo(() => getDraftRows(props.draft), [props.draft]);
   const columns = useMemo(() => createDraftColumns(props), [props]);
-  return <PageSurface embedded kind="list" body={createPageBody([createPageDataBlock("report-draft-table", { kind: "table", rows, columns, visibleColumns: [], density: "compact", loading: props.loading, emptyText: "暂无可汇报事项", rowKey: (item, index) => item.id || item.workItemId || `new-${index}`, scrollClassName: "overflow-y-hidden rounded-lg border border-slate-200 bg-white" })])} />;
+  return <PageSurface embedded kind="list" body={createPageBody([createPageDataBlock("report-draft-table", { kind: "table", rows, columns, visibleColumns: [],   presentation: { density: "compact" },
+ loading: props.loading, emptyText: "暂无可汇报事项", rowKey: (item, index) => item.id || item.workItemId || `new-${index}`, scroll: { y: "hidden" }, })])} />;
 }
 
 function createCollectionColumns(): DataSurfaceColumnSpec<WorkReportCollectionSpace>[] {
@@ -102,8 +104,8 @@ function createCollectionColumns(): DataSurfaceColumnSpec<WorkReportCollectionSp
     key: "space",
     label: "工作空间",
     required: true,
-    headerClassName: "w-64",
-    cellClassName: "w-64 whitespace-normal",
+    width: "lg",
+    wrap: "wrap",
     cell: space => <div>
           <div className="text-sm font-semibold text-slate-900">{space.name}</div>
           {space.subtitle && <div className="mt-1 text-xs text-slate-400">{space.subtitle}</div>}
@@ -112,14 +114,14 @@ function createCollectionColumns(): DataSurfaceColumnSpec<WorkReportCollectionSp
     key: "status",
     label: "状态",
     required: true,
-    headerClassName: "w-28",
-    cellClassName: "w-28",
+    width: "sm",
+
     cell: space => <span className={`inline-flex rounded px-2 py-0.5 text-xs font-medium ${space.status === "submitted" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>{space.status === "submitted" ? "已提交" : "未提交"}</span>
   }, {
     key: "reports",
     label: "汇报",
     required: true,
-    cellClassName: "min-w-[34rem] whitespace-normal",
+    wrap: "wrap", width: "wide",
     cell: space => space.reports.length ? <ReportStack space={space} /> : <span className="text-sm text-slate-400">暂无提交</span>
   }];
 }
@@ -135,11 +137,12 @@ export function buildReportCollectionTableBlock({ collection, loading }: ReportC
       rows,
       columns,
       visibleColumns: [],
-      density: "compact",
+            presentation: { density: "compact" },
+
       loading,
       emptyText: "暂无汇报",
       rowKey: space => `${space.targetType}:${space.targetId}`,
-      scrollClassName: "overflow-y-hidden rounded-lg border border-slate-200 bg-white",
+      scroll: { y: "hidden" },
     });
 }
 
@@ -148,7 +151,8 @@ export function ReportCollectionTable({ collection, loading }: ReportCollectionT
   const columns = useMemo(() => createCollectionColumns(), []);
   const block = !loading && rows.length === 0
     ? createPageDataBlock("report-collection-empty", { kind: "records", records: [], empty: "暂无可汇总的工作空间" })
-    : createPageDataBlock("report-collection-table", { kind: "table", rows, columns, visibleColumns: [], density: "compact", loading, emptyText: "暂无汇报", rowKey: space => `${space.targetType}:${space.targetId}`, scrollClassName: "overflow-y-hidden rounded-lg border border-slate-200 bg-white" });
+    : createPageDataBlock("report-collection-table", { kind: "table", rows, columns, visibleColumns: [],     presentation: { density: "compact" },
+ loading, emptyText: "暂无汇报", rowKey: space => `${space.targetType}:${space.targetId}`, scroll: { y: "hidden" }, });
   return <PageSurface embedded kind="list" body={createPageBody([block])} />;
 }
 

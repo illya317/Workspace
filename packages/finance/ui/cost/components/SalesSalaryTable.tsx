@@ -24,9 +24,9 @@ export default function SalesSalaryTable({ filters }: Props) {
   const columns: DataSurfaceColumnSpec<CostRecord>[] = [
     { key: "period", label: "年月", required: true, cell: (row) => `${String(row.year)}-${row.month != null ? String(row.month) : "—"}` },
     { key: "employeeName", label: "业务员", required: true, cell: (row) => String(row.employeeName ?? "厂销") },
-    { key: "baseSalary", label: "基本工资", required: true, className: "text-right", headerClassName: "text-right", cell: (row) => formatCostNumber(row.baseSalary as number) },
-    { key: "bonus", label: "提成/奖金", required: true, className: "text-right", headerClassName: "text-right", cell: (row) => formatCostNumber(row.bonus as number) },
-    { key: "actualSalary", label: "实发工资", required: true, className: "text-right", headerClassName: "text-right", cell: (row) => formatCostNumber(row.actualSalary as number) },
+    { key: "baseSalary", label: "基本工资", required: true, align: "right",  cell: (row) => formatCostNumber(row.baseSalary as number) },
+    { key: "bonus", label: "提成/奖金", required: true, align: "right",  cell: (row) => formatCostNumber(row.bonus as number) },
+    { key: "actualSalary", label: "实发工资", required: true, align: "right",  cell: (row) => formatCostNumber(row.actualSalary as number) },
     { key: "source", label: "来源", required: true, cell: (row) => CostTraceButton({ row, onTrace: (info) => setTrace({ open: true, info }) }) },
   ];
 

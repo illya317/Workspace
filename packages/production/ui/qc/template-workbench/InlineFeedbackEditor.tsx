@@ -59,7 +59,7 @@ export default function InlineFeedbackEditor({
             {
               kind: "note",
               key: "selection",
-              className: "rounded-md border border-slate-100 bg-slate-50 px-2 py-2 text-[12px] text-slate-600",
+
               content: selectionTitle(selection),
             },
             ...(entries.length > 0 ? [{
@@ -89,18 +89,18 @@ export default function InlineFeedbackEditor({
             ...(error ? [{
               kind: "note" as const,
               key: "error",
-              className: "text-xs font-medium text-red-600",
+
               content: error,
             }] : []),
           ], {
-            className: "rounded-lg border border-slate-200 bg-white p-4 shadow-xl",
+
             actions: [
               {
                 key: "cancel",
                 label: "取消",
                 onClick: onClose,
                 disabled: saving,
-                className: "px-3 py-2 text-xs",
+
               },
               {
                 key: "save",
@@ -108,7 +108,7 @@ export default function InlineFeedbackEditor({
                 variant: "primary",
                 onClick: onSave,
                 disabled: saving || loading,
-                className: "px-3 py-2 text-xs",
+
               },
             ],
           }),

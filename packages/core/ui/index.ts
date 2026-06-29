@@ -140,6 +140,7 @@ export {
   createPageSurfaceProps,
   createPageTableBlock,
   createPageTabsNavigation,
+  createTabsNavigationBlock,
   createSectionBlock,
   createVisualizationBlock,
 } from "./helpers/page-surface-builders";

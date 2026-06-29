@@ -49,7 +49,7 @@ export function profileFieldSpec(
       disabled: fieldDisabled,
       emptyText: fieldDisabled ? "未设置" : undefined,
       shellClassName: "content-start",
-      fieldClassName: base.span === "wide" ? "col-span-full" : undefined,
+
       append: fieldDisabled
         ? undefined
         : {
@@ -336,7 +336,7 @@ export function groupedFieldBlocks(
 ): PageSurfaceBlockSpec[] {
   return groups.map((group) => createPanelBlock(group.title, {
     title: group.title,
-    bodyClassName: "p-3",
+
     blocks: [fieldGridBlock(group.fields, record, disabled, onChange, undefined, `${group.title}-fields`)],
   }));
 }

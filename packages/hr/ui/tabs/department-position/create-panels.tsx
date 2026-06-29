@@ -77,12 +77,12 @@ export function buildPositionCreatePanelBlock({
             label: "编码",
             required: true,
             value: createPositionCode,
-            fontRole: "mono",
+
           },
         ];
 
   return createCreatePanelBlock("create-position", {
-    blockClassName: className,
+
     title: "新建岗位",
     creating: true,
     canCreate: true,

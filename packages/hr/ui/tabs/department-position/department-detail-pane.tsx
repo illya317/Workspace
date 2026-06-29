@@ -164,7 +164,7 @@ export function useDepartmentDetailPaneBlock({
     detailBlocks.push(createBlockSurfaceBlock("empty-selection", {
       kind: "empty",
       presentation: "plain",
-      className: "py-12 text-center",
+
       content: "选择部门或岗位查看详情"
     }));
   }
@@ -214,7 +214,7 @@ export function useDepartmentDetailPaneBlock({
             }]
           : []),
       ],
-      bodyClassName: "p-4",
+
       blocks: departmentDraft ? [
         {
           kind: "form",
@@ -241,8 +241,8 @@ export function useDepartmentDetailPaneBlock({
   }
   if (!isOrganizationMode) detailBlocks.push(...positionEditorBlocks);
   return createPanelBlock("department-detail", {
-      className: "min-h-[520px]",
-      bodyClassName: "p-4",
+
+
       blocks: detailBlocks,
     });
 }

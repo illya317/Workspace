@@ -96,69 +96,69 @@ export default function LedgerTab({
       key: "accountCode",
       label: "科目编码",
       required: true,
-      cellClassName: "font-mono text-slate-700",
+      font: "mono",
       cell: (balance) => balance.account.code,
     },
     {
       key: "accountName",
       label: "科目名称",
       required: true,
-      cellClassName: "text-slate-800",
+
       cell: (balance) => balance.account.name,
     },
     {
       key: "category",
       label: "类别",
       required: true,
-      cellClassName: "text-slate-600",
+
       cell: (balance) => CATEGORIES[balance.account.category] ?? balance.account.category,
     },
     {
       key: "openingDebit",
       label: "期初借方",
       required: true,
-      headerClassName: "text-right",
-      cellClassName: "text-right text-slate-700",
+      align: "right",
+
       cell: (balance) => formatFinanceAmount(balance.openingDebit),
     },
     {
       key: "openingCredit",
       label: "期初贷方",
       required: true,
-      headerClassName: "text-right",
-      cellClassName: "text-right text-slate-700",
+      align: "right",
+
       cell: (balance) => formatFinanceAmount(balance.openingCredit),
     },
     {
       key: "currentDebit",
       label: "本期借方",
       required: true,
-      headerClassName: "text-right",
-      cellClassName: "text-right text-slate-700",
+      align: "right",
+
       cell: (balance) => formatFinanceAmount(balance.currentDebit),
     },
     {
       key: "currentCredit",
       label: "本期贷方",
       required: true,
-      headerClassName: "text-right",
-      cellClassName: "text-right text-slate-700",
+      align: "right",
+
       cell: (balance) => formatFinanceAmount(balance.currentCredit),
     },
     {
       key: "closingDebit",
       label: "期末借方",
       required: true,
-      headerClassName: "text-right",
-      cellClassName: "text-right text-slate-700",
+      align: "right",
+
       cell: (balance) => formatFinanceAmount(balance.closingDebit),
     },
     {
       key: "closingCredit",
       label: "期末贷方",
       required: true,
-      headerClassName: "text-right",
-      cellClassName: "text-right text-slate-700",
+      align: "right",
+
       cell: (balance) => formatFinanceAmount(balance.closingCredit),
     },
   ];
@@ -194,8 +194,8 @@ export default function LedgerTab({
             surface: {
               kind: "table",
               framed: true,
-              className: "overflow-hidden",
-              bodyClassName: "overflow-x-auto",
+
+
               rows: balances,
               columns,
               visibleColumns: columns.map((column) => column.key),

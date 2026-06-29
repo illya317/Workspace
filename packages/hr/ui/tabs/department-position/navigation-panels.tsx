@@ -136,7 +136,7 @@ export function buildDirectPositionPanelBlock({
           departmentById,
           saving,
           positionDepartmentReadOnly: true,
-          className: "mt-3",
+
           setCreatePositionDraft,
           onCreatePosition,
           onCancel: () => setCreatePanel(null),
@@ -163,7 +163,7 @@ export function buildDirectPositionPanelBlock({
               setCreatePanel("position");
             },
           }] : undefined,
-          bodyClassName: "p-4",
+
           blocks,
         });
 }
@@ -207,8 +207,8 @@ export function DepartmentTreePanel({
       kind="detail"
       body={createPageBody([
         createPanelBlock("department-tree", {
-          className: mode === "drawer" ? "h-full overflow-hidden" : undefined,
-          bodyClassName: `${mode === "drawer" ? "h-[calc(100%-48px)]" : "max-h-[760px]"} overflow-auto p-1`,
+
+
           actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", onClick: onClose }] : undefined,
           blocks,
         }),
@@ -252,8 +252,8 @@ export function buildDepartmentTreePanelBlock({
   }
 
   return createPanelBlock("department-tree", {
-    className: mode === "drawer" ? "h-full overflow-hidden" : undefined,
-    bodyClassName: `${mode === "drawer" ? "h-[calc(100%-48px)]" : "max-h-[760px]"} overflow-auto p-1`,
+
+
     actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", onClick: onClose }] : undefined,
     blocks,
   });
@@ -294,7 +294,7 @@ export function OrganizationRootPanel({
   if (!loading && !error && departments.length > 0) {
     blocks.push(createGroupBlock("roots", {
       blocks: departments.map((department) => organizationRootBlock(department)).filter(isPageSurfaceBlockSpec),
-      className: "grid gap-2",
+
     }));
   }
 
@@ -304,8 +304,8 @@ export function OrganizationRootPanel({
       kind="detail"
       body={createPageBody([
         createPanelBlock("organization-roots", {
-          className: mode === "drawer" ? "h-full overflow-hidden" : undefined,
-          bodyClassName: `${mode === "drawer" ? "h-full" : "max-h-[760px]"} overflow-auto p-1`,
+
+
           actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", onClick: onClose }] : undefined,
           blocks,
         }),
@@ -350,13 +350,13 @@ export function buildOrganizationRootPanelBlock({
   if (!loading && !error && departments.length > 0) {
     blocks.push(createGroupBlock("roots", {
       blocks: departments.map((department) => organizationRootBlock(department)).filter(isPageSurfaceBlockSpec),
-      className: "grid gap-2",
+
     }));
   }
 
   return createPanelBlock("organization-roots", {
-    className: mode === "drawer" ? "h-full overflow-hidden" : undefined,
-    bodyClassName: `${mode === "drawer" ? "h-full" : "max-h-[760px]"} overflow-auto p-1`,
+
+
     actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", onClick: onClose }] : undefined,
     blocks,
   });

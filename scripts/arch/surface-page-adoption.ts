@@ -27,6 +27,7 @@ const CREATE_PAGE_SURFACE_PROPS_COMPAT_OPTIONS = new Map<string, string>([
   ["empty", "Pass body: createPageBody(blocks, { empty }) instead."],
   ["actions", "Pass body.commands or toolbar.items instead."],
 ]);
+const MANUAL_TABS_NAVIGATION_TARGET = "Use createPageTabsNavigation(...) instead of handwritten navigation kind=\"tabs\".";
 
 function walkSourceFiles(root: string): string[] {
   if (!existsSync(root)) return [];
@@ -67,6 +68,65 @@ function objectPropertyName(name: ts.PropertyName | undefined) {
   return undefined;
 }
 
+function unwrapExpression(expression: ts.Expression): ts.Expression {
+  if (ts.isParenthesizedExpression(expression)) return unwrapExpression(expression.expression);
+  if (ts.isAsExpression(expression) || ts.isSatisfiesExpression(expression)) return unwrapExpression(expression.expression);
+  return expression;
+}
+
+function propertyInitializer(property: ts.ObjectLiteralElementLike) {
+  if (ts.isPropertyAssignment(property)) return property.initializer;
+  if (ts.isShorthandPropertyAssignment(property)) return property.name;
+  return undefined;
+}
+
+function isTabsLiteral(expression: ts.Expression) {
+  const unwrapped = unwrapExpression(expression);
+  return ts.isStringLiteral(unwrapped) && unwrapped.text === "tabs";
+}
+
+function objectLiteralHasTabsKind(object: ts.ObjectLiteralExpression) {
+  return object.properties.some((property) => {
+    if (!ts.isPropertyAssignment(property)) return false;
+    return objectPropertyName(property.name) === "kind" && isTabsLiteral(property.initializer);
+  });
+}
+
+function expressionContainsTabsNavigationObject(expression: ts.Expression): boolean {
+  const unwrapped = unwrapExpression(expression);
+  if (ts.isObjectLiteralExpression(unwrapped)) return objectLiteralHasTabsKind(unwrapped);
+  if (ts.isConditionalExpression(unwrapped)) {
+    return expressionContainsTabsNavigationObject(unwrapped.whenTrue)
+      || expressionContainsTabsNavigationObject(unwrapped.whenFalse);
+  }
+  if (ts.isBinaryExpression(unwrapped) && unwrapped.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken) {
+    return expressionContainsTabsNavigationObject(unwrapped.left)
+      || expressionContainsTabsNavigationObject(unwrapped.right);
+  }
+  return false;
+}
+
+function jsxAttributeExpression(attribute: ts.JsxAttribute) {
+  if (!attribute.initializer || !ts.isJsxExpression(attribute.initializer)) return undefined;
+  return attribute.initializer.expression;
+}
+
+function maybeAddManualTabsNavigationWarning(
+  warnings: DeprecatedPageSurfacePropWarning[],
+  sourceFile: ts.SourceFile,
+  file: string,
+  node: ts.Node,
+  expression: ts.Expression | undefined,
+) {
+  if (!expression || !expressionContainsTabsNavigationObject(expression)) return;
+  warnings.push({
+    file: normalizeFilePath(file),
+    line: nodeLine(sourceFile, node),
+    prop: "navigation.kind=tabs",
+    migrationTarget: MANUAL_TABS_NAVIGATION_TARGET,
+  });
+}
+
 export function findDeprecatedPageSurfacePropWarnings() {
   const warnings: DeprecatedPageSurfacePropWarning[] = [];
   const files = SOURCE_ROOTS.flatMap(walkSourceFiles);
@@ -82,6 +142,15 @@ export function findDeprecatedPageSurfacePropWarnings() {
         if (jsxTagName(node.tagName) === "PageSurface") {
           for (const attribute of node.attributes.properties) {
             if (!ts.isJsxAttribute(attribute) || !ts.isIdentifier(attribute.name)) continue;
+            if (attribute.name.text === "navigation") {
+              maybeAddManualTabsNavigationWarning(
+                warnings,
+                sourceFile,
+                file,
+                attribute,
+                jsxAttributeExpression(attribute),
+              );
+            }
             const migrationTarget = DEPRECATED_PAGE_SURFACE_PROPS.get(attribute.name.text);
             if (!migrationTarget) continue;
             warnings.push({
@@ -105,6 +174,15 @@ export function findDeprecatedPageSurfacePropWarnings() {
             if (!ts.isPropertyAssignment(property) && !ts.isShorthandPropertyAssignment(property)) continue;
             const propName = objectPropertyName(property.name);
             if (!propName) continue;
+            if (propName === "navigation") {
+              maybeAddManualTabsNavigationWarning(
+                warnings,
+                sourceFile,
+                file,
+                property,
+                propertyInitializer(property),
+              );
+            }
             const migrationTarget = CREATE_PAGE_SURFACE_PROPS_COMPAT_OPTIONS.get(propName);
             if (!migrationTarget) continue;
             warnings.push({
@@ -114,6 +192,20 @@ export function findDeprecatedPageSurfacePropWarnings() {
               migrationTarget,
             });
           }
+        }
+      }
+
+      if (ts.isObjectLiteralExpression(node)) {
+        for (const property of node.properties) {
+          if (!ts.isPropertyAssignment(property) && !ts.isShorthandPropertyAssignment(property)) continue;
+          if (objectPropertyName(property.name) !== "navigation") continue;
+          maybeAddManualTabsNavigationWarning(
+            warnings,
+            sourceFile,
+            file,
+            property,
+            propertyInitializer(property),
+          );
         }
       }
 
@@ -132,8 +224,8 @@ function printReport(warnings: DeprecatedPageSurfacePropWarning[]) {
     return;
   }
 
-  console.warn(`⚠ PageSurface adoption warning: ${warnings.length} deprecated top-level prop usage(s) detected outside Core UI.`);
-  console.warn("  Rule: new PageSurface code should declare navigation/body explicitly; top-level compat props are migration debt only.");
+  console.warn(`⚠ PageSurface adoption warning: ${warnings.length} deprecated/manual PageSurface usage(s) detected outside Core UI.`);
+  console.warn("  Rule: new PageSurface code should use body helpers and createPageTabsNavigation for tab navigation.");
   for (const warning of warnings.slice(0, 80)) {
     console.warn(`  - ${warning.file}:${warning.line}: ${warning.prop} -> ${warning.migrationTarget}`);
   }
@@ -142,8 +234,12 @@ function printReport(warnings: DeprecatedPageSurfacePropWarning[]) {
   }
 }
 
-if (process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\/g, "/"))) {
+export function checkPageSurfaceAdoption() {
   const warnings = findDeprecatedPageSurfacePropWarnings();
   printReport(warnings);
-  process.exit(warnings.length === 0 ? 0 : 1);
+  return warnings.length === 0;
+}
+
+if (process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\/g, "/"))) {
+  process.exit(checkPageSurfaceAdoption() ? 0 : 1);
 }

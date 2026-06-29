@@ -184,7 +184,7 @@ export default function AdminUsersTab({
     key: "status",
     label: "状态",
     required: true,
-    cellClassName: "w-20",
+    width: "xs",
     cell: u => ({
       kind: "action",
       action: {
@@ -192,7 +192,7 @@ export default function AdminUsersTab({
         label: u.canLogin ? "启用" : "停用",
         variant: u.canLogin ? "secondary" : "danger",
         onClick: () => toggleLogin(u.id, u.canLogin),
-        className: "px-2 py-1 text-xs",
+
       },
     })
   }, {
@@ -214,14 +214,14 @@ export default function AdminUsersTab({
     key: "actions",
     label: "操作",
     required: true,
-    cellClassName: "w-32",
+    width: "sm",
     cell: u => ({
       kind: "action",
       action: {
         key: `reset-${u.id}`,
         label: "重置密码",
         onClick: () => resetPassword(u),
-        className: "px-2 py-1 text-xs",
+
       },
     })
   }];
@@ -237,7 +237,7 @@ export default function AdminUsersTab({
         },
         placeholder: searchMode === "name" ? "搜索姓名..." : "搜索全部...",
         ariaLabel: "搜索用户",
-        className: "min-w-0 sm:w-[22rem]",
+        width: "wide",
       },
       {
         kind: "text",
@@ -287,7 +287,7 @@ export default function AdminUsersTab({
       totalPages,
       total: filtered.length,
       onPageChange: nextPage => setPage(nextPage - 1),
-      className: "flex items-center justify-center gap-3",
+
     },
   } : undefined, [filtered.length, page, pageSize, totalPages]);
 
@@ -325,7 +325,7 @@ export default function AdminUsersTab({
             },
           ], {
             columns: 2,
-            className: "rounded-md border border-slate-200 p-3",
+
             actions: [
             { key: "save", label: "保存", variant: "primary", onClick: handleCreate },
             {

@@ -114,7 +114,7 @@ export default function ProjectGanttTab({
       content: `${rows.length} 行`
     }] satisfies SurfaceToolbarItems;
   const blocks = error ? [
-    createPageDataBlock("project-gantt-error", { kind: "records", records: [], empty: error, className: "border-red-200 text-red-600" }),
+    createPageDataBlock("project-gantt-error", { kind: "records", records: [], empty: error,  }),
   ] : loading && !hasLoaded ? [
     createPageDataBlock("project-gantt-loading", { kind: "records", records: [], empty: "加载公司甘特..." }),
   ] : [

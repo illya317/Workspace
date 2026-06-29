@@ -25,7 +25,7 @@ export default function CostAnalysisTable({ filters }: Props) {
     { key: "tableName", label: "表名", required: true, cell: (row) => String(row.tableName ?? "—") },
     { key: "rowLabel", label: "行标签", required: true, cell: (row) => String(row.rowLabel ?? "—") },
     { key: "metricName", label: "指标", required: true, cell: (row) => String(row.metricName ?? row.metricKey ?? "—") },
-    { key: "value", label: "数值", required: true, className: "text-right", headerClassName: "text-right", cell: (row) => formatCostNumber(row.value as number) },
+    { key: "value", label: "数值", required: true, align: "right",  cell: (row) => formatCostNumber(row.value as number) },
     { key: "source", label: "来源", required: true, cell: (row) => CostTraceButton({ row, onTrace: (info) => setTrace({ open: true, info }) }) },
   ];
 

@@ -293,7 +293,6 @@ export function SectionShell({
     <PageSurface
       embedded
       kind="detail"
-      className={className}
       body={createPageBody([sectionShellBlock({ title, subtitle, status, className, blocks })])}
     />
   );
@@ -324,8 +323,7 @@ export function sectionShellBlock({
   return createSectionBlock(key, {
     title: headerTitle ?? "",
     subtitle,
-    className,
     blocks,
-    bodyClassName: "p-3",
+
   });
 }

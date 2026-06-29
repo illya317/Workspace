@@ -62,8 +62,6 @@ function DatePartInput({
       onChange={(nextValue) => onChange(String(nextValue ?? "").replace(/\D/g, "").slice(0, maxLength))}
       onBlur={onBlur}
       readOnly={readOnly}
-      className={`border-0 bg-transparent p-0 text-center tabular-nums outline-none ${widthClass}`}
-      unstyled
     />
   );
 }

@@ -28,15 +28,15 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
 
   const { stats, crossMatrix } = useEmployeeData(employees, employments, edps, crossRow, crossCol);
   const recentJoinColumns: DataSurfaceColumnSpec<Employment>[] = [
-    { key: "employeeName", label: "姓名", required: true, cellClassName: "font-medium", cell: (row) => row.employeeName },
-    { key: "currentCompany", label: "公司", required: true, cellClassName: "text-slate-500", cell: (row) => row.currentCompany || "—" },
-    { key: "joinDate", label: "入职日期", required: true, cellClassName: "text-slate-500", cell: (row) => row.joinDate || "—" },
+    { key: "employeeName", label: "姓名", required: true, emphasis: "medium", cell: (row) => row.employeeName },
+    { key: "currentCompany", label: "公司", required: true, tone: "muted", cell: (row) => row.currentCompany || "—" },
+    { key: "joinDate", label: "入职日期", required: true, tone: "muted", cell: (row) => row.joinDate || "—" },
   ];
   const recentLeaveColumns: DataSurfaceColumnSpec<Employment>[] = [
-    { key: "employeeName", label: "姓名", required: true, cellClassName: "font-medium", cell: (row) => row.employeeName },
-    { key: "currentCompany", label: "公司", required: true, cellClassName: "text-slate-500", cell: (row) => row.currentCompany || "—" },
-    { key: "leaveDate", label: "离职日期", required: true, cellClassName: "text-slate-500", cell: (row) => row.leaveDate || "—" },
-    { key: "leaveReason", label: "原因", required: true, cellClassName: "text-slate-500", cell: (row) => row.leaveReason || "—" },
+    { key: "employeeName", label: "姓名", required: true, emphasis: "medium", cell: (row) => row.employeeName },
+    { key: "currentCompany", label: "公司", required: true, tone: "muted", cell: (row) => row.currentCompany || "—" },
+    { key: "leaveDate", label: "离职日期", required: true, tone: "muted", cell: (row) => row.leaveDate || "—" },
+    { key: "leaveReason", label: "原因", required: true, tone: "muted", cell: (row) => row.leaveReason || "—" },
   ];
 
   function currentDist(): [string, number][] {
@@ -49,9 +49,9 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
     percent: `${stats.active > 0 ? Math.round((count / stats.active) * 100) : 0}%`,
   }));
   const distributionColumns: DataSurfaceColumnSpec<DistributionRow>[] = [
-    { key: "label", label: DIM_LABELS[feature], required: true, cellClassName: "font-medium text-slate-700", cell: (row) => row.label },
-    { key: "count", label: "人数", required: true, cellClassName: "text-right font-medium text-slate-700", cell: (row) => row.count },
-    { key: "percent", label: "占比", required: true, cellClassName: "text-right text-slate-500", cell: (row) => row.percent },
+    { key: "label", label: DIM_LABELS[feature], required: true, emphasis: "medium", cell: (row) => row.label },
+    { key: "count", label: "人数", required: true, align: "right", emphasis: "medium", cell: (row) => row.count },
+    { key: "percent", label: "占比", required: true, align: "right", tone: "muted", cell: (row) => row.percent },
   ];
 
   return [
@@ -86,7 +86,8 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
               columns: distributionColumns,
               visibleColumns: distributionColumns.map((column) => column.key),
               rowKey: (row) => row.label,
-              density: "compact",
+                            presentation: { density: "compact" },
+
               emptyText: "暂无数据",
             },
           }],

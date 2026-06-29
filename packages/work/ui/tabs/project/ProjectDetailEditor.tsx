@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createBlockSurfaceBlock, createPageBody, createPanelBlock, type FormSurfaceItemSpec, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createBlockSurfaceBlock, createPageBody, createPanelBlock, createTabsNavigationBlock, type FormSurfaceItemSpec, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import ProjectPlanManagementSection from "./ProjectPlanManagementSection";
 import { buildProjectRasciMatrixSurface } from "./ProjectRasciMatrix";
@@ -94,7 +94,7 @@ export function useProjectDetailEditorBlock({
           { kind: "readonly" as const, key: "parentTask", label: "上级任务", value: draft.parentProjectTaskName || "未设置", disabled: !draft.parentProjectId, onClick: () => openParentProjectPlan(draft.parentProjectId), textAlign: "left" as const },
           { kind: "readonly" as const, key: "parentStatus", label: "上级任务状态", value: draft.parentProjectTaskStatus || "未开始" },
         ] : []),
-        { kind: "readonly", key: "code", label: "项目编码", value: projectCode(selectedProject, draft), fontRole: "mono" },
+        { kind: "readonly", key: "code", label: "项目编码", value: projectCode(selectedProject, draft),  },
         { key: "projectType", label: "项目类型", spec: { valueType: "string", control: "choice", options: { source: "static", items: PROJECT_TYPE_PICKER_OPTIONS }, state: !canManageCurrent || !creating ? "disabled" : "normal" }, value: draft.projectType, onChange: (value) => onDraftChange("projectType", (String(value || "") || "department") as ProjectDraft["projectType"]) },
         { kind: "readonly", key: "leaderName", label: "项目负责人", value: draft.leader?.name || "未设置" },
         { key: "name", label: "项目名称", required: true, spec: { valueType: "string", control: "text", state: !canManageCurrent ? "disabled" : "normal" }, value: draft.name, onChange: (value) => onDraftChange("name", String(value ?? "")) },
@@ -119,7 +119,7 @@ export function useProjectDetailEditorBlock({
       title: "项目人员",
       columns: 2,
       fields: [
-        { key: "leader", label: "项目负责人", spec: { valueType: "reference", control: "reference", options: { source: "remote", fkKey: "work.projects.member.employee", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: !canManageCurrent || creating ? "disabled" : "normal" }, value: draft.leader?.employeeNumber || "", displayValue: draft.leader?.name || "", placeholder: "搜索负责人", className: draft.leader?.confirmationStatus === "pending" ? pendingFieldClassName : undefined, onChange: (_value, option) => onLeaderChange(option as ReferenceOption | undefined) },
+        { key: "leader", label: "项目负责人", spec: { valueType: "reference", control: "reference", options: { source: "remote", fkKey: "work.projects.member.employee", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: !canManageCurrent || creating ? "disabled" : "normal" }, value: draft.leader?.employeeNumber || "", displayValue: draft.leader?.name || "", placeholder: "搜索负责人",  onChange: (_value, option) => onLeaderChange(option as ReferenceOption | undefined) },
         ...MULTI_PROJECT_ROLES.map((role): FormSurfaceItemSpec<EmployeeTag> => ({
           kind: "tagList",
           key: role,
@@ -135,7 +135,6 @@ export function useProjectDetailEditorBlock({
           itemClassName: (member) => member.confirmationStatus === "pending" ? "!border-amber-200 !bg-amber-50 !text-amber-800 shadow-amber-100" : "",
           append: !canManageCurrent || creating ? undefined : addingMemberRole === role
             ? {
-                className: "min-w-40 flex-1",
                 field: {
                   key: `add-${role}`,
                   label: `添加${role}`,
@@ -160,7 +159,6 @@ export function useProjectDetailEditorBlock({
                   label: "+",
                   onClick: () => setAddingMemberRole(role),
                   size: "sm",
-                  className: "!size-7 !rounded-full !border-slate-200 !bg-slate-50 !p-0 text-base font-semibold leading-none !text-slate-700 hover:!border-slate-300 hover:!bg-slate-100",
                 },
               },
         })),
@@ -171,7 +169,7 @@ export function useProjectDetailEditorBlock({
   const contentBlocks: PageSurfaceBlockSpec[] = !draft ? [createBlockSurfaceBlock("project-empty", {
     kind: "empty",
     presentation: "plain",
-    className: "flex min-h-64 items-center justify-center p-8 text-center",
+
     content: (
       <div>
         <p className="text-sm font-medium text-slate-600">暂无可编辑项目</p>
@@ -179,30 +177,16 @@ export function useProjectDetailEditorBlock({
       </div>
     )
   })] : [
-    {
-      kind: "form",
-      key: "project-detail-section",
-      surface: {
-        kind: "inline",
-        fields: [{
-          key: "project-detail-section",
-          label: "项目内容",
-          spec: {
-            valueType: "string",
-            control: "choice",
-            options: {
-              source: "static",
-              items: [
-                { value: "overview", label: "项目概览" },
-                { value: "plan", label: "项目计划" },
-              ],
-            },
-          },
-          value: activeTab,
-          onChange: (value) => setActiveTab(String(value || "overview")),
-        }],
-      },
-    },
+    createTabsNavigationBlock("project-detail-section", {
+      kind: "table",
+      tabs: [
+        { key: "overview", label: "项目概览" },
+        { key: "plan", label: "项目计划" },
+      ],
+      active: activeTab,
+      onChange: (key) => setActiveTab(key),
+      ariaLabel: "项目内容",
+    }, { label: "项目内容" }),
     ...(activeTab === "overview" ? [
       {
         kind: "form" as const,
@@ -245,7 +229,7 @@ export function useProjectDetailEditorBlock({
 
   return createPanelBlock("project-detail", {
     title: editorTitle,
-    className: "rounded-lg border border-slate-200 bg-slate-50 p-4",
+
     actions: [
       ...(creating ? [
         { key: "cancel", label: "取消", disabled: saving, onClick: onCancelCreate },

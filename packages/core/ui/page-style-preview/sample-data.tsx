@@ -65,7 +65,6 @@ export function PreviewTable({ columns, children }: { columns?: string[]; childr
         columns={tableColumns}
         visibleColumns={visibleColumns}
         rowKey={(row) => row.id}
-        density="compact"
       />
     </>
   );

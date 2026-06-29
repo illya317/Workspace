@@ -28,7 +28,6 @@ export default function GmpDetailClient({
     return (
       <PageSurface
         kind="detail"
-        contentClassName="py-8"
         body={createPageBody([], { empty: { content: loading ? "加载中..." : error || "未找到" }, commands: loading ? undefined : [{ key: "back", label: "返回列表", onClick: () => router.push("/docs/positions") }] })}
       />
     );

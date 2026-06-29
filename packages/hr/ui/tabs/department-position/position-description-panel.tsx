@@ -141,18 +141,18 @@ export function usePositionDescriptionPanelBlock({
         </span>
       ),
       actions: [
-        { key: "edit-template", label: "编辑模板", disabled: selectedPositionDescriptionTemplate.id === "full", onClick: onOpenPositionDescriptionTemplateEditor, className: "px-2 py-1 text-xs" },
+        { key: "edit-template", label: "编辑模板", disabled: selectedPositionDescriptionTemplate.id === "full", onClick: onOpenPositionDescriptionTemplateEditor,  },
         ...(selectedPositionDescriptionTemplateStored
           ? [{
               key: "delete-template",
               label: selectedPositionDescriptionTemplateDefault ? "恢复默认" : "删除模板",
               variant: selectedPositionDescriptionTemplateDefault ? "secondary" as const : "danger" as const,
               onClick: () => void onDeletePositionDescriptionTemplate(),
-              className: "px-2 py-1 text-xs",
+
             }]
           : []),
       ],
-      bodyClassName: "p-4",
+
       blocks: [
         {
           kind: "form",
@@ -162,7 +162,7 @@ export function usePositionDescriptionPanelBlock({
             fields: [{
               key: "template",
               label: "模板",
-              fieldClassName: "min-w-44",
+
               spec: {
                 valueType: "string",
                 control: "choice",

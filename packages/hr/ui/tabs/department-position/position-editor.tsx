@@ -136,7 +136,6 @@ export function usePositionEditorBlocks({
         state: !canEditPosition || !draftCodePrefix ? "disabled" : "normal",
       },
       value: draft.code,
-      className: "font-mono",
       onChange: (nextCode) => onUpdateDraftCodeSuffix(positionCodeSuffix(String(nextCode ?? "")), true),
     },
     {
@@ -199,7 +198,7 @@ export function usePositionEditorBlocks({
             { key: "save", label: saving ? "保存中..." : "保存", variant: "primary", disabled: !canEditPosition || !dirty || saving, onClick: () => void onSavePosition() },
             ...(canEdit ? [{ key: "archive", label: showArchived ? "恢复" : "归档", disabled: saving, onClick: () => void onArchivePosition(position.id, !showArchived) }] : []),
           ],
-          bodyClassName: "p-4",
+
           blocks: draft ? [{
             kind: "form",
             key: "fields",

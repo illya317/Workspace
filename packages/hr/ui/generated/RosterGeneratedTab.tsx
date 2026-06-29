@@ -215,7 +215,8 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
           key: "table",
           surface: {
             kind: "structured",
-            presentation: { density: "compact", grid: "cells", header: "tinted", stripe: "subtle", cellWrap: "nowrap" },
+            presentation: { density: "compact",
+ grid: "cells", header: "tinted", stripe: "subtle", cellWrap: "nowrap" },
             rows: buildRosterGeneratedRows({
               columns: visibleTableColumns,
               groups,
@@ -223,16 +224,15 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
               onEmployeeCellChange: updateEmployeeCell,
               onRowCellChange: updateRowCell,
             }),
-            cellClassName: "min-w-28 align-top",
-            headerCellClassName: "min-w-28 text-left",
+            colWidths: visibleTableColumns.map(() => 112),
           },
         }];
 
   const blocks: PageSurfaceBlockSpec[] = [
     ...(error ? [createMessageBlock("error", { content: error, tone: "danger" as const })] : []),
     createPanelBlock("preview", {
-      className: "overflow-hidden",
-      bodyClassName: "overflow-x-auto",
+
+
       blocks: tableBlocks,
     }),
   ];
@@ -273,9 +273,7 @@ function buildRosterGeneratedRows({
         const value = isEmployeeCell ? group.employeeCells[column.key] ?? "" : row.cells[column.key] ?? "";
         return [{
           rowSpan: isEmployeeCell ? group.rows.length : undefined,
-          className: [
-            isEmployeeCell ? "align-middle font-medium text-slate-800" : "",
-          ].filter(Boolean).join(" "),
+
           content: rosterGeneratedCell(value, editMode, (next) => {
             if (isEmployeeCell) {
               onEmployeeCellChange(groupIndex, column.key, next);
@@ -297,7 +295,7 @@ function rosterGeneratedCell(value: string, editMode: boolean, onChange: (value:
     spec: { valueType: "string", control: "text", state: "normal" },
     value,
     onChange: (next) => onChange(String(next ?? "")),
-    className: "min-w-24 border-emerald-200 bg-white focus:border-emerald-500 focus:ring-emerald-100",
+
   };
 }
 

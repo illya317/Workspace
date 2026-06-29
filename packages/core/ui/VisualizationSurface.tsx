@@ -1,7 +1,6 @@
 "use client";
 
 import { PanelCard } from "./internal/common/Card";
-import { joinClassNames } from "./internal/common/card-utils";
 import { renderVisual } from "./internal/visualization/VisualizationSurfaceChart";
 import VisualizationGantt from "./internal/visualization/VisualizationGantt";
 import type { VisualizationSurfaceProps } from "./VisualizationSurfaceTypes";
@@ -32,14 +31,13 @@ function renderVisualization(props: VisualizationSurfaceProps) {
 }
 
 export default function VisualizationSurface(props: VisualizationSurfaceProps) {
-  const content = <div className={joinClassNames("min-w-0", props.framed ? "" : props.className)}>{renderVisualization(props)}</div>;
+  const content = <div className="min-w-0">{renderVisualization(props)}</div>;
   if (!props.framed) return content;
   return (
     <PanelCard
       title={props.title}
       subtitle={props.subtitle}
-      className={props.className}
-      bodyClassName={joinClassNames("p-4", props.bodyClassName)}
+      bodyClassName="p-4"
     >
       {renderVisualization(props)}
     </PanelCard>

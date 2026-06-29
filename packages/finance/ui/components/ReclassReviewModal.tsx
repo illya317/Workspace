@@ -126,10 +126,10 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
           open,
           title: "调整重分类",
           onClose: handleClose,
-          maxWidth: "max-w-sm",
+          size: "lg",
           blocks: [
             createFieldsBlock("reclass-review-form", [
-              { kind: "readonly", key: "voucherNo", label: "凭证号", value: item.voucherNo, fontRole: "mono" },
+              { kind: "readonly", key: "voucherNo", label: "凭证号", value: item.voucherNo,  },
               ...(item.description ? [{ kind: "readonly" as const, key: "description", label: "摘要", value: item.description }] : []),
               {
                 key: "targetAccount",

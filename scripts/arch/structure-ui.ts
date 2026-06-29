@@ -287,7 +287,8 @@ export function findPageDesignDriftFiles(files: SourceInfo[]) {
 }
 
 function isAllowedNativeSearchInputFile(file: SourceInfo) {
-  return file.relPath === "packages/core/ui/SearchInput.tsx";
+  return file.relPath === "packages/core/ui/SearchInput.tsx"
+    || file.relPath === "packages/core/ui/internal/input/SearchInput.tsx";
 }
 
 function nativeSearchInputSignals(attributes: ts.JsxAttributes, sourceFile: ts.SourceFile) {

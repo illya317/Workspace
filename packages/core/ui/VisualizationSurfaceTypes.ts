@@ -108,8 +108,6 @@ export interface VisualizationSurfaceBaseProps {
   title?: ReactNode;
   subtitle?: ReactNode;
   framed?: boolean;
-  className?: string;
-  bodyClassName?: string;
 }
 
 export interface VisualizationSurfaceChartProps extends VisualizationSurfaceBaseProps {

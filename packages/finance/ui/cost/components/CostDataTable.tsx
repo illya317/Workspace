@@ -43,7 +43,7 @@ export function CostTraceButton({
       key: "trace",
       label: "查看",
       size: "sm",
-      className: "border-0 bg-transparent p-0 text-xs text-emerald-600 shadow-none hover:bg-transparent hover:underline",
+
       onClick: () => onTrace(sourceTraceFromRow(row)),
     },
   };
@@ -68,12 +68,12 @@ export default function CostDataTable({
           ...(loading ? [createMessageBlock("loading", {
             content: "加载中…",
             tone: "muted" as const,
-            className: "text-sm text-gray-500",
+
           })] : []),
           ...(error ? [createMessageBlock("error", {
             content: error,
             tone: "danger" as const,
-            className: "text-sm text-red-500",
+
           })] : []),
           {
             kind: "data",
@@ -81,7 +81,7 @@ export default function CostDataTable({
             surface: {
               kind: "table",
               framed: true,
-              bodyClassName: "overflow-x-auto",
+
               rows,
               columns,
               visibleColumns: columns.map(column => column.key),
@@ -91,7 +91,7 @@ export default function CostDataTable({
           },
         ],
       }}
-      footer={{ pagination: { page, total: pagination.total, totalPages: pagination.totalPages, onPageChange, className: "flex items-center justify-between text-sm", compact: true } }}
+      footer={{ pagination: { page, total: pagination.total, totalPages: pagination.totalPages, onPageChange,  compact: true } }}
     />
   );
 }

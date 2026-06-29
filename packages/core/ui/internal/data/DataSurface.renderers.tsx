@@ -14,6 +14,7 @@ import TableScrollFrame from "./TableScrollFrame";
 import CommandButton from "../common/CommandButton";
 import InputControl from "../../InputControl";
 import { joinClassNames } from "../common/card-utils";
+import { resolveTableToneClass } from "./table-presentation";
 import type {
   DataSurfaceCellActionSpec,
   DataSurfaceCellSpec,
@@ -44,7 +45,7 @@ function isDisplaySpec(value: ReactNode | DataSurfaceDisplaySpec): value is Data
 function renderDisplay(value: ReactNode | DataSurfaceDisplaySpec): ReactNode {
   if (!isDisplaySpec(value)) return value;
   if (value.kind === "empty") {
-    return <span className={joinClassNames("text-slate-400", value.className)}>{value.content ?? "—"}</span>;
+    return <span className="text-slate-400">{value.content ?? "—"}</span>;
   }
   if (value.kind === "badge") {
     const { kind: _kind, ...props } = value;
@@ -60,9 +61,11 @@ function renderDisplay(value: ReactNode | DataSurfaceDisplaySpec): ReactNode {
   }
   if (value.kind === "stack") {
     const gapClass = value.gap === "none" ? "" : value.gap === "sm" ? "space-y-2" : "space-y-1";
-    return <div className={joinClassNames(gapClass, value.className)}>{value.items.map((item, index) => <div key={index}>{renderDisplay(item)}</div>)}</div>;
+    return <div className={gapClass}>{value.items.map((item, index) => <div key={index}>{renderDisplay(item)}</div>)}</div>;
   }
-  return <span className={value.className}>{value.value}</span>;
+  const emphasisClass = value.emphasis === "strong" ? "font-bold" : value.emphasis === "medium" ? "font-medium" : "";
+  const fontClass = value.font === "mono" ? "font-mono tabular-nums" : "";
+  return <span className={joinClassNames(resolveTableToneClass(value.tone), emphasisClass, fontClass)}>{value.value}</span>;
 }
 
 function isCellSpec(value: ReactNode | DataSurfaceCellSpec): value is DataSurfaceCellSpec {
@@ -88,7 +91,6 @@ export function renderCommands(commands?: DataSurfaceCommandSpec[]) {
           variant={command.variant}
           disabled={command.disabled}
           size={command.size}
-          className={command.className}
           truncate={command.truncate}
           onClick={command.onClick}
         >
@@ -106,7 +108,6 @@ function renderCellAction(action: DataSurfaceCellActionSpec) {
       variant={action.variant}
       disabled={action.disabled}
       size={action.size}
-      className={action.className}
       truncate={action.truncate}
       onClick={() => action.onClick?.()}
     >
@@ -132,7 +133,7 @@ function renderCell(value: ReactNode | DataSurfaceCellSpec): ReactNode {
   if (value.kind === "group") {
     const direction = value.direction ?? "row";
     return (
-      <div className={joinClassNames(direction === "column" ? "flex flex-col gap-2" : "flex flex-wrap items-center gap-2", value.className)}>
+      <div className={direction === "column" ? "flex flex-col gap-2" : "flex flex-wrap items-center gap-2"}>
         {value.items.map((item, index) => <div key={index} className="min-w-0">{renderCell(item)}</div>)}
       </div>
     );
@@ -141,7 +142,7 @@ function renderCell(value: ReactNode | DataSurfaceCellSpec): ReactNode {
   if (value.kind === "actions") {
     const alignClass = value.align === "center" ? "justify-center" : value.align === "right" ? "justify-end" : "justify-start";
     return (
-      <div className={joinClassNames("flex flex-wrap items-center gap-2", alignClass, value.className)}>
+      <div className={joinClassNames("flex flex-wrap items-center gap-2", alignClass)}>
         {value.actions.map((action) => <span key={action.key}>{renderCellAction(action)}</span>)}
       </div>
     );
@@ -163,19 +164,17 @@ function normalizeColumns<T>(columns: Array<DataSurfaceColumnSpec<T>>): DataTabl
 function renderTable<T>(props: DataSurfaceTableProps<T>) {
   return (
     <>
-      <TableScrollFrame className={props.scrollClassName}>
+      <TableScrollFrame frame={props.frame} scroll={props.scroll}>
         <DataTable<T>
           rows={props.rows}
           columns={normalizeColumns(props.columns)}
           rowKey={props.rowKey}
           visibleColumns={props.visibleColumns}
           presentation={props.presentation}
-          density={props.density}
           loading={props.loading}
           emptyText={props.emptyText}
           onRowClick={props.onRowClick}
-          rowClassName={props.rowClassName}
-          tableClassName={props.tableClassName}
+          rowState={props.rowState}
           expandedRowKey={props.expandedRowKey}
           expandedRowKeys={props.expandedRowKeys}
           renderExpandedRow={props.expandedRowContent
@@ -196,16 +195,12 @@ export function renderData<T>(props: DataSurfaceProps<T>) {
     const table = (
       <StructuredTable
         rows={normalizeStructuredRows(props.rows)}
-        className={props.className}
         colWidths={props.colWidths}
         rowHeights={props.rowHeights}
-        cellClassName={props.cellClassName}
-        headerCellClassName={props.headerCellClassName}
-        bodyClassName={props.bodyClassName}
         presentation={props.presentation}
       />
     );
-    return props.structuredScroll === false ? table : <TableScrollFrame>{table}</TableScrollFrame>;
+    return props.structuredScroll === false ? table : <TableScrollFrame frame={props.frame} scroll={props.scroll}>{table}</TableScrollFrame>;
   }
   if (props.kind === "records") {
     if (props.records.length === 0) return <EmptyStateCard compact>{props.empty ?? "暂无数据"}</EmptyStateCard>;
@@ -229,7 +224,7 @@ export function renderData<T>(props: DataSurfaceProps<T>) {
   }
   if (props.kind === "metrics") {
     if (props.metrics.length === 0) return <EmptyStateCard compact>{props.empty ?? "暂无指标"}</EmptyStateCard>;
-    return <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{props.metrics.map((metric) => <MetricCard key={metric.key} label={metric.label} value={renderDisplay(metric.value)} className={metric.className} />)}</div>;
+    return <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{props.metrics.map((metric) => <MetricCard key={metric.key} label={metric.label} value={renderDisplay(metric.value)} />)}</div>;
   }
   return null;
 }

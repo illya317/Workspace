@@ -207,6 +207,13 @@ export const page_api_registry_entries = [
     composes: ["PageSurface"],
   },
   {
+    name: "createTabsNavigationBlock",
+    category: "page",
+    subcategory: "page.surface",
+    description: "正文 tabs 导航 block 声明助手",
+    composes: ["PageSurface", "NavigationSurface"],
+  },
+  {
     name: "createPageTableBlock",
     category: "data",
     subcategory: "data.surface",

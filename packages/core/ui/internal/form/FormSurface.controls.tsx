@@ -4,7 +4,6 @@ import { useState } from "react";
 import InputControl, { type InputControlProps } from "../../InputControl";
 import ReadOnlyField, { type ReadOnlyFieldProps } from "../input/ReadOnlyField";
 import TagListInput from "../input/TagListInput";
-import { joinClassNames } from "../common/card-utils";
 import { renderCommands } from "./form-surface-commands";
 export { renderCommands };
 import type {
@@ -27,7 +26,6 @@ export function renderControl(field: FormSurfaceFieldSpec, density: InputControl
       displayValue={field.displayValue}
       onChange={field.onChange}
       placeholder={field.placeholder}
-      className={field.className}
       size={field.size}
       density={field.density ?? density}
       rows={field.rows}
@@ -65,7 +63,6 @@ function renderReadOnly(field: FormSurfaceReadOnlyFieldSpec, density: ReadOnlyFi
     hint: _hint,
     error: _error,
     span: _span,
-    fieldClassName: _fieldClassName,
     ...props
   } = field;
   return <ReadOnlyField {...props} density={field.density ?? density} />;
@@ -80,7 +77,7 @@ function renderTagAppend(append?: FormSurfaceTagListAppendSpec) {
       })()
     : null;
   return (
-    <div className={joinClassNames("flex min-w-0 flex-1 items-center gap-2", append.className)}>
+    <div className="flex min-w-0 flex-1 items-center gap-2">
       {append.field ? renderControl(append.field, "compact") : null}
       {append.action ? renderCommands([append.action]) : null}
       {textInput}
@@ -90,9 +87,7 @@ function renderTagAppend(append?: FormSurfaceTagListAppendSpec) {
 
 function TagAppendTextInput({
   addLabel = "+",
-  className,
   fieldKey,
-  inputClassName,
   onAppend,
   onRemoveLast,
   placeholder,
@@ -117,7 +112,6 @@ function TagAppendTextInput({
       label: addLabel,
       onClick: () => setEditing(true),
       size: "sm",
-      className: joinClassNames("!size-7 !rounded-full !border-slate-200 !bg-slate-50 !p-0 text-base font-semibold leading-none !text-slate-700 hover:!border-slate-300 hover:!bg-slate-100", className),
     }]);
   }
 
@@ -129,7 +123,6 @@ function TagAppendTextInput({
     autoFocus: true,
     placeholder,
     density: "compact",
-    className: inputClassName,
     onChange: (next) => setDraft(String(next ?? "")),
     onBlur: commitDraft,
     onKeyDown: (event) => {
@@ -157,7 +150,6 @@ function renderTagList<T>(field: FormSurfaceTagListFieldSpec<T>) {
     hint: _hint,
     error: _error,
     span: _span,
-    fieldClassName: _fieldClassName,
     append,
     ...props
   } = field;

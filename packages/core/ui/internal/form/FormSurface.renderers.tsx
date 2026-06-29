@@ -4,7 +4,6 @@ import type { ReactNode } from "react";
 import FieldGrid, { type FieldGridMode } from "../input/FieldGrid";
 import FormField from "./FormField";
 import type { InputControlProps } from "../../InputControl";
-import { joinClassNames } from "../common/card-utils";
 import { renderCommands, renderFieldValue } from "./FormSurface.controls";
 import type {
   FormSurfaceFieldSpec,
@@ -25,14 +24,14 @@ function renderGridItem<T>(
   columns: 1 | 2 | 3,
 ): ReactNode {
   if (field.kind === "note") {
-    return <FieldGrid.Note key={field.key} className={field.className}>{field.content}</FieldGrid.Note>;
+    return <FieldGrid.Note key={field.key}>{field.content}</FieldGrid.Note>;
   }
   if (field.kind === "groupTitle") {
-    return <FieldGrid.GroupTitle key={field.key} className={joinClassNames("col-span-full", field.className)}>{field.title}</FieldGrid.GroupTitle>;
+    return <FieldGrid.GroupTitle key={field.key} className="col-span-full">{field.title}</FieldGrid.GroupTitle>;
   }
   if (field.kind === "section") {
     return (
-      <div key={field.key} className={joinClassNames("col-span-full space-y-3", field.className)}>
+      <div key={field.key} className="col-span-full space-y-3">
         {(field.title || field.subtitle || field.actions?.length) && (
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
@@ -42,7 +41,7 @@ function renderGridItem<T>(
             {renderCommands(field.actions)}
           </div>
         )}
-        <FieldGrid columns={field.columns ?? columns} mode={field.mode ?? mode} className={field.bodyClassName}>
+        <FieldGrid columns={field.columns ?? columns} mode={field.mode ?? mode}>
           {field.fields.map((item) => renderGridItem(item, field.mode ?? mode, density, field.columns ?? columns))}
         </FieldGrid>
       </div>
@@ -57,7 +56,6 @@ function renderGridItem<T>(
       hint={field.hint ?? field.error}
       span={field.span}
       mode={mode}
-      className={field.fieldClassName}
     >
       {renderFieldValue(field, density)}
     </FieldGrid.Cell>
@@ -66,20 +64,16 @@ function renderGridItem<T>(
 
 function renderLoginItem<T>(field: FormSurfaceItemSpec<T>): ReactNode {
   if (field.kind === "note") {
-    return <FieldGrid.Note key={field.key} className={joinClassNames("px-0 py-0", field.className)}>{field.content}</FieldGrid.Note>;
+    return <FieldGrid.Note key={field.key} className="px-0 py-0">{field.content}</FieldGrid.Note>;
   }
   if (field.kind === "groupTitle") {
-    return <FieldGrid.GroupTitle key={field.key} className={joinClassNames("col-span-full", field.className)}>{field.title}</FieldGrid.GroupTitle>;
+    return <FieldGrid.GroupTitle key={field.key} className="col-span-full">{field.title}</FieldGrid.GroupTitle>;
   }
   if (field.kind === "section" || field.kind === "repeatable") return renderGridItem(field, "mixed", "normal", 1);
-  const controlField = {
-    ...field,
-    className: joinClassNames("w-full", field.className),
-  } as FormSurfaceFieldSpec | FormSurfaceReadOnlyFieldSpec | FormSurfaceTagListFieldSpec<T>;
   return (
-    <div key={field.key} className={joinClassNames("col-span-full min-w-0", field.fieldClassName)}>
+    <div key={field.key} className="col-span-full min-w-0">
       <div className="min-w-0 [&>*]:w-full [&_input]:w-full [&_textarea]:w-full">
-        {renderFieldValue(controlField, "normal")}
+        {renderFieldValue(field, "normal")}
       </div>
       {(field.hint || field.error) && (
         <div className="text-xs text-slate-400">{field.hint ?? field.error}</div>
@@ -95,7 +89,7 @@ function renderRepeatableGridItem<T>(
   columns: 1 | 2 | 3,
 ) {
   return (
-    <div key={field.key} className={joinClassNames("col-span-full space-y-3", field.className)}>
+    <div key={field.key} className="col-span-full space-y-3">
       {(field.title || field.subtitle || field.addAction) && (
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -110,7 +104,7 @@ function renderRepeatableGridItem<T>(
       ) : (
         <div className="space-y-3">
           {field.items.map((item) => (
-            <div key={item.key} ref={item.itemRef} className={joinClassNames("rounded-md border border-slate-200 p-3", item.className)}>
+            <div key={item.key} ref={item.itemRef} className="rounded-md border border-slate-200 p-3">
               {(item.title || item.subtitle || item.actions?.length) && (
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -132,8 +126,8 @@ function renderRepeatableGridItem<T>(
 }
 
 function renderInlineItem<T>(field: FormSurfaceItemSpec<T>) {
-  if (field.kind === "note") return <div key={field.key} className={joinClassNames("text-sm text-slate-500", field.className)}>{field.content}</div>;
-  if (field.kind === "groupTitle") return <div key={field.key} className={joinClassNames("text-sm font-semibold text-slate-900", field.className)}>{field.title}</div>;
+  if (field.kind === "note") return <div key={field.key} className="text-sm text-slate-500">{field.content}</div>;
+  if (field.kind === "groupTitle") return <div key={field.key} className="text-sm font-semibold text-slate-900">{field.title}</div>;
   if (field.kind === "section" || field.kind === "repeatable") {
     const mode = field.mode ?? "mixed";
     const columns = field.columns ?? 3;
@@ -141,7 +135,7 @@ function renderInlineItem<T>(field: FormSurfaceItemSpec<T>) {
       ? renderCommands(field.actions)
       : field.addAction ? renderCommands([field.addAction]) : null;
     return (
-      <div key={field.key} className={joinClassNames("w-full basis-full space-y-2", field.className)}>
+      <div key={field.key} className="w-full basis-full space-y-2">
         {(field.title || field.subtitle || headerActions) && (
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
@@ -152,7 +146,7 @@ function renderInlineItem<T>(field: FormSurfaceItemSpec<T>) {
           </div>
         )}
         {field.kind === "section" ? (
-          <FieldGrid columns={columns} mode={mode} className={field.bodyClassName}>
+          <FieldGrid columns={columns} mode={mode}>
             {field.fields.map((item) => renderGridItem(item, mode, "compact", columns))}
           </FieldGrid>
         ) : renderInlineRepeatable(field, mode, columns)}
@@ -160,7 +154,7 @@ function renderInlineItem<T>(field: FormSurfaceItemSpec<T>) {
     );
   }
   return (
-    <FormField key={field.key} label={field.label} required={field.required} hint={field.hint} error={field.error} layout="inline" className={field.fieldClassName}>
+    <FormField key={field.key} label={field.label} required={field.required} hint={field.hint} error={field.error} layout="inline">
       {renderFieldValue(field, "compact")}
     </FormField>
   );
@@ -173,7 +167,7 @@ function renderInlineRepeatable<T>(field: Extract<FormSurfaceItemSpec<T>, { kind
   return (
     <div className="space-y-2">
       {field.items.map((item) => (
-        <div key={item.key} ref={item.itemRef} className={joinClassNames("rounded-md border border-slate-200 p-3", item.className)}>
+        <div key={item.key} ref={item.itemRef} className="rounded-md border border-slate-200 p-3">
           {(item.title || item.subtitle || item.actions?.length) && (
             <div className="mb-2 flex items-start justify-between gap-3">
               <div className="min-w-0">
@@ -198,7 +192,7 @@ function renderFields<T>(props: FormSurfaceFieldModeProps<T>) {
   }
   if (props.kind === "login") {
     return (
-      <FieldGrid columns={1} mode="mixed" className={joinClassNames("w-full gap-4", props.bodyClassName)}>
+      <FieldGrid columns={1} mode="mixed" className="w-full gap-4">
         {fields.map(renderLoginItem)}
       </FieldGrid>
     );
@@ -206,7 +200,7 @@ function renderFields<T>(props: FormSurfaceFieldModeProps<T>) {
   const mode = props.mode ?? (props.kind === "detail" ? "detail" : "mixed");
   const density = props.kind === "detail" ? "compact" : "normal";
   return (
-    <FieldGrid columns={props.columns} mode={mode} className={props.bodyClassName}>
+    <FieldGrid columns={props.columns} mode={mode}>
       {fields.map((field) => renderGridItem(field, mode, density, props.columns ?? 3))}
     </FieldGrid>
   );
@@ -214,7 +208,7 @@ function renderFields<T>(props: FormSurfaceFieldModeProps<T>) {
 
 export function renderContent<T>(props: FormSurfaceFieldModeProps<T>) {
   return (
-    <div className={joinClassNames("space-y-4", props.className)}>
+    <div className="space-y-4">
       {renderFields(props)}
       {renderCommands(props.actions)}
     </div>

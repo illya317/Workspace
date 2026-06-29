@@ -24,7 +24,7 @@ export function spaceSelectorBlock(
       selector: {
         mode: "list" as const,
         title: "工作空间",
-        bodyClassName: "p-3",
+
         loading,
         loadingText: "加载中...",
         items: spaces,
@@ -38,7 +38,7 @@ export function spaceSelectorBlock(
           trailing: <span className="shrink-0 rounded bg-white/80 px-1.5 py-0.5 text-xs text-slate-400">{roleLabel(space.role)}</span>,
         }),
         size: "sm",
-        contentClassName: "space-y-4",
+
       },
     },
   };
@@ -57,12 +57,12 @@ export function spaceMetricsBlock(space: WorkTaskSpace): PageSurfaceBlockSpec {
   return createPageDataBlock("space-metrics", {
     kind: "metrics",
     metrics: [
-      { key: "objective", label: "目标", value: space.counts.objective, className: "px-3 py-2" },
-      { key: "keyResult", label: "关键结果", value: space.counts.keyResult, className: "px-3 py-2" },
-      { key: "task", label: "子任务", value: space.counts.task, className: "px-3 py-2" },
-      { key: "archived", label: "归档", value: space.counts.archived, className: "px-3 py-2" },
+      { key: "objective", label: "目标", value: space.counts.objective,  },
+      { key: "keyResult", label: "关键结果", value: space.counts.keyResult,  },
+      { key: "task", label: "子任务", value: space.counts.task,  },
+      { key: "archived", label: "归档", value: space.counts.archived,  },
     ],
-    className: "grid-cols-4 text-center"
+
   });
 }
 

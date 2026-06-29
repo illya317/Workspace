@@ -33,7 +33,6 @@ export default function MajorPicker({
       placeholder="未设置"
       size="md"
       density="normal"
-      className={className}
       spec={{
         valueType: "string",
         control: "choice",

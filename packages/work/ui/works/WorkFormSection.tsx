@@ -31,7 +31,6 @@ export default function WorkFormSection({
     <PageSurface
       embedded
       kind="detail"
-      className="mb-6"
       body={createPageBody([createBlockSurfaceBlock("department-work-plan", {
         kind: "section",
         title: "部门 OKR 计划",
@@ -41,7 +40,7 @@ export default function WorkFormSection({
           variant: "primary",
           onClick: onAddClick,
         }] : undefined,
-        className: "mb-6",
+
         blocks: [
           ...(!isAdmin ? [{ kind: "message" as const, key: "admin-only", tone: "muted" as const, content: "仅部门管理员可编辑 OKR 计划" }] : []),
           ...(showForm ? [{ kind: "content" as const, key: "form", content: <WorkForm onSave={onSave} onCancel={onCancelForm} /> }] : []),

@@ -164,7 +164,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     createGroupBlock("active-admin-tab", {
       blocks: [createBlockSurfaceBlock(activeTab, {
         kind: "message",
-        className: "border-0 bg-transparent p-0 text-inherit",
+
         content: (
           <div className="space-y-4">
             {activeTab === "users" && (
@@ -207,7 +207,6 @@ export default function AdminClient({ user }: { user: SessionUser }) {
             ? { items: childToolbarItems }
             : undefined}
       footer={loading ? undefined : activeTab === "users" ? childFooter : undefined}
-      contentClassName="py-8"
 	      body={loading ? { empty: { content: "加载中..." } } : createPageBody(blocks)}
 	    />
   );

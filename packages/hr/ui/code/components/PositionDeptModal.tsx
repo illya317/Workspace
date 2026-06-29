@@ -30,7 +30,7 @@ export default function PositionDeptModal({
           open: !!positionDeptModal?.open,
           title: `${positionDeptModal?.name || ""} — 所属部门`,
           onClose: () => setPositionDeptModal(null),
-          maxWidth: "max-w-md",
+          size: "md",
           blocks: [
             createFieldsBlock("position-departments-form", positionDeptModal?.departments.length
               ? [{

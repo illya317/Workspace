@@ -45,13 +45,13 @@ export default function ReclassTab({
     key: "accountCode",
     label: "科目编码",
     required: true,
-    cellClassName: "font-mono text-slate-700",
+    font: "mono",
     cell: entry => entry.accountCode
   }, {
     key: "accountName",
     label: "科目名称",
     required: true,
-    cellClassName: "text-slate-800",
+
     cell: entry => entry.accountName
   }, {
     key: "direction",
@@ -64,28 +64,28 @@ export default function ReclassTab({
     key: "closingDebit",
     label: "借方余额",
     required: true,
-    headerClassName: "text-right",
-    cellClassName: "text-right text-slate-600",
+    align: "right",
+
     cell: entry => formatFinanceAmount(entry.closingDebit)
   }, {
     key: "closingCredit",
     label: "贷方余额",
     required: true,
-    headerClassName: "text-right",
-    cellClassName: "text-right text-slate-600",
+    align: "right",
+
     cell: entry => formatFinanceAmount(entry.closingCredit)
   }, {
     key: "netAmount",
     label: "净额",
     required: true,
-    headerClassName: "text-right",
-    cellClassName: "text-right font-medium text-slate-800",
+    align: "right",
+     emphasis: "medium",
     cell: entry => formatFinanceAmount(Math.abs(entry.netAmount))
   }, {
     key: "reason",
     label: "说明",
     required: true,
-    cellClassName: "max-w-xs truncate text-slate-500",
+    tone: "muted", wrap: "truncate",
     cell: entry => <span title={entry.reason}>{entry.reason}</span>
   }];
   const exportCSV = useCSV(`重分类_${companyFilter}_${yearFilter}${monthFilter}.csv`, "科目编码,科目名称,方向,借方余额,贷方余额,净额,说明\n", () => entries.map(e => `"${e.accountCode}","${e.accountName}","${sideLabel(e.fromSide)}",${e.closingDebit},${e.closingCredit},${Math.abs(e.netAmount)},"${e.reason}"`).join("\n"));
@@ -127,8 +127,8 @@ export default function ReclassTab({
               ? [createPageDataBlock("reclass-empty", { kind: "records", records: [], empty: "未发现需重分类的科目" })]
               : [createPageTableBlock("reclass-entries", {
                 framed: true,
-                className: "overflow-hidden",
-                bodyClassName: "overflow-x-auto",
+
+
                 rows: entries,
                 columns,
                 visibleColumns: columns.map(column => column.key),

@@ -75,15 +75,15 @@ export default function ImportHistoryTable({
     key: "recordCount",
     label: "记录数",
     required: true,
-    className: "text-right",
-    headerClassName: "text-right",
+    align: "right",
+
     cell: row => String(row.recordCount)
   }, {
     key: "warningCount",
     label: "警告",
     required: true,
-    className: "text-right",
-    headerClassName: "text-right",
+    align: "right",
+
     cell: row => String(row.warningCount)
   }, {
     key: "importedAt",
@@ -102,7 +102,7 @@ export default function ImportHistoryTable({
         variant: "danger",
         size: "sm",
         disabled: deleting === row.id,
-        className: "border-0 bg-transparent p-0 text-xs shadow-none hover:bg-transparent hover:underline disabled:text-slate-300",
+
         onClick: () => handleDelete(Number(row.id)),
       },
     })

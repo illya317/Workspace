@@ -52,14 +52,14 @@ export default function LibraryTable({
       key: "summary",
       label: "简介",
       defaultVisible: true,
-      cellClassName: "text-gray-500",
+      tone: "muted",
       cell: (d) => (
         <span className="block max-w-48 truncate" title={d.summary || ""}>
           {d.summary || "—"}
         </span>
       ),
     },
-    { key: "updatedAt", label: "更新时间", defaultVisible: true, cellClassName: "text-gray-500", cell: (d) => fmtDate(d.updatedAt) },
+    { key: "updatedAt", label: "更新时间", defaultVisible: true, tone: "muted", cell: (d) => fmtDate(d.updatedAt) },
     {
       key: "tags",
       label: "标签",
@@ -108,7 +108,7 @@ export default function LibraryTable({
         body={createPageBody([
           createPageTableBlock<LibraryDocumentItem>("library-documents", {
             framed: true,
-            bodyClassName: "overflow-hidden",
+
             rows: documents,
             columns,
             visibleColumns: columns.map((column) => column.key),

@@ -60,8 +60,8 @@ export default function DeptBudgetTable({ items, monthTotals, total }: DeptBudge
       key: `m${monthIndex}`,
       label,
       required: true,
-      headerClassName: "text-right",
-      className: "text-right",
+      align: "right",
+
       cell: (row) => {
         const value = row.months[monthIndex] ?? 0;
         if (row.kind === "total") return value.toFixed(2);
@@ -72,8 +72,8 @@ export default function DeptBudgetTable({ items, monthTotals, total }: DeptBudge
       key: "total",
       label: "合计",
       required: true,
-      headerClassName: "text-right",
-      className: "text-right font-medium",
+      align: "right",
+       emphasis: "medium",
       cell: (row) => row.total.toFixed(2),
     },
   ];
@@ -85,14 +85,14 @@ export default function DeptBudgetTable({ items, monthTotals, total }: DeptBudge
       body={createPageBody([
         createPageTableBlock("dept-budget", {
           framed: true,
-          className: "overflow-hidden",
-          bodyClassName: "overflow-x-auto",
+
+
           rows,
           columns,
           visibleColumns: columns.map((column) => column.key),
           emptyText: "暂无数据",
           rowKey: (row) => row.id,
-          rowClassName: (row) => row.kind === "total" ? "bg-slate-50 font-medium" : "",
+          rowState: (row) => row.kind === "total" ? "total" : "normal",
         }),
       ])}
     />

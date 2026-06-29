@@ -22,7 +22,7 @@ export default function QcBatchRecordStageList({ batch, detail }: QcBatchRecordS
           body={createPageBody([
             createBlockSurfaceBlock("qc-batch-record-summary", {
               kind: "content",
-              className: "mb-5 max-w-3xl rounded-lg border border-slate-200 bg-white px-4 py-2 shadow-sm",
+
               content: (
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-semibold text-slate-900">批号：</span>

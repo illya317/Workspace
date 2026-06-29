@@ -167,7 +167,7 @@ export default function ProjectPlanGanttTab({
     },
   ] satisfies SurfaceToolbarItems;
   const timelineBlock: PageSurfaceBlockSpec = error
-    ? createPageDataBlock("project-plan-gantt-error", { kind: "records", records: [], empty: error, className: "border-red-200 text-red-600" })
+    ? createPageDataBlock("project-plan-gantt-error", { kind: "records", records: [], empty: error,  })
     : loading
       ? createPageDataBlock("project-plan-gantt-loading", { kind: "records", records: [], empty: "加载项目甘特..." })
       : !data

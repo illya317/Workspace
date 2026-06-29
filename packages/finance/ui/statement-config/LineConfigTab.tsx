@@ -217,7 +217,7 @@ export default function LineConfigTab() {
     key: "expand",
     label: "",
     required: true,
-    headerClassName: "w-8",
+
     cell: row => row.kind === "line" && row.accountCount > 0 ? row.expanded ? "▼" : "▶" : ""
   }, {
     key: "line",
@@ -231,15 +231,15 @@ export default function LineConfigTab() {
     key: "section",
     label: "Section",
     required: true,
-    headerClassName: "w-24",
-    cellClassName: "text-slate-400",
+    width: "xs",
+    tone: "muted",
     cell: row => row.kind === "section" ? "" : SECTIONS[row.line.section] || row.line.section
   }, {
     key: "accounts",
     label: "科目",
     required: true,
-    headerClassName: "w-20 text-center",
-    cellClassName: "text-center text-slate-600",
+    align: "center", width: "xs",
+
     cell: row => row.kind === "line" ? row.accountCount || "—" : row.kind === "special" ? "—" : ""
   }], []);
   if (loading) return <p className="py-8 text-center text-sm text-gray-400">加载中...</p>;
@@ -279,7 +279,7 @@ function LineConfigError({ message, onRetry }: { message: string; onRetry: () =>
       <PageSurface
         kind="list"
         embedded
-        body={createPageBody([createActionsBlock("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }], { className: "justify-center" })])}
+        body={createPageBody([createActionsBlock("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }], {  })])}
       />
     </div>
   );
@@ -328,14 +328,15 @@ function LineConfigTable({
         createPageDataBlock("line-config", {
           kind: "table",
           framed: true,
-          className: "overflow-hidden",
-          bodyClassName: "overflow-x-auto",
+
+
           rows,
           columns,
           visibleColumns: columns.map(column => column.key),
           rowKey: row => row.id,
-          density: "compact",
-          tableClassName: "text-base",
+                    presentation: { density: "compact" },
+
+
           onRowClick: row => {
             if (row.kind !== "line") return;
             onExpandedChange(previous => {
@@ -345,7 +346,7 @@ function LineConfigTable({
             });
           },
           expandedRowKeys: expanded,
-          rowClassName: row => row.kind === "section" ? "bg-slate-50" : row.kind === "special" ? "bg-slate-50/50" : "",
+          rowState: row => row.kind === "section" ? "muted" : row.kind === "special" ? "muted" : "normal",
           expandedRowContent: row => row.kind === "line" ? (
             <LineMappingsPanel
               line={row.line}

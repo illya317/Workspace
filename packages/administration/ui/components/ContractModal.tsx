@@ -80,7 +80,7 @@ export default function ContractModal({ mode, editing, onChange, onSave, onClose
         createPageModalBlock("contract", {
           open: Boolean(mode),
           title: mode === "create" ? "新增合同" : "编辑合同",
-          maxWidth: "max-w-2xl",
+          size: "md",
           onClose,
           blocks: [
             createFieldsBlock("contract-form", fields, {

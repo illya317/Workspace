@@ -38,17 +38,17 @@ function historyChangeColumns(): DataSurfaceColumnSpec<ProfileHistoryChange>[] {
     key: "field",
     label: "字段",
     required: true,
-    cell: change => ({ kind: "text", value: change.label, className: "font-medium text-slate-700" })
+    cell: change => ({ kind: "text", value: change.label, emphasis: "medium", })
   }, {
     key: "from",
     label: "原值",
     required: true,
-    cell: change => ({ kind: "text", value: change.from, className: "text-slate-500" })
+    cell: change => ({ kind: "text", value: change.from, tone: "muted", })
   }, {
     key: "to",
     label: "新值",
     required: true,
-    cell: change => ({ kind: "text", value: change.to, className: "text-slate-900" })
+    cell: change => ({ kind: "text", value: change.to,  })
   }];
 }
 
@@ -66,7 +66,6 @@ export function historySectionSurface({
     framed: true,
     title: "历史记录",
     subtitle: "记录谁在什么时候修改了哪些字段。",
-    className,
     actions: [{ key: "refresh", label: "刷新", variant: "secondary", onClick: onRefresh }],
     empty: loading ? "正在加载历史记录..." : "暂无变更记录",
     records: loading ? [] : entries.map(entry => {
@@ -80,15 +79,15 @@ export function historySectionSurface({
           kind: "stack" as const,
           gap: "xs" as const,
           items: [
-            { kind: "text" as const, value: headerTitle, className: "text-sm font-semibold text-slate-900" },
+            { kind: "text" as const, value: headerTitle, emphasis: "strong", },
             {
               kind: "text" as const,
               value: `${new Date(entry.createdAt).toLocaleString("zh-CN", { hour12: false })} · ${entry.entityType} #${entry.entityId} · v${entry.version}`,
-              className: "text-xs text-slate-500",
+              tone: "muted",
             },
           ],
         },
-        summary: { kind: "text" as const, value: expanded ? "收起" : "展开", className: "text-xs text-slate-400" },
+        summary: { kind: "text" as const, value: expanded ? "收起" : "展开", tone: "muted", },
         detail: entry.action === "create"
           ? { kind: "empty", content: "创建时的初始快照。" }
           : undefined,

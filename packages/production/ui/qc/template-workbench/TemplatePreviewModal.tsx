@@ -63,7 +63,6 @@ function PreviewModeToggle({
     <PageSurface
       kind="detail"
       embedded
-      className="justify-self-center"
       body={createPageBody([
         createActionsBlock("template-preview-mode-toggle", [{
           key: "toggle-advanced-mode",
@@ -96,7 +95,7 @@ export default function TemplatePreviewModal({
       open: true,
       title: `布局预览：${selectionTitle(selection)}`,
       onClose,
-      maxWidth: "max-w-[min(230mm,calc(100vw-3rem))]",
+      size: "lg",
       blocks: [{
         kind: "document",
         key: "template-preview-body",
@@ -105,8 +104,8 @@ export default function TemplatePreviewModal({
           pages: [{
             key: "preview",
             size: "fluid",
-            className: "min-h-[720px] px-2 py-2 xl:px-4",
-            style: { fontFamily: "\"FangSong\", \"STFangsong\", \"仿宋\", serif" },
+
+
             content: (
               <>
                 <div className="mb-6 grid grid-cols-[1fr_auto] items-start gap-4 text-sm font-semibold text-slate-950">

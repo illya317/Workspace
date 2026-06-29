@@ -66,7 +66,6 @@ export default function HRAnalyticsClient({ user: _user }: { user: SessionUser; 
 	        active: activeTab,
 	        onChange: (k: string) => setActiveTab(k as AnalyticsTab),
 	      })}
-	      contentClassName="max-w-5xl"
 	      body={createPageBody(blocks)}
 	    />
   );

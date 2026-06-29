@@ -59,28 +59,28 @@ export default function ReviewTable({
     key: "label",
     label: "项目",
     required: true,
-    className: "font-medium text-slate-800",
+    emphasis: "medium",
     cell: line => line.label
   }, {
     key: "systemAmount",
     label: "系统建议",
     required: true,
-    className: "w-28 text-right text-slate-400",
-    headerClassName: "text-right",
+    align: "right", tone: "muted", width: "sm",
+
     cell: line => FMT(line.systemAmount)
   }, {
     key: "workpaperAmount",
     label: "底稿输入",
     required: true,
-    className: "w-28 text-right text-slate-600",
-    headerClassName: "text-right",
+    align: "right", width: "sm",
+
     cell: line => FMT(line.workpaperAmount)
   }, {
     key: "adjustedAmount",
     label: "调整金额",
     required: true,
-    className: "w-28 text-right",
-    headerClassName: "text-right",
+    align: "right", width: "sm",
+
     cell: line => {
       const state = getLineState(line);
       const isEditing = editingAmt === line.lineCode;
@@ -104,7 +104,7 @@ export default function ReviewTable({
           key: `edit-amount-${line.lineCode}`,
           label: state.adjustedAmount != null ? FMT(state.adjustedAmount) : "—",
           size: "sm",
-          className: `${state.adjustedAmount != null ? "text-blue-600" : "text-gray-400"} border-0 bg-transparent px-1 py-0.5 shadow-none hover:bg-gray-100 disabled:bg-transparent`,
+
           disabled: isReadOnly,
           onClick: () => {
             if (!isReadOnly) {
@@ -119,15 +119,15 @@ export default function ReviewTable({
     key: "finalAmount",
     label: "最终金额",
     required: true,
-    className: "w-28 text-right font-medium text-slate-800",
-    headerClassName: "text-right",
+    align: "right", emphasis: "medium", width: "sm",
+
     cell: line => FMT(getLineState(line).finalAmount)
   }, {
     key: "status",
     label: "状态",
     required: true,
-    className: "w-20 text-center",
-    headerClassName: "text-center",
+    align: "center", width: "xs",
+
     cell: line => {
       const status = getLineState(line).status;
       return {
@@ -137,7 +137,7 @@ export default function ReviewTable({
           label: STS[status] || status,
           size: "sm",
           disabled: isReadOnly,
-          className: `px-1.5 py-0.5 text-xs ${status === "confirmed" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : status === "adjusted" ? "border-blue-200 bg-blue-50 text-blue-700" : status === "flagged" ? "border-red-200 bg-red-100 text-red-700" : "border-gray-200 bg-gray-100 text-gray-500"}`,
+
           onClick: () => toggleStatus(line),
         },
       };
@@ -146,7 +146,7 @@ export default function ReviewTable({
     key: "comment",
     label: "备注",
     required: true,
-    className: "w-40",
+    width: "md",
     cell: line => {
       const state = getLineState(line);
       const isEditing = editingCmt === line.lineCode;
@@ -171,7 +171,7 @@ export default function ReviewTable({
           label: state.comment || (state.status === "flagged" ? "请填写标记原因…" : "—"),
           size: "sm",
           disabled: isReadOnly,
-          className: `w-full justify-start border-0 bg-transparent px-1 py-0.5 text-left shadow-none hover:bg-gray-100 disabled:bg-transparent ${state.comment ? "text-gray-600" : state.status === "flagged" ? "text-red-400 italic" : "text-gray-300"}`,
+
           onClick: () => {
             if (!isReadOnly) {
               setEditingCmt(line.lineCode);
@@ -188,17 +188,17 @@ export default function ReviewTable({
     body={createPageBody([
       createPageTableBlock("review-lines", {
         framed: true,
-        className: "overflow-hidden",
-        bodyClassName: "overflow-x-auto",
+
+
         rows: rv.lines,
         columns,
         visibleColumns: columns.map(column => column.key),
         rowKey: line => line.lineCode,
-        rowClassName: line => {
+        rowState: line => {
           const status = getLineState(line).status;
-          if (status === "flagged") return "bg-red-50/50";
-          if (status === "pending") return "bg-amber-50/30";
-          return "";
+          if (status === "flagged") return "danger";
+          if (status === "pending") return "warning";
+          return "normal";
         },
       }),
     ])}

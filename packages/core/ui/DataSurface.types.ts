@@ -1,4 +1,4 @@
-import type { CSSProperties, FocusEventHandler, KeyboardEventHandler, MouseEventHandler, ReactNode } from "react";
+import type { FocusEventHandler, KeyboardEventHandler, MouseEventHandler, ReactNode } from "react";
 import type { InputFieldSpec } from "./InputControl";
 import type { SurfaceDataRowActionSpec, SurfaceDataRowEditActionSpec } from "./SurfaceContractTypes";
 
@@ -6,6 +6,22 @@ export type DataSurfaceKind = "table" | "structured" | "records" | "metrics";
 export type DataSurfaceLooseRow = ReturnType<typeof JSON.parse>;
 export type DataSurfaceActionSize = "sm" | "md" | "lg";
 export type DataSurfaceBadgeTone = "gray" | "green" | "blue" | "red" | "yellow" | "orange" | "emerald" | "sky" | "slate" | "amber";
+export type DataSurfaceAlign = "left" | "center" | "right";
+export type DataSurfaceWidth = "xs" | "sm" | "md" | "lg" | "xl" | "content" | "wide" | number;
+export type DataSurfaceWrap = "nowrap" | "wrap" | "truncate";
+export type DataSurfaceTone = "default" | "muted" | "success" | "warning" | "danger" | "info";
+export type DataSurfaceEmphasis = "normal" | "medium" | "strong";
+export type DataSurfaceFont = "default" | "mono";
+export type DataSurfaceFrame = "plain" | "clipped" | "bordered";
+export type DataSurfaceRowState = "normal" | "selected" | "section" | "total" | "muted" | "warning" | "danger" | "info";
+export type DataSurfaceStructuredCellRole = "header" | "label" | "value" | "empty" | "title" | "signature";
+export type DataSurfaceRowHeight = "sm" | "md" | "lg" | number;
+
+export interface DataSurfaceScrollSpec {
+  x?: boolean;
+  y?: "auto" | "hidden";
+  maxHeight?: "sm" | "md" | "lg";
+}
 
 export interface DataSurfaceCommandSpec {
   key: string;
@@ -15,7 +31,6 @@ export interface DataSurfaceCommandSpec {
   variant?: "primary" | "secondary" | "danger";
   type?: "button" | "submit";
   size?: DataSurfaceActionSize;
-  className?: string;
   truncate?: boolean;
 }
 
@@ -23,7 +38,6 @@ export interface DataSurfaceBadgeSpec {
   label?: ReactNode;
   tone?: DataSurfaceBadgeTone;
   level?: number;
-  className?: string;
 }
 
 export interface DataSurfaceNumberSpec {
@@ -32,24 +46,21 @@ export interface DataSurfaceNumberSpec {
   minimumFractionDigits?: number;
   maximumFractionDigits?: number;
   empty?: string;
-  className?: string;
 }
 
 export interface DataSurfaceAmountSpec {
   value: number | null | undefined;
   currencySymbol?: string;
   showZero?: boolean;
-  negativeClassName?: string;
   locale?: string;
   minimumFractionDigits?: number;
   maximumFractionDigits?: number;
-  className?: string;
 }
 
 export type DataSurfaceDisplaySpec =
-  | { kind: "text"; value: ReactNode; className?: string }
-  | { kind: "empty"; content?: ReactNode; className?: string }
-  | { kind: "stack"; items: Array<ReactNode | DataSurfaceDisplaySpec>; gap?: "none" | "xs" | "sm"; className?: string }
+  | { kind: "text"; value: ReactNode; tone?: DataSurfaceTone; emphasis?: DataSurfaceEmphasis; font?: DataSurfaceFont }
+  | { kind: "empty"; content?: ReactNode }
+  | { kind: "stack"; items: Array<ReactNode | DataSurfaceDisplaySpec>; gap?: "none" | "xs" | "sm" }
   | ({ kind: "badge" } & DataSurfaceBadgeSpec)
   | ({ kind: "number" } & DataSurfaceNumberSpec)
   | ({ kind: "amount" } & DataSurfaceAmountSpec);
@@ -64,7 +75,6 @@ export interface DataSurfaceCellInputSpec {
   disabled?: boolean;
   readOnly?: boolean;
   invalid?: boolean;
-  className?: string;
   placeholder?: string;
   emptyText?: string;
   ariaLabel?: string;
@@ -85,7 +95,6 @@ export interface DataSurfaceCellGroupSpec {
   kind: "group";
   items: DataSurfaceCellSpec[];
   direction?: "row" | "column";
-  className?: string;
 }
 
 export interface DataSurfaceCellSelectionGridOptionSpec {
@@ -108,7 +117,6 @@ export interface DataSurfaceCellSelectionGridSpec {
   disabled?: boolean;
   emptyText?: ReactNode;
   ariaLabel: string;
-  className?: string;
 }
 
 export type DataSurfaceCellSpec =
@@ -120,17 +128,20 @@ export type DataSurfaceCellSpec =
   | {
       kind: "actions";
       actions: DataSurfaceCellActionSpec[];
-      align?: "left" | "center" | "right";
-      className?: string;
+      align?: DataSurfaceAlign;
     };
 
 export interface DataSurfaceStructuredCellSpec {
   content: ReactNode | DataSurfaceCellSpec;
   header?: boolean;
+  cellRole?: DataSurfaceStructuredCellRole;
+  align?: DataSurfaceAlign;
+  width?: DataSurfaceWidth;
+  rowHeight?: DataSurfaceRowHeight;
   colSpan?: number;
   rowSpan?: number;
-  className?: string;
-  style?: CSSProperties;
+  tone?: DataSurfaceTone;
+  emphasis?: DataSurfaceEmphasis;
 }
 
 export interface DataSurfaceColumnSpec<T> {
@@ -138,9 +149,13 @@ export interface DataSurfaceColumnSpec<T> {
   label: ReactNode;
   defaultVisible?: boolean;
   required?: boolean;
-  className?: string;
-  headerClassName?: string;
-  cellClassName?: string;
+  align?: DataSurfaceAlign;
+  width?: DataSurfaceWidth;
+  wrap?: DataSurfaceWrap;
+  tone?: DataSurfaceTone;
+  emphasis?: DataSurfaceEmphasis;
+  font?: DataSurfaceFont;
+  numeric?: boolean;
   onHeaderClick?: () => void;
   cell: (row: T) => ReactNode | DataSurfaceCellSpec;
 }
@@ -149,7 +164,6 @@ export interface DataSurfaceMetricSpec {
   key: string;
   label: ReactNode;
   value: ReactNode | DataSurfaceDisplaySpec;
-  className?: string;
 }
 
 export interface DataSurfaceRecordActionSpec {
@@ -180,8 +194,6 @@ interface DataSurfaceBaseProps {
   framed?: boolean;
   wrap?: boolean;
   presentation?: DataSurfacePresentationSpec;
-  className?: string;
-  bodyClassName?: string;
 }
 
 export interface DataSurfacePresentationSpec {
@@ -196,9 +208,7 @@ export interface DataSurfacePresentationSpec {
 export interface DataSurfaceActionsColumnSpec {
   key?: string;
   label?: ReactNode;
-  headerClassName?: string;
-  cellClassName?: string;
-  centered?: boolean;
+  align?: DataSurfaceAlign;
 }
 
 export interface DataSurfaceTableProps<T> extends DataSurfaceBaseProps {
@@ -207,19 +217,18 @@ export interface DataSurfaceTableProps<T> extends DataSurfaceBaseProps {
   columns: Array<DataSurfaceColumnSpec<T>>;
   rowKey: (row: T, index: number) => string | number;
   visibleColumns?: string[];
-  density?: "normal" | "compact";
   loading?: boolean;
   emptyText?: string;
   onRowClick?: (row: T) => void;
-  rowClassName?: (row: T) => string;
-  tableClassName?: string;
+  rowState?: (row: T) => DataSurfaceRowState;
+  frame?: DataSurfaceFrame;
+  scroll?: DataSurfaceScrollSpec;
   expandedRowKey?: string | number | null;
   expandedRowKeys?: Array<string | number> | Set<string | number> | null;
   expandedRowContent?: (row: T) => ReactNode;
   rowActions?: (row: T) => DataSurfaceRowActionSpec[];
   rowEditActions?: (row: T) => DataSurfaceRowEditActionSpec<T>;
   actionsColumn?: DataSurfaceActionsColumnSpec;
-  scrollClassName?: string;
 }
 
 export interface DataSurfaceStructuredProps extends DataSurfaceBaseProps {
@@ -228,8 +237,8 @@ export interface DataSurfaceStructuredProps extends DataSurfaceBaseProps {
   structuredScroll?: boolean;
   colWidths?: Array<string | number>;
   rowHeights?: Array<string | number>;
-  cellClassName?: string;
-  headerCellClassName?: string;
+  frame?: DataSurfaceFrame;
+  scroll?: DataSurfaceScrollSpec;
 }
 
 export interface DataSurfaceRecordsProps<TDetail = DataSurfaceLooseRow> extends DataSurfaceBaseProps {

@@ -27,9 +27,9 @@ export default function ShipmentTable({ filters }: Props) {
     { key: "employeeName", label: "业务员", required: true, cell: (row) => String(row.employeeName ?? "厂家直销") },
     { key: "productName", label: "产品", required: true, cell: (row) => String(row.productName ?? "—") },
     { key: "spec", label: "规格", required: true, cell: (row) => String(row.spec ?? "—") },
-    { key: "quantity", label: "数量", required: true, className: "text-right", headerClassName: "text-right", cell: (row) => formatCostNumber(row.quantity as number) },
-    { key: "amount", label: "金额", required: true, className: "text-right", headerClassName: "text-right", cell: (row) => formatCostNumber(row.amount as number) },
-    { key: "receivedAmount", label: "已回款", required: true, className: "text-right", headerClassName: "text-right", cell: (row) => formatCostNumber(row.receivedAmount as number) },
+    { key: "quantity", label: "数量", required: true, align: "right",  cell: (row) => formatCostNumber(row.quantity as number) },
+    { key: "amount", label: "金额", required: true, align: "right",  cell: (row) => formatCostNumber(row.amount as number) },
+    { key: "receivedAmount", label: "已回款", required: true, align: "right",  cell: (row) => formatCostNumber(row.receivedAmount as number) },
     { key: "source", label: "来源", required: true, cell: (row) => CostTraceButton({ row, onTrace: (info) => setTrace({ open: true, info }) }) },
   ];
 

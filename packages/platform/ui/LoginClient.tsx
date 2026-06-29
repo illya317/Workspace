@@ -61,14 +61,13 @@ export default function LoginClient() {
   return <PageSurface
       kind="settings"
       header={{ hidden: true }}
-      className="flex min-h-screen w-full items-center justify-center bg-gray-50"
       body={createPageBody([createPanelBlock("login", {
-        className: "w-full max-w-xl",
-        bodyClassName: "space-y-4 p-10",
+
+
         blocks: [
           createBlockSurfaceBlock("logo", {
             kind: "message",
-            className: "border-0 bg-transparent p-0 text-inherit",
+
             content: (
               <>
                 <div className="flex justify-center">
@@ -89,8 +88,8 @@ export default function LoginClient() {
             key: "login-form",
             surface: {
               kind: "login",
-              className: "mt-2 w-full",
-              bodyClassName: "gap-5",
+
+
               onSubmit: handleSubmit,
               fields: [
                 {
@@ -116,12 +115,12 @@ export default function LoginClient() {
                   content: <div className="rounded-md border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-600">{error}</div>,
                 }] : []),
               ],
-              actions: [{ key: "login", type: "submit", label: loading ? "登录中..." : "登录", variant: "primary", disabled: loading, className: "w-full justify-center" }],
+              actions: [{ key: "login", type: "submit", label: loading ? "登录中..." : "登录", variant: "primary", disabled: loading,  }],
             },
           },
           createBlockSurfaceBlock("login-divider", {
             kind: "message",
-            className: "border-0 bg-transparent p-0 text-inherit",
+
             content: (
               <div className="my-5 flex items-center gap-3 text-xs text-gray-400">
                 <span className="h-px flex-1 bg-gray-200" />
@@ -135,7 +134,7 @@ export default function LoginClient() {
             key: "wecom-login",
             surface: {
               kind: "inline",
-              actions: [{ key: "wecom", label: "企业微信登录", onClick: handleWecomLogin, className: "w-full justify-center border-emerald-200 text-emerald-700 hover:bg-emerald-50" }],
+              actions: [{ key: "wecom", label: "企业微信登录", onClick: handleWecomLogin, variant: "primary" }],
             },
           },
         ],

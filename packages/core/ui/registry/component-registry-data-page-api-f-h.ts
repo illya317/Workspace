@@ -40,13 +40,10 @@ export const page_api_registry_entries = [
         name: "pages",
         description: "纸面页列表，承载 A4、fluid 或 QC 纸质模板内容。",
         children: [
-          { name: "size", description: "页面尺寸：a4 / fluid。" },
+          { name: "size", description: "页面尺寸：a4 / fluid / wide。" },
           { name: "content", description: "页面正文内容。" },
-          { name: "minWidth", description: "页面最小宽度。" },
         ],
       },
-      { name: "pageClassName", description: "统一页级样式扩展。" },
-      { name: "style", description: "文档容器样式扩展。" },
     ],
   },
   {
