@@ -182,13 +182,18 @@ function renderEmpty(empty: BlockSurfaceEmptyProps) {
   return <EmptyStateCard compact={empty.compact}>{empty.content}</EmptyStateCard>;
 }
 
+function renderNestedBlockSurface(block: BlockSurfaceProps, fallbackKey: string) {
+  const { key, ...props } = block;
+  return <BlockSurface key={key ?? fallbackKey} {...props} />;
+}
+
 function renderGroup(group: BlockSurfaceGroupProps) {
   if (group.layout === "grid") {
     return (
       <div className="grid gap-4 lg:grid-cols-2">
         {group.blocks.map((block, index) => (
           <div key={block.key ?? String(index)} className={index === 0 ? "min-w-0 max-lg:order-last" : "min-w-0"}>
-            <BlockSurface {...block} />
+            {renderNestedBlockSurface(block, String(index))}
           </div>
         ))}
       </div>
@@ -196,7 +201,7 @@ function renderGroup(group: BlockSurfaceGroupProps) {
   }
   return (
     <div className="space-y-4">
-      {group.blocks.map((block, index) => <BlockSurface key={block.key ?? String(index)} {...block} />)}
+      {group.blocks.map((block, index) => renderNestedBlockSurface(block, String(index)))}
     </div>
   );
 }
@@ -222,7 +227,7 @@ function renderPanel(panel: BlockSurfacePanelProps) {
       {panel.content}
       {panel.blocks?.length ? (
         <div className={panel.content ? "mt-4 space-y-4" : "space-y-4"}>
-          {panel.blocks.map((block, index) => <BlockSurface key={block.key ?? String(index)} {...block} />)}
+          {panel.blocks.map((block, index) => renderNestedBlockSurface(block, String(index)))}
         </div>
       ) : null}
     </>
