@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { PageSurface, createPageBody, createRecordSection, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createPageBody, createStatusSection, useFeedback } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec, PageSurfaceProps, SurfaceToolbarItems, VisualizationGanttDependencySpec, VisualizationGanttRowSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { ProjectItem } from "./model";
@@ -167,11 +167,11 @@ export default function ProjectPlanGanttTab({
     },
   ] satisfies SurfaceToolbarItems;
   const timelineBlock: BodySurfaceSectionSpec = error
-    ? createRecordSection("project-plan-gantt-error", { records: [], empty: error,  })
+    ? createStatusSection("project-plan-gantt-error", { kind: "error", content: error })
     : loading
-      ? createRecordSection("project-plan-gantt-loading", { records: [], empty: "加载项目甘特..." })
+      ? createStatusSection("project-plan-gantt-loading", { kind: "loading", content: "加载项目甘特..." })
       : !data
-        ? createRecordSection("project-plan-gantt-empty", { records: [], empty: "请选择项目" })
+        ? createStatusSection("project-plan-gantt-empty", { kind: "empty", content: "请选择项目" })
         : {
         key: "project-plan-gantt-timeline",
         body: { kind: "visualization", visualization: {

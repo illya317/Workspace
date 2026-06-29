@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createRecordSection, createSectionSection, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createSectionSection, createStatusSection, PageSurface } from "@workspace/core/ui";
 
 interface FinancePlaceholderPageProps {
   sectionKey: string;
@@ -22,7 +22,7 @@ export default function FinancePlaceholderPage({
         createSectionSection(sectionKey, {
           title,
           subtitle,
-          sections: [createRecordSection("empty", { records: [], empty })],
+          sections: [createStatusSection("empty", { kind: "empty", content: empty })],
         }),
       ])}
     />

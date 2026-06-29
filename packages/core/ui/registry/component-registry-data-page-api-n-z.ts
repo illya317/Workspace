@@ -3,16 +3,6 @@ import { generatedCoreUiSurfaceContracts } from "./generated-surface-contracts";
 
 export const page_api_registry_entries = [
   {
-    name: "RecordSurface",
-    description: "正文可展开记录 Surface",
-    contract: generatedCoreUiSurfaceContracts.RecordSurface,
-    declares: [
-      { name: "records", description: "可展开记录列表。" },
-      { name: "actions", description: "记录块局部动作；页面级动作放 PageSurface.toolbar。" },
-    ],
-    composes: ["DisclosureRecordCard", "CommandButton", "EmptyStateCard"],
-  },
-  {
     name: "Toolbar",
     description: "PageSurface 内部统一工具栏 renderer",
     composes: ["ActionButton", "SearchInput", "SelectField", "ToolbarOptionGroup", "FieldValueFilter", "DropdownSurface"],

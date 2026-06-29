@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createFormSection, createPageBody, type BodySurfaceSectionSpec, type DataSurfaceColumnSpec, type DataSurfaceProps, type FormSurfaceItemSpec, PageSurface, type SurfaceDataRowEditActionSpec, useFeedback } from "@workspace/core/ui";
+import { createFormSection, createPageBody, createStatusSection, type BodySurfaceSectionSpec, type DataSurfaceColumnSpec, type DataSurfaceProps, type FormSurfaceItemSpec, PageSurface, type SurfaceDataRowEditActionSpec, useFeedback } from "@workspace/core/ui";
 import { createProjectPlanPhase, deleteProjectPlanPhase, updateProjectPlanPhase } from "./api";
 import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
 
@@ -86,9 +86,8 @@ export function useProjectPlanPhaseSection({
 
   if (!projectId) {
     return {
-      key: "project-phases-empty",
+      ...createStatusSection("project-phases-empty", { kind: "empty", content: "项目保存后可维护项目阶段。" }),
       header: { title: "项目阶段" },
-      body: { kind: "record", record: { records: [], empty: "项目保存后可维护项目阶段。" } },
     };
   }
 

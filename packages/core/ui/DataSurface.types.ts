@@ -1,8 +1,8 @@
-import type { FocusEventHandler, KeyboardEventHandler, ReactNode } from "react";
+import type { FocusEventHandler, KeyboardEventHandler, MouseEventHandler, ReactNode } from "react";
 import type { InputFieldSpec } from "./InputSurface";
 import type { SurfaceDataRowActionSpec, SurfaceDataRowEditActionSpec } from "./SurfaceContractTypes";
 
-export type DataSurfaceKind = "table" | "structured";
+export type DataSurfaceKind = "table" | "structured" | "summary" | "record";
 export type DataSurfaceLooseRow = ReturnType<typeof JSON.parse>;
 export type DataSurfaceActionSize = "sm" | "md" | "lg";
 export type DataSurfaceBadgeTone = "gray" | "green" | "blue" | "red" | "yellow" | "orange" | "emerald" | "sky" | "slate" | "amber";
@@ -77,6 +77,8 @@ export interface DataSurfaceCellInputSpec {
   invalid?: boolean;
   placeholder?: string;
   emptyText?: string;
+  rows?: number;
+  resize?: "none" | "vertical" | "both";
   ariaLabel?: string;
   autoFocus?: boolean;
   onBlur?: FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
@@ -142,6 +144,30 @@ export interface DataSurfaceStructuredCellSpec {
   rowSpan?: number;
   tone?: DataSurfaceTone;
   emphasis?: DataSurfaceEmphasis;
+}
+
+export interface DataSurfaceSummaryMetricSpec {
+  key: string;
+  label: ReactNode;
+  value: ReactNode | DataSurfaceDisplaySpec;
+}
+
+export interface DataSurfaceRecordActionSpec {
+  label: string;
+  loadingLabel?: string;
+  loading?: boolean;
+  onClick: MouseEventHandler<HTMLButtonElement>;
+}
+
+export interface DataSurfaceRecordSpec {
+  key: string;
+  expanded: boolean;
+  onToggle: () => void;
+  header: ReactNode | DataSurfaceDisplaySpec;
+  summary?: ReactNode | DataSurfaceDisplaySpec;
+  detail?: ReactNode | DataSurfaceDisplaySpec;
+  detailTitle?: ReactNode;
+  detailAction?: DataSurfaceRecordActionSpec;
 }
 
 export interface DataSurfaceColumnSpec<T> {
@@ -213,6 +239,18 @@ export interface DataSurfaceStructuredProps extends DataSurfaceBaseProps {
   scroll?: DataSurfaceScrollSpec;
 }
 
+export interface DataSurfaceSummaryProps extends DataSurfaceBaseProps {
+  kind: "summary";
+  metrics: DataSurfaceSummaryMetricSpec[];
+}
+
+export interface DataSurfaceRecordProps extends DataSurfaceBaseProps {
+  kind: "record";
+  records: DataSurfaceRecordSpec[];
+}
+
 export type DataSurfaceProps<T = DataSurfaceLooseRow> =
   | DataSurfaceTableProps<T>
-  | DataSurfaceStructuredProps;
+  | DataSurfaceStructuredProps
+  | DataSurfaceSummaryProps
+  | DataSurfaceRecordProps;

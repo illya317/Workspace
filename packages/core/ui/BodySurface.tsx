@@ -7,14 +7,12 @@ import NavigationRenderer, { type NavigationRendererProps } from "./NavigationRe
 import type { ReactNode, Ref } from "react";
 import type { DataSurfaceProps, DataSurfaceLooseRow } from "./DataSurface.types";
 import type { FormSurfaceProps, FormSurfaceLooseItem } from "./FormSurface.types";
-import MetricsSurface, { type MetricsSurfaceProps } from "./MetricsSurface";
-import RecordSurface, { type RecordSurfaceProps } from "./RecordSurface";
 import SelectorSurface, { type SelectorSurfaceProps } from "./SelectorSurface";
 import VisualizationSurface, { type VisualizationSurfaceProps } from "./VisualizationSurface";
 import type { ActionGlyphKind } from "./internal/action/ActionGlyphs";
 import DetailModal from "./internal/common/DetailModal";
 import type { ModuleCardColor } from "./internal/common/Card";
-import { renderBodyEmpty, renderBodyMessage, renderModuleGrid, renderSectionBadges } from "./internal/body/BodySurfaceBlocks";
+import { renderBodyEmpty, renderBodyMessage, renderBodyStatus, renderModuleGrid, renderSectionBadges } from "./internal/body/BodySurfaceBlocks";
 import SplitWorkspace, { type SplitWorkspaceMode } from "./internal/common/SplitWorkspace";
 import TabBar from "./internal/common/TabBar";
 import { joinClassNames } from "./internal/common/card-utils";
@@ -24,7 +22,7 @@ import type { SurfaceToolbarItems } from "./SurfaceContractTypes";
 
 export { renderBodyEmpty } from "./internal/body/BodySurfaceBlocks";
 
-export type BodySurfaceKind = "data" | "document" | "form" | "metrics" | "navigation" | "record" | "selector" | "section" | "visualization";
+export type BodySurfaceKind = "data" | "document" | "form" | "navigation" | "selector" | "section" | "visualization";
 
 export type BodySurfaceActionSize = "sm" | "md" | "lg";
 export type BodySurfaceSectionLayout = "stack" | "grid" | "split";
@@ -50,6 +48,12 @@ export interface BodySurfaceEmptySpec {
 export interface BodySurfaceMessageSpec {
   content: ReactNode;
   tone?: "default" | "muted" | "success" | "warning" | "danger";
+}
+
+export interface BodySurfaceStatusSpec {
+  kind: "empty" | "loading" | "error";
+  content: ReactNode;
+  compact?: boolean;
 }
 
 export interface BodySurfaceListItemSpec {
@@ -125,6 +129,7 @@ interface BodySurfaceSectionCommonProps {
   description?: ReactNode;
   commands?: BodySurfaceCommandSpec[];
   message?: BodySurfaceMessageSpec;
+  status?: BodySurfaceStatusSpec;
   empty?: BodySurfaceEmptySpec;
   list?: BodySurfaceListSpec;
   moduleGrid?: BodySurfaceModuleGridSpec;
@@ -169,9 +174,7 @@ export interface BodySurfaceSectionSpec {
 export type BodySurfaceDataProps<T = DataSurfaceLooseRow> = { kind: "data"; data: DataSurfaceProps<T> };
 export type BodySurfaceDocumentProps = { kind: "document"; document: DocumentSurfaceProps };
 export type BodySurfaceFormProps<T = FormSurfaceLooseItem> = { kind: "form"; form: FormSurfaceProps<T> };
-export type BodySurfaceMetricsProps = { kind: "metrics"; metrics: MetricsSurfaceProps };
 export type BodySurfaceNavigationProps = { kind: "navigation"; navigation: NavigationRendererProps };
-export type BodySurfaceRecordProps = { kind: "record"; record: RecordSurfaceProps };
 export type BodySurfaceSelectorProps = { kind: "selector"; selector: SelectorSurfaceProps };
 export type BodySurfaceVisualizationProps = { kind: "visualization"; visualization: VisualizationSurfaceProps };
 
@@ -179,9 +182,7 @@ export type BodySurfaceProps<TData = DataSurfaceLooseRow, TForm = FormSurfaceLoo
   | BodySurfaceDataProps<TData>
   | BodySurfaceDocumentProps
   | BodySurfaceFormProps<TForm>
-  | BodySurfaceMetricsProps
   | BodySurfaceNavigationProps
-  | BodySurfaceRecordProps
   | BodySurfaceSelectorProps
   | BodySurfaceSectionProps
   | BodySurfaceVisualizationProps;
@@ -404,9 +405,10 @@ function renderSectionContent(props: BodySurfaceSectionProps) {
 
   const blocks = [
     renderBodyMessage(props.message),
-    renderBodyList(props.list),
-    renderModuleGrid(props.moduleGrid),
-    props.sections?.length ? (
+    renderBodyStatus(props.status),
+    props.status ? null : renderBodyList(props.list),
+    props.status ? null : renderModuleGrid(props.moduleGrid),
+    !props.status && props.sections?.length ? (
       <BodySurfaceSectionStack
         key="sections"
         sections={props.sections}
@@ -435,9 +437,7 @@ export default function BodySurface(props: BodySurfaceProps) {
   if (props.kind === "data") return <DataSurface {...props.data} />;
   if (props.kind === "document") return <DocumentSurface {...props.document} />;
   if (props.kind === "form") return <FormSurface {...props.form} />;
-  if (props.kind === "metrics") return <MetricsSurface {...props.metrics} />;
   if (props.kind === "navigation") return <NavigationRenderer {...props.navigation} />;
-  if (props.kind === "record") return <RecordSurface {...props.record} />;
   if (props.kind === "selector") return <SelectorSurface {...props.selector} />;
   if (props.kind === "section") return renderSectionSurface(props);
   return <VisualizationSurface {...props.visualization} />;

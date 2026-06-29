@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createRecordSection, createSectionSection, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createSectionSection, createStatusSection, PageSurface } from "@workspace/core/ui";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 
 export default function CustomersClient() {
@@ -23,7 +23,7 @@ export default function CustomersClient() {
         createSectionSection("customers", {
           title: "客户列表",
           sections: [
-            createRecordSection("empty", { records: [], empty: "暂无客户数据" }),
+            createStatusSection("empty", { kind: "empty", content: "暂无客户数据" }),
           ],
         }),
       ])}

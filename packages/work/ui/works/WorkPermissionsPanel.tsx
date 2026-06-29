@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createPageBody, createRecordSection, type DataSurfaceColumnSpec, PageSurface, type BodySurfaceSectionSpec, type SurfaceDataRowActionSpec } from "@workspace/core/ui";
+import { createPageBody, createStatusSection, type DataSurfaceColumnSpec, PageSurface, type BodySurfaceSectionSpec, type SurfaceDataRowActionSpec } from "@workspace/core/ui";
 import { listSpacePermissions, saveSpacePermissions, WORK_REFERENCE_OPTIONS_ENDPOINT } from "./api";
 import { WORK_ROLE_OPTIONS } from "./model";
 import type { WorkSpacePermissionRow, WorkSpaceRole, WorkTarget } from "./types";
@@ -155,7 +155,7 @@ export function useWorkPermissionsBlocks({
     }
   }
   if (!canManage) {
-    return [createRecordSection("permissions-denied", { records: [], empty: "仅空间管理员可维护权限。" })];
+    return [createStatusSection("permissions-denied", { kind: "empty", content: "仅空间管理员可维护权限。" })];
   }
   return [
     {

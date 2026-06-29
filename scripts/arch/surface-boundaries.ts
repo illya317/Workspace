@@ -191,12 +191,6 @@ const SURFACE_DECLARE_RULES: Record<string, {
   DataSurface: {
     topLevel: ["kind", "actions"],
   },
-  MetricsSurface: {
-    topLevel: ["metrics", "actions"],
-  },
-  RecordSurface: {
-    topLevel: ["records", "actions"],
-  },
   DocumentSurface: {
     topLevel: ["kind", "pages"],
   },

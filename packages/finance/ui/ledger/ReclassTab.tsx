@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState } from "react";
-import { PageSurface, createPageBody, createRecordSection, createPageTableSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createPageBody, createStatusSection, createPageTableSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { useCSV } from "@workspace/core/hooks";
@@ -120,9 +120,9 @@ export default function ReclassTab({
       body={createPageBody([
           ...lifecycleBlocks,
           ...(loading
-            ? [createRecordSection("reclass-loading", { records: [], empty: "加载中..." })]
+            ? [createStatusSection("reclass-loading", { kind: "loading", content: "加载中..." })]
             : entries.length === 0
-              ? [createRecordSection("reclass-empty", { records: [], empty: "未发现需重分类的科目" })]
+              ? [createStatusSection("reclass-empty", { kind: "empty", content: "未发现需重分类的科目" })]
               : [createPageTableSection("reclass-entries", {
 
 

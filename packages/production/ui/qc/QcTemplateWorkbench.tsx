@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { matchText } from "@workspace/core/search";
-import { PageSurface, createSectionsSection, createPageBody, createRecordSection, createPageTableSection } from "@workspace/core/ui";
+import { PageSurface, createSectionsSection, createPageBody, createStatusSection, createPageTableSection } from "@workspace/core/ui";
 import type {
   QcTemplateDetail,
   QcTemplateFeedbackState,
@@ -95,10 +95,7 @@ function WorkbenchSurface({
 
   const sectionBlocks = sections.length === 0
     ? [
-        createRecordSection("qc-template-workbench-empty", {
-          records: [],
-          empty: viewModel.emptyText ?? "没有匹配的模板。",
-        }),
+        createStatusSection("qc-template-workbench-empty", { kind: "empty", content: viewModel.emptyText ?? "没有匹配的模板。" }),
       ]
     : sections.map((section) => {
         const actions = section.collapsible || section.onToggle ? [{
@@ -111,11 +108,11 @@ function WorkbenchSurface({
         }] : undefined;
 
         if (!section.expandedView) {
-          return createRecordSection(`qc-template-workbench-${section.key}-collapsed`, {
-            actions,
-            records: [],
-            empty: "已收起。",
-          });
+          return {
+            key: `qc-template-workbench-${section.key}-collapsed`,
+            header: actions ? { actions } : undefined,
+            body: { kind: "section" as const, status: { kind: "empty" as const, content: "已收起。" } },
+          };
         }
 
         return createPageTableSection<QcTemplateWorkbenchRow>(`qc-template-workbench-${section.key}`, {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { createActionsSection, createInlineFieldsSection, createPageBody, createPageDataSection, createRecordSection, type DataSurfaceColumnSpec, type FormSurfaceFieldSpec, PageSurface, type BodySurfaceSectionSpec, type BodySurfaceCommandSpec } from "@workspace/core/ui";
+import { createPageBody, createPageDataSection, createRecordSection, createStatusSection, type DataSurfaceColumnSpec, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type {
   WorkReportCollectionResponse,
   WorkReportCollectionSpace,
@@ -36,42 +36,64 @@ function getDraftRows(draft: WorkReportDraftResponse | null): ReportDraftRow[] {
 function createDraftColumns({
   canEdit,
   onUpdate,
-  onRemove,
-}: Pick<ReportDraftTableProps, "canEdit" | "onUpdate" | "onRemove">): DataSurfaceColumnSpec<ReportDraftRow>[] {
+}: Pick<ReportDraftTableProps, "canEdit" | "onUpdate">): DataSurfaceColumnSpec<ReportDraftRow>[] {
   return [{
     key: "title",
     label: "事项",
     required: true,
-
-    wrap: "wrap", width: "wide",
-    cell: item => item.workItemId && item.source !== "stale" ? <div className="break-words text-sm font-medium text-slate-900">{item.title}</div> : <InlineFieldCell blockKey={`title-${item.rowIndex}`} field={{ key: `title-${item.rowIndex}`, label: "事项", spec: { valueType: "string", control: "text", state: !canEdit ? "readonly" : "normal" }, value: item.title, placeholder: "填写事项", onChange: value => onUpdate(item.rowIndex, {
-      title: String(value ?? "")
-    }) }} />
+    wrap: "wrap", width: "md",
+    cell: item => {
+      const readonly = item.workItemId && item.source !== "stale";
+      return {
+        kind: "input",
+        spec: { valueType: "string", control: "text", multiline: true, state: readonly || !canEdit ? "readonly" : "normal" },
+        value: item.title,
+        rows: 2,
+        resize: "none",
+        placeholder: "填写事项",
+        ariaLabel: "事项",
+        density: "compact",
+        onChange: readonly ? undefined : value => onUpdate(item.rowIndex, {
+          title: String(value ?? "")
+        }),
+      };
+    }
   }, {
     key: "done",
     label: "本周完成",
     required: true,
-
-    width: "wide",
-    cell: item => <InlineFieldCell blockKey={`done-${item.rowIndex}`} field={{ key: `done-${item.rowIndex}`, label: "本周完成", spec: { valueType: "string", control: "text", multiline: true, state: !canEdit ? "readonly" : "normal" }, value: item.doneThisWeek, rows: 3, placeholder: item.previousPlanSnapshot ? `上周计划：${item.previousPlanSnapshot}` : "本周干了什么", onChange: value => onUpdate(item.rowIndex, {
-      doneThisWeek: String(value ?? "")
-    }) }} />
+    wrap: "wrap", width: "xl",
+    cell: item => ({
+      kind: "input",
+      spec: { valueType: "string", control: "text", multiline: true, state: !canEdit ? "readonly" : "normal" },
+      value: item.doneThisWeek,
+      rows: 2,
+      resize: "none",
+      placeholder: item.previousPlanSnapshot ? `上周计划：${item.previousPlanSnapshot}` : "本周干了什么",
+      ariaLabel: "本周完成",
+      density: "compact",
+      onChange: value => onUpdate(item.rowIndex, {
+        doneThisWeek: String(value ?? "")
+      }),
+    })
   }, {
     key: "next",
     label: "下周计划",
     required: true,
-
-    width: "wide",
-    cell: item => <InlineFieldCell blockKey={`next-${item.rowIndex}`} field={{ key: `next-${item.rowIndex}`, label: "下周计划", spec: { valueType: "string", control: "text", multiline: true, state: !canEdit ? "readonly" : "normal" }, value: item.planNextWeek, rows: 3, placeholder: "下周准备做什么", onChange: value => onUpdate(item.rowIndex, {
-      planNextWeek: String(value ?? "")
-    }) }} />
-  }, {
-    key: "actions",
-    label: "操作",
-    required: true,
-    width: "xs",
-
-    cell: item => canEdit && item.source !== "work" ? <InlineActionsCell blockKey={`remove-${item.rowIndex}`} actions={[{ key: `remove-${item.rowIndex}`, label: "移除", variant: "danger", onClick: () => onRemove(item.rowIndex) }]} /> : <span className="text-xs text-slate-400">锁定</span>
+    wrap: "wrap", width: "xl",
+    cell: item => ({
+      kind: "input",
+      spec: { valueType: "string", control: "text", multiline: true, state: !canEdit ? "readonly" : "normal" },
+      value: item.planNextWeek,
+      rows: 2,
+      resize: "none",
+      placeholder: "下周准备做什么",
+      ariaLabel: "下周计划",
+      density: "compact",
+      onChange: value => onUpdate(item.rowIndex, {
+        planNextWeek: String(value ?? "")
+      }),
+    })
   }];
 }
 
@@ -88,7 +110,14 @@ export function buildReportDraftTableBlock(props: ReportDraftTableProps): BodySu
       loading: props.loading,
       emptyText: "暂无可汇报事项",
       rowKey: (item, index) => item.id || item.workItemId || `new-${index}`,
-      scroll: { y: "hidden" },
+      rowActions: (item) => props.canEdit && item.source !== "work" ? [{
+        key: `remove-${item.rowIndex}`,
+        kind: "delete",
+        label: "移除",
+        onClick: () => props.onRemove(item.rowIndex),
+      }] : [],
+      actionsColumn: { label: "操作", align: "center" },
+      scroll: { x: false, y: "hidden" },
     });
 }
 
@@ -96,7 +125,7 @@ export function ReportDraftTable(props: ReportDraftTableProps) {
   const rows = useMemo(() => getDraftRows(props.draft), [props.draft]);
   const columns = useMemo(() => createDraftColumns(props), [props]);
   return <PageSurface kind="standard" embedded body={createPageBody([createPageDataSection("report-draft-table", { kind: "table", rows, columns, visibleColumns: [],   presentation: { density: "compact" },
- loading: props.loading, emptyText: "暂无可汇报事项", rowKey: (item, index) => item.id || item.workItemId || `new-${index}`, scroll: { y: "hidden" }, })])} />;
+ loading: props.loading, emptyText: "暂无可汇报事项", rowKey: (item, index) => item.id || item.workItemId || `new-${index}`, rowActions: (item) => props.canEdit && item.source !== "work" ? [{ key: `remove-${item.rowIndex}`, kind: "delete", label: "移除", onClick: () => props.onRemove(item.rowIndex) }] : [], actionsColumn: { label: "操作", align: "center" }, scroll: { x: false, y: "hidden" }, })])} />;
 }
 
 function createCollectionColumns(): DataSurfaceColumnSpec<WorkReportCollectionSpace>[] {
@@ -129,7 +158,7 @@ function createCollectionColumns(): DataSurfaceColumnSpec<WorkReportCollectionSp
 export function buildReportCollectionTableBlock({ collection, loading }: ReportCollectionTableProps): BodySurfaceSectionSpec {
   const rows = collection?.spaces || [];
   if (!loading && rows.length === 0) {
-    return createRecordSection("report-collection-empty", { records: [], empty: "暂无可汇总的工作空间" });
+    return createStatusSection("report-collection-empty", { kind: "empty", content: "暂无可汇总的工作空间" });
   }
   const columns = createCollectionColumns();
   return createPageDataSection("report-collection-table", {
@@ -142,7 +171,7 @@ export function buildReportCollectionTableBlock({ collection, loading }: ReportC
       loading,
       emptyText: "暂无汇报",
       rowKey: space => `${space.targetType}:${space.targetId}`,
-      scroll: { y: "hidden" },
+      scroll: { x: false, y: "hidden" },
     });
 }
 
@@ -150,9 +179,9 @@ export function ReportCollectionTable({ collection, loading }: ReportCollectionT
   const rows = collection?.spaces || [];
   const columns = useMemo(() => createCollectionColumns(), []);
   const block = !loading && rows.length === 0
-    ? createRecordSection("report-collection-empty", { records: [], empty: "暂无可汇总的工作空间" })
+    ? createStatusSection("report-collection-empty", { kind: "empty", content: "暂无可汇总的工作空间" })
     : createPageDataSection("report-collection-table", { kind: "table", rows, columns, visibleColumns: [],     presentation: { density: "compact" },
- loading, emptyText: "暂无汇报", rowKey: space => `${space.targetType}:${space.targetId}`, scroll: { y: "hidden" }, });
+ loading, emptyText: "暂无汇报", rowKey: space => `${space.targetType}:${space.targetId}`, scroll: { x: false, y: "hidden" }, });
   return <PageSurface kind="standard" embedded body={createPageBody([block])} />;
 }
 
@@ -180,26 +209,6 @@ function ReportStack({
           </div>,
     })),
   })])} />;
-}
-
-function InlineFieldCell({
-  blockKey,
-  field,
-}: {
-  blockKey: string;
-  field: FormSurfaceFieldSpec;
-}) {
-  return <PageSurface kind="standard" embedded body={createPageBody([createInlineFieldsSection(blockKey, [field])])} />;
-}
-
-function InlineActionsCell({
-  blockKey,
-  actions,
-}: {
-  blockKey: string;
-  actions: BodySurfaceCommandSpec[];
-}) {
-  return <PageSurface kind="standard" embedded body={createPageBody([createActionsSection(blockKey, actions)])} />;
 }
 
 function formatDateTime(value: string | null) {

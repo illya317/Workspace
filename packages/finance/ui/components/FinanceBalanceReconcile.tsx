@@ -5,7 +5,7 @@ import { workspacePath } from "@workspace/core/routing";
 import {
   createPageBody,
   PageSurface,
-  createRecordSection,
+  createStatusSection,
   createInlineFieldsSection,
   createPageTableSection,
   createMessageSection,
@@ -140,7 +140,7 @@ export default function FinanceBalanceReconcile(props: {
 }
 
 function createBalanceReconcileSuccessSection() {
-  return createRecordSection("balance-reconcile-empty", { records: [], empty: "核对通过，所有科目余额完全一致" });
+  return createStatusSection("balance-reconcile-empty", { kind: "empty", content: "核对通过，所有科目余额完全一致" });
 }
 
 function createMissingListSection(

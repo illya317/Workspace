@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createMessageSection, createPageBody, PageSurface, createRecordSection, createPageTableSection } from "@workspace/core/ui";
+import { createMessageSection, createPageBody, PageSurface, createPageTableSection, createStatusSection } from "@workspace/core/ui";
 import type { DataSurfaceColumnSpec, BodySurfaceSectionSpec, SurfaceToolbarItem, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useReviewFilterToolbarItems } from "./ReviewFilters";
 import type { RvLine } from "@workspace/finance/types";
@@ -290,9 +290,9 @@ export default function ReviewClient() {
       ]
     : [];
   const alertBlocks: BodySurfaceSectionSpec[] = [
-    ...(error ? [createRecordSection("review-error", { records: [], empty: error })] : []),
-    ...(rv?.isStale ? [createRecordSection("review-stale", { records: [], empty: "底稿已更新，当前校对为旧快照；请点击「重新生成校对」更新校对。" })] : []),
-    ...(hasFlaggedWithoutComment ? [createRecordSection("review-flagged-without-comment", { records: [], empty: "存在已标记(flagged)但未填写备注的行，请点击备注列填写标记原因。" })] : []),
+    ...(error ? [createStatusSection("review-error", { kind: "error", content: error })] : []),
+    ...(rv?.isStale ? [createStatusSection("review-stale", { kind: "empty", content: "底稿已更新，当前校对为旧快照；请点击「重新生成校对」更新校对。" })] : []),
+    ...(hasFlaggedWithoutComment ? [createStatusSection("review-flagged-without-comment", { kind: "empty", content: "存在已标记(flagged)但未填写备注的行，请点击备注列填写标记原因。" })] : []),
   ];
   const reviewColumns: DataSurfaceColumnSpec<RvLine>[] = [{
     key: "label",
@@ -442,8 +442,8 @@ export default function ReviewClient() {
           }),
         ]
       : []),
-    ...(!wp && !loading ? [createRecordSection("review-empty", { records: [], empty: "选择筛选条件后点击「读取底稿」" })] : []),
-    ...(loading ? [createRecordSection("review-loading", { records: [], empty: "加载中..." })] : []),
+    ...(!wp && !loading ? [createStatusSection("review-empty", { kind: "empty", content: "选择筛选条件后点击「读取底稿」" })] : []),
+    ...(loading ? [createStatusSection("review-loading", { kind: "loading", content: "加载中..." })] : []),
   ];
 
   return (

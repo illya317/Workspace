@@ -1,5 +1,5 @@
 import type { ReactNode, Ref } from "react";
-import type { DataSurfaceProps, DataSurfaceTableProps } from "../DataSurface.types";
+import type { DataSurfaceProps, DataSurfaceRecordProps, DataSurfaceSummaryProps, DataSurfaceTableProps } from "../DataSurface.types";
 import type { DocumentSurfaceProps } from "../DocumentSurface";
 import type {
   FormSurfaceItemSpec,
@@ -8,7 +8,6 @@ import type {
   FormSurfaceProps,
   FormSurfaceSubmitSpec,
 } from "../FormSurface.types";
-import type { MetricsSurfaceProps } from "../MetricsSurface";
 import type { NavigationRendererTabsSpec } from "../NavigationRenderer";
 import type {
   BodySurfaceCommandSpec,
@@ -18,6 +17,7 @@ import type {
   BodySurfaceModalSpec,
   BodySurfaceListSpec,
   BodySurfaceModuleGridSpec,
+  BodySurfaceStatusSpec,
   BodySurfaceSectionSpec,
   BodySurfaceProps,
 } from "../BodySurface";
@@ -27,7 +27,6 @@ import type {
   PageSurfaceProps,
   PageSurfaceToolbarSpec,
 } from "../PageSurface.types";
-import type { RecordSurfaceProps } from "../RecordSurface";
 import type { VisualizationSurfaceProps } from "../VisualizationSurface";
 
 export type BodySurfaceBodyInputSpec = BodySurfaceSectionSpec | BodySurfaceModalSpec;
@@ -178,16 +177,16 @@ export function createPageDataSection<T>(
 
 export function createMetricsSection(
   key: string,
-  surface: MetricsSurfaceProps,
+  surface: Omit<DataSurfaceSummaryProps, "kind">,
 ): BodySurfaceSectionSpec {
-  return { key, body: { kind: "metrics", metrics: surface } };
+  return createPageDataSection(key, { kind: "summary", ...surface });
 }
 
 export function createRecordSection(
   key: string,
-  surface: RecordSurfaceProps,
+  surface: Omit<DataSurfaceRecordProps, "kind">,
 ): BodySurfaceSectionSpec {
-  return { key, body: { kind: "record", record: surface } };
+  return createPageDataSection(key, { kind: "record", ...surface });
 }
 
 export function createPageTableSection<T>(
@@ -262,6 +261,13 @@ export function createEmptySection(
   empty: BodySurfaceEmptySpec,
 ): BodySurfaceSectionSpec {
   return { key, body: { kind: "section", empty } };
+}
+
+export function createStatusSection(
+  key: string,
+  status: BodySurfaceStatusSpec,
+): BodySurfaceSectionSpec {
+  return { key, body: { kind: "section", status } };
 }
 
 export function createListSection(

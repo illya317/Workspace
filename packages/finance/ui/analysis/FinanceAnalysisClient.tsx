@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useEffect } from "react";
-import { PageSurface, createPageBody, createRecordSection, createMetricsSection, createPageTabsNavigation } from "@workspace/core/ui";
+import { PageSurface, createPageBody, createStatusSection, createMetricsSection, createPageTabsNavigation } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
@@ -44,14 +44,8 @@ export default function FinanceAnalysisClient({ user: _user }: Props) {
             { key: "rd-total", label: "研发预算总额", value: (budget.rdTotal ?? 0).toLocaleString("zh-CN", { maximumFractionDigits: 2 }) },
           ],
         })
-      : createRecordSection("budget-overview", {
-          records: [],
-          empty: "暂无生效预算版本",
-        }),
-    createRecordSection("analysis-placeholder", {
-      records: [],
-      empty: "财务分析看板开发中",
-    }),
+      : createStatusSection("budget-overview", { kind: "empty", content: "暂无生效预算版本" }),
+    createStatusSection("analysis-placeholder", { kind: "empty", content: "财务分析看板开发中" }),
   ];
 
   useEffect(() => {

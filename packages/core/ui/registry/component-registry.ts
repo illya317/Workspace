@@ -26,8 +26,6 @@ const PAGE_CONTENT_DECLARATIONS = new Set([
   "DataSurface",
   "DocumentSurface",
   "FormSurface",
-  "MetricsSurface",
-  "RecordSurface",
   "VisualizationSurface",
 ]);
 
@@ -38,7 +36,7 @@ export const coreUiDeclarationCategoryMeta = {
   },
   "page-content": {
     label: "页面内容",
-    description: "Body 下的正文声明能力：data、form、document、visualization、metrics、record。",
+    description: "Body 下的正文声明能力：data、form、document、visualization。",
   },
   common: {
     label: "通用",

@@ -13,13 +13,11 @@ export type {
   BodySurfaceListItemSpec,
   BodySurfaceListSpec,
   BodySurfaceMessageSpec,
-  BodySurfaceMetricsProps,
   BodySurfaceModalSpec,
   BodySurfaceModuleGridItemSpec,
   BodySurfaceModuleGridSpec,
   BodySurfaceNavigationProps,
   BodySurfaceProps,
-  BodySurfaceRecordProps,
   BodySurfaceSelectorProps,
   BodySurfaceSectionHeaderSpec,
   BodySurfaceSectioningSpec,
@@ -27,6 +25,7 @@ export type {
   BodySurfaceSectionProps,
   BodySurfaceSectionSpec,
   BodySurfaceSplitSectionProps,
+  BodySurfaceStatusSpec,
   BodySurfaceVisualizationProps,
 } from "./BodySurface";
 export { default as DataSurface } from "./DataSurface";
@@ -44,6 +43,9 @@ export type {
   DataSurfaceActionsColumnSpec,
   DataSurfacePresentationSpec,
   DataSurfaceProps,
+  DataSurfaceRecordActionSpec,
+  DataSurfaceRecordProps,
+  DataSurfaceRecordSpec,
   DataSurfaceRowActionSpec,
   DataSurfaceRowEditActionSpec,
   DataSurfaceStructuredCellSpec,
@@ -57,10 +59,6 @@ export type {
   DocumentSurfacePagesSpec,
   DocumentSurfaceProps,
 } from "./DocumentSurface";
-export { default as MetricsSurface } from "./MetricsSurface";
-export type { MetricsSurfaceMetricSpec, MetricsSurfaceProps } from "./MetricsSurface";
-export { default as RecordSurface } from "./RecordSurface";
-export type { RecordSurfaceActionSpec, RecordSurfaceProps, RecordSurfaceRecordSpec } from "./RecordSurface";
 export { default as SelectorSurface } from "./SelectorSurface";
 export type {
   SelectorSurfaceActionSize,
@@ -188,6 +186,7 @@ export {
   createTabbedPageBody,
   createTabsNavigationSection,
   createSectionSection,
+  createStatusSection,
   createVisualizationSection,
 } from "./helpers/page-surface-builders";
 export {

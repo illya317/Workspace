@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createMessageSection, createPanelSection, createRecordSection, createMetricsSection } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createMessageSection, createPanelSection, createMetricsSection, createStatusSection } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { formatCompactNullableAmount } from "../../formatters";
 import { useCostSummary } from "../hooks/useFinanceCostData";
@@ -52,8 +52,8 @@ export function useCostSummarySections(filters: CostFiltersState): BodySurfaceSe
     n == null ? "—" : `${(n * 100).toFixed(1)}%`;
 
   const sections: BodySurfaceSectionSpec[] = [
-    ...(loading ? [createRecordSection("loading", { records: [], empty: "加载中..." })] : []),
-    ...(error ? [createRecordSection("error", { records: [], empty: error })] : []),
+    ...(loading ? [createStatusSection("loading", { kind: "loading", content: "加载中..." })] : []),
+    ...(error ? [createStatusSection("error", { kind: "error", content: error })] : []),
     ...(summary ? [
       createMetricsSection("summary-metrics", {
         metrics: [

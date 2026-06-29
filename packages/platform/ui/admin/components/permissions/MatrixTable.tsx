@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionGlyph, createRecordSection, type DataSurfaceColumnSpec, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { ActionGlyph, createStatusSection, type DataSurfaceColumnSpec, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import PermissionCell from "./PermissionCell";
 import PermissionDetails from "./PermissionDetails";
 import type { PermissionsTabState } from "../../hooks/usePermissionsTab";
@@ -19,10 +19,10 @@ export function createPermissionMatrixSection({
   s
 }: MatrixTableProps): BodySurfaceSectionSpec {
   if (!s.selectedResource) {
-    return createRecordSection("empty-resource", { records: [], empty: "请选择左侧资源模块" });
+    return createStatusSection("empty-resource", { kind: "empty", content: "请选择左侧资源模块" });
   }
   if (s.subjects.length === 0) {
-    return createRecordSection("empty-subjects", { records: [], empty: "无匹配结果" });
+    return createStatusSection("empty-subjects", { kind: "empty", content: "无匹配结果" });
   }
   const maxLevel = ROLE_HIERARCHY[s.maxRoleKey] ?? 3;
   const subjectColumnLabel = s.subjectType === "user" ? "姓名" : s.subjectType === "position" ? "岗位" : "部门";

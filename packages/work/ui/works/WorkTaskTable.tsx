@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createPageBody, createRecordSection, type DataSurfaceColumnSpec, PageSurface, type BodySurfaceSectionSpec, type SurfaceDataRowEditActionSpec } from "@workspace/core/ui";
+import { createPageBody, createStatusSection, type DataSurfaceColumnSpec, PageSurface, type BodySurfaceSectionSpec, type SurfaceDataRowEditActionSpec } from "@workspace/core/ui";
 import { createWorkDraft, getStatusLabel, getWorkItemTypeLabel } from "./model";
 import { WorkTaskDetail } from "./WorkTaskDetail";
 import { WorkTaskForm } from "./WorkTaskFields";
@@ -78,7 +78,7 @@ export function useWorkTaskTableBlock({
   });
 
   if (!loading && tree.rows.length === 0) {
-    return createRecordSection("task-table", { records: [], empty: "暂无节点。可以从上方新增目标、关键结果或子任务。" });
+    return createStatusSection("task-table", { kind: "empty", content: "暂无节点。可以从上方新增目标、关键结果或子任务。" });
   }
 
   return {

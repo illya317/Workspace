@@ -4,8 +4,8 @@ import {
   PageSurface,
   createRecordSection,
   type DataSurfaceColumnSpec,
+  type DataSurfaceRecordProps,
   type BodySurfaceSectionSpec,
-  type RecordSurfaceProps,
 } from "@workspace/core/ui";
 export interface ProfileHistoryEntry {
   id: number;
@@ -59,7 +59,7 @@ export function historySectionSurface({
   expandedId,
   onToggle,
   onRefresh,
-}: HistorySectionProps): RecordSurfaceProps {
+}: HistorySectionProps): Omit<DataSurfaceRecordProps, "kind"> {
   const changeColumns = historyChangeColumns();
   return {
     actions: [{ key: "refresh", label: "刷新", variant: "secondary", onClick: onRefresh }],

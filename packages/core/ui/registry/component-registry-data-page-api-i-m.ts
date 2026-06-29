@@ -113,9 +113,14 @@ export const page_api_registry_entries = [
     composes: ["BodySurface"],
   },
   {
+    name: "createStatusSection",
+    description: "正文状态 section 声明助手",
+    composes: ["BodySurface"],
+  },
+  {
     name: "createMetricsSection",
-    description: "指标 Surface section 声明助手",
-    composes: ["BodySurface", "MetricsSurface"],
+    description: "数据摘要 section 声明助手",
+    composes: ["BodySurface", "DataSurface", "createPageDataSection"],
   },
   {
     name: "createModuleGridSection",
@@ -174,8 +179,8 @@ export const page_api_registry_entries = [
   },
   {
     name: "createRecordSection",
-    description: "记录 Surface section 声明助手",
-    composes: ["BodySurface", "RecordSurface"],
+    description: "数据记录 section 声明助手",
+    composes: ["BodySurface", "DataSurface", "createPageDataSection"],
   },
   {
     name: "createSectionSection",

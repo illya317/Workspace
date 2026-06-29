@@ -20,8 +20,6 @@ export const page_api_registry_entries = [
           { name: "form", description: "表单正文，payload 为 FormSurface。" },
           { name: "document", description: "文档正文，payload 为 DocumentSurface。" },
           { name: "visualization", description: "可视化正文，payload 为 VisualizationSurface。" },
-          { name: "metrics", description: "指标正文，payload 为 MetricsSurface。" },
-          { name: "record", description: "记录正文，payload 为 RecordSurface。" },
           { name: "selector", description: "选择器正文，payload 为 SelectorSurface。" },
           { name: "navigation", description: "正文内导航，payload 为 NavigationRenderer。" },
           {
@@ -32,6 +30,7 @@ export const page_api_registry_entries = [
               { name: "layout", description: "正文布局：stack / grid / split。" },
               { name: "sectioning", description: "section 分区：none / tabs。" },
               { name: "commands", description: "正文局部命令。" },
+              { name: "status", description: "正文主体状态：empty / loading / error。" },
               { name: "empty", description: "正文局部空态。" },
               { name: "modals", description: "正文局部弹窗。" },
               { name: "left/right", description: "split 布局两侧正文，均为 BodySurface payload。" },
@@ -45,7 +44,7 @@ export const page_api_registry_entries = [
       { name: "commands", description: "正文内部短命令；页面级工具放 PageSurface.toolbar。" },
       { name: "split", description: "split 专属：left/right/drawerLeft/sideOpen/drawerOpen/sideLabel/splitRatio/showSideControls。" },
     ],
-    composes: ["FormSurface", "DataSurface", "DocumentSurface", "NavigationRenderer", "VisualizationSurface", "MetricsSurface", "RecordSurface", "SelectorSurface", "Toolbar", "EmptyStateCard", "ModuleCard"],
+    composes: ["FormSurface", "DataSurface", "DocumentSurface", "NavigationRenderer", "VisualizationSurface", "SelectorSurface", "Toolbar", "EmptyStateCard", "ModuleCard"],
   },
   {
     name: "DataSurface",
@@ -54,7 +53,7 @@ export const page_api_registry_entries = [
     declares: [
       {
         name: "kind",
-        description: "数据视图类型：先选 table 或 structured，再声明该分支所需字段。",
+        description: "数据视图类型：先选 table、structured、summary 或 record，再声明该分支所需字段。",
         children: [
           {
             name: "table",
@@ -73,6 +72,20 @@ export const page_api_registry_entries = [
               { name: "rows", description: "结构化单元格矩阵。" },
               { name: "frame", description: "结构化表格边框。" },
               { name: "scroll", description: "结构化表格滚动区域。" },
+            ],
+          },
+          {
+            name: "summary",
+            description: "数据摘要指标。",
+            children: [
+              { name: "metrics", description: "指标卡片列表。" },
+            ],
+          },
+          {
+            name: "record",
+            description: "可展开记录数据。",
+            children: [
+              { name: "records", description: "记录列表。" },
             ],
           },
         ],

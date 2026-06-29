@@ -17,6 +17,12 @@ type BodySurfaceMessageLike = {
   tone?: "default" | "muted" | "success" | "warning" | "danger";
 };
 
+type BodySurfaceStatusLike = {
+  kind: "empty" | "loading" | "error";
+  content: ReactNode;
+  compact?: boolean;
+};
+
 type BodySurfaceBadgeLike = {
   key: string;
   label: ReactNode;
@@ -67,6 +73,17 @@ export function renderBodyMessage(message?: BodySurfaceMessageLike) {
             ? "border-slate-100 bg-slate-50 text-slate-500"
             : "border-slate-200 bg-white text-slate-600";
   return <div key="message" className={joinClassNames("rounded-md border px-3 py-2 text-sm", toneClass)}>{renderContent(message.content)}</div>;
+}
+
+export function renderBodyStatus(status?: BodySurfaceStatusLike) {
+  if (!status) return null;
+  const toneClass =
+    status.kind === "error"
+      ? "border-red-200 bg-red-50 text-red-700"
+      : status.kind === "loading"
+        ? "border-slate-200 bg-slate-50 text-slate-500"
+        : "border-dashed border-slate-200 text-slate-400";
+  return <EmptyStateCard key="status" compact={status.compact} className={toneClass}>{renderContent(status.content)}</EmptyStateCard>;
 }
 
 export function renderModuleGrid(moduleGrid?: BodySurfaceModuleGridLike) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createPageBody, type BodySurfaceSectionSpec, type DataSurfaceColumnSpec, type DataSurfaceProps, PageSurface, type SurfaceDataRowEditActionSpec, type SurfacePickerOptionSpec, useFeedback } from "@workspace/core/ui";
+import { createPageBody, createStatusSection, type BodySurfaceSectionSpec, type DataSurfaceColumnSpec, type DataSurfaceProps, PageSurface, type SurfaceDataRowEditActionSpec, type SurfacePickerOptionSpec, useFeedback } from "@workspace/core/ui";
 import {
   createProjectTask,
   deleteProjectTask,
@@ -261,11 +261,7 @@ export function useProjectTasksSection({
     body: {
       kind: "section",
       sections: createPageBody(!projectId ? [
-        {
-          key: "project-tasks-empty",
-          header: { title: "项目任务" },
-          body: { kind: "record", record: { records: [], empty: "项目保存后可维护任务计划。" } },
-        },
+        createStatusSection("project-tasks-empty", { kind: "empty", content: "项目保存后可维护任务计划。" }),
       ] : [
         ...(creatingTask ? [{
           key: "create-task",

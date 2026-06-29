@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { PageSurface, createPageBody, createRecordSection } from "@workspace/core/ui";
+import { PageSurface, createPageBody, createStatusSection } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec, PageSurfaceProps, SurfaceToolbarItems, VisualizationGanttRowSpec } from "@workspace/core/ui";
 import type { WorkUser } from "@workspace/work/types";
 import { listProjectGantt } from "./api";
@@ -114,9 +114,9 @@ export default function ProjectGanttTab({
       content: `${rows.length} 行`
     }] satisfies SurfaceToolbarItems;
   const sections = error ? [
-    createRecordSection("project-gantt-error", { records: [], empty: error,  }),
+    createStatusSection("project-gantt-error", { kind: "error", content: error }),
   ] : loading && !hasLoaded ? [
-    createRecordSection("project-gantt-loading", { records: [], empty: "加载公司甘特..." }),
+    createStatusSection("project-gantt-loading", { kind: "loading", content: "加载公司甘特..." }),
   ] : [
     {
       key: "project-gantt-chart",

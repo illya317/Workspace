@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import AmountCell from "./AmountCell";
 import Badge from "../common/Badge";
 import DataTable from "./DataTable";
+import { EmptyStateCard, MetricCard } from "../common/Card";
+import DisclosureRecordCard from "../common/DisclosureRecordCard";
 import type { DataTableColumn } from "./DataTable.types";
 import NumberCell from "./NumberCell";
 import SelectionGrid from "../selection/SelectionGrid";
@@ -20,6 +22,8 @@ import type {
   DataSurfaceCommandSpec,
   DataSurfaceDisplaySpec,
   DataSurfaceProps,
+  DataSurfaceRecordProps,
+  DataSurfaceSummaryProps,
   DataSurfaceStructuredCellSpec,
   DataSurfaceTableProps,
 } from "../../DataSurface.types";
@@ -187,6 +191,38 @@ function renderTable<T>(props: DataSurfaceTableProps<T>) {
   );
 }
 
+function renderSummary(props: DataSurfaceSummaryProps) {
+  if (props.metrics.length === 0) return <EmptyStateCard compact>{props.empty ?? "暂无指标"}</EmptyStateCard>;
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {props.metrics.map((metric) => (
+        <MetricCard key={metric.key} label={metric.label} value={renderDisplay(metric.value)} />
+      ))}
+    </div>
+  );
+}
+
+function renderRecord(props: DataSurfaceRecordProps) {
+  if (props.records.length === 0) return <EmptyStateCard compact>{props.empty ?? "暂无数据"}</EmptyStateCard>;
+  return (
+    <div className="space-y-3">
+      {props.records.map((record) => (
+        <DisclosureRecordCard
+          key={record.key}
+          expanded={record.expanded}
+          onToggle={record.onToggle}
+          header={renderDisplay(record.header)}
+          summary={renderDisplay(record.summary)}
+          detailTitle={record.detailTitle}
+          detailAction={record.detailAction}
+        >
+          {renderDisplay(record.detail)}
+        </DisclosureRecordCard>
+      ))}
+    </div>
+  );
+}
+
 export function renderData<T>(props: DataSurfaceProps<T>) {
   if (props.kind === "table") return renderTable(props);
   if (props.kind === "structured") {
@@ -200,5 +236,6 @@ export function renderData<T>(props: DataSurfaceProps<T>) {
     );
     return props.structuredScroll === false ? table : <TableScrollFrame frame={props.frame} scroll={props.scroll}>{table}</TableScrollFrame>;
   }
-  return null;
+  if (props.kind === "summary") return renderSummary(props);
+  return renderRecord(props);
 }

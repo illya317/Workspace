@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createPageBody, PageSurface, createActionsSection, createMessageSection, createPageDataSection, createRecordSection, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createActionsSection, createMessageSection, createPageDataSection, createStatusSection, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { matchSearchFields } from "@workspace/platform/search";
 import { useStatementConfig } from "./StatementConfigContext";
@@ -248,7 +248,7 @@ export function useLineConfigSections(): BodySurfaceSectionSpec[] {
 
     cell: row => row.kind === "line" ? row.accountCount || "—" : row.kind === "special" ? "—" : ""
   }], []);
-  if (loading) return [createRecordSection("line-config-loading", { records: [], empty: "加载中..." })];
+  if (loading) return [createStatusSection("line-config-loading", { kind: "loading", content: "加载中..." })];
   if (error) {
     return createLineConfigErrorSections(error, load);
   }

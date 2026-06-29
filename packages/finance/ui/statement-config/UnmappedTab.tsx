@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState } from "react";
-import { createPageBody, createMessageSection, PageSurface, createPageDataSection, createRecordSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, createMessageSection, PageSurface, createPageDataSection, createStatusSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
 import { useStatementConfig } from "./StatementConfigContext";
@@ -192,7 +192,7 @@ export function useUnmappedSections(): BodySurfaceSectionSpec[] {
 }
 
 function createUnmappedRecordsSection(message: string): BodySurfaceSectionSpec {
-  return createRecordSection("unmapped-records", { records: [], empty: message });
+  return createStatusSection("unmapped-records", { kind: "empty", content: message });
 }
 
 function createUnmappedErrorSections(message: string, onRetry: () => void): BodySurfaceSectionSpec[] {
