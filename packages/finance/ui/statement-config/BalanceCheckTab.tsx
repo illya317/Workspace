@@ -4,10 +4,15 @@ import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { createPageBody, PageSurface, createMessageSection, createActionsSection, createMetricsSection } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
-import BalanceCheckTable, { flattenBalanceAccountTree, formatBalanceAmount, type BalanceCheckAccountNode } from "../components/BalanceCheckTable";
-import FinanceFilters from "../components/FinanceFilters";
+import { flattenBalanceAccountTree, formatBalanceAmount, useBalanceCheckTableSection, type BalanceCheckAccountNode } from "../components/BalanceCheckTable";
+import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { useStatementConfig } from "./StatementConfigContext";
 export default function BalanceCheckTab() {
+  const { sections, toolbarItems } = useBalanceCheckSections();
+  return <PageSurface kind="standard" embedded toolbar={{ items: toolbarItems }} body={createPageBody(sections)} />;
+}
+
+export function useBalanceCheckSections(): { sections: BodySurfaceSectionSpec[]; toolbarItems: SurfaceToolbarItems } {
   const {
     company,
     year
@@ -107,6 +112,16 @@ export default function BalanceCheckTab() {
     });
   }, []);
   const flatNodes = useMemo(() => tree ? flattenBalanceAccountTree(tree, expanded, maxLevel) : [], [tree, expanded, maxLevel]);
+  const toolbarItems = useFinanceFilterToolbarItems({
+    showCompanyYear: false,
+    levelFilter,
+    onLevelChange: setLevelFilter,
+    showMonth: false,
+    showLevel: true,
+    showSearch: false,
+    showPageSize: false,
+    extraItems: extraToolbarItems,
+  });
   const inconsistentCount = useMemo(() => {
     if (!tree) return 0;
     let c = 0;
@@ -140,17 +155,16 @@ export default function BalanceCheckTab() {
     ] : []),
   ];
 
-  return <div className="space-y-4 mt-4">
-      <FinanceFilters showCompanyYear={false} levelFilter={levelFilter} onLevelChange={setLevelFilter} showMonth={false} showLevel showSearch={false} showPageSize={false} extraItems={extraToolbarItems} />
-
-      {loading && <p className="p-12 text-center text-sm text-gray-400">加载中...</p>}
-
-      {statusBlocks.length > 0 && <PageSurface kind="standard" embedded body={createPageBody(statusBlocks)} />}
-
-      {!loading && !error && tree && flatNodes.length === 0 && <p className="p-12 text-center text-sm text-gray-400">暂无科目余额数据</p>}
-
-      {!loading && !error && tree && flatNodes.length > 0 && <>
-          <BalanceCheckTable rows={flatNodes} expanded={expanded} maxLevel={maxLevel} onToggleNode={toggleNode} />
-        </>}
-    </div>;
+  const tableSection = useBalanceCheckTableSection({ rows: flatNodes, expanded, maxLevel, onToggleNode: toggleNode });
+  return {
+    toolbarItems,
+    sections: [
+      ...(loading ? [createMessageSection("loading", { content: "加载中...", tone: "muted" })] : []),
+      ...statusBlocks,
+      ...(!loading && !error && tree && flatNodes.length === 0
+        ? [createMessageSection("empty", { content: "暂无科目余额数据", tone: "muted" })]
+        : []),
+      ...(!loading && !error && tree && flatNodes.length > 0 ? [tableSection] : []),
+    ],
+  };
 }

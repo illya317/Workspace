@@ -2,9 +2,9 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useMemo, useState } from "react";
-import { createBlockSurfaceSection, createPageBody, createPageTabsNavigation, PageSurface, useFeedback, type BodySurfaceSectionSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
-import AdminUsersTab from "./tabs/AdminUsersTab";
-import ModuleManagementTab from "./tabs/ModuleManagementTab";
+import { createPageBody, createPageTabsNavigation, PageSurface, useFeedback, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
+import { useAdminUsersSection } from "./tabs/AdminUsersTab";
+import { useModuleManagementSection } from "./tabs/ModuleManagementTab";
 import { usePermissionsTabBody } from "./tabs/PermissionsTab";
 import { usePermissionsTab } from "./hooks/usePermissionsTab";
 
@@ -165,28 +165,17 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     capabilitiesByOwner,
     s: permissionState,
   });
-
-  const activeAdminContent = (
-    <>
-      {activeTab === "users" && (
-        <AdminUsersTab
-          showToast={showToast}
-          resources={fullResourceTree}
-          onToolbarItemsChange={setChildToolbarItems}
-          onFooterChange={setChildFooter}
-        />
-      )}
-      {activeTab === "modules" && <ModuleManagementTab showToast={showToast} />}
-    </>
-  );
-
-  const sections: BodySurfaceSectionSpec[] = [{
-    ...createBlockSurfaceSection(activeTab, {
-      kind: "content",
-      content: activeAdminContent,
-    }),
-    framed: false,
-  }];
+  const usersSection = useAdminUsersSection({
+    showToast,
+    resources: fullResourceTree,
+    onToolbarItemsChange: setChildToolbarItems,
+    onFooterChange: setChildFooter,
+    enabled: !loading && activeTab === "users",
+  });
+  const modulesSection = useModuleManagementSection({
+    showToast,
+    enabled: !loading && activeTab === "modules",
+  });
 
   return (
     <PageSurface kind="standard"
@@ -209,7 +198,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
             ? { kind: "section", empty: { content: "加载中..." } }
             : activeTab === "permissions"
               ? permissionsBody
-              : createPageBody(sections)}
+              : createPageBody([activeTab === "users" ? usersSection : modulesSection])}
 	    />
   );
 }

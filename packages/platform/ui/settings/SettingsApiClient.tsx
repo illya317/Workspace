@@ -1,7 +1,7 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { createBlockSurfaceSection, createFieldsSection, createMessageSection, createPageBody, createPageDataSection, createSectionSection, type DataSurfaceColumnSpec, type FormSurfaceItemSpec, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { createFieldsSection, createMessageSection, createPageBody, createPageDataSection, createSectionSection, type DataSurfaceColumnSpec, type FormSurfaceItemSpec, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { postJson, putJson, requestJson } from "../api-client";
 type OpenApiRegistrationRow = {
@@ -291,8 +291,7 @@ export default function SettingsApiClient({
       title: "新密钥",
       subtitle: "只在本次操作后显示。",
       actions: [{ key: "hide-secret", label: "隐藏", onClick: () => setFreshSecret(null) }],
-      sections: [createBlockSurfaceSection("secret", {
-        kind: "content",
+      sections: [createMessageSection("secret", {
         content: (
           <pre className="whitespace-pre-wrap rounded-md bg-slate-950 p-4 font-mono text-sm text-white">
             {freshSecret}

@@ -1,6 +1,7 @@
 "use client";
 
 import { PageSurface, createMessageSection, createPageBody, type DataSurfaceCellSpec, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec, PageSurfaceFooterSpec } from "@workspace/core/ui";
 import type { SourceTraceInfo } from "../types";
 export type CostRecord = Record<string, unknown>;
 export type CostColumn = DataSurfaceColumnSpec<CostRecord>;
@@ -18,6 +19,10 @@ interface CostDataTableProps {
   onPageChange: (page: number) => void;
   rowKey?: (row: CostRecord) => string;
 }
+export type CostDataSurfaceSpec = {
+  sections: BodySurfaceSectionSpec[];
+  footer: PageSurfaceFooterSpec;
+};
 export function formatCostNumber(value: number | null | undefined) {
   return value == null ? "—" : value.toLocaleString("zh-CN", {
     maximumFractionDigits: 2
@@ -58,34 +63,51 @@ export default function CostDataTable({
   onPageChange,
   rowKey = row => String(row.id)
 }: CostDataTableProps) {
+  const surface = createCostDataSurface({ rows, columns, loading, error, pagination, page, onPageChange, rowKey });
   return (
     <PageSurface kind="standard"
       embedded
-      body={createPageBody([
-          ...(loading ? [createMessageSection("loading", {
-            content: "加载中…",
-            tone: "muted" as const,
-
-          })] : []),
-          ...(error ? [createMessageSection("error", {
-            content: error,
-            tone: "danger" as const,
-
-          })] : []),
-          {
-            key: "cost-table",
-            body: { kind: "data", data: {
-              kind: "table",
-
-              rows,
-              columns,
-              visibleColumns: columns.map(column => column.key),
-              rowKey,
-              emptyText: "暂无数据",
-            } },
-          },
-        ], { layout: "stack" })}
-      footer={{ pagination: { page, total: pagination.total, totalPages: pagination.totalPages, onPageChange,  compact: true } }}
+      body={createPageBody(surface.sections, { layout: "stack" })}
+      footer={surface.footer}
     />
   );
+}
+
+export function createCostDataSurface({
+  rows,
+  columns,
+  loading,
+  error,
+  pagination,
+  page,
+  onPageChange,
+  rowKey = row => String(row.id)
+}: CostDataTableProps): CostDataSurfaceSpec {
+  return {
+    sections: [
+      ...(loading ? [createMessageSection("loading", {
+        content: "加载中…",
+        tone: "muted" as const,
+
+      })] : []),
+      ...(error ? [createMessageSection("error", {
+        content: error,
+        tone: "danger" as const,
+
+      })] : []),
+      {
+        key: "cost-table",
+        body: { kind: "data", data: {
+          kind: "table",
+
+          rows,
+          columns,
+          visibleColumns: columns.map(column => column.key),
+          rowKey,
+          emptyText: "暂无数据",
+        } },
+      },
+    ],
+    footer: { pagination: { page, total: pagination.total, totalPages: pagination.totalPages, onPageChange,  compact: true } },
+  };
 }

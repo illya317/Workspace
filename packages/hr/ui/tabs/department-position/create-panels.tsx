@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { createPageBody, PageSurface, createCreatePanelSection } from "@workspace/core/ui";
+import { createActionsSection, createPageBody, createPanelSection, PageSurface } from "@workspace/core/ui";
 import type { FormSurfaceItemSpec, BodySurfaceSectionSpec, ReferenceOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import type { CreatePositionDraft, Department } from "./types";
@@ -80,30 +80,22 @@ export function buildPositionCreatePanelBlock({
           },
         ];
 
-  return createCreatePanelSection("create-position", {
+  return createPanelSection("create-position", {
 
     title: "新建岗位",
-    creating: true,
-    canCreate: true,
-    submitting: saving,
-    submitDisabled,
-    submitLabel: "保存",
-    onStartCreate: () => undefined,
-    onSubmit: () => void onCreatePosition(),
-    onCancel,
-    createContent: (
-      <PageSurface kind="standard"
-        embedded
-        body={createPageBody([{
-          key: "fields",
-          body: { kind: "form", form: {
-            kind: "fields",
-            content: { items: fields, layout: { columns: 3 } },
-          } },
-        }])}
-      />
-    ),
-    children: null,
+    sections: [
+      {
+        key: "fields",
+        body: { kind: "form", form: {
+          kind: "fields",
+          content: { items: fields, layout: { columns: 3 } },
+        } },
+      },
+      createActionsSection("create-position-actions", [
+        { key: "cancel", label: "取消", onClick: onCancel },
+        { key: "submit", label: saving ? "保存中..." : "保存", variant: "primary", disabled: saving || submitDisabled, onClick: () => void onCreatePosition() },
+      ]),
+    ],
   });
 }
 

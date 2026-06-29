@@ -9,7 +9,7 @@ Workspace 底座包。这里放通用契约和不依赖业务事实、权限、P
 - `ui/DataSurface`
 - `ui/DocumentSurface`
 - `ui/VisualizationSurface`
-- `ui/BlockSurface`
+- `ui/BodySurface`
 - `ui/NavigationRenderer`（Core 内部 / 正文导航 primitive）
 - `ui/ConfirmModal`
 - `ui/FeedbackProvider`
@@ -56,7 +56,7 @@ Surface block helper 是非组件 contract helper，用于把业务表单/数据
 - `createFieldsSection` / `createInlineFieldsSection` / `createFormSection`：替代业务直接 render `FormSurface`。
 - `createDocumentSection`：替代业务用普通容器承载纸面/A4/QC 文档。
 - `createVisualizationSection`：替代业务把图表、甘特、时间轴塞进旧 `DataSurface kind="visual"` 或 `FormSurface.note`。
-- `createBlockSurfaceSection`：替代业务用旧 page block 或 `moduleView` 承载 section、panel、message、empty、actions。
+- `createPanelSection` / `createSectionSection` / `createMessageSection` / `createEmptySection` / `createActionsSection`：替代业务用旧 page block 或 `moduleView` 承载 section、panel、message、empty、actions。
 - `createPageBody`：生成 `BodySurface kind="section"`；新增页面不要再使用顶层 `blocks`、`empty`、`actions`。
 - `createPageTabsNavigation`：生成 `PageSurface.navigation kind="tabs"`；新增页面不要再使用顶层 `tabs` / `activeTab` 兼容 props。
 - `createPageModalSection`：替代业务直接 render Form modal 或专用 modal wrapper。

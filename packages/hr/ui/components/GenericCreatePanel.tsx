@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createCreatePanelSection, type FormSurfaceFieldSpec, type BodySurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
+import { createInlineFieldsSection, createPageBody, createPanelSection, PageSurface, type FormSurfaceFieldSpec, type BodySurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
 import type { FieldConfig, TabConfig } from "@workspace/hr/types";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../fk-keys";
 
@@ -23,30 +23,16 @@ export function buildGenericCreatePanelBlock({
   const submitDisabled = requiredFields.some((field) => !String(createForm[field.key] ?? "").trim());
   const fields = requiredFields.map((field) => createFieldSpec(field, config, createForm[field.key], (value) => onChange(field.key, value)));
 
-  return createCreatePanelSection("generic-create", {
+  return createPanelSection("generic-create", {
     title: `新建${config.title}`,
-    creating: true,
-    canCreate: true,
-    submitDisabled,
-    submitLabel: "保存",
-    onStartCreate: () => undefined,
-    onSubmit,
-    onCancel,
-    createContent: (
-      <PageSurface kind="standard"
-        embedded
-        body={createPageBody([
-          {
-            key: "fields",
-            body: { kind: "form", form: {
-              kind: "filters",
-              content: { items: fields },
-            } },
-          },
-        ])}
-      />
-    ),
-    children: null,
+    sections: [
+      createInlineFieldsSection("fields", fields, {
+        commands: [
+          { key: "cancel", label: "取消", onClick: onCancel },
+          { key: "submit", label: "保存", variant: "primary", disabled: submitDisabled, onClick: onSubmit },
+        ],
+      }),
+    ],
   });
 }
 

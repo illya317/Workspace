@@ -34,25 +34,25 @@ export function checkPageSurfaceDirectoryRenderer() {
       failures.push("Directory renderer must preserve the historical py-10 module directory spacing.");
     }
     if (
-      !directoryBodyRenderer.includes('body.surface.kind !== "moduleGrid"')
+      !directoryBodyRenderer.includes("body.moduleGrid")
       || !directoryBodyRenderer.includes("justify-center")
       || !directoryBodyRenderer.includes("<ModuleCard")
     ) {
       failures.push("Directory renderer must render moduleGrid through its sealed centered directory layout.");
     }
-    if (/\brenderCompleteBody\b|\brenderSectionStack\b|\bDatabasePageFrame\b|\bBlockSurface\b|\bPageContent\b/.test(directoryRenderer + directorySectionRenderer + directoryBodyRenderer)) {
-      failures.push("Directory renderer must not use standard page, section, BlockSurface, or PageContent renderers.");
+    if (/\brenderCompleteBody\b|\brenderSectionStack\b|\bDatabasePageFrame\b|\bPageContent\b/.test(directoryRenderer + directorySectionRenderer + directoryBodyRenderer)) {
+      failures.push("Directory renderer must not use standard page, section, or PageContent renderers.");
     }
   }
 
   if (!loginRenderer) {
     failures.push("PageSurface must keep a dedicated renderLoginBody renderer.");
   } else {
-    if (!loginRenderer.includes("findLoginContent") || !loginRenderer.includes("place-items-center")) {
+    if (!loginRenderer.includes("findLoginForm") || !loginRenderer.includes("place-items-center")) {
       failures.push("Login renderer must use its sealed centered content layout.");
     }
-    if (/\brenderCompleteBody\b|\brenderSectionStack\b|\bDatabasePageFrame\b|\bBlockSurface\b|\bPageContent\b/.test(loginRenderer)) {
-      failures.push("Login renderer must not use standard page, section, BlockSurface, or PageContent renderers.");
+    if (/\brenderCompleteBody\b|\brenderSectionStack\b|\bDatabasePageFrame\b|\bPageContent\b/.test(loginRenderer)) {
+      failures.push("Login renderer must not use standard page, section, or PageContent renderers.");
     }
   }
 

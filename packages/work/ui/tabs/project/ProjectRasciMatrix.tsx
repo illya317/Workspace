@@ -23,10 +23,10 @@ export function buildProjectRasciMatrixSurface(rows: ProjectRasciRow[]): DataSur
       key: "name",
       label: "项目名称",
       required: true,
-      width: "lg",
+      width: "sm",
       wrap: "nowrap",
       cell: (row) => (
-        <div className="min-w-[5em] max-w-56">
+        <div className="min-w-[5em] max-w-28">
           <div className="truncate text-sm font-semibold text-slate-900" title={row.name}>{row.name}</div>
           {row.subtitle && <div className="mt-1 text-xs font-medium text-emerald-600">{row.subtitle}</div>}
         </div>

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireRouteAccess } from "@workspace/platform/server/auth";
 import { getQcBatch, getQcTemplateDetail } from "@workspace/production/server/qc";
-import { ProductionQcPageSurface, QcBatchTestRecord } from "@workspace/production/ui";
+import { QcBatchTestRecord } from "@workspace/production/ui";
 
 interface Props {
   params: Promise<{ batchId: string; stageKey: string; testName: string }>;
@@ -16,9 +16,5 @@ export default async function QcBatchTestPage({ params }: Props) {
   const test = stage?.tests.find((item) => item.englishName === testName);
   if (!detail || !stage || !test) notFound();
 
-  return (
-    <ProductionQcPageSurface title={`${batch.productName} ${test.name}`} backHref={`/production/qc-batches/${batch.id}/${stage.key}`} user={user}>
-      <QcBatchTestRecord batch={batch} productName={detail.productName} detail={detail} stage={stage} test={test} currentUserName={user.employeeName || user.nickname} />
-    </ProductionQcPageSurface>
-  );
+  return <QcBatchTestRecord batch={batch} productName={detail.productName} detail={detail} stage={stage} test={test} currentUserName={user.employeeName || user.nickname} />;
 }

@@ -2,8 +2,9 @@
 
 import { useState, useMemo } from "react";
 import { createPageBody, PageSurface, createPageTableSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import type { BodySurfaceModalSpec, BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
-import ReclassReviewModal from "./ReclassReviewModal";
+import { useReclassReviewModal } from "./ReclassReviewModal";
 import { formatFinanceAmount } from "../formatters";
 import { targetDisplay } from "../ledger/reclassColumns";
 interface Props {
@@ -37,6 +38,18 @@ export default function ReclassReviewView({
   companyCode = "",
   year = ""
 }: Props) {
+  const { sections, modals } = useReclassReviewSurface({ items, canWrite, statusFilter, onReview, companyCode, year });
+  return <PageSurface kind="standard" embedded body={createPageBody([...sections, ...modals])} />;
+}
+
+export function useReclassReviewSurface({
+  items,
+  canWrite,
+  statusFilter,
+  onReview,
+  companyCode = "",
+  year = ""
+}: Props): { sections: BodySurfaceSectionSpec[]; modals: BodySurfaceModalSpec[] } {
   const [adjustItem, setAdjustItem] = useState<ReclassResultRow | null>(null);
   const [sortKey, setSortKey] = useState<SortKey>("amount");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
@@ -122,28 +135,7 @@ export default function ReclassReviewView({
           </span>;
     }
   }];
-  return <div>
-      <PageSurface kind="standard"
-        embedded
-        body={createPageBody([
-          createPageTableSection("reclass-review", {
-
-
-            rows: filtered,
-            columns,
-            visibleColumns: columns.map(column => column.key),
-            emptyText: "无重分类条目",
-            rowKey: row => `${row.voucherItemId}-${row.voucherNo}`,
-            rowActions: canWrite ? (row) => {
-              const kind = row.kind as string || "normal";
-              const isNormal = kind === "normal";
-              const hasTarget = !!(row.suggestedTarget || row.targetAccount);
-              return [{ key: "adjust", kind: "edit", label: isNormal && !hasTarget ? "设置" : isNormal ? "使用建议" : "修改", onClick: () => setAdjustItem(row) }];
-            } : undefined,
-          }),
-        ])}
-      />
-      <ReclassReviewModal item={adjustItem} open={!!adjustItem} companyCode={companyCode} year={year} onClose={() => setAdjustItem(null)} onSubmit={async (id, targetAccount, amount, note) => {
+  const modal = useReclassReviewModal({ item: adjustItem, open: !!adjustItem, companyCode, year, onClose: () => setAdjustItem(null), onSubmit: async (id, targetAccount, amount, note) => {
       const extra = id === 0 && adjustItem ? {
         periodId: adjustItem.periodId,
         voucherItemId: adjustItem.voucherItemId,
@@ -154,6 +146,23 @@ export default function ReclassReviewView({
         amount,
         note
       }, extra);
-    }} />
-    </div>;
+    } });
+  return {
+    sections: [
+      createPageTableSection("reclass-review", {
+        rows: filtered,
+        columns,
+        visibleColumns: columns.map(column => column.key),
+        emptyText: "无重分类条目",
+        rowKey: row => `${row.voucherItemId}-${row.voucherNo}`,
+        rowActions: canWrite ? (row) => {
+          const kind = row.kind as string || "normal";
+          const isNormal = kind === "normal";
+          const hasTarget = !!(row.suggestedTarget || row.targetAccount);
+          return [{ key: "adjust", kind: "edit", label: isNormal && !hasTarget ? "设置" : isNormal ? "使用建议" : "修改", onClick: () => setAdjustItem(row) }];
+        } : undefined,
+      }),
+    ],
+    modals: modal ? [modal] : [],
+  };
 }

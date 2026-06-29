@@ -130,14 +130,14 @@ function hasSplitBody(body?: BodySurfaceProps) {
   return visitBodySurface(body, (node) => node.kind === "section" && node.layout === "split");
 }
 
-function findLoginContent(body?: BodySurfaceProps): ReactNode | undefined {
+function findLoginForm(body?: BodySurfaceProps): BodySurfaceProps | undefined {
   if (!body) return undefined;
+  if (body.kind === "form" && body.form.kind === "login") return body;
   if (body.kind === "section") {
-    if (body.layout === "split") return findLoginContent(body.right) ?? findLoginContent(body.left) ?? findLoginContent(body.drawerLeft);
-    if (body.surface?.kind === "content") return body.surface.content;
+    if (body.layout === "split") return findLoginForm(body.right) ?? findLoginForm(body.left) ?? findLoginForm(body.drawerLeft);
     for (const section of body.sections ?? []) {
-      const content = findLoginContent(section.body);
-      if (content !== undefined) return content;
+      const form = findLoginForm(section.body);
+      if (form) return form;
     }
   }
   return undefined;
@@ -146,7 +146,7 @@ function findLoginContent(body?: BodySurfaceProps): ReactNode | undefined {
 function hasDirectoryContent(body?: BodySurfaceProps) {
   return visitBodySurface(body, (node) => (
     node.kind === "section"
-      && (Boolean(node.empty) || Boolean(node.moduleGrid) || ("surface" in node && (node.surface?.kind === "moduleGrid" || node.surface?.kind === "empty")))
+      && (Boolean(node.empty) || Boolean(node.moduleGrid))
   ));
 }
 
@@ -158,7 +158,6 @@ function assertPageSurfaceKind(props: PageSurfaceProps) {
     if (hasSplitBody(props.body)) throw new Error("PageSurface kind=\"login\" cannot use split body.");
     if (props.navigation) throw new Error("PageSurface kind=\"login\" cannot declare navigation.");
     if (!hasLoginForm(props.body)) throw new Error("PageSurface kind=\"login\" must contain a login FormSurface.");
-    if (findLoginContent(props.body) === undefined) throw new Error("PageSurface kind=\"login\" must contain a content block.");
     if (segments && segments[0] !== "login") throw new Error("PageSurface kind=\"login\" can only be used on the login route.");
     return;
   }
@@ -191,10 +190,9 @@ function renderDirectorySection(section: BodySurfaceSectionSpec): ReactNode {
 
 function renderDirectoryBody(body: BodySurfaceProps | undefined, section?: BodySurfaceSectionSpec): ReactNode {
   if (!body || body.kind !== "section" || body.layout === "split") return null;
-  if (body.surface) {
-    if (body.surface.kind === "empty") return renderDirectoryEmpty(body.surface, section?.key);
-    if (body.surface.kind !== "moduleGrid") return null;
-    const grid = body.surface;
+  if (body.empty) return renderDirectoryEmpty(body.empty, section?.key);
+  if (body.moduleGrid) {
+    const grid = body.moduleGrid;
     return (
       <div key={section?.key} className="flex w-full flex-col items-center justify-center">
         {(grid.leading || grid.title || grid.summary) && (
@@ -238,8 +236,16 @@ function renderDirectorySurface(props: PageSurfaceDirectoryProps) {
 }
 
 function renderLoginBody(props: PageSurfaceProps) {
-  const content = findLoginContent(props.body);
-  return <main className="grid min-h-screen place-items-center px-4 py-6">{content}</main>;
+  const form = findLoginForm(props.body);
+  return (
+    <main className="grid min-h-screen place-items-center px-4 py-6">
+      <div className="mx-auto w-full max-w-[480px] rounded-lg border border-slate-200 bg-white px-8 py-8 shadow-sm">
+        <div className="mx-auto w-full max-w-[360px]">
+          {form ? <BodySurface {...form} /> : null}
+        </div>
+      </div>
+    </main>
+  );
 }
 
 export default function PageSurface(props: PageSurfaceProps) {

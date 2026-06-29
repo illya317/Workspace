@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
-import { ActionGlyph, type ActionGlyphKind, announceFloatingOverlayOpen, createBlockSurfaceSection, createPageBody, createPanelSection, FLOATING_OVERLAY_OPEN_EVENT, getFloatingOverlayOpenDetail, PageSurface } from "@workspace/core/ui";
+import { announceFloatingOverlayOpen, createListSection, createPageBody, createPanelSection, FLOATING_OVERLAY_OPEN_EVENT, getFloatingOverlayOpenDetail, PageSurface, type BodySurfaceBadgeSpec } from "@workspace/core/ui";
 type NotificationItem = {
   id: number;
   title: string;
@@ -43,44 +43,6 @@ function formatNotificationTime(value: string) {
   if (diff >= 0 && diff < RECENT_TIME_WINDOW_MS) return `${WEEKDAY_LABELS[date.getDay()]} ${clock}`;
   if (date.getFullYear() === now.getFullYear()) return `${date.getMonth() + 1}-${date.getDate()} ${clock}`;
   return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${clock}`;
-}
-
-function NotificationIconButton({
-  kind,
-  label,
-  onClick,
-  disabled,
-  variant = "secondary",
-  className = "",
-}: {
-  kind: ActionGlyphKind;
-  label: string;
-  onClick: () => void;
-  disabled?: boolean;
-  variant?: "secondary" | "primary" | "danger" | "dangerSolid";
-  className?: string;
-}) {
-  const iconClassName = kind === "double-check" ? "h-5 w-5" : "h-4 w-4";
-  const variantClassName =
-    variant === "primary"
-      ? "bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-emerald-200"
-      : variant === "dangerSolid"
-        ? "bg-red-500 text-white hover:bg-red-600 disabled:bg-red-200"
-      : variant === "danger"
-        ? "border border-red-100 bg-red-50 text-red-600 hover:bg-red-100 disabled:bg-red-50 disabled:text-red-200"
-        : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 disabled:text-slate-300";
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      title={label}
-      disabled={disabled}
-      onClick={onClick}
-      className={`inline-flex h-7 w-7 items-center justify-center rounded-md shadow-sm transition disabled:cursor-not-allowed ${variantClassName} ${className}`}
-    >
-      <ActionGlyph kind={kind} className={iconClassName} />
-    </button>
-  );
 }
 
 function mergeNotificationItems(current: NotificationItem[], next: NotificationItem[]) {
@@ -242,6 +204,12 @@ export default function NotificationBell({
     setOpen(false);
     router.push(item.href);
   }
+  function notificationBadges(item: NotificationItem, pendingAcknowledgement: boolean): BodySurfaceBadgeSpec[] {
+    if (item.rejectedAt) return [{ key: "rejected", label: "已拒绝", tone: "danger" }];
+    if (item.acknowledgedAt) return [{ key: "acknowledged", label: "已确认", tone: "success" }];
+    if (pendingAcknowledgement) return [{ key: "pending", label: "待确认", tone: "warning" }];
+    return [];
+  }
   const count = data.pendingCount || data.unreadCount;
   return <div ref={rootRef} className="relative">
       <button ref={buttonRef} type="button" aria-label="通知" aria-haspopup="dialog" aria-expanded={open} onClick={() => {
@@ -277,70 +245,36 @@ export default function NotificationBell({
             body={createPageBody([createPanelSection("notifications", {
               title: <div className="whitespace-nowrap text-sm font-semibold text-slate-900">通知</div>,
               subtitle: <div className="whitespace-nowrap text-xs text-slate-400">{data.pendingCount} 条待确认 · {data.unreadCount} 条未读 · 共 {data.total} 条</div>,
-
+              actions: [
+                { key: "refresh", icon: "refresh", label: "刷新", onClick: () => void load(0) },
+                { key: "mark-read", icon: "double-check", label: "全部已读", disabled: markingRead || data.unreadCount === 0, onClick: () => void markAllRead() },
+                { key: "clear-read", icon: "delete-bin", label: "清空已读", variant: "danger", disabled: clearing || data.total === 0, onClick: () => void clearNotifications() },
+              ],
               sections: [
-                createBlockSurfaceSection("notification-actions", {
-                  kind: "message",
-
-                  content: (
-                    <div className="flex items-center justify-end gap-2">
-                      <NotificationIconButton kind="refresh" label="刷新" onClick={() => void load(0)} />
-                      <NotificationIconButton kind="double-check" label="全部已读" disabled={markingRead || data.unreadCount === 0} onClick={() => void markAllRead()} />
-                      <NotificationIconButton kind="delete-bin" label="清空已读" variant="danger" disabled={clearing || data.total === 0} onClick={() => void clearNotifications()} />
-                    </div>
-                  )
-                }),
-                createBlockSurfaceSection("notification-list", {
-                  kind: "message",
-
-                  content: (
-                    <>
-                      {data.items.length === 0 ? <p className="px-4 py-8 text-center text-sm text-slate-400">暂无通知</p> : data.items.map(item => {
-                        const pendingAcknowledgement = item.requiresAcknowledgement && !item.acknowledgedAt && !item.rejectedAt;
-                        const unread = !item.readAt;
-                        const itemToneClass = item.isImportant ? "bg-red-50/60" : unread ? "bg-sky-50/40" : "bg-white";
-                        const titleToneClass = unread && item.isImportant ? "font-semibold text-red-600" : unread ? "font-semibold text-slate-950" : "font-medium text-slate-700";
-                        const titleHoverClass = unread && item.isImportant ? "hover:text-red-700" : "hover:text-emerald-700";
-                        return <div key={item.id} className={`border-b border-slate-100 px-4 py-3 last:border-b-0 ${itemToneClass}`} onMouseEnter={() => void markNotificationRead(item)}>
-                                <div className="flex items-start justify-between gap-3">
-                                  <div className="min-w-0">
-                                    <div className="flex min-w-0 items-center gap-1.5">
-                                      {unread && <span aria-label="未读" className="size-1.5 shrink-0 rounded-full bg-sky-500" />}
-                                      {item.href ? <button type="button" className={`min-w-0 truncate text-left text-sm ${titleToneClass} ${titleHoverClass}`} onClick={() => void openHref(item)}>
-                                          {item.title}
-                                        </button> : <div className={`truncate text-sm ${titleToneClass}`}>{item.title}</div>}
-                                      {item.rejectedAt ? <span className="shrink-0 rounded-full bg-red-50 px-2 py-1 text-[11px] font-medium leading-none text-red-600">已拒绝</span> : item.acknowledgedAt ? <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-medium leading-none text-emerald-700">已确认</span> : pendingAcknowledgement ? <span className="shrink-0 rounded-full bg-amber-100 px-2 py-1 text-[11px] font-medium leading-none text-amber-700">待确认</span> : null}
-                                    </div>
-                                    <div className="mt-1 text-xs leading-5 text-slate-600">{item.body}</div>
-                                  </div>
-                                  <NotificationIconButton
-                                    kind="delete-bin"
-                                    label="清除通知"
-                                    disabled={busyId === item.id}
-                                    className="!h-6 !w-6 !rounded-full !border-0 !bg-transparent !shadow-none !text-slate-300 hover:!bg-slate-100 hover:!text-slate-600 disabled:!text-slate-200"
-                                    onClick={() => void updateNotification(item.id, "clear")}
-                                  />
-                                </div>
-                                <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-                                  <div className="min-w-0 truncate text-left text-[11px] text-slate-400">
-                                    {item.actor ? `${item.actor.name} · ` : ""}{formatNotificationTime(item.createdAt)}
-                                  </div>
-                                  {pendingAcknowledgement && (
-                                    <div className="flex items-center gap-1.5">
-                                      <NotificationIconButton kind="check" label="确认" variant="primary" disabled={busyId === item.id} className="!h-6 !w-6" onClick={() => void updateNotification(item.id, "acknowledge")} />
-                                      <NotificationIconButton kind="x" label="拒绝" variant="dangerSolid" disabled={busyId === item.id} className="!h-6 !w-6" onClick={() => void updateNotification(item.id, "reject")} />
-                                    </div>
-                                  )}
-                                </div>
-                              </div>;
-                      })}
-                      {data.hasMore && <div className="border-t border-slate-100 px-4 py-3 text-center">
-                          <button type="button" className="text-xs font-medium text-slate-500 hover:text-slate-900" onClick={() => void load(data.items.length, true)}>
-                            更多
-                          </button>
-                        </div>}
-                    </>
-                  )
+                createListSection("notification-list", {
+                  empty: { presentation: "plain", content: <p className="px-4 py-8 text-center text-sm text-slate-400">暂无通知</p> },
+                  items: data.items.map((item) => {
+                    const pendingAcknowledgement = item.requiresAcknowledgement && !item.acknowledgedAt && !item.rejectedAt;
+                    return {
+                      key: item.id,
+                      title: item.title,
+                      description: item.body,
+                      meta: <span className="block truncate">{item.actor ? `${item.actor.name} · ` : ""}{formatNotificationTime(item.createdAt)}</span>,
+                      badges: notificationBadges(item, pendingAcknowledgement),
+                      tone: item.isImportant ? "danger" as const : !item.readAt ? "info" as const : "default" as const,
+                      unread: !item.readAt,
+                      onClick: item.href ? () => void openHref(item) : undefined,
+                      onMouseEnter: () => void markNotificationRead(item),
+                      actions: [
+                        ...(pendingAcknowledgement ? [
+                          { key: "acknowledge", icon: "check" as const, label: "确认", variant: "primary" as const, size: "sm" as const, disabled: busyId === item.id, onClick: () => void updateNotification(item.id, "acknowledge") },
+                          { key: "reject", icon: "x" as const, label: "拒绝", variant: "danger" as const, size: "sm" as const, disabled: busyId === item.id, onClick: () => void updateNotification(item.id, "reject") },
+                        ] : []),
+                        { key: "clear", icon: "delete-bin" as const, label: "清除通知", size: "sm" as const, disabled: busyId === item.id, onClick: () => void updateNotification(item.id, "clear") },
+                      ],
+                    };
+                  }),
+                  footerAction: data.hasMore ? { key: "more", label: "更多", onClick: () => void load(data.items.length, true) } : undefined,
                 }),
               ],
             })])}

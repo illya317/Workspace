@@ -49,8 +49,6 @@ const CORE_UI_NON_COMPONENT_EXPORTS = new Set<string>([
   "announceFloatingOverlayOpen",
   "createActionsSection",
   "createAnalysisSection",
-  "createBlockSurfaceSection",
-  "createCreatePanelSection",
   "createDocumentSection",
   "createEmptySection",
   "createFieldsSection",
@@ -78,7 +76,6 @@ const CORE_UI_NON_COMPONENT_EXPORTS = new Set<string>([
 ]);
 const CORE_UI_ALLOWED_RUNTIME_IMPORTS = new Set([
   "ActionGlyph",
-  "BlockSurface",
   "FeedbackProvider",
   "InputSurface",
   "PageSurface",

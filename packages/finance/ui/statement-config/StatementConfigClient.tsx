@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { PageSurface, createBlockSurfaceSection, createPageBody, createPageTabsNavigation } from "@workspace/core/ui";
-import LineConfigTab from "./LineConfigTab";
-import UnmappedTab from "./UnmappedTab";
-import BalanceCheckTab from "./BalanceCheckTab";
+import { PageSurface, createPageBody, createPageTabsNavigation } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec, PageSurfaceNavigationSpec } from "@workspace/core/ui";
+import { useLineConfigSections } from "./LineConfigTab";
+import { useUnmappedSections } from "./UnmappedTab";
+import { useBalanceCheckSections } from "./BalanceCheckTab";
 import { StatementConfigProvider, useStatementConfig } from "./StatementConfigContext";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
@@ -65,23 +66,61 @@ function TabContent({ user }: { user: SessionUser }) {
   }) : undefined;
   const lifecycleBlocks = getFinanceLifecycleBlocks("statementConfig");
   const toolbarItems = useStatementConfigToolbarItems();
+  const pageProps = { navigation, toolbarItems, lifecycleBlocks };
+  if (activeTab === "unmapped") return <StatementConfigUnmappedPage {...pageProps} />;
+  if (activeTab === "balance") return <StatementConfigBalancePage {...pageProps} />;
+  return <StatementConfigLinesPage {...pageProps} />;
+}
+
+type StatementConfigPageProps = {
+  navigation?: PageSurfaceNavigationSpec;
+  toolbarItems: SurfaceToolbarItems;
+  lifecycleBlocks: BodySurfaceSectionSpec[];
+};
+
+function StatementConfigLinesPage(props: StatementConfigPageProps) {
+  const sections = useLineConfigSections();
+  return <StatementConfigPageSurface {...props} sections={sections} />;
+}
+
+function StatementConfigUnmappedPage(props: StatementConfigPageProps) {
+  const sections = useUnmappedSections();
+  return <StatementConfigPageSurface {...props} sections={sections} />;
+}
+
+function StatementConfigBalancePage({
+  navigation,
+  toolbarItems,
+  lifecycleBlocks,
+}: StatementConfigPageProps) {
+  const balance = useBalanceCheckSections();
   return (
-    <PageSurface kind="standard"
+    <StatementConfigPageSurface
+      navigation={navigation}
+      toolbarItems={[...toolbarItems, ...balance.toolbarItems]}
+      lifecycleBlocks={lifecycleBlocks}
+      sections={balance.sections}
+    />
+  );
+}
+
+function StatementConfigPageSurface({
+  navigation,
+  toolbarItems,
+  lifecycleBlocks,
+  sections,
+}: {
+  navigation?: PageSurfaceNavigationSpec;
+  toolbarItems: SurfaceToolbarItems;
+  lifecycleBlocks: BodySurfaceSectionSpec[];
+  sections: BodySurfaceSectionSpec[];
+}) {
+  return (
+    <PageSurface
+      kind="standard"
       navigation={navigation}
       toolbar={{ items: toolbarItems }}
-      body={createPageBody([
-          ...lifecycleBlocks,
-          createBlockSurfaceSection("statement-config-content", {
-            kind: "content",
-            content: (
-              <div>
-                {activeTab === "lines" && <LineConfigTab />}
-                {activeTab === "unmapped" && <UnmappedTab />}
-                {activeTab === "balance" && <BalanceCheckTab />}
-              </div>
-            ),
-          }),
-        ])}
+      body={createPageBody([...lifecycleBlocks, ...sections])}
     />
   );
 }

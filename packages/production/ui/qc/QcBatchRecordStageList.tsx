@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { createBlockSurfaceSection, createPageBody, PageSurface } from "@workspace/core/ui";
+import { createMessageSection, createPageBody, PageSurface } from "@workspace/core/ui";
 import type { QcBatchSummary, QcTemplateDetail } from "@workspace/production/types";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcBatchNumberInput from "./QcBatchNumberInput";
@@ -19,9 +19,7 @@ export default function QcBatchRecordStageList({ batch, detail }: QcBatchRecordS
         <PageSurface kind="standard"
           embedded
           body={createPageBody([
-            createBlockSurfaceSection("qc-batch-record-summary", {
-              kind: "content",
-
+            createMessageSection("qc-batch-record-summary", {
               content: (
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-semibold text-slate-900">批号：</span>

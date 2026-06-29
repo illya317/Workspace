@@ -8,6 +8,8 @@ import {
   createRecordSection,
   createInlineFieldsSection,
   createPageTableSection,
+  createMessageSection,
+  type BodySurfaceSectionSpec,
   type DataSurfaceColumnSpec,
 } from "@workspace/core/ui";
 interface Company {
@@ -40,11 +42,11 @@ interface ReconcileResult {
     name: string;
   }[];
 }
-export default function FinanceBalanceReconcile({
+export function useFinanceBalanceReconcileSection({
   showToast
 }: {
   showToast: (message: string, type?: "success" | "error") => void;
-}) {
+}): BodySurfaceSectionSpec {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companyCode, setCompanyCode] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -80,19 +82,16 @@ export default function FinanceBalanceReconcile({
       setLoading(false);
     }
   }
-  return <section className="space-y-4">
-      <div>
-        <h2 className="text-base font-semibold text-slate-800">余额核对（与会计软件年度余额表比对）</h2>
-        <p className="text-sm text-slate-500">
-          系统侧使用 2024
-          年度余额表作为基准，再叠加序时账凭证滚动计算；上传 2025/2026
-          年度余额表用于校验差异。
-        </p>
-      </div>
-      <PageSurface kind="standard"
-        embedded
-        body={createPageBody([
-          createInlineFieldsSection("balance-reconcile-filters", [
+  return {
+    key: "balance-reconcile",
+    header: {
+      title: "余额核对（与会计软件年度余额表比对）",
+      subtitle: "系统侧使用 2024 年度余额表作为基准，再叠加序时账凭证滚动计算；上传 2025/2026 年度余额表用于校验差异。",
+    },
+    body: {
+      kind: "section",
+      sections: createPageBody([
+        createInlineFieldsSection("balance-reconcile-filters", [
             {
               key: "company",
               label: "公司",
@@ -111,80 +110,60 @@ export default function FinanceBalanceReconcile({
             kind: "filters",
             commands: [{ key: "reconcile", label: loading ? "核对中..." : "开始核对", variant: "primary", onClick: handleReconcile, disabled: loading }],
           }),
-        ])}
-      />
-
-      {result && <div className="mt-4 space-y-3">
-          <div className="flex flex-wrap gap-4 text-sm">
-            <span className="text-gray-600">
-              期间：
-              <span className="font-medium text-gray-800">
-                {result.year}年{result.monthStart}月-{result.monthEnd}月
-              </span>
-            </span>
-            <span className="text-gray-600">
-              Excel科目数：
-              <span className="font-medium text-gray-800">
-                {result.excelRowCount}
-              </span>
-            </span>
-            <span className="text-gray-600">
-              系统科目数：
-              <span className="font-medium text-gray-800">
-                {result.systemAccountCount}
-              </span>
-            </span>
-            <span className="text-gray-600">
-              一致科目数：
-              <span className="font-medium text-green-600">
-                {result.matchedCount}
-              </span>
-            </span>
-            <span className="text-gray-600">
-              差异科目数：
-              <span className="font-medium text-red-600">
-                {result.differences.length}
-              </span>
-            </span>
-          </div>
-
-          {result.missingInSystem.length > 0 && <MissingList title={`Excel中有但系统中缺失的科目（${result.missingInSystem.length}个）`} items={result.missingInSystem} tone="yellow" />}
-          {result.missingInExcel.length > 0 && <MissingList title={`系统中有但Excel中缺失的科目（${result.missingInExcel.length}个）`} items={result.missingInExcel} tone="blue" />}
-          {result.differences.length > 0 && <DiffTable differences={result.differences} />}
-          {result.differences.length === 0 && result.missingInSystem.length === 0 && result.missingInExcel.length === 0 && <BalanceReconcileSuccess />}
-        </div>}
-    </section>;
+        ...(result ? [
+          createMessageSection("balance-reconcile-summary", {
+            content: (
+              <div className="flex flex-wrap gap-4 text-sm">
+                <span className="text-gray-600">期间：<span className="font-medium text-gray-800">{result.year}年{result.monthStart}月-{result.monthEnd}月</span></span>
+                <span className="text-gray-600">Excel科目数：<span className="font-medium text-gray-800">{result.excelRowCount}</span></span>
+                <span className="text-gray-600">系统科目数：<span className="font-medium text-gray-800">{result.systemAccountCount}</span></span>
+                <span className="text-gray-600">一致科目数：<span className="font-medium text-green-600">{result.matchedCount}</span></span>
+                <span className="text-gray-600">差异科目数：<span className="font-medium text-red-600">{result.differences.length}</span></span>
+              </div>
+            ),
+          }),
+          ...(result.missingInSystem.length > 0 ? [createMissingListSection("missing-system", `Excel中有但系统中缺失的科目（${result.missingInSystem.length}个）`, result.missingInSystem, "warning" as const)] : []),
+          ...(result.missingInExcel.length > 0 ? [createMissingListSection("missing-excel", `系统中有但Excel中缺失的科目（${result.missingInExcel.length}个）`, result.missingInExcel, "default" as const)] : []),
+          ...(result.differences.length > 0 ? [createDiffTableSection(result.differences)] : []),
+          ...(result.differences.length === 0 && result.missingInSystem.length === 0 && result.missingInExcel.length === 0 ? [createBalanceReconcileSuccessSection()] : []),
+        ] : []),
+      ]).sections,
+    },
+  };
 }
 
-function BalanceReconcileSuccess() {
-  return <PageSurface kind="standard" embedded body={createPageBody([createRecordSection("balance-reconcile-empty", { records: [], empty: "核对通过，所有科目余额完全一致" })])} />;
+export default function FinanceBalanceReconcile(props: {
+  showToast: (message: string, type?: "success" | "error") => void;
+}) {
+  const section = useFinanceBalanceReconcileSection(props);
+  return <PageSurface kind="standard" embedded body={createPageBody([section])} />;
 }
 
-function MissingList({
-  title,
-  items,
-  tone
-}: {
-  title: string;
-  items: {
+function createBalanceReconcileSuccessSection() {
+  return createRecordSection("balance-reconcile-empty", { records: [], empty: "核对通过，所有科目余额完全一致" });
+}
+
+function createMissingListSection(
+  key: string,
+  title: string,
+  items: Array<{
     code: string;
     name: string;
-  }[];
-  tone: "yellow" | "blue";
-}) {
-  const styles = tone === "yellow" ? "border-amber-100 bg-amber-50 text-amber-800 [&_p:last-child]:text-amber-700" : "border-blue-100 bg-blue-50 text-blue-800 [&_p:last-child]:text-blue-700";
-  return <section className={`${styles} rounded border p-3 text-sm`}>
-      <p className="font-medium">{title}</p>
-      <p className="mt-1">
-        {items.map(item => `${item.code} ${item.name}`).join("、 ")}
-      </p>
-    </section>;
+  }>,
+  tone: "warning" | "default",
+) {
+  return createMessageSection(key, {
+    tone,
+    content: (
+      <div>
+        <p className="font-medium">{title}</p>
+        <p className="mt-1">{items.map(item => `${item.code} ${item.name}`).join("、 ")}</p>
+      </div>
+    ),
+  });
 }
-function DiffTable({
-  differences
-}: {
-  differences: ReconcileDiff[];
-}) {
+
+function createDiffTableSection(differences: ReconcileDiff[]) {
   const columns: DataSurfaceColumnSpec<ReconcileDiff>[] = [{
     key: "accountCode",
     label: "科目编码",
@@ -224,17 +203,12 @@ function DiffTable({
      emphasis: "medium", tone: "danger",
     cell: difference => difference.diff.toFixed(2)
   }];
-  return <PageSurface kind="standard"
-    embedded
-    body={createPageBody([
-      createPageTableSection("balance-reconcile-differences", {
+  return createPageTableSection("balance-reconcile-differences", {
 
 
         rows: differences,
         columns,
         visibleColumns: columns.map(column => column.key),
         rowKey: difference => `${difference.accountCode}-${difference.field}`,
-      }),
-    ])}
-  />;
+      });
 }

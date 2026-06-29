@@ -3,6 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useCallback } from "react";
 import { createInlineFieldsSection, createMessageSection, createPageBody, PageSurface } from "@workspace/core/ui";
+import type { BodySurfaceModalSpec } from "@workspace/core/ui";
 import AuditLogEntry, { type AuditEntry } from "./AuditLogEntry";
 
 export interface AuditLogModalProps {
@@ -13,6 +14,11 @@ export interface AuditLogModalProps {
 }
 
 export default function AuditLogModal({ open, onClose, entityType, onRestored }: AuditLogModalProps) {
+  const modal = useAuditLogModal({ open, onClose, entityType, onRestored });
+  return <PageSurface kind="standard" embedded body={createPageBody([modal])} />;
+}
+
+export function useAuditLogModal({ open, onClose, entityType, onRestored }: AuditLogModalProps): BodySurfaceModalSpec {
   const [entries, setEntries] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -82,10 +88,7 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
 
   const totalPages = Math.ceil(total / pageSize);
 
-  return (
-    <PageSurface kind="standard"
-      embedded
-      body={createPageBody([], { modals: [{
+  return {
         key: "audit-log",
         open,
         title: `编辑历史 · ${entityType}${selectedDate ? ` (${selectedDate})` : ""}`,
@@ -158,7 +161,5 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
           },
         },
         ],
-      }] })}
-    />
-  );
+      };
 }

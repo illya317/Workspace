@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createCreatePanelSection, createSectionsSection, createPanelSection, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { createActionsSection, createPageBody, PageSurface, createSectionsSection, createPanelSection, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { DETAIL_FIELD_LABELS, POSITION_DESCRIPTION_TEMPLATE_FIELD_GROUPS } from "./description-details";
 
 type PositionDescriptionTemplateEditorProps = {
@@ -20,57 +20,49 @@ export function buildPositionDescriptionTemplateEditorBlock({
   onSave,
   onCancel,
 }: PositionDescriptionTemplateEditorProps): BodySurfaceSectionSpec {
-  return createCreatePanelSection("template-editor", {
+  return createPanelSection("template-editor", {
 
     title: "模板名称",
-    creating: true,
-    canCreate: true,
-    submitLabel: "保存模板",
-    onStartCreate: () => undefined,
-    onSubmit: () => void onSave(),
-    onCancel,
-    createContent: (
-      <PageSurface kind="standard"
-        embedded
-        body={createPageBody([
-          {
-            key: "template-name",
+    sections: [
+      {
+        key: "template-name",
+        body: { kind: "form", form: {
+          kind: "filters",
+          content: { items: [{
+            key: "name",
+            label: "名称",
+            spec: { valueType: "string", control: "text" },
+            value: name,
+            onChange: (value: unknown) => onNameChange(String(value ?? "")),
+          }] },
+        } },
+      },
+      createSectionsSection("field-groups", {
+        layout: "grid",
+
+        sections: POSITION_DESCRIPTION_TEMPLATE_FIELD_GROUPS.map((group) => createPanelSection(group.label, {
+          title: group.label,
+
+          sections: [{
+            key: `${group.label}-fields`,
             body: { kind: "form", form: {
               kind: "filters",
-              content: { items: [{
-                key: "name",
-                label: "名称",
-                spec: { valueType: "string", control: "text" },
-                value: name,
-                onChange: (value: unknown) => onNameChange(String(value ?? "")),
-              }] },
+              content: { items: group.fields.map((field) => ({
+                key: field,
+                label: DETAIL_FIELD_LABELS[field] || field,
+                spec: { valueType: "boolean", control: "boolean", presentation: "checkbox" },
+                value: fields.includes(field),
+                onChange: () => onToggleField(field),
+              })) },
             } },
-          },
-          createSectionsSection("field-groups", {
-            layout: "grid",
-
-            sections: POSITION_DESCRIPTION_TEMPLATE_FIELD_GROUPS.map((group) => createPanelSection(group.label, {
-              title: group.label,
-
-              sections: [{
-                key: `${group.label}-fields`,
-                body: { kind: "form", form: {
-                  kind: "filters",
-                  content: { items: group.fields.map((field) => ({
-                    key: field,
-                    label: DETAIL_FIELD_LABELS[field] || field,
-                    spec: { valueType: "boolean", control: "boolean", presentation: "checkbox" },
-                    value: fields.includes(field),
-                    onChange: () => onToggleField(field),
-                  })) },
-                } },
-              }],
-            })),
-          }),
-        ])}
-      />
-    ),
-    children: null,
+          }],
+        })),
+      }),
+      createActionsSection("template-editor-actions", [
+        { key: "cancel", label: "取消", onClick: onCancel },
+        { key: "save", label: "保存模板", variant: "primary", onClick: () => void onSave() },
+      ]),
+    ],
   });
 }
 

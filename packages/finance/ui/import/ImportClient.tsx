@@ -3,10 +3,10 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { SessionUser } from "@workspace/platform/types";
-import { PageSurface, createBlockSurfaceSection, createPageBody, createPageTabsNavigation } from "@workspace/core/ui";
-import ImportUploadForm from "./components/ImportUploadForm";
-import ImportPreview from "./components/ImportPreview";
-import ImportResult from "./components/ImportResult";
+import { PageSurface, createPageBody, createPageTabsNavigation } from "@workspace/core/ui";
+import { createImportUploadSections } from "./components/ImportUploadForm";
+import { createImportPreviewSections } from "./components/ImportPreview";
+import { createImportResultSection } from "./components/ImportResult";
 import { Company, PreviewResult } from "./components/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 
@@ -130,39 +130,21 @@ export default function ImportClient({ user }: { user: SessionUser }) {
       navigation={navigation}
       body={createPageBody([
           ...lifecycleBlocks,
-          createBlockSurfaceSection("finance-import-content", {
-            kind: "content",
-            content: (
-              <div className="mx-auto max-w-5xl py-6">
-                <ImportUploadForm
-                  companies={companies}
-                  companyCode={companyCode}
-                  importType={importType}
-                  year={year}
-                  file={file}
-                  loading={loading}
-                  onCompanyChange={setCompanyCode}
-                  onTypeChange={handleTypeChange}
-                  onYearChange={setYear}
-                  onFileChange={handleFileChange}
-                  onPreview={handlePreview}
-                />
-
-                {result && (
-                  <ImportResult success={result.success} message={result.message} />
-                )}
-
-                {preview && (
-                  <ImportPreview
-                    preview={preview}
-                    importing={importing}
-                    typeLabel={typeLabel}
-                    onConfirm={handleConfirm}
-                  />
-                )}
-              </div>
-            ),
+          ...createImportUploadSections({
+            companies,
+            companyCode,
+            importType,
+            year,
+            file,
+            loading,
+            onCompanyChange: setCompanyCode,
+            onTypeChange: handleTypeChange,
+            onYearChange: setYear,
+            onFileChange: handleFileChange,
+            onPreview: handlePreview,
           }),
+          ...(result ? [createImportResultSection({ success: result.success, message: result.message })] : []),
+          ...(preview ? createImportPreviewSections({ preview, importing, typeLabel, onConfirm: handleConfirm }) : []),
         ])}
     />
   );

@@ -8,33 +8,6 @@ export const page_api_registry_entries = [
     composes: ["NumberCell"],
   },
   {
-    name: "BlockSurface",
-    description: "通用正文区块 Surface",
-    contract: generatedCoreUiSurfaceContracts.BlockSurface,
-    declares: [
-      {
-        name: "kind",
-        description: "区块类型。",
-        children: [
-          { name: "content", description: "短正文内容。" },
-          { name: "message", description: "状态消息。" },
-          { name: "heading", description: "正文标题。" },
-          { name: "empty", description: "空态。" },
-          { name: "actions", description: "动作组。" },
-          { name: "group", description: "区块分组。" },
-          { name: "panel", description: "面板区块。" },
-          { name: "section", description: "小节区块。" },
-          { name: "moduleGrid", description: "模块卡片网格。" },
-        ],
-      },
-      { name: "content", description: "短内容或区块正文；复杂组件应拆成专用 Surface。" },
-      { name: "blocks", description: "分组、panel、section 内的子区块。" },
-      { name: "actions", description: "区块局部动作。" },
-      { name: "presentation", description: "区块语义与展示外壳，如 tone、level、layout、bodyClassName。" },
-    ],
-    composes: ["PanelCard", "SectionCard", "ModuleCard", "EmptyStateCard", "CommandButton", "AnalysisBlock"],
-  },
-  {
     name: "BodySurface",
     description: "PageSurface 正文编排 Surface",
     contract: generatedCoreUiSurfaceContracts.BodySurface,
@@ -72,11 +45,11 @@ export const page_api_registry_entries = [
       { name: "commands", description: "正文内部短命令；页面级工具放 PageSurface.toolbar。" },
       { name: "split", description: "split 专属：left/right/drawerLeft/sideOpen/drawerOpen/sideLabel/splitRatio/showSideControls。" },
     ],
-    composes: ["BlockSurface", "FormSurface", "DataSurface", "DocumentSurface", "NavigationRenderer", "VisualizationSurface", "MetricsSurface", "RecordSurface", "SelectorSurface", "Toolbar", "EmptyStateCard", "ModuleCard"],
+    composes: ["FormSurface", "DataSurface", "DocumentSurface", "NavigationRenderer", "VisualizationSurface", "MetricsSurface", "RecordSurface", "SelectorSurface", "Toolbar", "EmptyStateCard", "ModuleCard"],
   },
   {
     name: "DataSurface",
-    description: "L1 正文数据 Surface",
+    description: "正文数据 Surface",
     contract: generatedCoreUiSurfaceContracts.DataSurface,
     declares: [
       {

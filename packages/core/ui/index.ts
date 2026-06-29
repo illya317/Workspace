@@ -10,6 +10,8 @@ export type {
   BodySurfaceEmptySpec,
   BodySurfaceFormProps,
   BodySurfaceKind,
+  BodySurfaceListItemSpec,
+  BodySurfaceListSpec,
   BodySurfaceMessageSpec,
   BodySurfaceMetricsProps,
   BodySurfaceModalSpec,
@@ -27,21 +29,6 @@ export type {
   BodySurfaceSplitSectionProps,
   BodySurfaceVisualizationProps,
 } from "./BodySurface";
-export { default as BlockSurface } from "./BlockSurface";
-export type {
-  BlockSurfaceActionsProps,
-  BlockSurfaceCommandSpec,
-  BlockSurfaceContentProps,
-  BlockSurfaceEmptyProps,
-  BlockSurfaceGroupProps,
-  BlockSurfaceHeadingProps,
-  BlockSurfaceKind,
-  BlockSurfaceMessageProps,
-  BlockSurfaceModuleGridItemSpec,
-  BlockSurfaceModuleGridProps,
-  BlockSurfacePanelProps,
-  BlockSurfaceProps,
-} from "./BlockSurface";
 export { default as DataSurface } from "./DataSurface";
 export type {
   DataSurfaceCellActionSpec,
@@ -158,6 +145,8 @@ export type {
   FormSurfaceTagListAppendSpec,
   FormSurfaceTagListFieldSpec,
 } from "./FormSurface";
+export { default as LoginSurface } from "./LoginSurface";
+export type { LoginSurfaceProps } from "./LoginSurface";
 export { default as PageSurface } from "./PageSurface";
 export type {
   PageSurfaceBodySpec,
@@ -177,6 +166,7 @@ export {
   createEmptySection,
   createSectionsSection,
   createHeadingSection,
+  createListSection,
   createMessageSection,
   createMetricsSection,
   createModuleGridSection,
@@ -185,7 +175,6 @@ export {
   createPageActionsSection,
   createPageCommand,
   createPageDataSection,
-  createBlockSurfaceSection,
   createDocumentSection,
   createFieldsSection,
   createFormSection,
@@ -202,11 +191,9 @@ export {
   createVisualizationSection,
 } from "./helpers/page-surface-builders";
 export {
-  createCreatePanelSection,
   createSelectorPanelSection,
 } from "./helpers/surface-compat-builders";
 export type {
-  CreatePanelSectionHelperProps,
   SelectorPanelSectionHelperOptions,
 } from "./helpers/surface-compat-builders";
 export type {

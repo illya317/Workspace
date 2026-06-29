@@ -2,12 +2,12 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo } from "react";
-import { createPageBody, PageSurface, createBlockSurfaceSection, createPageTableSection, useFeedback } from "@workspace/core/ui";
+import { createMessageSection, createPageBody, PageSurface, createPageTableSection, useFeedback } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { getBaseItemColumns, type VoucherItemRow } from "../components/VoucherItemTable";
 import { useReclassResults } from "./useReclassResults";
-import ReclassReviewView from "../components/ReclassReviewView";
+import { useReclassReviewSurface } from "../components/ReclassReviewView";
 import { getVoucherColumns } from "./VoucherColumns";
 import type { Voucher, VoucherResponse } from "@workspace/finance/types";
 
@@ -32,7 +32,7 @@ export default function VoucherTab({
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
   const { error, notify } = useFeedback();
-  const { allItems, handleReview, handleGenerate, adjustModal } =
+  const { allItems, handleReview, handleGenerate } =
     useReclassResults(companyFilter, yearFilter, monthFilter, notify);
   const [viewMode, setViewMode] = useState<"vouchers" | "reclass">("vouchers");
   const [keyword, setKeyword] = useState("");
@@ -144,6 +144,21 @@ export default function VoucherTab({
     onColumnsChange: viewMode === "reclass" ? undefined : setVisibleColumns,
     extraItems: extraToolbarItems,
   });
+  const hasReclassPeriod = Boolean(companyFilter && yearFilter && monthFilter);
+  const reclassReview = useReclassReviewSurface({
+    items: allItems,
+    canWrite,
+    statusFilter: reclassStatus,
+    onReview: handleReview,
+    companyCode: companyFilter,
+    year: yearFilter,
+  });
+  const reclassSections = hasReclassPeriod
+    ? [...reclassReview.sections, ...reclassReview.modals]
+    : [createMessageSection("voucher-reclass-empty", {
+        content: "请选择公司、年度和月份以配置重分类规则",
+        tone: "muted",
+      })];
 
   return (
     <PageSurface kind="standard"
@@ -152,26 +167,7 @@ export default function VoucherTab({
       body={createPageBody(viewMode === "reclass"
           ? [
               ...lifecycleBlocks,
-              createBlockSurfaceSection("voucher-reclass-content", {
-                kind: "content",
-                content: (
-                  <>
-                    {companyFilter && yearFilter && monthFilter ? (
-                      <ReclassReviewView
-                        items={allItems}
-                        canWrite={canWrite}
-                        statusFilter={reclassStatus}
-                        onReview={handleReview}
-                        companyCode={companyFilter}
-                        year={yearFilter}
-                      />
-                    ) : (
-                      <p className="py-8 text-center text-sm text-gray-400">请选择公司、年度和月份以配置重分类规则</p>
-                    )}
-                    {adjustModal}
-                  </>
-                ),
-              }),
+              ...reclassSections,
             ]
           : [
               ...lifecycleBlocks,
@@ -192,10 +188,6 @@ export default function VoucherTab({
                   expandedRowContent: (v: Voucher) => <VoucherItemsPreview voucher={v} columns={itemColumns} />,
                 } },
               },
-              createBlockSurfaceSection("voucher-adjust-modal", {
-                kind: "content",
-                content: adjustModal,
-              }),
             ])}
       footer={viewMode === "reclass" ? undefined : { pagination: { page, totalPages, total, onPageChange: setPage } }}
     />

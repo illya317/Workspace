@@ -3,6 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState } from "react";
 import { createPageBody, createMessageSection, PageSurface, createPageDataSection, createRecordSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
 import { useStatementConfig } from "./StatementConfigContext";
 interface Node {
@@ -82,6 +83,11 @@ function createUnmappedColumns(): DataSurfaceColumnSpec<DisplayItem>[] {
   }];
 }
 export default function UnmappedTab() {
+  const sections = useUnmappedSections();
+  return <PageSurface kind="standard" embedded body={createPageBody(sections)} />;
+}
+
+export function useUnmappedSections(): BodySurfaceSectionSpec[] {
   const {
     company,
     year
@@ -161,65 +167,55 @@ export default function UnmappedTab() {
   useEffect(() => {
     load();
   }, [load]);
-  if (loading) return <UnmappedRecords message="加载中..." />;
+  if (loading) return [createUnmappedRecordsSection("加载中...")];
   if (error) {
-    return <UnmappedError message={error} onRetry={load} />;
+    return createUnmappedErrorSections(error, load);
   }
   const subtractOnly = items.filter(a => a.status === "subtractOnly");
   const unmappedOnly = items.filter(a => a.status === "unmapped");
   const excluded = items.filter(a => a.status === "excluded");
-  return <div className="space-y-4">
-      {items.length === 0 ? <UnmappedRecords message="全部科目已正常归属，当前没有余额非零但未被 add 消费的科目。" /> : <>
-          <div className="flex gap-4 text-sm text-gray-500">
-            <span>未映射: <b className="text-red-500">{unmappedOnly.length}</b></span>
-            {subtractOnly.length > 0 && <span>仅减项: <b className="text-amber-600">{subtractOnly.length}</b></span>}
-            {excluded.length > 0 && <span>已排除: <b className="text-gray-600">{excluded.length}</b></span>}
-            <span className="text-gray-400">（余额非零但未被 add 消费）</span>
-          </div>
-          <UnmappedTable items={items} />
-        </>}
-    </div>;
+  if (items.length === 0) return [createUnmappedRecordsSection("全部科目已正常归属，当前没有余额非零但未被 add 消费的科目。")];
+  return [
+    createMessageSection("unmapped-summary", {
+      tone: "muted",
+      content: (
+        <div className="flex flex-wrap gap-4">
+          <span>未映射: <b className="text-red-500">{unmappedOnly.length}</b></span>
+          {subtractOnly.length > 0 && <span>仅减项: <b className="text-amber-600">{subtractOnly.length}</b></span>}
+          {excluded.length > 0 && <span>已排除: <b className="text-gray-600">{excluded.length}</b></span>}
+          <span className="text-gray-400">（余额非零但未被 add 消费）</span>
+        </div>
+      ),
+    }),
+    createUnmappedTableSection(items),
+  ];
 }
 
-function UnmappedRecords({ message }: { message: string }) {
-  return (
-    <PageSurface kind="standard"
-      embedded
-      body={createPageBody([createRecordSection("unmapped-records", { records: [], empty: message })])}
-    />
-  );
+function createUnmappedRecordsSection(message: string): BodySurfaceSectionSpec {
+  return createRecordSection("unmapped-records", { records: [], empty: message });
 }
 
-function UnmappedError({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return (
-    <PageSurface kind="standard"
-      embedded
-      body={createPageBody([
-        createMessageSection("error", {
-          tone: "danger",
-          content: message
-        }),
-        {
-          key: "retry",
-          body: { kind: "form", form: {
-            kind: "filters",
-            content: { items: [] },
-            commands: [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }],
-          } },
-        },
-      ])}
-    />
-  );
+function createUnmappedErrorSections(message: string, onRetry: () => void): BodySurfaceSectionSpec[] {
+  return [
+    createMessageSection("error", {
+      tone: "danger",
+      content: message
+    }),
+    {
+      key: "retry",
+      body: { kind: "form", form: {
+        kind: "filters",
+        content: { items: [] },
+        commands: [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }],
+      } },
+    },
+  ];
 }
 
-function UnmappedTable({ items }: { items: DisplayItem[] }) {
+function createUnmappedTableSection(items: DisplayItem[]): BodySurfaceSectionSpec {
   const columns = createUnmappedColumns();
 
-  return (
-    <PageSurface kind="standard"
-      embedded
-      body={createPageBody([
-        createPageDataSection("unmapped-table", {
+  return createPageDataSection("unmapped-table", {
           kind: "table",
           rows: items,
           columns,
@@ -227,8 +223,5 @@ function UnmappedTable({ items }: { items: DisplayItem[] }) {
           rowKey: row => row.accountCode,
 
           rowState: row => row.status === "unmapped" ? "danger" : row.status === "excluded" ? "muted" : "warning",
-        }),
-      ])}
-    />
-  );
+        });
 }

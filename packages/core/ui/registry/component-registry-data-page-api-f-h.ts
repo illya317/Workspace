@@ -81,7 +81,7 @@ export const page_api_registry_entries = [
   },
   {
     name: "FormSurface",
-    description: "L1 正文表单 Surface",
+    description: "正文表单 Surface",
     contract: generatedCoreUiSurfaceContracts.FormSurface,
     declares: [
       {
@@ -103,7 +103,7 @@ export const page_api_registry_entries = [
           { name: "tagList", description: "标签列表字段。" },
           { name: "section", description: "字段分组。" },
           { name: "repeatable", description: "可重复字段组。" },
-          { name: "note", description: "短说明；复杂 ReactNode 应迁到 BlockSurface 或专用 Surface。" },
+          { name: "note", description: "短说明；复杂 ReactNode 应迁到专用 Surface。" },
         ],
       },
       { name: "commands", description: "表单内部短命令；页面/section 标题动作归 PageSurface。" },

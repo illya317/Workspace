@@ -34,6 +34,7 @@ interface Props {
   resources: ResourceItem[];
   onToolbarItemsChange: (items: SurfaceToolbarItem[]) => void;
   onFooterChange: (footer: PageSurfaceFooterSpec | undefined) => void;
+  enabled?: boolean;
 }
 const ROLE_VARIANTS: Record<string, "gray" | "green" | "blue" | "red" | "yellow"> = {
   purple: "blue",
@@ -55,12 +56,13 @@ function PermissionBadge({ label, tone }: { label: string; tone: "gray" | "green
     </span>
   );
 }
-export default function AdminUsersTab({
+export function useAdminUsersSection({
   showToast,
   resources,
   onToolbarItemsChange,
-  onFooterChange
-}: Props) {
+  onFooterChange,
+  enabled = true,
+}: Props): BodySurfaceSectionSpec {
   const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState("");
@@ -83,8 +85,9 @@ export default function AdminUsersTab({
     }
   }
   useEffect(() => {
-    load();
-  }, []);
+    if (!enabled) return;
+    void load();
+  }, [enabled]);
   async function handleCreate() {
     if (!newNickname.trim()) {
       showToast("请输入昵称", "error");
@@ -292,14 +295,22 @@ export default function AdminUsersTab({
   } : undefined, [filtered.length, page, pageSize, totalPages]);
 
   useEffect(() => {
+    if (!enabled) {
+      onToolbarItemsChange([]);
+      return undefined;
+    }
     onToolbarItemsChange(toolbarItems);
     return () => onToolbarItemsChange([]);
-  }, [onToolbarItemsChange, toolbarItems]);
+  }, [enabled, onToolbarItemsChange, toolbarItems]);
 
   useEffect(() => {
+    if (!enabled) {
+      onFooterChange(undefined);
+      return undefined;
+    }
     onFooterChange(footer);
     return () => onFooterChange(undefined);
-  }, [footer, onFooterChange]);
+  }, [enabled, footer, onFooterChange]);
 
   const sections: BodySurfaceSectionSpec[] = [
     ...(creating
@@ -356,10 +367,14 @@ export default function AdminUsersTab({
     },
   ];
 
-  return (
-    <PageSurface kind="standard"
-      embedded
-      body={createPageBody(sections)}
-    />
-  );
+  return {
+    key: "admin-users",
+    framed: false,
+    body: { kind: "section", sections: createPageBody(sections).sections },
+  };
+}
+
+export default function AdminUsersTab(props: Props) {
+  const section = useAdminUsersSection(props);
+  return <PageSurface kind="standard" embedded body={createPageBody([section])} />;
 }

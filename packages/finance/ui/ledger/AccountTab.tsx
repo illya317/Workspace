@@ -2,10 +2,10 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PageSurface, createBlockSurfaceSection, createPageDataSection, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createMessageSection, createPageDataSection, useFeedback } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { getAccountColumns, type Account } from "../components/AccountTable";
-import ReclassConfigView from "../components/ReclassConfigView";
+import { useReclassConfigSection } from "../components/ReclassConfigView";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 
 // Account type and column definitions from shared AccountTable
@@ -150,6 +150,21 @@ export default function AccountTab({
     showLevel: false,
     extraItems: extraToolbarItems,
   });
+  const reclassConfig = useReclassConfigSection({
+    companyCode: companyFilter,
+    year: yearFilter,
+    keyword,
+    statusFilter: reclassStatus,
+    pageSize,
+    canWrite,
+    onStats: setReclassStats,
+  });
+  const reclassSection = companyFilter && yearFilter
+    ? reclassConfig.section
+    : createMessageSection("account-reclass-missing-period", {
+        tone: "muted",
+        content: "请选择公司和年份以配置重分类规则",
+      });
 
   return (
     <PageSurface kind="standard"
@@ -160,14 +175,7 @@ export default function AccountTab({
         layout: reclassMode ? undefined : "stack",
         sections: reclassMode ? [
           ...lifecycleBlocks,
-          createBlockSurfaceSection("account-reclass-content", {
-            kind: "content",
-            content: companyFilter && yearFilter ? (
-              <ReclassConfigView companyCode={companyFilter} year={yearFilter} keyword={keyword} statusFilter={reclassStatus} pageSize={pageSize} canWrite={canWrite} onStats={setReclassStats} />
-            ) : (
-              <p className="py-8 text-center text-sm text-gray-400">请选择公司和年份以配置重分类规则</p>
-            ),
-          }),
+          reclassSection,
         ] : [
           ...lifecycleBlocks,
           createPageDataSection("accounts", {
@@ -181,7 +189,7 @@ export default function AccountTab({
           }),
         ],
       }}
-      footer={!reclassMode ? { pagination: { page, totalPages, total, onPageChange: setPage } } : undefined}
+      footer={reclassMode ? (companyFilter && yearFilter ? reclassConfig.footer : undefined) : { pagination: { page, totalPages, total, onPageChange: setPage } }}
     />
   );
 }

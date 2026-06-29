@@ -92,12 +92,11 @@ const SURFACE_PUBLIC_CONTRACT_RULES: Array<{
     file: "packages/core/ui/DataSurface.types.ts",
     pattern: /\bkind\s*:\s*["']raw["']/,
     label: "raw-cell",
-    reason: "Raw display escape hatches belong to BlockSurface or a narrower explicit Surface spec.",
+    reason: "Raw display escape hatches belong to a narrower explicit Surface spec.",
   },
 ];
 const SURFACE_PUBLIC_CONTRACT_FILES = [
   "packages/core/ui/BodySurface.tsx",
-  "packages/core/ui/BlockSurface.tsx",
   "packages/core/ui/DataSurface.types.ts",
   "packages/core/ui/DocumentSurface.tsx",
   "packages/core/ui/FormSurface.types.ts",
@@ -148,7 +147,6 @@ const LEGACY_PAGE_BLOCK_KINDS = new Set([
 ]);
 const PAGE_BLOCK_HELPER_NAMES = new Set([
   "createActionsSection",
-  "createBlockSurfaceSection",
   "createEmptySection",
   "createSectionsSection",
   "createHeadingSection",
@@ -168,12 +166,12 @@ const DEPRECATED_SURFACE_USAGE_PATTERNS: Array<{
   {
     label: "PageSurface.moduleView",
     pattern: /\bkind\s*(?::|=)\s*["']moduleView["']/,
-    migrationTarget: "Use a typed Surface/helper, usually createBlockSurfaceSection or a domain Surface wrapper.",
+    migrationTarget: "Use BodySurface section fields or a typed Surface/helper.",
   },
   {
     label: "DataSurface.raw",
     pattern: /\bkind\s*(?::|=)\s*["']raw["']/,
-    migrationTarget: "Define a narrower Surface spec; BlockSurface.content is a legacy escape hatch.",
+    migrationTarget: "Define a narrower Surface spec instead of a raw content escape hatch.",
   },
   {
     label: "DataSurface kind=visual",
@@ -187,9 +185,6 @@ const SURFACE_DECLARE_RULES: Record<string, {
   deprecatedPaths?: readonly string[];
   maxTotalDeclares?: number;
 }> = {
-  BlockSurface: {
-    topLevel: ["kind", "content", "blocks", "actions", "presentation"],
-  },
   BodySurface: {
     topLevel: ["kind", "layout", "sections", "sectioning", "commands", "empty", "modals", "split"],
   },
@@ -337,7 +332,7 @@ function isInsidePageBlockHelper(node: ts.Node) {
 }
 
 function looksLikePageSurfaceConsumer(text: string) {
-  return /PageSurface|BodySurface|BodySurfaceSectionSpec|PageBlockSurface|createPage|createBlockSurfaceSection/.test(text);
+  return /PageSurface|BodySurface|BodySurfaceSectionSpec|PageBodySectionSurface|createPage/.test(text);
 }
 
 export function findLegacyPageBlockUsageWarnings() {
@@ -365,7 +360,7 @@ export function findLegacyPageBlockUsageWarnings() {
             file: normalizeFilePath(file),
             line: nodeLine(sourceFile, node),
             pattern: `PageSurface legacy block kind="${kind}"`,
-            migrationTarget: "Wrap common containers with createBlockSurfaceSection, or move data/form/document/visualization to the owning Surface block.",
+            migrationTarget: "Use BodySurface section fields, or move data/form/document/visualization to the owning Surface block.",
           });
         }
       }

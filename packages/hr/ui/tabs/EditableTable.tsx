@@ -6,6 +6,7 @@ import {
   createPageBody,
   PageSurface,
 } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { TabConfig, FieldConfig } from "@workspace/hr/types";
 import { formatHrMajorItems } from "@workspace/hr/constants/field-options";
 
@@ -88,6 +89,35 @@ export default function EditableTable({
   loading,
   emptyText,
 }: EditableTableProps) {
+  const section = useEditableTableSection({
+    items,
+    fields,
+    visibleColumns,
+    config,
+    editingCell,
+    editMode,
+    canEdit,
+    renderEditInput,
+    onStartEdit,
+    loading,
+    emptyText,
+  });
+  return <PageSurface kind="standard" embedded body={createPageBody([section], { layout: "stack" })} />;
+}
+
+export function useEditableTableSection({
+  items,
+  fields,
+  visibleColumns,
+  config,
+  editingCell,
+  editMode,
+  canEdit,
+  renderEditInput,
+  onStartEdit,
+  loading,
+  emptyText,
+}: EditableTableProps): BodySurfaceSectionSpec {
   const columns = useMemo<DataSurfaceColumnSpec<Record<string, unknown>>[]>(
     () => fields.map((field) => {
       const editableCell = editMode && field.editable && field.type !== "fk" && canEdit;
@@ -117,23 +147,18 @@ export default function EditableTable({
     [canEdit, config, editMode, editingCell, fields, onStartEdit, renderEditInput],
   );
 
-  return (
-    <PageSurface kind="standard"
-      embedded
-      body={createPageBody([{
-          key: "editable-table",
-          body: { kind: "data", data: {
-            kind: "table",
-            rows: items,
-            columns,
-            visibleColumns,
-            rowKey: (item) => String(item.id),
-            presentation: { density: "compact",
+  return {
+    key: "editable-table",
+    body: { kind: "data", data: {
+      kind: "table",
+      rows: items,
+      columns,
+      visibleColumns,
+      rowKey: (item) => String(item.id),
+      presentation: { density: "compact",
  },
-            loading,
-            emptyText,
-          } },
-        }], { layout: "stack" })}
-    />
-  );
+      loading,
+      emptyText,
+    } },
+  };
 }

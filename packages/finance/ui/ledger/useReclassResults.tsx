@@ -3,14 +3,12 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useCallback } from "react";
 import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
-import ReclassReviewModal from "../components/ReclassReviewModal";
 
 const PAGE_SIZE = 200;
 
 export function useReclassResults(companyCode: string, year: string, month: string, showToast: (msg: string, type?: "error") => void) {
   const [reclassMap, setReclassMap] = useState<Map<number, ReclassResultRow>>(new Map());
   const [allItems, setAllItems] = useState<ReclassResultRow[]>([]);
-  const [adjustItem, setAdjustItem] = useState<ReclassResultRow | null>(null);
 
   const lookupPeriodId = useCallback(async (): Promise<number | null> => {
     const pRes = await fetch(workspacePath(`/api/modules/finance/ledger/reclass-results/lookup-period?companyCode=${companyCode}&year=${year}&month=${month}`));
@@ -106,16 +104,5 @@ export function useReclassResults(companyCode: string, year: string, month: stri
     } catch { if (!silent) showToast("网络错误", "error"); }
   }, [companyCode, loadReclassResults, lookupPeriodId, showToast, year]);
 
-  const adjustModal = adjustItem ? (
-    <ReclassReviewModal
-      item={adjustItem} open={!!adjustItem}
-      companyCode={companyCode} year={year}
-      onClose={() => setAdjustItem(null)}
-      onSubmit={async (id, targetAccount, amount, note) => {
-        await handleReview(id, "adjust", { targetAccount, amount, note });
-        setAdjustItem(null);
-      }} />
-  ) : null;
-
-  return { reclassMap, allItems, handleReview, handleGenerate, adjustModal };
+  return { reclassMap, allItems, handleReview, handleGenerate };
 }

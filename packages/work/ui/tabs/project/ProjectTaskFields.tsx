@@ -1,22 +1,11 @@
 "use client";
 
-import { createFieldsSection, createPageBody, type FormSurfaceItemSpec, PageSurface, type ReferenceOption, type SurfacePickerOptionSpec } from "@workspace/core/ui";
+import { createFieldsSection, createPageBody, type BodySurfaceSectionSpec, type FormSurfaceItemSpec, PageSurface, type ReferenceOption, type SurfacePickerOptionSpec } from "@workspace/core/ui";
 import { PROJECT_MILESTONE_PICKER_OPTIONS, type ProjectTaskDraft, type ProjectTaskItem } from "./model";
 import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
 import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
 
-export function ProjectTaskForm({
-  draft,
-  disabled,
-  taskOptions,
-  phases,
-  tasks,
-  excludedTaskId,
-  submitLabel,
-  onChange,
-  onSubmit,
-  onCancel,
-}: {
+interface ProjectTaskFormProps {
   draft: ProjectTaskDraft;
   disabled: boolean;
   taskOptions: SurfacePickerOptionSpec[];
@@ -27,8 +16,22 @@ export function ProjectTaskForm({
   onChange: (draft: ProjectTaskDraft) => void;
   onSubmit?: () => void;
   onCancel?: () => void;
-  framed?: boolean;
-}) {
+}
+
+export function createProjectTaskFormSection(
+  key: string,
+  {
+  draft,
+  disabled,
+  taskOptions,
+  phases,
+  tasks,
+  excludedTaskId,
+  submitLabel,
+  onChange,
+  onSubmit,
+  onCancel,
+}: ProjectTaskFormProps): BodySurfaceSectionSpec {
   const blockedPredecessorIds = new Set(draft.predecessorTaskIds.map(String));
   if (excludedTaskId) {
     blockedPredecessorIds.add(String(excludedTaskId));
@@ -99,17 +102,20 @@ export function ProjectTaskForm({
     },
   ];
 
+  return createFieldsSection<number>(key, fields, {
+    layout: { columns: 3 },
+    commands: [
+      ...(onCancel ? [{ key: "cancel", label: "取消", disabled, onClick: onCancel }] : []),
+      ...(submitLabel && onSubmit ? [{ key: "submit", label: submitLabel, variant: "primary" as const, disabled, onClick: onSubmit }] : []),
+    ],
+  });
+}
+
+export function ProjectTaskForm(props: ProjectTaskFormProps) {
   return (
     <PageSurface kind="standard"
       embedded
-      body={createPageBody([createFieldsSection<number>("project-task-form", fields, {
-      layout: { columns: 3 },
-
-      commands: [
-        ...(onCancel ? [{ key: "cancel", label: "取消", disabled, onClick: onCancel }] : []),
-        ...(submitLabel && onSubmit ? [{ key: "submit", label: submitLabel, variant: "primary" as const, disabled, onClick: onSubmit }] : []),
-      ],
-    })])}
+      body={createPageBody([createProjectTaskFormSection("project-task-form", props)])}
     />
   );
 }

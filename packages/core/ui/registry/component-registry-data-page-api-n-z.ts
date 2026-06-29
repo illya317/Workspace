@@ -4,7 +4,7 @@ import { generatedCoreUiSurfaceContracts } from "./generated-surface-contracts";
 export const page_api_registry_entries = [
   {
     name: "RecordSurface",
-    description: "L1 正文可展开记录 Surface",
+    description: "正文可展开记录 Surface",
     contract: generatedCoreUiSurfaceContracts.RecordSurface,
     declares: [
       { name: "records", description: "可展开记录列表。" },
@@ -44,7 +44,7 @@ export const page_api_registry_entries = [
   },
   {
     name: "PageSurface",
-    description: "唯一页面薄壳 L1 Surface",
+    description: "唯一页面薄壳 Surface",
     contract: generatedCoreUiSurfaceContracts.PageSurface,
     declares: [
       {
@@ -123,7 +123,7 @@ export const page_api_registry_entries = [
   },
   {
     name: "VisualizationSurface",
-    description: "L1 可视化正文 Surface",
+    description: "可视化正文 Surface",
     contract: generatedCoreUiSurfaceContracts.VisualizationSurface,
     declares: [
       {

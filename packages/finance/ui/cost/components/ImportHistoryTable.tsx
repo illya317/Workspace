@@ -2,16 +2,25 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState } from "react";
-import { useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createMessageSection, createPageBody, PageSurface, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec, PageSurfaceFooterSpec } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState } from "../types";
-import CostDataTable, { type CostRecord } from "./CostDataTable";
+import { createCostDataSurface, type CostRecord } from "./CostDataTable";
 interface Props {
   filters: CostFiltersState;
 }
 export default function ImportHistoryTable({
   filters
 }: Props) {
+  const surface = useImportHistorySurface(filters);
+  return <PageSurface kind="standard" embedded body={createPageBody(surface.sections)} footer={surface.footer} />;
+}
+
+export function useImportHistorySurface(filters: CostFiltersState): {
+  sections: BodySurfaceSectionSpec[];
+  footer?: PageSurfaceFooterSpec;
+} {
   const [page, setPage] = useState(1);
   const [deleting, setDeleting] = useState<number | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -107,8 +116,12 @@ export default function ImportHistoryTable({
       },
     })
   }];
-  return <div className="space-y-4">
-      {localError && <p className="text-sm text-red-500">{localError}</p>}
-      <CostDataTable rows={data} columns={columns} loading={loading} error={error} pagination={pagination} page={page} onPageChange={setPage} />
-    </div>;
+  const table = createCostDataSurface({ rows: data, columns, loading, error, pagination, page, onPageChange: setPage });
+  return {
+    sections: [
+      ...(localError ? [createMessageSection("delete-error", { content: localError, tone: "danger" })] : []),
+      ...table.sections,
+    ],
+    footer: table.footer,
+  };
 }

@@ -20,7 +20,6 @@ const MAX_DEPTH = 12;
 
 const TARGETS: ContractTarget[] = [
   { componentName: "BodySurface", sourcePath: "packages/core/ui/BodySurface.tsx", typeName: "BodySurfaceProps" },
-  { componentName: "BlockSurface", sourcePath: "packages/core/ui/BlockSurface.tsx", typeName: "BlockSurfaceProps" },
   { componentName: "DataSurface", sourcePath: "packages/core/ui/DataSurface.types.ts", typeName: "DataSurfaceProps" },
   { componentName: "DocumentSurface", sourcePath: "packages/core/ui/DocumentSurface.tsx", typeName: "DocumentSurfaceProps" },
   { componentName: "FormSurface", sourcePath: "packages/core/ui/FormSurface.types.ts", typeName: "FormSurfaceProps" },

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { createPageBody, PageSurface } from "@workspace/core/ui";
+import { createPageBody, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 
 type ModuleStatus = "enabled" | "hidden" | "disabled";
 type StatusTone = "success" | "warning" | "muted";
@@ -62,6 +62,7 @@ interface ModuleManagementResponse {
 
 interface Props {
   showToast: (msg: string, type?: "success" | "error") => void;
+  enabled?: boolean;
 }
 
 const STATUS_LABEL: Record<ModuleStatus, string> = {
@@ -85,13 +86,14 @@ function findModule(modules: ModuleNode[], resourceKey: string | null): ModuleNo
   return flattenModules(modules).find((module) => module.resourceKey === resourceKey) ?? null;
 }
 
-export default function ModuleManagementTab({ showToast }: Props) {
+export function useModuleManagementSection({ showToast, enabled = true }: Props): BodySurfaceSectionSpec {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [selectedResourceKey, setSelectedResourceKey] = useState<string | null>(null);
   const [data, setData] = useState<ModuleManagementResponse | null>(null);
 
   useEffect(() => {
+    if (!enabled) return undefined;
     let cancelled = false;
     async function load() {
       try {
@@ -116,7 +118,7 @@ export default function ModuleManagementTab({ showToast }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [showToast]);
+  }, [enabled, showToast]);
 
   const moduleTree = useMemo(() => {
     if (!data) return [];
@@ -181,10 +183,13 @@ export default function ModuleManagementTab({ showToast }: Props) {
     }
   }
 
-  return (
-    <PageSurface kind="standard"
-      embedded
-      body={createPageBody(!data ? [] : [{
+  return {
+    key: "module-management",
+    framed: false,
+    body: {
+      kind: "section",
+      empty: loading || !data ? { content: loading ? "加载模块管理..." : "暂无模块管理数据" } : undefined,
+      sections: createPageBody(!data ? [] : [{
         key: "module-tree",
         header: {
           title: "模块树",
@@ -216,7 +221,12 @@ export default function ModuleManagementTab({ showToast }: Props) {
             }),
           },
         },
-      }], { empty: loading || !data ? { content: loading ? "加载模块管理..." : "暂无模块管理数据" } : undefined })}
-    />
-  );
+      }]).sections,
+    },
+  };
+}
+
+export default function ModuleManagementTab(props: Props) {
+  const section = useModuleManagementSection(props);
+  return <PageSurface kind="standard" embedded body={createPageBody([section])} />;
 }

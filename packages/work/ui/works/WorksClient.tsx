@@ -481,7 +481,7 @@ export default function WorksClient({ initialTarget }: {
         onSideOpenChange: setSideOpen,
         onDrawerOpenChange: setDrawerOpen,
         sideLabel: "工作计划",
-        splitRatio: [2, 8],
+        splitRatio: [3, 7],
         showSideControls: false,
       }}
     />

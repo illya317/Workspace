@@ -29,8 +29,8 @@
 - `CreatePanel` / `SelectorPanel` 已降为 internal renderer，不再挂 public `declares`。
 - `CreatePanel` / `SelectorPanel` 已撤掉旧 `runtime` exposure；业务入口只保留 helper / surface 声明路径。
 - `DataSurface.kind.visual/raw`、`FormSurface.kind.control/modal` 已从公开类型层删除；`PageSurface.body.content` 不再作为 public declares 暴露。
-- 外部 `DataSurface.raw` 使用已迁到 `BlockSurface`；`DataSurface` 顶层 kind 只剩 `table/structured/records/metrics`。
-- QC 批号输入已从复杂 `FormSurface.note` 迁到 `BlockSurface.content`；`note` 继续只承担说明/提示。
+- 外部 `DataSurface.raw` 使用已迁到 `BodySurface kind="section"` 的原生区块；`DataSurface` 顶层 kind 只剩 `table/structured/records/metrics`。
+- QC 批号输入已从复杂 `FormSurface.note` 迁到 typed section/form 声明；`note` 继续只承担说明/提示。
 - `PageSurfaceBlockSpec` 已收窄为 `data/document/form/visualization/block/navigation/modal` wrapper；旧 `message/empty/panel/section/actions/metrics/moduleGrid/surfaceGroup/analysis` 不再是 PageSurface public block kind。
 - `PageSurface.body` / `PageSurface.navigation` 已作为新代码入口，顶层 `blocks/empty/actions/tabs/activeTab/activeChild/onTabChange/onChildChange` 仅保留兼容迁移。
 - PageSurface 顶层兼容入口已迁移清零；`arch:surface-page-adoption` 当前通过。Work 甘特已从 `VisualizationSurface.gantt.content` 迁到 `VisualizationSurface.gantt` typed spec；`arch:surface-visualization-adoption` 当前通过。
@@ -45,8 +45,8 @@
 
 `arch:structure:ui` 已通过。第一批 direct internal import 已迁移：
 
-- `CreatePanel`：HR 4 处改为 `createCreatePanelBlock` helper。
-- `SelectorPanel`：Library 1 处、Work 3 处、Platform 1 处改为 `createSelectorPanelBlock` helper。
+- `CreatePanel`：HR 调用点继续迁到 typed form/section 声明。
+- `SelectorPanel`：Library、Work、Platform 调用点迁到 `createSelectorPanelSection` helper。
 - `page-style-preview` 深层模板数据入口登记为 `role=helper`。
 
 ## Surface Declare Boundaries
@@ -56,7 +56,7 @@
 - `DataSurface`：只管 rows、columns、records、metrics 和 data-local actions。
 - `VisualizationSurface`：只管 chart、gantt、timeline、graph 等图形声明。
 - `DocumentSurface`：只管纸面/QC/打印布局；允许拥有 `pageClassName/style/className` 这类纸面覆盖。
-- `BlockSurface`：只管 section、panel、group、message、empty、actions 等通用区块。
+- `BodySurface kind="section"`：只管 section、panel、group、message、empty、actions 等通用区块。
 - `InputSurface`：作为 `common.input` 的通用输入声明接口，被其他 Surface 使用。
 
 ## Migration Order
@@ -68,12 +68,12 @@
 
 2. **CreatePanel 拆成声明接口**
    - 已去掉 `CreatePanel` renderer 上的 public declares。
-   - 当前过渡入口是 `createCreatePanelBlock` helper；后续可继续抽成更明确的 create Surface。
+   - 当前创建内容通过 typed form/section 声明表达；后续可继续抽成更明确的 create Surface。
    - Renderer 留在 internal。
 
 3. **SelectorPanel 拆成声明接口**
    - 已去掉 `SelectorPanel` renderer 上的 public declares。
-   - 当前过渡入口是 `createSelectorPanelBlock` helper；后续可继续抽成更明确的 common selection Surface。
+   - 当前过渡入口是 `createSelectorPanelSection` helper；后续可继续抽成更明确的 common selection Surface。
    - Renderer 留在 internal。
 
 4. **业务直接 import 收敛**

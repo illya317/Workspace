@@ -1,8 +1,8 @@
 "use client";
 
-import { createActionsSection, createBlockSurfaceSection, createPageBody, createSelectorPanelSection, PageSurface } from "@workspace/core/ui";
+import { createActionsSection, createFieldsSection, createPageBody, createSelectorPanelSection, PageSurface, type BodySurfaceBadgeSpec } from "@workspace/core/ui";
 import type { ActionDraft, MeetingDetail, MeetingParticipant, MeetingSummary } from "./meeting-types";
-import { EmptyLine, InputBox, PageBlockSurface, StatusPill } from "./MeetingControls";
+import { EmptyLine, InputBox, PageBodySectionSurface, StatusPill } from "./MeetingControls";
 import { candidateStatusLabel, decisionKindLabel, emptyActionDraft, formatDateTime, roleLabel, voteChoiceLabel } from "./meeting-utils";
 
 export function MeetingList({
@@ -56,35 +56,29 @@ export function MeetingHeader({
   saving: boolean;
   onUpdate: (body: Record<string, unknown>, success: string) => void;
 }) {
+  const badges: BodySurfaceBadgeSpec[] = [
+    { key: "type", label: meeting.typeName, tone: "success" },
+    { key: "status", label: <StatusPill status={meeting.status} /> },
+    { key: "visibility", label: meeting.visibility === "public" ? "模块内公开" : "参会人可见", tone: "muted" },
+  ];
+  const actions = meeting.permissions.canEdit ? [
+    { key: "start", label: "开始", variant: "secondary" as const, size: "sm" as const, disabled: saving || meeting.status === "in_progress", onClick: () => onUpdate({ status: "in_progress" }, "会议已开始") },
+    { key: "close", label: "关闭", variant: "secondary" as const, size: "sm" as const, disabled: saving || meeting.status === "closed", onClick: () => onUpdate({ status: "closed" }, "会议已关闭") },
+    { key: "participants-only", label: "参会可见", variant: "secondary" as const, size: "sm" as const, disabled: saving || meeting.visibility === "participants_only", onClick: () => onUpdate({ visibility: "participants_only" }, "可见性已更新") },
+    { key: "public", label: "公开", variant: "secondary" as const, size: "sm" as const, disabled: saving || meeting.visibility === "public", onClick: () => onUpdate({ visibility: "public" }, "可见性已更新") },
+  ] : undefined;
   return <PageSurface kind="standard"
     embedded
-    body={createPageBody([createBlockSurfaceSection("meeting-header", {
-      kind: "content",
-
-      content: <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
-        <div className="min-w-0">
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            <span className="rounded bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">{meeting.typeName}</span>
-            <StatusPill status={meeting.status} />
-            <span className="rounded bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">{meeting.visibility === "public" ? "模块内公开" : "参会人可见"}</span>
-          </div>
-          <h2 className="truncate text-xl font-semibold text-slate-950">{meeting.title}</h2>
-          <div className="mt-2 flex flex-wrap gap-3 text-sm text-slate-500">
-            <span>{formatDateTime(meeting.startAt) || "未定时间"}</span>
-            {meeting.location && <span>{meeting.location}</span>}
-            <span>主持：{meeting.ownerName || "未设置"}</span>
-            <span>记录：{meeting.secretaryName || "未设置"}</span>
-          </div>
-          {meeting.description && <p className="mt-3 whitespace-pre-wrap text-sm text-slate-600">{meeting.description}</p>}
-        </div>
-        {meeting.permissions.canEdit && <PageBlockSurface block={createActionsSection("meeting-header-actions", [
-          { key: "start", label: "开始", variant: "secondary", size: "sm", disabled: saving || meeting.status === "in_progress", onClick: () => onUpdate({ status: "in_progress" }, "会议已开始") },
-          { key: "close", label: "关闭", variant: "secondary", size: "sm", disabled: saving || meeting.status === "closed", onClick: () => onUpdate({ status: "closed" }, "会议已关闭") },
-          { key: "participants-only", label: "参会可见", variant: "secondary", size: "sm", disabled: saving || meeting.visibility === "participants_only", onClick: () => onUpdate({ visibility: "participants_only" }, "可见性已更新") },
-          { key: "public", label: "公开", variant: "secondary", size: "sm", disabled: saving || meeting.visibility === "public", onClick: () => onUpdate({ visibility: "public" }, "可见性已更新") },
-        ])} />}
-      </div>
-    })])}
+    body={createPageBody([{
+      ...createFieldsSection("meeting-header", [
+        { kind: "readonly", key: "time", label: "时间", value: formatDateTime(meeting.startAt) || "未定时间" },
+        { kind: "readonly", key: "location", label: "地点", value: meeting.location || "未设置" },
+        { kind: "readonly", key: "owner", label: "主持", value: meeting.ownerName || "未设置" },
+        { kind: "readonly", key: "secretary", label: "记录", value: meeting.secretaryName || "未设置" },
+        { kind: "readonly", key: "description", label: "说明", span: "wide", value: meeting.description || "未填写" },
+      ], { kind: "detail", layout: { columns: 2 } }),
+      header: { title: meeting.title, badges, actions },
+    }])}
   />;
 }
 
@@ -134,7 +128,7 @@ export function ProposalList({
           {proposal.votes.length > 0 && <div className="mt-2 grid gap-1 text-xs text-slate-500">
               {proposal.votes.map(vote => <span key={vote.id}>{vote.voterName || `用户 ${vote.voterUserId}`}：{voteChoiceLabel(vote.choice)}</span>)}
             </div>}
-          <PageBlockSurface className="mt-3" block={createActionsSection("proposal-actions", [
+          <PageBodySectionSurface className="mt-3" block={createActionsSection("proposal-actions", [
             ...(meeting.permissions.canVote && proposal.status === "open" ? [
               { key: "yes", label: "赞成", variant: proposal.myVote?.choice === "yes" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onVote(proposal.id, "yes") },
               { key: "no", label: "反对", variant: proposal.myVote?.choice === "no" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onVote(proposal.id, "no") },
@@ -210,7 +204,7 @@ export function CandidateList({
             ...draft,
             targetId,
           })} />
-                <PageBlockSurface className="md:col-span-4" block={createActionsSection("candidate-actions", [
+                <PageBodySectionSurface className="md:col-span-4" block={createActionsSection("candidate-actions", [
                   { key: "linkWorkPlan", label: "链接 OKR 计划", variant: "secondary", size: "sm", disabled: saving || !draft.workPlanId, onClick: () => onAction(candidate.id, "linkWorkPlan", draft) },
                   { key: "createWorkPlan", label: "创建 OKR 计划", variant: "secondary", size: "sm", disabled: saving, onClick: () => onAction(candidate.id, "createWorkPlan", draft) },
                   { key: "linkProjectTask", label: "链接项目任务", variant: "secondary", size: "sm", disabled: saving || !draft.projectTaskId, onClick: () => onAction(candidate.id, "linkProjectTask", draft) },

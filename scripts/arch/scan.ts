@@ -156,6 +156,104 @@ function hasJsx(sourceFile: ts.SourceFile) {
   return found;
 }
 
+function isRouteGroup(segment: string) {
+  return segment.startsWith("(") && segment.endsWith(")");
+}
+
+function routeSegmentsFromAppFile(rel: string) {
+  if (!rel.startsWith("app/")) return [];
+  const parts = rel.split("/");
+  parts.pop();
+  return parts.slice(1).filter((segment) => segment && !isRouteGroup(segment));
+}
+
+function moduleRouteSegments(rel: string) {
+  if (!rel.startsWith("app/(modules)/")) return null;
+  return routeSegmentsFromAppFile(rel);
+}
+
+function isModuleRoutePage(rel: string) {
+  return rel.startsWith("app/(modules)/") && rel.endsWith("/page.tsx");
+}
+
+function isAllowedModuleShellComponentImport(moduleKey: string, specifier: string) {
+  return specifier === `@workspace/${moduleKey}/ui`
+    || specifier.startsWith(`@workspace/${moduleKey}/ui/`)
+    || specifier === "@workspace/platform/ui"
+    || specifier.startsWith("@workspace/platform/ui/");
+}
+
+function importedJsxComponentMap(sourceFile: ts.SourceFile) {
+  const imports = new Map<string, string>();
+  for (const statement of sourceFile.statements) {
+    if (!ts.isImportDeclaration(statement)) continue;
+    if (!statement.moduleSpecifier || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
+    const importClause = statement.importClause;
+    if (!importClause) continue;
+    const specifier = statement.moduleSpecifier.text;
+
+    if (importClause.name) imports.set(importClause.name.text, specifier);
+    const namedBindings = importClause.namedBindings;
+    if (!namedBindings) continue;
+    if (ts.isNamespaceImport(namedBindings)) {
+      imports.set(namedBindings.name.text, specifier);
+      continue;
+    }
+    for (const element of namedBindings.elements) {
+      imports.set(element.name.text, specifier);
+    }
+  }
+  return imports;
+}
+
+function jsxTagRootName(tag: ts.JsxTagNameExpression) {
+  if (ts.isIdentifier(tag)) return tag.text;
+  if (ts.isPropertyAccessExpression(tag)) return jsxTagRootName(tag.expression as ts.JsxTagNameExpression);
+  return null;
+}
+
+function collectModuleShellViolations(sourceFile: ts.SourceFile, rel: string) {
+  const segments = moduleRouteSegments(rel);
+  if (!segments || segments.length < 1 || !rel.endsWith("/page.tsx")) return [];
+  const moduleKey = segments[0];
+  const importedComponents = importedJsxComponentMap(sourceFile);
+  const violations: string[] = [];
+
+  for (const statement of sourceFile.statements) {
+    if ((ts.isImportDeclaration(statement) || ts.isExportDeclaration(statement)) && statement.moduleSpecifier && ts.isStringLiteral(statement.moduleSpecifier)) {
+      const specifier = statement.moduleSpecifier.text;
+      if (specifier === "@workspace/core/ui" || specifier.startsWith("@workspace/core/ui/")) {
+        violations.push(`module app route must not import Core UI directly (${specifier}); mount package UI instead`);
+      }
+    }
+  }
+
+  const visit = (node: ts.Node) => {
+    if (ts.isJsxFragment(node)) {
+      violations.push("module app route must not compose JSX fragments; mount a package UI component");
+    }
+
+    if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+      const rootName = jsxTagRootName(node.tagName);
+      if (!rootName) {
+        violations.push("module app route must not compose dynamic JSX; mount a package UI component");
+      } else if (/^[a-z]/.test(rootName)) {
+        violations.push(`module app route must not render intrinsic <${rootName}> UI; move UI to packages/${moduleKey}/ui`);
+      } else {
+        const specifier = importedComponents.get(rootName);
+        if (!specifier || !isAllowedModuleShellComponentImport(moduleKey, specifier)) {
+          violations.push(`module app route JSX <${rootName}> must come from @workspace/${moduleKey}/ui or @workspace/platform/ui`);
+        }
+      }
+    }
+
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+
+  return [...new Set(violations)];
+}
+
 function containsUserRoleCheck(node: ts.Node) {
   let found = false;
   const visit = (child: ts.Node) => {
@@ -197,6 +295,7 @@ function isLegacyPermissionKernel(rel: string) {
 function appUiViolation(sourceFile: ts.SourceFile, rel: string) {
   if (!rel.startsWith("app/") || rel.startsWith("app/api/") || !rel.endsWith(".tsx")) return false;
   if (!hasJsx(sourceFile)) return false;
+  if (isModuleRoutePage(rel)) return false;
   return FORBIDDEN_UI_IN_APP.length > 0;
 }
 
@@ -268,6 +367,11 @@ function scanFile(filePath: string) {
     true,
     filePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
   );
+
+  const moduleShellViolations = collectModuleShellViolations(sourceFile, rel);
+  if (moduleShellViolations.length > 0) {
+    fail(rel, "app-module-shell-ui", moduleShellViolations.join("; "));
+  }
 
   if (appUiViolation(sourceFile, rel) && !baselineSets.appUiFiles.has(rel)) {
     fail(rel, "app-ui", "app/ is routing-only; move JSX UI to packages/*/ui or packages/platform/ui");

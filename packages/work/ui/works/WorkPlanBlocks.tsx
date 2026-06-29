@@ -14,12 +14,6 @@ function planStatusLabel(status: WorkPlan["status"]) {
   return "进行中";
 }
 
-function planStatusClassName(status: WorkPlan["status"]) {
-  if (status === "closed") return "bg-slate-100 text-slate-500";
-  if (status === "archived") return "bg-amber-50 text-amber-700";
-  return "bg-emerald-50 text-emerald-700";
-}
-
 function spaceLabelForPlan(plan: WorkPlan, spacesByKey?: ReadonlyMap<string, WorkTaskSpace>) {
   const space = spacesByKey?.get(targetKey(plan));
   return space?.name || getWorkSpaceLabel(plan.targetType);
@@ -77,25 +71,30 @@ export function createWorkPlanHeaderSection(plan: WorkPlan): BodySurfaceSectionS
       : getWorkSourceTypeLabel(plan.sourceType);
   return {
     key: "plan-header",
+    header: {
+      title: plan.title,
+      badges: [
+        { key: "type", label: "OKR 计划", tone: "success" },
+        {
+          key: "status",
+          label: planStatusLabel(plan.status),
+          tone: plan.status === "closed" ? "muted" : plan.status === "archived" ? "warning" : "success",
+        },
+      ],
+    },
     body: {
-      kind: "section",
-      surface: {
-        kind: "panel" as const,
-        title: plan.title,
-        content: (
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">OKR 计划</span>
-              <span className={`rounded px-2 py-1 text-xs font-medium ${planStatusClassName(plan.status)}`}>{planStatusLabel(plan.status)}</span>
-            </div>
-            <div className="flex flex-wrap gap-3 text-sm text-slate-500">
-              <span>{getWorkPeriodLabel(plan)}</span>
-              <span>负责人：{plan.ownerEmployeeName || "未设置"}</span>
-              <span>来源：{source || "未设置"}</span>
-            </div>
-            {plan.description ? <p className="whitespace-pre-wrap text-sm text-slate-600">{plan.description}</p> : null}
-          </div>
-        ),
+      kind: "form",
+      form: {
+        kind: "detail",
+        content: {
+          layout: { columns: 3 },
+          items: [
+            { kind: "readonly", key: "period", label: "周期", value: getWorkPeriodLabel(plan) },
+            { kind: "readonly", key: "owner", label: "负责人", value: plan.ownerEmployeeName || "未设置" },
+            { kind: "readonly", key: "source", label: "来源", value: source || "未设置" },
+            { kind: "readonly", key: "description", label: "描述", span: "wide", value: plan.description || "未填写" },
+          ],
+        },
       },
     },
   };

@@ -63,24 +63,14 @@ export const page_api_registry_entries = [
     composes: ["InlineCreatePanel", "BlockCreatePanel"],
   },
   {
-    name: "createCreatePanelSection",
-    description: "新建区块声明助手",
-    composes: ["CreatePanel", "BlockSurface"],
-  },
-  {
     name: "createActionsSection",
     description: "动作区块声明助手",
-    composes: ["BlockSurface", "createBlockSurfaceSection"],
+    composes: ["BodySurface"],
   },
   {
     name: "createAnalysisSection",
     description: "分析区块声明助手",
-    composes: ["BlockSurface", "createBlockSurfaceSection"],
-  },
-  {
-    name: "createBlockSurfaceSection",
-    description: "通用区块 Surface wrapper 声明助手",
-    composes: ["BlockSurface"],
+    composes: ["BodySurface"],
   },
   {
     name: "createDocumentSection",
@@ -90,7 +80,7 @@ export const page_api_registry_entries = [
   {
     name: "createEmptySection",
     description: "空态区块声明助手",
-    composes: ["BlockSurface", "createBlockSurfaceSection"],
+    composes: ["BodySurface"],
   },
   {
     name: "createFieldsSection",
@@ -105,12 +95,12 @@ export const page_api_registry_entries = [
   {
     name: "createSectionsSection",
     description: "区块分组声明助手",
-    composes: ["BlockSurface", "createBlockSurfaceSection"],
+    composes: ["BodySurface"],
   },
   {
     name: "createHeadingSection",
     description: "标题区块声明助手",
-    composes: ["BlockSurface", "createBlockSurfaceSection"],
+    composes: ["BodySurface"],
   },
   {
     name: "createInlineFieldsSection",
@@ -120,7 +110,7 @@ export const page_api_registry_entries = [
   {
     name: "createMessageSection",
     description: "消息区块声明助手",
-    composes: ["BlockSurface", "createBlockSurfaceSection"],
+    composes: ["BodySurface"],
   },
   {
     name: "createMetricsSection",
@@ -130,7 +120,7 @@ export const page_api_registry_entries = [
   {
     name: "createModuleGridSection",
     description: "模块网格区块声明助手",
-    composes: ["BlockSurface", "createBlockSurfaceSection"],
+    composes: ["BodySurface"],
   },
   {
     name: "createPageBody",
@@ -180,7 +170,7 @@ export const page_api_registry_entries = [
   {
     name: "createPanelSection",
     description: "面板区块声明助手",
-    composes: ["BlockSurface", "createBlockSurfaceSection"],
+    composes: ["BodySurface"],
   },
   {
     name: "createRecordSection",

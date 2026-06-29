@@ -3,9 +3,9 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type KeyboardEvent } from "react";
-import { createBlockSurfaceSection, createMessageSection, createSectionsSection, createPageBody, createSectionSection, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { createMessageSection, createSectionsSection, createPageBody, createSectionSection, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
-import ApiAccessClient, { type ApiAccessModuleRow } from "./ApiAccessClient";
+import { useApiAccessSection, type ApiAccessModuleRow } from "./ApiAccessClient";
 type Message = {
   type: "success" | "error";
   text: string;
@@ -178,6 +178,7 @@ export default function AccountSettingsPanel({
     setConfirmPwd("");
     setTimeout(() => router.push("/login"), 1500);
   }
+  const apiAccessSection = useApiAccessSection({ user, modules: apiAccessModules });
   const sections: BodySurfaceSectionSpec[] = [
     createMessageSection("profile-header", {
       content: (
@@ -340,12 +341,7 @@ export default function AccountSettingsPanel({
         }),
       ],
     }),
-    createSectionsSection("api-access", {
-      sections: [createBlockSurfaceSection("api-access-client", {
-        kind: "message",
-        content: <ApiAccessClient user={user} modules={apiAccessModules} />
-      })],
-    }),
+    ...(apiAccessSection ? [createSectionsSection("api-access", { sections: [apiAccessSection] })] : []),
   ];
   return <PageSurface kind="standard" body={createPageBody(sections)} />;
 }

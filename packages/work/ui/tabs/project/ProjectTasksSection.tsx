@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createPageBody, type DataSurfaceColumnSpec, type DataSurfaceProps, PageSurface, type SurfaceDataRowEditActionSpec, type SurfacePickerOptionSpec, useFeedback } from "@workspace/core/ui";
+import { createPageBody, type BodySurfaceSectionSpec, type DataSurfaceColumnSpec, type DataSurfaceProps, PageSurface, type SurfaceDataRowEditActionSpec, type SurfacePickerOptionSpec, useFeedback } from "@workspace/core/ui";
 import {
   createProjectTask,
   deleteProjectTask,
@@ -15,24 +15,26 @@ import {
   type ProjectTaskDraft,
   type ProjectTaskItem,
 } from "./model";
-import { ProjectTaskDetail, ProjectTaskForm } from "./ProjectTaskFields";
+import { createProjectTaskFormSection, ProjectTaskDetail, ProjectTaskForm } from "./ProjectTaskFields";
 import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
 
-export default function ProjectTasksSection({
-  projectId,
-  canEdit,
-  disabled,
-  onChanged,
-  onCreateChildProject,
-  onToast,
-}: {
+type ProjectTasksSectionProps = {
   projectId: number | null;
   canEdit: boolean;
   disabled: boolean;
   onChanged?: () => void;
   onCreateChildProject?: (task: ProjectTaskItem) => void;
   onToast: (toast: { type: "success" | "error"; message: string }) => void;
-}) {
+};
+
+export function useProjectTasksSection({
+  projectId,
+  canEdit,
+  disabled,
+  onChanged,
+  onCreateChildProject,
+  onToast,
+}: ProjectTasksSectionProps): BodySurfaceSectionSpec {
   const feedback = useFeedback();
   const [tasks, setTasks] = useState<ProjectTaskItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -242,79 +244,77 @@ export default function ProjectTasksSection({
     }
   }
 
-  return (
-    <PageSurface kind="standard"
-      embedded
-      body={{
-        kind: "section",
-        sections: [
-          {
-            key: "project-tasks",
-            label: "项目任务",
-            header: {
-              title: "项目任务",
-              actions: projectId && canEdit && !creatingTask ? [{
-                key: "create",
-                label: "新增任务",
-                icon: "create",
-                variant: "primary",
-                disabled: disabled || saving,
-                onClick: () => setCreatingTask(true),
-              }] : undefined,
-            },
-            body: {
-              kind: "section",
-              sections: createPageBody(!projectId ? [
-                {
-                  key: "project-tasks-empty",
-                  header: { title: "项目任务" },
-                  body: { kind: "record", record: { records: [], empty: "项目保存后可维护任务计划。" } },
-                },
-              ] : [
-                ...(creatingTask ? [{
-	                  key: "create-task",
-	                  body: {
-	                    kind: "section" as const,
-	                    surface: {
-	                      kind: "section" as const,
-	                      title: "新增任务",
-                      actions: [
-                        { key: "cancel", label: "取消", disabled: disabled || saving, onClick: () => setCreatingTask(false) },
-                        { key: "submit", label: saving ? "保存中..." : "保存任务", variant: "primary" as const, disabled: disabled || saving || !isTaskDraftSubmittable(createDraft), onClick: () => void handleCreate() },
-                      ],
-                      content: <ProjectTaskForm draft={createDraft} disabled={disabled || saving} taskOptions={taskOptions} phases={phases} tasks={tasks} excludedTaskId={null} framed={false} onChange={setCreateDraft} />,
-                    },
-                  },
-                }] : []),
-                {
-                  key: "task-table",
-                  body: { kind: "data", data: buildProjectTaskTableSurface({
-                    tasks,
-                    columns,
-                    loading,
-                    detailTaskId,
-                    editDraft,
-                    editingTaskId,
-                    disabled,
-                    saving,
-                    canEdit,
-                    taskOptions,
-                    phases,
-                    onRowClick: handleToggleDetail,
-                    onEditDraftChange: setEditDraft,
-                    onStartEdit: handleStartEdit,
-                    onSave: handleUpdate,
-                    onCancelEdit: handleCancelEdit,
-                    onDelete: handleDelete,
-                  }) },
-                },
-              ]).sections,
-            },
+  return {
+    key: "project-tasks",
+    label: "项目任务",
+    header: {
+      title: "项目任务",
+      actions: projectId && canEdit && !creatingTask ? [{
+        key: "create",
+        label: "新增任务",
+        icon: "create",
+        variant: "primary",
+        disabled: disabled || saving,
+        onClick: () => setCreatingTask(true),
+      }] : undefined,
+    },
+    body: {
+      kind: "section",
+      sections: createPageBody(!projectId ? [
+        {
+          key: "project-tasks-empty",
+          header: { title: "项目任务" },
+          body: { kind: "record", record: { records: [], empty: "项目保存后可维护任务计划。" } },
+        },
+      ] : [
+        ...(creatingTask ? [{
+          key: "create-task",
+          header: { title: "新增任务" },
+          body: {
+            ...createProjectTaskFormSection("create-task-form", {
+              draft: createDraft,
+              disabled: disabled || saving || !isTaskDraftSubmittable(createDraft),
+              taskOptions,
+              phases,
+              tasks,
+              excludedTaskId: null,
+              submitLabel: saving ? "保存中..." : "保存任务",
+              onChange: setCreateDraft,
+              onSubmit: () => void handleCreate(),
+              onCancel: () => setCreatingTask(false),
+            }).body,
           },
-        ],
-      }}
-    />
-  );
+        }] : []),
+        {
+          key: "task-table",
+          body: { kind: "data", data: buildProjectTaskTableSurface({
+            tasks,
+            columns,
+            loading,
+            detailTaskId,
+            editDraft,
+            editingTaskId,
+            disabled,
+            saving,
+            canEdit,
+            taskOptions,
+            phases,
+            onRowClick: handleToggleDetail,
+            onEditDraftChange: setEditDraft,
+            onStartEdit: handleStartEdit,
+            onSave: handleUpdate,
+            onCancelEdit: handleCancelEdit,
+            onDelete: handleDelete,
+          }) },
+        },
+      ]).sections,
+    },
+  };
+}
+
+export default function ProjectTasksSection(props: ProjectTasksSectionProps) {
+  const section = useProjectTasksSection(props);
+  return <PageSurface kind="standard" embedded body={createPageBody([section])} />;
 }
 
 function buildProjectTaskTableSurface({

@@ -2,16 +2,26 @@
 
 import { useState } from "react";
 import { createPageBody, PageSurface, createMetricsSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import type { BodySurfaceModalSpec, BodySurfaceSectionSpec, PageSurfaceFooterSpec } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState, SourceTraceInfo } from "../types";
-import CostDataTable, { CostTraceButton, formatCostNumber, type CostRecord } from "./CostDataTable";
-import SourceTraceModal from "./SourceTraceModal";
+import { CostTraceButton, createCostDataSurface, formatCostNumber, type CostRecord } from "./CostDataTable";
+import { createSourceTraceModal } from "./SourceTraceModal";
 
 interface Props {
   filters: CostFiltersState;
 }
 
 export default function CostStructureTable({ filters }: Props) {
+  const surface = useCostStructureSurface(filters);
+  return <PageSurface kind="standard" embedded body={createPageBody([...surface.sections, ...surface.modals])} footer={surface.footer} />;
+}
+
+export function useCostStructureSurface(filters: CostFiltersState): {
+  sections: BodySurfaceSectionSpec[];
+  footer?: PageSurfaceFooterSpec;
+  modals: BodySurfaceModalSpec[];
+} {
   const [page, setPage] = useState(1);
   const [trace, setTrace] = useState<{ open: boolean; info: SourceTraceInfo | null }>({ open: false, info: null });
   const { data, summary, pagination, loading, error } = useCostData<CostRecord>({
@@ -31,36 +41,22 @@ export default function CostStructureTable({ filters }: Props) {
     { key: "source", label: "来源", required: true, cell: (row) => CostTraceButton({ row, onTrace: (info) => setTrace({ open: true, info }) }) },
   ];
 
-  return (
-    <div className="space-y-4">
-      {summary && (
-        <PageSurface kind="standard"
-          embedded
-          body={createPageBody([
-            createMetricsSection("cost-structure-summary", {
-              metrics: [
-                { key: "amount", label: "成本总额", value: formatCostNumber(summary.totalAmount as number) },
-                { key: "quantity", label: "总数量", value: formatCostNumber(summary.totalQuantity as number) },
-                { key: "unit", label: "单位成本", value: formatCostNumber(summary.unitCost as number) },
-              ],
-            }),
-          ])}
-        />
-      )}
-      <CostDataTable
-        rows={data}
-        columns={columns}
-        loading={loading}
-        error={error}
-        pagination={pagination}
-        page={page}
-        onPageChange={setPage}
-      />
-      <SourceTraceModal
-        open={trace.open}
-        info={trace.info}
-        onClose={() => setTrace({ ...trace, open: false })}
-      />
-    </div>
-  );
+  const table = createCostDataSurface({ rows: data, columns, loading, error, pagination, page, onPageChange: setPage });
+  const modal = createSourceTraceModal({ open: trace.open, info: trace.info, onClose: () => setTrace({ ...trace, open: false }) });
+  return {
+    sections: [
+      ...(summary
+        ? [createMetricsSection("cost-structure-summary", {
+            metrics: [
+              { key: "amount", label: "成本总额", value: formatCostNumber(summary.totalAmount as number) },
+              { key: "quantity", label: "总数量", value: formatCostNumber(summary.totalQuantity as number) },
+              { key: "unit", label: "单位成本", value: formatCostNumber(summary.unitCost as number) },
+            ],
+          })]
+        : []),
+      ...table.sections,
+    ],
+    footer: table.footer,
+    modals: modal ? [modal] : [],
+  };
 }

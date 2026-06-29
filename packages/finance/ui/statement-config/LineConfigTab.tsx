@@ -2,7 +2,8 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createPageBody, PageSurface, createActionsSection, createPageDataSection, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createActionsSection, createMessageSection, createPageDataSection, createRecordSection, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { matchSearchFields } from "@workspace/platform/search";
 import { useStatementConfig } from "./StatementConfigContext";
 import LineMappingsPanel from "./LineMappingsPanel";
@@ -21,6 +22,11 @@ function toLineConfig(line: ApiLineCfg): LineCfg {
   };
 }
 export default function LineConfigTab() {
+  const sections = useLineConfigSections();
+  return <PageSurface kind="standard" embedded body={createPageBody(sections)} />;
+}
+
+export function useLineConfigSections(): BodySurfaceSectionSpec[] {
   const {
     company,
     year
@@ -242,49 +248,42 @@ export default function LineConfigTab() {
 
     cell: row => row.kind === "line" ? row.accountCount || "—" : row.kind === "special" ? "—" : ""
   }], []);
-  if (loading) return <p className="py-8 text-center text-sm text-gray-400">加载中...</p>;
+  if (loading) return [createRecordSection("line-config-loading", { records: [], empty: "加载中..." })];
   if (error) {
-    return <LineConfigError message={error} onRetry={load} />;
+    return createLineConfigErrorSections(error, load);
   }
-  return <div className="space-y-4">
-      <LineConfigTable
-        accountMap={accountMap}
-        accountSearch={accountSearch}
-        addingFor={addingFor}
-        columns={columns}
-        expanded={expanded}
-        filteredAccounts={filteredAccounts}
-        newAccount={newAccount}
-        onAccountSearchChange={setAccountSearch}
-        onCancelAdding={() => {
-          setAddingFor(null);
-          setNewAccount("");
-          setAccountSearch("");
-        }}
-        onExpandedChange={setExpanded}
-        onNewAccountChange={setNewAccount}
-        onRestoreDefault={restoreDefault}
-        onSaveMapping={saveMapping}
-        onStartAdding={setAddingFor}
-        rows={rows}
-        saving={saving}
-      />
-    </div>;
+  return [createLineConfigTableSection({
+    accountMap,
+    accountSearch,
+    addingFor,
+    columns,
+    expanded,
+    filteredAccounts,
+    newAccount,
+    onAccountSearchChange: setAccountSearch,
+    onCancelAdding: () => {
+      setAddingFor(null);
+      setNewAccount("");
+      setAccountSearch("");
+    },
+    onExpandedChange: setExpanded,
+    onNewAccountChange: setNewAccount,
+    onRestoreDefault: restoreDefault,
+    onSaveMapping: saveMapping,
+    onStartAdding: setAddingFor,
+    rows,
+    saving,
+  })];
 }
 
-function LineConfigError({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return (
-    <div className="space-y-3 py-8 text-center">
-      <p className="text-sm text-red-600">{message}</p>
-      <PageSurface kind="standard"
-        embedded
-        body={createPageBody([createActionsSection("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }], {  })])}
-      />
-    </div>
-  );
+function createLineConfigErrorSections(message: string, onRetry: () => void): BodySurfaceSectionSpec[] {
+  return [
+    createMessageSection("line-config-error", { tone: "danger", content: message }),
+    createActionsSection("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }], {  }),
+  ];
 }
 
-function LineConfigTable({
+function createLineConfigTableSection({
   accountMap,
   accountSearch,
   addingFor,
@@ -318,12 +317,8 @@ function LineConfigTable({
   onStartAdding: (lineCode: string) => void;
   rows: LineTableRow[];
   saving: Set<string>;
-}) {
-  return (
-    <PageSurface kind="standard"
-      embedded
-      body={createPageBody([
-        createPageDataSection("line-config", {
+}): BodySurfaceSectionSpec {
+  return createPageDataSection("line-config", {
           kind: "table",
 
 
@@ -365,8 +360,5 @@ function LineConfigTable({
               onAccountSearchChange={onAccountSearchChange}
             />
           ) : null,
-        }),
-      ])}
-    />
-  );
+        });
 }

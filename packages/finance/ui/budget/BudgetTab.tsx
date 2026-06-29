@@ -1,15 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PageSurface, createBlockSurfaceSection, createPageBody, createPageTabsNavigation } from "@workspace/core/ui";
+import { PageSurface, createPageBody, createPageTabsNavigation } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { useBudgetData } from "./hooks/useBudgetData";
 import { useBudgetFilters } from "./hooks/useBudgetFilters";
-import BudgetVersionSelector from "./components/BudgetVersionSelector";
-import DeptBudgetFilters from "./components/DeptBudgetFilters";
-import DeptBudgetTable from "./components/DeptBudgetTable";
-import RdBudgetFilters from "./components/RdBudgetFilters";
-import RdBudgetTable from "./components/RdBudgetTable";
+import { createBudgetVersionSection } from "./components/BudgetVersionSelector";
+import { createDeptBudgetFilterSections } from "./components/DeptBudgetFilters";
+import { createDeptBudgetTableSection } from "./components/DeptBudgetTable";
+import { createRdBudgetFilterSections } from "./components/RdBudgetFilters";
+import { createRdBudgetTableSection } from "./components/RdBudgetTable";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 
 type BudgetView = "dept" | "rd";
@@ -29,6 +29,45 @@ export default function BudgetTab({ user: _user }: { user: SessionUser }) {
   if (loading) {
     return <p className="p-8 text-center text-gray-500">加载中...</p>;
   }
+  const versionSection = createBudgetVersionSection({ versions, activeVersionId, onChange: setActiveVersionId });
+  const viewSections = view === "dept"
+    ? [
+        ...createDeptBudgetFilterSections({
+          deptFilter: filters.deptFilter,
+          setDeptFilter: filters.setDeptFilter,
+          typeFilter: filters.typeFilter,
+          setTypeFilter: filters.setTypeFilter,
+          accountFilter: filters.accountFilter,
+          setAccountFilter: filters.setAccountFilter,
+          deptOptions: filters.deptOptions,
+          typeOptions: filters.typeOptions,
+          accountOptions: filters.accountOptions,
+          count: filters.filteredDept.length,
+          total: filters.deptTotal,
+        }),
+        createDeptBudgetTableSection({
+          items: filters.filteredDept,
+          monthTotals: filters.deptMonthTotals,
+          total: filters.deptTotal,
+        }),
+      ]
+    : [
+        ...createRdBudgetFilterSections({
+          projectFilter: filters.projectFilter,
+          setProjectFilter: filters.setProjectFilter,
+          categoryFilter: filters.categoryFilter,
+          setCategoryFilter: filters.setCategoryFilter,
+          projectOptions: filters.projectOptions,
+          categoryOptions: filters.categoryOptions,
+          count: filters.filteredRd.length,
+          total: filters.rdTotal,
+        }),
+        createRdBudgetTableSection({
+          items: filters.filteredRd,
+          monthTotals: filters.rdMonthTotals,
+          total: filters.rdTotal,
+        }),
+      ];
 
   return (
     <PageSurface kind="standard"
@@ -42,65 +81,8 @@ export default function BudgetTab({ user: _user }: { user: SessionUser }) {
       })}
       body={createPageBody([
           ...lifecycleBlocks,
-          createBlockSurfaceSection("budget-content", {
-            kind: "content",
-            content: (
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="ml-auto">
-                <BudgetVersionSelector
-                  versions={versions}
-                  activeVersionId={activeVersionId}
-                  onChange={setActiveVersionId}
-                />
-              </div>
-            </div>
-
-            {view === "dept" && (
-              <>
-                <DeptBudgetFilters
-                  deptFilter={filters.deptFilter}
-                  setDeptFilter={filters.setDeptFilter}
-                  typeFilter={filters.typeFilter}
-                  setTypeFilter={filters.setTypeFilter}
-                  accountFilter={filters.accountFilter}
-                  setAccountFilter={filters.setAccountFilter}
-                  deptOptions={filters.deptOptions}
-                  typeOptions={filters.typeOptions}
-                  accountOptions={filters.accountOptions}
-                  count={filters.filteredDept.length}
-                  total={filters.deptTotal}
-                />
-                <DeptBudgetTable
-                  items={filters.filteredDept}
-                  monthTotals={filters.deptMonthTotals}
-                  total={filters.deptTotal}
-                />
-              </>
-            )}
-
-            {view === "rd" && (
-              <>
-                <RdBudgetFilters
-                  projectFilter={filters.projectFilter}
-                  setProjectFilter={filters.setProjectFilter}
-                  categoryFilter={filters.categoryFilter}
-                  setCategoryFilter={filters.setCategoryFilter}
-                  projectOptions={filters.projectOptions}
-                  categoryOptions={filters.categoryOptions}
-                  count={filters.filteredRd.length}
-                  total={filters.rdTotal}
-                />
-                <RdBudgetTable
-                  items={filters.filteredRd}
-                  monthTotals={filters.rdMonthTotals}
-                  total={filters.rdTotal}
-                />
-              </>
-            )}
-          </div>
-            ),
-          }),
+          ...(versionSection ? [versionSection] : []),
+          ...viewSections,
         ])}
     />
   );

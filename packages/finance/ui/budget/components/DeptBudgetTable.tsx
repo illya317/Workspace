@@ -1,6 +1,7 @@
 "use client";
 
 import { createPageBody, PageSurface, createPageTableSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { DeptBudgetItem } from "../types";
 
 const MONTH_LABELS = [
@@ -19,6 +20,12 @@ type DeptBudgetRow =
   | { kind: "total"; id: string; months: number[]; total: number };
 
 export default function DeptBudgetTable({ items, monthTotals, total }: DeptBudgetTableProps) {
+  return (
+    <PageSurface kind="standard" embedded body={createPageBody([createDeptBudgetTableSection({ items, monthTotals, total })])} />
+  );
+}
+
+export function createDeptBudgetTableSection({ items, monthTotals, total }: DeptBudgetTableProps): BodySurfaceSectionSpec {
   const rows: DeptBudgetRow[] = [
     ...items.map((item, index) => ({ ...item, kind: "item" as const, id: `${item.dept}-${item.account}-${index}` })),
     { kind: "total", id: "total", months: monthTotals, total },
@@ -78,21 +85,14 @@ export default function DeptBudgetTable({ items, monthTotals, total }: DeptBudge
     },
   ];
 
-  return (
-    <PageSurface kind="standard"
-      embedded
-      body={createPageBody([
-        createPageTableSection("dept-budget", {
+  return createPageTableSection("dept-budget", {
 
 
-          rows,
-          columns,
-          visibleColumns: columns.map((column) => column.key),
-          emptyText: "暂无数据",
-          rowKey: (row) => row.id,
-          rowState: (row) => row.kind === "total" ? "total" : "normal",
-        }),
-      ])}
-    />
-  );
+    rows,
+    columns,
+    visibleColumns: columns.map((column) => column.key),
+    emptyText: "暂无数据",
+    rowKey: (row) => row.id,
+    rowState: (row) => row.kind === "total" ? "total" : "normal",
+  });
 }

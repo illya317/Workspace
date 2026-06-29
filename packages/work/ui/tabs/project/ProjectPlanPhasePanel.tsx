@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createFormSection, createPageBody, type DataSurfaceColumnSpec, type DataSurfaceProps, type FormSurfaceItemSpec, PageSurface, type SurfaceDataRowEditActionSpec, useFeedback } from "@workspace/core/ui";
+import { createFormSection, createPageBody, type BodySurfaceSectionSpec, type DataSurfaceColumnSpec, type DataSurfaceProps, type FormSurfaceItemSpec, PageSurface, type SurfaceDataRowEditActionSpec, useFeedback } from "@workspace/core/ui";
 import { createProjectPlanPhase, deleteProjectPlanPhase, updateProjectPlanPhase } from "./api";
 import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
 
@@ -14,19 +14,19 @@ type PhaseDraft = {
 
 const EMPTY_DRAFT: PhaseDraft = { name: "", startDate: "", endDate: "", note: "" };
 
-export default function ProjectPlanPhasePanel({
+export function useProjectPlanPhaseSection({
   projectId,
   phases,
   canEdit,
   disabled,
   onChanged,
 }: {
-  projectId: number;
+  projectId: number | null;
   phases: ProjectPlanPhaseItem[];
   canEdit: boolean;
   disabled?: boolean;
   onChanged: () => Promise<void>;
-}) {
+}): BodySurfaceSectionSpec {
   const feedback = useFeedback();
   const [creating, setCreating] = useState(false);
   const [draft, setDraft] = useState<PhaseDraft>(EMPTY_DRAFT);
@@ -35,7 +35,7 @@ export default function ProjectPlanPhasePanel({
   const [busy, setBusy] = useState(false);
 
   async function submitCreate() {
-    if (!draft.name.trim()) return;
+    if (!projectId || !draft.name.trim()) return;
     setBusy(true);
     try {
       await createProjectPlanPhase(projectId, phasePayload(draft));
@@ -55,7 +55,7 @@ export default function ProjectPlanPhasePanel({
   }
 
   async function submitEdit(phaseId: number) {
-    if (!editDraft.name.trim()) return;
+    if (!projectId || !editDraft.name.trim()) return;
     setBusy(true);
     try {
       await updateProjectPlanPhase(projectId, phaseId, phasePayload(editDraft));
@@ -70,6 +70,7 @@ export default function ProjectPlanPhasePanel({
   }
 
   async function handleDelete(phaseId: number) {
+    if (!projectId) return;
     const confirmed = await feedback.confirmDelete({ message: "删除项目阶段后，已归属到该阶段的任务会直接显示在项目下。确定删除吗？" });
     if (!confirmed) return;
     setBusy(true);
@@ -83,81 +84,90 @@ export default function ProjectPlanPhasePanel({
     }
   }
 
-  return (
-    <PageSurface kind="standard"
-      embedded
-      body={{
+  if (!projectId) {
+    return {
+      key: "project-phases-empty",
+      header: { title: "项目阶段" },
+      body: { kind: "record", record: { records: [], empty: "项目保存后可维护项目阶段。" } },
+    };
+  }
+
+  return {
+    key: "project-phases",
+    label: "项目阶段",
+    header: {
+      title: "项目阶段",
+      actions: canEdit && !creating ? [{
+        key: "create",
+        label: "新增项目阶段",
+        icon: "create",
+        variant: "primary",
+        disabled: disabled || busy,
+        onClick: () => setCreating(true),
+      }] : undefined,
+    },
+    body: {
         kind: "section",
-        sections: [
-          {
-            key: "project-phases",
-            label: "项目阶段",
-            header: {
-              title: "项目阶段",
-              actions: canEdit && !creating ? [{
-                key: "create",
-                label: "新增项目阶段",
-                icon: "create",
-                variant: "primary",
+        sections: createPageBody([
+          ...(creating ? [createFormSection("create-phase", {
+            kind: "fields",
+            content: {
+              items: phaseFields(draft, disabled || busy, setDraft),
+              layout: { columns: 2 },
+            },
+            commands: [
+              {
+                key: "cancel",
+                label: "取消",
+                icon: "cancel",
                 disabled: disabled || busy,
-                onClick: () => setCreating(true),
-              }] : undefined,
-            },
-            body: {
-              kind: "section",
-              sections: createPageBody([
-                ...(creating ? [createFormSection("create-phase", {
-                  kind: "fields",
-                  content: {
-                    items: phaseFields(draft, disabled || busy, setDraft),
-                    layout: { columns: 2 },
-                  },
-                  commands: [
-                    {
-                      key: "cancel",
-                      label: "取消",
-                      icon: "cancel",
-                      disabled: disabled || busy,
-                      onClick: () => {
-                        setCreating(false);
-                        setDraft(EMPTY_DRAFT);
-                      },
-                    },
-                    {
-                      key: "submit",
-                      label: busy ? "保存中..." : "保存项目阶段",
-                      icon: "save",
-                      variant: "primary",
-                      disabled: disabled || busy || !draft.name.trim(),
-                      onClick: () => void submitCreate(),
-                    },
-                  ],
-                })] : []),
-                {
-                  key: "phase-rows",
-                  body: { kind: "data", data: buildPhaseRowsSurface({
-                    phases,
-                    canEdit,
-                    disabled: disabled || busy,
-                    editingId,
-                    editDraft,
-                    onEditDraftChange: setEditDraft,
-                    onStartEdit: startEdit,
-                    onCancelEdit: () => {
-                      setEditingId(null);
-                      setEditDraft(EMPTY_DRAFT);
-                    },
-                    onSubmitEdit: submitEdit,
-                    onDelete: handleDelete,
-                  }) },
+                onClick: () => {
+                  setCreating(false);
+                  setDraft(EMPTY_DRAFT);
                 },
-              ]).sections,
-            },
+              },
+              {
+                key: "submit",
+                label: busy ? "保存中..." : "保存项目阶段",
+                icon: "save",
+                variant: "primary",
+                disabled: disabled || busy || !draft.name.trim(),
+                onClick: () => void submitCreate(),
+              },
+            ],
+          })] : []),
+          {
+            key: "phase-rows",
+            body: { kind: "data", data: buildPhaseRowsSurface({
+              phases,
+              canEdit,
+              disabled: disabled || busy,
+              editingId,
+              editDraft,
+              onEditDraftChange: setEditDraft,
+              onStartEdit: startEdit,
+              onCancelEdit: () => {
+                setEditingId(null);
+                setEditDraft(EMPTY_DRAFT);
+              },
+              onSubmitEdit: submitEdit,
+              onDelete: handleDelete,
+            }) },
           },
-        ],
-      }}
-    />
-  );
+        ]).sections,
+    },
+  };
+}
+
+export default function ProjectPlanPhasePanel(props: {
+  projectId: number;
+  phases: ProjectPlanPhaseItem[];
+  canEdit: boolean;
+  disabled?: boolean;
+  onChanged: () => Promise<void>;
+}) {
+  const section = useProjectPlanPhaseSection(props);
+  return <PageSurface kind="standard" embedded body={createPageBody([section])} />;
 }
 
 function buildPhaseRowsSurface({

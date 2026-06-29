@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createBlockSurfaceSection, createEmptySection, createFormSection, createPageBody, createPageDataSection, createTabbedPageBody, type BodySurfaceProps, type FormSurfaceItemSpec, PageSurface } from "@workspace/core/ui";
+import { createEmptySection, createFormSection, createPageBody, createPageDataSection, createTabbedPageBody, type BodySurfaceProps, type FormSurfaceItemSpec, PageSurface } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
-import ProjectPlanManagementSection from "./ProjectPlanManagementSection";
+import { useProjectPlanManagementSection } from "./ProjectPlanManagementSection";
 import { buildProjectRasciMatrixSurface } from "./ProjectRasciMatrix";
 import type { ProjectRasciRow } from "./ProjectRasciMatrix";
-import ProjectTasksSection from "./ProjectTasksSection";
+import { useProjectTasksSection } from "./ProjectTasksSection";
 import {
   MULTI_PROJECT_ROLES,
   PROJECT_LEVEL_PICKER_OPTIONS,
@@ -84,6 +84,20 @@ export function useProjectDetailEditorBlock({
     setActiveTab("overview");
     onCreateChildProject(task);
   };
+  const projectPlanSection = useProjectPlanManagementSection({
+    projectId: draft?.id ?? null,
+    canEdit: canEditCurrent,
+    disabled: saving || creating,
+    onToast,
+  });
+  const projectTasksSection = useProjectTasksSection({
+    projectId: draft?.id ?? null,
+    canEdit: canEditCurrent,
+    disabled: saving || creating,
+    onToast,
+    onCreateChildProject: startCreateChildProject,
+    onChanged: () => onProjectTasksChanged(draft?.id ?? null),
+  });
   const overviewFields: FormSurfaceItemSpec[] = draft ? [
     {
       kind: "section",
@@ -210,29 +224,7 @@ export function useProjectDetailEditorBlock({
         label: "项目计划",
         body: {
           kind: "section",
-          sections: createPageBody([
-            createBlockSurfaceSection("plan-composition", {
-              kind: "content",
-              content: (
-                <div className="space-y-4">
-                  <ProjectPlanManagementSection
-                    projectId={draft.id}
-                    canEdit={canEditCurrent}
-                    disabled={saving || creating}
-                    onToast={onToast}
-                  />
-                  <ProjectTasksSection
-                    projectId={draft.id}
-                    canEdit={canEditCurrent}
-                    disabled={saving || creating}
-                    onToast={onToast}
-                    onCreateChildProject={startCreateChildProject}
-                    onChanged={() => onProjectTasksChanged(draft.id)}
-                  />
-                </div>
-              ),
-            }),
-          ]).sections,
+          sections: createPageBody([projectPlanSection, projectTasksSection]).sections,
         },
       },
     ],

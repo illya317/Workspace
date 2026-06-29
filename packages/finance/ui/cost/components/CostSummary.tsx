@@ -40,6 +40,11 @@ interface CostSummaryData {
 }
 
 export default function CostSummary({ filters }: Props) {
+  const sections = useCostSummarySections(filters);
+  return <PageSurface kind="standard" embedded body={createPageBody(sections)} />;
+}
+
+export function useCostSummarySections(filters: CostFiltersState): BodySurfaceSectionSpec[] {
   const { data, loading, error } = useCostSummary(filters);
   const summary = data as CostSummaryData | null;
 
@@ -67,42 +72,32 @@ export default function CostSummary({ filters }: Props) {
     ] : []),
   ];
 
-  return (
-    <div className="space-y-4">
-      <PageSurface kind="standard" embedded body={createPageBody(sections)} />
-      {summary && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <RankCard title="客户发货排行" items={summary.shipments?.topCustomers} />
-          <RankCard title="业务员发货排行" items={summary.shipments?.topSalespeople} />
-          <RankCard title="产品发货排行" items={summary.shipments?.topProducts} />
-        </div>
-      )}
-    </div>
-  );
+  if (!summary) return sections;
+  return [
+    ...sections,
+    createPanelSection("rank-cards", {
+      title: "排行",
+      layout: "grid",
+      sections: [
+        createRankPanel("top-customers", "客户发货排行", summary.shipments?.topCustomers),
+        createRankPanel("top-salespeople", "业务员发货排行", summary.shipments?.topSalespeople),
+        createRankPanel("top-products", "产品发货排行", summary.shipments?.topProducts),
+      ],
+    }),
+  ];
 }
 
-function RankCard({
-  title,
-  items,
-}: {
-  title: string;
-  items?: SummaryRankItem[];
-}) {
-  return (
-    <PageSurface kind="standard"
-      embedded
-      body={createPageBody([createPanelSection(title, {
-        title,
-        sections: items?.length
-          ? items.map((item, idx) => createMessageSection(`${idx}-${item.name}`, {
-              tone: "muted" as const,
-              content: `${idx + 1}. ${item.name} ${item.value.toLocaleString("zh-CN", { maximumFractionDigits: 0 })}`,
-            }))
-          : [createMessageSection("empty", {
-              tone: "muted" as const,
-              content: "暂无数据",
-            })],
-      })])}
-    />
-  );
+function createRankPanel(key: string, title: string, items?: SummaryRankItem[]): BodySurfaceSectionSpec {
+  return createPanelSection(key, {
+    title,
+    sections: items?.length
+      ? items.map((item, idx) => createMessageSection(`${idx}-${item.name}`, {
+          tone: "muted" as const,
+          content: `${idx + 1}. ${item.name} ${item.value.toLocaleString("zh-CN", { maximumFractionDigits: 0 })}`,
+        }))
+      : [createMessageSection("empty", {
+          tone: "muted" as const,
+          content: "暂无数据",
+        })],
+  });
 }

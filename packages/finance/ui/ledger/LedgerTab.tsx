@@ -2,10 +2,10 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useCallback } from "react";
-import { PageSurface, createBlockSurfaceSection, createPageBody, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createPageBody, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec, PageSurfaceNavigationSpec } from "@workspace/core/ui";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
-import FinanceBalanceReconcile from "../components/FinanceBalanceReconcile";
+import { useFinanceBalanceReconcileSection } from "../components/FinanceBalanceReconcile";
 import { formatFinanceAmount } from "../formatters";
 
 interface Period {
@@ -178,6 +178,7 @@ export default function LedgerTab({
       content: <span>共 {total} 条</span>,
     }],
   });
+  const reconcileSection = useFinanceBalanceReconcileSection({ showToast: feedback.notify });
 
   return (
     <PageSurface kind="standard"
@@ -199,10 +200,7 @@ export default function LedgerTab({
               rowKey: (balance: Balance) => balance.id,
             } },
           },
-          createBlockSurfaceSection("balance-reconcile", {
-            kind: "content",
-            content: <FinanceBalanceReconcile showToast={feedback.notify} />,
-          }),
+          reconcileSection,
         ], { layout: "stack" })}
       footer={{ pagination: { page, totalPages, total, onPageChange: setPage } }}
     />

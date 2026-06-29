@@ -1,6 +1,7 @@
 "use client";
 
 import { createPageBody, PageSurface, createActionsSection, createPageDataSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { PreviewAccount, PreviewBalance, PreviewResult, PreviewVoucher, PreviewVoucherItem } from "./types";
 interface ImportPreviewProps {
   preview: PreviewResult;
@@ -207,6 +208,134 @@ function VoucherPreview({
     />
   );
 }
+
+export function createImportPreviewSections({
+  preview,
+  importing,
+  typeLabel,
+  onConfirm
+}: ImportPreviewProps): BodySurfaceSectionSpec[] {
+  const accountRows = preview.accounts.map(account => ({
+    ...account,
+    id: account.code
+  }));
+  const balanceRows = (preview.balances ?? []).slice(0, 20).map(balance => ({
+    ...balance,
+    id: balance.accountCode
+  }));
+  const accountColumns = createAccountColumns();
+  const balanceColumns = createBalanceColumns();
+  const sections: BodySurfaceSectionSpec[] = [
+    ...(preview.errors.length === 0
+      ? [createActionsSection("import-preview-actions", [{
+          key: "confirm",
+          label: importing ? "导入中..." : "确认导入",
+          variant: "primary",
+          onClick: onConfirm,
+          disabled: importing,
+        }])]
+      : []),
+    {
+      key: "import-preview-heading",
+      header: {
+        title: `预览：${typeLabel}（${preview.year}年）`,
+        subtitle: `共 ${preview.rows} 行原始数据，解析出 ${preview.accounts.length} 个科目${preview.balances ? `，${preview.balances.length} 条余额` : ""}${preview.vouchers ? `，${preview.vouchers.length} 张凭证` : ""}`,
+      },
+      body: { kind: "section" },
+    },
+    ...createNoticeSections("错误", preview.errors, "danger"),
+    ...createNoticeSections("警告", preview.warnings, "warning"),
+    {
+      ...createPageDataSection("preview-accounts", {
+        kind: "table",
+        rows: accountRows,
+        columns: accountColumns,
+        visibleColumns: accountColumns.map(column => column.key),
+        rowKey: row => row.id,
+        presentation: { density: "compact" },
+        emptyText: "暂无数据",
+        scroll: { maxHeight: "sm" },
+      }),
+      header: { title: "科目列表" },
+    },
+    ...(balanceRows.length > 0
+      ? [{
+          ...createPageDataSection("preview-balances", {
+            kind: "table" as const,
+            rows: balanceRows,
+            columns: balanceColumns,
+            visibleColumns: balanceColumns.map(column => column.key),
+            rowKey: row => row.id,
+            presentation: { density: "compact" as const },
+            emptyText: "暂无数据",
+            scroll: { maxHeight: "sm" as const },
+          }),
+          header: { title: "余额预览（前20条）" },
+        }]
+      : []),
+    ...(preview.balances && preview.balances.length > 20
+      ? [{
+          key: "preview-balance-more",
+          body: { kind: "section" as const, message: { tone: "muted" as const, content: `还有 ${preview.balances.length - 20} 条未显示` } },
+        }]
+      : []),
+    ...createVoucherPreviewSections(preview),
+  ];
+  return sections;
+}
+
+function createNoticeSections(title: string, items: string[], tone: "danger" | "warning"): BodySurfaceSectionSpec[] {
+  if (items.length === 0) return [];
+  return [{
+    key: `preview-${title}`,
+    body: {
+      kind: "section",
+      message: {
+        tone,
+        content: (
+          <div>
+            <p className="font-medium">{title}（{items.length}）：</p>
+            <ul className="mt-1 list-disc pl-5">
+              {items.map((item, index) => <li key={`${title}-${index}`}>{item}</li>)}
+            </ul>
+          </div>
+        ),
+      },
+    },
+  }];
+}
+
+function createVoucherPreviewSections(preview: PreviewResult): BodySurfaceSectionSpec[] {
+  if (!preview.vouchers?.length) return [];
+  const voucherColumns = createVoucherColumns();
+  return [
+    ...preview.vouchers.slice(0, 10).map((voucher) => {
+      const rows = voucher.items.map((item, index) => ({
+        ...item,
+        id: `${voucher.voucherNo}-${index}`
+      }));
+      return {
+        ...createPageDataSection(`voucher-preview-${voucher.voucherNo}`, {
+          kind: "table" as const,
+          rows,
+          columns: voucherColumns,
+          visibleColumns: voucherColumns.map(column => column.key),
+          rowKey: row => row.id,
+          presentation: { density: "compact" as const },
+          emptyText: "暂无分录",
+        }),
+        header: { title: `凭证 ${voucher.voucherNo}` },
+      };
+    }),
+    ...(preview.vouchers.length > 10
+      ? [{
+          key: "preview-voucher-more",
+          body: { kind: "section" as const, message: { tone: "muted" as const, content: `还有 ${preview.vouchers.length - 10} 张未显示` } },
+        }]
+      : []),
+  ];
+}
+
 export default function ImportPreview({
   preview,
   importing,

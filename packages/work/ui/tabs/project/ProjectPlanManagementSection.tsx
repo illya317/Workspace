@@ -1,12 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { createPageBody, PageSurface } from "@workspace/core/ui";
+import { createPageBody, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { listProjectPlanGantt } from "./api";
-import ProjectPlanPhasePanel from "./ProjectPlanPhasePanel";
+import { useProjectPlanPhaseSection } from "./ProjectPlanPhasePanel";
 import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
 
-export default function ProjectPlanManagementSection({
+export function useProjectPlanManagementSection({
   projectId,
   canEdit,
   disabled,
@@ -16,7 +16,7 @@ export default function ProjectPlanManagementSection({
   canEdit: boolean;
   disabled: boolean;
   onToast: (toast: { type: "success" | "error"; message: string }) => void;
-}) {
+}): BodySurfaceSectionSpec {
   const [phases, setPhases] = useState<ProjectPlanPhaseItem[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -38,27 +38,21 @@ export default function ProjectPlanManagementSection({
 
   useEffect(() => { void loadPlan(); }, [loadPlan]);
 
-  if (!projectId) {
-    return (
-      <PageSurface
-        kind="standard"
-        embedded
-        body={createPageBody([{
-          key: "project-phases-empty",
-          header: { title: "项目阶段" },
-          body: { kind: "record", record: { records: [], empty: "项目保存后可维护项目阶段。" } },
-        }])}
-      />
-    );
-  }
+  return useProjectPlanPhaseSection({
+    projectId,
+    phases,
+    canEdit,
+    disabled: disabled || loading,
+    onChanged: loadPlan,
+  });
+}
 
-  return (
-    <ProjectPlanPhasePanel
-      projectId={projectId}
-      phases={phases}
-      canEdit={canEdit}
-      disabled={disabled || loading}
-      onChanged={loadPlan}
-    />
-  );
+export default function ProjectPlanManagementSection(props: {
+  projectId: number | null;
+  canEdit: boolean;
+  disabled: boolean;
+  onToast: (toast: { type: "success" | "error"; message: string }) => void;
+}) {
+  const section = useProjectPlanManagementSection(props);
+  return <PageSurface kind="standard" embedded body={createPageBody([section])} />;
 }

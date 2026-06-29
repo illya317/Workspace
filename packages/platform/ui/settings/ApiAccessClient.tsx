@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { createBlockSurfaceSection, createPageBody, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createFieldsSection, createPageBody, PageSurface, type BodySurfaceSectionSpec, useFeedback } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 const API_BASE_URL = typeof window !== "undefined" ? `${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH || ""}` : "";
 export type ApiAccessModuleRow = {
@@ -42,13 +42,13 @@ function maskApiKey(apiKey: string) {
   if (apiKey.length <= 3) return apiKey;
   return `${apiKey.slice(0, 3)}${"*".repeat(apiKey.length - 3)}`;
 }
-export default function ApiAccessClient({
+export function useApiAccessSection({
   user,
   modules
 }: {
   user: SessionUser;
   modules: ApiAccessModuleRow[];
-}) {
+}): BodySurfaceSectionSpec | null {
   const canUsePersonalApi = (user.visibleResourceKeys || []).includes("settings.account.apiAccess");
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -92,44 +92,51 @@ export default function ApiAccessClient({
     if (ok) await rotateApiKey();
   }
   if (!canUsePersonalApi) return null;
-  return (
-    <div className="py-6">
-      <PageSurface kind="standard"
-        embedded
-        body={createPageBody([createBlockSurfaceSection("api-access", {
-          kind: "panel",
-          title: "API 接入",
-          content: (
-            <pre className="space-y-1 whitespace-pre-wrap rounded-md bg-emerald-50 p-4 font-mono text-sm text-emerald-800">
-              {[
-                `URL: ${API_BASE_URL}`,
-                `Key: ${apiKey ? maskApiKey(apiKey) : "（先申请）"}`,
-                `User: ${user.username || user.nickname || "（未获取）"}`,
-              ].join("\n")}
-            </pre>
-          ),
-            actions: [
-              apiKey ? {
-                key: "rotate",
-                label: loading ? "申请中..." : "重新申请",
-                onClick: () => void confirmRotateApiKey(),
-                disabled: loading,
-              } : {
-                key: "create",
-                label: loading ? "申请中..." : "申请 Key",
-                onClick: rotateApiKey,
-                disabled: loading,
-              },
-              {
-                key: "copy",
-                label: copied ? "已复制" : "复制接入信息",
-                variant: "primary",
-                onClick: copyConnectionBlock,
-              },
-            ],
-          },
-        )])}
-      />
-    </div>
-  );
+  const section = createFieldsSection("api-access", [{
+    kind: "note",
+    key: "connection",
+    content: (
+      <pre className="space-y-1 whitespace-pre-wrap rounded-md bg-emerald-50 p-4 font-mono text-sm text-emerald-800">
+        {[
+          `URL: ${API_BASE_URL}`,
+          `Key: ${apiKey ? maskApiKey(apiKey) : "（先申请）"}`,
+          `User: ${user.username || user.nickname || "（未获取）"}`,
+        ].join("\n")}
+      </pre>
+    ),
+  }], { kind: "detail", layout: { columns: 1 } });
+  return {
+    ...section,
+    header: {
+      title: "API 接入",
+      actions: [
+        apiKey ? {
+          key: "rotate",
+          label: loading ? "申请中..." : "重新申请",
+          onClick: () => void confirmRotateApiKey(),
+          disabled: loading,
+        } : {
+          key: "create",
+          label: loading ? "申请中..." : "申请 Key",
+          onClick: () => void rotateApiKey(),
+          disabled: loading,
+        },
+        {
+          key: "copy",
+          label: copied ? "已复制" : "复制接入信息",
+          variant: "primary",
+          onClick: () => void copyConnectionBlock(),
+        },
+      ],
+    },
+  };
+}
+
+export default function ApiAccessClient(props: {
+  user: SessionUser;
+  modules: ApiAccessModuleRow[];
+}) {
+  const section = useApiAccessSection(props);
+  if (!section) return null;
+  return <div className="py-6"><PageSurface kind="standard" embedded body={createPageBody([section])} /></div>;
 }

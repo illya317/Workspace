@@ -54,7 +54,7 @@ export const page_api_registry_entries = [
   {
     name: "createSelectorPanelSection",
     description: "选择器区块声明助手",
-    composes: ["SelectorPanel", "BlockSurface"],
+    composes: ["SelectorSurface", "BodySurface"],
   },
   {
     name: "SwitchField",

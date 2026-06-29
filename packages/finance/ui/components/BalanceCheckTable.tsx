@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { createPageBody, PageSurface, createPageTableSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 export interface BalanceCheckAccountNode {
   code: string;
   name: string;
@@ -70,6 +71,20 @@ export default function BalanceCheckTable({
   maxLevel: number;
   onToggleNode: (code: string) => void;
 }) {
+  return <PageSurface kind="standard" embedded body={createPageBody([useBalanceCheckTableSection({ rows, expanded, maxLevel, onToggleNode })])} />;
+}
+
+export function useBalanceCheckTableSection({
+  rows,
+  expanded,
+  maxLevel,
+  onToggleNode
+}: {
+  rows: BalanceCheckFlatNode[];
+  expanded: Set<string>;
+  maxLevel: number;
+  onToggleNode: (code: string) => void;
+}): BodySurfaceSectionSpec {
   const visibleColumns = useMemo(() => ["code", "name", "closingDebit", "closingCredit", "childrenDebit", "childrenCredit", "diffDebit", "diffCredit", "status"], []);
   const columns = useMemo<DataSurfaceColumnSpec<BalanceCheckFlatNode>[]>(() => [{
     key: "code",
@@ -174,23 +189,16 @@ export default function BalanceCheckTable({
       return node.isBalanced ? { kind: "badge", label: "平衡", tone: "green" } : { kind: "badge", label: "不一致", tone: "red" };
     }
   }], [expanded, maxLevel, onToggleNode]);
-  return (
-    <PageSurface kind="standard"
-      embedded
-      body={createPageBody([
-        createPageTableSection("balance-check", {
+  return createPageTableSection("balance-check", {
 
 
-          rows,
-          columns,
-          visibleColumns,
-          rowKey: ({ node }) => node.code,
-                    presentation: { density: "compact" },
+    rows,
+    columns,
+    visibleColumns,
+    rowKey: ({ node }) => node.code,
+              presentation: { density: "compact" },
 
 
-          rowState: ({ node }) => !node.isBalanced && node.children.length > 0 ? "danger" : "normal",
-        }),
-      ])}
-    />
-  );
+    rowState: ({ node }) => !node.isBalanced && node.children.length > 0 ? "danger" : "normal",
+  });
 }

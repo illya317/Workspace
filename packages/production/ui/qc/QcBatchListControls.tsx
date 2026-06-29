@@ -1,6 +1,6 @@
 "use client";
 
-import { createFieldsSection, createPageBody, PageSurface } from "@workspace/core/ui";
+import { createFieldsSection, createPageBody, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 export { QC_BATCH_PAGE_SIZE_OPTIONS, QC_BATCH_STATUS_OPTIONS } from "./qc-batch-options";
 
 interface QcProductOption {
@@ -19,7 +19,7 @@ interface QcBatchCreatePanelProps {
   onSubmit: () => void;
   onCancel: () => void;
 }
-export function QcBatchCreatePanel({
+export function createQcBatchCreateSection({
   open,
   products,
   productKey,
@@ -29,12 +29,9 @@ export function QcBatchCreatePanel({
   onBatchNumberChange,
   onSubmit,
   onCancel
-}: QcBatchCreatePanelProps) {
+}: QcBatchCreatePanelProps): BodySurfaceSectionSpec | null {
   if (!open) return null;
-  return <PageSurface kind="standard"
-    embedded
-    body={createPageBody([
-      createFieldsSection("qc-batch-create", [
+  return createFieldsSection("qc-batch-create", [
         { kind: "groupTitle", key: "title", title: "新建批次" },
         {
           key: "product",
@@ -77,7 +74,11 @@ export function QcBatchCreatePanel({
           },
           { key: "cancel", label: "取消", onClick: onCancel },
         ],
-      }),
-    ])}
-  />;
+      });
+}
+
+export function QcBatchCreatePanel(props: QcBatchCreatePanelProps) {
+  const section = createQcBatchCreateSection(props);
+  if (!section) return null;
+  return <PageSurface kind="standard" embedded body={createPageBody([section])} />;
 }

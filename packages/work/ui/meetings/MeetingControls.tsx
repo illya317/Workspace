@@ -1,36 +1,18 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { createBlockSurfaceSection, createInlineFieldsSection, createPageBody, PageSurface } from "@workspace/core/ui";
+import { createInlineFieldsSection, createPageBody, PageSurface } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { MeetingDetail } from "./meeting-types";
 import { statusLabel } from "./meeting-utils";
 
-export function PageBlockSurface({
+export function PageBodySectionSurface({
   block,
 }: {
   block: BodySurfaceSectionSpec;
   className?: string;
 }) {
   return <PageSurface kind="standard" embedded body={createPageBody([block])} />;
-}
-
-export function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
-  return (
-    <PageBlockSurface
-      block={createBlockSurfaceSection(title, {
-        kind: "section",
-        title,
-        content: <div className="space-y-3">{children}</div>,
-      })}
-    />
-  );
 }
 
 export function InlineForm({
@@ -85,7 +67,7 @@ export function InputBox({
       placeholder: kind === "date" ? "选择日期" : `输入${label}`,
     }]);
   return (
-    <PageBlockSurface
+    <PageBodySectionSurface
       block={block}
     />
   );
@@ -119,7 +101,7 @@ export function SelectBox({
   }>;
 }) {
   return (
-    <PageBlockSurface
+    <PageBodySectionSurface
       block={createInlineFieldsSection(label, [{
         key: label,
         label,

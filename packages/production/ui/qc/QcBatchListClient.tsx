@@ -3,11 +3,11 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { PageSurface, createBlockSurfaceSection, createPageBody, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createPageBody, useFeedback } from "@workspace/core/ui";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import type { QcBatchSummary } from "@workspace/production/server/qc";
-import { QC_BATCH_PAGE_SIZE_OPTIONS, QC_BATCH_STATUS_OPTIONS, QcBatchCreatePanel } from "./QcBatchListControls";
-import { QcBatchTable, formatQcBatchDate, qcBatchStatusText, type QcBatchTableRow } from "./QcBatchTable";
+import { QC_BATCH_PAGE_SIZE_OPTIONS, QC_BATCH_STATUS_OPTIONS, createQcBatchCreateSection } from "./QcBatchListControls";
+import { createQcBatchTableSection, formatQcBatchDate, qcBatchStatusText, type QcBatchTableRow } from "./QcBatchTable";
 import { productionQcPageKind, type ProductionQcPageChromeSpec } from "./ProductionQcPageChrome";
 
 interface Props {
@@ -176,43 +176,33 @@ export default function QcBatchListClient({ initialRows, products, pageChrome }:
       ],
     },
   ];
+  const createSection = createQcBatchCreateSection({
+    open: createOpen,
+    products,
+    productKey,
+    batchNumber,
+    submitting: isPending,
+    onProductKeyChange: setProductKey,
+    onBatchNumberChange: setBatchNumber,
+    onSubmit: () => void createBatch(),
+    onCancel: () => {
+      setCreateOpen(false);
+      setBatchNumber(todayBatchNumber());
+    },
+  });
 
   return (
     <PageSurface kind={pageChrome ? productionQcPageKind(pageChrome) : "standard"}
       toolbar={{ items: toolbarItems }}
       body={createPageBody([
-          createBlockSurfaceSection("qc-batch-list-content", {
-            kind: "content",
-            content: (
-              <section className="space-y-4">
-                <QcBatchCreatePanel
-                  open={createOpen}
-                  products={products}
-                  productKey={productKey}
-                  batchNumber={batchNumber}
-                  submitting={isPending}
-                  onProductKeyChange={setProductKey}
-                  onBatchNumberChange={setBatchNumber}
-                  onSubmit={() => void createBatch()}
-                  onCancel={() => {
-                    setCreateOpen(false);
-                    setBatchNumber(todayBatchNumber());
-                  }}
-                />
-
-                <QcBatchTable
-                  rows={visibleBatches}
-                  page={page}
-                  totalPages={totalPages}
-                  total={filtered.length}
-                  onPageChange={setPage}
-                  onView={(batch) => router.push(`/production/qc-batches/${batch.id}`)}
-                  onDelete={(batch) => void deleteBatch(batch)}
-                />
-              </section>
-            ),
-          }),
-        ])}
+        ...(createSection ? [createSection] : []),
+        createQcBatchTableSection({
+          rows: visibleBatches,
+          onView: (batch) => router.push(`/production/qc-batches/${batch.id}`),
+          onDelete: (batch) => void deleteBatch(batch),
+        }),
+      ])}
+      footer={{ pagination: { page, totalPages, total: filtered.length, onPageChange: setPage, compact: true } }}
     />
   );
 }

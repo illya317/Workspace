@@ -394,7 +394,7 @@ export function findPageSurfaceLayoutProtocolWarnings(files: SourceInfo[]) {
             warnings,
             file.relPath,
             "block-content-escape",
-            `BlockSurface kind=content at line ${objectLine(file.sourceFile, node)}`,
+            `legacy content escape at line ${objectLine(file.sourceFile, node)}`,
           );
         }
         const surface = objectProperty(node, "surface");

@@ -2,8 +2,8 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState, useRef, useMemo } from "react";
-import { PageSurface, createPageBody, useFeedback } from "@workspace/core/ui";
-import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createMessageSection, createPageBody, useFeedback } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec, DataSurfaceColumnSpec, PageSurfaceFooterSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { RuleCandidate } from "@workspace/finance/types";
 import AccountCodeInput from "./AccountCodeInput";
@@ -28,7 +28,7 @@ interface Props {
     hasRule: number;
   }) => void;
 }
-export default function ReclassCandidateList({
+export function useReclassConfigSection({
   companyCode,
   year,
   keyword = "",
@@ -36,7 +36,7 @@ export default function ReclassCandidateList({
   pageSize = 50,
   canWrite,
   onStats
-}: Props) {
+}: Props): { section: BodySurfaceSectionSpec; footer?: PageSurfaceFooterSpec } {
   const [_scanned, setScanned] = useState<RuleCandidate[]>([]);
   const [allAccounts, setAllAccounts] = useState<RuleCandidate[]>([]);
   const { confirmDelete, error, success } = useFeedback();
@@ -285,14 +285,12 @@ export default function ReclassCandidateList({
   }
 
   // ── Render ───────────────────────────────────────────
-  if (loading) return <p className="py-8 text-center text-sm text-gray-400">扫描中...</p>;
-  if (allAccounts.length === 0) return <p className="py-8 text-center text-sm text-gray-400">该年度无科目数据</p>;
-  return (
-    <PageSurface kind="standard"
-      embedded
-      body={createPageBody([{
-          key: "reclass-candidates",
-          body: { kind: "data", data: {
+  if (loading) return { section: createMessageSection("reclass-candidates-loading", { tone: "muted", content: "扫描中..." }) };
+  if (allAccounts.length === 0) return { section: createMessageSection("reclass-candidates-empty", { tone: "muted", content: "该年度无科目数据" }) };
+  return {
+    section: {
+      key: "reclass-candidates",
+      body: { kind: "data", data: {
             kind: "table",
 
 
@@ -314,8 +312,12 @@ export default function ReclassCandidateList({
               return [{ key: "adjust", kind: "edit", label: "调整", onClick: () => startEdit(candidate) }];
             } : undefined,
           } },
-        }], { layout: "stack" })}
-      footer={{ pagination: { page, totalPages, total: filtered.length, onPageChange: setPage } }}
-    />
-  );
+    },
+    footer: { pagination: { page, totalPages, total: filtered.length, onPageChange: setPage } },
+  };
+}
+
+export default function ReclassCandidateList(props: Props) {
+  const { section, footer } = useReclassConfigSection(props);
+  return <PageSurface kind="standard" embedded body={createPageBody([section], { layout: "stack" })} footer={footer} />;
 }

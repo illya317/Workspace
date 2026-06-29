@@ -1,6 +1,7 @@
 "use client";
 
 import { createPageBody, PageSurface, createPageTableSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { RdBudgetItem } from "../types";
 
 const MONTH_LABELS = [
@@ -19,6 +20,12 @@ type RdBudgetRow =
   | { kind: "total"; id: string; months: number[]; total: number };
 
 export default function RdBudgetTable({ items, monthTotals, total }: RdBudgetTableProps) {
+  return (
+    <PageSurface kind="standard" embedded body={createPageBody([createRdBudgetTableSection({ items, monthTotals, total })])} />
+  );
+}
+
+export function createRdBudgetTableSection({ items, monthTotals, total }: RdBudgetTableProps): BodySurfaceSectionSpec {
   const rows: RdBudgetRow[] = [
     ...items.map((item, index) => ({ ...item, kind: "item" as const, id: `${item.project}-${item.category}-${index}` })),
     { kind: "total", id: "total", months: monthTotals, total },
@@ -62,21 +69,14 @@ export default function RdBudgetTable({ items, monthTotals, total }: RdBudgetTab
     },
   ];
 
-  return (
-    <PageSurface kind="standard"
-      embedded
-      body={createPageBody([
-        createPageTableSection("rd-budget", {
+  return createPageTableSection("rd-budget", {
 
 
-          rows,
-          columns,
-          visibleColumns: columns.map((column) => column.key),
-          emptyText: "暂无数据",
-          rowKey: (row) => row.id,
-          rowState: (row) => row.kind === "total" ? "total" : "normal",
-        }),
-      ])}
-    />
-  );
+    rows,
+    columns,
+    visibleColumns: columns.map((column) => column.key),
+    emptyText: "暂无数据",
+    rowKey: (row) => row.id,
+    rowState: (row) => row.kind === "total" ? "total" : "normal",
+  });
 }

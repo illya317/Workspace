@@ -8,7 +8,7 @@ export const page_api_registry_entries = [
   },
   {
     name: "MetricsSurface",
-    description: "L1 正文指标 Surface",
+    description: "正文指标 Surface",
     contract: generatedCoreUiSurfaceContracts.MetricsSurface,
     declares: [
       { name: "metrics", description: "指标卡片列表。" },

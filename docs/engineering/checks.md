@@ -51,6 +51,7 @@
 - Open API registry、scope wrapper 和 console route 对齐。
 - 写入链路的 domain validation 收口。
 - app route hierarchy、module gate、package boundary 和 auth chain。
+- `app/(modules)` 页面只能挂对应 package/platform UI；直接 import Core UI、手写 DOM 或在 app page 里组合页面 UI 会失败。
 - 模块 API route 必须命中模块台账派生 contract，并使用 `createApiRouteHandler` / `requireApiAccess` / 已接入 `requireApiAccess` 的 `with-auth` wrapper。
 - 业务通知必须走 notification registry 的 `sendNotification(type + payload)`，不得在业务侧直接拼 `createNotification` 或直接写 `prisma.notification.create/createMany/upsert`。
 - Structure scan 里已经判定为业务阻断的历史债 ratchet，例如新增未登记 API route、裸 Prisma、缺 validation/service、旧 root service/auth/prisma 入口。

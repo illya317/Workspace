@@ -1,5 +1,4 @@
 import type { ReactNode, Ref } from "react";
-import type { BlockSurfaceProps } from "../BlockSurface";
 import type { DataSurfaceProps, DataSurfaceTableProps } from "../DataSurface.types";
 import type { DocumentSurfaceProps } from "../DocumentSurface";
 import type {
@@ -17,6 +16,7 @@ import type {
   BodySurfaceEmptySpec,
   BodySurfaceMessageSpec,
   BodySurfaceModalSpec,
+  BodySurfaceListSpec,
   BodySurfaceModuleGridSpec,
   BodySurfaceSectionSpec,
   BodySurfaceProps,
@@ -250,13 +250,6 @@ export function createVisualizationSection(
   return { key, body: { kind: "visualization", visualization: surface } };
 }
 
-export function createBlockSurfaceSection(
-  key: string,
-  surface: BlockSurfaceProps,
-): BodySurfaceSectionSpec {
-  return { key, body: { kind: "section", surface } };
-}
-
 export function createMessageSection(
   key: string,
   message: BodySurfaceMessageSpec,
@@ -269,6 +262,13 @@ export function createEmptySection(
   empty: BodySurfaceEmptySpec,
 ): BodySurfaceSectionSpec {
   return { key, body: { kind: "section", empty } };
+}
+
+export function createListSection(
+  key: string,
+  list: BodySurfaceListSpec,
+): BodySurfaceSectionSpec {
+  return { key, body: { kind: "section", list } };
 }
 
 export function createActionsSection(

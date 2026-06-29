@@ -2,8 +2,8 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo, useRef } from "react";
-import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
-import { createPageBody, PageSurface, createBlockSurfaceSection, useFeedback, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { useAuditLogModal } from "@workspace/platform/ui/AuditLogModal";
+import { createPageBody, PageSurface, useFeedback, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { buildGenericCreatePanelBlock } from "../components/GenericCreatePanel";
 import GenericFieldInput from "../components/GenericFieldInput";
 import { buildHRToolbarItems } from "../components/hr-toolbar-items";
@@ -12,7 +12,7 @@ import {
   mapAdvancedFilterField,
 } from "../components/generic-filter-toolbar-items";
 import { useGenericTab } from "../hooks/useGenericTab";
-import EditableTable from "./EditableTable";
+import { useEditableTableSection } from "./EditableTable";
 import { columnToggleOptions, defaultVisibleColumnKeys, fieldsWithCompanyOptions } from "./generic-table-columns";
 import { downloadGenericTableCsv } from "./generic-table-export";
 import { type TabConfig, type FieldConfig, type HRUser, hrCanEdit } from "@workspace/hr/types";
@@ -229,39 +229,31 @@ export default function GenericTableTab({ config, user, surface }: { config: Tab
     compact: true,
   } : undefined;
 
-  const content = (
-    <>
-      <EditableTable
-        framed
-        loading={loading}
-        emptyText={error ? `加载失败：${error}` : "暂无数据"}
-        bodyClassName="overflow-x-auto"
-        items={items}
-        fields={tableFields}
-        visibleColumns={visibleColumns}
-        config={config}
-        editingCell={editingCell}
-        editMode={editMode}
-        canEdit={canEdit}
-        renderEditInput={(fieldKey) =>
-          editingField ? (
-            <GenericFieldInput
-              field={editingField}
-              value={editValue}
-              onChange={setEditValue}
-              onKeyDown={handleKeyDown}
-              inputRef={inputRef}
-              fkConfig={config.fkFields?.[fieldKey]}
-              mode="edit"
-            />
-          ) : null
-        }
-        onStartEdit={handleStartEdit}
-      />
-
-      <AuditLogModal open={showHistory} onClose={() => setShowHistory(false)} entityType={config.entityType} onRestored={load} />
-    </>
-  );
+  const tableSection = useEditableTableSection({
+    loading,
+    emptyText: error ? `加载失败：${error}` : "暂无数据",
+    items,
+    fields: tableFields,
+    visibleColumns,
+    config,
+    editingCell,
+    editMode,
+    canEdit,
+    renderEditInput: (fieldKey) =>
+      editingField ? (
+        <GenericFieldInput
+          field={editingField}
+          value={editValue}
+          onChange={setEditValue}
+          onKeyDown={handleKeyDown}
+          inputRef={inputRef}
+          fkConfig={config.fkFields?.[fieldKey]}
+          mode="edit"
+        />
+      ) : null,
+    onStartEdit: handleStartEdit,
+  });
+  const auditLogModal = useAuditLogModal({ open: showHistory, onClose: () => setShowHistory(false), entityType: config.entityType, onRestored: load });
 
   const sections: BodySurfaceSectionSpec[] = [
     ...(creating
@@ -273,17 +265,14 @@ export default function GenericTableTab({ config, user, surface }: { config: Tab
           onCancel: () => { setCreating(false); setCreateForm({}); },
         })]
       : []),
-    createBlockSurfaceSection("generic-table-content", {
-      kind: "content",
-      content: <div className="space-y-4">{content}</div>,
-    }),
+    tableSection,
   ];
 
   return (
     <PageSurface kind="standard"
       {...surface}
       toolbar={{ items: toolbarItems, onSubmit: load }}
-      body={createPageBody(sections)}
+      body={createPageBody([...sections, auditLogModal])}
       footer={pagination ? { pagination } : undefined}
     />
   );

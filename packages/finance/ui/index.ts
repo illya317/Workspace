@@ -9,6 +9,8 @@ export { default as LedgerClient } from "./ledger/LedgerClient";
 export { default as StatementConfigClient } from "./statement-config/StatementConfigClient";
 export { default as StatementReviewClient } from "./statement-review/StatementReviewClient";
 export { default as StatementsClient } from "./statements/StatementsClient";
+export { default as TaxPage } from "./tax/TaxPage";
+export { default as TreasuryPage } from "./treasury/TreasuryPage";
 export { default as AccountCodeInput } from "./components/AccountCodeInput";
 export { default as AccountTable } from "./components/AccountTable";
 export { default as CompanyPeriodPicker } from "./components/CompanyPeriodPicker";

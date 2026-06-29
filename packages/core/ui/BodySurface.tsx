@@ -3,7 +3,6 @@
 import DataSurface from "./DataSurface";
 import DocumentSurface, { type DocumentSurfaceProps } from "./DocumentSurface";
 import FormSurface from "./FormSurface";
-import BlockSurface, { type BlockSurfaceProps } from "./BlockSurface";
 import NavigationRenderer, { type NavigationRendererProps } from "./NavigationRenderer";
 import type { ReactNode, Ref } from "react";
 import type { DataSurfaceProps, DataSurfaceLooseRow } from "./DataSurface.types";
@@ -14,13 +13,16 @@ import SelectorSurface, { type SelectorSurfaceProps } from "./SelectorSurface";
 import VisualizationSurface, { type VisualizationSurfaceProps } from "./VisualizationSurface";
 import type { ActionGlyphKind } from "./internal/action/ActionGlyphs";
 import DetailModal from "./internal/common/DetailModal";
-import { EmptyStateCard, ModuleCard, type ModuleCardColor } from "./internal/common/Card";
+import type { ModuleCardColor } from "./internal/common/Card";
+import { renderBodyEmpty, renderBodyMessage, renderModuleGrid, renderSectionBadges } from "./internal/body/BodySurfaceBlocks";
 import SplitWorkspace, { type SplitWorkspaceMode } from "./internal/common/SplitWorkspace";
 import TabBar from "./internal/common/TabBar";
 import { joinClassNames } from "./internal/common/card-utils";
 import { renderCommands } from "./internal/page/PageSurface.commands";
 import { Toolbar, type ToolbarItem } from "./Toolbar";
 import type { SurfaceToolbarItems } from "./SurfaceContractTypes";
+
+export { renderBodyEmpty } from "./internal/body/BodySurfaceBlocks";
 
 export type BodySurfaceKind = "data" | "document" | "form" | "metrics" | "navigation" | "record" | "selector" | "section" | "visualization";
 
@@ -48,6 +50,29 @@ export interface BodySurfaceEmptySpec {
 export interface BodySurfaceMessageSpec {
   content: ReactNode;
   tone?: "default" | "muted" | "success" | "warning" | "danger";
+}
+
+export interface BodySurfaceListItemSpec {
+  key: string | number;
+  title: ReactNode;
+  description?: ReactNode;
+  meta?: ReactNode;
+  leading?: ReactNode;
+  trailing?: ReactNode;
+  badges?: BodySurfaceBadgeSpec[];
+  actions?: BodySurfaceCommandSpec[];
+  sections?: BodySurfaceSectionSpec[];
+  tone?: "default" | "muted" | "info" | "success" | "warning" | "danger";
+  unread?: boolean;
+  onClick?: () => void;
+  onMouseEnter?: () => void;
+}
+
+export interface BodySurfaceListSpec {
+  items: BodySurfaceListItemSpec[];
+  empty?: BodySurfaceEmptySpec;
+  footerAction?: BodySurfaceCommandSpec;
+  density?: "normal" | "compact";
 }
 
 export interface BodySurfaceModuleGridItemSpec {
@@ -101,13 +126,13 @@ interface BodySurfaceSectionCommonProps {
   commands?: BodySurfaceCommandSpec[];
   message?: BodySurfaceMessageSpec;
   empty?: BodySurfaceEmptySpec;
+  list?: BodySurfaceListSpec;
   moduleGrid?: BodySurfaceModuleGridSpec;
   modals?: BodySurfaceModalSpec[];
 }
 
 export type BodySurfaceComposedSectionProps = BodySurfaceSectionCommonProps & {
   layout?: "stack" | "grid";
-  surface?: BlockSurfaceProps;
   sections?: BodySurfaceSectionSpec[];
   sectioning?: BodySurfaceSectioningSpec;
 };
@@ -168,71 +193,68 @@ const MODAL_MAX_WIDTH_BY_SIZE = {
   xl: "max-w-6xl",
 } as const;
 
-export function renderBodyEmpty(empty?: BodySurfaceEmptySpec) {
-  if (!empty) return null;
-  if (empty.presentation === "plain") {
-    return <div className="text-sm text-slate-500">{empty.content}</div>;
-  }
-  return <EmptyStateCard compact={empty.compact}>{empty.content}</EmptyStateCard>;
-}
-
-function renderBodyMessage(message?: BodySurfaceMessageSpec) {
-  if (!message) return null;
+function listItemClassName(item: BodySurfaceListItemSpec) {
   const toneClass =
-    message.tone === "success"
-      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-      : message.tone === "warning"
-        ? "border-amber-200 bg-amber-50 text-amber-800"
-        : message.tone === "danger"
-          ? "border-red-200 bg-red-50 text-red-700"
-          : message.tone === "muted"
-            ? "border-slate-100 bg-slate-50 text-slate-500"
-            : "border-slate-200 bg-white text-slate-600";
-  return <div className={joinClassNames("rounded-md border px-3 py-2 text-sm", toneClass)}>{message.content}</div>;
+    item.tone === "success"
+      ? "bg-emerald-50/60"
+      : item.tone === "warning"
+        ? "bg-amber-50/70"
+        : item.tone === "danger"
+          ? "bg-rose-50/70"
+          : item.tone === "info"
+            ? "bg-sky-50/60"
+            : item.tone === "muted"
+              ? "bg-slate-50"
+              : "bg-white";
+  return joinClassNames("px-4 py-3 transition", item.onClick ? "hover:bg-emerald-50/40" : "", toneClass);
 }
 
-function renderModuleGrid(moduleGrid?: BodySurfaceModuleGridSpec) {
-  if (!moduleGrid) return null;
-  return (
-    <div className={joinClassNames(
-      "flex w-full flex-col items-center",
-      moduleGrid.fullScreen ? "min-h-screen justify-center" : "",
-      moduleGrid.centered ? "justify-center" : "",
-    )}>
-      {(moduleGrid.leading || moduleGrid.title || moduleGrid.summary) && (
-        <div className="mb-8 flex flex-col items-center">
-          {moduleGrid.leading}
-          {moduleGrid.title ? <h1 className="mt-4 text-2xl font-bold text-gray-800">{moduleGrid.title}</h1> : null}
-          {moduleGrid.summary ? <p className="mt-1 text-center text-sm text-gray-500">{moduleGrid.summary}</p> : null}
-        </div>
-      )}
-      <div className="grid w-full max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {moduleGrid.items.map((item) => {
-          const { key, ...props } = item;
-          return <ModuleCard key={key} {...props} />;
-        })}
-      </div>
-      {moduleGrid.afterGrid ? <div className="mt-8 w-full max-w-4xl">{moduleGrid.afterGrid}</div> : null}
-    </div>
+function renderBodyList(list?: BodySurfaceListSpec) {
+  if (!list) return null;
+  if (list.items.length === 0) return renderBodyEmpty(list.empty ?? { content: "暂无数据", compact: true });
+  const titleClassName = (item: BodySurfaceListItemSpec) => joinClassNames(
+    "min-w-0 text-left text-sm",
+    item.unread ? "font-semibold text-slate-950" : "font-medium text-slate-700",
+    item.onClick ? "hover:text-emerald-700" : "",
   );
-}
-
-function badgeClassName(tone: BodySurfaceBadgeSpec["tone"] = "default") {
-  if (tone === "success") return "bg-emerald-50 text-emerald-700";
-  if (tone === "warning") return "bg-amber-50 text-amber-700";
-  if (tone === "danger") return "bg-rose-50 text-rose-600";
-  if (tone === "info") return "bg-sky-50 text-sky-700";
-  if (tone === "muted") return "bg-slate-100 text-slate-500";
-  return "bg-slate-100 text-slate-700";
-}
-
-function renderSectionBadges(badges?: BodySurfaceBadgeSpec[]) {
-  if (!badges?.length) return null;
   return (
-    <div className="flex flex-wrap gap-1.5">
-      {badges.map((badge) => (
-        <span key={badge.key} className={`rounded px-2 py-1 text-xs font-medium ${badgeClassName(badge.tone)}`}>{badge.label}</span>
-      ))}
+    <div key="list" className="overflow-hidden rounded-md border border-slate-100 bg-white">
+      <div className="divide-y divide-slate-100">
+        {list.items.map((item) => (
+          <div key={item.key} className={listItemClassName(item)} onMouseEnter={item.onMouseEnter}>
+            <div className="flex items-start justify-between gap-3">
+              {item.leading ? <div className="shrink-0">{item.leading}</div> : null}
+              <div className="min-w-0 flex-1">
+                <div className="flex min-w-0 items-center gap-1.5">
+                  {item.unread ? <span aria-label="未读" className="size-1.5 shrink-0 rounded-full bg-sky-500" /> : null}
+                  {item.onClick ? (
+                    <button type="button" className={titleClassName(item)} onClick={item.onClick}>
+                      {item.title}
+                    </button>
+                  ) : (
+                    <div className={titleClassName(item)}>{item.title}</div>
+                  )}
+                  {renderSectionBadges(item.badges)}
+                </div>
+                {item.description ? <div className="mt-1 text-xs leading-5 text-slate-600">{item.description}</div> : null}
+                {item.meta ? <div className="mt-2 min-w-0 text-left text-[11px] text-slate-400">{item.meta}</div> : null}
+                {item.sections?.length ? (
+                  <div className="mt-3">
+                    <BodySurfaceSectionStack sections={item.sections} />
+                  </div>
+                ) : null}
+              </div>
+              {item.trailing ? <div className="shrink-0">{item.trailing}</div> : null}
+              {item.actions?.length ? <div className="shrink-0">{renderCommands(item.actions)}</div> : null}
+            </div>
+          </div>
+        ))}
+      </div>
+      {list.footerAction ? (
+        <div className="border-t border-slate-100 px-4 py-3 text-center">
+          {renderCommands([{ ...list.footerAction, size: list.footerAction.size ?? "sm" }])}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -382,8 +404,8 @@ function renderSectionContent(props: BodySurfaceSectionProps) {
 
   const blocks = [
     renderBodyMessage(props.message),
+    renderBodyList(props.list),
     renderModuleGrid(props.moduleGrid),
-    props.surface ? <BlockSurface key="surface" {...props.surface} /> : null,
     props.sections?.length ? (
       <BodySurfaceSectionStack
         key="sections"

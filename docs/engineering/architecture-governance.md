@@ -223,6 +223,7 @@ app/* route shell
 - L2 四件套必须统一：真实 app route、URL `href`、`resourceKey + RBAC`、API contract/guard 一一对应。L2 的 `resourceKey` 必须等于 `module.key + "." + child.key`，例如 `finance.statementConfig`、`finance.statementReview`、`production.qcBatches`；多个页面不能共用一个模糊 resource，例如旧 `finance.statement`。
 - 每个 L2 必须声明 `apiPrefixes` 或明确 `noApiReason`。`apiPrefixes` 必须绑定到同一个 L2 resource 的 API contract；宽泛的 `/api/modules/<module>` 只能作为迁移兼容，不允许作为 L2 最终契约来蒙混覆盖。
 - `app` 真实页面路径必须落在注册过的 L1 module 或系统保留 route 下。源码可以使用 route groups，例如 `app/(modules)/work/tasks/page.tsx`，但对外 route 仍必须是 `/work/tasks`。禁止重新创建绕开 L1 的顶层 route shell。
+- `app/(modules)` 页面只能做 route shell：认证、预取、参数解析后挂对应 `@workspace/<module>/ui` 或 `@workspace/platform/ui` 组件。除 login 等系统特例外，模块 app page 不得直接 import `@workspace/core/ui`、不得手写 DOM/Surface/UI 组合；L1 目录页也通过 Platform/Package UI 承接，Core UI 使用必须收口到 package UI 的声明组件里。
 - L2 以下 capability 属于业务能力，不自动进入全局页面 L2。capability 必须声明 `capabilityOwnerKey` 指向已注册 L2；它不能用 `parentKey` 继承 owner 权限，但可以用 `runtimeParentKey` 跟随 owner 的模块启停。Settings 下的 account/admin/api 也是标准 L2，页面 URL、resource、RBAC 和 API contract 必须统一。
 - 资源注册中的 `parentKey` 只表达权限树继承；模块启停级联使用 `runtimeParentKey`。不要用 `parentKey` 同时表达权限继承和运行态归属；当一个资源不能继承父权限、但必须随模块 disable 一起失效时，保持 `parentKey` 为空并设置 `runtimeParentKey`。典型例子是 `work.projects.viewAll`：它不能继承 `work.projects` 模块权限，但必须随 `work.projects` disabled 一起失效。
 - Headless/API-only 能力必须显式声明 `presentation: "headless"` 和 `noPageReason`。例如 Agent 仅保留 API / bot 接入能力，不要求真实 `/agent` 页面，但 API 和 runtime disabled 仍必须绑定 `agent` resource。
