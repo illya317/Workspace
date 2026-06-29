@@ -101,6 +101,12 @@ const eslintConfig = defineConfig([
       "max-lines": ["error", { max: 450, skipBlankLines: false, skipComments: false }],
     },
   },
+  {
+    files: ["packages/core/ui/registry/generated-surface-contracts.ts"],
+    rules: {
+      "max-lines": "off",
+    },
+  },
   // Registry data shards are declarative tables; keep a finite budget but do not use the component source budget.
   {
     files: ["packages/core/ui/component-registry-data*.ts"],

@@ -45,7 +45,6 @@ export function DepartmentCodeInput({
   level,
   disabled,
   onChange,
-  className,
 }: {
   value: string;
   level: 1 | 2 | 3;

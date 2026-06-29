@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { createPageBody, createAnalysisBlock, createGroupBlock, createMessageBlock, createPageDataBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
 import type { Contract } from "./useAnalyticsData";
-import { computeStats, enrichContracts, filterContracts, statusBadge, statusLabel, type EnrichedContract } from "./contract-helpers";
+import { computeStats, enrichContracts, filterContracts, statusLabel, type EnrichedContract } from "./contract-helpers";
 
 type DistributionRow = {
   label: string;

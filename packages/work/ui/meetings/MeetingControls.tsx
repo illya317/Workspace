@@ -8,7 +8,6 @@ import { statusLabel } from "./meeting-utils";
 
 export function PageBlockSurface({
   block,
-  className,
   kind = "detail",
 }: {
   block: PageSurfaceBlockSpec;
@@ -49,7 +48,6 @@ export function InputBox({
   value,
   onChange,
   kind = "text",
-  className = "",
 }: {
   label: string;
   value: string;

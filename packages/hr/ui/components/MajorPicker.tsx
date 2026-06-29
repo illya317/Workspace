@@ -13,7 +13,6 @@ export default function MajorPicker({
   value,
   disabled,
   onChange,
-  className,
 }: HrPickerProps) {
   const current = useMemo(() => currentMajor(value), [value]);
   const options = useMemo<InputOption[]>(

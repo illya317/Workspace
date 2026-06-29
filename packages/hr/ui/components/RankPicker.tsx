@@ -24,7 +24,6 @@ export default function RankPicker({
   options,
   disabled,
   onChange,
-  className,
 }: RankPickerProps) {
   const current = normalizeValue(value);
   const groups = useMemo(() => {

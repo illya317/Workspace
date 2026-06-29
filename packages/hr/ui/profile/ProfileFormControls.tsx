@@ -280,7 +280,6 @@ export function SectionShell({
   title,
   subtitle,
   status,
-  className,
   blocks,
 }: {
   title: ReactNode;
@@ -293,7 +292,7 @@ export function SectionShell({
     <PageSurface
       embedded
       kind="detail"
-      body={createPageBody([sectionShellBlock({ title, subtitle, status, className, blocks })])}
+      body={createPageBody([sectionShellBlock({ title, subtitle, status, blocks })])}
     />
   );
 }
@@ -302,7 +301,6 @@ export function sectionShellBlock({
   title,
   subtitle,
   status,
-  className,
   blocks,
   key = "section",
 }: {

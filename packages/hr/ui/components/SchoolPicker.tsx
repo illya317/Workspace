@@ -14,7 +14,6 @@ export default function SchoolPicker({
   value,
   disabled,
   onChange,
-  className,
 }: HrPickerProps) {
   return (
     <InputControl

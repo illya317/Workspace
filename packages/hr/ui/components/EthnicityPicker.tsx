@@ -8,7 +8,6 @@ export default function EthnicityPicker({
   value,
   disabled,
   onChange,
-  className,
 }: HrPickerProps) {
   return (
     <InputControl

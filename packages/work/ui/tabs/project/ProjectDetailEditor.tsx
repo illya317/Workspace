@@ -22,8 +22,6 @@ import {
 } from "./model";
 import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
 
-const pendingFieldClassName = "!border-amber-200 !bg-amber-50 !text-amber-800";
-
 type ProjectDetailEditorProps = {
   editorTitle: string;
   dirty: boolean;

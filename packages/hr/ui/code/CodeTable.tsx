@@ -111,8 +111,7 @@ export default function CodeTable({
   title,
   actions,
   loading,
-  emptyText,
-  bodyClassName
+  emptyText
 }: CodeTableProps) {
   const [pharmaCodesSet, setPharmaCodesSet] = useState<Set<string>>(new Set());
   useEffect(() => {

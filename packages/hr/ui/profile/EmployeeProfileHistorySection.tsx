@@ -58,7 +58,6 @@ export function historySectionSurface({
   expandedId,
   onToggle,
   onRefresh,
-  className
 }: HistorySectionProps): DataSurfaceProps<ProfileHistoryChange> {
   const changeColumns = historyChangeColumns();
   return {

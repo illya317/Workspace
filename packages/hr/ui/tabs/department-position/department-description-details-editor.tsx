@@ -12,7 +12,6 @@ function stringListField({
   disabled,
   onChange,
   placeholder = "新增条目",
-  fieldClassName,
 }: {
   key: string;
   label: string;

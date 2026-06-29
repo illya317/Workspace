@@ -12,7 +12,6 @@ export default function ProfessionalTitlePicker({
   value,
   disabled,
   onChange,
-  className,
 }: HrPickerProps) {
   const current = normalizeProfessionalTitle(value);
   const groups = useMemo(

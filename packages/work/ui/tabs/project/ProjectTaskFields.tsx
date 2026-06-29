@@ -16,7 +16,6 @@ export function ProjectTaskForm({
   onChange,
   onSubmit,
   onCancel,
-  framed = true,
 }: {
   draft: ProjectTaskDraft;
   disabled: boolean;

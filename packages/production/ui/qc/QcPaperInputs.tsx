@@ -5,14 +5,6 @@ import type { QcLayoutPart } from "@workspace/production/server/qc";
 
 const PAPER_INPUT_TEXT_CLASS = "text-[15px]";
 
-function inputAlignClass() {
-  return "text-center tabular-nums";
-}
-
-function inputPaddingClass() {
-  return "px-1";
-}
-
 export function qcRangeLabel(part: QcLayoutPart) {
   const range = part.recommendedRange;
   if (!range) return "";
@@ -35,11 +27,6 @@ export function qcRangeError(part: QcLayoutPart, value?: string) {
   return undefined;
 }
 
-function underlineClass(part: QcLayoutPart, inTable?: boolean) {
-  if (inTable) return "border-b-0";
-  return part.underline === true ? "border-b border-slate-950" : "border-b-0";
-}
-
 function selectRootBorderClass(part: QcLayoutPart, inTable?: boolean) {
   if (inTable || part.underline !== true) return "!border-0";
   return "border-b border-slate-950";
@@ -50,7 +37,6 @@ export function QcPaperLineInput({
   readOnly,
   value,
   onChange,
-  inTable,
 }: {
   part: QcLayoutPart;
   readOnly?: boolean;
@@ -60,8 +46,6 @@ export function QcPaperLineInput({
 }) {
   const currentValue = value ?? part.defaultValue ?? "";
   const error = qcRangeError(part, currentValue);
-  const baseClass = inTable ? "mx-0" : "mx-1";
-  const readonlyClass = readOnly || part.readonlyDisplay ? "cursor-default text-slate-900" : "";
   const isReadOnly = readOnly || part.readonlyDisplay || !onChange;
   if (part.multiline || part.inputType === "textarea") {
     return (

@@ -27,7 +27,6 @@ export function buildPositionCreatePanelBlock({
   departmentById,
   saving,
   positionDepartmentReadOnly = false,
-  className,
   setCreatePositionDraft,
   onCreatePosition,
   onCancel,

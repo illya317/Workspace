@@ -13,7 +13,6 @@ export function FieldRegion({
   title,
   actions,
   blocks,
-  className = "",
 }: {
   title: ReactNode;
   actions?: PageSurfaceCommandSpec[];

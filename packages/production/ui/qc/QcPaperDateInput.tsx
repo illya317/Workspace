@@ -38,7 +38,6 @@ function DatePartInput({
   label,
   maxLength,
   value,
-  width,
   onChange,
   onBlur,
   readOnly,
@@ -46,12 +45,10 @@ function DatePartInput({
   label: string;
   maxLength: number;
   value: string;
-  width: string;
   onChange: (value: string) => void;
   onBlur: () => void;
   readOnly?: boolean;
 }) {
-  const widthClass = width === "4ch" ? "w-[4ch]" : "w-[2ch]";
   return (
     <InputControl
       spec={{ valueType: "string", control: "text" }}
@@ -102,11 +99,11 @@ export function QcPaperDateInput({
   const isReadOnly = readOnly || part.readonlyDisplay;
   return (
     <span className={`inline-flex max-w-full items-center whitespace-nowrap align-baseline ${inTable ? "gap-0.5 text-[14px] leading-7" : "gap-1"}`}>
-      <DatePartInput label="年" maxLength={4} value={date.year} width="4ch" onChange={(year) => setDate((current) => ({ ...current, year }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
+      <DatePartInput label="年" maxLength={4} value={date.year} onChange={(year) => setDate((current) => ({ ...current, year }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
       <span>年</span>
-      <DatePartInput label="月" maxLength={2} value={date.month} width="2ch" onChange={(month) => setDate((current) => ({ ...current, month }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
+      <DatePartInput label="月" maxLength={2} value={date.month} onChange={(month) => setDate((current) => ({ ...current, month }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
       <span>月</span>
-      <DatePartInput label="日" maxLength={2} value={date.day} width="2ch" onChange={(day) => setDate((current) => ({ ...current, day }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
+      <DatePartInput label="日" maxLength={2} value={date.day} onChange={(day) => setDate((current) => ({ ...current, day }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
       <span>日</span>
       <InputControl spec={{ valueType: "string", control: "text", state: "hidden" }} dataFieldKey={key} value={dateValue} />
       {part.withTime && (
@@ -114,7 +111,6 @@ export function QcPaperDateInput({
           label="时"
           maxLength={2}
           value={String(hourValue || "")}
-          width="2ch"
           onChange={(hour) => onHourChange?.(hour)}
           onBlur={() => {
             const normalized = String(hourValue || "").replace(/\D/g, "").slice(0, 2);

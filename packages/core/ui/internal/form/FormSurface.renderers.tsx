@@ -6,11 +6,8 @@ import FormField from "./FormField";
 import type { InputControlProps } from "../../InputControl";
 import { renderCommands, renderFieldValue } from "./FormSurface.controls";
 import type {
-  FormSurfaceFieldSpec,
   FormSurfaceFieldModeProps,
   FormSurfaceItemSpec,
-  FormSurfaceReadOnlyFieldSpec,
-  FormSurfaceTagListFieldSpec,
 } from "../../FormSurface.types";
 
 function getFields<T>(props: FormSurfaceFieldModeProps<T>): FormSurfaceItemSpec<T>[] {
