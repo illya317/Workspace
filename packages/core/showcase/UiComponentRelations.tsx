@@ -6,8 +6,8 @@ import {
   type CoreUiCapabilityDescriptor,
   coreUiComponentSubcategoryMeta,
   type CoreUiComponentRegistration,
-} from "@workspace/core/ui/component-registry";
-import type { CoreUiComponentRelationView } from "@workspace/core/ui/component-registry-view";
+} from "../ui/component-registry";
+import type { CoreUiComponentRelationView } from "../ui/component-registry-view";
 
 const RELATION_LIMIT = 6;
 

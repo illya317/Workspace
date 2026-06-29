@@ -6,7 +6,7 @@ import {
   type CoreUiComponentCategory,
   type CoreUiComponentRole,
   type CoreUiComponentSubcategory,
-} from "@workspace/core/ui/component-registry";
+} from "../ui/component-registry";
 import { matchText } from "@workspace/core/search";
 
 export type UiComponentFilterNode = {

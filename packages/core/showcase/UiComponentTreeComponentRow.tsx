@@ -1,5 +1,5 @@
 import { ActionGlyph } from "@workspace/core/ui";
-import type { CoreUiComponentTreeNode } from "@workspace/core/ui/component-registry-view";
+import type { CoreUiComponentTreeNode } from "../ui/component-registry-view";
 
 function joinClassNames(...classNames: Array<string | false | null | undefined>) {
   return classNames.filter(Boolean).join(" ");

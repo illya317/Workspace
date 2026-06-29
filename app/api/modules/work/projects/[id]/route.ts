@@ -5,16 +5,13 @@ import {
   executeDeleteProjectRouteCommand,
   executeUpdateProjectRouteCommand,
 } from "@workspace/work/server";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
-
-const projectParamsSchema = z.object({
-  id: z.coerce.number().int().positive(),
-});
 
 const projectBodySchema = z.object({}).passthrough();
 
 export const PUT = createCommandRoute({
-  paramsSchema: projectParamsSchema,
+  paramsSchema: routeIdParamsSchema,
   paramsError: "ID 无效",
   bodySchema: projectBodySchema,
   bodyError: "请求体必须是合法 JSON",
@@ -27,7 +24,7 @@ export const PUT = createCommandRoute({
 });
 
 export const DELETE = createCommandRoute({
-  paramsSchema: projectParamsSchema,
+  paramsSchema: routeIdParamsSchema,
   paramsError: "ID 无效",
   buildCommand: ({ params, request }) => buildProjectIdRouteCommand({
     id: params.id,

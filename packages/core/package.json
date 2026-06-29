@@ -20,10 +20,6 @@
     "./showcase": "./showcase/index.ts",
     "./showcase/*": "./showcase/*.tsx",
     "./ui-registry": "./ui-registry.ts",
-    "./ui": "./ui/index.ts",
-    "./ui/ActionGlyphs": "./ui/ActionGlyphs.tsx",
-    "./ui/component-nest-depth": "./ui/component-nest-depth.ts",
-    "./ui/component-registry": "./ui/component-registry.ts",
-    "./ui/component-registry-view": "./ui/component-registry-view.ts"
+    "./ui": "./ui/index.ts"
   }
 }

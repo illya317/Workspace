@@ -154,10 +154,10 @@ const SKIPPED_DIRS = new Set([
   "tmp",
 ]);
 const API_VALIDATION_SIGNAL_REGEX = /\b(safeParse|parse)\s*\(|\bz\s*\.|\bparseJson\s*\(|\bvalidate(CompatibilityProxy|Passthrough)Body\s*\(|\bcreateValidatedIdProxyHandler\s*\(|\bparseRouteId(Params)?\s*\(|\bcreate(ApiRouteHandler|CommandRoute|InternalApiRoute)\s*\(/;
-const ROUTE_PRIMITIVE_IMPORTS: Record<RoutePrimitiveSchemaKind, string> = {
-  "route-id-params": "routeIdParamsSchema",
-  "update-field-body": "updateFieldBodySchema",
-  "rows-body": "rowsRequestBodySchema",
+const ROUTE_PRIMITIVE_IMPORTS: Record<RoutePrimitiveSchemaKind, string[]> = {
+  "route-id-params": ["routeIdParamsSchema", "routeStringIdParamsSchema"],
+  "update-field-body": ["updateFieldBodySchema"],
+  "rows-body": ["rowsRequestBodySchema"],
 };
 const API_ROUTE_HELPER_RULES: Array<{ kind: ApiRouteHelperKind; names: string[] }> = [
   { kind: "bad-request-response", names: ["badRequest", "errorResponse"] },
@@ -470,9 +470,9 @@ function routePrimitiveKindFromKeys(keys: string[]): RoutePrimitiveSchemaKind | 
 }
 
 function importsPlatformRoutePrimitive(file: SourceInfo, primitive: RoutePrimitiveSchemaKind) {
-  const helper = ROUTE_PRIMITIVE_IMPORTS[primitive];
+  const helpers = ROUTE_PRIMITIVE_IMPORTS[primitive];
   return file.imports.some((item) => item.specifier === "@workspace/platform/server/api") &&
-    new RegExp(`\\b${helper}\\b`).test(file.text);
+    helpers.some((helper) => new RegExp(`\\b${helper}\\b`).test(file.text));
 }
 
 function findRoutePrimitiveSchemaCandidates(files: SourceInfo[]) {

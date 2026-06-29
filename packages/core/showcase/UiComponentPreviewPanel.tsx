@@ -3,11 +3,11 @@ import { ActionGlyph } from "@workspace/core/ui";
 import { PanelCard } from "./internal-ui";
 import {
   type CoreUiComponentRegistration,
-} from "@workspace/core/ui/component-registry";
+} from "../ui/component-registry";
 import {
   formatNestDepth,
   nestDepthBadgeClasses,
-} from "@workspace/core/ui/component-nest-depth";
+} from "../ui/component-nest-depth";
 import { ComponentPreview } from "./ComponentPreview";
 
 function joinClassNames(...classNames: Array<string | false | null | undefined>) {

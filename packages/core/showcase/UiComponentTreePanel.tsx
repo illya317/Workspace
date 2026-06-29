@@ -4,8 +4,8 @@ import {
   coreUiComponentSubcategoryMeta,
   type CoreUiComponentCategory,
   type CoreUiComponentSubcategory,
-} from "@workspace/core/ui/component-registry";
-import type { CoreUiComponentTreeNode } from "@workspace/core/ui/component-registry-view";
+} from "../ui/component-registry";
+import type { CoreUiComponentTreeNode } from "../ui/component-registry-view";
 import { UiComponentTreeComponentRow } from "./UiComponentTreeComponentRow";
 
 export type UiComponentTreeMetaKey =

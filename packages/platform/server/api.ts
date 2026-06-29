@@ -67,6 +67,10 @@ export const routeIdParamsSchema = z.object({
   id: z.coerce.number().int().positive(),
 });
 
+export const routeStringIdParamsSchema = z.object({
+  id: z.string().min(1),
+});
+
 export const updateFieldBodySchema = z.object({
   field: z.string().min(1),
   value: z.unknown().optional(),
