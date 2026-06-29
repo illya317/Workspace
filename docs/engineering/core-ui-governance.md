@@ -155,6 +155,8 @@ Core UI 的分类是 7 个一级分类，不等于 role 分层：
 4. `body`：正文，只能承载 `form` / `data` / `document` / `visualization` / `block` wrapper，可选 single/split。各 wrapper 的详细声明权属于自己的 Surface，不属于 `PageSurface`。
 5. `footer`：页脚；表格/数据分页只能在 `PageSurface.footer.pagination`。
 
+`PageSurface.kind="login"` 和 `PageSurface.kind="directory"` 是封闭特殊页。一旦选择这两个 kind，就不能再走 standard/split 的页面正文渲染、导航、toolbar、footer 或 split body；login 只承载登录页专属 content + login FormSurface contract，directory 只承载目录模块网格或目录空态。后续调整普通 Surface、BlockSurface、PageContent、section stack 或标准五段协议时，不得影响这两个特殊页的布局。
+
 `NavigationSurface`、`FormSurface`、`DataSurface` 不决定页面位置。`NavigationSurface` 归 `common.chrome`，只能是 PageSurface 内部 renderer 或正文 primitive；`FormSurface` / `DataSurface` 只能通过 `PageSurface.body.blocks[]` 选择正文内容形态，不承载页面级 toolbar/pagination。
 
 `Surface` 命名表示声明层，不表示 React renderer。当前 `PageSurface` 仍承担 renderer 入口是历史债；业务默认只 import Surface 声明、helper 声明构造器和必要 service。`host` 目录当前为空，`internal` 不开放。

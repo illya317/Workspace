@@ -1,18 +1,19 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { workspaceBasePath } from "@workspace/core/routing";
 import { DatabasePageFrame, WorkspaceSplitPage } from "./internal/page/PageFrames";
-import PageContent from "./internal/page/PageContent";
-import BlockSurface from "./BlockSurface";
 import NavigationSurface from "./NavigationSurface";
 import Pagination from "./internal/common/Pagination";
 import SplitWorkspace, { type SplitWorkspaceMode } from "./internal/common/SplitWorkspace";
 import type { TabDef } from "./internal/common/TabBar";
 import { Toolbar, type ToolbarItem } from "./Toolbar";
+import { EmptyStateCard, ModuleCard } from "./internal/common/Card";
 import { renderCommands, renderEmpty, renderSectionStack, renderToolbar } from "./internal/page/PageSurface.sections";
 import type {
   PageSurfaceCompleteBodySpec,
   PageSurfaceDirectoryProps,
+  PageSurfaceEmptySpec,
   PageSurfaceNavigationItemSpec,
   PageSurfaceNavigationSpec,
   PageSurfaceProps,
@@ -210,9 +211,8 @@ function renderEmbeddedSplitSurface(props: PageSurfaceProps, split: PageSurfaceS
 }
 
 function normalizeWorkspaceRoute(pathname: string) {
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-  const withoutBase = basePath && pathname.startsWith(basePath)
-    ? pathname.slice(basePath.length)
+  const withoutBase = workspaceBasePath && pathname.startsWith(workspaceBasePath)
+    ? pathname.slice(workspaceBasePath.length)
     : pathname;
   return withoutBase.split("/").filter(Boolean);
 }
@@ -239,8 +239,21 @@ function hasLoginForm(body?: PageSurfaceProps["body"]) {
   return hasSectionKind(bodySpec.sections, (section) => section.kind === "form" && section.surface.kind === "login");
 }
 
+function findLoginContent(sections?: PageSurfaceSectionSpec[]): ReactNode | undefined {
+  if (!sections?.length) return undefined;
+  for (const section of sections) {
+    if (section.kind === "block" && section.surface.kind === "content") return section.surface.content;
+    if (section.kind === "sections") {
+      const content = findLoginContent(section.sections);
+      if (content !== undefined) return content;
+    }
+  }
+  return undefined;
+}
+
 function hasDirectoryContent(body?: PageSurfaceProps["body"]) {
   const bodySpec = completeBody(body);
+  if (bodySpec.empty) return true;
   return hasSectionKind(
     bodySpec.sections,
     (section) => section.kind === "block" && (section.surface.kind === "moduleGrid" || section.surface.kind === "empty"),
@@ -252,13 +265,16 @@ function assertPageSurfaceKind(props: PageSurfaceProps) {
   const segments = routeSegments();
 
   if (kind === "login") {
+    if (props.body?.kind === "split") throw new Error("PageSurface kind=\"login\" cannot use split body.");
     if (props.navigation) throw new Error("PageSurface kind=\"login\" cannot declare navigation.");
     if (!hasLoginForm(props.body)) throw new Error("PageSurface kind=\"login\" must contain a login FormSurface.");
+    if (findLoginContent(completeBody(props.body).sections) === undefined) throw new Error("PageSurface kind=\"login\" must contain a content block.");
     if (segments && segments[0] !== "login") throw new Error("PageSurface kind=\"login\" can only be used on the login route.");
     return;
   }
 
   if (kind === "directory") {
+    if (props.body?.kind === "split") throw new Error("PageSurface kind=\"directory\" cannot use split body.");
     if (props.navigation) throw new Error("PageSurface kind=\"directory\" cannot declare navigation.");
     if (props.toolbar) throw new Error("PageSurface kind=\"directory\" cannot declare toolbar.");
     if (!hasDirectoryContent(props.body)) throw new Error("PageSurface kind=\"directory\" must contain module entries or an empty directory state.");
@@ -273,16 +289,44 @@ function assertPageSurfaceKind(props: PageSurfaceProps) {
   }
 }
 
+function renderDirectoryEmpty(empty?: PageSurfaceEmptySpec, key?: string) {
+  if (!empty) return null;
+  if (empty.presentation === "plain") return <div key={key} className="text-center text-sm text-slate-500">{empty.content}</div>;
+  return <EmptyStateCard key={key} compact={empty.compact}>{empty.content}</EmptyStateCard>;
+}
+
 function renderDirectorySection(section: PageSurfaceSectionSpec): ReactNode {
   if (section.kind === "block") {
-    if (section.surface.kind === "moduleGrid") return <BlockSurface key={section.key} {...section.surface} centered />;
-    return <BlockSurface key={section.key} {...section.surface} />;
+    if (section.surface.kind === "empty") return renderDirectoryEmpty(section.surface, section.key);
+    if (section.surface.kind !== "moduleGrid") return null;
+    const grid = section.surface;
+    return (
+      <div key={section.key} className="flex w-full flex-col items-center justify-center">
+        {(grid.leading || grid.title || grid.summary) && (
+          <div className="mb-8 flex flex-col items-center">
+            {grid.leading}
+            {grid.title ? <h1 className="mt-4 text-2xl font-bold text-gray-800">{grid.title}</h1> : null}
+            {grid.summary ? <p className="mt-1 text-center text-sm text-gray-500">{grid.summary}</p> : null}
+          </div>
+        )}
+        <div className="grid w-full max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {grid.items.map((item) => {
+            const { key, ...props } = item;
+            return <ModuleCard key={key} {...props} />;
+          })}
+        </div>
+        {grid.afterGrid ? <div className="mt-8 w-full max-w-4xl">{grid.afterGrid}</div> : null}
+      </div>
+    );
   }
   if (section.kind === "sections") {
     return (
       <div key={section.key} className="space-y-5">
         {section.header?.title ? <h1 className="text-center text-2xl font-bold text-gray-800">{section.header.title}</h1> : null}
-        {section.sections.map(renderDirectorySection)}
+        {section.header?.subtitle ? <p className="text-center text-sm text-gray-500">{section.header.subtitle}</p> : null}
+        <div className={section.layout === "grid" ? "grid gap-4 lg:grid-cols-2" : "space-y-5"}>
+          {section.sections.map(renderDirectorySection)}
+        </div>
       </div>
     );
   }
@@ -293,19 +337,16 @@ function renderDirectorySurface(props: PageSurfaceDirectoryProps) {
   const bodySpec = completeBody(props.body);
   const sections = bodySpec.sections?.map(renderDirectorySection);
   return (
-    <PageContent className="py-10">
-      <div className="space-y-5">{sections?.length ? sections : renderEmpty(bodySpec.empty)}</div>
-    </PageContent>
+    <main className="mx-auto max-w-7xl px-4 py-10">
+      <div className="space-y-5">{sections?.length ? sections : renderDirectoryEmpty(bodySpec.empty)}</div>
+    </main>
   );
 }
 
 function renderLoginBody(props: PageSurfaceProps) {
   const bodySpec = completeBody(props.body);
-  const contentSection = bodySpec.sections?.find(
-    (section) => section.kind === "block" && section.surface.kind === "content",
-  );
-  if (contentSection?.kind === "block") return <BlockSurface {...contentSection.surface} />;
-  return renderCompleteBody(props, bodySpec, { includePageChrome: false });
+  const content = findLoginContent(bodySpec.sections);
+  return <main className="grid min-h-screen place-items-center px-4 py-6">{content}</main>;
 }
 
 export default function PageSurface(props: PageSurfaceProps) {

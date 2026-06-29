@@ -2,8 +2,8 @@ import { readFileSync } from "node:fs";
 
 const PAGE_SURFACE_FILE = "packages/core/ui/PageSurface.tsx";
 
-function directoryRendererSource(source: string) {
-  const start = source.indexOf("function renderDirectorySurface");
+function rendererSource(source: string, name: string) {
+  const start = source.indexOf(`function ${name}`);
   if (start < 0) return null;
   const bodyStart = source.indexOf("{", start);
   if (bodyStart < 0) return null;
@@ -21,25 +21,42 @@ function directoryRendererSource(source: string) {
 
 export function checkPageSurfaceDirectoryRenderer() {
   const source = readFileSync(PAGE_SURFACE_FILE, "utf8");
-  const renderer = directoryRendererSource(source);
+  const directoryRenderer = rendererSource(source, "renderDirectorySurface");
+  const directorySectionRenderer = rendererSource(source, "renderDirectorySection");
+  const loginRenderer = rendererSource(source, "renderLoginBody");
   const failures: string[] = [];
 
-  if (!renderer) {
+  if (!directoryRenderer || !directorySectionRenderer) {
     failures.push("PageSurface must keep a dedicated renderDirectorySurface renderer.");
   } else {
-    if (!renderer.includes('<PageContent className="py-10">')) {
+    if (!directoryRenderer.includes('className="mx-auto max-w-7xl px-4 py-10"')) {
       failures.push("Directory renderer must preserve the historical py-10 module directory spacing.");
     }
-    if (!source.includes("section.surface.kind === \"moduleGrid\"") || !source.includes("centered />")) {
-      failures.push("Directory renderer must force moduleGrid centered rendering.");
+    if (
+      !directorySectionRenderer.includes('section.surface.kind !== "moduleGrid"')
+      || !directorySectionRenderer.includes("justify-center")
+      || !directorySectionRenderer.includes("<ModuleCard")
+    ) {
+      failures.push("Directory renderer must render moduleGrid through its sealed centered directory layout.");
     }
-    if (/\brenderCompleteBody\b|\brenderSectionStack\b|\bDatabasePageFrame\b/.test(renderer)) {
-      failures.push("Directory renderer must not use the standard page or section renderer.");
+    if (/\brenderCompleteBody\b|\brenderSectionStack\b|\bDatabasePageFrame\b|\bBlockSurface\b|\bPageContent\b/.test(directoryRenderer + directorySectionRenderer)) {
+      failures.push("Directory renderer must not use standard page, section, BlockSurface, or PageContent renderers.");
+    }
+  }
+
+  if (!loginRenderer) {
+    failures.push("PageSurface must keep a dedicated renderLoginBody renderer.");
+  } else {
+    if (!loginRenderer.includes("findLoginContent") || !loginRenderer.includes("place-items-center")) {
+      failures.push("Login renderer must use its sealed centered content layout.");
+    }
+    if (/\brenderCompleteBody\b|\brenderSectionStack\b|\bDatabasePageFrame\b|\bBlockSurface\b|\bPageContent\b/.test(loginRenderer)) {
+      failures.push("Login renderer must not use standard page, section, BlockSurface, or PageContent renderers.");
     }
   }
 
   if (failures.length) {
-    console.error("PageSurface directory renderer regression:");
+    console.error("PageSurface sealed special renderer regression:");
     for (const failure of failures) console.error(`- ${failure}`);
     return false;
   }

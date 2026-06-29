@@ -59,7 +59,7 @@ export default function LoginClient() {
     window.location.assign(url.toString());
   }
   const loginContent = (
-    <div className="mx-auto flex aspect-square w-full max-w-[480px] items-center rounded-lg border border-slate-200 bg-white px-8 shadow-sm">
+    <div className="mx-auto w-full max-w-[480px] rounded-lg border border-slate-200 bg-white px-8 py-8 shadow-sm">
       <div className="mx-auto w-full max-w-[360px]">
         <div className="mb-6 text-center">
           <Image

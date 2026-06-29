@@ -60,8 +60,8 @@ export const page_api_registry_entries = [
         name: "kind",
         description: "页面级语义：先声明页面 chrome 类型。",
         children: [
-          { name: "login", description: "登录专属页；必须在登录路由且包含 login FormSurface。" },
-          { name: "directory", description: "L1/L2 模块目录页；自动校验当前路由深度，禁止 navigation/toolbar。" },
+          { name: "login", description: "登录专属页；必须在登录路由且包含 content block + login FormSurface，使用封闭居中布局。" },
+          { name: "directory", description: "L1/L2 模块目录页；自动校验当前路由深度，禁止 navigation/toolbar/split，使用封闭目录布局。" },
           { name: "standard", description: "标准业务页；才可声明页面内 navigation/toolbar/body/footer。" },
         ],
       },
@@ -127,7 +127,7 @@ export const page_api_registry_entries = [
       },
       { name: "embedded", description: "嵌入式渲染，不输出完整页面框架。" },
     ],
-    composes: ["DatabasePageFrame", "WorkspaceSplitPage", "Toolbar", "BlockSurface", "NavigationSurface", "Pagination", "ModuleCard"],
+    composes: ["DatabasePageFrame", "WorkspaceSplitPage", "Toolbar", "BlockSurface", "NavigationSurface", "Pagination", "ModuleCard", "EmptyStateCard"],
   },
   {
     name: "PageShell",
