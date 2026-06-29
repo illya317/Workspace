@@ -246,7 +246,7 @@ export default function ProjectTasksSection({
     <PageSurface kind="standard"
       embedded
       body={{
-        kind: "complete",
+        kind: "section",
         sections: [
           {
             key: "project-tasks",

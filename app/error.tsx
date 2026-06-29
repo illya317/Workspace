@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { createBlockSurfaceSection, createPageBody, createPanelSection, PageSurface } from "@workspace/core/ui";
+import { createEmptySection, createPageBody, createPanelSection, PageSurface } from "@workspace/core/ui";
 
 export default function ErrorBoundary({
   error,
@@ -25,8 +25,7 @@ export default function ErrorBoundary({
           title: "出错了",
 
           sections: [
-            createBlockSurfaceSection("message", {
-              kind: "empty",
+            createEmptySection("message", {
               compact: true,
               content: <p className="text-gray-600">{error.message}</p>
             }),

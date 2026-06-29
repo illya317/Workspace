@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PageSurface, createBlockSurfaceSection, createPageDataSection, useFeedback } from "@workspace/core/ui";
-import type { PageSurfaceSectionSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { getAccountColumns, type Account } from "../components/AccountTable";
 import ReclassConfigView from "../components/ReclassConfigView";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
@@ -17,7 +17,7 @@ export default function AccountTab({
 }: {
   canWrite: boolean;
   navigation?: PageSurfaceNavigationSpec;
-  lifecycleBlocks?: PageSurfaceSectionSpec[];
+  lifecycleBlocks?: BodySurfaceSectionSpec[];
 }) {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
@@ -156,8 +156,8 @@ export default function AccountTab({
       navigation={navigation}
       toolbar={{ items: toolbarItems }}
       body={{
-        kind: "complete",
-        layout: reclassMode ? undefined : "single",
+        kind: "section",
+        layout: reclassMode ? undefined : "stack",
         sections: reclassMode ? [
           ...lifecycleBlocks,
           createBlockSurfaceSection("account-reclass-content", {

@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";
 import { CONTROL_SIZES } from "../common/interactionTokens";
 import type { ControlSize } from "../common/interactionTokens";
 import type { LifecycleScope } from "./FkFieldInput";
-import InputControl, { type InputFieldSpec } from "../../InputControl";
+import InputSurface, { type InputFieldSpec } from "../../InputSurface";
 import { PickerOptionButton } from "../selection/PickerParts";
 import type { SelectFieldOption } from "./SelectField";
 
@@ -244,7 +244,7 @@ export default function FieldValueFilter({
                 >
                   全部
                 </PickerOptionButton>
-                <InputControl
+                <InputSurface
                   spec={valueInputSpec}
                   value={draftValue}
                   placeholder={valuePlaceholder}

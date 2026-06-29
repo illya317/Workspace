@@ -10,7 +10,7 @@ import SelectionGrid from "../selection/SelectionGrid";
 import StructuredTable, { type StructuredTableCell } from "./StructuredTable";
 import TableScrollFrame from "./TableScrollFrame";
 import CommandButton from "../common/CommandButton";
-import InputControl from "../../InputControl";
+import InputSurface from "../../InputSurface";
 import { joinClassNames } from "../common/card-utils";
 import { resolveTableToneClass } from "./table-presentation";
 import type {
@@ -120,7 +120,7 @@ function renderCell(value: ReactNode | DataSurfaceCellSpec): ReactNode {
   if (!isCellSpec(value)) return value;
   if (value.kind === "input") {
     const { kind: _kind, stopPropagation, ...props } = value;
-    const control = <InputControl {...props} />;
+    const control = <InputSurface {...props} />;
     if (stopPropagation === false) return control;
     return <div className="block" onClick={(event) => event.stopPropagation()}>{control}</div>;
   }

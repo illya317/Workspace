@@ -2,7 +2,7 @@ import { checkCoreUiGuard } from "./core-ui-guard";
 import { checkCoreUiRegistry } from "./core-ui-registry";
 import { checkFeedbackApi } from "./feedback-api";
 import { checkFieldLayoutDebt } from "./field-layout";
-import { checkInputControlAdoption } from "./input-control-adoption";
+import { checkInputSurfaceAdoption } from "./input-surface-adoption";
 import { checkPageSurfaceDirectoryRenderer } from "./page-surface-directory";
 import { checkPageSurfaceAdoption } from "./surface-page-adoption";
 
@@ -11,7 +11,7 @@ type GateCheck = [name: string, run: () => boolean | Promise<boolean>];
 export const uiGateChecks: GateCheck[] = [
   ["field-layout-debt", checkFieldLayoutDebt],
   ["feedback-api", checkFeedbackApi],
-  ["input-control-adoption", checkInputControlAdoption],
+  ["input-surface-adoption", checkInputSurfaceAdoption],
   ["page-surface-directory", checkPageSurfaceDirectoryRenderer],
   ["page-surface-adoption", checkPageSurfaceAdoption],
   ["core-ui-guard", checkCoreUiGuard],

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createPageBody, PageSurface, createRecordSection, createPageTabsNavigation } from "@workspace/core/ui";
-import type { PageSurfaceSectionSpec, PageSurfaceNavigationSpec } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec, PageSurfaceNavigationSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 import AccountTab from "./AccountTab";
@@ -41,7 +41,7 @@ function DepreciationPlaceholder({
   lifecycleBlocks = [],
 }: {
   navigation?: PageSurfaceNavigationSpec;
-  lifecycleBlocks?: PageSurfaceSectionSpec[];
+  lifecycleBlocks?: BodySurfaceSectionSpec[];
 }) {
   return (
     <PageSurface kind="standard"

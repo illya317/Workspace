@@ -233,7 +233,7 @@ app/* route shell
 Core UI registry 治理：
 
 - Core UI registry 保留三组核心口径：`declares` 是 agent 可声明能力，`contract` 是生成契约详情，`composes` 是内部组合关系。旧 `category/subcategory`、`role`、`exposure`、`verified` 不再作为 registry 字段。
-- 业务和普通 agent 默认只能使用公共 runtime 入口、helper 或 Surface spec；正文二级 Surface 通过 `PageSurface.body.sections[]` 声明，不作为业务直引 renderer。`/settings/ui` 只自动展示有 `declares` 的封装组件，分类派生为 `页面布局 / 页面内容 / 通用`。
+- 业务和普通 agent 默认只能使用公共 runtime 入口、helper 或 Surface spec；正文二级 Surface 通过 `BodySurface` 声明，不作为业务直引 renderer。`/settings/ui` 只自动展示有 `declares` 的封装组件，分类派生为 `页面布局 / 页面内容 / 通用`。
 - Platform runtime 使用 Core UI 时只能走公共 runtime 入口、根级 `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent 页面 UI 已停用，仅保留 API / bot 接入能力。
 - 改 `packages/core/ui/**`、Core UI registry 或 `/settings/ui` 声明能力页必须是 UI-system/Architecture 任务，并通过 `CORE_UI_CHANGE=1` 或明确 change request 授权。
 

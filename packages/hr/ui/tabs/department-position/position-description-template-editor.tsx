@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createCreatePanelSection, createSectionsSection, createPanelSection, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createCreatePanelSection, createSectionsSection, createPanelSection, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { DETAIL_FIELD_LABELS, POSITION_DESCRIPTION_TEMPLATE_FIELD_GROUPS } from "./description-details";
 
 type PositionDescriptionTemplateEditorProps = {
@@ -19,7 +19,7 @@ export function buildPositionDescriptionTemplateEditorBlock({
   onToggleField,
   onSave,
   onCancel,
-}: PositionDescriptionTemplateEditorProps): PageSurfaceSectionSpec {
+}: PositionDescriptionTemplateEditorProps): BodySurfaceSectionSpec {
   return createCreatePanelSection("template-editor", {
 
     title: "模板名称",

@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createAnalysisSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, PageSurface, type DataSurfaceColumnSpec, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { EnrichedPosition, SortKey } from "./usePositionData";
 
 interface PositionTableBlockParams {
@@ -21,7 +21,7 @@ export function createPositionTableSection({
   sortDesc: _sortDesc,
   handleSort,
   sortIcon,
-}: PositionTableBlockParams): PageSurfaceSectionSpec {
+}: PositionTableBlockParams): BodySurfaceSectionSpec {
   const columns: DataSurfaceColumnSpec<EnrichedPosition>[] = [
     { key: "code", label: `编码 ${sortIcon("code")}`, required: true, onHeaderClick: () => handleSort("code"), font: "mono", tone: "muted", cell: (position) => position.code },
     { key: "name", label: `岗位名 ${sortIcon("name")}`, required: true, onHeaderClick: () => handleSort("name"), emphasis: "medium", cell: (position) => position.name },

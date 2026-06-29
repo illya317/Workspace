@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PageSurface, createPageBody, createRecordSection } from "@workspace/core/ui";
-import type { PageSurfaceSectionSpec, PageSurfaceProps, SurfaceToolbarItems, VisualizationGanttRowSpec } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec, PageSurfaceProps, SurfaceToolbarItems, VisualizationGanttRowSpec } from "@workspace/core/ui";
 import type { WorkUser } from "@workspace/work/types";
 import { listProjectGantt } from "./api";
 import { PROJECT_GANTT_LEVEL_OPTIONS, PROJECT_GANTT_TASK_OPTIONS, PROJECT_GANTT_ZOOM_OPTIONS, buildProjectGanttRows, defaultGanttExpandedKeys, type GanttRow, type ProjectGanttData, type ProjectGanttLevelFilter, type ProjectGanttZoom } from "./gantt-model";
@@ -138,7 +138,7 @@ export default function ProjectGanttTab({
         },
       } },
     },
-  ] satisfies PageSurfaceSectionSpec[];
+  ] satisfies BodySurfaceSectionSpec[];
 
 	  return <PageSurface kind="standard" {...surface} toolbar={{ items: toolbarItems }} body={createPageBody(sections)} />;
 	}

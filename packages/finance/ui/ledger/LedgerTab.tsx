@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useCallback } from "react";
 import { PageSurface, createBlockSurfaceSection, createPageBody, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
-import type { PageSurfaceSectionSpec, PageSurfaceNavigationSpec } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec, PageSurfaceNavigationSpec } from "@workspace/core/ui";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import FinanceBalanceReconcile from "../components/FinanceBalanceReconcile";
 import { formatFinanceAmount } from "../formatters";
@@ -31,7 +31,7 @@ export default function LedgerTab({
   lifecycleBlocks = [],
 }: {
   navigation?: PageSurfaceNavigationSpec;
-  lifecycleBlocks?: PageSurfaceSectionSpec[];
+  lifecycleBlocks?: BodySurfaceSectionSpec[];
 }) {
   const [_periods, setPeriods] = useState<Period[]>([]);
   const [_selectedPeriodId, setSelectedPeriodId] = useState<number | null>(null);
@@ -203,7 +203,7 @@ export default function LedgerTab({
             kind: "content",
             content: <FinanceBalanceReconcile showToast={feedback.notify} />,
           }),
-        ], { layout: "single" })}
+        ], { layout: "stack" })}
       footer={{ pagination: { page, totalPages, total, onPageChange: setPage } }}
     />
   );

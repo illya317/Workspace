@@ -1,4 +1,4 @@
-import { createBlockSurfaceSection, createPageBody, createSectionSection, PageSurface } from "@workspace/core/ui";
+import { createEmptySection, createPageBody, createSectionSection, PageSurface } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { renderAppShellPage } from "../app-shell-page";
 
@@ -17,8 +17,7 @@ export function ModuleDisabledPageView({ reason, resourceKey, user }: Props) {
       body={createPageBody([createSectionSection("disabled", {
         title: "模块未启用",
         subtitle: resourceKey ? `资源：${resourceKey}` : undefined,
-        sections: [createBlockSurfaceSection("reason", {
-          kind: "empty",
+        sections: [createEmptySection("reason", {
           content: reason
         })],
       })])}

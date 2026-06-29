@@ -3,12 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { putJson } from "@workspace/platform/ui/api-client";
 import {
-  createPageBody, createBlockSurfaceSection,
+  createPageBody, createEmptySection, createMessageSection,
   createPanelSection,
   type DataSurfaceColumnSpec,
-  InputControl,
+  InputSurface,
   PageSurface,
-  type PageSurfaceSectionSpec,
+  type BodySurfaceSectionSpec,
   type ReferenceOption,
   type SelectorSurfaceProps,
   useFeedback,
@@ -214,7 +214,7 @@ export function OrganizationModePanel({
       <span className="flex min-w-0 w-72 items-center gap-2">
         <span className="shrink-0 text-xs font-semibold text-slate-500">负责人</span>
         <span className="min-w-0 flex-1 text-sm font-normal">
-          <InputControl
+          <InputSurface
             spec={{
               valueType: "reference",
               control: "reference",
@@ -232,29 +232,25 @@ export function OrganizationModePanel({
       </span>
     </div>
   ) : undefined;
-  const panelBlocks: PageSurfaceSectionSpec[] = [];
+  const panelBlocks: BodySurfaceSectionSpec[] = [];
 
-  if (loading) panelBlocks.push(createBlockSurfaceSection("loading", {
-    kind: "message",
+  if (loading) panelBlocks.push(createMessageSection("loading", {
     content: "加载中...",
     tone: "muted"
   }));
-  if (error) panelBlocks.push(createBlockSurfaceSection("error", {
-    kind: "message",
+  if (error) panelBlocks.push(createMessageSection("error", {
     content: error,
     tone: "danger"
   }));
   if (!loading && !error && !selectedDepartment) {
-    panelBlocks.push(createBlockSurfaceSection("empty", {
-      kind: "empty",
+    panelBlocks.push(createEmptySection("empty", {
       presentation: "plain",
       content: "请选择左侧部门查看岗位汇报关系"
     }));
   }
   if (!loading && !error && selectedDepartment) {
     panelBlocks.push(directPositions.length === 0
-      ? createBlockSurfaceSection("empty-direct", {
-        kind: "empty",
+      ? createEmptySection("empty-direct", {
         presentation: "plain",
         content: "当前部门暂无直属岗位"
       })
@@ -279,8 +275,9 @@ export function OrganizationModePanel({
       embedded={!surface}
       {...surface}
       body={{
-        kind: "split",
-        selector,
+        kind: "section",
+        layout: "split",
+        left: { kind: "selector", selector },
         right: createPageBody([createPanelSection("organization-mode", {
           title: organizationPanelTitle,
           actions: organizationHeaderDepartment ? [{

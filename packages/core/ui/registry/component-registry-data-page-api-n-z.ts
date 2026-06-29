@@ -75,89 +75,9 @@ export const page_api_registry_entries = [
       },
       {
         name: "body",
-            description: "正文架构：先选择完整页或左右分栏，再创建 section；业务正文统一进入 BodySurface。",
+        description: "正文 payload；PageSurface 只接收 BodySurface，不展开正文编排细节。",
         children: [
-          {
-            name: "kind",
-            description: "正文模式：complete 表示完整正文；split 表示左侧选择区 + 右侧完整正文。",
-            children: [
-              {
-                name: "complete",
-                description: "完整正文：可声明标题、分区和 section 树。",
-                children: [
-                  { name: "title", description: "正文标题；页面标题不放在 FormSurface/DataSurface 内。" },
-                  { name: "description", description: "正文简述。" },
-                  { name: "sectioning", description: "正文 section 分区模式：none / tabs。" },
-	                  {
-	                    name: "sections",
-	                    description: "正文 section 树；每个 section 只声明 body，由 body.kind 决定正文、导航或通用 section。",
-	                    children: [
-	                      { name: "key", description: "section 稳定标识；tabs 和局部状态按 key 对齐。" },
-	                      { name: "label", description: "section 在 tabs/导航中的显示名。" },
-	                      { name: "header", description: "section 标题、副标题、徽标和 section 级动作。" },
-	                      { name: "framed", description: "section 是否有页面正文外框；默认有框。外框只由 PageSurface section 决定，正文 Surface 不再声明 framed。" },
-	                      {
-	                        name: "body.kind",
-	                        description: "section 内容类型：先选择 BodySurface kind，再声明对应 payload。",
-	                        children: [
-	                          {
-	                            name: "data/form/document/visualization/metrics/record",
-	                            description: "页面内容 Surface；细节进入对应 payload。",
-	                            children: [
-	                              { name: "payload", description: "DataSurface / FormSurface / DocumentSurface / VisualizationSurface / MetricsSurface / RecordSurface payload。" },
-	                            ],
-	                          },
-	                          {
-	                            name: "section",
-	                            description: "通用 section；承载 BlockSurface 或递归 section 树。",
-	                            children: [
-	                              { name: "surface", description: "BlockSurface payload。" },
-	                              { name: "sections", description: "递归 section 树。" },
-	                              { name: "layout", description: "内部 section 排布：stack / grid。" },
-	                              { name: "sectioning", description: "内部 section 分区模式。" },
-	                            ],
-	                          },
-	                          {
-	                            name: "navigation",
-	                            description: "导航 section。",
-	                            children: [
-	                              { name: "navigation", description: "使用 NavigationRenderer。" },
-	                            ],
-	                          },
-	                        ],
-	                      },
-	                    ],
-	                  },
-                  { name: "layout", description: "正文 section 排布：single / split。" },
-                  { name: "empty", description: "正文为空时的空态。" },
-                  { name: "commands", description: "正文上方的简短命令；复杂工具归 toolbar。" },
-                ],
-              },
-              {
-                name: "split",
-                description: "左右分栏：selector 承载选择区 Surface，right 复用 complete 正文配置。",
-                children: [
-                  {
-                    name: "selector",
-                    description: "左侧选择区；使用 SelectorSurface 声明 list/tree 细节。",
-                    children: [
-                      { name: "kind", description: "SelectorSurface 类型：list / tree。" },
-                      { name: "items", description: "选择区数据。" },
-                      { name: "selectedId", description: "当前选中 key。" },
-                      { name: "renderItem", description: "声明列表卡片或树节点展示。" },
-                    ],
-                  },
-                  { name: "drawerSelector", description: "移动端抽屉可覆盖 selector；默认复用 selector。" },
-                  { name: "right", description: "右侧完整正文；使用 complete 正文配置。" },
-                  { name: "sideOpen", description: "桌面左栏是否展开。" },
-                  { name: "drawerOpen", description: "移动端抽屉是否展开。" },
-                  { name: "sideLabel", description: "左栏控制标签。" },
-                  { name: "showSideControls", description: "是否显示左栏展开/收起控制。" },
-                  { name: "splitRatio", description: "左右分栏比例。" },
-                ],
-              },
-            ],
-          },
+          { name: "kind", description: "BodySurface kind；正文 layout、section tree、split 等细节由 BodySurface 声明。" },
         ],
       },
       {
@@ -169,7 +89,7 @@ export const page_api_registry_entries = [
       },
       { name: "embedded", description: "嵌入式渲染，不输出完整页面框架。" },
     ],
-    composes: ["DatabasePageFrame", "WorkspaceSplitPage", "Toolbar", "BodySurface", "BlockSurface", "NavigationRenderer", "SelectorSurface", "Pagination", "ModuleCard", "EmptyStateCard"],
+    composes: ["DatabasePageFrame", "Toolbar", "BodySurface", "NavigationRenderer", "Pagination", "ModuleCard", "EmptyStateCard"],
   },
   {
     name: "PageShell",

@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo } from "react";
 import { matchSearchFields, matchText } from "@workspace/platform/search";
-import { createBlockSurfaceSection, createFieldsSection, createPageBody, type DataSurfaceColumnSpec, PageSurface, type PageSurfaceSectionSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
+import { createFieldsSection, createMessageSection, createPageBody, type DataSurfaceColumnSpec, PageSurface, type BodySurfaceSectionSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
 import type { ResourceItem } from "../types";
 import { formatSummaryTooltip, ROLE_COLORS, summarizeResourcePermissions, type PermissionGrantLike } from "../lib/permission-summary";
 function copyFallback(text: string) {
@@ -301,7 +301,7 @@ export default function AdminUsersTab({
     return () => onFooterChange(undefined);
   }, [footer, onFooterChange]);
 
-  const sections: PageSurfaceSectionSpec[] = [
+  const sections: BodySurfaceSectionSpec[] = [
     ...(creating
       ? [createFieldsSection("create-user", [
             {
@@ -340,8 +340,7 @@ export default function AdminUsersTab({
             ],
           })]
       : []),
-    loading ? createBlockSurfaceSection("loading", {
-      kind: "message",
+    loading ? createMessageSection("loading", {
       tone: "muted",
       content: "加载中..."
     }) : {

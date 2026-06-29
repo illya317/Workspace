@@ -6,7 +6,7 @@ import { useLibraryDocuments } from "../hooks/useLibraryDocuments";
 import { useLibraryFilters } from "../hooks/useLibraryFilters";
 import { useLibraryDirectories } from "../hooks/useLibraryDirectories";
 import { createEmptySection, createPageBody, PageSurface } from "@workspace/core/ui";
-import type { DataSurfaceColumnSpec, DataSurfaceProps, PageSurfaceSectionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import type { DataSurfaceColumnSpec, DataSurfaceProps, BodySurfaceSectionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import GenerateDocumentModal from "./GenerateDocumentModal";
 import LibraryDetailModal from "./LibraryDetailModal";
 import type { DirectoryNode, LibraryDocumentItem } from "@workspace/library/types";
@@ -193,7 +193,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
       ) : null,
     },
   ];
-  const sections: PageSurfaceSectionSpec[] = [
+  const sections: BodySurfaceSectionSpec[] = [
     ...(error
       ? [createEmptySection("error", {
           compact: true,
@@ -222,35 +222,39 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
       <PageSurface kind="standard"
         toolbar={{ items: toolbarItems }}
         body={{
-          kind: "split",
-          selector: {
-            kind: "tree",
-            items: dirError ? [] : rootDirectories,
-            selectedId: filters.directoryPath || "",
-            onSelect: (node: DirectoryNode) => {
-              handleSelectDirectory(node.path || null);
-              setSidebarDrawerOpen(false);
+          kind: "section",
+          layout: "split",
+          left: {
+            kind: "selector",
+            selector: {
+              kind: "tree",
+              items: dirError ? [] : rootDirectories,
+              selectedId: filters.directoryPath || "",
+              onSelect: (node: DirectoryNode) => {
+                handleSelectDirectory(node.path || null);
+                setSidebarDrawerOpen(false);
+              },
+              getKey: (node: DirectoryNode) => node.path,
+              getChildren,
+              expandedIds: expandedPaths,
+              onToggle: (path, expanded) => {
+                const key = String(path);
+                setExpandedPaths((prev) => {
+                  const next = new Set(prev);
+                  if (expanded) next.add(key);
+                  else next.delete(key);
+                  return next;
+                });
+              },
+              renderItem: (node: DirectoryNode, ctx) => ({
+                title: node.name,
+                code: node.path === "" ? undefined : node.count,
+                level: ctx.level,
+              }),
+              loading: dirLoading,
+              loadingText: "加载中...",
+              emptyText: dirError ? `目录加载失败: ${dirError}` : "暂无目录",
             },
-            getKey: (node: DirectoryNode) => node.path,
-            getChildren,
-            expandedIds: expandedPaths,
-            onToggle: (path, expanded) => {
-              const key = String(path);
-              setExpandedPaths((prev) => {
-                const next = new Set(prev);
-                if (expanded) next.add(key);
-                else next.delete(key);
-                return next;
-              });
-            },
-            renderItem: (node: DirectoryNode, ctx) => ({
-              title: node.name,
-              code: node.path === "" ? undefined : node.count,
-              level: ctx.level,
-            }),
-            loading: dirLoading,
-            loadingText: "加载中...",
-            emptyText: dirError ? `目录加载失败: ${dirError}` : "暂无目录",
           },
           right: createPageBody(sections),
           sideOpen: sidebarOpen,

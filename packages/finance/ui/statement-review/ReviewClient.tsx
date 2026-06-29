@@ -3,8 +3,8 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createBlockSurfaceSection, createPageBody, PageSurface, createRecordSection, createPageTableSection } from "@workspace/core/ui";
-import type { DataSurfaceColumnSpec, PageSurfaceSectionSpec, SurfaceToolbarItem, SurfaceToolbarItems } from "@workspace/core/ui";
+import { createMessageSection, createPageBody, PageSurface, createRecordSection, createPageTableSection } from "@workspace/core/ui";
+import type { DataSurfaceColumnSpec, BodySurfaceSectionSpec, SurfaceToolbarItem, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useReviewFilterToolbarItems } from "./ReviewFilters";
 import type { RvLine } from "@workspace/finance/types";
 
@@ -268,10 +268,9 @@ export default function ReviewClient() {
     onLoad: loadWp,
     extraItems: wp ? reviewItems : [],
   });
-  const reviewBlocks: PageSurfaceSectionSpec[] = rv?.status === "confirmed" && !rv.isStale
+  const reviewBlocks: BodySurfaceSectionSpec[] = rv?.status === "confirmed" && !rv.isStale
     ? [
-        createBlockSurfaceSection("confirmed", {
-          kind: "message",
+        createMessageSection("confirmed", {
           tone: "success",
           content: "校对已确认"
         }),
@@ -290,7 +289,7 @@ export default function ReviewClient() {
         },
       ]
     : [];
-  const alertBlocks: PageSurfaceSectionSpec[] = [
+  const alertBlocks: BodySurfaceSectionSpec[] = [
     ...(error ? [createRecordSection("review-error", { records: [], empty: error })] : []),
     ...(rv?.isStale ? [createRecordSection("review-stale", { records: [], empty: "底稿已更新，当前校对为旧快照；请点击「重新生成校对」更新校对。" })] : []),
     ...(hasFlaggedWithoutComment ? [createRecordSection("review-flagged-without-comment", { records: [], empty: "存在已标记(flagged)但未填写备注的行，请点击备注列填写标记原因。" })] : []),
@@ -422,7 +421,7 @@ export default function ReviewClient() {
       };
     },
   }];
-  const bodyBlocks: PageSurfaceSectionSpec[] = [
+  const bodyBlocks: BodySurfaceSectionSpec[] = [
     ...reviewBlocks,
     ...alertBlocks,
     ...(rv

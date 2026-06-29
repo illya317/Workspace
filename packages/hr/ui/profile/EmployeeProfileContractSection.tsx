@@ -1,7 +1,7 @@
 "use client";
 
 import type { Ref } from "react";
-import { createPageBody, PageSurface, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { contractFields } from "@workspace/hr/constants";
 import type { ContractRow, ProfileField } from "@workspace/hr/types";
 import type { ReferenceOption } from "@workspace/core/ui";
@@ -56,7 +56,7 @@ export function useContractSectionBlocks({
   onAdd,
   onChange,
   onDelete
-}: ContractSectionProps): PageSurfaceSectionSpec[] {
+}: ContractSectionProps): BodySurfaceSectionSpec[] {
   const {
     getItemRef,
     requestScrollToIndex
@@ -100,7 +100,7 @@ function contractCardBlock({
   onAdd: () => void;
   onDelete: (row: ContractRow, index: number) => Promise<void>;
   itemRef: Ref<HTMLDivElement>;
-}): PageSurfaceSectionSpec {
+}): BodySurfaceSectionSpec {
   const normalizedRow = normalizeContractRow(row);
   const current = isCurrentByEndDate(normalizedRow.permanentContractDate ? normalizedRow.endDate : contractPeriodEndDate(normalizedRow));
   const title = row.company || (row.isNew ? "新增合同" : "未设置公司");

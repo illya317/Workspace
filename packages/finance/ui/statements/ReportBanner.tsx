@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { createMessageSection, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createMessageSection, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 
 const DIAG_MESSAGES: Record<string, string> = {
   missingConfirmedReview: "当前期间尚未确认校对，请先在「报表校对」页生成并确认校对。",
@@ -14,7 +14,7 @@ type ReportBannerProps = {
   reviewHref: string;
 };
 
-export function createReportBannerSection(key: string, props: ReportBannerProps): PageSurfaceSectionSpec | null {
+export function createReportBannerSection(key: string, props: ReportBannerProps): BodySurfaceSectionSpec | null {
   const { source, diagnostics, reviewHref } = props;
   if (source === "review") {
     return createMessageSection(key, {
@@ -41,6 +41,6 @@ export function createReportBannerSection(key: string, props: ReportBannerProps)
 
 export default function ReportBanner(props: ReportBannerProps) {
   const block = createReportBannerSection("report-banner", props);
-  if (!block || block.body.kind !== "section" || block.body.surface?.kind !== "message") return null;
-  return <div>{block.body.surface.content}</div>;
+  if (!block || block.body.kind !== "section" || !block.body.message) return null;
+  return <div>{block.body.message.content}</div>;
 }

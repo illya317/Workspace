@@ -7,7 +7,7 @@ import {
   type DataSurfaceColumnSpec,
   createMessageSection,
   PageSurface,
-  type PageSurfaceSectionSpec,
+  type BodySurfaceSectionSpec,
 } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { buildHRToolbarItems } from "../components/hr-toolbar-items";
@@ -169,7 +169,7 @@ export default function EmployeeDirectory({
     },
   });
 
-  const sections: PageSurfaceSectionSpec[] = [
+  const sections: BodySurfaceSectionSpec[] = [
     ...(error ? [createMessageSection("error", { content: error, tone: "danger" as const })] : []),
     {
       key: "employees",

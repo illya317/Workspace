@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createPageBody, createRecordSection, type DataSurfaceColumnSpec, PageSurface, type PageSurfaceSectionSpec, type SurfaceDataRowEditActionSpec } from "@workspace/core/ui";
+import { createPageBody, createRecordSection, type DataSurfaceColumnSpec, PageSurface, type BodySurfaceSectionSpec, type SurfaceDataRowEditActionSpec } from "@workspace/core/ui";
 import { createWorkDraft, getStatusLabel, getWorkItemTypeLabel } from "./model";
 import { WorkTaskDetail } from "./WorkTaskDetail";
 import { WorkTaskForm } from "./WorkTaskFields";
@@ -30,7 +30,7 @@ type WorkTaskTableProps = {
   onDelete: (work: WorkItem) => void;
 };
 
-type WorkTaskTableBlock = PageSurfaceSectionSpec;
+type WorkTaskTableBlock = BodySurfaceSectionSpec;
 
 export function useWorkTaskTableBlock({
   works,

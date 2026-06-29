@@ -1,7 +1,7 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { createBlockSurfaceSection, createFieldsSection, createMessageSection, createPageBody, createPageDataSection, createSectionSection, type DataSurfaceColumnSpec, type FormSurfaceItemSpec, PageSurface, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createFieldsSection, createMessageSection, createPageBody, createPageDataSection, createSectionSection, type DataSurfaceColumnSpec, type FormSurfaceItemSpec, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { postJson, putJson, requestJson } from "../api-client";
 type OpenApiRegistrationRow = {
@@ -282,7 +282,7 @@ export default function SettingsApiClient({
         },
       }))
     : [{ kind: "note" as const, key: "empty-scopes", content: "暂无 Scope" }];
-  const sections: PageSurfaceSectionSpec[] = [
+  const sections: BodySurfaceSectionSpec[] = [
     ...(message ? [createMessageSection("message", {
       tone: "default" as const,
       content: message,

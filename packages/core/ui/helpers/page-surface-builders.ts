@@ -1,16 +1,5 @@
-import { createElement, type Ref } from "react";
-import type {
-  BlockSurfaceActionsProps,
-  BlockSurfaceAnalysisProps,
-  BlockSurfaceCommandSpec,
-  BlockSurfaceEmptyProps,
-  BlockSurfaceGroupProps,
-  BlockSurfaceHeadingProps,
-  BlockSurfaceMessageProps,
-  BlockSurfaceModuleGridProps,
-  BlockSurfacePanelProps,
-  BlockSurfaceProps,
-} from "../BlockSurface";
+import type { ReactNode, Ref } from "react";
+import type { BlockSurfaceProps } from "../BlockSurface";
 import type { DataSurfaceProps, DataSurfaceTableProps } from "../DataSurface.types";
 import type { DocumentSurfaceProps } from "../DocumentSurface";
 import type {
@@ -23,72 +12,71 @@ import type {
 import type { MetricsSurfaceProps } from "../MetricsSurface";
 import type { NavigationRendererTabsSpec } from "../NavigationRenderer";
 import type {
-  PageSurfaceBodySectionSpec,
-  PageSurfaceBodySpec,
-  PageSurfaceCommandSpec,
-  PageSurfaceCompleteBodySpec,
-  PageSurfaceEmptySpec,
+  BodySurfaceCommandSpec,
+  BodySurfaceComposedSectionProps,
+  BodySurfaceEmptySpec,
+  BodySurfaceMessageSpec,
+  BodySurfaceModalSpec,
+  BodySurfaceModuleGridSpec,
+  BodySurfaceSectionSpec,
+  BodySurfaceProps,
+} from "../BodySurface";
+import type {
   PageSurfaceKind,
-  PageSurfaceModalSpec,
   PageSurfaceNavigationSpec,
   PageSurfaceProps,
-  PageSurfaceSectionSpec,
-  PageSurfaceSplitBodySpec,
   PageSurfaceToolbarSpec,
 } from "../PageSurface.types";
-import type { SelectorSurfaceProps } from "../SelectorSurface";
-import { PageSurfaceSectionStack } from "../internal/page/PageSurface.sections";
 import type { RecordSurfaceProps } from "../RecordSurface";
 import type { VisualizationSurfaceProps } from "../VisualizationSurface";
 
-export type PageSurfaceNonModalSectionSpec = PageSurfaceSectionSpec;
-export type PageSurfaceBodyInputSpec = PageSurfaceSectionSpec | PageSurfaceModalSpec;
+export type BodySurfaceBodyInputSpec = BodySurfaceSectionSpec | BodySurfaceModalSpec;
 
 type NestedPageSections = {
-  sections: PageSurfaceSectionSpec[];
+  sections: BodySurfaceSectionSpec[];
   layout?: "stack" | "grid";
 };
 
-type PageSectionPanelOptions =
-  & Omit<BlockSurfacePanelProps, "kind" | "key" | "content" | "blocks" | "actions">
-  & NestedPageSections
-  & {
-    actions?: PageSurfaceCommandSpec[];
-    framed?: boolean;
-    itemRef?: Ref<HTMLDivElement>;
-  };
-
-type PageSectionCardOptions = PageSectionPanelOptions & {
-  title: NonNullable<BlockSurfacePanelProps["title"]>;
+type PageSectionPanelOptions = NestedPageSections & {
+  title?: ReactNode;
+  subtitle?: ReactNode;
+  actions?: BodySurfaceCommandSpec[];
+  framed?: boolean;
+  itemRef?: Ref<HTMLDivElement>;
 };
 
-type PageSectionAnalysisOptions =
-  & Omit<BlockSurfaceAnalysisProps, "kind" | "key" | "content" | "toolbarItems">
-  & NestedPageSections
-  & {
-    toolbar?: PageSurfaceToolbarSpec;
-  };
+type PageSectionCardOptions = PageSectionPanelOptions & {
+  title: NonNullable<PageSectionPanelOptions["title"]>;
+};
+
+type PageSectionAnalysisOptions = NestedPageSections & {
+  title: NonNullable<PageSectionPanelOptions["title"]>;
+  subtitle?: PageSectionPanelOptions["subtitle"];
+  actions?: BodySurfaceCommandSpec[];
+  toolbar?: PageSurfaceToolbarSpec;
+  framed?: boolean;
+};
 
 export interface PageSurfaceShellPropsOptions {
   kind: PageSurfaceKind;
-  body?: PageSurfaceBodySpec;
+  body?: BodySurfaceProps;
   toolbar?: PageSurfaceProps["toolbar"];
   navigation?: PageSurfaceProps["navigation"];
   footer?: PageSurfaceProps["footer"];
-  actions?: PageSurfaceCommandSpec[];
-  empty?: PageSurfaceEmptySpec;
+  actions?: BodySurfaceCommandSpec[];
+  empty?: BodySurfaceEmptySpec;
   embedded?: boolean;
 }
 
-export type TabbedPageBodyOptions = Omit<PageSurfaceCompleteBodySpec, "kind" | "sections" | "sectioning"> & {
+export type TabbedPageBodyOptions = Omit<BodySurfaceComposedSectionProps, "kind" | "sections" | "sectioning"> & {
   active: string;
   onChange?: (key: string) => void;
 };
 
-export type SplitPageBodyOptions = {
-  selector: SelectorSurfaceProps;
-  drawerSelector?: SelectorSurfaceProps;
-  right: PageSurfaceCompleteBodySpec;
+export type BodySplitSectionOptions = {
+  left: BodySurfaceProps;
+  drawerLeft?: BodySurfaceProps;
+  right: BodySurfaceProps;
   side: {
     label: string;
     open: boolean;
@@ -98,29 +86,30 @@ export type SplitPageBodyOptions = {
     showControls?: boolean;
   };
   layout?: {
-    ratio?: PageSurfaceSplitBodySpec["splitRatio"];
+    ratio?: readonly [number, number];
   };
 };
 
 export function createPageBody(
-  sections: PageSurfaceBodyInputSpec[],
-  options: Omit<PageSurfaceCompleteBodySpec, "kind" | "sections"> = {},
-): PageSurfaceCompleteBodySpec & { sections: PageSurfaceSectionSpec[] } {
-  const bodySections = sections.filter((section): section is PageSurfaceSectionSpec => "body" in section);
-  const modals = sections.filter((section): section is PageSurfaceModalSpec => !("body" in section));
+  sections: BodySurfaceBodyInputSpec[],
+  options: Omit<BodySurfaceComposedSectionProps, "kind" | "sections"> = {},
+): BodySurfaceProps & { kind: "section"; sections: BodySurfaceSectionSpec[] } {
+  const bodySections = sections.filter((section): section is BodySurfaceSectionSpec => "body" in section);
+  const modals = sections.filter((section): section is BodySurfaceModalSpec => !("body" in section));
   return {
-    kind: "complete",
+    kind: "section",
     ...options,
     sections: bodySections,
     modals: [...(options.modals ?? []), ...modals],
   };
 }
 
-export function createSplitPageBody(options: SplitPageBodyOptions): PageSurfaceSplitBodySpec {
+export function createBodySplitSection(options: BodySplitSectionOptions): BodySurfaceProps {
   return {
-    kind: "split",
-    selector: options.selector,
-    drawerSelector: options.drawerSelector,
+    kind: "section",
+    layout: "split",
+    left: options.left,
+    drawerLeft: options.drawerLeft,
     right: options.right,
     sideLabel: options.side.label,
     sideOpen: options.side.open,
@@ -133,9 +122,9 @@ export function createSplitPageBody(options: SplitPageBodyOptions): PageSurfaceS
 }
 
 export function createTabbedPageBody(
-  sections: PageSurfaceBodyInputSpec[],
+  sections: BodySurfaceBodyInputSpec[],
   options: TabbedPageBodyOptions,
-): PageSurfaceCompleteBodySpec & { sections: PageSurfaceSectionSpec[] } {
+): BodySurfaceProps & { kind: "section"; sections: BodySurfaceSectionSpec[] } {
   const { active, onChange, ...bodyOptions } = options;
   return createPageBody(sections, {
     ...bodyOptions,
@@ -155,7 +144,7 @@ export function createPageTabsNavigation(
 export function createTabsNavigationSection(
   key: string,
   tabs: NavigationRendererTabsSpec,
-): PageSurfaceSectionSpec {
+): BodySurfaceSectionSpec {
   return {
     key,
     body: {
@@ -168,50 +157,50 @@ export function createTabsNavigationSection(
   };
 }
 
-export function createPageCommand(command: PageSurfaceCommandSpec): PageSurfaceCommandSpec {
+export function createPageCommand(command: BodySurfaceCommandSpec): BodySurfaceCommandSpec {
   return command;
 }
 
 export function createPageActionsSection(
   key: string,
-  actions: BlockSurfaceCommandSpec[],
-  options: Omit<BlockSurfaceActionsProps, "kind" | "key" | "actions"> = {},
-): PageSurfaceSectionSpec {
+  actions: BodySurfaceCommandSpec[],
+  options: Record<string, never> = {},
+): BodySurfaceSectionSpec {
   return createActionsSection(key, actions, options);
 }
 
 export function createPageDataSection<T>(
   key: string,
   surface: DataSurfaceProps<T>,
-): PageSurfaceBodySectionSpec {
+): BodySurfaceSectionSpec {
   return { key, body: { kind: "data", data: surface as DataSurfaceProps } };
 }
 
 export function createMetricsSection(
   key: string,
   surface: MetricsSurfaceProps,
-): PageSurfaceBodySectionSpec {
+): BodySurfaceSectionSpec {
   return { key, body: { kind: "metrics", metrics: surface } };
 }
 
 export function createRecordSection(
   key: string,
   surface: RecordSurfaceProps,
-): PageSurfaceBodySectionSpec {
+): BodySurfaceSectionSpec {
   return { key, body: { kind: "record", record: surface } };
 }
 
 export function createPageTableSection<T>(
   key: string,
   table: Omit<DataSurfaceTableProps<T>, "kind">,
-): PageSurfaceBodySectionSpec {
+): BodySurfaceSectionSpec {
   return createPageDataSection<T>(key, { kind: "table", ...table });
 }
 
 export function createFormSection<T = FormSurfaceLooseItem>(
   key: string,
   surface: FormSurfaceProps<T>,
-): PageSurfaceBodySectionSpec {
+): BodySurfaceSectionSpec {
   return { key, body: { kind: "form", form: surface as FormSurfaceProps } };
 }
 
@@ -224,7 +213,7 @@ export function createFieldsSection<T = FormSurfaceLooseItem>(
     commands?: FormSurfaceProps<T>["commands"];
     submit?: FormSurfaceSubmitSpec;
   } = {},
-): PageSurfaceBodySectionSpec {
+): BodySurfaceSectionSpec {
   const { kind = "fields", layout, commands, submit } = options;
   return createFormSection<T>(key, { kind, content: { items, layout }, commands, submit });
 }
@@ -238,7 +227,7 @@ export function createInlineFieldsSection<T = FormSurfaceLooseItem>(
     commands?: FormSurfaceProps<T>["commands"];
     submit?: FormSurfaceSubmitSpec;
   } = {},
-): PageSurfaceBodySectionSpec {
+): BodySurfaceSectionSpec {
   return createFormSection<T>(key, {
     kind: "filters",
     content: { items, layout: { flow: "inline", ...options.layout } },
@@ -250,74 +239,73 @@ export function createInlineFieldsSection<T = FormSurfaceLooseItem>(
 export function createDocumentSection(
   key: string,
   surface: DocumentSurfaceProps,
-): PageSurfaceBodySectionSpec {
+): BodySurfaceSectionSpec {
   return { key, body: { kind: "document", document: surface } };
 }
 
 export function createVisualizationSection(
   key: string,
   surface: VisualizationSurfaceProps,
-): PageSurfaceBodySectionSpec {
+): BodySurfaceSectionSpec {
   return { key, body: { kind: "visualization", visualization: surface } };
 }
 
 export function createBlockSurfaceSection(
   key: string,
   surface: BlockSurfaceProps,
-): PageSurfaceSectionSpec {
+): BodySurfaceSectionSpec {
   return { key, body: { kind: "section", surface } };
 }
 
 export function createMessageSection(
   key: string,
-  message: Omit<BlockSurfaceMessageProps, "kind" | "key">,
-): PageSurfaceSectionSpec {
-  return createBlockSurfaceSection(key, { kind: "message", ...message });
+  message: BodySurfaceMessageSpec,
+): BodySurfaceSectionSpec {
+  return { key, body: { kind: "section", message } };
 }
 
 export function createEmptySection(
   key: string,
-  empty: Omit<BlockSurfaceEmptyProps, "kind" | "key">,
-): PageSurfaceSectionSpec {
-  return createBlockSurfaceSection(key, { kind: "empty", ...empty });
+  empty: BodySurfaceEmptySpec,
+): BodySurfaceSectionSpec {
+  return { key, body: { kind: "section", empty } };
 }
 
 export function createActionsSection(
   key: string,
-  actions: BlockSurfaceActionsProps["actions"],
-  options: Omit<BlockSurfaceActionsProps, "kind" | "key" | "actions"> = {},
-): PageSurfaceSectionSpec {
-  return createBlockSurfaceSection(key, { kind: "actions", actions, ...options });
+  actions: BodySurfaceCommandSpec[],
+  options: Record<string, never> = {},
+): BodySurfaceSectionSpec {
+  void options;
+  return { key, body: { kind: "section", commands: actions } };
 }
 
 export function createHeadingSection(
   key: string,
-  heading: Omit<BlockSurfaceHeadingProps, "kind" | "key">,
-): PageSurfaceSectionSpec {
-  return createBlockSurfaceSection(key, { kind: "heading", ...heading });
+  heading: { title: ReactNode; subtitle?: ReactNode; level?: 1 | 2 | 3 },
+): BodySurfaceSectionSpec {
+  const { title, subtitle } = heading;
+  return { key, header: { title, subtitle }, body: { kind: "section" } };
 }
 
 export function createSectionsSection(
   key: string,
-  group: Omit<BlockSurfaceGroupProps, "kind" | "key" | "blocks"> & NestedPageSections,
-): PageSurfaceSectionSpec {
+  group: NestedPageSections,
+): BodySurfaceSectionSpec {
   const { layout = "stack", sections } = group;
   return { key, body: { kind: "section", layout, sections } };
-}
-
-function nestedSectionContent(sections?: PageSurfaceSectionSpec[], layout?: "stack" | "grid") {
-  return sections?.length ? createElement(PageSurfaceSectionStack, { sections, layout }) : undefined;
 }
 
 export function createPanelSection(
   key: string,
   panel: PageSectionPanelOptions,
-): PageSurfaceSectionSpec {
-  const { actions, framed, layout = "stack", sections, subtitle, title } = panel;
+): BodySurfaceSectionSpec {
+  const { actions, framed, itemRef, layout = "stack", sections, subtitle, title } = panel;
   return {
     key,
     label: title,
     framed,
+    itemRef,
     header: { title, subtitle, actions },
     body: { kind: "section", layout, sections },
   };
@@ -326,34 +314,35 @@ export function createPanelSection(
 export function createAnalysisSection(
   key: string,
   analysis: PageSectionAnalysisOptions,
-): PageSurfaceSectionSpec {
-  const { layout, sections, toolbar, ...rest } = analysis;
-  return createBlockSurfaceSection(key, {
-    kind: "analysis",
-    ...(rest as Omit<BlockSurfaceAnalysisProps, "kind" | "key">),
-    toolbarItems: toolbar?.items,
-    content: nestedSectionContent(sections, layout),
-  });
+): BodySurfaceSectionSpec {
+  const { actions, framed, layout = "stack", sections, subtitle, title, toolbar } = analysis;
+  return {
+    key,
+    label: title,
+    framed,
+    header: { title, subtitle, actions, toolbarItems: toolbar?.items },
+    body: { kind: "section", layout, sections },
+  };
 }
 
 export function createSectionSection(
   key: string,
   section: PageSectionCardOptions,
-): PageSurfaceSectionSpec {
+): BodySurfaceSectionSpec {
   return createPanelSection(key, section);
 }
 
 export function createModuleGridSection(
   key: string,
-  moduleGrid: Omit<BlockSurfaceModuleGridProps, "kind" | "key">,
-): PageSurfaceSectionSpec {
-  return createBlockSurfaceSection(key, { kind: "moduleGrid", ...moduleGrid });
+  moduleGrid: BodySurfaceModuleGridSpec,
+): BodySurfaceSectionSpec {
+  return { key, body: { kind: "section", moduleGrid } };
 }
 
 export function createPageModalSection(
   key: string,
-  modal: Omit<PageSurfaceModalSpec, "key">,
-): PageSurfaceModalSpec {
+  modal: Omit<BodySurfaceModalSpec, "key">,
+): BodySurfaceModalSpec {
   return { key, ...modal };
 }
 

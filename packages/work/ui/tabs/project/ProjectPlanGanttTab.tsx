@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { PageSurface, createPageBody, createRecordSection, useFeedback } from "@workspace/core/ui";
-import type { PageSurfaceSectionSpec, PageSurfaceProps, SurfaceToolbarItems, VisualizationGanttDependencySpec, VisualizationGanttRowSpec } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec, PageSurfaceProps, SurfaceToolbarItems, VisualizationGanttDependencySpec, VisualizationGanttRowSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { ProjectItem } from "./model";
 import { listProjectOptions, listProjectPlanGantt, saveProjectPlanDependencies, saveProjectPlanGantt } from "./api";
@@ -166,7 +166,7 @@ export default function ProjectPlanGanttTab({
       content: "基线来自项目阶段",
     },
   ] satisfies SurfaceToolbarItems;
-  const timelineBlock: PageSurfaceSectionSpec = error
+  const timelineBlock: BodySurfaceSectionSpec = error
     ? createRecordSection("project-plan-gantt-error", { records: [], empty: error,  })
     : loading
       ? createRecordSection("project-plan-gantt-loading", { records: [], empty: "加载项目甘特..." })
@@ -192,7 +192,7 @@ export default function ProjectPlanGanttTab({
           },
         } },
       };
-  const sections = [timelineBlock] satisfies PageSurfaceSectionSpec[];
+  const sections = [timelineBlock] satisfies BodySurfaceSectionSpec[];
 	  return <PageSurface kind="standard" {...surface} toolbar={{ items: toolbarItems }} body={createPageBody(sections)} />;
 	}
 type ProjectPlanGanttSurfaceProps = Pick<PageSurfaceProps, "navigation">;

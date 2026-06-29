@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useEffect } from "react";
 import { PageSurface, createPageBody, createRecordSection, createMetricsSection, createPageTabsNavigation } from "@workspace/core/ui";
-import type { PageSurfaceSectionSpec } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 
@@ -27,7 +27,7 @@ export default function FinanceAnalysisClient({ user: _user }: Props) {
     onChange: () => {},
   }) : undefined;
   const lifecycleBlocks = getFinanceLifecycleBlocks("analysis");
-  const analysisBlocks: PageSurfaceSectionSpec[] = [
+  const analysisBlocks: BodySurfaceSectionSpec[] = [
     ...lifecycleBlocks,
     createMetricsSection("analysis-metrics", {
       metrics: [

@@ -1,6 +1,6 @@
 "use client";
 
-import { InputControl } from "@workspace/core/ui";
+import { InputSurface } from "@workspace/core/ui";
 import { normalizeDepartmentCodeInput } from "./utils";
 
 export function departmentCodeEditableSegment(level: 1 | 2 | 3) {
@@ -53,7 +53,7 @@ export function DepartmentCodeInput({
   className?: string;
 }) {
   return (
-    <InputControl
+    <InputSurface
       spec={{
         valueType: "string",
         control: "text",

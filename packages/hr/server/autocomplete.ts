@@ -53,10 +53,11 @@ export async function searchHrAutocomplete(entity: string, keyword: string, acti
     });
     const mapped = departments.map((department) => ({
       id: department.id,
-      name: formatDepartmentPath(department) || department.name,
+      name: department.name,
       subtitle: department.code,
+      departmentPath: formatDepartmentPath(department) || department.name,
     }));
-    const filtered = keyword ? mapped.filter((item) => matchRecord(item, keyword, ["name", "subtitle"])) : mapped;
+    const filtered = keyword ? mapped.filter((item) => matchRecord(item, keyword, ["name", "subtitle", "departmentPath"])) : mapped;
     return { status: "ok" as const, items: filtered.slice(0, MAX_RESULTS) };
   }
 

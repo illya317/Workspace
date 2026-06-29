@@ -2,14 +2,14 @@
 
 import CreatePanel, { type CreatePanelBlockProps } from "../internal/create/CreatePanel";
 import SelectorPanel, { type SelectorPanelProps } from "../internal/selection/SelectorPanel";
-import type { PageSurfaceSectionSpec } from "../PageSurface.types";
+import type { BodySurfaceSectionSpec } from "../BodySurface";
 
 export type CreatePanelSectionHelperProps = Omit<CreatePanelBlockProps, "variant">;
 
 export function createCreatePanelSection(
   key: string,
   props: CreatePanelSectionHelperProps,
-): PageSurfaceSectionSpec {
+): BodySurfaceSectionSpec {
   return {
     key,
     body: {
@@ -28,7 +28,7 @@ export function createSelectorPanelSection<T>(
   key: string,
   props: SelectorPanelProps<T>,
   _options: SelectorPanelSectionHelperOptions = {},
-): PageSurfaceSectionSpec {
+): BodySurfaceSectionSpec {
   return {
     key,
     body: {

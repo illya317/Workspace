@@ -2,7 +2,7 @@
 
 import { FieldRegion } from "./EmployeeProfileFieldRegion";
 import type { ProfileField } from "@workspace/hr/types";
-import { createPanelSection, type FormSurfaceItemSpec, type PageSurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
+import { createPanelSection, type FormSurfaceItemSpec, type BodySurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
 import {
   HR_COMMON_ETHNICITIES,
   HR_ETHNICITIES,
@@ -286,7 +286,7 @@ export function fieldGridBlock(
   onChange: (key: string, value: unknown, option?: ReferenceOption) => void,
   isFieldDisabled?: (field: ProfileField, record: EditableRecord) => boolean,
   key = "fields",
-): PageSurfaceSectionSpec {
+): BodySurfaceSectionSpec {
   return {
     key,
     body: { kind: "form", form: {
@@ -299,7 +299,7 @@ export function fieldGridBlock(
   };
 }
 
-export function emptyFormBlock(key: string, content: string): PageSurfaceSectionSpec {
+export function emptyFormBlock(key: string, content: string): BodySurfaceSectionSpec {
   return {
     key,
     body: { kind: "form", form: {
@@ -333,7 +333,7 @@ export function groupedFieldBlocks(
   record: EditableRecord,
   disabled: boolean,
   onChange: (key: string, value: unknown, option?: ReferenceOption) => void,
-): PageSurfaceSectionSpec[] {
+): BodySurfaceSectionSpec[] {
   return groups.map((group) => createPanelSection(group.title, {
     title: group.title,
 

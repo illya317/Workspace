@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
 import type { SessionUser } from "@workspace/platform/types";
-import { InputControl } from "@workspace/core/ui";
+import { InputSurface } from "@workspace/core/ui";
 
 interface Dept {
   id: number;
@@ -76,14 +76,14 @@ export default function DepartmentSwitcher({ onChange }: { onChange?: (deptId: n
   const deptsInCompany = depts.filter((d) => d.company === selectedCompany);
   return (
     <div className="flex items-center gap-2">
-      <InputControl
+      <InputSurface
         spec={{ valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: companies.map((c) => ({ value: c, label: c })) } }}
         value={selectedCompany}
         onChange={(value) => handleCompanyChange(String(value ?? ""))}
         placeholder="选择公司"
         size="sm"
       />
-      <InputControl
+      <InputSurface
         spec={{ valueType: "reference", control: "choice", options: { source: "static", mode: "dropdown", items: deptsInCompany.map((d) => ({ value: String(d.id), label: d.id === selectedDeptId ? `${d.name}（当前）` : d.name })) } }}
         value={selectedDeptId == null ? "" : String(selectedDeptId)}
         onChange={(val) => {

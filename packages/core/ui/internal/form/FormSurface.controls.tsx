@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import InputControl, { type InputControlProps } from "../../InputControl";
+import InputSurface, { type InputSurfaceProps } from "../../InputSurface";
 import ReadOnlyField, { type ReadOnlyFieldProps } from "../input/ReadOnlyField";
 import TagListInput from "../input/TagListInput";
 import { renderCommands } from "./form-surface-commands";
@@ -18,9 +18,9 @@ export function isInputField<T>(field: FormSurfaceItemSpec<T>): field is FormSur
   return !("kind" in field) || field.kind === "field";
 }
 
-export function renderControl(field: FormSurfaceFieldSpec, density: InputControlProps["density"]) {
+export function renderControl(field: FormSurfaceFieldSpec, density: InputSurfaceProps["density"]) {
   return (
-    <InputControl
+    <InputSurface
       spec={field.spec}
       value={field.value}
       displayValue={field.displayValue}
@@ -158,7 +158,7 @@ function renderTagList<T>(field: FormSurfaceTagListFieldSpec<T>) {
 
 export function renderFieldValue<T>(
   field: FormSurfaceFieldSpec | FormSurfaceReadOnlyFieldSpec | FormSurfaceTagListFieldSpec<T>,
-  density: InputControlProps["density"],
+  density: InputSurfaceProps["density"],
 ) {
   if (isInputField(field)) return renderControl(field, density);
   if (field.kind === "readonly") return renderReadOnly(field, density);

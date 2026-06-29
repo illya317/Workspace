@@ -4,7 +4,7 @@ import {
   PageSurface,
   createRecordSection,
   type DataSurfaceColumnSpec,
-  type PageSurfaceSectionSpec,
+  type BodySurfaceSectionSpec,
   type RecordSurfaceProps,
 } from "@workspace/core/ui";
 export interface ProfileHistoryEntry {
@@ -107,7 +107,7 @@ export function historySectionSurface({
   };
 }
 
-export function historySectionBlock(props: HistorySectionProps): PageSurfaceSectionSpec {
+export function historySectionBlock(props: HistorySectionProps): BodySurfaceSectionSpec {
   return createRecordSection("history", historySectionSurface(props));
 }
 

@@ -19,7 +19,7 @@ The important correction is that Common is not one bucket. It must be split befo
 |---|---|
 | `common.chrome` | `Toolbar`, `TabBar`, `Pagination`, page header/breadcrumb style chrome |
 | `common.action` | `ActionButton`, `CommandButton`, `ActionGlyph`, action ordering/specs |
-| `common.input` | `InputControl`, text/date/time/file/switch/select field renderers |
+| `common.input` | `InputSurface`, text/date/time/file/switch/select field renderers |
 | `common.selection` | `OptionPicker`, `SelectorPanel`, `SelectionGrid`, `FieldValueFilter`, FK/search selection |
 | `common.display` | `Badge`, `NumberCell`, `AmountCell`, empty/metric/code display pieces |
 | `common.overlay` | dropdown/floating/detail modal primitives |
@@ -79,7 +79,7 @@ Treat an L2 as too coupled when any of these are true:
 - A type appears in two or more L1 surface prop contracts. Move it to a Common contract.
 - Two L2 groups depend on each other both ways. Extract a Common L2 or Common contract.
 - One L2 imports three or more concrete renderers from a sibling L2, or more than roughly 25 percent of its dependency set is from that sibling.
-- A business package directly imports Common renderers such as `Toolbar`, `TabBar`, `InputControl`, `Badge`, `SelectorPanel`, `NavigationRenderer`, or `Pagination`. That is historical debt unless it is showcase/core-internal code.
+- A business package directly imports Common renderers such as `Toolbar`, `TabBar`, `InputSurface`, `Badge`, `SelectorPanel`, `NavigationRenderer`, or `Pagination`. That is historical debt unless it is showcase/core-internal code.
 
 ## Page Rule Clarification
 

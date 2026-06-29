@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createMessageSection, createPageBody, PageSurface, type PageSurfaceSectionSpec, type PageSurfaceSplitBodySpec } from "@workspace/core/ui";
+import { createMessageSection, createPageBody, PageSurface, type BodySurfaceProps, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { createPermissionMatrixSection } from "../components/permissions/MatrixTable";
 import type { PermissionsTabState } from "../hooks/usePermissionsTab";
 import type { ResourceItem } from "../types";
@@ -29,7 +29,7 @@ function firstSelectableResource(item: PermissionTreeNode): PermissionTreeNode {
   return firstSelectableResource(item.children[0]);
 }
 
-export function usePermissionsTabBody({ resources, capabilitiesByOwner, s }: Props): PageSurfaceSplitBodySpec {
+export function usePermissionsTabBody({ resources, capabilitiesByOwner, s }: Props): BodySurfaceProps {
   const { selectedResource, setSelectedResource } = s;
   const capabilities = useMemo(
     () => Object.values(capabilitiesByOwner).flat(),
@@ -76,7 +76,7 @@ export function usePermissionsTabBody({ resources, capabilitiesByOwner, s }: Pro
     setSelectedResource(firstSelectableResource(selectedEntry).key);
   }, [selectedEntry, setSelectedResource]);
 
-  const bodyBlocks: PageSurfaceSectionSpec[] = [
+  const bodyBlocks: BodySurfaceSectionSpec[] = [
     ...(s.loading
       ? [createMessageSection("permission-matrix-loading", {
           tone: "muted" as const,
@@ -87,21 +87,25 @@ export function usePermissionsTabBody({ resources, capabilitiesByOwner, s }: Pro
   ];
 
   return {
-    kind: "split",
-    selector: {
-      kind: "tree",
-      title: "资源模块",
-      items: resourceTree,
-      selectedId: selectedResource,
-      onSelect: (resource: PermissionTreeNode) => selectResource(resource.key),
-      getKey: (resource: PermissionTreeNode) => resource.key,
-      getChildren: (resource: PermissionTreeNode) => resource.children,
-      defaultExpandedLevel: 99,
-      renderItem: (resource: PermissionTreeNode, ctx) => ({
-        title: resource.name,
-        code: resource.hidden ? "隐藏" : resource.enabled === false ? "停用" : undefined,
-        level: ctx.level,
-      }),
+    kind: "section",
+    layout: "split",
+    left: {
+      kind: "selector",
+      selector: {
+        kind: "tree",
+        title: "资源模块",
+        items: resourceTree,
+        selectedId: selectedResource,
+        onSelect: (resource: PermissionTreeNode) => selectResource(resource.key),
+        getKey: (resource: PermissionTreeNode) => resource.key,
+        getChildren: (resource: PermissionTreeNode) => resource.children,
+        defaultExpandedLevel: 99,
+        renderItem: (resource: PermissionTreeNode, ctx) => ({
+          title: resource.name,
+          code: resource.hidden ? "隐藏" : resource.enabled === false ? "停用" : undefined,
+          level: ctx.level,
+        }),
+      },
     },
     right: createPageBody(bodyBlocks),
     sideOpen: true,

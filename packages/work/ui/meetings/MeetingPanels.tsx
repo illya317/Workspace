@@ -1,6 +1,6 @@
 "use client";
 
-import { createBlockSurfaceSection, createPageBody, createSelectorPanelSection, PageSurface } from "@workspace/core/ui";
+import { createActionsSection, createBlockSurfaceSection, createPageBody, createSelectorPanelSection, PageSurface } from "@workspace/core/ui";
 import type { ActionDraft, MeetingDetail, MeetingParticipant, MeetingSummary } from "./meeting-types";
 import { EmptyLine, InputBox, PageBlockSurface, StatusPill } from "./MeetingControls";
 import { candidateStatusLabel, decisionKindLabel, emptyActionDraft, formatDateTime, roleLabel, voteChoiceLabel } from "./meeting-utils";
@@ -77,12 +77,12 @@ export function MeetingHeader({
           </div>
           {meeting.description && <p className="mt-3 whitespace-pre-wrap text-sm text-slate-600">{meeting.description}</p>}
         </div>
-        {meeting.permissions.canEdit && <PageBlockSurface block={createBlockSurfaceSection("meeting-header-actions", { kind: "actions", actions: [
+        {meeting.permissions.canEdit && <PageBlockSurface block={createActionsSection("meeting-header-actions", [
           { key: "start", label: "开始", variant: "secondary", size: "sm", disabled: saving || meeting.status === "in_progress", onClick: () => onUpdate({ status: "in_progress" }, "会议已开始") },
           { key: "close", label: "关闭", variant: "secondary", size: "sm", disabled: saving || meeting.status === "closed", onClick: () => onUpdate({ status: "closed" }, "会议已关闭") },
           { key: "participants-only", label: "参会可见", variant: "secondary", size: "sm", disabled: saving || meeting.visibility === "participants_only", onClick: () => onUpdate({ visibility: "participants_only" }, "可见性已更新") },
           { key: "public", label: "公开", variant: "secondary", size: "sm", disabled: saving || meeting.visibility === "public", onClick: () => onUpdate({ visibility: "public" }, "可见性已更新") },
-        ] })} />}
+        ])} />}
       </div>
     })])}
   />;
@@ -134,7 +134,7 @@ export function ProposalList({
           {proposal.votes.length > 0 && <div className="mt-2 grid gap-1 text-xs text-slate-500">
               {proposal.votes.map(vote => <span key={vote.id}>{vote.voterName || `用户 ${vote.voterUserId}`}：{voteChoiceLabel(vote.choice)}</span>)}
             </div>}
-          <PageBlockSurface className="mt-3" block={createBlockSurfaceSection("proposal-actions", { kind: "actions",  actions: [
+          <PageBlockSurface className="mt-3" block={createActionsSection("proposal-actions", [
             ...(meeting.permissions.canVote && proposal.status === "open" ? [
               { key: "yes", label: "赞成", variant: proposal.myVote?.choice === "yes" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onVote(proposal.id, "yes") },
               { key: "no", label: "反对", variant: proposal.myVote?.choice === "no" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onVote(proposal.id, "no") },
@@ -142,7 +142,7 @@ export function ProposalList({
             ] : []),
             ...(meeting.permissions.canEdit && proposal.status === "open" ? [{ key: "close", label: "关闭表决", variant: "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onClose(proposal.id) }] : []),
             ...(meeting.permissions.canEdit && proposal.status === "passed" ? [{ key: "decision", label: "生成决议", variant: "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onDecision(proposal) }] : []),
-          ] })} />
+          ])} />
         </div>)}
     </div>;
 }
@@ -210,13 +210,13 @@ export function CandidateList({
             ...draft,
             targetId,
           })} />
-                <PageBlockSurface className="md:col-span-4" block={createBlockSurfaceSection("candidate-actions", { kind: "actions",  actions: [
+                <PageBlockSurface className="md:col-span-4" block={createActionsSection("candidate-actions", [
                   { key: "linkWorkPlan", label: "链接 OKR 计划", variant: "secondary", size: "sm", disabled: saving || !draft.workPlanId, onClick: () => onAction(candidate.id, "linkWorkPlan", draft) },
                   { key: "createWorkPlan", label: "创建 OKR 计划", variant: "secondary", size: "sm", disabled: saving, onClick: () => onAction(candidate.id, "createWorkPlan", draft) },
                   { key: "linkProjectTask", label: "链接项目任务", variant: "secondary", size: "sm", disabled: saving || !draft.projectTaskId, onClick: () => onAction(candidate.id, "linkProjectTask", draft) },
                   { key: "createProjectTask", label: "创建项目任务", variant: "secondary", size: "sm", disabled: saving || !draft.projectId, onClick: () => onAction(candidate.id, "createProjectTask", draft) },
                   { key: "ignore", label: "忽略", variant: "danger", size: "sm", disabled: saving, onClick: () => onAction(candidate.id, "ignore", draft) },
-                ] })} />
+                ])} />
               </div>}
           </div>;
     })}

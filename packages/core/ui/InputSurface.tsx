@@ -13,25 +13,25 @@ import TagStringInput from "./internal/input/TagStringInput";
 import TextareaField from "./internal/input/TextareaField";
 import TextField from "./internal/input/TextField";
 import TimeField from "./internal/input/TimeField";
-import InputControlChoiceRenderer, { isInputControlChoiceRenderer, type InputControlChoiceRendererKind } from "./internal/input/input-control-choice-renderers";
+import InputSurfaceChoiceRenderer, { isInputSurfaceChoiceRenderer, type InputSurfaceChoiceRendererKind } from "./internal/input/input-surface-choice-renderers";
 import {
-  formatInputControlValue,
-  inputControlOptionCount,
-  inputControlOptionItems,
-  inputControlStateSet,
+  formatInputSurfaceValue,
+  inputSurfaceOptionCount,
+  inputSurfaceOptionItems,
+  inputSurfaceStateSet,
   inputMaskEditableSegment,
   inputMaskPlaceholder,
-  normalizeInputControlValue,
-  type InputControlProps,
+  normalizeInputSurfaceValue,
+  type InputSurfaceProps,
   type InputFieldSpec,
-} from "./internal/input/InputControlTypes";
+} from "./internal/input/InputSurfaceTypes";
 
 export type {
   InputBooleanPresentation,
   InputCollectionItemControl,
-  InputControlDimension,
-  InputControlKind,
-  InputControlProps,
+  InputSurfaceDimension,
+  InputSurfaceKind,
+  InputSurfaceProps,
   InputDependencies,
   InputDependencyDimension,
   InputFieldSpec,
@@ -53,7 +53,7 @@ export type {
   InputValidationDimension,
   InputValueDimension,
   InputValueType,
-} from "./internal/input/InputControlTypes";
+} from "./internal/input/InputSurfaceTypes";
 
 type ResolvedInputRenderer =
   | "text"
@@ -69,7 +69,7 @@ type ResolvedInputRenderer =
   | "file"
   | "rating"
   | "tags"
-  | InputControlChoiceRendererKind;
+  | InputSurfaceChoiceRendererKind;
 
 function resolveInputRenderer(spec: InputFieldSpec): ResolvedInputRenderer {
   if (spec.format === "percent") return "percent";
@@ -90,7 +90,7 @@ function resolveInputRenderer(spec: InputFieldSpec): ResolvedInputRenderer {
     if (spec.presentation === "choice") return "choiceGroup";
     if (spec.options?.source === "static" || spec.options?.source === "grouped") {
       const mode = spec.options.mode ?? "auto";
-      if (mode === "autocomplete" || (mode === "auto" && inputControlOptionCount(spec.options) > 8)) return "autocompleteChoice";
+      if (mode === "autocomplete" || (mode === "auto" && inputSurfaceOptionCount(spec.options) > 8)) return "autocompleteChoice";
       if (mode === "dropdown") return "selectChoice";
     }
     return "pickerChoice";
@@ -99,7 +99,7 @@ function resolveInputRenderer(spec: InputFieldSpec): ResolvedInputRenderer {
   return "text";
 }
 
-export default function InputControl({
+export default function InputSurface({
   spec,
   value,
   displayValue,
@@ -145,16 +145,16 @@ export default function InputControl({
   ratingLabel,
   ratingMax,
   showRatingLabel,
-}: InputControlProps) {
-  const states = inputControlStateSet(spec.state);
+}: InputSurfaceProps) {
+  const states = inputSurfaceStateSet(spec.state);
   if (states.has("hidden")) {
-    return <input type="hidden" data-field-key={dataFieldKey} value={normalizeInputControlValue(value)} readOnly />;
+    return <input type="hidden" data-field-key={dataFieldKey} value={normalizeInputSurfaceValue(value)} readOnly />;
   }
 
   const disabled = states.has("disabled");
   const required = states.has("required") || spec.validation?.required;
   const fieldPlaceholder = placeholder ?? inputMaskPlaceholder(spec.mask);
-  const stringValue = normalizeInputControlValue(value);
+  const stringValue = normalizeInputSurfaceValue(value);
   const textType = type ?? (spec.control === "number" || spec.valueType === "number" ? "number" : "text");
   const textVisualState = visualState === "info" ? "default" : visualState;
   const fieldVisualState = visualState;
@@ -193,7 +193,7 @@ export default function InputControl({
   if (states.has("readonly")) {
     return (
       <ReadOnlyField
-        value={formatInputControlValue(value, spec)}
+        value={formatInputSurfaceValue(value, spec)}
         placeholder={fieldPlaceholder}
         size={size}
         density={density}
@@ -285,7 +285,7 @@ export default function InputControl({
   if (renderer === "choiceGroup") {
     return (
       <ChoiceGroup
-        options={inputControlOptionItems(spec.options).map((option) => String(option.value))}
+        options={inputSurfaceOptionItems(spec.options).map((option) => String(option.value))}
         type={choiceType ?? (spec.multiple ? "checkbox" : "radio")}
         name={choiceName}
         value={stringValue}
@@ -342,9 +342,9 @@ export default function InputControl({
     );
   }
 
-  if (isInputControlChoiceRenderer(renderer)) {
+  if (isInputSurfaceChoiceRenderer(renderer)) {
     return (
-      <InputControlChoiceRenderer
+      <InputSurfaceChoiceRenderer
         renderer={renderer}
         spec={spec}
         value={value}

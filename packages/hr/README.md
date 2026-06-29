@@ -24,7 +24,7 @@ import/    # HR 导入解析、清洗和校验流程
 - `utils/department-path.ts`：HR 部门完整路径和编码路径格式化。
 - `ui/analytics/contract-helpers.ts`：合同分析状态、统计和过滤 helper。
 - `ui/code-helpers.ts`：编码管理排序、组合编码和详情列表 helper。
-- `ui/components/{EthnicityPicker,FKInput,MajorPicker,ProfessionalTitlePicker,RankPicker,SchoolPicker}.tsx`：HR 专用字段、FK 和选项选择器，内部应走 Core `InputControl`。
+- `ui/components/{EthnicityPicker,FKInput,MajorPicker,ProfessionalTitlePicker,RankPicker,SchoolPicker}.tsx`：HR 专用字段、FK 和选项选择器，内部应走 Core `InputSurface`。
 - `ui/components/GenericFieldInput.tsx`：HR 批量表格通用字段输入组件。
 - `ui/profile/EmployeeDirectory.tsx`：员工资料列表入口。
 - `ui/profile/EmployeeProfileClient.tsx`：员工详情主控页面。

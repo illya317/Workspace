@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createAnalysisSection, PageSurface, type PageSurfaceSectionSpec, type VisualizationComparisonBarSectionSpec, type VisualizationTone } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, PageSurface, type BodySurfaceSectionSpec, type VisualizationComparisonBarSectionSpec, type VisualizationTone } from "@workspace/core/ui";
 import type { DeptEntry, FilteredDept } from "./usePositionData";
 
 const LEVEL_LABEL: Record<number, string> = { 1: "L1 事业部", 2: "L2 部门", 3: "L3 子部门" };
@@ -52,7 +52,7 @@ export function createDeptBarChartSection({
   filterL1,
   setFilterL1,
   globalMax,
-}: DeptBarChartBlockParams): PageSurfaceSectionSpec {
+}: DeptBarChartBlockParams): BodySurfaceSectionSpec {
   const sections = [
     toSection(1, filteredDept.l1),
     toSection(2, filteredDept.l2),

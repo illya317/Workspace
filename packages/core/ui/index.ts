@@ -1,16 +1,30 @@
 export type { CoreUiCompositionGraph, CoreUiComponentRegistration } from "./registry/component-registry";
 export { default as BodySurface } from "./BodySurface";
 export type {
+  BodySurfaceActionSize,
+  BodySurfaceBadgeSpec,
+  BodySurfaceCommandSpec,
+  BodySurfaceComposedSectionProps,
   BodySurfaceDataProps,
   BodySurfaceDocumentProps,
+  BodySurfaceEmptySpec,
   BodySurfaceFormProps,
   BodySurfaceKind,
+  BodySurfaceMessageSpec,
   BodySurfaceMetricsProps,
+  BodySurfaceModalSpec,
+  BodySurfaceModuleGridItemSpec,
+  BodySurfaceModuleGridSpec,
   BodySurfaceNavigationProps,
   BodySurfaceProps,
   BodySurfaceRecordProps,
   BodySurfaceSelectorProps,
+  BodySurfaceSectionHeaderSpec,
+  BodySurfaceSectioningSpec,
+  BodySurfaceSectionLayout,
   BodySurfaceSectionProps,
+  BodySurfaceSectionSpec,
+  BodySurfaceSplitSectionProps,
   BodySurfaceVisualizationProps,
 } from "./BodySurface";
 export { default as BlockSurface } from "./BlockSurface";
@@ -146,24 +160,12 @@ export type {
 } from "./FormSurface";
 export { default as PageSurface } from "./PageSurface";
 export type {
-  PageSurfaceActionSize,
-  PageSurfaceBadgeSpec,
-  PageSurfaceBodyKind,
-  PageSurfaceBodySectionSpec,
   PageSurfaceBodySpec,
-  PageSurfaceCommandSpec,
-  PageSurfaceCompleteBodySpec,
-  PageSurfaceEmptySpec,
   PageSurfaceFooterSpec,
   PageSurfaceKind,
-  PageSurfaceModalSpec,
   PageSurfaceNavigationItemSpec,
   PageSurfaceNavigationSpec,
   PageSurfaceProps,
-  PageSurfaceSectionHeaderSpec,
-  PageSurfaceSectioningSpec,
-  PageSurfaceSectionSpec,
-  PageSurfaceSplitBodySpec,
   PageSurfaceStandardProps,
   PageSurfaceDirectoryProps,
   PageSurfaceLoginProps,
@@ -178,6 +180,7 @@ export {
   createMessageSection,
   createMetricsSection,
   createModuleGridSection,
+  createBodySplitSection,
   createPageBody,
   createPageActionsSection,
   createPageCommand,
@@ -190,7 +193,6 @@ export {
   createPageModalSection,
   createPanelSection,
   createRecordSection,
-  createSplitPageBody,
   createPageSurfaceProps,
   createPageTableSection,
   createPageTabsNavigation,
@@ -208,9 +210,9 @@ export type {
   SelectorPanelSectionHelperOptions,
 } from "./helpers/surface-compat-builders";
 export type {
-  PageSurfaceNonModalSectionSpec,
+  BodySplitSectionOptions,
+  BodySurfaceBodyInputSpec,
   PageSurfaceShellPropsOptions,
-  SplitPageBodyOptions,
   TabbedPageBodyOptions,
 } from "./helpers/page-surface-builders";
 
@@ -222,13 +224,15 @@ export {
   getFloatingOverlayOpenDetail,
 } from "./internal/common/overlay-events";
 export type { FloatingOverlayOpenDetail } from "./internal/common/overlay-events";
-export { default as InputControl } from "./InputControl";
+export { ModuleCard, ModuleGridPage } from "./internal/common/Card";
+export type { ModuleCardColor, ModuleCardProps, ModuleGridPageProps } from "./internal/common/Card";
+export { default as InputSurface } from "./InputSurface";
 export type {
-  InputControlProps,
+  InputSurfaceProps,
   InputBooleanPresentation,
   InputCollectionItemControl,
-  InputControlDimension,
-  InputControlKind,
+  InputSurfaceDimension,
+  InputSurfaceKind,
   InputDependencies,
   InputDependencyDimension,
   InputFieldSpec,
@@ -248,7 +252,7 @@ export type {
   InputValidationDimension,
   InputValueDimension,
   InputValueType,
-} from "./InputControl";
+} from "./InputSurface";
 export { ActionGlyph } from "./internal/action/ActionGlyphs";
 export type {
   ActionGlyphActionDefinition,

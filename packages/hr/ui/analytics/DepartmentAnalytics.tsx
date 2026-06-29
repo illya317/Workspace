@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createPageBody, createAnalysisSection, createMetricsSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec, type VisualizationTreeNodeSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createMetricsSection, PageSurface, type DataSurfaceColumnSpec, type BodySurfaceSectionSpec, type VisualizationTreeNodeSpec } from "@workspace/core/ui";
 import { matchSearchFields } from "@workspace/platform/search";
 import type { Department, EDP } from "./useAnalyticsData";
 
-export function useDepartmentAnalyticsBlocks({ departments, edps }: { departments: Department[]; edps: EDP[] }): PageSurfaceSectionSpec[] {
+export function useDepartmentAnalyticsBlocks({ departments, edps }: { departments: Department[]; edps: EDP[] }): BodySurfaceSectionSpec[] {
   const [search, setSearch] = useState("");
 
   const activeEdps = useMemo(() => edps.filter((e) => !e.endDate), [edps]);

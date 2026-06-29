@@ -1,6 +1,6 @@
 "use client";
 
-import { InputControl, type InputOption } from "@workspace/core/ui";
+import { InputSurface, type InputOption } from "@workspace/core/ui";
 import { HR_SCHOOL_OPTIONS } from "@workspace/hr/constants/school-options";
 import type { HrPickerProps } from "@workspace/hr/types/hr-picker";
 
@@ -16,7 +16,7 @@ export default function SchoolPicker({
   onChange,
 }: HrPickerProps) {
   return (
-    <InputControl
+    <InputSurface
       spec={{
         valueType: "string",
         control: "choice",

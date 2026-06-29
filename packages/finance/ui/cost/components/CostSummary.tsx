@@ -1,7 +1,7 @@
 "use client";
 
 import { createPageBody, PageSurface, createMessageSection, createPanelSection, createRecordSection, createMetricsSection } from "@workspace/core/ui";
-import type { PageSurfaceSectionSpec } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { formatCompactNullableAmount } from "../../formatters";
 import { useCostSummary } from "../hooks/useFinanceCostData";
 import type { CostFiltersState } from "../types";
@@ -46,7 +46,7 @@ export default function CostSummary({ filters }: Props) {
   const pct = (n: number | null | undefined) =>
     n == null ? "—" : `${(n * 100).toFixed(1)}%`;
 
-  const sections: PageSurfaceSectionSpec[] = [
+  const sections: BodySurfaceSectionSpec[] = [
     ...(loading ? [createRecordSection("loading", { records: [], empty: "加载中..." })] : []),
     ...(error ? [createRecordSection("error", { records: [], empty: error })] : []),
     ...(summary ? [

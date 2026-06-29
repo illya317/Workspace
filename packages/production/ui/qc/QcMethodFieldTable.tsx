@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createPageDataSection, type DataSurfaceStructuredCellSpec, InputControl, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createPageDataSection, type DataSurfaceStructuredCellSpec, InputSurface, PageSurface } from "@workspace/core/ui";
 import type { QcTemplateMethodField, QcTemplateTestItem } from "@workspace/production/server/qc";
 import { QcPaperChoiceInput } from "./QcPaperInputs";
 import { useQcFormulaEngine, type QcFieldValues } from "./useQcFormulaEngine";
@@ -43,7 +43,7 @@ function FieldInput({
   if (field.type === "select") {
     return (
       <div className="flex min-h-9 items-center justify-center gap-2">
-        <InputControl
+        <InputSurface
           spec={{
             valueType: "string",
             control: "choice",
@@ -67,7 +67,7 @@ function FieldInput({
   }
   return (
     <div className="flex min-h-9 items-center justify-center gap-2">
-      <InputControl
+      <InputSurface
         spec={{ valueType: field.type === "number" ? "number" : "string", control: "text" }}
         dataFieldKey={field.fieldKey}
         value={value}

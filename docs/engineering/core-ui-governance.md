@@ -19,8 +19,8 @@ Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页
 普通 Feature/Data/Operations agent：
 
 - Toolbar 规则另见 `docs/engineering/core-toolbar.md`；该文档是所有页面级工具栏的专门规范。
-- 业务只 value import 明确允许的公共 runtime 入口和 helper；二级声明组件通过 `PageSurface` / `InputControl` 等 spec 表达，不作为业务直接 renderer。
-- `FormSurface`、`DataSurface`、`DocumentSurface`、`VisualizationSurface`、`MetricsSurface`、`RecordSurface` 只能通过 `BodySurface` 使用，再由 `PageSurface.body.sections[]` 承载；左侧列表/树选择区通过 `SelectorSurface` 声明，再由 `PageSurface.body kind="split"` 承载；页面级导航、toolbar、分页必须通过 `PageSurface.navigation`、`PageSurface.toolbar`、`PageSurface.footer` 表达。
+- 业务只 value import 明确允许的公共 runtime 入口和 helper；二级声明组件通过 `PageSurface` / `InputSurface` 等 spec 表达，不作为业务直接 renderer。
+- `PageSurface.body` 只接收 `BodySurfaceProps`。`FormSurface`、`DataSurface`、`DocumentSurface`、`VisualizationSurface`、`MetricsSurface`、`RecordSurface`、`SelectorSurface` 都通过 `BodySurface` 声明；正文 section tree、tabs/grid/split、局部 commands/empty/modals 归 `BodySurface kind="section"`。页面级导航、toolbar、分页必须通过 `PageSurface.navigation`、`PageSurface.toolbar`、`PageSurface.footer` 表达。
 - 新增页面代码必须使用 `PageSurface.body` 和 `PageSurface.navigation`。顶层 `blocks`、`empty`、`actions`、`tabs`、`activeTab`、`activeChild`、`onTabChange`、`onChildChange` 仅为存量兼容入口，不作为新代码 API。
 - `@workspace/core/ui` 的 type-only import 只允许 Surface contract 类型、helper 类型和业务别名：`DataSurface*`、`FormSurface*`、`PageSurface*`、`SelectorSurface*`、`ReferenceOption`、`SurfaceToolbarItem`、`SurfaceToolbarItems`。业务不得再 type-only 直引底层 `DataTableColumn`、`ToolbarItem`、`FkFieldOption`；分别使用 Surface contract、`SurfaceToolbarItem(s)`、`ReferenceOption`。
 - 不直接 import 未列入公共 runtime 入口的 renderer 作为业务组件；过渡期只允许 Surface contract / helper / business alias type-only 引用。
@@ -46,7 +46,7 @@ Review agent：
 - 优先检查 Core UI 新增/删除是否同步 registry、导出、声明关系和文档。
 - 重点审查是否有人为了过 gate 随手新增 Core UI registry、页面/API/resource registry 或 baseline；注册项必须对应真实可复用入口，不能只为单页手搓组件背书。
 - 重点审查重复和可拆除项：只为展示存在、没有业务消费、或与现有 Toolbar/Picker/Table/Modal/Page Frame 重叠的组件，应要求删除、合并或下沉到既有入口。
-- 重点审查业务是否直接 import `SelectorList`、`SelectorTree`、`SelectorCard`，或手写 `PanelCard + Selector*` 作为左侧选择区；业务应改用 `SelectorSurface` spec，再由 `PageSurface.body kind="split"` 承载。
+- 重点审查业务是否直接 import `SelectorList`、`SelectorTree`、`SelectorCard`，或手写 `PanelCard + Selector*` 作为左侧选择区；业务应改用 `SelectorSurface` spec，再由 `BodySurface kind="section" layout="split"` 的 `left` 承载。
 - 发现 `Core Internal` / `Foundation` 业务直引时，结论必须是不通过，除非该文件是明确的 Core UI-system 任务。
 
 ## 3. Layout 引用契约
@@ -133,25 +133,25 @@ Core UI 声明分类只服务 `/settings/ui` 和 agent 阅读，不再写入 reg
 |---|---|
 | 页面布局 | `PageSurface` 及页面级 layout/navigation/toolbar/footer 声明。 |
 | 页面内容 | `DataSurface` / `FormSurface` / `DocumentSurface` / `VisualizationSurface` / `MetricsSurface` / `RecordSurface`。 |
-| 通用 | `InputControl`、`SelectorSurface`、`BlockSurface` 等其他有 `declares` 的封装。 |
+| 通用 | `InputSurface`、`SelectorSurface`、`BlockSurface` 等其他有 `declares` 的封装。 |
 
 页面布局协议固定为五段：
 
 1. `header`：页眉，默认页面必须有；登录页等特殊页面可显式 `hidden`。
 2. `navigation`：页面级声明式导航段。L1/L2 模块入口属于 route/module 层或模块入口卡片，不放进 `TabBar`；`TabBar` 只承载当前页面内部视图切换，也就是 L3 及以下。
 3. `toolbar`：页面级唯一工具栏。搜索、筛选、字段切换、刷新、导出、新建、生成等都必须表达为标准 toolbar item。
-4. `body`：正文，可选 complete/split。业务正文统一进入 `BodySurface`，由 `BodySurface.kind` 决定 `data/form/metrics/record/document/visualization/section/navigation` 分类；split 左侧选择区统一进入 `SelectorSurface`，由 `SelectorSurface.kind` 决定 `list/tree`。section 位置、外框和页面间距由 `PageSurface` 决定；分类后的详细内容声明权属于自己的 Surface。
+4. `body`：正文，只接收 `BodySurfaceProps`。业务正文由 `BodySurface.kind` 决定 `data/form/metrics/record/document/visualization/selector/section/navigation` 分类；split 是 `BodySurface kind="section" layout="split"`，左右两侧都接 `BodySurfaceProps`。PageSurface 不再声明 complete/split 正文协议。
 5. `footer`：页脚；表格/数据分页只能在 `PageSurface.footer.pagination`。
 
-`PageSurface.kind="login"` 和 `PageSurface.kind="directory"` 是封闭特殊页。一旦选择这两个 kind，就不能再走 standard/split 的页面正文渲染、导航、toolbar、footer 或 split body；login 只承载登录页专属 content + login FormSurface contract，directory 只承载目录模块网格或目录空态。后续调整普通 Surface、BlockSurface、PageContent、section stack 或标准五段协议时，不得影响这两个特殊页的布局。
+`PageSurface.kind="login"` 和 `PageSurface.kind="directory"` 是封闭特殊页。一旦选择这两个 kind，就不能再走 standard 的页面正文渲染、导航、toolbar、footer 或 split body；login 只承载登录页专属 content + login FormSurface contract，directory 只承载目录模块网格或目录空态。后续调整普通 Surface、BlockSurface、PageContent、section stack 或标准五段协议时，不得影响这两个特殊页的布局。
 
-`NavigationRenderer`、`BodySurface`、`SelectorSurface`、`FormSurface`、`DataSurface`、`MetricsSurface`、`RecordSurface` 不决定页面位置。`NavigationRenderer` 归 `common.chrome`，只能是 PageSurface 内部 renderer 或正文 primitive；正文 Surface 只能通过 `PageSurface.body.sections[]` 的 `body` section 选择正文内容形态，不承载页面级 toolbar/pagination；`SelectorSurface` 只能作为 split 选择区声明，不决定 split 外框、开合或比例。
+`NavigationRenderer`、`BodySurface`、`SelectorSurface`、`FormSurface`、`DataSurface`、`MetricsSurface`、`RecordSurface` 不决定页面位置。`NavigationRenderer` 归 `common.chrome`，只能是 PageSurface 内部 renderer 或正文 primitive；正文 Surface 只能通过 `BodySurface` 选择正文内容形态，不承载页面级 toolbar/pagination；`SelectorSurface` 只能作为 BodySurface 内容声明，不决定 split 外框、开合或比例。
 
-正文 Surface 不声明页面外框。`framed` 只存在于 `PageSurfaceSectionSpec`，用于决定 section 是否带页面正文外框；`DataSurface`、`MetricsSurface`、`RecordSurface` 和 `VisualizationSurface` 不再包自己的 PanelCard，避免同一个 body 被两层 layout 同时裁决。
+正文 Surface 不声明页面外框。`framed` 只存在于 `BodySurfaceSectionSpec`，用于决定 section 是否带页面正文外框；`DataSurface`、`MetricsSurface`、`RecordSurface` 和 `VisualizationSurface` 不再包自己的 PanelCard，避免同一个 body 被两层 layout 同时裁决。
 
-`Surface` 命名表示声明层，不表示业务可直接 renderer。当前 `PageSurface` 仍承担主要 runtime 入口；正文二级 Surface 通过 `PageSurface.body.sections[]` 选择，不作为业务直引 renderer。`host` 目录当前为空，`internal` 不开放。
+`Surface` 命名表示声明层，不表示业务可直接 renderer。当前 `PageSurface` 仍承担主要 runtime 入口；正文二级 Surface 通过 `BodySurface` 选择，不作为业务直引 renderer。`host` 目录当前为空，`internal` 不开放。
 
-Core UI 文件按层放置。`packages/core/ui/` 根目录保留最常用的 Surface/runtime API 入口，例如 `PageSurface.tsx`、`DataSurface.tsx`、`FormSurface.tsx`、`BlockSurface.tsx`、`InputControl.tsx` 和 `index.ts`；这些入口本身就是业务阅读和迁移时最稳定的门面，不强行为了分类再套一层目录。
+Core UI 文件按层放置。`packages/core/ui/` 根目录保留最常用的 Surface/runtime API 入口，例如 `PageSurface.tsx`、`BodySurface.tsx`、`DataSurface.tsx`、`FormSurface.tsx`、`BlockSurface.tsx`、`InputSurface.tsx` 和 `index.ts`；这些入口本身就是业务阅读和迁移时最稳定的门面，不强行为了分类再套一层目录。
 
 - `packages/core/ui/`：Surface 声明类型，例如 `PageSurface.types.ts`、`DataSurface.types.ts`、`FormSurface.types.ts`、`SurfaceContractTypes.ts`。
 - `packages/core/ui/helpers/`：声明构造 helper，例如 `page-surface-builders.ts`、`surface-compat-builders.tsx`。
@@ -161,7 +161,7 @@ Core UI 文件按层放置。`packages/core/ui/` 根目录保留最常用的 Sur
 
 根目录不再接收新的私有拆分文件；公开入口自己的 parts/types/renderers/styles 等实现细节应迁入 `internal/<object>/`，由根目录公开入口继续 re-export 或内部引用。
 
-`InputControl` 是字段语义入口，不是 renderer 选择器。业务只声明 `valueType`、`control`、`options`、`format`、`mask`、`state`、`validation`、`usage` 和 `dependencies`；Core 内部 resolver 决定实际使用 `TextField`、`SelectField`、`CalendarDateInput`、`FkFieldInput`、`SegmentedCodeInput` 等实现。新增字段不得写 `spec.editor`，分段编码统一写成 `control: "text"` + `mask.kind: "editableSegment"`，FK 搜索统一写成 `control: "reference"` + `options.source: "remote"`。
+`InputSurface` 是字段语义入口，不是 renderer 选择器。业务只声明 `valueType`、`control`、`options`、`format`、`mask`、`state`、`validation`、`usage` 和 `dependencies`；Core 内部 resolver 决定实际使用 `TextField`、`SelectField`、`CalendarDateInput`、`FkFieldInput`、`SegmentedCodeInput` 等实现。新增字段不得写 `spec.editor`，分段编码统一写成 `control: "text"` + `mask.kind: "editableSegment"`，FK 搜索统一写成 `control: "reference"` + `options.source: "remote"`。
 
 当前批准的新 Surface section helper：
 
@@ -171,13 +171,13 @@ Core UI 文件按层放置。`packages/core/ui/` 根目录保留最常用的 Sur
 - `createDocumentSection(key, surface)`：生成 `BodySurface kind="document"` section。迁移纸面、A4、报告、QC 预览。
 - `createVisualizationSection(key, surface)`：生成 `BodySurface kind="visualization"` section。迁移图表、甘特、时间轴、组织图。
 - `createBlockSurfaceSection(key, surface)`：生成 `BodySurface kind="section"` + `BlockSurface`。迁移 section、panel、message、empty、actions、module grid 等通用区块。
-- `createPageBody(sections, options)`：生成 `PageSurface.body`，正文空态写入 `options.empty`，正文短命令写入 `options.commands`。新增代码不得再写顶层 `blocks` / `empty` / `actions`。
-- `createSplitPageBody({ selector, drawerSelector, right, side, layout })`：生成 `PageSurface.body kind="split"`；业务只声明 `SelectorSurface`、右侧正文、左栏开关和布局比例，helper 内部映射 `sideOpen` / `drawerOpen` / `splitRatio` 字段。
+- `createPageBody(sections, options)`：生成 `BodySurface kind="section"`，正文空态写入 `options.empty`，正文短命令写入 `options.commands`。新增代码不得再写顶层 `blocks` / `empty` / `actions`。
+- `createBodySplitSection({ left, drawerLeft, right, side, layout })`：生成 `BodySurface kind="section" layout="split"`；左右两侧都接 `BodySurfaceProps`，左侧可以是 `kind="selector"`，也可以是普通 section/data/form/document 等正文。
 - `createTabbedPageBody(sections, { active, onChange, ...options })`：生成带正文 tabs sectioning 的 `PageSurface.body`；tab 与正文 section 通过同一个 `section.key` 对齐，不新增 `tabKey` / index 映射。
 - `createPageTabsNavigation(options)`：生成 `PageSurface.navigation kind="tabs"`。新增代码不得再写顶层 `tabs` / `activeTab` / `activeChild` / `onTabChange` / `onChildChange`。
 - `createPageTableSection(key, table)`：生成 `PageSurface` 的 `data.table` section。迁移业务 `<DataSurface kind="table" ... />` 时优先使用。
 - `createPageDataSection(key, surface)`：生成 `BodySurface kind="data"` section。只用于 `table` 和 `structured`；图形用 `createVisualizationSection`，指标用 `createMetricsSection`，可展开记录用 `createRecordSection`。遇到未声明的 React 内容时，先补正式 Surface spec 或 helper；不得新增 `BlockSurface kind="content"`。
-- `createPageModalSection(key, modal)`：生成 `PageSurface` modal section，modal 内容继续用 typed sections。
+- `createPageModalSection(key, modal)`：生成 BodySurface modal section，modal 内容继续用 typed sections。
 - `createActionsSection(key, actions)` 与 `createPageCommand(command)`：生成通用动作 section。迁移用 `FormSurface kind="inline"` 只承载按钮的历史写法。`createPageActionsSection` 仅为兼容 alias，不再作为推荐入口。
 - `createPageSurfaceProps(options)`：给 route/module thin adapter 生成非 split `PageSurface` props。AppShell 迁移使用它表达 header/body/toolbar/footer，不和 form/data 清债混在一起。
 
@@ -220,16 +220,16 @@ Surface 使用红线：
 
 历史 `FormSurface` / `DataSurface` direct import 按以下顺序清：
 
-1. 组件已经在父级 `PageSurface` 内：把子组件改为返回 `PageSurfaceBlockSpec` 或 block 数组，父级 `blocks/body.blocks` 接入。`DataSurface` 用 `createPageTableBlock` / `createPageDataBlock`；`FormSurface` 用 `createFieldsBlock` / `createInlineFieldsBlock` / `createFormBlock`；图表/甘特用 `createVisualizationBlock`；普通容器用 `createBlockSurfaceBlock`。
-2. 子组件目前直接返回表格或表单 JSX：先改成 thin block builder，例如 `buildXxxTableBlock()` / `buildXxxFormBlock()`；调用方负责放进 `PageSurface`。不要新增 domain `*Surface` 或 `*Shell`。
-3. 历史 `FormSurface kind="modal"` 已从类型层删除；弹窗统一迁移到 `createPageModalBlock`，modal 内容使用 `createFieldsBlock` 或 `createFormBlock`。
-4. 历史 `FormSurface kind="inline"` 只承载按钮：迁移到 `createActionsBlock`，按钮使用 `createPageCommand` 或直接写 `BlockSurfaceCommandSpec`。
-5. `InputControl` 是通用声明入口；`SelectorPanel`、`CreatePanel` 是 renderer，业务通过 `createSelectorPanelBlock`、`createCreatePanelBlock` 或后续更明确的 selection/create Surface 声明。
+1. 组件已经在父级 `PageSurface` 内：把子组件改为返回 `BodySurfaceSectionSpec` 或 section 数组，父级用 `createPageBody(sections)` 接入。`DataSurface` 用 `createPageTableSection` / `createPageDataSection`；`FormSurface` 用 `createFieldsSection` / `createInlineFieldsSection` / `createFormSection`；图表/甘特用 `createVisualizationSection`；普通容器用 `createBlockSurfaceSection`。
+2. 子组件目前直接返回表格或表单 JSX：先改成 thin section builder，例如 `buildXxxTableSection()` / `buildXxxFormSection()`；调用方负责放进 `PageSurface.body`。不要新增 domain `*Surface` 或 `*Shell`。
+3. 历史 `FormSurface kind="modal"` 已从类型层删除；弹窗统一迁移到 `createPageModalSection`，modal 内容使用 `createFieldsSection` 或 `createFormSection`。
+4. 历史 `FormSurface kind="inline"` 只承载按钮：迁移到 `createActionsSection`，按钮使用 `createPageCommand` 或直接写 `BlockSurfaceCommandSpec`。
+5. `InputSurface` 是通用声明入口；`SelectorPanel`、`CreatePanel` 是 renderer，业务通过 `createSelectorPanelSection`、`createCreatePanelSection` 或后续更明确的 selection/create Surface 声明。
 
 Platform Core UI direct import 按以下 recipe 清：
 
-1. `PermissionCell` 这类 inline action：使用 `PageSurface` embedded + `createActionsBlock`，或在上级 table cell spec 中返回 `DataSurfaceCellSpec kind="action/actions"`。
-2. `AuditLogModal`、`NotificationBell` 这类 overlay：外层 overlay 可以保留 Platform 专有行为；内部筛选、分页、表单内容用 `createFieldsBlock`、`createPageModalBlock`、`PageSurface.footer.pagination` 表达。
+1. `PermissionCell` 这类 inline action：使用 `PageSurface` embedded + `createActionsSection`，或在上级 table cell spec 中返回 `DataSurfaceCellSpec kind="action/actions"`。
+2. `AuditLogModal`、`NotificationBell` 这类 overlay：外层 overlay 可以保留 Platform 专有行为；内部筛选、分页、表单内容用 `createFieldsSection`、`createPageModalSection`、`PageSurface.footer.pagination` 表达。
 3. Admin tabs 的表单/表格：和业务 109 同样迁到 `PageSurface` blocks；不要为了系统页重新开放 `FormSurface` / `DataSurface`。
 
 28 个 `AppShell` primitive 是页面壳迁移债，单独处理：

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createBlockSurfaceSection, createFormSection, createPageBody, createPageDataSection, createTabbedPageBody, type FormSurfaceItemSpec, PageSurface, type PageSurfaceCompleteBodySpec } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createEmptySection, createFormSection, createPageBody, createPageDataSection, createTabbedPageBody, type BodySurfaceProps, type FormSurfaceItemSpec, PageSurface } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import ProjectPlanManagementSection from "./ProjectPlanManagementSection";
 import { buildProjectRasciMatrixSurface } from "./ProjectRasciMatrix";
@@ -67,7 +67,7 @@ export function useProjectDetailEditorBlock({
   onOpenProject,
   onProjectTasksChanged,
   onToast,
-}: ProjectDetailEditorProps): PageSurfaceCompleteBodySpec {
+}: ProjectDetailEditorProps): BodySurfaceProps {
   const [activeTab, setActiveTab] = useState("overview");
   const [addingMemberRole, setAddingMemberRole] = useState<MultiProjectRole | null>(null);
   const isChildProject = Boolean(draft?.parentProjectTaskId);
@@ -168,8 +168,7 @@ export function useProjectDetailEditorBlock({
     },
   ] : [];
 
-  if (!draft) return createPageBody([createBlockSurfaceSection("project-empty", {
-    kind: "empty",
+  if (!draft) return createPageBody([createEmptySection("project-empty", {
     presentation: "plain",
     content: (
       <div>

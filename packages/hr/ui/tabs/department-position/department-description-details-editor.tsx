@@ -1,7 +1,7 @@
 "use client";
 
 import type { Ref } from "react";
-import { createPageBody, createBlockSurfaceSection, createPanelSection, PageSurface, type ConfirmOptions, type FormSurfaceItemSpec, type PageSurfaceSectionSpec, useFeedback } from "@workspace/core/ui";
+import { createPageBody, createEmptySection, createPanelSection, PageSurface, type ConfirmOptions, type FormSurfaceItemSpec, type BodySurfaceSectionSpec, useFeedback } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { detailFieldRows, detailValueToText, isPrimitiveArray, parseDetailsObject, textToDetailValue } from "./description-details";
 
@@ -74,7 +74,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
   confirmDelete: (options?: Partial<ConfirmOptions>) => Promise<boolean>;
   getDutyItemRef?: (index: number) => Ref<HTMLDivElement>;
   requestDutyScrollToIndex?: (index: number) => void;
-}): PageSurfaceSectionSpec[] {
+}): BodySurfaceSectionSpec[] {
   const details = parseDetailsObject(value);
   const dutyKey = "部门职责描述";
   if (!details) {
@@ -102,7 +102,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
       [key]: nextValue
     }, null, 2));
   }
-  function dutyDescriptionBlock(): PageSurfaceSectionSpec {
+  function dutyDescriptionBlock(): BodySurfaceSectionSpec {
     const key = dutyKey;
     const records = Array.isArray(parsedDetails[key]) ? parsedDetails[key] as Array<Record<string, unknown>> : [];
     function updateRecord(index: number, patch: Record<string, unknown>) {
@@ -130,8 +130,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
       actions: disabled ? undefined : [{ key: "add-duty", label: "新增职责", onClick: addRecord }],
 
       sections: records.length === 0
-        ? [createBlockSurfaceSection("empty", {
-          kind: "empty",
+        ? [createEmptySection("empty", {
           presentation: "plain",
           content: "未设置",
           compact: true
@@ -182,7 +181,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
     });
   }
   const remainingKeys = Object.keys(parsedDetails).filter(key => !["基本信息", "部门职责概要", "部门职责描述"].includes(key));
-  const sections: PageSurfaceSectionSpec[] = [
+  const sections: BodySurfaceSectionSpec[] = [
     {
       key: "summary",
       body: { kind: "form", form: {

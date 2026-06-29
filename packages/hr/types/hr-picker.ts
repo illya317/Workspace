@@ -3,6 +3,6 @@ export interface HrPickerProps {
   disabled?: boolean;
   onChange: (value: string | null) => void;
   className?: string;
-  /** @deprecated HR 选择输入统一由 Core InputControl 决定外观。 */
+  /** @deprecated HR 选择输入统一由 Core InputSurface 决定外观。 */
   buttonClassName?: string;
 }

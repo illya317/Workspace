@@ -21,7 +21,7 @@ export type InputValueType =
   | "reference"
   | "array";
 
-export type InputControlKind =
+export type InputSurfaceKind =
   | "text"
   | "number"
   | "boolean"
@@ -101,8 +101,8 @@ export type InputValueDimension = {
   valueType: InputValueType;
 };
 
-export type InputControlDimension = {
-  control: InputControlKind;
+export type InputSurfaceDimension = {
+  control: InputSurfaceKind;
 };
 
 export type InputOptionDimension = {
@@ -137,7 +137,7 @@ export type InputDependencyDimension = {
 
 export type InputFieldSpec =
   & InputValueDimension
-  & InputControlDimension
+  & InputSurfaceDimension
   & InputOptionDimension
   & InputPresentationDimension
   & InputStateDimension
@@ -145,7 +145,7 @@ export type InputFieldSpec =
   & InputUsageDimension
   & InputDependencyDimension;
 
-export type InputControlProps = {
+export type InputSurfaceProps = {
   spec: InputFieldSpec;
   value?: unknown;
   displayValue?: string;
@@ -193,24 +193,24 @@ export type InputControlProps = {
   showRatingLabel?: boolean;
 };
 
-export function normalizeInputControlValue(value: unknown) {
+export function normalizeInputSurfaceValue(value: unknown) {
   if (value === null || value === undefined) return "";
   return String(value);
 }
 
-export function inputControlStateSet(state?: InputState | InputState[]) {
+export function inputSurfaceStateSet(state?: InputState | InputState[]) {
   return new Set(Array.isArray(state) ? state : state ? [state] : ["normal"]);
 }
 
-export function inputControlOptionItems(options?: InputOptions) {
+export function inputSurfaceOptionItems(options?: InputOptions) {
   if (!options) return [];
   if (options.source === "static") return options.items;
   if (options.source === "grouped") return options.groups.flatMap((group) => group.options);
   return [];
 }
 
-export function inputControlOptionCount(options?: InputOptions) {
-  return inputControlOptionItems(options).length;
+export function inputSurfaceOptionCount(options?: InputOptions) {
+  return inputSurfaceOptionItems(options).length;
 }
 
 export function inputMaskPlaceholder(mask?: InputMask) {
@@ -223,7 +223,7 @@ export function inputMaskEditableSegment(mask?: InputMask) {
   return undefined;
 }
 
-export function toInputControlSearchableOption(option: InputOption): SearchableOption {
+export function toInputSurfaceSearchableOption(option: InputOption): SearchableOption {
   return {
     value: option.value,
     label: option.label,
@@ -232,8 +232,8 @@ export function toInputControlSearchableOption(option: InputOption): SearchableO
   };
 }
 
-export function formatInputControlValue(value: unknown, spec: InputFieldSpec): ReactNode {
-  const raw = normalizeInputControlValue(value);
+export function formatInputSurfaceValue(value: unknown, spec: InputFieldSpec): ReactNode {
+  const raw = normalizeInputSurfaceValue(value);
   if (!raw) return "";
   if (typeof spec.mask === "object" && spec.mask.kind !== "editableSegment" && spec.mask.display) return spec.mask.display.replaceAll("{value}", raw);
   if (typeof spec.mask === "string") return spec.mask.replaceAll("{value}", raw);

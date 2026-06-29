@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { InputControl } from "@workspace/core/ui";
+import { InputSurface } from "@workspace/core/ui";
 import type { HrPickerProps } from "@workspace/hr/types/hr-picker";
 
 interface RankPickerProps extends HrPickerProps {
@@ -50,7 +50,7 @@ export default function RankPicker({
   }, [options]);
 
   return (
-    <InputControl
+    <InputSurface
       spec={{
         valueType: "string",
         control: "choice",

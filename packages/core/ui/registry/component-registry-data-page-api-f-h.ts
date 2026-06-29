@@ -69,7 +69,7 @@ export const page_api_registry_entries = [
   {
     name: "FieldValueFilter",
     description: "字段值筛选",
-    composes: ["InputControl", "SelectField", "PickerOptionButton"],
+    composes: ["InputSurface", "SelectField", "PickerOptionButton"],
   },
   {
     name: "FileField",
@@ -98,7 +98,7 @@ export const page_api_registry_entries = [
         name: "content",
         description: "字段树和布局声明。",
         children: [
-          { name: "field", description: "普通输入字段，具体 spec 交给 InputControl。" },
+          { name: "field", description: "普通输入字段，具体 spec 交给 InputSurface。" },
           { name: "readonly", description: "只读字段。" },
           { name: "tagList", description: "标签列表字段。" },
           { name: "section", description: "字段分组。" },
@@ -109,7 +109,7 @@ export const page_api_registry_entries = [
       { name: "commands", description: "表单内部短命令；页面/section 标题动作归 PageSurface。" },
       { name: "submit", description: "表单提交事件。" },
     ],
-    composes: ["ActionGlyph", "FieldGrid", "FormField", "InputControl", "ReadOnlyField", "TagListInput", "TextField", "TextareaField", "CalendarDateInput", "ChoiceGroup", "SelectField", "FileField", "HiddenDataField", "CommandButton"],
+    composes: ["ActionGlyph", "FieldGrid", "FormField", "InputSurface", "ReadOnlyField", "TagListInput", "TextField", "TextareaField", "CalendarDateInput", "ChoiceGroup", "SelectField", "FileField", "HiddenDataField", "CommandButton"],
   },
   {
     name: "FormShell",

@@ -1,5 +1,5 @@
 import type { QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
-import { createBlockSurfaceSection, createPageBody, createMetricsSection, createPageDataSection, type DataSurfaceCellSpec, type DataSurfaceColumnSpec, type DataSurfaceTableProps, PageSurface } from "@workspace/core/ui";
+import { createMessageSection, createPageBody, createMetricsSection, createPageDataSection, type DataSurfaceCellSpec, type DataSurfaceColumnSpec, type DataSurfaceTableProps, PageSurface } from "@workspace/core/ui";
 
 interface Props {
   detail: QcTemplateDetail;
@@ -123,8 +123,7 @@ export default function QcTemplateDetailPanel({ detail }: Props) {
             { key: "layoutAssignments", label: "布局映射", value: detail.layoutAssignmentCount },
           ],
         }),
-      createBlockSurfaceSection("template-source", {
-        kind: "message",
+      createMessageSection("template-source", {
         tone: "muted",
 
         content: `${detail.fileName} · ${detail.source.configRoot}`

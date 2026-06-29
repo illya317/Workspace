@@ -6,28 +6,28 @@ import OptionPicker from "../selection/OptionPicker";
 import SearchableOptionInput, { type SearchableOptionInputProps } from "./SearchableOptionInput";
 import SelectField from "./SelectField";
 import {
-  inputControlOptionItems,
-  toInputControlSearchableOption,
-  type InputControlProps,
+  inputSurfaceOptionItems,
+  toInputSurfaceSearchableOption,
+  type InputSurfaceProps,
   type InputFieldSpec,
-} from "./InputControlTypes";
+} from "./InputSurfaceTypes";
 import type { FieldTextAlign, FieldVisualVariant } from "./TextField";
 
-export type InputControlChoiceRendererKind =
+export type InputSurfaceChoiceRendererKind =
   | "remoteReference"
   | "autocompleteChoice"
   | "selectChoice"
   | "pickerChoice";
 
-export function isInputControlChoiceRenderer(renderer: string): renderer is InputControlChoiceRendererKind {
+export function isInputSurfaceChoiceRenderer(renderer: string): renderer is InputSurfaceChoiceRendererKind {
   return renderer === "remoteReference"
     || renderer === "autocompleteChoice"
     || renderer === "selectChoice"
     || renderer === "pickerChoice";
 }
 
-export interface InputControlChoiceRendererProps {
-  renderer: InputControlChoiceRendererKind;
+export interface InputSurfaceChoiceRendererProps {
+  renderer: InputSurfaceChoiceRendererKind;
   spec: InputFieldSpec;
   value?: unknown;
   displayValue?: string;
@@ -35,20 +35,20 @@ export interface InputControlChoiceRendererProps {
   disabled: boolean;
   placeholder?: string;
   autocompletePresentation?: SearchableOptionInputProps["presentation"];
-  onChange?: InputControlProps["onChange"];
-  onQueryChange?: InputControlProps["onQueryChange"];
-  loading?: InputControlProps["loading"];
-  emptyText?: InputControlProps["emptyText"];
+  onChange?: InputSurfaceProps["onChange"];
+  onQueryChange?: InputSurfaceProps["onQueryChange"];
+  loading?: InputSurfaceProps["loading"];
+  emptyText?: InputSurfaceProps["emptyText"];
   className?: string;
-  size: NonNullable<InputControlProps["size"]>;
-  density: NonNullable<InputControlProps["density"]>;
+  size: NonNullable<InputSurfaceProps["size"]>;
+  density: NonNullable<InputSurfaceProps["density"]>;
   style?: CSSProperties;
   visualVariant?: FieldVisualVariant;
   textAlign?: FieldTextAlign;
   fallback: () => React.ReactNode;
 }
 
-export default function InputControlChoiceRenderer({
+export default function InputSurfaceChoiceRenderer({
   renderer,
   spec,
   value,
@@ -68,7 +68,7 @@ export default function InputControlChoiceRenderer({
   visualVariant,
   textAlign,
   fallback,
-}: InputControlChoiceRendererProps) {
+}: InputSurfaceChoiceRendererProps) {
   if (renderer === "remoteReference") {
     if (spec.options?.source !== "remote") return <>{fallback()}</>;
     const options = spec.options;
@@ -105,7 +105,7 @@ export default function InputControlChoiceRenderer({
     return (
       <SearchableOptionInput
         value={stringValue}
-        options={inputControlOptionItems(spec.options).map(toInputControlSearchableOption)}
+        options={inputSurfaceOptionItems(spec.options).map(toInputSurfaceSearchableOption)}
         disabled={disabled}
         placeholder={placeholder}
         maxResults={spec.options?.source === "static" || spec.options?.source === "grouped" ? spec.options.visibleCount ?? 5 : 5}
@@ -120,7 +120,7 @@ export default function InputControlChoiceRenderer({
   }
 
   if (renderer === "selectChoice" && (spec.options?.source === "static" || spec.options?.source === "grouped")) {
-    const options = inputControlOptionItems(spec.options);
+    const options = inputSurfaceOptionItems(spec.options);
     if (spec.multiple) {
       const selected = Array.isArray(value) ? value.map(String) : stringValue ? [stringValue] : [];
       return (
@@ -181,7 +181,7 @@ export default function InputControlChoiceRenderer({
   return (
     <OptionPicker
       value={stringValue}
-      options={inputControlOptionItems(spec.options)}
+      options={inputSurfaceOptionItems(spec.options)}
       disabled={disabled}
       placeholder={placeholder}
       unsetLabel={spec.options?.source === "static" ? spec.options.unsetLabel : undefined}

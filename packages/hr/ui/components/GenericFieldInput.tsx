@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect } from "react";
 import FKInput from "./FKInput";
-import { InputControl, type InputControlProps } from "@workspace/core/ui";
+import { InputSurface, type InputSurfaceProps } from "@workspace/core/ui";
 import EthnicityPicker from "./EthnicityPicker";
 import MajorPicker from "./MajorPicker";
 import ProfessionalTitlePicker from "./ProfessionalTitlePicker";
@@ -24,8 +24,8 @@ interface GenericFieldInputProps {
   className?: string;
 }
 
-function ControlField(control: InputControlProps) {
-  return <InputControl {...control} />;
+function ControlField(control: InputSurfaceProps) {
+  return <InputSurface {...control} />;
 }
 
 export default function GenericFieldInput({

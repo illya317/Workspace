@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createPageBody, createAnalysisSection, createSectionsSection, createMessageSection, createMetricsSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createSectionsSection, createMessageSection, createMetricsSection, PageSurface, type DataSurfaceColumnSpec, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { Contract } from "./useAnalyticsData";
 import { computeStats, enrichContracts, filterContracts, statusLabel, type EnrichedContract } from "./contract-helpers";
 
@@ -14,7 +14,7 @@ export function useContractAnalyticsBlocks({
   contracts
 }: {
   contracts: Contract[];
-}): PageSurfaceSectionSpec[] {
+}): BodySurfaceSectionSpec[] {
   const [filter, setFilter] = useState<"all" | "expiring30" | "expiring90" | "expired">("all");
   const [search, setSearch] = useState("");
   const enriched = useMemo(() => enrichContracts(contracts), [contracts]);

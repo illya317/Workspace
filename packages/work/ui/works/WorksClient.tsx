@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createBlockSurfaceSection, createFormSection, createSectionsSection, createMessageSection, createPageBody, createPageTabsNavigation, createPanelSection, createSectionSection, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createFormSection, createSectionsSection, createMessageSection, createPageBody, createPageTabsNavigation, createPanelSection, createSectionSection, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import type { SessionUser } from "@workspace/platform/types";
@@ -446,9 +446,10 @@ export default function WorksClient({ initialTarget }: {
       }) : undefined}
       toolbar={toolbarItems.length > 0 ? { items: toolbarItems } : undefined}
       body={{
-        kind: "split",
-        selector: planSelector,
-        drawerSelector: planSelector,
+        kind: "section",
+        layout: "split",
+        left: { kind: "selector", selector: planSelector },
+        drawerLeft: { kind: "selector", selector: planSelector },
         right: createPageBody(currentSpace ? [
           createPanelSection("space-header", {
             title: currentSpace.name,
@@ -474,7 +475,7 @@ export default function WorksClient({ initialTarget }: {
               })]),
             ],
           }),
-        ] : [createBlockSurfaceSection("empty-space", { kind: "message", content: spacesLoading ? "加载工作空间中..." : "当前账号暂无可进入的工作计划空间", tone: "muted" })]),
+        ] : [createMessageSection("empty-space", { content: spacesLoading ? "加载工作空间中..." : "当前账号暂无可进入的工作计划空间", tone: "muted" })]),
         sideOpen,
         drawerOpen,
         onSideOpenChange: setSideOpen,

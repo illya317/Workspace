@@ -3,11 +3,11 @@
 import type { ReactNode } from "react";
 import {
   createPageBody,
-  InputControl,
+  InputSurface,
   PageSurface,
   createSectionSection,
-  type InputControlProps,
-  type PageSurfaceSectionSpec,
+  type InputSurfaceProps,
+  type BodySurfaceSectionSpec,
 } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import EthnicityPicker from "../components/EthnicityPicker";
@@ -31,8 +31,8 @@ interface FieldInputProps {
   onChange: (key: string, value: unknown, option?: ReferenceOption) => void;
 }
 
-function ControlField(control: InputControlProps) {
-  return <InputControl {...control} />;
+function ControlField(control: InputSurfaceProps) {
+  return <InputSurface {...control} />;
 }
 
 export function ProfileFieldInput({
@@ -286,7 +286,7 @@ export function SectionShell({
   subtitle?: ReactNode;
   status?: ReactNode;
   className?: string;
-  sections: PageSurfaceSectionSpec[];
+  sections: BodySurfaceSectionSpec[];
 }) {
   return (
     <PageSurface kind="standard"
@@ -307,9 +307,9 @@ export function sectionShellBlock({
   subtitle?: ReactNode;
   status?: ReactNode;
   className?: string;
-  sections: PageSurfaceSectionSpec[];
+  sections: BodySurfaceSectionSpec[];
   key?: string;
-}): PageSurfaceSectionSpec {
+}): BodySurfaceSectionSpec {
   const headerTitle = title ? (
     <div>
       <div>{title}</div>

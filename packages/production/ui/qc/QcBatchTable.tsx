@@ -59,7 +59,7 @@ export function QcBatchTable({
             emptyText: "暂无批次记录。",
             scroll: { x: true },
           } },
-        }], { layout: "single" })}
+        }], { layout: "stack" })}
       footer={{ pagination: { page, totalPages, total, onPageChange,  compact: true } }}
     />
   );

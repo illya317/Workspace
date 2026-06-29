@@ -1,6 +1,6 @@
 "use client";
 
-import { createBlockSurfaceSection, createMessageSection, createPageBody, createSectionSection, type DataSurfaceColumnSpec, PageSurface, type PageSurfaceSectionSpec, type PageSurfaceCommandSpec } from "@workspace/core/ui";
+import { createMessageSection, createPageBody, createSectionSection, type DataSurfaceColumnSpec, PageSurface, type BodySurfaceSectionSpec, type BodySurfaceCommandSpec } from "@workspace/core/ui";
 
 export interface PositionDescriptionReadOnlyData {
   id?: number | string;
@@ -95,7 +95,7 @@ export function PositionDescriptionReadOnlyView({
 }: {
   data: PositionDescriptionReadOnlyData;
   showHeader?: boolean;
-  actions?: PageSurfaceCommandSpec[];
+  actions?: BodySurfaceCommandSpec[];
 }) {
   const d = data.details || {};
   const historyRows = Array.isArray(d.changeHistory) ? (d.changeHistory as Record<string, unknown>[]) : [];
@@ -119,7 +119,7 @@ export function PositionDescriptionReadOnlyView({
       cell: (row) => <span className="text-slate-700">{String(row.effectiveDate ?? "")}</span>,
     },
   ];
-  const sections: PageSurfaceSectionSpec[] = [
+  const sections: BodySurfaceSectionSpec[] = [
     ...(showHeader ? [createSectionSection("header", {
       title: "岗位说明书",
 
@@ -135,9 +135,7 @@ export function PositionDescriptionReadOnlyView({
     createSectionSection("basic", {
       title: "基本信息",
 
-      sections: [createBlockSurfaceSection("basic-fields", {
-        kind: "message",
-
+      sections: [createMessageSection("basic-fields", {
         content: (
           <>
             <Pair label="岗位名称" value={data.name} />

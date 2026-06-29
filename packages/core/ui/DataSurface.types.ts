@@ -1,5 +1,5 @@
 import type { FocusEventHandler, KeyboardEventHandler, ReactNode } from "react";
-import type { InputFieldSpec } from "./InputControl";
+import type { InputFieldSpec } from "./InputSurface";
 import type { SurfaceDataRowActionSpec, SurfaceDataRowEditActionSpec } from "./SurfaceContractTypes";
 
 export type DataSurfaceKind = "table" | "structured";

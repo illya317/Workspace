@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createPanelSection, PageSurface, type FormSurfaceItemSpec, type FormSurfaceLooseItem, type PageSurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
+import { createPageBody, createPanelSection, PageSurface, type FormSurfaceItemSpec, type FormSurfaceLooseItem, type BodySurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { NEW_POSITION_DESCRIPTION_TEMPLATE_OPTION, type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
 import { selectedEntityName, usePositionDescriptionDetailsSurface } from "./detail-editors";
@@ -67,7 +67,7 @@ export function usePositionDescriptionPanelBlock({
   onTemplateEditorOpenChange,
   onTemplateDraftNameChange,
   onTogglePositionDescriptionTemplateField
-}: PositionDescriptionPanelProps): PageSurfaceSectionSpec | null {
+}: PositionDescriptionPanelProps): BodySurfaceSectionSpec | null {
   const draft = descriptionDraft ?? EMPTY_DESCRIPTION_DRAFT;
   const currentPosition = position ?? ({ id: 0, name: "", departmentName: "" } as Position);
   const meta = deriveDescriptionMeta(draft.details, draft.version, draft.effectiveDate);

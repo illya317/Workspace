@@ -5,8 +5,8 @@ import {
   createPageBody,
   createPanelSection,
   PageSurface,
-  type PageSurfaceSectionSpec,
-  type PageSurfaceCommandSpec,
+  type BodySurfaceSectionSpec,
+  type BodySurfaceCommandSpec,
 } from "@workspace/core/ui";
 
 export function FieldRegion({
@@ -15,8 +15,8 @@ export function FieldRegion({
   sections,
 }: {
   title: ReactNode;
-  actions?: PageSurfaceCommandSpec[];
-  sections: PageSurfaceSectionSpec[];
+  actions?: BodySurfaceCommandSpec[];
+  sections: BodySurfaceSectionSpec[];
   className?: string;
 }) {
   const block = fieldRegionBlock({ title, actions, sections });
@@ -36,11 +36,11 @@ export function fieldRegionBlock({
   key = "field-region",
 }: {
   title: ReactNode;
-  actions?: PageSurfaceCommandSpec[];
-  sections: PageSurfaceSectionSpec[];
+  actions?: BodySurfaceCommandSpec[];
+  sections: BodySurfaceSectionSpec[];
   itemRef?: Ref<HTMLDivElement>;
   key?: string;
-}): PageSurfaceSectionSpec {
+}): BodySurfaceSectionSpec {
   return createPanelSection(key, {
     itemRef,
     title,

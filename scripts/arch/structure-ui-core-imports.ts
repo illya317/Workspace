@@ -80,7 +80,7 @@ const CORE_UI_ALLOWED_RUNTIME_IMPORTS = new Set([
   "ActionGlyph",
   "BlockSurface",
   "FeedbackProvider",
-  "InputControl",
+  "InputSurface",
   "PageSurface",
   "useFeedback",
 ]);

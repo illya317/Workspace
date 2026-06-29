@@ -1,6 +1,6 @@
 "use client";
 
-import type { PageSurfaceSectionSpec, SelectorSurfaceProps } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec, SelectorSurfaceProps } from "@workspace/core/ui";
 import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 import { DepartmentPositionActiveWorkspace } from "./active-workspace";
 import { useDepartmentPositionDetailBlocks } from "./department-position-detail-area";
@@ -45,7 +45,7 @@ export function DepartmentPositionMainContent({
   onCreatePanelChange: (panel: "department" | "position" | null) => void;
   onCollapseAll: (collapsed: boolean) => void;
   onLoadData: () => Promise<void>;
-  detailBlocks: PageSurfaceSectionSpec[];
+  detailBlocks: BodySurfaceSectionSpec[];
   onSideOpenChange: (open: boolean) => void;
   onDrawerOpenChange: (open: boolean) => void;
   surface?: RosterSurfaceNavigationProps;

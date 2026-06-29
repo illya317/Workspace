@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { createBlockSurfaceSection, createPageBody, createPageTabsNavigation, createSplitPageBody, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createBodySplitSection, createMessageSection, createPageBody, createPageTabsNavigation, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { PageSurfaceProps, SelectorSurfaceProps } from "@workspace/core/ui";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 import type { WorkUser } from "@workspace/work/types";
@@ -140,19 +140,18 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
                 : []),
             ],
       }}
-      body={createSplitPageBody({
-        selector: projectListSelector(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
+      body={createBodySplitSection({
+        left: { kind: "selector", selector: projectListSelector(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
           model.setCreating(false);
           model.setSelection(projectId);
           model.setProjectListDrawerOpen(false);
-        }, model.loading, model.error),
-        drawerSelector: projectListSelector(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
+        }, model.loading, model.error) },
+        drawerLeft: { kind: "selector", selector: projectListSelector(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
           model.setCreating(false);
           model.setSelection(projectId);
           model.setProjectListDrawerOpen(false);
-        }, model.loading, model.error),
-        right: model.loading || model.error ? createPageBody([createBlockSurfaceSection("project-loading", {
-          kind: "message",
+        }, model.loading, model.error) },
+        right: model.loading || model.error ? createPageBody([createMessageSection("project-loading", {
           content: model.error || "加载中...",
           tone: model.error ? "danger" : "muted"
         })]) : projectDetailBlock,

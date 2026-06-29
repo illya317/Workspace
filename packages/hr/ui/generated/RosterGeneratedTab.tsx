@@ -2,11 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  createPageBody, createBlockSurfaceSection,
-  createMessageSection,
+  createPageBody, createEmptySection, createMessageSection,
   createPanelSection,
   PageSurface,
-  type PageSurfaceSectionSpec,
+  type BodySurfaceSectionSpec,
   type SurfaceColumnOptionSpec,
   type DataSurfaceStructuredCellSpec,
   type SurfaceFilterFieldSpec,
@@ -198,15 +197,13 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
     },
   });
 
-  const tableBlocks: PageSurfaceSectionSpec[] = loading
-    ? [createBlockSurfaceSection("loading", {
-      kind: "message",
+  const tableBlocks: BodySurfaceSectionSpec[] = loading
+    ? [createMessageSection("loading", {
       content: "正在生成预览...",
       tone: "muted"
     })]
     : groups.length === 0
-      ? [createBlockSurfaceSection("empty", {
-        kind: "empty",
+      ? [createEmptySection("empty", {
         presentation: "plain",
         content: "暂无花名册数据"
       })]
@@ -227,7 +224,7 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
           } },
         }];
 
-  const sections: PageSurfaceSectionSpec[] = [
+  const sections: BodySurfaceSectionSpec[] = [
     ...(error ? [createMessageSection("error", { content: error, tone: "danger" as const })] : []),
     createPanelSection("preview", {
 

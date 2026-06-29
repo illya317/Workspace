@@ -24,7 +24,7 @@ const TARGETS: ContractTarget[] = [
   { componentName: "DataSurface", sourcePath: "packages/core/ui/DataSurface.types.ts", typeName: "DataSurfaceProps" },
   { componentName: "DocumentSurface", sourcePath: "packages/core/ui/DocumentSurface.tsx", typeName: "DocumentSurfaceProps" },
   { componentName: "FormSurface", sourcePath: "packages/core/ui/FormSurface.types.ts", typeName: "FormSurfaceProps" },
-  { componentName: "InputControl", sourcePath: "packages/core/ui/internal/input/InputControlTypes.ts", typeName: "InputControlProps" },
+  { componentName: "InputSurface", sourcePath: "packages/core/ui/internal/input/InputSurfaceTypes.ts", typeName: "InputSurfaceProps" },
   { componentName: "MetricsSurface", sourcePath: "packages/core/ui/MetricsSurface.tsx", typeName: "MetricsSurfaceProps" },
   { componentName: "NavigationRenderer", sourcePath: "packages/core/ui/NavigationRenderer.tsx", typeName: "NavigationRendererProps" },
   { componentName: "PageSurface", sourcePath: "packages/core/ui/PageSurface.types.ts", typeName: "PageSurfaceProps" },

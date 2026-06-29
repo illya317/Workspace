@@ -23,23 +23,24 @@ export function checkPageSurfaceDirectoryRenderer() {
   const source = readFileSync(PAGE_SURFACE_FILE, "utf8");
   const directoryRenderer = rendererSource(source, "renderDirectorySurface");
   const directorySectionRenderer = rendererSource(source, "renderDirectorySection");
+  const directoryBodyRenderer = rendererSource(source, "renderDirectoryBody");
   const loginRenderer = rendererSource(source, "renderLoginBody");
   const failures: string[] = [];
 
-  if (!directoryRenderer || !directorySectionRenderer) {
+  if (!directoryRenderer || !directorySectionRenderer || !directoryBodyRenderer) {
     failures.push("PageSurface must keep a dedicated renderDirectorySurface renderer.");
   } else {
     if (!directoryRenderer.includes('className="mx-auto max-w-7xl px-4 py-10"')) {
       failures.push("Directory renderer must preserve the historical py-10 module directory spacing.");
     }
     if (
-      !directorySectionRenderer.includes('section.body.surface.kind !== "moduleGrid"')
-      || !directorySectionRenderer.includes("justify-center")
-      || !directorySectionRenderer.includes("<ModuleCard")
+      !directoryBodyRenderer.includes('body.surface.kind !== "moduleGrid"')
+      || !directoryBodyRenderer.includes("justify-center")
+      || !directoryBodyRenderer.includes("<ModuleCard")
     ) {
       failures.push("Directory renderer must render moduleGrid through its sealed centered directory layout.");
     }
-    if (/\brenderCompleteBody\b|\brenderSectionStack\b|\bDatabasePageFrame\b|\bBlockSurface\b|\bPageContent\b/.test(directoryRenderer + directorySectionRenderer)) {
+    if (/\brenderCompleteBody\b|\brenderSectionStack\b|\bDatabasePageFrame\b|\bBlockSurface\b|\bPageContent\b/.test(directoryRenderer + directorySectionRenderer + directoryBodyRenderer)) {
       failures.push("Directory renderer must not use standard page, section, BlockSurface, or PageContent renderers.");
     }
   }

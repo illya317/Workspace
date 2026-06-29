@@ -78,7 +78,7 @@ const SURFACE_PUBLIC_CONTRACT_RULES: Array<{
 }> = [
   {
     file: "packages/core/ui/DataSurface.types.ts",
-    pattern: /\b(DataTableProps|DataTableColumn|renderExpandedRow|SelectionGridProps|StructuredTableProps|InputControlProps|DisclosureRecordAction)\b/,
+    pattern: /\b(DataTableProps|DataTableColumn|renderExpandedRow|SelectionGridProps|StructuredTableProps|InputSurfaceProps|DisclosureRecordAction)\b/,
     label: "renderer-props",
     reason: "DataSurface public contract must not expose renderer/internal component props.",
   },
@@ -101,8 +101,8 @@ const SURFACE_PUBLIC_CONTRACT_FILES = [
   "packages/core/ui/DataSurface.types.ts",
   "packages/core/ui/DocumentSurface.tsx",
   "packages/core/ui/FormSurface.types.ts",
-  "packages/core/ui/InputControl.tsx",
-  "packages/core/ui/internal/input/InputControlTypes.ts",
+  "packages/core/ui/InputSurface.tsx",
+  "packages/core/ui/internal/input/InputSurfaceTypes.ts",
   "packages/core/ui/NavigationRenderer.tsx",
   "packages/core/ui/PageSurface.types.ts",
   "packages/core/ui/SelectorSurface.tsx",
@@ -190,6 +190,9 @@ const SURFACE_DECLARE_RULES: Record<string, {
   BlockSurface: {
     topLevel: ["kind", "content", "blocks", "actions", "presentation"],
   },
+  BodySurface: {
+    topLevel: ["kind", "layout", "sections", "sectioning", "commands", "empty", "modals", "split"],
+  },
   DataSurface: {
     topLevel: ["kind", "actions"],
   },
@@ -205,7 +208,7 @@ const SURFACE_DECLARE_RULES: Record<string, {
   FormSurface: {
     topLevel: ["kind", "content", "commands", "submit"],
   },
-  InputControl: {
+  InputSurface: {
     topLevel: ["control", "valueType", "options", "format", "mask", "state", "validation", "usage", "dependencies"],
   },
   NavigationRenderer: {
@@ -214,7 +217,7 @@ const SURFACE_DECLARE_RULES: Record<string, {
   },
   PageSurface: {
     topLevel: ["kind", "header", "navigation", "toolbar", "body", "footer", "embedded"],
-    maxTotalDeclares: 72,
+    maxTotalDeclares: 24,
     deprecatedPaths: ["body.content"],
   },
   SelectorSurface: {
@@ -334,7 +337,7 @@ function isInsidePageBlockHelper(node: ts.Node) {
 }
 
 function looksLikePageSurfaceConsumer(text: string) {
-  return /PageSurface|PageSurfaceSectionSpec|PageBlockSurface|createPage|createBlockSurfaceSection/.test(text);
+  return /PageSurface|BodySurface|BodySurfaceSectionSpec|PageBlockSurface|createPage|createBlockSurfaceSection/.test(text);
 }
 
 export function findLegacyPageBlockUsageWarnings() {
@@ -676,7 +679,7 @@ export function checkSurfaceBoundaries() {
 
   if (legacyPageBlockWarnings.length > 0) {
     console.warn(`⚠ PageSurface section warning: ${legacyPageBlockWarnings.length} legacy page section shape(s) detected outside Core UI.`);
-    console.warn("  Rule: PageSurface.body.sections should use typed section helpers; common containers belong to BlockSurface.");
+    console.warn("  Rule: BodySurface section trees should use typed section helpers; common containers belong to BodySurface section.");
     for (const warning of legacyPageBlockWarnings.slice(0, 40)) {
       console.warn(`  - ${warning.file}:${warning.line}: ${warning.pattern} -> ${warning.migrationTarget}`);
     }

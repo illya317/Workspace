@@ -4,7 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { matchText } from "@workspace/core/search";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createBlockSurfaceSection, createPageBody, createSectionSection, PageSurface, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createEmptySection, createPageBody, createSectionSection, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 
 interface TreeNode {
@@ -103,8 +103,7 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
     router.push(`/docs/positions/${code}`);
   }
 
-  const mainBlocks: PageSurfaceSectionSpec[] = !selectedNode ? [createBlockSurfaceSection("empty", {
-    kind: "empty",
+  const mainBlocks: BodySurfaceSectionSpec[] = !selectedNode ? [createEmptySection("empty", {
     content: "选择左侧部门查看直属岗位"
   })] : [createSectionSection("positions", {
     title: `直属岗位 · ${selectedNode.name}`,
@@ -136,22 +135,26 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
   return (
     <PageSurface kind="standard"
       body={{
-        kind: "split",
-        selector: {
-          kind: "tree",
-          title: "部门目录",
-          items: visibleTree,
-          selectedId: selectedCode,
-          onSelect: (node: TreeNode) => setSelectedCode(node.code),
-          getKey: (node: TreeNode) => node.code,
-          getChildren: (node: TreeNode) => node.children,
-          renderItem: (node: TreeNode, ctx) => ({
-            title: node.name,
-            code: node.code,
-            level: ctx.level,
-          }),
-          filter: { kind: "search", value: search, onChange: setSearch, placeholder: "搜索部门..." },
-          loading,
+        kind: "section",
+        layout: "split",
+        left: {
+          kind: "selector",
+          selector: {
+            kind: "tree",
+            title: "部门目录",
+            items: visibleTree,
+            selectedId: selectedCode,
+            onSelect: (node: TreeNode) => setSelectedCode(node.code),
+            getKey: (node: TreeNode) => node.code,
+            getChildren: (node: TreeNode) => node.children,
+            renderItem: (node: TreeNode, ctx) => ({
+              title: node.name,
+              code: node.code,
+              level: ctx.level,
+            }),
+            filter: { kind: "search", value: search, onChange: setSearch, placeholder: "搜索部门..." },
+            loading,
+          },
         },
         right: createPageBody(mainBlocks),
         sideOpen,

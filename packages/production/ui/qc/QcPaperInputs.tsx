@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { InputControl } from "@workspace/core/ui";
+import { InputSurface } from "@workspace/core/ui";
 import type { QcLayoutPart } from "@workspace/production/server/qc";
 
 const PAPER_INPUT_TEXT_CLASS = "text-[15px]";
@@ -49,7 +49,7 @@ export function QcPaperLineInput({
   const isReadOnly = readOnly || part.readonlyDisplay || !onChange;
   if (part.multiline || part.inputType === "textarea") {
     return (
-      <InputControl
+      <InputSurface
         spec={{ valueType: "string", control: "text", multiline: true }}
         ariaLabel={part.fieldKey || part.field || part.name || "填写项"}
         dataFieldKey={part.fieldKey || part.field || part.name}
@@ -65,7 +65,7 @@ export function QcPaperLineInput({
   }
   if (part.inputType === "date") {
     return (
-      <InputControl
+      <InputSurface
         spec={{ valueType: "date", control: "temporal", precision: "date" }}
         value={currentValue}
         onChange={(next) => onChange?.(String(next ?? ""))}
@@ -76,7 +76,7 @@ export function QcPaperLineInput({
     );
   }
   return (
-    <InputControl
+    <InputSurface
       spec={{ valueType: part.inputType === "number" ? "number" : "string", control: "text" }}
       ariaLabel={part.fieldKey || part.field || part.name || "填写项"}
       dataFieldKey={part.fieldKey || part.field || part.name}
@@ -187,7 +187,7 @@ export function QcPaperChoiceInput({
   onChange?: (value: string) => void;
 }) {
   return (
-    <InputControl
+    <InputSurface
       spec={{
         valueType: "string",
         control: "choice", presentation: "choice",

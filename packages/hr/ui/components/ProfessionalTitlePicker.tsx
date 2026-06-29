@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { InputControl } from "@workspace/core/ui";
+import { InputSurface } from "@workspace/core/ui";
 import {
   HR_PROFESSIONAL_TITLE_GROUPS,
   normalizeProfessionalTitle,
@@ -29,7 +29,7 @@ export default function ProfessionalTitlePicker({
   );
 
   return (
-    <InputControl
+    <InputSurface
       spec={{
         valueType: "string",
         control: "choice",

@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import {
   createPageBody,
   PageSurface,
-  type PageSurfaceSectionSpec,
+  type BodySurfaceSectionSpec,
 } from "@workspace/core/ui";
 import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 import type { ArchivedEntityTab, Department, Position, Selection } from "./types";
@@ -41,7 +41,7 @@ export function ArchivedDepartmentPositionPage({
   onSideOpenChange: (open: boolean) => void;
   onDrawerOpenChange: (open: boolean) => void;
   onSelect: (selection: Selection) => void;
-  sections: PageSurfaceSectionSpec[];
+  sections: BodySurfaceSectionSpec[];
   surface?: RosterSurfaceNavigationProps;
 }) {
   const archivedItems: ArchivedEntityItem[] = archivedTab === "departments"
@@ -66,71 +66,78 @@ export function ArchivedDepartmentPositionPage({
       embedded={!surface}
       {...surface}
       body={{
-        kind: "split",
-        selector: {
-          kind: "list",
-          title: "归档列表",
-          commands: [
-            {
-              key: "departments",
-              label: `归档部门 ${archivedDepartments.length}`,
-              variant: archivedTab === "departments" ? "primary" : "secondary",
-              onClick: () => onArchivedTabChange("departments"),
-            },
-            {
-              key: "positions",
-              label: `归档岗位 ${archivedPositions.length}`,
-              variant: archivedTab === "positions" ? "primary" : "secondary",
-              onClick: () => onArchivedTabChange("positions"),
-            },
-          ],
-          items: archivedItems,
-          selectedId: activeItemId,
-          onSelect: (item: ArchivedEntityItem) => onSelect({
-            type: archivedTab === "departments" ? "department" : "position",
-            id: Number(item.id),
-          }),
-          getKey: (item: ArchivedEntityItem) => item.id,
-          renderItem: (item: ArchivedEntityItem) => ({
-            title: item.title,
-            code: item.code,
-            metaLine: item.meta,
-          }),
-          size: "sm",
-          emptyText: archivedTab === "departments" ? "暂无归档部门" : "暂无归档岗位",
+        kind: "section",
+        layout: "split",
+        left: {
+          kind: "selector",
+          selector: {
+            kind: "list",
+            title: "归档列表",
+            commands: [
+              {
+                key: "departments",
+                label: `归档部门 ${archivedDepartments.length}`,
+                variant: archivedTab === "departments" ? "primary" : "secondary",
+                onClick: () => onArchivedTabChange("departments"),
+              },
+              {
+                key: "positions",
+                label: `归档岗位 ${archivedPositions.length}`,
+                variant: archivedTab === "positions" ? "primary" : "secondary",
+                onClick: () => onArchivedTabChange("positions"),
+              },
+            ],
+            items: archivedItems,
+            selectedId: activeItemId,
+            onSelect: (item: ArchivedEntityItem) => onSelect({
+              type: archivedTab === "departments" ? "department" : "position",
+              id: Number(item.id),
+            }),
+            getKey: (item: ArchivedEntityItem) => item.id,
+            renderItem: (item: ArchivedEntityItem) => ({
+              title: item.title,
+              code: item.code,
+              metaLine: item.meta,
+            }),
+            size: "sm",
+            emptyText: archivedTab === "departments" ? "暂无归档部门" : "暂无归档岗位",
+          },
         },
-        drawerSelector: {
-          kind: "list",
-          title: "归档列表",
-          commands: [
-            { key: "close", label: "关闭", onClick: () => onDrawerOpenChange(false) },
-            {
-              key: "departments",
-              label: `归档部门 ${archivedDepartments.length}`,
-              variant: archivedTab === "departments" ? "primary" : "secondary",
-              onClick: () => onArchivedTabChange("departments"),
-            },
-            {
-              key: "positions",
-              label: `归档岗位 ${archivedPositions.length}`,
-              variant: archivedTab === "positions" ? "primary" : "secondary",
-              onClick: () => onArchivedTabChange("positions"),
-            },
-          ],
-          items: archivedItems,
-          selectedId: activeItemId,
-          onSelect: (item: ArchivedEntityItem) => onSelect({
-            type: archivedTab === "departments" ? "department" : "position",
-            id: Number(item.id),
-          }),
-          getKey: (item: ArchivedEntityItem) => item.id,
-          renderItem: (item: ArchivedEntityItem) => ({
-            title: item.title,
-            code: item.code,
-            metaLine: item.meta,
-          }),
-          size: "sm",
-          emptyText: archivedTab === "departments" ? "暂无归档部门" : "暂无归档岗位",
+        drawerLeft: {
+          kind: "selector",
+          selector: {
+            kind: "list",
+            title: "归档列表",
+            commands: [
+              { key: "close", label: "关闭", onClick: () => onDrawerOpenChange(false) },
+              {
+                key: "departments",
+                label: `归档部门 ${archivedDepartments.length}`,
+                variant: archivedTab === "departments" ? "primary" : "secondary",
+                onClick: () => onArchivedTabChange("departments"),
+              },
+              {
+                key: "positions",
+                label: `归档岗位 ${archivedPositions.length}`,
+                variant: archivedTab === "positions" ? "primary" : "secondary",
+                onClick: () => onArchivedTabChange("positions"),
+              },
+            ],
+            items: archivedItems,
+            selectedId: activeItemId,
+            onSelect: (item: ArchivedEntityItem) => onSelect({
+              type: archivedTab === "departments" ? "department" : "position",
+              id: Number(item.id),
+            }),
+            getKey: (item: ArchivedEntityItem) => item.id,
+            renderItem: (item: ArchivedEntityItem) => ({
+              title: item.title,
+              code: item.code,
+              metaLine: item.meta,
+            }),
+            size: "sm",
+            emptyText: archivedTab === "departments" ? "暂无归档部门" : "暂无归档岗位",
+          },
         },
         right: createPageBody(sections),
         sideOpen,

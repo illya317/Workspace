@@ -17,7 +17,7 @@
 1. `role=surface` 必须有清晰 `declares`。
 2. 非 `role=surface` 不应挂 public `declares`；service/helper 用 `capabilities` 或 description 描述能力。
 3. 非 common 的 Surface 不应直接 compose 其他 Surface；共享能力应下沉到 `common` 或 helper。
-4. `InputControl` 归 `common.input` 且作为 `role=surface` 的通用声明接口保留。
+4. `InputSurface` 归 `common.input` 且作为 `role=surface` 的通用声明接口保留。
 5. `host` 暂时为空；不要为了迁移便利新增 host。
 6. 业务代码不得新增 `PageSurface.moduleView`、`DataSurface.raw`、旧 `DataSurface kind="visual"` 这类兼容逃生口；`arch:surface-boundaries` 会扫描 Core UI 以外源码并报错。
 
@@ -57,7 +57,7 @@
 - `VisualizationSurface`：只管 chart、gantt、timeline、graph 等图形声明。
 - `DocumentSurface`：只管纸面/QC/打印布局；允许拥有 `pageClassName/style/className` 这类纸面覆盖。
 - `BlockSurface`：只管 section、panel、group、message、empty、actions 等通用区块。
-- `InputControl`：作为 `common.input` 的通用输入声明接口，被其他 Surface 使用。
+- `InputSurface`：作为 `common.input` 的通用输入声明接口，被其他 Surface 使用。
 
 ## Migration Order
 

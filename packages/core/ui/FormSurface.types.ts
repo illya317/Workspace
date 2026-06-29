@@ -1,6 +1,6 @@
 import type { Ref, ReactNode } from "react";
 import type { FieldGridCellProps, FieldGridMode } from "./internal/input/FieldGrid";
-import type { InputControlProps } from "./InputControl";
+import type { InputSurfaceProps } from "./InputSurface";
 import type { ReadOnlyFieldProps } from "./internal/input/ReadOnlyField";
 import type { TagListInputProps } from "./internal/input/TagListInput";
 import type { CommandButtonProps } from "./internal/common/CommandButton";
@@ -14,7 +14,7 @@ export interface FormSurfaceLayoutSpec {
   flow?: FormSurfaceLayoutFlow;
   columns?: 1 | 2 | 3;
   mode?: FieldGridMode;
-  density?: InputControlProps["density"];
+  density?: InputSurfaceProps["density"];
 }
 
 export interface FormSurfaceSubmitSpec {
@@ -35,7 +35,7 @@ export interface FormSurfaceCommandSpec {
 }
 
 type FormSurfaceInputProps = Omit<
-  InputControlProps,
+  InputSurfaceProps,
   | "spec"
   | "value"
   | "onChange"
@@ -55,9 +55,9 @@ export interface FormSurfaceFieldSpec extends FormSurfaceInputProps {
   kind?: "field";
   key: string;
   label: ReactNode;
-  spec: InputControlProps["spec"];
-  value?: InputControlProps["value"];
-  onChange?: InputControlProps["onChange"];
+  spec: InputSurfaceProps["spec"];
+  value?: InputSurfaceProps["value"];
+  onChange?: InputSurfaceProps["onChange"];
   required?: boolean;
   hint?: ReactNode;
   error?: ReactNode;

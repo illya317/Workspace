@@ -1,7 +1,7 @@
 "use client";
 
 import { createPageBody, PageSurface, createActionsSection } from "@workspace/core/ui";
-import type { PageSurfaceCommandSpec } from "@workspace/core/ui";
+import type { BodySurfaceCommandSpec } from "@workspace/core/ui";
 
 export function profileActionSpec({
   key,
@@ -15,7 +15,7 @@ export function profileActionSpec({
   variant: "primary" | "secondary" | "danger";
   disabled?: boolean;
   onClick: () => void | Promise<void>;
-}): PageSurfaceCommandSpec {
+}): BodySurfaceCommandSpec {
   return {
     key,
     label,
@@ -36,7 +36,7 @@ export function deleteActionSpec({
   canEdit: boolean;
   saving: string | null;
   onDelete: () => Promise<void>;
-}): PageSurfaceCommandSpec[] {
+}): BodySurfaceCommandSpec[] {
   if (!canEdit) return [];
   return [
     profileActionSpec({

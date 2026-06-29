@@ -1,6 +1,6 @@
 "use client";
 
-import InputControl, { type InputFieldSpec } from "../../InputControl";
+import InputSurface, { type InputFieldSpec } from "../../InputSurface";
 import type { ConfirmOptions } from "../../services/FeedbackProvider";
 import type { FkFieldOption, FkFieldInputProps } from "./FkFieldInput";
 import type { FieldControlSize } from "../form/FormStyles";
@@ -92,7 +92,7 @@ export default function FieldControl(props: FieldControlProps) {
   const spec = toSpec(props);
   const value = props.kind === "fk" && props.displayValue ? props.displayValue : props.value;
   return (
-    <InputControl
+    <InputSurface
       spec={spec}
       value={value}
       placeholder={props.placeholder}

@@ -1,6 +1,6 @@
 "use client";
 
-import type { PageSurfaceSectionSpec, SelectorSurfaceProps } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec, SelectorSurfaceProps } from "@workspace/core/ui";
 import { getWorkPeriodLabel, getWorkSourceTypeLabel, getWorkSpaceLabel } from "./model";
 import type { WorkPlan, WorkTaskSpace, WorkTarget } from "./types";
 
@@ -69,7 +69,7 @@ export function createWorkPlanSelector({
   };
 }
 
-export function createWorkPlanHeaderSection(plan: WorkPlan): PageSurfaceSectionSpec {
+export function createWorkPlanHeaderSection(plan: WorkPlan): BodySurfaceSectionSpec {
   const source = plan.sourceType === "project"
     ? [plan.linkedProjectName, plan.linkedProjectPhaseName, plan.linkedProjectTaskName].filter(Boolean).join(" / ")
     : plan.sourceType === "meeting"

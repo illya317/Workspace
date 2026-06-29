@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { createPageBody, PageSurface, createMessageSection, createActionsSection, createMetricsSection } from "@workspace/core/ui";
-import type { PageSurfaceSectionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import BalanceCheckTable, { flattenBalanceAccountTree, formatBalanceAmount, type BalanceCheckAccountNode } from "../components/BalanceCheckTable";
 import FinanceFilters from "../components/FinanceFilters";
 import { useStatementConfig } from "./StatementConfigContext";
@@ -119,7 +119,7 @@ export default function BalanceCheckTab() {
     walk(tree);
     return c;
   }, [tree]);
-  const statusBlocks: PageSurfaceSectionSpec[] = [
+  const statusBlocks: BodySurfaceSectionSpec[] = [
     ...(!loading && error ? [
       createMessageSection("error", {
         tone: "danger" as const,

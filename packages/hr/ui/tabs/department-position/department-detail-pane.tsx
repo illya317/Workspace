@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, type Dispatch, type SetStateAction } from "react";
-import { createPageBody, createMetricsSection, createBlockSurfaceSection, createPanelSection, PageSurface, type FormSurfaceItemSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, createMetricsSection, createEmptySection, createPanelSection, PageSurface, type FormSurfaceItemSpec, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { departmentCodeEditableSegment } from "./department-code-input";
 import { departmentDescendantIds, splitAliasText } from "./utils";
 import { useDepartmentDescriptionsBlock } from "./department-descriptions-panel";
@@ -32,7 +32,7 @@ type DepartmentDetailPaneProps = {
   departmentDescriptionDirty: boolean;
   saving: boolean;
   showArchived: boolean;
-  positionEditorBlocks: PageSurfaceSectionSpec[];
+  positionEditorBlocks: BodySurfaceSectionSpec[];
   setCreatePanel: (panel: "department" | "position" | null) => void;
   setCreatePositionDraft: Dispatch<SetStateAction<CreatePositionDraft>>;
   onSelect: (selection: Selection) => void;
@@ -74,7 +74,7 @@ export function useDepartmentDetailPaneBlock({
   onSaveDepartmentInfo,
   onSaveDepartmentDescription,
   onArchiveDepartment
-}: DepartmentDetailPaneProps): PageSurfaceSectionSpec {
+}: DepartmentDetailPaneProps): BodySurfaceSectionSpec {
   async function saveDepartment() {
     if (departmentDirty) await onSaveDepartmentInfo();
     if (departmentDescriptionDirty) await onSaveDepartmentDescription();
@@ -159,10 +159,9 @@ export function useDepartmentDetailPaneBlock({
     canEditDepartment,
     onUpdateDraft: onUpdateDepartmentDescriptionDraft,
   });
-  const detailBlocks: PageSurfaceSectionSpec[] = [];
+  const detailBlocks: BodySurfaceSectionSpec[] = [];
   if (!selection) {
-    detailBlocks.push(createBlockSurfaceSection("empty-selection", {
-      kind: "empty",
+    detailBlocks.push(createEmptySection("empty-selection", {
       presentation: "plain",
 
       content: "选择部门或岗位查看详情"

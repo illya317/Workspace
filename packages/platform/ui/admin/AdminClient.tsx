@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useMemo, useState } from "react";
-import { createBlockSurfaceSection, createPageBody, createPageTabsNavigation, PageSurface, useFeedback, type PageSurfaceSectionSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createPageBody, createPageTabsNavigation, PageSurface, useFeedback, type BodySurfaceSectionSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
 import AdminUsersTab from "./tabs/AdminUsersTab";
 import ModuleManagementTab from "./tabs/ModuleManagementTab";
 import { usePermissionsTabBody } from "./tabs/PermissionsTab";
@@ -180,7 +180,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     </>
   );
 
-  const sections: PageSurfaceSectionSpec[] = [{
+  const sections: BodySurfaceSectionSpec[] = [{
     ...createBlockSurfaceSection(activeTab, {
       kind: "content",
       content: activeAdminContent,
@@ -206,7 +206,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
             : undefined}
       footer={loading ? undefined : activeTab === "users" ? childFooter : undefined}
 		      body={loading
-            ? { kind: "complete", empty: { content: "加载中..." } }
+            ? { kind: "section", empty: { content: "加载中..." } }
             : activeTab === "permissions"
               ? permissionsBody
               : createPageBody(sections)}

@@ -317,7 +317,7 @@ export default function CodeTable({
                 return selectedCode === row.item.code ? "selected" : "normal";
               },
             } },
-          }], { layout: "single" })}
+          }], { layout: "stack" })}
       />
 
       <PersonListModal detailModal={detailModal} setDetailModal={setDetailModal} getDetailList={getDetailList} />

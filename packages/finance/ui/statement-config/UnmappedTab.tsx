@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState } from "react";
-import { createPageBody, createBlockSurfaceSection, PageSurface, createPageDataSection, createRecordSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, createMessageSection, PageSurface, createPageDataSection, createRecordSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
 import { useStatementConfig } from "./StatementConfigContext";
 interface Node {
@@ -195,8 +195,7 @@ function UnmappedError({ message, onRetry }: { message: string; onRetry: () => v
     <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createBlockSurfaceSection("error", {
-          kind: "message",
+        createMessageSection("error", {
           tone: "danger",
           content: message
         }),

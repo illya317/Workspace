@@ -7,7 +7,7 @@ import {
   createMetricsSection,
   PageSurface,
   type DataSurfaceColumnSpec,
-  type PageSurfaceSectionSpec,
+  type BodySurfaceSectionSpec,
 } from "@workspace/core/ui";
 import type { EDP, Employee, Employment } from "./useAnalyticsData";
 import type { DimKey } from "./employee/constants";
@@ -21,7 +21,7 @@ type DistributionRow = {
   percent: string;
 };
 
-export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { employees: Employee[]; employments: Employment[]; edps: EDP[] }): PageSurfaceSectionSpec[] {
+export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { employees: Employee[]; employments: Employment[]; edps: EDP[] }): BodySurfaceSectionSpec[] {
   const [feature, setFeature] = useState<DimKey>("gender");
   const [crossRow, setCrossRow] = useState<DimKey>("company");
   const [crossCol, setCrossCol] = useState<DimKey>("gender");

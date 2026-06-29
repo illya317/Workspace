@@ -6,7 +6,7 @@ import {
   createPageTabsNavigation,
   createMessageSection,
   PageSurface,
-  type PageSurfaceCommandSpec,
+  type BodySurfaceCommandSpec,
 } from "@workspace/core/ui";
 import { employeeFields } from "@workspace/hr/constants";
 import type {
@@ -115,7 +115,7 @@ export default function EmployeeProfileView({
     { key: "history", label: "历史记录" },
   ];
 
-  const pageActions: PageSurfaceCommandSpec[] = [];
+  const pageActions: BodySurfaceCommandSpec[] = [];
 
   if (canEdit && activeSection !== "history") {
     pageActions.push({

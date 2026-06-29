@@ -133,7 +133,7 @@ export default function EditableTable({
             loading,
             emptyText,
           } },
-        }], { layout: "single" })}
+        }], { layout: "stack" })}
     />
   );
 }

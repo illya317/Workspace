@@ -3,25 +3,25 @@ import path from "node:path";
 import ts from "typescript";
 
 const ROOT = path.resolve(__dirname, "../..");
-const REPORT_PATH = path.join(ROOT, ".cache/arch/input-control-adoption.json");
+const REPORT_PATH = path.join(ROOT, ".cache/arch/input-surface-adoption.json");
 const WARNING_ONLY = false;
 const SOURCE_EXTENSIONS = /\.(ts|tsx)$/;
 const SKIP_DIRS = new Set([".git", ".next", ".turbo", "coverage", "dist", "generated", "node_modules", "tmp"]);
 
 const DIRECT_INPUT_COMPONENTS = new Map<string, string>([
-  ["CalendarDateInput", "InputControl spec control=temporal precision=date"],
-  ["CheckboxField", "InputControl spec control=boolean presentation=checkbox"],
-  ["FileField", "InputControl spec control=file"],
-  ["FkFieldInput", "InputControl spec control=reference options.source=remote"],
-  ["OptionPicker", "InputControl spec control=choice options.source=static/grouped"],
-  ["PercentField", "InputControl spec format=percent"],
-  ["SearchableOptionInput", "InputControl spec control=choice options.mode=autocomplete"],
-  ["SelectField", "InputControl spec control=choice options.mode=dropdown, except Toolbar/filter dropdown"],
-  ["SwitchField", "InputControl spec control=boolean presentation=switch"],
-  ["TagStringInput", "InputControl spec control=collection itemControl=text"],
-  ["TextField", "InputControl spec control=text/number"],
-  ["TextareaField", "InputControl spec control=text multiline=true"],
-  ["TimeField", "InputControl spec control=temporal precision=time"],
+  ["CalendarDateInput", "InputSurface spec control=temporal precision=date"],
+  ["CheckboxField", "InputSurface spec control=boolean presentation=checkbox"],
+  ["FileField", "InputSurface spec control=file"],
+  ["FkFieldInput", "InputSurface spec control=reference options.source=remote"],
+  ["OptionPicker", "InputSurface spec control=choice options.source=static/grouped"],
+  ["PercentField", "InputSurface spec format=percent"],
+  ["SearchableOptionInput", "InputSurface spec control=choice options.mode=autocomplete"],
+  ["SelectField", "InputSurface spec control=choice options.mode=dropdown, except Toolbar/filter dropdown"],
+  ["SwitchField", "InputSurface spec control=boolean presentation=switch"],
+  ["TagStringInput", "InputSurface spec control=collection itemControl=text"],
+  ["TextField", "InputSurface spec control=text/number"],
+  ["TextareaField", "InputSurface spec control=text multiline=true"],
+  ["TimeField", "InputSurface spec control=temporal precision=time"],
 ]);
 
 const ALLOW_PATH_PREFIXES = [
@@ -142,7 +142,7 @@ function groupCount<T extends string>(items: T[]) {
   return [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 }
 
-export function createInputControlAdoptionReport() {
+export function createInputSurfaceAdoptionReport() {
   const findings = sourceFiles().flatMap(scanSourceFile);
   return {
     warningOnly: WARNING_ONLY,
@@ -153,19 +153,19 @@ export function createInputControlAdoptionReport() {
   };
 }
 
-export function checkInputControlAdoption() {
-  const report = createInputControlAdoptionReport();
+export function checkInputSurfaceAdoption() {
+  const report = createInputSurfaceAdoptionReport();
   fs.mkdirSync(path.dirname(REPORT_PATH), { recursive: true });
   fs.writeFileSync(`${REPORT_PATH}.tmp`, `${JSON.stringify(report, null, 2)}\n`);
   fs.renameSync(`${REPORT_PATH}.tmp`, REPORT_PATH);
 
   if (report.total === 0) {
-    console.log("✓ InputControl adoption: no direct business input usage or legacy spec.editor detected.");
+    console.log("✓ InputSurface adoption: no direct business input usage or legacy spec.editor detected.");
     return true;
   }
 
-  console.warn(`✗ InputControl adoption: ${report.total} violation(s) detected.`);
-  console.warn("  Business form fields must declare semantic InputFieldSpec control/options/format/mask and render through InputControl.");
+  console.warn(`✗ InputSurface adoption: ${report.total} violation(s) detected.`);
+  console.warn("  Business form fields must declare semantic InputFieldSpec control/options/format/mask and render through InputSurface.");
   console.warn("  QC PaperInput/A4 layout inputs are an allowed separate input system.");
   console.warn(`  Full report: ${toRelative(REPORT_PATH)}`);
   console.warn("  Top components:");
@@ -188,5 +188,5 @@ export function checkInputControlAdoption() {
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
-  process.exit(checkInputControlAdoption() ? 0 : 1);
+  process.exit(checkInputSurfaceAdoption() ? 0 : 1);
 }

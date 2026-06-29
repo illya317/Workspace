@@ -1,7 +1,7 @@
 "use client";
 
-import { createBlockSurfaceSection, createMessageSection, createPageBody, createSectionSection, PageSurface } from "@workspace/core/ui";
-import WorkForm from "./WorkForm";
+import { createMessageSection, createPageBody, createSectionSection, PageSurface } from "@workspace/core/ui";
+import { useWorkFormSection } from "./WorkForm";
 import type { WorkItem } from "./types";
 export interface WorkFormData {
   category: string;
@@ -27,6 +27,8 @@ export default function WorkFormSection({
   onCancelForm,
   onSave
 }: WorkFormSectionProps) {
+  const formSection = useWorkFormSection({ initial: editingWork, onSave, onCancel: onCancelForm });
+
   return (
     <PageSurface kind="standard"
       embedded
@@ -41,7 +43,7 @@ export default function WorkFormSection({
 
         sections: [
           ...(!isAdmin ? [createMessageSection("admin-only", { tone: "muted", content: "仅部门管理员可编辑 OKR 计划" })] : []),
-          ...(showForm ? [createBlockSurfaceSection("form", { kind: "content", content: <WorkForm onSave={onSave} onCancel={onCancelForm} /> })] : []),
+          ...(showForm ? [formSection] : []),
         ],
       })])}
     />

@@ -1,11 +1,7 @@
 import type { ReactNode } from "react";
 import type { BodySurfaceProps } from "./BodySurface";
-import type { SelectorSurfaceProps } from "./SelectorSurface";
 import type { SurfaceToolbarItems } from "./SurfaceContractTypes";
-import type { ActionGlyphKind } from "./internal/action/ActionGlyphs";
 
-export type PageSurfaceBodyKind = "complete" | "split";
-export type PageSurfaceActionSize = "sm" | "md" | "lg";
 export type PageSurfaceKind = "login" | "directory" | "standard";
 
 export type PageSurfaceToolbarSpec = {
@@ -45,90 +41,7 @@ export interface PageSurfacePaginationSpec {
   compact?: boolean;
 }
 
-export interface PageSurfaceCommandSpec {
-  key: string;
-  label: ReactNode;
-  icon?: ActionGlyphKind | "back" | "create" | "open";
-  onClick?: () => void;
-  disabled?: boolean;
-  variant?: "primary" | "secondary" | "danger";
-  type?: "button" | "submit";
-  size?: PageSurfaceActionSize;
-  truncate?: boolean;
-}
-
-export interface PageSurfaceEmptySpec {
-  presentation?: "card" | "plain";
-  content: ReactNode;
-  compact?: boolean;
-}
-
-export interface PageSurfaceModalSpec {
-  key: string;
-  open: boolean;
-  title: string;
-  onClose: () => void;
-  size?: "sm" | "md" | "lg" | "xl";
-  sections: PageSurfaceSectionSpec[];
-}
-
-export interface PageSurfaceBadgeSpec {
-  key: string;
-  label: ReactNode;
-  tone?: "default" | "muted" | "info" | "success" | "warning" | "danger";
-}
-
-export interface PageSurfaceSectionHeaderSpec {
-  title?: ReactNode;
-  subtitle?: ReactNode;
-  badges?: PageSurfaceBadgeSpec[];
-  actions?: PageSurfaceCommandSpec[];
-}
-
-export interface PageSurfaceSectionBaseSpec {
-  key: string;
-  label?: ReactNode;
-  header?: PageSurfaceSectionHeaderSpec;
-  framed?: boolean;
-}
-
-export type PageSurfaceBodySectionSpec = PageSurfaceSectionBaseSpec & {
-  body: BodySurfaceProps;
-};
-
-export type PageSurfaceSectionSpec = PageSurfaceBodySectionSpec;
-
-export type PageSurfaceSectioningSpec =
-  | { kind: "none" }
-  | { kind: "tabs"; active: string; onChange?: (key: string) => void };
-
-export interface PageSurfaceCompleteBodySpec {
-  kind: "complete";
-  title?: ReactNode;
-  description?: ReactNode;
-  layout?: "single" | "split";
-  sectioning?: PageSurfaceSectioningSpec;
-  sections?: PageSurfaceSectionSpec[];
-  modals?: PageSurfaceModalSpec[];
-  empty?: PageSurfaceEmptySpec;
-  commands?: PageSurfaceCommandSpec[];
-}
-
-export interface PageSurfaceSplitBodySpec {
-  kind: "split";
-  selector: SelectorSurfaceProps;
-  drawerSelector?: SelectorSurfaceProps;
-  right: PageSurfaceCompleteBodySpec;
-  sideOpen: boolean;
-  drawerOpen: boolean;
-  onSideOpenChange: (open: boolean) => void;
-  onDrawerOpenChange: (open: boolean) => void;
-  sideLabel: string;
-  showSideControls?: boolean;
-  splitRatio?: readonly [number, number];
-}
-
-export type PageSurfaceBodySpec = PageSurfaceCompleteBodySpec | PageSurfaceSplitBodySpec;
+export type PageSurfaceBodySpec = BodySurfaceProps;
 
 interface PageSurfaceChromeProps {
   body?: PageSurfaceBodySpec;

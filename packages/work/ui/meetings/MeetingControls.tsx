@@ -2,14 +2,14 @@
 
 import type { ReactNode } from "react";
 import { createBlockSurfaceSection, createInlineFieldsSection, createPageBody, PageSurface } from "@workspace/core/ui";
-import type { PageSurfaceSectionSpec } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { MeetingDetail } from "./meeting-types";
 import { statusLabel } from "./meeting-utils";
 
 export function PageBlockSurface({
   block,
 }: {
-  block: PageSurfaceSectionSpec;
+  block: BodySurfaceSectionSpec;
   className?: string;
 }) {
   return <PageSurface kind="standard" embedded body={createPageBody([block])} />;

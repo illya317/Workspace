@@ -2,7 +2,7 @@
 
 import type { Dispatch, SetStateAction } from "react";
 import { createPageBody, PageSurface, createCreatePanelSection } from "@workspace/core/ui";
-import type { FormSurfaceItemSpec, PageSurfaceSectionSpec, ReferenceOption } from "@workspace/core/ui";
+import type { FormSurfaceItemSpec, BodySurfaceSectionSpec, ReferenceOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import type { CreatePositionDraft, Department } from "./types";
 import { departmentPath } from "./utils";
@@ -30,7 +30,7 @@ export function buildPositionCreatePanelBlock({
   setCreatePositionDraft,
   onCreatePosition,
   onCancel,
-}: PositionCreatePanelProps): PageSurfaceSectionSpec {
+}: PositionCreatePanelProps): BodySurfaceSectionSpec {
   const departmentDisplayName = departmentPath(createPositionDepartment, departmentById);
   const readOnlyDepartmentName = createPositionDepartment?.name || departmentDisplayName;
 

@@ -4,7 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createPageBody, createSectionsSection, createMessageSection, createPanelSection, PageSurface } from "@workspace/core/ui";
-import type { PageSurfaceSectionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 import { createReportBannerSection } from "./ReportBanner";
 import { createReportLinesSurface, type AccountDetail, type ReportLine } from "./ReportLines";
@@ -226,7 +226,7 @@ export default function ReportTab() {
               },
             ],
           })] : []),
-  ]) as PageSurfaceSectionSpec[];
+  ]) as BodySurfaceSectionSpec[];
   return (
     <PageSurface kind="standard"
       toolbar={{ items: toolbarItems }}

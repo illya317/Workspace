@@ -1,4 +1,4 @@
-import { createBlockSurfaceSection, createHeadingSection, createPageBody, PageSurface } from "@workspace/core/ui";
+import { createHeadingSection, createMessageSection, createPageBody, PageSurface } from "@workspace/core/ui";
 import type { QcBatchSummary, QcLayoutBlock, QcTemplateDetail, QcTemplateStage } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcLayoutPaper from "./QcLayoutPaper";
@@ -79,8 +79,7 @@ export default function QcBatchStagePrecheck({
 
         title: `${numerals[stageIndex] ?? stageIndex + 1}、${productName}${stage.label}`,
       }),
-      locked ? createBlockSurfaceSection("precheck-locked", {
-        kind: "message",
+      locked ? createMessageSection("precheck-locked", {
         tone: "warning",
 
         content: "前一阶段尚未全部复核完成，当前阶段暂不可操作。"

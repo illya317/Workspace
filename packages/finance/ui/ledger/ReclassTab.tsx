@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState } from "react";
 import { PageSurface, createPageBody, createRecordSection, createPageTableSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
-import type { PageSurfaceSectionSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { useCSV } from "@workspace/core/hooks";
 import { formatFinanceAmount } from "../formatters";
@@ -22,7 +22,7 @@ export default function ReclassTab({
   lifecycleBlocks = [],
 }: {
   navigation?: PageSurfaceNavigationSpec;
-  lifecycleBlocks?: PageSurfaceSectionSpec[];
+  lifecycleBlocks?: BodySurfaceSectionSpec[];
 }) {
   const [companyFilter, setCompanyFilter] = useState("02");
   const [yearFilter, setYearFilter] = useState("2025");

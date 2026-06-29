@@ -45,11 +45,12 @@ export async function searchFkDepartments(keyword: string, lifecycleScope: Lifec
   return rows
     .map((row) => ({
       id: row.id,
-      name: formatDepartmentPath(row) || row.name,
+      name: row.name,
       subtitle: row.code,
+      departmentPath: formatDepartmentPath(row) || row.name,
       lifecycleStatus: row.isArchived ? "archived" as const : "active" as const,
     }))
-    .filter((row) => matchesFkKeyword([row.name, row.subtitle], keyword))
+    .filter((row) => matchesFkKeyword([row.name, row.subtitle, row.departmentPath], keyword))
     .slice(0, MAX_RESULTS);
 }
 

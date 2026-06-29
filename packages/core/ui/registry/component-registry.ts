@@ -22,6 +22,7 @@ const PAGE_LAYOUT_DECLARATIONS = new Set([
 ]);
 
 const PAGE_CONTENT_DECLARATIONS = new Set([
+  "BodySurface",
   "DataSurface",
   "DocumentSurface",
   "FormSurface",

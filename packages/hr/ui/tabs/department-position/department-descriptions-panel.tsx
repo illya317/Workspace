@@ -1,7 +1,7 @@
 "use client";
 
 import type { Ref } from "react";
-import { createPageBody, createBlockSurfaceSection, createPanelSection, PageSurface, type ConfirmOptions, type PageSurfaceSectionSpec, useFeedback } from "@workspace/core/ui";
+import { createPageBody, createEmptySection, createPanelSection, PageSurface, type ConfirmOptions, type BodySurfaceSectionSpec, useFeedback } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { buildDepartmentDescriptionDetailsBlocks, departmentDescriptionDutyRecords } from "./department-description-details-editor";
 import type { DepartmentDescriptionDraft } from "./types";
@@ -33,7 +33,7 @@ export function DepartmentDescriptionsPanel({
   );
 }
 
-export function useDepartmentDescriptionsBlock(options: DepartmentDescriptionsBlockOptions): PageSurfaceSectionSpec {
+export function useDepartmentDescriptionsBlock(options: DepartmentDescriptionsBlockOptions): BodySurfaceSectionSpec {
   const feedback = useFeedback();
   const dutyRecords = options.drafts.flatMap((draft) => departmentDescriptionDutyRecords(draft.details));
   const { getItemRef, requestScrollToIndex } = useScrollToAddedItem(dutyRecords);
@@ -61,11 +61,10 @@ function buildDepartmentDescriptionsBlock({
   confirmDelete: (options?: Partial<ConfirmOptions>) => Promise<boolean>;
   getDutyItemRef?: (index: number) => Ref<HTMLDivElement>;
   requestDutyScrollToIndex?: (index: number) => void;
-}): PageSurfaceSectionSpec {
+}): BodySurfaceSectionSpec {
   let dutyOffset = 0;
-  const sections: PageSurfaceSectionSpec[] = drafts.length === 0
-    ? [createBlockSurfaceSection("empty", {
-      kind: "empty",
+  const sections: BodySurfaceSectionSpec[] = drafts.length === 0
+    ? [createEmptySection("empty", {
       presentation: "plain",
       content: "暂无部门说明书"
     })]

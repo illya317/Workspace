@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { SessionUser } from "@workspace/platform/types";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
-import { PageSurface, createEmptySection, createMessageSection, createPageBody, createPageTabsNavigation, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { PageSurface, createEmptySection, createMessageSection, createPageBody, createPageTabsNavigation, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { useAnalyticsData } from "./useAnalyticsData";
 
 import { useEmployeeAnalyticsBlocks } from "./EmployeeAnalytics";
@@ -41,7 +41,7 @@ export default function HRAnalyticsClient({ user: _user }: { user: SessionUser; 
   const contractBlocks = useContractAnalyticsBlocks({ contracts: data.contracts });
   const headcountBlocks = useHeadcountTrendBlocks({ employments: data.employments });
 
-  const tabBlocks: Record<AnalyticsTab, PageSurfaceSectionSpec[]> = {
+  const tabBlocks: Record<AnalyticsTab, BodySurfaceSectionSpec[]> = {
     employee: employeeBlocks,
     department: departmentBlocks,
     position: positionBlocks,
@@ -49,7 +49,7 @@ export default function HRAnalyticsClient({ user: _user }: { user: SessionUser; 
     contract: contractBlocks,
     headcount: headcountBlocks,
   };
-  let sections: PageSurfaceSectionSpec[];
+  let sections: BodySurfaceSectionSpec[];
   if (data.loading) {
     sections = [createEmptySection("loading", { content: "数据加载中..." })];
   } else if (data.error) {

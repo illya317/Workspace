@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createPageBody, PageSurface, createCreatePanelSection, createPanelSection, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createCreatePanelSection, createPanelSection, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { departmentCodeEditableSegment } from "./department-code-input";
 import { postJson } from "@workspace/platform/ui/api-client";
 import { useDepartmentDescriptionsBlock } from "./department-descriptions-panel";
@@ -37,7 +37,7 @@ export function useDepartmentCreatePanelBlock({
   onCancel,
   onCreated,
   canEdit,
-}: DepartmentCreatePanelProps): PageSurfaceSectionSpec {
+}: DepartmentCreatePanelProps): BodySurfaceSectionSpec {
   const [submitting, setSubmitting] = useState(false);
   const [name, setName] = useState("");
   const [alias, setAlias] = useState("");
@@ -123,7 +123,7 @@ export function useDepartmentCreatePanelBlock({
     canEditDepartment: canEdit,
     onUpdateDraft: (_index, key, value) => setDescriptionDraft((prev) => ({ ...prev, [key]: value })),
   });
-  const departmentInfoBlock: PageSurfaceSectionSpec = createPanelSection("department-info", {
+  const departmentInfoBlock: BodySurfaceSectionSpec = createPanelSection("department-info", {
     title: "部门信息",
 
     sections: [

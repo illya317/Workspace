@@ -3,7 +3,7 @@
 import { SectionShell, sectionShellBlock } from "./ProfileFormControls";
 import { edpFields, employmentFields } from "@workspace/hr/constants";
 import type { ContractRow, EdpRow, EmploymentRow, ProfileField } from "@workspace/hr/types";
-import { createPageBody, PageSurface, type PageSurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
+import { createPageBody, PageSurface, type BodySurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
 import { emptyFormBlock, fieldGridBlock, fieldRegionBlock, isCurrentByEndDate, pickFields, type EditableRecord, type RowBase } from "./EmployeeProfileUtils";
 import { useContractSectionBlocks } from "./EmployeeProfileContractSection";
 import { deleteActionSpec, profileActionSpec } from "./EmployeeProfileRowActions";
@@ -92,7 +92,7 @@ export function useEmploymentSectionBlocks({
   onChangeContract,
   onDeleteContract,
   className
-}: EmploymentSectionProps): PageSurfaceSectionSpec[] {
+}: EmploymentSectionProps): BodySurfaceSectionSpec[] {
   const fields = employmentFields.filter(field => !["currentCompany", "leaveNote"].includes(field.key));
   const contractBlocks = useContractSectionBlocks({
     rows: contracts,
@@ -140,7 +140,7 @@ export function useEdpSectionBlocks({
   onChange,
   onDelete,
   className
-}: EdpSectionProps): PageSurfaceSectionSpec[] {
+}: EdpSectionProps): BodySurfaceSectionSpec[] {
   const allFields = [...pickFields(edpFields, ["departmentId", "positionId", "isPrimary", "workPercent", "reportTo"]), ...pickFields(edpFields, ["startDate", "endDate"])];
   const {
     getItemRef,

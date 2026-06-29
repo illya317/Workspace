@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, type PageSurfaceSectionSpec, type PageSurfaceToolbarSpec, type SelectorSurfaceProps } from "@workspace/core/ui";
+import { createPageBody, PageSurface, type BodySurfaceSectionSpec, type PageSurfaceToolbarSpec, type SelectorSurfaceProps } from "@workspace/core/ui";
 import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 
 export function DepartmentPositionActiveWorkspace({
@@ -14,7 +14,7 @@ export function DepartmentPositionActiveWorkspace({
   onDrawerOpenChange,
   onSideOpenChange,
 }: {
-  sections: PageSurfaceSectionSpec[];
+  sections: BodySurfaceSectionSpec[];
   drawerOpen: boolean;
   selector: SelectorSurfaceProps;
   drawerSelector: SelectorSurfaceProps;
@@ -31,9 +31,10 @@ export function DepartmentPositionActiveWorkspace({
       {...surface}
       toolbar={toolbar}
       body={{
-        kind: "split",
-        selector,
-        drawerSelector,
+        kind: "section",
+        layout: "split",
+        left: { kind: "selector", selector },
+        drawerLeft: drawerSelector ? { kind: "selector", selector: drawerSelector } : undefined,
         right: createPageBody(sections),
         sideOpen,
         sideLabel: "部门岗位",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { InputControl } from "@workspace/core/ui";
+import { InputSurface } from "@workspace/core/ui";
 import type { QcLayoutPart } from "@workspace/production/server/qc";
 
 function todayValue() {
@@ -50,7 +50,7 @@ function DatePartInput({
   readOnly?: boolean;
 }) {
   return (
-    <InputControl
+    <InputSurface
       spec={{ valueType: "string", control: "text" }}
       ariaLabel={label}
       inputMode="numeric"
@@ -105,7 +105,7 @@ export function QcPaperDateInput({
       <span>月</span>
       <DatePartInput label="日" maxLength={2} value={date.day} onChange={(day) => setDate((current) => ({ ...current, day }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
       <span>日</span>
-      <InputControl spec={{ valueType: "string", control: "text", state: "hidden" }} dataFieldKey={key} value={dateValue} />
+      <InputSurface spec={{ valueType: "string", control: "text", state: "hidden" }} dataFieldKey={key} value={dateValue} />
       {part.withTime && (
         <DatePartInput
           label="时"

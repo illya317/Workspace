@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import {
   createPageBody,
-  InputControl,
+  InputSurface,
   PageSurface,
   createMetricsSection,
   createInlineFieldsSection,
@@ -83,7 +83,7 @@ export function EntityValueInput({
   return (
     <div className="space-y-1.5">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <InputControl
+      <InputSurface
         spec={{
           valueType: "reference",
           control: "reference",

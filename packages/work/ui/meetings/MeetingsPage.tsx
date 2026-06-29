@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createBlockSurfaceSection, createFormSection, createPageBody, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createFormSection, createMessageSection, createPageBody, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { useMeetingDetailBlock } from "./MeetingDetailPanel";
@@ -266,26 +266,47 @@ export default function MeetingsPage({
     <PageSurface kind="standard"
       toolbar={{ items: toolbarItems }}
       body={{
-        kind: "split",
-        selector: {
-          kind: "list",
-          title: "会议列表",
-          loading,
-          loadingText: "加载中...",
-          emptyText: "暂无会议",
-          items: filteredMeetings,
-          selectedId,
-          onSelect: (item: MeetingSummary) => setSelectedId(item.id),
-          getKey: (item: MeetingSummary) => item.id,
-          renderItem: (item: MeetingSummary) => ({
-            title: item.title,
-            subtitle: `${item.typeName} · ${formatDateTime(item.startAt) || "未定时间"}`,
-            trailing: item.status,
-            meta: [`议题 ${item.counts.agendaItems}`, `表决 ${item.counts.proposals}`, `决议 ${item.counts.decisions}`],
-          }),
+        kind: "section",
+        layout: "split",
+        left: {
+          kind: "selector",
+          selector: {
+            kind: "list",
+            title: "会议列表",
+            loading,
+            loadingText: "加载中...",
+            emptyText: "暂无会议",
+            items: filteredMeetings,
+            selectedId,
+            onSelect: (item: MeetingSummary) => setSelectedId(item.id),
+            getKey: (item: MeetingSummary) => item.id,
+            renderItem: (item: MeetingSummary) => ({
+              title: item.title,
+              subtitle: `${item.typeName} · ${formatDateTime(item.startAt) || "未定时间"}`,
+              trailing: item.status,
+              meta: [`议题 ${item.counts.agendaItems}`, `表决 ${item.counts.proposals}`, `决议 ${item.counts.decisions}`],
+            }),
+          },
         },
-        right: {
-          kind: "complete",
+        right: createPageBody([
+          ...(creating ? [createFormSection("create-meeting", {
+              kind: "fields" as const,
+              content: {
+                items: meetingCreateFields(createDraft, types, setCreateDraft),
+                layout: { columns: 3 as const },
+              },
+              commands: [
+                { key: "cancel", label: "取消", disabled: saving, onClick: () => setCreating(false) },
+                { key: "save", label: saving ? "保存中..." : "保存会议", variant: "primary" as const, disabled: saving || !createDraft.title.trim() || !createDraft.typeId, onClick: () => void handleCreateMeeting() },
+              ],
+            })] : []),
+          meeting
+            ? meetingDetailBlock
+            : createMessageSection("meeting-empty", {
+                content: detailLoading ? "加载中..." : "暂无会议",
+                tone: "muted"
+              }),
+        ], {
           commands: [{
             key: "create",
             label: creating ? "收起新建" : "新建会议",
@@ -293,27 +314,7 @@ export default function MeetingsPage({
             disabled: saving,
             onClick: () => setCreating((current) => !current),
           }],
-          sections: createPageBody([
-            ...(creating ? [createFormSection("create-meeting", {
-                kind: "fields" as const,
-                content: {
-                  items: meetingCreateFields(createDraft, types, setCreateDraft),
-                  layout: { columns: 3 as const },
-                },
-                commands: [
-                  { key: "cancel", label: "取消", disabled: saving, onClick: () => setCreating(false) },
-                  { key: "save", label: saving ? "保存中..." : "保存会议", variant: "primary" as const, disabled: saving || !createDraft.title.trim() || !createDraft.typeId, onClick: () => void handleCreateMeeting() },
-                ],
-              })] : []),
-            meeting
-              ? meetingDetailBlock
-              : createBlockSurfaceSection("meeting-empty", {
-                kind: "message",
-                content: detailLoading ? "加载中..." : "暂无会议",
-                tone: "muted"
-              }),
-          ]).sections,
-        },
+        }),
         sideOpen,
         drawerOpen,
         onSideOpenChange: setSideOpen,

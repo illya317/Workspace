@@ -84,7 +84,7 @@ export default function CostDataTable({
               emptyText: "暂无数据",
             } },
           },
-        ], { layout: "single" })}
+        ], { layout: "stack" })}
       footer={{ pagination: { page, total: pagination.total, totalPages: pagination.totalPages, onPageChange,  compact: true } }}
     />
   );

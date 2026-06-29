@@ -1,6 +1,6 @@
 "use client";
 
-import { InputControl } from "@workspace/core/ui";
+import { InputSurface } from "@workspace/core/ui";
 import { HR_COMMON_ETHNICITIES, HR_ETHNICITIES } from "@workspace/hr/constants/field-options";
 import type { HrPickerProps } from "@workspace/hr/types/hr-picker";
 
@@ -10,7 +10,7 @@ export default function EthnicityPicker({
   onChange,
 }: HrPickerProps) {
   return (
-    <InputControl
+    <InputSurface
       spec={{
         valueType: "string",
         control: "choice",

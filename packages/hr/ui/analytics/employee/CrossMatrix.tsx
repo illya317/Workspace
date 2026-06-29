@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createAnalysisSection, createBlockSurfaceSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createMessageSection, PageSurface, type DataSurfaceColumnSpec, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { CrossMatrixData } from "./useEmployeeData";
 import { DIM_LABELS, type DimKey } from "./constants";
 
@@ -71,7 +71,7 @@ export function createCrossMatrixSection({
   featureList: DimKey[];
   setCrossRow: (v: DimKey) => void;
   setCrossCol: (v: DimKey) => void;
-}): PageSurfaceSectionSpec {
+}): BodySurfaceSectionSpec {
   const crossMax = Math.max(0, ...Object.values(crossMatrix.rowTotals));
   const rowOptions = featureList
     .filter((feature) => feature !== crossCol)
@@ -128,8 +128,7 @@ export function createCrossMatrixSection({
       ],
     },
     sections: crossMatrix.rowKeys.length === 0
-      ? [createBlockSurfaceSection("empty", {
-        kind: "message",
+      ? [createMessageSection("empty", {
         tone: "muted",
         content: "无数据"
       })]

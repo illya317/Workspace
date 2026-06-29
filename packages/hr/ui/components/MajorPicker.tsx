@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { InputControl, type InputOption } from "@workspace/core/ui";
+import { InputSurface, type InputOption } from "@workspace/core/ui";
 import { HR_MAJOR_OPTIONS, normalizeHrMajorItems, type HRMajorItem } from "@workspace/hr/constants/field-options";
 import type { HrPickerProps } from "@workspace/hr/types/hr-picker";
 
@@ -26,7 +26,7 @@ export default function MajorPicker({
   );
 
   return (
-    <InputControl
+    <InputSurface
       value={current?.specialty ?? ""}
       onChange={(next) => onChange(next === null || next === undefined || next === "" ? null : String(next))}
       placeholder="未设置"

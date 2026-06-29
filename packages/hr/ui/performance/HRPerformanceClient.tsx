@@ -24,7 +24,7 @@ export default function HRPerformanceClient({ user: _user }: { user: SessionUser
 	        active: activeTab,
 	        onChange: (k: string) => setActiveTab(k as PerfTab),
 	      })}
-	      body={{ kind: "complete", empty: { content: contentByTab[activeTab] } }}
+	      body={{ kind: "section", empty: { content: contentByTab[activeTab] } }}
 	    />
   );
 }

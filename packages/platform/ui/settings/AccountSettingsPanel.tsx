@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type KeyboardEvent } from "react";
-import { createBlockSurfaceSection, createSectionsSection, createPageBody, createSectionSection, PageSurface, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createMessageSection, createSectionsSection, createPageBody, createSectionSection, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import ApiAccessClient, { type ApiAccessModuleRow } from "./ApiAccessClient";
 type Message = {
@@ -178,9 +178,8 @@ export default function AccountSettingsPanel({
     setConfirmPwd("");
     setTimeout(() => router.push("/login"), 1500);
   }
-  const sections: PageSurfaceSectionSpec[] = [
-    createBlockSurfaceSection("profile-header", {
-      kind: "message",
+  const sections: BodySurfaceSectionSpec[] = [
+    createMessageSection("profile-header", {
       content: (
         <div className="flex min-w-0 items-center gap-4">
           <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-50 bg-cover bg-center text-xl font-semibold text-emerald-700" style={avatar ? {

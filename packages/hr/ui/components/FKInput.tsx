@@ -1,6 +1,6 @@
 "use client";
 
-import { InputControl, type ReferenceOption } from "@workspace/core/ui";
+import { InputSurface, type ReferenceOption } from "@workspace/core/ui";
 import type { FKOption } from "@workspace/hr/types";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../fk-keys";
 
@@ -25,7 +25,7 @@ export default function FKInput({
 }: FKInputProps) {
   const resolvedFkKey = fkKeyForEntity(entity, fkKey);
   return (
-    <InputControl
+    <InputSurface
       spec={{
         valueType: "reference",
         control: "reference",

@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo } from "react";
 import { createPageBody, PageSurface, createBlockSurfaceSection, createPageTableSection, useFeedback } from "@workspace/core/ui";
-import type { PageSurfaceSectionSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { getBaseItemColumns, type VoucherItemRow } from "../components/VoucherItemTable";
 import { useReclassResults } from "./useReclassResults";
@@ -20,7 +20,7 @@ export default function VoucherTab({
 }: {
   canWrite: boolean;
   navigation?: PageSurfaceNavigationSpec;
-  lifecycleBlocks?: PageSurfaceSectionSpec[];
+  lifecycleBlocks?: BodySurfaceSectionSpec[];
 }) {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [loading, setLoading] = useState(true);

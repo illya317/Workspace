@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createPageBody, createAnalysisSection, createSectionsSection, createMetricsSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createSectionsSection, createMetricsSection, PageSurface, type DataSurfaceColumnSpec, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { Employee, Employment } from "./useAnalyticsData";
 
@@ -11,7 +11,7 @@ type DistributionRow = {
   percent?: string;
 };
 
-export function useTurnoverAnalyticsBlocks({ employees: _employees, employments }: { employees: Employee[]; employments: Employment[] }): PageSurfaceSectionSpec[] {
+export function useTurnoverAnalyticsBlocks({ employees: _employees, employments }: { employees: Employee[]; employments: Employment[] }): BodySurfaceSectionSpec[] {
   const [reasonSearch, setReasonSearch] = useState("");
 
   const stats = useMemo(() => {

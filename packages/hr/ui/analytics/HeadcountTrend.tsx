@@ -1,10 +1,10 @@
 "use client";
 
-import { createPageBody, createAnalysisSection, createMetricsSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createMetricsSection, PageSurface, type DataSurfaceColumnSpec, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { Employment } from "./useAnalyticsData";
 import { type MonthlySnapshot, useHeadcountData } from "./useHeadcountData";
 
-export function useHeadcountTrendBlocks({ employments }: { employments: Employment[] }): PageSurfaceSectionSpec[] {
+export function useHeadcountTrendBlocks({ employments }: { employments: Employment[] }): BodySurfaceSectionSpec[] {
   const stats = useHeadcountData(employments);
 
   const barMax = Math.max(stats.maxFlow, 1);

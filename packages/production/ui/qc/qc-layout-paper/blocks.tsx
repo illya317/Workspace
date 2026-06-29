@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import Image from "next/image";
-import { InputControl } from "@workspace/core/ui";
+import { InputSurface } from "@workspace/core/ui";
 import type { QcLayoutCell, QcLayoutPart } from "@workspace/production/server/qc";
 import QcConfirmationTable from "../QcConfirmationTable";
 import { Part, TableBlock } from "../QcLayoutTable";
@@ -171,7 +171,7 @@ function AttachmentUploadBlock({ block, context }: { block: NumberedBlock; conte
 
   return (
     <PostSection block={block} title="原始数据">
-      <InputControl
+      <InputSurface
         spec={{
           valueType: "file",
           control: "file",
@@ -186,7 +186,7 @@ function AttachmentUploadBlock({ block, context }: { block: NumberedBlock; conte
         onChange={() => undefined}
         onFilesChange={(files) => void upload(files)}
       />
-      <InputControl spec={{ valueType: "string", control: "text", state: "hidden" }} dataFieldKey={key} value={context.values[key] ?? ""} />
+      <InputSurface spec={{ valueType: "string", control: "text", state: "hidden" }} dataFieldKey={key} value={context.values[key] ?? ""} />
     </PostSection>
   );
 }

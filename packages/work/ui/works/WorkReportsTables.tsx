@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { createActionsSection, createInlineFieldsSection, createPageBody, createPageDataSection, createRecordSection, type DataSurfaceColumnSpec, type FormSurfaceFieldSpec, PageSurface, type PageSurfaceSectionSpec, type PageSurfaceCommandSpec } from "@workspace/core/ui";
+import { createActionsSection, createInlineFieldsSection, createPageBody, createPageDataSection, createRecordSection, type DataSurfaceColumnSpec, type FormSurfaceFieldSpec, PageSurface, type BodySurfaceSectionSpec, type BodySurfaceCommandSpec } from "@workspace/core/ui";
 import type {
   WorkReportCollectionResponse,
   WorkReportCollectionSpace,
@@ -75,7 +75,7 @@ function createDraftColumns({
   }];
 }
 
-export function buildReportDraftTableBlock(props: ReportDraftTableProps): PageSurfaceSectionSpec {
+export function buildReportDraftTableBlock(props: ReportDraftTableProps): BodySurfaceSectionSpec {
   const rows = getDraftRows(props.draft);
   const columns = createDraftColumns(props);
   return createPageDataSection("report-draft-table", {
@@ -126,7 +126,7 @@ function createCollectionColumns(): DataSurfaceColumnSpec<WorkReportCollectionSp
   }];
 }
 
-export function buildReportCollectionTableBlock({ collection, loading }: ReportCollectionTableProps): PageSurfaceSectionSpec {
+export function buildReportCollectionTableBlock({ collection, loading }: ReportCollectionTableProps): BodySurfaceSectionSpec {
   const rows = collection?.spaces || [];
   if (!loading && rows.length === 0) {
     return createRecordSection("report-collection-empty", { records: [], empty: "暂无可汇总的工作空间" });
@@ -197,7 +197,7 @@ function InlineActionsCell({
   actions,
 }: {
   blockKey: string;
-  actions: PageSurfaceCommandSpec[];
+  actions: BodySurfaceCommandSpec[];
 }) {
   return <PageSurface kind="standard" embedded body={createPageBody([createActionsSection(blockKey, actions)])} />;
 }

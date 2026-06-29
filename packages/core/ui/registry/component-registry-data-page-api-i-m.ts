@@ -20,12 +20,12 @@ export const page_api_registry_entries = [
   {
     name: "FieldControl",
     description: "统一字段控件选择器",
-    composes: ["InputControl"],
+    composes: ["InputSurface"],
   },
   {
-    name: "InputControl",
+    name: "InputSurface",
     description: "字段规格输入控件",
-    contract: generatedCoreUiSurfaceContracts.InputControl,
+    contract: generatedCoreUiSurfaceContracts.InputSurface,
     declares: [
       { name: "control", description: "输入语义：text / number / boolean / choice / reference / temporal / file / collection / rating。" },
       { name: "valueType", description: "字段数据形状：string / number / boolean / date / time / datetime / file / reference / array。" },
@@ -134,13 +134,13 @@ export const page_api_registry_entries = [
   },
   {
     name: "createPageBody",
-    description: "页面正文 section 树声明助手",
-    composes: ["PageSurface"],
+    description: "BodySurface section 树声明助手",
+    composes: ["BodySurface"],
   },
   {
-    name: "createSplitPageBody",
-    description: "页面左右分栏正文声明助手",
-    composes: ["PageSurface", "SelectorSurface", "createPageBody"],
+    name: "createBodySplitSection",
+    description: "BodySurface 左右分栏 section 声明助手",
+    composes: ["BodySurface", "SelectorSurface", "createPageBody"],
   },
   {
     name: "createPageDataSection",
@@ -149,8 +149,8 @@ export const page_api_registry_entries = [
   },
   {
     name: "createPageModalSection",
-    description: "页面 modal block 声明助手",
-    composes: ["PageSurface"],
+    description: "正文 modal section 声明助手",
+    composes: ["BodySurface"],
   },
   {
     name: "createPageSurfaceProps",
@@ -165,12 +165,12 @@ export const page_api_registry_entries = [
   {
     name: "createTabbedPageBody",
     description: "页面正文 tabs sectioning 声明助手",
-    composes: ["PageSurface", "createPageBody"],
+    composes: ["BodySurface", "createPageBody"],
   },
   {
     name: "createTabsNavigationSection",
     description: "正文 tabs 导航 block 声明助手",
-    composes: ["PageSurface", "NavigationRenderer"],
+    composes: ["BodySurface", "NavigationRenderer"],
   },
   {
     name: "createPageTableSection",

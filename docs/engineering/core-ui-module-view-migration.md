@@ -22,7 +22,7 @@
 | `tabbed-block-host` | tabs/activeChild + typed `PageSurfaceBlockSpec[]` 或 embedded `PageSurfaceProps` 内容宿主，不接受 ReactNode/render callback |
 | `page-module-host-spec` | 暂不补泛化宿主；剩余 shell-host 必须先拆成 toolbar menu、tabbed block host、document/navigation 等具体契约 |
 | `surface-composition-spec` | 多 Surface 组合、嵌套 section、表格展开行、树表、复杂编辑器、交互卡片列表 |
-| `form-segmented-code-control` | 已迁到普通 Form field：部门/岗位 code 通过 `InputControl control=text` + `mask.kind=editableSegment` 声明 segment extract/compose/normalize |
+| `form-segmented-code-control` | 已迁到普通 Form field：部门/岗位 code 通过 `InputSurface control=text` + `mask.kind=editableSegment` 声明 segment extract/compose/normalize |
 | `navigation-surface-spec` | 已补 `NavigationRenderer kind="steps"` href/disabled link steps；树形部门/组织导航继续走 selector/tree specs |
 
 ## Register

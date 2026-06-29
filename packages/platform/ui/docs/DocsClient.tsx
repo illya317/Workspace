@@ -32,7 +32,6 @@ export default function DocsClient({ user: _user, hideShell }: { user: SessionUs
   return (
     <PageSurface kind="standard"
       body={createPageBody([createModuleGridSection("docs-grid", {
-
         title: hideShell ? undefined : "文档中心",
         summary: hideShell ? undefined : "员工手册、操作指南、规章制度等文档汇总",
         items: Object.entries(getDocCategories()).map(([category, docs]) => ({

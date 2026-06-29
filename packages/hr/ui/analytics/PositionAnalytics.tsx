@@ -1,12 +1,12 @@
 "use client";
 
-import { createPageBody, createMetricsSection, PageSurface, type PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, createMetricsSection, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { Department, EDP, Position } from "./useAnalyticsData";
 import { usePositionData } from "./position/usePositionData";
 import { createDeptBarChartSection } from "./position/DeptBarChart";
 import { createPositionTableSection } from "./position/PositionTable";
 
-export function usePositionAnalyticsBlocks({ positions, edps, departments }: { positions: Position[]; edps: EDP[]; departments: Department[] }): PageSurfaceSectionSpec[] {
+export function usePositionAnalyticsBlocks({ positions, edps, departments }: { positions: Position[]; edps: EDP[]; departments: Department[] }): BodySurfaceSectionSpec[] {
   const {
     stats,
     filteredDept,

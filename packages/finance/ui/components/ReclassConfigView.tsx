@@ -314,7 +314,7 @@ export default function ReclassCandidateList({
               return [{ key: "adjust", kind: "edit", label: "调整", onClick: () => startEdit(candidate) }];
             } : undefined,
           } },
-        }], { layout: "single" })}
+        }], { layout: "stack" })}
       footer={{ pagination: { page, totalPages, total: filtered.length, onPageChange: setPage } }}
     />
   );
