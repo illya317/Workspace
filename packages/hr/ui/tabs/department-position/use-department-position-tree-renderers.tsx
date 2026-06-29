@@ -115,6 +115,7 @@ export function useDepartmentPositionTreeRenderers({
       selectedId: activeOrganizationRootId,
       onSelect: (department) => {
         setActiveOrganizationRootId(department.id);
+        selectItem({ type: "department", id: department.id });
         setCollapsedDepartments((prev) => {
           const next = new Set(prev);
           next.delete(department.id);
