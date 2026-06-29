@@ -214,12 +214,12 @@ function TreeSelector<T>({ selector, actions }: {
       const card = selector.renderItem(item, { active, level, expanded, hasChildren });
       const meta = treeMeta(card);
       const cardClassName = active
-        ? "bg-emerald-50"
-        : "bg-transparent hover:bg-slate-50";
+        ? "border-slate-200 bg-emerald-50"
+        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50";
       const row = (
         <div key="row" className="space-y-1">
           <div
-            className={`grid min-w-0 grid-cols-[2rem_minmax(0,1fr)] items-stretch overflow-hidden rounded-md transition focus-within:ring-2 focus-within:ring-emerald-200 ${cardClassName}`}
+            className={`grid min-w-0 grid-cols-[2rem_minmax(0,1fr)] items-stretch overflow-hidden rounded-md border transition focus-within:ring-2 focus-within:ring-emerald-200 ${cardClassName}`}
           >
             <span className="grid place-items-center">
               {hasChildren && collapsible ? (

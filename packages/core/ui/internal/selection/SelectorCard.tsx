@@ -71,11 +71,11 @@ export function SelectorCard({
     </>
   );
   const cardClassName = joinClassNames(
-    "w-full rounded-lg text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200",
+    "w-full rounded-lg border text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200",
     size === "sm" ? "px-2.5 py-2" : "px-3 py-3",
     active
-      ? "bg-emerald-50"
-      : "bg-transparent hover:bg-slate-50",
+      ? "border-slate-200 bg-emerald-50 shadow-sm"
+      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50",
     archived && "opacity-75",
     className,
   );
