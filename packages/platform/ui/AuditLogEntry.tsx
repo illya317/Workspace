@@ -1,6 +1,8 @@
 "use client";
 
+import type { MouseEventHandler, ReactNode } from "react";
 import { createPageBody, createRecordSection, PageSurface } from "@workspace/core/ui";
+import type { DataSurfaceRecordSpec } from "@workspace/core/ui";
 import { label, formatVal } from "../audit";
 
 export interface AuditChange {
@@ -27,21 +29,21 @@ export interface AuditLogEntryProps {
   expanded: boolean;
   restoring: boolean;
   onToggle: () => void;
-  onRestore: (e: React.MouseEvent) => void;
+  onRestore: MouseEventHandler<HTMLButtonElement>;
 }
 
-export default function AuditLogEntry({
+export function createAuditLogRecord({
   entry,
   expanded,
   restoring,
   onToggle,
   onRestore,
-}: AuditLogEntryProps) {
+}: AuditLogEntryProps): DataSurfaceRecordSpec {
   function changeLabel(change: AuditChange) {
     return change.label || label(change.field);
   }
 
-  const header = (
+  const header: ReactNode = (
     <div className="flex items-center gap-4">
       <span className="inline-flex items-center gap-1">
         {entry.tag ? (
@@ -61,7 +63,7 @@ export default function AuditLogEntry({
     </div>
   );
 
-  const summary = (
+  const summary: ReactNode = (
     <div className="flex flex-wrap gap-1">
       {entry.changes.slice(0, 4).map((change) => (
         <span key={change.field} className="inline-block rounded bg-amber-50 px-1.5 py-0.5 text-xs text-amber-700">
@@ -75,43 +77,47 @@ export default function AuditLogEntry({
     </div>
   );
 
+  return {
+    key: String(entry.id),
+    expanded,
+    onToggle,
+    header,
+    summary,
+    detailTitle: "变更详情",
+    detailAction: entry.canRestore
+      ? {
+          label: "还原到此版本",
+          loadingLabel: "还原中...",
+          loading: restoring,
+          onClick: onRestore,
+        }
+      : undefined,
+    detail: (
+      <div className="space-y-1.5">
+        {entry.changes.map((change) => (
+          <div key={change.field} className="flex items-center gap-2 text-xs">
+            <span className="w-24 shrink-0 text-gray-500">{changeLabel(change)}</span>
+            {change.from !== undefined ? (
+              <>
+                <span className="rounded bg-red-50 px-1.5 py-0.5 font-mono text-red-500 line-through">{formatVal(change.from)}</span>
+                <span className="text-gray-300">→</span>
+              </>
+            ) : <span className="text-xs italic text-gray-300">(无)</span>}
+            <span className="rounded bg-emerald-50 px-1.5 py-0.5 font-mono text-emerald-600">{formatVal(change.to)}</span>
+          </div>
+        ))}
+      </div>
+    ),
+  };
+}
+
+export default function AuditLogEntry(props: AuditLogEntryProps) {
   return (
     <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createRecordSection(`audit-entry-${entry.id}`, {
-          records: [{
-            key: String(entry.id),
-            expanded,
-            onToggle,
-            header,
-            summary,
-            detailTitle: "变更详情",
-            detailAction: entry.canRestore
-              ? {
-                  label: "还原到此版本",
-                  loadingLabel: "还原中...",
-                  loading: restoring,
-                  onClick: onRestore,
-                }
-              : undefined,
-            detail: (
-              <div className="space-y-1.5">
-                {entry.changes.map((change) => (
-                  <div key={change.field} className="flex items-center gap-2 text-xs">
-                    <span className="w-24 shrink-0 text-gray-500">{changeLabel(change)}</span>
-                    {change.from !== undefined ? (
-                      <>
-                        <span className="rounded bg-red-50 px-1.5 py-0.5 font-mono text-red-500 line-through">{formatVal(change.from)}</span>
-                        <span className="text-gray-300">→</span>
-                      </>
-                    ) : <span className="text-xs italic text-gray-300">(无)</span>}
-                    <span className="rounded bg-emerald-50 px-1.5 py-0.5 font-mono text-emerald-600">{formatVal(change.to)}</span>
-                  </div>
-                ))}
-              </div>
-            ),
-          }],
+        createRecordSection(`audit-entry-${props.entry.id}`, {
+          records: [createAuditLogRecord(props)],
         }),
       ])}
     />

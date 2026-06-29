@@ -2,9 +2,9 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useCallback } from "react";
-import { createInlineFieldsSection, createMessageSection, createPageBody, PageSurface } from "@workspace/core/ui";
+import { createInlineFieldsSection, createPageBody, createRecordSection, createStatusSection, PageSurface } from "@workspace/core/ui";
 import type { BodySurfaceModalSpec } from "@workspace/core/ui";
-import AuditLogEntry, { type AuditEntry } from "./AuditLogEntry";
+import { createAuditLogRecord, type AuditEntry } from "./AuditLogEntry";
 
 export interface AuditLogModalProps {
   open: boolean;
@@ -102,48 +102,32 @@ export function useAuditLogModal({ open, onClose, entityType, onRestored }: Audi
             value: selectedDate,
             placeholder: "全部日期",
             spec: {
-              valueType: "string",
-              control: "choice",
-              options: {
-                source: "static",
-                mode: "dropdown",
-                unsetLabel: "全部日期",
-                items: dates.map((date) => ({ label: date, value: date })),
-              },
+              valueType: "date",
+              control: "temporal",
+              precision: "date",
             },
             onChange: (nextDate) => {
-              setSelectedDate(String(nextDate ?? ""));
+              setSelectedDate(String(nextDate || ""));
               setPage(1);
             },
           }], { kind: "filters" as const }),
         ] : []),
-        createMessageSection("entries", {
-          content: (
-            <div className="max-h-[58vh] overflow-auto">
-              {loading ? (
-                <div className="py-16 text-center text-gray-400">加载中...</div>
-              ) : entries.length === 0 ? (
-                <div className="py-16 text-center text-gray-400">暂无编辑记录</div>
-              ) : (
-                <div className="space-y-2 py-2">
-                  {entries.map((entry) => (
-                    <AuditLogEntry
-                      key={entry.id}
-                      entry={entry}
-                      expanded={expandedId === entry.id}
-                      restoring={restoring === entry.id}
-                      onToggle={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
-                      onRestore={(event) => {
-                        event.stopPropagation();
-                        restore(entry.id);
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          ),
-        }),
+        loading
+          ? createStatusSection("entries-loading", { kind: "loading", content: "加载中..." })
+          : entries.length === 0
+            ? createStatusSection("entries-empty", { kind: "empty", content: "暂无编辑记录" })
+            : createRecordSection("entries", {
+                records: entries.map((entry) => createAuditLogRecord({
+                  entry,
+                  expanded: expandedId === entry.id,
+                  restoring: restoring === entry.id,
+                  onToggle: () => setExpandedId(expandedId === entry.id ? null : entry.id),
+                  onRestore: (event) => {
+                    event.stopPropagation();
+                    restore(entry.id);
+                  },
+                })),
+              }),
         {
           key: "pagination",
           body: {
