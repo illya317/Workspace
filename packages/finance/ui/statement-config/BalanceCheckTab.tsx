@@ -8,8 +8,8 @@ import { flattenBalanceAccountTree, formatBalanceAmount, useBalanceCheckTableSec
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { useStatementConfig } from "./StatementConfigContext";
 export default function BalanceCheckTab() {
-  const { sections, toolbarItems } = useBalanceCheckSections();
-  return <PageSurface kind="standard" embedded toolbar={{ items: toolbarItems }} body={createPageBody(sections)} />;
+  const { sections } = useBalanceCheckSections();
+  return <PageSurface kind="standard" embedded body={createPageBody(sections)} />;
 }
 
 export function useBalanceCheckSections(): { sections: BodySurfaceSectionSpec[]; toolbarItems: SurfaceToolbarItems } {

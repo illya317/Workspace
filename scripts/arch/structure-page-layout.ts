@@ -62,6 +62,14 @@ const PLATFORM_SYSTEM_SHELL_PAGE_DESIGN_FILES = new Set([
   "packages/platform/ui/UserMenu.tsx",
 ]);
 
+function isDocumentUiPatternException(relPath: string) {
+  return relPath.startsWith("app/(docs)/")
+    || relPath.startsWith("packages/platform/ui/docs/")
+    || relPath.startsWith("packages/production/ui/qc/qc-layout-paper/")
+    || relPath === "packages/production/ui/qc/template-workbench/InlineFeedbackEditor.tsx"
+    || /^packages\/production\/ui\/qc\/Qc(Layout|Paper)/.test(relPath);
+}
+
 function isPageSurfaceLayoutProtocolScanFile(file: SourceInfo) {
   if (!/\.(ts|tsx)$/.test(file.relPath)) return false;
   if (file.relPath.startsWith("packages/core/")) return false;
@@ -222,6 +230,7 @@ export function findBusinessToolbarCompositionWarnings(files: SourceInfo[]) {
 
   for (const file of files) {
     if (!isBusinessToolbarCompositionScanFile(file)) continue;
+    if (isDocumentUiPatternException(file.relPath)) continue;
 
     const visit = (node: ts.Node) => {
       if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {

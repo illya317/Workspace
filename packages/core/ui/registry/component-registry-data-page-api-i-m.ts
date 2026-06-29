@@ -34,6 +34,10 @@ export const page_api_registry_entries = [
     composes: ["CalendarDateInput", "CheckboxField", "ChoiceGroup", "FileField", "FkFieldInput", "OptionPicker", "PercentField", "RatingControl", "ReadOnlyField", "SearchableOptionInput", "SegmentedCodeInput", "SelectField", "SwitchField", "TagStringInput", "TextField", "TextareaField", "TimeField"],
   },
   {
+    name: "LoginSurface",
+    description: "封闭登录页 Surface",
+  },
+  {
     name: "PercentField",
     description: "百分比输入字段",
     composes: ["FieldInputShell", "TextField"],
@@ -104,6 +108,11 @@ export const page_api_registry_entries = [
     name: "createInlineFieldsSection",
     description: "行内字段或筛选字段 block 声明助手",
     composes: ["BodySurface", "FormSurface", "createFormSection"],
+  },
+  {
+    name: "createListSection",
+    description: "正文列表 section 声明助手",
+    composes: ["BodySurface"],
   },
   {
     name: "createMessageSection",

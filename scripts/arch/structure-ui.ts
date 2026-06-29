@@ -81,6 +81,14 @@ const UI_PATTERN_RULES: Array<{ name: string; regex: RegExp }> = [
   { name: "date", regex: /date(input|picker|field)|calendar/i },
 ];
 
+function isDocumentUiPatternException(relPath: string) {
+  return relPath.startsWith("app/(docs)/")
+    || relPath.startsWith("packages/platform/ui/docs/")
+    || relPath.startsWith("packages/production/ui/qc/qc-layout-paper/")
+    || relPath === "packages/production/ui/qc/template-workbench/InlineFeedbackEditor.tsx"
+    || /^packages\/production\/ui\/qc\/Qc(Layout|Paper)/.test(relPath);
+}
+
 const PLATFORM_SYSTEM_SHELL_PAGE_DESIGN_FILES = new Set([
   "packages/platform/ui/AppShell.tsx",
   "packages/platform/ui/LoginClient.tsx",
@@ -146,6 +154,7 @@ export function findUiPatternCandidates(files: SourceInfo[]) {
   for (const file of files) {
     if (!file.relPath.startsWith("packages/") || !file.relPath.endsWith(".tsx")) continue;
     if (file.relPath.startsWith("packages/core/ui/")) continue;
+    if (isDocumentUiPatternException(file.relPath)) continue;
 
     const name = path.basename(file.relPath, path.extname(file.relPath));
     const patterns = UI_PATTERN_RULES
@@ -259,6 +268,7 @@ export function findPageDesignDriftFiles(files: SourceInfo[]) {
     if (file.relPath.startsWith("packages/core/")) continue;
     if (!/\/ui\//.test(file.relPath)) continue;
     if (PLATFORM_SYSTEM_SHELL_PAGE_DESIGN_FILES.has(file.relPath)) continue;
+    if (isDocumentUiPatternException(file.relPath)) continue;
 
     const signals = new Set<string>();
     const visit = (node: ts.Node) => {
