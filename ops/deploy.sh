@@ -522,6 +522,46 @@ run_healthcheck() {
   ssh_cmd "curl -fsS '$HEALTHCHECK_URL' >/dev/null"
 }
 
+notify_workspace_bot_deploy() {
+  echo "==> 记录 Workspace 更新通知..."
+  ssh_cmd "REMOTE_DIR='$REMOTE_DIR' python3 - <<'PY'
+import datetime
+import json
+import os
+from pathlib import Path
+
+remote_dir = Path(os.environ['REMOTE_DIR'])
+current = remote_dir / 'current'
+release_path = current.resolve()
+app_dir = current / 'workspace'
+
+def read_json(path):
+    try:
+        return json.loads(path.read_text())
+    except Exception:
+        return {}
+
+package = read_json(app_dir / 'package.json').get('version') or 'unknown'
+build = (app_dir / '.next' / 'BUILD_ID').read_text().strip() if (app_dir / '.next' / 'BUILD_ID').exists() else 'unknown'
+required = read_json(app_dir / '.next' / 'required-server-files.json')
+build = required.get('config', {}).get('env', {}).get('NEXT_PUBLIC_BUILD_VERSION') or build
+release = release_path.name
+
+payload = {
+    'id': f'{release}:{build}',
+    'package': str(package),
+    'build': str(build),
+    'release': release,
+    'finishedAt': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+}
+target = Path.home() / '.finance-bot-deploy-event.json'
+tmp = target.with_suffix('.json.tmp')
+tmp.write_text(json.dumps(payload, ensure_ascii=False))
+tmp.replace(target)
+print(f\"Workspace deploy event recorded: {payload['id']}\")
+PY"
+}
+
 if [ "$RUN_LOCAL_CHECKS" = "1" ] && ! command -v npm >/dev/null 2>&1; then
   echo "==> 当前 CI 容器未提供 npm，自动跳过本地静态检查"
   RUN_LOCAL_CHECKS=0
@@ -554,6 +594,7 @@ backup_remote_runtime
 cleanup_remote_backups
 deploy_remote_artifact
 run_healthcheck
+notify_workspace_bot_deploy
 
 echo ""
 echo "==> CNB 产物部署完成"
