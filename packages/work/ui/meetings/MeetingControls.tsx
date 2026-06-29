@@ -1,20 +1,18 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { createBlockSurfaceBlock, createInlineFieldsBlock, createPageBody, PageSurface } from "@workspace/core/ui";
-import type { PageSurfaceBlockSpec, PageSurfaceKind } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createInlineFieldsSection, createPageBody, PageSurface } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec } from "@workspace/core/ui";
 import type { MeetingDetail } from "./meeting-types";
 import { statusLabel } from "./meeting-utils";
 
 export function PageBlockSurface({
   block,
-  kind = "detail",
 }: {
-  block: PageSurfaceBlockSpec;
+  block: PageSurfaceSectionSpec;
   className?: string;
-  kind?: Exclude<PageSurfaceKind, "split">;
 }) {
-  return <PageSurface embedded kind={kind} body={createPageBody([block])} />;
+  return <PageSurface kind="standard" embedded body={createPageBody([block])} />;
 }
 
 export function Section({
@@ -26,7 +24,7 @@ export function Section({
 }) {
   return (
     <PageBlockSurface
-      block={createBlockSurfaceBlock(title, {
+      block={createBlockSurfaceSection(title, {
         kind: "section",
         title,
         content: <div className="space-y-3">{children}</div>,
@@ -57,7 +55,7 @@ export function InputBox({
 }) {
   const dateTime = splitDateTimeValue(value);
   const block = kind === "datetime"
-    ? createInlineFieldsBlock(`${label}-datetime`, [
+    ? createInlineFieldsSection(`${label}-datetime`, [
         {
           key: `${label}-date`,
           label: `${label}日期`,
@@ -74,7 +72,7 @@ export function InputBox({
           onChange: time => onChange(combineDateTimeValue(dateTime.date, String(time ?? ""))),
         },
       ])
-    : createInlineFieldsBlock(label, [{
+    : createInlineFieldsSection(label, [{
       key: label,
       label,
       spec: {
@@ -122,7 +120,7 @@ export function SelectBox({
 }) {
   return (
     <PageBlockSurface
-      block={createInlineFieldsBlock(label, [{
+      block={createInlineFieldsSection(label, [{
         key: label,
         label,
         spec: {

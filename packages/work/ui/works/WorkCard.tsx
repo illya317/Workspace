@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createPageDataBlock, type DataSurfaceCommandSpec, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createPageDataSection, type DataSurfaceCommandSpec, PageSurface } from "@workspace/core/ui";
 import type { WorkItem } from "./types";
 export default function WorkCard({
   work,
@@ -36,10 +36,9 @@ export default function WorkCard({
   ] : undefined;
 
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="list"
-      body={createPageBody([createPageDataBlock("work-card", {
+      body={createPageBody([createPageDataSection("work-card", {
       kind: "metrics",
       framed: true,
       title: work.content,

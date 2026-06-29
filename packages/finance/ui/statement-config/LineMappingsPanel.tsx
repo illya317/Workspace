@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { createPageBody, PageSurface, createActionsBlock, createPageDataBlock, createInlineFieldsBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createActionsSection, createPageDataSection, createInlineFieldsSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { AcctInfo, InheritedAcct, LineCfg, Mapping, StatementOperator } from "./types";
 import { formatStatementAmount, isDefaultMapping } from "./types";
 interface LineMappingsPanelProps {
@@ -191,11 +191,10 @@ export default function LineMappingsPanel({
 
 function MappingTable({ mappings, columns }: { mappings: Mapping[]; columns: DataSurfaceColumnSpec<Mapping>[] }) {
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageDataBlock("line-mappings", {
+        createPageDataSection("line-mappings", {
           kind: "table",
           rows: mappings,
           columns,
@@ -213,11 +212,10 @@ function MappingTable({ mappings, columns }: { mappings: Mapping[]; columns: Dat
 
 function InheritedTable({ accounts, columns }: { accounts: InheritedAcct[]; columns: DataSurfaceColumnSpec<InheritedAcct>[] }) {
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageDataBlock("inherited-accounts", {
+        createPageDataSection("inherited-accounts", {
           kind: "table",
           rows: accounts,
           columns,
@@ -252,11 +250,10 @@ function MappingEditor({
   onSaveMapping: (accountCode: string, lineCode: string, operator: StatementOperator) => void;
 }) {
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createInlineFieldsBlock("mapping-editor", [
+        createInlineFieldsSection("mapping-editor", [
           { key: "search", label: "搜索", spec: { valueType: "string", control: "text" }, placeholder: "搜索科目编码或名称...", value: accountSearch, onChange: (value) => onAccountSearchChange(String(value ?? "")),  },
           { key: "account", label: "科目", spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: filteredAccounts.map(account => ({ value: account.code, label: `${account.code} ${account.name}` })) } }, value: newAccount, onChange: (value) => onNewAccountChange(String(value ?? "")), placeholder: `选择科目 (${filteredAccounts.length})` },
         ], {
@@ -274,11 +271,10 @@ function MappingEditor({
 
 function AddMappingButton({ lineCode, onStartAdding }: { lineCode: string; onStartAdding: (lineCode: string) => void }) {
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createActionsBlock("add-mapping", [{ key: "add-account", label: "添加科目", onClick: () => onStartAdding(lineCode) }]),
+        createActionsSection("add-mapping", [{ key: "add-account", label: "添加科目", onClick: () => onStartAdding(lineCode) }]),
       ])}
     />
   );

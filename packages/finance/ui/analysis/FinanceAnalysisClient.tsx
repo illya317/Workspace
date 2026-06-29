@@ -2,8 +2,8 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useEffect } from "react";
-import { PageSurface, createPageDataBlock, createPageTabsNavigation } from "@workspace/core/ui";
-import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { PageSurface, createPageBody, createPageDataSection, createPageTabsNavigation } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 
@@ -22,15 +22,14 @@ export default function FinanceAnalysisClient({ user: _user }: Props) {
   const [budget, setBudget] = useState<BudgetOverview | null>(null);
   const activeChildTabs = useMemo(() => getFinancePageViewTabs("analysis", _user), [_user]);
   const navigation = activeChildTabs.length > 1 ? createPageTabsNavigation({
-    level: 2,
     items: activeChildTabs,
     active: activeChildTabs[0]?.key ?? "",
     onChange: () => {},
   }) : undefined;
   const lifecycleBlocks = getFinanceLifecycleBlocks("analysis");
-  const analysisBlocks: PageSurfaceBlockSpec[] = [
+  const analysisBlocks: PageSurfaceSectionSpec[] = [
     ...lifecycleBlocks,
-    createPageDataBlock("analysis-metrics", {
+    createPageDataSection("analysis-metrics", {
       kind: "metrics",
       metrics: [
         { key: "revenue", label: "营业收入", value: "-" },
@@ -39,7 +38,7 @@ export default function FinanceAnalysisClient({ user: _user }: Props) {
       ],
     }),
     budget?.hasBudget
-      ? createPageDataBlock("budget-overview", {
+      ? createPageDataSection("budget-overview", {
           kind: "metrics",
           framed: true,
           title: "预算概览",
@@ -49,14 +48,14 @@ export default function FinanceAnalysisClient({ user: _user }: Props) {
             { key: "rd-total", label: "研发预算总额", value: (budget.rdTotal ?? 0).toLocaleString("zh-CN", { maximumFractionDigits: 2 }) },
           ],
         })
-      : createPageDataBlock("budget-overview", {
+      : createPageDataSection("budget-overview", {
           kind: "records",
           framed: true,
           title: "预算概览",
           records: [],
           empty: "暂无生效预算版本",
         }),
-    createPageDataBlock("analysis-placeholder", {
+    createPageDataSection("analysis-placeholder", {
       kind: "records",
       records: [],
       empty: "财务分析看板开发中",
@@ -71,12 +70,9 @@ export default function FinanceAnalysisClient({ user: _user }: Props) {
   }, []);
 
   return (
-    <PageSurface
-      kind="analysis"
+    <PageSurface kind="standard"
       navigation={navigation}
-      body={{
-        blocks: analysisBlocks,
-      }}
+      body={createPageBody(analysisBlocks)}
     />
   );
 }

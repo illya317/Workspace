@@ -1,6 +1,6 @@
 "use client";
 
-import { createBlockSurfaceBlock, createMessageBlock, createPageBody, createSectionBlock, type DataSurfaceColumnSpec, PageSurface, type PageSurfaceBlockSpec, type PageSurfaceCommandSpec } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createMessageSection, createPageBody, createSectionSection, type DataSurfaceColumnSpec, PageSurface, type PageSurfaceSectionSpec, type PageSurfaceCommandSpec } from "@workspace/core/ui";
 
 export interface PositionDescriptionReadOnlyData {
   id?: number | string;
@@ -119,11 +119,11 @@ export function PositionDescriptionReadOnlyView({
       cell: (row) => <span className="text-slate-700">{String(row.effectiveDate ?? "")}</span>,
     },
   ];
-  const blocks: PageSurfaceBlockSpec[] = [
-    ...(showHeader ? [createSectionBlock("header", {
+  const sections: PageSurfaceSectionSpec[] = [
+    ...(showHeader ? [createSectionSection("header", {
       title: "岗位说明书",
 
-      blocks: [createMessageBlock("header-meta", {
+      sections: [createMessageSection("header-meta", {
         tone: "muted",
         content: (
           <>
@@ -132,10 +132,10 @@ export function PositionDescriptionReadOnlyView({
         ),
       })],
     })] : []),
-    createSectionBlock("basic", {
+    createSectionSection("basic", {
       title: "基本信息",
 
-      blocks: [createBlockSurfaceBlock("basic-fields", {
+      sections: [createBlockSurfaceSection("basic-fields", {
         kind: "message",
 
         content: (
@@ -161,10 +161,10 @@ export function PositionDescriptionReadOnlyView({
         )
       })],
     }),
-    ...(data.positionPurpose || data.summary ? [createSectionBlock("overview", {
+    ...(data.positionPurpose || data.summary ? [createSectionSection("overview", {
       title: "岗位概述",
 
-      blocks: [createMessageBlock("overview-fields", {
+      sections: [createMessageSection("overview-fields", {
 
         content: (
           <>
@@ -174,10 +174,10 @@ export function PositionDescriptionReadOnlyView({
         ),
       })],
     })] : []),
-    ...(Array.isArray(d.duties) && d.duties.length > 0 ? [createSectionBlock("duties", {
+    ...(Array.isArray(d.duties) && d.duties.length > 0 ? [createSectionSection("duties", {
       title: "岗位职责",
 
-      blocks: [createMessageBlock("duties-content", {
+      sections: [createMessageSection("duties-content", {
 
         content: (
           <>
@@ -199,10 +199,10 @@ export function PositionDescriptionReadOnlyView({
         ),
       })],
     })] : []),
-    ...(!!(d.education || formatMajorItems(d.major) || formatExperienceRequirements(d.experienceRequirements) || d.training) ? [createSectionBlock("qualification", {
+    ...(!!(d.education || formatMajorItems(d.major) || formatExperienceRequirements(d.experienceRequirements) || d.training) ? [createSectionSection("qualification", {
       title: "任职资格",
 
-      blocks: [createMessageBlock("qualification-fields", {
+      sections: [createMessageSection("qualification-fields", {
 
         content: (
           <>
@@ -214,10 +214,10 @@ export function PositionDescriptionReadOnlyView({
         ),
       })],
     })] : []),
-    ...(!!(formatWorkEnvironments(d.workEnvironments) || d.workSchedule) ? [createSectionBlock("conditions", {
+    ...(!!(formatWorkEnvironments(d.workEnvironments) || d.workSchedule) ? [createSectionSection("conditions", {
       title: "工作条件",
 
-      blocks: [createMessageBlock("conditions-fields", {
+      sections: [createMessageSection("conditions-fields", {
 
         content: (
           <>
@@ -227,11 +227,11 @@ export function PositionDescriptionReadOnlyView({
         ),
       })],
     })] : []),
-    ...(historyRows.length > 0 ? [createSectionBlock("history", {
+    ...(historyRows.length > 0 ? [createSectionSection("history", {
       title: "变更历史",
 
 
-      blocks: [{
+      sections: [{
         kind: "data" as const,
         key: "history-table",
         surface: {
@@ -247,9 +247,8 @@ export function PositionDescriptionReadOnlyView({
   ];
 
   return (
-    <PageSurface
-      kind="detail"
-      body={createPageBody(blocks, { commands: actions })}
+    <PageSurface kind="standard"
+      body={createPageBody(sections, { commands: actions })}
     />
   );
 }

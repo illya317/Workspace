@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { createPageBody, PageSurface, createInlineFieldsBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createInlineFieldsSection } from "@workspace/core/ui";
 
 interface AccountOption { code: string; name: string; }
 
@@ -77,11 +77,10 @@ export default function AccountCodeInput({ companyCode, year, value, onChange, p
   useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createInlineFieldsBlock("account-code", [{
+        createInlineFieldsSection("account-code", [{
           key: "accountCode",
           label: "",
           spec: {

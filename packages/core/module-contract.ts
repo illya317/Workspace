@@ -27,13 +27,45 @@ export type ModuleIconKey =
   | "production"
   | "customers"
   | "library"
-  | "settings";
+  | "settings"
+  | "projects"
+  | "tasks"
+  | "meetings"
+  | "roster"
+  | "performance"
+  | "analytics"
+  | "contracts"
+  | "ledger"
+  | "statementConfig"
+  | "statementReview"
+  | "statements"
+  | "analysis"
+  | "budget"
+  | "cost"
+  | "tax"
+  | "treasury"
+  | "import"
+  | "qcBatches"
+  | "qcTemplates"
+  | "investors"
+  | "users"
+  | "suppliers"
+  | "positions"
+  | "company"
+  | "expense"
+  | "basicInfo"
+  | "account"
+  | "shieldCheck"
+  | "api"
+  | "ui";
 
 export interface SubModuleRegistration {
   key: string;
   label: string;
   desc: string;
   href: string;
+  iconKey: ModuleIconKey;
+  color: ModuleColor;
   resourceKey: string;
   resourceMaxRoleKey?: "access" | "write" | "delete" | "admin";
   resourceHidden?: boolean;

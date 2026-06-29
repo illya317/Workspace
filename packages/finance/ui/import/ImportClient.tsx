@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { SessionUser } from "@workspace/platform/types";
-import { PageSurface, createBlockSurfaceBlock, createPageTabsNavigation } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceSection, createPageBody, createPageTabsNavigation } from "@workspace/core/ui";
 import ImportUploadForm from "./components/ImportUploadForm";
 import ImportPreview from "./components/ImportPreview";
 import ImportResult from "./components/ImportResult";
@@ -22,7 +22,6 @@ export default function ImportClient({ user }: { user: SessionUser }) {
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
   const activeChildTabs = useMemo(() => getFinancePageViewTabs("import", user), [user]);
   const navigation = activeChildTabs.length > 1 ? createPageTabsNavigation({
-    level: 2,
     items: activeChildTabs,
     active: activeChildTabs[0]?.key ?? "",
     onChange: () => {},
@@ -127,13 +126,11 @@ export default function ImportClient({ user }: { user: SessionUser }) {
     importType === "journal" ? "序时账" : "科目表";
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       navigation={navigation}
-      body={{
-        blocks: [
+      body={createPageBody([
           ...lifecycleBlocks,
-          createBlockSurfaceBlock("finance-import-content", {
+          createBlockSurfaceSection("finance-import-content", {
             kind: "content",
             content: (
               <div className="mx-auto max-w-5xl py-6">
@@ -166,8 +163,7 @@ export default function ImportClient({ user }: { user: SessionUser }) {
               </div>
             ),
           }),
-        ],
-      }}
+        ])}
     />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createSectionBlock, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createSectionSection, PageSurface } from "@workspace/core/ui";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 
 export default function CustomersClient() {
@@ -17,13 +17,12 @@ export default function CustomersClient() {
   ];
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       toolbar={{ items: toolbarItems }}
       body={createPageBody([
-        createSectionBlock("customers", {
+        createSectionSection("customers", {
           title: "客户列表",
-          blocks: [
+          sections: [
             {
               kind: "data",
               key: "empty",

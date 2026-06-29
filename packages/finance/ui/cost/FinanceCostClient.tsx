@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { PageSurface, createBlockSurfaceBlock, createPageTabsNavigation } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceSection, createPageBody, createPageTabsNavigation } from "@workspace/core/ui";
 import { SessionUser } from "@workspace/platform/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 import { useCostFilterToolbarItems } from "./components/CostFilters";
@@ -21,7 +21,6 @@ export default function FinanceCostClient({ user: _user }: { user: SessionUser }
     setActiveChild(activeChildTabs[0]?.key ?? "overview");
   }, [activeChildTabs]);
   const navigation = activeChildTabs.length > 1 ? createPageTabsNavigation({
-    level: 2,
     items: activeChildTabs,
     active: activeChild,
     onChange: setActiveChild,
@@ -37,14 +36,12 @@ export default function FinanceCostClient({ user: _user }: { user: SessionUser }
   const toolbarItems = useCostFilterToolbarItems({ filters, onChange: setFilters });
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       navigation={navigation}
       toolbar={{ items: toolbarItems }}
-      body={{
-        blocks: [
+      body={createPageBody([
           ...lifecycleBlocks,
-          createBlockSurfaceBlock("finance-cost-content", {
+          createBlockSurfaceSection("finance-cost-content", {
             kind: "content",
             content: (
               <div>
@@ -58,8 +55,7 @@ export default function FinanceCostClient({ user: _user }: { user: SessionUser }
               </div>
             ),
           }),
-        ],
-      }}
+        ])}
     />
   );
 }

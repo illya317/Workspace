@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { createBlockSurfaceBlock, createPageBody, createSectionBlock, PageSurface } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createPageBody, createSectionSection, PageSurface } from "@workspace/core/ui";
 import ResourceTree, { type ResourceTreeNode } from "../components/ResourceTree";
 
 type ModuleStatus = "enabled" | "hidden" | "disabled";
@@ -170,14 +170,13 @@ export default function ModuleManagementTab({ showToast }: Props) {
   }
 
   return (
-    <PageSurface
-      kind="settings"
+    <PageSurface kind="standard"
       embedded
-      body={createPageBody(!data ? [] : [createSectionBlock("module-tree", {
+      body={createPageBody(!data ? [] : [createSectionSection("module-tree", {
           title: "模块树",
           subtitle: data.rule,
 
-          blocks: [createBlockSurfaceBlock("tree-body", {
+          sections: [createBlockSurfaceSection("tree-body", {
             kind: "message",
 
             content: (

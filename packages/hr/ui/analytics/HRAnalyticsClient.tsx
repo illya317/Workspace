@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { SessionUser } from "@workspace/platform/types";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
-import { PageSurface, createEmptyBlock, createMessageBlock, createPageBody, createPageTabsNavigation, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { PageSurface, createEmptySection, createMessageSection, createPageBody, createPageTabsNavigation, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import { useAnalyticsData } from "./useAnalyticsData";
 
 import { useEmployeeAnalyticsBlocks } from "./EmployeeAnalytics";
@@ -41,7 +41,7 @@ export default function HRAnalyticsClient({ user: _user }: { user: SessionUser; 
   const contractBlocks = useContractAnalyticsBlocks({ contracts: data.contracts });
   const headcountBlocks = useHeadcountTrendBlocks({ employments: data.employments });
 
-  const tabBlocks: Record<AnalyticsTab, PageSurfaceBlockSpec[]> = {
+  const tabBlocks: Record<AnalyticsTab, PageSurfaceSectionSpec[]> = {
     employee: employeeBlocks,
     department: departmentBlocks,
     position: positionBlocks,
@@ -49,24 +49,23 @@ export default function HRAnalyticsClient({ user: _user }: { user: SessionUser; 
     contract: contractBlocks,
     headcount: headcountBlocks,
   };
-  let blocks: PageSurfaceBlockSpec[];
+  let sections: PageSurfaceSectionSpec[];
   if (data.loading) {
-    blocks = [createEmptyBlock("loading", { content: "数据加载中..." })];
+    sections = [createEmptySection("loading", { content: "数据加载中..." })];
   } else if (data.error) {
-    blocks = [createMessageBlock("error", { tone: "danger" as const, content: data.error })];
+    sections = [createMessageSection("error", { tone: "danger" as const, content: data.error })];
   } else {
-    blocks = tabBlocks[activeTab];
+    sections = tabBlocks[activeTab];
   }
 
   return (
-    <PageSurface
-	      kind="analysis"
+    <PageSurface kind="standard"
 	      navigation={createPageTabsNavigation({
 	        items: tabs,
 	        active: activeTab,
 	        onChange: (k: string) => setActiveTab(k as AnalyticsTab),
 	      })}
-	      body={createPageBody(blocks)}
+	      body={createPageBody(sections)}
 	    />
   );
 }

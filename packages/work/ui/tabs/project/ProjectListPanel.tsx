@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createSelectorPanelBlock, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createSelectorPanelSection, PageSurface } from "@workspace/core/ui";
 import { projectCode, type ProjectItem, type ProjectListFilter } from "./model";
 
 type ProjectListPanelMode = "desktop" | "drawer";
@@ -22,11 +22,10 @@ export default function ProjectListPanel({
     <div
       className={mode === "drawer" ? "h-full overflow-hidden" : ""}
     >
-      <PageSurface
+      <PageSurface kind="standard"
         embedded
-        kind="detail"
         body={createPageBody([
-          createSelectorPanelBlock<ProjectItem>("project-list", {
+          createSelectorPanelSection<ProjectItem>("project-list", {
             bodyClassName: `${mode === "drawer" ? "h-full" : "max-h-[760px]"} overflow-auto p-3`,
             contentClassName: "space-y-2",
             items: projects,

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { createBlockSurfaceBlock, createPageBody, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createPageBody, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 const API_BASE_URL = typeof window !== "undefined" ? `${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH || ""}` : "";
 export type ApiAccessModuleRow = {
@@ -94,10 +94,9 @@ export default function ApiAccessClient({
   if (!canUsePersonalApi) return null;
   return (
     <div className="py-6">
-      <PageSurface
-        kind="settings"
+      <PageSurface kind="standard"
         embedded
-        body={createPageBody([createBlockSurfaceBlock("api-access", {
+        body={createPageBody([createBlockSurfaceSection("api-access", {
           kind: "panel",
           title: "API 接入",
           content: (

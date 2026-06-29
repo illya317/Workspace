@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { createPageBody, PageSurface, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPageTableSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 export interface BalanceCheckAccountNode {
   code: string;
   name: string;
@@ -175,11 +175,10 @@ export default function BalanceCheckTable({
     }
   }], [expanded, maxLevel, onToggleNode]);
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageTableBlock("balance-check", {
+        createPageTableSection("balance-check", {
           framed: true,
 
 

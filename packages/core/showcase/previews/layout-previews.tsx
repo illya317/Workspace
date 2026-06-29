@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FC } from "react";
-import { createEmptyBlock, createPageBody, createSectionBlock, PageSurface } from "@workspace/core/ui";
+import { createEmptySection, createPageBody, createSectionSection, PageSurface } from "@workspace/core/ui";
 import {
   AnalysisBlock,
   AnalysisPageFrame,
@@ -104,8 +104,7 @@ function PageShellPreview() {
 function PageSurfacePreview() {
   return (
     <div className="max-h-80 overflow-hidden rounded-lg border border-slate-200">
-      <PageSurface
-        kind="list"
+      <PageSurface kind="standard"
         toolbar={{
           items: [
             { kind: "search", key: "search", value: "", onChange: () => {}, placeholder: "搜索..." },
@@ -113,11 +112,11 @@ function PageSurfacePreview() {
           ],
         }}
         body={createPageBody([
-          createSectionBlock("records", {
+          createSectionSection("records", {
             title: "列表 Surface",
             subtitle: "toolbar / blocks / empty 都通过明确 spec 传入",
-            blocks: [
-              createEmptyBlock("empty", {
+            sections: [
+              createEmptySection("empty", {
                 content: "暂无数据",
                 compact: true,
               }),

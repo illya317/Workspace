@@ -1,20 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
-import { createModuleGridBlock, createPageBody, PageSurface } from "@workspace/core/ui";
+import { createModuleGridSection, createPageBody, PageSurface } from "@workspace/core/ui";
 import type { SessionUser } from "../types";
 import { getAccessibleModules } from "../module-nav";
 
 export default function PortalClient({ user }: { user: SessionUser }) {
-  const router = useRouter();
   const entries = getAccessibleModules(user);
 
   return (
-    <PageSurface
-      kind="settings"
-      body={createPageBody([createModuleGridBlock("portal-grid", {
+    <PageSurface kind="directory"
+      body={createPageBody([createModuleGridSection("portal-grid", {
 
         title: process.env.NEXT_PUBLIC_APP_NAME || "工作台",
         summary: `欢迎，${user.employeeName || user.nickname}`,
@@ -33,7 +30,7 @@ export default function PortalClient({ user }: { user: SessionUser }) {
           description: entry.desc,
           icon: entry.icon,
           color: entry.color,
-          onClick: () => router.push(entry.href),
+          href: workspacePath(entry.href),
         })),
       })])}
     />

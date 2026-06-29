@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createPanelBlock, PageSurface, type FormSurfaceItemSpec, type FormSurfaceLooseItem, type PageSurfaceBlockSpec, type ReferenceOption } from "@workspace/core/ui";
+import { createPageBody, createPanelSection, PageSurface, type FormSurfaceItemSpec, type FormSurfaceLooseItem, type PageSurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { NEW_POSITION_DESCRIPTION_TEMPLATE_OPTION, type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
 import { selectedEntityName, usePositionDescriptionDetailsSurface } from "./detail-editors";
@@ -67,7 +67,7 @@ export function usePositionDescriptionPanelBlock({
   onTemplateEditorOpenChange,
   onTemplateDraftNameChange,
   onTogglePositionDescriptionTemplateField
-}: PositionDescriptionPanelProps): PageSurfaceBlockSpec | null {
+}: PositionDescriptionPanelProps): PageSurfaceSectionSpec | null {
   const draft = descriptionDraft ?? EMPTY_DESCRIPTION_DRAFT;
   const currentPosition = position ?? ({ id: 0, name: "", departmentName: "" } as Position);
   const meta = deriveDescriptionMeta(draft.details, draft.version, draft.effectiveDate);
@@ -133,7 +133,7 @@ export function usePositionDescriptionPanelBlock({
     ...(detailsSurface.fields ?? []),
   ];
 
-  return createPanelBlock("position-description", {
+  return createPanelSection("position-description", {
       title: (
         <span className="flex min-w-0 items-center gap-2">
           <span>岗位说明书</span>
@@ -153,7 +153,7 @@ export function usePositionDescriptionPanelBlock({
           : []),
       ],
 
-      blocks: [
+      sections: [
         {
           kind: "form",
           key: "template",
@@ -209,5 +209,5 @@ export function PositionDescriptionPanel(props: Omit<PositionDescriptionPanelPro
   descriptionDraft: DescriptionDraft;
 }) {
   const block = usePositionDescriptionPanelBlock(props);
-  return <PageSurface embedded kind="detail" body={createPageBody(block ? [block] : [])} />;
+  return <PageSurface kind="standard" embedded body={createPageBody(block ? [block] : [])} />;
 }

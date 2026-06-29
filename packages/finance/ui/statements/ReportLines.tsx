@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createPageDataBlock, type DataSurfaceColumnSpec, type DataSurfaceTableProps } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPageDataSection, type DataSurfaceColumnSpec, type DataSurfaceTableProps } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
 
 export interface ReportLine {
@@ -72,11 +72,10 @@ function DetailRows({ rows }: { rows: AccountDetail[] }) {
 
   return (
     <div className="space-y-2">
-      <PageSurface
-        kind="list"
+      <PageSurface kind="standard"
         embedded
         body={createPageBody([
-          createPageDataBlock("report-line-details", {
+          createPageDataSection("report-line-details", {
             kind: "table",
             rows,
             columns: detailColumns,
@@ -145,10 +144,9 @@ export function createReportLinesSurface({ items, labelHeader, amountHeader, exp
 
 export default function ReportLines(props: Props) {
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
-      body={createPageBody([createPageDataBlock("report-lines", createReportLinesSurface(props))])}
+      body={createPageBody([createPageDataSection("report-lines", createReportLinesSurface(props))])}
     />
   );
 }

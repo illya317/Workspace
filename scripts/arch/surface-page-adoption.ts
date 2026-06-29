@@ -13,8 +13,8 @@ const SOURCE_ROOTS = ["app", "packages"];
 const SOURCE_EXTENSIONS = new Set([".ts", ".tsx"]);
 const CORE_UI_IMPLEMENTATION_PREFIX = `packages${path.sep}core${path.sep}ui${path.sep}`;
 const DEPRECATED_PAGE_SURFACE_PROPS = new Map<string, string>([
-  ["blocks", "Use body.blocks or createPageBody(blocks)."],
-  ["empty", "Use body.empty or createPageBody(blocks, { empty })."],
+  ["blocks", "Use body.sections or createPageBody(sections)."],
+  ["empty", "Use body.empty or createPageBody(sections, { empty })."],
   ["actions", "Use body.commands for local commands, or toolbar.items for page-level actions."],
   ["tabs", "Use navigation={createPageTabsNavigation(...)}."],
   ["activeTab", "Use navigation.active."],
@@ -23,8 +23,8 @@ const DEPRECATED_PAGE_SURFACE_PROPS = new Map<string, string>([
   ["onChildChange", "Use navigation.onChildChange."],
 ]);
 const CREATE_PAGE_SURFACE_PROPS_COMPAT_OPTIONS = new Map<string, string>([
-  ["blocks", "Pass body: createPageBody(blocks) instead."],
-  ["empty", "Pass body: createPageBody(blocks, { empty }) instead."],
+  ["blocks", "Pass body: createPageBody(sections) instead."],
+  ["empty", "Pass body: createPageBody(sections, { empty }) instead."],
   ["actions", "Pass body.commands or toolbar.items instead."],
 ]);
 const MANUAL_TABS_NAVIGATION_TARGET = "Use createPageTabsNavigation(...) instead of handwritten navigation kind=\"tabs\".";

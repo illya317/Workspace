@@ -79,32 +79,96 @@ function DeclarativeCapabilitiesBlock({
 }: {
   relation: CoreUiComponentRelationView;
 }) {
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const capabilities = relation.component.role === "surface"
     ? relation.component.contract ?? relation.component.declares ?? []
     : relation.component.capabilities ?? [];
+
+  useEffect(() => {
+    setExpandedNodes(new Set());
+  }, [relation.component.name]);
+
   if (!capabilities.length) return <p className="text-sm text-slate-400">暂无</p>;
 
-  return <DeclarationTree items={capabilities} />;
+  function toggleNode(key: string) {
+    setExpandedNodes((current) => {
+      const next = new Set(current);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+
+  const hasExpandable = capabilities.some((item) => item.children?.length);
+
+  return (
+    <div className="space-y-2">
+      {hasExpandable ? (
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-xs text-slate-400">默认显示一级声明，展开后查看完整层级。</p>
+          {expandedNodes.size > 0 ? (
+            <button type="button" onClick={() => setExpandedNodes(new Set())} className="shrink-0 text-xs font-medium text-slate-500 hover:text-slate-700">
+              全部收起
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+      <DeclarationTree items={capabilities} expandedNodes={expandedNodes} onToggle={toggleNode} />
+    </div>
+  );
 }
 
 function DeclarationTree({
   items,
+  expandedNodes,
+  onToggle,
   depth = 0,
+  parentKey = "",
 }: {
   items: readonly CoreUiCapabilityDescriptor[];
+  expandedNodes: ReadonlySet<string>;
+  onToggle: (key: string) => void;
   depth?: number;
+  parentKey?: string;
 }) {
   return (
     <div className={depth === 0 ? "space-y-2" : "ml-3 mt-2 space-y-2 border-l border-slate-100 pl-3"}>
-      {items.map((item) => (
-        <div key={`${depth}-${item.name}`} className="min-w-0">
-          <div className="rounded-md border border-slate-200 bg-white px-2 py-1.5">
-            <p className="text-xs font-semibold text-slate-800">{item.name}</p>
-            <p className="mt-0.5 text-xs leading-5 text-slate-500">{item.description}</p>
+      {items.map((item) => {
+        const nodeKey = parentKey ? `${parentKey}.${item.name}` : item.name;
+        const children = item.children ?? [];
+        const expanded = expandedNodes.has(nodeKey);
+        return (
+          <div key={nodeKey} className="min-w-0">
+            <div className="rounded-md border border-slate-200 bg-white px-2 py-1.5">
+              <div className="flex min-w-0 items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-slate-800">{item.name}</p>
+                  <p className="mt-0.5 text-xs leading-5 text-slate-500">{item.description}</p>
+                </div>
+                {children.length ? (
+                  <button
+                    type="button"
+                    onClick={() => onToggle(nodeKey)}
+                    className="shrink-0 rounded px-1.5 py-0.5 text-xs font-medium text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+                    aria-expanded={expanded}
+                  >
+                    {expanded ? "收起" : `展开 ${children.length}`}
+                  </button>
+                ) : null}
+              </div>
+            </div>
+            {children.length && expanded ? (
+              <DeclarationTree
+                items={children}
+                expandedNodes={expandedNodes}
+                onToggle={onToggle}
+                depth={depth + 1}
+                parentKey={nodeKey}
+              />
+            ) : null}
           </div>
-          {item.children?.length ? <DeclarationTree items={item.children} depth={depth + 1} /> : null}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

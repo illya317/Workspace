@@ -104,41 +104,63 @@ function FormShellPreview() {
 }
 
 function FormSurfacePreview() {
-  const [name, setName] = useState("合同 A");
-  const [status, setStatus] = useState("active");
+  return <FormSurfaceFieldsPreview />;
+}
+
+function FormSurfaceFieldsPreview() {
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-4xl">
       <FormSurface
         kind="fields"
-        columns={2}
+        columns={3}
         fields={[
           {
-            key: "name",
-            label: "名称",
-            required: true,
-            spec: { valueType: "string", control: "text", validation: { required: true } },
-            value: name,
-            onChange: (value) => setName(String(value)),
+            kind: "section",
+            key: "basic",
+            title: "基础信息",
+            columns: 3,
+            fields: [
+              { key: "code", kind: "readonly", label: "项目编码", value: "保存后自动生成" },
+              {
+                key: "type",
+                label: "项目类型",
+                spec: {
+                  valueType: "string",
+                  control: "choice",
+                  options: {
+                    source: "static",
+                    items: [
+                      { value: "department", label: "部门项目" },
+                      { value: "company", label: "公司项目" },
+                    ],
+                  },
+                },
+                value: "department",
+              },
+              { key: "owner", kind: "readonly", label: "负责人", value: "未设置" },
+              { key: "name", label: "项目名称", required: true, spec: { valueType: "string", control: "text" }, value: "" },
+              { key: "start", label: "计划开始", spec: { valueType: "date", control: "temporal", precision: "date" }, value: null, placeholder: "选择日期" },
+              { key: "end", label: "计划结束", spec: { valueType: "date", control: "temporal", precision: "date" }, value: null, placeholder: "选择日期" },
+            ],
           },
           {
-            key: "status",
-            label: "状态",
-            spec: {
-              valueType: "string",
-              control: "choice",
-              options: {
-                source: "static",
-                items: [
-                  { value: "active", label: "现用" },
-                  { value: "archived", label: "已归档" },
+            kind: "repeatable",
+            key: "duties",
+            title: "主要职责",
+            columns: 2,
+            items: [
+              {
+                key: "duty-1",
+                title: "职责 1",
+                actions: [{ key: "delete-duty", label: "删除", icon: "delete-bin", variant: "danger", size: "sm" }],
+                fields: [
+                  { key: "title", label: "职责标题", spec: { valueType: "string", control: "text" }, value: "制定计划" },
+                  { key: "owner", label: "负责人", spec: { valueType: "string", control: "text" }, value: "未设置" },
                 ],
               },
-            },
-            value: status,
-            onChange: (value) => setStatus(String(value)),
+            ],
           },
         ]}
-        actions={[{ key: "save", label: "保存", variant: "primary" }]}
       />
     </div>
   );
@@ -277,6 +299,7 @@ export const formPreviewByName: Record<string, FC> = {
   CheckboxChip: CheckboxChipPreview, CheckboxField: CheckboxFieldPreview, ChoiceGroup: ChoiceGroupPreview,
   CreateConfirmActions: CreateConfirmActionsPreview, CreatePanel: CreatePanelPreview, CreateStartButton: CreateStartButtonPreview, FileField: FileFieldPreview,
   FieldGrid: FieldGridPreview, FieldInputShell: FieldInputShellPreview, FormField: FormFieldPreview, FormShell: FormShellPreview, FormSurface: FormSurfacePreview,
+  FormSurfaceFields: FormSurfaceFieldsPreview,
   ...foundationFormPreviewByName,
   HiddenDataField: HiddenDataFieldPreview, InlineCreatePanel: InlineCreatePanelPreview,
   PercentField: PercentFieldPreview, RatingControl: RatingControlPreview, ReadOnlyField: ReadOnlyFieldPreview, SearchInput: SearchInputPreview,

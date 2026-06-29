@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createCreatePanelBlock, createGroupBlock, createPanelBlock, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createCreatePanelSection, createSectionsSection, createPanelSection, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import { DETAIL_FIELD_LABELS, POSITION_DESCRIPTION_TEMPLATE_FIELD_GROUPS } from "./description-details";
 
 type PositionDescriptionTemplateEditorProps = {
@@ -19,8 +19,8 @@ export function buildPositionDescriptionTemplateEditorBlock({
   onToggleField,
   onSave,
   onCancel,
-}: PositionDescriptionTemplateEditorProps): PageSurfaceBlockSpec {
-  return createCreatePanelBlock("template-editor", {
+}: PositionDescriptionTemplateEditorProps): PageSurfaceSectionSpec {
+  return createCreatePanelSection("template-editor", {
 
     title: "模板名称",
     creating: true,
@@ -30,9 +30,8 @@ export function buildPositionDescriptionTemplateEditorBlock({
     onSubmit: () => void onSave(),
     onCancel,
     createContent: (
-      <PageSurface
+      <PageSurface kind="standard"
         embedded
-        kind="detail"
         body={createPageBody([
           {
             kind: "form",
@@ -48,13 +47,13 @@ export function buildPositionDescriptionTemplateEditorBlock({
               }],
             },
           },
-          createGroupBlock("field-groups", {
+          createSectionsSection("field-groups", {
             layout: "grid",
 
-            blocks: POSITION_DESCRIPTION_TEMPLATE_FIELD_GROUPS.map((group) => createPanelBlock(group.label, {
+            sections: POSITION_DESCRIPTION_TEMPLATE_FIELD_GROUPS.map((group) => createPanelSection(group.label, {
               title: group.label,
 
-              blocks: [{
+              sections: [{
                 kind: "form",
                 key: `${group.label}-fields`,
                 surface: {
@@ -85,9 +84,8 @@ export function PositionDescriptionTemplateEditor({
   onSave,
   onCancel
 }: PositionDescriptionTemplateEditorProps) {
-  return <PageSurface
+  return <PageSurface kind="standard"
     embedded
-    kind="detail"
     body={createPageBody([buildPositionDescriptionTemplateEditorBlock({ name, fields, onNameChange, onToggleField, onSave, onCancel })])}
   />;
 }

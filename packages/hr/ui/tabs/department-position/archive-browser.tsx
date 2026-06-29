@@ -2,11 +2,10 @@
 
 import type { ReactNode } from "react";
 import {
-  createPageBody, createBlockSurfaceBlock,
-  createPanelBlock,
+  createPageBody, createBlockSurfaceSection,
+  createPanelSection,
   PageSurface,
-  type PageSurfaceBlockSpec,
-  type PageSurfaceSideSpec,
+  type PageSurfaceSectionSpec,
 } from "@workspace/core/ui";
 import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 import type { ArchivedEntityTab, Department, Position, Selection } from "./types";
@@ -30,7 +29,7 @@ export function ArchivedDepartmentPositionPage({
   onSideOpenChange,
   onDrawerOpenChange,
   onSelect,
-  blocks,
+  sections,
   surface,
 }: {
   archivedDepartments: Department[];
@@ -43,7 +42,7 @@ export function ArchivedDepartmentPositionPage({
   onSideOpenChange: (open: boolean) => void;
   onDrawerOpenChange: (open: boolean) => void;
   onSelect: (selection: Selection) => void;
-  blocks: PageSurfaceBlockSpec[];
+  sections: PageSurfaceSectionSpec[];
   surface?: RosterSurfaceNavigationProps;
 }) {
   const archivedItems: ArchivedEntityItem[] = archivedTab === "departments"
@@ -63,8 +62,8 @@ export function ArchivedDepartmentPositionPage({
     ? selection?.type === "department" ? selection.id : null
     : selection?.type === "position" ? selection.id : null;
 
-  function sideBlocks(mode: "desktop" | "drawer"): PageSurfaceBlockSpec[] {
-    const blocks: PageSurfaceBlockSpec[] = [
+  function sideBlocks(mode: "desktop" | "drawer"): PageSurfaceSectionSpec[] {
+    const sections: PageSurfaceSectionSpec[] = [
       ...(mode === "drawer"
         ? [{
             kind: "form" as const,
@@ -103,8 +102,8 @@ export function ArchivedDepartmentPositionPage({
       },
     ];
 
-    blocks.push(archivedItems.length === 0
-      ? createBlockSurfaceBlock("empty", {
+    sections.push(archivedItems.length === 0
+      ? createBlockSurfaceSection("empty", {
         kind: "empty",
         presentation: "plain",
         compact: true,
@@ -136,31 +135,31 @@ export function ArchivedDepartmentPositionPage({
           },
         });
 
-    return [createPanelBlock(`archive-side-${mode}`, {
+    return [createPanelSection(`archive-side-${mode}`, {
 
 
-      blocks,
+      sections,
     })];
   }
 
-  const side: PageSurfaceSideSpec = {
-    blocks: sideBlocks("desktop"),
-    drawerBlocks: sideBlocks("drawer"),
-  };
-
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded={!surface}
-      kind="split"
       {...surface}
-      sideOpen={sideOpen}
-      sideLabel="列表"
-      onSideOpenChange={onSideOpenChange}
-      drawerOpen={drawerOpen}
-      onDrawerOpenChange={onDrawerOpenChange}
-      showSideControls={false}
-      side={side}
-      body={createPageBody(blocks)}
+      body={{
+        kind: "split",
+        left: {
+          sections: createPageBody(sideBlocks("desktop")).sections,
+          drawerSections: createPageBody(sideBlocks("drawer")).sections,
+        },
+        right: createPageBody(sections),
+        sideOpen,
+        sideLabel: "列表",
+        onSideOpenChange,
+        drawerOpen,
+        onDrawerOpenChange,
+        showSideControls: false,
+      }}
     />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec } from "@workspace/core/ui";
 import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 import { DepartmentPositionActiveWorkspace } from "./active-workspace";
 import { useDepartmentPositionDetailBlocks } from "./department-position-detail-area";
@@ -30,7 +30,7 @@ export function DepartmentPositionMainContent({
 }: {
   treeOpen: boolean;
   treeDrawerOpen: boolean;
-  treePanelBlocks: (mode: "desktop" | "drawer") => PageSurfaceBlockSpec[];
+  treePanelBlocks: (mode: "desktop" | "drawer") => PageSurfaceSectionSpec[];
   createPanel: "department" | "position" | null;
   departments: Department[];
   departmentById: Map<number, Department>;
@@ -43,7 +43,7 @@ export function DepartmentPositionMainContent({
   onCreatePanelChange: (panel: "department" | "position" | null) => void;
   onCollapseAll: (collapsed: boolean) => void;
   onLoadData: () => Promise<void>;
-  detailBlocks: PageSurfaceBlockSpec[];
+  detailBlocks: PageSurfaceSectionSpec[];
   onSideOpenChange: (open: boolean) => void;
   onDrawerOpenChange: (open: boolean) => void;
   surface?: RosterSurfaceNavigationProps;
@@ -80,7 +80,7 @@ export function DepartmentPositionMainContent({
       onSideOpenChange={onSideOpenChange}
       onDrawerOpenChange={onDrawerOpenChange}
       sideBlocks={treePanelBlocks}
-      blocks={workspaceBlocks}
+      sections={workspaceBlocks}
       toolbarItems={toolbarItems}
       surface={surface}
     />

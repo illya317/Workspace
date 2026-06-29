@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState, useRef, useMemo } from "react";
-import { PageSurface, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createPageBody, useFeedback } from "@workspace/core/ui";
 import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { RuleCandidate } from "@workspace/finance/types";
@@ -288,12 +288,9 @@ export default function ReclassCandidateList({
   if (loading) return <p className="py-8 text-center text-sm text-gray-400">扫描中...</p>;
   if (allAccounts.length === 0) return <p className="py-8 text-center text-sm text-gray-400">该年度无科目数据</p>;
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
-      body={{
-        layout: "single",
-        blocks: [{
+      body={createPageBody([{
           kind: "data",
           key: "reclass-candidates",
           surface: {
@@ -319,8 +316,7 @@ export default function ReclassCandidateList({
               return [{ key: "adjust", kind: "edit", label: "调整", onClick: () => startEdit(candidate) }];
             } : undefined,
           },
-        }],
-      }}
+        }], { layout: "single" })}
       footer={{ pagination: { page, totalPages, total: filtered.length, onPageChange: setPage } }}
     />
   );

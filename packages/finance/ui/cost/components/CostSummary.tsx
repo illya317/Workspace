@@ -1,7 +1,7 @@
 "use client";
 
-import { createPageBody, PageSurface, createMessageBlock, createPanelBlock, createPageDataBlock } from "@workspace/core/ui";
-import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createMessageSection, createPanelSection, createPageDataSection } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec } from "@workspace/core/ui";
 import { formatCompactNullableAmount } from "../../formatters";
 import { useCostSummary } from "../hooks/useFinanceCostData";
 import type { CostFiltersState } from "../types";
@@ -46,11 +46,11 @@ export default function CostSummary({ filters }: Props) {
   const pct = (n: number | null | undefined) =>
     n == null ? "—" : `${(n * 100).toFixed(1)}%`;
 
-  const blocks: PageSurfaceBlockSpec[] = [
-    ...(loading ? [createPageDataBlock("loading", { kind: "records", records: [], empty: "加载中..." })] : []),
-    ...(error ? [createPageDataBlock("error", { kind: "records", records: [], empty: error })] : []),
+  const sections: PageSurfaceSectionSpec[] = [
+    ...(loading ? [createPageDataSection("loading", { kind: "records", records: [], empty: "加载中..." })] : []),
+    ...(error ? [createPageDataSection("error", { kind: "records", records: [], empty: error })] : []),
     ...(summary ? [
-      createPageDataBlock("summary-metrics", {
+      createPageDataSection("summary-metrics", {
         kind: "metrics",
         metrics: [
           { key: "shipment", label: "发货金额", value: formatCompactNullableAmount(summary.shipments?.totalAmount) },
@@ -70,7 +70,7 @@ export default function CostSummary({ filters }: Props) {
 
   return (
     <div className="space-y-4">
-      <PageSurface kind="analysis" embedded body={createPageBody(blocks)} />
+      <PageSurface kind="standard" embedded body={createPageBody(sections)} />
       {summary && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <RankCard title="客户发货排行" items={summary.shipments?.topCustomers} />
@@ -90,17 +90,16 @@ function RankCard({
   items?: SummaryRankItem[];
 }) {
   return (
-    <PageSurface
-      kind="analysis"
+    <PageSurface kind="standard"
       embedded
-      body={createPageBody([createPanelBlock(title, {
+      body={createPageBody([createPanelSection(title, {
         title,
-        blocks: items?.length
-          ? items.map((item, idx) => createMessageBlock(`${idx}-${item.name}`, {
+        sections: items?.length
+          ? items.map((item, idx) => createMessageSection(`${idx}-${item.name}`, {
               tone: "muted" as const,
               content: `${idx + 1}. ${item.name} ${item.value.toLocaleString("zh-CN", { maximumFractionDigits: 0 })}`,
             }))
-          : [createMessageBlock("empty", {
+          : [createMessageSection("empty", {
               tone: "muted" as const,
               content: "暂无数据",
             })],

@@ -5,10 +5,7 @@ import FieldGrid, { type FieldGridMode } from "../input/FieldGrid";
 import FormField from "./FormField";
 import type { InputControlProps } from "../../InputControl";
 import { renderCommands, renderFieldValue } from "./FormSurface.controls";
-import type {
-  FormSurfaceFieldModeProps,
-  FormSurfaceItemSpec,
-} from "../../FormSurface.types";
+import type { FormSurfaceFieldModeProps, FormSurfaceItemSpec } from "../../FormSurface.types";
 
 function getFields<T>(props: FormSurfaceFieldModeProps<T>): FormSurfaceItemSpec<T>[] {
   return props.field ? [props.field, ...(props.fields ?? [])] : props.fields ?? [];
@@ -28,7 +25,7 @@ function renderGridItem<T>(
   }
   if (field.kind === "section") {
     return (
-      <div key={field.key} className="col-span-full space-y-3">
+      <section key={field.key} className={field.framed === false ? "col-span-full space-y-3" : "col-span-full space-y-4 rounded-md border border-slate-200 bg-white p-4 shadow-sm"}>
         {(field.title || field.subtitle || field.actions?.length) && (
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
@@ -41,7 +38,7 @@ function renderGridItem<T>(
         <FieldGrid columns={field.columns ?? columns} mode={field.mode ?? mode}>
           {field.fields.map((item) => renderGridItem(item, field.mode ?? mode, density, field.columns ?? columns))}
         </FieldGrid>
-      </div>
+      </section>
     );
   }
   if (field.kind === "repeatable") return renderRepeatableGridItem(field, mode, density, columns);

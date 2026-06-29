@@ -137,9 +137,9 @@ export const page_api_registry_entries = [
       { name: "field", description: "单字段快捷声明。" },
       { name: "columns", description: "字段网格列数。" },
       { name: "mode", description: "字段布局模式。" },
-      { name: "actions", description: "表单局部动作；页面级动作放 PageSurface.toolbar。" },
+      { name: "actions", description: "表单内部短命令；页面/section 标题动作归 PageSurface。" },
     ],
-    composes: ["FieldGrid", "FormField", "InputControl", "ReadOnlyField", "TagListInput", "TextField", "TextareaField", "CalendarDateInput", "ChoiceGroup", "SelectField", "FileField", "HiddenDataField", "DetailModal", "CommandButton"],
+    composes: ["ActionGlyph", "DataSurface", "FieldGrid", "FormField", "InputControl", "ReadOnlyField", "TabBar", "TagListInput", "TextField", "TextareaField", "CalendarDateInput", "ChoiceGroup", "SelectField", "FileField", "HiddenDataField", "DetailModal", "CommandButton"],
   },
   {
     name: "FormShell",

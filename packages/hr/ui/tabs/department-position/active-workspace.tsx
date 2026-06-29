@@ -1,12 +1,12 @@
 "use client";
 
-import { createPageBody, PageSurface, type PageSurfaceBlockSpec, type PageSurfaceSideSpec, type PageSurfaceToolbarSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, type PageSurfaceSectionSpec, type PageSurfaceToolbarSpec } from "@workspace/core/ui";
 import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 
 type SplitWorkspaceMode = "desktop" | "drawer";
 
 export function DepartmentPositionActiveWorkspace({
-  blocks,
+  sections,
   drawerOpen,
   sideBlocks,
   sideOpen,
@@ -15,35 +15,35 @@ export function DepartmentPositionActiveWorkspace({
   onDrawerOpenChange,
   onSideOpenChange,
 }: {
-  blocks: PageSurfaceBlockSpec[];
+  sections: PageSurfaceSectionSpec[];
   drawerOpen: boolean;
-  sideBlocks: (mode: SplitWorkspaceMode) => PageSurfaceBlockSpec[];
+  sideBlocks: (mode: SplitWorkspaceMode) => PageSurfaceSectionSpec[];
   sideOpen: boolean;
   surface?: RosterSurfaceNavigationProps;
   toolbarItems?: PageSurfaceToolbarSpec["items"];
   onDrawerOpenChange: (open: boolean) => void;
   onSideOpenChange: (open: boolean) => void;
 }) {
-  const side: PageSurfaceSideSpec = {
-    blocks: sideBlocks("desktop"),
-    drawerBlocks: sideBlocks("drawer"),
-  };
-
   const toolbar = toolbarItems?.length ? { variant: "bar" as const, items: toolbarItems } : undefined;
 
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       {...surface}
-      kind="split"
       toolbar={toolbar}
-      sideOpen={sideOpen}
-      sideLabel="部门岗位"
-      onSideOpenChange={onSideOpenChange}
-      drawerOpen={drawerOpen}
-      onDrawerOpenChange={onDrawerOpenChange}
-      showSideControls={false}
-      side={side}
-      body={createPageBody(blocks)}
+      body={{
+        kind: "split",
+        left: {
+          sections: createPageBody(sideBlocks("desktop")).sections,
+          drawerSections: createPageBody(sideBlocks("drawer")).sections,
+        },
+        right: createPageBody(sections),
+        sideOpen,
+        sideLabel: "部门岗位",
+        onSideOpenChange,
+        drawerOpen,
+        onDrawerOpenChange,
+        showSideControls: false,
+      }}
     />
   );
 }

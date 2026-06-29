@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec } from "@workspace/core/ui";
 import { departmentManagerPositionName } from "./draft-utils";
 import type { Department, DepartmentPositionStats, Selection } from "./types";
 
@@ -49,7 +49,7 @@ export function buildDepartmentNodeBlock({
   departmentStats: Map<number, DepartmentPositionStats>;
   onSelect: (selection: Selection) => void;
   onToggle: (departmentId: number) => void;
-}): PageSurfaceBlockSpec | null {
+}): PageSurfaceSectionSpec | null {
   if (visibleDepartmentIds && !visibleDepartmentIds.has(department.id)) return null;
   const isCollapsed = !search.trim() && collapsedDepartments.has(department.id);
   const expandedIds = isCollapsed
@@ -108,7 +108,7 @@ export function buildOrganizationBranchBlock({
   collapsedDepartments: Set<number>;
   search: string;
   onToggle: (departmentId: number) => void;
-}): PageSurfaceBlockSpec | null {
+}): PageSurfaceSectionSpec | null {
   if (visibleDepartmentIds && !visibleDepartmentIds.has(department.id)) return null;
   const isCollapsed = !search.trim() && collapsedDepartments.has(department.id);
   const expandedIds = isCollapsed
@@ -168,7 +168,7 @@ export function buildOrganizationRootBlock({
   active: boolean;
   departments: Department[];
   onSelect: (departmentId: number) => void;
-}): PageSurfaceBlockSpec {
+}): PageSurfaceSectionSpec {
   const children = departmentChildren(departments, department);
   const managerName = departmentManagerPositionName(department);
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createActionsBlock, createPageBody, PageSurface } from "@workspace/core/ui";
+import { createActionsSection, createPageBody, PageSurface } from "@workspace/core/ui";
 import type { QcLayoutBlock, QcTemplateTestItem } from "@workspace/production/server/qc";
 import QcLayoutPaper from "../QcLayoutPaper";
 import TemplateInlineFeedback from "./TemplateInlineFeedback";
@@ -60,11 +60,10 @@ function PreviewModeToggle({
   onToggle: () => void;
 }) {
   return (
-    <PageSurface
-      kind="detail"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createActionsBlock("template-preview-mode-toggle", [{
+        createActionsSection("template-preview-mode-toggle", [{
           key: "toggle-advanced-mode",
           label: advancedMode ? "开发模式" : "预览模式",
           variant: advancedMode ? "danger" : "primary",
@@ -86,8 +85,7 @@ export default function TemplatePreviewModal({
   if (!selection) return null;
   const fullBlocks = selection.stage.precheckLayoutBlocks ?? [];
   const precheckBlocks = fullSectionBlocks(fullBlocks, "1");
-  return <PageSurface
-    kind="detail"
+  return <PageSurface kind="standard"
     embedded
     body={createPageBody([{
       kind: "modal",
@@ -96,7 +94,7 @@ export default function TemplatePreviewModal({
       title: `布局预览：${selectionTitle(selection)}`,
       onClose,
       size: "lg",
-      blocks: [{
+      sections: [{
         kind: "document",
         key: "template-preview-body",
         surface: {

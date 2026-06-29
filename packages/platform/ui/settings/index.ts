@@ -3,6 +3,7 @@ export { default as SettingsApiClient } from "./SettingsApiClient";
 export { default as AccountSettingsPanel } from "./AccountSettingsPanel";
 export { default as ApiAccessClient } from "./ApiAccessClient";
 export {
+  SettingsHomePage,
   SettingsAccountPage,
   SettingsApiPage,
   SettingsUiPage,

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { PageSurface, createPageBody, createPageDataBlock, useFeedback } from "@workspace/core/ui";
-import type { PageSurfaceBlockSpec, PageSurfaceProps, SurfaceToolbarItems, VisualizationGanttDependencySpec, VisualizationGanttRowSpec } from "@workspace/core/ui";
+import { PageSurface, createPageBody, createPageDataSection, useFeedback } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec, PageSurfaceProps, SurfaceToolbarItems, VisualizationGanttDependencySpec, VisualizationGanttRowSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { ProjectItem } from "./model";
 import { listProjectOptions, listProjectPlanGantt, saveProjectPlanDependencies, saveProjectPlanGantt } from "./api";
@@ -166,12 +166,12 @@ export default function ProjectPlanGanttTab({
       content: "基线来自项目阶段",
     },
   ] satisfies SurfaceToolbarItems;
-  const timelineBlock: PageSurfaceBlockSpec = error
-    ? createPageDataBlock("project-plan-gantt-error", { kind: "records", records: [], empty: error,  })
+  const timelineBlock: PageSurfaceSectionSpec = error
+    ? createPageDataSection("project-plan-gantt-error", { kind: "records", records: [], empty: error,  })
     : loading
-      ? createPageDataBlock("project-plan-gantt-loading", { kind: "records", records: [], empty: "加载项目甘特..." })
+      ? createPageDataSection("project-plan-gantt-loading", { kind: "records", records: [], empty: "加载项目甘特..." })
       : !data
-        ? createPageDataBlock("project-plan-gantt-empty", { kind: "records", records: [], empty: "请选择项目" })
+        ? createPageDataSection("project-plan-gantt-empty", { kind: "records", records: [], empty: "请选择项目" })
         : {
         kind: "visualization" as const,
         key: "project-plan-gantt-timeline",
@@ -190,8 +190,8 @@ export default function ProjectPlanGanttTab({
           },
         },
       };
-  const blocks = [timelineBlock] satisfies PageSurfaceBlockSpec[];
-	  return <PageSurface kind="list" {...surface} toolbar={{ items: toolbarItems }} body={createPageBody(blocks)} />;
+  const sections = [timelineBlock] satisfies PageSurfaceSectionSpec[];
+	  return <PageSurface kind="standard" {...surface} toolbar={{ items: toolbarItems }} body={createPageBody(sections)} />;
 	}
 type ProjectPlanGanttSurfaceProps = Pick<PageSurfaceProps, "navigation">;
 

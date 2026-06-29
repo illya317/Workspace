@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { createPageBody, PageSurface, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPageTableSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
 import ReclassReviewModal from "./ReclassReviewModal";
 import { formatFinanceAmount } from "../formatters";
@@ -123,11 +123,10 @@ export default function ReclassReviewView({
     }
   }];
   return <div>
-      <PageSurface
-        kind="list"
+      <PageSurface kind="standard"
         embedded
         body={createPageBody([
-          createPageTableBlock("reclass-review", {
+          createPageTableSection("reclass-review", {
             framed: true,
 
 

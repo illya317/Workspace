@@ -76,8 +76,7 @@ export default function AuditLogEntry({
   );
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([{
         kind: "data",

@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPageTableSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { RdBudgetItem } from "../types";
 
 const MONTH_LABELS = [
@@ -63,11 +63,10 @@ export default function RdBudgetTable({ items, monthTotals, total }: RdBudgetTab
   ];
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageTableBlock("rd-budget", {
+        createPageTableSection("rd-budget", {
           framed: true,
 
 

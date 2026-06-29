@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createPageBody, PageSurface, createActionsBlock, createPageDataBlock, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createActionsSection, createPageDataSection, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { matchSearchFields } from "@workspace/platform/search";
 import { useStatementConfig } from "./StatementConfigContext";
 import LineMappingsPanel from "./LineMappingsPanel";
@@ -276,10 +276,9 @@ function LineConfigError({ message, onRetry }: { message: string; onRetry: () =>
   return (
     <div className="space-y-3 py-8 text-center">
       <p className="text-sm text-red-600">{message}</p>
-      <PageSurface
-        kind="list"
+      <PageSurface kind="standard"
         embedded
-        body={createPageBody([createActionsBlock("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }], {  })])}
+        body={createPageBody([createActionsSection("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }], {  })])}
       />
     </div>
   );
@@ -321,11 +320,10 @@ function LineConfigTable({
   saving: Set<string>;
 }) {
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageDataBlock("line-config", {
+        createPageDataSection("line-config", {
           kind: "table",
           framed: true,
 

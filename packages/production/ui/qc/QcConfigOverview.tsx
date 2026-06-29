@@ -1,6 +1,6 @@
 import type { QcConfigOverview } from "@workspace/production/server/qc";
 import Link from "next/link";
-import { createGroupBlock, createPageBody, createPageDataBlock, createPageTableBlock, PageSurface } from "@workspace/core/ui";
+import { createSectionsSection, createPageBody, createPageDataSection, createPageTableSection, PageSurface } from "@workspace/core/ui";
 
 interface Props {
   overview: QcConfigOverview;
@@ -53,11 +53,10 @@ function SourceStatus({ overview }: { overview: QcConfigOverview }) {
 function BatchesOverview({ overview }: { overview: QcConfigOverview }) {
   const products = overview.products.slice(0, 8);
   return (
-    <PageSurface
-      kind="detail"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageDataBlock<ProductOverview>("qc-config-batch-metrics", {
+        createPageDataSection<ProductOverview>("qc-config-batch-metrics", {
           kind: "metrics",
           metrics: [
             { key: "products", label: "产品配置", value: overview.products.length },
@@ -66,7 +65,7 @@ function BatchesOverview({ overview }: { overview: QcConfigOverview }) {
             { key: "templates", label: "记录模板", value: overview.recordTemplates.length },
           ],
         }),
-        createPageTableBlock<ProductOverview>("qc-config-batch-products", {
+        createPageTableSection<ProductOverview>("qc-config-batch-products", {
           framed: true,
           title: "产品与检验阶段",
           rows: products,
@@ -107,11 +106,10 @@ function BatchesOverview({ overview }: { overview: QcConfigOverview }) {
 
 function TemplatesOverview({ overview }: { overview: QcConfigOverview }) {
   return (
-    <PageSurface
-      kind="detail"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageDataBlock("qc-config-template-metrics", {
+        createPageDataSection("qc-config-template-metrics", {
           kind: "metrics",
           metrics: [
             { key: "recordTemplates", label: "记录模板 YAML", value: overview.recordTemplates.length },
@@ -120,10 +118,10 @@ function TemplatesOverview({ overview }: { overview: QcConfigOverview }) {
             { key: "layoutMappings", label: "布局映射 JSON", value: overview.layoutMapping.assignmentCount },
           ],
         }),
-        createGroupBlock("qc-config-template-tables", {
+        createSectionsSection("qc-config-template-tables", {
           layout: "grid",
-          blocks: [
-            createPageTableBlock<RecordTemplateOverview>("qc-config-record-templates", {
+          sections: [
+            createPageTableSection<RecordTemplateOverview>("qc-config-record-templates", {
               framed: true,
               title: "记录模板",
               rows: overview.recordTemplates.slice(0, 8),
@@ -149,7 +147,7 @@ function TemplatesOverview({ overview }: { overview: QcConfigOverview }) {
               rowKey: (template) => template.id,
               emptyText: "暂无记录模板。",
             }),
-            createPageTableBlock<LayoutMappingSample>("qc-config-layout-mapping-samples", {
+            createPageTableSection<LayoutMappingSample>("qc-config-layout-mapping-samples", {
               framed: true,
               title: "布局映射样本",
               rows: overview.layoutMapping.samples,

@@ -1,8 +1,8 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { createPageBody, PageSurface, createCreatePanelBlock } from "@workspace/core/ui";
-import type { FormSurfaceItemSpec, PageSurfaceBlockSpec, ReferenceOption } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createCreatePanelSection } from "@workspace/core/ui";
+import type { FormSurfaceItemSpec, PageSurfaceSectionSpec, ReferenceOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import type { CreatePositionDraft, Department } from "./types";
 import { departmentPath } from "./utils";
@@ -30,7 +30,7 @@ export function buildPositionCreatePanelBlock({
   setCreatePositionDraft,
   onCreatePosition,
   onCancel,
-}: PositionCreatePanelProps): PageSurfaceBlockSpec {
+}: PositionCreatePanelProps): PageSurfaceSectionSpec {
   const departmentDisplayName = departmentPath(createPositionDepartment, departmentById);
   const readOnlyDepartmentName = createPositionDepartment?.name || departmentDisplayName;
 
@@ -80,7 +80,7 @@ export function buildPositionCreatePanelBlock({
           },
         ];
 
-  return createCreatePanelBlock("create-position", {
+  return createCreatePanelSection("create-position", {
 
     title: "新建岗位",
     creating: true,
@@ -92,9 +92,8 @@ export function buildPositionCreatePanelBlock({
     onSubmit: () => void onCreatePosition(),
     onCancel,
     createContent: (
-      <PageSurface
+      <PageSurface kind="standard"
         embedded
-        kind="detail"
         body={createPageBody([{
           kind: "form",
           key: "fields",
@@ -112,9 +111,8 @@ export function buildPositionCreatePanelBlock({
 
 export function PositionCreatePanel(props: PositionCreatePanelProps) {
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="detail"
       body={createPageBody([buildPositionCreatePanelBlock(props)])}
     />
   );

@@ -2,7 +2,7 @@
 
 import { FieldRegion } from "./EmployeeProfileFieldRegion";
 import type { ProfileField } from "@workspace/hr/types";
-import { createPanelBlock, type FormSurfaceItemSpec, type PageSurfaceBlockSpec, type ReferenceOption } from "@workspace/core/ui";
+import { createPanelSection, type FormSurfaceItemSpec, type PageSurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
 import {
   HR_COMMON_ETHNICITIES,
   HR_ETHNICITIES,
@@ -286,7 +286,7 @@ export function fieldGridBlock(
   onChange: (key: string, value: unknown, option?: ReferenceOption) => void,
   isFieldDisabled?: (field: ProfileField, record: EditableRecord) => boolean,
   key = "fields",
-): PageSurfaceBlockSpec {
+): PageSurfaceSectionSpec {
   return {
     kind: "form",
     key,
@@ -298,7 +298,7 @@ export function fieldGridBlock(
   };
 }
 
-export function emptyFormBlock(key: string, content: string): PageSurfaceBlockSpec {
+export function emptyFormBlock(key: string, content: string): PageSurfaceSectionSpec {
   return {
     kind: "form",
     key,
@@ -321,7 +321,7 @@ export function groupedFieldGrid(
         <FieldRegion
           key={group.title}
           title={group.title}
-          blocks={[fieldGridBlock(group.fields, record, disabled, onChange, undefined, `${group.title}-fields`)]}
+          sections={[fieldGridBlock(group.fields, record, disabled, onChange, undefined, `${group.title}-fields`)]}
         />
       ))}
     </div>
@@ -333,10 +333,10 @@ export function groupedFieldBlocks(
   record: EditableRecord,
   disabled: boolean,
   onChange: (key: string, value: unknown, option?: ReferenceOption) => void,
-): PageSurfaceBlockSpec[] {
-  return groups.map((group) => createPanelBlock(group.title, {
+): PageSurfaceSectionSpec[] {
+  return groups.map((group) => createPanelSection(group.title, {
     title: group.title,
 
-    blocks: [fieldGridBlock(group.fields, record, disabled, onChange, undefined, `${group.title}-fields`)],
+    sections: [fieldGridBlock(group.fields, record, disabled, onChange, undefined, `${group.title}-fields`)],
   }));
 }

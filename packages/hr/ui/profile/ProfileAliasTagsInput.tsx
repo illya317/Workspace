@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import {
   createPageBody,
   PageSurface,
-  createInlineFieldsBlock,
+  createInlineFieldsSection,
 } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import type { ProfileField } from "@workspace/hr/types";
@@ -71,10 +71,9 @@ export function AliasTagEditor({
   }
 
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="detail"
-      body={createPageBody([createInlineFieldsBlock<string>("aliases", [{
+      body={createPageBody([createInlineFieldsSection<string>("aliases", [{
         kind: "tagList",
         key: "aliases",
         label: "",

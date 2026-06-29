@@ -1,4 +1,4 @@
-import { createBlockSurfaceBlock, createPageBody, createSectionBlock, PageSurface } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createPageBody, createSectionSection, PageSurface } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { renderAppShellPage } from "../app-shell-page";
 import PositionDetailClient from "./positions/PositionDetailClient";
@@ -17,12 +17,11 @@ export function DocsPlaceholderPage({
     title,
     backHref: "/docs",
     user,
-    children: <PageSurface
-      kind="settings"
-      body={createPageBody([createSectionBlock("placeholder", {
+    children: <PageSurface kind="standard"
+      body={createPageBody([createSectionSection("placeholder", {
         title,
         subtitle: description,
-        blocks: [createBlockSurfaceBlock("empty", {
+        sections: [createBlockSurfaceSection("empty", {
           kind: "empty",
           content: "内容建设中"
         })],

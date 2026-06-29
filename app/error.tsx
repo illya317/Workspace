@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { createBlockSurfaceBlock, createPageBody, createPanelBlock, PageSurface } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createPageBody, createPanelSection, PageSurface } from "@workspace/core/ui";
 
 export default function ErrorBoundary({
   error,
@@ -19,14 +19,13 @@ export default function ErrorBoundary({
   }
 
   return (
-    <PageSurface
-      kind="detail"
+    <PageSurface kind="standard"
       body={createPageBody([
-        createPanelBlock("error", {
+        createPanelSection("error", {
           title: "出错了",
 
-          blocks: [
-            createBlockSurfaceBlock("message", {
+          sections: [
+            createBlockSurfaceSection("message", {
               kind: "empty",
               compact: true,
               content: <p className="text-gray-600">{error.message}</p>

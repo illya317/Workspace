@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { createActionsBlock, createInlineFieldsBlock, createPageBody, createPageDataBlock, type DataSurfaceColumnSpec, type FormSurfaceFieldSpec, PageSurface, type PageSurfaceBlockSpec, type PageSurfaceCommandSpec } from "@workspace/core/ui";
+import { createActionsSection, createInlineFieldsSection, createPageBody, createPageDataSection, type DataSurfaceColumnSpec, type FormSurfaceFieldSpec, PageSurface, type PageSurfaceSectionSpec, type PageSurfaceCommandSpec } from "@workspace/core/ui";
 import type {
   WorkReportCollectionResponse,
   WorkReportCollectionSpace,
@@ -75,10 +75,10 @@ function createDraftColumns({
   }];
 }
 
-export function buildReportDraftTableBlock(props: ReportDraftTableProps): PageSurfaceBlockSpec {
+export function buildReportDraftTableBlock(props: ReportDraftTableProps): PageSurfaceSectionSpec {
   const rows = getDraftRows(props.draft);
   const columns = createDraftColumns(props);
-  return createPageDataBlock("report-draft-table", {
+  return createPageDataSection("report-draft-table", {
       kind: "table",
       rows,
       columns,
@@ -95,7 +95,7 @@ export function buildReportDraftTableBlock(props: ReportDraftTableProps): PageSu
 export function ReportDraftTable(props: ReportDraftTableProps) {
   const rows = useMemo(() => getDraftRows(props.draft), [props.draft]);
   const columns = useMemo(() => createDraftColumns(props), [props]);
-  return <PageSurface embedded kind="list" body={createPageBody([createPageDataBlock("report-draft-table", { kind: "table", rows, columns, visibleColumns: [],   presentation: { density: "compact" },
+  return <PageSurface kind="standard" embedded body={createPageBody([createPageDataSection("report-draft-table", { kind: "table", rows, columns, visibleColumns: [],   presentation: { density: "compact" },
  loading: props.loading, emptyText: "暂无可汇报事项", rowKey: (item, index) => item.id || item.workItemId || `new-${index}`, scroll: { y: "hidden" }, })])} />;
 }
 
@@ -126,13 +126,13 @@ function createCollectionColumns(): DataSurfaceColumnSpec<WorkReportCollectionSp
   }];
 }
 
-export function buildReportCollectionTableBlock({ collection, loading }: ReportCollectionTableProps): PageSurfaceBlockSpec {
+export function buildReportCollectionTableBlock({ collection, loading }: ReportCollectionTableProps): PageSurfaceSectionSpec {
   const rows = collection?.spaces || [];
   if (!loading && rows.length === 0) {
-    return createPageDataBlock("report-collection-empty", { kind: "records", records: [], empty: "暂无可汇总的工作空间" });
+    return createPageDataSection("report-collection-empty", { kind: "records", records: [], empty: "暂无可汇总的工作空间" });
   }
   const columns = createCollectionColumns();
-  return createPageDataBlock("report-collection-table", {
+  return createPageDataSection("report-collection-table", {
       kind: "table",
       rows,
       columns,
@@ -150,10 +150,10 @@ export function ReportCollectionTable({ collection, loading }: ReportCollectionT
   const rows = collection?.spaces || [];
   const columns = useMemo(() => createCollectionColumns(), []);
   const block = !loading && rows.length === 0
-    ? createPageDataBlock("report-collection-empty", { kind: "records", records: [], empty: "暂无可汇总的工作空间" })
-    : createPageDataBlock("report-collection-table", { kind: "table", rows, columns, visibleColumns: [],     presentation: { density: "compact" },
+    ? createPageDataSection("report-collection-empty", { kind: "records", records: [], empty: "暂无可汇总的工作空间" })
+    : createPageDataSection("report-collection-table", { kind: "table", rows, columns, visibleColumns: [],     presentation: { density: "compact" },
  loading, emptyText: "暂无汇报", rowKey: space => `${space.targetType}:${space.targetId}`, scroll: { y: "hidden" }, });
-  return <PageSurface embedded kind="list" body={createPageBody([block])} />;
+  return <PageSurface kind="standard" embedded body={createPageBody([block])} />;
 }
 
 function ReportStack({
@@ -161,7 +161,7 @@ function ReportStack({
 }: {
   space: WorkReportCollectionSpace;
 }) {
-  return <PageSurface embedded kind="list" body={createPageBody([createPageDataBlock("report-stack", {
+  return <PageSurface kind="standard" embedded body={createPageBody([createPageDataSection("report-stack", {
     kind: "records",
     records: space.reports.map(report => ({
       key: String(report.id),
@@ -190,7 +190,7 @@ function InlineFieldCell({
   blockKey: string;
   field: FormSurfaceFieldSpec;
 }) {
-  return <PageSurface embedded kind="detail" body={createPageBody([createInlineFieldsBlock(blockKey, [field])])} />;
+  return <PageSurface kind="standard" embedded body={createPageBody([createInlineFieldsSection(blockKey, [field])])} />;
 }
 
 function InlineActionsCell({
@@ -200,7 +200,7 @@ function InlineActionsCell({
   blockKey: string;
   actions: PageSurfaceCommandSpec[];
 }) {
-  return <PageSurface embedded kind="detail" body={createPageBody([createActionsBlock(blockKey, actions)])} />;
+  return <PageSurface kind="standard" embedded body={createPageBody([createActionsSection(blockKey, actions)])} />;
 }
 
 function formatDateTime(value: string | null) {

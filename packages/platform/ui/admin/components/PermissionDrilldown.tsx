@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useEffect } from "react";
 import { matchEmployee } from "@workspace/platform/search";
-import { createPageBody, createPanelBlock, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createPanelSection, PageSurface } from "@workspace/core/ui";
 export interface EmployeePerm {
   employeeId: string;
   name: string;
@@ -93,14 +93,13 @@ export default function PermissionDrilldown({
     return aHas - bHas;
   }), [empPerms, fCompany, fDept, fKeyword, drillKey, empHasAccess, companyMap]);
   return (
-    <PageSurface
-      kind="settings"
+    <PageSurface kind="standard"
       embedded
-      body={createPageBody([createPanelBlock("permission-drilldown", {
+      body={createPageBody([createPanelSection("permission-drilldown", {
         title: `人员 · ${drillKey}`,
         actions: [{ key: "close", label: "关闭", onClick: onClose }],
 
-        blocks: [
+        sections: [
           {
             kind: "form",
             key: "filters",

@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPageTableSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { DeptBudgetItem } from "../types";
 
 const MONTH_LABELS = [
@@ -79,11 +79,10 @@ export default function DeptBudgetTable({ items, monthTotals, total }: DeptBudge
   ];
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageTableBlock("dept-budget", {
+        createPageTableSection("dept-budget", {
           framed: true,
 
 

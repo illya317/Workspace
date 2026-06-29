@@ -3,10 +3,10 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { createPageBody, createGroupBlock, createMessageBlock, createPanelBlock, PageSurface } from "@workspace/core/ui";
-import type { PageSurfaceBlockSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import { createPageBody, createSectionsSection, createMessageSection, createPanelSection, PageSurface } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
-import { createReportBannerBlock } from "./ReportBanner";
+import { createReportBannerSection } from "./ReportBanner";
 import { createReportLinesSurface, type AccountDetail, type ReportLine } from "./ReportLines";
 import { formatFinanceAmount } from "../formatters";
 import { REPORT_TYPE_OPTIONS } from "./report-options";
@@ -157,14 +157,14 @@ export default function ReportTab() {
       align: "center",
       content: "加载中...",
     }] : []),
-    ...(data?.type === "balance" ? [createPanelBlock("balance-report", {
+    ...(data?.type === "balance" ? [createPanelSection("balance-report", {
             title: "资 产 负 债 表",
             subtitle: `${data.period.year}年${data.period.month}月`,
-            blocks: [
-              createGroupBlock("balance-lines", {
+            sections: [
+              createSectionsSection("balance-lines", {
                 layout: "grid",
 
-                blocks: [
+                sections: [
                   {
                     kind: "data",
                     key: "assets",
@@ -173,10 +173,10 @@ export default function ReportTab() {
                       frame: "bordered",
                     },
                   },
-                  createGroupBlock("liability-equity", {
+                  createSectionsSection("liability-equity", {
                     layout: "stack",
 
-                    blocks: [
+                    sections: [
                       {
                         kind: "data",
                         key: "liabilities",
@@ -191,7 +191,7 @@ export default function ReportTab() {
                   }),
                 ],
               }),
-              ...(data.totalLiabilitiesAndEquity !== undefined ? [createMessageBlock("balance-check", {
+              ...(data.totalLiabilitiesAndEquity !== undefined ? [createMessageSection("balance-check", {
                 tone: "muted" as const,
 
                 content: <>
@@ -201,12 +201,12 @@ export default function ReportTab() {
               })] : []),
             ],
           })] : []),
-    ...(data?.type === "income" ? [createPanelBlock("income-report", {
+    ...(data?.type === "income" ? [createPanelSection("income-report", {
             title: "利 润 表",
             subtitle: `${data.period.year}年${data.period.month}月`,
-            blocks: [
+            sections: [
               ...(() => {
-                const block = createReportBannerBlock("income-banner", { source: data.source, diagnostics: data.diagnostics, reviewHref: `/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=incomeStatement` });
+                const block = createReportBannerSection("income-banner", { source: data.source, diagnostics: data.diagnostics, reviewHref: `/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=incomeStatement` });
                 return block ? [block] : [];
               })(),
               {
@@ -216,12 +216,12 @@ export default function ReportTab() {
               },
             ],
           })] : []),
-    ...(data?.type === "cashflow" ? [createPanelBlock("cashflow-report", {
+    ...(data?.type === "cashflow" ? [createPanelSection("cashflow-report", {
             title: "现 金 流 量 表",
             subtitle: `${data.period.year}年${data.period.month}月`,
-            blocks: [
+            sections: [
               ...(() => {
-                const block = createReportBannerBlock("cashflow-banner", { source: data.source, diagnostics: data.diagnostics, reviewHref: `/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=cashFlow` });
+                const block = createReportBannerSection("cashflow-banner", { source: data.source, diagnostics: data.diagnostics, reviewHref: `/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=cashFlow` });
                 return block ? [block] : [];
               })(),
               {
@@ -231,10 +231,9 @@ export default function ReportTab() {
               },
             ],
           })] : []),
-  ]) as PageSurfaceBlockSpec[];
+  ]) as PageSurfaceSectionSpec[];
   return (
-    <PageSurface
-      kind={data ? "analysis" : "list"}
+    <PageSurface kind="standard"
       toolbar={{ items: toolbarItems }}
       body={reportBlocks.length > 0 ? createPageBody(reportBlocks) : undefined}
     />

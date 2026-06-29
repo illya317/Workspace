@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, type Dispatch, type SetStateAction } from "react";
-import { createPageBody, createPageDataBlock, createBlockSurfaceBlock, createPanelBlock, PageSurface, type FormSurfaceItemSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, createPageDataSection, createBlockSurfaceSection, createPanelSection, PageSurface, type FormSurfaceItemSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import { departmentCodeEditableSegment } from "./department-code-input";
 import { departmentDescendantIds, splitAliasText } from "./utils";
 import { useDepartmentDescriptionsBlock } from "./department-descriptions-panel";
@@ -32,7 +32,7 @@ type DepartmentDetailPaneProps = {
   departmentDescriptionDirty: boolean;
   saving: boolean;
   showArchived: boolean;
-  positionEditorBlocks: PageSurfaceBlockSpec[];
+  positionEditorBlocks: PageSurfaceSectionSpec[];
   setCreatePanel: (panel: "department" | "position" | null) => void;
   setCreatePositionDraft: Dispatch<SetStateAction<CreatePositionDraft>>;
   onSelect: (selection: Selection) => void;
@@ -74,7 +74,7 @@ export function useDepartmentDetailPaneBlock({
   onSaveDepartmentInfo,
   onSaveDepartmentDescription,
   onArchiveDepartment
-}: DepartmentDetailPaneProps): PageSurfaceBlockSpec {
+}: DepartmentDetailPaneProps): PageSurfaceSectionSpec {
   async function saveDepartment() {
     if (departmentDirty) await onSaveDepartmentInfo();
     if (departmentDescriptionDirty) await onSaveDepartmentDescription();
@@ -159,9 +159,9 @@ export function useDepartmentDetailPaneBlock({
     canEditDepartment,
     onUpdateDraft: onUpdateDepartmentDescriptionDraft,
   });
-  const detailBlocks: PageSurfaceBlockSpec[] = [];
+  const detailBlocks: PageSurfaceSectionSpec[] = [];
   if (!selection) {
-    detailBlocks.push(createBlockSurfaceBlock("empty-selection", {
+    detailBlocks.push(createBlockSurfaceSection("empty-selection", {
       kind: "empty",
       presentation: "plain",
 
@@ -187,7 +187,7 @@ export function useDepartmentDetailPaneBlock({
         onCreatePosition,
       }));
     }
-    detailBlocks.push(createPanelBlock("department-info", {
+    detailBlocks.push(createPanelSection("department-info", {
       title: (
         <span className="flex min-w-0 items-center gap-2">
           <span>部门信息</span>
@@ -215,7 +215,7 @@ export function useDepartmentDetailPaneBlock({
           : []),
       ],
 
-      blocks: departmentDraft ? [
+      sections: departmentDraft ? [
         {
           kind: "form",
           key: "fields",
@@ -225,7 +225,7 @@ export function useDepartmentDetailPaneBlock({
             fields: departmentInfoFields,
           },
         },
-        createPageDataBlock("metrics", {
+        createPageDataSection("metrics", {
             kind: "metrics",
             framed: true,
             metrics: [
@@ -240,14 +240,14 @@ export function useDepartmentDetailPaneBlock({
     if (!isOrganizationMode) detailBlocks.push(departmentDescriptionsBlock);
   }
   if (!isOrganizationMode) detailBlocks.push(...positionEditorBlocks);
-  return createPanelBlock("department-detail", {
+  return createPanelSection("department-detail", {
 
 
-      blocks: detailBlocks,
+      sections: detailBlocks,
     });
 }
 
 export function DepartmentDetailPane(props: DepartmentDetailPaneProps) {
   const block = useDepartmentDetailPaneBlock(props);
-  return <PageSurface embedded kind="detail" body={createPageBody([block])} />;
+  return <PageSurface kind="standard" embedded body={createPageBody([block])} />;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createPageBody, createAnalysisBlock, createGroupBlock, createPageDataBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createSectionsSection, createPageDataSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { Employee, Employment } from "./useAnalyticsData";
 
@@ -11,7 +11,7 @@ type DistributionRow = {
   percent?: string;
 };
 
-export function useTurnoverAnalyticsBlocks({ employees: _employees, employments }: { employees: Employee[]; employments: Employment[] }): PageSurfaceBlockSpec[] {
+export function useTurnoverAnalyticsBlocks({ employees: _employees, employments }: { employees: Employee[]; employments: Employment[] }): PageSurfaceSectionSpec[] {
   const [reasonSearch, setReasonSearch] = useState("");
 
   const stats = useMemo(() => {
@@ -128,7 +128,7 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
   ];
 
   return [
-        createPageDataBlock("stats", {
+        createPageDataSection("stats", {
             kind: "metrics",
             metrics: [
               { key: "totalLeft", label: "累计离职", value: stats.totalLeft },
@@ -138,12 +138,12 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
               { key: "turnoverRate", label: "累计离职率", value: `${stats.turnoverRate}%` },
             ],
           }),
-        createGroupBlock("charts", {
+        createSectionsSection("charts", {
           layout: "grid",
-          blocks: [
-            createAnalysisBlock("monthly-trend", {
+          sections: [
+            createAnalysisSection("monthly-trend", {
               title: "离职月度趋势（近12个月）",
-              blocks: [{
+              sections: [{
                 kind: "visualization",
                 key: "monthly-chart",
                 surface: {
@@ -165,9 +165,9 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
                 },
               }],
             }),
-            createAnalysisBlock("tenure", {
+            createAnalysisSection("tenure", {
               title: "离职司龄分布",
-              blocks: [{
+              sections: [{
                 kind: "data",
                 key: "tenure-chart",
                 surface: {
@@ -184,7 +184,7 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
             }),
           ],
         }),
-        createAnalysisBlock("reasons", {
+        createAnalysisSection("reasons", {
           title: "离职原因分布",
           toolbar: {
             items: [
@@ -192,7 +192,7 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
               { kind: "text", key: "meta", content: <>{stats.totalLeft} 人</> },
             ],
           },
-          blocks: [{
+          sections: [{
             kind: "data",
             key: "reason-bars",
             surface: {
@@ -207,9 +207,9 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
             },
           }],
         }),
-        createAnalysisBlock("recent-leaves", {
+        createAnalysisSection("recent-leaves", {
           title: "最近离职（前20）",
-          blocks: [{
+          sections: [{
             kind: "data",
             key: "recent-leaves-table",
             surface: {
@@ -226,5 +226,5 @@ export function useTurnoverAnalyticsBlocks({ employees: _employees, employments 
 }
 
 export default function TurnoverAnalytics(props: { employees: Employee[]; employments: Employment[] }) {
-  return <PageSurface kind="analysis" body={createPageBody(useTurnoverAnalyticsBlocks(props))} />;
+  return <PageSurface kind="standard" body={createPageBody(useTurnoverAnalyticsBlocks(props))} />;
 }

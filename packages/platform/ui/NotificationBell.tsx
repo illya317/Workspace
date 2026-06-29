@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
-import { ActionGlyph, type ActionGlyphKind, announceFloatingOverlayOpen, createBlockSurfaceBlock, createPageBody, createPanelBlock, FLOATING_OVERLAY_OPEN_EVENT, getFloatingOverlayOpenDetail, PageSurface } from "@workspace/core/ui";
+import { ActionGlyph, type ActionGlyphKind, announceFloatingOverlayOpen, createBlockSurfaceSection, createPageBody, createPanelSection, FLOATING_OVERLAY_OPEN_EVENT, getFloatingOverlayOpenDetail, PageSurface } from "@workspace/core/ui";
 type NotificationItem = {
   id: number;
   title: string;
@@ -272,15 +272,14 @@ export default function NotificationBell({
             width: "min(24rem, calc(100vw - 2rem))"
           }}
         >
-          <PageSurface
-            kind="settings"
+          <PageSurface kind="standard"
             embedded
-            body={createPageBody([createPanelBlock("notifications", {
+            body={createPageBody([createPanelSection("notifications", {
               title: <div className="whitespace-nowrap text-sm font-semibold text-slate-900">通知</div>,
               subtitle: <div className="whitespace-nowrap text-xs text-slate-400">{data.pendingCount} 条待确认 · {data.unreadCount} 条未读 · 共 {data.total} 条</div>,
 
-              blocks: [
-                createBlockSurfaceBlock("notification-actions", {
+              sections: [
+                createBlockSurfaceSection("notification-actions", {
                   kind: "message",
 
                   content: (
@@ -291,7 +290,7 @@ export default function NotificationBell({
                     </div>
                   )
                 }),
-                createBlockSurfaceBlock("notification-list", {
+                createBlockSurfaceSection("notification-list", {
                   kind: "message",
 
                   content: (

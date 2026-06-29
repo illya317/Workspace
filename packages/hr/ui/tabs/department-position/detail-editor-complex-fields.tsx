@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createFieldsBlock, useFeedback } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createFieldsSection, useFeedback } from "@workspace/core/ui";
 import { HR_MAJOR_OPTIONS, normalizeHrMajorItems, type HRMajorItem } from "@workspace/hr/constants/field-options";
 import { ENVIRONMENT_FACTOR_OPTIONS, WORK_AREA_OPTIONS, pickerOptions, primitiveListItems } from "./description-details";
 type WorkEnvironmentItem = {
@@ -65,10 +65,9 @@ export function WorkEnvironmentEditor({
 
   }] : [];
   return <div className="space-y-2">
-      <PageSurface
+      <PageSurface kind="standard"
         embedded
-        kind="detail"
-        body={createPageBody([createFieldsBlock<string>("work-environments", [
+        body={createPageBody([createFieldsSection<string>("work-environments", [
           {
             kind: "repeatable",
             key: "work-environments",
@@ -175,10 +174,9 @@ export function MajorRequirementsEditor({
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <PageSurface
+      <PageSurface kind="standard"
         embedded
-        kind="detail"
-        body={createPageBody([createFieldsBlock<HRMajorItem>("major-requirements", [{
+        body={createPageBody([createFieldsSection<HRMajorItem>("major-requirements", [{
           kind: "tagList",
           key: "majorRequirements",
           label: "",
@@ -253,10 +251,9 @@ export function ExperienceRequirementsEditor({
     onChange(items.filter((_, itemIndex) => itemIndex !== index));
   }
   return <div className="space-y-2">
-      <PageSurface
+      <PageSurface kind="standard"
         embedded
-        kind="detail"
-        body={createPageBody([createFieldsBlock("experience-requirements", [{
+        body={createPageBody([createFieldsSection("experience-requirements", [{
           kind: "repeatable",
           key: "experience-requirements",
           title: label,

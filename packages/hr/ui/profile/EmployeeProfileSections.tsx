@@ -3,7 +3,7 @@
 import { SectionShell, sectionShellBlock } from "./ProfileFormControls";
 import { edpFields, employmentFields } from "@workspace/hr/constants";
 import type { ContractRow, EdpRow, EmploymentRow, ProfileField } from "@workspace/hr/types";
-import { createPageBody, PageSurface, type PageSurfaceBlockSpec, type ReferenceOption } from "@workspace/core/ui";
+import { createPageBody, PageSurface, type PageSurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
 import { emptyFormBlock, fieldGridBlock, fieldRegionBlock, isCurrentByEndDate, pickFields, type EditableRecord, type RowBase } from "./EmployeeProfileUtils";
 import { useContractSectionBlocks } from "./EmployeeProfileContractSection";
 import { deleteActionSpec, profileActionSpec } from "./EmployeeProfileRowActions";
@@ -47,7 +47,7 @@ export function RowsSection<T extends RowBase>({
   allowDelete?: boolean;
   className?: string;
 }) {
-  const blocks = rows.length === 0
+  const sections = rows.length === 0
     ? [emptyFormBlock("rows-empty", "暂无记录")]
     : rows.map((row, index) => fieldRegionBlock({
         key: String(row.id ?? `new-${index}`),
@@ -55,12 +55,12 @@ export function RowsSection<T extends RowBase>({
         actions: canEdit && allowDelete && onDelete
           ? deleteActionSpec({ canEdit, saving, onDelete: () => onDelete(row, index) })
           : undefined,
-        blocks: [fieldGridBlock(fields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
+        sections: [fieldGridBlock(fields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
           const field = fields.find(item => item.key === key);
           if (field) onChange(index, field, value, option);
         }, undefined, `${row.id ?? `new-${index}`}-fields`)],
       }));
-  return <SectionShell title={null} className={className} blocks={blocks} />;
+  return <SectionShell title={null} className={className} sections={sections} />;
 }
 function getRowTitle<T extends RowBase>(row: T, fallback: string) {
   const item = row as Record<string, unknown>;
@@ -79,7 +79,7 @@ interface EmploymentSectionProps {
 }
 
 export function EmploymentSection(props: EmploymentSectionProps) {
-  return <PageSurface embedded kind="detail" body={createPageBody(useEmploymentSectionBlocks(props))} />;
+  return <PageSurface kind="standard" embedded body={createPageBody(useEmploymentSectionBlocks(props))} />;
 }
 
 export function useEmploymentSectionBlocks({
@@ -92,7 +92,7 @@ export function useEmploymentSectionBlocks({
   onChangeContract,
   onDeleteContract,
   className
-}: EmploymentSectionProps): PageSurfaceBlockSpec[] {
+}: EmploymentSectionProps): PageSurfaceSectionSpec[] {
   const fields = employmentFields.filter(field => !["currentCompany", "leaveNote"].includes(field.key));
   const contractBlocks = useContractSectionBlocks({
     rows: contracts,
@@ -102,20 +102,20 @@ export function useEmploymentSectionBlocks({
     onChange: onChangeContract,
     onDelete: onDeleteContract,
   });
-  const blocks = !employment
+  const sections = !employment
     ? [emptyFormBlock("employment-empty", "暂无雇佣主档")]
     : [
         fieldRegionBlock({
           key: "employment-status",
           title: "任职状态",
-          blocks: [fieldGridBlock(fields, employment as unknown as EditableRecord, !canEdit, (key, value, option) => {
+          sections: [fieldGridBlock(fields, employment as unknown as EditableRecord, !canEdit, (key, value, option) => {
           const field = fields.find(item => item.key === key);
           if (field) onChange(field, value, option);
           }, undefined, "employment-fields")],
         }),
         ...contractBlocks,
       ];
-  return [sectionShellBlock({ title: null, className, blocks })];
+  return [sectionShellBlock({ title: null, className, sections })];
 }
 
 interface EdpSectionProps {
@@ -129,7 +129,7 @@ interface EdpSectionProps {
 }
 
 export function EdpSection(props: EdpSectionProps) {
-  return <PageSurface embedded kind="detail" body={createPageBody(useEdpSectionBlocks(props))} />;
+  return <PageSurface kind="standard" embedded body={createPageBody(useEdpSectionBlocks(props))} />;
 }
 
 export function useEdpSectionBlocks({
@@ -140,7 +140,7 @@ export function useEdpSectionBlocks({
   onChange,
   onDelete,
   className
-}: EdpSectionProps): PageSurfaceBlockSpec[] {
+}: EdpSectionProps): PageSurfaceSectionSpec[] {
   const allFields = [...pickFields(edpFields, ["departmentId", "positionId", "isPrimary", "workPercent", "reportTo"]), ...pickFields(edpFields, ["startDate", "endDate"])];
   const {
     getItemRef,
@@ -150,7 +150,7 @@ export function useEdpSectionBlocks({
     requestScrollToIndex(0);
     onAdd();
   }
-  const blocks = rows.length === 0
+  const sections = rows.length === 0
     ? [emptyFormBlock("edp-empty", "暂无岗位记录")]
     : rows.map((row, index) => {
         const current = isCurrentByEndDate(row.endDate);
@@ -167,11 +167,11 @@ export function useEdpSectionBlocks({
             profileActionSpec({ key: "add", label: "新增", variant: "secondary", disabled: saving !== null, onClick: addRow }),
             ...deleteActionSpec({ canEdit, saving, onDelete: () => onDelete(row, index) }),
           ] : undefined,
-          blocks: [fieldGridBlock(allFields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
+          sections: [fieldGridBlock(allFields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
               const field = edpFields.find(item => item.key === key);
               if (field) onChange(index, field, value, option);
             }, undefined, `edp-${index}-fields`)],
         });
       });
-  return [sectionShellBlock({ title: null, className, blocks })];
+  return [sectionShellBlock({ title: null, className, sections })];
 }

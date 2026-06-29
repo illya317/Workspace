@@ -1,10 +1,10 @@
 import {
   createPageBody,
   PageSurface,
-  createPageDataBlock,
+  createPageDataSection,
   type DataSurfaceColumnSpec,
   type DataSurfaceProps,
-  type PageSurfaceBlockSpec,
+  type PageSurfaceSectionSpec,
 } from "@workspace/core/ui";
 export interface ProfileHistoryEntry {
   id: number;
@@ -105,10 +105,10 @@ export function historySectionSurface({
   };
 }
 
-export function historySectionBlock(props: HistorySectionProps): PageSurfaceBlockSpec {
-  return createPageDataBlock("history", historySectionSurface(props));
+export function historySectionBlock(props: HistorySectionProps): PageSurfaceSectionSpec {
+  return createPageDataSection("history", historySectionSurface(props));
 }
 
 export function HistorySection(props: HistorySectionProps) {
-  return <PageSurface embedded kind="detail" body={createPageBody([historySectionBlock(props)])} />;
+  return <PageSurface kind="standard" embedded body={createPageBody([historySectionBlock(props)])} />;
 }

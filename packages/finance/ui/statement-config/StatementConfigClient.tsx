@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { PageSurface, createBlockSurfaceBlock, createPageTabsNavigation } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceSection, createPageBody, createPageTabsNavigation } from "@workspace/core/ui";
 import LineConfigTab from "./LineConfigTab";
 import UnmappedTab from "./UnmappedTab";
 import BalanceCheckTab from "./BalanceCheckTab";
@@ -59,7 +59,6 @@ function TabContent({ user }: { user: SessionUser }) {
   }, [activeChildTabs]);
   const activeTab = activeChild;
   const navigation = activeChildTabs.length > 1 ? createPageTabsNavigation({
-    level: 2,
     items: activeChildTabs,
     active: activeChild,
     onChange: setActiveChild,
@@ -67,14 +66,12 @@ function TabContent({ user }: { user: SessionUser }) {
   const lifecycleBlocks = getFinanceLifecycleBlocks("statementConfig");
   const toolbarItems = useStatementConfigToolbarItems();
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       navigation={navigation}
       toolbar={{ items: toolbarItems }}
-      body={{
-        blocks: [
+      body={createPageBody([
           ...lifecycleBlocks,
-          createBlockSurfaceBlock("statement-config-content", {
+          createBlockSurfaceSection("statement-config-content", {
             kind: "content",
             content: (
               <div>
@@ -84,8 +81,7 @@ function TabContent({ user }: { user: SessionUser }) {
               </div>
             ),
           }),
-        ],
-      }}
+        ])}
     />
   );
 }

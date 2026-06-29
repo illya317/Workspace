@@ -2,16 +2,16 @@
 
 import CreatePanel, { type CreatePanelBlockProps } from "../internal/create/CreatePanel";
 import SelectorPanel, { type SelectorPanelProps } from "../internal/selection/SelectorPanel";
-import type { PageSurfaceBlockSpec } from "../PageSurface.types";
+import type { PageSurfaceSectionSpec } from "../PageSurface.types";
 
-type BlockSurfaceBlockSpec = Extract<PageSurfaceBlockSpec, { kind: "block" }>;
+type BlockSurfaceSectionSpec = Extract<PageSurfaceSectionSpec, { kind: "block" }>;
 
-export type CreatePanelBlockHelperProps = Omit<CreatePanelBlockProps, "variant">;
+export type CreatePanelSectionHelperProps = Omit<CreatePanelBlockProps, "variant">;
 
-export function createCreatePanelBlock(
+export function createCreatePanelSection(
   key: string,
-  props: CreatePanelBlockHelperProps,
-): BlockSurfaceBlockSpec {
+  props: CreatePanelSectionHelperProps,
+): BlockSurfaceSectionSpec {
   return {
     kind: "block",
     key,
@@ -22,13 +22,13 @@ export function createCreatePanelBlock(
   };
 }
 
-export type SelectorPanelBlockHelperOptions = Record<string, never>;
+export type SelectorPanelSectionHelperOptions = Record<string, never>;
 
-export function createSelectorPanelBlock<T>(
+export function createSelectorPanelSection<T>(
   key: string,
   props: SelectorPanelProps<T>,
-  _options: SelectorPanelBlockHelperOptions = {},
-): BlockSurfaceBlockSpec {
+  _options: SelectorPanelSectionHelperOptions = {},
+): BlockSurfaceSectionSpec {
   return {
     kind: "block",
     key,

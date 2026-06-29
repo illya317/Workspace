@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createPageBody, type DataSurfaceColumnSpec, PageSurface, type PageSurfaceBlockSpec, type SurfaceDataRowActionSpec } from "@workspace/core/ui";
+import { createPageBody, type DataSurfaceColumnSpec, PageSurface, type PageSurfaceSectionSpec, type SurfaceDataRowActionSpec } from "@workspace/core/ui";
 import { listSpacePermissions, saveSpacePermissions, WORK_REFERENCE_OPTIONS_ENDPOINT } from "./api";
 import { WORK_ROLE_OPTIONS } from "./model";
 import type { WorkSpacePermissionRow, WorkSpaceRole, WorkTarget } from "./types";
@@ -22,8 +22,8 @@ export default function WorkPermissionsPanel({
     message: string;
   }) => void;
 }) {
-  const blocks = useWorkPermissionsBlocks({ target, canManage, onToast, enabled: true });
-  return <PageSurface embedded kind="detail" body={createPageBody(blocks)} />;
+  const sections = useWorkPermissionsBlocks({ target, canManage, onToast, enabled: true });
+  return <PageSurface kind="standard" embedded body={createPageBody(sections)} />;
 }
 
 export function useWorkPermissionsBlocks({
@@ -39,7 +39,7 @@ export function useWorkPermissionsBlocks({
     message: string;
   }) => void;
   enabled: boolean;
-}): PageSurfaceBlockSpec[] {
+}): PageSurfaceSectionSpec[] {
   const [rows, setRows] = useState<WorkSpacePermissionRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);

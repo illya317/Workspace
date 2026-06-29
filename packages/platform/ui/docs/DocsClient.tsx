@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { createModuleGridBlock, createPageBody, PageSurface } from "@workspace/core/ui";
+import { createModuleGridSection, createPageBody, PageSurface } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 
 function getDocCategories(): Record<string, Array<{ title: string; href: string }>> {
@@ -30,9 +30,8 @@ export default function DocsClient({ user: _user, hideShell }: { user: SessionUs
   const router = useRouter();
 
   return (
-    <PageSurface
-      kind="settings"
-      body={createPageBody([createModuleGridBlock("docs-grid", {
+    <PageSurface kind="standard"
+      body={createPageBody([createModuleGridSection("docs-grid", {
 
         title: hideShell ? undefined : "文档中心",
         summary: hideShell ? undefined : "员工手册、操作指南、规章制度等文档汇总",

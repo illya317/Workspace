@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import {
   type DataSurfaceColumnSpec,
+  createPageBody,
   PageSurface,
 } from "@workspace/core/ui";
 import type { TabConfig, FieldConfig } from "@workspace/hr/types";
@@ -118,12 +119,9 @@ export default function EditableTable({
   );
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
-      body={{
-        layout: "single",
-        blocks: [{
+      body={createPageBody([{
           kind: "data",
           key: "editable-table",
           surface: {
@@ -138,8 +136,7 @@ export default function EditableTable({
             loading,
             emptyText,
           },
-        }],
-      }}
+        }], { layout: "single" })}
     />
   );
 }

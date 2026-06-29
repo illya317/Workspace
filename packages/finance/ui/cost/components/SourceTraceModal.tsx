@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createFieldsBlock, createPageModalBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createFieldsSection, createPageModalSection } from "@workspace/core/ui";
 import type { SourceTraceInfo } from "../types";
 interface Props {
   open: boolean;
@@ -14,17 +14,16 @@ export default function SourceTraceModal({
 }: Props) {
   if (!open || !info) return null;
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageModalBlock("source-trace", {
+        createPageModalSection("source-trace", {
           open,
           title: "数据来源",
           onClose,
           size: "lg",
-          blocks: [
-            createFieldsBlock("source-trace-form", [
+          sections: [
+            createFieldsSection("source-trace-form", [
               { key: "sourceFile", label: "源文件", spec: { valueType: "string", control: "text", state: "readonly" }, value: info.sourceFile },
               { key: "sourceSheet", label: "工作表", spec: { valueType: "string", control: "text", state: "readonly" }, value: info.sourceSheet ?? "—" },
               { key: "sourceRow", label: "行号", spec: { valueType: "string", control: "text", state: "readonly" }, value: info.sourceRow ?? "—" },

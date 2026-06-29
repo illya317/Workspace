@@ -1,7 +1,7 @@
 "use client";
 
 import type { Ref } from "react";
-import { createPageBody, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import { contractFields } from "@workspace/hr/constants";
 import type { ContractRow, ProfileField } from "@workspace/hr/types";
 import type { ReferenceOption } from "@workspace/core/ui";
@@ -46,7 +46,7 @@ interface ContractSectionProps {
 }
 
 export function ContractSection(props: ContractSectionProps) {
-  return <PageSurface embedded kind="detail" body={createPageBody(useContractSectionBlocks(props))} />;
+  return <PageSurface kind="standard" embedded body={createPageBody(useContractSectionBlocks(props))} />;
 }
 
 export function useContractSectionBlocks({
@@ -56,7 +56,7 @@ export function useContractSectionBlocks({
   onAdd,
   onChange,
   onDelete
-}: ContractSectionProps): PageSurfaceBlockSpec[] {
+}: ContractSectionProps): PageSurfaceSectionSpec[] {
   const {
     getItemRef,
     requestScrollToIndex
@@ -100,7 +100,7 @@ function contractCardBlock({
   onAdd: () => void;
   onDelete: (row: ContractRow, index: number) => Promise<void>;
   itemRef: Ref<HTMLDivElement>;
-}): PageSurfaceBlockSpec {
+}): PageSurfaceSectionSpec {
   const normalizedRow = normalizeContractRow(row);
   const current = isCurrentByEndDate(normalizedRow.permanentContractDate ? normalizedRow.endDate : contractPeriodEndDate(normalizedRow));
   const title = row.company || (row.isNew ? "新增合同" : "未设置公司");
@@ -118,7 +118,7 @@ function contractCardBlock({
       profileActionSpec({ key: "add", label: "新增", variant: "secondary", disabled: saving !== null, onClick: onAdd }),
       ...deleteActionSpec({ canEdit, saving, onDelete: () => onDelete(row, index) }),
     ] : undefined,
-    blocks: [fieldGridBlock(fields, normalizedRow as unknown as EditableRecord, !canEdit, (key, value, option) => {
+    sections: [fieldGridBlock(fields, normalizedRow as unknown as EditableRecord, !canEdit, (key, value, option) => {
       const field = contractFields.find(item => item.key === key);
       if (!field) return;
       if (field.key === "permanentContractDate" && value) {

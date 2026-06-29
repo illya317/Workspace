@@ -107,6 +107,7 @@ export interface FormSurfaceSectionSpec<T = FormSurfaceLooseItem> {
   columns?: 1 | 2 | 3;
   mode?: FieldGridMode;
   actions?: FormSurfaceCommandSpec[];
+  framed?: boolean;
 }
 
 export interface FormSurfaceRepeatableItemSpec<T = FormSurfaceLooseItem> {

@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createAnalysisBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import type { EnrichedPosition, SortKey } from "./usePositionData";
 
 interface PositionTableBlockParams {
@@ -13,7 +13,7 @@ interface PositionTableBlockParams {
   sortIcon: (key: SortKey) => string;
 }
 
-export function createPositionTableBlock({
+export function createPositionTableSection({
   filtered,
   search,
   setSearch,
@@ -21,7 +21,7 @@ export function createPositionTableBlock({
   sortDesc: _sortDesc,
   handleSort,
   sortIcon,
-}: PositionTableBlockParams): PageSurfaceBlockSpec {
+}: PositionTableBlockParams): PageSurfaceSectionSpec {
   const columns: DataSurfaceColumnSpec<EnrichedPosition>[] = [
     { key: "code", label: `编码 ${sortIcon("code")}`, required: true, onHeaderClick: () => handleSort("code"), font: "mono", tone: "muted", cell: (position) => position.code },
     { key: "name", label: `岗位名 ${sortIcon("name")}`, required: true, onHeaderClick: () => handleSort("name"), emphasis: "medium", cell: (position) => position.name },
@@ -60,7 +60,7 @@ export function createPositionTableBlock({
       }),
     },
   ];
-  return createAnalysisBlock("positions", {
+  return createAnalysisSection("positions", {
         title: "岗位明细",
         toolbar: {
           items: [
@@ -68,7 +68,7 @@ export function createPositionTableBlock({
             { kind: "text", key: "meta", content: <>共 {filtered.length} 个岗位</> },
           ],
         },
-        blocks: [{
+        sections: [{
           kind: "data",
           key: "positions-table",
           surface: {
@@ -88,5 +88,5 @@ export function createPositionTableBlock({
 }
 
 export default function PositionTable(props: PositionTableBlockParams) {
-  return <PageSurface kind="analysis" body={createPageBody([createPositionTableBlock(props)])} />;
+  return <PageSurface kind="standard" body={createPageBody([createPositionTableSection(props)])} />;
 }

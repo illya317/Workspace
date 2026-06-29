@@ -1,5 +1,5 @@
 import type { QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
-import { createBlockSurfaceBlock, createPageBody, createPageDataBlock, type DataSurfaceCellSpec, type DataSurfaceColumnSpec, type DataSurfaceTableProps, PageSurface } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createPageBody, createPageDataSection, type DataSurfaceCellSpec, type DataSurfaceColumnSpec, type DataSurfaceTableProps, PageSurface } from "@workspace/core/ui";
 
 interface Props {
   detail: QcTemplateDetail;
@@ -115,11 +115,10 @@ export default function QcTemplateDetailPanel({ detail }: Props) {
   const totalTests = detail.stages.reduce((sum, stage) => sum + stage.tests.length, 0);
   const totalFields = detail.stages.reduce((sum, stage) => sum + stage.tests.reduce((stageSum, test) => stageSum + fieldCount(test), 0), 0);
 
-  return <PageSurface
-    kind="detail"
+  return <PageSurface kind="standard"
     embedded
     body={createPageBody([
-      createPageDataBlock("template-metrics", {
+      createPageDataSection("template-metrics", {
           kind: "metrics",
           metrics: [
             { key: "stages", label: "阶段", value: detail.stages.length },
@@ -128,7 +127,7 @@ export default function QcTemplateDetailPanel({ detail }: Props) {
             { key: "layoutAssignments", label: "布局映射", value: detail.layoutAssignmentCount },
           ],
         }),
-      createBlockSurfaceBlock("template-source", {
+      createBlockSurfaceSection("template-source", {
         kind: "message",
         tone: "muted",
 

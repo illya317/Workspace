@@ -1,4 +1,4 @@
-import { createBlockSurfaceBlock, createHeadingBlock, createPageBody, PageSurface } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createHeadingSection, createPageBody, PageSurface } from "@workspace/core/ui";
 import type { QcBatchSummary, QcLayoutBlock, QcTemplateDetail, QcTemplateStage } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcLayoutPaper from "./QcLayoutPaper";
@@ -59,8 +59,7 @@ export default function QcBatchStagePrecheck({
       };
     }),
   ];
-  return <PageSurface
-    kind="detail"
+  return <PageSurface kind="standard"
     embedded
     body={createPageBody([
       {
@@ -74,11 +73,11 @@ export default function QcBatchStagePrecheck({
           steps: precheckSteps,
         },
       },
-      createHeadingBlock("precheck-heading", {
+      createHeadingSection("precheck-heading", {
 
         title: `${numerals[stageIndex] ?? stageIndex + 1}、${productName}${stage.label}`,
       }),
-      locked ? createBlockSurfaceBlock("precheck-locked", {
+      locked ? createBlockSurfaceSection("precheck-locked", {
         kind: "message",
         tone: "warning",
 

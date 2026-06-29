@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PageSurface, createBlockSurfaceBlock, createPageTabsNavigation } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceSection, createPageBody, createPageTabsNavigation } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { useBudgetData } from "./hooks/useBudgetData";
 import { useBudgetFilters } from "./hooks/useBudgetFilters";
@@ -20,7 +20,6 @@ export default function BudgetTab({ user: _user }: { user: SessionUser }) {
   const filters = useBudgetFilters(data);
   const activeChildTabs = useMemo(() => getFinancePageViewTabs("budget", _user), [_user]);
   const navigation = activeChildTabs.length > 1 ? createPageTabsNavigation({
-    level: 2,
     items: activeChildTabs,
     active: activeChildTabs[0]?.key ?? "",
     onChange: () => {},
@@ -32,10 +31,8 @@ export default function BudgetTab({ user: _user }: { user: SessionUser }) {
   }
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       navigation={navigation ?? createPageTabsNavigation({
-        level: 2,
         items: [
           { key: "dept", label: "部门费用预算" },
           { key: "rd", label: "研发费用预算" },
@@ -43,10 +40,9 @@ export default function BudgetTab({ user: _user }: { user: SessionUser }) {
         active: view,
         onChange: (key) => setView(key as BudgetView),
       })}
-      body={{
-        blocks: [
+      body={createPageBody([
           ...lifecycleBlocks,
-          createBlockSurfaceBlock("budget-content", {
+          createBlockSurfaceSection("budget-content", {
             kind: "content",
             content: (
           <div className="space-y-4">
@@ -105,8 +101,7 @@ export default function BudgetTab({ user: _user }: { user: SessionUser }) {
           </div>
             ),
           }),
-        ],
-      }}
+        ])}
     />
   );
 }

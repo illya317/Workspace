@@ -3,27 +3,26 @@
 import type { ReactNode, Ref } from "react";
 import {
   createPageBody,
-  createPanelBlock,
+  createPanelSection,
   PageSurface,
-  type PageSurfaceBlockSpec,
+  type PageSurfaceSectionSpec,
   type PageSurfaceCommandSpec,
 } from "@workspace/core/ui";
 
 export function FieldRegion({
   title,
   actions,
-  blocks,
+  sections,
 }: {
   title: ReactNode;
   actions?: PageSurfaceCommandSpec[];
-  blocks: PageSurfaceBlockSpec[];
+  sections: PageSurfaceSectionSpec[];
   className?: string;
 }) {
-  const block = fieldRegionBlock({ title, actions, blocks });
+  const block = fieldRegionBlock({ title, actions, sections });
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="detail"
       body={createPageBody([block])}
     />
   );
@@ -32,21 +31,21 @@ export function FieldRegion({
 export function fieldRegionBlock({
   title,
   actions,
-  blocks,
+  sections,
   itemRef,
   key = "field-region",
 }: {
   title: ReactNode;
   actions?: PageSurfaceCommandSpec[];
-  blocks: PageSurfaceBlockSpec[];
+  sections: PageSurfaceSectionSpec[];
   itemRef?: Ref<HTMLDivElement>;
   key?: string;
-}): PageSurfaceBlockSpec {
-  return createPanelBlock(key, {
+}): PageSurfaceSectionSpec {
+  return createPanelSection(key, {
     itemRef,
     title,
     actions,
 
-    blocks,
+    sections,
   });
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createBlockSurfaceBlock, createPageBody, createPanelBlock, createTabsNavigationBlock, type FormSurfaceItemSpec, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createFormSection, createPageBody, type FormSurfaceItemSpec, PageSurface, type PageSurfaceCompleteBodySpec } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import ProjectPlanManagementSection from "./ProjectPlanManagementSection";
 import { buildProjectRasciMatrixSurface } from "./ProjectRasciMatrix";
@@ -67,7 +67,7 @@ export function useProjectDetailEditorBlock({
   onOpenProject,
   onProjectTasksChanged,
   onToast,
-}: ProjectDetailEditorProps): PageSurfaceBlockSpec {
+}: ProjectDetailEditorProps): PageSurfaceCompleteBodySpec {
   const [activeTab, setActiveTab] = useState("overview");
   const [addingMemberRole, setAddingMemberRole] = useState<MultiProjectRole | null>(null);
   const isChildProject = Boolean(draft?.parentProjectTaskId);
@@ -84,7 +84,7 @@ export function useProjectDetailEditorBlock({
     setActiveTab("overview");
     onCreateChildProject(task);
   };
-  const overviewFields: FormSurfaceItemSpec<EmployeeTag>[] = draft ? [
+  const overviewFields: FormSurfaceItemSpec[] = draft ? [
     {
       kind: "section",
       key: "basic",
@@ -122,7 +122,7 @@ export function useProjectDetailEditorBlock({
       columns: 2,
       fields: [
         { key: "leader", label: "项目负责人", spec: { valueType: "reference", control: "reference", options: { source: "remote", fkKey: "work.projects.member.employee", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: !canManageCurrent || creating ? "disabled" : "normal" }, value: draft.leader?.employeeNumber || "", displayValue: draft.leader?.name || "", placeholder: "搜索负责人",  onChange: (_value, option) => onLeaderChange(option as ReferenceOption | undefined) },
-        ...MULTI_PROJECT_ROLES.map((role): FormSurfaceItemSpec<EmployeeTag> => ({
+        ...MULTI_PROJECT_ROLES.map((role): FormSurfaceItemSpec => ({
           kind: "tagList",
           key: role,
           label: role,
@@ -168,93 +168,82 @@ export function useProjectDetailEditorBlock({
     },
   ] : [];
 
-  const contentBlocks: PageSurfaceBlockSpec[] = !draft ? [createBlockSurfaceBlock("project-empty", {
+  if (!draft) return createPageBody([createBlockSurfaceSection("project-empty", {
     kind: "empty",
     presentation: "plain",
-
     content: (
       <div>
         <p className="text-sm font-medium text-slate-600">暂无可编辑项目</p>
         <p className="mt-1 text-sm text-slate-400">请选择左侧项目，或新建项目后维护资料。</p>
       </div>
     )
-  })] : [
-    createTabsNavigationBlock("project-detail-section", {
-      kind: "table",
-      tabs: [
-        { key: "overview", label: "项目概览" },
-        { key: "plan", label: "项目计划" },
-      ],
-      active: activeTab,
-      onChange: (key) => setActiveTab(key),
-      ariaLabel: "项目内容",
-    }, { label: "项目内容" }),
-    ...(activeTab === "overview" ? [
-      {
-        kind: "form" as const,
-        key: "overview-fields",
-        surface: {
-          kind: "fields" as const,
-          fields: overviewFields,
-        },
-      },
-      {
-        kind: "data" as const,
-        key: "rasci",
-        surface: buildProjectRasciMatrixSurface(rasciRows),
-      },
+  })]);
+
+  const actions = [
+    ...(creating ? [
+      { key: "cancel", label: "取消", icon: "cancel" as const, disabled: saving, onClick: onCancelCreate },
+      { key: "create", label: saving ? "创建中..." : "创建项目", icon: "create" as const, variant: "primary" as const, disabled: !canSave || saving, onClick: onSave },
     ] : []),
-    ...(activeTab === "plan" ? [
-      createBlockSurfaceBlock("plan-composition", {
-        kind: "content",
-        content: (
-          <div className="space-y-4">
-            <ProjectPlanManagementSection
-              projectId={draft.id}
-              canEdit={canEditCurrent}
-              disabled={saving || creating}
-              onToast={onToast}
-            />
-            <ProjectTasksSection
-              projectId={draft.id}
-              canEdit={canEditCurrent}
-              disabled={saving || creating}
-              onToast={onToast}
-              onCreateChildProject={startCreateChildProject}
-              onChanged={() => onProjectTasksChanged(draft.id)}
-            />
-          </div>
-        ),
-      }),
+    ...(selectedProject ? [
+      { key: "save", label: "保存项目", icon: "save" as const, variant: "primary" as const, disabled: !canSave || saving, onClick: onSave },
+    ] : []),
+    ...(selectedProject && canDeleteCurrent ? [
+      { key: "delete", label: "删除项目", icon: "delete-bin" as const, variant: "danger" as const, disabled: saving, onClick: onDeleteProject },
     ] : []),
   ];
 
-  return createPanelBlock("project-detail", {
-    title: editorTitle,
-
-    actions: [
-      ...(creating ? [
-        { key: "cancel", label: "取消", disabled: saving, onClick: onCancelCreate },
-        { key: "create", label: saving ? "创建中..." : "创建项目", variant: "primary" as const, disabled: !canSave || saving, onClick: onSave },
-      ] : []),
-      ...(selectedProject ? [
-        { key: "save", label: "保存项目", variant: "primary" as const, disabled: !canSave || saving, onClick: onSave },
-      ] : []),
-      ...(selectedProject && canDeleteCurrent ? [
-        { key: "delete", label: "删除项目", variant: "danger" as const, disabled: saving, onClick: onDeleteProject },
-      ] : []),
+  return {
+    kind: "complete",
+    sectioning: { kind: "tabs", active: activeTab, onChange: setActiveTab },
+    sections: [
+      {
+        key: "overview",
+        label: editorTitle,
+        kind: "sections",
+        header: actions.length ? { actions } : undefined,
+        sections: createPageBody([
+          createFormSection("overview-fields", { kind: "fields", fields: overviewFields }),
+          { kind: "data", key: "rasci", surface: buildProjectRasciMatrixSurface(rasciRows) },
+        ]).sections,
+      },
+      {
+        key: "plan",
+        label: "项目计划",
+        kind: "sections",
+        sections: createPageBody([
+          createBlockSurfaceSection("plan-composition", {
+            kind: "content",
+            content: (
+              <div className="space-y-4">
+                <ProjectPlanManagementSection
+                  projectId={draft.id}
+                  canEdit={canEditCurrent}
+                  disabled={saving || creating}
+                  onToast={onToast}
+                />
+                <ProjectTasksSection
+                  projectId={draft.id}
+                  canEdit={canEditCurrent}
+                  disabled={saving || creating}
+                  onToast={onToast}
+                  onCreateChildProject={startCreateChildProject}
+                  onChanged={() => onProjectTasksChanged(draft.id)}
+                />
+              </div>
+            ),
+          }),
+        ]).sections,
+      },
     ],
-    blocks: contentBlocks,
-  });
+  };
 }
 
 export default function ProjectDetailEditor(props: ProjectDetailEditorProps) {
-  const block = useProjectDetailEditorBlock(props);
+  const body = useProjectDetailEditorBlock(props);
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="detail"
-      body={createPageBody([block])}
+      body={body}
     />
   );
 }

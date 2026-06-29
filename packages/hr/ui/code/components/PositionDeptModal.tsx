@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createFieldsBlock, createPageModalBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createFieldsSection, createPageModalSection } from "@workspace/core/ui";
 
 interface PositionDeptModalProps {
   positionDeptModal: {
@@ -22,17 +22,16 @@ export default function PositionDeptModal({
   setPositionDeptModal,
 }: PositionDeptModalProps) {
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="detail"
       body={createPageBody([
-        createPageModalBlock("position-departments", {
+        createPageModalSection("position-departments", {
           open: !!positionDeptModal?.open,
           title: `${positionDeptModal?.name || ""} — 所属部门`,
           onClose: () => setPositionDeptModal(null),
           size: "md",
-          blocks: [
-            createFieldsBlock("position-departments-form", positionDeptModal?.departments.length
+          sections: [
+            createFieldsSection("position-departments-form", positionDeptModal?.departments.length
               ? [{
                   kind: "repeatable",
                   key: "departments",

@@ -1,20 +1,49 @@
 "use client";
 
-import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
-import { getWorkPeriodLabel, getWorkSourceTypeLabel } from "./model";
-import type { WorkPlan } from "./types";
+import type { ReactNode } from "react";
+import type { PageSurfaceSectionSpec } from "@workspace/core/ui";
+import { getWorkPeriodLabel, getWorkSourceTypeLabel, getWorkSpaceLabel } from "./model";
+import type { WorkPlan, WorkTaskSpace, WorkTarget } from "./types";
 
-export function createWorkPlanSelectorBlock({
+function targetKey(target: WorkTarget) {
+  return `${target.targetType}:${target.targetId}`;
+}
+
+function planStatusLabel(status: WorkPlan["status"]) {
+  if (status === "closed") return "已关闭";
+  if (status === "archived") return "已归档";
+  return "进行中";
+}
+
+function planStatusClassName(status: WorkPlan["status"]) {
+  if (status === "closed") return "bg-slate-100 text-slate-500";
+  if (status === "archived") return "bg-amber-50 text-amber-700";
+  return "bg-emerald-50 text-emerald-700";
+}
+
+function spaceLabelForPlan(plan: WorkPlan, spacesByKey?: ReadonlyMap<string, WorkTaskSpace>) {
+  const space = spacesByKey?.get(targetKey(plan));
+  return space?.name || getWorkSpaceLabel(plan.targetType);
+}
+
+function spaceSubtitleForPlan(plan: WorkPlan, spacesByKey?: ReadonlyMap<string, WorkTaskSpace>) {
+  const space = spacesByKey?.get(targetKey(plan));
+  return space?.subtitle || getWorkSpaceLabel(plan.targetType);
+}
+
+export function createWorkPlanSelectorSection({
   plans,
   activePlanId,
   plansLoading,
+  spacesByKey,
   onSelect,
 }: {
   plans: WorkPlan[];
   activePlanId: number | null;
   plansLoading: boolean;
+  spacesByKey?: ReadonlyMap<string, WorkTaskSpace>;
   onSelect: (plan: WorkPlan) => void;
-}): PageSurfaceBlockSpec {
+}): PageSurfaceSectionSpec {
   return {
     kind: "navigation" as const,
     key: "plan-list",
@@ -31,16 +60,22 @@ export function createWorkPlanSelectorBlock({
         getKey: (plan: WorkPlan) => plan.id,
         renderItem: (plan: WorkPlan) => ({
           title: plan.title,
-          subtitle: getWorkPeriodLabel(plan),
+          subtitle: `${getWorkPeriodLabel(plan)} · ${spaceSubtitleForPlan(plan, spacesByKey)}`,
           trailing: <span className="shrink-0 rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{plan.itemCount}</span>,
-          meta: [plan.ownerEmployeeName || "未设置负责人", plan.linkedProjectTaskName || plan.linkedProjectName || getWorkSourceTypeLabel(plan.sourceType)].filter(Boolean),
+          meta: [
+            <span key="kind" className="text-emerald-700">OKR</span>,
+            spaceLabelForPlan(plan, spacesByKey),
+            plan.ownerEmployeeName || "未设置负责人",
+            plan.linkedProjectTaskName || plan.linkedProjectName || getWorkSourceTypeLabel(plan.sourceType),
+          ].filter(Boolean) as ReactNode[],
+          archived: plan.status === "archived",
         }),
       },
     },
   };
 }
 
-export function createWorkPlanHeaderBlock(plan: WorkPlan): PageSurfaceBlockSpec {
+export function createWorkPlanHeaderSection(plan: WorkPlan): PageSurfaceSectionSpec {
   const source = plan.sourceType === "project"
     ? [plan.linkedProjectName, plan.linkedProjectPhaseName, plan.linkedProjectTaskName].filter(Boolean).join(" / ")
     : plan.sourceType === "meeting"
@@ -56,7 +91,7 @@ export function createWorkPlanHeaderBlock(plan: WorkPlan): PageSurfaceBlockSpec 
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">OKR 计划</span>
-            <span className="rounded bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">{plan.status === "closed" ? "已关闭" : plan.status === "archived" ? "已归档" : "进行中"}</span>
+            <span className={`rounded px-2 py-1 text-xs font-medium ${planStatusClassName(plan.status)}`}>{planStatusLabel(plan.status)}</span>
           </div>
           <div className="flex flex-wrap gap-3 text-sm text-slate-500">
             <span>{getWorkPeriodLabel(plan)}</span>

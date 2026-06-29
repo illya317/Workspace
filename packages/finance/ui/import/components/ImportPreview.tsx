@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createActionsBlock, createPageDataBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createActionsSection, createPageDataSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { PreviewAccount, PreviewBalance, PreviewResult, PreviewVoucher, PreviewVoucherItem } from "./types";
 interface ImportPreviewProps {
   preview: PreviewResult;
@@ -161,11 +161,10 @@ function PreviewDataTable<T>({
 }) {
   return <div className="mb-4">
       <div className="mb-2 text-sm font-semibold text-gray-700">{title}</div>
-      <PageSurface
-        kind="list"
+      <PageSurface kind="standard"
         embedded
         body={createPageBody([
-          createPageDataBlock("preview-data", {
+          createPageDataSection("preview-data", {
             kind: "table",
             rows,
             columns,
@@ -191,11 +190,10 @@ function VoucherPreview({
   }));
   const voucherColumns = createVoucherColumns();
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageDataBlock("voucher-preview", {
+        createPageDataSection("voucher-preview", {
           framed: true,
           title: voucher.voucherNo,
           subtitle: `${voucher.date}｜借 ${voucher.totalDebit.toFixed(2)} / 贷 ${voucher.totalCredit.toFixed(2)}`,
@@ -231,11 +229,10 @@ export default function ImportPreview({
   const balanceColumns = createBalanceColumns();
   return <div className="space-y-4">
       {preview.errors.length === 0 && (
-        <PageSurface
-          kind="list"
+        <PageSurface kind="standard"
           embedded
           body={createPageBody([
-            createActionsBlock("import-preview-actions", [{
+            createActionsSection("import-preview-actions", [{
               key: "confirm",
               label: importing ? "导入中..." : "确认导入",
               variant: "primary",

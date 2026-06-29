@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface } from "@workspace/core/ui";
+import { PageSurface, createPageBody } from "@workspace/core/ui";
 import type { QcBatchSummary } from "@workspace/production/server/qc";
 
 export interface QcBatchTableRow extends QcBatchSummary {
@@ -35,12 +35,9 @@ export function QcBatchTable({
   onDelete: (batch: QcBatchTableRow) => void;
 }) {
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
-      body={{
-        layout: "single",
-        blocks: [{
+      body={createPageBody([{
           kind: "data",
           key: "qc-batches",
           surface: {
@@ -65,8 +62,7 @@ export function QcBatchTable({
             emptyText: "暂无批次记录。",
             scroll: { x: true },
           },
-        }],
-      }}
+        }], { layout: "single" })}
       footer={{ pagination: { page, totalPages, total, onPageChange,  compact: true } }}
     />
   );

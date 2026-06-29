@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState } from "react";
-import { createPageBody, createPageTableBlock, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createPageBody, createPageTableSection, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { useContracts } from "./hooks/useContracts";
 import getContractFilterToolbarItems from "./components/ContractFilters";
@@ -116,8 +116,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
 
   return (
     <>
-      <PageSurface
-        kind="list"
+      <PageSurface kind="standard"
         toolbar={{
           items: [
             ...toolbarItems,
@@ -130,7 +129,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
           ],
         }}
         body={createPageBody([
-          createPageTableBlock<Contract>("contracts", {
+          createPageTableSection<Contract>("contracts", {
             framed: true,
 
 

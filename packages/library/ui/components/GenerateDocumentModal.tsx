@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useCallback } from "react";
-import { createFieldsBlock, createPageBody, createPageModalBlock, PageSurface } from "@workspace/core/ui";
+import { createFieldsSection, createPageBody, createPageModalSection, PageSurface } from "@workspace/core/ui";
 
 interface Source {
   key: string;
@@ -88,17 +88,16 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
   const statusMessage = error ?? (loadingSources ? "加载中..." : hasSources ? null : "暂无可用生成来源");
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageModalBlock("generate-document", {
+        createPageModalSection("generate-document", {
           open: true,
           title: "生成文档",
           onClose,
           size: "md",
-          blocks: [
-            createFieldsBlock("generate-document-form", [
+          sections: [
+            createFieldsSection("generate-document-form", [
               ...(statusMessage
                 ? [{
                     key: "status",

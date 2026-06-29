@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createInlineFieldsBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createInlineFieldsSection } from "@workspace/core/ui";
 
 interface Version {
   id: number;
@@ -28,11 +28,10 @@ export default function BudgetVersionSelector({ versions, activeVersionId, onCha
   }
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createInlineFieldsBlock("budget-version", [{
+        createInlineFieldsSection("budget-version", [{
           key: "version",
           label: "预算版本",
           spec: {

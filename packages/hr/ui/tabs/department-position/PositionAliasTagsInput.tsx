@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import {
   createPageBody,
   PageSurface,
-  createInlineFieldsBlock,
+  createInlineFieldsSection,
 } from "@workspace/core/ui";
 import { splitAliasText } from "./utils";
 
@@ -32,10 +32,9 @@ export default function PositionAliasTagsInput({
   }
 
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="detail"
-      body={createPageBody([createInlineFieldsBlock<string>("position-aliases", [{
+      body={createPageBody([createInlineFieldsSection<string>("position-aliases", [{
         kind: "tagList",
         key: "positionAliases",
         label: "",

@@ -1,4 +1,4 @@
-import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec } from "@workspace/core/ui";
 import type { Department, DepartmentPositionStats, Selection } from "./types";
 import {
   buildDepartmentNodeBlock,
@@ -38,7 +38,7 @@ export function useDepartmentPositionTreeRenderers({
     });
   }
 
-  function departmentNodeBlock(department: Department): PageSurfaceBlockSpec | null {
+  function departmentNodeBlock(department: Department): PageSurfaceSectionSpec | null {
     return buildDepartmentNodeBlock({
       department,
       departments,
@@ -52,7 +52,7 @@ export function useDepartmentPositionTreeRenderers({
     });
   }
 
-  function organizationBranchBlock(department: Department): PageSurfaceBlockSpec | null {
+  function organizationBranchBlock(department: Department): PageSurfaceSectionSpec | null {
     return buildOrganizationBranchBlock({
       department,
       departments,
@@ -63,7 +63,7 @@ export function useDepartmentPositionTreeRenderers({
     });
   }
 
-  function organizationRootBlock(department: Department): PageSurfaceBlockSpec | null {
+  function organizationRootBlock(department: Department): PageSurfaceSectionSpec | null {
     if (visibleDepartmentIds && !visibleDepartmentIds.has(department.id)) return null;
     return buildOrganizationRootBlock({
       department,

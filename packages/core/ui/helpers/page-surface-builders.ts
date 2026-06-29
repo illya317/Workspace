@@ -1,5 +1,4 @@
-import { createElement, type ReactNode, type Ref } from "react";
-import type { DataSurfaceProps, DataSurfaceTableProps } from "../DataSurface.types";
+import { createElement, type Ref } from "react";
 import type {
   BlockSurfaceActionsProps,
   BlockSurfaceAnalysisProps,
@@ -12,50 +11,54 @@ import type {
   BlockSurfacePanelProps,
   BlockSurfaceProps,
 } from "../BlockSurface";
+import type { DataSurfaceProps, DataSurfaceTableProps } from "../DataSurface.types";
 import type { DocumentSurfaceProps } from "../DocumentSurface";
 import type { FormSurfaceFieldModeProps, FormSurfaceLooseItem, FormSurfaceProps } from "../FormSurface.types";
+import type { NavigationSurfaceTabsSpec } from "../NavigationSurface";
 import type {
-  PageSurfaceBlockSpec,
   PageSurfaceBodySpec,
   PageSurfaceCommandSpec,
+  PageSurfaceCompleteBodySpec,
   PageSurfaceEmptySpec,
-  PageSurfaceHeaderSpec,
   PageSurfaceKind,
   PageSurfaceModalSpec,
   PageSurfaceNavigationSpec,
   PageSurfaceProps,
+  PageSurfaceSectionSpec,
   PageSurfaceToolbarSpec,
 } from "../PageSurface.types";
-import type { NavigationSurfaceTabsSpec } from "../NavigationSurface";
-import { PageSurfaceBlockGroupStack, PageSurfaceBlockStack } from "../internal/page/PageSurface.blocks";
+import { PageSurfaceSectionStack } from "../internal/page/PageSurface.sections";
 import type { VisualizationSurfaceProps } from "../VisualizationSurface";
 
-export type PageSurfaceBodyBlockSpec = Exclude<PageSurfaceBlockSpec, { kind: "modal" }>;
+export type PageSurfaceBodySectionSpec = Exclude<PageSurfaceSectionSpec, { kind: "modal" }>;
 
-type NestedPageBlocks = {
-  blocks: PageSurfaceBlockSpec[];
+type NestedPageSections = {
+  sections: PageSurfaceSectionSpec[];
+  layout?: "stack" | "grid";
 };
 
-type PageBlockPanelOptions = Omit<BlockSurfacePanelProps, "kind" | "key" | "content" | "blocks"> & NestedPageBlocks & {
-  itemRef?: Ref<HTMLDivElement>;
-};
+type PageSectionPanelOptions =
+  & Omit<BlockSurfacePanelProps, "kind" | "key" | "content" | "blocks" | "actions">
+  & NestedPageSections
+  & {
+    actions?: PageSurfaceCommandSpec[];
+    framed?: boolean;
+    itemRef?: Ref<HTMLDivElement>;
+  };
 
-type PageBlockSectionOptions = PageBlockPanelOptions & {
+type PageSectionCardOptions = PageSectionPanelOptions & {
   title: NonNullable<BlockSurfacePanelProps["title"]>;
 };
 
-type PageBlockAnalysisOptions = Omit<BlockSurfaceAnalysisProps, "kind" | "key" | "content" | "toolbarItems"> & NestedPageBlocks & {
-  toolbar?: PageSurfaceToolbarSpec;
-};
+type PageSectionAnalysisOptions =
+  & Omit<BlockSurfaceAnalysisProps, "kind" | "key" | "content" | "toolbarItems">
+  & NestedPageSections
+  & {
+    toolbar?: PageSurfaceToolbarSpec;
+  };
 
 export interface PageSurfaceShellPropsOptions {
-  kind?: Exclude<PageSurfaceKind, "split">;
-  title?: PageSurfaceHeaderSpec["title"];
-  backHref?: string;
-  backLabel?: PageSurfaceHeaderSpec["backLabel"];
-  header?: PageSurfaceHeaderSpec;
-  /** @deprecated Use body.blocks. */
-  blocks?: PageSurfaceBlockSpec[];
+  kind: PageSurfaceKind;
   body?: PageSurfaceBodySpec;
   toolbar?: PageSurfaceProps["toolbar"];
   navigation?: PageSurfaceProps["navigation"];
@@ -66,36 +69,30 @@ export interface PageSurfaceShellPropsOptions {
 }
 
 export function createPageBody(
-  blocks: PageSurfaceBlockSpec[],
-  options: Omit<PageSurfaceBodySpec, "blocks"> = {},
-): PageSurfaceBodySpec {
-  return { ...options, blocks };
+  sections: PageSurfaceSectionSpec[],
+  options: Omit<PageSurfaceCompleteBodySpec, "kind" | "sections"> = {},
+): PageSurfaceCompleteBodySpec & { sections: PageSurfaceSectionSpec[] } {
+  return { kind: "complete", ...options, sections };
 }
 
-export function createPageTabsNavigation({
-  level = 1,
-  ...navigation
-}: Omit<PageSurfaceNavigationSpec, "kind" | "level"> & {
-  level?: PageSurfaceNavigationSpec["level"];
-}): PageSurfaceNavigationSpec {
+export function createPageTabsNavigation(
+  navigation: Omit<PageSurfaceNavigationSpec, "kind">,
+): PageSurfaceNavigationSpec {
   return {
     kind: "tabs",
-    level,
     ...navigation,
   };
 }
 
-export function createTabsNavigationBlock(
+export function createTabsNavigationSection(
   key: string,
   tabs: NavigationSurfaceTabsSpec,
-  options: { label?: ReactNode } = {},
-): Extract<PageSurfaceBlockSpec, { kind: "navigation" }> {
+): Extract<PageSurfaceSectionSpec, { kind: "navigation" }> {
   return {
     kind: "navigation",
     key,
     surface: {
       kind: "tabs",
-      label: options.label,
       tabs,
     },
   };
@@ -105,190 +102,176 @@ export function createPageCommand(command: PageSurfaceCommandSpec): PageSurfaceC
   return command;
 }
 
-export function createPageActionsBlock(
+export function createPageActionsSection(
   key: string,
   actions: BlockSurfaceCommandSpec[],
   options: Omit<BlockSurfaceActionsProps, "kind" | "key" | "actions"> = {},
-): Extract<PageSurfaceBlockSpec, { kind: "block" }> {
-  return createActionsBlock(key, actions, options);
+): Extract<PageSurfaceSectionSpec, { kind: "block" }> {
+  return createActionsSection(key, actions, options);
 }
 
-export function createPageDataBlock<T>(
+export function createPageDataSection<T>(
   key: string,
   surface: DataSurfaceProps<T>,
-): Extract<PageSurfaceBlockSpec, { kind: "data" }> {
+): Extract<PageSurfaceSectionSpec, { kind: "data" }> {
   return { kind: "data", key, surface };
 }
 
-export function createPageTableBlock<T>(
+export function createPageTableSection<T>(
   key: string,
   table: Omit<DataSurfaceTableProps<T>, "kind">,
-): Extract<PageSurfaceBlockSpec, { kind: "data" }> {
-  return createPageDataBlock<T>(key, { kind: "table", ...table });
+): Extract<PageSurfaceSectionSpec, { kind: "data" }> {
+  return createPageDataSection<T>(key, { kind: "table", ...table });
 }
 
-export function createFormBlock<T = FormSurfaceLooseItem>(
+export function createFormSection<T = FormSurfaceLooseItem>(
   key: string,
   surface: FormSurfaceProps<T>,
-): Extract<PageSurfaceBlockSpec, { kind: "form" }> {
+): Extract<PageSurfaceSectionSpec, { kind: "form" }> {
   return { kind: "form", key, surface };
 }
 
-export function createFieldsBlock<T = FormSurfaceLooseItem>(
+export function createFieldsSection<T = FormSurfaceLooseItem>(
   key: string,
   fields: FormSurfaceFieldModeProps<T>["fields"],
   options: Omit<FormSurfaceFieldModeProps<T>, "kind" | "fields"> & { kind?: "fields" | "detail" } = {},
-): Extract<PageSurfaceBlockSpec, { kind: "form" }> {
+): Extract<PageSurfaceSectionSpec, { kind: "form" }> {
   const { kind = "fields", ...rest } = options;
-  return createFormBlock<T>(key, { kind, fields, ...rest });
+  return createFormSection<T>(key, { kind, fields, ...rest });
 }
 
-export function createInlineFieldsBlock<T = FormSurfaceLooseItem>(
+export function createInlineFieldsSection<T = FormSurfaceLooseItem>(
   key: string,
   fields: FormSurfaceFieldModeProps<T>["fields"],
   options: Omit<FormSurfaceFieldModeProps<T>, "kind" | "fields"> & { kind?: "inline" | "filters" } = {},
-): Extract<PageSurfaceBlockSpec, { kind: "form" }> {
+): Extract<PageSurfaceSectionSpec, { kind: "form" }> {
   const { kind = "inline", ...rest } = options;
-  return createFormBlock<T>(key, { kind, fields, ...rest });
+  return createFormSection<T>(key, { kind, fields, ...rest });
 }
 
-export function createDocumentBlock(
+export function createDocumentSection(
   key: string,
   surface: DocumentSurfaceProps,
-): Extract<PageSurfaceBlockSpec, { kind: "document" }> {
+): Extract<PageSurfaceSectionSpec, { kind: "document" }> {
   return { kind: "document", key, surface };
 }
 
-export function createVisualizationBlock(
+export function createVisualizationSection(
   key: string,
   surface: VisualizationSurfaceProps,
-): Extract<PageSurfaceBlockSpec, { kind: "visualization" }> {
+): Extract<PageSurfaceSectionSpec, { kind: "visualization" }> {
   return { kind: "visualization", key, surface };
 }
 
-export function createBlockSurfaceBlock(
+export function createBlockSurfaceSection(
   key: string,
   surface: BlockSurfaceProps,
-): Extract<PageSurfaceBlockSpec, { kind: "block" }> {
+): Extract<PageSurfaceSectionSpec, { kind: "block" }> {
   return { kind: "block", key, surface };
 }
 
-export function createMessageBlock(
+export function createMessageSection(
   key: string,
   message: Omit<BlockSurfaceMessageProps, "kind" | "key">,
-): Extract<PageSurfaceBlockSpec, { kind: "block" }> {
-  return createBlockSurfaceBlock(key, { kind: "message", ...message });
+): Extract<PageSurfaceSectionSpec, { kind: "block" }> {
+  return createBlockSurfaceSection(key, { kind: "message", ...message });
 }
 
-export function createEmptyBlock(
+export function createEmptySection(
   key: string,
   empty: Omit<BlockSurfaceEmptyProps, "kind" | "key">,
-): Extract<PageSurfaceBlockSpec, { kind: "block" }> {
-  return createBlockSurfaceBlock(key, { kind: "empty", ...empty });
+): Extract<PageSurfaceSectionSpec, { kind: "block" }> {
+  return createBlockSurfaceSection(key, { kind: "empty", ...empty });
 }
 
-export function createActionsBlock(
+export function createActionsSection(
   key: string,
   actions: BlockSurfaceActionsProps["actions"],
   options: Omit<BlockSurfaceActionsProps, "kind" | "key" | "actions"> = {},
-): Extract<PageSurfaceBlockSpec, { kind: "block" }> {
-  return createBlockSurfaceBlock(key, { kind: "actions", actions, ...options });
+): Extract<PageSurfaceSectionSpec, { kind: "block" }> {
+  return createBlockSurfaceSection(key, { kind: "actions", actions, ...options });
 }
 
-export function createHeadingBlock(
+export function createHeadingSection(
   key: string,
   heading: Omit<BlockSurfaceHeadingProps, "kind" | "key">,
-): Extract<PageSurfaceBlockSpec, { kind: "block" }> {
-  return createBlockSurfaceBlock(key, { kind: "heading", ...heading });
+): Extract<PageSurfaceSectionSpec, { kind: "block" }> {
+  return createBlockSurfaceSection(key, { kind: "heading", ...heading });
 }
 
-export function createGroupBlock(
+export function createSectionsSection(
   key: string,
-  group: Omit<BlockSurfaceGroupProps, "kind" | "key" | "blocks"> & { blocks: PageSurfaceBlockSpec[] },
-): Extract<PageSurfaceBlockSpec, { kind: "block" }> {
-  const { blocks, layout } = group;
-  return createBlockSurfaceBlock(key, {
-    kind: "content",
-    content: createElement(PageSurfaceBlockGroupStack, {
-      blocks,
-      layout,
-    }),
-  });
+  group: Omit<BlockSurfaceGroupProps, "kind" | "key" | "blocks"> & NestedPageSections,
+): Extract<PageSurfaceSectionSpec, { kind: "sections" }> {
+  const { layout = "stack", sections } = group;
+  return { kind: "sections", key, layout, sections };
 }
 
-function nestedBlockContent(blocks?: PageSurfaceBlockSpec[]) {
-  return blocks?.length ? createElement(PageSurfaceBlockStack, { blocks }) : undefined;
+function nestedSectionContent(sections?: PageSurfaceSectionSpec[], layout?: "stack" | "grid") {
+  return sections?.length ? createElement(PageSurfaceSectionStack, { sections, layout }) : undefined;
 }
 
-export function createPanelBlock(
+export function createPanelSection(
   key: string,
-  panel: PageBlockPanelOptions,
-): Extract<PageSurfaceBlockSpec, { kind: "block" }> {
-  const { blocks, ...rest } = panel;
-  return createBlockSurfaceBlock(key, {
-    kind: "panel",
-    ...(rest as Omit<BlockSurfacePanelProps, "kind" | "key">),
-    content: nestedBlockContent(blocks),
-  });
+  panel: PageSectionPanelOptions,
+): Extract<PageSurfaceSectionSpec, { kind: "sections" }> {
+  const { actions, framed, layout = "stack", sections, subtitle, title } = panel;
+  return {
+    kind: "sections",
+    key,
+    label: title,
+    framed,
+    layout,
+    header: { title, subtitle, actions },
+    sections,
+  };
 }
 
-export function createAnalysisBlock(
+export function createAnalysisSection(
   key: string,
-  analysis: PageBlockAnalysisOptions,
-): Extract<PageSurfaceBlockSpec, { kind: "block" }> {
-  const { blocks, toolbar, ...rest } = analysis;
-  return createBlockSurfaceBlock(key, {
+  analysis: PageSectionAnalysisOptions,
+): Extract<PageSurfaceSectionSpec, { kind: "block" }> {
+  const { layout, sections, toolbar, ...rest } = analysis;
+  return createBlockSurfaceSection(key, {
     kind: "analysis",
     ...(rest as Omit<BlockSurfaceAnalysisProps, "kind" | "key">),
     toolbarItems: toolbar?.items,
-    content: nestedBlockContent(blocks),
+    content: nestedSectionContent(sections, layout),
   });
 }
 
-export function createSectionBlock(
+export function createSectionSection(
   key: string,
-  section: PageBlockSectionOptions,
-): Extract<PageSurfaceBlockSpec, { kind: "block" }> {
-  const { blocks, ...rest } = section;
-  return createBlockSurfaceBlock(key, {
-    kind: "section",
-    ...(rest as Omit<BlockSurfacePanelProps, "kind" | "key">),
-    content: nestedBlockContent(blocks),
-  });
+  section: PageSectionCardOptions,
+): Extract<PageSurfaceSectionSpec, { kind: "sections" }> {
+  return createPanelSection(key, section);
 }
 
-export function createModuleGridBlock(
+export function createModuleGridSection(
   key: string,
   moduleGrid: Omit<BlockSurfaceModuleGridProps, "kind" | "key">,
-): Extract<PageSurfaceBlockSpec, { kind: "block" }> {
-  return createBlockSurfaceBlock(key, { kind: "moduleGrid", ...moduleGrid });
+): Extract<PageSurfaceSectionSpec, { kind: "block" }> {
+  return createBlockSurfaceSection(key, { kind: "moduleGrid", ...moduleGrid });
 }
 
-export function createPageModalBlock(
+export function createPageModalSection(
   key: string,
   modal: Omit<PageSurfaceModalSpec, "key">,
-): Extract<PageSurfaceBlockSpec, { kind: "modal" }> {
+): Extract<PageSurfaceSectionSpec, { kind: "modal" }> {
   return { kind: "modal", key, ...modal };
 }
 
 export function createPageSurfaceProps(options: PageSurfaceShellPropsOptions): PageSurfaceProps {
   const {
-    kind = "list",
-    title,
-    backHref,
-    backLabel,
-    header,
-    blocks,
+    kind,
     body,
     actions,
     empty,
     ...rest
   } = options;
-  const resolvedBody = body ?? (blocks || actions || empty ? { blocks, commands: actions, empty } : undefined);
   return {
     kind,
-    header: header ?? (title || backHref ? { title, backHref, backLabel } : undefined),
-    body: resolvedBody,
+    body: body ?? (actions || empty ? createPageBody([], { commands: actions, empty }) : undefined),
     ...rest,
   } as PageSurfaceProps;
 }

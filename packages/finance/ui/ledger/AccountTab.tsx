@@ -2,8 +2,8 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PageSurface, createBlockSurfaceBlock, useFeedback } from "@workspace/core/ui";
-import type { PageSurfaceBlockSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceSection, useFeedback } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { getAccountColumns, type Account } from "../components/AccountTable";
 import ReclassConfigView from "../components/ReclassConfigView";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
@@ -17,7 +17,7 @@ export default function AccountTab({
 }: {
   canWrite: boolean;
   navigation?: PageSurfaceNavigationSpec;
-  lifecycleBlocks?: PageSurfaceBlockSpec[];
+  lifecycleBlocks?: PageSurfaceSectionSpec[];
 }) {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
@@ -152,14 +152,14 @@ export default function AccountTab({
   });
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       navigation={navigation}
       toolbar={{ items: toolbarItems }}
       body={{
-        blocks: reclassMode ? [
+        kind: "complete",
+        sections: reclassMode ? [
           ...lifecycleBlocks,
-          createBlockSurfaceBlock("account-reclass-content", {
+          createBlockSurfaceSection("account-reclass-content", {
             kind: "content",
             content: companyFilter && yearFilter ? (
               <ReclassConfigView companyCode={companyFilter} year={yearFilter} keyword={keyword} statusFilter={reclassStatus} pageSize={pageSize} canWrite={canWrite} onStats={setReclassStats} />
@@ -170,7 +170,7 @@ export default function AccountTab({
         ] : lifecycleBlocks,
         ...(!reclassMode ? {
           layout: "single" as const,
-          blocks: [
+          sections: [
             ...lifecycleBlocks,
             {
               kind: "data" as const,

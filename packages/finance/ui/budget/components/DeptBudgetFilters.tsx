@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createInlineFieldsBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createInlineFieldsSection } from "@workspace/core/ui";
 interface DeptBudgetFiltersProps {
   deptFilter: string;
   setDeptFilter: (v: string) => void;
@@ -29,11 +29,10 @@ export default function DeptBudgetFilters({
 }: DeptBudgetFiltersProps) {
   const hasFilters = Boolean(deptFilter || typeFilter || accountFilter);
   return <>
-      <PageSurface
-        kind="list"
+      <PageSurface kind="standard"
         embedded
         body={createPageBody([
-          createInlineFieldsBlock("dept-budget-filters", [
+          createInlineFieldsSection("dept-budget-filters", [
             {
               key: "dept",
               label: "部门",

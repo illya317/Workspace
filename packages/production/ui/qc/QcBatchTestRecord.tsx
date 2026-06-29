@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createHeadingBlock, createMessageBlock, createPageBody, type FormSurfaceCommandSpec, PageSurface } from "@workspace/core/ui";
+import { createHeadingSection, createMessageSection, createPageBody, type FormSurfaceCommandSpec, PageSurface } from "@workspace/core/ui";
 import type { QcBatchSummary, QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcLayoutPaper from "./QcLayoutPaper";
@@ -132,8 +132,7 @@ export default function QcBatchTestRecord({
       href: `/production/qc-batches/${batch.id}/${stage.key}/${item.englishName}`,
     })),
   ];
-  return <PageSurface
-    kind="detail"
+  return <PageSurface kind="standard"
     embedded
     body={createPageBody([
       {
@@ -147,7 +146,7 @@ export default function QcBatchTestRecord({
           steps: recordSteps,
         },
       },
-      createHeadingBlock("test-heading", {
+      createHeadingSection("test-heading", {
 
         title: `${productName}${stage.label} - ${test.name}`,
         subtitle: `批号 ${batch.batchNumber} · ${workflowMessage}`,
@@ -174,7 +173,7 @@ export default function QcBatchTestRecord({
           actions: recordActions,
         },
       }] : []),
-      ...(saveState === "saved" || saveState === "error" ? [createMessageBlock("test-save-status", {
+      ...(saveState === "saved" || saveState === "error" ? [createMessageSection("test-save-status", {
 
         tone: saveState === "saved" ? "success" as const : "danger" as const,
         content: statusText || (saveState === "saved" ? "已保存" : "操作失败"),

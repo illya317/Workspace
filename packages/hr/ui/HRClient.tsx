@@ -2,7 +2,7 @@
 
 import { useDeferredValue, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { createBlockSurfaceBlock, createPageBody, createPageTabsNavigation, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createPageBody, createPageTabsNavigation, PageSurface, useFeedback } from "@workspace/core/ui";
 import { type SurfaceNavigationTabSpec } from "@workspace/core/ui";
 import { getPageViewTabsForUser } from "@workspace/platform/view-registry";
 
@@ -172,10 +172,9 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
   }
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       navigation={surface.navigation}
-      body={createPageBody([createBlockSurfaceBlock("empty", {
+      body={createPageBody([createBlockSurfaceSection("empty", {
         kind: "message",
         content: "暂无可用视图",
         tone: "muted"

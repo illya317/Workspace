@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { createPageBody, createPageTableBlock, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createPageTableSection, PageSurface } from "@workspace/core/ui";
 import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { LibraryDocumentItem } from "@workspace/library/types";
 import LibraryDetailModal from "./LibraryDetailModal";
@@ -102,11 +102,10 @@ export default function LibraryTable({
 
   return (
     <>
-      <PageSurface
-        kind="list"
+      <PageSurface kind="standard"
         embedded
         body={createPageBody([
-          createPageTableBlock<LibraryDocumentItem>("library-documents", {
+          createPageTableSection<LibraryDocumentItem>("library-documents", {
             framed: true,
 
             rows: documents,

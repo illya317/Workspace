@@ -27,7 +27,7 @@ export {
 } from "./resources";
 export {
   getAccessibleModules,
-  getEmptyMessage,
+  getModuleEmptyMessage,
   getSubModules,
   MODULES,
 } from "./module-nav";

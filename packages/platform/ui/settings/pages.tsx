@@ -6,6 +6,7 @@ import SettingsApiClient from "./SettingsApiClient";
 import UiComponentsShowcase from "@workspace/core/showcase/UiComponentsShowcase";
 import { getCoreUiRegistryUsageRows } from "@workspace/platform/server/ui-registry";
 import { type ApiAccessModuleRow } from "./ApiAccessClient";
+import ModuleHomePage from "../ModuleHomePage";
 
 function buildApiAccessModules(): ApiAccessModuleRow[] {
   const modules: ApiAccessModuleRow[] = activeModuleDefinitions
@@ -31,12 +32,16 @@ function buildApiAccessModules(): ApiAccessModuleRow[] {
   return modules;
 }
 
+export function SettingsHomePage() {
+  return ModuleHomePage({ moduleKey: "settings" });
+}
+
 export function SettingsAccountPage({ user }: { user: SessionUser }) {
   return renderAppShellPage({
     title: "账号与接入",
     backHref: "/settings",
     user,
-    children: <SettingsClient user={user} hideShell view="account" apiAccessModules={buildApiAccessModules()} />,
+    children: <SettingsClient user={user} hideShell apiAccessModules={buildApiAccessModules()} />,
   });
 }
 

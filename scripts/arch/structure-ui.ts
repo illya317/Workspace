@@ -83,6 +83,7 @@ const UI_PATTERN_RULES: Array<{ name: string; regex: RegExp }> = [
 
 const PLATFORM_SYSTEM_SHELL_PAGE_DESIGN_FILES = new Set([
   "packages/platform/ui/AppShell.tsx",
+  "packages/platform/ui/LoginClient.tsx",
   "packages/platform/ui/UserMenu.tsx",
 ]);
 

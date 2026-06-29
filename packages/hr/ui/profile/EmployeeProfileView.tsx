@@ -4,7 +4,7 @@ import type { Dispatch, SetStateAction } from "react";
 import {
   createPageBody,
   createPageTabsNavigation,
-  createMessageBlock,
+  createMessageSection,
   PageSurface,
   type PageSurfaceCommandSpec,
 } from "@workspace/core/ui";
@@ -183,7 +183,7 @@ export default function EmployeeProfileView({
     sectionShellBlock({
       title: null,
       className: sectionCardClassName,
-      blocks: groupedFieldBlocks(employeeFieldGroups, employeeDraft as unknown as EditableRecord, !canEdit, onEmployeeFieldChange),
+      sections: groupedFieldBlocks(employeeFieldGroups, employeeDraft as unknown as EditableRecord, !canEdit, onEmployeeFieldChange),
     }),
   ] : [];
   const activeSectionBlocks =
@@ -198,8 +198,7 @@ export default function EmployeeProfileView({
           : historySectionBlocks;
 
   return (
-    <PageSurface
-      kind="detail"
+    <PageSurface kind="standard"
       navigation={ready ? createPageTabsNavigation({
         items: profileTabs,
         active: activeSection,
@@ -207,8 +206,8 @@ export default function EmployeeProfileView({
       }) : undefined}
       body={createPageBody(
         ready ? [
-          ...(error ? [createMessageBlock("error", { tone: "danger" as const, content: error })] : []),
-          ...(message ? [createMessageBlock("message", { content: message })] : []),
+          ...(error ? [createMessageSection("error", { tone: "danger" as const, content: error })] : []),
+          ...(message ? [createMessageSection("message", { content: message })] : []),
           ...activeSectionBlocks,
         ] : [],
         {

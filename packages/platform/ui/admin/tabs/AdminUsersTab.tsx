@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo } from "react";
 import { matchSearchFields, matchText } from "@workspace/platform/search";
-import { createBlockSurfaceBlock, createFieldsBlock, createPageBody, type DataSurfaceColumnSpec, PageSurface, type PageSurfaceBlockSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createFieldsSection, createPageBody, type DataSurfaceColumnSpec, PageSurface, type PageSurfaceSectionSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
 import type { ResourceItem } from "../types";
 import { formatSummaryTooltip, ROLE_COLORS, summarizeResourcePermissions, type PermissionGrantLike } from "../lib/permission-summary";
 function copyFallback(text: string) {
@@ -301,9 +301,9 @@ export default function AdminUsersTab({
     return () => onFooterChange(undefined);
   }, [footer, onFooterChange]);
 
-  const blocks: PageSurfaceBlockSpec[] = [
+  const sections: PageSurfaceSectionSpec[] = [
     ...(creating
-      ? [createFieldsBlock("create-user", [
+      ? [createFieldsSection("create-user", [
             {
               key: "nickname",
               label: "昵称",
@@ -340,7 +340,7 @@ export default function AdminUsersTab({
             ],
           })]
       : []),
-    loading ? createBlockSurfaceBlock("loading", {
+    loading ? createBlockSurfaceSection("loading", {
       kind: "message",
       tone: "muted",
       content: "加载中..."
@@ -360,10 +360,9 @@ export default function AdminUsersTab({
   ];
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
-      body={createPageBody(blocks)}
+      body={createPageBody(sections)}
     />
   );
 }

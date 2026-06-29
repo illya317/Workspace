@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec } from "@workspace/core/ui";
 import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 import { ArchivedDepartmentPositionPage } from "./archive-browser";
 import { useDepartmentDetailPaneBlock } from "./department-detail-pane";
@@ -54,8 +54,8 @@ export function useDepartmentPositionViewRenderers(props: {
   positionNames: Set<string>;
   positions: Position[];
   positionsByDepartment: Map<number, Position[]>;
-  departmentNodeBlock: (department: Department) => PageSurfaceBlockSpec | null;
-  organizationRootBlock: (department: Department) => PageSurfaceBlockSpec | null;
+  departmentNodeBlock: (department: Department) => PageSurfaceSectionSpec | null;
+  organizationRootBlock: (department: Department) => PageSurfaceSectionSpec | null;
   rootDepartments: Department[];
   saving: boolean;
   search: string;
@@ -174,7 +174,7 @@ export function useDepartmentPositionViewRenderers(props: {
   });
   const detailBlocks = [detailPaneBlock];
 
-  function treePanelBlocks(mode: "desktop" | "drawer"): PageSurfaceBlockSpec[] {
+  function treePanelBlocks(mode: "desktop" | "drawer"): PageSurfaceSectionSpec[] {
     return [
       buildDepartmentTreePanelBlock({
         mode,
@@ -191,7 +191,7 @@ export function useDepartmentPositionViewRenderers(props: {
     ];
   }
 
-  function organizationRootPanelBlocks(mode: "desktop" | "drawer"): PageSurfaceBlockSpec[] {
+  function organizationRootPanelBlocks(mode: "desktop" | "drawer"): PageSurfaceSectionSpec[] {
     return [
       buildOrganizationRootPanelBlock({
         mode,
@@ -217,7 +217,7 @@ export function useDepartmentPositionViewRenderers(props: {
         onSideOpenChange={props.onSideOpenChange}
         onDrawerOpenChange={props.onDrawerOpenChange}
         onSelect={props.onSelect}
-        blocks={detailBlocks}
+        sections={detailBlocks}
         surface={surface}
       />
     );

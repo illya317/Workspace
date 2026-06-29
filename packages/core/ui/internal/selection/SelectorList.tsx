@@ -58,9 +58,9 @@ export function SelectorList<T>({
     return (
       <div className={className}>
         {nonEmptyGroups.map((group) => (
-          <div key={group} className="space-y-2">
+          <div key={group} className="space-y-2 pt-1.5 first:pt-0">
             {group && (
-              <div className="px-1 text-xs font-semibold text-slate-500">{group}</div>
+              <div className="px-1 pb-0.5 text-xs font-semibold leading-5 text-slate-500">{group}</div>
             )}
             <ItemList
               items={groups.get(group)!}

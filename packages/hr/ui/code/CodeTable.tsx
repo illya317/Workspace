@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import type { KeyboardEvent } from "react";
 import { useEffect, useState } from "react";
-import { PageSurface, type DataSurfaceColumnSpec, type DataSurfaceCommandSpec } from "@workspace/core/ui";
+import { PageSurface, createPageBody, type DataSurfaceColumnSpec, type DataSurfaceCommandSpec } from "@workspace/core/ui";
 import PersonListModal from "./components/PersonListModal";
 import PositionDeptModal from "./components/PositionDeptModal";
 import { hrCanEdit, type HRUser as User } from "@workspace/hr/types";
@@ -297,12 +297,9 @@ export default function CodeTable({
     }
   }];
   return <>
-      <PageSurface
-        kind="list"
+      <PageSurface kind="standard"
         embedded
-        body={{
-          layout: "single",
-          blocks: [{
+        body={createPageBody([{
             kind: "data",
             key: "code-table",
             surface: {
@@ -325,8 +322,7 @@ export default function CodeTable({
                 return selectedCode === row.item.code ? "selected" : "normal";
               },
             },
-          }],
-        }}
+          }], { layout: "single" })}
       />
 
       <PersonListModal detailModal={detailModal} setDetailModal={setDetailModal} getDetailList={getDetailList} />

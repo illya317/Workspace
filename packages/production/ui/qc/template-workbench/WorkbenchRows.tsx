@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { matchText } from "@workspace/core/search";
-import { createPageBody, createPageTableBlock, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createPageTableSection, PageSurface } from "@workspace/core/ui";
 import type { QcTemplateDetail, QcTemplateFeedbackState, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 import {
   feedbackContext,
@@ -170,11 +170,10 @@ export default function StageRows({
   ];
 
   return (
-    <PageSurface
-      kind="detail"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageTableBlock<TemplateDisplayRow>("qc-template-stage-rows", {
+        createPageTableSection<TemplateDisplayRow>("qc-template-stage-rows", {
           framed: true,
           title: (
             <span className="flex min-w-0 items-center gap-3">

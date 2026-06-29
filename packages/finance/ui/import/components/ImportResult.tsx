@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createPageDataBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPageDataSection } from "@workspace/core/ui";
 
 interface ImportResultProps {
   success: boolean;
@@ -9,11 +9,10 @@ interface ImportResultProps {
 
 export default function ImportResult({ success, message }: ImportResultProps) {
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageDataBlock("import-result", {
+        createPageDataSection("import-result", {
           kind: "metrics",
           framed: true,
 

@@ -26,8 +26,7 @@ export default function GmpDetailClient({
   }, [code]);
   if (loading || error || !pos) {
     return (
-      <PageSurface
-        kind="detail"
+      <PageSurface kind="standard"
         body={createPageBody([], { empty: { content: loading ? "加载中..." : error || "未找到" }, commands: loading ? undefined : [{ key: "back", label: "返回列表", onClick: () => router.push("/docs/positions") }] })}
       />
     );

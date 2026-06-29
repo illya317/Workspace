@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createFieldsBlock, createPageModalBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createFieldsSection, createPageModalSection } from "@workspace/core/ui";
 import type { Employee, CodeItem } from "@workspace/hr/types";
 
 interface PersonListModalProps {
@@ -22,16 +22,15 @@ export default function PersonListModal({
     : [];
 
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="detail"
       body={createPageBody([
-        createPageModalBlock("person-list", {
+        createPageModalSection("person-list", {
           open: !!detailModal?.open,
           title: `${detailModal?.name || ""} — 人员名单`,
           onClose: () => setDetailModal(null),
-          blocks: [
-            createFieldsBlock("person-list-form", list.length === 0 ? [{
+          sections: [
+            createFieldsSection("person-list-form", list.length === 0 ? [{
               kind: "note",
               key: "empty",
               content: "暂无人员",

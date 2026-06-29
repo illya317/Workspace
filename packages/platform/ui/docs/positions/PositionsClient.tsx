@@ -4,7 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { matchText } from "@workspace/core/search";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createBlockSurfaceBlock, createPageBody, createSectionBlock, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createPageBody, createSectionSection, PageSurface, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 
 interface TreeNode {
@@ -103,7 +103,7 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
     router.push(`/docs/positions/${code}`);
   }
 
-  const sideBlocks: PageSurfaceBlockSpec[] = [{
+  const sideBlocks: PageSurfaceSectionSpec[] = [{
     kind: "navigation",
     key: "departments",
     surface: {
@@ -128,14 +128,14 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
     },
   }];
 
-  const mainBlocks: PageSurfaceBlockSpec[] = !selectedNode ? [createBlockSurfaceBlock("empty", {
+  const mainBlocks: PageSurfaceSectionSpec[] = !selectedNode ? [createBlockSurfaceSection("empty", {
     kind: "empty",
     content: "选择左侧部门查看直属岗位"
-  })] : [createSectionBlock("positions", {
+  })] : [createSectionSection("positions", {
     title: `直属岗位 · ${selectedNode.name}`,
     subtitle: `${directPositions.length} 个`,
 
-    blocks: [{
+    sections: [{
       kind: "navigation",
       key: "position-list",
       surface: {
@@ -157,15 +157,17 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
   })];
 
   return (
-    <PageSurface
-      kind="split"
-      sideOpen={sideOpen}
-      drawerOpen={drawerOpen}
-      onSideOpenChange={setSideOpen}
-      onDrawerOpenChange={setDrawerOpen}
-      sideLabel="部门目录"
-      side={{ blocks: sideBlocks }}
-      body={createPageBody(mainBlocks)}
+    <PageSurface kind="standard"
+      body={{
+        kind: "split",
+        left: { sections: createPageBody(sideBlocks).sections },
+        right: createPageBody(mainBlocks),
+        sideOpen,
+        drawerOpen,
+        onSideOpenChange: setSideOpen,
+        onDrawerOpenChange: setDrawerOpen,
+        sideLabel: "部门目录",
+      }}
     />
   );
 }

@@ -3,8 +3,8 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createBlockSurfaceBlock, PageSurface, createPageDataBlock, createPageTableBlock } from "@workspace/core/ui";
-import type { DataSurfaceColumnSpec, PageSurfaceBlockSpec, SurfaceToolbarItem, SurfaceToolbarItems } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createPageBody, PageSurface, createPageDataSection, createPageTableSection } from "@workspace/core/ui";
+import type { DataSurfaceColumnSpec, PageSurfaceSectionSpec, SurfaceToolbarItem, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useReviewFilterToolbarItems } from "./ReviewFilters";
 import type { RvLine } from "@workspace/finance/types";
 
@@ -268,9 +268,9 @@ export default function ReviewClient() {
     onLoad: loadWp,
     extraItems: wp ? reviewItems : [],
   });
-  const reviewBlocks: PageSurfaceBlockSpec[] = rv?.status === "confirmed" && !rv.isStale
+  const reviewBlocks: PageSurfaceSectionSpec[] = rv?.status === "confirmed" && !rv.isStale
     ? [
-        createBlockSurfaceBlock("confirmed", {
+        createBlockSurfaceSection("confirmed", {
           kind: "message",
           tone: "success",
           content: "校对已确认"
@@ -290,10 +290,10 @@ export default function ReviewClient() {
         },
       ]
     : [];
-  const alertBlocks: PageSurfaceBlockSpec[] = [
-    ...(error ? [createPageDataBlock("review-error", { kind: "records", records: [], empty: error })] : []),
-    ...(rv?.isStale ? [createPageDataBlock("review-stale", { kind: "records", records: [], empty: "底稿已更新，当前校对为旧快照；请点击「重新生成校对」更新校对。" })] : []),
-    ...(hasFlaggedWithoutComment ? [createPageDataBlock("review-flagged-without-comment", { kind: "records", records: [], empty: "存在已标记(flagged)但未填写备注的行，请点击备注列填写标记原因。" })] : []),
+  const alertBlocks: PageSurfaceSectionSpec[] = [
+    ...(error ? [createPageDataSection("review-error", { kind: "records", records: [], empty: error })] : []),
+    ...(rv?.isStale ? [createPageDataSection("review-stale", { kind: "records", records: [], empty: "底稿已更新，当前校对为旧快照；请点击「重新生成校对」更新校对。" })] : []),
+    ...(hasFlaggedWithoutComment ? [createPageDataSection("review-flagged-without-comment", { kind: "records", records: [], empty: "存在已标记(flagged)但未填写备注的行，请点击备注列填写标记原因。" })] : []),
   ];
   const reviewColumns: DataSurfaceColumnSpec<RvLine>[] = [{
     key: "label",
@@ -422,12 +422,12 @@ export default function ReviewClient() {
       };
     },
   }];
-  const bodyBlocks: PageSurfaceBlockSpec[] = [
+  const bodyBlocks: PageSurfaceSectionSpec[] = [
     ...reviewBlocks,
     ...alertBlocks,
     ...(rv
       ? [
-          createPageTableBlock<RvLine>("review-lines", {
+          createPageTableSection<RvLine>("review-lines", {
             framed: true,
 
 
@@ -444,17 +444,14 @@ export default function ReviewClient() {
           }),
         ]
       : []),
-    ...(!wp && !loading ? [createPageDataBlock("review-empty", { kind: "records", records: [], empty: "选择筛选条件后点击「读取底稿」" })] : []),
-    ...(loading ? [createPageDataBlock("review-loading", { kind: "records", records: [], empty: "加载中..." })] : []),
+    ...(!wp && !loading ? [createPageDataSection("review-empty", { kind: "records", records: [], empty: "选择筛选条件后点击「读取底稿」" })] : []),
+    ...(loading ? [createPageDataSection("review-loading", { kind: "records", records: [], empty: "加载中..." })] : []),
   ];
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       toolbar={{ items: toolbarItems }}
-      body={{
-        blocks: bodyBlocks,
-      }}
+      body={createPageBody(bodyBlocks)}
     />
   );
 }

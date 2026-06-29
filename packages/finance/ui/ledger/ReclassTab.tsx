@@ -2,8 +2,8 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState } from "react";
-import { PageSurface, createPageDataBlock, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
-import type { PageSurfaceBlockSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import { PageSurface, createPageBody, createPageDataSection, createPageTableSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { useCSV } from "@workspace/core/hooks";
 import { formatFinanceAmount } from "../formatters";
@@ -22,7 +22,7 @@ export default function ReclassTab({
   lifecycleBlocks = [],
 }: {
   navigation?: PageSurfaceNavigationSpec;
-  lifecycleBlocks?: PageSurfaceBlockSpec[];
+  lifecycleBlocks?: PageSurfaceSectionSpec[];
 }) {
   const [companyFilter, setCompanyFilter] = useState("02");
   const [yearFilter, setYearFilter] = useState("2025");
@@ -114,18 +114,16 @@ export default function ReclassTab({
     extraItems: extraToolbarItems,
   });
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       navigation={navigation}
       toolbar={{ items: toolbarItems }}
-      body={{
-        blocks: [
+      body={createPageBody([
           ...lifecycleBlocks,
           ...(loading
-            ? [createPageDataBlock("reclass-loading", { kind: "records", records: [], empty: "加载中..." })]
+            ? [createPageDataSection("reclass-loading", { kind: "records", records: [], empty: "加载中..." })]
             : entries.length === 0
-              ? [createPageDataBlock("reclass-empty", { kind: "records", records: [], empty: "未发现需重分类的科目" })]
-              : [createPageTableBlock("reclass-entries", {
+              ? [createPageDataSection("reclass-empty", { kind: "records", records: [], empty: "未发现需重分类的科目" })]
+              : [createPageTableSection("reclass-entries", {
                 framed: true,
 
 
@@ -134,8 +132,7 @@ export default function ReclassTab({
                 visibleColumns: columns.map(column => column.key),
                 rowKey: entry => entry.accountCode,
               })]),
-        ],
-      }}
+        ])}
     />
   );
 }

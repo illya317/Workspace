@@ -1,6 +1,6 @@
 "use client";
 
-import { createFieldsBlock, createPageBody, PageSurface } from "@workspace/core/ui";
+import { createFieldsSection, createPageBody, PageSurface } from "@workspace/core/ui";
 import { FixedPositionBox } from "../../../rendering/FixedPositionBox";
 import { selectionTitle, type WorkbenchSelection } from "./types";
 import type { InlineAnchor, InlineEntry } from "./inline-feedback-utils";
@@ -36,11 +36,10 @@ export default function InlineFeedbackEditor({
 }) {
   return (
     <FixedPositionBox className="fixed z-50 w-80" top={position.top} left={position.left} onMouseEnter={() => onHoverChange(true)} onMouseLeave={() => onHoverChange(false)}>
-      <PageSurface
-        kind="detail"
+      <PageSurface kind="standard"
         embedded
         body={createPageBody([
-          createFieldsBlock("inline-feedback-editor", [
+          createFieldsSection("inline-feedback-editor", [
             {
               kind: "note",
               key: "header",

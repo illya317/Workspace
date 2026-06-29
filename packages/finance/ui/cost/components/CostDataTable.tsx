@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createMessageBlock, type DataSurfaceCellSpec, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createMessageSection, createPageBody, type DataSurfaceCellSpec, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { SourceTraceInfo } from "../types";
 export type CostRecord = Record<string, unknown>;
 export type CostColumn = DataSurfaceColumnSpec<CostRecord>;
@@ -59,18 +59,15 @@ export default function CostDataTable({
   rowKey = row => String(row.id)
 }: CostDataTableProps) {
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
-      body={{
-        layout: "single",
-        blocks: [
-          ...(loading ? [createMessageBlock("loading", {
+      body={createPageBody([
+          ...(loading ? [createMessageSection("loading", {
             content: "加载中…",
             tone: "muted" as const,
 
           })] : []),
-          ...(error ? [createMessageBlock("error", {
+          ...(error ? [createMessageSection("error", {
             content: error,
             tone: "danger" as const,
 
@@ -89,8 +86,7 @@ export default function CostDataTable({
               emptyText: "暂无数据",
             },
           },
-        ],
-      }}
+        ], { layout: "single" })}
       footer={{ pagination: { page, total: pagination.total, totalPages: pagination.totalPages, onPageChange,  compact: true } }}
     />
   );

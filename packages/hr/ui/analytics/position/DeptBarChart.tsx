@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createAnalysisBlock, PageSurface, type PageSurfaceBlockSpec, type VisualizationComparisonBarSectionSpec, type VisualizationTone } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, PageSurface, type PageSurfaceSectionSpec, type VisualizationComparisonBarSectionSpec, type VisualizationTone } from "@workspace/core/ui";
 import type { DeptEntry, FilteredDept } from "./usePositionData";
 
 const LEVEL_LABEL: Record<number, string> = { 1: "L1 事业部", 2: "L2 部门", 3: "L3 子部门" };
@@ -46,20 +46,20 @@ interface DeptBarChartBlockParams {
   globalMax: number;
 }
 
-export function createDeptBarChartBlock({
+export function createDeptBarChartSection({
   filteredDept,
   l1List,
   filterL1,
   setFilterL1,
   globalMax,
-}: DeptBarChartBlockParams): PageSurfaceBlockSpec {
+}: DeptBarChartBlockParams): PageSurfaceSectionSpec {
   const sections = [
     toSection(1, filteredDept.l1),
     toSection(2, filteredDept.l2),
     toSection(3, filteredDept.l3),
   ];
 
-  return createAnalysisBlock("dept-bars", {
+  return createAnalysisSection("dept-bars", {
         title: "各部门编制 vs 实际",
         subtitle: "条形宽度跨层级统一比例",
         toolbar: {
@@ -72,7 +72,7 @@ export function createDeptBarChartBlock({
             options: l1List.map((dept) => ({ value: String(dept.id), label: dept.name })),
           }],
         },
-        blocks: [{
+        sections: [{
           kind: "visualization",
           key: "bars",
           surface: {
@@ -95,5 +95,5 @@ export function createDeptBarChartBlock({
 }
 
 export default function DeptBarChart(props: DeptBarChartBlockParams) {
-  return <PageSurface kind="analysis" body={createPageBody([createDeptBarChartBlock(props)])} />;
+  return <PageSurface kind="standard" body={createPageBody([createDeptBarChartSection(props)])} />;
 }

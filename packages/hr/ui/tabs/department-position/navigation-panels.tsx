@@ -1,12 +1,12 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { createPageBody, createBlockSurfaceBlock, createGroupBlock, createPanelBlock, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, createBlockSurfaceSection, createSectionsSection, createPanelSection, PageSurface, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import { buildPositionCreatePanelBlock } from "./create-panels";
 import type { CreatePositionDraft, Department, Position, Selection } from "./types";
 import { shortPositionCode } from "./utils";
 
-function isPageSurfaceBlockSpec(block: PageSurfaceBlockSpec | null): block is PageSurfaceBlockSpec {
+function isPageSurfaceSectionSpec(block: PageSurfaceSectionSpec | null): block is PageSurfaceSectionSpec {
   return block !== null;
 }
 
@@ -42,9 +42,8 @@ export function DirectPositionPanel({
   onCreatePosition?: () => void | Promise<void>;
 }) {
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="detail"
       body={createPageBody([buildDirectPositionPanelBlock({
         canCreatePosition,
         createPanel,
@@ -95,11 +94,11 @@ export function buildDirectPositionPanelBlock({
   setCreatePositionDraft?: Dispatch<SetStateAction<CreatePositionDraft>>;
   onSelect: (selection: Selection) => void;
   onCreatePosition?: () => void | Promise<void>;
-}): PageSurfaceBlockSpec {
+}): PageSurfaceSectionSpec {
   const directPositions = positionsByDepartment.get(departmentId) || [];
   const canRenderCreate = canCreatePosition && createPositionDraft && departmentById && setCreatePanel && setCreatePositionDraft && onCreatePosition;
   const creatingPositionHere = createPanel === "position" && createPositionDraft?.departmentId === departmentId;
-  const blocks: PageSurfaceBlockSpec[] = [
+  const sections: PageSurfaceSectionSpec[] = [
     directPositions.length > 0
       ? {
           kind: "navigation",
@@ -122,7 +121,7 @@ export function buildDirectPositionPanelBlock({
               },
           },
         }
-      : createBlockSurfaceBlock("empty", {
+      : createBlockSurfaceSection("empty", {
         kind: "empty",
         presentation: "plain",
         compact: true,
@@ -144,7 +143,7 @@ export function buildDirectPositionPanelBlock({
       : []),
   ];
 
-  return createPanelBlock("direct-positions", {
+  return createPanelSection("direct-positions", {
           title: "直属岗位",
           subtitle: `${directPositions.length} 个`,
           actions: canRenderCreate ? [{
@@ -164,7 +163,7 @@ export function buildDirectPositionPanelBlock({
             },
           }] : undefined,
 
-          blocks,
+          sections,
         });
 }
 export function DepartmentTreePanel({
@@ -184,33 +183,32 @@ export function DepartmentTreePanel({
   onSearchChange: (value: string) => void;
   onClose?: () => void;
   onCollapseAll: (collapsed: boolean) => void;
-  departmentNodeBlock: (department: Department) => PageSurfaceBlockSpec | null;
+  departmentNodeBlock: (department: Department) => PageSurfaceSectionSpec | null;
 }) {
-  const blocks: PageSurfaceBlockSpec[] = [];
-  if (loading) blocks.push(createBlockSurfaceBlock("loading", {
+  const sections: PageSurfaceSectionSpec[] = [];
+  if (loading) sections.push(createBlockSurfaceSection("loading", {
     kind: "message",
     content: "加载中...",
     tone: "muted"
   }));
-  if (error) blocks.push(createBlockSurfaceBlock("error", {
+  if (error) sections.push(createBlockSurfaceSection("error", {
     kind: "message",
     content: error,
     tone: "danger"
   }));
   if (!loading && !error) {
-    blocks.push(...rootDepartments.map((department) => departmentNodeBlock(department)).filter(isPageSurfaceBlockSpec));
+    sections.push(...rootDepartments.map((department) => departmentNodeBlock(department)).filter(isPageSurfaceSectionSpec));
   }
 
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="detail"
       body={createPageBody([
-        createPanelBlock("department-tree", {
+        createPanelSection("department-tree", {
 
 
           actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", onClick: onClose }] : undefined,
-          blocks,
+          sections,
         }),
       ])}
     />
@@ -234,28 +232,28 @@ export function buildDepartmentTreePanelBlock({
   onSearchChange: (value: string) => void;
   onClose?: () => void;
   onCollapseAll: (collapsed: boolean) => void;
-  departmentNodeBlock: (department: Department) => PageSurfaceBlockSpec | null;
-}): PageSurfaceBlockSpec {
-  const blocks: PageSurfaceBlockSpec[] = [];
-  if (loading) blocks.push(createBlockSurfaceBlock("loading", {
+  departmentNodeBlock: (department: Department) => PageSurfaceSectionSpec | null;
+}): PageSurfaceSectionSpec {
+  const sections: PageSurfaceSectionSpec[] = [];
+  if (loading) sections.push(createBlockSurfaceSection("loading", {
     kind: "message",
     content: "加载中...",
     tone: "muted"
   }));
-  if (error) blocks.push(createBlockSurfaceBlock("error", {
+  if (error) sections.push(createBlockSurfaceSection("error", {
     kind: "message",
     content: error,
     tone: "danger"
   }));
   if (!loading && !error) {
-    blocks.push(...rootDepartments.map((department) => departmentNodeBlock(department)).filter(isPageSurfaceBlockSpec));
+    sections.push(...rootDepartments.map((department) => departmentNodeBlock(department)).filter(isPageSurfaceSectionSpec));
   }
 
-  return createPanelBlock("department-tree", {
+  return createPanelSection("department-tree", {
 
 
     actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", onClick: onClose }] : undefined,
-    blocks,
+    sections,
   });
 }
 export function OrganizationRootPanel({
@@ -271,43 +269,42 @@ export function OrganizationRootPanel({
   error: string | null;
   departments: Department[];
   onClose?: () => void;
-  organizationRootBlock: (department: Department) => PageSurfaceBlockSpec | null;
+  organizationRootBlock: (department: Department) => PageSurfaceSectionSpec | null;
 }) {
-  const blocks: PageSurfaceBlockSpec[] = [];
-  if (loading) blocks.push(createBlockSurfaceBlock("loading", {
+  const sections: PageSurfaceSectionSpec[] = [];
+  if (loading) sections.push(createBlockSurfaceSection("loading", {
     kind: "message",
     content: "加载中...",
     tone: "muted"
   }));
-  if (error) blocks.push(createBlockSurfaceBlock("error", {
+  if (error) sections.push(createBlockSurfaceSection("error", {
     kind: "message",
     content: error,
     tone: "danger"
   }));
   if (!loading && !error && departments.length === 0) {
-    blocks.push(createBlockSurfaceBlock("empty", {
+    sections.push(createBlockSurfaceSection("empty", {
       kind: "empty",
       presentation: "plain",
       content: "暂无部门"
     }));
   }
   if (!loading && !error && departments.length > 0) {
-    blocks.push(createGroupBlock("roots", {
-      blocks: departments.map((department) => organizationRootBlock(department)).filter(isPageSurfaceBlockSpec),
+    sections.push(createSectionsSection("roots", {
+      sections: departments.map((department) => organizationRootBlock(department)).filter(isPageSurfaceSectionSpec),
 
     }));
   }
 
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="detail"
       body={createPageBody([
-        createPanelBlock("organization-roots", {
+        createPanelSection("organization-roots", {
 
 
           actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", onClick: onClose }] : undefined,
-          blocks,
+          sections,
         }),
       ])}
     />
@@ -327,37 +324,37 @@ export function buildOrganizationRootPanelBlock({
   error: string | null;
   departments: Department[];
   onClose?: () => void;
-  organizationRootBlock: (department: Department) => PageSurfaceBlockSpec | null;
-}): PageSurfaceBlockSpec {
-  const blocks: PageSurfaceBlockSpec[] = [];
-  if (loading) blocks.push(createBlockSurfaceBlock("loading", {
+  organizationRootBlock: (department: Department) => PageSurfaceSectionSpec | null;
+}): PageSurfaceSectionSpec {
+  const sections: PageSurfaceSectionSpec[] = [];
+  if (loading) sections.push(createBlockSurfaceSection("loading", {
     kind: "message",
     content: "加载中...",
     tone: "muted"
   }));
-  if (error) blocks.push(createBlockSurfaceBlock("error", {
+  if (error) sections.push(createBlockSurfaceSection("error", {
     kind: "message",
     content: error,
     tone: "danger"
   }));
   if (!loading && !error && departments.length === 0) {
-    blocks.push(createBlockSurfaceBlock("empty", {
+    sections.push(createBlockSurfaceSection("empty", {
       kind: "empty",
       presentation: "plain",
       content: "暂无部门"
     }));
   }
   if (!loading && !error && departments.length > 0) {
-    blocks.push(createGroupBlock("roots", {
-      blocks: departments.map((department) => organizationRootBlock(department)).filter(isPageSurfaceBlockSpec),
+    sections.push(createSectionsSection("roots", {
+      sections: departments.map((department) => organizationRootBlock(department)).filter(isPageSurfaceSectionSpec),
 
     }));
   }
 
-  return createPanelBlock("organization-roots", {
+  return createPanelSection("organization-roots", {
 
 
     actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", onClick: onClose }] : undefined,
-    blocks,
+    sections,
   });
 }

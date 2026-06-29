@@ -1,7 +1,7 @@
 "use client";
 
 import type { Ref } from "react";
-import { createPageBody, createBlockSurfaceBlock, createPanelBlock, PageSurface, type ConfirmOptions, type PageSurfaceBlockSpec, useFeedback } from "@workspace/core/ui";
+import { createPageBody, createBlockSurfaceSection, createPanelSection, PageSurface, type ConfirmOptions, type PageSurfaceSectionSpec, useFeedback } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { buildDepartmentDescriptionDetailsBlocks, departmentDescriptionDutyRecords } from "./department-description-details-editor";
 import type { DepartmentDescriptionDraft } from "./types";
@@ -26,15 +26,14 @@ export function DepartmentDescriptionsPanel({
 }) {
   const block = useDepartmentDescriptionsBlock({ drafts, dirty, canEditDepartment, onUpdateDraft });
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="detail"
       body={createPageBody([block])}
     />
   );
 }
 
-export function useDepartmentDescriptionsBlock(options: DepartmentDescriptionsBlockOptions): PageSurfaceBlockSpec {
+export function useDepartmentDescriptionsBlock(options: DepartmentDescriptionsBlockOptions): PageSurfaceSectionSpec {
   const feedback = useFeedback();
   const dutyRecords = options.drafts.flatMap((draft) => departmentDescriptionDutyRecords(draft.details));
   const { getItemRef, requestScrollToIndex } = useScrollToAddedItem(dutyRecords);
@@ -62,10 +61,10 @@ function buildDepartmentDescriptionsBlock({
   confirmDelete: (options?: Partial<ConfirmOptions>) => Promise<boolean>;
   getDutyItemRef?: (index: number) => Ref<HTMLDivElement>;
   requestDutyScrollToIndex?: (index: number) => void;
-}): PageSurfaceBlockSpec {
+}): PageSurfaceSectionSpec {
   let dutyOffset = 0;
-  const blocks: PageSurfaceBlockSpec[] = drafts.length === 0
-    ? [createBlockSurfaceBlock("empty", {
+  const sections: PageSurfaceSectionSpec[] = drafts.length === 0
+    ? [createBlockSurfaceSection("empty", {
       kind: "empty",
       presentation: "plain",
       content: "暂无部门说明书"
@@ -73,10 +72,10 @@ function buildDepartmentDescriptionsBlock({
     : drafts.map((draft, index) => {
         const offset = dutyOffset;
         dutyOffset += departmentDescriptionDutyRecords(draft.details).length;
-        return createPanelBlock(String(draft.id || `new-${index}`), {
+        return createPanelSection(String(draft.id || `new-${index}`), {
           title: draft.name || `部门说明书 ${index + 1}`,
 
-          blocks: buildDepartmentDescriptionDetailsBlocks({
+          sections: buildDepartmentDescriptionDetailsBlocks({
             value: draft.details,
             disabled: !canEditDepartment,
             onChange: (value) => onUpdateDraft(index, "details", value),
@@ -87,7 +86,7 @@ function buildDepartmentDescriptionsBlock({
         });
       });
 
-  return createPanelBlock("department-descriptions", {
+  return createPanelSection("department-descriptions", {
     title: (
       <div className="flex flex-wrap items-center gap-2">
         <span>部门说明书</span>
@@ -95,6 +94,6 @@ function buildDepartmentDescriptionsBlock({
       </div>
     ),
 
-    blocks,
+    sections,
   });
 }

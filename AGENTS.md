@@ -51,6 +51,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 7. **不重复造基础设施**：表格、筛选、搜索、日期、确认、Toast、FK、权限、CRUD factory、delete guard、审计、Toolbar 等先查 `docs/engineering/reusable-components.md` 和 Core/Platform 现有能力。
 8. **同页状态不整页导航**：tab、筛选、选中记录这类客户端状态不要用 `router.push/replace` 或 `<Link>` 硬同步 URL；深链用状态 + history API。
 9. **删除要闭环**：删 L1/L2、route、API、registry child/resource、docs、seed resource 要同步，不能留下 stale 入口。
-10. **提交只收本任务**：提交前必须看 `git status --short`，只 stage 本任务文件；不要回滚、格式化或提交别人的改动。
+10. **不为兼容污染协议**：破坏式收敛时，不要因为兼容旧调用点而在公开 contract、声明项或 kind 分支里增加额外选项；不兼容应暴露出来并通过迁移解决。
+11. **提交只收本任务**：提交前必须看 `git status --short`，只 stage 本任务文件；不要回滚、格式化或提交别人的改动。
 
 检查命令按 `docs/engineering/checks.md` 选择；多 agent 并行时通常由 Coordinator/Integrator 做最终统一验证。

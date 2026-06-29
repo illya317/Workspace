@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo, useRef } from "react";
 import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
-import { createPageBody, PageSurface, createBlockSurfaceBlock, useFeedback, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createBlockSurfaceSection, useFeedback, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import { buildGenericCreatePanelBlock } from "../components/GenericCreatePanel";
 import GenericFieldInput from "../components/GenericFieldInput";
 import { buildHRToolbarItems } from "../components/hr-toolbar-items";
@@ -263,7 +263,7 @@ export default function GenericTableTab({ config, user, surface }: { config: Tab
     </>
   );
 
-  const blocks: PageSurfaceBlockSpec[] = [
+  const sections: PageSurfaceSectionSpec[] = [
     ...(creating
       ? [buildGenericCreatePanelBlock({
           config,
@@ -273,18 +273,17 @@ export default function GenericTableTab({ config, user, surface }: { config: Tab
           onCancel: () => { setCreating(false); setCreateForm({}); },
         })]
       : []),
-    createBlockSurfaceBlock("generic-table-content", {
+    createBlockSurfaceSection("generic-table-content", {
       kind: "content",
       content: <div className="space-y-4">{content}</div>,
     }),
   ];
 
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       {...surface}
-      kind="list"
       toolbar={{ items: toolbarItems, onSubmit: load }}
-      body={createPageBody(blocks)}
+      body={createPageBody(sections)}
       footer={pagination ? { pagination } : undefined}
     />
   );

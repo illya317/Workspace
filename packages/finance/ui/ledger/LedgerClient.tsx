@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createPageBody, PageSurface, createPageDataBlock, createPageTabsNavigation } from "@workspace/core/ui";
-import type { PageSurfaceBlockSpec, PageSurfaceNavigationSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPageDataSection, createPageTabsNavigation } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec, PageSurfaceNavigationSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 import AccountTab from "./AccountTab";
@@ -18,7 +18,6 @@ export default function LedgerClient({ canWrite, user }: { canWrite: boolean; us
   }, [activeChildTabs]);
   const activeTab = activeChild;
   const navigation = activeChildTabs.length > 1 ? createPageTabsNavigation({
-    level: 2,
     items: activeChildTabs,
     active: activeChild,
     onChange: setActiveChild,
@@ -42,15 +41,14 @@ function DepreciationPlaceholder({
   lifecycleBlocks = [],
 }: {
   navigation?: PageSurfaceNavigationSpec;
-  lifecycleBlocks?: PageSurfaceBlockSpec[];
+  lifecycleBlocks?: PageSurfaceSectionSpec[];
 }) {
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       navigation={navigation}
       body={createPageBody([
         ...lifecycleBlocks,
-        createPageDataBlock("depreciation-placeholder", { kind: "records", records: [], empty: "资产折旧表开发中" }),
+        createPageDataSection("depreciation-placeholder", { kind: "records", records: [], empty: "资产折旧表开发中" }),
       ])}
     />
   );

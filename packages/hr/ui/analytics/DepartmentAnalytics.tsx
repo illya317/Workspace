@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createPageBody, createAnalysisBlock, createPageDataBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec, type VisualizationTreeNodeSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createPageDataSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec, type VisualizationTreeNodeSpec } from "@workspace/core/ui";
 import { matchSearchFields } from "@workspace/platform/search";
 import type { Department, EDP } from "./useAnalyticsData";
 
-export function useDepartmentAnalyticsBlocks({ departments, edps }: { departments: Department[]; edps: EDP[] }): PageSurfaceBlockSpec[] {
+export function useDepartmentAnalyticsBlocks({ departments, edps }: { departments: Department[]; edps: EDP[] }): PageSurfaceSectionSpec[] {
   const [search, setSearch] = useState("");
 
   const activeEdps = useMemo(() => edps.filter((e) => !e.endDate), [edps]);
@@ -107,7 +107,7 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
   ], []);
 
   return [
-        createPageDataBlock("stats", {
+        createPageDataSection("stats", {
             kind: "metrics",
             metrics: [
               { key: "departments", label: "部门总数", value: departments.length },
@@ -117,7 +117,7 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
               { key: "primaryActive", label: "在职主岗人数", value: new Set(activeEdps.filter((e) => e.isPrimary).map((e) => e.employeeId)).size },
             ],
           }),
-        createAnalysisBlock("department-tree", {
+        createAnalysisSection("department-tree", {
           title: "部门架构",
           toolbar: {
             items: [
@@ -125,7 +125,7 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
             ],
           },
 
-          blocks: [{
+          sections: [{
             kind: "visualization",
             key: "tree",
             surface: {
@@ -139,9 +139,9 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
             },
           }],
         }),
-        createAnalysisBlock("department-headcount", {
+        createAnalysisSection("department-headcount", {
           title: "部门人数排行（主岗）",
-          blocks: [{
+          sections: [{
             kind: "data",
             key: "department-headcount-table",
             surface: {
@@ -157,5 +157,5 @@ export function useDepartmentAnalyticsBlocks({ departments, edps }: { department
 }
 
 export default function DepartmentAnalytics(props: { departments: Department[]; edps: EDP[] }) {
-  return <PageSurface kind="analysis" body={createPageBody(useDepartmentAnalyticsBlocks(props))} />;
+  return <PageSurface kind="standard" body={createPageBody(useDepartmentAnalyticsBlocks(props))} />;
 }

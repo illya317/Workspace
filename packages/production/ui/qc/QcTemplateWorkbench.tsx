@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { matchText } from "@workspace/core/search";
-import { PageSurface, createGroupBlock, createPageDataBlock, createPageTableBlock } from "@workspace/core/ui";
+import { PageSurface, createSectionsSection, createPageBody, createPageDataSection, createPageTableSection } from "@workspace/core/ui";
 import type {
   QcTemplateDetail,
   QcTemplateFeedbackState,
@@ -22,7 +22,7 @@ import {
   type FeedbackTarget,
   type WorkbenchSelection,
 } from "./template-workbench/types";
-import { productionQcPageHeader, type ProductionQcPageChromeSpec } from "./ProductionQcPageChrome";
+import { productionQcPageKind, type ProductionQcPageChromeSpec } from "./ProductionQcPageChrome";
 
 interface Props {
   templates: QcTemplateDetail[];
@@ -95,7 +95,7 @@ function WorkbenchSurface({
 
   const sectionBlocks = sections.length === 0
     ? [
-        createPageDataBlock("qc-template-workbench-empty", {
+        createPageDataSection("qc-template-workbench-empty", {
           kind: "records",
           records: [],
           empty: viewModel.emptyText ?? "没有匹配的模板。",
@@ -122,7 +122,7 @@ function WorkbenchSurface({
         }] : undefined;
 
         if (!section.expandedView) {
-          return createPageDataBlock(`qc-template-workbench-${section.key}-collapsed`, {
+          return createPageDataSection(`qc-template-workbench-${section.key}-collapsed`, {
             kind: "records",
             framed: true,
             title,
@@ -133,7 +133,7 @@ function WorkbenchSurface({
           });
         }
 
-        return createPageTableBlock<QcTemplateWorkbenchRow>(`qc-template-workbench-${section.key}`, {
+        return createPageTableSection<QcTemplateWorkbenchRow>(`qc-template-workbench-${section.key}`, {
           framed: true,
           title,
           subtitle: section.subtitle,
@@ -180,9 +180,7 @@ function WorkbenchSurface({
       });
 
   return (
-    <PageSurface
-      kind="list"
-      header={pageChrome ? productionQcPageHeader(pageChrome) : undefined}
+    <PageSurface kind={pageChrome ? productionQcPageKind(pageChrome) : "standard"}
       toolbar={!viewModel.hideToolbar
         ? {
             items: [
@@ -203,11 +201,10 @@ function WorkbenchSurface({
             ],
           }
         : undefined}
-      body={{
-        blocks: [createGroupBlock("qc-template-workbench-grid", {
+      body={createPageBody([createSectionsSection("qc-template-workbench-grid", {
           layout: "grid",
 
-          blocks: [
+          sections: [
             {
               kind: "navigation",
               key: "qc-template-workbench-selector",
@@ -229,13 +226,12 @@ function WorkbenchSurface({
                 },
               },
             },
-            createGroupBlock("qc-template-workbench-sections", {
+            createSectionsSection("qc-template-workbench-sections", {
 
-              blocks: sectionBlocks,
+              sections: sectionBlocks,
             }),
           ],
-        })],
-      }}
+        })])}
     />
   );
 }

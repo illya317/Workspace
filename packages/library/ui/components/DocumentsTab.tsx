@@ -5,8 +5,8 @@ import { workspacePath } from "@workspace/core/routing";
 import { useLibraryDocuments } from "../hooks/useLibraryDocuments";
 import { useLibraryFilters } from "../hooks/useLibraryFilters";
 import { useLibraryDirectories } from "../hooks/useLibraryDirectories";
-import { createEmptyBlock, createPageBody, PageSurface } from "@workspace/core/ui";
-import type { DataSurfaceColumnSpec, DataSurfaceProps, PageSurfaceBlockSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import { createEmptySection, createPageBody, PageSurface } from "@workspace/core/ui";
+import type { DataSurfaceColumnSpec, DataSurfaceProps, PageSurfaceSectionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import GenerateDocumentModal from "./GenerateDocumentModal";
 import LibraryDetailModal from "./LibraryDetailModal";
 import type { DirectoryNode, LibraryDocumentItem } from "@workspace/library/types";
@@ -193,9 +193,9 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
       ) : null,
     },
   ];
-  const sideBlocks: PageSurfaceBlockSpec[] = [
+  const sideBlocks: PageSurfaceSectionSpec[] = [
     ...(dirError
-      ? [createEmptyBlock("dir-error", {
+      ? [createEmptySection("dir-error", {
           compact: true,
 
           content: `目录加载失败: ${dirError}`,
@@ -238,9 +238,9 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
       },
     },
   ];
-  const blocks: PageSurfaceBlockSpec[] = [
+  const sections: PageSurfaceSectionSpec[] = [
     ...(error
-      ? [createEmptyBlock("error", {
+      ? [createEmptySection("error", {
           compact: true,
 
           content: error,
@@ -266,16 +266,18 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
 
   return (
     <>
-      <PageSurface
-        kind="split"
-        sideOpen={sidebarOpen}
-        drawerOpen={sidebarDrawerOpen}
-        sideLabel="目录"
-        onSideOpenChange={setSidebarOpen}
-        onDrawerOpenChange={setSidebarDrawerOpen}
+      <PageSurface kind="standard"
         toolbar={{ items: toolbarItems }}
-        side={{ blocks: sideBlocks }}
-        body={createPageBody(blocks)}
+        body={{
+          kind: "split",
+          left: { sections: createPageBody(sideBlocks).sections },
+          right: createPageBody(sections),
+          sideOpen: sidebarOpen,
+          drawerOpen: sidebarDrawerOpen,
+          sideLabel: "目录",
+          onSideOpenChange: setSidebarOpen,
+          onDrawerOpenChange: setSidebarDrawerOpen,
+        }}
         footer={totalPages > 1 ? {
           pagination: {
             page,

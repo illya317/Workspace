@@ -4,7 +4,7 @@ export type CoreUiComponentRole = "surface" | "host" | "internal" | "service" | 
 
 export type CoreUiComponentSubcategory =
   | "page.surface"
-  | "page.blocks"
+  | "page.sections"
   | "page.frame"
   | "document.surface"
   | "document.paper"

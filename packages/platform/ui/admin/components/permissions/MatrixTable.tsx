@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionGlyph, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { ActionGlyph, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import PermissionCell from "./PermissionCell";
 import PermissionDetails from "./PermissionDetails";
 import type { PermissionsTabState } from "../../hooks/usePermissionsTab";
@@ -15,9 +15,9 @@ const ROLE_HIERARCHY: Record<string, number> = {
   admin: 3
 };
 
-export function createPermissionMatrixBlock({
+export function createPermissionMatrixSection({
   s
-}: MatrixTableProps): PageSurfaceBlockSpec {
+}: MatrixTableProps): PageSurfaceSectionSpec {
   if (!s.selectedResource) {
     return { kind: "data", key: "empty-resource", surface: { kind: "records", records: [], empty: "请选择左侧资源模块" } };
   }

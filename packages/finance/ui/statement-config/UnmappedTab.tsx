@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState } from "react";
-import { createPageBody, createBlockSurfaceBlock, PageSurface, createPageDataBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, createBlockSurfaceSection, PageSurface, createPageDataSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import { formatFinanceAmount } from "../formatters";
 import { useStatementConfig } from "./StatementConfigContext";
 interface Node {
@@ -183,21 +183,19 @@ export default function UnmappedTab() {
 
 function UnmappedRecords({ message }: { message: string }) {
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
-      body={createPageBody([createPageDataBlock("unmapped-records", { kind: "records", records: [], empty: message })])}
+      body={createPageBody([createPageDataSection("unmapped-records", { kind: "records", records: [], empty: message })])}
     />
   );
 }
 
 function UnmappedError({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createBlockSurfaceBlock("error", {
+        createBlockSurfaceSection("error", {
           kind: "message",
           tone: "danger",
           content: message
@@ -219,11 +217,10 @@ function UnmappedTable({ items }: { items: DisplayItem[] }) {
   const columns = createUnmappedColumns();
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageDataBlock("unmapped-table", {
+        createPageDataSection("unmapped-table", {
           kind: "table",
           framed: true,
           rows: items,

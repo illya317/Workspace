@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createPageBody, createAnalysisBlock, createGroupBlock, createMessageBlock, createPageDataBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createSectionsSection, createMessageSection, createPageDataSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import type { Contract } from "./useAnalyticsData";
 import { computeStats, enrichContracts, filterContracts, statusLabel, type EnrichedContract } from "./contract-helpers";
 
@@ -14,7 +14,7 @@ export function useContractAnalyticsBlocks({
   contracts
 }: {
   contracts: Contract[];
-}): PageSurfaceBlockSpec[] {
+}): PageSurfaceSectionSpec[] {
   const [filter, setFilter] = useState<"all" | "expiring30" | "expiring90" | "expired">("all");
   const [search, setSearch] = useState("");
   const enriched = useMemo(() => enrichContracts(contracts), [contracts]);
@@ -72,7 +72,7 @@ export function useContractAnalyticsBlocks({
     cell: contract => ({ kind: "badge", label: statusLabel(contract.status),  })
   }], []);
   return [
-      createPageDataBlock("stats", {
+      createPageDataSection("stats", {
           kind: "metrics",
           metrics: [
             { key: "total", label: "主合同总数", value: `${stats.total} / 无固定 ${stats.permanent}` },
@@ -82,12 +82,12 @@ export function useContractAnalyticsBlocks({
             { key: "permanent", label: "无固定期限", value: stats.permanent },
           ],
         }),
-      createGroupBlock("distribution", {
+      createSectionsSection("distribution", {
         layout: "grid",
-        blocks: [
-          createAnalysisBlock("types", {
+        sections: [
+          createAnalysisSection("types", {
             title: "合同类型分布",
-            blocks: [{
+            sections: [{
               kind: "data",
               key: "type-bars",
               surface: {
@@ -102,9 +102,9 @@ export function useContractAnalyticsBlocks({
               },
             }],
           }),
-          createAnalysisBlock("companies", {
+          createAnalysisSection("companies", {
             title: "公司合同分布",
-            blocks: [{
+            sections: [{
               kind: "data",
               key: "company-bars",
               surface: {
@@ -121,7 +121,7 @@ export function useContractAnalyticsBlocks({
           }),
         ],
       }),
-      createAnalysisBlock("expiry", {
+      createAnalysisSection("expiry", {
         title: "合同到期预警",
         toolbar: {
           items: [
@@ -141,7 +141,7 @@ export function useContractAnalyticsBlocks({
             { kind: "text", key: "meta", content: <>{filtered.length} 人</> },
           ],
         },
-        blocks: [
+        sections: [
           {
             kind: "data",
             key: "expiry-table",
@@ -155,7 +155,7 @@ export function useContractAnalyticsBlocks({
               rowState: contract => contract.status === "expired" ? "danger" : contract.status === "expiring30" ? "danger" : "normal",
             },
           },
-          ...(filtered.length > 100 ? [createMessageBlock("more", {
+          ...(filtered.length > 100 ? [createMessageSection("more", {
             tone: "muted" as const,
             content: <>还有 {filtered.length - 100} 条，请使用搜索或筛选</>,
           })] : []),
@@ -165,5 +165,5 @@ export function useContractAnalyticsBlocks({
 }
 
 export default function ContractAnalytics(props: { contracts: Contract[] }) {
-  return <PageSurface kind="analysis" body={createPageBody(useContractAnalyticsBlocks(props))} />;
+  return <PageSurface kind="standard" body={createPageBody(useContractAnalyticsBlocks(props))} />;
 }

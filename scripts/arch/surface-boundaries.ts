@@ -168,18 +168,18 @@ const LEGACY_PAGE_BLOCK_KINDS = new Set([
   "surfaceGroup",
 ]);
 const PAGE_BLOCK_HELPER_NAMES = new Set([
-  "createActionsBlock",
-  "createBlockSurfaceBlock",
-  "createEmptyBlock",
-  "createGroupBlock",
-  "createHeadingBlock",
-  "createMessageBlock",
-  "createModuleGridBlock",
-  "createPanelBlock",
-  "createPageDataBlock",
-  "createPageTableBlock",
-  "createSectionBlock",
-  "createVisualizationBlock",
+  "createActionsSection",
+  "createBlockSurfaceSection",
+  "createEmptySection",
+  "createSectionsSection",
+  "createHeadingSection",
+  "createMessageSection",
+  "createModuleGridSection",
+  "createPanelSection",
+  "createPageDataSection",
+  "createPageTableSection",
+  "createSectionSection",
+  "createVisualizationSection",
 ]);
 const DEPRECATED_SURFACE_USAGE_PATTERNS: Array<{
   label: string;
@@ -189,7 +189,7 @@ const DEPRECATED_SURFACE_USAGE_PATTERNS: Array<{
   {
     label: "PageSurface.moduleView",
     pattern: /\bkind\s*(?::|=)\s*["']moduleView["']/,
-    migrationTarget: "Use a typed Surface/helper, usually createBlockSurfaceBlock or a domain Surface wrapper.",
+    migrationTarget: "Use a typed Surface/helper, usually createBlockSurfaceSection or a domain Surface wrapper.",
   },
   {
     label: "DataSurface.raw",
@@ -199,7 +199,7 @@ const DEPRECATED_SURFACE_USAGE_PATTERNS: Array<{
   {
     label: "DataSurface kind=visual",
     pattern: /\bkind\s*(?::|=)\s*["']visual["']/,
-    migrationTarget: "Use VisualizationSurface via createVisualizationBlock.",
+    migrationTarget: "Use VisualizationSurface via createVisualizationSection.",
   },
 ];
 
@@ -343,7 +343,7 @@ function isInsidePageBlockHelper(node: ts.Node) {
 }
 
 function looksLikePageSurfaceConsumer(text: string) {
-  return /PageSurface|PageSurfaceBlockSpec|PageBlockSurface|createPage|createBlockSurfaceBlock/.test(text);
+  return /PageSurface|PageSurfaceSectionSpec|PageBlockSurface|createPage|createBlockSurfaceSection/.test(text);
 }
 
 export function findLegacyPageBlockUsageWarnings() {
@@ -371,7 +371,7 @@ export function findLegacyPageBlockUsageWarnings() {
             file: normalizeFilePath(file),
             line: nodeLine(sourceFile, node),
             pattern: `PageSurface legacy block kind="${kind}"`,
-            migrationTarget: "Wrap common containers with createBlockSurfaceBlock, or move data/form/document/visualization to the owning Surface block.",
+            migrationTarget: "Wrap common containers with createBlockSurfaceSection, or move data/form/document/visualization to the owning Surface block.",
           });
         }
       }
@@ -732,8 +732,8 @@ export function checkSurfaceBoundaries() {
   }
 
   if (legacyPageBlockWarnings.length > 0) {
-    console.warn(`⚠ PageSurface block warning: ${legacyPageBlockWarnings.length} legacy page block usage(s) detected outside Core UI.`);
-    console.warn("  Rule: PageSurface.body.blocks should route to typed Surface wrappers; common containers belong to BlockSurface.");
+    console.warn(`⚠ PageSurface section warning: ${legacyPageBlockWarnings.length} legacy page section shape(s) detected outside Core UI.`);
+    console.warn("  Rule: PageSurface.body.sections should use typed section helpers; common containers belong to BlockSurface.");
     for (const warning of legacyPageBlockWarnings.slice(0, 40)) {
       console.warn(`  - ${warning.file}:${warning.line}: ${warning.pattern} -> ${warning.migrationTarget}`);
     }

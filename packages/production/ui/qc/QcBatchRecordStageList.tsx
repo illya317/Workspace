@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { createBlockSurfaceBlock, createPageBody, PageSurface } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createPageBody, PageSurface } from "@workspace/core/ui";
 import type { QcBatchSummary, QcTemplateDetail } from "@workspace/production/types";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcBatchNumberInput from "./QcBatchNumberInput";
@@ -16,11 +16,10 @@ export default function QcBatchRecordStageList({ batch, detail }: QcBatchRecordS
   return (
     <section>
       <div className="qc-paper-font qc-paper-stage-shell mx-auto">
-        <PageSurface
-          kind="detail"
+        <PageSurface kind="standard"
           embedded
           body={createPageBody([
-            createBlockSurfaceBlock("qc-batch-record-summary", {
+            createBlockSurfaceSection("qc-batch-record-summary", {
               kind: "content",
 
               content: (

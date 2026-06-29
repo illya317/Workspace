@@ -243,7 +243,7 @@ Core UI registry 治理：
 - 该 registry 是 structure scan 的输入；结构性 UI ratchet 由 `gate:ui` 执行，简单清扫项才由 hygiene strict 执行。
 - Registry `category/subcategory` 是分类模型：一级分类固定为 `page / data / form / document / visualization / common / feedback`，`common` 暂时作为基础和区块兜底。缺字段、非法归属、common 反依赖 domain 二级分类、sibling subcategory 高耦合、业务直引 common renderer、domain shared layout shell 和 Surface 自带 page chrome 属于结构性 UI 阻断；需要新 Surface/helper/service 或复杂页面重构时由 Architecture/Feature 处理，不交给 Hygiene。
 - Core UI 的 value export 必须全部出现在 `component-registry.ts`，或明确列入 structure scan 的非组件导出集合；注册名重复会直接进入 `duplicateCoreUiRegistrations`。这两类 baseline 为空，新增即失败。
-- 非 Core 包新增手写页面设计壳会进入 `pageDesignDriftFiles` 检测：在 `packages/*/ui` 中直接用原生 JSX 容器拼 `bg-white`、`rounded`、`shadow/border`、sticky header、页面级 grid 等页面结构时视为漂移。Platform-owned system shell 文件（当前 `AppShell` / `UserMenu`）由 Platform 单独封装，只接受窄名单例外；历史债由 `scripts/arch/structure-baseline.json` 锁定，Feature/UI 迁走后必须删对应 baseline 项。
+- 非 Core 包新增手写页面设计壳会进入 `pageDesignDriftFiles` 检测：在 `packages/*/ui` 中直接用原生 JSX 容器拼 `bg-white`、`rounded`、`shadow/border`、sticky header、页面级 grid 等页面结构时视为漂移。Platform-owned system shell 文件（当前 `AppShell` / `LoginClient` / `UserMenu`）由 Platform 单独封装，只接受窄名单例外；历史债由 `scripts/arch/structure-baseline.json` 锁定，Feature/UI 迁走后必须删对应 baseline 项。
 - `PageSurface` 的 `moduleView` 是历史过渡逃生口，不是新增业务页面 API。业务 UI / `app/(modules)` 的存量 `moduleView` 会按 `shell-host`、`content-wrapper`、`split-side`、`analysis-visual`、`report-document`、`complex-editor`、`navigation-composition` 分类进入 `businessModuleViewUsages` baseline；新增或迁移删除都必须通过同一 Structure ratchet。
 - 允许业务内容区域保留必要局部样式，例如文档/PDF 预览内容、打印模板、业务图表内部标记、表单字段间距；但页面骨架、卡片、筛选、表格、分栏、入口卡片必须优先使用已注册 Core primitive。
 

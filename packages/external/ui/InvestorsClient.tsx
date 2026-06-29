@@ -1,11 +1,10 @@
 "use client";
 
-import { createPageBody, createSectionBlock, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createSectionSection, PageSurface } from "@workspace/core/ui";
 
 export default function InvestorsClient() {
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       toolbar={{
         items: [
           {
@@ -20,9 +19,9 @@ export default function InvestorsClient() {
         ],
       }}
       body={createPageBody([
-        createSectionBlock("investors", {
+        createSectionSection("investors", {
           title: "投资人列表",
-          blocks: [
+          sections: [
             {
               kind: "data",
               key: "empty",

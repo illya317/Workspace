@@ -18,14 +18,13 @@ export default function HRPerformanceClient({ user: _user }: { user: SessionUser
   };
 
   return (
-    <PageSurface
-	      kind="list"
+    <PageSurface kind="standard"
 	      navigation={createPageTabsNavigation({
 	        items: tabs,
 	        active: activeTab,
 	        onChange: (k: string) => setActiveTab(k as PerfTab),
 	      })}
-	      body={{ empty: { content: contentByTab[activeTab] } }}
+	      body={{ kind: "complete", empty: { content: contentByTab[activeTab] } }}
 	    />
   );
 }

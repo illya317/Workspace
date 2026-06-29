@@ -1,6 +1,6 @@
 "use client";
 
-import { createBlockSurfaceBlock, createPageBody, createSelectorPanelBlock, PageSurface } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createPageBody, createSelectorPanelSection, PageSurface } from "@workspace/core/ui";
 import type { ActionDraft, MeetingDetail, MeetingParticipant, MeetingSummary } from "./meeting-types";
 import { EmptyLine, InputBox, PageBlockSurface, StatusPill } from "./MeetingControls";
 import { candidateStatusLabel, decisionKindLabel, emptyActionDraft, formatDateTime, roleLabel, voteChoiceLabel } from "./meeting-utils";
@@ -20,11 +20,10 @@ export function MeetingList({
     <div
       className="min-w-0"
     >
-      <PageSurface
+      <PageSurface kind="standard"
         embedded
-        kind="detail"
         body={createPageBody([
-          createSelectorPanelBlock<MeetingSummary>("meeting-list", {
+          createSelectorPanelSection<MeetingSummary>("meeting-list", {
             title: "会议列表",
 
             loading,
@@ -57,10 +56,9 @@ export function MeetingHeader({
   saving: boolean;
   onUpdate: (body: Record<string, unknown>, success: string) => void;
 }) {
-  return <PageSurface
+  return <PageSurface kind="standard"
     embedded
-    kind="detail"
-    body={createPageBody([createBlockSurfaceBlock("meeting-header", {
+    body={createPageBody([createBlockSurfaceSection("meeting-header", {
       kind: "content",
 
       content: <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
@@ -79,7 +77,7 @@ export function MeetingHeader({
           </div>
           {meeting.description && <p className="mt-3 whitespace-pre-wrap text-sm text-slate-600">{meeting.description}</p>}
         </div>
-        {meeting.permissions.canEdit && <PageBlockSurface block={createBlockSurfaceBlock("meeting-header-actions", { kind: "actions", actions: [
+        {meeting.permissions.canEdit && <PageBlockSurface block={createBlockSurfaceSection("meeting-header-actions", { kind: "actions", actions: [
           { key: "start", label: "开始", variant: "secondary", size: "sm", disabled: saving || meeting.status === "in_progress", onClick: () => onUpdate({ status: "in_progress" }, "会议已开始") },
           { key: "close", label: "关闭", variant: "secondary", size: "sm", disabled: saving || meeting.status === "closed", onClick: () => onUpdate({ status: "closed" }, "会议已关闭") },
           { key: "participants-only", label: "参会可见", variant: "secondary", size: "sm", disabled: saving || meeting.visibility === "participants_only", onClick: () => onUpdate({ visibility: "participants_only" }, "可见性已更新") },
@@ -136,7 +134,7 @@ export function ProposalList({
           {proposal.votes.length > 0 && <div className="mt-2 grid gap-1 text-xs text-slate-500">
               {proposal.votes.map(vote => <span key={vote.id}>{vote.voterName || `用户 ${vote.voterUserId}`}：{voteChoiceLabel(vote.choice)}</span>)}
             </div>}
-          <PageBlockSurface className="mt-3" block={createBlockSurfaceBlock("proposal-actions", { kind: "actions",  actions: [
+          <PageBlockSurface className="mt-3" block={createBlockSurfaceSection("proposal-actions", { kind: "actions",  actions: [
             ...(meeting.permissions.canVote && proposal.status === "open" ? [
               { key: "yes", label: "赞成", variant: proposal.myVote?.choice === "yes" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onVote(proposal.id, "yes") },
               { key: "no", label: "反对", variant: proposal.myVote?.choice === "no" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onVote(proposal.id, "no") },
@@ -212,7 +210,7 @@ export function CandidateList({
             ...draft,
             targetId,
           })} />
-                <PageBlockSurface className="md:col-span-4" block={createBlockSurfaceBlock("candidate-actions", { kind: "actions",  actions: [
+                <PageBlockSurface className="md:col-span-4" block={createBlockSurfaceSection("candidate-actions", { kind: "actions",  actions: [
                   { key: "linkWorkPlan", label: "链接 OKR 计划", variant: "secondary", size: "sm", disabled: saving || !draft.workPlanId, onClick: () => onAction(candidate.id, "linkWorkPlan", draft) },
                   { key: "createWorkPlan", label: "创建 OKR 计划", variant: "secondary", size: "sm", disabled: saving, onClick: () => onAction(candidate.id, "createWorkPlan", draft) },
                   { key: "linkProjectTask", label: "链接项目任务", variant: "secondary", size: "sm", disabled: saving || !draft.projectTaskId, onClick: () => onAction(candidate.id, "linkProjectTask", draft) },

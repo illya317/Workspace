@@ -1,10 +1,10 @@
 "use client";
 
-import { createPageBody, createAnalysisBlock, createPageDataBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createPageDataSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import type { Employment } from "./useAnalyticsData";
 import { type MonthlySnapshot, useHeadcountData } from "./useHeadcountData";
 
-export function useHeadcountTrendBlocks({ employments }: { employments: Employment[] }): PageSurfaceBlockSpec[] {
+export function useHeadcountTrendBlocks({ employments }: { employments: Employment[] }): PageSurfaceSectionSpec[] {
   const stats = useHeadcountData(employments);
 
   const barMax = Math.max(stats.maxFlow, 1);
@@ -25,7 +25,7 @@ export function useHeadcountTrendBlocks({ employments }: { employments: Employme
   ];
 
   return [
-        createPageDataBlock("stats", {
+        createPageDataSection("stats", {
             kind: "metrics",
             metrics: [
               { key: "currentActive", label: "当前在职", value: stats.currentActive },
@@ -36,9 +36,9 @@ export function useHeadcountTrendBlocks({ employments }: { employments: Employme
               { key: "yearLeaves", label: "年度离职", value: stats.yearLeaves },
             ],
           }),
-        createAnalysisBlock("trend", {
+        createAnalysisSection("trend", {
           title: "人员流动趋势（近12个月）",
-          blocks: [
+          sections: [
             {
               kind: "visualization",
               key: "active-chart",
@@ -89,9 +89,9 @@ export function useHeadcountTrendBlocks({ employments }: { employments: Employme
             },
           ],
         }),
-        createAnalysisBlock("monthly-details", {
+        createAnalysisSection("monthly-details", {
           title: "月度明细",
-          blocks: [{
+          sections: [{
             kind: "data",
             key: "monthly-table",
             surface: {
@@ -107,5 +107,5 @@ export function useHeadcountTrendBlocks({ employments }: { employments: Employme
 }
 
 export default function HeadcountTrend(props: { employments: Employment[] }) {
-  return <PageSurface kind="analysis" body={createPageBody(useHeadcountTrendBlocks(props))} />;
+  return <PageSurface kind="standard" body={createPageBody(useHeadcountTrendBlocks(props))} />;
 }

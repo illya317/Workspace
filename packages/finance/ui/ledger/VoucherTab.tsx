@@ -2,8 +2,8 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo } from "react";
-import { createPageBody, PageSurface, createBlockSurfaceBlock, createPageTableBlock, useFeedback } from "@workspace/core/ui";
-import type { PageSurfaceBlockSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createBlockSurfaceSection, createPageTableSection, useFeedback } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec, PageSurfaceNavigationSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { getBaseItemColumns, type VoucherItemRow } from "../components/VoucherItemTable";
 import { useReclassResults } from "./useReclassResults";
@@ -20,7 +20,7 @@ export default function VoucherTab({
 }: {
   canWrite: boolean;
   navigation?: PageSurfaceNavigationSpec;
-  lifecycleBlocks?: PageSurfaceBlockSpec[];
+  lifecycleBlocks?: PageSurfaceSectionSpec[];
 }) {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [loading, setLoading] = useState(true);
@@ -146,15 +146,13 @@ export default function VoucherTab({
   });
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       navigation={navigation}
       toolbar={{ items: toolbarItems }}
-      body={{
-        blocks: viewMode === "reclass"
+      body={createPageBody(viewMode === "reclass"
           ? [
               ...lifecycleBlocks,
-              createBlockSurfaceBlock("voucher-reclass-content", {
+              createBlockSurfaceSection("voucher-reclass-content", {
                 kind: "content",
                 content: (
                   <>
@@ -196,12 +194,11 @@ export default function VoucherTab({
                   expandedRowContent: (v: Voucher) => <VoucherItemsPreview voucher={v} columns={itemColumns} />,
                 },
               },
-              createBlockSurfaceBlock("voucher-adjust-modal", {
+              createBlockSurfaceSection("voucher-adjust-modal", {
                 kind: "content",
                 content: adjustModal,
               }),
-            ],
-      }}
+            ])}
       footer={viewMode === "reclass" ? undefined : { pagination: { page, totalPages, total, onPageChange: setPage } }}
     />
   );
@@ -216,11 +213,10 @@ function VoucherItemsPreview({
 }) {
   return (
     <div className="rounded-md border border-slate-200 bg-white">
-      <PageSurface
-        kind="list"
+      <PageSurface kind="standard"
         embedded
         body={createPageBody([
-          createPageTableBlock("voucher-items", {
+          createPageTableSection("voucher-items", {
             rows: voucher.items.map((item: VoucherItemRow, index: number) => ({ ...item, _idx: index, _voucherNo: voucher.voucherNo })),
             columns,
             visibleColumns: columns.map((column) => column.key),

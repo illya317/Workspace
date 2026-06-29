@@ -5,8 +5,8 @@ import {
   createPageBody,
   InputControl,
   PageSurface,
-  createPageDataBlock,
-  createInlineFieldsBlock,
+  createPageDataSection,
+  createInlineFieldsSection,
 } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
@@ -45,10 +45,9 @@ export function DetailSectionHeader({
 
 export function DetailStatsRow({ items }: { items: Array<{ label: string; value: ReactNode }> }) {
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="detail"
-      body={createPageBody([createPageDataBlock("detail-stats", {
+      body={createPageBody([createPageDataSection("detail-stats", {
         kind: "metrics",
         framed: true,
 
@@ -133,10 +132,9 @@ export function StringListEditor({
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <PageSurface
+      <PageSurface kind="standard"
         embedded
-        kind="detail"
-        body={createPageBody([createInlineFieldsBlock<string>("items", [{
+        body={createPageBody([createInlineFieldsSection<string>("items", [{
           kind: "tagList",
           key: "items",
           label: "",

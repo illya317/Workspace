@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createBlockSurfaceBlock, createPageBody, createPageDataBlock, type DataSurfaceColumnSpec, PageSurface, type SurfaceDataRowEditActionSpec, type SurfacePickerOptionSpec, useFeedback } from "@workspace/core/ui";
+import { createPageBody, type DataSurfaceColumnSpec, type DataSurfaceProps, PageSurface, type SurfaceDataRowEditActionSpec, type SurfacePickerOptionSpec, useFeedback } from "@workspace/core/ui";
 import {
   createProjectTask,
   deleteProjectTask,
@@ -242,64 +242,77 @@ export default function ProjectTasksSection({
     }
   }
 
-  const blocks = !projectId ? [
-    createPageDataBlock("project-tasks-empty", { kind: "records", framed: true, title: "项目任务", records: [], empty: "项目保存后可维护任务计划。" }),
-  ] : [
-    createBlockSurfaceBlock("project-tasks", {
-      kind: "section",
-      title: "项目任务",
-      actions: canEdit && !creatingTask ? [{
-        key: "create",
-        label: "新增任务",
-        variant: "primary",
-        disabled: disabled || saving,
-        onClick: () => setCreatingTask(true),
-      }] : undefined,
-      blocks: [
-        ...(creatingTask ? [{
-          kind: "section" as const,
-          key: "create-task",
-          content: <ProjectTaskForm draft={createDraft} disabled={disabled || saving} taskOptions={taskOptions} phases={phases} tasks={tasks} excludedTaskId={null} framed={false} onChange={setCreateDraft} />,
-          actions: [
-            { key: "cancel", label: "取消", disabled: disabled || saving, onClick: () => setCreatingTask(false) },
-            { key: "submit", label: saving ? "保存中..." : "保存任务", variant: "primary" as const, disabled: disabled || saving || !isTaskDraftSubmittable(createDraft), onClick: () => void handleCreate() },
-          ],
-        }] : []),
-        {
-          kind: "content" as const,
-          key: "task-table",
-          content: (
-              <ProjectTaskTableSurface
-                tasks={tasks}
-                columns={columns}
-                loading={loading}
-                detailTaskId={detailTaskId}
-                editDraft={editDraft}
-                editingTaskId={editingTaskId}
-                disabled={disabled}
-                saving={saving}
-                canEdit={canEdit}
-                taskOptions={taskOptions}
-                phases={phases}
-                onRowClick={handleToggleDetail}
-                onEditDraftChange={setEditDraft}
-                onStartEdit={handleStartEdit}
-                onSave={handleUpdate}
-                onCancelEdit={handleCancelEdit}
-                onDelete={handleDelete}
-              />
-          ),
-        },
-      ],
-    }),
-  ];
-
   return (
-    <PageSurface embedded kind={projectId ? "detail" : "list"} body={createPageBody(blocks)} />
+    <PageSurface kind="standard"
+      embedded
+      body={{
+        kind: "complete",
+        sections: [
+          {
+            key: "project-tasks",
+            label: "项目任务",
+            kind: "sections",
+            header: {
+              title: "项目任务",
+              actions: projectId && canEdit && !creatingTask ? [{
+                key: "create",
+                label: "新增任务",
+                icon: "create",
+                variant: "primary",
+                disabled: disabled || saving,
+                onClick: () => setCreatingTask(true),
+              }] : undefined,
+            },
+            sections: createPageBody(!projectId ? [{
+              kind: "data",
+              key: "project-tasks-empty",
+              surface: { kind: "records", framed: true, title: "项目任务", records: [], empty: "项目保存后可维护任务计划。" },
+            }] : [
+              ...(creatingTask ? [{
+                kind: "block" as const,
+                key: "create-task",
+                surface: {
+                  kind: "section" as const,
+                  title: "新增任务",
+                  actions: [
+                    { key: "cancel", label: "取消", disabled: disabled || saving, onClick: () => setCreatingTask(false) },
+                    { key: "submit", label: saving ? "保存中..." : "保存任务", variant: "primary" as const, disabled: disabled || saving || !isTaskDraftSubmittable(createDraft), onClick: () => void handleCreate() },
+                  ],
+                  content: <ProjectTaskForm draft={createDraft} disabled={disabled || saving} taskOptions={taskOptions} phases={phases} tasks={tasks} excludedTaskId={null} framed={false} onChange={setCreateDraft} />,
+                },
+              }] : []),
+              {
+                kind: "data",
+                key: "task-table",
+                surface: buildProjectTaskTableSurface({
+                  tasks,
+                  columns,
+                  loading,
+                  detailTaskId,
+                  editDraft,
+                  editingTaskId,
+                  disabled,
+                  saving,
+                  canEdit,
+                  taskOptions,
+                  phases,
+                  onRowClick: handleToggleDetail,
+                  onEditDraftChange: setEditDraft,
+                  onStartEdit: handleStartEdit,
+                  onSave: handleUpdate,
+                  onCancelEdit: handleCancelEdit,
+                  onDelete: handleDelete,
+                }),
+              },
+            ]).sections,
+          },
+        ],
+      }}
+    />
   );
 }
 
-function ProjectTaskTableSurface({
+function buildProjectTaskTableSurface({
   tasks,
   columns,
   loading,
@@ -335,12 +348,12 @@ function ProjectTaskTableSurface({
   onSave: () => void;
   onCancelEdit: () => void;
   onDelete: (task: ProjectTaskItem) => void;
-}) {
-  return <PageSurface embedded kind="list" body={createPageBody([createPageDataBlock("project-task-table", {
+}): DataSurfaceProps<ProjectTaskItem> {
+  return {
     kind: "table",
     rows: tasks,
     columns,
-        presentation: { density: "compact" },
+    presentation: { density: "compact" },
 
     loading,
     emptyText: "暂无项目任务",
@@ -387,7 +400,7 @@ function ProjectTaskTableSurface({
       ];
     },
     scroll: { y: "hidden" },
-  })])} />;
+  };
 }
 
 function statusClassName(status: string | null) {

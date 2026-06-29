@@ -16,7 +16,7 @@ type ContractDescriptor = {
 
 const ROOT = path.resolve(__dirname, "..");
 const OUTPUT_PATH = path.join(ROOT, "packages/core/ui/registry/generated-surface-contracts.ts");
-const MAX_DEPTH = 3;
+const MAX_DEPTH = 12;
 
 const TARGETS: ContractTarget[] = [
   { componentName: "BlockSurface", sourcePath: "packages/core/ui/BlockSurface.tsx", typeName: "BlockSurfaceProps" },
@@ -61,8 +61,27 @@ function typeDeclarationFor(sourceFile: ts.SourceFile, typeName: string) {
 }
 
 function isExternalType(type: ts.Type) {
-  const declarations = type.symbol?.declarations ?? type.aliasSymbol?.declarations ?? [];
+  const declarations = [
+    ...(type.symbol?.declarations ?? []),
+    ...(type.aliasSymbol?.declarations ?? []),
+  ];
+  if (hasLocalCoreUiDeclaration(declarations)) return false;
   return declarations.some((declaration) => declaration.getSourceFile().fileName.includes(`${path.sep}node_modules${path.sep}`));
+}
+
+function hasLocalCoreUiDeclaration(declarations: readonly ts.Declaration[]) {
+  return declarations.some((declaration) => {
+    const fileName = declaration.getSourceFile().fileName;
+    return fileName.startsWith(path.join(ROOT, "packages/core/ui"));
+  });
+}
+
+function isLocalCoreUiType(type: ts.Type) {
+  const declarations = [
+    ...(type.symbol?.declarations ?? []),
+    ...(type.aliasSymbol?.declarations ?? []),
+  ];
+  return hasLocalCoreUiDeclaration(declarations);
 }
 
 function isFunctionLikeType(type: ts.Type, checker: ts.TypeChecker) {
@@ -125,16 +144,45 @@ function isArrayLikeContractType(type: ts.Type, checker: ts.TypeChecker, node: t
     || text.startsWith("ReadonlyMap<");
 }
 
+function arrayElementTypes(type: ts.Type, checker: ts.TypeChecker): ts.Type[] {
+  if (type.isUnion()) return type.types.flatMap((part) => arrayElementTypes(part, checker));
+  if (!checker.isArrayType(type) && !checker.isTupleType(type)) return [];
+  const args = checker.getTypeArguments(type as ts.TypeReference);
+  if (checker.isTupleType(type)) return [...args];
+  return args[0] ? [args[0]] : [];
+}
+
+function indexedValueTypes(type: ts.Type, checker: ts.TypeChecker): ts.Type[] {
+  if (type.isUnion()) return type.types.flatMap((part) => indexedValueTypes(part, checker));
+  const valueType = checker.getIndexTypeOfType(type, ts.IndexKind.String)
+    ?? checker.getIndexTypeOfType(type, ts.IndexKind.Number);
+  return valueType ? [valueType] : [];
+}
+
 function typeText(type: ts.Type, checker: ts.TypeChecker, node: ts.Node) {
-  const text = checker.typeToString(
-    type,
-    node,
-    ts.TypeFormatFlags.NoTruncation
-      | ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
-      | ts.TypeFormatFlags.UseSingleQuotesForStringLiteralType,
-  );
+  let text: string;
+  try {
+    text = checker.typeToString(
+      type,
+      node,
+      ts.TypeFormatFlags.NoTruncation
+        | ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+        | ts.TypeFormatFlags.UseSingleQuotesForStringLiteralType,
+    );
+  } catch {
+    text = String(type.aliasSymbol?.escapedName ?? type.symbol?.escapedName ?? "unknown");
+  }
   if (text.includes("ReactElement<") && text.includes("ReactPortal")) return "ReactNode";
   return text;
+}
+
+function typeKeyFor(type: ts.Type, checker: ts.TypeChecker, node: ts.Node) {
+  return String(type.aliasSymbol?.escapedName ?? type.symbol?.escapedName ?? typeText(type, checker, node));
+}
+
+function isExpandableContractType(type: ts.Type, checker: ts.TypeChecker) {
+  const targetType = nonNullableType(type, checker);
+  return !isExternalType(targetType) && !isFunctionLikeType(targetType, checker) && isLocalCoreUiType(targetType);
 }
 
 function descriptionFor(symbol: ts.Symbol | undefined, type: ts.Type, checker: ts.TypeChecker, node: ts.Node) {
@@ -174,6 +222,15 @@ type PropertyGroup = {
 type KindBranch = {
   kind: string;
   type: ts.Type;
+};
+
+type KindUnionContractOptions = {
+  hoistCommonProperties?: boolean;
+  branchChildren?: "all" | "standard-only";
+  branchOrder?: readonly string[];
+  depth?: number;
+  seenTypes?: Set<string>;
+  expandBranchProperties?: boolean;
 };
 
 function collectPropertyGroups(type: ts.Type): PropertyGroup[] {
@@ -243,19 +300,49 @@ function descriptorForCommonProperty(
   return descriptorForPropertyGroup({ name, symbols }, checker, fallbackNode, 0, new Set());
 }
 
-function contractForKindUnion(type: ts.Type, checker: ts.TypeChecker, fallbackNode: ts.Node) {
+function propertyHasRenderableType(property: PropertyGroup, checker: ts.TypeChecker, fallbackNode: ts.Node) {
+  return property.symbols.some((symbol) => {
+    const declaration = symbol.valueDeclaration ?? symbol.declarations?.[0] ?? fallbackNode;
+    const type = nonNullableType(checker.getTypeOfSymbolAtLocation(symbol, declaration), checker);
+    return !Boolean(type.flags & ts.TypeFlags.Never);
+  });
+}
+
+function contractForKindUnion(
+  type: ts.Type,
+  checker: ts.TypeChecker,
+  fallbackNode: ts.Node,
+  options: KindUnionContractOptions = {},
+) {
   const branches = discriminatedKindBranches(type, checker);
   if (!branches) return null;
 
-  const common = commonPropertyNames(branches);
-  const kindValues = branches.map((branch) => branch.kind);
+  const hoistCommonProperties = options.hoistCommonProperties ?? true;
+  const branchOrder = options.branchOrder;
+  const orderedBranches = branchOrder
+    ? [...branches].sort((left, right) => {
+        const leftIndex = branchOrder.indexOf(left.kind);
+        const rightIndex = branchOrder.indexOf(right.kind);
+        const leftRank = leftIndex >= 0 ? leftIndex : Number.MAX_SAFE_INTEGER;
+        const rightRank = rightIndex >= 0 ? rightIndex : Number.MAX_SAFE_INTEGER;
+        return leftRank - rightRank || left.kind.localeCompare(right.kind);
+      })
+    : branches;
+  const common = commonPropertyNames(orderedBranches);
+  const kindValues = orderedBranches.map((branch) => branch.kind);
+  const branchDepth = options.expandBranchProperties ? options.depth ?? 0 : MAX_DEPTH;
+  const branchSeenTypes = options.expandBranchProperties ? options.seenTypes ?? new Set<string>() : new Set<string>();
   const kindDescriptor: ContractDescriptor = {
     name: "kind",
     description: `可选值：${kindValues.join(" / ")}。`,
-    children: branches.map((branch) => {
-      const branchProperties = collectPropertyGroups(branch.type)
-        .filter((property) => property.name !== "kind" && !common.has(property.name))
-        .map((property) => descriptorForPropertyGroup(property, checker, fallbackNode, 1, new Set()));
+    children: orderedBranches.map((branch) => {
+      const branchProperties = options.branchChildren === "standard-only" && branch.kind !== "standard"
+        ? []
+        : collectPropertyGroups(branch.type)
+          .filter((property) => property.name !== "kind")
+          .filter((property) => !hoistCommonProperties || !common.has(property.name))
+          .filter((property) => propertyHasRenderableType(property, checker, fallbackNode))
+          .map((property) => descriptorForPropertyGroup(property, checker, fallbackNode, branchDepth, new Set(branchSeenTypes)));
       return {
         name: branch.kind,
         description: `${branch.kind} 分支声明。`,
@@ -265,9 +352,10 @@ function contractForKindUnion(type: ts.Type, checker: ts.TypeChecker, fallbackNo
   };
 
   const topLevel = collectPropertyGroups(type)
-    .filter((property) => property.name !== "kind" && common.has(property.name))
-    .map((property) => descriptorForCommonProperty(property.name, branches, checker, fallbackNode));
-  return [kindDescriptor, ...topLevel];
+    .filter((property) => hoistCommonProperties && property.name !== "kind" && common.has(property.name))
+    .filter((property) => propertyHasRenderableType(property, checker, fallbackNode))
+    .map((property) => descriptorForCommonProperty(property.name, orderedBranches, checker, fallbackNode));
+  return [...topLevel, kindDescriptor];
 }
 
 function childrenFor(
@@ -285,22 +373,89 @@ function childrenFor(
     return literalValues.map((value) => ({ name: value, description: "字面量取值。" }));
   }
   if (hasNonLiteralPrimitiveBranch(type)) return undefined;
+  if (isFunctionLikeType(type, checker)) return undefined;
+
+  const typeKey = typeKeyFor(type, checker, node);
+  if (typeKey.startsWith("[") || typeKey.startsWith("readonly [")) return undefined;
+  if (seenTypes.has(typeKey)) return undefined;
+  const nextSeenTypes = new Set(seenTypes);
+  nextSeenTypes.add(typeKey);
+
+  const elements = arrayElementTypes(type, checker);
+  const indexValues = indexedValueTypes(type, checker);
+  const shouldExpand = isExpandableContractType(type, checker)
+    || elements.some((element) => isExpandableContractType(element, checker))
+    || indexValues.some((value) => isExpandableContractType(value, checker)
+      || arrayElementTypes(value, checker).some((element) => isExpandableContractType(element, checker)));
+  if (!shouldExpand) return undefined;
+
+  const kindUnionContract = contractForKindUnion(type, checker, node, {
+    depth: depth + 1,
+    seenTypes: nextSeenTypes,
+    expandBranchProperties: isExpandableContractType(type, checker),
+  });
+  if (kindUnionContract) return kindUnionContract;
+  if (elements.length) {
+    const children = descriptorListForTypes(elements, checker, node, depth + 1, nextSeenTypes);
+    return children?.length ? children : undefined;
+  }
+  if (indexValues.length) {
+    const children = indexValues.flatMap((valueType) =>
+      childrenFor(valueType, checker, node, depth + 1, nextSeenTypes) ?? [],
+    );
+    return children?.length ? children : undefined;
+  }
   if (isArrayLikeContractType(type, checker, node)) return undefined;
-  if (isExternalType(type) || isFunctionLikeType(type, checker)) return undefined;
+  if (isExternalType(type)) return undefined;
 
   const targetType = type;
   if (isExternalType(targetType) || isFunctionLikeType(targetType, checker)) return undefined;
-
-  const typeKey = typeText(targetType, checker, node);
-  if (seenTypes.has(typeKey)) return undefined;
-  seenTypes.add(typeKey);
 
   const properties = collectPropertyGroups(targetType);
   if (!properties.length) return undefined;
 
   const descriptors = properties
     .filter((property) => property.name !== "__type")
-    .map((property) => descriptorForPropertyGroup(property, checker, node, depth + 1, new Set(seenTypes)));
+    .map((property) => descriptorForPropertyGroup(property, checker, node, depth + 1, nextSeenTypes));
+  return descriptors.length ? descriptors : undefined;
+}
+
+function descriptorListForTypes(
+  types: ts.Type[],
+  checker: ts.TypeChecker,
+  fallbackNode: ts.Node,
+  depth: number,
+  seenTypes: Set<string>,
+): ContractDescriptor[] | undefined {
+  if (depth >= MAX_DEPTH) return undefined;
+
+  const nonNullableTypes = types.map((type) => nonNullableType(type, checker));
+  const unionLike = nonNullableTypes.length === 1 ? nonNullableTypes[0] : undefined;
+  const kindUnionContract = unionLike
+    ? contractForKindUnion(unionLike, checker, fallbackNode, {
+        depth: depth + 1,
+        seenTypes,
+        expandBranchProperties: isExpandableContractType(unionLike, checker),
+      })
+    : null;
+  if (kindUnionContract) return kindUnionContract;
+
+  const properties = new Map<string, PropertyGroup>();
+  const ordered: PropertyGroup[] = [];
+  for (const type of nonNullableTypes) {
+    for (const property of collectPropertyGroups(type)) {
+      const existing = properties.get(property.name);
+      if (existing) {
+        existing.symbols.push(...property.symbols);
+        continue;
+      }
+      properties.set(property.name, property);
+      ordered.push(property);
+    }
+  }
+  const descriptors = ordered
+    .filter((property) => property.name !== "__type")
+    .map((property) => descriptorForPropertyGroup(property, checker, fallbackNode, depth + 1, new Set(seenTypes)));
   return descriptors.length ? descriptors : undefined;
 }
 
@@ -336,7 +491,12 @@ function contractFor(target: ContractTarget, program: ts.Program, checker: ts.Ty
   const type = ts.isTypeAliasDeclaration(declaration)
     ? checker.getTypeFromTypeNode(declaration.type)
     : checker.getTypeAtLocation(declaration.name);
-  const kindUnionContract = contractForKindUnion(type, checker, declaration);
+  const kindUnionContract = contractForKindUnion(type, checker, declaration, {
+    hoistCommonProperties: target.typeName !== "PageSurfaceProps",
+    branchChildren: target.typeName === "PageSurfaceProps" ? "standard-only" : "all",
+    branchOrder: target.typeName === "PageSurfaceProps" ? ["login", "directory", "standard"] : undefined,
+    expandBranchProperties: true,
+  });
   if (kindUnionContract) return kindUnionContract;
   return collectPropertyGroups(type).map((property) => descriptorForPropertyGroup(property, checker, declaration, 0, new Set()));
 }

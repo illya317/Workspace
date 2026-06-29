@@ -142,7 +142,7 @@ const CORE_UI_ENCAPSULATION_L2_EDGES = new Set([
   "page.surface -> form.surface",
   "page.surface -> visualization.surface",
   "feedback.service -> feedback.renderer",
-  "page.surface -> page.blocks",
+  "page.surface -> page.sections",
   "page.surface -> page.frame",
 ]);
 

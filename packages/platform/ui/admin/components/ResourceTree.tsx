@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createPageBody, createSelectorPanelBlock, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createSelectorPanelSection, PageSurface } from "@workspace/core/ui";
 
 type StatusVariant = "green" | "yellow" | "gray";
 
@@ -115,11 +115,10 @@ export default function ResourceTree({
   }
 
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="detail"
       body={createPageBody([
-        createSelectorPanelBlock<ResourceTreeNode>("resource-tree", {
+        createSelectorPanelSection<ResourceTreeNode>("resource-tree", {
           mode: "tree",
           framed: false,
           items: resources,

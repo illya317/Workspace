@@ -5,9 +5,9 @@ import { workspacePath } from "@workspace/core/routing";
 import {
   createPageBody,
   PageSurface,
-  createPageDataBlock,
-  createInlineFieldsBlock,
-  createPageTableBlock,
+  createPageDataSection,
+  createInlineFieldsSection,
+  createPageTableSection,
   type DataSurfaceColumnSpec,
 } from "@workspace/core/ui";
 interface Company {
@@ -89,11 +89,10 @@ export default function FinanceBalanceReconcile({
           年度余额表用于校验差异。
         </p>
       </div>
-      <PageSurface
-        kind="list"
+      <PageSurface kind="standard"
         embedded
         body={createPageBody([
-          createInlineFieldsBlock("balance-reconcile-filters", [
+          createInlineFieldsSection("balance-reconcile-filters", [
             {
               key: "company",
               label: "公司",
@@ -158,7 +157,7 @@ export default function FinanceBalanceReconcile({
 }
 
 function BalanceReconcileSuccess() {
-  return <PageSurface kind="list" embedded body={createPageBody([createPageDataBlock("balance-reconcile-empty", { kind: "records", records: [], empty: "核对通过，所有科目余额完全一致" })])} />;
+  return <PageSurface kind="standard" embedded body={createPageBody([createPageDataSection("balance-reconcile-empty", { kind: "records", records: [], empty: "核对通过，所有科目余额完全一致" })])} />;
 }
 
 function MissingList({
@@ -225,11 +224,10 @@ function DiffTable({
      emphasis: "medium", tone: "danger",
     cell: difference => difference.diff.toFixed(2)
   }];
-  return <PageSurface
-    kind="list"
+  return <PageSurface kind="standard"
     embedded
     body={createPageBody([
-      createPageTableBlock("balance-reconcile-differences", {
+      createPageTableSection("balance-reconcile-differences", {
         framed: true,
 
 

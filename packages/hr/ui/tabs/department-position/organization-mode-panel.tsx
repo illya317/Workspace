@@ -3,13 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { putJson } from "@workspace/platform/ui/api-client";
 import {
-  createPageBody, createBlockSurfaceBlock,
-  createPanelBlock,
+  createPageBody, createBlockSurfaceSection,
+  createPanelSection,
   type DataSurfaceColumnSpec,
   InputControl,
   PageSurface,
-  type PageSurfaceBlockSpec,
-  type PageSurfaceSideSpec,
+  type PageSurfaceSectionSpec,
   type ReferenceOption,
   useFeedback,
 } from "@workspace/core/ui";
@@ -86,7 +85,7 @@ export function OrganizationModePanel({
   selectedPositionId: number | null;
   positions: Position[];
   positionsByDepartment: Map<number, Position[]>;
-  sideBlocks: (mode: "desktop" | "drawer") => PageSurfaceBlockSpec[];
+  sideBlocks: (mode: "desktop" | "drawer") => PageSurfaceSectionSpec[];
   sideOpen: boolean;
   canEdit: boolean;
   onDrawerOpenChange: (open: boolean) => void;
@@ -198,10 +197,6 @@ export function OrganizationModePanel({
       setSaving(false);
     }
   }
-  const side: PageSurfaceSideSpec = {
-    blocks: sideBlocks("desktop"),
-    drawerBlocks: sideBlocks("drawer"),
-  };
   const organizationHeaderDepartment = !loading && !error ? selectedDepartment : undefined;
   const organizationPanelTitle = organizationHeaderDepartment ? (
     <div
@@ -236,20 +231,20 @@ export function OrganizationModePanel({
       </span>
     </div>
   ) : undefined;
-  const panelBlocks: PageSurfaceBlockSpec[] = [];
+  const panelBlocks: PageSurfaceSectionSpec[] = [];
 
-  if (loading) panelBlocks.push(createBlockSurfaceBlock("loading", {
+  if (loading) panelBlocks.push(createBlockSurfaceSection("loading", {
     kind: "message",
     content: "加载中...",
     tone: "muted"
   }));
-  if (error) panelBlocks.push(createBlockSurfaceBlock("error", {
+  if (error) panelBlocks.push(createBlockSurfaceSection("error", {
     kind: "message",
     content: error,
     tone: "danger"
   }));
   if (!loading && !error && !selectedDepartment) {
-    panelBlocks.push(createBlockSurfaceBlock("empty", {
+    panelBlocks.push(createBlockSurfaceSection("empty", {
       kind: "empty",
       presentation: "plain",
       content: "请选择左侧部门查看岗位汇报关系"
@@ -257,7 +252,7 @@ export function OrganizationModePanel({
   }
   if (!loading && !error && selectedDepartment) {
     panelBlocks.push(directPositions.length === 0
-      ? createBlockSurfaceBlock("empty-direct", {
+      ? createBlockSurfaceSection("empty-direct", {
         kind: "empty",
         presentation: "plain",
         content: "当前部门暂无直属岗位"
@@ -280,29 +275,34 @@ export function OrganizationModePanel({
   }
 
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded={!surface}
-      kind="split"
       {...surface}
-      sideOpen={sideOpen}
-      sideLabel="全部部门层级"
-      onSideOpenChange={onSideOpenChange}
-      drawerOpen={drawerOpen}
-      onDrawerOpenChange={onDrawerOpenChange}
-      side={side}
-      body={createPageBody([createPanelBlock("organization-mode", {
-        title: organizationPanelTitle,
-        actions: organizationHeaderDepartment ? [{
-          key: "save",
-          label: saving ? "保存中..." : "保存修改",
-          variant: "primary",
-          disabled: !canEdit || saving || !managerDirty,
-          onClick: () => void saveChanges(),
-        }] : undefined,
+      body={{
+        kind: "split",
+        left: {
+          sections: createPageBody(sideBlocks("desktop")).sections,
+          drawerSections: createPageBody(sideBlocks("drawer")).sections,
+        },
+        right: createPageBody([createPanelSection("organization-mode", {
+          title: organizationPanelTitle,
+          actions: organizationHeaderDepartment ? [{
+            key: "save",
+            label: saving ? "保存中..." : "保存修改",
+            variant: "primary",
+            disabled: !canEdit || saving || !managerDirty,
+            onClick: () => void saveChanges(),
+          }] : undefined,
 
 
-        blocks: panelBlocks,
-      })])}
+          sections: panelBlocks,
+        })]),
+        sideOpen,
+        sideLabel: "全部部门层级",
+        onSideOpenChange,
+        drawerOpen,
+        onDrawerOpenChange,
+      }}
     />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPageTableSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import CompanyNameCell from "@workspace/platform/ui/CompanyNameCell";
 
 export interface Account {
@@ -138,11 +138,10 @@ export default function AccountTable({
   const columns = getAccountColumns();
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageTableBlock("accounts", {
+        createPageTableSection("accounts", {
           rows: accounts,
           columns,
           visibleColumns,

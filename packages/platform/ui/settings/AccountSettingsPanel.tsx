@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { createBlockSurfaceBlock, createGroupBlock, createPageBody, createSectionBlock, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createSectionsSection, createPageBody, createSectionSection, PageSurface, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import ApiAccessClient, { type ApiAccessModuleRow } from "./ApiAccessClient";
 type Message = {
@@ -178,8 +178,8 @@ export default function AccountSettingsPanel({
     setConfirmPwd("");
     setTimeout(() => router.push("/login"), 1500);
   }
-  const blocks: PageSurfaceBlockSpec[] = [
-    createBlockSurfaceBlock("profile-header", {
+  const sections: PageSurfaceSectionSpec[] = [
+    createBlockSurfaceSection("profile-header", {
       kind: "message",
       content: (
         <div className="flex min-w-0 items-center gap-4">
@@ -195,14 +195,14 @@ export default function AccountSettingsPanel({
         </div>
       )
     }),
-    createGroupBlock("account-forms", {
+    createSectionsSection("account-forms", {
       layout: "grid",
 
-      blocks: [
-        createSectionBlock("profile", {
+      sections: [
+        createSectionSection("profile", {
           title: "修改账号",
 
-          blocks: [{
+          sections: [{
             kind: "form",
             key: "profile-form",
             surface: {
@@ -244,10 +244,10 @@ export default function AccountSettingsPanel({
             },
           }],
         }),
-        createSectionBlock("password", {
+        createSectionSection("password", {
           title: "修改密码",
 
-          blocks: [{
+          sections: [{
             kind: "form",
             key: "password-form",
             surface: {
@@ -293,10 +293,10 @@ export default function AccountSettingsPanel({
             },
           }],
         }),
-        createSectionBlock("avatar", {
+        createSectionSection("avatar", {
           title: "修改头像",
 
-          blocks: [{
+          sections: [{
             kind: "form",
             key: "avatar-form",
             surface: {
@@ -338,12 +338,12 @@ export default function AccountSettingsPanel({
         }),
       ],
     }),
-    createGroupBlock("api-access", {
-      blocks: [createBlockSurfaceBlock("api-access-client", {
+    createSectionsSection("api-access", {
+      sections: [createBlockSurfaceSection("api-access-client", {
         kind: "message",
         content: <ApiAccessClient user={user} modules={apiAccessModules} />
       })],
     }),
   ];
-  return <PageSurface kind="settings" body={createPageBody(blocks)} />;
+  return <PageSurface kind="standard" body={createPageBody(sections)} />;
 }

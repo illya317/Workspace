@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  createPageBody, createBlockSurfaceBlock,
-  createMessageBlock,
-  createPanelBlock,
+  createPageBody, createBlockSurfaceSection,
+  createMessageSection,
+  createPanelSection,
   PageSurface,
-  type PageSurfaceBlockSpec,
+  type PageSurfaceSectionSpec,
   type SurfaceColumnOptionSpec,
   type DataSurfaceStructuredCellSpec,
   type SurfaceFilterFieldSpec,
@@ -198,14 +198,14 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
     },
   });
 
-  const tableBlocks: PageSurfaceBlockSpec[] = loading
-    ? [createBlockSurfaceBlock("loading", {
+  const tableBlocks: PageSurfaceSectionSpec[] = loading
+    ? [createBlockSurfaceSection("loading", {
       kind: "message",
       content: "正在生成预览...",
       tone: "muted"
     })]
     : groups.length === 0
-      ? [createBlockSurfaceBlock("empty", {
+      ? [createBlockSurfaceSection("empty", {
         kind: "empty",
         presentation: "plain",
         content: "暂无花名册数据"
@@ -228,22 +228,21 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
           },
         }];
 
-  const blocks: PageSurfaceBlockSpec[] = [
-    ...(error ? [createMessageBlock("error", { content: error, tone: "danger" as const })] : []),
-    createPanelBlock("preview", {
+  const sections: PageSurfaceSectionSpec[] = [
+    ...(error ? [createMessageSection("error", { content: error, tone: "danger" as const })] : []),
+    createPanelSection("preview", {
 
 
-      blocks: tableBlocks,
+      sections: tableBlocks,
     }),
   ];
 
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded={!surface}
-      kind="list"
       {...surface}
       toolbar={{ items: toolbarItems, onSubmit: refreshPreview }}
-      body={createPageBody(blocks)}
+      body={createPageBody(sections)}
     />
   );
 }

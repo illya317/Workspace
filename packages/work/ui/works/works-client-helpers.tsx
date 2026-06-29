@@ -1,5 +1,5 @@
-import { createPageDataBlock } from "@workspace/core/ui";
-import type { PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageDataSection } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec } from "@workspace/core/ui";
 import { getWorkSpaceLabel } from "./model";
 import type { WorkTarget, WorkTaskSpace } from "./types";
 
@@ -8,7 +8,7 @@ export function spaceSelectorBlock(
   active: WorkTarget | null,
   loading: boolean,
   onSelect: (space: WorkTaskSpace) => void,
-): PageSurfaceBlockSpec {
+): PageSurfaceSectionSpec {
   const groups: Array<{ type: WorkTaskSpace["targetType"]; title: string }> = [
     { type: "personal", title: "个人空间" },
     { type: "company", title: "公司空间" },
@@ -53,8 +53,8 @@ export function sameTarget(a: WorkTarget | null | undefined, b: WorkTarget | nul
   return Boolean(a && b && a.targetType === b.targetType && a.targetId === b.targetId);
 }
 
-export function spaceMetricsBlock(space: WorkTaskSpace): PageSurfaceBlockSpec {
-  return createPageDataBlock("space-metrics", {
+export function spaceMetricsBlock(space: WorkTaskSpace): PageSurfaceSectionSpec {
+  return createPageDataSection("space-metrics", {
     kind: "metrics",
     metrics: [
       { key: "objective", label: "目标", value: space.counts.objective,  },

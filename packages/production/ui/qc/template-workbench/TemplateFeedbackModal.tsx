@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useMemo, useState } from "react";
-import { createFieldsBlock, createPageBody, createPageModalBlock, createPageTableBlock, PageSurface } from "@workspace/core/ui";
+import { createFieldsSection, createPageBody, createPageModalSection, createPageTableSection, PageSurface } from "@workspace/core/ui";
 import type { QcTemplateFeedbackItem, QcTemplateFeedbackState } from "@workspace/production/server/qc";
 import { feedbackKey, selectionTitle, type FeedbackTarget } from "./types";
 import { TEMPLATE_FEEDBACK_FIELDS } from "./feedback-fields";
@@ -144,18 +144,17 @@ export default function TemplateFeedbackModal({ target, onClose, onSaved }: Prop
   }
 
   return (
-    <PageSurface
-      kind="detail"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageModalBlock("template-feedback-modal", {
+        createPageModalSection("template-feedback-modal", {
           open: true,
           title: "反馈",
           onClose,
           size: "lg",
 
-          blocks: [
-            createFieldsBlock("template-feedback-summary", [
+          sections: [
+            createFieldsSection("template-feedback-summary", [
               {
                 kind: "note",
                 key: "selection",
@@ -169,7 +168,7 @@ export default function TemplateFeedbackModal({ target, onClose, onSaved }: Prop
                 content: error,
               }] : []),
             ]),
-            createPageTableBlock<FeedbackRow>("template-feedback-table", {
+            createPageTableSection<FeedbackRow>("template-feedback-table", {
               framed: true,
               title: "全部反馈",
               subtitle: loading ? "读取中" : `${rows.length} 条`,

@@ -2,8 +2,8 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { createPageBody, PageSurface, createMessageBlock, createActionsBlock, createPageDataBlock } from "@workspace/core/ui";
-import type { PageSurfaceBlockSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createMessageSection, createActionsSection, createPageDataSection } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import BalanceCheckTable, { flattenBalanceAccountTree, formatBalanceAmount, type BalanceCheckAccountNode } from "../components/BalanceCheckTable";
 import FinanceFilters from "../components/FinanceFilters";
 import { useStatementConfig } from "./StatementConfigContext";
@@ -119,17 +119,17 @@ export default function BalanceCheckTab() {
     walk(tree);
     return c;
   }, [tree]);
-  const statusBlocks: PageSurfaceBlockSpec[] = [
+  const statusBlocks: PageSurfaceSectionSpec[] = [
     ...(!loading && error ? [
-      createMessageBlock("error", {
+      createMessageSection("error", {
         tone: "danger" as const,
 
         content: error,
       }),
-      createActionsBlock("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: load }], {  }),
+      createActionsSection("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: load }], {  }),
     ] : []),
     ...(!loading && !error && tree && flatNodes.length > 0 && summary ? [
-      createPageDataBlock("balance-summary", {
+      createPageDataSection("balance-summary", {
         kind: "metrics",
         framed: true,
         title: "余额校验汇总",
@@ -148,7 +148,7 @@ export default function BalanceCheckTab() {
 
       {loading && <p className="p-12 text-center text-sm text-gray-400">加载中...</p>}
 
-      {statusBlocks.length > 0 && <PageSurface kind="list" embedded body={createPageBody(statusBlocks)} />}
+      {statusBlocks.length > 0 && <PageSurface kind="standard" embedded body={createPageBody(statusBlocks)} />}
 
       {!loading && !error && tree && flatNodes.length === 0 && <p className="p-12 text-center text-sm text-gray-400">暂无科目余额数据</p>}
 

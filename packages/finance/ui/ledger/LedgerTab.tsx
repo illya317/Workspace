@@ -2,8 +2,8 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useCallback } from "react";
-import { PageSurface, createBlockSurfaceBlock, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
-import type { PageSurfaceBlockSpec, PageSurfaceNavigationSpec } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceSection, createPageBody, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec, PageSurfaceNavigationSpec } from "@workspace/core/ui";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import FinanceBalanceReconcile from "../components/FinanceBalanceReconcile";
 import { formatFinanceAmount } from "../formatters";
@@ -31,7 +31,7 @@ export default function LedgerTab({
   lifecycleBlocks = [],
 }: {
   navigation?: PageSurfaceNavigationSpec;
-  lifecycleBlocks?: PageSurfaceBlockSpec[];
+  lifecycleBlocks?: PageSurfaceSectionSpec[];
 }) {
   const [_periods, setPeriods] = useState<Period[]>([]);
   const [_selectedPeriodId, setSelectedPeriodId] = useState<number | null>(null);
@@ -180,13 +180,10 @@ export default function LedgerTab({
   });
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       navigation={navigation}
       toolbar={{ items: toolbarItems }}
-      body={{
-        layout: "single",
-        blocks: [
+      body={createPageBody([
           ...lifecycleBlocks,
           {
             kind: "data",
@@ -204,12 +201,11 @@ export default function LedgerTab({
               rowKey: (balance: Balance) => balance.id,
             },
           },
-          createBlockSurfaceBlock("balance-reconcile", {
+          createBlockSurfaceSection("balance-reconcile", {
             kind: "content",
             content: <FinanceBalanceReconcile showToast={feedback.notify} />,
           }),
-        ],
-      }}
+        ], { layout: "single" })}
       footer={{ pagination: { page, totalPages, total, onPageChange: setPage } }}
     />
   );

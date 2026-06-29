@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createPageTableBlock, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPageTableSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { RvLine } from "@workspace/finance/types";
 const FMT = (n: number) => n.toLocaleString("en-US", {
   minimumFractionDigits: 2,
@@ -182,11 +182,10 @@ export default function ReviewTable({
       };
     }
   }];
-  return <PageSurface
-    kind="list"
+  return <PageSurface kind="standard"
     embedded
     body={createPageBody([
-      createPageTableBlock("review-lines", {
+      createPageTableSection("review-lines", {
         framed: true,
 
 

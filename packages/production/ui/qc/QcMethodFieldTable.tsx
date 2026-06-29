@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createPageDataBlock, type DataSurfaceStructuredCellSpec, InputControl, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createPageDataSection, type DataSurfaceStructuredCellSpec, InputControl, PageSurface } from "@workspace/core/ui";
 import type { QcTemplateMethodField, QcTemplateTestItem } from "@workspace/production/server/qc";
 import { QcPaperChoiceInput } from "./QcPaperInputs";
 import { useQcFormulaEngine, type QcFieldValues } from "./useQcFormulaEngine";
@@ -87,7 +87,7 @@ export default function QcMethodFieldTable({ test, compact, values: controlledVa
   const setValue = onFieldChange || form.setValue;
 
   if (test.methodGroups.length === 0) {
-    return <PageSurface kind="detail" embedded body={createPageBody([], { empty: { content: "该方法暂未配置字段。", compact: true,  } })} />;
+    return <PageSurface kind="standard" embedded body={createPageBody([], { empty: { content: "该方法暂未配置字段。", compact: true,  } })} />;
   }
 
   return (
@@ -117,12 +117,11 @@ export default function QcMethodFieldTable({ test, compact, values: controlledVa
           }),
         ];
         return (
-          <PageSurface
+          <PageSurface kind="standard"
             key={group.name}
-            kind="detail"
             embedded
             body={createPageBody([
-              createPageDataBlock(`qc-method-field-${group.name}`, {
+              createPageDataSection(`qc-method-field-${group.name}`, {
                 kind: "structured",
                 wrap: false,
                 structuredScroll: false,

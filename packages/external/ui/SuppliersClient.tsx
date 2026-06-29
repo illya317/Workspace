@@ -1,11 +1,10 @@
 "use client";
 
-import { createPageBody, createSectionBlock, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createSectionSection, PageSurface } from "@workspace/core/ui";
 
 export default function SuppliersClient() {
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       toolbar={{
         items: [
           {
@@ -19,9 +18,9 @@ export default function SuppliersClient() {
         ],
       }}
       body={createPageBody([
-        createSectionBlock("suppliers", {
+        createSectionSection("suppliers", {
           title: "供应商列表",
-          blocks: [
+          sections: [
             {
               kind: "data",
               key: "empty",

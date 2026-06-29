@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createBlockSurfaceBlock, createMessageBlock, createPageBody, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createMessageSection, createPageBody, PageSurface, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import ResourceTree from "../components/ResourceTree";
-import { createPermissionMatrixBlock } from "../components/permissions/MatrixTable";
+import { createPermissionMatrixSection } from "../components/permissions/MatrixTable";
 import type { PermissionsTabState } from "../hooks/usePermissionsTab";
 import type { ResourceItem } from "../types";
 import type { ResourceTreeNode } from "../components/ResourceTree";
@@ -77,45 +77,47 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, s }: Pr
     setSelectedResource(firstSelectableResource(selectedEntry).key);
   }, [selectedEntry, setSelectedResource]);
 
-  const bodyBlocks: PageSurfaceBlockSpec[] = [
+  const bodyBlocks: PageSurfaceSectionSpec[] = [
     ...(s.loading
-      ? [createMessageBlock("permission-matrix-loading", {
+      ? [createMessageSection("permission-matrix-loading", {
           tone: "muted" as const,
           content: "加载中...",
         })]
       : []),
-    ...(!s.loading ? [createPermissionMatrixBlock({ s })] : []),
+    ...(!s.loading ? [createPermissionMatrixSection({ s })] : []),
   ];
 
   return (
-    <PageSurface
-      kind="split"
+    <PageSurface kind="standard"
       embedded
-      sideOpen
-      drawerOpen={drawerOpen}
-      onSideOpenChange={() => undefined}
-      onDrawerOpenChange={setDrawerOpen}
-      sideLabel="资源模块"
-      showSideControls={false}
-      splitRatio={[3, 7]}
-      side={{
-        blocks: [createBlockSurfaceBlock("resource-tree", {
-          kind: "message",
+      body={{
+        kind: "split",
+        left: {
+          sections: createPageBody([createBlockSurfaceSection("resource-tree", {
+            kind: "message",
 
-          content: (
-            <div className="space-y-3">
-              <div className="text-sm font-semibold text-gray-700">资源模块</div>
-              <ResourceTree
-                resources={resourceTree}
-                selectedResource={selectedResource}
-                onSelect={selectResource}
-                defaultExpanded
-              />
-            </div>
-          )
-        })],
+            content: (
+              <div className="space-y-3">
+                <div className="text-sm font-semibold text-gray-700">资源模块</div>
+                <ResourceTree
+                  resources={resourceTree}
+                  selectedResource={selectedResource}
+                  onSelect={selectResource}
+                  defaultExpanded
+                />
+              </div>
+            )
+          })]).sections,
+        },
+        right: createPageBody(bodyBlocks),
+        sideOpen: true,
+        drawerOpen,
+        onSideOpenChange: () => undefined,
+        onDrawerOpenChange: setDrawerOpen,
+        sideLabel: "资源模块",
+        showSideControls: false,
+        splitRatio: [3, 7],
       }}
-      body={createPageBody(bodyBlocks)}
     />
   );
 }

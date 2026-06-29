@@ -42,8 +42,8 @@ export function getSubModules(user: SessionUser, moduleKey: string): SubModuleDe
   return mod.children.filter((c) => isResourceVisible(user, c.resourceKey, mod.key));
 }
 
-export function getEmptyMessage(_moduleKey: string): string {
-  return "暂无可用模块，请联系管理员开通权限";
+export function getModuleEmptyMessage(module: Pick<ModuleDef, "label">): string {
+  return `${module.label}模块开发中...`;
 }
 
 if (typeof window === "undefined") {

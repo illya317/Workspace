@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { createPageBody, PageSurface, createFieldsBlock, createPageModalBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createFieldsSection, createPageModalSection } from "@workspace/core/ui";
 import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
 
 interface Props {
@@ -118,17 +118,16 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
   }
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageModalBlock("reclass-review", {
+        createPageModalSection("reclass-review", {
           open,
           title: "调整重分类",
           onClose: handleClose,
           size: "lg",
-          blocks: [
-            createFieldsBlock("reclass-review-form", [
+          sections: [
+            createFieldsSection("reclass-review-form", [
               { kind: "readonly", key: "voucherNo", label: "凭证号", value: item.voucherNo,  },
               ...(item.description ? [{ kind: "readonly" as const, key: "description", label: "摘要", value: item.description }] : []),
               {

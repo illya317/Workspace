@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { PageSurface, createPageBody, createPageDataBlock } from "@workspace/core/ui";
-import type { PageSurfaceBlockSpec, PageSurfaceProps, SurfaceToolbarItems, VisualizationGanttRowSpec } from "@workspace/core/ui";
+import { PageSurface, createPageBody, createPageDataSection } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec, PageSurfaceProps, SurfaceToolbarItems, VisualizationGanttRowSpec } from "@workspace/core/ui";
 import type { WorkUser } from "@workspace/work/types";
 import { listProjectGantt } from "./api";
 import { PROJECT_GANTT_LEVEL_OPTIONS, PROJECT_GANTT_TASK_OPTIONS, PROJECT_GANTT_ZOOM_OPTIONS, buildProjectGanttRows, defaultGanttExpandedKeys, type GanttRow, type ProjectGanttData, type ProjectGanttLevelFilter, type ProjectGanttZoom } from "./gantt-model";
@@ -113,10 +113,10 @@ export default function ProjectGanttTab({
       section: "meta",
       content: `${rows.length} 行`
     }] satisfies SurfaceToolbarItems;
-  const blocks = error ? [
-    createPageDataBlock("project-gantt-error", { kind: "records", records: [], empty: error,  }),
+  const sections = error ? [
+    createPageDataSection("project-gantt-error", { kind: "records", records: [], empty: error,  }),
   ] : loading && !hasLoaded ? [
-    createPageDataBlock("project-gantt-loading", { kind: "records", records: [], empty: "加载公司甘特..." }),
+    createPageDataSection("project-gantt-loading", { kind: "records", records: [], empty: "加载公司甘特..." }),
   ] : [
     {
       kind: "visualization" as const,
@@ -136,9 +136,9 @@ export default function ProjectGanttTab({
         },
       },
     },
-  ] satisfies PageSurfaceBlockSpec[];
+  ] satisfies PageSurfaceSectionSpec[];
 
-	  return <PageSurface kind="list" {...surface} toolbar={{ items: toolbarItems }} body={createPageBody(blocks)} />;
+	  return <PageSurface kind="standard" {...surface} toolbar={{ items: toolbarItems }} body={createPageBody(sections)} />;
 	}
 type ProjectGanttSurfaceProps = Pick<PageSurfaceProps, "navigation">;
 

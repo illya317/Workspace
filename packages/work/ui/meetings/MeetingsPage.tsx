@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createBlockSurfaceBlock, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createPageBody, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { useMeetingDetailBlock } from "./MeetingDetailPanel";
@@ -263,69 +263,73 @@ export default function MeetingsPage({
   }];
 
   return (
-    <PageSurface
-      kind="split"
-      sideOpen={sideOpen}
-      drawerOpen={drawerOpen}
-      onSideOpenChange={setSideOpen}
-      onDrawerOpenChange={setDrawerOpen}
-      sideLabel="会议列表"
-      splitRatio={[2, 8]}
+    <PageSurface kind="standard"
       toolbar={{ items: toolbarItems }}
-      side={{
-        blocks: [{
-          kind: "navigation",
-          key: "meeting-list",
-          surface: {
-            kind: "selector",
-            selector: {
-              title: "会议列表",
-              loading,
-              loadingText: "加载中...",
-              emptyText: "暂无会议",
-              items: filteredMeetings,
-              selectedId,
-              onSelect: (item: MeetingSummary) => setSelectedId(item.id),
-              getKey: (item: MeetingSummary) => item.id,
-              renderItem: (item: MeetingSummary) => ({
-                title: item.title,
-                subtitle: `${item.typeName} · ${formatDateTime(item.startAt) || "未定时间"}`,
-                trailing: <span className="shrink-0 rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{item.status}</span>,
-                meta: [`议题 ${item.counts.agendaItems}`, `表决 ${item.counts.proposals}`, `决议 ${item.counts.decisions}`],
-              }),
-            },
-          },
-        }],
-      }}
-      body={{ commands: [{
-        key: "create",
-        label: creating ? "收起新建" : "新建会议",
-        variant: creating ? "secondary" : "primary",
-        disabled: saving,
-        onClick: () => setCreating((current) => !current),
-      }],
-        blocks: [
-          ...(creating ? [{
-            kind: "form" as const,
-            key: "create-meeting",
+      body={{
+        kind: "split",
+        left: {
+          sections: createPageBody([{
+            kind: "navigation",
+            key: "meeting-list",
             surface: {
-              kind: "fields" as const,
-              columns: 3 as const,
-              fields: meetingCreateFields(createDraft, types, setCreateDraft),
-              actions: [
-                { key: "cancel", label: "取消", disabled: saving, onClick: () => setCreating(false) },
-                { key: "save", label: saving ? "保存中..." : "保存会议", variant: "primary" as const, disabled: saving || !createDraft.title.trim() || !createDraft.typeId, onClick: () => void handleCreateMeeting() },
-              ],
+              kind: "selector",
+              selector: {
+                title: "会议列表",
+                loading,
+                loadingText: "加载中...",
+                emptyText: "暂无会议",
+                items: filteredMeetings,
+                selectedId,
+                onSelect: (item: MeetingSummary) => setSelectedId(item.id),
+                getKey: (item: MeetingSummary) => item.id,
+                renderItem: (item: MeetingSummary) => ({
+                  title: item.title,
+                  subtitle: `${item.typeName} · ${formatDateTime(item.startAt) || "未定时间"}`,
+                  trailing: <span className="shrink-0 rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{item.status}</span>,
+                  meta: [`议题 ${item.counts.agendaItems}`, `表决 ${item.counts.proposals}`, `决议 ${item.counts.decisions}`],
+                }),
+              },
             },
-          }] : []),
-          meeting
-            ? meetingDetailBlock
-            : createBlockSurfaceBlock("meeting-empty", {
-              kind: "message",
-              content: detailLoading ? "加载中..." : "暂无会议",
-              tone: "muted"
-            }),
-        ],
+          }]).sections,
+        },
+        right: {
+          kind: "complete",
+          commands: [{
+            key: "create",
+            label: creating ? "收起新建" : "新建会议",
+            variant: creating ? "secondary" : "primary",
+            disabled: saving,
+            onClick: () => setCreating((current) => !current),
+          }],
+          sections: createPageBody([
+            ...(creating ? [{
+              kind: "form" as const,
+              key: "create-meeting",
+              surface: {
+                kind: "fields" as const,
+                columns: 3 as const,
+                fields: meetingCreateFields(createDraft, types, setCreateDraft),
+                actions: [
+                  { key: "cancel", label: "取消", disabled: saving, onClick: () => setCreating(false) },
+                  { key: "save", label: saving ? "保存中..." : "保存会议", variant: "primary" as const, disabled: saving || !createDraft.title.trim() || !createDraft.typeId, onClick: () => void handleCreateMeeting() },
+                ],
+              },
+            }] : []),
+            meeting
+              ? meetingDetailBlock
+              : createBlockSurfaceSection("meeting-empty", {
+                kind: "message",
+                content: detailLoading ? "加载中..." : "暂无会议",
+                tone: "muted"
+              }),
+          ]).sections,
+        },
+        sideOpen,
+        drawerOpen,
+        onSideOpenChange: setSideOpen,
+        onDrawerOpenChange: setDrawerOpen,
+        sideLabel: "会议列表",
+        splitRatio: [2, 8],
       }}
     />
   );

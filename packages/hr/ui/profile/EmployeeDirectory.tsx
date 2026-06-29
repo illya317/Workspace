@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import {
   createPageBody,
   type DataSurfaceColumnSpec,
-  createMessageBlock,
+  createMessageSection,
   PageSurface,
-  type PageSurfaceBlockSpec,
+  type PageSurfaceSectionSpec,
 } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { buildHRToolbarItems } from "../components/hr-toolbar-items";
@@ -169,8 +169,8 @@ export default function EmployeeDirectory({
     },
   });
 
-  const blocks: PageSurfaceBlockSpec[] = [
-    ...(error ? [createMessageBlock("error", { content: error, tone: "danger" as const })] : []),
+  const sections: PageSurfaceSectionSpec[] = [
+    ...(error ? [createMessageSection("error", { content: error, tone: "danger" as const })] : []),
     {
       kind: "data",
       key: "employees",
@@ -209,11 +209,10 @@ export default function EmployeeDirectory({
   };
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       {...(surface ?? { embedded: true })}
       toolbar={{ items: toolbarItems }}
-      body={createPageBody(blocks)}
+      body={createPageBody(sections)}
       footer={footer}
     />
   );

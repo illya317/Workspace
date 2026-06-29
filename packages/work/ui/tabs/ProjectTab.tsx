@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { createBlockSurfaceBlock, createPageBody, createPageTabsNavigation, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createPageBody, createPageTabsNavigation, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { PageSurfaceProps } from "@workspace/core/ui";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 import type { WorkUser } from "@workspace/work/types";
@@ -99,16 +99,8 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
   });
 
   return (
-    <PageSurface
-      kind="split"
+    <PageSurface kind="standard"
       {...surface}
-      sideOpen={model.projectListOpen}
-      drawerOpen={model.projectListDrawerOpen}
-      onSideOpenChange={model.setProjectListOpen}
-      onDrawerOpenChange={model.setProjectListDrawerOpen}
-      sideLabel="项目列表"
-      splitRatio={[2, 8]}
-      showSideControls={false}
       toolbar={model.loading || model.error ? undefined : {
         items: [
               {
@@ -148,28 +140,38 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
                 : []),
             ],
       }}
-      side={{
-        blocks: model.loading || model.error ? [createBlockSurfaceBlock("project-list-loading", {
+      body={{
+        kind: "split",
+        left: {
+          sections: createPageBody(model.loading || model.error ? [createBlockSurfaceSection("project-list-loading", {
+            kind: "message",
+            content: model.loading ? "加载中..." : "暂无项目",
+            tone: "muted"
+          })] : [projectListNavigationBlock(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
+            model.setCreating(false);
+            model.setSelection(projectId);
+            model.setProjectListDrawerOpen(false);
+          })]).sections,
+          drawerSections: model.loading || model.error ? undefined : createPageBody([projectListNavigationBlock(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
+            model.setCreating(false);
+            model.setSelection(projectId);
+            model.setProjectListDrawerOpen(false);
+          }, "drawer")]).sections,
+        },
+        right: model.loading || model.error ? createPageBody([createBlockSurfaceSection("project-loading", {
           kind: "message",
-          content: model.loading ? "加载中..." : "暂无项目",
-          tone: "muted"
-        })] : [projectListNavigationBlock(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
-          model.setCreating(false);
-          model.setSelection(projectId);
-          model.setProjectListDrawerOpen(false);
-        })],
-        drawerBlocks: model.loading || model.error ? undefined : [projectListNavigationBlock(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
-          model.setCreating(false);
-          model.setSelection(projectId);
-          model.setProjectListDrawerOpen(false);
-        }, "drawer")],
+          content: model.error || "加载中...",
+          tone: model.error ? "danger" : "muted"
+        })]) : projectDetailBlock,
+        sideOpen: model.projectListOpen,
+        drawerOpen: model.projectListDrawerOpen,
+        onSideOpenChange: model.setProjectListOpen,
+        onDrawerOpenChange: model.setProjectListDrawerOpen,
+        sideLabel: "项目列表",
+        splitRatio: [2, 8],
+        showSideControls: false,
       }}
-	      body={createPageBody(model.loading || model.error ? [createBlockSurfaceBlock("project-loading", {
-	        kind: "message",
-	        content: model.error || "加载中...",
-	        tone: model.error ? "danger" : "muted"
-	      })] : [projectDetailBlock])}
-	    />
+			    />
   );
 }
 

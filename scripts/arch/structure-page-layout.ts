@@ -387,8 +387,8 @@ export function findPageSurfaceLayoutProtocolWarnings(files: SourceInfo[]) {
         const surface = objectProperty(node, "surface");
         if (kind === "navigation" && surface && ts.isObjectLiteralExpression(surface)) {
           const surfaceKind = objectStringProperty(surface, "kind");
-          if (surfaceKind === "tabs") addLayoutWarning(warnings, file.relPath, "navigation-tabs", "PageSurface block navigation surface kind=tabs");
-          if (surfaceKind === "pagination") addLayoutWarning(warnings, file.relPath, "navigation-pagination", "PageSurface block navigation surface kind=pagination");
+          if (surfaceKind === "tabs") addLayoutWarning(warnings, file.relPath, "navigation-tabs", "PageSurface section navigation surface kind=tabs");
+          if (surfaceKind === "pagination") addLayoutWarning(warnings, file.relPath, "navigation-pagination", "PageSurface section navigation surface kind=pagination");
         }
         if (kind === "data" && surface && ts.isObjectLiteralExpression(surface)) {
           if (objectProperty(surface, "toolbar")) addLayoutWarning(warnings, file.relPath, "data-surface-toolbar", "PageSurface data block surface.toolbar");

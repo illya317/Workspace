@@ -9,7 +9,7 @@ export const page_api_registry_entries = [
     composes: ["PanelCard", "SearchInput", "SelectionGrid", "SelectorList", "SelectorTree", "EmptyStateCard"],
   },
   {
-    name: "createSelectorPanelBlock",
+    name: "createSelectorPanelSection",
     category: "common",
     subcategory: "common.selection",
     description: "选择器区块声明助手",

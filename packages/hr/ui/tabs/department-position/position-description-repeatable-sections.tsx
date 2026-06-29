@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createFieldsBlock, useFeedback } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createFieldsSection, useFeedback } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { formatHistoryVersion, normalizeDateValue, versionNumber } from "./draft-utils";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
@@ -43,10 +43,9 @@ export function PositionDutyEditor({
     if (confirmed) onChange(records.filter((_, recordIndex) => recordIndex !== index));
   }
   return <div key={detailKey} className="space-y-3 md:col-span-2">
-      <PageSurface
+      <PageSurface kind="standard"
         embedded
-        kind="detail"
-        body={createPageBody([createFieldsBlock<string>(detailKey, [{
+        body={createPageBody([createFieldsSection<string>(detailKey, [{
           kind: "repeatable",
           key: detailKey,
           title: label,
@@ -140,10 +139,9 @@ export function PositionChangeHistoryEditor({
     if (confirmed) onChange(records.filter((_, recordIndex) => recordIndex !== index));
   }
   return <div key="changeHistory" className="space-y-3 md:col-span-2">
-      <PageSurface
+      <PageSurface kind="standard"
         embedded
-        kind="detail"
-        body={createPageBody([createFieldsBlock("change-history", [{
+        body={createPageBody([createFieldsSection("change-history", [{
           kind: "repeatable",
           key: "changeHistory",
           title: "变更历史",

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { createMessageBlock, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createMessageSection, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 
 const DIAG_MESSAGES: Record<string, string> = {
   missingConfirmedReview: "当前期间尚未确认校对，请先在「报表校对」页生成并确认校对。",
@@ -14,10 +14,10 @@ type ReportBannerProps = {
   reviewHref: string;
 };
 
-export function createReportBannerBlock(key: string, props: ReportBannerProps): PageSurfaceBlockSpec | null {
+export function createReportBannerSection(key: string, props: ReportBannerProps): PageSurfaceSectionSpec | null {
   const { source, diagnostics, reviewHref } = props;
   if (source === "review") {
-    return createMessageBlock(key, {
+    return createMessageSection(key, {
       tone: "success",
 
       content: "校对已确认，当前报表来自已确认校对结果。",
@@ -25,7 +25,7 @@ export function createReportBannerBlock(key: string, props: ReportBannerProps): 
   }
   if (source && source !== "review" && diagnostics?.length) {
     const diag = diagnostics.find((item) => item.type in DIAG_MESSAGES) || diagnostics[0];
-    return createMessageBlock(key, {
+    return createMessageSection(key, {
       tone: "warning",
 
       content: <>
@@ -40,7 +40,7 @@ export function createReportBannerBlock(key: string, props: ReportBannerProps): 
 }
 
 export default function ReportBanner(props: ReportBannerProps) {
-  const block = createReportBannerBlock("report-banner", props);
+  const block = createReportBannerSection("report-banner", props);
   if (!block || block.kind !== "block" || block.surface.kind !== "message") return null;
   return <div>{block.surface.content}</div>;
 }

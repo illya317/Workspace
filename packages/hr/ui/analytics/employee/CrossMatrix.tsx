@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createAnalysisBlock, createBlockSurfaceBlock, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createBlockSurfaceSection, PageSurface, type DataSurfaceColumnSpec, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import type { CrossMatrixData } from "./useEmployeeData";
 import { DIM_LABELS, type DimKey } from "./constants";
 
@@ -38,7 +38,7 @@ export default function CrossMatrix({
   setCrossRow: (v: DimKey) => void;
   setCrossCol: (v: DimKey) => void;
 }) {
-  const block = createCrossMatrixBlock({
+  const block = createCrossMatrixSection({
     crossMatrix,
     crossRow,
     crossCol,
@@ -49,14 +49,13 @@ export default function CrossMatrix({
   });
 
   return (
-    <PageSurface
-      kind="analysis"
+    <PageSurface kind="standard"
       body={createPageBody([block])}
     />
   );
 }
 
-export function createCrossMatrixBlock({
+export function createCrossMatrixSection({
   crossMatrix,
   crossRow,
   crossCol,
@@ -72,7 +71,7 @@ export function createCrossMatrixBlock({
   featureList: DimKey[];
   setCrossRow: (v: DimKey) => void;
   setCrossCol: (v: DimKey) => void;
-}): PageSurfaceBlockSpec {
+}): PageSurfaceSectionSpec {
   const crossMax = Math.max(0, ...Object.values(crossMatrix.rowTotals));
   const rowOptions = featureList
     .filter((feature) => feature !== crossCol)
@@ -118,7 +117,7 @@ export function createCrossMatrixBlock({
     },
   ];
 
-  return createAnalysisBlock("cross-matrix", {
+  return createAnalysisSection("cross-matrix", {
     title: "交叉分析",
     toolbar: {
       items: [
@@ -128,8 +127,8 @@ export function createCrossMatrixBlock({
         { kind: "text", key: "meta", content: <>共 {statsActive} 人</> },
       ],
     },
-    blocks: crossMatrix.rowKeys.length === 0
-      ? [createBlockSurfaceBlock("empty", {
+    sections: crossMatrix.rowKeys.length === 0
+      ? [createBlockSurfaceSection("empty", {
         kind: "message",
         tone: "muted",
         content: "无数据"

@@ -6,24 +6,17 @@ import type { FormSurfaceProps } from "./FormSurface.types";
 import type { NavigationSurfaceProps } from "./NavigationSurface";
 import type { VisualizationSurfaceProps } from "./VisualizationSurface";
 import type { SurfaceToolbarItems } from "./SurfaceContractTypes";
+import type { ActionGlyphKind } from "./internal/action/ActionGlyphs";
 
-export type PageSurfaceKind = "list" | "detail" | "split" | "analysis" | "settings";
+export type PageSurfaceBodyKind = "complete" | "split";
 export type PageSurfaceActionSize = "sm" | "md" | "lg";
+export type PageSurfaceKind = "login" | "directory" | "standard";
 
 export type PageSurfaceToolbarSpec = {
   items: SurfaceToolbarItems;
   onSubmit?: () => void;
   hidden?: boolean;
 };
-
-export interface PageSurfaceHeaderSpec {
-  hidden?: boolean;
-  title?: ReactNode;
-  backHref?: string;
-  backLabel?: ReactNode;
-  leading?: ReactNode;
-  actions?: ReactNode;
-}
 
 export interface PageSurfaceNavigationItemSpec {
   key: string;
@@ -34,16 +27,14 @@ export interface PageSurfaceNavigationItemSpec {
   children?: PageSurfaceNavigationItemSpec[];
 }
 
-export interface PageSurfaceNavigationSpec {
-  kind: "cards" | "tabs";
-  level: 1 | 2;
+export type PageSurfaceNavigationSpec = {
+  kind: "tabs";
   items: PageSurfaceNavigationItemSpec[];
   active: string;
   activeChild?: string;
   onChange: (key: string) => void;
   onChildChange?: (key: string) => void;
-  hidden?: boolean;
-}
+};
 
 export interface PageSurfaceFooterSpec {
   hidden?: boolean;
@@ -61,6 +52,7 @@ export interface PageSurfacePaginationSpec {
 export interface PageSurfaceCommandSpec {
   key: string;
   label: ReactNode;
+  icon?: ActionGlyphKind | "back" | "create" | "open";
   onClick?: () => void;
   disabled?: boolean;
   variant?: "primary" | "secondary" | "danger";
@@ -81,54 +73,112 @@ export interface PageSurfaceModalSpec {
   title: string;
   onClose: () => void;
   size?: "sm" | "md" | "lg" | "xl";
-  blocks: PageSurfaceBlockSpec[];
+  sections: PageSurfaceSectionSpec[];
 }
 
-export type PageSurfaceBlockSpec =
-  | { kind: "data"; key: string; surface: DataSurfaceProps }
-  | { kind: "document"; key: string; surface: DocumentSurfaceProps }
-  | { kind: "form"; key: string; surface: FormSurfaceProps }
-  | { kind: "visualization"; key: string; surface: VisualizationSurfaceProps }
-  | { kind: "block"; key: string; surface: BlockSurfaceProps }
-  | { kind: "navigation"; key: string; surface: NavigationSurfaceProps }
-  | ({ kind: "modal" } & PageSurfaceModalSpec);
-
-export interface PageSurfaceSideSpec {
-  blocks: PageSurfaceBlockSpec[];
-  drawerBlocks?: PageSurfaceBlockSpec[];
+export interface PageSurfaceBadgeSpec {
+  key: string;
+  label: ReactNode;
+  tone?: "default" | "muted" | "info" | "success" | "warning" | "danger";
 }
 
-export interface PageSurfaceBodySpec {
+export interface PageSurfaceSectionHeaderSpec {
+  title?: ReactNode;
+  subtitle?: ReactNode;
+  badges?: PageSurfaceBadgeSpec[];
+  actions?: PageSurfaceCommandSpec[];
+}
+
+export interface PageSurfaceSectionBaseSpec {
+  key: string;
+  label?: ReactNode;
+  header?: PageSurfaceSectionHeaderSpec;
+  framed?: boolean;
+}
+
+export type PageSurfaceSectionSpec =
+  | (PageSurfaceSectionBaseSpec & { kind: "data"; surface: DataSurfaceProps })
+  | (PageSurfaceSectionBaseSpec & { kind: "document"; surface: DocumentSurfaceProps })
+  | (PageSurfaceSectionBaseSpec & { kind: "form"; surface: FormSurfaceProps })
+  | (PageSurfaceSectionBaseSpec & { kind: "visualization"; surface: VisualizationSurfaceProps })
+  | (PageSurfaceSectionBaseSpec & { kind: "block"; surface: BlockSurfaceProps })
+  | (PageSurfaceSectionBaseSpec & { kind: "navigation"; surface: NavigationSurfaceProps })
+  | (PageSurfaceSectionBaseSpec & ({ kind: "modal" } & PageSurfaceModalSpec))
+  | (PageSurfaceSectionBaseSpec & {
+      kind: "sections";
+      layout?: "stack" | "grid";
+      sectioning?: PageSurfaceSectioningSpec;
+      sections: PageSurfaceSectionSpec[];
+    });
+
+export type PageSurfaceSectioningSpec =
+  | { kind: "none" }
+  | { kind: "tabs"; active: string; onChange?: (key: string) => void };
+
+export interface PageSurfaceCompleteBodySpec {
+  kind: "complete";
+  title?: ReactNode;
+  description?: ReactNode;
   layout?: "single" | "split";
-  blocks?: PageSurfaceBlockSpec[];
+  sectioning?: PageSurfaceSectioningSpec;
+  sections?: PageSurfaceSectionSpec[];
   empty?: PageSurfaceEmptySpec;
   commands?: PageSurfaceCommandSpec[];
 }
 
-interface PageSurfaceBaseProps {
-  kind: PageSurfaceKind;
-  header?: PageSurfaceHeaderSpec;
-  navigation?: PageSurfaceNavigationSpec;
-  toolbar?: PageSurfaceToolbarSpec;
-  footer?: PageSurfaceFooterSpec;
-  body?: PageSurfaceBodySpec;
-  embedded?: boolean;
+export interface PageSurfaceSplitPaneSpec {
+  title?: ReactNode;
+  width?: "sm" | "md" | "lg";
+  sections?: PageSurfaceSectionSpec[];
+  drawerSections?: PageSurfaceSectionSpec[];
 }
 
-export interface PageSurfaceStandardProps extends PageSurfaceBaseProps {
-  kind: Exclude<PageSurfaceKind, "split">;
-}
-
-export interface PageSurfaceSplitProps extends PageSurfaceBaseProps {
+export interface PageSurfaceSplitBodySpec {
   kind: "split";
+  left: PageSurfaceSplitPaneSpec;
+  right: PageSurfaceCompleteBodySpec;
   sideOpen: boolean;
   drawerOpen: boolean;
   onSideOpenChange: (open: boolean) => void;
   onDrawerOpenChange: (open: boolean) => void;
   sideLabel: string;
-  side: PageSurfaceSideSpec;
   showSideControls?: boolean;
   splitRatio?: readonly [number, number];
 }
 
-export type PageSurfaceProps = PageSurfaceStandardProps | PageSurfaceSplitProps;
+export type PageSurfaceBodySpec = PageSurfaceCompleteBodySpec | PageSurfaceSplitBodySpec;
+
+interface PageSurfaceChromeProps {
+  body?: PageSurfaceBodySpec;
+  footer?: PageSurfaceFooterSpec;
+  embedded?: boolean;
+}
+
+export type PageSurfaceLoginProps = {
+  kind: "login";
+  body?: PageSurfaceBodySpec;
+  embedded?: never;
+  footer?: never;
+  navigation?: never;
+  toolbar?: never;
+};
+
+export type PageSurfaceDirectoryProps = {
+  kind: "directory";
+  body?: PageSurfaceBodySpec;
+  footer?: never;
+  embedded?: never;
+  navigation?: never;
+  toolbar?: never;
+};
+
+export type PageSurfaceStandardProps = PageSurfaceChromeProps & {
+  kind?: "standard";
+  navigation?: PageSurfaceNavigationSpec;
+  toolbar?: PageSurfaceToolbarSpec;
+};
+
+export type PageSurfaceProps =
+  | PageSurfaceLoginProps
+  | PageSurfaceDirectoryProps
+  | PageSurfaceStandardProps;

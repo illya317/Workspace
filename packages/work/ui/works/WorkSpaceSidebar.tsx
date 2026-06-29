@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createSelectorPanelBlock, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createSelectorPanelSection, PageSurface } from "@workspace/core/ui";
 import { getWorkSpaceLabel } from "./model";
 import type { WorkTarget, WorkTaskSpace, WorkTargetType } from "./types";
 
@@ -23,11 +23,10 @@ export default function WorkSpaceSidebar({
   ];
 
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="detail"
       body={createPageBody([
-        createSelectorPanelBlock<WorkTaskSpace>("work-spaces", {
+        createSelectorPanelSection<WorkTaskSpace>("work-spaces", {
           title: "工作空间",
           bodyClassName: "p-3",
           loading,

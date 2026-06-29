@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createFieldsBlock, createPageBody, PageSurface } from "@workspace/core/ui";
+import { createFieldsSection, createPageBody, PageSurface } from "@workspace/core/ui";
 import type { WorkItem } from "./types";
 
 export default function WorkForm({
@@ -29,10 +29,9 @@ export default function WorkForm({
   );
 
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="detail"
-      body={createPageBody([createFieldsBlock("work-form", [
+      body={createPageBody([createFieldsSection("work-form", [
         {
           key: "category",
           label: "类别",

@@ -2,18 +2,18 @@
 
 import { useState } from "react";
 import {
-  createPageBody, createAnalysisBlock,
-  createGroupBlock,
-  createPageDataBlock,
+  createPageBody, createAnalysisSection,
+  createSectionsSection,
+  createPageDataSection,
   PageSurface,
   type DataSurfaceColumnSpec,
-  type PageSurfaceBlockSpec,
+  type PageSurfaceSectionSpec,
 } from "@workspace/core/ui";
 import type { EDP, Employee, Employment } from "./useAnalyticsData";
 import type { DimKey } from "./employee/constants";
 import { DIM_LABELS, featureList } from "./employee/constants";
 import { useEmployeeData } from "./employee/useEmployeeData";
-import { createCrossMatrixBlock } from "./employee/CrossMatrix";
+import { createCrossMatrixSection } from "./employee/CrossMatrix";
 
 type DistributionRow = {
   label: string;
@@ -21,7 +21,7 @@ type DistributionRow = {
   percent: string;
 };
 
-export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { employees: Employee[]; employments: Employment[]; edps: EDP[] }): PageSurfaceBlockSpec[] {
+export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { employees: Employee[]; employments: Employment[]; edps: EDP[] }): PageSurfaceSectionSpec[] {
   const [feature, setFeature] = useState<DimKey>("gender");
   const [crossRow, setCrossRow] = useState<DimKey>("company");
   const [crossCol, setCrossCol] = useState<DimKey>("gender");
@@ -55,7 +55,7 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
   ];
 
   return [
-        createPageDataBlock("stats", {
+        createPageDataSection("stats", {
             kind: "metrics",
             metrics: [
               { key: "active", label: "在职人数", value: stats.active },
@@ -63,7 +63,7 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
               { key: "leftThisMonth", label: "本月离职", value: stats.leftThisMonth },
             ],
           }),
-        createAnalysisBlock("distribution", {
+        createAnalysisSection("distribution", {
           title: "特征分布",
           toolbar: {
             items: [
@@ -77,7 +77,7 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
               { kind: "text", key: "meta", content: <>基于 {stats.active} 位在职员工</> },
             ],
           },
-          blocks: [{
+          sections: [{
             kind: "data",
             key: "distribution-bars",
             surface: {
@@ -92,7 +92,7 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
             },
           }],
         }),
-        createCrossMatrixBlock({
+        createCrossMatrixSection({
           crossMatrix,
           crossRow,
           crossCol,
@@ -101,12 +101,12 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
           setCrossRow,
           setCrossCol,
         }),
-        createGroupBlock("recent", {
+        createSectionsSection("recent", {
           layout: "grid",
-          blocks: [
-            createAnalysisBlock("recent-joins", {
+          sections: [
+            createAnalysisSection("recent-joins", {
               title: "最近入职（前10）",
-              blocks: [{
+              sections: [{
                 kind: "data",
                 key: "recent-joins-table",
                 surface: {
@@ -119,9 +119,9 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
                 },
               }],
             }),
-            createAnalysisBlock("recent-leaves", {
+            createAnalysisSection("recent-leaves", {
               title: "最近离职（前10）",
-              blocks: [{
+              sections: [{
                 kind: "data",
                 key: "recent-leaves-table",
                 surface: {
@@ -140,5 +140,5 @@ export function useEmployeeAnalyticsBlocks({ employees, employments, edps }: { e
 }
 
 export default function EmployeeAnalytics(props: { employees: Employee[]; employments: Employment[]; edps: EDP[] }) {
-  return <PageSurface kind="analysis" body={createPageBody(useEmployeeAnalyticsBlocks(props))} />;
+  return <PageSurface kind="standard" body={createPageBody(useEmployeeAnalyticsBlocks(props))} />;
 }

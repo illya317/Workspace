@@ -5,9 +5,9 @@ import {
   createPageBody,
   InputControl,
   PageSurface,
-  createSectionBlock,
+  createSectionSection,
   type InputControlProps,
-  type PageSurfaceBlockSpec,
+  type PageSurfaceSectionSpec,
 } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import EthnicityPicker from "../components/EthnicityPicker";
@@ -280,19 +280,18 @@ export function SectionShell({
   title,
   subtitle,
   status,
-  blocks,
+  sections,
 }: {
   title: ReactNode;
   subtitle?: ReactNode;
   status?: ReactNode;
   className?: string;
-  blocks: PageSurfaceBlockSpec[];
+  sections: PageSurfaceSectionSpec[];
 }) {
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="detail"
-      body={createPageBody([sectionShellBlock({ title, subtitle, status, blocks })])}
+      body={createPageBody([sectionShellBlock({ title, subtitle, status, sections })])}
     />
   );
 }
@@ -301,16 +300,16 @@ export function sectionShellBlock({
   title,
   subtitle,
   status,
-  blocks,
+  sections,
   key = "section",
 }: {
   title: ReactNode;
   subtitle?: ReactNode;
   status?: ReactNode;
   className?: string;
-  blocks: PageSurfaceBlockSpec[];
+  sections: PageSurfaceSectionSpec[];
   key?: string;
-}): PageSurfaceBlockSpec {
+}): PageSurfaceSectionSpec {
   const headerTitle = title ? (
     <div>
       <div>{title}</div>
@@ -318,10 +317,10 @@ export function sectionShellBlock({
     </div>
   ) : status ? <div>{status}</div> : null;
 
-  return createSectionBlock(key, {
+  return createSectionSection(key, {
     title: headerTitle ?? "",
     subtitle,
-    blocks,
+    sections,
 
   });
 }

@@ -56,28 +56,27 @@ export const page_api_registry_entries = [
     description: "唯一页面薄壳 L1 Surface",
     contract: generatedCoreUiSurfaceContracts.PageSurface,
     declares: [
-      { name: "kind", description: "页面布局语义：list / detail / split / analysis / settings。" },
       {
-        name: "header",
-        description: "页面标题、返回、说明和右侧动作。",
+        name: "kind",
+        description: "页面级语义：先声明页面 chrome 类型。",
         children: [
-          { name: "title", description: "页面标题。" },
-          { name: "backHref", description: "返回链接。" },
-          { name: "actions", description: "页面右上角动作容器。" },
+          { name: "login", description: "登录专属页；必须在登录路由且包含 login FormSurface。" },
+          { name: "directory", description: "L1/L2 模块目录页；自动校验当前路由深度，禁止 navigation/toolbar。" },
+          { name: "standard", description: "标准业务页；才可声明页面内 navigation/toolbar/body/footer。" },
         ],
       },
       {
         name: "navigation",
-        description: "页面级 tabs / cards 导航。",
+        description: "标准业务页内部 tab 导航；不承载 login、L1/L2、card 或 level 语义。",
         children: [
-          { name: "kind", description: "导航呈现：tabs / cards。" },
-          { name: "items", description: "一级与二级导航项。" },
+          { name: "kind", description: "固定为 tabs。" },
+          { name: "items", description: "页面内 tab 项。" },
           { name: "active", description: "当前激活项。" },
         ],
       },
       {
         name: "toolbar",
-        description: "搜索、筛选、刷新、导出、新建等页面级工具。",
+        description: "页面级唯一工具区：搜索、筛选、刷新、导出、新建等都进入这里。",
         children: [
           { name: "items", description: "工具项列表，具体渲染交给 Toolbar。" },
           { name: "hidden", description: "隐藏页面工具栏。" },
@@ -85,23 +84,50 @@ export const page_api_registry_entries = [
       },
       {
         name: "body",
-        description: "正文 block wrapper 与正文级空态/动作。",
+        description: "正文架构：先选择完整页或左右分栏，再创建 section 并指定每个 section 的 Surface 类型。",
         children: [
-          { name: "blocks", description: "正文区块列表，只承载 wrapper，不展开各 Surface 细节。" },
-          { name: "layout", description: "正文 block 排布：single / split。" },
+          {
+            name: "kind",
+            description: "正文模式：complete 表示完整正文；split 表示左侧选择区 + 右侧完整正文。",
+            children: [
+              { name: "complete", description: "完整正文：可声明标题、分区和 section 树。" },
+              { name: "split", description: "左右分栏：left 为选择/导航区，right 复用 complete 正文配置。" },
+            ],
+          },
+          { name: "title", description: "正文标题；页面标题不放在 FormSurface/DataSurface 内。" },
+          { name: "description", description: "正文简述。" },
+          { name: "sectioning", description: "正文 section 分区模式：none / tabs。" },
+          {
+            name: "sections",
+            description: "正文 section 树；必须先声明 section，再声明它承载 form/data/document/visualization/block/navigation/modal/sections。",
+            children: [
+              { name: "kind", description: "section 内容类型：form / data / document / visualization / block / navigation / modal / sections。" },
+              { name: "form", description: "表单 section：surface 使用 FormSurface，FormSurface 只声明字段如何构成。" },
+              { name: "data", description: "数据 section：surface 使用 DataSurface。" },
+              { name: "document", description: "文档 section：surface 使用 DocumentSurface。" },
+              { name: "visualization", description: "图表 section：surface 使用 VisualizationSurface。" },
+              { name: "block", description: "通用内容 section：surface 使用 BlockSurface。" },
+              { name: "navigation", description: "导航 section：surface 使用 NavigationSurface。" },
+              { name: "modal", description: "弹层 section：用于挂载页面内弹层。" },
+              { name: "sections", description: "递归 section：内部继续声明 sections。" },
+              { name: "framed", description: "section 是否有外框；默认有框。" },
+            ],
+          },
+          { name: "layout", description: "正文 section 排布：single / split。" },
           { name: "empty", description: "正文为空时的空态。" },
           { name: "commands", description: "正文上方的简短命令；复杂工具归 toolbar。" },
         ],
       },
       {
         name: "footer",
-        description: "页面级分页。",
+        description: "页脚区域；表格/数据分页统一放在 PageSurface.footer.pagination。",
         children: [
           { name: "pagination", description: "页面底部分页声明。" },
         ],
       },
+      { name: "embedded", description: "嵌入式渲染，不输出完整页面框架。" },
     ],
-    composes: ["DatabasePageFrame", "AnalysisPageFrame", "WorkspaceSplitPage", "Toolbar", "BlockSurface", "NavigationSurface", "Pagination", "ModuleCard"],
+    composes: ["DatabasePageFrame", "WorkspaceSplitPage", "Toolbar", "BlockSurface", "NavigationSurface", "Pagination", "ModuleCard"],
   },
   {
     name: "PageShell",

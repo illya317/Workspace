@@ -1,12 +1,12 @@
 "use client";
 
-import { createPageBody, createPageDataBlock, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, createPageDataSection, PageSurface, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import type { Department, EDP, Position } from "./useAnalyticsData";
 import { usePositionData } from "./position/usePositionData";
-import { createDeptBarChartBlock } from "./position/DeptBarChart";
-import { createPositionTableBlock } from "./position/PositionTable";
+import { createDeptBarChartSection } from "./position/DeptBarChart";
+import { createPositionTableSection } from "./position/PositionTable";
 
-export function usePositionAnalyticsBlocks({ positions, edps, departments }: { positions: Position[]; edps: EDP[]; departments: Department[] }): PageSurfaceBlockSpec[] {
+export function usePositionAnalyticsBlocks({ positions, edps, departments }: { positions: Position[]; edps: EDP[]; departments: Department[] }): PageSurfaceSectionSpec[] {
   const {
     stats,
     filteredDept,
@@ -24,7 +24,7 @@ export function usePositionAnalyticsBlocks({ positions, edps, departments }: { p
   } = usePositionData(positions, edps, departments);
 
   return [
-    createPageDataBlock("stats", {
+    createPageDataSection("stats", {
         kind: "metrics",
         metrics: [
           { key: "total", label: "岗位总数", value: `${stats.total} / 编制 ${stats.hasHeadcount}` },
@@ -34,14 +34,14 @@ export function usePositionAnalyticsBlocks({ positions, edps, departments }: { p
           { key: "underStaffed", label: "缺编", value: stats.underStaffed },
         ],
       }),
-    createDeptBarChartBlock({
+    createDeptBarChartSection({
       filteredDept,
       l1List,
       filterL1,
       setFilterL1,
       globalMax,
     }),
-    createPositionTableBlock({
+    createPositionTableSection({
       filtered,
       search,
       setSearch,
@@ -54,5 +54,5 @@ export function usePositionAnalyticsBlocks({ positions, edps, departments }: { p
 }
 
 export default function PositionAnalytics(props: { positions: Position[]; edps: EDP[]; departments: Department[] }) {
-  return <PageSurface kind="analysis" body={createPageBody(usePositionAnalyticsBlocks(props))} />;
+  return <PageSurface kind="standard" body={createPageBody(usePositionAnalyticsBlocks(props))} />;
 }

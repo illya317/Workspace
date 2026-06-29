@@ -3,7 +3,7 @@
 import {
   createPageBody,
   PageSurface,
-  createFieldsBlock,
+  createFieldsSection,
 } from "@workspace/core/ui";
 import { pickerOptions, primitiveListItems } from "./description-details";
 
@@ -37,10 +37,9 @@ export function OptionTagListEditor({
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <PageSurface
+      <PageSurface kind="standard"
         embedded
-        kind="detail"
-        body={createPageBody([createFieldsBlock<string>("options", [{
+        body={createPageBody([createFieldsSection<string>("options", [{
           kind: "tagList",
           key: "options",
           label: "",

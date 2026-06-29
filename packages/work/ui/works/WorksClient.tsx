@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createBlockSurfaceBlock, createGroupBlock, createMessageBlock, createPageBody, createPageTabsNavigation, createPanelBlock, createSectionBlock, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createSectionsSection, createMessageSection, createPageBody, createPageTabsNavigation, createPanelSection, createSectionSection, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import type { SessionUser } from "@workspace/platform/types";
@@ -22,12 +22,12 @@ import {
   WORK_ITEM_TYPE_OPTIONS,
 } from "./model";
 import { useWorks } from "./useWorks";
-import { nextSortOrder, normalizeInitialTarget, roleAllows, sameTarget, spaceMetricsBlock, spaceSelectorBlock } from "./works-client-helpers";
+import { nextSortOrder, normalizeInitialTarget, roleAllows, sameTarget, spaceMetricsBlock } from "./works-client-helpers";
 import { useWorkPermissionsBlocks } from "./WorkPermissionsPanel";
 import { buildWorkReportsPanelBlocks, useWorkReportsController } from "./WorkReportsPanel";
 import { useWorkTaskTableBlock } from "./WorkTaskTable";
 import { useWorkTaskFormSurface } from "./WorkTaskFields";
-import { createWorkPlanHeaderBlock, createWorkPlanSelectorBlock } from "./WorkPlanBlocks";
+import { createWorkPlanHeaderSection, createWorkPlanSelectorSection } from "./WorkPlanBlocks";
 import { useWorkPlanFormSurface } from "./WorkPlanFields";
 import type { WorkItem, WorkItemType, WorkPlan, WorkPlanDraft, WorkTarget, WorkTaskSpace } from "./types";
 
@@ -52,13 +52,21 @@ export default function WorksClient({ initialTarget }: {
   const [sideOpen, setSideOpen] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const currentSpace = useMemo(
-    () => spaces.find((space) => sameTarget(space, activeTarget)) || null,
-    [activeTarget, spaces],
-  );
   const activePlan = useMemo(
     () => plans.find((plan) => plan.id === activePlanId) || null,
     [activePlanId, plans],
+  );
+  const currentSpace = useMemo(() => {
+    const target = activePlan ? { targetType: activePlan.targetType, targetId: activePlan.targetId } : activeTarget;
+    return spaces.find((space) => sameTarget(space, target)) || null;
+  }, [activePlan, activeTarget, spaces]);
+  const currentSpacePlans = useMemo(
+    () => currentSpace ? plans.filter((plan) => sameTarget(plan, currentSpace)) : [],
+    [currentSpace, plans],
+  );
+  const spacesByKey = useMemo(
+    () => new Map(spaces.map((space) => [`${space.targetType}:${space.targetId}`, space])),
+    [spaces],
   );
   const canEdit = roleAllows(currentSpace?.role, "editor");
   const canManage = roleAllows(currentSpace?.role, "manager");
@@ -118,22 +126,28 @@ export default function WorksClient({ initialTarget }: {
   }, [initialTarget, showToast]);
 
   const loadPlans = useCallback(async () => {
-    if (!currentSpace) {
+    if (spaces.length === 0) {
       setPlans([]);
       setActivePlanId(null);
       return;
     }
     setPlansLoading(true);
     try {
-      const nextPlans = await listWorkPlans(currentSpace);
+      const nextPlans = (await Promise.all(spaces.map((space) => listWorkPlans(space)))).flat();
       setPlans(nextPlans);
-      setActivePlanId((current) => current && nextPlans.some((plan) => plan.id === current) ? current : nextPlans[0]?.id ?? null);
+      setActivePlanId((current) => {
+        if (current && nextPlans.some((plan) => plan.id === current)) return current;
+        const preferredActivePlan = nextPlans.find((plan) => sameTarget(plan, activeTarget) && plan.status !== "archived");
+        const preferredAnyPlan = nextPlans.find((plan) => sameTarget(plan, activeTarget));
+        const firstActivePlan = nextPlans.find((plan) => plan.status !== "archived");
+        return preferredActivePlan?.id ?? preferredAnyPlan?.id ?? firstActivePlan?.id ?? nextPlans[0]?.id ?? null;
+      });
     } catch (err) {
       showToast(err instanceof Error ? err.message : "加载 OKR 计划失败", "error");
     } finally {
       setPlansLoading(false);
     }
-  }, [currentSpace, showToast]);
+  }, [activeTarget, showToast, spaces]);
 
   const taskTableBlock = useWorkTaskTableBlock({
     works: worksState.works,
@@ -163,25 +177,43 @@ export default function WorksClient({ initialTarget }: {
     if (spaces.length === 0) return;
     function handlePopState() {
       const target = getWorkTargetFromPath(window.location.pathname, spaces);
-      if (target) setActiveTarget({ targetType: target.targetType, targetId: target.targetId });
+      if (!target) return;
+      setActiveTarget({ targetType: target.targetType, targetId: target.targetId });
+      setActivePlanId((current) => {
+        const currentPlan = plans.find((plan) => plan.id === current);
+        if (currentPlan && sameTarget(currentPlan, target)) return current;
+        const firstActivePlan = plans.find((plan) => sameTarget(plan, target) && plan.status !== "archived");
+        const firstPlan = plans.find((plan) => sameTarget(plan, target));
+        return firstActivePlan?.id ?? firstPlan?.id ?? null;
+      });
     }
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [spaces]);
+  }, [plans, spaces]);
 
   useEffect(() => {
     if (activeTab === "permissions" && !canManage) setActiveTab("tasks");
   }, [activeTab, canManage]);
 
-  function selectSpace(space: WorkTaskSpace) {
-    setActiveTarget({ targetType: space.targetType, targetId: space.targetId });
+  useEffect(() => {
+    if (!activePlan) return;
+    const nextTarget = { targetType: activePlan.targetType, targetId: activePlan.targetId };
+    if (sameTarget(activeTarget, nextTarget)) return;
+    setActiveTarget(nextTarget);
+  }, [activePlan, activeTarget]);
+
+  function selectPlan(plan: WorkPlan) {
+    const nextTarget = { targetType: plan.targetType, targetId: plan.targetId };
+    setActiveTarget(nextTarget);
+    setActivePlanId(plan.id);
     setActiveTab("tasks");
     setStatusFilter("active");
     setItemTypeFilter("all");
     setPlanCreating(false);
     setPlanEditing(false);
+    worksState.setCreating(false);
     setDrawerOpen(false);
-    window.history.pushState(null, "", workspacePath(getWorkSpacePath(space.targetType, space.targetId)));
+    window.history.pushState(null, "", workspacePath(getWorkSpacePath(plan.targetType, plan.targetId)));
   }
 
   async function handleCreatePlan() {
@@ -248,7 +280,7 @@ export default function WorksClient({ initialTarget }: {
       kind: "panel-toggle",
       key: "mobile-side-toggle",
       icon: "panel-open",
-      label: "显示工作空间",
+      label: "显示工作计划",
       visibility: "mobile",
       onClick: () => setDrawerOpen(true),
     },
@@ -256,7 +288,7 @@ export default function WorksClient({ initialTarget }: {
       kind: "panel-toggle",
       key: "desktop-side-toggle",
       icon: sideOpen ? "panel-open" : "panel-close",
-      label: `${sideOpen ? "隐藏" : "显示"}工作空间`,
+      label: `${sideOpen ? "隐藏" : "显示"}工作计划`,
       variant: sideOpen ? "primary" : "secondary",
       visibility: "desktop",
       onClick: () => setSideOpen(!sideOpen),
@@ -302,7 +334,7 @@ export default function WorksClient({ initialTarget }: {
             onClick: () => {
               setPlanCreating(true);
               setPlanEditing(false);
-              setPlanDraft(createEmptyWorkPlanDraft(nextSortOrder(plans)));
+              setPlanDraft(createEmptyWorkPlanDraft(nextSortOrder(currentSpacePlans)));
             },
           },
           ...(activePlan ? [{
@@ -397,84 +429,70 @@ export default function WorksClient({ initialTarget }: {
         ]
       : []),
   ] : [];
+  const planSelectorBlock = createWorkPlanSelectorSection({
+    plans,
+    activePlanId,
+    plansLoading: spacesLoading || plansLoading,
+    spacesByKey,
+    onSelect: selectPlan,
+  });
 
   return (
-    <PageSurface
-      kind="split"
-      sideOpen={sideOpen}
-      drawerOpen={drawerOpen}
-      onSideOpenChange={setSideOpen}
-      onDrawerOpenChange={setDrawerOpen}
-      sideLabel="工作空间"
-      splitRatio={[2, 8]}
-      showSideControls={false}
+    <PageSurface kind="standard"
       navigation={currentSpace ? createPageTabsNavigation({
-        level: 2,
         items: tabs,
         active: activeTab,
         onChange: setActiveTab,
       }) : undefined}
       toolbar={toolbarItems.length > 0 ? { items: toolbarItems } : undefined}
-      side={{
-        blocks: [spaceSelectorBlock(spaces, activeTarget, spacesLoading, selectSpace)],
-        drawerBlocks: [spaceSelectorBlock(spaces, activeTarget, spacesLoading, selectSpace)],
+      body={{
+        kind: "split",
+        left: {
+          sections: createPageBody([planSelectorBlock]).sections,
+          drawerSections: createPageBody([planSelectorBlock]).sections,
+        },
+        right: createPageBody(currentSpace ? [
+          createPanelSection("space-header", {
+            title: currentSpace.name,
+            subtitle: [getWorkSpaceLabel(currentSpace.targetType), currentSpace.subtitle].filter(Boolean).join(" · "),
+            sections: [spaceMetricsBlock(currentSpace)],
+          }),
+          activeTab === "permissions" ? createSectionsSection("permissions", {
+            sections: permissionBlocks,
+          }) : activeTab === "reports" ? createSectionSection("reports", {
+            title: "工作汇报",
+            sections: buildWorkReportsPanelBlocks(reportsState),
+          }) : createSectionSection("tasks", {
+            title: "OKR 计划",
+            sections: [
+              ...(planCreating || planEditing ? [{
+                kind: "form" as const,
+                key: "plan-form",
+                surface: planFormSurface,
+              }] : []),
+              ...(planCreating ? [] : activePlan ? [
+                createWorkPlanHeaderSection(activePlan),
+                ...(worksState.creating ? [{
+                  kind: "form" as const,
+                  key: "create-task",
+                  surface: createTaskSurface,
+                }] : []),
+                taskTableBlock,
+              ] : [createMessageSection("no-plan", {
+                content: plansLoading ? "加载 OKR 计划中..." : "请先新建 OKR 计划，再添加目标、关键结果和子任务。",
+                tone: "muted" as const,
+              })]),
+            ],
+          }),
+        ] : [createBlockSurfaceSection("empty-space", { kind: "message", content: spacesLoading ? "加载工作空间中..." : "当前账号暂无可进入的工作计划空间", tone: "muted" })]),
+        sideOpen,
+        drawerOpen,
+        onSideOpenChange: setSideOpen,
+        onDrawerOpenChange: setDrawerOpen,
+        sideLabel: "工作计划",
+        splitRatio: [2, 8],
+        showSideControls: false,
       }}
-      body={createPageBody(currentSpace ? [
-        createPanelBlock("space-header", {
-          title: currentSpace.name,
-          subtitle: [getWorkSpaceLabel(currentSpace.targetType), currentSpace.subtitle].filter(Boolean).join(" · "),
-          blocks: [spaceMetricsBlock(currentSpace)],
-        }),
-        activeTab === "permissions" ? createGroupBlock("permissions", {
-          blocks: permissionBlocks,
-        }) : activeTab === "reports" ? createSectionBlock("reports", {
-          title: "工作汇报",
-          blocks: buildWorkReportsPanelBlocks(reportsState),
-        }) : createSectionBlock("tasks", {
-          title: "OKR 计划",
-          blocks: [
-            ...(planCreating || planEditing ? [{
-              kind: "form" as const,
-              key: "plan-form",
-              surface: planFormSurface,
-            }] : []),
-            createGroupBlock("plan-workspace", {
-              layout: "grid" as const,
-              blocks: [
-                createWorkPlanSelectorBlock({
-                  plans,
-                  activePlanId,
-                  plansLoading,
-                  onSelect: (plan) => {
-                    setActivePlanId(plan.id);
-                    setPlanCreating(false);
-                    setPlanEditing(false);
-                    worksState.setCreating(false);
-                  },
-                }),
-                activePlan ? createGroupBlock("active-plan", {
-                  blocks: [
-                    createWorkPlanHeaderBlock(activePlan),
-                    ...(worksState.creating ? [{
-                      kind: "form" as const,
-                      key: "create-task",
-                      surface: createTaskSurface,
-                    }] : []),
-                    taskTableBlock,
-                  ],
-                }) : createMessageBlock("no-plan", {
-                  content: plansLoading ? "加载 OKR 计划中..." : "请先新建 OKR 计划，再添加目标、关键结果和子任务。",
-                  tone: "muted" as const,
-                }),
-              ],
-            }),
-          ],
-        }),
-      ] : [createBlockSurfaceBlock("empty-space", {
-        kind: "message",
-        content: spacesLoading ? "加载工作空间中..." : "当前账号暂无可进入的工作计划空间",
-        tone: "muted"
-      })])}
     />
   );
 }

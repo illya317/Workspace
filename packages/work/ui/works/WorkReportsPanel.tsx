@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { PageSurfaceBlockSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import type { PageSurfaceSectionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import {
   getWorkReportDraft,
   listWorkReportCollection,
@@ -225,7 +225,7 @@ export default function WorkReportsPanel({ controller }: { controller: WorkRepor
   );
 }
 
-export function buildWorkReportsPanelBlocks(controller: WorkReportsController): PageSurfaceBlockSpec[] {
+export function buildWorkReportsPanelBlocks(controller: WorkReportsController): PageSurfaceSectionSpec[] {
   return [
     controller.mode === "fill"
       ? buildReportDraftTableBlock({

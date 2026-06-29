@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { createFormBlock, createPageBody, type FormSurfaceFieldSpec, type FormSurfaceProps, PageSurface } from "@workspace/core/ui";
+import { createFormSection, createPageBody, type FormSurfaceFieldSpec, type FormSurfaceProps, PageSurface } from "@workspace/core/ui";
 import {
   WORK_ITEM_TYPE_OPTIONS,
   WORK_STATUS_OPTIONS,
@@ -29,7 +29,7 @@ export function WorkTaskForm({
     onChange,
   });
 
-  return <PageSurface embedded kind="detail" body={createPageBody([createFormBlock("work-task-form", surface)])} />;
+  return <PageSurface kind="standard" embedded body={createPageBody([createFormSection("work-task-form", surface)])} />;
 }
 
 export function useWorkTaskFormSurface({

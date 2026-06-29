@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useMemo, useState } from "react";
-import { createBlockSurfaceBlock, createGroupBlock, createPageBody, createPageTabsNavigation, PageSurface, useFeedback, type PageSurfaceBlockSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
+import { createBlockSurfaceSection, createSectionsSection, createPageBody, createPageTabsNavigation, PageSurface, useFeedback, type PageSurfaceSectionSpec, type PageSurfaceFooterSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
 import AdminUsersTab from "./tabs/AdminUsersTab";
 import ModuleManagementTab from "./tabs/ModuleManagementTab";
 import PermissionsTab from "./tabs/PermissionsTab";
@@ -160,9 +160,9 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     ...(isSuperAdmin ? [{ key: "modules" as const, label: "模块管理" }] : []),
   ];
 
-  const blocks: PageSurfaceBlockSpec[] = [
-    createGroupBlock("active-admin-tab", {
-      blocks: [createBlockSurfaceBlock(activeTab, {
+  const sections: PageSurfaceSectionSpec[] = [
+    createSectionsSection("active-admin-tab", {
+      sections: [createBlockSurfaceSection(activeTab, {
         kind: "message",
 
         content: (
@@ -190,8 +190,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   ];
 
   return (
-    <PageSurface
-      kind="settings"
+    <PageSurface kind="standard"
 	      navigation={loading ? undefined : createPageTabsNavigation({
 	        items: tabs,
 	        active: activeTab,
@@ -207,7 +206,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
             ? { items: childToolbarItems }
             : undefined}
       footer={loading ? undefined : activeTab === "users" ? childFooter : undefined}
-	      body={loading ? { empty: { content: "加载中..." } } : createPageBody(blocks)}
+		      body={loading ? { kind: "complete", empty: { content: "加载中..." } } : createPageBody(sections)}
 	    />
   );
 }

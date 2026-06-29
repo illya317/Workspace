@@ -1,7 +1,7 @@
 "use client";
 
 import type { Ref } from "react";
-import { createPageBody, createBlockSurfaceBlock, createPanelBlock, PageSurface, type ConfirmOptions, type FormSurfaceItemSpec, type PageSurfaceBlockSpec, useFeedback } from "@workspace/core/ui";
+import { createPageBody, createBlockSurfaceSection, createPanelSection, PageSurface, type ConfirmOptions, type FormSurfaceItemSpec, type PageSurfaceSectionSpec, useFeedback } from "@workspace/core/ui";
 import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { detailFieldRows, detailValueToText, isPrimitiveArray, parseDetailsObject, textToDetailValue } from "./description-details";
 
@@ -74,7 +74,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
   confirmDelete: (options?: Partial<ConfirmOptions>) => Promise<boolean>;
   getDutyItemRef?: (index: number) => Ref<HTMLDivElement>;
   requestDutyScrollToIndex?: (index: number) => void;
-}): PageSurfaceBlockSpec[] {
+}): PageSurfaceSectionSpec[] {
   const details = parseDetailsObject(value);
   const dutyKey = "部门职责描述";
   if (!details) {
@@ -103,7 +103,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
       [key]: nextValue
     }, null, 2));
   }
-  function dutyDescriptionBlock(): PageSurfaceBlockSpec {
+  function dutyDescriptionBlock(): PageSurfaceSectionSpec {
     const key = dutyKey;
     const records = Array.isArray(parsedDetails[key]) ? parsedDetails[key] as Array<Record<string, unknown>> : [];
     function updateRecord(index: number, patch: Record<string, unknown>) {
@@ -126,12 +126,12 @@ export function buildDepartmentDescriptionDetailsBlocks({
       if (!confirmed) return;
       updateDetailValue(key, records.filter((_, recordIndex) => recordIndex !== index));
     }
-    return createPanelBlock("duty-description", {
+    return createPanelSection("duty-description", {
       title: "部门职责描述",
       actions: disabled ? undefined : [{ key: "add-duty", label: "新增职责", onClick: addRecord }],
 
-      blocks: records.length === 0
-        ? [createBlockSurfaceBlock("empty", {
+      sections: records.length === 0
+        ? [createBlockSurfaceSection("empty", {
           kind: "empty",
           presentation: "plain",
           content: "未设置",
@@ -139,7 +139,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
         })]
         : records.map((record, index) => {
         const items = Array.isArray(record.items) ? record.items : [];
-        return createPanelBlock(`duty-${index}`, {
+        return createPanelSection(`duty-${index}`, {
           itemRef: getDutyItemRef?.(index),
           title: `职责 ${index + 1}`,
           actions: disabled ? undefined : [{
@@ -151,7 +151,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
             onClick: () => void removeRecord(index),
           }],
 
-          blocks: [{
+          sections: [{
             kind: "form" as const,
             key: "fields",
             surface: {
@@ -182,7 +182,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
     });
   }
   const remainingKeys = Object.keys(parsedDetails).filter(key => !["基本信息", "部门职责概要", "部门职责描述"].includes(key));
-  const blocks: PageSurfaceBlockSpec[] = [
+  const sections: PageSurfaceSectionSpec[] = [
     {
       kind: "form",
       key: "summary",
@@ -204,10 +204,10 @@ export function buildDepartmentDescriptionDetailsBlocks({
     dutyDescriptionBlock(),
   ];
   if (remainingKeys.length > 0) {
-    blocks.push(createPanelBlock("other-fields", {
+    sections.push(createPanelSection("other-fields", {
       title: "其他字段",
 
-      blocks: [{
+      sections: [{
         kind: "form",
         key: "fields",
         surface: {
@@ -238,7 +238,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
       }],
     }));
   }
-  return blocks;
+  return sections;
 }
 
 export function DepartmentDescriptionDetailsEditor({
@@ -256,7 +256,7 @@ export function DepartmentDescriptionDetailsEditor({
     getItemRef,
     requestScrollToIndex
   } = useScrollToAddedItem(dutyRecordsForScroll);
-  const blocks = buildDepartmentDescriptionDetailsBlocks({
+  const sections = buildDepartmentDescriptionDetailsBlocks({
     value,
     disabled,
     onChange,
@@ -264,5 +264,5 @@ export function DepartmentDescriptionDetailsEditor({
     getDutyItemRef: getItemRef,
     requestDutyScrollToIndex: requestScrollToIndex,
   });
-  return <PageSurface embedded kind="detail" body={createPageBody(blocks)} />;
+  return <PageSurface kind="standard" embedded body={createPageBody(sections)} />;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, type PageSurfaceBlockSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, type PageSurfaceSectionSpec } from "@workspace/core/ui";
 import { useDepartmentCreatePanelBlock } from "./department-create-panel";
 import type { Department } from "./types";
 
@@ -19,8 +19,8 @@ export function useDepartmentPositionDetailBlocks({
   canEdit: boolean;
   onCancel: () => void;
   onCreated: () => void | Promise<void>;
-  detailBlocks: PageSurfaceBlockSpec[];
-}): PageSurfaceBlockSpec[] {
+  detailBlocks: PageSurfaceSectionSpec[];
+}): PageSurfaceSectionSpec[] {
   const createDepartmentBlock = useDepartmentCreatePanelBlock({
     departments,
     departmentById,
@@ -38,8 +38,8 @@ export function DepartmentPositionDetailArea(props: {
   canEdit: boolean;
   onCancel: () => void;
   onCreated: () => void | Promise<void>;
-  detailBlocks: PageSurfaceBlockSpec[];
+  detailBlocks: PageSurfaceSectionSpec[];
 }) {
-  const blocks = useDepartmentPositionDetailBlocks(props);
-  return <PageSurface embedded kind="detail" body={createPageBody(blocks)} />;
+  const sections = useDepartmentPositionDetailBlocks(props);
+  return <PageSurface kind="standard" embedded body={createPageBody(sections)} />;
 }

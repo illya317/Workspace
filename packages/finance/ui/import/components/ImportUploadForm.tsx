@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createFieldsBlock } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createFieldsSection } from "@workspace/core/ui";
 import type { Company } from "./types";
 interface ImportUploadFormProps {
   companies: Company[];
@@ -32,11 +32,10 @@ export default function ImportUploadForm({
       <div>
         <h2 className="text-base font-semibold text-slate-800">上传文件</h2>
       </div>
-      <PageSurface
-        kind="list"
+      <PageSurface kind="standard"
         embedded
         body={createPageBody([
-          createFieldsBlock("import-upload", [
+          createFieldsSection("import-upload", [
             {
               key: "company",
               label: "公司",

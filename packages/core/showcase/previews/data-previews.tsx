@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FC } from "react";
-import { PageSurface, VisualizationSurface } from "@workspace/core/ui";
+import { PageSurface, VisualizationSurface, createPageBody } from "@workspace/core/ui";
 import {
   AmountCell,
   Badge,
@@ -59,8 +59,7 @@ function DataTablePreview() {
 function DataSurfacePreview() {
   return (
     <div className="space-y-4">
-      <PageSurface
-        kind="list"
+      <PageSurface kind="standard"
         embedded
         toolbar={{
           items: [
@@ -68,8 +67,7 @@ function DataSurfacePreview() {
             { kind: "text", key: "count", content: "共 2 条" },
           ],
         }}
-        body={{
-          blocks: [{
+        body={createPageBody([{
             kind: "data",
             key: "contracts",
             surface: {
@@ -86,8 +84,7 @@ function DataSurfacePreview() {
               rowKey: (row) => row.id,
 
             },
-          }],
-        }}
+          }])}
       />
       <VisualizationSurface
         kind="chart"

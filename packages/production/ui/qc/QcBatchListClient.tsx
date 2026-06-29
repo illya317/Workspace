@@ -3,12 +3,12 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { PageSurface, createBlockSurfaceBlock, useFeedback } from "@workspace/core/ui";
+import { PageSurface, createBlockSurfaceSection, createPageBody, useFeedback } from "@workspace/core/ui";
 import type { SurfaceToolbarItems } from "@workspace/core/ui";
 import type { QcBatchSummary } from "@workspace/production/server/qc";
 import { QC_BATCH_PAGE_SIZE_OPTIONS, QC_BATCH_STATUS_OPTIONS, QcBatchCreatePanel } from "./QcBatchListControls";
 import { QcBatchTable, formatQcBatchDate, qcBatchStatusText, type QcBatchTableRow } from "./QcBatchTable";
-import { productionQcPageHeader, type ProductionQcPageChromeSpec } from "./ProductionQcPageChrome";
+import { productionQcPageKind, type ProductionQcPageChromeSpec } from "./ProductionQcPageChrome";
 
 interface Props {
   initialRows: QcBatchTableRow[];
@@ -178,13 +178,10 @@ export default function QcBatchListClient({ initialRows, products, pageChrome }:
   ];
 
   return (
-    <PageSurface
-      kind="list"
-      header={pageChrome ? productionQcPageHeader(pageChrome) : undefined}
+    <PageSurface kind={pageChrome ? productionQcPageKind(pageChrome) : "standard"}
       toolbar={{ items: toolbarItems }}
-      body={{
-        blocks: [
-          createBlockSurfaceBlock("qc-batch-list-content", {
+      body={createPageBody([
+          createBlockSurfaceSection("qc-batch-list-content", {
             kind: "content",
             content: (
               <section className="space-y-4">
@@ -215,8 +212,7 @@ export default function QcBatchListClient({ initialRows, products, pageChrome }:
               </section>
             ),
           }),
-        ],
-      }}
+        ])}
     />
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createPageBody, createSelectorPanelBlock, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createSelectorPanelSection, PageSurface } from "@workspace/core/ui";
 import type { DirectoryNode } from "@workspace/library/types";
 
 interface Props {
@@ -48,11 +48,10 @@ export default function LibrarySidebar({
 
   return (
     <div className="h-full overflow-y-auto py-2">
-      <PageSurface
+      <PageSurface kind="standard"
         embedded
-        kind="detail"
         body={createPageBody([
-          createSelectorPanelBlock<DirectoryNode>("library-directories", {
+          createSelectorPanelSection<DirectoryNode>("library-directories", {
             mode: "tree",
             items: rootItems,
             selectedId: selectedPath ?? "",

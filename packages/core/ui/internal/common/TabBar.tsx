@@ -14,7 +14,7 @@ export interface TabDef {
   children?: TabDef[];
 }
 
-export type TabBarVariant = "large" | "mid" | "small" | "micro";
+export type TabBarVariant = "large" | "lineLarge" | "mid" | "small" | "micro";
 export type TabBarKind = "page" | "table";
 
 export interface TabBarAction {
@@ -58,6 +58,14 @@ export const TAB_VARIANT_STYLES: Record<TabBarVariant, VariantStyle> = {
         active: "bg-white text-emerald-700 shadow-sm",
         inactive: "text-slate-500 hover:bg-white/80 hover:text-slate-900",
       },
+    },
+  },
+  lineLarge: {
+    nav: "flex flex-wrap items-center w-full gap-3 border-b border-slate-200 bg-transparent p-0 pb-2 shadow-none",
+    button: {
+      base: "h-11 rounded-lg px-6 text-sm font-semibold transition",
+      active: "bg-emerald-600 text-white shadow-sm",
+      inactive: "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
     },
   },
   mid: {

@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createPanelBlock, PageSurface, type FormSurfaceItemSpec, type PageSurfaceBlockSpec, type ReferenceOption } from "@workspace/core/ui";
+import { createPageBody, createPanelSection, PageSurface, type FormSurfaceItemSpec, type PageSurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
 import { type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
 import { buildDirectPositionPanelBlock } from "./navigation-panels";
 import { usePositionDescriptionPanelBlock } from "./position-description-panel";
@@ -85,7 +85,7 @@ export function usePositionEditorBlocks({
   onTogglePositionDescriptionTemplateField,
   onSavePosition,
   onArchivePosition
-}: PositionEditorProps): PageSurfaceBlockSpec[] {
+}: PositionEditorProps): PageSurfaceSectionSpec[] {
   const descriptionBlock = usePositionDescriptionPanelBlock({
     position: position ?? null,
     descriptionDraft,
@@ -187,7 +187,7 @@ export function usePositionEditorBlocks({
   ] : [];
   return [
       ...(position.departmentId ? [buildDirectPositionPanelBlock({ departmentId: position.departmentId, positionsByDepartment, selection, onSelect })] : []),
-      createPanelBlock("position-info", {
+      createPanelSection("position-info", {
           title: (
             <span className="flex min-w-0 items-center gap-2">
               <span>岗位信息</span>
@@ -199,7 +199,7 @@ export function usePositionEditorBlocks({
             ...(canEdit ? [{ key: "archive", label: showArchived ? "恢复" : "归档", disabled: saving, onClick: () => void onArchivePosition(position.id, !showArchived) }] : []),
           ],
 
-          blocks: draft ? [{
+          sections: draft ? [{
             kind: "form",
             key: "fields",
             surface: {
@@ -214,6 +214,6 @@ export function usePositionEditorBlocks({
 }
 
 export function PositionEditor(props: Omit<PositionEditorProps, "position"> & { position: Position }) {
-  const blocks = usePositionEditorBlocks(props);
-  return <PageSurface embedded kind="detail" body={createPageBody(blocks)} />;
+  const sections = usePositionEditorBlocks(props);
+  return <PageSurface kind="standard" embedded body={createPageBody(sections)} />;
 }

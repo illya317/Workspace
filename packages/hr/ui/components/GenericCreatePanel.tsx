@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, PageSurface, createCreatePanelBlock, type FormSurfaceFieldSpec, type PageSurfaceBlockSpec, type ReferenceOption } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createCreatePanelSection, type FormSurfaceFieldSpec, type PageSurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
 import type { FieldConfig, TabConfig } from "@workspace/hr/types";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../fk-keys";
 
@@ -18,12 +18,12 @@ export function buildGenericCreatePanelBlock({
   onChange,
   onSubmit,
   onCancel,
-}: GenericCreatePanelProps): PageSurfaceBlockSpec {
+}: GenericCreatePanelProps): PageSurfaceSectionSpec {
   const requiredFields = config.fields.filter((field) => field.required && !field.hidden);
   const submitDisabled = requiredFields.some((field) => !String(createForm[field.key] ?? "").trim());
   const fields = requiredFields.map((field) => createFieldSpec(field, config, createForm[field.key], (value) => onChange(field.key, value)));
 
-  return createCreatePanelBlock("generic-create", {
+  return createCreatePanelSection("generic-create", {
     title: `新建${config.title}`,
     creating: true,
     canCreate: true,
@@ -33,9 +33,8 @@ export function buildGenericCreatePanelBlock({
     onSubmit,
     onCancel,
     createContent: (
-      <PageSurface
+      <PageSurface kind="standard"
         embedded
-        kind="detail"
         body={createPageBody([
           {
             kind: "form",

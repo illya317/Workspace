@@ -23,7 +23,7 @@ export {
 export const coreUiComponentCategoryMeta = {
   page: {
     label: "页面",
-    description: "页面薄壳、页面布局、导航、toolbar、footer 和 body block 摆放。",
+    description: "页面薄壳、页面布局、导航、toolbar、footer 和 body section 摆放。",
   },
   data: {
     label: "数据",
@@ -56,7 +56,7 @@ export const coreUiComponentCategoryMeta = {
 
 export const coreUiComponentSubcategoryMeta = {
   "page.surface": { label: "页面入口", description: "PageSurface 入口和页面协议的二级分类。" },
-  "page.blocks": { label: "历史页面区块", description: "旧 PageSurface body 区块协议，保留兼容，新增通用区块走 common.block。" },
+  "page.sections": { label: "页面分区", description: "PageSurface body section 树和递归分区协议。" },
   "page.frame": { label: "页面框架", description: "页面骨架、内容容器和框架渲染器。" },
   "document.surface": { label: "文档入口", description: "DocumentSurface 入口和文档正文协议。" },
   "document.paper": { label: "纸面文档", description: "纸面/A4/QC 表单和报告正文渲染器。" },

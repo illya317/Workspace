@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useCallback } from "react";
-import { createInlineFieldsBlock, createMessageBlock, createPageBody, PageSurface } from "@workspace/core/ui";
+import { createInlineFieldsSection, createMessageSection, createPageBody, PageSurface } from "@workspace/core/ui";
 import AuditLogEntry, { type AuditEntry } from "./AuditLogEntry";
 
 export interface AuditLogModalProps {
@@ -83,8 +83,7 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
   const totalPages = Math.ceil(total / pageSize);
 
   return (
-    <PageSurface
-      kind="list"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([{
         kind: "modal",
@@ -93,9 +92,9 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
         title: `编辑历史 · ${entityType}${selectedDate ? ` (${selectedDate})` : ""}`,
         onClose,
         size: "lg",
-        blocks: [
+        sections: [
         ...(dates.length > 0 ? [
-          createInlineFieldsBlock("audit-date", [{
+          createInlineFieldsSection("audit-date", [{
             key: "date",
             label: "日期",
             value: selectedDate,
@@ -116,7 +115,7 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
             },
           }], { kind: "filters" as const }),
         ] : []),
-        createMessageBlock("entries", {
+        createMessageSection("entries", {
           content: (
             <div className="max-h-[58vh] overflow-auto">
               {loading ? (

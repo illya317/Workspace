@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createPageDataBlock, type DataSurfaceStructuredCellSpec, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createPageDataSection, type DataSurfaceStructuredCellSpec, PageSurface } from "@workspace/core/ui";
 import type { QcLayoutBlock } from "@workspace/production/server/qc";
 import { CellContent } from "./qc-layout-table/cell-content";
 import { Part } from "./qc-layout-table/parts";
@@ -57,11 +57,10 @@ export function TableBlock({
   }));
 
   return (
-    <PageSurface
-      kind="detail"
+    <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createPageDataBlock("qc-layout-table", {
+        createPageDataSection("qc-layout-table", {
           kind: "structured",
           wrap: false,
           structuredScroll: false,

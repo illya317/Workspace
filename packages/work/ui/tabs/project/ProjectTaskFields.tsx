@@ -1,6 +1,6 @@
 "use client";
 
-import { createFieldsBlock, createPageBody, type FormSurfaceItemSpec, PageSurface, type ReferenceOption, type SurfacePickerOptionSpec } from "@workspace/core/ui";
+import { createFieldsSection, createPageBody, type FormSurfaceItemSpec, PageSurface, type ReferenceOption, type SurfacePickerOptionSpec } from "@workspace/core/ui";
 import { PROJECT_MILESTONE_PICKER_OPTIONS, type ProjectTaskDraft, type ProjectTaskItem } from "./model";
 import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
 import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
@@ -100,10 +100,9 @@ export function ProjectTaskForm({
   ];
 
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="detail"
-      body={createPageBody([createFieldsBlock<number>("project-task-form", fields, {
+      body={createPageBody([createFieldsSection<number>("project-task-form", fields, {
       columns: 3,
 
       actions: [
@@ -133,10 +132,9 @@ export function ProjectTaskDetail({ task }: { task: ProjectTaskItem }) {
     { label: "后置任务", value: task.successorTasks.length > 0 ? task.successorTasks.map((item) => item.name).join("、") : "无" },
   ];
   return (
-    <PageSurface
+    <PageSurface kind="standard"
       embedded
-      kind="detail"
-      body={createPageBody([createFieldsBlock("project-task-detail", [
+      body={createPageBody([createFieldsSection("project-task-detail", [
         ...detailItems.map((item): FormSurfaceItemSpec => ({
           kind: "readonly",
           key: item.label,
