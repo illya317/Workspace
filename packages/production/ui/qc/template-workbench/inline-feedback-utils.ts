@@ -39,8 +39,8 @@ export interface FeedbackResponse {
 const MARKER_SIZE = 24;
 const MARKER_GAP = 6;
 const MARKER_HIT_PADDING = 8;
-const EDITOR_WIDTH = 320;
-const EDITOR_HEIGHT = 260;
+const EDITOR_WIDTH = 384;
+const EDITOR_HEIGHT = 420;
 
 export const HIDE_DELAY_MS = 500;
 
