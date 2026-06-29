@@ -214,18 +214,18 @@ function TreeSelector<T>({ selector, actions }: {
       const card = selector.renderItem(item, { active, level, expanded, hasChildren });
       const meta = treeMeta(card);
       const cardClassName = active
-        ? "border-emerald-400 bg-emerald-50 shadow-sm"
-        : "border-slate-200 bg-white hover:border-emerald-200 hover:bg-emerald-50/40";
+        ? "bg-emerald-50"
+        : "bg-transparent hover:bg-slate-50";
       const row = (
         <div key="row" className="space-y-1">
           <div
-            className={`grid min-w-0 grid-cols-[2rem_minmax(0,1fr)] items-stretch overflow-hidden rounded-md border transition ${cardClassName}`}
+            className={`grid min-w-0 grid-cols-[2rem_minmax(0,1fr)] items-stretch overflow-hidden rounded-md transition focus-within:ring-2 focus-within:ring-emerald-200 ${cardClassName}`}
           >
-            <span className="grid place-items-center border-r border-slate-100">
+            <span className="grid place-items-center">
               {hasChildren && collapsible ? (
                 <button
                   type="button"
-                  className="grid size-7 place-items-center rounded text-sm font-semibold text-slate-500 transition hover:bg-white hover:text-emerald-700"
+                  className="grid size-7 place-items-center rounded text-sm font-semibold text-slate-500 transition hover:bg-white hover:text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
                   aria-label={expanded ? "收起" : "展开"}
                   onClick={() => toggle(id)}
                 >
@@ -236,7 +236,7 @@ function TreeSelector<T>({ selector, actions }: {
             <button
               type="button"
               onClick={() => selector.onSelect(item)}
-              className="min-w-0 px-2.5 py-2 text-left"
+              className="min-w-0 px-2.5 py-2 text-left focus-visible:outline-none"
             >
               <span className="flex min-w-0 items-center gap-2">
                 <Badge level={card.level ?? level} className="shrink-0 px-2 py-0.5 font-semibold" />
@@ -252,9 +252,13 @@ function TreeSelector<T>({ selector, actions }: {
       );
       if (!hasChildren) return <div key={id}>{row}</div>;
       return (
-        <div key={id} className="space-y-1.5 rounded-lg border border-slate-200 bg-slate-50/70 py-1.5">
+        <div key={id} className="space-y-1.5 py-1">
           {row}
-          {expanded ? <div className="space-y-1.5">{renderRows(children!, level + 1)}</div> : null}
+          {expanded ? (
+            <div className="ml-4 space-y-1.5 border-l border-slate-200 pl-4">
+              {renderRows(children!, level + 1)}
+            </div>
+          ) : null}
         </div>
       );
     });

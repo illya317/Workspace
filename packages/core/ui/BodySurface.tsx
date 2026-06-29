@@ -333,9 +333,9 @@ function BodySurfaceSectionStack({ sections, sectioning, layout = "stack", gridC
     return (
       <div className="space-y-5">
         <TabBar
-          kind="table"
-          variant="lineLarge"
-          className="border-b-0 pb-0"
+          kind="page"
+          variant="large"
+          className="mb-0"
           tabs={sections.map((section) => ({ key: section.key, label: section.label ?? section.key }))}
           active={active?.key ?? sectioning.active}
           onChange={(key) => sectioning.onChange?.(key)}

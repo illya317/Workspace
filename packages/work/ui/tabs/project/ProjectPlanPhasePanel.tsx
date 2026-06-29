@@ -137,6 +137,7 @@ export function useProjectPlanPhaseSection({
           })] : []),
           {
             key: "phase-rows",
+            framed: false,
             body: { kind: "data", data: buildPhaseRowsSurface({
               phases,
               canEdit,

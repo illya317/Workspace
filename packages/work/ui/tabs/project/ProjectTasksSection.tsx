@@ -283,6 +283,7 @@ export function useProjectTasksSection({
         }] : []),
         {
           key: "task-table",
+          framed: false,
           body: { kind: "data", data: buildProjectTaskTableSurface({
             tasks,
             columns,

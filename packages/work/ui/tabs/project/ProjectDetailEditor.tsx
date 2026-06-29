@@ -210,6 +210,7 @@ export function useProjectDetailEditorBlock({
       {
         key: "overview",
         label: editorTitle,
+        framed: false,
         header: actions.length ? { actions } : undefined,
         body: {
           kind: "section",
@@ -222,6 +223,7 @@ export function useProjectDetailEditorBlock({
       {
         key: "plan",
         label: "项目计划",
+        framed: false,
         body: {
           kind: "section",
           sections: createPageBody([projectPlanSection, projectTasksSection]).sections,
