@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createActionsSection, createPageBody, PageSurface, createPanelSection, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createPanelSection, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { departmentCodeEditableSegment } from "./department-code-input";
 import { postJson } from "@workspace/platform/ui/api-client";
 import { useDepartmentDescriptionsBlock } from "./department-descriptions-panel";
@@ -215,13 +215,13 @@ export function useDepartmentCreatePanelBlock({
 
   return createPanelSection("create-department", {
     title: "新建部门",
+    actions: [
+      { key: "cancel", label: "取消", icon: "cancel", onClick: onCancel },
+      { key: "submit", label: submitting ? "保存中..." : "保存", icon: "save", variant: "primary", disabled: !canEdit || submitting || submitDisabled, onClick: () => void handleSubmit() },
+    ],
     sections: [
       departmentInfoBlock,
       descriptionsBlock,
-      createActionsSection("create-department-actions", [
-        { key: "cancel", label: "取消", onClick: onCancel },
-        { key: "submit", label: submitting ? "保存中..." : "保存", variant: "primary", disabled: !canEdit || submitting || submitDisabled, onClick: () => void handleSubmit() },
-      ]),
     ],
   });
 }

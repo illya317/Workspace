@@ -1,5 +1,4 @@
 import type { CoreUiComponentRegistration } from "./component-registry-types";
-import { generatedCoreUiSurfaceContracts } from "./generated-surface-contracts";
 
 export const page_api_registry_entries = [
   {
@@ -25,7 +24,6 @@ export const page_api_registry_entries = [
   {
     name: "InputSurface",
     description: "字段规格输入控件",
-    contract: generatedCoreUiSurfaceContracts.InputSurface,
     declares: [
       { name: "control", description: "输入语义：text / number / boolean / choice / reference / temporal / file / collection / rating。" },
       { name: "valueType", description: "字段数据形状：string / number / boolean / date / time / datetime / file / reference / array。" },
@@ -161,11 +159,6 @@ export const page_api_registry_entries = [
     name: "createTabbedPageBody",
     description: "页面正文 tabs sectioning 声明助手",
     composes: ["BodySurface", "createPageBody"],
-  },
-  {
-    name: "createTabsNavigationSection",
-    description: "正文 tabs 导航 block 声明助手",
-    composes: ["BodySurface", "NavigationRenderer"],
   },
   {
     name: "createPageTableSection",

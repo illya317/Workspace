@@ -2,7 +2,7 @@
 
 `PageSurface` 的 `moduleView` 是历史逃生口，不是新增页面 API。后续迁移规则：
 
-- `replace-now`：现有正式入口或 spec 已可表达，直接迁移；业务代码不再直接使用 internal `FormSurface` / `DataSurface` / `NavigationRenderer` renderer。
+- `replace-now`：现有正式入口或 spec 已可表达，直接迁移；业务代码不再直接使用 internal `FormSurface` / `DataSurface` renderer。
 - `core-gap`：现有 Surface contract 不够，先补公开契约，再替换业务侧。
 - `defer`：不是单点 UI，可在下游子视图迁完后再处理宿主。
 - `migrated`：已经迁出 `moduleView`，对应 baseline 已 ratchet。
@@ -23,7 +23,7 @@
 | `page-module-host-spec` | 暂不补泛化宿主；剩余 shell-host 必须先拆成 toolbar menu、tabbed block host、document/navigation 等具体契约 |
 | `surface-composition-spec` | 多 Surface 组合、嵌套 section、表格展开行、树表、复杂编辑器、交互卡片列表 |
 | `form-segmented-code-control` | 已迁到普通 Form field：部门/岗位 code 通过 `InputSurface control=text` + `mask.kind=editableSegment` 声明 segment extract/compose/normalize |
-| `navigation-surface-spec` | 已补 `NavigationRenderer kind="steps"` href/disabled link steps；树形部门/组织导航继续走 selector/tree specs |
+| `navigation-surface-spec` | 已补 `NavigationSurface`：tabs、steps、pagination、导航型 list/grid；输入型树形部门/组织导航继续走 selector/tree specs |
 
 ## Register
 
@@ -83,7 +83,7 @@
 | `packages/hr/ui/tabs/department-position/position-description-template-editor.tsx:content` | migrated | existing `panel` + `form.inline` + `surfaceGroup.grid` | Template editor shell converted to typed blocks |
 | `packages/hr/ui/tabs/department-position/position-description-template-editor.tsx:fields` | migrated | existing `form.inline` checkbox fields | Template field groups converted to typed form fields |
 | `packages/hr/ui/tabs/department-position/position-editor.tsx:content` | migrated | `FormSurface` segmentedCode/tagList/fields + panel actions | Position info panel now uses typed `PageSurface` panel chrome and `FormSurface` fields; description panel remains separately tracked |
-| `packages/production/ui/qc/QcBatchStagePrecheck.tsx:precheck-header` | migrated | `NavigationRenderer` link steps + `PageSurface` heading | QC precheck navigation now uses typed href/disabled steps and heading block |
+| `packages/production/ui/qc/QcBatchStagePrecheck.tsx:precheck-header` | migrated | `NavigationSurface` link steps + `PageSurface` heading | QC precheck navigation now uses typed href/disabled steps and heading block |
 | `packages/production/ui/qc/QcBatchStagePrecheck.tsx:precheck-paper` | migrated | `PageSurface` document block + `DocumentSurface` v1 | Precheck paper now uses the document block host; QC layout rows/cells/reference values remain inside the domain document renderer |
 | `packages/production/ui/qc/QcBatchStagePrecheck.tsx:precheck-actions` | migrated | existing `form.inline` block | Save action converted |
 | `packages/production/ui/qc/QcBatchTestRecord.tsx:test-record-paper` | migrated | `PageSurface` document block + `DocumentSurface` v1 | Test record paper and fallback method table now use the document block host; formula/reference/readOnly internals remain domain document sub-spec work |

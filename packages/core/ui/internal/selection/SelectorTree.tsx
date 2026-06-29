@@ -25,14 +25,6 @@ export interface SelectorTreeProps<T> {
   className?: string;
 }
 
-function defaultExpandedSet<T>(items: T[], getKey: (item: T) => string | number): Set<string | number> {
-  const set = new Set<string | number>();
-  for (const item of items) {
-    set.add(getKey(item));
-  }
-  return set;
-}
-
 export function SelectorTree<T>({
   items,
   selectedId,
@@ -49,7 +41,7 @@ export function SelectorTree<T>({
 }: SelectorTreeProps<T>) {
   const [internalExpanded, setInternalExpanded] = useState<Set<string | number>>(() => {
     if (defaultExpandedIds) return new Set(defaultExpandedIds);
-    return defaultExpandedSet(items, getKey);
+    return new Set<string | number>();
   });
 
   const controlled = expandedIds !== undefined;

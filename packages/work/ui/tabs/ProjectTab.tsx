@@ -13,8 +13,11 @@ import { PROJECT_LIST_FILTER_OPTIONS, projectCode, type ProjectItem, type Projec
 import { useProjectTabModel } from "./project/use-project-tab-model";
 
 export default function ProjectTab({ user }: { user: WorkUser }) {
+  const searchParams = useSearchParams();
   const tabs = useMemo(() => getPageViewTabs("/work/projects"), []);
   const [activeChild, setActiveChild] = useState("projects");
+  const requestedProjectIdValue = Number(searchParams.get("projectId") || "");
+  const requestedProjectId = Number.isInteger(requestedProjectIdValue) && requestedProjectIdValue > 0 ? requestedProjectIdValue : null;
   const surface = {
     navigation: createPageTabsNavigation({
       items: tabs,
@@ -26,15 +29,9 @@ export default function ProjectTab({ user }: { user: WorkUser }) {
   } satisfies ProjectChildSurfaceProps;
   if (activeChild === "projects-gantt") return <ProjectGanttTab user={user} surface={surface} />;
   if (activeChild === "project-plan-gantt") {
-    return <ProjectPlanGanttTab requestedProjectId={requestedProjectId()} surface={surface} />;
+    return <ProjectPlanGanttTab requestedProjectId={requestedProjectId} surface={surface} />;
   }
   return <ProjectLedgerTab user={user} surface={surface} />;
-}
-
-function requestedProjectId() {
-  if (typeof window === "undefined") return null;
-  const value = Number(new URLSearchParams(window.location.search).get("projectId") || "");
-  return Number.isInteger(value) && value > 0 ? value : null;
 }
 
 type ProjectChildSurfaceProps = Pick<PageSurfaceProps, "navigation">;

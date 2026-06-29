@@ -24,7 +24,7 @@ const TARGETS: ContractTarget[] = [
   { componentName: "DocumentSurface", sourcePath: "packages/core/ui/DocumentSurface.tsx", typeName: "DocumentSurfaceProps" },
   { componentName: "FormSurface", sourcePath: "packages/core/ui/FormSurface.types.ts", typeName: "FormSurfaceProps" },
   { componentName: "InputSurface", sourcePath: "packages/core/ui/internal/input/InputSurfaceTypes.ts", typeName: "InputSurfaceProps" },
-  { componentName: "NavigationRenderer", sourcePath: "packages/core/ui/NavigationRenderer.tsx", typeName: "NavigationRendererProps" },
+  { componentName: "NavigationSurface", sourcePath: "packages/core/ui/NavigationSurface.tsx", typeName: "NavigationSurfaceProps" },
   { componentName: "PageSurface", sourcePath: "packages/core/ui/PageSurface.types.ts", typeName: "PageSurfaceProps" },
   { componentName: "SelectorSurface", sourcePath: "packages/core/ui/SelectorSurface.tsx", typeName: "SelectorSurfaceProps" },
   { componentName: "VisualizationSurface", sourcePath: "packages/core/ui/VisualizationSurfaceTypes.ts", typeName: "VisualizationSurfaceProps" },

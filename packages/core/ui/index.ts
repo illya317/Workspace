@@ -19,6 +19,7 @@ export type {
   BodySurfaceNavigationProps,
   BodySurfaceProps,
   BodySurfaceSelectorProps,
+  BodySurfaceSectionGridColumns,
   BodySurfaceSectionHeaderSpec,
   BodySurfaceSectioningSpec,
   BodySurfaceSectionLayout,
@@ -145,6 +146,20 @@ export type {
 } from "./FormSurface";
 export { default as LoginSurface } from "./LoginSurface";
 export type { LoginSurfaceProps } from "./LoginSurface";
+export { default as NavigationSurface } from "./NavigationSurface";
+export type {
+  NavigationSurfaceGridProps,
+  NavigationSurfaceItemSpec,
+  NavigationSurfaceKind,
+  NavigationSurfaceListProps,
+  NavigationSurfaceLooseItem,
+  NavigationSurfacePaginationProps,
+  NavigationSurfacePaginationSpec,
+  NavigationSurfaceProps,
+  NavigationSurfaceStepSpec,
+  NavigationSurfaceStepsProps,
+  NavigationSurfaceTabsProps,
+} from "./NavigationSurface";
 export { default as PageSurface } from "./PageSurface";
 export type {
   PageSurfaceBodySpec,
@@ -184,7 +199,6 @@ export {
   createPageTableSection,
   createPageTabsNavigation,
   createTabbedPageBody,
-  createTabsNavigationSection,
   createSectionSection,
   createStatusSection,
   createVisualizationSection,

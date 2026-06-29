@@ -1,9 +1,9 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { createPageBody, createEmptySection, createMessageSection, createSectionsSection, createPanelSection, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, createEmptySection, createMessageSection, createSectionsSection, createPanelSection, PageSurface, type BodySurfaceSectionSpec, type FormSurfaceProps } from "@workspace/core/ui";
 import { buildPositionCreatePanelBlock } from "./create-panels";
-import type { CreatePositionDraft, Department, Position, Selection } from "./types";
+import type { CreatePositionDraft, Department, DescriptionDraft, Position, Selection } from "./types";
 import { shortPositionCode } from "./utils";
 
 function isBodySurfaceSectionSpec(block: BodySurfaceSectionSpec | null): block is BodySurfaceSectionSpec {
@@ -14,6 +14,8 @@ export function DirectPositionPanel({
   canCreatePosition = false,
   createPanel = null,
   createPositionCode,
+  createPositionDescriptionDetailsSurface,
+  createPositionDescriptionDraft,
   createPositionDepartment,
   createPositionDraft,
   departmentId,
@@ -22,6 +24,7 @@ export function DirectPositionPanel({
   saving = false,
   selection,
   setCreatePanel,
+  setCreatePositionDescriptionDraft,
   setCreatePositionDraft,
   onSelect,
   onCreatePosition
@@ -29,6 +32,8 @@ export function DirectPositionPanel({
   canCreatePosition?: boolean;
   createPanel?: "department" | "position" | null;
   createPositionCode?: string;
+  createPositionDescriptionDetailsSurface?: FormSurfaceProps;
+  createPositionDescriptionDraft?: DescriptionDraft;
   createPositionDepartment?: Department | undefined;
   createPositionDraft?: CreatePositionDraft;
   departmentId: number;
@@ -37,9 +42,10 @@ export function DirectPositionPanel({
   saving?: boolean;
   selection: Selection;
   setCreatePanel?: (panel: "department" | "position" | null) => void;
+  setCreatePositionDescriptionDraft?: Dispatch<SetStateAction<DescriptionDraft>>;
   setCreatePositionDraft?: Dispatch<SetStateAction<CreatePositionDraft>>;
   onSelect: (selection: Selection) => void;
-  onCreatePosition?: () => void | Promise<void>;
+  onCreatePosition?: (descriptionDraft: DescriptionDraft) => void | Promise<void>;
 }) {
   return (
     <PageSurface kind="standard"
@@ -48,6 +54,8 @@ export function DirectPositionPanel({
         canCreatePosition,
         createPanel,
         createPositionCode,
+        createPositionDescriptionDetailsSurface,
+        createPositionDescriptionDraft,
         createPositionDepartment,
         createPositionDraft,
         departmentId,
@@ -56,6 +64,7 @@ export function DirectPositionPanel({
         saving,
         selection,
         setCreatePanel,
+        setCreatePositionDescriptionDraft,
         setCreatePositionDraft,
         onSelect,
         onCreatePosition,
@@ -68,6 +77,8 @@ export function buildDirectPositionPanelBlock({
   canCreatePosition = false,
   createPanel = null,
   createPositionCode,
+  createPositionDescriptionDetailsSurface,
+  createPositionDescriptionDraft,
   createPositionDepartment,
   createPositionDraft,
   departmentId,
@@ -76,6 +87,7 @@ export function buildDirectPositionPanelBlock({
   saving = false,
   selection,
   setCreatePanel,
+  setCreatePositionDescriptionDraft,
   setCreatePositionDraft,
   onSelect,
   onCreatePosition
@@ -83,6 +95,8 @@ export function buildDirectPositionPanelBlock({
   canCreatePosition?: boolean;
   createPanel?: "department" | "position" | null;
   createPositionCode?: string;
+  createPositionDescriptionDetailsSurface?: FormSurfaceProps;
+  createPositionDescriptionDraft?: DescriptionDraft;
   createPositionDepartment?: Department | undefined;
   createPositionDraft?: CreatePositionDraft;
   departmentId: number;
@@ -91,38 +105,37 @@ export function buildDirectPositionPanelBlock({
   saving?: boolean;
   selection: Selection;
   setCreatePanel?: (panel: "department" | "position" | null) => void;
+  setCreatePositionDescriptionDraft?: Dispatch<SetStateAction<DescriptionDraft>>;
   setCreatePositionDraft?: Dispatch<SetStateAction<CreatePositionDraft>>;
   onSelect: (selection: Selection) => void;
-  onCreatePosition?: () => void | Promise<void>;
+  onCreatePosition?: (descriptionDraft: DescriptionDraft) => void | Promise<void>;
 }): BodySurfaceSectionSpec {
   const directPositions = positionsByDepartment.get(departmentId) || [];
-  const canRenderCreate = canCreatePosition && createPositionDraft && departmentById && setCreatePanel && setCreatePositionDraft && onCreatePosition;
+  const canRenderCreate = canCreatePosition && createPositionDraft && createPositionDescriptionDraft && createPositionDescriptionDetailsSurface && departmentById && setCreatePanel && setCreatePositionDraft && setCreatePositionDescriptionDraft && onCreatePosition;
   const creatingPositionHere = createPanel === "position" && createPositionDraft?.departmentId === departmentId;
   const sections: BodySurfaceSectionSpec[] = [
-	    directPositions.length > 0
-	      ? {
-	          key: "positions",
-	          body: {
-	            kind: "navigation",
-	            navigation: {
-	              kind: "selector",
-	              grid: {
-	                value: selection?.type === "position" ? String(selection.id) : null,
-	                options: directPositions.map((position) => ({
-	                  value: String(position.id),
-	                  label: position.name,
-	                  code: shortPositionCode(position.code),
-	                })),
-	                onChange: (value: string | null) => {
-	                  const position = directPositions.find((p) => String(p.id) === value);
-	                  if (position) onSelect({ type: "position", id: position.id });
-	                },
-	                columns: 3,
-	                ariaLabel: "选择直属岗位",
-	              },
-	            },
-	          },
-	        }
+    directPositions.length > 0
+      ? {
+          key: "positions",
+          body: {
+            kind: "navigation",
+            navigation: {
+              kind: "grid",
+              value: selection?.type === "position" ? String(selection.id) : null,
+              options: directPositions.map((position) => ({
+                value: String(position.id),
+                label: position.name,
+                code: shortPositionCode(position.code),
+              })),
+              onChange: (value: string | null) => {
+                const position = directPositions.find((p) => String(p.id) === value);
+                if (position) onSelect({ type: "position", id: position.id });
+              },
+              columns: 3,
+              ariaLabel: "选择直属岗位",
+            },
+          },
+        }
       : createEmptySection("empty", {
         presentation: "plain",
         compact: true,
@@ -131,6 +144,8 @@ export function buildDirectPositionPanelBlock({
     ...(creatingPositionHere && canRenderCreate
       ? [buildPositionCreatePanelBlock({
           createPositionDraft,
+          createPositionDescriptionDraft,
+          createPositionDescriptionDetailsSurface,
           createPositionDepartment,
           createPositionCode: createPositionCode || "",
           departmentById,
@@ -138,6 +153,7 @@ export function buildDirectPositionPanelBlock({
           positionDepartmentReadOnly: true,
 
           setCreatePositionDraft,
+          setCreatePositionDescriptionDraft,
           onCreatePosition,
           onCancel: () => setCreatePanel(null),
         })]
@@ -145,27 +161,27 @@ export function buildDirectPositionPanelBlock({
   ];
 
   return createPanelSection("direct-positions", {
-          title: "直属岗位",
-          subtitle: `${directPositions.length} 个`,
-          actions: canRenderCreate ? [{
-            key: "add-position",
-            label: creatingPositionHere ? "收起新建" : "新建岗位",
-            variant: creatingPositionHere ? "secondary" : "primary",
-            onClick: () => {
-              if (creatingPositionHere) {
-                setCreatePanel(null);
-                return;
-              }
-              setCreatePositionDraft({
-                departmentId,
-                name: ""
-              });
-              setCreatePanel("position");
-            },
-          }] : undefined,
-
-          sections,
+    title: "直属岗位",
+    subtitle: `${directPositions.length} 个`,
+    actions: canRenderCreate ? [{
+      key: "add-position",
+      label: creatingPositionHere ? "收起新建" : "新建岗位",
+      icon: creatingPositionHere ? "panel-close" : "create",
+      variant: creatingPositionHere ? "secondary" : "primary",
+      onClick: () => {
+        if (creatingPositionHere) {
+          setCreatePanel(null);
+          return;
+        }
+        setCreatePositionDraft({
+          departmentId,
+          name: ""
         });
+        setCreatePanel("position");
+      },
+    }] : undefined,
+    sections,
+  });
 }
 export function DepartmentTreePanel({
   mode,

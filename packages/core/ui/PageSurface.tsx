@@ -4,14 +4,12 @@ import type { ReactNode } from "react";
 import { workspaceBasePath } from "@workspace/core/routing";
 import BodySurface, { renderBodyEmpty, type BodySurfaceEmptySpec, type BodySurfaceProps, type BodySurfaceSectionSpec } from "./BodySurface";
 import { DatabasePageFrame } from "./internal/page/PageFrames";
-import NavigationRenderer from "./NavigationRenderer";
+import NavigationSurface from "./NavigationSurface";
 import Pagination from "./internal/common/Pagination";
-import type { TabDef } from "./internal/common/TabBar";
 import { EmptyStateCard, ModuleCard } from "./internal/common/Card";
 import { Toolbar } from "./Toolbar";
 import type {
   PageSurfaceDirectoryProps,
-  PageSurfaceNavigationItemSpec,
   PageSurfaceNavigationSpec,
   PageSurfaceProps,
   PageSurfaceToolbarSpec,
@@ -30,39 +28,9 @@ export type {
   PageSurfaceToolbarSpec,
 } from "./PageSurface.types";
 
-function toTabDef(item: PageSurfaceNavigationItemSpec): TabDef {
-  return {
-    key: item.key,
-    label: item.label,
-    children: item.children?.map(toTabDef),
-  };
-}
-
 function renderNavigation(navigation?: PageSurfaceNavigationSpec) {
   if (!navigation) return null;
-  const tabs = navigation.items.map(toTabDef);
-  const hasChildren = navigation.items.some((item) => item.children?.length);
-  return (
-    <NavigationRenderer
-      kind="tabs"
-      tabs={hasChildren
-        ? {
-            tabs,
-            active: navigation.active,
-            activeChild: navigation.activeChild,
-            onChange: navigation.onChange,
-            onChildChange: navigation.onChildChange,
-            accordion: true,
-            variant: "large",
-          }
-        : {
-            tabs,
-            active: navigation.active,
-            onChange: navigation.onChange,
-            variant: "large",
-          }}
-    />
-  );
+  return <NavigationSurface {...navigation} />;
 }
 
 function renderFooter(footer?: PageSurfaceProps["footer"]) {
@@ -213,11 +181,12 @@ function renderDirectoryBody(body: BodySurfaceProps | undefined, section?: BodyS
     );
   }
   if (body.sections?.length) {
+    const gridClassName = body.gridColumns === 3 ? "lg:grid-cols-3" : "lg:grid-cols-2";
     return (
       <div key={section?.key} className="space-y-5">
         {section?.header?.title ? <h1 className="text-center text-2xl font-bold text-gray-800">{section.header.title}</h1> : null}
         {section?.header?.subtitle ? <p className="text-center text-sm text-gray-500">{section.header.subtitle}</p> : null}
-        <div className={body.layout === "grid" ? "grid gap-4 lg:grid-cols-2" : "space-y-5"}>
+        <div className={body.layout === "grid" ? `grid gap-4 ${gridClassName}` : "space-y-5"}>
           {body.sections.map(renderDirectorySection)}
         </div>
       </div>
@@ -258,15 +227,10 @@ export default function PageSurface(props: PageSurfaceProps) {
     return renderDirectorySurface(props);
   }
 
-  const tabsNavigation = props.navigation?.kind === "tabs" ? props.navigation : undefined;
   if (props.embedded) return renderEmbeddedSurfaceBody(props);
   return renderPageFrame(props, (
     <DatabasePageFrame
-      tabs={tabsNavigation?.items.map(toTabDef)}
-      activeTab={tabsNavigation?.active}
-      activeChild={tabsNavigation?.activeChild}
-      onTabChange={tabsNavigation?.onChange}
-      onChildChange={tabsNavigation?.onChildChange}
+      navigation={renderNavigation(props.navigation)}
       toolbar={renderPageToolbar(props)}
       footer={renderFooter(props.footer)}
     >

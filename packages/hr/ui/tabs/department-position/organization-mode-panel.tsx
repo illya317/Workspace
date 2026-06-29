@@ -11,10 +11,12 @@ import {
   type BodySurfaceSectionSpec,
   type ReferenceOption,
   type SelectorSurfaceProps,
+  type SurfaceToolbarItems,
   useFeedback,
 } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import type { RosterSurfaceNavigationProps } from "../../roster-surface";
+import { useDepartmentCreatePanelBlock } from "./department-create-panel";
 import { selectedEntityName } from "./detail-editor-primitives";
 import { createDepartmentDescriptionDraft, departmentDescriptionPayload, departmentManagerPositionName, sanitizeDepartmentDescriptionDetails } from "./draft-utils";
 import type { Department, Position } from "./types";
@@ -63,6 +65,9 @@ export function OrganizationModePanel({
   drawerOpen,
   error,
   loading,
+  createPanel,
+  departments,
+  departmentById,
   selectedDepartment,
   selectedPositionId,
   positions,
@@ -71,6 +76,7 @@ export function OrganizationModePanel({
   sideOpen,
   canEdit,
   onDrawerOpenChange,
+  onCreatePanelChange,
   onOpenDepartmentDetails,
   onOpenPositionDetails,
   onSelectPosition,
@@ -82,6 +88,9 @@ export function OrganizationModePanel({
   drawerOpen: boolean;
   error: string | null;
   loading: boolean;
+  createPanel: "department" | "position" | null;
+  departments: Department[];
+  departmentById: Map<number, Department>;
   selectedDepartment: Department | undefined;
   selectedPositionId: number | null;
   positions: Position[];
@@ -90,6 +99,7 @@ export function OrganizationModePanel({
   sideOpen: boolean;
   canEdit: boolean;
   onDrawerOpenChange: (open: boolean) => void;
+  onCreatePanelChange: (panel: "department" | "position" | null) => void;
   onOpenDepartmentDetails?: (departmentId: number) => void;
   onOpenPositionDetails?: (positionId: number) => void;
   onSelectPosition: (position: Position) => void;
@@ -101,6 +111,16 @@ export function OrganizationModePanel({
   const [managerDraft, setManagerDraft] = useState("");
   const [saving, setSaving] = useState(false);
   const feedback = useFeedback();
+  const createDepartmentBlock = useDepartmentCreatePanelBlock({
+    departments,
+    departmentById,
+    canEdit,
+    onCancel: () => onCreatePanelChange(null),
+    onCreated: async () => {
+      onCreatePanelChange(null);
+      await onReload();
+    },
+  });
   const directPositions = selectedDepartment ? positionsByDepartment.get(selectedDepartment.id) || [] : [];
   const positionsByName = useMemo(() => new Map(positions.map(position => [position.name, position])), [positions]);
   const currentManagerName = selectedDepartment ? departmentManagerPositionName(selectedDepartment) : "";
@@ -262,13 +282,33 @@ export function OrganizationModePanel({
             columns,
             visibleColumns: columns.map(column => column.key),
             rowKey: row => row.position.id,
-                        presentation: { density: "compact" },
-
+            presentation: { density: "compact" },
             rowState: row => row.position.id === selectedPositionId ? "selected" : "normal",
             frame: "bordered",
           } },
         });
   }
+  const toolbarItems: SurfaceToolbarItems = canEdit ? [{
+    kind: "create",
+    key: "create-department",
+    label: "新建部门",
+    active: createPanel === "department",
+    onClick: () => onCreatePanelChange(createPanel === "department" ? null : "department"),
+  }] : [];
+  const rightSections = createPanel === "department"
+    ? [createDepartmentBlock]
+    : [createPanelSection("organization-mode", {
+        title: organizationPanelTitle,
+        actions: organizationHeaderDepartment ? [{
+          key: "save",
+          label: saving ? "保存中..." : "保存修改",
+          icon: "save",
+          variant: "primary",
+          disabled: !canEdit || saving || !managerDirty,
+          onClick: () => void saveChanges(),
+        }] : undefined,
+        sections: panelBlocks,
+      })];
 
   return (
     <PageSurface kind="standard"
@@ -278,19 +318,8 @@ export function OrganizationModePanel({
         kind: "section",
         layout: "split",
         left: { kind: "selector", selector },
-        right: createPageBody([createPanelSection("organization-mode", {
-          title: organizationPanelTitle,
-          actions: organizationHeaderDepartment ? [{
-            key: "save",
-            label: saving ? "保存中..." : "保存修改",
-            variant: "primary",
-            disabled: !canEdit || saving || !managerDirty,
-            onClick: () => void saveChanges(),
-          }] : undefined,
-
-
-          sections: panelBlocks,
-        })]),
+        right: createPageBody(rightSections),
+        toolbarItems,
         sideOpen,
         sideLabel: "全部部门层级",
         onSideOpenChange,

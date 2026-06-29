@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useFeedback } from "@workspace/core/ui";
 import { type HRUser, hrCanEdit } from "@workspace/hr/types";
-import type { DepartmentPositionMode } from "./department-position/types";
+import type { DepartmentPositionMode, Position } from "./department-position/types";
 import { DepartmentPositionMainContent } from "./department-position/department-position-main-content";
 import { useDepartmentPositionDerivedState } from "./department-position/derived-state";
 import { OrganizationModePanel } from "./department-position/organization-mode-panel";
@@ -15,6 +15,7 @@ import { useDepartmentPositionSideEffects } from "./department-position/use-depa
 import { useDepartmentPositionTreeRenderers } from "./department-position/use-department-position-tree-renderers";
 import { useDepartmentPositionViewRenderers } from "./department-position/use-department-position-view-renderers";
 import { usePositionDescriptionTemplates } from "./department-position/use-position-description-templates";
+import { usePositionDescriptionDetailsSurface } from "./department-position/detail-editors";
 import type { RosterSurfaceNavigationProps } from "../roster-surface";
 
 
@@ -64,6 +65,7 @@ export default function DepartmentPositionTab({
     archivedTab,
     collapsedDepartments,
     createPanel,
+    createPositionDescriptionDraft,
     createPositionDraft,
     search,
     selectItem,
@@ -72,6 +74,7 @@ export default function DepartmentPositionTab({
     setArchivedTab,
     setCollapsedDepartments,
     setCreatePanel,
+    setCreatePositionDescriptionDraft,
     setCreatePositionDraft,
     setSearch,
     setSelection,
@@ -157,6 +160,21 @@ export default function DepartmentPositionTab({
   const organizationSelectedDepartment = isOrganizationMode && selectedPosition?.departmentId
     ? departmentById.get(selectedPosition.departmentId)
     : selectedDepartment;
+  const createPositionDescriptionDetailsSurface = usePositionDescriptionDetailsSurface({
+    value: createPositionDescriptionDraft.details,
+    disabled: saving,
+    positionNames,
+    currentPosition: {
+      id: 0,
+      code: createPositionCode,
+      name: createPositionDraft.name,
+      departmentName: createPositionDepartment?.name ?? "",
+    } as Position,
+    positions,
+    departmentNames,
+    template: selectedPositionDescriptionTemplate,
+    onChange: (value) => setCreatePositionDescriptionDraft((prev) => ({ ...prev, details: value })),
+  });
   useEffect(() => {
     if (!isOrganizationMode) return;
     setActiveOrganizationRootId((prev) => {
@@ -224,6 +242,7 @@ export default function DepartmentPositionTab({
     setPositionArchived,
   } = useDepartmentPositionActions({
     createPositionCode,
+    createPositionDescriptionDraft,
     createPositionDraft,
     departmentById,
     departmentDescriptionDirty,
@@ -239,6 +258,7 @@ export default function DepartmentPositionTab({
     selectedDepartment,
     selectedPosition,
     setCreatePanel,
+    setCreatePositionDescriptionDraft,
     setCreatePositionDraft,
     setSaving,
     setSelection,
@@ -270,6 +290,8 @@ export default function DepartmentPositionTab({
     canEditPosition,
     createPanel,
     createPositionCode,
+    createPositionDescriptionDetailsSurface,
+    createPositionDescriptionDraft,
     createPositionDepartment,
     createPositionDraft,
     departmentById,
@@ -325,6 +347,7 @@ export default function DepartmentPositionTab({
     onSearchChange: setSearch,
     onSelect: selectItem,
     onSetCreatePanel: setCreatePanel,
+    onSetCreatePositionDescriptionDraft: setCreatePositionDescriptionDraft,
     onSetCreatePositionDraft: setCreatePositionDraft,
     onSideOpenChange: setTreeOpen,
     onTemplateDraftNameChange: setTemplateDraftName,
@@ -342,6 +365,9 @@ export default function DepartmentPositionTab({
     return (
       <OrganizationModePanel
         canEdit={canEdit}
+        createPanel={createPanel}
+        departments={departments}
+        departmentById={departmentById}
         drawerOpen={treeDrawerOpen}
         error={error}
         loading={loading}
@@ -356,6 +382,7 @@ export default function DepartmentPositionTab({
         })}
         sideOpen={treeOpen}
         onDrawerOpenChange={setTreeDrawerOpen}
+        onCreatePanelChange={setCreatePanel}
         onOpenDepartmentDetails={onOpenDepartmentDetails}
         onOpenPositionDetails={onOpenPositionDetails}
         onSelectPosition={(position) => selectItem({ type: "position", id: position.id })}

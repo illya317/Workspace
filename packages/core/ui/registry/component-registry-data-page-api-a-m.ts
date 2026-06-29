@@ -1,5 +1,4 @@
 import type { CoreUiComponentRegistration } from "./component-registry-types";
-import { generatedCoreUiSurfaceContracts } from "./generated-surface-contracts";
 
 export const page_api_registry_entries = [
   {
@@ -10,7 +9,6 @@ export const page_api_registry_entries = [
   {
     name: "BodySurface",
     description: "PageSurface 正文编排 Surface",
-    contract: generatedCoreUiSurfaceContracts.BodySurface,
     declares: [
       {
         name: "kind",
@@ -21,13 +19,14 @@ export const page_api_registry_entries = [
           { name: "document", description: "文档正文，payload 为 DocumentSurface。" },
           { name: "visualization", description: "可视化正文，payload 为 VisualizationSurface。" },
           { name: "selector", description: "选择器正文，payload 为 SelectorSurface。" },
-          { name: "navigation", description: "正文内导航，payload 为 NavigationRenderer。" },
+          { name: "navigation", description: "正文内导航，payload 为 NavigationSurface。" },
           {
             name: "section",
             description: "正文通用编排容器。",
             children: [
               { name: "sections", description: "递归 section tree。" },
               { name: "layout", description: "正文布局：stack / grid / split。" },
+              { name: "gridColumns", description: "grid 布局列数：2 / 3。" },
               { name: "sectioning", description: "section 分区：none / tabs。" },
               { name: "commands", description: "正文局部命令。" },
               { name: "status", description: "正文主体状态：empty / loading / error。" },
@@ -39,17 +38,17 @@ export const page_api_registry_entries = [
         ],
       },
       { name: "layout", description: "section 布局声明：stack / grid / split。" },
+      { name: "gridColumns", description: "section grid 列数声明：2 / 3。" },
       { name: "sections", description: "section tree；每个 section 的 body 继续使用 BodySurface。" },
       { name: "sectioning", description: "tabs 等正文分区方式。" },
       { name: "commands", description: "正文内部短命令；页面级工具放 PageSurface.toolbar。" },
       { name: "split", description: "split 专属：left/right/drawerLeft/sideOpen/drawerOpen/sideLabel/splitRatio/showSideControls。" },
     ],
-    composes: ["FormSurface", "DataSurface", "DocumentSurface", "NavigationRenderer", "VisualizationSurface", "SelectorSurface", "Toolbar", "EmptyStateCard", "ModuleCard"],
+    composes: ["FormSurface", "DataSurface", "DocumentSurface", "NavigationSurface", "VisualizationSurface", "SelectorSurface", "Toolbar", "EmptyStateCard", "ModuleCard"],
   },
   {
     name: "DataSurface",
     description: "正文数据 Surface",
-    contract: generatedCoreUiSurfaceContracts.DataSurface,
     declares: [
       {
         name: "kind",

@@ -26,6 +26,15 @@ type ReportDraftRow = WorkReportItem & {
   rowIndex: number;
 };
 
+const REPORT_DATE_TIME_FORMATTER = new Intl.DateTimeFormat("zh-CN", {
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+  timeZone: "Asia/Shanghai",
+});
+
 function getDraftRows(draft: WorkReportDraftResponse | null): ReportDraftRow[] {
   return draft?.items.map((item, index) => ({
     ...item,
@@ -213,11 +222,5 @@ function ReportStack({
 
 function formatDateTime(value: string | null) {
   if (!value) return "未提交";
-  return new Date(value).toLocaleString("zh-CN", {
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false
-  });
+  return REPORT_DATE_TIME_FORMATTER.format(new Date(value));
 }

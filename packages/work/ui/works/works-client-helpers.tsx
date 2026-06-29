@@ -21,26 +21,23 @@ export function spaceSelectorBlock(
     body: {
       kind: "navigation",
       navigation: {
-        kind: "selector" as const,
-        selector: {
-          mode: "list" as const,
-          title: "工作空间",
+        kind: "list" as const,
+        title: "工作空间",
 
-          loading,
-          loadingText: "加载中...",
-          items: spaces,
-          selectedId: active ? `${active.targetType}:${active.targetId}` : null,
-          onSelect,
-          getKey: (space: WorkTaskSpace) => `${space.targetType}:${space.targetId}`,
-          groupBy: (space: WorkTaskSpace) => groups.find((group) => group.type === space.targetType)?.title ?? "",
-          renderItem: (space: WorkTaskSpace) => ({
-            title: space.name,
-            subtitle: `${space.subtitle || getWorkSpaceLabel(space.targetType)} · 事项 ${space.counts.objective + space.counts.keyResult + space.counts.task}`,
-            trailing: <span className="shrink-0 rounded bg-white/80 px-1.5 py-0.5 text-xs text-slate-400">{roleLabel(space.role)}</span>,
-          }),
-          size: "sm",
+        loading,
+        loadingText: "加载中...",
+        items: spaces,
+        activeId: active ? `${active.targetType}:${active.targetId}` : null,
+        onNavigate: onSelect,
+        getKey: (space: WorkTaskSpace) => `${space.targetType}:${space.targetId}`,
+        groupBy: (space: WorkTaskSpace) => groups.find((group) => group.type === space.targetType)?.title ?? "",
+        renderItem: (space: WorkTaskSpace) => ({
+          title: space.name,
+          subtitle: `${space.subtitle || getWorkSpaceLabel(space.targetType)} · 事项 ${space.counts.objective + space.counts.keyResult + space.counts.task}`,
+          trailing: <span className="shrink-0 rounded bg-white/80 px-1.5 py-0.5 text-xs text-slate-400">{roleLabel(space.role)}</span>,
+        }),
+        size: "sm",
 
-        },
       },
     },
   };

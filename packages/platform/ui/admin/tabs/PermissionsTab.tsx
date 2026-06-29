@@ -99,7 +99,6 @@ export function usePermissionsTabBody({ resources, capabilitiesByOwner, s }: Pro
         onSelect: (resource: PermissionTreeNode) => selectResource(resource.key),
         getKey: (resource: PermissionTreeNode) => resource.key,
         getChildren: (resource: PermissionTreeNode) => resource.children,
-        defaultExpandedLevel: 99,
         renderItem: (resource: PermissionTreeNode, ctx) => ({
           title: resource.name,
           code: resource.hidden ? "隐藏" : resource.enabled === false ? "停用" : undefined,

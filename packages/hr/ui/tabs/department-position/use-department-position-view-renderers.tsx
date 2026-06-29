@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { SelectorSurfaceProps } from "@workspace/core/ui";
+import type { FormSurfaceProps, SelectorSurfaceProps } from "@workspace/core/ui";
 import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 import { ArchivedDepartmentPositionPage } from "./archive-browser";
 import { useDepartmentDetailPaneBlock } from "./department-detail-pane";
@@ -30,6 +30,8 @@ export function useDepartmentPositionViewRenderers(props: {
   canEditPosition: boolean;
   createPanel: "department" | "position" | null;
   createPositionCode: string;
+  createPositionDescriptionDetailsSurface: FormSurfaceProps;
+  createPositionDescriptionDraft: DescriptionDraft;
   createPositionDepartment: Department | undefined;
   createPositionDraft: CreatePositionDraft;
   departmentById: Map<number, Department>;
@@ -73,7 +75,7 @@ export function useDepartmentPositionViewRenderers(props: {
   onArchivePosition: (positionId: number, archived: boolean) => void | Promise<void>;
   onArchivedTabChange: (tab: ArchivedEntityTab) => void;
   onCollapseAll: (collapsed: boolean) => void;
-  onCreatePosition: () => void | Promise<void>;
+  onCreatePosition: (descriptionDraft: DescriptionDraft) => void | Promise<void>;
   onDeletePositionDescriptionTemplate: () => void | Promise<void>;
   onDrawerOpenChange: (open: boolean) => void;
   onOpenPositionDescriptionTemplateEditor: () => void;
@@ -85,6 +87,7 @@ export function useDepartmentPositionViewRenderers(props: {
   onSearchChange: (search: string) => void;
   onSelect: (selection: Selection) => void;
   onSetCreatePanel: (panel: "department" | "position" | null) => void;
+  onSetCreatePositionDescriptionDraft: Dispatch<SetStateAction<DescriptionDraft>>;
   onSetCreatePositionDraft: Dispatch<SetStateAction<CreatePositionDraft>>;
   onSideOpenChange: (open: boolean) => void;
   onTemplateDraftNameChange: (name: string) => void;
@@ -150,6 +153,8 @@ export function useDepartmentPositionViewRenderers(props: {
     canEditPosition: props.canEditPosition,
     createPanel: props.createPanel,
     createPositionCode: props.createPositionCode,
+    createPositionDescriptionDetailsSurface: props.createPositionDescriptionDetailsSurface,
+    createPositionDescriptionDraft: props.createPositionDescriptionDraft,
     createPositionDepartment: props.createPositionDepartment,
     createPositionDraft: props.createPositionDraft,
     departmentById: props.departmentById,
@@ -159,6 +164,7 @@ export function useDepartmentPositionViewRenderers(props: {
     showArchived: props.showArchived,
     positionEditorBlocks: !props.isOrganizationMode ? positionEditorBlocks : [],
     setCreatePanel: props.onSetCreatePanel,
+    setCreatePositionDescriptionDraft: props.onSetCreatePositionDescriptionDraft,
     setCreatePositionDraft: props.onSetCreatePositionDraft,
     onSelect: props.onSelect,
     onCreatePosition: props.onCreatePosition,

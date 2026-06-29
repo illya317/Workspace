@@ -197,6 +197,7 @@ export default function AccountSettingsPanel({
     }),
     createSectionsSection("account-forms", {
       layout: "grid",
+      gridColumns: 3,
 
       sections: [
         createSectionSection("profile", {

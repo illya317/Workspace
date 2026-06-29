@@ -168,15 +168,22 @@ export async function createPosition(
   if (!command.ok) return command;
   try {
     const record = await prisma.$transaction(async (tx) => {
-      let positionDescriptionId = command.data.positionDescriptionId;
-      if (!positionDescriptionId) {
-        const department = command.data.departmentId
-          ? await tx.department.findUnique({ where: { id: command.data.departmentId }, select: { name: true } })
+      const { positionDescription, ...positionData } = command.data;
+      let positionDescriptionId = positionData.positionDescriptionId;
+      if (positionDescription) {
+        const description = await tx.positionDescription.create({
+          data: { ...positionDescription, editedBy: userId, editedAt: new Date() },
+          select: { id: true },
+        });
+        positionDescriptionId = description.id;
+      } else if (!positionDescriptionId) {
+        const department = positionData.departmentId
+          ? await tx.department.findUnique({ where: { id: positionData.departmentId }, select: { name: true } })
           : null;
         const description = await tx.positionDescription.create({
           data: {
-            code: command.data.code,
-            name: command.data.name,
+            code: positionData.code,
+            name: positionData.name,
             departmentName: department?.name ?? null,
             sourceFile: "",
             details: "{}",
@@ -188,7 +195,7 @@ export async function createPosition(
         positionDescriptionId = description.id;
       }
       const position = await tx.position.create({
-        data: { ...command.data, positionDescriptionId, editedBy: userId },
+        data: { ...positionData, positionDescriptionId, editedBy: userId },
         select: { id: true },
       });
       await snapshotHistory("Position", position.id, userId, tx);

@@ -13,7 +13,7 @@ export type CoreUiComponentRegistration = {
   // 业务/Agent 可声明的字段项。
   declares?: readonly CoreUiCapabilityDescriptor[];
 
-  // 从 Surface props 类型自动生成的完整契约树，用于文档/展示；治理边界仍看 declares。
+  // 完整契约树只作为生成/检查产物；声明式 Surface registry 不挂载它。
   contract?: readonly CoreUiCapabilityDescriptor[];
 
   // 非 Surface 入口提供的能力说明，不作为 UI 声明协议。

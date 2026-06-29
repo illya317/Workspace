@@ -195,8 +195,8 @@ export function usePositionEditorBlocks({
             </span>
           ),
           actions: [
-            { key: "save", label: saving ? "保存中..." : "保存", variant: "primary", disabled: !canEditPosition || !dirty || saving, onClick: () => void onSavePosition() },
-            ...(canEdit ? [{ key: "archive", label: showArchived ? "恢复" : "归档", disabled: saving, onClick: () => void onArchivePosition(position.id, !showArchived) }] : []),
+            { key: "save", label: saving ? "保存中..." : "保存", icon: "save" as const, variant: "primary", disabled: !canEditPosition || !dirty || saving, onClick: () => void onSavePosition() },
+            ...(canEdit ? [{ key: "archive", label: showArchived ? "恢复" : "归档", icon: showArchived ? "restore" as const : "archive" as const, disabled: saving, onClick: () => void onArchivePosition(position.id, !showArchived) }] : []),
           ],
 
           sections: draft ? [{

@@ -204,7 +204,6 @@ export function useModuleManagementSection({ showToast, enabled = true }: Props)
             onSelect: (resource: ModuleTreeNode) => setSelectedResourceKey(resource.key),
             getKey: (resource: ModuleTreeNode) => resource.key,
             getChildren: (resource: ModuleTreeNode) => resource.children,
-            defaultExpandedLevel: 99,
             renderItem: (resource: ModuleTreeNode, ctx) => ({
               title: resource.name,
               level: ctx.level,

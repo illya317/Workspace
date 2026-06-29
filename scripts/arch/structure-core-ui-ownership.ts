@@ -116,7 +116,7 @@ export function findDomainSharedLayoutShells(files: SourceInfo[]) {
       || /(?:export\s+)?function\s+use[A-Z][A-Za-z0-9]*PageChrome/.test(file.text)
       || /(?:export\s+)?const\s+use[A-Z][A-Za-z0-9]*PageChrome\s*=/.test(file.text);
     if (!isSharedLayoutShell && !isSharedPageChrome) continue;
-    if (!file.hasJsx && !/PageSurface|PageSurfaceNavigationSpec|PageSurfaceToolbar|Toolbar|TabBar|NavigationRenderer/.test(file.text)) continue;
+    if (!file.hasJsx && !/PageSurface|PageSurfaceNavigationSpec|PageSurfaceToolbar|Toolbar|TabBar|NavigationSurface/.test(file.text)) continue;
     candidates.push({
       file: file.relPath,
       packageName,

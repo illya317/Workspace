@@ -102,7 +102,7 @@ const SURFACE_PUBLIC_CONTRACT_FILES = [
   "packages/core/ui/FormSurface.types.ts",
   "packages/core/ui/InputSurface.tsx",
   "packages/core/ui/internal/input/InputSurfaceTypes.ts",
-  "packages/core/ui/NavigationRenderer.tsx",
+  "packages/core/ui/NavigationSurface.tsx",
   "packages/core/ui/PageSurface.types.ts",
   "packages/core/ui/SelectorSurface.tsx",
   "packages/core/ui/VisualizationSurfaceTypes.ts",
@@ -186,7 +186,7 @@ const SURFACE_DECLARE_RULES: Record<string, {
   maxTotalDeclares?: number;
 }> = {
   BodySurface: {
-    topLevel: ["kind", "layout", "sections", "sectioning", "commands", "empty", "modals", "split"],
+    topLevel: ["kind", "layout", "gridColumns", "sections", "sectioning", "commands", "empty", "modals", "split"],
   },
   DataSurface: {
     topLevel: ["kind", "actions"],
@@ -200,8 +200,8 @@ const SURFACE_DECLARE_RULES: Record<string, {
   InputSurface: {
     topLevel: ["control", "valueType", "options", "format", "mask", "state", "validation", "usage", "dependencies"],
   },
-  NavigationRenderer: {
-    topLevel: ["kind", "tabs", "pagination", "selector", "grid", "steps", "active"],
+  NavigationSurface: {
+    topLevel: ["kind", "items", "pagination", "steps", "active", "activeId", "options"],
     maxTotalDeclares: 48,
   },
   PageSurface: {

@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
 import type { BodySurfaceProps } from "./BodySurface";
+import type { NavigationSurfaceItemSpec, NavigationSurfaceTabsProps } from "./NavigationSurface";
 import type { SurfaceToolbarItems } from "./SurfaceContractTypes";
 
 export type PageSurfaceKind = "login" | "directory" | "standard";
@@ -10,23 +10,8 @@ export type PageSurfaceToolbarSpec = {
   hidden?: boolean;
 };
 
-export interface PageSurfaceNavigationItemSpec {
-  key: string;
-  label: ReactNode;
-  description?: ReactNode;
-  href?: string;
-  onClick?: () => void;
-  children?: PageSurfaceNavigationItemSpec[];
-}
-
-export type PageSurfaceNavigationSpec = {
-  kind: "tabs";
-  items: PageSurfaceNavigationItemSpec[];
-  active: string;
-  activeChild?: string;
-  onChange: (key: string) => void;
-  onChildChange?: (key: string) => void;
-};
+export type PageSurfaceNavigationItemSpec = NavigationSurfaceItemSpec;
+export type PageSurfaceNavigationSpec = NavigationSurfaceTabsProps;
 
 export interface PageSurfaceFooterSpec {
   hidden?: boolean;

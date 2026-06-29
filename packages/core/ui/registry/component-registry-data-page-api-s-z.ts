@@ -1,11 +1,9 @@
 import type { CoreUiComponentRegistration } from "./component-registry-types";
-import { generatedCoreUiSurfaceContracts } from "./generated-surface-contracts";
 
 export const page_api_registry_entries = [
   {
     name: "SelectorSurface",
     description: "通用选择区 Surface",
-    contract: generatedCoreUiSurfaceContracts.SelectorSurface,
     declares: [
       {
         name: "kind",

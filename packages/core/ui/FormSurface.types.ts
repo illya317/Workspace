@@ -9,6 +9,7 @@ import type { ActionGlyphKind } from "./internal/action/ActionGlyphs";
 export type FormSurfaceKind = "fields" | "filters" | "detail" | "login";
 export type FormSurfaceLooseItem = ReturnType<typeof JSON.parse>;
 export type FormSurfaceLayoutFlow = "grid" | "inline" | "single";
+export type FormSurfaceSectionChrome = "card" | "divider" | "plain";
 
 export interface FormSurfaceLayoutSpec {
   flow?: FormSurfaceLayoutFlow;
@@ -118,6 +119,7 @@ export interface FormSurfaceSectionSpec<T = FormSurfaceLooseItem> {
   items: FormSurfaceItemSpec<T>[];
   layout?: FormSurfaceLayoutSpec;
   actions?: FormSurfaceCommandSpec[];
+  chrome?: FormSurfaceSectionChrome;
   framed?: boolean;
 }
 

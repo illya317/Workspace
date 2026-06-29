@@ -51,14 +51,11 @@ export function DepartmentPositionMainContent({
   surface?: RosterSurfaceNavigationProps;
 }) {
   const toolbarItems = buildDepartmentPositionToolbarItems({
-    canEdit,
-    createPanel,
     isOrganizationMode,
     showArchived,
     search,
     departments,
     collapsedDepartments,
-    onCreatePanelChange,
     onSearchChange,
     onCollapseAll,
   });

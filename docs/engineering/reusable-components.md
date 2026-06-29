@@ -26,12 +26,12 @@
 | 数据正文 | `BodySurface kind="data"` | table、structured、records、metrics 数据正文，由 row/column/display spec 驱动 | 业务页直接 import internal data renderer、直接拼表格外壳、记录卡、指标卡和 raw 展示组合，或把页面级 toolbar/pagination 放进 DataSurface |
 | 可视化正文 | `BodySurface kind="visualization"` | chart、gantt、timeline、tree 等可视化和复杂图形正文 | 把图表塞进 `DataSurface.kind="visual"`，或用 `FormSurface.note` / `moduleView` 承载甘特图 |
 | 通用正文编排 | `BodySurface kind="section"` | section tree、tabs/grid/split、局部 commands/empty/modals、通用正文容器 | 用旧 page block 展开业务协议，或用 `moduleView` 包普通容器 |
-| 导航细节 | `PageSurface.navigation` / `SelectorSurface` | 页面声明式导航段、左侧 selector/disclosure/steps；L1/L2 模块入口由 route/module 层或模块入口卡片承载，`TabBar` 只从当前页面内部视图层开始；分页只在 `PageSurface.footer.pagination` | 业务页新增二级导航组件、直接 import `NavigationRenderer` 拼 tab/pagination，把同级 L2 模块塞进 `TabBar`，或临时拼流程链接 |
+| 导航细节 | `NavigationSurface` / `PageSurface.navigation` / `SelectorSurface` | 页面声明式导航段、阶段 steps、视图上下文切换和输入型 selector；L1/L2 模块入口由 route/module 层或模块入口卡片承载，`TabBar` 只作为 Core 内部实现；分页只在 `PageSurface.footer.pagination` 或 `NavigationSurface pagination` | 业务页新增二级导航组件、直接 import `TabBar` / `Pagination`，把同级 L2 模块塞进 `TabBar`，或临时拼流程链接 |
 | 页面反馈 | `@workspace/core/ui` 的 `useFeedback` | 保存成功、失败、校验提示、删除/覆盖确认、未保存离开提示 | 页面直接用 `Toast`、`ConfirmModal`、`useToast`、`useConfirm`、`useConfirmDelete`、`useUnsavedChangesPrompt` |
 | 字段/选择/日期能力 | `InputSurface` 或 `BodySurface` form section 的 field/filter spec | 状态、阶段、固定枚举、FK、日期、tag、只读字段等 | 业务直接 import `SelectField`、`OptionPicker`、`PickerShell`、`SearchInput`、`FkFieldInput`、`CalendarDateInput` 等 internal renderer |
 | 工具栏/动作能力 | `PageSurface.toolbar` / 正文 Surface action spec | 页面级搜索、筛选、列显隐、批量动作、保存/取消/删除/刷新等统一成一个 Toolbar | 业务直接 import `Toolbar` / `ActionButton`、自绘 SVG、自排按钮顺序，或一页出现多个 toolbar |
 | 表格/记录/指标能力 | `BodySurface` data/metrics/record spec | 标准列表、批量表格、记录卡、指标卡 | 业务直接 import `DataSurface`、`DataTable`、`StructuredTable`、`MetricCard`、`NumberCell`、`AmountCell` 或手搓表格 DOM |
-| 导航/选择区能力 | `PageSurface.navigation` / `SelectorSurface` | Tab、左侧 selector、折叠、步骤、禁用步骤链接 | 业务直接 import `NavigationRenderer`、`SelectorPanel`、`TabBar`、`Pagination`、`PanelCard + SelectorList/SelectorTree/SelectorCard`，或手搓流程 nav |
+| 导航/选择区能力 | `NavigationSurface` / `PageSurface.navigation` / `SelectorSurface` | Tab、导航型 list/grid、左侧 selector、折叠、步骤、禁用步骤链接 | 业务直接 import `SelectorPanel`、`TabBar`、`Pagination`、`PanelCard + SelectorList/SelectorTree/SelectorCard`，或手搓流程 nav |
 | 页面内容/分栏能力 | `BodySurface kind="section"` 的 section/split spec | 页面内容留白、卡片、章节、空态、左右分栏 | 业务直接 import `PageShell`、`PageContent`、`PanelCard`、`SectionCard`、`WorkspaceSplitPage` |
 | 纸面/报告能力 | `BodySurface kind="document"` / Core `DocumentSurface` | A4 文档、检验记录纸面、报告预览、多页纸面容器 | 用 `moduleView` 或普通卡片承载纸面文档、重复手写纸面宿主宽度和字体 |
 

@@ -10,7 +10,7 @@ Workspace 底座包。这里放通用契约和不依赖业务事实、权限、P
 - `ui/DocumentSurface`
 - `ui/VisualizationSurface`
 - `ui/BodySurface`
-- `ui/NavigationRenderer`（Core 内部 / 正文导航 primitive）
+- `ui/NavigationSurface`
 - `ui/ConfirmModal`
 - `ui/FeedbackProvider`
 - `ui/useFeedback`

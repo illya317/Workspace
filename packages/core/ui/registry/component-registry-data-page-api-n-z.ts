@@ -1,5 +1,4 @@
 import type { CoreUiComponentRegistration } from "./component-registry-types";
-import { generatedCoreUiSurfaceContracts } from "./generated-surface-contracts";
 
 export const page_api_registry_entries = [
   {
@@ -35,7 +34,6 @@ export const page_api_registry_entries = [
   {
     name: "PageSurface",
     description: "唯一页面薄壳 Surface",
-    contract: generatedCoreUiSurfaceContracts.PageSurface,
     declares: [
       {
         name: "kind",
@@ -79,7 +77,7 @@ export const page_api_registry_entries = [
       },
       { name: "embedded", description: "嵌入式渲染，不输出完整页面框架。" },
     ],
-    composes: ["DatabasePageFrame", "Toolbar", "BodySurface", "NavigationRenderer", "Pagination", "ModuleCard", "EmptyStateCard"],
+    composes: ["DatabasePageFrame", "Toolbar", "BodySurface", "NavigationSurface", "Pagination", "ModuleCard", "EmptyStateCard"],
   },
   {
     name: "PageShell",
@@ -114,7 +112,6 @@ export const page_api_registry_entries = [
   {
     name: "VisualizationSurface",
     description: "可视化正文 Surface",
-    contract: generatedCoreUiSurfaceContracts.VisualizationSurface,
     declares: [
       {
         name: "kind",

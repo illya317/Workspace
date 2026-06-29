@@ -46,20 +46,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
     };
     return [allRoot, ...directories];
   }, [directories]);
-  const initialExpandedPaths = useMemo(() => {
-    const next = new Set<string>();
-    function visit(nodes: DirectoryNode[]) {
-      for (const node of nodes) {
-        if (node.children.length > 0) {
-          next.add(node.path);
-          visit(node.children);
-        }
-      }
-    }
-    visit(directories);
-    return next;
-  }, [directories]);
-  const [expandedPaths, setExpandedPaths] = useState<Set<string>>(initialExpandedPaths);
+  const [expandedPaths, setExpandedPaths] = useState<Set<string>>(() => new Set());
 
   const handleUpdated = () => {
     refresh();

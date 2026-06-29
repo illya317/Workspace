@@ -127,6 +127,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
     }
     return createPanelSection("duty-description", {
       title: "部门职责描述",
+      chrome: "divider",
       actions: disabled ? undefined : [{ key: "add-duty", label: "新增职责", onClick: addRecord }],
 
       sections: records.length === 0
@@ -140,6 +141,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
         return createPanelSection(`duty-${index}`, {
           itemRef: getDutyItemRef?.(index),
           title: `职责 ${index + 1}`,
+          chrome: "divider",
           actions: disabled ? undefined : [{
             key: "delete-duty",
             label: "删除",
@@ -151,6 +153,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
 
           sections: [{
             key: "fields",
+            chrome: "plain",
             body: { kind: "form", form: {
               kind: "fields" as const,
               content: {
@@ -184,6 +187,7 @@ export function buildDepartmentDescriptionDetailsBlocks({
   const sections: BodySurfaceSectionSpec[] = [
     {
       key: "summary",
+      chrome: "plain",
       body: { kind: "form", form: {
         kind: "fields",
         content: {
@@ -206,9 +210,11 @@ export function buildDepartmentDescriptionDetailsBlocks({
   if (remainingKeys.length > 0) {
     sections.push(createPanelSection("other-fields", {
       title: "其他字段",
+      chrome: "divider",
 
       sections: [{
         key: "fields",
+        chrome: "plain",
         body: { kind: "form", form: {
           kind: "fields",
           content: {

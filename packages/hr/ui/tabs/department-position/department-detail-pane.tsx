@@ -1,12 +1,12 @@
 "use client";
 
 import { useMemo, type Dispatch, type SetStateAction } from "react";
-import { createPageBody, createMetricsSection, createEmptySection, createPanelSection, PageSurface, type FormSurfaceItemSpec, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, createMetricsSection, createEmptySection, createPanelSection, PageSurface, type FormSurfaceItemSpec, type BodySurfaceSectionSpec, type FormSurfaceProps } from "@workspace/core/ui";
 import { departmentCodeEditableSegment } from "./department-code-input";
 import { departmentDescendantIds, splitAliasText } from "./utils";
 import { useDepartmentDescriptionsBlock } from "./department-descriptions-panel";
 import { buildDirectPositionPanelBlock } from "./navigation-panels";
-import type { Department, DepartmentDescriptionDraft, DepartmentDraft, DepartmentPositionStats, CreatePositionDraft, Position, Selection } from "./types";
+import type { Department, DepartmentDescriptionDraft, DepartmentDraft, DepartmentPositionStats, CreatePositionDraft, DescriptionDraft, Position, Selection } from "./types";
 
 function DepartmentLevelChip({ level }: { level: number }) {
   return <span className="inline-flex shrink-0 items-center rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">{`L${level}`}</span>;
@@ -25,6 +25,8 @@ type DepartmentDetailPaneProps = {
   canEditPosition: boolean;
   createPanel: "department" | "position" | null;
   createPositionCode: string;
+  createPositionDescriptionDetailsSurface: FormSurfaceProps;
+  createPositionDescriptionDraft: DescriptionDraft;
   createPositionDepartment: Department | undefined;
   createPositionDraft: CreatePositionDraft;
   departmentById: Map<number, Department>;
@@ -34,9 +36,10 @@ type DepartmentDetailPaneProps = {
   showArchived: boolean;
   positionEditorBlocks: BodySurfaceSectionSpec[];
   setCreatePanel: (panel: "department" | "position" | null) => void;
+  setCreatePositionDescriptionDraft: Dispatch<SetStateAction<DescriptionDraft>>;
   setCreatePositionDraft: Dispatch<SetStateAction<CreatePositionDraft>>;
   onSelect: (selection: Selection) => void;
-  onCreatePosition: () => void | Promise<void>;
+  onCreatePosition: (descriptionDraft: DescriptionDraft) => void | Promise<void>;
   onUpdateDepartmentDraft: <K extends keyof DepartmentDraft>(key: K, value: DepartmentDraft[K]) => void;
   onUpdateDepartmentDescriptionDraft: <K extends keyof DepartmentDescriptionDraft>(index: number, key: K, value: DepartmentDescriptionDraft[K]) => void;
   onSaveDepartmentInfo: () => void | Promise<void>;
@@ -57,6 +60,8 @@ export function useDepartmentDetailPaneBlock({
   canEditPosition,
   createPanel,
   createPositionCode,
+  createPositionDescriptionDetailsSurface,
+  createPositionDescriptionDraft,
   createPositionDepartment,
   createPositionDraft,
   departmentById,
@@ -66,6 +71,7 @@ export function useDepartmentDetailPaneBlock({
   showArchived,
   positionEditorBlocks,
   setCreatePanel,
+  setCreatePositionDescriptionDraft,
   setCreatePositionDraft,
   onSelect,
   onCreatePosition,
@@ -173,6 +179,8 @@ export function useDepartmentDetailPaneBlock({
         canCreatePosition: canEditPosition,
         createPanel,
         createPositionCode,
+        createPositionDescriptionDetailsSurface,
+        createPositionDescriptionDraft,
         createPositionDepartment,
         createPositionDraft,
         departmentId: selectedDepartment.id,
@@ -181,6 +189,7 @@ export function useDepartmentDetailPaneBlock({
         saving,
         selection,
         setCreatePanel,
+        setCreatePositionDescriptionDraft,
         setCreatePositionDraft,
         onSelect,
         onCreatePosition,
@@ -199,6 +208,7 @@ export function useDepartmentDetailPaneBlock({
           ? [{
               key: "save",
               label: saving ? "保存中..." : "保存",
+              icon: "save" as const,
               variant: "primary" as const,
               disabled: !canEditDepartment || (!departmentDirty && !departmentDescriptionDirty) || saving,
               onClick: () => void saveDepartment(),
@@ -208,6 +218,7 @@ export function useDepartmentDetailPaneBlock({
           ? [{
               key: "archive",
               label: showArchived ? "恢复" : "归档",
+              icon: showArchived ? "restore" as const : "archive" as const,
               disabled: saving,
               onClick: () => void onArchiveDepartment(selectedDepartment.id, !showArchived),
             }]

@@ -17,20 +17,7 @@ export default function LibrarySidebar({
   onSelectPath,
   loading,
 }: Props) {
-  const initialExpanded = useMemo(() => {
-    const set = new Set<string>();
-    function visit(nodes: DirectoryNode[]) {
-      for (const node of nodes) {
-        if (node.children.length > 0) {
-          set.add(node.path);
-          visit(node.children);
-        }
-      }
-    }
-    visit(directories);
-    return set;
-  }, [directories]);
-  const [expandedPaths, setExpandedPaths] = useState<Set<string>>(initialExpanded);
+  const [expandedPaths, setExpandedPaths] = useState<Set<string>>(() => new Set());
 
   function getChildren(node: DirectoryNode): DirectoryNode[] | undefined {
     return node.children.length > 0 ? node.children : undefined;

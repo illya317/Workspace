@@ -9,6 +9,8 @@ import type {
   FormSurfaceKind,
   FormSurfaceLayoutSpec,
   FormSurfaceProps,
+  FormSurfaceSectionChrome,
+  FormSurfaceSectionSpec,
 } from "../../FormSurface.types";
 
 type ResolvedFormLayout = Required<FormSurfaceLayoutSpec>;
@@ -24,6 +26,11 @@ function resolveLayout(kind: FormSurfaceKind, layout?: FormSurfaceLayoutSpec): R
   return { ...defaultLayout(kind), ...layout };
 }
 
+function formSectionChrome<T>(field: FormSurfaceSectionSpec<T>): FormSurfaceSectionChrome {
+  if (field.chrome) return field.chrome;
+  return field.framed === false ? "plain" : "card";
+}
+
 function renderGridItem<T>(
   field: FormSurfaceItemSpec<T>,
   layout: ResolvedFormLayout,
@@ -36,17 +43,24 @@ function renderGridItem<T>(
   }
   if (field.kind === "section") {
     const sectionLayout = resolveLayout("fields", { ...layout, ...field.layout });
+    const chrome = formSectionChrome(field);
+    const header = (field.title || field.subtitle || field.actions?.length) ? (
+      <div className={`flex items-start justify-between gap-3 ${chrome === "divider" ? "border-b border-slate-200 pb-3" : ""}`}>
+        <div className="min-w-0">
+          {field.title ? <h3 className="text-base font-semibold text-slate-900">{field.title}</h3> : null}
+          {field.subtitle ? <p className="mt-1 text-sm text-slate-500">{field.subtitle}</p> : null}
+        </div>
+        {renderCommands(field.actions)}
+      </div>
+    ) : null;
     return (
-      <section key={field.key} className={field.framed === false ? "col-span-full space-y-3" : "col-span-full space-y-4 rounded-md border border-slate-200 bg-white p-4 shadow-sm"}>
-        {(field.title || field.subtitle || field.actions?.length) && (
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              {field.title ? <h3 className="text-base font-semibold text-slate-900">{field.title}</h3> : null}
-              {field.subtitle ? <p className="mt-1 text-sm text-slate-500">{field.subtitle}</p> : null}
-            </div>
-            {renderCommands(field.actions)}
-          </div>
-        )}
+      <section
+        key={field.key}
+        className={chrome === "card"
+          ? "col-span-full space-y-4 rounded-md border border-slate-200 bg-white p-4 shadow-sm"
+          : "col-span-full space-y-4"}
+      >
+        {header}
         <FieldGrid columns={sectionLayout.columns} mode={sectionLayout.mode}>
           {field.items.map((item) => renderGridItem(item, sectionLayout))}
         </FieldGrid>

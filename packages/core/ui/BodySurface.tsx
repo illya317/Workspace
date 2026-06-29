@@ -3,7 +3,7 @@
 import DataSurface from "./DataSurface";
 import DocumentSurface, { type DocumentSurfaceProps } from "./DocumentSurface";
 import FormSurface from "./FormSurface";
-import NavigationRenderer, { type NavigationRendererProps } from "./NavigationRenderer";
+import NavigationSurface, { type NavigationSurfaceProps } from "./NavigationSurface";
 import type { ReactNode, Ref } from "react";
 import type { DataSurfaceProps, DataSurfaceLooseRow } from "./DataSurface.types";
 import type { FormSurfaceProps, FormSurfaceLooseItem } from "./FormSurface.types";
@@ -25,7 +25,9 @@ export { renderBodyEmpty } from "./internal/body/BodySurfaceBlocks";
 export type BodySurfaceKind = "data" | "document" | "form" | "navigation" | "selector" | "section" | "visualization";
 
 export type BodySurfaceActionSize = "sm" | "md" | "lg";
+export type BodySurfaceSectionChrome = "card" | "divider" | "plain";
 export type BodySurfaceSectionLayout = "stack" | "grid" | "split";
+export type BodySurfaceSectionGridColumns = 2 | 3;
 
 export interface BodySurfaceCommandSpec {
   key: string;
@@ -36,6 +38,7 @@ export interface BodySurfaceCommandSpec {
   variant?: "primary" | "secondary" | "danger";
   type?: "button" | "submit";
   size?: BodySurfaceActionSize;
+  presentation?: "auto" | "text" | "icon";
   truncate?: boolean;
 }
 
@@ -138,6 +141,7 @@ interface BodySurfaceSectionCommonProps {
 
 export type BodySurfaceComposedSectionProps = BodySurfaceSectionCommonProps & {
   layout?: "stack" | "grid";
+  gridColumns?: BodySurfaceSectionGridColumns;
   sections?: BodySurfaceSectionSpec[];
   sectioning?: BodySurfaceSectioningSpec;
 };
@@ -147,6 +151,7 @@ export type BodySurfaceSplitSectionProps = BodySurfaceSectionCommonProps & {
   left: BodySurfaceProps;
   drawerLeft?: BodySurfaceProps;
   right: BodySurfaceProps;
+  toolbarItems?: SurfaceToolbarItems;
   sideOpen: boolean;
   drawerOpen: boolean;
   onSideOpenChange: (open: boolean) => void;
@@ -166,6 +171,7 @@ export interface BodySurfaceSectionSpec {
   key: string;
   label?: ReactNode;
   header?: BodySurfaceSectionHeaderSpec;
+  chrome?: BodySurfaceSectionChrome;
   framed?: boolean;
   itemRef?: Ref<HTMLDivElement>;
   body: BodySurfaceProps;
@@ -174,7 +180,7 @@ export interface BodySurfaceSectionSpec {
 export type BodySurfaceDataProps<T = DataSurfaceLooseRow> = { kind: "data"; data: DataSurfaceProps<T> };
 export type BodySurfaceDocumentProps = { kind: "document"; document: DocumentSurfaceProps };
 export type BodySurfaceFormProps<T = FormSurfaceLooseItem> = { kind: "form"; form: FormSurfaceProps<T> };
-export type BodySurfaceNavigationProps = { kind: "navigation"; navigation: NavigationRendererProps };
+export type BodySurfaceNavigationProps = { kind: "navigation"; navigation: NavigationSurfaceProps };
 export type BodySurfaceSelectorProps = { kind: "selector"; selector: SelectorSurfaceProps };
 export type BodySurfaceVisualizationProps = { kind: "visualization"; visualization: VisualizationSurfaceProps };
 
@@ -260,7 +266,9 @@ function renderBodyList(list?: BodySurfaceListSpec) {
   );
 }
 
-function renderSectionHeader(section: BodySurfaceSectionSpec) {
+const sectionChrome = (section: BodySurfaceSectionSpec): BodySurfaceSectionChrome => section.chrome ?? (section.framed === false ? "plain" : "card");
+
+function renderSectionHeader(section: BodySurfaceSectionSpec, chrome: BodySurfaceSectionChrome = sectionChrome(section)) {
   const header = section.header;
   if (!header?.title && !header?.subtitle && !header?.badges?.length && !header?.toolbarItems?.length && !header?.actions?.length) return null;
   const actions = (
@@ -270,7 +278,7 @@ function renderSectionHeader(section: BodySurfaceSectionSpec) {
     </div>
   );
   return (
-    <div className="flex items-start justify-between gap-3">
+    <div className={joinClassNames("flex items-start justify-between gap-3", chrome === "divider" ? "border-b border-slate-200 pb-3" : "")}>
       <div className="min-w-0 space-y-1.5">
         {(header.title || header.badges?.length) && (
           <div className="flex min-w-0 flex-wrap items-center gap-3">
@@ -304,24 +312,20 @@ function renderBodyModals(modals?: BodySurfaceModalSpec[]) {
   ));
 }
 
-function renderBodySection(section: BodySurfaceSectionSpec) {
-  const content = (
-    <section className={section.framed === false ? "space-y-4" : "space-y-4 rounded-md border border-slate-200 bg-white p-4 shadow-sm"}>
-      {renderSectionHeader(section)}
-      <BodySurface {...section.body} />
-    </section>
-  );
-  return section.itemRef ? <div key={section.key} ref={section.itemRef}>{content}</div> : <div key={section.key}>{content}</div>;
+function renderBodySection(section: BodySurfaceSectionSpec, stretch = false) {
+  const stretchClassName = stretch ? "h-full" : "";
+  const chrome = sectionChrome(section);
+  const sectionClassName = joinClassNames(chrome === "card" ? "space-y-4 rounded-md border border-slate-200 bg-white p-4 shadow-sm" : "space-y-4", stretchClassName);
+  const content = <section className={sectionClassName}>{renderSectionHeader(section, chrome)}<BodySurface {...section.body} /></section>;
+  if (section.itemRef) return <div key={section.key} ref={section.itemRef} className={stretchClassName}>{content}</div>;
+  return <div key={section.key} className={stretchClassName}>{content}</div>;
 }
 
-function BodySurfaceSectionStack({
-  sections,
-  sectioning,
-  layout = "stack",
-}: {
+function BodySurfaceSectionStack({ sections, sectioning, layout = "stack", gridColumns = 2 }: {
   sections?: BodySurfaceSectionSpec[];
   sectioning?: BodySurfaceSectioningSpec;
   layout?: "stack" | "grid";
+  gridColumns?: BodySurfaceSectionGridColumns;
 }) {
   if (!sections?.length) return null;
   if (sectioning?.kind === "tabs") {
@@ -341,9 +345,10 @@ function BodySurfaceSectionStack({
     );
   }
   if (layout === "grid") {
-    return <div className="grid gap-4 lg:grid-cols-2">{sections.map(renderBodySection)}</div>;
+    const gridClassName = gridColumns === 3 ? "lg:grid-cols-3" : "lg:grid-cols-2";
+    return <div className={`grid items-stretch gap-4 ${gridClassName}`}>{sections.map((section) => renderBodySection(section, true))}</div>;
   }
-  return <div className="space-y-5">{sections.map(renderBodySection)}</div>;
+  return <div className="space-y-5">{sections.map((section) => renderBodySection(section))}</div>;
 }
 
 function renderBodyTitle(props: BodySurfaceSectionProps) {
@@ -362,26 +367,12 @@ function renderSplitSide(props: BodySurfaceSplitSectionProps, mode: SplitWorkspa
 }
 
 function renderSplitSideControls(props: BodySurfaceSplitSectionProps) {
-  if (props.showSideControls === false) return null;
-  const items: ToolbarItem[] = [
-    {
-      kind: "panel-toggle",
-      key: "mobile-side-toggle",
-      icon: "panel-open",
-      label: `显示${props.sideLabel}`,
-      onClick: () => props.onDrawerOpenChange(true),
-      visibility: "mobile",
-    },
-    {
-      kind: "panel-toggle",
-      key: "desktop-side-toggle",
-      icon: props.sideOpen ? "panel-open" : "panel-close",
-      label: `${props.sideOpen ? "隐藏" : "显示"}${props.sideLabel}`,
-      onClick: () => props.onSideOpenChange(!props.sideOpen),
-      variant: props.sideOpen ? "primary" : "secondary",
-      visibility: "desktop",
-    },
+  const sideItems: ToolbarItem[] = props.showSideControls === false ? [] : [
+    { kind: "panel-toggle", key: "mobile-side-toggle", icon: "panel-open", label: `显示${props.sideLabel}`, onClick: () => props.onDrawerOpenChange(true), visibility: "mobile" },
+    { kind: "panel-toggle", key: "desktop-side-toggle", icon: props.sideOpen ? "panel-open" : "panel-close", label: `${props.sideOpen ? "隐藏" : "显示"}${props.sideLabel}`, onClick: () => props.onSideOpenChange(!props.sideOpen), variant: props.sideOpen ? "primary" : "secondary", visibility: "desktop" },
   ];
+  const items = [...sideItems, ...(props.toolbarItems ?? [])];
+  if (!items.length) return null;
   return <Toolbar items={items} />;
 }
 
@@ -414,6 +405,7 @@ function renderSectionContent(props: BodySurfaceSectionProps) {
         sections={props.sections}
         sectioning={props.sectioning}
         layout={props.layout}
+        gridColumns={props.gridColumns}
       />
     ) : null,
   ].filter(Boolean);
@@ -437,7 +429,7 @@ export default function BodySurface(props: BodySurfaceProps) {
   if (props.kind === "data") return <DataSurface {...props.data} />;
   if (props.kind === "document") return <DocumentSurface {...props.document} />;
   if (props.kind === "form") return <FormSurface {...props.form} />;
-  if (props.kind === "navigation") return <NavigationRenderer {...props.navigation} />;
+  if (props.kind === "navigation") return <NavigationSurface {...props.navigation} />;
   if (props.kind === "selector") return <SelectorSurface {...props.selector} />;
   if (props.kind === "section") return renderSectionSurface(props);
   return <VisualizationSurface {...props.visualization} />;

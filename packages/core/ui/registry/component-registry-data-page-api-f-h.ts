@@ -1,5 +1,4 @@
 import type { CoreUiComponentRegistration } from "./component-registry-types";
-import { generatedCoreUiSurfaceContracts } from "./generated-surface-contracts";
 
 export const page_api_registry_entries = [
   {
@@ -19,7 +18,6 @@ export const page_api_registry_entries = [
   {
     name: "DocumentSurface",
     description: "文档纸面 Surface",
-    contract: generatedCoreUiSurfaceContracts.DocumentSurface,
     declares: [
       {
         name: "kind",
@@ -82,7 +80,6 @@ export const page_api_registry_entries = [
   {
     name: "FormSurface",
     description: "正文表单 Surface",
-    contract: generatedCoreUiSurfaceContracts.FormSurface,
     declares: [
       {
         name: "kind",

@@ -247,6 +247,7 @@ const ACTION_GLYPH_LABEL_MATCHERS: Array<{ value: string; action: ActionGlyphAct
   { value: "取消关联", action: "unlink" },
   { value: "新建", action: "create" },
   { value: "创建", action: "create" },
+  { value: "新增", action: "add" },
   { value: "添加", action: "add" },
   { value: "保存", action: "save" },
   { value: "删除", action: "delete" },
@@ -301,13 +302,16 @@ export function resolveActionGlyphAction(input: {
     const normalizedKey = normalizeActionKey(input.key);
     const exact = ACTION_GLYPH_ACTION_BY_KEY[normalizedKey as ActionGlyphActionKey];
     if (exact) return exact;
-    const aliased = ACTION_GLYPH_ALIAS_TO_ACTION_KEY[normalizedKey as keyof typeof ACTION_GLYPH_ALIAS_TO_ACTION_KEY];
-    if (aliased) return ACTION_GLYPH_ACTION_BY_KEY[aliased];
   }
-  if (input.type === "submit") return ACTION_GLYPH_ACTION_BY_KEY.confirm;
   if (input.label) {
     const match = ACTION_GLYPH_LABEL_MATCHERS.find((item) => input.label?.includes(item.value));
     if (match) return ACTION_GLYPH_ACTION_BY_KEY[match.action];
+  }
+  if (input.type === "submit") return ACTION_GLYPH_ACTION_BY_KEY.confirm;
+  if (input.key) {
+    const normalizedKey = normalizeActionKey(input.key);
+    const aliased = ACTION_GLYPH_ALIAS_TO_ACTION_KEY[normalizedKey as keyof typeof ACTION_GLYPH_ALIAS_TO_ACTION_KEY];
+    if (aliased) return ACTION_GLYPH_ACTION_BY_KEY[aliased];
   }
   return undefined;
 }

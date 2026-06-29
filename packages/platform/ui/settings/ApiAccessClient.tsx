@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
 import { createFieldsSection, createPageBody, PageSurface, type BodySurfaceSectionSpec, useFeedback } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
-const API_BASE_URL = typeof window !== "undefined" ? `${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH || ""}` : "";
 export type ApiAccessModuleRow = {
   key: string;
   label: string;
@@ -51,9 +50,13 @@ export function useApiAccessSection({
 }): BodySurfaceSectionSpec | null {
   const canUsePersonalApi = (user.visibleResourceKeys || []).includes("settings.account.apiAccess");
   const [apiKey, setApiKey] = useState<string | null>(null);
+  const [apiBaseUrl, setApiBaseUrl] = useState("");
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const feedback = useFeedback();
+  useEffect(() => {
+    setApiBaseUrl(`${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH || ""}`);
+  }, []);
   useEffect(() => {
     if (!canUsePersonalApi) return;
     fetch(workspacePath("/api/settings/account/api-key")).then(res => res.ok ? res.json() : Promise.reject()).then((data: {
@@ -62,7 +65,7 @@ export function useApiAccessSection({
   }, [canUsePersonalApi]);
   async function copyConnectionBlock() {
     await navigator.clipboard.writeText(buildAgentAccessText({
-      baseUrl: API_BASE_URL,
+      baseUrl: apiBaseUrl,
       apiKey: apiKey || "<your-api-key>",
       username: user.username || user.nickname || "<your-username>",
       modules
@@ -98,7 +101,7 @@ export function useApiAccessSection({
     content: (
       <pre className="space-y-1 whitespace-pre-wrap rounded-md bg-emerald-50 p-4 font-mono text-sm text-emerald-800">
         {[
-          `URL: ${API_BASE_URL}`,
+          `URL: ${apiBaseUrl}`,
           `Key: ${apiKey ? maskApiKey(apiKey) : "（先申请）"}`,
           `User: ${user.username || user.nickname || "（未获取）"}`,
         ].join("\n")}

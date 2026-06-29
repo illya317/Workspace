@@ -8,7 +8,6 @@ import type {
   FormSurfaceProps,
   FormSurfaceSubmitSpec,
 } from "../FormSurface.types";
-import type { NavigationRendererTabsSpec } from "../NavigationRenderer";
 import type {
   BodySurfaceCommandSpec,
   BodySurfaceComposedSectionProps,
@@ -17,6 +16,7 @@ import type {
   BodySurfaceModalSpec,
   BodySurfaceListSpec,
   BodySurfaceModuleGridSpec,
+  BodySurfaceSectionChrome,
   BodySurfaceStatusSpec,
   BodySurfaceSectionSpec,
   BodySurfaceProps,
@@ -34,12 +34,14 @@ export type BodySurfaceBodyInputSpec = BodySurfaceSectionSpec | BodySurfaceModal
 type NestedPageSections = {
   sections: BodySurfaceSectionSpec[];
   layout?: "stack" | "grid";
+  gridColumns?: 2 | 3;
 };
 
 type PageSectionPanelOptions = NestedPageSections & {
   title?: ReactNode;
   subtitle?: ReactNode;
   actions?: BodySurfaceCommandSpec[];
+  chrome?: BodySurfaceSectionChrome;
   framed?: boolean;
   itemRef?: Ref<HTMLDivElement>;
 };
@@ -53,6 +55,7 @@ type PageSectionAnalysisOptions = NestedPageSections & {
   subtitle?: PageSectionPanelOptions["subtitle"];
   actions?: BodySurfaceCommandSpec[];
   toolbar?: PageSurfaceToolbarSpec;
+  chrome?: BodySurfaceSectionChrome;
   framed?: boolean;
 };
 
@@ -137,22 +140,6 @@ export function createPageTabsNavigation(
   return {
     kind: "tabs",
     ...navigation,
-  };
-}
-
-export function createTabsNavigationSection(
-  key: string,
-  tabs: NavigationRendererTabsSpec,
-): BodySurfaceSectionSpec {
-  return {
-    key,
-    body: {
-      kind: "navigation",
-      navigation: {
-        kind: "tabs",
-        tabs,
-      },
-    },
   };
 }
 
@@ -298,22 +285,23 @@ export function createSectionsSection(
   key: string,
   group: NestedPageSections,
 ): BodySurfaceSectionSpec {
-  const { layout = "stack", sections } = group;
-  return { key, body: { kind: "section", layout, sections } };
+  const { gridColumns, layout = "stack", sections } = group;
+  return { key, body: { kind: "section", layout, gridColumns, sections } };
 }
 
 export function createPanelSection(
   key: string,
   panel: PageSectionPanelOptions,
 ): BodySurfaceSectionSpec {
-  const { actions, framed, itemRef, layout = "stack", sections, subtitle, title } = panel;
+  const { actions, chrome, framed, gridColumns, itemRef, layout = "stack", sections, subtitle, title } = panel;
   return {
     key,
     label: title,
+    chrome,
     framed,
     itemRef,
     header: { title, subtitle, actions },
-    body: { kind: "section", layout, sections },
+    body: { kind: "section", layout, gridColumns, sections },
   };
 }
 
@@ -321,10 +309,11 @@ export function createAnalysisSection(
   key: string,
   analysis: PageSectionAnalysisOptions,
 ): BodySurfaceSectionSpec {
-  const { actions, framed, layout = "stack", sections, subtitle, title, toolbar } = analysis;
+  const { actions, chrome, framed, layout = "stack", sections, subtitle, title, toolbar } = analysis;
   return {
     key,
     label: title,
+    chrome,
     framed,
     header: { title, subtitle, actions, toolbarItems: toolbar?.items },
     body: { kind: "section", layout, sections },

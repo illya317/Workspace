@@ -34,6 +34,17 @@ interface HistorySectionProps {
 
 type ProfileHistoryChange = ProfileHistoryEntry["changes"][number];
 
+const HISTORY_DATE_FORMATTER = new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+  timeZone: "Asia/Shanghai",
+});
+
 function historyChangeColumns(): DataSurfaceColumnSpec<ProfileHistoryChange>[] {
   return [{
     key: "field",
@@ -78,7 +89,7 @@ export function historySectionSurface({
             { kind: "text" as const, value: headerTitle, emphasis: "strong", },
             {
               kind: "text" as const,
-              value: `${new Date(entry.createdAt).toLocaleString("zh-CN", { hour12: false })} · ${entry.entityType} #${entry.entityId} · v${entry.version}`,
+              value: `${HISTORY_DATE_FORMATTER.format(new Date(entry.createdAt))} · ${entry.entityType} #${entry.entityId} · v${entry.version}`,
               tone: "muted",
             },
           ],

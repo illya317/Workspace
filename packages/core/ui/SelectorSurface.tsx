@@ -184,7 +184,7 @@ function TreeSelector<T>({ selector, actions }: {
     if (typeof selector.defaultExpandedLevel === "number") {
       return collectExpandedIds(selector.items, selector.getKey, selector.getChildren, selector.defaultExpandedLevel);
     }
-    return collectExpandedIds(selector.items, selector.getKey, selector.getChildren, 1);
+    return new Set<string | number>();
   }, [selector]);
   const [internalExpandedIds, setInternalExpandedIds] = useState(defaultExpandedIds);
   const expandedIds = selector.expandedIds ? new Set(selector.expandedIds) : internalExpandedIds;
@@ -213,33 +213,30 @@ function TreeSelector<T>({ selector, actions }: {
       const active = selector.selectedId === id;
       const card = selector.renderItem(item, { active, level, expanded, hasChildren });
       const meta = treeMeta(card);
-      return (
-        <div key={id} className="space-y-1">
+      const cardClassName = active
+        ? "border-emerald-400 bg-emerald-50 shadow-sm"
+        : "border-slate-200 bg-white hover:border-emerald-200 hover:bg-emerald-50/40";
+      const row = (
+        <div key="row" className="space-y-1">
           <div
-            className="flex min-w-0 items-stretch gap-2"
-            style={{ paddingLeft: Math.max(0, level - 1) * 14 }}
+            className={`grid min-w-0 grid-cols-[2rem_minmax(0,1fr)] items-stretch overflow-hidden rounded-md border transition ${cardClassName}`}
           >
-            <button
-              type="button"
-              className={`mt-2 grid size-6 shrink-0 place-items-center rounded border text-xs font-semibold shadow-sm ${
-                hasChildren && collapsible
-                  ? "border-slate-200 bg-white text-slate-500 hover:border-emerald-300 hover:text-emerald-700"
-                  : "invisible border-transparent"
-              }`}
-              aria-label={expanded ? "收起" : "展开"}
-              disabled={!hasChildren || !collapsible}
-              onClick={() => toggle(id)}
-            >
-              {expanded ? "⌄" : "›"}
-            </button>
+            <span className="grid place-items-center border-r border-slate-100">
+              {hasChildren && collapsible ? (
+                <button
+                  type="button"
+                  className="grid size-7 place-items-center rounded text-sm font-semibold text-slate-500 transition hover:bg-white hover:text-emerald-700"
+                  aria-label={expanded ? "收起" : "展开"}
+                  onClick={() => toggle(id)}
+                >
+                  <span className="font-mono leading-none">{expanded ? "-" : "+"}</span>
+                </button>
+              ) : null}
+            </span>
             <button
               type="button"
               onClick={() => selector.onSelect(item)}
-              className={`min-w-0 flex-1 rounded-md border px-2.5 py-2 text-left transition ${
-                active
-                  ? "border-emerald-400 bg-emerald-50 shadow-sm"
-                  : "border-slate-200 bg-white hover:border-emerald-200 hover:bg-emerald-50/40"
-              }`}
+              className="min-w-0 px-2.5 py-2 text-left"
             >
               <span className="flex min-w-0 items-center gap-2">
                 <Badge level={card.level ?? level} className="shrink-0 px-2 py-0.5 font-semibold" />
@@ -251,7 +248,13 @@ function TreeSelector<T>({ selector, actions }: {
               {meta ? renderTreeMeta(meta) : null}
             </button>
           </div>
-          {expanded && hasChildren ? renderRows(children!, level + 1) : null}
+        </div>
+      );
+      if (!hasChildren) return <div key={id}>{row}</div>;
+      return (
+        <div key={id} className="space-y-1.5 rounded-lg border border-slate-200 bg-slate-50/70 py-1.5">
+          {row}
+          {expanded ? <div className="space-y-1.5">{renderRows(children!, level + 1)}</div> : null}
         </div>
       );
     });

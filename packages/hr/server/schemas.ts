@@ -35,6 +35,19 @@ export const PositionCreateSchema = z.object({
   alias: z.string().optional().nullable(),
   departmentId: z.union([z.number(), z.string()]).optional().nullable(),
   positionDescriptionId: z.coerce.number().optional().nullable(),
+  positionDescription: z.object({
+    code: z.string().optional(),
+    name: z.string().optional(),
+    departmentName: z.string().optional().nullable(),
+    reportTo: z.string().optional().nullable(),
+    positionPurpose: z.string().optional().nullable(),
+    summary: z.string().optional().nullable(),
+    headcount: z.union([z.string(), z.number()]).optional().nullable(),
+    version: z.string().optional().nullable(),
+    effectiveDate: z.string().optional().nullable(),
+    sourceFile: z.string().optional().nullable(),
+    details: z.string().optional().nullable(),
+  }).optional().nullable(),
 });
 
 export const EDPCreateSchema = z.object({

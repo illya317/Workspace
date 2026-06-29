@@ -114,19 +114,17 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
       body: {
         kind: "navigation",
         navigation: {
-          kind: "selector",
-          selector: {
-            framed: false,
-            items: directPositions,
-            selectedId: null,
-            onSelect: (pos) => handleSelectPosition(pos.code),
-            getKey: (pos) => pos.code,
-            renderItem: (pos) => ({
-              title: pos.name,
-              subtitle: pos.code,
-            }),
-            emptyText: "该部门暂无直属岗位",
-          },
+          kind: "list",
+          framed: false,
+          items: directPositions,
+          activeId: null,
+          onNavigate: (pos) => handleSelectPosition(pos.code),
+          getKey: (pos) => pos.code,
+          renderItem: (pos) => ({
+            title: pos.name,
+            subtitle: pos.code,
+          }),
+          emptyText: "该部门暂无直属岗位",
         },
       },
     }],

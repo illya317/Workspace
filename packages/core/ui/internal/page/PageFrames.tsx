@@ -135,6 +135,7 @@ export function WorkspaceSplitPage({
 }
 
 export interface DatabasePageFrameProps {
+  navigation?: ReactNode;
   tabs?: PageFrameTab[];
   activeTab?: string;
   activeChild?: string;
@@ -150,6 +151,7 @@ export interface DatabasePageFrameProps {
 }
 
 export function DatabasePageFrame({
+  navigation,
   tabs,
   activeTab,
   activeChild,
@@ -166,7 +168,7 @@ export function DatabasePageFrame({
   return (
     <PageContent className={contentClassName}>
       <div className={joinClassNames("space-y-5", className)}>
-        {tabs && activeTab && onTabChange && (
+        {navigation ?? (tabs && activeTab && onTabChange ? (
           <PageFrameTabs
             tabs={tabs}
             activeTab={activeTab}
@@ -174,7 +176,7 @@ export function DatabasePageFrame({
             onTabChange={onTabChange}
             onChildChange={onChildChange}
           />
-        )}
+        ) : null)}
         {summary}
         {toolbar ?? (toolbarItems?.length ? <Toolbar items={toolbarItems} /> : null)}
         {children}

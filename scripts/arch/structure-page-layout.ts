@@ -363,10 +363,10 @@ export function findPageSurfaceLayoutProtocolWarnings(files: SourceInfo[]) {
           }
         }
 
-        if (tagName === "NavigationRenderer") {
+        if (tagName === "NavigationSurface") {
           const kind = jsxAttributeValueText(node.attributes, file.sourceFile, "kind");
-          if (kind === "tabs") addLayoutWarning(warnings, file.relPath, "navigation-tabs", "NavigationRenderer kind=tabs direct layout entry");
-          if (kind === "pagination") addLayoutWarning(warnings, file.relPath, "navigation-pagination", "NavigationRenderer kind=pagination direct layout entry");
+          if (kind === "tabs") addLayoutWarning(warnings, file.relPath, "navigation-tabs", "NavigationSurface kind=tabs direct layout entry");
+          if (kind === "pagination") addLayoutWarning(warnings, file.relPath, "navigation-pagination", "NavigationSurface kind=pagination direct layout entry");
         }
 
         if (tagName === "FormSurface" && jsxHasAttribute(node.attributes, "toolbar")) {

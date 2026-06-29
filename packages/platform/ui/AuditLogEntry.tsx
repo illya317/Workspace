@@ -5,6 +5,17 @@ import { createPageBody, createRecordSection, PageSurface } from "@workspace/cor
 import type { DataSurfaceRecordSpec } from "@workspace/core/ui";
 import { label, formatVal } from "../audit";
 
+const AUDIT_DATE_FORMATTER = new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+  timeZone: "Asia/Shanghai",
+});
+
 export interface AuditChange {
   field: string;
   label?: string;
@@ -54,7 +65,7 @@ export function createAuditLogRecord({
           <span className="inline-block bg-gray-100 rounded px-1.5 py-0.5 text-xs font-mono">V{entry.version}</span>
         )}
       </span>
-      <span className="w-36 shrink-0 text-xs text-gray-500">{new Date(entry.createdAt).toLocaleString("zh-CN")}</span>
+      <span className="w-36 shrink-0 text-xs text-gray-500">{AUDIT_DATE_FORMATTER.format(new Date(entry.createdAt))}</span>
       <span className="w-16 shrink-0 text-xs text-gray-700">{entry.editorName}</span>
       <span className="truncate text-xs font-medium text-gray-800">
         {entry.entityName}

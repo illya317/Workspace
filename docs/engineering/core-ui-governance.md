@@ -20,7 +20,7 @@ Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页
 
 - Toolbar 规则另见 `docs/engineering/core-toolbar.md`；该文档是所有页面级工具栏的专门规范。
 - 业务只 value import 明确允许的公共 runtime 入口和 helper；二级声明组件通过 `PageSurface` / `InputSurface` 等 spec 表达，不作为业务直接 renderer。
-- `PageSurface.body` 只接收 `BodySurfaceProps`。`FormSurface`、`DataSurface`、`DocumentSurface`、`VisualizationSurface`、`SelectorSurface` 都通过 `BodySurface` 声明；数据表格、结构化数据、摘要指标和可展开记录归 `DataSurface`。正文 section tree、tabs/grid/split、局部 commands/message/status/empty/modals 归 `BodySurface kind="section"`；其中 empty/loading/error 这类主体状态使用 `status`，不要借数据记录空列表表达。页面级导航、toolbar、分页必须通过 `PageSurface.navigation`、`PageSurface.toolbar`、`PageSurface.footer` 表达。
+- `PageSurface.body` 只接收 `BodySurfaceProps`。`FormSurface`、`DataSurface`、`DocumentSurface`、`VisualizationSurface`、`SelectorSurface` 都通过 `BodySurface` 声明；数据表格、结构化数据、摘要指标和可展开记录归 `DataSurface`。正文 section tree、tabs/grid/split、局部 commands/message/status/empty/modals 归 `BodySurface kind="section"`；section grid 可声明 `gridColumns: 2 | 3`，和 FormSurface 字段列数分开；其中 empty/loading/error 这类主体状态使用 `status`，不要借数据记录空列表表达。页面级导航、toolbar、分页必须通过 `PageSurface.navigation`、`PageSurface.toolbar`、`PageSurface.footer` 表达。
 - 新增页面代码必须使用 `PageSurface.body` 和 `PageSurface.navigation`。顶层 `blocks`、`empty`、`actions`、`tabs`、`activeTab`、`activeChild`、`onTabChange`、`onChildChange` 仅为存量兼容入口，不作为新代码 API。
 - `@workspace/core/ui` 的 type-only import 只允许 Surface contract 类型、helper 类型和业务别名：`DataSurface*`、`FormSurface*`、`PageSurface*`、`SelectorSurface*`、`ReferenceOption`、`SurfaceToolbarItem`、`SurfaceToolbarItems`。业务不得再 type-only 直引底层 `DataTableColumn`、`ToolbarItem`、`FkFieldOption`；分别使用 Surface contract、`SurfaceToolbarItem(s)`、`ReferenceOption`。
 - 不直接 import 未列入公共 runtime 入口的 renderer 作为业务组件；过渡期只允许 Surface contract / helper / business alias type-only 引用。
@@ -133,7 +133,7 @@ Core UI 声明分类只服务 `/settings/ui` 和 agent 阅读，不再写入 reg
 |---|---|
 | 页面布局 | `PageSurface` 及页面级 layout/navigation/toolbar/footer 声明。 |
 | 页面内容 | `DataSurface` / `FormSurface` / `DocumentSurface` / `VisualizationSurface`。 |
-| 通用 | `InputSurface`、`SelectorSurface` 等其他有 `declares` 的封装。 |
+| 通用 | `NavigationSurface`、`InputSurface`、`SelectorSurface` 等其他有 `declares` 的封装。 |
 
 页面布局协议固定为五段：
 
@@ -145,9 +145,9 @@ Core UI 声明分类只服务 `/settings/ui` 和 agent 阅读，不再写入 reg
 
 `PageSurface.kind="login"` 和 `PageSurface.kind="directory"` 是封闭特殊页。一旦选择这两个 kind，就不能再走 standard 的页面正文渲染、导航、toolbar、footer 或 split body；login 只承载登录页专属 content + login FormSurface contract，directory 只承载目录模块网格或目录空态。后续调整普通 Surface、PageContent、section stack 或标准五段协议时，不得影响这两个特殊页的布局。
 
-`NavigationRenderer`、`BodySurface`、`SelectorSurface`、`FormSurface`、`DataSurface` 不决定页面位置。`NavigationRenderer` 归 `common.chrome`，只能是 PageSurface 内部 renderer 或正文 primitive；正文 Surface 只能通过 `BodySurface` 选择正文内容形态，不承载页面级 toolbar/pagination；`SelectorSurface` 只能作为 BodySurface 内容声明，不决定 split 外框、开合或比例。
+`NavigationSurface`、`BodySurface`、`SelectorSurface`、`FormSurface`、`DataSurface` 不决定页面位置。`NavigationSurface` 承载页面、阶段和视图上下文导航；正文 Surface 只能通过 `BodySurface` 选择正文内容形态，不承载页面级 toolbar/pagination；`SelectorSurface` 只能作为 BodySurface 内容声明，不决定 split 外框、开合或比例。
 
-正文 Surface 不声明页面外框。`framed` 只存在于 `BodySurfaceSectionSpec`，用于决定 section 是否带页面正文外框；`DataSurface` 和 `VisualizationSurface` 不再包自己的 PanelCard，避免同一个 body 被两层 layout 同时裁决。
+正文 Surface 不声明页面外框。`chrome` 只存在于 section 声明，用于选择 `card`、`divider` 或 `plain` 的分隔方式；`framed` 是旧兼容布尔。`DataSurface` 和 `VisualizationSurface` 不再包自己的 PanelCard，避免同一个 body 被两层 layout 同时裁决。
 
 `Surface` 命名表示声明层，不表示业务可直接 renderer。当前 `PageSurface` 仍承担主要 runtime 入口；正文二级 Surface 通过 `BodySurface` 选择，不作为业务直引 renderer。`host` 目录当前为空，`internal` 不开放。
 
@@ -178,7 +178,7 @@ Core UI 文件按层放置。`packages/core/ui/` 根目录保留最常用的 Sur
 - `createPageTableSection(key, table)`：生成 `PageSurface` 的 `data.table` section。迁移业务 `<DataSurface kind="table" ... />` 时优先使用。
 - `createPageDataSection(key, surface)`：生成 `BodySurface kind="data"` section。用于 `table`、`structured`、`summary` 和可展开 `record`；图形用 `createVisualizationSection`，指标摘要可用 `createMetricsSection` 兼容 helper，主体状态用 `createStatusSection`，可展开记录可用 `createRecordSection` 兼容 helper。遇到未声明的 React 内容时，先补正式 Surface spec 或 helper；不得新增 raw React content escape。
 - `createPageModalSection(key, modal)`：生成 BodySurface modal section，modal 内容继续用 typed sections。
-- `createActionsSection(key, actions)` 与 `createPageCommand(command)`：生成通用动作 section。迁移用 `FormSurface kind="inline"` 只承载按钮的历史写法。`createPageActionsSection` 仅为兼容 alias，不再作为推荐入口。
+- `createActionsSection(key, actions)` 与 `createPageCommand(command)`：生成通用动作 section。标准动作命令按 `key` / `label` / `type` 自动使用 `ActionGlyph` 图标；确需文字按钮时显式声明 `presentation: "text"`。迁移用 `FormSurface kind="inline"` 只承载按钮的历史写法。`createPageActionsSection` 仅为兼容 alias，不再作为推荐入口。
 - `createPageSurfaceProps(options)`：给 route/module thin adapter 生成非 split `PageSurface` props。AppShell 迁移使用它表达 header/body/toolbar/footer，不和 form/data 清债混在一起。
 
 旧 `createPageFieldsBlock`、`createPageInlineFieldsBlock`、`createPageFormBlock`、`createPageFormModalBlock` 已删除；新增和存量迁移都使用不带 `Page` 前缀的 Surface helper。
@@ -214,7 +214,7 @@ Surface 使用红线：
 - 如果现有语义 spec 不够表达业务需要，必须扩展对应 Surface/helper 或 Core 能力，并写入 special-to-be-reviewed 说明等待 Core UI 评审；不得用 `custom` 临时绕过。
 - Core 内部或明确 UI-system 任务也不得恢复 `ToolbarCustomItem`；临时验证应扩展标准 item 或使用非 Toolbar 的普通容器。
 - Surface 内部 toolbar 的 `option-group` 默认是 micro accordion；普通 agent 不要把长分段筛选常驻铺开。
-- 业务侧左侧列表、目录树和选择区应通过 `SelectorSurface` 声明接口/helper 表达；页面级导航和流程步骤通过 `PageSurface.navigation` 表达。`NavigationRenderer`、`SelectorPanel`、`SelectorList`、`SelectorTree`、`SelectorCard` 是 L2/L3 或 Core 内部组合件，不作为页面布局入口。
+- 业务侧左侧列表、目录树和输入型选择区应通过 `SelectorSurface` 声明接口/helper 表达；页面级导航、流程步骤和视图上下文切换通过 `NavigationSurface` / `PageSurface.navigation` 表达。`SelectorPanel`、`SelectorList`、`SelectorTree`、`SelectorCard` 是 L2/L3 或 Core 内部组合件，不作为页面布局入口。
 
 ## 5.1 Hygiene-Cap Migration Recipe
 
@@ -337,7 +337,7 @@ Private Impl 修改等同于修改所属公开 UI，必须按 Core UI-system 任
 
 - `npm run arch:gate` 会运行 Core UI guard、registry relation validation、structure ratchet 和 package boundary。
 - 非公共 runtime Core UI 业务直引、新增未注册 Core UI、重复 registry、页面设计漂移、重复基础 UI 都必须由 gate 或 baseline ratchet 拦住。
-- 业务 UI 和 `app/(modules)` 默认只能使用公共 runtime 入口、helper 或 Surface spec；`NavigationRenderer`、`Toolbar`、`TabBar`、`Pagination` 等 renderer 只能由 Core 内部实现使用。新增绕过由 `gate:ui` 阻断，存量迁移需要对应 Feature/Architecture 负责，不交给 Hygiene 重构。
+- 业务 UI 和 `app/(modules)` 默认只能使用公共 runtime 入口、helper 或 Surface spec；`Toolbar`、`TabBar`、`Pagination` 等 renderer 只能由 Core 内部实现使用。新增绕过由 `gate:ui` 阻断，存量迁移需要对应 Feature/Architecture 负责，不交给 Hygiene 重构。
 - 业务 UI 和 `app/(modules)` 新增 `PageSurface` `moduleView` block 会进入 `businessModuleViewUsages` ratchet；该 baseline 当前为 0，新增即失败，必须迁移到 typed block / Surface spec。
 - Platform UI 只能使用公共 runtime 入口、根级 `FeedbackProvider` 和纯非组件事件能力；其他 Core UI renderer 直引由 `platformCoreUiRoleBypassImports` baseline 锁定，baseline 必须保持为空，`PageShell` / `DropdownMenu` 不再作为系统壳例外。
 - baseline 只能减少，不能把新增违规写入 baseline。

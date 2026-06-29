@@ -68,28 +68,24 @@ export function buildDepartmentNodeBlock({
   return {
     key: `department-${department.id}`,
     body: {
-      kind: "navigation",
-      navigation: {
-        kind: "selector",
-        selector: {
-          mode: "tree",
-          framed: false,
-          items: [department],
-          selectedId: selection?.type === "department" ? selection.id : null,
-          onSelect: (item: Department) => onSelect({ type: "department", id: item.id }),
-          getKey: (item: Department) => item.id,
-          getChildren,
-          expandedIds,
-          onToggle: (id: string | number) => onToggle(Number(id)),
-          renderItem: (item: Department) => {
-            const stats = departmentStats.get(item.id) ?? emptyStats;
-            return {
-              title: item.name,
-              code: item.code,
-              level: item.level,
-              meta: departmentStatsMeta(stats),
-            };
-          },
+      kind: "selector",
+      selector: {
+        kind: "tree",
+        items: [department],
+        selectedId: selection?.type === "department" ? selection.id : null,
+        onSelect: (item: Department) => onSelect({ type: "department", id: item.id }),
+        getKey: (item: Department) => item.id,
+        getChildren,
+        expandedIds,
+        onToggle: (id: string | number) => onToggle(Number(id)),
+        renderItem: (item: Department) => {
+          const stats = departmentStats.get(item.id) ?? emptyStats;
+          return {
+            title: item.name,
+            code: item.code,
+            level: item.level,
+            meta: departmentStatsMeta(stats),
+          };
         },
       },
     },
@@ -129,33 +125,29 @@ export function buildOrganizationBranchBlock({
   return {
     key: `organization-branch-${department.id}`,
     body: {
-      kind: "navigation",
-      navigation: {
-        kind: "selector",
-        selector: {
-          mode: "tree",
-          framed: false,
-          items: [department],
-          selectedId: null,
-          onSelect: (item: Department) => {
-            const children = departmentChildren(departments, item);
-            if (children.length > 0) onToggle(item.id);
-          },
-          getKey: (item: Department) => item.id,
-          getChildren,
-          expandedIds,
-          onToggle: (id: string | number) => onToggle(Number(id)),
-          renderItem: (item: Department, ctx) => {
-            const children = departmentChildren(departments, item);
-            const managerName = departmentManagerPositionName(item);
-            return {
-              title: item.name,
-              code: item.code,
-              level: item.level,
-              tone: ctx.level === 1 ? "blue" : "amber",
-              meta: managerName ? `负责人：${managerName} · 下级 ${children.length}` : `下级 ${children.length}`,
-            };
-          },
+      kind: "selector",
+      selector: {
+        kind: "tree",
+        items: [department],
+        selectedId: null,
+        onSelect: (item: Department) => {
+          const children = departmentChildren(departments, item);
+          if (children.length > 0) onToggle(item.id);
+        },
+        getKey: (item: Department) => item.id,
+        getChildren,
+        expandedIds,
+        onToggle: (id: string | number) => onToggle(Number(id)),
+        renderItem: (item: Department, ctx) => {
+          const children = departmentChildren(departments, item);
+          const managerName = departmentManagerPositionName(item);
+          return {
+            title: item.name,
+            code: item.code,
+            level: item.level,
+            tone: ctx.level === 1 ? "blue" : "amber",
+            meta: managerName ? `负责人：${managerName} · 下级 ${children.length}` : `下级 ${children.length}`,
+          };
         },
       },
     },
@@ -179,25 +171,22 @@ export function buildOrganizationRootBlock({
   return {
     key: `organization-root-${department.id}`,
     body: {
-      kind: "navigation",
-      navigation: {
-        kind: "selector",
-        selector: {
-          framed: false,
-          items: [department],
-          selectedId: active ? department.id : null,
-          onSelect: (item: Department) => onSelect(item.id),
-          getKey: (item: Department) => item.id,
-          renderItem: (item: Department) => ({
-            title: item.name,
-            code: item.code,
-            level: 1,
-            meta: [
-              managerName && <span key="manager" className="min-w-0 flex-1 truncate whitespace-nowrap" title={`负责人：${managerName}`}>负责人：{managerName}</span>,
-              <span key="children" className="shrink-0 whitespace-nowrap">下级 {children.length}</span>,
-            ],
-          }),
-        },
+      kind: "selector",
+      selector: {
+        kind: "list",
+        items: [department],
+        selectedId: active ? department.id : null,
+        onSelect: (item: Department) => onSelect(item.id),
+        getKey: (item: Department) => item.id,
+        renderItem: () => ({
+          title: department.name,
+          code: department.code,
+          level: 1,
+          meta: [
+            managerName && <span key="manager" className="min-w-0 flex-1 truncate whitespace-nowrap" title={`负责人：${managerName}`}>负责人：{managerName}</span>,
+            <span key="children" className="shrink-0 whitespace-nowrap">下级 {children.length}</span>,
+          ],
+        }),
       },
     },
   };

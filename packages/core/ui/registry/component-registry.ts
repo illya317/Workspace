@@ -40,7 +40,7 @@ export const coreUiDeclarationCategoryMeta = {
   },
   common: {
     label: "通用",
-    description: "输入、区块等其他可复用声明封装。",
+    description: "输入、导航、选择区等其他可复用声明封装。",
   },
 } as const satisfies Record<
   CoreUiDeclarationCategory,

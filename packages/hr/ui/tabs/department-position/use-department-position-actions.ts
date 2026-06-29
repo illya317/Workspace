@@ -25,6 +25,7 @@ type CreateResponse = { record?: { id?: number } };
 
 export function useDepartmentPositionActions({
   createPositionCode,
+  createPositionDescriptionDraft,
   createPositionDraft,
   departmentById,
   departmentDescriptionDirty,
@@ -40,6 +41,7 @@ export function useDepartmentPositionActions({
   selectedDepartment,
   selectedPosition,
   setCreatePanel,
+  setCreatePositionDescriptionDraft,
   setCreatePositionDraft,
   setSaving,
   setSelection,
@@ -47,6 +49,7 @@ export function useDepartmentPositionActions({
   showActionPrompt,
 }: {
   createPositionCode: string;
+  createPositionDescriptionDraft: DescriptionDraft;
   createPositionDraft: CreatePositionDraft;
   departmentById: Map<number, Department>;
   departmentDescriptionDirty: boolean;
@@ -62,6 +65,7 @@ export function useDepartmentPositionActions({
   selectedDepartment: Department | undefined;
   selectedPosition: Position | undefined;
   setCreatePanel: (panel: "position" | null) => void;
+  setCreatePositionDescriptionDraft: (draft: DescriptionDraft) => void;
   setCreatePositionDraft: (draft: CreatePositionDraft) => void;
   setSaving: (saving: boolean) => void;
   setSelection: (selection: Selection) => void;
@@ -102,14 +106,28 @@ export function useDepartmentPositionActions({
     }, "保存失败");
   }
 
-  async function createPosition() {
+  async function createPosition(positionDescription?: DescriptionDraft) {
     const name = createPositionDraft.name.trim();
     if (!createPositionDraft.departmentId) return setToast({ type: "error", message: "请选择所属部门" });
     if (!name) return setToast({ type: "error", message: "岗位名不能为空" });
     if (!createPositionCode) return setToast({ type: "error", message: "无法生成岗位编码，请检查所属部门" });
+    if (positionDescription && (!positionDescription.code.trim() || !positionDescription.name.trim())) return setToast({ type: "error", message: "说明书编码和名称不能为空" });
+    if (positionDescription && !isPositiveIntegerText(positionDescription.headcount)) return setToast({ type: "error", message: "编制必须是正整数" });
+    if (positionDescription?.details.trim() && !isJson(positionDescription.details)) return setToast({ type: "error", message: "说明书明细 JSON 不是合法格式" });
     await withSaving(setSaving, setToast, async () => {
-      const data = await postJson<CreateResponse>("/api/modules/hr/roster/positions", { code: createPositionCode, name, departmentId: createPositionDraft.departmentId }, "新建岗位失败");
+      const data = await postJson<CreateResponse>("/api/modules/hr/roster/positions", {
+        code: createPositionCode,
+        name,
+        departmentId: createPositionDraft.departmentId,
+        positionDescription: positionDescription ? descriptionPayload({
+          ...positionDescription,
+          code: createPositionCode,
+          name,
+          departmentName: selectedDepartment?.name || positionDescription.departmentName,
+        }) : undefined,
+      }, "新建岗位失败");
       setCreatePositionDraft({ departmentId: createPositionDraft.departmentId, name: "" });
+      setCreatePositionDescriptionDraft({ ...createPositionDescriptionDraft, reportTo: "", positionPurpose: "", summary: "", headcount: "1", version: "", effectiveDate: "", sourceFile: "", details: "{}" });
       setCreatePanel(null);
       await loadData();
       if (typeof data.record?.id === "number") setSelection({ type: "position", id: data.record.id });
