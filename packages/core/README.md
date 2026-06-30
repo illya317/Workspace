@@ -18,7 +18,7 @@ Workspace 底座包。这里放通用契约和不依赖业务事实、权限、P
 - `ui/Toolbar`
 - `ui/Toast`
 - `ui/CalendarDateInput`
-- `ui/SelectField`
+- `ui/SearchableOptionInput`
 - `ui/FieldValueFilter`
 - `ui/StatusBadge`
 - `ui/NumberCell`

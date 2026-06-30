@@ -214,7 +214,7 @@ export const registeredModuleDefinitions = [
     moduleDef: {
       key: "production",
       label: "生产管理",
-      desc: "批次检验、检验模板",
+      desc: "批次检验",
       href: "/production",
       iconKey: "production",
       color: "cyan",
@@ -222,13 +222,11 @@ export const registeredModuleDefinitions = [
       resourceSortOrder: 4,
       children: [
         { key: "qcBatches", label: "批次检验", desc: "批次创建、检验记录填写、提交复核", href: "/production/qc-batches", iconKey: "qcBatches", color: "cyan", resourceKey: "production.qcBatches", apiPrefixes: ["/api/modules/production/qc-batches"] },
-        { key: "qcTemplates", label: "检验模板", desc: "模板结构浏览、版式预览、反馈收集", href: "/production/qc-templates", iconKey: "qcTemplates", color: "cyan", resourceKey: "production.qcTemplates", apiPrefixes: ["/api/modules/production/qc-templates"] },
       ],
     },
-    routes: ["/production", "/production/qc-batches", "/production/qc-templates"],
+    routes: ["/production", "/production/qc-batches"],
     apiGuards: [
       ...apiResourceGuards("/api/modules/production/qc-batches", "production.qcBatches", ["GET", "POST", "PATCH", "DELETE"]),
-      ...apiResourceGuards("/api/modules/production/qc-templates", "production.qcTemplates", ["GET", "POST", "PATCH"]),
     ],
     apiRoutes: [
       ...apiRoutes("/api/modules/production/qc/cache", "internal", ["POST"]),

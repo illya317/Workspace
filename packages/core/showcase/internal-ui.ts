@@ -34,7 +34,6 @@ export { default as RatingControl } from "../ui/internal/input/RatingControl";
 export { default as ReadOnlyField } from "../ui/internal/input/ReadOnlyField";
 export { default as SearchInput } from "../ui/internal/input/SearchInput";
 export { default as SearchableOptionInput } from "../ui/internal/input/SearchableOptionInput";
-export { default as SelectField } from "../ui/internal/input/SelectField";
 export { default as SelectionGrid } from "../ui/internal/selection/SelectionGrid";
 export { default as SelectorPanel } from "../ui/internal/selection/SelectorPanel";
 export { default as StructuredTable } from "../ui/internal/data/StructuredTable";

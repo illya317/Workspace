@@ -33,7 +33,7 @@
 
 ## 当前优先级
 
-1. **Production / QC**：继续按 gate 结果收敛 `packages/production/ui/qc` 内部重复控件，尤其纸面输入、模板反馈弹窗和 QC 表格 primitive。
+1. **Production / QC**：继续按 gate 结果收敛 `packages/production/ui/qc` 内部重复控件，尤其纸面输入和 QC 表格 primitive。
 2. **Work 业务包**：旧 `reports`、`history` 已废弃；项目相关体验仍由 Work/Feature 线程继续收口。
 3. **Platform 平台能力**：迁移 settings / docs 和平台壳，避免只注册模块但 UI/server 仍留在 app/server。
 4. **Contracts / Library 独立包**：不要塞进 Platform；按业务包拆 `ui/server/types/module`。

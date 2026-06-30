@@ -128,14 +128,9 @@ export async function resolveTemplateRole(input: {
 
 export async function canPublishOfficialQcTemplate(userId: number) {
   if (await isRootAdminUser(userId)) return true;
-  if (await authorize({
-    user: userId,
-    resourceKey: "production.qcTemplates",
-    action: "write",
-  })) return true;
   return authorize({
     user: userId,
-    resourceKey: "production.qcTemplates",
+    resourceKey: "docs.editor",
     action: "admin",
   });
 }

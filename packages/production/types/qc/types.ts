@@ -236,19 +236,6 @@ export interface QcTemplateDetail {
   layoutAssignmentCount: number;
 }
 
-export type {
-  QcTemplateFeedbackContext,
-  QcTemplateFeedbackItem,
-  QcTemplateFeedbackItemType,
-  QcTemplateFeedbackList,
-  QcTemplateFeedbackSectionKey,
-  QcTemplateFeedbackSections,
-  QcTemplateFeedbackState,
-  QcTemplateInlineFeedbackEntry,
-  QcTemplateInlineFeedbackTarget,
-  QcTemplateInlineFeedbackTargetKind,
-} from "./feedback";
-
 export type QcBatchStatus = "draft" | "submitted";
 
 export interface QcBatchSummary {

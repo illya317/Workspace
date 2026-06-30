@@ -15,15 +15,6 @@ import {
   updateQcBatch,
   updateQcBatchWorkflow,
 } from "./batches";
-import {
-  getQcTemplateFeedback,
-  listQcTemplateFeedback,
-  listQcTemplateFeedbackByContext,
-  saveQcTemplateFeedback,
-  saveQcTemplateInlineFeedback,
-  updateQcTemplateFeedbackResolved,
-} from "./template-feedback";
-import { getQcConfigOverviewCached, getQcTemplateDetail } from "./template-cache";
 
 export type QcBatchPatchCommand =
   | {
@@ -40,28 +31,6 @@ export type QcBatchPatchCommand =
       batchId: number;
       body: Record<string, unknown>;
     };
-
-export type QcTemplateFeedbackListCommand =
-  | { kind: "list" }
-  | { kind: "byKey"; key: string; userId: number };
-
-export type QcTemplateFeedbackSaveCommand = {
-  userId: number;
-  userName: string;
-  context: unknown;
-  sections?: unknown;
-  note?: unknown;
-  inlineEntry?: unknown;
-};
-
-export type QcTemplateFeedbackResolveCommand = {
-  userId: number;
-  userName: string;
-  key: string;
-  resolved: boolean;
-  targetType?: "section" | "inline";
-  targetId?: string;
-};
 
 function statusMessage(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback;
@@ -152,110 +121,4 @@ export async function executeDeleteQcBatchCommand(command: { batchId: number }) 
   const deleted = await deleteQcBatch(command.batchId);
   if (!deleted) return serviceError("批次不存在", 404);
   return serviceOk({ ok: true });
-}
-
-export function buildQcTemplateFeedbackListCommand(input: {
-  key?: string;
-  userId: number;
-}): DomainValidationResult<QcTemplateFeedbackListCommand> {
-  if (input.key) return okCommand({ kind: "byKey", key: input.key, userId: input.userId });
-  return okCommand({ kind: "list" });
-}
-
-export async function executeQcTemplateFeedbackListCommand(command: QcTemplateFeedbackListCommand) {
-  if (command.kind === "byKey") {
-    const [data, items] = await Promise.all([
-      getQcTemplateFeedback(command.key, command.userId),
-      listQcTemplateFeedbackByContext(command.key),
-    ]);
-    return { data, items };
-  }
-  return { data: await listQcTemplateFeedback() };
-}
-
-export async function buildQcTemplateFeedbackSaveCommand(input: {
-  userId: number;
-  userName?: string | null;
-  body: {
-    context: unknown;
-    sections?: unknown;
-    note?: unknown;
-    inlineEntry?: unknown;
-  };
-}): Promise<DomainValidationResult<QcTemplateFeedbackSaveCommand>> {
-  return okCommand({
-    userId: input.userId,
-    userName: await getUserEmployeeSignatureName(input.userId, input.userName ?? undefined),
-    context: input.body.context,
-    sections: input.body.sections,
-    note: input.body.note,
-    inlineEntry: input.body.inlineEntry,
-  });
-}
-
-export async function executeQcTemplateFeedbackSaveCommand(command: QcTemplateFeedbackSaveCommand) {
-  try {
-    const author = { userId: command.userId, userName: command.userName };
-    const item = command.inlineEntry
-      ? await saveQcTemplateInlineFeedback(command.context, command.inlineEntry, author)
-      : await saveQcTemplateFeedback(command.context, command.sections ?? command.note, author);
-    const list = await listQcTemplateFeedback();
-    return { data: item, keys: list.keys, states: list.states };
-  } catch (error) {
-    return serviceError(statusMessage(error, "保存反馈失败"), 400);
-  }
-}
-
-export async function buildQcTemplateFeedbackResolveCommand(input: {
-  userId: number;
-  userName?: string | null;
-  body: {
-    key: string;
-    resolved?: unknown;
-    targetType?: string;
-    targetId?: string;
-  };
-}): Promise<DomainValidationResult<QcTemplateFeedbackResolveCommand>> {
-  return okCommand({
-    userId: input.userId,
-    userName: await getUserEmployeeSignatureName(input.userId, input.userName ?? undefined),
-    key: input.body.key,
-    resolved: input.body.resolved === true,
-    targetType: input.body.targetType === "section" || input.body.targetType === "inline"
-      ? input.body.targetType
-      : undefined,
-    targetId: String(input.body.targetId ?? "").trim() || undefined,
-  });
-}
-
-export async function executeQcTemplateFeedbackResolveCommand(command: QcTemplateFeedbackResolveCommand) {
-  try {
-    const item = await updateQcTemplateFeedbackResolved(
-      command.key,
-      command.resolved,
-      { userId: command.userId, userName: command.userName },
-      { type: command.targetType, id: command.targetId },
-    );
-    return { data: item, list: await listQcTemplateFeedback() };
-  } catch (error) {
-    return serviceError(statusMessage(error, "更新反馈状态失败"), 400);
-  }
-}
-
-export function executeQcConfigOverviewCommand() {
-  return getQcConfigOverviewCached().then((data) => ({ data }));
-}
-
-export async function executeQcTemplateDetailCommand(command: { templateId: string }) {
-  try {
-    return { data: await getQcTemplateDetail(command.templateId) };
-  } catch (error) {
-    if (error instanceof Error && error.message.includes("Invalid QC template id")) {
-      return serviceError("模板 ID 不合法", 400);
-    }
-    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
-      return serviceError("模板不存在", 404);
-    }
-    throw error;
-  }
 }

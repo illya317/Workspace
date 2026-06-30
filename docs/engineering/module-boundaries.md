@@ -36,7 +36,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/finance/types` 已接收重分类配置 UI 的候选 DTO 类型；后续服务下沉时与 server DTO 合并。
 - `packages/core/routing` 已接收 Workspace base path 拼接 helper。
 - `packages/core/search` 已接收通用拼音首字母、全拼和文本匹配 helper；员工语义匹配仍留在 HR/兼容层。
-- `packages/production/types` 已接收生产 QC 模板、布局、批次和模板反馈领域类型。
+- `packages/production/types` 已接收生产 QC 模板、布局和批次领域类型。
 - `packages/platform/module-registry.ts` 是模块注册锁。`registeredModuleDefinitions` 是唯一有效注册源；`packages/platform/modules.tsx` 只消费 registry 并导出运行时聚合，不直接 import domain package。
 - `packages/platform/module-overrides.ts` 是模块运行态覆盖层。模块中文名、描述、隐藏和启停优先在这里改；不要为了展示 rename 去散改页面文案、resource name、API path 或 FK key。运行时消费方使用 effective registry，资源和 FK 使用 active registry 自动过滤 disabled 模块。
 - `ResourceRegistration.parentKey` 只用于 RBAC 权限树继承；`runtimeParentKey` 只用于模块启停级联。不要为了让 disabled 级联而把独立权限挂进父资源树。像 `work.projects.viewAll` 这类不能继承父权限、但必须随项目模块失效的资源，应保持 `parentKey` 为空并设置 `runtimeParentKey: "work.projects"`。

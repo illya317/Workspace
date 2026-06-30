@@ -19,15 +19,6 @@ export {
   updateQcBatchWorkflow,
 } from "./batches";
 export * from "./route-commands";
-export {
-  getQcTemplateFeedback,
-  listQcTemplateFeedbackByContext,
-  listQcTemplateFeedback,
-  qcTemplateFeedbackKey,
-  saveQcTemplateInlineFeedback,
-  saveQcTemplateFeedback,
-  updateQcTemplateFeedbackResolved,
-} from "./template-feedback";
 export type {
   QcBatchCreateInput,
   QcBatchList,
@@ -40,15 +31,6 @@ export type {
   QcMethodSummary,
   QcProductSummary,
   QcTemplateDetail,
-  QcTemplateFeedbackContext,
-  QcTemplateFeedbackItem,
-  QcTemplateFeedbackState,
-  QcTemplateInlineFeedbackEntry,
-  QcTemplateInlineFeedbackTarget,
-  QcTemplateInlineFeedbackTargetKind,
-  QcTemplateFeedbackList,
-  QcTemplateFeedbackSectionKey,
-  QcTemplateFeedbackSections,
   QcTemplateMethodField,
   QcTemplateMethodGroup,
   QcTemplateStage,

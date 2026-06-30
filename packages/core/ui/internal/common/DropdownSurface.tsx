@@ -33,7 +33,7 @@ export interface DropdownItemClassNameOptions {
 
 /**
  * 下拉选项 / 菜单项的共享视觉配方。
- * 供 DropdownMenu 与 SelectField 在保持各自语义（menu/listbox）的前提下统一行样式。
+ * 供 DropdownMenu 等浮层控件在保持各自语义（menu/listbox）的前提下统一行样式。
  */
 export function getDropdownItemClassName({
   tone = "default",
@@ -51,7 +51,7 @@ export function getDropdownItemClassName({
 
 /**
  * 下拉浮层行为 primitive：封装 open/toggle/close、外部点击关闭、Escape 关闭、
- * 相对触发位置的左右对齐和通用浮层样式。供 DropdownMenu / SelectField 等组件复用。
+ * 相对触发位置的左右对齐和通用浮层样式。供 DropdownMenu 等组件复用。
  */
 export default function DropdownSurface({
   trigger,

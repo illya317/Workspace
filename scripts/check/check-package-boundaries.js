@@ -131,7 +131,7 @@ function stripComments(text) {
 const UI_PRIMITIVE_RULES = [
   {
     pattern: /<select\b/i,
-    reason: "packages must use @workspace/core/ui SelectField instead of native <select>",
+    reason: "packages must use @workspace/core/ui InputSurface or SearchableOptionInput instead of native <select>",
   },
   {
     pattern: /\bwindow\.confirm\s*\(/,
@@ -148,7 +148,7 @@ const UI_PRIMITIVE_RULES = [
 ];
 
 const FOUNDATION_COMPONENT_RULES = [
-  { pattern: /(Select|Dropdown|Combobox)/, imports: [/^@workspace\/core\/ui(\/|$)/], reason: "select/dropdown primitives must be based on Core SelectField or a documented Core wrapper" },
+  { pattern: /(Select|Dropdown|Combobox)/, imports: [/^@workspace\/core\/ui(\/|$)/], reason: "select/dropdown primitives must be based on Core InputSurface/SearchableOptionInput or a documented Core wrapper" },
   { pattern: /(Confirm)/, imports: [/^@workspace\/core\/ui(\/|$)/], reason: "confirm UI must be based on Core useFeedback or ConfirmModal" },
   { pattern: /(Date.*Input|DatePicker)/, imports: [/^@workspace\/core\/ui(\/|$)/], reason: "date inputs must be based on Core CalendarDateInput" },
   { pattern: /(Search)/, imports: [/^@workspace\/core\/ui(\/|$)/, /^@workspace\/core\/search(\/|$)/], reason: "search UI must use Core SearchInput or Core pinyin-aware search helpers" },

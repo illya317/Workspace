@@ -28,7 +28,7 @@
 | 通用正文编排 | `BodySurface kind="section"` | section tree、tabs/grid/split、局部 commands/empty/modals、通用正文容器 | 用旧 page block 展开业务协议，或用 `moduleView` 包普通容器 |
 | 导航细节 | `NavigationSurface` / `PageSurface.navigation` / `SelectorSurface` | 页面声明式导航段、阶段 steps、视图上下文切换和输入型 selector；L1/L2 模块入口由 route/module 层或模块入口卡片承载，`TabBar` 只作为 Core 内部实现；分页只在 `PageSurface.footer.pagination` 或 `NavigationSurface pagination` | 业务页新增二级导航组件、直接 import `TabBar` / `Pagination`，把同级 L2 模块塞进 `TabBar`，或临时拼流程链接 |
 | 页面反馈 | `@workspace/core/ui` 的 `useFeedback` | 保存成功、失败、校验提示、删除/覆盖确认、未保存离开提示 | 页面直接用 `Toast`、`ConfirmModal`、`useToast`、`useConfirm`、`useConfirmDelete`、`useUnsavedChangesPrompt` |
-| 字段/选择/日期能力 | `InputSurface` 或 `BodySurface` form section 的 field/filter spec | 状态、阶段、固定枚举、FK、日期、tag、只读字段等 | 业务直接 import `SelectField`、`OptionPicker`、`PickerShell`、`SearchInput`、`FkFieldInput`、`CalendarDateInput` 等 internal renderer |
+| 字段/选择/日期能力 | `InputSurface` 或 `BodySurface` form section 的 field/filter spec | 状态、阶段、固定枚举、FK、日期、tag、只读字段等 | 业务直接 import `SearchableOptionInput`、`OptionPicker`、`PickerShell`、`SearchInput`、`FkFieldInput`、`CalendarDateInput` 等 internal renderer |
 | 工具栏/动作能力 | `PageSurface.toolbar` / 正文 Surface action spec | 页面级搜索、筛选、列显隐、批量动作、保存/取消/删除/刷新等统一成一个 Toolbar | 业务直接 import `Toolbar` / `ActionButton`、自绘 SVG、自排按钮顺序，或一页出现多个 toolbar |
 | 表格/记录/指标能力 | `BodySurface` data/metrics/record spec | 标准列表、批量表格、记录卡、指标卡 | 业务直接 import `DataSurface`、`DataTable`、`StructuredTable`、`MetricCard`、`NumberCell`、`AmountCell` 或手搓表格 DOM |
 | 导航/选择区能力 | `NavigationSurface` / `PageSurface.navigation` / `SelectorSurface` | Tab、导航型 list/grid、左侧 selector、折叠、步骤、禁用步骤链接 | 业务直接 import `SelectorPanel`、`TabBar`、`Pagination`、`PanelCard + SelectorList/SelectorTree/SelectorCard`，或手搓流程 nav |
@@ -47,7 +47,7 @@
 - Toolbar 不支持 `custom` item。能表达为 `search`、`select`、`option-group`、`field-filter`、`column-toggle`、`page-size`、`text`、`create`、`action-group`、`edit-group` 的，必须使用标准 item；不够表达时扩展 Core `Toolbar` Page API。
 - Toolbar 内的 `option-group` 默认是 Toolbar 专用 micro 手风琴：默认折叠，母按钮显示字段名或当前具体值，展开后点子选项自动收起。
 - 当前页面内部视图的平级 tab 切换必须用 `TabBar`，不要塞进 Toolbar；但 L1/L2 模块列表不属于 `TabBar`，应由 route/module 层或模块入口卡片承载。Toolbar 的 `option-group` 表达筛选，不表达主视图切换。
-- 列显隐统一用 `column-toggle` 内部的 `SelectField multiple summaryMode="count"`，触发器显示 `已选数/总数`，例如 `2/4`。
+- 列显隐统一用 `column-toggle` 内部的 `SearchableOptionInput multiple summaryMode="count"`，触发器显示 `已选数/总数`，例如 `2/4`。
 
 ## 业务字段组件
 
@@ -99,7 +99,7 @@ C 渲染：<CoreTemplate {...viewModel} />
 - 不要为了页面样式预览再维护一套 B2，也不要在 showcase 里重写 toolbar、折叠、反馈、预览按钮或弹窗。没有共用真实 B 时，宁可不做该模板预览，避免预览和业务长期漂移。
 - 如果用户看着业务页或样式预览说“这里样式/默认交互不对”，agent 首先判断能否改 A 的对应子件。只有字段文案、业务状态、权限、真实回调或数据筛选属于 B；通用视觉和交互改动不应补在 B 里。
 
-当前示例：Production QC 检验模板使用 Core `TemplateWorkbenchFrame`；业务薄壳是 `packages/production/ui/qc/template-workbench/qc-template-workbench-view-model.ts`，真实页面只渲染 `TemplateWorkbenchFrame` 并挂 QC 预览/反馈 modal。
+当前示例：业务工作台类页面可以用 Core `TemplateWorkbenchFrame` 承载左侧 selector、右侧内容和行级动作；具体业务包只保留 ViewModel adapter 与真实弹窗。
 
 ## Work 体验统一方向
 

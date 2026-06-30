@@ -32,7 +32,7 @@ export type InputSurfaceKind =
   | "collection"
   | "rating";
 
-export type InputOption = PickerOption & { searchText?: string; subtitle?: string };
+export type InputOption = PickerOption & { searchText?: string; subtitle?: string; disabled?: boolean };
 export type InputOptionGroup = PickerGroupItem;
 export type InputOptionsMode = "auto" | "picker" | "dropdown" | "autocomplete";
 
@@ -229,6 +229,7 @@ export function toInputSurfaceSearchableOption(option: InputOption): SearchableO
     label: option.label,
     subtitle: option.subtitle,
     searchText: option.searchText ?? option.description,
+    disabled: option.disabled,
   };
 }
 

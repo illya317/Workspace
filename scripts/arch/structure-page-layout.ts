@@ -66,7 +66,6 @@ function isDocumentUiPatternException(relPath: string) {
   return relPath.startsWith("app/(docs)/")
     || relPath.startsWith("packages/platform/ui/docs/")
     || relPath.startsWith("packages/production/ui/qc/qc-layout-paper/")
-    || relPath === "packages/production/ui/qc/template-workbench/InlineFeedbackEditor.tsx"
     || /^packages\/production\/ui\/qc\/Qc(Layout|Paper)/.test(relPath);
 }
 

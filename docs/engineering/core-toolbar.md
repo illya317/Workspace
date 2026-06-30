@@ -10,7 +10,7 @@ Toolbar 是 Core Page API，不是业务页自由拼装区。
 业务页面
   -> PageSurface.toolbar.items: ToolbarItem[]
     -> Core Toolbar
-      -> SearchInput / FieldValueFilter / SelectField / ToolbarOptionGroup / ActionButton / DropdownSurface
+      -> SearchInput / FieldValueFilter / SearchableOptionInput / ToolbarOptionGroup / ActionButton / DropdownSurface
 ```
 
 业务只能传语义化 `ToolbarItem`，不能传 JSX slot，也不能新增业务包 Toolbar。

@@ -4,7 +4,7 @@ export const page_api_registry_entries = [
   {
     name: "Toolbar",
     description: "PageSurface 内部统一工具栏 renderer",
-    composes: ["ActionButton", "SearchInput", "SelectField", "ToolbarOptionGroup", "FieldValueFilter", "DropdownSurface"],
+    composes: ["ActionButton", "SearchInput", "SearchableOptionInput", "ToolbarOptionGroup", "FieldValueFilter", "DropdownSurface"],
   },
   {
     name: "useFeedback",
@@ -168,11 +168,6 @@ export const page_api_registry_entries = [
   {
     name: "SelectionGrid",
     description: "页面内平铺选项网格",
-  },
-  {
-    name: "SelectField",
-    description: "下拉选择字段",
-    composes: ["FieldInputShell", "SearchInput", "DropdownSurface", "CheckboxField"],
   },
   {
     name: "SegmentedCodeInput",

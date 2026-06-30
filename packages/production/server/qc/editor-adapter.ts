@@ -164,11 +164,13 @@ function convertLayoutBlock(block: QcLayoutBlock, context: ConversionContext): E
   }
   if (block.type === "abnormal_handling") {
     const prefix = block.fieldPrefix || "layout/abnormal";
-    return postSectionBlocks(block, "实验结果异常处理", [
-      { type: "radio", fieldKey: `${prefix}/occurred`, options: ["是", "否"] },
-      { type: "text", text: " 实验室异常情况编号 " },
-      { type: "line", fieldKey: `${prefix}/code`, width: "14rem", underline: true },
-    ], metadata, context);
+    const title = "实验结果异常处理";
+    const postSectionMetadata = { ...metadata, qcRole: "postSectionBody", postSectionTitle: title };
+    return [
+      headingBlock(blockId(context, block, `${title}:heading`), 3, title, { ...metadata, qcRole: "postSectionHeading" }),
+      paragraphBlock(blockId(context, block, `${title}:occurred`), [{ type: "radio", fieldKey: `${prefix}/occurred`, options: ["是", "否"] }], postSectionMetadata, context),
+      paragraphBlock(blockId(context, block, `${title}:code`), [{ type: "text", text: "实验室异常情况编号 " }, { type: "line", fieldKey: `${prefix}/code`, width: "14rem", underline: true }], postSectionMetadata, context),
+    ];
   }
   if (block.type === "cleanup_checklist") {
     return [tableBlockFromRows(block, cleanupRows(block, context.test), metadata, context)];

@@ -8,11 +8,11 @@ import type { ControlSize } from "../common/interactionTokens";
 import type { LifecycleScope } from "./FkFieldInput";
 import InputSurface, { type InputFieldSpec } from "../../InputSurface";
 import { PickerOptionButton } from "../selection/PickerParts";
-import type { SelectFieldOption } from "./SelectField";
+import type { InputOption } from "./InputSurfaceTypes";
 
 export type FieldValueFilterValueKind = "text" | "fk";
 
-export interface FieldValueFilterField extends SelectFieldOption {
+export interface FieldValueFilterField extends InputOption {
   valueKind?: FieldValueFilterValueKind;
   fkKey?: string;
   fkReturnField?: "id" | "name";
@@ -23,7 +23,7 @@ export interface FieldValueFilterField extends SelectFieldOption {
 
 export interface FieldValueFilterProps {
   fields: FieldValueFilterField[];
-  valueOptions: Record<string, SelectFieldOption[]>;
+  valueOptions: Record<string, InputOption[]>;
   fieldKey: string;
   onFieldKeyChange: (key: string) => void;
   value: string;

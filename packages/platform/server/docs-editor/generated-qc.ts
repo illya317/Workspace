@@ -60,7 +60,7 @@ export type GeneratedQcCopyContext = {
 };
 
 export async function canAccessGeneratedQcTemplates(userId: number) {
-  return authorize({ user: userId, resourceKey: "production.qcTemplates", action: "access" });
+  return authorize({ user: userId, resourceKey: "docs.editor", action: "access" });
 }
 
 export async function listGeneratedQcTemplates(userId: number): Promise<ServiceResult<DocsEditorTemplateListItemDto[]>> {

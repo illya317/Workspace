@@ -54,7 +54,6 @@
 | `/administration/contracts` | `requireResourceAccess("administration.contracts")` | redirect `/portal` |
 | `/production` | `requireResourceAccess("production")` | redirect `/portal` |
 | `/production/qc-batches` | `requireResourceAccess("production.qcBatches")` | redirect `/portal` |
-| `/production/qc-templates` | `requireResourceAccess("production.qcTemplates")` | redirect `/portal` |
 | `/work` | `requireResourceAccess("work")` + module enabled | redirect `/portal` 或模块未启用页 |
 | `/work/projects` | `requireResourceAccess("work.projects")` + module enabled + 项目对象级过滤 | redirect `/portal` 或模块未启用页 |
 | `/work/tasks` | `requireResourceAccess("work.tasks")` + module enabled | redirect `/portal` 或模块未启用页 |
@@ -96,10 +95,6 @@
 | `/api/modules/finance/cost/*` | GET | `finance.cost.access` |
 | `/api/modules/finance/cost/*` | POST/PUT | `finance.cost.write` |
 | `/api/modules/finance/cost/*` | DELETE | `finance.cost.delete` |
-| `/api/modules/production/qc-templates/config` | GET | `production.qcTemplates.access` |
-| `/api/modules/production/qc-templates/[templateId]` | GET | `production.qcTemplates.access` |
-| `/api/modules/production/qc-templates/feedback` | GET | `production.qcTemplates.access` |
-| `/api/modules/production/qc-templates/feedback` | POST | `production.qcTemplates.write` |
 | `/api/modules/production/qc-batches` | GET | `production.qcBatches.access` |
 | `/api/modules/production/qc-batches` | POST | `production.qcBatches.write` |
 | `/api/modules/production/qc-batches/[batchId]` | GET | `production.qcBatches.access` |

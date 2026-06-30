@@ -2568,6 +2568,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                       name: "subtitle",
                                                       description: "类型：string。",
                                                     },
+                                                    {
+                                                      name: "disabled",
+                                                      description: "类型：boolean。",
+                                                    },
                                                   ],
                                                 },
                                                 {
@@ -8156,6 +8160,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                                 },
                                                                 {
                                                                   name: "mode",
+                                                                    {
+                                                                      name: "disabled",
+                                                                      description: "类型：boolean。",
+                                                                    },
                                                                   description: "可选值：auto / autocomplete / dropdown / picker。",
                                                                   children: [
                                                                     {
@@ -17346,6 +17354,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                             },
                                                             {
                                                               name: "mode",
+                                                                {
+                                                                  name: "disabled",
+                                                                  description: "类型：boolean。",
+                                                                },
                                                               description: "可选值：auto / autocomplete / dropdown / picker。",
                                                               children: [
                                                                 {
@@ -30058,6 +30070,10 @@ export const generatedCoreUiSurfaceContracts = {
                                               children: [
                                                 {
                                                   name: "auto",
+                                                {
+                                                  name: "disabled",
+                                                  description: "类型：boolean。",
+                                                },
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -33118,6 +33134,10 @@ export const generatedCoreUiSurfaceContracts = {
                                               children: [
                                                 {
                                                   name: "auto",
+                                                {
+                                                  name: "disabled",
+                                                  description: "类型：boolean。",
+                                                },
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -36178,6 +36198,10 @@ export const generatedCoreUiSurfaceContracts = {
                                               children: [
                                                 {
                                                   name: "auto",
+                                                {
+                                                  name: "disabled",
+                                                  description: "类型：boolean。",
+                                                },
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -39238,6 +39262,10 @@ export const generatedCoreUiSurfaceContracts = {
                                               children: [
                                                 {
                                                   name: "auto",
+                                                {
+                                                  name: "disabled",
+                                                  description: "类型：boolean。",
+                                                },
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -40794,6 +40822,10 @@ export const generatedCoreUiSurfaceContracts = {
               children: [
                 {
                   name: "auto",
+                {
+                  name: "disabled",
+                  description: "类型：boolean。",
+                },
                   description: "字面量取值。",
                 },
                 {
@@ -44212,6 +44244,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                               children: [
                                                                 {
                                                                   name: "auto",
+                                                                {
+                                                                  name: "disabled",
+                                                                  description: "类型：boolean。",
+                                                                },
                                                                   description: "字面量取值。",
                                                                 },
                                                                 {
@@ -49800,6 +49836,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                                                 },
                                                                                 {
                                                                                   name: "autocomplete",
+                                                                                {
+                                                                                  name: "disabled",
+                                                                                  description: "类型：boolean。",
+                                                                                },
                                                                                   description: "字面量取值。",
                                                                                 },
                                                                                 {
@@ -58990,6 +59030,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                                             },
                                                                             {
                                                                               name: "autocomplete",
+                                                                            {
+                                                                              name: "disabled",
+                                                                              description: "类型：boolean。",
+                                                                            },
                                                                               description: "字面量取值。",
                                                                             },
                                                                             {

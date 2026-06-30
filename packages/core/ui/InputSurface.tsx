@@ -90,8 +90,7 @@ function resolveInputRenderer(spec: InputFieldSpec): ResolvedInputRenderer {
     if (spec.presentation === "choice") return "choiceGroup";
     if (spec.options?.source === "static" || spec.options?.source === "grouped") {
       const mode = spec.options.mode ?? "auto";
-      if (mode === "autocomplete" || (mode === "auto" && inputSurfaceOptionCount(spec.options) > 8)) return "autocompleteChoice";
-      if (mode === "dropdown") return "selectChoice";
+      if (mode === "autocomplete" || mode === "dropdown" || (mode === "auto" && inputSurfaceOptionCount(spec.options) > 8)) return "autocompleteChoice";
     }
     return "pickerChoice";
   }

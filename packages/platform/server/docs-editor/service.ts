@@ -495,7 +495,6 @@ function isProductionQcOfficialTemplate(template: DocsEditorTemplateRow, explici
   if (explicitOfficial) return true;
   const sourceKind = template.sourceKind || "";
   return (
-    sourceKind === "production.qcTemplates" ||
     sourceKind === "production.qc.official" ||
     sourceKind === "qc.official"
   );
@@ -512,7 +511,7 @@ export async function markPublished(input: MarkPublishedInput): Promise<ServiceR
     isProductionQcOfficialTemplate(current.template, command.data.official) &&
     !(await canPublishOfficialQcTemplate(command.data.userId))
   ) {
-    return serviceError("发布 QC 官方模板需要生产检验模板写权限", 403);
+    return serviceError("发布 QC 官方模板需要模板编辑器管理权限", 403);
   }
   const db = docsEditorDb();
   const updated = await db.documentTemplate.update({

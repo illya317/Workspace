@@ -340,7 +340,6 @@ async function main() {
     "agent avatar"
   );
   validateOptionalFile(workspaceDir, "data/qc-batches.json", "QC batch store");
-  validateOptionalFile(workspaceDir, "data/qc-template-feedback.json", "QC feedback store");
   validateRequiredFile(
     workspaceDir,
     "config/pharma-qc/product_stage_tests.json",

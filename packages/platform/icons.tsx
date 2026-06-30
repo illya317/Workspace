@@ -103,9 +103,6 @@ export const moduleIcons: Record<ModuleIconKey, ReactNode> = {
   qcBatches: (
     <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 4h8m-5 0v4.5L6.5 17A2 2 0 008.3 20h7.4a2 2 0 001.8-3L13 8.5V4m-4.5 9h7" /></svg>
   ),
-  qcTemplates: (
-    <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5a2 2 0 012-2h5l2 2h5a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm4 5h8M8 14h5M8 18h3" /></svg>
-  ),
   investors: (
     <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
   ),

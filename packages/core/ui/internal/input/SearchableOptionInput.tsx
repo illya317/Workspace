@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { matchText } from "../../../search";
 import { getFieldInputClassName } from "../form/FormStyles";
@@ -16,14 +17,14 @@ export interface SearchableOption {
   label?: string;
   searchText?: string;
   subtitle?: string;
+  disabled?: boolean;
 }
 
-export interface SearchableOptionInputProps {
+interface SearchableOptionInputBaseProps {
   value: unknown;
   options: SearchableOption[];
   presentation?: "popover" | "inline";
   disabled?: boolean;
-  onChange: (value: string | null, option?: SearchableOption) => void;
   onQueryChange?: (query: string) => void;
   loading?: boolean;
   placeholder?: string;
@@ -33,7 +34,23 @@ export interface SearchableOptionInputProps {
   visibleCount?: number;
   className?: string;
   inputClassName?: string;
+  dropdownHeader?: ReactNode;
+  dropdownFooter?: ReactNode;
 }
+
+type SearchableOptionInputSingleProps = SearchableOptionInputBaseProps & {
+  multiple?: false;
+  onChange: (value: string | null, option?: SearchableOption) => void;
+};
+
+type SearchableOptionInputMultipleProps = SearchableOptionInputBaseProps & {
+  multiple: true;
+  value: unknown[];
+  summaryMode?: "count";
+  onChange: (value: string[], option?: SearchableOption) => void;
+};
+
+export type SearchableOptionInputProps = SearchableOptionInputSingleProps | SearchableOptionInputMultipleProps;
 
 function normalizeValue(value: unknown) {
   if (value === null || value === undefined) return "";
@@ -49,7 +66,6 @@ export default function SearchableOptionInput({
   options,
   presentation = "popover",
   disabled,
-  onChange,
   onQueryChange,
   loading = false,
   placeholder = "未设置",
@@ -59,18 +75,43 @@ export default function SearchableOptionInput({
   visibleCount = 5,
   className,
   inputClassName,
+  dropdownHeader,
+  dropdownFooter,
+  ...choiceProps
 }: SearchableOptionInputProps) {
+  const multiple = choiceProps.multiple === true;
   const current = normalizeValue(value);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState(current);
   const [activeIndex, setActiveIndex] = useState(0);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const selectedValues = useMemo(
+    () => (multiple && Array.isArray(value) ? value.map(String) : current ? [current] : []),
+    [current, multiple, value],
+  );
+  const selectedSet = useMemo(() => new Set(selectedValues), [selectedValues]);
   const currentOption = useMemo(
     () => options.find((option) => option.value === current),
     [current, options],
   );
-  const currentLabel = currentOption ? optionLabel(currentOption) : current;
+  const selectedLabels = useMemo(
+    () => selectedValues
+      .map((selected) => optionLabel(options.find((option) => option.value === selected) ?? { value: selected }))
+      .filter(Boolean),
+    [options, selectedValues],
+  );
+  const currentLabel = multiple
+    ? choiceProps.summaryMode === "count"
+      ? `${selectedValues.length}/${options.length}`
+      : selectedLabels.length === 0
+        ? ""
+        : selectedLabels.length === 1
+          ? selectedLabels[0]
+          : `${selectedLabels[0]} +`
+    : currentOption
+      ? optionLabel(currentOption)
+      : current;
   const listVisible = presentation === "inline" || open;
 
   const filteredOptions = useMemo(() => {
@@ -90,8 +131,9 @@ export default function SearchableOptionInput({
   }, [maxResults, options, query, visibleCount]);
 
   useEffect(() => {
+    if (open && multiple) return;
     setQuery(currentLabel);
-  }, [currentLabel]);
+  }, [currentLabel, multiple, open]);
 
   useEffect(() => {
     setActiveIndex(0);
@@ -120,7 +162,23 @@ export default function SearchableOptionInput({
   }, [currentLabel, open, presentation]);
 
   function choose(option?: SearchableOption | null) {
-    onChange(option?.value ?? null, option ?? undefined);
+    if (option?.disabled) return;
+    if (multiple) {
+      if (!option) {
+        choiceProps.onChange([]);
+        setQuery("");
+        setOpen(false);
+        return;
+      }
+      const next = new Set(selectedValues);
+      if (next.has(option.value)) next.delete(option.value);
+      else next.add(option.value);
+      choiceProps.onChange(Array.from(next), option);
+      setQuery("");
+      setOpen(true);
+      return;
+    }
+    choiceProps.onChange(option?.value ?? null, option ?? undefined);
     setQuery(option ? optionLabel(option) : "");
     setOpen(false);
   }
@@ -155,7 +213,10 @@ export default function SearchableOptionInput({
           disabled={disabled}
           value={query}
           placeholder={placeholder}
-          onFocus={() => setOpen(true)}
+          onFocus={() => {
+            setOpen(true);
+            if (multiple) setQuery("");
+          }}
           onChange={(event) => {
             const next = event.target.value;
             setQuery(next);
@@ -185,17 +246,19 @@ export default function SearchableOptionInput({
 
       {listVisible && !disabled && (
         <div className={presentation === "inline" ? AUTOCOMPLETE_INLINE_LIST_CLASS_NAME : AUTOCOMPLETE_LIST_CLASS_NAME}>
+          {dropdownHeader}
           <div className={AUTOCOMPLETE_LIST_BODY_CLASS_NAME}>
             {filteredOptions.map((option, index) => {
-              const selected = option.value === current;
+              const selected = selectedSet.has(option.value);
               const active = index === activeIndex;
               return (
                 <button
                   key={option.value}
                   type="button"
+                  disabled={option.disabled}
                   onMouseEnter={() => setActiveIndex(index)}
                   onClick={() => choose(option)}
-                  className={getAutocompleteOptionClassName({ active, selected })}
+                  className={`${getAutocompleteOptionClassName({ active, selected })} ${option.disabled ? "cursor-not-allowed opacity-50" : ""}`}
                 >
                   <span className="min-w-0 flex-1 truncate font-medium">{optionLabel(option)}</span>
                   {option.subtitle && <span className="min-w-0 max-w-[45%] truncate text-xs text-slate-400">{option.subtitle}</span>}
@@ -209,6 +272,7 @@ export default function SearchableOptionInput({
               </div>
             )}
           </div>
+          {dropdownFooter}
         </div>
       )}
     </div>

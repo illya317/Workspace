@@ -216,7 +216,14 @@ function renderCleanroomExit(block: NumberedBlock, context: LayoutRenderContext)
 
 function renderAbnormal(block: NumberedBlock, context: LayoutRenderContext) {
   const prefix = block.fieldPrefix || "layout/abnormal";
-  return <PostSection block={block} title="实验结果异常处理">{context.advancedMode ? <Part part={{ type: "radio", fieldKey: `${prefix}/occurred`, options: ["是", "否"] }} context={context} /> : <QcPaperChoiceInput fieldKey={`${prefix}/occurred`} value={context.values[`${prefix}/occurred`]} disabled={context.readOnly} onChange={(value) => context.onFieldChange(`${prefix}/occurred`, value)} />} <span className="ml-8">实验室异常情况编号</span>{context.advancedMode ? <Part part={{ type: "line", fieldKey: `${prefix}/code`, width: "14rem", underline: true }} context={context} /> : <QcPaperLineInput part={{ type: "line", fieldKey: `${prefix}/code`, width: "14rem" }} readOnly={context.readOnly} value={context.values[`${prefix}/code`]} onChange={(value) => context.onFieldChange(`${prefix}/code`, value)} />}</PostSection>;
+  return (
+    <PostSection block={block} title="实验结果异常处理">
+      <div>{context.advancedMode ? <Part part={{ type: "radio", fieldKey: `${prefix}/occurred`, options: ["是", "否"] }} context={context} /> : <QcPaperChoiceInput fieldKey={`${prefix}/occurred`} value={context.values[`${prefix}/occurred`]} disabled={context.readOnly} onChange={(value) => context.onFieldChange(`${prefix}/occurred`, value)} />}</div>
+      <div className="mt-1">
+        <span>实验室异常情况编号</span>{context.advancedMode ? <Part part={{ type: "line", fieldKey: `${prefix}/code`, width: "14rem", underline: true }} context={context} /> : <QcPaperLineInput part={{ type: "line", fieldKey: `${prefix}/code`, width: "14rem" }} readOnly={context.readOnly} value={context.values[`${prefix}/code`]} onChange={(value) => context.onFieldChange(`${prefix}/code`, value)} />}
+      </div>
+    </PostSection>
+  );
 }
 
 function renderCleanup(block: NumberedBlock, context: LayoutRenderContext) {

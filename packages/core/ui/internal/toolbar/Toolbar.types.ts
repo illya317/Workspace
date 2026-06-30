@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { ActionGlyphKind } from "../action/ActionGlyphs";
 import type { ColumnDef } from "../data/DataTable";
 import type { FieldValueFilterField } from "../input/FieldValueFilter";
-import type { SelectFieldOption } from "../input/SelectField";
+import type { InputOption } from "../input/InputSurfaceTypes";
 import type { ToolbarOption } from "./ToolbarOptionGroup";
 
 export type ToolbarSection = "primary" | "search" | "filter" | "edit" | "action" | "meta" | "view";
@@ -51,7 +51,7 @@ export interface ToolbarSelectItem extends ToolbarItemBase {
   kind: "select";
   key: string;
   value: string;
-  options: SelectFieldOption[];
+  options: InputOption[];
   onChange: (value: string) => void;
   label?: string;
   placeholder?: string;
@@ -63,7 +63,7 @@ export interface ToolbarAutocompleteItem extends ToolbarItemBase {
   kind: "autocomplete";
   key: string;
   value: string;
-  options: SelectFieldOption[];
+  options: InputOption[];
   onChange: (value: string) => void;
   placeholder?: string;
   ariaLabel?: string;
@@ -89,7 +89,7 @@ export interface ToolbarFieldFilterItem extends ToolbarItemBase {
   value: string;
   onValueChange: (value: string, fieldKey?: string) => void;
   fields: FieldValueFilterField[];
-  valueOptions: Record<string, SelectFieldOption[]>;
+  valueOptions: Record<string, InputOption[]>;
   placeholder?: string;
   disabled?: boolean;
   referenceEndpoint?: string;
@@ -107,7 +107,7 @@ export interface ToolbarPageSizeItem extends ToolbarItemBase {
   kind: "page-size";
   key: string;
   value: string;
-  options: SelectFieldOption[];
+  options: InputOption[];
   onChange: (value: string) => void;
   label?: string;
 }

@@ -46,7 +46,6 @@ export type ModuleIconKey =
   | "treasury"
   | "import"
   | "qcBatches"
-  | "qcTemplates"
   | "investors"
   | "users"
   | "suppliers"

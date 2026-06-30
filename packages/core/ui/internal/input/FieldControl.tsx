@@ -3,8 +3,8 @@
 import InputSurface, { type InputFieldSpec } from "../../InputSurface";
 import type { ConfirmOptions } from "../../services/FeedbackProvider";
 import type { FkFieldOption, FkFieldInputProps } from "./FkFieldInput";
+import type { InputOption } from "./InputSurfaceTypes";
 import type { FieldControlSize } from "../form/FormStyles";
-import type { SelectFieldOption } from "./SelectField";
 
 export type FieldControlKind = "text" | "readonly" | "fk" | "tags" | "select";
 
@@ -43,7 +43,7 @@ export interface FieldControlProps {
   onChange?: (value: string, option?: FkFieldOption) => void;
   disabled?: boolean;
   placeholder?: string;
-  options?: SelectFieldOption[];
+  options?: InputOption[];
   searchable?: boolean;
   fkKey?: FkFieldInputProps["fkKey"];
   endpoint?: FkFieldInputProps["endpoint"];

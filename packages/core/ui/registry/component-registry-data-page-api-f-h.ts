@@ -67,7 +67,7 @@ export const page_api_registry_entries = [
   {
     name: "FieldValueFilter",
     description: "字段值筛选",
-    composes: ["InputSurface", "SelectField", "PickerOptionButton"],
+    composes: ["InputSurface", "SearchableOptionInput", "PickerOptionButton"],
   },
   {
     name: "FileField",
@@ -106,7 +106,7 @@ export const page_api_registry_entries = [
       { name: "commands", description: "表单内部短命令；页面/section 标题动作归 PageSurface。" },
       { name: "submit", description: "表单提交事件。" },
     ],
-    composes: ["ActionGlyph", "FieldGrid", "FormField", "InputSurface", "ReadOnlyField", "TagListInput", "TextField", "TextareaField", "CalendarDateInput", "ChoiceGroup", "SelectField", "FileField", "HiddenDataField", "CommandButton"],
+    composes: ["ActionGlyph", "FieldGrid", "FormField", "InputSurface", "ReadOnlyField", "TagListInput", "TextField", "TextareaField", "CalendarDateInput", "ChoiceGroup", "SearchableOptionInput", "FileField", "HiddenDataField", "CommandButton"],
   },
   {
     name: "FormShell",

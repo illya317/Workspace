@@ -16,7 +16,6 @@ const DIRECT_INPUT_COMPONENTS = new Map<string, string>([
   ["OptionPicker", "InputSurface spec control=choice options.source=static/grouped"],
   ["PercentField", "InputSurface spec format=percent"],
   ["SearchableOptionInput", "InputSurface spec control=choice options.mode=autocomplete"],
-  ["SelectField", "InputSurface spec control=choice options.mode=dropdown, except Toolbar/filter dropdown"],
   ["SwitchField", "InputSurface spec control=boolean presentation=switch"],
   ["TagStringInput", "InputSurface spec control=collection itemControl=text"],
   ["TextField", "InputSurface spec control=text/number"],
@@ -30,7 +29,6 @@ const ALLOW_PATH_PREFIXES = [
 
 const ALLOW_PATH_INCLUDES = [
   "/showcase/",
-  "/template-workbench/",
   "packages/production/ui/qc/qc-layout-paper/",
   "packages/production/ui/qc/qc-layout-table/",
 ];

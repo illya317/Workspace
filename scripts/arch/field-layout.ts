@@ -16,7 +16,6 @@ const FIELD_COMPONENTS = new Set([
   "OptionPicker",
   "PercentField",
   "ReadOnlyField",
-  "SelectField",
   "TagInputShell",
   "TagInlineTextField",
   "TagListInput",

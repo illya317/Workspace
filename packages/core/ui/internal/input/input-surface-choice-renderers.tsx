@@ -4,7 +4,6 @@ import type { CSSProperties } from "react";
 import FkFieldInput, { type FkFieldOption } from "./FkFieldInput";
 import OptionPicker from "../selection/OptionPicker";
 import SearchableOptionInput, { type SearchableOptionInputProps } from "./SearchableOptionInput";
-import SelectField from "./SelectField";
 import {
   inputSurfaceOptionItems,
   toInputSurfaceSearchableOption,
@@ -16,13 +15,11 @@ import type { FieldTextAlign, FieldVisualVariant } from "./TextField";
 export type InputSurfaceChoiceRendererKind =
   | "remoteReference"
   | "autocompleteChoice"
-  | "selectChoice"
   | "pickerChoice";
 
 export function isInputSurfaceChoiceRenderer(renderer: string): renderer is InputSurfaceChoiceRendererKind {
   return renderer === "remoteReference"
     || renderer === "autocompleteChoice"
-    || renderer === "selectChoice"
     || renderer === "pickerChoice";
 }
 
@@ -64,9 +61,6 @@ export default function InputSurfaceChoiceRenderer({
   className,
   size,
   density,
-  style,
-  visualVariant,
-  textAlign,
   fallback,
 }: InputSurfaceChoiceRendererProps) {
   if (renderer === "remoteReference") {
@@ -102,10 +96,30 @@ export default function InputSurfaceChoiceRenderer({
   }
 
   if (renderer === "autocompleteChoice") {
+    const options = inputSurfaceOptionItems(spec.options).map(toInputSurfaceSearchableOption);
+    if (spec.multiple) {
+      const selected = Array.isArray(value) ? value.map(String) : stringValue ? [stringValue] : [];
+      return (
+        <SearchableOptionInput
+          multiple
+          value={selected}
+          options={options}
+          disabled={disabled}
+          placeholder={placeholder}
+          maxResults={spec.options?.source === "static" || spec.options?.source === "grouped" ? spec.options.visibleCount ?? 5 : 5}
+          presentation={autocompletePresentation}
+          onChange={(next) => onChange?.(next)}
+          onQueryChange={onQueryChange}
+          loading={loading}
+          emptyText={emptyText}
+          className={className}
+        />
+      );
+    }
     return (
       <SearchableOptionInput
         value={stringValue}
-        options={inputSurfaceOptionItems(spec.options).map(toInputSurfaceSearchableOption)}
+        options={options}
         disabled={disabled}
         placeholder={placeholder}
         maxResults={spec.options?.source === "static" || spec.options?.source === "grouped" ? spec.options.visibleCount ?? 5 : 5}
@@ -115,46 +129,6 @@ export default function InputSurfaceChoiceRenderer({
         loading={loading}
         emptyText={emptyText}
         className={className}
-      />
-    );
-  }
-
-  if (renderer === "selectChoice" && (spec.options?.source === "static" || spec.options?.source === "grouped")) {
-    const options = inputSurfaceOptionItems(spec.options);
-    if (spec.multiple) {
-      const selected = Array.isArray(value) ? value.map(String) : stringValue ? [stringValue] : [];
-      return (
-        <SelectField
-          multiple
-          value={selected}
-          options={options}
-          disabled={disabled}
-          placeholder={placeholder}
-          searchable={options.length > 8}
-          onChange={(next) => onChange?.(next)}
-          className={className}
-          style={style}
-          visualVariant={visualVariant === "paperUnderline" ? "paperUnderline" : undefined}
-          textAlign={textAlign}
-          size={size}
-          density={density}
-        />
-      );
-    }
-    return (
-      <SelectField
-        value={stringValue}
-        options={options}
-        disabled={disabled}
-        placeholder={placeholder}
-        searchable={options.length > 8}
-        onChange={(next) => onChange?.(next)}
-        className={className}
-        style={style}
-        visualVariant={visualVariant === "paperUnderline" ? "paperUnderline" : undefined}
-        textAlign={textAlign}
-        size={size}
-        density={density}
       />
     );
   }
