@@ -88,7 +88,22 @@ export function createDraft(position: Position): PositionDraft {
 }
 
 export function createDescriptionDraft(position: Position): DescriptionDraft | null {
-  if (!position.positionDescriptionId) return null;
+  if (!position.positionDescriptionId) {
+    return {
+      id: 0,
+      code: position.code,
+      name: position.name,
+      departmentName: position.departmentName || "",
+      reportTo: "",
+      positionPurpose: "",
+      summary: "",
+      headcount: "1",
+      version: "",
+      effectiveDate: "",
+      sourceFile: "",
+      details: "{}",
+    };
+  }
   return {
     id: position.positionDescriptionId,
     code: position.positionDescriptionCode || "",

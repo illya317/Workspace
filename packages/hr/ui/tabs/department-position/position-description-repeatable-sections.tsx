@@ -76,6 +76,7 @@ export function PositionDutyEditor({
                   getKey: (item, itemIndex) => `${item}-${itemIndex}`,
                   getLabel: (item) => item,
                   onRemove: (_, itemIndex) => updateDuty(index, { items: items.filter((__, currentIndex) => currentIndex !== itemIndex) }),
+                  onUpdateLabel: (_, itemIndex, next) => updateDuty(index, { items: [...new Set(items.map((item, currentIndex) => currentIndex === itemIndex ? next : item))] }),
                   disabled,
                   confirmMessage: (item) => `确定删除「${item || "职责条目"}」吗？删除后需要保存才会生效。`,
                   emptyText: disabled ? "未设置" : undefined,

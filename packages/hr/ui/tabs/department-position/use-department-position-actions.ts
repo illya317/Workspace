@@ -93,8 +93,21 @@ export function useDepartmentPositionActions({
     if (descriptionDraft && !isPositiveIntegerText(descriptionDraft.headcount)) return setToast({ type: "error", message: "编制必须是正整数" });
     if (descriptionDraft?.details.trim() && !isJson(descriptionDraft.details)) return setToast({ type: "error", message: "说明书明细 JSON 不是合法格式" });
     await withSaving(setSaving, setToast, async () => {
-      if (draft && positionDirty) await putJson("/api/modules/hr/roster/positions", draftPayload(draft), "保存岗位失败");
-      if (descriptionDraft && descriptionDirty && selectedPosition) {
+      const shouldCreateDescription = Boolean(selectedPosition && !selectedPosition.positionDescriptionId && descriptionDraft && descriptionDirty);
+      if (draft && (positionDirty || shouldCreateDescription)) {
+        await putJson("/api/modules/hr/roster/positions", {
+          ...draftPayload(draft),
+          ...(shouldCreateDescription && descriptionDraft ? {
+            positionDescription: descriptionPayload({
+              ...descriptionDraft,
+              code: draft.code,
+              name: draft.name,
+              departmentName: selectedPosition?.departmentName || descriptionDraft.departmentName,
+            }),
+          } : {}),
+        }, "保存岗位失败");
+      }
+      if (descriptionDraft && descriptionDirty && selectedPosition?.positionDescriptionId) {
         await putJson("/api/modules/hr/roster/position-descriptions", {
           ...descriptionPayload(descriptionDraft),
           name: selectedPosition.name,

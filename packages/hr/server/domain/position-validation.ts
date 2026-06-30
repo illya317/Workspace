@@ -58,6 +58,11 @@ interface PositionDescriptionCreateCommand {
   details: string | null;
 }
 
+interface PositionUpdateCommand {
+  data: Prisma.PositionUncheckedUpdateInput;
+  positionDescription?: PositionDescriptionCreateCommand | null;
+}
+
 async function validateDepartment(value: unknown) {
   const validation = await validateFkValue(HR_FK_REGISTRY, {
     fkKey: "hr.position.department",
@@ -162,7 +167,7 @@ export async function validatePositionFieldUpdate(field: string, value: unknown,
 export async function buildPositionUpdateCommand(
   id: number,
   body: PositionInput,
-): Promise<DomainValidationResult<Prisma.PositionUncheckedUpdateInput>> {
+): Promise<DomainValidationResult<PositionUpdateCommand>> {
   const data: Prisma.PositionUncheckedUpdateInput = {};
   if (body.code !== undefined) data.code = body.code;
   if (body.name !== undefined) data.name = body.name;
@@ -184,7 +189,12 @@ export async function buildPositionUpdateCommand(
     data.isArchived = archived;
     data.archivedAt = archived ? new Date() : null;
   }
-  return okCommand(data);
+  const descriptionCreate = validatePositionDescriptionCreate(body.positionDescription, {
+    code: body.code || "",
+    name: body.name || "",
+  });
+  if (!descriptionCreate.ok) return descriptionCreate;
+  return okCommand({ data, positionDescription: descriptionCreate.data });
 }
 
 export async function validatePositionDelete(id: number, actionLabel = "删除岗位") {

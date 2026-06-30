@@ -225,13 +225,25 @@ export async function updatePosition(
 ): Promise<DomainServiceResult<{ success: true; position: unknown }>> {
   const command = mapValidationToServiceResult(await buildPositionUpdateCommand(id, body));
   if (!command.ok) return command;
-  const data = command.data;
+  const data = command.data.data;
   data.editedBy = userId;
   data.editedAt = new Date();
   data.version = { increment: 1 };
 
   try {
+    if (command.data.positionDescription) {
+      const current = await prisma.position.findUnique({ where: { id }, select: { positionDescriptionId: true } });
+      if (!current) return serviceError("岗位不存在", 404);
+      if (current.positionDescriptionId) return serviceError("岗位已有说明书", 409);
+    }
     const updated = await prisma.$transaction(async (tx) => {
+      if (command.data.positionDescription) {
+        const description = await tx.positionDescription.create({
+          data: { ...command.data.positionDescription, editedBy: userId, editedAt: new Date() },
+          select: { id: true },
+        });
+        data.positionDescriptionId = description.id;
+      }
       const position = await tx.position.update({ where: { id }, data });
       await snapshotHistory("Position", id, userId, tx);
       return position;
@@ -239,7 +251,7 @@ export async function updatePosition(
     return serviceOk({ success: true, position: updated });
   } catch (error: unknown) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      return serviceError("编码已存在", 409);
+      return serviceError("岗位编码或说明书编码已存在", 409);
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
       return serviceError("岗位不存在", 404);

@@ -48,6 +48,7 @@ export function EntityTagListEditor({
           getKey: (item, index) => `${item}-${index}`,
           getLabel: (item) => item,
           onRemove: (_, index) => removeItem(index),
+          onUpdateLabel: (_, index, next) => onChange([...new Set(items.map((item, itemIndex) => itemIndex === index ? next : item))]),
           disabled,
           confirmMessage: (item) => `确定删除「${item || label}」吗？删除后需要保存才会生效。`,
           itemTitle: (item) => (validNames && !validNames.has(item) ? "当前主数据中未找到对应记录" : undefined),

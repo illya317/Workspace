@@ -141,6 +141,7 @@ export function useDepartmentDetailPaneSection({
       getKey: (tag, index) => `${tag}-${index}`,
       getLabel: (tag) => tag,
       onRemove: (_, index) => onUpdateDepartmentDraft("alias", splitAliasText(departmentDraft.alias || "").filter((__, tagIndex) => tagIndex !== index).join("、")),
+      onUpdateLabel: (_, index, next) => onUpdateDepartmentDraft("alias", splitAliasText(departmentDraft.alias || "").map((tag, tagIndex) => tagIndex === index ? next : tag).join("、")),
       disabled: !canEditDepartment,
       confirmMessage: (tag) => `确定删除别名「${tag}」吗？删除后需要保存才会生效。`,
       emptyText: !canEditDepartment ? "未设置" : undefined,

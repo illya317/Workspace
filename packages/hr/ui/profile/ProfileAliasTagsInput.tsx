@@ -81,6 +81,7 @@ export function AliasTagEditor({
         getKey: (tag, index) => `${tag}-${index}`,
         getLabel: (tag) => tag,
         onRemove: (_, index) => removeTag(index),
+        onUpdateLabel: (_, index, next) => onChange(serializeAliasTags(tags.map((tag, tagIndex) => tagIndex === index ? next : tag))),
         disabled,
         emptyText: disabled ? "未设置" : undefined,
         shellClassName: "content-start",

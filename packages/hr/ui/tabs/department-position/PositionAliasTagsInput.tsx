@@ -42,6 +42,7 @@ export default function PositionAliasTagsInput({
         getKey: (tag, index) => `${tag}-${index}`,
         getLabel: (tag) => tag,
         onRemove: (_, index) => removeTag(index),
+        onUpdateLabel: (_, index, next) => onChange(tags.map((tag, tagIndex) => tagIndex === index ? next : tag).join("、")),
         disabled,
         confirmMessage: (tag) => `确定删除别名「${tag}」吗？删除后需要保存才会生效。`,
         emptyText: disabled ? "未设置" : undefined,

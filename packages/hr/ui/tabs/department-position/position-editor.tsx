@@ -154,6 +154,7 @@ export function usePositionEditorSections({
       getKey: (tag, index) => `${tag}-${index}`,
       getLabel: (tag) => tag,
       onRemove: (_, index) => onUpdateDraft("alias", splitAliasText(draft.alias || "").filter((__, tagIndex) => tagIndex !== index).join("、")),
+      onUpdateLabel: (_, index, next) => onUpdateDraft("alias", splitAliasText(draft.alias || "").map((tag, tagIndex) => tagIndex === index ? next : tag).join("、")),
       disabled: !canEditPosition,
       confirmMessage: (tag) => `确定删除别名「${tag}」吗？删除后需要保存才会生效。`,
       emptyText: !canEditPosition ? "未设置" : undefined,

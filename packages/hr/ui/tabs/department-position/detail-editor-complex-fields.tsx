@@ -97,6 +97,7 @@ export function WorkEnvironmentEditor({
                     getKey: (factor: string, factorIndex: number) => `${factor}-${factorIndex}`,
                     getLabel: (factor: string) => factor,
                     onRemove: (_: string, factorIndex: number) => updateItem(index, { factors: item.factors.filter((__, currentIndex) => currentIndex !== factorIndex) }),
+                    onUpdateLabel: (_: string, factorIndex: number, next: string) => updateItem(index, { factors: [...new Set(item.factors.map((factor, currentIndex) => currentIndex === factorIndex ? next : factor))] }),
                     disabled,
                     confirmDelete: feedback.confirmDelete,
                     removeConfirmMessage: (factor: string) => `确定删除「${factor || "环境因素"}」吗？删除后需要保存才会生效。`,

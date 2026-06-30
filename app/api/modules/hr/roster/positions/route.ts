@@ -21,13 +21,8 @@ const positionsQuerySchema = z.object({
   summary: z.enum(["1", "true"]).optional().catch(undefined),
 }).passthrough();
 
-const updatePositionBodySchema = z.object({
+const updatePositionBodySchema = PositionCreateSchema.partial().extend({
   id: z.coerce.number().int().positive(),
-  code: z.string().optional(),
-  name: z.string().optional(),
-  alias: z.string().nullable().optional(),
-  departmentId: z.union([z.number(), z.string()]).optional().nullable(),
-  positionDescriptionId: z.union([z.number(), z.string()]).optional().nullable(),
   isArchived: z.boolean().optional(),
 }).passthrough();
 
@@ -63,6 +58,7 @@ export const PUT = createCommandRoute({
       alias: body.alias,
       departmentId: body.departmentId,
       positionDescriptionId: body.positionDescriptionId,
+      positionDescription: body.positionDescription,
       isArchived: body.isArchived,
     },
     userId: user.userId,

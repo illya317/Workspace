@@ -45,6 +45,7 @@ export function profileFieldSpec(
       getKey: (tag, index) => `${tag}-${index}`,
       getLabel: (tag) => tag,
       onRemove: (_, index) => onChange(field.key, serializeAliasTags(tags.filter((__, tagIndex) => tagIndex !== index))),
+      onUpdateLabel: (_, index, next) => onChange(field.key, serializeAliasTags(tags.map((tag, tagIndex) => tagIndex === index ? next : tag))),
       disabled: fieldDisabled,
       emptyText: fieldDisabled ? "未设置" : undefined,
       shellClassName: "content-start",
