@@ -17,6 +17,13 @@ type ContractDescriptor = {
 const ROOT = path.resolve(__dirname, "..");
 const OUTPUT_PATH = path.join(ROOT, "packages/core/ui/registry/generated-surface-contracts.ts");
 const MAX_DEPTH = 12;
+const RAW_CONTENT_PROPERTY_NAMES = new Set([
+  "cell",
+  "content",
+  "expandedRowContent",
+  "renderItem",
+  "renderOption",
+]);
 
 const TARGETS: ContractTarget[] = [
   { componentName: "BodySurface", sourcePath: "packages/core/ui/BodySurface.tsx", typeName: "BodySurfaceProps" },
@@ -309,6 +316,16 @@ function propertyHasRenderableType(property: PropertyGroup, checker: ts.TypeChec
   });
 }
 
+function isRawContentPropertyGroup(property: PropertyGroup, checker: ts.TypeChecker, fallbackNode: ts.Node) {
+  if (!RAW_CONTENT_PROPERTY_NAMES.has(property.name)) return false;
+  return property.symbols.some((symbol) => {
+    const declaration = symbol.valueDeclaration ?? symbol.declarations?.[0] ?? fallbackNode;
+    const type = nonNullableType(checker.getTypeOfSymbolAtLocation(symbol, declaration), checker);
+    const text = typeText(type, checker, declaration);
+    return text.includes("ReactNode") || isFunctionLikeType(type, checker);
+  });
+}
+
 function contractForKindUnion(
   type: ts.Type,
   checker: ts.TypeChecker,
@@ -343,6 +360,7 @@ function contractForKindUnion(
           .filter((property) => property.name !== "kind")
           .filter((property) => !hoistCommonProperties || !common.has(property.name))
           .filter((property) => propertyHasRenderableType(property, checker, fallbackNode))
+          .filter((property) => !isRawContentPropertyGroup(property, checker, fallbackNode))
           .map((property) => descriptorForPropertyGroup(property, checker, fallbackNode, branchDepth, new Set(branchSeenTypes)));
       return {
         name: branch.kind,
@@ -355,6 +373,7 @@ function contractForKindUnion(
   const topLevel = collectPropertyGroups(type)
     .filter((property) => hoistCommonProperties && property.name !== "kind" && common.has(property.name))
     .filter((property) => propertyHasRenderableType(property, checker, fallbackNode))
+    .filter((property) => !isRawContentPropertyGroup(property, checker, fallbackNode))
     .map((property) => descriptorForCommonProperty(property.name, orderedBranches, checker, fallbackNode));
   return [...topLevel, kindDescriptor];
 }
@@ -417,6 +436,7 @@ function childrenFor(
 
   const descriptors = properties
     .filter((property) => property.name !== "__type")
+    .filter((property) => !isRawContentPropertyGroup(property, checker, node))
     .map((property) => descriptorForPropertyGroup(property, checker, node, depth + 1, nextSeenTypes));
   return descriptors.length ? descriptors : undefined;
 }
@@ -456,6 +476,7 @@ function descriptorListForTypes(
   }
   const descriptors = ordered
     .filter((property) => property.name !== "__type")
+    .filter((property) => !isRawContentPropertyGroup(property, checker, fallbackNode))
     .map((property) => descriptorForPropertyGroup(property, checker, fallbackNode, depth + 1, new Set(seenTypes)));
   return descriptors.length ? descriptors : undefined;
 }
@@ -499,7 +520,9 @@ function contractFor(target: ContractTarget, program: ts.Program, checker: ts.Ty
     expandBranchProperties: true,
   });
   if (kindUnionContract) return kindUnionContract;
-  return collectPropertyGroups(type).map((property) => descriptorForPropertyGroup(property, checker, declaration, 0, new Set()));
+  return collectPropertyGroups(type)
+    .filter((property) => !isRawContentPropertyGroup(property, checker, declaration))
+    .map((property) => descriptorForPropertyGroup(property, checker, declaration, 0, new Set()));
 }
 
 function formatDescriptor(descriptor: ContractDescriptor, indent: number): string {
@@ -538,6 +561,26 @@ function formatOutput(contracts: Record<string, ContractDescriptor[]>) {
   return lines.join("\n");
 }
 
+function rawContentContractViolations(contracts: Record<string, ContractDescriptor[]>) {
+  const violations: string[] = [];
+  const visit = (surfaceName: string, descriptor: ContractDescriptor, pathParts: string[]) => {
+    const currentPath = [...pathParts, descriptor.name];
+    const isForbiddenName = RAW_CONTENT_PROPERTY_NAMES.has(descriptor.name);
+    const isRawDescription = descriptor.description.includes("ReactNode")
+      || descriptor.description.includes("=>")
+      || descriptor.description.includes(") =>");
+    if (isForbiddenName && isRawDescription) {
+      violations.push(`${surfaceName}.${currentPath.join(".")}: ${descriptor.description}`);
+    }
+    for (const child of descriptor.children ?? []) visit(surfaceName, child, currentPath);
+  };
+
+  for (const [surfaceName, descriptors] of Object.entries(contracts)) {
+    for (const descriptor of descriptors) visit(surfaceName, descriptor, []);
+  }
+  return violations;
+}
+
 function main() {
   const checkOnly = process.argv.includes("--check");
   const program = createProgram();
@@ -545,6 +588,12 @@ function main() {
   const contracts: Record<string, ContractDescriptor[]> = {};
   for (const target of TARGETS) {
     contracts[target.componentName] = contractFor(target, program, checker);
+  }
+  const rawContentViolations = rawContentContractViolations(contracts);
+  if (rawContentViolations.length) {
+    console.error("Core UI surface contracts cannot expose raw/custom React content fields:");
+    for (const violation of rawContentViolations) console.error(`  - ${violation}`);
+    process.exit(1);
   }
 
   const output = formatOutput(contracts);

@@ -48,6 +48,8 @@
 - Toolbar 内的 `option-group` 默认是 Toolbar 专用 micro 手风琴：默认折叠，母按钮显示字段名或当前具体值，展开后点子选项自动收起。
 - 当前页面内部视图的平级 tab 切换必须用 `TabBar`，不要塞进 Toolbar；但 L1/L2 模块列表不属于 `TabBar`，应由 route/module 层或模块入口卡片承载。Toolbar 的 `option-group` 表达筛选，不表达主视图切换。
 - 列显隐统一用 `column-toggle` 内部的 `SearchableOptionInput multiple summaryMode="count"`，触发器显示 `已选数/总数`，例如 `2/4`。
+- `BodySurfaceCommandSpec`、`FormSurfaceCommandSpec` 和 `DataSurfaceCommandSpec` 只能交给 Surface 的 `actions/commands` 渲染；业务/平台 UI 不得把这些 spec 传进自定义组件后手写 `<button>` 动作区，新增会被 `npm run gate:ui` 拦住。
+- Surface contract 不暴露 `content: ReactNode`、`cell(row) => ReactNode`、`expandedRowContent`、`renderItem`、`renderOption` 这类 raw/custom content 口子；需要新形态时扩展 Core Surface spec，不在业务层塞 JSX 兜底。`npm run core-ui:contracts:check` 会阻断这些声明回流。
 
 ## 业务字段组件
 

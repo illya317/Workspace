@@ -708,10 +708,6 @@ export const generatedCoreUiSurfaceContracts = {
                               name: "onHeaderClick",
                               description: "类型：() => void。",
                             },
-                            {
-                              name: "cell",
-                              description: "类型：(row: TData) => ReactNode | DataSurfaceCellSpec。",
-                            },
                           ],
                         },
                         {
@@ -807,10 +803,6 @@ export const generatedCoreUiSurfaceContracts = {
                           description: "类型：(string | number)[] | Set<string | number>。",
                         },
                         {
-                          name: "expandedRowContent",
-                          description: "类型：(row: TData) => ReactNode。",
-                        },
-                        {
                           name: "rowActions",
                           description: "类型：(row: TData) => DataSurfaceRowActionSpec[]。",
                         },
@@ -877,10 +869,6 @@ export const generatedCoreUiSurfaceContracts = {
                         {
                           name: "key",
                           description: "类型：string。",
-                        },
-                        {
-                          name: "content",
-                          description: "类型：ReactNode。",
                         },
                         {
                           name: "size",
@@ -1727,12 +1715,6 @@ export const generatedCoreUiSurfaceContracts = {
                             {
                               name: "note",
                               description: "note 分支声明。",
-                              children: [
-                                {
-                                  name: "content",
-                                  description: "类型：ReactNode。",
-                                },
-                              ],
                             },
                             {
                               name: "readonly",
@@ -4507,10 +4489,6 @@ export const generatedCoreUiSurfaceContracts = {
               description: "类型：BodySurfaceMessageSpec。",
               children: [
                 {
-                  name: "content",
-                  description: "类型：ReactNode。",
-                },
-                {
                   name: "tone",
                   description: "可选值：danger / default / muted / success / warning。",
                   children: [
@@ -4542,10 +4520,6 @@ export const generatedCoreUiSurfaceContracts = {
               name: "status",
               description: "类型：BodySurfaceStatusSpec。",
               children: [
-                {
-                  name: "content",
-                  description: "类型：ReactNode。",
-                },
                 {
                   name: "compact",
                   description: "类型：boolean。",
@@ -4587,10 +4561,6 @@ export const generatedCoreUiSurfaceContracts = {
                       description: "字面量取值。",
                     },
                   ],
-                },
-                {
-                  name: "content",
-                  description: "类型：ReactNode。",
                 },
                 {
                   name: "compact",
@@ -4717,10 +4687,6 @@ export const generatedCoreUiSurfaceContracts = {
                           description: "字面量取值。",
                         },
                       ],
-                    },
-                    {
-                      name: "content",
-                      description: "类型：ReactNode。",
                     },
                     {
                       name: "compact",
@@ -5939,12 +5905,6 @@ export const generatedCoreUiSurfaceContracts = {
                             {
                               name: "text",
                               description: "text 分支声明。",
-                              children: [
-                                {
-                                  name: "content",
-                                  description: "类型：ReactNode。",
-                                },
-                              ],
                             },
                           ],
                         },
@@ -6399,10 +6359,6 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "类型：(string | number)[] | Set<string | number>。",
                                         },
                                         {
-                                          name: "expandedRowContent",
-                                          description: "类型：(row: any) => ReactNode。",
-                                        },
-                                        {
                                           name: "rowActions",
                                           description: "类型：(row: any) => DataSurfaceRowActionSpec[]。",
                                         },
@@ -6469,10 +6425,6 @@ export const generatedCoreUiSurfaceContracts = {
                                         {
                                           name: "key",
                                           description: "类型：string。",
-                                        },
-                                        {
-                                          name: "content",
-                                          description: "类型：ReactNode。",
                                         },
                                         {
                                           name: "size",
@@ -7319,12 +7271,6 @@ export const generatedCoreUiSurfaceContracts = {
                                             {
                                               name: "note",
                                               description: "note 分支声明。",
-                                              children: [
-                                                {
-                                                  name: "content",
-                                                  description: "类型：ReactNode。",
-                                                },
-                                              ],
                                             },
                                             {
                                               name: "readonly",
@@ -9765,10 +9711,6 @@ export const generatedCoreUiSurfaceContracts = {
                               description: "类型：BodySurfaceMessageSpec。",
                               children: [
                                 {
-                                  name: "content",
-                                  description: "类型：ReactNode。",
-                                },
-                                {
                                   name: "tone",
                                   description: "可选值：danger / default / muted / success / warning。",
                                   children: [
@@ -9800,10 +9742,6 @@ export const generatedCoreUiSurfaceContracts = {
                               name: "status",
                               description: "类型：BodySurfaceStatusSpec。",
                               children: [
-                                {
-                                  name: "content",
-                                  description: "类型：ReactNode。",
-                                },
                                 {
                                   name: "compact",
                                   description: "类型：boolean。",
@@ -9845,10 +9783,6 @@ export const generatedCoreUiSurfaceContracts = {
                                       description: "字面量取值。",
                                     },
                                   ],
-                                },
-                                {
-                                  name: "content",
-                                  description: "类型：ReactNode。",
                                 },
                                 {
                                   name: "compact",
@@ -9895,10 +9829,6 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "字面量取值。",
                                         },
                                       ],
-                                    },
-                                    {
-                                      name: "content",
-                                      description: "类型：ReactNode。",
                                     },
                                     {
                                       name: "compact",
@@ -10317,10 +10247,6 @@ export const generatedCoreUiSurfaceContracts = {
                               description: "类型：BodySurfaceMessageSpec。",
                               children: [
                                 {
-                                  name: "content",
-                                  description: "类型：ReactNode。",
-                                },
-                                {
                                   name: "tone",
                                   description: "可选值：danger / default / muted / success / warning。",
                                   children: [
@@ -10352,10 +10278,6 @@ export const generatedCoreUiSurfaceContracts = {
                               name: "status",
                               description: "类型：BodySurfaceStatusSpec。",
                               children: [
-                                {
-                                  name: "content",
-                                  description: "类型：ReactNode。",
-                                },
                                 {
                                   name: "compact",
                                   description: "类型：boolean。",
@@ -10397,10 +10319,6 @@ export const generatedCoreUiSurfaceContracts = {
                                       description: "字面量取值。",
                                     },
                                   ],
-                                },
-                                {
-                                  name: "content",
-                                  description: "类型：ReactNode。",
                                 },
                                 {
                                   name: "compact",
@@ -10447,10 +10365,6 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "字面量取值。",
                                         },
                                       ],
-                                    },
-                                    {
-                                      name: "content",
-                                      description: "类型：ReactNode。",
                                     },
                                     {
                                       name: "compact",
@@ -11077,10 +10991,6 @@ export const generatedCoreUiSurfaceContracts = {
                                       description: "类型：(item: any) => string | number。",
                                     },
                                     {
-                                      name: "renderItem",
-                                      description: "类型：(item: any, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
-                                    },
-                                    {
                                       name: "loading",
                                       description: "类型：boolean。",
                                     },
@@ -11447,10 +11357,6 @@ export const generatedCoreUiSurfaceContracts = {
                                     {
                                       name: "getKey",
                                       description: "类型：(item: any) => string | number。",
-                                    },
-                                    {
-                                      name: "renderItem",
-                                      description: "类型：(item: any, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
                                     },
                                     {
                                       name: "loading",
@@ -12293,12 +12199,6 @@ export const generatedCoreUiSurfaceContracts = {
                                     {
                                       name: "text",
                                       description: "text 分支声明。",
-                                      children: [
-                                        {
-                                          name: "content",
-                                          description: "类型：ReactNode。",
-                                        },
-                                      ],
                                     },
                                   ],
                                 },
@@ -12615,10 +12515,6 @@ export const generatedCoreUiSurfaceContracts = {
                                 {
                                   name: "getKey",
                                   description: "类型：(item: any) => string | number。",
-                                },
-                                {
-                                  name: "renderItem",
-                                  description: "类型：(item: any, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
                                 },
                                 {
                                   name: "loading",
@@ -13407,10 +13303,6 @@ export const generatedCoreUiSurfaceContracts = {
               description: "类型：BodySurfaceMessageSpec。",
               children: [
                 {
-                  name: "content",
-                  description: "类型：ReactNode。",
-                },
-                {
                   name: "tone",
                   description: "可选值：danger / default / muted / success / warning。",
                   children: [
@@ -13442,10 +13334,6 @@ export const generatedCoreUiSurfaceContracts = {
               name: "status",
               description: "类型：BodySurfaceStatusSpec。",
               children: [
-                {
-                  name: "content",
-                  description: "类型：ReactNode。",
-                },
                 {
                   name: "compact",
                   description: "类型：boolean。",
@@ -13487,10 +13375,6 @@ export const generatedCoreUiSurfaceContracts = {
                       description: "字面量取值。",
                     },
                   ],
-                },
-                {
-                  name: "content",
-                  description: "类型：ReactNode。",
                 },
                 {
                   name: "compact",
@@ -13617,10 +13501,6 @@ export const generatedCoreUiSurfaceContracts = {
                           description: "字面量取值。",
                         },
                       ],
-                    },
-                    {
-                      name: "content",
-                      description: "类型：ReactNode。",
                     },
                     {
                       name: "compact",
@@ -14325,10 +14205,6 @@ export const generatedCoreUiSurfaceContracts = {
                       description: "类型：(item: any) => string | number。",
                     },
                     {
-                      name: "renderItem",
-                      description: "类型：(item: any, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
-                    },
-                    {
                       name: "loading",
                       description: "类型：boolean。",
                     },
@@ -14695,10 +14571,6 @@ export const generatedCoreUiSurfaceContracts = {
                     {
                       name: "getKey",
                       description: "类型：(item: any) => string | number。",
-                    },
-                    {
-                      name: "renderItem",
-                      description: "类型：(item: any, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
                     },
                     {
                       name: "loading",
@@ -15494,10 +15366,6 @@ export const generatedCoreUiSurfaceContracts = {
                                           name: "onHeaderClick",
                                           description: "类型：() => void。",
                                         },
-                                        {
-                                          name: "cell",
-                                          description: "类型：(row: any) => ReactNode | DataSurfaceCellSpec。",
-                                        },
                                       ],
                                     },
                                     {
@@ -15593,10 +15461,6 @@ export const generatedCoreUiSurfaceContracts = {
                                       description: "类型：(string | number)[] | Set<string | number>。",
                                     },
                                     {
-                                      name: "expandedRowContent",
-                                      description: "类型：(row: any) => ReactNode。",
-                                    },
-                                    {
                                       name: "rowActions",
                                       description: "类型：(row: any) => DataSurfaceRowActionSpec[]。",
                                     },
@@ -15663,10 +15527,6 @@ export const generatedCoreUiSurfaceContracts = {
                                     {
                                       name: "key",
                                       description: "类型：string。",
-                                    },
-                                    {
-                                      name: "content",
-                                      description: "类型：ReactNode。",
                                     },
                                     {
                                       name: "size",
@@ -16513,12 +16373,6 @@ export const generatedCoreUiSurfaceContracts = {
                                         {
                                           name: "note",
                                           description: "note 分支声明。",
-                                          children: [
-                                            {
-                                              name: "content",
-                                              description: "类型：ReactNode。",
-                                            },
-                                          ],
                                         },
                                         {
                                           name: "readonly",
@@ -19293,10 +19147,6 @@ export const generatedCoreUiSurfaceContracts = {
                           description: "类型：BodySurfaceMessageSpec。",
                           children: [
                             {
-                              name: "content",
-                              description: "类型：ReactNode。",
-                            },
-                            {
                               name: "tone",
                               description: "可选值：danger / default / muted / success / warning。",
                               children: [
@@ -19328,10 +19178,6 @@ export const generatedCoreUiSurfaceContracts = {
                           name: "status",
                           description: "类型：BodySurfaceStatusSpec。",
                           children: [
-                            {
-                              name: "content",
-                              description: "类型：ReactNode。",
-                            },
                             {
                               name: "compact",
                               description: "类型：boolean。",
@@ -19373,10 +19219,6 @@ export const generatedCoreUiSurfaceContracts = {
                                   description: "字面量取值。",
                                 },
                               ],
-                            },
-                            {
-                              name: "content",
-                              description: "类型：ReactNode。",
                             },
                             {
                               name: "compact",
@@ -19503,10 +19345,6 @@ export const generatedCoreUiSurfaceContracts = {
                                       description: "字面量取值。",
                                     },
                                   ],
-                                },
-                                {
-                                  name: "content",
-                                  description: "类型：ReactNode。",
                                 },
                                 {
                                   name: "compact",
@@ -20725,12 +20563,6 @@ export const generatedCoreUiSurfaceContracts = {
                                         {
                                           name: "text",
                                           description: "text 分支声明。",
-                                          children: [
-                                            {
-                                              name: "content",
-                                              description: "类型：ReactNode。",
-                                            },
-                                          ],
                                         },
                                       ],
                                     },
@@ -21099,10 +20931,6 @@ export const generatedCoreUiSurfaceContracts = {
                           description: "类型：BodySurfaceMessageSpec。",
                           children: [
                             {
-                              name: "content",
-                              description: "类型：ReactNode。",
-                            },
-                            {
                               name: "tone",
                               description: "可选值：danger / default / muted / success / warning。",
                               children: [
@@ -21134,10 +20962,6 @@ export const generatedCoreUiSurfaceContracts = {
                           name: "status",
                           description: "类型：BodySurfaceStatusSpec。",
                           children: [
-                            {
-                              name: "content",
-                              description: "类型：ReactNode。",
-                            },
                             {
                               name: "compact",
                               description: "类型：boolean。",
@@ -21179,10 +21003,6 @@ export const generatedCoreUiSurfaceContracts = {
                                   description: "字面量取值。",
                                 },
                               ],
-                            },
-                            {
-                              name: "content",
-                              description: "类型：ReactNode。",
                             },
                             {
                               name: "compact",
@@ -21309,10 +21129,6 @@ export const generatedCoreUiSurfaceContracts = {
                                       description: "字面量取值。",
                                     },
                                   ],
-                                },
-                                {
-                                  name: "content",
-                                  description: "类型：ReactNode。",
                                 },
                                 {
                                   name: "compact",
@@ -22017,10 +21833,6 @@ export const generatedCoreUiSurfaceContracts = {
                                   description: "类型：(item: any) => string | number。",
                                 },
                                 {
-                                  name: "renderItem",
-                                  description: "类型：(item: any, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
-                                },
-                                {
                                   name: "loading",
                                   description: "类型：boolean。",
                                 },
@@ -22387,10 +22199,6 @@ export const generatedCoreUiSurfaceContracts = {
                                 {
                                   name: "getKey",
                                   description: "类型：(item: any) => string | number。",
-                                },
-                                {
-                                  name: "renderItem",
-                                  description: "类型：(item: any, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
                                 },
                                 {
                                   name: "loading",
@@ -23649,12 +23457,6 @@ export const generatedCoreUiSurfaceContracts = {
                                 {
                                   name: "text",
                                   description: "text 分支声明。",
-                                  children: [
-                                    {
-                                      name: "content",
-                                      description: "类型：ReactNode。",
-                                    },
-                                  ],
                                 },
                               ],
                             },
@@ -23971,10 +23773,6 @@ export const generatedCoreUiSurfaceContracts = {
                             {
                               name: "getKey",
                               description: "类型：(item: any) => string | number。",
-                            },
-                            {
-                              name: "renderItem",
-                              description: "类型：(item: any, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
                             },
                             {
                               name: "loading",
@@ -25893,12 +25691,6 @@ export const generatedCoreUiSurfaceContracts = {
                     {
                       name: "text",
                       description: "text 分支声明。",
-                      children: [
-                        {
-                          name: "content",
-                          description: "类型：ReactNode。",
-                        },
-                      ],
                     },
                   ],
                 },
@@ -26215,10 +26007,6 @@ export const generatedCoreUiSurfaceContracts = {
                 {
                   name: "getKey",
                   description: "类型：(item: any) => string | number。",
-                },
-                {
-                  name: "renderItem",
-                  description: "类型：(item: any, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
                 },
                 {
                   name: "loading",
@@ -28034,10 +27822,6 @@ export const generatedCoreUiSurfaceContracts = {
                   name: "onHeaderClick",
                   description: "类型：() => void。",
                 },
-                {
-                  name: "cell",
-                  description: "类型：(row: T) => ReactNode | DataSurfaceCellSpec。",
-                },
               ],
             },
             {
@@ -28131,10 +27915,6 @@ export const generatedCoreUiSurfaceContracts = {
             {
               name: "expandedRowKeys",
               description: "类型：(string | number)[] | Set<string | number>。",
-            },
-            {
-              name: "expandedRowContent",
-              description: "类型：(row: T) => ReactNode。",
             },
             {
               name: "rowActions",
@@ -28387,10 +28167,6 @@ export const generatedCoreUiSurfaceContracts = {
                     {
                       name: "key",
                       description: "类型：string。",
-                    },
-                    {
-                      name: "content",
-                      description: "类型：ReactNode。",
                     },
                     {
                       name: "size",
@@ -29229,12 +29005,6 @@ export const generatedCoreUiSurfaceContracts = {
                         {
                           name: "note",
                           description: "note 分支声明。",
-                          children: [
-                            {
-                              name: "content",
-                              description: "类型：ReactNode。",
-                            },
-                          ],
                         },
                         {
                           name: "readonly",
@@ -32293,12 +32063,6 @@ export const generatedCoreUiSurfaceContracts = {
                         {
                           name: "note",
                           description: "note 分支声明。",
-                          children: [
-                            {
-                              name: "content",
-                              description: "类型：ReactNode。",
-                            },
-                          ],
                         },
                         {
                           name: "readonly",
@@ -35357,12 +35121,6 @@ export const generatedCoreUiSurfaceContracts = {
                         {
                           name: "note",
                           description: "note 分支声明。",
-                          children: [
-                            {
-                              name: "content",
-                              description: "类型：ReactNode。",
-                            },
-                          ],
                         },
                         {
                           name: "readonly",
@@ -38421,12 +38179,6 @@ export const generatedCoreUiSurfaceContracts = {
                         {
                           name: "note",
                           description: "note 分支声明。",
-                          children: [
-                            {
-                              name: "content",
-                              description: "类型：ReactNode。",
-                            },
-                          ],
                         },
                         {
                           name: "readonly",
@@ -42384,10 +42136,6 @@ export const generatedCoreUiSurfaceContracts = {
                                           name: "onHeaderClick",
                                           description: "类型：() => void。",
                                         },
-                                        {
-                                          name: "cell",
-                                          description: "类型：(row: any) => ReactNode | DataSurfaceCellSpec。",
-                                        },
                                       ],
                                     },
                                     {
@@ -42483,10 +42231,6 @@ export const generatedCoreUiSurfaceContracts = {
                                       description: "类型：(string | number)[] | Set<string | number>。",
                                     },
                                     {
-                                      name: "expandedRowContent",
-                                      description: "类型：(row: any) => ReactNode。",
-                                    },
-                                    {
                                       name: "rowActions",
                                       description: "类型：(row: any) => DataSurfaceRowActionSpec[]。",
                                     },
@@ -42553,10 +42297,6 @@ export const generatedCoreUiSurfaceContracts = {
                                     {
                                       name: "key",
                                       description: "类型：string。",
-                                    },
-                                    {
-                                      name: "content",
-                                      description: "类型：ReactNode。",
                                     },
                                     {
                                       name: "size",
@@ -43403,12 +43143,6 @@ export const generatedCoreUiSurfaceContracts = {
                                         {
                                           name: "note",
                                           description: "note 分支声明。",
-                                          children: [
-                                            {
-                                              name: "content",
-                                              description: "类型：ReactNode。",
-                                            },
-                                          ],
                                         },
                                         {
                                           name: "readonly",
@@ -46183,10 +45917,6 @@ export const generatedCoreUiSurfaceContracts = {
                           description: "类型：BodySurfaceMessageSpec。",
                           children: [
                             {
-                              name: "content",
-                              description: "类型：ReactNode。",
-                            },
-                            {
                               name: "tone",
                               description: "可选值：danger / default / muted / success / warning。",
                               children: [
@@ -46218,10 +45948,6 @@ export const generatedCoreUiSurfaceContracts = {
                           name: "status",
                           description: "类型：BodySurfaceStatusSpec。",
                           children: [
-                            {
-                              name: "content",
-                              description: "类型：ReactNode。",
-                            },
                             {
                               name: "compact",
                               description: "类型：boolean。",
@@ -46263,10 +45989,6 @@ export const generatedCoreUiSurfaceContracts = {
                                   description: "字面量取值。",
                                 },
                               ],
-                            },
-                            {
-                              name: "content",
-                              description: "类型：ReactNode。",
                             },
                             {
                               name: "compact",
@@ -46393,10 +46115,6 @@ export const generatedCoreUiSurfaceContracts = {
                                       description: "字面量取值。",
                                     },
                                   ],
-                                },
-                                {
-                                  name: "content",
-                                  description: "类型：ReactNode。",
                                 },
                                 {
                                   name: "compact",
@@ -47615,12 +47333,6 @@ export const generatedCoreUiSurfaceContracts = {
                                         {
                                           name: "text",
                                           description: "text 分支声明。",
-                                          children: [
-                                            {
-                                              name: "content",
-                                              description: "类型：ReactNode。",
-                                            },
-                                          ],
                                         },
                                       ],
                                     },
@@ -48075,10 +47787,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                       description: "类型：(string | number)[] | Set<string | number>。",
                                                     },
                                                     {
-                                                      name: "expandedRowContent",
-                                                      description: "类型：(row: any) => ReactNode。",
-                                                    },
-                                                    {
                                                       name: "rowActions",
                                                       description: "类型：(row: any) => DataSurfaceRowActionSpec[]。",
                                                     },
@@ -48145,10 +47853,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                     {
                                                       name: "key",
                                                       description: "类型：string。",
-                                                    },
-                                                    {
-                                                      name: "content",
-                                                      description: "类型：ReactNode。",
                                                     },
                                                     {
                                                       name: "size",
@@ -48995,12 +48699,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                         {
                                                           name: "note",
                                                           description: "note 分支声明。",
-                                                          children: [
-                                                            {
-                                                              name: "content",
-                                                              description: "类型：ReactNode。",
-                                                            },
-                                                          ],
                                                         },
                                                         {
                                                           name: "readonly",
@@ -51441,10 +51139,6 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "类型：BodySurfaceMessageSpec。",
                                           children: [
                                             {
-                                              name: "content",
-                                              description: "类型：ReactNode。",
-                                            },
-                                            {
                                               name: "tone",
                                               description: "可选值：danger / default / muted / success / warning。",
                                               children: [
@@ -51476,10 +51170,6 @@ export const generatedCoreUiSurfaceContracts = {
                                           name: "status",
                                           description: "类型：BodySurfaceStatusSpec。",
                                           children: [
-                                            {
-                                              name: "content",
-                                              description: "类型：ReactNode。",
-                                            },
                                             {
                                               name: "compact",
                                               description: "类型：boolean。",
@@ -51521,10 +51211,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                   description: "字面量取值。",
                                                 },
                                               ],
-                                            },
-                                            {
-                                              name: "content",
-                                              description: "类型：ReactNode。",
                                             },
                                             {
                                               name: "compact",
@@ -51571,10 +51257,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                       description: "字面量取值。",
                                                     },
                                                   ],
-                                                },
-                                                {
-                                                  name: "content",
-                                                  description: "类型：ReactNode。",
                                                 },
                                                 {
                                                   name: "compact",
@@ -51993,10 +51675,6 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "类型：BodySurfaceMessageSpec。",
                                           children: [
                                             {
-                                              name: "content",
-                                              description: "类型：ReactNode。",
-                                            },
-                                            {
                                               name: "tone",
                                               description: "可选值：danger / default / muted / success / warning。",
                                               children: [
@@ -52028,10 +51706,6 @@ export const generatedCoreUiSurfaceContracts = {
                                           name: "status",
                                           description: "类型：BodySurfaceStatusSpec。",
                                           children: [
-                                            {
-                                              name: "content",
-                                              description: "类型：ReactNode。",
-                                            },
                                             {
                                               name: "compact",
                                               description: "类型：boolean。",
@@ -52073,10 +51747,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                   description: "字面量取值。",
                                                 },
                                               ],
-                                            },
-                                            {
-                                              name: "content",
-                                              description: "类型：ReactNode。",
                                             },
                                             {
                                               name: "compact",
@@ -52123,10 +51793,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                       description: "字面量取值。",
                                                     },
                                                   ],
-                                                },
-                                                {
-                                                  name: "content",
-                                                  description: "类型：ReactNode。",
                                                 },
                                                 {
                                                   name: "compact",
@@ -52753,10 +52419,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                   description: "类型：(item: any) => string | number。",
                                                 },
                                                 {
-                                                  name: "renderItem",
-                                                  description: "类型：(item: any, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
-                                                },
-                                                {
                                                   name: "loading",
                                                   description: "类型：boolean。",
                                                 },
@@ -53123,10 +52785,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                 {
                                                   name: "getKey",
                                                   description: "类型：(item: any) => string | number。",
-                                                },
-                                                {
-                                                  name: "renderItem",
-                                                  description: "类型：(item: any, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
                                                 },
                                                 {
                                                   name: "loading",
@@ -53969,12 +53627,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                 {
                                                   name: "text",
                                                   description: "text 分支声明。",
-                                                  children: [
-                                                    {
-                                                      name: "content",
-                                                      description: "类型：ReactNode。",
-                                                    },
-                                                  ],
                                                 },
                                               ],
                                             },
@@ -54291,10 +53943,6 @@ export const generatedCoreUiSurfaceContracts = {
                                             {
                                               name: "getKey",
                                               description: "类型：(item: any) => string | number。",
-                                            },
-                                            {
-                                              name: "renderItem",
-                                              description: "类型：(item: any, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
                                             },
                                             {
                                               name: "loading",
@@ -55083,10 +54731,6 @@ export const generatedCoreUiSurfaceContracts = {
                           description: "类型：BodySurfaceMessageSpec。",
                           children: [
                             {
-                              name: "content",
-                              description: "类型：ReactNode。",
-                            },
-                            {
                               name: "tone",
                               description: "可选值：danger / default / muted / success / warning。",
                               children: [
@@ -55118,10 +54762,6 @@ export const generatedCoreUiSurfaceContracts = {
                           name: "status",
                           description: "类型：BodySurfaceStatusSpec。",
                           children: [
-                            {
-                              name: "content",
-                              description: "类型：ReactNode。",
-                            },
                             {
                               name: "compact",
                               description: "类型：boolean。",
@@ -55163,10 +54803,6 @@ export const generatedCoreUiSurfaceContracts = {
                                   description: "字面量取值。",
                                 },
                               ],
-                            },
-                            {
-                              name: "content",
-                              description: "类型：ReactNode。",
                             },
                             {
                               name: "compact",
@@ -55293,10 +54929,6 @@ export const generatedCoreUiSurfaceContracts = {
                                       description: "字面量取值。",
                                     },
                                   ],
-                                },
-                                {
-                                  name: "content",
-                                  description: "类型：ReactNode。",
                                 },
                                 {
                                   name: "compact",
@@ -56001,10 +55633,6 @@ export const generatedCoreUiSurfaceContracts = {
                                   description: "类型：(item: any) => string | number。",
                                 },
                                 {
-                                  name: "renderItem",
-                                  description: "类型：(item: any, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
-                                },
-                                {
                                   name: "loading",
                                   description: "类型：boolean。",
                                 },
@@ -56371,10 +55999,6 @@ export const generatedCoreUiSurfaceContracts = {
                                 {
                                   name: "getKey",
                                   description: "类型：(item: any) => string | number。",
-                                },
-                                {
-                                  name: "renderItem",
-                                  description: "类型：(item: any, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
                                 },
                                 {
                                   name: "loading",
@@ -57170,10 +56794,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                       name: "onHeaderClick",
                                                       description: "类型：() => void。",
                                                     },
-                                                    {
-                                                      name: "cell",
-                                                      description: "类型：(row: any) => ReactNode | DataSurfaceCellSpec。",
-                                                    },
                                                   ],
                                                 },
                                                 {
@@ -57269,10 +56889,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                   description: "类型：(string | number)[] | Set<string | number>。",
                                                 },
                                                 {
-                                                  name: "expandedRowContent",
-                                                  description: "类型：(row: any) => ReactNode。",
-                                                },
-                                                {
                                                   name: "rowActions",
                                                   description: "类型：(row: any) => DataSurfaceRowActionSpec[]。",
                                                 },
@@ -57339,10 +56955,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                 {
                                                   name: "key",
                                                   description: "类型：string。",
-                                                },
-                                                {
-                                                  name: "content",
-                                                  description: "类型：ReactNode。",
                                                 },
                                                 {
                                                   name: "size",
@@ -58189,12 +57801,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                     {
                                                       name: "note",
                                                       description: "note 分支声明。",
-                                                      children: [
-                                                        {
-                                                          name: "content",
-                                                          description: "类型：ReactNode。",
-                                                        },
-                                                      ],
                                                     },
                                                     {
                                                       name: "readonly",
@@ -60969,10 +60575,6 @@ export const generatedCoreUiSurfaceContracts = {
                                       description: "类型：BodySurfaceMessageSpec。",
                                       children: [
                                         {
-                                          name: "content",
-                                          description: "类型：ReactNode。",
-                                        },
-                                        {
                                           name: "tone",
                                           description: "可选值：danger / default / muted / success / warning。",
                                           children: [
@@ -61004,10 +60606,6 @@ export const generatedCoreUiSurfaceContracts = {
                                       name: "status",
                                       description: "类型：BodySurfaceStatusSpec。",
                                       children: [
-                                        {
-                                          name: "content",
-                                          description: "类型：ReactNode。",
-                                        },
                                         {
                                           name: "compact",
                                           description: "类型：boolean。",
@@ -61049,10 +60647,6 @@ export const generatedCoreUiSurfaceContracts = {
                                               description: "字面量取值。",
                                             },
                                           ],
-                                        },
-                                        {
-                                          name: "content",
-                                          description: "类型：ReactNode。",
                                         },
                                         {
                                           name: "compact",
@@ -61179,10 +60773,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                   description: "字面量取值。",
                                                 },
                                               ],
-                                            },
-                                            {
-                                              name: "content",
-                                              description: "类型：ReactNode。",
                                             },
                                             {
                                               name: "compact",
@@ -62401,12 +61991,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                     {
                                                       name: "text",
                                                       description: "text 分支声明。",
-                                                      children: [
-                                                        {
-                                                          name: "content",
-                                                          description: "类型：ReactNode。",
-                                                        },
-                                                      ],
                                                     },
                                                   ],
                                                 },
@@ -62775,10 +62359,6 @@ export const generatedCoreUiSurfaceContracts = {
                                       description: "类型：BodySurfaceMessageSpec。",
                                       children: [
                                         {
-                                          name: "content",
-                                          description: "类型：ReactNode。",
-                                        },
-                                        {
                                           name: "tone",
                                           description: "可选值：danger / default / muted / success / warning。",
                                           children: [
@@ -62810,10 +62390,6 @@ export const generatedCoreUiSurfaceContracts = {
                                       name: "status",
                                       description: "类型：BodySurfaceStatusSpec。",
                                       children: [
-                                        {
-                                          name: "content",
-                                          description: "类型：ReactNode。",
-                                        },
                                         {
                                           name: "compact",
                                           description: "类型：boolean。",
@@ -62855,10 +62431,6 @@ export const generatedCoreUiSurfaceContracts = {
                                               description: "字面量取值。",
                                             },
                                           ],
-                                        },
-                                        {
-                                          name: "content",
-                                          description: "类型：ReactNode。",
                                         },
                                         {
                                           name: "compact",
@@ -62985,10 +62557,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                   description: "字面量取值。",
                                                 },
                                               ],
-                                            },
-                                            {
-                                              name: "content",
-                                              description: "类型：ReactNode。",
                                             },
                                             {
                                               name: "compact",
@@ -63693,10 +63261,6 @@ export const generatedCoreUiSurfaceContracts = {
                                               description: "类型：(item: any) => string | number。",
                                             },
                                             {
-                                              name: "renderItem",
-                                              description: "类型：(item: any, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
-                                            },
-                                            {
                                               name: "loading",
                                               description: "类型：boolean。",
                                             },
@@ -64063,10 +63627,6 @@ export const generatedCoreUiSurfaceContracts = {
                                             {
                                               name: "getKey",
                                               description: "类型：(item: any) => string | number。",
-                                            },
-                                            {
-                                              name: "renderItem",
-                                              description: "类型：(item: any, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
                                             },
                                             {
                                               name: "loading",
@@ -65325,12 +64885,6 @@ export const generatedCoreUiSurfaceContracts = {
                                             {
                                               name: "text",
                                               description: "text 分支声明。",
-                                              children: [
-                                                {
-                                                  name: "content",
-                                                  description: "类型：ReactNode。",
-                                                },
-                                              ],
                                             },
                                           ],
                                         },
@@ -65647,10 +65201,6 @@ export const generatedCoreUiSurfaceContracts = {
                                         {
                                           name: "getKey",
                                           description: "类型：(item: any) => string | number。",
-                                        },
-                                        {
-                                          name: "renderItem",
-                                          description: "类型：(item: any, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
                                         },
                                         {
                                           name: "loading",
@@ -67569,12 +67119,6 @@ export const generatedCoreUiSurfaceContracts = {
                                 {
                                   name: "text",
                                   description: "text 分支声明。",
-                                  children: [
-                                    {
-                                      name: "content",
-                                      description: "类型：ReactNode。",
-                                    },
-                                  ],
                                 },
                               ],
                             },
@@ -67891,10 +67435,6 @@ export const generatedCoreUiSurfaceContracts = {
                             {
                               name: "getKey",
                               description: "类型：(item: any) => string | number。",
-                            },
-                            {
-                              name: "renderItem",
-                              description: "类型：(item: any, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
                             },
                             {
                               name: "loading",
@@ -69941,12 +69481,6 @@ export const generatedCoreUiSurfaceContracts = {
                         {
                           name: "text",
                           description: "text 分支声明。",
-                          children: [
-                            {
-                              name: "content",
-                              description: "类型：ReactNode。",
-                            },
-                          ],
                         },
                       ],
                     },
@@ -70269,10 +69803,6 @@ export const generatedCoreUiSurfaceContracts = {
               description: "类型：(item: T) => string | number。",
             },
             {
-              name: "renderItem",
-              description: "类型：(item: T, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
-            },
-            {
               name: "loading",
               description: "类型：boolean。",
             },
@@ -70587,10 +70117,6 @@ export const generatedCoreUiSurfaceContracts = {
             {
               name: "getKey",
               description: "类型：(item: T) => string | number。",
-            },
-            {
-              name: "renderItem",
-              description: "类型：(item: T, ctx: { active: boolean; level: number; expanded?: boolean; hasChildren?: boolean; }) => SelectorSurfaceCardSpec。",
             },
             {
               name: "loading",
