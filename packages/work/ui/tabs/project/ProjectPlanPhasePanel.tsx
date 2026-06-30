@@ -240,16 +240,18 @@ function buildPhaseRowsSurface({
     visibleColumns: ["startDate", "endDate", "note"],
     expandedRowKey: editingId,
     expandedRowContent: () => (
-      <PageSurface kind="standard"
-        embedded
-        body={createPageBody([createFormSection("phase-edit-fields", {
-          kind: "fields",
-          content: {
-            items: phaseFields(editDraft, disabled, onEditDraftChange),
-            layout: { columns: 2 },
-          },
-        })])}
-      />
+      <div className="pb-64">
+        <PageSurface kind="standard"
+          embedded
+          body={createPageBody([createFormSection("phase-edit-fields", {
+            kind: "fields",
+            content: {
+              items: phaseFields(editDraft, disabled, onEditDraftChange),
+              layout: { columns: 2 },
+            },
+          })])}
+        />
+      </div>
     ),
     rowEditActions: canEdit ? (phase): SurfaceDataRowEditActionSpec<ProjectPlanPhaseItem> => ({
       editing: editingId === phase.id,
