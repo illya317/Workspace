@@ -14,6 +14,7 @@ import {
   type EditorTableBlock,
   type EditorTableRow,
 } from "@workspace/platform/document-editor";
+import { DocumentRuntimeValueSlot } from "../../document-editor/runtime-value-slot";
 
 export interface PositionDescriptionTemplateData {
   code: string;
@@ -98,8 +99,8 @@ export function PositionDescriptionTemplatePaper({
     <EditorDocumentPreview
       document={rendered.document}
       values={rendered.values}
-      renderSlot={({ value }) => (
-        <span className="whitespace-pre-line text-slate-950">{displayValue(value)}</span>
+      renderSlot={({ part, value }) => (
+        <DocumentRuntimeValueSlot part={part} value={value} />
       )}
     />
   );
@@ -368,11 +369,6 @@ function numberedLines(items: string[]) {
 function joinList(value: unknown) {
   if (Array.isArray(value)) return value.map((item) => stringValue(item)).filter(Boolean).join("、");
   return stringValue(value);
-}
-
-function displayValue(value: unknown) {
-  const text = stringValue(value);
-  return text || "—";
 }
 
 function formatYears(value: unknown) {
