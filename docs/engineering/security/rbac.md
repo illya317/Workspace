@@ -62,7 +62,6 @@ production          admin   生产管理
   production.qcBatches   admin 批次检验
 
 docs                access  文档中心
-  docs.positions    access  岗位说明书
   docs.company      access  公司管理
   docs.expense      access  报销规范
   docs.editor       access  模板编辑器

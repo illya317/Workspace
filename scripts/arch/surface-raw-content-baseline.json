@@ -361,8 +361,6 @@
     "selector-render-item: packages/platform/ui/admin/tabs/ModuleManagementTab.tsx: callback#1",
     "selector-render-item: packages/platform/ui/admin/tabs/PermissionsTab.tsx: callback#1",
     "selector-render-item: packages/platform/ui/docs/editor/DocsEditorWorkbench.tsx: callback#1",
-    "selector-render-item: packages/platform/ui/docs/positions/PositionsClient.tsx: callback#1",
-    "selector-render-item: packages/platform/ui/docs/positions/PositionsClient.tsx: callback#2",
     "selector-render-item: packages/work/ui/meetings/MeetingPanels.tsx: jsx-return#1",
     "selector-render-item: packages/work/ui/meetings/MeetingsPage.tsx: callback#1",
     "selector-render-item: packages/work/ui/tabs/ProjectTab.tsx: callback#1",

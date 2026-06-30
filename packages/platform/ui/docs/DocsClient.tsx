@@ -20,9 +20,6 @@ function getDocCategories(): Record<string, Array<{ title: string; href: string 
     { title: "请假流程", href: "/docs/leave" },
     { title: "报销规范", href: "/docs/expense" },
   ],
-  "岗位管理": [
-    { title: "岗位说明书", href: "/docs/positions" },
-  ],
   };
 }
 

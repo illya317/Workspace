@@ -11,9 +11,5 @@ export { default as NavLink } from "./NavLink";
 export { default as PortalClient } from "./PortalClient";
 export { renderPortalPage } from "./portal-page";
 export { default as UserMenu } from "./UserMenu";
-export {
-  DocsPlaceholderPage,
-  DocsPositionsPage,
-  DocsPositionDetailPage,
-} from "./docs";
+export { DocsPlaceholderPage } from "./docs";
 export { default as SettingsClient } from "./settings/SettingsClient";

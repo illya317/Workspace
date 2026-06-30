@@ -19,6 +19,34 @@ function parseDetails(details: string | null) {
   }
 }
 
+function parseJson(value: string, fallback: unknown) {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return fallback;
+  }
+}
+
+async function getPublishedPositionDescriptionTemplate() {
+  const template = await prisma.documentTemplate.findFirst({
+    where: {
+      sourceKind: "hr.position-description.official",
+      sourceProductKey: "hr.position-description.default",
+      status: "published",
+      deletedAt: null,
+    },
+    orderBy: [{ version: "desc" }, { updatedAt: "desc" }, { id: "desc" }],
+  });
+  if (!template) return null;
+  return {
+    id: template.id,
+    version: template.version,
+    title: template.title,
+    document: parseJson(template.documentJson, null),
+    fieldModel: parseJson(template.fieldModelJson, null),
+  };
+}
+
 export async function getPositionDescriptionTree() {
   const departments = await prisma.department.findMany({
     where: {},
@@ -77,26 +105,24 @@ export async function getPositionDescriptionTree() {
 export async function getPositionDescriptionByCode(code: string) {
   const description = await prisma.positionDescription.findUnique({ where: { code } });
   if (!description) return serviceError("未找到", 404);
-  return {
-    ok: true as const,
-    data: {
-      positionDescription: {
-        id: description.id,
-        code: description.code,
-        name: description.name,
-        departmentName: description.departmentName,
-        reportTo: description.reportTo,
-        positionPurpose: description.positionPurpose,
-        summary: description.summary,
-        headcount: description.headcount,
-        version: description.version,
-        effectiveDate: description.effectiveDate,
-        sourceFile: description.sourceFile,
-        managementGroup: await getManagementGroupByCode(description.code),
-        details: parseDetails(description.details),
-      },
+  return serviceOk({
+    positionDescription: {
+      id: description.id,
+      code: description.code,
+      name: description.name,
+      departmentName: description.departmentName,
+      reportTo: description.reportTo,
+      positionPurpose: description.positionPurpose,
+      summary: description.summary,
+      headcount: description.headcount,
+      version: description.version,
+      effectiveDate: description.effectiveDate,
+      sourceFile: description.sourceFile,
+      managementGroup: await getManagementGroupByCode(description.code),
+      details: parseDetails(description.details),
     },
-  };
+    template: await getPublishedPositionDescriptionTemplate(),
+  });
 }
 
 export async function listPositionDescriptions(search: string) {

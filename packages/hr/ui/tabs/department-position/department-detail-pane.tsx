@@ -248,8 +248,7 @@ export function useDepartmentDetailPaneSection({
   }
   if (!isOrganizationMode) detailSections.push(...positionEditorSections);
   return createPanelSection("department-detail", {
-
-
+      chrome: "plain",
       sections: detailSections,
     });
 }

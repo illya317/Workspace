@@ -1,6 +1,13 @@
 "use client";
 
-import { createPageBody, createPanelSection, PageSurface, type FormSurfaceItemSpec, type BodySurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
+import { createEmptySection, createPageBody, createPanelSection, PageSurface, type FormSurfaceItemSpec, type BodySurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
+import { workspacePath } from "@workspace/core/routing";
+import {
+  PositionDescriptionTemplatePaper,
+  type PositionDescriptionTemplateData,
+  type PositionDescriptionTemplateDto,
+} from "@workspace/platform/ui/position-description/PositionDescriptionTemplateView";
+import { useEffect, useState } from "react";
 import { type PositionDescriptionTemplate, type PositionDescriptionTemplateId } from "./description-details";
 import { createDirectPositionPanelSection } from "./navigation-panels";
 import { usePositionDescriptionPanelSection } from "./position-description-panel";
@@ -86,6 +93,12 @@ export function usePositionEditorSections({
   onSavePosition,
   onArchivePosition
 }: PositionEditorProps): BodySurfaceSectionSpec[] {
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState("");
+  const [previewData, setPreviewData] = useState<PositionDescriptionTemplateData | null>(null);
+  const [previewTemplate, setPreviewTemplate] = useState<PositionDescriptionTemplateDto | null>(null);
+  const positionDescriptionCode = position ? position.positionDescriptionCode || position.code : "";
   const descriptionBlock = usePositionDescriptionPanelSection({
     position: position ?? null,
     descriptionDraft,
@@ -110,11 +123,42 @@ export function usePositionEditorSections({
     onTemplateEditorOpenChange,
     onTemplateDraftNameChange,
     onTogglePositionDescriptionTemplateField,
+    onPreviewPositionDescription: positionDescriptionCode ? () => setPreviewOpen(true) : undefined,
   });
+
+  useEffect(() => {
+    if (!previewOpen || !positionDescriptionCode) return;
+    let cancelled = false;
+    setPreviewLoading(true);
+    setPreviewError("");
+    fetch(workspacePath(`/api/modules/hr/roster/position-descriptions?code=${encodeURIComponent(positionDescriptionCode)}`))
+      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((data) => {
+        if (cancelled) return;
+        setPreviewData(data.positionDescription ?? null);
+        setPreviewTemplate(data.template ?? null);
+        setPreviewLoading(false);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setPreviewData(null);
+        setPreviewError("获取失败");
+        setPreviewLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [positionDescriptionCode, previewOpen]);
+
   if (!position) return [];
   const draftDepartment = draft?.departmentId ? departmentById.get(draft.departmentId) : undefined;
   const draftCodePrefix = positionCodePrefix(draftDepartment) || (showArchived ? positionCodePrefixFromCode(position.code) : "");
   const draftDepartmentDisplay = departmentPath(draftDepartment, departmentById) || position.departmentName || "";
+  const previewContent = previewLoading
+    ? "加载中..."
+    : previewError || !previewData
+      ? previewError || "未找到"
+      : <PositionDescriptionTemplatePaper data={previewData} template={previewTemplate} />;
   const positionInfoFields: FormSurfaceItemSpec<string>[] = draft ? [
     {
       key: "code",
@@ -209,6 +253,26 @@ export function usePositionEditorSections({
           }] : [],
         }),
       ...(descriptionBlock ? [descriptionBlock] : []),
+      {
+        key: "position-description-preview-modal-host",
+        chrome: "plain",
+        body: {
+          kind: "section",
+          modals: [{
+            key: "position-description-preview",
+            open: previewOpen,
+            title: "岗位说明书",
+            size: "xl",
+            onClose: () => setPreviewOpen(false),
+            sections: [
+              createEmptySection("position-description-preview-paper", {
+                presentation: "plain",
+                content: previewContent,
+              }),
+            ],
+          }],
+        },
+      },
     ];
 }
 

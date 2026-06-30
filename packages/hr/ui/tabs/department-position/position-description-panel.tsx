@@ -31,6 +31,7 @@ type PositionDescriptionPanelProps = {
   onTemplateEditorOpenChange: (open: boolean) => void;
   onTemplateDraftNameChange: (name: string) => void;
   onTogglePositionDescriptionTemplateField: (field: string) => void;
+  onPreviewPositionDescription?: () => void;
 };
 
 const EMPTY_DESCRIPTION_DRAFT = {
@@ -66,7 +67,8 @@ export function usePositionDescriptionPanelSection({
   onDeletePositionDescriptionTemplate,
   onTemplateEditorOpenChange,
   onTemplateDraftNameChange,
-  onTogglePositionDescriptionTemplateField
+  onTogglePositionDescriptionTemplateField,
+  onPreviewPositionDescription
 }: PositionDescriptionPanelProps): BodySurfaceSectionSpec | null {
   const draft = descriptionDraft ?? EMPTY_DESCRIPTION_DRAFT;
   const currentPosition = position ?? ({ id: 0, name: "", departmentName: "" } as Position);
@@ -141,7 +143,8 @@ export function usePositionDescriptionPanelSection({
         </span>
       ),
       actions: [
-        { key: "edit-template", label: "编辑模板", disabled: selectedPositionDescriptionTemplate.id === "full", onClick: onOpenPositionDescriptionTemplateEditor,  },
+        { key: "view-description", label: "查看岗位说明书", icon: "view" as const, disabled: !onPreviewPositionDescription, onClick: onPreviewPositionDescription },
+        { key: "edit-template", label: "编辑模板", icon: "edit" as const, disabled: selectedPositionDescriptionTemplate.id === "full", onClick: onOpenPositionDescriptionTemplateEditor },
         ...(selectedPositionDescriptionTemplateStored
           ? [{
               key: "delete-template",

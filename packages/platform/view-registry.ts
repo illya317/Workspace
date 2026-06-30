@@ -237,15 +237,6 @@ const basePageViewDefinitions: PageViewDefinition[] = [
     ],
   },
   {
-    route: "/docs/positions",
-    moduleKey: "docs",
-    label: "岗位说明书",
-    recordRoutes: ["/docs/positions/[code]"],
-    views: [
-      { key: "positions", label: "岗位列表" },
-    ],
-  },
-  {
     route: "/docs/company",
     moduleKey: "docs",
     label: "公司管理",

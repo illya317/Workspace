@@ -117,26 +117,50 @@ export function createDirectPositionPanelSection({
     directPositions.length > 0
       ? {
           key: "positions",
+          chrome: "plain",
           body: {
-            kind: "selector",
-            selector: {
-              kind: "list",
-              items: directPositions,
-              selectedId: selection?.type === "position" ? selection.id : null,
-              onSelect: (position) => onSelect({ type: "position", id: position.id }),
-              getKey: (position) => position.id,
-              renderItem: (position) => ({
-                title: position.name,
-                code: shortPositionCode(position.code),
-              }),
+            kind: "section",
+            empty: {
+              presentation: "plain",
+              content: (
+                <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                  {directPositions.map((position) => {
+                    const active = selection?.type === "position" && selection.id === position.id;
+                    return (
+                      <button
+                        key={position.id}
+                        type="button"
+                        className={`flex min-h-12 min-w-0 items-center gap-2 rounded-lg border px-3 py-2 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200 ${
+                          active
+                            ? "border-emerald-100 bg-emerald-50 text-slate-950 shadow-sm"
+                            : "border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50"
+                        }`}
+                        onClick={() => onSelect({ type: "position", id: position.id })}
+                      >
+                        <span className="min-w-0 truncate text-sm font-semibold">{position.name}</span>
+                        <span className="shrink-0 rounded-md bg-slate-100 px-1.5 py-0.5 text-xs font-semibold text-slate-600">
+                          {shortPositionCode(position.code)}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ),
             },
           },
         }
-      : createEmptySection("empty", {
-        presentation: "plain",
-        compact: true,
-        content: "暂无直属岗位"
-      }),
+      : {
+          key: "empty",
+          chrome: "plain",
+          body: {
+            kind: "section",
+            empty: {
+              presentation: "plain",
+              compact: true,
+              content: "暂无直属岗位",
+            },
+          },
+        },
     ...(creatingPositionHere && canRenderCreate
       ? [createPositionCreatePanelSection({
           createPositionDraft,

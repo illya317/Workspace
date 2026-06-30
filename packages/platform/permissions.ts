@@ -25,7 +25,6 @@ export const RES = {
   },
   docs: {
     root: "docs",
-    positions: "docs.positions",
     company: "docs.company",
     expense: "docs.expense",
   },

@@ -272,13 +272,12 @@ export const registeredModuleDefinitions = [
       resourceMaxRoleKey: "access",
       resourceSortOrder: 6,
       children: [
-        { key: "positions", label: "岗位说明书", desc: "GMP 岗位说明书", href: "/docs/positions", iconKey: "positions", color: "purple", resourceKey: "docs.positions", resourceMaxRoleKey: "access", noApiReason: "静态文档页面，无独立业务 API" },
         { key: "company", label: "公司管理", desc: "员工手册、管理手册", href: "/docs/company", iconKey: "company", color: "purple", resourceKey: "docs.company", resourceMaxRoleKey: "access", noApiReason: "静态文档页面，无独立业务 API" },
         { key: "expense", label: "报销规范", desc: "报销流程与标准", href: "/docs/expense", iconKey: "expense", color: "purple", resourceKey: "docs.expense", resourceMaxRoleKey: "access", noApiReason: "静态文档页面，无独立业务 API" },
         { key: "editor", label: "模板编辑器", desc: "模板空间、纸面编辑、字段公式和 DOCX 导出", href: "/docs/editor", iconKey: "docs", color: "purple", resourceKey: "docs.editor", resourceMaxRoleKey: "access", apiPrefixes: ["/api/modules/docs/editor"] },
       ],
     },
-    routes: ["/docs", "/docs/positions", "/docs/positions/[code]", "/docs/company", "/docs/expense", "/docs/editor"],
+    routes: ["/docs", "/docs/company", "/docs/expense", "/docs/editor"],
     fkRegistrations: DOCS_FK_REGISTRATIONS,
     apiGuards: [
       ...apiResourceGuards("/api/modules/docs", "docs", ["GET"]),
