@@ -267,6 +267,15 @@ export async function archiveWorkPlan(planId: number): Promise<DomainServiceResu
   return { ok: true, data: { success: true } };
 }
 
+export async function deleteWorkPlan(planId: number): Promise<DomainServiceResult<{ success: true }>> {
+  const guard = validateWorkPlanCommand("deleteWorkPlan");
+  if (!guard.ok) return { ok: false, error: guard.issue.message, status: guard.issue.status };
+  const id = normalizePositiveId(planId);
+  if (!id) return { ok: false, error: "工作计划 ID 无效", status: 400 };
+  await prisma.workPlan.delete({ where: { id } });
+  return { ok: true, data: { success: true } };
+}
+
 function normalizeWorkPlanInput(input: WorkPlanCommandInput, _creating: boolean): { ok: true; data: Prisma.WorkPlanUncheckedCreateInput } | { ok: false; error: string } {
   const targetId = normalizePositiveId(input.targetId);
   if (!targetId) return { ok: false as const, error: "工作计划目标无效" };

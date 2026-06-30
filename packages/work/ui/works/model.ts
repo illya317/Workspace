@@ -54,10 +54,11 @@ export function getWorkSpaceLabel(type: WorkTargetType) {
 }
 
 export function getWorkSpacePath(type: WorkTargetType, id: number) {
+  if (type === "personal") return `/work/tasks/personal/${id}`;
   if (type === "company") return `/work/tasks/companies/${id}`;
   if (type === "department") return `/work/tasks/departments/${id}`;
   if (type === "project") return `/work/tasks/projects/${id}`;
-  return "/work/tasks/personal";
+  return "/work/tasks";
 }
 
 export function getWorkTargetFromPath(pathname: string, spaces: WorkTaskSpace[]) {
@@ -65,10 +66,10 @@ export function getWorkTargetFromPath(pathname: string, spaces: WorkTaskSpace[])
     ? pathname.slice(workspaceBasePath.length)
     : pathname;
   if (path === "/work/tasks" || path === "/work/tasks/personal") return spaces.find((space) => space.targetType === "personal") || null;
-  const match = path.match(/^\/work\/tasks\/(companies|departments|projects)\/(\d+)$/);
+  const match = path.match(/^\/work\/tasks\/(personal|companies|departments|projects)\/(\d+)$/);
   if (!match) return null;
   const targetId = Number(match[2]);
-  const targetType = ({ companies: "company", departments: "department", projects: "project" } as const)[match[1] as "companies" | "departments" | "projects"];
+  const targetType = ({ personal: "personal", companies: "company", departments: "department", projects: "project" } as const)[match[1] as "personal" | "companies" | "departments" | "projects"];
   return spaces.find((space) => space.targetType === targetType && space.targetId === targetId) || null;
 }
 

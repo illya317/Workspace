@@ -16,6 +16,7 @@ import {
 import {
   archiveWorkPlan,
   createWorkPlan,
+  deleteWorkPlan,
   getWorkPlanAccessMetadata,
   listWorkPlans,
   updateWorkPlan,
@@ -57,6 +58,11 @@ export type WorkPlanUpdateRouteCommand = {
 };
 
 export type WorkPlanArchiveRouteCommand = {
+  userId: number;
+  planId: number;
+};
+
+export type WorkPlanDeleteRouteCommand = {
   userId: number;
   planId: number;
 };
@@ -177,6 +183,26 @@ export async function executeArchiveWorkPlanCommand(
     return serviceError("无权限删除工作计划", 403);
   }
   const result = await archiveWorkPlan(command.planId);
+  if (!result.ok) return serviceError(result.error, result.status || 400);
+  return serviceOk(result.data);
+}
+
+export function buildDeleteWorkPlanCommand(input: {
+  userId: number;
+  planId: number;
+}): DomainValidationResult<WorkPlanDeleteRouteCommand> {
+  return okCommand(input);
+}
+
+export async function executeDeleteWorkPlanCommand(
+  command: WorkPlanDeleteRouteCommand,
+): Promise<ServiceResult<{ success: true }>> {
+  const existing = await getWorkPlanAccessMetadata(command.planId);
+  if (!existing) return serviceError("工作计划不存在", 404);
+  if (!(await canDeleteWorkTask(command.userId, existing.targetType, existing.targetId))) {
+    return serviceError("无权限删除工作计划", 403);
+  }
+  const result = await deleteWorkPlan(command.planId);
   if (!result.ok) return serviceError(result.error, result.status || 400);
   return serviceOk(result.data);
 }

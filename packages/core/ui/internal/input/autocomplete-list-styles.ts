@@ -14,9 +14,9 @@ export function getAutocompleteOptionClassName({
   selected?: boolean;
 }) {
   if (active || selected) {
-    return "flex w-full items-center justify-between gap-3 rounded-md bg-emerald-50 px-3 py-2 text-left text-sm text-emerald-800 transition";
+    return "flex w-full min-w-0 items-center gap-3 rounded-md bg-emerald-50 px-3 py-2 text-left text-sm text-emerald-800 transition";
   }
-  return "flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-sm text-slate-800 transition hover:bg-slate-50";
+  return "flex w-full min-w-0 items-center gap-3 rounded-md px-3 py-2 text-left text-sm text-slate-800 transition hover:bg-slate-50";
 }
 
 export const AUTOCOMPLETE_EMPTY_CLASS_NAME =

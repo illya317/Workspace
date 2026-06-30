@@ -4,7 +4,7 @@ import {
   canManageWorkTaskSpace,
   getUserEmployeeIds,
   getWorkSpaceRole,
-  hasWorkAdmin,
+  hasWorkTaskAdmin,
   normalizeWorkSpaceRole,
   type WorkSpaceRole,
   type WorkSpaceTargetType,
@@ -16,6 +16,7 @@ export type WorkTaskSpace = {
   targetId: number;
   name: string;
   subtitle: string | null;
+  lifecycleStatus: "active" | "archived" | "inactive";
   role: WorkSpaceRole;
   counts: { objective: number; keyResult: number; task: number; archived: number };
 };
@@ -31,14 +32,24 @@ type SpaceSeed = {
   targetId: number;
   name: string;
   subtitle: string | null;
+  lifecycleStatus: WorkTaskSpace["lifecycleStatus"];
 };
 
 export async function listWorkTaskSpaces(userId: number): Promise<{ spaces: WorkTaskSpace[] }> {
-  const isAdmin = await hasWorkAdmin(userId);
+  const isAdmin = await hasWorkTaskAdmin(userId);
   const [user, companies, departments, projects] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, nickname: true, employees: { select: { name: true }, take: 1 } },
+      select: {
+        id: true,
+        nickname: true,
+        employees: {
+          select: {
+            name: true,
+            employments: { select: { isActive: true } },
+          },
+        },
+      },
     }),
     listCompanySeeds(userId, isAdmin),
     listDepartmentSeeds(userId, isAdmin),
@@ -51,6 +62,7 @@ export async function listWorkTaskSpaces(userId: number): Promise<{ spaces: Work
       targetId: userId,
       name: user?.employees[0]?.name || user?.nickname || "我的工作",
       subtitle: "个人工作台",
+      lifecycleStatus: user && user.employees.length > 0 && !user.employees.some((employee) => employee.employments.some((employment) => employment.isActive)) ? "inactive" : "active",
     },
     ...companies,
     ...departments,
@@ -98,37 +110,32 @@ function companySpaceSeed(company: { id: number; name: string }): SpaceSeed {
     targetId: company.id,
     name: company.name,
     subtitle: "公司级工作计划",
+    lifecycleStatus: "active",
   };
 }
 
 async function listDepartmentSeeds(userId: number, isAdmin: boolean): Promise<SpaceSeed[]> {
   if (isAdmin) {
     const rows = await prisma.department.findMany({
-      where: { isArchived: false },
-      select: { id: true, name: true, code: true },
-      orderBy: [{ code: "asc" }, { id: "asc" }],
+      select: { id: true, name: true, code: true, isArchived: true },
+      orderBy: [{ isArchived: "asc" }, { code: "asc" }, { id: "asc" }],
     });
-    return rows.map((department) => ({
-      targetType: "department",
-      targetId: department.id,
-      name: department.name,
-      subtitle: department.code,
-    }));
+    return rows.map(departmentSpaceSeed);
   }
 
   const employeeIds = await getUserEmployeeIds(userId);
   const [edps, managed, assignees, explicit] = await Promise.all([
     employeeIds.length ? prisma.eDP.findMany({
       where: { employeeId: { in: employeeIds }, departmentId: { not: null } },
-      select: { department: { select: { id: true, name: true, code: true } } },
+      select: { department: { select: { id: true, name: true, code: true, isArchived: true } } },
     }) : [],
     prisma.department.findMany({
-      where: { managerUserId: userId, isArchived: false },
-      select: { id: true, name: true, code: true },
+      where: { managerUserId: userId },
+      select: { id: true, name: true, code: true, isArchived: true },
     }),
     prisma.departmentWorkAssignee.findMany({
       where: { userId, kind: "task" },
-      select: { department: { select: { id: true, name: true, code: true } } },
+      select: { department: { select: { id: true, name: true, code: true, isArchived: true } } },
     }),
     prisma.workScopePermission.findMany({
       where: { userId, targetType: "department", kind: "task" },
@@ -137,17 +144,22 @@ async function listDepartmentSeeds(userId: number, isAdmin: boolean): Promise<Sp
   ]);
 
   const explicitDepartments = explicit.length ? await prisma.department.findMany({
-    where: { id: { in: explicit.map((item) => item.targetId) }, isArchived: false },
-    select: { id: true, name: true, code: true },
+    where: { id: { in: explicit.map((item) => item.targetId) } },
+    select: { id: true, name: true, code: true, isArchived: true },
   }) : [];
 
   return [...edps.map((item) => item.department).filter(Boolean), ...managed, ...assignees.map((item) => item.department), ...explicitDepartments]
-    .map((department) => ({
-      targetType: "department" as const,
-      targetId: department!.id,
-      name: department!.name,
-      subtitle: department!.code,
-    }));
+    .map((department) => departmentSpaceSeed(department!));
+}
+
+function departmentSpaceSeed(department: { id: number; name: string; code: string; isArchived: boolean }): SpaceSeed {
+  return {
+    targetType: "department",
+    targetId: department.id,
+    name: department.name,
+    subtitle: department.code,
+    lifecycleStatus: department.isArchived ? "archived" : "active",
+  };
 }
 
 async function listProjectSeeds(userId: number, isAdmin: boolean): Promise<SpaceSeed[]> {
@@ -162,6 +174,7 @@ async function listProjectSeeds(userId: number, isAdmin: boolean): Promise<Space
       targetId: project.id,
       name: project.name,
       subtitle: project.code,
+      lifecycleStatus: "active",
     }));
   }
 
@@ -192,6 +205,7 @@ async function listProjectSeeds(userId: number, isAdmin: boolean): Promise<Space
       targetId: project.id,
       name: project.name,
       subtitle: project.code,
+      lifecycleStatus: "active" as const,
     }));
 }
 
@@ -246,17 +260,22 @@ async function getSpaceCountsMap(seeds: SpaceSeed[]) {
 export async function listWorkSpacePermissions(input: { userId: number; targetType: WorkSpaceTargetType; targetId: number }) {
   const canManage = await canManageWorkTaskSpace(input.userId, input.targetType, input.targetId);
   if (!canManage) return serviceError("无权限管理该工作空间", 403);
-  const [explicit, naturalManagers] = await Promise.all([
+  const [explicit, naturalManagers, actorAdmin] = await Promise.all([
     prisma.workScopePermission.findMany({
       where: { targetType: input.targetType, targetId: input.targetId, kind: "task" },
       include: { user: { select: { id: true, nickname: true, username: true, employees: { select: { name: true }, take: 1 } } } },
       orderBy: [{ role: "asc" }, { id: "asc" }],
     }),
     listNaturalManagers(input.targetType, input.targetId),
+    getActorWorkTaskAdmin(input.userId),
+  ]);
+  const lockedManagers = dedupeUsers([
+    ...(actorAdmin ? [actorAdmin] : []),
+    ...naturalManagers,
   ]);
   return serviceOk({
       permissions: [
-        ...naturalManagers.map((item) => ({ ...item, role: "manager" as const, kind: "task", source: "natural" as const, locked: true })),
+        ...lockedManagers.map((item) => ({ ...item, role: "manager" as const, kind: "task", source: "natural" as const, locked: true })),
         ...explicit.map((item) => ({
           userId: item.userId,
           userName: userName(item.user),
@@ -267,6 +286,12 @@ export async function listWorkSpacePermissions(input: { userId: number; targetTy
         })),
       ],
   });
+}
+
+async function getActorWorkTaskAdmin(userId: number) {
+  if (!(await hasWorkTaskAdmin(userId))) return null;
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: userSelect });
+  return user ? { userId: user.id, userName: userName(user) } : null;
 }
 
 export async function updateWorkSpacePermissions(input: {

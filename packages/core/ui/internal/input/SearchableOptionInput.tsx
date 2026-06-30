@@ -197,8 +197,8 @@ export default function SearchableOptionInput({
                   onClick={() => choose(option)}
                   className={getAutocompleteOptionClassName({ active, selected })}
                 >
-                  <span className="min-w-0 truncate">{optionLabel(option)}</span>
-                  {option.subtitle && <span className="shrink-0 text-xs text-slate-400">{option.subtitle}</span>}
+                  <span className="min-w-0 flex-1 truncate font-medium">{optionLabel(option)}</span>
+                  {option.subtitle && <span className="min-w-0 max-w-[45%] truncate text-xs text-slate-400">{option.subtitle}</span>}
                   {selected && <span className="shrink-0 text-xs font-medium text-emerald-600">已选</span>}
                 </button>
               );

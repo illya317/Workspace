@@ -1,6 +1,7 @@
 "use client";
 
-import type { BodySurfaceSectionSpec, SelectorSurfaceProps } from "@workspace/core/ui";
+import { createFormSection, createMessageSection, createSectionSection } from "@workspace/core/ui";
+import type { BodySurfaceCommandSpec, BodySurfaceSectionSpec, FormSurfaceProps, SelectorSurfaceProps } from "@workspace/core/ui";
 import { getWorkPeriodLabel, getWorkSourceTypeLabel, getWorkSpaceLabel } from "./model";
 import type { WorkPlan, WorkTaskSpace, WorkTarget } from "./types";
 
@@ -63,7 +64,7 @@ export function createWorkPlanSelector({
   };
 }
 
-export function createWorkPlanHeaderSection(plan: WorkPlan): BodySurfaceSectionSpec {
+export function createWorkPlanHeaderSection(plan: WorkPlan, actions?: BodySurfaceCommandSpec[]): BodySurfaceSectionSpec {
   const source = plan.sourceType === "project"
     ? [plan.linkedProjectName, plan.linkedProjectPhaseName, plan.linkedProjectTaskName].filter(Boolean).join(" / ")
     : plan.sourceType === "meeting"
@@ -73,6 +74,7 @@ export function createWorkPlanHeaderSection(plan: WorkPlan): BodySurfaceSectionS
     key: "plan-header",
     header: {
       title: plan.title,
+      actions,
       badges: [
         { key: "type", label: "OKR 计划", tone: "success" },
         {
@@ -98,4 +100,141 @@ export function createWorkPlanHeaderSection(plan: WorkPlan): BodySurfaceSectionS
       },
     },
   };
+}
+
+export function createWorkPlanContentSection({
+  planCreating,
+  planEditing,
+  activePlan,
+  canEditPlan,
+  canDeletePlan,
+  nodeCreating,
+  createNodeDisabled,
+  nodeSaveDisabled,
+  planSaveDisabled,
+  planFormSurface,
+  createTaskSurface,
+  taskTableSection,
+  plansLoading,
+  hasCurrentSpacePlans,
+  onCreateNode,
+  onEditPlan,
+  onArchivePlan,
+  onDeletePlan,
+  onSavePlan,
+  onCancelPlanEdit,
+  onSaveNode,
+  onCancelNodeCreate,
+}: {
+  planCreating: boolean;
+  planEditing: boolean;
+  activePlan: WorkPlan | null;
+  canEditPlan: boolean;
+  canDeletePlan: boolean;
+  nodeCreating: boolean;
+  createNodeDisabled: boolean;
+  nodeSaveDisabled: boolean;
+  planSaveDisabled: boolean;
+  planFormSurface: FormSurfaceProps;
+  createTaskSurface: FormSurfaceProps;
+  taskTableSection: BodySurfaceSectionSpec;
+  plansLoading: boolean;
+  hasCurrentSpacePlans: boolean;
+  onCreateNode: () => void;
+  onEditPlan: () => void;
+  onArchivePlan: () => void;
+  onDeletePlan: () => void;
+  onSavePlan: () => void;
+  onCancelPlanEdit: () => void;
+  onSaveNode: () => void;
+  onCancelNodeCreate: () => void;
+}): BodySurfaceSectionSpec {
+  return createSectionSection("tasks", {
+    title: "OKR 计划",
+    sections: [
+      ...(planCreating ? [createFormSection("plan-form", planFormSurface)] : []),
+      ...(!planCreating && activePlan ? [
+        createWorkPlanHeaderSection(activePlan, createWorkPlanHeaderActions({
+          canEditPlan,
+          canDeletePlan,
+          planEditing,
+          nodeCreating,
+          createNodeDisabled,
+          nodeSaveDisabled,
+          planSaveDisabled,
+          onCreateNode,
+          onEditPlan,
+          onArchivePlan,
+          onDeletePlan,
+          onSavePlan,
+          onCancelPlanEdit,
+          onSaveNode,
+          onCancelNodeCreate,
+        })),
+        ...(planEditing ? [createFormSection("plan-form", planFormSurface)] : []),
+        ...(!planEditing && nodeCreating ? [createFormSection("create-task", createTaskSurface)] : []),
+        ...(!planEditing ? [taskTableSection] : []),
+      ] : !planCreating ? [createMessageSection("no-plan", {
+        content: plansLoading ? "加载 OKR 计划中..." : hasCurrentSpacePlans ? "展开左侧工作空间，选择一个 OKR 计划。" : "请先新建 OKR 计划，再添加目标、关键结果和子任务。",
+        tone: "muted" as const,
+      })] : []),
+    ],
+  });
+}
+
+function createWorkPlanHeaderActions({
+  canEditPlan,
+  canDeletePlan,
+  planEditing,
+  nodeCreating,
+  createNodeDisabled,
+  nodeSaveDisabled,
+  planSaveDisabled,
+  onCreateNode,
+  onEditPlan,
+  onArchivePlan,
+  onDeletePlan,
+  onSavePlan,
+  onCancelPlanEdit,
+  onSaveNode,
+  onCancelNodeCreate,
+}: {
+  canEditPlan: boolean;
+  canDeletePlan: boolean;
+  planEditing: boolean;
+  nodeCreating: boolean;
+  createNodeDisabled: boolean;
+  nodeSaveDisabled: boolean;
+  planSaveDisabled: boolean;
+  onCreateNode: () => void;
+  onEditPlan: () => void;
+  onArchivePlan: () => void;
+  onDeletePlan: () => void;
+  onSavePlan: () => void;
+  onCancelPlanEdit: () => void;
+  onSaveNode: () => void;
+  onCancelNodeCreate: () => void;
+}): BodySurfaceCommandSpec[] | undefined {
+  if (planEditing) return [
+    { key: "save-plan", label: "保存计划修改", icon: "check", variant: "primary", disabled: planSaveDisabled, onClick: onSavePlan },
+    { key: "cancel-plan", label: "取消计划编辑", icon: "cancel", variant: "secondary", onClick: onCancelPlanEdit },
+  ];
+  if (nodeCreating) return [
+    { key: "save-node", label: "保存节点", icon: "check", variant: "primary", disabled: nodeSaveDisabled, onClick: onSaveNode },
+    { key: "cancel-node", label: "取消新增", icon: "cancel", variant: "secondary", onClick: onCancelNodeCreate },
+  ];
+  const actions: BodySurfaceCommandSpec[] = [];
+  if (canEditPlan) {
+    actions.push(
+      { key: "create-node", label: "新增节点", icon: "add", variant: "primary", disabled: createNodeDisabled, onClick: onCreateNode },
+      { key: "edit-plan", label: "编辑计划", icon: "edit", variant: "secondary", onClick: onEditPlan },
+    );
+  }
+  if (canDeletePlan) {
+    actions.push(
+      { key: "archive-plan", label: "归档计划", icon: "archive", variant: "secondary", onClick: onArchivePlan },
+      { key: "delete-plan", label: "删除计划", icon: "delete-bin", variant: "danger", onClick: onDeletePlan },
+    );
+  }
+  return actions.length ? actions : undefined;
 }

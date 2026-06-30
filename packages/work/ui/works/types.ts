@@ -23,6 +23,7 @@ export interface WorkTarget {
 export interface WorkTaskSpace extends WorkTarget {
   name: string;
   subtitle: string | null;
+  lifecycleStatus?: "active" | "archived" | "inactive";
   role: WorkSpaceRole;
   counts: {
     objective: number;

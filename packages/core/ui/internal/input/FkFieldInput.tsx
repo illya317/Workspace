@@ -236,8 +236,8 @@ export default function FkFieldInput({
                 })}
                 type="button"
               >
-                <span className="min-w-0 truncate">{option.name}</span>
-                {option.subtitle ? <span className="shrink-0 text-xs text-slate-400">{option.subtitle}</span> : null}
+                <span className="min-w-0 flex-1 truncate font-medium">{option.name}</span>
+                {option.subtitle ? <span className="min-w-0 max-w-[45%] truncate text-xs text-slate-400">{option.subtitle}</span> : null}
               </button>
             ))
           )}

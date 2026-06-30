@@ -20,6 +20,7 @@ import type {
   BodySurfaceStatusSpec,
   BodySurfaceSectionSpec,
   BodySurfaceProps,
+  BodySurfaceSelectorProps,
 } from "../BodySurface";
 import type {
   PageSurfaceKind,
@@ -76,8 +77,8 @@ export type TabbedPageBodyOptions = Omit<BodySurfaceComposedSectionProps, "kind"
 };
 
 export type BodySplitSectionOptions = {
-  left: BodySurfaceProps;
-  drawerLeft?: BodySurfaceProps;
+  left: BodySurfaceSelectorProps;
+  drawerLeft?: BodySurfaceSelectorProps;
   right: BodySurfaceProps;
   side: {
     label: string;

@@ -158,13 +158,23 @@ export async function searchFkFinanceAccounts(keyword: string) {
 
 export async function searchFkUsers(keyword: string) {
   const rows = await prisma.user.findMany({
-    select: { id: true, nickname: true, username: true },
+    select: { id: true, nickname: true, username: true, employees: { select: { name: true, employeeId: true }, take: 1 } },
     orderBy: { id: "asc" },
     take: resultLimit(keyword),
   });
   return rows
-    .map((row) => ({ id: row.id, name: row.nickname, subtitle: row.username ?? undefined, lifecycleStatus: "active" as const }))
-    .filter((row) => matchesFkKeyword([row.name, row.subtitle], keyword))
+    .map((row) => {
+      const employee = row.employees[0];
+      const name = employee?.name || row.nickname || row.username || `用户 ${row.id}`;
+      return {
+        id: row.id,
+        name,
+        subtitle: employee?.employeeId,
+        lifecycleStatus: "active" as const,
+        searchText: [row.username, row.nickname, employee?.name, employee?.employeeId].filter(Boolean).join(" "),
+      };
+    })
+    .filter((row) => matchesFkKeyword([row.name, row.subtitle, row.searchText], keyword))
     .slice(0, MAX_RESULTS);
 }
 
@@ -324,8 +334,11 @@ export async function resolveFkFinanceAccount(id: number) {
 }
 
 export async function resolveFkUser(id: number) {
-  const row = await prisma.user.findUnique({ where: { id }, select: { id: true, nickname: true } });
-  return row ? { id: row.id, label: row.nickname, lifecycleStatus: "active" as const } : null;
+  const row = await prisma.user.findUnique({
+    where: { id },
+    select: { id: true, nickname: true, username: true, employees: { select: { name: true }, take: 1 } },
+  });
+  return row ? { id: row.id, label: row.employees[0]?.name || row.nickname || row.username || `用户 ${row.id}`, lifecycleStatus: "active" as const } : null;
 }
 
 export async function resolveFkPositionDescription(id: number) {

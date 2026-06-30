@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { createMessageSection, createPageBody, PageSurface, type BodySurfaceProps, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { createPermissionMatrixSection } from "../components/permissions/MatrixTable";
 import type { PermissionsTabState } from "../hooks/usePermissionsTab";
@@ -24,21 +24,8 @@ function flattenResources(items: PermissionTreeNode[]): PermissionTreeNode[] {
   return output;
 }
 
-function firstSelectableResource(item: PermissionTreeNode): PermissionTreeNode {
-  if (!item.children?.length || item.selectableWithChildren) return item;
-  return firstSelectableResource(item.children[0]);
-}
-
 export function usePermissionsTabBody({ resources, capabilitiesByOwner, s }: Props): BodySurfaceProps {
   const { selectedResource, setSelectedResource } = s;
-  const capabilities = useMemo(
-    () => Object.values(capabilitiesByOwner).flat(),
-    [capabilitiesByOwner],
-  );
-  const capabilityOwnerByKey = useMemo(
-    () => new Map(capabilities.map((capability) => [capability.key, capability.ownerKey ?? ""])),
-    [capabilities],
-  );
   const resourceTree = useMemo<PermissionTreeNode[]>(() => {
     function attachCapabilities(resource: ResourceItem): PermissionTreeNode {
       const capabilityChildren = (capabilitiesByOwner[resource.key] ?? []).map((capability) => ({
@@ -61,20 +48,10 @@ export function usePermissionsTabBody({ resources, capabilitiesByOwner, s }: Pro
   const flattenedResources = useMemo(() => flattenResources(resourceTree), [resourceTree]);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const selectedCapability = selectedResource ? capabilityOwnerByKey.has(selectedResource) : false;
-  const selectedEntry = selectedResource && !selectedCapability
-    ? flattenedResources.find((resource) => resource.key === selectedResource)
-    : null;
-
   function selectResource(key: string) {
     const resource = flattenedResources.find((item) => item.key === key);
-    setSelectedResource(resource ? firstSelectableResource(resource).key : key);
+    setSelectedResource(resource?.key ?? key);
   }
-
-  useEffect(() => {
-    if (!selectedEntry?.children?.length) return;
-    setSelectedResource(firstSelectableResource(selectedEntry).key);
-  }, [selectedEntry, setSelectedResource]);
 
   const bodyBlocks: BodySurfaceSectionSpec[] = [
     ...(s.loading

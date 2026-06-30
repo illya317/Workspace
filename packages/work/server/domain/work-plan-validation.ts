@@ -1,6 +1,6 @@
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
 
-const WORK_PLAN_ACTIONS = ["createWorkPlan", "updateWorkPlan", "archiveWorkPlan"] as const;
+const WORK_PLAN_ACTIONS = ["createWorkPlan", "updateWorkPlan", "archiveWorkPlan", "deleteWorkPlan"] as const;
 
 export type WorkPlanAction = (typeof WORK_PLAN_ACTIONS)[number];
 

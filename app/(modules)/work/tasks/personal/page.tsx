@@ -1,11 +1,7 @@
-import { createElement } from "react";
+import { redirect } from "next/navigation";
 import { requireRouteAccess } from "@workspace/platform/server/auth";
-import { WorkTasksPageView } from "@workspace/work/ui";
 
 export default async function WorkTasksPersonalPage() {
   const user = await requireRouteAccess("/work/tasks");
-  return createElement(WorkTasksPageView, {
-    user,
-    initialTarget: { targetType: "personal", targetId: user.id },
-  });
+  redirect(`/work/tasks/personal/${user.id}`);
 }

@@ -109,7 +109,7 @@ export function useWorkPlanFormSurface({
   }
 
   const fields: FormSurfaceFieldSpec[] = [
-    { key: "title", label: "OKR 计划", required: true, span: "wide", spec: { valueType: "string", control: "text", state: disabled ? "disabled" : "normal" }, value: draft.title, placeholder: "例如：2026 Q3 交付质量 OKR", onChange: (value) => patch({ title: String(value ?? "") }) },
+    { key: "title", label: "OKR 计划", required: true, span: "wide", spec: { valueType: "string", control: "text", state: disabled ? "disabled" : "normal" }, value: draft.title, placeholder: "例如：2026 Q3 交付质量 OKR", autoFocus: true, onChange: (value) => patch({ title: String(value ?? "") }) },
     { key: "periodType", label: "计划周期", spec: { valueType: "string", control: "choice", options: { source: "static", items: WORK_PERIOD_TYPE_OPTIONS, unsetLabel: "未设置" }, state: disabled ? "disabled" : "normal" }, value: draft.periodType, placeholder: "长期", onChange: (value) => {
       const periodType = normalizePeriodType(String(value || ""));
       patch({ periodType, periodStart: periodType ? draft.periodStart : null, periodEnd: periodType ? draft.periodEnd : null });

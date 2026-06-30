@@ -26,6 +26,7 @@ export interface SelectorSurfaceCardSpec {
   title: ReactNode;
   subtitle?: ReactNode;
   code?: ReactNode;
+  codeTone?: SelectorSurfaceStatusSpec["tone"];
   level?: number;
   meta?: ReactNode[] | ReactNode;
   metaLine?: ReactNode;
@@ -109,6 +110,7 @@ function listCard(card: SelectorSurfaceCardSpec) {
     title: card.title,
     subtitle: card.subtitle,
     code: card.code,
+    codeTone: card.codeTone,
     meta: Array.isArray(card.meta) ? card.meta : card.meta ? [card.meta] : undefined,
     metaLine: card.metaLine,
     leading: card.leading,
@@ -296,7 +298,7 @@ function TreeSelector<T>({ selector, actions }: {
                 <span className="block truncate text-sm font-semibold text-slate-900">{card.title}</span>
                 {meta ? renderTreeMeta(meta) : null}
               </span>
-              {card.code ? <span className="ml-auto shrink-0 pt-0.5 font-mono text-xs text-slate-400">{card.code}</span> : null}
+              {card.code ? <span className={`ml-auto shrink-0 rounded px-1.5 py-0.5 text-xs font-medium ${statusClassName(card.codeTone)}`}>{card.code}</span> : null}
               {card.trailing ? <span className="shrink-0 pt-0.5 text-xs text-slate-500">{card.trailing}</span> : null}
               {card.status ? <span className="shrink-0 pt-0.5">{renderStatus(card.status)}</span> : null}
             </span>

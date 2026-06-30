@@ -7,11 +7,13 @@ export interface SelectorCardMetaItem {
 }
 
 export type SelectorCardSize = "sm" | "md";
+export type SelectorCardTone = "success" | "warning" | "muted" | "default";
 
 export interface SelectorCardProps {
   title: ReactNode;
   subtitle?: ReactNode;
   code?: ReactNode;
+  codeTone?: SelectorCardTone;
   meta?: Array<ReactNode | SelectorCardMetaItem>;
   metaLine?: ReactNode;
   leading?: ReactNode;
@@ -27,6 +29,7 @@ export function SelectorCard({
   title,
   subtitle,
   code,
+  codeTone = "default",
   meta = [],
   metaLine,
   leading,
@@ -37,6 +40,12 @@ export function SelectorCard({
   className = "",
   size = "md",
 }: SelectorCardProps) {
+  const codeClassName = {
+    success: "bg-emerald-50 text-emerald-700",
+    warning: "bg-amber-50 text-amber-700",
+    muted: "bg-slate-100 text-slate-500",
+    default: "bg-slate-100 text-slate-700",
+  }[codeTone];
   const content = (
     <>
       <div className="flex items-start gap-3">
@@ -44,7 +53,7 @@ export function SelectorCard({
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-baseline gap-2">
             <div className="min-w-0 truncate text-sm font-semibold text-slate-900">{title}</div>
-            {code && <div className="shrink-0 font-mono text-xs text-slate-400">{code}</div>}
+            {code && <div className={joinClassNames("shrink-0 rounded px-1.5 py-0.5 text-xs font-medium", codeClassName)}>{code}</div>}
           </div>
           {subtitle && <div className="mt-1 truncate text-xs text-slate-400">{subtitle}</div>}
           {metaLine && <div className="mt-0.5 truncate text-xs text-slate-500">{metaLine}</div>}

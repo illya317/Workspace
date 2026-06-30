@@ -5,7 +5,7 @@ import {
 } from "@workspace/platform/server/auth";
 import { prisma } from "@workspace/platform/server/prisma";
 import { isCapabilityResource } from "@workspace/platform/resources";
-import { isDefaultAccessResource } from "@workspace/platform/server/rbac/implicit";
+import { getDefaultResourceRole, isDefaultAccessResource } from "@workspace/platform/server/rbac/implicit";
 
 import { loadCompanyMap, getCompanyNameSync } from "./company-directory";
 
@@ -34,6 +34,12 @@ function hasAdminGrant(grants: Awaited<ReturnType<typeof getGrants>>, subjectIds
   return grants.some((grant) => ids.has(grant.subjectId) && grant.roleKey === "admin");
 }
 
+function includedDefaultRoleKeys(roleKey: string) {
+  if (roleKey === "delete") return ["access", "write", "delete"];
+  if (roleKey === "write") return ["access", "write"];
+  return ["access"];
+}
+
 function buildImplicitGrants({
   subjects,
   subjectType,
@@ -52,9 +58,10 @@ function buildImplicitGrants({
   if (!resourceKey) return [];
   if (isDefaultAccessResource(resourceKey) && !isCapabilityResource(resourceKey)) {
     if (subjectType !== "user") return [];
+    const roleKeys = includedDefaultRoleKeys(getDefaultResourceRole(resourceKey) ?? "access");
     return subjects
       .filter((subject) => subject.id > 0 && subject.extra?.hasUser)
-      .map((subject) => ({ subjectId: subject.id, resourceKey, roleKey: "access", scopeId: null }));
+      .flatMap((subject) => roleKeys.map((roleKey) => ({ subjectId: subject.id, resourceKey, roleKey, scopeId: null })));
   }
   if (resourceKey !== "settings.admin") return [];
 

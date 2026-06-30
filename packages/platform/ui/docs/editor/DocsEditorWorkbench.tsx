@@ -7,7 +7,6 @@ import {
   createPageDataSection,
   createPageTabsNavigation,
   createSectionSection,
-  createSelectorPanelSection,
   PageSurface,
   type BodySurfaceCommandSpec,
   type DataSurfaceColumnSpec,
@@ -361,9 +360,10 @@ export default function DocsEditorWorkbench() {
     },
   ];
 
-  const left = createPageBody([
-    createSelectorPanelSection<EditorSpaceDto>("docs-editor-spaces", {
-      mode: "list",
+  const left = {
+    kind: "selector" as const,
+    selector: {
+      kind: "list" as const,
       title: "模板空间",
       items: spaces,
       selectedId: activeSpaceId,
@@ -375,12 +375,12 @@ export default function DocsEditorWorkbench() {
       renderItem: (item: EditorSpaceDto) => ({
         title: item.title,
         subtitle: item.description,
-        tone: item.kind === "personal" ? "blue" : "emerald",
+        tone: item.kind === "personal" ? "blue" as const : "emerald" as const,
         meta: [roleLabel(item.role), item.kind === "personal" ? "个人" : "部门"],
-        status: item.id === GENERATED_QC_SPACE_ID ? { label: "官方", tone: "success" } : undefined,
+        status: item.id === GENERATED_QC_SPACE_ID ? { label: "官方", tone: "success" as const } : undefined,
       }),
-    }),
-  ]);
+    },
+  };
 
   const right = createPageBody([
     createSectionSection("docs-editor-list", {

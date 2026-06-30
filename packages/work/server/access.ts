@@ -177,8 +177,8 @@ export function workSpaceRoleAllows(role: WorkSpaceRole | null, required: WorkSp
   return WORK_SPACE_ROLE_LEVEL[role] >= WORK_SPACE_ROLE_LEVEL[required];
 }
 
-export async function hasWorkAdmin(userId: number) {
-  return authorize({ user: userId, resourceKey: "work", action: "admin" });
+export async function hasWorkTaskAdmin(userId: number) {
+  return authorize({ user: userId, resourceKey: "work.tasks", action: "admin" });
 }
 
 async function isMemberOfTarget(
@@ -270,7 +270,7 @@ async function naturalWorkSpaceRole(
   targetId: number,
 ): Promise<WorkSpaceRole | null> {
   if (targetType === "personal") return targetId === userId ? "manager" : null;
-  if (await hasWorkAdmin(userId)) return "manager";
+  if (await hasWorkTaskAdmin(userId)) return "manager";
 
   if (targetType === "department") {
     const department = await prisma.department.findUnique({

@@ -61,6 +61,11 @@ export async function archiveWorkPlan(id: number) {
   return readJson<{ success: true }>(response, "归档 OKR 计划失败");
 }
 
+export async function deleteWorkPlan(id: number) {
+  const response = await fetch(workspacePath(`/api/modules/work/tasks/plans/${id}/delete`), { method: "DELETE" });
+  return readJson<{ success: true }>(response, "删除 OKR 计划失败");
+}
+
 export async function listWorkItems(target: WorkTarget, planId: number | null) {
   const params = new URLSearchParams({
     targetType: target.targetType,

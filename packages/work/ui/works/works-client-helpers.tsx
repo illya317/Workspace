@@ -2,7 +2,7 @@ import { createMetricsSection } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { WorkTarget, WorkTaskSpace } from "./types";
 
-export function roleAllows(role: string | null | undefined, required: "viewer" | "editor" | "manager") {
+export function roleAllows(role: string | null | undefined, required: "viewer" | "editor" | "delete" | "manager") {
   const levels = { viewer: 0, editor: 1, delete: 2, manager: 3 };
   return role ? levels[role as keyof typeof levels] >= levels[required] : false;
 }

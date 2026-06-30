@@ -77,6 +77,7 @@ export interface BodySurfaceListItemSpec {
 
 export interface BodySurfaceListSpec {
   items: BodySurfaceListItemSpec[];
+  presentation?: "list" | "cards";
   empty?: BodySurfaceEmptySpec;
   footerAction?: BodySurfaceCommandSpec;
   density?: "normal" | "compact";
@@ -140,8 +141,8 @@ export type BodySurfaceComposedSectionProps = BodySurfaceSectionCommonProps & {
 };
 export type BodySurfaceSplitSectionProps = BodySurfaceSectionCommonProps & {
   layout: "split";
-  left: BodySurfaceProps;
-  drawerLeft?: BodySurfaceProps;
+  left: BodySurfaceSelectorProps;
+  drawerLeft?: BodySurfaceSelectorProps;
   right: BodySurfaceProps;
   toolbarItems?: SurfaceToolbarItems;
   sideOpen: boolean;
@@ -189,7 +190,7 @@ const MODAL_MAX_WIDTH_BY_SIZE = {
   xl: "max-w-6xl",
 } as const;
 
-function listItemClassName(item: BodySurfaceListItemSpec) {
+function listItemClassName(item: BodySurfaceListItemSpec, presentation: BodySurfaceListSpec["presentation"] = "list") {
   const toneClass =
     item.tone === "success"
       ? "bg-emerald-50/60"
@@ -202,7 +203,12 @@ function listItemClassName(item: BodySurfaceListItemSpec) {
             : item.tone === "muted"
               ? "bg-slate-50"
               : "bg-white";
-  return joinClassNames("px-4 py-3 transition", item.onClick ? "hover:bg-emerald-50/40" : "", toneClass);
+  return joinClassNames(
+    presentation === "cards" ? "rounded-lg border px-3 py-3 shadow-sm" : "px-4 py-3",
+    "transition",
+    item.onClick ? "cursor-pointer hover:bg-emerald-50/40 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-100" : "",
+    presentation === "cards" && item.tone !== "success" ? toneClass.replace("bg-white", "bg-white hover:border-slate-300") : toneClass,
+  );
 }
 
 function renderBodyList(list?: BodySurfaceListSpec) {
@@ -214,22 +220,24 @@ function renderBodyList(list?: BodySurfaceListSpec) {
     item.onClick ? "hover:text-emerald-700" : "",
   );
   return (
-    <div key="list" className="overflow-hidden rounded-md border border-slate-100 bg-white">
-      <div className="divide-y divide-slate-100">
+    <div key="list" className={list.presentation === "cards" ? "space-y-2" : "overflow-hidden rounded-md border border-slate-100 bg-white"}>
+      <div className={list.presentation === "cards" ? "space-y-2" : "divide-y divide-slate-100"}>
         {list.items.map((item) => (
-          <div key={item.key} className={listItemClassName(item)} onMouseEnter={item.onMouseEnter}>
+          <div
+            key={item.key}
+            className={listItemClassName(item, list.presentation)}
+            role={item.onClick ? "button" : undefined}
+            tabIndex={item.onClick ? 0 : undefined}
+            onClick={item.onClick}
+            onKeyDown={item.onClick ? (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); item.onClick?.(); } } : undefined}
+            onMouseEnter={item.onMouseEnter}
+          >
             <div className="flex items-start justify-between gap-3">
               {item.leading ? <div className="shrink-0">{item.leading}</div> : null}
               <div className="min-w-0 flex-1">
                 <div className="flex min-w-0 items-center gap-1.5">
                   {item.unread ? <span aria-label="未读" className="size-1.5 shrink-0 rounded-full bg-sky-500" /> : null}
-                  {item.onClick ? (
-                    <button type="button" className={titleClassName(item)} onClick={item.onClick}>
-                      {item.title}
-                    </button>
-                  ) : (
-                    <div className={titleClassName(item)}>{item.title}</div>
-                  )}
+                  <div className={titleClassName(item)}>{item.title}</div>
                   {renderSectionBadges(item.badges)}
                 </div>
                 {item.description ? <div className="mt-1 text-xs leading-5 text-slate-600">{item.description}</div> : null}
@@ -241,7 +249,11 @@ function renderBodyList(list?: BodySurfaceListSpec) {
                 ) : null}
               </div>
               {item.trailing ? <div className="shrink-0">{item.trailing}</div> : null}
-              {item.actions?.length ? <div className="shrink-0">{renderCommands(item.actions)}</div> : null}
+              {item.actions?.length ? (
+                <div className="shrink-0" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
+                  {renderCommands(item.actions)}
+                </div>
+              ) : null}
             </div>
           </div>
         ))}
