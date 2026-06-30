@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-30T16:53:33.939Z",
+  "generatedAt": "2026-06-30T16:58:15.370Z",
   "configRoot": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc",
   "sourceSchemaRoot": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/source/source_docs/schema",
   "outputRoot": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc",
@@ -41,9 +41,9 @@
     "products": 16,
     "stages": 48,
     "experimentItems": 131,
-    "tables": 1561,
-    "fields": 12432,
-    "formulas": 1878
+    "tables": 1614,
+    "fields": 12934,
+    "formulas": 2182
   },
   "products": [
     {
@@ -52,47 +52,47 @@
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/allopurinol.json",
       "stages": 3,
       "experimentItems": 9,
-      "tables": 101,
-      "fields": 874,
-      "formulas": 106,
+      "tables": 104,
+      "fields": 812,
+      "formulas": 125,
       "conversion": {
         "schemaVersion": 1,
         "source": "legacy-qc-to-editor",
         "counts": {
           "legacy": {
             "stages": 3,
-            "tests": 14,
-            "tables": 50,
-            "fields": 563,
-            "formulas": 106,
-            "blocks": 180
+            "tests": 15,
+            "tables": 58,
+            "fields": 812,
+            "formulas": 125,
+            "blocks": 212
           },
           "editor": {
             "stages": 3,
             "tests": 9,
-            "tables": 101,
-            "fields": 874,
-            "formulas": 106,
-            "blocks": 321
+            "tables": 104,
+            "fields": 812,
+            "formulas": 125,
+            "blocks": 312
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 101,
-            "fields": 874,
-            "formulas": 106,
-            "blocks": 321
+            "tables": 104,
+            "fields": 813,
+            "formulas": 125,
+            "blocks": 312
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 51,
-            "fields": 311,
+            "tables": 46,
+            "fields": 0,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 51,
-            "fields": 311,
+            "tables": 46,
+            "fields": 1,
             "formulas": 0
           }
         },
@@ -763,7 +763,7 @@
             "found": true,
             "heading": "2.8 | 微生物限度检查",
             "sequence": "2.8",
-            "lineCount": 101,
+            "lineCount": 102,
             "fieldMarkerCount": 311,
             "prefillMarkerCount": 94
           },
@@ -813,7 +813,7 @@
           "h1": 3,
           "h2": 6,
           "h3": 27,
-          "h4": 84
+          "h4": 72
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
@@ -835,47 +835,47 @@
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/atenolol.json",
       "stages": 3,
       "experimentItems": 9,
-      "tables": 102,
-      "fields": 740,
-      "formulas": 113,
+      "tables": 104,
+      "fields": 819,
+      "formulas": 132,
       "conversion": {
         "schemaVersion": 1,
         "source": "legacy-qc-to-editor",
         "counts": {
           "legacy": {
             "stages": 3,
-            "tests": 14,
-            "tables": 49,
-            "fields": 570,
-            "formulas": 113,
-            "blocks": 181
+            "tests": 15,
+            "tables": 57,
+            "fields": 819,
+            "formulas": 132,
+            "blocks": 213
           },
           "editor": {
             "stages": 3,
             "tests": 9,
-            "tables": 102,
-            "fields": 740,
-            "formulas": 113,
-            "blocks": 334
+            "tables": 104,
+            "fields": 819,
+            "formulas": 132,
+            "blocks": 313
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 102,
-            "fields": 740,
-            "formulas": 113,
-            "blocks": 334
+            "tables": 104,
+            "fields": 820,
+            "formulas": 132,
+            "blocks": 313
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 53,
-            "fields": 170,
+            "tables": 47,
+            "fields": 0,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 53,
-            "fields": 170,
+            "tables": 47,
+            "fields": 1,
             "formulas": 0
           }
         },
@@ -1586,7 +1586,7 @@
             "found": true,
             "heading": "2.8 | 微生物限度检查",
             "sequence": "2.8",
-            "lineCount": 111,
+            "lineCount": 112,
             "fieldMarkerCount": 170,
             "prefillMarkerCount": 46
           },
@@ -1645,7 +1645,7 @@
           "h1": 3,
           "h2": 6,
           "h3": 27,
-          "h4": 89
+          "h4": 72
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
@@ -1676,47 +1676,47 @@
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/azithromycin.json",
       "stages": 3,
       "experimentItems": 7,
-      "tables": 92,
-      "fields": 884,
-      "formulas": 177,
+      "tables": 97,
+      "fields": 962,
+      "formulas": 196,
       "conversion": {
         "schemaVersion": 1,
         "source": "legacy-qc-to-editor",
         "counts": {
           "legacy": {
             "stages": 3,
-            "tests": 11,
-            "tables": 44,
-            "fields": 717,
-            "formulas": 177,
-            "blocks": 164
+            "tests": 12,
+            "tables": 52,
+            "fields": 962,
+            "formulas": 196,
+            "blocks": 200
           },
           "editor": {
             "stages": 3,
             "tests": 7,
-            "tables": 92,
-            "fields": 884,
-            "formulas": 177,
-            "blocks": 305
+            "tables": 97,
+            "fields": 962,
+            "formulas": 196,
+            "blocks": 285
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 92,
-            "fields": 884,
-            "formulas": 177,
-            "blocks": 305
+            "tables": 97,
+            "fields": 963,
+            "formulas": 196,
+            "blocks": 285
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 48,
-            "fields": 167,
+            "tables": 45,
+            "fields": 0,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 48,
-            "fields": 167,
+            "tables": 45,
+            "fields": 1,
             "formulas": 0
           }
         },
@@ -2371,7 +2371,7 @@
             "found": true,
             "heading": "2.7 | 微生物限度检查",
             "sequence": "2.7",
-            "lineCount": 88,
+            "lineCount": 89,
             "fieldMarkerCount": 169,
             "prefillMarkerCount": 46
           },
@@ -2428,7 +2428,7 @@
           "h1": 3,
           "h2": 6,
           "h3": 24,
-          "h4": 81
+          "h4": 62
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
@@ -2457,47 +2457,47 @@
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/berberine_tannate.json",
       "stages": 3,
       "experimentItems": 8,
-      "tables": 88,
-      "fields": 590,
-      "formulas": 78,
+      "tables": 91,
+      "fields": 681,
+      "formulas": 97,
       "conversion": {
         "schemaVersion": 1,
         "source": "legacy-qc-to-editor",
         "counts": {
           "legacy": {
             "stages": 3,
-            "tests": 13,
-            "tables": 43,
-            "fields": 432,
-            "formulas": 78,
-            "blocks": 162
+            "tests": 14,
+            "tables": 51,
+            "fields": 681,
+            "formulas": 97,
+            "blocks": 194
           },
           "editor": {
             "stages": 3,
             "tests": 8,
-            "tables": 88,
-            "fields": 590,
-            "formulas": 78,
-            "blocks": 304
+            "tables": 91,
+            "fields": 681,
+            "formulas": 97,
+            "blocks": 287
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 88,
-            "fields": 590,
-            "formulas": 78,
-            "blocks": 304
+            "tables": 91,
+            "fields": 682,
+            "formulas": 97,
+            "blocks": 287
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 45,
-            "fields": 158,
+            "tables": 40,
+            "fields": 0,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 45,
-            "fields": 158,
+            "tables": 40,
+            "fields": 1,
             "formulas": 0
           }
         },
@@ -3168,7 +3168,7 @@
             "found": true,
             "heading": "2.7 | 微生物限度检查",
             "sequence": "2.7",
-            "lineCount": 98,
+            "lineCount": 99,
             "fieldMarkerCount": 158,
             "prefillMarkerCount": 44
           },
@@ -3221,7 +3221,7 @@
           "h1": 3,
           "h2": 6,
           "h3": 26,
-          "h4": 83
+          "h4": 68
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
@@ -3246,47 +3246,47 @@
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/clarithromycin.json",
       "stages": 3,
       "experimentItems": 8,
-      "tables": 93,
-      "fields": 863,
-      "formulas": 152,
+      "tables": 98,
+      "fields": 942,
+      "formulas": 171,
       "conversion": {
         "schemaVersion": 1,
         "source": "legacy-qc-to-editor",
         "counts": {
           "legacy": {
             "stages": 3,
-            "tests": 13,
-            "tables": 46,
-            "fields": 697,
-            "formulas": 152,
-            "blocks": 166
+            "tests": 14,
+            "tables": 54,
+            "fields": 942,
+            "formulas": 171,
+            "blocks": 202
           },
           "editor": {
             "stages": 3,
             "tests": 8,
-            "tables": 93,
-            "fields": 863,
-            "formulas": 152,
-            "blocks": 319
+            "tables": 98,
+            "fields": 942,
+            "formulas": 171,
+            "blocks": 297
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 93,
-            "fields": 863,
-            "formulas": 152,
-            "blocks": 319
+            "tables": 98,
+            "fields": 943,
+            "formulas": 171,
+            "blocks": 297
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 47,
-            "fields": 166,
+            "tables": 44,
+            "fields": 0,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 47,
-            "fields": 166,
+            "tables": 44,
+            "fields": 1,
             "formulas": 0
           }
         },
@@ -3973,7 +3973,7 @@
             "found": true,
             "heading": "2.7 | 微生物限度检查",
             "sequence": "2.7",
-            "lineCount": 90,
+            "lineCount": 91,
             "fieldMarkerCount": 168,
             "prefillMarkerCount": 46
           },
@@ -4030,7 +4030,7 @@
           "h1": 3,
           "h2": 6,
           "h3": 26,
-          "h4": 88
+          "h4": 68
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
@@ -4059,47 +4059,47 @@
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/compound_rutin.json",
       "stages": 3,
       "experimentItems": 8,
-      "tables": 91,
-      "fields": 644,
-      "formulas": 94,
+      "tables": 94,
+      "fields": 732,
+      "formulas": 113,
       "conversion": {
         "schemaVersion": 1,
         "source": "legacy-qc-to-editor",
         "counts": {
           "legacy": {
             "stages": 3,
-            "tests": 13,
-            "tables": 46,
-            "fields": 483,
-            "formulas": 94,
-            "blocks": 167
+            "tests": 14,
+            "tables": 54,
+            "fields": 732,
+            "formulas": 113,
+            "blocks": 199
           },
           "editor": {
             "stages": 3,
             "tests": 8,
-            "tables": 91,
-            "fields": 644,
-            "formulas": 94,
-            "blocks": 311
+            "tables": 94,
+            "fields": 732,
+            "formulas": 113,
+            "blocks": 294
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 91,
-            "fields": 644,
-            "formulas": 94,
-            "blocks": 311
+            "tables": 94,
+            "fields": 733,
+            "formulas": 113,
+            "blocks": 294
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 45,
-            "fields": 161,
+            "tables": 40,
+            "fields": 0,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 45,
-            "fields": 161,
+            "tables": 40,
+            "fields": 1,
             "formulas": 0
           }
         },
@@ -4782,7 +4782,7 @@
             "found": true,
             "heading": "2.7 | 微生物限度检查",
             "sequence": "2.7",
-            "lineCount": 98,
+            "lineCount": 99,
             "fieldMarkerCount": 161,
             "prefillMarkerCount": 44
           },
@@ -4836,7 +4836,7 @@
           "h1": 3,
           "h2": 6,
           "h3": 26,
-          "h4": 83
+          "h4": 68
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
@@ -4862,47 +4862,47 @@
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/diammonium_glycyrrhizinate.json",
       "stages": 3,
       "experimentItems": 7,
-      "tables": 83,
-      "fields": 777,
-      "formulas": 77,
+      "tables": 86,
+      "fields": 733,
+      "formulas": 96,
       "conversion": {
         "schemaVersion": 1,
         "source": "legacy-qc-to-editor",
         "counts": {
           "legacy": {
             "stages": 3,
-            "tests": 12,
-            "tables": 42,
-            "fields": 484,
-            "formulas": 77,
-            "blocks": 148
+            "tests": 13,
+            "tables": 50,
+            "fields": 733,
+            "formulas": 96,
+            "blocks": 180
           },
           "editor": {
             "stages": 3,
             "tests": 7,
-            "tables": 83,
-            "fields": 777,
-            "formulas": 77,
-            "blocks": 285
+            "tables": 86,
+            "fields": 733,
+            "formulas": 96,
+            "blocks": 268
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 83,
-            "fields": 777,
-            "formulas": 77,
-            "blocks": 285
+            "tables": 86,
+            "fields": 734,
+            "formulas": 96,
+            "blocks": 268
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 41,
-            "fields": 293,
+            "tables": 36,
+            "fields": 0,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 41,
-            "fields": 293,
+            "tables": 36,
+            "fields": 1,
             "formulas": 0
           }
         },
@@ -5517,7 +5517,7 @@
             "found": true,
             "heading": "2.6 | 微生物限度检查",
             "sequence": "2.6",
-            "lineCount": 99,
+            "lineCount": 100,
             "fieldMarkerCount": 293,
             "prefillMarkerCount": 77
           },
@@ -5569,7 +5569,7 @@
           "h1": 3,
           "h2": 6,
           "h3": 25,
-          "h4": 78
+          "h4": 62
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
@@ -5593,47 +5593,47 @@
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/hydrochlorothiazide.json",
       "stages": 3,
       "experimentItems": 9,
-      "tables": 105,
-      "fields": 735,
-      "formulas": 124,
+      "tables": 111,
+      "fields": 803,
+      "formulas": 143,
       "conversion": {
         "schemaVersion": 1,
         "source": "legacy-qc-to-editor",
         "counts": {
           "legacy": {
             "stages": 3,
-            "tests": 14,
-            "tables": 51,
-            "fields": 554,
-            "formulas": 124,
-            "blocks": 192
+            "tests": 15,
+            "tables": 59,
+            "fields": 803,
+            "formulas": 143,
+            "blocks": 224
           },
           "editor": {
             "stages": 3,
             "tests": 9,
-            "tables": 105,
-            "fields": 735,
-            "formulas": 124,
-            "blocks": 333
+            "tables": 111,
+            "fields": 803,
+            "formulas": 143,
+            "blocks": 324
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 105,
-            "fields": 735,
-            "formulas": 124,
-            "blocks": 333
+            "tables": 111,
+            "fields": 804,
+            "formulas": 143,
+            "blocks": 324
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 54,
-            "fields": 181,
+            "tables": 52,
+            "fields": 0,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 54,
-            "fields": 181,
+            "tables": 52,
+            "fields": 1,
             "formulas": 0
           }
         },
@@ -6368,7 +6368,7 @@
             "found": true,
             "heading": "2.8 | 微生物限度检查",
             "sequence": "2.8",
-            "lineCount": 78,
+            "lineCount": 79,
             "fieldMarkerCount": 181,
             "prefillMarkerCount": 44
           },
@@ -6426,7 +6426,7 @@
           "h1": 3,
           "h2": 6,
           "h3": 27,
-          "h4": 86
+          "h4": 74
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
@@ -6456,47 +6456,47 @@
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/isosorbide_dinitrate.json",
       "stages": 3,
       "experimentItems": 8,
-      "tables": 96,
-      "fields": 673,
-      "formulas": 119,
+      "tables": 102,
+      "fields": 738,
+      "formulas": 138,
       "conversion": {
         "schemaVersion": 1,
         "source": "legacy-qc-to-editor",
         "counts": {
           "legacy": {
             "stages": 3,
-            "tests": 13,
-            "tables": 46,
-            "fields": 489,
-            "formulas": 119,
-            "blocks": 175
+            "tests": 14,
+            "tables": 54,
+            "fields": 738,
+            "formulas": 138,
+            "blocks": 207
           },
           "editor": {
             "stages": 3,
             "tests": 8,
-            "tables": 96,
-            "fields": 673,
-            "formulas": 119,
-            "blocks": 313
+            "tables": 102,
+            "fields": 738,
+            "formulas": 138,
+            "blocks": 302
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 96,
-            "fields": 673,
-            "formulas": 119,
-            "blocks": 313
+            "tables": 102,
+            "fields": 739,
+            "formulas": 138,
+            "blocks": 302
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 50,
-            "fields": 184,
+            "tables": 48,
+            "fields": 0,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 50,
-            "fields": 184,
+            "tables": 48,
+            "fields": 1,
             "formulas": 0
           }
         },
@@ -7159,7 +7159,7 @@
             "found": true,
             "heading": "2.7 | 微生物限度检查",
             "sequence": "2.7",
-            "lineCount": 80,
+            "lineCount": 81,
             "fieldMarkerCount": 184,
             "prefillMarkerCount": 44
           },
@@ -7215,7 +7215,7 @@
           "h1": 3,
           "h2": 6,
           "h3": 26,
-          "h4": 82
+          "h4": 69
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
@@ -7243,47 +7243,47 @@
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/levofloxacin.json",
       "stages": 3,
       "experimentItems": 7,
-      "tables": 91,
-      "fields": 859,
-      "formulas": 154,
+      "tables": 93,
+      "fields": 938,
+      "formulas": 173,
       "conversion": {
         "schemaVersion": 1,
         "source": "legacy-qc-to-editor",
         "counts": {
           "legacy": {
             "stages": 3,
-            "tests": 10,
-            "tables": 41,
-            "fields": 689,
-            "formulas": 154,
-            "blocks": 151
+            "tests": 11,
+            "tables": 49,
+            "fields": 938,
+            "formulas": 173,
+            "blocks": 187
           },
           "editor": {
             "stages": 3,
             "tests": 7,
-            "tables": 91,
-            "fields": 859,
-            "formulas": 154,
-            "blocks": 289
+            "tables": 93,
+            "fields": 938,
+            "formulas": 173,
+            "blocks": 267
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 91,
-            "fields": 859,
-            "formulas": 154,
-            "blocks": 289
+            "tables": 93,
+            "fields": 940,
+            "formulas": 173,
+            "blocks": 267
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 50,
-            "fields": 170,
+            "tables": 44,
+            "fields": 0,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 50,
-            "fields": 170,
+            "tables": 44,
+            "fields": 2,
             "formulas": 0
           }
         },
@@ -7910,7 +7910,7 @@
             "found": true,
             "heading": "2.6 | 微生物限度检查",
             "sequence": "2.6",
-            "lineCount": 109,
+            "lineCount": 110,
             "fieldMarkerCount": 171,
             "prefillMarkerCount": 48
           },
@@ -7968,7 +7968,7 @@
           "h1": 3,
           "h2": 6,
           "h3": 23,
-          "h4": 74
+          "h4": 56
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
@@ -7998,47 +7998,47 @@
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/methimazole.json",
       "stages": 3,
       "experimentItems": 8,
-      "tables": 90,
-      "fields": 564,
-      "formulas": 72,
+      "tables": 93,
+      "fields": 637,
+      "formulas": 91,
       "conversion": {
         "schemaVersion": 1,
         "source": "legacy-qc-to-editor",
         "counts": {
           "legacy": {
             "stages": 3,
-            "tests": 13,
-            "tables": 46,
-            "fields": 388,
-            "formulas": 72,
-            "blocks": 164
+            "tests": 14,
+            "tables": 54,
+            "fields": 637,
+            "formulas": 91,
+            "blocks": 196
           },
           "editor": {
             "stages": 3,
             "tests": 8,
-            "tables": 90,
-            "fields": 564,
-            "formulas": 72,
-            "blocks": 309
+            "tables": 93,
+            "fields": 637,
+            "formulas": 91,
+            "blocks": 291
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 90,
-            "fields": 564,
-            "formulas": 72,
-            "blocks": 309
+            "tables": 93,
+            "fields": 638,
+            "formulas": 91,
+            "blocks": 291
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 44,
-            "fields": 176,
+            "tables": 39,
+            "fields": 0,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 44,
-            "fields": 176,
+            "tables": 39,
+            "fields": 1,
             "formulas": 0
           }
         },
@@ -8693,7 +8693,7 @@
             "found": true,
             "heading": "2.7 | 微生物限度检查",
             "sequence": "2.7",
-            "lineCount": 99,
+            "lineCount": 100,
             "fieldMarkerCount": 176,
             "prefillMarkerCount": 46
           },
@@ -8750,7 +8750,7 @@
           "h1": 3,
           "h2": 6,
           "h3": 26,
-          "h4": 86
+          "h4": 70
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
@@ -8779,47 +8779,47 @@
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/pantoprazole.json",
       "stages": 3,
       "experimentItems": 10,
-      "tables": 118,
-      "fields": 890,
-      "formulas": 112,
+      "tables": 120,
+      "fields": 889,
+      "formulas": 131,
       "conversion": {
         "schemaVersion": 1,
         "source": "legacy-qc-to-editor",
         "counts": {
           "legacy": {
             "stages": 3,
-            "tests": 16,
-            "tables": 55,
-            "fields": 640,
-            "formulas": 112,
-            "blocks": 213
+            "tests": 17,
+            "tables": 63,
+            "fields": 889,
+            "formulas": 131,
+            "blocks": 245
           },
           "editor": {
             "stages": 3,
             "tests": 10,
-            "tables": 118,
-            "fields": 890,
-            "formulas": 112,
-            "blocks": 371
+            "tables": 120,
+            "fields": 889,
+            "formulas": 131,
+            "blocks": 353
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 118,
+            "tables": 120,
             "fields": 890,
-            "formulas": 112,
-            "blocks": 371
+            "formulas": 131,
+            "blocks": 353
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 63,
-            "fields": 250,
+            "tables": 57,
+            "fields": 0,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 63,
-            "fields": 250,
+            "tables": 57,
+            "fields": 1,
             "formulas": 0
           }
         },
@@ -9634,7 +9634,7 @@
             "found": true,
             "heading": "2.9 | 微生物限度检查",
             "sequence": "2.9",
-            "lineCount": 98,
+            "lineCount": 99,
             "fieldMarkerCount": 250,
             "prefillMarkerCount": 72
           },
@@ -9690,7 +9690,7 @@
           "h1": 3,
           "h2": 6,
           "h3": 29,
-          "h4": 97
+          "h4": 81
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
@@ -9718,47 +9718,47 @@
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/simvastatin.json",
       "stages": 3,
       "experimentItems": 8,
-      "tables": 104,
-      "fields": 872,
-      "formulas": 141,
+      "tables": 107,
+      "fields": 814,
+      "formulas": 160,
       "conversion": {
         "schemaVersion": 1,
         "source": "legacy-qc-to-editor",
         "counts": {
           "legacy": {
             "stages": 3,
-            "tests": 13,
-            "tables": 48,
-            "fields": 565,
-            "formulas": 141,
-            "blocks": 184
+            "tests": 14,
+            "tables": 56,
+            "fields": 814,
+            "formulas": 160,
+            "blocks": 216
           },
           "editor": {
             "stages": 3,
             "tests": 8,
-            "tables": 104,
-            "fields": 872,
-            "formulas": 141,
-            "blocks": 320
+            "tables": 107,
+            "fields": 814,
+            "formulas": 160,
+            "blocks": 311
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 104,
-            "fields": 872,
-            "formulas": 141,
-            "blocks": 320
+            "tables": 107,
+            "fields": 815,
+            "formulas": 160,
+            "blocks": 311
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 56,
-            "fields": 307,
+            "tables": 51,
+            "fields": 0,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 56,
-            "fields": 307,
+            "tables": 51,
+            "fields": 1,
             "formulas": 0
           }
         },
@@ -10473,7 +10473,7 @@
             "found": true,
             "heading": "2.7 | 微生物限度检查",
             "sequence": "2.7",
-            "lineCount": 101,
+            "lineCount": 102,
             "fieldMarkerCount": 307,
             "prefillMarkerCount": 87
           },
@@ -10524,7 +10524,7 @@
           "h1": 3,
           "h2": 6,
           "h3": 26,
-          "h4": 81
+          "h4": 69
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
@@ -10547,47 +10547,47 @@
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/spironolactone.json",
       "stages": 3,
       "experimentItems": 9,
-      "tables": 108,
-      "fields": 898,
-      "formulas": 127,
+      "tables": 109,
+      "fields": 826,
+      "formulas": 146,
       "conversion": {
         "schemaVersion": 1,
         "source": "legacy-qc-to-editor",
         "counts": {
           "legacy": {
             "stages": 3,
-            "tests": 14,
-            "tables": 51,
-            "fields": 577,
-            "formulas": 127,
-            "blocks": 190
+            "tests": 15,
+            "tables": 59,
+            "fields": 826,
+            "formulas": 146,
+            "blocks": 222
           },
           "editor": {
             "stages": 3,
             "tests": 9,
-            "tables": 108,
-            "fields": 898,
-            "formulas": 127,
-            "blocks": 331
+            "tables": 109,
+            "fields": 826,
+            "formulas": 146,
+            "blocks": 322
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 108,
-            "fields": 898,
-            "formulas": 127,
-            "blocks": 331
+            "tables": 109,
+            "fields": 827,
+            "formulas": 146,
+            "blocks": 322
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 57,
-            "fields": 321,
+            "tables": 50,
+            "fields": 0,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 57,
-            "fields": 321,
+            "tables": 50,
+            "fields": 1,
             "formulas": 0
           }
         },
@@ -11286,7 +11286,7 @@
             "found": true,
             "heading": "2.8 | 微生物限度检查 | 检验日期 | 年    月    日",
             "sequence": "2.8",
-            "lineCount": 107,
+            "lineCount": 108,
             "fieldMarkerCount": 321,
             "prefillMarkerCount": 161
           },
@@ -11339,7 +11339,7 @@
           "h1": 3,
           "h2": 6,
           "h3": 27,
-          "h4": 88
+          "h4": 75
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
@@ -11364,47 +11364,47 @@
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/terazosin.json",
       "stages": 3,
       "experimentItems": 8,
-      "tables": 103,
-      "fields": 690,
-      "formulas": 115,
+      "tables": 106,
+      "fields": 773,
+      "formulas": 134,
       "conversion": {
         "schemaVersion": 1,
         "source": "legacy-qc-to-editor",
         "counts": {
           "legacy": {
             "stages": 3,
-            "tests": 13,
-            "tables": 48,
-            "fields": 524,
-            "formulas": 115,
-            "blocks": 182
+            "tests": 14,
+            "tables": 56,
+            "fields": 773,
+            "formulas": 134,
+            "blocks": 214
           },
           "editor": {
             "stages": 3,
             "tests": 8,
-            "tables": 103,
-            "fields": 690,
-            "formulas": 115,
-            "blocks": 329
+            "tables": 106,
+            "fields": 773,
+            "formulas": 134,
+            "blocks": 309
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 103,
-            "fields": 690,
-            "formulas": 115,
-            "blocks": 329
+            "tables": 106,
+            "fields": 774,
+            "formulas": 134,
+            "blocks": 309
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 55,
-            "fields": 166,
+            "tables": 50,
+            "fields": 0,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 55,
-            "fields": 166,
+            "tables": 50,
+            "fields": 1,
             "formulas": 0
           }
         },
@@ -12119,7 +12119,7 @@
             "found": true,
             "heading": "2.7 | 微生物限度检查",
             "sequence": "2.7",
-            "lineCount": 101,
+            "lineCount": 102,
             "fieldMarkerCount": 166,
             "prefillMarkerCount": 44
           },
@@ -12175,7 +12175,7 @@
           "h1": 3,
           "h2": 6,
           "h3": 26,
-          "h4": 87
+          "h4": 70
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
@@ -12203,47 +12203,47 @@
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/verapamil.json",
       "stages": 3,
       "experimentItems": 8,
-      "tables": 96,
-      "fields": 879,
-      "formulas": 117,
+      "tables": 99,
+      "fields": 835,
+      "formulas": 136,
       "conversion": {
         "schemaVersion": 1,
         "source": "legacy-qc-to-editor",
         "counts": {
           "legacy": {
             "stages": 3,
-            "tests": 13,
-            "tables": 46,
-            "fields": 586,
-            "formulas": 117,
-            "blocks": 171
+            "tests": 14,
+            "tables": 54,
+            "fields": 835,
+            "formulas": 136,
+            "blocks": 203
           },
           "editor": {
             "stages": 3,
             "tests": 8,
-            "tables": 96,
-            "fields": 879,
-            "formulas": 117,
-            "blocks": 315
+            "tables": 99,
+            "fields": 835,
+            "formulas": 136,
+            "blocks": 298
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 96,
-            "fields": 879,
-            "formulas": 117,
-            "blocks": 315
+            "tables": 99,
+            "fields": 836,
+            "formulas": 136,
+            "blocks": 298
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 50,
-            "fields": 293,
+            "tables": 45,
+            "fields": 0,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 50,
-            "fields": 293,
+            "tables": 45,
+            "fields": 1,
             "formulas": 0
           }
         },
@@ -12926,7 +12926,7 @@
             "found": true,
             "heading": "2.7 | 微生物限度检查",
             "sequence": "2.7",
-            "lineCount": 99,
+            "lineCount": 100,
             "fieldMarkerCount": 293,
             "prefillMarkerCount": 77
           },
@@ -12983,7 +12983,7 @@
           "h1": 3,
           "h2": 6,
           "h3": 26,
-          "h4": 84
+          "h4": 68
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,

@@ -92,7 +92,6 @@ export default function QcBatchTestRecord({
       if (response.ok) router.refresh();
     });
   }
-  const workflowMessage = locked ? "前一阶段尚未全部复核完成，当前项目暂不可操作。" : testStatus?.automatic ? testStatus.reviewed ? "引用待包装品结果 / 自动通过" : "等待待包装品源项目复核" : testStatus?.reviewed ? `已复核：${testStatus.reviewerName || "-"}` : testStatus?.inspected ? `待复核：检验者 ${testStatus.inspectorName || "-"}` : "待检验";
   const recordActions: FormSurfaceCommandSpec[] = [];
   if (testStatus?.canSaveInspection) {
     recordActions.push({
@@ -151,7 +150,6 @@ export default function QcBatchTestRecord({
       createHeadingSection("test-heading", {
 
         title: `${productName}${stage.label} - ${test.name}`,
-        subtitle: `批号 ${batch.batchNumber} · ${workflowMessage}`,
       }),
       {
         key: "test-record-paper",

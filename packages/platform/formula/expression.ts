@@ -23,7 +23,23 @@ export type BinaryOperator =
   | "and"
   | "or";
 
-export type SupportedFormulaFunction = "ABS" | "SQRT" | "ROUND" | "MAX" | "MIN" | "AVG" | "AVERAGE" | "MEAN" | "RD" | "RSD";
+export type SupportedFormulaFunction =
+  | "ABS"
+  | "SQRT"
+  | "ROUND"
+  | "MAX"
+  | "MIN"
+  | "AVG"
+  | "AVERAGE"
+  | "MEAN"
+  | "RD"
+  | "RSD"
+  | "DIFF"
+  | "NET"
+  | "RATIO"
+  | "LOSS_RATE"
+  | "UPPER"
+  | "LOWER";
 
 export const SUPPORTED_FUNCTIONS = new Set<SupportedFormulaFunction>([
   "ABS",
@@ -36,6 +52,12 @@ export const SUPPORTED_FUNCTIONS = new Set<SupportedFormulaFunction>([
   "MEAN",
   "RD",
   "RSD",
+  "DIFF",
+  "NET",
+  "RATIO",
+  "LOSS_RATE",
+  "UPPER",
+  "LOWER",
 ]);
 
 export class FormulaParseError extends Error {
@@ -120,7 +142,19 @@ function addReferenceName(map: Map<string, string>, name: string, fieldKey: stri
 }
 
 function isInputOnlyFunction(functionName: SupportedFormulaFunction) {
-  return functionName === "AVG" || functionName === "AVERAGE" || functionName === "MEAN" || functionName === "RD" || functionName === "RSD";
+  return (
+    functionName === "AVG"
+    || functionName === "AVERAGE"
+    || functionName === "MEAN"
+    || functionName === "RD"
+    || functionName === "RSD"
+    || functionName === "DIFF"
+    || functionName === "NET"
+    || functionName === "RATIO"
+    || functionName === "LOSS_RATE"
+    || functionName === "UPPER"
+    || functionName === "LOWER"
+  );
 }
 
 function isInputAlias(reference: string) {

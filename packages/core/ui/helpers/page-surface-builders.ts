@@ -40,7 +40,6 @@ type NestedPageSections = {
 
 type PageSectionPanelOptions = NestedPageSections & {
   title?: ReactNode;
-  subtitle?: ReactNode;
   actions?: BodySurfaceCommandSpec[];
   chrome?: BodySurfaceSectionChrome;
   framed?: boolean;
@@ -54,7 +53,6 @@ type PageSectionCardOptions = PageSectionPanelOptions & {
 
 type PageSectionAnalysisOptions = NestedPageSections & {
   title: NonNullable<PageSectionPanelOptions["title"]>;
-  subtitle?: PageSectionPanelOptions["subtitle"];
   actions?: BodySurfaceCommandSpec[];
   toolbar?: PageSurfaceToolbarSpec;
   chrome?: BodySurfaceSectionChrome;
@@ -282,10 +280,10 @@ export function createActionsSection(
 
 export function createHeadingSection(
   key: string,
-  heading: { title: ReactNode; subtitle?: ReactNode; level?: 1 | 2 | 3 },
+  heading: { title: ReactNode; level?: 1 | 2 | 3 },
 ): BodySurfaceSectionSpec {
-  const { title, subtitle } = heading;
-  return { key, header: { title, subtitle }, body: { kind: "section" } };
+  const { title } = heading;
+  return { key, header: { title }, body: { kind: "section" } };
 }
 
 export function createSectionsSection(
@@ -300,7 +298,7 @@ export function createPanelSection(
   key: string,
   panel: PageSectionPanelOptions,
 ): BodySurfaceSectionSpec {
-  const { actions, autoReveal, chrome, framed, gridColumns, itemRef, layout = "stack", sections, subtitle, title } = panel;
+  const { actions, autoReveal, chrome, framed, gridColumns, itemRef, layout = "stack", sections, title } = panel;
   return {
     key,
     label: title,
@@ -308,7 +306,7 @@ export function createPanelSection(
     framed,
     itemRef,
     autoReveal,
-    header: { title, subtitle, actions },
+    header: { title, actions },
     body: { kind: "section", layout, gridColumns, sections },
   };
 }
@@ -317,13 +315,13 @@ export function createAnalysisSection(
   key: string,
   analysis: PageSectionAnalysisOptions,
 ): BodySurfaceSectionSpec {
-  const { actions, chrome, framed, layout = "stack", sections, subtitle, title, toolbar } = analysis;
+  const { actions, chrome, framed, layout = "stack", sections, title, toolbar } = analysis;
   return {
     key,
     label: title,
     chrome,
     framed,
-    header: { title, subtitle, actions, toolbarItems: toolbar?.items },
+    header: { title, actions, toolbarItems: toolbar?.items },
     body: { kind: "section", layout, sections },
   };
 }

@@ -6,7 +6,7 @@ import type {
 
 export const docsEditorSpaceQuerySchema = z.object({
   spaceId: z.coerce.number().int().positive().optional(),
-  status: z.enum(["draft", "reviewing", "published", "archived"]).optional(),
+  status: z.enum(["draft", "published", "archived"]).optional(),
   keyword: z.string().optional(),
 });
 

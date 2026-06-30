@@ -1,5 +1,5 @@
 export const DOCS_EDITOR_SPACE_KINDS = ["personal", "company", "department"] as const;
-export const DOCS_EDITOR_TEMPLATE_STATUSES = ["draft", "reviewing", "published", "archived"] as const;
+export const DOCS_EDITOR_TEMPLATE_STATUSES = ["draft", "published", "archived"] as const;
 export const DOCS_EDITOR_PERMISSION_ROLES = ["viewer", "editor", "delete", "manager"] as const;
 
 export type DocsEditorSpaceKind = (typeof DOCS_EDITOR_SPACE_KINDS)[number];

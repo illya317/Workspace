@@ -86,7 +86,6 @@ export function useFinanceBalanceReconcileSection({
     key: "balance-reconcile",
     header: {
       title: "余额核对（与会计软件年度余额表比对）",
-      subtitle: "系统侧使用 2024 年度余额表作为基准，再叠加序时账凭证滚动计算；上传 2025/2026 年度余额表用于校验差异。",
     },
     body: {
       kind: "section",

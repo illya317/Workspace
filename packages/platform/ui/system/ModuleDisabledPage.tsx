@@ -8,7 +8,7 @@ type Props = {
   user: SessionUser;
 };
 
-export function ModuleDisabledPageView({ reason, resourceKey, user }: Props) {
+export function ModuleDisabledPageView({ reason, user }: Props) {
   return renderAppShellPage({
     title: "模块未启用",
     backHref: "/portal",
@@ -16,7 +16,6 @@ export function ModuleDisabledPageView({ reason, resourceKey, user }: Props) {
     children: <PageSurface kind="standard"
       body={createPageBody([createSectionSection("disabled", {
         title: "模块未启用",
-        subtitle: resourceKey ? `资源：${resourceKey}` : undefined,
         sections: [createEmptySection("reason", {
           content: reason
         })],

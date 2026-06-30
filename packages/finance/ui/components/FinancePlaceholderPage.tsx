@@ -5,14 +5,12 @@ import { createPageBody, createSectionSection, createStatusSection, PageSurface 
 interface FinancePlaceholderPageProps {
   sectionKey: string;
   title: string;
-  subtitle: string;
   empty: string;
 }
 
 export default function FinancePlaceholderPage({
   sectionKey,
   title,
-  subtitle,
   empty,
 }: FinancePlaceholderPageProps) {
   return (
@@ -21,7 +19,6 @@ export default function FinancePlaceholderPage({
       body={createPageBody([
         createSectionSection(sectionKey, {
           title,
-          subtitle,
           sections: [createStatusSection("empty", { kind: "empty", content: empty })],
         }),
       ])}

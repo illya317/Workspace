@@ -5,8 +5,6 @@ export {
   getTemplate,
   listSpaces,
   listTemplates,
-  markPublished,
-  requestPublish,
   saveDraft,
 } from "./service";
 export {
@@ -25,8 +23,6 @@ export {
   getDocumentTemplate,
   listDocumentTemplateSpaces,
   listDocumentTemplates,
-  markDocumentTemplatePublished,
-  requestDocumentTemplatePublish,
   saveDocumentTemplateDraft,
 } from "./facade";
 export type {

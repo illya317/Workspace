@@ -1,10 +1,12 @@
 import "server-only";
 import path from "path";
+import { loadQcLayoutBlocks } from "./layout-blocks";
 import { asArray, asRecord, asString, readJson, values } from "./layout-block-utils";
 import { resolvePharmaOpsRoot } from "./source";
 import type {
   QcLayoutBlock,
   QcTemplateDetail,
+  QcTemplateLayoutAssignment,
   QcTemplateMethodField,
   QcTemplateMethodGroup,
   QcTemplateStage,
@@ -145,6 +147,11 @@ async function toStage(configRoot: string, productKey: string, rawStage: unknown
   const info = Object.fromEntries(Object.entries(asRecord(precheckRaw["顶部信息"])).map(([key, value]) => [key, asString(value)]));
   const files = precheckFiles(precheckRaw);
   const items = precheckItems(precheckRaw);
+  const tests = asArray(stage.tests).map((test) => toTestItem(asRecord(test)));
+  if (stageKey === "finished") {
+    const microbiology = await microbiologyTestItem(configRoot, productKey, tests);
+    if (microbiology && !tests.some((test) => test.englishName === microbiology.englishName)) tests.push(microbiology);
+  }
   return {
     key: stageKey,
     label: asString(stage.label, stageKey),
@@ -155,8 +162,62 @@ async function toStage(configRoot: string, productKey: string, rawStage: unknown
     precheckItems: items,
     precheckLayoutBlocks: asArray(asRecord(full.precheck_full).layout_blocks) as QcLayoutBlock[],
     experimentLayoutBlocks: asArray(asRecord(full.experiment_projects_full).layout_blocks) as QcLayoutBlock[],
-    tests: asArray(stage.tests).map((test) => toTestItem(asRecord(test))),
+    tests,
   };
+}
+
+async function microbiologyTestItem(configRoot: string, productKey: string, existingTests: QcTemplateTestItem[]): Promise<QcTemplateTestItem | undefined> {
+  const layout = await microbiologyLayoutAssignment(configRoot, productKey);
+  if (!layout) return undefined;
+  const sourceRoot = path.join(configRoot, "source");
+  const layoutBlocks = await loadQcLayoutBlocks(sourceRoot, layout).catch(() => []);
+  if (!layoutBlocks?.length) return undefined;
+  return {
+    sequence: nextFinishedSequence(existingTests),
+    name: "微生物限度检查",
+    englishName: "microbial_limit",
+    methodName: "微生物限度检查",
+    standardText: standardText({
+      standard_template: "microbial_limit_standard",
+      standard_params: {},
+    }),
+    conclusionName: "微生物限度",
+    hasNumericConclusion: false,
+    layout: {
+      key: `products/${productKey}/finished/microbial_limit`,
+      templateId: layout.templateId,
+      status: layout.status,
+      sourceRef: layout.sourceRef,
+      params: layout.params,
+    },
+    layoutBlocks,
+    methodGroups: [],
+  };
+}
+
+async function microbiologyLayoutAssignment(configRoot: string, productKey: string): Promise<QcTemplateLayoutAssignment | undefined> {
+  const mapping = asRecord(await readJson(path.join(configRoot, "source", "table_layouts", "layout_mapping.json")).catch(() => ({})));
+  const assignments = asRecord(mapping.assignments);
+  const key = `products/${productKey}/finished/microbial_limit`;
+  const assignment = asRecord(assignments[key]);
+  const templateId = asString(assignment.template_id || assignment.templateId);
+  if (!templateId) return undefined;
+  return {
+    key,
+    templateId,
+    status: asString(assignment.status, "pilot"),
+    sourceRef: asString(assignment.source_ref || assignment.sourceRef) || undefined,
+    params: asRecord(assignment.params),
+  };
+}
+
+function nextFinishedSequence(tests: QcTemplateTestItem[]) {
+  const parsed = tests
+    .map((test) => test.sequence.match(/^(\d+)\.(\d+)/))
+    .flatMap((match) => match ? [{ major: Number(match[1]), minor: Number(match[2]) }] : []);
+  const major = parsed[0]?.major || 2;
+  const minor = parsed.reduce((max, item) => Math.max(max, item.minor), 0) + 1;
+  return `${major}.${minor}`;
 }
 
 export async function getQcTemplateDetailFromConfig(templateId: string): Promise<QcTemplateDetail> {

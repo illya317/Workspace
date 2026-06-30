@@ -289,7 +289,6 @@ export default function SettingsApiClient({
     })] : []),
     ...(freshSecret ? [createSectionSection("fresh-secret", {
       title: "新密钥",
-      subtitle: "只在本次操作后显示。",
       actions: [{ key: "hide-secret", label: "隐藏", onClick: () => setFreshSecret(null) }],
       sections: [createMessageSection("secret", {
         content: (
@@ -301,7 +300,6 @@ export default function SettingsApiClient({
     })] : []),
     createSectionSection("registrations", {
       title: "开放能力",
-      subtitle: "Registry 中已注册的页面、资源、Scope 和 endpoint。",
       sections: [
         {
           key: "registration-table",
@@ -367,7 +365,6 @@ export default function SettingsApiClient({
     }),
     createSectionSection("scopes", {
       title: "Scope 授权",
-      subtitle: selectedClient ? selectedClient.name : "先选择一个 Client。",
       actions: [{ key: "save-scopes", label: "保存", onClick: saveScopes, disabled: !selectedClient || busy === `scopes-${selectedClient?.id}` }],
       sections: [createFieldsSection("scope-form", scopeFields, { layout: { columns: 3 } })],
     }),

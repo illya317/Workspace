@@ -82,7 +82,6 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
     content: "选择左侧部门查看直属岗位"
   })] : [createSectionSection("positions", {
     title: `直属岗位 · ${selectedNode.name}`,
-    subtitle: `${directPositions.length} 个`,
 
     sections: [{
       key: "position-list",

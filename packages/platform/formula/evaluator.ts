@@ -95,6 +95,24 @@ function evaluateCall(functionName: SupportedFormulaFunction, args: FormulaValue
     case "RSD":
       expectArgCount(functionName, numbers, 1);
       return calculateRsd(numbers);
+    case "DIFF":
+    case "NET":
+      expectArgCount(functionName, numbers, 2, 2);
+      return numbers[0] - numbers[1];
+    case "RATIO":
+      expectArgCount(functionName, numbers, 2, 2);
+      if (numbers[1] === 0) throw new FormulaParseError("invalid_expression", "RATIO denominator is zero.");
+      return numbers[0] / numbers[1];
+    case "LOSS_RATE":
+      expectArgCount(functionName, numbers, 2, 2);
+      if (numbers[0] === 0) throw new FormulaParseError("invalid_expression", "LOSS_RATE denominator is zero.");
+      return ((numbers[0] - numbers[1]) / numbers[0]) * 100;
+    case "UPPER":
+      expectArgCount(functionName, numbers, 2, 2);
+      return numbers[0] * (1 + numbers[1] / 100);
+    case "LOWER":
+      expectArgCount(functionName, numbers, 2, 2);
+      return numbers[0] * (1 - numbers[1] / 100);
   }
 }
 

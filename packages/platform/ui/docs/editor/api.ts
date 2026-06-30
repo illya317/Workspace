@@ -3,7 +3,7 @@
 import { requestJson } from "../../api-client";
 
 export type EditorSpaceKind = "personal" | "company" | "department";
-export type EditorTemplateStatus = "draft" | "reviewing" | "published" | "archived";
+export type EditorTemplateStatus = "draft" | "published" | "archived";
 export type EditorPermissionRole = "viewer" | "editor" | "delete" | "manager";
 
 export interface EditorSpaceDto {
@@ -95,14 +95,6 @@ export function createEditorTemplateDraft(body: {
   });
 }
 
-export function copyEditorTemplate(templateId: string, body: { targetSpaceId?: string | null; title?: string | null }) {
-  return requestJson<EditorTemplateDetailDto>(`${API_PREFIX}/templates/${encodeURIComponent(templateId)}/copy`, {
-    method: "POST",
-    body: JSON.stringify(body),
-    fallbackMessage: "复制模板失败",
-  });
-}
-
 export function fetchEditorSpacePermissions(spaceId: string) {
   return requestJson<{ permissions?: EditorSpacePermissionRow[] }>(`${API_PREFIX}/spaces/${encodeURIComponent(spaceId)}/permissions`, {
     fallbackMessage: "加载模板空间权限失败",
@@ -114,21 +106,5 @@ export function saveEditorSpacePermissions(spaceId: string, permissions: Array<{
     method: "PUT",
     body: JSON.stringify({ permissions }),
     fallbackMessage: "保存模板空间权限失败",
-  });
-}
-
-export function requestEditorTemplatePublish(templateId: string) {
-  return requestJson<EditorTemplateDetailDto>(`${API_PREFIX}/templates/${encodeURIComponent(templateId)}/publish-request`, {
-    method: "POST",
-    body: JSON.stringify({}),
-    fallbackMessage: "提交发布申请失败",
-  });
-}
-
-export function markEditorTemplatePublished(templateId: string, body: { official?: boolean } = {}) {
-  return requestJson<EditorTemplateDetailDto>(`${API_PREFIX}/templates/${encodeURIComponent(templateId)}/publish`, {
-    method: "POST",
-    body: JSON.stringify(body),
-    fallbackMessage: "发布模板失败",
   });
 }

@@ -193,7 +193,6 @@ export function useModuleManagementSection({ showToast, enabled = true }: Props)
         key: "module-tree",
         header: {
           title: "模块树",
-          subtitle: data.rule,
         },
         body: {
           kind: "selector",

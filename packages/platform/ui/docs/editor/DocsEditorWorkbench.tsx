@@ -171,7 +171,6 @@ export default function DocsEditorWorkbench() {
 
   const templateListSection = createSectionSection("docs-editor-list", {
     title: activeSpace ? activeSpace.title : "模板列表",
-    subtitle: "选择模板进入详情页，编辑纸面、字段公式和发布状态。",
     actions: [
       { key: "create", icon: "create" as const, label: "新增", variant: "primary" as const, onClick: () => setCreateOpen((open) => !open), disabled: loading || !canCreateTemplate },
       { key: "reload", label: "刷新", onClick: () => loadBootstrap(activeSpaceId), disabled: loading },
@@ -235,7 +234,6 @@ export default function DocsEditorWorkbench() {
 
   const permissionSection = createSectionSection("docs-editor-space-permissions", {
     title: activeSpace ? `${activeSpace.title}权限管理` : "权限管理",
-    subtitle: "空间权限适用于该空间下全部文档模板。",
     sections: [
       ...(message ? [createMessageSection("docs-editor-permission-message", { content: message, tone: "muted" as const })] : []),
       ...permissionSections,

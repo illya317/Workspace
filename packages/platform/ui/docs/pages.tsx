@@ -9,11 +9,9 @@ import PositionsClient from "./positions/PositionsClient";
 export function DocsPlaceholderPage({
   user,
   title,
-  description,
 }: {
   user: SessionUser;
   title: string;
-  description: string;
 }) {
   return renderAppShellPage({
     title,
@@ -22,7 +20,6 @@ export function DocsPlaceholderPage({
     children: <PageSurface kind="standard"
       body={createPageBody([createSectionSection("placeholder", {
         title,
-        subtitle: description,
         sections: [createEmptySection("empty", {
           content: "内容建设中"
         })],

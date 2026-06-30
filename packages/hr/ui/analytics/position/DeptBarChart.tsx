@@ -61,7 +61,6 @@ export function createDeptBarChartSection({
 
   return createAnalysisSection("dept-bars", {
         title: "各部门编制 vs 实际",
-        subtitle: "条形宽度跨层级统一比例",
         toolbar: {
           items: [{
             kind: "select",

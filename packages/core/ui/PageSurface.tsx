@@ -145,7 +145,9 @@ function assertPageSurfaceKind(props: PageSurfaceProps) {
         throw new Error("PageSurface kind=\"directory\" can only be used on portal or L1/L2 resource routes.");
       }
     }
+    return;
   }
+
 }
 
 function renderDirectoryEmpty(empty?: BodySurfaceEmptySpec, key?: string) {
@@ -187,7 +189,6 @@ function renderDirectoryBody(body: BodySurfaceProps | undefined, section?: BodyS
     return (
       <div key={section?.key} className="space-y-5">
         {section?.header?.title ? <h1 className="text-center text-2xl font-bold text-gray-800">{section.header.title}</h1> : null}
-        {section?.header?.subtitle ? <p className="text-center text-sm text-gray-500">{section.header.subtitle}</p> : null}
         <div className={body.layout === "grid" ? `grid gap-4 ${gridClassName}` : "space-y-5"}>
           {body.sections.map(renderDirectorySection)}
         </div>

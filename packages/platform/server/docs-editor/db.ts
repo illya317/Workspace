@@ -29,7 +29,6 @@ export type DocsEditorTemplateRow = {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
-  publishRequestedAt: Date | null;
   publishedAt: Date | null;
   publishedByUserId: number | null;
 };

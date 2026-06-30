@@ -69,7 +69,6 @@ async function upsertGeneratedQcTemplate(
       data: {
         ...data,
         version: { increment: 1 },
-        publishRequestedAt: null,
       },
     });
     return;

@@ -4209,10 +4209,6 @@ export const generatedCoreUiSurfaceContracts = {
               description: "类型：ReactNode。",
             },
             {
-              name: "description",
-              description: "类型：ReactNode。",
-            },
-            {
               name: "commands",
               description: "类型：BodySurfaceCommandSpec[]。",
               children: [
@@ -5144,10 +5140,6 @@ export const generatedCoreUiSurfaceContracts = {
                   children: [
                     {
                       name: "title",
-                      description: "类型：ReactNode。",
-                    },
-                    {
-                      name: "subtitle",
                       description: "类型：ReactNode。",
                     },
                     {
@@ -9699,10 +9691,6 @@ export const generatedCoreUiSurfaceContracts = {
                               description: "类型：ReactNode。",
                             },
                             {
-                              name: "description",
-                              description: "类型：ReactNode。",
-                            },
-                            {
                               name: "commands",
                               description: "类型：BodySurfaceCommandSpec[]。",
                             },
@@ -10232,10 +10220,6 @@ export const generatedCoreUiSurfaceContracts = {
                           children: [
                             {
                               name: "title",
-                              description: "类型：ReactNode。",
-                            },
-                            {
-                              name: "description",
                               description: "类型：ReactNode。",
                             },
                             {
@@ -13020,10 +13004,6 @@ export const generatedCoreUiSurfaceContracts = {
           children: [
             {
               name: "title",
-              description: "类型：ReactNode。",
-            },
-            {
-              name: "description",
               description: "类型：ReactNode。",
             },
             {
@@ -18867,10 +18847,6 @@ export const generatedCoreUiSurfaceContracts = {
                           description: "类型：ReactNode。",
                         },
                         {
-                          name: "description",
-                          description: "类型：ReactNode。",
-                        },
-                        {
                           name: "commands",
                           description: "类型：BodySurfaceCommandSpec[]。",
                           children: [
@@ -19805,10 +19781,6 @@ export const generatedCoreUiSurfaceContracts = {
                                   description: "类型：ReactNode。",
                                 },
                                 {
-                                  name: "subtitle",
-                                  description: "类型：ReactNode。",
-                                },
-                                {
                                   name: "badges",
                                   description: "类型：BodySurfaceBadgeSpec[]。",
                                 },
@@ -20648,10 +20620,6 @@ export const generatedCoreUiSurfaceContracts = {
                       children: [
                         {
                           name: "title",
-                          description: "类型：ReactNode。",
-                        },
-                        {
-                          name: "description",
                           description: "类型：ReactNode。",
                         },
                         {
@@ -45637,10 +45605,6 @@ export const generatedCoreUiSurfaceContracts = {
                           description: "类型：ReactNode。",
                         },
                         {
-                          name: "description",
-                          description: "类型：ReactNode。",
-                        },
-                        {
                           name: "commands",
                           description: "类型：BodySurfaceCommandSpec[]。",
                           children: [
@@ -46572,10 +46536,6 @@ export const generatedCoreUiSurfaceContracts = {
                               children: [
                                 {
                                   name: "title",
-                                  description: "类型：ReactNode。",
-                                },
-                                {
-                                  name: "subtitle",
                                   description: "类型：ReactNode。",
                                 },
                                 {
@@ -51127,10 +51087,6 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "类型：ReactNode。",
                                         },
                                         {
-                                          name: "description",
-                                          description: "类型：ReactNode。",
-                                        },
-                                        {
                                           name: "commands",
                                           description: "类型：BodySurfaceCommandSpec[]。",
                                         },
@@ -51660,10 +51616,6 @@ export const generatedCoreUiSurfaceContracts = {
                                       children: [
                                         {
                                           name: "title",
-                                          description: "类型：ReactNode。",
-                                        },
-                                        {
-                                          name: "description",
                                           description: "类型：ReactNode。",
                                         },
                                         {
@@ -54448,10 +54400,6 @@ export const generatedCoreUiSurfaceContracts = {
                       children: [
                         {
                           name: "title",
-                          description: "类型：ReactNode。",
-                        },
-                        {
-                          name: "description",
                           description: "类型：ReactNode。",
                         },
                         {
@@ -60295,10 +60243,6 @@ export const generatedCoreUiSurfaceContracts = {
                                       description: "类型：ReactNode。",
                                     },
                                     {
-                                      name: "description",
-                                      description: "类型：ReactNode。",
-                                    },
-                                    {
                                       name: "commands",
                                       description: "类型：BodySurfaceCommandSpec[]。",
                                       children: [
@@ -61233,10 +61177,6 @@ export const generatedCoreUiSurfaceContracts = {
                                               description: "类型：ReactNode。",
                                             },
                                             {
-                                              name: "subtitle",
-                                              description: "类型：ReactNode。",
-                                            },
-                                            {
                                               name: "badges",
                                               description: "类型：BodySurfaceBadgeSpec[]。",
                                             },
@@ -62076,10 +62016,6 @@ export const generatedCoreUiSurfaceContracts = {
                                   children: [
                                     {
                                       name: "title",
-                                      description: "类型：ReactNode。",
-                                    },
-                                    {
-                                      name: "description",
                                       description: "类型：ReactNode。",
                                     },
                                     {

@@ -244,7 +244,6 @@ export default function NotificationBell({
             embedded
             body={createPageBody([createPanelSection("notifications", {
               title: <div className="whitespace-nowrap text-sm font-semibold text-slate-900">通知</div>,
-              subtitle: <div className="whitespace-nowrap text-xs text-slate-400">{data.pendingCount} 条待确认 · {data.unreadCount} 条未读 · 共 {data.total} 条</div>,
               actions: [
                 { key: "refresh", icon: "refresh", label: "刷新", onClick: () => void load(0) },
                 { key: "mark-read", icon: "double-check", label: "全部已读", disabled: markingRead || data.unreadCount === 0, onClick: () => void markAllRead() },

@@ -159,7 +159,6 @@ export default function ReportTab() {
     }] : []),
     ...(data?.type === "balance" ? [createPanelSection("balance-report", {
             title: "资 产 负 债 表",
-            subtitle: `${data.period.year}年${data.period.month}月`,
             sections: [
               createSectionsSection("balance-lines", {
                 layout: "grid",
@@ -200,7 +199,6 @@ export default function ReportTab() {
           })] : []),
     ...(data?.type === "income" ? [createPanelSection("income-report", {
             title: "利 润 表",
-            subtitle: `${data.period.year}年${data.period.month}月`,
             sections: [
               ...(() => {
                 const block = createReportBannerSection("income-banner", { source: data.source, diagnostics: data.diagnostics, reviewHref: `/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=incomeStatement` });
@@ -214,7 +212,6 @@ export default function ReportTab() {
           })] : []),
     ...(data?.type === "cashflow" ? [createPanelSection("cashflow-report", {
             title: "现 金 流 量 表",
-            subtitle: `${data.period.year}年${data.period.month}月`,
             sections: [
               ...(() => {
                 const block = createReportBannerSection("cashflow-banner", { source: data.source, diagnostics: data.diagnostics, reviewHref: `/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=cashFlow` });

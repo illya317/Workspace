@@ -1,7 +1,6 @@
 import path from "path";
 import { mkdir, readdir, readFile, rm, writeFile } from "fs/promises";
 import { legacyQcToEditorDocument } from "./editor-adapter";
-import { appendCanonicalMicrobiologySection, microbiologySectionAudit } from "./editor-template-canonical-md";
 import type {
   QcEditorConversionAudit,
   QcEditorConversionResult,
@@ -154,7 +153,7 @@ export async function generateQcEditorTemplates(options: GenerateQcEditorTemplat
   for (const product of productEntries) {
     const detail = await getQcTemplateDetailFromConfig(product.key);
     const sourceRead = await readProductSourceAudit(configRoot, sourceSchemaRoot, detail);
-    const conversion = appendCanonicalMicrobiologySection(detail, legacyQcToEditorDocument(detail), sourceRead.canonicalMdRaw);
+    const conversion = legacyQcToEditorDocument(detail);
     const headingComparison = compareHeadings(detail, conversion, sourceRead.audit.canonicalMd);
     const outputFile = path.join(productsRoot, `${product.key}.json`);
     const productAudit = buildProductAudit(detail, conversion, sourceRead.audit, headingComparison, outputFile);
@@ -326,6 +325,21 @@ function mdEditorTestHeadingMatches(mdHeadingText: string, editorHeadingText: st
   const editorSequence = editorHeadingText.match(/^(\d+(?:\.\d+)*)/)?.[1];
   if (mdSequence && editorSequence && mdSequence === editorSequence) return true;
   return normalizeText(editorHeadingText).includes(normalizeText(mdHeadingText.replace(/^(\d+(?:\.\d+)*)\s*(?:[|｜]\s*)?/, "")));
+}
+
+function microbiologySectionAudit(raw: string): CanonicalMdAudit["microbiologySection"] {
+  const heading = raw.split(/\r?\n/).find((line) => /^###\s+.+微生物限度检查/.test(line.trim()));
+  if (!heading) return { found: false };
+  const sectionStart = raw.indexOf(heading);
+  const section = sectionStart >= 0 ? raw.slice(sectionStart) : "";
+  return {
+    found: true,
+    heading: heading.replace(/^###\s+/, "").trim(),
+    sequence: heading.match(/^###\s+(\d+(?:\.\d+)*)/)?.[1],
+    lineCount: section.split(/\r?\n/).filter((line) => line.trim()).length,
+    fieldMarkerCount: (section.match(/\{FIELD:/g) || []).length,
+    prefillMarkerCount: (section.match(/\{PREFILL:/g) || []).length,
+  };
 }
 
 function mdTestHeadingMatches(headingText: string, sequence: string, testName: string) {

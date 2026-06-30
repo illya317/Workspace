@@ -40,4 +40,5 @@ export type {
   EditorTableRow,
   FieldDefinition,
   FieldModel,
+  FormulaTemplateDefinition,
 } from "./types";

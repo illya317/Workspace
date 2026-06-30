@@ -126,6 +126,16 @@ export interface FieldModel {
   schemaVersion?: 1;
   fields: Record<string, FieldDefinition> | FieldDefinition[];
   formulas?: Record<string, FormulaDefinition>;
+  formulaTemplates?: FormulaTemplateDefinition[];
+}
+
+export interface FormulaTemplateDefinition {
+  key: string;
+  name: string;
+  kind?: "function" | "template";
+  parameters: string[];
+  formula: string;
+  contexts?: string[];
 }
 
 export interface FieldDefinition {

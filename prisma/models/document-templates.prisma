@@ -32,7 +32,6 @@ model DocumentTemplate {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @default(now()) @updatedAt
   deletedAt        DateTime?
-  publishRequestedAt DateTime?
   publishedAt      DateTime?
   publishedByUserId Int?
   space            DocumentTemplateSpace @relation(fields: [spaceId], references: [id], onDelete: Cascade)

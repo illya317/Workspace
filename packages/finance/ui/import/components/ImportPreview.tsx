@@ -239,7 +239,6 @@ export function createImportPreviewSections({
       key: "import-preview-heading",
       header: {
         title: `预览：${typeLabel}（${preview.year}年）`,
-        subtitle: `共 ${preview.rows} 行原始数据，解析出 ${preview.accounts.length} 个科目${preview.balances ? `，${preview.balances.length} 条余额` : ""}${preview.vouchers ? `，${preview.vouchers.length} 张凭证` : ""}`,
       },
       body: { kind: "section" },
     },

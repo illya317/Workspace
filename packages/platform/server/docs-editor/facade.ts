@@ -11,8 +11,6 @@ import {
   getTemplate,
   listSpaces,
   listTemplates,
-  markPublished,
-  requestPublish,
   saveDraft,
 } from "./service";
 import type { ServiceResult } from "../api";
@@ -95,16 +93,4 @@ export async function copyDocumentTemplate(
 
 export async function deleteDocumentTemplateDraft(userId: number, templateId: number | string) {
   return unwrapServiceResult(await deleteDraft({ userId, templateId: numberFromString(templateId) ?? 0 }));
-}
-
-export async function requestDocumentTemplatePublish(userId: number, templateId: number | string) {
-  return unwrapServiceResult(await requestPublish({ userId, templateId: numberFromString(templateId) ?? 0 }));
-}
-
-export async function markDocumentTemplatePublished(userId: number, templateId: number | string, official?: boolean) {
-  return unwrapServiceResult(await markPublished({
-    userId,
-    templateId: numberFromString(templateId) ?? 0,
-    official,
-  }));
 }

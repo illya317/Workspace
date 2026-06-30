@@ -20,17 +20,6 @@ import { normalizePrecheckHeadings } from "./precheck-normalize";
 
 export const EDITOR_PERMISSION_ROLES: EditorPermissionRole[] = ["viewer", "editor", "delete", "manager"];
 
-export type FieldFormulaRow = {
-  key: string;
-  label: string;
-  type: string;
-  unit: string;
-  mode: string;
-  formula: string;
-  computedValue: string;
-  error: string;
-};
-
 export type FormulaComputation = {
   adapter: string;
   ok: boolean;
@@ -49,7 +38,6 @@ export function formatDateTime(value: string) {
 
 export function statusLabel(status: EditorTemplateListItemDto["status"]) {
   if (status === "published") return "已发布";
-  if (status === "reviewing") return "待发布";
   if (status === "archived") return "已归档";
   return "草稿";
 }
@@ -67,7 +55,6 @@ export function normalizePermissionRole(value: unknown): EditorPermissionRole {
 
 export function statusTone(status: EditorTemplateListItemDto["status"]) {
   if (status === "published") return "green" as const;
-  if (status === "reviewing") return "amber" as const;
   if (status === "archived") return "slate" as const;
   return "sky" as const;
 }
@@ -102,9 +89,10 @@ export function normalizeFieldModel(value: unknown): FieldModel {
       ...model,
       fields: model.fields ?? {},
       formulas: model.formulas ?? {},
+      formulaTemplates: Array.isArray(model.formulaTemplates) ? model.formulaTemplates : [],
     };
   }
-  return { schemaVersion: 1, fields: {}, formulas: {} };
+  return { schemaVersion: 1, fields: {}, formulas: {}, formulaTemplates: [] };
 }
 
 function isEditorDocument(value: unknown): value is EditorDocument {
@@ -122,48 +110,6 @@ function fieldKey(field: FieldDefinition, fallback: string) {
 
 function fieldLabel(field: FieldDefinition, key: string) {
   return field.label ?? field.name ?? field.fieldKey ?? field.key ?? key;
-}
-
-export function fieldRows(fieldModel: FieldModel, computation: FormulaComputation): FieldFormulaRow[] {
-  const rows: FieldFormulaRow[] = [];
-  const seen = new Set<string>();
-  const fields = Array.isArray(fieldModel.fields)
-    ? fieldModel.fields.map((field, index) => [fieldKey(field, `field_${index + 1}`), field] as const)
-    : Object.entries(fieldModel.fields);
-
-  fields.forEach(([key, field]) => {
-    const formula = field.formula
-      ?? fieldModel.formulas?.[key]?.formulaText
-      ?? fieldModel.formulas?.[key]?.rule
-      ?? "";
-    rows.push({
-      key,
-      label: fieldLabel(field, key),
-      type: field.type ?? field.valueType ?? field.inputType ?? "-",
-      unit: field.unit ?? "",
-      mode: field.mode ?? (formula ? "formula" : field.readonlyDisplay ? "readonly" : "manual"),
-      formula,
-      computedValue: formatComputedValue(computation.values[key]),
-      error: computation.errorsByFieldKey[key] ?? "",
-    });
-    seen.add(key);
-  });
-
-  Object.entries(fieldModel.formulas ?? {}).forEach(([key, formula]) => {
-    if (seen.has(key)) return;
-    rows.push({
-      key,
-      label: key,
-      type: "number",
-      unit: "",
-      mode: formula.readonlyDisplay ? "readonly" : "formula",
-      formula: formula.formulaText ?? formula.rule ?? "",
-      computedValue: formatComputedValue(computation.values[key]),
-      error: computation.errorsByFieldKey[key] ?? "",
-    });
-  });
-
-  return rows;
 }
 
 export function evaluateFieldModel(fieldModel: FieldModel): FormulaComputation {
@@ -266,49 +212,9 @@ function formulaValueFromField(field: FieldDefinition): FormulaValue | undefined
   return String(raw);
 }
 
-function formatComputedValue(value: FormulaValue | undefined) {
-  if (value === undefined || value === null || value === "") return "-";
-  if (typeof value === "number") return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(6)));
-  return String(value);
-}
-
 function formatFormulaError(error: FormulaEvaluationError) {
   if (error.type === "missing_field") return `缺少字段或值：${error.reference ?? "未知"}`;
   if (error.type === "invalid_function") return `不支持函数：${error.functionName ?? "未知"}`;
   if (error.type === "circular_dependency") return "循环依赖";
   return error.message || "公式错误";
-}
-
-function cloneFieldModel(model: FieldModel): FieldModel {
-  return JSON.parse(JSON.stringify(model)) as FieldModel;
-}
-
-export function upsertFormula(model: FieldModel, key: string, formula: string): FieldModel {
-  const next = cloneFieldModel(model);
-  if (Array.isArray(next.fields)) {
-    const field = next.fields.find((item, index) => fieldKey(item, `field_${index + 1}`) === key);
-    if (field) {
-      field.formula = formula;
-      field.mode = "formula";
-    } else {
-      next.fields.push({ key, label: key, type: "number", mode: "formula", formula });
-    }
-  } else {
-    const current = next.fields[key] ?? { key, label: key, type: "number" };
-    next.fields[key] = { ...current, formula, mode: "formula" };
-  }
-  next.formulas = {
-    ...(next.formulas ?? {}),
-    [key]: {
-      ...(next.formulas?.[key] ?? { fieldKey: key }),
-      fieldKey: key,
-      formulaText: formula,
-    },
-  };
-  return next;
-}
-
-export function addFormulaField(model: FieldModel): FieldModel {
-  const key = `formula_${Date.now()}`;
-  return upsertFormula(model, key, "");
 }

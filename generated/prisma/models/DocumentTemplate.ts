@@ -58,7 +58,6 @@ export type DocumentTemplateMinAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
-  publishRequestedAt: Date | null
   publishedAt: Date | null
   publishedByUserId: number | null
 }
@@ -79,7 +78,6 @@ export type DocumentTemplateMaxAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
-  publishRequestedAt: Date | null
   publishedAt: Date | null
   publishedByUserId: number | null
 }
@@ -100,7 +98,6 @@ export type DocumentTemplateCountAggregateOutputType = {
   createdAt: number
   updatedAt: number
   deletedAt: number
-  publishRequestedAt: number
   publishedAt: number
   publishedByUserId: number
   _all: number
@@ -139,7 +136,6 @@ export type DocumentTemplateMinAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
-  publishRequestedAt?: true
   publishedAt?: true
   publishedByUserId?: true
 }
@@ -160,7 +156,6 @@ export type DocumentTemplateMaxAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
-  publishRequestedAt?: true
   publishedAt?: true
   publishedByUserId?: true
 }
@@ -181,7 +176,6 @@ export type DocumentTemplateCountAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
-  publishRequestedAt?: true
   publishedAt?: true
   publishedByUserId?: true
   _all?: true
@@ -289,7 +283,6 @@ export type DocumentTemplateGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
-  publishRequestedAt: Date | null
   publishedAt: Date | null
   publishedByUserId: number | null
   _count: DocumentTemplateCountAggregateOutputType | null
@@ -333,7 +326,6 @@ export type DocumentTemplateWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"DocumentTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DocumentTemplate"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"DocumentTemplate"> | Date | string | null
-  publishRequestedAt?: Prisma.DateTimeNullableFilter<"DocumentTemplate"> | Date | string | null
   publishedAt?: Prisma.DateTimeNullableFilter<"DocumentTemplate"> | Date | string | null
   publishedByUserId?: Prisma.IntNullableFilter<"DocumentTemplate"> | number | null
   space?: Prisma.XOR<Prisma.DocumentTemplateSpaceScalarRelationFilter, Prisma.DocumentTemplateSpaceWhereInput>
@@ -355,7 +347,6 @@ export type DocumentTemplateOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  publishRequestedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   publishedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   space?: Prisma.DocumentTemplateSpaceOrderByWithRelationInput
@@ -380,7 +371,6 @@ export type DocumentTemplateWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"DocumentTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DocumentTemplate"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"DocumentTemplate"> | Date | string | null
-  publishRequestedAt?: Prisma.DateTimeNullableFilter<"DocumentTemplate"> | Date | string | null
   publishedAt?: Prisma.DateTimeNullableFilter<"DocumentTemplate"> | Date | string | null
   publishedByUserId?: Prisma.IntNullableFilter<"DocumentTemplate"> | number | null
   space?: Prisma.XOR<Prisma.DocumentTemplateSpaceScalarRelationFilter, Prisma.DocumentTemplateSpaceWhereInput>
@@ -402,7 +392,6 @@ export type DocumentTemplateOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  publishRequestedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   publishedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.DocumentTemplateCountOrderByAggregateInput
@@ -431,7 +420,6 @@ export type DocumentTemplateScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DocumentTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DocumentTemplate"> | Date | string
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DocumentTemplate"> | Date | string | null
-  publishRequestedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DocumentTemplate"> | Date | string | null
   publishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DocumentTemplate"> | Date | string | null
   publishedByUserId?: Prisma.IntNullableWithAggregatesFilter<"DocumentTemplate"> | number | null
 }
@@ -450,7 +438,6 @@ export type DocumentTemplateCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
-  publishRequestedAt?: Date | string | null
   publishedAt?: Date | string | null
   publishedByUserId?: number | null
   space: Prisma.DocumentTemplateSpaceCreateNestedOneWithoutTemplatesInput
@@ -472,7 +459,6 @@ export type DocumentTemplateUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
-  publishRequestedAt?: Date | string | null
   publishedAt?: Date | string | null
   publishedByUserId?: number | null
 }
@@ -491,7 +477,6 @@ export type DocumentTemplateUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  publishRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   space?: Prisma.DocumentTemplateSpaceUpdateOneRequiredWithoutTemplatesNestedInput
@@ -513,7 +498,6 @@ export type DocumentTemplateUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  publishRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -534,7 +518,6 @@ export type DocumentTemplateCreateManyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
-  publishRequestedAt?: Date | string | null
   publishedAt?: Date | string | null
   publishedByUserId?: number | null
 }
@@ -553,7 +536,6 @@ export type DocumentTemplateUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  publishRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -574,7 +556,6 @@ export type DocumentTemplateUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  publishRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -605,7 +586,6 @@ export type DocumentTemplateCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
-  publishRequestedAt?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   publishedByUserId?: Prisma.SortOrder
 }
@@ -634,7 +614,6 @@ export type DocumentTemplateMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
-  publishRequestedAt?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   publishedByUserId?: Prisma.SortOrder
 }
@@ -655,7 +634,6 @@ export type DocumentTemplateMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
-  publishRequestedAt?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   publishedByUserId?: Prisma.SortOrder
 }
@@ -724,7 +702,6 @@ export type DocumentTemplateCreateWithoutSpaceInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
-  publishRequestedAt?: Date | string | null
   publishedAt?: Date | string | null
   publishedByUserId?: number | null
 }
@@ -744,7 +721,6 @@ export type DocumentTemplateUncheckedCreateWithoutSpaceInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
-  publishRequestedAt?: Date | string | null
   publishedAt?: Date | string | null
   publishedByUserId?: number | null
 }
@@ -793,7 +769,6 @@ export type DocumentTemplateScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"DocumentTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DocumentTemplate"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"DocumentTemplate"> | Date | string | null
-  publishRequestedAt?: Prisma.DateTimeNullableFilter<"DocumentTemplate"> | Date | string | null
   publishedAt?: Prisma.DateTimeNullableFilter<"DocumentTemplate"> | Date | string | null
   publishedByUserId?: Prisma.IntNullableFilter<"DocumentTemplate"> | number | null
 }
@@ -813,7 +788,6 @@ export type DocumentTemplateCreateManySpaceInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
-  publishRequestedAt?: Date | string | null
   publishedAt?: Date | string | null
   publishedByUserId?: number | null
 }
@@ -832,7 +806,6 @@ export type DocumentTemplateUpdateWithoutSpaceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  publishRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -852,7 +825,6 @@ export type DocumentTemplateUncheckedUpdateWithoutSpaceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  publishRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -872,7 +844,6 @@ export type DocumentTemplateUncheckedUpdateManyWithoutSpaceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  publishRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -895,7 +866,6 @@ export type DocumentTemplateSelect<ExtArgs extends runtime.Types.Extensions.Inte
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
-  publishRequestedAt?: boolean
   publishedAt?: boolean
   publishedByUserId?: boolean
   space?: boolean | Prisma.DocumentTemplateSpaceDefaultArgs<ExtArgs>
@@ -917,7 +887,6 @@ export type DocumentTemplateSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
-  publishRequestedAt?: boolean
   publishedAt?: boolean
   publishedByUserId?: boolean
   space?: boolean | Prisma.DocumentTemplateSpaceDefaultArgs<ExtArgs>
@@ -939,7 +908,6 @@ export type DocumentTemplateSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
-  publishRequestedAt?: boolean
   publishedAt?: boolean
   publishedByUserId?: boolean
   space?: boolean | Prisma.DocumentTemplateSpaceDefaultArgs<ExtArgs>
@@ -961,12 +929,11 @@ export type DocumentTemplateSelectScalar = {
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
-  publishRequestedAt?: boolean
   publishedAt?: boolean
   publishedByUserId?: boolean
 }
 
-export type DocumentTemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "type" | "status" | "ownerUserId" | "spaceId" | "documentJson" | "fieldModelJson" | "sourceKind" | "sourceProductKey" | "sourceStageKeys" | "version" | "createdAt" | "updatedAt" | "deletedAt" | "publishRequestedAt" | "publishedAt" | "publishedByUserId", ExtArgs["result"]["documentTemplate"]>
+export type DocumentTemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "type" | "status" | "ownerUserId" | "spaceId" | "documentJson" | "fieldModelJson" | "sourceKind" | "sourceProductKey" | "sourceStageKeys" | "version" | "createdAt" | "updatedAt" | "deletedAt" | "publishedAt" | "publishedByUserId", ExtArgs["result"]["documentTemplate"]>
 export type DocumentTemplateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   space?: boolean | Prisma.DocumentTemplateSpaceDefaultArgs<ExtArgs>
 }
@@ -998,7 +965,6 @@ export type $DocumentTemplatePayload<ExtArgs extends runtime.Types.Extensions.In
     createdAt: Date
     updatedAt: Date
     deletedAt: Date | null
-    publishRequestedAt: Date | null
     publishedAt: Date | null
     publishedByUserId: number | null
   }, ExtArgs["result"]["documentTemplate"]>
@@ -1440,7 +1406,6 @@ export interface DocumentTemplateFieldRefs {
   readonly createdAt: Prisma.FieldRef<"DocumentTemplate", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DocumentTemplate", 'DateTime'>
   readonly deletedAt: Prisma.FieldRef<"DocumentTemplate", 'DateTime'>
-  readonly publishRequestedAt: Prisma.FieldRef<"DocumentTemplate", 'DateTime'>
   readonly publishedAt: Prisma.FieldRef<"DocumentTemplate", 'DateTime'>
   readonly publishedByUserId: Prisma.FieldRef<"DocumentTemplate", 'Int'>
 }

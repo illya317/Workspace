@@ -13,6 +13,7 @@ import type { ActionGlyphKind } from "./internal/action/ActionGlyphs";
 import DetailModal from "./internal/common/DetailModal";
 import type { ModuleCardColor } from "./internal/common/Card";
 import { renderBodyEmpty, renderBodyMessage, renderBodyStatus, renderModuleGrid, renderSectionBadges } from "./internal/body/BodySurfaceBlocks";
+import { assertNoSurfaceExplanatoryText } from "./internal/body/BodySurfaceGuardParts";
 import { BodySurfaceSectionFrame } from "./internal/body/BodySurfaceSectionParts";
 import { sectionCardClassName, sectionStackPosition, type BodySectionStackPosition } from "./internal/body/BodySurfaceSectionStack.styles";
 import SplitWorkspace, { type SplitWorkspaceMode } from "./internal/common/SplitWorkspace";
@@ -117,7 +118,6 @@ export interface BodySurfaceBadgeSpec {
 }
 export interface BodySurfaceSectionHeaderSpec {
   title?: ReactNode;
-  subtitle?: ReactNode;
   badges?: BodySurfaceBadgeSpec[];
   toolbarItems?: SurfaceToolbarItems;
   actions?: BodySurfaceCommandSpec[];
@@ -125,7 +125,6 @@ export interface BodySurfaceSectionHeaderSpec {
 interface BodySurfaceSectionCommonProps {
   kind: "section";
   title?: ReactNode;
-  description?: ReactNode;
   commands?: BodySurfaceCommandSpec[];
   message?: BodySurfaceMessageSpec;
   status?: BodySurfaceStatusSpec;
@@ -268,7 +267,7 @@ const sectionChrome = (section: BodySurfaceSectionSpec): BodySurfaceSectionChrom
 
 function renderSectionHeader(section: BodySurfaceSectionSpec, chrome: BodySurfaceSectionChrome = sectionChrome(section)) {
   const header = section.header;
-  if (!header?.title && !header?.subtitle && !header?.badges?.length && !header?.toolbarItems?.length && !header?.actions?.length) return null;
+  if (!header?.title && !header?.badges?.length && !header?.toolbarItems?.length && !header?.actions?.length) return null;
   const actions = (
     <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
       {header.toolbarItems?.length ? <Toolbar items={header.toolbarItems} /> : null}
@@ -284,7 +283,6 @@ function renderSectionHeader(section: BodySurfaceSectionSpec, chrome: BodySurfac
             {renderSectionBadges(header.badges)}
           </div>
         )}
-        {header.subtitle ? <p className="text-sm leading-5 text-slate-500">{header.subtitle}</p> : null}
       </div>
       {header.toolbarItems?.length || header.actions?.length ? actions : null}
     </div>
@@ -330,7 +328,7 @@ function stackPositionForSection(sections: BodySurfaceSectionSpec[], index: numb
 
 function canInlineTabbedBody(section: BodySurfaceSectionSpec) {
   const body = section.body;
-  return sectionChrome(section) === "plain" && !section.header && body.kind === "section" && body.layout !== "split" && !body.commands && !body.title && !body.description && !body.message && !body.status && !body.empty && !body.list && !body.moduleGrid && !body.modals?.length;
+  return sectionChrome(section) === "plain" && !section.header && body.kind === "section" && body.layout !== "split" && !body.commands && !body.title && !body.message && !body.status && !body.empty && !body.list && !body.moduleGrid && !body.modals?.length;
 }
 function BodySurfaceSectionStack({ sections, sectioning, layout = "stack", gridColumns = 2, leadingCardSegment = false }: { sections?: BodySurfaceSectionSpec[]; sectioning?: BodySurfaceSectioningSpec; layout?: "stack" | "grid"; gridColumns?: BodySurfaceSectionGridColumns; leadingCardSegment?: boolean }) {
   if (!sections?.length) return null;
@@ -365,11 +363,10 @@ function BodySurfaceSectionStack({ sections, sectioning, layout = "stack", gridC
 }
 
 function renderBodyTitle(props: BodySurfaceSectionProps) {
-  if (!props.title && !props.description) return null;
+  if (!props.title) return null;
   return (
     <div className="space-y-1">
       {props.title ? <h2 className="text-lg font-semibold text-slate-900">{props.title}</h2> : null}
-      {props.description ? <p className="text-sm text-slate-500">{props.description}</p> : null}
     </div>
   );
 }
@@ -439,6 +436,7 @@ function renderSectionSurface(props: BodySurfaceSectionProps) {
 }
 
 export default function BodySurface(props: BodySurfaceProps) {
+  assertNoSurfaceExplanatoryText(props);
   if (props.kind === "data") return <DataSurface {...props.data} />;
   if (props.kind === "document") return <DocumentSurface {...props.document} />;
   if (props.kind === "form") return <FormSurface {...props.form} />;

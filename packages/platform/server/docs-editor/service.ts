@@ -15,12 +15,10 @@ import {
 import {
   buildCopyTemplateCommand,
   buildListTemplatesCommand,
-  buildMarkPublishedCommand,
   buildSaveDraftCommand,
   buildTemplateIdCommand,
   type CopyTemplateInput,
   type ListTemplatesInput,
-  type MarkPublishedInput,
   type SaveDraftInput,
   type TemplateIdInput,
 } from "./domain/document-template-validation";
@@ -36,7 +34,6 @@ import {
   getQcDepartmentContext,
   getUserDepartmentContexts,
   isDocsEditorRoleAtLeast,
-  maxDocsEditorRole,
   resolveSpaceRole,
   resolveTemplateRole,
 } from "./permissions";
@@ -65,7 +62,7 @@ function parseJson(value: string | null | undefined, fallback: unknown) {
 }
 
 function asStatus(value: string) {
-  if (value === "reviewing" || value === "published" || value === "archived") return value;
+  if (value === "published" || value === "archived") return value;
   return "draft";
 }
 
@@ -392,7 +389,6 @@ export async function saveDraft(input: SaveDraftInput): Promise<ServiceResult<Do
         ...command.data.data,
         status: "draft",
         version: { increment: 1 },
-        publishRequestedAt: null,
       },
     });
     return serviceOk(await templateDetailDto(updated, roleOrViewer(current.role)));
@@ -466,61 +462,6 @@ export async function deleteDraft(input: TemplateIdInput): Promise<ServiceResult
     data: { deletedAt: new Date(), version: { increment: 1 } },
   });
   return serviceOk({ id: String(command.data.templateId) });
-}
-
-export async function requestPublish(input: TemplateIdInput): Promise<ServiceResult<DocsEditorTemplateDetailDto>> {
-  const command = buildTemplateIdCommand(input);
-  if (command.ok === false) return serviceError(command.issue.message, command.issue.status);
-  const current = await getTemplateWithRole(command.data.userId, command.data.templateId);
-  if (!current) return serviceError("模板不存在", 404);
-  if (!isDocsEditorRoleAtLeast(current.role, "editor")) return serviceError("无权限", 403);
-  if (current.template.status !== "draft") return serviceError("只有草稿模板可以提交发布", 409);
-  const db = docsEditorDb();
-  const updated = await db.documentTemplate.update({
-    where: { id: command.data.templateId },
-    data: {
-      status: "reviewing",
-      publishRequestedAt: new Date(),
-      version: { increment: 1 },
-    },
-  });
-  const role = maxDocsEditorRole(current.role, "editor") ?? "editor";
-  return serviceOk(await templateDetailDto(updated, role));
-}
-
-function isProductionQcOfficialTemplate(template: DocsEditorTemplateRow, explicitOfficial: boolean) {
-  if (explicitOfficial) return true;
-  const sourceKind = template.sourceKind || "";
-  return (
-    sourceKind === "production.qc.official" ||
-    sourceKind === "qc.official"
-  );
-}
-
-export async function markPublished(input: MarkPublishedInput): Promise<ServiceResult<DocsEditorTemplateDetailDto>> {
-  const command = buildMarkPublishedCommand(input);
-  if (command.ok === false) return serviceError(command.issue.message, command.issue.status);
-  const current = await getTemplateWithRole(command.data.userId, command.data.templateId);
-  if (!current) return serviceError("模板不存在", 404);
-  if (!isDocsEditorRoleAtLeast(current.role, "manager")) return serviceError("无权限", 403);
-  if (current.template.status === "archived") return serviceError("归档模板不能发布", 409);
-  if (
-    isProductionQcOfficialTemplate(current.template, command.data.official) &&
-    !(await canPublishOfficialQcTemplate(command.data.userId))
-  ) {
-    return serviceError("发布 QC 官方模板需要模板编辑器管理权限", 403);
-  }
-  const db = docsEditorDb();
-  const updated = await db.documentTemplate.update({
-    where: { id: command.data.templateId },
-    data: {
-      status: "published",
-      publishedAt: new Date(),
-      publishedByUserId: command.data.userId,
-      version: { increment: 1 },
-    },
-  });
-  return serviceOk(await templateDetailDto(updated, "manager"));
 }
 
 export async function getEditorBootstrap(input: ListTemplatesInput): Promise<ServiceResult<DocsEditorBootstrapDto>> {

@@ -278,12 +278,10 @@ export function ProfileFieldInput({
 
 export function SectionShell({
   title,
-  subtitle,
   status,
   sections,
 }: {
   title: ReactNode;
-  subtitle?: ReactNode;
   status?: ReactNode;
   className?: string;
   sections: BodySurfaceSectionSpec[];
@@ -291,20 +289,18 @@ export function SectionShell({
   return (
     <PageSurface kind="standard"
       embedded
-      body={createPageBody([createSectionShellSection({ title, subtitle, status, sections })])}
+      body={createPageBody([createSectionShellSection({ title, status, sections })])}
     />
   );
 }
 
 export function createSectionShellSection({
   title,
-  subtitle,
   status,
   sections,
   key = "section",
 }: {
   title: ReactNode;
-  subtitle?: ReactNode;
   status?: ReactNode;
   className?: string;
   sections: BodySurfaceSectionSpec[];
@@ -319,7 +315,6 @@ export function createSectionShellSection({
 
   return createSectionSection(key, {
     title: headerTitle ?? "",
-    subtitle,
     sections,
 
   });

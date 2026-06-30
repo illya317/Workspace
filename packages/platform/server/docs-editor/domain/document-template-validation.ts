@@ -46,10 +46,6 @@ export interface CopyTemplateInput extends TemplateIdInput {
   title?: string | null;
 }
 
-export interface MarkPublishedInput extends TemplateIdInput {
-  official?: boolean | null;
-}
-
 export type ListTemplatesCommand = {
   userId: number;
   spaceId?: number;
@@ -85,12 +81,6 @@ export type CopyTemplateCommand = {
   targetSpaceId?: number;
   targetDepartmentId?: number;
   title?: string;
-};
-
-export type MarkPublishedCommand = {
-  userId: number;
-  templateId: number;
-  official: boolean;
 };
 
 function failFrom<T>(result: { ok: false; issue: DomainValidationIssue }): DomainValidationResult<T> {
@@ -355,10 +345,4 @@ export function buildCopyTemplateCommand(input: CopyTemplateInput): DomainValida
     ...(targetDepartmentId.data !== undefined ? { targetDepartmentId: targetDepartmentId.data } : {}),
     ...(title.data !== undefined ? { title: title.data } : {}),
   });
-}
-
-export function buildMarkPublishedCommand(input: MarkPublishedInput): DomainValidationResult<MarkPublishedCommand> {
-  const base = buildTemplateIdCommand(input);
-  if (base.ok === false) return failFrom(base);
-  return okCommand({ ...base.data, official: Boolean(input.official) });
 }

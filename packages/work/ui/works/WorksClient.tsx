@@ -16,7 +16,6 @@ import {
   createEmptyWorkDraft,
   createEmptyWorkPlanDraft,
   createWorkPlanDraft,
-  getWorkSpaceLabel,
   getWorkSpacePath,
   getWorkTargetFromPath,
   isWorkPlanDraftDirty,
@@ -414,7 +413,6 @@ export default function WorksClient({ initialTarget }: {
         right: createPageBody(currentSpace ? [
           createPanelSection("space-header", {
             title: currentSpace.name,
-            subtitle: [getWorkSpaceLabel(currentSpace.targetType), currentSpace.subtitle].filter(Boolean).join(" · "),
             sections: [createSpaceMetricsSection(currentSpace)],
           }),
           activeTab === "permissions" ? createSectionsSection("permissions", {

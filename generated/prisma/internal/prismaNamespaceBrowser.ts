@@ -337,7 +337,6 @@ export const DocumentTemplateScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt',
-  publishRequestedAt: 'publishRequestedAt',
   publishedAt: 'publishedAt',
   publishedByUserId: 'publishedByUserId'
 } as const

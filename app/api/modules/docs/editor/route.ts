@@ -16,7 +16,7 @@ const optionalText = z.preprocess(
 
 const listQuerySchema = z.object({
   spaceId: z.string().optional(),
-  status: z.enum(["draft", "reviewing", "published", "archived"]).optional(),
+  status: z.enum(["draft", "published", "archived"]).optional(),
   keyword: optionalText,
 });
 

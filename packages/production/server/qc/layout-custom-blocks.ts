@@ -180,6 +180,74 @@ function precheckConfirmTable(raw: Record<string, unknown>, params: Params): QcL
   };
 }
 
+function microbiologyHeader(raw: Record<string, unknown>): QcLayoutBlock {
+  const packagingKey = asString(raw.packaging_key || raw.packagingKey, "layout/microbiology/packaging");
+  const sampleQuantityKey = asString(raw.sample_quantity_key || raw.sampleQuantityKey, "layout/microbiology/sample_quantity");
+  const inspectionDateKey = asString(raw.inspection_date_key || raw.inspectionDateKey, "layout/microbiology/inspection_date");
+  const completionDateKey = asString(raw.completion_date_key || raw.completionDateKey, "layout/microbiology/completion_date");
+  const judgmentDateKey = asString(raw.judgment_date_key || raw.judgmentDateKey, "layout/microbiology/judgment_date");
+  return {
+    type: "table",
+    label: asString(raw.label, "microbiology_header"),
+    rows: [
+      [
+        cell("包装情况"),
+        cell("", [{ type: "line", fieldKey: packagingKey, width: "8rem" }]),
+        cell("检品数量"),
+        cell("", [{ type: "line", fieldKey: sampleQuantityKey, width: "8rem" }]),
+      ],
+      [
+        cell("请验部门"),
+        cell("固体制剂车间"),
+        cell("检验日期"),
+        cell("", [{ type: "date", fieldKey: inspectionDateKey }]),
+      ],
+      [
+        cell("完成日期"),
+        cell("", [{ type: "date", fieldKey: completionDateKey }]),
+        cell("判定日期"),
+        cell("", [{ type: "date", fieldKey: judgmentDateKey }]),
+      ],
+      [
+        cell("检验依据"),
+        cell("《中国药典》2025年版四部、质量标准、《微生物限度检验标准操作规程》（SOP073613）", [], 3),
+      ],
+    ],
+    order: Number(raw.order) || undefined,
+    moduleOrder: Number(raw.module_order || raw.moduleOrder) || undefined,
+  };
+}
+
+function microbiologyFileTable(raw: Record<string, unknown>): QcLayoutBlock {
+  const prefix = asString(raw.field_prefix || raw.fieldPrefix, "layout/microbiology/files");
+  const section = asString(raw.section_suffix || raw.sectionSuffix || raw.section_no || raw.sectionNo, "1");
+  const files = [
+    ["《质量标准》", ""],
+    ["《微生物限度检验标准操作规程》", "SOP073613"],
+    ["《培养基使用标准操作规程》", "SOP071007"],
+    ["《检定用菌毒种使用标准操作规程》", "SOP071004"],
+    ["《LDZX-50KBS型立式压力蒸汽灭菌器使用、维护保养标准操作规程》", "SOP072111"],
+    ["《ZSP-S500型生化培养箱使用与维护标准操作规程》", "SOP072083"],
+    ["《ZSP-S250型生化培养箱使用与维护标准操作规程》", "SOP072125"],
+    ["《BHC-1100IIA2生物安全柜使用与保养维护标准操作规程》", "SOP072044"],
+  ];
+  return {
+    type: "table",
+    label: asString(raw.label, "microbiology_file_table"),
+    rows: [
+      [cell(`${section} 文件`, [], 3)],
+      [cell("文件名称"), cell("文件编码"), cell("是否在实验现场")],
+      ...files.map(([name, code], index) => [
+        cell(name),
+        cell(code),
+        cell("", [{ type: "radio", fieldKey: `${prefix}/file_${index + 1}`, options: ["是", "否"] }]),
+      ]),
+    ],
+    order: Number(raw.order) || undefined,
+    moduleOrder: Number(raw.module_order || raw.moduleOrder) || undefined,
+  };
+}
+
 function sectionedOperationSteps(raw: Record<string, unknown>, params: Params): QcLayoutBlock | null {
   const scope = paramScope(raw, params);
   const steps = asArray(scope[asString(raw.steps_param || raw.stepsParam, "identification_steps")]);
@@ -213,6 +281,8 @@ export function mapCustomLayoutBlock(raw: Record<string, unknown>, params: Param
   if (type === "experiment_projects_table") return experimentProjectsTable(raw, params);
   if (type === "precheck_files_table") return precheckFilesTable(raw, params);
   if (type === "precheck_confirm_table") return precheckConfirmTable(raw, params);
+  if (type === "microbiology_header") return microbiologyHeader(raw);
+  if (type === "microbiology_file_table") return microbiologyFileTable(raw);
   if (type === "sectioned_operation_steps") return sectionedOperationSteps(raw, params);
   return null;
 }

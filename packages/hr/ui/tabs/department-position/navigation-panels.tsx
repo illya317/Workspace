@@ -158,7 +158,6 @@ export function createDirectPositionPanelSection({
 
   return createPanelSection("direct-positions", {
     title: "直属岗位",
-    subtitle: `${directPositions.length} 个`,
     actions: canRenderCreate ? [{
       key: "add-position",
       label: creatingPositionHere ? "收起新建" : "新建岗位",
