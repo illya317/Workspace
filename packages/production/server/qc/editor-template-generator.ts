@@ -1,6 +1,11 @@
 import path from "path";
 import { mkdir, readdir, readFile, rm, writeFile } from "fs/promises";
-import { legacyQcToEditorDocument, type QcEditorConversionAudit, type QcEditorConversionResult } from "./editor-adapter";
+import { legacyQcToEditorDocument } from "./editor-adapter";
+import { appendCanonicalMicrobiologySection, microbiologySectionAudit } from "./editor-template-canonical-md";
+import type {
+  QcEditorConversionAudit,
+  QcEditorConversionResult,
+} from "./editor-adapter-types";
 import { getQcTemplateDetailFromConfig } from "./record-structure";
 import type { QcTemplateDetail } from "./types";
 
@@ -20,6 +25,14 @@ interface CanonicalMdAudit {
   exists: boolean;
   headings: Array<{ level: number; text: string }>;
   headingCounts: Record<string, number>;
+  microbiologySection?: {
+    found: boolean;
+    heading?: string;
+    sequence?: string;
+    lineCount?: number;
+    fieldMarkerCount?: number;
+    prefillMarkerCount?: number;
+  };
   sourceComment?: {
     fieldCount?: number;
     prefillCount?: number;
@@ -45,6 +58,11 @@ interface ProductSourceAudit {
   warnings: string[];
 }
 
+interface ProductSourceRead {
+  audit: ProductSourceAudit;
+  canonicalMdRaw: string;
+}
+
 interface HeadingComparisonAudit {
   mdHeadingCounts: Record<string, number>;
   editorHeadingCounts: Record<string, number>;
@@ -54,6 +72,7 @@ interface HeadingComparisonAudit {
   editorExperimentItemHeadingCount: number;
   missingStageHeadingsInMd: string[];
   missingTestHeadingsInMd: Array<{ stageKey: string; testKey: string; sequence: string; name: string }>;
+  mdExperimentHeadingsMissingInEditor: Array<{ sequence: string; name: string; heading: string }>;
   mdMissingSectionWarnings: string[];
   mdInlineNotPromotedWarnings: string[];
 }
@@ -134,11 +153,11 @@ export async function generateQcEditorTemplates(options: GenerateQcEditorTemplat
   const productAudits: ProductTemplateAudit[] = [];
   for (const product of productEntries) {
     const detail = await getQcTemplateDetailFromConfig(product.key);
-    const conversion = legacyQcToEditorDocument(detail);
-    const source = await readProductSourceAudit(configRoot, sourceSchemaRoot, detail);
-    const headingComparison = compareHeadings(detail, conversion, source.canonicalMd);
+    const sourceRead = await readProductSourceAudit(configRoot, sourceSchemaRoot, detail);
+    const conversion = appendCanonicalMicrobiologySection(detail, legacyQcToEditorDocument(detail), sourceRead.canonicalMdRaw);
+    const headingComparison = compareHeadings(detail, conversion, sourceRead.audit.canonicalMd);
     const outputFile = path.join(productsRoot, `${product.key}.json`);
-    const productAudit = buildProductAudit(detail, conversion, source, headingComparison, outputFile);
+    const productAudit = buildProductAudit(detail, conversion, sourceRead.audit, headingComparison, outputFile);
     await writeJson(outputFile, {
       schemaVersion: 1,
       kind: "qc-doc-editor-product-template",
@@ -189,7 +208,7 @@ async function readSourceInventory(configRoot: string, sourceSchemaRoot: string)
   return { mdCanonical, schemaRecords, schemaFull, runtimeRecords, runtimeFull, warnings };
 }
 
-async function readProductSourceAudit(configRoot: string, sourceSchemaRoot: string, detail: QcTemplateDetail): Promise<ProductSourceAudit> {
+async function readProductSourceAudit(configRoot: string, sourceSchemaRoot: string, detail: QcTemplateDetail): Promise<ProductSourceRead> {
   const mdPath = path.join(sourceSchemaRoot, "md_canonical", `${detail.productName}.md`);
   const canonicalRecordPath = path.join(sourceSchemaRoot, "records", `${detail.id}.json`);
   const runtimeRecordPath = path.join(configRoot, "records", `${detail.id}.json`);
@@ -205,23 +224,27 @@ async function readProductSourceAudit(configRoot: string, sourceSchemaRoot: stri
     return { used: runtime.ok ? runtimePath : "", ok: runtime.ok };
   }));
   const missingFullStageFiles = stageKeys(detail).filter((_, index) => !fullPathReads[index]?.ok);
-  const canonicalMd = await readCanonicalMd(mdPath);
+  const canonicalMdRead = await readCanonicalMd(mdPath);
+  const canonicalMd = canonicalMdRead.audit;
   const warnings = [
     ...(!canonicalMd.exists ? [`canonical md path missing: ${mdPath}`] : []),
     ...(canonicalRecord.ok || runtimeRecord?.ok ? [] : [`record JSON missing: ${canonicalRecordPath}; ${runtimeRecordPath}`]),
     ...missingFullStageFiles.map((stageKey) => `full JSON missing for stage ${stageKey}`),
   ];
   return {
-    canonicalMd,
-    canonicalRecordPath,
-    runtimeRecordPath,
-    recordPathUsed: canonicalRecord.ok ? canonicalRecordPath : runtimeRecord?.ok ? runtimeRecordPath : undefined,
-    recordExists: canonicalRecord.ok || !!runtimeRecord?.ok,
-    canonicalFullPaths,
-    runtimeFullPaths,
-    fullPathsUsed: fullPathReads.map((item) => item.used).filter(Boolean),
-    missingFullStageFiles,
-    warnings,
+    audit: {
+      canonicalMd,
+      canonicalRecordPath,
+      runtimeRecordPath,
+      recordPathUsed: canonicalRecord.ok ? canonicalRecordPath : runtimeRecord?.ok ? runtimeRecordPath : undefined,
+      recordExists: canonicalRecord.ok || !!runtimeRecord?.ok,
+      canonicalFullPaths,
+      runtimeFullPaths,
+      fullPathsUsed: fullPathReads.map((item) => item.used).filter(Boolean),
+      missingFullStageFiles,
+      warnings,
+    },
+    canonicalMdRaw: canonicalMdRead.raw,
   };
 }
 
@@ -238,13 +261,14 @@ function buildProductAudit(
     ...source.warnings,
     ...(headingComparison.missingStageHeadingsInMd.length ? [`MD stage headings missing: ${headingComparison.missingStageHeadingsInMd.join(", ")}`] : []),
     ...(headingComparison.missingTestHeadingsInMd.length ? [`MD test headings missing: ${headingComparison.missingTestHeadingsInMd.length}`] : []),
+    ...(headingComparison.mdExperimentHeadingsMissingInEditor.length ? [`MD experiment headings missing in editor: ${headingComparison.mdExperimentHeadingsMissingInEditor.length}`] : []),
   ];
   return {
     productKey: detail.id,
     productName: detail.productName,
     outputFile,
     stages: detail.stages.length,
-    experimentItems: detail.stages.reduce((total, stage) => total + stage.tests.length, 0),
+    experimentItems: counts.tests,
     tables: counts.tables,
     fields: counts.fields,
     formulas: counts.formulas,
@@ -273,6 +297,15 @@ function compareHeadings(detail: QcTemplateDetail, conversion: QcEditorConversio
       .filter((test) => !headings.some((heading) => mdTestHeadingMatches(heading.text, test.sequence, test.name)))
       .map((test) => ({ stageKey: stage.key, testKey: test.englishName, sequence: test.sequence, name: test.name }));
   });
+  const editorTestHeadings = editorHeadings.filter((block) => block.metadata?.qcRole === "testHeading");
+  const mdExperimentHeadingsMissingInEditor = md.headings
+    .filter((heading) => heading.level === 3 && /^2\.\d+\b/.test(heading.text.trim()))
+    .filter((heading) => !editorTestHeadings.some((block) => mdEditorTestHeadingMatches(heading.text, block.text)))
+    .map((heading) => ({
+      sequence: heading.text.match(/^(\d+(?:\.\d+)*)/)?.[1] || "",
+      name: heading.text.replace(/^(\d+(?:\.\d+)*)\s*(?:[|｜]\s*)?/, "").trim(),
+      heading: heading.text,
+    }));
   return {
     mdHeadingCounts: md.headingCounts,
     editorHeadingCounts,
@@ -282,9 +315,17 @@ function compareHeadings(detail: QcTemplateDetail, conversion: QcEditorConversio
     editorExperimentItemHeadingCount,
     missingStageHeadingsInMd,
     missingTestHeadingsInMd,
+    mdExperimentHeadingsMissingInEditor,
     mdMissingSectionWarnings: md.sourceComment?.missingSections || [],
     mdInlineNotPromotedWarnings: md.sourceComment?.inlineNotPromoted || [],
   };
+}
+
+function mdEditorTestHeadingMatches(mdHeadingText: string, editorHeadingText: string) {
+  const mdSequence = mdHeadingText.match(/^(\d+(?:\.\d+)*)/)?.[1];
+  const editorSequence = editorHeadingText.match(/^(\d+(?:\.\d+)*)/)?.[1];
+  if (mdSequence && editorSequence && mdSequence === editorSequence) return true;
+  return normalizeText(editorHeadingText).includes(normalizeText(mdHeadingText.replace(/^(\d+(?:\.\d+)*)\s*(?:[|｜]\s*)?/, "")));
 }
 
 function mdTestHeadingMatches(headingText: string, sequence: string, testName: string) {
@@ -316,16 +357,20 @@ function mdStageSections(headings: Array<{ level: number; text: string }>) {
   return sections;
 }
 
-async function readCanonicalMd(filePath: string): Promise<CanonicalMdAudit> {
+async function readCanonicalMd(filePath: string): Promise<{ audit: CanonicalMdAudit; raw: string }> {
   const raw = await readFile(filePath, "utf8").catch(() => "");
-  if (!raw) return { path: filePath, exists: false, headings: [], headingCounts: {} };
+  if (!raw) return { audit: { path: filePath, exists: false, headings: [], headingCounts: {} }, raw };
   const headings = [...raw.matchAll(/^(#{1,6})\s+(.+)$/gm)].map((match) => ({ level: match[1].length, text: match[2].trim() }));
   return {
-    path: filePath,
-    exists: true,
-    headings,
-    headingCounts: countBy(headings.map((heading) => `h${heading.level}`)),
-    sourceComment: parseSourceComment(raw.match(/^<!--([\s\S]*?)-->/)?.[1] || ""),
+    audit: {
+      path: filePath,
+      exists: true,
+      headings,
+      headingCounts: countBy(headings.map((heading) => `h${heading.level}`)),
+      microbiologySection: microbiologySectionAudit(raw),
+      sourceComment: parseSourceComment(raw.match(/^<!--([\s\S]*?)-->/)?.[1] || ""),
+    },
+    raw,
   };
 }
 

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 export type EditorSlotType = "fieldSlot" | "formulaSlot" | "dateSlot" | "signatureSlot";
 export type EditorInlineType = "text" | EditorSlotType;
-export type EditorBlockType = "heading" | "paragraph" | "table" | "attachment";
+export type EditorBlockType = "heading" | "paragraph" | "table" | "attachment" | "pageBreak";
 
 export interface EditorDocument {
   schemaVersion: 1;
@@ -13,7 +13,7 @@ export interface EditorDocument {
   metadata?: Record<string, unknown>;
 }
 
-export type EditorBlock = EditorHeadingBlock | EditorParagraphBlock | EditorTableBlock | EditorAttachmentBlock;
+export type EditorBlock = EditorHeadingBlock | EditorParagraphBlock | EditorTableBlock | EditorAttachmentBlock | EditorPageBreakBlock;
 
 export interface EditorHeadingBlock {
   id: string;
@@ -47,6 +47,12 @@ export interface EditorAttachmentBlock {
   title: string;
   text: string;
   fieldKey: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface EditorPageBreakBlock {
+  id: string;
+  type: "pageBreak";
   metadata?: Record<string, unknown>;
 }
 
@@ -92,6 +98,8 @@ export interface EditorSlotInline {
   fieldKey: string;
   id?: string;
   label?: string;
+  alias?: string;
+  slotKind?: "person" | "date" | "choice" | "plain" | "variable" | "formula" | "reference";
   unit?: string;
   width?: string | number;
   align?: "left" | "center" | "right" | string;
@@ -101,7 +109,6 @@ export interface EditorSlotInline {
   formulaTextMap?: Record<string, string>;
   dependencyFieldKeys?: string[];
   dependencyFieldKeyMap?: Record<string, string[]>;
-  formulaKind?: "formula" | "reference" | "readonlyDisplay";
   readonlyDisplay?: boolean;
   referenceFieldKey?: string;
   valueSource?: Record<string, unknown>;
@@ -141,6 +148,7 @@ export interface FieldDefinition {
   readonlyDisplay?: boolean;
   referenceFieldKey?: string;
   valueSource?: Record<string, unknown>;
+  slotKind?: string;
   mode?: "manual" | "formula" | "readonly";
   required?: boolean;
   metadata?: Record<string, unknown>;
@@ -153,6 +161,7 @@ export interface FormulaDefinition {
   dependencyFieldKeys?: string[];
   referenceFieldKey?: string;
   readonlyDisplay?: boolean;
+  slotKind?: string;
   metadata?: Record<string, unknown>;
 }
 

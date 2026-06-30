@@ -5,13 +5,13 @@ import {
   type DomainValidationResult,
 } from "../../domain-validation";
 import {
-  DOCS_EDITOR_PERMISSION_ROLES,
   DOCS_EDITOR_SPACE_KINDS,
   DOCS_EDITOR_TEMPLATE_STATUSES,
-  type DocsEditorPermissionRole,
   type DocsEditorSpaceKind,
   type DocsEditorTemplateStatus,
 } from "../types";
+
+const deprecatedFormulaKindKey = ["formula", "Kind"].join("");
 
 export interface ListTemplatesInput {
   userId: number;
@@ -44,10 +44,6 @@ export interface CopyTemplateInput extends TemplateIdInput {
   targetSpaceId?: number | null;
   targetDepartmentId?: number | null;
   title?: string | null;
-}
-
-export interface UpdatePermissionsInput extends TemplateIdInput {
-  permissions: Array<{ userId: number; role: string }>;
 }
 
 export interface MarkPublishedInput extends TemplateIdInput {
@@ -89,12 +85,6 @@ export type CopyTemplateCommand = {
   targetSpaceId?: number;
   targetDepartmentId?: number;
   title?: string;
-};
-
-export type UpdatePermissionsCommand = {
-  userId: number;
-  templateId: number;
-  permissions: Array<{ userId: number; role: DocsEditorPermissionRole }>;
 };
 
 export type MarkPublishedCommand = {
@@ -158,19 +148,128 @@ function optionalStatus(value: string | null | undefined) {
   return failCommand("模板状态无效", 400, "status");
 }
 
-function role(value: string) {
-  if (DOCS_EDITOR_PERMISSION_ROLES.includes(value as DocsEditorPermissionRole)) {
-    return okCommand(value as DocsEditorPermissionRole);
-  }
-  return failCommand("权限角色无效", 400, "role");
-}
-
 function sourceStageKeys(value: string[] | null | undefined) {
   if (value === undefined) return okCommand(undefined);
   if (value === null) return okCommand(null);
   const normalized = Array.from(new Set(value.map((item) => item.trim()).filter(Boolean)));
   if (normalized.length > 100) return failCommand("阶段数量过多", 400, "sourceStageKeys");
   return okCommand(JSON.stringify(normalized));
+}
+
+const referenceAliasPattern = /^x\d+$/i;
+
+type ReferenceCandidate = {
+  alias: string;
+  fieldKey: string;
+  context: string;
+};
+
+function normalizeDocumentReferences(value: unknown): DomainValidationResult<unknown> {
+  if (value === undefined) return okCommand(undefined);
+  const candidates = collectReferenceCandidates(value);
+  const byFieldKey = new Set(candidates.map((candidate) => candidate.fieldKey));
+  const byAlias = new Map<string, string>();
+  const byContextFieldKey = new Map<string, Set<string>>();
+  const byContextAlias = new Map<string, Map<string, string>>();
+  candidates.forEach((candidate) => {
+    if (!byAlias.has(candidate.alias)) byAlias.set(candidate.alias, candidate.fieldKey);
+    const fieldKeys = byContextFieldKey.get(candidate.context) ?? new Set<string>();
+    fieldKeys.add(candidate.fieldKey);
+    byContextFieldKey.set(candidate.context, fieldKeys);
+    const contextMap = byContextAlias.get(candidate.context) ?? new Map<string, string>();
+    if (!contextMap.has(candidate.alias)) contextMap.set(candidate.alias, candidate.fieldKey);
+    byContextAlias.set(candidate.context, contextMap);
+  });
+  return normalizeReferenceNodes(value, { byAlias, byContextAlias, byContextFieldKey, byFieldKey });
+}
+
+function collectReferenceCandidates(value: unknown) {
+  const candidates: ReferenceCandidate[] = [];
+  walkDocumentJson(value, (node) => {
+    const alias = referenceAlias(node.alias);
+    const fieldKey = stringField(node.fieldKey);
+    if (!alias || !fieldKey || isReferenceNode(node)) return;
+    candidates.push({ alias, fieldKey, context: slotContextLabel(node) });
+  });
+  return candidates;
+}
+
+function normalizeReferenceNodes(
+  value: unknown,
+  context: {
+    byAlias: Map<string, string>;
+    byContextAlias: Map<string, Map<string, string>>;
+    byContextFieldKey: Map<string, Set<string>>;
+    byFieldKey: Set<string>;
+  },
+): DomainValidationResult<unknown> {
+  if (Array.isArray(value)) {
+    const items: unknown[] = [];
+    for (const item of value) {
+      const normalized = normalizeReferenceNodes(item, context);
+      if (normalized.ok === false) return failFrom(normalized);
+      items.push(normalized.data);
+    }
+    return okCommand(items);
+  }
+  if (!isRecord(value)) return okCommand(value);
+  const next: Record<string, unknown> = {};
+  for (const [key, item] of Object.entries(value)) {
+    if (key === deprecatedFormulaKindKey) continue;
+    const normalized = normalizeReferenceNodes(item, context);
+    if (normalized.ok === false) return failFrom(normalized);
+    next[key] = normalized.data;
+  }
+  if (!isReferenceNode(next)) return okCommand(next);
+
+  const referenceFieldKey = stringField(next.referenceFieldKey);
+  if (!referenceFieldKey) return failCommand("请输入引用来源编号", 400, "document.referenceFieldKey");
+  const nodeContext = slotContextLabel(next);
+  const fieldKeys = nodeContext ? context.byContextFieldKey.get(nodeContext) ?? new Set<string>() : context.byFieldKey;
+  if (fieldKeys.has(referenceFieldKey)) return okCommand({ ...next, referenceFieldKey });
+
+  const alias = referenceAlias(referenceFieldKey);
+  if (!alias) return failCommand("请输入引用来源编号", 400, "document.referenceFieldKey");
+  const resolved = nodeContext ? context.byContextAlias.get(nodeContext)?.get(alias) : context.byAlias.get(alias);
+  if (!resolved) return failCommand(`本检测项目内不存在引用来源编号：${alias}`, 400, "document.referenceFieldKey");
+  return okCommand({ ...next, referenceFieldKey: resolved });
+}
+
+function walkDocumentJson(value: unknown, visit: (node: Record<string, unknown>) => void) {
+  if (Array.isArray(value)) {
+    value.forEach((item) => walkDocumentJson(item, visit));
+    return;
+  }
+  if (!isRecord(value)) return;
+  visit(value);
+  Object.values(value).forEach((item) => walkDocumentJson(item, visit));
+}
+
+function referenceAlias(value: unknown) {
+  const text = stringField(value)?.toLowerCase();
+  return text && referenceAliasPattern.test(text) ? text : "";
+}
+
+function isReferenceNode(node: Record<string, unknown>) {
+  return node.slotKind === "reference" || !!stringField(node.referenceFieldKey);
+}
+
+function slotContextLabel(node: Record<string, unknown>) {
+  const metadata = isRecord(node.metadata) ? node.metadata : {};
+  const source = isRecord(metadata.source) ? metadata.source : metadata;
+  const product = stringField(source.productName);
+  const stage = stringField(source.stageLabel);
+  const sequence = stringField(source.sequence);
+  const test = stringField(source.testName);
+  return [product, stage, [sequence, test].filter(Boolean).join(" ")].filter(Boolean).join(" / ");
+}
+
+function stringField(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.trim() : "";
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 export function buildListTemplatesCommand(input: ListTemplatesInput): DomainValidationResult<ListTemplatesCommand> {
@@ -208,7 +307,9 @@ export function buildSaveDraftCommand(input: SaveDraftInput): DomainValidationRe
   if (title.ok === false) return failFrom(title);
   const type = optionalText(input.type, 40, "type");
   if (type.ok === false) return failFrom(type);
-  const documentJson = jsonString(input.document, "document");
+  const document = normalizeDocumentReferences(input.document);
+  if (document.ok === false) return failFrom(document);
+  const documentJson = jsonString(document.data, "document");
   if (documentJson.ok === false) return failFrom(documentJson);
   const fieldModelJson = jsonString(input.fieldModel, "fieldModel");
   if (fieldModelJson.ok === false) return failFrom(fieldModelJson);
@@ -254,25 +355,6 @@ export function buildCopyTemplateCommand(input: CopyTemplateInput): DomainValida
     ...(targetDepartmentId.data !== undefined ? { targetDepartmentId: targetDepartmentId.data } : {}),
     ...(title.data !== undefined ? { title: title.data } : {}),
   });
-}
-
-export function buildUpdatePermissionsCommand(input: UpdatePermissionsInput): DomainValidationResult<UpdatePermissionsCommand> {
-  const base = buildTemplateIdCommand(input);
-  if (base.ok === false) return failFrom(base);
-  if (input.permissions.length > 100) return failCommand("授权用户过多", 400, "permissions");
-  const seen = new Set<number>();
-  const permissions: UpdatePermissionsCommand["permissions"] = [];
-  for (const item of input.permissions) {
-    const userId = positiveId(item.userId, "userId");
-    if (userId.ok === false) return failFrom(userId);
-    if (userId.data === undefined) return failCommand("无效用户ID", 400, "userId");
-    if (seen.has(userId.data)) return failCommand("授权用户重复", 400, "permissions");
-    const parsedRole = role(item.role);
-    if (parsedRole.ok === false) return failFrom(parsedRole);
-    seen.add(userId.data);
-    permissions.push({ userId: userId.data, role: parsedRole.data });
-  }
-  return okCommand({ ...base.data, permissions });
 }
 
 export function buildMarkPublishedCommand(input: MarkPublishedInput): DomainValidationResult<MarkPublishedCommand> {

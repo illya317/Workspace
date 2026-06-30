@@ -1,6 +1,6 @@
-export const DOCS_EDITOR_SPACE_KINDS = ["personal", "department"] as const;
+export const DOCS_EDITOR_SPACE_KINDS = ["personal", "company", "department"] as const;
 export const DOCS_EDITOR_TEMPLATE_STATUSES = ["draft", "reviewing", "published", "archived"] as const;
-export const DOCS_EDITOR_PERMISSION_ROLES = ["viewer", "editor", "manager"] as const;
+export const DOCS_EDITOR_PERMISSION_ROLES = ["viewer", "editor", "delete", "manager"] as const;
 
 export type DocsEditorSpaceKind = (typeof DOCS_EDITOR_SPACE_KINDS)[number];
 export type DocsEditorTemplateStatus = (typeof DOCS_EDITOR_TEMPLATE_STATUSES)[number];
@@ -13,6 +13,8 @@ export type DocumentTemplateRole = DocsEditorPermissionRole;
 export interface DocsEditorSpaceDto {
   id: string;
   kind: DocsEditorSpaceKind;
+  targetType: DocsEditorSpaceKind;
+  targetId: number;
   title: string;
   description?: string;
   departmentId?: number | null;
@@ -35,17 +37,18 @@ export interface DocsEditorTemplateListItemDto {
   role: DocsEditorPermissionRole;
 }
 
-export interface DocsEditorTemplatePermissionDto {
-  id: string;
+export interface DocsEditorSpacePermissionDto {
   userId: number;
   userName: string;
   role: DocsEditorPermissionRole;
+  kind: "template";
+  source: "natural" | "explicit";
+  locked: boolean;
 }
 
 export interface DocsEditorTemplateDetailDto extends DocsEditorTemplateListItemDto {
   document: unknown;
   fieldModel: unknown;
-  permissions: DocsEditorTemplatePermissionDto[];
 }
 
 export interface DocsEditorBootstrapDto {
@@ -55,7 +58,7 @@ export interface DocsEditorBootstrapDto {
 
 export type DocumentTemplateSpaceDto = DocsEditorSpaceDto;
 export type DocumentTemplateListItemDto = DocsEditorTemplateListItemDto;
-export type DocumentTemplatePermissionDto = DocsEditorTemplatePermissionDto;
+export type DocumentTemplateSpacePermissionDto = DocsEditorSpacePermissionDto;
 export type DocumentTemplateDetailDto = DocsEditorTemplateDetailDto;
 export type DocumentTemplateBootstrapDto = DocsEditorBootstrapDto;
 
@@ -75,8 +78,4 @@ export interface CreateDocumentTemplateCommand extends SaveDocumentTemplateDraft
   spaceId: string;
   document: unknown;
   fieldModel: unknown;
-}
-
-export interface UpdateDocumentTemplatePermissionsCommand {
-  permissions: Array<{ userId: number; role: DocsEditorPermissionRole }>;
 }

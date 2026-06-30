@@ -4,6 +4,7 @@ import {
   ErrorType,
   FunctionArgumentType,
   FunctionPlugin,
+  type FunctionPluginDefinition,
   HyperFormula,
 } from "hyperformula";
 import {
@@ -12,6 +13,7 @@ import {
   emitHyperFormulaExpression,
   parseFormulaError,
   parseFormulaExpression,
+  validateFormulaFunctionArguments,
 } from "./parser";
 import type {
   FormulaEngineAdapter,
@@ -22,7 +24,60 @@ import type {
   FormulaValue,
 } from "./types";
 
-let rsdPluginRegistered = false;
+let formulaPluginsRegistered = false;
+
+class AvgPlugin extends FunctionPlugin {
+  static implementedFunctions = {
+    AVG: {
+      method: "avg",
+      parameters: [{ argumentType: FunctionArgumentType.NUMBER }],
+      repeatLastArgs: 1,
+    },
+  };
+
+  avg(ast: { args: unknown[] }, state: unknown) {
+    return this.runFunction(ast.args as never[], state as never, this.metadata("AVG"), (...args: number[]) => {
+      if (args.length < 1) return new CellError(ErrorType.VALUE, "AVG received an invalid argument count.");
+      return calculateAverage(args);
+    });
+  }
+}
+
+class MeanPlugin extends FunctionPlugin {
+  static implementedFunctions = {
+    MEAN: {
+      method: "mean",
+      parameters: [{ argumentType: FunctionArgumentType.NUMBER }],
+      repeatLastArgs: 1,
+    },
+  };
+
+  mean(ast: { args: unknown[] }, state: unknown) {
+    return this.runFunction(ast.args as never[], state as never, this.metadata("MEAN"), (...args: number[]) => {
+      if (args.length < 1) return new CellError(ErrorType.VALUE, "MEAN received an invalid argument count.");
+      return calculateAverage(args);
+    });
+  }
+}
+
+class RdPlugin extends FunctionPlugin {
+  static implementedFunctions = {
+    RD: {
+      method: "rd",
+      parameters: [{ argumentType: FunctionArgumentType.NUMBER }, { argumentType: FunctionArgumentType.NUMBER }],
+    },
+  };
+
+  rd(ast: { args: unknown[] }, state: unknown) {
+    return this.runFunction(ast.args as never[], state as never, this.metadata("RD"), (...args: number[]) => {
+      if (args.length !== 2) return new CellError(ErrorType.VALUE, "RD received an invalid argument count.");
+      const [left, right] = args;
+      const denominator = calculateAverage([left, right]);
+      if (denominator === 0) return new CellError(ErrorType.DIV_BY_ZERO, "RD denominator is zero.");
+      return (Math.abs(left - right) / Math.abs(denominator)) * 100;
+    });
+  }
+}
 
 class RsdPlugin extends FunctionPlugin {
   static implementedFunctions = {
@@ -36,7 +91,7 @@ class RsdPlugin extends FunctionPlugin {
   rsd(ast: { args: unknown[] }, state: unknown) {
     return this.runFunction(ast.args as never[], state as never, this.metadata("RSD"), (...args: number[]) => {
       if (args.length < 2) return 0;
-      const mean = args.reduce((sum, value) => sum + value, 0) / args.length;
+      const mean = calculateAverage(args);
       if (mean === 0) return new CellError(ErrorType.DIV_BY_ZERO, "RSD mean is zero.");
       const variance = args.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (args.length - 1);
       return (Math.sqrt(variance) / Math.abs(mean)) * 100;
@@ -48,17 +103,19 @@ export class HyperFormulaAdapter implements FormulaEngineAdapter {
   readonly kind = "hyperformula" as const;
 
   evaluate(input: FormulaEvaluationInput): FormulaEvaluationResult {
-    registerRsdPlugin();
+    registerFormulaPlugins();
 
     const fields = input.model.fields;
     const catalog = createReferenceCatalog(fields);
+    const fieldByKey = new Map(fields.map((field) => [field.fieldKey, field]));
     const values = createInitialValues(fields, input.values);
     const cellByFieldKey = createTemporaryCellMap(fields);
     const errors: FormulaEvaluationError[] = [];
     const sheet = fields.map((field) => {
-      if (!field.formula) return [values[field.fieldKey] ?? null];
+        if (!field.formula) return [values[field.fieldKey] ?? null];
       try {
         const expression = parseFormulaExpression(field.formula);
+        validateFormulaFunctionArguments(expression, (reference) => isInputReference(reference, catalog, fieldByKey));
         let hasMissingReference = false;
         for (const reference of collectFormulaReferences(expression)) {
           if (!catalog.resolve(reference)) {
@@ -99,12 +156,23 @@ export class HyperFormulaAdapter implements FormulaEngineAdapter {
   }
 }
 
-function registerRsdPlugin() {
-  if (rsdPluginRegistered) return;
-  if (!HyperFormula.getFunctionPlugin("RSD")) {
-    HyperFormula.registerFunctionPlugin(RsdPlugin, { enGB: { RSD: "RSD" } });
+function registerFormulaPlugins() {
+  if (formulaPluginsRegistered) return;
+  registerFunctionPlugin("AVG", AvgPlugin);
+  registerFunctionPlugin("MEAN", MeanPlugin);
+  registerFunctionPlugin("RD", RdPlugin);
+  registerFunctionPlugin("RSD", RsdPlugin);
+  formulaPluginsRegistered = true;
+}
+
+function registerFunctionPlugin(functionName: string, plugin: FunctionPluginDefinition) {
+  if (!HyperFormula.getFunctionPlugin(functionName)) {
+    HyperFormula.registerFunctionPlugin(plugin, { enGB: { [functionName]: functionName } });
   }
-  rsdPluginRegistered = true;
+}
+
+function calculateAverage(numbers: number[]) {
+  return numbers.reduce((sum, value) => sum + value, 0) / numbers.length;
 }
 
 function createTemporaryCellMap(fields: FormulaField[]) {
@@ -113,6 +181,14 @@ function createTemporaryCellMap(fields: FormulaField[]) {
     map.set(field.fieldKey, `A${index + 1}`);
   }
   return map;
+}
+
+function isInputReference(reference: string, catalog: ReturnType<typeof createReferenceCatalog>, fieldByKey: Map<string, FormulaField>) {
+  if (/^x\d+$/i.test(reference.trim())) return true;
+  const field = fieldByKey.get(catalog.resolve(reference) ?? "");
+  if (!field) return false;
+  if (field.slotKind === "variable") return true;
+  return field.attr === "fillable" && (field.valueType === "number" || field.inputType === "number" || field.inputType === "field");
 }
 
 function createInitialValues(fields: FormulaField[], overrides?: Record<string, FormulaValue | undefined>) {

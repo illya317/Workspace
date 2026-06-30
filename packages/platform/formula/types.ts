@@ -14,6 +14,10 @@ export interface FormulaField {
   aliases?: string[];
   formula?: string | null;
   value?: FormulaValue;
+  slotKind?: string;
+  valueType?: string;
+  inputType?: string;
+  attr?: string;
 }
 
 export interface FormulaModel {

@@ -149,6 +149,9 @@ function editorBlockToQcLayoutBlock(block: EditorBlock): QcLayoutBlock[] {
   if (block.type === "attachment") {
     return [{ ...legacyBlock, type: "attachment_upload", title: block.title, text: block.text, fieldKey: block.fieldKey }];
   }
+  if (block.type === "pageBreak") {
+    return [{ ...legacyBlock, type: "page_break" }];
+  }
   return [{
     ...legacyBlock,
     type: "table",

@@ -155,12 +155,12 @@ export function useWorkPlanFormSurface({
         sourceMeetingActionCandidateTitle: "",
       }) },
     ] satisfies FormSurfaceFieldSpec[] : []),
-    { key: "description", label: "说明", span: "wide", spec: { valueType: "string", control: "text", multiline: true, state: disabled ? "disabled" : "normal" }, value: draft.description, placeholder: "说明计划背景、边界或达成口径", onChange: (value) => patch({ description: String(value ?? "") }) },
+    { key: "description", label: "说明", span: "wide", spec: { valueType: "string", control: "text", multiline: true, state: disabled ? "disabled" : "normal" }, value: draft.description, rows: 3, placeholder: "说明计划背景、边界或达成口径", onChange: (value) => patch({ description: String(value ?? "") }) },
   ];
 
   return {
     kind: "fields",
-    content: { items: fields, layout: { columns: 2 } },
+    content: { items: fields, layout: { columns: 3, density: "compact" } },
   };
 }
 

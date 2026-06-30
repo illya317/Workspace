@@ -98,10 +98,10 @@ export type DocumentTemplateSpace = Prisma.DocumentTemplateSpaceModel
  */
 export type DocumentTemplate = Prisma.DocumentTemplateModel
 /**
- * Model DocumentTemplatePermission
- * 模板产物的显式 user 级授权：viewer/editor/manager
+ * Model DocumentTemplateSpacePermission
+ * 文档模板空间显式 user 级授权：viewer/editor/delete/manager
  */
-export type DocumentTemplatePermission = Prisma.DocumentTemplatePermissionModel
+export type DocumentTemplateSpacePermission = Prisma.DocumentTemplateSpacePermissionModel
 /**
  * Model FinanceBudgetVersion
  * 预算版本头表。每年可存在多个版本（draft/active/archived），同 (year, companyCode) 下只有一个 active。

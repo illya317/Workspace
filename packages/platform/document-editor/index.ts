@@ -6,6 +6,7 @@ export {
 } from "./adapters";
 export { default as DocumentEditorCanvas } from "./DocumentEditorCanvas";
 export { default as DocumentPreview } from "./DocumentPreview";
+export { PageBreakNode } from "./page-break-extension";
 export {
   FieldSlot,
   FormulaSlot,
@@ -30,6 +31,7 @@ export type {
   EditorHeadingBlock,
   EditorInline,
   EditorInlineType,
+  EditorPageBreakBlock,
   EditorParagraphBlock,
   EditorSlotInline,
   EditorSlotType,

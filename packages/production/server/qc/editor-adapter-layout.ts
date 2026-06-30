@@ -9,7 +9,7 @@ export function environmentRows(block: QcLayoutBlock): QcLayoutCell[][] {
       return [
         cell("房间名称"), cell("", [{ type: "line", fieldKey: `${prefix}/room_name_${rowNo}`, width: "6.5rem" }]),
         cell("房间编号"), cell("", [{ type: "line", fieldKey: `${prefix}/room_no_${rowNo}`, width: "6.5rem" }]),
-        cell("温度"), cell("", [{ type: "line", fieldKey: `${prefix}/temperature_${rowNo}`, width: "3.4rem" }, { type: "text", text: "℃" }]),
+        cell("温度"), cell("", [{ type: "line", fieldKey: `${prefix}/temperature_${rowNo}`, width: "1.4rem" }, { type: "text", text: "℃" }]),
         cell("湿度"), cell("", [{ type: "line", fieldKey: `${prefix}/humidity_${rowNo}`, width: "3.4rem" }, { type: "text", text: "%" }]),
       ];
     }),
@@ -62,6 +62,7 @@ export function cleanupRows(block: QcLayoutBlock, test?: QcTemplateTestItem): Qc
 export function conclusionParts(block: QcLayoutBlock, test?: QcTemplateTestItem): QcLayoutPart[] {
   const resultKey = test?.conclusionFieldKey || "layout/conclusion/result";
   const valueUnit = block.unit || (test?.standardText?.match(/%/) ? "%" : "");
+  const valuePart = conclusionValuePart(block, test);
   const parts: QcLayoutPart[] = [
     { type: "text", text: "批号" },
     { type: "line", fieldKey: "batch_number", underline: true, width: "6rem" },
@@ -70,7 +71,7 @@ export function conclusionParts(block: QcLayoutBlock, test?: QcTemplateTestItem)
     { type: "text", text: "各项规定，结果" },
   ];
   if (block.hasValue || test?.hasNumericConclusion) {
-    parts.push({ type: "text", text: "为" }, { type: "field", field: "结论-结果", readonlyDisplay: true, underline: true });
+    parts.push({ type: "text", text: "为" }, valuePart);
     if (valueUnit) parts.push({ type: "text", text: valueUnit });
     parts.push({ type: "text", text: "，" });
   }
@@ -83,6 +84,44 @@ export function conclusionParts(block: QcLayoutBlock, test?: QcTemplateTestItem)
 
 export function textParts(text?: string): QcLayoutPart[] {
   return text ? [{ type: "text", text }] : [];
+}
+
+export function conclusionValuePart(block: QcLayoutBlock, test?: QcTemplateTestItem): QcLayoutPart {
+  const sourceKey = inferConclusionValueSourceKey(block, test);
+  return {
+    type: "field",
+    field: "结论-结果",
+    readonlyDisplay: true,
+    underline: true,
+    ...(sourceKey ? {
+      referenceFieldKey: sourceKey,
+      valueSource: { type: "field_ref", fieldKey: sourceKey },
+    } : {}),
+  };
+}
+
+function inferConclusionValueSourceKey(block: QcLayoutBlock, test?: QcTemplateTestItem) {
+  const fields = test?.methodGroups.flatMap((group) => group.fields) || [];
+  const targetName = block.conclusionName || test?.conclusionName || test?.name || "";
+  const ranked = fields
+    .map((field, index) => ({ field, index, score: conclusionValueScore(field.name, targetName, field.attr, field.formula || field.rule) }))
+    .filter((item) => item.score > 0)
+    .sort((left, right) => right.score - left.score || left.index - right.index);
+  return ranked[0]?.field.fieldKey;
+}
+
+function conclusionValueScore(name: string, targetName: string, attr?: string, formula?: string) {
+  const fieldName = name.trim();
+  const target = targetName.trim();
+  if (!fieldName) return 0;
+  let score = attr === "calculated" || formula ? 20 : 0;
+  if (target && fieldName === target) score += 100;
+  if (target && (fieldName === `平均${target}` || fieldName === `${target}平均`)) score += 90;
+  if (target && fieldName.includes(target) && fieldName.includes("平均")) score += 80;
+  if (target && fieldName.includes(target)) score += 60;
+  if (fieldName.includes("平均")) score += 40;
+  if (/^(RD|RSD)$/i.test(fieldName) || /(?:RD|RSD|偏差|限度|上限|下限|判定|结论)/i.test(fieldName)) score -= 120;
+  return score;
 }
 
 function cell(rawText: string, parts: QcLayoutPart[] = [], colspan = 1, extra: Partial<QcLayoutCell> = {}): QcLayoutCell {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type KeyboardEvent, type ReactNode } from "react";
 import type { ActionGlyphKind } from "./internal/action/ActionGlyphs";
 import Badge from "./internal/common/Badge";
 import { EmptyStateCard, PanelCard } from "./internal/common/Card";
@@ -168,6 +168,13 @@ function renderTreeMeta(meta: ReactNode[] | ReactNode) {
   return <span className="mt-1 block truncate text-xs text-slate-500">{meta}</span>;
 }
 
+function handleSelectableKeyDown(event: KeyboardEvent<HTMLElement>, onSelect: () => void) {
+  if (event.target !== event.currentTarget) return;
+  if (event.key !== "Enter" && event.key !== " ") return;
+  event.preventDefault();
+  onSelect();
+}
+
 function ListSelector<T>({ selector, actions }: {
   selector: SelectorSurfaceListSpec<T>;
   actions: ReactNode;
@@ -287,10 +294,12 @@ function TreeSelector<T>({ selector, actions }: {
               </button>
             ) : null}
           </span>
-          <button
-            type="button"
+          <div
+            role="button"
+            tabIndex={0}
             onClick={() => selector.onSelect(item)}
-            className="min-w-0 py-2.5 pl-1 pr-3 text-left focus-visible:outline-none"
+            onKeyDown={(event) => handleSelectableKeyDown(event, () => selector.onSelect(item))}
+            className="min-w-0 cursor-pointer py-2.5 pl-1 pr-3 text-left focus-visible:outline-none"
           >
             <span className="flex min-w-0 items-start gap-2.5">
               <Badge level={card.level ?? level} className="mt-0.5 shrink-0 px-2 py-0.5 font-semibold" />
@@ -302,7 +311,7 @@ function TreeSelector<T>({ selector, actions }: {
               {card.trailing ? <span className="shrink-0 pt-0.5 text-xs text-slate-500">{card.trailing}</span> : null}
               {card.status ? <span className="shrink-0 pt-0.5">{renderStatus(card.status)}</span> : null}
             </span>
-          </button>
+          </div>
         </div>
       );
       return (

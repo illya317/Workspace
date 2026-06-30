@@ -116,3 +116,47 @@ export function getAvailableRoles(resourceKey: string | null): string[] {
 export function isRoleAllowed(resourceKey: string, roleKey: string): boolean {
   return getAvailableRoles(resourceKey).includes(roleKey);
 }
+
+export const BUSINESS_SPACE_ROLES = ["viewer", "editor", "delete", "manager"] as const;
+
+export type BusinessSpaceRole = (typeof BUSINESS_SPACE_ROLES)[number];
+
+const BUSINESS_SPACE_ROLE_LEVEL: Record<BusinessSpaceRole, number> = {
+  viewer: 0,
+  editor: 1,
+  delete: 2,
+  manager: 3,
+};
+
+export const BUSINESS_SPACE_ROLE_OPTIONS: Array<{ value: BusinessSpaceRole; label: string }> = [
+  { value: "viewer", label: "查看" },
+  { value: "editor", label: "编辑" },
+  { value: "delete", label: "删除" },
+  { value: "manager", label: "管理" },
+];
+
+export function normalizeBusinessSpaceRole(role: string | null | undefined): BusinessSpaceRole {
+  if (role === "manager" || role === "delete" || role === "editor" || role === "viewer") return role;
+  return "viewer";
+}
+
+export function businessSpaceRoleAllows(role: BusinessSpaceRole | null | undefined, required: BusinessSpaceRole) {
+  if (!role) return false;
+  return BUSINESS_SPACE_ROLE_LEVEL[role] >= BUSINESS_SPACE_ROLE_LEVEL[required];
+}
+
+export function maxBusinessSpaceRole(
+  left: BusinessSpaceRole | null | undefined,
+  right: BusinessSpaceRole | null | undefined,
+): BusinessSpaceRole | null {
+  if (!left) return right ?? null;
+  if (!right) return left;
+  return BUSINESS_SPACE_ROLE_LEVEL[left] >= BUSINESS_SPACE_ROLE_LEVEL[right] ? left : right;
+}
+
+export function businessSpaceRoleLabel(role: BusinessSpaceRole | string | null | undefined) {
+  if (role === "manager") return "管理";
+  if (role === "delete") return "删除";
+  if (role === "editor") return "编辑";
+  return "查看";
+}

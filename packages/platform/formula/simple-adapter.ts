@@ -4,6 +4,7 @@ import {
   evaluateFormulaExpression,
   parseFormulaError,
   parseFormulaExpression,
+  validateFormulaFunctionArguments,
 } from "./parser";
 import type {
   FormulaEngineAdapter,
@@ -30,6 +31,7 @@ export class SimpleFormulaAdapter implements FormulaEngineAdapter {
       if (!field.formula) continue;
       try {
         const expression = parseFormulaExpression(field.formula);
+        validateFormulaFunctionArguments(expression, (reference) => isInputReference(reference, catalog, fieldByKey));
         expressions.set(field.fieldKey, expression);
         for (const reference of collectFormulaReferences(expression)) {
           if (!catalog.resolve(reference)) {
@@ -105,6 +107,14 @@ function createInitialValues(fields: FormulaField[], overrides?: Record<string, 
     if (value !== undefined) values[fieldKey] = value;
   }
   return values;
+}
+
+function isInputReference(reference: string, catalog: ReturnType<typeof createReferenceCatalog>, fieldByKey: Map<string, FormulaField>) {
+  if (/^x\d+$/i.test(reference.trim())) return true;
+  const field = fieldByKey.get(catalog.resolve(reference) ?? "");
+  if (!field) return false;
+  if (field.slotKind === "variable") return true;
+  return field.attr === "fillable" && (field.valueType === "number" || field.inputType === "number" || field.inputType === "field");
 }
 
 function missingFieldError(fieldKey: string, reference: string, expression?: string): FormulaEvaluationError {

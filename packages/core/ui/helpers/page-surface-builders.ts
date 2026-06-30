@@ -45,6 +45,7 @@ type PageSectionPanelOptions = NestedPageSections & {
   chrome?: BodySurfaceSectionChrome;
   framed?: boolean;
   itemRef?: Ref<HTMLDivElement>;
+  autoReveal?: boolean;
 };
 
 type PageSectionCardOptions = PageSectionPanelOptions & {
@@ -187,8 +188,9 @@ export function createPageTableSection<T>(
 export function createFormSection<T = FormSurfaceLooseItem>(
   key: string,
   surface: FormSurfaceProps<T>,
+  options: { itemRef?: Ref<HTMLDivElement>; autoReveal?: boolean } = {},
 ): BodySurfaceSectionSpec {
-  return { key, body: { kind: "form", form: surface as FormSurfaceProps } };
+  return { key, itemRef: options.itemRef, autoReveal: options.autoReveal, body: { kind: "form", form: surface as FormSurfaceProps } };
 }
 
 export function createFieldsSection<T = FormSurfaceLooseItem>(
@@ -199,10 +201,12 @@ export function createFieldsSection<T = FormSurfaceLooseItem>(
     layout?: FormSurfaceLayoutSpec;
     commands?: FormSurfaceProps<T>["commands"];
     submit?: FormSurfaceSubmitSpec;
+    itemRef?: Ref<HTMLDivElement>;
+    autoReveal?: boolean;
   } = {},
 ): BodySurfaceSectionSpec {
-  const { kind = "fields", layout, commands, submit } = options;
-  return createFormSection<T>(key, { kind, content: { items, layout }, commands, submit });
+  const { autoReveal, itemRef, kind = "fields", layout, commands, submit } = options;
+  return createFormSection<T>(key, { kind, content: { items, layout }, commands, submit }, { autoReveal, itemRef });
 }
 
 export function createInlineFieldsSection<T = FormSurfaceLooseItem>(
@@ -213,6 +217,8 @@ export function createInlineFieldsSection<T = FormSurfaceLooseItem>(
     layout?: FormSurfaceLayoutSpec;
     commands?: FormSurfaceProps<T>["commands"];
     submit?: FormSurfaceSubmitSpec;
+    itemRef?: Ref<HTMLDivElement>;
+    autoReveal?: boolean;
   } = {},
 ): BodySurfaceSectionSpec {
   return createFormSection<T>(key, {
@@ -220,7 +226,7 @@ export function createInlineFieldsSection<T = FormSurfaceLooseItem>(
     content: { items, layout: { flow: "inline", ...options.layout } },
     commands: options.commands,
     submit: options.submit,
-  });
+  }, { autoReveal: options.autoReveal, itemRef: options.itemRef });
 }
 
 export function createDocumentSection(
@@ -294,13 +300,14 @@ export function createPanelSection(
   key: string,
   panel: PageSectionPanelOptions,
 ): BodySurfaceSectionSpec {
-  const { actions, chrome, framed, gridColumns, itemRef, layout = "stack", sections, subtitle, title } = panel;
+  const { actions, autoReveal, chrome, framed, gridColumns, itemRef, layout = "stack", sections, subtitle, title } = panel;
   return {
     key,
     label: title,
     chrome,
     framed,
     itemRef,
+    autoReveal,
     header: { title, subtitle, actions },
     body: { kind: "section", layout, gridColumns, sections },
   };

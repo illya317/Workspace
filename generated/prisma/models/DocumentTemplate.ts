@@ -278,7 +278,7 @@ export type DocumentTemplateGroupByOutputType = {
   title: string
   type: string
   status: string
-  ownerUserId: number
+  ownerUserId: number | null
   spaceId: number
   documentJson: string
   fieldModelJson: string
@@ -322,7 +322,7 @@ export type DocumentTemplateWhereInput = {
   title?: Prisma.StringFilter<"DocumentTemplate"> | string
   type?: Prisma.StringFilter<"DocumentTemplate"> | string
   status?: Prisma.StringFilter<"DocumentTemplate"> | string
-  ownerUserId?: Prisma.IntFilter<"DocumentTemplate"> | number
+  ownerUserId?: Prisma.IntNullableFilter<"DocumentTemplate"> | number | null
   spaceId?: Prisma.IntFilter<"DocumentTemplate"> | number
   documentJson?: Prisma.StringFilter<"DocumentTemplate"> | string
   fieldModelJson?: Prisma.StringFilter<"DocumentTemplate"> | string
@@ -337,7 +337,6 @@ export type DocumentTemplateWhereInput = {
   publishedAt?: Prisma.DateTimeNullableFilter<"DocumentTemplate"> | Date | string | null
   publishedByUserId?: Prisma.IntNullableFilter<"DocumentTemplate"> | number | null
   space?: Prisma.XOR<Prisma.DocumentTemplateSpaceScalarRelationFilter, Prisma.DocumentTemplateSpaceWhereInput>
-  permissions?: Prisma.DocumentTemplatePermissionListRelationFilter
 }
 
 export type DocumentTemplateOrderByWithRelationInput = {
@@ -345,7 +344,7 @@ export type DocumentTemplateOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   type?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  ownerUserId?: Prisma.SortOrder
+  ownerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   spaceId?: Prisma.SortOrder
   documentJson?: Prisma.SortOrder
   fieldModelJson?: Prisma.SortOrder
@@ -360,7 +359,6 @@ export type DocumentTemplateOrderByWithRelationInput = {
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   publishedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   space?: Prisma.DocumentTemplateSpaceOrderByWithRelationInput
-  permissions?: Prisma.DocumentTemplatePermissionOrderByRelationAggregateInput
 }
 
 export type DocumentTemplateWhereUniqueInput = Prisma.AtLeast<{
@@ -371,7 +369,7 @@ export type DocumentTemplateWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringFilter<"DocumentTemplate"> | string
   type?: Prisma.StringFilter<"DocumentTemplate"> | string
   status?: Prisma.StringFilter<"DocumentTemplate"> | string
-  ownerUserId?: Prisma.IntFilter<"DocumentTemplate"> | number
+  ownerUserId?: Prisma.IntNullableFilter<"DocumentTemplate"> | number | null
   spaceId?: Prisma.IntFilter<"DocumentTemplate"> | number
   documentJson?: Prisma.StringFilter<"DocumentTemplate"> | string
   fieldModelJson?: Prisma.StringFilter<"DocumentTemplate"> | string
@@ -386,7 +384,6 @@ export type DocumentTemplateWhereUniqueInput = Prisma.AtLeast<{
   publishedAt?: Prisma.DateTimeNullableFilter<"DocumentTemplate"> | Date | string | null
   publishedByUserId?: Prisma.IntNullableFilter<"DocumentTemplate"> | number | null
   space?: Prisma.XOR<Prisma.DocumentTemplateSpaceScalarRelationFilter, Prisma.DocumentTemplateSpaceWhereInput>
-  permissions?: Prisma.DocumentTemplatePermissionListRelationFilter
 }, "id">
 
 export type DocumentTemplateOrderByWithAggregationInput = {
@@ -394,7 +391,7 @@ export type DocumentTemplateOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   type?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  ownerUserId?: Prisma.SortOrder
+  ownerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   spaceId?: Prisma.SortOrder
   documentJson?: Prisma.SortOrder
   fieldModelJson?: Prisma.SortOrder
@@ -423,7 +420,7 @@ export type DocumentTemplateScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"DocumentTemplate"> | string
   type?: Prisma.StringWithAggregatesFilter<"DocumentTemplate"> | string
   status?: Prisma.StringWithAggregatesFilter<"DocumentTemplate"> | string
-  ownerUserId?: Prisma.IntWithAggregatesFilter<"DocumentTemplate"> | number
+  ownerUserId?: Prisma.IntNullableWithAggregatesFilter<"DocumentTemplate"> | number | null
   spaceId?: Prisma.IntWithAggregatesFilter<"DocumentTemplate"> | number
   documentJson?: Prisma.StringWithAggregatesFilter<"DocumentTemplate"> | string
   fieldModelJson?: Prisma.StringWithAggregatesFilter<"DocumentTemplate"> | string
@@ -443,7 +440,7 @@ export type DocumentTemplateCreateInput = {
   title: string
   type: string
   status?: string
-  ownerUserId: number
+  ownerUserId?: number | null
   documentJson: string
   fieldModelJson: string
   sourceKind?: string | null
@@ -457,7 +454,6 @@ export type DocumentTemplateCreateInput = {
   publishedAt?: Date | string | null
   publishedByUserId?: number | null
   space: Prisma.DocumentTemplateSpaceCreateNestedOneWithoutTemplatesInput
-  permissions?: Prisma.DocumentTemplatePermissionCreateNestedManyWithoutTemplateInput
 }
 
 export type DocumentTemplateUncheckedCreateInput = {
@@ -465,7 +461,7 @@ export type DocumentTemplateUncheckedCreateInput = {
   title: string
   type: string
   status?: string
-  ownerUserId: number
+  ownerUserId?: number | null
   spaceId: number
   documentJson: string
   fieldModelJson: string
@@ -479,14 +475,13 @@ export type DocumentTemplateUncheckedCreateInput = {
   publishRequestedAt?: Date | string | null
   publishedAt?: Date | string | null
   publishedByUserId?: number | null
-  permissions?: Prisma.DocumentTemplatePermissionUncheckedCreateNestedManyWithoutTemplateInput
 }
 
 export type DocumentTemplateUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  ownerUserId?: Prisma.IntFieldUpdateOperationsInput | number
+  ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   documentJson?: Prisma.StringFieldUpdateOperationsInput | string
   fieldModelJson?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -500,7 +495,6 @@ export type DocumentTemplateUpdateInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   space?: Prisma.DocumentTemplateSpaceUpdateOneRequiredWithoutTemplatesNestedInput
-  permissions?: Prisma.DocumentTemplatePermissionUpdateManyWithoutTemplateNestedInput
 }
 
 export type DocumentTemplateUncheckedUpdateInput = {
@@ -508,7 +502,7 @@ export type DocumentTemplateUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  ownerUserId?: Prisma.IntFieldUpdateOperationsInput | number
+  ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   spaceId?: Prisma.IntFieldUpdateOperationsInput | number
   documentJson?: Prisma.StringFieldUpdateOperationsInput | string
   fieldModelJson?: Prisma.StringFieldUpdateOperationsInput | string
@@ -522,7 +516,6 @@ export type DocumentTemplateUncheckedUpdateInput = {
   publishRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  permissions?: Prisma.DocumentTemplatePermissionUncheckedUpdateManyWithoutTemplateNestedInput
 }
 
 export type DocumentTemplateCreateManyInput = {
@@ -530,7 +523,7 @@ export type DocumentTemplateCreateManyInput = {
   title: string
   type: string
   status?: string
-  ownerUserId: number
+  ownerUserId?: number | null
   spaceId: number
   documentJson: string
   fieldModelJson: string
@@ -550,7 +543,7 @@ export type DocumentTemplateUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  ownerUserId?: Prisma.IntFieldUpdateOperationsInput | number
+  ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   documentJson?: Prisma.StringFieldUpdateOperationsInput | string
   fieldModelJson?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -570,7 +563,7 @@ export type DocumentTemplateUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  ownerUserId?: Prisma.IntFieldUpdateOperationsInput | number
+  ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   spaceId?: Prisma.IntFieldUpdateOperationsInput | number
   documentJson?: Prisma.StringFieldUpdateOperationsInput | string
   fieldModelJson?: Prisma.StringFieldUpdateOperationsInput | string
@@ -675,11 +668,6 @@ export type DocumentTemplateSumOrderByAggregateInput = {
   publishedByUserId?: Prisma.SortOrder
 }
 
-export type DocumentTemplateScalarRelationFilter = {
-  is?: Prisma.DocumentTemplateWhereInput
-  isNot?: Prisma.DocumentTemplateWhereInput
-}
-
 export type DocumentTemplateCreateNestedManyWithoutSpaceInput = {
   create?: Prisma.XOR<Prisma.DocumentTemplateCreateWithoutSpaceInput, Prisma.DocumentTemplateUncheckedCreateWithoutSpaceInput> | Prisma.DocumentTemplateCreateWithoutSpaceInput[] | Prisma.DocumentTemplateUncheckedCreateWithoutSpaceInput[]
   connectOrCreate?: Prisma.DocumentTemplateCreateOrConnectWithoutSpaceInput | Prisma.DocumentTemplateCreateOrConnectWithoutSpaceInput[]
@@ -722,25 +710,11 @@ export type DocumentTemplateUncheckedUpdateManyWithoutSpaceNestedInput = {
   deleteMany?: Prisma.DocumentTemplateScalarWhereInput | Prisma.DocumentTemplateScalarWhereInput[]
 }
 
-export type DocumentTemplateCreateNestedOneWithoutPermissionsInput = {
-  create?: Prisma.XOR<Prisma.DocumentTemplateCreateWithoutPermissionsInput, Prisma.DocumentTemplateUncheckedCreateWithoutPermissionsInput>
-  connectOrCreate?: Prisma.DocumentTemplateCreateOrConnectWithoutPermissionsInput
-  connect?: Prisma.DocumentTemplateWhereUniqueInput
-}
-
-export type DocumentTemplateUpdateOneRequiredWithoutPermissionsNestedInput = {
-  create?: Prisma.XOR<Prisma.DocumentTemplateCreateWithoutPermissionsInput, Prisma.DocumentTemplateUncheckedCreateWithoutPermissionsInput>
-  connectOrCreate?: Prisma.DocumentTemplateCreateOrConnectWithoutPermissionsInput
-  upsert?: Prisma.DocumentTemplateUpsertWithoutPermissionsInput
-  connect?: Prisma.DocumentTemplateWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.DocumentTemplateUpdateToOneWithWhereWithoutPermissionsInput, Prisma.DocumentTemplateUpdateWithoutPermissionsInput>, Prisma.DocumentTemplateUncheckedUpdateWithoutPermissionsInput>
-}
-
 export type DocumentTemplateCreateWithoutSpaceInput = {
   title: string
   type: string
   status?: string
-  ownerUserId: number
+  ownerUserId?: number | null
   documentJson: string
   fieldModelJson: string
   sourceKind?: string | null
@@ -753,7 +727,6 @@ export type DocumentTemplateCreateWithoutSpaceInput = {
   publishRequestedAt?: Date | string | null
   publishedAt?: Date | string | null
   publishedByUserId?: number | null
-  permissions?: Prisma.DocumentTemplatePermissionCreateNestedManyWithoutTemplateInput
 }
 
 export type DocumentTemplateUncheckedCreateWithoutSpaceInput = {
@@ -761,7 +734,7 @@ export type DocumentTemplateUncheckedCreateWithoutSpaceInput = {
   title: string
   type: string
   status?: string
-  ownerUserId: number
+  ownerUserId?: number | null
   documentJson: string
   fieldModelJson: string
   sourceKind?: string | null
@@ -774,7 +747,6 @@ export type DocumentTemplateUncheckedCreateWithoutSpaceInput = {
   publishRequestedAt?: Date | string | null
   publishedAt?: Date | string | null
   publishedByUserId?: number | null
-  permissions?: Prisma.DocumentTemplatePermissionUncheckedCreateNestedManyWithoutTemplateInput
 }
 
 export type DocumentTemplateCreateOrConnectWithoutSpaceInput = {
@@ -810,7 +782,7 @@ export type DocumentTemplateScalarWhereInput = {
   title?: Prisma.StringFilter<"DocumentTemplate"> | string
   type?: Prisma.StringFilter<"DocumentTemplate"> | string
   status?: Prisma.StringFilter<"DocumentTemplate"> | string
-  ownerUserId?: Prisma.IntFilter<"DocumentTemplate"> | number
+  ownerUserId?: Prisma.IntNullableFilter<"DocumentTemplate"> | number | null
   spaceId?: Prisma.IntFilter<"DocumentTemplate"> | number
   documentJson?: Prisma.StringFilter<"DocumentTemplate"> | string
   fieldModelJson?: Prisma.StringFilter<"DocumentTemplate"> | string
@@ -826,110 +798,12 @@ export type DocumentTemplateScalarWhereInput = {
   publishedByUserId?: Prisma.IntNullableFilter<"DocumentTemplate"> | number | null
 }
 
-export type DocumentTemplateCreateWithoutPermissionsInput = {
-  title: string
-  type: string
-  status?: string
-  ownerUserId: number
-  documentJson: string
-  fieldModelJson: string
-  sourceKind?: string | null
-  sourceProductKey?: string | null
-  sourceStageKeys?: string | null
-  version?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  deletedAt?: Date | string | null
-  publishRequestedAt?: Date | string | null
-  publishedAt?: Date | string | null
-  publishedByUserId?: number | null
-  space: Prisma.DocumentTemplateSpaceCreateNestedOneWithoutTemplatesInput
-}
-
-export type DocumentTemplateUncheckedCreateWithoutPermissionsInput = {
-  id?: number
-  title: string
-  type: string
-  status?: string
-  ownerUserId: number
-  spaceId: number
-  documentJson: string
-  fieldModelJson: string
-  sourceKind?: string | null
-  sourceProductKey?: string | null
-  sourceStageKeys?: string | null
-  version?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  deletedAt?: Date | string | null
-  publishRequestedAt?: Date | string | null
-  publishedAt?: Date | string | null
-  publishedByUserId?: number | null
-}
-
-export type DocumentTemplateCreateOrConnectWithoutPermissionsInput = {
-  where: Prisma.DocumentTemplateWhereUniqueInput
-  create: Prisma.XOR<Prisma.DocumentTemplateCreateWithoutPermissionsInput, Prisma.DocumentTemplateUncheckedCreateWithoutPermissionsInput>
-}
-
-export type DocumentTemplateUpsertWithoutPermissionsInput = {
-  update: Prisma.XOR<Prisma.DocumentTemplateUpdateWithoutPermissionsInput, Prisma.DocumentTemplateUncheckedUpdateWithoutPermissionsInput>
-  create: Prisma.XOR<Prisma.DocumentTemplateCreateWithoutPermissionsInput, Prisma.DocumentTemplateUncheckedCreateWithoutPermissionsInput>
-  where?: Prisma.DocumentTemplateWhereInput
-}
-
-export type DocumentTemplateUpdateToOneWithWhereWithoutPermissionsInput = {
-  where?: Prisma.DocumentTemplateWhereInput
-  data: Prisma.XOR<Prisma.DocumentTemplateUpdateWithoutPermissionsInput, Prisma.DocumentTemplateUncheckedUpdateWithoutPermissionsInput>
-}
-
-export type DocumentTemplateUpdateWithoutPermissionsInput = {
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  ownerUserId?: Prisma.IntFieldUpdateOperationsInput | number
-  documentJson?: Prisma.StringFieldUpdateOperationsInput | string
-  fieldModelJson?: Prisma.StringFieldUpdateOperationsInput | string
-  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceProductKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceStageKeys?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  publishRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  publishedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  space?: Prisma.DocumentTemplateSpaceUpdateOneRequiredWithoutTemplatesNestedInput
-}
-
-export type DocumentTemplateUncheckedUpdateWithoutPermissionsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  ownerUserId?: Prisma.IntFieldUpdateOperationsInput | number
-  spaceId?: Prisma.IntFieldUpdateOperationsInput | number
-  documentJson?: Prisma.StringFieldUpdateOperationsInput | string
-  fieldModelJson?: Prisma.StringFieldUpdateOperationsInput | string
-  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceProductKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceStageKeys?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  publishRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  publishedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-}
-
 export type DocumentTemplateCreateManySpaceInput = {
   id?: number
   title: string
   type: string
   status?: string
-  ownerUserId: number
+  ownerUserId?: number | null
   documentJson: string
   fieldModelJson: string
   sourceKind?: string | null
@@ -948,7 +822,7 @@ export type DocumentTemplateUpdateWithoutSpaceInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  ownerUserId?: Prisma.IntFieldUpdateOperationsInput | number
+  ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   documentJson?: Prisma.StringFieldUpdateOperationsInput | string
   fieldModelJson?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -961,7 +835,6 @@ export type DocumentTemplateUpdateWithoutSpaceInput = {
   publishRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  permissions?: Prisma.DocumentTemplatePermissionUpdateManyWithoutTemplateNestedInput
 }
 
 export type DocumentTemplateUncheckedUpdateWithoutSpaceInput = {
@@ -969,7 +842,7 @@ export type DocumentTemplateUncheckedUpdateWithoutSpaceInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  ownerUserId?: Prisma.IntFieldUpdateOperationsInput | number
+  ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   documentJson?: Prisma.StringFieldUpdateOperationsInput | string
   fieldModelJson?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -982,7 +855,6 @@ export type DocumentTemplateUncheckedUpdateWithoutSpaceInput = {
   publishRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   publishedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  permissions?: Prisma.DocumentTemplatePermissionUncheckedUpdateManyWithoutTemplateNestedInput
 }
 
 export type DocumentTemplateUncheckedUpdateManyWithoutSpaceInput = {
@@ -990,7 +862,7 @@ export type DocumentTemplateUncheckedUpdateManyWithoutSpaceInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  ownerUserId?: Prisma.IntFieldUpdateOperationsInput | number
+  ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   documentJson?: Prisma.StringFieldUpdateOperationsInput | string
   fieldModelJson?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1005,35 +877,6 @@ export type DocumentTemplateUncheckedUpdateManyWithoutSpaceInput = {
   publishedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
-
-/**
- * Count Type DocumentTemplateCountOutputType
- */
-
-export type DocumentTemplateCountOutputType = {
-  permissions: number
-}
-
-export type DocumentTemplateCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  permissions?: boolean | DocumentTemplateCountOutputTypeCountPermissionsArgs
-}
-
-/**
- * DocumentTemplateCountOutputType without action
- */
-export type DocumentTemplateCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the DocumentTemplateCountOutputType
-   */
-  select?: Prisma.DocumentTemplateCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * DocumentTemplateCountOutputType without action
- */
-export type DocumentTemplateCountOutputTypeCountPermissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.DocumentTemplatePermissionWhereInput
-}
 
 
 export type DocumentTemplateSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1056,8 +899,6 @@ export type DocumentTemplateSelect<ExtArgs extends runtime.Types.Extensions.Inte
   publishedAt?: boolean
   publishedByUserId?: boolean
   space?: boolean | Prisma.DocumentTemplateSpaceDefaultArgs<ExtArgs>
-  permissions?: boolean | Prisma.DocumentTemplate$permissionsArgs<ExtArgs>
-  _count?: boolean | Prisma.DocumentTemplateCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["documentTemplate"]>
 
 export type DocumentTemplateSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1128,8 +969,6 @@ export type DocumentTemplateSelectScalar = {
 export type DocumentTemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "type" | "status" | "ownerUserId" | "spaceId" | "documentJson" | "fieldModelJson" | "sourceKind" | "sourceProductKey" | "sourceStageKeys" | "version" | "createdAt" | "updatedAt" | "deletedAt" | "publishRequestedAt" | "publishedAt" | "publishedByUserId", ExtArgs["result"]["documentTemplate"]>
 export type DocumentTemplateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   space?: boolean | Prisma.DocumentTemplateSpaceDefaultArgs<ExtArgs>
-  permissions?: boolean | Prisma.DocumentTemplate$permissionsArgs<ExtArgs>
-  _count?: boolean | Prisma.DocumentTemplateCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type DocumentTemplateIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   space?: boolean | Prisma.DocumentTemplateSpaceDefaultArgs<ExtArgs>
@@ -1142,14 +981,13 @@ export type $DocumentTemplatePayload<ExtArgs extends runtime.Types.Extensions.In
   name: "DocumentTemplate"
   objects: {
     space: Prisma.$DocumentTemplateSpacePayload<ExtArgs>
-    permissions: Prisma.$DocumentTemplatePermissionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     title: string
     type: string
     status: string
-    ownerUserId: number
+    ownerUserId: number | null
     spaceId: number
     documentJson: string
     fieldModelJson: string
@@ -1558,7 +1396,6 @@ readonly fields: DocumentTemplateFieldRefs;
 export interface Prisma__DocumentTemplateClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   space<T extends Prisma.DocumentTemplateSpaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DocumentTemplateSpaceDefaultArgs<ExtArgs>>): Prisma.Prisma__DocumentTemplateSpaceClient<runtime.Types.Result.GetResult<Prisma.$DocumentTemplateSpacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  permissions<T extends Prisma.DocumentTemplate$permissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DocumentTemplate$permissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocumentTemplatePermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2002,30 +1839,6 @@ export type DocumentTemplateDeleteManyArgs<ExtArgs extends runtime.Types.Extensi
    * Limit how many DocumentTemplates to delete.
    */
   limit?: number
-}
-
-/**
- * DocumentTemplate.permissions
- */
-export type DocumentTemplate$permissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the DocumentTemplatePermission
-   */
-  select?: Prisma.DocumentTemplatePermissionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the DocumentTemplatePermission
-   */
-  omit?: Prisma.DocumentTemplatePermissionOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.DocumentTemplatePermissionInclude<ExtArgs> | null
-  where?: Prisma.DocumentTemplatePermissionWhereInput
-  orderBy?: Prisma.DocumentTemplatePermissionOrderByWithRelationInput | Prisma.DocumentTemplatePermissionOrderByWithRelationInput[]
-  cursor?: Prisma.DocumentTemplatePermissionWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.DocumentTemplatePermissionScalarFieldEnum | Prisma.DocumentTemplatePermissionScalarFieldEnum[]
 }
 
 /**

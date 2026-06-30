@@ -5983,6 +5983,10 @@ export const generatedCoreUiSurfaceContracts = {
                   description: "类型：((instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly) | DO_NOT_USE_OR_YOU_WILL_BE_FIRED_CALLBACK_REF_RETURN_VALUES[keyof DO_NOT_USE_OR_YOU_WILL_BE_FIRED_CALLBACK_REF_RETURN_VALUES]) | RefObject<HTMLDivElement | null>。",
                 },
                 {
+                  name: "autoReveal",
+                  description: "类型：boolean。",
+                },
+                {
                   name: "body",
                   description: "类型：BodySurfaceProps<any, any>。",
                   children: [
@@ -8156,14 +8160,14 @@ export const generatedCoreUiSurfaceContracts = {
                                                                       name: "subtitle",
                                                                       description: "类型：string。",
                                                                     },
-                                                                  ],
-                                                                },
-                                                                {
-                                                                  name: "mode",
                                                                     {
                                                                       name: "disabled",
                                                                       description: "类型：boolean。",
                                                                     },
+                                                                  ],
+                                                                },
+                                                                {
+                                                                  name: "mode",
                                                                   description: "可选值：auto / autocomplete / dropdown / picker。",
                                                                   children: [
                                                                     {
@@ -17350,14 +17354,14 @@ export const generatedCoreUiSurfaceContracts = {
                                                                   name: "subtitle",
                                                                   description: "类型：string。",
                                                                 },
-                                                              ],
-                                                            },
-                                                            {
-                                                              name: "mode",
                                                                 {
                                                                   name: "disabled",
                                                                   description: "类型：boolean。",
                                                                 },
+                                                              ],
+                                                            },
+                                                            {
+                                                              name: "mode",
                                                               description: "可选值：auto / autocomplete / dropdown / picker。",
                                                               children: [
                                                                 {
@@ -20763,6 +20767,10 @@ export const generatedCoreUiSurfaceContracts = {
                             {
                               name: "itemRef",
                               description: "类型：((instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly) | DO_NOT_USE_OR_YOU_WILL_BE_FIRED_CALLBACK_REF_RETURN_VALUES[keyof DO_NOT_USE_OR_YOU_WILL_BE_FIRED_CALLBACK_REF_RETURN_VALUES]) | RefObject<HTMLDivElement | null>。",
+                            },
+                            {
+                              name: "autoReveal",
+                              description: "类型：boolean。",
                             },
                             {
                               name: "body",
@@ -30062,6 +30070,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                   name: "subtitle",
                                                   description: "类型：string。",
                                                 },
+                                                {
+                                                  name: "disabled",
+                                                  description: "类型：boolean。",
+                                                },
                                               ],
                                             },
                                             {
@@ -30070,10 +30082,6 @@ export const generatedCoreUiSurfaceContracts = {
                                               children: [
                                                 {
                                                   name: "auto",
-                                                {
-                                                  name: "disabled",
-                                                  description: "类型：boolean。",
-                                                },
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -33126,6 +33134,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                   name: "subtitle",
                                                   description: "类型：string。",
                                                 },
+                                                {
+                                                  name: "disabled",
+                                                  description: "类型：boolean。",
+                                                },
                                               ],
                                             },
                                             {
@@ -33134,10 +33146,6 @@ export const generatedCoreUiSurfaceContracts = {
                                               children: [
                                                 {
                                                   name: "auto",
-                                                {
-                                                  name: "disabled",
-                                                  description: "类型：boolean。",
-                                                },
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -36190,6 +36198,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                   name: "subtitle",
                                                   description: "类型：string。",
                                                 },
+                                                {
+                                                  name: "disabled",
+                                                  description: "类型：boolean。",
+                                                },
                                               ],
                                             },
                                             {
@@ -36198,10 +36210,6 @@ export const generatedCoreUiSurfaceContracts = {
                                               children: [
                                                 {
                                                   name: "auto",
-                                                {
-                                                  name: "disabled",
-                                                  description: "类型：boolean。",
-                                                },
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -39254,6 +39262,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                   name: "subtitle",
                                                   description: "类型：string。",
                                                 },
+                                                {
+                                                  name: "disabled",
+                                                  description: "类型：boolean。",
+                                                },
                                               ],
                                             },
                                             {
@@ -39262,10 +39274,6 @@ export const generatedCoreUiSurfaceContracts = {
                                               children: [
                                                 {
                                                   name: "auto",
-                                                {
-                                                  name: "disabled",
-                                                  description: "类型：boolean。",
-                                                },
                                                   description: "字面量取值。",
                                                 },
                                                 {
@@ -40814,6 +40822,10 @@ export const generatedCoreUiSurfaceContracts = {
                   name: "subtitle",
                   description: "类型：string。",
                 },
+                {
+                  name: "disabled",
+                  description: "类型：boolean。",
+                },
               ],
             },
             {
@@ -40822,10 +40834,6 @@ export const generatedCoreUiSurfaceContracts = {
               children: [
                 {
                   name: "auto",
-                {
-                  name: "disabled",
-                  description: "类型：boolean。",
-                },
                   description: "字面量取值。",
                 },
                 {
@@ -44236,6 +44244,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                                   name: "subtitle",
                                                                   description: "类型：string。",
                                                                 },
+                                                                {
+                                                                  name: "disabled",
+                                                                  description: "类型：boolean。",
+                                                                },
                                                               ],
                                                             },
                                                             {
@@ -44244,10 +44256,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                               children: [
                                                                 {
                                                                   name: "auto",
-                                                                {
-                                                                  name: "disabled",
-                                                                  description: "类型：boolean。",
-                                                                },
                                                                   description: "字面量取值。",
                                                                 },
                                                                 {
@@ -47651,6 +47659,10 @@ export const generatedCoreUiSurfaceContracts = {
                               description: "类型：((instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly) | DO_NOT_USE_OR_YOU_WILL_BE_FIRED_CALLBACK_REF_RETURN_VALUES[keyof DO_NOT_USE_OR_YOU_WILL_BE_FIRED_CALLBACK_REF_RETURN_VALUES]) | RefObject<HTMLDivElement | null>。",
                             },
                             {
+                              name: "autoReveal",
+                              description: "类型：boolean。",
+                            },
+                            {
                               name: "body",
                               description: "类型：BodySurfaceProps<any, any>。",
                               children: [
@@ -49824,6 +49836,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                                                   name: "subtitle",
                                                                                   description: "类型：string。",
                                                                                 },
+                                                                                {
+                                                                                  name: "disabled",
+                                                                                  description: "类型：boolean。",
+                                                                                },
                                                                               ],
                                                                             },
                                                                             {
@@ -49836,10 +49852,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                                                 },
                                                                                 {
                                                                                   name: "autocomplete",
-                                                                                {
-                                                                                  name: "disabled",
-                                                                                  description: "类型：boolean。",
-                                                                                },
                                                                                   description: "字面量取值。",
                                                                                 },
                                                                                 {
@@ -59018,6 +59030,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                                               name: "subtitle",
                                                                               description: "类型：string。",
                                                                             },
+                                                                            {
+                                                                              name: "disabled",
+                                                                              description: "类型：boolean。",
+                                                                            },
                                                                           ],
                                                                         },
                                                                         {
@@ -59030,10 +59046,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                                             },
                                                                             {
                                                                               name: "autocomplete",
-                                                                            {
-                                                                              name: "disabled",
-                                                                              description: "类型：boolean。",
-                                                                            },
                                                                               description: "字面量取值。",
                                                                             },
                                                                             {
@@ -62431,6 +62443,10 @@ export const generatedCoreUiSurfaceContracts = {
                                         {
                                           name: "itemRef",
                                           description: "类型：((instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly) | DO_NOT_USE_OR_YOU_WILL_BE_FIRED_CALLBACK_REF_RETURN_VALUES[keyof DO_NOT_USE_OR_YOU_WILL_BE_FIRED_CALLBACK_REF_RETURN_VALUES]) | RefObject<HTMLDivElement | null>。",
+                                        },
+                                        {
+                                          name: "autoReveal",
+                                          description: "类型：boolean。",
                                         },
                                         {
                                           name: "body",

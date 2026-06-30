@@ -23,7 +23,7 @@ export type BinaryOperator =
   | "and"
   | "or";
 
-export type SupportedFormulaFunction = "ABS" | "SQRT" | "ROUND" | "MAX" | "MIN" | "RSD";
+export type SupportedFormulaFunction = "ABS" | "SQRT" | "ROUND" | "MAX" | "MIN" | "AVG" | "AVERAGE" | "MEAN" | "RD" | "RSD";
 
 export const SUPPORTED_FUNCTIONS = new Set<SupportedFormulaFunction>([
   "ABS",
@@ -31,6 +31,10 @@ export const SUPPORTED_FUNCTIONS = new Set<SupportedFormulaFunction>([
   "ROUND",
   "MAX",
   "MIN",
+  "AVG",
+  "AVERAGE",
+  "MEAN",
+  "RD",
   "RSD",
 ]);
 
@@ -51,6 +55,20 @@ export function collectFormulaReferences(expression: FormulaExpression): string[
     if (node.type === "field") refs.add(node.reference);
   });
   return [...refs];
+}
+
+export function validateFormulaFunctionArguments(
+  expression: FormulaExpression,
+  isInputReference: (reference: string) => boolean = isInputAlias,
+) {
+  visitExpression(expression, (node) => {
+    if (node.type !== "call" || !isInputOnlyFunction(node.functionName)) return;
+    for (const arg of node.args) {
+      if (arg.type !== "field" || !isInputReference(arg.reference)) {
+        throw new FormulaParseError("invalid_expression", `${node.functionName} only accepts x inputs.`, node.functionName);
+      }
+    }
+  });
 }
 
 export function createReferenceCatalog(fields: FormulaField[]) {
@@ -99,4 +117,12 @@ function visitExpression(expression: FormulaExpression, visitor: (node: FormulaE
 function addReferenceName(map: Map<string, string>, name: string, fieldKey: string) {
   const trimmed = name.trim();
   if (trimmed && !map.has(trimmed)) map.set(trimmed, fieldKey);
+}
+
+function isInputOnlyFunction(functionName: SupportedFormulaFunction) {
+  return functionName === "AVG" || functionName === "AVERAGE" || functionName === "MEAN" || functionName === "RD" || functionName === "RSD";
+}
+
+function isInputAlias(reference: string) {
+  return /^x\d+$/i.test(reference.trim());
 }

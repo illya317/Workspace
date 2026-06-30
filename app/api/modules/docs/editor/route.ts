@@ -23,7 +23,7 @@ const listQuerySchema = z.object({
 const saveDraftBodySchema = z.object({
   spaceId: z.coerce.number().int().positive().optional().nullable(),
   departmentId: z.coerce.number().int().positive().optional().nullable(),
-  spaceKind: z.enum(["personal", "department"]).optional().nullable(),
+  spaceKind: z.enum(["personal", "company", "department"]).optional().nullable(),
   title: z.string().optional().nullable(),
   type: z.string().optional().nullable(),
   document: z.unknown().optional(),

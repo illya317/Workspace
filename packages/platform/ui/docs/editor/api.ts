@@ -2,13 +2,15 @@
 
 import { requestJson } from "../../api-client";
 
-export type EditorSpaceKind = "personal" | "department";
+export type EditorSpaceKind = "personal" | "company" | "department";
 export type EditorTemplateStatus = "draft" | "reviewing" | "published" | "archived";
-export type EditorPermissionRole = "viewer" | "editor" | "manager";
+export type EditorPermissionRole = "viewer" | "editor" | "delete" | "manager";
 
 export interface EditorSpaceDto {
   id: string;
   kind: EditorSpaceKind;
+  targetType: EditorSpaceKind;
+  targetId: number;
   title: string;
   description?: string;
   departmentId?: number | null;
@@ -34,12 +36,15 @@ export interface EditorTemplateListItemDto {
 export interface EditorTemplateDetailDto extends EditorTemplateListItemDto {
   document: unknown;
   fieldModel: unknown;
-  permissions: Array<{
-    id: string;
-    userId: number;
-    userName: string;
-    role: EditorPermissionRole;
-  }>;
+}
+
+export interface EditorSpacePermissionRow {
+  userId: number;
+  userName: string;
+  role: EditorPermissionRole;
+  kind: "template";
+  source: "natural" | "explicit";
+  locked: boolean;
 }
 
 export interface EditorBootstrapDto {
@@ -48,6 +53,7 @@ export interface EditorBootstrapDto {
 }
 
 const API_PREFIX = "/api/modules/docs/editor";
+export const DOCS_EDITOR_REFERENCE_OPTIONS_ENDPOINT = `${API_PREFIX}/reference-options`;
 
 export function fetchEditorBootstrap(spaceId?: string) {
   const suffix = spaceId ? `?spaceId=${encodeURIComponent(spaceId)}` : "";
@@ -97,11 +103,17 @@ export function copyEditorTemplate(templateId: string, body: { targetSpaceId?: s
   });
 }
 
-export function updateEditorTemplatePermissions(templateId: string, permissions: Array<{ userId: number; role: EditorPermissionRole }>) {
-  return requestJson<EditorTemplateDetailDto>(`${API_PREFIX}/templates/${encodeURIComponent(templateId)}/permissions`, {
+export function fetchEditorSpacePermissions(spaceId: string) {
+  return requestJson<{ permissions?: EditorSpacePermissionRow[] }>(`${API_PREFIX}/spaces/${encodeURIComponent(spaceId)}/permissions`, {
+    fallbackMessage: "加载模板空间权限失败",
+  }).then((data) => data.permissions || []);
+}
+
+export function saveEditorSpacePermissions(spaceId: string, permissions: Array<{ userId: number; role: EditorPermissionRole }>) {
+  return requestJson<{ success: true }>(`${API_PREFIX}/spaces/${encodeURIComponent(spaceId)}/permissions`, {
     method: "PUT",
     body: JSON.stringify({ permissions }),
-    fallbackMessage: "更新模版权限失败",
+    fallbackMessage: "保存模板空间权限失败",
   });
 }
 

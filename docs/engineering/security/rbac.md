@@ -107,7 +107,7 @@ work.projects.viewAll access 项目全局查看（独立资源，runtimeParentKe
 
 登录只看 `User.canLogin`（账号启停用） + `sessionVersion`。**不看 `system.access`**。
 
-`settings.account`、`settings.admin`、`settings.api` 都是标准 L2：页面 URL、resource key、RBAC 授权矩阵和 API contract 必须一一对应。内置默认规则只补有效权限：已登录用户默认拥有 `settings.account.access`、`work.tasks.delete`、`docs.access`、`docs.editor.access`；默认 `work.tasks.delete` 只表示可进入工作计划 API 并允许个人空间完成新增、编辑、删除这类本人数据操作，部门/项目/公司空间仍由 Work 业务空间权限继续计算；拥有任意 active resource `admin` 的用户默认拥有 `settings.admin.access`。
+`settings.account`、`settings.admin`、`settings.api` 都是标准 L2：页面 URL、resource key、RBAC 授权矩阵和 API contract 必须一一对应。内置默认规则只补有效权限：已登录用户默认拥有 `settings.account.access`、`work.tasks.delete`、`docs.access`、`docs.editor.access`；默认 `work.tasks.delete` 只表示可进入工作计划 API 并允许个人空间完成新增、编辑、删除这类本人数据操作，部门/项目/公司空间仍由 Work 业务空间权限继续计算；默认 `docs.editor.access` 只表示可进入模板编辑器，具体个人/公司/部门模板空间仍由 Docs Editor 空间权限计算；拥有任意 active resource `admin` 的用户默认拥有 `settings.admin.access`。
 
 `system.access` 已废弃，不作为登录/后台入口/授权管理的判断条件。需要进后台管理权限时，授予对应资源的 `admin` 角色（如 `hr.admin`），系统会计算出 `settings.admin.access` 作为后台入口权限。Session 仍暴露 `manageableResourceKeys[]`，用于限制进入后台后的可管理范围。
 

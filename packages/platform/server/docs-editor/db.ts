@@ -4,11 +4,10 @@ import { prisma } from "../prisma";
 
 export type DocsEditorSpaceRow = {
   id: number;
-  kind: string;
+  targetType: string;
+  targetId: number;
   title: string;
   description: string | null;
-  ownerUserId: number | null;
-  departmentId: number | null;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
@@ -19,7 +18,7 @@ export type DocsEditorTemplateRow = {
   title: string;
   type: string;
   status: string;
-  ownerUserId: number;
+  ownerUserId: number | null;
   spaceId: number;
   documentJson: string;
   fieldModelJson: string;
@@ -35,11 +34,13 @@ export type DocsEditorTemplateRow = {
   publishedByUserId: number | null;
 };
 
-export type DocsEditorPermissionRow = {
+export type DocsEditorSpacePermissionRow = {
   id: number;
-  templateId: number;
+  targetType: string;
+  targetId: number;
   userId: number;
   role: string;
+  kind: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -60,7 +61,7 @@ type Delegate<TRow> = {
 export type DocsEditorDb = {
   documentTemplateSpace: Delegate<DocsEditorSpaceRow>;
   documentTemplate: Delegate<DocsEditorTemplateRow>;
-  documentTemplatePermission: Delegate<DocsEditorPermissionRow>;
+  documentTemplateSpacePermission: Delegate<DocsEditorSpacePermissionRow>;
   $transaction<T>(fn: (tx: DocsEditorDb) => Promise<T>): Promise<T>;
 };
 

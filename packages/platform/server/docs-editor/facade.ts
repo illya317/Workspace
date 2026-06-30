@@ -3,7 +3,6 @@ import "server-only";
 import type {
   CreateDocumentTemplateCommand,
   SaveDocumentTemplateDraftCommand,
-  UpdateDocumentTemplatePermissionsCommand,
 } from "./types";
 import {
   copyTemplate,
@@ -15,12 +14,7 @@ import {
   markPublished,
   requestPublish,
   saveDraft,
-  updatePermissions,
 } from "./service";
-import {
-  numberFromString,
-  templateIdFromString,
-} from "./ids";
 import type { ServiceResult } from "../api";
 
 export class DocsEditorServiceError extends Error {
@@ -32,6 +26,17 @@ export class DocsEditorServiceError extends Error {
 function unwrapServiceResult<T>(result: ServiceResult<T>): T {
   if (result.ok === true) return result.data;
   throw new DocsEditorServiceError(result.error, result.status);
+}
+
+function numberFromString(value: number | string | null | undefined) {
+  if (value === null || value === undefined) return undefined;
+  if (typeof value === "number") return Number.isInteger(value) && value > 0 ? value : undefined;
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+}
+
+function templateIdFromString(value: number | string) {
+  return numberFromString(value) ?? 0;
 }
 
 export async function getDocsEditorBootstrap(userId: number, spaceId?: number | string | null) {
@@ -90,18 +95,6 @@ export async function copyDocumentTemplate(
 
 export async function deleteDocumentTemplateDraft(userId: number, templateId: number | string) {
   return unwrapServiceResult(await deleteDraft({ userId, templateId: numberFromString(templateId) ?? 0 }));
-}
-
-export async function updateDocumentTemplatePermissions(
-  userId: number,
-  templateId: number | string,
-  command: UpdateDocumentTemplatePermissionsCommand,
-) {
-  return unwrapServiceResult(await updatePermissions({
-    userId,
-    templateId: numberFromString(templateId) ?? 0,
-    permissions: command.permissions,
-  }));
 }
 
 export async function requestDocumentTemplatePublish(userId: number, templateId: number | string) {

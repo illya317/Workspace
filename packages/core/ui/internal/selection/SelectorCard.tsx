@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { KeyboardEvent, ReactNode } from "react";
 import { joinClassNames } from "../common/card-utils";
 
 export interface SelectorCardMetaItem {
@@ -90,10 +90,25 @@ export function SelectorCard({
   );
 
   if (onClick) {
+    const select = onClick;
+
+    function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+      if (event.target !== event.currentTarget) return;
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      select();
+    }
+
     return (
-      <button type="button" onClick={onClick} className={cardClassName}>
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={select}
+        onKeyDown={handleKeyDown}
+        className={joinClassNames(cardClassName, "cursor-pointer")}
+      >
         {content}
-      </button>
+      </div>
     );
   }
 

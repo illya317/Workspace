@@ -13,6 +13,7 @@ import type { ActionGlyphKind } from "./internal/action/ActionGlyphs";
 import DetailModal from "./internal/common/DetailModal";
 import type { ModuleCardColor } from "./internal/common/Card";
 import { renderBodyEmpty, renderBodyMessage, renderBodyStatus, renderModuleGrid, renderSectionBadges } from "./internal/body/BodySurfaceBlocks";
+import { BodySurfaceSectionFrame } from "./internal/body/BodySurfaceSectionParts";
 import { sectionCardClassName, sectionStackPosition, type BodySectionStackPosition } from "./internal/body/BodySurfaceSectionStack.styles";
 import SplitWorkspace, { type SplitWorkspaceMode } from "./internal/common/SplitWorkspace";
 import TabBar from "./internal/common/TabBar";
@@ -165,6 +166,7 @@ export interface BodySurfaceSectionSpec {
   chrome?: BodySurfaceSectionChrome;
   framed?: boolean;
   itemRef?: Ref<HTMLDivElement>;
+  autoReveal?: boolean;
   body: BodySurfaceProps;
 }
 export type BodySurfaceDataProps<T = DataSurfaceLooseRow> = { kind: "data"; data: DataSurfaceProps<T> };
@@ -183,12 +185,7 @@ export type BodySurfaceProps<TData = DataSurfaceLooseRow, TForm = FormSurfaceLoo
   | BodySurfaceSectionProps
   | BodySurfaceVisualizationProps;
 
-const MODAL_MAX_WIDTH_BY_SIZE = {
-  sm: "max-w-md",
-  md: "max-w-2xl",
-  lg: "max-w-4xl",
-  xl: "max-w-6xl",
-} as const;
+const MODAL_MAX_WIDTH_BY_SIZE = { sm: "max-w-md", md: "max-w-2xl", lg: "max-w-4xl", xl: "max-w-6xl" } as const;
 
 function listItemClassName(item: BodySurfaceListItemSpec, presentation: BodySurfaceListSpec["presentation"] = "list") {
   const toneClass =
@@ -317,9 +314,11 @@ function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, sta
   const stretchClassName = stretch ? "h-full" : "";
   const chrome = sectionChrome(section);
   const sectionClassName = joinClassNames(chrome === "card" ? sectionCardClassName(stackPosition) : "space-y-4", stretchClassName);
-  const content = <section className={sectionClassName}>{renderSectionHeader(section, chrome)}<BodySurface {...section.body} /></section>;
-  if (section.itemRef) return <div key={section.key} ref={section.itemRef} className={stretchClassName}>{content}</div>;
-  return <div key={section.key} className={stretchClassName}>{content}</div>;
+  return (
+    <BodySurfaceSectionFrame key={section.key} itemRef={section.itemRef} autoReveal={section.autoReveal} className={stretchClassName}>
+      <section className={sectionClassName}>{renderSectionHeader(section, chrome)}<BodySurface {...section.body} /></section>
+    </BodySurfaceSectionFrame>
+  );
 }
 
 function stackPositionForSection(sections: BodySurfaceSectionSpec[], index: number, leadingCardSegment = false): BodySectionStackPosition | undefined {

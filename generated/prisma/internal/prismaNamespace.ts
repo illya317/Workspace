@@ -395,7 +395,7 @@ export const ModelName = {
   Contract: 'Contract',
   DocumentTemplateSpace: 'DocumentTemplateSpace',
   DocumentTemplate: 'DocumentTemplate',
-  DocumentTemplatePermission: 'DocumentTemplatePermission',
+  DocumentTemplateSpacePermission: 'DocumentTemplateSpacePermission',
   FinanceBudgetVersion: 'FinanceBudgetVersion',
   FinanceBudgetDept: 'FinanceBudgetDept',
   FinanceBudgetRd: 'FinanceBudgetRd',
@@ -495,7 +495,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "notification" | "contract" | "documentTemplateSpace" | "documentTemplate" | "documentTemplatePermission" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementReview" | "financeStatementReviewLine" | "departmentDescription" | "positionDescription" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryDocument" | "libraryDocumentVersion" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "project" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "projectTask" | "projectTaskAssignment" | "workPlan" | "workItem" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee" | "workScopePermission" | "workReport" | "workReportItem"
+    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "notification" | "contract" | "documentTemplateSpace" | "documentTemplate" | "documentTemplateSpacePermission" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementReview" | "financeStatementReviewLine" | "departmentDescription" | "positionDescription" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryDocument" | "libraryDocumentVersion" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "project" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "projectTask" | "projectTaskAssignment" | "workPlan" | "workItem" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee" | "workScopePermission" | "workReport" | "workReportItem"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1313,77 +1313,77 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    DocumentTemplatePermission: {
-      payload: Prisma.$DocumentTemplatePermissionPayload<ExtArgs>
-      fields: Prisma.DocumentTemplatePermissionFieldRefs
+    DocumentTemplateSpacePermission: {
+      payload: Prisma.$DocumentTemplateSpacePermissionPayload<ExtArgs>
+      fields: Prisma.DocumentTemplateSpacePermissionFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.DocumentTemplatePermissionFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplatePermissionPayload> | null
+          args: Prisma.DocumentTemplateSpacePermissionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplateSpacePermissionPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.DocumentTemplatePermissionFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplatePermissionPayload>
+          args: Prisma.DocumentTemplateSpacePermissionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplateSpacePermissionPayload>
         }
         findFirst: {
-          args: Prisma.DocumentTemplatePermissionFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplatePermissionPayload> | null
+          args: Prisma.DocumentTemplateSpacePermissionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplateSpacePermissionPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.DocumentTemplatePermissionFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplatePermissionPayload>
+          args: Prisma.DocumentTemplateSpacePermissionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplateSpacePermissionPayload>
         }
         findMany: {
-          args: Prisma.DocumentTemplatePermissionFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplatePermissionPayload>[]
+          args: Prisma.DocumentTemplateSpacePermissionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplateSpacePermissionPayload>[]
         }
         create: {
-          args: Prisma.DocumentTemplatePermissionCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplatePermissionPayload>
+          args: Prisma.DocumentTemplateSpacePermissionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplateSpacePermissionPayload>
         }
         createMany: {
-          args: Prisma.DocumentTemplatePermissionCreateManyArgs<ExtArgs>
+          args: Prisma.DocumentTemplateSpacePermissionCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.DocumentTemplatePermissionCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplatePermissionPayload>[]
+          args: Prisma.DocumentTemplateSpacePermissionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplateSpacePermissionPayload>[]
         }
         delete: {
-          args: Prisma.DocumentTemplatePermissionDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplatePermissionPayload>
+          args: Prisma.DocumentTemplateSpacePermissionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplateSpacePermissionPayload>
         }
         update: {
-          args: Prisma.DocumentTemplatePermissionUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplatePermissionPayload>
+          args: Prisma.DocumentTemplateSpacePermissionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplateSpacePermissionPayload>
         }
         deleteMany: {
-          args: Prisma.DocumentTemplatePermissionDeleteManyArgs<ExtArgs>
+          args: Prisma.DocumentTemplateSpacePermissionDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.DocumentTemplatePermissionUpdateManyArgs<ExtArgs>
+          args: Prisma.DocumentTemplateSpacePermissionUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.DocumentTemplatePermissionUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplatePermissionPayload>[]
+          args: Prisma.DocumentTemplateSpacePermissionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplateSpacePermissionPayload>[]
         }
         upsert: {
-          args: Prisma.DocumentTemplatePermissionUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplatePermissionPayload>
+          args: Prisma.DocumentTemplateSpacePermissionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentTemplateSpacePermissionPayload>
         }
         aggregate: {
-          args: Prisma.DocumentTemplatePermissionAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateDocumentTemplatePermission>
+          args: Prisma.DocumentTemplateSpacePermissionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDocumentTemplateSpacePermission>
         }
         groupBy: {
-          args: Prisma.DocumentTemplatePermissionGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DocumentTemplatePermissionGroupByOutputType>[]
+          args: Prisma.DocumentTemplateSpacePermissionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DocumentTemplateSpacePermissionGroupByOutputType>[]
         }
         count: {
-          args: Prisma.DocumentTemplatePermissionCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DocumentTemplatePermissionCountAggregateOutputType> | number
+          args: Prisma.DocumentTemplateSpacePermissionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DocumentTemplateSpacePermissionCountAggregateOutputType> | number
         }
       }
     }
@@ -7786,11 +7786,10 @@ export type ContractScalarFieldEnum = (typeof ContractScalarFieldEnum)[keyof typ
 
 export const DocumentTemplateSpaceScalarFieldEnum = {
   id: 'id',
-  kind: 'kind',
+  targetType: 'targetType',
+  targetId: 'targetId',
   title: 'title',
   description: 'description',
-  ownerUserId: 'ownerUserId',
-  departmentId: 'departmentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -7823,16 +7822,18 @@ export const DocumentTemplateScalarFieldEnum = {
 export type DocumentTemplateScalarFieldEnum = (typeof DocumentTemplateScalarFieldEnum)[keyof typeof DocumentTemplateScalarFieldEnum]
 
 
-export const DocumentTemplatePermissionScalarFieldEnum = {
+export const DocumentTemplateSpacePermissionScalarFieldEnum = {
   id: 'id',
-  templateId: 'templateId',
+  targetType: 'targetType',
+  targetId: 'targetId',
   userId: 'userId',
   role: 'role',
+  kind: 'kind',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type DocumentTemplatePermissionScalarFieldEnum = (typeof DocumentTemplatePermissionScalarFieldEnum)[keyof typeof DocumentTemplatePermissionScalarFieldEnum]
+export type DocumentTemplateSpacePermissionScalarFieldEnum = (typeof DocumentTemplateSpacePermissionScalarFieldEnum)[keyof typeof DocumentTemplateSpacePermissionScalarFieldEnum]
 
 
 export const FinanceBudgetVersionScalarFieldEnum = {
@@ -9598,7 +9599,7 @@ export type GlobalOmitConfig = {
   contract?: Prisma.ContractOmit
   documentTemplateSpace?: Prisma.DocumentTemplateSpaceOmit
   documentTemplate?: Prisma.DocumentTemplateOmit
-  documentTemplatePermission?: Prisma.DocumentTemplatePermissionOmit
+  documentTemplateSpacePermission?: Prisma.DocumentTemplateSpacePermissionOmit
   financeBudgetVersion?: Prisma.FinanceBudgetVersionOmit
   financeBudgetDept?: Prisma.FinanceBudgetDeptOmit
   financeBudgetRd?: Prisma.FinanceBudgetRdOmit

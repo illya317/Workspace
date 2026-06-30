@@ -40,6 +40,10 @@ const FINANCE_FK_REGISTRATIONS = [
   { key: "finance.accounts.parent", scope: "finance", source: { entity: "FinanceAccount", field: "parentId" }, target: "financeAccount", targetLabel: "上级科目", nullable: true, permission: { resourceKey: "finance.ledger", action: "access" } },
 ] satisfies FkRegistration[];
 
+const DOCS_FK_REGISTRATIONS = [
+  { key: "docs.editor.permission.user", scope: "docs", source: { entity: "DocumentTemplateSpacePermission", field: "userId" }, target: "user", targetLabel: "授权用户", nullable: false, permission: { resourceKey: "docs.editor", action: "access" } },
+] satisfies FkRegistration[];
+
 // 模块台账：声明模块是谁、挂在哪个页面、归属哪个资源，以及暴露哪些 API contract。
 export const registeredModuleDefinitions = [
   {
@@ -275,6 +279,7 @@ export const registeredModuleDefinitions = [
       ],
     },
     routes: ["/docs", "/docs/positions", "/docs/positions/[code]", "/docs/company", "/docs/expense", "/docs/editor"],
+    fkRegistrations: DOCS_FK_REGISTRATIONS,
     apiGuards: [
       ...apiResourceGuards("/api/modules/docs", "docs", ["GET"]),
       { method: "GET", pathPrefix: "/api/modules/docs/editor", resourceKey: "docs.editor", action: "access" },

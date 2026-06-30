@@ -15,6 +15,8 @@ type TiptapNode = {
   content?: TiptapNode[];
 };
 
+const deprecatedFormulaKindKey = ["formula", "Kind"].join("");
+
 export function createEmptyEditorDocument(title = "未命名模板"): EditorDocument {
   return {
     schemaVersion: 1,
@@ -52,14 +54,14 @@ function blockToTiptapNode(block: EditorBlock): TiptapNode {
   if (block.type === "heading") {
     return {
       type: "heading",
-      attrs: { id: block.id, level: normalizeTiptapHeadingLevel(block.level), metadata: block.metadata },
+      attrs: { id: block.id, level: normalizeTiptapHeadingLevel(block.level), metadata: block.metadata, textAlign: headingTextAlign(block) },
       content: textToTiptapContent(block.text, block.bold),
     };
   }
   if (block.type === "paragraph") {
     return {
       type: "paragraph",
-      attrs: { id: block.id, metadata: block.metadata },
+      attrs: { id: block.id, metadata: block.metadata, textAlign: paragraphTextAlign(block) },
       content: inlinePartsToTiptapContent(block.parts),
     };
   }
@@ -68,6 +70,12 @@ function blockToTiptapNode(block: EditorBlock): TiptapNode {
       type: "paragraph",
       attrs: { id: block.id, metadata: block.metadata, attachment: true, fieldKey: block.fieldKey },
       content: textToTiptapContent(`${block.title}：${block.text}`),
+    };
+  }
+  if (block.type === "pageBreak") {
+    return {
+      type: "pageBreak",
+      attrs: { id: block.id, metadata: block.metadata },
     };
   }
   return {
@@ -108,6 +116,14 @@ function cellToTiptapNode(cell: EditorTableCell): TiptapNode {
   };
 }
 
+function headingTextAlign(block: Extract<EditorBlock, { type: "heading" }>) {
+  return block.level === 1 || block.metadata?.qcRole === "stageHeading" ? "center" : undefined;
+}
+
+function paragraphTextAlign(block: Extract<EditorBlock, { type: "paragraph" }>) {
+  return block.metadata?.qcRole === "abnormalCode" ? "left" : undefined;
+}
+
 function inlinePartsToTiptapContent(parts: EditorInline[]): TiptapNode[] {
   return parts.map(inlineToTiptapNode).filter((node): node is TiptapNode => Boolean(node));
 }
@@ -123,9 +139,10 @@ function inlineToTiptapNode(part: EditorInline): TiptapNode | null {
         .map(([type]) => ({ type })),
     };
   }
+  const attrs = slotAttrs(part);
   return {
     type: part.type,
-    attrs: { ...part },
+    attrs,
   };
 }
 
@@ -167,6 +184,13 @@ function tiptapNodeToBlock(node: TiptapNode): EditorBlock | null {
       columnWidths: Array.isArray(node.attrs?.columnWidths) ? node.attrs?.columnWidths.map(String) : undefined,
       metadata: recordAttr(node, "metadata"),
       rows: (node.content ?? []).filter((child) => child.type === "tableRow").map(tiptapNodeToRow),
+    };
+  }
+  if (node.type === "pageBreak") {
+    return {
+      id: stringAttr(node, "id", createId("page-break")),
+      type: "pageBreak",
+      metadata: recordAttr(node, "metadata"),
     };
   }
   return null;
@@ -219,15 +243,20 @@ function tiptapNodeToInline(node: TiptapNode): EditorInline | null {
       id: stringValue(attrs.id),
       fieldKey: stringValue(attrs.fieldKey) ?? stringValue(attrs.id) ?? createId(node.type),
       label: stringValue(attrs.label),
+      alias: stringValue(attrs.alias),
+      slotKind: normalizedSlotKind(node.type, attrs),
       unit: stringValue(attrs.unit),
       width: typeof attrs.width === "number" ? attrs.width : stringValue(attrs.width),
       align: stringValue(attrs.align) ?? "left",
       display: attrs.display === "box" || attrs.display === "plain" ? attrs.display : "underline",
       formula: stringValue(attrs.formula),
       formulaText: stringValue(attrs.formulaText),
-      formulaKind: attrs.formulaKind === "reference" || attrs.formulaKind === "readonlyDisplay" ? attrs.formulaKind : "formula",
+      formulaTextMap: isRecord(attrs.formulaTextMap) ? attrs.formulaTextMap as Record<string, string> : undefined,
+      dependencyFieldKeys: Array.isArray(attrs.dependencyFieldKeys) ? attrs.dependencyFieldKeys.map(String) : undefined,
+      dependencyFieldKeyMap: recordOfStringArrays(attrs.dependencyFieldKeyMap),
       readonlyDisplay: attrs.readonlyDisplay === true,
       referenceFieldKey: stringValue(attrs.referenceFieldKey),
+      valueSource: isRecord(attrs.valueSource) ? attrs.valueSource : undefined,
       withTime: attrs.withTime === true,
       defaultValue: stringValue(attrs.defaultValue),
       role: attrs.role === "inspector" || attrs.role === "reviewer" ? attrs.role : "signature",
@@ -238,6 +267,15 @@ function tiptapNodeToInline(node: TiptapNode): EditorInline | null {
     } satisfies EditorSlotInline;
   }
   return null;
+}
+
+function slotAttrs(part: Exclude<EditorInline, { type: "text" }>) {
+  const attrs = { ...part } as Record<string, unknown>;
+  delete attrs.type;
+  delete attrs[deprecatedFormulaKindKey];
+  if (attrs.referenceFieldKey) attrs.slotKind = "reference";
+  if (!attrs.slotKind && part.type === "formulaSlot") attrs.slotKind = "formula";
+  return attrs;
 }
 
 function textToTiptapContent(text: string, bold?: boolean): TiptapNode[] {
@@ -277,12 +315,26 @@ function recordAttr(node: TiptapNode, key: string) {
   return isRecord(value) ? value : undefined;
 }
 
+function recordOfStringArrays(value: unknown) {
+  if (!isRecord(value)) return undefined;
+  return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, Array.isArray(item) ? item.map(String) : []]));
+}
+
+function slotKindValue(value: unknown): EditorSlotInline["slotKind"] {
+  return value === "person" || value === "date" || value === "choice" || value === "plain" || value === "variable" || value === "formula" || value === "reference" ? value : undefined;
+}
+
+function normalizedSlotKind(type: string, attrs: Record<string, unknown>): EditorSlotInline["slotKind"] {
+  if (stringValue(attrs.referenceFieldKey)) return "reference";
+  return slotKindValue(attrs.slotKind) ?? (type === "formulaSlot" ? "formula" : undefined);
+}
+
 function normalizeHeadingLevel(value: unknown): 1 | 2 | 3 | 4 {
   return value === 1 || value === 2 || value === 3 || value === 4 ? value : 2;
 }
 
-function normalizeTiptapHeadingLevel(value: 1 | 2 | 3 | 4): 1 | 2 | 3 {
-  return value === 4 ? 3 : value;
+function normalizeTiptapHeadingLevel(value: 1 | 2 | 3 | 4): 1 | 2 | 3 | 4 {
+  return value;
 }
 
 export function createId(prefix: string) {

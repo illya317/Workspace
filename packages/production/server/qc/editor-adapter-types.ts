@@ -3,10 +3,12 @@ import type { QcLayoutBlock, QcTemplateDetail, QcTemplateStage, QcTemplateTestIt
 export type JsonObject = Record<string, unknown>;
 
 export type EditorInlinePartType = "text" | "fieldSlot" | "formulaSlot" | "dateSlot" | "signatureSlot";
-export type EditorBlockType = "heading" | "paragraph" | "table" | "attachment";
+export type EditorBlockType = "heading" | "paragraph" | "table" | "attachment" | "pageBreak";
 
 export interface EditorInlinePartBase {
   type: EditorInlinePartType;
+  alias?: string;
+  slotKind?: "person" | "date" | "choice" | "plain" | "variable" | "formula" | "reference";
   metadata?: JsonObject;
 }
 
@@ -35,7 +37,6 @@ export interface EditorFormulaSlotPart extends EditorInlinePartBase {
   formulaTextMap?: Record<string, string>;
   dependencyFieldKeys?: string[];
   dependencyFieldKeyMap?: Record<string, string[]>;
-  formulaKind: "formula" | "reference" | "readonlyDisplay";
   readonlyDisplay?: boolean;
   referenceFieldKey?: string;
   valueSource?: JsonObject;
@@ -97,6 +98,7 @@ export interface EditorHeadingBlock extends EditorBlockBase {
   type: "heading";
   level: 1 | 2 | 3 | 4;
   text: string;
+  bold?: boolean;
 }
 
 export interface EditorParagraphBlock extends EditorBlockBase {
@@ -119,7 +121,11 @@ export interface EditorAttachmentBlock extends EditorBlockBase {
   fieldKey: string;
 }
 
-export type EditorBlock = EditorHeadingBlock | EditorParagraphBlock | EditorTableBlock | EditorAttachmentBlock;
+export interface EditorPageBreakBlock extends EditorBlockBase {
+  type: "pageBreak";
+}
+
+export type EditorBlock = EditorHeadingBlock | EditorParagraphBlock | EditorTableBlock | EditorAttachmentBlock | EditorPageBreakBlock;
 
 export interface EditorDocument {
   schemaVersion: 1;
@@ -145,6 +151,8 @@ export interface EditorFieldDefinition {
   referenceFieldKey?: string;
   valueSource?: JsonObject;
   source?: JsonObject;
+  alias?: string;
+  slotKind?: string;
   metadata?: JsonObject;
 }
 
@@ -156,6 +164,8 @@ export interface EditorFormulaDefinition {
   referenceFieldKey?: string;
   readonlyDisplay?: boolean;
   source?: JsonObject;
+  alias?: string;
+  slotKind?: string;
   metadata?: JsonObject;
 }
 

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createPageBody, createStatusSection, type DataSurfaceColumnSpec, PageSurface, type BodySurfaceSectionSpec, type SurfaceDataRowEditActionSpec } from "@workspace/core/ui";
-import { createWorkDraft, getStatusLabel, getWorkItemTypeLabel } from "./model";
+import { createPageBody, createStatusSection, type DataSurfaceColumnSpec, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { getStatusLabel, getWorkItemTypeLabel, isWorkDraftDirty } from "./model";
 import { WorkTaskDetail } from "./WorkTaskDetail";
 import { WorkTaskForm } from "./WorkTaskFields";
 import type { WorkItem, WorkItemDraft, WorkItemType } from "./types";
@@ -87,15 +87,25 @@ export function useWorkTaskTableSection({
       kind: "table",
       rows: tree.rows,
       columns,
-      visibleColumns: ["kr", "status", "priority"],
-            presentation: { density: "compact" },
+      visibleColumns: ["status", "priority"],
+      presentation: { density: "compact" },
 
       loading,
       emptyText: "暂无节点",
       rowKey: (work) => work.id,
       rowState: (work) => work.itemType === "objective" ? "muted" : "normal",
-      onRowClick: onDetail,
-      expandedRowKey: detailId,
+      onRowClick: (work) => {
+        if (!canEdit) {
+          onDetail(work);
+          return;
+        }
+        if (editingId === work.id) {
+          onCancelEdit();
+          return;
+        }
+        onEdit(work);
+      },
+      expandedRowKey: editingId ?? (canEdit ? null : detailId),
       expandedRowContent: (work) => editDraft && editingId === work.id ? (
         <WorkTaskForm
           draft={editDraft}
@@ -105,22 +115,18 @@ export function useWorkTaskTableSection({
           onChange={onEditDraftChange}
         />
       ) : <WorkTaskDetail work={work} />,
-      rowEditActions: (work): SurfaceDataRowEditActionSpec<TreeRow> => ({
-        editing: editingId === work.id,
-        canEdit,
-        canSave: Boolean(editDraft?.content.trim()),
-        initial: createWorkDraft(work),
-        current: editDraft,
-        saving,
-        editLabel: "编辑节点",
-        saveLabel: "保存节点",
-        cancelLabel: "取消编辑",
-        onEdit,
-        onSave,
-        onCancel: onCancelEdit,
-      }),
       rowActions: (work) => {
-        if (!canEdit || editingId === work.id) return [];
+        if (!canEdit) return [];
+        const dirty = isWorkDraftDirty(work, editDraft);
+        if (editingId === work.id) return [
+          {
+            key: "save",
+            kind: "save",
+            label: "保存节点",
+            onClick: onSave,
+            disabled: saving || !editDraft?.content.trim() || !dirty,
+          },
+        ];
         return [
           {
             key: "delete",
@@ -131,6 +137,7 @@ export function useWorkTaskTableSection({
           },
         ];
       },
+      actionsColumn: { label: "操作", align: "center" },
       scroll: { y: "hidden" },
     } },
   };
@@ -153,10 +160,10 @@ function createColumns({
       key: "content",
       label: "OKR 大纲",
       required: true,
-      width: "wide",
+      width: "content",
 
       cell: (work) => (
-        <div className={`flex min-w-0 items-center gap-2 ${depthIndentClassName(work.depth)}`}>
+        <div className={`flex w-80 max-w-80 min-w-0 items-center gap-2 ${depthIndentClassName(work.depth)}`}>
           {work.childCount > 0 ? (
             <button
               type="button"
@@ -181,20 +188,10 @@ function createColumns({
       ),
     },
     {
-      key: "kr",
-      label: "关键结果",
-      defaultVisible: true,
-      width: "md",
-
-      cell: (work) => work.itemType === "key_result"
-        ? <span className="text-sm text-slate-700">{krRange(work)}</span>
-        : <span className="text-sm text-slate-300">-</span>,
-    },
-    {
       key: "status",
       label: "子任务状态",
       defaultVisible: true,
-      width: "xs",
+      width: 160,
 
       cell: (work) => {
         const status = work.itemType === "task" ? (work.isArchived ? "archived" : work.status) : null;
@@ -206,7 +203,7 @@ function createColumns({
       key: "priority",
       label: "优先级",
       defaultVisible: true,
-      width: "md",
+      width: 192,
 
       cell: (work) => work.itemType === "task" ? (
         <div className="flex flex-wrap items-center gap-1.5 text-xs font-medium text-slate-500">
@@ -304,9 +301,4 @@ function statusClassName(status: string) {
   if (status === "done") return "bg-sky-50 text-sky-700";
   if (status === "archived") return "bg-amber-50 text-amber-700";
   return "bg-emerald-50 text-emerald-700";
-}
-function krRange(work: WorkItem) {
-  const unit = work.krUnit || "";
-  const value = (number: number | null) => number === null ? "未填" : `${number}${unit}`;
-  return `${value(work.krStartValue)} / ${value(work.krCurrentValue)} / ${value(work.krTargetValue)}`;
 }

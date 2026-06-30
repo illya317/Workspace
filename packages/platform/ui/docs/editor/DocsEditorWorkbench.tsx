@@ -1,83 +1,52 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
+  createEmptySection,
   createBodySplitSection,
+  createMessageSection,
   createPageBody,
   createPageDataSection,
   createPageTabsNavigation,
   createSectionSection,
+  InputSurface,
   PageSurface,
-  type BodySurfaceCommandSpec,
   type DataSurfaceColumnSpec,
 } from "@workspace/core/ui";
+import { createEmptyEditorDocument } from "@workspace/platform/document-editor";
+import { useSpacePermissionsSections, type SpacePermissionRow } from "@workspace/platform/ui/SpacePermissionsPanel";
 import {
-  createEmptyEditorDocument,
-  exportEditorDocumentToDocxBlob,
-  type EditorDocument,
-  type FieldModel,
-} from "@workspace/platform/document-editor";
-import {
-  copyEditorTemplate,
+  DOCS_EDITOR_REFERENCE_OPTIONS_ENDPOINT,
   createEditorTemplateDraft,
   fetchEditorBootstrap,
-  fetchEditorTemplate,
-  markEditorTemplatePublished,
-  requestEditorTemplatePublish,
-  saveEditorTemplateDraft,
-  updateEditorTemplatePermissions,
-  type EditorPermissionRole,
+  fetchEditorSpacePermissions,
+  saveEditorSpacePermissions,
   type EditorSpaceDto,
-  type EditorTemplateDetailDto,
   type EditorTemplateListItemDto,
 } from "./api";
-import { createEditorDetailSection } from "./sections";
 import {
-  GENERATED_QC_SPACE_ID,
-  canEdit,
   canManage,
-  evaluateFieldModel,
-  fieldRows,
   formatDateTime,
   isEditableSpace,
-  isGeneratedTemplate,
-  normalizeEditorDocument,
-  normalizeFieldModel,
   roleLabel,
   statusLabel,
   statusTone,
-  upsertFormula,
-  type FieldFormulaRow,
 } from "./model";
 
-function downloadBlob(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-}
-
 export default function DocsEditorWorkbench() {
+  const router = useRouter();
   const [spaces, setSpaces] = useState<EditorSpaceDto[]>([]);
   const [templates, setTemplates] = useState<EditorTemplateListItemDto[]>([]);
   const [activeSpaceId, setActiveSpaceId] = useState<string | null>(null);
-  const [activeTemplateId, setActiveTemplateId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("paper");
-  const [detail, setDetail] = useState<EditorTemplateDetailDto | null>(null);
-  const [documentDraft, setDocumentDraft] = useState<EditorDocument>(() => createEmptyEditorDocument());
-  const [fieldModelDraft, setFieldModelDraft] = useState<FieldModel>(() => ({ schemaVersion: 1, fields: {}, formulas: {} }));
+  const [activeTab, setActiveTab] = useState("templates");
   const [loading, setLoading] = useState(true);
-  const [detailLoading, setDetailLoading] = useState(false);
-  const [busy, setBusy] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const [grantUserId, setGrantUserId] = useState("");
-  const [grantRole, setGrantRole] = useState<EditorPermissionRole>("viewer");
   const [sideOpen, setSideOpen] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createTitle, setCreateTitle] = useState("");
+  const [creating, setCreating] = useState(false);
 
   const loadBootstrap = useCallback(async (spaceId: string | null) => {
     setLoading(true);
@@ -86,11 +55,7 @@ export default function DocsEditorWorkbench() {
       setSpaces(data.spaces);
       setTemplates(data.templates);
       setActiveSpaceId((current) => current ?? data.spaces[0]?.id ?? null);
-      setActiveTemplateId((current) => (
-        current && data.templates.some((template) => template.id === current)
-          ? current
-          : data.templates[0]?.id ?? null
-      ));
+      setMessage(null);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "加载模板编辑器失败");
     } finally {
@@ -102,38 +67,57 @@ export default function DocsEditorWorkbench() {
     void loadBootstrap(activeSpaceId);
   }, [activeSpaceId, loadBootstrap]);
 
+  const activeSpace = spaces.find((space) => space.id === activeSpaceId) ?? spaces[0] ?? null;
+  const canCreateTemplate = Boolean(activeSpace && isEditableSpace(activeSpace));
+  const canManageSpace = canManage(activeSpace?.role);
+  const permissionSections = useSpacePermissionsSections({
+    target: activeSpace,
+    canManage: canManageSpace,
+    enabled: activeTab === "permissions",
+    onToast: (toast) => setMessage(toast.message),
+    listPermissions: async (space) => fetchEditorSpacePermissions(space.id) as Promise<SpacePermissionRow[]>,
+    savePermissions: (space, permissions) => saveEditorSpacePermissions(space.id, permissions),
+    referenceEndpoint: DOCS_EDITOR_REFERENCE_OPTIONS_ENDPOINT,
+    userFkKey: "docs.editor.permission.user",
+    permissionKind: "template",
+    saveSuccessText: "模板空间权限已保存",
+    loadErrorText: "加载模板空间权限失败",
+    saveErrorText: "保存模板空间权限失败",
+  });
+
   useEffect(() => {
-    if (!activeTemplateId) {
-      setDetail(null);
-      setDocumentDraft(createEmptyEditorDocument());
-      setFieldModelDraft({ schemaVersion: 1, fields: {}, formulas: {} });
+    if (activeTab === "permissions" && !canManageSpace) setActiveTab("templates");
+  }, [activeTab, canManageSpace]);
+
+  async function createTemplate() {
+    const title = createTitle.trim();
+    if (!title) {
+      setMessage("请输入文件名");
       return;
     }
-    let cancelled = false;
-    setDetailLoading(true);
-    fetchEditorTemplate(activeTemplateId)
-      .then((next) => {
-        if (cancelled) return;
-        setDetail(next);
-        setDocumentDraft(normalizeEditorDocument(next));
-        setFieldModelDraft(normalizeFieldModel(next.fieldModel));
-      })
-      .catch((error) => {
-        if (!cancelled) setMessage(error instanceof Error ? error.message : "加载模板详情失败");
-      })
-      .finally(() => {
-        if (!cancelled) setDetailLoading(false);
+    if (!activeSpace || !isEditableSpace(activeSpace)) {
+      setMessage("当前模板空间不可新增模板");
+      return;
+    }
+    setCreating(true);
+    setMessage(null);
+    try {
+      const saved = await createEditorTemplateDraft({
+        spaceId: activeSpace.id,
+        title,
+        type: "document",
+        document: createEmptyEditorDocument(title),
+        fieldModel: { schemaVersion: 1, fields: {}, formulas: {} },
       });
-    return () => {
-      cancelled = true;
-    };
-  }, [activeTemplateId]);
-
-  const activeSpace = spaces.find((space) => space.id === activeSpaceId) ?? spaces[0] ?? null;
-  const selectedTemplate = templates.find((template) => template.id === activeTemplateId) ?? null;
-  const editableTargetSpace = spaces.find(isEditableSpace) ?? null;
-  const formulaComputation = useMemo(() => evaluateFieldModel(fieldModelDraft), [fieldModelDraft]);
-  const formulaRows = useMemo(() => fieldRows(fieldModelDraft, formulaComputation), [fieldModelDraft, formulaComputation]);
+      setCreateTitle("");
+      setCreateOpen(false);
+      router.push(`/docs/editor/templates/${encodeURIComponent(saved.id)}`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "创建模板失败");
+    } finally {
+      setCreating(false);
+    }
+  }
 
   const templateColumns = useMemo<DataSurfaceColumnSpec<EditorTemplateListItemDto>[]>(() => [
     {
@@ -158,208 +142,6 @@ export default function DocsEditorWorkbench() {
     { key: "updatedAt", label: "更新", cell: (row: EditorTemplateListItemDto) => formatDateTime(row.updatedAt) },
   ], []);
 
-  const fieldColumns = useMemo<DataSurfaceColumnSpec<FieldFormulaRow>[]>(() => [
-    {
-      key: "label",
-      label: "字段",
-      cell: (row: FieldFormulaRow) => (
-        <div className="min-w-0">
-          <div className="truncate font-medium text-slate-900">{row.label}</div>
-          <div className="mt-0.5 truncate text-xs text-slate-500">{row.key}</div>
-        </div>
-      ),
-    },
-    { key: "type", label: "类型", cell: (row: FieldFormulaRow) => row.type },
-    { key: "unit", label: "单位", cell: (row: FieldFormulaRow) => row.unit || "-" },
-    { key: "mode", label: "模式", cell: (row: FieldFormulaRow) => row.mode },
-    { key: "computedValue", label: "计算", cell: (row: FieldFormulaRow) => row.error ? ({ kind: "badge", label: "错误", tone: "red" }) : row.computedValue },
-    { key: "error", label: "错误提示", cell: (row: FieldFormulaRow) => row.error || "-" },
-    {
-      key: "formula",
-      label: "公式/引用",
-      cell: (row: FieldFormulaRow) => (
-        <input
-          className="h-8 w-full rounded border border-slate-200 bg-white px-2 font-mono text-xs text-slate-800 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
-          value={row.formula}
-          placeholder="例如 ROUND(field_a * field_b, 2)"
-          onChange={(event) => setFieldModelDraft((current) => upsertFormula(current, row.key, event.target.value))}
-        />
-      ),
-    },
-  ], []);
-
-  const permissionColumns = useMemo<DataSurfaceColumnSpec<EditorTemplateDetailDto["permissions"][number]>[]>(() => [
-    { key: "userName", label: "用户", cell: (row: EditorTemplateDetailDto["permissions"][number]) => row.userName },
-    { key: "userId", label: "用户ID", cell: (row: EditorTemplateDetailDto["permissions"][number]) => row.userId },
-    { key: "role", label: "授权", cell: (row: EditorTemplateDetailDto["permissions"][number]) => roleLabel(row.role) },
-  ], []);
-
-  async function saveDraft() {
-    if (!detail) return;
-    setBusy("save");
-    setMessage(null);
-    try {
-      const sourceStageKeys = Array.isArray(detail.document && (detail.document as { metadata?: { sourceStageKeys?: unknown } }).metadata?.sourceStageKeys)
-        ? (detail.document as { metadata: { sourceStageKeys: string[] } }).metadata.sourceStageKeys
-        : ["intermediate", "packaging", "finished"];
-      const saved = isGeneratedTemplate(detail.id)
-        ? await createEditorTemplateDraft({
-          spaceId: editableTargetSpace?.id,
-          title: detail.title,
-          type: detail.type,
-          document: documentDraft,
-          fieldModel: fieldModelDraft,
-          sourceKind: detail.sourceKind,
-          sourceProductKey: detail.sourceProductKey,
-          sourceStageKeys,
-        })
-        : await saveEditorTemplateDraft(detail.id, {
-          title: detail.title,
-          document: documentDraft,
-          fieldModel: fieldModelDraft,
-        });
-      setDetail(saved);
-      setDocumentDraft(normalizeEditorDocument(saved));
-      setFieldModelDraft(normalizeFieldModel(saved.fieldModel));
-      setActiveSpaceId(saved.spaceId);
-      setActiveTemplateId(saved.id);
-      setMessage(isGeneratedTemplate(detail.id) ? "已复制到可编辑空间并保存草稿" : "草稿已保存");
-      await loadBootstrap(saved.spaceId);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "保存失败");
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  async function copyTemplate() {
-    if (!detail) return;
-    if (!editableTargetSpace) {
-      setMessage("没有可写入的个人或部门空间");
-      return;
-    }
-    setBusy("copy");
-    setMessage(null);
-    try {
-      const copied = await copyEditorTemplate(detail.id, {
-        targetSpaceId: editableTargetSpace.id,
-        title: `${detail.title} 副本`,
-      });
-      setActiveSpaceId(copied.spaceId);
-      setActiveTemplateId(copied.id);
-      setMessage("模板已复制");
-      await loadBootstrap(copied.spaceId);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "复制失败");
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  async function publishRequest() {
-    if (!detail || isGeneratedTemplate(detail.id)) return;
-    setBusy("publish-request");
-    setMessage(null);
-    try {
-      const next = await requestEditorTemplatePublish(detail.id);
-      setDetail(next);
-      setMessage("已提交发布申请");
-      await loadBootstrap(next.spaceId);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "提交发布失败");
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  async function publishOfficial() {
-    if (!detail || isGeneratedTemplate(detail.id)) return;
-    setBusy("publish");
-    setMessage(null);
-    try {
-      const next = await markEditorTemplatePublished(detail.id, { official: detail.sourceKind?.includes("qc") });
-      setDetail(next);
-      setMessage("模板已发布");
-      await loadBootstrap(next.spaceId);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "发布失败");
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  async function savePermissions(nextPermissions: Array<{ userId: number; role: EditorPermissionRole }>) {
-    if (!detail || isGeneratedTemplate(detail.id) || !canManage(detail.role)) return;
-    setBusy("permissions");
-    setMessage(null);
-    try {
-      const next = await updateEditorTemplatePermissions(detail.id, nextPermissions);
-      setDetail(next);
-      setMessage("模版权限已更新");
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "更新模版权限失败");
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  async function addPermissionGrant() {
-    if (!detail) return;
-    const userId = Number(grantUserId);
-    if (!Number.isInteger(userId) || userId <= 0) {
-      setMessage("请输入有效用户 ID");
-      return;
-    }
-    const retained = detail.permissions
-      .filter((permission) => permission.userId !== userId)
-      .map((permission) => ({ userId: permission.userId, role: permission.role }));
-    await savePermissions([...retained, { userId, role: grantRole }]);
-    setGrantUserId("");
-  }
-
-  async function removePermissionGrant(userId: number) {
-    if (!detail) return;
-    await savePermissions(detail.permissions
-      .filter((permission) => permission.userId !== userId)
-      .map((permission) => ({ userId: permission.userId, role: permission.role })));
-  }
-
-  async function exportDocx() {
-    setBusy("export");
-    setMessage(null);
-    try {
-      const blob = await exportEditorDocumentToDocxBlob(documentDraft, formulaComputation.previewValues);
-      downloadBlob(blob, `${detail?.title ?? documentDraft.title}.docx`);
-      setMessage("DOCX 已生成");
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "导出 DOCX 失败");
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  const detailActions: BodySurfaceCommandSpec[] = [
-    {
-      key: "save",
-      label: isGeneratedTemplate(detail?.id ?? null) ? "复制并保存" : "保存草稿",
-      variant: "primary",
-      onClick: saveDraft,
-      disabled: !detail || busy === "save" || (!canEdit(detail.role) && !isGeneratedTemplate(detail.id)),
-    },
-    {
-      key: "copy",
-      label: "复制模板",
-      onClick: copyTemplate,
-      disabled: !detail || busy === "copy" || !editableTargetSpace,
-    },
-    {
-      key: "export",
-      label: "导出 DOCX",
-      onClick: exportDocx,
-      disabled: !detail || busy === "export",
-    },
-  ];
-
   const left = {
     kind: "selector" as const,
     selector: {
@@ -371,77 +153,111 @@ export default function DocsEditorWorkbench() {
       loadingText: "加载空间...",
       emptyText: "暂无可用空间",
       getKey: (item: EditorSpaceDto) => item.id,
-      onSelect: (item: EditorSpaceDto) => setActiveSpaceId(item.id),
+      onSelect: (item: EditorSpaceDto) => {
+        setActiveSpaceId(item.id);
+        setActiveTab("templates");
+      },
       renderItem: (item: EditorSpaceDto) => ({
         title: item.title,
         subtitle: item.description,
-        tone: item.kind === "personal" ? "blue" as const : "emerald" as const,
-        meta: [roleLabel(item.role), item.kind === "personal" ? "个人" : "部门"],
-        status: item.id === GENERATED_QC_SPACE_ID ? { label: "官方", tone: "success" as const } : undefined,
+        tone: item.kind === "personal" ? "blue" as const : item.kind === "company" ? "slate" as const : "emerald" as const,
+        meta: [
+          roleLabel(item.role),
+          item.kind === "personal" ? "个人" : item.kind === "company" ? "集团" : "部门",
+        ],
       }),
     },
   };
 
+  const templateListSection = createSectionSection("docs-editor-list", {
+    title: activeSpace ? activeSpace.title : "模板列表",
+    subtitle: "选择模板进入详情页，编辑纸面、字段公式和发布状态。",
+    actions: [
+      { key: "create", icon: "create" as const, label: "新增", variant: "primary" as const, onClick: () => setCreateOpen((open) => !open), disabled: loading || !canCreateTemplate },
+      { key: "reload", label: "刷新", onClick: () => loadBootstrap(activeSpaceId), disabled: loading },
+    ],
+    sections: [
+      ...(message ? [createMessageSection("docs-editor-list-message", { content: message, tone: "danger" as const })] : []),
+      ...(createOpen ? [createEmptySection("docs-editor-create-template", {
+        presentation: "plain",
+        content: (
+          <form
+            className="flex flex-wrap items-end gap-3 rounded-md border border-emerald-100 bg-emerald-50/40 p-3 text-slate-900"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void createTemplate();
+            }}
+          >
+            <label className="min-w-64 flex-1 space-y-1">
+              <span className="block text-xs font-medium text-slate-500">文件名</span>
+              <InputSurface
+                spec={{ valueType: "string", control: "text", validation: { required: true } }}
+                value={createTitle}
+                placeholder="请输入文件名"
+                density="compact"
+                onChange={(value) => setCreateTitle(String(value ?? ""))}
+              />
+            </label>
+            <button
+              type="submit"
+              disabled={creating || !createTitle.trim()}
+              className="inline-flex h-10 items-center rounded-md bg-emerald-600 px-4 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 disabled:bg-slate-300"
+            >
+              {creating ? "创建中..." : "创建"}
+            </button>
+            <button
+              type="button"
+              disabled={creating}
+              className="inline-flex h-10 items-center rounded-md border border-slate-200 bg-white px-4 text-sm font-medium text-slate-600 shadow-sm transition hover:border-slate-300 hover:text-slate-900 disabled:text-slate-300"
+              onClick={() => {
+                setCreateOpen(false);
+                setCreateTitle("");
+              }}
+            >
+              取消
+            </button>
+          </form>
+        ),
+      })] : []),
+      createPageDataSection("template-table", {
+        kind: "table",
+        rows: templates,
+        columns: templateColumns,
+        visibleColumns: templateColumns.map((column) => column.key),
+        loading,
+        emptyText: "暂无模板",
+        rowKey: (row: EditorTemplateListItemDto) => row.id,
+        onRowClick: (row: EditorTemplateListItemDto) => router.push(`/docs/editor/templates/${encodeURIComponent(row.id)}`),
+        presentation: { density: "compact", rowHover: "interactive" },
+      }),
+    ],
+  });
+
+  const permissionSection = createSectionSection("docs-editor-space-permissions", {
+    title: activeSpace ? `${activeSpace.title}权限管理` : "权限管理",
+    subtitle: "空间权限适用于该空间下全部文档模板。",
+    sections: [
+      ...(message ? [createMessageSection("docs-editor-permission-message", { content: message, tone: "muted" as const })] : []),
+      ...permissionSections,
+    ],
+  });
+
   const right = createPageBody([
-    createSectionSection("docs-editor-list", {
-      title: activeSpace ? activeSpace.title : "模板列表",
-      subtitle: "选择模板后可编辑纸面、字段公式、权限和发布状态。",
-      actions: [{ key: "reload", label: "刷新", onClick: () => loadBootstrap(activeSpaceId), disabled: loading }],
-      sections: [
-        createPageDataSection("template-table", {
-          kind: "table",
-          rows: templates,
-          columns: templateColumns,
-          visibleColumns: templateColumns.map((column) => column.key),
-          loading,
-          emptyText: "暂无模板",
-          rowKey: (row: EditorTemplateListItemDto) => row.id,
-          onRowClick: (row: EditorTemplateListItemDto) => setActiveTemplateId(row.id),
-          rowState: (row: EditorTemplateListItemDto) => row.id === activeTemplateId ? "selected" : "normal",
-          presentation: { density: "compact", rowHover: "interactive" },
-        }),
-      ],
-    }),
-    createEditorDetailSection({
-      activeTab,
-      detail,
-      detailActions,
-      detailLoading,
-      documentDraft,
-      fieldColumns,
-      fieldModelDraft,
-      formulaRows,
-      formulaComputation,
-      message,
-      permissionColumns,
-      selectedTemplate,
-      setFieldModelDraft,
-      setDocumentDraft,
-      publishRequest,
-      publishOfficial,
-      grantRole,
-      grantUserId,
-      setGrantRole,
-      setGrantUserId,
-      addPermissionGrant,
-      removePermissionGrant,
-      busy,
-    }),
+    activeTab === "permissions" ? permissionSection : templateListSection,
   ]);
 
   return (
     <PageSurface
       kind="standard"
-      navigation={createPageTabsNavigation({
+      navigation={activeSpace ? createPageTabsNavigation({
         items: [
-          { key: "paper", label: "纸面编辑" },
-          { key: "fields", label: "字段/公式" },
-          { key: "permissions", label: "权限/发布" },
+          { key: "templates", label: "文档模板" },
+          ...(canManageSpace ? [{ key: "permissions", label: "权限管理" }] : []),
         ],
         active: activeTab,
         onChange: setActiveTab,
-        ariaLabel: "模板编辑器视图",
-      })}
+        ariaLabel: "模板编辑器空间视图",
+      }) : undefined}
       body={createBodySplitSection({
         left,
         right,

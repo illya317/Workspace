@@ -56,6 +56,8 @@
 | 权限模型 | `docs/engineering/security/rbac.md`, `docs/engineering/security/permission-matrix.md` | Architecture |
 | 环境、部署和检查 | `docs/engineering/checks.md`, `docs/engineering/ops/README.md` | Operations |
 | Production/QC 数据和 layout 参考 | `docs/engineering/reference/qc-dev-mode.md` | Data |
+| Docs Editor 模板空间和权限 | `docs/engineering/reference/docs-editor-template-spaces.md` | Platform Docs / Feature |
+| Docs Editor 外部依赖 | `docs/engineering/reference/docs-editor-dependencies.md` | Platform Docs / Feature |
 
 ## 产品和用户文档入口
 

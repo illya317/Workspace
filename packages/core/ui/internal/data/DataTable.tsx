@@ -45,7 +45,7 @@ export const dataTableClassNames = {
 
 function DataTableActionsCell({ actions }: { actions: DataTableRowAction[] }) {
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-nowrap items-center gap-2 whitespace-nowrap">
       {actions.map((action) => {
         const actionDefinition = ACTION_GLYPH_ACTION_BY_KEY[action.kind];
         return (

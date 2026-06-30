@@ -2,7 +2,6 @@ import { z } from "zod";
 import type {
   CreateDocumentTemplateCommand,
   SaveDocumentTemplateDraftCommand,
-  UpdateDocumentTemplatePermissionsCommand,
 } from "./types";
 
 export const docsEditorSpaceQuerySchema = z.object({
@@ -35,10 +34,3 @@ export const saveDraftBodySchema = z.object({
   sourceProductKey: z.string().optional().nullable(),
   sourceStageKeys: z.array(z.string()).optional().nullable(),
 }) satisfies z.ZodType<SaveDocumentTemplateDraftCommand>;
-
-export const updatePermissionsBodySchema = z.object({
-  permissions: z.array(z.object({
-    userId: z.coerce.number().int().positive(),
-    role: z.enum(["viewer", "editor", "manager"]),
-  })),
-}) satisfies z.ZodType<UpdateDocumentTemplatePermissionsCommand>;

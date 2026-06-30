@@ -19,6 +19,7 @@ import {
   getWorkSpaceLabel,
   getWorkSpacePath,
   getWorkTargetFromPath,
+  isWorkPlanDraftDirty,
 } from "./model";
 import { useWorks } from "./useWorks";
 import { createSpaceMetricsSection, nextSortOrder, normalizeInitialTarget, roleAllows, sameTarget } from "./works-client-helpers";
@@ -30,7 +31,7 @@ import { createWorkPlanContentSection } from "./WorkPlanSections";
 import { applyDefaultExpandedWorkSpaces, createWorkSpaceNavigationBody, workSpaceKey } from "./WorkSpaceSidebar";
 import { useWorkPlanFormSurface } from "./WorkPlanFields";
 import { useWorkPlanPagination } from "./useWorkPlanPagination";
-import { createWorkToolbarItems } from "./WorkToolbar";
+import { createWorkToolbarItems, type WorkSpaceTypeFilter } from "./WorkToolbar";
 import type { WorkItem, WorkItemType, WorkPlan, WorkPlanDraft, WorkTarget, WorkTaskSpace } from "./types";
 
 export default function WorksClient({ initialTarget }: {
@@ -47,8 +48,8 @@ export default function WorksClient({ initialTarget }: {
   const [plansLoading, setPlansLoading] = useState(false);
   const [activePlanId, setActivePlanId] = useState<number | null>(null);
   const [planCreating, setPlanCreating] = useState(false);
-  const [planEditing, setPlanEditing] = useState(false);
   const [planDraft, setPlanDraft] = useState<WorkPlanDraft>(() => createEmptyWorkPlanDraft());
+  const [spaceTypeFilter, setSpaceTypeFilter] = useState<WorkSpaceTypeFilter>("all");
   const [statusFilter, setStatusFilter] = useState<"active" | "done" | "archived">("active");
   const [itemTypeFilter, setItemTypeFilter] = useState("all");
   const [sideOpen, setSideOpen] = useState(true);
@@ -59,7 +60,23 @@ export default function WorksClient({ initialTarget }: {
     () => plans.find((plan) => plan.id === activePlanId) || null,
     [activePlanId, plans],
   );
-  const planPagination = useWorkPlanPagination(activePlan, plans);
+  const activePlanDraft = useMemo(
+    () => activePlan ? createWorkPlanDraft(activePlan) : null,
+    [activePlan],
+  );
+  const planDirty = useMemo(
+    () => isWorkPlanDraftDirty(activePlanDraft, planDraft),
+    [activePlanDraft, planDraft],
+  );
+  const filteredSpaces = useMemo(
+    () => spaceTypeFilter === "all" ? spaces : spaces.filter((space) => space.targetType === spaceTypeFilter),
+    [spaceTypeFilter, spaces],
+  );
+  const filteredPlans = useMemo(
+    () => spaceTypeFilter === "all" ? plans : plans.filter((plan) => plan.targetType === spaceTypeFilter),
+    [plans, spaceTypeFilter],
+  );
+  const planPagination = useWorkPlanPagination(activePlan, filteredPlans);
   const currentSpace = useMemo(() => {
     const target = activePlan ? { targetType: activePlan.targetType, targetId: activePlan.targetId } : activeTarget;
     return spaces.find((space) => sameTarget(space, target)) || null;
@@ -72,6 +89,7 @@ export default function WorksClient({ initialTarget }: {
   const canDelete = roleAllows(currentSpace?.role, "delete");
   const canManage = roleAllows(currentSpace?.role, "manager");
   const worksState = useWorks(currentSpace, activePlanId);
+  const setWorkCreating = worksState.setCreating;
   const showToast = useCallback((message: string, type: "success" | "error") => feedback.notify(message, type), [feedback]);
   const showReportToast = useCallback((toast: { message: string; type: "success" | "error" }) => showToast(toast.message, toast.type), [showToast]);
   const showPermissionToast = useCallback((toast: { message: string; type: "success" | "error" }) => showToast(toast.message, toast.type), [showToast]);
@@ -166,7 +184,21 @@ export default function WorksClient({ initialTarget }: {
 
   useEffect(() => { void loadSpaces(); }, [loadSpaces]);
   useEffect(() => { void loadPlans(); }, [loadPlans]);
+  useEffect(() => {
+    if (!activePlan || planCreating) return;
+    setPlanDraft(createWorkPlanDraft(activePlan));
+  }, [activePlan, activePlan?.id, planCreating]);
   useEffect(() => { setExpandedSpaceKeys((current) => applyDefaultExpandedWorkSpaces(current, spaces, activeTarget)); }, [activeTarget, spaces]);
+  useEffect(() => {
+    if (spaceTypeFilter === "all") return;
+    if (activeTarget?.targetType === spaceTypeFilter) return;
+    const fallback = filteredSpaces[0] ?? null;
+    setActiveTarget(fallback);
+    setActivePlanId(null);
+    setPlanCreating(false);
+    setWorkCreating(false);
+    if (fallback) window.history.pushState(null, "", workspacePath(getWorkSpacePath(fallback.targetType, fallback.targetId)));
+  }, [activeTarget, filteredSpaces, setWorkCreating, spaceTypeFilter]);
 
   useEffect(() => {
     if (spaces.length === 0) return;
@@ -210,7 +242,6 @@ export default function WorksClient({ initialTarget }: {
     setStatusFilter("active");
     setItemTypeFilter("all");
     setPlanCreating(false);
-    setPlanEditing(false);
     worksState.setCreating(false);
     setDrawerOpen(false);
   }
@@ -222,6 +253,19 @@ export default function WorksClient({ initialTarget }: {
     setExpandedSpaceKeys((current) => new Set(current).add(workSpaceKey(space)));
     resetTaskView();
     window.history.pushState(null, "", workspacePath(getWorkSpacePath(space.targetType, space.targetId)));
+  }
+
+  function changeSpaceTypeFilter(value: WorkSpaceTypeFilter) {
+    setSpaceTypeFilter(value);
+    if (value === "all" || activeTarget?.targetType === value) return;
+    const fallback = spaces.find((space) => space.targetType === value) ?? null;
+    if (fallback) selectSpace(fallback);
+    else {
+      setActiveTarget(null);
+      setActivePlanId(null);
+      setPlanCreating(false);
+      setWorkCreating(false);
+    }
   }
 
   function toggleSpace(space: WorkTaskSpace) {
@@ -252,7 +296,6 @@ export default function WorksClient({ initialTarget }: {
     if (!activePlan || !planDraft.title.trim()) return;
     try {
       const data = await updateWorkPlan(activePlan.id, planDraft);
-      setPlanEditing(false);
       await loadPlans();
       setActivePlanId(data.plan.id);
       showToast("OKR 计划已保存", "success");
@@ -311,39 +354,40 @@ export default function WorksClient({ initialTarget }: {
     : [{ key: "tasks", label: "OKR 计划" }, { key: "reports", label: "工作汇报" }];
   const editing = worksState.editingId !== null;
   const toolbarItems = createWorkToolbarItems({
-    hasSpace: Boolean(currentSpace),
+    hasSpace: spaces.length > 0,
     sideOpen,
     activeTab,
     canEdit,
     planCreating,
-    planEditing,
     saving: worksState.saving,
     planDraftTitle: planDraft.title,
+    spaceTypeFilter,
     statusFilter,
     itemTypeFilter,
     planPageToolbarItem: planPagination.toolbarItem,
     reportToolbarItems: reportsState.toolbarItems,
     onOpenDrawer: () => setDrawerOpen(true),
     onToggleSide: () => setSideOpen(!sideOpen),
+    onSpaceTypeFilterChange: changeSpaceTypeFilter,
     onStatusFilterChange: setStatusFilter,
     onItemTypeFilterChange: setItemTypeFilter,
     onCreatePlan: () => {
+      if (planCreating) {
+        setPlanCreating(false);
+        setPlanDraft(activePlan ? createWorkPlanDraft(activePlan) : createEmptyWorkPlanDraft());
+        return;
+      }
       setActivePlanId(null);
       setPlanCreating(true);
-      setPlanEditing(false);
       setPlanDraft(createEmptyWorkPlanDraft(nextSortOrder(currentSpacePlans)));
-    },
-    onCancelPlanEdit: () => {
-      setPlanCreating(false);
-      setPlanEditing(false);
     },
     onSavePlan: () => void (planCreating ? handleCreatePlan() : handleUpdatePlan()),
   });
   const spaceNavigationBody = createWorkSpaceNavigationBody({
-    spaces,
+    spaces: filteredSpaces,
     active: activeTarget,
     activePlanId,
-    plans,
+    plans: filteredPlans,
     loading: spacesLoading || plansLoading,
     expandedSpaceKeys,
     planPageSize: planPagination.planPageSize,
@@ -380,14 +424,13 @@ export default function WorksClient({ initialTarget }: {
             sections: createWorkReportsPanelSections(reportsState),
           }) : createWorkPlanContentSection({
             planCreating,
-            planEditing,
             activePlan,
             canEditPlan: canEdit,
             canDeletePlan: canDelete,
             nodeCreating: worksState.creating,
             createNodeDisabled: worksState.saving || editing,
             nodeSaveDisabled: worksState.saving || !worksState.createDraft.content.trim(),
-            planSaveDisabled: !planDraft.title.trim(),
+            planSaveDisabled: worksState.saving || !planDraft.title.trim() || !planDirty,
             planFormSurface,
             createTaskSurface,
             taskTableSection,
@@ -398,16 +441,9 @@ export default function WorksClient({ initialTarget }: {
               worksState.setCreating(true);
               worksState.setCreateDraft(createEmptyWorkDraft(nextSortOrder(worksState.works), activePlan.id));
             },
-            onEditPlan: () => {
-              if (!activePlan) return;
-              setPlanEditing(true);
-              setPlanCreating(false);
-              setPlanDraft(createWorkPlanDraft(activePlan));
-            },
             onArchivePlan: () => void handleArchivePlan(),
             onDeletePlan: () => void handleDeletePlan(),
             onSavePlan: () => void handleUpdatePlan(),
-            onCancelPlanEdit: () => setPlanEditing(false),
             onSaveNode: () => void worksState.handleCreate().then(() => Promise.all([loadSpaces(), loadPlans()])),
             onCancelNodeCreate: () => worksState.setCreating(false),
           }),

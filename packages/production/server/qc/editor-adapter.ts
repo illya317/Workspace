@@ -22,6 +22,8 @@ import {
   textParts,
 } from "./editor-adapter-layout";
 import { normalizeLegacyInput } from "./editor-adapter-normalize";
+import { expandPrecheckLayoutBlock } from "./editor-adapter-precheck";
+import { annotateEditorSlots } from "./editor-adapter-slots";
 import type {
   EditorBlock,
   EditorDocument,
@@ -56,13 +58,12 @@ interface FieldResolver {
 }
 
 const CHINESE_ORDER = ["一", "二", "三", "四", "五", "六"];
+const DEFAULT_UNDERLINE_WIDTH = "3rem";
 
 export function legacyQcToEditorDocument(legacy: LegacyQcInput): QcEditorConversionResult {
   const detail = normalizeLegacyInput(legacy);
   const fieldModel = createFieldModel();
-  const blocks: EditorBlock[] = [
-    headingBlock(`${detail.id}:title`, 1, `批检验记录：${detail.productName}`, { qcRole: "productTitle", productKey: detail.id }),
-  ];
+  const blocks: EditorBlock[] = [];
 
   detail.stages.forEach((stage, stageIndex) => {
     blocks.push(headingBlock(
@@ -70,6 +71,12 @@ export function legacyQcToEditorDocument(legacy: LegacyQcInput): QcEditorConvers
       1,
       `${CHINESE_ORDER[stageIndex] || stageIndex + 1}、${detail.productName}${stage.label}`,
       { qcRole: "stageHeading", productKey: detail.id, stageKey: stage.key, stageLabel: stage.label },
+    ));
+    blocks.push(headingBlock(
+      `${detail.id}:${stage.key}:precheck-heading`,
+      2,
+      "1 检验前准备",
+      { qcRole: "precheckSectionHeading", productKey: detail.id, stageKey: stage.key },
     ));
 
     appendBlocks(blocks, stage.precheckLayoutBlocks || [], {
@@ -90,7 +97,7 @@ export function legacyQcToEditorDocument(legacy: LegacyQcInput): QcEditorConvers
     stage.tests.forEach((test) => {
       blocks.push(headingBlock(
         `${detail.id}:${stage.key}:${test.englishName}:heading`,
-        2,
+        3,
         `${test.sequence} ${test.name}`,
         { qcRole: "testHeading", productKey: detail.id, stageKey: stage.key, testKey: test.englishName, sequence: test.sequence },
       ));
@@ -112,6 +119,7 @@ export function legacyQcToEditorDocument(legacy: LegacyQcInput): QcEditorConvers
       });
     });
   });
+  annotateEditorSlots(blocks, fieldModel);
 
   const document: EditorDocument = {
     schemaVersion: 1,
@@ -150,12 +158,16 @@ function appendBlocks(target: EditorBlock[], sourceBlocks: QcLayoutBlock[], cont
 
 function convertLayoutBlock(block: QcLayoutBlock, context: ConversionContext): EditorBlock[] {
   const metadata = blockMetadata(block, context);
+  const precheckBlocks = expandPrecheckLayoutBlock(block);
+  if (precheckBlocks) return precheckBlocks.flatMap((item, index) => convertLayoutBlock(item, { ...context, blockIndex: context.blockIndex + index }));
   if (block.type === "table" && block.rows?.length) return [tableBlockFromRows(block, block.rows, metadata, context)];
   if (block.type === "environment_table") return [tableBlockFromRows(block, environmentRows(block), metadata, context)];
   if (block.type === "equipment_table") return [tableBlockFromRows(block, equipmentRows(block), metadata, context)];
   if (block.type === "materials_table") return [tableBlockFromRows(block, verificationRows(block, block.materials || [], "试验材料", block.fieldPrefix || "layout/common/materials"), metadata, context)];
   if (block.type === "reference_standard_table") return [tableBlockFromRows(block, verificationRows(block, block.standards || [], "标准品", block.fieldPrefix || "layout/common/reference_standards"), metadata, context)];
-  if (block.type === "title") return [headingBlock(blockId(context, block, "title"), 3, block.title || block.text || "操作方法", metadata)];
+  if (block.type === "precheck_title") return [headingBlock(blockId(context, block, "title"), 3, block.title || block.text || "", { ...metadata, qcRole: "precheckHeading" })];
+  if (block.type === "precheck_body") return [paragraphBlock(blockId(context, block, "body"), block.parts || [], { ...metadata, qcRole: "precheckBody" }, context)];
+  if (block.type === "title") return [headingBlock(blockId(context, block, "title"), context.test ? 4 : 2, layoutTitleText(block), metadata)];
   if (block.type === "operation_text" || block.type === "paragraph") {
     return [paragraphBlock(blockId(context, block, "paragraph"), block.parts || textParts(block.text), metadata, context)];
   }
@@ -166,11 +178,8 @@ function convertLayoutBlock(block: QcLayoutBlock, context: ConversionContext): E
     const prefix = block.fieldPrefix || "layout/abnormal";
     const title = "实验结果异常处理";
     const postSectionMetadata = { ...metadata, qcRole: "postSectionBody", postSectionTitle: title };
-    return [
-      headingBlock(blockId(context, block, `${title}:heading`), 3, title, { ...metadata, qcRole: "postSectionHeading" }),
-      paragraphBlock(blockId(context, block, `${title}:occurred`), [{ type: "radio", fieldKey: `${prefix}/occurred`, options: ["是", "否"] }], postSectionMetadata, context),
-      paragraphBlock(blockId(context, block, `${title}:code`), [{ type: "text", text: "实验室异常情况编号 " }, { type: "line", fieldKey: `${prefix}/code`, width: "14rem", underline: true }], postSectionMetadata, context),
-    ];
+    const codeMetadata = { ...postSectionMetadata, qcRole: "abnormalCode" };
+    return [headingBlock(blockId(context, block, `${title}:heading`), 4, title, { ...metadata, qcRole: "postSectionHeading" }), paragraphBlock(blockId(context, block, `${title}:occurred`), [{ type: "radio", fieldKey: `${prefix}/occurred`, options: ["是", "否"] }], postSectionMetadata, context), paragraphBlock(blockId(context, block, `${title}:code`), [{ type: "text", text: "实验室异常情况编号 " }, { type: "line", fieldKey: `${prefix}/code`, width: DEFAULT_UNDERLINE_WIDTH, underline: true }], codeMetadata, context)];
   }
   if (block.type === "cleanup_checklist") {
     return [tableBlockFromRows(block, cleanupRows(block, context.test), metadata, context)];
@@ -281,14 +290,21 @@ function paragraphBlock(id: string, parts: QcLayoutPart[], metadata: JsonObject,
 }
 
 function headingBlock(id: string, level: 1 | 2 | 3 | 4, text: string, metadata: JsonObject): EditorHeadingBlock {
-  return { id: makeId(id), type: "heading", level, text, metadata };
+  return { id: makeId(id), type: "heading", level, text, bold: true, metadata };
 }
 
 function postSectionBlocks(block: QcLayoutBlock, title: string, parts: QcLayoutPart[], metadata: JsonObject, context: ConversionContext): EditorBlock[] {
   return [
-    headingBlock(blockId(context, block, `${title}:heading`), 3, title, { ...metadata, qcRole: "postSectionHeading" }),
+    headingBlock(blockId(context, block, `${title}:heading`), 4, title, { ...metadata, qcRole: "postSectionHeading" }),
     paragraphBlock(blockId(context, block, `${title}:body`), parts, { ...metadata, qcRole: "postSectionBody", postSectionTitle: title }, context),
   ];
+}
+
+function layoutTitleText(block: QcLayoutBlock) {
+  const title = block.title || block.text || "操作方法";
+  const suffix = block.sectionSuffix?.trim();
+  if (!suffix || suffix === "auto" || title.startsWith(`${suffix} `) || title.startsWith(`${suffix}.`)) return title;
+  return `${suffix} ${title}`;
 }
 
 function partToEditorParts(part: QcLayoutPart, context: ConversionContext): EditorInlinePart[] {
@@ -326,7 +342,7 @@ function partToEditorParts(part: QcLayoutPart, context: ConversionContext): Edit
       readonlyDisplay: part.readonlyDisplay,
       referenceFieldKey: configuredReferenceKey(part) || configuredReferenceKey(field),
       valueSource: configuredValueSource(part) || configuredValueSource(field),
-      width: part.width,
+      width: DEFAULT_UNDERLINE_WIDTH,
       metadata: commonMetadata,
     }];
   }
@@ -344,7 +360,6 @@ function partToEditorParts(part: QcLayoutPart, context: ConversionContext): Edit
     || field?.attr === "calculated"
   );
   if (fieldKey && (hasFormulaMetadata || isReference || part.readonlyDisplay)) {
-    const formulaKind = isReference ? "reference" : hasFormulaMetadata ? "formula" : "readonlyDisplay";
     upsertFormula(context.fieldModel, fieldKey, {
       fieldKey,
       formulaText: formulaText || durationFormulaText(part),
@@ -363,11 +378,11 @@ function partToEditorParts(part: QcLayoutPart, context: ConversionContext): Edit
       formulaTextMap: part.advancedFormulaTextMap,
       dependencyFieldKeys: explicitPartDependencies(part),
       dependencyFieldKeyMap: part.advancedDependencyFieldKeyMap,
-      formulaKind,
+      slotKind: isReference ? "reference" : "formula",
       readonlyDisplay: part.readonlyDisplay || field?.attr === "calculated",
       referenceFieldKey: configuredReferenceKey(part) || configuredReferenceKey(field),
       valueSource: configuredValueSource(part) || configuredValueSource(field),
-      width: part.width,
+      width: DEFAULT_UNDERLINE_WIDTH,
       metadata: commonMetadata,
     }];
   }
@@ -381,7 +396,7 @@ function partToEditorParts(part: QcLayoutPart, context: ConversionContext): Edit
     defaultValue: part.defaultValue || field?.defaultValue,
     placeholder: part.placeholder,
     readonlyDisplay: part.readonlyDisplay,
-    width: part.width,
+    width: DEFAULT_UNDERLINE_WIDTH,
     metadata: commonMetadata,
   }];
 }
@@ -480,19 +495,13 @@ function resolvePartFieldKey(part: QcLayoutPart, resolver: FieldResolver) {
 function methodFieldDependencies(field: QcTemplateMethodField, fields: QcTemplateMethodField[]) {
   const expr = `${field.formula || ""} ${field.rule || ""}`;
   const prefix = scopePrefix(field.fieldKey);
-  return fields
-    .filter((candidate) => candidate.fieldKey !== field.fieldKey && candidate.fieldKey.startsWith(prefix) && candidate.name && expr.includes(candidate.name))
-    .map((candidate) => candidate.fieldKey)
-    .filter(Boolean);
+  return fields.filter((candidate) => (
+    candidate.fieldKey !== field.fieldKey && candidate.fieldKey.startsWith(prefix) && candidate.name && expr.includes(candidate.name)
+  )).map((candidate) => candidate.fieldKey).filter(Boolean);
 }
 
 function explicitPartDependencies(part: QcLayoutPart) {
-  return unique([
-    ...(part.advancedDependencyFieldKeys || []),
-    ...(part.startKey ? [part.startKey] : []),
-    ...(part.endKey ? [part.endKey] : []),
-    ...Object.values(part.advancedDependencyFieldKeyMap || {}).flat(),
-  ]);
+  return unique([...(part.advancedDependencyFieldKeys || []), ...(part.startKey ? [part.startKey] : []), ...(part.endKey ? [part.endKey] : []), ...Object.values(part.advancedDependencyFieldKeyMap || {}).flat()]);
 }
 
 function durationFormulaText(part: QcLayoutPart) {
@@ -522,10 +531,7 @@ function signatureRole(fieldKey: string): "inspector" | "reviewer" | "signature"
 
 function testValue(part: QcLayoutPart, test?: QcTemplateTestItem) {
   const valuePath = part.path || part.field || "";
-  if (valuePath === "standard") return test?.standardText || "";
-  if (valuePath === "name") return test?.name || "";
-  if (valuePath === "method") return test?.methodName || "";
-  return part.defaultValue || part.text || "";
+  return ({ standard: test?.standardText, name: test?.name, method: test?.methodName }[valuePath] || part.defaultValue || part.text || "");
 }
 
 function scopePrefix(fieldKey: string) {
@@ -533,10 +539,6 @@ function scopePrefix(fieldKey: string) {
   return parts.length >= 2 ? `${parts[0]}/${parts[1]}/` : "";
 }
 
-function unique(values: string[]) {
-  return [...new Set(values.filter(Boolean))];
-}
+function unique(values: string[]) { return [...new Set(values.filter(Boolean))]; }
 
-function defined<T extends object>(value: T): Partial<T> {
-  return Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined)) as Partial<T>;
-}
+function defined<T extends object>(value: T): Partial<T> { return Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined)) as Partial<T>; }

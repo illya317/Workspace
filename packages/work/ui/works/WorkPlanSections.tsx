@@ -72,31 +72,41 @@ export function createWorkPlanHeaderSection(plan: WorkPlan, actions?: BodySurfac
       : getWorkSourceTypeLabel(plan.sourceType);
   return {
     key: "plan-header",
-    header: {
-      title: plan.title,
-      actions,
-      badges: [
-        { key: "type", label: "OKR 计划", tone: "success" },
-        {
-          key: "status",
-          label: planStatusLabel(plan.status),
-          tone: plan.status === "closed" ? "muted" : plan.status === "archived" ? "warning" : "success",
-        },
-      ],
-    },
     body: {
-      kind: "form",
-      form: {
-        kind: "detail",
-        content: {
-          layout: { columns: 3 },
-          items: [
-            { kind: "readonly", key: "period", label: "周期", value: getWorkPeriodLabel(plan) },
-            { kind: "readonly", key: "owner", label: "负责人", value: plan.ownerEmployeeName || "未设置" },
-            { kind: "readonly", key: "source", label: "来源", value: source || "未设置" },
-            { kind: "readonly", key: "description", label: "描述", span: "wide", value: plan.description || "未填写" },
+      kind: "section",
+      list: {
+        presentation: "cards",
+        items: [{
+          key: "plan-readonly",
+          title: plan.title,
+          badges: [
+            { key: "type", label: "OKR 计划", tone: "success" },
+            {
+              key: "status",
+              label: planStatusLabel(plan.status),
+              tone: plan.status === "closed" ? "muted" : plan.status === "archived" ? "warning" : "success",
+            },
           ],
-        },
+          actions,
+          sections: [{
+            key: "plan-readonly-detail",
+            body: {
+              kind: "form",
+              form: {
+                kind: "detail",
+                content: {
+                  layout: { columns: 3 },
+                  items: [
+                    { kind: "readonly", key: "period", label: "周期", value: getWorkPeriodLabel(plan) },
+                    { kind: "readonly", key: "owner", label: "负责人", value: plan.ownerEmployeeName || "未设置" },
+                    { kind: "readonly", key: "source", label: "来源", value: source || "未设置" },
+                    { kind: "readonly", key: "description", label: "描述", span: "wide", value: plan.description || "未填写" },
+                  ],
+                },
+              },
+            },
+          }],
+        }],
       },
     },
   };
@@ -104,7 +114,6 @@ export function createWorkPlanHeaderSection(plan: WorkPlan, actions?: BodySurfac
 
 export function createWorkPlanContentSection({
   planCreating,
-  planEditing,
   activePlan,
   canEditPlan,
   canDeletePlan,
@@ -118,16 +127,13 @@ export function createWorkPlanContentSection({
   plansLoading,
   hasCurrentSpacePlans,
   onCreateNode,
-  onEditPlan,
   onArchivePlan,
   onDeletePlan,
   onSavePlan,
-  onCancelPlanEdit,
   onSaveNode,
   onCancelNodeCreate,
 }: {
   planCreating: boolean;
-  planEditing: boolean;
   activePlan: WorkPlan | null;
   canEditPlan: boolean;
   canDeletePlan: boolean;
@@ -141,39 +147,56 @@ export function createWorkPlanContentSection({
   plansLoading: boolean;
   hasCurrentSpacePlans: boolean;
   onCreateNode: () => void;
-  onEditPlan: () => void;
   onArchivePlan: () => void;
   onDeletePlan: () => void;
   onSavePlan: () => void;
-  onCancelPlanEdit: () => void;
   onSaveNode: () => void;
   onCancelNodeCreate: () => void;
 }): BodySurfaceSectionSpec {
+  const planActions = !planCreating && activePlan && canEditPlan
+    ? createEditablePlanCommands({
+        canDeletePlan,
+        nodeCreating,
+        createNodeDisabled,
+        planSaveDisabled,
+        onCreateNode,
+        onArchivePlan,
+        onDeletePlan,
+        onSavePlan,
+      })
+    : undefined;
   return createSectionSection("tasks", {
     title: "OKR 计划",
+    actions: planActions,
     sections: [
       ...(planCreating ? [createFormSection("plan-form", planFormSurface)] : []),
       ...(!planCreating && activePlan ? [
-        createWorkPlanHeaderSection(activePlan, createWorkPlanHeaderActions({
-          canEditPlan,
-          canDeletePlan,
-          planEditing,
-          nodeCreating,
-          createNodeDisabled,
-          nodeSaveDisabled,
-          planSaveDisabled,
-          onCreateNode,
-          onEditPlan,
-          onArchivePlan,
-          onDeletePlan,
-          onSavePlan,
-          onCancelPlanEdit,
-          onSaveNode,
-          onCancelNodeCreate,
-        })),
-        ...(planEditing ? [createFormSection("plan-form", planFormSurface)] : []),
-        ...(!planEditing && nodeCreating ? [createFormSection("create-task", createTaskSurface)] : []),
-        ...(!planEditing ? [taskTableSection] : []),
+        ...(canEditPlan ? [
+          createFormSection("plan-form", planFormSurface),
+        ] : [
+          createWorkPlanHeaderSection(activePlan, createWorkPlanHeaderActions({
+            canEditPlan,
+            canDeletePlan,
+            nodeCreating,
+            createNodeDisabled,
+            nodeSaveDisabled,
+            onCreateNode,
+            onArchivePlan,
+            onDeletePlan,
+            onSaveNode,
+            onCancelNodeCreate,
+          })),
+        ]),
+        ...(nodeCreating ? [
+          createFormSection("create-task", {
+            ...createTaskSurface,
+            commands: [
+              { key: "save-node", label: "保存节点", icon: "check", variant: "primary", disabled: nodeSaveDisabled, onClick: onSaveNode },
+              { key: "cancel-node", label: "取消新增", icon: "cancel", variant: "secondary", onClick: onCancelNodeCreate },
+            ],
+          }, { autoReveal: true }),
+        ] : []),
+        taskTableSection,
       ] : !planCreating ? [createMessageSection("no-plan", {
         content: plansLoading ? "加载 OKR 计划中..." : hasCurrentSpacePlans ? "展开左侧工作空间，选择一个 OKR 计划。" : "请先新建 OKR 计划，再添加目标、关键结果和子任务。",
         tone: "muted" as const,
@@ -185,40 +208,26 @@ export function createWorkPlanContentSection({
 function createWorkPlanHeaderActions({
   canEditPlan,
   canDeletePlan,
-  planEditing,
   nodeCreating,
   createNodeDisabled,
   nodeSaveDisabled,
-  planSaveDisabled,
   onCreateNode,
-  onEditPlan,
   onArchivePlan,
   onDeletePlan,
-  onSavePlan,
-  onCancelPlanEdit,
   onSaveNode,
   onCancelNodeCreate,
 }: {
   canEditPlan: boolean;
   canDeletePlan: boolean;
-  planEditing: boolean;
   nodeCreating: boolean;
   createNodeDisabled: boolean;
   nodeSaveDisabled: boolean;
-  planSaveDisabled: boolean;
   onCreateNode: () => void;
-  onEditPlan: () => void;
   onArchivePlan: () => void;
   onDeletePlan: () => void;
-  onSavePlan: () => void;
-  onCancelPlanEdit: () => void;
   onSaveNode: () => void;
   onCancelNodeCreate: () => void;
 }): BodySurfaceCommandSpec[] | undefined {
-  if (planEditing) return [
-    { key: "save-plan", label: "保存计划修改", icon: "check", variant: "primary", disabled: planSaveDisabled, onClick: onSavePlan },
-    { key: "cancel-plan", label: "取消计划编辑", icon: "cancel", variant: "secondary", onClick: onCancelPlanEdit },
-  ];
   if (nodeCreating) return [
     { key: "save-node", label: "保存节点", icon: "check", variant: "primary", disabled: nodeSaveDisabled, onClick: onSaveNode },
     { key: "cancel-node", label: "取消新增", icon: "cancel", variant: "secondary", onClick: onCancelNodeCreate },
@@ -227,7 +236,6 @@ function createWorkPlanHeaderActions({
   if (canEditPlan) {
     actions.push(
       { key: "create-node", label: "新增节点", icon: "add", variant: "primary", disabled: createNodeDisabled, onClick: onCreateNode },
-      { key: "edit-plan", label: "编辑计划", icon: "edit", variant: "secondary", onClick: onEditPlan },
     );
   }
   if (canDeletePlan) {
@@ -237,4 +245,36 @@ function createWorkPlanHeaderActions({
     );
   }
   return actions.length ? actions : undefined;
+}
+
+function createEditablePlanCommands({
+  canDeletePlan,
+  nodeCreating,
+  createNodeDisabled,
+  planSaveDisabled,
+  onCreateNode,
+  onArchivePlan,
+  onDeletePlan,
+  onSavePlan,
+}: {
+  canDeletePlan: boolean;
+  nodeCreating: boolean;
+  createNodeDisabled: boolean;
+  planSaveDisabled: boolean;
+  onCreateNode: () => void;
+  onArchivePlan: () => void;
+  onDeletePlan: () => void;
+  onSavePlan: () => void;
+}): BodySurfaceCommandSpec[] {
+  const commands: BodySurfaceCommandSpec[] = [
+    { key: "create-node", label: "新增节点", icon: "add", variant: "primary", disabled: createNodeDisabled || nodeCreating, onClick: onCreateNode },
+    { key: "save-plan", label: "保存计划修改", icon: "check", variant: "primary", disabled: planSaveDisabled, onClick: onSavePlan },
+  ];
+  if (canDeletePlan) {
+    commands.push(
+      { key: "archive-plan", label: "归档计划", icon: "archive", variant: "secondary", onClick: onArchivePlan },
+      { key: "delete-plan", label: "删除计划", icon: "delete-bin", variant: "danger", onClick: onDeletePlan },
+    );
+  }
+  return commands;
 }

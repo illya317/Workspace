@@ -28,23 +28,20 @@ export type AggregateDocumentTemplateSpace = {
 
 export type DocumentTemplateSpaceAvgAggregateOutputType = {
   id: number | null
-  ownerUserId: number | null
-  departmentId: number | null
+  targetId: number | null
 }
 
 export type DocumentTemplateSpaceSumAggregateOutputType = {
   id: number | null
-  ownerUserId: number | null
-  departmentId: number | null
+  targetId: number | null
 }
 
 export type DocumentTemplateSpaceMinAggregateOutputType = {
   id: number | null
-  kind: string | null
+  targetType: string | null
+  targetId: number | null
   title: string | null
   description: string | null
-  ownerUserId: number | null
-  departmentId: number | null
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
@@ -52,11 +49,10 @@ export type DocumentTemplateSpaceMinAggregateOutputType = {
 
 export type DocumentTemplateSpaceMaxAggregateOutputType = {
   id: number | null
-  kind: string | null
+  targetType: string | null
+  targetId: number | null
   title: string | null
   description: string | null
-  ownerUserId: number | null
-  departmentId: number | null
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
@@ -64,11 +60,10 @@ export type DocumentTemplateSpaceMaxAggregateOutputType = {
 
 export type DocumentTemplateSpaceCountAggregateOutputType = {
   id: number
-  kind: number
+  targetType: number
+  targetId: number
   title: number
   description: number
-  ownerUserId: number
-  departmentId: number
   createdAt: number
   updatedAt: number
   deletedAt: number
@@ -78,23 +73,20 @@ export type DocumentTemplateSpaceCountAggregateOutputType = {
 
 export type DocumentTemplateSpaceAvgAggregateInputType = {
   id?: true
-  ownerUserId?: true
-  departmentId?: true
+  targetId?: true
 }
 
 export type DocumentTemplateSpaceSumAggregateInputType = {
   id?: true
-  ownerUserId?: true
-  departmentId?: true
+  targetId?: true
 }
 
 export type DocumentTemplateSpaceMinAggregateInputType = {
   id?: true
-  kind?: true
+  targetType?: true
+  targetId?: true
   title?: true
   description?: true
-  ownerUserId?: true
-  departmentId?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -102,11 +94,10 @@ export type DocumentTemplateSpaceMinAggregateInputType = {
 
 export type DocumentTemplateSpaceMaxAggregateInputType = {
   id?: true
-  kind?: true
+  targetType?: true
+  targetId?: true
   title?: true
   description?: true
-  ownerUserId?: true
-  departmentId?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -114,11 +105,10 @@ export type DocumentTemplateSpaceMaxAggregateInputType = {
 
 export type DocumentTemplateSpaceCountAggregateInputType = {
   id?: true
-  kind?: true
+  targetType?: true
+  targetId?: true
   title?: true
   description?: true
-  ownerUserId?: true
-  departmentId?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -213,11 +203,10 @@ export type DocumentTemplateSpaceGroupByArgs<ExtArgs extends runtime.Types.Exten
 
 export type DocumentTemplateSpaceGroupByOutputType = {
   id: number
-  kind: string
+  targetType: string
+  targetId: number
   title: string
   description: string | null
-  ownerUserId: number | null
-  departmentId: number | null
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
@@ -248,11 +237,10 @@ export type DocumentTemplateSpaceWhereInput = {
   OR?: Prisma.DocumentTemplateSpaceWhereInput[]
   NOT?: Prisma.DocumentTemplateSpaceWhereInput | Prisma.DocumentTemplateSpaceWhereInput[]
   id?: Prisma.IntFilter<"DocumentTemplateSpace"> | number
-  kind?: Prisma.StringFilter<"DocumentTemplateSpace"> | string
+  targetType?: Prisma.StringFilter<"DocumentTemplateSpace"> | string
+  targetId?: Prisma.IntFilter<"DocumentTemplateSpace"> | number
   title?: Prisma.StringFilter<"DocumentTemplateSpace"> | string
   description?: Prisma.StringNullableFilter<"DocumentTemplateSpace"> | string | null
-  ownerUserId?: Prisma.IntNullableFilter<"DocumentTemplateSpace"> | number | null
-  departmentId?: Prisma.IntNullableFilter<"DocumentTemplateSpace"> | number | null
   createdAt?: Prisma.DateTimeFilter<"DocumentTemplateSpace"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DocumentTemplateSpace"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"DocumentTemplateSpace"> | Date | string | null
@@ -261,11 +249,10 @@ export type DocumentTemplateSpaceWhereInput = {
 
 export type DocumentTemplateSpaceOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  kind?: Prisma.SortOrder
+  targetType?: Prisma.SortOrder
+  targetId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  ownerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
-  departmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -274,27 +261,26 @@ export type DocumentTemplateSpaceOrderByWithRelationInput = {
 
 export type DocumentTemplateSpaceWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  targetType_targetId?: Prisma.DocumentTemplateSpaceTargetTypeTargetIdCompoundUniqueInput
   AND?: Prisma.DocumentTemplateSpaceWhereInput | Prisma.DocumentTemplateSpaceWhereInput[]
   OR?: Prisma.DocumentTemplateSpaceWhereInput[]
   NOT?: Prisma.DocumentTemplateSpaceWhereInput | Prisma.DocumentTemplateSpaceWhereInput[]
-  kind?: Prisma.StringFilter<"DocumentTemplateSpace"> | string
+  targetType?: Prisma.StringFilter<"DocumentTemplateSpace"> | string
+  targetId?: Prisma.IntFilter<"DocumentTemplateSpace"> | number
   title?: Prisma.StringFilter<"DocumentTemplateSpace"> | string
   description?: Prisma.StringNullableFilter<"DocumentTemplateSpace"> | string | null
-  ownerUserId?: Prisma.IntNullableFilter<"DocumentTemplateSpace"> | number | null
-  departmentId?: Prisma.IntNullableFilter<"DocumentTemplateSpace"> | number | null
   createdAt?: Prisma.DateTimeFilter<"DocumentTemplateSpace"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DocumentTemplateSpace"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"DocumentTemplateSpace"> | Date | string | null
   templates?: Prisma.DocumentTemplateListRelationFilter
-}, "id">
+}, "id" | "targetType_targetId">
 
 export type DocumentTemplateSpaceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  kind?: Prisma.SortOrder
+  targetType?: Prisma.SortOrder
+  targetId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  ownerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
-  departmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -310,22 +296,20 @@ export type DocumentTemplateSpaceScalarWhereWithAggregatesInput = {
   OR?: Prisma.DocumentTemplateSpaceScalarWhereWithAggregatesInput[]
   NOT?: Prisma.DocumentTemplateSpaceScalarWhereWithAggregatesInput | Prisma.DocumentTemplateSpaceScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"DocumentTemplateSpace"> | number
-  kind?: Prisma.StringWithAggregatesFilter<"DocumentTemplateSpace"> | string
+  targetType?: Prisma.StringWithAggregatesFilter<"DocumentTemplateSpace"> | string
+  targetId?: Prisma.IntWithAggregatesFilter<"DocumentTemplateSpace"> | number
   title?: Prisma.StringWithAggregatesFilter<"DocumentTemplateSpace"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"DocumentTemplateSpace"> | string | null
-  ownerUserId?: Prisma.IntNullableWithAggregatesFilter<"DocumentTemplateSpace"> | number | null
-  departmentId?: Prisma.IntNullableWithAggregatesFilter<"DocumentTemplateSpace"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DocumentTemplateSpace"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DocumentTemplateSpace"> | Date | string
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DocumentTemplateSpace"> | Date | string | null
 }
 
 export type DocumentTemplateSpaceCreateInput = {
-  kind: string
+  targetType: string
+  targetId: number
   title: string
   description?: string | null
-  ownerUserId?: number | null
-  departmentId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -334,11 +318,10 @@ export type DocumentTemplateSpaceCreateInput = {
 
 export type DocumentTemplateSpaceUncheckedCreateInput = {
   id?: number
-  kind: string
+  targetType: string
+  targetId: number
   title: string
   description?: string | null
-  ownerUserId?: number | null
-  departmentId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -346,11 +329,10 @@ export type DocumentTemplateSpaceUncheckedCreateInput = {
 }
 
 export type DocumentTemplateSpaceUpdateInput = {
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  targetType?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -359,11 +341,10 @@ export type DocumentTemplateSpaceUpdateInput = {
 
 export type DocumentTemplateSpaceUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  targetType?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -372,22 +353,20 @@ export type DocumentTemplateSpaceUncheckedUpdateInput = {
 
 export type DocumentTemplateSpaceCreateManyInput = {
   id?: number
-  kind: string
+  targetType: string
+  targetId: number
   title: string
   description?: string | null
-  ownerUserId?: number | null
-  departmentId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
 }
 
 export type DocumentTemplateSpaceUpdateManyMutationInput = {
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  targetType?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -395,23 +374,26 @@ export type DocumentTemplateSpaceUpdateManyMutationInput = {
 
 export type DocumentTemplateSpaceUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  targetType?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
+export type DocumentTemplateSpaceTargetTypeTargetIdCompoundUniqueInput = {
+  targetType: string
+  targetId: number
+}
+
 export type DocumentTemplateSpaceCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  kind?: Prisma.SortOrder
+  targetType?: Prisma.SortOrder
+  targetId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  ownerUserId?: Prisma.SortOrder
-  departmentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -419,17 +401,15 @@ export type DocumentTemplateSpaceCountOrderByAggregateInput = {
 
 export type DocumentTemplateSpaceAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  ownerUserId?: Prisma.SortOrder
-  departmentId?: Prisma.SortOrder
+  targetId?: Prisma.SortOrder
 }
 
 export type DocumentTemplateSpaceMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  kind?: Prisma.SortOrder
+  targetType?: Prisma.SortOrder
+  targetId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  ownerUserId?: Prisma.SortOrder
-  departmentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -437,11 +417,10 @@ export type DocumentTemplateSpaceMaxOrderByAggregateInput = {
 
 export type DocumentTemplateSpaceMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  kind?: Prisma.SortOrder
+  targetType?: Prisma.SortOrder
+  targetId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  ownerUserId?: Prisma.SortOrder
-  departmentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -449,8 +428,7 @@ export type DocumentTemplateSpaceMinOrderByAggregateInput = {
 
 export type DocumentTemplateSpaceSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  ownerUserId?: Prisma.SortOrder
-  departmentId?: Prisma.SortOrder
+  targetId?: Prisma.SortOrder
 }
 
 export type DocumentTemplateSpaceScalarRelationFilter = {
@@ -473,11 +451,10 @@ export type DocumentTemplateSpaceUpdateOneRequiredWithoutTemplatesNestedInput = 
 }
 
 export type DocumentTemplateSpaceCreateWithoutTemplatesInput = {
-  kind: string
+  targetType: string
+  targetId: number
   title: string
   description?: string | null
-  ownerUserId?: number | null
-  departmentId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -485,11 +462,10 @@ export type DocumentTemplateSpaceCreateWithoutTemplatesInput = {
 
 export type DocumentTemplateSpaceUncheckedCreateWithoutTemplatesInput = {
   id?: number
-  kind: string
+  targetType: string
+  targetId: number
   title: string
   description?: string | null
-  ownerUserId?: number | null
-  departmentId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -512,11 +488,10 @@ export type DocumentTemplateSpaceUpdateToOneWithWhereWithoutTemplatesInput = {
 }
 
 export type DocumentTemplateSpaceUpdateWithoutTemplatesInput = {
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  targetType?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -524,11 +499,10 @@ export type DocumentTemplateSpaceUpdateWithoutTemplatesInput = {
 
 export type DocumentTemplateSpaceUncheckedUpdateWithoutTemplatesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  targetType?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -567,11 +541,10 @@ export type DocumentTemplateSpaceCountOutputTypeCountTemplatesArgs<ExtArgs exten
 
 export type DocumentTemplateSpaceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  kind?: boolean
+  targetType?: boolean
+  targetId?: boolean
   title?: boolean
   description?: boolean
-  ownerUserId?: boolean
-  departmentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -581,11 +554,10 @@ export type DocumentTemplateSpaceSelect<ExtArgs extends runtime.Types.Extensions
 
 export type DocumentTemplateSpaceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  kind?: boolean
+  targetType?: boolean
+  targetId?: boolean
   title?: boolean
   description?: boolean
-  ownerUserId?: boolean
-  departmentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -593,11 +565,10 @@ export type DocumentTemplateSpaceSelectCreateManyAndReturn<ExtArgs extends runti
 
 export type DocumentTemplateSpaceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  kind?: boolean
+  targetType?: boolean
+  targetId?: boolean
   title?: boolean
   description?: boolean
-  ownerUserId?: boolean
-  departmentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -605,17 +576,16 @@ export type DocumentTemplateSpaceSelectUpdateManyAndReturn<ExtArgs extends runti
 
 export type DocumentTemplateSpaceSelectScalar = {
   id?: boolean
-  kind?: boolean
+  targetType?: boolean
+  targetId?: boolean
   title?: boolean
   description?: boolean
-  ownerUserId?: boolean
-  departmentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
 }
 
-export type DocumentTemplateSpaceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kind" | "title" | "description" | "ownerUserId" | "departmentId" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["documentTemplateSpace"]>
+export type DocumentTemplateSpaceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "targetType" | "targetId" | "title" | "description" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["documentTemplateSpace"]>
 export type DocumentTemplateSpaceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   templates?: boolean | Prisma.DocumentTemplateSpace$templatesArgs<ExtArgs>
   _count?: boolean | Prisma.DocumentTemplateSpaceCountOutputTypeDefaultArgs<ExtArgs>
@@ -630,11 +600,10 @@ export type $DocumentTemplateSpacePayload<ExtArgs extends runtime.Types.Extensio
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    kind: string
+    targetType: string
+    targetId: number
     title: string
     description: string | null
-    ownerUserId: number | null
-    departmentId: number | null
     createdAt: Date
     updatedAt: Date
     deletedAt: Date | null
@@ -1063,11 +1032,10 @@ export interface Prisma__DocumentTemplateSpaceClient<T, Null = never, ExtArgs ex
  */
 export interface DocumentTemplateSpaceFieldRefs {
   readonly id: Prisma.FieldRef<"DocumentTemplateSpace", 'Int'>
-  readonly kind: Prisma.FieldRef<"DocumentTemplateSpace", 'String'>
+  readonly targetType: Prisma.FieldRef<"DocumentTemplateSpace", 'String'>
+  readonly targetId: Prisma.FieldRef<"DocumentTemplateSpace", 'Int'>
   readonly title: Prisma.FieldRef<"DocumentTemplateSpace", 'String'>
   readonly description: Prisma.FieldRef<"DocumentTemplateSpace", 'String'>
-  readonly ownerUserId: Prisma.FieldRef<"DocumentTemplateSpace", 'Int'>
-  readonly departmentId: Prisma.FieldRef<"DocumentTemplateSpace", 'Int'>
   readonly createdAt: Prisma.FieldRef<"DocumentTemplateSpace", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DocumentTemplateSpace", 'DateTime'>
   readonly deletedAt: Prisma.FieldRef<"DocumentTemplateSpace", 'DateTime'>

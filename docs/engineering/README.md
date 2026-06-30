@@ -16,6 +16,8 @@
 | RBAC 和权限矩阵 | `security/rbac.md`, `security/permission-matrix.md` | Architecture |
 | Checks / CI / ops | `checks.md`, `ops/README.md` | Operations |
 | Production/QC 数据参考 | `reference/qc-dev-mode.md` | Data |
+| Docs Editor 模板空间和权限 | `reference/docs-editor-template-spaces.md` | Platform Docs / Feature |
+| Docs Editor 外部依赖 | `reference/docs-editor-dependencies.md` | Platform Docs / Feature |
 
 ## 维护规则
 

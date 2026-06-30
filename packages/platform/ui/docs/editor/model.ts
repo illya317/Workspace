@@ -16,9 +16,9 @@ import type {
   EditorTemplateDetailDto,
   EditorTemplateListItemDto,
 } from "./api";
+import { normalizePrecheckHeadings } from "./precheck-normalize";
 
-export const GENERATED_QC_SPACE_ID = "qc-official";
-export const EDITOR_PERMISSION_ROLES: EditorPermissionRole[] = ["viewer", "editor", "manager"];
+export const EDITOR_PERMISSION_ROLES: EditorPermissionRole[] = ["viewer", "editor", "delete", "manager"];
 
 export type FieldFormulaRow = {
   key: string;
@@ -56,6 +56,7 @@ export function statusLabel(status: EditorTemplateListItemDto["status"]) {
 
 export function roleLabel(role: EditorPermissionRole) {
   if (role === "manager") return "管理";
+  if (role === "delete") return "删除";
   if (role === "editor") return "编辑";
   return "查看";
 }
@@ -71,25 +72,25 @@ export function statusTone(status: EditorTemplateListItemDto["status"]) {
   return "sky" as const;
 }
 
-export function isGeneratedTemplate(templateId: string | null) {
-  return Boolean(templateId?.startsWith("generated-qc:"));
-}
-
 export function canEdit(role: EditorPermissionRole | undefined) {
-  return role === "editor" || role === "manager";
+  return role === "editor" || role === "delete" || role === "manager";
 }
 
 export function canManage(role: EditorPermissionRole | undefined) {
   return role === "manager";
 }
 
+export function canDelete(role: EditorPermissionRole | undefined) {
+  return role === "delete" || role === "manager";
+}
+
 export function isEditableSpace(space: EditorSpaceDto) {
-  return space.id !== GENERATED_QC_SPACE_ID && canEdit(space.role);
+  return canEdit(space.role);
 }
 
 export function normalizeEditorDocument(detail: EditorTemplateDetailDto | null): EditorDocument {
   if (isEditorDocument(detail?.document)) {
-    return { ...detail.document, title: detail.title || detail.document.title };
+    return normalizePrecheckHeadings({ ...detail.document, title: detail.title || detail.document.title });
   }
   return createEmptyEditorDocument(detail?.title ?? "未命名模板");
 }
@@ -217,6 +218,10 @@ function formulaFields(fieldModel: FieldModel): FormulaField[] {
       aliases: fieldAliases(key, field),
       formula: formula || null,
       value: formulaValueFromField(field),
+      slotKind: field.slotKind,
+      valueType: field.valueType,
+      inputType: field.inputType,
+      attr: field.attr,
     });
   });
 
@@ -228,6 +233,10 @@ function formulaFields(fieldModel: FieldModel): FormulaField[] {
       aliases: existing?.aliases ?? fieldAliases(key),
       formula: existing?.formula ?? formula.formulaText ?? formula.rule ?? null,
       value: existing?.value,
+      slotKind: existing?.slotKind ?? formula.slotKind,
+      valueType: existing?.valueType,
+      inputType: existing?.inputType,
+      attr: existing?.attr,
     });
   });
 

@@ -1,18 +1,17 @@
 /// Docs 模板空间：入口权限来自 docs.editor，空间只决定模板产物可见/可管范围
 model DocumentTemplateSpace {
-  id           Int       @id @default(autoincrement())
-  kind         String
-  title        String
-  description  String?
-  ownerUserId  Int?
-  departmentId Int?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @default(now()) @updatedAt
-  deletedAt    DateTime?
-  templates    DocumentTemplate[]
+  id          Int       @id @default(autoincrement())
+  targetType  String
+  targetId    Int
+  title       String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+  deletedAt   DateTime?
+  templates   DocumentTemplate[]
 
-  @@index([kind, ownerUserId, departmentId])
-  @@index([departmentId])
+  @@unique([targetType, targetId])
+  @@index([targetType, targetId, deletedAt])
   @@index([deletedAt])
 }
 
@@ -22,7 +21,7 @@ model DocumentTemplate {
   title            String
   type             String
   status           String    @default("draft")
-  ownerUserId      Int
+  ownerUserId      Int?
   spaceId          Int
   documentJson     String
   fieldModelJson   String
@@ -37,23 +36,24 @@ model DocumentTemplate {
   publishedAt      DateTime?
   publishedByUserId Int?
   space            DocumentTemplateSpace @relation(fields: [spaceId], references: [id], onDelete: Cascade)
-  permissions      DocumentTemplatePermission[]
 
   @@index([spaceId, deletedAt])
   @@index([ownerUserId])
   @@index([sourceKind, sourceProductKey])
 }
 
-/// 模板产物的显式 user 级授权：viewer/editor/manager
-model DocumentTemplatePermission {
+/// 文档模板空间显式 user 级授权：viewer/editor/delete/manager
+model DocumentTemplateSpacePermission {
   id         Int      @id @default(autoincrement())
-  templateId Int
+  targetType String
+  targetId   Int
   userId     Int
   role       String
+  kind       String   @default("template")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @default(now()) @updatedAt
-  template   DocumentTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
 
-  @@unique([templateId, userId])
+  @@unique([targetType, targetId, userId, kind])
   @@index([userId])
+  @@index([targetType, targetId, kind])
 }

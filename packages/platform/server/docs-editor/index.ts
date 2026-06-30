@@ -8,8 +8,14 @@ export {
   markPublished,
   requestPublish,
   saveDraft,
-  updatePermissions,
 } from "./service";
+export {
+  listSpacePermissions,
+  updateSpacePermissions,
+} from "./space-permissions";
+export {
+  executeDocsEditorReferenceOptionsCommand,
+} from "./reference-options";
 export {
   copyDocumentTemplate,
   createDocumentTemplate,
@@ -22,7 +28,6 @@ export {
   markDocumentTemplatePublished,
   requestDocumentTemplatePublish,
   saveDocumentTemplateDraft,
-  updateDocumentTemplatePermissions,
 } from "./facade";
 export type {
   DocsEditorBootstrapDto,
@@ -35,7 +40,7 @@ export type {
   DocumentTemplateBootstrapDto,
   DocumentTemplateDetailDto,
   DocumentTemplateListItemDto,
-  DocumentTemplatePermissionDto,
+  DocumentTemplateSpacePermissionDto,
   DocumentTemplateRole,
   DocumentTemplateSpaceDto,
   DocumentTemplateSpaceKind,

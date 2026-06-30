@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-30T06:54:03.802Z",
+  "generatedAt": "2026-06-30T16:53:33.939Z",
   "configRoot": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc",
   "sourceSchemaRoot": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/source/source_docs/schema",
   "outputRoot": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc",
@@ -40,9 +40,9 @@
   "totals": {
     "products": 16,
     "stages": 48,
-    "experimentItems": 209,
-    "tables": 1486,
-    "fields": 8958,
+    "experimentItems": 131,
+    "tables": 1561,
+    "fields": 12432,
     "formulas": 1878
   },
   "products": [
@@ -51,9 +51,9 @@
       "productName": "别嘌醇片",
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/allopurinol.json",
       "stages": 3,
-      "experimentItems": 14,
-      "tables": 96,
-      "fields": 563,
+      "experimentItems": 9,
+      "tables": 101,
+      "fields": 874,
       "formulas": 106,
       "conversion": {
         "schemaVersion": 1,
@@ -69,30 +69,30 @@
           },
           "editor": {
             "stages": 3,
-            "tests": 8,
-            "tables": 96,
-            "fields": 563,
+            "tests": 9,
+            "tables": 101,
+            "fields": 874,
             "formulas": 106,
-            "blocks": 240
+            "blocks": 321
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 96,
-            "fields": 563,
+            "tables": 101,
+            "fields": 874,
             "formulas": 106,
-            "blocks": 240
+            "blocks": 321
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 46,
-            "fields": 0,
+            "tables": 51,
+            "fields": 311,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 46,
-            "fields": 0,
+            "tables": 51,
+            "fields": 311,
             "formulas": 0
           }
         },
@@ -759,6 +759,14 @@
             "h3": 19,
             "h4": 138
           },
+          "microbiologySection": {
+            "found": true,
+            "heading": "2.8 | 微生物限度检查",
+            "sequence": "2.8",
+            "lineCount": 101,
+            "fieldMarkerCount": 311,
+            "prefillMarkerCount": 94
+          },
           "sourceComment": {
             "fieldCount": 993,
             "prefillCount": 254,
@@ -802,16 +810,18 @@
           "h4": 138
         },
         "editorHeadingCounts": {
-          "h1": 4,
-          "h3": 64,
-          "h2": 14
+          "h1": 3,
+          "h2": 6,
+          "h3": 27,
+          "h4": 84
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
         "mdExperimentItemHeadingCount": 15,
-        "editorExperimentItemHeadingCount": 14,
+        "editorExperimentItemHeadingCount": 15,
         "missingStageHeadingsInMd": [],
         "missingTestHeadingsInMd": [],
+        "mdExperimentHeadingsMissingInEditor": [],
         "mdMissingSectionWarnings": [
           "2.2.8 缺失 (7→9)"
         ],
@@ -824,9 +834,9 @@
       "productName": "阿替洛尔片",
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/atenolol.json",
       "stages": 3,
-      "experimentItems": 14,
-      "tables": 96,
-      "fields": 570,
+      "experimentItems": 9,
+      "tables": 102,
+      "fields": 740,
       "formulas": 113,
       "conversion": {
         "schemaVersion": 1,
@@ -842,30 +852,30 @@
           },
           "editor": {
             "stages": 3,
-            "tests": 8,
-            "tables": 96,
-            "fields": 570,
+            "tests": 9,
+            "tables": 102,
+            "fields": 740,
             "formulas": 113,
-            "blocks": 241
+            "blocks": 334
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 96,
-            "fields": 570,
+            "tables": 102,
+            "fields": 740,
             "formulas": 113,
-            "blocks": 241
+            "blocks": 334
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 47,
-            "fields": 0,
+            "tables": 53,
+            "fields": 170,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 47,
-            "fields": 0,
+            "tables": 53,
+            "fields": 170,
             "formulas": 0
           }
         },
@@ -1572,6 +1582,14 @@
             "h3": 20,
             "h4": 147
           },
+          "microbiologySection": {
+            "found": true,
+            "heading": "2.8 | 微生物限度检查",
+            "sequence": "2.8",
+            "lineCount": 111,
+            "fieldMarkerCount": 170,
+            "prefillMarkerCount": 46
+          },
           "sourceComment": {
             "fieldCount": 824,
             "prefillCount": 181,
@@ -1624,16 +1642,18 @@
           "h4": 147
         },
         "editorHeadingCounts": {
-          "h1": 4,
-          "h3": 64,
-          "h2": 14
+          "h1": 3,
+          "h2": 6,
+          "h3": 27,
+          "h4": 89
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
         "mdExperimentItemHeadingCount": 15,
-        "editorExperimentItemHeadingCount": 14,
+        "editorExperimentItemHeadingCount": 15,
         "missingStageHeadingsInMd": [],
         "missingTestHeadingsInMd": [],
+        "mdExperimentHeadingsMissingInEditor": [],
         "mdMissingSectionWarnings": [
           "2.2.8 缺失 (7→10)",
           "2.3.5.1 缺失 (最小为 2)",
@@ -1655,9 +1675,9 @@
       "productName": "阿奇霉素胶囊",
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/azithromycin.json",
       "stages": 3,
-      "experimentItems": 11,
-      "tables": 89,
-      "fields": 717,
+      "experimentItems": 7,
+      "tables": 92,
+      "fields": 884,
       "formulas": 177,
       "conversion": {
         "schemaVersion": 1,
@@ -1673,30 +1693,30 @@
           },
           "editor": {
             "stages": 3,
-            "tests": 6,
-            "tables": 89,
-            "fields": 717,
+            "tests": 7,
+            "tables": 92,
+            "fields": 884,
             "formulas": 177,
-            "blocks": 212
+            "blocks": 305
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 89,
-            "fields": 717,
+            "tables": 92,
+            "fields": 884,
             "formulas": 177,
-            "blocks": 212
+            "blocks": 305
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 45,
-            "fields": 0,
+            "tables": 48,
+            "fields": 167,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 45,
-            "fields": 0,
+            "tables": 48,
+            "fields": 167,
             "formulas": 0
           }
         },
@@ -2347,6 +2367,14 @@
             "h3": 17,
             "h4": 136
           },
+          "microbiologySection": {
+            "found": true,
+            "heading": "2.7 | 微生物限度检查",
+            "sequence": "2.7",
+            "lineCount": 88,
+            "fieldMarkerCount": 169,
+            "prefillMarkerCount": 46
+          },
           "sourceComment": {
             "fieldCount": 856,
             "prefillCount": 257,
@@ -2397,16 +2425,18 @@
           "h4": 136
         },
         "editorHeadingCounts": {
-          "h1": 4,
-          "h3": 53,
-          "h2": 11
+          "h1": 3,
+          "h2": 6,
+          "h3": 24,
+          "h4": 81
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
         "mdExperimentItemHeadingCount": 12,
-        "editorExperimentItemHeadingCount": 11,
+        "editorExperimentItemHeadingCount": 12,
         "missingStageHeadingsInMd": [],
         "missingTestHeadingsInMd": [],
+        "mdExperimentHeadingsMissingInEditor": [],
         "mdMissingSectionWarnings": [
           "2.3.5.1 缺失 (最小为 2)",
           "2.7.5 缺失 (4→6)"
@@ -2426,9 +2456,9 @@
       "productName": "鞣酸小檗碱片",
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/berberine_tannate.json",
       "stages": 3,
-      "experimentItems": 13,
-      "tables": 83,
-      "fields": 432,
+      "experimentItems": 8,
+      "tables": 88,
+      "fields": 590,
       "formulas": 78,
       "conversion": {
         "schemaVersion": 1,
@@ -2444,30 +2474,30 @@
           },
           "editor": {
             "stages": 3,
-            "tests": 7,
-            "tables": 83,
-            "fields": 432,
+            "tests": 8,
+            "tables": 88,
+            "fields": 590,
             "formulas": 78,
-            "blocks": 216
+            "blocks": 304
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 83,
-            "fields": 432,
+            "tables": 88,
+            "fields": 590,
             "formulas": 78,
-            "blocks": 216
+            "blocks": 304
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 40,
-            "fields": 0,
+            "tables": 45,
+            "fields": 158,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 40,
-            "fields": 0,
+            "tables": 45,
+            "fields": 158,
             "formulas": 0
           }
         },
@@ -3134,6 +3164,14 @@
             "h3": 19,
             "h4": 138
           },
+          "microbiologySection": {
+            "found": true,
+            "heading": "2.7 | 微生物限度检查",
+            "sequence": "2.7",
+            "lineCount": 98,
+            "fieldMarkerCount": 158,
+            "prefillMarkerCount": 44
+          },
           "sourceComment": {
             "fieldCount": 683,
             "prefillCount": 152,
@@ -3180,16 +3218,18 @@
           "h4": 138
         },
         "editorHeadingCounts": {
-          "h1": 4,
-          "h3": 60,
-          "h2": 13
+          "h1": 3,
+          "h2": 6,
+          "h3": 26,
+          "h4": 83
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
         "mdExperimentItemHeadingCount": 14,
-        "editorExperimentItemHeadingCount": 13,
+        "editorExperimentItemHeadingCount": 14,
         "missingStageHeadingsInMd": [],
         "missingTestHeadingsInMd": [],
+        "mdExperimentHeadingsMissingInEditor": [],
         "mdMissingSectionWarnings": [
           "2.7.5 缺失 (4→6)"
         ],
@@ -3205,9 +3245,9 @@
       "productName": "克拉霉素 胶囊",
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/clarithromycin.json",
       "stages": 3,
-      "experimentItems": 13,
-      "tables": 90,
-      "fields": 697,
+      "experimentItems": 8,
+      "tables": 93,
+      "fields": 863,
       "formulas": 152,
       "conversion": {
         "schemaVersion": 1,
@@ -3223,30 +3263,30 @@
           },
           "editor": {
             "stages": 3,
-            "tests": 7,
-            "tables": 90,
-            "fields": 697,
+            "tests": 8,
+            "tables": 93,
+            "fields": 863,
             "formulas": 152,
-            "blocks": 222
+            "blocks": 319
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 90,
-            "fields": 697,
+            "tables": 93,
+            "fields": 863,
             "formulas": 152,
-            "blocks": 222
+            "blocks": 319
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 44,
-            "fields": 0,
+            "tables": 47,
+            "fields": 166,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 44,
-            "fields": 0,
+            "tables": 47,
+            "fields": 166,
             "formulas": 0
           }
         },
@@ -3929,6 +3969,14 @@
             "h3": 19,
             "h4": 142
           },
+          "microbiologySection": {
+            "found": true,
+            "heading": "2.7 | 微生物限度检查",
+            "sequence": "2.7",
+            "lineCount": 90,
+            "fieldMarkerCount": 168,
+            "prefillMarkerCount": 46
+          },
           "sourceComment": {
             "fieldCount": 702,
             "prefillCount": 163,
@@ -3979,16 +4027,18 @@
           "h4": 142
         },
         "editorHeadingCounts": {
-          "h1": 4,
-          "h3": 59,
-          "h2": 13
+          "h1": 3,
+          "h2": 6,
+          "h3": 26,
+          "h4": 88
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
         "mdExperimentItemHeadingCount": 14,
-        "editorExperimentItemHeadingCount": 13,
+        "editorExperimentItemHeadingCount": 14,
         "missingStageHeadingsInMd": [],
         "missingTestHeadingsInMd": [],
+        "mdExperimentHeadingsMissingInEditor": [],
         "mdMissingSectionWarnings": [
           "2.3.5.1 缺失 (最小为 2)",
           "2.4.5.1 缺失 (最小为 2)",
@@ -4008,9 +4058,9 @@
       "productName": "复方芦丁片",
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/compound_rutin.json",
       "stages": 3,
-      "experimentItems": 13,
-      "tables": 86,
-      "fields": 483,
+      "experimentItems": 8,
+      "tables": 91,
+      "fields": 644,
       "formulas": 94,
       "conversion": {
         "schemaVersion": 1,
@@ -4026,30 +4076,30 @@
           },
           "editor": {
             "stages": 3,
-            "tests": 7,
-            "tables": 86,
-            "fields": 483,
+            "tests": 8,
+            "tables": 91,
+            "fields": 644,
             "formulas": 94,
-            "blocks": 223
+            "blocks": 311
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 86,
-            "fields": 483,
+            "tables": 91,
+            "fields": 644,
             "formulas": 94,
-            "blocks": 223
+            "blocks": 311
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 40,
-            "fields": 0,
+            "tables": 45,
+            "fields": 161,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 40,
-            "fields": 0,
+            "tables": 45,
+            "fields": 161,
             "formulas": 0
           }
         },
@@ -4728,6 +4778,14 @@
             "h3": 19,
             "h4": 141
           },
+          "microbiologySection": {
+            "found": true,
+            "heading": "2.7 | 微生物限度检查",
+            "sequence": "2.7",
+            "lineCount": 98,
+            "fieldMarkerCount": 161,
+            "prefillMarkerCount": 44
+          },
           "sourceComment": {
             "fieldCount": 760,
             "prefillCount": 165,
@@ -4775,16 +4833,18 @@
           "h4": 141
         },
         "editorHeadingCounts": {
-          "h1": 4,
-          "h3": 60,
-          "h2": 13
+          "h1": 3,
+          "h2": 6,
+          "h3": 26,
+          "h4": 83
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
         "mdExperimentItemHeadingCount": 14,
-        "editorExperimentItemHeadingCount": 13,
+        "editorExperimentItemHeadingCount": 14,
         "missingStageHeadingsInMd": [],
         "missingTestHeadingsInMd": [],
+        "mdExperimentHeadingsMissingInEditor": [],
         "mdMissingSectionWarnings": [
           "2.7.5 缺失 (4→6)"
         ],
@@ -4801,9 +4861,9 @@
       "productName": "甘草酸二铵胶囊",
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/diammonium_glycyrrhizinate.json",
       "stages": 3,
-      "experimentItems": 12,
-      "tables": 78,
-      "fields": 484,
+      "experimentItems": 7,
+      "tables": 83,
+      "fields": 777,
       "formulas": 77,
       "conversion": {
         "schemaVersion": 1,
@@ -4819,30 +4879,30 @@
           },
           "editor": {
             "stages": 3,
-            "tests": 6,
-            "tables": 78,
-            "fields": 484,
+            "tests": 7,
+            "tables": 83,
+            "fields": 777,
             "formulas": 77,
-            "blocks": 198
+            "blocks": 285
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 78,
-            "fields": 484,
+            "tables": 83,
+            "fields": 777,
             "formulas": 77,
-            "blocks": 198
+            "blocks": 285
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 36,
-            "fields": 0,
+            "tables": 41,
+            "fields": 293,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 36,
-            "fields": 0,
+            "tables": 41,
+            "fields": 293,
             "formulas": 0
           }
         },
@@ -5453,6 +5513,14 @@
             "h3": 17,
             "h4": 126
           },
+          "microbiologySection": {
+            "found": true,
+            "heading": "2.6 | 微生物限度检查",
+            "sequence": "2.6",
+            "lineCount": 99,
+            "fieldMarkerCount": 293,
+            "prefillMarkerCount": 77
+          },
           "sourceComment": {
             "fieldCount": 762,
             "prefillCount": 173,
@@ -5498,16 +5566,18 @@
           "h4": 126
         },
         "editorHeadingCounts": {
-          "h1": 4,
-          "h3": 54,
-          "h2": 12
+          "h1": 3,
+          "h2": 6,
+          "h3": 25,
+          "h4": 78
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
         "mdExperimentItemHeadingCount": 13,
-        "editorExperimentItemHeadingCount": 12,
+        "editorExperimentItemHeadingCount": 13,
         "missingStageHeadingsInMd": [],
         "missingTestHeadingsInMd": [],
+        "mdExperimentHeadingsMissingInEditor": [],
         "mdMissingSectionWarnings": [
           "2.6.5 缺失 (4→6)"
         ],
@@ -5522,9 +5592,9 @@
       "productName": "氢氯噻嗪片",
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/hydrochlorothiazide.json",
       "stages": 3,
-      "experimentItems": 14,
-      "tables": 103,
-      "fields": 554,
+      "experimentItems": 9,
+      "tables": 105,
+      "fields": 735,
       "formulas": 124,
       "conversion": {
         "schemaVersion": 1,
@@ -5540,30 +5610,30 @@
           },
           "editor": {
             "stages": 3,
-            "tests": 8,
-            "tables": 103,
-            "fields": 554,
+            "tests": 9,
+            "tables": 105,
+            "fields": 735,
             "formulas": 124,
-            "blocks": 252
+            "blocks": 333
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 103,
-            "fields": 554,
+            "tables": 105,
+            "fields": 735,
             "formulas": 124,
-            "blocks": 252
+            "blocks": 333
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 52,
-            "fields": 0,
+            "tables": 54,
+            "fields": 181,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 52,
-            "fields": 0,
+            "tables": 54,
+            "fields": 181,
             "formulas": 0
           }
         },
@@ -6294,6 +6364,14 @@
             "h3": 21,
             "h4": 152
           },
+          "microbiologySection": {
+            "found": true,
+            "heading": "2.8 | 微生物限度检查",
+            "sequence": "2.8",
+            "lineCount": 78,
+            "fieldMarkerCount": 181,
+            "prefillMarkerCount": 44
+          },
           "sourceComment": {
             "fieldCount": 933,
             "prefillCount": 186,
@@ -6345,16 +6423,18 @@
           "h4": 152
         },
         "editorHeadingCounts": {
-          "h1": 4,
-          "h3": 66,
-          "h2": 14
+          "h1": 3,
+          "h2": 6,
+          "h3": 27,
+          "h4": 86
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
         "mdExperimentItemHeadingCount": 15,
-        "editorExperimentItemHeadingCount": 14,
+        "editorExperimentItemHeadingCount": 15,
         "missingStageHeadingsInMd": [],
         "missingTestHeadingsInMd": [],
+        "mdExperimentHeadingsMissingInEditor": [],
         "mdMissingSectionWarnings": [
           "2.3.5.1 缺失 (最小为 2)",
           "2.4.5.1 缺失 (最小为 2)",
@@ -6375,9 +6455,9 @@
       "productName": "硝酸异山梨酯片",
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/isosorbide_dinitrate.json",
       "stages": 3,
-      "experimentItems": 13,
-      "tables": 94,
-      "fields": 489,
+      "experimentItems": 8,
+      "tables": 96,
+      "fields": 673,
       "formulas": 119,
       "conversion": {
         "schemaVersion": 1,
@@ -6393,30 +6473,30 @@
           },
           "editor": {
             "stages": 3,
-            "tests": 7,
-            "tables": 94,
-            "fields": 489,
+            "tests": 8,
+            "tables": 96,
+            "fields": 673,
             "formulas": 119,
-            "blocks": 231
+            "blocks": 313
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 94,
-            "fields": 489,
+            "tables": 96,
+            "fields": 673,
             "formulas": 119,
-            "blocks": 231
+            "blocks": 313
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 48,
-            "fields": 0,
+            "tables": 50,
+            "fields": 184,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 48,
-            "fields": 0,
+            "tables": 50,
+            "fields": 184,
             "formulas": 0
           }
         },
@@ -7075,6 +7155,14 @@
             "h3": 19,
             "h4": 136
           },
+          "microbiologySection": {
+            "found": true,
+            "heading": "2.7 | 微生物限度检查",
+            "sequence": "2.7",
+            "lineCount": 80,
+            "fieldMarkerCount": 184,
+            "prefillMarkerCount": 44
+          },
           "sourceComment": {
             "fieldCount": 810,
             "prefillCount": 193,
@@ -7124,16 +7212,18 @@
           "h4": 136
         },
         "editorHeadingCounts": {
-          "h1": 4,
-          "h3": 61,
-          "h2": 13
+          "h1": 3,
+          "h2": 6,
+          "h3": 26,
+          "h4": 82
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
         "mdExperimentItemHeadingCount": 14,
-        "editorExperimentItemHeadingCount": 13,
+        "editorExperimentItemHeadingCount": 14,
         "missingStageHeadingsInMd": [],
         "missingTestHeadingsInMd": [],
+        "mdExperimentHeadingsMissingInEditor": [],
         "mdMissingSectionWarnings": [
           "2.2.5.1 缺失 (最小为 2)",
           "2.3.5.1 缺失 (最小为 2)",
@@ -7152,9 +7242,9 @@
       "productName": "盐酸左氧氟沙星胶囊",
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/levofloxacin.json",
       "stages": 3,
-      "experimentItems": 10,
-      "tables": 85,
-      "fields": 689,
+      "experimentItems": 7,
+      "tables": 91,
+      "fields": 859,
       "formulas": 154,
       "conversion": {
         "schemaVersion": 1,
@@ -7170,30 +7260,30 @@
           },
           "editor": {
             "stages": 3,
-            "tests": 6,
-            "tables": 85,
-            "fields": 689,
+            "tests": 7,
+            "tables": 91,
+            "fields": 859,
             "formulas": 154,
-            "blocks": 195
+            "blocks": 289
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 85,
-            "fields": 689,
+            "tables": 91,
+            "fields": 859,
             "formulas": 154,
-            "blocks": 195
+            "blocks": 289
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 44,
-            "fields": 0,
+            "tables": 50,
+            "fields": 170,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 44,
-            "fields": 0,
+            "tables": 50,
+            "fields": 170,
             "formulas": 0
           }
         },
@@ -7816,6 +7906,14 @@
             "h3": 16,
             "h4": 130
           },
+          "microbiologySection": {
+            "found": true,
+            "heading": "2.6 | 微生物限度检查",
+            "sequence": "2.6",
+            "lineCount": 109,
+            "fieldMarkerCount": 171,
+            "prefillMarkerCount": 48
+          },
           "sourceComment": {
             "fieldCount": 848,
             "prefillCount": 204,
@@ -7867,16 +7965,18 @@
           "h4": 130
         },
         "editorHeadingCounts": {
-          "h1": 4,
-          "h3": 47,
-          "h2": 10
+          "h1": 3,
+          "h2": 6,
+          "h3": 23,
+          "h4": 74
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
         "mdExperimentItemHeadingCount": 11,
-        "editorExperimentItemHeadingCount": 10,
+        "editorExperimentItemHeadingCount": 11,
         "missingStageHeadingsInMd": [],
         "missingTestHeadingsInMd": [],
+        "mdExperimentHeadingsMissingInEditor": [],
         "mdMissingSectionWarnings": [
           "2.1.8 缺失 (7→10)",
           "2.2.6 缺失 (5→10)",
@@ -7897,9 +7997,9 @@
       "productName": "甲巯咪唑片",
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/methimazole.json",
       "stages": 3,
-      "experimentItems": 13,
-      "tables": 85,
-      "fields": 388,
+      "experimentItems": 8,
+      "tables": 90,
+      "fields": 564,
       "formulas": 72,
       "conversion": {
         "schemaVersion": 1,
@@ -7915,30 +8015,30 @@
           },
           "editor": {
             "stages": 3,
-            "tests": 7,
-            "tables": 85,
-            "fields": 388,
+            "tests": 8,
+            "tables": 90,
+            "fields": 564,
             "formulas": 72,
-            "blocks": 220
+            "blocks": 309
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 85,
-            "fields": 388,
+            "tables": 90,
+            "fields": 564,
             "formulas": 72,
-            "blocks": 220
+            "blocks": 309
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 39,
-            "fields": 0,
+            "tables": 44,
+            "fields": 176,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 39,
-            "fields": 0,
+            "tables": 44,
+            "fields": 176,
             "formulas": 0
           }
         },
@@ -8589,6 +8689,14 @@
             "h3": 19,
             "h4": 134
           },
+          "microbiologySection": {
+            "found": true,
+            "heading": "2.7 | 微生物限度检查",
+            "sequence": "2.7",
+            "lineCount": 99,
+            "fieldMarkerCount": 176,
+            "prefillMarkerCount": 46
+          },
           "sourceComment": {
             "fieldCount": 699,
             "prefillCount": 136,
@@ -8639,16 +8747,18 @@
           "h4": 134
         },
         "editorHeadingCounts": {
-          "h1": 4,
-          "h3": 62,
-          "h2": 13
+          "h1": 3,
+          "h2": 6,
+          "h3": 26,
+          "h4": 86
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
         "mdExperimentItemHeadingCount": 14,
-        "editorExperimentItemHeadingCount": 13,
+        "editorExperimentItemHeadingCount": 14,
         "missingStageHeadingsInMd": [],
         "missingTestHeadingsInMd": [],
+        "mdExperimentHeadingsMissingInEditor": [],
         "mdMissingSectionWarnings": [
           "2.2.8 缺失 (7→9)",
           "2.7.5 缺失 (4→6)"
@@ -8668,9 +8778,9 @@
       "productName": "泮托拉唑钠肠溶片",
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/pantoprazole.json",
       "stages": 3,
-      "experimentItems": 16,
-      "tables": 112,
-      "fields": 640,
+      "experimentItems": 10,
+      "tables": 118,
+      "fields": 890,
       "formulas": 112,
       "conversion": {
         "schemaVersion": 1,
@@ -8686,30 +8796,30 @@
           },
           "editor": {
             "stages": 3,
-            "tests": 9,
-            "tables": 112,
-            "fields": 640,
+            "tests": 10,
+            "tables": 118,
+            "fields": 890,
             "formulas": 112,
-            "blocks": 279
+            "blocks": 371
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 112,
-            "fields": 640,
+            "tables": 118,
+            "fields": 890,
             "formulas": 112,
-            "blocks": 279
+            "blocks": 371
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 57,
-            "fields": 0,
+            "tables": 63,
+            "fields": 250,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 57,
-            "fields": 0,
+            "tables": 63,
+            "fields": 250,
             "formulas": 0
           }
         },
@@ -9520,6 +9630,14 @@
             "h3": 22,
             "h4": 171
           },
+          "microbiologySection": {
+            "found": true,
+            "heading": "2.9 | 微生物限度检查",
+            "sequence": "2.9",
+            "lineCount": 98,
+            "fieldMarkerCount": 250,
+            "prefillMarkerCount": 72
+          },
           "sourceComment": {
             "fieldCount": 968,
             "prefillCount": 209,
@@ -9569,16 +9687,18 @@
           "h4": 171
         },
         "editorHeadingCounts": {
-          "h1": 4,
-          "h3": 73,
-          "h2": 16
+          "h1": 3,
+          "h2": 6,
+          "h3": 29,
+          "h4": 97
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
         "mdExperimentItemHeadingCount": 17,
-        "editorExperimentItemHeadingCount": 16,
+        "editorExperimentItemHeadingCount": 17,
         "missingStageHeadingsInMd": [],
         "missingTestHeadingsInMd": [],
+        "mdExperimentHeadingsMissingInEditor": [],
         "mdMissingSectionWarnings": [
           "2.2.8 缺失 (7→9)",
           "2.7.6 缺失 (5→10)",
@@ -9597,9 +9717,9 @@
       "productName": "辛伐他汀片",
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/simvastatin.json",
       "stages": 3,
-      "experimentItems": 13,
-      "tables": 99,
-      "fields": 565,
+      "experimentItems": 8,
+      "tables": 104,
+      "fields": 872,
       "formulas": 141,
       "conversion": {
         "schemaVersion": 1,
@@ -9615,30 +9735,30 @@
           },
           "editor": {
             "stages": 3,
-            "tests": 7,
-            "tables": 99,
-            "fields": 565,
+            "tests": 8,
+            "tables": 104,
+            "fields": 872,
             "formulas": 141,
-            "blocks": 240
+            "blocks": 320
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 99,
-            "fields": 565,
+            "tables": 104,
+            "fields": 872,
             "formulas": 141,
-            "blocks": 240
+            "blocks": 320
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 51,
-            "fields": 0,
+            "tables": 56,
+            "fields": 307,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 51,
-            "fields": 0,
+            "tables": 56,
+            "fields": 307,
             "formulas": 0
           }
         },
@@ -10349,6 +10469,14 @@
             "h3": 19,
             "h4": 149
           },
+          "microbiologySection": {
+            "found": true,
+            "heading": "2.7 | 微生物限度检查",
+            "sequence": "2.7",
+            "lineCount": 101,
+            "fieldMarkerCount": 307,
+            "prefillMarkerCount": 87
+          },
           "sourceComment": {
             "fieldCount": 1000,
             "prefillCount": 235,
@@ -10393,16 +10521,18 @@
           "h4": 149
         },
         "editorHeadingCounts": {
-          "h1": 4,
-          "h3": 61,
-          "h2": 13
+          "h1": 3,
+          "h2": 6,
+          "h3": 26,
+          "h4": 81
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
         "mdExperimentItemHeadingCount": 14,
-        "editorExperimentItemHeadingCount": 13,
+        "editorExperimentItemHeadingCount": 14,
         "missingStageHeadingsInMd": [],
         "missingTestHeadingsInMd": [],
+        "mdExperimentHeadingsMissingInEditor": [],
         "mdMissingSectionWarnings": [],
         "mdInlineNotPromotedWarnings": [
           "2.3.7",
@@ -10416,9 +10546,9 @@
       "productName": "螺内酯片",
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/spironolactone.json",
       "stages": 3,
-      "experimentItems": 14,
-      "tables": 101,
-      "fields": 577,
+      "experimentItems": 9,
+      "tables": 108,
+      "fields": 898,
       "formulas": 127,
       "conversion": {
         "schemaVersion": 1,
@@ -10434,30 +10564,30 @@
           },
           "editor": {
             "stages": 3,
-            "tests": 8,
-            "tables": 101,
-            "fields": 577,
+            "tests": 9,
+            "tables": 108,
+            "fields": 898,
             "formulas": 127,
-            "blocks": 250
+            "blocks": 331
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 101,
-            "fields": 577,
+            "tables": 108,
+            "fields": 898,
             "formulas": 127,
-            "blocks": 250
+            "blocks": 331
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 50,
-            "fields": 0,
+            "tables": 57,
+            "fields": 321,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 50,
-            "fields": 0,
+            "tables": 57,
+            "fields": 321,
             "formulas": 0
           }
         },
@@ -11152,6 +11282,14 @@
             "h3": 19,
             "h4": 145
           },
+          "microbiologySection": {
+            "found": true,
+            "heading": "2.8 | 微生物限度检查 | 检验日期 | 年    月    日",
+            "sequence": "2.8",
+            "lineCount": 107,
+            "fieldMarkerCount": 321,
+            "prefillMarkerCount": 161
+          },
           "sourceComment": {
             "fieldCount": 1059,
             "prefillCount": 363,
@@ -11198,16 +11336,18 @@
           "h4": 145
         },
         "editorHeadingCounts": {
-          "h1": 4,
-          "h3": 67,
-          "h2": 14
+          "h1": 3,
+          "h2": 6,
+          "h3": 27,
+          "h4": 88
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
         "mdExperimentItemHeadingCount": 15,
-        "editorExperimentItemHeadingCount": 14,
+        "editorExperimentItemHeadingCount": 15,
         "missingStageHeadingsInMd": [],
         "missingTestHeadingsInMd": [],
+        "mdExperimentHeadingsMissingInEditor": [],
         "mdMissingSectionWarnings": [
           "2.3.8 缺失 (7→10)"
         ],
@@ -11223,9 +11363,9 @@
       "productName": "盐酸特拉唑嗪 胶囊",
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/terazosin.json",
       "stages": 3,
-      "experimentItems": 13,
-      "tables": 98,
-      "fields": 524,
+      "experimentItems": 8,
+      "tables": 103,
+      "fields": 690,
       "formulas": 115,
       "conversion": {
         "schemaVersion": 1,
@@ -11241,30 +11381,30 @@
           },
           "editor": {
             "stages": 3,
-            "tests": 7,
-            "tables": 98,
-            "fields": 524,
+            "tests": 8,
+            "tables": 103,
+            "fields": 690,
             "formulas": 115,
-            "blocks": 238
+            "blocks": 329
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 98,
-            "fields": 524,
+            "tables": 103,
+            "fields": 690,
             "formulas": 115,
-            "blocks": 238
+            "blocks": 329
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 50,
-            "fields": 0,
+            "tables": 55,
+            "fields": 166,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 50,
-            "fields": 0,
+            "tables": 55,
+            "fields": 166,
             "formulas": 0
           }
         },
@@ -11975,6 +12115,14 @@
             "h3": 19,
             "h4": 149
           },
+          "microbiologySection": {
+            "found": true,
+            "heading": "2.7 | 微生物限度检查",
+            "sequence": "2.7",
+            "lineCount": 101,
+            "fieldMarkerCount": 166,
+            "prefillMarkerCount": 44
+          },
           "sourceComment": {
             "fieldCount": 747,
             "prefillCount": 176,
@@ -12024,16 +12172,18 @@
           "h4": 149
         },
         "editorHeadingCounts": {
-          "h1": 4,
-          "h3": 62,
-          "h2": 13
+          "h1": 3,
+          "h2": 6,
+          "h3": 26,
+          "h4": 87
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
         "mdExperimentItemHeadingCount": 14,
-        "editorExperimentItemHeadingCount": 13,
+        "editorExperimentItemHeadingCount": 14,
         "missingStageHeadingsInMd": [],
         "missingTestHeadingsInMd": [],
+        "mdExperimentHeadingsMissingInEditor": [],
         "mdMissingSectionWarnings": [
           "2.2.7 缺失 (6→9)",
           "2.7.5 缺失 (4→6)"
@@ -12052,9 +12202,9 @@
       "productName": "盐酸维拉帕米片",
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/verapamil.json",
       "stages": 3,
-      "experimentItems": 13,
-      "tables": 91,
-      "fields": 586,
+      "experimentItems": 8,
+      "tables": 96,
+      "fields": 879,
       "formulas": 117,
       "conversion": {
         "schemaVersion": 1,
@@ -12070,30 +12220,30 @@
           },
           "editor": {
             "stages": 3,
-            "tests": 7,
-            "tables": 91,
-            "fields": 586,
+            "tests": 8,
+            "tables": 96,
+            "fields": 879,
             "formulas": 117,
-            "blocks": 227
+            "blocks": 315
           },
           "enhanced": {
             "stages": 0,
             "tests": 0,
-            "tables": 91,
-            "fields": 586,
+            "tables": 96,
+            "fields": 879,
             "formulas": 117,
-            "blocks": 227
+            "blocks": 315
           }
         },
         "countDeltas": {
           "editorMinusLegacy": {
-            "tables": 45,
-            "fields": 0,
+            "tables": 50,
+            "fields": 293,
             "formulas": 0
           },
           "enhancedMinusLegacy": {
-            "tables": 45,
-            "fields": 0,
+            "tables": 50,
+            "fields": 293,
             "formulas": 0
           }
         },
@@ -12772,6 +12922,14 @@
             "h3": 19,
             "h4": 141
           },
+          "microbiologySection": {
+            "found": true,
+            "heading": "2.7 | 微生物限度检查",
+            "sequence": "2.7",
+            "lineCount": 99,
+            "fieldMarkerCount": 293,
+            "prefillMarkerCount": 77
+          },
           "sourceComment": {
             "fieldCount": 885,
             "prefillCount": 242,
@@ -12822,16 +12980,18 @@
           "h4": 141
         },
         "editorHeadingCounts": {
-          "h1": 4,
-          "h3": 60,
-          "h2": 13
+          "h1": 3,
+          "h2": 6,
+          "h3": 26,
+          "h4": 84
         },
         "mdStageHeadingCount": 3,
         "editorStageHeadingCount": 3,
         "mdExperimentItemHeadingCount": 14,
-        "editorExperimentItemHeadingCount": 13,
+        "editorExperimentItemHeadingCount": 14,
         "missingStageHeadingsInMd": [],
         "missingTestHeadingsInMd": [],
+        "mdExperimentHeadingsMissingInEditor": [],
         "mdMissingSectionWarnings": [
           "2.2.8 缺失 (7→10)",
           "2.3.6 缺失 (5→10)",

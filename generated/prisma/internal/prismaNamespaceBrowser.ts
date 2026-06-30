@@ -62,7 +62,7 @@ export const ModelName = {
   Contract: 'Contract',
   DocumentTemplateSpace: 'DocumentTemplateSpace',
   DocumentTemplate: 'DocumentTemplate',
-  DocumentTemplatePermission: 'DocumentTemplatePermission',
+  DocumentTemplateSpacePermission: 'DocumentTemplateSpacePermission',
   FinanceBudgetVersion: 'FinanceBudgetVersion',
   FinanceBudgetDept: 'FinanceBudgetDept',
   FinanceBudgetRd: 'FinanceBudgetRd',
@@ -309,11 +309,10 @@ export type ContractScalarFieldEnum = (typeof ContractScalarFieldEnum)[keyof typ
 
 export const DocumentTemplateSpaceScalarFieldEnum = {
   id: 'id',
-  kind: 'kind',
+  targetType: 'targetType',
+  targetId: 'targetId',
   title: 'title',
   description: 'description',
-  ownerUserId: 'ownerUserId',
-  departmentId: 'departmentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -346,16 +345,18 @@ export const DocumentTemplateScalarFieldEnum = {
 export type DocumentTemplateScalarFieldEnum = (typeof DocumentTemplateScalarFieldEnum)[keyof typeof DocumentTemplateScalarFieldEnum]
 
 
-export const DocumentTemplatePermissionScalarFieldEnum = {
+export const DocumentTemplateSpacePermissionScalarFieldEnum = {
   id: 'id',
-  templateId: 'templateId',
+  targetType: 'targetType',
+  targetId: 'targetId',
   userId: 'userId',
   role: 'role',
+  kind: 'kind',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type DocumentTemplatePermissionScalarFieldEnum = (typeof DocumentTemplatePermissionScalarFieldEnum)[keyof typeof DocumentTemplatePermissionScalarFieldEnum]
+export type DocumentTemplateSpacePermissionScalarFieldEnum = (typeof DocumentTemplateSpacePermissionScalarFieldEnum)[keyof typeof DocumentTemplateSpacePermissionScalarFieldEnum]
 
 
 export const FinanceBudgetVersionScalarFieldEnum = {

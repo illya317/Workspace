@@ -179,6 +179,11 @@ export function workPlanDraftPayload(draft: WorkPlanDraft) {
   };
 }
 
+export function isWorkPlanDraftDirty(initial: WorkPlanDraft | null | undefined, current: WorkPlanDraft | null | undefined) {
+  if (!initial || !current) return false;
+  return stableSnapshot(workPlanDraftPayload(initial)) !== stableSnapshot(workPlanDraftPayload(current));
+}
+
 export function createEmptyWorkDraft(sortOrder = 0, planId: number | null = null): WorkItemDraft {
   return {
     planId,
@@ -302,10 +307,29 @@ export function workDraftPayload(draft: WorkItemDraft) {
   };
 }
 
+export function isWorkDraftDirty(initial: WorkItem | null | undefined, current: WorkItemDraft | null | undefined) {
+  if (!initial || !current) return false;
+  return stableSnapshot(workDraftPayload(createWorkDraft(initial))) !== stableSnapshot(workDraftPayload(current));
+}
+
 function inferProjectSourceKind(draft: Pick<WorkItemDraft | WorkPlanDraft, "sourceKind" | "linkedProjectTaskId" | "linkedProjectPhaseId" | "linkedProjectId">): WorkSourceKind | null {
   if (draft.sourceKind) return draft.sourceKind;
   if (draft.linkedProjectTaskId) return "project_task";
   if (draft.linkedProjectPhaseId) return "project_phase";
   if (draft.linkedProjectId) return "project";
   return null;
+}
+
+function stableSnapshot(value: unknown): string {
+  return JSON.stringify(stabilize(value));
+}
+
+function stabilize(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(stabilize);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, item]) => [key, stabilize(item)]),
+  );
 }

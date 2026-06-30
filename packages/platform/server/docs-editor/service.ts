@@ -18,27 +18,22 @@ import {
   buildMarkPublishedCommand,
   buildSaveDraftCommand,
   buildTemplateIdCommand,
-  buildUpdatePermissionsCommand,
   type CopyTemplateInput,
   type ListTemplatesInput,
   type MarkPublishedInput,
   type SaveDraftInput,
   type TemplateIdInput,
-  type UpdatePermissionsInput,
 } from "./domain/document-template-validation";
 import {
-  canAccessGeneratedQcTemplates,
-  copyGeneratedQcTemplate,
-  getGeneratedQcTemplate,
-  listGeneratedQcTemplates,
+  syncGeneratedQcTemplates,
 } from "./generated-qc";
 import {
-  GENERATED_QC_SPACE_ID,
-  isGeneratedQcTemplateId,
-} from "./ids";
-import {
   canPublishOfficialQcTemplate,
+  docsEditorPermissionKind,
+  getAllDepartmentContexts,
   getDepartmentContext,
+  getGroupCompanyContext,
+  getQcDepartmentContext,
   getUserDepartmentContexts,
   isDocsEditorRoleAtLeast,
   maxDocsEditorRole,
@@ -119,13 +114,25 @@ function roleOrViewer(role: DocsEditorPermissionRole | null): DocsEditorPermissi
   return role ?? "viewer";
 }
 
+type DocsEditorSpaceTargetType = DocsEditorSpaceDto["targetType"];
+
+type SpaceSeed = {
+  targetType: DocsEditorSpaceTargetType;
+  targetId: number;
+  title: string;
+  description: string;
+};
+
 function toSpaceDto(space: DocsEditorSpaceRow, role: DocsEditorPermissionRole): DocsEditorSpaceDto {
+  const targetType = normalizeSpaceTargetType(space.targetType);
   return {
     id: String(space.id),
-    kind: space.kind === "department" ? "department" : "personal",
+    kind: targetType,
+    targetType,
+    targetId: space.targetId,
     title: space.title,
     ...(space.description ? { description: space.description } : {}),
-    departmentId: space.departmentId,
+    departmentId: targetType === "department" ? space.targetId : null,
     role,
   };
 }
@@ -148,25 +155,6 @@ function toListItemDto(
   };
 }
 
-async function permissionDtos(templateId: number): Promise<DocsEditorTemplateDetailDto["permissions"]> {
-  const db = docsEditorDb();
-  const permissions = await db.documentTemplatePermission.findMany({
-    where: { templateId },
-    orderBy: { id: "asc" },
-  });
-  const users = await prisma.user.findMany({
-    where: { id: { in: permissions.map((item) => item.userId) } },
-    select: { id: true, nickname: true, username: true },
-  });
-  const userNames = new Map(users.map((user) => [user.id, user.nickname || user.username || `用户 ${user.id}`]));
-  return permissions.map((permission) => ({
-    id: String(permission.id),
-    userId: permission.userId,
-    userName: userNames.get(permission.userId) || `用户 ${permission.userId}`,
-    role: permission.role === "editor" || permission.role === "manager" ? permission.role : "viewer",
-  }));
-}
-
 async function templateDetailDto(
   template: DocsEditorTemplateRow,
   role: DocsEditorPermissionRole,
@@ -175,63 +163,135 @@ async function templateDetailDto(
     ...toListItemDto(template, role),
     document: parseJson(template.documentJson, {}),
     fieldModel: parseJson(template.fieldModelJson, {}),
-    permissions: await permissionDtos(template.id),
   };
 }
 
-async function ensurePersonalSpace(userId: number, db: DocsEditorDb = docsEditorDb()) {
+function normalizeSpaceTargetType(value: string): DocsEditorSpaceTargetType {
+  if (value === "personal" || value === "company" || value === "department") return value;
+  return "department";
+}
+
+async function ensureSpace(seed: SpaceSeed, db: DocsEditorDb = docsEditorDb()) {
   const existing = await db.documentTemplateSpace.findFirst({
-    where: { kind: "personal", ownerUserId: userId, deletedAt: null },
+    where: { targetType: seed.targetType, targetId: seed.targetId, deletedAt: null },
     orderBy: { id: "asc" },
   });
   if (existing) return existing;
   return db.documentTemplateSpace.create({
     data: {
-      kind: "personal",
-      title: "我的模板空间",
-      description: "个人草稿和私有模板",
-      ownerUserId: userId,
+      targetType: seed.targetType,
+      targetId: seed.targetId,
+      title: seed.title,
+      description: seed.description,
     },
   });
+}
+
+async function ensurePersonalSpace(userId: number, db: DocsEditorDb = docsEditorDb()) {
+  return ensureSpace({
+    targetType: "personal",
+    targetId: userId,
+    title: "我的模板空间",
+    description: "个人草稿和私有模板",
+  }, db);
+}
+
+async function ensureCompanySpace(db: DocsEditorDb = docsEditorDb()) {
+  const company = await getGroupCompanyContext();
+  if (!company) return null;
+  return ensureSpace({
+    targetType: "company",
+    targetId: company.id,
+    title: `${company.name}模板空间`,
+    description: "集团级文档模板空间",
+  }, db);
 }
 
 async function ensureDepartmentSpace(departmentId: number, db: DocsEditorDb = docsEditorDb()) {
   const department = await getDepartmentContext(departmentId);
   if (!department) return null;
-  const existing = await db.documentTemplateSpace.findFirst({
-    where: { kind: "department", departmentId, deletedAt: null },
-    orderBy: { id: "asc" },
-  });
-  if (existing) return existing;
-  return db.documentTemplateSpace.create({
-    data: {
-      kind: "department",
+  return ensureSpace({
+      targetType: "department",
+      targetId: department.id,
       title: `${department.name}模板空间`,
       description: "部门成员可查看，负责人可管理",
-      departmentId,
-      ownerUserId: department.managerUserId,
-    },
+  }, db);
+}
+
+async function ensureQcOfficialTemplates(db: DocsEditorDb = docsEditorDb()) {
+  const department = await getQcDepartmentContext();
+  if (!department) return null;
+  const space = await ensureDepartmentSpace(department.id, db);
+  if (!space) return null;
+  await syncGeneratedQcTemplates({ db, space });
+  return space;
+}
+
+async function listExplicitSpaceSeeds(userId: number): Promise<SpaceSeed[]> {
+  const rows = await prisma.documentTemplateSpacePermission.findMany({
+    where: { userId, kind: docsEditorPermissionKind() },
+    select: { targetType: true, targetId: true },
   });
+  const seeds: SpaceSeed[] = [];
+  const company = await getGroupCompanyContext();
+  const companyId = company?.id ?? null;
+  const departmentIds = rows
+    .filter((row) => row.targetType === "department")
+    .map((row) => row.targetId);
+  const departments = departmentIds.length ? await prisma.department.findMany({
+    where: { id: { in: departmentIds } },
+    select: { id: true, name: true },
+  }) : [];
+  const departmentNameById = new Map(departments.map((department) => [department.id, department.name]));
+  for (const row of rows) {
+    const targetType = normalizeSpaceTargetType(row.targetType);
+    if (targetType === "personal") continue;
+    if (targetType === "company" && companyId === row.targetId && company) {
+      seeds.push({
+        targetType: "company",
+        targetId: company.id,
+        title: `${company.name}模板空间`,
+        description: "集团级文档模板空间",
+      });
+    }
+    if (targetType === "department" && departmentNameById.has(row.targetId)) {
+      seeds.push({
+        targetType: "department",
+        targetId: row.targetId,
+        title: `${departmentNameById.get(row.targetId)}模板空间`,
+        description: "部门成员可查看，负责人可管理",
+      });
+    }
+  }
+  return seeds;
 }
 
 async function listAccessibleSpaces(userId: number) {
   const db = docsEditorDb();
-  const departments = await getUserDepartmentContexts(userId);
+  await ensureQcOfficialTemplates(db);
+  const isAdmin = await canPublishOfficialQcTemplate(userId);
+  const departments = isAdmin ? await getAllDepartmentContexts() : await getUserDepartmentContexts(userId);
   const personal = await ensurePersonalSpace(userId, db);
+  const [companySpace, explicitSeeds] = await Promise.all([
+    ensureCompanySpace(db),
+    listExplicitSpaceSeeds(userId),
+  ]);
   const departmentSpaces = await Promise.all(
     departments.map((department) => ensureDepartmentSpace(department.id, db)),
   );
-  const baseSpaces = [personal, ...departmentSpaces.filter((space): space is DocsEditorSpaceRow => Boolean(space))];
-  const allSpaces = await db.documentTemplateSpace.findMany({
-    where: { deletedAt: null },
-    orderBy: [{ kind: "asc" }, { id: "asc" }],
-  });
+  const explicitSpaces = await Promise.all(explicitSeeds.map((seed) => ensureSpace(seed, db)));
+  const baseSpaces = [
+    personal,
+    ...(companySpace ? [companySpace] : []),
+    ...departmentSpaces.filter((space): space is DocsEditorSpaceRow => Boolean(space)),
+    ...explicitSpaces,
+  ];
   const uniqueSpaces = new Map<number, DocsEditorSpaceRow>();
-  [...baseSpaces, ...allSpaces].forEach((space) => uniqueSpaces.set(space.id, space));
+  baseSpaces.forEach((space) => uniqueSpaces.set(space.id, space));
 
   const result: Array<{ space: DocsEditorSpaceRow; role: DocsEditorPermissionRole }> = [];
   for (const space of Array.from(uniqueSpaces.values())) {
-    const role = await resolveSpaceRole(userId, space, departments);
+    const role = await resolveSpaceRole(userId, space);
     if (role) result.push({ space, role });
   }
   return result;
@@ -239,43 +299,23 @@ async function listAccessibleSpaces(userId: number) {
 
 export async function listSpaces(input: { userId: number }): Promise<ServiceResult<DocsEditorSpaceDto[]>> {
   const spaces = await listAccessibleSpaces(input.userId);
-  const canAccessQc = await canAccessGeneratedQcTemplates(input.userId);
-  return serviceOk([
-    ...spaces.map(({ space, role }) => toSpaceDto(space, role)),
-    ...(canAccessQc ? [{
-      id: GENERATED_QC_SPACE_ID,
-      kind: "department" as const,
-      title: "QC 官方模板",
-      description: "16 个产品全文模板，复制后可在个人或部门空间编辑",
-      departmentId: null,
-      role: await canPublishOfficialQcTemplate(input.userId) ? "manager" as const : "viewer" as const,
-    }] : []),
-  ]);
+  return serviceOk(spaces.map(({ space, role }) => toSpaceDto(space, role)));
 }
 
 export async function listTemplates(input: ListTemplatesInput): Promise<ServiceResult<DocsEditorTemplateListItemDto[]>> {
-  if (input.spaceId === GENERATED_QC_SPACE_ID) return listGeneratedQcTemplates(input.userId);
   const command = buildListTemplatesCommand(input);
   if (command.ok === false) return serviceError(command.issue.message, command.issue.status);
 
   const db = docsEditorDb();
   const spaces = await listAccessibleSpaces(command.data.userId);
   const roleBySpaceId = new Map(spaces.map(({ space, role }) => [space.id, role]));
-  const explicitPermissions = await db.documentTemplatePermission.findMany({
-    where: { userId: command.data.userId },
-  });
-  const explicitByTemplateId = new Map(explicitPermissions.map((permission) => [permission.templateId, permission]));
-  const templateIds = explicitPermissions.map((permission) => permission.templateId);
   const spaceIds = command.data.spaceId ? [command.data.spaceId] : Array.from(roleBySpaceId.keys());
   const templates = await db.documentTemplate.findMany({
     where: {
       deletedAt: null,
       ...(command.data.status ? { status: command.data.status } : {}),
       ...(command.data.keyword ? { title: { contains: command.data.keyword } } : {}),
-      OR: [
-        ...(spaceIds.length > 0 ? [{ spaceId: { in: spaceIds } }] : []),
-        ...(templateIds.length > 0 ? [{ id: { in: templateIds } }] : []),
-      ],
+      spaceId: { in: spaceIds },
     },
     orderBy: { updatedAt: "desc" },
   });
@@ -289,13 +329,8 @@ export async function listTemplates(input: ListTemplatesInput): Promise<ServiceR
       userId: command.data.userId,
       template,
       space: spaceById.get(template.spaceId) ?? null,
-      explicit: explicitByTemplateId.get(template.id) ?? null,
     });
     if (role) rows.push(toListItemDto(template, role));
-  }
-  if (!command.data.spaceId && await canAccessGeneratedQcTemplates(command.data.userId)) {
-    const generated = await listGeneratedQcTemplates(command.data.userId);
-    if (generated.ok === true) rows.push(...generated.data);
   }
   return serviceOk(rows);
 }
@@ -306,16 +341,12 @@ async function getTemplateWithRole(userId: number, templateId: number) {
     where: { id: templateId, deletedAt: null },
   });
   if (!template) return null;
-  const [space, explicit] = await Promise.all([
-    db.documentTemplateSpace.findUnique({ where: { id: template.spaceId } }),
-    db.documentTemplatePermission.findFirst({ where: { templateId, userId } }),
-  ]);
-  const role = await resolveTemplateRole({ userId, template, space, explicit });
+  const space = await db.documentTemplateSpace.findUnique({ where: { id: template.spaceId } });
+  const role = await resolveTemplateRole({ userId, template, space });
   return { template, role };
 }
 
 export async function getTemplate(input: TemplateIdInput): Promise<ServiceResult<DocsEditorTemplateDetailDto>> {
-  if (isGeneratedQcTemplateId(input.templateId)) return getGeneratedQcTemplate(input.userId, String(input.templateId));
   const command = buildTemplateIdCommand(input);
   if (command.ok === false) return serviceError(command.issue.message, command.issue.status);
   const current = await getTemplateWithRole(command.data.userId, command.data.templateId);
@@ -336,6 +367,9 @@ async function resolveTargetSpace(command: {
   if (command.departmentId || command.spaceKind === "department") {
     if (!command.departmentId) return null;
     return ensureDepartmentSpace(command.departmentId, db);
+  }
+  if (command.spaceKind === "company") {
+    return ensureCompanySpace(db);
   }
   return ensurePersonalSpace(command.userId, db);
 }
@@ -386,9 +420,6 @@ export async function saveDraft(input: SaveDraftInput): Promise<ServiceResult<Do
 }
 
 export async function copyTemplate(input: CopyTemplateInput): Promise<ServiceResult<DocsEditorTemplateDetailDto>> {
-  if (isGeneratedQcTemplateId(input.templateId)) {
-    return copyGeneratedQcTemplate(input, { resolveTargetSpace, templateDetailDto, roleOrViewer });
-  }
   const command = buildCopyTemplateCommand(input);
   if (command.ok === false) return serviceError(command.issue.message, command.issue.status);
   const source = await getTemplateWithRole(command.data.userId, command.data.templateId);
@@ -414,8 +445,8 @@ export async function copyTemplate(input: CopyTemplateInput): Promise<ServiceRes
       spaceId: targetSpace.id,
       documentJson: source.template.documentJson,
       fieldModelJson: source.template.fieldModelJson,
-      sourceKind: source.template.sourceKind,
-      sourceProductKey: source.template.sourceProductKey,
+      sourceKind: null,
+      sourceProductKey: null,
       sourceStageKeys: source.template.sourceStageKeys,
     },
   });
@@ -435,40 +466,6 @@ export async function deleteDraft(input: TemplateIdInput): Promise<ServiceResult
     data: { deletedAt: new Date(), version: { increment: 1 } },
   });
   return serviceOk({ id: String(command.data.templateId) });
-}
-
-export async function updatePermissions(input: UpdatePermissionsInput): Promise<ServiceResult<DocsEditorTemplateDetailDto>> {
-  const command = buildUpdatePermissionsCommand(input);
-  if (command.ok === false) return serviceError(command.issue.message, command.issue.status);
-  const current = await getTemplateWithRole(command.data.userId, command.data.templateId);
-  if (!current) return serviceError("模板不存在", 404);
-  if (!isDocsEditorRoleAtLeast(current.role, "manager")) return serviceError("无权限", 403);
-
-  const userCount = command.data.permissions.length === 0 ? 0 : await prisma.user.count({
-    where: { id: { in: command.data.permissions.map((item) => item.userId) } },
-  });
-  if (userCount !== command.data.permissions.length) return serviceError("授权用户不存在", 400);
-
-  const db = docsEditorDb();
-  await db.$transaction(async (tx) => {
-    await tx.documentTemplatePermission.deleteMany({ where: { templateId: command.data.templateId } });
-    if (command.data.permissions.length > 0) {
-      await tx.documentTemplatePermission.createMany({
-        data: command.data.permissions.map((item) => ({
-          templateId: command.data.templateId,
-          userId: item.userId,
-          role: item.role,
-        })),
-      });
-    }
-    await tx.documentTemplate.update({
-      where: { id: command.data.templateId },
-      data: { version: { increment: 1 } },
-    });
-  });
-  const refreshed = await getTemplateWithRole(command.data.userId, command.data.templateId);
-  if (!refreshed?.role) return serviceError("无权限", 403);
-  return serviceOk(await templateDetailDto(refreshed.template, refreshed.role));
 }
 
 export async function requestPublish(input: TemplateIdInput): Promise<ServiceResult<DocsEditorTemplateDetailDto>> {
