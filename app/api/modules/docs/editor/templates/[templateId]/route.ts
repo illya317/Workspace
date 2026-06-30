@@ -4,7 +4,8 @@ import {
   getTemplate,
   saveDraft,
 } from "@workspace/platform/server/docs-editor";
-import { createApiRouteHandler } from "@workspace/platform/server/api-route";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
 const templateParamsSchema = z.object({
   templateId: z.string().min(1),
@@ -20,28 +21,31 @@ const saveDraftBodySchema = z.object({
   sourceStageKeys: z.array(z.string()).optional().nullable(),
 });
 
-export const GET = createApiRouteHandler({
+export const GET = createCommandRoute({
   paramsSchema: templateParamsSchema,
-  handler: ({ user, params }) => getTemplate({
+  buildCommand: ({ user, params }) => okCommand({
     userId: user.userId,
     templateId: params.templateId,
   }),
+  action: (command) => getTemplate(command),
 });
 
-export const PUT = createApiRouteHandler({
+export const PUT = createCommandRoute({
   paramsSchema: templateParamsSchema,
   bodySchema: saveDraftBodySchema,
-  handler: ({ user, params, body }) => saveDraft({
+  buildCommand: ({ user, params, body }) => okCommand({
     userId: user.userId,
     templateId: params.templateId,
     ...body,
   }),
+  action: (command) => saveDraft(command),
 });
 
-export const DELETE = createApiRouteHandler({
+export const DELETE = createCommandRoute({
   paramsSchema: templateParamsSchema,
-  handler: ({ user, params }) => deleteDraft({
+  buildCommand: ({ user, params }) => okCommand({
     userId: user.userId,
     templateId: params.templateId,
   }),
+  action: (command) => deleteDraft(command),
 });

@@ -10,9 +10,6 @@ export {
   legacyQcToEditorDocument,
 } from "./editor-adapter";
 export {
-  generateQcEditorTemplates,
-} from "./editor-template-generator";
-export {
   createQcBatch,
   deleteQcBatch,
   getQcBatch,
@@ -70,7 +67,3 @@ export type {
   QcEditorConversionResult,
   QcEditorCountSummary,
 } from "./editor-adapter";
-export type {
-  GenerateQcEditorTemplatesOptions,
-  QcEditorTemplateGenerationAudit,
-} from "./editor-template-generator";

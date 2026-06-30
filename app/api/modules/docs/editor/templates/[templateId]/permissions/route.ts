@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { updatePermissions } from "@workspace/platform/server/docs-editor";
-import { createApiRouteHandler } from "@workspace/platform/server/api-route";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
 const templateParamsSchema = z.object({
   templateId: z.string().min(1),
@@ -13,12 +14,13 @@ const permissionsBodySchema = z.object({
   })),
 });
 
-export const PUT = createApiRouteHandler({
+export const PUT = createCommandRoute({
   paramsSchema: templateParamsSchema,
   bodySchema: permissionsBodySchema,
-  handler: ({ user, params, body }) => updatePermissions({
+  buildCommand: ({ user, params, body }) => okCommand({
     userId: user.userId,
     templateId: params.templateId,
     permissions: body.permissions,
   }),
+  action: (command) => updatePermissions(command),
 });

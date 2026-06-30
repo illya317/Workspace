@@ -3,7 +3,8 @@ import {
   getEditorBootstrap,
   saveDraft,
 } from "@workspace/platform/server/docs-editor";
-import { createApiRouteHandler } from "@workspace/platform/server/api-route";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
 
 const optionalText = z.preprocess(
   (value) => {
@@ -32,20 +33,22 @@ const saveDraftBodySchema = z.object({
   sourceStageKeys: z.array(z.string()).optional().nullable(),
 });
 
-export const GET = createApiRouteHandler({
+export const GET = createCommandRoute({
   querySchema: listQuerySchema,
-  handler: ({ user, query }) => getEditorBootstrap({
+  buildCommand: ({ user, query }) => okCommand({
     userId: user.userId,
     spaceId: query.spaceId,
     status: query.status,
     keyword: query.keyword,
   }),
+  action: (command) => getEditorBootstrap(command),
 });
 
-export const POST = createApiRouteHandler({
+export const POST = createCommandRoute({
   bodySchema: saveDraftBodySchema,
-  handler: ({ user, body }) => saveDraft({
+  buildCommand: ({ user, body }) => okCommand({
     userId: user.userId,
     ...body,
   }),
+  action: (command) => saveDraft(command),
 });
