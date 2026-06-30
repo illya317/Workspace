@@ -5,6 +5,14 @@ export {
   getQcTemplateSummaries,
 } from "./template-cache";
 export {
+  countEditorDocument,
+  editorDocumentToEnhancedQc,
+  legacyQcToEditorDocument,
+} from "./editor-adapter";
+export {
+  generateQcEditorTemplates,
+} from "./editor-template-generator";
+export {
   createQcBatch,
   deleteQcBatch,
   getQcBatch,
@@ -50,3 +58,19 @@ export type {
   QcTemplateTestItem,
   QcRecordTemplateSummary,
 } from "./types";
+export type {
+  EditorBlock,
+  EditorDocument,
+  EditorFieldDefinition,
+  EditorFieldModel,
+  EditorFormulaDefinition,
+  EditorInlinePart,
+  EnhancedQcDocument,
+  QcEditorConversionAudit,
+  QcEditorConversionResult,
+  QcEditorCountSummary,
+} from "./editor-adapter";
+export type {
+  GenerateQcEditorTemplatesOptions,
+  QcEditorTemplateGenerationAudit,
+} from "./editor-template-generator";

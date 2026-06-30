@@ -1,0 +1,186 @@
+import {
+  CellError,
+  DetailedCellError,
+  ErrorType,
+  FunctionArgumentType,
+  FunctionPlugin,
+  HyperFormula,
+} from "hyperformula";
+import {
+  collectFormulaReferences,
+  createReferenceCatalog,
+  emitHyperFormulaExpression,
+  parseFormulaError,
+  parseFormulaExpression,
+} from "./parser";
+import type {
+  FormulaEngineAdapter,
+  FormulaEvaluationError,
+  FormulaEvaluationInput,
+  FormulaEvaluationResult,
+  FormulaField,
+  FormulaValue,
+} from "./types";
+
+let rsdPluginRegistered = false;
+
+class RsdPlugin extends FunctionPlugin {
+  static implementedFunctions = {
+    RSD: {
+      method: "rsd",
+      parameters: [{ argumentType: FunctionArgumentType.NUMBER }],
+      repeatLastArgs: 1,
+    },
+  };
+
+  rsd(ast: { args: unknown[] }, state: unknown) {
+    return this.runFunction(ast.args as never[], state as never, this.metadata("RSD"), (...args: number[]) => {
+      if (args.length < 2) return 0;
+      const mean = args.reduce((sum, value) => sum + value, 0) / args.length;
+      if (mean === 0) return new CellError(ErrorType.DIV_BY_ZERO, "RSD mean is zero.");
+      const variance = args.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (args.length - 1);
+      return (Math.sqrt(variance) / Math.abs(mean)) * 100;
+    });
+  }
+}
+
+export class HyperFormulaAdapter implements FormulaEngineAdapter {
+  readonly kind = "hyperformula" as const;
+
+  evaluate(input: FormulaEvaluationInput): FormulaEvaluationResult {
+    registerRsdPlugin();
+
+    const fields = input.model.fields;
+    const catalog = createReferenceCatalog(fields);
+    const values = createInitialValues(fields, input.values);
+    const cellByFieldKey = createTemporaryCellMap(fields);
+    const errors: FormulaEvaluationError[] = [];
+    const sheet = fields.map((field) => {
+      if (!field.formula) return [values[field.fieldKey] ?? null];
+      try {
+        const expression = parseFormulaExpression(field.formula);
+        let hasMissingReference = false;
+        for (const reference of collectFormulaReferences(expression)) {
+          if (!catalog.resolve(reference)) {
+            errors.push(missingFieldError(field.fieldKey, reference, field.formula));
+            hasMissingReference = true;
+          }
+        }
+        if (hasMissingReference) return [null];
+        const formula = emitHyperFormulaExpression(expression, (reference) => {
+          const fieldKey = catalog.resolve(reference);
+          if (!fieldKey) throw new Error(`Formula references missing field "${reference}".`);
+          return cellByFieldKey.get(fieldKey) ?? "";
+        });
+        return [`=${formula}`];
+      } catch (error) {
+        errors.push(parseFormulaError(error, field.fieldKey, field.formula));
+        return [null];
+      }
+    });
+
+    const hf = HyperFormula.buildFromArray(sheet, { licenseKey: "gpl-v3" });
+    const targets = new Set(input.targetFieldKeys?.length ? input.targetFieldKeys : fields.map((field) => field.fieldKey));
+
+    for (const [row, field] of fields.entries()) {
+      if (!targets.has(field.fieldKey)) continue;
+      const value = hf.getCellValue({ sheet: 0, row, col: 0 });
+      if (value instanceof DetailedCellError) {
+        errors.push(mapHyperFormulaError(value, field));
+        values[field.fieldKey] = null;
+      } else {
+        values[field.fieldKey] = normalizeHyperFormulaValue(value);
+      }
+    }
+
+    hf.destroy();
+    const resultErrors = dedupeErrors(errors);
+    return { adapter: this.kind, ok: resultErrors.length === 0, values, errors: resultErrors };
+  }
+}
+
+function registerRsdPlugin() {
+  if (rsdPluginRegistered) return;
+  if (!HyperFormula.getFunctionPlugin("RSD")) {
+    HyperFormula.registerFunctionPlugin(RsdPlugin, { enGB: { RSD: "RSD" } });
+  }
+  rsdPluginRegistered = true;
+}
+
+function createTemporaryCellMap(fields: FormulaField[]) {
+  const map = new Map<string, string>();
+  for (const [index, field] of fields.entries()) {
+    map.set(field.fieldKey, `A${index + 1}`);
+  }
+  return map;
+}
+
+function createInitialValues(fields: FormulaField[], overrides?: Record<string, FormulaValue | undefined>) {
+  const values: Record<string, FormulaValue> = {};
+  for (const field of fields) {
+    if (field.value !== undefined) values[field.fieldKey] = field.value;
+  }
+  for (const [fieldKey, value] of Object.entries(overrides ?? {})) {
+    if (value !== undefined) values[fieldKey] = value;
+  }
+  return values;
+}
+
+function normalizeHyperFormulaValue(value: unknown): FormulaValue {
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value === "string" || typeof value === "boolean") return value;
+  return null;
+}
+
+function mapHyperFormulaError(error: DetailedCellError, field: FormulaField): FormulaEvaluationError {
+  if (error.type === ErrorType.CYCLE) {
+    return {
+      type: "circular_dependency",
+      fieldKey: field.fieldKey,
+      expression: field.formula ?? undefined,
+      message: "Formula contains a circular dependency.",
+    };
+  }
+  if (error.type === ErrorType.NAME && /Function name/i.test(error.message)) {
+    return {
+      type: "invalid_function",
+      fieldKey: field.fieldKey,
+      expression: field.formula ?? undefined,
+      message: error.message,
+    };
+  }
+  if (error.type === ErrorType.NAME || error.type === ErrorType.REF) {
+    return {
+      type: "missing_field",
+      fieldKey: field.fieldKey,
+      expression: field.formula ?? undefined,
+      message: error.message || "Formula references a missing field.",
+    };
+  }
+  return {
+    type: "invalid_expression",
+    fieldKey: field.fieldKey,
+    expression: field.formula ?? undefined,
+    message: error.message || "Invalid formula expression.",
+  };
+}
+
+function missingFieldError(fieldKey: string, reference: string, expression?: string): FormulaEvaluationError {
+  return {
+    type: "missing_field",
+    fieldKey,
+    reference,
+    expression,
+    message: `Formula references missing field "${reference}".`,
+  };
+}
+
+function dedupeErrors(errors: FormulaEvaluationError[]) {
+  const seen = new Set<string>();
+  return errors.filter((error) => {
+    const key = `${error.type}:${error.fieldKey ?? ""}:${error.reference ?? ""}:${error.functionName ?? ""}:${error.message}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}

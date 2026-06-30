@@ -1,6 +1,7 @@
 import { createEmptySection, createPageBody, createSectionSection, PageSurface } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { renderAppShellPage } from "../app-shell-page";
+import DocsEditorWorkbench from "./editor/DocsEditorWorkbench";
 import PositionDetailClient from "./positions/PositionDetailClient";
 import PositionsClient from "./positions/PositionsClient";
 
@@ -44,5 +45,14 @@ export function DocsPositionDetailPage({ code, user }: { code: string; user: Ses
     backHref: "/docs/positions",
     user,
     children: <PositionDetailClient code={code} />,
+  });
+}
+
+export function DocsEditorPage({ user }: { user: SessionUser }) {
+  return renderAppShellPage({
+    title: "模板编辑器",
+    backHref: "/docs",
+    user,
+    children: <DocsEditorWorkbench />,
   });
 }

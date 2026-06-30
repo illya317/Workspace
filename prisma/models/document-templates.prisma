@@ -1,0 +1,59 @@
+/// Docs 模板空间：入口权限来自 docs.editor，空间只决定模板产物可见/可管范围
+model DocumentTemplateSpace {
+  id           Int       @id @default(autoincrement())
+  kind         String
+  title        String
+  description  String?
+  ownerUserId  Int?
+  departmentId Int?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+  deletedAt    DateTime?
+  templates    DocumentTemplate[]
+
+  @@index([kind, ownerUserId, departmentId])
+  @@index([departmentId])
+  @@index([deletedAt])
+}
+
+/// 可编辑模板。EditorDocument/FieldModel 是持久化真相，DOCX/QC JSON 只是输出或兼容格式
+model DocumentTemplate {
+  id               Int       @id @default(autoincrement())
+  title            String
+  type             String
+  status           String    @default("draft")
+  ownerUserId      Int
+  spaceId          Int
+  documentJson     String
+  fieldModelJson   String
+  sourceKind       String?
+  sourceProductKey String?
+  sourceStageKeys  String?
+  version          Int       @default(1)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @default(now()) @updatedAt
+  deletedAt        DateTime?
+  publishRequestedAt DateTime?
+  publishedAt      DateTime?
+  publishedByUserId Int?
+  space            DocumentTemplateSpace @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  permissions      DocumentTemplatePermission[]
+
+  @@index([spaceId, deletedAt])
+  @@index([ownerUserId])
+  @@index([sourceKind, sourceProductKey])
+}
+
+/// 模板产物的显式 user 级授权：viewer/editor/manager
+model DocumentTemplatePermission {
+  id         Int      @id @default(autoincrement())
+  templateId Int
+  userId     Int
+  role       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+  template   DocumentTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@unique([templateId, userId])
+  @@index([userId])
+}

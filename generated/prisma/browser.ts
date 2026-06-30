@@ -64,6 +64,21 @@ export type Notification = Prisma.NotificationModel
  */
 export type Contract = Prisma.ContractModel
 /**
+ * Model DocumentTemplateSpace
+ * Docs 模板空间：入口权限来自 docs.editor，空间只决定模板产物可见/可管范围
+ */
+export type DocumentTemplateSpace = Prisma.DocumentTemplateSpaceModel
+/**
+ * Model DocumentTemplate
+ * 可编辑模板。EditorDocument/FieldModel 是持久化真相，DOCX/QC JSON 只是输出或兼容格式
+ */
+export type DocumentTemplate = Prisma.DocumentTemplateModel
+/**
+ * Model DocumentTemplatePermission
+ * 模板产物的显式 user 级授权：viewer/editor/manager
+ */
+export type DocumentTemplatePermission = Prisma.DocumentTemplatePermissionModel
+/**
  * Model FinanceBudgetVersion
  * 预算版本头表。每年可存在多个版本（draft/active/archived），同 (year, companyCode) 下只有一个 active。
  */

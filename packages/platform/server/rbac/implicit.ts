@@ -3,7 +3,7 @@ import { prisma } from "@workspace/platform/server/prisma";
 import { RESOURCE_KEYS } from "../../resources";
 import { isResourceEnabled } from "../../effective-module-registry";
 
-const DEFAULT_ACCESS_RESOURCE_KEYS = ["settings.account", "work.tasks", "docs"];
+const DEFAULT_ACCESS_RESOURCE_KEYS = ["settings.account", "work.tasks", "docs", "docs.editor"];
 let activeResourceIdsCache: Set<number> | null = null;
 let defaultAccessResourceIdsCache: Set<number> | null = null;
 

@@ -60,6 +60,9 @@ export const ModelName = {
   DepartmentResourceRole: 'DepartmentResourceRole',
   Notification: 'Notification',
   Contract: 'Contract',
+  DocumentTemplateSpace: 'DocumentTemplateSpace',
+  DocumentTemplate: 'DocumentTemplate',
+  DocumentTemplatePermission: 'DocumentTemplatePermission',
   FinanceBudgetVersion: 'FinanceBudgetVersion',
   FinanceBudgetDept: 'FinanceBudgetDept',
   FinanceBudgetRd: 'FinanceBudgetRd',
@@ -302,6 +305,57 @@ export const ContractScalarFieldEnum = {
 } as const
 
 export type ContractScalarFieldEnum = (typeof ContractScalarFieldEnum)[keyof typeof ContractScalarFieldEnum]
+
+
+export const DocumentTemplateSpaceScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  title: 'title',
+  description: 'description',
+  ownerUserId: 'ownerUserId',
+  departmentId: 'departmentId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type DocumentTemplateSpaceScalarFieldEnum = (typeof DocumentTemplateSpaceScalarFieldEnum)[keyof typeof DocumentTemplateSpaceScalarFieldEnum]
+
+
+export const DocumentTemplateScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  type: 'type',
+  status: 'status',
+  ownerUserId: 'ownerUserId',
+  spaceId: 'spaceId',
+  documentJson: 'documentJson',
+  fieldModelJson: 'fieldModelJson',
+  sourceKind: 'sourceKind',
+  sourceProductKey: 'sourceProductKey',
+  sourceStageKeys: 'sourceStageKeys',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt',
+  publishRequestedAt: 'publishRequestedAt',
+  publishedAt: 'publishedAt',
+  publishedByUserId: 'publishedByUserId'
+} as const
+
+export type DocumentTemplateScalarFieldEnum = (typeof DocumentTemplateScalarFieldEnum)[keyof typeof DocumentTemplateScalarFieldEnum]
+
+
+export const DocumentTemplatePermissionScalarFieldEnum = {
+  id: 'id',
+  templateId: 'templateId',
+  userId: 'userId',
+  role: 'role',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DocumentTemplatePermissionScalarFieldEnum = (typeof DocumentTemplatePermissionScalarFieldEnum)[keyof typeof DocumentTemplatePermissionScalarFieldEnum]
 
 
 export const FinanceBudgetVersionScalarFieldEnum = {
