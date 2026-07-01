@@ -48,6 +48,7 @@ export function renderControl(field: FormSurfaceFieldSpec, density: InputSurface
       onQueryChange={field.onQueryChange}
       loading={field.loading}
       emptyText={field.emptyText}
+      autocompletePresentation={field.autocompletePresentation}
       ratingLabel={field.ratingLabel}
       ratingMax={field.ratingMax}
       showRatingLabel={field.showRatingLabel}

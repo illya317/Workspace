@@ -12,6 +12,7 @@ export interface FormulaField {
   fieldKey: string;
   label?: string;
   aliases?: string[];
+  context?: string;
   formula?: string | null;
   value?: FormulaValue;
   slotKind?: string;

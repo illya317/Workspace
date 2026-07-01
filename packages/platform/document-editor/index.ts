@@ -14,6 +14,7 @@ export {
   SignatureSlot,
   DocumentEditorSlotExtensions,
 } from "./slot-extensions";
+export { slotContextLabel } from "./slot-numbering";
 export {
   EditorDocumentPreview,
   renderEditorDocumentPreview,

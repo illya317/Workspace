@@ -34,10 +34,10 @@ export class SimpleFormulaAdapter implements FormulaEngineAdapter {
         const expression = parseFormulaExpression(field.formula);
         const unit = durationUnit(field);
         if (unit) validateDateDifferenceExpression(expression);
-        else validateFormulaFunctionArguments(expression, (reference) => isInputReference(reference, catalog, fieldByKey));
+        else validateFormulaFunctionArguments(expression, (reference) => isInputReference(reference, catalog, fieldByKey, field.context));
         expressions.set(field.fieldKey, expression);
         for (const reference of collectFormulaReferences(expression)) {
-          if (!catalog.resolve(reference)) {
+          if (!catalog.resolve(reference, field.context)) {
             errors.push(missingFieldError(field.fieldKey, reference, field.formula));
             erroredFields.add(field.fieldKey);
             values[field.fieldKey] = null;
@@ -73,7 +73,7 @@ export class SimpleFormulaAdapter implements FormulaEngineAdapter {
       visiting.add(fieldKey);
       try {
         const resolveReference = (reference: string) => {
-          const resolvedFieldKey = catalog.resolve(reference);
+          const resolvedFieldKey = catalog.resolve(reference, field.context);
           if (!resolvedFieldKey) throw missingFieldRuntimeError(reference);
           return evaluateField(resolvedFieldKey);
         };
@@ -116,9 +116,9 @@ function createInitialValues(fields: FormulaField[], overrides?: Record<string, 
   return values;
 }
 
-function isInputReference(reference: string, catalog: ReturnType<typeof createReferenceCatalog>, fieldByKey: Map<string, FormulaField>) {
+function isInputReference(reference: string, catalog: ReturnType<typeof createReferenceCatalog>, fieldByKey: Map<string, FormulaField>, context?: string) {
   if (/^[xypz]\d+$/i.test(reference.trim())) return true;
-  const field = fieldByKey.get(catalog.resolve(reference) ?? "");
+  const field = fieldByKey.get(catalog.resolve(reference, context) ?? "");
   if (!field) return false;
   if (field.slotKind === "variable" || field.slotKind === "parameter") return true;
   return field.attr === "fillable" && (field.valueType === "number" || field.inputType === "number" || field.inputType === "field");

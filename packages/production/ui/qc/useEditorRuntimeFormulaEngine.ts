@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { createFormulaEngine, type FormulaField, type FormulaValue } from "@workspace/platform/formula";
-import type { EditorDocument, EditorInline, EditorSlotInline, FieldDefinition, FieldModel, FormulaDefinition } from "@workspace/platform/document-editor";
+import { slotContextLabel, type EditorDocument, type EditorInline, type EditorSlotInline, type FieldDefinition, type FieldModel, type FormulaDefinition } from "@workspace/platform/document-editor";
 
 export type EditorRuntimeValues = Record<string, string>;
 
@@ -17,9 +17,9 @@ function formulaEntries(fieldModel: FieldModel): Array<[string, FormulaDefinitio
   return Object.entries(fieldModel.formulas ?? {});
 }
 
-function slotEntries(document: EditorDocument): Array<[string, EditorSlotInline]> {
-  const entries: Array<[string, EditorSlotInline]> = [];
-  walkInlines(document, (part) => entries.push([part.fieldKey, part]));
+function slotEntries(document: EditorDocument): EditorSlotInline[] {
+  const entries: EditorSlotInline[] = [];
+  walkInlines(document, (part) => entries.push(part));
   return entries;
 }
 
@@ -38,9 +38,9 @@ function displayValue(value: FormulaValue | undefined, field?: FormulaField) {
   return String(value);
 }
 
-function aliases(fieldKey: string, field?: FieldDefinition, formula?: FormulaDefinition, slot?: EditorSlotInline) {
+function aliases(fieldKey: string, field?: FieldDefinition, formula?: FormulaDefinition, slots: EditorSlotInline[] = []) {
   return Array.from(new Set([
-    slot?.alias,
+    ...slots.flatMap((slot) => [slot.alias, slot.label]),
     field?.alias,
     formula?.alias,
     fieldKey,
@@ -48,7 +48,6 @@ function aliases(fieldKey: string, field?: FieldDefinition, formula?: FormulaDef
     field?.key,
     field?.name,
     field?.label,
-    slot?.label,
     fieldKey.split("/").at(-1),
   ].filter((value): value is string => Boolean(value))));
 }
@@ -56,10 +55,10 @@ function aliases(fieldKey: string, field?: FieldDefinition, formula?: FormulaDef
 function initialValues(fieldModel: FieldModel, document: EditorDocument, saved: EditorRuntimeValues) {
   const next = { ...saved };
   const fields = new Map(fieldEntries(fieldModel));
-  for (const [fieldKey, slot] of slotEntries(document)) {
-    const field = fields.get(fieldKey);
+  for (const slot of slotEntries(document)) {
+    const field = fields.get(slot.fieldKey);
     const defaultValue = slot.defaultValue ?? field?.defaultValue;
-    if (next[fieldKey] == null && defaultValue != null) next[fieldKey] = defaultValue;
+    if (next[slot.fieldKey] == null && defaultValue != null) next[slot.fieldKey] = defaultValue;
   }
   return next;
 }
@@ -67,18 +66,20 @@ function initialValues(fieldModel: FieldModel, document: EditorDocument, saved: 
 function formulaFields(fieldModel: FieldModel, document: EditorDocument, values: EditorRuntimeValues): FormulaField[] {
   const fields = new Map(fieldEntries(fieldModel));
   const formulas = new Map(formulaEntries(fieldModel));
-  const slots = new Map(slotEntries(document));
+  const slots = groupSlotsByFieldKey(slotEntries(document));
   const keys = new Set([...fields.keys(), ...formulas.keys(), ...slots.keys()]);
   return [...keys].map((fieldKey) => {
     const field = fields.get(fieldKey);
     const formula = formulas.get(fieldKey);
-    const slot = slots.get(fieldKey);
+    const fieldSlots = slots.get(fieldKey) ?? [];
+    const slot = primarySlot(fieldSlots);
     const valueType = slot?.valueType ?? formula?.valueType ?? field?.valueType ?? inferredValueType(slot, field);
     const valueKey = slot?.referenceFieldKey ?? fieldKey;
     return {
       fieldKey,
       label: slot?.label ?? field?.label ?? field?.name ?? fieldKey,
-      aliases: aliases(fieldKey, field, formula, slot),
+      aliases: aliases(fieldKey, field, formula, fieldSlots),
+      context: slot ? slotContextLabel(slot) : fieldSourceContextLabel(field),
       formula: slot?.formulaText ?? formula?.formulaText ?? formula?.rule ?? field?.formula ?? null,
       value: toFormulaValue(values[valueKey], valueType, values[`${valueKey}_hour`]),
       valueType,
@@ -89,6 +90,22 @@ function formulaFields(fieldModel: FieldModel, document: EditorDocument, values:
       slotKind: slot?.slotKind ?? formula?.slotKind ?? field?.slotKind,
     };
   });
+}
+
+function groupSlotsByFieldKey(slots: EditorSlotInline[]) {
+  const grouped = new Map<string, EditorSlotInline[]>();
+  slots.forEach((slot) => {
+    const items = grouped.get(slot.fieldKey) ?? [];
+    items.push(slot);
+    grouped.set(slot.fieldKey, items);
+  });
+  return grouped;
+}
+
+function primarySlot(slots: EditorSlotInline[]) {
+  return slots.find((slot) => slot.formulaText || slot.slotKind === "formula")
+    ?? slots.find((slot) => slot.referenceFieldKey || slot.slotKind === "reference")
+    ?? slots[0];
 }
 
 function normalizedInputType(value?: string, options?: string[]) {
@@ -105,6 +122,16 @@ function inferredValueType(slot?: EditorSlotInline, field?: FieldDefinition) {
   if (slot?.inputType === "checkbox" || field?.inputType === "checkbox") return "array";
   if (slot?.inputType === "number" || field?.inputType === "number") return "number";
   return field?.type;
+}
+
+function fieldSourceContextLabel(field?: FieldDefinition) {
+  const source = ((field as FieldDefinition & { source?: Record<string, unknown> } | undefined)?.source ?? field?.metadata?.source ?? {}) as Record<string, unknown>;
+  const [product, stage, sequence, test] = [source.productName, source.stageLabel, source.sequence, source.testName].map(stringValue);
+  return [product, stage, [sequence, test].filter(Boolean).join(" ")].filter(Boolean).join(" / ");
+}
+
+function stringValue(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.trim() : "";
 }
 
 function computeValues(fieldModel: FieldModel, document: EditorDocument, values: EditorRuntimeValues) {

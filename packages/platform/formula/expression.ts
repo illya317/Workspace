@@ -99,14 +99,19 @@ export function validateFormulaFunctionArguments(
 
 export function createReferenceCatalog(fields: FormulaField[]) {
   const map = new Map<string, string>();
+  const scopedMap = new Map<string, string>();
   for (const field of fields) {
     addReferenceName(map, field.fieldKey, field.fieldKey);
-    if (field.label) addReferenceName(map, field.label, field.fieldKey);
-    for (const alias of field.aliases ?? []) addReferenceName(map, alias, field.fieldKey);
+    if (field.label) addReferenceName(scopedMap, scopedReferenceName(field.context, field.label), field.fieldKey);
+    for (const alias of field.aliases ?? []) addReferenceName(scopedMap, scopedReferenceName(field.context, alias), field.fieldKey);
+    if (!field.context) {
+      if (field.label) addReferenceName(map, field.label, field.fieldKey);
+      for (const alias of field.aliases ?? []) addReferenceName(map, alias, field.fieldKey);
+    }
   }
   return {
-    resolve(reference: string) {
-      return map.get(reference) ?? null;
+    resolve(reference: string, context?: string) {
+      return scopedMap.get(scopedReferenceName(context, reference)) ?? map.get(reference) ?? null;
     },
   };
 }
@@ -148,6 +153,11 @@ function visitExpression(expression: FormulaExpression, visitor: (node: FormulaE
 function addReferenceName(map: Map<string, string>, name: string, fieldKey: string) {
   const trimmed = name.trim();
   if (trimmed && !map.has(trimmed)) map.set(trimmed, fieldKey);
+}
+
+function scopedReferenceName(context: string | undefined, name: string) {
+  const trimmed = name.trim();
+  return context ? `${context}\u0000${trimmed}` : trimmed;
 }
 
 function isInputOnlyFunction(functionName: SupportedFormulaFunction) {
