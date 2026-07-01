@@ -42,11 +42,10 @@ const STRONG_SEMANTIC_SECTIONS: Partial<Record<ToolbarItem["kind"], ToolbarSecti
 export function resolveSection(item: ToolbarItem): ToolbarSection {
   const strongSection = STRONG_SEMANTIC_SECTIONS[item.kind];
   if (strongSection) return strongSection;
-  return item.section ?? inferSection(item);
+  return inferSection(item);
 }
 
 export function inferZone(item: ToolbarItem): ToolbarZoneKey {
-  if (item.section === "primary") return "lead";
   switch (item.kind) {
     case "create":
     case "panel-toggle":

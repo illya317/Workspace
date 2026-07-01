@@ -10769,40 +10769,6 @@ export const generatedCoreUiSurfaceContracts = {
                                   description: "类型：string。",
                                 },
                                 {
-                                  name: "section",
-                                  description: "可选值：action / edit / filter / meta / primary / search / view。",
-                                  children: [
-                                    {
-                                      name: "action",
-                                      description: "字面量取值。",
-                                    },
-                                    {
-                                      name: "edit",
-                                      description: "字面量取值。",
-                                    },
-                                    {
-                                      name: "filter",
-                                      description: "字面量取值。",
-                                    },
-                                    {
-                                      name: "meta",
-                                      description: "字面量取值。",
-                                    },
-                                    {
-                                      name: "primary",
-                                      description: "字面量取值。",
-                                    },
-                                    {
-                                      name: "search",
-                                      description: "字面量取值。",
-                                    },
-                                    {
-                                      name: "view",
-                                      description: "字面量取值。",
-                                    },
-                                  ],
-                                },
-                                {
                                   name: "kind",
                                   description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / menu / option-group / page-size / panel-toggle / period / period / period / search / select / text。",
                                   children: [
@@ -20913,40 +20879,6 @@ export const generatedCoreUiSurfaceContracts = {
                               description: "类型：string。",
                             },
                             {
-                              name: "section",
-                              description: "可选值：action / edit / filter / meta / primary / search / view。",
-                              children: [
-                                {
-                                  name: "action",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "edit",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "filter",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "meta",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "primary",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "search",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "view",
-                                  description: "字面量取值。",
-                                },
-                              ],
-                            },
-                            {
                               name: "kind",
                               description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / menu / option-group / page-size / panel-toggle / period / period / period / search / select / text。",
                               children: [
@@ -23177,40 +23109,6 @@ export const generatedCoreUiSurfaceContracts = {
                 {
                   name: "key",
                   description: "类型：string。",
-                },
-                {
-                  name: "section",
-                  description: "可选值：action / edit / filter / meta / primary / search / view。",
-                  children: [
-                    {
-                      name: "action",
-                      description: "字面量取值。",
-                    },
-                    {
-                      name: "edit",
-                      description: "字面量取值。",
-                    },
-                    {
-                      name: "filter",
-                      description: "字面量取值。",
-                    },
-                    {
-                      name: "meta",
-                      description: "字面量取值。",
-                    },
-                    {
-                      name: "primary",
-                      description: "字面量取值。",
-                    },
-                    {
-                      name: "search",
-                      description: "字面量取值。",
-                    },
-                    {
-                      name: "view",
-                      description: "字面量取值。",
-                    },
-                  ],
                 },
                 {
                   name: "kind",
@@ -51043,40 +50941,6 @@ export const generatedCoreUiSurfaceContracts = {
                                               description: "类型：string。",
                                             },
                                             {
-                                              name: "section",
-                                              description: "可选值：action / edit / filter / meta / primary / search / view。",
-                                              children: [
-                                                {
-                                                  name: "action",
-                                                  description: "字面量取值。",
-                                                },
-                                                {
-                                                  name: "edit",
-                                                  description: "字面量取值。",
-                                                },
-                                                {
-                                                  name: "filter",
-                                                  description: "字面量取值。",
-                                                },
-                                                {
-                                                  name: "meta",
-                                                  description: "字面量取值。",
-                                                },
-                                                {
-                                                  name: "primary",
-                                                  description: "字面量取值。",
-                                                },
-                                                {
-                                                  name: "search",
-                                                  description: "字面量取值。",
-                                                },
-                                                {
-                                                  name: "view",
-                                                  description: "字面量取值。",
-                                                },
-                                              ],
-                                            },
-                                            {
                                               name: "kind",
                                               description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / menu / option-group / page-size / panel-toggle / period / period / period / search / select / text。",
                                               children: [
@@ -61187,40 +61051,6 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "类型：string。",
                                         },
                                         {
-                                          name: "section",
-                                          description: "可选值：action / edit / filter / meta / primary / search / view。",
-                                          children: [
-                                            {
-                                              name: "action",
-                                              description: "字面量取值。",
-                                            },
-                                            {
-                                              name: "edit",
-                                              description: "字面量取值。",
-                                            },
-                                            {
-                                              name: "filter",
-                                              description: "字面量取值。",
-                                            },
-                                            {
-                                              name: "meta",
-                                              description: "字面量取值。",
-                                            },
-                                            {
-                                              name: "primary",
-                                              description: "字面量取值。",
-                                            },
-                                            {
-                                              name: "search",
-                                              description: "字面量取值。",
-                                            },
-                                            {
-                                              name: "view",
-                                              description: "字面量取值。",
-                                            },
-                                          ],
-                                        },
-                                        {
                                           name: "kind",
                                           description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / menu / option-group / page-size / panel-toggle / period / period / period / search / select / text。",
                                           children: [
@@ -63451,40 +63281,6 @@ export const generatedCoreUiSurfaceContracts = {
                             {
                               name: "key",
                               description: "类型：string。",
-                            },
-                            {
-                              name: "section",
-                              description: "可选值：action / edit / filter / meta / primary / search / view。",
-                              children: [
-                                {
-                                  name: "action",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "edit",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "filter",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "meta",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "primary",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "search",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "view",
-                                  description: "字面量取值。",
-                                },
-                              ],
                             },
                             {
                               name: "kind",
@@ -65845,40 +65641,6 @@ export const generatedCoreUiSurfaceContracts = {
                     {
                       name: "key",
                       description: "类型：string。",
-                    },
-                    {
-                      name: "section",
-                      description: "可选值：action / edit / filter / meta / primary / search / view。",
-                      children: [
-                        {
-                          name: "action",
-                          description: "字面量取值。",
-                        },
-                        {
-                          name: "edit",
-                          description: "字面量取值。",
-                        },
-                        {
-                          name: "filter",
-                          description: "字面量取值。",
-                        },
-                        {
-                          name: "meta",
-                          description: "字面量取值。",
-                        },
-                        {
-                          name: "primary",
-                          description: "字面量取值。",
-                        },
-                        {
-                          name: "search",
-                          description: "字面量取值。",
-                        },
-                        {
-                          name: "view",
-                          description: "字面量取值。",
-                        },
-                      ],
                     },
                     {
                       name: "kind",

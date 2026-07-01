@@ -241,7 +241,6 @@ export default function MeetingsPage({
   const toolbarItems: SurfaceToolbarItems = [{
     kind: "option-group",
     key: "type-filter",
-    section: "filter",
     ariaLabel: "会议类型",
     presentation: "segmented",
     value: typeFilter,

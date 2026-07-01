@@ -101,7 +101,6 @@ export function useBalanceCheckSections(): { sections: BodySurfaceSectionSpec[];
   const extraToolbarItems: SurfaceToolbarItems = [{
     kind: "action-group",
     key: "balance-check-actions",
-    section: "action",
     actions: [{ key: "refresh", kind: "refresh", label: "刷新", variant: "primary", onClick: load }],
   }];
   const toggleNode = useCallback((code: string) => {

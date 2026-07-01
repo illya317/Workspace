@@ -78,7 +78,6 @@ export function useFinanceFilterToolbarItems({
     items.push({
       kind: "search",
       key: "search",
-      section: "filter",
       value: keyword,
       onChange: onKeywordChange,
       placeholder: "搜索",
@@ -89,7 +88,6 @@ export function useFinanceFilterToolbarItems({
     items.push({
       kind: "select",
       key: "company",
-      section: "filter",
       label: "公司",
       options: companyOptions,
       value: companyFilter,
@@ -102,7 +100,6 @@ export function useFinanceFilterToolbarItems({
     items.push({
       kind: "select",
       key: "year",
-      section: "filter",
       label: "年度",
       options: YEAR_OPTIONS,
       value: yearFilter,
@@ -115,7 +112,6 @@ export function useFinanceFilterToolbarItems({
     items.push({
       kind: "select",
       key: "month",
-      section: "filter",
       label: "月份",
       options: MONTH_OPTIONS,
       value: monthFilter,
@@ -128,7 +124,6 @@ export function useFinanceFilterToolbarItems({
     items.push({
       kind: "select",
       key: "level",
-      section: "filter",
       label: "层级",
       options: LEVEL_OPTIONS,
       value: levelFilter,
@@ -141,7 +136,6 @@ export function useFinanceFilterToolbarItems({
     items.push({
       kind: "column-toggle",
       key: "columns",
-      section: "meta",
       columns,
       visible: visibleColumns,
       onChange: onColumnsChange,
@@ -152,7 +146,6 @@ export function useFinanceFilterToolbarItems({
     items.push({
       kind: "select",
       key: "page-size",
-      section: "meta",
       value: String(pageSize),
       options: PAGE_SIZE_OPTIONS,
       onChange: (value) => onPageSizeChange(Number(value)),

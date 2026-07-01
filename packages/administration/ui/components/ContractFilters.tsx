@@ -30,14 +30,12 @@ export default function getContractFilterToolbarItems({
     {
       kind: "create",
       key: "create",
-      section: "view",
       label: "新增合同",
       onClick: onCreate,
     },
     {
       kind: "search",
       key: "search",
-      section: "filter",
       value: q,
       onChange: onQChange,
       placeholder: "搜索合同名称、签署方、内容...",
@@ -45,7 +43,6 @@ export default function getContractFilterToolbarItems({
     {
       kind: "select",
       key: "category-filter",
-      section: "filter",
       label: "类型",
       value: categoryFilter,
       onChange: onCategoryChange,
@@ -55,7 +52,6 @@ export default function getContractFilterToolbarItems({
     {
       kind: "select",
       key: "status-filter",
-      section: "filter",
       label: "状态",
       value: statusFilter,
       onChange: onStatusChange,

@@ -78,12 +78,11 @@ export default function PreviewToolbar({
 
   const items: ToolbarItem[] = [];
   if (viewActions.length > 0) {
-    items.push({ kind: "action-group", key: "view-actions", section: "view", actions: viewActions });
+    items.push({ kind: "action-group", key: "view-actions", actions: viewActions });
   }
   items.push({
     kind: "search",
     key: "search",
-    section: "search",
     value: keyword,
     onChange: setKeyword,
     placeholder: "搜索",
@@ -91,7 +90,6 @@ export default function PreviewToolbar({
   items.push({
     kind: "option-group",
     key: "mode",
-    section: "filter",
     value: mode,
     options: modeOptions,
     onChange: setMode,
@@ -100,7 +98,6 @@ export default function PreviewToolbar({
   items.push({
     kind: "field-filter",
     key: "field-filter",
-    section: "filter",
     fieldKey: field,
     onFieldKeyChange: setField,
     value: fieldValue,
@@ -109,12 +106,11 @@ export default function PreviewToolbar({
     valueOptions,
   });
   if (editActions.length > 0) {
-    items.push({ kind: "action-group", key: "actions", section: "edit", actions: editActions });
+    items.push({ kind: "action-group", key: "actions", actions: editActions });
   }
   items.push({
     kind: "edit-group",
     key: "edit",
-    section: "edit",
     editMode,
     onStartEdit: () => setEditMode(true),
     onSave: async () => setEditMode(false),
@@ -122,11 +118,10 @@ export default function PreviewToolbar({
     onShowHistory: () => {},
   });
   if (showMeta) {
-    items.push({ kind: "text", key: "meta", section: "meta", content: <span>{totalLabel}</span> });
+    items.push({ kind: "text", key: "meta", content: <span>{totalLabel}</span> });
     items.push({
       kind: "select",
       key: "page-size",
-      section: "meta",
       value: "50",
       options: pageSizeOptions,
       onChange: () => {},

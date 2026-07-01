@@ -20,7 +20,6 @@ export function useCostFilterToolbarItems({ filters, onChange }: Props) {
     {
       kind: "select",
       key: "year",
-      section: "filter",
       label: "年份",
       value: filters.year == null ? "" : String(filters.year),
       onChange: (nextValue) => update("year", nextValue ? parseInt(nextValue) : undefined),
@@ -30,7 +29,6 @@ export function useCostFilterToolbarItems({ filters, onChange }: Props) {
     {
       kind: "select",
       key: "month",
-      section: "filter",
       label: "月份",
       value: filters.month == null ? "" : String(filters.month),
       onChange: (nextValue) => update("month", nextValue ? parseInt(nextValue) : undefined),
@@ -40,7 +38,6 @@ export function useCostFilterToolbarItems({ filters, onChange }: Props) {
     {
       kind: "search",
       key: "product",
-      section: "search",
       value: filters.productName,
       onChange: (value) => update("productName", value),
       placeholder: "产品名称",
@@ -48,7 +45,6 @@ export function useCostFilterToolbarItems({ filters, onChange }: Props) {
     {
       kind: "search",
       key: "customer",
-      section: "search",
       value: filters.customerName,
       onChange: (value) => update("customerName", value),
       placeholder: "客户名称",

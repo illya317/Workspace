@@ -68,7 +68,6 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
           {
             kind: "icon-button" as const,
             key: "primary",
-            section: "filter" as const,
             icon: "add" as const,
             label: "+ 生成文档",
             variant: "primary" as const,
@@ -79,7 +78,6 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
     {
       kind: "search",
       key: "search",
-      section: "filter",
       value: filters.keyword || "",
       onChange: (value: string) => setFilter("keyword", value || undefined),
       placeholder: "搜索",
@@ -88,7 +86,6 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
     {
       kind: "select",
       key: "status-filter",
-      section: "filter",
       value: filters.status || "",
       onChange: (value: string) => setFilter("status", value || undefined),
       options: LIBRARY_DOCUMENT_STATUS_FILTER_OPTIONS.slice(1),
@@ -97,7 +94,6 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
     {
       kind: "select",
       key: "confidentiality-filter",
-      section: "filter",
       value: filters.confidentialityLevel !== undefined ? String(filters.confidentialityLevel) : "",
       onChange: (value: string) =>
         setFilter("confidentialityLevel", value ? parseInt(value, 10) : undefined),
@@ -107,7 +103,6 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
     {
       kind: "icon-button",
       key: "reset",
-      section: "filter",
       icon: "reset",
       label: "清除筛选",
       onClick: clearFilters,

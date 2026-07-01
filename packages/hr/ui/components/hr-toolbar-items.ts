@@ -117,7 +117,6 @@ export function buildHRToolbarItems({
     items.push({
       kind: "search",
       key: "search",
-      section: "filter",
       value: search.value,
       onChange: search.onChange,
       placeholder: search.placeholder,
@@ -133,7 +132,6 @@ export function buildHRToolbarItems({
     items.push({
       kind: "field-filter",
       key: "advanced-filter",
-      section: "filter",
       fields: advancedFilter.fields,
       valueOptions: advancedFilter.valueOptions ?? {},
       referenceEndpoint: advancedFilter.referenceEndpoint,
@@ -189,7 +187,6 @@ export function buildHRToolbarItems({
     items.push({
       kind: "edit-group",
       key: "edit",
-      section: "edit",
       editMode: editGroup.editMode,
       canEdit: editGroup.canEdit,
       editLabel: editGroup.editLabel,
@@ -208,7 +205,6 @@ export function buildHRToolbarItems({
     items.push({
       kind: "text",
       key: "meta",
-      section: "meta",
       content: meta,
     });
   }

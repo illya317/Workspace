@@ -232,7 +232,6 @@ export function useAdminUsersSection({
       {
         kind: "search",
         key: "keyword",
-        section: "search",
         value: keyword,
         onChange: (value) => {
           setKeyword(String(value ?? ""));
@@ -245,13 +244,11 @@ export function useAdminUsersSection({
       {
         kind: "text",
         key: "count",
-        section: "meta",
         content: `${filtered.length} 个用户${keyword ? ` (共${users.length})` : ""}`,
       },
       {
         kind: "page-size",
         key: "page-size",
-        section: "filter",
         label: "分页",
         value: String(pageSize),
         options: [20, 50, 100].map(n => ({ value: String(n), label: `${n}条/页` })),
@@ -263,7 +260,6 @@ export function useAdminUsersSection({
       {
         kind: "option-group",
         key: "search-mode",
-        section: "filter",
         value: searchMode,
         options: [
           { value: "name", label: "姓名" },
@@ -275,7 +271,6 @@ export function useAdminUsersSection({
       {
         kind: "create",
         key: "create",
-        section: "action",
         label: "新建",
         active: creating,
         onClick: () => {

@@ -77,7 +77,6 @@ export default function AccountTab({
       {
         kind: "select" as const,
         key: "extra-field",
-        section: "filter" as const,
         label: "筛选项",
         value: extraField,
         onChange: (key: string) => {
@@ -92,7 +91,6 @@ export default function AccountTab({
       {
         kind: "select" as const,
         key: "extra-value",
-        section: "filter" as const,
         label: "筛选值",
         value: extraValue,
         onChange: (value: string) => {
@@ -109,7 +107,6 @@ export default function AccountTab({
     ...(canWrite ? [{
       kind: "action-group" as const,
       key: "reclass-actions",
-      section: "action" as const,
       actions: [{
         key: "toggle-reclass",
         kind: "reclass" as const,
@@ -121,7 +118,6 @@ export default function AccountTab({
     ...(canWrite && reclassMode ? [{
       kind: "select" as const,
       key: "reclass-status",
-      section: "filter" as const,
       label: "状态",
       value: reclassStatus,
       onChange: (key: string) => setReclassStatus(key as typeof reclassStatus),

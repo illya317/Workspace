@@ -20,7 +20,6 @@ function useStatementConfigToolbarItems() {
     {
       kind: "select",
       key: "company",
-      section: "filter",
       label: "公司",
       options: companyOptions,
       value: company,
@@ -30,7 +29,6 @@ function useStatementConfigToolbarItems() {
     {
       kind: "select",
       key: "year",
-      section: "filter",
       label: "年度",
       options: years.map((y) => ({ value: y, label: y })),
       value: year,
@@ -40,7 +38,6 @@ function useStatementConfigToolbarItems() {
     {
       kind: "text",
       key: "loading-meta",
-      section: "meta",
       content: (
         <span className="whitespace-nowrap text-sm text-slate-400">
           {loading ? "加载可用期间…" : `全部 tab 共享，已加载 ${availablePairs.length} 个（公司、年度）组合`}

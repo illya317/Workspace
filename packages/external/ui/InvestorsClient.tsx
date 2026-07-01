@@ -10,7 +10,6 @@ export default function InvestorsClient() {
           {
             kind: "icon-button",
             key: "add-investor",
-            section: "action",
             icon: "add",
             label: "新增投资人",
             variant: "primary",

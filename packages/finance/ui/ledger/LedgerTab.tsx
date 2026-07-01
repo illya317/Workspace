@@ -174,7 +174,6 @@ export default function LedgerTab({
     extraItems: [{
       kind: "text",
       key: "ledger-total",
-      section: "meta",
       content: <span>共 {total} 条</span>,
     }],
   });

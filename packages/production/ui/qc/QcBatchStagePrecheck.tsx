@@ -156,7 +156,6 @@ export default function QcBatchStagePrecheck({
     {
       kind: "action-group",
       key: "precheck-actions",
-      section: "edit",
       actions: [
         { key: "save", label: isPending ? "保存中" : "保存", kind: "save", variant: "primary", disabled: locked || isPending || !canSave, onClick: save },
       ],

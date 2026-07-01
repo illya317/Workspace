@@ -202,13 +202,12 @@ export default function TemplateWorkbenchFrame({
   toolbarItems.push({
     kind: "search",
     key: "search",
-    section: "filter",
     value: searchValue,
     onChange: updateQuery,
     placeholder: searchPlaceholder,
   });
   if (toolbarMeta) {
-    toolbarItems.push({ kind: "text", key: "meta", section: "meta", content: toolbarMeta });
+    toolbarItems.push({ kind: "text", key: "meta", content: toolbarMeta });
   }
 
   return (

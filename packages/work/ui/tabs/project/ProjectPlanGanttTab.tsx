@@ -112,7 +112,6 @@ export default function ProjectPlanGanttTab({
     {
       kind: "search",
       key: "search",
-      section: "filter",
       value: keyword,
       onChange: setKeyword,
       placeholder: "搜索项目...",
@@ -121,7 +120,6 @@ export default function ProjectPlanGanttTab({
     {
       kind: "select",
       key: "project",
-      section: "filter",
       value: selectedProjectId ? String(selectedProjectId) : "",
       placeholder: "选择项目",
       options: filteredProjects.map((project) => ({ value: String(project.id), label: project.name })),
@@ -130,7 +128,6 @@ export default function ProjectPlanGanttTab({
     {
       kind: "option-group",
       key: "zoom",
-      section: "filter",
       value: zoom,
       options: PROJECT_GANTT_ZOOM_OPTIONS,
       onChange: (value) => changeZoom(value as ProjectGanttZoom),
@@ -147,7 +144,6 @@ export default function ProjectPlanGanttTab({
     {
       kind: "action-group",
       key: "save",
-      section: "edit",
       actions: [
         {
           key: "save",
@@ -162,7 +158,6 @@ export default function ProjectPlanGanttTab({
     {
       kind: "text",
       key: "meta",
-      section: "meta",
       content: "基线来自项目阶段",
     },
   ] satisfies SurfaceToolbarItems;

@@ -19,7 +19,7 @@ Toolbar 是 Core Page API，不是业务页自由拼装区。
 
 - `kind: "custom"`，Toolbar 类型系统不再支持。
 - 页面里手写整条 `div.flex ...` toolbar。
-- 业务侧手排动作按钮顺序、分组、分隔线。
+- 业务侧手排动作按钮顺序、分区、分组、分隔线。
 - 业务侧直接引第三方 icon 或自绘 toolbar action icon。
 - 为了某个页面新增一次性 Toolbar/FilterBar/SearchBar。
 
@@ -57,14 +57,15 @@ Toolbar 由 Core 自动分区，业务不要手排布局。
 primary -> search -> filter -> edit/action -> meta/view
 ```
 
-常见约定：
+固定映射：
 
-- `create` 放 `primary`。
-- `search` 放搜索区。
-- `select`、`option-group`、`field-filter`、`period` 放筛选区。
-- `icon-button`、`action-group`、`edit-group` 放动作区。
-- `text`、`menu`、`column-toggle`、`page-size` 放右侧 meta/view 区。
+- `create` 自动进入 `primary`。
+- `search` 自动进入搜索区。
+- `select`、`option-group`、`field-filter`、`period` 自动进入筛选区。
+- `icon-button`、`action-group`、`edit-group` 自动进入动作区。
+- `text`、`menu`、`column-toggle`、`page-size` 自动进入右侧 meta/view 区。
 - `menu` 只接受 typed trigger/items，适合账号菜单、更多操作菜单；不能传 `ReactNode`、`ComponentType` 或 render callback。
+- 业务声明不得传 `section` 或等价排序字段；需要改变分区时先扩展 Core `Toolbar` 语义，而不是在页面里指定位置。
 
 ## 4. ActionGlyph
 

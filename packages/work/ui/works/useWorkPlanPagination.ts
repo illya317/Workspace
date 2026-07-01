@@ -22,7 +22,6 @@ export function useWorkPlanPagination(activePlan: WorkPlan | null, plans: WorkPl
   const toolbarItem = useMemo<SurfaceToolbarItem>(() => ({
     kind: "page-size",
     key: "plan-page-size",
-    section: "view",
     label: "OKR 计划",
     value: String(planPageSize),
     options: PLAN_PAGE_SIZE_OPTIONS.map((size) => ({ value: String(size), label: `${size}条/页` })),

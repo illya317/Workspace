@@ -44,11 +44,11 @@ export function useReviewFilterToolbarItems({
 }: Props) {
   const companyOptions = useCompanyOptions();
   const items: SurfaceToolbarItems = [
-    { kind: "select", key: "company", section: "filter", label: "公司", options: companyOptions, value: co, onChange: setCo, placeholder: "—" },
-    { kind: "select", key: "year", section: "filter", label: "年度", options: YS.map(year => ({ value: year, label: year })), value: yr, onChange: setYr, placeholder: "—" },
-    { kind: "select", key: "month", section: "filter", label: "月份", options: MS.map(month => ({ value: month.v, label: month.l })), value: mo, onChange: setMo, placeholder: "—" },
-    { kind: "select", key: "report", section: "filter", label: "报表", options: RTS.map(report => ({ value: report.v, label: report.l })), value: rt, onChange: setRt, placeholder: "—" },
-    { kind: "action-group", key: "load", section: "action", actions: [{ key: "load", label: "读取底稿", kind: "view", variant: "primary", onClick: onLoad, disabled: loading }] },
+    { kind: "select", key: "company", label: "公司", options: companyOptions, value: co, onChange: setCo, placeholder: "—" },
+    { kind: "select", key: "year", label: "年度", options: YS.map(year => ({ value: year, label: year })), value: yr, onChange: setYr, placeholder: "—" },
+    { kind: "select", key: "month", label: "月份", options: MS.map(month => ({ value: month.v, label: month.l })), value: mo, onChange: setMo, placeholder: "—" },
+    { kind: "select", key: "report", label: "报表", options: RTS.map(report => ({ value: report.v, label: report.l })), value: rt, onChange: setRt, placeholder: "—" },
+    { kind: "action-group", key: "load", actions: [{ key: "load", label: "读取底稿", kind: "view", variant: "primary", onClick: onLoad, disabled: loading }] },
     ...extraItems,
   ];
   return items;

@@ -74,11 +74,7 @@ export interface SurfaceNavigationTabSpec {
   children?: SurfaceNavigationTabSpec[];
 }
 
-export type SurfaceToolbarSection = "primary" | "search" | "filter" | "edit" | "action" | "meta" | "view";
-
-export interface SurfaceToolbarItemBase {
-  section?: SurfaceToolbarSection;
-}
+export interface SurfaceToolbarItemBase {}
 
 export interface SurfaceToolbarIconButtonItem extends SurfaceToolbarItemBase {
   kind: "icon-button";
@@ -193,6 +189,16 @@ export interface SurfaceToolbarPeriodDateItem extends SurfaceToolbarItemBase {
   disabled?: boolean;
 }
 
+export interface SurfaceToolbarPeriodMonthItem extends SurfaceToolbarItemBase {
+  kind: "period";
+  key: string;
+  mode: "month";
+  value: string | null;
+  onChange: (value: string | null) => void;
+  placeholder?: string;
+  disabled?: boolean;
+}
+
 export interface SurfaceToolbarPeriodNavItem extends SurfaceToolbarItemBase {
   kind: "period";
   key: string;
@@ -205,7 +211,7 @@ export interface SurfaceToolbarPeriodNavItem extends SurfaceToolbarItemBase {
   disabled?: boolean;
 }
 
-export type SurfaceToolbarPeriodItem = SurfaceToolbarPeriodDateItem | SurfaceToolbarPeriodNavItem;
+export type SurfaceToolbarPeriodItem = SurfaceToolbarPeriodDateItem | SurfaceToolbarPeriodMonthItem | SurfaceToolbarPeriodNavItem;
 
 export interface SurfaceToolbarTextItem extends SurfaceToolbarItemBase {
   kind: "text";

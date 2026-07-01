@@ -104,7 +104,6 @@ export default function ReportTab() {
     {
       kind: "select",
       key: "company",
-      section: "filter",
       label: "公司",
       options: companyOptions,
       value: companyFilter,
@@ -114,7 +113,6 @@ export default function ReportTab() {
     {
       kind: "select",
       key: "year",
-      section: "filter",
       label: "年度",
       options: YEAR_OPTIONS,
       value: yearFilter,
@@ -124,7 +122,6 @@ export default function ReportTab() {
     {
       kind: "select",
       key: "month",
-      section: "filter",
       label: "月份",
       options: MONTH_OPTIONS,
       value: monthFilter,
@@ -134,7 +131,6 @@ export default function ReportTab() {
     {
       kind: "select",
       key: "report",
-      section: "filter",
       label: "报表",
       options: REPORT_TYPE_OPTIONS,
       value: reportType,
@@ -143,7 +139,6 @@ export default function ReportTab() {
     {
       kind: "action-group",
       key: "report-actions",
-      section: "action",
       actions: [
         { key: "load", label: "生成报表", kind: "generate", variant: "primary", onClick: loadReport },
       ],

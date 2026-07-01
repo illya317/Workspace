@@ -46,7 +46,6 @@ export function buildInlineFilterItems(
       return {
         kind: "option-group",
         key: filter.key,
-        section: "filter",
         value,
         options: isActive
           ? [
@@ -67,7 +66,6 @@ export function buildInlineFilterItems(
       return {
         kind: "select",
         key: filter.key,
-        section: "filter",
         value,
         options: filter.options,
         onChange: (next) => onChange(filter.key, next),
@@ -78,7 +76,6 @@ export function buildInlineFilterItems(
     return {
       kind: "field-filter",
       key: filter.key,
-      section: "filter",
       fields: [{ value: filter.key, label: filter.label, valueKind: "text", placeholder: filter.label }],
       valueOptions: {},
       fieldKey: filter.key,

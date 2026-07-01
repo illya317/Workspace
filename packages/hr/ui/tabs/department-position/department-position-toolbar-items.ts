@@ -33,7 +33,6 @@ export function buildDepartmentPositionToolbarItems({
     {
       kind: "search",
       key: "search",
-      section: "filter",
       value: search,
       onChange: onSearchChange,
       placeholder: "搜索部门/岗位",

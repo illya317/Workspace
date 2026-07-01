@@ -120,7 +120,6 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
               {
                 kind: "option-group",
                 key: "project-filter",
-                section: "filter",
                 value: model.projectListFilter,
                 options: PROJECT_LIST_FILTER_OPTIONS,
                 onChange: (value) => model.setProjectListFilter(value as ProjectListFilter),

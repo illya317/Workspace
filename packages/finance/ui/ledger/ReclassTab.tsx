@@ -93,13 +93,11 @@ export default function ReclassTab({
     {
       kind: "action-group",
       key: "reclass-export",
-      section: "action",
       actions: [{ key: "export", kind: "download", label: "导出CSV", onClick: exportCSV, disabled: entries.length === 0 }],
     },
     {
       kind: "text",
       key: "reclass-count",
-      section: "meta",
       content: <span className="text-xs text-gray-400">{entries.length} 项</span>,
     },
   ];

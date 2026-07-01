@@ -8,7 +8,6 @@ export default function CustomersClient() {
     {
       kind: "icon-button",
       key: "add-customer",
-      section: "action",
       icon: "add",
       label: "新增客户",
       variant: "primary",

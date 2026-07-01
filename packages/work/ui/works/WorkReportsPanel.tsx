@@ -151,7 +151,6 @@ export function useWorkReportsController({
     {
       kind: "option-group",
       key: "report-mode",
-      section: "filter",
       value: mode,
       options: [
         { value: "fill", label: "填写汇报" },
@@ -179,7 +178,6 @@ export function useWorkReportsController({
           {
             kind: "action-group" as const,
             key: "report-save",
-            section: "edit" as const,
             actions: [
               {
                 key: "save",

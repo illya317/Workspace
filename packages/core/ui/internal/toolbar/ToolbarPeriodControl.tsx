@@ -47,8 +47,21 @@ export function ToolbarPeriodControl({ item, size }: { item: ToolbarPeriodItem; 
         value={item.value}
         onChange={item.onChange}
         placeholder={item.placeholder}
+        precision="date"
         disabled={item.disabled}
         className={`${CONTROL_SIZES[size].height} !w-[7.5rem] shrink-0`}
+      />
+    );
+  }
+  if (item.mode === "month") {
+    return (
+      <CalendarDateInput
+        value={item.value}
+        onChange={item.onChange}
+        placeholder={item.placeholder}
+        precision="month"
+        disabled={item.disabled}
+        className={`${CONTROL_SIZES[size].height} !w-[9rem] shrink-0`}
       />
     );
   }

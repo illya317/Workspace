@@ -192,7 +192,6 @@ export default function ReviewClient() {
       ? {
           kind: "text",
           key: "loaded",
-          section: "view",
           content: `底稿已加载${!wp.id ? "（空草稿，请先在底稿页录入数据）" : ""}`,
         }
       : null,
@@ -200,7 +199,6 @@ export default function ReviewClient() {
       ? {
           kind: "text",
           key: "status",
-          section: "filter",
           content: (
             <span className="text-xs text-gray-500">
               校对状态：

@@ -97,7 +97,6 @@ export default function AdminClient({ user }: { user: SessionUser }) {
       ? [{
           kind: "autocomplete" as const,
           key: "department-filter",
-          section: "filter" as const,
           value: permissionState.selectedDepartmentFilter ?? "",
           options: permissionState.departmentFilterOptions ?? [],
           onChange: (value: string) => permissionState.setDepartmentFilter(String(value ?? "")),
@@ -109,7 +108,6 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     {
       kind: "search",
       key: "subject-search",
-      section: "search",
       value: permissionState.nameSearch,
       onChange: (value) => permissionState.setNameSearch(String(value ?? "")),
       placeholder: subjectSearchPlaceholder,
@@ -119,7 +117,6 @@ export default function AdminClient({ user }: { user: SessionUser }) {
       ? [{
           kind: "option-group" as const,
           key: "max-role",
-          section: "filter" as const,
           label: "最高业务权限",
           value: permissionState.maxRoleKey === "admin" ? "delete" : permissionState.maxRoleKey,
           options: [
@@ -135,7 +132,6 @@ export default function AdminClient({ user }: { user: SessionUser }) {
       ? [{
           kind: "option-group" as const,
           key: "conflict-strategy",
-          section: "filter" as const,
           label: "权限冲突策略",
           value: conflictStrategy,
           options: [

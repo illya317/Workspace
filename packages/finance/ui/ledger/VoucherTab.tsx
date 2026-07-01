@@ -104,7 +104,6 @@ export default function VoucherTab({
     ...(canWrite ? [{
       kind: "action-group" as const,
       key: "reclass-actions",
-      section: "action" as const,
       actions: [{
         key: "toggle-reclass",
         kind: "reclass" as const,
@@ -116,7 +115,6 @@ export default function VoucherTab({
     ...(canWrite && viewMode === "reclass" ? [{
       kind: "select" as const,
       key: "reclass-status",
-      section: "filter" as const,
       label: "状态",
       value: reclassStatus,
       onChange: setReclassStatus,

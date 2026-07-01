@@ -65,7 +65,6 @@ export function createWorkToolbarItems({
       {
         kind: "option-group" as const,
         key: "space-type",
-        section: "filter" as const,
         label: "空间类型",
         value: spaceTypeFilter,
         options: WORK_SPACE_TYPE_FILTER_OPTIONS,
@@ -76,13 +75,12 @@ export function createWorkToolbarItems({
       {
         kind: "option-group" as const,
         key: "status",
-        section: "filter" as const,
         value: statusFilter,
         options: [{ value: "active", label: "进行中" }, { value: "done", label: "已完成" }, { value: "archived", label: "已归档" }],
         onChange: (value: string) => onStatusFilterChange(value as WorkStatusFilter),
         ariaLabel: "子任务状态",
       },
-      { kind: "option-group" as const, key: "type", section: "filter" as const, value: itemTypeFilter, options: [{ value: "all", label: "全部节点" }, ...WORK_ITEM_TYPE_OPTIONS], onChange: onItemTypeFilterChange, ariaLabel: "节点类型" },
+      { kind: "option-group" as const, key: "type", value: itemTypeFilter, options: [{ value: "all", label: "全部节点" }, ...WORK_ITEM_TYPE_OPTIONS], onChange: onItemTypeFilterChange, ariaLabel: "节点类型" },
     ] : []),
     ...(activeTab === "reports" ? reportToolbarItems : []),
     ...(activeTab === "tasks" && canEdit ? [
@@ -90,7 +88,6 @@ export function createWorkToolbarItems({
       ...(planCreating ? [{
         kind: "action-group" as const,
         key: "plan-save-actions",
-        section: "edit" as const,
         actions: [
           { key: "save-plan", kind: "check" as const, label: planCreating ? "保存 OKR 计划" : "保存计划修改", variant: "primary" as const, disabled: !planDraftTitle.trim(), onClick: onSavePlan },
         ],

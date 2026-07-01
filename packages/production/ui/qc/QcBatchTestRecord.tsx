@@ -157,7 +157,6 @@ export default function QcBatchTestRecord({
     ...(recordActions.length ? [{
       kind: "action-group" as const,
       key: "test-actions",
-      section: "edit" as const,
       actions: recordActions,
     }] : []),
   ];

@@ -123,7 +123,6 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
             {
               kind: "text",
               key: "total",
-              section: "meta",
               content: <span className="text-sm text-slate-500">共 {total} 条记录</span>,
             },
           ],

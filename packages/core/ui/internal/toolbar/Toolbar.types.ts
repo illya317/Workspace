@@ -11,9 +11,7 @@ export type ToolbarZoneKey = "lead" | "search" | "filter" | "actions" | "trailin
 
 export type ToolbarLayoutMode = "auto" | "compact" | "split";
 
-export interface ToolbarItemBase {
-  section?: ToolbarSection;
-}
+export interface ToolbarItemBase {}
 
 export interface ToolbarIconButtonItem extends ToolbarItemBase {
   kind: "icon-button";
@@ -122,6 +120,16 @@ export interface ToolbarPeriodDateItem extends ToolbarItemBase {
   disabled?: boolean;
 }
 
+export interface ToolbarPeriodMonthItem extends ToolbarItemBase {
+  kind: "period";
+  key: string;
+  mode: "month";
+  value: string | null;
+  onChange: (value: string | null) => void;
+  placeholder?: string;
+  disabled?: boolean;
+}
+
 export interface ToolbarPeriodNavItem extends ToolbarItemBase {
   kind: "period";
   key: string;
@@ -134,7 +142,7 @@ export interface ToolbarPeriodNavItem extends ToolbarItemBase {
   disabled?: boolean;
 }
 
-export type ToolbarPeriodItem = ToolbarPeriodDateItem | ToolbarPeriodNavItem;
+export type ToolbarPeriodItem = ToolbarPeriodDateItem | ToolbarPeriodMonthItem | ToolbarPeriodNavItem;
 
 export interface ToolbarTextItem extends ToolbarItemBase {
   kind: "text";

@@ -71,7 +71,6 @@ export default function ProjectGanttTab({
   const toolbarItems = [{
       kind: "search",
       key: "search",
-      section: "filter",
       value: keyword,
       onChange: setKeyword,
       placeholder: "搜索项目、部门、任务...",
@@ -79,7 +78,6 @@ export default function ProjectGanttTab({
     }, {
       kind: "option-group",
       key: "include-tasks",
-      section: "filter",
       ariaLabel: "是否包括任务",
       value: includeTasks ? "1" : "0",
       options: PROJECT_GANTT_TASK_OPTIONS,
@@ -87,7 +85,6 @@ export default function ProjectGanttTab({
     }, {
       kind: "select",
       key: "level-filter",
-      section: "filter",
       label: "级别",
       value: level,
       options: [...PROJECT_GANTT_LEVEL_OPTIONS],
@@ -95,7 +92,6 @@ export default function ProjectGanttTab({
     }, {
       kind: "option-group",
       key: "zoom",
-      section: "edit",
       ariaLabel: "甘特时间缩放",
       value: zoom,
       options: PROJECT_GANTT_ZOOM_OPTIONS,
@@ -110,7 +106,6 @@ export default function ProjectGanttTab({
     }, {
       kind: "text",
       key: "meta",
-      section: "meta",
       content: `${rows.length} 行`
     }] satisfies SurfaceToolbarItems;
   const sections = error ? [
