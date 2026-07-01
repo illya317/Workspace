@@ -8,12 +8,11 @@ export default function InvestorsClient() {
       toolbar={{
         items: [
           {
-            kind: "icon-button",
+            kind: "create",
             key: "add-investor",
-            icon: "add",
             label: "新增投资人",
-            variant: "primary",
             disabled: true,
+            onClick: () => {},
           },
         ],
       }}

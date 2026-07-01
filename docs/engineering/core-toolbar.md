@@ -66,6 +66,7 @@ primary -> search -> filter -> edit/action -> meta/view
 - `text`、`menu`、`column-toggle`、`page-size` 自动进入右侧 meta/view 区。
 - `menu` 只接受 typed trigger/items，适合账号菜单、更多操作菜单；不能传 `ReactNode`、`ComponentType` 或 render callback。
 - 业务声明不得传 `section` 或等价排序字段；需要改变分区时先扩展 Core `Toolbar` 语义，而不是在页面里指定位置。
+- `add` 是创建语义，不能通过 `icon-button` 或 `action-group` 渲染；创建入口只能用 `kind: "create"`。
 
 ## 4. ActionGlyph
 

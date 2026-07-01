@@ -74,11 +74,12 @@ export interface SurfaceNavigationTabSpec {
   children?: SurfaceNavigationTabSpec[];
 }
 
+export type SurfaceToolbarActionGlyphKind = Exclude<ActionGlyphKind, "add">;
 
 export interface SurfaceToolbarIconButtonItem {
   kind: "icon-button";
   key: string;
-  icon: ActionGlyphKind;
+  icon: SurfaceToolbarActionGlyphKind;
   label: string;
   variant?: "primary" | "secondary" | "danger";
   type?: "button" | "submit";
@@ -247,7 +248,7 @@ export interface SurfaceToolbarMenuItem {
 export interface SurfaceToolbarActionGroupActionSpec {
   key?: string;
   label: string;
-  kind: ActionGlyphKind;
+  kind: SurfaceToolbarActionGlyphKind;
   onClick?: () => void;
   disabled?: boolean;
   variant?: "primary" | "secondary" | "danger";

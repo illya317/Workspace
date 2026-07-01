@@ -6,12 +6,11 @@ import type { SurfaceToolbarItems } from "@workspace/core/ui";
 export default function CustomersClient() {
   const toolbarItems: SurfaceToolbarItems = [
     {
-      kind: "icon-button",
+      kind: "create",
       key: "add-customer",
-      icon: "add",
       label: "新增客户",
-      variant: "primary",
       disabled: true,
+      onClick: () => {},
     },
   ];
 

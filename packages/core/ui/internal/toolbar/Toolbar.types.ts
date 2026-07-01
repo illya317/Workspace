@@ -11,11 +11,12 @@ export type ToolbarZoneKey = "lead" | "search" | "filter" | "actions" | "trailin
 
 export type ToolbarLayoutMode = "auto" | "compact" | "split";
 
+export type ToolbarActionGlyphKind = Exclude<ActionGlyphKind, "add">;
 
 export interface ToolbarIconButtonItem {
   kind: "icon-button";
   key: string;
-  icon: ActionGlyphKind;
+  icon: ToolbarActionGlyphKind;
   label: string;
   variant?: "primary" | "secondary" | "danger";
   type?: "button" | "submit";
@@ -178,7 +179,7 @@ export interface ToolbarMenuItem {
 export interface ToolbarActionGroupAction {
   key?: string;
   label: string;
-  kind: ActionGlyphKind;
+  kind: ToolbarActionGlyphKind;
   onClick?: () => void;
   disabled?: boolean;
   variant?: "primary" | "secondary" | "danger";

@@ -66,10 +66,6 @@ export default function PreviewToolbar({
       onClick: onToggleList,
     });
   }
-  if (onCreate) {
-    viewActions.push({ key: "create", kind: "add", label: "新建", variant: "primary", onClick: onCreate });
-  }
-
   const editActions: ToolbarActionGroupAction[] = [];
   if (showPreviewAction) {
     editActions.push({ key: "preview", kind: "view", label: "预览", variant: "secondary" });
@@ -77,6 +73,9 @@ export default function PreviewToolbar({
   editActions.push({ key: "download", kind: "download", label: "导出", variant: "secondary" });
 
   const items: ToolbarItem[] = [];
+  if (onCreate) {
+    items.push({ kind: "create", key: "create", label: "新建", onClick: onCreate });
+  }
   if (viewActions.length > 0) {
     items.push({ kind: "action-group", key: "view-actions", actions: viewActions });
   }

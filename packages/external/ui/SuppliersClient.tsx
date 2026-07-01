@@ -8,12 +8,11 @@ export default function SuppliersClient() {
       toolbar={{
         items: [
           {
-            kind: "icon-button",
+            kind: "create",
             key: "add-supplier",
-            icon: "add",
             label: "新增供应商",
             disabled: true,
-            variant: "primary",
+            onClick: () => {},
           },
         ],
       }}

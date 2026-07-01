@@ -10950,12 +10950,8 @@ export const generatedCoreUiSurfaceContracts = {
                                       children: [
                                         {
                                           name: "icon",
-                                          description: "可选值：add / archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
+                                          description: "可选值：archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
                                           children: [
-                                            {
-                                              name: "add",
-                                              description: "字面量取值。",
-                                            },
                                             {
                                               name: "archive",
                                               description: "字面量取值。",
@@ -20940,12 +20936,8 @@ export const generatedCoreUiSurfaceContracts = {
                                         },
                                         {
                                           name: "kind",
-                                          description: "可选值：add / archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
+                                          description: "可选值：archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
                                           children: [
-                                            {
-                                              name: "add",
-                                              description: "add 分支声明。",
-                                            },
                                             {
                                               name: "archive",
                                               description: "archive 分支声明。",
@@ -21394,12 +21386,8 @@ export const generatedCoreUiSurfaceContracts = {
                                   children: [
                                     {
                                       name: "icon",
-                                      description: "可选值：add / archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
+                                      description: "可选值：archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
                                       children: [
-                                        {
-                                          name: "add",
-                                          description: "字面量取值。",
-                                        },
                                         {
                                           name: "archive",
                                           description: "字面量取值。",
@@ -23172,12 +23160,8 @@ export const generatedCoreUiSurfaceContracts = {
                             },
                             {
                               name: "kind",
-                              description: "可选值：add / archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
+                              description: "可选值：archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
                               children: [
-                                {
-                                  name: "add",
-                                  description: "add 分支声明。",
-                                },
                                 {
                                   name: "archive",
                                   description: "archive 分支声明。",
@@ -23626,12 +23610,8 @@ export const generatedCoreUiSurfaceContracts = {
                       children: [
                         {
                           name: "icon",
-                          description: "可选值：add / archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
+                          description: "可选值：archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
                           children: [
-                            {
-                              name: "add",
-                              description: "字面量取值。",
-                            },
                             {
                               name: "archive",
                               description: "字面量取值。",
@@ -51122,12 +51102,8 @@ export const generatedCoreUiSurfaceContracts = {
                                                   children: [
                                                     {
                                                       name: "icon",
-                                                      description: "可选值：add / archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
+                                                      description: "可选值：archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
                                                       children: [
-                                                        {
-                                                          name: "add",
-                                                          description: "字面量取值。",
-                                                        },
                                                         {
                                                           name: "archive",
                                                           description: "字面量取值。",
@@ -61112,12 +61088,8 @@ export const generatedCoreUiSurfaceContracts = {
                                                     },
                                                     {
                                                       name: "kind",
-                                                      description: "可选值：add / archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
+                                                      description: "可选值：archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
                                                       children: [
-                                                        {
-                                                          name: "add",
-                                                          description: "add 分支声明。",
-                                                        },
                                                         {
                                                           name: "archive",
                                                           description: "archive 分支声明。",
@@ -61566,12 +61538,8 @@ export const generatedCoreUiSurfaceContracts = {
                                               children: [
                                                 {
                                                   name: "icon",
-                                                  description: "可选值：add / archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
+                                                  description: "可选值：archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
                                                   children: [
-                                                    {
-                                                      name: "add",
-                                                      description: "字面量取值。",
-                                                    },
                                                     {
                                                       name: "archive",
                                                       description: "字面量取值。",
@@ -63344,12 +63312,8 @@ export const generatedCoreUiSurfaceContracts = {
                                         },
                                         {
                                           name: "kind",
-                                          description: "可选值：add / archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
+                                          description: "可选值：archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
                                           children: [
-                                            {
-                                              name: "add",
-                                              description: "add 分支声明。",
-                                            },
                                             {
                                               name: "archive",
                                               description: "archive 分支声明。",
@@ -63798,12 +63762,8 @@ export const generatedCoreUiSurfaceContracts = {
                                   children: [
                                     {
                                       name: "icon",
-                                      description: "可选值：add / archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
+                                      description: "可选值：archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
                                       children: [
-                                        {
-                                          name: "add",
-                                          description: "字面量取值。",
-                                        },
                                         {
                                           name: "archive",
                                           description: "字面量取值。",
@@ -65704,12 +65664,8 @@ export const generatedCoreUiSurfaceContracts = {
                                 },
                                 {
                                   name: "kind",
-                                  description: "可选值：add / archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
+                                  description: "可选值：archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
                                   children: [
-                                    {
-                                      name: "add",
-                                      description: "add 分支声明。",
-                                    },
                                     {
                                       name: "archive",
                                       description: "archive 分支声明。",
@@ -66158,12 +66114,8 @@ export const generatedCoreUiSurfaceContracts = {
                           children: [
                             {
                               name: "icon",
-                              description: "可选值：add / archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
+                              description: "可选值：archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
                               children: [
-                                {
-                                  name: "add",
-                                  description: "字面量取值。",
-                                },
                                 {
                                   name: "archive",
                                   description: "字面量取值。",

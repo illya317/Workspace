@@ -62,19 +62,16 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
     return node.children.length > 0 ? node.children : undefined;
   }
 
-  const toolbarItems: SurfaceToolbarItems = [
-    ...(canWrite
-      ? [
-          {
-            kind: "icon-button" as const,
-            key: "primary",
-            icon: "add" as const,
-            label: "+ 生成文档",
-            variant: "primary" as const,
-            onClick: () => setShowGenerate(true),
-          },
-        ]
-      : []),
+  const toolbarItems: SurfaceToolbarItems = [];
+  if (canWrite) {
+    toolbarItems.push({
+      kind: "create",
+      key: "primary",
+      label: "生成文档",
+      onClick: () => setShowGenerate(true),
+    });
+  }
+  toolbarItems.push(
     {
       kind: "search",
       key: "search",
@@ -107,7 +104,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
       label: "清除筛选",
       onClick: clearFilters,
     },
-  ];
+  );
   const columns: DataSurfaceColumnSpec<LibraryDocumentItem>[] = [
     {
       key: "fileName",

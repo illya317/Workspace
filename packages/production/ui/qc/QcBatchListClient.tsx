@@ -170,6 +170,13 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
 
   const toolbarItems: SurfaceToolbarItems = [
     {
+      kind: "create",
+      key: "create",
+      label: createOpen ? "收起新建" : "新建批次",
+      active: createOpen,
+      onClick: () => setCreateOpen((open) => !open),
+    },
+    {
       kind: "select",
       key: "status",
       label: "状态",
@@ -217,7 +224,6 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
       kind: "action-group",
       key: "batch-actions",
       actions: [
-        { key: "create", label: createOpen ? "收起新建" : "新建批次", kind: "add", variant: "primary", onClick: () => setCreateOpen((open) => !open) },
         { key: "refresh", label: "刷新", kind: "refresh", onClick: refreshBatches },
         { key: "export", label: "导出", kind: "download", onClick: exportBatches },
       ],
