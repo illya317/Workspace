@@ -113,6 +113,7 @@ export function buildDutyField(
             items,
             getKey: (item: string, itemIndex: number) => `${item}-${itemIndex}`,
             getLabel: (item: string) => item,
+            longTextMode: "wrap",
             onRemove: (_item: string, itemIndex: number) => updateDuty(index, { items: items.filter((__, currentIndex) => currentIndex !== itemIndex) }),
             onUpdateLabel: (_item: string, itemIndex: number, next: string) => updateDuty(index, { items: uniqueStrings(items.map((item, currentIndex) => currentIndex === itemIndex ? next : item)) }),
             disabled,

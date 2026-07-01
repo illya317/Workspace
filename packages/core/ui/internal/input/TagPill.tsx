@@ -42,7 +42,7 @@ export default function TagPill({
         className,
       )}
     >
-      <span className={joinClassNames("block max-w-full", textClassName)}>
+      <span className={joinClassNames("block min-w-0 max-w-full", textClassName)}>
         {displayText}
       </span>
       {action}

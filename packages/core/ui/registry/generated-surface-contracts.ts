@@ -3556,7 +3556,7 @@ export const generatedCoreUiSurfaceContracts = {
                                 },
                                 {
                                   name: "maxLength",
-                                  description: "类型：number。",
+                                  description: "字符级截断；未传时由 longTextMode 控制，不做字符截断。",
                                 },
                                 {
                                   name: "emptyText",
@@ -3629,6 +3629,20 @@ export const generatedCoreUiSurfaceContracts = {
                                 {
                                   name: "itemActionLabel",
                                   description: "类型：(item: TForm, index: number) => string | undefined。",
+                                },
+                                {
+                                  name: "longTextMode",
+                                  description: "长文本 tag 展示方式：truncate 单行省略，wrap 自动换行。",
+                                  children: [
+                                    {
+                                      name: "truncate",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "wrap",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
                                 },
                                 {
                                   name: "shellClassName",
@@ -8390,7 +8404,7 @@ export const generatedCoreUiSurfaceContracts = {
                                                 },
                                                 {
                                                   name: "maxLength",
-                                                  description: "类型：number。",
+                                                  description: "字符级截断；未传时由 longTextMode 控制，不做字符截断。",
                                                 },
                                                 {
                                                   name: "emptyText",
@@ -8463,6 +8477,20 @@ export const generatedCoreUiSurfaceContracts = {
                                                 {
                                                   name: "itemActionLabel",
                                                   description: "类型：(item: any, index: number) => string | undefined。",
+                                                },
+                                                {
+                                                  name: "longTextMode",
+                                                  description: "长文本 tag 展示方式：truncate 单行省略，wrap 自动换行。",
+                                                  children: [
+                                                    {
+                                                      name: "truncate",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "wrap",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
                                                 },
                                                 {
                                                   name: "shellClassName",
@@ -17516,7 +17544,7 @@ export const generatedCoreUiSurfaceContracts = {
                                             },
                                             {
                                               name: "maxLength",
-                                              description: "类型：number。",
+                                              description: "字符级截断；未传时由 longTextMode 控制，不做字符截断。",
                                             },
                                             {
                                               name: "emptyText",
@@ -17589,6 +17617,20 @@ export const generatedCoreUiSurfaceContracts = {
                                             {
                                               name: "itemActionLabel",
                                               description: "类型：(item: any, index: number) => string | undefined。",
+                                            },
+                                            {
+                                              name: "longTextMode",
+                                              description: "长文本 tag 展示方式：truncate 单行省略，wrap 自动换行。",
+                                              children: [
+                                                {
+                                                  name: "truncate",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "wrap",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
                                             },
                                             {
                                               name: "shellClassName",
@@ -29402,7 +29444,7 @@ export const generatedCoreUiSurfaceContracts = {
                             },
                             {
                               name: "maxLength",
-                              description: "类型：number。",
+                              description: "字符级截断；未传时由 longTextMode 控制，不做字符截断。",
                             },
                             {
                               name: "emptyText",
@@ -29475,6 +29517,20 @@ export const generatedCoreUiSurfaceContracts = {
                             {
                               name: "itemActionLabel",
                               description: "类型：(item: T, index: number) => string | undefined。",
+                            },
+                            {
+                              name: "longTextMode",
+                              description: "长文本 tag 展示方式：truncate 单行省略，wrap 自动换行。",
+                              children: [
+                                {
+                                  name: "truncate",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "wrap",
+                                  description: "字面量取值。",
+                                },
+                              ],
                             },
                             {
                               name: "shellClassName",
@@ -32502,7 +32558,7 @@ export const generatedCoreUiSurfaceContracts = {
                             },
                             {
                               name: "maxLength",
-                              description: "类型：number。",
+                              description: "字符级截断；未传时由 longTextMode 控制，不做字符截断。",
                             },
                             {
                               name: "emptyText",
@@ -32575,6 +32631,20 @@ export const generatedCoreUiSurfaceContracts = {
                             {
                               name: "itemActionLabel",
                               description: "类型：(item: T, index: number) => string | undefined。",
+                            },
+                            {
+                              name: "longTextMode",
+                              description: "长文本 tag 展示方式：truncate 单行省略，wrap 自动换行。",
+                              children: [
+                                {
+                                  name: "truncate",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "wrap",
+                                  description: "字面量取值。",
+                                },
+                              ],
                             },
                             {
                               name: "shellClassName",
@@ -35602,7 +35672,7 @@ export const generatedCoreUiSurfaceContracts = {
                             },
                             {
                               name: "maxLength",
-                              description: "类型：number。",
+                              description: "字符级截断；未传时由 longTextMode 控制，不做字符截断。",
                             },
                             {
                               name: "emptyText",
@@ -35675,6 +35745,20 @@ export const generatedCoreUiSurfaceContracts = {
                             {
                               name: "itemActionLabel",
                               description: "类型：(item: T, index: number) => string | undefined。",
+                            },
+                            {
+                              name: "longTextMode",
+                              description: "长文本 tag 展示方式：truncate 单行省略，wrap 自动换行。",
+                              children: [
+                                {
+                                  name: "truncate",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "wrap",
+                                  description: "字面量取值。",
+                                },
+                              ],
                             },
                             {
                               name: "shellClassName",
@@ -38702,7 +38786,7 @@ export const generatedCoreUiSurfaceContracts = {
                             },
                             {
                               name: "maxLength",
-                              description: "类型：number。",
+                              description: "字符级截断；未传时由 longTextMode 控制，不做字符截断。",
                             },
                             {
                               name: "emptyText",
@@ -38775,6 +38859,20 @@ export const generatedCoreUiSurfaceContracts = {
                             {
                               name: "itemActionLabel",
                               description: "类型：(item: T, index: number) => string | undefined。",
+                            },
+                            {
+                              name: "longTextMode",
+                              description: "长文本 tag 展示方式：truncate 单行省略，wrap 自动换行。",
+                              children: [
+                                {
+                                  name: "truncate",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "wrap",
+                                  description: "字面量取值。",
+                                },
+                              ],
                             },
                             {
                               name: "shellClassName",
@@ -43708,7 +43806,7 @@ export const generatedCoreUiSurfaceContracts = {
                                             },
                                             {
                                               name: "maxLength",
-                                              description: "类型：number。",
+                                              description: "字符级截断；未传时由 longTextMode 控制，不做字符截断。",
                                             },
                                             {
                                               name: "emptyText",
@@ -43781,6 +43879,20 @@ export const generatedCoreUiSurfaceContracts = {
                                             {
                                               name: "itemActionLabel",
                                               description: "类型：(item: any, index: number) => string | undefined。",
+                                            },
+                                            {
+                                              name: "longTextMode",
+                                              description: "长文本 tag 展示方式：truncate 单行省略，wrap 自动换行。",
+                                              children: [
+                                                {
+                                                  name: "truncate",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "wrap",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
                                             },
                                             {
                                               name: "shellClassName",
@@ -48542,7 +48654,7 @@ export const generatedCoreUiSurfaceContracts = {
                                                             },
                                                             {
                                                               name: "maxLength",
-                                                              description: "类型：number。",
+                                                              description: "字符级截断；未传时由 longTextMode 控制，不做字符截断。",
                                                             },
                                                             {
                                                               name: "emptyText",
@@ -48615,6 +48727,20 @@ export const generatedCoreUiSurfaceContracts = {
                                                             {
                                                               name: "itemActionLabel",
                                                               description: "类型：(item: any, index: number) => string | undefined。",
+                                                            },
+                                                            {
+                                                              name: "longTextMode",
+                                                              description: "长文本 tag 展示方式：truncate 单行省略，wrap 自动换行。",
+                                                              children: [
+                                                                {
+                                                                  name: "truncate",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "wrap",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                              ],
                                                             },
                                                             {
                                                               name: "shellClassName",
@@ -57668,7 +57794,7 @@ export const generatedCoreUiSurfaceContracts = {
                                                         },
                                                         {
                                                           name: "maxLength",
-                                                          description: "类型：number。",
+                                                          description: "字符级截断；未传时由 longTextMode 控制，不做字符截断。",
                                                         },
                                                         {
                                                           name: "emptyText",
@@ -57741,6 +57867,20 @@ export const generatedCoreUiSurfaceContracts = {
                                                         {
                                                           name: "itemActionLabel",
                                                           description: "类型：(item: any, index: number) => string | undefined。",
+                                                        },
+                                                        {
+                                                          name: "longTextMode",
+                                                          description: "长文本 tag 展示方式：truncate 单行省略，wrap 自动换行。",
+                                                          children: [
+                                                            {
+                                                              name: "truncate",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "wrap",
+                                                              description: "字面量取值。",
+                                                            },
+                                                          ],
                                                         },
                                                         {
                                                           name: "shellClassName",

@@ -75,6 +75,7 @@ export function PositionDutyEditor({
                   items,
                   getKey: (item, itemIndex) => `${item}-${itemIndex}`,
                   getLabel: (item) => item,
+                  longTextMode: "wrap",
                   onRemove: (_, itemIndex) => updateDuty(index, { items: items.filter((__, currentIndex) => currentIndex !== itemIndex) }),
                   onUpdateLabel: (_, itemIndex, next) => updateDuty(index, { items: [...new Set(items.map((item, currentIndex) => currentIndex === itemIndex ? next : item))] }),
                   disabled,

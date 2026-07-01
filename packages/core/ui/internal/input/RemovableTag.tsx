@@ -40,7 +40,7 @@ export default function RemovableTag({
   removeConfirmTitle,
   title,
   className = "",
-  textClassName = "truncate",
+  textClassName = "truncate whitespace-nowrap",
   maxLength,
 }: RemovableTagProps) {
   const effectiveConfirm = confirmRemove ?? confirm;
@@ -56,7 +56,7 @@ export default function RemovableTag({
   }
 
   return (
-    <span className="inline-flex" onMouseDown={stopTagEvent} onClick={stopTagEvent}>
+    <span className="inline-flex max-w-full min-w-0" onMouseDown={stopTagEvent} onClick={stopTagEvent}>
       <TagPill
         title={title}
         className={joinClassNames("px-3 text-slate-700", className)}

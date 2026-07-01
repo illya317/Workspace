@@ -206,7 +206,7 @@ export function getTagInputShellClassName(className = "") {
 
 export function getTagPillClassName(className = "") {
   return [
-    `inline-flex h-7 max-w-full items-center gap-1 rounded-full border ${FIELD_BORDER_COLOR_CLASS} bg-slate-100 px-2 text-sm font-medium leading-none text-slate-700 shadow-sm`,
+    `inline-flex min-h-7 max-w-full min-w-0 items-center gap-1 rounded-full border ${FIELD_BORDER_COLOR_CLASS} bg-slate-100 px-2 py-1 text-sm font-medium leading-tight text-slate-700 shadow-sm`,
     className,
   ].filter(Boolean).join(" ");
 }

@@ -37,6 +37,9 @@ export interface TagListInputProps<T> {
   itemClassName?: (item: T, index: number) => string | undefined;
   itemTitle?: (item: T, index: number) => string | undefined;
   itemActionLabel?: (item: T, index: number) => string | undefined;
+  /** 长文本 tag 展示方式：truncate 单行省略，wrap 自动换行。 */
+  longTextMode?: "truncate" | "wrap";
+  /** 字符级截断；未传时由 longTextMode 控制，不做字符截断。 */
   maxLength?: number;
   children?: ReactNode;
   append?: ReactNode;
@@ -59,6 +62,7 @@ function EditableTag<T>({
   onUpdateLabel,
   removeConfirmTitle,
   removeLabel,
+  textClassName,
   title,
 }: {
   className?: string;
@@ -76,6 +80,7 @@ function EditableTag<T>({
   removeConfirmTitle?: string;
   removeLabel: string;
   title?: string;
+  textClassName: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [editing, setEditing] = useState(false);
@@ -117,13 +122,13 @@ function EditableTag<T>({
   }
 
   return (
-    <span className="inline-flex" onMouseDown={(event) => event.stopPropagation()} onClick={(event) => event.stopPropagation()}>
+    <span className="inline-flex max-w-full min-w-0" onMouseDown={(event) => event.stopPropagation()} onClick={(event) => event.stopPropagation()}>
       <TagPill
         title={title}
         disabled={disabled}
         maxLength={maxLength}
         className={joinClassNames("px-3 text-slate-700", className)}
-        textClassName="truncate"
+        textClassName={textClassName}
         action={
           !disabled && onRemove ? (
             <TagRemoveButton
@@ -154,7 +159,7 @@ function EditableTag<T>({
             type="button"
             title={title ?? label}
             disabled={disabled}
-            className="block max-w-full truncate text-left disabled:cursor-not-allowed"
+            className={joinClassNames("block max-w-full text-left disabled:cursor-not-allowed", textClassName)}
             onClick={() => setEditing(true)}
           >
             {label}
@@ -185,12 +190,17 @@ export default function TagListInput<T>({
   itemClassName,
   itemTitle,
   itemActionLabel,
-  maxLength,
+  longTextMode = "truncate",
+  maxLength = 0,
   children,
   append,
   className = "",
   shellClassName = "",
 }: TagListInputProps<T>) {
+  const textClassName = longTextMode === "wrap"
+    ? "whitespace-normal break-words"
+    : "truncate whitespace-nowrap";
+
   return (
     <div className={className}>
       <TagInputShell
@@ -227,12 +237,13 @@ export default function TagListInput<T>({
                   aria-label={itemActionLabel?.(item, index) ?? title ?? label}
                   disabled={disabled}
                   onClick={() => void onItemClick(item, index)}
-                  className="rounded-full transition hover:-translate-y-px focus:outline-none focus:ring-2 focus:ring-sky-400 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                  className="max-w-full min-w-0 rounded-full transition hover:-translate-y-px focus:outline-none focus:ring-2 focus:ring-sky-400 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                 >
                   <TagPill
                     title={title}
                     disabled={disabled}
                     maxLength={maxLength}
+                    textClassName={textClassName}
                     className={joinClassNames(
                       "text-slate-800 transition hover:border-sky-300 hover:bg-sky-50",
                       extraClassName,
@@ -260,6 +271,7 @@ export default function TagListInput<T>({
                   confirmOptions={confirmOptions}
                   removeConfirmTitle={removeConfirmTitle}
                   maxLength={maxLength}
+                  textClassName={textClassName}
                   className={extraClassName}
                   onRemove={onRemove}
                   onUpdateLabel={onUpdateLabel}
@@ -279,6 +291,7 @@ export default function TagListInput<T>({
                   confirmMessage={message}
                   confirmOptions={{ title: removeConfirmTitle, ...confirmOptions }}
                   maxLength={maxLength}
+                  textClassName={textClassName}
                   className={extraClassName}
                   onRemove={() => onRemove(item, index)}
                 >
@@ -293,6 +306,7 @@ export default function TagListInput<T>({
                 title={title}
                 disabled={disabled}
                 maxLength={maxLength}
+                textClassName={textClassName}
                 className={extraClassName}
               >
                 {label}
