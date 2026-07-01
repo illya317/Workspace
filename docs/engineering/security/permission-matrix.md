@@ -34,6 +34,7 @@
 | `settings.account` | `visibleResourceKeys` | access（登录用户默认有效） |
 | `settings.admin` | `visibleResourceKeys` | access（任意资源管理员默认有效） |
 | `settings.api` | `visibleResourceKeys` | access（Open API 控制台读取；不代表外部调用权限） |
+| `settings.ui` | `visibleResourceKeys` | access, admin（Core UI 组件库展示页，无服务端 API） |
 | `settings.account.apiAccess` | `visibleResourceKeys` | access（个人 API Key 使用能力） |
 | `settings.api.manage` | `visibleWriteResourceKeys` | access, create, write, delete, revise, admin（Client 创建、secret 轮换、scope 授权；`runtimeParentKey=settings.api`） |
 | `docs` | `visibleResourceKeys` | access（登录用户默认有效，并继承到普通 L2；不包含 capability） |
