@@ -58,9 +58,6 @@ export const RES = {
   library: {
     root: "library",
     basicInfo: "library.basicInfo",
-    write: "library.basicInfo.write",
-    secret: "library.basicInfo.secret",
-    topSecret: "library.basicInfo.topSecret",
   },
   external: {
     root: "external",

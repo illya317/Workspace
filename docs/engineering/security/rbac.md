@@ -51,7 +51,7 @@
   settings.api      access  Open API 接入控制台
 
 settings.account.apiAccess access 个人 API 使用（capability，runtimeParentKey=settings.account）
-  settings.api.manage        create/write/revise  Open API Client 创建、scope 授权、secret 轮换（capability，runtimeParentKey=settings.api）
+  settings.api.manage        write  Open API Client 管理（create/write/revise action，capability，runtimeParentKey=settings.api）
 
 agent               access  智能体（headless）
 
@@ -86,10 +86,10 @@ docs                access  文档中心
 library              write   资料库
   library.basicInfo  write   基本资料
 
-external            delete  外部关系
-  external.investors delete  投资人关系
-  external.customers delete  客户管理
-  external.suppliers delete  供应商管理
+external            access  外部关系
+  external.investors access  投资人关系
+  external.customers access  客户管理
+  external.suppliers access  供应商管理
 
 work                admin   工作管理
   work.projects      admin   项目
