@@ -5,6 +5,7 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import { NodeSelection } from "@tiptap/pm/state";
 import {
   AlignCenter,
+  AlignVerticalJustifyCenter,
   AlignJustify,
   AlignLeft,
   AlignRight,
@@ -55,6 +56,7 @@ import { PageBreakNode } from "./page-break-extension";
 import { DateSlot, FieldSlot, FormulaSlot, SignatureSlot } from "./slot-extensions";
 import { SlotInspector, collectFormulaDisplayTokens, collectReferenceTokens, type SelectedSlot, type SlotAnchor } from "./SlotInspector";
 import { nextAvailableSlotAlias, numberedSlotKind, slotContextLabel } from "./slot-numbering";
+import { cellHasClassName, toggleCellClassName } from "./table-cell-class";
 import type { DocumentEditorCanvasProps, EditorSlotInline, EditorSlotType } from "./types";
 
 const DEFAULT_STICKY_HEADER_OFFSET = 44;
@@ -330,6 +332,7 @@ function renderTableRibbon(editor: NonNullable<ReturnType<typeof useEditor>>, ed
       <ToolbarGroup label="单元格">
         <ToolbarButton label="合并单元格" disabled={disabled} onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).mergeCells().run()}><TableCellsMerge size={16} strokeWidth={1.9} /></ToolbarButton>
         <ToolbarButton label="拆分单元格" disabled={disabled} onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).splitCell().run()}><TableCellsSplit size={16} strokeWidth={1.9} /></ToolbarButton>
+        <ToolbarButton label="单行对齐" active={cellHasClassName(editor, "single-line-cell")} disabled={disabled} onClick={() => toggleCellClassName(editor, "single-line-cell")}><AlignVerticalJustifyCenter size={16} strokeWidth={1.9} /></ToolbarButton>
       </ToolbarGroup>
     </>
   );
@@ -492,8 +495,5 @@ function anchorFromRect(rect: { top: number; left: number; right: number; bottom
   const resolvedTop = preferredTop + SLOT_INSPECTOR_ESTIMATED_HEIGHT <= viewportBottom
     ? preferredTop
     : Math.max(viewportTop, fallbackTop);
-  return {
-    top: resolvedTop,
-    left: resolvedLeft,
-  };
+  return { top: resolvedTop, left: resolvedLeft };
 }
