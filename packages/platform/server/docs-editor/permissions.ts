@@ -11,7 +11,6 @@ import {
 } from "../../permissions";
 import type {
   DocsEditorSpaceRow,
-  DocsEditorTemplateRow,
 } from "./db";
 import type {
   DocsEditorPermissionRole,
@@ -155,7 +154,7 @@ export async function resolveSpaceRole(
 
 export async function resolveTemplateRole(input: {
   userId: number;
-  template: DocsEditorTemplateRow;
+  template: unknown;
   space: DocsEditorSpaceRow | null;
 }): Promise<DocsEditorPermissionRole | null> {
   if (!input.space) return null;

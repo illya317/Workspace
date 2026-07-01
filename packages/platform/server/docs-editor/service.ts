@@ -23,6 +23,7 @@ import {
   type TemplateIdInput,
 } from "./domain/document-template-validation";
 import {
+  getGeneratedQcTemplateMetrics,
   syncGeneratedQcTemplates,
 } from "./generated-qc";
 import {
@@ -50,6 +51,11 @@ type TemplateMetrics = {
   fieldCount?: number;
   formulaCount?: number;
   tableCount?: number;
+};
+
+type DocsEditorTemplateListRow = Omit<DocsEditorTemplateRow, "documentJson" | "fieldModelJson"> & {
+  documentJson?: string;
+  fieldModelJson?: string;
 };
 
 function parseJson(value: string | null | undefined, fallback: unknown) {
@@ -82,7 +88,14 @@ function walkJson(value: unknown, visit: (node: Record<string, unknown>) => void
   Object.values(record).forEach((item) => walkJson(item, visit));
 }
 
-function collectMetrics(template: DocsEditorTemplateRow): TemplateMetrics {
+function collectMetrics(template: DocsEditorTemplateListRow): TemplateMetrics {
+  if (template.sourceKind === "production.qc.official") {
+    const metrics = getGeneratedQcTemplateMetrics(template.sourceProductKey);
+    if (metrics) return metrics;
+  }
+  if (template.documentJson === undefined || template.fieldModelJson === undefined) {
+    return { stageCount: jsonArrayLength(template.sourceStageKeys) };
+  }
   const document = parseJson(template.documentJson, {});
   const fieldModel = parseJson(template.fieldModelJson, {});
   const fieldKeys = new Set<string>();
@@ -135,7 +148,7 @@ function toSpaceDto(space: DocsEditorSpaceRow, role: DocsEditorPermissionRole): 
 }
 
 function toListItemDto(
-  template: DocsEditorTemplateRow,
+  template: DocsEditorTemplateListRow,
   role: DocsEditorPermissionRole,
 ): DocsEditorTemplateListItemDto {
   return {
@@ -299,12 +312,14 @@ export async function listSpaces(input: { userId: number }): Promise<ServiceResu
   return serviceOk(spaces.map(({ space, role }) => toSpaceDto(space, role)));
 }
 
-export async function listTemplates(input: ListTemplatesInput): Promise<ServiceResult<DocsEditorTemplateListItemDto[]>> {
+async function listTemplatesForSpaces(
+  input: ListTemplatesInput,
+  spaces: Awaited<ReturnType<typeof listAccessibleSpaces>>,
+): Promise<ServiceResult<DocsEditorTemplateListItemDto[]>> {
   const command = buildListTemplatesCommand(input);
   if (command.ok === false) return serviceError(command.issue.message, command.issue.status);
 
   const db = docsEditorDb();
-  const spaces = await listAccessibleSpaces(command.data.userId);
   const roleBySpaceId = new Map(spaces.map(({ space, role }) => [space.id, role]));
   const spaceIds = command.data.spaceId ? [command.data.spaceId] : Array.from(roleBySpaceId.keys());
   const templates = await db.documentTemplate.findMany({
@@ -315,7 +330,24 @@ export async function listTemplates(input: ListTemplatesInput): Promise<ServiceR
       spaceId: { in: spaceIds },
     },
     orderBy: { updatedAt: "desc" },
-  });
+    select: {
+      id: true,
+      title: true,
+      type: true,
+      status: true,
+      ownerUserId: true,
+      spaceId: true,
+      sourceKind: true,
+      sourceProductKey: true,
+      sourceStageKeys: true,
+      version: true,
+      createdAt: true,
+      updatedAt: true,
+      deletedAt: true,
+      publishedAt: true,
+      publishedByUserId: true,
+    },
+  }) as DocsEditorTemplateListRow[];
   const spaceRows = await db.documentTemplateSpace.findMany({
     where: { id: { in: Array.from(new Set(templates.map((template) => template.spaceId))) } },
   });
@@ -330,6 +362,11 @@ export async function listTemplates(input: ListTemplatesInput): Promise<ServiceR
     if (role) rows.push(toListItemDto(template, role));
   }
   return serviceOk(rows);
+}
+
+export async function listTemplates(input: ListTemplatesInput): Promise<ServiceResult<DocsEditorTemplateListItemDto[]>> {
+  const spaces = await listAccessibleSpaces(input.userId);
+  return listTemplatesForSpaces(input, spaces);
 }
 
 async function getTemplateWithRole(userId: number, templateId: number, db: DocsEditorDb = docsEditorDb()) {
@@ -467,9 +504,13 @@ export async function deleteDraft(input: TemplateIdInput): Promise<ServiceResult
 }
 
 export async function getEditorBootstrap(input: ListTemplatesInput): Promise<ServiceResult<DocsEditorBootstrapDto>> {
-  const spaces = await listSpaces({ userId: input.userId });
-  if (spaces.ok === false) return serviceError(spaces.error, spaces.status);
-  const templates = await listTemplates(input);
+  const spacesWithRoles = await listAccessibleSpaces(input.userId);
+  const spaces = spacesWithRoles.map(({ space, role }) => toSpaceDto(space, role));
+  const defaultSpaceId = spacesWithRoles[0]?.space.id;
+  const templates = await listTemplatesForSpaces({
+    ...input,
+    spaceId: input.spaceId ?? defaultSpaceId,
+  }, spacesWithRoles);
   if (templates.ok === false) return serviceError(templates.error, templates.status);
-  return serviceOk({ spaces: spaces.data, templates: templates.data });
+  return serviceOk({ spaces, templates: templates.data });
 }

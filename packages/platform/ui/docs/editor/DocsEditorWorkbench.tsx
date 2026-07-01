@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   createEmptySection,
@@ -47,6 +47,7 @@ export default function DocsEditorWorkbench() {
   const [createOpen, setCreateOpen] = useState(false);
   const [createTitle, setCreateTitle] = useState("");
   const [creating, setCreating] = useState(false);
+  const hydratedDefaultSpaceIdRef = useRef<string | null>(null);
 
   const loadBootstrap = useCallback(async (spaceId: string | null) => {
     setLoading(true);
@@ -54,7 +55,11 @@ export default function DocsEditorWorkbench() {
       const data = await fetchEditorBootstrap(spaceId ?? undefined);
       setSpaces(data.spaces);
       setTemplates(data.templates);
-      setActiveSpaceId((current) => current ?? data.spaces[0]?.id ?? null);
+      setActiveSpaceId((current) => {
+        const next = current ?? data.spaces[0]?.id ?? null;
+        if (!spaceId && !current) hydratedDefaultSpaceIdRef.current = next;
+        return next;
+      });
       setMessage(null);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "加载模板编辑器失败");
@@ -64,6 +69,10 @@ export default function DocsEditorWorkbench() {
   }, []);
 
   useEffect(() => {
+    if (activeSpaceId && hydratedDefaultSpaceIdRef.current === activeSpaceId) {
+      hydratedDefaultSpaceIdRef.current = null;
+      return;
+    }
     void loadBootstrap(activeSpaceId);
   }, [activeSpaceId, loadBootstrap]);
 
