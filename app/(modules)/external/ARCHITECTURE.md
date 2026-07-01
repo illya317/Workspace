@@ -45,7 +45,7 @@ model Supplier { ... }
 
 ## 状态
 
-骨架已搭好，Client 组件预留了 state + toolbar 占位，待接 API/service。
+骨架已搭好，当前仅为空状态页面；暂无业务 API、写入动作或工具栏操作。
 
 ## 生命周期标记
 

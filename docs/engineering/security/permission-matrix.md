@@ -18,6 +18,8 @@
 | `finance.cost` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
 | `finance.import` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access (preview), write (confirm) |
 | `administration.contracts` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, admin |
+| `external` | `visibleResourceKeys` | access, admin（占位容器，无业务 API） |
+| `external.investors/customers/suppliers` | `visibleResourceKeys` | access, admin（规划中页面，无业务 API） |
 | `work` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access（登录用户默认有效，并继承到普通 L2；不包含 capability）, write, delete, admin |
 | `work.projects` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin（模块门禁，不放大对象范围） |
 | `work.projects.createOrg` | `visibleWriteResourceKeys` | write（创建运营委员会项目；独立 capability，`runtimeParentKey=work.projects`） |

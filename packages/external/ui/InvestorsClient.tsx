@@ -5,17 +5,6 @@ import { createPageBody, createSectionSection, createStatusSection, PageSurface 
 export default function InvestorsClient() {
   return (
     <PageSurface kind="standard"
-      toolbar={{
-        items: [
-          {
-            kind: "create",
-            key: "add-investor",
-            label: "新增投资人",
-            disabled: true,
-            onClick: () => {},
-          },
-        ],
-      }}
       body={createPageBody([
         createSectionSection("investors", {
           title: "投资人列表",

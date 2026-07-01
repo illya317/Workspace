@@ -47,7 +47,7 @@ export const PERMISSION_RESOURCE_ACTION_POLICIES = [
   { resourceKey: "finance.import", status: "business", supportedActions: ["access", "import", "export", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["import", "export", "admin"] },
   { resourceKey: "production", status: "container", supportedActions: ["access", "create", "write", "delete", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["admin"] },
   { resourceKey: "production.qc", status: "business", supportedActions: ["access", "create", "write", "delete", "submit", "withdraw", "approve", "reject", "archive", "revise", "export", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["submit", "withdraw", "approve", "reject", "archive", "revise", "export", "admin"] },
-  { resourceKey: "external", status: "container", supportedActions: ["access", "create", "write", "delete", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["admin"] },
+  { resourceKey: "external", status: "container", supportedActions: ["access", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["admin"], notes: "External pages are navigation/analysis placeholders until business APIs land." },
   { resourceKey: "external.investors", status: "planned", supportedActions: ["access", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["admin"] },
   { resourceKey: "external.customers", status: "planned", supportedActions: ["access", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["admin"] },
   { resourceKey: "external.suppliers", status: "planned", supportedActions: ["access", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["admin"] },

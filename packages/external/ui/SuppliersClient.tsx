@@ -5,17 +5,6 @@ import { createPageBody, createSectionSection, createStatusSection, PageSurface 
 export default function SuppliersClient() {
   return (
     <PageSurface kind="standard"
-      toolbar={{
-        items: [
-          {
-            kind: "create",
-            key: "add-supplier",
-            label: "新增供应商",
-            disabled: true,
-            onClick: () => {},
-          },
-        ],
-      }}
       body={createPageBody([
         createSectionSection("suppliers", {
           title: "供应商列表",
