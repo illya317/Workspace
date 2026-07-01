@@ -1,6 +1,7 @@
 import "server-only";
 
-import { authorize, type AuthorizeAction } from "@workspace/platform/server/auth";
+import { authorize, evaluatePermissionAction, type AuthorizeAction } from "@workspace/platform/server/auth";
+import type { PermissionActionKey } from "@workspace/platform/permission-actions";
 import { withAuth, type AuthHandler } from "@workspace/platform/server/with-auth";
 
 function withOpenApiConsolePermission(action: AuthorizeAction, handler: AuthHandler) {
@@ -14,13 +15,13 @@ export function withOpenApiConsoleAccess(handler: AuthHandler) {
   return withOpenApiConsolePermission("access", handler);
 }
 
-export function withOpenApiConsoleManage(handler: AuthHandler) {
+export function withOpenApiConsoleManage(handler: AuthHandler, action: PermissionActionKey = "write") {
   return withAuth(
     handler,
     async (userId) => {
       const [canReadConsole, canManageClients] = await Promise.all([
         authorize({ user: userId, resourceKey: "settings.api", action: "access" }),
-        authorize({ user: userId, resourceKey: "settings.api.manage", action: "write" }),
+        evaluatePermissionAction(userId, "settings.api.manage", action),
       ]);
       return canReadConsole && canManageClients;
     },

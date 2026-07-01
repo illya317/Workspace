@@ -22,4 +22,4 @@ export const POST = withOpenApiConsoleManage(async (request, _user, context) => 
   } catch {
     return jsonErrorResponse("Client 不存在", 404);
   }
-});
+}, "revise");

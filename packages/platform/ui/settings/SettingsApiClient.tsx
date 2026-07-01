@@ -289,7 +289,7 @@ export default function SettingsApiClient({
     })] : []),
     ...(freshSecret ? [createSectionSection("fresh-secret", {
       title: "新密钥",
-      actions: [{ key: "hide-secret", label: "隐藏", onClick: () => setFreshSecret(null) }],
+      actions: [{ key: "hide-secret", label: "隐藏", icon: "eye-off", onClick: () => setFreshSecret(null) }],
       sections: [createMessageSection("secret", {
         content: (
           <pre className="whitespace-pre-wrap rounded-md bg-slate-950 p-4 font-mono text-sm text-white">
@@ -315,7 +315,7 @@ export default function SettingsApiClient({
     }),
     createSectionSection("clients", {
       title: "Client",
-      actions: [{ key: "refresh", label: "刷新", onClick: () => loadData(), disabled: loading }],
+      actions: [{ key: "refresh", label: "刷新", icon: "refresh", onClick: () => loadData(), disabled: loading }],
       sections: [
         {
           key: "client-form",
@@ -342,7 +342,7 @@ export default function SettingsApiClient({
                 maxLength: 240,
               },
             ] },
-            commands: [{ key: "create", label: "创建", variant: "primary", onClick: createClient, disabled: busy === "create" || !newClientName.trim() }],
+            commands: [{ key: "create", label: "创建", icon: "add", variant: "primary", onClick: createClient, disabled: busy === "create" || !newClientName.trim() }],
           } },
         },
         {
@@ -365,7 +365,7 @@ export default function SettingsApiClient({
     }),
     createSectionSection("scopes", {
       title: "Scope 授权",
-      actions: [{ key: "save-scopes", label: "保存", onClick: saveScopes, disabled: !selectedClient || busy === `scopes-${selectedClient?.id}` }],
+      actions: [{ key: "save-scopes", label: "保存", icon: "save", onClick: saveScopes, disabled: !selectedClient || busy === `scopes-${selectedClient?.id}` }],
       sections: [createFieldsSection("scope-form", scopeFields, { layout: { columns: 3 } })],
     }),
     createSectionSection("logs", {

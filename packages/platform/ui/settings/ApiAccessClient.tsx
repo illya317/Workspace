@@ -116,17 +116,20 @@ export function useApiAccessSection({
         apiKey ? {
           key: "rotate",
           label: loading ? "申请中..." : "重新申请",
+          icon: "refresh",
           onClick: () => void confirmRotateApiKey(),
           disabled: loading,
         } : {
           key: "create",
           label: loading ? "申请中..." : "申请 Key",
+          icon: "add",
           onClick: () => void rotateApiKey(),
           disabled: loading,
         },
         {
           key: "copy",
           label: copied ? "已复制" : "复制接入信息",
+          icon: "copy",
           variant: "primary",
           onClick: () => void copyConnectionBlock(),
         },

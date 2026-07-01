@@ -30,7 +30,7 @@
 | `settings.admin` | `visibleResourceKeys` | access（任意资源管理员默认有效） |
 | `settings.api` | `visibleResourceKeys` | access（Open API 控制台读取；不代表外部调用权限） |
 | `settings.account.apiAccess` | `visibleResourceKeys` | access（个人 API Key 使用能力） |
-| `settings.api.manage` | `visibleWriteResourceKeys` | write（Client 创建、secret 轮换、scope 授权；`runtimeParentKey=settings.api`） |
+| `settings.api.manage` | `visibleWriteResourceKeys` | access, create, write, delete, revise, admin（Client 创建、secret 轮换、scope 授权；`runtimeParentKey=settings.api`） |
 | `docs` | `visibleResourceKeys` | access（登录用户默认有效，并继承到普通 L2；不包含 capability） |
 | `agent` | `visibleResourceKeys` | access |
 
@@ -135,7 +135,9 @@
 | `/api/modules/work/projects/members*` | GET/POST/PUT/DELETE | `work.projects` 对应动作 + module enabled + 项目对象级管理校验 |
 | `/api/modules/work/projects/reference-options` | GET | FK registration permission + module enabled；项目/会议候选由 Work FK registry adapter 按对象可见性过滤 |
 | `/api/settings/api/open/*` | GET | `settings.api.access` |
-| `/api/settings/api/open/*` | POST/PUT | `settings.api.access` + `settings.api.manage.write` |
+| `/api/settings/api/open/clients` | POST | `settings.api.access` + `settings.api.manage.create` |
+| `/api/settings/api/open/clients/[id]/secret` | POST | `settings.api.access` + `settings.api.manage.revise` |
+| `/api/settings/api/open/clients/[id]/scopes` | PUT | `settings.api.access` + `settings.api.manage.write` |
 
 ## Open API Scope
 

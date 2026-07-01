@@ -26,4 +26,4 @@ export const POST = withOpenApiConsoleManage(async (request) => {
 
   const { client, secret } = await createOpenApiClient(parsed.data);
   return Response.json({ client: toOpenApiClientSummary(client), secret }, { status: 201 });
-});
+}, "create");
