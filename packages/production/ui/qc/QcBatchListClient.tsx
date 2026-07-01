@@ -173,7 +173,7 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
       },
     },
     {
-      kind: "autocomplete",
+      kind: "select",
       key: "product",
       section: "filter",
       value: productFilter,
@@ -185,9 +185,8 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
       placeholder: "全部产品",
     },
     {
-      kind: "select",
+      kind: "page-size",
       key: "page-size",
-      section: "meta",
       value: String(pageSize),
       options: QC_BATCH_PAGE_SIZE_OPTIONS,
       onChange: (value) => {
@@ -197,18 +196,10 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
       label: "分页",
     },
     {
-      kind: "create",
-      key: "create",
-      section: "action",
-      label: createOpen ? "收起新建" : "新建批次",
-      active: createOpen,
-      onClick: () => setCreateOpen((open) => !open),
-    },
-    {
       kind: "action-group",
       key: "batch-actions",
-      section: "action",
       actions: [
+        { key: "create", label: createOpen ? "收起新建" : "新建批次", kind: "add", variant: "primary", onClick: () => setCreateOpen((open) => !open) },
         { key: "refresh", label: "刷新", kind: "refresh", onClick: refreshBatches },
         { key: "export", label: "导出", kind: "download", onClick: exportBatches },
       ],
