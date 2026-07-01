@@ -76,7 +76,8 @@ const departmentFields: FieldConfig[] = [
   { key: "alias", label: "别名", editable: true, hidden: true },
   { key: "level", label: "层级", editable: true, type: "number" },
   { key: "parentId", label: "上级部门", type: "fk", editable: true },
-  { key: "managerUserId", label: "负责人", type: "fk", editable: true },
+  { key: "managerPositionId", label: "负责人岗位", type: "fk", editable: false },
+  { key: "managerName", label: "部门负责人", editable: false },
 ];
 
 export const departmentConfig: TabConfig = {
@@ -86,12 +87,12 @@ export const departmentConfig: TabConfig = {
   fields: departmentFields,
   fkFields: {
     parentId: fk("department", "parentName", "hr.department"),
-    managerUserId: fk("user", "managerName", "platform.user"),
+    managerPositionId: fk("position", "managerPositionName", "hr.department.manager.position"),
   },
   canCreate: true,
   canDelete: true,
   listGetter: (d: unknown) => (d as Record<string, unknown>).departments as unknown[],
-  buildCreateBody: (form) => extractFK(form, ["parentId", "managerUserId"]),
+  buildCreateBody: (form) => extractFK(form, ["parentId", "managerPositionId"]),
   advancedFilters: [
     { key: "department", label: "部门", kind: "text", queryParam: "keyword", placeholder: "输入部门名称或编码" },
   ],

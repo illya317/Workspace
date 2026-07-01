@@ -34,6 +34,10 @@ export interface Department {
   parentId: number | null;
   parentName: string | null;
   managerUserId: number | null;
+  managerUserIds: number[];
+  managerPositionId: number | null;
+  managerPositionName: string | null;
+  managerNames: string[];
   managerName: string | null;
   headcount: number;
   children: { id: number; name: string }[];

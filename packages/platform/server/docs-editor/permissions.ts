@@ -2,6 +2,8 @@ import "server-only";
 
 import { authorize } from "../auth/authorize";
 import { isRootAdminUser } from "../auth/root";
+import { getDepartmentNaturalSpaceRole } from "../business-space-permissions";
+import { currentOpenEndedDateWhere } from "../fk-registry";
 import { prisma } from "../prisma";
 import {
   businessSpaceRoleAllows,
@@ -25,7 +27,7 @@ export type DepartmentContext = {
   id: number;
   name: string;
   code: string;
-  managerUserId: number | null;
+  managerPositionId: number | null;
   isArchived: boolean;
 };
 
@@ -70,36 +72,74 @@ export async function hasDocsEditorAdmin(userId: number) {
 }
 
 export async function getUserDepartmentContexts(userId: number): Promise<DepartmentContext[]> {
-  const employeeIds = await getUserEmployeeIds(userId);
-  if (employeeIds.length === 0) return [];
-  const rows = await prisma.eDP.findMany({
-    where: {
-      employeeId: { in: employeeIds },
-      departmentId: { not: null },
-      department: { isArchived: false },
-    },
-    select: {
-      department: {
-        select: {
-          id: true,
-          name: true,
-          code: true,
-          managerUserId: true,
-          isArchived: true,
+  const [memberRows, managedRows] = await Promise.all([
+    prisma.employee.findMany({
+      where: {
+        userId,
+        employments: { some: { isActive: true } },
+        positions: { some: currentOpenEndedDateWhere({ departmentId: { not: null }, department: { isArchived: false } }) },
+      },
+      select: {
+        positions: {
+          where: currentOpenEndedDateWhere({ departmentId: { not: null }, department: { isArchived: false } }),
+          select: {
+            department: {
+              select: {
+                id: true,
+                name: true,
+                code: true,
+                managerPositionId: true,
+                isArchived: true,
+              },
+            },
+          },
         },
       },
-    },
-  });
+    }),
+    prisma.department.findMany({
+      where: {
+        isArchived: false,
+        managerPosition: {
+          edps: {
+            some: currentOpenEndedDateWhere({
+              employee: {
+                userId,
+                employments: { some: { isActive: true } },
+              },
+            }),
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        code: true,
+        managerPositionId: true,
+        isArchived: true,
+      },
+    }),
+  ]);
   const byId = new Map<number, DepartmentContext>();
-  for (const row of rows) {
-    if (row.department) byId.set(row.department.id, row.department);
+  for (const row of memberRows) {
+    for (const position of row.positions) {
+      if (position.department) byId.set(position.department.id, position.department);
+    }
+  }
+  for (const department of managedRows) {
+    byId.set(department.id, department);
   }
   return Array.from(byId.values());
 }
 
 export async function getAllDepartmentContexts(): Promise<DepartmentContext[]> {
   return prisma.department.findMany({
-    select: { id: true, name: true, code: true, managerUserId: true, isArchived: true },
+    select: {
+      id: true,
+      name: true,
+      code: true,
+      managerPositionId: true,
+      isArchived: true,
+    },
     orderBy: [{ isArchived: "asc" }, { code: "asc" }, { id: "asc" }],
   });
 }
@@ -107,7 +147,7 @@ export async function getAllDepartmentContexts(): Promise<DepartmentContext[]> {
 export async function getDepartmentContext(departmentId: number): Promise<DepartmentContext | null> {
   const department = await prisma.department.findFirst({
     where: { id: departmentId },
-    select: { id: true, name: true, code: true, managerUserId: true, isArchived: true },
+    select: { id: true, name: true, code: true, managerPositionId: true, isArchived: true },
   });
   return department;
 }
@@ -115,24 +155,24 @@ export async function getDepartmentContext(departmentId: number): Promise<Depart
 export async function getQcDepartmentContext(): Promise<DepartmentContext | null> {
   const byCode = await prisma.department.findFirst({
     where: { code: "FUN701", isArchived: false },
-    select: { id: true, name: true, code: true, managerUserId: true, isArchived: true },
+    select: { id: true, name: true, code: true, managerPositionId: true, isArchived: true },
   });
   if (byCode) return byCode;
   return prisma.department.findFirst({
     where: { name: "质量控制部", isArchived: false },
-    select: { id: true, name: true, code: true, managerUserId: true, isArchived: true },
+    select: { id: true, name: true, code: true, managerPositionId: true, isArchived: true },
   });
 }
 
 export async function getHrDepartmentContext(): Promise<DepartmentContext | null> {
   const byCode = await prisma.department.findFirst({
     where: { code: HR_POSITION_DESCRIPTION_DEPARTMENT_CODE, isArchived: false },
-    select: { id: true, name: true, code: true, managerUserId: true, isArchived: true },
+    select: { id: true, name: true, code: true, managerPositionId: true, isArchived: true },
   });
   if (byCode) return byCode;
   return prisma.department.findFirst({
     where: { name: HR_POSITION_DESCRIPTION_DEPARTMENT_NAME, isArchived: false },
-    select: { id: true, name: true, code: true, managerUserId: true, isArchived: true },
+    select: { id: true, name: true, code: true, managerPositionId: true, isArchived: true },
   });
 }
 
@@ -189,11 +229,37 @@ export async function listNaturalDocsEditorManagers(targetType: string, targetId
   if (targetType === "department") {
     const department = await prisma.department.findUnique({
       where: { id: targetId },
-      select: { managerUserId: true },
+      select: {
+        managerPosition: {
+          select: {
+            edps: {
+              where: currentOpenEndedDateWhere({
+                employee: {
+                  userId: { not: null },
+                  employments: { some: { isActive: true } },
+                },
+              }),
+              select: {
+                employee: {
+                  select: {
+                    userId: true,
+                    user: { select: userSelect },
+                  },
+                },
+              },
+              orderBy: [{ isPrimary: "desc" }, { id: "asc" }],
+            },
+          },
+        },
+      },
     });
-    if (!department?.managerUserId) return [];
-    const user = await prisma.user.findUnique({ where: { id: department.managerUserId }, select: userSelect });
-    return user ? [{ userId: user.id, userName: userName(user) }] : [];
+    return (department?.managerPosition?.edps ?? [])
+      .map((edp) => {
+        const user = edp.employee.user;
+        if (!edp.employee.userId || !user) return null;
+        return { userId: edp.employee.userId, userName: userName(user) };
+      })
+      .filter((row): row is { userId: number; userName: string } => Boolean(row));
   }
   return [];
 }
@@ -246,33 +312,10 @@ async function naturalDocsEditorSpaceRole(
   if (await hasDocsEditorAdmin(userId)) return "manager";
 
   if (targetType === "department") {
-    const department = await prisma.department.findUnique({
-      where: { id: targetId },
-      select: { managerUserId: true },
-    });
-    if (department?.managerUserId === userId) return "manager";
-    return await isMemberOfDepartment(userId, targetId) ? "viewer" : null;
+    return asDocsRole(await getDepartmentNaturalSpaceRole(userId, targetId));
   }
 
   return null;
-}
-
-async function isMemberOfDepartment(userId: number, departmentId: number) {
-  const employeeIds = await getUserEmployeeIds(userId);
-  if (employeeIds.length === 0) return false;
-  const edp = await prisma.eDP.findFirst({
-    where: { employeeId: { in: employeeIds }, departmentId },
-    select: { id: true },
-  });
-  return Boolean(edp);
-}
-
-async function getUserEmployeeIds(userId: number) {
-  const employees = await prisma.employee.findMany({
-    where: { userId },
-    select: { id: true },
-  });
-  return employees.map((employee) => employee.id);
 }
 
 const userSelect = {

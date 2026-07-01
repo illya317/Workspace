@@ -26,7 +26,7 @@ export const DepartmentCreateSchema = z.object({
   alias: z.string().optional().nullable(),
   level: z.number().optional().nullable(),
   parentId: z.coerce.number().optional().nullable(),
-  managerUserId: z.coerce.number().optional().nullable(),
+  managerPositionId: z.coerce.number().optional().nullable(),
 });
 
 export const PositionCreateSchema = z.object({

@@ -7,9 +7,10 @@ import {
 import { validateFkValue } from "@workspace/platform/server/fk-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { HR_FK_REGISTRY } from "../fk-registry";
+import { getManagerPositionScopeDepartmentIds } from "../department-manager-positions";
 import { guardDepartmentArchive } from "../reference-guards";
 
-export const DEPARTMENT_ALLOWED_FIELDS = ["code", "name", "alias", "level", "levelLabel", "parentId", "managerUserId", "isArchived", "archivedAt"];
+export const DEPARTMENT_ALLOWED_FIELDS = ["code", "name", "alias", "level", "levelLabel", "parentId", "managerPositionId", "managerUserId", "isArchived", "archivedAt"];
 
 export interface DepartmentCreateInput {
   code?: unknown;
@@ -27,6 +28,7 @@ export interface DepartmentUpdateInput {
   alias?: string | null;
   level?: number;
   parentId?: number | string | null;
+  managerPositionId?: number | string | null;
   managerUserId?: number | string | null;
   isArchived?: boolean;
   archivedAt?: Date | string | null;
@@ -77,6 +79,20 @@ async function validateDepartmentParent(level: number, code: string, parentId: n
 async function validateNullableFk(fkKey: string, value: unknown, requiredLabel: string) {
   const validation = await validateFkValue(HR_FK_REGISTRY, { fkKey, value, requiredLabel });
   return validation.ok ? okCommand(validation.value) : failCommand(validation.error, validation.status);
+}
+
+async function validateManagerPosition(value: unknown, departmentId: number) {
+  const managerPosition = await validateNullableFk("hr.department.manager.position", value, "负责人岗位");
+  if (!managerPosition.ok || managerPosition.data === null) return managerPosition;
+  const position = await prisma.position.findUnique({
+    where: { id: managerPosition.data },
+    select: { departmentId: true },
+  });
+  const scopeDepartmentIds = await getManagerPositionScopeDepartmentIds(departmentId);
+  if (!position?.departmentId || !scopeDepartmentIds.includes(position.departmentId)) {
+    return failCommand("负责人岗位必须属于当前部门及其上下级归属部门", 400);
+  }
+  return managerPosition;
 }
 
 async function hasCyclicParent(id: number, parentId: number | null): Promise<boolean> {
@@ -143,9 +159,13 @@ export async function buildDepartmentFieldUpdateCommand(field: string, value: un
     const parent = await validateNullableFk("hr.department", value, "上级部门");
     return parent.ok ? okCommand({ field, value: parent.data }) : parent;
   }
+  if (field === "managerPositionId") {
+    if (!id) return failCommand("缺少部门ID");
+    const managerPosition = await validateManagerPosition(value, id);
+    return managerPosition.ok ? okCommand({ field, value: managerPosition.data }) : managerPosition;
+  }
   if (field === "managerUserId") {
-    const manager = await validateNullableFk("platform.user", value, "负责人");
-    return manager.ok ? okCommand({ field, value: manager.data }) : manager;
+    return failCommand("部门负责人由负责人岗位自动派生，请维护负责人岗位", 400);
   }
   if (field === "isArchived") {
     const archived = Boolean(value);
@@ -201,10 +221,13 @@ export async function buildDepartmentUpdateCommand(input: DepartmentUpdateInput)
   const parentError = await validateDepartmentParent(level, code, parentId);
   if (parentError) return failCommand(parentError);
 
+  if (input.managerPositionId !== undefined) {
+    const managerPosition = await validateManagerPosition(input.managerPositionId, id);
+    if (!managerPosition.ok) return managerPosition;
+    data.managerPositionId = managerPosition.data;
+  }
   if (input.managerUserId !== undefined) {
-    const manager = await validateNullableFk("platform.user", input.managerUserId, "负责人");
-    if (!manager.ok) return manager;
-    data.managerUserId = manager.data;
+    return failCommand("部门负责人由负责人岗位自动派生，请维护负责人岗位", 400);
   }
   if (input.isArchived !== undefined) {
     const archived = Boolean(input.isArchived);

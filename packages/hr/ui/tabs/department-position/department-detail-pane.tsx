@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, type Dispatch, type SetStateAction } from "react";
-import { createPageBody, createMetricsSection, createEmptySection, createPanelSection, PageSurface, type FormSurfaceItemSpec, type BodySurfaceSectionSpec, type FormSurfaceProps } from "@workspace/core/ui";
+import { createPageBody, createMetricsSection, createEmptySection, createPanelSection, PageSurface, type FormSurfaceItemSpec, type BodySurfaceSectionSpec, type FormSurfaceProps, type ReferenceOption } from "@workspace/core/ui";
 import { departmentCodeEditableSegment } from "./department-code-input";
+import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { departmentDescendantIds, splitAliasText } from "./utils";
 import { useDepartmentDescriptionsSection } from "./department-descriptions-panel";
 import { createDirectPositionPanelSection } from "./navigation-panels";
@@ -158,7 +159,31 @@ export function useDepartmentDetailPaneSection({
         },
       },
     },
-    { kind: "readonly", key: "manager", label: "部门负责人", value: departmentDraft.managerPositionName || "未设置" },
+    {
+      key: "managerPosition",
+      label: "负责人岗位",
+      spec: {
+        valueType: "reference",
+        control: "reference",
+        state: !canEditDepartment ? "disabled" : "normal",
+        options: {
+          source: "remote",
+          fkKey: "hr.department.manager.position",
+          endpoint: HR_REFERENCE_OPTIONS_ENDPOINT,
+          returnField: "id",
+          queryParams: { departmentId: departmentDraft.id },
+        },
+      },
+      value: departmentDraft.managerPositionId == null ? "" : String(departmentDraft.managerPositionId),
+      displayValue: departmentDraft.managerPositionName,
+      placeholder: "搜索负责人岗位",
+      onChange: (value, option) => {
+        const next = option as ReferenceOption | undefined;
+        onUpdateDepartmentDraft("managerPositionId", next?.id ?? (value ? departmentDraft.managerPositionId : null));
+        onUpdateDepartmentDraft("managerPositionName", next?.name ?? (value ? String(value) : ""));
+      },
+    },
+    { kind: "readonly", key: "manager", label: "部门负责人", value: departmentDraft.managerName || "未设置" },
   ] : [];
   const departmentDescriptionsSection = useDepartmentDescriptionsSection({
     drafts: departmentDescriptionDrafts,

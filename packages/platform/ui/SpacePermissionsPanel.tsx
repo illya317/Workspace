@@ -38,6 +38,30 @@ function RoleMatrixCell({ row, role, onClick }: RoleMatrixCellProps) {
   const active = roleAtLeast(row.role, role);
   const locked = row.locked;
   if (locked) {
+    if (!active) {
+      if (roleLevel(role) > roleLevel(row.role)) {
+        return (
+          <button
+            type="button"
+            onClick={onClick}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+            aria-label={`显式授权${businessSpaceRoleLabel(role)}`}
+            title={`显式授权${businessSpaceRoleLabel(role)}`}
+          >
+            <ActionGlyph kind="add" className="h-4 w-4" />
+          </button>
+        );
+      }
+      return (
+        <button
+          type="button"
+          disabled
+          className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-100 bg-slate-50 text-slate-300"
+          aria-label={`未授权${businessSpaceRoleLabel(role)}（天然权限）`}
+          title={`未授权${businessSpaceRoleLabel(role)}（天然权限）`}
+        />
+      );
+    }
     return (
       <button
         type="button"
@@ -246,12 +270,24 @@ export function useSpacePermissionsSections<TTarget>({
           <RoleMatrixCell
             row={row}
             role={role}
-            onClick={() => patchRow(row.userId, { role })}
+            onClick={() => {
+              if (row.locked) {
+                if (roleLevel(role) <= roleLevel(row.role)) return;
+                patchRow(row.userId, {
+                  role,
+                  ...(permissionKind ? { kind: permissionKind } : {}),
+                  source: "explicit",
+                  locked: false,
+                });
+                return;
+              }
+              patchRow(row.userId, { role });
+            }}
           />
         </div>
       ),
     })),
-  ], [patchRow]);
+  ], [patchRow, permissionKind]);
 
   function getPermissionRowActions(row: SpacePermissionRow): SurfaceDataRowActionSpec[] {
     if (row.locked) return [];
@@ -269,7 +305,17 @@ export function useSpacePermissionsSections<TTarget>({
     const existing = rows.find((row) => row.userId === draft.userId);
     if (existing) {
       if (existing.locked) {
-        onToast({ type: "error", message: duplicateText });
+        if (roleLevel(draft.role) <= roleLevel(existing.role)) {
+          onToast({ type: "error", message: duplicateText });
+          return;
+        }
+        patchRow(draft.userId, {
+          role: draft.role,
+          ...(permissionKind ? { kind: permissionKind } : {}),
+          source: "explicit",
+          locked: false,
+        });
+        setDraft({ userId: null, userName: "", role: defaultRole });
         return;
       }
       patchRow(draft.userId, { role: draft.role });
@@ -381,7 +427,7 @@ export function useSpacePermissionsSections<TTarget>({
           rowKey: (row) => row.userId,
           presentation: { density: "compact" },
           loading,
-          emptyText: "暂无额外授权",
+          emptyText: "暂无自然成员或额外授权",
           rowActions: getPermissionRowActions,
           scroll: {},
         },

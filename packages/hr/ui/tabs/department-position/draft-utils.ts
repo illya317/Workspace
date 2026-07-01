@@ -131,14 +131,6 @@ export function createDepartmentDescriptionDraft(department: Department, descrip
   };
 }
 
-export function departmentManagerPositionName(department: Department) {
-  const details = department.descriptions[0]?.details;
-  const basic = details?.["基本信息"];
-  if (!basic || typeof basic !== "object" || Array.isArray(basic)) return "";
-  const raw = (basic as Record<string, unknown>)["负责人"] ?? (basic as Record<string, unknown>)["主管领导"];
-  return typeof raw === "string" ? raw : "";
-}
-
 export function createDepartmentDraft(department: Department): DepartmentDraft {
   return {
     id: department.id,
@@ -147,7 +139,9 @@ export function createDepartmentDraft(department: Department): DepartmentDraft {
     alias: parseAlias(department.alias),
     level: Math.min(Math.max(department.level, 1), 3) as 1 | 2 | 3,
     parentId: department.parentId,
-    managerPositionName: departmentManagerPositionName(department),
+    managerPositionId: department.managerPositionId,
+    managerPositionName: department.managerPositionName || "",
+    managerName: department.managerName || "",
   };
 }
 
@@ -210,13 +204,14 @@ export function departmentDescriptionPayload(draft: DepartmentDescriptionDraft) 
   };
 }
 
-export function sanitizeDepartmentDescriptionDetails(details: string, departmentName: string, managerPositionName: string) {
+export function sanitizeDepartmentDescriptionDetails(details: string, departmentName: string) {
   const parsed = parseDetailsObject(details);
   if (!parsed) return details;
   const basic = parsed["基本信息"] && typeof parsed["基本信息"] === "object" && !Array.isArray(parsed["基本信息"])
     ? parsed["基本信息"] as Record<string, unknown>
     : {};
   const {
+    "负责人": _legacyManager,
     "主管领导": _legacySupervisor,
     "岗位编制": _legacyHeadcount,
     "定编岗位": _legacyFixedPositions,
@@ -227,7 +222,6 @@ export function sanitizeDepartmentDescriptionDetails(details: string, department
     "基本信息": {
       ...restBasic,
       "部门名称": departmentName,
-      "负责人": managerPositionName.trim() || "",
     },
   }, null, 2);
 }
@@ -240,7 +234,7 @@ export function departmentDraftPayload(draft: DepartmentDraft) {
     alias: serializeAlias(draft.alias || ""),
     level: draft.level,
     parentId: draft.parentId,
-    managerPositionName: draft.managerPositionName.trim(),
+    managerPositionId: draft.managerPositionId,
   };
 }
 

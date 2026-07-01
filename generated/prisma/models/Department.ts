@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Department
- * 部门树（含层级关系与负责人）
+ * 部门树（含层级关系与负责人岗位）
  */
 export type DepartmentModel = runtime.Types.Result.DefaultSelection<Prisma.$DepartmentPayload>
 
@@ -31,6 +31,7 @@ export type DepartmentAvgAggregateOutputType = {
   level: number | null
   parentId: number | null
   managerUserId: number | null
+  managerPositionId: number | null
   editedBy: number | null
   version: number | null
 }
@@ -40,6 +41,7 @@ export type DepartmentSumAggregateOutputType = {
   level: number | null
   parentId: number | null
   managerUserId: number | null
+  managerPositionId: number | null
   editedBy: number | null
   version: number | null
 }
@@ -52,6 +54,7 @@ export type DepartmentMinAggregateOutputType = {
   level: number | null
   parentId: number | null
   managerUserId: number | null
+  managerPositionId: number | null
   isArchived: boolean | null
   archivedAt: Date | null
   endDate: Date | null
@@ -68,6 +71,7 @@ export type DepartmentMaxAggregateOutputType = {
   level: number | null
   parentId: number | null
   managerUserId: number | null
+  managerPositionId: number | null
   isArchived: boolean | null
   archivedAt: Date | null
   endDate: Date | null
@@ -84,6 +88,7 @@ export type DepartmentCountAggregateOutputType = {
   level: number
   parentId: number
   managerUserId: number
+  managerPositionId: number
   isArchived: number
   archivedAt: number
   endDate: number
@@ -99,6 +104,7 @@ export type DepartmentAvgAggregateInputType = {
   level?: true
   parentId?: true
   managerUserId?: true
+  managerPositionId?: true
   editedBy?: true
   version?: true
 }
@@ -108,6 +114,7 @@ export type DepartmentSumAggregateInputType = {
   level?: true
   parentId?: true
   managerUserId?: true
+  managerPositionId?: true
   editedBy?: true
   version?: true
 }
@@ -120,6 +127,7 @@ export type DepartmentMinAggregateInputType = {
   level?: true
   parentId?: true
   managerUserId?: true
+  managerPositionId?: true
   isArchived?: true
   archivedAt?: true
   endDate?: true
@@ -136,6 +144,7 @@ export type DepartmentMaxAggregateInputType = {
   level?: true
   parentId?: true
   managerUserId?: true
+  managerPositionId?: true
   isArchived?: true
   archivedAt?: true
   endDate?: true
@@ -152,6 +161,7 @@ export type DepartmentCountAggregateInputType = {
   level?: true
   parentId?: true
   managerUserId?: true
+  managerPositionId?: true
   isArchived?: true
   archivedAt?: true
   endDate?: true
@@ -255,6 +265,7 @@ export type DepartmentGroupByOutputType = {
   level: number
   parentId: number | null
   managerUserId: number | null
+  managerPositionId: number | null
   isArchived: boolean
   archivedAt: Date | null
   endDate: Date | null
@@ -294,6 +305,7 @@ export type DepartmentWhereInput = {
   level?: Prisma.IntFilter<"Department"> | number
   parentId?: Prisma.IntNullableFilter<"Department"> | number | null
   managerUserId?: Prisma.IntNullableFilter<"Department"> | number | null
+  managerPositionId?: Prisma.IntNullableFilter<"Department"> | number | null
   isArchived?: Prisma.BoolFilter<"Department"> | boolean
   archivedAt?: Prisma.DateTimeNullableFilter<"Department"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"Department"> | Date | string | null
@@ -301,6 +313,7 @@ export type DepartmentWhereInput = {
   editedAt?: Prisma.DateTimeNullableFilter<"Department"> | Date | string | null
   version?: Prisma.IntFilter<"Department"> | number
   manager?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  managerPosition?: Prisma.XOR<Prisma.PositionNullableScalarRelationFilter, Prisma.PositionWhereInput> | null
   parent?: Prisma.XOR<Prisma.DepartmentNullableScalarRelationFilter, Prisma.DepartmentWhereInput> | null
   children?: Prisma.DepartmentListRelationFilter
   descriptions?: Prisma.DepartmentDescriptionListRelationFilter
@@ -319,6 +332,7 @@ export type DepartmentOrderByWithRelationInput = {
   level?: Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
   managerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  managerPositionId?: Prisma.SortOrderInput | Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -326,6 +340,7 @@ export type DepartmentOrderByWithRelationInput = {
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
   manager?: Prisma.UserOrderByWithRelationInput
+  managerPosition?: Prisma.PositionOrderByWithRelationInput
   parent?: Prisma.DepartmentOrderByWithRelationInput
   children?: Prisma.DepartmentOrderByRelationAggregateInput
   descriptions?: Prisma.DepartmentDescriptionOrderByRelationAggregateInput
@@ -347,6 +362,7 @@ export type DepartmentWhereUniqueInput = Prisma.AtLeast<{
   level?: Prisma.IntFilter<"Department"> | number
   parentId?: Prisma.IntNullableFilter<"Department"> | number | null
   managerUserId?: Prisma.IntNullableFilter<"Department"> | number | null
+  managerPositionId?: Prisma.IntNullableFilter<"Department"> | number | null
   isArchived?: Prisma.BoolFilter<"Department"> | boolean
   archivedAt?: Prisma.DateTimeNullableFilter<"Department"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"Department"> | Date | string | null
@@ -354,6 +370,7 @@ export type DepartmentWhereUniqueInput = Prisma.AtLeast<{
   editedAt?: Prisma.DateTimeNullableFilter<"Department"> | Date | string | null
   version?: Prisma.IntFilter<"Department"> | number
   manager?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  managerPosition?: Prisma.XOR<Prisma.PositionNullableScalarRelationFilter, Prisma.PositionWhereInput> | null
   parent?: Prisma.XOR<Prisma.DepartmentNullableScalarRelationFilter, Prisma.DepartmentWhereInput> | null
   children?: Prisma.DepartmentListRelationFilter
   descriptions?: Prisma.DepartmentDescriptionListRelationFilter
@@ -372,6 +389,7 @@ export type DepartmentOrderByWithAggregationInput = {
   level?: Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
   managerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  managerPositionId?: Prisma.SortOrderInput | Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -396,6 +414,7 @@ export type DepartmentScalarWhereWithAggregatesInput = {
   level?: Prisma.IntWithAggregatesFilter<"Department"> | number
   parentId?: Prisma.IntNullableWithAggregatesFilter<"Department"> | number | null
   managerUserId?: Prisma.IntNullableWithAggregatesFilter<"Department"> | number | null
+  managerPositionId?: Prisma.IntNullableWithAggregatesFilter<"Department"> | number | null
   isArchived?: Prisma.BoolWithAggregatesFilter<"Department"> | boolean
   archivedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Department"> | Date | string | null
   endDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Department"> | Date | string | null
@@ -416,6 +435,7 @@ export type DepartmentCreateInput = {
   editedAt?: Date | string | null
   version?: number
   manager?: Prisma.UserCreateNestedOneWithoutManagedDepartmentsInput
+  managerPosition?: Prisma.PositionCreateNestedOneWithoutManagedDepartmentsInput
   parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
@@ -434,6 +454,7 @@ export type DepartmentUncheckedCreateInput = {
   level?: number
   parentId?: number | null
   managerUserId?: number | null
+  managerPositionId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
   endDate?: Date | string | null
@@ -461,6 +482,7 @@ export type DepartmentUpdateInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   manager?: Prisma.UserUpdateOneWithoutManagedDepartmentsNestedInput
+  managerPosition?: Prisma.PositionUpdateOneWithoutManagedDepartmentsNestedInput
   parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
@@ -479,6 +501,7 @@ export type DepartmentUncheckedUpdateInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   managerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -502,6 +525,7 @@ export type DepartmentCreateManyInput = {
   level?: number
   parentId?: number | null
   managerUserId?: number | null
+  managerPositionId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
   endDate?: Date | string | null
@@ -531,6 +555,7 @@ export type DepartmentUncheckedUpdateManyInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   managerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -567,6 +592,7 @@ export type DepartmentCountOrderByAggregateInput = {
   level?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   managerUserId?: Prisma.SortOrder
+  managerPositionId?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
@@ -580,6 +606,7 @@ export type DepartmentAvgOrderByAggregateInput = {
   level?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   managerUserId?: Prisma.SortOrder
+  managerPositionId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -592,6 +619,7 @@ export type DepartmentMaxOrderByAggregateInput = {
   level?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   managerUserId?: Prisma.SortOrder
+  managerPositionId?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
@@ -608,6 +636,7 @@ export type DepartmentMinOrderByAggregateInput = {
   level?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   managerUserId?: Prisma.SortOrder
+  managerPositionId?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
@@ -621,6 +650,7 @@ export type DepartmentSumOrderByAggregateInput = {
   level?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   managerUserId?: Prisma.SortOrder
+  managerPositionId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -759,6 +789,20 @@ export type DepartmentCreateNestedOneWithoutPositionsInput = {
   connect?: Prisma.DepartmentWhereUniqueInput
 }
 
+export type DepartmentCreateNestedManyWithoutManagerPositionInput = {
+  create?: Prisma.XOR<Prisma.DepartmentCreateWithoutManagerPositionInput, Prisma.DepartmentUncheckedCreateWithoutManagerPositionInput> | Prisma.DepartmentCreateWithoutManagerPositionInput[] | Prisma.DepartmentUncheckedCreateWithoutManagerPositionInput[]
+  connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutManagerPositionInput | Prisma.DepartmentCreateOrConnectWithoutManagerPositionInput[]
+  createMany?: Prisma.DepartmentCreateManyManagerPositionInputEnvelope
+  connect?: Prisma.DepartmentWhereUniqueInput | Prisma.DepartmentWhereUniqueInput[]
+}
+
+export type DepartmentUncheckedCreateNestedManyWithoutManagerPositionInput = {
+  create?: Prisma.XOR<Prisma.DepartmentCreateWithoutManagerPositionInput, Prisma.DepartmentUncheckedCreateWithoutManagerPositionInput> | Prisma.DepartmentCreateWithoutManagerPositionInput[] | Prisma.DepartmentUncheckedCreateWithoutManagerPositionInput[]
+  connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutManagerPositionInput | Prisma.DepartmentCreateOrConnectWithoutManagerPositionInput[]
+  createMany?: Prisma.DepartmentCreateManyManagerPositionInputEnvelope
+  connect?: Prisma.DepartmentWhereUniqueInput | Prisma.DepartmentWhereUniqueInput[]
+}
+
 export type DepartmentUpdateOneWithoutPositionsNestedInput = {
   create?: Prisma.XOR<Prisma.DepartmentCreateWithoutPositionsInput, Prisma.DepartmentUncheckedCreateWithoutPositionsInput>
   connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutPositionsInput
@@ -767,6 +811,34 @@ export type DepartmentUpdateOneWithoutPositionsNestedInput = {
   delete?: Prisma.DepartmentWhereInput | boolean
   connect?: Prisma.DepartmentWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.DepartmentUpdateToOneWithWhereWithoutPositionsInput, Prisma.DepartmentUpdateWithoutPositionsInput>, Prisma.DepartmentUncheckedUpdateWithoutPositionsInput>
+}
+
+export type DepartmentUpdateManyWithoutManagerPositionNestedInput = {
+  create?: Prisma.XOR<Prisma.DepartmentCreateWithoutManagerPositionInput, Prisma.DepartmentUncheckedCreateWithoutManagerPositionInput> | Prisma.DepartmentCreateWithoutManagerPositionInput[] | Prisma.DepartmentUncheckedCreateWithoutManagerPositionInput[]
+  connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutManagerPositionInput | Prisma.DepartmentCreateOrConnectWithoutManagerPositionInput[]
+  upsert?: Prisma.DepartmentUpsertWithWhereUniqueWithoutManagerPositionInput | Prisma.DepartmentUpsertWithWhereUniqueWithoutManagerPositionInput[]
+  createMany?: Prisma.DepartmentCreateManyManagerPositionInputEnvelope
+  set?: Prisma.DepartmentWhereUniqueInput | Prisma.DepartmentWhereUniqueInput[]
+  disconnect?: Prisma.DepartmentWhereUniqueInput | Prisma.DepartmentWhereUniqueInput[]
+  delete?: Prisma.DepartmentWhereUniqueInput | Prisma.DepartmentWhereUniqueInput[]
+  connect?: Prisma.DepartmentWhereUniqueInput | Prisma.DepartmentWhereUniqueInput[]
+  update?: Prisma.DepartmentUpdateWithWhereUniqueWithoutManagerPositionInput | Prisma.DepartmentUpdateWithWhereUniqueWithoutManagerPositionInput[]
+  updateMany?: Prisma.DepartmentUpdateManyWithWhereWithoutManagerPositionInput | Prisma.DepartmentUpdateManyWithWhereWithoutManagerPositionInput[]
+  deleteMany?: Prisma.DepartmentScalarWhereInput | Prisma.DepartmentScalarWhereInput[]
+}
+
+export type DepartmentUncheckedUpdateManyWithoutManagerPositionNestedInput = {
+  create?: Prisma.XOR<Prisma.DepartmentCreateWithoutManagerPositionInput, Prisma.DepartmentUncheckedCreateWithoutManagerPositionInput> | Prisma.DepartmentCreateWithoutManagerPositionInput[] | Prisma.DepartmentUncheckedCreateWithoutManagerPositionInput[]
+  connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutManagerPositionInput | Prisma.DepartmentCreateOrConnectWithoutManagerPositionInput[]
+  upsert?: Prisma.DepartmentUpsertWithWhereUniqueWithoutManagerPositionInput | Prisma.DepartmentUpsertWithWhereUniqueWithoutManagerPositionInput[]
+  createMany?: Prisma.DepartmentCreateManyManagerPositionInputEnvelope
+  set?: Prisma.DepartmentWhereUniqueInput | Prisma.DepartmentWhereUniqueInput[]
+  disconnect?: Prisma.DepartmentWhereUniqueInput | Prisma.DepartmentWhereUniqueInput[]
+  delete?: Prisma.DepartmentWhereUniqueInput | Prisma.DepartmentWhereUniqueInput[]
+  connect?: Prisma.DepartmentWhereUniqueInput | Prisma.DepartmentWhereUniqueInput[]
+  update?: Prisma.DepartmentUpdateWithWhereUniqueWithoutManagerPositionInput | Prisma.DepartmentUpdateWithWhereUniqueWithoutManagerPositionInput[]
+  updateMany?: Prisma.DepartmentUpdateManyWithWhereWithoutManagerPositionInput | Prisma.DepartmentUpdateManyWithWhereWithoutManagerPositionInput[]
+  deleteMany?: Prisma.DepartmentScalarWhereInput | Prisma.DepartmentScalarWhereInput[]
 }
 
 export type DepartmentCreateNestedOneWithoutEdpsInput = {
@@ -826,6 +898,7 @@ export type DepartmentCreateWithoutManagerInput = {
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
+  managerPosition?: Prisma.PositionCreateNestedOneWithoutManagedDepartmentsInput
   parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
@@ -843,6 +916,7 @@ export type DepartmentUncheckedCreateWithoutManagerInput = {
   alias?: string | null
   level?: number
   parentId?: number | null
+  managerPositionId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
   endDate?: Date | string | null
@@ -894,6 +968,7 @@ export type DepartmentScalarWhereInput = {
   level?: Prisma.IntFilter<"Department"> | number
   parentId?: Prisma.IntNullableFilter<"Department"> | number | null
   managerUserId?: Prisma.IntNullableFilter<"Department"> | number | null
+  managerPositionId?: Prisma.IntNullableFilter<"Department"> | number | null
   isArchived?: Prisma.BoolFilter<"Department"> | boolean
   archivedAt?: Prisma.DateTimeNullableFilter<"Department"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"Department"> | Date | string | null
@@ -914,6 +989,7 @@ export type DepartmentCreateWithoutResourceRolesInput = {
   editedAt?: Date | string | null
   version?: number
   manager?: Prisma.UserCreateNestedOneWithoutManagedDepartmentsInput
+  managerPosition?: Prisma.PositionCreateNestedOneWithoutManagedDepartmentsInput
   parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
@@ -931,6 +1007,7 @@ export type DepartmentUncheckedCreateWithoutResourceRolesInput = {
   level?: number
   parentId?: number | null
   managerUserId?: number | null
+  managerPositionId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
   endDate?: Date | string | null
@@ -973,6 +1050,7 @@ export type DepartmentUpdateWithoutResourceRolesInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   manager?: Prisma.UserUpdateOneWithoutManagedDepartmentsNestedInput
+  managerPosition?: Prisma.PositionUpdateOneWithoutManagedDepartmentsNestedInput
   parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
@@ -990,6 +1068,7 @@ export type DepartmentUncheckedUpdateWithoutResourceRolesInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   managerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1016,6 +1095,7 @@ export type DepartmentCreateWithoutDescriptionsInput = {
   editedAt?: Date | string | null
   version?: number
   manager?: Prisma.UserCreateNestedOneWithoutManagedDepartmentsInput
+  managerPosition?: Prisma.PositionCreateNestedOneWithoutManagedDepartmentsInput
   parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   resourceRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutDepartmentInput
@@ -1033,6 +1113,7 @@ export type DepartmentUncheckedCreateWithoutDescriptionsInput = {
   level?: number
   parentId?: number | null
   managerUserId?: number | null
+  managerPositionId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
   endDate?: Date | string | null
@@ -1075,6 +1156,7 @@ export type DepartmentUpdateWithoutDescriptionsInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   manager?: Prisma.UserUpdateOneWithoutManagedDepartmentsNestedInput
+  managerPosition?: Prisma.PositionUpdateOneWithoutManagedDepartmentsNestedInput
   parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutDepartmentNestedInput
@@ -1092,6 +1174,7 @@ export type DepartmentUncheckedUpdateWithoutDescriptionsInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   managerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1118,6 +1201,7 @@ export type DepartmentCreateWithoutChildrenInput = {
   editedAt?: Date | string | null
   version?: number
   manager?: Prisma.UserCreateNestedOneWithoutManagedDepartmentsInput
+  managerPosition?: Prisma.PositionCreateNestedOneWithoutManagedDepartmentsInput
   parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutDepartmentInput
@@ -1135,6 +1219,7 @@ export type DepartmentUncheckedCreateWithoutChildrenInput = {
   level?: number
   parentId?: number | null
   managerUserId?: number | null
+  managerPositionId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
   endDate?: Date | string | null
@@ -1166,6 +1251,7 @@ export type DepartmentCreateWithoutParentInput = {
   editedAt?: Date | string | null
   version?: number
   manager?: Prisma.UserCreateNestedOneWithoutManagedDepartmentsInput
+  managerPosition?: Prisma.PositionCreateNestedOneWithoutManagedDepartmentsInput
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutDepartmentInput
@@ -1182,6 +1268,7 @@ export type DepartmentUncheckedCreateWithoutParentInput = {
   alias?: string | null
   level?: number
   managerUserId?: number | null
+  managerPositionId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
   endDate?: Date | string | null
@@ -1229,6 +1316,7 @@ export type DepartmentUpdateWithoutChildrenInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   manager?: Prisma.UserUpdateOneWithoutManagedDepartmentsNestedInput
+  managerPosition?: Prisma.PositionUpdateOneWithoutManagedDepartmentsNestedInput
   parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutDepartmentNestedInput
@@ -1246,6 +1334,7 @@ export type DepartmentUncheckedUpdateWithoutChildrenInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   managerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1288,6 +1377,7 @@ export type DepartmentCreateWithoutPositionsInput = {
   editedAt?: Date | string | null
   version?: number
   manager?: Prisma.UserCreateNestedOneWithoutManagedDepartmentsInput
+  managerPosition?: Prisma.PositionCreateNestedOneWithoutManagedDepartmentsInput
   parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
@@ -1298,6 +1388,56 @@ export type DepartmentCreateWithoutPositionsInput = {
 }
 
 export type DepartmentUncheckedCreateWithoutPositionsInput = {
+  id?: number
+  code: string
+  name: string
+  alias?: string | null
+  level?: number
+  parentId?: number | null
+  managerUserId?: number | null
+  managerPositionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  children?: Prisma.DepartmentUncheckedCreateNestedManyWithoutParentInput
+  descriptions?: Prisma.DepartmentDescriptionUncheckedCreateNestedManyWithoutDepartmentInput
+  resourceRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutDepartmentInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
+  leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
+  edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
+}
+
+export type DepartmentCreateOrConnectWithoutPositionsInput = {
+  where: Prisma.DepartmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.DepartmentCreateWithoutPositionsInput, Prisma.DepartmentUncheckedCreateWithoutPositionsInput>
+}
+
+export type DepartmentCreateWithoutManagerPositionInput = {
+  code: string
+  name: string
+  alias?: string | null
+  level?: number
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  manager?: Prisma.UserCreateNestedOneWithoutManagedDepartmentsInput
+  parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
+  children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
+  descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
+  resourceRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutDepartmentInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutDepartmentInput
+  leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
+  edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
+  positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
+}
+
+export type DepartmentUncheckedCreateWithoutManagerPositionInput = {
   id?: number
   code: string
   name: string
@@ -1317,11 +1457,16 @@ export type DepartmentUncheckedCreateWithoutPositionsInput = {
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
+  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
 }
 
-export type DepartmentCreateOrConnectWithoutPositionsInput = {
+export type DepartmentCreateOrConnectWithoutManagerPositionInput = {
   where: Prisma.DepartmentWhereUniqueInput
-  create: Prisma.XOR<Prisma.DepartmentCreateWithoutPositionsInput, Prisma.DepartmentUncheckedCreateWithoutPositionsInput>
+  create: Prisma.XOR<Prisma.DepartmentCreateWithoutManagerPositionInput, Prisma.DepartmentUncheckedCreateWithoutManagerPositionInput>
+}
+
+export type DepartmentCreateManyManagerPositionInputEnvelope = {
+  data: Prisma.DepartmentCreateManyManagerPositionInput | Prisma.DepartmentCreateManyManagerPositionInput[]
 }
 
 export type DepartmentUpsertWithoutPositionsInput = {
@@ -1347,6 +1492,7 @@ export type DepartmentUpdateWithoutPositionsInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   manager?: Prisma.UserUpdateOneWithoutManagedDepartmentsNestedInput
+  managerPosition?: Prisma.PositionUpdateOneWithoutManagedDepartmentsNestedInput
   parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
@@ -1364,6 +1510,7 @@ export type DepartmentUncheckedUpdateWithoutPositionsInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   managerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1378,6 +1525,22 @@ export type DepartmentUncheckedUpdateWithoutPositionsInput = {
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
+export type DepartmentUpsertWithWhereUniqueWithoutManagerPositionInput = {
+  where: Prisma.DepartmentWhereUniqueInput
+  update: Prisma.XOR<Prisma.DepartmentUpdateWithoutManagerPositionInput, Prisma.DepartmentUncheckedUpdateWithoutManagerPositionInput>
+  create: Prisma.XOR<Prisma.DepartmentCreateWithoutManagerPositionInput, Prisma.DepartmentUncheckedCreateWithoutManagerPositionInput>
+}
+
+export type DepartmentUpdateWithWhereUniqueWithoutManagerPositionInput = {
+  where: Prisma.DepartmentWhereUniqueInput
+  data: Prisma.XOR<Prisma.DepartmentUpdateWithoutManagerPositionInput, Prisma.DepartmentUncheckedUpdateWithoutManagerPositionInput>
+}
+
+export type DepartmentUpdateManyWithWhereWithoutManagerPositionInput = {
+  where: Prisma.DepartmentScalarWhereInput
+  data: Prisma.XOR<Prisma.DepartmentUpdateManyMutationInput, Prisma.DepartmentUncheckedUpdateManyWithoutManagerPositionInput>
+}
+
 export type DepartmentCreateWithoutEdpsInput = {
   code: string
   name: string
@@ -1390,6 +1553,7 @@ export type DepartmentCreateWithoutEdpsInput = {
   editedAt?: Date | string | null
   version?: number
   manager?: Prisma.UserCreateNestedOneWithoutManagedDepartmentsInput
+  managerPosition?: Prisma.PositionCreateNestedOneWithoutManagedDepartmentsInput
   parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
@@ -1407,6 +1571,7 @@ export type DepartmentUncheckedCreateWithoutEdpsInput = {
   level?: number
   parentId?: number | null
   managerUserId?: number | null
+  managerPositionId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
   endDate?: Date | string | null
@@ -1449,6 +1614,7 @@ export type DepartmentUpdateWithoutEdpsInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   manager?: Prisma.UserUpdateOneWithoutManagedDepartmentsNestedInput
+  managerPosition?: Prisma.PositionUpdateOneWithoutManagedDepartmentsNestedInput
   parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
@@ -1466,6 +1632,7 @@ export type DepartmentUncheckedUpdateWithoutEdpsInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   managerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1492,6 +1659,7 @@ export type DepartmentCreateWithoutLeadingProjectsInput = {
   editedAt?: Date | string | null
   version?: number
   manager?: Prisma.UserCreateNestedOneWithoutManagedDepartmentsInput
+  managerPosition?: Prisma.PositionCreateNestedOneWithoutManagedDepartmentsInput
   parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
@@ -1509,6 +1677,7 @@ export type DepartmentUncheckedCreateWithoutLeadingProjectsInput = {
   level?: number
   parentId?: number | null
   managerUserId?: number | null
+  managerPositionId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
   endDate?: Date | string | null
@@ -1551,6 +1720,7 @@ export type DepartmentUpdateWithoutLeadingProjectsInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   manager?: Prisma.UserUpdateOneWithoutManagedDepartmentsNestedInput
+  managerPosition?: Prisma.PositionUpdateOneWithoutManagedDepartmentsNestedInput
   parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
@@ -1568,6 +1738,7 @@ export type DepartmentUncheckedUpdateWithoutLeadingProjectsInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   managerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1594,6 +1765,7 @@ export type DepartmentCreateWithoutWorkAssigneesInput = {
   editedAt?: Date | string | null
   version?: number
   manager?: Prisma.UserCreateNestedOneWithoutManagedDepartmentsInput
+  managerPosition?: Prisma.PositionCreateNestedOneWithoutManagedDepartmentsInput
   parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
@@ -1611,6 +1783,7 @@ export type DepartmentUncheckedCreateWithoutWorkAssigneesInput = {
   level?: number
   parentId?: number | null
   managerUserId?: number | null
+  managerPositionId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
   endDate?: Date | string | null
@@ -1653,6 +1826,7 @@ export type DepartmentUpdateWithoutWorkAssigneesInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   manager?: Prisma.UserUpdateOneWithoutManagedDepartmentsNestedInput
+  managerPosition?: Prisma.PositionUpdateOneWithoutManagedDepartmentsNestedInput
   parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
@@ -1670,6 +1844,7 @@ export type DepartmentUncheckedUpdateWithoutWorkAssigneesInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   managerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1691,6 +1866,7 @@ export type DepartmentCreateManyManagerInput = {
   alias?: string | null
   level?: number
   parentId?: number | null
+  managerPositionId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
   endDate?: Date | string | null
@@ -1710,6 +1886,7 @@ export type DepartmentUpdateWithoutManagerInput = {
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  managerPosition?: Prisma.PositionUpdateOneWithoutManagedDepartmentsNestedInput
   parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
@@ -1727,6 +1904,7 @@ export type DepartmentUncheckedUpdateWithoutManagerInput = {
   alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   level?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1749,6 +1927,7 @@ export type DepartmentUncheckedUpdateManyWithoutManagerInput = {
   alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   level?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1764,6 +1943,7 @@ export type DepartmentCreateManyParentInput = {
   alias?: string | null
   level?: number
   managerUserId?: number | null
+  managerPositionId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
   endDate?: Date | string | null
@@ -1784,6 +1964,7 @@ export type DepartmentUpdateWithoutParentInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   manager?: Prisma.UserUpdateOneWithoutManagedDepartmentsNestedInput
+  managerPosition?: Prisma.PositionUpdateOneWithoutManagedDepartmentsNestedInput
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutDepartmentNestedInput
@@ -1800,6 +1981,7 @@ export type DepartmentUncheckedUpdateWithoutParentInput = {
   alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   level?: Prisma.IntFieldUpdateOperationsInput | number
   managerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1821,6 +2003,84 @@ export type DepartmentUncheckedUpdateManyWithoutParentInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   level?: Prisma.IntFieldUpdateOperationsInput | number
+  managerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type DepartmentCreateManyManagerPositionInput = {
+  id?: number
+  code: string
+  name: string
+  alias?: string | null
+  level?: number
+  parentId?: number | null
+  managerUserId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+}
+
+export type DepartmentUpdateWithoutManagerPositionInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  manager?: Prisma.UserUpdateOneWithoutManagedDepartmentsNestedInput
+  parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
+  descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
+  resourceRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutDepartmentNestedInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutDepartmentNestedInput
+  leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
+  edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
+  positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
+}
+
+export type DepartmentUncheckedUpdateWithoutManagerPositionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
+  descriptions?: Prisma.DepartmentDescriptionUncheckedUpdateManyWithoutDepartmentNestedInput
+  resourceRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutDepartmentNestedInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
+  leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
+  edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
+  positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
+}
+
+export type DepartmentUncheckedUpdateManyWithoutManagerPositionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   managerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1923,6 +2183,7 @@ export type DepartmentSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   level?: boolean
   parentId?: boolean
   managerUserId?: boolean
+  managerPositionId?: boolean
   isArchived?: boolean
   archivedAt?: boolean
   endDate?: boolean
@@ -1930,6 +2191,7 @@ export type DepartmentSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   editedAt?: boolean
   version?: boolean
   manager?: boolean | Prisma.Department$managerArgs<ExtArgs>
+  managerPosition?: boolean | Prisma.Department$managerPositionArgs<ExtArgs>
   parent?: boolean | Prisma.Department$parentArgs<ExtArgs>
   children?: boolean | Prisma.Department$childrenArgs<ExtArgs>
   descriptions?: boolean | Prisma.Department$descriptionsArgs<ExtArgs>
@@ -1949,6 +2211,7 @@ export type DepartmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   level?: boolean
   parentId?: boolean
   managerUserId?: boolean
+  managerPositionId?: boolean
   isArchived?: boolean
   archivedAt?: boolean
   endDate?: boolean
@@ -1956,6 +2219,7 @@ export type DepartmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   editedAt?: boolean
   version?: boolean
   manager?: boolean | Prisma.Department$managerArgs<ExtArgs>
+  managerPosition?: boolean | Prisma.Department$managerPositionArgs<ExtArgs>
   parent?: boolean | Prisma.Department$parentArgs<ExtArgs>
 }, ExtArgs["result"]["department"]>
 
@@ -1967,6 +2231,7 @@ export type DepartmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   level?: boolean
   parentId?: boolean
   managerUserId?: boolean
+  managerPositionId?: boolean
   isArchived?: boolean
   archivedAt?: boolean
   endDate?: boolean
@@ -1974,6 +2239,7 @@ export type DepartmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   editedAt?: boolean
   version?: boolean
   manager?: boolean | Prisma.Department$managerArgs<ExtArgs>
+  managerPosition?: boolean | Prisma.Department$managerPositionArgs<ExtArgs>
   parent?: boolean | Prisma.Department$parentArgs<ExtArgs>
 }, ExtArgs["result"]["department"]>
 
@@ -1985,6 +2251,7 @@ export type DepartmentSelectScalar = {
   level?: boolean
   parentId?: boolean
   managerUserId?: boolean
+  managerPositionId?: boolean
   isArchived?: boolean
   archivedAt?: boolean
   endDate?: boolean
@@ -1993,9 +2260,10 @@ export type DepartmentSelectScalar = {
   version?: boolean
 }
 
-export type DepartmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "alias" | "level" | "parentId" | "managerUserId" | "isArchived" | "archivedAt" | "endDate" | "editedBy" | "editedAt" | "version", ExtArgs["result"]["department"]>
+export type DepartmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "alias" | "level" | "parentId" | "managerUserId" | "managerPositionId" | "isArchived" | "archivedAt" | "endDate" | "editedBy" | "editedAt" | "version", ExtArgs["result"]["department"]>
 export type DepartmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   manager?: boolean | Prisma.Department$managerArgs<ExtArgs>
+  managerPosition?: boolean | Prisma.Department$managerPositionArgs<ExtArgs>
   parent?: boolean | Prisma.Department$parentArgs<ExtArgs>
   children?: boolean | Prisma.Department$childrenArgs<ExtArgs>
   descriptions?: boolean | Prisma.Department$descriptionsArgs<ExtArgs>
@@ -2008,10 +2276,12 @@ export type DepartmentInclude<ExtArgs extends runtime.Types.Extensions.InternalA
 }
 export type DepartmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   manager?: boolean | Prisma.Department$managerArgs<ExtArgs>
+  managerPosition?: boolean | Prisma.Department$managerPositionArgs<ExtArgs>
   parent?: boolean | Prisma.Department$parentArgs<ExtArgs>
 }
 export type DepartmentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   manager?: boolean | Prisma.Department$managerArgs<ExtArgs>
+  managerPosition?: boolean | Prisma.Department$managerPositionArgs<ExtArgs>
   parent?: boolean | Prisma.Department$parentArgs<ExtArgs>
 }
 
@@ -2019,6 +2289,7 @@ export type $DepartmentPayload<ExtArgs extends runtime.Types.Extensions.Internal
   name: "Department"
   objects: {
     manager: Prisma.$UserPayload<ExtArgs> | null
+    managerPosition: Prisma.$PositionPayload<ExtArgs> | null
     parent: Prisma.$DepartmentPayload<ExtArgs> | null
     children: Prisma.$DepartmentPayload<ExtArgs>[]
     descriptions: Prisma.$DepartmentDescriptionPayload<ExtArgs>[]
@@ -2036,6 +2307,7 @@ export type $DepartmentPayload<ExtArgs extends runtime.Types.Extensions.Internal
     level: number
     parentId: number | null
     managerUserId: number | null
+    managerPositionId: number | null
     isArchived: boolean
     archivedAt: Date | null
     endDate: Date | null
@@ -2437,6 +2709,7 @@ readonly fields: DepartmentFieldRefs;
 export interface Prisma__DepartmentClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   manager<T extends Prisma.Department$managerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$managerArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  managerPosition<T extends Prisma.Department$managerPositionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$managerPositionArgs<ExtArgs>>): Prisma.Prisma__PositionClient<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   parent<T extends Prisma.Department$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$parentArgs<ExtArgs>>): Prisma.Prisma__DepartmentClient<runtime.Types.Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   children<T extends Prisma.Department$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   descriptions<T extends Prisma.Department$descriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$descriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DepartmentDescriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2481,6 +2754,7 @@ export interface DepartmentFieldRefs {
   readonly level: Prisma.FieldRef<"Department", 'Int'>
   readonly parentId: Prisma.FieldRef<"Department", 'Int'>
   readonly managerUserId: Prisma.FieldRef<"Department", 'Int'>
+  readonly managerPositionId: Prisma.FieldRef<"Department", 'Int'>
   readonly isArchived: Prisma.FieldRef<"Department", 'Boolean'>
   readonly archivedAt: Prisma.FieldRef<"Department", 'DateTime'>
   readonly endDate: Prisma.FieldRef<"Department", 'DateTime'>
@@ -2902,6 +3176,25 @@ export type Department$managerArgs<ExtArgs extends runtime.Types.Extensions.Inte
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * Department.managerPosition
+ */
+export type Department$managerPositionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Position
+   */
+  select?: Prisma.PositionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Position
+   */
+  omit?: Prisma.PositionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PositionInclude<ExtArgs> | null
+  where?: Prisma.PositionWhereInput
 }
 
 /**

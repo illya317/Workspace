@@ -259,7 +259,7 @@ export type Company = Prisma.CompanyModel
 export type CompanyRelation = Prisma.CompanyRelationModel
 /**
  * Model Department
- * 部门树（含层级关系与负责人）
+ * 部门树（含层级关系与负责人岗位）
  */
 export type Department = Prisma.DepartmentModel
 /**

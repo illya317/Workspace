@@ -190,6 +190,7 @@ export interface WorkSpacePermissionRow {
   role: WorkSpaceRole;
   kind: "task";
   source: "natural" | "explicit";
+  sourceLabel?: string;
   locked: boolean;
 }
 

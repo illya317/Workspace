@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react";
 import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
-import { departmentManagerPositionName } from "./draft-utils";
 import type { Department, DepartmentPositionStats, Selection } from "./types";
 
 const emptyStats: DepartmentPositionStats = {
@@ -140,7 +139,7 @@ export function createOrganizationBranchSection({
         onToggle: (id: string | number) => onToggle(Number(id)),
         renderItem: (item: Department, ctx) => {
           const children = departmentChildren(departments, item);
-          const managerName = departmentManagerPositionName(item);
+          const managerName = item.managerName;
           return {
             title: item.name,
             code: item.code,
@@ -166,7 +165,7 @@ export function createOrganizationRootSection({
   onSelect: (departmentId: number) => void;
 }): BodySurfaceSectionSpec {
   const children = departmentChildren(departments, department);
-  const managerName = departmentManagerPositionName(department);
+  const managerName = department.managerName;
 
   return {
     key: `organization-root-${department.id}`,

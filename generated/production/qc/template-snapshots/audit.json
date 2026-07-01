@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-01T05:46:23.256Z",
+  "generatedAt": "2026-07-01T07:20:50.445Z",
   "configRoot": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc",
   "sourceSchemaRoot": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/source/source_docs/schema",
-  "outputRoot": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc",
+  "outputRoot": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots",
   "sourceInventory": {
     "mdCanonical": {
       "path": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/source/source_docs/schema/md_canonical",
@@ -49,7 +49,7 @@
     {
       "productKey": "allopurinol",
       "productName": "别嘌醇片",
-      "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/allopurinol.json",
+      "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/allopurinol.json",
       "stages": 3,
       "experimentItems": 9,
       "tables": 104,
@@ -838,7 +838,7 @@
     {
       "productKey": "atenolol",
       "productName": "阿替洛尔片",
-      "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/atenolol.json",
+      "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/atenolol.json",
       "stages": 3,
       "experimentItems": 9,
       "tables": 104,
@@ -1685,7 +1685,7 @@
     {
       "productKey": "azithromycin",
       "productName": "阿奇霉素胶囊",
-      "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/azithromycin.json",
+      "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/azithromycin.json",
       "stages": 3,
       "experimentItems": 7,
       "tables": 97,
@@ -2466,7 +2466,7 @@
     {
       "productKey": "berberine_tannate",
       "productName": "鞣酸小檗碱片",
-      "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/berberine_tannate.json",
+      "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/berberine_tannate.json",
       "stages": 3,
       "experimentItems": 8,
       "tables": 91,
@@ -3261,7 +3261,7 @@
     {
       "productKey": "clarithromycin",
       "productName": "克拉霉素胶囊",
-      "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/clarithromycin.json",
+      "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/clarithromycin.json",
       "stages": 3,
       "experimentItems": 8,
       "tables": 98,
@@ -4074,7 +4074,7 @@
     {
       "productKey": "compound_rutin",
       "productName": "复方芦丁片",
-      "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/compound_rutin.json",
+      "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/compound_rutin.json",
       "stages": 3,
       "experimentItems": 8,
       "tables": 94,
@@ -4883,7 +4883,7 @@
     {
       "productKey": "diammonium_glycyrrhizinate",
       "productName": "甘草酸二铵胶囊",
-      "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/diammonium_glycyrrhizinate.json",
+      "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/diammonium_glycyrrhizinate.json",
       "stages": 3,
       "experimentItems": 7,
       "tables": 86,
@@ -5620,7 +5620,7 @@
     {
       "productKey": "hydrochlorothiazide",
       "productName": "氢氯噻嗪片",
-      "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/hydrochlorothiazide.json",
+      "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/hydrochlorothiazide.json",
       "stages": 3,
       "experimentItems": 9,
       "tables": 111,
@@ -6483,7 +6483,7 @@
     {
       "productKey": "isosorbide_dinitrate",
       "productName": "硝酸异山梨酯片",
-      "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/isosorbide_dinitrate.json",
+      "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/isosorbide_dinitrate.json",
       "stages": 3,
       "experimentItems": 8,
       "tables": 102,
@@ -7270,7 +7270,7 @@
     {
       "productKey": "levofloxacin",
       "productName": "盐酸左氧氟沙星胶囊",
-      "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/levofloxacin.json",
+      "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/levofloxacin.json",
       "stages": 3,
       "experimentItems": 7,
       "tables": 93,
@@ -8025,7 +8025,7 @@
     {
       "productKey": "methimazole",
       "productName": "甲巯咪唑片",
-      "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/methimazole.json",
+      "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/methimazole.json",
       "stages": 3,
       "experimentItems": 8,
       "tables": 93,
@@ -8806,7 +8806,7 @@
     {
       "productKey": "pantoprazole",
       "productName": "泮托拉唑钠肠溶片",
-      "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/pantoprazole.json",
+      "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/pantoprazole.json",
       "stages": 3,
       "experimentItems": 10,
       "tables": 120,
@@ -9751,7 +9751,7 @@
     {
       "productKey": "simvastatin",
       "productName": "辛伐他汀片",
-      "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/simvastatin.json",
+      "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/simvastatin.json",
       "stages": 3,
       "experimentItems": 8,
       "tables": 107,
@@ -10580,7 +10580,7 @@
     {
       "productKey": "spironolactone",
       "productName": "螺内酯片",
-      "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/spironolactone.json",
+      "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/spironolactone.json",
       "stages": 3,
       "experimentItems": 9,
       "tables": 109,
@@ -11397,7 +11397,7 @@
     {
       "productKey": "terazosin",
       "productName": "盐酸特拉唑嗪胶囊",
-      "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/terazosin.json",
+      "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/terazosin.json",
       "stages": 3,
       "experimentItems": 8,
       "tables": 106,
@@ -12236,7 +12236,7 @@
     {
       "productKey": "verapamil",
       "productName": "盐酸维拉帕米片",
-      "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/verapamil.json",
+      "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/verapamil.json",
       "stages": 3,
       "experimentItems": 8,
       "tables": 99,

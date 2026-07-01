@@ -12,7 +12,7 @@ Docs Editor 使用和 Work Tasks 一致的业务空间入口，但不复用 Work
 |---|---|---|---|
 | 个人 | `targetType=personal`, `targetId=userId` | 用户进入编辑器时自动确保 | 本人 `manager` |
 | 公司 | `targetType=company`, `targetId=companyId` | 只取一个集团公司空间 | 无自然成员权限；可由管理员显式授权 |
-| 部门 | `targetType=department`, `targetId=departmentId` | 按组织部门列出和确保 | 部门负责人 `manager`，部门其他人员 `viewer` |
+| 部门 | `targetType=department`, `targetId=departmentId` | 按组织部门列出和确保 | `Department.managerPositionId` 对应岗位的在职人员为 `manager`，部门其他人员 `viewer` |
 
 `DocumentTemplateSpace` 只表示空间归属，不再存旧的 `kind/ownerUserId/departmentId` 组合字段。空间唯一性由 `targetType + targetId` 保证。
 

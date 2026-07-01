@@ -1,4 +1,9 @@
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import {
+  listDepartmentNaturalSpacePermissions,
+  mergeBusinessSpacePermissionRows,
+} from "@workspace/platform/server/business-space-permissions";
+import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import {
   canManageWorkTaskSpace,
@@ -123,12 +128,20 @@ async function listDepartmentSeeds(userId: number, isAdmin: boolean): Promise<Sp
     return rows.map(departmentSpaceSeed);
   }
 
-  const employeeIds = await getUserEmployeeIds(userId);
   const [edps, managed, assignees, explicit] = await Promise.all([
-    employeeIds.length ? prisma.eDP.findMany({
-      where: { employeeId: { in: employeeIds }, departmentId: { not: null } },
-      select: { department: { select: { id: true, name: true, code: true, isArchived: true } } },
-    }) : [],
+    prisma.employee.findMany({
+      where: {
+        userId,
+        employments: { some: { isActive: true } },
+        positions: { some: currentOpenEndedDateWhere({ departmentId: { not: null } }) },
+      },
+      select: {
+        positions: {
+          where: currentOpenEndedDateWhere({ departmentId: { not: null } }),
+          select: { department: { select: { id: true, name: true, code: true, isArchived: true } } },
+        },
+      },
+    }),
     prisma.department.findMany({
       where: { managerUserId: userId },
       select: { id: true, name: true, code: true, isArchived: true },
@@ -148,7 +161,12 @@ async function listDepartmentSeeds(userId: number, isAdmin: boolean): Promise<Sp
     select: { id: true, name: true, code: true, isArchived: true },
   }) : [];
 
-  return [...edps.map((item) => item.department).filter(Boolean), ...managed, ...assignees.map((item) => item.department), ...explicitDepartments]
+  return [
+    ...edps.flatMap((item) => item.positions.map((position) => position.department)).filter(Boolean),
+    ...managed,
+    ...assignees.map((item) => item.department),
+    ...explicitDepartments,
+  ]
     .map((department) => departmentSpaceSeed(department!));
 }
 
@@ -260,43 +278,29 @@ async function getSpaceCountsMap(seeds: SpaceSeed[]) {
 export async function listWorkSpacePermissions(input: { userId: number; targetType: WorkSpaceTargetType; targetId: number }) {
   const canManage = await canManageWorkTaskSpace(input.userId, input.targetType, input.targetId);
   if (!canManage) return serviceError("无权限管理该工作空间", 403);
-  const [explicit, naturalManagers, actorAdmin] = await Promise.all([
+  const [explicit, natural] = await Promise.all([
     prisma.workScopePermission.findMany({
       where: { targetType: input.targetType, targetId: input.targetId, kind: "task" },
       include: { user: { select: { id: true, nickname: true, username: true, employees: { select: { name: true }, take: 1 } } } },
       orderBy: [{ role: "asc" }, { id: "asc" }],
     }),
-    listNaturalManagers(input.targetType, input.targetId),
-    getActorWorkTaskAdmin(input.userId),
+    listNaturalWorkSpaceRows(input.targetType, input.targetId),
   ]);
-  const lockedManagers = buildLockedManagers(actorAdmin, naturalManagers, input.targetType);
   return serviceOk({
-      permissions: [
-        ...lockedManagers.map((item) => ({
-          userId: item.userId,
-          userName: item.userName,
-          sourceLabel: item.sourceLabel,
-          role: "manager" as const,
-          kind: "task" as const,
-          source: "natural" as const,
-          locked: true,
-        })),
-        ...explicit.map((item) => ({
+      permissions: mergeBusinessSpacePermissionRows({
+        natural,
+        kind: "task" as const,
+        explicit: explicit.map((item) => ({
           userId: item.userId,
           userName: userName(item.user),
           role: normalizeWorkSpaceRole(item.role),
-          kind: item.kind,
-          source: "explicit" as const,
-          locked: false,
+          kind: "task" as const,
         })),
-      ],
+      }).map((row) => ({
+        ...row,
+        role: row.role as WorkSpaceRole,
+      })),
   });
-}
-
-async function getActorWorkTaskAdmin(userId: number) {
-  if (!(await hasWorkTaskAdmin(userId))) return null;
-  const user = await prisma.user.findUnique({ where: { id: userId }, select: userSelect });
-  return user ? { userId: user.id, userName: userName(user) } : null;
 }
 
 export async function updateWorkSpacePermissions(input: {
@@ -378,30 +382,14 @@ function userName(user: { nickname: string; username: string | null; employees?:
   return user.employees?.[0]?.name || user.nickname || user.username || "未命名用户";
 }
 
-function buildLockedManagers(
-  actorAdmin: { userId: number; userName: string } | null,
-  naturalManagers: Array<{ userId: number; userName: string }>,
-  targetType: WorkSpaceTargetType,
-) {
-  const map = new Map<number, { userId: number; userName: string; labels: string[] }>();
-  if (actorAdmin) {
-    map.set(actorAdmin.userId, { ...actorAdmin, labels: ["系统管理员"] });
-  }
-  const naturalLabel = naturalManagerLabel(targetType);
-  for (const manager of naturalManagers) {
-    const existing = map.get(manager.userId);
-    if (existing) {
-      if (naturalLabel && !existing.labels.includes(naturalLabel)) {
-        existing.labels.push(naturalLabel);
-      }
-    } else {
-      map.set(manager.userId, { ...manager, labels: naturalLabel ? [naturalLabel] : [] });
-    }
-  }
-  return Array.from(map.values()).map((item) => ({
-    userId: item.userId,
-    userName: item.userName,
-    sourceLabel: item.labels.join(" / ") || "天然最高权限",
+async function listNaturalWorkSpaceRows(targetType: WorkSpaceTargetType, targetId: number) {
+  if (targetType === "department") return listDepartmentNaturalSpacePermissions(targetId);
+  const managers = await listNaturalManagers(targetType, targetId);
+  const sourceLabel = naturalManagerLabel(targetType);
+  return managers.map((manager) => ({
+    ...manager,
+    role: "manager" as const,
+    sourceLabel,
   }));
 }
 

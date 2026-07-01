@@ -1,5 +1,7 @@
 import { authorize } from "@workspace/platform/server/auth";
 import { isSuperAdmin } from "@workspace/platform/server/auth";
+import { getDepartmentNaturalSpaceRole } from "@workspace/platform/server/business-space-permissions";
+import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { PROJECT_ROLES } from "../constants/field-options";
 
@@ -195,7 +197,7 @@ async function isMemberOfTarget(
 
   if (targetType === "department") {
     const edp = await prisma.eDP.findFirst({
-      where: { employeeId: { in: employeeIds }, departmentId: targetId },
+      where: currentOpenEndedDateWhere({ employeeId: { in: employeeIds }, departmentId: targetId }),
     });
     return Boolean(edp);
   }
@@ -211,7 +213,7 @@ async function isMemberOfTarget(
 
   if (targetType === "position") {
     const edp = await prisma.eDP.findFirst({
-      where: { employeeId: { in: employeeIds }, positionId: targetId },
+      where: currentOpenEndedDateWhere({ employeeId: { in: employeeIds }, positionId: targetId }),
     });
     return Boolean(edp);
   }
@@ -273,13 +275,13 @@ async function naturalWorkSpaceRole(
   if (await hasWorkTaskAdmin(userId)) return "manager";
 
   if (targetType === "department") {
-    const department = await prisma.department.findUnique({
-      where: { id: targetId },
-      select: { managerUserId: true },
-    });
-    if (department?.managerUserId === userId) return "manager";
-    if (await isAssignee(userId, "department", targetId)) return "editor";
-    return await isMemberOfTarget(userId, "department", targetId) ? "viewer" : null;
+    const [departmentRole, assigned] = await Promise.all([
+      getDepartmentNaturalSpaceRole(userId, targetId),
+      isAssignee(userId, "department", targetId),
+    ]);
+    if (departmentRole === "manager") return "manager";
+    if (assigned) return "editor";
+    return departmentRole as WorkSpaceRole | null;
   }
 
   if (targetType === "project") {

@@ -32,6 +32,7 @@
     "./server/app-version": "./server/app-version.ts",
     "./server/audit-log": "./server/audit-log.ts",
     "./server/auth": "./server/auth.ts",
+    "./server/business-space-permissions": "./server/business-space-permissions.ts",
     "./server/crud-factory": "./server/crud-factory.ts",
     "./server/delete-guard": "./server/delete-guard.ts",
     "./server/docs-editor": "./server/docs-editor/index.ts",

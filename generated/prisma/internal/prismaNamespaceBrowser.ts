@@ -1070,6 +1070,7 @@ export const DepartmentScalarFieldEnum = {
   level: 'level',
   parentId: 'parentId',
   managerUserId: 'managerUserId',
+  managerPositionId: 'managerPositionId',
   isArchived: 'isArchived',
   archivedAt: 'archivedAt',
   endDate: 'endDate',

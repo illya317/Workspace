@@ -12,7 +12,6 @@ import type {
 import { composePositionCode, positionCodeSuffix, serializeAlias } from "./utils";
 import {
   departmentDescriptionPayload,
-  departmentManagerPositionName,
   descriptionPayload,
   draftPayload,
   isPositiveIntegerText,
@@ -160,10 +159,11 @@ export function useDepartmentPositionActions({
         alias: serializeAlias(departmentDraft.alias || ""),
         level: departmentDraft.level,
         parentId: departmentDraft.parentId,
+        managerPositionId: departmentDraft.managerPositionId,
         descriptions: departmentDescriptionDrafts.slice(0, 1).map((draft) => departmentDescriptionPayload({
           ...draft,
           name: departmentName,
-          details: sanitizeDepartmentDescriptionDetails(draft.details, departmentName, departmentDraft.managerPositionName),
+          details: sanitizeDepartmentDescriptionDetails(draft.details, departmentName),
         })),
       }, "保存部门信息失败");
       setToast({ type: "success", message: "部门信息已保存" });
@@ -181,7 +181,7 @@ export function useDepartmentPositionActions({
         descriptions: departmentDescriptionDrafts.slice(0, 1).map((draft) => departmentDescriptionPayload({
           ...draft,
           name: selectedDepartment.name,
-          details: sanitizeDepartmentDescriptionDetails(draft.details, selectedDepartment.name, departmentDraft?.managerPositionName || departmentManagerPositionName(selectedDepartment)),
+          details: sanitizeDepartmentDescriptionDetails(draft.details, selectedDepartment.name),
         })),
       }, "保存部门说明书失败");
       setToast({ type: "success", message: "部门说明书已保存" });

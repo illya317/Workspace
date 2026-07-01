@@ -1,24 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { putJson } from "@workspace/platform/ui/api-client";
+import { useMemo } from "react";
 import {
   createPageBody, createEmptySection, createMessageSection,
   createPanelSection,
   type DataSurfaceColumnSpec,
-  InputSurface,
   PageSurface,
   type BodySurfaceSectionSpec,
-  type ReferenceOption,
   type SelectorSurfaceProps,
   type SurfaceToolbarItems,
-  useFeedback,
 } from "@workspace/core/ui";
-import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import type { RosterSurfaceNavigationProps } from "../../roster-surface";
 import { useDepartmentCreatePanelSection } from "./department-create-panel";
-import { selectedEntityName } from "./detail-editor-primitives";
-import { createDepartmentDescriptionDraft, departmentDescriptionPayload, departmentManagerPositionName, sanitizeDepartmentDescriptionDetails } from "./draft-utils";
 import type { Department, Position } from "./types";
 
 type PositionRelationRow = {
@@ -108,9 +101,6 @@ export function OrganizationModePanel({
   onReload: () => Promise<void>;
   surface?: RosterSurfaceNavigationProps;
 }) {
-  const [managerDraft, setManagerDraft] = useState("");
-  const [saving, setSaving] = useState(false);
-  const feedback = useFeedback();
   const createDepartmentSection = useDepartmentCreatePanelSection({
     departments,
     departmentById,
@@ -123,14 +113,7 @@ export function OrganizationModePanel({
   });
   const directPositions = selectedDepartment ? positionsByDepartment.get(selectedDepartment.id) || [] : [];
   const positionsByName = useMemo(() => new Map(positions.map(position => [position.name, position])), [positions]);
-  const currentManagerName = selectedDepartment ? departmentManagerPositionName(selectedDepartment) : "";
-  useEffect(() => {
-    setManagerDraft(currentManagerName);
-  }, [currentManagerName, selectedDepartment?.id]);
-  const managerDirty = selectedDepartment ? normalizeName(managerDraft) !== normalizeName(currentManagerName) : false;
-  useEffect(() => {
-    onUnsavedChange?.(managerDirty);
-  }, [managerDirty, onUnsavedChange]);
+  void onUnsavedChange;
   const relations = directPositions.map(position => ({
     position,
     subordinates: directSubordinates(position, positions, {}),
@@ -198,26 +181,6 @@ export function OrganizationModePanel({
       },
     }) : { kind: "empty", content: "-", tone: "muted", }
   }];
-  async function saveChanges() {
-    if (!selectedDepartment || !managerDirty) return;
-    setSaving(true);
-    try {
-      const descriptionDraft = createDepartmentDescriptionDraft(selectedDepartment, selectedDepartment.descriptions[0]);
-      await putJson("/api/modules/hr/roster/departments", {
-        id: selectedDepartment.id,
-        descriptions: [departmentDescriptionPayload({
-          ...descriptionDraft,
-          details: sanitizeDepartmentDescriptionDetails(descriptionDraft.details, selectedDepartment.name, managerDraft)
-        })]
-      }, "保存部门负责人失败");
-      await onReload();
-      feedback.success("部门负责人已保存");
-    } catch (error) {
-      feedback.error(error instanceof Error ? error.message : "保存部门负责人失败");
-    } finally {
-      setSaving(false);
-    }
-  }
   const organizationHeaderDepartment = !loading && !error ? selectedDepartment : undefined;
   const organizationPanelTitle = organizationHeaderDepartment ? (
     <div
@@ -233,21 +196,8 @@ export function OrganizationModePanel({
       <span className="shrink-0 font-mono text-sm text-slate-400">{organizationHeaderDepartment.code}</span>
       <span className="flex min-w-0 w-72 items-center gap-2">
         <span className="shrink-0 text-xs font-semibold text-slate-500">负责人</span>
-        <span className="min-w-0 flex-1 text-sm font-normal">
-          <InputSurface
-            spec={{
-              valueType: "reference",
-              control: "reference",
-              state: !canEdit || saving ? "disabled" : "normal",
-              options: { source: "remote", fkKey: "hr.position", endpoint: HR_REFERENCE_OPTIONS_ENDPOINT, returnField: "name" },
-            }}
-            value={managerDraft}
-            displayValue={managerDraft}
-            placeholder="搜索负责人岗位"
-            onChange={(_label, option) => {
-              setManagerDraft(selectedEntityName("position", option as ReferenceOption | undefined));
-            }}
-          />
+        <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-700" title={organizationHeaderDepartment.managerName || "未设置"}>
+          {organizationHeaderDepartment.managerName || "未设置"}
         </span>
       </span>
     </div>
@@ -299,14 +249,6 @@ export function OrganizationModePanel({
     ? [createDepartmentSection]
     : [createPanelSection("organization-mode", {
         title: organizationPanelTitle,
-        actions: organizationHeaderDepartment ? [{
-          key: "save",
-          label: saving ? "保存中..." : "保存修改",
-          icon: "save",
-          variant: "primary",
-          disabled: !canEdit || saving || !managerDirty,
-          onClick: () => void saveChanges(),
-        }] : undefined,
         sections: panelSections,
       })];
 

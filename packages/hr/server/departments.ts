@@ -3,6 +3,7 @@ import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
+import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
 import { matchAnyField } from "@workspace/platform/search";
 import { deriveDepartmentCodeCascade } from "@workspace/hr/utils/department-code-cascade";
 import { getCompanyNameSync, loadCompanyMap } from "./company-directory";
@@ -49,8 +50,39 @@ function selectedDetails(record: object): string | null {
   return typeof record.details === "string" ? record.details : null;
 }
 
-function userEmployeeName(user: { nickname: string; employees?: Array<{ name: string }> } | null | undefined) {
-  return user?.employees?.[0]?.name ?? user?.nickname ?? null;
+const managerEmployeeSelect = {
+  id: true,
+  name: true,
+  userId: true,
+  user: { select: { id: true, nickname: true, username: true } },
+} as const;
+
+function managerEmployeeNames(
+  managerPosition: {
+    edps?: Array<{
+      employee: {
+        id: number;
+        name: string;
+        userId: number | null;
+        user: { id: number; nickname: string; username: string | null } | null;
+      };
+    }>;
+  } | null | undefined,
+) {
+  const byEmployee = new Map<number, {
+    employeeId: number;
+    userId: number | null;
+    name: string;
+  }>();
+  for (const edp of managerPosition?.edps ?? []) {
+    const employee = edp.employee;
+    byEmployee.set(employee.id, {
+      employeeId: employee.id,
+      userId: employee.userId,
+      name: employee.name || employee.user?.nickname || employee.user?.username || "未命名员工",
+    });
+  }
+  return Array.from(byEmployee.values());
 }
 
 export async function listDepartments(input: { keyword: string; page: number; pageSize: number; archived?: boolean; summary?: boolean }) {
@@ -61,7 +93,22 @@ export async function listDepartments(input: { keyword: string; page: number; pa
         _count: { select: { edps: true } },
         parent: { select: { id: true, name: true } },
         children: { select: { id: true, name: true } },
-        manager: { select: { id: true, nickname: true, employees: { select: { name: true }, take: 1 } } },
+        managerPosition: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+            edps: {
+              where: currentOpenEndedDateWhere({
+                employee: { employments: { some: { isActive: true } } },
+              }),
+              select: {
+                employee: { select: managerEmployeeSelect },
+              },
+              orderBy: [{ isPrimary: "desc" }, { id: "asc" }],
+            },
+          },
+        },
         descriptions: {
           select: input.summary
             ? { id: true, code: true, name: true, sourceFile: true, codeRaw: true }
@@ -74,32 +121,40 @@ export async function listDepartments(input: { keyword: string; page: number; pa
     loadCompanyMap(),
   ]);
 
-  let departments = depts.map((department) => ({
-    id: department.id,
-    code: department.code,
-    name: department.name,
-    alias: department.alias || null,
-    company: getCompanyNameSync(companyMap, department.code),
-    level: department.level,
-    levelLabel: department.level === 1 ? "事业部" : department.level === 2 ? "部门" : "子部门",
-    parentId: department.parentId,
-    parentName: department.parent?.name || null,
-    managerUserId: department.managerUserId,
-    managerName: userEmployeeName(department.manager),
-    isArchived: department.isArchived,
-    archivedAt: department.archivedAt?.toISOString() || null,
-    version: department.version,
-    headcount: department._count.edps,
-    children: department.children.map((child) => ({ id: child.id, name: child.name })),
-    descriptions: department.descriptions.map((description) => ({
-      id: description.id,
-      code: description.code,
-      name: description.name,
-      sourceFile: description.sourceFile,
-      codeRaw: description.codeRaw,
-      details: parseDetails(selectedDetails(description)),
-    })),
-  }));
+  let departments = depts.map((department) => {
+    const managers = managerEmployeeNames(department.managerPosition);
+    const managerNames = managers.map((manager) => manager.name);
+    return {
+      id: department.id,
+      code: department.code,
+      name: department.name,
+      alias: department.alias || null,
+      company: getCompanyNameSync(companyMap, department.code),
+      level: department.level,
+      levelLabel: department.level === 1 ? "事业部" : department.level === 2 ? "部门" : "子部门",
+      parentId: department.parentId,
+      parentName: department.parent?.name || null,
+      managerUserId: department.managerUserId,
+      managerUserIds: managers.map((manager) => manager.userId).filter((userId): userId is number => userId !== null),
+      managerPositionId: department.managerPositionId,
+      managerPositionName: department.managerPosition?.name ?? null,
+      managerNames,
+      managerName: managerNames.join("、") || null,
+      isArchived: department.isArchived,
+      archivedAt: department.archivedAt?.toISOString() || null,
+      version: department.version,
+      headcount: department._count.edps,
+      children: department.children.map((child) => ({ id: child.id, name: child.name })),
+      descriptions: department.descriptions.map((description) => ({
+        id: description.id,
+        code: description.code,
+        name: description.name,
+        sourceFile: description.sourceFile,
+        codeRaw: description.codeRaw,
+        details: parseDetails(selectedDetails(description)),
+      })),
+    };
+  });
   if (input.keyword) departments = departments.filter((department) => matchAnyField(department, input.keyword, "Department"));
 
   const total = departments.length;

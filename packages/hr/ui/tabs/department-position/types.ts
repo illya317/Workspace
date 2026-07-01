@@ -7,6 +7,10 @@ export type Department = {
   parentId: number | null;
   parentName: string | null;
   managerUserId: number | null;
+  managerUserIds: number[];
+  managerPositionId: number | null;
+  managerPositionName: string | null;
+  managerNames: string[];
   managerName: string | null;
   headcount: number;
   isArchived: boolean;
@@ -101,7 +105,9 @@ export type DepartmentDraft = {
   alias: string;
   level: 1 | 2 | 3;
   parentId: number | null;
+  managerPositionId: number | null;
   managerPositionName: string;
+  managerName: string;
 };
 
 export type CreateDepartmentDraft = {

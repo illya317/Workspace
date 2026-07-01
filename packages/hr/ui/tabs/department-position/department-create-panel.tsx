@@ -41,7 +41,6 @@ export function useDepartmentCreatePanelSection({
   const [submitting, setSubmitting] = useState(false);
   const [name, setName] = useState("");
   const [alias, setAlias] = useState("");
-  const [managerPositionName, setManagerPositionName] = useState("");
   const [level, setLevel] = useState<1 | 2 | 3>(1);
   const [parentId, setParentId] = useState<number | null>(null);
   const [code, setCode] = useState(() => deriveCreateCode(1, null, departmentById));
@@ -51,7 +50,7 @@ export function useDepartmentCreatePanelSection({
     name: "",
     sourceFile: "",
     codeRaw: "",
-    details: JSON.stringify({ "基本信息": { "部门名称": "", "负责人": "" } }, null, 2),
+    details: JSON.stringify({ "基本信息": { "部门名称": "" } }, null, 2),
   });
 
   const parentOptions = useMemo(() => {
@@ -74,15 +73,7 @@ export function useDepartmentCreatePanelSection({
     setDescriptionDraft((prev) => ({
       ...prev,
       name: nextName,
-      details: sanitizeDepartmentDescriptionDetails(prev.details, nextName, managerPositionName),
-    }));
-  }
-
-  function updateDraftManager(nextManager: string) {
-    setManagerPositionName(nextManager);
-    setDescriptionDraft((prev) => ({
-      ...prev,
-      details: sanitizeDepartmentDescriptionDetails(prev.details, name, nextManager),
+      details: sanitizeDepartmentDescriptionDetails(prev.details, nextName),
     }));
   }
 
@@ -104,7 +95,7 @@ export function useDepartmentCreatePanelSection({
               name: name.trim(),
               sourceFile: "",
               codeRaw: "",
-              details: sanitizeDepartmentDescriptionDetails(descriptionDraft.details, name, managerPositionName),
+              details: sanitizeDepartmentDescriptionDetails(descriptionDraft.details, name),
             },
           ],
         },
@@ -198,13 +189,6 @@ export function useDepartmentCreatePanelSection({
               spec: { valueType: "string" as const, control: "text" as const, state: !canEdit ? "disabled" as const : "normal" as const },
               value: alias,
               onChange: (value) => setAlias(String(value ?? "")),
-            },
-            {
-              key: "manager",
-              label: "部门负责人",
-              spec: { valueType: "string" as const, control: "text" as const, state: !canEdit ? "disabled" as const : "normal" as const },
-              value: managerPositionName,
-              onChange: (value) => updateDraftManager(String(value ?? "")),
             },
             ],
           },

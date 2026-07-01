@@ -1,6 +1,5 @@
 import type { SelectorSurfaceProps } from "@workspace/core/ui";
 import type { Department, DepartmentPositionStats, Selection } from "./types";
-import { departmentManagerPositionName } from "./draft-utils";
 
 export function useDepartmentPositionTreeRenderers({
   activeOrganizationRootId,
@@ -128,7 +127,7 @@ export function useDepartmentPositionTreeRenderers({
       expandedIds,
       onToggle: (id) => toggleDepartmentCollapsed(Number(id)),
       renderItem: (department, ctx) => {
-        const managerName = departmentManagerPositionName(department);
+        const managerName = department.managerName;
         const children = departmentChildren(department) ?? [];
         return {
           title: department.name,

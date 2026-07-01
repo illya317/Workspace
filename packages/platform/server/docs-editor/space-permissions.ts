@@ -5,19 +5,21 @@ import {
   serviceOk,
   type ServiceResult,
 } from "../api";
+import {
+  listDepartmentNaturalSpacePermissions,
+  mergeBusinessSpacePermissionRows,
+} from "../business-space-permissions";
 import { prisma } from "../prisma";
 import { docsEditorDb } from "./db";
 import {
   docsEditorPermissionKind,
-  getActorDocsEditorAdmin,
   getDocsEditorSpaceRole,
   isDocsEditorRoleAtLeast,
-  listNaturalDocsEditorManagers,
   loadDocsEditorPermissionUsers,
   normalizeDocsEditorRole,
   resolveSpaceRole,
 } from "./permissions";
-import type { DocsEditorSpacePermissionDto } from "./types";
+import type { DocsEditorPermissionRole, DocsEditorSpacePermissionDto } from "./types";
 
 export async function listSpacePermissions(input: {
   userId: number;
@@ -29,36 +31,28 @@ export async function listSpacePermissions(input: {
   const role = await resolveSpaceRole(input.userId, space);
   if (!isDocsEditorRoleAtLeast(role, "manager")) return serviceError("无权限管理该模板空间", 403);
 
-  const [explicit, naturalManagers, actorAdmin] = await Promise.all([
+  const [explicit, natural] = await Promise.all([
     db.documentTemplateSpacePermission.findMany({
       where: { targetType: space.targetType, targetId: space.targetId, kind: docsEditorPermissionKind() },
       orderBy: [{ role: "asc" }, { id: "asc" }],
     }),
-    listNaturalDocsEditorManagers(space.targetType, space.targetId),
-    getActorDocsEditorAdmin(input.userId),
+    listNaturalDocsEditorRows(space.targetType, space.targetId),
   ]);
   const userNames = await loadDocsEditorPermissionUsers(explicit.map((item) => item.userId));
-  const lockedManagers = buildLockedManagers(actorAdmin, naturalManagers, space.targetType);
+  const kind = docsEditorPermissionKind() as "template";
   return serviceOk({
-    permissions: [
-      ...lockedManagers.map((item) => ({
-        userId: item.userId,
-        userName: item.userName,
-        sourceLabel: item.sourceLabel,
-        role: "manager" as const,
-        kind: docsEditorPermissionKind() as "template",
-        source: "natural" as const,
-        locked: true,
-      })),
-      ...explicit.map((item) => ({
+    permissions: mergeBusinessSpacePermissionRows({
+      natural,
+      kind,
+      explicit: explicit.map((item) => ({
         userId: item.userId,
         userName: userNames.get(item.userId) || `用户 ${item.userId}`,
         role: normalizeDocsEditorRole(item.role),
-        kind: docsEditorPermissionKind() as "template",
-        source: "explicit" as const,
-        locked: false,
       })),
-    ],
+    }).map((row): DocsEditorSpacePermissionDto => ({
+      ...row,
+      role: row.role as DocsEditorPermissionRole,
+    })),
   });
 }
 
@@ -102,37 +96,20 @@ export async function updateSpacePermissions(input: {
   return serviceOk({ success: true });
 }
 
-function buildLockedManagers(
-  actorAdmin: { userId: number; userName: string } | null,
-  naturalManagers: Array<{ userId: number; userName: string }>,
-  targetType: string,
-) {
-  const map = new Map<number, { userId: number; userName: string; labels: string[] }>();
-  if (actorAdmin) {
-    map.set(actorAdmin.userId, { ...actorAdmin, labels: ["系统管理员"] });
+async function listNaturalDocsEditorRows(targetType: string, targetId: number) {
+  if (targetType === "department") {
+    return listDepartmentNaturalSpacePermissions(targetId);
   }
-  const naturalLabel = naturalManagerLabel(targetType);
-  for (const manager of naturalManagers) {
-    const existing = map.get(manager.userId);
-    if (existing) {
-      if (naturalLabel && !existing.labels.includes(naturalLabel)) {
-        existing.labels.push(naturalLabel);
-      }
-    } else {
-      map.set(manager.userId, { ...manager, labels: naturalLabel ? [naturalLabel] : [] });
-    }
+  if (targetType === "personal") {
+    const userNames = await loadDocsEditorPermissionUsers([targetId]);
+    const userName = userNames.get(targetId);
+    return userName ? [{
+      userId: targetId,
+      userName,
+      role: "manager" as const,
+      sourceLabel: "所有者",
+    }] : [];
   }
-  return Array.from(map.values()).map((item) => ({
-    userId: item.userId,
-    userName: item.userName,
-    sourceLabel: item.labels.join(" / ") || "天然最高权限",
-  }));
+  return [];
 }
-
-function naturalManagerLabel(targetType: string): string {
-  if (targetType === "department") return "部门负责人";
-  if (targetType === "personal") return "所有者";
-  return "";
-}
-
 

@@ -24,6 +24,7 @@ const HR_FK_REGISTRATIONS = [
   { key: "hr.department", scope: "hr", source: { entity: "Any", field: "departmentId" }, target: "department", nullable: true, permission: { resourceKey: "hr.roster", action: "access" } },
   { key: "hr.department.parent", scope: "hr", source: { entity: "Department", field: "parentId" }, target: "department", targetLabel: "上级部门", nullable: true, permission: { resourceKey: "hr.roster", action: "access" } },
   { key: "hr.department.manager.user", scope: "hr", source: { entity: "Department", field: "managerUserId" }, target: "user", targetLabel: "部门负责人账号", nullable: true, permission: { resourceKey: "hr.roster", action: "access" } },
+  { key: "hr.department.manager.position", scope: "hr", source: { entity: "Department", field: "managerPositionId" }, target: "position", targetLabel: "负责人岗位", nullable: true, permission: { resourceKey: "hr.roster", action: "access" } },
   { key: "hr.position", scope: "hr", source: { entity: "Any", field: "positionId" }, target: "position", nullable: true, permission: { resourceKey: "hr.roster", action: "access" } },
   { key: "hr.employee", scope: "hr", source: { entity: "Any", field: "employeeId" }, target: "employee", nullable: true, permission: { resourceKey: "hr.roster", action: "access" } },
   { key: "hr.company", scope: "hr", source: { entity: "Contract", field: "company" }, target: "company", nullable: true, permission: { resourceKey: "hr.roster", action: "access" } },

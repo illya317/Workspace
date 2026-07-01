@@ -101,7 +101,7 @@ model CompanyRelation {
   @@unique([parentId, childId])
 }
 
-/// 部门树（含层级关系与负责人）
+/// 部门树（含层级关系与负责人岗位）
 model Department {
   id              Int                      @id @default(autoincrement())
   code            String
@@ -109,7 +109,8 @@ model Department {
   alias           String?
   level           Int                      @default(1)
   parentId        Int?
-  managerUserId   Int?
+  managerUserId     Int?
+  managerPositionId Int?
   isArchived      Boolean                  @default(false)
   archivedAt      DateTime?
   endDate         DateTime?
@@ -117,6 +118,7 @@ model Department {
   editedAt        DateTime?
   version         Int                      @default(1)
   manager         User?                    @relation("DepartmentManager", fields: [managerUserId], references: [id])
+  managerPosition Position?                @relation("DepartmentManagerPosition", fields: [managerPositionId], references: [id])
   parent          Department?              @relation("DeptHierarchy", fields: [parentId], references: [id])
   children        Department[]             @relation("DeptHierarchy")
   descriptions    DepartmentDescription[]
@@ -128,6 +130,7 @@ model Department {
 
   @@index([code])
   @@index([name])
+  @@index([managerPositionId])
 }
 
 /// 岗位定义
@@ -148,6 +151,7 @@ model Position {
   financeWorkshopReports FinanceWorkshopReport[]
   positionDescription    PositionDescription?    @relation(fields: [positionDescriptionId], references: [id])
   department             Department?             @relation(fields: [departmentId], references: [id])
+  managedDepartments     Department[]            @relation("DepartmentManagerPosition")
   resourceRoles          PositionResourceRole[]
 
   @@index([code])
