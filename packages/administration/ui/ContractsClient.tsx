@@ -10,7 +10,19 @@ import { CONTRACT_DEFAULT_VISIBLE_COLUMNS, getContractTableColumns } from "./com
 import ContractModal from "./components/ContractModal";
 import type { Contract, ModalMode } from "@workspace/administration/types";
 
-export default function ContractsClient({ user: _user, hideShell: _hideShell }: { user: SessionUser; hideShell?: boolean }) {
+export default function ContractsClient({
+  user: _user,
+  hideShell: _hideShell,
+  canCreate,
+  canWrite,
+  canDelete,
+}: {
+  user: SessionUser;
+  hideShell?: boolean;
+  canCreate?: boolean;
+  canWrite?: boolean;
+  canDelete?: boolean;
+}) {
   const {
     contracts, total, page, setPage, totalPages,
     q, setQ, setLocationFilter,
@@ -25,11 +37,13 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
   const [visibleColumns, setVisibleColumns] = useState<string[]>(CONTRACT_DEFAULT_VISIBLE_COLUMNS);
 
   const openCreate = () => {
+    if (!canCreate) return;
     setEditing({ location: "北京办公区", status: "执行中" });
     setModalMode("create");
   };
 
   const openEdit = (c: Contract) => {
+    if (!canWrite) return;
     setEditing({ ...c });
     setModalMode("edit");
   };
@@ -47,7 +61,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
     columns: toolbarColumns,
     visibleColumns,
     onColumnsChange: setVisibleColumns,
-    onCreate: openCreate,
+    onCreate: canCreate ? openCreate : undefined,
     onReset: () => {
       setQ("");
       setLocationFilter("");
@@ -63,6 +77,10 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
   };
 
   const saveContract = async () => {
+    if ((modalMode === "create" && !canCreate) || (modalMode === "edit" && !canWrite)) {
+      feedback.error("无权限执行该操作");
+      return;
+    }
     if (!editing.name) {
       feedback.error("合同名称为必填");
       return;
@@ -96,6 +114,10 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
   };
 
   const deleteContract = async (deleteId: number) => {
+    if (!canDelete) {
+      feedback.error("无权限删除合同");
+      return;
+    }
     const ok = await feedback.confirmDelete({
       message: "确定要删除这条合同记录吗？此操作不可撤销。",
     });
@@ -136,10 +158,10 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
             visibleColumns,
             rowKey: (contract) => contract.id,
             emptyText: "暂无数据",
-            rowActions: (contract) => [
-              { key: "edit", label: "编辑", kind: "edit", onClick: () => openEdit(contract) },
-              { key: "delete", label: "删除", kind: "delete", onClick: () => void deleteContract(contract.id) },
-            ],
+            rowActions: canWrite || canDelete ? (contract) => [
+              ...(canWrite ? [{ key: "edit", label: "编辑", kind: "edit" as const, onClick: () => openEdit(contract) }] : []),
+              ...(canDelete ? [{ key: "delete", label: "删除", kind: "delete" as const, onClick: () => void deleteContract(contract.id) }] : []),
+            ] : undefined,
             actionsColumn: { align: "center", },
           }),
         ])}

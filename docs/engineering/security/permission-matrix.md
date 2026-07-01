@@ -17,7 +17,7 @@
 | `finance.analysis` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access |
 | `finance.cost` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
 | `finance.import` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access (preview), write (confirm) |
-| `administration.contracts` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
+| `administration.contracts` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, admin |
 | `work` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access（登录用户默认有效，并继承到普通 L2；不包含 capability）, write, delete, admin |
 | `work.projects` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin（模块门禁，不放大对象范围） |
 | `work.projects.createOrg` | `visibleWriteResourceKeys` | write（创建运营委员会项目；独立 capability，`runtimeParentKey=work.projects`） |
@@ -114,7 +114,8 @@
 | `/api/modules/production/qc/[batchId]` | DELETE | `production.qc.delete` |
 | `/api/modules/production/qc/[batchId]/submit` | POST | `production.qc.write` |
 | `/api/modules/administration/contracts*` | GET | `administration.contracts.access` |
-| `/api/modules/administration/contracts*` | POST/PUT | `administration.contracts.write` |
+| `/api/modules/administration/contracts` | POST | `administration.contracts.create` |
+| `/api/modules/administration/contracts/[id]` | PATCH | `administration.contracts.write` |
 | `/api/modules/administration/contracts*` | DELETE | `administration.contracts.delete` |
 | `/api/modules/work/projects*` | GET | `work.projects.access` + module enabled + 项目对象级过滤 |
 | `/api/modules/work/projects*` | POST | `work.projects.access` + module enabled + 项目创建类型校验（普通/部门/运营委员会） |

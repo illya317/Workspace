@@ -40,7 +40,7 @@ page.tsx
 |------|------|
 | `GET /api/modules/administration/contracts` | 合同列表（支持筛选、分页） |
 | `POST /api/modules/administration/contracts` | 创建合同 |
-| `PUT /api/modules/administration/contracts/[id]` | 更新合同 |
+| `PATCH /api/modules/administration/contracts/[id]` | 更新合同 |
 | `DELETE /api/modules/administration/contracts/[id]` | 删除合同 |
 | `GET /api/modules/hr/roster/contracts` | HR 模块内嵌合同列表 |
 
@@ -48,7 +48,8 @@ page.tsx
 
 - 页面入口：`requireResourceAccess("administration.contracts")`
 - GET：`administration.contracts.access`
-- POST/PUT：`administration.contracts.write`
+- POST：`administration.contracts.create`
+- PATCH：`administration.contracts.write`
 - DELETE：`administration.contracts.delete`
 
 合同数据关联 Employee 和 Company，通过 employeeId + companyId 外键关联。

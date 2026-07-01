@@ -1,9 +1,25 @@
-import { createProtectedModulePage } from "@workspace/platform/ui/protected-page";
+import { evaluatePermissionAction, requireRouteAccess } from "@workspace/platform/server/auth";
+import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
 import { ContractsClient } from "@workspace/administration/ui";
 
-export default createProtectedModulePage({
-  route: "/administration/contracts",
-  title: "合同台账",
-  backHref: "/administration",
-  render: ({ user }) => <ContractsClient user={user} hideShell />,
-});
+export default async function AdministrationContractsPage() {
+  const user = await requireRouteAccess("/administration/contracts");
+  const [canCreate, canWrite, canDelete] = await Promise.all([
+    evaluatePermissionAction(user.id, "administration.contracts", "create"),
+    evaluatePermissionAction(user.id, "administration.contracts", "write"),
+    evaluatePermissionAction(user.id, "administration.contracts", "delete"),
+  ]);
+
+  return renderAppShellPage({
+    title: "合同台账",
+    backHref: "/administration",
+    user,
+    children: <ContractsClient
+      user={user}
+      hideShell
+      canCreate={canCreate}
+      canWrite={canWrite}
+      canDelete={canDelete}
+    />,
+  });
+}

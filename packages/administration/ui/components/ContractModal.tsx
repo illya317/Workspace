@@ -86,8 +86,8 @@ export default function ContractModal({ mode, editing, onChange, onSave, onClose
               submit: { onSubmit: onSave },
               layout: { columns: 2 },
               commands: [
-                { key: "cancel", label: "取消", onClick: onClose },
-                { key: "save", label: saving ? "保存中..." : "保存", type: "submit", variant: "primary", disabled: saving },
+                { key: "cancel", label: "取消", icon: "cancel", onClick: onClose },
+                { key: "save", label: saving ? "保存中..." : "保存", icon: mode === "create" ? "add" : "save", type: "submit", variant: "primary", disabled: saving },
               ],
             }),
           ],

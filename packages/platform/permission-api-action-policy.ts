@@ -33,6 +33,7 @@ export const PERMISSION_API_ACTION_POLICIES = [
   { method: "POST", pathPrefix: "/api/modules/finance/import/preview", resourceKey: "finance.import", baseAction: "access" },
   { method: "POST", pathPrefix: "/api/modules/finance/import/confirm", resourceKey: "finance.import", additionalAction: "import" },
   { method: "POST", pathPrefix: "/api/modules/finance/import", resourceKey: "finance.import", additionalAction: "import" },
+  { method: "POST", pathPrefix: "/api/modules/administration/contracts", resourceKey: "administration.contracts", baseAction: "access", additionalAction: "create", pathPattern: /^\/api\/modules\/administration\/contracts$/ },
   { method: "GET", pathPrefix: "/api/modules/hr/roster/generated/export", resourceKey: "hr.roster.generated", additionalAction: "export" },
   { method: "POST", pathPrefix: "/api/modules/hr/roster/audit-log/restore", resourceKey: "hr.roster", additionalAction: "revise" },
   { method: "POST", pathPrefix: "/api/modules/hr/roster/departments", resourceKey: "hr.roster", additionalAction: "archive", pathPattern: /^\/api\/modules\/hr\/roster\/departments\/[^/]+\/archive$/ },

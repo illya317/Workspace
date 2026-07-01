@@ -14,7 +14,7 @@ interface ContractFiltersProps {
   columns: SurfaceColumnOptionSpec[];
   visibleColumns: string[];
   onColumnsChange: (value: string[]) => void;
-  onCreate: () => void;
+  onCreate?: () => void;
   onReset: () => void;
 }
 
@@ -27,12 +27,12 @@ export default function getContractFilterToolbarItems({
   onCreate, onReset,
 }: ContractFiltersProps): SurfaceToolbarItems {
   return [
-    {
+    ...(onCreate ? [{
       kind: "create",
       key: "create",
       label: "新增合同",
       onClick: onCreate,
-    },
+    } as const] : []),
     {
       kind: "search",
       key: "search",
@@ -61,7 +61,7 @@ export default function getContractFilterToolbarItems({
     {
       kind: "action-group",
       key: "reset",
-      actions: [{ key: "reset", kind: "refresh", label: "重置", onClick: onReset }],
+      actions: [{ key: "reset", kind: "reset", label: "重置", onClick: onReset }],
     },
     {
       kind: "column-toggle",
