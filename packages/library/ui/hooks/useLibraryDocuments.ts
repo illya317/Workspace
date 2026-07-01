@@ -67,10 +67,10 @@ export async function updateDocument(id: number, body: Record<string, unknown>):
   return res.json();
 }
 
-export async function deleteDocument(id: number): Promise<void> {
+export async function archiveDocument(id: number): Promise<void> {
   const res = await fetch(workspacePath(`/api/modules/library/basic-info/documents/${id}`), { method: "DELETE" });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: "Delete failed" }));
+    const err = await res.json().catch(() => ({ error: "Archive failed" }));
     throw new Error(err.error || `HTTP ${res.status}`);
   }
 }

@@ -99,13 +99,11 @@ Phase 6 自动生成接口配置表。每个来源定义：
 |---------|------|---------|
 | `library` | 资料库 L1 容器入口 | write |
 | `library.basicInfo` | 基本资料 L2，资料内容访问与保密等级 ≤2 的材料 | write |
-| `library.basicInfo.write` | 编辑元数据、上传、扫描触发 | write |
-| `library.basicInfo.secret` | 查看保密等级 3 的材料 | access |
-| `library.basicInfo.topSecret` | 查看保密等级 4 的材料 | access |
 
 - 保密等级过滤在 service 层执行，API 必须过滤，不只是页面隐藏。
 - `library` 只代表资料库模块入口；真实资料内容访问必须具备 `library.basicInfo`。
 - 默认用户（有 `library.basicInfo` 资源）最高可看 `confidentialityLevel <= 2`。
+- `confidentialityLevel >= 3` 的旧独立 capability 已退场；当前仅 root admin 可查看，后续如要恢复应重新设计审批/授权语义。
 - 若问题命中更高等级资料，显示"存在更高等级候选，需要权限/审批"，但不默认选择。
 
 ## 安全

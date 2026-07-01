@@ -4,15 +4,19 @@ import DocumentsTab from "./components/DocumentsTab";
 
 interface Props {
   canWrite?: boolean;
-  canDelete?: boolean;
+  canArchive?: boolean;
+  canImport?: boolean;
+  canExport?: boolean;
   canAdmin?: boolean;
 }
 
-export default function LibraryClient({ canWrite, canDelete, canAdmin }: Props) {
+export default function LibraryClient({ canWrite, canArchive, canImport, canExport, canAdmin }: Props) {
   return (
     <DocumentsTab
       canWrite={canWrite}
-      canDelete={canDelete}
+      canArchive={canArchive}
+      canImport={canImport}
+      canExport={canExport}
       canAdmin={canAdmin}
     />
   );

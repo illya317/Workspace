@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { workspacePath } from "@workspace/core/routing";
 import { createFieldsSection, createPageBody, createPageModalSection, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { FormSurfaceCommandSpec, FormSurfaceFieldSpec } from "@workspace/core/ui";
-import { useDocumentDetail, updateDocument, deleteDocument } from "../hooks/useLibraryDocuments";
+import { archiveDocument, useDocumentDetail, updateDocument } from "../hooks/useLibraryDocuments";
 import type { LibraryDocumentItem } from "@workspace/library/types";
 import {
   LIBRARY_DOCUMENT_CONFIDENTIALITY_FIELD_OPTIONS,
@@ -16,7 +16,8 @@ interface Props {
   onClose: () => void;
   onUpdated: () => void;
   canWrite?: boolean;
-  canDelete?: boolean;
+  canArchive?: boolean;
+  canExport?: boolean;
   canAdmin?: boolean;
 }
 function fmtSize(b: number | null) {
@@ -35,7 +36,8 @@ export default function LibraryDetailModal({
   onClose,
   onUpdated,
   canWrite,
-  canDelete,
+  canArchive,
+  canExport,
   canAdmin
 }: Props) {
   const {
@@ -45,7 +47,7 @@ export default function LibraryDetailModal({
   } = useDocumentDetail(documentId);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const [archiving, setArchiving] = useState(false);
   const [form, setForm] = useState<Partial<LibraryDocumentItem>>({});
   const feedback = useFeedback();
   const canEdit = canWrite || canAdmin;
@@ -78,23 +80,23 @@ export default function LibraryDetailModal({
     setForm({});
     setEditing(false);
   };
-  const handleDelete = async () => {
+  const handleArchive = async () => {
     if (!doc) return;
     const ok = await feedback.confirmDelete({
-      message: `确定要删除 "${doc.fileName || "此文件"}" 吗？删除后将归档，不会永久丢失。`,
-      confirmLabel: deleting ? "删除中..." : "确认删除",
+      message: `确定要归档 "${doc.fileName || "此文件"}" 吗？归档后不会永久丢失。`,
+      confirmLabel: archiving ? "归档中..." : "确认归档",
     });
     if (!ok) return;
-    setDeleting(true);
+    setArchiving(true);
     try {
-      await deleteDocument(doc.id);
-      feedback.success("已删除");
+      await archiveDocument(doc.id);
+      feedback.success("已归档");
       onUpdated();
       onClose();
     } catch (e) {
-      feedback.error(e instanceof Error ? e.message : "删除失败");
+      feedback.error(e instanceof Error ? e.message : "归档失败");
     } finally {
-      setDeleting(false);
+      setArchiving(false);
     }
   };
 
@@ -215,21 +217,22 @@ export default function LibraryDetailModal({
   const actions: FormSurfaceCommandSpec[] = [];
   if (doc && canEdit) {
     if (editing) {
-      actions.push({ key: "cancel", label: "取消", onClick: handleCancel });
-      actions.push({ key: "save", label: saving ? "保存中..." : "保存", variant: "primary", disabled: saving, onClick: () => void handleSave() });
+      actions.push({ key: "cancel", label: "取消", icon: "cancel", onClick: handleCancel });
+      actions.push({ key: "save", label: saving ? "保存中..." : "保存", icon: "save", variant: "primary", disabled: saving, onClick: () => void handleSave() });
     } else {
-      actions.push({ key: "edit", label: "编辑", variant: "primary", onClick: () => setEditing(true) });
+      actions.push({ key: "edit", label: "编辑", icon: "edit", variant: "primary", onClick: () => setEditing(true) });
     }
   }
-  if (doc && !editing && doc.status === "active") {
+  if (doc && !editing && canExport && doc.status === "active") {
     actions.push({
       key: "download",
       label: "下载文件",
+      icon: "download",
       onClick: () => window.open(workspacePath(`/api/modules/library/basic-info/documents/${doc.id}/download`), "_blank", "noopener,noreferrer"),
     });
   }
-  if (doc && !editing && canDelete) {
-    actions.push({ key: "delete", label: deleting ? "删除中..." : "删除", variant: "danger", disabled: deleting, onClick: () => void handleDelete() });
+  if (doc && !editing && canArchive) {
+    actions.push({ key: "archive", label: archiving ? "归档中..." : "归档", icon: "archive", disabled: archiving, onClick: () => void handleArchive() });
   }
 
   return (

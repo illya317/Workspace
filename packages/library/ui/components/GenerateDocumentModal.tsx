@@ -160,10 +160,11 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
               },
             ], {
               commands: [
-                { key: "cancel", label: "取消", onClick: onClose },
+                { key: "cancel", label: "取消", icon: "cancel", onClick: onClose },
                 {
                   key: "generate",
                   label: generating ? "生成中..." : "生成",
+                  icon: "generate",
                   variant: "primary",
                   disabled: generating || !title.trim() || !hasSources,
                   onClick: () => void handleGenerate(),

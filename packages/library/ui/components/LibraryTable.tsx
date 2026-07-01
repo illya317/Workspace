@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { createPageBody, createPageTableSection, PageSurface } from "@workspace/core/ui";
+import { BodySurface, createPageBody, createPageTableSection, PageSurface } from "@workspace/core/ui";
 import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { LibraryDocumentItem } from "@workspace/library/types";
 import LibraryDetailModal from "./LibraryDetailModal";
@@ -12,7 +12,8 @@ interface Props {
   loading: boolean;
   onRefresh: () => void;
   canWrite?: boolean;
-  canDelete?: boolean;
+  canArchive?: boolean;
+  canExport?: boolean;
   canAdmin?: boolean;
 }
 
@@ -27,7 +28,8 @@ export default function LibraryTable({
   loading,
   onRefresh,
   canWrite,
-  canDelete,
+  canArchive,
+  canExport,
   canAdmin,
 }: Props) {
   const [detailId, setDetailId] = useState<number | null>(null);
@@ -78,24 +80,20 @@ export default function LibraryTable({
       key: "actions",
       label: "操作",
       required: true,
-      cell: (d) => d.status === "active" ? (
-        <a
-          href={workspacePath(`/api/modules/library/basic-info/documents/${d.id}/download`)}
-          className="inline-flex items-center text-emerald-600 hover:text-emerald-700"
-          title="下载"
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-            />
-          </svg>
-        </a>
+      cell: (d) => canExport && d.status === "active" ? (
+        <span className="inline-flex" onClick={(event) => event.stopPropagation()}>
+          <BodySurface
+            kind="section"
+            commands={[{
+              key: "download",
+              label: "下载",
+              icon: "download",
+              onClick: () => window.open(workspacePath(`/api/modules/library/basic-info/documents/${d.id}/download`), "_blank", "noopener,noreferrer"),
+              presentation: "icon",
+              size: "sm",
+            }]}
+          />
+        </span>
       ) : null,
     },
   ];
@@ -123,7 +121,8 @@ export default function LibraryTable({
           onClose={() => setDetailId(null)}
           onUpdated={onRefresh}
           canWrite={canWrite}
-          canDelete={canDelete}
+          canArchive={canArchive}
+          canExport={canExport}
           canAdmin={canAdmin}
         />
       )}

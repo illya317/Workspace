@@ -5,7 +5,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { useLibraryDocuments } from "../hooks/useLibraryDocuments";
 import { useLibraryFilters } from "../hooks/useLibraryFilters";
 import { useLibraryDirectories } from "../hooks/useLibraryDirectories";
-import { createEmptySection, createPageBody, PageSurface } from "@workspace/core/ui";
+import { BodySurface, createEmptySection, createPageBody, PageSurface } from "@workspace/core/ui";
 import type { DataSurfaceColumnSpec, DataSurfaceProps, BodySurfaceSectionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import GenerateDocumentModal from "./GenerateDocumentModal";
 import LibraryDetailModal from "./LibraryDetailModal";
@@ -17,7 +17,9 @@ import {
 
 interface Props {
   canWrite?: boolean;
-  canDelete?: boolean;
+  canArchive?: boolean;
+  canImport?: boolean;
+  canExport?: boolean;
   canAdmin?: boolean;
 }
 
@@ -27,7 +29,7 @@ function fmtDate(iso: string | null) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
+export default function DocumentsTab({ canWrite, canArchive, canImport, canExport, canAdmin }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarDrawerOpen, setSidebarDrawerOpen] = useState(false);
   const [showGenerate, setShowGenerate] = useState(false);
@@ -63,12 +65,17 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
   }
 
   const toolbarItems: SurfaceToolbarItems = [];
-  if (canWrite) {
+  if (canImport) {
     toolbarItems.push({
-      kind: "create",
-      key: "primary",
-      label: "生成文档",
-      onClick: () => setShowGenerate(true),
+      kind: "action-group",
+      key: "import-actions",
+      actions: [{
+        key: "generate",
+        kind: "generate",
+        label: "生成文档",
+        variant: "primary",
+        onClick: () => setShowGenerate(true),
+      }],
     });
   }
   toolbarItems.push(
@@ -158,17 +165,20 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
       key: "actions",
       label: "操作",
       required: true,
-      cell: (document) => document.status === "active" ? (
-        <a
-          href={workspacePath(`/api/modules/library/basic-info/documents/${document.id}/download`)}
-          className="inline-flex items-center text-emerald-600 hover:text-emerald-700"
-          title="下载"
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(event) => event.stopPropagation()}
-        >
-          下载
-        </a>
+      cell: (document) => canExport && document.status === "active" ? (
+        <span className="inline-flex" onClick={(event) => event.stopPropagation()}>
+          <BodySurface
+            kind="section"
+            commands={[{
+              key: "download",
+              label: "下载",
+              icon: "download",
+              onClick: () => window.open(workspacePath(`/api/modules/library/basic-info/documents/${document.id}/download`), "_blank", "noopener,noreferrer"),
+              presentation: "icon",
+              size: "sm",
+            }]}
+          />
+        </span>
       ) : null,
     },
   ];
@@ -260,7 +270,8 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
           onClose={() => setDetailId(null)}
           onUpdated={handleUpdated}
           canWrite={canWrite}
-          canDelete={canDelete}
+          canArchive={canArchive}
+          canExport={canExport}
           canAdmin={canAdmin}
         />
       )}

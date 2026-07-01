@@ -1,4 +1,4 @@
-import { authorize } from "@workspace/platform/server/auth";
+import { authorize, evaluatePermissionAction } from "@workspace/platform/server/auth";
 import type { SessionUser } from "@workspace/platform/types";
 import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
 import LibraryClient from "./LibraryClient";
@@ -10,10 +10,12 @@ interface Props {
 }
 
 export default async function LibraryBasicInfoPage({ user }: Props) {
-  const [canWrite, canDelete, canAdmin] = await Promise.all([
-    authorize({ user, resourceKey: "library.basicInfo.write", action: "write" }),
-    authorize({ user, resourceKey: "library.basicInfo.write", action: "delete" }),
-    authorize({ user, resourceKey: "library.basicInfo.write", action: "admin" }),
+  const [canWrite, canArchive, canImport, canExport, canAdmin] = await Promise.all([
+    authorize({ user, resourceKey: "library.basicInfo", action: "write" }),
+    evaluatePermissionAction(user.id, "library.basicInfo", "archive"),
+    evaluatePermissionAction(user.id, "library.basicInfo", "import"),
+    evaluatePermissionAction(user.id, "library.basicInfo", "export"),
+    authorize({ user, resourceKey: "library.basicInfo", action: "admin" }),
   ]);
 
   return renderAppShellPage({
@@ -22,7 +24,9 @@ export default async function LibraryBasicInfoPage({ user }: Props) {
     user,
     children: <LibraryClient
       canWrite={canWrite}
-      canDelete={canDelete}
+      canArchive={canArchive}
+      canImport={canImport}
+      canExport={canExport}
       canAdmin={canAdmin}
     />,
   });

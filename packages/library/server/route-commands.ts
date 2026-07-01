@@ -15,7 +15,8 @@ import { upsertGeneratedDocument } from "./generators/generated-document";
 import {
   buildConfidentialityFilter,
   checkLibraryAdmin,
-  checkLibraryDelete,
+  checkLibraryArchive,
+  checkLibraryExport,
   checkLibraryWrite,
   getMaxConfidentialityLevel,
 } from "./permissions";
@@ -124,6 +125,7 @@ async function checkDocAccess(docId: number, userId: number) {
 }
 
 export async function executeLibraryPathFileCommand(command: { path: string[]; userId: number }) {
+  if (!(await checkLibraryExport(command.userId))) return serviceError("No export permission", 403);
   try {
     return fileResponse(await getLibraryFileByRelativePath(command.path.join("/"), command.userId));
   } catch (error) {
@@ -170,8 +172,10 @@ export async function executeUpdateLibraryDocumentCommand(command: { id: number;
   const writeFields = ["title", "summary", "docId", "tags", "categoryCode", "categoryName", "subcategoryPath", "status"] as const;
   const hasWriteField = writeFields.some((field) => body[field] !== undefined);
   const hasAdminField = body.confidentialityLevel !== undefined;
+  const archivesDocument = body.status === "archived" && check.data.status !== "archived";
 
   if (hasWriteField && !(await checkLibraryWrite(command.userId))) return serviceError("No write permission", 403);
+  if (archivesDocument && !(await checkLibraryArchive(command.userId))) return serviceError("No archive permission", 403);
   if (hasAdminField && !(await checkLibraryAdmin(command.userId))) return serviceError("No admin permission", 403);
   if (body.confidentialityLevel !== undefined) {
     const maxLevel = await getMaxConfidentialityLevel(command.userId);
@@ -186,12 +190,13 @@ export async function executeUpdateLibraryDocumentCommand(command: { id: number;
 export async function executeArchiveLibraryDocumentCommand(command: { id: number; userId: number }) {
   const check = await checkDocAccess(command.id, command.userId);
   if (!check.ok) return check;
-  if (!(await checkLibraryDelete(command.userId))) return serviceError("No delete permission", 403);
+  if (!(await checkLibraryArchive(command.userId))) return serviceError("No archive permission", 403);
   await archiveDocument(command.id, command.userId);
   return { ok: true };
 }
 
 export async function executeDownloadLibraryDocumentCommand(command: { id: number; userId: number }) {
+  if (!(await checkLibraryExport(command.userId))) return serviceError("No export permission", 403);
   try {
     return fileResponse(await getLibraryFileByDocumentId(command.id, command.userId));
   } catch (error) {
