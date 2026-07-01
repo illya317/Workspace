@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type KeyboardEvent } from "react";
 import { createMessageSection, createSectionsSection, createPageBody, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
+import {
+  fetchPreferredDepartmentSettings,
+  savePreferredDepartmentIds,
+  type PreferredDepartmentOption,
+} from "../space-preferences";
 import { useApiAccessSection, type ApiAccessModuleRow } from "./ApiAccessClient";
 type Message = {
   type: "success" | "error";
@@ -43,11 +48,34 @@ export default function AccountSettingsPanel({
   const [usernameMessage, setUsernameMessage] = useState<Message>(null);
   const [avatarMessage, setAvatarMessage] = useState<Message>(null);
   const [passwordMessage, setPasswordMessage] = useState<Message>(null);
+  const [preferredDepartments, setPreferredDepartments] = useState<PreferredDepartmentOption[]>([]);
+  const [preferredDepartmentIds, setPreferredDepartmentIds] = useState<number[]>([]);
+  const [preferredDepartmentMessage, setPreferredDepartmentMessage] = useState<Message>(null);
+  const [preferredDepartmentSaving, setPreferredDepartmentSaving] = useState(false);
   useEffect(() => {
     setUsername(user.username || "");
     setNickname(user.nickname || "");
     setAvatar(user.avatar || "");
   }, [user.avatar, user.nickname, user.username]);
+  useEffect(() => {
+    let cancelled = false;
+    fetchPreferredDepartmentSettings()
+      .then((settings) => {
+        if (cancelled) return;
+        setPreferredDepartments(settings.departments);
+        setPreferredDepartmentIds(settings.preferredDepartmentIds);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setPreferredDepartmentMessage({
+          type: "error",
+          text: error instanceof Error ? error.message : "加载常用部门失败",
+        });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   useEffect(() => {
     if (!avatarFile) {
       setAvatarPreviewUrl("");
@@ -178,7 +206,42 @@ export default function AccountSettingsPanel({
     setConfirmPwd("");
     setTimeout(() => router.push("/login"), 1500);
   }
+  function setPreferredDepartmentAt(index: number, value: unknown) {
+    const departmentId = Number(value || 0);
+    setPreferredDepartmentIds((current) => {
+      const next = [...current];
+      if (departmentId > 0) next[index] = departmentId;
+      else next.splice(index, 1);
+      return Array.from(new Set(next.filter((id) => id > 0))).slice(0, 3);
+    });
+  }
+  async function savePreferredDepartments() {
+    setPreferredDepartmentSaving(true);
+    setPreferredDepartmentMessage(null);
+    try {
+      const data = await savePreferredDepartmentIds(preferredDepartmentIds);
+      setPreferredDepartmentIds(data.preferredDepartmentIds);
+      setPreferredDepartmentMessage({
+        type: "success",
+        text: "常用部门已更新",
+      });
+    } catch (error) {
+      setPreferredDepartmentMessage({
+        type: "error",
+        text: error instanceof Error ? error.message : "保存常用部门失败",
+      });
+    } finally {
+      setPreferredDepartmentSaving(false);
+    }
+  }
   const apiAccessSection = useApiAccessSection({ user, modules: apiAccessModules });
+  const departmentChoiceItems = [
+    { value: "", label: "未选择" },
+    ...preferredDepartments.map((department) => ({
+      value: String(department.id),
+      label: `${department.name} (${department.code})`,
+    })),
+  ];
   const sections: BodySurfaceSectionSpec[] = [
     createMessageSection("profile-header", {
       content: (
@@ -329,6 +392,63 @@ export default function AccountSettingsPanel({
                 ],
               },
               commands: [{ key: "save-avatar", label: avatarSaving ? "保存中..." : "保存头像", variant: "primary", disabled: !avatarFile || avatarSaving, onClick: () => void saveAvatar() }],
+            } },
+        },
+      ],
+    }),
+    createSectionsSection("space-preferences", {
+      sections: [
+        {
+          key: "preferred-departments",
+          header: { title: "常用部门" },
+          body: { kind: "form", form: {
+              kind: "fields",
+              content: {
+                layout: { columns: 3 },
+                items: [
+                  {
+                    key: "preferred-department-1",
+                    label: "部门 1",
+                    spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: departmentChoiceItems, visibleCount: 6 } },
+                    value: preferredDepartmentIds[0] ? String(preferredDepartmentIds[0]) : "",
+                    placeholder: "未选择",
+                    onChange: (value: unknown) => setPreferredDepartmentAt(0, value),
+                  },
+                  {
+                    key: "preferred-department-2",
+                    label: "部门 2",
+                    spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: departmentChoiceItems, visibleCount: 6 } },
+                    value: preferredDepartmentIds[1] ? String(preferredDepartmentIds[1]) : "",
+                    placeholder: "未选择",
+                    onChange: (value: unknown) => setPreferredDepartmentAt(1, value),
+                  },
+                  {
+                    key: "preferred-department-3",
+                    label: "部门 3",
+                    spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: departmentChoiceItems, visibleCount: 6 } },
+                    value: preferredDepartmentIds[2] ? String(preferredDepartmentIds[2]) : "",
+                    placeholder: "未选择",
+                    onChange: (value: unknown) => setPreferredDepartmentAt(2, value),
+                  },
+                  {
+                    kind: "note" as const,
+                    key: "preferred-departments-note",
+                    content: "Work 和模板空间的顶部栏最多显示这 3 个部门。",
+                  },
+                  ...(preferredDepartmentMessage ? [{
+                    kind: "note" as const,
+                    key: "preferred-departments-message",
+                    content: preferredDepartmentMessage.text,
+                  }] : []),
+                ],
+              },
+              commands: [{
+                key: "save-preferred-departments",
+                label: preferredDepartmentSaving ? "保存中..." : "保存常用部门",
+                variant: "primary",
+                disabled: preferredDepartmentSaving || preferredDepartments.length === 0,
+                onClick: () => void savePreferredDepartments(),
+              }],
             } },
         },
       ],

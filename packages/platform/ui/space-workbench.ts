@@ -19,20 +19,17 @@ export function createSpaceKindNavigation({
   items,
   active,
   onChange,
-  label = "空间",
   ariaLabel = "空间类型",
 }: {
   items: SpaceWorkbenchKindOption[];
   active: string;
   onChange: (key: string) => void;
-  label?: string;
   ariaLabel?: string;
 }): PageSurfaceNavigationSpec {
   return createPageTabsNavigation({
     items: items.map((item) => ({ key: item.key, label: item.label })),
     active,
     onChange,
-    label,
     variant: "large",
     ariaLabel,
   });

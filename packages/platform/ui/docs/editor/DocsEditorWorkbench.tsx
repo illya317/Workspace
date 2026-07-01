@@ -16,6 +16,7 @@ import { createEmptyEditorDocument } from "@workspace/platform/document-editor";
 import { businessSpaceKindLabel } from "@workspace/platform/permissions";
 import { useSpacePermissionsSections, type SpacePermissionRow } from "@workspace/platform/ui/SpacePermissionsPanel";
 import { createSpaceKindNavigation, createSpaceViewToolbarItem, createSpaceWorkbenchBody, type SpaceWorkbenchKindOption } from "../../space-workbench";
+import { fetchPreferredDepartmentSettings } from "../../space-preferences";
 import {
   DOCS_EDITOR_REFERENCE_OPTIONS_ENDPOINT,
   createEditorTemplateDraft,
@@ -47,6 +48,7 @@ export default function DocsEditorWorkbench() {
   const [createOpen, setCreateOpen] = useState(false);
   const [createTitle, setCreateTitle] = useState("");
   const [creating, setCreating] = useState(false);
+  const [preferredDepartmentIds, setPreferredDepartmentIds] = useState<number[]>([]);
   const hydratedDefaultSpaceIdRef = useRef<string | null>(null);
 
   const loadBootstrap = useCallback(async (spaceId: string | null) => {
@@ -76,11 +78,24 @@ export default function DocsEditorWorkbench() {
     void loadBootstrap(activeSpaceId);
   }, [activeSpaceId, loadBootstrap]);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetchPreferredDepartmentSettings()
+      .then((settings) => {
+        if (!cancelled) setPreferredDepartmentIds(settings.preferredDepartmentIds);
+      })
+      .catch(() => {
+        if (!cancelled) setPreferredDepartmentIds([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const activeSpace = spaces.find((space) => space.id === activeSpaceId) ?? spaces[0] ?? null;
-  const filteredSpaces = useMemo(
-    () => activeSpace ? spaces.filter((space) => space.kind === activeSpace.kind) : spaces,
-    [activeSpace, spaces],
-  );
+  const spaceKindOptions = docsSpaceKindOptions(spaces, preferredDepartmentIds);
+  const activeSpaceNavigationKey = activeSpace ? docsSpaceNavigationKey(activeSpace, spaceKindOptions) : spaceKindOptions[0]?.key ?? null;
+  const filteredSpaces = filterDocsSpacesByNavigation(spaces, activeSpaceNavigationKey);
   const canCreateTemplate = Boolean(activeSpace && isEditableSpace(activeSpace));
   const canManageSpace = canManage(activeSpace?.role);
   const handlePermissionToast = useCallback((toast: { message: string }) => setMessage(toast.message), []);
@@ -108,6 +123,13 @@ export default function DocsEditorWorkbench() {
   useEffect(() => {
     if (activeTab === "permissions" && !canManageSpace) setActiveTab("templates");
   }, [activeTab, canManageSpace]);
+
+  useEffect(() => {
+    if (!activeSpaceNavigationKey || !activeSpace) return;
+    if (filteredSpaces.some((space) => space.id === activeSpace.id)) return;
+    const fallback = filteredSpaces[0] ?? null;
+    if (fallback) setActiveSpaceId(fallback.id);
+  }, [activeSpace, activeSpaceNavigationKey, filteredSpaces]);
 
   async function createTemplate() {
     const title = createTitle.trim();
@@ -188,7 +210,6 @@ export default function DocsEditorWorkbench() {
       }),
     },
   };
-  const spaceKindOptions = docsSpaceKindOptions(spaces);
   const viewOptions = canManageSpace
     ? DOCS_EDITOR_VIEW_OPTIONS
     : DOCS_EDITOR_VIEW_OPTIONS.filter((option) => option.key !== "permissions");
@@ -273,9 +294,9 @@ export default function DocsEditorWorkbench() {
       kind="standard"
       navigation={activeSpace && spaceKindOptions.length > 0 ? createSpaceKindNavigation({
         items: spaceKindOptions,
-        active: activeSpace.kind,
-        onChange: (kind) => {
-          const next = spaces.find((space) => space.kind === kind);
+        active: activeSpaceNavigationKey ?? spaceKindOptions[0]?.key ?? "personal",
+        onChange: (key) => {
+          const next = docsNavigationTargetSpace(spaces, key, activeSpace);
           if (next) setActiveSpaceId(next.id);
           setActiveTab("templates");
         },
@@ -314,11 +335,45 @@ const DOCS_EDITOR_VIEW_OPTIONS: SpaceWorkbenchKindOption[] = [
   { key: "permissions", label: "权限管理" },
 ];
 
-function docsSpaceKindOptions(spaces: EditorSpaceDto[]): SpaceWorkbenchKindOption[] {
-  const kinds = new Set(spaces.map((space) => space.kind));
-  return [
-    { key: "personal", label: "个人" },
-    { key: "company", label: "公共" },
-    { key: "department", label: "部门" },
-  ].filter((option) => kinds.has(option.key as EditorSpaceDto["kind"]));
+function docsSpaceTargetKey(space: EditorSpaceDto) {
+  return `${space.kind}:${space.targetId}`;
+}
+
+function docsDepartmentLabel(space: EditorSpaceDto) {
+  return space.title.replace(/模板空间$/, "") || space.title;
+}
+
+function preferredDocsDepartmentSpaces(spaces: EditorSpaceDto[], preferredDepartmentIds: number[]) {
+  const departments = spaces.filter((space) => space.kind === "department");
+  const byTargetId = new Map(departments.map((space) => [space.targetId, space]));
+  const preferred = preferredDepartmentIds.map((id) => byTargetId.get(id)).filter((space): space is EditorSpaceDto => Boolean(space));
+  return (preferred.length > 0 ? preferred : departments).slice(0, 3);
+}
+
+function docsSpaceKindOptions(spaces: EditorSpaceDto[], preferredDepartmentIds: number[]): SpaceWorkbenchKindOption[] {
+  const items: SpaceWorkbenchKindOption[] = [];
+  const personal = spaces.find((space) => space.kind === "personal");
+  const company = spaces.find((space) => space.kind === "company");
+  if (personal) items.push({ key: docsSpaceTargetKey(personal), label: "个人" });
+  if (company) items.push({ key: docsSpaceTargetKey(company), label: "公共" });
+  preferredDocsDepartmentSpaces(spaces, preferredDepartmentIds).forEach((space) => {
+    items.push({ key: docsSpaceTargetKey(space), label: docsDepartmentLabel(space) });
+  });
+  return items;
+}
+
+function docsSpaceNavigationKey(activeSpace: EditorSpaceDto, items: SpaceWorkbenchKindOption[]) {
+  const exactKey = docsSpaceTargetKey(activeSpace);
+  return items.some((item) => item.key === exactKey) ? exactKey : items[0]?.key ?? null;
+}
+
+function filterDocsSpacesByNavigation(spaces: EditorSpaceDto[], key: string | null) {
+  if (!key) return spaces;
+  return spaces.filter((space) => docsSpaceTargetKey(space) === key);
+}
+
+function docsNavigationTargetSpace(spaces: EditorSpaceDto[], key: string, activeSpace: EditorSpaceDto | null) {
+  const exact = spaces.find((space) => docsSpaceTargetKey(space) === key) ?? null;
+  if (exact) return exact;
+  return activeSpace && docsSpaceTargetKey(activeSpace) === key ? activeSpace : null;
 }

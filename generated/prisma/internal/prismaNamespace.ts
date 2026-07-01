@@ -7664,6 +7664,7 @@ export const UserScalarFieldEnum = {
   nickname: 'nickname',
   avatar: 'avatar',
   routineItems: 'routineItems',
+  preferredDepartmentIds: 'preferredDepartmentIds',
   canLogin: 'canLogin',
   apiKey: 'apiKey',
   employeeId: 'employeeId',

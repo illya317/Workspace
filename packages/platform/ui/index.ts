@@ -14,6 +14,12 @@ export { default as UserMenu } from "./UserMenu";
 export { DocsPlaceholderPage } from "./docs";
 export { default as SettingsClient } from "./settings/SettingsClient";
 export {
+  fetchPreferredDepartmentSettings,
+  savePreferredDepartmentIds,
+  type PreferredDepartmentOption,
+  type PreferredDepartmentSettings,
+} from "./space-preferences";
+export {
   createSpaceKindNavigation,
   createSpaceViewToolbarItem,
   createSpaceWorkbenchBody,

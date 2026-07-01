@@ -5,6 +5,7 @@ import {
 } from "@workspace/platform/server/business-space-permissions";
 import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
 import { prisma } from "@workspace/platform/server/prisma";
+import { getUserPreferredDepartmentIds } from "@workspace/platform/server/user-preferences";
 import {
   canManageWorkTaskSpace,
   getUserEmployeeIds,
@@ -40,9 +41,9 @@ type SpaceSeed = {
   lifecycleStatus: WorkTaskSpace["lifecycleStatus"];
 };
 
-export async function listWorkTaskSpaces(userId: number): Promise<{ spaces: WorkTaskSpace[] }> {
+export async function listWorkTaskSpaces(userId: number): Promise<{ spaces: WorkTaskSpace[]; preferredDepartmentIds: number[] }> {
   const isAdmin = await hasWorkTaskAdmin(userId);
-  const [user, companies, departments, projects] = await Promise.all([
+  const [user, companies, departments, projects, preferredDepartmentIds] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -59,6 +60,7 @@ export async function listWorkTaskSpaces(userId: number): Promise<{ spaces: Work
     listCompanySeeds(userId, isAdmin),
     listDepartmentSeeds(userId, isAdmin),
     listProjectSeeds(userId, isAdmin),
+    getUserPreferredDepartmentIds(userId),
   ]);
 
   const seeds = dedupeSeeds([
@@ -85,7 +87,10 @@ export async function listWorkTaskSpaces(userId: number): Promise<{ spaces: Work
     };
   }));
 
-  return { spaces: spaces.filter((space): space is WorkTaskSpace => Boolean(space)) };
+  return {
+    spaces: spaces.filter((space): space is WorkTaskSpace => Boolean(space)),
+    preferredDepartmentIds,
+  };
 }
 
 async function listCompanySeeds(userId: number, isAdmin: boolean): Promise<SpaceSeed[]> {

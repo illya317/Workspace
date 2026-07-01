@@ -23,8 +23,11 @@ async function readJson<T>(response: Response, fallbackError: string): Promise<T
 
 export async function listTaskSpaces() {
   const response = await fetch(workspacePath("/api/modules/work/tasks/spaces"));
-  const data = await readJson<{ spaces?: WorkTaskSpace[] }>(response, "加载工作空间失败");
-  return data.spaces || [];
+  const data = await readJson<{ spaces?: WorkTaskSpace[]; preferredDepartmentIds?: number[] }>(response, "加载工作空间失败");
+  return {
+    spaces: data.spaces || [],
+    preferredDepartmentIds: data.preferredDepartmentIds || [],
+  };
 }
 
 export async function listWorkPlans(target: WorkTarget) {

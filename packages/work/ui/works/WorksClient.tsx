@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createSectionsSection, createMessageSection, createPageBody, createPanelSection, createSectionSection, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createSectionsSection, createMessageSection, createPageBody, createSectionSection, PageSurface, useFeedback } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
-import { createSpaceKindNavigation, createSpaceWorkbenchBody, type SpaceWorkbenchKindOption } from "@workspace/platform/ui";
+import { createSpaceKindNavigation, createSpaceWorkbenchBody } from "@workspace/platform/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import {
   archiveWorkPlan,
@@ -29,9 +29,16 @@ import { useWorkTaskTableSection } from "./WorkTaskTable";
 import { useWorkTaskFormSurface } from "./WorkTaskFields";
 import { createWorkPlanContentSection } from "./WorkPlanSections";
 import { applyDefaultExpandedWorkSpaces, createWorkSpaceNavigationBody, workSpaceKey } from "./WorkSpaceSidebar";
+import {
+  activeWorkSpaceNavigationKey,
+  createWorkSpaceTopNavigationItems,
+  filterWorkSpacesByNavigation,
+  targetNavigationKey,
+  workSpaceNavigationTarget,
+} from "./WorkSpaceTopNavigation";
 import { useWorkPlanFormSurface } from "./WorkPlanFields";
 import { useWorkPlanPagination } from "./useWorkPlanPagination";
-import { createWorkToolbarItems, type WorkSpaceTypeFilter } from "./WorkToolbar";
+import { createWorkToolbarItems } from "./WorkToolbar";
 import type { WorkItem, WorkItemType, WorkPlan, WorkPlanDraft, WorkTarget, WorkTaskSpace } from "./types";
 
 export default function WorksClient({ initialTarget }: {
@@ -41,6 +48,7 @@ export default function WorksClient({ initialTarget }: {
 }) {
   const feedback = useFeedback();
   const [spaces, setSpaces] = useState<WorkTaskSpace[]>([]);
+  const [preferredDepartmentIds, setPreferredDepartmentIds] = useState<number[]>([]);
   const [spacesLoading, setSpacesLoading] = useState(true);
   const [activeTarget, setActiveTarget] = useState<WorkTarget | null>(null);
   const [activeTab, setActiveTab] = useState("tasks");
@@ -49,7 +57,6 @@ export default function WorksClient({ initialTarget }: {
   const [activePlanId, setActivePlanId] = useState<number | null>(null);
   const [planCreating, setPlanCreating] = useState(false);
   const [planDraft, setPlanDraft] = useState<WorkPlanDraft>(() => createEmptyWorkPlanDraft());
-  const [spaceTypeFilter, setSpaceTypeFilter] = useState<WorkSpaceTypeFilter>("all");
   const [statusFilter, setStatusFilter] = useState<"active" | "done" | "archived">("active");
   const [itemTypeFilter, setItemTypeFilter] = useState("all");
   const [sideOpen, setSideOpen] = useState(true);
@@ -68,14 +75,22 @@ export default function WorksClient({ initialTarget }: {
     () => isWorkPlanDraftDirty(activePlanDraft, planDraft),
     [activePlanDraft, planDraft],
   );
+  const spaceNavigationItems = useMemo(
+    () => createWorkSpaceTopNavigationItems(spaces, preferredDepartmentIds),
+    [preferredDepartmentIds, spaces],
+  );
+  const activeSpaceNavigationKey = useMemo(
+    () => activeWorkSpaceNavigationKey(activeTarget, spaceNavigationItems),
+    [activeTarget, spaceNavigationItems],
+  );
   const filteredSpaces = useMemo(
-    () => spaceTypeFilter === "all" ? spaces : spaces.filter((space) => space.targetType === spaceTypeFilter),
-    [spaceTypeFilter, spaces],
+    () => filterWorkSpacesByNavigation(spaces, activeSpaceNavigationKey),
+    [activeSpaceNavigationKey, spaces],
   );
-  const filteredPlans = useMemo(
-    () => spaceTypeFilter === "all" ? plans : plans.filter((plan) => plan.targetType === spaceTypeFilter),
-    [plans, spaceTypeFilter],
-  );
+  const filteredPlans = useMemo(() => {
+    const keys = new Set(filteredSpaces.map((space) => targetNavigationKey(space)));
+    return plans.filter((plan) => keys.has(targetNavigationKey(plan)));
+  }, [filteredSpaces, plans]);
   const planPagination = useWorkPlanPagination(activePlan, filteredPlans);
   const currentSpace = useMemo(() => {
     const target = activePlan ? { targetType: activePlan.targetType, targetId: activePlan.targetId } : activeTarget;
@@ -121,8 +136,10 @@ export default function WorksClient({ initialTarget }: {
   const loadSpaces = useCallback(async () => {
     setSpacesLoading(true);
     try {
-      const nextSpaces = await listTaskSpaces();
+      const data = await listTaskSpaces();
+      const nextSpaces = data.spaces;
       setSpaces(nextSpaces);
+      setPreferredDepartmentIds(data.preferredDepartmentIds);
       const requested = normalizeInitialTarget(initialTarget);
       const match = requested ? nextSpaces.find((space) => sameTarget(space, requested)) : null;
       const personal = nextSpaces.find((space) => space.targetType === "personal");
@@ -190,16 +207,15 @@ export default function WorksClient({ initialTarget }: {
   }, [activePlan, activePlan?.id, planCreating]);
   useEffect(() => { setExpandedSpaceKeys((current) => applyDefaultExpandedWorkSpaces(current, spaces, activeTarget)); }, [activeTarget, spaces]);
   useEffect(() => {
-    if (spaceTypeFilter === "all") return;
-    if (activeTarget?.targetType === spaceTypeFilter) return;
+    if (!spaces.length || !activeSpaceNavigationKey) return;
+    if (activeTarget && filteredSpaces.some((space) => sameTarget(space, activeTarget))) return;
     const fallback = filteredSpaces[0] ?? null;
     setActiveTarget(fallback);
     setActivePlanId(null);
     setPlanCreating(false);
     setWorkCreating(false);
-    if (fallback) window.history.pushState(null, "", workspacePath(getWorkSpacePath(fallback.targetType, fallback.targetId)));
-  }, [activeTarget, filteredSpaces, setWorkCreating, spaceTypeFilter]);
-
+    if (fallback) window.history.replaceState(null, "", workspacePath(getWorkSpacePath(fallback.targetType, fallback.targetId)));
+  }, [activeSpaceNavigationKey, activeTarget, filteredSpaces, setWorkCreating, spaces.length]);
   useEffect(() => {
     if (spaces.length === 0) return;
     function handlePopState() {
@@ -255,10 +271,8 @@ export default function WorksClient({ initialTarget }: {
     window.history.pushState(null, "", workspacePath(getWorkSpacePath(space.targetType, space.targetId)));
   }
 
-  function changeSpaceTypeFilter(value: WorkSpaceTypeFilter) {
-    setSpaceTypeFilter(value);
-    if (value === "all" || activeTarget?.targetType === value) return;
-    const fallback = spaces.find((space) => space.targetType === value) ?? null;
+  function changeSpaceNavigation(key: string) {
+    const fallback = workSpaceNavigationTarget(spaces, key, activeTarget);
     if (fallback) selectSpace(fallback);
     else {
       setActiveTarget(null);
@@ -394,15 +408,8 @@ export default function WorksClient({ initialTarget }: {
     onToggleSpace: toggleSpace,
     onPlanPageChange: planPagination.setPlanPage,
   });
-  const availableSpaceKindOptions = spaceKindOptions(spaces);
-  const activeSpaceKind = spaceTypeFilter === "all"
-    ? activeTarget?.targetType ?? availableSpaceKindOptions[0]?.key ?? "personal"
-    : spaceTypeFilter;
   const rightBody = createPageBody(currentSpace ? [
-    createPanelSection("space-header", {
-      title: currentSpace.name,
-      sections: [createSpaceMetricsSection(currentSpace)],
-    }),
+    createSpaceMetricsSection(currentSpace),
     activeTab === "permissions" ? createSectionsSection("permissions", {
       sections: permissionSections,
     }) : activeTab === "reports" ? createSectionSection("reports", {
@@ -437,10 +444,10 @@ export default function WorksClient({ initialTarget }: {
 
   return (
     <PageSurface kind="standard"
-      navigation={availableSpaceKindOptions.length > 0 ? createSpaceKindNavigation({
-        items: availableSpaceKindOptions,
-        active: activeSpaceKind,
-        onChange: (key) => changeSpaceTypeFilter(key as WorkSpaceTypeFilter),
+      navigation={spaceNavigationItems.length > 0 ? createSpaceKindNavigation({
+        items: spaceNavigationItems,
+        active: activeSpaceNavigationKey ?? spaceNavigationItems[0]?.key ?? "personal",
+        onChange: changeSpaceNavigation,
       }) : undefined}
       toolbar={toolbarItems.length > 0 ? { items: toolbarItems } : undefined}
       body={createSpaceWorkbenchBody({
@@ -456,14 +463,4 @@ export default function WorksClient({ initialTarget }: {
       })}
     />
   );
-}
-
-function spaceKindOptions(spaces: WorkTaskSpace[]): SpaceWorkbenchKindOption[] {
-  const byType = new Set(spaces.map((space) => space.targetType));
-  return [
-    { key: "personal", label: "个人" },
-    { key: "company", label: "运营委员会" },
-    { key: "department", label: "部门" },
-    { key: "project", label: "项目" },
-  ].filter((option) => byType.has(option.key as WorkTarget["targetType"]));
 }

@@ -44,6 +44,7 @@ export type UserMinAggregateOutputType = {
   nickname: string | null
   avatar: string | null
   routineItems: string | null
+  preferredDepartmentIds: string | null
   canLogin: boolean | null
   apiKey: string | null
   employeeId: string | null
@@ -59,6 +60,7 @@ export type UserMaxAggregateOutputType = {
   nickname: string | null
   avatar: string | null
   routineItems: string | null
+  preferredDepartmentIds: string | null
   canLogin: boolean | null
   apiKey: string | null
   employeeId: string | null
@@ -74,6 +76,7 @@ export type UserCountAggregateOutputType = {
   nickname: number
   avatar: number
   routineItems: number
+  preferredDepartmentIds: number
   canLogin: number
   apiKey: number
   employeeId: number
@@ -101,6 +104,7 @@ export type UserMinAggregateInputType = {
   nickname?: true
   avatar?: true
   routineItems?: true
+  preferredDepartmentIds?: true
   canLogin?: true
   apiKey?: true
   employeeId?: true
@@ -116,6 +120,7 @@ export type UserMaxAggregateInputType = {
   nickname?: true
   avatar?: true
   routineItems?: true
+  preferredDepartmentIds?: true
   canLogin?: true
   apiKey?: true
   employeeId?: true
@@ -131,6 +136,7 @@ export type UserCountAggregateInputType = {
   nickname?: true
   avatar?: true
   routineItems?: true
+  preferredDepartmentIds?: true
   canLogin?: true
   apiKey?: true
   employeeId?: true
@@ -233,6 +239,7 @@ export type UserGroupByOutputType = {
   nickname: string
   avatar: string | null
   routineItems: string | null
+  preferredDepartmentIds: string | null
   canLogin: boolean
   apiKey: string | null
   employeeId: string | null
@@ -271,6 +278,7 @@ export type UserWhereInput = {
   nickname?: Prisma.StringFilter<"User"> | string
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
   routineItems?: Prisma.StringNullableFilter<"User"> | string | null
+  preferredDepartmentIds?: Prisma.StringNullableFilter<"User"> | string | null
   canLogin?: Prisma.BoolFilter<"User"> | boolean
   apiKey?: Prisma.StringNullableFilter<"User"> | string | null
   employeeId?: Prisma.StringNullableFilter<"User"> | string | null
@@ -316,6 +324,7 @@ export type UserOrderByWithRelationInput = {
   nickname?: Prisma.SortOrder
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
   routineItems?: Prisma.SortOrderInput | Prisma.SortOrder
+  preferredDepartmentIds?: Prisma.SortOrderInput | Prisma.SortOrder
   canLogin?: Prisma.SortOrder
   apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   employeeId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -365,6 +374,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   nickname?: Prisma.StringFilter<"User"> | string
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
   routineItems?: Prisma.StringNullableFilter<"User"> | string | null
+  preferredDepartmentIds?: Prisma.StringNullableFilter<"User"> | string | null
   canLogin?: Prisma.BoolFilter<"User"> | boolean
   employeeId?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -409,6 +419,7 @@ export type UserOrderByWithAggregationInput = {
   nickname?: Prisma.SortOrder
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
   routineItems?: Prisma.SortOrderInput | Prisma.SortOrder
+  preferredDepartmentIds?: Prisma.SortOrderInput | Prisma.SortOrder
   canLogin?: Prisma.SortOrder
   apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   employeeId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -432,6 +443,7 @@ export type UserScalarWhereWithAggregatesInput = {
   nickname?: Prisma.StringWithAggregatesFilter<"User"> | string
   avatar?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   routineItems?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  preferredDepartmentIds?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   canLogin?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   apiKey?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   employeeId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -446,6 +458,7 @@ export type UserCreateInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -491,6 +504,7 @@ export type UserUncheckedCreateInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -535,6 +549,7 @@ export type UserUpdateInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -580,6 +595,7 @@ export type UserUncheckedUpdateInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -625,6 +641,7 @@ export type UserCreateManyInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -639,6 +656,7 @@ export type UserUpdateManyMutationInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -654,6 +672,7 @@ export type UserUncheckedUpdateManyInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -669,6 +688,7 @@ export type UserCountOrderByAggregateInput = {
   nickname?: Prisma.SortOrder
   avatar?: Prisma.SortOrder
   routineItems?: Prisma.SortOrder
+  preferredDepartmentIds?: Prisma.SortOrder
   canLogin?: Prisma.SortOrder
   apiKey?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
@@ -689,6 +709,7 @@ export type UserMaxOrderByAggregateInput = {
   nickname?: Prisma.SortOrder
   avatar?: Prisma.SortOrder
   routineItems?: Prisma.SortOrder
+  preferredDepartmentIds?: Prisma.SortOrder
   canLogin?: Prisma.SortOrder
   apiKey?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
@@ -704,6 +725,7 @@ export type UserMinOrderByAggregateInput = {
   nickname?: Prisma.SortOrder
   avatar?: Prisma.SortOrder
   routineItems?: Prisma.SortOrder
+  preferredDepartmentIds?: Prisma.SortOrder
   canLogin?: Prisma.SortOrder
   apiKey?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
@@ -1199,6 +1221,7 @@ export type UserCreateWithoutResourceRolesInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -1243,6 +1266,7 @@ export type UserUncheckedCreateWithoutResourceRolesInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -1302,6 +1326,7 @@ export type UserUpdateWithoutResourceRolesInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1346,6 +1371,7 @@ export type UserUncheckedUpdateWithoutResourceRolesInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1389,6 +1415,7 @@ export type UserCreateWithoutNotificationsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -1433,6 +1460,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -1481,6 +1509,7 @@ export type UserCreateWithoutCreatedNotificationsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -1525,6 +1554,7 @@ export type UserUncheckedCreateWithoutCreatedNotificationsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -1584,6 +1614,7 @@ export type UserUpdateWithoutNotificationsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1628,6 +1659,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1682,6 +1714,7 @@ export type UserUpdateWithoutCreatedNotificationsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1726,6 +1759,7 @@ export type UserUncheckedUpdateWithoutCreatedNotificationsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1769,6 +1803,7 @@ export type UserCreateWithoutEditedContractsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -1813,6 +1848,7 @@ export type UserUncheckedCreateWithoutEditedContractsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -1872,6 +1908,7 @@ export type UserUpdateWithoutEditedContractsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1916,6 +1953,7 @@ export type UserUncheckedUpdateWithoutEditedContractsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1959,6 +1997,7 @@ export type UserCreateWithoutEditedFinanceAccountsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -2003,6 +2042,7 @@ export type UserUncheckedCreateWithoutEditedFinanceAccountsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -2062,6 +2102,7 @@ export type UserUpdateWithoutEditedFinanceAccountsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2106,6 +2147,7 @@ export type UserUncheckedUpdateWithoutEditedFinanceAccountsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2149,6 +2191,7 @@ export type UserCreateWithoutEditedFinanceVouchersInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -2193,6 +2236,7 @@ export type UserUncheckedCreateWithoutEditedFinanceVouchersInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -2252,6 +2296,7 @@ export type UserUpdateWithoutEditedFinanceVouchersInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2296,6 +2341,7 @@ export type UserUncheckedUpdateWithoutEditedFinanceVouchersInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2339,6 +2385,7 @@ export type UserCreateWithoutLedgerImportsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -2383,6 +2430,7 @@ export type UserUncheckedCreateWithoutLedgerImportsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -2442,6 +2490,7 @@ export type UserUpdateWithoutLedgerImportsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2486,6 +2535,7 @@ export type UserUncheckedUpdateWithoutLedgerImportsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2529,6 +2579,7 @@ export type UserCreateWithoutSnapshotImportsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -2573,6 +2624,7 @@ export type UserUncheckedCreateWithoutSnapshotImportsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -2621,6 +2673,7 @@ export type UserCreateWithoutSnapshotEditsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -2665,6 +2718,7 @@ export type UserUncheckedCreateWithoutSnapshotEditsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -2724,6 +2778,7 @@ export type UserUpdateWithoutSnapshotImportsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2768,6 +2823,7 @@ export type UserUncheckedUpdateWithoutSnapshotImportsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2822,6 +2878,7 @@ export type UserUpdateWithoutSnapshotEditsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2866,6 +2923,7 @@ export type UserUncheckedUpdateWithoutSnapshotEditsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2909,6 +2967,7 @@ export type UserCreateWithoutConfirmedReclassRulesInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -2953,6 +3012,7 @@ export type UserUncheckedCreateWithoutConfirmedReclassRulesInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -3012,6 +3072,7 @@ export type UserUpdateWithoutConfirmedReclassRulesInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3056,6 +3117,7 @@ export type UserUncheckedUpdateWithoutConfirmedReclassRulesInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3099,6 +3161,7 @@ export type UserCreateWithoutReviewedReclassResultsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -3143,6 +3206,7 @@ export type UserUncheckedCreateWithoutReviewedReclassResultsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -3202,6 +3266,7 @@ export type UserUpdateWithoutReviewedReclassResultsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3246,6 +3311,7 @@ export type UserUncheckedUpdateWithoutReviewedReclassResultsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3289,6 +3355,7 @@ export type UserCreateWithoutEditedWorkpapersInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -3333,6 +3400,7 @@ export type UserUncheckedCreateWithoutEditedWorkpapersInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -3392,6 +3460,7 @@ export type UserUpdateWithoutEditedWorkpapersInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3436,6 +3505,7 @@ export type UserUncheckedUpdateWithoutEditedWorkpapersInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3479,6 +3549,7 @@ export type UserCreateWithoutEditedReviewsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -3523,6 +3594,7 @@ export type UserUncheckedCreateWithoutEditedReviewsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -3571,6 +3643,7 @@ export type UserCreateWithoutReviewedReviewsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -3615,6 +3688,7 @@ export type UserUncheckedCreateWithoutReviewedReviewsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -3674,6 +3748,7 @@ export type UserUpdateWithoutEditedReviewsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3718,6 +3793,7 @@ export type UserUncheckedUpdateWithoutEditedReviewsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3772,6 +3848,7 @@ export type UserUpdateWithoutReviewedReviewsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3816,6 +3893,7 @@ export type UserUncheckedUpdateWithoutReviewedReviewsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3859,6 +3937,7 @@ export type UserCreateWithoutEmployeesInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -3903,6 +3982,7 @@ export type UserUncheckedCreateWithoutEmployeesInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -3962,6 +4042,7 @@ export type UserUpdateWithoutEmployeesInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4006,6 +4087,7 @@ export type UserUncheckedUpdateWithoutEmployeesInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4049,6 +4131,7 @@ export type UserCreateWithoutManagedDepartmentsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -4093,6 +4176,7 @@ export type UserUncheckedCreateWithoutManagedDepartmentsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -4152,6 +4236,7 @@ export type UserUpdateWithoutManagedDepartmentsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4196,6 +4281,7 @@ export type UserUncheckedUpdateWithoutManagedDepartmentsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4239,6 +4325,7 @@ export type UserCreateWithoutEditHistoriesInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -4283,6 +4370,7 @@ export type UserUncheckedCreateWithoutEditHistoriesInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -4342,6 +4430,7 @@ export type UserUpdateWithoutEditHistoriesInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4386,6 +4475,7 @@ export type UserUncheckedUpdateWithoutEditHistoriesInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4429,6 +4519,7 @@ export type UserCreateWithoutEditedStockRawMaterialsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -4473,6 +4564,7 @@ export type UserUncheckedCreateWithoutEditedStockRawMaterialsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -4532,6 +4624,7 @@ export type UserUpdateWithoutEditedStockRawMaterialsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4576,6 +4669,7 @@ export type UserUncheckedUpdateWithoutEditedStockRawMaterialsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4619,6 +4713,7 @@ export type UserCreateWithoutEditedStockPackagingsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -4663,6 +4758,7 @@ export type UserUncheckedCreateWithoutEditedStockPackagingsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -4722,6 +4818,7 @@ export type UserUpdateWithoutEditedStockPackagingsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4766,6 +4863,7 @@ export type UserUncheckedUpdateWithoutEditedStockPackagingsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4809,6 +4907,7 @@ export type UserCreateWithoutEditedStockFinishedGoodsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -4853,6 +4952,7 @@ export type UserUncheckedCreateWithoutEditedStockFinishedGoodsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -4912,6 +5012,7 @@ export type UserUpdateWithoutEditedStockFinishedGoodsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4956,6 +5057,7 @@ export type UserUncheckedUpdateWithoutEditedStockFinishedGoodsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4999,6 +5101,7 @@ export type UserCreateWithoutStockOperationsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -5043,6 +5146,7 @@ export type UserUncheckedCreateWithoutStockOperationsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -5102,6 +5206,7 @@ export type UserUpdateWithoutStockOperationsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5146,6 +5251,7 @@ export type UserUncheckedUpdateWithoutStockOperationsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5189,6 +5295,7 @@ export type UserCreateWithoutEditedLibraryDocumentsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -5233,6 +5340,7 @@ export type UserUncheckedCreateWithoutEditedLibraryDocumentsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -5292,6 +5400,7 @@ export type UserUpdateWithoutEditedLibraryDocumentsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5336,6 +5445,7 @@ export type UserUncheckedUpdateWithoutEditedLibraryDocumentsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5379,6 +5489,7 @@ export type UserCreateWithoutOwnedMeetingsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -5423,6 +5534,7 @@ export type UserUncheckedCreateWithoutOwnedMeetingsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -5471,6 +5583,7 @@ export type UserCreateWithoutSecretariedMeetingsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -5515,6 +5628,7 @@ export type UserUncheckedCreateWithoutSecretariedMeetingsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -5574,6 +5688,7 @@ export type UserUpdateWithoutOwnedMeetingsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5618,6 +5733,7 @@ export type UserUncheckedUpdateWithoutOwnedMeetingsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5672,6 +5788,7 @@ export type UserUpdateWithoutSecretariedMeetingsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5716,6 +5833,7 @@ export type UserUncheckedUpdateWithoutSecretariedMeetingsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5759,6 +5877,7 @@ export type UserCreateWithoutMeetingParticipationsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -5803,6 +5922,7 @@ export type UserUncheckedCreateWithoutMeetingParticipationsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -5862,6 +5982,7 @@ export type UserUpdateWithoutMeetingParticipationsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5906,6 +6027,7 @@ export type UserUncheckedUpdateWithoutMeetingParticipationsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5949,6 +6071,7 @@ export type UserCreateWithoutMeetingVotesInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -5993,6 +6116,7 @@ export type UserUncheckedCreateWithoutMeetingVotesInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -6052,6 +6176,7 @@ export type UserUpdateWithoutMeetingVotesInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6096,6 +6221,7 @@ export type UserUncheckedUpdateWithoutMeetingVotesInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6139,6 +6265,7 @@ export type UserCreateWithoutDepartmentAssigneesInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -6183,6 +6310,7 @@ export type UserUncheckedCreateWithoutDepartmentAssigneesInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -6242,6 +6370,7 @@ export type UserUpdateWithoutDepartmentAssigneesInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6286,6 +6415,7 @@ export type UserUncheckedUpdateWithoutDepartmentAssigneesInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6329,6 +6459,7 @@ export type UserCreateWithoutProjectAssigneesInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -6373,6 +6504,7 @@ export type UserUncheckedCreateWithoutProjectAssigneesInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -6432,6 +6564,7 @@ export type UserUpdateWithoutProjectAssigneesInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6476,6 +6609,7 @@ export type UserUncheckedUpdateWithoutProjectAssigneesInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6519,6 +6653,7 @@ export type UserCreateWithoutWorkScopePermissionsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -6563,6 +6698,7 @@ export type UserUncheckedCreateWithoutWorkScopePermissionsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -6622,6 +6758,7 @@ export type UserUpdateWithoutWorkScopePermissionsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6666,6 +6803,7 @@ export type UserUncheckedUpdateWithoutWorkScopePermissionsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6709,6 +6847,7 @@ export type UserCreateWithoutWorkReportsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -6753,6 +6892,7 @@ export type UserUncheckedCreateWithoutWorkReportsInput = {
   nickname: string
   avatar?: string | null
   routineItems?: string | null
+  preferredDepartmentIds?: string | null
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
@@ -6812,6 +6952,7 @@ export type UserUpdateWithoutWorkReportsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6856,6 +6997,7 @@ export type UserUncheckedUpdateWithoutWorkReportsInput = {
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7192,6 +7334,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   nickname?: boolean
   avatar?: boolean
   routineItems?: boolean
+  preferredDepartmentIds?: boolean
   canLogin?: boolean
   apiKey?: boolean
   employeeId?: boolean
@@ -7238,6 +7381,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   nickname?: boolean
   avatar?: boolean
   routineItems?: boolean
+  preferredDepartmentIds?: boolean
   canLogin?: boolean
   apiKey?: boolean
   employeeId?: boolean
@@ -7253,6 +7397,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   nickname?: boolean
   avatar?: boolean
   routineItems?: boolean
+  preferredDepartmentIds?: boolean
   canLogin?: boolean
   apiKey?: boolean
   employeeId?: boolean
@@ -7268,6 +7413,7 @@ export type UserSelectScalar = {
   nickname?: boolean
   avatar?: boolean
   routineItems?: boolean
+  preferredDepartmentIds?: boolean
   canLogin?: boolean
   apiKey?: boolean
   employeeId?: boolean
@@ -7275,7 +7421,7 @@ export type UserSelectScalar = {
   sessionVersion?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "wxUserId" | "username" | "password" | "nickname" | "avatar" | "routineItems" | "canLogin" | "apiKey" | "employeeId" | "createdAt" | "sessionVersion", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "wxUserId" | "username" | "password" | "nickname" | "avatar" | "routineItems" | "preferredDepartmentIds" | "canLogin" | "apiKey" | "employeeId" | "createdAt" | "sessionVersion", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editedContracts?: boolean | Prisma.User$editedContractsArgs<ExtArgs>
   managedDepartments?: boolean | Prisma.User$managedDepartmentsArgs<ExtArgs>
@@ -7354,6 +7500,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     nickname: string
     avatar: string | null
     routineItems: string | null
+    preferredDepartmentIds: string | null
     canLogin: boolean
     apiKey: string | null
     employeeId: string | null
@@ -7819,6 +7966,7 @@ export interface UserFieldRefs {
   readonly nickname: Prisma.FieldRef<"User", 'String'>
   readonly avatar: Prisma.FieldRef<"User", 'String'>
   readonly routineItems: Prisma.FieldRef<"User", 'String'>
+  readonly preferredDepartmentIds: Prisma.FieldRef<"User", 'String'>
   readonly canLogin: Prisma.FieldRef<"User", 'Boolean'>
   readonly apiKey: Prisma.FieldRef<"User", 'String'>
   readonly employeeId: Prisma.FieldRef<"User", 'String'>

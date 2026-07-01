@@ -7,6 +7,7 @@ model User {
   nickname                 String
   avatar                   String?
   routineItems             String?
+  preferredDepartmentIds   String?
   canLogin                 Boolean                  @default(true)
   apiKey                   String?                  @unique
   employeeId               String?
