@@ -1,4 +1,5 @@
 import { workspaceBasePath } from "@workspace/core/routing";
+import { businessSpaceKindLabel } from "@workspace/platform/permissions";
 import type { WorkItem, WorkItemDraft, WorkItemStatus, WorkItemType, WorkPeriodType, WorkPlan, WorkPlanDraft, WorkSourceKind, WorkSourceType, WorkTaskSpace, WorkTargetType } from "./types";
 
 export const WORK_CATEGORY_OPTIONS = [
@@ -47,10 +48,7 @@ export const WORK_ROLE_OPTIONS = [
 ] as const;
 
 export function getWorkSpaceLabel(type: WorkTargetType) {
-  if (type === "company") return "公司";
-  if (type === "department") return "部门";
-  if (type === "project") return "项目";
-  return "个人";
+  return businessSpaceKindLabel(type, "work");
 }
 
 export function getWorkSpacePath(type: WorkTargetType, id: number) {

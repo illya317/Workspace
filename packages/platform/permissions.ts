@@ -31,6 +31,7 @@ export const RES = {
   work: {
     root: "work",
     projects: "work.projects",
+    projectsCreateOrg: "work.projects.createOrg",
     tasks: "work.tasks",
   },
   finance: {
@@ -119,6 +120,8 @@ export function isRoleAllowed(resourceKey: string, roleKey: string): boolean {
 export const BUSINESS_SPACE_ROLES = ["viewer", "editor", "delete", "manager"] as const;
 
 export type BusinessSpaceRole = (typeof BUSINESS_SPACE_ROLES)[number];
+export type BusinessSpaceUsage = "work" | "docsTemplate";
+export type BusinessSpaceTargetType = "personal" | "company" | "department" | "project" | "position" | "other";
 
 const BUSINESS_SPACE_ROLE_LEVEL: Record<BusinessSpaceRole, number> = {
   viewer: 0,
@@ -158,4 +161,19 @@ export function businessSpaceRoleLabel(role: BusinessSpaceRole | string | null |
   if (role === "delete") return "删除";
   if (role === "editor") return "编辑";
   return "查看";
+}
+
+export function businessSpaceKindLabel(targetType: BusinessSpaceTargetType | string, usage: BusinessSpaceUsage) {
+  if (targetType === "personal") return "个人";
+  if (targetType === "department") return "部门";
+  if (targetType === "project") return "项目";
+  if (targetType === "position") return "岗位";
+  if (targetType === "company") return usage === "docsTemplate" ? "公共" : "运营委员会";
+  if (targetType === "other") return "其他";
+  return "空间";
+}
+
+export function businessSpaceGroupTitle(targetType: BusinessSpaceTargetType | string, usage: BusinessSpaceUsage) {
+  if (targetType === "company" && usage === "docsTemplate") return "公共模板";
+  return `${businessSpaceKindLabel(targetType, usage)}空间`;
 }

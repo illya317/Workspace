@@ -20,6 +20,7 @@
 | `administration.contracts` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
 | `work` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access（登录用户默认有效，并继承到普通 L2；不包含 capability）, write, delete, admin |
 | `work.projects` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin（模块门禁，不放大对象范围） |
+| `work.projects.createOrg` | `visibleWriteResourceKeys` | write（创建运营委员会项目；独立 capability，`runtimeParentKey=work.projects`） |
 | `work.projects.viewAll` | `visibleResourceKeys` | access（独立全量可见资源，`runtimeParentKey=work.projects`） |
 | `work.tasks` | `visibleResourceKeys` / `visibleWriteResourceKeys` | delete（登录用户默认有效；访问/编辑/删除列显示为默认规则）, admin |
 | `settings.account` | `visibleResourceKeys` | access（登录用户默认有效） |
@@ -105,7 +106,8 @@
 | `/api/modules/administration/contracts*` | POST/PUT | `administration.contracts.write` |
 | `/api/modules/administration/contracts*` | DELETE | `administration.contracts.delete` |
 | `/api/modules/work/projects*` | GET | `work.projects.access` + module enabled + 项目对象级过滤 |
-| `/api/modules/work/projects*` | POST/PUT | `work.projects.write` + module enabled + 项目对象级写入校验 |
+| `/api/modules/work/projects*` | POST | `work.projects.access` + module enabled + 项目创建类型校验（普通/部门/运营委员会） |
+| `/api/modules/work/projects*` | PUT | `work.projects.write` + module enabled + 项目对象级写入校验 |
 | `/api/modules/work/projects*` | DELETE | `work.projects.delete` + module enabled + 项目对象级删除校验 |
 | `/api/modules/work/projects/members*` | GET/POST/PUT/DELETE | `work.projects` 对应动作 + module enabled + 项目对象级管理校验 |
 | `/api/modules/work/projects/reference-options` | GET | FK registration permission + module enabled；项目/会议候选由 Work FK registry adapter 按对象可见性过滤 |
@@ -122,8 +124,9 @@
 
 ## Work Project 对象级范围
 
-- `work.projects.access/write/delete` 只控制项目模块入口和发起能力，不代表查看全部、管理全部或删除全部项目。
+- `work.projects.access/write/delete` 只控制项目模块入口和对象级写入入口，不代表查看全部、管理全部、删除全部或创建运营委员会项目。
 - 项目可见范围由创建人、主导部门负责人、项目 RASCI 成员、显式 `work.projects.viewAll` 和 root admin 共同决定。
+- 运营委员会项目创建由独立 `work.projects.createOrg.write` 控制；部门项目创建由目标部门负责人自然权限控制；普通项目由在职员工在 `work.projects.access` 下发起。
 - `work.projects.viewAll` 只授予全量可见，不授予全量管理或删除；需要管理/删除具体项目仍按对象级规则计算。
 - `work.projects.viewAll` 不挂 `parentKey`，因此不会继承 `work.projects` 模块权限；它通过 `runtimeParentKey` 跟随 `work.projects` disabled。
 - `work` 或 `work.projects` disabled 后，模块入口、页面、API、FK 暴露和 `work.projects.viewAll` 一起失效。

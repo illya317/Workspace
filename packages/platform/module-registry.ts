@@ -67,6 +67,15 @@ export const registeredModuleDefinitions = [
     },
     resourceDefs: [
       {
+        key: "work.projects.createOrg",
+        name: "创建组织级项目",
+        kind: "capability",
+        capabilityOwnerKey: "work.projects",
+        runtimeParentKey: "work.projects",
+        maxRoleKey: "write",
+        sortOrder: 3,
+      },
+      {
         key: "work.projects.viewAll",
         name: "项目全局查看",
         kind: "capability",
@@ -89,7 +98,10 @@ export const registeredModuleDefinitions = [
     fkRegistrations: WORK_FK_REGISTRATIONS,
     apiGuards: [
       ...apiResourceGuards("/api/modules/work/meetings", "work.meetings", ["GET", "POST", "PUT", "DELETE"]),
-      ...apiResourceGuards("/api/modules/work/projects", "work.projects", ["GET", "POST", "PUT", "DELETE"]),
+      { method: "GET", pathPrefix: "/api/modules/work/projects", resourceKey: "work.projects", action: "access" },
+      { method: "POST", pathPrefix: "/api/modules/work/projects", resourceKey: "work.projects", action: "access" },
+      { method: "PUT", pathPrefix: "/api/modules/work/projects", resourceKey: "work.projects", action: "write" },
+      { method: "DELETE", pathPrefix: "/api/modules/work/projects", resourceKey: "work.projects", action: "delete" },
       ...apiResourceGuards("/api/modules/work/tasks", "work.tasks", ["GET", "POST", "PUT", "DELETE"]),
       ...apiResourceGuards("/api/modules/work/tasks/spaces", "work.tasks", ["GET", "PUT"]),
       ...apiResourceGuards("/api/modules/work/tasks/reports", "work.tasks", ["GET", "PUT"]),

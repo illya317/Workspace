@@ -5,6 +5,7 @@ import { isResourceEnabled } from "../../effective-module-registry";
 
 const DEFAULT_RESOURCE_ROLES = {
   "settings.account": "access",
+  "work.projects": "access",
   "work.tasks": "delete",
   docs: "access",
   "docs.editor": "access",

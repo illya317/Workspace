@@ -164,7 +164,7 @@ export const PROJECT_LIST_FILTER_OPTIONS = [
 ] satisfies { value: ProjectListFilter; label: string }[];
 export const PROJECT_LEVEL_OPTIONS = ["普通", "重点", "特殊"] as const;
 export const PROJECT_TYPE_OPTIONS = [
-  { value: "company", label: "公司项目" },
+  { value: "company", label: "运营委员会项目" },
   { value: "department", label: "部门项目" },
   { value: "other", label: "其他项目" },
 ] satisfies { value: ProjectType; label: string }[];

@@ -43,7 +43,7 @@ export default function ProjectGanttTab({
       setHasLoaded(true);
     }).catch(err => {
       if (cancelled) return;
-      setError(err instanceof Error ? err.message : "加载公司甘特失败");
+      setError(err instanceof Error ? err.message : "加载运营委员会甘特失败");
     }).finally(() => {
       if (!cancelled) setLoading(false);
     });
@@ -74,7 +74,7 @@ export default function ProjectGanttTab({
       value: keyword,
       onChange: setKeyword,
       placeholder: "搜索项目、部门、任务...",
-      ariaLabel: "搜索公司甘特",
+      ariaLabel: "搜索运营委员会甘特",
     }, {
       kind: "option-group",
       key: "include-tasks",
@@ -111,7 +111,7 @@ export default function ProjectGanttTab({
   const sections = error ? [
     createStatusSection("project-gantt-error", { kind: "error", content: error }),
   ] : loading && !hasLoaded ? [
-    createStatusSection("project-gantt-loading", { kind: "loading", content: "加载公司甘特..." }),
+    createStatusSection("project-gantt-loading", { kind: "loading", content: "加载运营委员会甘特..." }),
   ] : [
     {
       key: "project-gantt-chart",
@@ -119,7 +119,7 @@ export default function ProjectGanttTab({
         kind: "gantt" as const,
         gantt: {
           frame: {
-            title: "公司甘特",
+            title: "运营委员会甘特",
           },
           timeline: {
             kind: "gantt",
@@ -135,9 +135,9 @@ export default function ProjectGanttTab({
     },
   ] satisfies BodySurfaceSectionSpec[];
 
-	  return <PageSurface kind="standard" {...surface} toolbar={{ items: toolbarItems }} body={createPageBody(sections)} />;
+	  return <PageSurface kind="standard" {...surface} toolbar={{ items: [...(surface?.toolbar?.items ?? []), ...toolbarItems] }} body={createPageBody(sections)} />;
 	}
-type ProjectGanttSurfaceProps = Pick<PageSurfaceProps, "navigation">;
+type ProjectGanttSurfaceProps = Pick<PageSurfaceProps, "navigation" | "toolbar">;
 
 function periodLabel(start: Date, zoom: ProjectGanttZoom) {
   if (zoom === "year") return `${start.getFullYear()}年`;

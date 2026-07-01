@@ -13,6 +13,18 @@ export function workCanEdit(user: WorkUser) {
   return keys.includes("work.projects");
 }
 
+export function workCanAccessProjects(user: WorkUser) {
+  if (user.isAdmin) return true;
+  const keys = user.visibleResourceKeys || [];
+  return keys.includes("work.projects");
+}
+
+export function workCanCreateOrgProject(user: WorkUser) {
+  if (user.isAdmin) return true;
+  const keys = user.visibleWriteResourceKeys || [];
+  return keys.includes("work.projects.createOrg");
+}
+
 export interface FKFieldConfig {
   entity: string;
   fkKey?: string;

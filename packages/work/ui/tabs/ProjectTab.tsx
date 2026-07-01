@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { createBodySplitSection, createMessageSection, createPageBody, createPageTabsNavigation, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createBodySplitSection, createMessageSection, createPageBody, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { PageSurfaceProps, SelectorSurfaceProps } from "@workspace/core/ui";
+import { createSpaceKindNavigation, createSpaceViewToolbarItem, type SpaceWorkbenchKindOption } from "@workspace/platform/ui";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 import type { WorkUser } from "@workspace/work/types";
 import { useProjectDetailEditorSection } from "./project/ProjectDetailEditor";
@@ -19,13 +20,19 @@ export default function ProjectTab({ user }: { user: WorkUser }) {
   const requestedProjectIdValue = Number(searchParams.get("projectId") || "");
   const requestedProjectId = Number.isInteger(requestedProjectIdValue) && requestedProjectIdValue > 0 ? requestedProjectIdValue : null;
   const surface = {
-    navigation: createPageTabsNavigation({
-      items: tabs,
-      active: "projects",
-      activeChild,
-      onChange: () => setActiveChild("projects"),
-      onChildChange: setActiveChild,
-    }),
+    toolbar: {
+      items: [
+        createSpaceViewToolbarItem({
+          key: "project-view",
+          value: activeChild,
+          options: tabs.flatMap((tab) => tab.children?.length
+            ? tab.children.map((child) => ({ key: child.key, label: String(child.label) }))
+            : [{ key: tab.key, label: String(tab.label) }]),
+          onChange: setActiveChild,
+          ariaLabel: "项目视图",
+        }),
+      ],
+    },
   } satisfies ProjectChildSurfaceProps;
   if (activeChild === "projects-gantt") return <ProjectGanttTab user={user} surface={surface} />;
   if (activeChild === "project-plan-gantt") {
@@ -34,7 +41,13 @@ export default function ProjectTab({ user }: { user: WorkUser }) {
   return <ProjectLedgerTab user={user} surface={surface} />;
 }
 
-type ProjectChildSurfaceProps = Pick<PageSurfaceProps, "navigation">;
+type ProjectChildSurfaceProps = Pick<PageSurfaceProps, "navigation" | "toolbar">;
+
+const PROJECT_SCOPE_OPTIONS: SpaceWorkbenchKindOption[] = [
+  { key: "company", label: "运营委员会" },
+  { key: "department", label: "部门" },
+  { key: "other", label: "其他" },
+];
 
 function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: ProjectChildSurfaceProps }) {
   const searchParams = useSearchParams();
@@ -42,7 +55,7 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
   const model = useProjectTabModel(user, Number.isInteger(requestedProjectId) && requestedProjectId > 0 ? requestedProjectId : null);
   const feedback = useFeedback();
   const editorTitle = model.creating ? "新建项目" : model.selectedProject ? "项目信息" : "项目详情";
-  const startDepartmentProjectCreate = () => {
+  const startProjectCreate = () => {
     model.setProjectListFilter("普通");
     model.setProjectListOpen(true);
     model.setProjectListDrawerOpen(false);
@@ -100,6 +113,7 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
       {...surface}
       toolbar={model.loading || model.error ? undefined : {
         items: [
+              ...(surface?.toolbar?.items ?? []),
               {
                 kind: "panel-toggle",
                 key: "mobile-side-toggle",
@@ -129,13 +143,19 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
                 ? [{
                     kind: "create" as const,
                     key: "create-project",
-                    label: "新建部门项目",
+                    label: `新建${PROJECT_SCOPE_OPTIONS.find((option) => option.key === model.projectTypeFilter)?.label ?? ""}项目`,
                     active: model.creating,
-                    onClick: startDepartmentProjectCreate,
+                    onClick: startProjectCreate,
                   }]
                 : []),
             ],
       }}
+      navigation={createSpaceKindNavigation({
+        items: PROJECT_SCOPE_OPTIONS,
+        active: model.projectTypeFilter,
+        onChange: (key) => model.setProjectTypeFilter(key as ProjectItem["projectType"]),
+        ariaLabel: "项目空间类型",
+      })}
       body={createBodySplitSection({
         left: { kind: "selector", selector: projectListSelector(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
           model.setCreating(false);

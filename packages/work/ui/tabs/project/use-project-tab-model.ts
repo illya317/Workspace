@@ -5,7 +5,7 @@ import { z } from "zod";
 import { useFeedback } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
-import { type WorkUser, workCanEdit } from "@workspace/work/types";
+import { type WorkUser, workCanAccessProjects, workCanCreateOrgProject } from "@workspace/work/types";
 import { createProject, deleteProject, listProjectTasks, syncMembers, updateProjectField } from "./api";
 import {
   MULTI_PROJECT_ROLES,
@@ -20,6 +20,7 @@ import {
   normalizeProjectRole,
   type EmployeeTag,
   type ProjectListFilter,
+  type ProjectType,
   type MultiProjectRole,
   type ProjectDraft,
   type ProjectItem,
@@ -76,7 +77,8 @@ const PROJECT_CONTENT_SYNC_FIELDS = [
 const PROJECT_MANAGE_SYNC_FIELDS = ["leadingDepartmentId"] as const;
 
 export function useProjectTabModel(user: WorkUser, initialProjectId?: number | null) {
-  const canEdit = workCanEdit(user);
+  const canCreate = workCanAccessProjects(user);
+  const canCreateOrg = workCanCreateOrgProject(user);
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [entries, setEntries] = useState<ProjectMemberEntry[]>([]);
   const [selection, setSelection] = useState<number | null>(null);
@@ -89,6 +91,7 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
   const [projectListOpen, setProjectListOpen] = useState(true);
   const [projectListDrawerOpen, setProjectListDrawerOpen] = useState(false);
   const [projectListFilter, setProjectListFilter] = useState<ProjectListFilter>("all");
+  const [projectTypeFilter, setProjectTypeFilter] = useState<ProjectType>("department");
   const [error, setError] = useState<string | null>(null);
   const { notify } = useFeedback();
   const setToast = useCallback((toast: { type: "success" | "error"; message: string } | null) => {
@@ -96,8 +99,8 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
   }, [notify]);
 
   const filteredProjects = useMemo(
-    () => projects.filter((project) => projectMatchesFilter(project, projectListFilter)),
-    [projectListFilter, projects]
+    () => projects.filter((project) => projectMatchesFilter(project, projectListFilter, projectTypeFilter)),
+    [projectListFilter, projectTypeFilter, projects]
   );
   const selectedProject = useMemo(
     () => typeof selection === "number" ? projects.find((project) => project.id === selection) || null : null,
@@ -112,8 +115,8 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
     [draft, selectedTasks]
   );
   const dirty = draftSnapshot(draft) !== baseline;
-  const canEditCurrent = draft?.id ? Boolean(selectedProject?.permissions.canEdit) : canEdit;
-  const canManageCurrent = draft?.id ? Boolean(selectedProject?.permissions.canManage) : canEdit;
+  const canEditCurrent = draft?.id ? Boolean(selectedProject?.permissions.canEdit) : canCreate;
+  const canManageCurrent = draft?.id ? Boolean(selectedProject?.permissions.canManage) : canCreate;
   const canDeleteCurrent = draft?.id ? Boolean(selectedProject?.permissions.canDelete) : false;
   const canSave = !!draft && canEditCurrent && !saving && dirty;
 
@@ -274,7 +277,13 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
   }
 
   function startCreateProject() {
-    const nextDraft = createEmptyProjectDraft();
+    const nextDraft = {
+      ...createEmptyProjectDraft(),
+      projectType: projectTypeFilter,
+      leadingDepartmentId: projectTypeFilter === "department" ? null : null,
+      leadingDepartmentName: projectTypeFilter === "department" ? "" : null,
+      leadingDepartmentCode: projectTypeFilter === "department" ? "" : null,
+    };
     setProjectListFilter(filterForProjectLevel(nextDraft.projectLevel));
     setCreating(true);
     setSelection(null);
@@ -320,11 +329,11 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
   }
 
   return {
-    canCreateProject: canEdit, canDeleteCurrent, canEditCurrent, canManageCurrent, canSave, creating, dirty, draft, error,
-    filteredProjects, loading, projectListDrawerOpen, projectListFilter, projectListOpen, projects, rasciRows, saving,
+    canCreateProject: projectTypeFilter === "company" ? canCreateOrg : canCreate, canDeleteCurrent, canEditCurrent, canManageCurrent, canSave, creating, dirty, draft, error,
+    filteredProjects, loading, projectListDrawerOpen, projectListFilter, projectListOpen, projects, projectTypeFilter, rasciRows, saving,
     selectedProject, selection,
     cancelCreateProject, deleteSelectedProject, saveProject, setCreating, setLeader, startCreateProject, startCreateChildProject,
-    setProjectListDrawerOpen, setProjectListFilter, setProjectListOpen, setRoleMembers, setSelection,
+    setProjectListDrawerOpen, setProjectListFilter, setProjectListOpen, setProjectTypeFilter, setRoleMembers, setSelection,
     loadSelectedTasks, setToast, updateDraft,
   };
 }
@@ -335,7 +344,8 @@ function deriveStatusFromActualDates(startDate: string | null, endDate: string |
   return "未开始";
 }
 
-function projectMatchesFilter(project: ProjectItem, filter: ProjectListFilter) {
+function projectMatchesFilter(project: ProjectItem, filter: ProjectListFilter, typeFilter: ProjectType) {
+  if (project.projectType !== typeFilter) return false;
   if (filter === "all") return true;
   return (project.projectLevel || "普通") === filter;
 }

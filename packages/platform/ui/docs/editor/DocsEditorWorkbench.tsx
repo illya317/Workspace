@@ -4,18 +4,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   createEmptySection,
-  createBodySplitSection,
   createMessageSection,
   createPageBody,
   createPageDataSection,
-  createPageTabsNavigation,
   createSectionSection,
   InputSurface,
   PageSurface,
   type DataSurfaceColumnSpec,
 } from "@workspace/core/ui";
 import { createEmptyEditorDocument } from "@workspace/platform/document-editor";
+import { businessSpaceKindLabel } from "@workspace/platform/permissions";
 import { useSpacePermissionsSections, type SpacePermissionRow } from "@workspace/platform/ui/SpacePermissionsPanel";
+import { createSpaceKindNavigation, createSpaceViewToolbarItem, createSpaceWorkbenchBody, type SpaceWorkbenchKindOption } from "../../space-workbench";
 import {
   DOCS_EDITOR_REFERENCE_OPTIONS_ENDPOINT,
   createEditorTemplateDraft,
@@ -77,6 +77,10 @@ export default function DocsEditorWorkbench() {
   }, [activeSpaceId, loadBootstrap]);
 
   const activeSpace = spaces.find((space) => space.id === activeSpaceId) ?? spaces[0] ?? null;
+  const filteredSpaces = useMemo(
+    () => activeSpace ? spaces.filter((space) => space.kind === activeSpace.kind) : spaces,
+    [activeSpace, spaces],
+  );
   const canCreateTemplate = Boolean(activeSpace && isEditableSpace(activeSpace));
   const canManageSpace = canManage(activeSpace?.role);
   const handlePermissionToast = useCallback((toast: { message: string }) => setMessage(toast.message), []);
@@ -163,7 +167,7 @@ export default function DocsEditorWorkbench() {
     selector: {
       kind: "list" as const,
       title: "模板空间",
-      items: spaces,
+      items: filteredSpaces,
       selectedId: activeSpaceId,
       loading,
       loadingText: "加载空间...",
@@ -179,11 +183,15 @@ export default function DocsEditorWorkbench() {
         tone: item.kind === "personal" ? "blue" as const : item.kind === "company" ? "slate" as const : "emerald" as const,
         meta: [
           roleLabel(item.role),
-          item.kind === "personal" ? "个人" : item.kind === "company" ? "集团" : "部门",
+          businessSpaceKindLabel(item.kind, "docsTemplate"),
         ],
       }),
     },
   };
+  const spaceKindOptions = docsSpaceKindOptions(spaces);
+  const viewOptions = canManageSpace
+    ? DOCS_EDITOR_VIEW_OPTIONS
+    : DOCS_EDITOR_VIEW_OPTIONS.filter((option) => option.key !== "permissions");
 
   const templateListSection = createSectionSection("docs-editor-list", {
     title: activeSpace ? activeSpace.title : "模板列表",
@@ -263,28 +271,51 @@ export default function DocsEditorWorkbench() {
   return (
     <PageSurface
       kind="standard"
-      navigation={activeSpace ? createPageTabsNavigation({
-        items: [
-          { key: "templates", label: "文档模板" },
-          ...(canManageSpace ? [{ key: "permissions", label: "权限管理" }] : []),
-        ],
-        active: activeTab,
-        onChange: setActiveTab,
-        ariaLabel: "模板编辑器空间视图",
+      navigation={activeSpace && spaceKindOptions.length > 0 ? createSpaceKindNavigation({
+        items: spaceKindOptions,
+        active: activeSpace.kind,
+        onChange: (kind) => {
+          const next = spaces.find((space) => space.kind === kind);
+          if (next) setActiveSpaceId(next.id);
+          setActiveTab("templates");
+        },
+        ariaLabel: "模板空间类型",
       }) : undefined}
-      body={createBodySplitSection({
+      toolbar={activeSpace ? {
+        items: [
+          createSpaceViewToolbarItem({
+            key: "docs-editor-view",
+            value: activeTab,
+            options: viewOptions,
+            onChange: setActiveTab,
+            ariaLabel: "模板编辑器视图",
+          }),
+        ],
+      } : undefined}
+      body={createSpaceWorkbenchBody({
         left,
         right,
-        side: {
-          label: activeSpace?.title ?? "模板空间",
-          open: sideOpen,
-          drawerOpen,
-          onOpenChange: setSideOpen,
-          onDrawerOpenChange: setDrawerOpen,
-          showControls: true,
-        },
-        layout: { ratio: [0.28, 0.72] },
+        label: activeSpace?.title ?? "模板空间",
+        open: sideOpen,
+        drawerOpen,
+        onOpenChange: setSideOpen,
+        onDrawerOpenChange: setDrawerOpen,
+        ratio: [0.28, 0.72],
       })}
     />
   );
+}
+
+const DOCS_EDITOR_VIEW_OPTIONS: SpaceWorkbenchKindOption[] = [
+  { key: "templates", label: "文档模板" },
+  { key: "permissions", label: "权限管理" },
+];
+
+function docsSpaceKindOptions(spaces: EditorSpaceDto[]): SpaceWorkbenchKindOption[] {
+  const kinds = new Set(spaces.map((space) => space.kind));
+  return [
+    { key: "personal", label: "个人" },
+    { key: "company", label: "公共" },
+    { key: "department", label: "部门" },
+  ].filter((option) => kinds.has(option.key as EditorSpaceDto["kind"]));
 }

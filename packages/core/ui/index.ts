@@ -194,6 +194,7 @@ export {
   createRecordSection,
   createPageSurfaceProps,
   createPageTableSection,
+  createPageScopeNavigation,
   createPageTabsNavigation,
   createTabbedPageBody,
   createSectionSection,

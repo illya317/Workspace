@@ -188,9 +188,9 @@ export default function ProjectPlanGanttTab({
         } },
       };
   const sections = [timelineSection] satisfies BodySurfaceSectionSpec[];
-	  return <PageSurface kind="standard" {...surface} toolbar={{ items: toolbarItems }} body={createPageBody(sections)} />;
+	  return <PageSurface kind="standard" {...surface} toolbar={{ items: [...(surface?.toolbar?.items ?? []), ...toolbarItems] }} body={createPageBody(sections)} />;
 	}
-type ProjectPlanGanttSurfaceProps = Pick<PageSurfaceProps, "navigation">;
+type ProjectPlanGanttSurfaceProps = Pick<PageSurfaceProps, "navigation" | "toolbar">;
 
 function periodLabel(start: Date, zoom: ProjectGanttZoom) {
   if (zoom === "year") return `${start.getFullYear()}年`;

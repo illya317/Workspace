@@ -1,6 +1,7 @@
 "use client";
 
 import { PageSurface, type BodySurfaceSelectorProps } from "@workspace/core/ui";
+import { businessSpaceGroupTitle } from "@workspace/platform/permissions";
 import { getWorkPeriodLabel, getWorkSourceTypeLabel, getWorkSpaceLabel } from "./model";
 import type { WorkPlan, WorkTarget, WorkTaskSpace, WorkTargetType } from "./types";
 
@@ -94,8 +95,9 @@ function groupPlans(plans: WorkPlan[]) {
 }
 
 function groupTitle(space: WorkTaskSpace) {
-  if (space.targetType === "personal") return "个人空间";
-  if (space.targetType === "company") return "公司空间";
+  if (space.targetType === "personal" || space.targetType === "company") {
+    return businessSpaceGroupTitle(space.targetType, "work");
+  }
   return WORK_SPACE_GROUPS.find((group) => group.type === space.targetType)?.title ?? "";
 }
 

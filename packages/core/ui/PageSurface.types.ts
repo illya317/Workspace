@@ -1,5 +1,5 @@
 import type { BodySurfaceProps } from "./BodySurface";
-import type { NavigationSurfaceItemSpec, NavigationSurfaceTabsProps } from "./NavigationSurface";
+import type { NavigationSurfaceItemSpec, NavigationSurfaceScopeProps, NavigationSurfaceTabsProps } from "./NavigationSurface";
 import type { SurfaceToolbarItems } from "./SurfaceContractTypes";
 
 export type PageSurfaceKind = "login" | "directory" | "standard";
@@ -11,7 +11,7 @@ export type PageSurfaceToolbarSpec = {
 };
 
 export type PageSurfaceNavigationItemSpec = NavigationSurfaceItemSpec;
-export type PageSurfaceNavigationSpec = NavigationSurfaceTabsProps;
+export type PageSurfaceNavigationSpec = NavigationSurfaceTabsProps | NavigationSurfaceScopeProps;
 
 export interface PageSurfaceFooterSpec {
   hidden?: boolean;

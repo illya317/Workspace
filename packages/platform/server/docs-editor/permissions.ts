@@ -315,6 +315,8 @@ async function naturalDocsEditorSpaceRole(
     return asDocsRole(await getDepartmentNaturalSpaceRole(userId, targetId));
   }
 
+  if (targetType === "company") return "viewer";
+
   return null;
 }
 

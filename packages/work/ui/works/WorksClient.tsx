@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createSectionsSection, createMessageSection, createPageBody, createPageTabsNavigation, createPanelSection, createSectionSection, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createSectionsSection, createMessageSection, createPageBody, createPanelSection, createSectionSection, PageSurface, useFeedback } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
+import { createSpaceKindNavigation, createSpaceWorkbenchBody, type SpaceWorkbenchKindOption } from "@workspace/platform/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import {
   archiveWorkPlan,
@@ -348,28 +349,25 @@ export default function WorksClient({ initialTarget }: {
     await Promise.all([loadSpaces(), loadPlans()]);
   }
 
-  const tabs = canManage
-    ? [{ key: "tasks", label: "OKR 计划" }, { key: "reports", label: "工作汇报" }, { key: "permissions", label: "权限设置" }]
-    : [{ key: "tasks", label: "OKR 计划" }, { key: "reports", label: "工作汇报" }];
   const editing = worksState.editingId !== null;
   const toolbarItems = createWorkToolbarItems({
     hasSpace: spaces.length > 0,
     sideOpen,
     activeTab,
+    canManage,
     canEdit,
     planCreating,
     saving: worksState.saving,
     planDraftTitle: planDraft.title,
-    spaceTypeFilter,
     statusFilter,
     itemTypeFilter,
     planPageToolbarItem: planPagination.toolbarItem,
     reportToolbarItems: reportsState.toolbarItems,
     onOpenDrawer: () => setDrawerOpen(true),
     onToggleSide: () => setSideOpen(!sideOpen),
-    onSpaceTypeFilterChange: changeSpaceTypeFilter,
     onStatusFilterChange: setStatusFilter,
     onItemTypeFilterChange: setItemTypeFilter,
+    onActiveTabChange: setActiveTab,
     onCreatePlan: () => {
       if (planCreating) {
         setPlanCreating(false);
@@ -396,64 +394,75 @@ export default function WorksClient({ initialTarget }: {
     onToggleSpace: toggleSpace,
     onPlanPageChange: planPagination.setPlanPage,
   });
+  const availableSpaceKindOptions = spaceKindOptions(spaces);
+  const activeSpaceKind = spaceTypeFilter === "all"
+    ? activeTarget?.targetType ?? availableSpaceKindOptions[0]?.key ?? "personal"
+    : spaceTypeFilter;
+  const rightBody = createPageBody(currentSpace ? [
+    createPanelSection("space-header", {
+      title: currentSpace.name,
+      sections: [createSpaceMetricsSection(currentSpace)],
+    }),
+    activeTab === "permissions" ? createSectionsSection("permissions", {
+      sections: permissionSections,
+    }) : activeTab === "reports" ? createSectionSection("reports", {
+      title: "工作汇报",
+      sections: createWorkReportsPanelSections(reportsState),
+    }) : createWorkPlanContentSection({
+      planCreating,
+      activePlan,
+      canEditPlan: canEdit,
+      canDeletePlan: canDelete,
+      nodeCreating: worksState.creating,
+      createNodeDisabled: worksState.saving || editing,
+      nodeSaveDisabled: worksState.saving || !worksState.createDraft.content.trim(),
+      planSaveDisabled: worksState.saving || !planDraft.title.trim() || !planDirty,
+      planFormSurface,
+      createTaskSurface,
+      taskTableSection,
+      plansLoading,
+      hasCurrentSpacePlans: currentSpacePlans.length > 0,
+      onCreateNode: () => {
+        if (!activePlan) return;
+        worksState.setCreating(true);
+        worksState.setCreateDraft(createEmptyWorkDraft(nextSortOrder(worksState.works), activePlan.id));
+      },
+      onArchivePlan: () => void handleArchivePlan(),
+      onDeletePlan: () => void handleDeletePlan(),
+      onSavePlan: () => void handleUpdatePlan(),
+      onSaveNode: () => void worksState.handleCreate().then(() => Promise.all([loadSpaces(), loadPlans()])),
+      onCancelNodeCreate: () => worksState.setCreating(false),
+    }),
+  ] : [createMessageSection("empty-space", { content: spacesLoading ? "加载工作空间中..." : "当前账号暂无可进入的工作计划空间", tone: "muted" })]);
 
   return (
     <PageSurface kind="standard"
-      navigation={currentSpace ? createPageTabsNavigation({
-        items: tabs,
-        active: activeTab,
-        onChange: setActiveTab,
+      navigation={availableSpaceKindOptions.length > 0 ? createSpaceKindNavigation({
+        items: availableSpaceKindOptions,
+        active: activeSpaceKind,
+        onChange: (key) => changeSpaceTypeFilter(key as WorkSpaceTypeFilter),
       }) : undefined}
       toolbar={toolbarItems.length > 0 ? { items: toolbarItems } : undefined}
-      body={{
-        kind: "section",
-        layout: "split",
+      body={createSpaceWorkbenchBody({
         left: spaceNavigationBody,
-        drawerLeft: spaceNavigationBody,
-        right: createPageBody(currentSpace ? [
-          createPanelSection("space-header", {
-            title: currentSpace.name,
-            sections: [createSpaceMetricsSection(currentSpace)],
-          }),
-          activeTab === "permissions" ? createSectionsSection("permissions", {
-            sections: permissionSections,
-          }) : activeTab === "reports" ? createSectionSection("reports", {
-            title: "工作汇报",
-            sections: createWorkReportsPanelSections(reportsState),
-          }) : createWorkPlanContentSection({
-            planCreating,
-            activePlan,
-            canEditPlan: canEdit,
-            canDeletePlan: canDelete,
-            nodeCreating: worksState.creating,
-            createNodeDisabled: worksState.saving || editing,
-            nodeSaveDisabled: worksState.saving || !worksState.createDraft.content.trim(),
-            planSaveDisabled: worksState.saving || !planDraft.title.trim() || !planDirty,
-            planFormSurface,
-            createTaskSurface,
-            taskTableSection,
-            plansLoading,
-            hasCurrentSpacePlans: currentSpacePlans.length > 0,
-            onCreateNode: () => {
-              if (!activePlan) return;
-              worksState.setCreating(true);
-              worksState.setCreateDraft(createEmptyWorkDraft(nextSortOrder(worksState.works), activePlan.id));
-            },
-            onArchivePlan: () => void handleArchivePlan(),
-            onDeletePlan: () => void handleDeletePlan(),
-            onSavePlan: () => void handleUpdatePlan(),
-            onSaveNode: () => void worksState.handleCreate().then(() => Promise.all([loadSpaces(), loadPlans()])),
-            onCancelNodeCreate: () => worksState.setCreating(false),
-          }),
-        ] : [createMessageSection("empty-space", { content: spacesLoading ? "加载工作空间中..." : "当前账号暂无可进入的工作计划空间", tone: "muted" })]),
-        sideOpen,
+        right: rightBody,
+        label: "工作空间",
+        open: sideOpen,
         drawerOpen,
-        onSideOpenChange: setSideOpen,
+        onOpenChange: setSideOpen,
         onDrawerOpenChange: setDrawerOpen,
-        sideLabel: "工作空间",
-        splitRatio: [3, 7],
-        showSideControls: false,
-      }}
+        ratio: [0.3, 0.7],
+      })}
     />
   );
+}
+
+function spaceKindOptions(spaces: WorkTaskSpace[]): SpaceWorkbenchKindOption[] {
+  const byType = new Set(spaces.map((space) => space.targetType));
+  return [
+    { key: "personal", label: "个人" },
+    { key: "company", label: "运营委员会" },
+    { key: "department", label: "部门" },
+    { key: "project", label: "项目" },
+  ].filter((option) => byType.has(option.key as WorkTarget["targetType"]));
 }

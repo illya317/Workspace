@@ -82,6 +82,7 @@ work                admin   工作管理
   work.projects      admin   项目
   work.tasks         admin   工作计划
 
+work.projects.createOrg write  创建组织级项目（独立资源，runtimeParentKey=work.projects）
 work.projects.viewAll access 项目全局查看（独立资源，runtimeParentKey=work.projects）
 ```
 
@@ -106,7 +107,7 @@ work.projects.viewAll access 项目全局查看（独立资源，runtimeParentKe
 
 登录只看 `User.canLogin`（账号启停用） + `sessionVersion`。**不看 `system.access`**。
 
-`settings.account`、`settings.admin`、`settings.api` 都是标准 L2：页面 URL、resource key、RBAC 授权矩阵和 API contract 必须一一对应。内置默认规则只补有效权限：已登录用户默认拥有 `settings.account.access`、`work.tasks.delete`、`docs.access`、`docs.editor.access`；默认 `work.tasks.delete` 只表示可进入工作计划 API 并允许个人空间完成新增、编辑、删除这类本人数据操作，部门/项目/公司空间仍由 Work 业务空间权限继续计算；默认 `docs.editor.access` 只表示可进入模板编辑器，具体个人/公司/部门模板空间仍由 Docs Editor 空间权限计算；拥有任意 active resource `admin` 的用户默认拥有 `settings.admin.access`。
+`settings.account`、`settings.admin`、`settings.api` 都是标准 L2：页面 URL、resource key、RBAC 授权矩阵和 API contract 必须一一对应。内置默认规则只补有效权限：已登录用户默认拥有 `settings.account.access`、`work.projects.access`、`work.tasks.delete`、`docs.access`、`docs.editor.access`；默认 `work.projects.access` 只表示可进入项目功能和按对象级规则发起项目，不授予全量查看、全量管理或组织级项目创建；默认 `work.tasks.delete` 只表示可进入工作计划 API 并允许个人空间完成新增、编辑、删除这类本人数据操作，部门/项目/运营委员会空间仍由 Work 业务空间权限继续计算；默认 `docs.editor.access` 只表示可进入模板编辑器，具体个人/公共/部门模板空间仍由 Docs Editor 空间权限计算；拥有任意 active resource `admin` 的用户默认拥有 `settings.admin.access`。
 
 `system.access` 已废弃，不作为登录/后台入口/授权管理的判断条件。需要进后台管理权限时，授予对应资源的 `admin` 角色（如 `hr.admin`），系统会计算出 `settings.admin.access` 作为后台入口权限。Session 仍暴露 `manageableResourceKeys[]`，用于限制进入后台后的可管理范围。
 
@@ -204,7 +205,7 @@ model DepartmentResourceRole {
 
 ### 项目资料（/work/projects）
 
-项目资料使用对象级权限，不使用模块权限放大全量项目范围。`work.projects.access` 只表示可以进入项目功能，`work.projects.write` 只表示可以发起项目；它们不会授予查看全部项目、管理全部项目或删除全部项目。查看全部项目必须显式授予 `work.projects.viewAll`，root admin 例外。
+项目资料使用对象级权限，不使用模块权限放大全量项目范围。`work.projects.access` 只表示可以进入项目功能和发起普通项目；`work.projects.write` 不再作为组织级项目创建开关。运营委员会项目创建必须显式授予 `work.projects.createOrg.write`，部门项目创建由目标部门负责人自然权限控制。查看全部项目必须显式授予 `work.projects.viewAll`，root admin 例外。
 
 | 能力 | 来源 |
 |------|------|
@@ -212,9 +213,12 @@ model DepartmentResourceRole {
 | 可编辑内容 | 可管理者、项目执行负责/支持协作等编辑角色、root admin |
 | 可管理 | 创建人、主导部门负责人、项目负责人/负责人、root admin |
 | 可删除 | 创建人、主导部门负责人、项目负责人/负责人 |
+| 创建普通项目 | 在职员工 + `work.projects.access` |
+| 创建部门项目 | 目标部门负责人或 root admin |
+| 创建运营委员会项目 | 显式 `work.projects.createOrg.write` 或 root admin |
 | 查看全部 | 显式 `work.projects.viewAll` 或 root admin |
 
-`editedBy` 仅用于审计最近编辑人，不代表项目所有权、管理权或可见性。`work.projects.viewAll` 不设置 `parentKey`，避免继承 `work.projects` 模块权限；它通过 `runtimeParentKey: "work.projects"` 随项目模块启停。
+`editedBy` 仅用于审计最近编辑人，不代表项目所有权、管理权或可见性。`work.projects.viewAll` 和 `work.projects.createOrg` 不设置 `parentKey`，避免继承 `work.projects` 模块权限；它们通过 `runtimeParentKey: "work.projects"` 随项目模块启停。
 
 ### 规则
 

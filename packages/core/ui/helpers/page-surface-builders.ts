@@ -133,10 +133,19 @@ export function createTabbedPageBody(
 }
 
 export function createPageTabsNavigation(
-  navigation: Omit<PageSurfaceNavigationSpec, "kind">,
+  navigation: Omit<Extract<PageSurfaceNavigationSpec, { kind: "tabs" }>, "kind">,
 ): PageSurfaceNavigationSpec {
   return {
     kind: "tabs",
+    ...navigation,
+  };
+}
+
+export function createPageScopeNavigation(
+  navigation: Omit<Extract<PageSurfaceNavigationSpec, { kind: "scope" }>, "kind">,
+): PageSurfaceNavigationSpec {
+  return {
+    kind: "scope",
     ...navigation,
   };
 }

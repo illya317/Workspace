@@ -6,6 +6,7 @@ import {
   canDeleteProject,
   canEditProject,
   canManageProject,
+  hasProjectCreateOrgAccess,
   isSystemAdminUser,
 } from "../access";
 import {
@@ -67,6 +68,14 @@ export async function buildProjectCreateCommand(
   if (input.completionPercent !== null && input.completionPercent !== undefined && input.completionPercent < 0) return failCommand("完成度不能小于 0");
 
   const projectType = normalizeProjectType(input.projectType);
+  const actorEmployee = await prisma.employee.findFirst({
+    where: { userId, employments: { some: { isActive: true } } },
+    select: { id: true },
+  });
+  if (!actorEmployee && !(await isSystemAdminUser(userId))) return failCommand("只有在职员工可以发起项目", 403);
+  if (projectType === "company" && !(await hasProjectCreateOrgAccess(userId))) {
+    return failCommand("只有运营委员会授权人员可以发起运营委员会项目", 403);
+  }
   const parentProjectTask = input.parentProjectTaskId
     ? await prisma.projectTask.findUnique({
       where: { id: input.parentProjectTaskId },
@@ -99,10 +108,7 @@ export async function buildProjectCreateCommand(
   const leaderEmployee = input.leaderEmployeeId ? await prisma.employee.findUnique({
     where: { id: input.leaderEmployeeId },
     select: { id: true },
-  }) : await prisma.employee.findFirst({
-    where: { userId },
-    select: { id: true },
-  });
+  }) : actorEmployee;
   if (input.leaderEmployeeId && !leaderEmployee) return failCommand("负责人不存在");
 
   const startDate = parseDate(input.startDate);

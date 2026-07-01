@@ -4058,7 +4058,7 @@ export const generatedCoreUiSurfaceContracts = {
               children: [
                 {
                   name: "kind",
-                  description: "可选值：pagination / steps / tabs。",
+                  description: "可选值：pagination / scope / steps / tabs。",
                   children: [
                     {
                       name: "pagination",
@@ -4089,6 +4089,58 @@ export const generatedCoreUiSurfaceContracts = {
                               description: "类型：boolean。",
                             },
                           ],
+                        },
+                      ],
+                    },
+                    {
+                      name: "scope",
+                      description: "scope 分支声明。",
+                      children: [
+                        {
+                          name: "items",
+                          description: "类型：NavigationSurfaceItemSpec[]。",
+                          children: [
+                            {
+                              name: "key",
+                              description: "类型：string。",
+                            },
+                            {
+                              name: "label",
+                              description: "类型：ReactNode。",
+                            },
+                            {
+                              name: "description",
+                              description: "类型：ReactNode。",
+                            },
+                            {
+                              name: "href",
+                              description: "类型：string。",
+                            },
+                            {
+                              name: "onClick",
+                              description: "类型：() => void。",
+                            },
+                            {
+                              name: "children",
+                              description: "类型：NavigationSurfaceItemSpec[]。",
+                            },
+                          ],
+                        },
+                        {
+                          name: "active",
+                          description: "类型：string。",
+                        },
+                        {
+                          name: "onChange",
+                          description: "类型：(key: string) => void。",
+                        },
+                        {
+                          name: "label",
+                          description: "类型：ReactNode。",
+                        },
+                        {
+                          name: "ariaLabel",
+                          description: "类型：string。",
                         },
                       ],
                     },
@@ -8906,7 +8958,7 @@ export const generatedCoreUiSurfaceContracts = {
                               children: [
                                 {
                                   name: "kind",
-                                  description: "可选值：pagination / steps / tabs。",
+                                  description: "可选值：pagination / scope / steps / tabs。",
                                   children: [
                                     {
                                       name: "pagination",
@@ -8937,6 +8989,32 @@ export const generatedCoreUiSurfaceContracts = {
                                               description: "类型：boolean。",
                                             },
                                           ],
+                                        },
+                                      ],
+                                    },
+                                    {
+                                      name: "scope",
+                                      description: "scope 分支声明。",
+                                      children: [
+                                        {
+                                          name: "items",
+                                          description: "类型：NavigationSurfaceItemSpec[]。",
+                                        },
+                                        {
+                                          name: "active",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "onChange",
+                                          description: "类型：(key: string) => void。",
+                                        },
+                                        {
+                                          name: "label",
+                                          description: "类型：ReactNode。",
+                                        },
+                                        {
+                                          name: "ariaLabel",
+                                          description: "类型：string。",
                                         },
                                       ],
                                     },
@@ -18046,7 +18124,7 @@ export const generatedCoreUiSurfaceContracts = {
                           children: [
                             {
                               name: "kind",
-                              description: "可选值：pagination / steps / tabs。",
+                              description: "可选值：pagination / scope / steps / tabs。",
                               children: [
                                 {
                                   name: "pagination",
@@ -18077,6 +18155,58 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "类型：boolean。",
                                         },
                                       ],
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "scope",
+                                  description: "scope 分支声明。",
+                                  children: [
+                                    {
+                                      name: "items",
+                                      description: "类型：NavigationSurfaceItemSpec[]。",
+                                      children: [
+                                        {
+                                          name: "key",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "label",
+                                          description: "类型：ReactNode。",
+                                        },
+                                        {
+                                          name: "description",
+                                          description: "类型：ReactNode。",
+                                        },
+                                        {
+                                          name: "href",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "onClick",
+                                          description: "类型：() => void。",
+                                        },
+                                        {
+                                          name: "children",
+                                          description: "类型：NavigationSurfaceItemSpec[]。",
+                                        },
+                                      ],
+                                    },
+                                    {
+                                      name: "active",
+                                      description: "类型：string。",
+                                    },
+                                    {
+                                      name: "onChange",
+                                      description: "类型：(key: string) => void。",
+                                    },
+                                    {
+                                      name: "label",
+                                      description: "类型：ReactNode。",
+                                    },
+                                    {
+                                      name: "ariaLabel",
+                                      description: "类型：string。",
                                     },
                                   ],
                                 },
@@ -40038,7 +40168,7 @@ export const generatedCoreUiSurfaceContracts = {
   NavigationSurface: [
     {
       name: "kind",
-      description: "可选值：pagination / steps / tabs。",
+      description: "可选值：pagination / scope / steps / tabs。",
       children: [
         {
           name: "pagination",
@@ -40069,6 +40199,58 @@ export const generatedCoreUiSurfaceContracts = {
                   description: "类型：boolean。",
                 },
               ],
+            },
+          ],
+        },
+        {
+          name: "scope",
+          description: "scope 分支声明。",
+          children: [
+            {
+              name: "items",
+              description: "类型：NavigationSurfaceItemSpec[]。",
+              children: [
+                {
+                  name: "key",
+                  description: "类型：string。",
+                },
+                {
+                  name: "label",
+                  description: "类型：ReactNode。",
+                },
+                {
+                  name: "description",
+                  description: "类型：ReactNode。",
+                },
+                {
+                  name: "href",
+                  description: "类型：string。",
+                },
+                {
+                  name: "onClick",
+                  description: "类型：() => void。",
+                },
+                {
+                  name: "children",
+                  description: "类型：NavigationSurfaceItemSpec[]。",
+                },
+              ],
+            },
+            {
+              name: "active",
+              description: "类型：string。",
+            },
+            {
+              name: "onChange",
+              description: "类型：(key: string) => void。",
+            },
+            {
+              name: "label",
+              description: "类型：ReactNode。",
+            },
+            {
+              name: "ariaLabel",
+              description: "类型：string。",
             },
           ],
         },
@@ -44308,7 +44490,7 @@ export const generatedCoreUiSurfaceContracts = {
                           children: [
                             {
                               name: "kind",
-                              description: "可选值：pagination / steps / tabs。",
+                              description: "可选值：pagination / scope / steps / tabs。",
                               children: [
                                 {
                                   name: "pagination",
@@ -44339,6 +44521,58 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "类型：boolean。",
                                         },
                                       ],
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "scope",
+                                  description: "scope 分支声明。",
+                                  children: [
+                                    {
+                                      name: "items",
+                                      description: "类型：NavigationSurfaceItemSpec[]。",
+                                      children: [
+                                        {
+                                          name: "key",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "label",
+                                          description: "类型：ReactNode。",
+                                        },
+                                        {
+                                          name: "description",
+                                          description: "类型：ReactNode。",
+                                        },
+                                        {
+                                          name: "href",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "onClick",
+                                          description: "类型：() => void。",
+                                        },
+                                        {
+                                          name: "children",
+                                          description: "类型：NavigationSurfaceItemSpec[]。",
+                                        },
+                                      ],
+                                    },
+                                    {
+                                      name: "active",
+                                      description: "类型：string。",
+                                    },
+                                    {
+                                      name: "onChange",
+                                      description: "类型：(key: string) => void。",
+                                    },
+                                    {
+                                      name: "label",
+                                      description: "类型：ReactNode。",
+                                    },
+                                    {
+                                      name: "ariaLabel",
+                                      description: "类型：string。",
                                     },
                                   ],
                                 },
@@ -49156,7 +49390,7 @@ export const generatedCoreUiSurfaceContracts = {
                                           children: [
                                             {
                                               name: "kind",
-                                              description: "可选值：pagination / steps / tabs。",
+                                              description: "可选值：pagination / scope / steps / tabs。",
                                               children: [
                                                 {
                                                   name: "pagination",
@@ -49187,6 +49421,32 @@ export const generatedCoreUiSurfaceContracts = {
                                                           description: "类型：boolean。",
                                                         },
                                                       ],
+                                                    },
+                                                  ],
+                                                },
+                                                {
+                                                  name: "scope",
+                                                  description: "scope 分支声明。",
+                                                  children: [
+                                                    {
+                                                      name: "items",
+                                                      description: "类型：NavigationSurfaceItemSpec[]。",
+                                                    },
+                                                    {
+                                                      name: "active",
+                                                      description: "类型：string。",
+                                                    },
+                                                    {
+                                                      name: "onChange",
+                                                      description: "类型：(key: string) => void。",
+                                                    },
+                                                    {
+                                                      name: "label",
+                                                      description: "类型：ReactNode。",
+                                                    },
+                                                    {
+                                                      name: "ariaLabel",
+                                                      description: "类型：string。",
                                                     },
                                                   ],
                                                 },
@@ -58296,7 +58556,7 @@ export const generatedCoreUiSurfaceContracts = {
                                       children: [
                                         {
                                           name: "kind",
-                                          description: "可选值：pagination / steps / tabs。",
+                                          description: "可选值：pagination / scope / steps / tabs。",
                                           children: [
                                             {
                                               name: "pagination",
@@ -58327,6 +58587,58 @@ export const generatedCoreUiSurfaceContracts = {
                                                       description: "类型：boolean。",
                                                     },
                                                   ],
+                                                },
+                                              ],
+                                            },
+                                            {
+                                              name: "scope",
+                                              description: "scope 分支声明。",
+                                              children: [
+                                                {
+                                                  name: "items",
+                                                  description: "类型：NavigationSurfaceItemSpec[]。",
+                                                  children: [
+                                                    {
+                                                      name: "key",
+                                                      description: "类型：string。",
+                                                    },
+                                                    {
+                                                      name: "label",
+                                                      description: "类型：ReactNode。",
+                                                    },
+                                                    {
+                                                      name: "description",
+                                                      description: "类型：ReactNode。",
+                                                    },
+                                                    {
+                                                      name: "href",
+                                                      description: "类型：string。",
+                                                    },
+                                                    {
+                                                      name: "onClick",
+                                                      description: "类型：() => void。",
+                                                    },
+                                                    {
+                                                      name: "children",
+                                                      description: "类型：NavigationSurfaceItemSpec[]。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
+                                                  name: "active",
+                                                  description: "类型：string。",
+                                                },
+                                                {
+                                                  name: "onChange",
+                                                  description: "类型：(key: string) => void。",
+                                                },
+                                                {
+                                                  name: "label",
+                                                  description: "类型：ReactNode。",
+                                                },
+                                                {
+                                                  name: "ariaLabel",
+                                                  description: "类型：string。",
                                                 },
                                               ],
                                             },
@@ -65648,7 +65960,7 @@ export const generatedCoreUiSurfaceContracts = {
             },
             {
               name: "navigation",
-              description: "类型：NavigationSurfaceTabsProps。",
+              description: "类型：PageSurfaceNavigationSpec。",
               children: [
                 {
                   name: "items",
@@ -65685,15 +65997,7 @@ export const generatedCoreUiSurfaceContracts = {
                   description: "类型：string。",
                 },
                 {
-                  name: "activeChild",
-                  description: "类型：string。",
-                },
-                {
                   name: "onChange",
-                  description: "类型：(key: string) => void。",
-                },
-                {
-                  name: "onChildChange",
                   description: "类型：(key: string) => void。",
                 },
                 {
@@ -65701,30 +66005,44 @@ export const generatedCoreUiSurfaceContracts = {
                   description: "类型：ReactNode。",
                 },
                 {
-                  name: "variant",
-                  description: "可选值：large / small。",
-                  children: [
-                    {
-                      name: "large",
-                      description: "字面量取值。",
-                    },
-                    {
-                      name: "small",
-                      description: "字面量取值。",
-                    },
-                  ],
-                },
-                {
                   name: "ariaLabel",
                   description: "类型：string。",
                 },
                 {
                   name: "kind",
-                  description: "可选值：tabs。",
+                  description: "可选值：scope / tabs。",
                   children: [
+                    {
+                      name: "scope",
+                      description: "scope 分支声明。",
+                    },
                     {
                       name: "tabs",
                       description: "tabs 分支声明。",
+                      children: [
+                        {
+                          name: "activeChild",
+                          description: "类型：string。",
+                        },
+                        {
+                          name: "onChildChange",
+                          description: "类型：(key: string) => void。",
+                        },
+                        {
+                          name: "variant",
+                          description: "可选值：large / small。",
+                          children: [
+                            {
+                              name: "large",
+                              description: "字面量取值。",
+                            },
+                            {
+                              name: "small",
+                              description: "字面量取值。",
+                            },
+                          ],
+                        },
+                      ],
                     },
                   ],
                 },

@@ -32,6 +32,7 @@ async function hasProjectL2Access(userId: number, role: ProjectAccessRole = "acc
 }
 
 const PROJECT_VIEW_ALL_RESOURCE = "work.projects.viewAll";
+const PROJECT_CREATE_ORG_RESOURCE = "work.projects.createOrg";
 const PROJECT_MANAGER_ROLES = new Set(["负责人", "项目负责人"]);
 const PROJECT_EDITOR_ROLES = new Set(["负责人", "项目负责人", "执行负责", "支持协作"]);
 const PROJECT_VIEWER_ROLES = new Set<string>(PROJECT_ROLES);
@@ -68,6 +69,11 @@ export async function hasProjectViewAll(userId: number) {
   return authorize({ user: userId, resourceKey: PROJECT_VIEW_ALL_RESOURCE, action: "access" });
 }
 
+export async function hasProjectCreateOrgAccess(userId: number) {
+  if (await isSystemAdminUser(userId)) return true;
+  return authorize({ user: userId, resourceKey: PROJECT_CREATE_ORG_RESOURCE, action: "write" });
+}
+
 export async function buildVisibleProjectWhere(userId: number) {
   if (!(await hasProjectL2Access(userId, "access"))) return { id: -1 };
   if (await hasProjectViewAll(userId)) return {};
@@ -87,11 +93,10 @@ export async function getProjectPermissions(
 ): Promise<ProjectPermissionResult> {
   if (await isSystemAdminUser(userId)) return { canView: true, canEdit: true, canManage: true, canDelete: true };
 
-  const [hasL2Access, hasL2Write, hasL2Delete, hasL2Admin, employeeIds, canViewAll] = await Promise.all([
+  const [hasL2Access, hasL2Write, hasL2Delete, employeeIds, canViewAll] = await Promise.all([
     hasProjectL2Access(userId, "access"),
     hasProjectL2Access(userId, "write"),
     hasProjectL2Access(userId, "delete"),
-    hasProjectL2Access(userId, "admin"),
     getUserEmployeeIds(userId),
     hasProjectViewAll(userId),
   ]);
@@ -108,8 +113,8 @@ export async function getProjectPermissions(
   const isProjectEditor = memberRoles.some((role) => PROJECT_EDITOR_ROLES.has(role));
   const isProjectViewer = memberRoles.some((role) => PROJECT_VIEWER_ROLES.has(role));
   const canManageByProject = isCreator || isDepartmentManager || isProjectManager;
-  const canManage = hasL2Admin && canManageByProject;
-  const canEdit = hasL2Write && (canManageByProject || isProjectEditor);
+  const canManage = canManageByProject;
+  const canEdit = canManageByProject || (hasL2Write && isProjectEditor);
   const canView = canViewAll || canManageByProject || isProjectViewer;
 
   return {
@@ -246,6 +251,22 @@ async function isAssignee(
   return false;
 }
 
+async function hasNaturalProjectTaskManagerRole(userId: number, projectId: number) {
+  const [project, employeeIds] = await Promise.all([
+    loadProjectForPermission(projectId),
+    getUserEmployeeIds(userId),
+  ]);
+  if (!project) return false;
+
+  const employeeIdSet = new Set(employeeIds);
+  const isProjectManager = (project.employees || []).some(
+    (member) => employeeIdSet.has(member.employeeId) && PROJECT_MANAGER_ROLES.has(member.role || ""),
+  );
+  return project.createdBy === userId
+    || project.leadingDepartment?.managerUserId === userId
+    || isProjectManager;
+}
+
 async function explicitWorkSpaceRole(
   userId: number,
   targetType: WorkSpaceTargetType,
@@ -285,6 +306,8 @@ async function naturalWorkSpaceRole(
   }
 
   if (targetType === "project") {
+    if (await hasNaturalProjectTaskManagerRole(userId, targetId)) return "manager";
+
     const permissions = await getProjectPermissionsById(userId, targetId);
     if (permissions?.canManage) return "manager";
     if (permissions?.canDelete) return "delete";

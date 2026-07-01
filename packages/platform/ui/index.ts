@@ -13,3 +13,9 @@ export { renderPortalPage } from "./portal-page";
 export { default as UserMenu } from "./UserMenu";
 export { DocsPlaceholderPage } from "./docs";
 export { default as SettingsClient } from "./settings/SettingsClient";
+export {
+  createSpaceKindNavigation,
+  createSpaceViewToolbarItem,
+  createSpaceWorkbenchBody,
+  type SpaceWorkbenchKindOption,
+} from "./space-workbench";

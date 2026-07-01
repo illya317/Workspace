@@ -1,5 +1,6 @@
 "use client";
 
+import { createSpaceViewToolbarItem, type SpaceWorkbenchKindOption } from "@workspace/platform/ui";
 import type { SurfaceToolbarItem, SurfaceToolbarItems } from "@workspace/core/ui";
 import { WORK_ITEM_TYPE_OPTIONS } from "./model";
 import type { WorkTargetType } from "./types";
@@ -7,32 +8,30 @@ import type { WorkTargetType } from "./types";
 export type WorkStatusFilter = "active" | "done" | "archived";
 export type WorkSpaceTypeFilter = "all" | WorkTargetType;
 
-const WORK_SPACE_TYPE_FILTER_OPTIONS: Array<{ value: WorkSpaceTypeFilter; label: string }> = [
-  { value: "all", label: "全部" },
-  { value: "personal", label: "个人" },
-  { value: "company", label: "公司" },
-  { value: "department", label: "部门" },
-  { value: "project", label: "项目" },
+const WORK_VIEW_OPTIONS: SpaceWorkbenchKindOption[] = [
+  { key: "tasks", label: "OKR 计划" },
+  { key: "reports", label: "工作汇报" },
+  { key: "permissions", label: "权限设置" },
 ];
 
 export function createWorkToolbarItems({
   hasSpace,
   sideOpen,
   activeTab,
+  canManage,
   canEdit,
   planCreating,
   saving,
   planDraftTitle,
-  spaceTypeFilter,
   statusFilter,
   itemTypeFilter,
   planPageToolbarItem,
   reportToolbarItems,
   onOpenDrawer,
   onToggleSide,
-  onSpaceTypeFilterChange,
   onStatusFilterChange,
   onItemTypeFilterChange,
+  onActiveTabChange,
   onCreatePlan,
   onSavePlan,
 }: {
@@ -40,19 +39,19 @@ export function createWorkToolbarItems({
   sideOpen: boolean;
   activeTab: string;
   canEdit: boolean;
+  canManage: boolean;
   planCreating: boolean;
   saving: boolean;
   planDraftTitle: string;
-  spaceTypeFilter: WorkSpaceTypeFilter;
   statusFilter: WorkStatusFilter;
   itemTypeFilter: string;
   planPageToolbarItem: SurfaceToolbarItem;
   reportToolbarItems: SurfaceToolbarItems;
   onOpenDrawer: () => void;
   onToggleSide: () => void;
-  onSpaceTypeFilterChange: (value: WorkSpaceTypeFilter) => void;
   onStatusFilterChange: (value: WorkStatusFilter) => void;
   onItemTypeFilterChange: (value: string) => void;
+  onActiveTabChange: (value: string) => void;
   onCreatePlan: () => void;
   onSavePlan: () => void;
 }): SurfaceToolbarItems {
@@ -60,18 +59,15 @@ export function createWorkToolbarItems({
   return [
     { kind: "panel-toggle", key: "mobile-side-toggle", icon: "panel-open", label: "显示工作计划", visibility: "mobile", onClick: onOpenDrawer },
     { kind: "panel-toggle", key: "desktop-side-toggle", icon: sideOpen ? "panel-open" : "panel-close", label: `${sideOpen ? "隐藏" : "显示"}工作计划`, variant: sideOpen ? "primary" : "secondary", visibility: "desktop", onClick: onToggleSide },
+    createSpaceViewToolbarItem({
+      key: "work-view",
+      value: activeTab,
+      options: canManage ? WORK_VIEW_OPTIONS : WORK_VIEW_OPTIONS.filter((option) => option.key !== "permissions"),
+      onChange: onActiveTabChange,
+      ariaLabel: "工作计划视图",
+    }),
     ...(activeTab === "tasks" ? [
       planPageToolbarItem,
-      {
-        kind: "option-group" as const,
-        key: "space-type",
-        label: "空间类型",
-        value: spaceTypeFilter,
-        options: WORK_SPACE_TYPE_FILTER_OPTIONS,
-        presentation: "segmented" as const,
-        onChange: (value: string) => onSpaceTypeFilterChange(value as WorkSpaceTypeFilter),
-        ariaLabel: "空间类型",
-      },
       {
         kind: "option-group" as const,
         key: "status",

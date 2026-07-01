@@ -109,12 +109,12 @@ async function listCompanySeeds(userId: number, isAdmin: boolean): Promise<Space
   return [companySpaceSeed(company)];
 }
 
-function companySpaceSeed(company: { id: number; name: string }): SpaceSeed {
+function companySpaceSeed(company: { id: number }): SpaceSeed {
   return {
     targetType: "company",
     targetId: company.id,
-    name: company.name,
-    subtitle: "公司级工作计划",
+    name: "运营委员会",
+    subtitle: "组织级工作计划",
     lifecycleStatus: "active",
   };
 }

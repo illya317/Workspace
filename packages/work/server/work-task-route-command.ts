@@ -146,7 +146,7 @@ export async function buildCreateProjectRouteCommand(input: {
   userId: number;
   body: Record<string, unknown>;
 }) {
-  if (!(await canUseProject(input.userId, "write"))) return failCommand("无权限", 403);
+  if (!(await canUseProject(input.userId, "access"))) return failCommand("无权限", 403);
   return okCommand(input);
 }
 

@@ -11,7 +11,7 @@ Docs Editor 使用和 Work Tasks 一致的业务空间入口，但不复用 Work
 | 空间 | 目标 | 创建方式 | 自然权限 |
 |---|---|---|---|
 | 个人 | `targetType=personal`, `targetId=userId` | 用户进入编辑器时自动确保 | 本人 `manager` |
-| 公司 | `targetType=company`, `targetId=companyId` | 只取一个集团公司空间 | 无自然成员权限；可由管理员显式授权 |
+| 公共 | `targetType=company`, `targetId=companyId` | 只取一个集团公司记录作为公共模板空间锚点 | 所有可进入编辑器的用户 `viewer`；管理员和显式授权可提升 |
 | 部门 | `targetType=department`, `targetId=departmentId` | 按组织部门列出和确保 | `Department.managerPositionId` 对应岗位的在职人员为 `manager`，部门其他人员 `viewer` |
 
 `DocumentTemplateSpace` 只表示空间归属，不再存旧的 `kind/ownerUserId/departmentId` 组合字段。空间唯一性由 `targetType + targetId` 保证。
@@ -29,14 +29,14 @@ Docs Editor 使用和 Work Tasks 一致的业务空间入口，但不复用 Work
 
 空间角色由自然权限和显式授权取最大值。显式授权写入 `DocumentTemplateSpacePermission`，以 `targetType + targetId + userId + kind` 唯一；当前 `kind` 固定为 `template`，用于和 Work 共用 Platform 权限面板时保持语义清晰。
 
-`docs.editor.access` 只控制能否进入模板编辑器。进入后具体能看到、编辑、删除或管理哪个个人/公司/部门空间，由 Docs Editor 空间权限计算。
+`docs.editor.access` 只控制能否进入模板编辑器。进入后具体能看到、编辑、删除或管理哪个个人/公共/部门空间，由 Docs Editor 空间权限计算。公共模板空间对所有进入编辑器的用户可见，但编辑、删除和管理仍必须通过显式授权或 Docs Editor admin 获得。
 
 ## UI 和 API 边界
 
 - Work Tasks 和 Docs Editor 复用 `packages/platform/ui/SpacePermissionsPanel.tsx` 与 `packages/platform/permissions.ts` 的业务空间角色工具。
 - Docs Editor 通过 `/api/modules/docs/editor/spaces/[spaceId]/permissions` 读写空间授权。
 - 用户选择候选走 Docs Editor 自己的 `reference-options` API 和 FK registration，不能直接复用 Work 的 FK key。
-- Docs Editor 页面 tab 固定为 `文档模版` 和 `权限管理`；只有当前空间 `manager` 才显示权限管理。
+- Docs Editor 顶部 `scope` 先选择个人/公共/部门空间类型；页面内 `文档模板` / `权限管理` 作为 toolbar micro segmented 视图切换，只有当前空间 `manager` 才显示权限管理。
 
 ## 模板正文存储
 

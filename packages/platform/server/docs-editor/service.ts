@@ -84,8 +84,10 @@ function toSpaceDto(space: DocsEditorSpaceRow, role: DocsEditorPermissionRole): 
     kind: targetType,
     targetType,
     targetId: space.targetId,
-    title: space.title,
-    ...(space.description ? { description: space.description } : {}),
+    title: targetType === "company" ? "公共模板" : space.title,
+    ...(targetType === "company"
+      ? { description: "所有人可查看的公共文档模板空间" }
+      : space.description ? { description: space.description } : {}),
     departmentId: targetType === "department" ? space.targetId : null,
     role,
   };
@@ -157,8 +159,8 @@ async function ensureCompanySpace(db: DocsEditorDb = docsEditorDb()) {
   return ensureSpace({
     targetType: "company",
     targetId: company.id,
-    title: `${company.name}模板空间`,
-    description: "集团级文档模板空间",
+    title: "公共模板",
+    description: "所有人可查看的公共文档模板空间",
   }, db);
 }
 
@@ -196,8 +198,8 @@ async function listExplicitSpaceSeeds(userId: number): Promise<SpaceSeed[]> {
       seeds.push({
         targetType: "company",
         targetId: company.id,
-        title: `${company.name}模板空间`,
-        description: "集团级文档模板空间",
+        title: "公共模板",
+        description: "所有人可查看的公共文档模板空间",
       });
     }
     if (targetType === "department" && departmentNameById.has(row.targetId)) {

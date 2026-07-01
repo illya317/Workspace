@@ -61,10 +61,10 @@ Reference
 ## 已完成基础
 
 - 项目管理从 HR 迁入 Work，URL 挂在 `/work/projects`。
-- 工作计划挂在 `/work/tasks`，个人/部门/项目/公司空间共用同一个客户端工作台。
+- 工作计划挂在 `/work/tasks`，个人/部门/项目/运营委员会空间共用同一个客户端工作台。
 - 工作计划空间切换使用 `window.history.pushState/replaceState`，避免整页导航。
-- `Project.projectType` 支持公司项目、部门项目、其他项目。
-- 公司项目编号 `FH-YY-NN`，部门项目编号 `{Department.code}-YY-NN`，其他项目不自动编号。
+- `Project.projectType` 支持运营委员会项目、部门项目、其他项目。
+- 运营委员会项目编号 `FH-YY-NN`，部门项目编号 `{Department.code}-YY-NN`，其他项目不自动编号。
 - 子项目仍使用 `Project` 表，通过 `parentProjectTaskId` 关联上级任务。
 - 子项目四个日期由上级任务派生。
 - 项目阶段可选，甘特不展示“未分阶段”分组。
