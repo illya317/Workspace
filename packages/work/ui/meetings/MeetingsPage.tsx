@@ -11,8 +11,10 @@ import { emptyMeetingDraft, formatDateTime, parseIdList, requestJson } from "./m
 
 export default function MeetingsPage({
   user,
+  canCreate,
 }: {
   user: SessionUser;
+  canCreate: boolean;
 }) {
   const [types, setTypes] = useState<MeetingType[]>([]);
   const [meetings, setMeetings] = useState<MeetingSummary[]>([]);
@@ -175,6 +177,7 @@ export default function MeetingsPage({
   }
 
   async function handleCreateMeeting() {
+    if (!canCreate) return;
     if (!createDraft.title.trim() || !createDraft.typeId) return;
     setSaving(true);
     try {
@@ -288,15 +291,15 @@ export default function MeetingsPage({
           },
         },
         right: createPageBody([
-          ...(creating ? [createFormSection("create-meeting", {
+          ...(creating && canCreate ? [createFormSection("create-meeting", {
               kind: "fields" as const,
               content: {
                 items: meetingCreateFields(createDraft, types, setCreateDraft),
                 layout: { columns: 3 as const },
               },
               commands: [
-                { key: "cancel", label: "取消", disabled: saving, onClick: () => setCreating(false) },
-                { key: "save", label: saving ? "保存中..." : "保存会议", variant: "primary" as const, disabled: saving || !createDraft.title.trim() || !createDraft.typeId, onClick: () => void handleCreateMeeting() },
+                { key: "cancel", label: "取消", icon: "cancel", disabled: saving, onClick: () => setCreating(false) },
+                { key: "create", label: saving ? "创建中..." : "创建会议", icon: "add", variant: "primary" as const, disabled: saving || !createDraft.title.trim() || !createDraft.typeId, onClick: () => void handleCreateMeeting() },
               ],
             })] : []),
           meeting
@@ -306,13 +309,14 @@ export default function MeetingsPage({
                 tone: "muted"
               }),
         ], {
-          commands: [{
-            key: "create",
-            label: creating ? "收起新建" : "新建会议",
-            variant: creating ? "secondary" : "primary",
-            disabled: saving,
-            onClick: () => setCreating((current) => !current),
-          }],
+        commands: canCreate ? [{
+          key: "create",
+          label: creating ? "收起新建" : "新建会议",
+          icon: "add",
+          variant: creating ? "secondary" : "primary",
+          disabled: saving,
+          onClick: () => setCreating((current) => !current),
+        }] : undefined,
         }),
         sideOpen,
         drawerOpen,
@@ -356,6 +360,7 @@ function emptyMeetingDetail(): MeetingDetail {
       canManage: false,
       canDelete: false,
       canVote: false,
+      canApprove: false,
       canViewAll: false,
       participantRole: null,
     },

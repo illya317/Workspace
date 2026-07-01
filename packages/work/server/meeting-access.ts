@@ -1,7 +1,8 @@
 import { authorize, evaluatePermissionAction, isSuperAdmin } from "@workspace/platform/server/auth";
+import type { PermissionActionKey } from "@workspace/platform/permission-actions";
 import { prisma } from "@workspace/platform/server/prisma";
 
-export type MeetingAccessRole = "access" | "write" | "delete" | "admin";
+export type MeetingAccessRole = Extract<PermissionActionKey, "access" | "create" | "write" | "delete" | "admin">;
 
 const MEETING_VIEW_ALL_RESOURCE = "work.meetings.viewAll";
 const EDITOR_ROLES = new Set(["owner", "secretary"]);
@@ -14,6 +15,7 @@ export interface MeetingPermissionResult {
   canManage: boolean;
   canDelete: boolean;
   canVote: boolean;
+  canApprove: boolean;
   canViewAll: boolean;
   participantRole: string | null;
 }
@@ -29,6 +31,7 @@ type MeetingPermissionMeeting = {
 
 export async function canUseMeetings(userId: number, role: MeetingAccessRole = "access") {
   if (await isSuperAdmin(userId)) return true;
+  if (role === "create") return evaluatePermissionAction(userId, "work.meetings", role);
   return authorize({ user: userId, resourceKey: "work.meetings", action: role });
 }
 
@@ -63,15 +66,17 @@ export async function getMeetingPermissions(
       canManage: true,
       canDelete: true,
       canVote: true,
+      canApprove: true,
       canViewAll: true,
       participantRole: participant?.role ?? null,
     };
   }
 
-  const [hasAccess, hasWrite, hasDelete, canViewAll] = await Promise.all([
+  const [hasAccess, hasWrite, hasDelete, hasApprove, canViewAll] = await Promise.all([
     canUseMeetings(userId, "access"),
     canUseMeetings(userId, "write"),
     canUseMeetings(userId, "delete"),
+    evaluatePermissionAction(userId, "work.meetings", "approve"),
     hasMeetingViewAll(userId),
   ]);
   if (!hasAccess) return emptyPermissions(false);
@@ -93,6 +98,7 @@ export async function getMeetingPermissions(
     canManage,
     canDelete: hasDelete && (ownsMeeting || participantCanManage),
     canVote: participantCanVote,
+    canApprove: hasApprove && (canManage || role === "secretary"),
     canViewAll,
     participantRole: role,
   };
@@ -143,6 +149,7 @@ function emptyPermissions(canViewAll: boolean): MeetingPermissionResult {
     canManage: false,
     canDelete: false,
     canVote: false,
+    canApprove: false,
     canViewAll,
     participantRole: null,
   };

@@ -62,10 +62,10 @@ export function MeetingHeader({
     { key: "visibility", label: meeting.visibility === "public" ? "模块内公开" : "参会人可见", tone: "muted" },
   ];
   const actions = meeting.permissions.canEdit ? [
-    { key: "start", label: "开始", variant: "secondary" as const, size: "sm" as const, disabled: saving || meeting.status === "in_progress", onClick: () => onUpdate({ status: "in_progress" }, "会议已开始") },
-    { key: "close", label: "关闭", variant: "secondary" as const, size: "sm" as const, disabled: saving || meeting.status === "closed", onClick: () => onUpdate({ status: "closed" }, "会议已关闭") },
-    { key: "participants-only", label: "参会可见", variant: "secondary" as const, size: "sm" as const, disabled: saving || meeting.visibility === "participants_only", onClick: () => onUpdate({ visibility: "participants_only" }, "可见性已更新") },
-    { key: "public", label: "公开", variant: "secondary" as const, size: "sm" as const, disabled: saving || meeting.visibility === "public", onClick: () => onUpdate({ visibility: "public" }, "可见性已更新") },
+    { key: "start", label: "开始", icon: "send" as const, variant: "secondary" as const, size: "sm" as const, disabled: saving || meeting.status === "in_progress", onClick: () => onUpdate({ status: "in_progress" }, "会议已开始") },
+    { key: "close", label: "关闭", icon: "stop" as const, variant: "secondary" as const, size: "sm" as const, disabled: saving || meeting.status === "closed", onClick: () => onUpdate({ status: "closed" }, "会议已关闭") },
+    { key: "participants-only", label: "参会可见", icon: "lock" as const, variant: "secondary" as const, size: "sm" as const, disabled: saving || meeting.visibility === "participants_only", onClick: () => onUpdate({ visibility: "participants_only" }, "可见性已更新") },
+    { key: "public", label: "公开", icon: "unlock" as const, variant: "secondary" as const, size: "sm" as const, disabled: saving || meeting.visibility === "public", onClick: () => onUpdate({ visibility: "public" }, "可见性已更新") },
   ] : undefined;
   return <PageSurface kind="standard"
     embedded
@@ -130,12 +130,12 @@ export function ProposalList({
             </div>}
           <PageSurfaceSection className="mt-3" section={createActionsSection("proposal-actions", [
             ...(meeting.permissions.canVote && proposal.status === "open" ? [
-              { key: "yes", label: "赞成", variant: proposal.myVote?.choice === "yes" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onVote(proposal.id, "yes") },
-              { key: "no", label: "反对", variant: proposal.myVote?.choice === "no" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onVote(proposal.id, "no") },
-              { key: "abstain", label: "弃权", variant: proposal.myVote?.choice === "abstain" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onVote(proposal.id, "abstain") },
+              { key: "yes", label: "赞成", icon: "check" as const, variant: proposal.myVote?.choice === "yes" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onVote(proposal.id, "yes") },
+              { key: "no", label: "反对", icon: "x" as const, variant: proposal.myVote?.choice === "no" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onVote(proposal.id, "no") },
+              { key: "abstain", label: "弃权", icon: "stop" as const, variant: proposal.myVote?.choice === "abstain" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onVote(proposal.id, "abstain") },
             ] : []),
-            ...(meeting.permissions.canEdit && proposal.status === "open" ? [{ key: "close", label: "关闭表决", variant: "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onClose(proposal.id) }] : []),
-            ...(meeting.permissions.canEdit && proposal.status === "passed" ? [{ key: "decision", label: "生成决议", variant: "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onDecision(proposal) }] : []),
+            ...(meeting.permissions.canApprove && proposal.status === "open" ? [{ key: "close", label: "关闭表决", icon: "verified" as const, variant: "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onClose(proposal.id) }] : []),
+            ...(meeting.permissions.canEdit && proposal.status === "passed" ? [{ key: "decision", label: "生成决议", icon: "generate" as const, variant: "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onDecision(proposal) }] : []),
           ])} />
         </div>)}
     </div>;
@@ -205,11 +205,11 @@ export function CandidateList({
             targetId,
           })} />
                 <PageSurfaceSection className="md:col-span-4" section={createActionsSection("candidate-actions", [
-                  { key: "linkWorkPlan", label: "链接 OKR 计划", variant: "secondary", size: "sm", disabled: saving || !draft.workPlanId, onClick: () => onAction(candidate.id, "linkWorkPlan", draft) },
-                  { key: "createWorkPlan", label: "创建 OKR 计划", variant: "secondary", size: "sm", disabled: saving, onClick: () => onAction(candidate.id, "createWorkPlan", draft) },
-                  { key: "linkProjectTask", label: "链接项目任务", variant: "secondary", size: "sm", disabled: saving || !draft.projectTaskId, onClick: () => onAction(candidate.id, "linkProjectTask", draft) },
-                  { key: "createProjectTask", label: "创建项目任务", variant: "secondary", size: "sm", disabled: saving || !draft.projectId, onClick: () => onAction(candidate.id, "createProjectTask", draft) },
-                  { key: "ignore", label: "忽略", variant: "danger", size: "sm", disabled: saving, onClick: () => onAction(candidate.id, "ignore", draft) },
+                  { key: "linkWorkPlan", label: "链接 OKR 计划", icon: "link", variant: "secondary", size: "sm", disabled: saving || !draft.workPlanId, onClick: () => onAction(candidate.id, "linkWorkPlan", draft) },
+                  { key: "createWorkPlan", label: "创建 OKR 计划", icon: "add", variant: "secondary", size: "sm", disabled: saving, onClick: () => onAction(candidate.id, "createWorkPlan", draft) },
+                  { key: "linkProjectTask", label: "链接项目任务", icon: "link", variant: "secondary", size: "sm", disabled: saving || !draft.projectTaskId, onClick: () => onAction(candidate.id, "linkProjectTask", draft) },
+                  { key: "createProjectTask", label: "创建项目任务", icon: "add", variant: "secondary", size: "sm", disabled: saving || !draft.projectId, onClick: () => onAction(candidate.id, "createProjectTask", draft) },
+                  { key: "ignore", label: "忽略", icon: "x", variant: "danger", size: "sm", disabled: saving, onClick: () => onAction(candidate.id, "ignore", draft) },
                 ])} />
               </div>}
           </div>;

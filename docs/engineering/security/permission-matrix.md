@@ -26,6 +26,7 @@
 | `work.projects.createOrg` | `visibleWriteResourceKeys` | write（创建运营委员会项目；独立 capability，`runtimeParentKey=work.projects`） |
 | `work.projects.viewAll` | `visibleResourceKeys` | access（独立全量可见资源，`runtimeParentKey=work.projects`） |
 | `work.tasks` | `visibleResourceKeys` / `visibleWriteResourceKeys` | delete（登录用户默认有效；访问/编辑/删除列显示为默认规则）, admin |
+| `work.meetings` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, submit, approve, admin（投票提交/关闭表决拆分） |
 | `settings.account` | `visibleResourceKeys` | access（登录用户默认有效） |
 | `settings.admin` | `visibleResourceKeys` | access（任意资源管理员默认有效） |
 | `settings.api` | `visibleResourceKeys` | access（Open API 控制台读取；不代表外部调用权限） |
@@ -61,6 +62,7 @@
 | `/work` | `requireResourceAccess("work")` + module enabled | redirect `/portal` 或模块未启用页 |
 | `/work/projects` | `requireResourceAccess("work.projects")` + module enabled + 项目对象级过滤 | redirect `/portal` 或模块未启用页 |
 | `/work/tasks` | `requireResourceAccess("work.tasks")` + module enabled | redirect `/portal` 或模块未启用页 |
+| `/work/meetings` | `requireResourceAccess("work.meetings")` + module enabled + 会议对象级过滤 | redirect `/portal` 或模块未启用页 |
 | `/docs` | `requireResourceAccess("docs")` | redirect `/portal` |
 | `/settings/account` | `requireRouteAccess("/settings/account")` | redirect `/portal` |
 | `/settings/admin` | `requireRouteAccess("/settings/admin")` | redirect `/portal` |
@@ -134,6 +136,13 @@
 | `/api/modules/work/projects*` | DELETE | `work.projects.delete` + module enabled + 项目对象级删除校验 |
 | `/api/modules/work/projects/members*` | GET/POST/PUT/DELETE | `work.projects` 对应动作 + module enabled + 项目对象级管理校验 |
 | `/api/modules/work/projects/reference-options` | GET | FK registration permission + module enabled；项目/会议候选由 Work FK registry adapter 按对象可见性过滤 |
+| `/api/modules/work/meetings*` | GET | `work.meetings.access` + 会议对象级过滤 |
+| `/api/modules/work/meetings` | POST | `work.meetings.access` + `work.meetings.create` |
+| `/api/modules/work/meetings/[id]` | PUT | `work.meetings.write` + 会议对象级编辑校验 |
+| `/api/modules/work/meetings/[id]` | DELETE | `work.meetings.delete` + 会议对象级删除校验 |
+| `/api/modules/work/meetings/[id]/agenda` / `minutes` / `decisions` / `participants` / `action-candidates` / `proposals` | POST | `work.meetings.write` + 会议对象级编辑校验 |
+| `/api/modules/work/meetings/[id]/votes/[proposalId]/cast` | POST | `work.meetings.access` + `work.meetings.submit` + 参会投票资格 |
+| `/api/modules/work/meetings/[id]/votes/[proposalId]/close` | POST | `work.meetings.access` + `work.meetings.approve` + 会议对象级管理校验 |
 | `/api/settings/api/open/*` | GET | `settings.api.access` |
 | `/api/settings/api/open/clients` | POST | `settings.api.access` + `settings.api.manage.create` |
 | `/api/settings/api/open/clients/[id]/secret` | POST | `settings.api.access` + `settings.api.manage.revise` |

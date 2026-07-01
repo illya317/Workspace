@@ -76,7 +76,7 @@ export async function getMeetingDetail(input: { userId: number; meetingId: numbe
 }
 
 export async function createMeeting(input: { userId: number; body: Record<string, unknown> }) {
-  if (!(await canUseMeetings(input.userId, "write"))) return serviceError("无权限", 403);
+  if (!(await canUseMeetings(input.userId, "create"))) return serviceError("无权限", 403);
   await ensureDefaultMeetingTypes();
   const command = validateMeetingCreate(input.body);
   if (!command.ok) return serviceError(command.issue.message, command.issue.status);

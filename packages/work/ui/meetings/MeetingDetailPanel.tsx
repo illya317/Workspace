@@ -116,10 +116,10 @@ function createMeetingHeaderSection(meeting: MeetingDetail, saving: boolean, onU
     { key: "visibility", label: meeting.visibility === "public" ? "模块内公开" : "参会人可见", tone: "muted" },
   ];
   const actions: BodySurfaceCommandSpec[] | undefined = meeting.permissions.canEdit ? [
-    { key: "start", label: "开始", variant: "secondary", size: "sm", disabled: saving || meeting.status === "in_progress", onClick: () => onUpdate({ status: "in_progress" }, "会议已开始") },
-    { key: "close", label: "关闭", variant: "secondary", size: "sm", disabled: saving || meeting.status === "closed", onClick: () => onUpdate({ status: "closed" }, "会议已关闭") },
-    { key: "participants-only", label: "参会可见", variant: "secondary", size: "sm", disabled: saving || meeting.visibility === "participants_only", onClick: () => onUpdate({ visibility: "participants_only" }, "可见性已更新") },
-    { key: "public", label: "公开", variant: "secondary", size: "sm", disabled: saving || meeting.visibility === "public", onClick: () => onUpdate({ visibility: "public" }, "可见性已更新") },
+    { key: "start", label: "开始", icon: "send", variant: "secondary", size: "sm", disabled: saving || meeting.status === "in_progress", onClick: () => onUpdate({ status: "in_progress" }, "会议已开始") },
+    { key: "close", label: "关闭", icon: "stop", variant: "secondary", size: "sm", disabled: saving || meeting.status === "closed", onClick: () => onUpdate({ status: "closed" }, "会议已关闭") },
+    { key: "participants-only", label: "参会可见", icon: "lock", variant: "secondary", size: "sm", disabled: saving || meeting.visibility === "participants_only", onClick: () => onUpdate({ visibility: "participants_only" }, "可见性已更新") },
+    { key: "public", label: "公开", icon: "unlock", variant: "secondary", size: "sm", disabled: saving || meeting.visibility === "public", onClick: () => onUpdate({ visibility: "public" }, "可见性已更新") },
   ] : undefined;
 
   return {
@@ -159,7 +159,7 @@ function createParticipantsSection(props: MeetingDetailPanelProps): BodySurfaceS
           onChange: (checked) => onParticipantDraftChange({ ...participantDraft, canVote: Boolean(checked) }),
         },
       ], {
-        commands: [{ key: "save-participant", label: "保存参会人", variant: "primary", size: "sm", disabled: saving || !participantDraft.userId, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/participants`, participantDraft, "参会人已保存") }],
+        commands: [{ key: "save-participant", label: "保存参会人", icon: "save", variant: "primary", size: "sm", disabled: saving || !participantDraft.userId, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/participants`, participantDraft, "参会人已保存") }],
       })] : []),
     ],
   });
@@ -178,7 +178,7 @@ function createAgendaSection(props: MeetingDetailPanelProps): BodySurfaceSection
         textField("title", "议题", agendaDraft.title, (title) => onAgendaDraftChange({ ...agendaDraft, title })),
         textField("description", "说明", agendaDraft.description, (description) => onAgendaDraftChange({ ...agendaDraft, description })),
       ], {
-        commands: [{ key: "add-agenda", label: "新增议题", variant: "primary", size: "sm", disabled: saving || !agendaDraft.title.trim(), onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/agenda`, agendaDraft, "议题已新增", () => onAgendaDraftChange({ title: "", description: "" })) }],
+        commands: [{ key: "add-agenda", label: "新增议题", icon: "add", variant: "primary", size: "sm", disabled: saving || !agendaDraft.title.trim(), onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/agenda`, agendaDraft, "议题已新增", () => onAgendaDraftChange({ title: "", description: "" })) }],
       })] : []),
     ],
   });
@@ -197,7 +197,7 @@ function createMinutesSection(props: MeetingDetailPanelProps): BodySurfaceSectio
         selectField("agendaItemId", "关联议题", minuteDraft.agendaItemId, agendaOptions(meeting), (agendaItemId) => onMinuteDraftChange({ ...minuteDraft, agendaItemId })),
         textField("content", "内容", minuteDraft.content, (content) => onMinuteDraftChange({ ...minuteDraft, content }), { multiline: true }),
       ], {
-        commands: [{ key: "add-minute", label: "记录纪要", variant: "primary", size: "sm", disabled: saving || !minuteDraft.content.trim(), onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/minutes`, normalizeOptionalIds(minuteDraft), "纪要已记录", () => onMinuteDraftChange({ agendaItemId: "", content: "" })) }],
+        commands: [{ key: "add-minute", label: "记录纪要", icon: "edit", variant: "primary", size: "sm", disabled: saving || !minuteDraft.content.trim(), onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/minutes`, normalizeOptionalIds(minuteDraft), "纪要已记录", () => onMinuteDraftChange({ agendaItemId: "", content: "" })) }],
       })] : []),
     ],
   });
@@ -223,12 +223,12 @@ function createProposalsSection(props: MeetingDetailPanelProps): BodySurfaceSect
           meta: proposal.votes.length ? proposal.votes.map((vote) => `${vote.voterName || `用户 ${vote.voterUserId}`}：${voteChoiceLabel(vote.choice)}`).join(" · ") : undefined,
           actions: [
             ...(meeting.permissions.canVote && proposal.status === "open" ? [
-              { key: "yes", label: "赞成", variant: proposal.myVote?.choice === "yes" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/votes`, { action: "cast", proposalId: proposal.id, choice: "yes" }, "投票已保存") },
-              { key: "no", label: "反对", variant: proposal.myVote?.choice === "no" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/votes`, { action: "cast", proposalId: proposal.id, choice: "no" }, "投票已保存") },
-              { key: "abstain", label: "弃权", variant: proposal.myVote?.choice === "abstain" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/votes`, { action: "cast", proposalId: proposal.id, choice: "abstain" }, "投票已保存") },
+              { key: "yes", label: "赞成", icon: "check" as const, variant: proposal.myVote?.choice === "yes" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/votes/${proposal.id}/cast`, { choice: "yes" }, "投票已保存") },
+              { key: "no", label: "反对", icon: "x" as const, variant: proposal.myVote?.choice === "no" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/votes/${proposal.id}/cast`, { choice: "no" }, "投票已保存") },
+              { key: "abstain", label: "弃权", icon: "stop" as const, variant: proposal.myVote?.choice === "abstain" ? "primary" as const : "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/votes/${proposal.id}/cast`, { choice: "abstain" }, "投票已保存") },
             ] : []),
-            ...(meeting.permissions.canEdit && proposal.status === "open" ? [{ key: "close", label: "关闭表决", variant: "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/votes`, { action: "close", proposalId: proposal.id }, "表决已关闭") }] : []),
-            ...(meeting.permissions.canEdit && proposal.status === "passed" ? [{ key: "decision", label: "生成决议", variant: "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onDecisionDraftChange({ agendaItemId: proposal.agendaItemId ? String(proposal.agendaItemId) : "", proposalId: String(proposal.id), kind: "resolution", title: proposal.title, content: proposal.content, effectiveDate: "" }) }] : []),
+            ...(meeting.permissions.canApprove && proposal.status === "open" ? [{ key: "close", label: "关闭表决", icon: "verified" as const, variant: "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/votes/${proposal.id}/close`, {}, "表决已关闭") }] : []),
+            ...(meeting.permissions.canEdit && proposal.status === "passed" ? [{ key: "decision", label: "生成决议", icon: "generate" as const, variant: "secondary" as const, size: "sm" as const, disabled: saving, onClick: () => onDecisionDraftChange({ agendaItemId: proposal.agendaItemId ? String(proposal.agendaItemId) : "", proposalId: String(proposal.id), kind: "resolution", title: proposal.title, content: proposal.content, effectiveDate: "" }) }] : []),
           ],
         })),
       }),
@@ -239,7 +239,7 @@ function createProposalsSection(props: MeetingDetailPanelProps): BodySurfaceSect
         textField("minVotesRequired", "最低人数", proposalDraft.minVotesRequired, (minVotesRequired) => onProposalDraftChange({ ...proposalDraft, minVotesRequired }), { kind: "number" }),
         textField("content", "内容", proposalDraft.content, (content) => onProposalDraftChange({ ...proposalDraft, content }), { multiline: true }),
       ], {
-        commands: [{ key: "create-proposal", label: "创建表决", variant: "primary", size: "sm", disabled: saving || !proposalDraft.title.trim(), onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/votes`, { action: "create", ...normalizeOptionalIds(proposalDraft) }, "表决已创建", () => onProposalDraftChange({ agendaItemId: "", title: "", content: "", voteVisibility: "named", minVotesRequired: "" })) }],
+        commands: [{ key: "create-proposal", label: "创建表决", icon: "add", variant: "primary", size: "sm", disabled: saving || !proposalDraft.title.trim(), onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/proposals`, normalizeOptionalIds(proposalDraft), "表决已创建", () => onProposalDraftChange({ agendaItemId: "", title: "", content: "", voteVisibility: "named", minVotesRequired: "" })) }],
       })] : []),
     ],
   });
@@ -267,7 +267,7 @@ function createDecisionsSection(props: MeetingDetailPanelProps): BodySurfaceSect
         textField("title", "标题", decisionDraft.title, (title) => onDecisionDraftChange({ ...decisionDraft, title })),
         textField("content", "内容", decisionDraft.content, (content) => onDecisionDraftChange({ ...decisionDraft, content }), { multiline: true }),
       ], {
-        commands: [{ key: "save-decision", label: "保存决议", variant: "primary", size: "sm", disabled: saving || !decisionDraft.title.trim(), onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/decisions`, normalizeOptionalIds(decisionDraft), "决议已保存", () => onDecisionDraftChange({ agendaItemId: "", proposalId: "", kind: "decision", title: "", content: "", effectiveDate: "" })) }],
+        commands: [{ key: "save-decision", label: "保存决议", icon: "save", variant: "primary", size: "sm", disabled: saving || !decisionDraft.title.trim(), onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/decisions`, normalizeOptionalIds(decisionDraft), "决议已保存", () => onDecisionDraftChange({ agendaItemId: "", proposalId: "", kind: "decision", title: "", content: "", effectiveDate: "" })) }],
       })] : []),
     ],
   });
@@ -302,11 +302,11 @@ function createCandidatesSection(props: MeetingDetailPanelProps): BodySurfaceSec
               },
               {
                 ...createActionsSection(`candidate-${candidate.id}-actions`, [
-                  { key: "linkWorkPlan", label: "链接 OKR 计划", variant: "secondary", size: "sm", disabled: saving || !draft.workPlanId, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/action-candidates`, actionPayload(candidate.id, "linkWorkPlan", draft, user), "行动候选已处理") },
-                  { key: "createWorkPlan", label: "创建 OKR 计划", variant: "secondary", size: "sm", disabled: saving, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/action-candidates`, actionPayload(candidate.id, "createWorkPlan", draft, user), "行动候选已处理") },
-                  { key: "linkProjectTask", label: "链接项目任务", variant: "secondary", size: "sm", disabled: saving || !draft.projectTaskId, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/action-candidates`, actionPayload(candidate.id, "linkProjectTask", draft, user), "行动候选已处理") },
-                  { key: "createProjectTask", label: "创建项目任务", variant: "secondary", size: "sm", disabled: saving || !draft.projectId, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/action-candidates`, actionPayload(candidate.id, "createProjectTask", draft, user), "行动候选已处理") },
-                  { key: "ignore", label: "忽略", variant: "danger", size: "sm", disabled: saving, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/action-candidates`, actionPayload(candidate.id, "ignore", draft, user), "行动候选已处理") },
+                  { key: "linkWorkPlan", label: "链接 OKR 计划", icon: "link", variant: "secondary", size: "sm", disabled: saving || !draft.workPlanId, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/action-candidates`, actionPayload(candidate.id, "linkWorkPlan", draft, user), "行动候选已处理") },
+                  { key: "createWorkPlan", label: "创建 OKR 计划", icon: "add", variant: "secondary", size: "sm", disabled: saving, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/action-candidates`, actionPayload(candidate.id, "createWorkPlan", draft, user), "行动候选已处理") },
+                  { key: "linkProjectTask", label: "链接项目任务", icon: "link", variant: "secondary", size: "sm", disabled: saving || !draft.projectTaskId, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/action-candidates`, actionPayload(candidate.id, "linkProjectTask", draft, user), "行动候选已处理") },
+                  { key: "createProjectTask", label: "创建项目任务", icon: "add", variant: "secondary", size: "sm", disabled: saving || !draft.projectId, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/action-candidates`, actionPayload(candidate.id, "createProjectTask", draft, user), "行动候选已处理") },
+                  { key: "ignore", label: "忽略", icon: "x", variant: "danger", size: "sm", disabled: saving, onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/action-candidates`, actionPayload(candidate.id, "ignore", draft, user), "行动候选已处理") },
                 ]),
                 framed: false,
               },
@@ -321,7 +321,7 @@ function createCandidatesSection(props: MeetingDetailPanelProps): BodySurfaceSec
         textField("title", "候选事项", candidateDraft.title, (title) => onCandidateDraftChange({ ...candidateDraft, title })),
         textField("description", "说明", candidateDraft.description, (description) => onCandidateDraftChange({ ...candidateDraft, description }), { multiline: true }),
       ], {
-        commands: [{ key: "add-candidate", label: "新增候选", variant: "primary", size: "sm", disabled: saving || !candidateDraft.title.trim(), onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/action-candidates`, normalizeOptionalIds(candidateDraft), "行动候选已新增", () => onCandidateDraftChange({ agendaItemId: "", decisionId: "", title: "", description: "", targetKind: "work_plan" })) }],
+        commands: [{ key: "add-candidate", label: "新增候选", icon: "add", variant: "primary", size: "sm", disabled: saving || !candidateDraft.title.trim(), onClick: () => void onMutate<{ meeting: MeetingDetail }>(`/api/modules/work/meetings/${meeting.id}/action-candidates`, normalizeOptionalIds(candidateDraft), "行动候选已新增", () => onCandidateDraftChange({ agendaItemId: "", decisionId: "", title: "", description: "", targetKind: "work_plan" })) }],
       })] : []),
     ],
   });

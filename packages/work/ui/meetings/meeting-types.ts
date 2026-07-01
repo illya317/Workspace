@@ -47,6 +47,7 @@ export type MeetingPermission = {
   canManage: boolean;
   canDelete: boolean;
   canVote: boolean;
+  canApprove: boolean;
   canViewAll: boolean;
   participantRole: string | null;
 };
