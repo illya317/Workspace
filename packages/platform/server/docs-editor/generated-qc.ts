@@ -143,7 +143,7 @@ async function upsertGeneratedQcTemplate(
     fieldModelJson: JSON.stringify(normalized.data.fieldModel),
   };
   if (existing) {
-    if (existing.publishedByUserId !== null) return false;
+    if (isUserEditedOfficialTemplate(existing)) return false;
     const contentMetadata = await writeTemplateContentJson({ templateId: existing.id, ...content });
     await db.documentTemplate.update({
       where: { id: existing.id },
@@ -217,12 +217,16 @@ function isGeneratedQcTemplateCurrent(
   existing: GeneratedQcExistingTemplate | undefined,
 ) {
   if (!existing) return false;
-  if (existing.publishedByUserId !== null) return true;
+  if (isUserEditedOfficialTemplate(existing)) return true;
   return existing.title === `批检验记录：${entry.productName}`
     && existing.sourceKind === SOURCE_KIND
     && existing.sourceProductKey === entry.productKey
     && existing.sourceStageKeys === SOURCE_STAGE_KEYS
     && sameTime(existing.publishedAt, entry.generatedAt);
+}
+
+function isUserEditedOfficialTemplate(existing: GeneratedQcExistingTemplate) {
+  return existing.publishedByUserId !== null;
 }
 
 function generatedQcProductsRoot() {

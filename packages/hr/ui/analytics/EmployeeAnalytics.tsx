@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   createPageBody, createAnalysisSection,
+  createInlineFieldsSection,
   createSectionsSection,
   createMetricsSection,
   PageSurface,
@@ -64,19 +65,18 @@ export function useEmployeeAnalyticsSections({ employees, employments, edps }: {
           }),
         createAnalysisSection("distribution", {
           title: "特征分布",
-          toolbar: {
-            items: [
+          sections: [
+            createInlineFieldsSection("distribution-filters", [
               {
-                kind: "select",
                 key: "feature",
+                label: "特征",
+                spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: featureList.map((item) => ({ value: item, label: `${DIM_LABELS[item]}分布` })) } },
                 value: feature,
                 onChange: (value) => setFeature(value as DimKey),
-                options: featureList.map((item) => ({ value: item, label: `${DIM_LABELS[item]}分布` })),
               },
-              { kind: "text", key: "meta", content: <>基于 {stats.active} 位在职员工</> },
-            ],
-          },
-          sections: [{
+              { kind: "readonly", key: "meta", label: "统计", value: <>基于 {stats.active} 位在职员工</>, variant: "plain" },
+            ]),
+            {
             key: "distribution-bars",
             body: { kind: "data", data: {
               kind: "table",

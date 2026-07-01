@@ -21,6 +21,8 @@ function technicalToken(value: unknown) {
 function visibleSlotLabel(attrs: Record<string, unknown>) {
   const alias = typeof attrs.alias === "string" ? attrs.alias.trim() : "";
   const label = typeof attrs.label === "string" ? attrs.label.trim() : "";
+  const defaultValue = typeof attrs.defaultValue === "string" ? attrs.defaultValue.trim() : "";
+  if (defaultValue) return defaultValue;
   if (alias) return alias;
   if (label && !technicalToken(label)) return label;
   const placeholder = typeof attrs.placeholder === "string" ? attrs.placeholder.trim() : "";
@@ -35,6 +37,7 @@ function slotTitle(attrs: Record<string, unknown>, name: EditorSlotType) {
 }
 
 function cssSlotWidth(value: unknown) {
+  if (value === 0 || value === "0" || value === "0rem") return "auto";
   if (typeof value === "number" && Number.isFinite(value)) return `${value}px`;
   if (typeof value === "string" && value.trim()) return value.trim();
   return "3rem";
@@ -67,7 +70,28 @@ function slotClassName(name: EditorSlotType, attrs: Record<string, unknown>) {
   if (attrs.slotKind === "variable") {
     return `${base} border-emerald-500 bg-emerald-50 text-emerald-900 ring-emerald-200`;
   }
+  if (attrs.slotKind === "parameter") {
+    return `${base} border-orange-500 bg-orange-50 text-orange-900 ring-orange-200`;
+  }
   return `${base} border-cyan-500 bg-cyan-50 text-cyan-900 ring-cyan-200`;
+}
+
+function annotationDataAttributes(metadata: unknown) {
+  if (!metadataAnnotation(metadata)) return {};
+  return { "data-docs-annotation": "true" };
+}
+
+function annotationClassName(metadata: unknown) {
+  return metadataAnnotation(metadata) ? "docs-editor-annotation print:hidden" : "";
+}
+
+function metadataAnnotation(value: unknown) {
+  return Boolean(
+    value
+    && typeof value === "object"
+    && !Array.isArray(value)
+    && (("annotation" in value && value.annotation === true) || ("noPrint" in value && value.noPrint === true)),
+  );
 }
 
 export function createSlotExtension(name: EditorSlotType) {
@@ -97,10 +121,12 @@ export function createSlotExtension(name: EditorSlotType) {
         referenceFieldKey: { default: null },
         valueSource: { default: null },
         withTime: { default: false },
+        defaultValue: { default: null },
         role: { default: null },
         inputType: { default: null },
         valueType: { default: null },
         numberFormat: { default: null },
+        precision: { default: null },
         options: { default: null },
         placeholder: { default: null },
         metadata: { default: null },
@@ -119,7 +145,8 @@ export function createSlotExtension(name: EditorSlotType) {
           mergeAttributes(HTMLAttributes, {
             "data-editor-slot": name,
             title: slotTitle(HTMLAttributes, name),
-            class: "inline-block whitespace-nowrap rounded bg-amber-50 px-1 text-slate-950 ring-1 ring-amber-200 align-baseline",
+            class: `inline-block whitespace-nowrap rounded bg-amber-50 px-1 text-slate-950 ring-1 ring-amber-200 align-baseline ${annotationClassName(HTMLAttributes.metadata)}`,
+            ...annotationDataAttributes(HTMLAttributes.metadata),
           }),
           ...choiceNodes(options),
         ];
@@ -127,13 +154,15 @@ export function createSlotExtension(name: EditorSlotType) {
       const label = visibleSlotLabel(HTMLAttributes);
       const width = cssSlotWidth(HTMLAttributes.width);
       const content = label || "\u00A0";
+      const isAutoWidth = width === "auto";
       return [
         "span",
         mergeAttributes(HTMLAttributes, {
           "data-editor-slot": name,
           title: slotTitle(HTMLAttributes, name),
-          class: slotClassName(name, HTMLAttributes),
-          style: `width:min(${width},100%);max-width:100%;min-height:1.1em;line-height:1;text-align:${HTMLAttributes.align || "center"}`,
+          class: `${slotClassName(name, HTMLAttributes)} ${isAutoWidth ? "border-b-0" : ""} ${annotationClassName(HTMLAttributes.metadata)}`,
+          ...annotationDataAttributes(HTMLAttributes.metadata),
+          style: `${isAutoWidth ? "width:auto" : `width:min(${width},100%)`};max-width:100%;min-height:1.1em;line-height:1;text-align:${HTMLAttributes.align || "center"}`,
         }),
         content,
       ];

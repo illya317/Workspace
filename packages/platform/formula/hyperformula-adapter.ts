@@ -15,6 +15,8 @@ import {
   parseFormulaExpression,
   validateFormulaFunctionArguments,
 } from "./parser";
+import { durationUnit } from "./date-difference";
+import { SimpleFormulaAdapter } from "./simple-adapter";
 import type {
   FormulaEngineAdapter,
   FormulaEvaluationError,
@@ -60,6 +62,35 @@ class MeanPlugin extends FunctionPlugin {
   }
 }
 
+class SdPlugin extends FunctionPlugin {
+  static implementedFunctions = {
+    SD: {
+      method: "sd",
+      parameters: [{ argumentType: FunctionArgumentType.NUMBER }],
+      repeatLastArgs: 1,
+    },
+    STDEV: {
+      method: "stdev",
+      parameters: [{ argumentType: FunctionArgumentType.NUMBER }],
+      repeatLastArgs: 1,
+    },
+  };
+
+  sd(ast: { args: unknown[] }, state: unknown) {
+    return this.runFunction(ast.args as never[], state as never, this.metadata("SD"), (...args: number[]) => {
+      if (args.length < 2) return new CellError(ErrorType.VALUE, "SD received an invalid argument count.");
+      return calculateSampleStandardDeviation(args);
+    });
+  }
+
+  stdev(ast: { args: unknown[] }, state: unknown) {
+    return this.runFunction(ast.args as never[], state as never, this.metadata("STDEV"), (...args: number[]) => {
+      if (args.length < 2) return new CellError(ErrorType.VALUE, "STDEV received an invalid argument count.");
+      return calculateSampleStandardDeviation(args);
+    });
+  }
+}
+
 class RdPlugin extends FunctionPlugin {
   static implementedFunctions = {
     RD: {
@@ -93,8 +124,7 @@ class RsdPlugin extends FunctionPlugin {
       if (args.length < 2) return 0;
       const mean = calculateAverage(args);
       if (mean === 0) return new CellError(ErrorType.DIV_BY_ZERO, "RSD mean is zero.");
-      const variance = args.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (args.length - 1);
-      return (Math.sqrt(variance) / Math.abs(mean)) * 100;
+      return (calculateSampleStandardDeviation(args) / Math.abs(mean)) * 100;
     });
   }
 }
@@ -106,6 +136,9 @@ export class HyperFormulaAdapter implements FormulaEngineAdapter {
     registerFormulaPlugins();
 
     const fields = input.model.fields;
+    if (fields.some((field) => field.formula && durationUnit(field))) {
+      return new SimpleFormulaAdapter().evaluate(input);
+    }
     const catalog = createReferenceCatalog(fields);
     const fieldByKey = new Map(fields.map((field) => [field.fieldKey, field]));
     const values = createInitialValues(fields, input.values);
@@ -160,6 +193,7 @@ function registerFormulaPlugins() {
   if (formulaPluginsRegistered) return;
   registerFunctionPlugin("AVG", AvgPlugin);
   registerFunctionPlugin("MEAN", MeanPlugin);
+  registerSdPlugin();
   registerFunctionPlugin("RD", RdPlugin);
   registerFunctionPlugin("RSD", RsdPlugin);
   formulaPluginsRegistered = true;
@@ -171,8 +205,19 @@ function registerFunctionPlugin(functionName: string, plugin: FunctionPluginDefi
   }
 }
 
+function registerSdPlugin() {
+  if (!HyperFormula.getFunctionPlugin("SD")) {
+    HyperFormula.registerFunctionPlugin(SdPlugin, { enGB: { SD: "SD", STDEV: "STDEV" } });
+  }
+}
+
 function calculateAverage(numbers: number[]) {
   return numbers.reduce((sum, value) => sum + value, 0) / numbers.length;
+}
+
+function calculateSampleStandardDeviation(numbers: number[]) {
+  const mean = calculateAverage(numbers);
+  return Math.sqrt(numbers.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (numbers.length - 1));
 }
 
 function createTemporaryCellMap(fields: FormulaField[]) {
@@ -184,10 +229,10 @@ function createTemporaryCellMap(fields: FormulaField[]) {
 }
 
 function isInputReference(reference: string, catalog: ReturnType<typeof createReferenceCatalog>, fieldByKey: Map<string, FormulaField>) {
-  if (/^x\d+$/i.test(reference.trim())) return true;
+  if (/^[xypz]\d+$/i.test(reference.trim())) return true;
   const field = fieldByKey.get(catalog.resolve(reference) ?? "");
   if (!field) return false;
-  if (field.slotKind === "variable") return true;
+  if (field.slotKind === "variable" || field.slotKind === "parameter") return true;
   return field.attr === "fillable" && (field.valueType === "number" || field.inputType === "number" || field.inputType === "field");
 }
 

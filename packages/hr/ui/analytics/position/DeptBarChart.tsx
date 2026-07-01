@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createAnalysisSection, PageSurface, type BodySurfaceSectionSpec, type VisualizationComparisonBarSectionSpec, type VisualizationTone } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createInlineFieldsSection, PageSurface, type BodySurfaceSectionSpec, type VisualizationComparisonBarSectionSpec, type VisualizationTone } from "@workspace/core/ui";
 import type { DeptEntry, FilteredDept } from "./usePositionData";
 
 const LEVEL_LABEL: Record<number, string> = { 1: "L1 事业部", 2: "L2 部门", 3: "L3 子部门" };
@@ -61,17 +61,16 @@ export function createDeptBarChartSection({
 
   return createAnalysisSection("dept-bars", {
         title: "各部门编制 vs 实际",
-        toolbar: {
-          items: [{
-            kind: "select",
+        sections: [
+          createInlineFieldsSection("dept-bars-filters", [{
             key: "l1",
+            label: "事业部",
+            spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: l1List.map((dept) => ({ value: String(dept.id), label: dept.name })) } },
             value: filterL1 == null ? "" : String(filterL1),
             onChange: (value) => setFilterL1(value ? Number(value) : null),
             placeholder: "全部事业部",
-            options: l1List.map((dept) => ({ value: String(dept.id), label: dept.name })),
-          }],
-        },
-        sections: [{
+          }]),
+          {
           key: "bars",
           body: { kind: "visualization", visualization: {
             kind: "chart",

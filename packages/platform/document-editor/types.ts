@@ -99,7 +99,7 @@ export interface EditorSlotInline {
   id?: string;
   label?: string;
   alias?: string;
-  slotKind?: "person" | "date" | "choice" | "plain" | "variable" | "formula" | "reference";
+  slotKind?: "person" | "date" | "choice" | "plain" | "variable" | "parameter" | "formula" | "reference";
   unit?: string;
   width?: string | number;
   align?: "left" | "center" | "right" | string;
@@ -119,6 +119,7 @@ export interface EditorSlotInline {
   inputType?: string;
   valueType?: string;
   numberFormat?: string;
+  precision?: number;
   options?: string[];
   placeholder?: string;
   metadata?: Record<string, unknown>;
@@ -150,9 +151,9 @@ export interface FieldDefinition {
   valueType?: string;
   inputType?: string;
   numberFormat?: string;
+  precision?: number;
   attr?: string;
   unit?: string;
-  precision?: number;
   formula?: string;
   dependencies?: string[];
   options?: string[];
@@ -175,6 +176,9 @@ export interface FormulaDefinition {
   dependencyFieldKeys?: string[];
   referenceFieldKey?: string;
   readonlyDisplay?: boolean;
+  valueType?: string;
+  numberFormat?: string;
+  precision?: number;
   alias?: string;
   slotKind?: string;
   metadata?: Record<string, unknown>;

@@ -6,6 +6,7 @@ import {
   parseFormulaExpression,
   validateFormulaFunctionArguments,
 } from "./parser";
+import { durationUnit, evaluateDateDifferenceExpression, validateDateDifferenceExpression } from "./date-difference";
 import type {
   FormulaEngineAdapter,
   FormulaEvaluationError,
@@ -31,7 +32,9 @@ export class SimpleFormulaAdapter implements FormulaEngineAdapter {
       if (!field.formula) continue;
       try {
         const expression = parseFormulaExpression(field.formula);
-        validateFormulaFunctionArguments(expression, (reference) => isInputReference(reference, catalog, fieldByKey));
+        const unit = durationUnit(field);
+        if (unit) validateDateDifferenceExpression(expression);
+        else validateFormulaFunctionArguments(expression, (reference) => isInputReference(reference, catalog, fieldByKey));
         expressions.set(field.fieldKey, expression);
         for (const reference of collectFormulaReferences(expression)) {
           if (!catalog.resolve(reference)) {
@@ -69,11 +72,15 @@ export class SimpleFormulaAdapter implements FormulaEngineAdapter {
 
       visiting.add(fieldKey);
       try {
-        const value = evaluateFormulaExpression(expression, (reference) => {
+        const resolveReference = (reference: string) => {
           const resolvedFieldKey = catalog.resolve(reference);
           if (!resolvedFieldKey) throw missingFieldRuntimeError(reference);
           return evaluateField(resolvedFieldKey);
-        });
+        };
+        const unit = durationUnit(field);
+        const value = unit
+          ? evaluateDateDifferenceExpression(expression, resolveReference, unit)
+          : evaluateFormulaExpression(expression, resolveReference);
         values[fieldKey] = value;
         resolved.add(fieldKey);
         return value;
@@ -110,10 +117,10 @@ function createInitialValues(fields: FormulaField[], overrides?: Record<string, 
 }
 
 function isInputReference(reference: string, catalog: ReturnType<typeof createReferenceCatalog>, fieldByKey: Map<string, FormulaField>) {
-  if (/^x\d+$/i.test(reference.trim())) return true;
+  if (/^[xypz]\d+$/i.test(reference.trim())) return true;
   const field = fieldByKey.get(catalog.resolve(reference) ?? "");
   if (!field) return false;
-  if (field.slotKind === "variable") return true;
+  if (field.slotKind === "variable" || field.slotKind === "parameter") return true;
   return field.attr === "fillable" && (field.valueType === "number" || field.inputType === "number" || field.inputType === "field");
 }
 

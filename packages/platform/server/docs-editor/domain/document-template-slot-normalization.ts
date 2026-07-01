@@ -85,7 +85,9 @@ function normalizeFieldDefinition(value: unknown, fallbackKey?: string): DomainV
     inputType: stringField(value.inputType) || undefined,
     valueType: stringField(value.valueType) || stringField(value.type) || undefined,
     numberFormat: stringField(value.numberFormat) || undefined,
+    precision: numberField(value.precision),
     options: stringArray(value.options),
+    defaultValue: stringField(value.defaultValue) || undefined,
   };
   const normalized = normalizeSlotAttrs(attrs, undefined, "fieldModel");
   if (normalized.ok === false) return failFrom(normalized);
@@ -93,6 +95,8 @@ function normalizeFieldDefinition(value: unknown, fallbackKey?: string): DomainV
 }
 
 function normalizeSlot(value: JsonRecord, field?: FieldDefinition): DomainValidationResult<JsonRecord> {
+  const precisionIssue = validatePrecision(value.precision, "document.precision");
+  if (precisionIssue) return precisionIssue;
   if (!supportsDomainInputMethod(value)) return okCommand(value);
   const normalized = normalizeSlotAttrs(value as unknown as EditorSlotInline, field, "document");
   if (normalized.ok === false) return failFrom(normalized);
@@ -104,7 +108,12 @@ function normalizeSlotAttrs(attrs: EditorSlotInline, field: FieldDefinition | un
   if (inputType && !knownInputTypes.has(inputType)) return failCommand("输入方式无效", 400, `${fieldName}.inputType`);
   const valueType = stringField(attrs.valueType);
   if (valueType && !knownValueTypes.has(valueType)) return failCommand("数据类型无效", 400, `${fieldName}.valueType`);
-  return okCommand(normalizeInputAttrs(attrs, field, (candidate, type) => supportsDomainInputMethod({ ...candidate, type })));
+  const normalized = normalizeInputAttrs(attrs, field, (candidate, type) => supportsDomainInputMethod({ ...candidate, type }));
+  const defaultValueIssue = validateDefaultValue(normalized.defaultValue ?? attrs.defaultValue, normalized.valueType, `${fieldName}.defaultValue`);
+  if (defaultValueIssue) return defaultValueIssue;
+  const precisionIssue = validatePrecision(normalized.precision ?? attrs.precision, `${fieldName}.precision`);
+  if (precisionIssue) return precisionIssue;
+  return okCommand(normalized);
 }
 
 function slotPatch(attrs: EditorSlotInline) {
@@ -114,6 +123,7 @@ function slotPatch(attrs: EditorSlotInline) {
     withTime: attrs.withTime,
     options: attrs.options,
     numberFormat: attrs.numberFormat,
+    precision: attrs.precision,
   };
 }
 
@@ -124,6 +134,7 @@ function fieldPatch(attrs: EditorSlotInline) {
     type: attrs.valueType,
     options: attrs.options,
     numberFormat: attrs.numberFormat,
+    precision: attrs.precision,
   };
 }
 
@@ -180,6 +191,38 @@ function stringArray(value: unknown) {
 
 function stringField(value: unknown) {
   return typeof value === "string" && value.trim() ? value.trim() : "";
+}
+
+function numberField(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function validateDefaultValue(value: unknown, valueType: unknown, fieldName: string) {
+  const text = stringField(value);
+  if (!text) return null;
+  if (valueType === "number" && !Number.isFinite(Number(text))) return failCommand("默认值不符合数据类型：应填写数字", 400, fieldName);
+  if (valueType === "boolean" && !booleanDefaultValue(text)) return failCommand("默认值不符合数据类型：应填写布尔值", 400, fieldName);
+  if (valueType === "date" && !dateDefaultValue(text)) return failCommand("默认值不符合数据类型：应填写日期", 400, fieldName);
+  if (valueType === "datetime" && !dateTimeDefaultValue(text)) return failCommand("默认值不符合数据类型：应填写日期+时间", 400, fieldName);
+  return null;
+}
+
+function validatePrecision(value: unknown, fieldName: string) {
+  if (value === undefined || value === null || value === "") return null;
+  if (typeof value !== "number" || !Number.isInteger(value) || value < 0 || value > 10) return failCommand("小数位数必须是 0 到 10 的整数", 400, fieldName);
+  return null;
+}
+
+function booleanDefaultValue(value: string) {
+  return ["true", "false", "是", "否", "符合", "不符合", "符合要求", "不符合要求", "有", "无", "检出", "未检出"].includes(value);
+}
+
+function dateDefaultValue(value: string) {
+  return /^(\d{4}|\d{2})[-/](\d{1,2})[-/](\d{1,2})$/.test(value);
+}
+
+function dateTimeDefaultValue(value: string) {
+  return /^(\d{4}|\d{2})[-/](\d{1,2})[-/](\d{1,2})(?:[ T](\d{1,2})(?::(\d{1,2}))?)$/.test(value);
 }
 
 function isRecord(value: unknown): value is JsonRecord {

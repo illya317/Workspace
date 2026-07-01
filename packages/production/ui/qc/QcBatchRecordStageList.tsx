@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, ClipboardList, LockKeyhole, RotateCcw } from "lucide-react";
+import { CheckCircle2, ClipboardList, LockKeyhole, RotateCcw } from "lucide-react";
 import type { QcBatchSummary } from "@workspace/production/types";
 import type { QcEditorRuntimeTemplate } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow, type QcStageWorkflowStatus, type QcTestWorkflowStatus } from "@workspace/production/qc/workflow";
-import { qcBatchStagePath } from "./qc-routes";
+import { qcBatchStagePath, qcBatchTestPath } from "./qc-routes";
 
 interface QcBatchRecordStageListProps {
   batch: QcBatchSummary;
@@ -61,20 +61,18 @@ export default function QcBatchRecordStageList({ batch, runtimeTemplate, embedde
           {runtimeTemplate.stages.map((stage, index) => {
             const stageStatus = workflow.stages[index];
             const locked = !stageStatus?.unlocked;
-            const row = (
-              <StageRow
-                index={index}
-                label={stage.label}
-                testCount={stage.tests.length}
-                status={stageStatus}
-                locked={locked}
-              />
-            );
-            if (locked) return <div key={stage.key}>{row}</div>;
             return (
-              <Link key={stage.key} href={qcBatchStagePath(batch.id, stage.key)} className="group block transition hover:bg-emerald-50/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald-600">
-                {row}
-              </Link>
+              <div key={stage.key}>
+                <StageRow
+                  batchId={batch.id}
+                  stageKey={stage.key}
+                  index={index}
+                  label={stage.label}
+                  testCount={stage.tests.length}
+                  status={stageStatus}
+                  locked={locked}
+                />
+              </div>
             );
           })}
         </div>
@@ -84,12 +82,16 @@ export default function QcBatchRecordStageList({ batch, runtimeTemplate, embedde
 }
 
 function StageRow({
+  batchId,
+  stageKey,
   index,
   label,
   testCount,
   status,
   locked,
 }: {
+  batchId: number;
+  stageKey: string;
   index: number;
   label: string;
   testCount: number;
@@ -98,8 +100,9 @@ function StageRow({
 }) {
   const completed = !!status?.complete;
   const state = stageState(status, locked);
+  const testsLocked = locked || !status?.precheckComplete;
   return (
-    <div className={`grid gap-4 px-5 py-5 md:grid-cols-[13rem_1fr_9rem] md:items-center ${locked ? "bg-slate-50/70 text-slate-400" : "bg-white"}`}>
+    <div className={`grid gap-4 px-5 py-5 md:grid-cols-[13rem_1fr] md:items-center ${locked ? "bg-slate-50/70 text-slate-400" : "bg-white"}`}>
       <div className="flex min-w-0 items-center gap-3">
         <span className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border text-sm font-semibold ${completed ? "border-emerald-200 bg-emerald-50 text-emerald-700" : locked ? "border-slate-200 bg-white text-slate-400" : "border-emerald-200 bg-emerald-600 text-white"}`}>
           {numerals[index] ?? index + 1}
@@ -112,49 +115,71 @@ function StageRow({
 
       <div className="min-w-0">
         <div className="mb-3 flex flex-wrap items-center gap-2">
-          <span className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium ${state.className}`}>
-            {state.icon}
-            {state.text}
-          </span>
+          <StageStatusChip state={state} href={locked ? undefined : qcBatchStagePath(batchId, stageKey)} />
           {status?.tests.some((test) => test.waitingSourceReview) ? (
             <span className="rounded-md border border-sky-200 bg-sky-50 px-2 py-1 text-xs font-medium text-sky-700">等待来源复核</span>
           ) : null}
         </div>
         <div className="flex flex-wrap gap-2">
-          {status?.tests.map((test) => <TestChip key={test.testName} test={test} locked={locked} />)}
+          {status?.tests.map((test) => (
+            <TestChip
+              key={test.testName}
+              test={test}
+              href={testsLocked ? undefined : qcBatchTestPath(batchId, stageKey, test.testName)}
+              locked={testsLocked}
+            />
+          ))}
         </div>
-      </div>
-
-      <div className="flex md:justify-end">
-        {locked ? (
-          <span className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-400">
-            <LockKeyhole size={15} strokeWidth={1.9} />
-            待解锁
-          </span>
-        ) : (
-          <span className="inline-flex h-10 items-center gap-2 rounded-lg bg-emerald-600 px-3 text-sm font-medium text-white shadow-sm transition group-hover:bg-emerald-700">
-            进入阶段
-            <ArrowRight size={15} strokeWidth={1.9} />
-          </span>
-        )}
       </div>
     </div>
   );
 }
 
-function TestChip({ test, locked }: { test: QcTestWorkflowStatus; locked: boolean }) {
-  const state = testState(test, locked);
+function StageStatusChip({
+  state,
+  href,
+}: {
+  state: ReturnType<typeof stageState>;
+  href?: string;
+}) {
+  const className = `inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium ${state.className}`;
+  if (!href) {
+    return (
+      <span className={className}>
+        {state.icon}
+        {state.text}
+      </span>
+    );
+  }
   return (
-    <span className={`inline-flex min-h-8 items-center gap-1.5 rounded-md border px-2.5 py-1 text-sm ${state.className}`}>
+    <Link href={href} className={`${className} transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600`}>
+      {state.icon}
+      {state.text}
+    </Link>
+  );
+}
+
+function TestChip({ test, href, locked }: { test: QcTestWorkflowStatus; href?: string; locked: boolean }) {
+  const state = testState(test, locked);
+  const className = `inline-flex min-h-8 items-center gap-1.5 rounded-md border px-2.5 py-1 text-sm ${state.className}`;
+  const content = (
+    <>
       {state.icon}
       <span>{test.sequence} {test.name}</span>
-    </span>
+    </>
+  );
+  if (!href) return <span className={className}>{content}</span>;
+  return (
+    <Link href={href} className={`${className} transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600`}>
+      {content}
+    </Link>
   );
 }
 
 function stageState(status: QcStageWorkflowStatus | undefined, locked: boolean) {
   if (locked) return { text: "前一阶段复核完成后解锁", icon: <LockKeyhole size={14} strokeWidth={1.9} />, className: "border-slate-200 bg-white text-slate-500" };
   if (status?.complete) return { text: "已全部复核", icon: <CheckCircle2 size={14} strokeWidth={1.9} />, className: "border-emerald-200 bg-emerald-50 text-emerald-700" };
+  if (!status?.precheckComplete) return { text: "待检验前确认", icon: <ClipboardList size={14} strokeWidth={1.9} />, className: "border-sky-200 bg-sky-50 text-sky-700" };
   if (status?.tests.some((test) => test.inspected && !test.reviewed)) return { text: "有项目待复核", icon: <RotateCcw size={14} strokeWidth={1.9} />, className: "border-amber-200 bg-amber-50 text-amber-700" };
   return { text: "可检验", icon: <ClipboardList size={14} strokeWidth={1.9} />, className: "border-slate-200 bg-slate-50 text-slate-700" };
 }

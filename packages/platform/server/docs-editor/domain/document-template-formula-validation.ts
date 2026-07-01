@@ -4,6 +4,7 @@ import {
   parseFormulaExpression,
   validateFormulaFunctionArguments,
 } from "../../../formula/parser";
+import { durationUnit, isFormulaAlias, validateDateDifferenceExpression } from "../../../formula/date-difference";
 import {
   failCommand,
   okCommand,
@@ -16,8 +17,10 @@ type FormulaCandidate = {
   fieldKey: string;
   context: string;
   formulaText?: string;
+  inputType?: string;
   labels: string[];
   replacement?: string;
+  valueType?: string;
 };
 
 export function normalizeDocumentFormulaRules(
@@ -107,6 +110,10 @@ function formulaValidationScope(
     formulaMap: context.formulaMapsByContext.get(scope) ?? new Map<string, string>(),
     labelMap: context.labelMapsByContext.get(scope) ?? new Map<string, string>(),
     selfAlias: stringField(node.alias).toLowerCase() || candidate?.alias,
+    target: {
+      inputType: stringField(node.inputType) || candidate?.inputType,
+      valueType: stringField(node.valueType) || candidate?.valueType,
+    },
   };
 }
 
@@ -118,13 +125,16 @@ function validateFormulaText(
     formulaMap: Map<string, string>;
     labelMap: Map<string, string>;
     selfAlias?: string;
+    target?: { inputType?: string; valueType?: string };
   },
 ) {
   if (!formulaText) return failCommand("请输入计算式", 400, scope.field);
   const expressionText = canonicalFormulaText(formulaText, scope.labelMap, scope.formulaMap);
   try {
     const expression = parseFormulaExpression(expressionText);
-    validateFormulaFunctionArguments(expression, (reference) => /^x\d+$/i.test(reference.trim()) && hasAlias(scope.aliases, reference));
+    const unit = durationUnit(scope.target);
+    if (unit) validateDateDifferenceExpression(expression);
+    else validateFormulaFunctionArguments(expression, (reference) => isFormulaAlias(reference) && hasAlias(scope.aliases, reference));
     const references = collectFormulaReferences(expression);
     if (scope.selfAlias && references.some((reference) => reference.trim().toLowerCase() === scope.selfAlias)) {
       return failCommand("公式不能引用自己", 400, scope.field);
@@ -157,7 +167,9 @@ function collectFormulaCandidates(document: unknown, fieldModel: unknown) {
       fieldKey,
       context: slotContextLabel(node),
       formulaText: stringField(node.formulaText),
+      inputType: stringField(node.inputType) || legacyPartType(node),
       labels: formulaReferenceLabels(node, fieldKey, fieldLabels.get(fieldKey)),
+      valueType: stringField(node.valueType) || legacyPartType(node),
     });
   });
   collectFieldModelCandidates(fieldModel).forEach((candidate) => candidates.push(candidate));
@@ -175,10 +187,18 @@ function collectFieldModelCandidates(fieldModel: unknown) {
       alias: key,
       fieldKey: key,
       context: sourceContextLabel(field.source),
+      inputType: stringField(field.inputType),
       labels: formulaReferenceLabels(field, key, stringField(field.name)),
       replacement,
+      valueType: stringField(field.valueType) || stringField(field.type),
     }];
   });
+}
+
+function legacyPartType(node: Record<string, unknown>) {
+  const metadata = isRecord(node.metadata) ? node.metadata : {};
+  const legacyPart = isRecord(metadata.legacyPart) ? metadata.legacyPart : {};
+  return stringField(legacyPart.type);
 }
 
 function constantFieldReplacement(field: Record<string, unknown>) {
@@ -222,37 +242,108 @@ function formulaReferenceLabels(node: Record<string, unknown>, fieldKey: string,
 }
 
 function normalizeFormulaDisplayText(formulaText: string, formulaByAlias = new Map<string, string>()) {
-  return normalizeRdFormulaDisplay(normalizeAverageFormulaDisplay(formulaText.trim()), formulaByAlias);
+  return normalizeLimitFormulaDisplay(
+    normalizeRsdFormulaDisplay(
+      normalizeRdFormulaDisplay(normalizeAverageFormulaDisplay(formulaText.trim()), formulaByAlias),
+      formulaByAlias,
+    ),
+    formulaByAlias,
+  );
 }
 
+const FORMULA_REF = String.raw`[xypz]\d+`;
+const FORMULA_NUMBER = String.raw`\d+(?:\.\d+)?`;
+
 function normalizeAverageFormulaDisplay(formulaText: string) {
-  const match = formulaText.match(/^\(?\s*(x\d+(?:\s*\+\s*x\d+)+)\s*\)?\s*\/\s*(\d+)\s*$/i);
+  const match = formulaText.match(/^\(?\s*([xypz]\d+(?:\s*\+\s*[xypz]\d+)+)\s*\)?\s*\/\s*(\d+)\s*$/i);
   if (!match) return formulaText;
   const refs = match[1].split("+").map((ref) => ref.trim().toLowerCase());
   return refs.length === Number(match[2]) ? `AVG(${refs.join(", ")})` : formulaText;
 }
 
 function normalizeRdFormulaDisplay(formulaText: string, formulaByAlias: Map<string, string>) {
-  const direct = formulaText.match(/^ABS\s*\(\s*(x\d+)\s*-\s*(x\d+)\s*\)\s*\/\s*([xy]\d+)\s*\*?\s*100\s*$/i);
+  const direct = formulaText.match(/^ABS\s*\(\s*([xypz]\d+)\s*-\s*([xypz]\d+)\s*\)\s*\/\s*([xypz]\d+)\s*\*?\s*100\s*$/i);
   if (direct) {
     const [left, right, denominator] = direct.slice(1).map((ref) => ref.toLowerCase());
     const denominatorRefs = averageRefsForFormula(formulaByAlias.get(denominator) ?? "");
-    return denominatorRefs && sameRefPair(left, right, denominatorRefs[0], denominatorRefs[1]) ? `RD(${left}, ${right})` : formulaText;
+    return denominatorRefs?.length === 2 && sameRefPair(left, right, denominatorRefs[0], denominatorRefs[1]) ? `RD(${left}, ${right})` : formulaText;
   }
-  const implicitAverage = formulaText.match(/^ABS\s*\(\s*(x\d+)\s*-\s*(x\d+)\s*\)\/\(?\(?\s*(x\d+)\s*\+\s*(x\d+)\s*\)?\/2\s*\)?\*?100\s*$/i);
+  const implicitAverage = formulaText.match(/^ABS\s*\(\s*([xypz]\d+)\s*-\s*([xypz]\d+)\s*\)\/\(?\(?\s*([xypz]\d+)\s*\+\s*([xypz]\d+)\s*\)?\/2\s*\)?\*?100\s*$/i);
   if (!implicitAverage) return formulaText;
   const [left, right, avgLeft, avgRight] = implicitAverage.slice(1).map((ref) => ref.toLowerCase());
   return sameRefPair(left, right, avgLeft, avgRight) ? `RD(${left}, ${right})` : formulaText;
 }
 
+function normalizeRsdFormulaDisplay(formulaText: string, formulaByAlias: Map<string, string>) {
+  const match = formulaText.match(new RegExp(String.raw`^SQRT\s*\(\s*\(?\s*(.*?)\s*\)?\s*\/\s*(\d+)\s*\)\s*\/\s*(${FORMULA_REF})\s*\*?\s*100\s*$`, "i"));
+  if (!match) return formulaText;
+  const mean = match[3].toLowerCase();
+  const refs = standardDeviationRefs(match[1], mean, Number(match[2]), formulaByAlias);
+  return refs ? `RSD(${refs.join(", ")})` : formulaText;
+}
+
+function normalizeLimitFormulaDisplay(formulaText: string, formulaByAlias: Map<string, string>) {
+  const match = formulaText.match(new RegExp(String.raw`^(${FORMULA_REF})\s*([+-])\s*(${FORMULA_NUMBER})\s*\*\s*SQRT\s*\(\s*\(?\s*(.*?)\s*\)?\s*\/\s*(\d+)\s*\)\s*$`, "i"));
+  if (!match) return formulaText;
+  const mean = match[1].toLowerCase();
+  const operator = match[2];
+  const factor = match[3];
+  const refs = standardDeviationRefs(match[4], mean, Number(match[5]), formulaByAlias);
+  return refs ? `${mean} ${operator} ${factor} * SD(${refs.join(", ")})` : formulaText;
+}
+
 function averageRefsForFormula(formulaText: string) {
   const normalized = normalizeAverageFormulaDisplay(formulaText.trim());
-  const match = normalized.match(/^AVG\s*\(\s*(x\d+)\s*,\s*(x\d+)\s*\)$/i);
-  return match ? [match[1].toLowerCase(), match[2].toLowerCase()] as const : null;
+  const match = normalized.match(/^AVG\s*\(\s*([xypz]\d+(?:\s*,\s*[xypz]\d+)*)\s*\)$/i);
+  return match ? match[1].split(",").map((ref) => ref.trim().toLowerCase()) : null;
 }
 
 function sameRefPair(left: string, right: string, otherLeft: string, otherRight: string) {
   return (left === otherLeft && right === otherRight) || (left === otherRight && right === otherLeft);
+}
+
+function standardDeviationRefs(sumText: string, mean: string, denominator: number, formulaByAlias: Map<string, string>) {
+  const refs = deviationRefs(sumText, mean);
+  if (!refs || refs.length < 2 || denominator !== refs.length - 1) return null;
+  const meanRefs = averageRefsForFormula(formulaByAlias.get(mean) ?? "");
+  return meanRefs && sameRefSet(refs, meanRefs) ? refs : null;
+}
+
+function deviationRefs(sumText: string, mean: string) {
+  const terms = stripOuterParens(sumText).split(/\s*\+\s*/).map((term) => stripOuterParens(term.trim())).filter(Boolean);
+  if (!terms.length) return null;
+  const refs: string[] = [];
+  for (const term of terms) {
+    const match = term.match(new RegExp(String.raw`^\(?\s*(${FORMULA_REF})\s*-\s*(${FORMULA_REF})\s*\)?\s*\^\s*2$`, "i"));
+    if (!match || match[2].toLowerCase() !== mean) return null;
+    refs.push(match[1].toLowerCase());
+  }
+  return refs;
+}
+
+function sameRefSet(left: string[], right: string[]) {
+  if (left.length !== right.length) return false;
+  return [...left].sort().join("\u0000") === [...right].sort().join("\u0000");
+}
+
+function stripOuterParens(value: string) {
+  let text = value.trim();
+  while (text.startsWith("(") && text.endsWith(")") && wrapsWholeExpression(text)) {
+    text = text.slice(1, -1).trim();
+  }
+  return text;
+}
+
+function wrapsWholeExpression(value: string) {
+  let depth = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    const char = value[index];
+    if (char === "(") depth += 1;
+    if (char === ")") depth -= 1;
+    if (depth === 0 && index < value.length - 1) return false;
+    if (depth < 0) return false;
+  }
+  return depth === 0;
 }
 
 function replaceFormulaLabels(formulaText: string, labels: Map<string, string>) {
@@ -260,8 +351,15 @@ function replaceFormulaLabels(formulaText: string, labels: Map<string, string>) 
     if (/^(?:\{[^}]*\}|\[[^\]]*\])$/.test(part)) return part;
     return [...labels.entries()]
       .sort(([left], [right]) => right.length - left.length)
-      .reduce((text, [label, alias]) => text.replace(new RegExp(escapeRegExp(label), "g"), alias), part);
+      .reduce((text, [label, alias]) => replaceFormulaLabel(text, label, alias), part);
   }).join("");
+}
+
+function replaceFormulaLabel(text: string, label: string, alias: string) {
+  const pattern = /^[A-Za-z_][A-Za-z0-9_]*$/.test(label)
+    ? new RegExp(`\\b${escapeRegExp(label)}\\b(?!\\s*\\()`, "g")
+    : new RegExp(escapeRegExp(label), "g");
+  return text.replace(pattern, alias);
 }
 
 function mapJson(value: unknown, visit: (node: Record<string, unknown>) => Record<string, unknown>): unknown {
@@ -297,7 +395,7 @@ function hasAlias(aliases: Set<string>, reference: string) {
 
 function formulaAlias(value: unknown) {
   const text = stringField(value)?.toLowerCase();
-  return text && /^[xyz]\d+$/i.test(text) ? text : "";
+  return text && /^[xypz]\d+$/i.test(text) ? text : "";
 }
 
 function slotContextLabel(node: Record<string, unknown>) {
@@ -330,7 +428,8 @@ function escapeRegExp(value: string) {
 function formulaValidationMessage(error: unknown) {
   const message = error instanceof Error ? error.message : "Invalid formula expression.";
   if (message.includes("Unsupported formula function")) return "公式函数不支持";
-  if (message.includes("only accepts x inputs")) return "该函数只能引用输入项 x";
+  if (message.includes("only accepts x/y/z/p inputs") || message.includes("only accepts x/p inputs") || message.includes("only accepts x inputs")) return "该函数只能引用输入项 x/y/z/p";
+  if (message.includes("Date duration formula only accepts a-b")) return "日期差值公式只能填写 a-b 或 (a-b)";
   if (message.includes("Unexpected trailing expression")) return "计算式后面有多余内容";
   if (message.includes("Expected value")) return "计算式不完整";
   if (message.includes("Expected")) return "计算式括号或运算符不完整";

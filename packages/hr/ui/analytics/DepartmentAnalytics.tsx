@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createPageBody, createAnalysisSection, createMetricsSection, PageSurface, type DataSurfaceColumnSpec, type BodySurfaceSectionSpec, type VisualizationTreeNodeSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createInlineFieldsSection, createMetricsSection, PageSurface, type DataSurfaceColumnSpec, type BodySurfaceSectionSpec, type VisualizationTreeNodeSpec } from "@workspace/core/ui";
 import { matchSearchFields } from "@workspace/platform/search";
 import type { Department, EDP } from "./useAnalyticsData";
 
@@ -118,13 +118,11 @@ export function useDepartmentAnalyticsSections({ departments, edps }: { departme
           }),
         createAnalysisSection("department-tree", {
           title: "部门架构",
-          toolbar: {
-            items: [
-              { kind: "search", key: "search", value: search, onChange: setSearch, placeholder: "搜索部门名称、编码、别名..." },
-            ],
-          },
-
-          sections: [{
+          sections: [
+            createInlineFieldsSection("department-tree-filters", [
+              { key: "search", label: "搜索", spec: { valueType: "string", control: "text" }, value: search, onChange: (value) => setSearch(String(value ?? "")), placeholder: "搜索部门名称、编码、别名..." },
+            ]),
+            {
             key: "tree",
             body: { kind: "visualization", visualization: {
               kind: "chart",

@@ -89,6 +89,10 @@ function evaluateCall(functionName: SupportedFormulaFunction, args: FormulaValue
     case "MEAN":
       expectArgCount(functionName, numbers, 1);
       return calculateAverage(numbers);
+    case "SD":
+    case "STDEV":
+      expectArgCount(functionName, numbers, 2);
+      return calculateSampleStandardDeviation(numbers);
     case "RD":
       expectArgCount(functionName, numbers, 2);
       return calculateRd(numbers);
@@ -145,8 +149,7 @@ function calculateRsd(numbers: number[]) {
   if (numbers.length < 2) return 0;
   const mean = calculateAverage(numbers);
   if (mean === 0) throw new FormulaParseError("invalid_expression", "RSD mean is zero.");
-  const variance = numbers.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (numbers.length - 1);
-  return (Math.sqrt(variance) / Math.abs(mean)) * 100;
+  return (calculateSampleStandardDeviation(numbers) / Math.abs(mean)) * 100;
 }
 
 function calculateAverage(numbers: number[]) {
@@ -157,6 +160,13 @@ function calculateRd(numbers: number[]) {
   const denominator = calculateAverage(numbers);
   if (denominator === 0) throw new FormulaParseError("invalid_expression", "RD denominator is zero.");
   return ((Math.max(...numbers) - Math.min(...numbers)) / Math.abs(denominator)) * 100;
+}
+
+function calculateSampleStandardDeviation(numbers: number[]) {
+  if (numbers.length < 2) return 0;
+  const mean = calculateAverage(numbers);
+  const variance = numbers.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (numbers.length - 1);
+  return Math.sqrt(variance);
 }
 
 function expectArgCount(functionName: string, args: unknown[], min: number, max = Number.POSITIVE_INFINITY) {

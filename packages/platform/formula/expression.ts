@@ -32,6 +32,8 @@ export type SupportedFormulaFunction =
   | "AVG"
   | "AVERAGE"
   | "MEAN"
+  | "SD"
+  | "STDEV"
   | "RD"
   | "RSD"
   | "DIFF"
@@ -50,6 +52,8 @@ export const SUPPORTED_FUNCTIONS = new Set<SupportedFormulaFunction>([
   "AVG",
   "AVERAGE",
   "MEAN",
+  "SD",
+  "STDEV",
   "RD",
   "RSD",
   "DIFF",
@@ -87,7 +91,7 @@ export function validateFormulaFunctionArguments(
     if (node.type !== "call" || !isInputOnlyFunction(node.functionName)) return;
     for (const arg of node.args) {
       if (arg.type !== "field" || !isInputReference(arg.reference)) {
-        throw new FormulaParseError("invalid_expression", `${node.functionName} only accepts x inputs.`, node.functionName);
+        throw new FormulaParseError("invalid_expression", `${node.functionName} only accepts x/y/z/p inputs.`, node.functionName);
       }
     }
   });
@@ -151,6 +155,8 @@ function isInputOnlyFunction(functionName: SupportedFormulaFunction) {
     functionName === "AVG"
     || functionName === "AVERAGE"
     || functionName === "MEAN"
+    || functionName === "SD"
+    || functionName === "STDEV"
     || functionName === "RD"
     || functionName === "RSD"
     || functionName === "DIFF"
@@ -163,5 +169,5 @@ function isInputOnlyFunction(functionName: SupportedFormulaFunction) {
 }
 
 function isInputAlias(reference: string) {
-  return /^x\d+$/i.test(reference.trim());
+  return /^[xypz]\d+$/i.test(reference.trim());
 }

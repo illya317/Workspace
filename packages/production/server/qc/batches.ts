@@ -129,6 +129,7 @@ export async function updateQcBatchWorkflow(batchId: number, input: {
 
 export async function updateQcBatchPrecheck(batchId: number, input: {
   stageKey: string;
+  actorName: string;
   fields?: Record<string, unknown>;
 }): Promise<QcBatchSummary | null> {
   const store = await readStore();

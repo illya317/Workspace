@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createAnalysisSection, createMessageSection, PageSurface, type DataSurfaceColumnSpec, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createInlineFieldsSection, createMessageSection, PageSurface, type DataSurfaceColumnSpec, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { CrossMatrixData } from "./useEmployeeData";
 import { DIM_LABELS, type DimKey } from "./constants";
 
@@ -116,32 +116,32 @@ export function createCrossMatrixSection({
       cell: (row) => row.total,
     },
   ];
+  const matrixTableSection: BodySurfaceSectionSpec = {
+    key: "matrix-table",
+    body: { kind: "data", data: {
+      kind: "table",
+      rows: [...rows, { rowKey: "合计", values: crossMatrix.colTotals, total: statsActive }],
+      columns,
+      visibleColumns: columns.map((column) => column.key),
+      rowKey: (row: CrossMatrixRow) => row.rowKey,
+      rowState: (row: CrossMatrixRow) => row.rowKey === "合计" ? "total" : "normal",
+    } },
+  };
 
   return createAnalysisSection("cross-matrix", {
     title: "交叉分析",
-    toolbar: {
-      items: [
-        { kind: "select", key: "row", label: "行", value: crossRow, onChange: (value) => setCrossRow(value as DimKey), options: rowOptions },
-        { kind: "text", key: "by", content: <span className="text-gray-300">&times;</span> },
-        { kind: "select", key: "column", label: "列", value: crossCol, onChange: (value) => setCrossCol(value as DimKey), options: colOptions },
-        { kind: "text", key: "meta", content: <>共 {statsActive} 人</> },
-      ],
-    },
-    sections: crossMatrix.rowKeys.length === 0
+    sections: [
+      createInlineFieldsSection("cross-matrix-filters", [
+        { key: "row", label: "行", spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: rowOptions } }, value: crossRow, onChange: (value) => setCrossRow(value as DimKey) },
+        { key: "column", label: "列", spec: { valueType: "string", control: "choice", options: { source: "static", mode: "dropdown", items: colOptions } }, value: crossCol, onChange: (value) => setCrossCol(value as DimKey) },
+        { kind: "readonly", key: "meta", label: "统计", value: <>共 {statsActive} 人</>, variant: "plain" },
+      ]),
+      ...(crossMatrix.rowKeys.length === 0
       ? [createMessageSection("empty", {
         tone: "muted",
         content: "无数据"
       })]
-      : [{
-          key: "matrix-table",
-          body: { kind: "data", data: {
-            kind: "table",
-            rows: [...rows, { rowKey: "合计", values: crossMatrix.colTotals, total: statsActive }],
-            columns,
-            visibleColumns: columns.map((column) => column.key),
-            rowKey: (row) => row.rowKey,
-            rowState: (row) => row.rowKey === "合计" ? "total" : "normal",
-          } },
-        }],
+      : [matrixTableSection]),
+    ],
   });
 }

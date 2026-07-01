@@ -51,6 +51,7 @@ export interface QcStageWorkflowStatus {
   label: string;
   index: number;
   unlocked: boolean;
+  precheckComplete: boolean;
   complete: boolean;
   tests: QcTestWorkflowStatus[];
 }
@@ -70,6 +71,10 @@ export function qcSignatureKeys(stageKey: string, testName: string): QcTestSigna
   };
 }
 
+export function qcPrecheckCompletionKey(stageKey: string) {
+  return `${stageKey}/precheck/signature/inspector`;
+}
+
 export function uniqueQcNames(names: string[]) {
   return [...new Set(names.map((name) => name.trim()).filter(Boolean))];
 }
@@ -77,24 +82,29 @@ export function uniqueQcNames(names: string[]) {
 export function buildQcBatchWorkflow(template: QcWorkflowTemplate, batch: QcBatchSummary, actorName?: string): QcBatchWorkflow {
   const stageTests = template.stages.map((stage, stageIndex) => stage.tests.map((test) => testStatus(batch, template, stage, stageIndex, test, actorName)));
   const stages = template.stages.map((stage, index) => {
-    const previousComplete = stageTests.slice(0, index).every((tests) => tests.every((test) => test.complete));
+    const previousComplete = template.stages.slice(0, index).every((previousStage, previousIndex) => (
+      !!fieldValue(batch, qcPrecheckCompletionKey(previousStage.key))
+      && (stageTests[previousIndex] || []).every((test) => test.complete)
+    ));
     const tests = stageTests[index] || [];
+    const precheckComplete = !!fieldValue(batch, qcPrecheckCompletionKey(stage.key));
     return {
       key: stage.key,
       label: stage.label,
       index,
       unlocked: previousComplete,
-      complete: tests.every((test) => test.complete),
+      precheckComplete,
+      complete: precheckComplete && tests.every((test) => test.complete),
       tests,
     };
   });
   const tests = stages.flatMap((stage) => stage.tests.map((test) => ({
     ...test,
-    canSaveInspection: test.canSaveInspection && stages[test.stageIndex]?.unlocked === true,
-    canApproveReview: test.canApproveReview && stages[test.stageIndex]?.unlocked === true,
+    canSaveInspection: test.canSaveInspection && stages[test.stageIndex]?.unlocked === true && stages[test.stageIndex]?.precheckComplete === true,
+    canApproveReview: test.canApproveReview && stages[test.stageIndex]?.unlocked === true && stages[test.stageIndex]?.precheckComplete === true,
   })));
   const hasRejected = tests.some((test) => test.rejected);
-  const allComplete = tests.length > 0 && tests.every((test) => test.complete);
+  const allComplete = stages.length > 0 && stages.every((stage) => stage.complete);
   const statusLabels: QcBatchStatusLabel[] = hasRejected
     ? ["异常"]
     : allComplete

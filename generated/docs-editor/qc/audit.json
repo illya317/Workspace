@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-01T03:11:35.388Z",
+  "generatedAt": "2026-07-01T04:06:59.032Z",
   "configRoot": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc",
   "sourceSchemaRoot": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/source/source_docs/schema",
   "outputRoot": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc",
@@ -3260,7 +3260,7 @@
     },
     {
       "productKey": "clarithromycin",
-      "productName": "克拉霉素 胶囊",
+      "productName": "克拉霉素胶囊",
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/clarithromycin.json",
       "stages": 3,
       "experimentItems": 8,
@@ -11396,7 +11396,7 @@
     },
     {
       "productKey": "terazosin",
-      "productName": "盐酸特拉唑嗪 胶囊",
+      "productName": "盐酸特拉唑嗪胶囊",
       "outputFile": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc/products/terazosin.json",
       "stages": 3,
       "experimentItems": 8,

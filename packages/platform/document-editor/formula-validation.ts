@@ -4,6 +4,7 @@ import {
   parseFormulaExpression,
   validateFormulaFunctionArguments,
 } from "../formula/parser";
+import { durationUnit, isFormulaAlias, validateDateDifferenceExpression } from "../formula/date-difference";
 import { normalizeFormulaDisplayText } from "./formula-display";
 import { slotContextLabel } from "./slot-numbering";
 import type { EditorSlotInline, FieldDefinition, FieldModel } from "./types";
@@ -25,7 +26,7 @@ export function formulaDisplayText(attrs: EditorSlotInline, tokens: FormulaDispl
   return canonicalFormulaText(formulaText, displayTokens);
 }
 
-export function validateFormulaSlotDraft(attrs: EditorSlotInline, tokens: FormulaDisplayToken[]) {
+export function validateFormulaSlotDraft(attrs: EditorSlotInline, tokens: FormulaDisplayToken[], field?: FieldDefinition) {
   const formulaText = String(attrs.formulaText ?? "").trim();
   if (!formulaText) return { ok: false as const, error: "请输入计算式" };
   const displayTokens = scopedFormulaTokens(attrs, tokens);
@@ -33,7 +34,9 @@ export function validateFormulaSlotDraft(attrs: EditorSlotInline, tokens: Formul
   try {
     const expression = parseFormulaExpression(expressionText);
     const aliases = new Set(displayTokens.map((token) => (token.reference ?? token.alias).toLowerCase()));
-    validateFormulaFunctionArguments(expression, (reference) => /^x\d+$/i.test(reference.trim()) && aliases.has(reference.trim().toLowerCase()));
+    const unit = durationUnit(formulaTarget(attrs, field));
+    if (unit) validateDateDifferenceExpression(expression);
+    else validateFormulaFunctionArguments(expression, (reference) => isFormulaAlias(reference) && aliases.has(reference.trim().toLowerCase()));
     const selfAlias = attrs.alias?.toLowerCase();
     if (selfAlias && collectFormulaReferences(expression).some((reference) => reference.trim().toLowerCase() === selfAlias)) {
       return { ok: false as const, error: "公式不能引用自己" };
@@ -97,6 +100,15 @@ function createFormulaAliasMap(tokens: FormulaDisplayToken[]) {
   return formulas;
 }
 
+function formulaTarget(attrs: EditorSlotInline, field?: FieldDefinition) {
+  const legacyPart = attrs.metadata?.legacyPart;
+  const legacyType = legacyPart && typeof legacyPart === "object" && "type" in legacyPart ? String(legacyPart.type ?? "") : undefined;
+  return {
+    inputType: attrs.inputType ?? field?.inputType ?? legacyType,
+    valueType: attrs.valueType ?? field?.valueType ?? field?.type ?? legacyType,
+  };
+}
+
 function fieldSourceContextLabel(field: FieldDefinition) {
   const source = ((field as FieldDefinition & { source?: Record<string, unknown> }).source ?? field.metadata?.source ?? {}) as Record<string, unknown>;
   const [product, stage, sequence, test] = [source.productName, source.stageLabel, source.sequence, source.testName].map(stringValue);
@@ -124,7 +136,8 @@ function numericText(value: unknown) {
 function formulaValidationMessage(error: unknown) {
   const message = error instanceof Error ? error.message : "Invalid formula expression.";
   if (message.includes("Unsupported formula function")) return "公式函数不支持";
-  if (message.includes("only accepts x inputs")) return "该函数只能引用输入项 x";
+  if (message.includes("only accepts x/y/z/p inputs") || message.includes("only accepts x/p inputs") || message.includes("only accepts x inputs")) return "该函数只能引用输入项 x/y/z/p";
+  if (message.includes("Date duration formula only accepts a-b")) return "日期差值公式只能填写 a-b 或 (a-b)";
   if (message.includes("Unexpected trailing expression")) return "计算式后面有多余内容";
   if (message.includes("Expected value")) return "计算式不完整";
   if (message.includes("Expected")) return "计算式括号或运算符不完整";

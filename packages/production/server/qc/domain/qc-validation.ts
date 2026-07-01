@@ -5,7 +5,7 @@ import {
 } from "@workspace/platform/server/domain-validation";
 import type { EditorSlotInline } from "@workspace/platform/document-editor";
 import { getPublishedQcOfficialTemplateByProductKey } from "@workspace/platform/server/docs-editor";
-import { buildQcBatchWorkflow, qcSignatureKeys } from "../../../qc/workflow";
+import { buildQcBatchWorkflow, qcPrecheckCompletionKey, qcSignatureKeys } from "../../../qc/workflow";
 import { getQcBatchEditorRuntimeTemplate, type QcEditorRuntimeTest } from "../editor-runtime-template";
 import type { QcBatchCreateInput, QcBatchSummary, QcBatchTemplateSnapshot } from "../types";
 
@@ -134,7 +134,9 @@ export async function buildUpdateQcBatchWorkflowCommand(
   const workflow = buildQcBatchWorkflow(runtime, batch, actorName);
   const current = workflow.tests.find((item) => item.stageKey === stageKey && item.testName === testName);
   if (!current) return failCommand("检验项目不存在");
-  if (!workflow.stages[current.stageIndex]?.unlocked) return failCommand("前一阶段尚未全部复核完成");
+  const currentStage = workflow.stages[current.stageIndex];
+  if (!currentStage?.unlocked) return failCommand("前一阶段尚未全部复核完成");
+  if (!currentStage.precheckComplete) return failCommand("请先保存检验前确认");
   if (current.automatic) return failCommand("该成品项目引用待包装品结果，不能手工保存或复核");
 
   const keys = qcSignatureKeys(stageKey, testName);
@@ -163,13 +165,16 @@ export async function buildUpdateQcBatchPrecheckCommand(
   batch: QcBatchSummary,
   input: {
     stageKey: string;
+    actorName: string;
     fields?: Record<string, unknown>;
   },
 ): Promise<DomainValidationResult<UpdateQcBatchPrecheckCommand>> {
   const validId = validBatchId(batch.id);
   if (!validId.ok) return validId;
   const stageKey = input.stageKey.trim();
+  const actorName = input.actorName.trim();
   if (!stageKey) return failCommand("缺少阶段信息");
+  if (!actorName) return failCommand("操作人不能为空", 400, "actorName");
 
   const runtime = await getQcBatchEditorRuntimeTemplate(batch);
   if (!runtime) return failCommand("检验模板不存在");
@@ -187,6 +192,7 @@ export async function buildUpdateQcBatchPrecheckCommand(
     if (!writable.ok) return writable;
     nextFields[key] = value == null ? "" : String(value);
   }
+  nextFields[qcPrecheckCompletionKey(stageKey)] = actorName;
   return okCommand({ batchId: validId.data, fields: nextFields });
 }
 

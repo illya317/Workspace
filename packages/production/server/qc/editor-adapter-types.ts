@@ -8,7 +8,10 @@ export type EditorBlockType = "heading" | "paragraph" | "table" | "attachment" |
 export interface EditorInlinePartBase {
   type: EditorInlinePartType;
   alias?: string;
-  slotKind?: "person" | "date" | "choice" | "plain" | "variable" | "formula" | "reference";
+  slotKind?: "person" | "date" | "choice" | "plain" | "variable" | "parameter" | "formula" | "reference";
+  valueType?: string;
+  numberFormat?: string;
+  precision?: number;
   metadata?: JsonObject;
 }
 
@@ -22,6 +25,9 @@ export interface EditorFieldSlotPart extends EditorInlinePartBase {
   fieldKey: string;
   label?: string;
   inputType?: string;
+  valueType?: string;
+  numberFormat?: string;
+  precision?: number;
   options?: string[];
   defaultValue?: string;
   placeholder?: string;
@@ -40,6 +46,9 @@ export interface EditorFormulaSlotPart extends EditorInlinePartBase {
   readonlyDisplay?: boolean;
   referenceFieldKey?: string;
   valueSource?: JsonObject;
+  valueType?: string;
+  numberFormat?: string;
+  precision?: number;
   width?: string;
 }
 
@@ -142,6 +151,8 @@ export interface EditorFieldDefinition {
   group?: string;
   valueType?: string;
   inputType?: string;
+  numberFormat?: string;
+  precision?: number;
   attr?: string;
   unit?: string;
   options?: string[];
@@ -163,6 +174,9 @@ export interface EditorFormulaDefinition {
   dependencyFieldKeys: string[];
   referenceFieldKey?: string;
   readonlyDisplay?: boolean;
+  valueType?: string;
+  numberFormat?: string;
+  precision?: number;
   source?: JsonObject;
   alias?: string;
   slotKind?: string;

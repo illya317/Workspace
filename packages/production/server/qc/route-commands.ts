@@ -104,6 +104,7 @@ export async function executeQcBatchPatchCommand(command: QcBatchPatchCommand) {
     if (command.action === "save_precheck") {
       const batch = await updateQcBatchPrecheck(command.batchId, {
         stageKey: command.stageKey,
+        actorName: command.actorName,
         fields: command.fields,
       });
       if (!batch) return serviceError("批次不存在", 404);

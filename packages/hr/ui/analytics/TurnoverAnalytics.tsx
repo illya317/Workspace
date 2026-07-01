@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createPageBody, createAnalysisSection, createSectionsSection, createMetricsSection, PageSurface, type DataSurfaceColumnSpec, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createInlineFieldsSection, createSectionsSection, createMetricsSection, PageSurface, type DataSurfaceColumnSpec, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { Employee, Employment } from "./useAnalyticsData";
 
@@ -185,13 +185,12 @@ export function useTurnoverAnalyticsSections({ employees: _employees, employment
         }),
         createAnalysisSection("reasons", {
           title: "离职原因分布",
-          toolbar: {
-            items: [
-              { kind: "search", key: "reason-search", value: reasonSearch, onChange: setReasonSearch, placeholder: "搜索原因..." },
-              { kind: "text", key: "meta", content: <>{stats.totalLeft} 人</> },
-            ],
-          },
-          sections: [{
+          sections: [
+            createInlineFieldsSection("reason-filters", [
+              { key: "reason-search", label: "搜索", spec: { valueType: "string", control: "text" }, value: reasonSearch, onChange: (value) => setReasonSearch(String(value ?? "")), placeholder: "搜索原因..." },
+              { kind: "readonly", key: "meta", label: "统计", value: <>{stats.totalLeft} 人</>, variant: "plain" },
+            ]),
+            {
             key: "reason-bars",
             body: { kind: "data", data: {
               kind: "table",

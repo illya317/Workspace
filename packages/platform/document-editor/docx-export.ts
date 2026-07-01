@@ -60,6 +60,7 @@ function blockToDocx(
   index: number,
   blocks: EditorBlock[],
 ): DocxChild[] {
+  if (metadataAnnotation(block.metadata)) return [];
   if (block.type === "pageBreak") {
     return [new docx.Paragraph({ children: [new docx.PageBreak()] })];
   }
@@ -81,7 +82,7 @@ function blockToDocx(
           children: [new docx.Paragraph({
             alignment: docx.AlignmentType.CENTER,
             spacing: { before: 0, after: 0, line: 260 },
-            children: cell.parts.flatMap((part) => inlineToRuns(docx, part, values)),
+            children: metadataAnnotation(cell.metadata) ? [] : cell.parts.flatMap((part) => inlineToRuns(docx, part, values)),
           })],
         })),
       })),
@@ -108,6 +109,7 @@ function paragraphAlignment(docx: DocxModule, block: EditorBlock) {
 }
 
 function inlineToRuns(docx: DocxModule, part: EditorInline, values: Record<string, unknown>) {
+  if (metadataAnnotation(part.metadata)) return [];
   if (part.type === "text") {
     return [new docx.TextRun({
       text: part.text,
@@ -145,6 +147,15 @@ function inlineToRuns(docx: DocxModule, part: EditorInline, values: Record<strin
     }),
     new docx.TextRun({ text: " " }),
   ];
+}
+
+function metadataAnnotation(value: unknown) {
+  return Boolean(
+    value
+    && typeof value === "object"
+    && !Array.isArray(value)
+    && (("annotation" in value && value.annotation === true) || ("noPrint" in value && value.noPrint === true)),
+  );
 }
 
 function isChoiceSlot(part: Exclude<EditorInline, { type: "text" }>): part is Exclude<EditorInline, { type: "text" }> & { options: string[] } {

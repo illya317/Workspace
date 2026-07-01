@@ -3,6 +3,8 @@ import type { EditorSlotInline, EditorSlotType, FieldDefinition } from "./types"
 export type SlotPatch = Record<string, unknown>;
 type InputMethod = "text" | "textarea" | "date" | "datetime" | "radio" | "checkbox" | "select";
 type SlotValueType = "text" | "number" | "boolean" | "date" | "datetime" | "array";
+const DEFAULT_FORMULA_PRECISION = 4;
+const DEFAULT_FORMULA_NUMBER_FORMAT = "round_half_even";
 
 export function inputMethodOptions() {
   return [
@@ -46,6 +48,7 @@ export function numberFormatOptions() {
 }
 
 export function inputMethod(attrs: EditorSlotInline, field?: FieldDefinition): InputMethod {
+  if (attrs.slotKind === "parameter") return "text";
   const raw = attrs.inputType ?? field?.inputType;
   const rawValueType = attrs.valueType ?? field?.valueType ?? field?.type;
   if (attrs.withTime || raw === "datetime" || (!raw && rawValueType === "datetime")) return "datetime";
@@ -61,23 +64,45 @@ export function inputMethod(attrs: EditorSlotInline, field?: FieldDefinition): I
 export function inputMethodPatch(value: string, attrs: EditorSlotInline, field?: FieldDefinition): SlotPatch {
   const semantic = textLikeValueType(attrs, field);
   const options = effectiveOptions(attrs, field);
-  if (value === "date") return { inputType: "date", withTime: null, valueType: "date", options: null, placeholder: attrs.placeholder, numberFormat: null };
-  if (value === "datetime") return { inputType: "date", withTime: true, valueType: "datetime", options: null, placeholder: attrs.placeholder, numberFormat: null };
-  if (value === "textarea") return { inputType: "textarea", withTime: null, valueType: semantic, options: null, placeholder: attrs.placeholder, numberFormat: semantic === "number" ? numberFormat(attrs) : null };
+  if (value === "date") return { inputType: "date", withTime: null, valueType: "date", options: null, placeholder: attrs.placeholder, numberFormat: null, precision: null };
+  if (value === "datetime") return { inputType: "date", withTime: true, valueType: "datetime", options: null, placeholder: attrs.placeholder, numberFormat: null, precision: null };
+  if (value === "textarea") return { inputType: "textarea", withTime: null, valueType: "text", options: null, placeholder: attrs.placeholder, numberFormat: null, precision: null };
   if (value === "radio" || value === "select") {
     const nextOptions = options.length ? options : defaultOptions(value);
-    return { inputType: value, withTime: null, valueType: inferChoiceValueType(nextOptions, value), options: nextOptions, placeholder: null, numberFormat: null };
+    return { inputType: value, withTime: null, valueType: inferChoiceValueType(nextOptions, value), options: nextOptions, placeholder: null, numberFormat: null, precision: null };
   }
-  if (value === "checkbox") return { inputType: "checkbox", withTime: null, valueType: "array", options: options.length ? options : defaultOptions("checkbox"), placeholder: null, numberFormat: null };
-  return { inputType: "text", withTime: null, valueType: semantic, options: null, placeholder: attrs.placeholder, numberFormat: semantic === "number" ? numberFormat(attrs) : null };
+  if (value === "checkbox") return { inputType: "checkbox", withTime: null, valueType: "array", options: options.length ? options : defaultOptions("checkbox"), placeholder: null, numberFormat: null, precision: null };
+  return {
+    inputType: "text",
+    withTime: null,
+    valueType: semantic,
+    options: null,
+    placeholder: attrs.placeholder,
+    numberFormat: semantic === "number" ? numberFormat(attrs) : null,
+    precision: semantic === "number" ? precisionPatch(attrs.precision) : null,
+  };
 }
 
 export function numberFormat(attrs: EditorSlotInline) {
   const value = attrs.numberFormat;
-  return numberFormatOptions().some((option) => option.value === value) ? value : "plain";
+  if (numberFormatOptions().some((option) => option.value === value)) return value;
+  return isFormulaOutput(attrs, attrs.type) ? DEFAULT_FORMULA_NUMBER_FORMAT : "plain";
+}
+
+export function numberPrecision(attrs: EditorSlotInline, field?: FieldDefinition) {
+  const precision = normalizePrecision(attrs.precision ?? field?.precision);
+  if (precision !== undefined) return precision;
+  return isFormulaOutput(attrs, attrs.type) ? DEFAULT_FORMULA_PRECISION : "";
+}
+
+export function precisionPatch(value: unknown) {
+  const precision = normalizePrecision(value);
+  return precision === undefined ? null : precision;
 }
 
 export function slotValueType(attrs: EditorSlotInline, field?: FieldDefinition): SlotValueType {
+  if (attrs.slotKind === "parameter") return "number";
+  if (isFormulaOutput(attrs, attrs.type)) return normalizeValueType(attrs.valueType ?? field?.valueType ?? field?.type) ?? "number";
   const method = inputMethod(attrs, field);
   if (method === "datetime") return "datetime";
   if (method === "date") return "date";
@@ -94,13 +119,19 @@ export function slotValueType(attrs: EditorSlotInline, field?: FieldDefinition):
 export function valueTypePatch(value: string, attrs: EditorSlotInline, field?: FieldDefinition): SlotPatch {
   const next = normalizeValueType(value) ?? "text";
   const options = effectiveOptions(attrs, field);
-  if (next === "date") return { inputType: "date", withTime: null, valueType: "date", options: null, numberFormat: null };
-  if (next === "datetime") return { inputType: "date", withTime: true, valueType: "datetime", options: null, numberFormat: null };
-  if (next === "boolean") return { inputType: "radio", withTime: null, valueType: "boolean", options: booleanOptions(options), placeholder: null, numberFormat: null };
-  if (next === "array") return { inputType: "checkbox", withTime: null, valueType: "array", options: options.length ? options : defaultOptions("checkbox"), placeholder: null, numberFormat: null };
+  if (next === "date") return { inputType: "date", withTime: null, valueType: "date", options: null, numberFormat: null, precision: null };
+  if (next === "datetime") return { inputType: "date", withTime: true, valueType: "datetime", options: null, numberFormat: null, precision: null };
+  if (next === "boolean") return { inputType: "radio", withTime: null, valueType: "boolean", options: booleanOptions(options), placeholder: null, numberFormat: null, precision: null };
+  if (next === "array") return { inputType: "checkbox", withTime: null, valueType: "array", options: options.length ? options : defaultOptions("checkbox"), placeholder: null, numberFormat: null, precision: null };
   const method = inputMethod(attrs, field);
   const inputType = method === "date" || method === "datetime" || method === "checkbox" || attrs.inputType === "number" || attrs.inputType === "field" ? "text" : attrs.inputType;
-  return { valueType: next, inputType, withTime: null, numberFormat: next === "number" ? numberFormat(attrs) : null };
+  return {
+    valueType: next,
+    inputType,
+    withTime: null,
+    numberFormat: next === "number" ? numberFormat(attrs) : null,
+    precision: next === "number" ? precisionPatch(attrs.precision) : null,
+  };
 }
 
 export function effectiveOptions(attrs: EditorSlotInline, field?: FieldDefinition) {
@@ -113,15 +144,29 @@ export function normalizeInputAttrs(
   field: FieldDefinition | undefined,
   supportsInputMethod: (attrs: EditorSlotInline, type: EditorSlotType) => boolean,
 ): EditorSlotInline {
+  if (attrs.slotKind === "parameter") {
+    const patch: SlotPatch = {
+      inputType: "text",
+      withTime: null,
+      valueType: "number",
+      options: null,
+      numberFormat: numberFormat(attrs),
+      precision: precisionPatch(attrs.precision),
+    };
+    if (attrs.width == null || attrs.width === "") patch.width = "0rem";
+    return merge(attrs, patch);
+  }
+  if (isFormulaOutput(attrs, attrs.type)) return merge(attrs, { valueType: slotValueType(attrs, field), numberFormat: numberFormat(attrs), precision: numberPrecision(attrs, field) });
   if (!supportsInputMethod(attrs, attrs.type)) return attrs;
   const method = inputMethod(attrs, field);
-  const valueType = slotValueType(attrs, field);
+  const valueType = method === "textarea" ? "text" : slotValueType(attrs, field);
   return merge(attrs, {
     inputType: method === "datetime" ? "date" : method,
     withTime: method === "datetime" ? true : method === "date" ? null : attrs.withTime ? null : undefined,
     valueType,
     options: isOptionMethod(method) ? effectiveOptions(attrs, field).length ? effectiveOptions(attrs, field) : defaultOptions(method) : null,
     numberFormat: valueType === "number" ? numberFormat(attrs) : null,
+    precision: valueType === "number" ? precisionPatch(attrs.precision) : null,
   });
 }
 
@@ -130,11 +175,16 @@ export function isOptionSlot(attrs: EditorSlotInline, field?: FieldDefinition) {
 }
 
 export function supportsValueType(attrs: EditorSlotInline, field: FieldDefinition | undefined, type: EditorSlotType, supportsInputMethod: (attrs: EditorSlotInline, type: EditorSlotType) => boolean) {
-  return supportsInputMethod(attrs, type);
+  return attrs.slotKind !== "parameter" && supportsInputMethod(attrs, type) && inputMethod(attrs, field) === "text";
 }
 
 export function supportsNumberFormat(attrs: EditorSlotInline, field: FieldDefinition | undefined, type: EditorSlotType, supportsInputMethod: (attrs: EditorSlotInline, type: EditorSlotType) => boolean) {
-  return supportsValueType(attrs, field, type, supportsInputMethod) && slotValueType(attrs, field) === "number";
+  return supportsNumberPrecision(attrs, field, type, supportsInputMethod);
+}
+
+export function supportsNumberPrecision(attrs: EditorSlotInline, field: FieldDefinition | undefined, type: EditorSlotType, supportsInputMethod: (attrs: EditorSlotInline, type: EditorSlotType) => boolean) {
+  if (slotValueType(attrs, field) !== "number") return false;
+  return attrs.slotKind === "parameter" || isFormulaOutput(attrs, type) || supportsValueType(attrs, field, type, supportsInputMethod);
 }
 
 function textLikeValueType(attrs: EditorSlotInline, field?: FieldDefinition) {
@@ -147,6 +197,16 @@ function normalizeValueType(value: unknown): SlotValueType | undefined {
   if (value === "checkbox") return "array";
   if (value === "line" || value === "field" || value === "text" || value === "string") return "text";
   return undefined;
+}
+
+function normalizePrecision(value: unknown) {
+  if (value === null || value === undefined || value === "") return undefined;
+  const precision = typeof value === "number" ? value : Number.parseInt(String(value), 10);
+  return Number.isInteger(precision) && precision >= 0 && precision <= 10 ? precision : undefined;
+}
+
+function isFormulaOutput(attrs: EditorSlotInline, type: EditorSlotType) {
+  return !attrs.referenceFieldKey && (attrs.slotKind === "formula" || (!attrs.slotKind && type === "formulaSlot"));
 }
 
 function inferChoiceValueType(options: string[], method: InputMethod): SlotValueType {

@@ -1,13 +1,13 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createFormSection, createHeadingSection, createMessageSection, createPageBody, type FormSurfaceCommandSpec, PageSurface } from "@workspace/core/ui";
+import { createMessageSection, createPageBody, PageSurface, useFeedback, type SurfaceToolbarItems } from "@workspace/core/ui";
 import type { QcBatchSummary, QcEditorRuntimeStage, QcEditorRuntimeTemplate, QcEditorRuntimeTest } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcEditorRuntimePaper from "./QcEditorRuntimePaper";
-import { qcAnchorHref, qcBatchStageAnchorHref, qcBatchTestAnchorHref } from "./qc-routes";
+import { qcBatchStagePath, qcBatchTestPath } from "./qc-routes";
 import { useEditorRuntimeFormulaEngine } from "./useEditorRuntimeFormulaEngine";
 interface Props {
   batch: QcBatchSummary;
@@ -32,15 +32,13 @@ function writableRuntimeValues(values: Record<string, string>, runtimeTest: QcEd
 }
 export default function QcBatchTestRecord({
   batch,
-  productName,
   runtimeTemplate,
   runtimeStage,
   runtimeTest,
   currentUserName
 }: Props) {
   const router = useRouter();
-  const [saveState, setSaveState] = useState<"idle" | "saved" | "error">("idle");
-  const [statusText, setStatusText] = useState("");
+  const feedback = useFeedback();
   const [isPending, startTransition] = useTransition();
   const form = useEditorRuntimeFormulaEngine(
     runtimeTemplate.fieldModel,
@@ -53,7 +51,9 @@ export default function QcBatchTestRecord({
   const inspectorName = testStatus?.inspectorName || currentUserName;
   const reviewerName = testStatus?.reviewerName || "";
   const locked = !stageStatus?.unlocked;
-  const readOnly = locked || !!testStatus?.automatic || !!testStatus?.reviewed;
+  const precheckComplete = !!stageStatus?.precheckComplete;
+  const testsLocked = locked || !precheckComplete;
+  const readOnly = testsLocked || !!testStatus?.automatic || !!testStatus?.reviewed;
   const referenceValues = {
     "__qc_ref/batch_number": batch.batchNumber,
     "__qc_ref/inspector": inspectorName,
@@ -63,8 +63,6 @@ export default function QcBatchTestRecord({
     "__qc_ref_reviewer": reviewerName
   };
   function save() {
-    setSaveState("idle");
-    setStatusText("");
     startTransition(async () => {
       const response = await fetch(workspacePath(`/api/modules/production/qc/${batch.id}`), {
         method: "PATCH",
@@ -79,14 +77,15 @@ export default function QcBatchTestRecord({
         })
       });
       const body = await response.json().catch(() => null);
-      setSaveState(response.ok ? "saved" : "error");
-      setStatusText(response.ok ? "已保存检验记录" : body?.error || "保存失败");
-      if (response.ok) router.refresh();
+      if (response.ok) {
+        feedback.success("已检验");
+        router.refresh();
+      } else {
+        feedback.error(body?.error || "检验保存失败");
+      }
     });
   }
   function approveReview() {
-    setSaveState("idle");
-    setStatusText("");
     startTransition(async () => {
       const response = await fetch(workspacePath(`/api/modules/production/qc/${batch.id}`), {
         method: "PATCH",
@@ -100,16 +99,20 @@ export default function QcBatchTestRecord({
         })
       });
       const body = await response.json().catch(() => null);
-      setSaveState(response.ok ? "saved" : "error");
-      setStatusText(response.ok ? "已复核" : body?.error || "复核失败");
-      if (response.ok) router.refresh();
+      if (response.ok) {
+        feedback.success("已复核");
+        router.refresh();
+      } else {
+        feedback.error(body?.error || "复核失败");
+      }
     });
   }
-  const recordActions: FormSurfaceCommandSpec[] = [];
+  const recordActions: Extract<SurfaceToolbarItems[number], { kind: "action-group" }>["actions"] = [];
   if (testStatus?.canSaveInspection) {
     recordActions.push({
       key: "save-inspection",
       label: isPending ? "保存中" : "保存检验",
+      kind: "save",
       onClick: save,
       disabled: isPending,
       variant: "primary",
@@ -120,50 +123,51 @@ export default function QcBatchTestRecord({
     recordActions.push({
       key: "approve-review",
       label: isPending ? "复核中" : "复核通过",
+      kind: "check",
       onClick: approveReview,
       disabled: isPending,
       variant: "primary",
 
     });
   }
-  const recordSteps = [
+  const stageOptions = [
+    { value: "precheck", label: "检验前确认" },
+    ...runtimeStage.tests.map((item) => {
+      const status = stageStatus?.tests.find((test) => test.testName === item.key);
+      return {
+        value: item.key,
+        label: `${item.sequence} ${item.name}${status?.automatic ? " · 自动通过" : ""}`,
+        disabled: testsLocked,
+      };
+    }),
+  ];
+  const toolbarItems: SurfaceToolbarItems = [
     {
-      key: "batch",
-      label: "返回批次列表",
-      href: qcAnchorHref(),
-      tone: "primary" as const,
+      kind: "option-group",
+      key: "qc-stage",
+      value: runtimeTest.key,
+      ariaLabel: "质检阶段",
+      presentation: "segmented",
+      options: stageOptions,
+      onChange: (value) => {
+        if (value === "precheck") router.push(qcBatchStagePath(batch.id, runtimeStage.key));
+        else router.push(qcBatchTestPath(batch.id, runtimeStage.key, value));
+      },
     },
-    {
-      key: "precheck",
-      label: "检验前确认",
-      href: qcBatchStageAnchorHref(batch.id, runtimeStage.key),
-    },
-    ...runtimeStage.tests.map(item => ({
-      key: item.key,
-      label: `${item.sequence} ${item.name}`,
-      href: qcBatchTestAnchorHref(batch.id, runtimeStage.key, item.key),
-    })),
+    ...(recordActions.length ? [{
+      kind: "action-group" as const,
+      key: "test-actions",
+      section: "edit" as const,
+      actions: recordActions,
+    }] : []),
   ];
   return <PageSurface kind="standard"
-    embedded
+    toolbar={{ items: toolbarItems }}
     body={createPageBody([
-      {
-        key: "test-navigation",
-        body: {
-          kind: "navigation",
-          navigation: {
-            kind: "steps",
-            active: runtimeTest.key,
-            ariaLabel: "质检阶段导航",
-
-            steps: recordSteps,
-          },
-        },
-      },
-      createHeadingSection("test-heading", {
-
-        title: `${productName}${runtimeStage.label} - ${runtimeTest.name}`,
-      }),
+      ...(!precheckComplete ? [createMessageSection("test-precheck-required", {
+        tone: "warning",
+        content: "请先保存检验前确认，再进入检测项目。"
+      })] : []),
       {
         key: "test-record-paper",
         body: { kind: "document", document: {
@@ -177,16 +181,6 @@ export default function QcBatchTestRecord({
           },
         } },
       },
-      ...(recordActions.length ? [createFormSection("test-actions", {
-          kind: "filters" as const,
-          content: { items: [] },
-          commands: recordActions,
-        })] : []),
-      ...(saveState === "saved" || saveState === "error" ? [createMessageSection("test-save-status", {
-
-        tone: saveState === "saved" ? "success" as const : "danger" as const,
-        content: statusText || (saveState === "saved" ? "已保存" : "操作失败"),
-      })] : []),
     ])}
   />;
 }

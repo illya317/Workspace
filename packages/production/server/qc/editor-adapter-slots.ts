@@ -2,7 +2,7 @@ import type { EditorBlock, EditorFieldDefinition, EditorFieldModel, EditorInline
 import { normalizeFormulaText } from "../../../platform/formula/parser";
 
 type SlotKind = NonNullable<EditorInlinePart["slotKind"]>;
-type Counters = { x: number; y: number; z: number };
+type Counters = { x: number; p: number; y: number; z: number };
 
 export function annotateEditorSlots(blocks: EditorBlock[], fieldModel: EditorFieldModel) {
   insertMissingFormulaInputSlots(blocks, fieldModel);
@@ -15,14 +15,17 @@ export function annotateEditorSlots(blocks: EditorBlock[], fieldModel: EditorFie
     const alias = slotAlias(kind, counter(counters, sourceScope(part)));
     part.slotKind = kind;
     part.alias = alias;
+    applyNumericSlotDefaults(part, field, kind);
     if (field) {
       field.slotKind = kind;
       field.alias = alias;
+      if (kind === "parameter") applyFieldNumberDefaults(field, part);
     }
     const formula = fieldModel.formulas[part.fieldKey];
     if (formula) {
       formula.slotKind = kind;
       formula.alias = alias;
+      if (kind === "formula") applyFormulaNumberDefaults(formula, part);
     }
   });
   rewriteFormulaReferences(blocks, fieldModel);
@@ -84,6 +87,7 @@ function syntheticFormulaInputBlock(scope: string, fields: EditorFieldDefinition
     metadata: {
       source: firstSource,
       syntheticRole: "formulaInputs",
+      annotation: true,
     },
   };
 }
@@ -97,7 +101,11 @@ function syntheticFormulaInputParts(field: EditorFieldDefinition, withGap: boole
       type: "fieldSlot",
       fieldKey: field.fieldKey,
       label: field.name,
+      slotKind: "parameter",
       inputType: field.inputType ?? (field.valueType === "number" ? "number" : "field"),
+      valueType: field.valueType,
+      numberFormat: field.numberFormat,
+      precision: field.precision,
       options: field.options,
       defaultValue: field.defaultValue,
       readonlyDisplay: false,
@@ -109,6 +117,31 @@ function syntheticFormulaInputParts(field: EditorFieldDefinition, withGap: boole
     },
     ...(field.unit ? [{ type: "text" as const, text: field.unit }] : []),
   ];
+}
+
+function applyNumericSlotDefaults(part: Exclude<EditorInlinePart, { type: "text" }>, field: EditorFieldDefinition | undefined, kind: SlotKind) {
+  if (kind === "parameter") {
+    part.valueType = part.valueType ?? field?.valueType ?? "number";
+    part.numberFormat = part.numberFormat ?? field?.numberFormat ?? "plain";
+    part.precision = part.precision ?? field?.precision;
+  }
+  if (kind === "formula") {
+    part.valueType = part.valueType ?? "number";
+    part.numberFormat = part.numberFormat ?? "round_half_even";
+    part.precision = part.precision ?? 4;
+  }
+}
+
+function applyFieldNumberDefaults(field: EditorFieldDefinition, part: Exclude<EditorInlinePart, { type: "text" }>) {
+  field.valueType = field.valueType ?? part.valueType ?? "number";
+  field.numberFormat = field.numberFormat ?? part.numberFormat;
+  field.precision = field.precision ?? part.precision;
+}
+
+function applyFormulaNumberDefaults(formula: EditorFieldModel["formulas"][string], part: Exclude<EditorInlinePart, { type: "text" }>) {
+  formula.valueType = formula.valueType ?? part.valueType ?? "number";
+  formula.numberFormat = formula.numberFormat ?? part.numberFormat;
+  formula.precision = formula.precision ?? part.precision ?? 4;
 }
 
 function blockInlineParts(block: EditorBlock) {
@@ -126,6 +159,7 @@ function visitParts(blocks: EditorBlock[], visit: (part: EditorInlinePart) => vo
 
 function slotKind(part: Exclude<EditorInlinePart, { type: "text" }>, field: EditorFieldModel["fields"][string] | undefined, formulaInputs: Set<string>): SlotKind {
   if (part.type === "signatureSlot") return "person";
+  if (part.slotKind === "parameter" || field?.slotKind === "parameter") return "parameter";
   if (part.type !== "formulaSlot" && formulaInputs.has(part.fieldKey)) return "variable";
   if (part.type === "dateSlot") return formulaInputs.has(part.fieldKey) ? "variable" : "plain";
   if (part.type === "formulaSlot") return isReference(part) ? "reference" : "formula";
@@ -148,6 +182,7 @@ function isReference(part: Exclude<EditorInlinePart, { type: "text" }>) {
 function slotAlias(kind: SlotKind, counters: Counters) {
   if (kind === "person") return "人名";
   if (kind === "variable") return `x${++counters.x}`;
+  if (kind === "parameter") return `p${++counters.p}`;
   if (kind === "formula") return `y${++counters.y}`;
   if (kind === "reference") return `z${++counters.z}`;
   return "i";
@@ -301,10 +336,10 @@ function canonicalFormulaText(formulaText: string, references: Map<string, strin
 }
 
 function stripFormulaAssignment(formulaText: string, currentAlias?: string) {
-  const match = formulaText.match(/^\s*([xyz]\d+)\s*=\s*(.+)$/i);
+  const match = formulaText.match(/^\s*([xypz]\d+)\s*=\s*(.+)$/i);
   if (!match) return formulaText;
   const leftAlias = match[1].toLowerCase();
-  if (leftAlias === currentAlias || /^[xyz]\d+$/i.test(leftAlias)) return match[2].trim();
+  if (leftAlias === currentAlias || /^[xypz]\d+$/i.test(leftAlias)) return match[2].trim();
   return formulaText;
 }
 
@@ -313,7 +348,7 @@ function stripTrailingFormulaUnit(formulaText: string) {
 }
 
 function formulaReferenceReplacement(formulaText: string) {
-  if (/^(?:[xyz]\d+|-?\d+(?:\.\d+)?)$/i.test(formulaText)) return formulaText;
+  if (/^(?:[xypz]\d+|-?\d+(?:\.\d+)?)$/i.test(formulaText)) return formulaText;
   return `(${formulaText})`;
 }
 
@@ -369,12 +404,12 @@ function isChoiceAlias(alias: string | undefined) {
 
 function isFormulaReferenceName(name: string | undefined): name is string {
   if (!name || name.length < 2) return false;
-  if (/^[xyz]\d+$/i.test(name) || /^\d+(?:\.\d+)?$/.test(name)) return false;
+  if (/^[xypz]\d+$/i.test(name) || /^\d+(?:\.\d+)?$/.test(name)) return false;
   return !["ABS", "AVG", "RD", "RSD", "SUM", "SQRT", "MIN", "MAX", "IF", "AND", "OR"].includes(name.toUpperCase());
 }
 
 function counter(counters: Map<string, Counters>, scope: string) {
-  const value = counters.get(scope) ?? { x: 0, y: 0, z: 0 };
+  const value = counters.get(scope) ?? { x: 0, p: 0, y: 0, z: 0 };
   counters.set(scope, value);
   return value;
 }

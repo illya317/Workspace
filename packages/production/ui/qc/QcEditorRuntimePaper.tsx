@@ -50,6 +50,7 @@ function RuntimeSlot({ part, context }: { part: EditorSlotInline; context: Rende
     inputType,
     valueType,
     numberFormat: part.numberFormat || field?.numberFormat,
+    precision: part.precision ?? field?.precision,
     defaultValue: part.defaultValue,
     defaultOffsetDays: part.defaultOffsetDays,
     placeholder: part.placeholder,

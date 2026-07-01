@@ -119,7 +119,6 @@ export interface BodySurfaceBadgeSpec {
 export interface BodySurfaceSectionHeaderSpec {
   title?: ReactNode;
   badges?: BodySurfaceBadgeSpec[];
-  toolbarItems?: SurfaceToolbarItems;
   actions?: BodySurfaceCommandSpec[];
 }
 interface BodySurfaceSectionCommonProps {
@@ -267,10 +266,9 @@ const sectionChrome = (section: BodySurfaceSectionSpec): BodySurfaceSectionChrom
 
 function renderSectionHeader(section: BodySurfaceSectionSpec, chrome: BodySurfaceSectionChrome = sectionChrome(section)) {
   const header = section.header;
-  if (!header?.title && !header?.badges?.length && !header?.toolbarItems?.length && !header?.actions?.length) return null;
+  if (!header?.title && !header?.badges?.length && !header?.actions?.length) return null;
   const actions = (
     <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-      {header.toolbarItems?.length ? <Toolbar items={header.toolbarItems} /> : null}
       {renderCommands(header.actions)}
     </div>
   );
@@ -284,7 +282,7 @@ function renderSectionHeader(section: BodySurfaceSectionSpec, chrome: BodySurfac
           </div>
         )}
       </div>
-      {header.toolbarItems?.length || header.actions?.length ? actions : null}
+      {header.actions?.length ? actions : null}
     </div>
   );
 }

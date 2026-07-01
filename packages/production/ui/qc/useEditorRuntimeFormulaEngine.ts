@@ -23,16 +23,17 @@ function slotEntries(document: EditorDocument): Array<[string, EditorSlotInline]
   return entries;
 }
 
-function toFormulaValue(value: string | undefined, valueType?: string): FormulaValue | undefined {
+function toFormulaValue(value: string | undefined, valueType?: string, hour?: string): FormulaValue | undefined {
   if (value == null || value === "") return undefined;
+  if (valueType === "datetime") return `${value} ${String(hour || "0").padStart(2, "0")}:00`;
   if (valueType === "boolean") return value === "true" || value === "是" || value === "符合" || value === "符合要求" || value === "有" || value === "检出";
   const number = Number(value);
   return Number.isFinite(number) ? number : value;
 }
 
-function displayValue(value: FormulaValue | undefined) {
+function displayValue(value: FormulaValue | undefined, field?: FormulaField) {
   if (value == null) return "";
-  if (typeof value === "number") return Number.isFinite(value) ? String(Math.round(value * 10000) / 10000) : "";
+  if (typeof value === "number") return formatNumberValue(value, field);
   if (typeof value === "boolean") return value ? "符合" : "不符合";
   return String(value);
 }
@@ -72,17 +73,20 @@ function formulaFields(fieldModel: FieldModel, document: EditorDocument, values:
     const field = fields.get(fieldKey);
     const formula = formulas.get(fieldKey);
     const slot = slots.get(fieldKey);
+    const valueType = slot?.valueType ?? formula?.valueType ?? field?.valueType ?? inferredValueType(slot, field);
+    const valueKey = slot?.referenceFieldKey ?? fieldKey;
     return {
       fieldKey,
       label: slot?.label ?? field?.label ?? field?.name ?? fieldKey,
       aliases: aliases(fieldKey, field, formula, slot),
       formula: slot?.formulaText ?? formula?.formulaText ?? formula?.rule ?? field?.formula ?? null,
-      value: toFormulaValue(values[fieldKey], slot?.valueType ?? field?.valueType ?? inferredValueType(slot, field)),
-      valueType: slot?.valueType ?? field?.valueType ?? inferredValueType(slot, field),
+      value: toFormulaValue(values[valueKey], valueType, values[`${valueKey}_hour`]),
+      valueType,
       inputType: normalizedInputType(slot?.inputType ?? field?.inputType, slot?.options ?? field?.options),
-      numberFormat: slot?.numberFormat ?? field?.numberFormat,
+      numberFormat: slot?.numberFormat ?? formula?.numberFormat ?? field?.numberFormat,
+      precision: slot?.precision ?? formula?.precision ?? field?.precision,
       attr: field?.attr,
-      slotKind: slot?.slotKind ?? field?.slotKind,
+      slotKind: slot?.slotKind ?? formula?.slotKind ?? field?.slotKind,
     };
   });
 }
@@ -110,15 +114,48 @@ function computeValues(fieldModel: FieldModel, document: EditorDocument, values:
   const engine = createFormulaEngine();
   const result = engine.evaluate({
     model: { fields },
-    values: Object.fromEntries(fields.map((field) => [field.fieldKey, toFormulaValue(values[field.fieldKey], field.valueType)])),
+    values: Object.fromEntries(fields.map((field) => [field.fieldKey, field.value ?? toFormulaValue(values[field.fieldKey], field.valueType, values[`${field.fieldKey}_hour`])])),
     targetFieldKeys,
   });
   const next = { ...values };
+  const fieldByKey = new Map(fields.map((field) => [field.fieldKey, field]));
   for (const fieldKey of targetFieldKeys) {
-    const rendered = displayValue(result.values[fieldKey]);
+    const rendered = displayValue(result.values[fieldKey], fieldByKey.get(fieldKey));
     if (rendered) next[fieldKey] = rendered;
   }
   return next;
+}
+
+function formatNumberValue(value: number, field?: FormulaField) {
+  if (!Number.isFinite(value)) return "";
+  const precision = normalizedPrecision(field?.precision) ?? (field?.formula ? 4 : undefined);
+  if (precision === undefined) return String(value);
+  const rounded = applyNumberFormat(value, precision, field?.numberFormat);
+  return Object.is(rounded, -0) ? (0).toFixed(precision) : rounded.toFixed(precision);
+}
+
+function applyNumberFormat(value: number, precision: number, format?: string) {
+  const scale = 10 ** precision;
+  if (format === "ceil") return Math.ceil(value * scale) / scale;
+  if (format === "floor") return Math.floor(value * scale) / scale;
+  if (format === "truncate") return Math.trunc(value * scale) / scale;
+  if (format === "round_half_even") return roundHalfEven(value, precision);
+  return Math.round(value * scale) / scale;
+}
+
+function roundHalfEven(value: number, precision: number) {
+  const scale = 10 ** precision;
+  const scaled = value * scale;
+  const floor = Math.floor(scaled);
+  const diff = scaled - floor;
+  const epsilon = Number.EPSILON * Math.max(1, Math.abs(scaled)) * 8;
+  if (diff > 0.5 + epsilon) return (floor + 1) / scale;
+  if (diff < 0.5 - epsilon) return floor / scale;
+  return (floor % 2 === 0 ? floor : floor + 1) / scale;
+}
+
+function normalizedPrecision(value: unknown) {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= 10 ? value : undefined;
 }
 
 export function useEditorRuntimeFormulaEngine(fieldModel: FieldModel, document: EditorDocument, saved: EditorRuntimeValues = {}) {

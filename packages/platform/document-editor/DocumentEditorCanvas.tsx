@@ -25,6 +25,8 @@ import {
   ListOrdered,
   Palette,
   Pilcrow,
+  PrinterX,
+  CircleHelp,
   Rows3,
   SquareCheck,
   SquareDashedBottom,
@@ -46,7 +48,9 @@ import { Table } from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
+import { DocumentMetadataAttributes, selectionHasAnnotation, toggleAnnotationSelection } from "./annotation-extension";
 import { editorDocumentToTiptapJson, tiptapJsonToEditorDocument } from "./adapters";
+import { FormulaHelpDialog } from "./FormulaHelpDialog";
 import { PageBreakNode } from "./page-break-extension";
 import { DateSlot, FieldSlot, FormulaSlot, SignatureSlot } from "./slot-extensions";
 import { SlotInspector, collectFormulaDisplayTokens, collectReferenceTokens, type SelectedSlot, type SlotAnchor } from "./SlotInspector";
@@ -68,6 +72,7 @@ export default function DocumentEditorCanvas({
 }: DocumentEditorCanvasProps) {
   const [stickyHeaderOffset, setStickyHeaderOffset] = useState(DEFAULT_STICKY_HEADER_OFFSET);
   const [selectedSlot, setSelectedSlot] = useState<SelectedSlot | null>(null);
+  const [formulaHelpOpen, setFormulaHelpOpen] = useState(false);
   const serializedDocument = useMemo(() => JSON.stringify(editorDocumentToTiptapJson(document)), [document]);
   const referenceTokens = useMemo(() => collectReferenceTokens(document), [document]);
   const formulaTokens = useMemo(() => collectFormulaDisplayTokens(document, fieldModel), [document, fieldModel]);
@@ -83,6 +88,7 @@ export default function DocumentEditorCanvas({
       SubscriptExtension,
       SuperscriptExtension,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
+      DocumentMetadataAttributes,
       Table.configure({ resizable: true }),
       TableRow,
       TableHeader,
@@ -189,6 +195,7 @@ export default function DocumentEditorCanvas({
         <div className="flex min-h-14 flex-wrap items-center gap-3 pt-2">
           {renderStyleRibbon(editor, editable)}
           {renderInsertRibbon(editor, editable, document)}
+          {renderSpecialRibbon(editor, editable, () => setFormulaHelpOpen(true))}
         </div>
       </div>
       <div ref={editorScrollRef} className="relative overflow-auto px-4 py-5">
@@ -211,11 +218,13 @@ export default function DocumentEditorCanvas({
               "[&_.ProseMirror_th]:border [&_.ProseMirror_th]:border-slate-600 [&_.ProseMirror_th]:px-2 [&_.ProseMirror_th]:py-1 [&_.ProseMirror_th]:text-center [&_.ProseMirror_th]:align-middle",
               "[&_.ProseMirror_.resize-cursor]:cursor-col-resize",
               "[&_.selectedCell]:bg-sky-100",
+              "[&_.docs-editor-annotation]:box-decoration-clone [&_.docs-editor-annotation]:rounded-sm [&_.docs-editor-annotation]:bg-slate-100/75 [&_.docs-editor-annotation]:px-1.5 [&_.docs-editor-annotation]:-mx-1.5 [&_.docs-editor-annotation]:shadow-[inset_3px_0_0_rgba(100,116,139,0.45),0_1px_5px_rgba(15,23,42,0.10)] [&_.docs-editor-annotation]:outline [&_.docs-editor-annotation]:outline-1 [&_.docs-editor-annotation]:outline-dashed [&_.docs-editor-annotation]:outline-slate-300",
             ].join(" ")}
           />
         </div>
         <SlotInspector editor={editor} editable={editable} selectedSlot={selectedSlot} setSelectedSlot={setSelectedSlot} tokens={referenceTokens} formulaTokens={formulaTokens} fieldModel={fieldModel} getReferenceTokens={getCurrentReferenceTokens} getCurrentDocument={() => tiptapJsonToEditorDocument(editor.getJSON(), document)} />
       </div>
+      <FormulaHelpDialog open={formulaHelpOpen} onClose={() => setFormulaHelpOpen(false)} />
     </div>
   );
 }
@@ -273,8 +282,9 @@ function renderInsertRibbon(editor: NonNullable<ReturnType<typeof useEditor>>, e
     <>
       <ToolbarGroup label="插入">
         <ToolbarButton label="普通输入" disabled={!editable} onClick={() => insertSlot(editor, document, "fieldSlot", { alias: "i", label: "普通", slotKind: "plain", inputType: "text" })}><GlyphIcon>i</GlyphIcon></ToolbarButton>
-        <ToolbarButton label="输入 x" disabled={!editable} onClick={() => insertSlot(editor, document, "fieldSlot", { label: "输入", slotKind: "variable", inputType: "text", valueType: "number", numberFormat: "plain" })}><GlyphIcon>x</GlyphIcon></ToolbarButton>
-        <ToolbarButton label="输出 y" disabled={!editable} onClick={() => insertSlot(editor, document, "formulaSlot", { label: "输出", slotKind: "formula" })}><GlyphIcon>y</GlyphIcon></ToolbarButton>
+        <ToolbarButton label="输入 x" disabled={!editable} onClick={() => insertSlot(editor, document, "fieldSlot", { label: "输入", slotKind: "variable", inputType: "text", valueType: "number" })}><GlyphIcon>x</GlyphIcon></ToolbarButton>
+        <ToolbarButton label="参数 p" disabled={!editable} onClick={() => insertSlot(editor, document, "fieldSlot", { label: "参数", slotKind: "parameter", inputType: "text", valueType: "number", numberFormat: "plain", width: "0rem" })}><GlyphIcon>p</GlyphIcon></ToolbarButton>
+        <ToolbarButton label="输出 y" disabled={!editable} onClick={() => insertSlot(editor, document, "formulaSlot", { label: "输出", slotKind: "formula", valueType: "number", numberFormat: "round_half_even", precision: 4 })}><GlyphIcon>y</GlyphIcon></ToolbarButton>
         <ToolbarButton label="引用 z" disabled={!editable} onClick={() => insertSlot(editor, document, "formulaSlot", { label: "引用", slotKind: "reference" })}><GlyphIcon>z</GlyphIcon></ToolbarButton>
         <ToolbarButton label="单选框" disabled={!editable} onClick={() => insertSlot(editor, document, "fieldSlot", { alias: "i", label: "是否", slotKind: "choice", inputType: "radio", options: ["是", "否"] })}><CircleCheck size={16} strokeWidth={1.9} /></ToolbarButton>
         <ToolbarButton label="多选框" disabled={!editable} onClick={() => insertSlot(editor, document, "fieldSlot", { alias: "i", label: "多选", slotKind: "choice", inputType: "checkbox", options: ["选项1", "选项2"] })}><SquareCheck size={16} strokeWidth={1.9} /></ToolbarButton>
@@ -283,6 +293,19 @@ function renderInsertRibbon(editor: NonNullable<ReturnType<typeof useEditor>>, e
         <ToolbarButton label="分页占位符" disabled={!editable} onClick={() => insertPageBreak(editor)}><SquareDashedBottom size={16} strokeWidth={1.9} /></ToolbarButton>
       </ToolbarGroup>
     </>
+  );
+}
+
+function renderSpecialRibbon(editor: NonNullable<ReturnType<typeof useEditor>>, editable: boolean, onFormulaHelp: () => void) {
+  return (
+    <ToolbarGroup label="特殊">
+      <ToolbarButton label="公式说明" onClick={onFormulaHelp}>
+        <CircleHelp size={16} strokeWidth={1.9} />
+      </ToolbarButton>
+      <ToolbarButton label="注释" active={selectionHasAnnotation(editor)} disabled={!editable} onClick={() => toggleAnnotationSelection(editor)}>
+        <PrinterX size={16} strokeWidth={1.9} />
+      </ToolbarButton>
+    </ToolbarGroup>
   );
 }
 
@@ -330,9 +353,9 @@ function StackedIcon({ main, badge }: { main: ReactNode; badge: ReactNode }) {
   );
 }
 
-function GlyphIcon({ children }: { children: ReactNode }) {
+function GlyphIcon({ children, tone }: { children: ReactNode; tone?: "orange" }) {
   return (
-    <span className="inline-flex h-4 min-w-4 items-center justify-center font-serif text-[15px] font-semibold leading-none">
+    <span className={`inline-flex h-4 min-w-4 items-center justify-center font-serif text-[15px] font-semibold leading-none ${tone === "orange" ? "text-orange-700" : ""}`}>
       {children}
     </span>
   );
@@ -395,8 +418,10 @@ function insertSlot(editor: TiptapEditor, document: DocumentEditorCanvasProps["d
       inputType: nextAttrs.inputType,
       valueType: nextAttrs.valueType,
       numberFormat: nextAttrs.numberFormat,
+      precision: nextAttrs.precision,
       options: nextAttrs.options,
-      width: "3rem",
+      defaultValue: nextAttrs.defaultValue,
+      width: nextAttrs.width ?? "3rem",
       align: "center",
       display: type === "signatureSlot" || type === "dateSlot" ? "underline" : "box",
       metadata,

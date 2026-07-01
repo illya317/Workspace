@@ -1,12 +1,12 @@
 import path from "path";
-import { mkdir, readdir, readFile, rm, writeFile } from "fs/promises";
+import { access, mkdir, readdir, readFile, rm, writeFile } from "fs/promises";
 import { normalizeDocumentTemplatePayload } from "@workspace/platform/server/docs-editor";
 import { legacyQcToEditorDocument } from "./editor-adapter";
 import type {
   QcEditorConversionAudit,
   QcEditorConversionResult,
 } from "./editor-adapter-types";
-import { getQcTemplateDetailFromConfig } from "./record-structure";
+import { getQcTemplateDetailFromConfig, normalizeProductDisplayName } from "./record-structure";
 import type { QcTemplateDetail } from "./types";
 
 interface ProductAggregate {
@@ -218,7 +218,7 @@ async function readSourceInventory(configRoot: string, sourceSchemaRoot: string)
 }
 
 async function readProductSourceAudit(configRoot: string, sourceSchemaRoot: string, detail: QcTemplateDetail): Promise<ProductSourceRead> {
-  const mdPath = path.join(sourceSchemaRoot, "md_canonical", `${detail.productName}.md`);
+  const mdPath = await canonicalMdPathForProduct(sourceSchemaRoot, detail.productName);
   const canonicalRecordPath = path.join(sourceSchemaRoot, "records", `${detail.id}.json`);
   const runtimeRecordPath = path.join(configRoot, "records", `${detail.id}.json`);
   const canonicalFullPaths = stageKeys(detail).map((stageKey) => path.join(sourceSchemaRoot, "full", `${detail.id}_${stageKey}_full.json`));
@@ -255,6 +255,22 @@ async function readProductSourceAudit(configRoot: string, sourceSchemaRoot: stri
     },
     canonicalMdRaw: canonicalMdRead.raw,
   };
+}
+
+async function canonicalMdPathForProduct(sourceSchemaRoot: string, productName: string) {
+  const mdRoot = path.join(sourceSchemaRoot, "md_canonical");
+  const directPath = path.join(mdRoot, `${productName}.md`);
+  if (await pathExists(directPath)) return directPath;
+  const files = await readdir(mdRoot).catch(() => []);
+  const matchedFile = files.find((file) => {
+    if (!file.endsWith(".md")) return false;
+    return normalizeProductDisplayName(path.basename(file, ".md")) === productName;
+  });
+  return matchedFile ? path.join(mdRoot, matchedFile) : directPath;
+}
+
+async function pathExists(filePath: string) {
+  return access(filePath).then(() => true, () => false);
 }
 
 function buildProductAudit(

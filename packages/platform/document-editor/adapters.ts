@@ -263,6 +263,7 @@ function tiptapNodeToInline(node: TiptapNode): EditorInline | null {
       inputType: stringValue(attrs.inputType),
       valueType: stringValue(attrs.valueType),
       numberFormat: stringValue(attrs.numberFormat),
+      precision: numberValue(attrs.precision),
       options: Array.isArray(attrs.options) ? attrs.options.map(String) : undefined,
       placeholder: stringValue(attrs.placeholder),
       metadata: recordAttr(node, "metadata"),
@@ -312,6 +313,10 @@ function numberAttr(node: TiptapNode, key: string, fallback: number) {
   return typeof node.attrs?.[key] === "number" ? node.attrs[key] : fallback;
 }
 
+function numberValue(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
 function recordAttr(node: TiptapNode, key: string) {
   const value = node.attrs?.[key];
   return isRecord(value) ? value : undefined;
@@ -323,7 +328,7 @@ function recordOfStringArrays(value: unknown) {
 }
 
 function slotKindValue(value: unknown): EditorSlotInline["slotKind"] {
-  return value === "person" || value === "date" || value === "choice" || value === "plain" || value === "variable" || value === "formula" || value === "reference" ? value : undefined;
+  return value === "person" || value === "date" || value === "choice" || value === "plain" || value === "variable" || value === "parameter" || value === "formula" || value === "reference" ? value : undefined;
 }
 
 function normalizedSlotKind(type: string, attrs: Record<string, unknown>): EditorSlotInline["slotKind"] {

@@ -18,6 +18,7 @@ export interface QcPaperSlotPart {
   inputType?: string;
   valueType?: string;
   numberFormat?: string;
+  precision?: number;
   defaultValue?: string;
   defaultOffsetDays?: number;
   readonlyDisplay?: boolean;
@@ -101,11 +102,12 @@ export function QcPaperLineInput({
   onChange?: (value: string) => void;
   inTable?: boolean;
 }) {
-  const currentValue = value ?? part.defaultValue ?? "";
-  const error = qcRangeError(part, currentValue);
+  const rawValue = value ?? part.defaultValue ?? "";
+  const error = qcRangeError(part, rawValue);
   const baseClass = inTable ? "mx-0" : "mx-1";
   const readonlyClass = readOnly || part.readonlyDisplay ? "cursor-default text-slate-900" : "";
   const isReadOnly = readOnly || part.readonlyDisplay || !onChange;
+  const currentValue = isReadOnly ? formattedNumberValue(rawValue, part) : rawValue;
   if (part.multiline || part.inputType === "textarea") {
     return (
       <textarea
@@ -137,6 +139,35 @@ export function QcPaperLineInput({
       style={inputWidth(part)}
     />
   );
+}
+
+function formattedNumberValue(value: string, part: QcPaperSlotPart) {
+  const precision = part.precision;
+  if (part.valueType !== "number" || precision == null || !Number.isInteger(precision) || precision < 0 || precision > 10) return value;
+  const number = Number(String(value).trim());
+  if (!Number.isFinite(number)) return value;
+  const rounded = applyNumberFormat(number, precision, part.numberFormat);
+  return Object.is(rounded, -0) ? (0).toFixed(precision) : rounded.toFixed(precision);
+}
+
+function applyNumberFormat(value: number, precision: number, format?: string) {
+  const scale = 10 ** precision;
+  if (format === "ceil") return Math.ceil(value * scale) / scale;
+  if (format === "floor") return Math.floor(value * scale) / scale;
+  if (format === "truncate") return Math.trunc(value * scale) / scale;
+  if (format === "round_half_even") return roundHalfEven(value, precision);
+  return Math.round(value * scale) / scale;
+}
+
+function roundHalfEven(value: number, precision: number) {
+  const scale = 10 ** precision;
+  const scaled = value * scale;
+  const floor = Math.floor(scaled);
+  const diff = scaled - floor;
+  const epsilon = Number.EPSILON * Math.max(1, Math.abs(scaled)) * 8;
+  if (diff > 0.5 + epsilon) return (floor + 1) / scale;
+  if (diff < 0.5 - epsilon) return floor / scale;
+  return (floor % 2 === 0 ? floor : floor + 1) / scale;
 }
 
 export function QcPaperSelectInput({

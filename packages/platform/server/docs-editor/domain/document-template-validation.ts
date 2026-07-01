@@ -148,7 +148,7 @@ function sourceStageKeys(value: string[] | null | undefined) {
   return okCommand(JSON.stringify(normalized));
 }
 
-const referenceAliasPattern = /^[xy]\d+$/i;
+const referenceAliasPattern = /^[xyp]\d+$/i;
 
 type ReferenceCandidate = {
   alias: string;

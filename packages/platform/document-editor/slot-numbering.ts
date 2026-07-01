@@ -1,17 +1,18 @@
 import type { EditorDocument, EditorSlotInline } from "./types";
 
-export type NumberedSlotKind = "plain" | "choice" | "variable" | "formula" | "reference";
+export type NumberedSlotKind = "plain" | "choice" | "variable" | "parameter" | "formula" | "reference";
 
-const numberedPrefixes: Record<NumberedSlotKind, "i" | "x" | "y" | "z"> = {
+const numberedPrefixes: Record<NumberedSlotKind, "i" | "x" | "p" | "y" | "z"> = {
   plain: "i",
   choice: "i",
   variable: "x",
+  parameter: "p",
   formula: "y",
   reference: "z",
 };
 
 export function numberedSlotKind(value: unknown): NumberedSlotKind | null {
-  return value === "plain" || value === "choice" || value === "variable" || value === "formula" || value === "reference" ? value : null;
+  return value === "plain" || value === "choice" || value === "variable" || value === "parameter" || value === "formula" || value === "reference" ? value : null;
 }
 
 export function numberedSlotPrefix(kind: NumberedSlotKind) {
@@ -80,6 +81,7 @@ function effectiveNumberedKind(attrs: EditorSlotInline) {
   if (attrs.slotKind === "plain") return "plain";
   if (attrs.slotKind === "choice" || isOptionSlot(attrs)) return "choice";
   if (attrs.slotKind === "variable") return "variable";
+  if (attrs.slotKind === "parameter") return "parameter";
   if (attrs.slotKind === "formula" || attrs.type === "formulaSlot") return "formula";
   return attrs.slotKind;
 }

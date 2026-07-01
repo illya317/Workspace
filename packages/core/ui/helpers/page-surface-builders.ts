@@ -26,7 +26,6 @@ import type {
   PageSurfaceKind,
   PageSurfaceNavigationSpec,
   PageSurfaceProps,
-  PageSurfaceToolbarSpec,
 } from "../PageSurface.types";
 import type { VisualizationSurfaceProps } from "../VisualizationSurface";
 
@@ -54,7 +53,6 @@ type PageSectionCardOptions = PageSectionPanelOptions & {
 type PageSectionAnalysisOptions = NestedPageSections & {
   title: NonNullable<PageSectionPanelOptions["title"]>;
   actions?: BodySurfaceCommandSpec[];
-  toolbar?: PageSurfaceToolbarSpec;
   chrome?: BodySurfaceSectionChrome;
   framed?: boolean;
 };
@@ -315,13 +313,13 @@ export function createAnalysisSection(
   key: string,
   analysis: PageSectionAnalysisOptions,
 ): BodySurfaceSectionSpec {
-  const { actions, chrome, framed, layout = "stack", sections, title, toolbar } = analysis;
+  const { actions, chrome, framed, layout = "stack", sections, title } = analysis;
   return {
     key,
     label: title,
     chrome,
     framed,
-    header: { title, actions, toolbarItems: toolbar?.items },
+    header: { title, actions },
     body: { kind: "section", layout, sections },
   };
 }

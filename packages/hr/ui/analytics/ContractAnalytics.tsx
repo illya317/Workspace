@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createPageBody, createAnalysisSection, createSectionsSection, createMessageSection, createMetricsSection, PageSurface, type DataSurfaceColumnSpec, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createInlineFieldsSection, createSectionsSection, createMessageSection, createMetricsSection, PageSurface, type DataSurfaceColumnSpec, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { Contract } from "./useAnalyticsData";
 import { computeStats, enrichContracts, filterContracts, statusLabel, type EnrichedContract } from "./contract-helpers";
 
@@ -120,25 +120,27 @@ export function useContractAnalyticsSections({
       }),
       createAnalysisSection("expiry", {
         title: "合同到期预警",
-        toolbar: {
-          items: [
+        sections: [
+          createInlineFieldsSection("expiry-filters", [
             {
-              kind: "option-group",
               key: "status",
-              value: filter,
-              onChange: (key) => setFilter(key as typeof filter),
-              options: [
+              label: "状态",
+              spec: {
+                valueType: "string",
+                control: "choice",
+                options: { source: "static", mode: "dropdown", items: [
                 { value: "all", label: "全部" },
                 { value: "expiring30", label: "30天" },
                 { value: "expiring90", label: "90天" },
                 { value: "expired", label: "已到期" },
-              ],
+              ] },
+              },
+              value: filter,
+              onChange: (key) => setFilter(key as typeof filter),
             },
-            { kind: "search", key: "search", value: search, onChange: setSearch, placeholder: "搜索姓名、工号、公司..." },
-            { kind: "text", key: "meta", content: <>{filtered.length} 人</> },
-          ],
-        },
-        sections: [
+            { key: "search", label: "搜索", spec: { valueType: "string", control: "text" }, value: search, onChange: (value) => setSearch(String(value ?? "")), placeholder: "搜索姓名、工号、公司..." },
+            { kind: "readonly", key: "meta", label: "统计", value: <>{filtered.length} 人</>, variant: "plain" },
+          ]),
           {
             key: "expiry-table",
             body: { kind: "data", data: {

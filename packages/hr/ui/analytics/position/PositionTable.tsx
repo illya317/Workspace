@@ -1,6 +1,6 @@
 "use client";
 
-import { createPageBody, createAnalysisSection, PageSurface, type DataSurfaceColumnSpec, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, createAnalysisSection, createInlineFieldsSection, PageSurface, type DataSurfaceColumnSpec, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { EnrichedPosition, SortKey } from "./usePositionData";
 
 interface PositionTableBlockParams {
@@ -62,13 +62,12 @@ export function createPositionTableSection({
   ];
   return createAnalysisSection("positions", {
         title: "岗位明细",
-        toolbar: {
-          items: [
-            { kind: "search", key: "search", value: search, onChange: setSearch, placeholder: "搜索岗位名、编码、部门..." },
-            { kind: "text", key: "meta", content: <>共 {filtered.length} 个岗位</> },
-          ],
-        },
-        sections: [{
+        sections: [
+          createInlineFieldsSection("position-filters", [
+            { key: "search", label: "搜索", spec: { valueType: "string", control: "text" }, value: search, onChange: (value) => setSearch(String(value ?? "")), placeholder: "搜索岗位名、编码、部门..." },
+            { kind: "readonly", key: "meta", label: "统计", value: <>共 {filtered.length} 个岗位</>, variant: "plain" },
+          ]),
+          {
           key: "positions-table",
           body: { kind: "data", data: {
             kind: "table",

@@ -30,17 +30,17 @@ function renderBlock(block: EditorBlock, context: RenderContext, blockIndex: num
   const blockKey = block.id || `block-${blockIndex}`;
   if (block.type === "heading") {
     const Tag = block.level === 1 ? "h1" : block.level === 2 ? "h2" : block.level === 3 ? "h3" : "h4";
-    return <Tag key={blockKey} className={headingClassName(block)}>{block.text}</Tag>;
+    return <Tag key={blockKey} className={`${headingClassName(block)} ${annotationClassName(block.metadata)}`}>{block.text}</Tag>;
   }
   if (block.type === "paragraph") {
-    return <p key={blockKey} className={paragraphClassName(block)}>{block.parts.map((part, index) => renderInline(part, context, `${blockKey}:inline-${index}`))}</p>;
+    return <p key={blockKey} className={`${paragraphClassName(block)} ${annotationClassName(block.metadata)}`}>{block.parts.map((part, index) => renderInline(part, context, `${blockKey}:inline-${index}`))}</p>;
   }
   if (block.type === "attachment") {
-    return <p key={blockKey} className="min-h-7"><strong>{block.title}</strong>：{block.text}</p>;
+    return <p key={blockKey} className={`min-h-7 ${annotationClassName(block.metadata)}`}><strong>{block.title}</strong>：{block.text}</p>;
   }
   if (block.type === "pageBreak") {
     return (
-      <div key={blockKey} className="my-5 flex items-center gap-3 text-[11px] font-medium text-slate-400">
+      <div key={blockKey} className={`my-5 flex items-center gap-3 text-[11px] font-medium text-slate-400 ${annotationClassName(block.metadata)}`}>
         <span className="h-px flex-1 border-t border-dashed border-slate-300" />
         <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5">分页</span>
         <span className="h-px flex-1 border-t border-dashed border-slate-300" />
@@ -48,7 +48,7 @@ function renderBlock(block: EditorBlock, context: RenderContext, blockIndex: num
     );
   }
   return (
-    <table key={blockKey} className="my-4 w-full table-fixed border-collapse text-[14px] leading-7">
+    <table key={blockKey} className={`my-4 w-full table-fixed border-collapse text-[14px] leading-7 ${annotationClassName(block.metadata)}`}>
       {block.columnWidths?.length ? (
         <colgroup>
           {block.columnWidths.map((width, index) => <col key={`${blockKey}:col-${index}`} style={{ width }} />)}
@@ -65,7 +65,7 @@ function renderBlock(block: EditorBlock, context: RenderContext, blockIndex: num
                   key={cellKey}
                   colSpan={cell.colspan}
                   rowSpan={cell.rowspan}
-                  className={`border border-slate-500 px-2 py-1 text-center align-middle ${cell.bold || cell.header ? "font-semibold" : "font-normal"} ${cell.isEmpty ? "text-transparent" : ""} ${cell.className || ""}`}
+                  className={`border border-slate-500 px-2 py-1 text-center align-middle ${cell.bold || cell.header ? "font-semibold" : "font-normal"} ${cell.isEmpty ? "text-transparent" : ""} ${cell.className || ""} ${annotationClassName(cell.metadata)}`}
                   style={{ textAlign: cellTextAlign(cell.align), width: cell.width }}
                 >
                   {cell.parts.map((part, index) => renderInline(part, { ...context, inTable: true }, `${cellKey}:inline-${index}`))}
@@ -92,13 +92,13 @@ function paragraphClassName(block: Extract<EditorBlock, { type: "paragraph" }>) 
 }
 
 function renderInline(part: EditorInline, context: RenderContext, key: string) {
-  if (part.type === "text") return <span key={key}>{part.bold || part.marks?.bold ? <strong>{part.text}</strong> : part.text}</span>;
+  if (part.type === "text") return <span key={key} className={annotationClassName(part.metadata)}>{part.bold || part.marks?.bold ? <strong>{part.text}</strong> : part.text}</span>;
   const value = part.fieldKey ? context.values[part.fieldKey] : undefined;
   const customSlot = context.renderSlot?.({ part, value, key, inTable: context.inTable });
-  if (customSlot != null) return <span key={key}>{customSlot}</span>;
+  if (customSlot != null) return <span key={key} className={annotationClassName(part.metadata)}>{customSlot}</span>;
   if (isChoiceSlot(part)) {
     return (
-      <span key={key} title={slotTitle(part)} className="inline-block whitespace-nowrap text-slate-950 align-baseline">
+      <span key={key} title={slotTitle(part)} className={`inline-block whitespace-nowrap text-slate-950 align-baseline ${annotationClassName(part.metadata)}`}>
         {part.options.map((option) => (
           <span key={`${key}:${option}`} className="mr-6 inline-block whitespace-nowrap last:mr-0">
             {choiceMark(value, option)}{option}
@@ -108,12 +108,14 @@ function renderInline(part: EditorInline, context: RenderContext, key: string) {
     );
   }
   const label = value == null || value === "" ? visibleSlotLabel(part) : String(value);
+  const width = cssSlotWidth(part.width);
+  const autoWidth = width === "auto";
   return (
     <span
       key={key}
       title={slotTitle(part)}
-      className="mx-1 inline-block max-w-full overflow-hidden whitespace-nowrap border-b border-slate-500 px-1 leading-[1.25] text-slate-700 align-baseline"
-      style={{ width: `min(${cssSlotWidth(part.width)}, 100%)`, maxWidth: "100%", textAlign: slotTextAlign(part.align) }}
+      className={`mx-1 inline-block max-w-full overflow-hidden whitespace-nowrap px-1 leading-[1.25] text-slate-700 align-baseline ${autoWidth ? "border-b-0" : "border-b border-slate-500"} ${annotationClassName(part.metadata)}`}
+      style={{ width: autoWidth ? "auto" : `min(${width}, 100%)`, maxWidth: "100%", textAlign: slotTextAlign(part.align) }}
     >
       {label}
     </span>
@@ -146,6 +148,7 @@ function cellTextAlign(value: string | undefined): CSSProperties["textAlign"] {
 }
 
 function cssSlotWidth(value: string | number | undefined) {
+  if (value === 0 || value === "0" || value === "0rem") return "auto";
   if (typeof value === "number" && Number.isFinite(value)) return `${value}px`;
   if (typeof value === "string" && value.trim()) return value.trim();
   return "3rem";
@@ -161,6 +164,8 @@ function technicalToken(value: unknown) {
 
 function visibleSlotLabel(part: Extract<EditorInline, { fieldKey: string }>) {
   const alias = part.alias?.trim();
+  const defaultValue = part.defaultValue?.trim();
+  if (defaultValue) return defaultValue;
   if (alias) return alias;
   const label = part.label?.trim();
   if (label && !technicalToken(label)) return label;
@@ -171,4 +176,19 @@ function visibleSlotLabel(part: Extract<EditorInline, { fieldKey: string }>) {
 
 function slotTitle(part: Extract<EditorInline, { fieldKey: string }>) {
   return [part.label, part.fieldKey].filter(Boolean).join(" · ");
+}
+
+function annotationClassName(value: unknown) {
+  return metadataAnnotation(value)
+    ? "box-decoration-clone rounded-sm bg-slate-100/75 px-1.5 -mx-1.5 shadow-[inset_3px_0_0_rgba(100,116,139,0.45),0_1px_5px_rgba(15,23,42,0.10)] outline outline-1 outline-dashed outline-slate-300 print:hidden"
+    : "";
+}
+
+function metadataAnnotation(value: unknown) {
+  return Boolean(
+    value
+    && typeof value === "object"
+    && !Array.isArray(value)
+    && (("annotation" in value && value.annotation === true) || ("noPrint" in value && value.noPrint === true)),
+  );
 }

@@ -18,6 +18,7 @@ export interface FormulaField {
   valueType?: string;
   inputType?: string;
   numberFormat?: string;
+  precision?: number;
   attr?: string;
 }
 

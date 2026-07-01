@@ -305,16 +305,44 @@ export async function getQcTemplateDetailFromConfig(templateId: string): Promise
   if (!Object.keys(product).length) {
     throw new Error("QC product template not found");
   }
-  const stages = await Promise.all(Object.values(asRecord(product.stages)).map((stage) => toStage(source.configRoot, templateId, stage)));
+  const rawProductName = asString(product.name, templateId);
+  const productName = normalizeProductDisplayName(rawProductName);
+  const rawStages = await Promise.all(Object.values(asRecord(product.stages)).map((stage) => toStage(source.configRoot, templateId, stage)));
+  const stages = normalizeProductNameOccurrences(rawStages, rawProductName, productName) as QcTemplateStage[];
   const methodRefs = new Set(stages.flatMap((stage) => stage.tests.map((test) => test.methodFile).filter(Boolean)));
 
   return {
     source,
     id: templateId,
     fileName: `${templateId}.json`,
-    productName: asString(product.name, templateId),
+    productName,
     stages,
     methodFileCount: methodRefs.size,
     layoutAssignmentCount: stages.reduce((sum, stage) => sum + stage.tests.length, 0),
   };
+}
+
+export function normalizeProductDisplayName(value: string) {
+  return value
+    .replace(/([\u3400-\u9fff])\s+(肠溶片|注射液|胶囊|胶丸|颗粒|片|丸|散)/gu, "$1$2")
+    .trim();
+}
+
+function normalizeProductNameOccurrences(value: unknown, rawName: string, normalizedName: string): unknown {
+  if (!rawName || rawName === normalizedName) return value;
+  if (typeof value === "string") return replaceProductName(value, rawName, normalizedName);
+  if (Array.isArray(value)) return value.map((item) => normalizeProductNameOccurrences(item, rawName, normalizedName));
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, normalizeProductNameOccurrences(item, rawName, normalizedName)]));
+  }
+  return value;
+}
+
+function replaceProductName(value: string, rawName: string, normalizedName: string) {
+  const pattern = rawName.split(/\s+/).map(escapeRegExp).join("\\s+");
+  return value.replace(new RegExp(pattern, "g"), normalizedName);
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
