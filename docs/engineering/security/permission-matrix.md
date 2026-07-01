@@ -33,6 +33,7 @@
 | `settings.account.apiAccess` | `visibleResourceKeys` | access（个人 API Key 使用能力） |
 | `settings.api.manage` | `visibleWriteResourceKeys` | access, create, write, delete, revise, admin（Client 创建、secret 轮换、scope 授权；`runtimeParentKey=settings.api`） |
 | `docs` | `visibleResourceKeys` | access（登录用户默认有效，并继承到普通 L2；不包含 capability） |
+| `docs.company` / `docs.expense` | `visibleResourceKeys` | access, admin（静态文档页，无业务 API） |
 | `library.basicInfo` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, archive, import, export, admin（资料元数据编辑、软归档、扫描/生成入库、下载导出） |
 | `agent` | `visibleResourceKeys` | access |
 
