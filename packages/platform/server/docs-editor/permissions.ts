@@ -1,10 +1,17 @@
 import "server-only";
 
+import type { PermissionActionKey } from "@workspace/platform/permission-actions";
 import { authorize } from "../auth/authorize";
 import { isRootAdminUser } from "../auth/root";
-import { getDepartmentNaturalSpaceRole } from "../business-space-permissions";
+import {
+  businessSpaceScopeId,
+  getCompanyNaturalSpaceRole,
+  getDepartmentNaturalSpaceRole,
+  getOperatingCommitteeNaturalSpaceRole,
+} from "../business-space-permissions";
 import { currentOpenEndedDateWhere } from "../fk-registry";
 import { prisma } from "../prisma";
+import { evaluatePermissionAction } from "../rbac/action-grants";
 import {
   businessSpaceRoleAllows,
   maxBusinessSpaceRole,
@@ -16,6 +23,7 @@ import type {
 } from "./db";
 import type {
   DocsEditorPermissionRole,
+  DocsEditorSpaceActionPermissions,
   DocsEditorSpaceKind,
 } from "./types";
 import {
@@ -69,6 +77,70 @@ export async function hasDocsEditorAdmin(userId: number) {
     resourceKey: "docs.editor",
     action: "admin",
   });
+}
+
+export function docsEditorScopeId(space: { targetType: string; targetId: number }) {
+  return businessSpaceScopeId(normalizeDocsEditorTargetType(space.targetType), space.targetId);
+}
+
+async function hasDocsEditorScopedAction(
+  userId: number,
+  space: { targetType: string; targetId: number },
+  actionKey: PermissionActionKey,
+) {
+  return evaluatePermissionAction(userId, "docs.editor", actionKey, {
+    scopeId: docsEditorScopeId(space),
+  });
+}
+
+export async function getDocsEditorScopedActionPermissions(
+  userId: number,
+  space: { targetType: string; targetId: number },
+): Promise<DocsEditorSpaceActionPermissions> {
+  const [role, canCreate, canWrite, canDelete, canExport, canAdmin] = await Promise.all([
+    resolveSpaceRole(userId, space as DocsEditorSpaceRow),
+    hasDocsEditorScopedAction(userId, space, "create"),
+    hasDocsEditorScopedAction(userId, space, "write"),
+    hasDocsEditorScopedAction(userId, space, "delete"),
+    hasDocsEditorScopedAction(userId, space, "export"),
+    hasDocsEditorScopedAction(userId, space, "admin"),
+  ]);
+  return {
+    canCreate: isDocsEditorRoleAtLeast(role, "editor") || canCreate || canWrite || canDelete || canAdmin,
+    canWrite: isDocsEditorRoleAtLeast(role, "editor") || canWrite || canDelete || canAdmin,
+    canDelete: isDocsEditorRoleAtLeast(role, "delete") || canDelete || canAdmin,
+    canExport: isDocsEditorRoleAtLeast(role, "viewer") || canExport || canAdmin,
+  };
+}
+
+export async function canCreateDocsEditorTemplateAction(
+  userId: number,
+  space: DocsEditorSpaceRow,
+  role?: DocsEditorPermissionRole | null,
+) {
+  const actualRole = role ?? await resolveSpaceRole(userId, space);
+  return isDocsEditorRoleAtLeast(actualRole, "editor") ||
+    await hasDocsEditorScopedAction(userId, space, "create");
+}
+
+export async function canWriteDocsEditorTemplateAction(
+  userId: number,
+  space: DocsEditorSpaceRow,
+  role?: DocsEditorPermissionRole | null,
+) {
+  const actualRole = role ?? await resolveSpaceRole(userId, space);
+  return isDocsEditorRoleAtLeast(actualRole, "editor") ||
+    await hasDocsEditorScopedAction(userId, space, "write");
+}
+
+export async function canDeleteDocsEditorTemplateAction(
+  userId: number,
+  space: DocsEditorSpaceRow,
+  role?: DocsEditorPermissionRole | null,
+) {
+  const actualRole = role ?? await resolveSpaceRole(userId, space);
+  return isDocsEditorRoleAtLeast(actualRole, "delete") ||
+    await hasDocsEditorScopedAction(userId, space, "delete");
 }
 
 export async function getUserDepartmentContexts(userId: number): Promise<DepartmentContext[]> {
@@ -194,11 +266,12 @@ export async function getDocsEditorSpaceRole(
   targetId: number,
 ): Promise<DocsEditorPermissionRole | null> {
   const targetType = normalizeDocsEditorTargetType(targetTypeInput);
-  const [natural, explicit] = await Promise.all([
+  const [natural, explicit, actionRole] = await Promise.all([
     naturalDocsEditorSpaceRole(userId, targetType, targetId),
     explicitDocsEditorSpaceRole(userId, targetType, targetId),
+    scopedActionDocsEditorSpaceRole(userId, targetType, targetId),
   ]);
-  return asDocsRole(maxBusinessSpaceRole(natural, explicit));
+  return asDocsRole(maxBusinessSpaceRole(maxBusinessSpaceRole(natural, explicit), actionRole));
 }
 
 export async function resolveSpaceRole(
@@ -283,8 +356,8 @@ export function docsEditorPermissionKind() {
   return DOCS_EDITOR_PERMISSION_KIND;
 }
 
-function normalizeDocsEditorTargetType(value: string): DocsEditorSpaceTargetType {
-  if (value === "company" || value === "department" || value === "personal") return value;
+export function normalizeDocsEditorTargetType(value: string): DocsEditorSpaceTargetType {
+  if (value === "company" || value === "committee" || value === "department" || value === "personal") return value;
   return "department";
 }
 
@@ -303,6 +376,26 @@ async function explicitDocsEditorSpaceRole(
   }, null);
 }
 
+async function scopedActionDocsEditorSpaceRole(
+  userId: number,
+  targetType: DocsEditorSpaceTargetType,
+  targetId: number,
+): Promise<DocsEditorPermissionRole | null> {
+  const space = { targetType, targetId };
+  const [admin, deleteRole, write, create, access, exportRole] = await Promise.all([
+    hasDocsEditorScopedAction(userId, space, "admin"),
+    hasDocsEditorScopedAction(userId, space, "delete"),
+    hasDocsEditorScopedAction(userId, space, "write"),
+    hasDocsEditorScopedAction(userId, space, "create"),
+    hasDocsEditorScopedAction(userId, space, "access"),
+    hasDocsEditorScopedAction(userId, space, "export"),
+  ]);
+  if (admin) return "manager";
+  if (deleteRole) return "delete";
+  if (write || create) return "editor";
+  return access || exportRole ? "viewer" : null;
+}
+
 async function naturalDocsEditorSpaceRole(
   userId: number,
   targetType: DocsEditorSpaceTargetType,
@@ -315,7 +408,8 @@ async function naturalDocsEditorSpaceRole(
     return asDocsRole(await getDepartmentNaturalSpaceRole(userId, targetId));
   }
 
-  if (targetType === "company") return "viewer";
+  if (targetType === "company") return asDocsRole(await getCompanyNaturalSpaceRole(userId));
+  if (targetType === "committee") return asDocsRole(await getOperatingCommitteeNaturalSpaceRole(userId));
 
   return null;
 }

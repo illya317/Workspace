@@ -42,6 +42,15 @@
 
 优先级：直接授权 > 岗位继承 > 部门继承。内置 `admin` 账号是 root identity，不属于 RBAC 授权对象。
 
+## RBAC 管理员 vs 空间天然管理员
+
+RBAC resource admin 和业务空间 manager 是两套语义，不能互相推导。
+
+- `UserResourceRole` / `PositionResourceRole` / `DepartmentResourceRole` 的 `admin` 表示该 resource 及子 resource 的授权管理能力。
+- `Department.managerPositionId` 只表示部门负责人岗位；该岗位下在职人员是**部门空间**天然 manager，不因此获得 `hr`、`settings.admin` 或任意 L1/L2 resource admin。
+- 公司空间的“行政负责人”、运营委员会空间的“执行总裁/董事长”、个人空间的“本人”也是空间天然 manager，只参与对应空间对象的权限计算。
+- 空间天然权限与 scoped action grant 取最大值后折算为空间角色；旧空间 role 表只作为兼容来源读取。
+
 ## 资源树
 
 ```
@@ -94,9 +103,6 @@ external            access  外部关系
 work                admin   工作管理
   work.projects      admin   项目
   work.tasks         admin   工作计划
-
-work.projects.createOrg write  创建组织级项目（独立资源，runtimeParentKey=work.projects）
-work.projects.viewAll access 项目全局查看（独立资源，runtimeParentKey=work.projects）
 ```
 
 每行末尾是该资源的 `maxRoleKey`（可授予的最高角色）。
@@ -152,6 +158,7 @@ checkPermission(userId, resourceKey, roleKey)
   → capability?
     → owner L1/L2 未授权或已禁用 → false
   → DB 查 Resource
+  → 取该 Resource 及 DB parent 链所有祖先资源（父资源 grant 覆盖子资源）
   → maxRoleKey 运行时截断（超过上限 → false）
   → resolveRoleKeys(roleKey): admin→[admin,delete,write,access], delete→[admin,delete], ...
   → 查 UserResourceRole（直接授权）
@@ -162,7 +169,9 @@ checkPermission(userId, resourceKey, roleKey)
 
 ## Resource Action Policy
 
-新权限动作的资源映射由 `@workspace/platform/permission-resource-policy` 维护。该 catalog 只说明某个 `resourceKey` 支持哪些 action、哪些 action 可以从祖先资源继承、哪些高风险 action 必须在当前资源或 capability 上显式授权。
+新权限动作的资源映射由 `@workspace/platform/permission-resource-policy` 维护。该 catalog 只说明某个 `resourceKey` 支持哪些细粒度 action、权限矩阵如何显示/授予 scoped action grant、哪些 action 在新动作层需要显式授权。
+
+旧四级 RBAC 角色仍按 DB `parentId` 链继承：父资源 `admin/delete/write/access` grant 覆盖子资源。不要用 `permission-resource-policy` 的 `ancestorInheritedActions` 反向收紧旧四级 RBAC 继承。
 
 页面和 API 的实际授权分两层执行：
 
@@ -170,6 +179,17 @@ checkPermission(userId, resourceKey, roleKey)
 - `@workspace/platform/permission-api-action-policy` 是 API 新动作注册表，只登记需要覆盖默认基础动作或需要额外业务动作的端点。`api-registry` 会把它解析成 `additionalAction`，例如导入是 `import`、QC 提交是 `submit`、审批确认是 `approve`、归档/恢复/导出是 `archive/revise/export`。
 
 `requireApiAccess()` 先检查 `baseAction`，再检查 `additionalAction`。route 文件不得直接调用 `evaluatePermissionAction()`；新增动作必须先出现在 `permission-resource-policy` 的 resource 支持清单中，再在 `permission-api-action-policy` 登记 API 端点，由 gate 统一校验。普通请求形状仍在 route 的 Zod schema 处理，业务可写字段、状态、FK、归属和跨字段规则仍按 `Zod -> domain validator -> service/Prisma` 链路处理。
+
+## 空间权限注册
+
+空间权限注册对齐普通权限的四件套，但对象范围独立于全局 RBAC：APP（默认挂 L3）+ API + 空间权限 + RESOURCE。
+
+- 注册入口是 `packages/platform/module-registry.ts` 的 `spaceRegistrations`，读取入口是 `@workspace/platform/space-registry`。
+- `resourceKey` 仍指向全局 L2/L3 resource，例如 `work.tasks`、`work.projects`、`docs.editor`；页面/API 入口先过全局 resource access。
+- `targetTypes` 声明支持的空间对象：`personal`、`department`、`committee`、`company`、`project`。
+- 默认空间角色：个人空间本人天然 `manager`；部门、运营委员会、公司空间默认 `viewer`，并支持 scoped action grant 单独调整。
+- 天然 manager 来源必须在注册项 `naturalManagerSources` 声明：部门空间是 `Department.managerPositionId` 对应岗位在职人员；运营委员会空间是执行总裁/董事长；公司空间是行政负责人/董事长。
+- 新增空间时不得在 `server/space-registry.ts` 硬编码 APP/API/resource；必须补 `spaceRegistrations`，再由业务 service 实现对应自然权限和权限 API。
 
 ## 表结构（当前）
 
@@ -250,24 +270,24 @@ model DepartmentResourceActionGrant {
 
 工作模块（汇报/工作计划）的数据访问不走 scope RBAC，改用业务规则 + 指派表。
 
-模块 disabled 优先于所有业务对象权限：`work` disabled 后 `/work` 及子页面、`/api/modules/work/*`、Work FK 目标和 Work 资源均不可用；`work.projects` disabled 后项目入口、项目页面、项目 API、项目 FK 和 `work.projects.viewAll` 一起失效。
+模块 disabled 优先于所有业务对象权限：`work` disabled 后 `/work` 及子页面、`/api/modules/work/*`、Work FK 目标和 Work 资源均不可用；`work.projects` disabled 后项目入口、项目页面、项目 API 和项目 FK 一起失效。
 
 ### 项目资料（/work/projects）
 
-项目资料使用对象级权限，不使用模块权限放大全量项目范围。`work.projects.access` 只表示可以进入项目功能和发起普通项目；`work.projects.write` 不再作为组织级项目创建开关。运营委员会项目创建必须显式授予 `work.projects.createOrg.write`，部门项目创建由目标部门负责人自然权限控制。查看全部项目必须显式授予 `work.projects.viewAll`，root admin 例外。
+项目资料使用对象级权限和项目空间权限，不使用模块权限放大全量项目范围。`work.projects.access` 只表示可以进入项目功能和发起普通项目；`work.projects.write/admin` 不代表查看全部项目或创建运营委员会项目。部门项目创建由目标部门空间 manager/create 控制；运营委员会项目由运营委员会空间 manager/create 控制。
 
 | 能力 | 来源 |
 |------|------|
-| 可查看 | 创建人、主导部门负责人、项目 RASCI 成员、`work.projects.viewAll`、root admin |
-| 可编辑内容 | 可管理者、项目执行负责/支持协作等编辑角色、root admin |
-| 可管理 | 创建人、主导部门负责人、项目负责人/负责人、root admin |
-| 可删除 | 创建人、主导部门负责人、项目负责人/负责人 |
+| 可查看 | 创建人、主导部门负责人、项目 RASCI 成员、项目对象 scoped grant、所属项目空间 scoped grant、root admin |
+| 可编辑内容 | 可管理者、项目执行负责/支持协作等编辑角色、项目对象/空间 write/create/revise、root admin |
+| 可管理 | 创建人、主导部门负责人、项目负责人/负责人、项目对象/空间 admin、root admin |
+| 可删除 | 创建人、主导部门负责人、项目负责人/负责人、项目对象/空间 delete/admin |
 | 创建普通项目 | 在职员工 + `work.projects.access` |
-| 创建部门项目 | 目标部门负责人或 root admin |
-| 创建运营委员会项目 | 显式 `work.projects.createOrg.write` 或 root admin |
-| 查看全部 | 显式 `work.projects.viewAll` 或 root admin |
+| 创建部门项目 | 目标部门空间 manager/create |
+| 创建运营委员会项目 | 运营委员会空间 manager/create |
+| 查看全部 | root admin |
 
-`editedBy` 仅用于审计最近编辑人，不代表项目所有权、管理权或可见性。`work.projects.viewAll` 和 `work.projects.createOrg` 不设置 `parentKey`，避免继承 `work.projects` 模块权限；它们通过 `runtimeParentKey: "work.projects"` 随项目模块启停。
+`editedBy` 仅用于审计最近编辑人，不代表项目所有权、管理权或可见性。
 
 ### 规则
 
@@ -295,8 +315,8 @@ work.tasks.admin   → 管理所有工作计划
 ```
 
 权限矩阵中 `work.tasks` 的访问、编辑、删除列可来自默认规则；直接、岗位、部门授权仍作为额外来源叠加显示。
-数据访问（谁能看/写某个部门或项目）由业务规则决定：成员关系 + 指派人表。
-不再对每个部门/项目做 scope 授权。
+空间权限矩阵使用 scoped action grant 表达个人/部门/公司/运营委员会空间里的完整新动作，Work service 会把这些 scoped action 折算为空间角色并参与任务空间和项目空间业务 guard。
+成员关系、负责人岗位、指派人表仍作为自然权限来源；旧空间 role 表只作为兼容来源读取。
 
 ## 版本历史
 

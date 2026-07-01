@@ -29,10 +29,8 @@
 | `external` | `visibleResourceKeys` | access, admin（占位容器，无业务 API） |
 | `external.investors/customers/suppliers` | `visibleResourceKeys` | access, admin（规划中页面，无业务 API） |
 | `work` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access（登录用户默认有效，并继承到普通 L2；不包含 capability）, write, delete, admin |
-| `work.projects` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin（模块门禁，不放大对象范围） |
-| `work.projects.createOrg` | `visibleWriteResourceKeys` | write（创建运营委员会项目；独立 capability，`runtimeParentKey=work.projects`） |
-| `work.projects.viewAll` | `visibleResourceKeys` | access（独立全量可见资源，`runtimeParentKey=work.projects`） |
-| `work.tasks` | `visibleResourceKeys` / `visibleWriteResourceKeys` | delete（登录用户默认有效；访问/编辑/删除列显示为默认规则）, admin |
+| `work.projects` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, revise, admin（模块门禁，不放大对象范围） |
+| `work.tasks` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, archive, admin |
 | `work.meetings` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, submit, approve, admin（投票提交/关闭表决拆分） |
 | `settings` | `visibleResourceKeys` | access, admin |
 | `settings.account` | `visibleResourceKeys` | access（登录用户默认有效） |
@@ -43,9 +41,24 @@
 | `settings.api.manage` | `visibleWriteResourceKeys` | access, create, write, delete, revise, admin（Client 创建、secret 轮换、scope 授权；`runtimeParentKey=settings.api`） |
 | `docs` | `visibleResourceKeys` | access（登录用户默认有效，并继承到普通 L2；不包含 capability） |
 | `docs.company` / `docs.expense` | `visibleResourceKeys` | access, admin（静态文档页，无业务 API） |
+| `docs.editor` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, export, admin（模板增删改复制；DOCX 导出为前端本地生成） |
 | `library` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, admin |
 | `library.basicInfo` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, archive, import, export, admin（资料元数据编辑、软归档、扫描/生成入库、下载导出） |
 | `agent` | `visibleResourceKeys` | access |
+
+## 空间权限注册
+
+有对象范围的权限统一由 `packages/platform/module-registry.ts` 的 `spaceRegistrations` 注册 APP/API/空间权限/RESOURCE，再在 `packages/platform/permission-resource-policy.ts` 声明 `scopeTypes` 和 `scopeInheritanceMode`，由 `scripts/seed-resources.ts` 同步到 `Resource.scopeTypes` / `Resource.scopeInheritanceMode`。这一步只是声明“这个 resource 可以按哪些范围授权”，不替代业务 API guard，也不自动放大对象可见范围。
+
+| 资源 key | APP | 权限 API | 支持范围 | 默认/天然权限 |
+|----------|-----|----------|----------|---------------|
+| `work.tasks` | `work.tasks` L3 | `/api/modules/work/tasks/spaces/:targetType/:targetId/permissions` | `personal`, `department`, `committee`, `company`, `project` | 个人本人 manager；部门/运营委员会/公司默认 viewer；部门负责人、执行总裁/董事长、行政负责人/董事长是对应空间天然 manager |
+| `work.projects` | `work.projects` L3 | `/api/modules/work/projects/spaces/:targetType/:targetId/permissions` | `personal`, `department`, `committee`, `company` | 同上；项目对象服务继续执行项目自身对象级规则 |
+| `docs.editor` | `docs.editor` L3 | `/api/modules/docs/editor/spaces/:docsSpaceId/permissions` | `personal`, `department`, `committee`, `company` | 同上；模板空间先解析具体 docs space id |
+
+`scopeId` 仍是持久化用的 opaque key；新增 scoped grant 时优先使用 `<scopeType>:<id>` 约定，例如 `department:12`、`company:1`。`self_only` 表示该 scoped grant 只解释当前 resource 自己的 scope，不从父 resource scope 静默继承。空间权限新 UI 写 `UserResourceActionGrant`；旧 `WorkScopePermission` / `DocumentTemplateSpacePermission` 只作为兼容来源读取，不作为新 UI 写入目标。
+
+空间天然 manager 不是 RBAC resource admin：`Department.managerPositionId` 只让岗位在职人员管理对应部门空间，不授予 `hr.*`、`settings.admin` 或任何 L1/L2 resource admin。
 
 ## 页面 Guard
 
@@ -88,6 +101,9 @@
 | `/api/modules/hr/roster/*` | GET | `hr.roster.access` |
 | `/api/modules/hr/roster/*` | POST/PUT/PATCH | `hr.roster.write` |
 | `/api/modules/hr/roster/*` | DELETE | `hr.roster.delete` |
+| `/api/modules/hr/roster/departments/[id]/archive` | POST | `hr.roster.access` + `hr.roster.archive` |
+| `/api/modules/hr/roster/positions/[id]/archive` | POST | `hr.roster.access` + `hr.roster.archive` |
+| `/api/modules/hr/roster/audit-log/restore` | POST | `hr.roster.access` + `hr.roster.revise` |
 | `/api/modules/finance/ledger/accounts*` | GET | `finance.ledger.access` |
 | `/api/modules/finance/ledger/accounts` | POST | `finance.ledger.access` + `finance.ledger.create` |
 | `/api/modules/finance/ledger/accounts/[id]` | PUT | `finance.ledger.write` |
@@ -103,9 +119,6 @@
 | `/api/modules/finance/ledger/periods` | POST | `finance.ledger.access` + `finance.ledger.create` |
 | `/api/modules/finance/ledger/periods/[id]` | PUT/DELETE | `finance.ledger.write/delete` |
 | `/api/modules/finance/ledger/init` | POST | `finance.ledger.access` + `finance.ledger.create` |
-| `/api/modules/hr/roster/departments/[id]/archive` | POST | `hr.roster.access` + `hr.roster.archive` |
-| `/api/modules/hr/roster/positions/[id]/archive` | POST | `hr.roster.access` + `hr.roster.archive` |
-| `/api/modules/hr/roster/audit-log/restore` | POST | `hr.roster.access` + `hr.roster.revise` |
 | `/api/modules/finance/ledger/reclass-rules` | GET | `finance.ledger.access` |
 | `/api/modules/finance/ledger/reclass-rules` | PUT | `finance.ledger.access` + `finance.ledger.revise` |
 | `/api/modules/finance/ledger/reclass-rules/[id]` | DELETE | `finance.ledger.access` + `finance.ledger.revise` |
@@ -143,12 +156,38 @@
 | `/api/modules/administration/contracts` | POST | `administration.contracts.create` |
 | `/api/modules/administration/contracts/[id]` | PATCH | `administration.contracts.write` |
 | `/api/modules/administration/contracts*` | DELETE | `administration.contracts.delete` |
+| `/api/modules/docs/editor` | GET | `docs.editor.access` |
+| `/api/modules/docs/editor` | POST | `docs.editor.access` + `docs.editor.create` + 模板空间 `editor` |
+| `/api/modules/docs/editor/reference-options` | GET | `docs.editor.access` + FK registration permission |
+| `/api/modules/docs/editor/templates/[templateId]` | GET | `docs.editor.access` + 模板空间 `viewer` |
+| `/api/modules/docs/editor/templates/[templateId]` | PUT | `docs.editor.access` + `docs.editor.write` + 模板空间 `editor` |
+| `/api/modules/docs/editor/templates/[templateId]` | DELETE | `docs.editor.access` + `docs.editor.delete` + 模板空间 `editor` + 草稿状态 |
+| `/api/modules/docs/editor/templates/[templateId]/copy` | POST | `docs.editor.access` + `docs.editor.create` + 源空间 `viewer` + 目标空间 `editor` |
+| `/api/modules/docs/editor/spaces/[spaceId]/permissions` | GET/PUT | `docs.editor.access` + 模板空间 `manager` |
+| `/api/modules/library/basic-info*` | GET | `library.basicInfo.access` + 保密等级过滤 |
+| `/api/modules/library/basic-info/documents/[id]` | PATCH | `library.basicInfo.write`；若状态改为归档还需要 `library.basicInfo.archive` |
+| `/api/modules/library/basic-info/documents/[id]` | DELETE | `library.basicInfo.access` + `library.basicInfo.archive` |
+| `/api/modules/library/basic-info/documents/[id]/download` | GET | `library.basicInfo.access` + `library.basicInfo.export` + 保密等级过滤 |
+| `/api/modules/library/basic-info/scan` | POST | `library.basicInfo.access` + `library.basicInfo.import` |
+| `/api/modules/library/basic-info/generated-sources/[key]/generate` | POST | `library.basicInfo.access` + `library.basicInfo.import` |
 | `/api/modules/work/projects*` | GET | `work.projects.access` + module enabled + 项目对象级过滤 |
-| `/api/modules/work/projects*` | POST | `work.projects.access` + module enabled + 项目创建类型校验（普通/部门/运营委员会） |
+| `/api/modules/work/projects` | POST | `work.projects.access` + 项目创建类型对应空间 `create/manager` 校验（普通/部门/运营委员会） |
+| `/api/modules/work/projects/[id]/plan-baselines` | POST | `work.projects.access` + `work.projects.create` + 项目对象级编辑校验 |
+| `/api/modules/work/projects/[id]/plan-baselines/[baselineId]/activate` | POST | `work.projects.access` + `work.projects.revise` + 项目对象级编辑校验 |
+| `/api/modules/work/projects/[id]/plan-phases` | POST | `work.projects.access` + `work.projects.create` + 项目对象级编辑校验 |
+| `/api/modules/work/projects/[id]/tasks` | POST | `work.projects.access` + `work.projects.create` + 项目对象级编辑校验 |
+| `/api/modules/work/projects/members` | POST | `work.projects.access` + `work.projects.create` + 项目对象级管理校验 |
 | `/api/modules/work/projects*` | PUT | `work.projects.write` + module enabled + 项目对象级写入校验 |
 | `/api/modules/work/projects*` | DELETE | `work.projects.delete` + module enabled + 项目对象级删除校验 |
-| `/api/modules/work/projects/members*` | GET/POST/PUT/DELETE | `work.projects` 对应动作 + module enabled + 项目对象级管理校验 |
+| `/api/modules/work/projects/members*` | GET/PUT/DELETE | `work.projects` 对应动作 + module enabled + 项目对象级管理校验 |
 | `/api/modules/work/projects/reference-options` | GET | FK registration permission + module enabled；项目/会议候选由 Work FK registry adapter 按对象可见性过滤 |
+| `/api/modules/work/tasks*` | GET | `work.tasks.access` + 工作空间对象级过滤 |
+| `/api/modules/work/tasks` | POST | `work.tasks.access` + `work.tasks.create` + 工作空间 `editor` |
+| `/api/modules/work/tasks/plans` | POST | `work.tasks.access` + `work.tasks.create` + 工作空间 `editor` |
+| `/api/modules/work/tasks*` | PUT | `work.tasks.write` + 工作空间 `editor` |
+| `/api/modules/work/tasks*` | DELETE | `work.tasks.delete` + 工作空间 `delete` |
+| `/api/modules/work/tasks/plans/[id]` | DELETE | `work.tasks.delete` + `work.tasks.archive` + 工作空间 `delete` |
+| `/api/modules/work/tasks/spaces/[targetType]/[targetId]/permissions` | GET/PUT | `work.tasks.access/write` + 工作空间 `manager` |
 | `/api/modules/work/meetings*` | GET | `work.meetings.access` + 会议对象级过滤 |
 | `/api/modules/work/meetings` | POST | `work.meetings.access` + `work.meetings.create` |
 | `/api/modules/work/meetings/[id]` | PUT | `work.meetings.write` + 会议对象级编辑校验 |
@@ -156,12 +195,6 @@
 | `/api/modules/work/meetings/[id]/agenda` / `minutes` / `decisions` / `participants` / `action-candidates` / `proposals` | POST | `work.meetings.write` + 会议对象级编辑校验 |
 | `/api/modules/work/meetings/[id]/votes/[proposalId]/cast` | POST | `work.meetings.access` + `work.meetings.submit` + 参会投票资格 |
 | `/api/modules/work/meetings/[id]/votes/[proposalId]/close` | POST | `work.meetings.access` + `work.meetings.approve` + 会议对象级管理校验 |
-| `/api/modules/library/basic-info*` | GET | `library.basicInfo.access` + 保密等级过滤 |
-| `/api/modules/library/basic-info/documents/[id]` | PATCH | `library.basicInfo.write`；若状态改为归档还需要 `library.basicInfo.archive` |
-| `/api/modules/library/basic-info/documents/[id]` | DELETE | `library.basicInfo.access` + `library.basicInfo.archive` |
-| `/api/modules/library/basic-info/documents/[id]/download` | GET | `library.basicInfo.access` + `library.basicInfo.export` + 保密等级过滤 |
-| `/api/modules/library/basic-info/scan` | POST | `library.basicInfo.access` + `library.basicInfo.import` |
-| `/api/modules/library/basic-info/generated-sources/[key]/generate` | POST | `library.basicInfo.access` + `library.basicInfo.import` |
 | `/api/settings/api/open/*` | GET | `settings.api.access` |
 | `/api/settings/account/*` | GET/POST/PUT/PATCH/DELETE | `settings.account.access` + 当前登录用户自助数据边界 |
 | `/api/settings/account/api-key` | GET | `settings.account.apiAccess.access` |
@@ -183,15 +216,13 @@
 ## Work Project 对象级范围
 
 - `work.projects.access/write/delete` 只控制项目模块入口和对象级写入入口，不代表查看全部、管理全部、删除全部或创建运营委员会项目。
-- 项目可见范围由创建人、主导部门负责人、项目 RASCI 成员、显式 `work.projects.viewAll` 和 root admin 共同决定。
-- 运营委员会项目创建由独立 `work.projects.createOrg.write` 控制；部门项目创建由目标部门负责人自然权限控制；普通项目由在职员工在 `work.projects.access` 下发起。
-- `work.projects.viewAll` 只授予全量可见，不授予全量管理或删除；需要管理/删除具体项目仍按对象级规则计算。
-- `work.projects.viewAll` 不挂 `parentKey`，因此不会继承 `work.projects` 模块权限；它通过 `runtimeParentKey` 跟随 `work.projects` disabled。
-- `work` 或 `work.projects` disabled 后，模块入口、页面、API、FK 暴露和 `work.projects.viewAll` 一起失效。
+- 项目可见范围由创建人、主导部门负责人、项目 RASCI 成员、项目对象 scoped grant、所属项目空间 scoped grant 和 root admin 共同决定。
+- 部门项目创建由目标部门空间 manager/create 控制；普通项目由在职员工在 `work.projects.access` 下发起；运营委员会项目由运营委员会空间 manager/create 控制。
+- `work` 或 `work.projects` disabled 后，模块入口、页面、API 和 FK 暴露一起失效。
 
 ## 继承规则
 
-- 父资源 `access` 覆盖所有子资源 `access`
+- 父资源 grant 覆盖子资源：`admin/delete/write/access` 都沿 DB `parentId` 链继承。
 - 内置 `admin` 账号是 root identity，不属于 RBAC resource，覆盖所有已启用资源的所有动作。
 - 子资源 checker 先查子资源，未命中回退父资源
 - `runtimeParentKey` 不参与 RBAC 继承，只参与模块运行态 enabled/disabled 级联。

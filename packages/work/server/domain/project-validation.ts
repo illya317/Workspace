@@ -1,14 +1,18 @@
 import type { z } from "zod";
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
+import { isDepartmentResponsiblePositionUser } from "@workspace/platform/server/business-space-permissions";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { ProjectCreateSchema } from "../schemas";
 import {
-  canDeleteProject,
-  canEditProject,
+  canDeleteProjectAction,
   canManageProject,
-  hasProjectCreateOrgAccess,
+  canWriteProjectAction,
   isSystemAdminUser,
 } from "../access";
+import {
+  canCreateDepartmentProject,
+  canCreateOrganizationProject,
+} from "../project-space-action-access";
 import {
   PROJECT_CONFIG,
   PROJECT_LEVELS,
@@ -73,7 +77,7 @@ export async function buildProjectCreateCommand(
     select: { id: true },
   });
   if (!actorEmployee && !(await isSystemAdminUser(userId))) return failCommand("只有在职员工可以发起项目", 403);
-  if (projectType === "company" && !(await hasProjectCreateOrgAccess(userId))) {
+  if (projectType === "company" && !(await canCreateOrganizationProject(userId))) {
     return failCommand("只有运营委员会授权人员可以发起运营委员会项目", 403);
   }
   const parentProjectTask = input.parentProjectTaskId
@@ -99,8 +103,7 @@ export async function buildProjectCreateCommand(
   if (
     leadingDepartmentResult
     && !("error" in leadingDepartmentResult)
-    && leadingDepartmentResult.department.managerUserId !== userId
-    && !(await isSystemAdminUser(userId))
+    && !(await canCreateDepartmentProject(userId, leadingDepartmentResult.department.id))
   ) {
     return failCommand("只有当前部门负责人可以发起部门项目", 403);
   }
@@ -154,10 +157,10 @@ export async function buildProjectFieldUpdateCommand(input: {
 }): Promise<DomainValidationResult<ProjectFieldUpdateCommand>> {
   const { userId, projectId, field, value } = input;
   const canManage = await canManageProject(userId, projectId);
-  const canEdit = canManage || await canEditProject(userId, projectId);
+  const canEdit = canManage || await canWriteProjectAction(userId, projectId);
 
   if (field === "isArchived") {
-    if (!(await canDeleteProject(userId, projectId))) return failCommand("无权限", 403);
+    if (!(await canDeleteProjectAction(userId, projectId))) return failCommand("无权限", 403);
     const archived = Boolean(value);
     if (archived) {
       const childProjectCount = await countChildProjectsFromProjectTasks(projectId);
@@ -183,7 +186,7 @@ export async function buildProjectFieldUpdateCommand(input: {
     }
     const result = await normalizeLeadingDepartmentId(value);
     if ("error" in result) return failCommand(result.error);
-    if (result.department.managerUserId !== userId && !(await isSystemAdminUser(userId))) {
+    if (!(await isDepartmentResponsiblePositionUser(userId, result.department.id)) && !(await isSystemAdminUser(userId))) {
       return failCommand("只有目标部门负责人可以设置主导部门", 403);
     }
     const code = projectType === "department"
@@ -217,7 +220,7 @@ export async function validateProjectDeleteCommand(
   userId: number,
   projectId: number,
 ): Promise<DomainValidationResult<ProjectDeleteCommand>> {
-  if (!(await canDeleteProject(userId, projectId))) return failCommand("无权限", 403);
+  if (!(await canDeleteProjectAction(userId, projectId))) return failCommand("无权限", 403);
   const childProjectCount = await countChildProjectsFromProjectTasks(projectId);
   if (childProjectCount > 0) return failCommand("请先处理相关子项目");
   return okCommand({ projectId });

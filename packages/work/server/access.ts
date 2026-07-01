@@ -1,14 +1,30 @@
-import { authorize } from "@workspace/platform/server/auth";
+import { authorize, evaluatePermissionAction } from "@workspace/platform/server/auth";
+import type { PermissionActionKey } from "@workspace/platform/permission-actions";
 import { isSuperAdmin } from "@workspace/platform/server/auth";
-import { getDepartmentNaturalSpaceRole } from "@workspace/platform/server/business-space-permissions";
+import {
+  businessSpaceScopeId,
+  getCompanyNaturalSpaceRole,
+  getDepartmentNaturalSpaceRole,
+  isDepartmentResponsiblePositionUser,
+  listDepartmentIdsManagedByUserPosition,
+  getOperatingCommitteeNaturalSpaceRole,
+} from "@workspace/platform/server/business-space-permissions";
 import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { PROJECT_ROLES } from "../constants/field-options";
+import {
+  canViewCommitteeProjectSpace,
+  canViewCompanyProjectSpace,
+  getWorkProjectScopedGrantPermissions,
+  getWorkProjectSpaceGrantPermissionsForProject,
+  listDirectScopedProjectIds,
+  listVisibleProjectDepartmentSpaceIds,
+} from "./project-space-action-access";
 
 export type ProjectAccessRole = "access" | "write" | "delete" | "admin";
-export type WorkSpaceTargetType = "personal" | "company" | "department" | "project" | "position";
+export type WorkSpaceTargetType = "personal" | "company" | "committee" | "department" | "project" | "position";
 export type WorkSpaceRole = "viewer" | "editor" | "delete" | "manager";
-export type WorkSpacePermissionKind = "task";
+export type WorkSpacePermissionKind = "project" | "task";
 
 const WORK_SPACE_ROLE_LEVEL: Record<WorkSpaceRole, number> = {
   viewer: 0,
@@ -31,8 +47,6 @@ async function hasProjectL2Access(userId: number, role: ProjectAccessRole = "acc
   return authorize({ user: userId, resourceKey: "work.projects", action: role });
 }
 
-const PROJECT_VIEW_ALL_RESOURCE = "work.projects.viewAll";
-const PROJECT_CREATE_ORG_RESOURCE = "work.projects.createOrg";
 const PROJECT_MANAGER_ROLES = new Set(["负责人", "项目负责人"]);
 const PROJECT_EDITOR_ROLES = new Set(["负责人", "项目负责人", "执行负责", "支持协作"]);
 const PROJECT_VIEWER_ROLES = new Set<string>(PROJECT_ROLES);
@@ -46,9 +60,10 @@ export interface ProjectPermissionResult {
 
 type ProjectPermissionProject = {
   id: number;
+  projectType?: string | null;
   createdBy: number | null;
   editedBy: number | null;
-  leadingDepartment?: { managerUserId: number | null } | null;
+  leadingDepartmentId?: number | null;
   employees?: Array<{ employeeId: number; role: string | null }>;
 };
 
@@ -65,24 +80,35 @@ export async function getUserEmployeeIds(userId: number) {
 }
 
 export async function hasProjectViewAll(userId: number) {
-  if (await isSystemAdminUser(userId)) return true;
-  return authorize({ user: userId, resourceKey: PROJECT_VIEW_ALL_RESOURCE, action: "access" });
+  return isSystemAdminUser(userId);
 }
-
-export async function hasProjectCreateOrgAccess(userId: number) {
-  if (await isSystemAdminUser(userId)) return true;
-  return authorize({ user: userId, resourceKey: PROJECT_CREATE_ORG_RESOURCE, action: "write" });
-}
-
 export async function buildVisibleProjectWhere(userId: number) {
   if (!(await hasProjectL2Access(userId, "access"))) return { id: -1 };
   if (await hasProjectViewAll(userId)) return {};
-  const employeeIds = await getUserEmployeeIds(userId);
+  const [
+    employeeIds,
+    managedDepartmentIds,
+    scopedProjectIds,
+    visibleDepartmentSpaceIds,
+    canViewCommitteeProjects,
+    canViewOtherProjects,
+  ] = await Promise.all([
+    getUserEmployeeIds(userId),
+    listDepartmentIdsManagedByUserPosition(userId),
+    listDirectScopedProjectIds(userId),
+    listVisibleProjectDepartmentSpaceIds(userId),
+    canViewCommitteeProjectSpace(userId),
+    canViewCompanyProjectSpace(userId),
+  ]);
   return {
     OR: [
       { createdBy: userId },
-      { leadingDepartment: { managerUserId: userId } },
+      ...(managedDepartmentIds.length ? [{ leadingDepartmentId: { in: managedDepartmentIds } }] : []),
+      ...(visibleDepartmentSpaceIds.length ? [{ leadingDepartmentId: { in: visibleDepartmentSpaceIds } }] : []),
       ...(employeeIds.length ? [{ employees: { some: { employeeId: { in: employeeIds } } } }] : []),
+      ...(scopedProjectIds.length ? [{ id: { in: scopedProjectIds } }] : []),
+      ...(canViewCommitteeProjects ? [{ projectType: "company" }] : []),
+      ...(canViewOtherProjects ? [{ projectType: "other" }] : []),
     ],
   };
 }
@@ -108,20 +134,37 @@ export async function getProjectPermissions(
     .map((member) => member.role || "");
 
   const isCreator = project.createdBy === userId;
-  const isDepartmentManager = project.leadingDepartment?.managerUserId === userId;
+  const isDepartmentManager = project.leadingDepartmentId
+    ? await isDepartmentResponsiblePositionUser(userId, project.leadingDepartmentId)
+    : false;
   const isProjectManager = memberRoles.some((role) => PROJECT_MANAGER_ROLES.has(role));
   const isProjectEditor = memberRoles.some((role) => PROJECT_EDITOR_ROLES.has(role));
   const isProjectViewer = memberRoles.some((role) => PROJECT_VIEWER_ROLES.has(role));
   const canManageByProject = isCreator || isDepartmentManager || isProjectManager;
-  const canManage = canManageByProject;
-  const canEdit = canManageByProject || (hasL2Write && isProjectEditor);
-  const canView = canViewAll || canManageByProject || isProjectViewer;
+  const [objectScoped, spaceScoped] = await Promise.all([
+    getWorkProjectScopedGrantPermissions(userId, project.id),
+    getWorkProjectSpaceGrantPermissionsForProject(userId, project),
+  ]);
+  const canManage = canManageByProject || objectScoped.canAdmin || spaceScoped.canAdmin;
+  const canEdit = canManage
+    || (hasL2Write && isProjectEditor)
+    || objectScoped.canCreate
+    || objectScoped.canWrite
+    || objectScoped.canRevise
+    || spaceScoped.canCreate
+    || spaceScoped.canWrite
+    || spaceScoped.canRevise;
+  const canView = canViewAll || canManage || canEdit || isProjectViewer || objectScoped.canAccess || spaceScoped.canAccess;
 
   return {
     canView,
     canEdit,
     canManage,
-    canDelete: hasL2Delete && canManageByProject,
+    canDelete: (hasL2Delete && canManageByProject)
+      || objectScoped.canDelete
+      || objectScoped.canAdmin
+      || spaceScoped.canDelete
+      || spaceScoped.canAdmin,
   };
 }
 
@@ -130,9 +173,10 @@ async function loadProjectForPermission(projectId: number) {
     where: { id: projectId },
     select: {
       id: true,
+      projectType: true,
       createdBy: true,
       editedBy: true,
-      leadingDepartment: { select: { managerUserId: true } },
+      leadingDepartmentId: true,
       employees: { select: { employeeId: true, role: true } },
     },
   });
@@ -142,6 +186,39 @@ export async function getProjectPermissionsById(userId: number, projectId: numbe
   const project = await loadProjectForPermission(projectId);
   if (!project) return null;
   return getProjectPermissions(userId, project);
+}
+
+export async function getWorkProjectScopedActionPermissions(userId: number, projectId: number) {
+  const [permissions, scoped] = await Promise.all([
+    getProjectPermissionsById(userId, projectId),
+    getWorkProjectScopedGrantPermissions(userId, projectId),
+  ]);
+  return {
+    canCreate: Boolean(permissions?.canEdit || scoped.canCreate || scoped.canWrite || scoped.canDelete || scoped.canAdmin),
+    canWrite: Boolean(permissions?.canEdit || scoped.canWrite || scoped.canDelete || scoped.canAdmin),
+    canDelete: Boolean(permissions?.canDelete || scoped.canDelete || scoped.canAdmin),
+    canRevise: Boolean(permissions?.canManage || scoped.canRevise || scoped.canAdmin),
+  };
+}
+
+export async function canCreateProjectAction(userId: number, projectId: number) {
+  return (await getWorkProjectScopedActionPermissions(userId, projectId)).canCreate;
+}
+
+export async function canWriteProjectAction(userId: number, projectId: number) {
+  return (await getWorkProjectScopedActionPermissions(userId, projectId)).canWrite;
+}
+
+export async function canDeleteProjectAction(userId: number, projectId: number) {
+  return (await getWorkProjectScopedActionPermissions(userId, projectId)).canDelete;
+}
+
+export async function canDeleteProjectSubresourceAction(userId: number, projectId: number) {
+  return (await getWorkProjectScopedActionPermissions(userId, projectId)).canDelete;
+}
+
+export async function canReviseProjectAction(userId: number, projectId: number) {
+  return (await getWorkProjectScopedActionPermissions(userId, projectId)).canRevise;
 }
 
 export async function canViewProject(userId: number, projectId: number) {
@@ -166,7 +243,7 @@ export async function canDeleteProject(userId: number, projectId: number) {
 
 export function normalizeWorkTargetType(targetType: string): WorkSpaceTargetType {
   if (targetType === "user") return "personal";
-  if (targetType === "personal" || targetType === "company" || targetType === "department" || targetType === "project" || targetType === "position") return targetType;
+  if (targetType === "personal" || targetType === "company" || targetType === "committee" || targetType === "department" || targetType === "project" || targetType === "position") return targetType;
   return "department";
 }
 
@@ -214,7 +291,7 @@ async function isMemberOfTarget(
     return Boolean(employeeProject);
   }
 
-  if (targetType === "company") return false;
+  if (targetType === "company" || targetType === "committee") return false;
 
   if (targetType === "position") {
     const edp = await prisma.eDP.findFirst({
@@ -239,7 +316,7 @@ async function isAssignee(
     return Boolean(assignee);
   }
 
-  if (targetType === "company") return false;
+  if (targetType === "company" || targetType === "committee") return false;
 
   if (targetType === "project") {
     const assignee = await prisma.projectWorkAssignee.findFirst({
@@ -263,7 +340,7 @@ async function hasNaturalProjectTaskManagerRole(userId: number, projectId: numbe
     (member) => employeeIdSet.has(member.employeeId) && PROJECT_MANAGER_ROLES.has(member.role || ""),
   );
   return project.createdBy === userId
-    || project.leadingDepartment?.managerUserId === userId
+    || Boolean(project.leadingDepartmentId && await isDepartmentResponsiblePositionUser(userId, project.leadingDepartmentId))
     || isProjectManager;
 }
 
@@ -287,6 +364,38 @@ async function explicitWorkSpaceRole(
   }, null);
 }
 
+async function baseWorkSpaceRole(
+  userId: number,
+  targetType: WorkSpaceTargetType,
+  targetId: number,
+) {
+  const [natural, explicit] = await Promise.all([
+    naturalWorkSpaceRole(userId, targetType, targetId),
+    explicitWorkSpaceRole(userId, targetType, targetId),
+  ]);
+  return maxWorkSpaceRole(natural, explicit);
+}
+
+async function scopedActionWorkSpaceRole(
+  userId: number,
+  targetType: WorkSpaceTargetType,
+  targetId: number,
+): Promise<WorkSpaceRole | null> {
+  const scopeId = workTaskScopeId(targetType, targetId);
+  const [admin, deleteRole, archive, write, create, access] = await Promise.all([
+    evaluatePermissionAction(userId, "work.tasks", "admin", { scopeId }),
+    evaluatePermissionAction(userId, "work.tasks", "delete", { scopeId }),
+    evaluatePermissionAction(userId, "work.tasks", "archive", { scopeId }),
+    evaluatePermissionAction(userId, "work.tasks", "write", { scopeId }),
+    evaluatePermissionAction(userId, "work.tasks", "create", { scopeId }),
+    evaluatePermissionAction(userId, "work.tasks", "access", { scopeId }),
+  ]);
+  if (admin) return "manager";
+  if (deleteRole || archive) return "delete";
+  if (write || create) return "editor";
+  return access ? "viewer" : null;
+}
+
 async function naturalWorkSpaceRole(
   userId: number,
   targetType: WorkSpaceTargetType,
@@ -303,6 +412,14 @@ async function naturalWorkSpaceRole(
     if (departmentRole === "manager") return "manager";
     if (assigned) return "editor";
     return departmentRole as WorkSpaceRole | null;
+  }
+
+  if (targetType === "company") {
+    return getCompanyNaturalSpaceRole(userId) as Promise<WorkSpaceRole | null>;
+  }
+
+  if (targetType === "committee") {
+    return getOperatingCommitteeNaturalSpaceRole(userId) as Promise<WorkSpaceRole | null>;
   }
 
   if (targetType === "project") {
@@ -328,13 +445,11 @@ export async function getWorkSpaceRole(
 ): Promise<WorkSpaceRole | null> {
   const targetType = normalizeWorkTargetType(targetTypeInput);
   normalizeWorkPermissionKind(kindInput);
-  const [natural, explicit] = await Promise.all([
-    naturalWorkSpaceRole(userId, targetType, targetId),
-    explicitWorkSpaceRole(userId, targetType, targetId),
+  const [baseRole, actionRole] = await Promise.all([
+    baseWorkSpaceRole(userId, targetType, targetId),
+    scopedActionWorkSpaceRole(userId, targetType, targetId),
   ]);
-  if (!natural) return explicit;
-  if (!explicit) return natural;
-  return WORK_SPACE_ROLE_LEVEL[explicit] > WORK_SPACE_ROLE_LEVEL[natural] ? explicit : natural;
+  return maxWorkSpaceRole(baseRole, actionRole);
 }
 
 export async function canAccessTarget(
@@ -346,25 +461,85 @@ export async function canAccessTarget(
   return workSpaceRoleAllows(role, "viewer");
 }
 
-export async function canEditWorkTask(
-  userId: number,
-  targetType: string,
-  targetId: number,
-): Promise<boolean> {
+export async function canEditWorkTask(userId: number, targetType: string, targetId: number): Promise<boolean> {
   const role = await getWorkSpaceRole(userId, targetType, targetId, "task");
   return workSpaceRoleAllows(role, "editor");
 }
 
-export async function canDeleteWorkTask(
+export async function canDeleteWorkTask(userId: number, targetType: string, targetId: number): Promise<boolean> {
+  const role = await getWorkSpaceRole(userId, targetType, targetId, "task");
+  return workSpaceRoleAllows(role, "delete");
+}
+
+function workTaskScopeId(targetType: string, targetId: number) {
+  return businessSpaceScopeId(normalizeWorkTargetType(targetType), targetId);
+}
+
+async function hasWorkTaskScopedAction(
   userId: number,
   targetType: string,
   targetId: number,
-): Promise<boolean> {
-  const role = await getWorkSpaceRole(userId, targetType, targetId, "task");
-  return workSpaceRoleAllows(role, "delete");
+  actionKey: PermissionActionKey,
+) {
+  return evaluatePermissionAction(userId, "work.tasks", actionKey, {
+    scopeId: workTaskScopeId(targetType, targetId),
+  });
+}
+
+function workTaskActionPermissionsFromRole(role: WorkSpaceRole | null) {
+  return {
+    canCreate: workSpaceRoleAllows(role, "editor"),
+    canWrite: workSpaceRoleAllows(role, "editor"),
+    canDelete: workSpaceRoleAllows(role, "delete"),
+    canArchive: workSpaceRoleAllows(role, "delete"),
+  };
+}
+
+export async function getEffectiveWorkTaskActionPermissions(
+  userId: number,
+  targetTypeInput: string,
+  targetId: number,
+) {
+  const targetType = normalizeWorkTargetType(targetTypeInput);
+  const [baseRole, canCreate, canWrite, canDelete, canArchive] = await Promise.all([
+    baseWorkSpaceRole(userId, targetType, targetId),
+    hasWorkTaskScopedAction(userId, targetType, targetId, "create"),
+    hasWorkTaskScopedAction(userId, targetType, targetId, "write"),
+    hasWorkTaskScopedAction(userId, targetType, targetId, "delete"),
+    hasWorkTaskScopedAction(userId, targetType, targetId, "archive"),
+  ]);
+  const base = workTaskActionPermissionsFromRole(baseRole);
+  return {
+    canCreate: base.canCreate || canCreate || canWrite || canDelete,
+    canWrite: base.canWrite || canWrite || canDelete,
+    canDelete: base.canDelete || canDelete,
+    canArchive: base.canArchive || canArchive,
+  };
+}
+
+export async function canCreateWorkTaskAction(userId: number, targetType: string, targetId: number) {
+  return (await getEffectiveWorkTaskActionPermissions(userId, targetType, targetId)).canCreate;
+}
+
+export async function canWriteWorkTaskAction(userId: number, targetType: string, targetId: number) {
+  return (await getEffectiveWorkTaskActionPermissions(userId, targetType, targetId)).canWrite;
+}
+
+export async function canDeleteWorkTaskAction(userId: number, targetType: string, targetId: number) {
+  return (await getEffectiveWorkTaskActionPermissions(userId, targetType, targetId)).canDelete;
+}
+
+export async function canArchiveWorkTaskAction(userId: number, targetType: string, targetId: number) {
+  return (await getEffectiveWorkTaskActionPermissions(userId, targetType, targetId)).canArchive;
 }
 
 export async function canManageWorkTaskSpace(userId: number, targetType: string, targetId: number) {
   const role = await getWorkSpaceRole(userId, targetType, targetId, "task");
   return workSpaceRoleAllows(role, "manager");
+}
+
+function maxWorkSpaceRole(left: WorkSpaceRole | null, right: WorkSpaceRole | null) {
+  if (!left) return right;
+  if (!right) return left;
+  return WORK_SPACE_ROLE_LEVEL[left] >= WORK_SPACE_ROLE_LEVEL[right] ? left : right;
 }
